@@ -53,11 +53,14 @@ export default class BooleanEditor extends BaseEditor {
         }
       });
 
-      useEffect(() => {
-        const selected = BooleanEditor.options.find(opt => get(opt, 'value', opt) === value) || null;
+      useEffect(
+        () => {
+          const selected = BooleanEditor.options.find(opt => get(opt, 'value', opt) === value) || null;
 
-        setSelected(selected);
-      }, [value]);
+          setSelected(selected);
+        },
+        [value]
+      );
 
       const onSelect = useCallback(
         selected => {

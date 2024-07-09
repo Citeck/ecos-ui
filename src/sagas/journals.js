@@ -886,8 +886,6 @@ function* sagaOpenSelectedPreset({ api, logger, stateId, w }, action) {
     yield put(setPredicate(w(get(preset, 'settings.predicate', {}))));
 
     const { originKanbanSettings } = yield select(selectKanban, stateId);
-    const settings = yield select(selectJournalSettings, stateId);
-    const preset = settings.find(preset => preset.id === selectedId);
     const kanbanSettings = get(preset, 'settings.kanban', { columns: originKanbanSettings.statuses });
 
     let predicates;

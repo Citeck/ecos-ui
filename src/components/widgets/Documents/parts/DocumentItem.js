@@ -36,34 +36,37 @@ const DocumentItem = props => {
     setTimer(null);
   };
 
-  useEffect(() => {
-    if (!countDown && !timer) {
-      return;
-    }
-
-    const timerId = window.setTimeout(() => {
-      if (countDown <= 0) {
-        clearTimer(timer);
+  useEffect(
+    () => {
+      if (!countDown && !timer) {
         return;
       }
 
-      const count = countDown - 1;
+      const timerId = window.setTimeout(() => {
+        if (countDown <= 0) {
+          clearTimer(timer);
+          return;
+        }
 
-      setCountDown(count);
+        const count = countDown - 1;
 
-      if (count <= 0) {
-        onClickAction(id, action);
-        setAction(null);
+        setCountDown(count);
+
+        if (count <= 0) {
+          onClickAction(id, action);
+          setAction(null);
+          clearTimer(timer);
+        }
+      }, 1000);
+
+      setTimer(timerId);
+
+      return () => {
         clearTimer(timer);
-      }
-    }, 1000);
-
-    setTimer(timerId);
-
-    return () => {
-      clearTimer(timer);
-    };
-  }, [action, countDown]);
+      };
+    },
+    [action, countDown]
+  );
 
   useEffect(() => {
     return () => {

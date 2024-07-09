@@ -38,27 +38,36 @@ const AdminMenu = React.memo(
       !isInitiated && getGroupSectionList();
     }, []);
 
-    useEffect(() => {
-      if (isInitiated && !prevIsInitiated) {
-        getGroupSectionList();
-      }
-    }, [isInitiated]);
+    useEffect(
+      () => {
+        if (isInitiated && !prevIsInitiated) {
+          getGroupSectionList();
+        }
+      },
+      [isInitiated]
+    );
 
-    useEffect(() => {
-      if (!isEqual(activeSection, prevActiveSection)) {
-        setNeedRecalculateSize(true);
-      }
-    }, [activeSection]);
+    useEffect(
+      () => {
+        if (!isEqual(activeSection, prevActiveSection)) {
+          setNeedRecalculateSize(true);
+        }
+      },
+      [activeSection]
+    );
 
-    useEffect(() => {
-      if (isOpen && sidebarRef.current) {
-        const params = sidebarRef.current.getBoundingClientRect();
-        const top = params.y + 20;
+    useEffect(
+      () => {
+        if (isOpen && sidebarRef.current) {
+          const params = sidebarRef.current.getBoundingClientRect();
+          const top = params.y + 20;
 
-        topHeight !== top && setTopHeight(top);
-        setNeedRecalculateSize(false);
-      }
-    }, [sidebarRef, isOpen, needRecalculateSize]);
+          topHeight !== top && setTopHeight(top);
+          setNeedRecalculateSize(false);
+        }
+      },
+      [sidebarRef, isOpen, needRecalculateSize]
+    );
 
     const filterList = list => {
       const compare = item => new RegExp(`(${searchText})`, 'ig').test(get(item, 'label'));

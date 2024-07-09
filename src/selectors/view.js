@@ -11,15 +11,9 @@ export const selectThemeCacheKeys = state => {
   return get(state, 'view.themeConfig.cacheKeys') || {};
 };
 
-export const selectThemeCacheKey = createSelector(
-  [selectThemeCacheKeys],
-  cacheKeys => cacheKeys[CACHE_KEY_RESOURCE_THEME]
-);
+export const selectThemeCacheKey = createSelector([selectThemeCacheKeys], cacheKeys => cacheKeys[CACHE_KEY_RESOURCE_THEME]);
 
-export const selectThemeImagesCacheKey = createSelector(
-  [selectThemeCacheKeys],
-  cacheKeys => cacheKeys[CACHE_KEY_RESOURCE_IMAGES]
-);
+export const selectThemeImagesCacheKey = createSelector([selectThemeCacheKeys], cacheKeys => cacheKeys[CACHE_KEY_RESOURCE_IMAGES]);
 
 export const selectActiveThemeImage = createSelector(
   [selectThemeImagesCacheKey, themeImage],

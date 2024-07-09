@@ -54,36 +54,42 @@ export default class SelectEditor extends BaseEditor {
         setSelected(selected);
       }, []);
 
-      useEffect(() => {
-        if (!options && !isLoading) {
-          const optionsAtt = config.optionsAtt || `_edge.${attribute}.options[]{value:?str,label:?disp}`;
+      useEffect(
+        () => {
+          if (!options && !isLoading) {
+            const optionsAtt = config.optionsAtt || `_edge.${attribute}.options[]{value:?str,label:?disp}`;
 
-          setLoading(true);
+            setLoading(true);
 
-          Records.get(recordRef)
-            .load(optionsAtt)
-            .then(res => {
-              let opts;
+            Records.get(recordRef)
+              .load(optionsAtt)
+              .then(res => {
+                let opts;
 
-              if (!res) {
-                opts = [value];
-              } else if (Array.isArray(res)) {
-                opts = res;
-              } else {
-                opts = [res];
-              }
+                if (!res) {
+                  opts = [value];
+                } else if (Array.isArray(res)) {
+                  opts = res;
+                } else {
+                  opts = [res];
+                }
 
-              setOptions(opts);
-              setLoading(false);
-            });
-        }
-      }, [options]);
+                setOptions(opts);
+                setLoading(false);
+              });
+          }
+        },
+        [options]
+      );
 
-      useEffect(() => {
-        const selected = options ? options.filter(opt => (opt.value || opt) === value) : null;
+      useEffect(
+        () => {
+          const selected = options ? options.filter(opt => (opt.value || opt) === value) : null;
 
-        setSelected(selected);
-      }, [value, options]);
+          setSelected(selected);
+        },
+        [value, options]
+      );
 
       if (isLoading) {
         return <div className="text-dark">{t('ecos-ui.select.loading-message')}</div>;

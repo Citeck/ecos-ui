@@ -20,11 +20,14 @@ function PropertiesEditModal(props) {
   const formRef = useRef();
   const contentBefore = typeof assignmentPanel === 'function' ? assignmentPanel() : null;
 
-  useEffect(() => {
-    if (formRef.current && prev && prev.formIsChanged !== formIsChanged && formIsChanged) {
-      formRef.current.onReload();
-    }
-  }, [record, formIsChanged]);
+  useEffect(
+    () => {
+      if (formRef.current && prev && prev.formIsChanged !== formIsChanged && formIsChanged) {
+        formRef.current.onReload();
+      }
+    },
+    [record, formIsChanged]
+  );
 
   return (
     <EcosFormModal

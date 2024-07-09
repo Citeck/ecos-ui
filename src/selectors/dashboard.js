@@ -30,10 +30,7 @@ export const selectDashboardConfig = createSelector(
   config => config
 );
 
-export const selectOriginalConfig = createSelector(
-  selectDashboardByKey,
-  ownState => get(ownState, 'originalConfig', {})
-);
+export const selectOriginalConfig = createSelector(selectDashboardByKey, ownState => get(ownState, 'originalConfig', {}));
 
 export const selectDashboardConfigVersion = createSelector(
   state => get(state, 'originalConfig', {}),
