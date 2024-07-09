@@ -8,7 +8,7 @@ import isEqualWith from 'lodash/isEqualWith';
 import get from 'lodash/get';
 
 import { applyFilter, getBoardData, reloadBoardData, resetFilter, selectBoardId } from '../../../actions/kanban';
-import { selectViewMode } from '../../../selectors/journals';
+import { selectViewMode, selectJournalPageProps } from '../../../selectors/journals';
 import { selectKanbanPageProps } from '../../../selectors/kanban';
 import {
   applyJournalSetting,
@@ -55,7 +55,7 @@ function mapDispatchToProps(dispatch, props) {
   return {
     resetFiltering: () => dispatch(resetFilter({ stateId: props.stateId })),
     applyFiltering: settings => dispatch(applyFilter({ stateId: props.stateId, settings })),
-    getBoardData: boardId => dispatch(getBoardData({ boardId, stateId: props.stateId })),
+    getBoardData: (boardId, templateId) => dispatch(getBoardData({ boardId, templateId, stateId: props.stateId })),
     reloadBoardData: () => dispatch(reloadBoardData({ stateId: props.stateId })),
     selectBoardId: boardId => dispatch(selectBoardId({ boardId, stateId: props.stateId })),
     selectPreset: id => dispatch(selectPreset(w(id))),
@@ -102,7 +102,7 @@ class KanbanView extends React.Component {
       urlParams[KUP.TEMPLATE_ID] !== get(prevProps, ['urlParams', KUP.TEMPLATE_ID])
     ) {
       this.setState({ isClose: false }, () => {
-        this.props.getBoardData(this.getSelectedBoardFromUrl());
+        this.props.getBoardData(this.getSelectedBoardFromUrl(), urlParams.journalSettingId || '');
       });
     }
   }

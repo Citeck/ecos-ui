@@ -27,7 +27,7 @@ export const useOrgstructContext = () => useContext(OrgstructContext);
 export const OrgstructProvider = props => {
   const { orgStructApi, controlProps: controlProps2 } = props;
   const controlProps = {
-    ...controlProps2,
+    ...controlProps2
   };
 
   const {
@@ -51,7 +51,7 @@ export const OrgstructProvider = props => {
     rootGroupName,
     parent,
     initSelectedRows,
-    allowedGroupTypes,
+    allowedGroupTypes
   } = controlProps;
 
   const [isSelectModalOpen, toggleSelectModal] = useState(openByDefault);
@@ -68,7 +68,7 @@ export const OrgstructProvider = props => {
   const [tabItems, setTabItems] = useState({
     [TabTypes.LEVELS]: [],
     [TabTypes.USERS]: [],
-    [TabTypes.SELECTED]: initSelectedRows ? initSelectedRows : [],
+    [TabTypes.SELECTED]: initSelectedRows ? initSelectedRows : []
   });
 
   const [pagination, setPagination] = useState({
@@ -156,11 +156,14 @@ export const OrgstructProvider = props => {
     }
   };
 
-  useEffect(() => {
-    if (parent) {
-      setAuthorityGroups([{disp: parent.label, id: parent.id}])
-    }
-  }, [parent]);
+  useEffect(
+    () => {
+      if (parent) {
+        setAuthorityGroups([{ disp: parent.label, id: parent.id }]);
+      }
+    },
+    [parent]
+  );
 
   const prevDefaultValue = usePrevious(defaultValue);
   const onToggleCollapse = useCallback(
@@ -190,18 +193,18 @@ export const OrgstructProvider = props => {
             currentTabValue[itemIdx] = currentItem;
 
             newItems.forEach(newItem => {
-              const index = currentTabValue.findIndex((x) => x.id === newItem.id);
+              const index = currentTabValue.findIndex(x => x.id === newItem.id);
 
               if (index === -1) {
                 currentTabValue.push(newItem);
               } else {
-                currentTabValue[index] = {...currentTabValue[index], ...newItem};
+                currentTabValue[index] = { ...currentTabValue[index], ...newItem };
               }
             });
 
             setTabItems({
               ...tabItems,
-              [currentTab]: currentTabValue,
+              [currentTab]: currentTabValue
             });
           })
           .then(() => {
@@ -236,11 +239,11 @@ export const OrgstructProvider = props => {
   const liveSearchDebounce = debounce(onUpdateTree, 500);
 
   const setSelectedItem = (item, selectedItems = tabItems[TabTypes.SELECTED], extra = {}) => {
-    return ({
+    return {
       ...item,
       ...extra,
       isSelected: selectedItems.some(selected => item.id === selected.id)
-    })
+    };
   };
 
   const checkIsAllUsersGroupExists = () => {
@@ -336,7 +339,7 @@ export const OrgstructProvider = props => {
       const trimSearchText = (searchText || '').trim();
       let livePromise = true;
 
-      const excludeAuthoritiesByName2 = [excludeAuthoritiesByName, parent?.attributes.displayName].filter(Boolean).join(", ");
+      const excludeAuthoritiesByName2 = [excludeAuthoritiesByName, parent?.attributes.displayName].filter(Boolean).join(', ');
 
       if (!isRootGroupsFetched && isSelectModalOpen && currentTab === TabTypes.LEVELS) {
         setIsSearching(true);
@@ -464,12 +467,15 @@ export const OrgstructProvider = props => {
     [isSelectedFetched]
   );
 
-  useEffect(() => {
-    if (applyAndClose) {
-      setApplyAndClose(false);
-      onSelect();
-    }
-  }, [applyAndClose]);
+  useEffect(
+    () => {
+      if (applyAndClose) {
+        setApplyAndClose(false);
+        onSelect();
+      }
+    },
+    [applyAndClose]
+  );
 
   return (
     <OrgstructContext.Provider

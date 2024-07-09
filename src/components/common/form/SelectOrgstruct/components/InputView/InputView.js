@@ -35,7 +35,7 @@ const InputView = () => {
     hideInputView,
     isSelectedValueAsText,
     isInlineEditingMode,
-    viewModeType,
+    viewModeType
   } = controlProps;
 
   if (hideInputView) {
@@ -122,24 +122,23 @@ const InputView = () => {
   if (viewModeType === ViewModes.TAGS) {
     return (
       <Tags
-        tags={selectedRows.map((row) => ({ name: row.label, id: row.id}))}
-        onTagsChange={(remainingSelectedRows) => {
+        tags={selectedRows.map(row => ({ name: row.label, id: row.id }))}
+        onTagsChange={remainingSelectedRows => {
           const remainingItems = {};
 
-          remainingSelectedRows.forEach((row) => {
+          remainingSelectedRows.forEach(row => {
             remainingItems[row.id] = true;
           });
 
-          const newSelectedRows = selectedRows.filter((row) => remainingItems[row.id]);
+          const newSelectedRows = selectedRows.filter(row => remainingItems[row.id]);
 
           onChangeValue(newSelectedRows);
           setSelectedRows(newSelectedRows);
-
         }}
         onAddTag={toggleSelectModal}
-        exception={["emodel/authority-group@_orgstruct_home_"]}
+        exception={['emodel/authority-group@_orgstruct_home_']}
       />
-    )
+    );
   }
 
   return (

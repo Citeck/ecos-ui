@@ -38,6 +38,7 @@ const JournalsSettingsBar = ({
   predicate,
   searchText,
   selectedRecords,
+  viewMode,
 
   isMobile,
   isCreateLoading,
@@ -60,7 +61,7 @@ const JournalsSettingsBar = ({
   const createVariants = get(journalConfig, 'meta.createVariants') || [];
   const headerSearchEnabled = get(journalConfig, 'searchConfig.headerSearchEnabled', true);
   const noCreateMenu = isMobile || isEmpty(createVariants);
-  const isDefaultSettings = useMemo(() => isEmpty(ParserPredicate.getFlatFilters(predicate)), [predicate]);
+  const isDefaultSettings = useMemo(() => isEmpty(ParserPredicate.getFlatFilters(predicate)), [stateId, targetId, predicate, viewMode]);
   const tooltipSettings = {
     off: isMobile,
     modifiers: tooltipModifiers,

@@ -6,7 +6,7 @@ import Modal from '../common/EcosModal/CiteckEcosModal';
 import EcosFormUtils from './EcosFormUtils';
 import EcosFormModal from './EcosFormModal';
 import EcosForm from './EcosForm';
-import { getId } from "../../helpers/util";
+import { getId } from '../../helpers/util';
 
 class FormManager {
   static createRecordByVariant = (variant, options = {}) => {

@@ -41,5 +41,5 @@ export default [
   {
     key: 'reorder',
     ignore: true
-  },
+  }
 ];

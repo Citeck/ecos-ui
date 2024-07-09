@@ -25,21 +25,21 @@ export default [
           label: {
             ru: 'Стандартный',
             en: 'Default'
-          },
+          }
         },
         {
           value: ViewModes.LINE_SEPARATED,
           label: {
             ru: 'Разделённый линией',
             en: 'Line separated'
-          },
+          }
         },
         {
           value: ViewModes.TAGS,
           label: {
             ru: 'Тэги',
             en: 'Tags'
-          },
+          }
         }
       ]
     },

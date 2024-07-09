@@ -25,7 +25,7 @@ const OrgstructBody = ({ reloadList, tabId, toggleToFirstTab }) => {
     orgStructApi,
     onUpdateTree,
     currentTab,
-    tabItems,
+    tabItems
   } = context;
 
   useEffect(() => {
@@ -45,10 +45,10 @@ const OrgstructBody = ({ reloadList, tabId, toggleToFirstTab }) => {
         onChange={onChangePage}
       />
 
-      {(personModal || groupModal) &&
+      {(personModal || groupModal) && (
         <Orgstruct
-          allowedGroupTypes={groupModal ? [GroupTypes.GROUP]: undefined}
-          allowedAuthorityTypes={groupModal ? [AUTHORITY_TYPE_GROUP]: [AUTHORITY_TYPE_USER]}
+          allowedGroupTypes={groupModal ? [GroupTypes.GROUP] : undefined}
+          allowedAuthorityTypes={groupModal ? [AUTHORITY_TYPE_GROUP] : [AUTHORITY_TYPE_USER]}
           onSubmit={(selected, authorityGroups) => {
             orgStructApi.addAuthorityGroups(selected, authorityGroups).then(() => {
               setGroupModal(null);
@@ -62,13 +62,12 @@ const OrgstructBody = ({ reloadList, tabId, toggleToFirstTab }) => {
           }}
           initSelectedRows={tabItems[currentTab]
             .filter(i => i.parentId === (personModal ? personModal.id : groupModal.id))
-            .map(i => ({...i, isSelected: true, isLoaded: true, parentId: undefined}))
-          }
+            .map(i => ({ ...i, isSelected: true, isLoaded: true, parentId: undefined }))}
           openByDefault
           parent={groupModal || personModal}
           multiple
         />
-      }
+      )}
     </div>
   );
 };

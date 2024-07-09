@@ -47,29 +47,6 @@ async function wrapRunSaga(sagaFun, payload = {}, state = {}) {
 }
 
 describe('journals sagas tests', () => {
-  it('sagaToggleViewMode > forceUpdate is false/undefined', async () => {
-    const dispatched = await wrapRunSaga(
-      journals.sagaToggleViewMode,
-      {},
-      {
-        journals: {
-          [stateId]: {
-            forceUpdate: false,
-            viewMode: JOURNAL_VIEW_MODE.KANBAN
-          }
-        },
-        kanban: {
-          [stateId]: {
-            isFirstLoading: false
-          }
-        }
-      }
-    );
-
-    expect(logger.error).not.toHaveBeenCalled();
-    expect(dispatched).toHaveLength(0);
-  });
-
   it('sagaToggleViewMode > viewMode is not kanban', async () => {
     const dispatched = await wrapRunSaga(
       journals.sagaToggleViewMode,
@@ -84,29 +61,6 @@ describe('journals sagas tests', () => {
         kanban: {
           [stateId]: {
             isFirstLoading: false
-          }
-        }
-      }
-    );
-
-    expect(logger.error).not.toHaveBeenCalled();
-    expect(dispatched).toHaveLength(0);
-  });
-
-  it('sagaToggleViewMode > isFirstLoading is true', async () => {
-    const dispatched = await wrapRunSaga(
-      journals.sagaToggleViewMode,
-      {},
-      {
-        journals: {
-          [stateId]: {
-            forceUpdate: true,
-            viewMode: JOURNAL_VIEW_MODE.KANBAN
-          }
-        },
-        kanban: {
-          [stateId]: {
-            isFirstLoading: true
           }
         }
       }

@@ -44,11 +44,7 @@ const ViewMode = () => {
   };
 
   if (viewModeType === ViewModes.TAGS) {
-    return (
-      <Tags
-        tags={selectedRows.map((row) => ({ name: row.label, id: row.id}))}
-      />
-    )
+    return <Tags tags={selectedRows.map(row => ({ name: row.label, id: row.id }))} />;
   }
 
   return (

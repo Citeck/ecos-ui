@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { OrgstructProvider } from './OrgstructContext';
-import Modal from "./Modal";
+import Modal from './Modal';
 import { OrgStructApi } from '../../../api/orgStruct';
 import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, DataTypes, GroupTypes, ROOT_GROUP_NAME, TabTypes, ViewModes } from './constants';
 
@@ -62,7 +62,7 @@ Orgstruct.propTypes = {
   isIncludedAdminGroup: PropTypes.bool,
   isLoading: PropTypes.bool,
   parent: PropTypes.object,
-  initSelectedRows: PropTypes.array,
+  initSelectedRows: PropTypes.array
 };
 
 export default Orgstruct;

@@ -5,7 +5,7 @@ import InfoPanel from './InfoPanel';
 import { ProcessContext } from './ProcessContext';
 import ProcessJournalWidget from './ProcessJournalWidget';
 import { selectProcessMetaInfo } from '../../selectors/processAdmin';
-import labels from "./Labels";
+import labels from './Labels';
 
 import './style.scss';
 
@@ -15,8 +15,8 @@ const BpmnAdminProcessDashboard = () => {
   const { activityElement, processId, processKey } = useContext(ProcessContext);
 
   const selectMetaInfo = (store, props) => {
-    return selectProcessMetaInfo(store, {...props, processId});
-  }
+    return selectProcessMetaInfo(store, { ...props, processId });
+  };
 
   return (
     <div className="bpmn-admin-process-page">
@@ -24,11 +24,7 @@ const BpmnAdminProcessDashboard = () => {
 
       <InfoPanel processId={processId} />
 
-      <BpmnSchema
-        labels={labels}
-        selectMetaInfo={selectMetaInfo}
-        activityElement={activityElement}
-      />
+      <BpmnSchema labels={labels} selectMetaInfo={selectMetaInfo} activityElement={activityElement} />
 
       <ProcessJournalWidget processId={processId} />
     </div>

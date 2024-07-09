@@ -160,9 +160,12 @@ const MigrationModal = ({ instanceId, metaInfo, getMetaInfo }) => {
     });
   };
 
-  useEffect(() => {
-    renderBadges();
-  }, [metaInfo?.bpmnDefinition]);
+  useEffect(
+    () => {
+      renderBadges();
+    },
+    [metaInfo?.bpmnDefinition]
+  );
 
   const handleReadySheet = ({ mounted, result }) => {
     if (mounted) {

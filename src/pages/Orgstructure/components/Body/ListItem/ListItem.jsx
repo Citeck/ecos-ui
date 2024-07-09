@@ -18,7 +18,7 @@ import { updateCurrentUrl } from '../../../../../helpers/urls';
 import { getDashboardConfig } from '../../../../../actions/dashboard';
 import GroupIcon from './GroupIcon';
 import { SourcesId } from '../../../../../constants';
-import defaultAvatar from "./Vector.png";
+import defaultAvatar from './Vector.png';
 
 import './ListItem.scss';
 
@@ -61,8 +61,8 @@ const FORM_CONFIG = {
 };
 
 const Avatar = ({ item }) => {
-  return <img src={item?.attributes?.photo || defaultAvatar} alt="avatar" className='orgstructure-page__avatar' />
-}
+  return <img src={item?.attributes?.photo || defaultAvatar} alt="avatar" className="orgstructure-page__avatar" />;
+};
 
 const renderListItem = (item, nestingLevel, isPerson) => {
   if (!item.extraLabel) {
@@ -281,20 +281,41 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
               })}
               style={{ right: 12 - scrollLeft }}
             >
-              {isPerson && item.parentId && <GroupIcon title={t(Labels.TITLE_PERSON_DELETE)} icon="remove-person" onClick={openPersonModal} />}
-              {isPerson && <GroupIcon title={t(Labels.TITLE_PERSON_SELECT)} icon="select-person" className={classNames([{ 'icon-user__clicked': selected }])} onClick={selectPerson} />}
+              {isPerson && item.parentId && (
+                <GroupIcon title={t(Labels.TITLE_PERSON_DELETE)} icon="remove-person" onClick={openPersonModal} />
+              )}
+              {isPerson && (
+                <GroupIcon
+                  title={t(Labels.TITLE_PERSON_SELECT)}
+                  icon="select-person"
+                  className={classNames([{ 'icon-user__clicked': selected }])}
+                  onClick={selectPerson}
+                />
+              )}
 
               {isGroup && <GroupIcon title={t(Labels.TITLE_GROUP_EDIT)} icon="edit" onClick={e => createGroup(e, true)} />}
-              {isGroup && <GroupIcon title={t(Labels.TITLE_SUBGROUP_CREATE)} icon="add-group" onClick={(event) => {
-                event.preventDefault(); event.stopPropagation();
-                onToggleCollapse(item, () => setGroupModal(item));
-              }}
-              />}
-              {isGroup && <GroupIcon title={t(Labels.TITLE_PERSON_ADD)} icon="add-user" onClick={(event) => {
-                event.preventDefault(); event.stopPropagation();
-                onToggleCollapse(item, () => setPersonModal(item));
-              }}
-              />}
+              {isGroup && (
+                <GroupIcon
+                  title={t(Labels.TITLE_SUBGROUP_CREATE)}
+                  icon="add-group"
+                  onClick={event => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    onToggleCollapse(item, () => setGroupModal(item));
+                  }}
+                />
+              )}
+              {isGroup && (
+                <GroupIcon
+                  title={t(Labels.TITLE_PERSON_ADD)}
+                  icon="add-user"
+                  onClick={event => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    onToggleCollapse(item, () => setPersonModal(item));
+                  }}
+                />
+              )}
               {isGroup && <GroupIcon title={t(Labels.TITLE_PERSON_CREATE)} icon="create-user" onClick={createPerson} />}
 
               <EcosModal

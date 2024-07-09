@@ -1,4 +1,4 @@
-import React, {  useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import isFunction from 'lodash/isFunction';
 import uniqueId from 'lodash/uniqueId';
@@ -6,12 +6,7 @@ import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
 import { usePrevious } from '../../../../hooks';
 
-import {
-  handleResponse,
-  prepareSelected,
-  getAuthRef,
-  getRecordRef,
-} from './helpers';
+import { handleResponse, prepareSelected, getAuthRef, getRecordRef } from './helpers';
 
 import { TabTypes, DataTypes } from './constants';
 
@@ -20,7 +15,7 @@ export const SelectOrgstructContext = React.createContext();
 export const useSelectOrgstructContext = () => useContext(SelectOrgstructContext);
 
 export const SelectOrgstructProvider = props => {
-  const {orgStructApi, controlProps } = props;
+  const { orgStructApi, controlProps } = props;
 
   const {
     multiple,
@@ -40,7 +35,7 @@ export const SelectOrgstructProvider = props => {
     isIncludedAdminGroup,
     dataType,
     rootGroupName,
-    allowedGroupTypes,
+    allowedGroupTypes
   } = controlProps;
 
   const [isSelectModalOpen, toggleSelectModal] = useState(openByDefault);
@@ -224,7 +219,7 @@ export const SelectOrgstructProvider = props => {
 
           onChangeValue(newSelectedRows);
           setSelectedRows(newSelectedRows);
-        },
+        }
       }}
     >
       {props.children}
@@ -241,5 +236,5 @@ SelectOrgstructProvider.propTypes = {
     multiple: PropTypes.bool,
     isCompact: PropTypes.bool,
     isIncludedAdminGroup: PropTypes.bool
-  }),
+  })
 };
