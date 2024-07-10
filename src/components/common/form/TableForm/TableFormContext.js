@@ -44,9 +44,6 @@ export const TableFormContextProvider = props => {
   const [clonedRecord, setClonedRecord] = useState(null);
   const [gridRows, setGridRows] = useState([]);
   const [rowPosition, setRowPosition] = useState(0);
-  const [inlineToolsOffsets, setInlineToolsOffsets] = useState({
-    rowId: null
-  });
 
   const isInstantClone = isBoolean(get(settingElements, 'isInstantClone')) ? settingElements.isInstantClone : false;
 
@@ -261,7 +258,6 @@ export const TableFormContextProvider = props => {
         gridRows,
         selectedRows,
         columns,
-        inlineToolsOffsets,
         createVariants,
         computed,
         rowPosition,
@@ -383,14 +379,6 @@ export const TableFormContextProvider = props => {
           setRowPosition(null);
 
           onChangeHandler(newGridRows);
-        },
-
-        setInlineToolsOffsets: offsets => {
-          if (offsets && inlineToolsOffsets && offsets.row.id !== inlineToolsOffsets.rowId) {
-            setInlineToolsOffsets({
-              rowId: offsets.row.id || null
-            });
-          }
         },
 
         onSelectGridItem: value => isFunction(onSelectRows) && onSelectRows(value.selected)

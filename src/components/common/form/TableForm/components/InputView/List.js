@@ -22,7 +22,6 @@ const List = React.memo(
       onSelectGridItem,
       selectedRows,
       nonSelectableRows,
-      setInlineToolsOffsets,
       noHeader,
       noHorizontalScroll
     } = props;
@@ -42,8 +41,7 @@ const List = React.memo(
             onSelect={onSelectGridItem}
             selected={selectedRows}
             nonSelectable={nonSelectableRows.filter(item => rowsIds.includes(item))}
-            inlineActions={() => <InlineActions context={context} />}
-            onChangeTrOptions={setInlineToolsOffsets}
+            inlineActions={rowId => <InlineActions rowId={rowId} context={context} />}
             className="ecos-table-form__grid"
             scrollable={false}
             noHeader={noHeader}
