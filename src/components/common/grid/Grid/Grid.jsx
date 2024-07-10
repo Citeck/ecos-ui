@@ -502,7 +502,7 @@ class Grid extends Component {
         currentTarget.classList.add('has-inline-tools');
       }
     } else if (isFunction(this.props.inlineActions)) {
-      const inlineActions = this.props.inlineActions();
+      const inlineActions = this.props.inlineActions(get(settingInlineTools, 'row.id') || null);
 
       if (inlineActions) {
         ReactDOM.render(inlineActions, inlineToolsElement);
@@ -1350,6 +1350,7 @@ Grid.propTypes = {
   onOpenSettings: PropTypes.func,
   onColumnSave: PropTypes.func,
   inlineTools: PropTypes.func,
+  inlineActions: PropTypes.func,
 
   deselectAllRecords: PropTypes.func
 };

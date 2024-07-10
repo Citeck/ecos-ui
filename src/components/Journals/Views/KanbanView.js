@@ -8,7 +8,7 @@ import isEqualWith from 'lodash/isEqualWith';
 import get from 'lodash/get';
 
 import { applyFilter, getBoardData, reloadBoardData, resetFilter, selectBoardId } from '../../../actions/kanban';
-import { selectViewMode, selectJournalPageProps } from '../../../selectors/journals';
+import { selectViewMode } from '../../../selectors/journals';
 import { selectKanbanPageProps } from '../../../selectors/kanban';
 import {
   applyJournalSetting,
