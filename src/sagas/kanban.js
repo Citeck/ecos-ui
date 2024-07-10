@@ -196,7 +196,7 @@ export function* sagaGetData({ api, logger }, { payload }) {
     delete params.attributes;
     delete _journalConfig.columns;
 
-    const { attributes, inputByKey } = EcosFormUtils.preProcessingAttrs(formProps.formFields);
+    const { attributes, inputByKey } = EcosFormUtils.preProcessingAttrs(get(formProps, 'formFields', []));
 
     params.attributes = { ...attributes, ...KanbanConverter.getCardAttributes() };
 
