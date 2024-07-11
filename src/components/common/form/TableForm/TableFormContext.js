@@ -314,7 +314,8 @@ export const TableFormContextProvider = props => {
           let isAlias = editRecordId.indexOf('-alias') !== -1;
           let newGridRows = [...gridRows];
 
-          const allComponents = form.getAllComponents();
+          const getAllComponents = get(form, 'getAllComponents');
+          const allComponents = isFunction(getAllComponents) ? getAllComponents() : [];
 
           const createNewRow = async (initialRow, originColumn, editedRecord, attributes) => {
             const attrs = Object.keys(originColumn);
