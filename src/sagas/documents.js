@@ -550,6 +550,9 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
     const type = yield select(state => selectDynamicType(state, payload.key, payload.type));
     const createVariants = yield call(api.documents.getCreateVariants, payload.type);
 
+    let isRejected = false;
+    let rejectedMsg;
+
     /**
      * update version
      */
@@ -568,6 +571,22 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
     const files = yield payload.files.map(function*(file) {
       return yield fileUploadFunc({ api, file, callback: payload.callback });
     });
+
+    const results = yield Promise.allSettled(files);
+    results.forEach(result => {
+      if (result.status === 'rejected') {
+        rejectedMsg = result.reason;
+        isRejected = true;
+      }
+    });
+
+    if (isRejected) {
+      if (rejectedMsg) {
+        NotificationManager.error(rejectedMsg);
+      }
+
+      return;
+    }
 
     /**
      * open form manager
