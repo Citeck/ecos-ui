@@ -209,9 +209,13 @@ export const TableFormContextProvider = props => {
           displayName = await Records.get(res.attributes[column.attribute]).load('.disp');
 
           if (component && !displayName) {
-            const option = get(component, 'currentItems', []).find(item => item.value === attributes[column.attribute]);
-
-            displayName = isObject(option.label) ? getMLValue(option.label) : option.label;
+            const attValue = attributes[column.attribute];
+            if (attValue) {
+              const option = get(component, 'currentItems', []).find(item => item.value === attValue);
+              if (option) {
+                displayName = isObject(option.label) ? getMLValue(option.label) : option.label;
+              }
+            }
           }
 
           restAttrs.splice(index, 1);
