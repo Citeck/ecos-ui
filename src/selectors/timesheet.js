@@ -13,9 +13,8 @@ export const selectTMineUpdatingHours = state => state.timesheetMine.updatingHou
 export const selectTMineDelegatedTo = state => state.timesheetMine.delegatedToUserName || '';
 export const selectTMineEvents = state => state.timesheetMine.mergedEvents || [];
 
-export const selectTVerificationMergedList = createSelector(
-  selectVerification,
-  verification => cloneDeep(get(verification, 'mergedList', []))
+export const selectTVerificationMergedList = createSelector(selectVerification, verification =>
+  cloneDeep(get(verification, 'mergedList', []))
 );
 
 export const selectTVerificationUpdatingHours = state => state.timesheetVerification.updatingHours || {};

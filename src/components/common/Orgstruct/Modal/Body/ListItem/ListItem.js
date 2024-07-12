@@ -21,13 +21,15 @@ const ListItem = ({ item, nestingLevel, nestedList }) => {
   let isAllowedSelect;
 
   if (allowedAuthorityTypes.includes(itemAuthorityType)) {
-    if (itemAuthorityType === AUTHORITY_TYPE_GROUP &&
+    if (
+      itemAuthorityType === AUTHORITY_TYPE_GROUP &&
       allowedGroupTypes.includes(itemGroupType) &&
-      (allowedGroupSubTypes.length === 0 || allowedGroupSubTypes.includes(itemGroupSubType))) {
-        isAllowedSelect = true;
-      }
-    
-    if(itemAuthorityType === AUTHORITY_TYPE_USER) {
+      (allowedGroupSubTypes.length === 0 || allowedGroupSubTypes.includes(itemGroupSubType))
+    ) {
+      isAllowedSelect = true;
+    }
+
+    if (itemAuthorityType === AUTHORITY_TYPE_USER) {
       isAllowedSelect = true;
     }
   }

@@ -25,10 +25,13 @@ const Scaler = ({ onClick, step = ScaleOptions.STEP }) => {
     [timerId]
   );
 
-  const handleUp = useCallback(() => {
-    clearInterval(timerId);
-    setTimerId();
-  }, [timerId]);
+  const handleUp = useCallback(
+    () => {
+      clearInterval(timerId);
+      setTimerId();
+    },
+    [timerId]
+  );
 
   return (
     <div className="ecos-scaler">

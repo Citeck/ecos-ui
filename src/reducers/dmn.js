@@ -167,7 +167,7 @@ export default handleActions(
 
       if (index === -1) {
         return {
-          ...state,
+          ...state
         };
       }
 

@@ -8,15 +8,7 @@ import Loader from '../../../../Loader/Loader';
 
 const SelectOrgstructRoot = () => {
   const context = useContext(SelectOrgstructContext);
-  const {
-    controlProps,
-    selectedRows,
-    setSelectedRows,
-    isSelectModalOpen,
-    toggleSelectModal,
-    onChangeValue,
-    ...orgstructProps
-  } = context;
+  const { controlProps, selectedRows, setSelectedRows, isSelectModalOpen, toggleSelectModal, onChangeValue, ...orgstructProps } = context;
   const { isCompact, viewOnly, className, isLoading } = controlProps;
 
   const wrapperClasses = classNames('select-orgstruct', className, {
@@ -28,8 +20,9 @@ const SelectOrgstructRoot = () => {
     <div className={wrapperClasses}>
       {isLoading && <Loader blur />}
       <InputView />
-      {!viewOnly && isSelectModalOpen && <Orgstruct
-          onSubmit={(newSelectedRows) => {
+      {!viewOnly && isSelectModalOpen && (
+        <Orgstruct
+          onSubmit={newSelectedRows => {
             onChangeValue(newSelectedRows);
             setSelectedRows(newSelectedRows);
             toggleSelectModal(false);
@@ -40,7 +33,8 @@ const SelectOrgstructRoot = () => {
           initSelectedRows={selectedRows}
           openByDefault
           {...orgstructProps}
-        />}
+        />
+      )}
     </div>
   );
 };

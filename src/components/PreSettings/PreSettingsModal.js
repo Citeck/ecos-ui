@@ -179,7 +179,6 @@ class PreSettingsModal extends React.Component {
         if (this.isFormType) {
           return this.handleChangeForm();
         }
-
       })
       .then(() => {
         return pagesStore.migrate(rollbackAttributes.id, newRecordRef);
@@ -219,53 +218,53 @@ class PreSettingsModal extends React.Component {
     isFunction(onHide) && onHide();
   };
 
-  handleChangeForm = () => new Promise((resolve, reject) => {
-    const { newRecordRef, newType } = this.state;
-    const { definition } = this.config;
+  handleChangeForm = () =>
+    new Promise((resolve, reject) => {
+      const { newRecordRef, newType } = this.state;
+      const { definition } = this.config;
 
-    const builderDefinition = {
-      ...definition,
-      formId: newRecordRef
-    };
-
-    const onSubmit = newDefinition => {
-      this.toggleEcosModalLoading(true);
-      const attributes = {
-        'definition?json': newDefinition,
-        'typeRef?id': newType
+      const builderDefinition = {
+        ...definition,
+        formId: newRecordRef
       };
 
-      const cb = this.callback;
-      this.callback = newRef => {
-        if (this.instanceRecordToSave) {
-          this.instanceRecordToSave.save().then(() => {
+      const onSubmit = newDefinition => {
+        this.toggleEcosModalLoading(true);
+        const attributes = {
+          'definition?json': newDefinition,
+          'typeRef?id': newType
+        };
 
-            if (this.isFormType) {
-              this.recordRef = `uiserv/form@${newRecordRef}`;
-            }
+        const cb = this.callback;
+        this.callback = newRef => {
+          if (this.instanceRecordToSave) {
+            this.instanceRecordToSave.save().then(() => {
+              if (this.isFormType) {
+                this.recordRef = `uiserv/form@${newRecordRef}`;
+              }
 
-            if (!this.typeToSave) {
-              isFunction(cb) && cb(newRef, newDefinition);
-            }
-
-            this.typeToSave &&
-              this.typeToSave.save().then(() => {
+              if (!this.typeToSave) {
                 isFunction(cb) && cb(newRef, newDefinition);
-              });
-              
-            isFunction(resolve) && resolve();
+              }
 
-            this.rollback();
-          });
-        }
+              this.typeToSave &&
+                this.typeToSave.save().then(() => {
+                  isFunction(cb) && cb(newRef, newDefinition);
+                });
+
+              isFunction(resolve) && resolve();
+
+              this.rollback();
+            });
+          }
+        };
+
+        this.changeAttributes(attributes);
       };
 
-      this.changeAttributes(attributes);
-    };
-
-    this.handleCancel();
-    EcosFormBuilderUtils.__showEditorComponent('formBuilder', EcosFormBuilderModal, builderDefinition, onSubmit);
-  });
+      this.handleCancel();
+      EcosFormBuilderUtils.__showEditorComponent('formBuilder', EcosFormBuilderModal, builderDefinition, onSubmit);
+    });
 
   handleChangeJournal = () => {
     const { newRecordRef, newType } = this.state;

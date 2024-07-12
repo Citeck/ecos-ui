@@ -45,6 +45,12 @@ import { t } from '../helpers/export/util';
 import { getCurrentStateById, handleAction, handleState, updateState } from '../helpers/redux';
 import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_PAGINATION, relatedViews } from '../components/Journals/constants';
 
+export const initialStateGrouping = {
+  needCount: false,
+  columns: [],
+  groupBy: []
+};
+
 export const emptyJournalConfig = Object.freeze({
   meta: { createVariants: [] }
 });
@@ -91,11 +97,7 @@ export const defaultState = {
       isExpandedFromGrouped: false,
       sortBy: []
     },
-    grouping: {
-      needCount: false,
-      columns: [],
-      groupBy: []
-    }
+    grouping: initialStateGrouping
   },
 
   columnsSetup: {
@@ -103,22 +105,14 @@ export const defaultState = {
     isExpandedFromGrouped: false,
     sortBy: []
   },
-  grouping: {
-    needCount: false,
-    columns: [],
-    groupBy: []
-  },
+  grouping: initialStateGrouping,
 
   journalSetting: {
     sortBy: [],
     groupBy: [],
     columns: [],
     needCount: false,
-    grouping: {
-      needCount: false,
-      columns: [],
-      groupBy: []
-    },
+    grouping: initialStateGrouping,
     isExpandedFromGrouped: false,
     predicate: null,
     permissions: {

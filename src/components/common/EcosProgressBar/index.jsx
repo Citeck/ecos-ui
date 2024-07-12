@@ -8,7 +8,7 @@ export default class EcosProgressBar extends Component {
     super(props);
 
     this.state = {
-      value: props.value,
+      value: props.value
     };
   }
 
@@ -24,7 +24,7 @@ export default class EcosProgressBar extends Component {
 
   updateValue(value) {
     this.setState({
-      value,
+      value
     });
   }
 

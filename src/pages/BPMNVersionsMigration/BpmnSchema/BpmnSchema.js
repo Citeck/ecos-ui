@@ -122,6 +122,15 @@ const BpmnSchema = ({ processId, metaInfo, versionsInfo, getMetaInfo, getAllVers
 
   useEffect(
     () => {
+      if (sourceProcessDefinitionId) {
+        setSelectedProcess(sourceProcessDefinitionId);
+      }
+    },
+    [sourceProcessDefinitionId]
+  );
+
+  useEffect(
+    () => {
       setMigrationPlan(prev => {
         if (!prev) {
           return prev;

@@ -18,14 +18,17 @@ const JournalViewer = React.memo(
     const [prefixStateId, setPrefixStateId] = useState('');
     const [searchParams, setSearchParams] = useState(getSearchParams());
 
-    useEffect(() => {
-      if (isActivePage && !hidden && !initialized) {
-        const id = getStateId({ tabId: props.tabId, id: getId() });
+    useEffect(
+      () => {
+        if (isActivePage && !hidden && !initialized) {
+          const id = getStateId({ tabId: props.tabId, id: getId() });
 
-        setPrefixStateId(id);
-        setInitialized(true);
-      }
-    }, [isActivePage, hidden, initialized]);
+          setPrefixStateId(id);
+          setInitialized(true);
+        }
+      },
+      [isActivePage, hidden, initialized]
+    );
 
     useEffect(() => {
       const { journalId } = getSearchParams();
@@ -37,15 +40,18 @@ const JournalViewer = React.memo(
       }
     });
 
-    useEffect(() => {
-      const params = getSearchParams();
+    useEffect(
+      () => {
+        const params = getSearchParams();
 
-      !isEqual(params, searchParams) && setSearchParams(params);
+        !isEqual(params, searchParams) && setSearchParams(params);
 
-      if (stateId && params.journalId !== searchParams.journalId) {
-        setJournalSearch({ stateId, text: '' });
-      }
-    }, [activeSection]);
+        if (stateId && params.journalId !== searchParams.journalId) {
+          setJournalSearch({ stateId, text: '' });
+        }
+      },
+      [activeSection]
+    );
 
     return (
       <div ref={tableCont} className={classNames('ecos-admin-section__journal', { 'd-none': hidden })}>

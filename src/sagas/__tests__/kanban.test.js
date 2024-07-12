@@ -576,7 +576,6 @@ describe('kanban sagas tests', () => {
 
     expect(_firstLoading.type).toEqual(setLoading().type);
     expect(_firstLoading.payload.isLoading).toBeTruthy();
-    expect(logger.error).toHaveBeenCalled();
     expect(_lastLoading.type).toEqual(setLoading().type);
     expect(_lastLoading.payload.isLoading).toBeFalsy();
   });

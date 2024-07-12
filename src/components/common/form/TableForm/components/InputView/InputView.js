@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useRef } from 'react';
 
 import { TableFormContext } from '../../TableFormContext';
 import CreateVariants from '../CreateVariants';
@@ -18,26 +18,8 @@ const InputView = () => {
     noColHeaders,
     noHorizontalScroll
   } = context.controlProps;
-  const { gridRows, columns, error, setInlineToolsOffsets, onSelectGridItem } = context;
+  const { gridRows, columns, error, onSelectGridItem } = context;
   const wrapperRef = useRef(null);
-
-  useEffect(
-    () => {
-      const resetInlineToolsOffsets = () => setInlineToolsOffsets({ row: {} });
-      const gridWrapper = wrapperRef.current;
-
-      if (gridWrapper) {
-        gridWrapper.addEventListener('mouseleave', resetInlineToolsOffsets);
-      }
-
-      return () => {
-        if (gridWrapper) {
-          gridWrapper.removeEventListener('mouseleave', resetInlineToolsOffsets);
-        }
-      };
-    },
-    [wrapperRef.current, setInlineToolsOffsets]
-  );
 
   return (
     <div className="ecos-table-form__input-view">
@@ -51,7 +33,6 @@ const InputView = () => {
         onSelectGridItem={onSelectGridItem}
         selectedRows={selectedRows}
         nonSelectableRows={nonSelectableRows}
-        setInlineToolsOffsets={setInlineToolsOffsets}
         noHeader={noColHeaders}
         noHorizontalScroll={noHorizontalScroll}
       />

@@ -1,10 +1,13 @@
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import React from 'react';
 import ActionsExecutor from '../ActionsExecutor';
 import logger from '../../../../../services/logger';
 import Records from '../../../Records';
 import LicenseService from '../../../../../services/license/LicenseService';
 import { NotificationManager } from 'react-notifications';
+import { DialogManager } from '../../../../common/dialogs';
+import EcosProgressBar from '../../../../common/EcosProgressBar';
 
 import { t } from '../../../../../helpers/export/util';
 import { notifyStart, removeNotify } from '../../util/actionUtils';
@@ -79,8 +82,6 @@ export default class ServerGroupActionV2 extends ActionsExecutor {
       promiseReject = reject;
     });
 
-    let dialog;
-
     if (get(actionOutputParams, 'type', '').toLowerCase() === 'email') {
       return {
         type: ResultTypes.INFO,
@@ -90,9 +91,45 @@ export default class ServerGroupActionV2 extends ActionsExecutor {
       notify = notifyStart('');
     }
 
+    const progressBar = React.createRef();
+    let dialog;
+    let isFirst = true;
+
     const waitComplete = async iteration => {
       try {
         const actionAtts = await Records.get(actionId).load([ATT_STATUS, ATT_RESULT, ATT_TOTAL_COUNT, ATT_PROCESSED_COUNT], true);
+
+        const totalCount = actionAtts[ATT_TOTAL_COUNT];
+        const processedCount = actionAtts[ATT_PROCESSED_COUNT];
+
+        if (isFirst) {
+          isFirst = false;
+
+          dialog = DialogManager.showCustomDialog({
+            title: t('group-action.message.processing-the-request'),
+            modalClass: 'ecos-modal_width-xs',
+            body:
+              totalCount === -1 ? (
+                <div ref={progressBar}>{t('group-action.message.records-is-unknown', { processedCount: 0 })}</div>
+              ) : (
+                <EcosProgressBar
+                  ref={progressBar}
+                  max={totalCount}
+                  value={processedCount}
+                  filledColor="#7396cd"
+                  emptyColor="#f3f7f9"
+                  height={10}
+                  showPercentage
+                />
+              )
+          });
+        } else if (progressBar.current) {
+          if (progressBar.current.updateValue) {
+            progressBar.current.updateValue(processedCount);
+          } else {
+            progressBar.current.innerText = t('group-action.message.records-is-unknown', { processedCount });
+          }
+        }
 
         const status = actionAtts[ATT_STATUS] || '';
         if (status === STATUS_WAITING || status === STATUS_RUNNING) {

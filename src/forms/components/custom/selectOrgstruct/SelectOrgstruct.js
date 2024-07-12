@@ -15,7 +15,7 @@ import {
   GroupTypes,
   ROOT_GROUP_NAME,
   TabTypes,
-  ViewModes,
+  ViewModes
 } from '../../../../components/common/form/SelectOrgstruct/constants';
 import BaseComponent from '../base/BaseComponent';
 import UnreadableLabel from '../../UnreadableLabel';
@@ -49,7 +49,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
         dataType: DataTypes.NODE_REF,
         userSearchExtraFields: '',
         isIncludedAdminGroup: false,
-        viewModeType: ViewModes.DEFAULT,
+        viewModeType: ViewModes.DEFAULT
       },
       ...extend
     );

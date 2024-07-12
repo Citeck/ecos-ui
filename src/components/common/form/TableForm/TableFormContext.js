@@ -44,9 +44,6 @@ export const TableFormContextProvider = props => {
   const [clonedRecord, setClonedRecord] = useState(null);
   const [gridRows, setGridRows] = useState([]);
   const [rowPosition, setRowPosition] = useState(0);
-  const [inlineToolsOffsets, setInlineToolsOffsets] = useState({
-    rowId: null
-  });
 
   const isInstantClone = isBoolean(get(settingElements, 'isInstantClone')) ? settingElements.isInstantClone : false;
 
@@ -212,9 +209,13 @@ export const TableFormContextProvider = props => {
           displayName = await Records.get(res.attributes[column.attribute]).load('.disp');
 
           if (component && !displayName) {
-            const option = get(component, 'currentItems', []).find(item => item.value === attributes[column.attribute]);
-
-            displayName = isObject(option.label) ? getMLValue(option.label) : option.label;
+            const attValue = attributes[column.attribute];
+            if (attValue) {
+              const option = get(component, 'currentItems', []).find(item => item.value === attValue);
+              if (option) {
+                displayName = isObject(option.label) ? getMLValue(option.label) : option.label;
+              }
+            }
           }
 
           restAttrs.splice(index, 1);
@@ -261,7 +262,6 @@ export const TableFormContextProvider = props => {
         gridRows,
         selectedRows,
         columns,
-        inlineToolsOffsets,
         createVariants,
         computed,
         rowPosition,
@@ -318,7 +318,10 @@ export const TableFormContextProvider = props => {
           let isAlias = editRecordId.indexOf('-alias') !== -1;
           let newGridRows = [...gridRows];
 
-          const allComponents = form.getAllComponents();
+          let allComponents = [];
+          if (form) {
+            allComponents = form.getAllComponents();
+          }
 
           const createNewRow = async (initialRow, originColumn, editedRecord, attributes) => {
             const attrs = Object.keys(originColumn);
@@ -383,14 +386,6 @@ export const TableFormContextProvider = props => {
           setRowPosition(null);
 
           onChangeHandler(newGridRows);
-        },
-
-        setInlineToolsOffsets: offsets => {
-          if (offsets && inlineToolsOffsets && offsets.row.id !== inlineToolsOffsets.rowId) {
-            setInlineToolsOffsets({
-              rowId: offsets.row.id || null
-            });
-          }
         },
 
         onSelectGridItem: value => isFunction(onSelectRows) && onSelectRows(value.selected)

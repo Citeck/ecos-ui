@@ -92,10 +92,10 @@ import { beArray, isNodeRef, hasInString, t } from '../helpers/util';
 import PageService from '../services/PageService';
 import { PREDICATE_EQ } from '../components/Records/predicates/predicates';
 import JournalsConverter from '../dto/journals';
-import { emptyJournalConfig } from '../reducers/journals';
+import { emptyJournalConfig, initialStateGrouping } from '../reducers/journals';
 import { JournalUrlParams, SourcesId } from '../constants';
 import { isKanban } from '../components/Journals/constants';
-import { setKanbanSettings, reloadBoardData, applyPreset, clearFiltered } from '../actions/kanban';
+import { setKanbanSettings, reloadBoardData, selectTemplateId, applyPreset, clearFiltered } from '../actions/kanban';
 import { selectKanban } from '../selectors/kanban';
 
 const getDefaultSortBy = config => {
@@ -163,7 +163,7 @@ function* getColumnsSum(api, w, columns, journalId, predicates) {
   }
 }
 
-function getDefaultJournalSetting(journalConfig) {
+export function getDefaultJournalSetting(journalConfig) {
   const { groupBy } = get(journalConfig, 'meta', {});
   const columns = get(journalConfig, 'columns', []);
 
@@ -402,7 +402,29 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettin
           NotificationManager.error(t('journal.presets.error.get-one'));
           journalSetting = getDefaultJournalSetting(journalConfig);
         } else {
-          journalSetting = { ...preset.settings };
+          if (!get(preset.settings, 'grouping') && !isEmpty(get(preset.settings, 'journalSetting'))) {
+            if (!get(preset.settings, 'journalSetting.grouping')) {
+              journalSetting = {
+                ...preset.settings,
+                grouping: initialStateGrouping,
+                groupBy: [],
+
+                journalSetting: {
+                  ...preset.settings.journalSetting,
+                  grouping: initialStateGrouping,
+                  groupBy: []
+                }
+              };
+            } else {
+              journalSetting = {
+                ...preset.settings,
+                grouping: initialStateGrouping,
+                groupBy: []
+              };
+            }
+          } else {
+            journalSetting = { ...preset.settings };
+          }
         }
 
         if (!journalSetting) {
@@ -616,11 +638,13 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
   }
 
   const journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId, initPredicate }, w);
+  const settings = yield select(selectJournalSettings, stateId);
+  const preset = settings.find(preset => preset.id === journalSettingId);
   const url = yield select(selectUrl, stateId);
   const journalData = yield select(selectJournalData, stateId);
 
   const pagination = get(sharedSettings, 'pagination') || get(journalData, 'grid.pagination') || DEFAULT_PAGINATION;
-  const params = getGridParams({ journalConfig, journalSetting, pagination });
+  const params = getGridParams({ journalConfig, journalSetting: get(preset, 'settings', journalSetting), pagination });
   const search = url.search || journalSetting.search;
 
   let gridData = yield getGridData(api, { ...params }, stateId);
@@ -853,14 +877,15 @@ function* sagaOpenSelectedPreset({ api, logger, stateId, w }, action) {
     query[JournalUrlParams.JOURNAL_SETTING_ID] = selectedId || undefined;
     query[JournalUrlParams.USER_CONFIG_ID] = undefined;
 
-    const url = queryString.stringifyUrl({ url: getUrlWithoutOrigin(), query });
-
-    yield call([PageService, PageService.changeUrlLink], url, { updateUrl: true });
-    yield put(selectPreset(w(selectedId)));
-
-    const { originKanbanSettings } = yield select(selectKanban, stateId);
     const settings = yield select(selectJournalSettings, stateId);
     const preset = settings.find(preset => preset.id === selectedId);
+    const url = queryString.stringifyUrl({ url: getUrlWithoutOrigin(), query });
+    yield call([PageService, PageService.changeUrlLink], url, { updateUrl: true });
+    yield put(selectPreset(w(selectedId)));
+    yield put(selectTemplateId(w(selectedId)));
+    yield put(setPredicate(w(get(preset, 'settings.predicate', {}))));
+
+    const { originKanbanSettings } = yield select(selectKanban, stateId);
     const kanbanSettings = get(preset, 'settings.kanban', { columns: originKanbanSettings.statuses });
 
     let predicates;
@@ -1387,9 +1412,7 @@ export function* sagaToggleViewMode({ logger, w }, { payload }) {
     const { stateId } = payload;
     const journalData = yield select(selectJournalData, stateId);
 
-    const { isFirstLoading } = yield select(selectKanban, stateId);
-
-    if (journalData.forceUpdate && !isFirstLoading && isKanban(journalData.viewMode)) {
+    if (isKanban(journalData.viewMode)) {
       yield put(reloadBoardData({ stateId }));
       yield put(setForceUpdate(w(false)));
     }

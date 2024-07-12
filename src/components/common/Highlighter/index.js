@@ -6,17 +6,20 @@ import './style.scss';
 function Highlighter({ originText, highlightedText }) {
   const [__html, setHtml] = useState(originText || '');
 
-  useEffect(() => {
-    let result = originText.replaceAll(highlightedText, `<span class="ecos-highlighter">${highlightedText}</span>`);
+  useEffect(
+    () => {
+      let result = originText.replaceAll(highlightedText, `<span class="ecos-highlighter">${highlightedText}</span>`);
 
-    if (result === originText) {
-      const searchText = highlightedText.charAt(0).toUpperCase() + highlightedText.slice(1);
+      if (result === originText) {
+        const searchText = highlightedText.charAt(0).toUpperCase() + highlightedText.slice(1);
 
-      result = originText.replaceAll(searchText, `<span class="ecos-highlighter">${searchText}</span>`);
-    }
+        result = originText.replaceAll(searchText, `<span class="ecos-highlighter">${searchText}</span>`);
+      }
 
-    setHtml(result);
-  }, [originText, highlightedText]);
+      setHtml(result);
+    },
+    [originText, highlightedText]
+  );
 
   if (!__html) {
     return originText;

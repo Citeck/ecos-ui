@@ -37,46 +37,52 @@ export default function UploadNewVersion({ record, onClose }) {
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => {
-    let isExist = true;
+  useEffect(
+    () => {
+      let isExist = true;
 
-    setShow(true);
+      setShow(true);
 
-    if (record.id) {
-      const _versions = versionsJournalApi.getVersions(record.id);
+      if (record.id) {
+        const _versions = versionsJournalApi.getVersions(record.id);
 
-      Promise.all([_versions])
-        .then(response => {
-          if (isExist) {
-            const [versions] = response;
+        Promise.all([_versions])
+          .then(response => {
+            if (isExist) {
+              const [versions] = response;
 
-            if (!versions) {
-              throw new Error(t('record-action.upload-new-version.error.no-version'));
+              if (!versions) {
+                throw new Error(t('record-action.upload-new-version.error.no-version'));
+              }
+
+              if (versions.errors && versions.errors.length) {
+                throw new Error(versions.errors.map(item => item.msg).join('; '));
+              }
+
+              setCurrentVersion(get(versions, 'records.[0].version', 1));
             }
+          })
+          .catch(e => isExist && setErrorMessage(e.message))
+          .finally(() => isExist && setLoadingModal(false));
+      } else {
+        setErrorMessage(t('record-action.upload-new-version.error.no-record'));
+      }
 
-            if (versions.errors && versions.errors.length) {
-              throw new Error(versions.errors.map(item => item.msg).join('; '));
-            }
+      return () => {
+        isExist = false;
+      };
+    },
+    [record]
+  );
 
-            setCurrentVersion(get(versions, 'records.[0].version', 1));
-          }
-        })
-        .catch(e => isExist && setErrorMessage(e.message))
-        .finally(() => isExist && setLoadingModal(false));
-    } else {
-      setErrorMessage(t('record-action.upload-new-version.error.no-record'));
-    }
-
-    return () => {
-      isExist = false;
-    };
-  }, [record]);
-
-  useEffect(() => {
-    if (isShow === false) {
-      onClose(isLoadDoc);
-    }
-  }, [isShow]);
+  useEffect(
+    () => {
+      if (isShow === false) {
+        onClose(isLoadDoc);
+      }
+    },
+    [isShow]
+  );
 
   return (
     <AddModal

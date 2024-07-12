@@ -43,27 +43,33 @@ const DevTools = props => {
     checkAccess();
   }, []);
 
-  useEffect(() => {
-    if (props.tabLink === props.cacheKey) {
-      setIsReady(false);
-      setAccess(false);
+  useEffect(
+    () => {
+      if (props.tabLink === props.cacheKey) {
+        setIsReady(false);
+        setAccess(false);
 
-      checkAccess();
-    }
-  }, [props.tabLink, props.cacheKey]);
+        checkAccess();
+      }
+    },
+    [props.tabLink, props.cacheKey]
+  );
 
-  useEffect(() => {
-    const query = queryString.parse(window.location.search);
-    let newActiveTab = query.activeTab;
+  useEffect(
+    () => {
+      const query = queryString.parse(window.location.search);
+      let newActiveTab = query.activeTab;
 
-    if (!Object.values(TABS).includes(newActiveTab)) {
-      newActiveTab = TABS.BUILD;
-    }
+      if (!Object.values(TABS).includes(newActiveTab)) {
+        newActiveTab = TABS.BUILD;
+      }
 
-    if (activeTab !== newActiveTab) {
-      setActiveTab(newActiveTab);
-    }
-  }, [window.location.search]);
+      if (activeTab !== newActiveTab) {
+        setActiveTab(newActiveTab);
+      }
+    },
+    [window.location.search]
+  );
 
   const _setActiveTab = useCallback(
     tabId => {

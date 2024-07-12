@@ -11,10 +11,13 @@ import './style.scss';
 
 const Section = ({ isLoading, title, children, opened, onChange }) => {
   const [isOpened, setOpened] = useState(!!opened);
-  const handleChange = useCallback(() => {
-    setOpened(!isOpened);
-    isFunction(onChange) && onChange(!isOpened);
-  }, [onChange, isOpened]);
+  const handleChange = useCallback(
+    () => {
+      setOpened(!isOpened);
+      isFunction(onChange) && onChange(!isOpened);
+    },
+    [onChange, isOpened]
+  );
   return (
     <>
       {isLoading && <Loader blur />}

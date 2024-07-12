@@ -179,7 +179,7 @@ function* sagaChangeTabData({ api, logger }, { payload }) {
 
     if (updates.isActive) {
       const title = yield getTitle(tab);
-      updates = {...updates, ...title};
+      updates = { ...updates, ...title };
     }
 
     PageTabList.changeOne({ tab, updates });
@@ -244,7 +244,7 @@ function* getTitle(tab) {
 
     return {
       title: {
-        [lng]: title,
+        [lng]: title
       },
       isLoading: false
     };

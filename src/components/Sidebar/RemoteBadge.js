@@ -29,9 +29,12 @@ function RemoteBadge({ data, isOpen }) {
     };
   }, []);
 
-  useEffect(() => {
-    getJournalCount();
-  }, [journalId]);
+  useEffect(
+    () => {
+      getJournalCount();
+    },
+    [journalId]
+  );
 
   return (
     <>

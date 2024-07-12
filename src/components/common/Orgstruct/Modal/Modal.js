@@ -30,7 +30,7 @@ const Modal = () => {
     pagination,
     hideTabSwitcher,
     onChangePage,
-    parent,
+    parent
   } = context;
 
   let title = modalTitle || t(Labels.TITLE);
