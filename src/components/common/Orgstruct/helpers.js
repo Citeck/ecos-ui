@@ -98,3 +98,8 @@ export function renderUsernameString(str, replacements) {
 
   return interpolate(str, replacements);
 }
+
+export function stripHTML(html) {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  return doc.body.textContent || '';
+}

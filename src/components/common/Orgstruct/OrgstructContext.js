@@ -17,7 +17,8 @@ import {
   unionWithPrevious,
   renderUsernameString,
   isHTML,
-  getRecordRef
+  getRecordRef,
+  stripHTML
 } from './helpers';
 
 export const OrgstructContext = React.createContext();
@@ -515,9 +516,10 @@ export const OrgstructProvider = props => {
         renderListItem: item => {
           if (get(item, 'attributes.authorityType') === 'USER' && userMask) {
             const usernameString = renderUsernameString(userMask, { ...(item.attributes || {}) });
+            const plainText = stripHTML(usernameString);
 
             if (isHTML(userMask)) {
-              return <div dangerouslySetInnerHTML={{ __html: usernameString }} />;
+              return <div title={plainText} dangerouslySetInnerHTML={{ __html: usernameString }} />;
             }
 
             return usernameString;
