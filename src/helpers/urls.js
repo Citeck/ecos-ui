@@ -61,7 +61,7 @@ export const changeUrl = (url, opts = {}) => {
 };
 
 export const createProfileUrl = userName => {
-  return `${URL.DASHBOARD}?recordRef=${SourcesId.PERSON}@${userName.toLowerCase()}`;
+  return `${URL.DASHBOARD}?recordRef=${SourcesId.PERSON}@${userName ? userName.toLowerCase() : ''}`;
 };
 
 export const createDocumentUrl = recordRef => {
