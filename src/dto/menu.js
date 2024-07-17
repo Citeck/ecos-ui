@@ -174,7 +174,7 @@ export default class MenuConverter {
         label = item.label || get(item, '_remoteData_.label') || replace(get(item, 'config.processDef'), SourcesId.BPMN_DEF, '');
         break;
       case MenuSettings.ItemTypes.JOURNAL:
-        label = get(item, '_remoteData_.label') || item.label || replace(get(item, 'config.recordRef'), SourcesId.JOURNAL, '');
+        label = item.label || get(item, '_remoteData_.label') || replace(get(item, 'config.recordRef'), SourcesId.JOURNAL, '');
         break;
       default:
         break;
