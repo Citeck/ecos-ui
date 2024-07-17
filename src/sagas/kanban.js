@@ -43,7 +43,7 @@ import {
   applyPreset
 } from '../actions/kanban';
 import { applyJournalSetting, execRecordsActionComplete, setJournalSetting, setPredicate } from '../actions/journals';
-import { selectJournalData, selectJournalSettings, selectSettingsData } from '../selectors/journals';
+import { selectJournalData, selectSettingsData } from '../selectors/journals';
 import { selectKanban, selectKanbanPageProps, selectPagination } from '../selectors/kanban';
 import { emptyJournalConfig } from '../reducers/journals';
 import PageService from '../services/PageService';
@@ -54,7 +54,7 @@ import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
 import { ParserPredicate } from '../components/Filters/predicates';
 import JournalsService from '../components/Journals/service/journalsService';
 import { DEFAULT_PAGINATION, KANBAN_SELECTOR_MODE } from '../components/Journals/constants';
-import { getDefaultJournalSetting, getGridParams, getJournalConfig, getJournalSettingFully } from './journals';
+import { getGridParams, getJournalConfig, getJournalSettingFully } from './journals';
 import { PREDICATE_EQ } from '../components/Records/predicates/predicates';
 
 export function* sagaGetBoardList({ api, logger }, { payload }) {
@@ -200,13 +200,7 @@ export function* sagaGetData({ api, logger }, { payload }) {
 
     params.attributes = { ...attributes, ...KanbanConverter.getCardAttributes() };
 
-    const settings = yield select(selectJournalSettings, stateId);
-    const preset = settings.find(preset => preset.id === journalSetting.id);
-    const defaultSettings = getDefaultJournalSetting(journalConfig);
-    const defaultPredicate = get(defaultSettings, 'predicate.val', {});
-    const predicates = ParserPredicate.replacePredicatesType(
-      JournalsConverter.cleanUpPredicate(get(preset, 'settings.predicate.val', preset && !preset.id ? defaultPredicate : params.predicates))
-    );
+    const predicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(params.predicates));
 
     const searchPredicate = isExistValue(searchText)
       ? ParserPredicate.getSearchPredicates({
