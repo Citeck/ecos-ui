@@ -29,7 +29,7 @@ export default class WidgetService {
   }
 
   static openPreviewModal(params = {}) {
-    const { recordId, title = 'doc-preview.modal.title', scale = 1 } = params;
+    const { recordId, title = 'doc-preview.modal.title', scale = 'auto' } = params;
     const modal = new Modal();
 
     modal.open(<DocPreview height={'100%'} scale={scale} recordId={recordId} className="ecos-modal-preview-doc__content" />, {

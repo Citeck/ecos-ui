@@ -37,6 +37,7 @@ export default function getViewer(WrappedComponent, isPdf) {
 
     state = {
       isFullscreenOn: false,
+      isMounted: false,
       scrollPage: 1
     };
 
@@ -54,6 +55,8 @@ export default function getViewer(WrappedComponent, isPdf) {
       if (!isPdf) {
         this.setScrollDefaultPosition();
       }
+
+      this.setState({ isMounted: true });
     }
 
     getSnapshotBeforeUpdate(prevProps, prevState) {
@@ -242,6 +245,10 @@ export default function getViewer(WrappedComponent, isPdf) {
       }
 
       const hasDocTransition = !isLoading && !isFullscreenOn && isFunction(onNextDocument);
+
+      if (!this.state.isMounted) {
+        return null;
+      }
 
       return (
         <Scrollbars
