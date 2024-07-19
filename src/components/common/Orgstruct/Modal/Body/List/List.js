@@ -3,10 +3,13 @@ import PropTypes from 'prop-types';
 import { Collapse } from 'reactstrap';
 import ListItem, { itemPropType } from '../ListItem';
 import { useOrgstructContext } from '../../../OrgstructContext';
+import get from 'lodash/get';
 import './List.scss';
 
 const List = ({ items, nestingLevel = 0 }) => {
   const context = useOrgstructContext();
+
+  const groups = item => get(item, 'attributes.groups', []);
 
   return (
     <ul className={'select-orgstruct__list'}>
@@ -14,7 +17,7 @@ const List = ({ items, nestingLevel = 0 }) => {
         let nestedList = null;
         if (item.hasChildren) {
           const { currentTab, tabItems } = context;
-          const children = tabItems[currentTab].filter(i => i.parentId === item.id);
+          const children = tabItems[currentTab].filter(i => i.parentId === item.id || groups(i).includes(item.id));
 
           nestedList = (
             <Collapse isOpen={item.isOpen}>

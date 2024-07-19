@@ -57,7 +57,8 @@ export class OrgStructApi extends CommonApi {
       lastName: 'lastName',
       nodeRef: '?id',
       authorityType: `authorityType!"${AUTHORITY_TYPE_USER}"`,
-      photo: 'avatar.url'
+      photo: 'avatar.url',
+      groups: 'authorityGroups[]?id'
     };
   }
 
