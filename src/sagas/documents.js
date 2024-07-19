@@ -551,7 +551,7 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
     const createVariants = yield call(api.documents.getCreateVariants, payload.type);
 
     let isRejected = false;
-    let rejectedMsg;
+    const rejectedMessages = [];
 
     /**
      * update version
@@ -575,10 +575,12 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
     const results = yield Promise.allSettled(files);
     results.forEach(result => {
       if (result.status === 'rejected') {
-        rejectedMsg = result.reason;
+        rejectedMessages.push(result.reason);
         isRejected = true;
       }
     });
+
+    const rejectedMsg = rejectedMessages.join('\n');
 
     if (isRejected) {
       if (rejectedMsg) {
