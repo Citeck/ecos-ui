@@ -7,6 +7,7 @@ import throttle from 'lodash/throttle';
 import { t } from '../../../../helpers/export/util';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, SCROLL_STEP } from '../../../../constants/pageTabs';
 import { animateScrollTo, getMLValue } from '../../../../helpers/util';
+import { KEYS_UNUSED_FIELDS } from '../../../../constants/forms';
 
 const SCROLLABLE_CLASS = 'formio-component-tabs_scrollable';
 
@@ -559,7 +560,11 @@ export default class TabsComponent extends NestedComponent {
 
         tabComponents.forEach(component => {
           component.tab = i;
-          this.addComponent(component, this.tabs[i], this.data, null, null, state);
+
+          // Cause: https://jira.citeck.ru/browse/ECOSUI-3009
+          if (!KEYS_UNUSED_FIELDS.includes(component.key)) {
+            this.addComponent(component, this.tabs[i], this.data, null, null, state);
+          }
         });
       }
     }
