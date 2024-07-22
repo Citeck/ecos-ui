@@ -94,7 +94,7 @@ class DropZone extends Component {
       case FileStatuses.ERROR_UPLOAD:
         const { message, status } = response || {};
         const { description } = status || {};
-        const clientError = `${t(Labels.Messages.ERROR_FILE_UPLOAD)}. ${message} ${description}`;
+        const clientError = `${t(Labels.Messages.ERROR_FILE_UPLOAD)} ${message || ''} ${description || ''}`;
 
         if (_clientError !== clientError) {
           newState = {
@@ -102,6 +102,7 @@ class DropZone extends Component {
             ...newState,
             clientError
           };
+          xhr.onerror(clientError);
         }
         break;
       case FileStatuses.HEADERS_RECEIVED:
