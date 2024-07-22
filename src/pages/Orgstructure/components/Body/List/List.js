@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Collapse } from 'reactstrap';
+import get from 'lodash/get';
 
 import ListItem, { itemPropType } from '../ListItem';
 import { useOrgstructContext } from '../../../../../components/common/Orgstruct/OrgstructContext';
@@ -13,6 +14,7 @@ const List = ({ items, nestingLevel = 0, tabId, toggleToFirstTab }) => {
 
   const [selectedId, setSelectedId] = useState('');
 
+  const groups = item => get(item, 'attributes.groups', []);
   const deletePersonItem = item => {
     const record = Records.get(item.id);
 
@@ -28,7 +30,7 @@ const List = ({ items, nestingLevel = 0, tabId, toggleToFirstTab }) => {
 
         if (item.hasChildren) {
           const { currentTab, tabItems } = context;
-          const children = tabItems[currentTab].filter(i => i.parentId === item.id);
+          const children = tabItems[currentTab].filter(i => i.parentId === item.id || groups(i).includes(item.id));
 
           nestedList = (
             <Collapse isOpen={item.isOpen}>
