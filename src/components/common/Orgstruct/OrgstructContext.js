@@ -514,7 +514,9 @@ export const OrgstructProvider = props => {
         setPersonModal,
 
         renderListItem: item => {
-          if (get(item, 'attributes.authorityType') === 'USER' && userMask) {
+          const authorityType = get(item, 'attributes.authorityType') || '';
+
+          if (authorityType === 'USER' && userMask) {
             const usernameString = renderUsernameString(userMask, { ...(item.attributes || {}) });
             const plainText = stripHTML(usernameString);
 
@@ -531,10 +533,10 @@ export const OrgstructProvider = props => {
 
           if (item.extraLabel) {
             return (
-              <>
+              <div title={authorityType === 'USER' ? item.label + ` (${item.extraLabel})` : ''}>
                 {item.label}
                 <span className="select-orgstruct__list-item-label-extra">({item.extraLabel})</span>
-              </>
+              </div>
             );
           }
 
