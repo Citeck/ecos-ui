@@ -8,6 +8,7 @@ import isNil from 'lodash/isNil';
 
 import { getScale } from '../../../helpers/util';
 import { DocScaleOptions } from '../../../constants';
+import { Loader } from '../../common';
 
 class ImgViewer extends Component {
   static propTypes = {
@@ -27,15 +28,17 @@ class ImgViewer extends Component {
     }
   };
 
-  _imageRef = null;
-
   constructor(props) {
     super(props);
 
     this.refImgCtr = props.forwardedRef || React.createRef();
 
     this.state = {
-      calcScale: 1
+      calcScale: 1,
+      imgWidth: 0,
+      imgHeight: 0,
+      refImage: null,
+      isRefSet: false
     };
 
     this.exist = true;
@@ -45,14 +48,20 @@ class ImgViewer extends Component {
     if (this.elImage.addEventListener) {
       this.elImage.addEventListener('error', this.onError);
     }
+
+    if (!!this.props.src) {
+      this.preloadImage(this.props.src);
+    }
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     let {
-      settings: { scale: newScale }
+      settings: { scale: newScale },
+      src: newSrc
     } = this.props;
     let {
-      settings: { scale: oldScale }
+      settings: { scale: oldScale },
+      src: oldSrc
     } = prevProps;
 
     if (newScale !== oldScale) {
@@ -63,6 +72,10 @@ class ImgViewer extends Component {
       if (!Number.isNaN(parseFloat(newScale))) {
         this.props.calcScale(calcScale);
       }
+    }
+
+    if (newSrc !== oldSrc) {
+      this.preloadImage(newSrc);
     }
   }
 
@@ -76,8 +89,7 @@ class ImgViewer extends Component {
 
   setImgRef = ref => {
     if (ref) {
-      this._imageRef = ref;
-      this.setImageScale();
+      this.setState({ refImage: ref }, this.setImageScale);
     }
   };
 
@@ -98,7 +110,7 @@ class ImgViewer extends Component {
   };
 
   get elImage() {
-    const element = this._imageRef;
+    const element = this.state.refImage;
 
     return isEmpty(element) ? {} : element;
   }
@@ -138,7 +150,7 @@ class ImgViewer extends Component {
     styles.transformOrigin = 'center';
 
     if (calcScale <= 1) {
-      const imageWidth = get(this._imageRef, 'offsetWidth', 0);
+      const imageWidth = get(this.state.refImage, 'offsetWidth', 0);
 
       if (wrapper && wrapper.offsetWidth > imageWidth) {
         wrapper.style.textAlign = 'center';
@@ -160,12 +172,37 @@ class ImgViewer extends Component {
     }
   }
 
+  preloadImage = src => {
+    const img = new Image();
+    img.src = src;
+    img.onload = () => {
+      if (this.exist) {
+        this.setState(
+          {
+            imgWidth: img.width,
+            imgHeight: img.height
+          },
+          this.setImageScale
+        );
+      }
+    };
+    img.onerror = this.onError;
+  };
+
   getCalcScale = (props = this.props) => {
     const {
       settings: { scale }
     } = props;
     const { clientWidth: cW, clientHeight: cH } = this.elContainer;
-    const { clientWidth: iW, clientHeight: iH } = this.elImage;
+    const { clientWidth: iWOrigin, clientHeight: iHOrigin } = this.elImage;
+    const { imgWidth: iWPreload, imgHeight: iHPreload } = this.state;
+
+    const iW = !(iWOrigin && iHOrigin) ? iWPreload : iWOrigin;
+    const iH = !(iWOrigin && iHOrigin) ? iHPreload : iHOrigin;
+
+    if (iW && iH) {
+      this.setState({ isRefSet: true });
+    }
 
     if (!(cW && cH && iW && iH) || isNil(scale)) {
       return 1;
@@ -183,8 +220,17 @@ class ImgViewer extends Component {
     }
   };
 
+  renderLoader() {
+    const { isRefSet } = this.state;
+
+    return !isRefSet && <Loader blur />;
+  }
+
   render() {
     const { src } = this.props;
+    const { isRefSet } = this.state;
+
+    const Loader = this.renderLoader();
 
     return (
       <div
@@ -193,8 +239,10 @@ class ImgViewer extends Component {
         })}
         ref={this.refImgCtr}
       >
+        {Loader}
         {!!src && (
           <img
+            hidden={!isRefSet}
             src={src}
             alt={src}
             className="ecos-doc-preview__viewer-page-content ecos-doc-preview__viewer-page-content_img"
