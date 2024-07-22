@@ -1,6 +1,7 @@
 import moment from 'moment';
 
 import * as Util from '../util';
+import { permute } from '../util';
 
 function check(data, functionName) {
   data.forEach(item => {
@@ -451,5 +452,32 @@ describe('Util helpers', () => {
     ];
 
     check(data, 'getMonthPeriodByDate');
+  });
+
+  describe('function permute', () => {
+    it('Without arguments - returns an empty list in the list', () => {
+      const result = permute([]);
+      expect(result).toEqual([[]]);
+    });
+
+    it('With one argument - returns a list of one item in the list', () => {
+      const result = permute([1]);
+      expect(result).toEqual([[1]]);
+    });
+
+    it('With one argument (string) - returns a list of one item in the list', () => {
+      const result = permute(['a']);
+      expect(result).toEqual([['a']]);
+    });
+
+    it('With two arguments - returns two different options as lists inside the list', () => {
+      const result = permute([1, 2]);
+      expect(result).toEqual([[1, 2], [2, 1]]);
+    });
+
+    it('With two arguments (strings) - returns two different parameters as a list within a list', () => {
+      const result = permute(['a', 'b']);
+      expect(result).toEqual([['a', 'b'], ['b', 'a']]);
+    });
   });
 });
