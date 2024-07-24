@@ -44,7 +44,8 @@ export class OrgStructApi extends CommonApi {
       groupType: 'groupType!""',
       email: 'email',
       nodeRef: '?id',
-      authorityType: `authorityType!"${AUTHORITY_TYPE_GROUP}"`
+      authorityType: `authorityType!"${AUTHORITY_TYPE_GROUP}"`,
+      groups: 'authorityGroups[]?id'
     };
   }
 
