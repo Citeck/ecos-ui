@@ -37,9 +37,7 @@ class PdfPage extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if (this.shouldRenderPage(prevProps)) {
-      this.renderPage();
-    }
+    this.renderPage();
   }
 
   shouldComponentUpdate(nextProps) {
@@ -51,13 +49,6 @@ class PdfPage extends Component {
     } = this.props;
 
     return newScale !== oldScale;
-  }
-
-  shouldRenderPage(prevProps) {
-    const { pdf, pageNumber } = this.props;
-    const { pdf: prevPdf, pageNumber: prevPageNumber } = prevProps;
-
-    return pdf !== prevPdf || pageNumber !== prevPageNumber;
   }
 
   renderPage() {
