@@ -7,7 +7,7 @@ import omit from 'lodash/omit';
 import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 
-import { t } from '../../../helpers/util';
+import { handleCloseMenuOnScroll, t } from '../../../helpers/util';
 import ZIndex from '../../../services/ZIndex';
 import Columns from '../../common/templates/Columns/Columns';
 import { IcoBtn } from '../../common/btns';
@@ -270,13 +270,7 @@ export default class Filter extends Component {
         styles={{ menuPortal: base => ({ ...base, zIndex }) }}
         menuPortalTarget={document.body}
         menuPlacement="auto"
-        closeMenuOnScroll={(e, { innerSelect }) => {
-          if (innerSelect) {
-            return false;
-          }
-
-          return !(e.target === document || e.target === document.documentElement);
-        }}
+        closeMenuOnScroll={(e, { innerSelect }) => handleCloseMenuOnScroll(e, innerSelect)}
       />
     );
   }

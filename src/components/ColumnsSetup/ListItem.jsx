@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 
+import { handleCloseMenuOnScroll } from '../../helpers/util';
 import { t } from '../../helpers/export/util';
 import ZIndex from '../../services/ZIndex';
 import Columns from '../common/templates/Columns/Columns';
@@ -70,7 +71,7 @@ export default class ListItem extends Component {
               styles={{ menuPortal: base => ({ ...base, zIndex: ZIndex.calcZ() }) }}
               menuPortalTarget={document.body}
               menuPlacement="auto"
-              closeMenuOnScroll={(e, { innerSelect }) => !innerSelect}
+              closeMenuOnScroll={(e, { innerSelect }) => handleCloseMenuOnScroll(e, innerSelect)}
             />
           ) : null
         ]}

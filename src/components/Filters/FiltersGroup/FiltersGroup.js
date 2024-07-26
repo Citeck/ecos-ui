@@ -6,7 +6,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 
-import { getId, t } from '../../../helpers/util';
+import { getId, handleCloseMenuOnScroll, t } from '../../../helpers/util';
 import { IcoBtn } from '../../common/btns';
 import { Select, Well } from '../../common/form';
 import { getPredicate, PREDICATE_LIST_WITH_CLEARED_VALUES } from '../../Records/predicates/predicates';
@@ -218,7 +218,7 @@ export default class FiltersGroup extends Component {
               }}
               menuPortalTarget={document.body}
               menuPlacement="auto"
-              closeMenuOnScroll={(e, { innerSelect }) => !innerSelect}
+              closeMenuOnScroll={(e, { innerSelect }) => handleCloseMenuOnScroll(e, innerSelect)}
             />
 
             {first && (
@@ -236,7 +236,7 @@ export default class FiltersGroup extends Component {
                 }}
                 menuPortalTarget={document.body}
                 menuPlacement="auto"
-                closeMenuOnScroll={(e, { innerSelect }) => !innerSelect}
+                closeMenuOnScroll={(e, { innerSelect }) => handleCloseMenuOnScroll(e, innerSelect)}
               />
             )}
             <div className="ecos-filters-group__tools-space" />

@@ -3,7 +3,7 @@ import isFunction from 'lodash/isFunction';
 import get from 'lodash/get';
 
 import { t } from '../../../../../../helpers/export/util';
-import { getBool } from '../../../../../../helpers/util';
+import { getBool, handleCloseMenuOnScroll } from '../../../../../../helpers/util';
 import ZIndex from '../../../../../../services/ZIndex';
 import { Checkbox, Select } from '../../../../../common/form';
 import EditorScope from '../../EditorScope';
@@ -83,7 +83,7 @@ export default class BooleanEditor extends BaseEditor {
           className="select_narrow select_width_full ecosZIndexAnchor"
           menuPortalTarget={document.body}
           menuPlacement="auto"
-          closeMenuOnScroll={(e, { innerSelect }) => !innerSelect}
+          closeMenuOnScroll={(e, { innerSelect }) => handleCloseMenuOnScroll(e, innerSelect)}
           styles={{ menuPortal: base => ({ ...base, zIndex }) }}
         />
       );

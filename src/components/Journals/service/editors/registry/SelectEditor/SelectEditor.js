@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
+import { handleCloseMenuOnScroll } from '../../../../../../helpers/util';
 import logger from '../../../../../../services/logger';
 import ZIndex from '../../../../../../services/ZIndex';
 import { t } from '../../../../../../helpers/export/util';
@@ -111,7 +112,7 @@ export default class SelectEditor extends BaseEditor {
           value={selected}
           menuPortalTarget={document.body}
           menuPlacement="auto"
-          closeMenuOnScroll={(e, { innerSelect }) => !innerSelect}
+          closeMenuOnScroll={(e, { innerSelect }) => handleCloseMenuOnScroll(e, innerSelect)}
           styles={{
             menu: css => ({
               ...css,
