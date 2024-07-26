@@ -1251,6 +1251,14 @@ export function isJsonObjectString(str) {
   }
 }
 
+export function handleCloseMenuOnScroll(e, innerSelect) {
+  if (innerSelect) {
+    return false;
+  }
+
+  return !(e.target === document || e.target === document.documentElement);
+}
+
 export function getMedian(source) {
   if (isEmpty(source)) {
     return 0;
