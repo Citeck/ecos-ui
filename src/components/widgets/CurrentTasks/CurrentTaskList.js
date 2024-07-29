@@ -133,7 +133,7 @@ class CurrentTaskList extends React.Component {
   }
 
   renderContent() {
-    const { isSmallMode, isLoading, currentTasks, isMobile } = this.props;
+    const { isLoading, currentTasks } = this.props;
     const { previousHeight } = this.state;
     const isEmptyList = isEmpty(currentTasks);
 
@@ -145,11 +145,12 @@ class CurrentTaskList extends React.Component {
       return <InfoText text={t('current-tasks-widget.no-tasks')} />;
     }
 
-    if (isSmallMode || isMobile) {
+    // Cause: https://jira.citeck.ru/browse/ECOSUI-2970
+    /*if (isSmallMode || isMobile) {
       return this.renderEnum();
-    }
+    }*/
 
-    return this.renderTable();
+    return this.renderEnum();
   }
 
   render() {
