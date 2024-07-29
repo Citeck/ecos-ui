@@ -147,14 +147,16 @@ class ImgViewer extends Component {
       wrapper.style.textAlign = 'unset';
     }
 
-    styles.transformOrigin = 'center';
-
     if (calcScale <= 1) {
+      styles.transformOrigin = 'center';
+
       const imageWidth = get(this.state.refImage, 'offsetWidth', 0);
 
       if (wrapper && wrapper.offsetWidth > imageWidth) {
         wrapper.style.textAlign = 'center';
       }
+    } else {
+      styles.transformOrigin = 'top left';
     }
 
     return styles;
