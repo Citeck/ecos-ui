@@ -125,7 +125,17 @@ class FormatterService {
     formatProps.cell = cellValue;
 
     try {
-      return <FormatterService.PopperWrapper contentComponent={fmtInstance.format(formatProps)} />;
+      // Sometimes Formatter.js returns an empty string,
+      // so you need to check if the contentComponent is empty.
+      // If the contentComponent is empty, then you need to return the plain text.
+
+      const contentComponent = fmtInstance.format(formatProps);
+
+      if (!!contentComponent) {
+        return <FormatterService.PopperWrapper contentComponent={contentComponent} />;
+      } else {
+        return <FormatterService.PopperWrapper text={formatProps.cell} />;
+      }
     } catch (e) {
       console.error('[FormattersService._formatSingleValueCellImpl] error. Props: ', formatProps, e);
       return FormatterService.errorMessage;
