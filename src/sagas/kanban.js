@@ -221,7 +221,7 @@ export function* sagaGetData({ api, logger }, { payload }) {
           ? {
               t: 'ge',
               att: '_statusModified',
-              val: column.hideItemsOlderThan
+              val: `-${column.hideItemsOlderThan}`
             }
           : undefined;
 
