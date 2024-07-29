@@ -62,8 +62,10 @@ if (customConditional) {
       get content() {
         return t('form-constructor.html.custom-validation-code');
       }
-    },
-    {
+    }
+
+    // Cause: https://jira.citeck.ru/browse/ECOSUI-3009
+    /*{
       type: 'well',
       components: [
         {
@@ -82,7 +84,7 @@ if (customConditional) {
           input: true
         }
       ]
-    }
+    }*/
   ];
 }
 
