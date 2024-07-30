@@ -80,8 +80,11 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
   createViewOnlyElement() {
     this.element = super.createViewOnlyElement();
 
+    const theme = get(this.component, 'wysiwyg.theme');
+    const className = theme ? 'ql-' + theme : '';
+
     if (!this.isPlain) {
-      this.element.classList.add('dl-html');
+      this.element.classList.add('dl-html', `${className}`);
     }
 
     return this.element;
@@ -91,7 +94,22 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     super.createViewOnlyValue(container);
 
     if (!this.isPlain) {
-      this.valueElement.classList.add('dd-html');
+      const newElement = document.createElement('div');
+
+      if (get(this.valueElement, 'attributes')) {
+        Array.from(this.valueElement.attributes).forEach(attr => {
+          newElement.setAttribute(attr.name, attr.value);
+        });
+      }
+
+      newElement.classList.add('dd-html', 'ql-editor');
+      newElement.innerHTML = this.valueElement.innerHTML;
+
+      if (get(this.valueElement, 'parentNode')) {
+        this.valueElement.parentNode.replaceChild(newElement, this.valueElement);
+      }
+
+      this.valueElement = newElement;
     }
   }
 
