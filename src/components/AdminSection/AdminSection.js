@@ -45,9 +45,18 @@ class AdminSection extends React.PureComponent {
   };
 
   isHidden = type => {
-    const { isActivePage, activeSection } = this.props;
+    const { activeSection, isAccessibleSectionType, urlParams, isAccessible } = this.props;
+    const { type: typeFromUrl } = urlParams;
 
-    return !isActivePage || (activeSection.type || SectionTypes.DEV_TOOLS) !== type;
+    if (!isAccessible) {
+      if (isAccessibleSectionType) {
+        return typeFromUrl !== type;
+      }
+
+      return true;
+    }
+
+    return (activeSection.type || SectionTypes.DEV_TOOLS) !== type;
   };
 
   isFluid = () => ![SectionTypes.DEV_TOOLS].includes(get(this.props, 'activeSection.type'));

@@ -61,7 +61,9 @@ import {
   setSelectAllRecordsVisible,
   setSelectedJournals,
   setSelectedRecords,
-  setUrl
+  setUrl,
+  setForceUpdate,
+  toggleViewMode
 } from '../actions/journals';
 import {
   selectGridPaginationMaxItems,
@@ -87,6 +89,9 @@ import PageService from '../services/PageService';
 import JournalsConverter from '../dto/journals';
 import { emptyJournalConfig } from '../reducers/journals';
 import { JournalUrlParams, SourcesId } from '../constants';
+import { isKanban } from '../components/Journals/constants';
+import { reloadBoardData } from '../actions/kanban';
+import { selectKanban } from '../selectors/kanban';
 
 const getDefaultSortBy = config => {
   const params = config.params || {};
@@ -593,6 +598,7 @@ function* sagaReloadGrid({ api, logger, stateId, w }, { payload = {} }) {
     yield put(setSelectAllPageRecords(w(_selectAllPageRecords)));
     yield put(setSelectedRecords(w(_selectedRecords)));
     yield put(setGrid(w({ ...params, ...gridData, editingRules })));
+    yield put(setForceUpdate(w(true)));
     yield put(setLoading(w(false)));
   } catch (e) {
     logger.error('[journals sagaReloadGrid saga error', e);
@@ -1126,6 +1132,22 @@ function* sagaResetFiltering({ logger, w, stateId }) {
   }
 }
 
+export function* sagaToggleViewMode({ logger, w }, { payload }) {
+  try {
+    const { stateId } = payload;
+    const journalData = yield select(selectJournalData, stateId);
+
+    const { isFirstLoading } = yield select(selectKanban, stateId);
+
+    if (journalData.forceUpdate && !isFirstLoading && isKanban(journalData.viewMode)) {
+      yield put(reloadBoardData({ stateId }));
+      yield put(setForceUpdate(w(false)));
+    }
+  } catch (e) {
+    logger.error('[journals sagaToggleViewMode saga error', e);
+  }
+}
+
 function* saga(ea) {
   yield takeEvery(getDashletConfig().type, wrapSaga, { ...ea, saga: sagaGetDashletConfig });
   yield takeEvery(setDashletConfigByParams().type, wrapSaga, { ...ea, saga: sagaSetDashletConfigFromParams });
@@ -1160,6 +1182,8 @@ function* saga(ea) {
   yield takeEvery(goToJournalsPage().type, wrapSaga, { ...ea, saga: sagaGoToJournalsPage });
   yield takeEvery(runSearch().type, wrapSaga, { ...ea, saga: sagaSearch });
   yield takeEvery(checkConfig().type, wrapSaga, { ...ea, saga: sagaCheckConfig });
+
+  yield takeEvery(toggleViewMode().type, wrapSaga, { ...ea, saga: sagaToggleViewMode });
 }
 
 export default saga;
