@@ -25,7 +25,7 @@ const List = ({ items, nestingLevel = 0, tabId, toggleToFirstTab, previousParent
 
   return (
     <ul className={'select-orgstruct__list'}>
-      {items.map(item => {
+      {items.map((item, index) => {
         let nestedList = null;
 
         if (item.hasChildren) {
@@ -54,7 +54,7 @@ const List = ({ items, nestingLevel = 0, tabId, toggleToFirstTab, previousParent
         return (
           <ListItem
             previousParent={previousParent}
-            key={item.id}
+            key={`${index}-${nestingLevel}-${item.id}`}
             item={item}
             nestingLevel={nestingLevel}
             nestedList={nestedList}

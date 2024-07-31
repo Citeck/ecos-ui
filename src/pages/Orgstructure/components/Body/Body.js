@@ -15,9 +15,13 @@ const Body = ({ reloadList, tabId, toggleToFirstTab }) => {
 
   const children = tabItems[currentTab].filter(i => !i.parentId);
 
+  const renderView = props => {
+    return <div {...props} style={{ ...props.style, marginBottom: '-13px' }} />;
+  };
+
   return (
     <div className="select-orgstruct__body">
-      <Scrollbars className="slide-menu-list">
+      <Scrollbars className="slide-menu-list" renderView={renderView}>
         <div className="select-orgstruct__list-wrapper">
           {isSearching && <Loader blur />}
           {!children.length && !isSearching && <InfoText text={t('select-orgstruct.empty-list')} />}
