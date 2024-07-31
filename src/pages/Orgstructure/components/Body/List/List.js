@@ -9,7 +9,7 @@ import Records from '../../../../../components/Records';
 
 import './List.scss';
 
-const List = ({ items, nestingLevel = 0, tabId, toggleToFirstTab }) => {
+const List = ({ items, nestingLevel = 0, tabId, toggleToFirstTab, previousParent }) => {
   const context = useOrgstructContext();
 
   const [selectedId, setSelectedId] = useState('');
@@ -29,18 +29,31 @@ const List = ({ items, nestingLevel = 0, tabId, toggleToFirstTab }) => {
         let nestedList = null;
 
         if (item.hasChildren) {
-          const { currentTab, tabItems } = context;
+          const { currentTab, tabItems, openedItems } = context;
           const children = tabItems[currentTab].filter(i => i.parentId === item.id || groups(i).includes(item.id));
 
           nestedList = (
-            <Collapse isOpen={item.isOpen}>
-              <List items={children} nestingLevel={nestingLevel + 1} tabId={tabId} toggleToFirstTab={toggleToFirstTab} />
+            <Collapse
+              isOpen={
+                previousParent && openedItems[item.id] && openedItems[item.id].length >= 0
+                  ? openedItems[item.id].includes(previousParent)
+                  : item.isOpen
+              }
+            >
+              <List
+                previousParent={item.id}
+                items={children}
+                nestingLevel={nestingLevel + 1}
+                tabId={tabId}
+                toggleToFirstTab={toggleToFirstTab}
+              />
             </Collapse>
           );
         }
 
         return (
           <ListItem
+            previousParent={previousParent}
             key={item.id}
             item={item}
             nestingLevel={nestingLevel}

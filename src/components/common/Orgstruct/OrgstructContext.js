@@ -4,6 +4,7 @@ import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 import debounce from 'lodash/debounce';
 import isEmpty from 'lodash/isEmpty';
+import isArray from 'lodash/isArray';
 import get from 'lodash/get';
 
 import { OrgStructApi } from '../../../api/orgStruct';
@@ -66,6 +67,7 @@ export const OrgstructProvider = props => {
   const [isAllUsersGroupsExists, setIsAllUsersGroupsExists] = useState(undefined);
   const [isSearching, setIsSearching] = useState(false);
   const [applyAndClose, setApplyAndClose] = useState(false);
+  const [openedItems, setOpenedItems] = useState({});
   const [tabItems, setTabItems] = useState({
     [TabTypes.LEVELS]: [],
     [TabTypes.USERS]: [],
@@ -168,8 +170,15 @@ export const OrgstructProvider = props => {
 
   const prevDefaultValue = usePrevious(defaultValue);
   const onToggleCollapse = useCallback(
-    (targetItem, callback) => {
+    (targetItem, callback, previousParent) => {
       const itemIdx = tabItems[currentTab].findIndex(item => item.id === targetItem.id);
+
+      if (previousParent) {
+        setOpenedItems(prev => ({
+          ...prev,
+          [targetItem.id]: handleOpenedItems(prev, targetItem.id, previousParent)
+        }));
+      }
 
       if (!targetItem.isLoaded && targetItem.hasChildren) {
         const groupName = targetItem.attributes.shortName;
@@ -238,6 +247,14 @@ export const OrgstructProvider = props => {
   };
 
   const liveSearchDebounce = debounce(onUpdateTree, 500);
+
+  const handleOpenedItems = (prev, id, parentId) => {
+    return isArray(prev[id]) && !isEmpty(prev[id])
+      ? prev[id].includes(parentId)
+        ? prev[id].filter(item => item !== parentId)
+        : [...prev[id], parentId]
+      : [parentId];
+  };
 
   const setSelectedItem = (item, selectedItems = tabItems[TabTypes.SELECTED], extra = {}) => {
     return {
@@ -629,6 +646,7 @@ export const OrgstructProvider = props => {
         },
 
         onToggleCollapse,
+        openedItems,
 
         onChangePage: ({ page, maxItems }) => {
           setPagination({ ...pagination, page, count: maxItems });

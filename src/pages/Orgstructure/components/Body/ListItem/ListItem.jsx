@@ -82,8 +82,8 @@ const renderListItem = (item, nestingLevel, isPerson) => {
   );
 };
 
-const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, selectedPerson, tabId, toggleToFirstTab }) => {
-  const { onToggleCollapse, getItemsByParent, setGroupModal, setPersonModal } = useContext(OrgstructContext);
+const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, selectedPerson, tabId, toggleToFirstTab, previousParent }) => {
+  const { onToggleCollapse, getItemsByParent, setGroupModal, setPersonModal, openedItems } = useContext(OrgstructContext);
 
   const [hovered, setHovered] = useState(false);
   const [scrollLeft, setScrollLeftPosition] = useState(0);
@@ -92,7 +92,7 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
   const selected = selectedPerson === item.id;
   const onClickLabel = () => {
     if (item.hasChildren) {
-      onToggleCollapse(item);
+      onToggleCollapse(item, null, previousParent);
     }
   };
   const onScroll = useCallback(
@@ -116,9 +116,14 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
 
   const renderCollapseHandler = () => {
     if (item.hasChildren) {
+      const isOpen =
+        previousParent && openedItems[item.id] && openedItems[item.id].length >= 0
+          ? openedItems[item.id].includes(previousParent)
+          : item.isOpen;
+
       const collapseHandlerClassNames = classNames('icon select-orgstruct__collapse-handler', {
-        'icon-small-right': !item.isOpen,
-        'icon-small-down': item.isOpen
+        'icon-small-right': !isOpen,
+        'icon-small-down': isOpen
       });
 
       return <span className={collapseHandlerClassNames} />;
