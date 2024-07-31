@@ -125,11 +125,7 @@ class ImgViewer extends Component {
     const {
       settings: { scale }
     } = this.props;
-    const scales = [DocScaleOptions.PAGE_HEIGHT, DocScaleOptions.AUTO, DocScaleOptions.PAGE_FIT, DocScaleOptions.PAGE_WIDTH];
-
-    if (typeof scale === 'number') {
-      return true;
-    }
+    const scales = [DocScaleOptions.AUTO, DocScaleOptions.PAGE_FIT, DocScaleOptions.PAGE_WIDTH];
 
     return scales.includes(scale);
   }
@@ -147,16 +143,18 @@ class ImgViewer extends Component {
       wrapper.style.textAlign = 'unset';
     }
 
-    if (calcScale <= 1) {
-      styles.transformOrigin = 'center';
+    if (!this.isCentered) {
+      styles.transformOrigin = 'top left';
+    } else {
+      styles.transformOrigin = 'top center';
+    }
 
+    if (calcScale <= 1) {
       const imageWidth = get(this.state.refImage, 'offsetWidth', 0);
 
       if (wrapper && wrapper.offsetWidth > imageWidth) {
         wrapper.style.textAlign = 'center';
       }
-    } else {
-      styles.transformOrigin = 'top left';
     }
 
     return styles;
