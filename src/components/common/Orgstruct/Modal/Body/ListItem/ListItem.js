@@ -7,7 +7,7 @@ import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, TabTypes } from '../../../co
 
 import './ListItem.scss';
 
-const ListItem = ({ item, nestingLevel, nestedList }) => {
+const ListItem = ({ item, nestingLevel, nestedList, previousParent }) => {
   const context = useContext(OrgstructContext);
   const { controlProps = {}, renderListItem, currentTab } = context;
   const { allowedAuthorityTypes, allowedGroupTypes, allowedGroupSubTypes } = controlProps;
@@ -36,7 +36,7 @@ const ListItem = ({ item, nestingLevel, nestedList }) => {
 
   const onClickLabel = () => {
     if (item.hasChildren) {
-      context.onToggleCollapse(item);
+      context.onToggleCollapse(item, null, previousParent);
     }
   };
 
@@ -49,9 +49,14 @@ const ListItem = ({ item, nestingLevel, nestedList }) => {
 
   const renderCollapseHandler = () => {
     if (item.hasChildren) {
+      const isOpen =
+        previousParent && context.openedItems[item.id] && context.openedItems[item.id].length >= 0
+          ? context.openedItems[item.id].includes(previousParent)
+          : item.isOpen;
+
       const collapseHandlerClassNames = classNames('icon select-orgstruct__collapse-handler', {
-        'icon-small-right': !item.isOpen,
-        'icon-small-down': item.isOpen
+        'icon-small-right': !isOpen,
+        'icon-small-down': isOpen
       });
 
       return <span className={collapseHandlerClassNames} />;

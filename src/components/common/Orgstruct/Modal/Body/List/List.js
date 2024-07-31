@@ -6,7 +6,7 @@ import { useOrgstructContext } from '../../../OrgstructContext';
 import get from 'lodash/get';
 import './List.scss';
 
-const List = ({ items, nestingLevel = 0 }) => {
+const List = ({ items, nestingLevel = 0, previousParent }) => {
   const context = useOrgstructContext();
 
   const groups = item => get(item, 'attributes.groups', []);
@@ -16,17 +16,23 @@ const List = ({ items, nestingLevel = 0 }) => {
       {items.map(item => {
         let nestedList = null;
         if (item.hasChildren) {
-          const { currentTab, tabItems } = context;
+          const { currentTab, tabItems, openedItems } = context;
           const children = tabItems[currentTab].filter(i => i.parentId === item.id || groups(i).includes(item.id));
 
           nestedList = (
-            <Collapse isOpen={item.isOpen}>
-              <List items={children} nestingLevel={nestingLevel + 1} />
+            <Collapse
+              isOpen={
+                previousParent && openedItems[item.id] && openedItems[item.id].length >= 0
+                  ? openedItems[item.id].includes(previousParent)
+                  : item.isOpen
+              }
+            >
+              <List previousParent={item.id} items={children} nestingLevel={nestingLevel + 1} />
             </Collapse>
           );
         }
 
-        return <ListItem key={item.id} item={item} nestingLevel={nestingLevel} nestedList={nestedList} />;
+        return <ListItem previousParent={previousParent} key={item.id} item={item} nestingLevel={nestingLevel} nestedList={nestedList} />;
       })}
     </ul>
   );
