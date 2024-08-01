@@ -541,7 +541,7 @@ export const OrgstructProvider = props => {
               return <div title={plainText} dangerouslySetInnerHTML={{ __html: usernameString }} />;
             }
 
-            return usernameString;
+            return <span title={usernameString}>{usernameString}</span>;
           }
 
           if (typeof renderListItem === 'function') {
@@ -557,7 +557,7 @@ export const OrgstructProvider = props => {
             );
           }
 
-          return item.label;
+          return <span title={authorityType === 'USER' ? item.label : ''}>{item.label}</span>;
         },
 
         toggleSelectModal: () => {
