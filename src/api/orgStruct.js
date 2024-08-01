@@ -385,13 +385,16 @@ export class OrgStructApi extends CommonApi {
 
     const isEModelPerson = sourcesId === SourcesId.PERSON;
 
+    const searchFieldsTwoWords = ['firstName', 'lastName'];
+    const searchFieldsThreeWords = ['firstName', 'lastName', 'middleName'];
+
     if (isEModelPerson) {
       switch (val.length) {
         case 2:
-          searchFields = ['firstName', 'lastName'];
+          searchFields = searchFieldsTwoWords;
           break;
         case 3:
-          searchFields = ['firstName', 'lastName', 'middleName'];
+          searchFields = searchFieldsThreeWords;
           break;
         default:
           break;
@@ -448,6 +451,8 @@ export class OrgStructApi extends CommonApi {
     });
 
     if (isEModelPerson) {
+      let query;
+
       switch (val.length) {
         case 0:
           return [];
@@ -455,8 +460,26 @@ export class OrgStructApi extends CommonApi {
           queryVal.push(singleFieldQuery(searchFields, val[0]));
           break;
         case 2:
+          query = generateQuery(searchFields, permute(val));
+
+          if (get(query, 'v') && isArray(query.v)) {
+            query.v.push(singleFieldQuery(searchFields, val.join(' ')));
+          }
+
+          queryVal.push(query);
+          break;
         case 3:
-          queryVal.push(generateQuery(searchFields, permute(val)));
+          const firstSimilarOptions = [[val[0], val[1]].join(' '), val[2]];
+          const secSimilarOptions = [[val[1], val[2]].join(' '), val[0]];
+
+          query = generateQuery(searchFields, permute(val));
+
+          if (get(query, 'v') && isArray(query.v)) {
+            query.v.push(generateQuery(searchFieldsTwoWords, permute(firstSimilarOptions)));
+            query.v.push(generateQuery(searchFieldsTwoWords, permute(secSimilarOptions)));
+          }
+
+          queryVal.push(query);
           break;
         default:
           queryVal.push(multiFieldQuery(searchFields, val.join(' ')));
