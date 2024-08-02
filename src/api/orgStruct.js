@@ -457,13 +457,16 @@ export class OrgStructApi extends CommonApi {
         case 0:
           return [];
         case 1:
-          queryVal.push(singleFieldQuery(searchFields, val[0]));
+          queryVal.push(singleFieldQuery(searchFields, val[0])); // search by originSearchFields for a single word
           break;
         case 2:
-          query = generateQuery(searchFields, permute(val));
+          query = generateQuery(searchFields, permute(val)); // sorting through all the variants of the surname + the first name of two words
 
           if (get(query, 'v') && isArray(query.v)) {
-            query.v.push(singleFieldQuery(searchFields, val.join(' ')));
+            query.v.push(singleFieldQuery(searchFieldsThreeWords, val.join(' '))); // two words are completely one field of full name
+
+            query.v.push(generateQuery(['firstName', 'middleName'], permute(val))); // search by name + patronymic
+            query.v.push(generateQuery(['lastName', 'middleName'], permute(val))); // search by last name + patronymic
           }
 
           queryVal.push(query);
@@ -472,17 +475,22 @@ export class OrgStructApi extends CommonApi {
           const firstSimilarOptions = [[val[0], val[1]].join(' '), val[2]];
           const secSimilarOptions = [[val[1], val[2]].join(' '), val[0]];
 
-          query = generateQuery(searchFields, permute(val));
+          query = generateQuery(searchFields, permute(val)); // sorting through all three-word full name options
 
           if (get(query, 'v') && isArray(query.v)) {
-            query.v.push(generateQuery(searchFieldsTwoWords, permute(firstSimilarOptions)));
-            query.v.push(generateQuery(searchFieldsTwoWords, permute(secSimilarOptions)));
+            query.v.push(singleFieldQuery(searchFieldsThreeWords, val.join(' '))); // three words is completely one field of full name
+
+            // two words standing next to each other out of three are completely one field of full name
+            [['firstName', 'middleName'], ['lastName', 'middleName'], ['lastName', 'firstName']].forEach(fields => {
+              query.v.push(generateQuery(fields, permute(firstSimilarOptions)));
+              query.v.push(generateQuery(fields, permute(secSimilarOptions)));
+            });
           }
 
           queryVal.push(query);
           break;
         default:
-          queryVal.push(multiFieldQuery(searchFields, val.join(' ')));
+          queryVal.push(multiFieldQuery(searchFields, val.join(' '))); // search for originSearchFields from 4 words (inclusive) and more
           break;
       }
     } else {

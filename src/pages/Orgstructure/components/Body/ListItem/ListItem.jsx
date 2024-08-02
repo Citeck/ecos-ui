@@ -247,7 +247,6 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
     dispatch(setSelectedPerson({ recordRef: item.id }));
     dispatch(getDashboardConfig({ recordRef: item.id }));
     updateCurrentUrl({ recordRef: item.id });
-    console.log(toggleToFirstTab);
     isFunction(toggleToFirstTab) && toggleToFirstTab();
   };
 
