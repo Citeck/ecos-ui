@@ -11,9 +11,9 @@ import isFunction from 'lodash/isFunction';
 import { Fullpage, Icon, InfoText } from '../../common';
 import { Btn } from '../../common/btns';
 import { Labels } from './util';
-import { t } from '../../../helpers/util';
-import { CUSTOM } from './Toolbar';
+import { camelize, t } from '../../../helpers/util';
 import StyleVariables from './style.scss';
+import { DocScaleOptions } from '../../../constants';
 
 const $PAGE = '.ecos-doc-preview__viewer-page';
 const fullscreenEnabled = fscreen.fullscreenEnabled;
@@ -98,10 +98,17 @@ export default function getViewer(WrappedComponent, isPdf) {
         }
       }
 
+      const scales = [
+        DocScaleOptions.AUTO,
+        camelize(DocScaleOptions.PAGE_WIDTH),
+        camelize(DocScaleOptions.PAGE_FIT),
+        camelize(DocScaleOptions.PAGE_HEIGHT)
+      ];
+
       if (
         !isPdf &&
         get(this.props, 'settings.scale') !== get(prevProps, 'settings.scale') &&
-        get(this.props, 'settings.selectedZoom') !== CUSTOM
+        scales.includes(get(this.props, 'settings.selectedZoom'))
       ) {
         this.setScrollDefaultPosition();
       }

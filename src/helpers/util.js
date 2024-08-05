@@ -1344,6 +1344,21 @@ export function permute(arr = []) {
   return arr.reduce((acc, item, i) => acc.concat(permute([...arr.slice(0, i), ...arr.slice(i + 1)]).map(val => [item, ...val])), []);
 }
 
+/**
+ * Returns camelCase instead of kebab-case
+ *
+ * @param s<string>
+ *
+ * @returns string
+ */
+export function camelize(s = '') {
+  if (isString(s)) {
+    return s.replace(/-./g, x => x[1].toUpperCase());
+  }
+
+  return s;
+}
+
 lodashSet(window, 'Citeck.helpers.getMonthPeriodByDate', getMonthPeriodByDate);
 lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);
 lodashSet(window, 'Citeck.helpers.getMLValue', getMLValue);
