@@ -29,9 +29,9 @@ export default class FiltersGroup extends Component {
     };
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps, prevState) {
     const zIndex = ZIndex.calcZ() + 1;
-    if (zIndex !== this.state.zIndex) {
+    if (zIndex !== this.state.zIndex && prevState.zIndex < zIndex) {
       this.setState({ zIndex });
     }
   }
