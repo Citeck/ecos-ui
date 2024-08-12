@@ -82,6 +82,7 @@ class Comments extends BaseWidget {
     };
 
     this.instanceRecord.events.on(EVENTS.UPDATE_TASKS_WIDGETS, this.fetchData);
+    this.instanceRecord.events.on(EVENTS.UPDATE_COMMENTS, this.fetchData);
   }
 
   componentDidMount() {

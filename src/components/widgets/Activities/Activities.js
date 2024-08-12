@@ -10,7 +10,7 @@ import { Btn } from '../../common/btns/index';
 import Dashlet from '../../Dashlet';
 import Activity from './Activity';
 import { t } from '../../../helpers/util';
-import BaseWidget, { EVENTS } from '../BaseWidget';
+import BaseWidget from '../BaseWidget';
 import { ActivityInterface, IdInterface } from './propsInterfaces';
 
 import './style.scss';
@@ -53,8 +53,6 @@ class Activities extends BaseWidget {
 
     this.contentRef = React.createRef();
     this._scroll = React.createRef();
-
-    this.instanceRecord.events.on(EVENTS.UPDATE_TASKS_WIDGETS, this.fetchData);
   }
 
   componentDidMount() {
