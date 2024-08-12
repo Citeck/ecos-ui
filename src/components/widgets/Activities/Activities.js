@@ -3,24 +3,22 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 
-import { getComments } from '../../../actions/comments';
-import { MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
-import { BASE_HEIGHT } from '../../../constants/comments';
+import { getActivities } from '../../../actions/activities';
 import DAction from '../../../services/DashletActionService';
-import { selectStateByRecordRef } from '../../../selectors/comments';
-import { num2str, t } from '../../../helpers/util';
+import { selectStateByRecordRef } from '../../../selectors/activities';
 import { Btn } from '../../common/btns/index';
 import Dashlet from '../../Dashlet';
+import Activity from './Activity';
+import { t } from '../../../helpers/util';
 import BaseWidget, { EVENTS } from '../BaseWidget';
-import { CommentInterface, IdInterface } from './propsInterfaces';
-import Comment from './Comment';
+import { ActivityInterface, IdInterface } from './propsInterfaces';
 
 import './style.scss';
 
-class Comments extends BaseWidget {
+class Activities extends BaseWidget {
   static propTypes = {
     id: IdInterface.isRequired,
-    comments: PropTypes.arrayOf(PropTypes.shape(CommentInterface)),
+    activities: PropTypes.arrayOf(PropTypes.shape(ActivityInterface)),
     dataStorageFormat: PropTypes.oneOf(['raw', 'html', 'plain-text']),
     maxLength: PropTypes.number,
     totalCount: PropTypes.number,
@@ -30,35 +28,24 @@ class Comments extends BaseWidget {
     hasMore: PropTypes.bool,
     canDragging: PropTypes.bool,
     maxHeightByContent: PropTypes.bool,
-    commentListMaxHeight: PropTypes.number,
     isMobile: PropTypes.bool,
     userName: PropTypes.string,
     onSave: PropTypes.func,
     onDelete: PropTypes.func,
-    getComments: PropTypes.func,
-    createComment: PropTypes.func,
-    updateComment: PropTypes.func,
-    deleteComment: PropTypes.func,
+    getActivities: PropTypes.func,
+    createActivity: PropTypes.func,
+    updateActivity: PropTypes.func,
+    deleteActivity: PropTypes.func,
     setErrorMessage: PropTypes.func
   };
 
   static defaultProps = {
-    comments: [],
-    maxLength: 5000,
-    errorMessage: '',
-    saveIsLoading: false,
-    fetchIsLoading: false,
-    canDragging: false,
-    maxHeightByContent: false,
-    commentListMaxHeight: 217,
-    dataStorageFormat: 'raw',
-    onSave: () => {},
-    onDelete: () => {},
-    getComments: () => {},
-    createComment: () => {},
-    updateComment: () => {},
-    deleteComment: () => {},
-    setErrorMessage: () => {}
+    ...super.defaultProps,
+    activities: [],
+    getActivities: () => {},
+    createActivity: () => {},
+    updateActvity: () => {},
+    deleteActvity: () => {}
   };
 
   constructor(props) {
@@ -66,20 +53,6 @@ class Comments extends BaseWidget {
 
     this.contentRef = React.createRef();
     this._scroll = React.createRef();
-
-    this.state = {
-      ...this.state,
-      isEdit: false,
-      headerHeight: 0,
-      editableComment: null,
-      commentForDeletion: null,
-      editorHeight: BASE_HEIGHT,
-      htmlComment: '',
-      rawComment: '',
-      isOpenLinkDialog: false,
-      linkUrl: '',
-      linkText: ''
-    };
 
     this.instanceRecord.events.on(EVENTS.UPDATE_TASKS_WIDGETS, this.fetchData);
   }
@@ -91,35 +64,10 @@ class Comments extends BaseWidget {
   }
 
   fetchData = () => {
-    const { getComments } = this.props;
+    const { getActivities } = this.props;
 
-    getComments();
+    getActivities();
   };
-
-  get countComments() {
-    const { totalCount } = this.props;
-
-    if (!totalCount) {
-      return t('comments-widget.no-comments');
-    }
-
-    return t(
-      `${totalCount} ${t(
-        num2str(totalCount, ['comments-widget.comment-form1', 'comments-widget.comment-form2', 'comments-widget.comment-form3'])
-      )}`
-    );
-  }
-
-  get className() {
-    const { width } = this.state;
-    const classes = ['ecos-comments'];
-
-    if (width < MIN_WIDTH_DASHLET_LARGE) {
-      classes.push('ecos-comments_small');
-    }
-
-    return classes.join(' ');
-  }
 
   handleShowEditor = () => {
     this.setState({
@@ -134,14 +82,14 @@ class Comments extends BaseWidget {
   };
 
   renderHeader() {
-    const { isEdit } = this.state;
     const { record, saveIsLoading, userName, actionFailed } = this.props;
+    const { isEdit } = this.state;
 
     return (
       <div>
-        <div className="ecos-comments__header">
+        <div className="ecos-activities__header">
           {isEdit ? (
-            <Comment
+            <Activity
               comment={null}
               userName={userName}
               saveIsLoading={saveIsLoading}
@@ -151,34 +99,29 @@ class Comments extends BaseWidget {
             />
           ) : (
             <>
-              <div className="ecos-comments__count">
-                <span className="ecos-comments__count-text">{this.countComments}</span>
-              </div>
               <Btn className="ecos-btn_blue ecos-btn_hover_light-blue ecos-comments__add-btn" onClick={this.handleShowEditor}>
-                {t('comments-widget.add')}
+                {t('activities-widget.add')}
               </Btn>
             </>
           )}
         </div>
-
-        {/* <ReactResizeDetector handleWidth handleHeight onResize={this.handleResizeHeader} /> */}
       </div>
     );
   }
 
-  renderComments() {
-    const { record, comments, isMobile, saveIsLoading, userName, actionFailed } = this.props;
+  renderActivities() {
+    const { record, activities, isMobile, saveIsLoading, userName, actionFailed } = this.props;
 
-    if (!comments.length) {
+    if (!activities.length) {
       return null;
     }
 
-    const renderCommentList = () => (
-      <div className="ecos-comments__list" ref={this.contentRef}>
-        {comments.map(comment => (
-          <Comment
-            key={comment.id}
-            comment={comment}
+    const renderActivitiesList = () => (
+      <div className="ecos-activities__list" ref={this.contentRef}>
+        {activities.map(activity => (
+          <Activity
+            key={activity.id}
+            comment={activity}
             userName={userName}
             saveIsLoading={saveIsLoading}
             actionFailed={actionFailed}
@@ -190,12 +133,12 @@ class Comments extends BaseWidget {
     );
 
     if (isMobile) {
-      return renderCommentList();
+      return renderActivitiesList();
     }
 
     return (
       <Scrollbars autoHide ref={this._scroll} {...this.scrollbarProps}>
-        {renderCommentList()}
+        {renderActivitiesList()}
       </Scrollbars>
     );
   }
@@ -212,7 +155,7 @@ class Comments extends BaseWidget {
       <div className={this.className}>
         <Dashlet
           setRef={this.setDashletRef}
-          title={t('comments-widget.title')}
+          title={t('activities-widget.title')}
           actionConfig={actions}
           needGoTo={false}
           canDragging={canDragging}
@@ -227,7 +170,7 @@ class Comments extends BaseWidget {
           isCollapsed={this.isCollapsed}
         >
           {this.renderHeader()}
-          {this.renderComments()}
+          {this.renderActivities()}
         </Dashlet>
       </div>
     );
@@ -241,10 +184,10 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  getComments: () => dispatch(getComments(ownProps.record))
+  getActivities: () => dispatch(getActivities(ownProps.record))
 });
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Comments);
+)(Activities);

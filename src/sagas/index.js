@@ -9,6 +9,7 @@ import journals from './journals';
 import pageTabs from './pageTabs';
 import tasks from './tasks';
 import comments from './comments';
+import activities from './activities';
 import dashboard from './dashboard';
 import dashboardSettings from './dashboardSettings';
 import dmn from './dmn';
@@ -59,6 +60,7 @@ export default function* rootSaga(extraArguments) {
     pageTabs(extraArguments),
     tasks(extraArguments),
     comments(extraArguments),
+    activities(extraArguments),
     dashboard(extraArguments),
     dashboardSettings(extraArguments),
     dmn(extraArguments),

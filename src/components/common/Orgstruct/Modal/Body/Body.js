@@ -17,7 +17,7 @@ const Body = () => {
 
   return (
     <div className="select-orgstruct__body">
-      <Scrollbars className="slide-menu-list" autoHide autoHeight autoHeightMin={0} autoHeightMax={400}>
+      <Scrollbars className="slide-menu-list" autoHide autoHeight autoHeightMin={0} autoHeightMax={400} style={{ position: 'initial' }}>
         <div className="select-orgstruct__list-wrapper">
           {isSearching && <Loader blur />}
           {!children.length && !isSearching && <InfoText text={t('select-orgstruct.empty-list')} />}

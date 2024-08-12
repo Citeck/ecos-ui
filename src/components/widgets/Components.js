@@ -18,6 +18,7 @@ export const ComponentKeys = {
   JOURNAL: 'journal',
   REPORT: 'report',
   COMMENTS: 'comments',
+  ACTIVITIES: 'activities',
   PROPERTIES: 'properties',
   TASKS: 'tasks',
   CURRENT_TASKS: 'current-tasks',
@@ -91,6 +92,14 @@ export default class Components {
     [ComponentKeys.COMMENTS]: {
       load: () => lazy(() => import('./Comments')),
       label: 'dashboard-settings.widget.comments',
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS],
+      props: {
+        dataStorageFormat: 'html'
+      }
+    },
+    [ComponentKeys.ACTIVITIES]: {
+      load: () => lazy(() => import('./Activities')),
+      label: 'dashboard-settings.widget.activities',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS],
       props: {
         dataStorageFormat: 'html'
