@@ -125,7 +125,15 @@ class ImgViewer extends Component {
     const {
       settings: { scale }
     } = this.props;
-    const scales = [DocScaleOptions.AUTO, DocScaleOptions.PAGE_FIT, DocScaleOptions.PAGE_WIDTH];
+
+    const scales = [DocScaleOptions.AUTO, DocScaleOptions.PAGE_WIDTH];
+
+    const imageWidth = get(this.state.refImage, 'offsetWidth', 0);
+    const imageHeight = get(this.state.refImage, 'offsetHeight', 0);
+
+    if (imageWidth && imageHeight && imageWidth < imageHeight) {
+      scales.push(DocScaleOptions.PAGE_FIT, DocScaleOptions.PAGE_HEIGHT);
+    }
 
     return scales.includes(scale);
   }
@@ -143,10 +151,10 @@ class ImgViewer extends Component {
       wrapper.style.textAlign = 'unset';
     }
 
+    styles.transformOrigin = 'center';
+
     if (!this.isCentered) {
       styles.transformOrigin = 'top left';
-    } else {
-      styles.transformOrigin = 'top center';
     }
 
     if (calcScale <= 1) {

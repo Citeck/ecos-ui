@@ -1,7 +1,7 @@
 import moment from 'moment';
 
 import * as Util from '../util';
-import { permute } from '../util';
+import { camelize, permute } from '../util';
 
 function check(data, functionName) {
   data.forEach(item => {
@@ -452,6 +452,32 @@ describe('Util helpers', () => {
     ];
 
     check(data, 'getMonthPeriodByDate');
+  });
+
+  describe('function camelize', () => {
+    it('Without arguments - returns an empty string', () => {
+      const result = camelize('');
+      expect(result).toEqual('');
+    });
+
+    it('With a hyphenated string, it will return to camelCase', () => {
+      const result = camelize('test-test');
+      expect(result).toEqual('testTest');
+    });
+
+    it('With an argument in a string with many hyphens, it will return everything to camelCase', () => {
+      const result = camelize('test-test-test-test');
+      expect(result).toEqual('testTestTestTest');
+    });
+
+    it('If the argument is not a string, it will return this argument in its original form', () => {
+      const result = camelize(1);
+      expect(result).toEqual(1);
+
+      const object = { test: 'test' };
+      const result2 = camelize(object);
+      expect(result2).toEqual(object);
+    });
   });
 
   describe('function permute', () => {
