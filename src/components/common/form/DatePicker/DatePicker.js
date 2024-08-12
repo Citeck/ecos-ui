@@ -7,6 +7,7 @@ import isFunction from 'lodash/isFunction';
 import { t } from '../../../../helpers/util';
 import Input from '../Input';
 
+import 'react-datepicker/dist/react-datepicker.css';
 import './DatePicker.scss';
 
 class CustomInput extends Component {
@@ -28,19 +29,23 @@ export default class DatePicker extends Component {
     showTimeInput: PropTypes.bool,
     showTimeSelect: PropTypes.bool,
     narrow: PropTypes.bool,
-    wrapperClasses: PropTypes.oneOfType([PropTypes.object, PropTypes.string])
+    wrapperClasses: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+    onChange: PropTypes.func
   };
 
   static defaultProps = {
     className: '',
-    selected: null
+    selected: null,
+    dateFormat: 'Pp',
+    showTimeSelect: false
   };
 
   constructor(props) {
     super(props);
 
     this.state = {
-      isOpen: props.isOpen
+      isOpen: false,
+      selectedDate: props.selected || null
     };
   }
 
@@ -51,7 +56,7 @@ export default class DatePicker extends Component {
       return {
         timeInputLabel: `${t('ecos-forms.datepicker.time-label')}:`,
         timeCaption: `${t('ecos-forms.datepicker.time-label')}`,
-        dateFormat: dateFormat || 'P hh:mm'
+        dateFormat: dateFormat || 'Pp'
       };
     }
 
@@ -62,12 +67,12 @@ export default class DatePicker extends Component {
     return {
       previousMonthButtonLabel: t('ecos-forms.datepicker.month-prev-label'),
       nextMonthButtonLabel: t('ecos-forms.datepicker.month-next-label'),
-      dateFormat: this.props.dateFormat || 'P'
+      dateFormat: this.props.dateFormat || 'Pp'
     };
   }
 
   get selected() {
-    let selected = this.props.selected || this.props.value || null;
+    let selected = this.state.selectedDate || this.props.value || null;
 
     if (selected && !(selected instanceof Date)) {
       selected = new Date(selected);
@@ -95,6 +100,23 @@ export default class DatePicker extends Component {
     this.setState({ isOpen: true });
   };
 
+  handleSelectDate = date => {
+    this.setState({ selectedDate: date });
+  };
+
+  handleChangeDate = date => {
+    this.setState({ selectedDate: date, isOpen: false });
+
+    const { onChange } = this.props;
+    if (isFunction(onChange)) {
+      onChange(date);
+    }
+  };
+
+  handleClickOutside = () => {
+    this.setState({ isOpen: false });
+  };
+
   setInputFocus = () => {
     !this.props.disabled && !this.props.readOnly && this.datePickerInput && this.datePickerInput.focus();
   };
@@ -104,7 +126,7 @@ export default class DatePicker extends Component {
   };
 
   render() {
-    const { className, showIcon, dateFormat, wrapperClasses, value, onChangeValue, narrow, ...otherProps } = this.props;
+    const { className, showIcon, showTimeSelect, dateFormat, wrapperClasses, value, onChangeValue, narrow, ...otherProps } = this.props;
     const { isOpen } = this.state;
 
     return (
@@ -126,8 +148,12 @@ export default class DatePicker extends Component {
           calendarClassName={classNames('ecos-datepicker__calendar', {
             'ecos-datepicker__calendar_time-select': otherProps.showTimeSelect
           })}
-          onSelect={this.setInputFocus}
+          onSelect={this.handleSelectDate}
+          onChange={this.handleChangeDate}
+          onClickOutside={this.handleClickOutside}
           onInputClick={this.handleInputClick}
+          showTimeSelect={showTimeSelect}
+          showTimeSelectOnly={false}
         />
         {this.renderIcon()}
       </div>

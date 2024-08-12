@@ -118,9 +118,11 @@ export class Comment extends Component {
     this.setState(state => ({ isLoading: !state.isLoading }));
   };
 
-  handleConfirmDeletion = () => {
+  handleConfirmDeletion = callback => {
     const { comment, deleteComment, recordRef } = this.props;
+
     isFunction(deleteComment) && deleteComment(recordRef, comment.id);
+    isFunction(callback) && callback(recordRef, comment.id);
 
     this.toggleLoading();
   };
@@ -162,7 +164,7 @@ export class Comment extends Component {
     );
   }
 
-  renderConfirmDelete() {
+  renderConfirmDelete(callback) {
     const { actionFailed } = this.props;
     const { isOpenConfirmDialog, isLoading } = this.state;
 
@@ -179,7 +181,7 @@ export class Comment extends Component {
             <Btn className="ecos-btn_grey5 ecos-btn_hover_color-grey ecos-comments__comment-confirm-btn" onClick={this.toggleConfirmDialog}>
               {t('comments-widget.confirm.cancel')}
             </Btn>
-            <Btn className="ecos-btn_red ecos-comments__comment-confirm-btn" onClick={this.handleConfirmDeletion}>
+            <Btn className="ecos-btn_red ecos-comments__comment-confirm-btn" onClick={() => this.handleConfirmDeletion(callback)}>
               {t('comments-widget.confirm.delete')}
             </Btn>
           </div>
@@ -234,15 +236,9 @@ export class Comment extends Component {
     });
   };
 
-  handleSaveComment = () => {
-    const { saveIsLoading } = this.props;
-
-    if (saveIsLoading) {
-      return;
-    }
-
-    const { updateComment, createComment, comment, recordRef, dataStorageFormat } = this.props;
-    const { htmlComment, rawComment, isInternal } = this.state;
+  handleTextBeforeSave = () => {
+    const { dataStorageFormat } = this.props;
+    const { htmlComment, rawComment } = this.state;
     let text = '';
     switch (dataStorageFormat) {
       case 'raw':
@@ -256,6 +252,21 @@ export class Comment extends Component {
       default:
         text = htmlComment;
     }
+
+    return text;
+  };
+
+  handleSaveComment = () => {
+    const { saveIsLoading } = this.props;
+
+    if (saveIsLoading) {
+      return;
+    }
+
+    const { updateComment, createComment, comment, recordRef } = this.props;
+    const { isInternal } = this.state;
+
+    const text = this.handleTextBeforeSave();
 
     const callback = () => {
       this.handleCloseEditor();

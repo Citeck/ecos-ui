@@ -5,6 +5,7 @@ import { ReportApi } from './report';
 import { BpmnApi } from './bpmn';
 import { BpmnAdminApi } from './bpmnAdmin';
 import { CommentsApi } from './comments';
+import { ActivitiesApi } from './activities';
 import { DashboardApi } from './dashboard';
 import { DmnApi } from './dmn';
 import { DmnEditorApi } from './dmnEditor';
@@ -54,6 +55,7 @@ export function configureAPI() {
   api.journals = new JournalsApi();
   api.tasks = new TasksApi();
   api.comments = new CommentsApi();
+  api.activities = new ActivitiesApi();
   api.dashboard = new DashboardApi();
   api.dmn = new DmnApi();
   api.dmnEditor = new DmnEditorApi();

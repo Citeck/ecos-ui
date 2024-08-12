@@ -17,6 +17,7 @@ import pageTabs from './pageTabs';
 import processAdmin from './processAdmin';
 import tasks from './tasks';
 import comments from './comments';
+import activities from './activities';
 import dashboard from './dashboard';
 import dashboardSettings from './dashboardSettings';
 import dmn from './dmn';
@@ -68,6 +69,7 @@ const reducers = {
   processAdmin,
   tasks,
   comments,
+  activities,
   dashboard,
   dashboardSettings,
   dmn,
