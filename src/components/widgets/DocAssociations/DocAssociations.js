@@ -82,6 +82,7 @@ class DocAssociations extends BaseWidget {
     };
 
     this.watcherAssoc = null;
+    this.instanceRecord.events.on(EVENTS.UPDATE_ASSOCIATIONS, this.reload);
   }
 
   componentDidMount() {

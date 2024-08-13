@@ -29,6 +29,8 @@ import { SourcesId } from '../constants';
 import { uploadFileV2 } from './documents';
 import { setUploadError } from '../actions/documents';
 import Records from '../components/Records/Records';
+import { EVENTS } from '../components/widgets/BaseWidget';
+import { ActivityTypes } from '../constants/activity';
 
 const getPureMessage = message => (message || '').replace(/\d/g, '');
 
@@ -55,7 +57,7 @@ function* sagaGetActivities({ api, logger }, action) {
 function* sagaCreateActivity({ api, logger }, action) {
   try {
     const {
-      payload: { recordRef, activity: text, ...rest }
+      payload: { recordRef, activity: text, instanceRecord, ...rest }
     } = action;
 
     yield put(sendingStart(recordRef));
@@ -68,6 +70,21 @@ function* sagaCreateActivity({ api, logger }, action) {
     activities.unshift(getCommentForWeb(activity));
 
     yield put(createActivitySuccess({ activities, recordRef }));
+
+    const typeId = get(rest, 'selectedType.id');
+    if (typeId) {
+      switch (typeId) {
+        case ActivityTypes.ASSIGNMENT:
+          instanceRecord.events.emit(EVENTS.UPDATE_ASSOCIATIONS);
+          break;
+        case ActivityTypes.COMMENT:
+          instanceRecord.events.emit(EVENTS.UPDATE_COMMENTS);
+          break;
+        default:
+          break;
+      }
+    }
+
     yield put(sendingEnd(recordRef));
   } catch (e) {
     const originMessage = getPureMessage(e.message);
@@ -89,7 +106,7 @@ function* sagaCreateActivity({ api, logger }, action) {
 function* sagaUpdateActivity({ api, logger }, action) {
   try {
     const {
-      payload: { recordRef, activity, initiator, performer, responsible, ...rest }
+      payload: { recordRef, activity, initiator, performer, instanceRecord, responsible, ...rest }
     } = action;
     yield put(sendingStart(recordRef));
 
@@ -124,7 +141,22 @@ function* sagaUpdateActivity({ api, logger }, action) {
 
     activities = yield select(state => selectAllActivities(state, recordRef));
     activities[activityIndex] = { ...activities[activityIndex], ...getCommentForWeb(updatedComment) };
+
     yield put(updateActivitySuccess({ activities, recordRef }));
+
+    const typeId = get(rest, 'selectedType.id');
+    if (typeId) {
+      switch (typeId) {
+        case ActivityTypes.ASSIGNMENT:
+          instanceRecord.events.emit(EVENTS.UPDATE_ASSOCIATIONS);
+          break;
+        case ActivityTypes.COMMENT:
+          instanceRecord.events.emit(EVENTS.UPDATE_COMMENTS);
+          break;
+        default:
+          break;
+      }
+    }
 
     yield put(sendingEnd(recordRef));
   } catch (e) {

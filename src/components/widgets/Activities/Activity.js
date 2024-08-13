@@ -16,6 +16,7 @@ import { Comment } from '../Comments/Comment';
 import { ActivityTypes, optionsActivitySelect, IMMEDIATE_ACTIVITY, PLANNED_ACTIVITY } from '../../../constants/activity';
 import { handleCloseMenuOnScroll } from '../../../helpers/util';
 import isString from 'lodash/isString';
+import Records from '../../Records';
 
 const DURATION_REGEX = /^(\d+h\s*)?(\d+m\s*)?$/;
 
@@ -68,8 +69,11 @@ export class Activity extends Comment {
     }
   }
 
+  get instanceRecord() {
+    return Records.get(this.props.recordRef);
+  }
+
   handleSetState = (data, param = '') => {
-    console.log('data:', data, 'param:', param);
     this.setState({ [param]: data });
   };
 
@@ -124,6 +128,7 @@ export class Activity extends Comment {
     const { updateActivity, createActivity, comment, recordRef } = this.props;
 
     const text = this.handleTextBeforeSave();
+    const instanceRecord = this.instanceRecord;
 
     const callback = () => {
       this.handleCloseEditor();
@@ -132,16 +137,18 @@ export class Activity extends Comment {
 
     this.toggleLoading();
 
-    console.log('this.state:', this.state);
     comment === null
-      ? createActivity(recordRef, text, this.state, callback)
+      ? createActivity(recordRef, text, { ...this.state, instanceRecord }, callback)
       : updateActivity(
           recordRef,
           {
             id: comment.id,
             text
           },
-          this.state,
+          {
+            ...this.state,
+            instanceRecord
+          },
           callback
         );
   };
@@ -180,7 +187,6 @@ export class Activity extends Comment {
     const selectedInitiator = isString(initiator) ? initiator : get(initiator, 'authorityName', '');
     const selectedResponsible = isString(responsible) ? responsible : get(responsible, 'authorityName', '');
 
-    console.log('selectedInitiator:', selectedInitiator);
     switch (typeId) {
       case ActivityTypes.MEETING:
       case ActivityTypes.CALL:
