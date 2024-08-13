@@ -3,6 +3,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import size from 'lodash/size';
 import isPlainObject from 'lodash/isPlainObject';
 import isFunction from 'lodash/isFunction';
+import isString from 'lodash/isString';
 
 import { t } from '../../../../helpers/export/util';
 import { replacePlaceholders, valueOrNull } from '../util';
@@ -131,10 +132,10 @@ class FormatterService {
 
       const contentComponent = fmtInstance.format(formatProps);
 
-      if (!!contentComponent) {
-        return <FormatterService.PopperWrapper contentComponent={contentComponent} />;
-      } else {
+      if (!contentComponent && isString(formatProps.cell)) {
         return <FormatterService.PopperWrapper text={formatProps.cell} />;
+      } else {
+        return <FormatterService.PopperWrapper contentComponent={contentComponent} />;
       }
     } catch (e) {
       console.error('[FormattersService._formatSingleValueCellImpl] error. Props: ', formatProps, e);
