@@ -870,6 +870,11 @@
   "group-action.message.processing-the-request": "Обрабатываем запрос",
   "group-action.message.records-is-unknown": "Итоговое количество записей неизвестно, обработано: {{processedCount}}",
 
+  "copy-action.title": "Копировать",
+  "copy-action.new-id": "Новый идентификатор",
+  "copy-action.error.title": "Копирование невозможно",
+  "copy-action.error.text": "Модуль не может быть копирован так как отсутствует 'localId'",
+
   "batch-edit.header.edit-attribute": "Изменение атрибута",
   "batch-edit.header.results": "Результат редактирования атрибута",
   "batch-edit.message.OK": "Успешно",
