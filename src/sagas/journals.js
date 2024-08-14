@@ -183,9 +183,11 @@ export function getDefaultJournalSetting(journalConfig) {
 
 export function getGridParams({ journalConfig = {}, journalSetting = {}, pagination = DEFAULT_PAGINATION }) {
   const { createVariants, actions: journalActions, groupActions } = get(journalConfig, 'meta', {});
-  const { sourceId, id: journalId } = journalConfig;
-  const { sortBy = [], groupBy = [], columns = [], predicate: journalSettingPredicate } = journalSetting;
+  const { sourceId, id: journalId, columns: columnsConfig } = journalConfig;
+  const { sortBy = [], groupBy = [], columns: columnsSetting, predicate: journalSettingPredicate } = journalSetting;
   const predicates = beArray(journalSettingPredicate);
+
+  const columns = columnsConfig || columnsSetting || [];
 
   return {
     groupActions: groupActions || [],
@@ -352,16 +354,16 @@ export function* getJournalConfig({ api, w, force, callback }, action) {
 function* getColumns({ stateId }) {
   const { grid = {}, journalConfig = {}, journalSetting = {}, grouping = {} } = yield select(selectJournalData, stateId);
   const groupingColumns = get(grouping, 'columns');
-  const columns = yield JournalsService.resolveColumns(isEmpty(groupingColumns) ? journalSetting.columns : groupingColumns);
+  const columns = yield JournalsService.resolveColumns(isEmpty(groupingColumns) ? journalConfig.columns : groupingColumns);
 
   if (grid.isExpandedFromGrouped) {
     return grid.columns;
   }
 
   if (columns.length) {
-    return columns.map(setting => {
-      const config = journalConfig.columns.find(column => column.attribute === setting.attribute);
-      return config ? { ...config, ...setting, sortable: config.sortable } : setting;
+    return columns.map(column => {
+      const config = get(journalSetting, 'columns', []).find(setting => setting.attribute === column.attribute);
+      return config ? { ...column, ...config, sortable: config.sortable } : column;
     });
   }
 
@@ -473,10 +475,33 @@ function* getJournalSharedSettings(api, id) {
 
 function* sagaInitJournalSettingData({ api, logger, stateId, w }, action) {
   try {
-    const { journalSetting = {}, predicate } = action.payload;
+    const { journalSetting = {}, predicate: _predicate } = action.payload;
+    const journalConfig = yield select(selectJournalConfig, stateId);
+
+    const { predicate: defaultPredicate } = getDefaultJournalSetting(journalConfig);
+    let predicate = _predicate || journalSetting.predicate;
+
+    const handleVal = p =>
+      isArray(get(p, 'val')) &&
+      get(p, 'val').length === 1 &&
+      isArray(get(p, 'val[0].val')) &&
+      get(p, 'val[0].val').length === 1 &&
+      get(p, 'val[0].val[0].val');
+
+    const predicateVal = handleVal(predicate);
+    const defaultPredicateVal = handleVal(defaultPredicate);
+
+    if (isArray(predicateVal) && isArray(defaultPredicateVal) && predicateVal.length < defaultPredicateVal.length) {
+      defaultPredicateVal
+        .filter(predicate => get(predicate, 'att') && !predicateVal.find(p => p.att === predicate.att))
+        .forEach(diffPredicate => {
+          predicate.val[0].val[0].val.push(diffPredicate);
+        });
+    }
+
     const columnsSetup = {
       isExpandedFromGrouped: false,
-      columns: JournalsConverter.injectId(journalSetting.columns),
+      columns: JournalsConverter.injectId(journalConfig.columns),
       sortBy: cloneDeep(journalSetting.sortBy)
     };
     const grouping = {
@@ -485,11 +510,7 @@ function* sagaInitJournalSettingData({ api, logger, stateId, w }, action) {
       groupBy: cloneDeep(journalSetting.groupBy)
     };
 
-    const journalConfig = yield select(selectJournalConfig, stateId);
-    const filteredPredicate = JournalsConverter.filterPredicatesByConfigColumns(
-      cloneDeep(predicate || journalSetting.predicate),
-      journalConfig.columns
-    );
+    const filteredPredicate = JournalsConverter.filterPredicatesByConfigColumns(cloneDeep(predicate), journalConfig.columns);
 
     yield put(setJournalExpandableProp(w(false)));
     yield put(setPredicate(w(filteredPredicate)));
