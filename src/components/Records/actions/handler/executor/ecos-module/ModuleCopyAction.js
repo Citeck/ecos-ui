@@ -7,43 +7,43 @@ export default class ModuleCopyAction extends ActionsExecutor {
   static ACTION_ID = 'module-copy';
 
   async execForRecord(record, action, context) {
-    const currentModuleId = await record.load('moduleId', true);
+    let currentLocalId = await record.load('localId', true);
 
-    if (!currentModuleId) {
+    if (!currentLocalId) {
       DialogManager.showInfoDialog({
-        title: 'Копирование невозможно',
-        text: 'Модуль не может быть копирован так как отсутствует moduleId'
+        title: t('copy-action.error.title'),
+        text: t('copy-action.error.text')
       });
       return false;
     }
 
     return new Promise((resolve, reject) => {
       DialogManager.showFormDialog({
-        title: 'Копировать',
+        title: t('copy-action.title'),
         formData: {
-          moduleId: currentModuleId
+          localId: currentLocalId
         },
         showDefaultButtons: true,
         formDefinition: {
           display: 'form',
           components: [
             {
-              label: 'Новый идентификатор',
+              label: t('copy-action.new-id'),
               type: 'textfield',
-              key: 'moduleId'
+              key: 'localId'
             }
           ]
         },
         onSubmit: async submission => {
-          const moduleId = submission.data.moduleId;
-          const newRecId = record.id.replace(currentModuleId, moduleId);
-          const existingId = await Records.get(newRecId).load('moduleId', true);
+          const moduleId = submission.data.localId;
+          const newRecId = record.id.replace(currentLocalId, moduleId);
+          const existingId = await Records.get(newRecId).load('localId', true);
 
           if (existingId) {
             throw new Error(t('admin-section.error.existed-module'));
           }
 
-          record.att('moduleId', submission.data.moduleId);
+          record.att('id', submission.data.localId);
           record
             .save()
             .then(() => resolve(true))

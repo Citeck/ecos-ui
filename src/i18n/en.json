@@ -912,6 +912,11 @@
   "group-action.message.processing-the-request": "Processing the request",
   "group-action.message.records-is-unknown": "The total number of records is unknown, processed: {{processedCount}}",
 
+  "copy-action.title": "Copy",
+  "copy-action.new-id": "New ID",
+  "copy-action.error.title": "Copying is not possible",
+  "copy-action.error.text": "The module cannot be copied because 'localId' is missing",
+
   "batch-edit.header.edit-attribute": "Edit attribute",
   "batch-edit.header.results": "Result edit attribute",
   "batch-edit.message.OK": "Success",
