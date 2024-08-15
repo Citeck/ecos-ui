@@ -29,6 +29,7 @@ export default class DatePicker extends Component {
     showTimeInput: PropTypes.bool,
     showTimeSelect: PropTypes.bool,
     narrow: PropTypes.bool,
+    closeAfterChange: PropTypes.bool,
     wrapperClasses: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
     onChange: PropTypes.func
   };
@@ -105,7 +106,8 @@ export default class DatePicker extends Component {
   };
 
   handleChangeDate = date => {
-    this.setState({ selectedDate: date, isOpen: false });
+    const { closeAfterChange = false } = this.props;
+    this.setState({ selectedDate: date, isOpen: !closeAfterChange });
 
     const { onChange } = this.props;
     if (isFunction(onChange)) {
@@ -126,7 +128,18 @@ export default class DatePicker extends Component {
   };
 
   render() {
-    const { className, showIcon, showTimeSelect, dateFormat, wrapperClasses, value, onChangeValue, narrow, ...otherProps } = this.props;
+    const {
+      className,
+      showIcon,
+      showTimeSelect,
+      showTimeInput,
+      dateFormat,
+      wrapperClasses,
+      value,
+      onChangeValue,
+      narrow,
+      ...otherProps
+    } = this.props;
     const { isOpen } = this.state;
 
     return (
@@ -153,6 +166,7 @@ export default class DatePicker extends Component {
           onClickOutside={this.handleClickOutside}
           onInputClick={this.handleInputClick}
           showTimeSelect={showTimeSelect}
+          showTimeInput={showTimeInput}
           showTimeSelectOnly={false}
         />
         {this.renderIcon()}

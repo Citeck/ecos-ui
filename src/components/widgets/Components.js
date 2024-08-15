@@ -97,14 +97,6 @@ export default class Components {
         dataStorageFormat: 'html'
       }
     },
-    [ComponentKeys.ACTIVITIES]: {
-      load: () => lazy(() => import('./Activities')),
-      label: 'dashboard-settings.widget.activities',
-      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS],
-      props: {
-        dataStorageFormat: 'html'
-      }
-    },
     [ComponentKeys.PROPERTIES]: {
       load: () => lazy(() => import('./Properties')),
       label: 'dashboard-settings.widget.properties',
@@ -213,6 +205,19 @@ export default class Components {
           showJournalDefault: false,
           showCountersDefault: false
         }
+      }
+    },
+    [ComponentKeys.ACTIVITIES]: {
+      load: () =>
+        lazy(() =>
+          import('../../plugins').then(plugins => ({
+            default: get(plugins, 'default.ActivitiesWidget', () => null)
+          }))
+        ),
+      label: 'dashboard-settings.widget.activities',
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS],
+      props: {
+        dataStorageFormat: 'html'
       }
     },
     [ComponentKeys.KANBAN_BOARD]: {
