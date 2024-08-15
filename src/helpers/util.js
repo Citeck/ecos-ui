@@ -403,13 +403,7 @@ export function deepClone(data, defaultValue) {
 }
 
 export function isPDFbyStr(str) {
-  if (!str) return false;
-
-  const pdf = 'pdf';
-  const pointIdx = str.lastIndexOf(pdf);
-  const format = str.substr(pointIdx);
-
-  return format.toLowerCase() === pdf;
+  return (str || '').toLowerCase().endsWith('pdf');
 }
 
 /**
