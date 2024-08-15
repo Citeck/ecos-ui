@@ -3,8 +3,10 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { DragDropContext } from 'react-beautiful-dnd';
 import cloneDeep from 'lodash/cloneDeep';
-import isArray from 'lodash/isArray';
 import isFunction from 'lodash/isFunction';
+import isEqual from 'lodash/isEqual';
+import isArray from 'lodash/isArray';
+import get from 'lodash/get';
 
 import { t } from '../../helpers/util';
 import { RemoveDialog } from '../common/dialogs';
@@ -15,11 +17,23 @@ import { FiltersGroup } from './';
 import './Filters.scss';
 
 class Filters extends Component {
-  state = {
-    isDialogShow: false,
-    dialogTitle: '',
-    dialogText: ''
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      isDialogShow: false,
+      dialogTitle: '',
+      dialogText: '',
+      groups: get(props, 'groups', [])
+    };
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { groups = [] } = this.props;
+
+    if (!isEqual(prevProps.groups, groups)) {
+      this.setState({ groups });
+    }
+  }
 
   get groups() {
     return cloneDeep(this.props.groups);
@@ -230,8 +244,8 @@ class Filters extends Component {
   delete = () => undefined;
 
   render() {
-    const { isDialogShow, dialogTitle, dialogText } = this.state;
-    const { sourceId, metaRecord, className, groups = [] } = this.props;
+    const { isDialogShow, dialogTitle, dialogText, groups } = this.state;
+    const { sourceId, metaRecord, className } = this.props;
 
     const length = groups.length;
     const lastIdx = length ? length - 1 : 0;
