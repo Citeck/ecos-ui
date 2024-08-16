@@ -11,6 +11,10 @@ export const IMMEDIATE_ACTIVITY = [ActivityTypes.COMMENT, ActivityTypes.ASSIGNME
 
 export const optionsActivitySelect = [
   {
+    id: ActivityTypes.COMMENT,
+    displayName: 'activities-widget.type-comment'
+  },
+  {
     id: ActivityTypes.CALL,
     displayName: 'activities-widget.type-call'
   },
@@ -23,11 +27,22 @@ export const optionsActivitySelect = [
     displayName: 'activities-widget.type-meeting'
   },
   {
-    id: ActivityTypes.COMMENT,
-    displayName: 'activities-widget.type-comment'
-  },
-  {
     id: ActivityTypes.ASSIGNMENT,
     displayName: 'activities-widget.type-assigment'
+  }
+];
+
+export const optionsPrioritySelect = [
+  {
+    id: 1,
+    label: 'activities-widget.priority.high'
+  },
+  {
+    id: 2,
+    label: 'activities-widget.priority.middle'
+  },
+  {
+    id: 3,
+    label: 'activities-widget.priority.low'
   }
 ];

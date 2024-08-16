@@ -20,6 +20,7 @@ export default class DatePicker extends Component {
   static propTypes = {
     className: PropTypes.string,
     dateFormat: PropTypes.string,
+    placeholder: PropTypes.string,
     maxDate: PropTypes.instanceOf(Date),
     minDate: PropTypes.instanceOf(Date),
     maxTime: PropTypes.instanceOf(Date),
@@ -138,6 +139,7 @@ export default class DatePicker extends Component {
       value,
       onChangeValue,
       narrow,
+      placeholder,
       ...otherProps
     } = this.props;
     const { isOpen } = this.state;
@@ -154,6 +156,7 @@ export default class DatePicker extends Component {
           {...otherProps}
           {...this.monthProps}
           {...this.timeProps}
+          placeholderText={placeholder}
           open={isOpen}
           customInput={<CustomInput forwardedRef={el => (this.datePickerInput = el)} narrow={narrow} />}
           selected={this.selected}

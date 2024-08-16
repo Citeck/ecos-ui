@@ -7,7 +7,7 @@ const EMODEL_FIELDS = {
   text: 'text',
   createdAt: '_created',
   modifiedAt: '_modified',
-  status: '_status',
+  status: '_status{id,displayName:?disp}',
   activityDate: 'activityDate',
   activityDuration: 'activityDuration',
   resultActivity: 'result',
@@ -70,13 +70,13 @@ export class ActivitiesApi {
       case ActivityTypes.CALL:
       case ActivityTypes.EMAIL:
         comment.att('activityDate', rest.activityDate);
-        comment.att('activityDuration', rest.activityDuration);
+        comment.att('activityDuration', rest.activityDuration.id);
         comment.att('responsible', rest.responsible);
         break;
       case ActivityTypes.ASSIGNMENT:
         comment.att('title', rest.titleAssignment);
         comment.att('dueDate', rest.dueDate);
-        comment.att('priority', rest.priority);
+        comment.att('priority', rest.priority.id);
         comment.att('initiator', rest.initiator);
         comment.att('performer', rest.performer);
         break;
