@@ -1,5 +1,4 @@
-import React, { useContext, useEffect, useState, useRef } from 'react';
-import cloneDeep from 'lodash/cloneDeep';
+import React, { useContext, useRef } from 'react';
 import get from 'lodash/get';
 
 import { Grid } from '../../../components/common/grid';
@@ -14,23 +13,10 @@ const DevModulesGrid = () => {
   const { state } = context;
   const { actions, columns, data } = state;
 
-  const inlineToolsOffsetsInitState = { height: 0, top: 0, row: {} };
-  const [inlineToolsOffsets, setInlineToolsOffsets] = useState(cloneDeep(inlineToolsOffsetsInitState));
-
   const gridWrapperRef = useRef(null);
-  const resetInlineToolsOffsets = () => {
-    setInlineToolsOffsets(cloneDeep(inlineToolsOffsetsInitState));
-  };
-  useEffect(() => {
-    const wrapper = gridWrapperRef.current;
-    wrapper.addEventListener('mouseleave', resetInlineToolsOffsets);
-    return () => {
-      wrapper.removeEventListener('mouseleave', resetInlineToolsOffsets);
-    };
-  });
 
-  const renderInlineTools = () => {
-    const rowId = get(inlineToolsOffsets, 'row.id', null);
+  const renderInlineTools = settings => {
+    const rowId = get(settings, 'row.id', null);
     if (!rowId) {
       return null;
     }
@@ -46,12 +32,12 @@ const DevModulesGrid = () => {
       )
     );
 
-    return <InlineToolsDisconnected tools={buttons} {...inlineToolsOffsets} />;
+    return <InlineToolsDisconnected tools={buttons} {...settings} />;
   };
 
   return (
     <div ref={gridWrapperRef}>
-      <Grid scrollable={false} data={data} columns={columns} onChangeTrOptions={setInlineToolsOffsets} inlineTools={renderInlineTools} />
+      <Grid scrollable={false} data={data} columns={columns} inlineTools={renderInlineTools} />
     </div>
   );
 };
