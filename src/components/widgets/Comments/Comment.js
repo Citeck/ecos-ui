@@ -164,7 +164,7 @@ export class Comment extends Component {
     );
   }
 
-  renderConfirmDelete(callback) {
+  renderConfirmDelete(callback, titleConfirm) {
     const { actionFailed } = this.props;
     const { isOpenConfirmDialog, isLoading } = this.state;
 
@@ -175,7 +175,7 @@ export class Comment extends Component {
     return (
       <div className="ecos-comments__comment-confirm">
         <div className="ecos-comments__comment-confirm-group">
-          <div className="ecos-comments__comment-confirm-title">{t('comments-widget.confirm.title')}?</div>
+          <div className="ecos-comments__comment-confirm-title">{titleConfirm || t('comments-widget.confirm.title')}?</div>
 
           <div className="ecos-comments__comment-confirm-btns">
             <Btn className="ecos-btn_grey5 ecos-btn_hover_color-grey ecos-comments__comment-confirm-btn" onClick={this.toggleConfirmDialog}>

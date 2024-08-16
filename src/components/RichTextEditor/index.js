@@ -11,6 +11,7 @@ import './style.scss';
 class Editor extends React.Component {
   static propTypes = {
     readonly: PropTypes.bool,
+    hideToolbar: PropTypes.bool,
     onChange: PropTypes.func,
     editorState: PropTypes.string
   };
@@ -23,11 +24,11 @@ class Editor extends React.Component {
   };
 
   render() {
-    const { onChange, htmlString, readonly = false } = this.props;
+    const { onChange, htmlString, readonly = false, hideToolbar = false } = this.props;
 
     return (
       <LexicalComposer initialConfig={this.initialConfig}>
-        <EditorContent readonly={readonly} htmlString={htmlString} onChange={onChange} />
+        <EditorContent hideToolbar={hideToolbar} readonly={readonly} htmlString={htmlString} onChange={onChange} />
       </LexicalComposer>
     );
   }

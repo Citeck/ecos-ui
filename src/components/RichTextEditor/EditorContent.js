@@ -29,7 +29,7 @@ import { t } from '../../helpers/util';
 
 import './style.scss';
 
-export const EditorContent = ({ onChange, htmlString, readonly = false }) => {
+export const EditorContent = ({ onChange, htmlString, readonly = false, hideToolbar = false }) => {
   const [editor] = useLexicalComposerContext();
   const [floatingAnchorElem, setFloatingAnchorElem] = useState(null);
   const [isMaxLength, setIsMaxLength] = useState(false);
@@ -78,7 +78,7 @@ export const EditorContent = ({ onChange, htmlString, readonly = false }) => {
 
   return (
     <>
-      {!readonly && <ToolbarPlugin />}
+      {!readonly && !hideToolbar && <ToolbarPlugin />}
       <div className="ecos-rt-editor">
         <AutoFocusPlugin />
         <RichTextPlugin
