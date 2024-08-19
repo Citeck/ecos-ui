@@ -49,6 +49,7 @@ export function getCommentForWeb(source) {
   target.assignment = source.assignment;
   target.performer = source.performer;
   target.initiator = source.initiator;
+  target.participants = source.participants;
   target.responsible = source.responsible;
   target.title = source.title;
 

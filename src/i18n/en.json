@@ -261,6 +261,7 @@
   "activities-widget.fields.initiator": "Initiator",
   "activities-widget.fields.performer": "Performer",
   "activities-widget.fields.responsible": "Responsible",
+  "activities-widget.fields.participants": "Participants",
   "activities-widget.fields.due-date": "Due Date",
   "activities-widget.fields.type": "Activity Type",
   "activities-widget.fields.status": "Status",

@@ -16,6 +16,7 @@ const EMODEL_FIELDS = {
   commentActivity: 'comment',
   assignment: 'assignment',
   type: '_type{id,displayName:?disp}',
+  participants: 'participants[]{authorityName:?localId,userName:?localId,displayName:?disp,firstName,lastName}',
   performer: 'performer{authorityName:?localId,userName:?localId,displayName:?disp,firstName,lastName,avatarUrl:avatar.url}',
   initiator: 'initiator{authorityName:?localId,userName:?localId,displayName:?disp,firstName,lastName,avatarUrl:avatar.url}',
   responsible: 'responsible{authorityName:?localId,userName:?localId,displayName:?disp,firstName,lastName,avatarUrl:avatar.url}',
@@ -72,6 +73,7 @@ export class ActivitiesApi {
         comment.att('activityDate', rest.activityDate);
         comment.att('activityDuration', rest.activityDuration.id);
         comment.att('responsible', rest.responsible);
+        comment.att('participants', rest.participants || []);
         break;
       case ActivityTypes.ASSIGNMENT:
         comment.att('title', rest.titleAssignment);

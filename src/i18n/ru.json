@@ -246,6 +246,7 @@
   "activities-widget.fields.initiator": "Инициатор",
   "activities-widget.fields.performer": "Исполнитель",
   "activities-widget.fields.responsible": "Ответственный",
+  "activities-widget.fields.participants": "Участники",
   "activities-widget.fields.due-date": "Срок выполнения",
   "activities-widget.fields.type": "Тип активности",
   "activities-widget.fields.status": "Статус",
