@@ -1,3 +1,6 @@
+import get from 'lodash/get';
+import isArray from 'lodash/isArray';
+
 import Records from '../components/Records';
 import { SourcesId } from '../constants';
 import { ActivityTypes } from '../constants/activity';
@@ -73,14 +76,20 @@ export class ActivitiesApi {
         comment.att('activityDate', rest.activityDate);
         comment.att('activityDuration', rest.activityDuration.id);
         comment.att('responsible', rest.responsible);
-        comment.att('participants', rest.participants || []);
+        if (get(rest, 'participants') && isArray(rest.participants) && rest.participants.length > 0) {
+          comment.att('participants', rest.participants || []);
+        }
         break;
       case ActivityTypes.ASSIGNMENT:
         comment.att('title', rest.titleAssignment);
-        comment.att('dueDate', rest.dueDate);
-        comment.att('priority', rest.priority.id);
         comment.att('initiator', rest.initiator);
         comment.att('performer', rest.performer);
+        if (get(rest, 'dueDate')) {
+          comment.att('dueDate', rest.dueDate);
+        }
+        if (get(rest, 'priority.id')) {
+          comment.att('priority', rest.priority.id);
+        }
         break;
       default:
         break;
