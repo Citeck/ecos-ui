@@ -1,7 +1,6 @@
 import moment from 'moment';
 
 import * as Util from '../util';
-import { camelize, permute } from '../util';
 
 function check(data, functionName) {
   data.forEach(item => {
@@ -454,56 +453,89 @@ describe('Util helpers', () => {
     check(data, 'getMonthPeriodByDate');
   });
 
+  describe('function stripHTML', () => {
+    const data = [
+      {
+        title: 'Returns a string if it is a string',
+        input: ['example string'],
+        output: 'example string'
+      },
+      {
+        title: 'Returns a string without markup if it is HTML',
+        input: ['<div>Example String</div>'],
+        output: 'Example String'
+      },
+      {
+        title: 'Returns a string without markup, even if it is complex HTML',
+        input: ['<div><h1>Hello!</h1><p> It is <b>SIMPLE</b> example!</p></div>'],
+        output: 'Hello! It is SIMPLE example!'
+      }
+    ];
+
+    check(data, 'stripHTML');
+  });
+
   describe('function camelize', () => {
-    it('Without arguments - returns an empty string', () => {
-      const result = camelize('');
-      expect(result).toEqual('');
-    });
+    const data = [
+      {
+        title: 'Without arguments - returns an empty string',
+        input: [''],
+        output: ''
+      },
+      {
+        title: 'With a hyphenated string, it will return to camelCase',
+        input: ['test-test'],
+        output: 'testTest'
+      },
+      {
+        title: 'With an argument in a string with many hyphens, it will return everything to camelCase',
+        input: ['test-test-test-test'],
+        output: 'testTestTestTest'
+      },
+      {
+        title: 'If the argument is not a string, it will return this argument in its original form',
+        input: [1],
+        output: 1
+      },
+      {
+        title: 'If the argument is not a string, it will return this argument in its original form',
+        input: [{ test: 'test' }],
+        output: { test: 'test' }
+      }
+    ];
 
-    it('With a hyphenated string, it will return to camelCase', () => {
-      const result = camelize('test-test');
-      expect(result).toEqual('testTest');
-    });
-
-    it('With an argument in a string with many hyphens, it will return everything to camelCase', () => {
-      const result = camelize('test-test-test-test');
-      expect(result).toEqual('testTestTestTest');
-    });
-
-    it('If the argument is not a string, it will return this argument in its original form', () => {
-      const result = camelize(1);
-      expect(result).toEqual(1);
-
-      const object = { test: 'test' };
-      const result2 = camelize(object);
-      expect(result2).toEqual(object);
-    });
+    check(data, 'camelize');
   });
 
   describe('function permute', () => {
-    it('Without arguments - returns an empty list in the list', () => {
-      const result = permute([]);
-      expect(result).toEqual([[]]);
-    });
+    const data = [
+      {
+        title: 'Without arguments - returns an empty list in the list',
+        input: [[]],
+        output: [[]]
+      },
+      {
+        title: 'With one argument - returns a list of one item in the list',
+        input: [[1]],
+        output: [[1]]
+      },
+      {
+        title: 'With one argument (string) - returns a list of one item in the list',
+        input: [['a']],
+        output: [['a']]
+      },
+      {
+        title: 'With two arguments - returns two different options as lists inside the list',
+        input: [[1, 2]],
+        output: [[1, 2], [2, 1]]
+      },
+      {
+        title: 'With two arguments (strings) - returns two different parameters as a list within a list',
+        input: [['a', 'b']],
+        output: [['a', 'b'], ['b', 'a']]
+      }
+    ];
 
-    it('With one argument - returns a list of one item in the list', () => {
-      const result = permute([1]);
-      expect(result).toEqual([[1]]);
-    });
-
-    it('With one argument (string) - returns a list of one item in the list', () => {
-      const result = permute(['a']);
-      expect(result).toEqual([['a']]);
-    });
-
-    it('With two arguments - returns two different options as lists inside the list', () => {
-      const result = permute([1, 2]);
-      expect(result).toEqual([[1, 2], [2, 1]]);
-    });
-
-    it('With two arguments (strings) - returns two different parameters as a list within a list', () => {
-      const result = permute(['a', 'b']);
-      expect(result).toEqual([['a', 'b'], ['b', 'a']]);
-    });
+    check(data, 'permute');
   });
 });

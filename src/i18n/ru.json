@@ -230,8 +230,10 @@
   "dashboard.error.save-config": "Конфигурация дашборда не сохранена",
 
   "dashboard-settings.widget.activities": "Активности",
+  "activities-widget.editor.create": "Создать",
+  "activities-widget.editor.cancel": "Отмена",
   "activities-widget.title": "Активности",
-  "activities-widget.add": "Создать",
+  "activities-widget.add": "Добавить активность",
   "activities-widget.type-call": "Звонок",
   "activities-widget.type-email": "Письмо",
   "activities-widget.type-meeting": "Встреча",

@@ -245,8 +245,10 @@
   "comments-widget.edited-in": "in",
 
   "dashboard-settings.widget.activities": "Activities",
+  "activities-widget.editor.create": "To create",
+  "activities-widget.editor.cancel": "Cancel",
   "activities-widget.title": "Activities",
-  "activities-widget.add": "To create",
+  "activities-widget.add": "Add Activity",
   "activities-widget.type-call": "Call",
   "activities-widget.type-email": "Email",
   "activities-widget.type-meeting": "Meeting",
