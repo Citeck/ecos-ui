@@ -12,6 +12,7 @@ import isString from 'lodash/isString';
 import { beArray, extractLabel, getMLValue, getModule, t } from '../../../helpers/util';
 import { DialogManager } from '../../common/dialogs';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
+import { EVENTS } from '../../widgets/BaseWidget';
 import { replaceAttributeValues } from '../utils/recordUtils';
 import { getFitnesseInlineToolsClassName } from '../../../helpers/tools';
 import { DetailActionResult, getActionResultTitle, getRef, notifyFailure, notifySuccess } from './util/actionUtils';
@@ -535,6 +536,10 @@ class RecordActions {
     const actResult = await RecordActions._wrapResultIfRequired(result);
 
     RecordActions._updateRecords(record);
+
+    if (actResult) {
+      recordInstance.events.emit(EVENTS.RECORD_ACTION_COMPLETED);
+    }
 
     const noResultModal = get(action, 'config.noResultModal');
 
