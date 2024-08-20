@@ -883,7 +883,7 @@
   "copy-action.title": "Копировать",
   "copy-action.new-id": "Новый идентификатор",
   "copy-action.error.title": "Копирование невозможно",
-  "copy-action.error.text": "Модуль не может быть копирован так как отсутствует 'localId'",
+  "copy-action.error.text": "Модуль не может быть копирован так как отсутствуют 'moduleId' и 'localId'",
 
   "batch-edit.header.edit-attribute": "Изменение атрибута",
   "batch-edit.header.results": "Результат редактирования атрибута",

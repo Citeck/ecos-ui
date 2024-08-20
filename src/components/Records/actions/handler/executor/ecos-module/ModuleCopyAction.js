@@ -1,3 +1,5 @@
+import get from 'lodash/get';
+
 import ActionsExecutor from '../../ActionsExecutor';
 import Records from '../../../../Records';
 import DialogManager from '../../../../../common/dialogs/Manager';
@@ -7,9 +9,13 @@ export default class ModuleCopyAction extends ActionsExecutor {
   static ACTION_ID = 'module-copy';
 
   async execForRecord(record, action, context) {
-    let currentLocalId = await record.load('localId', true);
+    const currentLocalId = await record.load('localId', true);
+    const currentModuleId = await record.load('moduleId', true);
 
-    if (!currentLocalId) {
+    const param = currentModuleId ? 'moduleId' : currentLocalId ? 'localId' : null;
+    const data = currentModuleId || currentLocalId;
+
+    if (!data || !param) {
       DialogManager.showInfoDialog({
         title: t('copy-action.error.title'),
         text: t('copy-action.error.text')
@@ -21,7 +27,7 @@ export default class ModuleCopyAction extends ActionsExecutor {
       DialogManager.showFormDialog({
         title: t('copy-action.title'),
         formData: {
-          localId: currentLocalId
+          [param]: data
         },
         showDefaultButtons: true,
         formDefinition: {
@@ -30,20 +36,20 @@ export default class ModuleCopyAction extends ActionsExecutor {
             {
               label: t('copy-action.new-id'),
               type: 'textfield',
-              key: 'localId'
+              key: param
             }
           ]
         },
         onSubmit: async submission => {
-          const moduleId = submission.data.localId;
-          const newRecId = record.id.replace(currentLocalId, moduleId);
-          const existingId = await Records.get(newRecId).load('localId', true);
+          const id = get(submission, `data.${param}`);
+          const newRecId = record.id.replace(data, id);
+          const existingId = await Records.get(newRecId).load(param, true);
 
           if (existingId) {
             throw new Error(t('admin-section.error.existed-module'));
           }
 
-          record.att('id', submission.data.localId);
+          record.att('id', get(submission, `data.${param}`));
           record
             .save()
             .then(() => resolve(true))

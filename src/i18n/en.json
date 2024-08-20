@@ -925,7 +925,7 @@
   "copy-action.title": "Copy",
   "copy-action.new-id": "New ID",
   "copy-action.error.title": "Copying is not possible",
-  "copy-action.error.text": "The module cannot be copied because 'localId' is missing",
+  "copy-action.error.text": "The module cannot be copied because 'localId' and 'moduleId' is missing",
 
   "batch-edit.header.edit-attribute": "Edit attribute",
   "batch-edit.header.results": "Result edit attribute",
