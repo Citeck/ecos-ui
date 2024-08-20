@@ -109,7 +109,8 @@ class Filters extends Component {
     isFunction(onChange) && onChange(predicate);
   };
 
-  createGroup = (group, first, idx, sourceId, metaRecord) => {
+  createGroup = React.memo(props => {
+    const { group, first, idx, sourceId, metaRecord } = props;
     const { classNameGroup, textEmpty, columns, needUpdate } = this.props;
 
     return (
@@ -133,19 +134,22 @@ class Filters extends Component {
         textEmpty={textEmpty}
       />
     );
-  };
+  });
 
-  createSubGroup = (group, notLast, idx, sourceId, metaRecord) => {
+  createSubGroup = React.memo(props => {
+    const { group, notLast, idx, sourceId, metaRecord } = props;
     return (
       <div key={idx} className={'ecos-filters__shift'}>
         <div className={'ecos-filters__bend'} />
 
         {notLast && <div className={'ecos-filters__v-line'} />}
 
-        <div className={'ecos-filters__shift-slot'}>{this.createGroup(group, false, idx, sourceId, metaRecord)}</div>
+        <div className={'ecos-filters__shift-slot'}>
+          <this.createGroup group={group} first={false} idx={idx} sourceId={sourceId} metaRecord={metaRecord} />
+        </div>
       </div>
     );
-  };
+  });
 
   order = (source, startIndex, endIndex) => {
     if (source) {
@@ -257,9 +261,18 @@ class Filters extends Component {
             {isArray(groups) &&
               groups.map((group, idx) => {
                 if (idx > 0) {
-                  return this.createSubGroup(group, lastIdx !== idx, idx, sourceId, metaRecord);
+                  return (
+                    <this.createSubGroup
+                      key={idx}
+                      group={group}
+                      notLast={lastIdx !== idx}
+                      idx={idx}
+                      sourceId={sourceId}
+                      metaRecord={metaRecord}
+                    />
+                  );
                 } else {
-                  return this.createGroup(group, true, idx, sourceId, metaRecord);
+                  return <this.createGroup key={idx} group={group} first idx={idx} sourceId={sourceId} metaRecord={metaRecord} />;
                 }
               })}
           </DragDropContext>
