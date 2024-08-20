@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 
-import { getComments } from '../../../actions/comments';
+import { getComments, updateComments } from '../../../actions/comments';
 import { MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
 import { BASE_HEIGHT } from '../../../constants/comments';
 import DAction from '../../../services/DashletActionService';
@@ -36,6 +36,7 @@ class Comments extends BaseWidget {
     onSave: PropTypes.func,
     onDelete: PropTypes.func,
     getComments: PropTypes.func,
+    updateComments: PropTypes.func,
     createComment: PropTypes.func,
     updateComment: PropTypes.func,
     deleteComment: PropTypes.func,
@@ -55,6 +56,7 @@ class Comments extends BaseWidget {
     onSave: () => {},
     onDelete: () => {},
     getComments: () => {},
+    updateComments: () => {},
     createComment: () => {},
     updateComment: () => {},
     deleteComment: () => {},
@@ -81,16 +83,28 @@ class Comments extends BaseWidget {
       linkText: ''
     };
 
-    this.instanceRecord.events.on(EVENTS.UPDATE_TASKS_WIDGETS, this.handleReloadData);
+    this.instanceRecord.events.on(EVENTS.UPDATE_TASKS_WIDGETS, this.fetchData);
+    this.instanceRecord.events.on(EVENTS.UPDATE_COMMENTS, this.fetchData);
+    this.instanceRecord.events.on(EVENTS.RECORD_ACTION_COMPLETED, this.fetchDataAfterAction);
   }
 
   componentDidMount() {
     super.componentDidMount();
 
+    this.fetchData();
+  }
+
+  fetchDataAfterAction = () => {
+    const { updateComments } = this.props;
+
+    updateComments(this.state.comments || []);
+  };
+
+  fetchData = () => {
     const { getComments } = this.props;
 
     getComments();
-  }
+  };
 
   get countComments() {
     const { totalCount } = this.props;
@@ -243,7 +257,8 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  getComments: () => dispatch(getComments(ownProps.record))
+  getComments: () => dispatch(getComments(ownProps.record)),
+  updateComments: prevComments => dispatch(updateComments({ record: ownProps.record, prevComments }))
 });
 
 export default connect(
