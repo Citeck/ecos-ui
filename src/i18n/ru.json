@@ -539,7 +539,7 @@
   "ecos-form.error.no-form": "Нет формы",
   "ecos-form.error.form-is-not-available": "Форма недоступна",
   "ecos-form.success.clone-record": "Запись склонирована",
-  "ecos-form.infinite-loop": "Данные полей зацикливаются",
+  "ecos-form.event-overload": "Обнаружена перегрузка обработки событий на форме",
 
   "ecos-form.create-new-artefact": "Создание артефакта",
   "ecos-form.create-new-artefact-info-text": "Редактирование виртуальной формы/журнала запрещено. Необходимо создать новую(ый).",
