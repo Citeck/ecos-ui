@@ -4,6 +4,7 @@ import isArray from 'lodash/isArray';
 import Records from '../components/Records';
 import { SourcesId } from '../constants';
 import { ActivityTypes } from '../constants/activity';
+import { stripHTML } from '../helpers/util';
 
 const EMODEL_FIELDS = {
   title: 'title',
@@ -13,11 +14,11 @@ const EMODEL_FIELDS = {
   status: '_status{id,displayName:?disp}',
   activityDate: 'activityDate',
   activityDuration: 'activityDuration',
-  resultActivity: 'result',
+  result: 'result',
   priority: 'priority',
   dueDate: 'dueDate',
   commentActivity: 'comment',
-  assignment: 'assignment',
+  assignment: 'assignment?id',
   type: '_type{id,displayName:?disp}',
   participants: 'participants[]{authorityName:?localId,userName:?localId,displayName:?disp,firstName,lastName}',
   performer: 'performer{authorityName:?localId,userName:?localId,displayName:?disp,firstName,lastName,avatarUrl:avatar.url}',
@@ -64,7 +65,7 @@ export class ActivitiesApi {
   create = ({ text, record, isInternal, selectedType, ...rest } = {}) => {
     const comment = Records.getRecordToEdit(`${SourcesId.EMODEL_ACTIVITY}@`);
 
-    comment.att('text', text);
+    comment.att('text', stripHTML(text));
     comment.att('_type', selectedType.id);
     comment.att('_parent', record);
     comment.att('_parentAtt', 'has-ecos-activities:ecosActivities');
@@ -74,8 +75,10 @@ export class ActivitiesApi {
       case ActivityTypes.CALL:
       case ActivityTypes.EMAIL:
         comment.att('activityDate', rest.activityDate);
-        comment.att('activityDuration', rest.activityDuration.id);
         comment.att('responsible', rest.responsible);
+        if (get(rest, 'activityDuration.id')) {
+          comment.att('activityDuration', rest.activityDuration.id);
+        }
         if (get(rest, 'participants') && isArray(rest.participants) && rest.participants.length > 0) {
           comment.att('participants', rest.participants || []);
         }
@@ -105,7 +108,7 @@ export class ActivitiesApi {
   update = ({ id, text, record, selectedType, ...rest } = {}) => {
     const comment = Records.getRecordToEdit(id);
 
-    comment.att('text', text);
+    comment.att('text', stripHTML(text));
     comment.att('_type', selectedType.id);
     comment.att('_parent', record);
     comment.att('_parentAtt', 'has-ecos-activities:ecosActivities');
@@ -115,15 +118,13 @@ export class ActivitiesApi {
       case ActivityTypes.CALL:
       case ActivityTypes.EMAIL:
         comment.att('activityDate', rest.activityDate);
-        comment.att('activityDuration', rest.activityDuration);
+        if (get(rest, 'activityDuration.id')) {
+          comment.att('activityDuration', rest.activityDuration.id);
+        }
+        if (get(rest, 'participants') && isArray(rest.participants) && rest.participants.length > 0) {
+          comment.att('participants', rest.participants || []);
+        }
         comment.att('responsible', rest.responsible);
-        break;
-      case ActivityTypes.ASSIGNMENT:
-        comment.att('title', rest.titleAssignment);
-        comment.att('dueDate', rest.dueDate);
-        comment.att('priority', rest.priority);
-        comment.att('initiator', rest.initiator);
-        comment.att('performer', rest.performer);
         break;
       default:
         break;
