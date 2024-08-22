@@ -99,7 +99,7 @@ export default class DatePicker extends Component {
       onInputClick(event);
     }
 
-    this.setState({ isOpen: true });
+    this.setState(state => ({ isOpen: !state.isOpen }));
   };
 
   handleSelectDate = date => {
@@ -128,6 +128,15 @@ export default class DatePicker extends Component {
     return this.props.showIcon ? <span className="icon icon-calendar ecos-datepicker__icon" onClick={this.handleToggleCalendar} /> : null;
   };
 
+  onChangeRaw = e => {
+    const { onChangeRaw } = this.props;
+
+    this.handleClickOutside();
+    if (isFunction(onChangeRaw)) {
+      onChangeRaw(e);
+    }
+  };
+
   render() {
     const {
       className,
@@ -137,9 +146,9 @@ export default class DatePicker extends Component {
       dateFormat,
       wrapperClasses,
       value,
-      onChangeValue,
       narrow,
       placeholder,
+      onChangeRaw,
       ...otherProps
     } = this.props;
     const { isOpen } = this.state;
@@ -158,6 +167,7 @@ export default class DatePicker extends Component {
           {...this.timeProps}
           placeholderText={placeholder}
           open={isOpen}
+          onChangeRaw={this.onChangeRaw}
           customInput={<CustomInput forwardedRef={el => (this.datePickerInput = el)} narrow={narrow} />}
           selected={this.selected}
           className={classNames('ecos-input_hover', className)}
@@ -170,7 +180,6 @@ export default class DatePicker extends Component {
           onInputClick={this.handleInputClick}
           showTimeSelect={showTimeSelect}
           showTimeInput={showTimeInput}
-          showTimeSelectOnly={false}
         />
         {this.renderIcon()}
       </div>
