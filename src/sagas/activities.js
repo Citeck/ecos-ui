@@ -20,7 +20,8 @@ import {
   updateActivityRequest,
   updateActivitySuccess,
   uploadFilesInActivity,
-  uploadFilesFinally
+  uploadFilesFinally,
+  viewAssignment
 } from '../actions/activities';
 import { selectAllActivities } from '../selectors/activities';
 import { getCommentForWeb } from '../dto/activities';
@@ -31,6 +32,7 @@ import { setUploadError } from '../actions/documents';
 import Records from '../components/Records/Records';
 import { EVENTS } from '../components/widgets/BaseWidget';
 import { ActivityTypes } from '../constants/activity';
+import { ActionTypes } from '../components/Records/actions/constants';
 
 const getPureMessage = message => (message || '').replace(/\d/g, '');
 
@@ -259,12 +261,25 @@ function* sagaDeleteActivity({ api, logger }, { payload }) {
   }
 }
 
+function* sagaViewAssignment({ api, logger }, { payload }) {
+  try {
+    yield call(api.recordActions.executeAction, {
+      records: payload,
+      action: { type: ActionTypes.VIEW }
+    });
+  } catch (e) {
+    NotificationManager.error(t('doc-associations-widget.view-association.error.message'), t('error'));
+    logger.error('[docAssociations sagaViewAssignment saga error', e);
+  }
+}
+
 function* saga(ea) {
   yield takeEvery(uploadFilesInActivity().type, sagaUploadFilesInActivity, ea);
   yield takeEvery(getActivities().type, sagaGetActivities, ea);
   yield takeEvery(createActivityRequest().type, sagaCreateActivity, ea);
   yield takeEvery(updateActivityRequest().type, sagaUpdateActivity, ea);
   yield takeEvery(deleteActivityRequest().type, sagaDeleteActivity, ea);
+  yield takeEvery(viewAssignment().type, sagaViewAssignment, ea);
 }
 
 export default saga;

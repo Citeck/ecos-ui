@@ -42,13 +42,14 @@ export function getCommentForWeb(source) {
   target.activityDate = source.activityDate;
 
   target.activityDuration = source.activityDuration;
-  target.resultActivity = source.resultActivity;
+  target.result = source.result;
   target.priority = source.priority;
   target.dueDate = source.dueDate;
   target.commentActivity = source.commentActivity;
   target.assignment = source.assignment;
   target.performer = source.performer;
   target.initiator = source.initiator;
+  target.participants = source.participants;
   target.responsible = source.responsible;
   target.title = source.title;
 
