@@ -363,7 +363,7 @@ function* getColumns({ stateId }) {
   if (columns.length) {
     return columns.map(column => {
       const config = get(journalSetting, 'columns', []).find(setting => setting.attribute === column.attribute);
-      return config ? { ...column, ...config, sortable: config.sortable } : column;
+      return config ? { ...column, ...config } : column;
     });
   }
 
@@ -481,6 +481,8 @@ function* sagaInitJournalSettingData({ api, logger, stateId, w }, action) {
     const { predicate: defaultPredicate } = getDefaultJournalSetting(journalConfig);
     let predicate = _predicate || journalSetting.predicate;
 
+    const columns = yield getColumns({ stateId });
+
     const handleVal = p =>
       isArray(get(p, 'val')) &&
       get(p, 'val').length === 1 &&
@@ -501,7 +503,7 @@ function* sagaInitJournalSettingData({ api, logger, stateId, w }, action) {
 
     const columnsSetup = {
       isExpandedFromGrouped: false,
-      columns: JournalsConverter.injectId(journalConfig.columns),
+      columns: JournalsConverter.injectId(columns),
       sortBy: cloneDeep(journalSetting.sortBy)
     };
     const grouping = {
@@ -510,7 +512,7 @@ function* sagaInitJournalSettingData({ api, logger, stateId, w }, action) {
       groupBy: cloneDeep(journalSetting.groupBy)
     };
 
-    const filteredPredicate = JournalsConverter.filterPredicatesByConfigColumns(cloneDeep(predicate), journalConfig.columns);
+    const filteredPredicate = JournalsConverter.filterPredicatesByConfigColumns(cloneDeep(predicate), columns);
 
     yield put(setJournalExpandableProp(w(false)));
     yield put(setPredicate(w(filteredPredicate)));
@@ -1160,7 +1162,8 @@ function* sagaEditJournalSetting({ api, logger, stateId, w }, action) {
 function* sagaApplyJournalSetting({ api, logger, stateId, w }, action) {
   try {
     const { settings } = action.payload;
-    const { columns, groupBy = [], sortBy: sortByFromSetting, predicate, grouping } = settings;
+    const { groupBy = [], sortBy: sortByFromSetting, predicate, grouping } = settings;
+    const columns = yield getColumns({ stateId });
     const predicates = beArray(predicate);
     const maxItems = yield select(selectGridPaginationMaxItems, stateId);
     const pagination = { ...DEFAULT_PAGINATION, maxItems };
