@@ -11,7 +11,7 @@ stages:
 
 testing:
   tags:
-    - kuber-run
+    - kuber-run-new
   stage: testing
   before_script:
     - yarn install --frozen-lockfile
