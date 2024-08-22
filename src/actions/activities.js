@@ -2,6 +2,8 @@ import { createAction } from 'redux-actions';
 
 const prefix = 'activities/';
 
+export const viewAssignment = createAction(prefix + 'VIEW_ASSIGNMENT');
+
 export const getActivities = createAction(prefix + 'GET_ACTIVITIES');
 export const setActivities = createAction(prefix + 'SET_ACTIVITIES');
 
