@@ -264,6 +264,7 @@
   "activities-widget.priority.middle": "Средний",
   "activities-widget.priority.low": "Низкий",
   "activities-widget.confirm.delete.title": "Удалить эту активность",
+  "activities-widget.view-assignment.error.message": "Не удалось запустить просмотр поручения",
 
   "widget-settings.title": "Настройки виджета \"{{title}}\"",
   "widget-settings.go-journal-types": "Журнал типов",

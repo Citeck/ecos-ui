@@ -269,7 +269,7 @@ function* sagaViewAssignment({ api, logger }, { payload }) {
     });
   } catch (e) {
     NotificationManager.error(t('doc-associations-widget.view-association.error.message'), t('error'));
-    logger.error('[docAssociations sagaViewAssociation saga error', e);
+    logger.error('[docAssociations sagaViewAssignment saga error', e);
   }
 }
 

@@ -279,6 +279,7 @@
   "activities-widget.priority.middle": "Middle",
   "activities-widget.priority.low": "Low",
   "activities-widget.confirm.delete.title": "Delete this activity",
+  "activities-widget.view-assignment.error.message": "Failed to start viewing the order",
 
   "charts-widget.title": "Graphic statistic",
   "charts-widget.no-source": "No source of type",
