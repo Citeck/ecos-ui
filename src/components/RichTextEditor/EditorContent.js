@@ -10,7 +10,7 @@ import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
 import { $generateNodesFromDOM } from '@lexical/html';
-import { $insertNodes, $getRoot } from 'lexical';
+import { $getRoot, $createTextNode, TextNode, ElementNode, $createParagraphNode } from 'lexical';
 import isNil from 'lodash/isNil';
 import classNames from 'classnames';
 
@@ -61,12 +61,21 @@ export const EditorContent = ({ onChange, htmlString, readonly = false, hideTool
             const dom = parser.parseFromString(htmlString, 'text/html');
             const nodes = $generateNodesFromDOM(editor, dom);
 
-            // const root = $getRoot();
+            const root = $getRoot();
+            root.clear();
+            root.select();
 
-            $getRoot().select();
-
-            // Insert them at a selection.
-            $insertNodes(nodes);
+            nodes.forEach(node => {
+              if (node instanceof TextNode) {
+                const paragraph = $createParagraphNode();
+                const textNode = $createTextNode(node.getTextContent());
+                paragraph.append(textNode);
+                root.append(paragraph);
+                root.select();
+              } else if (node instanceof ElementNode) {
+                root.append(node);
+              }
+            });
           });
         } catch (e) {
           console.error(e);
@@ -107,6 +116,7 @@ export const EditorContent = ({ onChange, htmlString, readonly = false, hideTool
         <OnChangePlugin
           onChange={(state, editor, tags) => {
             const { textContent = '' } = editor.getRootElement();
+            // console.log("getEditorState:", editor.getEditorState());
 
             setTextLength(textContent.length);
             setIsMaxLength(textContent.length > LENGTH_LIMIT);
