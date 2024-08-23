@@ -21,7 +21,7 @@ import { wrapArgs } from '../../helpers/redux';
 import { showModalJson } from '../../helpers/tools';
 import { ActionTypes } from '../Records/actions/constants';
 
-import { isUnknownView, JOURNAL_MIN_HEIGHT, JOURNAL_MIN_HEIGHT_MOB, JOURNAL_VIEW_MODE as JVM, Labels } from './constants';
+import { isDocLib, isUnknownView, JOURNAL_MIN_HEIGHT, JOURNAL_MIN_HEIGHT_MOB, JOURNAL_VIEW_MODE as JVM, Labels } from './constants';
 import JournalsMenu from './JournalsMenu';
 import JournalsHead from './JournalsHead';
 import { DocLibView, KanbanView, TableView } from './Views';
@@ -82,8 +82,8 @@ class Journals extends React.Component {
   _toggleMenuTimerId = null;
 
   state = {
-    menuOpen: false,
-    menuOpenAnimate: false,
+    menuOpen: isDocLib(get(getSearchParams(), JUP.VIEW_MODE)),
+    menuOpenAnimate: isDocLib(get(getSearchParams(), JUP.VIEW_MODE)),
     journalId: undefined
   };
 
