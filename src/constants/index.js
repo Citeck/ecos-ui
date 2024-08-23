@@ -238,6 +238,8 @@ export const SystemJournals = {
   PROCESS_ELMS: 'bpmn-process-elements'
 };
 
+export const COMMENT_TYPE = 'ecos-comment';
+
 export const DateFormats = {
   DATE: 'DD.MM.YYYY',
   DATETIME: 'DD.MM.YYYY HH:mm',
