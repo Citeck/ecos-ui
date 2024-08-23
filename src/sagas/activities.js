@@ -26,7 +26,7 @@ import {
 import { selectAllActivities } from '../selectors/activities';
 import { getCommentForWeb } from '../dto/activities';
 import { t } from '../helpers/util';
-import { SourcesId } from '../constants';
+import { COMMENT_TYPE, SourcesId } from '../constants';
 import { uploadFileV2 } from './documents';
 import { setUploadError } from '../actions/documents';
 import Records from '../components/Records/Records';
@@ -153,6 +153,7 @@ function* sagaUpdateActivity({ api, logger }, action) {
           instanceRecord.events.emit(EVENTS.UPDATE_ASSOCIATIONS);
           break;
         case ActivityTypes.COMMENT:
+        case COMMENT_TYPE:
           instanceRecord.events.emit(EVENTS.UPDATE_COMMENTS);
           break;
         default:

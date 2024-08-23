@@ -51,6 +51,26 @@ export default class DatePicker extends Component {
     };
   }
 
+  componentDidMount() {
+    const { scrollEl } = this.props;
+
+    if (scrollEl) {
+      scrollEl.addEventListener('scroll', this.handleScroll);
+    }
+  }
+
+  componentWillUnmount() {
+    const { scrollEl } = this.props;
+
+    if (scrollEl) {
+      scrollEl.removeEventListener('scroll', this.handleScroll);
+    }
+  }
+
+  handleScroll = () => {
+    this.setState({ isOpen: false });
+  };
+
   get timeProps() {
     const { showTimeInput, showTimeSelect, dateFormat } = this.props;
 
