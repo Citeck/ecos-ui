@@ -130,6 +130,13 @@ class Journals extends React.Component {
     const { _url, isActivePage, stateId, viewMode, tabId } = this.props;
     const { journalId } = this.state;
 
+    if (!isEqual(prevProps.viewMode, viewMode) && isDocLib(viewMode)) {
+      this.setState({
+        menuOpen: true,
+        menuOpenAnimate: true
+      });
+    }
+
     const isEqualView = equalsQueryUrls({
       urls: [_url, prevProps._url],
       compareBy: [JUP.VIEW_MODE]
