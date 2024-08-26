@@ -245,6 +245,7 @@
   "comments-widget.edited-in": "in",
 
   "dashboard-settings.widget.activities": "Activities",
+  "activities-widget.participants-all": "All participants",
   "activities-widget.editor.create": "To create",
   "activities-widget.editor.cancel": "Cancel",
   "activities-widget.title": "Activities",
@@ -270,7 +271,7 @@
   "activities-widget.fields.due-date": "Due Date",
   "activities-widget.fields.type": "Activity Type",
   "activities-widget.fields.status": "Status",
-  "activities-widget.fields.result": "Activity Result",
+  "activities-widget.fields.result": "Result",
   "activities-widget.fields.comment-activity": "Comment Created During Activity",
   "activities-widget.fields.activity-date": "Date",
   "activities-widget.fields.activity-date-placeholder": "Date of activity",

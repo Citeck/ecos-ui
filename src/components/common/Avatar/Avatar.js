@@ -57,13 +57,13 @@ export default class Avatar extends React.Component {
   };
 
   renderContent() {
-    const { url, userName } = this.props;
+    const { url, userName, id } = this.props;
 
     if (!this.empty) {
-      return <img alt="avatar" src={url} className="ecos-avatar__image" ref={this.refImg} onError={this.onError} />;
+      return <img alt="avatar" id={id} src={url} className="ecos-avatar__image" ref={this.refImg} onError={this.onError} />;
     } else if (this.empty && userName) {
       return (
-        <div className="ecos-avatar__name">
+        <div id={id} className="ecos-avatar__name">
           {userName
             .split(' ')
             .slice(0, 2)
@@ -73,7 +73,7 @@ export default class Avatar extends React.Component {
         </div>
       );
     } else {
-      return <Icon className="ecos-avatar__icon icon-user-normal" />;
+      return <Icon id={id} className="ecos-avatar__icon icon-user-normal" />;
     }
   }
 
