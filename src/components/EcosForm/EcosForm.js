@@ -91,7 +91,8 @@ class EcosForm extends React.Component {
       customModule: 'customModule',
       title: 'title',
       i18n: 'i18n?json',
-      width: 'width'
+      width: 'width',
+      atts: 'attributes?json'
     };
 
     let formLoadingPromise;
@@ -215,8 +216,8 @@ class EcosForm extends React.Component {
         options.events = new CustomEventEmitter({
           wildcard: false,
           maxListeners: 0,
-          loadLimit: 200,
-          onOverload: () => !!this._form && this._form.showErrors(t('ecos-form.infinite-loop'))
+          loadLimit: get(formData, 'atts.loadLimit', 200),
+          onOverload: () => !!this._form && this._form.showErrors(t('ecos-form.event-overload'))
         });
         options.initiator = initiator;
 
