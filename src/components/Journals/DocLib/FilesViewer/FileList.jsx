@@ -5,6 +5,10 @@ import get from 'lodash/get';
 
 import { NODE_TYPES } from '../../../../constants/docLib';
 import FilesViewer from '../../../FilesViewer';
+import { ActionTypes } from '../../../Records/actions/constants';
+import { RecordActionsApi } from '../../../../api/recordActions';
+
+const actionApi = new RecordActionsApi();
 
 const FileList = ({ isMobile, items = [], selected = [], lastClicked, openFolder, setSelected, setLastClicked, onDrop }) => {
   const _onDoubleClick = (item, e) => {
@@ -18,6 +22,13 @@ const FileList = ({ isMobile, items = [], selected = [], lastClicked, openFolder
 
     if (!currentId) {
       return;
+    }
+
+    if (get(item, 'type') && item.type === NODE_TYPES.FILE) {
+      actionApi.executeAction({
+        records: currentId,
+        action: { type: ActionTypes.BACKGROUND_VIEW }
+      });
     }
 
     switch (true) {
