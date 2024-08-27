@@ -4,7 +4,6 @@ import isArray from 'lodash/isArray';
 import Records from '../components/Records';
 import { SourcesId } from '../constants';
 import { ActivityTypes } from '../constants/activity';
-import { stripHTML } from '../helpers/util';
 
 const EMODEL_FIELDS = {
   title: 'title',
@@ -65,7 +64,7 @@ export class ActivitiesApi {
   create = ({ text, record, isInternal, selectedType, ...rest } = {}) => {
     const comment = Records.getRecordToEdit(`${SourcesId.EMODEL_ACTIVITY}@`);
 
-    comment.att('text', stripHTML(text));
+    comment.att('text', text);
     comment.att('_type', selectedType.id);
     comment.att('_parent', record);
     comment.att('_parentAtt', 'has-ecos-activities:ecosActivities');
@@ -108,7 +107,7 @@ export class ActivitiesApi {
   update = ({ id, text, record, selectedType, ...rest } = {}) => {
     const comment = Records.getRecordToEdit(id);
 
-    comment.att('text', stripHTML(text));
+    comment.att('text', text);
     comment.att('_type', selectedType.id);
     comment.att('_parent', record);
     comment.att('_parentAtt', 'has-ecos-activities:ecosActivities');
