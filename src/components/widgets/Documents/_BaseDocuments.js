@@ -9,6 +9,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { NotificationManager } from 'react-notifications';
 
+import { DocumentsApi } from '../../../api/documents';
 import BaseWidget from '../BaseWidget';
 import { EcosModal, Icon, Loader, Tooltip } from '../../common';
 import { Dropdown } from '../../common/form';
@@ -28,6 +29,8 @@ import { selectTypeStatus } from '../../../selectors/documents';
 import Settings from './parts/Settings';
 
 import './style.scss';
+
+const documentsApi = new DocumentsApi();
 
 class BaseDocuments extends BaseWidget {
   scrollPosition = {};
@@ -260,7 +263,7 @@ class BaseDocuments extends BaseWidget {
     return get(availableTypes.find(item => item.id === typeId), 'createVariants', {}) || {};
   };
 
-  handleToggleUploadModalByType = (type = null) => {
+  handleToggleUploadModalByType = async (type = null) => {
     this.setState({ isLoadingUploadingModal: false });
 
     if (type === null) {
@@ -273,13 +276,19 @@ class BaseDocuments extends BaseWidget {
     }
 
     const { formId = null } = type;
-    const createVariants = this.getFormCreateVariants(type);
+    let createVariants = this.getFormCreateVariants(type);
     const hasForm = formId !== null || !isEmpty(createVariants.formRef);
     let isFormOpens = false;
 
+    if (!createVariants || isEmpty(createVariants)) {
+      await documentsApi.getCreateVariants(typeof type === 'string' ? type : type.type).then(variants => {
+        createVariants = variants;
+      });
+    }
+
     if (hasForm) {
       isFormOpens = true;
-      this.openForm(DocumentsConverter.getDataToCreate({ ...type, record: this.props.record, createVariants }));
+      this.openForm(DocumentsConverter.getDataToCreate({ ...type, record: this.props.record, ...createVariants }));
     }
 
     this.setState({
