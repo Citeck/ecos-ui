@@ -522,7 +522,7 @@ function* formManager({ api, payload, files }) {
         type: payload.type,
         formId: type.formId,
         files,
-        createVariants
+        ...createVariants
       }),
       {
         onModalCancel: () => {
