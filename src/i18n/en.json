@@ -1612,7 +1612,7 @@
   "documents-widget.dnd.disabled": "Drag'n'Drop is disabled for this type of document",
   "documents-widget.label.not-configuration": "Widget not configured",
   "documents-widget.btn.settings": "Open Settings",
-  "documents-widget.error.upload-filed": "Could not upload file",
+  "documents-widget.error.upload-filed": "File upload error",
   "documents-widget.error.only-one-file": "Only one file can be uploaded",
   "documents-widget.label.nothing-found": "Nothing found",
   "documents-widget.tree.empty": "Nothing found",
