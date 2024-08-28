@@ -191,6 +191,7 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
     yield put(setDynamicTypes({ key: payload.key, dynamicTypes: filledTypes }));
   } catch (e) {
     logger.error('[documents sagaGetDynamicTypes saga error', e);
+    NotificationManager.error(t('documents-widget.error.upload-filed'), t('error'));
   }
 }
 
