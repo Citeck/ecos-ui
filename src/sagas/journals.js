@@ -1226,6 +1226,7 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
     const { columns, groupBy = [] } = grid;
     const { criteria = [], predicate = {} } = journalConfig.meta || {};
 
+    let settingColumns = get(journalData, 'journalSetting.columns', columns);
     let row = cloneDeep(action.payload);
     let id = journalConfig.id || '';
     let filter = '';
@@ -1291,7 +1292,14 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
       yield call(api.journals.setLsJournalSettingId, get(journalData, 'journalSetting.id', id), '');
     }
 
-    const gridColumns = JournalsConverter.filterColumnsByConfig(get(journalData, 'journalSetting.columns', columns), journalConfig.columns);
+    if (isArray(journalConfig.columns) && isArray(settingColumns) && settingColumns.length < journalConfig.columns.length) {
+      const settingColumnsIds = settingColumns.map(item => JournalsConverter.getColumnId(item));
+      journalConfig.columns.forEach(
+        column => !settingColumnsIds.includes(JournalsConverter.getColumnId(column)) && settingColumns.push(column)
+      );
+    }
+
+    const gridColumns = JournalsConverter.filterColumnsByConfig(settingColumns, journalConfig.columns);
 
     const params = getGridParams({
       journalConfig,
