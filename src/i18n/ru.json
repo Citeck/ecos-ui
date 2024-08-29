@@ -1568,6 +1568,7 @@
   "documents-widget.dnd.disabled": "Drag'n'Drop отключен для этого типа документов",
   "documents-widget.label.not-configuration": "Виджет не настроен",
   "documents-widget.btn.settings": "Открыть настройки",
+  "documents-widget.error.upload-version": "Ошибка загрузки версии",
   "documents-widget.error.upload-filed": "Ошибка загрузки файла",
   "documents-widget.error.only-one-file": "Можно загрузить только один файл",
   "documents-widget.label.nothing-found": "Ничего не найдено",

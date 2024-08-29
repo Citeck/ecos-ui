@@ -1,3 +1,4 @@
+import { NotificationManager } from 'react-notifications';
 import React, { useEffect, useState } from 'react';
 import get from 'lodash/get';
 
@@ -33,7 +34,10 @@ export default function UploadNewVersion({ record, onClose }) {
         setLoadDoc(true);
         setShow(false);
       })
-      .catch(e => setErrorMessage(e.message))
+      .catch(e => {
+        setErrorMessage(e.message);
+        NotificationManager.error(t('documents-widget.error.upload-filed'), t('error'));
+      })
       .finally(() => setLoading(false));
   };
 

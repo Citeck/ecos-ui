@@ -1,3 +1,4 @@
+import { NotificationManager } from 'react-notifications';
 import { call, put, takeEvery } from 'redux-saga/effects';
 import get from 'lodash/get';
 
@@ -17,6 +18,7 @@ import {
 } from '../actions/versionsJournal';
 import VersionsJournalConverter from '../dto/versionsJournal';
 import Records from '../components/Records';
+import { t } from '../helpers/util';
 
 function* sagaGetVersions({ api, logger }, { payload }) {
   try {
@@ -49,6 +51,7 @@ function* sagaAddNewVersion({ api, logger }, { payload }) {
     }
   } catch (e) {
     logger.error('[versionJournal/sagaAddNewVersion saga] error', e);
+    NotificationManager.error(t('documents-widget.error.upload-filed'), t('error'));
     yield put(addNewVersionError({ message: e.message, id: payload.id }));
   }
 }
@@ -73,6 +76,7 @@ function* sagaGetVersionsComparison({ api, logger }, { payload }) {
     yield put(setVersionsComparison({ record: payload.record, id: payload.id, comparison }));
   } catch (e) {
     logger.error('[versionJournal/sagaGetVersionsComparison saga] error', e);
+    NotificationManager.error(t('documents-widget.error.upload-version'), t('error'));
   }
 }
 
