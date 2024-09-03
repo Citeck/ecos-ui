@@ -112,6 +112,8 @@ export class ActivitiesApi {
     comment.att('_parent', record);
     comment.att('_parentAtt', 'has-ecos-activities:ecosActivities');
 
+    console.log('rest.participants:', rest.participants);
+
     switch (selectedType.id) {
       case ActivityTypes.MEETING:
       case ActivityTypes.CALL:
@@ -120,7 +122,7 @@ export class ActivitiesApi {
         if (get(rest, 'activityDuration.id')) {
           comment.att('activityDuration', rest.activityDuration.id);
         }
-        if (get(rest, 'participants') && isArray(rest.participants) && rest.participants.length > 0) {
+        if (get(rest, 'participants') && isArray(rest.participants)) {
           comment.att('participants', rest.participants || []);
         }
         comment.att('responsible', rest.responsible);
