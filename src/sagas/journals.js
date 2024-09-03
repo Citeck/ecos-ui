@@ -399,6 +399,12 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettin
 
       if (journalSettingId) {
         const preset = yield call([PresetsServiceApi, PresetsServiceApi.getPreset], { id: journalSettingId });
+        const _journalConfig = yield call(
+          [JournalsService, JournalsService.getJournalConfig],
+          get(preset, 'journalId'),
+          false,
+          journalSettingId
+        );
 
         if (isEmpty(preset) || isEmpty(preset.settings)) {
           NotificationManager.error(t('journal.presets.error.get-one'));
@@ -431,6 +437,18 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettin
 
         if (!journalSetting) {
           yield call(api.journals.setLsJournalSettingId, journalConfig.id, '');
+        }
+
+        if (journalSetting && _journalConfig && journalSetting.columns && _journalConfig.columns) {
+          journalSetting.columns.forEach(column => {
+            if (column && !column.width) {
+              const columnConfig = _journalConfig.columns.find(c => c.attribute === column.attribute);
+
+              if (columnConfig && columnConfig.width) {
+                column.width = columnConfig.width;
+              }
+            }
+          });
         }
       }
 
