@@ -14,7 +14,7 @@ import { getCurrentUserName } from '../../../helpers/util';
 
 const COLUMN_COMPUTED_PREFIX = 'column_';
 
-const getSavedValue = async config => {
+const getSavedValue = async (config, journalSettingId) => {
   const { id } = config;
 
   if (!id) {
@@ -27,7 +27,13 @@ const getSavedValue = async config => {
 
     if (userName && dbValue?.[userName]?.columns) {
       config.columns.forEach(column => {
-        const savedColumn = dbValue[userName].columns[column.attribute];
+        let savedColumn;
+
+        if (dbValue?.[userName]?.settings && !!journalSettingId) {
+          savedColumn = dbValue[userName].settings[journalSettingId][column.attribute];
+        } else {
+          savedColumn = dbValue[userName].columns[column.attribute];
+        }
 
         if (savedColumn && savedColumn.width) {
           column.width = savedColumn.width;
@@ -67,14 +73,14 @@ class JournalsService {
     return this._convertJournalConfig(journal);
   }
 
-  async getJournalConfig(journalId = '', force) {
+  async getJournalConfig(journalId = '', force, journalSettingId = '') {
     const sourceDelimIdx = journalId.indexOf('@');
     const journalRecordId = sourceDelimIdx === -1 ? journalId : journalId.substring(sourceDelimIdx + 1);
     let journal = await journalsApi.getJournalConfig(journalRecordId, force);
-    return this._convertJournalConfig(journal);
+    return this._convertJournalConfig(journal, journalSettingId);
   }
 
-  async _convertJournalConfig(config) {
+  async _convertJournalConfig(config, journalSettingId) {
     if (!config) {
       return {};
     }
@@ -89,7 +95,7 @@ class JournalsService {
     legacyConfig.columns = getColumnsWidth(legacyConfig.columns);
 
     // FIXME: tests are failed because getSavedValue returns undefined, but it returns our modified object
-    legacyConfig = (await getSavedValue(legacyConfig)) || legacyConfig;
+    legacyConfig = (await getSavedValue(legacyConfig, journalSettingId)) || legacyConfig;
 
     legacyConfig.configData = this._getAttsToLoadWithComputedAndUpdateConfigs(legacyConfig);
     legacyConfig.configData.configComputed = await computedService.resolve(legacyConfig.configData.configComputed);

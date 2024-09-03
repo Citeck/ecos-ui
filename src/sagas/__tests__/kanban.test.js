@@ -207,7 +207,7 @@ describe('kanban sagas tests', () => {
 
     expect(spyRecordsGet).toHaveBeenCalledTimes(1);
     expect(spyGetFormInputs).toHaveBeenCalledTimes(1);
-    expect(spyGetJournalConfig).toHaveBeenCalledTimes(1);
+    expect(spyGetJournalConfig).toHaveBeenCalledTimes(2);
     expect(spyGetJournalData).toHaveBeenCalledTimes(colsLen);
     expect(logger.error).not.toHaveBeenCalled();
   });

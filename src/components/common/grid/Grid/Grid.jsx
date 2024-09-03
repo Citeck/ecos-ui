@@ -905,7 +905,7 @@ class Grid extends Component {
   };
 
   saveColumnWidth = async () => {
-    const { journalId, onColumnSave } = this.props;
+    const { journalId, onColumnSave, journalSetting = {} } = this.props;
     const { updatedColumn } = this.state;
     const { name, width } = updatedColumn;
 
@@ -918,11 +918,27 @@ class Grid extends Component {
       let dbValue = (await pagesStore.get(journalId)) || {
         pageId: journalId,
         [this.userName]: {
+          settings: {},
           columns: {}
         }
       };
 
       let currentColumn = dbValue[this.userName]?.columns[name] || {};
+
+      if (journalSetting && !isEmpty(journalSetting) && get(journalSetting, 'id')) {
+        dbValue[this.userName] = {
+          ...dbValue[this.userName],
+          settings: {
+            ...dbValue[this.userName].settings,
+            [journalSetting.id]: {
+              [name]: {
+                ...currentColumn,
+                width
+              }
+            }
+          }
+        };
+      }
 
       dbValue[this.userName] = {
         ...dbValue[this.userName],
