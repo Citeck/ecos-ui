@@ -15,6 +15,14 @@ const FileList = ({ isMobile, items = [], selected = [], lastClicked, openFolder
     if (item.type === NODE_TYPES.DIR && typeof openFolder === 'function') {
       openFolder(item.id);
     }
+
+    const currentId = item.id;
+    if (currentId && get(item, 'type') && item.type === NODE_TYPES.FILE) {
+      actionApi.executeAction({
+        records: currentId,
+        action: { type: ActionTypes.VIEW }
+      });
+    }
   };
 
   const _onClick = (item, e) => {
@@ -22,13 +30,6 @@ const FileList = ({ isMobile, items = [], selected = [], lastClicked, openFolder
 
     if (!currentId) {
       return;
-    }
-
-    if (get(item, 'type') && item.type === NODE_TYPES.FILE) {
-      actionApi.executeAction({
-        records: currentId,
-        action: { type: ActionTypes.BACKGROUND_VIEW }
-      });
     }
 
     switch (true) {
