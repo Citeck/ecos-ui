@@ -12,7 +12,7 @@ import ZIndex from '../../../services/ZIndex';
 import Columns from '../../common/templates/Columns/Columns';
 import { IcoBtn } from '../../common/btns';
 import { Label, Select } from '../../common/form';
-import { getPredicates, getPredicateValue } from '../../Records/predicates/predicates';
+import { getPredicates, getPredicateValue, PREDICATE_TODAY } from '../../Records/predicates/predicates';
 import EditorService from '../../Journals/service/editors/EditorService';
 import EditorScope from '../../Journals/service/editors/EditorScope';
 import { ParserPredicate } from '../predicates';
@@ -111,7 +111,7 @@ export default class Filter extends Component {
 
     this.props.onChangePredicate({ predicate, index });
 
-    if (fixedValue !== undefined) {
+    if (fixedValue !== undefined && predicate !== PREDICATE_TODAY) {
       this.onChangeValue(fixedValue);
     }
   };
