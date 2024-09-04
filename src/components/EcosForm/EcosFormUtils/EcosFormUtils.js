@@ -948,14 +948,21 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
         continue;
       }
 
+      const componentType = lodashGet(inputByKey, [attPath, 'component', 'type']);
       const data = recordData[attPath];
+
       if (data == null) {
-        continue;
+        if (componentType === 'checkbox') {
+          if (!inputByKey[attPath].component.hasThreeStates) {
+            continue;
+          }
+        } else {
+          continue;
+        }
       }
 
       const input = inputByKey[attPath];
       const dataType = lodashGet(inputByKey, [attPath, 'dataType']);
-      const componentType = lodashGet(inputByKey, [attPath, 'component', 'type']);
       let inputValue;
 
       if (dataType === 'json-record') {
