@@ -398,6 +398,15 @@ export default class SelectComponent extends BaseComponent {
 
     // Helps to remove unnecessary updates, get rid of looping
     if (_.isEmpty(items) && _.isEmpty(this.currentItems)) {
+      // If the component has no refresh attributes but has some dataValue and the select is empty,
+      // it needs to be set to the value of the select.
+      if (_.get(this.choices, 'input.element') && this.dataValue !== this.choices.input.element.value) {
+        const refreshOn = this.component.refreshOn;
+        if (refreshOn && _.isArray(refreshOn) && refreshOn.length === 0) {
+          this.triggerUpdate(this.dataValue);
+        }
+      }
+
       return;
     }
 
