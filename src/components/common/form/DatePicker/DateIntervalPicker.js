@@ -437,6 +437,7 @@ class DateIntervalPicker extends Component {
         break;
       }
       case DateTypes.ABSOLUTE: {
+        const { showTimeInput } = this.props;
         const { start, end } = this.state;
 
         if (selectedPart === DateInputs.START && end) {
@@ -464,6 +465,24 @@ class DateIntervalPicker extends Component {
                 minutes: startInMoment.minutes() + 30
               })
               .toDate();
+          }
+        }
+
+        if (!showTimeInput) {
+          if (selectedPart === DateInputs.START) {
+            result = moment(result)
+              .startOf('day')
+              .utc()
+              .toISOString();
+            break;
+          }
+
+          if (selectedPart === DateInputs.END) {
+            result = moment(result)
+              .endOf('day')
+              .utc()
+              .toISOString();
+            break;
           }
         }
 
