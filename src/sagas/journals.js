@@ -1180,8 +1180,7 @@ function* sagaEditJournalSetting({ api, logger, stateId, w }, action) {
 function* sagaApplyJournalSetting({ api, logger, stateId, w }, action) {
   try {
     const { settings } = action.payload;
-    const { groupBy = [], sortBy: sortByFromSetting, predicate, grouping } = settings;
-    const columns = yield getColumns({ stateId });
+    const { columns, groupBy = [], sortBy: sortByFromSetting, predicate, grouping } = settings;
     const predicates = beArray(predicate);
     const maxItems = yield select(selectGridPaginationMaxItems, stateId);
     const pagination = { ...DEFAULT_PAGINATION, maxItems };
