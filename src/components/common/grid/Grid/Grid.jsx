@@ -195,7 +195,7 @@ class Grid extends Component {
     tHead &&
       Array.from(tHead.cells).forEach((cell, i) => {
         const width = cell && !!get(this.#columnsSizes, [i, 'width']);
-        width && (cell.style.width = cssNum(width));
+        width && (cell.style.width = cssNum(get(this.#columnsSizes, [i, 'width'])));
       });
   };
 
@@ -849,6 +849,10 @@ class Grid extends Component {
         resizeCol.style.removeProperty('min-width');
         resizeCol.style.width = cssNum(width);
 
+        if (isElement(get(resizeCol, 'children[0]')) && resizeCol.children[0].classList.contains('ecos-th')) {
+          resizeCol.children[0].style.width = cssNum(width);
+        }
+
         if (isElement(lastCol)) {
           lastCol.style.width = cssNum(parseFloat(lastWidth) + (parseFloat(resizeWidth) - width));
         }
@@ -879,6 +883,7 @@ class Grid extends Component {
       if (journalId && this.userName) {
         this.setState({
           updatedColumn: {
+            cellIndex: this._resizingTh.cellIndex,
             width: this._resizingTh.style.width,
             name: this._resizingTh.dataset.name,
             id: this._resizingTh.dataset.id
