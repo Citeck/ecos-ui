@@ -1,5 +1,6 @@
 import { EventEmitter2 } from 'eventemitter2';
 import { withSwitch, observeOverload } from 'formiojs/utils/utils';
+import { t } from '../helpers/util';
 
 export default class EventEmitter extends EventEmitter2 {
   constructor(conf = {}) {
@@ -9,7 +10,7 @@ export default class EventEmitter extends EventEmitter2 {
     const [isPaused, togglePause] = withSwitch(false, true);
 
     const overloadHandler = () => {
-      console.warn('Infinite loop detected');
+      console.warn(t('ecos-form.event-overload'));
       onOverload();
       togglePause();
       setTimeout(togglePause, pause);
