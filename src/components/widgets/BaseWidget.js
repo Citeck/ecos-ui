@@ -11,6 +11,7 @@ import UserLocalSettingsService, { DashletProps } from '../../services/userLocal
 import Records from '../Records/Records';
 
 export const EVENTS = {
+  RECORD_ACTION_COMPLETED: 'RECORD_ACTION_COMPLETED',
   UPDATE_COMMENTS: 'UPDATE_COMMENTS',
   UPDATE_ASSOCIATIONS: 'UPDATE_ASSOCIATIONS',
   UPDATE_TASKS_WIDGETS: 'UPDATE_TASKS_WIDGETS',
