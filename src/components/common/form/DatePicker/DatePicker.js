@@ -38,8 +38,8 @@ export default class DatePicker extends Component {
   static defaultProps = {
     className: '',
     selected: null,
-    dateFormat: 'Pp',
-    showTimeSelect: false
+    showTimeSelect: false,
+    dateFormat: 'dd.MM.yyyy, HH:mm'
   };
 
   constructor(props) {
@@ -72,13 +72,12 @@ export default class DatePicker extends Component {
   };
 
   get timeProps() {
-    const { showTimeInput, showTimeSelect, dateFormat } = this.props;
+    const { showTimeInput, showTimeSelect } = this.props;
 
     if (showTimeInput || showTimeSelect) {
       return {
         timeInputLabel: `${t('ecos-forms.datepicker.time-label')}:`,
-        timeCaption: `${t('ecos-forms.datepicker.time-label')}`,
-        dateFormat: dateFormat || 'Pp'
+        timeCaption: `${t('ecos-forms.datepicker.time-label')}`
       };
     }
 
@@ -89,7 +88,7 @@ export default class DatePicker extends Component {
     return {
       previousMonthButtonLabel: t('ecos-forms.datepicker.month-prev-label'),
       nextMonthButtonLabel: t('ecos-forms.datepicker.month-next-label'),
-      dateFormat: this.props.dateFormat || 'Pp'
+      dateFormat: this.props.dateFormat
     };
   }
 
@@ -161,14 +160,13 @@ export default class DatePicker extends Component {
     const {
       className,
       showIcon,
-      showTimeSelect,
-      showTimeInput,
       dateFormat,
       wrapperClasses,
       value,
       narrow,
       placeholder,
       onChangeRaw,
+      onChange,
       ...otherProps
     } = this.props;
     const { isOpen } = this.state;
@@ -198,8 +196,6 @@ export default class DatePicker extends Component {
           onChange={this.handleChangeDate}
           onClickOutside={this.handleClickOutside}
           onInputClick={this.handleInputClick}
-          showTimeSelect={showTimeSelect}
-          showTimeInput={showTimeInput}
         />
         {this.renderIcon()}
       </div>
