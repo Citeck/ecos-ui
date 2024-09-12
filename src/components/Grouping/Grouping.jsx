@@ -184,7 +184,7 @@ class Grouping extends Component {
             first={this.getFirst(list)}
             second={grouping}
             tpl={this.getGroupingList}
-            onMove={this.onGrouping}
+            onOrder={this.onGrouping}
             draggableClassName={'ecos-dnd-list__item_draggable'}
           />
         </div>
