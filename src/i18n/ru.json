@@ -916,6 +916,7 @@
   "grid.tools.select-all-page": "Выбрать все на странице",
   "grid.tools.remove-selection": "Снять выделение",
   "grid.column.is-save": "Сохранить ширину?",
+  "grid.column.is-save-blocked": "Изменение доступно только в сохраненных настройках",
   "grid.column.save": "Сохранить",
   "grid.column.save.message.success": "Ширина колонки сохранена",
   "grid.column.save.message.error": "Ширина колонки не сохранена",
