@@ -44,10 +44,10 @@ function* sagaGetComments({ api, logger }, action) {
         ...extraProps
       })
     );
+
+    yield put(fetchEnd(action.payload));
   } catch (e) {
     logger.error('[comments sagaGetComments saga error', e);
-  } finally {
-    yield put(fetchEnd(action.payload));
   }
 }
 
@@ -66,11 +66,11 @@ function* sagaUpdateComments({ api, logger }, action) {
           ...extraProps
         })
       );
-
-      yield put(fetchEnd(action.payload));
     }
   } catch (e) {
     logger.error('[comments sagaGetComments saga error', e);
+  } finally {
+    yield put(fetchEnd(action.payload));
   }
 }
 
