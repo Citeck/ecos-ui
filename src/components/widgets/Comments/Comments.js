@@ -97,7 +97,7 @@ class Comments extends BaseWidget {
   fetchDataAfterAction = () => {
     const { updateComments } = this.props;
 
-    updateComments(this.state.comments || []);
+    updateComments(this.props.comments || []);
   };
 
   fetchData = () => {
