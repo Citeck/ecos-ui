@@ -808,9 +808,11 @@ function* sagaReloadGrid({ api, logger, stateId, w }, { payload = {} }) {
       _selectAllPageRecords = true;
     }
 
+    const columns = get(params, 'columns', get(gridData, 'columns', []));
+
     yield put(setSelectAllPageRecords(w(_selectAllPageRecords)));
     yield put(setSelectedRecords(w(_selectedRecords)));
-    yield put(setGrid(w({ ...gridData, ...params, editingRules })));
+    yield put(setGrid(w({ ...params, ...gridData, editingRules, columns })));
 
     const predicates = [journalData?.predicate, journalData?.journalConfig.predicate];
 
