@@ -797,6 +797,7 @@ function* sagaReloadGrid({ api, logger, stateId, w }, { payload = {} }) {
     const editingRules = yield getGridEditingRules(api, gridData);
     const pageRecords = get(gridData, 'data', []).map(item => item.id);
 
+    let columns = get(params, 'columns');
     let _selectedRecords = isArray(selectedRecords) ? selectedRecords : [];
     let _selectAllPageRecords = false;
 
@@ -808,7 +809,17 @@ function* sagaReloadGrid({ api, logger, stateId, w }, { payload = {} }) {
       _selectAllPageRecords = true;
     }
 
-    const columns = get(params, 'columns', get(gridData, 'columns', []));
+    // We keep the column order from "params", but the arguments from "gridData".
+    if (!columns || (isArray(columns) && columns.length === 0)) {
+      columns = get(gridData, 'columns', []);
+    } else {
+      columns = columns.map(column => {
+        const findCol = get(gridData, 'columns', []).find(col => col.id === column.id);
+        if (findCol) {
+          return findCol;
+        }
+      });
+    }
 
     yield put(setSelectAllPageRecords(w(_selectAllPageRecords)));
     yield put(setSelectedRecords(w(_selectedRecords)));
