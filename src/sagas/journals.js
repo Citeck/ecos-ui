@@ -441,7 +441,7 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettin
 
         if (journalSetting && _journalConfig && journalSetting.columns && _journalConfig.columns) {
           journalSetting.columns.forEach(column => {
-            if (column && !column.width) {
+            if (column) {
               const columnConfig = _journalConfig.columns.find(c => c.attribute === column.attribute);
 
               if (columnConfig && columnConfig.width) {

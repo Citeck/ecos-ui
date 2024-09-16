@@ -431,7 +431,7 @@ HeaderFormatter.propTypes = {
 
   column: PropTypes.object,
   colIndex: PropTypes.number,
-  colWidth: PropTypes.number,
+  colWidth: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   onDividerMouseDown: PropTypes.func,
 
   isComplexFilter: PropTypes.bool,

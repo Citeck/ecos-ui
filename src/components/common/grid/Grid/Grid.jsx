@@ -294,10 +294,13 @@ class Grid extends Component {
     };
 
     if (Array.isArray(extra.columns)) {
-      options.columns = extra.columns.map(column => {
-        const width = column.width;
+      options.columns = extra.columns.map((column, indexCol) => {
+        let width = column.width;
 
-        if (width && extra.columns.length > 1) {
+        if (indexCol + 1 === extra.columns.length && this.isNotSavingSetting) {
+          column.width = null;
+          width = null;
+        } else if (width && extra.columns.length > 1) {
           set(column, 'headerStyle.width', width);
           get(column, 'style.width') && delete column.style.width;
         }
@@ -862,8 +865,25 @@ class Grid extends Component {
     }
   };
 
+  get isNotSavingSetting() {
+    const { journalSetting = {}, journalSettings = [] } = this.props;
+
+    let originSetting;
+
+    if (isArray(journalSettings) && !isUndefined(get(journalSetting, 'id'))) {
+      originSetting = journalSettings.find(setting => setting.id === journalSetting.id);
+    }
+
+    return (
+      originSetting &&
+      isArray(get(journalSetting, 'groupBy')) &&
+      journalSetting.groupBy.length !== 0 &&
+      !isEqual(journalSetting.groupBy, get(originSetting, 'settings.groupBy'))
+    );
+  }
+
   clearResizingColumn = e => {
-    const { journalId, journalSetting = {}, journalSettings = [] } = this.props;
+    const { journalId } = this.props;
 
     if (this._resizingTh && this._tableDom) {
       const cells = head(this._tableDom.rows).cells;
@@ -883,20 +903,7 @@ class Grid extends Component {
       this.#columnsSizes = columnsSizes;
 
       if (journalId && this.userName) {
-        let originSetting;
-
-        if (isArray(journalSettings) && !isUndefined(get(journalSetting, 'id'))) {
-          originSetting = journalSettings.find(setting => setting.id === journalSetting.id);
-        }
-
-        if (
-          !(
-            originSetting &&
-            isArray(get(journalSetting, 'groupBy')) &&
-            journalSetting.groupBy.length !== 0 &&
-            !isEqual(journalSetting.groupBy, get(originSetting, 'settings.groupBy'))
-          )
-        ) {
+        if (!this.isNotSavingSetting) {
           this.setState({
             updatedColumn: {
               cellIndex: this._resizingTh.cellIndex,
@@ -960,6 +967,7 @@ class Grid extends Component {
           settings: {
             ...dbValue[this.userName].settings,
             [journalSetting.id]: {
+              ...dbValue[this.userName].settings[journalSetting.id],
               [name]: {
                 ...currentColumn,
                 width
