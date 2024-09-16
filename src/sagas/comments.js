@@ -60,7 +60,7 @@ function* sagaUpdateComments({ api, logger }, action) {
 
       yield put(
         setComments({
-          nodeRef: record,
+          nodeRef: action.payload,
           comments: records.map(record => getCommentForWeb(record)),
           ...extraProps
         })
