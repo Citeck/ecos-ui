@@ -832,16 +832,10 @@ function* sagaReloadGrid({ api, logger, stateId, w }, { payload = {} }) {
       columns = get(gridData, 'columns', []);
     } else {
       columns = columns.map(column => {
-        const isSameName = col => col.name === column.name;
-        const isGroupingCountAll = col => column.column === GROUPING_COUNT_ALL && column.column === col.column;
-
-        const findCol = get(gridData, 'columns', []).find(col => isSameName(col) || (column.column && isGroupingCountAll(col)));
-
+        const findCol = get(gridData, 'columns', []).find(col => col.id === column.id);
         if (findCol) {
           return findCol;
         }
-
-        return column;
       });
     }
 
