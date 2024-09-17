@@ -965,9 +965,9 @@ class Grid extends Component {
         dbValue[this.userName] = {
           ...dbValue[this.userName],
           settings: {
-            ...dbValue[this.userName].settings,
+            ...get(dbValue, `${this.userName}.settings`, {}),
             [journalSetting.id]: {
-              ...dbValue[this.userName].settings[journalSetting.id],
+              ...get(dbValue, `${this.userName}.settings.${journalSetting.id}`),
               [name]: {
                 ...currentColumn,
                 width
@@ -975,18 +975,18 @@ class Grid extends Component {
             }
           }
         };
-      }
-
-      dbValue[this.userName] = {
-        ...dbValue[this.userName],
-        columns: {
-          ...dbValue[this.userName].columns,
-          [name]: {
-            ...currentColumn,
-            width
+      } else {
+        dbValue[this.userName] = {
+          ...dbValue[this.userName],
+          columns: {
+            ...get(dbValue[this.userName], 'columns', {}),
+            [name]: {
+              ...currentColumn,
+              width
+            }
           }
-        }
-      };
+        };
+      }
 
       await pagesStore.put(dbValue);
       onColumnSave(updatedColumn);
