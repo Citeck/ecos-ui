@@ -38,7 +38,7 @@ function* sagaGetComments({ api, logger }, action) {
 
     yield put(
       setComments({
-        nodeRef: action.payload,
+        recordRef: action.payload,
         comments: records.map(record => getCommentForWeb(record)),
         ...extraProps
       })
@@ -60,7 +60,7 @@ function* sagaUpdateComments({ api, logger }, action) {
 
       yield put(
         setComments({
-          nodeRef: action.payload,
+          recordRef: record,
           comments: records.map(record => getCommentForWeb(record)),
           ...extraProps
         })
@@ -76,27 +76,27 @@ function* sagaUpdateComments({ api, logger }, action) {
 function* sagaCreateComment({ api, logger }, action) {
   try {
     const {
-      payload: { recordRef: nodeRef, comment: text, isInternal = false }
+      payload: { recordRef, comment: text, isInternal = false }
     } = action;
 
-    yield put(sendingStart(nodeRef));
+    yield put(sendingStart(recordRef));
 
-    const record = yield api.comments.create({ text, record: nodeRef, isInternal });
+    const record = yield api.comments.create({ text, record: recordRef, isInternal });
     const comment = yield api.comments.getCommentById(record.id);
-    const comments = yield select(state => selectAllComments(state, nodeRef));
+    const comments = yield select(state => selectAllComments(state, recordRef));
 
     comment.id = record.id;
     comments.unshift(getCommentForWeb(comment));
 
-    yield put(createCommentSuccess({ comments, nodeRef }));
-    yield put(sendingEnd(nodeRef));
+    yield put(createCommentSuccess({ comments, recordRef }));
+    yield put(sendingEnd(recordRef));
   } catch (e) {
     const originMessage = getPureMessage(e.message);
 
     yield put(
       setError({
         message: originMessage || t('comments-widget.error'),
-        recordRef: action.payload.nodeRef
+        recordRef: action.payload.recordRef
       })
     );
     logger.error('[comments sagaCreateComment saga error', e);
@@ -110,32 +110,32 @@ function* sagaCreateComment({ api, logger }, action) {
 function* sagaUpdateComment({ api, logger }, action) {
   try {
     const {
-      payload: { comment, recordRef: nodeRef }
+      payload: { comment, recordRef }
     } = action;
-    yield put(sendingStart(nodeRef));
+    yield put(sendingStart(recordRef));
     yield api.comments.update(action.payload.comment);
 
-    let comments = yield select(state => selectAllComments(state, nodeRef));
+    let comments = yield select(state => selectAllComments(state, recordRef));
     const commentIndex = comments.findIndex(item => item.id === comment.id);
     comments[commentIndex].text = comment.text;
 
-    yield put(updateCommentSuccess({ comments, nodeRef }));
+    yield put(updateCommentSuccess({ comments, recordRef }));
 
     //  get all data about updated comment from server
     const updatedComment = yield api.comments.getCommentById(comment.id);
 
-    comments = yield select(state => selectAllComments(state, nodeRef));
+    comments = yield select(state => selectAllComments(state, recordRef));
     comments[commentIndex] = { ...comments[commentIndex], ...getCommentForWeb(updatedComment) };
-    yield put(updateCommentSuccess({ comments, nodeRef }));
+    yield put(updateCommentSuccess({ comments, recordRef }));
 
-    yield put(sendingEnd(nodeRef));
+    yield put(sendingEnd(recordRef));
   } catch (e) {
     const originMessage = getPureMessage(e.message);
 
     yield put(
       setError({
         message: originMessage || t('comments-widget.error'),
-        nodeRef: action.payload.nodeRef
+        recordRef: action.payload.recordRef
       })
     );
     logger.error('[comments sagaUpdateComment saga error', e);
@@ -204,35 +204,35 @@ function* sagaUploadFilesInComment({ api, logger }, { payload }) {
 }
 
 function* sagaDeleteComment({ api, logger }, { payload }) {
-  const { recordRef: nodeRef, id: commentId, callback } = payload;
+  const { recordRef, id: commentId, callback } = payload;
 
   try {
-    yield put(sendingStart(nodeRef));
+    yield put(sendingStart(recordRef));
     yield api.comments.delete(commentId);
 
-    const comments = yield select(state => selectAllComments(state, nodeRef));
+    const comments = yield select(state => selectAllComments(state, recordRef));
     const index = comments.findIndex(comment => comment.id === commentId);
 
     if (index !== -1) {
       comments.splice(index, 1);
     }
 
-    yield put(deleteCommentSuccess({ comments, nodeRef }));
+    yield put(deleteCommentSuccess({ comments, recordRef }));
   } catch (e) {
     const originMessage = getPureMessage(e.message);
 
     NotificationManager.error(originMessage || t('comments-widget.error'), t('error'));
-    yield put(setActionFailedStatus({ nodeRef, status: true }));
+    yield put(setActionFailedStatus({ recordRef, status: true }));
 
     logger.error('[comments sagaDeleteComment saga error', e);
   } finally {
-    yield put(sendingEnd(nodeRef));
+    yield put(sendingEnd(recordRef));
 
     if (callback && typeof callback === 'function') {
       callback();
     }
 
-    yield put(setActionFailedStatus({ nodeRef, status: false }));
+    yield put(setActionFailedStatus({ recordRef, status: false }));
   }
 }
 
