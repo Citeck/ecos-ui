@@ -832,7 +832,7 @@ function* sagaReloadGrid({ api, logger, stateId, w }, { payload = {} }) {
       columns = get(gridData, 'columns', []);
     } else {
       columns = columns.map(column => {
-        const findCol = get(gridData, 'columns', []).find(col => col.id === column.id);
+        const findCol = get(gridData, 'columns', []).find(col => col.name === column.name);
         if (findCol) {
           return findCol;
         }
