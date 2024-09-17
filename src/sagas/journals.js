@@ -336,12 +336,15 @@ function* getJournalSettings(api, journalId, w, stateId) {
   return settings;
 }
 
-export function* getJournalConfig({ api, w, force, callback }, action) {
+export function* getJournalConfig({ api, w, force, callback, stateId }, action) {
+  const url = yield select(selectUrl, stateId);
+  const { journalSettingId = '' } = url;
+
   const journalId = isString(action) ? action : get(action, 'payload.journalId');
   w = w || get(action, 'payload.w');
   force = get(action, 'payload.force') || force;
   callback = get(action, 'payload.callback') || callback;
-  const journalConfig = yield call([JournalsService, JournalsService.getJournalConfig], journalId, force);
+  const journalConfig = yield call([JournalsService, JournalsService.getJournalConfig], journalId, force, journalSettingId);
 
   yield put(setJournalConfig(w(journalConfig)));
   if (isFunction(callback)) {
@@ -442,7 +445,7 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettin
         if (journalSetting && _journalConfig && journalSetting.columns && _journalConfig.columns) {
           journalSetting.columns.forEach(column => {
             if (column) {
-              const columnConfig = _journalConfig.columns.find(c => c.attribute === column.attribute);
+              const columnConfig = _journalConfig.columns.find(c => c.name === column.name);
 
               if (columnConfig && columnConfig.width) {
                 column.width = columnConfig.width;
@@ -818,6 +821,8 @@ function* sagaReloadGrid({ api, logger, stateId, w }, { payload = {} }) {
         if (findCol) {
           return findCol;
         }
+
+        return column;
       });
     }
 
@@ -877,7 +882,7 @@ function* sagaInitJournal({ api, logger, stateId, w }, { payload }) {
     yield put(setJournalExistStatus(w(isNotExistsJournal !== true)));
 
     if (isEmpty(journalConfig) || isEmptyConfig || force) {
-      journalConfig = yield getJournalConfig({ api, w, force }, id);
+      journalConfig = yield getJournalConfig({ api, w, force, stateId }, id);
 
       yield getJournalSettings(api, journalConfig.id, w, stateId);
 
@@ -1018,7 +1023,7 @@ function* sagaSelectJournal({ api, logger, stateId, w }, action) {
 
     yield put(setLoading(w(true)));
 
-    const journalConfig = yield getJournalConfig({ api, w }, journalId);
+    const journalConfig = yield getJournalConfig({ api, w, stateId }, journalId);
 
     yield getJournalSettings(api, journalConfig.id, w, stateId);
     yield loadGrid(api, { journalConfig, stateId }, w);
