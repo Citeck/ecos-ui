@@ -97,6 +97,7 @@ import { JournalUrlParams, SourcesId } from '../constants';
 import { isKanban } from '../components/Journals/constants';
 import { setKanbanSettings, reloadBoardData, selectTemplateId, applyPreset, clearFiltered } from '../actions/kanban';
 import { selectKanban } from '../selectors/kanban';
+import { GROUPING_COUNT_ALL } from '../constants/journal';
 
 const getDefaultSortBy = config => {
   const params = config.params || {};
@@ -817,7 +818,11 @@ function* sagaReloadGrid({ api, logger, stateId, w }, { payload = {} }) {
       columns = get(gridData, 'columns', []);
     } else {
       columns = columns.map(column => {
-        const findCol = get(gridData, 'columns', []).find(col => col.name === column.name);
+        const isSameName = col => col.name === column.name;
+        const isGroupingCountAll = col => column.column === GROUPING_COUNT_ALL && column.column === col.column;
+
+        const findCol = get(gridData, 'columns', []).find(col => isSameName(col) || (column.column && isGroupingCountAll(col)));
+
         if (findCol) {
           return findCol;
         }
