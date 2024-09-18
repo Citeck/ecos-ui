@@ -260,7 +260,8 @@ class JournalsDashletGrid extends Component {
       deselectAllRecords,
       journalId,
       footerValue,
-      journalSetting
+      journalSetting,
+      journalSettings
     } = this.props;
 
     const { data, sortBy, pagination, groupBy, total = 0, editingRules } = grid || {};
@@ -324,6 +325,7 @@ class JournalsDashletGrid extends Component {
               onColumnSave={this.handleColumnSave}
               footerValue={footerValue}
               journalSetting={journalSetting}
+              journalSettings={journalSettings}
             />
           </HeightCalculation>
         </div>

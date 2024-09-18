@@ -1,6 +1,6 @@
 import { call, put, select, takeEvery } from 'redux-saga/effects';
 import { NotificationManager } from 'react-notifications';
-import { get } from 'lodash';
+import { get, isArray } from 'lodash';
 
 import {
   createCommentRequest,
@@ -18,7 +18,8 @@ import {
   updateCommentRequest,
   updateCommentSuccess,
   uploadFilesInComment,
-  uploadFilesFinally
+  uploadFilesFinally,
+  updateComments
 } from '../actions/comments';
 import { selectAllComments } from '../selectors/comments';
 import { getCommentForWeb } from '../dto/comments';
@@ -46,6 +47,29 @@ function* sagaGetComments({ api, logger }, action) {
     yield put(fetchEnd(action.payload));
   } catch (e) {
     logger.error('[comments sagaGetComments saga error', e);
+  }
+}
+
+function* sagaUpdateComments({ api, logger }, action) {
+  try {
+    const { record, prevComments } = action.payload;
+    const { records, ...extraProps } = yield api.comments.getAll(record);
+
+    if (isArray(prevComments) && isArray(records) && prevComments.length !== records.length) {
+      yield put(fetchStart(record));
+
+      yield put(
+        setComments({
+          nodeRef: action.payload,
+          comments: records.map(record => getCommentForWeb(record)),
+          ...extraProps
+        })
+      );
+    }
+  } catch (e) {
+    logger.error('[comments sagaGetComments saga error', e);
+  } finally {
+    yield put(fetchEnd(action.payload));
   }
 }
 
@@ -215,6 +239,7 @@ function* sagaDeleteComment({ api, logger }, { payload }) {
 function* saga(ea) {
   yield takeEvery(uploadFilesInComment().type, sagaUploadFilesInComment, ea);
   yield takeEvery(getComments().type, sagaGetComments, ea);
+  yield takeEvery(updateComments().type, sagaUpdateComments, ea);
   yield takeEvery(createCommentRequest().type, sagaCreateComment, ea);
   yield takeEvery(updateCommentRequest().type, sagaUpdateComment, ea);
   yield takeEvery(deleteCommentRequest().type, sagaDeleteComment, ea);

@@ -594,7 +594,7 @@
   "ecos-form.error.no-form": "No form",
   "ecos-form.error.form-is-not-available": "Form is not available",
   "ecos-form.success.clone-record": "Record has cloned",
-  "ecos-form.infinite-loop": "Data fields are looping",
+  "ecos-form.event-overload": "Event processing overload detected",
 
   "ecos-forms.datepicker.time-label": "Time",
   "ecos-forms.datepicker.month-prev-label": "Previous Month",
@@ -960,6 +960,7 @@
   "grid.tools.remove-selection": "Remove selection",
 
   "grid.column.is-save": "Keep the width?",
+  "grid.column.is-save-blocked": "The change is only available in the saved settings",
   "grid.column.save": "Save",
   "grid.column.save.message.success": "Column width is saved",
   "grid.column.save.message.error": "Column width is not saved",

@@ -18,6 +18,7 @@ import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isNil from 'lodash/isNil';
 import isUndefined from 'lodash/isUndefined';
+import isArray from 'lodash/isArray';
 import isFunction from 'lodash/isFunction';
 import isString from 'lodash/isString';
 import isBoolean from 'lodash/isBoolean';
@@ -86,7 +87,8 @@ class Grid extends Component {
       isScrolling: false,
       maxHeight: props.maxHeight,
       selected: props.selected || [],
-      updatedColumn: null
+      updatedColumn: null,
+      updatedColumnBlocked: null
     };
 
     this.userName = getCurrentUserName();
@@ -292,10 +294,13 @@ class Grid extends Component {
     };
 
     if (Array.isArray(extra.columns)) {
-      options.columns = extra.columns.map(column => {
-        const width = column.width;
+      options.columns = extra.columns.map((column, indexCol) => {
+        let width = column.width;
 
-        if (width && extra.columns.length > 1) {
+        if (indexCol + 1 === extra.columns.length && this.isNotSavingSetting) {
+          column.width = null;
+          width = null;
+        } else if (width && extra.columns.length > 1) {
           set(column, 'headerStyle.width', width);
           get(column, 'style.width') && delete column.style.width;
         }
@@ -860,6 +865,23 @@ class Grid extends Component {
     }
   };
 
+  get isNotSavingSetting() {
+    const { journalSetting = {}, journalSettings = [] } = this.props;
+
+    let originSetting;
+
+    if (isArray(journalSettings) && !isUndefined(get(journalSetting, 'id'))) {
+      originSetting = journalSettings.find(setting => setting.id === journalSetting.id);
+    }
+
+    return (
+      originSetting &&
+      isArray(get(journalSetting, 'groupBy')) &&
+      journalSetting.groupBy.length !== 0 &&
+      !isEqual(journalSetting.groupBy, get(originSetting, 'settings.groupBy'))
+    );
+  }
+
   clearResizingColumn = e => {
     const { journalId } = this.props;
 
@@ -881,14 +903,23 @@ class Grid extends Component {
       this.#columnsSizes = columnsSizes;
 
       if (journalId && this.userName) {
-        this.setState({
-          updatedColumn: {
-            cellIndex: this._resizingTh.cellIndex,
-            width: this._resizingTh.style.width,
-            name: this._resizingTh.dataset.name,
-            id: this._resizingTh.dataset.id
-          }
-        });
+        if (!this.isNotSavingSetting) {
+          this.setState({
+            updatedColumn: {
+              cellIndex: this._resizingTh.cellIndex,
+              width: this._resizingTh.style.width,
+              name: this._resizingTh.dataset.name,
+              id: this._resizingTh.dataset.id
+            }
+          });
+        } else {
+          this.setState({
+            updatedColumnBlocked: {
+              flag: true,
+              id: this._resizingTh.dataset.id
+            }
+          });
+        }
       }
     }
 
@@ -934,8 +965,9 @@ class Grid extends Component {
         dbValue[this.userName] = {
           ...dbValue[this.userName],
           settings: {
-            ...dbValue[this.userName].settings,
+            ...get(dbValue, `${this.userName}.settings`, {}),
             [journalSetting.id]: {
+              ...get(dbValue, `${this.userName}.settings.${journalSetting.id}`),
               [name]: {
                 ...currentColumn,
                 width
@@ -943,18 +975,18 @@ class Grid extends Component {
             }
           }
         };
-      }
-
-      dbValue[this.userName] = {
-        ...dbValue[this.userName],
-        columns: {
-          ...dbValue[this.userName].columns,
-          [name]: {
-            ...currentColumn,
-            width
+      } else {
+        dbValue[this.userName] = {
+          ...dbValue[this.userName],
+          columns: {
+            ...get(dbValue[this.userName], 'columns', {}),
+            [name]: {
+              ...currentColumn,
+              width
+            }
           }
-        }
-      };
+        };
+      }
 
       await pagesStore.put(dbValue);
       onColumnSave(updatedColumn);
@@ -969,7 +1001,8 @@ class Grid extends Component {
 
   closeColumnWidth = () => {
     this.setState({
-      updatedColumn: null
+      updatedColumn: null,
+      updatedColumnBlocked: null
     });
   };
 
@@ -1248,7 +1281,7 @@ class Grid extends Component {
 
   render() {
     const { className, noTopBorder, columns, noHeader, scrollable, selected, multiSelectable, noHorizontalScroll } = this.props;
-    const { updatedColumn } = this.state;
+    const { updatedColumn, updatedColumnBlocked } = this.state;
 
     if (isEmpty(columns)) {
       return null;
@@ -1296,6 +1329,26 @@ class Grid extends Component {
                 <Button onClick={this.saveColumnWidth} className={classNames('ecos-grid-tooltip__button')}>
                   {t('grid.column.save')}
                 </Button>
+              </div>
+            </ClickOutside>
+          </Tooltip>
+        )}
+
+        {get(updatedColumnBlocked, 'flag') && get(updatedColumnBlocked, 'id') && (
+          <Tooltip
+            target={updatedColumnBlocked.id}
+            placement="top"
+            boundariesElement="window"
+            isOpen
+            className={classNames('ecos-base-tooltip')}
+            popperClassName={classNames('ecos-base-tooltip-popper', 'ecos-grid-tooltip', 'ecos-grid-tooltip__wrapper')}
+            arrowClassName={classNames('ecos-base-tooltip-arrow')}
+            innerClassName={classNames('ecos-base-tooltip-inner', 'ecos-grid-tooltip__inner')}
+          >
+            <ClickOutside handleClickOutside={this.closeColumnWidth}>
+              <div className={classNames('ecos-grid-tooltip__content')}>
+                <Icon className="icon-small-close ecos-grid-tooltip__close" onClick={this.closeColumnWidth} />
+                {t('grid.column.is-save-blocked')}
               </div>
             </ClickOutside>
           </Tooltip>
@@ -1372,6 +1425,8 @@ Grid.propTypes = {
   onColumnSave: PropTypes.func,
   inlineTools: PropTypes.func,
   inlineActions: PropTypes.func,
+  journalSetting: PropTypes.object,
+  journalSettings: PropTypes.array,
 
   deselectAllRecords: PropTypes.func
 };

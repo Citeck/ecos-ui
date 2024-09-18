@@ -97,6 +97,7 @@ import { JournalUrlParams, SourcesId } from '../constants';
 import { isKanban } from '../components/Journals/constants';
 import { setKanbanSettings, reloadBoardData, selectTemplateId, applyPreset, clearFiltered } from '../actions/kanban';
 import { selectKanban } from '../selectors/kanban';
+import { GROUPING_COUNT_ALL } from '../constants/journal';
 
 const getDefaultSortBy = config => {
   const params = config.params || {};
@@ -336,12 +337,15 @@ function* getJournalSettings(api, journalId, w, stateId) {
   return settings;
 }
 
-export function* getJournalConfig({ api, w, force, callback }, action) {
+export function* getJournalConfig({ api, w, force, callback, stateId }, action) {
+  const url = yield select(selectUrl, stateId);
+  const { journalSettingId = '' } = url;
+
   const journalId = isString(action) ? action : get(action, 'payload.journalId');
   w = w || get(action, 'payload.w');
   force = get(action, 'payload.force') || force;
   callback = get(action, 'payload.callback') || callback;
-  const journalConfig = yield call([JournalsService, JournalsService.getJournalConfig], journalId, force);
+  const journalConfig = yield call([JournalsService, JournalsService.getJournalConfig], journalId, force, journalSettingId);
 
   yield put(setJournalConfig(w(journalConfig)));
   if (isFunction(callback)) {
@@ -351,20 +355,34 @@ export function* getJournalConfig({ api, w, force, callback }, action) {
   return journalConfig;
 }
 
-function* getColumns({ stateId }) {
+function* getColumns({ stateId, force = false }) {
   const { grid = {}, journalConfig = {}, journalSetting = {}, grouping = {} } = yield select(selectJournalData, stateId);
   const groupingColumns = get(grouping, 'columns');
-  const columns = yield JournalsService.resolveColumns(isEmpty(groupingColumns) ? journalConfig.columns : groupingColumns);
+  const columns = yield JournalsService.resolveColumns(isEmpty(groupingColumns) || force ? journalConfig.columns : groupingColumns);
 
   if (grid.isExpandedFromGrouped) {
     return grid.columns;
   }
 
   if (columns.length) {
-    return columns.map(column => {
+    const finalCols = columns.map(column => {
       const config = get(journalSetting, 'columns', []).find(setting => setting.attribute === column.attribute);
       return config ? { ...column, ...config } : column;
     });
+
+    if (isArray(get(journalSetting, 'columns')) && journalSetting.columns !== 0) {
+      const journalColAttributes = journalSetting.columns.map(journalCol => journalCol.attribute);
+
+      const orderedCols = journalSetting.columns
+        .map(journalCol => finalCols.find(finalCol => finalCol.attribute === journalCol.attribute))
+        .filter(Boolean);
+
+      const remainingCols = finalCols.filter(finalCol => !journalColAttributes.includes(finalCol.attribute));
+
+      return [...orderedCols, ...remainingCols];
+    }
+
+    return finalCols;
   }
 
   return columns;
@@ -441,8 +459,8 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettin
 
         if (journalSetting && _journalConfig && journalSetting.columns && _journalConfig.columns) {
           journalSetting.columns.forEach(column => {
-            if (column && !column.width) {
-              const columnConfig = _journalConfig.columns.find(c => c.attribute === column.attribute);
+            if (column) {
+              const columnConfig = _journalConfig.columns.find(c => c.name === column.name);
 
               if (columnConfig && columnConfig.width) {
                 column.width = columnConfig.width;
@@ -499,7 +517,7 @@ function* sagaInitJournalSettingData({ api, logger, stateId, w }, action) {
     const { predicate: defaultPredicate } = getDefaultJournalSetting(journalConfig);
     let predicate = _predicate || journalSetting.predicate;
 
-    const columns = yield getColumns({ stateId });
+    const columns = yield getColumns({ stateId, force: true });
 
     const handleVal = p =>
       isArray(get(p, 'val')) &&
@@ -797,6 +815,7 @@ function* sagaReloadGrid({ api, logger, stateId, w }, { payload = {} }) {
     const editingRules = yield getGridEditingRules(api, gridData);
     const pageRecords = get(gridData, 'data', []).map(item => item.id);
 
+    let columns = get(params, 'columns');
     let _selectedRecords = isArray(selectedRecords) ? selectedRecords : [];
     let _selectAllPageRecords = false;
 
@@ -808,9 +827,27 @@ function* sagaReloadGrid({ api, logger, stateId, w }, { payload = {} }) {
       _selectAllPageRecords = true;
     }
 
+    // We keep the column order from "params", but the arguments from "gridData".
+    if (!columns || (isArray(columns) && columns.length === 0)) {
+      columns = get(gridData, 'columns', []);
+    } else {
+      columns = columns.map(column => {
+        const isSameName = col => col.name === column.name;
+        const isGroupingCountAll = col => column.column === GROUPING_COUNT_ALL && column.column === col.column;
+
+        const findCol = get(gridData, 'columns', []).find(col => isSameName(col) || (column.column && isGroupingCountAll(col)));
+
+        if (findCol) {
+          return findCol;
+        }
+
+        return column;
+      });
+    }
+
     yield put(setSelectAllPageRecords(w(_selectAllPageRecords)));
     yield put(setSelectedRecords(w(_selectedRecords)));
-    yield put(setGrid(w({ ...params, ...gridData, editingRules })));
+    yield put(setGrid(w({ ...params, ...gridData, editingRules, columns })));
 
     const predicates = [journalData?.predicate, journalData?.journalConfig.predicate];
 
@@ -864,7 +901,7 @@ function* sagaInitJournal({ api, logger, stateId, w }, { payload }) {
     yield put(setJournalExistStatus(w(isNotExistsJournal !== true)));
 
     if (isEmpty(journalConfig) || isEmptyConfig || force) {
-      journalConfig = yield getJournalConfig({ api, w, force }, id);
+      journalConfig = yield getJournalConfig({ api, w, force, stateId }, id);
 
       yield getJournalSettings(api, journalConfig.id, w, stateId);
 
@@ -1005,7 +1042,7 @@ function* sagaSelectJournal({ api, logger, stateId, w }, action) {
 
     yield put(setLoading(w(true)));
 
-    const journalConfig = yield getJournalConfig({ api, w }, journalId);
+    const journalConfig = yield getJournalConfig({ api, w, stateId }, journalId);
 
     yield getJournalSettings(api, journalConfig.id, w, stateId);
     yield loadGrid(api, { journalConfig, stateId }, w);
@@ -1180,8 +1217,7 @@ function* sagaEditJournalSetting({ api, logger, stateId, w }, action) {
 function* sagaApplyJournalSetting({ api, logger, stateId, w }, action) {
   try {
     const { settings } = action.payload;
-    const { groupBy = [], sortBy: sortByFromSetting, predicate, grouping } = settings;
-    const columns = yield getColumns({ stateId });
+    const { columns, groupBy = [], sortBy: sortByFromSetting, predicate, grouping } = settings;
     const predicates = beArray(predicate);
     const maxItems = yield select(selectGridPaginationMaxItems, stateId);
     const pagination = { ...DEFAULT_PAGINATION, maxItems };

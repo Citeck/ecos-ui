@@ -29,8 +29,14 @@ const getSavedValue = async (config, journalSettingId) => {
       config.columns.forEach(column => {
         let savedColumn;
 
-        if (dbValue?.[userName]?.settings && !!journalSettingId) {
-          savedColumn = dbValue[userName].settings[journalSettingId][column.attribute];
+        if (!!journalSettingId) {
+          if (
+            dbValue?.[userName]?.settings &&
+            dbValue[userName].settings[journalSettingId] &&
+            dbValue[userName].settings[journalSettingId][column.attribute]
+          ) {
+            savedColumn = dbValue[userName].settings[journalSettingId][column.attribute];
+          }
         } else {
           savedColumn = dbValue[userName].columns[column.attribute];
         }
@@ -73,7 +79,7 @@ class JournalsService {
     return this._convertJournalConfig(journal);
   }
 
-  async getJournalConfig(journalId = '', force, journalSettingId = '') {
+  async getJournalConfig(journalId = '', force, journalSettingId) {
     const sourceDelimIdx = journalId.indexOf('@');
     const journalRecordId = sourceDelimIdx === -1 ? journalId : journalId.substring(sourceDelimIdx + 1);
     let journal = await journalsApi.getJournalConfig(journalRecordId, force);

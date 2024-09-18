@@ -87,6 +87,30 @@ class SettingsModal extends Component {
     };
   };
 
+  getCreateSetting = () => {
+    const { predicate, columns: _columns, sortBy, grouping: _grouping, kanbanColumns } = this.state;
+    const { journalSetting } = this.props;
+
+    const isGrouping = _grouping && !isEmpty(_grouping);
+
+    const columns = _columns.map(col => ({ ...col, width: null }));
+    const groupingColumns = isGrouping ? get(_grouping, 'columns', []).map(col => ({ ...col, width: null })) : [];
+
+    const grouping = isGrouping ? { ..._grouping, columns: groupingColumns } : initialStateGrouping;
+
+    return {
+      sortBy,
+      groupBy: get(grouping, 'groupBy', []),
+      columns,
+      predicate,
+      grouping,
+      journalSetting,
+      kanban: {
+        columns: kanbanColumns
+      }
+    };
+  };
+
   handleSetPredicate = predicate => {
     if (!isEqual(predicate, this.state.predicate)) {
       this.setState({ predicate });
@@ -120,7 +144,7 @@ class SettingsModal extends Component {
 
   handleCreate = () => {
     const { onCreate } = this.props;
-    isFunction(onCreate) && onCreate(this.getSetting());
+    isFunction(onCreate) && onCreate(this.getCreateSetting());
   };
 
   handleSave = () => {
