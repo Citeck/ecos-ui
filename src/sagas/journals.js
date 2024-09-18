@@ -365,10 +365,24 @@ function* getColumns({ stateId, force = false }) {
   }
 
   if (columns.length) {
-    return columns.map(column => {
+    const finalCols = columns.map(column => {
       const config = get(journalSetting, 'columns', []).find(setting => setting.attribute === column.attribute);
       return config ? { ...column, ...config } : column;
     });
+
+    if (isArray(get(journalSetting, 'columns')) && journalSetting.columns !== 0) {
+      const journalColAttributes = journalSetting.columns.map(journalCol => journalCol.attribute);
+
+      const orderedCols = journalSetting.columns
+        .map(journalCol => finalCols.find(finalCol => finalCol.attribute === journalCol.attribute))
+        .filter(Boolean);
+
+      const remainingCols = finalCols.filter(finalCol => !journalColAttributes.includes(finalCol.attribute));
+
+      return [...orderedCols, ...remainingCols];
+    }
+
+    return finalCols;
   }
 
   return columns;
