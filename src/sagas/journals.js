@@ -840,6 +840,8 @@ function* sagaReloadGrid({ api, logger, stateId, w }, { payload = {} }) {
         if (findCol) {
           return findCol;
         }
+
+        return column;
       });
     }
 
