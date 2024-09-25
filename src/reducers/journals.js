@@ -23,7 +23,6 @@ import {
   setJournalSetting,
   setJournalSettings,
   setLoading,
-  setForceUpdate,
   setOriginGridSettings,
   setPredicate,
   setPreviewFileName,
@@ -347,12 +346,6 @@ export default handleActions(
       action = handleAction(action);
 
       return handleState(state, stateId, { loading: action.payload });
-    },
-    [setForceUpdate]: (state, action) => {
-      const stateId = action.payload.stateId;
-      action = handleAction(action);
-
-      return handleState(state, stateId, { forceUpdate: action.payload });
     },
     [setRecordRef]: (state, action) => {
       const stateId = action.payload.stateId;
