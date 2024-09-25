@@ -50,7 +50,7 @@ const mapDispatchToProps = (dispatch, props) => {
 
   return {
     setUrl: urlParams => dispatch(setUrl(w(urlParams))),
-    toggleViewMode: viewMode => dispatch(toggleViewMode({ viewMode, stateId: props.stateId })),
+    toggleViewMode: viewMode => dispatch(toggleViewMode(w({ viewMode }))),
     execJournalAction: (records, action, context) => dispatch(execJournalAction(w({ records, action, context }))),
     getTypeRef: journalId => dispatch(getTypeRef(w({ journalId }))),
     getBoardList: journalId => dispatch(getBoardList({ journalId, stateId: props.stateId })),
@@ -90,10 +90,6 @@ class Journals extends React.Component {
   static getDerivedStateFromProps(props, state) {
     const journalId = get(props, ['urlParams', JUP.JOURNAL_ID]);
     let newState = {};
-
-    if (!journalId || state.journalId) {
-      return null;
-    }
 
     if (props.isActivePage && journalId !== state.journalId) {
       newState = merge(newState, { journalId });

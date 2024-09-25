@@ -78,7 +78,7 @@ class Tab extends Component {
       y: event.clientY,
       ctrlKey: event.ctrlKey,
       shiftKey: event.shiftKey,
-      metaKey: event.metaKey
+      metaKey: event.metaKey,
     });
   };
 
@@ -114,7 +114,7 @@ class Tab extends Component {
       <SortableElement key={tab.id} index={position} onSortEnd={onSortEnd}>
         <Tooltip
           target={tab.id}
-          text={t(get(tab, `title[${lng}]`))}
+          text={t(tab.title?.[lng])}
           uncontrolled
           placement="bottom"
           hideArrow
@@ -135,7 +135,7 @@ class Tab extends Component {
           >
             <span className="page-tab__tabs-item-title">
               {this.renderLoader()}
-              {t(get(tab, `title[${lng}]`))}
+              {t(tab.title?.[lng])}
             </span>
 
             {this.renderCloseButton()}
