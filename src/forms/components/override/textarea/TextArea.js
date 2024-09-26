@@ -84,7 +84,11 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     const className = theme ? 'ql-' + theme : '';
 
     if (!this.isPlain) {
-      this.element.classList.add('dl-html', `${className}`);
+      if (className) {
+        this.element.classList.add('dl-html', className);
+      } else {
+        this.element.classList.add('dl-html');
+      }
     }
 
     return this.element;
