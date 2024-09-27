@@ -2,11 +2,20 @@ import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
+import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 
-import { reloadGrid } from '../../../actions/journals';
+import { reloadGrid, setGrid } from '../../../actions/journals';
 import { wrapArgs } from '../../../helpers/redux';
 import Pagination from '../../common/Pagination/Pagination';
-import { PAGINATION_SIZES } from '../constants';
+import {
+  HEIGHT_GRID_ROW,
+  HEIGHT_GRID_WRAPPER,
+  HEIGHT_THEAD,
+  MARGIN_BOTTOM_TBODY,
+  MIN_CARD_DATA_NEW_JOURNAL,
+  PAGINATION_SIZES
+} from '../constants';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
@@ -21,7 +30,8 @@ const mapDispatchToProps = (dispatch, props) => {
   const w = wrapArgs(props.stateId);
 
   return {
-    reloadGrid: options => dispatch(reloadGrid(w(options)))
+    reloadGrid: options => dispatch(reloadGrid(w(options))),
+    setGridPagination: pagination => dispatch(setGrid(w({ pagination })))
   };
 };
 
@@ -30,8 +40,41 @@ class JournalsDashletPagination extends Component {
     className: PropTypes.string,
     grid: PropTypes.object,
     isWidget: PropTypes.bool,
-    reloadGrid: PropTypes.func
+    isViewNewJournal: PropTypes.bool,
+    maxHeightJournalData: PropTypes.number,
+    reloadGrid: PropTypes.func,
+    setGridPagination: PropTypes.func
   };
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      maxHeightJournalData: get(props, 'maxHeightJournalData')
+    };
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const { maxHeightJournalData, isViewNewJournal, setGridPagination } = this.props;
+
+    if (maxHeightJournalData && prevState.maxHeightJournalData !== maxHeightJournalData) {
+      this.setState({ maxHeightJournalData });
+
+      if (isViewNewJournal && isFunction(setGridPagination)) {
+        let maxItems = Math.floor((maxHeightJournalData - HEIGHT_GRID_WRAPPER - MARGIN_BOTTOM_TBODY - HEIGHT_THEAD) / HEIGHT_GRID_ROW);
+
+        if (maxItems < MIN_CARD_DATA_NEW_JOURNAL) {
+          maxItems = MIN_CARD_DATA_NEW_JOURNAL;
+        }
+
+        setGridPagination({
+          skipCount: 0,
+          maxItems,
+          page: 1
+        });
+      }
+    }
+  }
 
   changePage = pagination => {
     this.reloadGrid(pagination);

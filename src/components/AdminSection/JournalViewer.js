@@ -10,9 +10,10 @@ import { initState, setSearchText } from '../../actions/journals';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Journals } from '../Journals';
 import { getSearchParams } from '../../helpers/urls';
+import get from 'lodash/get';
 
 const JournalViewer = React.memo(
-  ({ hidden, isActivePage, initStateJournal, upStateId, stateId, setJournalSearch, activeSection, ...props }) => {
+  ({ hidden, isActivePage, initStateJournal, upStateId, stateId, setJournalSearch, activeSection, isViewNewJournal, ...props }) => {
     const tableCont = useRef(null);
     const [initialized, setInitialized] = useState(false);
     const [prefixStateId, setPrefixStateId] = useState('');
@@ -54,7 +55,13 @@ const JournalViewer = React.memo(
     );
 
     return (
-      <div ref={tableCont} className={classNames('ecos-admin-section__journal', { 'd-none': hidden })}>
+      <div
+        ref={tableCont}
+        className={classNames('ecos-admin-section__journal', {
+          'ecos-admin-section__journal_new': isViewNewJournal,
+          'd-none': hidden
+        })}
+      >
         {!hidden && initialized && stateId && (
           <ErrorBoundary>
             <Journals
@@ -74,6 +81,7 @@ const JournalViewer = React.memo(
 );
 
 const mapStateToProps = (store, props) => ({
+  isViewNewJournal: get(store, 'view.isViewNewJournal'),
   isActivePage: pageTabList.isActiveTab(props.tabId),
   activeSection: store.adminSection.activeSection
 });

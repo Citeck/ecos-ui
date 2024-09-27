@@ -3,6 +3,10 @@
 .ecos-well {
   background: $color-white;
   border-radius: $border-radius-extra-large;
+
+  &_new {
+    border-radius: 0 0 12px 12px;
+  }
 }
 
 .ecos-well_full {

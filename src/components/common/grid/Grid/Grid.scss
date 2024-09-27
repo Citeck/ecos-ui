@@ -168,6 +168,10 @@ $header-height: 52px;
   &__row {
     position: relative;
     border-bottom: 2px $color-gray-4 solid;
+
+    &_new {
+      border-bottom: 2px solid transparent;
+    }
   }
 
   &__header {
@@ -326,6 +330,7 @@ $header-height: 52px;
         z-index: 3;
         background: $color-white;
         left: 0;
+        width: auto;
       }
     }
 

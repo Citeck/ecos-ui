@@ -3,7 +3,9 @@ export const Labels = {
   SHOW_MENU_sm: 'admin-section.sidebar.show-sm',
   HIDE_MENU: 'admin-section.sidebar.hide',
   HIDE_MENU_sm: 'admin-section.sidebar.hide-sm',
-  EMPTY_LIST: 'admin-section.sidebar.list-empty'
+  EMPTY_LIST: 'admin-section.sidebar.list-empty',
+  BTN_CLOSE_MENU: 'admin-section.btn-toggle.close',
+  BTN_OPEN_MENU: 'admin-section.btn-toggle.open'
 };
 
 export const SectionTypes = {

@@ -34,15 +34,18 @@ import JournalsDashletPagination from '../JournalsDashletPagination';
 import isEqualWith from 'lodash/isEqualWith';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
+import { selectIsViewNewJournal } from '../../../selectors/view';
 
 function mapStateToProps(state, props) {
   const commonProps = selectCommonJournalPageProps(state, props.stateId);
   const ownProps = selectKanbanPageProps(state, props.stateId);
   const journalProps = selectJournalPageProps(state, props.stateId);
+  const isViewNewJournal = selectIsViewNewJournal(state);
 
   return {
     isMobile: get(state, 'view.isMobile'),
     urlParams: getSearchParams(),
+    isViewNewJournal,
     ...ownProps,
     ...commonProps,
     ...journalProps
@@ -128,14 +131,17 @@ class TableView extends React.Component {
     return urlParams.boardId || get(boardList, '[0].id');
   }
 
-  RightBarChild = ({ hasPageSize, noData }) => {
-    const { stateId, isMobile } = this.props;
+  RightBarChild = ({ hasPageSize, noData, maxHeight }) => {
+    const { stateId, isMobile, isViewNewJournal } = this.props;
 
     return (
       <JournalsDashletPagination
         stateId={stateId}
+        isViewNewJournal={isViewNewJournal}
         hasPageSize={hasPageSize}
         noData={noData}
+        maxHeightJournalData={maxHeight}
+        isMobile={isMobile}
         className={classNames('ecos-journal__pagination', 'fitnesse-ecos-journal__pagination', {
           'ecos-journal__pagination_mobile': isMobile
         })}
@@ -163,7 +169,11 @@ class TableView extends React.Component {
       getMaxHeight,
       isActivePage,
       displayElements = {},
+      isViewNewJournal,
+      onEditJournal,
+      hasBtnEdit,
 
+      onClickOpenMenu,
       journalConfig
     } = this.props;
     const maxHeight = getMaxHeight();
@@ -171,13 +181,27 @@ class TableView extends React.Component {
 
     return (
       <div hidden={!isTableOrPreview(viewMode)} className={classNames('ecos-journal-view__table', bodyClassName)}>
-        <div className="ecos-journal__body-top" ref={bodyTopForwardedRef}>
-          <Header
-            title={get(journalConfig, 'meta.title', '') || getTextByLocale(get(journalConfig, 'name'))}
-            config={journalConfig}
-            configRec={configRec}
+        <div
+          className={classNames('ecos-journal__body-top', {
+            'ecos-journal__body-top_new': isViewNewJournal
+          })}
+          ref={bodyTopForwardedRef}
+        >
+          {!isViewNewJournal && (
+            <Header
+              title={get(journalConfig, 'meta.title', '') || getTextByLocale(get(journalConfig, 'name'))}
+              config={journalConfig}
+              configRec={configRec}
+            />
+          )}
+          <Bar
+            {...this.props}
+            hasBtnEdit={() => hasBtnEdit(configRec)}
+            onEditJournal={() => onEditJournal(configRec)}
+            onClickOpenMenu={e => onClickOpenMenu(e, journalConfig)}
+            rightChild={isMobile ? <this.RightBarChild noData maxHeight={maxHeight} /> : null}
+            rightBarChild={isViewNewJournal && !isMobile ? <this.RightBarChild hasPageSize maxHeight={maxHeight} /> : null}
           />
-          <Bar {...this.props} rightChild={isMobile ? <this.RightBarChild noData /> : null} />
         </div>
 
         <JournalsContent
@@ -189,9 +213,11 @@ class TableView extends React.Component {
           onOpenSettings={this.handleToggleSettings}
         />
 
-        <div className="ecos-journal__footer" ref={footerForwardedRef}>
-          {displayElements.pagination && <this.RightBarChild hasPageSize />}
-        </div>
+        {!isViewNewJournal && (
+          <div className="ecos-journal__footer" ref={footerForwardedRef}>
+            {displayElements.pagination && <this.RightBarChild hasPageSize />}
+          </div>
+        )}
       </div>
     );
   }

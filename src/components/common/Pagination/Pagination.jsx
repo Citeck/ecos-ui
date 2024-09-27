@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
+import ChevronLeft from '../icons/ChevronLeft';
+import ChevronRight from '../icons/ChevronRight';
 import { PAGINATION_SIZES } from '../../Journals/constants';
 import Select from '../../common/form/Select';
 import { IcoBtn } from '../../common/btns';
@@ -17,6 +19,8 @@ export default class Pagination extends Component {
     sizes: PropTypes.array,
     onChange: PropTypes.func,
     hasPageSize: PropTypes.bool,
+    isViewNewJournal: PropTypes.bool,
+    isMobile: PropTypes.bool,
     noData: PropTypes.bool,
     noCtrl: PropTypes.bool,
     loading: PropTypes.bool
@@ -96,7 +100,7 @@ export default class Pagination extends Component {
   };
 
   render() {
-    const { total, className, hasPageSize, loading, noData, noCtrl } = this.props;
+    const { total, className, hasPageSize, loading, noData, noCtrl, isViewNewJournal } = this.props;
 
     if (!total) {
       return null;
@@ -115,26 +119,42 @@ export default class Pagination extends Component {
               {min}-{max}
             </span>
             <span className="ecos-pagination__text ecos-pagination__text-from"> {t('pagination.from')} </span>
-            <span className="ecos-pagination__text ecos-pagination__text-total">{total}</span>
+            <span className={classNames('ecos-pagination__text ecos-pagination__text-total', { large: isViewNewJournal })}>{total}</span>
           </>
         )}
         {!noCtrl && (
           <>
             <IcoBtn
-              icon={'icon-small-left'}
-              className="ecos-pagination__arrow ecos-btn_grey3 ecos-btn_bgr-inherit ecos-btn_hover_t-light-blue fitnesse-ecos-pagination__arrow-left"
+              icon={!isViewNewJournal ? 'icon-small-left' : null}
+              className={classNames(
+                'ecos-btn_grey3 ecos-btn_bgr-inherit ecos-btn_hover_t-light-blue fitnesse-ecos-pagination__arrow-right',
+                {
+                  'ecos-pagination__arrow': !isViewNewJournal,
+                  'ecos-pagination__arrow_new': isViewNewJournal
+                }
+              )}
               disabled={page <= 1}
               onClick={this.handleClickPrev}
-            />
+            >
+              {isViewNewJournal && <ChevronLeft />}
+            </IcoBtn>
             <IcoBtn
-              icon={'icon-small-right'}
-              className="ecos-pagination__arrow ecos-btn_grey3 ecos-btn_bgr-inherit ecos-btn_hover_t-light-blue fitnesse-ecos-pagination__arrow-right"
+              icon={!isViewNewJournal ? 'icon-small-right' : null}
+              className={classNames(
+                'ecos-btn_grey3 ecos-btn_bgr-inherit ecos-btn_hover_t-light-blue fitnesse-ecos-pagination__arrow-right',
+                {
+                  'ecos-pagination__arrow': !isViewNewJournal,
+                  'ecos-pagination__arrow_new': isViewNewJournal
+                }
+              )}
               disabled={page >= this.maxPage}
               onClick={this.handleClickNext}
-            />
+            >
+              {isViewNewJournal && <ChevronRight />}
+            </IcoBtn>
           </>
         )}
-        {hasPageSize && (
+        {hasPageSize && !isViewNewJournal && (
           <Select
             className="ecos-pagination__page-size select_narrow select_page-size"
             options={sizes}

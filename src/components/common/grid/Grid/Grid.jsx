@@ -314,7 +314,12 @@ class Grid extends Component {
         column = this.setHeaderFormatter(column, filterable, props.sortable ? column.sortable : false, width);
 
         if (column.customFormatter === undefined) {
-          column.formatter = this.initFormatter({ editable: props.editable, className: column.className, column });
+          column.formatter = this.initFormatter({
+            editable: props.editable,
+            className: column.className,
+            column,
+            isViewNewJournal: props.isViewNewJournal
+          });
           column.footerFormatter = this.initFooterFormatter();
         } else {
           column.formatter = column.customFormatter;
@@ -600,7 +605,7 @@ class Grid extends Component {
     });
   };
 
-  initFormatter = ({ editable, className, column }) => {
+  initFormatter = ({ editable, className, column, isViewNewJournal }) => {
     return (cell, row, rowIndex, formatExtraData = {}) => {
       const { newFormatter = {} } = column;
       const { error } = row;
@@ -608,7 +613,7 @@ class Grid extends Component {
 
       let content = cell;
       if (!isEmpty(newFormatter) && newFormatter.type) {
-        content = FormatterService.format({ cell, row, rowIndex, column }, newFormatter);
+        content = FormatterService.format({ cell, row, rowIndex, column, isViewNewJournal }, newFormatter);
       } else if (Formatter) {
         content = <Formatter row={row} cell={cell} rowIndex={rowIndex} {...formatExtraData} />;
       }
@@ -658,7 +663,17 @@ class Grid extends Component {
   };
 
   setHeaderFormatter = (column, filterable, sortable, width) => {
-    const { filters, sortBy, onSort, onFilter, onOpenSettings, originPredicates, recordRef, deselectAllRecords } = this.props;
+    const {
+      filters,
+      sortBy,
+      onSort,
+      onFilter,
+      onOpenSettings,
+      originPredicates,
+      recordRef,
+      deselectAllRecords,
+      isViewNewJournal
+    } = this.props;
     const isFilterable = filterable && column.searchable && column.searchableByText && isFunction(onFilter);
     const disableSelect = column.disableSelect;
     const isSortable = sortable && isFunction(onSort);
@@ -691,6 +706,7 @@ class Grid extends Component {
           deselectAllRecords={deselectAllRecords}
           clearSelectedState={this.clearSelectedState}
           colWidth={width}
+          isViewNewJournal={isViewNewJournal}
         />
       );
     };
@@ -1251,8 +1267,9 @@ class Grid extends Component {
       'noHeader',
       'resizableColumns'
     ]);
-    const { rowClassName, resizableColumns, ...extraProps } = pick(this.props, [
+    const { rowClassName, resizableColumns, isViewNewJournal, ...extraProps } = pick(this.props, [
       'rowClassName',
+      'isViewNewJournal',
       'resizableColumns',
       'columns',
       'rowEvents'
@@ -1269,7 +1286,9 @@ class Grid extends Component {
             headerClasses={classNames('ecos-grid__header', {
               'ecos-grid__header_columns-not-resizable': !resizableColumns
             })}
-            rowClasses={classNames(ECOS_GRID_ROW_CLASS, rowClassName)}
+            rowClasses={classNames(ECOS_GRID_ROW_CLASS, rowClassName, {
+              'ecos-grid__row_new': isViewNewJournal
+            })}
             footerClasses={classNames('ecos-grid__table_footer', {
               'ecos-grid__table_footer-hide': !this.props.footerValue
             })}

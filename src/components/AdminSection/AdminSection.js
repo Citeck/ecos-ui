@@ -115,14 +115,21 @@ class AdminSection extends React.PureComponent {
   );
 
   render() {
-    const { activeSection, tabId, isActivePage, isOpenMenu, isAccessible, isAccessibleSectionType } = this.props;
+    const { activeSection, tabId, isActivePage, isOpenMenu, isAccessible, isAccessibleSectionType, isViewNewJournal } = this.props;
     const { journalStateId, additionalHeights, needResetJournalView } = this.state;
 
     return (
-      <div className="ecos-admin-section__container" ref={this.setWrapperRef}>
-        <div className={classNames('ecos-admin-section__content', { 'ecos-admin-section__content_full': !isOpenMenu || !isAccessible })}>
+      <div
+        className={classNames('ecos-admin-section__container', { 'ecos-admin-section__container_new': isViewNewJournal })}
+        ref={this.setWrapperRef}
+      >
+        <div
+          className={classNames('ecos-admin-section__content', {
+            'ecos-admin-section__content_full': !isOpenMenu || !isAccessible
+          })}
+        >
           <Container fluid={this.isFluid()} className="p-0">
-            {(isAccessible || isAccessibleSectionType) && (
+            {(isAccessible || isAccessibleSectionType) && !isViewNewJournal && (
               <Row className="ecos-admin-section__header m-0 px-0">
                 <Col className="m-0 p-0">
                   <div className="m-0 px-0 d-flex align-items-baseline">
@@ -165,6 +172,7 @@ class AdminSection extends React.PureComponent {
 }
 
 const mapStateToProps = (state, props) => ({
+  isViewNewJournal: get(state, 'view.isViewNewJournal'),
   isOpenMenu: state.adminSection.isOpenMenu,
   activeSection: state.adminSection.activeSection || {},
   groupSectionList: state.adminSection.groupSectionList,
