@@ -41,7 +41,9 @@ export default class Dropdown extends Component {
     CustomItem: PropTypes.element,
     getStateOpen: PropTypes.func,
     onChange: PropTypes.func,
-    labelIsDiv: PropTypes.bool
+    labelIsDiv: PropTypes.bool,
+    otherFuncForCustomItem: PropTypes.object,
+    wrapperClassName: PropTypes.string
   };
 
   static defaultProps = {
@@ -188,9 +190,18 @@ export default class Dropdown extends Component {
   }
 
   renderMenuItems() {
-    const { valueField, source = [], value, hideSelected, withScrollbar, scrollbarHeightMin, scrollbarHeightMax } = this.props;
+    const {
+      valueField,
+      source = [],
+      value,
+      hideSelected,
+      withScrollbar,
+      scrollbarHeightMin,
+      scrollbarHeightMax,
+      wrapperClassName
+    } = this.props;
     const filteredSource = hideSelected ? source.filter(item => item[valueField] !== value) : source;
-    let Wrapper = ({ children }) => <div>{children}</div>;
+    let Wrapper = ({ children }) => <div className={wrapperClassName}>{children}</div>;
 
     if (withScrollbar) {
       Wrapper = ({ children }) => (
@@ -198,6 +209,7 @@ export default class Dropdown extends Component {
           autoHeight
           autoHeightMin={scrollbarHeightMin}
           autoHeightMax={scrollbarHeightMax || '100%'}
+          className={wrapperClassName}
           renderView={props => <div {...props} className="ecos-dropdown__scrollbar" />}
         >
           {children}
@@ -213,10 +225,10 @@ export default class Dropdown extends Component {
   }
 
   renderMenuItem = (item, i) => {
-    const { CustomItem, titleField, valueField, value, itemClassName } = this.props;
+    const { CustomItem, titleField, valueField, value, itemClassName, otherFuncForCustomItem } = this.props;
 
     if (CustomItem) {
-      return <CustomItem key={this.getKey(item, i)} onClick={this.onChange} item={item} />;
+      return <CustomItem key={this.getKey(item, i)} onClick={this.onChange} item={item} {...otherFuncForCustomItem} />;
     }
 
     const text = getPropByStringKey(item, titleField);

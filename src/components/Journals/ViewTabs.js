@@ -100,7 +100,7 @@ class ViewTabs extends React.Component {
             </Tooltip>
           </>
         )}
-        {isKanbanEnabled && (
+        {!isMobile && isKanbanEnabled && (
           <Tooltip off={isMobile} target={target(JVM.KANBAN)} text={t(Labels.Views.KANBAN)} uncontrolled>
             <IcoBtn
               id={target(JVM.KANBAN)}

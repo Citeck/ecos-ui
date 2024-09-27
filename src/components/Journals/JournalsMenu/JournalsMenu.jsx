@@ -12,6 +12,8 @@ import { IcoBtn } from '../../common/btns';
 import { isDocLib, JOURNAL_VIEW_MODE, Labels } from '../constants';
 import FoldersTree from '../DocLib/FoldersTree';
 import { JournalsPresetList } from '../JournalsPresets';
+import { selectIsViewNewJournal } from '../../../selectors/view';
+import Close from '../../common/icons/Close';
 
 import './JournalsMenu.scss';
 
@@ -93,7 +95,7 @@ class JournalsMenu extends React.Component {
   };
 
   render() {
-    const { open, pageTabsIsShow, isMobile, menuOpenAnimate } = this.props;
+    const { open, pageTabsIsShow, isMobile, menuOpenAnimate, isViewNewJournal } = this.props;
 
     if (!open) {
       return null;
@@ -118,16 +120,26 @@ class JournalsMenu extends React.Component {
           style={{ maxHeight: this.getMaxMenuHeight() }}
         >
           <div className="ecos-journal-menu__hide-menu-btn">
-            <IcoBtn
-              onClick={this.onClose}
-              icon="icon-small-arrow-right"
-              invert
-              className="ecos-btn_grey5 ecos-btn_hover_grey ecos-btn_narrow-t_standard ecos-btn_r_biggest"
-            >
-              {this.getBtnLabel()}
-            </IcoBtn>
+            {isViewNewJournal && isMobile && (
+              <div className="ecos-journal-menu__hide-menu">
+                <h2 className="ecos-journal-menu__hide-menu-title">{t(Labels.Menu.SETTINGS_TITLE)}</h2>
+                <IcoBtn onClick={this.onClose}>
+                  <Close />
+                </IcoBtn>
+              </div>
+            )}
+            {(!isViewNewJournal || !isMobile) && (
+              <IcoBtn
+                onClick={this.onClose}
+                icon="icon-close"
+                invert
+                className="ecos-btn_grey5 ecos-btn_hover_grey ecos-btn_narrow-t_standard ecos-btn_r_biggest"
+              >
+                {this.getBtnLabel()}
+              </IcoBtn>
+            )}
           </div>
-          {!this.isDocLibMode && (
+          {!this.isDocLibMode && !isViewNewJournal && (
             <div className="ecos-journal-menu__search-block">
               <Search cleaner liveSearch searchWithEmpty onSearch={this.onSearch} className="ecos-journal-menu__search-field" />
             </div>
@@ -141,10 +153,12 @@ class JournalsMenu extends React.Component {
 
 const mapStateToProps = (state, props) => {
   const viewMode = selectViewMode(state, props.stateId);
+  const isViewNewJournal = selectIsViewNewJournal(state);
 
   return {
     isMobile: state.view.isMobile,
     pageTabsIsShow: state.pageTabs.isShow,
+    isViewNewJournal,
     viewMode
   };
 };

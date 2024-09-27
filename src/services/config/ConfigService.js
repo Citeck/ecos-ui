@@ -25,6 +25,7 @@ const MIN_CACHE_TIME_MS = 10000; // 10 sec
 
 export const ACTIVE_THEME = 'active-theme';
 export const TABS_ENABLED = 'tabs-enabled';
+export const NEW_JOURNAL_ENABLED = 'new-journal-enabled';
 export const ALFRESCO_ENABLED = 'app/alfresco$alfresco-enabled';
 
 export const FOOTER_CONTENT = 'footer-content';
@@ -129,6 +130,10 @@ const CONFIG_PROPS = {
   },
   [TABS_ENABLED]: {
     defaultValue: true
+  },
+  [NEW_JOURNAL_ENABLED]: {
+    defaultValue: false,
+    type: TYPE_BOOLEAN
   },
   [TOUCH_CONFIG]: {
     defaultValue: {

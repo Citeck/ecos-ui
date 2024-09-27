@@ -40,6 +40,7 @@ class FormatterService {
         popupClassName="formatter-popper"
         text={props.text}
         contentComponent={props.contentComponent}
+        isViewNewJournal={props.isViewNewJournal}
       >
         {props.children}
       </Popper>
@@ -133,9 +134,9 @@ class FormatterService {
       const contentComponent = fmtInstance.format(formatProps);
 
       if (!contentComponent && isString(formatProps.cell)) {
-        return <FormatterService.PopperWrapper text={formatProps.cell} />;
+        return <FormatterService.PopperWrapper isViewNewJournal={formatProps.isViewNewJournal} text={formatProps.cell} />;
       } else {
-        return <FormatterService.PopperWrapper contentComponent={contentComponent} />;
+        return <FormatterService.PopperWrapper isViewNewJournal={formatProps.isViewNewJournal} contentComponent={contentComponent} />;
       }
     } catch (e) {
       console.error('[FormattersService._formatSingleValueCellImpl] error. Props: ', formatProps, e);

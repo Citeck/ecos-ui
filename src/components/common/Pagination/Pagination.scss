@@ -1,6 +1,7 @@
 @import '../../../styles/constants';
 
 .ecos-pagination {
+  $root: &;
   display: inline-flex;
   justify-content: flex-end;
   align-items: center;
@@ -10,6 +11,12 @@
     cursor: default;
     pointer-events: none;
     opacity: 0.6;
+  }
+
+  &_new {
+    #{$root}__text-total {
+      margin-right: 9px;
+    }
   }
 
   &__text {
@@ -31,7 +38,17 @@
     padding: 0 1px;
   }
 
+  &__text-total.large {
+    margin-right: 9px;
+  }
+
   &__arrow {
+    &_new {
+      &.ecos-btn {
+        padding: 0;
+      }
+    }
+
     &.ecos-btn {
       padding: 0;
       width: 20px;

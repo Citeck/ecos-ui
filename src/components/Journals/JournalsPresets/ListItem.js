@@ -1,5 +1,6 @@
 import React from 'react';
 import get from 'lodash/get';
+import classNames from 'classnames';
 
 import { isMobileDevice, t } from '../../../helpers/util';
 import { Tooltip } from '../../common';
@@ -31,11 +32,15 @@ export default class ListItem extends React.PureComponent {
   };
 
   render() {
-    const { item } = this.props;
+    const { item, className } = this.props;
     const targetId = '_' + get(item, 'id', '').replaceAll(/[\W]/gi, '');
 
     return (
-      <div id={targetId} className="ecos-journal-menu__list-item fitnesse-ecos-journal-menu__list-item" onClick={this.onClick}>
+      <div
+        id={targetId}
+        className={classNames('ecos-journal-menu__list-item fitnesse-ecos-journal-menu__list-item', className)}
+        onClick={this.onClick}
+      >
         <Tooltip uncontrolled showAsNeeded target={targetId} text={item.displayName} off={isMobileDevice()}>
           <div className="ecos-journal-menu__list-item-title" title={item.displayName}>
             {item.displayName}

@@ -8,36 +8,42 @@ import { ResizeBoxes } from '../../common';
 import { Wall } from '../../common/form';
 import JournalsDashletGrid from '../JournalsDashletGrid';
 import JournalsPreview from '../JournalsPreview';
+import { selectIsViewNewJournal } from '../../../selectors/view';
 
 import './JournalsContent.scss';
 
 const mapStateToProps = (state, props) => {
   const newState = get(state, ['journals', props.stateId]) || {};
+  const isViewNewJournal = selectIsViewNewJournal(state);
 
   return {
     journalId: get(newState, 'journalConfig.id', ''),
-    gridData: get(newState, 'grid.data', [])
+    gridData: get(newState, 'grid.data', []),
+    isViewNewJournal
   };
 };
 
-const Content = React.memo(({ showPreview, ...props }) => (
+const Content = React.memo(({ showPreview, isViewNewJournal, maxHeight, ...props }) => (
   <Wall
+    isViewNewJournal={isViewNewJournal}
     className={classnames('ecos-journals-content__grid-well ecos-journals-content__grid-well_overflow_hidden', {
       'ecos-journals-content__grid-well_preview': showPreview
     })}
+    maxHeight={maxHeight}
   >
     <JournalsDashletGrid
       noTopBorder
       doInlineToolsOnRowClick={showPreview}
       toolsClassName={'grid-tools_r_12'}
       selectorContainer={'.ecos-journal-page'}
+      maxHeight={maxHeight}
       {...props}
     />
   </Wall>
 ));
 
-const Preview = ({ stateId, recordId }) => (
-  <Wall className="ecos-well_full ecos-journals-content__preview-well">
+const Preview = ({ stateId, recordId, isViewNewJournal }) => (
+  <Wall isViewNewJournal={isViewNewJournal} className="ecos-well_full ecos-journals-content__preview-well">
     <JournalsPreview stateId={stateId} recordId={recordId} />
   </Wall>
 );
@@ -73,7 +79,16 @@ class JournalsContent extends Component {
   };
 
   render() {
-    const { stateId, showPreview, maxHeight, minHeight = 450, onOpenSettings, isResetGridSettings, journalId } = this.props;
+    const {
+      stateId,
+      isViewNewJournal,
+      showPreview,
+      maxHeight,
+      minHeight = 450,
+      onOpenSettings,
+      isResetGridSettings,
+      journalId
+    } = this.props;
     const { recordId } = this.state;
 
     const grid = (
@@ -87,6 +102,7 @@ class JournalsContent extends Component {
         isResetGridSettings={isResetGridSettings}
         autoHeight
         journalId={journalId}
+        isViewNewJournal={isViewNewJournal}
       />
     );
 
@@ -104,7 +120,7 @@ class JournalsContent extends Component {
         </div>
         <div id={rightId} className="ecos-journals-content__sides-right">
           <ResizeBoxes leftId={leftId} rightId={rightId} className="ecos-journals-content__resizer" autoRightSide />
-          <Preview stateId={stateId} recordId={recordId} />
+          <Preview isViewNewJournal={isViewNewJournal} stateId={stateId} recordId={recordId} />
         </div>
       </div>
     );

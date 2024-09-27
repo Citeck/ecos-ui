@@ -48,7 +48,8 @@ const GroupActions = React.memo(
       execRecordsAction,
       isFilterOn,
       isSeparateActionListForQuery,
-      excludedRecords
+      excludedRecords,
+      isViewNewJournal
     } = props;
 
     const total = get(grid, 'total', 0);
@@ -136,7 +137,9 @@ const GroupActions = React.memo(
           <Tooltip uncontrolled showAsNeeded target={targetPrefix + '-rec'} text={label} contentComponent={labelRecActionsCount}>
             <IcoBtn
               invert
-              className="ecos-btn_hover_blue2 ecos-btn_grey3 ecos-group-actions__control"
+              className={classNames('ecos-btn_hover_blue2 ecos-btn_grey3 ecos-group-actions__control', {
+                'ecos-group-actions__control_new': isViewNewJournal
+              })}
               icon={iconOpener(isOpenRecActions)}
               id={targetPrefix + '-rec'}
               disabled={isEmpty(recordsActions)}
@@ -161,7 +164,8 @@ const GroupActions = React.memo(
           >
             <TwoIcoBtn
               className={classNames('ecos-btn_hover_blue2 ecos-btn_grey3 ecos-group-actions__control', {
-                'ecos-group-actions__control_mobile': isMobile
+                'ecos-group-actions__control_mobile': isMobile,
+                'ecos-group-actions__control_new': isViewNewJournal
               })}
               icons={[classNames({ 'icon-filter icon_semantic': isMobile }), iconOpener(isOpenQueryActions)]}
               id={targetPrefix}
