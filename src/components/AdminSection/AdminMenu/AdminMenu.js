@@ -25,7 +25,8 @@ const AdminMenu = React.memo(
     isOpen,
     toggleSection,
     sectionState,
-    isInitiated
+    isInitiated,
+    isViewNewJournal
   }) => {
     const sidebarRef = useRef(null);
     const [topHeight, setTopHeight] = useState(500);
@@ -76,30 +77,41 @@ const AdminMenu = React.memo(
 
     return (
       <>
-        <IcoBtn
-          onClick={() => toggleMenu(true)}
-          icon="icon-small-arrow-left"
-          className={classNames(
-            'ecos-admin-menu__btn-opener ecos-btn_light-blue ecos-btn_hover_dark-blue ecos-btn_narrow-t_standard ecos-btn_r_biggest',
-            { 'ecos-admin-menu__btn-opener_hidden': isOpen }
-          )}
-        >
-          {isMobile ? t(Labels.SHOW_MENU_sm) : t(Labels.SHOW_MENU)}
-        </IcoBtn>
+        {!isViewNewJournal && (
+          <IcoBtn
+            onClick={() => toggleMenu(true)}
+            icon="icon-small-arrow-left"
+            className={classNames(
+              'ecos-admin-menu__btn-opener ecos-btn_light-blue ecos-btn_hover_dark-blue ecos-btn_narrow-t_standard ecos-btn_r_biggest',
+              { 'ecos-admin-menu__btn-opener_hidden': isOpen }
+            )}
+          >
+            {isMobile ? t(Labels.SHOW_MENU_sm) : t(Labels.SHOW_MENU)}
+          </IcoBtn>
+        )}
+        {isViewNewJournal && !isMobile && (
+          <div className="ecos-journal__settings-bar-menu admin-section">
+            <IcoBtn icon="icon-settings" onClick={() => toggleMenu(!isOpen)}>
+              <span className="ecos-journal__settings-bar-menu_text">{isOpen ? t(Labels.BTN_CLOSE_MENU) : t(Labels.BTN_OPEN_MENU)}</span>
+            </IcoBtn>
+          </div>
+        )}
         <div
           ref={sidebarRef}
           className={classNames('ecos-admin-menu', { 'ecos-admin-menu_open': isOpen })}
           style={{ maxHeight: `calc(100vh - ${topHeight}px)` }}
         >
           <div className="ecos-admin-menu-content">
-            <IcoBtn
-              onClick={() => toggleMenu(false)}
-              icon="icon-small-arrow-right"
-              invert
-              className="ecos-admin-menu__btn-closer ecos-btn_grey5 ecos-btn_hover_grey ecos-btn_narrow-t_standard ecos-btn_r_biggest"
-            >
-              {isMobile ? t(Labels.HIDE_MENU_sm) : t(Labels.HIDE_MENU)}
-            </IcoBtn>
+            {(!isViewNewJournal || isMobile) && (
+              <IcoBtn
+                onClick={() => toggleMenu(false)}
+                icon="icon-small-arrow-right"
+                invert
+                className="ecos-admin-menu__btn-closer ecos-btn_grey5 ecos-btn_hover_grey ecos-btn_narrow-t_standard ecos-btn_r_biggest"
+              >
+                {isMobile ? t(Labels.HIDE_MENU_sm) : t(Labels.HIDE_MENU)}
+              </IcoBtn>
+            )}
             <div className="ecos-admin-menu__search-block">
               <Search cleaner liveSearch searchWithEmpty onSearch={setSearchText} className="ecos-admin-menu__search-field" />
             </div>
@@ -121,6 +133,7 @@ const AdminMenu = React.memo(
 );
 
 const mapStateToProps = state => ({
+  isViewNewJournal: get(state, 'view.isViewNewJournal'),
   isMobile: state.view.isMobile,
   isOpen: state.adminSection.isOpenMenu,
   activeSection: state.adminSection.activeSection,

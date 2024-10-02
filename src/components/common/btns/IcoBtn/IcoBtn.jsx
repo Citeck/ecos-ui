@@ -26,6 +26,10 @@ export default class IcoBtn extends Component {
     const { invert, children, icon } = this.props;
     const position = invert ? 'right' : 'left';
 
+    if (!icon) {
+      return null;
+    }
+
     return <i className={classNames('ecos-btn__i', { [`ecos-btn__i_${position}`]: children }, icon)} />;
   }
 

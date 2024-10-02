@@ -378,7 +378,7 @@ export default class HeaderFormatter extends Component {
   };
 
   render() {
-    const { column = {}, sortable, colWidth } = this.props;
+    const { column = {}, sortable, colWidth, isViewNewJournal } = this.props;
     const id = `${replace(column.dataField, /[\W]*/g, '')}-${this._id}`;
 
     this.tooltipFilterId = `filter-${id}`;
@@ -391,7 +391,9 @@ export default class HeaderFormatter extends Component {
         ref={this.thRef}
         className={classNames('ecos-th', {
           'ecos-th_filtered': this.activeFilter,
-          'ecos-th_sortable': sortable
+          'ecos-th_filtered_new': this.activeFilter && isViewNewJournal,
+          'ecos-th_sortable': sortable,
+          'ecos-th_new': isViewNewJournal
         })}
         style={{ minWidth: this.minWidth, ...(colWidth && { width: colWidth }) }}
       >
@@ -434,6 +436,7 @@ HeaderFormatter.propTypes = {
   colWidth: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   onDividerMouseDown: PropTypes.func,
 
+  isViewNewJournal: PropTypes.bool,
   isComplexFilter: PropTypes.bool,
   predicate: PropTypes.object,
   originPredicate: PropTypes.object,

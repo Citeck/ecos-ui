@@ -36,6 +36,17 @@
     }
   }
 
+  &__control_new.ecos-btn {
+    overflow: hidden;
+    width: 100%;
+    text-overflow: ellipsis;
+    font-size: 11px;
+    padding: 0 12px;
+    height: 28px;
+    background-color: $color-gray-25;
+    line-height: 18.6px;
+  }
+
   &__control_mobile.ecos-btn {
     padding: 0 10px;
   }

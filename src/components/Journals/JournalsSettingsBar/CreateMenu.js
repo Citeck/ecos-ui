@@ -1,19 +1,22 @@
 import React from 'react';
 import head from 'lodash/head';
+import classNames from 'classnames';
 
 import { t } from '../../../helpers/export/util';
 import { IcoBtn, TwoIcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
 import { getCreateVariantKeyField } from '../service/util';
 
-const CreateMenu = ({ createVariants, createIsLoading, onAddRecord }) => {
+const CreateMenu = ({ createVariants, createIsLoading, onAddRecord, className, isViewNewJournal }) => {
   if (createVariants.length === 1) {
     return (
       <IcoBtn
         loading={createIsLoading}
         colorLoader="light-blue"
-        icon="icon-small-plus"
-        className="ecos-journal__add-record ecos-btn_i ecos-btn_white ecos-btn_hover_blue2"
+        icon={'icon-small-plus'}
+        className={classNames('ecos-journal__add-record ecos-btn_i ecos-btn_white ecos-btn_hover_blue2', className, {
+          'ecos-journal__btn_new shape': isViewNewJournal
+        })}
         onClick={() => onAddRecord(head(createVariants))}
       />
     );
@@ -33,7 +36,9 @@ const CreateMenu = ({ createVariants, createIsLoading, onAddRecord }) => {
     >
       <TwoIcoBtn
         icons={['icon-small-plus', 'icon-small-down']}
-        className="ecos-journal__add-record ecos-btn_settings-down ecos-btn_white ecos-btn_hover_blue2"
+        className={classNames('ecos-journal__add-record ecos-btn_settings-down ecos-btn_white ecos-btn_hover_blue2', className, {
+          'ecos-journal__icon-small-down ecos-journal__btn_new': isViewNewJournal
+        })}
         title={t('journals.create-record-btn')}
       />
     </Dropdown>

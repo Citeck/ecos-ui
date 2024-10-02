@@ -7,6 +7,102 @@
   width: 100%;
   flex-wrap: wrap;
 
+  .ecos-btn-settings-filter-on,
+  .ecos-btn-settings-filter-on:hover {
+    background-color: $color-gray-25 !important;
+
+    path,
+    ellipse {
+      stroke: $color-blue-dark !important;
+    }
+  }
+
+  &_new {
+    align-items: center;
+    background-color: $color-white;
+    border-radius: 12px 12px 0 0;
+    margin-bottom: 0;
+    padding: 2px 6px;
+
+    #{$root}-export-btn.ecos-btn {
+      min-width: auto;
+    }
+
+    #{$root}-container {
+      margin-top: 4px;
+
+      &_mobile {
+        margin-right: 0;
+      }
+    }
+  }
+
+  &-menu {
+    position: absolute;
+    margin-top: 12px;
+    right: 0;
+    top: 0;
+
+    &.admin-section {
+      top: 5%;
+      z-index: 1001;
+    }
+
+    &_mobile.ecos-btn {
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      background-color: $color-gray-25;
+
+      .ecos-btn__text {
+        height: auto;
+      }
+    }
+
+    &_text {
+      display: none;
+      color: $color-white;
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 16px;
+    }
+
+    &:hover &_text {
+      display: block;
+    }
+
+    .ecos-btn {
+      padding: 2px 6px 2px 8px;
+      height: auto;
+      background-color: $color-blue-light;
+      border-radius: 20px 0 0 20px;
+      display: inline-flex;
+      align-items: center;
+
+      &:hover {
+        background-color: $color-blue-light;
+        gap: 10px;
+      }
+
+      &:focus {
+        background-color: $color-blue-light;
+      }
+
+      > i {
+        margin: 0;
+        font-size: 12px;
+        color: $color-white;
+      }
+    }
+  }
+
+  &.ecos-journal__settings-bar_new > :nth-child(n) {
+    margin-bottom: 0;
+  }
+  &.ecos-journal__settings-bar_new > :nth-child(n):not(#{$root}-right-side):not(:last-child) {
+    margin-right: 12px;
+  }
+
   & > :nth-child(n) {
     margin-bottom: 12px;
   }
@@ -18,6 +114,10 @@
   .ecos-btn.ecos-journal__add-record {
     font-size: $font-size-xxl;
     min-width: 40px;
+  }
+
+  .ecos-journal__icon-small-down i:last-child {
+    margin-top: 4px;
   }
 
   &-update {
@@ -88,17 +188,94 @@
       margin-right: 0;
     }
   }
+
+  &-container {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-right: 0;
+    margin-left: auto;
+  }
 }
 
 @media (max-width: 1370px) {
   .ecos-journal__settings-bar {
     $root: &;
+    $margin-right: 10px;
+
+    @if selector-append($root, '_new') {
+      $margin-right: 3px;
+    }
 
     & > :nth-child(n):not(#{$root}-right-side):not(:last-child),
     & &-right-side :nth-child(n):not(:last-child),
     & &-extra > :nth-child(n):not(:last-child) {
-      margin-right: 10px;
+      margin-right: $margin-right;
     }
+  }
+}
+
+.ecos-journal__btn_new {
+  display: flex !important;
+  height: 28px !important;
+  background-color: $color-gray-25 !important;
+
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+
+  i {
+    font-size: 11px !important;
+  }
+
+  &.export {
+    width: 28px;
+    padding: 0;
+
+    > span {
+      padding: 0 4px;
+    }
+  }
+
+  &.template .ecos-btn__text {
+    overflow: visible;
+  }
+
+  &.search {
+    justify-content: flex-start;
+    padding: 14px 9px;
+
+    > i {
+      display: flex;
+      position: static !important;
+    }
+
+    .search__input {
+      font-size: 11px !important;
+      background-color: $color-gray-25;
+    }
+  }
+
+  &.filter,
+  &.shape {
+    min-width: 28px !important;
+    min-height: 28px !important;
+    width: 28px;
+    height: 28px;
+  }
+
+  &.filter:hover {
+    background-color: $color-gray-25 !important;
+
+    path,
+    ellipse {
+      stroke: $color-blue-dark !important;
+    }
+  }
+
+  .ecos-btn__text {
+    font-size: 11px;
+    line-height: 9px;
   }
 }
 

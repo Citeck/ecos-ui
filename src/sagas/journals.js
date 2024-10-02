@@ -98,6 +98,10 @@ import { isKanban } from '../components/Journals/constants';
 import { setKanbanSettings, reloadBoardData, selectTemplateId, applyPreset, clearFiltered } from '../actions/kanban';
 import { selectKanban } from '../selectors/kanban';
 import { GROUPING_COUNT_ALL } from '../constants/journal';
+import { selectIsViewNewJournal } from '../selectors/view';
+import ConfigService, { NEW_JOURNAL_ENABLED } from '../services/config/ConfigService';
+import { setViewNewJournal } from '../actions/view';
+import isBoolean from 'lodash/isBoolean';
 
 const getDefaultSortBy = config => {
   const params = config.params || {};
@@ -314,10 +318,15 @@ function* _resolveTemplate(recordRef, template) {
 function* sagaGetJournalsData({ api, logger, stateId, w }, { payload }) {
   try {
     const url = yield select(selectUrl, stateId);
+    const isViewNewJournal = yield select(selectIsViewNewJournal);
     const { journalId, journalSettingId = '', userConfigId } = url;
 
     yield put(setJournalExpandableProp(w(false)));
-    yield put(setGrid(w({ pagination: DEFAULT_PAGINATION })));
+
+    if (!isViewNewJournal) {
+      yield put(setGrid(w({ pagination: DEFAULT_PAGINATION })));
+    }
+
     yield put(initJournal(w({ journalId, journalSettingId, userConfigId, force: payload.force, savePredicate: payload.savePredicate })));
   } catch (e) {
     logger.error('[journals sagaGetJournalsData saga error', e);
@@ -894,6 +903,14 @@ function* sagaInitJournal({ api, logger, stateId, w }, { payload }) {
     const id = !customJournalMode || !customJournal ? journalId : customJournal;
     let { journalSettingId, savePredicate = true } = payload;
     let { journalConfig } = yield select(selectJournalData, stateId);
+    const _isViewNewJournal = yield select(selectIsViewNewJournal);
+
+    if (!_isViewNewJournal) {
+      const isViewNewJournal = yield ConfigService.getValue(NEW_JOURNAL_ENABLED);
+      if (isBoolean(isViewNewJournal)) {
+        yield put(setViewNewJournal(isViewNewJournal));
+      }
+    }
 
     const isEmptyConfig = isEqual(journalConfig, emptyJournalConfig);
     const isNotExistsJournal = yield call([JournalsService, JournalsService.isNotExistsJournal], id);

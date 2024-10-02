@@ -119,7 +119,8 @@ class Bar extends Component {
       selectedRecords = [],
       nameBtnSettings,
       leftChild,
-      rightChild
+      rightChild,
+      ...otherProps
     } = this.props;
     const { settingsVisible, isReset, isCreateLoading } = this.state;
     const searchText = this.getSearchText();
@@ -166,6 +167,7 @@ class Bar extends Component {
           onToggleSettings={this.handleToggleSettings}
           onAddRecord={this.handleAddRecord}
           onResetFilter={this.handleResetFilter}
+          {...otherProps}
         />
       </>
     );

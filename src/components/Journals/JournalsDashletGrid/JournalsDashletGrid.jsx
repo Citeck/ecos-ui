@@ -30,6 +30,7 @@ import {
 import { selectJournalDashletGridProps } from '../../../selectors/dashletJournals';
 import { DEFAULT_PAGINATION } from '../constants';
 import { selectOriginGridPredicates } from '../../../selectors/journals';
+import { selectIsViewNewJournal } from '../../../selectors/view';
 
 const mapStateToProps = (state, props) => {
   const ownState = selectJournalDashletGridProps(state, props.stateId);
@@ -37,10 +38,12 @@ const mapStateToProps = (state, props) => {
   const reduxKey = get(props, 'reduxKey', 'journals');
   const stateId = get(props, 'stateId', '');
   const newState = state[reduxKey][stateId] || {};
+  const isViewNewJournal = selectIsViewNewJournal(state);
 
   return {
     isMobile: !!get(state, 'view.isMobile'),
     originPredicates: selectOriginGridPredicates(state, props.stateId),
+    isViewNewJournal,
 
     settingsInlineTools: {
       className: props.className,
@@ -261,7 +264,8 @@ class JournalsDashletGrid extends Component {
       journalId,
       footerValue,
       journalSetting,
-      journalSettings
+      journalSettings,
+      isViewNewJournal
     } = this.props;
 
     const { data, sortBy, pagination, groupBy, total = 0, editingRules } = grid || {};
@@ -326,6 +330,7 @@ class JournalsDashletGrid extends Component {
               footerValue={footerValue}
               journalSetting={journalSetting}
               journalSettings={journalSettings}
+              isViewNewJournal={isViewNewJournal}
             />
           </HeightCalculation>
         </div>

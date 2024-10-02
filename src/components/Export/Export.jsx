@@ -18,7 +18,10 @@ import JournalsConverter from '../../dto/journals';
 import recordActions from '../Records/actions/recordActions';
 import RecordsExportAction from '../Records/actions/handler/executor/RecordsExport';
 import journalsService from '../Journals/service/journalsService';
-import { Dropdown } from '../common/form';
+import { Dropdown, Well } from '../common/form';
+import { CollapsibleList } from '../common';
+import { Labels } from '../Journals/constants';
+import ListItem from '../Journals/JournalsPresets/ListItem';
 
 import './Export.scss';
 
@@ -30,6 +33,9 @@ export default class Export extends Component {
     dashletConfig: PropTypes.object,
     journalConfig: PropTypes.object,
     grid: PropTypes.object,
+    isViewNewJournal: PropTypes.bool,
+    isMobile: PropTypes.bool,
+    loading: PropTypes.bool,
     right: PropTypes.bool,
     selectedItems: PropTypes.array
   };
@@ -78,6 +84,22 @@ export default class Export extends Component {
     variants.push({ id: 4, title: t('export-component.action.copy-link'), click: this.handleCopyUrl });
 
     return variants;
+  }
+
+  handleItem = item => {
+    return {
+      ...item,
+      id: `export-${get(item, 'id', '')}`,
+      displayName: get(item, 'title', '')
+    };
+  };
+
+  get renderList() {
+    const { hasAlfresco, hasGroupActionsLicense } = this.state;
+
+    return (this.dropdownSourceVariants(hasAlfresco, hasGroupActionsLicense) || []).map(item => (
+      <ListItem key={get(item, 'id')} onClick={() => this.handleExport(item)} item={this.handleItem(item)} />
+    ));
   }
 
   handleExport = async item => {
@@ -179,8 +201,26 @@ export default class Export extends Component {
 
   render() {
     const { hasAlfresco, hasGroupActionsLicense } = this.state;
-    const { right, className, children, classNameBtn, ...props } = this.props;
+    const { right, className, children, classNameBtn, isMobile, isViewNewJournal, loading, ...props } = this.props;
     const attributes = omit(props, ['selectedItems', 'journalConfig', 'dashletConfig', 'grid', 'recordRef']);
+
+    if (isMobile && isViewNewJournal) {
+      return (
+        <Well className="ecos-journal-menu__presets">
+          <CollapsibleList
+            loading={loading}
+            needScrollbar={false}
+            className="ecos-journal-menu__collapsible-list"
+            classNameList="ecos-list-group_mode_journal"
+            list={this.renderList}
+            emptyText={t(Labels.Menu.EMPTY_LIST)}
+            selected={false}
+          >
+            {t('journals.bar.btn.export')}
+          </CollapsibleList>
+        </Well>
+      );
+    }
 
     return (
       <div {...attributes} className={classNames('ecos-btn-export', { [className]: !!className })}>

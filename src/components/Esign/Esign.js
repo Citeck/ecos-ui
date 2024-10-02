@@ -169,7 +169,7 @@ class EsignComponent extends Component {
     this.setState({ documentSigned });
 
     if (documentSigned && isFunction(onSigned)) {
-      onSigned(signatures, certificate);
+      onSigned(signatures, certificate, documentSigned);
     }
 
     onClose();
