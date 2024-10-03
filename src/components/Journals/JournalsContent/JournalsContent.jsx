@@ -18,16 +18,18 @@ const mapStateToProps = (state, props) => {
 
   return {
     journalId: get(newState, 'journalConfig.id', ''),
+    grid: get(newState, 'grid', {}),
     gridData: get(newState, 'grid.data', []),
     isViewNewJournal
   };
 };
 
-const Content = React.memo(({ showPreview, isViewNewJournal, maxHeight, ...props }) => (
+const Content = React.memo(({ showPreview, isViewNewJournal, maxHeight, isNotGrouping, ...props }) => (
   <Wall
     isViewNewJournal={isViewNewJournal}
     className={classnames('ecos-journals-content__grid-well ecos-journals-content__grid-well_overflow_hidden', {
-      'ecos-journals-content__grid-well_preview': showPreview
+      'ecos-journals-content__grid-well_preview': showPreview,
+      'ecos-journal__not-grouping': isNotGrouping
     })}
     maxHeight={maxHeight}
   >
@@ -87,12 +89,15 @@ class JournalsContent extends Component {
       minHeight = 450,
       onOpenSettings,
       isResetGridSettings,
-      journalId
+      journalId,
+      grid: _grid
     } = this.props;
     const { recordId } = this.state;
+    const { groupBy } = _grid || {};
 
     const grid = (
       <Content
+        isNotGrouping={!groupBy || (groupBy && !groupBy.length)}
         stateId={stateId}
         showPreview={showPreview}
         onRowClick={this.onRowClick}

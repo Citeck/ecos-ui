@@ -239,6 +239,7 @@ class JournalsDashletGrid extends Component {
 
   render() {
     const {
+      isBlockNewJournalFormatter,
       selectedRecords,
       excludedRecords,
       selectAllPageRecords,
@@ -291,6 +292,7 @@ class JournalsDashletGrid extends Component {
           {!loading && isEmpty(viewColumns) && <InfoText text={t('journal.table.no-columns')} />}
           <HeightCalculation loading={loading} minHeight={minHeight} maxHeight={maxHeight} total={total} maxItems={maxItems}>
             <Grid
+              isBlockNewJournalFormatter={isBlockNewJournalFormatter}
               recordRef={meta.metaRecord}
               originPredicates={originPredicates}
               data={data}

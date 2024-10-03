@@ -11,6 +11,38 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: 200px;
+
+    &_new {
+      font-family: $font-family;
+      font-size: $font-size-extra-small;
+      font-weight: $font-weight-semi-bold;
+      color: $text-color-dark;
+      padding: 10px 1rem;
+      height: 35px;
+
+      &.list-group-item_selected,
+      &.list-group-item_selected:hover {
+        background: $color-gray-3;
+
+        .ecos-journal-menu__list-item-actions {
+          background: linear-gradient(to right, rgba($color-gray-3, 0), $color-gray-3 15%) !important;
+        }
+      }
+
+      &:hover {
+        background: $color-gray-4;
+        border-radius: 0;
+      }
+
+      .ecos-journal-menu__list-item-actions {
+        background: linear-gradient(to right, rgba($color-gray-4, 0), $color-gray-4 15%) !important;
+
+        i {
+          color: $text-color-gray;
+        }
+      }
+    }
 
     &:hover {
       background: $color-blue-light;
@@ -63,5 +95,11 @@
 .list-group_no-margin {
   .list-group-item {
     padding: 11px 0;
+  }
+}
+
+.ecos-journal-menu__list-item_new {
+  &:hover .ecos-journal-menu__list-item-actions {
+    top: 6px !important;
   }
 }

@@ -28,7 +28,8 @@ import {
   JOURNAL_MIN_HEIGHT_MOB,
   PADDING_NEW_JOURNAL,
   JOURNAL_VIEW_MODE as JVM,
-  Labels
+  Labels,
+  isTable
 } from './constants';
 import JournalsMenu from './JournalsMenu';
 import JournalsHead from './JournalsHead';
@@ -138,8 +139,12 @@ class Journals extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { _url, isActivePage, stateId, viewMode, tabId } = this.props;
+    const { _url, isActivePage, stateId, viewMode, tabId, isViewNewJournal } = this.props;
     const { journalId } = this.state;
+
+    if (isViewNewJournal && prevProps.viewMode !== viewMode && isTable(viewMode)) {
+      this.setState({ menuOpen: false });
+    }
 
     if (!isEqual(prevProps.viewMode, viewMode) && isDocLib(viewMode)) {
       this.setState({

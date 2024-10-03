@@ -131,11 +131,12 @@ class TableView extends React.Component {
     return urlParams.boardId || get(boardList, '[0].id');
   }
 
-  RightBarChild = ({ hasPageSize, noData, maxHeight }) => {
+  RightBarChild = ({ hasPageSize, noData, maxHeight, hasTotalSumField }) => {
     const { stateId, isMobile, isViewNewJournal } = this.props;
 
     return (
       <JournalsDashletPagination
+        isDecrementLastRow={hasTotalSumField}
         stateId={stateId}
         isViewNewJournal={isViewNewJournal}
         hasPageSize={hasPageSize}
@@ -178,6 +179,7 @@ class TableView extends React.Component {
     } = this.props;
     const maxHeight = getMaxHeight();
     const configRec = journalConfig.id && `${SourcesId.JOURNAL}@${journalConfig.id}`;
+    const hasTotalSumField = get(journalConfig, 'columns', []).some(col => col.hasTotalSumField === true);
 
     return (
       <div hidden={!isTableOrPreview(viewMode)} className={classNames('ecos-journal-view__table', bodyClassName)}>
@@ -199,8 +201,12 @@ class TableView extends React.Component {
             hasBtnEdit={() => hasBtnEdit(configRec)}
             onEditJournal={() => onEditJournal(configRec)}
             onClickOpenMenu={e => onClickOpenMenu(e, journalConfig)}
-            rightChild={isMobile ? <this.RightBarChild noData maxHeight={maxHeight} /> : null}
-            rightBarChild={isViewNewJournal && !isMobile ? <this.RightBarChild hasPageSize maxHeight={maxHeight} /> : null}
+            rightChild={isMobile ? <this.RightBarChild noData hasTotalSumField={hasTotalSumField} maxHeight={maxHeight} /> : null}
+            rightBarChild={
+              isViewNewJournal && !isMobile ? (
+                <this.RightBarChild hasPageSize hasTotalSumField={hasTotalSumField} maxHeight={maxHeight} />
+              ) : null
+            }
           />
         </div>
 

@@ -359,7 +359,7 @@ class App extends Component {
   };
 
   render() {
-    const { isInit, isInitFailure, isMobile } = this.props;
+    const { isInit, isInitFailure, isMobile, isViewNewJournal } = this.props;
 
     if (!isInit) {
       // TODO: Loading component
@@ -371,7 +371,7 @@ class App extends Component {
       return null;
     }
 
-    const appClassNames = classNames('app-container', { mobile: isMobile });
+    const appClassNames = classNames('app-container', { mobile: isMobile, new: isViewNewJournal });
     const basePageClassNames = classNames('app-content ecos-base-page', { 'ecos-base-page_headless': this.isOnlyContent });
 
     return (
@@ -397,6 +397,7 @@ class App extends Component {
 }
 
 const mapStateToProps = state => ({
+  isViewNewJournal: get(state, ['view', 'isViewNewJournal']),
   enableCache: get(state, ['app', 'enableCache']),
   isInit: get(state, ['app', 'isInit']),
   isInitFailure: get(state, ['app', 'isInitFailure']),

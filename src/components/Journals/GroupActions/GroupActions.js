@@ -127,7 +127,7 @@ const GroupActions = React.memo(
           titleField="pluralName"
           keyFields={['id', 'formRef', 'pluralName', '_typeAct']}
           source={recordsActions}
-          className="ecos-group-actions__dropdown"
+          className={classNames('ecos-group-actions__dropdown', { 'ecos-group-actions__dropdown_new': isViewNewJournal })}
           menuClassName="ecos-group-actions__dropdown-menu"
           itemClassName={getItemClassName}
           getStateOpen={setOpenRecActions}
@@ -137,10 +137,14 @@ const GroupActions = React.memo(
           <Tooltip uncontrolled showAsNeeded target={targetPrefix + '-rec'} text={label} contentComponent={labelRecActionsCount}>
             <IcoBtn
               invert
-              className={classNames('ecos-btn_hover_blue2 ecos-btn_grey3 ecos-group-actions__control', {
-                'ecos-group-actions__control_new': isViewNewJournal
-              })}
-              icon={iconOpener(isOpenRecActions)}
+              className={classNames(
+                {
+                  'ecos-btn_hover_blue2': !isViewNewJournal,
+                  'ecos-group-actions__control_new': isViewNewJournal
+                },
+                'ecos-btn_grey3 ecos-group-actions__control'
+              )}
+              icon={isViewNewJournal ? 'icon-small-down' : iconOpener(isOpenRecActions)}
               id={targetPrefix + '-rec'}
               disabled={isEmpty(recordsActions)}
             >

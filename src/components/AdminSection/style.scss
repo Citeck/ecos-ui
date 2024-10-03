@@ -27,7 +27,15 @@
     height: 100%;
 
     &_new {
-      padding: 10px;
+      padding: 10px 0 10px 10px;
+
+      .app-content {
+        margin-bottom: 0 !important;
+      }
+
+      .ecos-admin-menu_open {
+        padding-left: 10px;
+      }
     }
   }
 

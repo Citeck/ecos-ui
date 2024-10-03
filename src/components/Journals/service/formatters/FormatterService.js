@@ -61,8 +61,16 @@ class FormatterService {
     }
   }
 
+  static _handleFormatter(type, isViewNewJournal) {
+    if (isViewNewJournal && type === 'workflowPriority') {
+      return formatterRegistry.getFormatter('workflowPriorityV2');
+    }
+
+    return formatterRegistry.getFormatter(type);
+  }
+
   static _formatImpl(props = {}, formatter = {}) {
-    const { row, cell } = props;
+    const { row, cell, isViewNewJournal = false } = props;
     const { type, config } = formatter;
 
     if (!type) {
@@ -75,7 +83,7 @@ class FormatterService {
       modifiedConfig = replacePlaceholders(modifiedConfig, row.rawAttributes);
     }
 
-    const fmtInstance = formatterRegistry.getFormatter(type);
+    const fmtInstance = this._handleFormatter(type, isViewNewJournal);
 
     if (!fmtInstance || !isFunction(fmtInstance.format)) {
       console.error('[FormattersService.format] invalid formatter with type: ' + type, fmtInstance);

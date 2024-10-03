@@ -25,6 +25,10 @@
     display: block;
   }
 
+  &__not-grouping .ecos-journal-dashlet__grid-wrapper {
+    padding-bottom: 5px;
+  }
+
   &__view {
     &-tabs {
       &:empty {
@@ -66,6 +70,10 @@
       }
     }
   }
+}
+
+.ecos-btn_mi_new {
+  font-size: 14px;
 }
 
 .ecos-journal__body {
@@ -192,6 +200,30 @@
 }
 
 .ecos-journal_new {
+  .ecos-dropdown__menu li {
+    font-size: 11px;
+  }
+
+  .ecos-pagination__text {
+    font-size: 12px !important;
+  }
+
+  .ecos-dropdown-outer_disabled button:disabled {
+    outline: none;
+    background-color: $color-gray-25;
+    color: $color-gray-6;
+
+    > i {
+      color: $color-gray-6;
+    }
+  }
+  .ecos-dropdown-outer.ecos-btn {
+    &:hover,
+    &:focus {
+      background-color: $text-color-gray !important;
+    }
+  }
+
   .ecos-journal__view-tabs-btn:not(:last-child) {
     margin-right: 7px;
   }
@@ -236,8 +268,18 @@
   }
 
   .ecos-grid {
+    &__tr_selected .ecos-inline-tools-actions {
+      height: calc(100% - 4px);
+      margin-top: 2px;
+      background: linear-gradient(to right, rgba($color-yellow-1, 0), $color-yellow-1 15%) !important;
+    }
+
     &__head-shadow::after {
       content: none;
+    }
+
+    &__head-shadow {
+      height: auto;
     }
 
     &__td {
@@ -263,24 +305,9 @@
       padding: 0;
     }
 
-    &__row:first-child {
-      border-top: 2px solid $color-white;
-    }
-
-    &__table {
-      margin-bottom: 0 !important;
-    }
     &__table.table td {
       height: 28px;
       border: none;
-    }
-
-    &__row:not(.ecos-grid__tr_selected):nth-child(odd) {
-      background-color: $color-gray-27;
-
-      .ecos-grid__checkbox {
-        background-color: $color-gray-27;
-      }
     }
 
     &_freeze.ecos-grid_selectable tbody > tr > td:first-child {
@@ -314,12 +341,12 @@
   }
 
   .ecos-popper__text {
-    font-size: 8pt;
+    font-size: 11px;
     font-weight: 600;
   }
 
   .ecos-journal__body {
-    padding: 10px;
+    padding: 10px 10px 0 10px;
   }
 
   &__not-mobile {

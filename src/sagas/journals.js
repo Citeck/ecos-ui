@@ -1293,6 +1293,7 @@ function* sagaInitPreview({ api, logger, stateId, w }, action) {
 function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
   try {
     const journalData = yield select(selectJournalData, stateId);
+    const isViewNewJournal = yield select(selectIsViewNewJournal);
     const { journalConfig = {}, grid = {} } = journalData || {};
     const { columns, groupBy = [] } = grid;
     const { criteria = [], predicate = {} } = journalConfig.meta || {};
@@ -1371,6 +1372,7 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
     }
 
     const gridColumns = JournalsConverter.filterColumnsByConfig(settingColumns, journalConfig.columns);
+    const pagination = isViewNewJournal ? get(journalData, 'grid.pagination', DEFAULT_PAGINATION) : DEFAULT_PAGINATION;
 
     const params = getGridParams({
       journalConfig,
@@ -1378,7 +1380,8 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
         ...journalData.journalSetting,
         groupBy: [],
         grouping: {}
-      }
+      },
+      pagination
     });
     const predicateValue = ParserPredicate.setPredicateValue(get(params, 'predicates[0]') || [], filter);
     set(params, 'predicates', [predicateValue]);

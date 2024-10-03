@@ -268,6 +268,7 @@ class JournalsDashlet extends BaseWidget {
         />
 
         <JournalsDashletGrid
+          isBlockNewJournalFormatter
           stateId={stateId}
           isWidget
           maxHeight={MAX_DEFAULT_HEIGHT_DASHLET - extraIndents}

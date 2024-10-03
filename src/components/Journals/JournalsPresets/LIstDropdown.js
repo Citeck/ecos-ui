@@ -63,15 +63,23 @@ class ListDropdown extends React.Component {
     return (
       <ListItem
         {...itemProps}
-        className={classNames('ecos-journal-menu__list-item journal-preset__group-item list-group-item', {
-          'list-group-item_selected': isSelected
-        })}
+        className={classNames(
+          'ecos-journal-menu__list-item ecos-journal-menu__list-item_new journal-preset__group-item list-group-item_new',
+          {
+            'list-group-item_selected': isSelected
+          }
+        )}
       />
     );
   };
 
   render() {
-    const { isViewNewJournal, isMobile, journalSettings = [], searchText } = this.props;
+    const { isViewNewJournal, isMobile, journalSettings = [], searchText, journalSetting } = this.props;
+
+    const settingId = get(journalSetting, 'id', '');
+    const displayName = (journalSettings || []).find(({ id }) => id === settingId)?.displayName;
+
+    const isNotDefaultSetting = settingId !== '' && !!displayName;
 
     return (
       <div
@@ -100,11 +108,12 @@ class ListDropdown extends React.Component {
           <IcoBtn
             invert
             icon="icon-small-down"
-            className={classNames('ecos-journal__settings-bar-export-btn ecos-btn_hover_blue2 ecos-btn_drop-down ecos-btn_grey3', {
-              'ecos-journal__btn_new template': isViewNewJournal
+            className={classNames('ecos-journal__settings-bar-template-btn ecos-btn_hover_blue2 ecos-btn_drop-down ecos-btn_grey3', {
+              'ecos-journal__btn_new template': isViewNewJournal,
+              'ecos-journal__btn_new_selected': isViewNewJournal && isNotDefaultSetting
             })}
           >
-            {t('journal.presets.menu.title')}
+            {isNotDefaultSetting ? displayName : t('journal.presets.menu.title')}
           </IcoBtn>
         </Dropdown>
       </div>

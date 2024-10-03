@@ -37,7 +37,7 @@ const CreateMenu = ({ createVariants, createIsLoading, onAddRecord, className, i
       <TwoIcoBtn
         icons={['icon-small-plus', 'icon-small-down']}
         className={classNames('ecos-journal__add-record ecos-btn_settings-down ecos-btn_white ecos-btn_hover_blue2', className, {
-          'ecos-journal__icon-small-down ecos-journal__btn_new': isViewNewJournal
+          'ecos-btn_mi_new ecos-journal__icon-small-down ecos-journal__btn_new create': isViewNewJournal
         })}
         title={t('journals.create-record-btn')}
       />

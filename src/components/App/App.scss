@@ -30,6 +30,10 @@
     min-height: 100%;
   }
 
+  &-container.new .app-content {
+    padding-bottom: 0;
+  }
+
   &-header {
     z-index: 906;
   }
