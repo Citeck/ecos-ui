@@ -33,7 +33,7 @@ import { getId, t, getCurrentUserName } from '../../../../helpers/util';
 import FormatterService from '../../../Journals/service/formatters/FormatterService';
 import DateTimeFormatter from '../../../Journals/service/formatters/registry/DateTimeFormatter';
 import DateFormatter from '../../../Journals/service/formatters/registry/DateFormatter';
-import { COMPLEX_FILTER_LIMIT } from '../../../Journals/constants';
+import { COMPLEX_FILTER_LIMIT, JOURNAL_MIN_HEIGHT } from '../../../Journals/constants';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
 import { SELECTOR_MENU_KEY } from '../util';
 import ErrorCell from '../ErrorCell';
@@ -318,7 +318,8 @@ class Grid extends Component {
             editable: props.editable,
             className: column.className,
             column,
-            isViewNewJournal: props.isViewNewJournal
+            isViewNewJournal: props.isViewNewJournal,
+            isBlockNewJournalFormatter: props.isBlockNewJournalFormatter || false
           });
           column.footerFormatter = this.initFooterFormatter();
         } else {
@@ -605,7 +606,7 @@ class Grid extends Component {
     });
   };
 
-  initFormatter = ({ editable, className, column, isViewNewJournal }) => {
+  initFormatter = ({ editable, className, column, isViewNewJournal, isBlockNewJournalFormatter }) => {
     return (cell, row, rowIndex, formatExtraData = {}) => {
       const { newFormatter = {} } = column;
       const { error } = row;
@@ -613,7 +614,10 @@ class Grid extends Component {
 
       let content = cell;
       if (!isEmpty(newFormatter) && newFormatter.type) {
-        content = FormatterService.format({ cell, row, rowIndex, column, isViewNewJournal }, newFormatter);
+        content = FormatterService.format(
+          { cell, row, rowIndex, column, isViewNewJournal: isBlockNewJournalFormatter ? false : isViewNewJournal },
+          newFormatter
+        );
       } else if (Formatter) {
         content = <Formatter row={row} cell={cell} rowIndex={rowIndex} {...formatExtraData} />;
       }
@@ -1210,11 +1214,21 @@ class Grid extends Component {
   };
 
   renderScrollableGrid() {
-    const { minHeight, autoHeight, scrollAutoHide, tableViewClassName, gridWrapperClassName, hTrackClassName } = this.props;
+    const {
+      minHeight: _minHeight,
+      autoHeight,
+      scrollAutoHide,
+      tableViewClassName,
+      gridWrapperClassName,
+      hTrackClassName,
+      isViewNewJournal
+    } = this.props;
 
     let { maxHeight } = this.state;
     let scrollStyle = {};
     let scrollProps = {};
+
+    const minHeight = _minHeight > JOURNAL_MIN_HEIGHT && isViewNewJournal ? JOURNAL_MIN_HEIGHT : _minHeight;
 
     if (autoHeight) {
       scrollProps = { ...scrollProps, autoHeight, autoHeightMax: maxHeight, autoHeightMin: minHeight };

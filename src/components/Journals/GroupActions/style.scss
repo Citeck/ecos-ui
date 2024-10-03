@@ -21,6 +21,15 @@
         border-top: $color-gray-2 2px solid;
       }
     }
+
+    &_new .ecos-btn > i {
+      font-size: 14px;
+      color: $color-gray-5;
+    }
+    &_new:focus .ecos-btn > i,
+    &_new:hover .ecos-btn > i {
+      color: $color-blue-light;
+    }
   }
 
   &__control.ecos-btn {
@@ -37,6 +46,7 @@
   }
 
   &__control_new.ecos-btn {
+    border-radius: 5px;
     overflow: hidden;
     width: 100%;
     text-overflow: ellipsis;
@@ -45,6 +55,19 @@
     height: 28px;
     background-color: $color-gray-25;
     line-height: 18.6px;
+
+    &:hover,
+    &:focus {
+      background-color: $color-blue-dark;
+    }
+
+    &:hover,
+    &:focus {
+      > i,
+      > span {
+        color: $color-white;
+      }
+    }
   }
 
   &__control_mobile.ecos-btn {

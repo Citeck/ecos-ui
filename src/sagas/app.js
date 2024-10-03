@@ -27,10 +27,11 @@ import {
   setSeparateActionListForQuery
 } from '../actions/app';
 import { setNewUIAvailableStatus, validateUserFailure, validateUserSuccess } from '../actions/user';
-import { detectMobileDevice } from '../actions/view';
+import { detectMobileDevice, setViewNewJournal } from '../actions/view';
 import { getMenuConfig, setMenuConfig } from '../actions/menu';
 import { registerEventListeners } from '../actions/customEvent';
-import ConfigService, { FOOTER_CONTENT, HOME_LINK_URL } from '../services/config/ConfigService';
+import ConfigService, { FOOTER_CONTENT, HOME_LINK_URL, NEW_JOURNAL_ENABLED } from '../services/config/ConfigService';
+import isBoolean from 'lodash/isBoolean';
 
 export function* initApp({ api, logger }, { payload }) {
   try {
@@ -58,6 +59,10 @@ export function* initApp({ api, logger }, { payload }) {
       yield put(setRedirectToNewUi(!isForceOldUserDashboardEnabled));
 
       const homeLink = yield ConfigService.getValue(HOME_LINK_URL);
+      const isViewNewJournal = yield ConfigService.getValue(NEW_JOURNAL_ENABLED);
+      if (isBoolean(isViewNewJournal)) {
+        yield put(setViewNewJournal(isViewNewJournal));
+      }
 
       yield put(setHomeLink(homeLink));
     } catch (e) {

@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 
 import { reloadGrid, setGrid } from '../../../actions/journals';
@@ -21,6 +20,7 @@ const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
 
   return {
+    viewMode: newState.viewMode,
     grid: newState.grid,
     loading: newState.loading
   };
@@ -50,18 +50,22 @@ class JournalsDashletPagination extends Component {
     super(props);
 
     this.state = {
-      maxHeightJournalData: get(props, 'maxHeightJournalData')
+      maxHeightJournalData: null
     };
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { maxHeightJournalData, isViewNewJournal, setGridPagination } = this.props;
+    const { maxHeightJournalData, isViewNewJournal, setGridPagination, isDecrementLastRow } = this.props;
 
-    if (maxHeightJournalData && prevState.maxHeightJournalData !== maxHeightJournalData) {
+    if ((maxHeightJournalData && !prevState.maxHeightJournalData) || prevProps.isDecrementLastRow !== isDecrementLastRow) {
       this.setState({ maxHeightJournalData });
 
       if (isViewNewJournal && isFunction(setGridPagination)) {
         let maxItems = Math.floor((maxHeightJournalData - HEIGHT_GRID_WRAPPER - MARGIN_BOTTOM_TBODY - HEIGHT_THEAD) / HEIGHT_GRID_ROW);
+
+        if (isDecrementLastRow) {
+          maxItems -= 1;
+        }
 
         if (maxItems < MIN_CARD_DATA_NEW_JOURNAL) {
           maxItems = MIN_CARD_DATA_NEW_JOURNAL;

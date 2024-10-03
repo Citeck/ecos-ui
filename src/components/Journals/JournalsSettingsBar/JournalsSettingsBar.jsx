@@ -147,28 +147,43 @@ const JournalsSettingsBar = ({
 
         {isViewNewJournal && !isMobile && <JournalsPresetListDropdown stateId={stateId} />}
 
-        {((isViewNewJournal && !isMobile) || !isViewNewJournal) && (
+        {!isViewNewJournal && (
           <Export
             journalConfig={journalConfig}
             grid={grid}
             className="ecos-journal__settings-bar-export"
-            classNameBtn={classNames('ecos-btn_i ecos-journal__settings-bar-export-btn', {
-              'ecos-journal__btn_new': isViewNewJournal
-            })}
+            classNameBtn="ecos-btn_i ecos-journal__settings-bar-export-btn"
             selectedItems={selectedRecords}
           >
             {!isMobile && (
               <IcoBtn
                 invert
-                icon={!isViewNewJournal ? 'icon-small-down' : null}
-                className={classNames('ecos-journal__settings-bar-export-btn ecos-btn_hover_blue2 ecos-btn_drop-down ecos-btn_grey3', {
-                  'ecos-journal__btn_new export': isViewNewJournal
-                })}
+                icon="icon-small-down"
+                className="ecos-journal__settings-bar-export-btn ecos-btn_hover_blue2 ecos-btn_drop-down ecos-btn_grey3"
                 loading={isLoading}
               >
-                {isViewNewJournal ? <ExportIcon /> : t(Labels.BTN_EXPORT)}
+                {t(Labels.BTN_EXPORT)}
               </IcoBtn>
             )}
+          </Export>
+        )}
+
+        {isViewNewJournal && !isMobile && (
+          <Export
+            journalConfig={journalConfig}
+            grid={grid}
+            className="ecos-journal__settings-bar-export"
+            classNameBtn="ecos-btn_i ecos-journal__settings-bar-export-btn ecos-journal__btn_new"
+            selectedItems={selectedRecords}
+          >
+            <IcoBtn
+              invert
+              icon="icon-small-down"
+              className="ecos-journal__settings-bar-export-btn ecos-btn_hover_blue2 ecos-btn_drop-down ecos-btn_grey3 ecos-journal__btn_new export"
+              loading={isLoading}
+            >
+              <ExportIcon />
+            </IcoBtn>
           </Export>
         )}
 

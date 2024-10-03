@@ -104,7 +104,14 @@ export default class Popper extends Component {
     const element = icon && !isViewNewJournal ? this.#iconRef : this.#textRef;
     element && element.classList.add('ecosZIndexAnchor');
 
-    popupEmitter.emit(Events.SHOW, element, this.getDisp(getFirstNotNil(contentComponent, text)), popupClassName);
+    popupEmitter.emit(
+      Events.SHOW,
+      element,
+      this.getDisp(getFirstNotNil(contentComponent, text)),
+      classNames(popupClassName, {
+        'ecos-popper__text_new': isViewNewJournal
+      })
+    );
   };
 
   handleResize = debounce(() => this.checkNeedShowPopper(), 350);
@@ -118,7 +125,7 @@ export default class Popper extends Component {
 
     const extraProps = {};
 
-    if ((!icon && this.canShowPopover) || isViewNewJournal) {
+    if ((!icon && this.canShowPopover) || (isViewNewJournal && this.canShowPopover)) {
       extraProps.onMouseEnter = this.handleMouseEnter;
       extraProps.onMouseOut = this.handleMouseOut;
     }

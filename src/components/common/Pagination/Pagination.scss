@@ -44,6 +44,12 @@
 
   &__arrow {
     &_new {
+      &:hover rect,
+      &:hover path {
+        fill: $color-blue-dark;
+        stroke: $color-white;
+      }
+
       &.ecos-btn {
         padding: 0;
       }

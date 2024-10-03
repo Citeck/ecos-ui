@@ -118,6 +118,8 @@ class AdminSection extends React.PureComponent {
     const { activeSection, tabId, isActivePage, isOpenMenu, isAccessible, isAccessibleSectionType, isViewNewJournal } = this.props;
     const { journalStateId, additionalHeights, needResetJournalView } = this.state;
 
+    const isViewHeadDevTools = isViewNewJournal && get(activeSection, 'type') === SectionTypes.DEV_TOOLS;
+
     return (
       <div
         className={classNames('ecos-admin-section__container', { 'ecos-admin-section__container_new': isViewNewJournal })}
@@ -129,7 +131,7 @@ class AdminSection extends React.PureComponent {
           })}
         >
           <Container fluid={this.isFluid()} className="p-0">
-            {(isAccessible || isAccessibleSectionType) && !isViewNewJournal && (
+            {(isAccessible || isAccessibleSectionType) && (!isViewNewJournal || isViewHeadDevTools) && (
               <Row className="ecos-admin-section__header m-0 px-0">
                 <Col className="m-0 p-0">
                   <div className="m-0 px-0 d-flex align-items-baseline">
@@ -164,7 +166,9 @@ class AdminSection extends React.PureComponent {
           </Container>
         </div>
         {isAccessible && (
-          <AdminMenu>{!this.isHidden(SectionTypes.JOURNAL) && journalStateId && <JournalPresets stateId={journalStateId} />}</AdminMenu>
+          <AdminMenu>
+            {!this.isHidden(SectionTypes.JOURNAL) && journalStateId && !isViewNewJournal && <JournalPresets stateId={journalStateId} />}
+          </AdminMenu>
         )}
       </div>
     );

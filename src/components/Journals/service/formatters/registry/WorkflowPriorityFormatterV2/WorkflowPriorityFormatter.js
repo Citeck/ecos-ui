@@ -13,7 +13,7 @@ const Codes = {
 };
 
 export default class WorkflowPriorityFormatter extends BaseFormatter {
-  static TYPE = 'workflowPriority';
+  static TYPE = 'workflowPriorityV2';
 
   static getDisplayText(value) {
     const priority = Codes[value];
@@ -26,9 +26,9 @@ export default class WorkflowPriorityFormatter extends BaseFormatter {
     const priority = WorkflowPriorityFormatter.getDisplayText(cell);
 
     return priority ? (
-      <div className="workflow-priority-formatter">
-        <span className={`workflow-priority-formatter__pointer workflow-priority-formatter_${Codes[cell]}`} />
-        <span className="workflow-priority-formatter__priority">{priority}</span>
+      <div className="workflow-priority-formatter-v2">
+        <span className={`workflow-priority-formatter-v2__pointer workflow-priority-formatter-v2_${Codes[cell]}`} />
+        <span className="workflow-priority-formatter-v2__priority">{priority}</span>
       </div>
     ) : (
       <React.Fragment>{this.value(cell)}</React.Fragment>
