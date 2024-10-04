@@ -180,10 +180,8 @@ class JournalsDashletGrid extends Component {
 
   getCurrentRowInlineActions(row) {
     const { execRecordsAction, grid } = this.props;
-    const {
-      groupBy = [],
-      actions: { forRecord = {} }
-    } = grid || {};
+    const { groupBy = [], actions } = grid || {};
+    const { forRecord = {} } = actions || {};
 
     if (groupBy.length) {
       return [
@@ -206,13 +204,14 @@ class JournalsDashletGrid extends Component {
   };
 
   inlineTools = inlineToolSettings => {
-    const { settingsInlineTools } = this.props;
+    const { settingsInlineTools, loading } = this.props;
 
     inlineToolSettings.actions = this.getCurrentRowInlineActions(inlineToolSettings.row);
 
     const settings = {
       ...settingsInlineTools,
-      inlineToolSettings
+      inlineToolSettings,
+      loading
     };
 
     return <InlineTools {...settings} />;
@@ -246,6 +245,7 @@ class JournalsDashletGrid extends Component {
       saveRecords,
       className,
       loading,
+      loadingGrid,
       isWidget,
       grid,
       doInlineToolsOnRowClick = false,
@@ -288,7 +288,7 @@ class JournalsDashletGrid extends Component {
     return (
       <>
         <div className="ecos-journal-dashlet__grid">
-          {!isWidget && loading && <Loader blur />}
+          {!isWidget && loadingGrid && <Loader blur />}
           {!loading && isEmpty(viewColumns) && <InfoText text={t('journal.table.no-columns')} />}
           <HeightCalculation loading={loading} minHeight={minHeight} maxHeight={maxHeight} total={total} maxItems={maxItems}>
             <Grid

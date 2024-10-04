@@ -67,7 +67,8 @@ import {
   setForceUpdate,
   setFooterValue,
   toggleViewMode,
-  setJournalExpandableProp
+  setJournalExpandableProp,
+  setLoadingGrid
 } from '../actions/journals';
 import {
   selectGridPaginationMaxItems,
@@ -87,7 +88,7 @@ import { convertAttributeValues } from '../components/Records/predicates/util';
 import { ActionTypes } from '../components/Records/actions/constants';
 import ActionsRegistry from '../components/Records/actions/actionsRegistry';
 import { decodeLink, getFilterParam, getSearchParams, getUrlWithoutOrigin, removeUrlSearchParams } from '../helpers/urls';
-import { wrapSaga } from '../helpers/redux';
+import { wrapArgs, wrapSaga } from '../helpers/redux';
 import { beArray, isNodeRef, hasInString, t } from '../helpers/util';
 import PageService from '../services/PageService';
 import { PREDICATE_EQ } from '../components/Records/predicates/predicates';
@@ -605,6 +606,8 @@ function* sagaResetJournalSettingData({ api, logger, stateId, w }, action) {
 }
 
 export function* getGridData(api, params, stateId) {
+  const w = wrapArgs(stateId);
+  yield put(setLoadingGrid(w(true)));
   const { recordRef, journalConfig, journalSetting } = yield select(selectJournalData, stateId);
   const config = yield select(state => selectNewVersionDashletConfig(state, stateId));
   const onlyLinked = get(config, 'onlyLinked');
@@ -644,6 +647,11 @@ export function* getGridData(api, params, stateId) {
 
   const resultData = yield call([JournalsService, JournalsService.getJournalData], journalConfig, settings);
   const journalData = JournalsConverter.getJournalDataWeb(resultData);
+
+  const editingRules = yield getGridEditingRules(api, { ...params, ...journalData });
+  yield put(setGrid(w({ ...params, ...journalData, editingRules })));
+  yield put(setLoadingGrid(w(false)));
+
   const recordRefs = journalData.data.map(d => d.id);
   const resultActions = yield call([JournalsService, JournalsService.getRecordActions], journalConfig, recordRefs);
   const actions = JournalsConverter.getJournalActions(resultActions);

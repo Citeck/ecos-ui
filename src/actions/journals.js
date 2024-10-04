@@ -3,6 +3,7 @@ import { createAction } from 'redux-actions';
 const prefix = 'journals/';
 
 export const setLoading = createAction(prefix + 'SET_LOADING');
+export const setLoadingGrid = createAction(prefix + 'SET_LOADING_GRID');
 export const setForceUpdate = createAction(prefix + 'SET_FORCE_UPDATE');
 export const getDashletConfig = createAction(prefix + 'GET_DASHLET_CONFIG');
 export const setDashletConfig = createAction(prefix + 'SET_DASHLET_CONFIG');
