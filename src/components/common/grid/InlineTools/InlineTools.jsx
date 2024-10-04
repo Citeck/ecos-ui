@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { renderAction } from './helpers';
 import './InlineTools.scss';
+import Loader from '../../Loader';
 
 class InlineTools extends Component {
   static propTypes = {
@@ -32,15 +33,23 @@ class InlineTools extends Component {
       selectedRecords,
       selectAllPageRecords,
       actionsProps,
-      withTooltip
+      withTooltip,
+      loading
     } = this.props;
 
     const selected = selectedRecords.includes(row.id) || selectAllPageRecords;
 
     return (
-      <div style={style} className={classNames('ecos-inline-tools', className, { 'ecos-inline-tools_selected': selected })}>
+      <div
+        style={style}
+        className={classNames('ecos-inline-tools', className, {
+          'ecos-inline-tools_selected': selected,
+          'ecos-inline-tools__loading': loading
+        })}
+      >
         <div className="ecos-inline-tools-actions" {...actionsProps}>
-          {actions.map((action, idx) => renderAction(action, idx, withTooltip))}
+          {loading && <Loader type="points" width="80%" height="100%" />}
+          {!loading && actions.map((action, idx) => renderAction(action, idx, withTooltip))}
         </div>
       </div>
     );

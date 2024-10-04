@@ -28,6 +28,7 @@ export const selectJournalDashletProps = createSelector(
 
 export const selectJournalDashletGridProps = createSelector([selectJournalData, selectViewColumns], (ownState, viewColumns) => ({
   loading: ownState.loading,
+  loadingGrid: ownState.loadingGrid,
   grid: ownState.grid,
   predicate: ownState.predicate,
   journalConfig: ownState.journalConfig,

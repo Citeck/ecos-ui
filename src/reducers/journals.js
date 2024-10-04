@@ -23,6 +23,7 @@ import {
   setJournalSetting,
   setJournalSettings,
   setJournalExpandableProp,
+  setLoadingGrid,
   setLoading,
   setForceUpdate,
   setOriginGridSettings,
@@ -57,6 +58,7 @@ export const emptyJournalConfig = Object.freeze({
 
 export const defaultState = {
   loading: true,
+  loadingGrid: true,
   editorMode: false,
   viewMode: undefined,
   wasChangedSettingsOn: [],
@@ -372,6 +374,12 @@ export default handleActions(
       action = handleAction(action);
 
       return handleState(state, stateId, { loading: action.payload });
+    },
+    [setLoadingGrid]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, { loadingGrid: action.payload });
     },
     [setForceUpdate]: (state, action) => {
       const stateId = action.payload.stateId;
