@@ -175,6 +175,12 @@ $header-height: 52px;
   }
 
   &__header {
+    &-loader {
+      position: relative;
+      width: 100%;
+      height: 4px;
+    }
+
     &_columns-not-resizable {
       .ecos-th__divider {
         cursor: unset;

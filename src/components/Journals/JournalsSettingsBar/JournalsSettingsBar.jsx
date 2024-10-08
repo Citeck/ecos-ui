@@ -48,7 +48,6 @@ const JournalsSettingsBar = ({
 
   isMobile,
   isCreateLoading,
-  isLoading,
   isShowResetFilter,
   noGroupActions,
 
@@ -108,7 +107,7 @@ const JournalsSettingsBar = ({
                 'ecos-journal__btn_new filter': isViewNewJournal
               })}
               onClick={onToggleSettings}
-              loading={isLoading}
+              // loading={isLoading}
             >
               {isViewNewJournal && <Setting />}
             </IcoBtn>
@@ -125,7 +124,7 @@ const JournalsSettingsBar = ({
               }
             )}
             onClick={onEditJournal}
-            loading={isLoading}
+            // loading={isLoading}
           >
             {isViewNewJournal && <Shape />}
           </IcoBtn>
@@ -160,7 +159,7 @@ const JournalsSettingsBar = ({
                 invert
                 icon="icon-small-down"
                 className="ecos-journal__settings-bar-export-btn ecos-btn_hover_blue2 ecos-btn_drop-down ecos-btn_grey3"
-                loading={isLoading}
+                // loading={isLoading}
               >
                 {t(Labels.BTN_EXPORT)}
               </IcoBtn>
@@ -180,7 +179,7 @@ const JournalsSettingsBar = ({
               invert
               icon="icon-small-down"
               className="ecos-journal__settings-bar-export-btn ecos-btn_hover_blue2 ecos-btn_drop-down ecos-btn_grey3 ecos-journal__btn_new export"
-              loading={isLoading}
+              // loading={isLoading}
             >
               <ExportIcon />
             </IcoBtn>

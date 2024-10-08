@@ -31,6 +31,7 @@ import { NotificationManager } from 'react-notifications';
 import Loader from '../../../common/Loader';
 import { getId, t, getCurrentUserName } from '../../../../helpers/util';
 import FormatterService from '../../../Journals/service/formatters/FormatterService';
+import EcosProgressLoading from '../../EcosProgressLoading';
 import DateTimeFormatter from '../../../Journals/service/formatters/registry/DateTimeFormatter';
 import DateFormatter from '../../../Journals/service/formatters/registry/DateFormatter';
 import { COMPLEX_FILTER_LIMIT, JOURNAL_MIN_HEIGHT } from '../../../Journals/constants';
@@ -53,6 +54,8 @@ const CUSTOM_NESTED_DELIMITER = '|';
 const ECOS_GRID_HOVERED_CLASS = 'ecos-grid_hovered';
 const ECOS_GRID_GRAG_CLASS = 'ecos-grid_drag';
 const ECOS_GRID_ROW_CLASS = 'ecos-grid__row';
+const ECOS_GRID_HEADER = 'ecos-grid__header';
+const ECOS_GRID_HEADER_LOADER = 'ecos-grid__header-loader';
 const ECOS_GRID_HEAD_SHADOW = 'ecos-grid__head-shadow';
 const ECOS_GRID_LEFT_SHADOW = 'ecos-grid__left-shadow';
 const ECOS_GRID_INLINE_TOOLS_CONTAINER = 'ecos-grid__inline-tools-container';
@@ -132,8 +135,9 @@ class Grid extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { byContentHeight, resizableColumns, columns, selected, isResetSettings } = this.props;
+    const { byContentHeight, resizableColumns, columns, selected, isResetSettings, loading } = this.props;
     const { maxHeight } = this.state;
+    const current = this._ref.current;
 
     if (this.#gridRef) {
       this._tableDom = this.#gridRef.querySelector('table');
@@ -160,6 +164,27 @@ class Grid extends Component {
       const newMaxHeight = this._scrollRef.getScrollHeight();
       if (maxHeight !== newMaxHeight) {
         this.setState({ maxHeight: newMaxHeight });
+      }
+    }
+
+    if (current) {
+      const headerElement = current.querySelector(`.${ECOS_GRID_HEADER}`);
+      const headerLoaderElement = current.querySelector(`.${ECOS_GRID_HEADER_LOADER}`);
+
+      if (headerElement && !headerLoaderElement && loading) {
+        const theadElement = headerElement.closest('thead');
+
+        if (theadElement) {
+          const loaderDiv = document.createElement('tr');
+          loaderDiv.classList.add(ECOS_GRID_HEADER_LOADER);
+
+          theadElement.appendChild(loaderDiv);
+
+          ReactDOM.render(<EcosProgressLoading />, loaderDiv);
+        }
+      } else if (headerLoaderElement && !loading) {
+        ReactDOM.unmountComponentAtNode(headerLoaderElement);
+        headerLoaderElement.remove();
       }
     }
 
@@ -534,7 +559,7 @@ class Grid extends Component {
   };
 
   checkColumnEditable = (...data) => {
-    const { editingRules } = this.props;
+    const { editingRules = {} } = this.props;
     const [column, , row] = data;
     const rowRules = editingRules[row.id];
 
@@ -1297,7 +1322,7 @@ class Grid extends Component {
           <BootstrapTable
             {...bootProps}
             classes="ecos-grid__table"
-            headerClasses={classNames('ecos-grid__header', {
+            headerClasses={classNames(ECOS_GRID_HEADER, {
               'ecos-grid__header_columns-not-resizable': !resizableColumns
             })}
             rowClasses={classNames(ECOS_GRID_ROW_CLASS, rowClassName, {

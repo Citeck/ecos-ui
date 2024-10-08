@@ -648,8 +648,7 @@ export function* getGridData(api, params, stateId) {
   const resultData = yield call([JournalsService, JournalsService.getJournalData], journalConfig, settings);
   const journalData = JournalsConverter.getJournalDataWeb(resultData);
 
-  const editingRules = yield getGridEditingRules(api, { ...params, ...journalData });
-  yield put(setGrid(w({ ...params, ...journalData, editingRules })));
+  yield put(setGrid(w({ ...params, ...journalData })));
   yield put(setLoadingGrid(w(false)));
 
   const recordRefs = journalData.data.map(d => d.id);
