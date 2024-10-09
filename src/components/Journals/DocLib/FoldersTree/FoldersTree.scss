@@ -6,7 +6,7 @@
   &__container {
     margin-right: -10px;
     padding-right: 10px;
-    overflow-y: auto;
+    overflow-x: auto;
     max-height: calc(100vh - 260px);
 
     &_mobile {
