@@ -908,6 +908,7 @@
   "batch-edit.message.no-status": "Нет статуса",
 
   "grid.inline-tools.details": "Детальная информация",
+  "grid.no-data-head": "Нет данных",
   "grid.no-data-indication": "Нет элементов в списке",
   "grid.tools.copy-to": "Копировать в...",
   "grid.tools.delete": "Удалить",

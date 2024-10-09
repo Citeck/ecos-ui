@@ -950,6 +950,7 @@
   "batch-edit.message.no-status": "No status",
 
   "grid.inline-tools.details": "Details",
+  "grid.no-data-head": "No data available",
   "grid.no-data-indication": "No items in the list",
   "grid.tools.copy-to": "Copy to...",
   "grid.tools.delete": "Delete",

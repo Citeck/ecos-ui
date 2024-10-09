@@ -42,6 +42,7 @@ import ErrorTable from '../ErrorTable';
 import SelectorHeader from './SelectorHeader';
 import Selector from './Selector';
 import pageTabList from '../../../../services/pageTabs/PageTabList';
+import NoData from '../../icons/NoData';
 import Button from '../../btns/Btn';
 import { pagesStore } from '../../../../helpers/indexedDB';
 import ClickOutside from '../../../ClickOutside';
@@ -308,13 +309,25 @@ class Grid extends Component {
   };
 
   getBootstrapTableProps(props, extra) {
+    const { isViewNewJournal } = this.props;
     const { needCellUpdate } = this.state;
+
+    const NewNoDataContent = (
+      <div className="ecos-grid__no-data">
+        <NoData />
+        <div className="ecos-grid__no-data_info">
+          <h3 className="ecos-grid__no-data_info-head">{t('grid.no-data-head')}</h3>
+          <span className="ecos-grid__no-data_info-description">{t('grid.no-data-indication')}</span>
+        </div>
+      </div>
+    );
+
     const options = {
       keyField: props.keyField,
       bootstrap4: true,
       bordered: false,
       scrollable: true,
-      noDataIndication: () => t('grid.no-data-indication'),
+      noDataIndication: () => (isViewNewJournal ? NewNoDataContent : t('grid.no-data-indication')),
       ...props
     };
 
@@ -1255,14 +1268,28 @@ class Grid extends Component {
 
     const minHeight = _minHeight > JOURNAL_MIN_HEIGHT && isViewNewJournal ? JOURNAL_MIN_HEIGHT : _minHeight;
 
-    if (autoHeight) {
-      scrollProps = { ...scrollProps, autoHeight, autoHeightMax: maxHeight, autoHeightMin: minHeight };
+    if (isViewNewJournal) {
+      scrollStyle = { ...scrollStyle, height: maxHeight };
     } else {
-      scrollStyle = { ...scrollStyle, height: minHeight || '100%' };
+      if (autoHeight) {
+        scrollProps = { ...scrollProps, autoHeight, autoHeightMax: maxHeight, autoHeightMin: minHeight };
+      } else {
+        scrollStyle = { ...scrollStyle, height: minHeight || '100%' };
+      }
+    }
+
+    if (this._tableDom && isViewNewJournal) {
+      const tbodyElement = this._tableDom.querySelector('tbody');
+      const theadElement = this._tableDom.querySelector('thead');
+
+      if (tbodyElement && theadElement) {
+        tbodyElement.style.height = cssNum(maxHeight - theadElement.clientHeight - 44);
+      }
     }
 
     return (
       <Scrollbars
+        minHeight={isViewNewJournal ? maxHeight : null}
         ref={this.scrollRefCallback}
         onScrollStart={this.onScrollStart}
         onScrollFrame={this.onScrollFrame}
