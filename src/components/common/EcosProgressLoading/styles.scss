@@ -1,0 +1,36 @@
+@import '../../../styles/constants';
+
+.ecos-progress-loading {
+  &__container {
+    width: 100%;
+    position: absolute;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    margin: 0;
+  }
+
+  &__progress-bar {
+    width: 100%;
+    //background-color: $color-gray-3;
+    position: relative;
+    overflow: hidden;
+  }
+
+  &__progress {
+    width: 60%;
+    height: 100%;
+    background-color: $color-blue-light;
+    position: absolute;
+    animation: progress-animation 1.5s infinite linear;
+  }
+}
+
+@keyframes progress-animation {
+  0% {
+    left: -60%;
+  }
+  100% {
+    left: 100%;
+  }
+}
