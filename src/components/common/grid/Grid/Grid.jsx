@@ -1259,7 +1259,8 @@ class Grid extends Component {
       tableViewClassName,
       gridWrapperClassName,
       hTrackClassName,
-      isViewNewJournal
+      isViewNewJournal,
+      data
     } = this.props;
 
     let { maxHeight } = this.state;
@@ -1278,7 +1279,7 @@ class Grid extends Component {
       }
     }
 
-    if (this._tableDom && isViewNewJournal) {
+    if (this._tableDom && isViewNewJournal && !(data && data.length)) {
       const tbodyElement = this._tableDom.querySelector('tbody');
       const theadElement = this._tableDom.querySelector('thead');
 
@@ -1365,8 +1366,19 @@ class Grid extends Component {
   }
 
   render() {
-    const { className, noTopBorder, columns, noHeader, scrollable, selected, multiSelectable, noHorizontalScroll } = this.props;
-    const { updatedColumn, updatedColumnBlocked } = this.state;
+    const {
+      className,
+      noTopBorder,
+      columns,
+      noHeader,
+      scrollable,
+      selected,
+      multiSelectable,
+      noHorizontalScroll,
+      isViewNewJournal,
+      data
+    } = this.props;
+    const { updatedColumn, updatedColumnBlocked, maxHeight } = this.state;
 
     if (isEmpty(columns)) {
       return null;
@@ -1393,6 +1405,8 @@ class Grid extends Component {
         {!!toolsVisible && this.tools(selected)}
 
         {scrollable ? this.renderScrollableGrid() : this.renderGrid()}
+
+        {isViewNewJournal && data && data.length && <div style={{ height: cssNum(maxHeight) }} className="ecos-grid__border" />}
 
         {updatedColumn && (
           <Tooltip

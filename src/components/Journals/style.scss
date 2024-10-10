@@ -200,6 +200,71 @@
 }
 
 .ecos-journal_new {
+  .ecos-grid .ecos-grid__tr_selected:nth-child(odd) {
+    background-color: $color-yellow4;
+
+    .ecos-grid__checkbox {
+      background: $color-yellow4;
+    }
+  }
+
+  .ecos-grid__row_new {
+    &:last-child {
+      border-bottom: 1px solid $color-gray-27;
+
+      .ecos-grid__checkbox:last-child {
+        border-bottom: 1px solid $color-gray-27;
+      }
+      /*&:hover .ecos-grid__checkbox:last-child {
+        border-bottom: 1px solid $color-brown-2;
+      }*/
+    }
+
+    &.ecos-grid__tr_selected:nth-child(odd) {
+      .ecos-inline-tools-actions {
+        height: calc(100% - 2px);
+        margin-top: 1px;
+        background: linear-gradient(to right, rgba($color-yellow4, 0), $color-yellow4 15%) !important;
+      }
+    }
+
+    &:not(.ecos-grid__tr_selected):nth-child(odd) {
+      background-color: $color-gray-27;
+
+      .ecos-grid__checkbox {
+        background-color: $color-gray-27;
+      }
+
+      .ecos-inline-tools-actions {
+        height: calc(100% - 2px);
+        margin-top: 1px;
+        background: linear-gradient(to right, rgba($color-gray-27, 0), $color-gray-27 15%);
+      }
+    }
+
+    &:hover td,
+    &.has-inline-tools td {
+      border: none !important;
+      box-shadow: 0 -1px 0 0 $color-brown-2 inset, 0 1px 0 0 $color-brown-2 inset;
+    }
+
+    &:hover .ecos-grid__checkbox_block {
+      height: 26px;
+    }
+
+    .ecos-inline-tools-btn {
+      margin-right: 7px;
+      i {
+        font-size: 14px;
+      }
+    }
+    .ecos-inline-tools-actions {
+      margin-top: 1px !important;
+      height: calc(100% - 2px) !important;
+      background: linear-gradient(to right, rgba($color-white, 0), $color-white 15%);
+    }
+  }
+
   .ecos-dropdown__menu li {
     font-size: 11px;
   }
