@@ -3,21 +3,16 @@
 .ecos-journal-menu {
   $menu: &;
 
+  overflow-y: auto;
   background: $color-gray-3;
   padding: 15px 25px 15px 15px;
   height: 100%;
   min-width: 273px;
 
-  &_grid {
-    display: grid;
-    grid-auto-rows: minmax(41px, max-content);
-    align-items: stretch;
-
-    #{$menu} {
-      &__journals,
-      &__presets {
-        overflow: hidden;
-      }
+  #{$menu} {
+    &__journals,
+    &__presets {
+      overflow: hidden;
     }
   }
 
