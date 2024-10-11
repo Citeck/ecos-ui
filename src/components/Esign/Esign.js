@@ -167,7 +167,6 @@ class EsignComponent extends Component {
     }
 
     this.setState({ documentSigned });
-    console.log('documentSigned:', documentSigned);
 
     if (documentSigned && documentSigned.success && isFunction(onSigned)) {
       onSigned(signatures, certificate, documentSigned);
