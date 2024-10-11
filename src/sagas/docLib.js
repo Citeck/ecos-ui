@@ -64,7 +64,7 @@ import { selectJournalData, selectUrl } from '../selectors/journals';
 import { DocLibUrlParams } from '../constants';
 import { DEFAULT_DOCLIB_PAGINATION, NODE_TYPES } from '../constants/docLib';
 import { t } from '../helpers/export/util';
-import { getSearchParams, getUrlWithoutOrigin, goToCardDetailsPage } from '../helpers/urls';
+import { getSearchParams, getUrlWithoutOrigin } from '../helpers/urls';
 import { wrapSaga } from '../helpers/redux';
 import PageService from '../services/PageService';
 import { ActionTypes } from '../components/Records/actions/constants';
@@ -417,6 +417,10 @@ export function* sagaCreateNode({ api, logger, stateId, w }, action) {
   try {
     const { createVariant, submission } = action.payload;
 
+    if (createVariant.nodeType === NODE_TYPES.FILE) {
+      yield put(setFileViewerLoadingStatus(w(true)));
+    }
+
     const rootId = yield select(state => selectDocLibRootId(state, stateId));
     const currentFolderId = yield select(state => selectDocLibFolderId(state, stateId));
     const typeRef = createVariant.destination;
@@ -432,8 +436,10 @@ export function* sagaCreateNode({ api, logger, stateId, w }, action) {
       yield put(addSidebarItems(w([...newChildren, { id: currentFolderId, hasChildren: true }])));
       yield put(unfoldSidebarItem(w(currentFolderId)));
     } else {
-      const localDobLibRecordRef = newRecord.id.substring(newRecord.id.indexOf('$') + 1);
-      yield call(goToCardDetailsPage, localDobLibRecordRef);
+      // Cause: https://jira.citeck.ru/browse/ECOSUI-3137
+      yield put(loadFilesViewerData(w()));
+      // const localDobLibRecordRef = newRecord.id.substring(newRecord.id.indexOf('$') + 1);
+      // yield call(goToCardDetailsPage, localDobLibRecordRef);
     }
   } catch (e) {
     logger.error('[docLib sagaCreateNode saga error', e);
