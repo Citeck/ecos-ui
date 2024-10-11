@@ -449,6 +449,7 @@
   "dev-tools.settings.forceEnableNewForms": "Force new forms",
   "dev-tools.settings.enableLoggerForNewForms": "Enable logger for new forms",
   "dev-tools.settings.enableRecordsApiDebug": "Enable debug for Records API",
+  "dev-tools.settings.enableViewNewJournal": "Enable/Disable new log view (2.0)",
   "dev-tools.settings.on": "On",
   "dev-tools.settings.off": "Off",
   "dev-tools.dev-modules.panel-title": "Modules",
@@ -950,6 +951,7 @@
   "batch-edit.message.no-status": "No status",
 
   "grid.inline-tools.details": "Details",
+  "grid.no-data-head": "No data available",
   "grid.no-data-indication": "No items in the list",
   "grid.tools.copy-to": "Copy to...",
   "grid.tools.delete": "Delete",

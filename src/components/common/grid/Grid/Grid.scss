@@ -19,6 +19,48 @@ $header-height: 52px;
   position: relative;
   overflow: hidden;
 
+  &__border {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 33px;
+    z-index: 10;
+    border-right: 2px solid $color-gray-4;
+  }
+
+  &__no-data {
+    position: absolute;
+    width: calc(100% - 28px);
+    height: calc(100% - 28px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+
+    &_info {
+      display: flex;
+      flex-direction: column;
+      text-align: center;
+
+      &-head {
+        color: $text-color-gray;
+        line-height: 22px;
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      &-description {
+        color: $color-gray-5;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 22px;
+        margin: 0;
+      }
+    }
+  }
+
   .ecos-grid__table {
     .ecos-grid__table_footer {
       &-hide {
@@ -226,44 +268,6 @@ $header-height: 52px;
       border: 2px solid $color-brown-2;
       border-right: none;
       border-left: none;
-    }
-
-    &_new {
-      &:not(.ecos-grid__tr_selected):nth-child(odd) {
-        background-color: $color-gray-27;
-
-        .ecos-grid__checkbox {
-          background-color: $color-gray-27;
-        }
-
-        .ecos-inline-tools-actions {
-          height: calc(100% - 2px);
-          margin-top: 1px;
-          background: linear-gradient(to right, rgba($color-gray-27, 0), $color-gray-27 15%);
-        }
-      }
-
-      &:hover td,
-      &.has-inline-tools td {
-        border: none;
-        box-shadow: 0 -1px 0 0 $color-brown-2 inset, 0 1px 0 0 $color-brown-2 inset;
-      }
-
-      &:hover .ecos-grid__checkbox_block {
-        height: 26px;
-      }
-
-      .ecos-inline-tools-btn {
-        margin-right: 7px;
-        i {
-          font-size: 14px;
-        }
-      }
-      .ecos-inline-tools-actions {
-        height: calc(100% - 2px);
-        margin-top: 1px;
-        background: linear-gradient(to right, rgba($color-white, 0), $color-white 15%);
-      }
     }
   }
 
