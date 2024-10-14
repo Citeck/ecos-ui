@@ -201,6 +201,9 @@
 }
 
 .ecos-journal_new {
+  .ecos-grid__border {
+    display: block;
+  }
   .ecos-grid .ecos-grid__tr_selected:nth-child(odd) {
     background-color: $color-yellow4;
 

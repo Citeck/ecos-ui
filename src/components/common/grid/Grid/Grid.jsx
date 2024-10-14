@@ -60,6 +60,7 @@ const ECOS_GRID_HEADER_LOADER = 'ecos-grid__header-loader';
 const ECOS_GRID_HEAD_SHADOW = 'ecos-grid__head-shadow';
 const ECOS_GRID_LEFT_SHADOW = 'ecos-grid__left-shadow';
 const ECOS_GRID_INLINE_TOOLS_CONTAINER = 'ecos-grid__inline-tools-container';
+const REACT_BOOTSTRAP_TABLE = 'react-bootstrap-table';
 
 const cssNum = v => `${v}px`;
 
@@ -309,25 +310,43 @@ class Grid extends Component {
   };
 
   getBootstrapTableProps(props, extra) {
-    const { isViewNewJournal } = this.props;
+    const { isViewNewJournal, data, maxHeight } = this.props;
     const { needCellUpdate } = this.state;
 
-    const NewNoDataContent = (
-      <div className="ecos-grid__no-data">
-        <NoData />
-        <div className="ecos-grid__no-data_info">
-          <h3 className="ecos-grid__no-data_info-head">{t('grid.no-data-head')}</h3>
-          <span className="ecos-grid__no-data_info-description">{t('grid.no-data-indication')}</span>
+    let noDataIndication = null;
+
+    const tableEl = this._ref.current
+      ? this._ref.current.querySelector(`.${REACT_BOOTSTRAP_TABLE}`)
+      : document.querySelector(`.${REACT_BOOTSTRAP_TABLE}`);
+    if (tableEl && isViewNewJournal && !(data && data.length)) {
+      const theadElement = tableEl.querySelector('thead');
+      const width = tableEl.clientWidth;
+
+      noDataIndication = (
+        <div
+          className="ecos-grid__no-data"
+          style={{
+            width: width ? width - 28 : 'calc(100% - 28px)',
+            ...(theadElement && { minHeight: maxHeight - theadElement.clientHeight - 70 })
+          }}
+        >
+          <NoData />
+          <div className="ecos-grid__no-data_info">
+            <h3 className="ecos-grid__no-data_info-head">{t('grid.no-data-head')}</h3>
+            <span className="ecos-grid__no-data_info-description">{t('grid.no-data-indication')}</span>
+          </div>
         </div>
-      </div>
-    );
+      );
+    } else if (!isViewNewJournal) {
+      noDataIndication = t('grid.no-data-indication');
+    }
 
     const options = {
       keyField: props.keyField,
       bootstrap4: true,
       bordered: false,
       scrollable: true,
-      noDataIndication: () => (isViewNewJournal ? NewNoDataContent : t('grid.no-data-indication')),
+      noDataIndication: () => noDataIndication,
       ...props
     };
 
@@ -615,7 +634,7 @@ class Grid extends Component {
 
   getCheckboxGridTrClassList = tr => {
     const index = tr.rowIndex;
-    const parent = isElement(tr) && tr.closest('.react-bootstrap-table');
+    const parent = isElement(tr) && tr.closest(`.${REACT_BOOTSTRAP_TABLE}`);
     const foundTr = isFunction(get(parent, 'nextSibling.getElementsByTagName')) && parent.nextSibling.getElementsByTagName('tr');
     const node = get(foundTr, [index]) && head(foundTr[index].getElementsByClassName('ecos-grid__checkbox'));
 
@@ -1259,8 +1278,7 @@ class Grid extends Component {
       tableViewClassName,
       gridWrapperClassName,
       hTrackClassName,
-      isViewNewJournal,
-      data
+      isViewNewJournal
     } = this.props;
 
     let { maxHeight } = this.state;
@@ -1276,15 +1294,6 @@ class Grid extends Component {
         scrollProps = { ...scrollProps, autoHeight, autoHeightMax: maxHeight, autoHeightMin: minHeight };
       } else {
         scrollStyle = { ...scrollStyle, height: minHeight || '100%' };
-      }
-    }
-
-    if (this._tableDom && isViewNewJournal && !(data && data.length)) {
-      const tbodyElement = this._tableDom.querySelector('tbody');
-      const theadElement = this._tableDom.querySelector('thead');
-
-      if (tbodyElement && theadElement) {
-        tbodyElement.style.height = cssNum(maxHeight - theadElement.clientHeight - 44);
       }
     }
 
