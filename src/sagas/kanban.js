@@ -446,20 +446,16 @@ export function* sagaApplyFilter({ api, logger }, { payload }) {
 export function* sagaApplyPreset({ api, logger }, { payload }) {
   try {
     const {
-      settings: { predicate, kanban },
+      settings: { kanban },
       stateId
     } = payload;
     const { journalConfig, journalSetting: _journalSetting } = yield select(selectJournalData, stateId);
     const { formProps, boardConfig } = yield select(selectKanban, stateId);
     const pagination = DEFAULT_PAGINATION;
-    const w = wrapArgs(stateId);
 
     const journalSetting = cloneDeep(_journalSetting);
-    journalSetting.predicate = predicate;
     journalSetting.kanban = kanban;
 
-    yield put(setPredicate(w(predicate)));
-    yield put(setJournalSetting(w({ predicate, kanban })));
     yield put(setKanbanSettings({ stateId, kanbanSettings: kanban || {} }));
     yield put(setPagination({ stateId, pagination }));
     yield sagaGetData({ api, logger }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
