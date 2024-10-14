@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import isFunction from 'lodash/isFunction';
 import isEqual from 'lodash/isEqual';
+import isArray from 'lodash/isArray';
+import isObject from 'lodash/isObject';
+import get from 'lodash/get';
 
 import Filters from '../../Filters/Filters';
 import PanelBar from '../../common/PanelBar/PanelBar';
@@ -48,8 +51,19 @@ class JournalsFilters extends Component {
     isFunction(setPredicate) && setPredicate(predicate);
   };
 
+  handlePredicate = () => {
+    const { predicate } = this.state;
+
+    if (isArray(predicate)) {
+      return predicate.find(p => get(p, 'att') !== '_type' && isObject(p) && isArray(get(p, 'val'))) || predicate;
+    }
+
+    return predicate;
+  };
+
   render() {
-    const { groups, columns, predicate, needUpdate, metaRecord, sourceId } = this.state;
+    const { groups, columns, needUpdate, metaRecord, sourceId } = this.state;
+    const predicate = this.handlePredicate();
 
     return (
       <PanelBar header={t('filter-list.panel-header')} css={{ headerClassName: 'panel-bar__header_upper' }} open>
