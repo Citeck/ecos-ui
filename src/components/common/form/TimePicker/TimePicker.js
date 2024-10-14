@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import isNaN from 'lodash/isNaN';
+import isFunction from 'lodash/isFunction';
 import classNames from 'classnames';
 
 import { IcoBtn } from '../../btns';
 import Clock from '../../icons/Clock';
 import './TimePicker.scss';
 
+const DEFAULT_VALUE_HOURS = '07';
 const DEFAULT_VALUE = '00';
 
 export default class TimePicker extends Component {
@@ -31,10 +33,29 @@ export default class TimePicker extends Component {
     this.state = {
       isOpenDropDown: false,
       selectedTime: props.selected || null,
-      hours: props.selected ? new Date(props.selected).getHours() : DEFAULT_VALUE,
-      minutes: props.selected ? new Date(props.selected).getMinutes() : DEFAULT_VALUE
+      hours: props.selected ? this.handleNumber(new Date(props.selected).getHours()) : DEFAULT_VALUE_HOURS,
+      minutes: props.selected ? this.handleNumber(new Date(props.selected).getMinutes()) : DEFAULT_VALUE
     };
   }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const { selected } = this.props;
+
+    if (selected !== prevProps.selected) {
+      this.setState({
+        hours: this.handleNumber(new Date(selected).getHours()),
+        minutes: this.handleNumber(new Date(selected).getMinutes())
+      });
+    }
+  }
+
+  handleNumber = number => {
+    if (number.toString().length === 1) {
+      return `0` + number;
+    }
+
+    return number.toString();
+  };
 
   handleValid = (type, value) => {
     let validValue = parseInt(value, 10);
@@ -55,13 +76,15 @@ export default class TimePicker extends Component {
   };
 
   handleChange = (type, event) => {
+    const { onChange } = this.props;
     const { value } = event.target;
     const validValue = this.handleValid(type, value);
 
     this.setState({ [type]: validValue }, () => {
       const { hours, minutes } = this.state;
       const timeString = `${hours}:${minutes}`;
-      this.props.onChange(timeString);
+
+      isFunction(onChange) && onChange(timeString);
     });
   };
 
@@ -140,7 +163,7 @@ export default class TimePicker extends Component {
             type="number"
             value={hours}
             onChange={e => this.handleChange('hours', e)}
-            defaultValue={DEFAULT_VALUE}
+            defaultValue={DEFAULT_VALUE_HOURS}
             placeholder={DEFAULT_VALUE}
           />
           <span className="citeck-time-picker__inputs-separator" />

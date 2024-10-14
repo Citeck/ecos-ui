@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 import ReactDatePicker from 'react-datepicker';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
@@ -6,9 +7,12 @@ import isFunction from 'lodash/isFunction';
 
 import { t } from '../../../../helpers/util';
 import Input from '../Input';
+import TimePicker from '../TimePicker';
 
 import 'react-datepicker/dist/react-datepicker.css';
 import './DatePicker.scss';
+
+const ECOS_DATEPICKER_CALENDAR = 'ecos-datepicker__calendar';
 
 class CustomInput extends Component {
   render() {
@@ -49,6 +53,23 @@ export default class DatePicker extends Component {
       isOpen: false,
       selectedDate: props.selected || null
     };
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const { showTimeInput } = this.props;
+    const calendarEl = document.querySelector(`.${ECOS_DATEPICKER_CALENDAR}`);
+
+    if (showTimeInput && calendarEl) {
+      const timeInputEl = document.querySelector('.react-datepicker-time__input');
+      if (timeInputEl) {
+        const timePickerContainer = document.createElement('div');
+        timeInputEl.parentNode.appendChild(timePickerContainer);
+
+        timeInputEl.remove();
+
+        ReactDOM.render(<TimePicker selected={this.state.selectedDate} onChange={this.handleChangeTime} />, timePickerContainer);
+      }
+    }
   }
 
   componentDidMount() {
@@ -121,6 +142,23 @@ export default class DatePicker extends Component {
     this.setState(state => ({ isOpen: !state.isOpen }));
   };
 
+  handleChangeTime = time => {
+    const { selectedDate } = this.state;
+    let newDate;
+
+    if (!selectedDate) {
+      newDate = new Date();
+    } else {
+      newDate = new Date(selectedDate);
+    }
+
+    const [hours, minutes] = time.split(':');
+    newDate.setHours(parseInt(hours, 10));
+    newDate.setMinutes(parseInt(minutes, 10));
+
+    this.handleChangeDate(newDate);
+  };
+
   handleSelectDate = date => {
     this.setState({ selectedDate: date });
   };
@@ -189,7 +227,7 @@ export default class DatePicker extends Component {
           customInput={<CustomInput forwardedRef={el => (this.datePickerInput = el)} narrow={narrow} />}
           selected={this.selected}
           className={classNames('ecos-input_hover', className)}
-          calendarClassName={classNames('ecos-datepicker__calendar', {
+          calendarClassName={classNames(ECOS_DATEPICKER_CALENDAR, {
             'ecos-datepicker__calendar_time-select': otherProps.showTimeSelect
           })}
           onSelect={this.handleSelectDate}

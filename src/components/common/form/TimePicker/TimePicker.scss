@@ -24,7 +24,7 @@
     z-index: 101;
 
     max-height: 250px;
-    border: 1px solid #ccc;
+    border: 1px solid $color-gray-4;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
     &-content {
@@ -45,14 +45,14 @@
         border-radius: 2px;
 
         &:hover {
-          background-color: #b2d5ff;
+          background-color: $color-blue-light5;
         }
 
         &_selected,
         &_selected:hover {
           font-weight: 600;
           color: $color-white;
-          background-color: #0075ff;
+          background-color: $color-blue-dark3;
         }
       }
     }
