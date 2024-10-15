@@ -43,7 +43,7 @@ import {
   applyPreset
 } from '../actions/kanban';
 import { applyJournalSetting, execRecordsActionComplete, setJournalSetting, setPredicate } from '../actions/journals';
-import { selectJournalData, selectSettingsData } from '../selectors/journals';
+import { selectJournalData, selectSettingsData, selectViewMode } from '../selectors/journals';
 import { selectKanban, selectKanbanPageProps, selectPagination } from '../selectors/kanban';
 import { emptyJournalConfig } from '../reducers/journals';
 import PageService from '../services/PageService';
@@ -53,7 +53,7 @@ import RecordActions from '../components/Records/actions/recordActions';
 import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
 import { ParserPredicate } from '../components/Filters/predicates';
 import JournalsService from '../components/Journals/service/journalsService';
-import { DEFAULT_PAGINATION, KANBAN_SELECTOR_MODE } from '../components/Journals/constants';
+import { DEFAULT_PAGINATION, isKanban, KANBAN_SELECTOR_MODE } from '../components/Journals/constants';
 import { getGridParams, getJournalConfig, getJournalSettingFully } from './journals';
 import { PREDICATE_EQ } from '../components/Records/predicates/predicates';
 
@@ -446,15 +446,24 @@ export function* sagaApplyFilter({ api, logger }, { payload }) {
 export function* sagaApplyPreset({ api, logger }, { payload }) {
   try {
     const {
-      settings: { kanban },
+      settings: { predicate, kanban },
       stateId
     } = payload;
     const { journalConfig, journalSetting: _journalSetting } = yield select(selectJournalData, stateId);
     const { formProps, boardConfig } = yield select(selectKanban, stateId);
+    const viewMode = yield select(selectViewMode, stateId);
     const pagination = DEFAULT_PAGINATION;
+    const w = wrapArgs(stateId);
 
     const journalSetting = cloneDeep(_journalSetting);
     journalSetting.kanban = kanban;
+
+    if (isKanban(viewMode)) {
+      journalSetting.predicate = predicate;
+
+      yield put(setPredicate(w(predicate)));
+      yield put(setJournalSetting(w({ predicate, kanban })));
+    }
 
     yield put(setKanbanSettings({ stateId, kanbanSettings: kanban || {} }));
     yield put(setPagination({ stateId, pagination }));
