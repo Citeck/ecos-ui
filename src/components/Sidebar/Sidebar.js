@@ -18,7 +18,7 @@ import { SourcesId } from '../../constants';
 import Records from '../Records';
 import Logo from './Logo';
 import List from './List';
-import { selectActiveThemeImage } from '../../selectors/view';
+import { selectActiveThemeImage, selectIsViewNewJournal } from '../../selectors/view';
 import { DefaultImages } from '../../constants/theme';
 import { Events } from '../../services/PageService';
 
@@ -129,7 +129,7 @@ class Sidebar extends React.Component {
   };
 
   render() {
-    const { isOpen, isReady, largeLogoSrc, smallLogoSrc, items, homeLink, id } = this.props;
+    const { isOpen, isReady, largeLogoSrc, smallLogoSrc, items, homeLink, id, isViewNewJournal } = this.props;
 
     if (!isReady) {
       return null;
@@ -140,7 +140,10 @@ class Sidebar extends React.Component {
         id={id}
         className={classNames('ecos-sidebar', {
           'ecos-sidebar_expanded': isOpen,
-          'ecos-sidebar_collapsed': !isOpen
+          'ecos-sidebar_collapsed': !isOpen,
+          'ecos-sidebar_new': isViewNewJournal,
+          'ecos-sidebar_new_expanded': isViewNewJournal && isOpen,
+          'ecos-sidebar_new_collapsed': isViewNewJournal && !isOpen
         })}
       >
         <div className={classNames('ecos-sidebar-head', { 'ecos-sidebar-head_expanded': isOpen })}>
@@ -171,7 +174,8 @@ const mapStateToProps = state => ({
   largeLogoSrc: selectActiveThemeImage(state, DefaultImages.MENU_LEFT_LOGO_LARGE),
   expandableItems: get(state, 'slideMenu.expandableItems'),
   homeLink: get(state, 'app.homeLink'),
-  locationKey: get(state, 'router.location.key')
+  locationKey: get(state, 'router.location.key'),
+  isViewNewJournal: selectIsViewNewJournal(state)
 });
 
 const mapDispatchToProps = dispatch => ({

@@ -90,6 +90,12 @@
     }
   }
 
+  &__menu_new {
+    li {
+      font-size: $font-size-small;
+    }
+  }
+
   &-outer {
     &_disabled {
       cursor: not-allowed;
