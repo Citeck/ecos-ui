@@ -1,7 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
-import isFunction from 'lodash/isFunction';
 
 import { t } from '../../../helpers/export/util';
 import { wrapArgs } from '../../../helpers/redux';
@@ -14,12 +13,6 @@ import { isKanban, Labels } from '../constants';
 import ListItem from './ListItem';
 
 class List extends React.Component {
-  componentDidMount() {
-    const { getJournalsData } = this.props;
-
-    isFunction(getJournalsData) && getJournalsData({ force: true });
-  }
-
   onSelect = setting => {
     const { journalSetting = [] } = this.props;
 
