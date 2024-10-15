@@ -17,6 +17,7 @@ import * as RecordUtils from '../../Records/utils/recordUtils';
 import journalsServiceApi from './journalsServiceApi';
 import computedService from './computed/computedService';
 import { COMPUTED_ATT_PREFIX } from './util';
+import { ParserPredicate } from '../../Filters/predicates';
 
 class JournalsDataLoader {
   /**
@@ -262,7 +263,7 @@ class JournalsDataLoader {
       predicates = await RecordUtils.replaceAttrValuesForRecord(predicates, settings.recordRef);
     }
 
-    return predicates;
+    return ParserPredicate.replacePredicatesType(predicates);
   };
 
   /**
