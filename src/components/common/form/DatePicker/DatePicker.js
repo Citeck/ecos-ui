@@ -13,6 +13,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import './DatePicker.scss';
 
 const ECOS_DATEPICKER_CALENDAR = 'ecos-datepicker__calendar';
+const REACT_DATEPICKER_TIME_INPUT = 'react-datepicker-time__input';
 
 class CustomInput extends Component {
   render() {
@@ -60,7 +61,8 @@ export default class DatePicker extends Component {
     const calendarEl = document.querySelector(`.${ECOS_DATEPICKER_CALENDAR}`);
 
     if (showTimeInput && calendarEl) {
-      const timeInputEl = document.querySelector('.react-datepicker-time__input');
+      const timeInputEl = document.querySelector(`.${REACT_DATEPICKER_TIME_INPUT}`);
+
       if (timeInputEl) {
         const timePickerContainer = document.createElement('div');
         timeInputEl.parentNode.appendChild(timePickerContainer);

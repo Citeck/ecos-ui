@@ -11,6 +11,9 @@ import './TimePicker.scss';
 const DEFAULT_VALUE_HOURS = '07';
 const DEFAULT_VALUE = '00';
 
+const MAX_HOURS_VALUE = 23;
+const MAX_MINUTES_VALUE = 59;
+
 export default class TimePicker extends Component {
   static propTypes = {
     className: PropTypes.string,
@@ -31,11 +34,13 @@ export default class TimePicker extends Component {
     super(props);
 
     this.state = {
-      isOpenDropDown: false,
       selectedTime: props.selected || null,
       hours: props.selected ? this.handleNumber(new Date(props.selected).getHours()) : DEFAULT_VALUE_HOURS,
-      minutes: props.selected ? this.handleNumber(new Date(props.selected).getMinutes()) : DEFAULT_VALUE
+      minutes: props.selected ? this.handleNumber(new Date(props.selected).getMinutes()) : DEFAULT_VALUE,
+      isOpenDropDown: false
     };
+
+    this.timePickerRef = React.createRef();
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -49,30 +54,40 @@ export default class TimePicker extends Component {
     }
   }
 
-  handleNumber = number => {
-    if (number.toString().length === 1) {
-      return `0` + number;
-    }
+  componentDidMount() {
+    document.addEventListener('click', this.handleClickOutside);
+  }
 
-    return number.toString();
+  componentWillUnmount() {
+    document.removeEventListener('click', this.handleClickOutside);
+  }
+
+  handleClickOutside = event => {
+    if (this.timePickerRef && this.timePickerRef.current && !this.timePickerRef.current.contains(event.target)) {
+      this.setState({ isOpenDropDown: false });
+    }
+  };
+
+  handleNumber = number => {
+    return number.toString().padStart(2, '0');
   };
 
   handleValid = (type, value) => {
     let validValue = parseInt(value, 10);
 
-    if (isNaN(validValue)) return '';
+    if (isNaN(validValue)) return DEFAULT_VALUE;
 
     if (type === 'hours') {
       if (validValue < 0) return DEFAULT_VALUE;
-      if (validValue > 23) return '23';
+      if (validValue > MAX_HOURS_VALUE) return MAX_HOURS_VALUE.toString();
     }
 
     if (type === 'minutes') {
       if (validValue < 0) return DEFAULT_VALUE;
-      if (validValue > 59) return '59';
+      if (validValue > MAX_MINUTES_VALUE) return MAX_MINUTES_VALUE.toString();
     }
 
-    return validValue.toString().padStart(2, '0');
+    return this.handleNumber(validValue);
   };
 
   handleChange = (type, event) => {
@@ -95,8 +110,8 @@ export default class TimePicker extends Component {
   };
 
   handleSelectTime = (hours, minutes) => {
-    const formattedHours = hours.toString().padStart(2, '0');
-    const formattedMinutes = minutes.toString().padStart(2, '0');
+    const formattedHours = this.handleNumber(hours);
+    const formattedMinutes = this.handleNumber(minutes);
 
     this.setState(
       {
@@ -112,10 +127,10 @@ export default class TimePicker extends Component {
   };
 
   renderDropdown = () => {
-    const { hours, minutes } = this.state;
+    const { hours: selectedHour, minutes: selectedMinute } = this.state;
 
-    const hoursOptions = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0'));
-    const minutesOptions = Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0'));
+    const hoursOptions = Array.from({ length: MAX_HOURS_VALUE + 1 }, (_, i) => this.handleNumber(i));
+    const minutesOptions = Array.from({ length: MAX_MINUTES_VALUE + 1 }, (_, i) => this.handleNumber(i));
 
     return (
       <div className="citeck-time-picker__dropdown">
@@ -123,7 +138,7 @@ export default class TimePicker extends Component {
           {hoursOptions.map(hour => (
             <span
               className={classNames('citeck-time-picker__dropdown-content-text', {
-                'citeck-time-picker__dropdown-content-text_selected': hours === hour
+                'citeck-time-picker__dropdown-content-text_selected': selectedHour === hour
               })}
               key={hour}
               onClick={() => this.handleSelectTime(hour, this.state.minutes)}
@@ -136,7 +151,7 @@ export default class TimePicker extends Component {
           {minutesOptions.map(minute => (
             <span
               className={classNames('citeck-time-picker__dropdown-content-text', {
-                'citeck-time-picker__dropdown-content-text_selected': minutes === minute
+                'citeck-time-picker__dropdown-content-text_selected': selectedMinute === minute
               })}
               key={minute}
               onClick={() => this.handleSelectTime(this.state.hours, minute)}
@@ -153,30 +168,30 @@ export default class TimePicker extends Component {
     const { hours, minutes, isOpenDropDown } = this.state;
 
     return (
-      <div className="citeck-time-picker">
+      <div className="citeck-time-picker" ref={this.timePickerRef}>
         <div className="citeck-time-picker__inputs">
           <input
-            className="citeck-time-picker__input"
-            min={0}
-            max={23}
-            maxLength={2}
             type="number"
-            value={hours}
+            className="citeck-time-picker__input"
             onChange={e => this.handleChange('hours', e)}
-            defaultValue={DEFAULT_VALUE_HOURS}
+            min={0}
+            maxLength={2}
+            value={hours}
+            max={MAX_HOURS_VALUE}
             placeholder={DEFAULT_VALUE}
+            defaultValue={DEFAULT_VALUE_HOURS}
           />
           <span className="citeck-time-picker__inputs-separator" />
           <input
-            className="citeck-time-picker__input"
-            min={0}
-            max={59}
-            maxLength={2}
             type="number"
-            value={minutes}
+            className="citeck-time-picker__input"
             onChange={e => this.handleChange('minutes', e)}
-            defaultValue={DEFAULT_VALUE}
+            min={0}
+            maxLength={2}
+            value={minutes}
+            max={MAX_MINUTES_VALUE}
             placeholder={DEFAULT_VALUE}
+            defaultValue={DEFAULT_VALUE}
           />
         </div>
         <IcoBtn className="citeck-time-picker__clock-icon" onClick={this.toggleDropdown}>
