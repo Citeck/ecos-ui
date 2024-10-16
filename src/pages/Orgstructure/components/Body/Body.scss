@@ -7,6 +7,12 @@
   .slide-menu-list {
     max-height: max-content;
   }
+
+  @media all and (-webkit-min-device-pixel-ratio: 0) {
+    .slide-menu-list {
+      position: initial;
+    }
+  }
 }
 
 .select-orgstruct__list-wrapper {
