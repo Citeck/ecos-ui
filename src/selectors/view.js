@@ -17,7 +17,7 @@ export const selectThemeCacheKey = createSelector([selectThemeCacheKeys], cacheK
 export const selectThemeImagesCacheKey = createSelector([selectThemeCacheKeys], cacheKeys => cacheKeys[CACHE_KEY_RESOURCE_IMAGES]);
 
 export const selectActiveThemeImage = createSelector(
-  [selectThemeImagesCacheKey, themeImage],
+  [selectThemeCacheKey, themeImage],
   (cacheKey, image = 'logo') => `${THEME_URL_PATH}/active/image/${image}?cacheKey=${cacheKey}`
 );
 

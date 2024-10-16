@@ -208,6 +208,7 @@
     &__menu {
       &-item {
         display: flex;
+        align-items: center;
         width: 100%;
         border: unset;
         padding: 10px 15px;
@@ -291,6 +292,50 @@
 
     .icon {
       font-size: 17px;
+    }
+  }
+}
+
+.ecos-header_new {
+  padding: 10px 19px 10px 26px;
+
+  .ecos-btn {
+    font-size: $font-size-small;
+    line-height: normal;
+    height: 32px;
+  }
+
+  .ecos-btn__text {
+    margin-left: 0;
+  }
+
+  .icon:not(.ecos-avatar__icon) {
+    font-size: $font-size-standard;
+    line-height: normal;
+  }
+
+  .ecos-header__side {
+    .ecos-header-hamburger {
+      margin-right: 16px;
+    }
+  }
+
+  .ecos-header-lang__img {
+    width: 16px;
+  }
+
+  .ecos-header-user-avatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  .ecos-header-user__menu-item {
+    font-size: $font-size-small;
+
+    .icon:not(.icon_on):not(.icon_off) {
+      &:before {
+        font-size: $font-size-large;
+      }
     }
   }
 }

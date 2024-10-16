@@ -17,6 +17,7 @@ import UserMenu from './UserMenu';
 import SiteMenu from './SiteMenu';
 import Search from './Search';
 import LanguageSwitcher from './LanguageSwitcher';
+import { selectIsViewNewJournal } from '../../selectors/view';
 
 import './style.scss';
 
@@ -33,7 +34,8 @@ const mapStateToProps = state => ({
   isMobile: get(state, 'view.isMobile'),
   theme: get(state, 'view.theme'),
   menuType: get(state, 'menu.type', ''),
-  isOpenMenuSettings: get(state, 'menuSettings.isOpenMenuSettings', false)
+  isOpenMenuSettings: get(state, 'menuSettings.isOpenMenuSettings', false),
+  isViewNewJournal: selectIsViewNewJournal(state)
 });
 
 class Header extends React.Component {
@@ -108,7 +110,7 @@ class Header extends React.Component {
 
   render() {
     const { widthHeader, hasAlfresco } = this.state;
-    const { isMobile, hideSiteMenu, legacySiteMenuItems, theme } = this.props;
+    const { isMobile, hideSiteMenu, legacySiteMenuItems, theme, isViewNewJournal } = this.props;
     const hiddenSiteMenu = hideSiteMenu || isMobile || widthHeader < 600;
     const hiddenLanguageSwitcher = isMobile || widthHeader < 600;
 
@@ -116,7 +118,12 @@ class Header extends React.Component {
       <>
         {this.renderMenuSettings()}
         <ReactResizeDetector handleWidth handleHeight onResize={debounce(this.onResize, 400)} />
-        <div className={classNames('ecos-header', `ecos-header_theme_${theme}`, { 'ecos-header_small': isMobile })}>
+        <div
+          className={classNames('ecos-header', `ecos-header_theme_${theme}`, {
+            'ecos-header_small': isMobile,
+            'ecos-header_new': isViewNewJournal
+          })}
+        >
           <div className="ecos-header__side ecos-header__side_left">
             <SlideMenuBtn />
             <CreateMenu isMobile={widthHeader < 910} />
