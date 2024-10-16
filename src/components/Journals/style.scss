@@ -337,6 +337,14 @@
   }
 
   .ecos-grid {
+    &_freeze.ecos-grid_selectable {
+      thead > tr > th,
+      tbody > tr > td {
+        &:first-child {
+          width: auto;
+        }
+      }
+    }
     &__tr_selected .ecos-inline-tools-actions {
       height: calc(100% - 4px);
       margin-top: 2px;
