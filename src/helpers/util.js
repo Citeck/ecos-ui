@@ -104,7 +104,7 @@ export function closest(node = null, selector, checkSelf = false) {
   if (parent) {
     const className = parent.className;
 
-    if (className && className.indexOf(selector) !== -1) {
+    if (className && isString(className) && className.indexOf(selector) !== -1) {
       return parent;
     } else {
       return closest(parent, selector);

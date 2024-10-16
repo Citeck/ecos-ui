@@ -1,0 +1,108 @@
+@import '../../../../styles/constants';
+
+.citeck-time-picker {
+  display: inline-flex;
+  align-items: center;
+
+  position: relative;
+  height: auto;
+  min-height: 40px;
+
+  gap: 12px;
+  padding: 0 15px;
+  border-radius: 6px;
+  box-sizing: border-box;
+
+  border: 2px solid $color-gray-6;
+
+  &__dropdown {
+    position: absolute;
+    top: 38px;
+    left: 0;
+    display: flex;
+    background-color: $color-white;
+    z-index: 101;
+
+    max-height: 250px;
+    border: 1px solid $color-gray-4;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+    &-content {
+      display: flex;
+      flex-direction: column;
+      width: 60px;
+      max-height: 250px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: none;
+      padding: 4px;
+
+      &-text {
+        padding: 7px 8px;
+        cursor: pointer;
+        text-align: center;
+        color: $color-black;
+        border-radius: 2px;
+
+        &:hover {
+          background-color: $color-blue-light5;
+        }
+
+        &_selected,
+        &_selected:hover {
+          font-weight: 600;
+          color: $color-white;
+          background-color: $color-blue-dark3;
+        }
+      }
+    }
+  }
+
+  &__inputs-separator::before {
+    content: ':';
+    font-size: 14px;
+    font-weight: 600;
+    color: $text-color-dark;
+  }
+
+  &__inputs {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  &__input {
+    text-align: center;
+
+    background: none;
+    outline: none;
+    border: none;
+    height: auto;
+
+    max-width: 18px;
+    margin: 0;
+    padding: 0;
+
+    font-size: 14px !important;
+    font-weight: 600;
+    color: $text-color-dark;
+  }
+
+  &__clock-icon.ecos-btn,
+  &__clock-icon.ecos-btn:hover,
+  &__clock-icon.ecos-btn:focus {
+    background: none;
+    border: none;
+    height: 20px;
+    padding: 0;
+  }
+
+  input[type='number']::-webkit-outer-spin-button,
+  input[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type='number'] {
+    -moz-appearance: textfield;
+  }
+}
