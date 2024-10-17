@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import { t } from '../../../../helpers/util';
@@ -10,7 +10,6 @@ import List from './List';
 import './Body.scss';
 
 const Body = ({ reloadList, tabId, toggleToFirstTab }) => {
-  const [isSafari, setSafari] = useState(false);
   const context = useContext(OrgstructContext);
   const { currentTab, tabItems, isSearching } = context;
 
@@ -20,13 +19,9 @@ const Body = ({ reloadList, tabId, toggleToFirstTab }) => {
     return <div {...props} style={{ ...props.style, marginBottom: '-13px' }} />;
   };
 
-  if (/Safari/.test(navigator.userAgent) && !/Chrome|CriOS|YaBrowser|OPR|Edg/.test(navigator.userAgent) && !isSafari) {
-    setSafari(true);
-  }
-
   return (
     <div className="select-orgstruct__body">
-      <Scrollbars className="slide-menu-list" renderView={renderView} style={{ ...(isSafari && { position: 'initial' }) }}>
+      <Scrollbars className="slide-menu-list" renderView={renderView} style={{ position: 'initial' }}>
         <div className="select-orgstruct__list-wrapper">
           {isSearching && <Loader blur />}
           {!children.length && !isSearching && <InfoText text={t('select-orgstruct.empty-list')} />}
