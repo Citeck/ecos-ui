@@ -26,13 +26,13 @@ class AvatarBtn extends Component {
 
   render() {
     const { className, icon, children, userFullName, theme, userPhotoUrl, ...props } = this.props;
-    const cssClasses = classNames('ecos-btn ecos-btn_mi', className);
+    const cssClasses = classNames('ecos-btn ecos-btn_mi ecos-btn-with-avatar', className);
 
     return (
       <button {...props} className={cssClasses}>
         <Avatar className="ecos-btn-user-avatar" theme={theme} url={userPhotoUrl} />
-        {userFullName}
-        {icon && <i className={classNames('ecos-btn__i ecos-btn__i_right', icon)} />}
+        <span>{userFullName}</span>
+        {icon && <i className={classNames('ecos-btn__i', icon)} />}
       </button>
     );
   }

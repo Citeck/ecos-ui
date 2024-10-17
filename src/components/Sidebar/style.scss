@@ -70,7 +70,7 @@ $transition-duration: 0.3s;
     &__img {
       transition: opacity $transition-duration;
       position: absolute;
-      max-height: 25px;
+      max-height: 30px;
     }
 
     &__icon {
@@ -443,7 +443,6 @@ $transition-duration: 0.3s;
     }
 
     &__badge {
-      padding: 0;
       line-height: 20px;
     }
   }
