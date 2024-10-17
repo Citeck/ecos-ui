@@ -968,7 +968,15 @@ export default class SelectComponent extends BaseComponent {
         const items = this.choices._store.activeItems;
 
         if (!items.length) {
-          this.choices._addItem(placeholderValue, placeholderValue, 0, -1, null, true, null);
+          this.choices._addItem({
+            value: placeholderValue,
+            label: placeholderValue,
+            choiceId: 0,
+            groupId: -1,
+            customProperties: null,
+            placeholder: true,
+            keyCode: null
+          });
         }
       });
     }
