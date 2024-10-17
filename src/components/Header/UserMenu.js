@@ -82,7 +82,8 @@ class UserMenu extends React.Component {
       getFitnesseClassName('header-user-menu', 'toggle-button'),
       {
         [`ecos-btn_theme_${theme}`]: !mob && !!theme,
-        'ecos-btn_no-back ecos-btn_width_auto': mob
+        'ecos-btn_no-back ecos-btn_width_auto': mob,
+        'ecos-btn-with-avatar': !mob && isViewNewJournal
       }
     );
 

@@ -1,10 +1,6 @@
 @import '../../../../styles/constants';
 
-.ecos-btn-with-avatar {
-  justify-content: space-between;
-  gap: 6px;
-  max-width: unset !important;
-
+.ecos-btn {
   .ecos-btn-user-avatar {
     height: 20px;
     width: 20px;

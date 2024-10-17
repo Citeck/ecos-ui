@@ -329,6 +329,12 @@
     height: 32px;
   }
 
+  .ecos-btn-with-avatar {
+    justify-content: space-between;
+    gap: 6px;
+    max-width: unset;
+  }
+
   .ecos-header-user__menu-item {
     font-size: $font-size-small;
 
