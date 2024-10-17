@@ -100,7 +100,7 @@ export default class Pagination extends Component {
   };
 
   render() {
-    const { total, className, hasPageSize, loading, noData, noCtrl, isViewNewJournal } = this.props;
+    const { total, className, hasPageSize, noData, noCtrl, isViewNewJournal } = this.props;
 
     if (!total) {
       return null;
@@ -112,7 +112,7 @@ export default class Pagination extends Component {
     const page = this.page;
 
     return (
-      <div className={classNames('ecos-pagination', { 'ecos-pagination_loading': loading }, className)}>
+      <div className={classNames('ecos-pagination', className)}>
         {!noData && (
           <>
             <span className="ecos-pagination__text ecos-pagination__text-current">
