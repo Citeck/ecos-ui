@@ -48,6 +48,7 @@ import TransformAction from './handler/executor/TransformAction';
 import CustomUiAction from './handler/executor/CustomUiAction';
 import MigrateTokenAction from './handler/executor/MigrateTokenAction';
 import { IS_TEST_ENV } from '../../../helpers/util';
+import UserEventAction from './handler/executor/UserEventAction';
 
 export { default } from './recordActions';
 
@@ -87,6 +88,7 @@ const registerAllActions = () => {
   actionsRegistry.register(new TransformAction());
   actionsRegistry.register(new CustomUiAction());
   actionsRegistry.register(new MigrateTokenAction());
+  actionsRegistry.register(new UserEventAction());
 
   // Executors - Case
 
