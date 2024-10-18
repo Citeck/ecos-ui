@@ -781,10 +781,15 @@ export default class SelectComponent extends BaseComponent {
     if (!this.component.placeholder || !input) {
       return;
     }
-    const placeholder = document.createElement('option');
-    placeholder.setAttribute('placeholder', true);
-    placeholder.appendChild(this.text(this.component.placeholder));
-    input.appendChild(placeholder);
+    if (!this.component.multiple) {
+      const placeholder = document.createElement('option');
+      placeholder.setAttribute('placeholder', true);
+      placeholder.appendChild(this.text(this.component.placeholder));
+      input.appendChild(placeholder);
+    } else {
+      input.setAttribute('data-placeholder', this.t(this.component.placeholder));
+      input.removeAttribute('placeholder');
+    }
   }
 
   calculateValue(data, flag) {
@@ -979,6 +984,35 @@ export default class SelectComponent extends BaseComponent {
           });
         }
       });
+    }
+
+    if (this.component.multiple) {
+      let selected;
+      const inputPlaceholder = this.choices.containerInner.element.querySelector('input[type=text]');
+      inputPlaceholder.style.opacity = '0.7';
+      inputPlaceholder.style.minWidth = 'fit-content';
+
+      this.choices.passedElement.element.addEventListener(
+        'addItem',
+        () => {
+          selected = this.choices.passedElement.element.selectedOptions.length;
+          if (selected) {
+            inputPlaceholder.removeAttribute('placeholder');
+          }
+        },
+        false
+      );
+
+      this.choices.passedElement.element.addEventListener(
+        'removeItem',
+        () => {
+          selected = this.choices.passedElement.element.selectedOptions.length;
+          if (!selected) {
+            inputPlaceholder.setAttribute('placeholder', placeholderValue);
+          }
+        },
+        false
+      );
     }
 
     // Add value options.
