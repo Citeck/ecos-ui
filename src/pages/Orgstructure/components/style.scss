@@ -38,10 +38,11 @@
   }
   &__search {
     &__container {
-      margin: 0px 20px;
+      margin: 0 20px;
       padding: 16px 15px;
       border-radius: 12px;
       background-color: #e8edef;
+      overflow: hidden;
     }
     &__input-container {
       display: flex;
