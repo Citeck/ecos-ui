@@ -648,8 +648,10 @@ export function* getGridData(api, params, stateId) {
   const resultData = yield call([JournalsService, JournalsService.getJournalData], journalConfig, settings);
   const journalData = JournalsConverter.getJournalDataWeb(resultData);
 
-  yield put(setGrid(w({ ...params, ...journalData })));
-  yield put(setLoadingGrid(w(false)));
+  if (!get(grouping, 'groupBy', []).length) {
+    yield put(setGrid(w({ ...params, ...journalData })));
+    yield put(setLoadingGrid(w(false)));
+  }
 
   const recordRefs = journalData.data.map(d => d.id);
   const resultActions = yield call([JournalsService, JournalsService.getRecordActions], journalConfig, recordRefs);
@@ -766,12 +768,17 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
     JournalsConverter.filterPredicatesByConfigColumns(params.predicates, journalConfig.columns);
   }
 
+  yield put(setGrid(w({ ...params, ...gridData, editingRules })));
+
+  if (get(params, 'grouping.groupBy', []).length) {
+    yield put(setLoadingGrid(w(false)));
+  }
+
   yield put(setSelectedRecords(w(selectedRecords)));
   yield put(setSelectAllRecordsVisible(w(false)));
   yield put(setGridInlineToolSettings(w(DEFAULT_INLINE_TOOL_SETTINGS)));
   yield put(setPreviewUrl(w('')));
   yield put(setPreviewFileName(w('')));
-  yield put(setGrid(w({ ...params, ...gridData, editingRules })));
 }
 
 function* getGridEditingRules(api, gridData) {

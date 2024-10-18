@@ -1,7 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
-import isFunction from 'lodash/isFunction';
 
 import { wrapArgs } from '../../../helpers/redux';
 import { deleteJournalSetting, editJournalSetting, getJournalsData, openSelectedPreset } from '../../../actions/journals';
@@ -18,12 +17,6 @@ import { IcoBtn } from '../../common/btns';
 import './style.scss';
 
 class ListDropdown extends React.Component {
-  componentDidMount() {
-    const { getJournalsData } = this.props;
-
-    isFunction(getJournalsData) && getJournalsData({ force: true });
-  }
-
   onSelect = setting => {
     const { journalSetting, openSelectedPreset, getJournalsData, kanbanResetFilter, viewMode } = this.props;
 
