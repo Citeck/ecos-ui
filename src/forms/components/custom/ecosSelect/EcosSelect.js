@@ -781,15 +781,10 @@ export default class SelectComponent extends BaseComponent {
     if (!this.component.placeholder || !input) {
       return;
     }
-    if (!this.component.multiple) {
-      const placeholder = document.createElement('option');
-      placeholder.setAttribute('placeholder', true);
-      placeholder.appendChild(this.text(this.component.placeholder));
-      input.appendChild(placeholder);
-    } else {
-      input.setAttribute('data-placeholder', this.t(this.component.placeholder));
-      input.removeAttribute('placeholder');
-    }
+    const placeholder = document.createElement('option');
+    placeholder.setAttribute('placeholder', true);
+    placeholder.appendChild(this.text(this.component.placeholder));
+    input.appendChild(placeholder);
   }
 
   calculateValue(data, flag) {
