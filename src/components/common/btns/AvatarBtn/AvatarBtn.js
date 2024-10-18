@@ -31,8 +31,8 @@ class AvatarBtn extends Component {
     return (
       <button {...props} className={cssClasses}>
         <Avatar className="ecos-btn-user-avatar" theme={theme} url={userPhotoUrl} />
-        {userFullName}
-        {icon && <i className={classNames('ecos-btn__i ecos-btn__i_right', icon)} />}
+        <span>{userFullName}</span>
+        {icon && <i className={classNames('ecos-btn__i', icon)} />}
       </button>
     );
   }
