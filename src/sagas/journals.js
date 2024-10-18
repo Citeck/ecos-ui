@@ -659,7 +659,7 @@ export function* getGridData(api, params, stateId) {
       set(column, 'newFormatter', originColumn.newFormatter);
       set(column, 'newEditor', originColumn.newEditor);
 
-      const _groupBy = grouping.groupBy[0].split('&');
+      const _groupBy = get(grouping, 'groupBy[0]', '').split('&');
 
       get(journalData, 'data', []).map((record, _index) => {
         const originRecord = {};
