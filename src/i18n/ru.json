@@ -2694,5 +2694,6 @@
   "bpmn-linter.signal-event.no-variable-name": "Не определено Имя переменной",
   "bpmn-linter.signal-event.no-event-filter-by-doc-or-predicate": "Не заполнено “Фильтр события по типу документа” или “Фильтр события по предикатам”",
   "bpmn-linter.signal-event.has-filter-event-by-document-type": "Не определен Фильтр события по типу документа",
+  "bpmn-linter.signal-event.no-user-event": "Не определено Событие пользователя",
   "bpmn-linter.participant.no-process-id": "Не определен ID Процесса"
 }

@@ -57,6 +57,31 @@ const signalEventHasSignalName = {
   }
 };
 
+const userEventIsSetOnUserEventSignal = {
+  id: 'user-event-is-set-on-user-event-signal',
+  callback: () => {
+    const check = (node, reporter) => {
+      if (!node.eventDefinitions || !node.eventDefinitions.find(def => is(def, SIGNAL_EVENT_DEFINITION))) {
+        return;
+      }
+
+      const eventTypeAttr = `${PREFIX_FIELD}eventType`;
+      const userEventAtt = `${PREFIX_FIELD}userEvent`;
+
+      const eventType = get(node.$attrs, [eventTypeAttr], '').trim();
+      const userEvent = get(node.$attrs, [userEventAtt], '').trim();
+
+      if (eventType === 'USER_EVENT' && !userEvent) {
+        reporter.report(node.id, t('bpmn-linter.signal-event.no-user-event'));
+      }
+    };
+
+    return {
+      check
+    };
+  }
+};
+
 const signalEventHasFilterEventByDocumentType = {
   id: 'signal-event-has-filter-event-by-document-type',
   callback: () => {
@@ -168,7 +193,8 @@ export const signalEventRulesMap = {
   [signalEventHasEventFilter.id]: 'error',
   [signalEventHasVariableName.id]: 'error',
   [signalEventHasRecordFields.id]: 'error',
-  [signalEventHasFilterEventByDocumentType.id]: 'error'
+  [signalEventHasFilterEventByDocumentType.id]: 'error',
+  [userEventIsSetOnUserEventSignal.id]: 'error'
 };
 
 export const signalEventCacheMap = {
@@ -177,5 +203,6 @@ export const signalEventCacheMap = {
   [`${BPMN_LINT_PREFIX}${signalEventHasEventFilter.id}`]: signalEventHasEventFilter.callback,
   [`${BPMN_LINT_PREFIX}${signalEventHasVariableName.id}`]: signalEventHasVariableName.callback,
   [`${BPMN_LINT_PREFIX}${signalEventHasRecordFields.id}`]: signalEventHasRecordFields.callback,
-  [`${BPMN_LINT_PREFIX}${[signalEventHasFilterEventByDocumentType.id]}`]: signalEventHasFilterEventByDocumentType.callback
+  [`${BPMN_LINT_PREFIX}${[signalEventHasFilterEventByDocumentType.id]}`]: signalEventHasFilterEventByDocumentType.callback,
+  [`${BPMN_LINT_PREFIX}${userEventIsSetOnUserEventSignal.id}`]: userEventIsSetOnUserEventSignal.callback
 };
