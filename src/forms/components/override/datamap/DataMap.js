@@ -45,16 +45,65 @@ export default class DataMapComponent extends FormIODataMapComponent {
   }
 
   buildRow(value, key, state) {
-    const tr = super.buildRow(value, key, state);
-
-    if (!this.hasRemoveButtons()) {
-      return tr;
+    if (!this.rows[key]) {
+      this.rows[key] = this.createValueComponent(state);
     }
-    const lastChild = tr.lastChild;
-    const flexBoxCentering = ' d-flex justify-content-center align-items-center';
-    lastChild.className += flexBoxCentering;
-    lastChild.firstChild.className += `${flexBoxCentering} mw-100`;
 
-    return tr;
+    var row = this.rows[key];
+    var lastColumn = null;
+
+    if (this.hasRemoveButtons()) {
+      row.remove = this.removeKeyButton(key);
+      lastColumn = this.ce(
+        'td',
+        {
+          class: 'col-1 col-sm-1'
+        },
+        row.remove
+      );
+    }
+
+    row.element = this.ce('tr', {
+      class: 'd-flex',
+      id: ''.concat(this.component.id, '-row-').concat(key)
+    });
+
+    row.keyInput = this.ce('input', {
+      type: 'text',
+      class: 'form-control',
+      id: ''.concat(this.component.id, '-value-').concat(key),
+      value: key
+    });
+    this.addInput(row.keyInput);
+
+    if (this.component.keyBeforeValue) {
+      row.element.appendChild(
+        this.ce(
+          'td',
+          {
+            class: 'col-2 col-sm-3'
+          },
+          row.keyInput
+        )
+      );
+      row.element.appendChild(row.container);
+    } else {
+      row.element.appendChild(row.container);
+      row.element.appendChild(this.ce('td', null, row.keyInput));
+    }
+
+    lastColumn && row.element.appendChild(lastColumn);
+
+    row.value.setValue(value);
+
+    const lastChild = row.element.lastChild;
+
+    if (this.hasRemoveButtons()) {
+      const flexBoxCentering = ' d-flex justify-content-center align-items-center';
+      lastChild.className += flexBoxCentering;
+      lastChild.firstChild.className += `${flexBoxCentering} mw-100`;
+    }
+
+    return row.element;
   }
 }
