@@ -968,9 +968,46 @@ export default class SelectComponent extends BaseComponent {
         const items = this.choices._store.activeItems;
 
         if (!items.length) {
-          this.choices._addItem(placeholderValue, placeholderValue, 0, -1, null, true, null);
+          this.choices._addItem({
+            value: placeholderValue,
+            label: placeholderValue,
+            choiceId: 0,
+            groupId: -1,
+            customProperties: null,
+            placeholder: true,
+            keyCode: null
+          });
         }
       });
+    }
+
+    if (this.component.multiple) {
+      let selected;
+      const inputPlaceholder = this.choices.containerInner.element.querySelector('input[type=text]');
+      inputPlaceholder.style.opacity = '0.7';
+      inputPlaceholder.style.minWidth = 'fit-content';
+
+      this.choices.passedElement.element.addEventListener(
+        'addItem',
+        () => {
+          selected = this.choices.passedElement.element.selectedOptions.length;
+          if (selected) {
+            inputPlaceholder.removeAttribute('placeholder');
+          }
+        },
+        false
+      );
+
+      this.choices.passedElement.element.addEventListener(
+        'removeItem',
+        () => {
+          selected = this.choices.passedElement.element.selectedOptions.length;
+          if (!selected) {
+            inputPlaceholder.setAttribute('placeholder', placeholderValue);
+          }
+        },
+        false
+      );
     }
 
     // Add value options.
