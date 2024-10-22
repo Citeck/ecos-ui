@@ -7,14 +7,7 @@ import isFunction from 'lodash/isFunction';
 import { reloadGrid, setGrid } from '../../../actions/journals';
 import { wrapArgs } from '../../../helpers/redux';
 import Pagination from '../../common/Pagination/Pagination';
-import {
-  HEIGHT_GRID_ROW,
-  HEIGHT_GRID_WRAPPER,
-  HEIGHT_THEAD,
-  MARGIN_BOTTOM_TBODY,
-  MIN_CARD_DATA_NEW_JOURNAL,
-  PAGINATION_SIZES
-} from '../constants';
+import { HEIGHT_GRID_ROW, HEIGHT_GRID_WRAPPER, HEIGHT_THEAD, MIN_CARD_DATA_NEW_JOURNAL, PAGINATION_SIZES } from '../constants';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
@@ -61,7 +54,7 @@ class JournalsDashletPagination extends Component {
       this.setState({ maxHeightJournalData });
 
       if (isViewNewJournal && isFunction(setGridPagination)) {
-        let maxItems = Math.floor((maxHeightJournalData - HEIGHT_GRID_WRAPPER - MARGIN_BOTTOM_TBODY - HEIGHT_THEAD) / HEIGHT_GRID_ROW);
+        let maxItems = Math.floor((maxHeightJournalData - HEIGHT_GRID_WRAPPER - HEIGHT_THEAD) / HEIGHT_GRID_ROW);
 
         if (isDecrementLastRow) {
           maxItems -= 1;

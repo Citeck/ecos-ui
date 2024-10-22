@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
+import isBoolean from 'lodash/isBoolean';
 
 import { wrapArgs } from '../../../helpers/redux';
 import { deleteJournalSetting, editJournalSetting, getJournalsData, openSelectedPreset } from '../../../actions/journals';
@@ -17,6 +18,14 @@ import { IcoBtn } from '../../common/btns';
 import './style.scss';
 
 class ListDropdown extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isOpenDropdown: false
+    };
+  }
+
   onSelect = setting => {
     const { journalSetting, openSelectedPreset, getJournalsData, kanbanResetFilter, viewMode } = this.props;
 
@@ -66,8 +75,15 @@ class ListDropdown extends React.Component {
     );
   };
 
+  changeIsOpen = isOpenDropdown => {
+    if (isBoolean(isOpenDropdown)) {
+      this.setState({ isOpenDropdown });
+    }
+  };
+
   render() {
     const { isViewNewJournal, isMobile, journalSettings = [], searchText, journalSetting } = this.props;
+    const { isOpenDropdown } = this.state;
 
     const settingId = get(journalSetting, 'id', '');
     const displayName = (journalSettings || []).find(({ id }) => id === settingId)?.displayName;
@@ -97,13 +113,15 @@ class ListDropdown extends React.Component {
             onDelete: this.onDelete,
             onEdit: this.onEdit
           }}
+          getStateOpen={this.changeIsOpen}
         >
           <IcoBtn
             invert
             icon="icon-small-down"
             className={classNames('ecos-journal__settings-bar-template-btn ecos-btn_hover_blue2 ecos-btn_drop-down ecos-btn_grey3', {
               'ecos-journal__btn_new template': isViewNewJournal,
-              'ecos-journal__btn_new_selected': isViewNewJournal && isNotDefaultSetting
+              'ecos-journal__btn_new_selected': isViewNewJournal && isNotDefaultSetting,
+              'ecos-journal__btn_new_focus': isViewNewJournal && isOpenDropdown
             })}
           >
             {isNotDefaultSetting ? displayName : t('journal.presets.menu.title')}

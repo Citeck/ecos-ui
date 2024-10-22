@@ -25,9 +25,11 @@
     }
 
     #{$root}-export-btn.ecos-btn {
-      min-width: auto;
+      border-radius: 6px;
+      min-width: 51px;
     }
     #{$root}-template-btn.ecos-btn {
+      border-radius: 6px;
       width: 156px;
 
       .ecos-btn__text {
@@ -225,7 +227,6 @@
   display: flex !important;
   height: 28px !important;
   background-color: $color-gray-25 !important;
-  border-radius: 5px !important;
 
   text-align: center;
   align-items: center;
@@ -239,9 +240,11 @@
     color: $color-gray-5;
     font-size: 14px !important;
   }
+
   &:hover i,
-  &:focus i {
+  &:hover path {
     color: $color-white !important;
+    stroke: $color-white !important;
   }
 
   &:hover span {
@@ -262,12 +265,7 @@
       margin-left: 6px;
     }
 
-    &:focus {
-      background-color: $color-blue-dark !important;
-    }
-
-    &:hover path,
-    &:focus path {
+    &:hover path {
       stroke: $color-white !important;
     }
 
@@ -279,12 +277,6 @@
   }
 
   &.template {
-    &:focus,
-    &:focus .ecos-btn__text {
-      color: $color-white;
-      background-color: $color-blue-dark !important;
-    }
-
     .ecos-btn__text {
       overflow: visible;
       margin-top: 2px;
@@ -347,6 +339,17 @@
     > span,
     > i {
       color: $color-blue-dark;
+    }
+  }
+
+  &_focus {
+    background-color: $color-blue-dark !important;
+
+    path,
+    i,
+    span {
+      color: $color-white;
+      stroke: $color-white;
     }
   }
 }

@@ -26,6 +26,7 @@ import {
   isUnknownView,
   JOURNAL_MIN_HEIGHT,
   JOURNAL_MIN_HEIGHT_MOB,
+  CLASSNAME_JOURNAL_BODY_TOP,
   PADDING_NEW_JOURNAL,
   JOURNAL_VIEW_MODE as JVM,
   Labels,
@@ -249,7 +250,13 @@ class Journals extends React.Component {
   };
 
   getJournalContentMaxHeight = () => {
-    const headH = (this._journalBodyTopRef && get(this._journalBodyTopRef.getBoundingClientRect(), 'bottom')) || 0;
+    let headH = (this._journalBodyTopRef && get(this._journalBodyTopRef.getBoundingClientRect(), 'bottom')) || 0;
+
+    if (!headH) {
+      const head = document.querySelector(`.${CLASSNAME_JOURNAL_BODY_TOP}`);
+      headH = (head && get(head.getBoundingClientRect(), 'bottom')) || 0;
+    }
+
     const jFooterH = (this._journalFooterRef && get(this._journalFooterRef, 'offsetHeight')) || 0;
     const footerH = get(document.querySelector('.app-footer'), 'offsetHeight') || 0;
     const scrollHeight = get(document.querySelector('.ecos-kanban__scroll_h'), 'offsetHeight') || 0;

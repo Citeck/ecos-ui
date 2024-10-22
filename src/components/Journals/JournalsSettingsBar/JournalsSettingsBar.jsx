@@ -1,7 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import isBoolean from 'lodash/isBoolean';
 
 import Shape from '../../common/icons/Shape';
 import Setting from '../../common/icons/Setting';
@@ -21,7 +22,8 @@ import './JournalsSettingsBar.scss';
 
 const Labels = {
   BTN_CREATE: 'journals.bar.btn.create',
-  BTN_SETTINGS: 'journals.bar.btn.settings-table',
+  BTN_TABLE_SETTINGS: 'journals.bar.btn.settings-table',
+  BTN_JOURNAL_SETTINGS: 'journals.bar.btn.settings-journal',
   BTN_EXPORT: 'journals.bar.btn.export',
   BTN_UPDATE: 'journals.bar.btn.update',
   BTN_FILTER_DEL: 'journals.bar.btn.filter-del',
@@ -69,6 +71,8 @@ const JournalsSettingsBar = ({
   hasBtnEdit,
   rightBarChild
 }) => {
+  const [isOpenDropdownExport, setIsOpenDropdownExport] = useState(false);
+
   const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const createVariants = get(journalConfig, 'meta.createVariants') || [];
   const headerSearchEnabled = get(journalConfig, 'searchConfig.headerSearchEnabled', true);
@@ -78,6 +82,12 @@ const JournalsSettingsBar = ({
     off: isMobile,
     modifiers: tooltipModifiers,
     uncontrolled: true
+  };
+
+  const changeIsOpen = isOpenDropdown => {
+    if (isBoolean(isOpenDropdown)) {
+      setIsOpenDropdownExport(isOpenDropdown);
+    }
   };
 
   return (
@@ -98,9 +108,9 @@ const JournalsSettingsBar = ({
         )}
 
         {!isMobile && (
-          <Tooltip target={`${targetId}-settings`} text={t(nameBtnSettings || Labels.BTN_SETTINGS)} {...tooltipSettings}>
+          <Tooltip target={`journal-table-settings`} text={t(nameBtnSettings || Labels.BTN_TABLE_SETTINGS)} {...tooltipSettings}>
             <IcoBtn
-              id={`${targetId}-settings`}
+              id={`${targetId}-table-settings`}
               icon={!isViewNewJournal ? 'icon-settings' : null}
               className={classNames('ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ecos-btn_size-by-content', {
                 'ecos-btn-settings-filter-on': !isDefaultSettings,
@@ -115,19 +125,22 @@ const JournalsSettingsBar = ({
         )}
 
         {isViewNewJournal && !isMobile && hasBtnEdit && (
-          <IcoBtn
-            icon={!isViewNewJournal ? 'icon-settings' : null}
-            className={classNames(
-              'journals-head__settings-btn ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue',
-              {
-                'ecos-journal__btn_new shape': isViewNewJournal
-              }
-            )}
-            onClick={onEditJournal}
-            // loading={isLoading}
-          >
-            {isViewNewJournal && <Shape />}
-          </IcoBtn>
+          <Tooltip target={`journal-settings`} text={t(Labels.BTN_JOURNAL_SETTINGS)} {...tooltipSettings}>
+            <IcoBtn
+              id={`${targetId}-journal-settings`}
+              icon={!isViewNewJournal ? 'icon-settings' : null}
+              className={classNames(
+                'journals-head__settings-btn ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue',
+                {
+                  'ecos-journal__btn_new shape': isViewNewJournal
+                }
+              )}
+              onClick={onEditJournal}
+              // loading={isLoading}
+            >
+              {isViewNewJournal && <Shape />}
+            </IcoBtn>
+          </Tooltip>
         )}
 
         {headerSearchEnabled && (
@@ -174,11 +187,18 @@ const JournalsSettingsBar = ({
             className="ecos-journal__settings-bar-export"
             classNameBtn="ecos-btn_i ecos-journal__settings-bar-export-btn ecos-journal__btn_new"
             selectedItems={selectedRecords}
+            isViewNewJournal={isViewNewJournal}
+            getStateOpen={changeIsOpen}
           >
             <IcoBtn
               invert
               icon="icon-small-down"
-              className="ecos-journal__settings-bar-export-btn ecos-btn_hover_blue2 ecos-btn_drop-down ecos-btn_grey3 ecos-journal__btn_new export"
+              className={classNames(
+                'ecos-journal__settings-bar-export-btn ecos-btn_hover_blue2 ecos-btn_drop-down ecos-btn_grey3 ecos-journal__btn_new export',
+                {
+                  'ecos-journal__btn_new_focus': isOpenDropdownExport
+                }
+              )}
               // loading={isLoading}
             >
               <ExportIcon />
@@ -193,7 +213,7 @@ const JournalsSettingsBar = ({
             className={classNames('ecos-journal__settings-bar-update', {
               [grey]: !isMobile,
               'ecos-btn_i ecos-btn_white': isMobile,
-              'ecos-journal__small-btm_new': isViewNewJournal
+              'ecos-journal__small-btn_new': isViewNewJournal
             })}
             onClick={onRefresh}
           />
@@ -207,7 +227,7 @@ const JournalsSettingsBar = ({
               className={classNames('ecos-journal__settings-bar-reset-filter', {
                 [grey]: !isMobile,
                 'ecos-btn_i ecos-btn_white': isMobile,
-                'ecos-journal__small-btm_new': isViewNewJournal
+                'ecos-journal__small-btn_new': isViewNewJournal
               })}
               onClick={onResetFilter}
             />

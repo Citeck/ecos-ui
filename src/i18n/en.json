@@ -1156,6 +1156,7 @@
   "journals.menu.settings-title": "Settings menu",
   "journals.bar.btn.create": "Create record",
   "journals.bar.btn.settings-table": "Table settings",
+  "journals.bar.btn.settings-journal": "Journal settings",
   "journals.bar.btn.export": "Export",
   "journals.bar.btn.update": "Update data",
   "journals.bar.btn.filter-del": "Reset filtration",

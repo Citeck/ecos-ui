@@ -10,9 +10,10 @@ export const MIN_CARD_DATA_NEW_JOURNAL = 6;
 
 export const PADDING_NEW_JOURNAL = 10;
 export const HEIGHT_GRID_WRAPPER = 15;
-export const MARGIN_BOTTOM_TBODY = 15;
 export const HEIGHT_GRID_ROW = 28;
 export const HEIGHT_THEAD = 35;
+
+export const CLASSNAME_JOURNAL_BODY_TOP = 'ecos-journal__body-top';
 
 export const DEFAULT_INLINE_TOOL_SETTINGS = {
   height: 0,

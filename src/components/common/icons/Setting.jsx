@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default ({ width = 16, height = 16, viewBox = '0 0 16 16', fill = 'none' }) => (
+export default ({ width = 18, height = 18, viewBox = '0 0 16 16', fill = 'none' }) => (
   <svg width={width} height={height} viewBox={viewBox} fill={fill} xmlns="http://www.w3.org/2000/svg">
     <path d="M2 2.73242L14.132 2.73242" stroke="#B7B7B7" strokeWidth="1.7" strokeLinecap="round" />
     <ellipse

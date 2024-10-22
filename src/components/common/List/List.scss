@@ -14,14 +14,15 @@
     max-width: 200px;
 
     &_new {
+      max-width: $max-width-dropdown-menu;
+      min-width: $min-width-dropdown-menu;
+
       font-family: $font-family;
       font-size: $font-size-extra-small;
       font-weight: $font-weight-semi-bold;
       color: $text-color-dark;
       padding: 10px 1rem;
       height: 35px;
-      min-width: 200px;
-      max-width: 250px;
       box-sizing: border-box;
 
       &:first-child,
