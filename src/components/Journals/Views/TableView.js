@@ -27,7 +27,7 @@ import { getSearchParams } from '../../../helpers/urls';
 import { selectKanbanPageProps } from '../../../selectors/kanban';
 import { getBoardData } from '../../../actions/kanban';
 import { getTextByLocale } from '../../../helpers/util';
-import { isPreview, isTableOrPreview } from '../constants';
+import { CLASSNAME_JOURNAL_BODY_TOP, isPreview, isTableOrPreview } from '../constants';
 import Bar from '../CommonBar';
 import JournalsContent from '../JournalsContent';
 import JournalsDashletPagination from '../JournalsDashletPagination';
@@ -184,7 +184,7 @@ class TableView extends React.Component {
     return (
       <div hidden={!isTableOrPreview(viewMode)} className={classNames('ecos-journal-view__table', bodyClassName)}>
         <div
-          className={classNames('ecos-journal__body-top', {
+          className={classNames(CLASSNAME_JOURNAL_BODY_TOP, {
             'ecos-journal__body-top_new': isViewNewJournal
           })}
           ref={bodyTopForwardedRef}

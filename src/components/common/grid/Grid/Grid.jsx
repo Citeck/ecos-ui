@@ -137,7 +137,7 @@ class Grid extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { byContentHeight, resizableColumns, columns, selected, isResetSettings, loading } = this.props;
+    const { byContentHeight, resizableColumns, columns, selected, isResetSettings, loading, isViewNewJournal } = this.props;
     const { maxHeight } = this.state;
     const current = this._ref.current;
 
@@ -162,7 +162,11 @@ class Grid extends Component {
       this.setState({ selected: [] });
     }
 
-    if (byContentHeight && this._scrollRef && isEqual(pageTabList.activeTabId, this.#pageId)) {
+    if (isViewNewJournal && maxHeight !== this.props.maxHeight) {
+      this.setState({ maxHeight: this.props.maxHeight });
+    }
+
+    if (!isViewNewJournal && byContentHeight && this._scrollRef && isEqual(pageTabList.activeTabId, this.#pageId)) {
       const newMaxHeight = this._scrollRef.getScrollHeight();
       if (maxHeight !== newMaxHeight) {
         this.setState({ maxHeight: newMaxHeight });

@@ -25,6 +25,13 @@
     &_no-indents {
       padding: 0;
     }
+
+    &_new {
+      font-weight: 600;
+      font-size: 11px;
+      line-height: 13px;
+      color: $color-gray-5;
+    }
   }
 
   &-arrow {

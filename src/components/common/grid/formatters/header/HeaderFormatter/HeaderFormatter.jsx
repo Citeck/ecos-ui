@@ -399,6 +399,7 @@ export default class HeaderFormatter extends Component {
       >
         <div className="ecos-th__content" onClick={this.onSort} id={this.tooltipLabelId}>
           <EcosTooltip
+            isViewNewJournal={isViewNewJournal}
             target={this.tooltipLabelId}
             elementId={this.tooltipTextId}
             text={column.text}

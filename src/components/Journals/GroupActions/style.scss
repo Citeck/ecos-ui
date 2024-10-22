@@ -3,6 +3,16 @@
 .ecos-group-actions {
   $root: &;
 
+  &__opened-focus #{$root}__control_new {
+    background-color: $color-blue-dark !important;
+    border-radius: 6px;
+
+    > i,
+    > span {
+      color: $color-white !important;
+    }
+  }
+
   &__dropdown {
     margin-right: 15px;
     max-width: 300px;
@@ -26,7 +36,6 @@
       font-size: 14px;
       color: $color-gray-5;
     }
-    &_new:focus .ecos-btn > i,
     &_new:hover .ecos-btn > i {
       color: $color-blue-light;
     }
@@ -46,7 +55,7 @@
   }
 
   &__control_new.ecos-btn {
-    border-radius: 5px;
+    border-radius: 6px;
     overflow: hidden;
     width: 100%;
     text-overflow: ellipsis;
@@ -56,13 +65,17 @@
     background-color: $color-gray-25;
     line-height: 18.6px;
 
-    &:hover,
     &:focus {
-      background-color: $color-blue-dark;
+      background-color: $color-gray-25;
+
+      > span {
+        color: $text-color-gray;
+      }
     }
 
-    &:hover,
-    &:focus {
+    &:hover {
+      background-color: $color-blue-dark;
+
       > i,
       > span {
         color: $color-white;

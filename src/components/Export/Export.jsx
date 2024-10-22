@@ -6,6 +6,7 @@ import get from 'lodash/get';
 import omit from 'lodash/omit';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
+import isBoolean from 'lodash/isBoolean';
 import { NotificationManager } from 'react-notifications';
 
 import { instUserConfigApi as api } from '../../api/userConfig';
@@ -37,7 +38,8 @@ export default class Export extends Component {
     isMobile: PropTypes.bool,
     loading: PropTypes.bool,
     right: PropTypes.bool,
-    selectedItems: PropTypes.array
+    selectedItems: PropTypes.array,
+    getStateOpen: PropTypes.func
   };
 
   static defaultProps = {
@@ -53,6 +55,7 @@ export default class Export extends Component {
     this.form = React.createRef();
 
     this.state = {
+      isOpenDropdown: false,
       hasAlfresco: false,
       hasGroupActionsLicense: false
     };
@@ -199,8 +202,15 @@ export default class Export extends Component {
     return `${url}?${queryString.stringify({ journalId })}`;
   };
 
+  changeIsOpen = isOpenDropdown => {
+    if (isBoolean(isOpenDropdown)) {
+      this.setState({ isOpenDropdown });
+      isFunction(this.props.getStateOpen) && this.props.getStateOpen(isOpenDropdown);
+    }
+  };
+
   render() {
-    const { hasAlfresco, hasGroupActionsLicense } = this.state;
+    const { hasAlfresco, hasGroupActionsLicense, isOpenDropdown } = this.state;
     const { right, className, children, classNameBtn, isMobile, isViewNewJournal, loading, ...props } = this.props;
     const attributes = omit(props, ['selectedItems', 'journalConfig', 'dashletConfig', 'grid', 'recordRef']);
 
@@ -233,8 +243,11 @@ export default class Export extends Component {
           valueField={'id'}
           titleField={'title'}
           controlIcon="icon-download"
-          controlClassName={classNames('ecos-btn_grey ecos-btn_settings-down', classNameBtn)}
+          controlClassName={classNames('ecos-btn_grey ecos-btn_settings-down', classNameBtn, {
+            'ecos-journal__btn_new_focus': isOpenDropdown && isViewNewJournal
+          })}
           onChange={this.handleExport}
+          getStateOpen={this.changeIsOpen}
         >
           {children}
         </Dropdown>

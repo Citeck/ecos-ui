@@ -33,6 +33,7 @@ class Tooltip extends Component {
     hideArrow: PropTypes.bool,
     isOpen: PropTypes.bool,
     uncontrolled: PropTypes.bool,
+    isViewNewJournal: PropTypes.bool,
     showAsNeeded: PropTypes.bool,
     getIsNeeded: PropTypes.func,
     minWidthByContent: PropTypes.bool,
@@ -156,7 +157,8 @@ class Tooltip extends Component {
       offset,
       innerRef,
       hideArrow,
-      container
+      container,
+      isViewNewJournal
     } = this.props;
 
     return {
@@ -172,7 +174,7 @@ class Tooltip extends Component {
       container,
       hideArrow,
       className: classNames('ecos-base-tooltip', className),
-      innerClassName: classNames('ecos-base-tooltip-inner', innerClassName),
+      innerClassName: classNames('ecos-base-tooltip-inner', innerClassName, { 'ecos-base-tooltip-inner_new': isViewNewJournal }),
       arrowClassName: classNames('ecos-base-tooltip-arrow', arrowClassName),
       popperClassName: classNames('ecos-base-tooltip-popper', 'ecosZIndexAnchor', popperClassName),
       toggle: this.onToggle

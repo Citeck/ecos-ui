@@ -18,6 +18,9 @@
   }
 
   &__menu {
+    max-width: $max-width-dropdown-menu !important;
+    min-width: $min-width-dropdown-menu !important;
+
     &:not(.ecos-dropdown__menu_cascade) {
       transform: none !important;
       top: 100% !important;
@@ -37,6 +40,9 @@
       padding: 0;
       list-style: none;
       margin-bottom: 0;
+
+      max-width: $max-width-dropdown-menu;
+      min-width: $min-width-dropdown-menu;
     }
 
     li {
