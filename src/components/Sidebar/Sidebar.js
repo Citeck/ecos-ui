@@ -58,7 +58,6 @@ class Sidebar extends React.Component {
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { isReady, idMenu } = this.props;
-
     this.fetchItems();
 
     if (!prevProps.isReady && isReady && this.slideMenuToggle) {
@@ -74,6 +73,14 @@ class Sidebar extends React.Component {
     this.cleanUp();
     document.removeEventListener(Events.CHANGE_URL_LINK_EVENT, this.props.setInitialSelectedId);
   }
+
+  scrollToActiveItem = () => {
+    const item = document.getElementsByClassName('ecos-sidebar-item_selected')[0];
+    item &&
+      item.scrollIntoView({
+        block: 'center'
+      });
+  };
 
   init(forceFetching = false) {
     const { getSiteDashboardEnable, idMenu, setInitialSelectedId } = this.props;
@@ -126,6 +133,8 @@ class Sidebar extends React.Component {
     } else {
       this.props.setExpandableItems(true);
     }
+
+    this.scrollToActiveItem();
   };
 
   render() {

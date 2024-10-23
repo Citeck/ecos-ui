@@ -23,6 +23,7 @@ import Records from '../components/Records';
 import FormManager from '../components/EcosForm/FormManager';
 import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
 import { FORM_MODE_CREATE } from '../components/EcosForm';
+import { setTabs } from '../actions/pageTabs';
 
 function* fetchSlideMenu({ api, logger }, action) {
   try {
@@ -141,7 +142,7 @@ function* headerSaga(ea) {
   yield takeLatest(getSiteDashboardEnable().type, fetchSiteDashboardEnable, ea);
   yield takeLatest(toggleIsOpen().type, sagaToggleMenu, ea);
   yield takeLatest(performAction().type, sagaPerformAction, ea);
-  yield takeLatest([setIsReady().type, setInitialSelectedId], sagaSetSelectedId, ea);
+  yield takeLatest([setIsReady().type, setInitialSelectedId, setTabs], sagaSetSelectedId, ea);
 }
 
 export default headerSaga;
