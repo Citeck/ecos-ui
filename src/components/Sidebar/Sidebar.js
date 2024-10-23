@@ -67,6 +67,10 @@ class Sidebar extends React.Component {
     if (prevProps.idMenu !== idMenu) {
       this.reInit();
     }
+
+    if (prevProps.selectedId !== this.props.selectedId) {
+      this.scrollToActiveItem();
+    }
   }
 
   componentWillUnmount() {
@@ -184,7 +188,8 @@ const mapStateToProps = state => ({
   expandableItems: get(state, 'slideMenu.expandableItems'),
   homeLink: get(state, 'app.homeLink'),
   locationKey: get(state, 'router.location.key'),
-  isViewNewJournal: selectIsViewNewJournal(state)
+  isViewNewJournal: selectIsViewNewJournal(state),
+  selectedId: get(state, 'slideMenu.selectedId')
 });
 
 const mapDispatchToProps = dispatch => ({
