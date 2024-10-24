@@ -82,6 +82,60 @@ const userEventIsSetOnUserEventSignal = {
   }
 };
 
+const changeTypeIsSetOnStatusSignal = {
+  id: 'change-type-is-set-on-status-signal',
+  callback: () => {
+    const check = (node, reporter) => {
+      if (!node.eventDefinitions || !node.eventDefinitions.find(def => is(def, SIGNAL_EVENT_DEFINITION))) {
+        return;
+      }
+
+      const eventTypeAttr = `${PREFIX_FIELD}eventType`;
+      const changeTypeAtt = `${PREFIX_FIELD}statusChangeType`;
+      const manualStatusAtt = `${PREFIX_FIELD}manualStatus`;
+
+      const eventType = get(node.$attrs, [eventTypeAttr], '').trim();
+      const changeType = get(node.$attrs, [changeTypeAtt], '').trim();
+      const manualStatus = get(node.$attrs, [manualStatusAtt], '').trim();
+
+      if (eventType === 'RECORD_STATUS_CHANGED' && manualStatus && !changeType) {
+        reporter.report(node.id, t('bpmn-linter.signal-event.no-change-type'));
+      }
+    };
+
+    return {
+      check
+    };
+  }
+};
+
+const manualStatusNameIsSetOnStatusSignal = {
+  id: 'manual-status-name-is-set-on-status-signal',
+  callback: () => {
+    const check = (node, reporter) => {
+      if (!node.eventDefinitions || !node.eventDefinitions.find(def => is(def, SIGNAL_EVENT_DEFINITION))) {
+        return;
+      }
+
+      const eventTypeAttr = `${PREFIX_FIELD}eventType`;
+      const changeTypeAtt = `${PREFIX_FIELD}statusChangeType`;
+      const manualStatusAtt = `${PREFIX_FIELD}manualStatus`;
+
+      const eventType = get(node.$attrs, [eventTypeAttr], '').trim();
+      const changeType = get(node.$attrs, [changeTypeAtt], '').trim();
+      const manualStatus = get(node.$attrs, [manualStatusAtt], '').trim();
+
+      if (eventType === 'RECORD_STATUS_CHANGED' && changeType && !manualStatus) {
+        reporter.report(node.id, t('bpmn-linter.signal-event.no-manual-status-name'));
+      }
+    };
+
+    return {
+      check
+    };
+  }
+};
+
 const signalEventHasFilterEventByDocumentType = {
   id: 'signal-event-has-filter-event-by-document-type',
   callback: () => {
@@ -194,6 +248,8 @@ export const signalEventRulesMap = {
   [signalEventHasVariableName.id]: 'error',
   [signalEventHasRecordFields.id]: 'error',
   [signalEventHasFilterEventByDocumentType.id]: 'error',
+  [changeTypeIsSetOnStatusSignal.id]: 'error',
+  [manualStatusNameIsSetOnStatusSignal.id]: 'error',
   [userEventIsSetOnUserEventSignal.id]: 'error'
 };
 
@@ -204,5 +260,7 @@ export const signalEventCacheMap = {
   [`${BPMN_LINT_PREFIX}${signalEventHasVariableName.id}`]: signalEventHasVariableName.callback,
   [`${BPMN_LINT_PREFIX}${signalEventHasRecordFields.id}`]: signalEventHasRecordFields.callback,
   [`${BPMN_LINT_PREFIX}${[signalEventHasFilterEventByDocumentType.id]}`]: signalEventHasFilterEventByDocumentType.callback,
+  [`${BPMN_LINT_PREFIX}${changeTypeIsSetOnStatusSignal.id}`]: changeTypeIsSetOnStatusSignal.callback,
+  [`${BPMN_LINT_PREFIX}${manualStatusNameIsSetOnStatusSignal.id}`]: manualStatusNameIsSetOnStatusSignal.callback,
   [`${BPMN_LINT_PREFIX}${userEventIsSetOnUserEventSignal.id}`]: userEventIsSetOnUserEventSignal.callback
 };

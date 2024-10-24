@@ -2697,5 +2697,7 @@
   "bpmn-linter.signal-event.no-event-filter-by-doc-or-predicate": "Not filled “Event filter by document type” or “Event filter by predicates”",
   "bpmn-linter.signal-event.has-filter-event-by-document-type": "Not defined Event filter by document type",
   "bpmn-linter.signal-event.no-user-event": "Not defined User event",
+  "bpmn-linter.signal-event.no-change-type": "Not defined Change type of Status",
+  "bpmn-linter.signal-event.no-manual-status-name": "Not defined Status name",
   "bpmn-linter.participant.no-process-id": "Process ID not defined"
 }

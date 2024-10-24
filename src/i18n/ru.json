@@ -2696,5 +2696,7 @@
   "bpmn-linter.signal-event.no-event-filter-by-doc-or-predicate": "Не заполнено “Фильтр события по типу документа” или “Фильтр события по предикатам”",
   "bpmn-linter.signal-event.has-filter-event-by-document-type": "Не определен Фильтр события по типу документа",
   "bpmn-linter.signal-event.no-user-event": "Не определено Событие пользователя",
+  "bpmn-linter.signal-event.no-change-type": "Не определен Тип изменения статуса",
+  "bpmn-linter.signal-event.no-manual-status-name": "Не определен Статус",
   "bpmn-linter.participant.no-process-id": "Не определен ID Процесса"
 }
