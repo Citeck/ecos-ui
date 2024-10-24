@@ -440,6 +440,7 @@ $transition-duration: 0.3s;
       @extend %ellipsis;
 
       font-size: $font-size-small;
+      font-weight: 600;
     }
 
     &__badge {
