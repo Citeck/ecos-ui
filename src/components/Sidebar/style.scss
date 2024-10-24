@@ -525,5 +525,9 @@ $transition-duration: 0.3s;
     &_expanded {
       width: 100%;
     }
+
+    &_collapsed {
+      padding: 0;
+    }
   }
 }
