@@ -168,7 +168,9 @@ class EsignComponent extends Component {
 
     this.setState({ documentSigned });
 
-    if (documentSigned && documentSigned.success && isFunction(onSigned)) {
+    const successFalseArray = (documentSigned || []).filter(documentElement => documentElement.success === false);
+
+    if (documentSigned && successFalseArray.length === 0 && isFunction(onSigned)) {
       onSigned(signatures, certificate, documentSigned);
     }
 
