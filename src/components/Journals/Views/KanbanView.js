@@ -35,15 +35,18 @@ import { wrapArgs } from '../../../helpers/redux';
 import Kanban, { Bar } from '../Kanban';
 
 import '../style.scss';
+import { selectIsViewNewJournal } from '../../../selectors/view';
 
 function mapStateToProps(state, props) {
   const viewMode = selectViewMode(state, props.stateId);
   const ownProps = selectKanbanPageProps(state, props.stateId);
   const newState = get(state, ['journals', props.stateId]) || {};
+  const isViewNewJournal = selectIsViewNewJournal(state);
 
   return {
     predicate: newState.journalSetting?.predicate || {},
     urlParams: getSearchParams(),
+    isViewNewJournal,
     viewMode,
     ...ownProps
   };
@@ -182,7 +185,10 @@ class KanbanView extends React.Component {
       bodyClassName,
       getMaxHeight,
       urlParams,
-      isActivePage
+      isActivePage,
+      isViewNewJournal,
+      hasBtnEdit,
+      onEditJournal
     } = this.props;
     const { name } = boardConfig || {};
     const maxHeight = getMaxHeight();
@@ -190,9 +196,11 @@ class KanbanView extends React.Component {
     return (
       <div hidden={!isKanban(viewMode)} className={classNames('ecos-journal-view__kanban', bodyClassName)}>
         <div ref={bodyTopForwardedRef} className="ecos-journal-view__kanban-top">
-          <Header title={name} config={boardConfig} configRec={this.boardId} />
+          {!isViewNewJournal && <Header title={name} config={boardConfig} configRec={this.boardId} />}
           <Bar
             {...this.props}
+            hasBtnEdit={() => hasBtnEdit(this.boardId)}
+            onEditJournal={() => onEditJournal(this.boardId)}
             urlParams={urlParams}
             isActivePage={isActivePage}
             stateId={stateId}

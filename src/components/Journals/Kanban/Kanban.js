@@ -18,9 +18,13 @@ import HeaderColumn from './HeaderColumn';
 import Column from './Column';
 
 import './style.scss';
+import { selectIsViewNewJournal } from '../../../selectors/view';
 
 function mapStateToProps(state, props) {
-  return selectKanbanProps(state, props.stateId);
+  return {
+    ...selectKanbanProps(state, props.stateId),
+    isViewNewJournal: selectIsViewNewJournal(state)
+  };
 }
 
 function mapDispatchToProps(dispatch, props) {
@@ -150,7 +154,7 @@ class Kanban extends React.Component {
   };
 
   render() {
-    const { columns, dataCards = [], isLoading, isFirstLoading, page, selectedBoard, kanbanSettings } = this.props;
+    const { columns, dataCards = [], isLoading, isFirstLoading, page, selectedBoard, kanbanSettings, isViewNewJournal } = this.props;
     const { isDragging } = this.state;
     const bodyStyle = { minHeight: this.getHeight(-70) };
 
@@ -174,7 +178,7 @@ class Kanban extends React.Component {
 
     return (
       <ReactResizeDetector handleWidth onResize={this.handleResize}>
-        <div className="ecos-kanban" style={{ '--count-col': cols.length || 1 }}>
+        <div className={classNames('ecos-kanban', { 'ecos-kanban__new': isViewNewJournal })} style={{ '--count-col': cols.length || 1 }}>
           <Scrollbars
             autoHeight
             autoHeightMin={this.getHeight()}
