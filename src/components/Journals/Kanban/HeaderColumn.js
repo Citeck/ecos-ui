@@ -1,5 +1,6 @@
 import React from 'react';
 import isEmpty from 'lodash/isEmpty';
+import classNames from 'classnames';
 
 import { Tooltip } from '../../common';
 import { Badge } from '../../common/form';
@@ -7,7 +8,7 @@ import TitlePageLoader from '../../common/TitlePageLoader';
 import { extractLabel, t } from '../../../helpers/util';
 import { Labels } from '../constants';
 
-function HeaderColumn({ data, totalCount, isReady }) {
+function HeaderColumn({ data, totalCount, isReady, isViewNewJournal }) {
   if (isEmpty(data)) {
     return null;
   }
@@ -16,7 +17,7 @@ function HeaderColumn({ data, totalCount, isReady }) {
   const badge = String(totalCount);
 
   return (
-    <div className="ecos-kanban__column">
+    <div className={classNames('ecos-kanban__column', { 'ecos-kanban__column-name': isViewNewJournal })}>
       <div className="ecos-kanban__column-head">
         <TitlePageLoader isReady={isReady} withBadge>
           <Tooltip target={targetCap} text={extractLabel(data.name)} uncontrolled showAsNeeded>

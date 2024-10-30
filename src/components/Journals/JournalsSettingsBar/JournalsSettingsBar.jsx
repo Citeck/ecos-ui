@@ -17,6 +17,7 @@ import GroupActions from '../GroupActions';
 import ViewTabs from '../ViewTabs';
 import CreateMenu from './CreateMenu';
 import Menu from '../../common/icons/Menu';
+import { isKanban } from '../constants';
 
 import './JournalsSettingsBar.scss';
 
@@ -157,6 +158,8 @@ const JournalsSettingsBar = ({
 
         {(!isMobile || isViewNewJournal) && !noGroupActions && <GroupActions isViewNewJournal={isViewNewJournal} stateId={stateId} />}
 
+        {isViewNewJournal && leftChild}
+
         {isViewNewJournal && !isMobile && <JournalsPresetListDropdown stateId={stateId} />}
 
         {!isViewNewJournal && (
@@ -234,7 +237,7 @@ const JournalsSettingsBar = ({
           </Tooltip>
         )}
 
-        {leftChild}
+        {!isViewNewJournal && leftChild}
         {!isViewNewJournal && (
           <div className="ecos-journal__settings-bar-right-side">
             {rightChild}
@@ -249,8 +252,9 @@ const JournalsSettingsBar = ({
             })}
           >
             <div className="ecos-journal__settings-bar-right-side">
+              {isKanban(viewMode) && rightChild}
               <ViewTabs stateId={stateId} />
-              {rightChild}
+              {!isKanban(viewMode) && rightChild}
             </div>
             {rightBarChild}
 

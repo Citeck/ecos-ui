@@ -146,7 +146,7 @@ class KanbanView extends React.Component {
   };
 
   LeftBarChild = () => {
-    const { boardList } = this.props;
+    const { boardList, isViewNewJournal } = this.props;
 
     return (
       <>
@@ -159,7 +159,13 @@ class KanbanView extends React.Component {
           titleField="name"
           onChange={this.handleChangeBoard}
           controlLabel={t(Labels.Kanban.BOARD_LIST)}
-          controlClassName="ecos-btn_drop-down ecos-kanban__dropdown"
+          controlClassName={classNames(
+            'ecos-btn_drop-down',
+            { 'ecos-kanban__dropdown': !isViewNewJournal },
+            { 'ecos-btn_hover_blue2': isViewNewJournal },
+            { 'ecos-journal__btn_new': isViewNewJournal },
+            { 'ecos-btn_grey3': isViewNewJournal }
+          )}
           menuClassName="ecos-kanban__dropdown-menu"
         />
       </>

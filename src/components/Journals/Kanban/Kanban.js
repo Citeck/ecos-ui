@@ -198,6 +198,7 @@ class Kanban extends React.Component {
                     isReady={!isFirstLoading}
                     data={data}
                     totalCount={get(column, 'totalCount', '⭯')}
+                    isViewNewJournal={isViewNewJournal}
                   />
                 );
               })}
