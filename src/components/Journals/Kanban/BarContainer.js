@@ -9,7 +9,6 @@ import { selectKanban } from '../../../selectors/kanban';
 import { getSearchParams } from '../../../helpers/urls';
 import { JournalUrlParams } from '../../../constants';
 import { Labels } from '../constants';
-import { selectIsViewNewJournal } from '../../../selectors/view';
 
 function mapStateToProps(state, props) {
   const journalProps = selectKanbanJournalProps(state, props.stateId);
