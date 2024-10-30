@@ -67,10 +67,6 @@ class Sidebar extends React.Component {
     if (prevProps.idMenu !== idMenu) {
       this.reInit();
     }
-
-    if (prevProps.selectedId !== this.props.selectedId) {
-      this.scrollToActiveItem();
-    }
   }
 
   componentWillUnmount() {
@@ -78,12 +74,13 @@ class Sidebar extends React.Component {
     document.removeEventListener(Events.CHANGE_URL_LINK_EVENT, this.props.setInitialSelectedId);
   }
 
-  scrollToActiveItem = () => {
-    const item = document.getElementsByClassName('ecos-sidebar-item_selected')[0];
-    item &&
-      item.scrollIntoView({
+  scrollToActiveItem = item => {
+    const element = document.getElementsByClassName('ecos-sidebar-item_selected')[0];
+    if (element) {
+      element.scrollIntoView({
         block: 'center'
       });
+    }
   };
 
   init(forceFetching = false) {
