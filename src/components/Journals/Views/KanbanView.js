@@ -101,12 +101,15 @@ class KanbanView extends React.Component {
     if (
       !isEqualWith(boardList, prevProps.boardList, isEqual) ||
       (!isEmpty(boardList) && this.state.isClose) ||
-      urlParams[KUP.BOARD_ID] !== get(prevProps, ['urlParams', KUP.BOARD_ID]) ||
-      urlParams[KUP.TEMPLATE_ID] !== get(prevProps, ['urlParams', KUP.TEMPLATE_ID])
+      urlParams[KUP.BOARD_ID] !== get(prevProps, ['urlParams', KUP.BOARD_ID])
     ) {
       this.setState({ isClose: false }, () => {
         this.props.getBoardData(this.getSelectedBoardFromUrl(), urlParams.journalSettingId || '');
       });
+    }
+
+    if (urlParams[KUP.TEMPLATE_ID] !== get(prevProps, ['urlParams', KUP.TEMPLATE_ID])) {
+      this.setState({ isClose: true });
     }
   }
 
