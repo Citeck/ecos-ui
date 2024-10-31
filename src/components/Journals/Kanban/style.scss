@@ -420,3 +420,132 @@
     }
   }
 }
+
+.ecos-kanban__new {
+  $kanban: &;
+
+  margin-top: 2px;
+  padding: 9px 12px;
+  background-color: $color-white;
+
+  .ecos-kanban__head {
+    background-color: unset;
+    margin-bottom: 0;
+    margin-top: 0;
+    gap: 12px;
+  }
+
+  .ecos-kanban__body {
+    gap: 12px;
+    margin-left: unset;
+  }
+
+  .ecos-kanban__column {
+    padding: 0 12px;
+    background: #f6f8f9;
+    border: 0;
+    border-radius: unset;
+
+    &:not(.ecos-kanban__column-name) {
+      border-left: 1px solid $color-gray-4;
+      border-bottom: 1px solid $color-gray-4;
+      border-right: 1px solid $color-gray-4;
+      border-top: none;
+    }
+
+    &:not(:first-child) {
+      margin-left: 0;
+    }
+
+    &-head {
+      background: unset;
+      border-bottom: none;
+      height: unset;
+      box-shadow: none;
+      margin: 12px 0 14px;
+      padding: 0;
+
+      &-caption {
+        font-size: 12px;
+      }
+
+      &-badge {
+        min-width: 20px;
+        font-size: 10px;
+      }
+    }
+
+    & :not(#{$kanban}__card-info):nth-of-type(10n + 11) {
+      padding-top: 0;
+      border-top: 1px $color-gray-7 dotted;
+    }
+  }
+
+  .ecos-kanban__column-name {
+    border-radius: $border-radius-extra-large $border-radius-extra-large 0 0;
+    box-shadow: inset 0 1px 0 0 $color-gray-4, inset -1px 0 0 0 $color-gray-4, inset 1px 0 0 0 $color-gray-4;
+  }
+
+  .ecos-kanban__card {
+    $card: &;
+
+    padding: 16px;
+    border-radius: $border-radius-standard;
+    position: relative;
+    border-top: 2px solid $color-blue-dark;
+    margin-bottom: 12px;
+
+    &-head {
+      padding-bottom: 10px;
+    }
+
+    &-label {
+      &_main {
+        font-weight: $font-weight-semi-bold;
+        font-size: 11px;
+      }
+
+      &_secondary {
+        font-weight: $font-weight-bold;
+
+        &:empty {
+          display: none;
+        }
+      }
+    }
+
+    &-info {
+      color: #b7b7b7;
+      background: $color-gray-4;
+      border-radius: $border-radius-standard;
+      font-size: 11px;
+      line-height: 11px;
+      font-weight: $font-weight-bold;
+      padding: 15px 16px;
+    }
+
+    &-body {
+      border-top: 1px solid $color-gray-4;
+    }
+
+    &-form {
+      & > div dl {
+        padding: 10px 0 0;
+        border-bottom: none;
+
+        dt,
+        dd {
+          font-size: 11px;
+        }
+
+        dd a {
+          color: inherit;
+
+          &:hover {
+            color: $color-blue-dark;
+          }
+        }
+      }
+    }
+  }
+}
