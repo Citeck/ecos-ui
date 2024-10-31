@@ -67,10 +67,6 @@ class Sidebar extends React.Component {
     if (prevProps.idMenu !== idMenu) {
       this.reInit();
     }
-
-    if (prevProps.selectedId !== this.props.selectedId) {
-      this.scrollToActiveItem();
-    }
   }
 
   componentWillUnmount() {

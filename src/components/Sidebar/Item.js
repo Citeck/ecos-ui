@@ -36,6 +36,8 @@ class Item extends React.Component {
     level: 0
   };
 
+  menuItemRef = React.createRef();
+
   shouldComponentUpdate(nextProps, nextState, nextContext) {
     const { label: label_1, icon: icon_1 } = nextProps.data || {};
     const { label: label_2, icon: icon_2 } = this.props.data || {};
@@ -47,6 +49,17 @@ class Item extends React.Component {
       nextProps.isOpen !== this.props.isOpen ||
       !isEqual({ label: label_1, icon: icon_1 }, { label: label_2, icon: icon_2 })
     );
+  }
+
+  componentDidUpdate(prevProps) {
+    const { isSelected } = this.props;
+
+    if (isSelected && prevProps.isSelected !== isSelected) {
+      const activeElement = this.menuItemRef.current;
+      activeElement.scrollIntoView({
+        block: 'center'
+      });
+    }
   }
 
   get hasSubItems() {
@@ -193,6 +206,7 @@ class Item extends React.Component {
           'ecos-sidebar-item_hidden': hiddenLabel
         })}
         title={!isOpen && !noIcon ? extractLabel(get(data, 'label', '')) : ''}
+        ref={this.menuItemRef}
         {...events}
       >
         {this.renderLabel()}
