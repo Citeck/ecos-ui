@@ -62,6 +62,7 @@ class Kanban extends React.Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { isLoading, isFirstLoading } = this.props;
     const headerElement = get(this.refHeader, 'current');
+    const bodyElement = get(this.refBody, 'current');
 
     if (isLoading || isFirstLoading) {
       if (headerElement) {
@@ -75,8 +76,10 @@ class Kanban extends React.Component {
       this.props.getNextPage();
     }
 
-    if (headerElement) {
-      headerElement.style.width = `${headerElement.scrollWidth}px`;
+    if (headerElement && bodyElement) {
+      const max = Math.max(headerElement.scrollWidth, bodyElement.scrollWidth);
+      headerElement.style.width = `${max}px`;
+      bodyElement.style.width = `${max}px`;
     }
   }
 
