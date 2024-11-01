@@ -1,2 +1,5 @@
 /static
 /ecosui/export
+/service-worker.js
+/service-worker.js/*
+/service-worker.js.map

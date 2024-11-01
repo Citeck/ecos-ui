@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
@@ -26,6 +26,7 @@ const FilesViewer = ({
   onDrop,
   isLoading
 }) => {
+  const [isDragged, setIsDragged] = useState(false);
   const { hasError, isReady, items = [], selected, lastClicked } = fileViewer;
 
   let content;
@@ -37,6 +38,35 @@ const FilesViewer = ({
       DocLibService.emitter.off(DocLibService.actionSuccessCallback, onInitData);
     };
   }, []);
+
+  const onDragEnter = e => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    if (e.currentTarget.contains(e.target)) {
+      setIsDragged(true);
+    }
+  };
+  const onDragOver = e => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    setIsDragged(true);
+  };
+  const onDragLeave = e => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+      setIsDragged(false);
+    }
+  };
+
+  const _onDrop = (...args) => {
+    onDrop(...args);
+
+    setIsDragged(false);
+  };
 
   if (hasError) {
     content = t('document-library.failure-to-fetch-data');
@@ -66,16 +96,22 @@ const FilesViewer = ({
             openFolder={openFolder}
             setSelected={setSelected}
             setLastClicked={setLastClicked}
-            onDrop={onDrop}
+            isDragged={isDragged}
+            onDrop={_onDrop}
           />
         </div>
       ) : (
-        <Empty onDrop={onDrop} />
+        <Empty onDrop={_onDrop} />
       );
   }
 
   return (
-    <Well className="ecos-doclib__fileviewer-well">
+    <Well
+      onDragEnter={onDragEnter}
+      onDragLeave={onDragLeave}
+      onDragOver={onDragOver}
+      className={classNames('ecos-doclib__fileviewer-well', { 'ecos-doclib__fileviewer_dragged': isDragged })}
+    >
       {(isLoading || !isReady) && <Loader blur rounded />}
       {content}
     </Well>

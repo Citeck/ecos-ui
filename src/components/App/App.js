@@ -28,6 +28,7 @@ import UserLocalSettingsService from '../../services/userLocalSettings';
 import { PopupContainer } from '../common/Popper';
 import { MenuSettingsController } from '../MenuSettings';
 import EcosFormModal from '../EcosForm/EcosFormModal';
+import UploadStatus from '../common/UploadStatus';
 
 import './App.scss';
 
@@ -390,6 +391,7 @@ class App extends Component {
           <NotificationContainer />
           <PopupContainer />
           <MenuSettingsController />
+          <UploadStatus />
         </div>
       </ErrorBoundary>
     );

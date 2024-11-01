@@ -5,6 +5,7 @@ import { NotificationManager } from 'react-notifications';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
+import initializeWorker from '../workers/docLib';
 
 import {
   addSidebarItems,
@@ -72,7 +73,6 @@ import DocLibService from '../components/Journals/DocLib/DocLibService';
 import JournalsService from '../components/Journals/service/journalsService';
 import DocLibConverter from '../dto/docLib';
 import JournalsConverter from '../dto/journals';
-import { uploadFileV2 } from './documents';
 
 export function* sagaGetTypeRef({ logger, stateId, w }, action) {
   try {
@@ -463,7 +463,8 @@ function* sagaUploadFiles({ api, logger, stateId, w }, action) {
     const item = get(action, 'payload.item', {});
     const rootId = yield select(state => selectDocLibRootId(state, stateId));
     const createVariants = yield select(state => selectDocLibCreateVariants(state, stateId));
-    const createVariant = (createVariants || []).find(item => item.nodeType === NODE_TYPES.FILE);
+    const createVariantFile = (createVariants || []).find(item => item.nodeType === NODE_TYPES.FILE);
+    const createVariantDir = (createVariants || []).find(item => item.nodeType === NODE_TYPES.DIR);
     const canUpload = yield select(state => selectDocLibFileCanUploadFiles(state, stateId));
     let folderId = yield select(state => selectDocLibFolderId(state, stateId));
     let folderTitle = yield select(state => selectDocLibFolderTitle(state, stateId));
@@ -473,13 +474,20 @@ function* sagaUploadFiles({ api, logger, stateId, w }, action) {
       return;
     }
 
-    let { files = [] } = action.payload;
+    let { files = [], items } = action.payload;
+
+    let hasFolders = false;
+    Array.from(items).forEach(item => {
+      const entry = item.webkitGetAsEntry();
+      if (entry && entry.isDirectory) {
+        hasFolders = true;
+      }
+    });
 
     files = files.filter(file => !isEmpty(file.type));
 
-    if (isEmpty(files)) {
+    if (isEmpty(files) && !hasFolders) {
       NotificationManager.error(t('document-library.uploading-file.message.abort'), t('error'));
-
       return;
     }
 
@@ -488,39 +496,133 @@ function* sagaUploadFiles({ api, logger, stateId, w }, action) {
       folderTitle = yield call(DocLibService.getFolderTitle, folderId);
     }
 
-    yield* action.payload.files.map(function*(file) {
-      try {
-        const uploadedFile = yield uploadFileV2({ api, file });
-        const createChildResult = yield call(
-          DocLibService.createChild,
-          rootId,
-          folderId,
-          get(createVariant, 'destination'),
-          DocLibConverter.prepareUploadedFileDataForSaving(file, uploadedFile)
-        );
-        const fileName = yield createChildResult.load('');
+    function traverseDirectory(entry, path = '') {
+      return new Promise((resolve, reject) => {
+        let files = [];
+        const dirReader = entry.createReader();
+        const currentPath = path ? `${path}/${entry.name}` : entry.name;
 
-        yield call(DocLibService.loadNode, createChildResult.id);
+        const readEntries = () => {
+          dirReader.readEntries(async entries => {
+            if (entries.length === 0) {
+              resolve(files);
+              return;
+            }
 
-        NotificationManager.success(
-          t('document-library.uploading-file.message.success', {
-            file: fileName || uploadedFile.name,
-            folder: folderTitle
-          }),
-          t('success')
-        );
-      } catch (e) {
-        NotificationManager.error(
-          t('document-library.uploading-file.message.error', {
-            file: file.name
-          }),
-          t('error')
-        );
-        logger.error('[docLib uploadFile error', e);
+            try {
+              for (const entry of entries) {
+                if (entry.isFile) {
+                  const file = await new Promise(resolveFile => entry.file(resolveFile));
+                  files.push({ file, name: file.name, path: `${currentPath}/${file.name}` });
+                } else if (entry.isDirectory) {
+                  const nestedFiles = await traverseDirectory(entry, currentPath);
+                  files = files.concat(nestedFiles);
+                }
+              }
+            } catch (err) {
+              reject(err);
+            }
+
+            readEntries();
+          });
+        };
+
+        readEntries();
+      });
+    }
+
+    const entries = yield action.payload.items.map(item => item.webkitGetAsEntry());
+    let totalCount = 0;
+
+    const itemsObj = yield entries.map(function*(entry) {
+      if (entry && entry.isDirectory) {
+        const filesOfDir = yield traverseDirectory(entry);
+        totalCount += (filesOfDir || []).length;
+
+        return { name: entry.name, files: filesOfDir, nodeType: NODE_TYPES.DIR };
+      } else if (entry && entry.isFile) {
+        totalCount += 1;
+
+        const file = yield new Promise((resolve, reject) => {
+          entry.file(file => resolve(file), error => reject(error));
+        });
+
+        return { file, name: file.name, nodeType: NODE_TYPES.FILE, path: `/${file.name}` };
       }
     });
 
-    yield* getFilesViewerData({ api, logger, stateId, w });
+    const destinations = {
+      file: get(createVariantFile, 'destination'),
+      dir: get(createVariantDir, 'destination')
+    };
+
+    // Init web-worker
+    const { worker, send } = yield call(initializeWorker);
+
+    const uploadPromise = new Promise((resolve, reject) => {
+      worker.onmessage = event => {
+        const { status, result, file = {}, totalCount, successFileCount } = event.data;
+
+        if (navigator.serviceWorker.controller) {
+          switch (status) {
+            case 'start':
+            case 'confirm-file-replacement':
+              navigator.serviceWorker.controller.postMessage({
+                type: 'UPLOAD_PROGRESS',
+                status,
+                file
+              });
+              break;
+
+            case 'in-progress':
+              navigator.serviceWorker.controller.postMessage({
+                type: 'UPLOAD_PROGRESS',
+                status,
+                file,
+                totalCount,
+                successFileCount
+              });
+              break;
+
+            case 'success':
+              navigator.serviceWorker.controller.postMessage({
+                type: 'UPLOAD_PROGRESS',
+                status,
+                result
+              });
+              resolve();
+              break;
+
+            case 'error':
+              navigator.serviceWorker.controller.postMessage({
+                type: 'UPLOAD_PROGRESS',
+                status,
+                file
+              });
+              reject(new Error('Error during upload'));
+              break;
+
+            default:
+              break;
+          }
+        }
+      };
+
+      navigator.serviceWorker.onmessage = event => {
+        const { type, confirmed, isReplaceAllFiles } = event.data;
+
+        if (type === 'CONFIRMATION_FILE_RESPONSE') {
+          worker.postMessage({ status: 'confirmation-file-response', confirmed, isReplaceAllFiles });
+        }
+      };
+    });
+
+    yield send({ items: itemsObj, rootId, folderId, folderTitle, destinations, totalCount });
+
+    yield call(() => uploadPromise);
+    yield put(initSidebar(w()));
+    yield put(loadFolderData(w()));
+    yield put(loadFilesViewerData(w()));
   } catch (e) {
     logger.error('[docLib sagaUploadFiles saga error', e);
   } finally {

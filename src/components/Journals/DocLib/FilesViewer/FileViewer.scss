@@ -54,4 +54,10 @@
       max-height: calc(100vh - #{$baseHeightMobile} - #{$breadCrumbsHeight} - #{$groupActionsHeight});
     }
   }
+
+  &_dragged {
+    border-radius: 10px;
+    border: 2px dashed $color-blue-light;
+    margin: -2px;
+  }
 }

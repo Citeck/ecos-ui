@@ -1,6 +1,10 @@
 @import '../../styles/constants';
 
 .ecos-files-viewer {
+  &_dragged-not-files {
+    padding-bottom: 30px;
+  }
+
   &__item {
     $item: &;
 
