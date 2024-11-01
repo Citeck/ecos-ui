@@ -11,7 +11,8 @@ class DocLibServiceApi {
     nodeType: 'nodeType',
     hasChildrenDirs: 'hasChildrenDirs?bool',
     typeRef: '_type?id',
-    modified: '_modified?str'
+    modified: '_modified?str',
+    name: '_name?str'
   };
 
   async getTypeRef(journalId) {

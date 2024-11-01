@@ -1,4 +1,5 @@
 import { EventEmitter2 } from 'eventemitter2';
+import get from 'lodash/get';
 
 import { SourcesId } from '../../../constants';
 import DocLibConverter from '../../../dto/docLib';
@@ -67,6 +68,15 @@ class DocLibService {
       _type: typeRef,
       ...attributes
     };
+
+    if (get(atts, 'name') && get(atts, '_content') && atts._content.length) {
+      const fileName = get(atts._content[0], 'originalName', '') || get(atts._content[0], 'name', '');
+      const format = fileName.split('.').pop();
+
+      if (!!fileName && !!format) {
+        atts.name += '.' + format;
+      }
+    }
 
     return docLibApi.createChild(rootId, { attributes: atts });
   }

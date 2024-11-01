@@ -18,15 +18,9 @@ export const useDropFile = ({ callback, item = {} }) => {
   );
 
   const onDragEnter = e => {
-    e.stopPropagation();
-    e.preventDefault();
-
     setIsDragged(true);
   };
   const onDragLeave = e => {
-    e.stopPropagation();
-    e.preventDefault();
-
     setIsDragged(false);
     _debouncedLeave();
   };
@@ -43,12 +37,9 @@ export const useDropFile = ({ callback, item = {} }) => {
       return;
     }
 
-    callback({ item, files: Array.from(e.dataTransfer.files) });
+    callback({ item, items: Array.from(e.dataTransfer.items), files: Array.from(e.dataTransfer.files) });
   };
   const onDragOver = e => {
-    e.stopPropagation();
-    e.preventDefault();
-
     _debouncedLeave.cancel();
 
     if (item.type === NODE_TYPES.DIR) {

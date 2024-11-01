@@ -9,12 +9,12 @@ import EcosIcon from '../common/EcosIcon';
 import FileIcon from '../common/FileIcon';
 import { detectFormat } from '../common/FileIcon/helpers';
 import { NODE_TYPES } from '../../constants/docLib';
-import { useDropFile } from '../../hooks/useDropFile';
+import { useDropFile } from '../../hooks';
 
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm';
 
 const FilesViewerItem = ({ item, isSelected, isLastClicked, isMobile, onClick, onDoubleClick, onDrop }) => {
-  const { title, type, modified, actions } = item;
+  const { title, type, modified, actions, isEmpty = false } = item;
   const {
     flags: { isAboveDir },
     handlers
@@ -48,34 +48,39 @@ const FilesViewerItem = ({ item, isSelected, isLastClicked, isMobile, onClick, o
       className={classNames('ecos-files-viewer__item', {
         'ecos-files-viewer__item_selected': isSelected || isAboveDir,
         'ecos-files-viewer__item_lastclicked': isLastClicked,
-        'ecos-files-viewer__item_mobile': isMobile
+        'ecos-files-viewer__item_mobile': isMobile,
+        'ecos-files-viewer__item_empty': isEmpty
       })}
       onClick={_onClick}
       onDoubleClick={_onDoubleClick}
       {...extraProps}
     >
-      <div className="ecos-files-viewer__item-left">
-        <div className="ecos-files-viewer__item-icon-wrapper">
-          {type === NODE_TYPES.DIR ? (
-            <EcosIcon className={classNames('ecos-files-viewer__item-icon')} data={{ value: 'icon-folder' }} />
-          ) : (
-            <FileIcon className={classNames('ecos-files-viewer__item-file-icon')} format={detectFormat(title)} />
-          )}
-        </div>
-        <span className="ecos-files-viewer__item-title" title={title}>
-          {title}
-        </span>
-      </div>
-      <div
-        className={classNames('ecos-files-viewer__item-right', {
-          'ecos-files-viewer__item-right_mobile': isMobile
-        })}
-      >
-        <span className="ecos-files-viewer__item-modified" title={modifiedDisp}>
-          {modifiedDisp}
-        </span>
-        <div className="ecos-files-viewer__item-actions">{actionsList}</div>
-      </div>
+      {!isEmpty && (
+        <>
+          <div className="ecos-files-viewer__item-left">
+            <div className="ecos-files-viewer__item-icon-wrapper">
+              {type === NODE_TYPES.DIR ? (
+                <EcosIcon className={classNames('ecos-files-viewer__item-icon')} data={{ value: 'icon-folder' }} />
+              ) : (
+                <FileIcon className={classNames('ecos-files-viewer__item-file-icon')} format={detectFormat(title)} />
+              )}
+            </div>
+            <span className="ecos-files-viewer__item-title" title={title}>
+              {title}
+            </span>
+          </div>
+          <div
+            className={classNames('ecos-files-viewer__item-right', {
+              'ecos-files-viewer__item-right_mobile': isMobile
+            })}
+          >
+            <span className="ecos-files-viewer__item-modified" title={modifiedDisp}>
+              {modifiedDisp}
+            </span>
+            <div className="ecos-files-viewer__item-actions">{actionsList}</div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
