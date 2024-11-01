@@ -476,7 +476,7 @@
     }
 
     & :not(#{$kanban}__card-info):nth-of-type(10n + 11) {
-      padding-top: 0;
+      padding-top: 12px;
       border-top: 1px $color-gray-7 dotted;
     }
   }
@@ -529,6 +529,8 @@
     }
 
     &-form {
+      overflow-x: hidden;
+
       & > div dl {
         padding: 10px 0 0;
         border-bottom: none;
