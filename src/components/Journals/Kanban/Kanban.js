@@ -93,7 +93,6 @@ class Kanban extends React.Component {
 
   isNoMore = () => {
     const { totalCount, dataCards } = this.props;
-
     return totalCount === 0 || totalCount === dataCards.reduce((count = 0, card) => card.records.length + count, 0);
   };
 
