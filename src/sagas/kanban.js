@@ -265,7 +265,9 @@ export function* sagaGetData({ api, logger }, { payload }) {
         const preparedRecords = data.records.map(recordData => EcosFormUtils.postProcessingAttrsData({ recordData, inputByKey }));
         newRecordRefs.push(preparedRecords.map(rec => rec.cardId));
 
-        const allRecords = [...prevRecords, ...preparedRecords];
+        // only unique records
+        const allRecords = [...new Map([...prevRecords, ...preparedRecords].map(record => [record.id, record])).values()];
+
         if (data.totalCount >= allRecords.length) {
           dataCards.push({ totalCount: data.totalCount, records: [...allRecords], status: data.status });
         } else {
