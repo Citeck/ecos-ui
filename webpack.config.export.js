@@ -13,7 +13,7 @@ const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const safePostCssParser = require('postcss-safe-parser');
 // const ManifestPlugin = require('webpack-manifest-plugin');
 // const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
-const WorkboxWebpackPlugin = require('workbox-webpack-plugin');
+// const WorkboxWebpackPlugin = require('workbox-webpack-plugin');
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
 const getCSSModuleLocalIdent = require('react-dev-utils/getCSSModuleLocalIdent');
 const paths = require('react-scripts/config/paths');
@@ -531,11 +531,11 @@ module.exports = {
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
     // Generate a service worker script that will precache, and keep up to date,
     // the HTML & assets that are part of the Webpack build.
-    new WorkboxWebpackPlugin.InjectManifest({
+    /*new WorkboxWebpackPlugin.InjectManifest({
       swSrc: './src/serviceWorker.js',
       swDest: 'service-worker.js',
       exclude: [/\.map$/, /asset-manifest\.json$/],
-    }),
+    }),*/
     // TypeScript type checking
     fs.existsSync(paths.appTsConfig) &&
     new ForkTsCheckerWebpackPlugin({

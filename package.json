@@ -178,9 +178,7 @@
     "sinon": "9.0.3",
     "terser-webpack-plugin": "3.1.0",
     "webpack": "4.42.0",
-    "webpack-cli": "3.3.12",
-    "workbox-precaching": "6.5.4",
-    "workbox-webpack-plugin": "6.5.4"
+    "webpack-cli": "3.3.12"
   },
   "packageManager": "yarn@3.6.2",
   "resolutions": {
