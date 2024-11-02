@@ -1,18 +1,38 @@
-import { precacheAndRoute } from 'workbox-precaching';
-
 /* eslint-disable no-restricted-globals */
 
-// Caching of all resources
-precacheAndRoute(self.__WB_MANIFEST);
+const CACHE_NAME = 'app-cache-v1';
+const URLS_TO_CACHE = [
+  '/',
+  '/index.html',
+  '/static/js/main.chunk.js',
+];
 
 self.addEventListener('install', (event) => {
   console.log('[Service Worker] Install Event');
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      console.log('[Service Worker] Caching app resources');
+      return cache.addAll(URLS_TO_CACHE);
+    })
+  );
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   console.log('[Service Worker] Activate Event');
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            console.log('[Service Worker] Removing old cache:', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
+  self.clients.claim();
 });
 
 self.addEventListener('message', (event) => {
@@ -41,4 +61,3 @@ self.addEventListener('message', (event) => {
       break;
   }
 });
-
