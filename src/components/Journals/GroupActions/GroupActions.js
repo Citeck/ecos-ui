@@ -136,6 +136,7 @@ const GroupActions = React.memo(
           getStateOpen={setOpenRecActions}
           disabled={isEmpty(recordsActions)}
           onChange={handleExecuteAction}
+          isViewNewJournal={isViewNewJournal}
         >
           <Tooltip uncontrolled showAsNeeded target={targetPrefix + '-rec'} text={label} contentComponent={labelRecActionsCount}>
             <IcoBtn
@@ -168,6 +169,7 @@ const GroupActions = React.memo(
             menuClassName="ecos-group-actions__dropdown-menu"
             getStateOpen={setOpenQueryActions}
             onChange={handleExecuteAction}
+            isViewNewJournal={isViewNewJournal}
           >
             <TwoIcoBtn
               className={classNames('ecos-btn_hover_blue2 ecos-btn_grey3 ecos-group-actions__control', {

@@ -99,7 +99,7 @@ class ListDropdown extends React.Component {
         <Dropdown
           hasEmpty
           isStatic
-          scrollbarHeightMax={300}
+          scrollbarHeightMax={315}
           CustomItem={this.renderCustomItem}
           controlLabel={t('journal.presets.menu.title')}
           source={filterList({ journalSettings, searchText })}

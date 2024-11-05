@@ -248,6 +248,7 @@ export default class Export extends Component {
           })}
           onChange={this.handleExport}
           getStateOpen={this.changeIsOpen}
+          isViewNewJournal={isViewNewJournal}
         >
           {children}
         </Dropdown>

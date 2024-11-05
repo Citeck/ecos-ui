@@ -41,15 +41,18 @@ const CreateMenu = ({ createVariants, createIsLoading, onAddRecord, className, i
       titleField="title"
       onChange={onAddRecord}
       getStateOpen={changeIsOpen}
+      isViewNewJournal={isViewNewJournal}
     >
       <TwoIcoBtn
-        icons={['icon-small-plus', 'icon-small-down']}
+        icons={[isViewNewJournal ? null : 'icon-small-plus', 'icon-small-down']}
         className={classNames('ecos-journal__add-record ecos-btn_settings-down ecos-btn_white ecos-btn_hover_blue2', className, {
           'ecos-btn_mi_new ecos-journal__icon-small-down ecos-journal__btn_new create': isViewNewJournal,
           'ecos-journal__btn_new_focus': isViewNewJournal && isOpen
         })}
         title={t('journals.create-record-btn')}
-      />
+      >
+        {isViewNewJournal && <Create />}
+      </TwoIcoBtn>
     </Dropdown>
   );
 };
