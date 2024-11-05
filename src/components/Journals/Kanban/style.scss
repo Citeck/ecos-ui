@@ -349,6 +349,7 @@
 
     &-form {
       min-height: 0;
+      overflow-x: hidden;
 
       & > div:empty {
         @extend %animationStripes;
