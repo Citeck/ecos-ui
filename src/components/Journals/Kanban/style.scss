@@ -438,6 +438,34 @@
   .ecos-kanban__body {
     gap: 12px;
     margin-left: unset;
+    display: flex;
+
+    &_dragging {
+      overflow: hidden;
+      max-height: inherit;
+      padding-bottom: 6px;
+
+      & .ecos-kanban__card-info_float {
+        --color-info: #{HexToRGB($primary)};
+
+        color: rgba(var(--color-info), 1);
+        background-color: rgba(var(--color-info), 0.1);
+        @extend %show-card-info-float;
+
+        &_dragging-over {
+          --color-info: #{HexToRGB($success)};
+          color: rgba(var(--color-info), 1);
+          background-color: rgba(var(--color-info), 0.1);
+        }
+
+        &_disabled {
+          --color-info: #{HexToRGB($color-gray-5)};
+          color: rgba(var(--color-info), 1);
+          background-color: rgba(var(--color-info), 0.1);
+          cursor: no-drop;
+        }
+      }
+    }
   }
 
   .ecos-kanban__column {
@@ -524,8 +552,36 @@
       padding: 15px 16px;
     }
 
+    &-info_float {
+      background: unset;
+      align-items: flex-start;
+      transition: height 0.5s ease-out;
+      height: 0;
+      padding: 0;
+      opacity: 0;
+      overflow: hidden;
+    }
+
     &-body {
       border-top: 1px solid $color-gray-4;
+    }
+
+    &-action {
+      &-list {
+        display: inline-flex;
+        align-items: center;
+        margin-top: 0;
+        line-height: 1;
+
+        & > :nth-child(n) {
+          margin-left: 8px;
+        }
+      }
+
+      &-icon {
+        line-height: 1;
+        font-size: 12px;
+      }
     }
 
     &-form {
