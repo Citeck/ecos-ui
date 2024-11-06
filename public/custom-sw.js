@@ -1,11 +1,13 @@
+/* eslint-disable no-restricted-globals */
+
 const CACHE_NAME = 'app-cache-v1';
 
-window.addEventListener('install', (event) => {
+self.addEventListener('install', (event) => {
   console.log('[Service Worker] Install Event');
-  window.skipWaiting();
+  self.skipWaiting();
 });
 
-window.addEventListener('activate', (event) => {
+self.addEventListener('activate', (event) => {
   console.log('[Service Worker] Activate Event');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -19,16 +21,16 @@ window.addEventListener('activate', (event) => {
       );
     })
   );
-  window.clients.claim();
+  self.clients.claim();
 });
 
-window.addEventListener('message', (event) => {
+self.addEventListener('message', (event) => {
   const { type } = event.data;
 
   switch (type) {
     case 'UPLOAD_PROGRESS':
       const { status, file, totalCount, successFileCount } = event.data;
-      window.clients.matchAll().then(clients => {
+      self.clients.matchAll().then(clients => {
         clients.forEach(client => {
           client.postMessage({ type: 'UPDATE_UPLOAD_STATUS', status, file, totalCount, successFileCount });
         });
@@ -37,7 +39,7 @@ window.addEventListener('message', (event) => {
 
     case 'CONFIRMATION_FILE_RESPONSE':
       const { confirmed, isReplaceAllFiles } = event.data;
-      window.clients.matchAll().then(clients => {
+      self.clients.matchAll().then(clients => {
         clients.forEach(client => {
           client.postMessage({ type: 'CONFIRMATION_FILE_RESPONSE', confirmed, isReplaceAllFiles });
         });
