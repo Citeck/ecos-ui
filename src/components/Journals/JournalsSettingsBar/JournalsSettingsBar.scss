@@ -306,6 +306,12 @@
       background-color: $color-gray-25 !important;
     }
 
+    &:focus-within {
+      i {
+        color: $color-blue-dark !important;
+      }
+    }
+
     > i {
       top: 5px;
     }
@@ -322,6 +328,7 @@
 
   &.filter,
   &.shape {
+    border-radius: 6px;
     min-width: 28px !important;
     min-height: 28px !important;
     width: 28px;

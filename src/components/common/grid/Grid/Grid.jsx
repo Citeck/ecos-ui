@@ -88,6 +88,7 @@ class Grid extends Component {
 
     this.state = {
       needCellUpdate: false,
+      hasFooter: false,
       tableHeight: 0,
       isScrolling: false,
       maxHeight: props.maxHeight,
@@ -715,6 +716,10 @@ class Grid extends Component {
         content = <Loader type="points" height={10} width={18} />;
       } else if (!isEmpty(newFormatter) && ['duration', 'number'].includes(newFormatter.type)) {
         content = FormatterService.format({ cell: footer, column }, newFormatter);
+      }
+
+      if (!this.state.hasFooter) {
+        this.setState({ hasFooter: true });
       }
 
       return (
@@ -1391,7 +1396,7 @@ class Grid extends Component {
       isViewNewJournal,
       data
     } = this.props;
-    const { updatedColumn, updatedColumnBlocked, maxHeight } = this.state;
+    const { updatedColumn, updatedColumnBlocked, maxHeight, hasFooter } = this.state;
 
     if (isEmpty(columns)) {
       return null;
@@ -1419,7 +1424,9 @@ class Grid extends Component {
 
         {scrollable ? this.renderScrollableGrid() : this.renderGrid()}
 
-        {isViewNewJournal && data && data.length && <div style={{ height: cssNum(maxHeight) }} className="ecos-grid__border" />}
+        {isViewNewJournal && !hasFooter && data && data.length && (
+          <div style={{ height: cssNum(maxHeight) }} className="ecos-grid__border" />
+        )}
 
         {updatedColumn && (
           <Tooltip

@@ -12,8 +12,10 @@
     width: auto !important;
     height: auto !important;
 
-    > i {
-      font-size: 16px;
+    .ecos-btn__text {
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   }
 
@@ -202,6 +204,23 @@
 
 /* New Journal (2.0) */
 .ecos-journal_new {
+  .ecos-group-actions__dropdown-item {
+    li {
+      font-size: 15px !important;
+      font-weight: 600 !important;
+    }
+  }
+
+  .ecos-dropdown__menu {
+    max-width: $max-width-dropdown-menu !important;
+    min-width: $min-width-dropdown-menu !important;
+
+    ul {
+      max-width: $max-width-dropdown-menu !important;
+      min-width: $min-width-dropdown-menu !important;
+    }
+  }
+
   .ecos-grid .ecos-grid__tr_selected:nth-child(odd) {
     background-color: $color-yellow4;
 
@@ -262,10 +281,6 @@
       height: calc(100% - 2px) !important;
       background: linear-gradient(to right, rgba($color-white, 0), $color-white 15%);
     }
-  }
-
-  .ecos-dropdown__menu li {
-    font-size: 11px;
   }
 
   .ecos-pagination__text {

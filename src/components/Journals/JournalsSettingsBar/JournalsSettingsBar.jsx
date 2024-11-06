@@ -7,6 +7,8 @@ import isBoolean from 'lodash/isBoolean';
 import Shape from '../../common/icons/Shape';
 import Setting from '../../common/icons/Setting';
 import ExportIcon from '../../common/icons/Export';
+import Filter from '../../common/icons/Icon/Filter';
+import Repeat from '../../common/icons/Repeat';
 import { t } from '../../../helpers/util';
 import { ParserPredicate } from '../../Filters/predicates';
 import { JournalsPresetListDropdown } from '../JournalsPresets';
@@ -109,7 +111,7 @@ const JournalsSettingsBar = ({
         )}
 
         {!isMobile && (
-          <Tooltip target={`journal-table-settings`} text={t(nameBtnSettings || Labels.BTN_TABLE_SETTINGS)} {...tooltipSettings}>
+          <Tooltip target={`${targetId}-table-settings`} text={t(nameBtnSettings || Labels.BTN_TABLE_SETTINGS)} {...tooltipSettings}>
             <IcoBtn
               id={`${targetId}-table-settings`}
               icon={!isViewNewJournal ? 'icon-settings' : null}
@@ -126,7 +128,7 @@ const JournalsSettingsBar = ({
         )}
 
         {isViewNewJournal && !isMobile && hasBtnEdit && (
-          <Tooltip target={`journal-settings`} text={t(Labels.BTN_JOURNAL_SETTINGS)} {...tooltipSettings}>
+          <Tooltip target={`${targetId}-journal-settings`} text={t(Labels.BTN_JOURNAL_SETTINGS)} {...tooltipSettings}>
             <IcoBtn
               id={`${targetId}-journal-settings`}
               icon={!isViewNewJournal ? 'icon-settings' : null}
@@ -212,28 +214,32 @@ const JournalsSettingsBar = ({
         <Tooltip target={`${targetId}-update`} text={t(Labels.BTN_UPDATE)} {...tooltipSettings} modifiers={{}}>
           <IcoBtn
             id={`${targetId}-update`}
-            icon={'icon-reload'}
+            icon={!isViewNewJournal ? 'icon-reload' : null}
             className={classNames('ecos-journal__settings-bar-update', {
               [grey]: !isMobile,
               'ecos-btn_i ecos-btn_white': isMobile,
               'ecos-journal__small-btn_new': isViewNewJournal
             })}
             onClick={onRefresh}
-          />
+          >
+            {isViewNewJournal && <Repeat />}
+          </IcoBtn>
         </Tooltip>
 
         {isShowResetFilter && (
           <Tooltip target={`${targetId}-reset-filter`} text={t(Labels.BTN_FILTER_DEL)} {...tooltipSettings}>
             <IcoBtn
               id={`${targetId}-reset-filter`}
-              icon={'icon-filter-clean'}
+              icon={!isViewNewJournal ? 'icon-filter-clean' : null}
               className={classNames('ecos-journal__settings-bar-reset-filter', {
                 [grey]: !isMobile,
                 'ecos-btn_i ecos-btn_white': isMobile,
                 'ecos-journal__small-btn_new': isViewNewJournal
               })}
               onClick={onResetFilter}
-            />
+            >
+              {isViewNewJournal && <Filter />}
+            </IcoBtn>
           </Tooltip>
         )}
 
