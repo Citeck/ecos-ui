@@ -373,7 +373,10 @@ class App extends Component {
     }
 
     const appClassNames = classNames('app-container', { mobile: isMobile, new: isViewNewJournal });
-    const basePageClassNames = classNames('app-content ecos-base-page', { 'ecos-base-page_headless': this.isOnlyContent });
+    const basePageClassNames = classNames('app-content ecos-base-page', {
+      'ecos-base-page_headless': this.isOnlyContent,
+      'ecos-base-page__new': isViewNewJournal
+    });
 
     return (
       <ErrorBoundary title={t('page.error-loading.title')} message={t('page.error-loading.message')}>
