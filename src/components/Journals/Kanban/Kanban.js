@@ -183,8 +183,8 @@ class Kanban extends React.Component {
         <div className={classNames('ecos-kanban', { 'ecos-kanban__new': isViewNewJournal })} style={{ '--count-col': cols.length || 1 }}>
           <Scrollbars
             autoHeight
-            autoHeightMin={this.getHeight()}
-            autoHeightMax={this.getHeight()}
+            autoHeightMin={this.getHeight(-25)}
+            autoHeightMax={this.getHeight(-25)}
             renderThumbVertical={props => <div {...props} className="ecos-kanban__scroll_v" />}
             renderTrackHorizontal={props => <div {...props} className="ecos-kanban__scroll_h" />}
             onScrollFrame={this.handleScrollFrame}
