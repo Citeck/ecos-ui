@@ -16,7 +16,7 @@ const Body = ({ reloadList, tabId, toggleToFirstTab }) => {
   const children = tabItems[currentTab].filter(i => !i.parentId);
 
   const renderView = props => {
-    return <div {...props} style={{ ...props.style, marginBottom: '-13px' }} />;
+    return <div {...props} style={{ ...props.style, marginBottom: '140px' }} />;
   };
 
   return (
