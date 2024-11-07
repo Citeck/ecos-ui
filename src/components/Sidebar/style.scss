@@ -10,6 +10,10 @@ $transition-duration: 0.3s;
   &_headless {
     height: 100vh;
   }
+
+  &__new {
+    height: calc(100vh - 52px);
+  }
 }
 
 .ecos-main-area {
