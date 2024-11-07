@@ -874,7 +874,12 @@ function* sagaReloadGrid({ api, logger, stateId, w }, { payload = {} }) {
 
     const predicates = [journalData?.predicate, journalData?.journalConfig.predicate];
 
-    yield getColumnsSum(api, w, journalData?.journalConfig?.columns, journalData?.journalConfig?.id, predicates);
+    if (isEmpty(payload.groupBy)) {
+      yield getColumnsSum(api, w, journalData?.journalConfig?.columns, journalData?.journalConfig?.id, predicates);
+    } else {
+      yield put(setFooterValue(w(null)));
+    }
+
     yield put(setForceUpdate(w(true)));
     yield put(setLoading(w(false)));
   } catch (e) {
