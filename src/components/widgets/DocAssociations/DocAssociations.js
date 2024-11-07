@@ -220,9 +220,12 @@ class DocAssociations extends BaseWidget {
 
   handleClickViewDocument = selectedDocument => {
     const { viewAssociation } = this.props;
-    const { record } = selectedDocument;
 
-    viewAssociation(record);
+    if (selectedDocument) {
+      const { record } = selectedDocument;
+
+      viewAssociation(record);
+    }
   };
 
   closeConfirmRemovingModal = () => {
@@ -313,7 +316,17 @@ class DocAssociations extends BaseWidget {
         >
           <EcosDropdownMenu
             emptyMessage={t(LABELS.EMPTY_ALLOWED_ASSOCIATIONS_MESSAGE)}
-            items={menu}
+            items={menu.filter(item => {
+              if (!Array.isArray(item.createVariants) || item.id === 'assoc:associatedWith') {
+                return true;
+              }
+
+              if (Array.isArray(item.createVariants) && !item.createVariants.length) {
+                return false;
+              }
+
+              return true;
+            })}
             mode="cascade"
             isLoading={isLoadingMenu}
             modifiers={{

@@ -31,25 +31,8 @@ class AssociationGrid extends Component {
     scrollPosition: {}
   };
 
-  #wrapperRef = React.createRef();
   #toolsRef = React.createRef();
   #tableRef = React.createRef();
-
-  componentDidMount() {
-    const wrapper = this.#wrapperRef.current;
-
-    if (wrapper) {
-      wrapper.addEventListener('mouseleave', this.handleResetInlineTools);
-    }
-  }
-
-  componentWillUnmount() {
-    const wrapper = this.#wrapperRef.current;
-
-    if (wrapper) {
-      wrapper.removeEventListener('mouseleave', this.handleResetInlineTools);
-    }
-  }
 
   isNewOffsets = offsets => {
     const { inlineToolsOffsets } = this.state;
@@ -76,7 +59,7 @@ class AssociationGrid extends Component {
     this.handleSetInlineToolsOffsets({ row: {} });
   };
 
-  handleScrollStart = () => this.setState({ scrollPosition: {} });
+  handleScrollStart = () => this.setState({ ...this.state, scrollPosition: {} });
 
   handleScrollingTable = event => {
     if (this.#toolsRef.current) {
@@ -84,7 +67,7 @@ class AssociationGrid extends Component {
     }
   };
 
-  handleScrollStop = scrollPosition => this.setState({ scrollPosition });
+  handleScrollStop = scrollPosition => this.setState({ ...this.state, scrollPosition });
 
   handleClickAction = (callback, data) => {
     callback(data);
@@ -121,7 +104,7 @@ class AssociationGrid extends Component {
     const { key, scrollPosition } = this.state;
 
     return (
-      <div key={`document-list-${key}`} ref={this.#wrapperRef} className="ecos-doc-associations__group">
+      <div key={`document-list-${key}`} className="ecos-doc-associations__group">
         <div className="ecos-doc-associations__headline">
           <div className="ecos-doc-associations__headline-text">{t(title)}</div>
         </div>
