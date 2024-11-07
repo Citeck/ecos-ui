@@ -449,6 +449,7 @@ $transition-duration: 0.3s;
   }
 
   .ecos-sidebar-list {
+    margin-top: -4px;
     &_lvl-0 {
       #{$menu-item}_lvl-0 {
         padding-left: 12px;
@@ -472,7 +473,7 @@ $transition-duration: 0.3s;
 
       #{$menu-item}_lvl-1 {
         #{$menu-item}__link {
-          padding-left: 12px;
+          padding-left: 14px;
         }
       }
     }
