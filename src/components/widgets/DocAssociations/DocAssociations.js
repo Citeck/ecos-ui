@@ -220,9 +220,12 @@ class DocAssociations extends BaseWidget {
 
   handleClickViewDocument = selectedDocument => {
     const { viewAssociation } = this.props;
-    const { record } = selectedDocument;
 
-    viewAssociation(record);
+    if (selectedDocument) {
+      const { record } = selectedDocument;
+
+      viewAssociation(record);
+    }
   };
 
   closeConfirmRemovingModal = () => {

@@ -25,7 +25,8 @@ class DropdownMenuItem extends React.Component {
       targetUrl: PropTypes.string,
       label: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
       target: PropTypes.string,
-      control: PropTypes.object
+      control: PropTypes.object,
+      disabled: PropTypes.bool
     }).isRequired,
     onClick: PropTypes.func,
     iconRight: PropTypes.string,
@@ -94,15 +95,17 @@ class DropdownMenuItem extends React.Component {
       onClick
     } = this.props;
 
+    event.preventDefault();
+
+    if (data.disabled) {
+      return;
+    }
+
     if (control && control.type) {
-      event.preventDefault();
       handleControl(control.type, control.payload);
     } else if (!isLegacy && onClick) {
-      event.preventDefault();
-
       if (id === 'SETTINGS_DASHBOARD') {
         onClick({ ...data, dashboardId, updateDashboard: true });
-
         return;
       }
 
