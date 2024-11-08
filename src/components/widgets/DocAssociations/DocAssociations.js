@@ -316,17 +316,7 @@ class DocAssociations extends BaseWidget {
         >
           <EcosDropdownMenu
             emptyMessage={t(LABELS.EMPTY_ALLOWED_ASSOCIATIONS_MESSAGE)}
-            items={menu.filter(item => {
-              if (!Array.isArray(item.createVariants) || item.id === 'assoc:associatedWith') {
-                return true;
-              }
-
-              if (Array.isArray(item.createVariants) && !item.createVariants.length) {
-                return false;
-              }
-
-              return true;
-            })}
+            items={menu}
             mode="cascade"
             isLoading={isLoadingMenu}
             modifiers={{

@@ -63,9 +63,11 @@ export default class DocAssociationsConverter extends DocumentsConverter {
 
       target.id = DocAssociationsConverter.getId(item);
       target.label = getTextByLocale(item.name);
+      target.child = item.child || false;
       target.items = item.journals.map(journal => ({ ...journal, associationId: item.id }));
       target.createVariants = item.createVariants || [];
       target.attribute = item.attribute || '';
+      target.disabled = target.child && !target.createVariants.length;
 
       return target;
     });
