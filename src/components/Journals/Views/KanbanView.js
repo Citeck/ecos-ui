@@ -90,8 +90,8 @@ class KanbanView extends React.Component {
       return;
     }
 
-    if (prevProps.journalId !== journalId || (stateId && prevProps.stateId !== stateId) || this.state.isClose) {
-      this.setState({ isClose: false }, () => this.props.getJournalsData({ force }));
+    if (prevProps.journalId !== journalId || (stateId && prevProps.stateId !== stateId)) {
+      this.props.getJournalsData({ force, savePredicate: true });
     }
 
     if (urlParams[JUP.SEARCH] !== get(prevProps, ['urlParams', JUP.SEARCH])) {

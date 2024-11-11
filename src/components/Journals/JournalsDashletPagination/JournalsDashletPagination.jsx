@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import isFunction from 'lodash/isFunction';
 
-import { reloadGrid, setGrid } from '../../../actions/journals';
+import { cancelReloadGrid, reloadGrid, setGrid } from '../../../actions/journals';
 import { wrapArgs } from '../../../helpers/redux';
 import Pagination from '../../common/Pagination/Pagination';
 import { HEIGHT_GRID_ROW, HEIGHT_GRID_WRAPPER, HEIGHT_THEAD, MIN_CARD_DATA_NEW_JOURNAL, PAGINATION_SIZES } from '../constants';
@@ -24,7 +24,8 @@ const mapDispatchToProps = (dispatch, props) => {
 
   return {
     reloadGrid: options => dispatch(reloadGrid(w(options))),
-    setGridPagination: pagination => dispatch(setGrid(w({ pagination })))
+    setGridPagination: pagination => dispatch(setGrid(w({ pagination }))),
+    cancelReloadGrid: () => dispatch(cancelReloadGrid(w()))
   };
 };
 
@@ -36,21 +37,29 @@ class JournalsDashletPagination extends Component {
     isViewNewJournal: PropTypes.bool,
     maxHeightJournalData: PropTypes.number,
     reloadGrid: PropTypes.func,
-    setGridPagination: PropTypes.func
+    setGridPagination: PropTypes.func,
+    cancelReloadGrid: PropTypes.func
   };
 
   constructor(props) {
     super(props);
 
     this.state = {
-      maxHeightJournalData: null
+      maxHeightJournalData: null,
+      maxItems: null
     };
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { maxHeightJournalData, isViewNewJournal, setGridPagination, isDecrementLastRow } = this.props;
+    const { maxHeightJournalData, isViewNewJournal, setGridPagination, isDecrementLastRow, grid } = this.props;
+    const { maxItems: gridMaxItems } = grid || {};
+    const { maxItems: stateMaxItems } = this.state;
 
-    if ((maxHeightJournalData && !prevState.maxHeightJournalData) || prevProps.isDecrementLastRow !== isDecrementLastRow) {
+    if (
+      (maxHeightJournalData && !prevState.maxHeightJournalData) ||
+      prevProps.isDecrementLastRow !== isDecrementLastRow ||
+      (stateMaxItems && gridMaxItems && stateMaxItems !== gridMaxItems)
+    ) {
       this.setState({ maxHeightJournalData });
 
       if (isViewNewJournal && isFunction(setGridPagination)) {
@@ -64,10 +73,12 @@ class JournalsDashletPagination extends Component {
           maxItems = MIN_CARD_DATA_NEW_JOURNAL;
         }
 
-        setGridPagination({
-          skipCount: 0,
-          maxItems,
-          page: 1
+        this.setState({ maxItems }, () => {
+          setGridPagination({
+            skipCount: 0,
+            maxItems,
+            page: 1
+          });
         });
       }
     }
@@ -78,6 +89,7 @@ class JournalsDashletPagination extends Component {
   };
 
   reloadGrid = pagination => {
+    this.props.cancelReloadGrid();
     this.props.reloadGrid({ pagination });
   };
 

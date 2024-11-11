@@ -33,3 +33,5 @@ export const setIsFiltered = createAction(prefix + 'SET_IS_FILTERED');
 export const setPagination = createAction(prefix + 'SET_PAGINATION');
 
 export const setDefaultBoardAndTemplate = createAction(prefix + 'SET_DEFAULT_BOARD_AND_TEMPLATE');
+
+export const cancelGetNextBoardPage = createAction(prefix + 'CANCEL_GET_NEXT_BOARD_PAGE');
