@@ -30,6 +30,13 @@ export default class Pagination extends Component {
     sizes: PAGINATION_SIZES
   };
 
+  constructor(props) {
+    super(props);
+
+    const { page } = props;
+    this.state = { page };
+  }
+
   get maxPage() {
     const { maxItems, total } = this.props;
 
@@ -37,7 +44,7 @@ export default class Pagination extends Component {
   }
 
   get page() {
-    const { page } = this.props;
+    const { page } = this.state;
     const maxPage = this.maxPage;
 
     return page > maxPage ? maxPage : page;
@@ -77,6 +84,8 @@ export default class Pagination extends Component {
 
   triggerChange = (page, maxItems) => {
     const { onChange } = this.props;
+
+    this.setState({ page });
 
     if (typeof onChange === 'function') {
       onChange({

@@ -1,5 +1,5 @@
 import { NotificationManager } from 'react-notifications';
-import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
+import { call, put, select, takeEvery, takeLatest, race, take } from 'redux-saga/effects';
 import * as queryString from 'query-string';
 import get from 'lodash/get';
 import getFirst from 'lodash/first';
@@ -68,7 +68,8 @@ import {
   setFooterValue,
   toggleViewMode,
   setJournalExpandableProp,
-  setLoadingGrid
+  setLoadingGrid,
+  cancelReloadGrid
 } from '../actions/journals';
 import {
   selectGridPaginationMaxItems,
@@ -706,8 +707,9 @@ export function* getGridData(api, params, stateId) {
   return { ...journalData, columns, actions };
 }
 
-function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId, savePredicate }, w) {
+function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId, savePredicate, forcePagination }, w) {
   const initPredicate = savePredicate || false;
+  const isResetPagination = forcePagination || false;
   const sharedSettings = yield getJournalSharedSettings(api, userConfigId) || {};
 
   if (!isEmpty(sharedSettings) && !isEmpty(sharedSettings.columns)) {
@@ -720,7 +722,9 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
   const url = yield select(selectUrl, stateId);
   const journalData = yield select(selectJournalData, stateId);
 
-  const pagination = get(sharedSettings, 'pagination') || get(journalData, 'grid.pagination') || DEFAULT_PAGINATION;
+  const dataPagination = get(sharedSettings, 'pagination') || get(journalData, 'grid.pagination') || DEFAULT_PAGINATION;
+
+  const pagination = !isResetPagination ? dataPagination : { ...dataPagination, page: 1, skipCount: 0 };
   const params = getGridParams({ journalConfig, journalSetting: get(preset, 'settings', journalSetting), pagination });
   const search = url.search || journalSetting.search;
 
@@ -823,65 +827,77 @@ function* getGridEditingRules(api, gridData) {
 
 function* sagaReloadGrid({ api, logger, stateId, w }, { payload = {} }) {
   try {
-    yield put(setLoading(w(true)));
+    const { canceled } = yield race({
+      task: call(function*() {
+        yield put(setLoading(w(true)));
+        yield put(setLoadingGrid(w(true)));
 
-    const journalData = yield select(selectJournalData, stateId);
+        const journalData = yield select(selectJournalData, stateId);
 
-    if (get(payload, 'predicates')) {
-      yield put(setGrid(w({ predicates: payload.predicates })));
-    }
-
-    const { grid, selectAllRecordsVisible, selectedRecords, excludedRecords } = journalData;
-    const searchPredicate = get(payload, 'searchPredicate') || (yield getSearchPredicate({ logger, stateId }));
-    const params = { ...grid, ...payload, searchPredicate };
-    const gridData = yield getGridData(api, params, stateId);
-    const editingRules = yield getGridEditingRules(api, gridData);
-    const pageRecords = get(gridData, 'data', []).map(item => item.id);
-
-    let columns = get(params, 'columns');
-    let _selectedRecords = isArray(selectedRecords) ? selectedRecords : [];
-    let _selectAllPageRecords = false;
-
-    if (selectAllRecordsVisible) {
-      _selectedRecords = pageRecords.filter(rec => !excludedRecords.includes(rec));
-    }
-
-    if (pageRecords.every(rec => _selectedRecords.includes(rec))) {
-      _selectAllPageRecords = true;
-    }
-
-    // We keep the column order from "params", but the arguments from "gridData".
-    if (!columns || (isArray(columns) && columns.length === 0)) {
-      columns = get(gridData, 'columns', []);
-    } else {
-      columns = columns.map(column => {
-        const isSameName = col => col.name === column.name;
-        const isGroupingCountAll = col => column.column === GROUPING_COUNT_ALL && column.column === col.column;
-
-        const findCol = get(gridData, 'columns', []).find(col => isSameName(col) || (column.column && isGroupingCountAll(col)));
-
-        if (findCol) {
-          return findCol;
+        if (get(payload, 'predicates')) {
+          yield put(setGrid(w({ predicates: payload.predicates })));
         }
 
-        return column;
-      });
+        const { grid, selectAllRecordsVisible, selectedRecords, excludedRecords } = journalData;
+        const searchPredicate = get(payload, 'searchPredicate') || (yield getSearchPredicate({ logger, stateId }));
+        const params = { ...grid, ...payload, searchPredicate };
+        const gridData = yield getGridData(api, params, stateId);
+        const editingRules = yield getGridEditingRules(api, gridData);
+        const pageRecords = get(gridData, 'data', []).map(item => item.id);
+
+        let columns = get(params, 'columns');
+        let _selectedRecords = isArray(selectedRecords) ? selectedRecords : [];
+        let _selectAllPageRecords = false;
+
+        if (selectAllRecordsVisible) {
+          _selectedRecords = pageRecords.filter(rec => !excludedRecords.includes(rec));
+        }
+
+        if (pageRecords.every(rec => _selectedRecords.includes(rec))) {
+          _selectAllPageRecords = true;
+        }
+
+        // We keep the column order from "params", but the arguments from "gridData".
+        if (!columns || (isArray(columns) && columns.length === 0)) {
+          columns = get(gridData, 'columns', []);
+        } else {
+          columns = columns.map(column => {
+            const isSameName = col => col.name === column.name;
+            const isGroupingCountAll = col => column.column === GROUPING_COUNT_ALL && column.column === col.column;
+
+            const findCol = get(gridData, 'columns', []).find(col => isSameName(col) || (column.column && isGroupingCountAll(col)));
+
+            if (findCol) {
+              return findCol;
+            }
+
+            return column;
+          });
+        }
+
+        yield put(setSelectAllPageRecords(w(_selectAllPageRecords)));
+        yield put(setSelectedRecords(w(_selectedRecords)));
+        yield put(setGrid(w({ ...params, ...gridData, editingRules, columns })));
+
+        const predicates = [journalData?.predicate, journalData?.journalConfig.predicate];
+
+        if (isEmpty(payload.groupBy)) {
+          yield getColumnsSum(api, w, journalData?.journalConfig?.columns, journalData?.journalConfig?.id, predicates);
+        } else {
+          yield put(setFooterValue(w(null)));
+        }
+
+        yield put(setForceUpdate(w(true)));
+        yield put(setLoading(w(false)));
+        yield put(setLoadingGrid(w(false)));
+      }),
+      canceled: take(cancelReloadGrid().type)
+    });
+
+    if (canceled) {
+      yield put(setLoading(w(false)));
+      yield put(setLoadingGrid(w(false)));
     }
-
-    yield put(setSelectAllPageRecords(w(_selectAllPageRecords)));
-    yield put(setSelectedRecords(w(_selectedRecords)));
-    yield put(setGrid(w({ ...params, ...gridData, editingRules, columns })));
-
-    const predicates = [journalData?.predicate, journalData?.journalConfig.predicate];
-
-    if (isEmpty(payload.groupBy)) {
-      yield getColumnsSum(api, w, journalData?.journalConfig?.columns, journalData?.journalConfig?.id, predicates);
-    } else {
-      yield put(setFooterValue(w(null)));
-    }
-
-    yield put(setForceUpdate(w(true)));
-    yield put(setLoading(w(false)));
   } catch (e) {
     logger.error('[journals sagaReloadGrid saga error', e);
   }
@@ -1037,7 +1053,8 @@ function* sagaSelectPreset({ api, logger, stateId, w }, action) {
 
     yield put(setLoading(w(true)));
     yield call(api.journals.setLsJournalSettingId, journalConfig.id, journalSettingId);
-    yield loadGrid(api, { journalSettingId, journalConfig, stateId }, w);
+    yield loadGrid(api, { journalSettingId, journalConfig, stateId, forcePagination: true }, w);
+    yield put(cancelReloadGrid());
     yield put(setLoading(w(false)));
   } catch (e) {
     logger.error('[journals sagaSelectPreset saga error', e);

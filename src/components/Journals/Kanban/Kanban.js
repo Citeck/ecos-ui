@@ -9,7 +9,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import { DragDropContext } from 'react-beautiful-dnd';
 import ReactResizeDetector from 'react-resize-detector';
 
-import { getNextPage, moveCard, runAction } from '../../../actions/kanban';
+import { cancelGetNextBoardPage, getNextPage, moveCard, runAction } from '../../../actions/kanban';
 import { selectKanbanProps } from '../../../selectors/kanban';
 import { t } from '../../../helpers/util';
 import { InfoText, Loader, PointsLoader } from '../../common';
@@ -29,7 +29,8 @@ function mapStateToProps(state, props) {
 
 function mapDispatchToProps(dispatch, props) {
   return {
-    getNextPage: () => dispatch(getNextPage({ stateId: props.stateId })),
+    getNextPage: settings => dispatch(getNextPage({ stateId: props.stateId, ...settings })),
+    cancelGetNextBoardPage: () => dispatch(cancelGetNextBoardPage({ stateId: props.stateId })),
     moveCard: data => dispatch(moveCard({ stateId: props.stateId, ...data })),
     runAction: (recordRef, action) => dispatch(runAction({ recordRef, action, stateId: props.stateId }))
   };
@@ -39,6 +40,7 @@ class Kanban extends React.Component {
   static propTypes = {
     getNextPage: PropTypes.func,
     moveCard: PropTypes.func,
+    cancelGetNextBoardPage: PropTypes.func,
     runAction: PropTypes.func
   };
 
@@ -73,7 +75,8 @@ class Kanban extends React.Component {
     }
 
     if (this.state.isInView && !this.isNoMore()) {
-      this.props.getNextPage();
+      this.props.cancelGetNextBoardPage();
+      this.props.getNextPage({ isSkipPagination: true });
     }
 
     if (headerElement && bodyElement) {

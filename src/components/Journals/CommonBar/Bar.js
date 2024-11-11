@@ -25,9 +25,7 @@ class Bar extends Component {
   }
 
   handleToggleSettings = () => {
-    if (!this.props.isLoading) {
-      this.setState(({ settingsVisible }) => ({ settingsVisible: !settingsVisible, isReset: false }));
-    }
+    this.setState(({ settingsVisible }) => ({ settingsVisible: !settingsVisible, isReset: false }));
   };
 
   handleApplySettings = (isChangedPredicates, settings) => {
