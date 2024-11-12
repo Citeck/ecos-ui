@@ -311,6 +311,7 @@
   "charts-widget.doughnut-type": "Doughnut",
   "charts-widget.vertical-bar-type": "Vertical Bar",
   "charts-widget.line": "Line",
+  "charts-widget.legend-item-default-name": "No data",
 
   "current-tasks-widget.title": "All tasks",
   "current-tasks-widget.column.actors": "Performer",
