@@ -5,9 +5,11 @@ import PropTypes from 'prop-types';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 import { Scrollbars } from 'react-custom-scrollbars';
+import uuidV4 from 'uuid/v4';
 
+import { Tooltip } from '../../../common';
 import { IcoBtn, TwoIcoBtn } from '../../btns';
-import { getPropByStringKey, getTextByLocale } from '../../../../helpers/util';
+import { getPropByStringKey, getTextByLocale, isMobileDevice } from '../../../../helpers/util';
 import { getIconUpDown } from '../../../../helpers/icon';
 import MenuItem from './MenuItem';
 
@@ -235,10 +237,13 @@ export default class Dropdown extends Component {
     const text = getPropByStringKey(item, titleField);
     const className = isFunction(itemClassName) ? itemClassName(item) : itemClassName;
     const selected = item[valueField] === value;
+    const targetId = 'dropdown-menu-item_' + uuidV4();
 
     return (
-      <MenuItem key={this.getKey(item, i)} onClick={this.onChange} item={item} selected={selected} className={className}>
-        {getTextByLocale(text)}
+      <MenuItem key={this.getKey(item, i)} id={targetId} onClick={this.onChange} item={item} selected={selected} className={className}>
+        <Tooltip uncontrolled showAsNeeded target={targetId} text={getTextByLocale(text)} off={isMobileDevice()}>
+          {getTextByLocale(text)}
+        </Tooltip>
       </MenuItem>
     );
   };

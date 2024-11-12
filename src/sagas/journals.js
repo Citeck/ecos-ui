@@ -1540,10 +1540,20 @@ function* sagaExecJournalAction({ api, logger, w }, { payload }) {
 function* sagaResetFiltering({ logger, w, stateId }) {
   try {
     const url = yield select(selectUrl, stateId);
+    const isViewNewJournal = yield select(selectIsViewNewJournal);
+    const journalData = yield select(selectJournalData, stateId);
+    const { grid = {} } = journalData || {};
+    const { pagination = {} } = grid;
     const { journalId, journalSettingId = '', userConfigId } = url;
 
     yield put(setJournalExpandableProp(w(false)));
-    yield put(setGrid(w({ pagination: DEFAULT_PAGINATION })));
+
+    if (isViewNewJournal) {
+      yield put(setGrid(w({ pagination: { ...pagination, skipCount: 0, page: 1 } })));
+    } else {
+      yield put(setGrid(w({ pagination: DEFAULT_PAGINATION })));
+    }
+
     yield put(initJournal(w({ journalId, journalSettingId, userConfigId, force: true, savePredicate: false })));
   } catch (e) {
     logger.error('[journals sagaResetFiltering saga error', e);

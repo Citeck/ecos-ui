@@ -355,6 +355,11 @@
       display: block;
     }
 
+    &__table_footer__value {
+      flex-wrap: nowrap !important;
+      flex-direction: column;
+    }
+
     &_freeze.ecos-grid_selectable {
       thead > tr > th,
       tbody > tr > td {
