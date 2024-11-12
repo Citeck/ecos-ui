@@ -34,7 +34,7 @@ import FormatterService from '../../../Journals/service/formatters/FormatterServ
 import EcosProgressLoading from '../../EcosProgressLoading';
 import DateTimeFormatter from '../../../Journals/service/formatters/registry/DateTimeFormatter';
 import DateFormatter from '../../../Journals/service/formatters/registry/DateFormatter';
-import { COMPLEX_FILTER_LIMIT, JOURNAL_MIN_HEIGHT } from '../../../Journals/constants';
+import { COMPLEX_FILTER_LIMIT, ECOS_GRID_PADDING_HORIZONTAL, JOURNAL_MIN_HEIGHT } from '../../../Journals/constants';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
 import { SELECTOR_MENU_KEY } from '../util';
 import ErrorCell from '../ErrorCell';
@@ -94,7 +94,8 @@ class Grid extends Component {
       maxHeight: props.maxHeight,
       selected: props.selected || [],
       updatedColumn: null,
-      updatedColumnBlocked: null
+      updatedColumnBlocked: null,
+      ecosGridWidth: 0
     };
 
     this.userName = getCurrentUserName();
@@ -113,7 +114,7 @@ class Grid extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
-    return !nextState.isScrolling;
+    return !nextState.isScrolling || (nextProps.isViewNewJournal && !(nextProps.data && nextProps.data.length));
   }
 
   componentDidMount() {
@@ -122,12 +123,26 @@ class Grid extends Component {
     this.createKeydownEvents();
     this.createDragEvents();
 
+    if (typeof ResizeObserver !== 'undefined') {
+      this.resizeObserver = new ResizeObserver(entries => {
+        for (let entry of entries) {
+          const { width } = entry.contentRect;
+          this.setState({ ecosGridWidth: width });
+        }
+      });
+    } else {
+      this.resizeObserver = null;
+    }
+
     const current = this._ref.current;
 
     if (current) {
       this._shadowHeadNode = head(current.getElementsByClassName(ECOS_GRID_HEAD_SHADOW));
       this._shadowLeftNode = head(current.getElementsByClassName(ECOS_GRID_LEFT_SHADOW));
       this._firstHeaderCellNode = current.querySelector('thead > tr > th:first-child .ecos-grid__checkbox-divider');
+      if (this.resizeObserver) {
+        this.resizeObserver.observe(current);
+      }
     }
 
     this.checkScrollPosition();
@@ -203,6 +218,10 @@ class Grid extends Component {
     this.removeColumnResizeEvents();
     this.removeKeydownEvents();
     this.removeDragEvents();
+
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+    }
   }
 
   setGridRef = ref => {
@@ -316,13 +335,15 @@ class Grid extends Component {
 
   getBootstrapTableProps(props, extra) {
     const { isViewNewJournal, data, maxHeight } = this.props;
-    const { needCellUpdate } = this.state;
+    const { needCellUpdate, isScrolling } = this.state;
+    const { scrollLeft = 0 } = this._scrollRef ? this._scrollRef.getValues() || {} : {};
 
     let noDataIndication = null;
 
     const tableEl = this._ref.current
       ? this._ref.current.querySelector(`.${REACT_BOOTSTRAP_TABLE}`)
       : document.querySelector(`.${REACT_BOOTSTRAP_TABLE}`);
+
     if (tableEl && isViewNewJournal && !(data && data.length)) {
       const theadElement = tableEl.querySelector('thead');
       const width = tableEl.clientWidth;
@@ -331,7 +352,9 @@ class Grid extends Component {
         <div
           className="ecos-grid__no-data"
           style={{
-            width: width ? width - 28 : 'calc(100% - 28px)',
+            position: isScrolling ? 'fixed' : 'absolute',
+            width: width ? width - ECOS_GRID_PADDING_HORIZONTAL * 2 : `calc(100% - ${cssNum(ECOS_GRID_PADDING_HORIZONTAL * 2)})`,
+            ...(!isScrolling && scrollLeft && { left: scrollLeft + ECOS_GRID_PADDING_HORIZONTAL }),
             ...(theadElement && { minHeight: maxHeight - theadElement.clientHeight - 70 })
           }}
         >
