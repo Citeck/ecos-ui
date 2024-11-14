@@ -210,6 +210,7 @@
   "charts-widget.doughnut-type": "Круговой",
   "charts-widget.vertical-bar-type": "Столбчатый",
   "charts-widget.line": "Линейный",
+  "charts-widget.legend-item-default-name": "Нет значений",
 
   "current-tasks-widget.title": "Все задачи",
   "current-tasks-widget.column.actors": "Исполнитель",
