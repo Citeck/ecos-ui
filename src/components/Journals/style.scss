@@ -320,7 +320,7 @@
     padding: 0 15px;
 
     &__divider {
-      padding: 0 0 0 8px;
+      padding: 6px 0 6px 8px;
     }
 
     &__actions i {
@@ -358,6 +358,18 @@
     &__table_footer__value {
       flex-wrap: nowrap !important;
       flex-direction: column;
+
+      .ecos-grid__table_footer__item,
+      .ecos-popper__text {
+        font-size: 10px;
+        font-weight: 600;
+        line-height: 16px;
+      }
+
+      .ecos-popper > i {
+        font-size: 12px;
+        margin-top: 0;
+      }
     }
 
     &_freeze.ecos-grid_selectable {
@@ -402,6 +414,10 @@
 
     &__table {
       margin-bottom: 0 !important;
+
+      &_grouping {
+        margin-bottom: 15px !important;
+      }
     }
 
     &__table.table th {
