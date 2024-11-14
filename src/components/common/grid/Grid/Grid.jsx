@@ -991,6 +991,11 @@ class Grid extends Component {
     );
   }
 
+  get hasGrouping() {
+    const { journalSetting = {} } = this.props;
+    return isArray(get(journalSetting, 'groupBy')) && journalSetting.groupBy.length !== 0;
+  }
+
   clearResizingColumn = e => {
     const { journalId } = this.props;
 
@@ -1390,7 +1395,9 @@ class Grid extends Component {
         <ErrorTable>
           <BootstrapTable
             {...bootProps}
-            classes="ecos-grid__table"
+            classes={classNames('ecos-grid__table', {
+              'ecos-grid__table_grouping': this.hasGrouping && isViewNewJournal
+            })}
             headerClasses={classNames(ECOS_GRID_HEADER, {
               'ecos-grid__header_columns-not-resizable': !resizableColumns
             })}
