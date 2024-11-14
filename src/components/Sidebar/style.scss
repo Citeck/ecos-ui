@@ -434,7 +434,12 @@ $transition-duration: 0.3s;
   width: 70px;
 
   .ecos-sidebar-logo {
+    padding-top: 17px;
     padding-left: 12px;
+  }
+
+  .ecos-sidebar-scroll {
+    margin-top: -4px;
   }
 
   .ecos-sidebar-item {
@@ -453,7 +458,6 @@ $transition-duration: 0.3s;
   }
 
   .ecos-sidebar-list {
-    margin-top: -4px;
     &_lvl-0 {
       #{$menu-item}_lvl-0 {
         padding-left: 12px;
@@ -462,6 +466,7 @@ $transition-duration: 0.3s;
           @extend %menu-item-separator;
           bottom: 0;
           width: 90%;
+          height: 1px;
         }
 
         #{$menu-item}__label {
@@ -489,13 +494,7 @@ $transition-duration: 0.3s;
         }
 
         #{$menu-item}__link {
-          padding-left: 12px;
-        }
-
-        &:not(:first-child)::before {
-          @extend %menu-item-separator;
-          top: 0;
-          left: 12px;
+          padding-left: 18px;
         }
       }
     }

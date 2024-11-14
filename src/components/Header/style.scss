@@ -78,7 +78,7 @@
       }
 
       .ecos-btn__text {
-        margin-left: 6px;
+        margin-left: 1px;
       }
     }
   }
@@ -267,6 +267,9 @@
 
     &__menu {
       min-width: 100% !important;
+      .ecos-dropdown__menu_new {
+        min-width: unset !important;
+      }
 
       li a {
         padding: 9px 10px;
@@ -297,31 +300,45 @@
 }
 
 .ecos-header_new {
-  padding: 10px 19px 10px 26px;
+  padding: 10px 12px 10px 21px;
 
   .ecos-btn {
     font-size: $font-size-small;
-    line-height: normal;
     height: 32px;
   }
 
-  .ecos-btn__text {
-    margin-left: 0;
+  .ecos-btn__text :not(.ecos-header-lang__btn) :not(.ecos-header-lang__img) {
+    margin-left: 1px;
   }
 
   .icon:not(.ecos-avatar__icon) {
     font-size: $font-size-standard;
-    line-height: normal;
+    line-height: 1em;
   }
 
   .ecos-header__side {
+    & > :not(:last-child) {
+      margin-right: 6px;
+    }
     .ecos-header-hamburger {
       margin-right: 16px;
     }
   }
 
-  .ecos-header-lang__img {
-    width: 16px;
+  .ecos-header-site {
+    &__btn.ecos-btn {
+      padding: 8px;
+    }
+  }
+
+  .ecos-header-lang {
+    &__btn {
+      padding: 9px;
+    }
+    &__img {
+      width: 16px;
+      margin-right: 6px;
+    }
   }
 
   .ecos-header-user-avatar {
@@ -333,6 +350,7 @@
     justify-content: space-between;
     gap: 6px;
     max-width: unset;
+    padding: 6px 12px;
   }
 
   .ecos-header-user__menu-item {
