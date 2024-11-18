@@ -244,6 +244,7 @@ class JournalsDashletGrid extends Component {
       selectAllPageRecords,
       saveRecords,
       className,
+      loadingGrid,
       loading,
       isWidget,
       grid,
@@ -287,7 +288,7 @@ class JournalsDashletGrid extends Component {
     return (
       <>
         <div className="ecos-journal-dashlet__grid">
-          {!isWidget && loading && <Loader blur />}
+          {!isWidget && loadingGrid && <Loader blur />}
           {!loading && isEmpty(viewColumns) && <InfoText text={t('journal.table.no-columns')} />}
           <HeightCalculation loading={loading} minHeight={minHeight} maxHeight={maxHeight} total={total} maxItems={maxItems}>
             <Grid
