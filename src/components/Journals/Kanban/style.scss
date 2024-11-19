@@ -431,10 +431,12 @@
   border-radius: 0 0 12px 12px;
 
   .ecos-kanban__column {
-    padding: 0 12px;
+    padding: 0 11px;
     background: #f6f8f9;
     border: 0;
     border-radius: unset;
+    min-width: 237px;
+    max-width: 337px;
 
     &:not(.ecos-kanban__column-name) {
       border-left: 1px solid $color-gray-4;
@@ -605,6 +607,10 @@
         & > :nth-child(n) {
           margin-left: 8px;
         }
+
+        &_withoutTitle {
+          top: 6px;
+        }
       }
 
       &-icon {
@@ -620,14 +626,21 @@
       & > div dl {
         padding: 5px 0;
         border-bottom: none;
+        justify-content: space-between;
 
         dt,
         dd {
           font-size: 11px;
+          line-height: 1.2;
+          white-space: pre;
+          width: unset;
+          text-overflow: ellipsis;
+          overflow: hidden;
         }
 
         dd a {
           color: inherit;
+          padding: 0;
 
           &:hover {
             color: $color-blue-dark;
