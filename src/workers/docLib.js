@@ -1,18 +1,25 @@
 import { createWorkerFromScript } from '../helpers/util';
 
+let workerInstance = null;
+let sendMethod = null;
+
 const initializeWorker = async () => {
-  const worker = await createWorkerFromScript('/workers/docLib-script.js');
+  workerInstance = await createWorkerFromScript('/workers/docLib-script.js');
 
-  const send = message => {
-    worker.postMessage(message);
+  sendMethod = message => {
+    if (workerInstance) {
+      workerInstance.postMessage(message);
+    }
   };
 
-  // The basic `onmessage` method can be overridden
-  worker.onmessage = event => {
-    console.log('Result from Worker:', event.data);
+  workerInstance.onmessage = event => {
+    console.log('Message from Worker:', event.data);
   };
 
-  return { worker, send };
+  return { worker: workerInstance, send: sendMethod };
 };
+
+export const getWorker = () => workerInstance;
+export const sendToWorker = message => sendMethod && sendMethod(message);
 
 export default initializeWorker;

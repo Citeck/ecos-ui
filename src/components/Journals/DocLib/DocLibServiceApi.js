@@ -80,6 +80,17 @@ class DocLibServiceApi {
     return record.save();
   }
 
+  async changeAttributesItem(id, options) {
+    const { attributes = {} } = options;
+    const record = Records.get(id);
+
+    Object.keys(attributes).forEach(attName => {
+      record.att(attName, attributes[attName]);
+    });
+
+    return record.save();
+  }
+
   async getDisp(typeRef) {
     return Records.get(typeRef).load('?disp');
   }

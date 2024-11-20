@@ -2,7 +2,14 @@ import { connect } from 'react-redux';
 
 import { wrapArgs } from '../../../../helpers/redux';
 import { selectFilesViewerProps } from '../../../../selectors/docLib';
-import { initDocLib, openFolder, setFileViewerLastClicked, setFileViewerSelected, uploadFiles } from '../../../../actions/docLib';
+import {
+  initDocLib,
+  openFolder,
+  setFileViewerLastClicked,
+  setFileViewerSelected,
+  setParentItem,
+  uploadFiles
+} from '../../../../actions/docLib';
 
 import FilesViewer from './FilesViewer';
 
@@ -16,6 +23,7 @@ const mapDispatchToProps = (dispatch, props) => {
     setSelected: id => dispatch(setFileViewerSelected(w(id))),
     setLastClicked: id => dispatch(setFileViewerLastClicked(w(id))),
     onDrop: data => dispatch(uploadFiles(w(data))),
+    setParentItem: data => dispatch(setParentItem(w(data))),
     onInitData: id => dispatch(initDocLib(w(id)))
   };
 };

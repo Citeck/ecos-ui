@@ -24,7 +24,8 @@ const FilesViewer = ({
   path = [],
   onInitData,
   onDrop,
-  isLoading
+  isLoading,
+  setParentItem
 }) => {
   const [isDragged, setIsDragged] = useState(false);
   const { hasError, isReady, items = [], selected, lastClicked } = fileViewer;
@@ -68,6 +69,12 @@ const FilesViewer = ({
     setIsDragged(false);
   };
 
+  const _setParentItem = (...args) => {
+    setParentItem(...args);
+
+    setIsDragged(false);
+  };
+
   if (hasError) {
     content = t('document-library.failure-to-fetch-data');
   } else if (!isReady && !items.length) {
@@ -98,6 +105,7 @@ const FilesViewer = ({
             setLastClicked={setLastClicked}
             isDragged={isDragged}
             onDrop={_onDrop}
+            setParentItem={_setParentItem}
           />
         </div>
       ) : (
@@ -128,6 +136,7 @@ FilesViewer.propTypes = {
   }),
   openFolder: PropTypes.func,
   setSelected: PropTypes.func,
+  setParentItem: PropTypes.func,
   groupActions: PropTypes.shape({
     isReady: PropTypes.bool,
     forRecords: PropTypes.shape({

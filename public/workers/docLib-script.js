@@ -1,5 +1,17 @@
 /* eslint-disable no-restricted-globals */
 
+const activeRequests = {};
+const cancelledRequests = [];
+
+self.addEventListener('message', (e) => {
+  const { type, requestId } = e.data;
+  if (type === 'CANCEL_REQUEST' && activeRequests[requestId]) {
+    activeRequests[requestId].abort();
+    delete activeRequests[requestId];
+    cancelledRequests.push(requestId);
+  }
+});
+
 self.onmessage = async (event) => {
   const { items: _items, rootId, folderId, folderTitle, totalCount: _totalCount, destinations = {} } = event.data;
   const { file: destinationFile, dir: destinationDir } = destinations;
@@ -204,8 +216,10 @@ async function handleUploads({ items, folderId, rootId, destinationFile, destina
           successFileCount
         });
 
-        successFileCount++;
-        result.push(uploadFileResult);
+        if (uploadFileResult) {
+          successFileCount++;
+          result.push(uploadFileResult);
+        }
 
       } else if (item.nodeType === NODE_TYPES.DIR && item.files) {
         const createDirResult = item.alreadyExits && item.id ? { id: item.id } : await handleUploadDirectory({ dirName: item.name, parentId: folderId, rootId, destinationDir });
@@ -251,8 +265,10 @@ async function handleUploads({ items, folderId, rootId, destinationFile, destina
                   successFileCount
                 });
 
-                successFileCount++;
-                result.push(uploadFileResult);
+                if (uploadFileResult) {
+                  result.push(uploadFileResult);
+                  successFileCount++;
+                }
               } else if (folderPath && folderPath === item.name) {
                 const uploadFileResult = await handleUploadFile({
                   file: file.file,
@@ -263,8 +279,10 @@ async function handleUploads({ items, folderId, rootId, destinationFile, destina
                   successFileCount
                 });
 
-                result.push(uploadFileResult);
-                successFileCount++;
+                if (uploadFileResult) {
+                  result.push(uploadFileResult);
+                  successFileCount++;
+                }
               }
             }
           }
@@ -355,19 +373,44 @@ async function handleUploadDirectory({ dirName, parentId, destinationDir, rootId
 }
 
 async function handleUploadFile({ file, dirId, rootId, destinationFile, totalCount, successFileCount }) {
-  self.postMessage({ status: 'in-progress', totalCount, successFileCount, file: { file, isLoading: true, isError: false } });
+  const controller = new AbortController();
+  const signal = controller.signal;
+
+  const requestId = `${file.name || ''}-${file.size || 0}-${file.lastModified || 0}-${dirId}`;
+  activeRequests[requestId] = controller;
+
+  self.postMessage({
+    status: 'in-progress',
+    requestId,
+    totalCount,
+    successFileCount,
+    file: { file, isLoading: true, isError: false }
+  });
 
   const formData = new FormData();
 
   formData.append('file', file);
   formData.append('name', file.name);
 
-  const response = await citeckFetch('/gateway/emodel/api/ecos/webapp/content', {
+  const responseData = await citeckFetch('/gateway/emodel/api/ecos/webapp/content', {
     body: formData,
-    method: 'post'
-  });
+    method: 'post',
+    signal
+  })
+    .then(async res => await res.json())
+    .catch(() => {
+      self.postMessage({
+        status: 'error',
+        totalCount,
+        successFileCount,
+        isCancelled: cancelledRequests.includes(requestId),
+        file: { file, isLoading: false, isError: true }
+      });
+    });
 
-  const responseData = await response.json();
+  if (!responseData) {
+    return undefined;
+  }
 
   const { entityRef = null } = responseData;
   if (!entityRef) {
@@ -385,18 +428,25 @@ async function handleUploadFile({ file, dirId, rootId, destinationFile, totalCou
     return Promise.reject('Error: Error when converting a file');
   }
 
-  return await createChild(rootId, dirId, destinationFile, convertFile)
+  return await createChild(rootId, dirId, destinationFile, convertFile, signal)
     .then(async res => {
       self.postMessage({
         status: 'in-progress',
         totalCount,
         successFileCount: successFileCount + 1,
-        file: { file, isLoading: false, isError: false }
+        file: { file, isLoading: false, isError: false },
+        requestId
       });
       return await res.json()
     })
     .catch(() => {
-      self.postMessage({ status: 'error', totalCount, successFileCount, file: { file, isLoading: false, isError: true } });
+      self.postMessage({
+        status: 'error',
+        totalCount,
+        successFileCount,
+        isCancelled: cancelledRequests.includes(requestId),
+        file: { file, isLoading: false, isError: true }
+      });
     });
 }
 
@@ -438,7 +488,7 @@ function prepareUploadedFileDataForSaving(file = {}, uploadedData = {}) {
   };
 }
 
-async function createChild(rootId, parentId, typeRef, attributes = {}) {
+async function createChild(rootId, parentId, typeRef, attributes = {}, signal) {
   const parent = parentId || rootId;
 
   const atts = {
@@ -454,17 +504,19 @@ async function createChild(rootId, parentId, typeRef, attributes = {}) {
 
   return citeckFetch("/gateway/api/records/mutate", {
     body: { records: [record] },
-    method: 'post'
+    method: 'post',
+    signal
   });
 }
 
 async function citeckFetch(path = '', options = {}) {
-  const { method, headers = {}, body, mode } = options;
+  const { method, headers = {}, body, mode, signal } = options;
 
   const url = `${self.location.origin}${path}`;
   const timezoneOffset = -new Date().getTimezoneOffset();
 
   const params = {
+    signal,
     credentials: 'include',
     headers: {
       ...headers,

@@ -1,6 +1,8 @@
 @import '../../../styles/constants';
 
 .citeck-upload-status {
+  $root: &;
+
   position: fixed;
   bottom: 0;
 
@@ -61,6 +63,25 @@
     box-sizing: border-box;
     width: 100%;
 
+    &_loading {
+      &:hover #{$root}__file-action_cancel {
+        display: flex;
+      }
+
+      &:hover #{$root}__file-status {
+        display: none;
+      }
+    }
+
+    &-action_cancel {
+      display: none;
+      cursor: pointer;
+
+      path {
+        fill: $color-gray-5;
+      }
+    }
+
     &-info {
       display: inline-flex;
       align-items: center;
@@ -81,6 +102,10 @@
       justify-content: center;
 
       max-width: 30px;
+
+      &_canceled path {
+        fill: $color-gray-5;
+      }
     }
   }
 }
@@ -110,6 +135,20 @@
     border-radius: 12px;
     background-color: $color-white;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+    &-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 0 16px;
+
+      &_label {
+        font-weight: 600;
+        font-size: 13px;
+        color: $color-red-1;
+        line-height: 16px;
+      }
+    }
 
     &-radio {
       .ecos-radio {
@@ -173,6 +212,10 @@
         background-color: $color-blue-dark;
         color: $color-white;
       }
+
+      &_btn.disabled {
+        background-color: $color-gray-2;
+      }
     }
 
     &-description {
@@ -184,9 +227,17 @@
     }
 
     &-header {
+      display: inline-flex;
+      justify-content: space-between;
+      align-items: center;
+
       width: 100%;
       padding: 10px 16px;
       border-bottom: 1px solid $color-gray-25;
+
+      &_btn {
+        cursor: pointer;
+      }
 
       &_text {
         color: $text-color-dark;

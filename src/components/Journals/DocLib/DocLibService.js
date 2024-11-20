@@ -81,6 +81,15 @@ class DocLibService {
     return docLibApi.createChild(rootId, { attributes: atts });
   }
 
+  async changeParent(id, newParent, title) {
+    const atts = {
+      _parent: newParent,
+      name: title
+    };
+
+    return docLibApi.changeAttributesItem(id, { attributes: atts });
+  }
+
   async getFolderTitle(typeRef) {
     return docLibApi.getDisp(typeRef);
   }

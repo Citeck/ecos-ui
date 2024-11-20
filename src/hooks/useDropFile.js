@@ -4,7 +4,7 @@ import debounce from 'lodash/debounce';
 
 import { NODE_TYPES } from '../constants/docLib';
 
-export const useDropFile = ({ callback, item = {} }) => {
+export const useDropFile = ({ callback, setParentItem, item = {} }) => {
   const [isDragged, setIsDragged] = useState(false);
   const [isAboveDir, setAboveDir] = useState(false);
 
@@ -28,16 +28,30 @@ export const useDropFile = ({ callback, item = {} }) => {
     e.stopPropagation();
     e.preventDefault();
 
-    const dataTypes = get(e, 'dataTransfer.types', []);
+    const droppedData = e.dataTransfer.getData('application/json');
 
-    setAboveDir(false);
-    setIsDragged(false);
+    if (droppedData) {
+      const droppedItem = JSON.parse(droppedData);
+      const targetElement = e.target.closest('.ecos-files-viewer__item');
+      if (targetElement && get(droppedItem, 'id')) {
+        const targetItemId = targetElement.dataset.id;
+        setParentItem({ item: droppedItem, parent: targetItemId });
 
-    if (!dataTypes.includes('Files')) {
-      return;
+        setAboveDir(false);
+        setIsDragged(false);
+      }
+    } else {
+      const dataTypes = get(e, 'dataTransfer.types', []);
+
+      setAboveDir(false);
+      setIsDragged(false);
+
+      if (!dataTypes.includes('Files')) {
+        return;
+      }
+
+      callback({ item, items: Array.from(e.dataTransfer.items), files: Array.from(e.dataTransfer.files) });
     }
-
-    callback({ item, items: Array.from(e.dataTransfer.items), files: Array.from(e.dataTransfer.files) });
   };
   const onDragOver = e => {
     _debouncedLeave.cancel();
