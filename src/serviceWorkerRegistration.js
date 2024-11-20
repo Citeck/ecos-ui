@@ -35,8 +35,11 @@ export function register(config) {
       const swUrl = `${process.env.PUBLIC_URL}/custom-sw.js`;
 
       checkValidServiceWorker(swUrl, config);
-      navigator.serviceWorker.ready.then(() => {
+      navigator.serviceWorker.ready.then((registration) => {
         console.log('This web app is being served cache-first by a service worker. To learn more, visit http://bit.ly/CRA-PWA');
+        if (registration) {
+          registration.update();
+        }
       });
 
       /*if (isLocalhost) {

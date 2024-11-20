@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-globals */
 
-const CACHE_NAME = 'app-cache-v1';
+const CACHE_NAME = 'app-cache-v2';
 
 self.addEventListener('install', (event) => {
   console.log('[Service Worker] Install Event');
