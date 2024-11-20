@@ -29,10 +29,18 @@ self.addEventListener('message', (event) => {
 
   switch (type) {
     case 'UPLOAD_PROGRESS':
-      const { status, file, totalCount, successFileCount } = event.data;
+      const { status, file, totalCount, successFileCount, requestId, isCancelled } = event.data;
       self.clients.matchAll().then(clients => {
         clients.forEach(client => {
-          client.postMessage({ type: 'UPDATE_UPLOAD_STATUS', status, file, totalCount, successFileCount });
+          client.postMessage({
+            type: 'UPDATE_UPLOAD_STATUS',
+            status,
+            isCancelled,
+            file,
+            totalCount,
+            successFileCount,
+            requestId
+          });
         });
       });
       break;
@@ -42,6 +50,24 @@ self.addEventListener('message', (event) => {
       self.clients.matchAll().then(clients => {
         clients.forEach(client => {
           client.postMessage({ type: 'CONFIRMATION_FILE_RESPONSE', confirmed, isReplaceAllFiles });
+        });
+      });
+      break;
+
+    case 'CONFIRMATION_RENAME_DIR_REQUEST':
+      const { currentItemTitle, targetDirTitle, parentDirTitles, typeCurrentItem } = event.data;
+      self.clients.matchAll().then(clients => {
+        clients.forEach(client => {
+          client.postMessage({ type: 'CONFIRMATION_RENAME_DIR_REQUEST', currentItemTitle, parentDirTitles, typeCurrentItem, targetDirTitle });
+        });
+      });
+      break;
+
+    case 'CONFIRMATION_RENAME_DIR_RESPONSE':
+      const { confirmedRenameItem, titleRenamingItem } = event.data;
+      self.clients.matchAll().then(clients => {
+        clients.forEach(client => {
+          client.postMessage({ type: 'CONFIRMATION_RENAME_DIR_RESPONSE', confirmedRenameItem, titleRenamingItem });
         });
       });
       break;

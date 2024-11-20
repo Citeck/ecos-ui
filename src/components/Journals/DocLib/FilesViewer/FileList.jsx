@@ -10,7 +10,18 @@ import { RecordActionsApi } from '../../../../api/recordActions';
 
 const actionApi = new RecordActionsApi();
 
-const FileList = ({ isMobile, items = [], selected = [], lastClicked, openFolder, setSelected, setLastClicked, onDrop, isDragged }) => {
+const FileList = ({
+  isMobile,
+  items = [],
+  selected = [],
+  lastClicked,
+  setParentItem,
+  openFolder,
+  setSelected,
+  setLastClicked,
+  onDrop,
+  isDragged
+}) => {
   const _onDoubleClick = (item, e) => {
     if (item.type === NODE_TYPES.DIR && typeof openFolder === 'function') {
       openFolder(item.id);
@@ -82,6 +93,7 @@ const FileList = ({ isMobile, items = [], selected = [], lastClicked, openFolder
       onClick={_onClick}
       onDoubleClick={_onDoubleClick}
       onDrop={onDrop}
+      setParentItem={setParentItem}
     />
   );
 };
@@ -93,6 +105,7 @@ FileList.propTypes = {
   selected: PropTypes.array,
   lastClicked: PropTypes.string,
   openFolder: PropTypes.func,
+  setParentItem: PropTypes.func,
   setSelected: PropTypes.func,
   setLastClicked: PropTypes.func
 };

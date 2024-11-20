@@ -9,8 +9,11 @@ exports[`FilesViewer tests <FilesViewer /> should render FilesViewer component 1
 exports[`FilesViewer tests <FilesViewerItem /> should render FilesViewerItem component 1`] = `
 <div
   className="ecos-files-viewer__item"
+  data-id=""
+  draggable={true}
   onClick={[Function]}
   onDoubleClick={[Function]}
+  onDragStart={[Function]}
 >
   <div
     className="ecos-files-viewer__item-left"

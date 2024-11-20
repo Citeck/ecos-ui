@@ -13,12 +13,12 @@ import { useDropFile } from '../../hooks';
 
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm';
 
-const FilesViewerItem = ({ item, isSelected, isLastClicked, isMobile, onClick, onDoubleClick, onDrop }) => {
+const FilesViewerItem = ({ item, isSelected, isLastClicked, setParentItem, isMobile, onClick, onDoubleClick, onDrop }) => {
   const { title, type, modified, actions, isEmpty = false } = item;
   const {
     flags: { isAboveDir },
     handlers
-  } = useDropFile({ item, callback: onDrop });
+  } = useDropFile({ item, callback: onDrop, setParentItem });
   let extraProps = {};
 
   if (typeof onDrop === 'function') {
@@ -30,6 +30,14 @@ const FilesViewerItem = ({ item, isSelected, isLastClicked, isMobile, onClick, o
 
   const _onClick = e => typeof onClick === 'function' && onClick(item, e);
   const _onDoubleClick = e => typeof onDoubleClick === 'function' && onDoubleClick(item, e);
+
+  const handleDragStart = e => {
+    if (!isEmpty) {
+      const dragData = JSON.stringify({ id: item.id, title: item.title, type: item.type });
+      e.dataTransfer.clearData();
+      e.dataTransfer.setData('application/json', dragData);
+    }
+  };
 
   let modifiedDisp = '-';
 
@@ -51,8 +59,11 @@ const FilesViewerItem = ({ item, isSelected, isLastClicked, isMobile, onClick, o
         'ecos-files-viewer__item_mobile': isMobile,
         'ecos-files-viewer__item_empty': isEmpty
       })}
+      data-id={item.id}
       onClick={_onClick}
       onDoubleClick={_onDoubleClick}
+      draggable={!isEmpty}
+      onDragStart={handleDragStart}
       {...extraProps}
     >
       {!isEmpty && (
@@ -99,6 +110,7 @@ FilesViewerItem.propTypes = {
   isLastClicked: PropTypes.bool,
   isMobile: PropTypes.bool,
   onClick: PropTypes.func,
+  setParentItem: PropTypes.func,
   onDoubleClick: PropTypes.func,
   onDrop: PropTypes.func
 };

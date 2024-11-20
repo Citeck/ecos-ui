@@ -37,6 +37,7 @@ import {
   setIsDocLibEnabled,
   setIsGroupActionsReady,
   setJournalId,
+  setParentItem,
   setRootId,
   setSearchText,
   setSidebarError,
@@ -456,6 +457,71 @@ function formKeysCheck(formDefinition) {
   return componentKeys.has('name') && componentKeys.has('_content') && componentKeys.size === 2;
 }
 
+function* sagaSetParentItem({ api, logger, stateId, w }, { payload }) {
+  try {
+    const { item, parent } = payload;
+    const { id: itemId, title: itemTitle } = item || {};
+
+    const parentDirTitles = [];
+    let currentItemTitle = itemTitle;
+
+    const targetItem = yield call(DocLibService.loadNode, parent);
+    if (get(targetItem, 'nodeType') === NODE_TYPES.FILE) {
+      return;
+    }
+
+    const targetDirTitle = get(targetItem, 'title', '');
+
+    const children = yield call(DocLibService.getChildren, parent);
+    if (get(children, 'records') && children.records.length) {
+      children.records.forEach(item => {
+        if (item && item.id && item.title) {
+          parentDirTitles.push(item.title);
+        }
+      });
+    }
+
+    const renamePromise = new Promise(resolve => {
+      if (itemTitle && parentDirTitles.includes(itemTitle)) {
+        if (navigator.serviceWorker.controller) {
+          navigator.serviceWorker.controller.postMessage({
+            type: 'CONFIRMATION_RENAME_DIR_REQUEST',
+            typeCurrentItem: get(item, 'type'),
+            parentDirTitles,
+            currentItemTitle,
+            targetDirTitle
+          });
+
+          navigator.serviceWorker.onmessage = event => {
+            const { type, confirmedRenameItem, titleRenamingItem } = event.data;
+
+            if (type === 'CONFIRMATION_RENAME_DIR_RESPONSE' && confirmedRenameItem) {
+              currentItemTitle = titleRenamingItem;
+              resolve();
+            }
+          };
+        }
+      } else {
+        resolve();
+      }
+    });
+
+    yield call(() => renamePromise);
+
+    if (itemId && currentItemTitle && !parentDirTitles.includes(currentItemTitle)) {
+      yield call(DocLibService.changeParent, itemId, parent, currentItemTitle);
+
+      NotificationManager.success(t('document-library.actions.replacement-item-success', { currentItemTitle, targetDirTitle }));
+
+      yield put(initSidebar(w()));
+      yield put(loadFilesViewerData(w()));
+      yield put(loadFolderData(w()));
+    }
+  } catch (e) {
+    logger.error('[docLib sagaSetParentItem saga error', e);
+  }
+}
+
 function* sagaUploadFiles({ api, logger, stateId, w }, action) {
   try {
     yield put(setFileViewerLoadingStatus(w(true)));
@@ -559,9 +625,9 @@ function* sagaUploadFiles({ api, logger, stateId, w }, action) {
     // Init web-worker
     const { worker, send } = yield call(initializeWorker);
 
-    const uploadPromise = new Promise((resolve, reject) => {
+    const uploadPromise = new Promise(resolve => {
       worker.onmessage = event => {
-        const { status, result, file = {}, totalCount, successFileCount } = event.data;
+        const { status, result, file = {}, totalCount, successFileCount, requestId, isCancelled } = event.data;
 
         if (navigator.serviceWorker.controller) {
           switch (status) {
@@ -580,7 +646,8 @@ function* sagaUploadFiles({ api, logger, stateId, w }, action) {
                 status,
                 file,
                 totalCount,
-                successFileCount
+                successFileCount,
+                requestId
               });
               break;
 
@@ -597,9 +664,9 @@ function* sagaUploadFiles({ api, logger, stateId, w }, action) {
               navigator.serviceWorker.controller.postMessage({
                 type: 'UPLOAD_PROGRESS',
                 status,
-                file
+                file,
+                isCancelled
               });
-              reject(new Error('Error during upload'));
               break;
 
             default:
@@ -644,6 +711,7 @@ function* saga(ea) {
   yield takeLatest(createNode().type, wrapSaga, { ...ea, saga: sagaCreateNode });
   yield takeEvery(uploadFiles().type, wrapSaga, { ...ea, saga: sagaUploadFiles });
   yield takeEvery(getTypeRef().type, wrapSaga, { ...ea, saga: sagaGetTypeRef });
+  yield takeEvery(setParentItem().type, wrapSaga, { ...ea, saga: sagaSetParentItem });
 }
 
 export default saga;
