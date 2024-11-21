@@ -311,6 +311,8 @@ function* getFilesViewerData({ api, logger, stateId, w }) {
     const searchText = yield select(state => selectDocLibSearchText(state, stateId));
     const journalId = yield select(state => selectJournalId(state, stateId));
 
+    const docLibRef = journalId.includes('$') ? journalId.split('$')[1] : journalId;
+
     const childrenResult = yield call(DocLibService.getChildren, folderId, { pagination, searchText });
     const { records, totalCount } = childrenResult;
 
@@ -318,8 +320,19 @@ function* getFilesViewerData({ api, logger, stateId, w }) {
     const journalConfig = yield call([JournalsService, JournalsService.getJournalConfig], journalId);
 
     const recordRefs = records.map(r => r.id);
+    const dirActionsRefs = yield call(DocLibService.getDirActions, docLibRef);
+    const dirActions = (dirActionsRefs || []).map(ref => (ref && ref.includes('@') ? ref.split('@')[1] : ref));
+
     const resultActions = yield call([JournalsService, JournalsService.getRecordActions], journalConfig, recordRefs);
     const actions = JournalsConverter.getJournalActions(resultActions);
+
+    let actionsForRecord = actions.forRecord;
+
+    (records || []).forEach(({ nodeType, id }) => {
+      if (nodeType === NODE_TYPES.DIR) {
+        actionsForRecord[id] = (actionsForRecord[id] || []).filter(action => dirActions.includes(action.id));
+      }
+    });
 
     yield put(
       setFileViewerItems(
