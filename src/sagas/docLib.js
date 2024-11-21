@@ -627,7 +627,7 @@ function* sagaUploadFiles({ api, logger, stateId, w }, action) {
 
     const uploadPromise = new Promise(resolve => {
       worker.onmessage = event => {
-        const { status, result, file = {}, totalCount, successFileCount, requestId, isCancelled } = event.data;
+        const { status, result, file = {}, totalCount, successFileCount, requestId, isCancelled, errorStatus } = event.data;
 
         if (navigator.serviceWorker.controller) {
           switch (status) {
@@ -664,6 +664,7 @@ function* sagaUploadFiles({ api, logger, stateId, w }, action) {
               navigator.serviceWorker.controller.postMessage({
                 type: 'UPLOAD_PROGRESS',
                 status,
+                errorStatus,
                 file,
                 isCancelled
               });

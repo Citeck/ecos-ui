@@ -525,7 +525,8 @@
   "document-library.create-node.fields.title": "Name",
   "document-library.create-node.fields.content": "Content",
   "document-library.uploading-file.message.success": "File \"{{file}}\" has been successfully uploaded to the folder \"{{folder}}\"",
-  "document-library.uploading-file.message.error": "Failed to upload file \"{{file}}\"",
+  "document-library.uploading-file.message.error": "An error occurred while uploading the file «{{ fileName }}»",
+  "document-library.uploading-file.message.size-error": "Error uploading the file «{{ fileName }}»: The file is too large",
   "document-library.uploading-file.message.abort": "Unable to upload file(s)",
   "document-library.uploading-folder.message.abort": "Error during folder upload",
 

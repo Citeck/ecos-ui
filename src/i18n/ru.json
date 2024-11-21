@@ -462,7 +462,8 @@
   "document-library.create-node.fields.title": "Название",
   "document-library.create-node.fields.content": "Содержимое",
   "document-library.uploading-file.message.success": "Файл \"{{file}}\" успешно загружен в папку \"{{folder}}\"",
-  "document-library.uploading-file.message.error": "Не удалось загрузить файл \"{{file}}\"",
+  "document-library.uploading-file.message.error": "При загрузке файла «{{ fileName }}» возникла ошибка",
+  "document-library.uploading-file.message.size-error": "Ошибка при загрузке файла «{{ fileName }}»: Файл слишком велик",
   "document-library.uploading-file.message.abort": "Невозможно загрузить файл(ы)",
   "document-library.uploading-folder.message.abort": "Ошибка при загрузке папки",
 

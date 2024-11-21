@@ -1,5 +1,6 @@
 import { FormText } from 'reactstrap';
 import React, { useState, useEffect } from 'react';
+import { NotificationManager } from 'react-notifications';
 import get from 'lodash/get';
 import classNames from 'classnames';
 
@@ -58,6 +59,7 @@ const UploadStatus = () => {
       const {
         type,
         status,
+        errorStatus,
         file: fileData,
         totalCount,
         successFileCount,
@@ -72,7 +74,8 @@ const UploadStatus = () => {
       if (type === 'UPDATE_UPLOAD_STATUS') {
         setStatus(status);
 
-        const fileId = `file-${get(fileData, 'file.name', 0)}-${get(fileData, 'file.name', '')}-${get(fileData, 'file.lastModified')}`;
+        const fileName = get(fileData, 'file.name', '');
+        const fileId = `file-${get(fileData, 'file.size', 0)}-${fileName}-${get(fileData, 'file.lastModified', 0)}`;
 
         switch (status) {
           case 'start':
@@ -114,6 +117,15 @@ const UploadStatus = () => {
                 isCancelled
               }
             }));
+
+            if (errorStatus) {
+              if (errorStatus === 413) {
+                NotificationManager.error(t('document-library.uploading-file.message.size-error', { fileName }));
+              } else {
+                NotificationManager.error(t('document-library.uploading-file.message.error', { fileName }));
+              }
+            }
+
             break;
 
           case 'success':
@@ -292,39 +304,41 @@ const UploadStatus = () => {
       </div>
       {!isCollapsed && (
         <div className="citeck-upload-status__files">
-          {Object.entries(fileStatuses).map(
-            ([fileId, { file, isLoading, isError, cancelRequest, isCancelled }]) =>
-              file &&
-              file.name && (
-                <div
-                  key={fileId}
-                  className={classNames('citeck-upload-status__file', {
-                    'citeck-upload-status__file_loading': isLoading
-                  })}
-                >
-                  <div className="citeck-upload-status__file-info">
-                    <File />
-                    <p className="citeck-upload-status__file-name">{file.name}</p>
-                  </div>
+          {Object.entries(fileStatuses)
+            .reverse()
+            .map(
+              ([fileId, { file, isLoading, isError, cancelRequest, isCancelled }]) =>
+                file &&
+                file.name && (
                   <div
-                    className={classNames('citeck-upload-status__file-status', {
-                      'citeck-upload-status__file-status_canceled': isCancelled
+                    key={fileId}
+                    className={classNames('citeck-upload-status__file', {
+                      'citeck-upload-status__file_loading': isLoading
                     })}
                   >
-                    {isLoading ? <Loader height="18px" type="points" /> : isError ? <Error /> : <Success />}
-                  </div>
-                  {isLoading && (
-                    <div
-                      className="citeck-upload-status__file-action_cancel"
-                      onClick={cancelRequest}
-                      title={t('document-library.actions.cancel-title')}
-                    >
-                      <Close width={18} height={18} />
+                    <div className="citeck-upload-status__file-info">
+                      <File />
+                      <p className="citeck-upload-status__file-name">{file.name}</p>
                     </div>
-                  )}
-                </div>
-              )
-          )}
+                    <div
+                      className={classNames('citeck-upload-status__file-status', {
+                        'citeck-upload-status__file-status_canceled': isCancelled
+                      })}
+                    >
+                      {isLoading ? <Loader height="18px" type="points" /> : isError ? <Error /> : <Success />}
+                    </div>
+                    {isLoading && (
+                      <div
+                        className="citeck-upload-status__file-action_cancel"
+                        onClick={cancelRequest}
+                        title={t('document-library.actions.cancel-title')}
+                      >
+                        <Close width={18} height={18} />
+                      </div>
+                    )}
+                  </div>
+                )
+            )}
         </div>
       )}
     </div>
