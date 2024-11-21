@@ -29,8 +29,9 @@ const FileList = ({
 
     const currentId = item.id;
     if (currentId && get(item, 'type') && item.type === NODE_TYPES.FILE) {
+      const localIdIdx = currentId.indexOf('$') + 1;
       actionApi.executeAction({
-        records: currentId,
+        records: currentId.substring(localIdIdx),
         action: { type: ActionTypes.VIEW }
       });
     }
