@@ -397,7 +397,20 @@ async function handleUploadFile({ file, dirId, rootId, destinationFile, totalCou
     method: 'post',
     signal
   })
-    .then(async res => await res.json())
+    .then(async res => {
+      if (res.ok) {
+        return await res.json();
+      } else {
+        self.postMessage({
+          status: 'error',
+          errorStatus: res.status,
+          totalCount,
+          successFileCount,
+          isCancelled: cancelledRequests.includes(requestId),
+          file: { file, isLoading: false, isError: true }
+        });
+      }
+    })
     .catch(() => {
       self.postMessage({
         status: 'error',
