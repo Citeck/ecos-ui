@@ -16,11 +16,11 @@ import { getIconUpDown } from '../../../../../../helpers/icon';
 import { t } from '../../../../../../helpers/export/util';
 import ClickOutside from '../../../../../ClickOutside';
 import Icon from '../../../../icons/Icon/Icon';
-import EcosTooltip from '../../../../Tooltip';
 import InlineFilter from '../../../../../../components/Filters/Filter/InlineFilter';
 import { ParserPredicate } from '../../../../../Filters/predicates';
 
 import './HeaderFormatter.scss';
+import Popper from '../../../../Popper';
 
 const Labels = {
   COMPLEX_FILTER_LABEL_PART_1: 'journals.header-formatter.message.complex-filter.part-1',
@@ -398,19 +398,17 @@ export default class HeaderFormatter extends Component {
         style={{ minWidth: this.minWidth, ...(colWidth && { width: colWidth }) }}
       >
         <div className="ecos-th__content" onClick={this.onSort} id={this.tooltipLabelId}>
-          <EcosTooltip
-            isViewNewJournal={isViewNewJournal}
-            target={this.tooltipLabelId}
-            elementId={this.tooltipTextId}
-            text={column.text}
-            placement="bottom"
-            uncontrolled
+          <Popper
+            className="ecos-drag-item__title"
+            isViewNewJournal
+            popupClassName="ecos-drag-item__title-popper"
             showAsNeeded
+            text={column.text}
           >
             <span className="ecos-th__content-text" id={this.tooltipTextId}>
               {column.text}
             </span>
-          </EcosTooltip>
+          </Popper>
           {this.renderActions()}
         </div>
 
