@@ -17,14 +17,35 @@ export default class Popper extends Component {
     text: PropTypes.string,
     icon: PropTypes.string,
     showAsNeeded: PropTypes.bool,
+    uncontrolled: PropTypes.bool,
+    autohide: PropTypes.bool,
+    isOpen: PropTypes.bool,
     isViewNewJournal: PropTypes.bool,
     withoutText: PropTypes.bool,
     contentComponent: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
-    children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node])
+    children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
+    placement: PropTypes.oneOf([
+      'auto',
+      'auto-start',
+      'auto-end',
+      'top',
+      'top-start',
+      'top-end',
+      'right',
+      'right-start',
+      'right-end',
+      'bottom',
+      'bottom-start',
+      'bottom-end',
+      'left',
+      'left-start',
+      'left-end'
+    ])
   };
 
   static defaultProps = {
-    showAsNeeded: false
+    showAsNeeded: false,
+    uncontrolled: true
   };
 
   #iconRef = null;
@@ -39,7 +60,11 @@ export default class Popper extends Component {
   }
 
   get needPopper() {
-    const { text, contentComponent, withoutText } = this.props;
+    const { text, contentComponent, withoutText, off } = this.props;
+
+    if (off) {
+      return false;
+    }
 
     if (withoutText) {
       return !isNil(contentComponent);
@@ -95,23 +120,37 @@ export default class Popper extends Component {
     }
   };
 
-  handleMouseOut = () => {
-    popupEmitter.emit(Events.HIDE);
+  handleMouseOut = e => {
+    const { uncontrolled, isOpen, autohide } = this.props;
+
+    const relatedTarget = e.relatedTarget;
+    const currentTarget = e.currentTarget;
+
+    if (currentTarget.contains(relatedTarget)) {
+      return;
+    }
+
+    if ((!uncontrolled && !isOpen) || uncontrolled || autohide) {
+      popupEmitter.emit(Events.HIDE);
+    }
   };
 
   handleMouseEnter = () => {
-    const { text, contentComponent, icon, popupClassName, isViewNewJournal } = this.props;
+    const { text, contentComponent, icon, popupClassName, isViewNewJournal, placement, uncontrolled, isOpen } = this.props;
     const element = icon && !isViewNewJournal ? this.#iconRef : this.#textRef;
     element && element.classList.add('ecosZIndexAnchor');
 
-    popupEmitter.emit(
-      Events.SHOW,
-      element,
-      this.getDisp(getFirstNotNil(contentComponent, text)),
-      classNames(popupClassName, {
-        'ecos-popper__text_new': isViewNewJournal
-      })
-    );
+    if (uncontrolled || (!uncontrolled && isOpen)) {
+      popupEmitter.emit(
+        Events.SHOW,
+        element,
+        this.getDisp(getFirstNotNil(contentComponent, text)),
+        classNames(popupClassName, {
+          'ecos-popper__text_new': isViewNewJournal
+        }),
+        placement
+      );
+    }
   };
 
   handleResize = debounce(() => this.checkNeedShowPopper(), 350);

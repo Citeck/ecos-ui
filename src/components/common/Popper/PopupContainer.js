@@ -10,10 +10,11 @@ export const PopupContainer = () => {
   const [referenceElement, setReferenceElement] = useState(null);
   const [text, setText] = useState('');
   const [contentClassName, setContentClassName] = useState('');
+  const [placement, setPlacement] = useState('top');
   const [popperElement, setPopperElement] = useState(null);
   const [arrowElement, setArrowElement] = useState(null);
   const { styles, attributes } = usePopper(referenceElement, popperElement, {
-    placement: 'top',
+    placement: placement,
     modifiers: [
       {
         name: 'arrow',
@@ -31,10 +32,14 @@ export const PopupContainer = () => {
   });
 
   useEffect(() => {
-    const onShow = (element, text, className = '') => {
+    const onShow = (element, text, className = '', placement) => {
       setReferenceElement(element);
       setText(text);
       setContentClassName(className);
+
+      if (!!placement) {
+        setPlacement(placement);
+      }
     };
     const onHide = () => {
       setReferenceElement(null);
@@ -60,7 +65,7 @@ export const PopupContainer = () => {
         zIndex: ZIndex.calcZ()
       }}
       {...attributes.popper}
-      className={classNames('ecos-popup-manager', get(attributes, 'popper.className', ''))}
+      className={classNames('ecos-popup-manager ecos-popup-manager_fade-in', get(attributes, 'popper.className', ''))}
     >
       <div className={classNames(contentClassName)}>{text}</div>
       <div
