@@ -44,6 +44,10 @@ class DocLibService {
     return docLibApi.getDirPath(folderRef);
   }
 
+  async getDirActions(docLibRef) {
+    return docLibApi.getDirActions(docLibRef);
+  }
+
   async getChildren(id, options = {}) {
     return docLibApi.getChildren(id, options).then(result => ({
       ...result,

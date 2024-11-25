@@ -35,6 +35,10 @@ class DocLibServiceApi {
     return Records.get(folderRef).load('path[]{disp:?disp,id:?id}');
   }
 
+  async getDirActions(docLibRef) {
+    return Records.get(`${SourcesId.TYPE}@${docLibRef}`).load('docLibInfo.dirTypeRef.actions[]?id');
+  }
+
   async getChildren(parentRef, options = {}) {
     const { nodeType, pagination = {}, searchText = '' } = options;
     const query = { parentRef };
