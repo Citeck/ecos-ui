@@ -39,7 +39,7 @@ const UploadStatus = () => {
   useEffect(
     () => {
       const handleBeforeUnload = e => {
-        if (status !== 'success') {
+        if (status === 'in-progress') {
           e.preventDefault();
           e.returnValue = ''; // Required for some browsers to show a warning
         }
