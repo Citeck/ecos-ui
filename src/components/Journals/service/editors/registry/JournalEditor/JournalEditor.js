@@ -16,6 +16,7 @@ export default class JournalEditor extends BaseEditor {
         multiple={config.multiple === undefined ? multiple : config.multiple}
         autoFocus={scope === EditorScope.CELL}
         isCompact
+        hideCreateButton
         inputViewClass="select-journal__input-view_extra-compact"
         journalId={journalId}
         defaultValue={value}
