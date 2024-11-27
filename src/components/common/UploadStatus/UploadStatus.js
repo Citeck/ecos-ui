@@ -82,6 +82,7 @@ const UploadStatus = () => {
             setStatus(null);
             setFileStatuses({});
             setIsReplaceAllFiles(false);
+            setIsReadyLoadData(false);
             break;
 
           case 'confirm-file-replacement':
