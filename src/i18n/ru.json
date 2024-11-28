@@ -1106,6 +1106,7 @@
   "journals.bar.btn.create": "Создать запись",
   "journals.bar.btn.settings-table": "Настройки таблицы",
   "journals.bar.btn.export": "Экспорт",
+  "journals.bar.btn.import": "Импорт",
   "journals.bar.btn.update": "Обновить данные",
   "journals.bar.btn.filter-del": "Сбросить фильтры",
   "journals.view.label.journal": "Журнал",
@@ -2482,6 +2483,8 @@
   "more-about-error.label": "Подробнее об ошибке",
 
   "ecos-form.export.attention": "Вы не можете начать одновременно несколько идентичных действий",
+
+  "citeck-dropdown.import.download": "Скачать шаблон",
 
   "process-statistics-widget.simplified-title": "Процесс",
   "process-statistics-widget.extended-title": "Статистика процесса",

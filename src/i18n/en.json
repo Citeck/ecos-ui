@@ -1150,6 +1150,7 @@
   "journals.bar.btn.create": "Create record",
   "journals.bar.btn.settings-table": "Table settings",
   "journals.bar.btn.export": "Export",
+  "journals.bar.btn.import": "Import",
   "journals.bar.btn.update": "Update data",
   "journals.bar.btn.filter-del": "Reset filtration",
   "journals.view.label.journal": "Journal",
@@ -2546,6 +2547,8 @@
   "form-constructor.error.panel.key": "The property name must only contain alphanumeric characters, underscores, dots, colons and dashes and should not be ended by dash or dot.",
 
   "ecos-form.export.attention": "You cannot start multiple identical actions at the same time",
+
+  "citeck-dropdown.import.download": "Download the template",
 
   "process-statistics-widget.simplified-title": "Process",
   "process-statistics-widget.extended-title": "Process Statistics",

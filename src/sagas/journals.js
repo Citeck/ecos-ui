@@ -67,7 +67,8 @@ import {
   setForceUpdate,
   setFooterValue,
   toggleViewMode,
-  setJournalExpandableProp
+  setJournalExpandableProp,
+  setImportDataConfig
 } from '../actions/journals';
 import {
   selectGridPaginationMaxItems,
@@ -894,6 +895,12 @@ function* sagaInitJournal({ api, logger, stateId, w }, { payload }) {
     const id = !customJournalMode || !customJournal ? journalId : customJournal;
     let { journalSettingId, savePredicate = true } = payload;
     let { journalConfig } = yield select(selectJournalData, stateId);
+
+    const journalType = yield Records.get(`uiserv/rjournal@${journalId}`).load('typeRef?str');
+    const importDataConfig = yield call(api.journals.getImportDataConfig, journalType);
+    if (importDataConfig && importDataConfig.length) {
+      yield put(setImportDataConfig(w(importDataConfig)));
+    }
 
     const isEmptyConfig = isEqual(journalConfig, emptyJournalConfig);
     const isNotExistsJournal = yield call([JournalsService, JournalsService.isNotExistsJournal], id);
