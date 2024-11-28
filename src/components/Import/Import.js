@@ -86,7 +86,7 @@ class Import extends Component {
     isFunction(callback) && callback(event);
   };
 
-  renderItemMenu = ({ item, onClick }) => {
+  renderItemMenu = ({ item }) => {
     const textItem = getTextByLocale(get(item, 'name', ''));
     const variantId = get(item, 'variantId');
 
@@ -95,7 +95,7 @@ class Import extends Component {
     }
 
     return (
-      <li className="citeck-import-data__menu-item" onClick={onClick}>
+      <li className="citeck-import-data__menu-item" onClick={() => this.handleImport(item)}>
         <Tooltip target={`import-data-text_${variantId}`} uncontrolled showAsNeeded text={textItem} off={isMobileDevice()}>
           <span id={`import-data-text_${variantId}`}>{textItem}</span>
         </Tooltip>
@@ -122,7 +122,9 @@ class Import extends Component {
     const { isViewNewJournal, classNameBtn, children, className, right } = this.props;
     const { importDataConfig, isOpenDropdown, hasImportDataLicense } = this.state;
 
-    if (!importDataConfig || !importDataConfig.length) {
+    const variants = this.dropdownSourceVariants(importDataConfig, hasImportDataLicense);
+
+    if (!variants || !variants.length) {
       return null;
     }
 
@@ -133,12 +135,11 @@ class Import extends Component {
           hasEmpty
           isStatic={!importDataConfig}
           right={right}
-          source={this.dropdownSourceVariants(importDataConfig, hasImportDataLicense)}
+          source={variants}
           controlIcon="icon-download"
           controlClassName={classNames('ecos-btn_grey ecos-btn_settings-down', classNameBtn, {
             'ecos-journal__btn_new_focus': isOpenDropdown && isViewNewJournal
           })}
-          onChange={this.handleImport}
           getStateOpen={this.changeIsOpen}
           isViewNewJournal={isViewNewJournal}
           CustomItem={this.renderItemMenu}
