@@ -522,6 +522,7 @@
   "document-library.no-folders": "No folders",
   "document-library.empty-folder": "Empty folder",
   "document-library.files-loader": "Uploading files",
+  "document-library.file-loader": "Uploading file",
   "document-library.failure-to-fetch-data": "Failure to fetch data",
   "document-library.sidebar.failure-to-load-children": "Failure to load nested folders",
   "document-library.create-node.title": "Create new \"{{name}}\"",
@@ -799,6 +800,10 @@
   "kanban-widget.settings.bnt.save": "Save",
   "kanban-widget.title": "Board {{ journal }} ",
   "kanban-widget.no-journal": "No selected journal. Go to settings.",
+
+  "import-component.record.error-update": "Error updating Record {{ record }}: {{ error }}",
+  "import-component.attributes.error": "Error in setting up the import option",
+  "import-component.download": "Download the template",
 
   "export-component.action.html-load": "HTML (download)",
   "export-component.action.html-read": "HTML (view)",
@@ -1179,6 +1184,7 @@
   "journals.bar.btn.settings-table": "Table settings",
   "journals.bar.btn.settings-journal": "Journal settings",
   "journals.bar.btn.export": "Export",
+  "journals.bar.btn.import": "Import",
   "journals.bar.btn.update": "Update data",
   "journals.bar.btn.filter-del": "Reset filtration",
   "journals.bar.btn.toggle-menu": "Menu",

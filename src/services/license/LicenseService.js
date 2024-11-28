@@ -1,11 +1,15 @@
 import logger from '../logger';
 import { getLicenseInfo } from './licenseApi';
 
-import { LICENSE_FEATURE_GROUP_ACTIONS, FLAG_DEVELOPER, FEATURES } from './licenseConstants';
+import { LICENSE_FEATURE_GROUP_ACTIONS, FLAG_DEVELOPER, FEATURES, LICENSE_FEATURE_IMPORT_DATA } from './licenseConstants';
 
 class LicenseService {
   async hasGroupActionsFeature() {
     return this.hasFeature(LICENSE_FEATURE_GROUP_ACTIONS);
+  }
+
+  async hasImportDataFeature() {
+    return this.hasFeature(LICENSE_FEATURE_IMPORT_DATA);
   }
 
   async hasFeature(feature) {

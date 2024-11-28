@@ -2,6 +2,8 @@ import { FormText } from 'reactstrap';
 import React, { useState, useEffect } from 'react';
 import { NotificationManager } from 'react-notifications';
 import get from 'lodash/get';
+import isBoolean from 'lodash/isBoolean';
+import isNumber from 'lodash/isNumber';
 import classNames from 'classnames';
 
 import { Loader } from '../index';
@@ -27,6 +29,7 @@ const UploadStatus = () => {
   const [expansionCurrentFile, setExpansionCurrentFile] = useState(null);
   const [parentItemsTitles, setParentItemsTitles] = useState([]);
 
+  const [isImporting, setIsImporting] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isReplaceAllFiles, setIsReplaceAllFiles] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -94,11 +97,16 @@ const UploadStatus = () => {
           targetDirTitle,
           parentDirTitles,
           typeCurrentItem,
-          isReplacementItem
+          isReplacementItem,
+          isImporting
         } = event.data;
 
         if (type === 'UPDATE_UPLOAD_STATUS') {
           setStatus(status);
+
+          if (isBoolean(isImporting)) {
+            setIsImporting(isImporting);
+          }
 
           const fileName = get(fileData, 'file.name', '');
           const fileId = `file-${get(fileData, 'file.size', 0)}-${fileName}-${get(fileData, 'file.lastModified', 0)}`;
@@ -128,13 +136,18 @@ const UploadStatus = () => {
                   file: get(fileData, 'file'),
                   isLoading: get(fileData, 'isLoading', true),
                   isError: get(fileData, 'isError', false),
-                  requestId,
-                  cancelRequest
+                  cancelRequest,
+                  requestId
                 }
               }));
               break;
 
             case 'error':
+              if (isNumber(totalCount) && isNumber(successFileCount)) {
+                setTotalCountFiles(totalCount);
+                setSuccessCountFiles(successFileCount);
+              }
+
               setFileStatuses(prevState => ({
                 ...prevState,
                 [fileId]: {
@@ -316,16 +329,31 @@ const UploadStatus = () => {
     );
   }
 
-  if (!status || !totalCountFiles) {
+  if (!status || (!totalCountFiles && !isImporting)) {
     return null;
   }
+
+  const renderCounter = () => {
+    if (isImporting) {
+      return (
+        <>
+          {t('document-library.file-loader')}
+          {totalCountFiles ? `: ${successCountFiles}/${totalCountFiles}` : ''}
+        </>
+      );
+    }
+
+    return (
+      <>
+        {t('document-library.files-loader')}: {successCountFiles}/{totalCountFiles}
+      </>
+    );
+  };
 
   return (
     <div className="citeck-upload-status">
       <div className="citeck-upload-status__header">
-        <h4 className="citeck-upload-status__header-title">
-          {t('document-library.files-loader')}: {successCountFiles}/{totalCountFiles}
-        </h4>
+        <h4 className="citeck-upload-status__header-title">{renderCounter()}</h4>
         <div className="citeck-upload-status__header-actions">
           <div className="citeck-upload-status__header-actions_btn" onClick={onCollapsed}>
             <ChevronDown />
@@ -348,7 +376,7 @@ const UploadStatus = () => {
                   <div
                     key={fileId}
                     className={classNames('citeck-upload-status__file', {
-                      'citeck-upload-status__file_loading': isLoading
+                      'citeck-upload-status__file_loading': isLoading && !isImporting
                     })}
                   >
                     <div className="citeck-upload-status__file-info">
@@ -362,7 +390,7 @@ const UploadStatus = () => {
                     >
                       {isLoading ? <Loader height="18px" type="points" /> : isError ? <Error /> : <Success />}
                     </div>
-                    {isLoading && (
+                    {!isImporting && isLoading && (
                       <div
                         className="citeck-upload-status__file-action_cancel"
                         onClick={cancelRequest}
