@@ -65,7 +65,7 @@ class Import extends Component {
     console.log('item:', item);
   };
 
-  handleDownloadTemplates = async variantId => {
+  handleDownloadTemplates = variantId => {
     const { journalConfig = {} } = this.props;
 
     const proxyUrl = process.env.REACT_APP_SHARE_PROXY_URL;
@@ -109,7 +109,7 @@ class Import extends Component {
           <i
             id={`import-data-download_${variantId}`}
             className="citeck-import-data__menu-item_i"
-            onClick={e => this.handleOnClick(e, this.handleDownloadTemplates())}
+            onClick={e => this.handleOnClick(e, this.handleDownloadTemplates(variantId))}
           >
             <Download />
           </i>
