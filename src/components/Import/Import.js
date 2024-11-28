@@ -14,6 +14,7 @@ import { t } from '../../helpers/export/util';
 import { Tooltip } from '../common';
 import Download from '../common/icons/Download';
 import PageService from '../../services/PageService';
+import FormManager from '../EcosForm/FormManager';
 import './Import.scss';
 
 class Import extends Component {
@@ -61,8 +62,20 @@ class Import extends Component {
     return hasImportDataLicense ? importDataConfig : [];
   }
 
-  handleImport = item => {
-    console.log('item:', item);
+  handleImport = async item => {
+    const { journalConfig = {} } = this.props;
+    const typeRef = get(journalConfig, 'typeRef');
+    const variantId = get(item, 'variantId');
+
+    if (typeRef && variantId) {
+      FormManager.openFormModal({
+        record: `integrations/import-data@`,
+        formId: 'import-data-form',
+        typeRef,
+        variantId,
+        onSubmit: () => {}
+      });
+    }
   };
 
   handleDownloadTemplates = variantId => {
