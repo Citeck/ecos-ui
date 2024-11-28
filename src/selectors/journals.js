@@ -19,6 +19,8 @@ export const selectJournalData = selectState;
 export const selectJournalSetting = createSelector(selectState, ownState => get(ownState, 'journalSetting', defaultState.journalSetting));
 export const selectJournalSettings = createSelector(selectState, ownState => get(ownState, 'journalSettings', []));
 
+export const selectImportDataConfig = createSelector(selectState, ownState => get(ownState, 'importDataConfig', []));
+
 export const selectJournals = createSelector(selectState, ownState => get(ownState, 'journals', []));
 
 export const selectUrl = createSelector(selectState, ownState => get(ownState, 'url', {}));

@@ -152,4 +152,8 @@ export class JournalsApi extends RecordService {
 
     return Records.queryOne({ sourceId, query, language: 'predicate', groupBy: ['*'] }, attributes);
   };
+
+  getImportDataConfig = journalType => {
+    return Records.get(journalType).load('aspectById.import-data-config.config.variants[]?json');
+  };
 }

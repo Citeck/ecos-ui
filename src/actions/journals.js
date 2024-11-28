@@ -35,6 +35,9 @@ export const setSelectAllRecordsVisible = createAction(prefix + 'SET_SELECT_ALL_
 export const deselectAllRecords = createAction(prefix + 'DESELECT_ALL_RECORDS');
 export const setGridInlineToolSettings = createAction(prefix + 'SET_GRID_INLINE_TOOL_SETTINGS');
 
+export const getImportDataConfig = createAction(prefix + 'GET_IMPORT_DATA_CONFIG');
+export const setImportDataConfig = createAction(prefix + 'SET_IMPORT_DATA_CONFIG');
+
 export const getJournalsData = createAction(prefix + 'GET_JOURNALS_DATA');
 export const saveJournalSetting = createAction(prefix + 'SAVE_JOURNAL_SETTING');
 export const createJournalSetting = createAction(prefix + 'CREATE_JOURNAL_SETTING');
