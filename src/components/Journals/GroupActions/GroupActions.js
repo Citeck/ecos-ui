@@ -129,7 +129,7 @@ const GroupActions = React.memo(
           source={recordsActions}
           className={classNames('ecos-group-actions__dropdown', {
             'ecos-group-actions__dropdown_new': isViewNewJournal,
-            'ecos-group-actions__opened-focus': isViewNewJournal && isOpenRecActions
+            'ecos-group-actions__opened-focus': isViewNewJournal && isOpenRecActions && !isEmpty(recordsActions)
           })}
           menuClassName="ecos-group-actions__dropdown-menu"
           itemClassName={getItemClassName}
