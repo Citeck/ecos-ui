@@ -1,6 +1,6 @@
 import React from 'react';
-import { UncontrolledTooltip } from 'reactstrap';
 import classNames from 'classnames';
+import UncontrolledTooltip from '../common/UncontrolledTooltip';
 
 const Tooltip = React.memo(({ target, content, className, innerClassName, arrowClassName, ...props }) => (
   <UncontrolledTooltip

@@ -43,6 +43,9 @@
       height: $size;
       background: $color-white;
       transform: rotate(45deg);
+
+      bottom: 0;
+      z-index: 0;
     }
   }
 

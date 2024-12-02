@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { UncontrolledTooltip } from 'reactstrap';
 import classNames from 'classnames';
 
 import { t } from '../../../helpers/util';
 import { IcoBtn } from '../btns';
+import UncontrolledTooltip from '../UncontrolledTooltip';
 
 const BtnAction = ({ type, text, icon, onClick, component, className = '', idItem }) => {
   if (component) {

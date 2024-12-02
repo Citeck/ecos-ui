@@ -93,7 +93,14 @@ class List extends React.Component {
             className="ecos-sidebar-list-dropdown-menu"
             innerClassName="ecos-sidebar-list-dropdown-menu-inner"
             arrowClassName="ecos-sidebar-list-dropdown-menu-arrow"
-            modifiers={{ flip: { behavior: ['right-start', 'right-end'] } }}
+            modifiers={[
+              {
+                name: 'flip',
+                options: {
+                  behavior: ['right-start', 'right-end']
+                }
+              }
+            ]}
           >
             {this.renderSubList(item.items, true, true)}
           </Tooltip>

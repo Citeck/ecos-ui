@@ -436,13 +436,15 @@ class BaseDocuments extends BaseWidget {
         uncontrolled
         showAsNeeded
         autohide
-        modifiers={{
-          offset: {
+        modifiers={[
+          {
             name: 'offset',
             enabled: true,
-            offset: '0, 10px'
+            options: {
+              offset: [0, 10]
+            }
           }
-        }}
+        ]}
       >
         <Badge type={type} target={target} forwardedRef={this._counterRef} />
       </Tooltip>

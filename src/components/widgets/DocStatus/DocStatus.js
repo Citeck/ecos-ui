@@ -4,11 +4,11 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import isEmpty from 'lodash/isEmpty';
 import uuid from 'uuid/v4';
-import { UncontrolledTooltip } from 'reactstrap';
 
 import { deepClone } from '../../../helpers/util';
 import { LoaderTypes } from '../../../constants/index';
 import { changeDocStatus, getDocStatus, initDocStatus, resetDocStatus } from '../../../actions/docStatus';
+import UncontrolledTooltip from '../../common/UncontrolledTooltip';
 import { selectStateDocStatusById } from '../../../selectors/docStatus';
 import DocStatusService from '../../../services/docStatus';
 import { Loader, PointsLoader } from '../../common/index';
