@@ -1,12 +1,12 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { UncontrolledTooltip } from 'reactstrap';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import { Icon } from '../../common';
 import ClickOutside from '../../ClickOutside';
 import { cleanTaskId } from './utils';
+import UncontrolledTooltip from '../../common/UncontrolledTooltip';
 
 import './style.scss';
 
@@ -81,13 +81,15 @@ export default class BtnTooltipInfo extends React.Component {
             className="ecos-base-tooltip ecos-current-task__tooltip"
             innerClassName="ecos-base-tooltip-inner"
             arrowClassName="ecos-base-tooltip-arrow"
-            modifiers={{
-              offset: {
+            modifiers={[
+              {
                 name: 'offset',
                 enabled: true,
-                offset: '0, 14px'
+                options: {
+                  offset: [0, 14]
+                }
               }
-            }}
+            ]}
           >
             <div className="ecos-current-task__tooltip-text">
               <Scrollbars

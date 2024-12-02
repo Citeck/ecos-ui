@@ -1,9 +1,9 @@
 import React from 'react';
-import { UncontrolledTooltip } from 'reactstrap';
 import cn from 'classnames';
 
 import DesignerService from '../../../services/DesignerService';
 import { t } from '../../../helpers/util';
+import UncontrolledTooltip from '../../common/UncontrolledTooltip';
 
 import styles from './ViewSwitcher.module.scss';
 

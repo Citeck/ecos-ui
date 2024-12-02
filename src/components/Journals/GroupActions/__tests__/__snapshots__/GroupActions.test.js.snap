@@ -18,16 +18,20 @@ exports[`GroupActions tests <GroupActions /> should render GroupActions componen
     }
     menuClassName="ecos-group-actions__dropdown-menu"
     modifiers={
-      Object {
-        "flip": Object {
-          "behavior": Array [
-            "bottom",
-            "top",
-            "right",
-            "left",
-          ],
+      Array [
+        Object {
+          "enabled": true,
+          "name": "flip",
+          "options": Object {
+            "fallbackPlacements": Array [
+              "bottom",
+              "top",
+              "right",
+              "left",
+            ],
+          },
         },
-      }
+      ]
     }
     onChange={[Function]}
     outClassName="ecos-dropdown-outer-tooltip"
@@ -46,13 +50,18 @@ exports[`GroupActions tests <GroupActions /> should render GroupActions componen
       isOpen={false}
       minWidthByContent={false}
       modifiers={
-        Object {
-          "offset": Object {
+        Array [
+          Object {
             "enabled": true,
             "name": "offset",
-            "offset": "0, 5px",
+            "options": Object {
+              "offset": Array [
+                0,
+                5,
+              ],
+            },
           },
-        }
+        ]
       }
       placement="top"
       showAsNeeded={true}

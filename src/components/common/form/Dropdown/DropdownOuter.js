@@ -26,11 +26,15 @@ export default class DropdownOuter extends Dropdown {
     outClassName: 'ecos-dropdown-outer-tooltip',
     trigger: 'click',
     placement: 'bottom-start',
-    modifiers: {
-      flip: {
-        behavior: ['bottom', 'top', 'right', 'left']
+    modifiers: [
+      {
+        name: 'flip',
+        enabled: true,
+        options: {
+          fallbackPlacements: ['bottom', 'top', 'right', 'left']
+        }
       }
-    }
+    ]
   };
 
   constructor(props) {

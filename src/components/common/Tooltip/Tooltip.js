@@ -1,22 +1,25 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Tooltip as RTooltip } from 'reactstrap';
 import classNames from 'classnames';
 import isFunction from 'lodash/isFunction';
 import isNil from 'lodash/isNil';
 
 import { isClosestHidden } from '../../../helpers/util';
+import { TooltipWrapper } from './TooltipWrapper';
 import ZIndex from '../../../services/ZIndex';
+import isArray from 'lodash/isArray';
 
 import './style.scss';
 
-export const baseModifiers = {
-  offset: {
+export const baseModifiers = [
+  {
     name: 'offset',
     enabled: true,
-    offset: '0, 5px'
+    options: {
+      offset: [0, 5]
+    }
   }
-};
+];
 export const baseDelay = { show: 250, hide: 0 };
 
 class Tooltip extends Component {
@@ -56,7 +59,7 @@ class Tooltip extends Component {
       'left-start',
       'left-end'
     ]),
-    modifiers: PropTypes.object,
+    modifiers: PropTypes.arrayOf(PropTypes.object),
     delay: PropTypes.oneOfType([PropTypes.shape({ show: PropTypes.number, hide: PropTypes.number }), PropTypes.number]),
     offset: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     innerRef: PropTypes.oneOfType([PropTypes.func, PropTypes.string, PropTypes.object]),
@@ -79,7 +82,7 @@ class Tooltip extends Component {
     delay: 0,
     placement: 'top',
     boundariesElement: 'window',
-    modifiers: { ...baseModifiers }
+    modifiers: baseModifiers
   };
 
   static getDerivedStateFromProps(props, state) {
@@ -153,13 +156,15 @@ class Tooltip extends Component {
       uncontrolled,
       autohide,
       delay,
-      modifiers,
+      modifiers: _modifiers,
       offset,
       innerRef,
       hideArrow,
       container,
       isViewNewJournal
     } = this.props;
+
+    const modifiers = isArray(_modifiers) ? _modifiers : [_modifiers];
 
     return {
       target,
@@ -213,10 +218,19 @@ class Tooltip extends Component {
       styles.minWidth = parseInt(window.getComputedStyle(element, null).getPropertyValue('width'), 10) || 0;
     }
 
+    const propsTooltip = this.tooltipProps();
+
+    const popperClasses = classNames('tooltip', 'show', propsTooltip.popperClassName);
+
+    const classes = classNames('tooltip-inner', propsTooltip.innerClassName);
+
+    propsTooltip.popperClassName = popperClasses;
+    propsTooltip.innerClassName = classes;
+
     return (
-      <RTooltip {...this.tooltipProps()} isOpen={needTooltip && isOpen} style={styles}>
+      <TooltipWrapper {...propsTooltip} isOpen={needTooltip && isOpen} style={styles}>
         {contentComponent || text}
-      </RTooltip>
+      </TooltipWrapper>
     );
   };
 

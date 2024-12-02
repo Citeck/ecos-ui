@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
-import { UncontrolledTooltip } from 'reactstrap';
 import isFunction from 'lodash/isFunction';
 
 import { IcoBtn } from '../../common/btns';
+import UncontrolledTooltip from '../../common/UncontrolledTooltip';
 
 import './style.scss';
 

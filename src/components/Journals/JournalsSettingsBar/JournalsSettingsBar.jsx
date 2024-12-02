@@ -12,7 +12,7 @@ import Repeat from '../../common/icons/Repeat';
 import { t } from '../../../helpers/util';
 import { ParserPredicate } from '../../Filters/predicates';
 import { JournalsPresetListDropdown } from '../JournalsPresets';
-import { Search, Popper } from '../../common';
+import { Search, Tooltip } from '../../common';
 import { IcoBtn } from '../../common/btns';
 import Export from '../../Export/Export';
 import GroupActions from '../GroupActions';
@@ -34,10 +34,10 @@ const Labels = {
 };
 
 const tooltipModifiers = {
-  offset: {
-    name: 'offset',
-    enabled: true,
-    offset: '0, 10px'
+  name: 'offset',
+  enabled: true,
+  options: {
+    offset: [0, 10]
   }
 };
 
@@ -83,7 +83,7 @@ const JournalsSettingsBar = ({
   const isDefaultSettings = useMemo(() => isEmpty(ParserPredicate.getFlatFilters(predicate)), [stateId, targetId, predicate, viewMode]);
   const tooltipSettings = {
     off: isMobile,
-    modifiers: tooltipModifiers,
+    modifiers: [tooltipModifiers],
     uncontrolled: true
   };
 
@@ -111,7 +111,7 @@ const JournalsSettingsBar = ({
         )}
 
         {!isMobile && (
-          <Popper target={`${targetId}-table-settings`} text={t(nameBtnSettings || Labels.BTN_TABLE_SETTINGS)} {...tooltipSettings}>
+          <Tooltip target={`${targetId}-table-settings`} text={t(nameBtnSettings || Labels.BTN_TABLE_SETTINGS)} {...tooltipSettings}>
             <IcoBtn
               id={`${targetId}-table-settings`}
               icon={!isViewNewJournal ? 'icon-settings' : null}
@@ -124,11 +124,11 @@ const JournalsSettingsBar = ({
             >
               {isViewNewJournal && <Setting />}
             </IcoBtn>
-          </Popper>
+          </Tooltip>
         )}
 
         {isViewNewJournal && !isMobile && hasBtnEdit && (
-          <Popper target={`${targetId}-journal-settings`} text={t(Labels.BTN_JOURNAL_SETTINGS)} {...tooltipSettings}>
+          <Tooltip target={`${targetId}-journal-settings`} text={t(Labels.BTN_JOURNAL_SETTINGS)} {...tooltipSettings}>
             <IcoBtn
               id={`${targetId}-journal-settings`}
               icon={!isViewNewJournal ? 'icon-settings' : null}
@@ -143,7 +143,7 @@ const JournalsSettingsBar = ({
             >
               {isViewNewJournal && <Shape />}
             </IcoBtn>
-          </Popper>
+          </Tooltip>
         )}
 
         {headerSearchEnabled && (
@@ -211,7 +211,7 @@ const JournalsSettingsBar = ({
           </Export>
         )}
 
-        <Popper target={`${targetId}-update`} text={t(Labels.BTN_UPDATE)} {...tooltipSettings} modifiers={{}}>
+        <Tooltip target={`${targetId}-update`} text={t(Labels.BTN_UPDATE)} {...tooltipSettings} modifiers={{}}>
           <IcoBtn
             id={`${targetId}-update`}
             icon={!isViewNewJournal ? 'icon-reload' : null}
@@ -224,10 +224,10 @@ const JournalsSettingsBar = ({
           >
             {isViewNewJournal && <Repeat />}
           </IcoBtn>
-        </Popper>
+        </Tooltip>
 
         {isShowResetFilter && (
-          <Popper target={`${targetId}-reset-filter`} text={t(Labels.BTN_FILTER_DEL)} {...tooltipSettings}>
+          <Tooltip target={`${targetId}-reset-filter`} text={t(Labels.BTN_FILTER_DEL)} {...tooltipSettings}>
             <IcoBtn
               id={`${targetId}-reset-filter`}
               icon={!isViewNewJournal ? 'icon-filter-clean' : null}
@@ -240,7 +240,7 @@ const JournalsSettingsBar = ({
             >
               {isViewNewJournal && <Filter />}
             </IcoBtn>
-          </Popper>
+          </Tooltip>
         )}
 
         {!isViewNewJournal && leftChild}

@@ -10,6 +10,7 @@ import isNil from 'lodash/isNil';
 import isUndefined from 'lodash/isUndefined';
 import isElement from 'lodash/isElement';
 import ReactResizeDetector from 'react-resize-detector';
+import EcosTooltip from '../../../../Tooltip';
 
 import { closest, getId } from '../../../../../../helpers/util';
 import { getIconUpDown } from '../../../../../../helpers/icon';
@@ -20,7 +21,6 @@ import InlineFilter from '../../../../../../components/Filters/Filter/InlineFilt
 import { ParserPredicate } from '../../../../../Filters/predicates';
 
 import './HeaderFormatter.scss';
-import Popper from '../../../../Popper';
 
 const Labels = {
   COMPLEX_FILTER_LABEL_PART_1: 'journals.header-formatter.message.complex-filter.part-1',
@@ -295,10 +295,11 @@ export default class HeaderFormatter extends Component {
         className="ecos-th__filter-tooltip"
         innerClassName="ecos-th__filter-tooltip-body"
         arrowClassName="ecos-th__filter-tooltip-marker"
-        modifiers={{
-          offsetsCorrection: {
-            order: 840,
+        modifiers={[
+          {
+            name: 'offsetsCorrection',
             enabled: true,
+            phase: 'main',
             fn: data => {
               const {
                 popper,
@@ -334,7 +335,7 @@ export default class HeaderFormatter extends Component {
               return data;
             }
           }
-        }}
+        ]}
       >
         <ReactResizeDetector handleWidth onResize={() => this.forceUpdate()}>
           <ClickOutside handleClickOutside={this.handleClickOutside} excludeElements={[filterIcon, ...document.querySelectorAll('.modal')]}>
@@ -398,17 +399,20 @@ export default class HeaderFormatter extends Component {
         style={{ minWidth: this.minWidth, ...(colWidth && { width: colWidth }) }}
       >
         <div className="ecos-th__content" onClick={this.onSort} id={this.tooltipLabelId}>
-          <Popper
-            className="ecos-drag-item__title"
-            isViewNewJournal
-            popupClassName="ecos-drag-item__title-popper"
-            showAsNeeded
+          <EcosTooltip
+            isViewNewJournal={isViewNewJournal}
+            target={this.tooltipLabelId}
+            elementId={this.tooltipTextId}
             text={column.text}
+            placement="bottom"
+            hideArrow
+            uncontrolled
+            showAsNeeded
           >
             <span className="ecos-th__content-text" id={this.tooltipTextId}>
               {column.text}
             </span>
-          </Popper>
+          </EcosTooltip>
           {this.renderActions()}
         </div>
 

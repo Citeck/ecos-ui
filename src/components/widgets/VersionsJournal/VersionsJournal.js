@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { UncontrolledTooltip } from 'reactstrap';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
@@ -20,6 +19,7 @@ import { arrayCompare, t } from '../../../helpers/util';
 import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
 import { BASE_HEIGHT, MODAL, TOOLTIP } from '../../../constants/versionsJournal';
 
+import UncontrolledTooltip from '../../common/UncontrolledTooltip';
 import BaseWidget from '../BaseWidget';
 import { Avatar, Icon, Loader, Tooltip } from '../../common/index';
 import { Btn, IcoBtn } from '../../common/btns/index';
