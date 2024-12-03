@@ -1,0 +1,251 @@
+@import '../../../styles/constants';
+
+.citeck-upload-status {
+  $root: &;
+
+  position: fixed;
+  bottom: 0;
+
+  right: 25px;
+  background-color: $color-white;
+  border-radius: 12px 12px 0 0;
+  box-shadow: 0 1px 5px 0 #00000033;
+  box-sizing: border-box;
+
+  width: 358px;
+  z-index: 1000;
+
+  &__header {
+    display: inline-flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 40px;
+
+    width: 100%;
+    padding: 10px 16px;
+    box-sizing: border-box;
+    border-bottom: 1px solid $color-gray-25;
+
+    &-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+
+      path {
+        fill: $text-color-gray;
+      }
+
+      &_btn {
+        cursor: pointer;
+      }
+    }
+
+    &-title {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 23px;
+    }
+  }
+
+  &__files {
+    width: 100%;
+    max-height: 410px;
+    overflow-y: auto;
+  }
+
+  &__file {
+    display: inline-flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 8px 16px;
+    box-sizing: border-box;
+    width: 100%;
+
+    &_loading {
+      &:hover #{$root}__file-action_cancel {
+        display: flex;
+      }
+
+      &:hover #{$root}__file-status {
+        display: none;
+      }
+    }
+
+    &-action_cancel {
+      display: none;
+      cursor: pointer;
+
+      path {
+        fill: $color-gray-5;
+      }
+    }
+
+    &-info {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    &-name {
+      color: $text-color-dark;
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 16px;
+      margin: 0;
+    }
+
+    &-status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      max-width: 30px;
+
+      &_canceled path {
+        fill: $color-gray-5;
+      }
+    }
+  }
+}
+
+.citeck-file-replacement-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.5);
+
+  &__card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    max-width: 382px;
+    width: 100%;
+
+    border-radius: 12px;
+    background-color: $color-white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+    &-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 0 16px;
+
+      &_label {
+        font-weight: 600;
+        font-size: 13px;
+        color: $color-red-1;
+        line-height: 16px;
+      }
+    }
+
+    &-radio {
+      .ecos-radio {
+        padding-left: 30px;
+      }
+
+      .ecos-radio__checkmark,
+      .ecos-radio__checkmark:hover {
+        width: 18px;
+        height: 18px;
+      }
+
+      .ecos-radio__label {
+        padding-top: 2px;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 16px;
+        color: $text-color-dark;
+      }
+
+      &_list {
+        display: flex;
+        flex-direction: column;
+        padding: 0 16px;
+        gap: 2px;
+      }
+    }
+
+    &-actions {
+      display: inline-flex;
+      gap: 12px;
+
+      width: 100%;
+      justify-content: flex-end;
+      padding: 0 21px;
+      margin-bottom: 21px;
+
+      &_btn,
+      &_btn.ecos-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+
+        height: auto;
+        max-height: 33px;
+        border-radius: 35px;
+
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      &_btn.skip {
+        padding: 6px 12px;
+        background-color: transparent;
+        color: $text-color-gray;
+      }
+
+      &_btn.replace {
+        padding: 12px 16px;
+        background-color: $color-blue-dark;
+        color: $color-white;
+      }
+
+      &_btn.disabled {
+        background-color: $color-gray-2;
+      }
+    }
+
+    &-description {
+      color: $text-color-dark;
+      font-weight: 600;
+      font-size: 12px;
+      line-height: 16px;
+      margin: 0 16px;
+    }
+
+    &-header {
+      display: inline-flex;
+      justify-content: space-between;
+      align-items: center;
+
+      width: 100%;
+      padding: 10px 16px;
+      border-bottom: 1px solid $color-gray-25;
+
+      &_btn {
+        cursor: pointer;
+      }
+
+      &_text {
+        color: $text-color-dark;
+        font-size: 14px;
+        line-height: 23px;
+        font-weight: 700;
+        margin: 0;
+      }
+    }
+  }
+}

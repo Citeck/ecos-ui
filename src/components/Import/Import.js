@@ -1,20 +1,27 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { NotificationManager } from 'react-notifications';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
-import { selectImportDataConfig, selectJournalConfig } from '../../selectors/journals';
-import { Dropdown } from '../common/form';
 import isBoolean from 'lodash/isBoolean';
 import isFunction from 'lodash/isFunction';
+
+import { selectImportDataConfig, selectJournalConfig } from '../../selectors/journals';
+import { Dropdown } from '../common/form';
 import LicenseService from '../../services/license/LicenseService';
-import { getTextByLocale, isMobileDevice } from '../../helpers/util';
+import { getCurrentUserName, getTextByLocale, isMobileDevice } from '../../helpers/util';
 import { t } from '../../helpers/export/util';
 import { Tooltip } from '../common';
 import Download from '../common/icons/Download';
 import PageService from '../../services/PageService';
 import FormManager from '../EcosForm/FormManager';
+import { SourcesId } from '../../constants';
+import Records from '../../components/Records';
+import { wrapArgs } from '../../helpers/redux';
+import { deselectAllRecords, reloadGrid } from '../../actions/journals';
+
 import './Import.scss';
 
 class Import extends Component {
@@ -24,11 +31,14 @@ class Import extends Component {
     importDataConfig: PropTypes.arrayOf(PropTypes.object),
     isViewNewJournal: PropTypes.bool,
     right: PropTypes.bool,
-    getStateOpen: PropTypes.func
+    getStateOpen: PropTypes.func,
+    reloadGrid: PropTypes.func,
+    deselectAllRecords: PropTypes.func
   };
 
   state = {
     importDataConfig: [],
+    authorityGroupsCurrentUser: [],
     isOpenDropdown: false,
     hasImportDataLicense: false
   };
@@ -41,6 +51,10 @@ class Import extends Component {
         });
       }
     });
+
+    Records.get(`${SourcesId.PERSON}@${getCurrentUserName()}`)
+      .load('authorityGroups[]?json')
+      .then(res => this.setState({ authorityGroupsCurrentUser: res.map(group => group.id) }));
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -62,6 +76,101 @@ class Import extends Component {
     return hasImportDataLicense ? importDataConfig : [];
   }
 
+  handleSubmit = async (fileData, persistedRecordId) => {
+    const { deselectAllRecords, reloadGrid } = this.props;
+
+    if (navigator.serviceWorker && navigator.serviceWorker.controller && persistedRecordId && get(fileData, 'file')) {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'UPLOAD_PROGRESS',
+        status: 'start',
+        isImporting: true
+      });
+
+      let isReady = false;
+      const totalCount = await Records.get(persistedRecordId).load('rowCount?num');
+
+      navigator.serviceWorker.controller.postMessage({
+        type: 'UPLOAD_PROGRESS',
+        status: 'in-progress',
+        totalCount,
+        successFileCount: 0,
+        file: fileData
+      });
+
+      while (!isReady) {
+        try {
+          await new Promise(resolve => setTimeout(resolve, 2000));
+
+          const successFileCount = await Records.get(persistedRecordId).load('processedRowCount?num');
+          const persistedRecordData = await Records.get(persistedRecordId).load('?json');
+          const state = get(persistedRecordData, 'state', '');
+
+          switch (state) {
+            case 'RUNNING':
+              navigator.serviceWorker.controller.postMessage({
+                type: 'UPLOAD_PROGRESS',
+                status: 'in-progress',
+                totalCount,
+                successFileCount,
+                file: fileData
+              });
+              break;
+
+            case 'STOPPED':
+              navigator.serviceWorker.controller.postMessage({
+                type: 'UPLOAD_PROGRESS',
+                status: 'in-progress',
+                totalCount,
+                successFileCount,
+                file: {
+                  ...fileData,
+                  isLoading: false
+                }
+              });
+              isReady = true;
+              break;
+
+            case 'ERROR':
+              const errorMsg = await Records.get(persistedRecordId).load('errorMessage?str');
+              if (errorMsg) {
+                NotificationManager.error(errorMsg);
+              }
+
+              navigator.serviceWorker.controller.postMessage({
+                type: 'UPLOAD_PROGRESS',
+                status: 'error',
+                totalCount,
+                successFileCount,
+                file: {
+                  ...fileData,
+                  isLoading: false
+                }
+              });
+
+              isReady = true;
+              break;
+
+            default:
+              break;
+          }
+        } catch (error) {
+          console.error('Polling error:', error);
+          isReady = true;
+        }
+      }
+
+      if (isReady) {
+        navigator.serviceWorker.controller.postMessage({
+          type: 'UPLOAD_PROGRESS',
+          status: 'success'
+        });
+
+        if (isFunction(deselectAllRecords)) deselectAllRecords();
+        if (isFunction(reloadGrid)) reloadGrid();
+      }
+    }
+  };
+
   handleImport = async item => {
     const { journalConfig = {} } = this.props;
     const typeRef = get(journalConfig, 'typeRef');
@@ -73,7 +182,19 @@ class Import extends Component {
         formId: 'import-data-form',
         typeRef,
         variantId,
-        onSubmit: () => {}
+        onSubmit: async (record, form) => {
+          const file = get(form, 'data.inputFileRef[0]');
+          const formSubmitDonePromise = get(form, 'options.formSubmitDonePromise');
+
+          const fileData = { file };
+
+          if (formSubmitDonePromise) {
+            formSubmitDonePromise.then(res => {
+              const persistedRecord = get(res, 'persistedRecord');
+              this.handleSubmit(fileData, get(persistedRecord, 'id'));
+            });
+          }
+        }
       });
     }
   };
@@ -132,12 +253,27 @@ class Import extends Component {
   };
 
   render() {
-    const { isViewNewJournal, classNameBtn, children, className, right } = this.props;
-    const { importDataConfig, isOpenDropdown, hasImportDataLicense } = this.state;
+    const { isViewNewJournal, classNameBtn, children, className, right, journalConfig } = this.props;
+    const { importDataConfig, isOpenDropdown, hasImportDataLicense, authorityGroupsCurrentUser } = this.state;
+    const { hideImportDataActions = false } = journalConfig || {};
 
     const variants = this.dropdownSourceVariants(importDataConfig, hasImportDataLicense);
 
-    if (!variants || !variants.length) {
+    const allowVariants = get(variants, 'length')
+      ? variants.filter(variant => {
+          const allowedFor = get(variant, 'allowedFor', []);
+          return allowedFor.some(
+            allowed =>
+              allowed &&
+              get(authorityGroupsCurrentUser, 'length') &&
+              (authorityGroupsCurrentUser.includes(allowed) ||
+                authorityGroupsCurrentUser.includes(allowed.replace('GROUP_', '')) ||
+                allowed === getCurrentUserName())
+          );
+        })
+      : [];
+
+    if (!allowVariants.length || hideImportDataActions) {
       return null;
     }
 
@@ -148,7 +284,7 @@ class Import extends Component {
           hasEmpty
           isStatic={!importDataConfig}
           right={right}
-          source={variants}
+          source={allowVariants}
           controlIcon="icon-download"
           controlClassName={classNames('ecos-btn_grey ecos-btn_settings-down', classNameBtn, {
             'ecos-journal__btn_new_focus': isOpenDropdown && isViewNewJournal
@@ -169,4 +305,16 @@ const mapStateToProps = (state, props) => ({
   journalConfig: selectJournalConfig(state, props.stateId)
 });
 
-export default connect(mapStateToProps)(Import);
+function mapDispatchToProps(dispatch, props) {
+  const w = wrapArgs(props.stateId);
+
+  return {
+    reloadGrid: () => dispatch(reloadGrid(w({}))),
+    deselectAllRecords: stateId => dispatch(deselectAllRecords({ stateId }))
+  };
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Import);
