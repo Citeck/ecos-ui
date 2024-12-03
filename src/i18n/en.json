@@ -520,6 +520,7 @@
   "document-library.no-folders": "No folders",
   "document-library.empty-folder": "Empty folder",
   "document-library.files-loader": "Uploading files",
+  "document-library.file-loader": "Uploading file",
   "document-library.failure-to-fetch-data": "Failure to fetch data",
   "document-library.sidebar.failure-to-load-children": "Failure to load nested folders",
   "document-library.create-node.title": "Create new \"{{name}}\"",

@@ -457,6 +457,7 @@
   "document-library.no-folders": "Нет папок",
   "document-library.empty-folder": "Папка пуста",
   "document-library.files-loader": "Загрузка файлов",
+  "document-library.file-loader": "Загрузка файла",
   "document-library.failure-to-fetch-data": "Не удалось загрузить данные",
   "document-library.sidebar.failure-to-load-children": "Не удалось загрузить вложенные папки",
   "document-library.create-node.title": "Создать \"{{name}}\"",
