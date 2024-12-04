@@ -295,11 +295,10 @@ export default class HeaderFormatter extends Component {
         className="ecos-th__filter-tooltip"
         innerClassName="ecos-th__filter-tooltip-body"
         arrowClassName="ecos-th__filter-tooltip-marker"
-        modifiers={[
-          {
-            name: 'offsetsCorrection',
+        modifiers={{
+          offsetsCorrection: {
+            order: 840,
             enabled: true,
-            phase: 'main',
             fn: data => {
               const {
                 popper,
@@ -335,7 +334,7 @@ export default class HeaderFormatter extends Component {
               return data;
             }
           }
-        ]}
+        }}
       >
         <ReactResizeDetector handleWidth onResize={() => this.forceUpdate()}>
           <ClickOutside handleClickOutside={this.handleClickOutside} excludeElements={[filterIcon, ...document.querySelectorAll('.modal')]}>
