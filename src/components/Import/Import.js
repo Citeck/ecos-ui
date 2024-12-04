@@ -24,6 +24,25 @@ import { deselectAllRecords, reloadGrid } from '../../actions/journals';
 
 import './Import.scss';
 
+const pollingInterval = 2000;
+
+const ATT_FULL_STATE = '?json';
+const ATT_PROCESSED_ROW_COUNT = 'processedRowCount?num';
+const ATT_TOTAL_COUNT = 'rowCount?num';
+const ATT_ERROR_MSG = 'errorMessage?str';
+const ATT_AUTHORITY_GROUPS = 'authorityGroups[]?json';
+
+const importFormId = 'import-data-form';
+const importFormRecord = 'integrations/import-data@';
+
+const importEndpointLink = `${process.env.REACT_APP_SHARE_PROXY_URL || ''}/gateway/integrations/api/import-data/download-template`;
+
+const StatusesUpdate = {
+  RUNNING: 'RUNNING',
+  STOPPED: 'STOPPED',
+  ERROR: 'ERROR'
+};
+
 class Import extends Component {
   static propTypes = {
     className: PropTypes.string,
@@ -53,7 +72,7 @@ class Import extends Component {
     });
 
     Records.get(`${SourcesId.PERSON}@${getCurrentUserName()}`)
-      .load('authorityGroups[]?json')
+      .load(ATT_AUTHORITY_GROUPS)
       .then(res => this.setState({ authorityGroupsCurrentUser: res.map(group => group.id) }));
   }
 
@@ -62,6 +81,12 @@ class Import extends Component {
 
     if (!isEqual(importDataConfig, prevProps.importDataConfig)) {
       this.setState({ importDataConfig });
+    }
+  }
+
+  componentWillUnmount() {
+    if (isFunction(this.cleanupPolling)) {
+      this.cleanupPolling();
     }
   }
 
@@ -86,88 +111,128 @@ class Import extends Component {
         isImporting: true
       });
 
-      let isReady = false;
-      const totalCount = await Records.get(persistedRecordId).load('rowCount?num');
+      const record = Records.get(persistedRecordId);
 
-      navigator.serviceWorker.controller.postMessage({
-        type: 'UPLOAD_PROGRESS',
-        status: 'in-progress',
-        totalCount,
-        successFileCount: 0,
-        file: fileData
-      });
+      record.watch([ATT_PROCESSED_ROW_COUNT, ATT_TOTAL_COUNT, ATT_FULL_STATE], updatedAttributes => {
+        const processedRowCount = updatedAttributes[ATT_PROCESSED_ROW_COUNT];
+        const jsonData = updatedAttributes[ATT_FULL_STATE];
+        const totalCount = updatedAttributes[ATT_TOTAL_COUNT];
 
-      while (!isReady) {
-        try {
-          await new Promise(resolve => setTimeout(resolve, 2000));
-
-          const successFileCount = await Records.get(persistedRecordId).load('processedRowCount?num');
-          const persistedRecordData = await Records.get(persistedRecordId).load('?json');
-          const state = get(persistedRecordData, 'state', '');
+        if (jsonData && processedRowCount) {
+          const state = get(jsonData, 'state', '');
 
           switch (state) {
-            case 'RUNNING':
+            case StatusesUpdate.RUNNING:
               navigator.serviceWorker.controller.postMessage({
                 type: 'UPLOAD_PROGRESS',
                 status: 'in-progress',
                 totalCount,
-                successFileCount,
+                successFileCount: processedRowCount || 0,
                 file: fileData
               });
               break;
 
-            case 'STOPPED':
+            case StatusesUpdate.STOPPED:
               navigator.serviceWorker.controller.postMessage({
                 type: 'UPLOAD_PROGRESS',
                 status: 'in-progress',
                 totalCount,
-                successFileCount,
+                successFileCount: processedRowCount || 0,
                 file: {
                   ...fileData,
                   isLoading: false
                 }
               });
-              isReady = true;
+              stopPolling();
               break;
 
-            case 'ERROR':
-              const errorMsg = await Records.get(persistedRecordId).load('errorMessage?str');
-              if (errorMsg) {
-                NotificationManager.error(errorMsg);
-              }
-
-              navigator.serviceWorker.controller.postMessage({
-                type: 'UPLOAD_PROGRESS',
-                status: 'error',
-                totalCount,
-                successFileCount,
-                file: {
-                  ...fileData,
-                  isLoading: false
-                }
-              });
-
-              isReady = true;
+            case StatusesUpdate.ERROR:
+              handleError(fileData);
+              stopPolling();
               break;
 
             default:
               break;
           }
-        } catch (error) {
-          console.error('Polling error:', error);
-          isReady = true;
         }
-      }
+      });
 
-      if (isReady) {
+      await record.load([ATT_PROCESSED_ROW_COUNT, ATT_TOTAL_COUNT, ATT_FULL_STATE]);
+
+      const startPolling = () => {
+        record.pollingIntervalId = setInterval(() => {
+          record.update().catch(error => {
+            console.error(t('import-component.record.error-update', { record: record.id, error }));
+          });
+        }, pollingInterval);
+      };
+
+      const stopPolling = () => {
+        if (record.pollingIntervalId) {
+          clearInterval(record.pollingIntervalId);
+          record.pollingIntervalId = null;
+        }
+
         navigator.serviceWorker.controller.postMessage({
           type: 'UPLOAD_PROGRESS',
           status: 'success'
         });
 
-        if (isFunction(deselectAllRecords)) deselectAllRecords();
-        if (isFunction(reloadGrid)) reloadGrid();
+        isFunction(deselectAllRecords) && deselectAllRecords();
+        isFunction(reloadGrid) && reloadGrid();
+      };
+
+      const handleError = async fileData => {
+        const errorMsg = await record.load(ATT_ERROR_MSG);
+        if (errorMsg) {
+          NotificationManager.error(errorMsg);
+        }
+
+        navigator.serviceWorker.controller.postMessage({
+          type: 'UPLOAD_PROGRESS',
+          status: 'error',
+          totalCount: record.att(ATT_TOTAL_COUNT) || 0,
+          successFileCount: record.att(ATT_PROCESSED_ROW_COUNT) || 0,
+          file: {
+            ...fileData,
+            isLoading: false
+          }
+        });
+      };
+
+      if (get(record.att(ATT_FULL_STATE), 'state')) {
+        switch (record.att(ATT_FULL_STATE).state) {
+          case StatusesUpdate.RUNNING:
+            startPolling();
+            break;
+
+          case StatusesUpdate.STOPPED:
+            navigator.serviceWorker.controller.postMessage({
+              type: 'UPLOAD_PROGRESS',
+              status: 'in-progress',
+              totalCount: record.att(ATT_TOTAL_COUNT) || 0,
+              successFileCount: record.att(ATT_PROCESSED_ROW_COUNT) || 0,
+              file: {
+                ...fileData,
+                isLoading: false
+              }
+            });
+            stopPolling();
+            break;
+
+          case StatusesUpdate.ERROR:
+            await handleError(fileData);
+            stopPolling();
+            break;
+
+          default:
+            break;
+        }
       }
+
+      this.cleanupPolling = () => {
+        stopPolling();
+      };
     }
   };
 
@@ -178,8 +243,8 @@ class Import extends Component {
 
     if (typeRef && variantId) {
       FormManager.openFormModal({
-        record: `integrations/import-data@`,
-        formId: 'import-data-form',
+        record: importFormRecord,
+        formId: importFormId,
         typeRef,
         variantId,
         onSubmit: async (record, form) => {
@@ -202,16 +267,11 @@ class Import extends Component {
   handleDownloadTemplates = variantId => {
     const { journalConfig = {} } = this.props;
 
-    const proxyUrl = process.env.REACT_APP_SHARE_PROXY_URL;
+    const params = { openNewBrowserTab: true };
     const journalType = get(journalConfig, 'typeRef');
 
-    if (proxyUrl && journalType) {
-      PageService.changeUrlLink(
-        `${proxyUrl}/gateway/integrations/api/import-data/download-template?typeRef=${journalType}&variantId=${variantId}`,
-        {
-          openNewBrowserTab: true
-        }
-      );
+    if (journalType && variantId) {
+      PageService.changeUrlLink(`${importEndpointLink}?typeRef=${journalType}&variantId=${variantId}`, params);
     }
   };
 
@@ -237,7 +297,7 @@ class Import extends Component {
           target={`import-data-download_${variantId}`}
           uncontrolled
           showAsNeeded
-          text={t('citeck-dropdown.import.download')}
+          text={t('import-component.download')}
           off={isMobileDevice()}
         >
           <i
