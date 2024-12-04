@@ -756,6 +756,9 @@
   "kanban-widget.title": "Доска {{ journal }}",
   "kanban-widget.no-journal": "Нет выбранных журналов. Перейдите в настройки.",
 
+  "import-component.record.error-update": "Ошибка при обновлении Record'а {{ record }}: {{ error }}",
+  "import-component.download": "Скачать шаблон",
+
   "export-component.action.html-load": "HTML (скачивание)",
   "export-component.action.html-read": "HTML (просмотр)",
   "export-component.action.copy-link": "Копировать ссылку на выборку",
@@ -2511,8 +2514,6 @@
   "more-about-error.label": "Подробнее об ошибке",
 
   "ecos-form.export.attention": "Вы не можете начать одновременно несколько идентичных действий",
-
-  "citeck-dropdown.import.download": "Скачать шаблон",
 
   "process-statistics-widget.simplified-title": "Процесс",
   "process-statistics-widget.extended-title": "Статистика процесса",

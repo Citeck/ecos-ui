@@ -798,6 +798,9 @@
   "kanban-widget.title": "Board {{ journal }} ",
   "kanban-widget.no-journal": "No selected journal. Go to settings.",
 
+  "import-component.record.error-update": "Error updating Record {{ record }}: {{ error }}",
+  "import-component.download": "Download the template",
+
   "export-component.action.html-load": "HTML (download)",
   "export-component.action.html-read": "HTML (view)",
   "export-component.action.copy-link": "Copy selection link",
@@ -2575,8 +2578,6 @@
   "form-constructor.error.panel.key": "The property name must only contain alphanumeric characters, underscores, dots, colons and dashes and should not be ended by dash or dot.",
 
   "ecos-form.export.attention": "You cannot start multiple identical actions at the same time",
-
-  "citeck-dropdown.import.download": "Download the template",
 
   "process-statistics-widget.simplified-title": "Process",
   "process-statistics-widget.extended-title": "Process Statistics",
