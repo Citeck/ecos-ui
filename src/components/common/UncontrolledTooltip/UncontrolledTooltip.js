@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Tooltip from '../Tooltip';
+import { Tooltip } from 'reactstrap';
 import omit from 'lodash/omit';
 
 const omitKeys = ['defaultOpen'];
