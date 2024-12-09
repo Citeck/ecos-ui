@@ -69,7 +69,8 @@ import {
   toggleViewMode,
   setJournalExpandableProp,
   setLoadingGrid,
-  cancelReloadGrid
+  cancelReloadGrid,
+  cancelLoadGrid
 } from '../actions/journals';
 import {
   selectGridPaginationMaxItems,
@@ -319,6 +320,10 @@ function* _resolveTemplate(recordRef, template) {
 
 function* sagaGetJournalsData({ api, logger, stateId, w }, { payload }) {
   try {
+    if (get(payload, 'force')) {
+      yield put(cancelReloadGrid());
+    }
+
     const url = yield select(selectUrl, stateId);
     const isViewNewJournal = yield select(selectIsViewNewJournal);
     const { journalId, journalSettingId = '', userConfigId } = url;
@@ -708,81 +713,86 @@ export function* getGridData(api, params, stateId) {
 }
 
 function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId, savePredicate, forcePagination }, w) {
-  const initPredicate = savePredicate || false;
-  const isResetPagination = forcePagination || false;
-  const sharedSettings = yield getJournalSharedSettings(api, userConfigId) || {};
+  yield race({
+    task: call(function*() {
+      const initPredicate = savePredicate || false;
+      const isResetPagination = forcePagination || false;
+      const sharedSettings = yield getJournalSharedSettings(api, userConfigId) || {};
 
-  if (!isEmpty(sharedSettings) && !isEmpty(sharedSettings.columns)) {
-    sharedSettings.columns = yield JournalsService.resolveColumns(sharedSettings.columns);
-  }
+      if (!isEmpty(sharedSettings) && !isEmpty(sharedSettings.columns)) {
+        sharedSettings.columns = yield JournalsService.resolveColumns(sharedSettings.columns);
+      }
 
-  const journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId, initPredicate }, w);
-  const settings = yield select(selectJournalSettings, stateId);
-  const preset = settings.find(preset => preset.id === journalSettingId);
-  const url = yield select(selectUrl, stateId);
-  const journalData = yield select(selectJournalData, stateId);
+      const journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId, initPredicate }, w);
+      const settings = yield select(selectJournalSettings, stateId);
+      const preset = settings.find(preset => preset.id === journalSettingId);
+      const url = yield select(selectUrl, stateId);
+      const journalData = yield select(selectJournalData, stateId);
 
-  const dataPagination = get(sharedSettings, 'pagination') || get(journalData, 'grid.pagination') || DEFAULT_PAGINATION;
+      const dataPagination = get(sharedSettings, 'pagination') || get(journalData, 'grid.pagination') || DEFAULT_PAGINATION;
 
-  const pagination = !isResetPagination ? dataPagination : { ...dataPagination, page: 1, skipCount: 0 };
-  const params = getGridParams({ journalConfig, journalSetting: get(preset, 'settings', journalSetting), pagination });
-  const search = url.search || journalSetting.search;
+      const pagination = !isResetPagination ? dataPagination : { ...dataPagination, page: 1, skipCount: 0 };
+      const params = getGridParams({ journalConfig, journalSetting: get(preset, 'settings', journalSetting), pagination });
+      const search = url.search || journalSetting.search;
 
-  let gridData = yield getGridData(api, { ...params }, stateId);
-  let searchData = {};
+      let gridData = yield getGridData(api, { ...params }, stateId);
+      let searchData = {};
 
-  const headerSearchEnabled = get(journalConfig, 'searchConfig.headerSearchEnabled', true);
+      const headerSearchEnabled = get(journalConfig, 'searchConfig.headerSearchEnabled', true);
 
-  if (headerSearchEnabled && search) {
-    yield put(setGrid(w({ search })));
-    searchData = { search };
-  }
+      if (headerSearchEnabled && search) {
+        yield put(setGrid(w({ search })));
+        searchData = { search };
+      }
 
-  if (search && !url.search) {
-    yield put(setUrl({ stateId, ...url, search }));
-  }
+      if (search && !url.search) {
+        yield put(setUrl({ stateId, ...url, search }));
+      }
 
-  const searchPredicate = yield getSearchPredicate({ ...w({ stateId }), grid: { ...gridData, ...searchData } });
+      const searchPredicate = yield getSearchPredicate({ ...w({ stateId }), grid: { ...gridData, ...searchData } });
 
-  if (headerSearchEnabled && !isEmpty(searchPredicate)) {
-    params.searchPredicate = searchPredicate;
-    gridData = yield getGridData(api, params, stateId);
-  }
+      if (headerSearchEnabled && !isEmpty(searchPredicate)) {
+        params.searchPredicate = searchPredicate;
+        gridData = yield getGridData(api, params, stateId);
+      }
 
-  const editingRules = yield getGridEditingRules(api, gridData);
-  let selectedRecords = [];
+      const editingRules = yield getGridEditingRules(api, gridData);
+      let selectedRecords = [];
 
-  if (!!userConfigId) {
-    if (isEmpty(get(sharedSettings, 'selectedItems'))) {
-      selectedRecords = get(gridData, 'data', []).map(item => item.id);
-    } else {
-      selectedRecords = sharedSettings.selectedItems;
-    }
-  }
+      if (!!userConfigId) {
+        if (isEmpty(get(sharedSettings, 'selectedItems'))) {
+          selectedRecords = get(gridData, 'data', []).map(item => item.id);
+        } else {
+          selectedRecords = sharedSettings.selectedItems;
+        }
+      }
 
-  if (!isEmpty(gridData.columns)) {
-    gridData.columns = JournalsConverter.filterColumnsByConfig(gridData.columns, journalConfig.columns);
-  }
+      if (!isEmpty(gridData.columns)) {
+        gridData.columns = JournalsConverter.filterColumnsByConfig(gridData.columns, journalConfig.columns);
+      }
 
-  if (!isEmpty(gridData.predicate)) {
-    JournalsConverter.filterPredicatesByConfigColumns(gridData.predicates, journalConfig.columns);
-  }
+      if (!isEmpty(gridData.predicate)) {
+        JournalsConverter.filterPredicatesByConfigColumns(gridData.predicates, journalConfig.columns);
+      }
 
-  if (!isEmpty(params.predicate)) {
-    JournalsConverter.filterPredicatesByConfigColumns(params.predicates, journalConfig.columns);
-  }
+      if (!isEmpty(params.predicate)) {
+        JournalsConverter.filterPredicatesByConfigColumns(params.predicates, journalConfig.columns);
+      }
 
-  yield put(setGrid(w({ ...params, ...gridData, editingRules })));
+      yield put(setGrid(w({ ...params, ...gridData, editingRules })));
 
-  if (get(params, 'grouping.groupBy', []).length) {
-    yield put(setLoadingGrid(w(false)));
-  }
+      if (get(params, 'grouping.groupBy', []).length) {
+        yield put(setLoadingGrid(w(false)));
+      }
 
-  yield put(setSelectedRecords(w(selectedRecords)));
-  yield put(setSelectAllRecordsVisible(w(false)));
-  yield put(setGridInlineToolSettings(w(DEFAULT_INLINE_TOOL_SETTINGS)));
-  yield put(setPreviewUrl(w('')));
-  yield put(setPreviewFileName(w('')));
+      yield put(setSelectedRecords(w(selectedRecords)));
+      yield put(setSelectAllRecordsVisible(w(false)));
+      yield put(setGridInlineToolSettings(w(DEFAULT_INLINE_TOOL_SETTINGS)));
+      yield put(setPreviewUrl(w('')));
+      yield put(setPreviewFileName(w('')));
+    }),
+    canceled: take(cancelLoadGrid().type)
+  });
 }
 
 function* getGridEditingRules(api, gridData) {
@@ -1052,9 +1062,11 @@ function* sagaSelectPreset({ api, logger, stateId, w }, action) {
     const { journalConfig } = yield select(selectJournalData, stateId);
 
     yield put(setLoading(w(true)));
+    yield put(cancelReloadGrid());
+    yield put(cancelLoadGrid());
+
     yield call(api.journals.setLsJournalSettingId, journalConfig.id, journalSettingId);
     yield loadGrid(api, { journalSettingId, journalConfig, stateId, forcePagination: true }, w);
-    yield put(cancelReloadGrid());
     yield put(setLoading(w(false)));
   } catch (e) {
     logger.error('[journals sagaSelectPreset saga error', e);
@@ -1269,6 +1281,8 @@ function* sagaEditJournalSetting({ api, logger, stateId, w }, action) {
 
 function* sagaApplyJournalSetting({ api, logger, stateId, w }, action) {
   try {
+    yield put(cancelReloadGrid());
+
     const { settings } = action.payload;
     const { columns, groupBy = [], sortBy, predicate, grouping } = settings;
     const predicates = beArray(predicate);

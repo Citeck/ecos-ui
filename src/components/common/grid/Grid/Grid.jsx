@@ -726,6 +726,8 @@ class Grid extends Component {
   };
 
   initFooterFormatter = () => {
+    const { loading = false } = this.props;
+
     return column => {
       const { newFormatter = {}, footer } = column;
 
@@ -735,7 +737,7 @@ class Grid extends Component {
         return '';
       }
 
-      if (content === 'loading') {
+      if (content === 'loading' || loading) {
         content = <Loader type="points" height={10} width={18} />;
       } else if (!isEmpty(newFormatter) && ['duration', 'number'].includes(newFormatter.type)) {
         content = FormatterService.format({ cell: footer, column }, newFormatter);
@@ -1533,6 +1535,7 @@ Grid.propTypes = {
   selectAll: PropTypes.bool,
   noSelectorMenu: PropTypes.bool,
   fixedHeader: PropTypes.bool,
+  loading: PropTypes.bool,
   noHeader: PropTypes.bool,
   noTopBorder: PropTypes.bool,
   scrollable: PropTypes.bool,
