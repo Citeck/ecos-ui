@@ -51,14 +51,16 @@ export default class Pagination extends Component {
   }
 
   get max() {
-    const { page, maxItems, total } = this.props;
+    const { maxItems, total } = this.props;
+    const { page } = this.state;
     const max = page * maxItems;
 
     return max > total ? total : max;
   }
 
   get min() {
-    const { page, maxItems } = this.props;
+    const { maxItems } = this.props;
+    const { page } = this.state;
 
     return (page - 1) * maxItems + 1;
   }
