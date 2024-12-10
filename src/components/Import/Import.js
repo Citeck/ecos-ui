@@ -14,7 +14,7 @@ import LicenseService from '../../services/license/LicenseService';
 import { getCurrentUserName, getTextByLocale, isMobileDevice } from '../../helpers/util';
 import { t } from '../../helpers/export/util';
 import { Tooltip } from '../common';
-import Download from '../common/icons/Download';
+import DownloadIcon from '../common/icons/Download';
 import PageService from '../../services/PageService';
 import FormManager from '../EcosForm/FormManager';
 import { SourcesId } from '../../constants';
@@ -312,7 +312,7 @@ class Import extends Component {
             className="citeck-import-data__menu-item_i"
             onClick={e => this.handleOnClick(e, this.handleDownloadTemplates(variantId))}
           >
-            <Download />
+            <DownloadIcon />
           </i>
         </Tooltip>
       </li>
