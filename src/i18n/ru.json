@@ -757,6 +757,7 @@
   "kanban-widget.no-journal": "Нет выбранных журналов. Перейдите в настройки.",
 
   "import-component.record.error-update": "Ошибка при обновлении Record'а {{ record }}: {{ error }}",
+  "import-component.attributes.error": "Атрибуты импорта не определены",
   "import-component.download": "Скачать шаблон",
 
   "export-component.action.html-load": "HTML (скачивание)",

@@ -241,6 +241,10 @@ class Import extends Component {
     const typeRef = get(journalConfig, 'typeRef');
     const variantId = get(item, 'variantId');
 
+    if (!typeRef || !variantId) {
+      NotificationManager.error(t('import-component.attributes.error'));
+    }
+
     if (typeRef && variantId) {
       FormManager.openFormModal({
         record: importFormRecord,
