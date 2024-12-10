@@ -245,8 +245,10 @@ class Import extends Component {
       FormManager.openFormModal({
         record: importFormRecord,
         formId: importFormId,
-        typeRef,
-        variantId,
+        attributes: {
+          typeRef,
+          variantId
+        },
         onSubmit: async (record, form) => {
           const file = get(form, 'data.inputFileRef[0]');
           const formSubmitDonePromise = get(form, 'options.formSubmitDonePromise');

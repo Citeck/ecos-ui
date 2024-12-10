@@ -539,21 +539,12 @@ class EcosForm extends React.Component {
         sRecord.att('_state', submission.state);
       }
       const { typeRef = '' } = form.options;
-      const { typeRef: propsTypeRef, variantId } = get(form, 'ecos.form.props', {});
-
       const formInfo = {};
       if (typeRef) {
         //_formOptions is deprecated
         sRecord.att('_formOptions', { typeRef });
         formInfo['typeRef'] = typeRef;
-      } else if (propsTypeRef) {
-        sRecord.att('typeRef', propsTypeRef);
       }
-
-      if (variantId) {
-        sRecord.att('variantId', variantId);
-      }
-
       let btnComponents = EcosFormUtils.getButtonComponents(form);
       for (let buttonComponent of btnComponents) {
         if (submission.data[buttonComponent.key] === true) {
