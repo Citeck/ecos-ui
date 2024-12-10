@@ -243,6 +243,7 @@ class Import extends Component {
 
     if (!typeRef || !variantId) {
       NotificationManager.error(t('import-component.attributes.error'));
+      console.error('Invalid import variant. journalId: ' + get(journalConfig, 'id') + ' typeRef: ' + typeRef + ' variantId: ' + variantId);
     }
 
     if (typeRef && variantId) {
