@@ -780,6 +780,7 @@
   "kanban-widget.no-journal": "No selected journal. Go to settings.",
 
   "import-component.record.error-update": "Error updating Record {{ record }}: {{ error }}",
+  "import-component.attributes.error": "Import attributes are not defined",
   "import-component.download": "Download the template",
 
   "export-component.action.html-load": "HTML (download)",
