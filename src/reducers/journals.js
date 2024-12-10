@@ -39,7 +39,8 @@ import {
   setUrl,
   openSelectedJournal,
   setSearchText,
-  saveColumn
+  saveColumn,
+  setImportDataConfig
 } from '../actions/journals';
 import { t } from '../helpers/export/util';
 import { getCurrentStateById, handleAction, handleState, updateState } from '../helpers/redux';
@@ -78,6 +79,7 @@ export const defaultState = {
     search: ''
   },
 
+  importDataConfig: [],
   journalsList: [],
   journals: [],
   journalSettings: [],
@@ -479,6 +481,12 @@ export default handleActions(
       return handleState(state, stateId, {
         footerValue: handledAction.payload
       });
+    },
+    [setImportDataConfig]: (state, action) => {
+      const stateId = action.payload.stateId;
+      const handledAction = handleAction(action);
+
+      return handleState(state, stateId, { importDataConfig: handledAction.payload });
     }
   },
   initialState

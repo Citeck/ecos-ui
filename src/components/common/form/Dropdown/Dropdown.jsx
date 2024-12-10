@@ -38,7 +38,7 @@ export default class Dropdown extends Component {
     hideSelected: PropTypes.bool,
     scrollbarHeightMin: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     scrollbarHeightMax: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    CustomItem: PropTypes.element,
+    CustomItem: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
     getStateOpen: PropTypes.func,
     onChange: PropTypes.func,
     labelIsDiv: PropTypes.bool
