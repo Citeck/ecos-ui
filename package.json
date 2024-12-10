@@ -94,7 +94,7 @@
     "start": "npm-run-all clean export:dev start:react",
     "start:react": "react-scripts --max_old_space_size=4096 start",
     "build": "cross-env REACT_APP_BUILD_TIME=$(date +%s) npm-run-all clean export build:src",
-    "build:ci": "cross-env REACT_APP_BUILD_TIME=$(date +%s) build:src",
+    "build:ci": "cross-env REACT_APP_BUILD_TIME=$(date +%s) npm-run-all build:src",
     "build-win": "npm-run-all export-win build:src",
     "build:src": "node --max_old_space_size=1900 node_modules/.bin/react-scripts build",
     "clean": "rimraf public/ecosui/export",
