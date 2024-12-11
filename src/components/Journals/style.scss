@@ -366,6 +366,12 @@
         line-height: 16px;
       }
 
+      .ecos-grid__table_footer__item.text {
+        width: calc(100% - 10px);
+        text-align: center;
+        @extend %ellipsis;
+      }
+
       .ecos-popper > i {
         font-size: 12px;
         margin-top: 0;
@@ -404,7 +410,7 @@
       }
 
       &_editable {
-        padding: 0;
+        padding: 2px 6px;
       }
     }
 

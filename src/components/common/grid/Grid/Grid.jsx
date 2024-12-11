@@ -47,6 +47,7 @@ import Button from '../../btns/Btn';
 import { pagesStore } from '../../../../helpers/indexedDB';
 import ClickOutside from '../../../ClickOutside';
 import Icon from '../../icons/Icon';
+import Popper from '../../Popper';
 
 import './Grid.scss';
 import '../../Tooltip/style.scss';
@@ -749,9 +750,11 @@ class Grid extends Component {
 
       return (
         <div className="ecos-grid__table_footer__value">
-          <div className="ecos-grid__table_footer__item">{t('grid.footer.total-amount')}</div>
+          <Popper uncontrolled text={content}>
+            <div className="ecos-grid__table_footer__item text">{t('grid.footer.total-amount')}</div>
 
-          <div className="ecos-grid__table_footer__item">{content}</div>
+            <div className="ecos-grid__table_footer__item">{content}</div>
+          </Popper>
         </div>
       );
     };
