@@ -396,6 +396,34 @@ export default class SelectComponent extends BaseComponent {
       }
     }
 
+    function isItemsContainElement(items, element) {
+      return _.find(items, item => {
+        if (_.isEmpty(item)) {
+          return false;
+        }
+
+        if (_.isString(item)) {
+          return item === element;
+        }
+
+        if (_.isArray(element) && !_.isEmpty(element)) {
+          return element.includes(_.get(item, 'value'));
+        }
+
+        return _.get(item, 'value') === element;
+      });
+    }
+
+    if (
+      this.options.editInFormBuilder &&
+      this.dataValue &&
+      this.component.key === 'defaultValue' &&
+      !isItemsContainElement(items, this.dataValue)
+    ) {
+      items = [...items];
+      items.push({ label: this.dataValue, value: this.dataValue });
+    }
+
     // Helps to remove unnecessary updates, get rid of looping
     if (_.isEmpty(items) && _.isEmpty(this.currentItems)) {
       // If the component has no refresh attributes but has some dataValue and the select is empty,
@@ -410,21 +438,7 @@ export default class SelectComponent extends BaseComponent {
       return;
     }
 
-    const isFound = _.find(items, item => {
-      if (_.isEmpty(item)) {
-        return false;
-      }
-
-      if (_.isString(item)) {
-        return item === this.dataValue;
-      }
-
-      if (_.isArray(this.dataValue) && !_.isEmpty(this.dataValue)) {
-        return this.dataValue.includes(_.get(item, 'value'));
-      }
-
-      return _.get(item, 'value') === this.dataValue;
-    });
+    const isFound = isItemsContainElement(items, this.dataValue);
 
     // Reset the selected value if it is not in the list
     if (this.dataValue && !isFound) {
