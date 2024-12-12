@@ -1299,6 +1299,10 @@ export default class SelectComponent extends BaseComponent {
           return;
         }
 
+        if (!this.hasOwnProperty('refreshOnValue')) {
+          return;
+        }
+
         this.refresh(refreshData === 'data' ? this.data : this.data[refreshData], refreshData);
       },
       true
