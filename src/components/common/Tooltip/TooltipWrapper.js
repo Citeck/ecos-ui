@@ -17,6 +17,32 @@ function isInDOMSubtrees(element, subtreeRoots = []) {
   return subtreeRoots && subtreeRoots.length && subtreeRoots.filter(subTreeRoot => isInDOMSubtree(element, subTreeRoot))[0];
 }
 
+export const propsTypes = {
+  children: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+  placement: PropTypes.oneOf(PopperPlacements),
+  target: targetPropType.isRequired,
+  container: targetPropType,
+  isOpen: PropTypes.bool,
+  disabled: PropTypes.bool,
+  hideArrow: PropTypes.bool,
+  boundariesElement: PropTypes.oneOfType([PropTypes.string, DOMElement]),
+  className: PropTypes.string,
+  innerClassName: PropTypes.string,
+  arrowClassName: PropTypes.string,
+  popperClassName: PropTypes.string,
+  cssModule: PropTypes.object,
+  toggle: PropTypes.func,
+  autohide: PropTypes.bool,
+  placementPrefix: PropTypes.string,
+  delay: PropTypes.oneOfType([PropTypes.shape({ show: PropTypes.number, hide: PropTypes.number }), PropTypes.number]),
+  modifiers: PropTypes.arrayOf(PropTypes.object),
+  offset: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  innerRef: PropTypes.oneOfType([PropTypes.func, PropTypes.string, PropTypes.object]),
+  trigger: PropTypes.string,
+  fade: PropTypes.bool,
+  flip: PropTypes.bool
+};
+
 export class TooltipWrapper extends Component {
   constructor(props) {
     super(props);
@@ -304,31 +330,7 @@ export class TooltipWrapper extends Component {
   }
 }
 
-TooltipWrapper.propTypes = {
-  children: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-  placement: PropTypes.oneOf(PopperPlacements),
-  target: targetPropType.isRequired,
-  container: targetPropType,
-  isOpen: PropTypes.bool,
-  disabled: PropTypes.bool,
-  hideArrow: PropTypes.bool,
-  boundariesElement: PropTypes.oneOfType([PropTypes.string, DOMElement]),
-  className: PropTypes.string,
-  innerClassName: PropTypes.string,
-  arrowClassName: PropTypes.string,
-  popperClassName: PropTypes.string,
-  cssModule: PropTypes.object,
-  toggle: PropTypes.func,
-  autohide: PropTypes.bool,
-  placementPrefix: PropTypes.string,
-  delay: PropTypes.oneOfType([PropTypes.shape({ show: PropTypes.number, hide: PropTypes.number }), PropTypes.number]),
-  modifiers: PropTypes.arrayOf(PropTypes.object),
-  offset: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  innerRef: PropTypes.oneOfType([PropTypes.func, PropTypes.string, PropTypes.object]),
-  trigger: PropTypes.string,
-  fade: PropTypes.bool,
-  flip: PropTypes.bool
-};
+TooltipWrapper.propTypes = propsTypes;
 
 TooltipWrapper.defaultProps = {
   isOpen: false,
