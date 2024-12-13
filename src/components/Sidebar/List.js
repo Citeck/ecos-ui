@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
-import { Tooltip } from 'reactstrap';
+import { TooltipContainer as Tooltip } from '../common/Tooltip/TooltipContainer';
 
 import SidebarService from '../../services/sidebar';
 import { toggleExpanded } from '../../actions/slideMenu';
@@ -78,6 +78,7 @@ class List extends React.Component {
           isSelected={isItemSelected || isChildSelected}
           styleProps={styleProps}
           inDropdown={inDropdown}
+          boundariesElement={this.boundariesElement}
         />
         {hasSubItems && this.renderSubList(item.items, isSubListExpanded, inDropdown)}
         {!isMobile && level === SidebarService.DROPDOWN_LEVEL && hasSubItems && (
