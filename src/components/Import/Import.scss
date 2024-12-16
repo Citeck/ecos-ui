@@ -1,0 +1,17 @@
+.citeck-import-data {
+  display: inline-block;
+
+  &__menu-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__menu-item:hover &__menu-item_i {
+    display: block;
+    //width: 30px;
+  }
+  &__menu-item_i {
+    display: none;
+  }
+}

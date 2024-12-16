@@ -1,7 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import isBoolean from 'lodash/isBoolean';
 
 import { t } from '../../../helpers/util';
 import { ParserPredicate } from '../../Filters/predicates';
@@ -10,6 +11,7 @@ import { IcoBtn } from '../../common/btns';
 import Export from '../../Export/Export';
 import GroupActions from '../GroupActions';
 import ViewTabs from '../ViewTabs';
+import Import from '../../Import';
 import CreateMenu from './CreateMenu';
 
 import './JournalsSettingsBar.scss';
@@ -18,6 +20,7 @@ const Labels = {
   BTN_CREATE: 'journals.bar.btn.create',
   BTN_SETTINGS: 'journals.bar.btn.settings-table',
   BTN_EXPORT: 'journals.bar.btn.export',
+  BTN_IMPORT: 'journals.bar.btn.import',
   BTN_UPDATE: 'journals.bar.btn.update',
   BTN_FILTER_DEL: 'journals.bar.btn.filter-del'
 };
@@ -57,6 +60,7 @@ const JournalsSettingsBar = ({
   onAddRecord,
   onResetFilter
 }) => {
+  const [isOpenDropdownImport, setIsOpenDropdownImport] = useState(false);
   const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const createVariants = get(journalConfig, 'meta.createVariants') || [];
   const headerSearchEnabled = get(journalConfig, 'searchConfig.headerSearchEnabled', true);
@@ -66,6 +70,12 @@ const JournalsSettingsBar = ({
     off: isMobile,
     modifiers: tooltipModifiers,
     uncontrolled: true
+  };
+
+  const changeIsOpenImport = isOpenDropdown => {
+    if (isBoolean(isOpenDropdown)) {
+      setIsOpenDropdownImport(isOpenDropdown);
+    }
   };
 
   return (
@@ -117,6 +127,29 @@ const JournalsSettingsBar = ({
             </IcoBtn>
           )}
         </Export>
+
+        <Import
+          stateId={stateId}
+          // isViewNewJournal={isViewNewJournal}
+          getStateOpen={changeIsOpenImport}
+          className="ecos-journal__settings-bar-export"
+          classNameBtn={classNames('ecos-btn_i ecos-journal__settings-bar-export-btn', {
+            // 'ecos-journal__btn_new': isViewNewJournal
+          })}
+        >
+          <IcoBtn
+            invert
+            icon="icon-small-down"
+            className={classNames('ecos-journal__settings-bar-export-btn ecos-btn_hover_blue2 ecos-btn_drop-down ecos-btn_grey3', {
+              'ecos-journal__btn_new_focus': isOpenDropdownImport
+              // 'ecos-journal__btn_new export': isViewNewJournal
+            })}
+            loading={isLoading}
+          >
+            {/*{isViewNewJournal ? <ImportIcon /> : t(Labels.BTN_IMPORT)}*/}
+            {t(Labels.BTN_IMPORT)}
+          </IcoBtn>
+        </Import>
 
         <Tooltip target={`${targetId}-update`} text={t(Labels.BTN_UPDATE)} {...tooltipSettings} modifiers={{}}>
           <IcoBtn
