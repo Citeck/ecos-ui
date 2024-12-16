@@ -23,7 +23,7 @@ export function onSelect({ setting, journalSetting = [], getJournalsData, openSe
   if (journalSetting.id !== setting.id) {
     isFunction(openSelectedPreset) && openSelectedPreset(setting.id);
   } else {
-    isFunction(getJournalsData) && getJournalsData({ savePredicate: false });
+    isFunction(getJournalsData) && getJournalsData({ savePredicate: false, force: true });
     if (isKanban(viewMode)) {
       isFunction(kanbanResetFilter) && kanbanResetFilter();
     }
