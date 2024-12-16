@@ -37,6 +37,12 @@ export default class Pagination extends Component {
     this.state = { page };
   }
 
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (!this.state.page && this.props.page) {
+      this.setState({ page: this.props.page });
+    }
+  }
+
   get maxPage() {
     const { maxItems, total } = this.props;
 
