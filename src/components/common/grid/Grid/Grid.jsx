@@ -28,6 +28,7 @@ import isElement from 'lodash/isElement';
 import { Tooltip } from 'reactstrap';
 import { NotificationManager } from 'react-notifications';
 
+import EcosTooltip from '../../Tooltip';
 import Loader from '../../../common/Loader';
 import { getId, t, getCurrentUserName } from '../../../../helpers/util';
 import FormatterService from '../../../Journals/service/formatters/FormatterService';
@@ -47,7 +48,6 @@ import Button from '../../btns/Btn';
 import { pagesStore } from '../../../../helpers/indexedDB';
 import ClickOutside from '../../../ClickOutside';
 import Icon from '../../icons/Icon';
-import Popper from '../../Popper';
 
 import './Grid.scss';
 import '../../Tooltip/style.scss';
@@ -727,7 +727,7 @@ class Grid extends Component {
   };
 
   initFooterFormatter = () => {
-    const { loading = false } = this.props;
+    const { loading = false, journalId = '' } = this.props;
 
     return column => {
       const { newFormatter = {}, footer } = column;
@@ -748,13 +748,17 @@ class Grid extends Component {
         this.setState({ hasFooter: true });
       }
 
+      const targetId = `total-amount-${journalId}`;
+
       return (
         <div className="ecos-grid__table_footer__value">
-          <Popper uncontrolled text={content}>
-            <div className="ecos-grid__table_footer__item text">{t('grid.footer.total-amount')}</div>
+          <EcosTooltip target={targetId} uncontrolled text={content}>
+            <div id={targetId} className="ecos-grid__table_footer__item text">
+              {t('grid.footer.total-amount')}
+            </div>
 
             <div className="ecos-grid__table_footer__item">{content}</div>
-          </Popper>
+          </EcosTooltip>
         </div>
       );
     };

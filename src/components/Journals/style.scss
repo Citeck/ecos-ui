@@ -328,6 +328,8 @@
     }
 
     &__content {
+      padding: 0 7px;
+
       &-text {
         font-size: 11px;
       }
@@ -336,16 +338,11 @@
     &_filtered {
       padding: 5px 15px;
 
-      #{$th}__content {
+      .ecos-th__content {
         border-radius: 4px;
-        padding: 2px 7px;
+        padding: 6px 7px;
         min-width: 50px;
-        width: auto;
-
-        i {
-          margin: 0 2px;
-          font-size: 12px;
-        }
+        width: 100%;
       }
     }
   }
@@ -382,7 +379,7 @@
       thead > tr > th,
       tbody > tr > td {
         &:first-child {
-          width: auto;
+          max-width: 27px;
         }
       }
     }
@@ -411,6 +408,7 @@
 
       &_editable {
         padding: 2px 6px;
+        min-height: 23px;
       }
     }
 
@@ -445,7 +443,7 @@
     }
 
     &__checkbox {
-      padding-left: 8px;
+      padding-left: 6px;
       padding-right: 1px;
 
       &-divider {
