@@ -108,7 +108,7 @@ class ComparisonModal extends Component {
   };
 
   renderBody() {
-    const { comparison, versions } = this.props;
+    const { comparison } = this.props;
     const params = {};
 
     if (comparison) {
@@ -145,23 +145,23 @@ class ComparisonModal extends Component {
             <div className="vj-modal-comparison__document-content" {...params}>
               {this.renderComparisonWarning()}
             </div>
-            <a href={versions[0].url} download data-external>
+            {/* <a href={versions[0].url} download data-external>
               <Btn className="ecos-btn_grey5 ecos-btn_narrow vj-modal-comparison__document-btn">
                 <Icon className="icon-download vj-modal-comparison__document-btn-icon" />
                 <span className="vj-modal-comparison__document-btn-title">{t(LABELS.DOWNLOAD)}</span>
               </Btn>
-            </a>
+            </a> */}
           </div>
           <div className="vj-modal-comparison__document">
             <div className="vj-modal-comparison__document-content vj-modal-comparison__document-content_right" {...params}>
               {this.renderComparisonWarning()}
             </div>
-            <a href={versions[1].url} download data-external>
+            {/* <a href={versions[1].url} download data-external>
               <Btn className="ecos-btn_grey5 ecos-btn_narrow vj-modal-comparison__document-btn">
                 <Icon className="icon-download vj-modal-comparison__document-btn-icon" />
                 <span className="vj-modal-comparison__document-btn-title">{t(LABELS.DOWNLOAD)}</span>
               </Btn>
-            </a>
+            </a> */}
           </div>
         </div>
       </Scrollbars>
@@ -178,12 +178,12 @@ class ComparisonModal extends Component {
 
     return (
       <div className="vj-modal-comparison__footer">
-        <a href={versions[selected].url} download data-external>
+        {/* <a href={versions[selected].url} download data-external>
           <Btn className="ecos-btn_grey5 ecos-btn_narrow vj-modal-comparison__footer-btn">
             <Icon className="icon-download vj-modal-comparison__document-btn-icon" />
             <span className="vj-modal-comparison__document-btn-title">{t(LABELS.DOWNLOAD)}</span>
           </Btn>
-        </a>
+        </a> */}
 
         <Tabs
           items={versions}

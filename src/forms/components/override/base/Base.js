@@ -381,11 +381,13 @@ Base.prototype.addInputError = function(message, dirty) {
   }
 
   if (this.errorElement) {
-    const errorMessage = this.ce('p', {
-      class: 'help-block'
-    });
-    errorMessage.innerHTML = this.t(message);
-    this.errorElement.appendChild(errorMessage);
+    if (!this.element.innerHTML.includes(this.t(message))) {
+      const errorMessage = this.ce('p', {
+        class: 'help-block'
+      });
+      errorMessage.innerHTML = this.t(message);
+      this.errorElement.appendChild(errorMessage);
+    }
   }
 
   // Add error classes

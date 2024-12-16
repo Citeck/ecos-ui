@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
+import isNil from 'lodash/isNil';
 import get from 'lodash/get';
 import pick from 'lodash/pick';
 
@@ -287,7 +288,7 @@ export default class BaseReactComponent extends BaseComponent {
     /*if (!this.visible && this.component.clearOnHide) {
       newValue = this.dataValue;
     } else */
-    if (value === undefined) {
+    if (isNil(value)) {
       newValue = this.getValue(flags);
     }
 
