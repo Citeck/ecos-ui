@@ -94,7 +94,7 @@ class Card extends React.PureComponent {
             isStatic
             boundariesElement="window"
             placement="bottom-end"
-            modifiers={null}
+            modifiers={[]}
             withScrollbar
             scrollbarHeightMax={200}
             className="ecos-kanban__card-action-dropdown"

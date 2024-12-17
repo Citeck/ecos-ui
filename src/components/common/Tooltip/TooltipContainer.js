@@ -1,5 +1,6 @@
 import React from 'react';
 import classNames from 'classnames';
+import isArray from 'lodash/isArray';
 import { TooltipWrapper, propsTypes } from './TooltipWrapper';
 
 const defaultProps = {
@@ -10,11 +11,13 @@ const defaultProps = {
 };
 
 export const TooltipContainer = props => {
-  const popperClasses = classNames('tooltip', 'show', props.popperClassName);
+  const { modifiers: _modifiers } = props;
 
+  const modifiers = !isArray(_modifiers) ? [] : _modifiers;
+  const popperClasses = classNames('tooltip', 'show', props.popperClassName);
   const classes = classNames('tooltip-inner', props.innerClassName);
 
-  return <TooltipWrapper {...props} popperClassName={popperClasses} innerClassName={classes} />;
+  return <TooltipWrapper {...props} modifiers={modifiers} popperClassName={popperClasses} innerClassName={classes} />;
 };
 
 TooltipContainer.defaultProps = defaultProps;

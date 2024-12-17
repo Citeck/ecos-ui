@@ -311,7 +311,7 @@ export default class BaseEditorMenu extends React.Component {
             onChange={type => this.handleChooseOption({ type, item, action: ms.ActionTypes.CREATE, level: level + 1 })}
             isStatic
             boundariesElement="window"
-            modifiers={null}
+            modifiers={[]}
             withScrollbar
             scrollbarHeightMax={200}
             controlLabel={t(Labels.BTN_ADD)}
