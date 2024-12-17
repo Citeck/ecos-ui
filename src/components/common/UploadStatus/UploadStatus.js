@@ -136,16 +136,31 @@ const UploadStatus = () => {
     setIsCollapsed(!isCollapsed);
   };
 
-  if (!status || !totalCountFiles) {
+  if (!status || (!totalCountFiles && !isImporting)) {
     return null;
   }
+
+  const renderCounter = () => {
+    if (isImporting) {
+      return (
+        <>
+          {t('document-library.file-loader')}
+          {totalCountFiles ? `: ${successCountFiles}/${totalCountFiles}` : ''}
+        </>
+      );
+    }
+
+    return (
+      <>
+        {t('document-library.files-loader')}: {successCountFiles}/{totalCountFiles}
+      </>
+    );
+  };
 
   return (
     <div className="citeck-upload-status">
       <div className="citeck-upload-status__header">
-        <h4 className="citeck-upload-status__header-title">
-          {isImporting ? t('document-library.file-loader') : t('document-library.files-loader')}: {successCountFiles}/{totalCountFiles}
-        </h4>
+        <h4 className="citeck-upload-status__header-title">{renderCounter()}</h4>
         <div className="citeck-upload-status__header-actions">
           <div className="citeck-upload-status__header-actions_btn" onClick={onCollapsed}>
             <ChevronDown />

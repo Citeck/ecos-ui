@@ -30,6 +30,7 @@ const ATT_FULL_STATE = '?json';
 const ATT_PROCESSED_ROW_COUNT = 'processedRowCount?num';
 const ATT_TOTAL_COUNT = 'rowCount?num';
 const ATT_ERROR_MSG = 'errorMessage?str';
+const ATT_SHORT_ERROR_MSG = 'shortErrorMessage?str';
 const ATT_AUTHORITY_GROUPS = 'authorityGroups[]?json';
 
 const importFormId = 'import-data-form';
@@ -111,6 +112,14 @@ class Import extends Component {
         isImporting: true
       });
 
+      navigator.serviceWorker.controller.postMessage({
+        type: 'UPLOAD_PROGRESS',
+        status: 'in-progress',
+        totalCount: 0,
+        successFileCount: 0,
+        file: fileData
+      });
+
       const record = Records.get(persistedRecordId);
 
       record.watch([ATT_PROCESSED_ROW_COUNT, ATT_TOTAL_COUNT, ATT_FULL_STATE], updatedAttributes => {
@@ -184,8 +193,10 @@ class Import extends Component {
 
       const handleError = async fileData => {
         const errorMsg = await record.load(ATT_ERROR_MSG);
-        if (errorMsg) {
-          NotificationManager.error(errorMsg);
+        const shortErrorMsg = await record.load(ATT_SHORT_ERROR_MSG);
+
+        if (shortErrorMsg || errorMsg) {
+          NotificationManager.error(shortErrorMsg || errorMsg, null, 0);
         }
 
         navigator.serviceWorker.controller.postMessage({
@@ -242,7 +253,7 @@ class Import extends Component {
     const variantId = get(item, 'variantId');
 
     if (!typeRef || !variantId) {
-      NotificationManager.error(t('import-component.attributes.error'));
+      NotificationManager.error(t('import-component.attributes.error'), null, 0);
       console.error('Invalid import variant. journalId: ' + get(journalConfig, 'id') + ' typeRef: ' + typeRef + ' variantId: ' + variantId);
     }
 
