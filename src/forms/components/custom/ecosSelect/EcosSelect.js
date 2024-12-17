@@ -1370,6 +1370,19 @@ export default class SelectComponent extends BaseComponent {
     );
   }
 
+  isElementOrParentsHidden() {
+    let current = this;
+
+    while (!!current) {
+      if (_.get(current, 'element.hidden') === true) {
+        return true;
+      }
+      current = _.get(current, 'parent', null);
+    }
+
+    return false;
+  }
+
   refresh(value, refreshOnKey) {
     // Cause https://citeck.atlassian.net/browse/ECOSCOM-2465
     if (this.hasOwnProperty('refreshOnValue')) {
@@ -1382,7 +1395,7 @@ export default class SelectComponent extends BaseComponent {
       };
     }
 
-    if (this.refreshOnChanged) {
+    if (this.refreshOnChanged && !this.isElementOrParentsHidden()) {
       if (this.component.clearOnRefresh) {
         this.setValue(null);
       }
