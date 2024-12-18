@@ -20,6 +20,7 @@ export default class Pagination extends Component {
     onChange: PropTypes.func,
     hasPageSize: PropTypes.bool,
     isViewNewJournal: PropTypes.bool,
+    updatedPaginationOfNewJournal: PropTypes.bool,
     isMobile: PropTypes.bool,
     noData: PropTypes.bool,
     noCtrl: PropTypes.bool,
@@ -105,10 +106,10 @@ export default class Pagination extends Component {
   };
 
   getPageSize = () => {
-    const { maxItems, sizes } = this.props;
+    const { maxItems, sizes, updatedPaginationOfNewJournal } = this.props;
     let value = sizes.filter(s => s.value === maxItems)[0];
 
-    if (!value) {
+    if (!value && !updatedPaginationOfNewJournal) {
       value = { value: maxItems, label: maxItems };
       sizes.push(value);
     }
