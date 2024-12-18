@@ -297,7 +297,7 @@ class JournalsDashletGrid extends Component {
               recordRef={meta.metaRecord}
               originPredicates={originPredicates}
               data={data}
-              loading={loading}
+              loading={!isWidget && loading}
               columns={viewColumns}
               className={className}
               gridWrapperClassName="ecos-journal-dashlet__grid-wrapper"
