@@ -25,11 +25,11 @@
     }
 
     #{$root}-export-btn.ecos-btn {
-      border-radius: 6px;
+      border-radius: $border-radius-standard;
       min-width: 51px;
     }
     #{$root}-template-btn.ecos-btn {
-      border-radius: 6px;
+      border-radius: $border-radius-standard;
       width: 156px;
 
       .ecos-btn__text {
@@ -329,7 +329,7 @@
 
   &.filter,
   &.shape {
-    border-radius: 6px;
+    border-radius: $border-radius-standard;
     min-width: 28px !important;
     min-height: 28px !important;
     width: 28px;
