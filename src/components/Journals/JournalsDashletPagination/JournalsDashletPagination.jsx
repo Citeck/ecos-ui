@@ -53,6 +53,7 @@ class JournalsDashletPagination extends Component {
 
     this.state = {
       maxHeightJournalData: null,
+      updatedPaginationOfNewJournal: false,
       maxItems: null
     };
   }
@@ -85,6 +86,7 @@ class JournalsDashletPagination extends Component {
           maxItems = MIN_CARD_DATA_NEW_JOURNAL;
         }
 
+        this.setState({ updatedPaginationOfNewJournal: true });
         this.setState({ maxItems }, () => {
           setGridPagination({
             skipCount: 0,
@@ -107,6 +109,7 @@ class JournalsDashletPagination extends Component {
 
   render() {
     const { grid, className, ...props } = this.props;
+    const { updatedPaginationOfNewJournal } = this.state;
     const { total, pagination = {}, groupBy } = grid || {};
 
     if (groupBy && groupBy.length) {
@@ -119,6 +122,7 @@ class JournalsDashletPagination extends Component {
         total={total}
         sizes={PAGINATION_SIZES}
         onChange={this.changePage}
+        updatedPaginationOfNewJournal={updatedPaginationOfNewJournal}
         {...pagination}
         {...props}
       />

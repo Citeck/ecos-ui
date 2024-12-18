@@ -716,7 +716,7 @@ export function* getGridData(api, params, stateId) {
 }
 
 function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId, savePredicate, forcePagination }, w) {
-  yield race({
+  const { canceled } = yield race({
     task: call(function*() {
       const initPredicate = savePredicate || false;
       const isResetPagination = forcePagination || false;
@@ -738,6 +738,7 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
       const params = getGridParams({ journalConfig, journalSetting: get(preset, 'settings', journalSetting), pagination });
       const search = url.search || journalSetting.search;
 
+      yield put(setLoading(w(true)));
       let gridData = yield getGridData(api, { ...params }, stateId);
       let searchData = {};
 
@@ -796,6 +797,10 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
     }),
     canceled: take(cancelLoadGrid().type)
   });
+
+  if (canceled) {
+    yield put(setLoading(w(false)));
+  }
 }
 
 function* getGridEditingRules(api, gridData) {
@@ -1029,7 +1034,10 @@ function* sagaOpenSelectedPreset({ api, logger, stateId, w }, action) {
     const preset = settings.find(preset => preset.id === selectedId);
     const url = queryString.stringifyUrl({ url: getUrlWithoutOrigin(), query });
     yield call([PageService, PageService.changeUrlLink], url, { updateUrl: true });
+
     yield put(selectPreset(w(selectedId)));
+    yield put(setLoading(w(true)));
+
     yield put(selectTemplateId(w(selectedId)));
     yield put(setPredicate(w(get(preset, 'settings.predicate', {}))));
 
@@ -1061,6 +1069,8 @@ function* sagaOpenSelectedPreset({ api, logger, stateId, w }, action) {
     }
   } catch (e) {
     logger.error('[journals sagaOpenSelectedJournal saga error', e);
+  } finally {
+    yield put(setLoading(w(false)));
   }
 }
 
@@ -1070,6 +1080,7 @@ function* sagaSelectPreset({ api, logger, stateId, w }, action) {
     const { journalConfig } = yield select(selectJournalData, stateId);
 
     yield put(setLoading(w(true)));
+    yield put(cancelGoToPageJournal());
     yield put(cancelReloadGrid());
     yield put(cancelLoadGrid());
 
