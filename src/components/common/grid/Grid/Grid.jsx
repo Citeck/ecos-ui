@@ -1332,8 +1332,8 @@ class Grid extends Component {
     let scrollStyle = {};
     let scrollProps = {};
 
-    const minHeight = _minHeight > JOURNAL_MIN_HEIGHT && isViewNewJournal ? JOURNAL_MIN_HEIGHT : _minHeight;
     const ecosJournalEl = this._ref && this._ref.current ? this._ref.current.closest(`.${ECOS_JOURNAL_CLASS}`) : null;
+    const minHeight = _minHeight > JOURNAL_MIN_HEIGHT && isViewNewJournal && ecosJournalEl ? JOURNAL_MIN_HEIGHT : _minHeight;
 
     if (isViewNewJournal && ecosJournalEl) {
       scrollStyle = { ...scrollStyle, height: maxHeight };
