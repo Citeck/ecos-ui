@@ -1069,8 +1069,6 @@ function* sagaOpenSelectedPreset({ api, logger, stateId, w }, action) {
     }
   } catch (e) {
     logger.error('[journals sagaOpenSelectedJournal saga error', e);
-  } finally {
-    yield put(setLoading(w(false)));
   }
 }
 
