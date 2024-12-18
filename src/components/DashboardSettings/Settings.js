@@ -444,7 +444,11 @@ class Settings extends Component {
   renderOwnershipBlock() {
     const { dashboardKeyItems, userData, resetConfigToDefault, isDefaultConfig, isLoadingKeys } = this.props;
     const { selectedDashboardKey, isForAllUsers } = this.state;
-    const { recordRef } = this.getPathInfo();
+    const { recordRef, dashboardId } = this.getPathInfo();
+
+    if (!isEmpty(dashboardId)) {
+      return null;
+    }
 
     const setData = data => {
       this.setState(data);
@@ -663,13 +667,15 @@ class Settings extends Component {
   };
 
   handleCheckChanges = () => {
-    /**
-     * @todo rethink checking of changing / exist. Do easier: full check with confirms via saga & DialogManager
-     */
     const { checkUpdatedSettings } = this.props;
     const { selectedDashboardKey: dashboardKey, isForAllUsers } = this.state;
 
-    checkUpdatedSettings({ isForAllUsers, dashboardKey });
+    const { dashboardId } = this.getPathInfo();
+
+    checkUpdatedSettings({
+      isForAllUsers: isEmpty(dashboardId) ? isForAllUsers : true,
+      dashboardKey
+    });
   };
 
   handleAcceptChanges = checkResultId => {
