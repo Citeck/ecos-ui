@@ -53,6 +53,7 @@ import './Grid.scss';
 import '../../Tooltip/style.scss';
 
 const CUSTOM_NESTED_DELIMITER = '|';
+const ECOS_JOURNAL_CLASS = 'ecos-journal';
 const ECOS_GRID_HOVERED_CLASS = 'ecos-grid_hovered';
 const ECOS_GRID_GRAG_CLASS = 'ecos-grid_drag';
 const ECOS_GRID_ROW_CLASS = 'ecos-grid__row';
@@ -1332,8 +1333,9 @@ class Grid extends Component {
     let scrollProps = {};
 
     const minHeight = _minHeight > JOURNAL_MIN_HEIGHT && isViewNewJournal ? JOURNAL_MIN_HEIGHT : _minHeight;
+    const ecosJournalEl = this._ref && this._ref.current ? this._ref.current.closest(`.${ECOS_JOURNAL_CLASS}`) : null;
 
-    if (isViewNewJournal) {
+    if (isViewNewJournal && ecosJournalEl) {
       scrollStyle = { ...scrollStyle, height: maxHeight };
     } else {
       if (autoHeight) {
@@ -1345,7 +1347,7 @@ class Grid extends Component {
 
     return (
       <Scrollbars
-        minHeight={isViewNewJournal ? maxHeight : null}
+        minHeight={isViewNewJournal && ecosJournalEl ? maxHeight : null}
         ref={this.scrollRefCallback}
         onScrollStart={this.onScrollStart}
         onScrollFrame={this.onScrollFrame}
