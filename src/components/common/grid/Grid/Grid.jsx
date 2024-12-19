@@ -24,6 +24,7 @@ import isString from 'lodash/isString';
 import isBoolean from 'lodash/isBoolean';
 import isObject from 'lodash/isObject';
 import isElement from 'lodash/isElement';
+import uuidV4 from 'uuid/v4';
 
 import { Tooltip } from 'reactstrap';
 import { NotificationManager } from 'react-notifications';
@@ -749,11 +750,11 @@ class Grid extends Component {
         this.setState({ hasFooter: true });
       }
 
-      const targetId = `total-amount-${journalId}`;
+      const targetId = `total-amount-${journalId}_${uuidV4()}`;
 
       return (
         <div className="ecos-grid__table_footer__value">
-          <EcosTooltip target={targetId} uncontrolled text={content}>
+          <EcosTooltip target={targetId} showAsNeeded uncontrolled text={content}>
             <div id={targetId} className="ecos-grid__table_footer__item text">
               {t('grid.footer.total-amount')}
             </div>
