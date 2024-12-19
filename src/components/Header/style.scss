@@ -448,12 +448,14 @@
         align-items: center;
         justify-content: flex-end;
 
-        & > svg {
-          stroke: $color-gray-5;
+        & > svg,
+        path {
+          fill: $color-gray-5 !important;
         }
 
-        &:hover > svg {
-          stroke: none;
+        &:hover > svg,
+        &:hover path {
+          fill: $color-blue-dark !important;
         }
       }
 

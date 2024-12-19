@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
+import get from 'lodash/get';
 
 import { URL as Urls } from '../../constants';
 import { Icon } from '../common';
@@ -9,6 +10,7 @@ import PageService from '../../services/PageService';
 
 const Logo = ({ logos, large = false, link }) => {
   const [isError, setIsError] = useState(false);
+  const enabledWorkspaces = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
   const onError = e => {
     console.error('There is problem with LOGO', e);
     setIsError(true);
@@ -34,7 +36,9 @@ const Logo = ({ logos, large = false, link }) => {
           onError={onError}
         />
         <img
-          className="ecos-sidebar-logo__img ecos-sidebar-logo__img_small"
+          className={classNames('ecos-sidebar-logo__img ecos-sidebar-logo__img_small', {
+            'ecos-sidebar-logo__img_small_hide': enabledWorkspaces
+          })}
           src={logos.small}
           alt="Home"
           style={{ opacity: Number(!isError && !large) }}
