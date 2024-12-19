@@ -24,7 +24,6 @@ import isString from 'lodash/isString';
 import isBoolean from 'lodash/isBoolean';
 import isObject from 'lodash/isObject';
 import isElement from 'lodash/isElement';
-import uuidV4 from 'uuid/v4';
 
 import { Tooltip } from 'reactstrap';
 import { NotificationManager } from 'react-notifications';
@@ -409,7 +408,7 @@ class Grid extends Component {
             isViewNewJournal: props.isViewNewJournal,
             isBlockNewJournalFormatter: props.isBlockNewJournalFormatter || false
           });
-          column.footerFormatter = this.initFooterFormatter();
+          column.footerFormatter = this.initFooterFormatter(column.name || column.attribute);
         } else {
           column.formatter = column.customFormatter;
         }
@@ -728,7 +727,7 @@ class Grid extends Component {
     };
   };
 
-  initFooterFormatter = () => {
+  initFooterFormatter = name => {
     const { loading = false, journalId = '' } = this.props;
 
     return column => {
@@ -750,7 +749,7 @@ class Grid extends Component {
         this.setState({ hasFooter: true });
       }
 
-      const targetId = `total-amount-${journalId}_${uuidV4()}`;
+      const targetId = `total-amount-${journalId}_${name}`;
 
       return (
         <div className="ecos-grid__table_footer__value">
