@@ -108,6 +108,7 @@
   "admin-section.sidebar.hide": "Скрыть меню",
   "admin-section.sidebar.hide-sm": "Скрыть",
   "admin-section.sidebar.list-empty": "Нет данных",
+  "admin-section.dev-tools": "Инструменты разработчика",
   "admin-section.btn-toggle.open": "меню",
   "admin-section.btn-toggle.close": "закрыть меню",
   "admin-section.error.access-denied": "У Вас нет доступа к этой странице",
@@ -2715,5 +2716,7 @@
   "bpmn-linter.signal-event.no-user-event": "Не определено Событие пользователя",
   "bpmn-linter.signal-event.no-change-type": "Не определен Тип изменения статуса",
   "bpmn-linter.signal-event.no-manual-status-name": "Не определен Статус",
-  "bpmn-linter.participant.no-process-id": "Не определен ID Процесса"
+  "bpmn-linter.participant.no-process-id": "Не определен ID Процесса",
+
+  "workspaces.create-button": "Создать пространство"
 }

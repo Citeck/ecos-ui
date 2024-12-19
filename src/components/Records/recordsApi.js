@@ -38,6 +38,7 @@ function recordsFetch(url, body) {
   }
 
   body.version = 1;
+
   url = getRecognizableUrl(url, body);
 
   return ecosFetch(url, { method: 'POST', body }).then(response => {

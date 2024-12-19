@@ -55,109 +55,110 @@ const UploadStatus = () => {
   );
 
   useEffect(() => {
-    navigator.serviceWorker.addEventListener('message', event => {
-      const {
-        type,
-        status,
-        errorStatus,
-        file: fileData,
-        totalCount,
-        successFileCount,
-        requestId,
-        isCancelled = false,
-        currentItemTitle,
-        targetDirTitle,
-        parentDirTitles,
-        typeCurrentItem
-      } = event.data;
+    navigator.serviceWorker &&
+      navigator.serviceWorker.addEventListener('message', event => {
+        const {
+          type,
+          status,
+          errorStatus,
+          file: fileData,
+          totalCount,
+          successFileCount,
+          requestId,
+          isCancelled = false,
+          currentItemTitle,
+          targetDirTitle,
+          parentDirTitles,
+          typeCurrentItem
+        } = event.data;
 
-      if (type === 'UPDATE_UPLOAD_STATUS') {
-        setStatus(status);
+        if (type === 'UPDATE_UPLOAD_STATUS') {
+          setStatus(status);
 
-        const fileName = get(fileData, 'file.name', '');
-        const fileId = `file-${get(fileData, 'file.size', 0)}-${fileName}-${get(fileData, 'file.lastModified', 0)}`;
+          const fileName = get(fileData, 'file.name', '');
+          const fileId = `file-${get(fileData, 'file.size', 0)}-${fileName}-${get(fileData, 'file.lastModified', 0)}`;
 
-        switch (status) {
-          case 'start':
-            setStatus(null);
-            setFileStatuses({});
-            setIsReplaceAllFiles(false);
-            setIsReadyLoadData(false);
-            break;
+          switch (status) {
+            case 'start':
+              setStatus(null);
+              setFileStatuses({});
+              setIsReplaceAllFiles(false);
+              setIsReadyLoadData(false);
+              break;
 
-          case 'confirm-file-replacement':
-            setFileDataConfirm(get(fileData, 'file', null));
-            setShowConfirmModal(true);
-            break;
+            case 'confirm-file-replacement':
+              setFileDataConfirm(get(fileData, 'file', null));
+              setShowConfirmModal(true);
+              break;
 
-          case 'in-progress':
-            setTotalCountFiles(totalCount);
-            setSuccessCountFiles(successFileCount);
+            case 'in-progress':
+              setTotalCountFiles(totalCount);
+              setSuccessCountFiles(successFileCount);
 
-            const cancelRequest = () => sendToWorker({ type: 'CANCEL_REQUEST', requestId });
+              const cancelRequest = () => sendToWorker({ type: 'CANCEL_REQUEST', requestId });
 
-            setFileStatuses(prevState => ({
-              ...prevState,
-              [fileId]: {
-                file: get(fileData, 'file'),
-                isLoading: get(fileData, 'isLoading', true),
-                isError: get(fileData, 'isError', false),
-                requestId,
-                cancelRequest
+              setFileStatuses(prevState => ({
+                ...prevState,
+                [fileId]: {
+                  file: get(fileData, 'file'),
+                  isLoading: get(fileData, 'isLoading', true),
+                  isError: get(fileData, 'isError', false),
+                  requestId,
+                  cancelRequest
+                }
+              }));
+              break;
+
+            case 'error':
+              setFileStatuses(prevState => ({
+                ...prevState,
+                [fileId]: {
+                  file: get(fileData, 'file'),
+                  isLoading: get(fileData, 'isLoading', false),
+                  isError: get(fileData, 'isError', true),
+                  isCancelled
+                }
+              }));
+
+              if (errorStatus) {
+                if (errorStatus === 413) {
+                  NotificationManager.error(t('document-library.uploading-file.message.size-error', { fileName }));
+                } else {
+                  NotificationManager.error(t('document-library.uploading-file.message.error', { fileName }));
+                }
               }
-            }));
-            break;
 
-          case 'error':
-            setFileStatuses(prevState => ({
-              ...prevState,
-              [fileId]: {
-                file: get(fileData, 'file'),
-                isLoading: get(fileData, 'isLoading', false),
-                isError: get(fileData, 'isError', true),
-                isCancelled
-              }
-            }));
+              break;
 
-            if (errorStatus) {
-              if (errorStatus === 413) {
-                NotificationManager.error(t('document-library.uploading-file.message.size-error', { fileName }));
-              } else {
-                NotificationManager.error(t('document-library.uploading-file.message.error', { fileName }));
-              }
-            }
+            case 'success':
+              setIsReadyLoadData(true);
+              break;
 
-            break;
-
-          case 'success':
-            setIsReadyLoadData(true);
-            break;
-
-          default:
-            break;
+            default:
+              break;
+          }
         }
-      }
 
-      if (type === 'CONFIRMATION_RENAME_DIR_REQUEST') {
-        if (typeCurrentItem === NODE_TYPES.FILE) {
-          const lastDotIndex = currentItemTitle.lastIndexOf('.');
-          const extension = lastDotIndex !== -1 ? currentItemTitle.substring(lastDotIndex + 1) : null;
+        if (type === 'CONFIRMATION_RENAME_DIR_REQUEST') {
+          if (typeCurrentItem === NODE_TYPES.FILE) {
+            const lastDotIndex = currentItemTitle.lastIndexOf('.');
+            const extension = lastDotIndex !== -1 ? currentItemTitle.substring(lastDotIndex + 1) : null;
 
-          if (extension) {
-            setExpansionCurrentFile(extension);
-            setTitleRenamingItem(currentItemTitle.substring(0, lastDotIndex));
+            if (extension) {
+              setExpansionCurrentFile(extension);
+              setTitleRenamingItem(currentItemTitle.substring(0, lastDotIndex));
+            } else {
+              setTitleRenamingItem(currentItemTitle);
+            }
           } else {
             setTitleRenamingItem(currentItemTitle);
           }
-        } else {
-          setTitleRenamingItem(currentItemTitle);
-        }
 
-        setParentItemsTitles(parentDirTitles);
-        setParentDirTitle(targetDirTitle);
-        setShowConfirmRenameDirModal(true);
-      }
-    });
+          setParentItemsTitles(parentDirTitles);
+          setParentDirTitle(targetDirTitle);
+          setShowConfirmRenameDirModal(true);
+        }
+      });
   }, []);
 
   const onClose = () => {

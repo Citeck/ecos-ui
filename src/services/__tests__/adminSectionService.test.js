@@ -93,9 +93,9 @@ describe('AdminSection Service', () => {
   });
 
   describe.each([
-    ['page models', { type: 'BPM' }, '/v2/admin?type=BPM'],
-    ['page some journal', { type: 'JOURNAL', config: { journalId: 'journalId' } }, '/v2/admin?journalId=journalId&type=JOURNAL'],
-    ['page dev tools', { type: 'DEV_TOOLS' }, '/v2/admin?type=DEV_TOOLS']
+    ['page models', { type: 'BPM' }, '/v2/admin?type=BPM&ws='],
+    ['page some journal', { type: 'JOURNAL', config: { journalId: 'journalId' } }, '/v2/admin?journalId=journalId&type=JOURNAL&ws='],
+    ['page dev tools', { type: 'DEV_TOOLS' }, '/v2/admin?type=DEV_TOOLS&ws=']
   ])('Method getURLSection > %s', (title, type, output) => {
     it(title, () => {
       const returnValue = AdminSectionService.getURLSection(type);

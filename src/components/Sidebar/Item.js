@@ -17,6 +17,7 @@ import { MenuSettings } from '../../constants/menu';
 import SidebarService from '../../services/sidebar';
 import { EcosIcon, Icon } from '../common';
 import RemoteBadge from './RemoteBadge';
+import WorkspacePreview from '../WorkspacePreview';
 import { ItemBtn, ItemLink } from './item-components';
 import { selectIsNewUIAvailable } from '../../selectors/user';
 
@@ -28,7 +29,8 @@ class Item extends React.Component {
     level: PropTypes.number,
     isExpanded: PropTypes.bool,
     isSelected: PropTypes.bool,
-    inDropdown: PropTypes.bool
+    inDropdown: PropTypes.bool,
+    workspace: PropTypes.object
   };
 
   static defaultProps = {
@@ -110,8 +112,19 @@ class Item extends React.Component {
 
   renderContent = React.memo(({ data, styleProps: { noIcon } }) => {
     const label = extractLabel(data.label);
+    const wsId = get(this.props, 'workspace.wsId');
+
     let iconCode;
     let iconData;
+
+    if (data.type !== 'SECTION' && wsId === 'admin$workspace' && !data.icon && get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+      return (
+        <>
+          <WorkspacePreview name={label} />
+          <div className={classNames('ecos-sidebar-item__label', { 'ecos-sidebar-item__label_with-badge': this.hasBadge })}>{label}</div>
+        </>
+      );
+    }
 
     if (typeof data.icon === 'string' && !data.icon.includes(SourcesId.ICON) && !data.icon.includes(SourcesId.FONT_ICON)) {
       iconCode = data.icon;

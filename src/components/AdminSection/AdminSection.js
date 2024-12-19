@@ -7,7 +7,8 @@ import throttle from 'lodash/throttle';
 
 import BpmAdministration from '../../pages/BPMAdministrationPage/BpmAdministration';
 import { t } from '../../helpers/util';
-import { SectionTypes } from '../../constants/adminSection';
+
+import { Labels, SectionTypes } from '../../constants/adminSection';
 import pageTabList from '../../services/pageTabs/PageTabList';
 import DevTools from '../../pages/DevTools';
 import { Caption } from '../common/form';
@@ -38,7 +39,7 @@ class AdminSection extends React.PureComponent {
   componentDidMount() {
     const { isAccessible, getGroupSectionList } = this.props;
 
-    if (!isAccessible) {
+    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false) || !isAccessible) {
       getGroupSectionList();
     }
   }
@@ -88,7 +89,7 @@ class AdminSection extends React.PureComponent {
   };
 
   handleClickCaption = event => {
-    if (event.shiftKey && (event.ctrlKey || event.metaKey)) {
+    if (!get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false) && event.shiftKey && (event.ctrlKey || event.metaKey)) {
       const { journalStateId } = this.state;
 
       showModalJson(get(this.props, ['journals', journalStateId, 'journalConfig'], {}), 'Config');
@@ -118,6 +119,7 @@ class AdminSection extends React.PureComponent {
     const { activeSection, tabId, isActivePage, isOpenMenu, isAccessible, isAccessibleSectionType, isViewNewJournal } = this.props;
     const { journalStateId, additionalHeights, needResetJournalView } = this.state;
 
+    const enabledWorkspaces = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
     const isViewHeadDevTools = isViewNewJournal && get(activeSection, 'type') === SectionTypes.DEV_TOOLS;
 
     return (
@@ -127,23 +129,26 @@ class AdminSection extends React.PureComponent {
       >
         <div
           className={classNames('ecos-admin-section__content', {
-            'ecos-admin-section__content_full': !isOpenMenu || !isAccessible
+            'ecos-admin-section__content_full': enabledWorkspaces || !isOpenMenu || !isAccessible
           })}
         >
           <Container fluid={this.isFluid()} className="p-0">
-            {(isAccessible || isAccessibleSectionType) && (!isViewNewJournal || isViewHeadDevTools) && (
+            {(enabledWorkspaces
+              ? !isViewNewJournal
+              : (isAccessible || isAccessibleSectionType) && (!isViewNewJournal || isViewHeadDevTools)) && (
               <Row className="ecos-admin-section__header m-0 px-0">
                 <Col className="m-0 p-0">
                   <div className="m-0 px-0 d-flex align-items-baseline">
                     <Caption normal onClick={this.handleClickCaption}>
-                      {t(activeSection.label)}
+                      {enabledWorkspaces ? t(Labels.DEV_TOOLS) : t(activeSection.label)}
                     </Caption>
-
-                    <IcoBtn
-                      icon="icon-settings"
-                      className="ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue ml-2 h-auto py-0"
-                      onClick={this.handleEditJournal}
-                    />
+                    {!enabledWorkspaces && (
+                      <IcoBtn
+                        icon="icon-settings"
+                        className="ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue ml-2 h-auto py-0"
+                        onClick={this.handleEditJournal}
+                      />
+                    )}
                   </div>
                 </Col>
               </Row>
@@ -165,7 +170,7 @@ class AdminSection extends React.PureComponent {
             </Row>
           </Container>
         </div>
-        {isAccessible && (
+        {!enabledWorkspaces && isAccessible && (
           <AdminMenu>
             {!this.isHidden(SectionTypes.JOURNAL) && journalStateId && !isViewNewJournal && <JournalPresets stateId={journalStateId} />}
           </AdminMenu>

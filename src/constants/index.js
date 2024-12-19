@@ -6,6 +6,8 @@ export const DEFAULT_EIS = Object.freeze({
   LOGOUT_URL: 'LOGOUT_URL'
 });
 
+export const BASE_URLS_REDIRECT = ['/', '/v2', '/v2/'];
+
 export const URL = {
   HOME: '/',
   JOURNAL: '/v2/journals',
@@ -72,6 +74,7 @@ export const SourcesId = {
   BOARD: 'uiserv/board',
   RESOLVED_BOARD: 'uiserv/rboard',
   RESOLVED_TYPE: 'emodel/rtype',
+  WORKSPACE: 'emodel/workspace',
   TYPE: 'emodel/type',
   FONT_ICON: 'ui/icon',
   MODEL_META: 'emodel/meta',
@@ -118,7 +121,9 @@ export const EmodelTypes = {
   USER_DASHBOARD: 'emodel/type@user-dashboard',
   CUSTOM_DASHBOARD: 'emodel/type@custom-dashboard',
   BASE: 'emodel/type@base',
-  HISTORY_REC: 'emodel/type@history-record'
+  HISTORY_REC: 'emodel/type@history-record',
+  WS_DASHBOARD: 'emodel/type@workspace-dashboard',
+  PERSONAL_WS_DASHBOARD: 'emodel/type@personal-workspace-dashboard'
 };
 
 export const ActionModes = {

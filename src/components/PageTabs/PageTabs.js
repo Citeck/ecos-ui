@@ -29,9 +29,10 @@ import { SortableContainer } from '../Drag-n-Drop';
 import ClickOutside from '../ClickOutside';
 import { dropByCacheKey } from '../ReactRouterCache';
 import Tab from './Tab';
-import { _LOCALHOST_ } from '../../constants';
+import { _LOCALHOST_, URL as Urls } from '../../constants';
 import { MIN_CONTEXT_WIDTH, PANEL_CLASS_NAME } from '../../constants/pageTabs';
-import { replaceHistoryLink } from '../../helpers/urls';
+import { getWorkspaceId, replaceHistoryLink } from '../../helpers/urls';
+import { selectWorkspaceHomeLinkById } from '../../selectors/workspaces';
 import pageTabList, { updateTabEmitter } from '../../services/pageTabs/PageTabList';
 import DialogManager from '../common/dialogs/Manager';
 import CopyToClipboard from '../../helpers/copyToClipboard';
@@ -240,7 +241,13 @@ class PageTabs extends React.Component {
 
     try {
       if (data.link) {
-        const url = new URL(data.link);
+        let link = data.link;
+
+        if (!link.includes('http') && link[0] === '/') {
+          link = `${window.location.origin}${link}`;
+        }
+
+        const url = new URL(link);
 
         if (url.host === window.location.host) {
           setTab({ data, params: { reopen, closeActiveTab } });
@@ -334,9 +341,14 @@ class PageTabs extends React.Component {
   };
 
   handleCloseTabs = (tabs = this.props.tabs, tab) => {
-    const { closeTabs, homepageLink } = this.props;
+    const { closeTabs, homepageLink, homePageLink } = this.props;
 
-    closeTabs({ tabs, homepageLink, tab });
+    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+      const defaultPageLink = `${Urls.DASHBOARD}?ws=${getWorkspaceId()}`;
+      closeTabs({ tabs, homepageLink: homePageLink || defaultPageLink, tab });
+    } else {
+      closeTabs({ tabs, homepageLink, tab });
+    }
   };
 
   handleScrollLeft = () => {
@@ -688,12 +700,19 @@ class PageTabs extends React.Component {
   }
 }
 
-const mapStateToProps = state => ({
-  location: get(state, 'router.location', {}),
-  tabs: get(state, 'pageTabs.tabs', []),
-  enableCache: get(state, 'app.enableCache', false),
-  inited: get(state, 'pageTabs.inited', false)
-});
+const mapStateToProps = state => {
+  const wsId = getWorkspaceId();
+  const enabledWorkspaces = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+  const wsTabs = get(state, 'pageTabs.tabs', []).filter(tab => (tab.workspace && tab.workspace === wsId) || tab.link === Urls.DASHBOARD);
+
+  return {
+    location: get(state, 'router.location', {}),
+    enableCache: get(state, 'app.enableCache', false),
+    inited: get(state, 'pageTabs.inited', false),
+    homePageLink: selectWorkspaceHomeLinkById(state, wsId),
+    tabs: enabledWorkspaces ? wsTabs : get(state, 'pageTabs.tabs', [])
+  };
+};
 
 const mapDispatchToProps = dispatch => ({
   initTabs: () => dispatch(initTabs()),

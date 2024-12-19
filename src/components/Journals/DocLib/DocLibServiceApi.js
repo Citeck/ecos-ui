@@ -1,8 +1,10 @@
 import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
 import clone from 'lodash/clone';
 
 import Records from '../../Records/Records';
 import { SourcesId } from '../../../constants';
+import { getWorkspaceId } from '../../../helpers/urls';
 
 class DocLibServiceApi {
   static defaultAttributes = {
@@ -61,6 +63,10 @@ class DocLibServiceApi {
       language: 'children',
       sortBy: [{ attribute: 'nodeType', ascending: true }, { attribute: '?disp', ascending: true }]
     };
+
+    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+      querySettings.workspaces = [getWorkspaceId()];
+    }
 
     if (!isEmpty(pagination)) {
       querySettings.page = clone(pagination);

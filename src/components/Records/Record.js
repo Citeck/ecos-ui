@@ -5,10 +5,12 @@ import { mapValueToScalar, parseAttribute } from './utils/attStrUtils';
 import { loadAttribute, recordsMutateFetch } from './recordsApi';
 import Attribute from './Attribute';
 import RecordWatcher from './RecordWatcher';
-
 import recordsClientManager from './client';
 import { prepareAttsToLoad } from './utils/recordUtils';
+import { getWorkspaceId } from '../../helpers/urls';
+
 import { SourcesId } from '../../constants';
+import get from 'lodash/get';
 
 export const EVENT_CHANGE = 'change';
 
@@ -486,6 +488,11 @@ export default class Record {
         attributesToSave[attribute.getNewValueAttName()] = attribute.getValue();
       }
     }
+
+    if (attributesToSave && !attributesToSave['_workspace'] && get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+      attributesToSave['_workspace'] = getWorkspaceId();
+    }
+
     return attributesToSave;
   }
 

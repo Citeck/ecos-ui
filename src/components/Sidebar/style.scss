@@ -11,8 +11,30 @@ $transition-duration: 0.3s;
     height: 100vh;
   }
 
+  .workspace-preview {
+    display: block;
+    margin: 0;
+
+    div {
+      margin-right: 15px;
+    }
+
+    &__hovered {
+      cursor: pointer;
+
+      &:hover {
+        transition: opasity 1s;
+        opacity: 0.5;
+      }
+    }
+  }
+
   &__new {
     height: calc(100vh - 52px);
+
+    .workspace-preview div {
+      margin: 0;
+    }
   }
 }
 
@@ -40,16 +62,16 @@ $transition-duration: 0.3s;
   $menu-item: '.ecos-sidebar-item';
   $menu-list: '.ecos-sidebar-list';
 
-  flex-shrink: 0;
   display: flex;
-  flex-direction: column;
-  z-index: 5;
   width: 72px;
+  height: 100%;
+  flex-direction: column;
+  flex-shrink: 0;
   transition: width $transition-duration;
   background: $color-white;
-  overflow: hidden;
-  height: 100%;
   will-change: width;
+  overflow: hidden;
+  z-index: 5;
 
   &_expanded {
     width: $expanded-sidebar-width;
@@ -68,6 +90,7 @@ $transition-duration: 0.3s;
 
     &__link {
       display: block;
+      cursor: pointer;
       height: 100%;
     }
 
@@ -79,6 +102,33 @@ $transition-duration: 0.3s;
 
     &__icon {
       font-size: 25px;
+    }
+
+    &__img_small {
+      display: none;
+    }
+  }
+
+  &-toggle {
+    display: flex;
+    flex-wrap: nowrap;
+    padding: 10px 0;
+    align-items: center;
+    justify-content: center;
+    border-top: 2px solid #e8edef;
+    cursor: pointer;
+
+    &:hover {
+      background: $color-gray-25;
+    }
+
+    p {
+      margin: 0;
+      padding-left: 10px;
+      font-weight: 700;
+      font-size: 10pt;
+      color: #444444;
+      user-select: none;
     }
   }
 
@@ -194,6 +244,14 @@ $transition-duration: 0.3s;
       align-items: center;
       text-decoration: none;
       padding-right: 3px;
+
+      .workspace-preview {
+        margin-right: 9px;
+
+        div {
+          font-size: 15px !important;
+        }
+      }
 
       &[disabled] {
         pointer-events: none;
@@ -505,6 +563,10 @@ $transition-duration: 0.3s;
   }
 
   &_collapsed {
+    .workspace-preview {
+      justify-content: center !important;
+    }
+
     .ecos-sidebar-item__toggle {
       display: none;
     }

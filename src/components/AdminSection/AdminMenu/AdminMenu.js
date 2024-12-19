@@ -75,6 +75,25 @@ const AdminMenu = React.memo(
       return !searchText ? list : list.filter(compare);
     };
 
+    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+      return (
+        <>
+          {!isViewNewJournal && (
+            <IcoBtn
+              onClick={() => toggleMenu(true)}
+              icon="icon-small-arrow-left"
+              className={classNames(
+                'ecos-admin-menu__btn-opener ecos-btn_light-blue ecos-btn_hover_dark-blue ecos-btn_narrow-t_standard ecos-btn_r_biggest',
+                { 'ecos-admin-menu__btn-opener_hidden': isOpen }
+              )}
+            >
+              {isMobile ? t(Labels.SHOW_MENU_sm) : t(Labels.SHOW_MENU)}
+            </IcoBtn>
+          )}
+        </>
+      );
+    }
+
     return (
       <>
         {!isViewNewJournal && (

@@ -24,11 +24,12 @@ import { TITLE } from '../../constants/pageTabs';
  */
 export default class PageTab {
   constructor(data) {
-    let { link, title, id, isLoading = false, isActive = false } = data || {};
+    let { link, title, id, isLoading = false, isActive = false, workspace } = data || {};
 
     this.id = id || `page-tab-${uuidv4()}`;
     this.link = decodeLink(link && link.replace(window.location.origin, ''));
     this.title = title;
+    this.workspace = workspace;
     this.isLoading = isLoading;
     this.isActive = isActive;
 
@@ -42,15 +43,15 @@ export default class PageTab {
   }
 
   get storage() {
-    const { id, link, title } = this;
+    const { id, link, title, workspace } = this;
 
-    return { id, link, title };
+    return { id, link, title, workspace };
   }
 
   get store() {
-    const { id, link, title, isActive, isLoading } = this;
+    const { id, link, title, isActive, isLoading, workspace } = this;
 
-    return { id, link, title, isActive, isLoading };
+    return { id, link, title, isActive, isLoading, workspace };
   }
 
   change(data) {

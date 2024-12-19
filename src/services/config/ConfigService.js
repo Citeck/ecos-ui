@@ -26,6 +26,8 @@ const MIN_CACHE_TIME_MS = 10000; // 10 sec
 export const ACTIVE_THEME = 'active-theme';
 export const TABS_ENABLED = 'tabs-enabled';
 export const NEW_JOURNAL_ENABLED = 'new-journal-enabled';
+export const DEFAULT_WORKSPACE = 'default-workspace';
+export const WORKSPACES_ENABLED = 'workspaces-enabled';
 export const ALFRESCO_ENABLED = 'app/alfresco$alfresco-enabled';
 
 export const FOOTER_CONTENT = 'footer-content';
