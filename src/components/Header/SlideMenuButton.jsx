@@ -1,7 +1,8 @@
 import React from 'react';
+
 import { Icon } from '../common';
 
-class SlideMenuBtn extends React.Component {
+class SlideMenuButton extends React.Component {
   render() {
     return (
       <span id="slide-menu-toggle" className="ecos-header-hamburger">
@@ -11,4 +12,4 @@ class SlideMenuBtn extends React.Component {
   }
 }
 
-export default SlideMenuBtn;
+export default SlideMenuButton;

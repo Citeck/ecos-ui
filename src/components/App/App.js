@@ -17,58 +17,106 @@ import Page from '../../pages';
 import PageTabs from '../PageTabs';
 import { ErrorBoundary } from '../ErrorBoundary';
 
+import { selectWorkspaceById } from '../../selectors/workspaces';
 import { initAppSettings } from '../../actions/app';
-import { setTab, updateTab } from '../../actions/pageTabs';
-import { Pages, pagesWithOnlyContent, RELOCATED_URL, URL } from '../../constants';
+import { addTab, setTab, updateTab } from '../../actions/pageTabs';
+import { BASE_URLS_REDIRECT, Pages, pagesWithOnlyContent, RELOCATED_URL, URL as Urls } from '../../constants';
 import { BASE_LEFT_MENU_ID, MenuTypes } from '../../constants/menu';
 import { PANEL_CLASS_NAME } from '../../constants/pageTabs';
 import { isMobileAppWebView, t } from '../../helpers/util';
 import pageTabList from '../../services/pageTabs/PageTabList';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import { PopupContainer } from '../common/Popper';
+import { getLinkWithWs, getWorkspaceId } from '../../helpers/urls';
 import { MenuSettingsController } from '../MenuSettings';
+import PageService from '../../services/PageService';
+import PageTabList from '../../services/pageTabs/PageTabList';
 import EcosFormModal from '../EcosForm/EcosFormModal';
 import UploadStatus from '../common/UploadStatus';
 
 import './App.scss';
 
 const allowedLinks = [
-  URL.DASHBOARD,
-  URL.BPMN_DESIGNER,
-  URL.ADMIN_PAGE,
-  URL.JOURNAL,
-  URL.DEV_TOOLS,
-  URL.BPMN_EDITOR,
-  URL.CMMN_EDITOR,
-  URL.DMN_EDITOR,
+  Urls.DASHBOARD,
+  Urls.BPMN_DESIGNER,
+  Urls.ADMIN_PAGE,
+  Urls.JOURNAL,
+  Urls.DEV_TOOLS,
+  Urls.BPMN_EDITOR,
+  Urls.CMMN_EDITOR,
+  Urls.DMN_EDITOR,
 
-  URL.TIMESHEET,
-  URL.TIMESHEET_SUBORDINATES,
-  URL.TIMESHEET_FOR_VERIFICATION,
-  URL.TIMESHEET_DELEGATED,
-  URL.TIMESHEET_IFRAME,
-  URL.TIMESHEET_IFRAME_SUBORDINATES,
-  URL.TIMESHEET_IFRAME_FOR_VERIFICATION,
-  URL.TIMESHEET_IFRAME_DELEGATED,
+  Urls.TIMESHEET,
+  Urls.TIMESHEET_SUBORDINATES,
+  Urls.TIMESHEET_FOR_VERIFICATION,
+  Urls.TIMESHEET_DELEGATED,
+  Urls.TIMESHEET_IFRAME,
+  Urls.TIMESHEET_IFRAME_SUBORDINATES,
+  Urls.TIMESHEET_IFRAME_FOR_VERIFICATION,
+  Urls.TIMESHEET_IFRAME_DELEGATED,
 
-  URL.ORGSTRUCTURE,
+  Urls.ORGSTRUCTURE,
 
-  URL.BPMN_ADMIN_PROCESS,
-  URL.BPMN_ADMIN_INSTANCE,
-  URL.BPMN_MIGRATION
+  Urls.BPMN_ADMIN_PROCESS,
+  Urls.BPMN_ADMIN_INSTANCE,
+  Urls.BPMN_MIGRATION
 ];
 
 if (process.env.NODE_ENV === 'development') {
-  allowedLinks.push(URL.FORM_COMPONENTS, '/v2/debug/cmmn', '/v2/debug/tree');
+  allowedLinks.push(Urls.FORM_COMPONENTS, '/v2/debug/cmmn', '/v2/debug/tree');
 }
 
 class App extends Component {
+  #homePageLink = Urls.DASHBOARD;
+
   componentDidMount() {
     this.props.initAppSettings();
     UserLocalSettingsService.checkDashletsUpdatedDate();
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
+    const { location, defaultWorkspace, workspace, replace, addTab } = this.props;
+    const { homePageLink = '' } = workspace || {};
+
+    const workspaceId = getWorkspaceId(defaultWorkspace);
+    const searchParams = new URLSearchParams(location.search);
+
+    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+      if (location.search.includes('ws=') && !searchParams.get('ws') && workspaceId && !BASE_URLS_REDIRECT.includes(location.pathname)) {
+        const newUrl = location.search
+          ? `${location.pathname}${location.search.replace(/ws=[^&]*/, `ws=${workspaceId}`)}`
+          : `${location.pathname}?ws=${workspaceId}`;
+
+        replace(newUrl);
+      }
+
+      if (!location.search.includes('ws=') && !BASE_URLS_REDIRECT.includes(location.pathname)) {
+        const activePrev = PageTabList.activeTab;
+
+        const newUrl = location.search
+          ? `${location.pathname}${location.search}&ws=${workspaceId}`
+          : `${location.pathname}?ws=${workspaceId}`;
+
+        PageService.changeUrlLink(newUrl, { openNewTab: true });
+
+        if (activePrev) {
+          PageTabList.delete(activePrev);
+        }
+      }
+
+      const newHomePageLink = getLinkWithWs(homePageLink, workspaceId);
+      if (homePageLink && newHomePageLink && newHomePageLink !== this.#homePageLink) {
+        this.#homePageLink = newHomePageLink;
+
+        if (BASE_URLS_REDIRECT.includes(location.pathname)) {
+          addTab({
+            data: { link: newHomePageLink, isActive: true, isLoading: true },
+            params: { workspaceId }
+          });
+        }
+      }
+    }
+
     if (prevProps.isAuthenticated && !this.props.isAuthenticated) {
       EcosFormModal.countOpenedModals <= 0 && window.location.reload();
     }
@@ -145,7 +193,7 @@ class App extends Component {
         <PageTabs
           enableCache
           allowedLinks={allowedLinks}
-          homepageLink={URL.DASHBOARD}
+          homepageLink={this.#homePageLink}
           isShow={isShowTabs && !this.isOnlyContent && !isMobile}
           ContentComponent={this.renderCachedRouter}
         />
@@ -154,7 +202,7 @@ class App extends Component {
 
     return (
       <>
-        <PageTabs homepageLink={URL.DASHBOARD} isShow={isShowTabs && !this.isOnlyContent && !isMobile} />
+        <PageTabs homepageLink={this.#homePageLink} isShow={isShowTabs && !this.isOnlyContent && !isMobile} />
         <div className={PANEL_CLASS_NAME}>{this.renderRouter()}</div>
       </>
     );
@@ -173,6 +221,7 @@ class App extends Component {
   };
 
   renderCachedRouter = React.memo(props => {
+    const enabledWorkspaces = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
     const { tab } = props;
     const isCurrent = pageTabList.isActiveTab(tab.id);
     const baseCacheRouteProps = {
@@ -197,105 +246,121 @@ class App extends Component {
       <div className="ecos-main-content" style={styles}>
         <Suspense fallback={null}>
           <CacheSwitch isCurrent={isCurrent} tabLink={tab.link}>
-            <CacheRoute
-              {...baseCacheRouteProps}
-              path={URL.DASHBOARD}
-              exact
-              render={props => <Page pageKey={Pages.DASHBOARD} {...props} {...basePageProps} />}
-            />
+            {!enabledWorkspaces && (
+              <CacheRoute
+                {...baseCacheRouteProps}
+                path={Urls.DASHBOARD}
+                exact
+                render={props => <Page pageKey={Pages.DASHBOARD} {...props} {...basePageProps} />}
+              />
+            )}
+            {enabledWorkspaces && (
+              <CacheRoute
+                {...baseCacheRouteProps}
+                path={Urls.DASHBOARD}
+                exact
+                render={props =>
+                  get(props, 'location.search', '').includes('ws=') && get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false) ? (
+                    <Page pageKey={Pages.DASHBOARD} {...props} {...basePageProps} />
+                  ) : (
+                    <Redirect to={this.#homePageLink} />
+                  )
+                }
+              />
+            )}
             <CacheRoute
               {...baseCacheRouteProps}
               cacheKey="admin"
-              path={URL.ADMIN_PAGE}
+              path={Urls.ADMIN_PAGE}
               render={props => <Page pageKey={Pages.BPMN} {...props} {...basePageProps} />}
             />
             <CacheRoute
               {...baseCacheRouteProps}
-              path={URL.JOURNAL}
+              path={Urls.JOURNAL}
               render={props => <Page pageKey={Pages.JOURNAL} {...props} {...basePageProps} />}
             />
             <CacheRoute
               {...baseCacheRouteProps}
               cacheKey="dev-tools"
-              path={URL.DEV_TOOLS}
+              path={Urls.DEV_TOOLS}
               render={props => <Page pageKey={Pages.DEV_TOOLS} {...props} {...basePageProps} />}
             />
             <CacheRoute
               {...baseCacheRouteProps}
-              path={URL.BPMN_EDITOR}
+              path={Urls.BPMN_EDITOR}
               render={props => <Page pageKey={Pages.BPMN_EDITOR} {...props} {...basePageProps} footer={null} />}
             />
             <CacheRoute
               {...baseCacheRouteProps}
-              path={URL.BPMN_ADMIN_PROCESS}
+              path={Urls.BPMN_ADMIN_PROCESS}
               render={props => <Page pageKey={Pages.BPMN_ADMIN_PROCESS} {...props} {...basePageProps} footer={null} />}
             />
             <CacheRoute
               {...baseCacheRouteProps}
-              path={URL.BPMN_ADMIN_INSTANCE}
+              path={Urls.BPMN_ADMIN_INSTANCE}
               render={props => <Page pageKey={Pages.BPMN_ADMIN_INSTANCE} {...props} {...basePageProps} footer={null} />}
             />
             <CacheRoute
               {...baseCacheRouteProps}
-              path={URL.BPMN_MIGRATION}
+              path={Urls.BPMN_MIGRATION}
               render={props => <Page pageKey={Pages.BPMN_MIGRATION} {...props} {...basePageProps} footer={null} />}
             />
             <CacheRoute
               {...baseCacheRouteProps}
-              path={URL.CMMN_EDITOR}
+              path={Urls.CMMN_EDITOR}
               render={props => <Page pageKey={Pages.CMMN_EDITOR} {...props} {...basePageProps} footer={null} />}
             />
             <CacheRoute
               {...baseCacheRouteProps}
-              path={URL.DMN_EDITOR}
+              path={Urls.DMN_EDITOR}
               render={props => <Page pageKey={Pages.DMN_EDITOR} {...props} {...basePageProps} footer={null} />}
             />
             {/* --- TIMESHEETs start */}
             <CacheRoute
               {...baseCacheRouteProps}
-              path={URL.TIMESHEET}
+              path={Urls.TIMESHEET}
               exact
               render={props => <Page pageKey={Pages.TIMESHEET_MY} {...props} {...basePageProps} />}
             />
             <CacheRoute
               {...baseCacheRouteProps}
-              path={URL.TIMESHEET_IFRAME}
+              path={Urls.TIMESHEET_IFRAME}
               exact
               render={props => <Page pageKey={Pages.TIMESHEET_MY} {...props} {...basePageProps} withoutFooter />}
             />
             <CacheRoute
               {...baseCacheRouteProps}
-              path={URL.TIMESHEET_SUBORDINATES}
+              path={Urls.TIMESHEET_SUBORDINATES}
               render={props => <Page pageKey={Pages.TIMESHEET_SUBORDINATES} {...props} {...basePageProps} />}
             />
             <CacheRoute
               {...baseCacheRouteProps}
-              path={URL.TIMESHEET_IFRAME_SUBORDINATES}
+              path={Urls.TIMESHEET_IFRAME_SUBORDINATES}
               render={props => <Page pageKey={Pages.TIMESHEET_SUBORDINATES} {...props} {...basePageProps} withoutFooter />}
             />
             <CacheRoute
               {...baseCacheRouteProps}
-              path={URL.TIMESHEET_FOR_VERIFICATION}
+              path={Urls.TIMESHEET_FOR_VERIFICATION}
               render={props => <Page pageKey={Pages.TIMESHEET_VERIFICATION} {...props} {...basePageProps} />}
             />
             <CacheRoute
               {...baseCacheRouteProps}
-              path={URL.TIMESHEET_IFRAME_FOR_VERIFICATION}
+              path={Urls.TIMESHEET_IFRAME_FOR_VERIFICATION}
               render={props => <Page pageKey={Pages.TIMESHEET_VERIFICATION} {...props} {...basePageProps} withoutFooter />}
             />
             <CacheRoute
               {...baseCacheRouteProps}
-              path={URL.TIMESHEET_DELEGATED}
+              path={Urls.TIMESHEET_DELEGATED}
               render={props => <Page pageKey={Pages.TIMESHEET_DELEGATED} {...props} {...basePageProps} />}
             />
             <CacheRoute
               {...baseCacheRouteProps}
-              path={URL.TIMESHEET_IFRAME_DELEGATED}
+              path={Urls.TIMESHEET_IFRAME_DELEGATED}
               render={props => <Page pageKey={Pages.TIMESHEET_DELEGATED} {...props} {...basePageProps} withoutFooter />}
             />
             <CacheRoute
               {...baseCacheRouteProps}
-              path={URL.ORGSTRUCTURE}
+              path={Urls.ORGSTRUCTURE}
               render={props => <Page pageKey={Pages.ORGSTRUCTURE} {...props} {...basePageProps} withoutFooter />}
             />
             {/* --- TIMESHEETs end */}
@@ -305,7 +370,7 @@ class App extends Component {
             <Route path="/v2/debug/tree" render={props => <Page pageKey={Pages.DEBUG_TREE} {...props} {...basePageProps} />} />
 
             {this.renderRedirectOldRoots()}
-            <Redirect to={URL.DASHBOARD} />
+            <Redirect to={this.#homePageLink} />
           </CacheSwitch>
         </Suspense>
       </div>
@@ -313,46 +378,61 @@ class App extends Component {
   });
 
   renderRouter = () => {
+    const enabledWorkspaces = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+
     return (
       <div className="ecos-main-content" style={this.wrapperStyle}>
         <Suspense fallback={null}>
           <Switch>
-            <Route path={URL.DASHBOARD} exact render={props => <Page pageKey={Pages.DASHBOARD} {...props} />} />
-            <Route path={URL.ADMIN_PAGE} render={props => <Page pageKey={Pages.BPMN} {...props} />} />
-            <Route path={URL.JOURNAL} render={props => <Page pageKey={Pages.JOURNAL} {...props} />} />
-            <Route path={URL.DEV_TOOLS} render={props => <Page pageKey={Pages.DEV_TOOLS} {...props} />} />
-            <Route path={URL.BPMN_EDITOR} render={props => <Page pageKey={Pages.BPMN_EDITOR} {...props} />} />
-            <Route path={URL.BPMN_ADMIN_PROCESS} render={props => <Page pageKey={Pages.BPMN_ADMIN_PROCESS} {...props} />} />
-            <Route path={URL.BPMN_ADMIN_INSTANCE} render={props => <Page pageKey={Pages.BPMN_ADMIN_INSTANCE} {...props} />} />
-            <Route path={URL.BPMN_MIGRATION} render={props => <Page pageKey={Pages.BPMN_MIGRATION} {...props} />} />
-            <Route path={URL.CMMN_EDITOR} render={props => <Page pageKey={Pages.CMMN_EDITOR} {...props} />} />
-            <Route path={URL.DMN_EDITOR} render={props => <Page pageKey={Pages.DMN_EDITOR} {...props} />} />
+            {!enabledWorkspaces && <Route path={Urls.DASHBOARD} exact render={props => <Page pageKey={Pages.DASHBOARD} {...props} />} />}
+            {enabledWorkspaces && (
+              <Route
+                path={Urls.DASHBOARD}
+                exact
+                render={props =>
+                  get(props, 'location.search', '').includes('ws=') ? (
+                    <Page pageKey={Pages.DASHBOARD} {...props} />
+                  ) : (
+                    <Redirect to={this.#homePageLink} />
+                  )
+                }
+              />
+            )}
+            <Route path={Urls.ADMIN_PAGE} render={props => <Page pageKey={Pages.BPMN} {...props} />} />
+            <Route path={Urls.JOURNAL} render={props => <Page pageKey={Pages.JOURNAL} {...props} />} />
+            <Route path={Urls.DEV_TOOLS} render={props => <Page pageKey={Pages.DEV_TOOLS} {...props} />} />
+            <Route path={Urls.BPMN_EDITOR} render={props => <Page pageKey={Pages.BPMN_EDITOR} {...props} />} />
+            <Route path={Urls.BPMN_ADMIN_PROCESS} render={props => <Page pageKey={Pages.BPMN_ADMIN_PROCESS} {...props} />} />
+            <Route path={Urls.BPMN_ADMIN_INSTANCE} render={props => <Page pageKey={Pages.BPMN_ADMIN_INSTANCE} {...props} />} />
+            <Route path={Urls.BPMN_MIGRATION} render={props => <Page pageKey={Pages.BPMN_MIGRATION} {...props} />} />
+            <Route path={Urls.CMMN_EDITOR} render={props => <Page pageKey={Pages.CMMN_EDITOR} {...props} />} />
+            <Route path={Urls.DMN_EDITOR} render={props => <Page pageKey={Pages.DMN_EDITOR} {...props} />} />
             {/* --- TIMESHEETs start */}
-            <Route path={URL.TIMESHEET} exact render={props => <Page pageKey={Pages.TIMESHEET_MY} {...props} />} />
-            <Route path={URL.TIMESHEET_SUBORDINATES} render={props => <Page pageKey={Pages.TIMESHEET_SUBORDINATES} {...props} />} />
-            <Route path={URL.TIMESHEET_FOR_VERIFICATION} render={props => <Page pageKey={Pages.TIMESHEET_VERIFICATION} {...props} />} />
-            <Route path={URL.TIMESHEET_DELEGATED} render={props => <Page pageKey={Pages.TIMESHEET_DELEGATED} {...props} />} />
-            <Route path={URL.TIMESHEET_IFRAME} exact render={props => <Page pageKey={Pages.TIMESHEET_MY} {...props} withoutFooter />} />
+            <Route path={Urls.TIMESHEET} exact render={props => <Page pageKey={Pages.TIMESHEET_MY} {...props} />} />
+            <Route path={Urls.TIMESHEET_SUBORDINATES} render={props => <Page pageKey={Pages.TIMESHEET_SUBORDINATES} {...props} />} />
+            <Route path={Urls.TIMESHEET_FOR_VERIFICATION} render={props => <Page pageKey={Pages.TIMESHEET_VERIFICATION} {...props} />} />
+            <Route path={Urls.TIMESHEET_DELEGATED} render={props => <Page pageKey={Pages.TIMESHEET_DELEGATED} {...props} />} />
+            <Route path={Urls.TIMESHEET_IFRAME} exact render={props => <Page pageKey={Pages.TIMESHEET_MY} {...props} withoutFooter />} />
             <Route
-              path={URL.TIMESHEET_IFRAME_SUBORDINATES}
+              path={Urls.TIMESHEET_IFRAME_SUBORDINATES}
               render={props => <Page pageKey={Pages.TIMESHEET_SUBORDINATES} {...props} withoutFooter />}
             />
             <Route
-              path={URL.TIMESHEET_IFRAME_FOR_VERIFICATION}
+              path={Urls.TIMESHEET_IFRAME_FOR_VERIFICATION}
               render={props => <Page pageKey={Pages.TIMESHEET_VERIFICATION} {...props} withoutFooter />}
             />
             <Route
-              path={URL.TIMESHEET_IFRAME_DELEGATED}
+              path={Urls.TIMESHEET_IFRAME_DELEGATED}
               render={props => <Page pageKey={Pages.TIMESHEET_DELEGATED} {...props} withoutFooter />}
             />
-            <Route path={URL.ORGSTRUCTURE} render={props => <Page pageKey={Pages.ORGSTRUCTURE} {...props} withoutFooter />} />
+            <Route path={Urls.ORGSTRUCTURE} render={props => <Page pageKey={Pages.ORGSTRUCTURE} {...props} withoutFooter />} />
             {/* --- TIMESHEETs end */}
 
             {/* temporary routes */}
             <Route path="/v2/debug/formio-develop" render={props => <Page pageKey={Pages.DEBUG_FORMIO} {...props} />} />
             <Route path="/v2/debug/tree" render={props => <Page pageKey={Pages.DEBUG_TREE} {...props} />} />
             {this.renderRedirectOldRoots()}
-            <Redirect to={URL.DASHBOARD} />
+            <Redirect to={this.#homePageLink} />
           </Switch>
         </Suspense>
       </div>
@@ -401,22 +481,30 @@ class App extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  isViewNewJournal: get(state, ['view', 'isViewNewJournal']),
-  enableCache: get(state, ['app', 'enableCache']),
-  isInit: get(state, ['app', 'isInit']),
-  isInitFailure: get(state, ['app', 'isInitFailure']),
-  isMobile: get(state, ['view', 'isMobile']),
-  isShowTabs: get(state, ['pageTabs', 'isShow'], false),
-  tabs: get(state, 'pageTabs.tabs', []),
-  menuType: get(state, ['menu', 'type']),
-  isAuthenticated: get(state, ['user', 'isAuthenticated'])
-});
+const mapStateToProps = state => {
+  const defaultWorkspace = get(state, ['workspaces', 'defaultWorkspace']);
+  const workspaceId = getWorkspaceId(defaultWorkspace);
+
+  return {
+    isViewNewJournal: get(state, ['view', 'isViewNewJournal']),
+    workspace: selectWorkspaceById(state, workspaceId),
+    enableCache: get(state, ['app', 'enableCache']),
+    isInit: get(state, ['app', 'isInit']),
+    isInitFailure: get(state, ['app', 'isInitFailure']),
+    isMobile: get(state, ['view', 'isMobile']),
+    isShowTabs: get(state, ['pageTabs', 'isShow'], false),
+    tabs: get(state, 'pageTabs.tabs', []),
+    menuType: get(state, ['menu', 'type']),
+    isAuthenticated: get(state, ['user', 'isAuthenticated']),
+    defaultWorkspace
+  };
+};
 
 const mapDispatchToProps = dispatch => ({
   initAppSettings: () => dispatch(initAppSettings()),
 
   setTab: params => dispatch(setTab(params)),
+  addTab: params => dispatch(addTab(params)),
   updateTab: params => dispatch(updateTab(params)),
   replace: url => dispatch(replace(url))
 });

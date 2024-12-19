@@ -228,15 +228,8 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
           txtArea.value = get(quill, 'root.innerHTML');
           onChange(txtArea);
         };
-        quill.on('text-change', onTextChange);
 
-        //own destroy, bc it's removed in new version, bc https://quilljs.com/guides/upgrading-to-1-0/
-        quill.destroy = () => {
-          this.removeEventListener(qlSource, 'click', onClickSource);
-          this.removeEventListener(element, 'click', onClickElm);
-          quill && quill.off('text-change', onTextChange);
-          quill = null;
-        };
+        quill.on('text-change', onTextChange);
 
         resolve(quill);
         return quill;

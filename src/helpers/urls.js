@@ -11,7 +11,7 @@ import { ParserPredicate } from '../components/Filters/predicates/index';
 import PageTabList from '../services/pageTabs/PageTabList';
 import PageService from '../services/PageService';
 import { isNewVersionPage, isNewVersionSharePage } from './export/urls';
-import { IS_TEST_ENV, hasInString } from './util';
+import { IS_TEST_ENV, getCurrentUserName, hasInString } from './util';
 
 const JOURNAL_ID_KEY = JournalUrlParams.JOURNAL_ID;
 const DASHBOARD_ID_KEY = 'dashboardId';
@@ -198,7 +198,15 @@ export const goToAdminPage = options => {
 };
 
 export const goToCardDetailsPage = (nodeRef, params = { openNewTab: true }) => {
-  const dashboardLink = `${URL.DASHBOARD}?recordRef=${nodeRef}`;
+  let dashboardLink = `${URL.DASHBOARD}?recordRef=${nodeRef}`;
+
+  if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+    const workspaceId = getWorkspaceId();
+
+    if (!workspaceId.startsWith('user$')) {
+      dashboardLink += `&ws=${workspaceId}`;
+    }
+  }
 
   changeUrl(dashboardLink, params);
 };
@@ -367,14 +375,64 @@ export const isTaskDashboard = (url = window.location.href) => {
   return isDashboard(url) && hasInString(url, `${SourcesId.TASK}@`);
 };
 
+export const getWorkspaceId = (defaultWorkspace = '') => {
+  if (!get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+    return '';
+  }
+
+  const searchParams = new URLSearchParams(window.location.search);
+  const wsId = searchParams.get('ws');
+
+  if (!!wsId) {
+    return wsId;
+  }
+
+  return defaultWorkspace || `user$${getCurrentUserName()}`;
+};
+
 if (!window.Citeck) {
   window.Citeck = {};
 }
 
+export const getLinkWithOrigin = (link = '') => {
+  return link && !link.includes('http') && link[0] === '/' ? window.location.origin + link : link;
+};
+
+export const getWsIdOfTabLink = (link = '') => {
+  if (link && link.includes('ws=')) {
+    const url = !link.includes('http') && link[0] === '/' ? window.location.origin + link : link;
+    const { query } = queryString.parseUrl(url);
+    return get(query, 'ws', null);
+  } else {
+    return null;
+  }
+};
+
+export const getLinkWithWs = (link = '', workspaceId) => {
+  if (!link) {
+    return null;
+  }
+
+  if (link.includes('ws=')) {
+    const url = !link.includes('http') && link[0] === '/' ? window.location.origin + link : link;
+    const { query } = queryString.parseUrl(url);
+    const ws = get(query, 'ws');
+
+    if (ws !== '') {
+      return link;
+    } else {
+      return link.replace('ws=', workspaceId ? `ws=${workspaceId}` : '');
+    }
+  }
+
+  return link + (link.includes('?') ? `&ws=${workspaceId}` : `?ws=${workspaceId}`);
+};
+
 window.Citeck.Navigator = {
   goToDashboard: (recordRef, options) => {
     goToCardDetailsPage(recordRef, options);
-  }
+  },
+  getWorkspaceId: () => getWorkspaceId()
 };
 
 export const replaceHistoryLink = (history = window, link = '', force = false) => {

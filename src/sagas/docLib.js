@@ -66,7 +66,7 @@ import { selectJournalData, selectUrl } from '../selectors/journals';
 import { DocLibUrlParams } from '../constants';
 import { DEFAULT_DOCLIB_PAGINATION, NODE_TYPES } from '../constants/docLib';
 import { t } from '../helpers/export/util';
-import { getSearchParams, getUrlWithoutOrigin } from '../helpers/urls';
+import { getSearchParams, getUrlWithoutOrigin, getWorkspaceId } from '../helpers/urls';
 import { wrapSaga } from '../helpers/redux';
 import PageService from '../services/PageService';
 import { ActionTypes } from '../components/Records/actions/constants';
@@ -698,7 +698,15 @@ function* sagaUploadFiles({ api, logger, stateId, w }, action) {
       };
     });
 
-    yield send({ items: itemsObj, rootId, folderId, folderTitle, destinations, totalCount });
+    yield send({
+      items: itemsObj,
+      rootId,
+      folderId,
+      folderTitle,
+      destinations,
+      totalCount,
+      ...(get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false) && { ws: getWorkspaceId() })
+    });
 
     yield call(() => uploadPromise);
     yield put(initSidebar(w()));

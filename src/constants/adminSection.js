@@ -5,7 +5,8 @@ export const Labels = {
   HIDE_MENU_sm: 'admin-section.sidebar.hide-sm',
   EMPTY_LIST: 'admin-section.sidebar.list-empty',
   BTN_CLOSE_MENU: 'admin-section.btn-toggle.close',
-  BTN_OPEN_MENU: 'admin-section.btn-toggle.open'
+  BTN_OPEN_MENU: 'admin-section.btn-toggle.open',
+  DEV_TOOLS: 'admin-section.dev-tools'
 };
 
 export const SectionTypes = {

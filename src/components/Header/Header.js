@@ -11,15 +11,16 @@ import { fetchCreateCaseWidgetData, fetchSiteMenuData, fetchUserMenuData } from 
 import { JournalUrlParams, SourcesId, URL } from '../../constants';
 import { MenuTypes } from '../../constants/menu';
 import Records from '../Records';
-import SlideMenuBtn from './SlideMenuBtn';
 import CreateMenu from './CreateMenu';
 import UserMenu from './UserMenu';
 import SiteMenu from './SiteMenu';
 import Search from './Search';
+import WorkspacesSwitcher from './Workspaces';
 import LanguageSwitcher from './LanguageSwitcher';
 import { selectIsViewNewJournal } from '../../selectors/view';
 
 import './style.scss';
+import SlideMenuButton from './SlideMenuButton';
 
 const MenuSettings = lazy(() => import('../MenuSettings'));
 
@@ -125,7 +126,7 @@ class Header extends React.Component {
           })}
         >
           <div className="ecos-header__side ecos-header__side_left">
-            <SlideMenuBtn />
+            {get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false) ? <WorkspacesSwitcher /> : <SlideMenuButton />}
             <CreateMenu isMobile={widthHeader < 910} />
           </div>
           <div className="ecos-header__side ecos-header__side_right">

@@ -13,7 +13,7 @@ self.addEventListener('message', (e) => {
 });
 
 self.onmessage = async (event) => {
-  const { items: _items, rootId, folderId, folderTitle, totalCount: _totalCount, destinations = {} } = event.data;
+  const { items: _items, rootId, folderId, totalCount: _totalCount, destinations = {}, ws } = event.data;
   const { file: destinationFile, dir: destinationDir } = destinations;
 
   let totalCount = _totalCount;
@@ -113,7 +113,7 @@ self.onmessage = async (event) => {
       }
     }
 
-    await handleUploads({ items, folderId, rootId, destinationFile, destinationDir, totalCount });
+    await handleUploads({ items, folderId, rootId, destinationFile, destinationDir, totalCount, ws });
   } catch (e) {
     self.postMessage({ status: 'error', error: e.message });
   }
@@ -196,7 +196,7 @@ async function getAllFolders(files, childrenRootDir, rootFolderTitle) {
   return foldersWithChildren;
 }
 
-async function handleUploads({ items, folderId, rootId, destinationFile, destinationDir, totalCount }) {
+async function handleUploads({ items, folderId, rootId, destinationFile, destinationDir, totalCount, ws }) {
   try {
     self.postMessage({ status: 'start' });
 
@@ -213,7 +213,8 @@ async function handleUploads({ items, folderId, rootId, destinationFile, destina
           rootId,
           destinationFile,
           totalCount,
-          successFileCount
+          successFileCount,
+          ws
         });
 
         if (uploadFileResult) {
@@ -222,7 +223,7 @@ async function handleUploads({ items, folderId, rootId, destinationFile, destina
         }
 
       } else if (item.nodeType === NODE_TYPES.DIR && item.files) {
-        const createDirResult = item.alreadyExits && item.id ? { id: item.id } : await handleUploadDirectory({ dirName: item.name, parentId: folderId, rootId, destinationDir });
+        const createDirResult = item.alreadyExits && item.id ? { id: item.id } : await handleUploadDirectory({ dirName: item.name, parentId: folderId, rootId, destinationDir, ws });
 
         if (createDirResult && createDirResult.id && item.files && item.files.length) {
           createdDirectories[item.name] = { id: createDirResult.id };
@@ -244,7 +245,8 @@ async function handleUploads({ items, folderId, rootId, destinationFile, destina
                       dirName: folder,
                       parentId: createdDirectories[indexFolder].id,
                       rootId,
-                      destinationDir
+                      destinationDir,
+                      ws
                     });
 
                     indexFolder = newIndexFolder;
@@ -262,7 +264,8 @@ async function handleUploads({ items, folderId, rootId, destinationFile, destina
                   rootId,
                   destinationFile,
                   totalCount,
-                  successFileCount
+                  successFileCount,
+                  ws
                 });
 
                 if (uploadFileResult) {
@@ -276,7 +279,8 @@ async function handleUploads({ items, folderId, rootId, destinationFile, destina
                   rootId,
                   destinationFile,
                   totalCount,
-                  successFileCount
+                  successFileCount,
+                  ws
                 });
 
                 if (uploadFileResult) {
@@ -331,7 +335,7 @@ async function getFolderItems(parentRef) {
       query: querySettings,
       version: 1
     },
-    method: 'post',
+    method: 'POST',
   });
 
   const responseData = await response.json();
@@ -349,20 +353,20 @@ async function deleteChild(record) {
       records: [record],
       version: 1
     },
-    method: 'post',
+    method: 'POST',
   });
 
   return response.ok;
 }
 
-async function handleUploadDirectory({ dirName, parentId, destinationDir, rootId }) {
+async function handleUploadDirectory({ dirName, parentId, destinationDir, rootId, ws }) {
   const convertDir = prepareUploadedDirDataForSaving({ name: dirName });
 
   if (!convertDir) {
     return Promise.reject('Error: Error when converting a dir');
   }
 
-  const result = await createChild(rootId, parentId, destinationDir, convertDir)
+  const result = await createChild(rootId, parentId, destinationDir, convertDir, ws)
     .then(async res => await res.json());
 
   if (result && result.records && result.records.length) {
@@ -372,7 +376,7 @@ async function handleUploadDirectory({ dirName, parentId, destinationDir, rootId
   return result
 }
 
-async function handleUploadFile({ file, dirId, rootId, destinationFile, totalCount, successFileCount }) {
+async function handleUploadFile({ file, dirId, rootId, destinationFile, totalCount, successFileCount, ws }) {
   const controller = new AbortController();
   const signal = controller.signal;
 
@@ -392,9 +396,13 @@ async function handleUploadFile({ file, dirId, rootId, destinationFile, totalCou
   formData.append('file', file);
   formData.append('name', file.name);
 
+  if (!!ws) {
+    formData.append('_workspace', ws);
+  }
+
   const responseData = await citeckFetch('/gateway/emodel/api/ecos/webapp/content', {
     body: formData,
-    method: 'post',
+    method: 'POST',
     signal
   })
     .then(async res => {
@@ -441,7 +449,7 @@ async function handleUploadFile({ file, dirId, rootId, destinationFile, totalCou
     return Promise.reject('Error: Error when converting a file');
   }
 
-  return await createChild(rootId, dirId, destinationFile, convertFile, signal)
+  return await createChild(rootId, dirId, destinationFile, convertFile, ws, signal)
     .then(async res => {
       self.postMessage({
         status: 'in-progress',
@@ -501,7 +509,7 @@ function prepareUploadedFileDataForSaving(file = {}, uploadedData = {}) {
   };
 }
 
-async function createChild(rootId, parentId, typeRef, attributes = {}, signal) {
+async function createChild(rootId, parentId, typeRef, attributes = {}, ws = '', signal) {
   const parent = parentId || rootId;
 
   const atts = {
@@ -510,6 +518,10 @@ async function createChild(rootId, parentId, typeRef, attributes = {}, signal) {
     ...attributes
   };
 
+  if (!!ws) {
+    atts._workspace = ws;
+  }
+
   const record = {
     attributes: atts,
     id: rootId
@@ -517,7 +529,7 @@ async function createChild(rootId, parentId, typeRef, attributes = {}, signal) {
 
   return citeckFetch("/gateway/api/records/mutate", {
     body: { records: [record] },
-    method: 'post',
+    method: 'POST',
     signal
   });
 }

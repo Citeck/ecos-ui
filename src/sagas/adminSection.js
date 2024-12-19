@@ -67,7 +67,13 @@ export function* openActiveSection({ api, logger }, action) {
     const newType = get(item, 'type');
     const options = yield call(AdminSectionService.getTabOptions, currentType, newType);
     const href = yield call(AdminSectionService.getURLSection, item);
-    const isSameLink = equalsQueryUrls({ urls: [href, window.location.href], compareBy: ['activeTab', 'type', 'journalId'] });
+    const compareBy = ['activeTab', 'type', 'journalId'];
+
+    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+      compareBy.push('ws');
+    }
+
+    const isSameLink = equalsQueryUrls({ urls: [href, window.location.href], compareBy });
 
     if (!isSameLink && href) {
       const contains = window.location.href.includes(href);

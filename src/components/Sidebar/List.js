@@ -17,13 +17,15 @@ class List extends React.Component {
     expandableItems: PropTypes.array,
     level: PropTypes.number,
     isExpanded: PropTypes.bool,
-    inDropdown: PropTypes.bool
+    inDropdown: PropTypes.bool,
+    isWorkspace: PropTypes.object
   };
 
   static defaultProps = {
     className: '',
     items: [],
     expandableItems: [],
+    workspace: null,
     level: 0,
     inDropdown: false
   };
@@ -41,18 +43,19 @@ class List extends React.Component {
     }
   };
 
-  renderSubList = (items, expanded, inDropdown) => (
+  renderSubList = (items, expanded, inDropdown, workspace) => (
     <ConnectList
       items={items}
       level={this.props.level + 1}
       isExpanded={expanded}
       boundariesElement={this.boundariesElement}
       inDropdown={inDropdown}
+      workspace={workspace}
     />
   );
 
   renderItem = (item, i) => {
-    const { level, expandableItems, isOpen, inDropdown, selectedId, isMobile } = this.props;
+    const { level, expandableItems, isOpen, inDropdown, selectedId, isMobile, workspace } = this.props;
     const listItemDomId = `_${item.id}-${level}-${i}`;
     const listItemKey = `${item.id}-${getMLValue(item.label)}-${level}`;
     const hasSubItems = !!(item.items && item.items.length);
@@ -79,8 +82,9 @@ class List extends React.Component {
           styleProps={styleProps}
           inDropdown={inDropdown}
           boundariesElement={this.boundariesElement}
+          workspace={workspace}
         />
-        {hasSubItems && this.renderSubList(item.items, isSubListExpanded, inDropdown)}
+        {hasSubItems && this.renderSubList(item.items, isSubListExpanded, inDropdown, workspace)}
         {!isMobile && level === SidebarService.DROPDOWN_LEVEL && hasSubItems && (
           <Tooltip
             target={listItemDomId}

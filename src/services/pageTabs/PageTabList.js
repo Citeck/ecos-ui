@@ -7,7 +7,7 @@ import isEmpty from 'lodash/isEmpty';
 import { EventEmitter2 } from 'eventemitter2';
 
 import * as storage from '../../helpers/ls';
-import { equalsQueryUrls, IgnoredUrlParams } from '../../helpers/urls';
+import { equalsQueryUrls, getWorkspaceId, IgnoredUrlParams } from '../../helpers/urls';
 import { t, getCurrentLocale } from '../../helpers/util';
 import { TITLE } from '../../constants/pageTabs';
 import PageTab from './PageTab';
@@ -72,20 +72,45 @@ class PageTabList {
     this.#callbacks.push(callback);
   };
 
+  getWsIdOfTab = tab => {
+    if (tab && tab.link && tab.link.includes('ws=')) {
+      const url = new URL(!tab.link.includes('http') && tab.link[0] === '/' ? window.location.origin + tab.link : tab.link);
+      return url.searchParams.get('ws');
+    } else {
+      return getWorkspaceId();
+    }
+  };
+
   init({ activeUrl, keyStorage, isDuplicateAllowed, displayState, ...params }) {
     this.#keyStorage = keyStorage || this.#keyStorage;
     this.#displayState = !!displayState;
     this.#isDuplicateAllowed = !!isDuplicateAllowed;
+
+    const enabledWorkspace = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
 
     let tabs = this.getFromStorage();
 
     tabs = this.getValidList(tabs);
 
     params = { ...params, last: true };
+
+    if (enabledWorkspace) {
+      tabs.forEach(tab => {
+        if (tab && !!tab.link && !tab.workspace) {
+          tab.workspace = this.getWsIdOfTab(tab);
+        }
+      });
+    }
+
     this.tabs = { tabs, params };
 
     if (!!activeUrl) {
       const newTab = { link: activeUrl, isActive: true };
+
+      if (enabledWorkspace) {
+        newTab.workspace = this.getWsIdOfTab(newTab);
+      }
+
       const tab = this.existTab(newTab);
 
       if (tab && tab.link === activeUrl) {
@@ -113,7 +138,7 @@ class PageTabList {
    * @returns {PageTab}
    */
   setTab(data, params = {}) {
-    const { last, reopen } = params;
+    const { last, reopen, workspace } = params;
 
     const title = {
       ...data.title,
@@ -127,6 +152,10 @@ class PageTabList {
 
     if (isExist) {
       tab.id = this.#tabs[currentTabIndex].id;
+    }
+
+    if (workspace && get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+      tab.workspace = workspace;
     }
 
     if (reopen) {
@@ -174,18 +203,26 @@ class PageTabList {
     }
 
     tab = tab.uniqueKey ? tab : new PageTab(tab);
-    const tabIndex = this.#tabs.findIndex(item => this.equals(tab, item));
+    const workspaceTabs = this.#tabs.filter(t => t && t.workspace === tab.workspace);
 
-    if (tabIndex === -1 || this.#tabs.length < 2) {
+    const tabIndex = this.#tabs.findIndex(item => this.equals(tab, item));
+    const workspaceTabIndex = workspaceTabs.findIndex(item => this.equals(tab, item));
+
+    if (tabIndex === -1 || workspaceTabs.length < 2) {
       return;
     }
 
     const deletedTab = this.#tabs.splice(tabIndex, 1)[0];
-    const length = this.#tabs.length;
+    const deletedWorkspaceTab = workspaceTabs.splice(workspaceTabIndex, 1)[0];
 
-    if (deletedTab.isActive && !!length) {
-      const newIndex = tabIndex >= length ? length - 1 : tabIndex;
-      this.activate(this.#tabs[newIndex]);
+    const length = workspaceTabs.length;
+
+    if (deletedWorkspaceTab.isActive && !!length) {
+      const newIndex = workspaceTabIndex >= length ? length - 1 : workspaceTabIndex;
+      const foundTab = this.#tabs.find(
+        t => t && t.id && workspaceTabs[newIndex] && workspaceTabs[newIndex].id && t.id === workspaceTabs[newIndex].id
+      );
+      this.activate(foundTab);
     }
 
     this.setToStorage();
@@ -357,7 +394,8 @@ window.addEventListener('popstate', event => {
       title: t(TITLE.LOADING),
       isLoading: true,
       isActive: true,
-      link: window.encodeURIComponent(link)
+      link: window.encodeURIComponent(link),
+      workspace: getWorkspaceId()
     });
 
     tabs.forEach(tab => {

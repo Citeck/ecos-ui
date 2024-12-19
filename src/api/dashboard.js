@@ -13,6 +13,7 @@ import Components from '../components/widgets/Components';
 import Records from '../components/Records';
 import { ASSOC_TYPES } from '../components/Journals/service/journalColumnsResolver';
 import DashboardService from '../services/dashboard';
+import { getWorkspaceId } from '../helpers/urls';
 
 const defaultAttr = {
   config: 'config?json',
@@ -172,6 +173,13 @@ export class DashboardApi {
       query.recordRef = recordRef;
     }
 
+    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+      const wsId = getWorkspaceId();
+      if (wsId) {
+        query.workspace = wsId;
+      }
+    }
+
     if (url.includes('orgstructure')) {
       query['scope'] = 'orgstructure';
     }
@@ -180,14 +188,22 @@ export class DashboardApi {
   };
 
   getDashboardByRecordRef = async recordRef => {
+    const enabledWorkspaces = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+    const wsId = getWorkspaceId();
     let recType;
 
     if (recordRef) {
       recType = await Records.get(recordRef.replace('alfresco/@', '')).load('_etype?id', true);
     }
 
+    let typeRef = EmodelTypes.USER_DASHBOARD;
+
+    if (enabledWorkspaces) {
+      typeRef = wsId.includes('user$') ? EmodelTypes.PERSONAL_WS_DASHBOARD : EmodelTypes.WS_DASHBOARD;
+    }
+
     if (!recType) {
-      recType = recordRef ? EmodelTypes.BASE : EmodelTypes.USER_DASHBOARD;
+      recType = recordRef ? EmodelTypes.BASE : typeRef;
     }
 
     const user = getCurrentUserName();
@@ -196,6 +212,10 @@ export class DashboardApi {
       authority: user,
       recordRef
     };
+
+    if (wsId && enabledWorkspaces) {
+      query.workspace = wsId;
+    }
 
     const url = window.location.pathname;
 
@@ -212,7 +232,12 @@ export class DashboardApi {
     );
 
     const type = !key ? recordRef : recType;
-    const cacheKey = DashboardService.getCacheKey({ type, user });
+    const params = { type, user };
+    if (enabledWorkspaces) {
+      params.wsId = wsId;
+    }
+
+    const cacheKey = DashboardService.getCacheKey(params);
     const result = cache.get(cacheKey);
 
     if (result) {

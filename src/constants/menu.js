@@ -44,6 +44,7 @@ export const MenuSettings = {
   },
   ItemTypes: {
     SECTION: 'SECTION',
+    INCLUDE_MENU: 'INCLUDE_MENU',
     JOURNAL: 'JOURNAL',
     KANBAN: 'KANBAN',
     DASHBOARD: 'DASHBOARD',

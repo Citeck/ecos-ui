@@ -7,6 +7,7 @@ import assign from 'lodash/assign';
 import isEmpty from 'lodash/isEmpty';
 
 import {
+  addTab,
   changeTab,
   closeTabs,
   deleteTab,
@@ -27,6 +28,8 @@ import { getCurrentUserName, getCurrentLocale } from '../helpers/util';
 import PageTabList from '../services/pageTabs/PageTabList';
 import PageService from '../services/PageService';
 import { TITLE } from '../constants/pageTabs';
+import { getWorkspaceId, getWsIdOfTabLink } from '../helpers/urls';
+import { BASE_URLS_REDIRECT } from '../constants';
 
 const lng = getCurrentLocale();
 
@@ -116,6 +119,23 @@ function* sagaSetOneTab({ api, logger }, { payload }) {
       return;
     }
 
+    if (dataTab.needUpdateTabs && dataTab.link) {
+      yield put(push(dataTab.link));
+      yield put(setTabs(PageTabList.storeList));
+    }
+
+    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+      const workspace = getWorkspaceId();
+
+      if (workspace) {
+        params.workspace = workspace;
+      }
+
+      if (dataTab && dataTab.link && !getWsIdOfTabLink(dataTab.link)) {
+        dataTab.link += '&ws=' + workspace;
+      }
+    }
+
     const tab = PageTabList.setTab(dataTab, params);
 
     if (tab.isActive && tab.link) {
@@ -128,6 +148,45 @@ function* sagaSetOneTab({ api, logger }, { payload }) {
     yield put(changeTab({ data, tab }));
   } catch (e) {
     logger.error('[pageTabs] sagaSetTab saga error', e);
+  }
+}
+
+function* sagaAddOneTab({ api, logger }, { payload }) {
+  try {
+    const { data: dataTab, params } = payload;
+    const { workspaceId } = params || {};
+
+    if (!dataTab || !dataTab.link) {
+      return;
+    }
+
+    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+      const workspace = workspaceId || getWorkspaceId();
+
+      if (workspace) {
+        params.workspace = workspace;
+      }
+
+      if (dataTab && dataTab.link && !getWsIdOfTabLink(dataTab.link)) {
+        dataTab.link += '&ws=' + workspace;
+      }
+    }
+
+    const data = yield* getTitle({ link: dataTab.link });
+    const tab = PageTabList.setTab({ ...dataTab, ...data }, params);
+
+    const intermediatePage = PageTabList.storeList.find(tab => BASE_URLS_REDIRECT.includes(tab.link));
+    if (intermediatePage) {
+      yield put(deleteTab(intermediatePage));
+    }
+
+    if (tab.isActive && tab.link) {
+      yield put(push(tab.link));
+    }
+
+    yield put(setTabs(PageTabList.storeList));
+  } catch (e) {
+    logger.error('[pageTabs] sagaAddOneTab saga error', e);
   }
 }
 
@@ -148,10 +207,16 @@ function* sagaDeleteTab({ api, logger }, action) {
 function* sagaCloseTabs({ api, logger }, { payload }) {
   try {
     const { tabs, homepageLink, tab } = payload;
+    const wsId = getWorkspaceId();
 
     PageTabList.delete(tabs);
 
-    if (homepageLink && isEmpty(PageTabList.tabs)) {
+    if (
+      homepageLink &&
+      isEmpty(
+        (PageTabList.tabs || []).filter(tab => !get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false) || get(tab, 'workspace') === wsId)
+      )
+    ) {
       PageService.changeUrlLink(homepageLink, { openNewTab: true });
     }
 
@@ -204,6 +269,15 @@ function* sagaUpdateTabData({ api, logger }, { payload }) {
 
     const updatingPayload = get(payload, 'updates', {});
     let tab = get(payload, 'tab');
+
+    if (
+      get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false) &&
+      updatingPayload &&
+      updatingPayload.link &&
+      !getWsIdOfTabLink(updatingPayload.link)
+    ) {
+      updatingPayload.link += '&ws=' + get(PageTabList.activeTab, 'workspace', getWorkspaceId());
+    }
 
     if (!tab) {
       tab = PageTabList.changeOne({
@@ -265,6 +339,7 @@ function* saga(ea) {
   yield takeEvery(setDisplayState().type, sagaSetDisplayState, ea);
   yield takeEvery(moveTabs().type, sagaMoveTabs, ea);
   yield takeEvery(setTab().type, sagaSetOneTab, ea);
+  yield takeEvery(addTab().type, sagaAddOneTab, ea);
   yield takeEvery(deleteTab().type, sagaDeleteTab, ea);
   yield takeEvery(closeTabs().type, sagaCloseTabs, ea);
   yield takeEvery(changeTab().type, sagaChangeTabData, ea);

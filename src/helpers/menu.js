@@ -1,4 +1,5 @@
 import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
 import queryString from 'query-string';
 
 import { URL } from '../constants';
@@ -71,14 +72,17 @@ export function makeSiteMenu(params = {}) {
       id: 'SETTINGS_MENU',
       label: 'header.site-menu.menu-settings',
       onClick: () => MenuSettingsService.emitter.emit(MenuSettingsService.Events.SHOW)
-    },
-    {
+    }
+  ];
+
+  if (!get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+    menu.push({
       id: 'GO_ADMIN_PAGE',
       label: 'header.site-menu.admin-page',
       targetUrl: queryString.stringifyUrl({ url: URL.ADMIN_PAGE, query: { type: 'DEV_TOOLS' } }),
       targetUrlType: 'FULL_PATH'
-    }
-  ];
+    });
+  }
 
   if (!params) {
     return menu;

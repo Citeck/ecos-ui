@@ -11,13 +11,18 @@ export default class MenuConverter {
     const target = [];
 
     (function prepareTree(sItems, breadcrumbs = '') {
+      const { SECTION, INCLUDE_MENU } = MenuSettings.ItemTypes;
+
       for (let i = 0; i < sItems.length; i++) {
         const { items, ...sItem } = sItems[i];
 
-        if (sItem.type === MenuSettings.ItemTypes.SECTION) {
+        if ([SECTION, INCLUDE_MENU].includes(sItem.type)) {
           const item = cloneDeep(sItem);
+
           item.breadcrumbs = breadcrumbs + extractLabel(item.label);
+
           target.push(item);
+
           Array.isArray(items) && prepareTree(items, item.breadcrumbs + ' / ');
         }
       }

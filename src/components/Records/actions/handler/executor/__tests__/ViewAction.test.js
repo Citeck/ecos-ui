@@ -79,7 +79,10 @@ describe('View Action', () => {
   };
 
   it('case type -> task-document-dashboard', async () => {
-    window.location = { pathname: `${NEW_VERSION_PREFIX}/test-page` };
+    const pathname = `${NEW_VERSION_PREFIX}/test-page`;
+
+    window.location = { href: `https://test.ecos24.com/${pathname}`, pathname };
+
     PageService.changeUrlLink = (link = '') => {
       expect(link).toEqual(`/v2/dashboard?recordRef=${RecordIds.TASK_1}`);
     };

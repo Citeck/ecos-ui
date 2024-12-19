@@ -4,6 +4,7 @@ import { BirthdaysApi } from './birthdays';
 import { ReportApi } from './report';
 import { BpmnApi } from './bpmn';
 import { BpmnAdminApi } from './bpmnAdmin';
+import { WorkspaceApi } from './workspaces';
 import { CommentsApi } from './comments';
 import { ActivitiesApi } from './activities';
 import { DashboardApi } from './dashboard';
@@ -37,7 +38,7 @@ import { CustomIconApi } from './customIcon';
 import { AdminSectionApi } from './adminSection';
 import { DevToolsApi } from './devTools';
 import { InstanceAdminApi } from './instanceAdmin';
-import ProcessApi from './process';
+import { ProcessApi } from './process';
 import { KanbanApi } from './kanban';
 
 import '../components/Records/actions/actions';
@@ -49,6 +50,7 @@ export function configureAPI() {
   api.adminSection = new AdminSectionApi();
   api.bpmn = new BpmnApi();
   api.bpmnAdmin = new BpmnAdminApi();
+  api.workspaces = new WorkspaceApi();
   api.menu = new MenuApi();
   api.orgStruct = new OrgStructApi();
   api.user = new UserApi();

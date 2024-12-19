@@ -3,8 +3,10 @@ import lodashSet from 'lodash/set';
 import isFunction from 'lodash/isFunction';
 import last from 'lodash/last';
 import head from 'lodash/head';
+import _ from 'lodash';
 
 import { generateSearchTerm, getCurrentUserName } from '../helpers/util';
+import { getWorkspaceId } from '../helpers/urls';
 import { SourcesId, URL } from '../constants';
 import { ActionTypes } from '../constants/sidebar';
 import { CITECK_URI, PROXY_URI, UISERV_API } from '../constants/alfresco';
@@ -81,8 +83,20 @@ export class MenuApi extends CommonApi {
 
   getMainMenuCreateVariants = (version = MENU_VERSION) => {
     const user = getCurrentUserName();
+    const workspaceId = getWorkspaceId();
+    const enabledWorkspaces = _.get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
 
-    return Records.queryOne({ sourceId: SourcesId.RESOLVED_MENU, query: { user, version } }, 'subMenu.create?json')
+    return Records.queryOne(
+      {
+        sourceId: SourcesId.RESOLVED_MENU,
+        query: {
+          user,
+          version,
+          ...(enabledWorkspaces && { workspace: workspaceId })
+        }
+      },
+      'subMenu.create?json'
+    )
       .then(res =>
         fetchExtraItemInfo(lodashGet(res, 'items') || [], item =>
           lodashGet(item, 'config.variant') ? undefined : { createVariants: 'inhCreateVariants[]?json' }
@@ -128,6 +142,7 @@ export class MenuApi extends CommonApi {
   };
 
   getMenuItems = async ({ version, id, resolved }) => {
+    const enabledWorkspaces = _.get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
     const user = getCurrentUserName();
     let config;
 
@@ -136,7 +151,10 @@ export class MenuApi extends CommonApi {
     if (id) {
       config = await Records.get(`${sourceId}@${id}`).load('subMenu?json', true);
     } else {
-      config = await Records.queryOne({ sourceId: sourceId, query: { user, version } }, 'subMenu?json');
+      config = await Records.queryOne(
+        { sourceId: sourceId, query: { user, version, ...(enabledWorkspaces && { workspace: getWorkspaceId() }) } },
+        'subMenu?json'
+      );
     }
 
     return fetchExtraItemInfo(lodashGet(config, 'left.items') || [], {
@@ -171,10 +189,13 @@ export class MenuApi extends CommonApi {
    * @returns {*|RecordsComponent}
    */
   getUserCustomMenuConfig = (user = getCurrentUserName(), version = 1) => {
+    const enabledWorkspaces = _.get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+    const workspaceId = getWorkspaceId();
+
     return Records.queryOne(
       {
         sourceId: SourcesId.RESOLVED_MENU,
-        query: { version, user }
+        query: { version, user, ...(enabledWorkspaces && { _workspace: workspaceId }) }
       },
       'subMenu.user?json'
     ).catch(e => {
@@ -197,11 +218,20 @@ export class MenuApi extends CommonApi {
 
   getUserMenuConfig = async () => {
     const user = getCurrentUserName();
+    const workspace = getWorkspaceId();
+    const enabledWorkspaces = _.get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+
     const configVersion = await ConfigService.getValue(MAIN_MENU_TYPE);
     const version = configVersion && configVersion.includes('left-v') ? +configVersion.replace('left-v', '') : 0;
-    const id = await Records.queryOne({ sourceId: SourcesId.MENU, query: { user, version } }, 'id').catch(e => console.error(e));
+    const id = await Records.queryOne(
+      {
+        sourceId: SourcesId.MENU,
+        query: { user, version, workspace }
+      },
+      'id'
+    ).catch(e => console.error(e));
 
-    return { version, configVersion, id };
+    return { version, configVersion, id, ...(enabledWorkspaces && { workspace }) };
   };
 
   getMenuSettingsConfig = async ({ id = '' }) => {
@@ -277,6 +307,10 @@ export class MenuApi extends CommonApi {
     rec.att('subMenu?json', subMenu);
     rec.att('authorities[]?str', authorities);
     rec.att('version', version);
+
+    if (_.get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+      rec.att('workspace', getWorkspaceId());
+    }
 
     return rec.save().then(res => {
       Records.get(`${SourcesId.MENU}@${id}`).update();
