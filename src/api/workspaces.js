@@ -29,4 +29,8 @@ export class WorkspaceApi extends CommonApi {
 
     return record.save();
   };
+
+  isViewWorkspace = wsId => {
+    return Records.get(`${SourcesId.WORKSPACE}@${wsId}`).load('isCurrentUserMember?bool!');
+  };
 }

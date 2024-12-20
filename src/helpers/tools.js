@@ -1,7 +1,11 @@
 import JSONPretty from 'react-json-pretty';
 import React from 'react';
+import isFunction from 'lodash/isFunction';
+import debounce from 'lodash/debounce';
+import classNames from 'classnames';
 
 import DialogManager from '../components/common/dialogs/Manager';
+import { t } from './export/util';
 
 export function showModalJson(data, title = 'Configuration') {
   DialogManager.showCustomDialog({
@@ -14,6 +18,39 @@ export function showModalJson(data, title = 'Configuration') {
     )
   });
 }
+
+export const showWarningMessage = debounce(
+  ({ warningMessage, closeWarningMessage, actionCallback, actionLabel, onHide, className = '' }) => {
+    const buttons = [];
+
+    if (closeWarningMessage) {
+      buttons.push({
+        key: 'close',
+        onClick: closeWarningMessage,
+        label: t('button.close-modal')
+      });
+    }
+
+    if (isFunction(actionCallback) && actionLabel) {
+      buttons.push({
+        className: 'ecos-btn_blue',
+        key: 'action',
+        onClick: actionCallback,
+        label: actionLabel
+      });
+    }
+
+    DialogManager.showCustomDialog({
+      onHide,
+      isVisible: !!warningMessage,
+      title: t('warning'),
+      body: warningMessage,
+      modalClass: classNames('ecos-modal_width-xs ecos-modal_level-4', className),
+      buttons
+    });
+  },
+  0
+);
 
 /**
  * @param args
