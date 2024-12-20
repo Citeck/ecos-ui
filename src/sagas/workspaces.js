@@ -2,8 +2,21 @@ import { call, put, takeLatest, takeEvery } from 'redux-saga/effects';
 import isBoolean from 'lodash/isBoolean';
 import get from 'lodash/get';
 
-import { getWorkspaces, setWorkspaces, setWorkspacesError, visitedAction } from '../actions/workspaces';
+import {
+  getWorkspaces,
+  goToDefaultFromBlockedWs,
+  setBlockedCurrenWorkspace,
+  setWorkspaces,
+  setWorkspacesError,
+  updateUIWorkspace,
+  visitedAction
+} from '../actions/workspaces';
 import { getWsIdOfTabLink } from '../helpers/urls';
+import PageService from '../services/PageService';
+import { URL } from '../constants';
+import { fetchSlideMenuItems } from '../actions/slideMenu';
+import { fetchCreateCaseWidgetData } from '../actions/header';
+import { getMenuConfig } from '../actions/menu';
 
 function* sagaGetWorkspacesRequest({ api, logger }) {
   try {
@@ -57,8 +70,31 @@ function* sagaVisitedActionRequest({ api, logger }, { payload }) {
   }
 }
 
+function* sagaGoToDefaultFromBlockedWs({ logger }) {
+  try {
+    yield put(setBlockedCurrenWorkspace(false));
+    PageService.changeUrlLink(URL.DASHBOARD, { openNewTab: true });
+  } catch (e) {
+    logger.error('[workspaces/ sagaGoToDefaultFromBlockedWs] error', e);
+    yield put(setWorkspacesError());
+  }
+}
+
+function* sagaUpdateUIWorkspace({ logger }) {
+  try {
+    yield put(getMenuConfig());
+    yield put(fetchSlideMenuItems());
+    yield put(fetchCreateCaseWidgetData());
+  } catch (e) {
+    logger.error('[workspaces/ sagaUpdateUIWorkspace] error', e);
+    yield put(setWorkspacesError());
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(getWorkspaces().type, sagaGetWorkspacesRequest, ea);
+  yield takeLatest(goToDefaultFromBlockedWs().type, sagaGoToDefaultFromBlockedWs, ea);
+  yield takeLatest(updateUIWorkspace().type, sagaUpdateUIWorkspace, ea);
   yield takeEvery(visitedAction().type, sagaVisitedActionRequest, ea);
 }
 

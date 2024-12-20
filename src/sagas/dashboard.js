@@ -23,6 +23,7 @@ import { selectDashboardConfigs, selectIdentificationForView, selectResetStatus 
 import DashboardConverter from '../dto/dashboard';
 import DashboardService from '../services/dashboard';
 import { selectNewVersionConfig, selectSelectedWidgetsById } from '../selectors/dashboardSettings';
+import { selectCurrentWorkspaceIsBlocked } from '../selectors/workspaces';
 
 export function* _parseConfig({ api, logger }, { recordRef, config }) {
   const migratedConfig = DashboardService.migrateConfigFromOldVersion(config);
@@ -35,6 +36,8 @@ export function* _parseConfig({ api, logger }, { recordRef, config }) {
 }
 
 function* doGetDashboardRequest({ api, logger }, { payload }) {
+  const workspaceIsBlocked = yield select(selectCurrentWorkspaceIsBlocked);
+
   try {
     const { dashboardId, recordRef } = payload;
     const recordIsExist = yield call(api.app.recordIsExist, recordRef, true);
@@ -76,7 +79,11 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
     yield put(setMobileDashboardConfig({ config: get(webConfigs, 'config.mobile', []), key: payload.key }));
   } catch (e) {
     yield put(setLoading({ key: payload.key, status: false }));
-    NotificationManager.error(t('dashboard.error.get-config'), t('error'));
+
+    if (!workspaceIsBlocked || !get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+      NotificationManager.error(t('dashboard.error.get-config'), t('error'));
+    }
+
     logger.error('[dashboard/ doGetDashboardRequest saga] error', e);
   }
 }
