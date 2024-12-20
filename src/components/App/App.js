@@ -17,11 +17,13 @@ import Page from '../../pages';
 import PageTabs from '../PageTabs';
 import { ErrorBoundary } from '../ErrorBoundary';
 
-import { selectWorkspaceById } from '../../selectors/workspaces';
+import { selectCurrentWorkspaceIsBlocked, selectWorkspaceById } from '../../selectors/workspaces';
 import { initAppSettings } from '../../actions/app';
 import { addTab, setTab, updateTab } from '../../actions/pageTabs';
 import { BASE_URLS_REDIRECT, Pages, pagesWithOnlyContent, RELOCATED_URL, URL as Urls } from '../../constants';
 import { BASE_LEFT_MENU_ID, MenuTypes } from '../../constants/menu';
+import { showWarningMessage } from '../../helpers/tools';
+import { goToDefaultFromBlockedWs, updateUIWorkspace } from '../../actions/workspaces';
 import { PANEL_CLASS_NAME } from '../../constants/pageTabs';
 import { isMobileAppWebView, t } from '../../helpers/util';
 import pageTabList from '../../services/pageTabs/PageTabList';
@@ -75,27 +77,50 @@ class App extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { location, defaultWorkspace, workspace, replace, addTab } = this.props;
+    const {
+      location,
+      defaultWorkspace,
+      workspace,
+      replace,
+      addTab,
+      blockedCurrentWorkspace,
+      goToDefaultFromBlockedWs,
+      updateUIWorkspace
+    } = this.props;
     const { homePageLink = '' } = workspace || {};
 
-    const workspaceId = getWorkspaceId(defaultWorkspace);
-    const searchParams = new URLSearchParams(location.search);
+    const prevSearch = get(prevProps, 'location.search');
+    const search = get(location, 'search');
 
-    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
-      if (location.search.includes('ws=') && !searchParams.get('ws') && workspaceId && !BASE_URLS_REDIRECT.includes(location.pathname)) {
-        const newUrl = location.search
-          ? `${location.pathname}${location.search.replace(/ws=[^&]*/, `ws=${workspaceId}`)}`
+    const searchParams = new URLSearchParams(search);
+    const prevSearchParams = new URLSearchParams(prevSearch);
+
+    const workspaceId = getWorkspaceId(defaultWorkspace);
+    const enabledWorkspaces = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+
+    const propsWarning = {
+      className: 'ecos-modal__btn_full',
+      warningMessage: enabledWorkspaces && blockedCurrentWorkspace && t('workspaces.error-blocked.msg'),
+      actionCallback: () => goToDefaultFromBlockedWs(),
+      actionLabel: t('workspaces.error-blocked.action.msg'),
+      onHide: () => showWarningMessage(propsWarning)
+    };
+
+    showWarningMessage(propsWarning);
+
+    if (enabledWorkspaces && !blockedCurrentWorkspace) {
+      if (search.includes('ws=') && !searchParams.get('ws') && workspaceId && !BASE_URLS_REDIRECT.includes(location.pathname)) {
+        const newUrl = search
+          ? `${location.pathname}${search.replace(/ws=[^&]*/, `ws=${workspaceId}`)}`
           : `${location.pathname}?ws=${workspaceId}`;
 
         replace(newUrl);
       }
 
-      if (!location.search.includes('ws=') && !BASE_URLS_REDIRECT.includes(location.pathname)) {
+      if (!search.includes('ws=') && !BASE_URLS_REDIRECT.includes(location.pathname)) {
         const activePrev = PageTabList.activeTab;
 
-        const newUrl = location.search
-          ? `${location.pathname}${location.search}&ws=${workspaceId}`
-          : `${location.pathname}?ws=${workspaceId}`;
+        const newUrl = search ? `${location.pathname}${search}&ws=${workspaceId}` : `${location.pathname}?ws=${workspaceId}`;
 
         PageService.changeUrlLink(newUrl, { openNewTab: true });
 
@@ -115,6 +140,10 @@ class App extends Component {
           });
         }
       }
+    }
+
+    if (enabledWorkspaces && prevSearchParams.get('ws') !== searchParams.get('ws')) {
+      updateUIWorkspace();
     }
 
     if (prevProps.isAuthenticated && !this.props.isAuthenticated) {
@@ -487,6 +516,7 @@ const mapStateToProps = state => {
 
   return {
     isViewNewJournal: get(state, ['view', 'isViewNewJournal']),
+    blockedCurrentWorkspace: selectCurrentWorkspaceIsBlocked(state),
     workspace: selectWorkspaceById(state, workspaceId),
     enableCache: get(state, ['app', 'enableCache']),
     isInit: get(state, ['app', 'isInit']),
@@ -503,6 +533,8 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => ({
   initAppSettings: () => dispatch(initAppSettings()),
 
+  goToDefaultFromBlockedWs: () => dispatch(goToDefaultFromBlockedWs()),
+  updateUIWorkspace: () => dispatch(updateUIWorkspace()),
   setTab: params => dispatch(setTab(params)),
   addTab: params => dispatch(addTab(params)),
   updateTab: params => dispatch(updateTab(params)),

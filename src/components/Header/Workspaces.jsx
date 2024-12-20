@@ -16,6 +16,7 @@ import PageService from '../../services/PageService';
 import { URL as Urls } from '../../constants';
 import { fetchSlideMenuItems } from '../../actions/slideMenu';
 import { getMenuConfig } from '../../actions/menu';
+import { fetchCreateCaseWidgetData } from '../../actions/header';
 import { getWorkspaceId } from '../../helpers/urls';
 import EditIcon from '../common/icons/Edit';
 import './style.scss';
@@ -23,7 +24,16 @@ import './style.scss';
 export const documentId = 'workspace-menu-switcher';
 export const element = document.getElementById(documentId);
 
-const Workspaces = ({ isLoading, isError, workspaces, getWorkspaces, fetchSlideMenuItems, getMenuConfig, visitedAction }) => {
+const Workspaces = ({
+  isLoading,
+  isError,
+  workspaces,
+  getWorkspaces,
+  fetchSlideMenuItems,
+  getMenuConfig,
+  visitedAction,
+  fetchCreateCaseWidgetData
+}) => {
   const [active, setActive] = useState(false);
   const [isClickOutside, setIsClickOutside] = useState(false);
 
@@ -47,9 +57,6 @@ const Workspaces = ({ isLoading, isError, workspaces, getWorkspaces, fetchSlideM
 
     if (!openNewBrowserTab) {
       PageService.changeUrlLink(url.toString(), params);
-
-      fetchSlideMenuItems();
-      getMenuConfig();
     } else {
       PageService.changeUrlLink(url.toString(), { openNewBrowserTab });
     }
@@ -153,6 +160,7 @@ const mapStateToProps = (store, props) => ({
 });
 
 const mapDispatchToProps = dispatch => ({
+  fetchCreateCaseWidgetData: () => dispatch(fetchCreateCaseWidgetData()),
   fetchSlideMenuItems: () => dispatch(fetchSlideMenuItems()),
   getMenuConfig: () => dispatch(getMenuConfig()),
   visitedAction: id => dispatch(visitedAction(id)),

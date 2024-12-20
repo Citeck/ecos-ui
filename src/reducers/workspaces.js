@@ -1,12 +1,13 @@
 import { handleActions } from 'redux-actions';
 
-import { initWorkspaces, setDefaultWorkspace, setWorkspaces, setWorkspacesError } from '../actions/workspaces';
+import { initWorkspaces, setBlockedCurrenWorkspace, setDefaultWorkspace, setWorkspaces, setWorkspacesError } from '../actions/workspaces';
 
 const initialState = {
   isLoading: true,
   isError: false,
   workspaces: [],
-  defaultWorkspace: null
+  defaultWorkspace: null,
+  blockedCurrentWorkspace: false
 };
 
 Object.freeze(initialState);
@@ -31,6 +32,12 @@ export default handleActions(
       return {
         ...state,
         defaultWorkspace: action.payload
+      };
+    },
+    [setBlockedCurrenWorkspace]: (state, action) => {
+      return {
+        ...state,
+        blockedCurrentWorkspace: action.payload
       };
     }
   },

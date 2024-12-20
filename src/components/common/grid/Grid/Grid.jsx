@@ -408,7 +408,7 @@ class Grid extends Component {
             isViewNewJournal: props.isViewNewJournal,
             isBlockNewJournalFormatter: props.isBlockNewJournalFormatter || false
           });
-          column.footerFormatter = this.initFooterFormatter();
+          column.footerFormatter = this.initFooterFormatter(column.name || column.attribute);
         } else {
           column.formatter = column.customFormatter;
         }
@@ -727,7 +727,7 @@ class Grid extends Component {
     };
   };
 
-  initFooterFormatter = () => {
+  initFooterFormatter = name => {
     const { loading = false, journalId = '' } = this.props;
 
     return column => {
@@ -749,11 +749,11 @@ class Grid extends Component {
         this.setState({ hasFooter: true });
       }
 
-      const targetId = `total-amount-${journalId}`;
+      const targetId = `total-amount-${journalId}_${name}`;
 
       return (
         <div className="ecos-grid__table_footer__value">
-          <EcosTooltip target={targetId} uncontrolled text={content}>
+          <EcosTooltip target={targetId} showAsNeeded uncontrolled text={content}>
             <div id={targetId} className="ecos-grid__table_footer__item text">
               {t('grid.footer.total-amount')}
             </div>
