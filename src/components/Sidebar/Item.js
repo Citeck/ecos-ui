@@ -110,19 +110,27 @@ class Item extends React.Component {
     }
   };
 
-  renderContent = React.memo(({ data, styleProps: { noIcon } }) => {
+  removeDollarAndHash(str) {
+    return str.replace(/[$#]/g, '');
+  }
+
+  renderContent = React.memo(({ data, isOpen, styleProps: { noIcon } }) => {
     const label = extractLabel(data.label);
     const wsId = get(this.props, 'workspace.wsId');
+    const dataId = this.removeDollarAndHash(get(data, 'id'));
+    const targetId = dataId ? `_${dataId}` : null;
 
     let iconCode;
     let iconData;
 
     if (data.type !== 'SECTION' && wsId === 'admin$workspace' && !data.icon && get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
       return (
-        <>
+        <Tooltip uncontrolled hideArrow showAsNeeded target={targetId} text={label} off={!isOpen || !targetId} placement="right">
           <WorkspacePreview name={label} />
-          <div className={classNames('ecos-sidebar-item__label', { 'ecos-sidebar-item__label_with-badge': this.hasBadge })}>{label}</div>
-        </>
+          <div id={targetId} className={classNames('ecos-sidebar-item__label', { 'ecos-sidebar-item__label_with-badge': this.hasBadge })}>
+            {label}
+          </div>
+        </Tooltip>
       );
     }
 
@@ -133,10 +141,12 @@ class Item extends React.Component {
     }
 
     return (
-      <>
+      <Tooltip uncontrolled hideArrow showAsNeeded target={targetId} text={label} off={!isOpen || !targetId} placement="right">
         {!noIcon && <EcosIcon family="menu-items" data={iconData} className="ecos-sidebar-item__icon" code={iconCode} />}
-        <div className={classNames('ecos-sidebar-item__label', { 'ecos-sidebar-item__label_with-badge': this.hasBadge })}>{label}</div>
-      </>
+        <div id={targetId} className={classNames('ecos-sidebar-item__label', { 'ecos-sidebar-item__label_with-badge': this.hasBadge })}>
+          {label}
+        </div>
+      </Tooltip>
     );
   });
 
@@ -205,10 +215,11 @@ class Item extends React.Component {
     }
 
     const isViewTooltip = !isOpen && !noIcon && !this.hasSubItems;
+    const targetId = this.removeDollarAndHash(domId);
 
     return (
       <Tooltip
-        target={domId}
+        target={targetId}
         placement="right-start"
         trigger="hover"
         uncontrolled
@@ -228,7 +239,7 @@ class Item extends React.Component {
         ]}
       >
         <div
-          id={domId}
+          id={targetId}
           className={classNames('ecos-sidebar-item', `ecos-sidebar-item_lvl-${level}`, {
             'ecos-sidebar-item_collapsible': this.collapsible,
             'ecos-sidebar-item_last-lvl': !this.hasSubItems,
