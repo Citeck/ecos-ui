@@ -2723,5 +2723,7 @@
   "bpmn-linter.signal-event.no-manual-status-name": "Not defined Status name",
   "bpmn-linter.participant.no-process-id": "Process ID not defined",
 
-  "workspaces.create-button": "Create workspace"
+  "workspaces.create-button": "Create workspace",
+  "workspaces.error-blocked.msg": "The workspace is unavailable or has not been created",
+  "workspaces.error-blocked.action.msg": "Go to the homepage"
 }

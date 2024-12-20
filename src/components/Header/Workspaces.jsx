@@ -57,10 +57,6 @@ const Workspaces = ({
 
     if (!openNewBrowserTab) {
       PageService.changeUrlLink(url.toString(), params);
-
-      fetchSlideMenuItems();
-      getMenuConfig();
-      fetchCreateCaseWidgetData();
     } else {
       PageService.changeUrlLink(url.toString(), { openNewBrowserTab });
     }

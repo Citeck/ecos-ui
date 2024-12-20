@@ -2,6 +2,9 @@ import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import lodashSet from 'lodash/set';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
+import isBoolean from 'lodash/isBoolean';
+import isString from 'lodash/isString';
+import queryString from 'query-string';
 
 import { URL } from '../constants';
 import { getCurrentUserName } from '../helpers/util';
@@ -27,7 +30,7 @@ import {
   setSeparateActionListForQuery
 } from '../actions/app';
 import { getWorkspaceId } from '../helpers/urls';
-import { getWorkspaces, setDefaultWorkspace } from '../actions/workspaces';
+import { getWorkspaces, setBlockedCurrenWorkspace, setDefaultWorkspace } from '../actions/workspaces';
 import { loadConfigs } from '../services/config/configApi';
 import { setNewUIAvailableStatus, validateUserFailure, validateUserSuccess } from '../actions/user';
 import { detectMobileDevice, setViewNewJournal } from '../actions/view';
@@ -41,19 +44,27 @@ import ConfigService, {
   HOME_LINK_URL,
   NEW_JOURNAL_ENABLED
 } from '../services/config/ConfigService';
-import isBoolean from 'lodash/isBoolean';
-import isString from 'lodash/isString';
 
 export function* initApp({ api, logger }, { payload }) {
   try {
     let isAuthenticated = false;
 
     try {
+      const { query } = queryString.parseUrl(window.location.href);
+
       const resp = yield call(api.user.getUserData);
       const workspaceConfig = yield loadConfigs({
         [DEFAULT_WORKSPACE]: 'value?str',
         [WORKSPACES_ENABLED]: 'value?bool'
       });
+
+      if (get(query, 'ws') && workspaceConfig[WORKSPACES_ENABLED]) {
+        const isViewWorkspace = yield call(api.workspaces.isViewWorkspace, query.ws);
+
+        if (isBoolean(isViewWorkspace)) {
+          yield put(setBlockedCurrenWorkspace(!isViewWorkspace));
+        }
+      }
 
       if (isString(workspaceConfig[DEFAULT_WORKSPACE])) {
         yield put(setDefaultWorkspace(workspaceConfig[DEFAULT_WORKSPACE]));
