@@ -206,6 +206,7 @@ class Item extends React.Component {
       isSelected,
       inDropdown,
       boundariesElement = 'viewport',
+      toggleTooltip,
       styleProps: { noIcon, isSeparator, isClosedSeparator, hiddenLabel }
     } = this.props;
     const events = {};
@@ -224,10 +225,12 @@ class Item extends React.Component {
         trigger="hover"
         uncontrolled
         delay={250}
+        autohide
+        onToggle={toggleTooltip}
         hideArrow
         boundariesElement={boundariesElement}
         off={!isViewTooltip}
-        text={isViewTooltip ? extractLabel(get(data, 'label', '')) : ''}
+        text={isViewTooltip && extractLabel(get(data, 'label', ''))}
         className="ecos-sidebar-list-dropdown-menu"
         modifiers={[
           {
