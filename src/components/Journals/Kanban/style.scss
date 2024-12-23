@@ -426,7 +426,7 @@
   $kanban: &;
 
   margin-top: 2px;
-  padding: 9px 12px 16px 9px;
+  padding: 10px 12px 0px 10px;
   background-color: $color-white;
   border-radius: 0 0 12px 12px;
 
@@ -479,10 +479,10 @@
   }
 
   .ecos-kanban__head {
-    background-color: unset;
     margin-bottom: 0;
     margin-top: 0;
     gap: 12px;
+    background-color: unset;
   }
 
   .ecos-kanban__body {
@@ -622,6 +622,12 @@
     &-form {
       overflow-x: hidden;
       min-height: 40px;
+
+      &_inline {
+        & > div dl {
+          display: inline;
+        }
+      }
 
       & > div dl {
         padding: 5px 0;
