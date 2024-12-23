@@ -83,6 +83,7 @@ class List extends React.Component {
           inDropdown={inDropdown}
           boundariesElement={this.boundariesElement}
           workspace={workspace}
+          toggleTooltip={this.onToggleSubMenu.bind(this, item)}
         />
         {hasSubItems && this.renderSubList(item.items, isSubListExpanded, inDropdown, workspace)}
         {!isMobile && level === SidebarService.DROPDOWN_LEVEL && hasSubItems && (
