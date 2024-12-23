@@ -346,7 +346,9 @@ class Grid extends Component {
       ? this._ref.current.querySelector(`.${REACT_BOOTSTRAP_TABLE}`)
       : document.querySelector(`.${REACT_BOOTSTRAP_TABLE}`);
 
-    if (tableEl && isViewNewJournal && !(data && data.length)) {
+    const isWidget = tableEl && !tableEl.closest(`.${ECOS_JOURNAL_CLASS}`);
+
+    if (tableEl && isViewNewJournal && !(data && data.length) && !isWidget) {
       const theadElement = tableEl.querySelector('thead');
       const width = tableEl.clientWidth;
 
@@ -367,7 +369,7 @@ class Grid extends Component {
           </div>
         </div>
       );
-    } else if (!isViewNewJournal) {
+    } else if (!isViewNewJournal || isWidget) {
       noDataIndication = t('grid.no-data-indication');
     }
 
@@ -1465,7 +1467,7 @@ class Grid extends Component {
 
         {scrollable ? this.renderScrollableGrid() : this.renderGrid()}
 
-        {isViewNewJournal && !hasFooter && data && data.length && (
+        {isViewNewJournal && !hasFooter && !!data && !!data.length && (
           <div style={{ height: cssNum(maxHeight) }} className="ecos-grid__border" />
         )}
 
