@@ -6,8 +6,8 @@ import isArray from 'lodash/isArray';
 import { SourcesId, URL } from '../constants';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, LINK_HREF, LINK_TAG, OPEN_IN_BACKGROUND, TITLE } from '../constants/pageTabs';
 import { SectionTypes } from '../constants/adminSection';
-import { getCurrentUserName, getMLValue, t } from '../helpers/util';
-import { decodeLink, getLinkWithout, IgnoredUrlParams, isNewVersionPage } from '../helpers/urls';
+import { getCurrentUserName, getEnabledWorkspaces, getMLValue, t } from '../helpers/util';
+import { decodeLink, getLinkWithout, getSearchParams, IgnoredUrlParams, isNewVersionPage } from '../helpers/urls';
 import { getData, isExistLocalStorage, setData } from '../helpers/ls';
 import { PageApi } from '../api/page';
 import Records from '../components/Records';
@@ -100,8 +100,17 @@ export default class PageService {
 
   static getKey({ link, type }) {
     const _link = link || window.location.href;
-    const _type = type || PageService.getType(_link);
+    let _type = type || PageService.getType(_link);
     const urlProps = queryString.parseUrl(_link);
+
+    const enabledWorkspaces = getEnabledWorkspaces();
+    const splitter = '?';
+    if (_type === PageTypes.ADMIN_PAGE && enabledWorkspaces && _link.includes(splitter)) {
+      const { type: adminType } = getSearchParams(splitter + _link.split('?')[1]);
+      if (adminType) {
+        _type = adminType;
+      }
+    }
 
     switch (_type) {
       case PageTypes.DASHBOARD:
@@ -116,7 +125,22 @@ export default class PageService {
       case PageTypes.BPMN_DESIGNER:
       case PageTypes.DEV_TOOLS:
         return PageTypes.ADMIN_PAGE;
+
+      // To save a tab using a unique key in the admin area (when enabled workspaces)
+      case SectionTypes.DEV_TOOLS:
+        return SectionTypes.DEV_TOOLS;
+      case SectionTypes.DMN:
+        return SectionTypes.DMN;
+      case SectionTypes.BPM:
+        return SectionTypes.BPM;
+      case SectionTypes.BPMN_ADMIN:
+        return SectionTypes.BPMN_ADMIN;
+
       default:
+        if (enabledWorkspaces && _type === PageTypes.ADMIN_PAGE) {
+          return SectionTypes.DEV_TOOLS;
+        }
+
         return '';
     }
   }

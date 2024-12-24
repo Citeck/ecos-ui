@@ -15,46 +15,54 @@ import {
 import PageService from '../services/PageService';
 import AdminSectionService from '../services/AdminSectionService';
 import { equalsQueryUrls } from '../helpers/urls';
+import { wrapArgs } from '../helpers/redux';
+import { getEnabledWorkspaces } from '../helpers/util';
 
-function* init({ logger }) {
+function* init({ logger }, action) {
   try {
-    yield put(getIsAccessible());
+    const { stateId } = action.payload || {};
+    yield put(getIsAccessible(stateId));
     yield put(setAdminSectionInitStatus(true));
   } catch (e) {
     logger.error('[adminSection init saga] error', e);
   }
 }
 
-function* fetchIsAccessible({ api, logger }) {
+function* fetchIsAccessible({ api, logger }, { payload }) {
   try {
+    const w = wrapArgs(payload);
     const isAccessible = yield call(api.devTools.getIsAccessiblePage);
 
-    yield put(setIsAccessible(isAccessible));
+    yield put(setIsAccessible(w(isAccessible)));
   } catch (e) {
     logger.error('[adminSection fetchIsAccessible saga] error', e);
   }
 }
 
-function* doFetchGroupSectionList({ api, logger }) {
+function* doFetchGroupSectionList({ api, logger }, action) {
   try {
+    const { stateId } = action.payload || {};
+    const w = wrapArgs(stateId);
     const sectionsGroup = yield call(api.adminSection.getGroupSectionList);
     const activeSection = AdminSectionService.getActiveSectionInGroups(sectionsGroup);
 
     yield put(setGroupSectionList(sectionsGroup));
 
     if (activeSection) {
-      yield put(setActiveSection(activeSection));
+      yield put(setActiveSection(w(activeSection)));
     }
   } catch (e) {
     logger.error('[adminSection doFetchGroupSectionList saga] error', e);
   }
 }
 
-function* updateActiveSection({ logger }) {
+function* updateActiveSection({ logger }, action) {
   try {
+    const { stateId } = action.payload || {};
+    const w = wrapArgs(stateId);
     const sectionsGroup = yield select(state => state.adminSection.groupSectionList || []);
     const activeSection = AdminSectionService.getActiveSectionInGroups(sectionsGroup);
-    yield put(setActiveSection(activeSection));
+    yield put(setActiveSection(w(activeSection)));
   } catch (e) {
     logger.error('[adminSection doFetchGroupSectionList saga] error', e);
   }
@@ -69,7 +77,7 @@ export function* openActiveSection({ api, logger }, action) {
     const href = yield call(AdminSectionService.getURLSection, item);
     const compareBy = ['activeTab', 'type', 'journalId'];
 
-    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+    if (getEnabledWorkspaces()) {
       compareBy.push('ws');
     }
 

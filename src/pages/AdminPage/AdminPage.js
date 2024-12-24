@@ -4,26 +4,49 @@ import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
 
 import { initAdminSection, updActiveSection } from '../../actions/adminSection';
-import { getSearchParams, t } from '../../helpers/util';
+import { getEnabledWorkspaces, getId, getSearchParams, t } from '../../helpers/util';
 import { Loader } from '../../components/common';
 import { Well } from '../../components/common/form';
 import AdminSection from '../../components/AdminSection';
 import { SectionTypes } from '../../constants/adminSection';
+import { getStateId, wrapArgs } from '../../helpers/redux';
 
 import './style.scss';
 
-const mapStateToProps = state => ({
-  urlParams: getSearchParams(),
-  isAccessible: state.adminSection.isAccessible,
-  isInitiated: state.adminSection.isInitiated
-});
+const getKeys = ({ id, tabId, stateId }) => stateId || getStateId({ tabId, id: id || getId() });
 
-const mapDispatchToProps = dispatch => ({
-  initAdminSection: () => dispatch(initAdminSection()),
-  updateActiveSection: () => dispatch(updActiveSection())
-});
+const mapStateToProps = (state, props) => {
+  const stateId = props.stateId;
+
+  const obj = {
+    urlParams: getSearchParams(),
+    isAccessible: state.adminSection.isAccessible,
+    isInitiated: state.adminSection.isInitiated
+  };
+
+  if (getEnabledWorkspaces() && stateId && state.adminSection.wsSections && state.adminSection.wsSections[stateId]) {
+    obj.isAccessible = state.adminSection.wsSections[stateId].isAccessible || false;
+  }
+
+  return obj;
+};
+
+const mapDispatchToProps = (dispatch, props) => {
+  const w = wrapArgs(props.stateId);
+
+  return {
+    initAdminSection: () => dispatch(initAdminSection(w())),
+    updateActiveSection: () => dispatch(updActiveSection(w()))
+  };
+};
 
 class AdminPage extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.stateId = getKeys(props);
+  }
+
   componentDidMount() {
     if (!this.props.isInitiated) {
       this.props.initAdminSection();
@@ -55,7 +78,7 @@ class AdminPage extends React.Component {
         {!isAccessible && !this.isAccessibleSectionType && (
           <Well className="admin-page__access-denied">{t('admin-section.error.access-denied')}</Well>
         )}
-        <AdminSection {...this.props} isAccessibleSectionType={this.isAccessibleSectionType} />
+        <AdminSection {...this.props} isAccessibleSectionType={this.isAccessibleSectionType} stateId={this.stateId} />
       </>
     );
   }

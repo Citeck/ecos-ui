@@ -11,7 +11,7 @@ import { ParserPredicate } from '../components/Filters/predicates/index';
 import PageTabList from '../services/pageTabs/PageTabList';
 import PageService from '../services/PageService';
 import { isNewVersionPage, isNewVersionSharePage } from './export/urls';
-import { IS_TEST_ENV, getCurrentUserName, hasInString } from './util';
+import { IS_TEST_ENV, getCurrentUserName, hasInString, getEnabledWorkspaces } from './util';
 
 const JOURNAL_ID_KEY = JournalUrlParams.JOURNAL_ID;
 const DASHBOARD_ID_KEY = 'dashboardId';
@@ -375,12 +375,12 @@ export const isTaskDashboard = (url = window.location.href) => {
   return isDashboard(url) && hasInString(url, `${SourcesId.TASK}@`);
 };
 
-export const getWorkspaceId = (defaultWorkspace = '') => {
-  if (!get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+export const getWorkspaceId = (defaultWorkspace = '', search = window.location.search) => {
+  if (!getEnabledWorkspaces()) {
     return '';
   }
 
-  const searchParams = new URLSearchParams(window.location.search);
+  const searchParams = new URLSearchParams(search);
   const wsId = searchParams.get('ws');
 
   if (!!wsId) {
