@@ -13,6 +13,8 @@ import ZIndex from '../../../services/ZIndex';
 
 import '../form/Dropdown/Dropdown.scss';
 import './style.scss';
+import { connect } from 'react-redux';
+import { selectIsViewNewJournal } from '../../../selectors/view';
 
 const MenuModes = {
   GROUP: 'group',
@@ -21,7 +23,11 @@ const MenuModes = {
   CUSTOM: 'custom'
 };
 
-export default class EcosDropdownMenu extends React.Component {
+const mapStateToProps = state => ({
+  isViewNewJournal: selectIsViewNewJournal(state)
+});
+
+class EcosDropdownMenu extends React.Component {
   static propTypes = {
     items: PropTypes.array,
     mode: PropTypes.oneOf(Object.values(MenuModes)),
@@ -99,7 +105,8 @@ export default class EcosDropdownMenu extends React.Component {
     return (
       <div
         className={classNames('ecos-dropdown-menu', {
-          'ecos-dropdown-menu_loading': this.props.isLoading
+          'ecos-dropdown-menu_loading': this.props.isLoading,
+          'ecos-dropdown__menu_new': this.props.isViewNewJournal
         })}
         style={{ zIndex: ZIndex.calcZ() }}
       >
@@ -108,3 +115,5 @@ export default class EcosDropdownMenu extends React.Component {
     );
   }
 }
+
+export default connect(mapStateToProps)(EcosDropdownMenu);

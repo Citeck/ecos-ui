@@ -104,7 +104,7 @@ export function closest(node = null, selector, checkSelf = false) {
   if (parent) {
     const className = parent.className;
 
-    if (className && className.indexOf(selector) !== -1) {
+    if (className && isString(className) && className.indexOf(selector) !== -1) {
       return parent;
     } else {
       return closest(parent, selector);
@@ -1370,6 +1370,16 @@ export function camelize(s = '') {
   }
 
   return s;
+}
+
+// Getting a web-worker for initialization
+export async function createWorkerFromScript(scriptPath = '') {
+  const response = await fetch(scriptPath);
+  const script = await response.text();
+
+  const blob = new Blob([script], { type: 'application/javascript' });
+
+  return new Worker(URL.createObjectURL(blob));
 }
 
 lodashSet(window, 'Citeck.helpers.getMonthPeriodByDate', getMonthPeriodByDate);

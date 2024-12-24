@@ -11,6 +11,7 @@ import modal from './modal';
 import notification from './notification';
 import user from './user';
 import view from './view';
+import workspaces from './workspaces';
 import journals from './journals';
 import documentLibrary from './documentLibrary';
 import pageTabs from './pageTabs';
@@ -59,6 +60,7 @@ const reducers = {
   bpmnEditor,
   charts,
   header,
+  workspaces,
   modal,
   notification,
   user,

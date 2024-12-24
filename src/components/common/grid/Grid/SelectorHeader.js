@@ -57,8 +57,8 @@ const SelectorHeader = ({ indeterminate, mode, checked, disabled, hasMenu, onCli
                 innerClassName="ecos-base-tooltip-inner ecos-grid__checkbox-menu-inner"
                 popperClassName="ecos-base-tooltip-popper"
                 fade={false}
-                modifiers={{
-                  computeStyles: {
+                modifiers={[
+                  {
                     name: 'computeStyles',
                     enabled: true,
                     phase: 'write',
@@ -68,7 +68,7 @@ const SelectorHeader = ({ indeterminate, mode, checked, disabled, hasMenu, onCli
                       return instance;
                     }
                   }
-                }}
+                ]}
               >
                 {SELECTOR_MENU.map(item => (
                   <div

@@ -1,8 +1,10 @@
 import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
 import clone from 'lodash/clone';
 
 import Records from '../../Records/Records';
 import { SourcesId } from '../../../constants';
+import { getWorkspaceId } from '../../../helpers/urls';
 
 class DocLibServiceApi {
   static defaultAttributes = {
@@ -11,7 +13,8 @@ class DocLibServiceApi {
     nodeType: 'nodeType',
     hasChildrenDirs: 'hasChildrenDirs?bool',
     typeRef: '_type?id',
-    modified: '_modified?str'
+    modified: '_modified?str',
+    name: '_name?str'
   };
 
   async getTypeRef(journalId) {
@@ -32,6 +35,10 @@ class DocLibServiceApi {
 
   async getDirPath(folderRef) {
     return Records.get(folderRef).load('path[]{disp:?disp,id:?id}');
+  }
+
+  async getDirActions(docLibRef) {
+    return Records.get(`${SourcesId.TYPE}@${docLibRef}`).load('docLibInfo.dirTypeRef.actions[]?id');
   }
 
   async getChildren(parentRef, options = {}) {
@@ -57,6 +64,10 @@ class DocLibServiceApi {
       sortBy: [{ attribute: 'nodeType', ascending: true }, { attribute: '?disp', ascending: true }]
     };
 
+    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+      querySettings.workspaces = [getWorkspaceId()];
+    }
+
     if (!isEmpty(pagination)) {
       querySettings.page = clone(pagination);
     }
@@ -71,6 +82,17 @@ class DocLibServiceApi {
   async createChild(rootId, options) {
     const { attributes = {} } = options;
     const record = Records.get(rootId);
+
+    Object.keys(attributes).forEach(attName => {
+      record.att(attName, attributes[attName]);
+    });
+
+    return record.save();
+  }
+
+  async changeAttributesItem(id, options) {
+    const { attributes = {} } = options;
+    const record = Records.get(id);
 
     Object.keys(attributes).forEach(attName => {
       record.att(attName, attributes[attName]);

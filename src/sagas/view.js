@@ -1,10 +1,12 @@
 import { put, takeLatest, call, select } from 'redux-saga/effects';
+import isBoolean from 'lodash/isBoolean';
 import get from 'lodash/get';
 
-import { detectMobileDevice, setTheme, setThemeConfig } from '../actions/view';
+import { detectMobileDevice, setTheme, setThemeConfig, setViewNewJournal } from '../actions/view';
 import { setIsMobile, loadThemeRequest } from '../actions/view';
 import { applyTheme, isMobileDevice, loadStylesheet } from '../helpers/util';
 import { selectActiveThemeStylesheet } from '../selectors/view';
+import ConfigService, { NEW_JOURNAL_ENABLED } from '../services/config/ConfigService';
 
 export function* doDetectMobileDevice({ logger }) {
   try {
@@ -36,6 +38,11 @@ export function* loadTheme({ api, logger }, { payload }) {
     yield call(loadStylesheet, stylesheetUrl, onSuccess, onSuccess);
   } catch (e) {
     logger.error('[loadTheme saga] error', e);
+  } finally {
+    const isViewNewJournal = yield ConfigService.getValue(NEW_JOURNAL_ENABLED);
+    if (isBoolean(isViewNewJournal)) {
+      yield put(setViewNewJournal(isViewNewJournal));
+    }
   }
 }
 

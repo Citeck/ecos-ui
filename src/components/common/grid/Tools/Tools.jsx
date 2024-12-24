@@ -24,7 +24,7 @@ export default class Tools extends Component {
 
     return (
       <div ref={forwardedRef} className={classNames('grid-tools', className)}>
-        {!isMobile && !selectAllVisible && (
+        {!isMobile && !selectAllVisible && selectedRecords && (
           <div className="grid-tools__selected-count">{t('grid.tools.selected', { count: selectedRecords.length })}</div>
         )}
         {isFunction(this.props.onResetAll) && !!selectedRecords.length && (

@@ -10,6 +10,10 @@ $border: $border-width-standard solid $color-brown-2;
   top: 0;
   right: 0;
 
+  &__loading {
+    right: 10px;
+  }
+
   &-actions {
     pointer-events: auto;
     display: flex;

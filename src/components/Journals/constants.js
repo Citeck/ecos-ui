@@ -6,6 +6,17 @@ export const DEFAULT_PAGINATION = {
 
 export const PAGINATION_SIZES = [{ value: 10, label: 10 }, { value: 30, label: 30 }, { value: 50, label: 50 }, { value: 100, label: 100 }];
 
+export const MIN_CARD_DATA_NEW_JOURNAL = 6;
+
+export const PADDING_NEW_JOURNAL = 10;
+export const HEIGHT_GRID_WRAPPER = 15;
+export const HEIGHT_GRID_ROW = 28;
+export const HEIGHT_THEAD = 35;
+export const MAX_HEIGHT_TOTAL_AMOUNT = 40;
+export const ECOS_GRID_PADDING_HORIZONTAL = 14;
+
+export const CLASSNAME_JOURNAL_BODY_TOP = 'ecos-journal__body-top';
+
 export const DEFAULT_INLINE_TOOL_SETTINGS = {
   height: 0,
   top: 0,
@@ -61,7 +72,8 @@ export const Labels = {
     HIDE_MENU: 'journals.action.hide-menu',
     HIDE_FOLDER_TREE: 'journals.action.hide-folder-tree',
     HIDE_MENU_sm: 'journals.action.hide-menu_sm',
-    EMPTY_LIST: 'journals.menu.journal-list.empty'
+    EMPTY_LIST: 'journals.menu.journal-list.empty',
+    SETTINGS_TITLE: 'journals.menu.settings-title'
   },
   Settings: {
     CREATE_PRESET: 'journals.action.create-template',

@@ -4,7 +4,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import { EventEmitter2 } from 'eventemitter2';
 import * as queryString from 'query-string';
 
-import { getCustomDasboardUrl, getJournalPageUrl } from '../helpers/urls';
+import { getCustomDasboardUrl, getJournalPageUrl, getWorkspaceId } from '../helpers/urls';
 import { arrayFlat, hasChildWithId } from '../helpers/util';
 import { isNewVersionPage, NEW_VERSION_PREFIX } from '../helpers/export/urls';
 import { treeFindFirstItem } from '../helpers/arrayOfObjects';
@@ -43,6 +43,7 @@ export default class SidebarService {
   static getSelectedId(items) {
     let { pathname, search } = window.location;
     const query = queryString.parse(search);
+
     let value, key;
 
     if (pathname === URL.JOURNAL) {
@@ -53,8 +54,20 @@ export default class SidebarService {
       key = 'config.url';
     }
 
+    const [baseUrl, queryStringValue] = value.split('?');
+
+    if (queryStringValue && get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+      const params = queryStringValue
+        .split('&')
+        .filter(param => !param.startsWith('ws='))
+        .join('&');
+
+      value = params ? `${baseUrl}?${params}` : baseUrl;
+    }
+
     const reverse = !value.includes(URL.ADMIN_PAGE);
     const onlyExact = value.includes(URL.DASHBOARD);
+
     const selected = SidebarService.treeFindSuitableItem(items, key, value, { reverse, onlyExact });
 
     return get(selected, 'id');
@@ -80,6 +93,19 @@ export default class SidebarService {
 
       if (!targetUrl) {
         targetUrl = get(item, key);
+      }
+
+      if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false) && targetUrl && targetUrl.includes('ws=')) {
+        const [baseUrl, queryString] = targetUrl.split('?');
+
+        if (queryString) {
+          const params = queryString
+            .split('&')
+            .filter(param => !param.startsWith('ws='))
+            .join('&');
+
+          targetUrl = params ? `${baseUrl}?${params}` : baseUrl;
+        }
       }
 
       const _exact = targetUrl === value || value === URL_MATCHING[targetUrl];
@@ -275,8 +301,15 @@ export default class SidebarService {
       attributes[IGNORE_TABS_HANDLER_ATTR_NAME] = true;
     }
 
+    const workspaceId = getWorkspaceId();
+
     return {
-      targetUrl,
+      targetUrl:
+        workspaceId && targetUrl && get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)
+          ? targetUrl.includes('?')
+            ? `${targetUrl}&ws=${workspaceId}`
+            : `${targetUrl}?ws=${workspaceId}`
+          : targetUrl,
       attributes
     };
   }

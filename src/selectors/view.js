@@ -7,6 +7,7 @@ const themeFileName = (state, name = 'main') => name;
 const themeImage = (state, image = 'logo') => image;
 export const selectThemeId = state => get(state, 'view.themeConfig.id');
 export const selectThemeImages = state => get(state, 'view.themeConfig.images', {});
+export const selectIsViewNewJournal = state => get(state, 'view.isViewNewJournal');
 export const selectThemeCacheKeys = state => {
   return get(state, 'view.themeConfig.cacheKeys') || {};
 };
@@ -16,7 +17,7 @@ export const selectThemeCacheKey = createSelector([selectThemeCacheKeys], cacheK
 export const selectThemeImagesCacheKey = createSelector([selectThemeCacheKeys], cacheKeys => cacheKeys[CACHE_KEY_RESOURCE_IMAGES]);
 
 export const selectActiveThemeImage = createSelector(
-  [selectThemeImagesCacheKey, themeImage],
+  [selectThemeCacheKey, themeImage],
   (cacheKey, image = 'logo') => `${THEME_URL_PATH}/active/image/${image}?cacheKey=${cacheKey}`
 );
 

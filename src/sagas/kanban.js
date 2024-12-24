@@ -1,4 +1,4 @@
-import { call, put, select, takeEvery } from 'redux-saga/effects';
+import { call, put, select, takeEvery, all, race, take } from 'redux-saga/effects';
 import * as queryString from 'query-string';
 import { NotificationManager } from 'react-notifications';
 import isEmpty from 'lodash/isEmpty';
@@ -40,7 +40,8 @@ import {
   setTotalCount,
   setOriginKanbanSettings,
   setKanbanSettings,
-  applyPreset
+  applyPreset,
+  cancelGetNextBoardPage
 } from '../actions/kanban';
 import { applyJournalSetting, execRecordsActionComplete, setJournalSetting, setPredicate } from '../actions/journals';
 import { selectJournalData, selectSettingsData, selectViewMode } from '../selectors/journals';
@@ -182,8 +183,24 @@ export function* sagaGetBoardData({ api, logger }, { payload }) {
 
 export function* sagaGetData({ api, logger }, { payload }) {
   try {
-    const { boardConfig = {}, journalConfig = {}, journalSetting = {}, formProps = {}, pagination = {}, recordRefs, stateId } = payload;
-    const params = getGridParams({ journalConfig, journalSetting, pagination });
+    const {
+      boardConfig = {},
+      journalConfig = {},
+      journalSetting = {},
+      formProps = {},
+      pagination: _pagination = {},
+      recordRefs,
+      stateId,
+      isHandlePagination
+    } = payload;
+
+    const pagination = _pagination;
+    if (isHandlePagination && get(pagination, 'page') >= 0 && get(pagination, 'maxItems') >= 0) {
+      pagination.skipCount = pagination.page * pagination.maxItems;
+      pagination.page += 1;
+    }
+
+    const params = yield getGridParams({ journalConfig, journalSetting, pagination });
     const { dataCards: prevDataCards, kanbanSettings } = yield select(selectKanban, stateId);
 
     const urlProps = getSearchParams();
@@ -209,41 +226,47 @@ export function* sagaGetData({ api, logger }, { payload }) {
         })
       : [];
 
-    const result = yield (boardConfig.columns || []).map(function*(column, i) {
-      if (get(prevDataCards, [i, 'records', 'length'], 0) === get(prevDataCards, [i, 'totalCount'])) {
-        return {};
-      }
+    const result = yield all(
+      (boardConfig.columns || []).map(function*(column, i) {
+        if (get(prevDataCards, [i, 'records', 'length'], 0) === get(prevDataCards, [i, 'totalCount'])) {
+          return {};
+        }
 
-      const colPredicate = KanbanConverter.preparePredicate(column);
+        const colPredicate = KanbanConverter.preparePredicate(column);
 
-      const statusModifiedPredicate =
-        column.hideOldItems === 'true' && !!column.hideItemsOlderThan
+        const statusModifiedPredicate =
+          column.hideOldItems === 'true' && !!column.hideItemsOlderThan
+            ? {
+                t: 'ge',
+                att: '_statusModified',
+                val: `-${column.hideItemsOlderThan}`
+              }
+            : undefined;
+
+        const idsPredicate = Boolean(recordRefs)
           ? {
-              t: 'ge',
-              att: '_statusModified',
-              val: `-${column.hideItemsOlderThan}`
+              t: PREDICATE_EQ,
+              att: 'id',
+              val: recordRefs
             }
           : undefined;
 
-      const idsPredicate = Boolean(recordRefs)
-        ? {
-            t: PREDICATE_EQ,
-            att: 'id',
-            val: recordRefs
-          }
-        : undefined;
+        const settings = JournalsConverter.getSettingsForDataLoaderServer({
+          ...params,
+          predicates: [...predicates, colPredicate, idsPredicate, statusModifiedPredicate],
+          searchPredicate
+        });
 
-      const settings = JournalsConverter.getSettingsForDataLoaderServer({
-        ...params,
-        predicates: [...predicates, colPredicate, idsPredicate, statusModifiedPredicate],
-        searchPredicate
-      });
+        const res = yield call([JournalsService, JournalsService.getJournalData], _journalConfig, settings, recordRefs);
+        const status = column.id || '';
 
-      const res = yield call([JournalsService, JournalsService.getJournalData], _journalConfig, settings, recordRefs);
-      const status = column.id || '';
+        return { ...res, status };
+      })
+    );
 
-      return { ...res, status };
-    });
+    if (result && isHandlePagination) {
+      yield put(setPagination({ stateId, pagination }));
+    }
 
     const dataCards = [];
     const newRecordRefs = [];
@@ -265,7 +288,9 @@ export function* sagaGetData({ api, logger }, { payload }) {
         const preparedRecords = data.records.map(recordData => EcosFormUtils.postProcessingAttrsData({ recordData, inputByKey }));
         newRecordRefs.push(preparedRecords.map(rec => rec.cardId));
 
-        const allRecords = [...prevRecords, ...preparedRecords];
+        // only unique records
+        const allRecords = [...new Map([...prevRecords, ...preparedRecords].map(record => [record.id, record])).values()];
+
         if (data.totalCount >= allRecords.length) {
           dataCards.push({ totalCount: data.totalCount, records: [...allRecords], status: data.status });
         } else {
@@ -331,19 +356,41 @@ export function* sagaSelectFromUrl({ api, logger }, { payload }) {
 
 export function* sagaGetNextPage({ api, logger }, { payload }) {
   try {
-    const { stateId } = payload;
-    yield put(setLoading({ stateId, isLoading: true }));
+    const { stateId, isSkipPagination } = payload;
 
-    const { formProps, boardConfig } = yield select(selectKanban, stateId);
-    const { journalConfig, journalSetting } = yield select(selectJournalData, stateId);
-    const pagination = yield select(selectPagination, stateId);
+    const { canceled } = yield race({
+      task: call(function*() {
+        const { formProps, boardConfig, isLoading } = yield select(selectKanban, stateId);
 
-    pagination.skipCount = pagination.page * pagination.maxItems;
-    pagination.page += 1;
+        if (!isLoading) {
+          yield put(setLoading({ stateId, isLoading: true }));
 
-    yield put(setPagination({ stateId, pagination }));
-    yield sagaGetData({ api, logger }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
-    yield put(setLoading({ stateId, isLoading: false }));
+          const { journalConfig, journalSetting } = yield select(selectJournalData, stateId);
+          const pagination = yield select(selectPagination, stateId);
+
+          if (!isSkipPagination) {
+            pagination.skipCount = pagination.page * pagination.maxItems;
+            pagination.page += 1;
+
+            yield put(setPagination({ stateId, pagination }));
+          }
+
+          yield sagaGetData(
+            { api, logger },
+            {
+              payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination, isHandlePagination: isSkipPagination }
+            }
+          );
+        }
+
+        yield put(setLoading({ stateId, isLoading: false }));
+      }),
+      canceled: take(cancelGetNextBoardPage().type)
+    });
+
+    if (canceled) {
+      yield put(setLoading({ stateId, isLoading: false }));
+    }
   } catch (e) {
     logger.error('[kanban/sagaGetNextPage saga] error', e);
   }

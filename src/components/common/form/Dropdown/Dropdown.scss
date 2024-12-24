@@ -74,6 +74,18 @@
       }
     }
 
+    &_new,
+    &_new ul {
+      max-width: $max-width-dropdown-menu !important;
+      min-width: $min-width-dropdown-menu !important;
+    }
+
+    &_new li {
+      font-size: $font-size-extra-small;
+      font-weight: $font-weight-semi-bold;
+      line-height: 15px;
+    }
+
     &_right {
       left: auto !important;
       right: 0 !important;
@@ -106,10 +118,14 @@
     }
 
     &__tooltip-inner {
+      min-width: 200px;
+      max-width: 250px;
+
       &.ecos-base-tooltip-inner {
         padding: 0;
         max-width: none;
         text-align: left;
+        border-radius: 6px;
       }
     }
   }

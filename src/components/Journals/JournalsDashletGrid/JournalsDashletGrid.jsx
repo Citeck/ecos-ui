@@ -30,6 +30,7 @@ import {
 import { selectJournalDashletGridProps } from '../../../selectors/dashletJournals';
 import { DEFAULT_PAGINATION } from '../constants';
 import { selectOriginGridPredicates } from '../../../selectors/journals';
+import { selectIsViewNewJournal } from '../../../selectors/view';
 
 const mapStateToProps = (state, props) => {
   const ownState = selectJournalDashletGridProps(state, props.stateId);
@@ -37,10 +38,12 @@ const mapStateToProps = (state, props) => {
   const reduxKey = get(props, 'reduxKey', 'journals');
   const stateId = get(props, 'stateId', '');
   const newState = state[reduxKey][stateId] || {};
+  const isViewNewJournal = selectIsViewNewJournal(state);
 
   return {
     isMobile: !!get(state, 'view.isMobile'),
     originPredicates: selectOriginGridPredicates(state, props.stateId),
+    isViewNewJournal,
 
     settingsInlineTools: {
       className: props.className,
@@ -177,10 +180,8 @@ class JournalsDashletGrid extends Component {
 
   getCurrentRowInlineActions(row) {
     const { execRecordsAction, grid } = this.props;
-    const {
-      groupBy = [],
-      actions: { forRecord = {} }
-    } = grid || {};
+    const { groupBy = [], actions } = grid || {};
+    const { forRecord = {} } = actions || {};
 
     if (groupBy.length) {
       return [
@@ -203,13 +204,14 @@ class JournalsDashletGrid extends Component {
   };
 
   inlineTools = inlineToolSettings => {
-    const { settingsInlineTools } = this.props;
+    const { settingsInlineTools, loading } = this.props;
 
     inlineToolSettings.actions = this.getCurrentRowInlineActions(inlineToolSettings.row);
 
     const settings = {
       ...settingsInlineTools,
-      inlineToolSettings
+      inlineToolSettings,
+      loading
     };
 
     return <InlineTools {...settings} />;
@@ -236,11 +238,13 @@ class JournalsDashletGrid extends Component {
 
   render() {
     const {
+      isBlockNewJournalFormatter,
       selectedRecords,
       excludedRecords,
       selectAllPageRecords,
       saveRecords,
       className,
+      loadingGrid,
       loading,
       isWidget,
       grid,
@@ -261,7 +265,8 @@ class JournalsDashletGrid extends Component {
       journalId,
       footerValue,
       journalSetting,
-      journalSettings
+      journalSettings,
+      isViewNewJournal
     } = this.props;
 
     const { data, sortBy, pagination, groupBy, total = 0, editingRules } = grid || {};
@@ -283,13 +288,16 @@ class JournalsDashletGrid extends Component {
     return (
       <>
         <div className="ecos-journal-dashlet__grid">
-          {!isWidget && loading && <Loader blur />}
+          {/* loadingGrid is an indicator of the loading of the primary data of the table. You can't change it to global loading */}
+          {!isWidget && loadingGrid && <Loader blur />}
           {!loading && isEmpty(viewColumns) && <InfoText text={t('journal.table.no-columns')} />}
           <HeightCalculation loading={loading} minHeight={minHeight} maxHeight={maxHeight} total={total} maxItems={maxItems}>
             <Grid
+              isBlockNewJournalFormatter={isBlockNewJournalFormatter}
               recordRef={meta.metaRecord}
               originPredicates={originPredicates}
               data={data}
+              loading={!isWidget && loading}
               columns={viewColumns}
               className={className}
               gridWrapperClassName="ecos-journal-dashlet__grid-wrapper"
@@ -326,6 +334,7 @@ class JournalsDashletGrid extends Component {
               footerValue={footerValue}
               journalSetting={journalSetting}
               journalSettings={journalSettings}
+              isViewNewJournal={isViewNewJournal}
             />
           </HeightCalculation>
         </div>

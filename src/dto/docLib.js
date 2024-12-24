@@ -88,4 +88,13 @@ export default class DocLibConverter {
       ]
     };
   }
+
+  static prepareUploadedDirDataForSaving(dir = {}) {
+    const name = get(dir, 'name', prepareReactKey({ prefix: 'file' }));
+
+    return {
+      submit: true,
+      _name: name
+    };
+  }
 }

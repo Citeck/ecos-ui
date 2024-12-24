@@ -1,0 +1,36 @@
+@import '../../../../../../styles/constants';
+
+.workflow-priority-formatter-v2 {
+  padding: 4px 15px;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 7px;
+
+  &__priority {
+    font-size: 10px;
+    line-height: 16px;
+    font-weight: $font-weight-semi-bold;
+  }
+
+  &__pointer {
+    display: block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+  }
+}
+
+.workflow-priority-formatter-v2_high {
+  color: $color-red-3;
+  background-color: $color-red-3;
+}
+
+.workflow-priority-formatter-v2_medium {
+  color: $color-orange-2;
+  background-color: $color-orange-2;
+}
+
+.workflow-priority-formatter-v2_low {
+  color: $color-green-2;
+  background-color: $color-green-2;
+}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tooltip } from 'reactstrap';
+import { TooltipContainer as Tooltip } from '../../Tooltip/TooltipContainer';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import uniqueId from 'lodash/uniqueId';
@@ -26,11 +26,15 @@ export default class DropdownOuter extends Dropdown {
     outClassName: 'ecos-dropdown-outer-tooltip',
     trigger: 'click',
     placement: 'bottom-start',
-    modifiers: {
-      flip: {
-        behavior: ['bottom', 'top', 'right', 'left']
+    modifiers: [
+      {
+        name: 'flip',
+        enabled: true,
+        options: {
+          fallbackPlacements: ['bottom', 'top', 'right', 'left']
+        }
       }
-    }
+    ]
   };
 
   constructor(props) {

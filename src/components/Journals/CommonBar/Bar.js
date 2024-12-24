@@ -25,9 +25,7 @@ class Bar extends Component {
   }
 
   handleToggleSettings = () => {
-    if (!this.props.isLoading) {
-      this.setState(({ settingsVisible }) => ({ settingsVisible: !settingsVisible, isReset: false }));
-    }
+    this.setState(({ settingsVisible }) => ({ settingsVisible: !settingsVisible, isReset: false }));
   };
 
   handleApplySettings = (isChangedPredicates, settings) => {
@@ -119,7 +117,8 @@ class Bar extends Component {
       selectedRecords = [],
       nameBtnSettings,
       leftChild,
-      rightChild
+      rightChild,
+      ...otherProps
     } = this.props;
     const { settingsVisible, isReset, isCreateLoading } = this.state;
     const searchText = this.getSearchText();
@@ -166,6 +165,7 @@ class Bar extends Component {
           onToggleSettings={this.handleToggleSettings}
           onAddRecord={this.handleAddRecord}
           onResetFilter={this.handleResetFilter}
+          {...otherProps}
         />
       </>
     );

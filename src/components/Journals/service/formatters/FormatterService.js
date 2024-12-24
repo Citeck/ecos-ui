@@ -40,6 +40,7 @@ class FormatterService {
         popupClassName="formatter-popper"
         text={props.text}
         contentComponent={props.contentComponent}
+        isViewNewJournal={props.isViewNewJournal}
       >
         {props.children}
       </Popper>
@@ -60,8 +61,16 @@ class FormatterService {
     }
   }
 
+  static _handleFormatter(type, isViewNewJournal) {
+    if (isViewNewJournal && type === 'workflowPriority') {
+      return formatterRegistry.getFormatter('workflowPriorityV2');
+    }
+
+    return formatterRegistry.getFormatter(type);
+  }
+
   static _formatImpl(props = {}, formatter = {}) {
-    const { row, cell } = props;
+    const { row, cell, isViewNewJournal = false } = props;
     const { type, config } = formatter;
 
     if (!type) {
@@ -74,7 +83,7 @@ class FormatterService {
       modifiedConfig = replacePlaceholders(modifiedConfig, row.rawAttributes);
     }
 
-    const fmtInstance = formatterRegistry.getFormatter(type);
+    const fmtInstance = this._handleFormatter(type, isViewNewJournal);
 
     if (!fmtInstance || !isFunction(fmtInstance.format)) {
       console.error('[FormattersService.format] invalid formatter with type: ' + type, fmtInstance);
@@ -133,9 +142,9 @@ class FormatterService {
       const contentComponent = fmtInstance.format(formatProps);
 
       if (!contentComponent && isString(formatProps.cell)) {
-        return <FormatterService.PopperWrapper text={formatProps.cell} />;
+        return <FormatterService.PopperWrapper isViewNewJournal={formatProps.isViewNewJournal} text={formatProps.cell} />;
       } else {
-        return <FormatterService.PopperWrapper contentComponent={contentComponent} />;
+        return <FormatterService.PopperWrapper isViewNewJournal={formatProps.isViewNewJournal} contentComponent={contentComponent} />;
       }
     } catch (e) {
       console.error('[FormattersService._formatSingleValueCellImpl] error. Props: ', formatProps, e);

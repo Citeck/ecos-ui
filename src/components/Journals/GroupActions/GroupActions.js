@@ -48,7 +48,8 @@ const GroupActions = React.memo(
       execRecordsAction,
       isFilterOn,
       isSeparateActionListForQuery,
-      excludedRecords
+      excludedRecords,
+      isViewNewJournal
     } = props;
 
     const total = get(grid, 'total', 0);
@@ -126,18 +127,28 @@ const GroupActions = React.memo(
           titleField="pluralName"
           keyFields={['id', 'formRef', 'pluralName', '_typeAct']}
           source={recordsActions}
-          className="ecos-group-actions__dropdown"
+          className={classNames('ecos-group-actions__dropdown', {
+            'ecos-group-actions__dropdown_new': isViewNewJournal,
+            'ecos-group-actions__opened-focus': isViewNewJournal && isOpenRecActions && !isEmpty(recordsActions)
+          })}
           menuClassName="ecos-group-actions__dropdown-menu"
           itemClassName={getItemClassName}
           getStateOpen={setOpenRecActions}
           disabled={isEmpty(recordsActions)}
           onChange={handleExecuteAction}
+          isViewNewJournal={isViewNewJournal}
         >
           <Tooltip uncontrolled showAsNeeded target={targetPrefix + '-rec'} text={label} contentComponent={labelRecActionsCount}>
             <IcoBtn
               invert
-              className="ecos-btn_hover_blue2 ecos-btn_grey3 ecos-group-actions__control"
-              icon={iconOpener(isOpenRecActions)}
+              className={classNames(
+                {
+                  'ecos-btn_hover_blue2': !isViewNewJournal,
+                  'ecos-group-actions__control_new': isViewNewJournal
+                },
+                'ecos-btn_grey3 ecos-group-actions__control'
+              )}
+              icon={isViewNewJournal ? 'icon-small-down' : iconOpener(isOpenRecActions)}
               id={targetPrefix + '-rec'}
               disabled={isEmpty(recordsActions)}
             >
@@ -158,10 +169,12 @@ const GroupActions = React.memo(
             menuClassName="ecos-group-actions__dropdown-menu"
             getStateOpen={setOpenQueryActions}
             onChange={handleExecuteAction}
+            isViewNewJournal={isViewNewJournal}
           >
             <TwoIcoBtn
               className={classNames('ecos-btn_hover_blue2 ecos-btn_grey3 ecos-group-actions__control', {
-                'ecos-group-actions__control_mobile': isMobile
+                'ecos-group-actions__control_mobile': isMobile,
+                'ecos-group-actions__control_new': isViewNewJournal
               })}
               icons={[classNames({ 'icon-filter icon_semantic': isMobile }), iconOpener(isOpenQueryActions)]}
               id={targetPrefix}

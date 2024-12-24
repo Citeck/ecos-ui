@@ -1,6 +1,15 @@
 @import '~react-datepicker/dist/react-datepicker.css';
 @import '../../../../styles/constants';
 
+.ecos-datepicker {
+  .react-datepicker__time-container {
+    max-height: 233px;
+  }
+  .react-datepicker__time-list {
+    max-height: 193px;
+  }
+}
+
 .ecos-datepicker_show-icon {
   display: flex;
   align-items: center;
@@ -159,6 +168,10 @@
 
 .ecos-datepicker_narrow {
   height: 26px;
+}
+
+.react-datepicker-time__caption {
+  margin-right: 10px;
 }
 
 .react-datepicker__input-time-container {

@@ -21,7 +21,17 @@ import { wrapArgs } from '../../helpers/redux';
 import { showModalJson } from '../../helpers/tools';
 import { ActionTypes } from '../Records/actions/constants';
 
-import { isDocLib, isUnknownView, JOURNAL_MIN_HEIGHT, JOURNAL_MIN_HEIGHT_MOB, JOURNAL_VIEW_MODE as JVM, Labels } from './constants';
+import {
+  isDocLib,
+  isUnknownView,
+  JOURNAL_MIN_HEIGHT,
+  JOURNAL_MIN_HEIGHT_MOB,
+  CLASSNAME_JOURNAL_BODY_TOP,
+  PADDING_NEW_JOURNAL,
+  JOURNAL_VIEW_MODE as JVM,
+  Labels,
+  isTable
+} from './constants';
 import JournalsMenu from './JournalsMenu';
 import JournalsHead from './JournalsHead';
 import { DocLibView, KanbanView, TableView } from './Views';
@@ -30,17 +40,20 @@ import Records from '../Records';
 import PageService, { PageTypes } from '../../services/PageService';
 import pageTabList from '../../services/pageTabs/PageTabList';
 import { updateTab } from '../../actions/pageTabs';
+import { selectIsViewNewJournal } from '../../selectors/view';
 
 import './style.scss';
 
 const mapStateToProps = (state, props) => {
   const commonProps = selectCommonJournalPageProps(state, props.stateId);
+  const isViewNewJournal = selectIsViewNewJournal(state);
 
   return {
     isAdmin: get(state, 'user.isAdmin'),
     isMobile: get(state, 'view.isMobile'),
     pageTabsIsShow: get(state, 'pageTabs.isShow'),
     _url: window.location.href,
+    isViewNewJournal,
     ...commonProps
   };
 };
@@ -127,8 +140,12 @@ class Journals extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { _url, isActivePage, stateId, viewMode, tabId } = this.props;
+    const { _url, isActivePage, stateId, viewMode, tabId, isViewNewJournal } = this.props;
     const { journalId } = this.state;
+
+    if (isViewNewJournal && prevProps.viewMode !== viewMode && isTable(viewMode)) {
+      this.setState({ menuOpen: false });
+    }
 
     if (!isEqual(prevProps.viewMode, viewMode) && isDocLib(viewMode)) {
       this.setState({
@@ -207,12 +224,17 @@ class Journals extends React.Component {
   getCommonProps = () => {
     const { bodyClassName, stateId, isActivePage, pageTabsIsShow, isMobile, withForceUpdate } = this.props;
     const { journalId } = this.state;
+    const displayElements = this.getDisplayElements();
 
     return {
       stateId,
       journalId,
       isActivePage,
       withForceUpdate,
+      onEditJournal: configRec => this.handleEditJournal(configRec),
+      hasBtnEdit: configRec => displayElements.editJournal && !!configRec,
+      hasBtnMenu: displayElements.menu,
+      onToggleMenu: this.handleToggleMenu,
       Header: this.Header,
       UnavailableView: this.UnavailableView,
       displayElements: this.getDisplayElements(),
@@ -228,13 +250,19 @@ class Journals extends React.Component {
   };
 
   getJournalContentMaxHeight = () => {
-    const headH = (this._journalBodyTopRef && get(this._journalBodyTopRef.getBoundingClientRect(), 'bottom')) || 0;
+    let headH = (this._journalBodyTopRef && get(this._journalBodyTopRef.getBoundingClientRect(), 'bottom')) || 0;
+
+    if (!headH) {
+      const head = document.querySelector(`.${CLASSNAME_JOURNAL_BODY_TOP}`);
+      headH = (head && get(head.getBoundingClientRect(), 'bottom')) || 0;
+    }
+
     const jFooterH = (this._journalFooterRef && get(this._journalFooterRef, 'offsetHeight')) || 0;
     const footerH = get(document.querySelector('.app-footer'), 'offsetHeight') || 0;
     const scrollHeight = get(document.querySelector('.ecos-kanban__scroll_h'), 'offsetHeight') || 0;
     const height = document.documentElement.clientHeight - headH - jFooterH - footerH - scrollHeight;
 
-    return Math.max(height, this.minHeight);
+    return Math.max(height, this.minHeight) - PADDING_NEW_JOURNAL;
   };
 
   setJournalRef = ref => !!ref && (this._journalRef = ref);
@@ -384,15 +412,17 @@ class Journals extends React.Component {
   };
 
   render() {
-    const { isMobile, className } = this.props;
+    const { isMobile, className, isViewNewJournal } = this.props;
     const { height } = this.state;
     const commonProps = this.getCommonProps();
 
     return (
-      <ReactResizeDetector handleHeight onResize={this.handleResize}>
+      <ReactResizeDetector handleHeight={!isViewNewJournal} onResize={this.handleResize}>
         <div
           ref={this.setJournalRef}
           className={classNames('ecos-journal', className, {
+            'ecos-journal_new': isViewNewJournal,
+            'ecos-journal_new__not-mobile': !isMobile,
             'ecos-journal_mobile': isMobile,
             'ecos-journal_scroll': height <= commonProps.minHeight
           })}
@@ -413,6 +443,7 @@ Journals.propTypes = {
   bodyClassName: PropTypes.string,
   title: PropTypes.string,
   additionalHeights: PropTypes.number,
+  isViewNewJournal: PropTypes.bool,
   isActivePage: PropTypes.bool,
   displayElements: PropTypes.shape({
     menu: PropTypes.bool,

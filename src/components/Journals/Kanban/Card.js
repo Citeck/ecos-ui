@@ -94,7 +94,7 @@ class Card extends React.PureComponent {
             isStatic
             boundariesElement="window"
             placement="bottom-end"
-            modifiers={null}
+            modifiers={[]}
             withScrollbar
             scrollbarHeightMax={200}
             className="ecos-kanban__card-action-dropdown"
@@ -116,13 +116,14 @@ class Card extends React.PureComponent {
   };
 
   renderBody = () => {
-    const { data, formProps } = this.props;
+    const { data, formProps, boardConfig } = this.props;
     const { openerSet } = this.state;
+    const { cardFieldsLabelLayout } = boardConfig;
 
     return (
       <div className={classNames('ecos-kanban__card-body', { 'ecos-kanban__card-body_hidden': openerSet.has(data.cardId) })}>
         <FormWrapper
-          className="ecos-kanban__card-form"
+          className={classNames('ecos-kanban__card-form', { 'ecos-kanban__card-form_inline': cardFieldsLabelLayout === 'LEFT' })}
           isVisible
           {...formProps}
           formData={data}

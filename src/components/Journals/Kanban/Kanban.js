@@ -9,7 +9,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import { DragDropContext } from 'react-beautiful-dnd';
 import ReactResizeDetector from 'react-resize-detector';
 
-import { getNextPage, moveCard, runAction } from '../../../actions/kanban';
+import { cancelGetNextBoardPage, getNextPage, moveCard, runAction } from '../../../actions/kanban';
 import { selectKanbanProps } from '../../../selectors/kanban';
 import { t } from '../../../helpers/util';
 import { InfoText, Loader, PointsLoader } from '../../common';
@@ -18,14 +18,19 @@ import HeaderColumn from './HeaderColumn';
 import Column from './Column';
 
 import './style.scss';
+import { selectIsViewNewJournal } from '../../../selectors/view';
 
 function mapStateToProps(state, props) {
-  return selectKanbanProps(state, props.stateId);
+  return {
+    ...selectKanbanProps(state, props.stateId),
+    isViewNewJournal: selectIsViewNewJournal(state)
+  };
 }
 
 function mapDispatchToProps(dispatch, props) {
   return {
-    getNextPage: () => dispatch(getNextPage({ stateId: props.stateId })),
+    getNextPage: settings => dispatch(getNextPage({ stateId: props.stateId, ...settings })),
+    cancelGetNextBoardPage: () => dispatch(cancelGetNextBoardPage({ stateId: props.stateId })),
     moveCard: data => dispatch(moveCard({ stateId: props.stateId, ...data })),
     runAction: (recordRef, action) => dispatch(runAction({ recordRef, action, stateId: props.stateId }))
   };
@@ -35,6 +40,7 @@ class Kanban extends React.Component {
   static propTypes = {
     getNextPage: PropTypes.func,
     moveCard: PropTypes.func,
+    cancelGetNextBoardPage: PropTypes.func,
     runAction: PropTypes.func
   };
 
@@ -58,6 +64,7 @@ class Kanban extends React.Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { isLoading, isFirstLoading } = this.props;
     const headerElement = get(this.refHeader, 'current');
+    const bodyElement = get(this.refBody, 'current');
 
     if (isLoading || isFirstLoading) {
       if (headerElement) {
@@ -68,11 +75,14 @@ class Kanban extends React.Component {
     }
 
     if (this.state.isInView && !this.isNoMore()) {
-      this.props.getNextPage();
+      this.props.cancelGetNextBoardPage();
+      this.props.getNextPage({ isSkipPagination: true });
     }
 
-    if (headerElement) {
-      headerElement.style.width = `${headerElement.scrollWidth}px`;
+    if (headerElement && bodyElement) {
+      const max = Math.max(headerElement.scrollWidth, bodyElement.scrollWidth);
+      headerElement.style.width = `${max}px`;
+      bodyElement.style.width = `${max}px`;
     }
   }
 
@@ -86,7 +96,6 @@ class Kanban extends React.Component {
 
   isNoMore = () => {
     const { totalCount, dataCards } = this.props;
-
     return totalCount === 0 || totalCount === dataCards.reduce((count = 0, card) => card.records.length + count, 0);
   };
 
@@ -150,7 +159,7 @@ class Kanban extends React.Component {
   };
 
   render() {
-    const { columns, dataCards = [], isLoading, isFirstLoading, page, selectedBoard, kanbanSettings } = this.props;
+    const { columns, dataCards = [], isLoading, isFirstLoading, page, selectedBoard, kanbanSettings, isViewNewJournal } = this.props;
     const { isDragging } = this.state;
     const bodyStyle = { minHeight: this.getHeight(-70) };
 
@@ -174,11 +183,11 @@ class Kanban extends React.Component {
 
     return (
       <ReactResizeDetector handleWidth onResize={this.handleResize}>
-        <div className="ecos-kanban" style={{ '--count-col': cols.length || 1 }}>
+        <div className={classNames('ecos-kanban', { 'ecos-kanban__new': isViewNewJournal })} style={{ '--count-col': cols.length || 1 }}>
           <Scrollbars
             autoHeight
-            autoHeightMin={this.getHeight()}
-            autoHeightMax={this.getHeight()}
+            autoHeightMin={this.getHeight(-10)}
+            autoHeightMax={this.getHeight(-10)}
             renderThumbVertical={props => <div {...props} className="ecos-kanban__scroll_v" />}
             renderTrackHorizontal={props => <div {...props} className="ecos-kanban__scroll_h" />}
             onScrollFrame={this.handleScrollFrame}
@@ -194,6 +203,7 @@ class Kanban extends React.Component {
                     isReady={!isFirstLoading}
                     data={data}
                     totalCount={get(column, 'totalCount', '⭯')}
+                    isViewNewJournal={isViewNewJournal}
                   />
                 );
               })}

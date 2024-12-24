@@ -6,6 +6,7 @@ import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 
+import Tooltip from '../common/Tooltip';
 import { setScrollTop, setSelectedId, toggleExpanded, toggleIsOpen } from '../../actions/slideMenu';
 import { extractLabel } from '../../helpers/util';
 import { isNewVersionPage } from '../../helpers/export/urls';
@@ -16,6 +17,7 @@ import { MenuSettings } from '../../constants/menu';
 import SidebarService from '../../services/sidebar';
 import { EcosIcon, Icon } from '../common';
 import RemoteBadge from './RemoteBadge';
+import WorkspacePreview from '../WorkspacePreview';
 import { ItemBtn, ItemLink } from './item-components';
 import { selectIsNewUIAvailable } from '../../selectors/user';
 
@@ -27,7 +29,8 @@ class Item extends React.Component {
     level: PropTypes.number,
     isExpanded: PropTypes.bool,
     isSelected: PropTypes.bool,
-    inDropdown: PropTypes.bool
+    inDropdown: PropTypes.bool,
+    workspace: PropTypes.object
   };
 
   static defaultProps = {
@@ -35,6 +38,8 @@ class Item extends React.Component {
     styleProps: {},
     level: 0
   };
+
+  menuItemRef = React.createRef();
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
     const { label: label_1, icon: icon_1 } = nextProps.data || {};
@@ -47,6 +52,17 @@ class Item extends React.Component {
       nextProps.isOpen !== this.props.isOpen ||
       !isEqual({ label: label_1, icon: icon_1 }, { label: label_2, icon: icon_2 })
     );
+  }
+
+  componentDidUpdate(prevProps) {
+    const { isSelected } = this.props;
+
+    if (isSelected && prevProps.isSelected !== isSelected) {
+      const activeElement = this.menuItemRef.current;
+      activeElement.scrollIntoView({
+        block: 'center'
+      });
+    }
   }
 
   get hasSubItems() {
@@ -94,10 +110,29 @@ class Item extends React.Component {
     }
   };
 
-  renderContent = React.memo(({ isOpen, data, styleProps: { noIcon } }) => {
+  removeDollarAndHash(str) {
+    return str.replace(/[$#]/g, '');
+  }
+
+  renderContent = React.memo(({ data, isOpen, styleProps: { noIcon } }) => {
     const label = extractLabel(data.label);
+    const wsId = get(this.props, 'workspace.wsId');
+    const dataId = this.removeDollarAndHash(get(data, 'id'));
+    const targetId = dataId ? `_${dataId}` : null;
+
     let iconCode;
     let iconData;
+
+    if (data.type !== 'SECTION' && wsId === 'admin$workspace' && !data.icon && get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+      return (
+        <Tooltip uncontrolled hideArrow showAsNeeded target={targetId} text={label} off={!isOpen || !targetId} placement="right">
+          <WorkspacePreview name={label} />
+          <div id={targetId} className={classNames('ecos-sidebar-item__label', { 'ecos-sidebar-item__label_with-badge': this.hasBadge })}>
+            {label}
+          </div>
+        </Tooltip>
+      );
+    }
 
     if (typeof data.icon === 'string' && !data.icon.includes(SourcesId.ICON) && !data.icon.includes(SourcesId.FONT_ICON)) {
       iconCode = data.icon;
@@ -106,14 +141,12 @@ class Item extends React.Component {
     }
 
     return (
-      <>
-        {!noIcon && (
-          <EcosIcon family="menu-items" data={iconData} className="ecos-sidebar-item__icon" code={iconCode} title={isOpen ? '' : label} />
-        )}
-        <div className={classNames('ecos-sidebar-item__label', { 'ecos-sidebar-item__label_with-badge': this.hasBadge })} title={label}>
+      <Tooltip uncontrolled hideArrow showAsNeeded target={targetId} text={label} off={!isOpen || !targetId} placement="right">
+        {!noIcon && <EcosIcon family="menu-items" data={iconData} className="ecos-sidebar-item__icon" code={iconCode} />}
+        <div id={targetId} className={classNames('ecos-sidebar-item__label', { 'ecos-sidebar-item__label_with-badge': this.hasBadge })}>
           {label}
         </div>
-      </>
+      </Tooltip>
     );
   });
 
@@ -153,7 +186,6 @@ class Item extends React.Component {
 
   renderToggle() {
     const { isOpen, isExpanded, inDropdown } = this.props;
-
     return this.collapsible ? (
       <Icon
         className={classNames('ecos-sidebar-item__toggle', getIconUpDown(isExpanded && (isOpen || inDropdown)), {
@@ -173,6 +205,8 @@ class Item extends React.Component {
       isExpanded,
       isSelected,
       inDropdown,
+      boundariesElement = 'viewport',
+      toggleTooltip,
       styleProps: { noIcon, isSeparator, isClosedSeparator, hiddenLabel }
     } = this.props;
     const events = {};
@@ -181,25 +215,51 @@ class Item extends React.Component {
       events.onClick = this.onToggleList;
     }
 
+    const isViewTooltip = !isOpen && !noIcon && !this.hasSubItems;
+    const targetId = this.removeDollarAndHash(domId);
+
     return (
-      <div
-        id={domId}
-        className={classNames('ecos-sidebar-item', `ecos-sidebar-item_lvl-${level}`, {
-          'ecos-sidebar-item_collapsible': this.collapsible,
-          'ecos-sidebar-item_last-lvl': !this.hasSubItems,
-          'ecos-sidebar-item_nested-expanded': isExpanded && this.hasSubItems,
-          'ecos-sidebar-item_selected': !isSeparator && isSelected,
-          'ecos-sidebar-item_title-separator': isSeparator,
-          'ecos-sidebar-item_line-separator': !isOpen && isClosedSeparator,
-          'ecos-sidebar-item_hidden': hiddenLabel
-        })}
-        title={!isOpen && !noIcon ? extractLabel(get(data, 'label', '')) : ''}
-        {...events}
+      <Tooltip
+        target={targetId}
+        placement="right-start"
+        trigger="hover"
+        uncontrolled
+        delay={250}
+        autohide
+        onToggle={toggleTooltip}
+        hideArrow
+        boundariesElement={boundariesElement}
+        off={!isViewTooltip}
+        text={isViewTooltip && extractLabel(get(data, 'label', ''))}
+        className="ecos-sidebar-list-dropdown-menu"
+        modifiers={[
+          {
+            name: 'flip',
+            options: {
+              behavior: ['right-start', 'right-end']
+            }
+          }
+        ]}
       >
-        {this.renderLabel()}
-        {this.renderBadge()}
-        {this.renderToggle()}
-      </div>
+        <div
+          id={targetId}
+          className={classNames('ecos-sidebar-item', `ecos-sidebar-item_lvl-${level}`, {
+            'ecos-sidebar-item_collapsible': this.collapsible,
+            'ecos-sidebar-item_last-lvl': !this.hasSubItems,
+            'ecos-sidebar-item_nested-expanded': isExpanded && this.hasSubItems,
+            'ecos-sidebar-item_selected': !isSeparator && isSelected,
+            'ecos-sidebar-item_title-separator': isSeparator,
+            'ecos-sidebar-item_line-separator': !isOpen && isClosedSeparator,
+            'ecos-sidebar-item_hidden': hiddenLabel
+          })}
+          ref={this.menuItemRef}
+          {...events}
+        >
+          {this.renderLabel()}
+          {this.renderBadge()}
+          {this.renderToggle()}
+        </div>
+      </Tooltip>
     );
   }
 }

@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { UncontrolledTooltip } from 'reactstrap';
 
 import { t } from '../../helpers/util';
 import { SourcesId } from '../../constants';
@@ -14,6 +13,7 @@ import EcosForm from './EcosForm';
 import { FORM_MODE_EDIT } from './constants';
 import { emitter, RESET_AUTH_STATE_EVENT } from '../../helpers/ecosFetch';
 import DialogManager from '../common/dialogs/Manager';
+import UncontrolledTooltip from '../common/UncontrolledTooltip';
 
 import './EcosFormModal.scss';
 

@@ -12,6 +12,17 @@
 
   &__text {
     @extend %ellipsis;
+
+    &_new {
+      font-size: 11px !important;
+      font-weight: 600 !important;
+      color: $color-gray-5;
+      line-height: 13px;
+
+      > a {
+        color: $color-gray-5;
+      }
+    }
   }
 
   &__icon.icon {
@@ -43,7 +54,7 @@
       position: absolute;
       top: 0;
       left: 0.25rem;
-      box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+      box-shadow: 1px 1px rgba(0, 0, 0, 0.2);
       cursor: unset;
       pointer-events: none;
     }
@@ -74,4 +85,19 @@
   background: white;
   box-shadow: $box-shadow-tooltip;
   z-index: 10000;
+
+  opacity: 0;
+
+  &_fade-in {
+    animation: fadeIn 0.3s ease-in forwards;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

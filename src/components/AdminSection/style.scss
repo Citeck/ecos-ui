@@ -5,6 +5,12 @@
   }
 
   &__journal {
+    &_new {
+      .ecos-journal__settings-bar-menu {
+        display: none;
+      }
+    }
+
     &.ecos-journal {
       overflow-x: unset;
       overflow-y: unset;
@@ -17,13 +23,36 @@
 
   &__container {
     display: flex;
-    padding: 17px 26px 0 24px;
+    padding: 17px 0 0 24px;
     height: 100%;
+
+    &_new {
+      padding: 10px;
+      justify-content: center;
+
+      .app-content {
+        margin-bottom: 0 !important;
+      }
+
+      .ecos-admin-menu_open {
+        padding-left: 10px;
+      }
+    }
   }
 
   &__content {
     transition: width 0.5s;
-    width: calc(100% - 300px);
+    width: 100%;
+
+    &_new {
+      &-opened {
+        margin-top: 0;
+      }
+
+      &-closed {
+        margin-top: 35px;
+      }
+    }
 
     &_full {
       width: 100%;

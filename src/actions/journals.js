@@ -3,6 +3,7 @@ import { createAction } from 'redux-actions';
 const prefix = 'journals/';
 
 export const setLoading = createAction(prefix + 'SET_LOADING');
+export const setLoadingGrid = createAction(prefix + 'SET_LOADING_GRID');
 export const setForceUpdate = createAction(prefix + 'SET_FORCE_UPDATE');
 export const getDashletConfig = createAction(prefix + 'GET_DASHLET_CONFIG');
 export const setDashletConfig = createAction(prefix + 'SET_DASHLET_CONFIG');
@@ -76,3 +77,8 @@ export const setSearchText = createAction(prefix + 'SET_SEARCH_TEXT');
 export const saveColumn = createAction(prefix + 'SAVE_COLUMN');
 
 export const setFooterValue = createAction(prefix + 'SET_FOOTER_VALUE');
+
+export const cancelReloadGrid = createAction(prefix + 'CANCEL_RELOAD_GRID');
+export const cancelLoadGrid = createAction(prefix + 'CANCEL_LOAD_GRID');
+export const cancelInitJournal = createAction(prefix + 'CANCEL_INIT_JOURNAL');
+export const cancelGoToPageJournal = createAction(prefix + 'CANCEL_GO_TO_PAGE_JOURNAL');

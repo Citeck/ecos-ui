@@ -35,6 +35,16 @@ const mapDispatchToProps = (dispatch, props) => {
   };
 };
 
+const tooltipModifiers = [
+  {
+    name: 'offset',
+    enabled: true,
+    options: {
+      offset: [10, 5]
+    }
+  }
+];
+
 class ViewTabs extends React.Component {
   targetId = uniqueId('ecos-journal-view-');
 
@@ -76,7 +86,7 @@ class ViewTabs extends React.Component {
       <div className="ecos-journal__view-tabs">
         {!isMobile && (
           <>
-            <Tooltip off={isMobile} target={target(JVM.TABLE)} text={t(Labels.Views.JOURNAL)} uncontrolled>
+            <Tooltip off={isMobile} target={target(JVM.TABLE)} text={t(Labels.Views.JOURNAL)} uncontrolled modifiers={tooltipModifiers}>
               <IcoBtn
                 id={target(JVM.TABLE)}
                 icon="icon-list"
@@ -87,7 +97,7 @@ class ViewTabs extends React.Component {
                 onClick={() => this.onToggleViewMode(JVM.TABLE)}
               />
             </Tooltip>
-            <Tooltip off={isMobile} target={target(JVM.PREVIEW)} text={t(Labels.Views.PREVIEW)} uncontrolled>
+            <Tooltip off={isMobile} target={target(JVM.PREVIEW)} text={t(Labels.Views.PREVIEW)} uncontrolled modifiers={tooltipModifiers}>
               <IcoBtn
                 id={target(JVM.PREVIEW)}
                 icon="icon-columns"
@@ -100,8 +110,8 @@ class ViewTabs extends React.Component {
             </Tooltip>
           </>
         )}
-        {isKanbanEnabled && (
-          <Tooltip off={isMobile} target={target(JVM.KANBAN)} text={t(Labels.Views.KANBAN)} uncontrolled>
+        {!isMobile && isKanbanEnabled && (
+          <Tooltip off={isMobile} target={target(JVM.KANBAN)} text={t(Labels.Views.KANBAN)} uncontrolled modifiers={tooltipModifiers}>
             <IcoBtn
               id={target(JVM.KANBAN)}
               icon="icon-kanban"
@@ -114,7 +124,7 @@ class ViewTabs extends React.Component {
           </Tooltip>
         )}
         {isDocLibEnabled && (
-          <Tooltip off={isMobile} target={target(JVM.DOC_LIB)} text={t(Labels.Views.DOC_LIB)} uncontrolled>
+          <Tooltip off={isMobile} target={target(JVM.DOC_LIB)} text={t(Labels.Views.DOC_LIB)} uncontrolled modifiers={tooltipModifiers}>
             <IcoBtn
               id={target(JVM.DOC_LIB)}
               icon="icon-folder"

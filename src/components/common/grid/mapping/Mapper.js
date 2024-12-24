@@ -32,6 +32,9 @@ const MAP = [
         case 'workflowPriority':
           name = 'WorkflowPriorityFormatter';
           break;
+        case 'workflowPriorityV2':
+          name = 'WorkflowPriorityFormatterV2';
+          break;
         case 'taskTitle':
           name = 'TaskTitleFormatter';
           break;

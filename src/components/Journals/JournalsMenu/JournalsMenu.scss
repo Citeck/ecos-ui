@@ -16,6 +16,12 @@
     }
   }
 
+  &__container_mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
   &__collapsible-list {
     height: 100%;
 
@@ -65,6 +71,28 @@
   width: 100%;
   text-align: right;
   margin-bottom: 15px;
+}
+
+.ecos-journal-menu__hide-menu {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 14px;
+  justify-content: space-between;
+  width: 100%;
+
+  &-title {
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 26px;
+    margin: 0;
+  }
+
+  .ecos-btn {
+    padding: 0;
+    background: none;
+    width: auto;
+    height: auto;
+  }
 }
 
 .ecos-journal-menu__journals,

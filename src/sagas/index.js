@@ -5,6 +5,7 @@ import bpmnAdmin from './bpmnAdmin';
 import bpmnEditor from './bpmnEditor';
 import docLib from './docLib';
 import header from './header';
+import workspaces from './workspaces';
 import journals from './journals';
 import pageTabs from './pageTabs';
 import tasks from './tasks';
@@ -56,6 +57,7 @@ export default function* rootSaga(extraArguments) {
     bpmnEditor(extraArguments),
     docLib(extraArguments),
     header(extraArguments),
+    workspaces(extraArguments),
     journals(extraArguments),
     pageTabs(extraArguments),
     tasks(extraArguments),

@@ -1,4 +1,5 @@
 import { EventEmitter2 } from 'eventemitter2';
+import get from 'lodash/get';
 
 import { SourcesId } from '../../../constants';
 import DocLibConverter from '../../../dto/docLib';
@@ -43,6 +44,10 @@ class DocLibService {
     return docLibApi.getDirPath(folderRef);
   }
 
+  async getDirActions(docLibRef) {
+    return docLibApi.getDirActions(docLibRef);
+  }
+
   async getChildren(id, options = {}) {
     return docLibApi.getChildren(id, options).then(result => ({
       ...result,
@@ -68,7 +73,25 @@ class DocLibService {
       ...attributes
     };
 
+    if (get(atts, 'name') && get(atts, '_content') && atts._content.length) {
+      const fileName = get(atts._content[0], 'originalName', '') || get(atts._content[0], 'name', '');
+      const format = fileName.split('.').pop();
+
+      if (!!fileName && !!format) {
+        atts.name += '.' + format;
+      }
+    }
+
     return docLibApi.createChild(rootId, { attributes: atts });
+  }
+
+  async changeParent(id, newParent, title) {
+    const atts = {
+      _parent: newParent,
+      name: title
+    };
+
+    return docLibApi.changeAttributesItem(id, { attributes: atts });
   }
 
   async getFolderTitle(typeRef) {

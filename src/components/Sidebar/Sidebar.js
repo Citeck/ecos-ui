@@ -13,14 +13,19 @@ import {
   setInitialSelectedId,
   toggleIsOpen
 } from '../../actions/slideMenu';
-import { isExistValue } from '../../helpers/util';
-import { SourcesId } from '../../constants';
+import WorkspacePreview from '../WorkspacePreview';
+import { isExistValue, t } from '../../helpers/util';
+import { SourcesId, URL as Urls } from '../../constants';
 import Records from '../Records';
 import Logo from './Logo';
 import List from './List';
-import { selectActiveThemeImage } from '../../selectors/view';
+import { selectActiveThemeImage, selectIsViewNewJournal } from '../../selectors/view';
 import { DefaultImages } from '../../constants/theme';
-import { Events } from '../../services/PageService';
+import { Tooltip } from '../common';
+import PageService, { Events } from '../../services/PageService';
+import SidebarToggle from '../common/icons/SidebarToggle';
+import { getWorkspaceId } from '../../helpers/urls';
+import { selectWorkspaceById } from '../../selectors/workspaces';
 
 import './style.scss';
 
@@ -36,7 +41,6 @@ class Sidebar extends React.Component {
     expandableItems: PropTypes.array,
     homeLink: PropTypes.string,
     locationKey: PropTypes.string,
-
     fetchSlideMenuItems: PropTypes.func,
     toggleIsOpen: PropTypes.func,
     getSiteDashboardEnable: PropTypes.func,
@@ -44,8 +48,6 @@ class Sidebar extends React.Component {
     collapseAllItems: PropTypes.func,
     setInitialSelectedId: PropTypes.func
   };
-
-  slideMenuToggle = null;
 
   state = {
     fetchItems: false
@@ -57,8 +59,7 @@ class Sidebar extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { isReady, idMenu } = this.props;
-
+    const { idMenu, isReady } = this.props;
     this.fetchItems();
 
     if (!prevProps.isReady && isReady && this.slideMenuToggle) {
@@ -75,7 +76,17 @@ class Sidebar extends React.Component {
     document.removeEventListener(Events.CHANGE_URL_LINK_EVENT, this.props.setInitialSelectedId);
   }
 
+  scrollToActiveItem = () => {
+    const item = document.getElementsByClassName('ecos-sidebar-item_selected')[0];
+    item &&
+      item.scrollIntoView({
+        block: 'center'
+      });
+  };
+
   init(forceFetching = false) {
+    this.slideMenuToggle = document.getElementById('slide-menu-toggle');
+
     const { getSiteDashboardEnable, idMenu, setInitialSelectedId } = this.props;
     let record = idMenu.replace(SourcesId.RESOLVED_MENU, SourcesId.MENU);
 
@@ -86,7 +97,6 @@ class Sidebar extends React.Component {
     getSiteDashboardEnable();
     this.fetchItems(forceFetching);
 
-    this.slideMenuToggle = document.getElementById('slide-menu-toggle');
     this.recordMenu = Records.get(record);
     this.updateWatcher = this.recordMenu.watch('subMenu.left?json', () => {
       this.fetchItems(true);
@@ -101,10 +111,6 @@ class Sidebar extends React.Component {
   }
 
   cleanUp() {
-    if (this.slideMenuToggle) {
-      this.slideMenuToggle.removeEventListener('click', this.toggleSlideMenu);
-    }
-
     this.recordMenu && this.updateWatcher && this.recordMenu.unwatch(this.updateWatcher);
   }
 
@@ -126,25 +132,54 @@ class Sidebar extends React.Component {
     } else {
       this.props.setExpandableItems(true);
     }
+
+    this.scrollToActiveItem();
   };
 
   render() {
-    const { isOpen, isReady, largeLogoSrc, smallLogoSrc, items, homeLink, id } = this.props;
+    const { isOpen, isReady, largeLogoSrc, smallLogoSrc, items, id, isViewNewJournal, workspace } = this.props;
+    const { homePageLink, wsId, wsName } = workspace || {};
 
     if (!isReady) {
       return null;
     }
+
+    const url = new URL(homePageLink || Urls.DASHBOARD, window.location.origin);
+
+    if (workspace && get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+      url.searchParams.set('ws', wsId);
+    }
+
+    const workspaceHomeLink = url.toString();
 
     return (
       <div
         id={id}
         className={classNames('ecos-sidebar', {
           'ecos-sidebar_expanded': isOpen,
-          'ecos-sidebar_collapsed': !isOpen
+          'ecos-sidebar_collapsed': !isOpen,
+          'ecos-sidebar_new': isViewNewJournal,
+          'ecos-sidebar_new_expanded': isViewNewJournal && isOpen,
+          'ecos-sidebar_new_collapsed': isViewNewJournal && !isOpen
         })}
       >
-        <div className={classNames('ecos-sidebar-head', { 'ecos-sidebar-head_expanded': isOpen })}>
-          <Logo large={isOpen} logos={{ large: largeLogoSrc, small: smallLogoSrc }} link={homeLink} />
+        <div id={`${id}-logo`} className={classNames('ecos-sidebar-head', { 'ecos-sidebar-head_expanded': isOpen })}>
+          <Logo large={isOpen} logos={{ large: largeLogoSrc, small: smallLogoSrc }} link={workspaceHomeLink} />
+          {workspace && (
+            <div
+              onClick={() => {
+                if (!wsId) {
+                  return;
+                }
+
+                PageService.changeUrlLink(workspaceHomeLink, { openNewTab: true, closeActiveTab: false });
+              }}
+            >
+              <Tooltip uncontrolled target={`${id}-logo`} text={wsName} hideArrow placement="bottom-end">
+                <WorkspacePreview url={workspace.wsImage} name={workspace.wsName} hovered={wsId.length} />
+              </Tooltip>
+            </div>
+          )}
         </div>
         <Scrollbars
           style={{ height: '100%' }}
@@ -154,25 +189,38 @@ class Sidebar extends React.Component {
           renderTrackHorizontal={() => <div hidden />}
           renderView={props => <div {...props} className="ecos-sidebar-scroll-area" />}
         >
-          <List items={items} isExpanded />
+          <List items={items} workspace={workspace} isExpanded />
         </Scrollbars>
+        {get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false) && (
+          <div className="ecos-sidebar-toggle" onClick={() => this.toggleSlideMenu()}>
+            <SidebarToggle color="#b7b7b7" reverse={!isOpen} />
+            {isOpen && <p>{t('admin-section.sidebar.hide-sm')}</p>}
+          </div>
+        )}
       </div>
     );
   }
 }
 
-const mapStateToProps = state => ({
-  idMenu: get(state, 'menu.id', ''),
-  versionMenu: get(state, 'menu.version'),
-  isOpen: get(state, 'slideMenu.isOpen'),
-  isReady: get(state, 'slideMenu.isReady'),
-  items: get(state, 'slideMenu.items', []),
-  smallLogoSrc: selectActiveThemeImage(state, DefaultImages.MENU_LEFT_LOGO_SMALL),
-  largeLogoSrc: selectActiveThemeImage(state, DefaultImages.MENU_LEFT_LOGO_LARGE),
-  expandableItems: get(state, 'slideMenu.expandableItems'),
-  homeLink: get(state, 'app.homeLink'),
-  locationKey: get(state, 'router.location.key')
-});
+const mapStateToProps = state => {
+  const workspaceId = getWorkspaceId();
+
+  return {
+    idMenu: get(state, 'menu.id', ''),
+    versionMenu: get(state, 'menu.version'),
+    isOpen: get(state, 'slideMenu.isOpen'),
+    isReady: get(state, 'slideMenu.isReady'),
+    items: get(state, 'slideMenu.items', []),
+    smallLogoSrc: selectActiveThemeImage(state, DefaultImages.MENU_LEFT_LOGO_SMALL),
+    largeLogoSrc: selectActiveThemeImage(state, DefaultImages.MENU_LEFT_LOGO_LARGE),
+    workspace: selectWorkspaceById(state, workspaceId),
+    expandableItems: get(state, 'slideMenu.expandableItems'),
+    homeLink: get(state, 'app.homeLink'),
+    locationKey: get(state, 'router.location.key'),
+    isViewNewJournal: selectIsViewNewJournal(state),
+    selectedId: get(state, 'slideMenu.selectedId')
+  };
+};
 
 const mapDispatchToProps = dispatch => ({
   fetchSlideMenuItems: () => dispatch(fetchSlideMenuItems()),

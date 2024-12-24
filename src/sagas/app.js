@@ -1,7 +1,10 @@
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import lodashSet from 'lodash/set';
-import lodashGet from 'lodash/get';
+import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
+import isBoolean from 'lodash/isBoolean';
+import isString from 'lodash/isString';
+import queryString from 'query-string';
 
 import { URL } from '../constants';
 import { getCurrentUserName } from '../helpers/util';
@@ -26,18 +29,50 @@ import {
   setRedirectToNewUi,
   setSeparateActionListForQuery
 } from '../actions/app';
+import { getWorkspaceId } from '../helpers/urls';
+import { getWorkspaces, setBlockedCurrenWorkspace, setDefaultWorkspace } from '../actions/workspaces';
+import { loadConfigs } from '../services/config/configApi';
 import { setNewUIAvailableStatus, validateUserFailure, validateUserSuccess } from '../actions/user';
-import { detectMobileDevice } from '../actions/view';
+import { detectMobileDevice, setViewNewJournal } from '../actions/view';
 import { getMenuConfig, setMenuConfig } from '../actions/menu';
 import { registerEventListeners } from '../actions/customEvent';
-import ConfigService, { FOOTER_CONTENT, HOME_LINK_URL } from '../services/config/ConfigService';
+import { selectWorkspaces } from '../selectors/workspaces';
+import ConfigService, {
+  DEFAULT_WORKSPACE,
+  WORKSPACES_ENABLED,
+  FOOTER_CONTENT,
+  HOME_LINK_URL,
+  NEW_JOURNAL_ENABLED
+} from '../services/config/ConfigService';
 
 export function* initApp({ api, logger }, { payload }) {
   try {
-    // --- Validate user ---
     let isAuthenticated = false;
+
     try {
+      const { query } = queryString.parseUrl(window.location.href);
+
       const resp = yield call(api.user.getUserData);
+      const workspaceConfig = yield loadConfigs({
+        [DEFAULT_WORKSPACE]: 'value?str',
+        [WORKSPACES_ENABLED]: 'value?bool'
+      });
+
+      if (get(query, 'ws') && workspaceConfig[WORKSPACES_ENABLED]) {
+        const isViewWorkspace = yield call(api.workspaces.isViewWorkspace, query.ws);
+
+        if (isBoolean(isViewWorkspace)) {
+          yield put(setBlockedCurrenWorkspace(!isViewWorkspace));
+        }
+      }
+
+      if (isString(workspaceConfig[DEFAULT_WORKSPACE])) {
+        yield put(setDefaultWorkspace(workspaceConfig[DEFAULT_WORKSPACE]));
+      }
+
+      if (workspaceConfig[WORKSPACES_ENABLED]) {
+        yield put(getWorkspaces());
+      }
 
       if (!resp.success) {
         yield put(validateUserFailure());
@@ -46,7 +81,12 @@ export function* initApp({ api, logger }, { payload }) {
         yield put(validateUserSuccess(resp.payload));
 
         // TODO remove in future: see src/helpers/util.js getCurrentUserName()
-        lodashSet(window, 'Citeck.constants.USERNAME', lodashGet(resp.payload, 'userName'));
+        lodashSet(window, 'Citeck.constants.USERNAME', get(resp.payload, 'userName'));
+        lodashSet(window, 'Citeck.navigator.WORKSPACES_ENABLED', workspaceConfig[WORKSPACES_ENABLED]);
+
+        if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+          lodashSet(window, 'Citeck.navigator.WORKSPACE', getWorkspaceId());
+        }
       }
 
       const isNewUIAvailable = true;
@@ -58,6 +98,10 @@ export function* initApp({ api, logger }, { payload }) {
       yield put(setRedirectToNewUi(!isForceOldUserDashboardEnabled));
 
       const homeLink = yield ConfigService.getValue(HOME_LINK_URL);
+      const isViewNewJournal = yield ConfigService.getValue(NEW_JOURNAL_ENABLED);
+      if (isBoolean(isViewNewJournal)) {
+        yield put(setViewNewJournal(isViewNewJournal));
+      }
 
       yield put(setHomeLink(homeLink));
     } catch (e) {
@@ -114,6 +158,20 @@ export function* fetchDashboardEditable({ api, logger }) {
     const username = getCurrentUserName();
     const editable = yield call(api.app.isDashboardEditable, { username });
 
+    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+      const wsId = getWorkspaceId();
+      const workspaces = yield select(state => selectWorkspaces(state));
+
+      if (wsId && workspaces && workspaces.length) {
+        const currentWs = workspaces.find(ws => ws && ws.wsId && ws.wsId === wsId);
+
+        if (currentWs) {
+          yield put(setDashboardEditable(get(currentWs, 'isCurrentUserManager', editable)));
+          return;
+        }
+      }
+    }
+
     yield put(setDashboardEditable(editable));
   } catch (e) {
     logger.error('[app saga] fetchDashboardEditable error', e);
@@ -142,8 +200,8 @@ export function* fetchAppEdition({ api, logger }) {
 
 export function* fetchLeftMenuEditable({ api, logger }) {
   try {
-    const isAdmin = yield select(state => lodashGet(state, 'user.isAdmin', false));
-    const menuVersion = yield select(state => lodashGet(state, 'menu.version', 0));
+    const isAdmin = yield select(state => get(state, 'user.isAdmin', false));
+    const menuVersion = yield select(state => get(state, 'menu.version', 0));
 
     yield put(setLeftMenuEditable(isAdmin && menuVersion > 0));
   } catch (e) {
@@ -164,13 +222,13 @@ export function* fetchFooter({ logger }) {
 
 function* sagaBackFromHistory({ api, logger }) {
   try {
-    const isShowTabs = yield select(state => lodashGet(state, 'pageTabs.isShow'));
+    const isShowTabs = yield select(state => get(state, 'pageTabs.isShow'));
 
     if (!isShowTabs) {
       window.history.length > 1 ? window.history.back() : PageService.changeUrlLink(URL.DASHBOARD);
     } else {
       const location = yield select(state => state.router.location);
-      const lenTabs = yield select(state => lodashGet(state, 'pageTabs.tabs.length', 0));
+      const lenTabs = yield select(state => get(state, 'pageTabs.tabs.length', 0));
 
       const subsidiaryLink = location ? location.pathname + location.search : window.location.href;
       const pageUrl = lenTabs > 1 ? '' : PageService.extractWhereLinkOpen({ subsidiaryLink }) || URL.DASHBOARD;

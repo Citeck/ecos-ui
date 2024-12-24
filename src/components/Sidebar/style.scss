@@ -10,6 +10,32 @@ $transition-duration: 0.3s;
   &_headless {
     height: 100vh;
   }
+
+  .workspace-preview {
+    display: block;
+    margin: 0;
+
+    div {
+      margin-right: 15px;
+    }
+
+    &__hovered {
+      cursor: pointer;
+
+      &:hover {
+        transition: opasity 1s;
+        opacity: 0.5;
+      }
+    }
+  }
+
+  &__new {
+    height: calc(100vh - 52px);
+
+    .workspace-preview div {
+      margin: 0;
+    }
+  }
 }
 
 .ecos-main-area {
@@ -36,24 +62,24 @@ $transition-duration: 0.3s;
   $menu-item: '.ecos-sidebar-item';
   $menu-list: '.ecos-sidebar-list';
 
-  flex-shrink: 0;
   display: flex;
-  flex-direction: column;
-  z-index: 5;
   width: 72px;
+  height: 100%;
+  flex-direction: column;
+  flex-shrink: 0;
   transition: width $transition-duration;
   background: $color-white;
-  overflow: hidden;
-  height: 100%;
   will-change: width;
+  overflow: hidden;
+  z-index: 5;
 
   &_expanded {
     width: $expanded-sidebar-width;
   }
 
   &-head {
-    min-height: 49px;
-    max-height: 49px;
+    min-height: 55px;
+    max-height: 55px;
   }
 
   &-logo {
@@ -64,17 +90,45 @@ $transition-duration: 0.3s;
 
     &__link {
       display: block;
+      cursor: pointer;
       height: 100%;
     }
 
     &__img {
       transition: opacity $transition-duration;
       position: absolute;
-      max-height: 25px;
+      max-height: 30px;
     }
 
     &__icon {
       font-size: 25px;
+    }
+
+    &__img_small_hide {
+      display: none;
+    }
+  }
+
+  &-toggle {
+    display: flex;
+    flex-wrap: nowrap;
+    padding: 10px 0;
+    align-items: center;
+    justify-content: center;
+    border-top: 2px solid #e8edef;
+    cursor: pointer;
+
+    &:hover {
+      background: $color-gray-25;
+    }
+
+    p {
+      margin: 0;
+      padding-left: 10px;
+      font-weight: 700;
+      font-size: 10pt;
+      color: #444444;
+      user-select: none;
     }
   }
 
@@ -190,6 +244,14 @@ $transition-duration: 0.3s;
       align-items: center;
       text-decoration: none;
       padding-right: 3px;
+
+      .workspace-preview {
+        margin-right: 9px;
+
+        div {
+          font-size: 15px !important;
+        }
+      }
 
       &[disabled] {
         pointer-events: none;
@@ -423,6 +485,102 @@ $transition-duration: 0.3s;
   }
 }
 
+.ecos-sidebar_new {
+  $menu-item: '.ecos-sidebar-item';
+  $menu-list: '.ecos-sidebar-list';
+  padding: 0 9px;
+  width: 70px;
+
+  .ecos-sidebar-logo {
+    padding-top: 17px;
+    padding-left: 12px;
+  }
+
+  .ecos-sidebar-scroll {
+    margin-top: -4px;
+  }
+
+  .ecos-sidebar-item {
+    border-radius: 6px;
+
+    &__label {
+      @extend %ellipsis;
+
+      font-size: $font-size-small;
+      font-weight: 600;
+    }
+
+    &__badge {
+      line-height: 20px;
+    }
+  }
+
+  .ecos-sidebar-list {
+    &_lvl-0 {
+      #{$menu-item}_lvl-0 {
+        margin-bottom: 6px;
+        padding-left: 12px;
+
+        &::after {
+          @extend %menu-item-separator;
+          bottom: 0;
+          width: 90%;
+          height: 1px;
+        }
+
+        #{$menu-item}__label {
+          font-size: $font-size-small;
+        }
+      }
+    }
+
+    &_lvl-1 {
+      .ecos-sidebar-list_expanded::after {
+        content: none;
+      }
+
+      #{$menu-item}_lvl-1 {
+        #{$menu-item}__link {
+          padding-left: 14px;
+        }
+      }
+    }
+
+    &_lvl-2 {
+      #{$menu-item}_lvl-2 {
+        &:not(:first-child)::before {
+          content: none;
+        }
+
+        #{$menu-item}__link {
+          padding-left: 18px;
+        }
+      }
+    }
+  }
+
+  &_expanded {
+    width: 243px;
+  }
+
+  &_collapsed {
+    .workspace-preview {
+      justify-content: center !important;
+    }
+
+    .ecos-sidebar-item__toggle {
+      display: none;
+    }
+
+    .ecos-sidebar-list_lvl-0 {
+      #{$menu-item}_lvl-0::after {
+        bottom: unset;
+        width: 70%;
+      }
+    }
+  }
+}
+
 @media screen and (max-width: 600px) {
   .ecos-sidebar {
     width: 0;
@@ -434,6 +592,10 @@ $transition-duration: 0.3s;
 
     &_expanded {
       width: 100%;
+    }
+
+    &_collapsed {
+      padding: 0;
     }
   }
 }

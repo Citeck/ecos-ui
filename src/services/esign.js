@@ -111,7 +111,7 @@ class Esign {
     }
 
     return Esign.signDocument(recordRefs, certificate).then(documentSigned => {
-      if (documentSigned && isFunction(onSigned)) {
+      if (documentSigned && documentSigned.success && isFunction(onSigned)) {
         onSigned();
       }
 
@@ -260,7 +260,14 @@ class Esign {
         hasAlfresco
       );
 
-      return hasAlfresco ? get(signResponse, 'data', false) : signResponse.success;
+      return {
+        document,
+        signedMessage,
+        documentResponse,
+        base64,
+        isVerified,
+        success: hasAlfresco ? get(signResponse, 'data', false) : signResponse.success
+      };
     } catch (e) {
       console.error('[EsignService signDocumentByNode] error ', e.message);
 
@@ -295,24 +302,24 @@ class Esign {
         documents.map(async document => await Esign.signDocumentByNode(certificate.thumbprint, document))
       );
 
-      const stringSignatures = signStatuses.filter(signature => isString(signature));
+      const stringSignatures = signStatuses.filter(status => isString(status.success));
       isFunction(setSignatures) && setSignatures(stringSignatures);
 
-      if (signStatuses.includes(false)) {
+      if (signStatuses.some(status => !status.success)) {
         return Promise.reject({
           messageTitle: t(Labels.ERROR),
           messageDescription: t(Labels.SIGN_FAILED_MESSAGE),
           errorType: t(ErrorTypes.DEFAULT),
           formattedError: Esign.formatErrorMessage(
             {
-              notSignedDocuments: documents.filter((d, i) => !signStatuses[i])
+              notSignedDocuments: documents.filter((d, i) => !signStatuses[i].success)
             },
             t(Labels.ACTION_SIGN_DOCS)
           )
         });
       }
 
-      return true;
+      return signStatuses;
     } catch (e) {
       console.error('[EsignService signDocument] error ', e.message);
 

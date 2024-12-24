@@ -1,0 +1,19 @@
+@import '../../../../styles/constants';
+
+.ecos-btn {
+  .ecos-btn-user-avatar {
+    height: 20px;
+    width: 20px;
+    border: 1px solid $color-blue-light;
+
+    img {
+      border: 1px solid #ffffff;
+      width: 100%;
+    }
+
+    .icon {
+      font-size: 20px;
+      line-height: 20px;
+    }
+  }
+}

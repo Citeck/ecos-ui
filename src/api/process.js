@@ -9,7 +9,7 @@ export const PROCESS_DEF_API_ACTIONS = {
   DEPLOY: 'DEPLOY'
 };
 
-export default class ProcessApi {
+export class ProcessApi {
   getDefinition = record => {
     return Records.get(record).load('definition?str', true);
   };

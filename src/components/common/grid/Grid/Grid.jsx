@@ -28,12 +28,14 @@ import isElement from 'lodash/isElement';
 import { Tooltip } from 'reactstrap';
 import { NotificationManager } from 'react-notifications';
 
+import EcosTooltip from '../../Tooltip';
 import Loader from '../../../common/Loader';
 import { getId, t, getCurrentUserName } from '../../../../helpers/util';
 import FormatterService from '../../../Journals/service/formatters/FormatterService';
+import EcosProgressLoading from '../../EcosProgressLoading';
 import DateTimeFormatter from '../../../Journals/service/formatters/registry/DateTimeFormatter';
 import DateFormatter from '../../../Journals/service/formatters/registry/DateFormatter';
-import { COMPLEX_FILTER_LIMIT } from '../../../Journals/constants';
+import { COMPLEX_FILTER_LIMIT, ECOS_GRID_PADDING_HORIZONTAL, JOURNAL_MIN_HEIGHT } from '../../../Journals/constants';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
 import { SELECTOR_MENU_KEY } from '../util';
 import ErrorCell from '../ErrorCell';
@@ -41,6 +43,7 @@ import ErrorTable from '../ErrorTable';
 import SelectorHeader from './SelectorHeader';
 import Selector from './Selector';
 import pageTabList from '../../../../services/pageTabs/PageTabList';
+import NoData from '../../icons/NoData';
 import Button from '../../btns/Btn';
 import { pagesStore } from '../../../../helpers/indexedDB';
 import ClickOutside from '../../../ClickOutside';
@@ -50,12 +53,16 @@ import './Grid.scss';
 import '../../Tooltip/style.scss';
 
 const CUSTOM_NESTED_DELIMITER = '|';
+const ECOS_JOURNAL_CLASS = 'ecos-journal';
 const ECOS_GRID_HOVERED_CLASS = 'ecos-grid_hovered';
 const ECOS_GRID_GRAG_CLASS = 'ecos-grid_drag';
 const ECOS_GRID_ROW_CLASS = 'ecos-grid__row';
+const ECOS_GRID_HEADER = 'ecos-grid__header';
+const ECOS_GRID_HEADER_LOADER = 'ecos-grid__header-loader';
 const ECOS_GRID_HEAD_SHADOW = 'ecos-grid__head-shadow';
 const ECOS_GRID_LEFT_SHADOW = 'ecos-grid__left-shadow';
 const ECOS_GRID_INLINE_TOOLS_CONTAINER = 'ecos-grid__inline-tools-container';
+const REACT_BOOTSTRAP_TABLE = 'react-bootstrap-table';
 
 const cssNum = v => `${v}px`;
 
@@ -83,12 +90,14 @@ class Grid extends Component {
 
     this.state = {
       needCellUpdate: false,
+      hasFooter: false,
       tableHeight: 0,
       isScrolling: false,
       maxHeight: props.maxHeight,
       selected: props.selected || [],
       updatedColumn: null,
-      updatedColumnBlocked: null
+      updatedColumnBlocked: null,
+      ecosGridWidth: 0
     };
 
     this.userName = getCurrentUserName();
@@ -107,7 +116,7 @@ class Grid extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
-    return !nextState.isScrolling;
+    return !nextState.isScrolling || (nextProps.isViewNewJournal && !(nextProps.data && nextProps.data.length));
   }
 
   componentDidMount() {
@@ -116,12 +125,26 @@ class Grid extends Component {
     this.createKeydownEvents();
     this.createDragEvents();
 
+    if (typeof ResizeObserver !== 'undefined') {
+      this.resizeObserver = new ResizeObserver(entries => {
+        for (let entry of entries) {
+          const { width } = entry.contentRect;
+          this.setState({ ecosGridWidth: width });
+        }
+      });
+    } else {
+      this.resizeObserver = null;
+    }
+
     const current = this._ref.current;
 
     if (current) {
       this._shadowHeadNode = head(current.getElementsByClassName(ECOS_GRID_HEAD_SHADOW));
       this._shadowLeftNode = head(current.getElementsByClassName(ECOS_GRID_LEFT_SHADOW));
       this._firstHeaderCellNode = current.querySelector('thead > tr > th:first-child .ecos-grid__checkbox-divider');
+      if (this.resizeObserver) {
+        this.resizeObserver.observe(current);
+      }
     }
 
     this.checkScrollPosition();
@@ -132,8 +155,9 @@ class Grid extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { byContentHeight, resizableColumns, columns, selected, isResetSettings } = this.props;
+    const { byContentHeight, resizableColumns, columns, selected, isResetSettings, loading, isViewNewJournal } = this.props;
     const { maxHeight } = this.state;
+    const current = this._ref.current;
 
     if (this.#gridRef) {
       this._tableDom = this.#gridRef.querySelector('table');
@@ -156,10 +180,35 @@ class Grid extends Component {
       this.setState({ selected: [] });
     }
 
-    if (byContentHeight && this._scrollRef && isEqual(pageTabList.activeTabId, this.#pageId)) {
+    if (isViewNewJournal && maxHeight !== this.props.maxHeight) {
+      this.setState({ maxHeight: this.props.maxHeight });
+    }
+
+    if (!isViewNewJournal && byContentHeight && this._scrollRef && isEqual(pageTabList.activeTabId, this.#pageId)) {
       const newMaxHeight = this._scrollRef.getScrollHeight();
       if (maxHeight !== newMaxHeight) {
         this.setState({ maxHeight: newMaxHeight });
+      }
+    }
+
+    if (current) {
+      const headerElement = current.querySelector(`.${ECOS_GRID_HEADER}`);
+      const headerLoaderElement = current.querySelector(`.${ECOS_GRID_HEADER_LOADER}`);
+
+      if (headerElement && !headerLoaderElement && loading) {
+        const theadElement = headerElement.closest('thead');
+
+        if (theadElement) {
+          const loaderDiv = document.createElement('tr');
+          loaderDiv.classList.add(ECOS_GRID_HEADER_LOADER);
+
+          theadElement.appendChild(loaderDiv);
+
+          ReactDOM.render(<EcosProgressLoading />, loaderDiv);
+        }
+      } else if (headerLoaderElement && !loading) {
+        ReactDOM.unmountComponentAtNode(headerLoaderElement);
+        headerLoaderElement.remove();
       }
     }
 
@@ -171,6 +220,10 @@ class Grid extends Component {
     this.removeColumnResizeEvents();
     this.removeKeydownEvents();
     this.removeDragEvents();
+
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+    }
   }
 
   setGridRef = ref => {
@@ -283,13 +336,49 @@ class Grid extends Component {
   };
 
   getBootstrapTableProps(props, extra) {
-    const { needCellUpdate } = this.state;
+    const { isViewNewJournal, data, maxHeight } = this.props;
+    const { needCellUpdate, isScrolling } = this.state;
+    const { scrollLeft = 0 } = this._scrollRef ? this._scrollRef.getValues() || {} : {};
+
+    let noDataIndication = null;
+
+    const tableEl = this._ref.current
+      ? this._ref.current.querySelector(`.${REACT_BOOTSTRAP_TABLE}`)
+      : document.querySelector(`.${REACT_BOOTSTRAP_TABLE}`);
+
+    const isWidget = tableEl && !tableEl.closest(`.${ECOS_JOURNAL_CLASS}`);
+
+    if (tableEl && isViewNewJournal && !(data && data.length) && !isWidget) {
+      const theadElement = tableEl.querySelector('thead');
+      const width = tableEl.clientWidth;
+
+      noDataIndication = (
+        <div
+          className="ecos-grid__no-data"
+          style={{
+            position: isScrolling ? 'fixed' : 'absolute',
+            width: width ? width - ECOS_GRID_PADDING_HORIZONTAL * 2 : `calc(100% - ${cssNum(ECOS_GRID_PADDING_HORIZONTAL * 2)})`,
+            ...(!isScrolling && scrollLeft && { left: scrollLeft + ECOS_GRID_PADDING_HORIZONTAL }),
+            ...(theadElement && { minHeight: maxHeight - theadElement.clientHeight - 70 })
+          }}
+        >
+          <NoData />
+          <div className="ecos-grid__no-data_info">
+            <h3 className="ecos-grid__no-data_info-head">{t('grid.no-data-head')}</h3>
+            <span className="ecos-grid__no-data_info-description">{t('grid.no-data-indication')}</span>
+          </div>
+        </div>
+      );
+    } else if (!isViewNewJournal || isWidget) {
+      noDataIndication = t('grid.no-data-indication');
+    }
+
     const options = {
       keyField: props.keyField,
       bootstrap4: true,
       bordered: false,
       scrollable: true,
-      noDataIndication: () => t('grid.no-data-indication'),
+      noDataIndication: () => noDataIndication,
       ...props
     };
 
@@ -314,8 +403,14 @@ class Grid extends Component {
         column = this.setHeaderFormatter(column, filterable, props.sortable ? column.sortable : false, width);
 
         if (column.customFormatter === undefined) {
-          column.formatter = this.initFormatter({ editable: props.editable, className: column.className, column });
-          column.footerFormatter = this.initFooterFormatter();
+          column.formatter = this.initFormatter({
+            editable: props.editable,
+            className: column.className,
+            column,
+            isViewNewJournal: props.isViewNewJournal,
+            isBlockNewJournalFormatter: props.isBlockNewJournalFormatter || false
+          });
+          column.footerFormatter = this.initFooterFormatter(column.name || column.attribute);
         } else {
           column.formatter = column.customFormatter;
         }
@@ -528,7 +623,7 @@ class Grid extends Component {
   };
 
   checkColumnEditable = (...data) => {
-    const { editingRules } = this.props;
+    const { editingRules = {} } = this.props;
     const [column, , row] = data;
     const rowRules = editingRules[row.id];
 
@@ -571,7 +666,7 @@ class Grid extends Component {
 
   getCheckboxGridTrClassList = tr => {
     const index = tr.rowIndex;
-    const parent = isElement(tr) && tr.closest('.react-bootstrap-table');
+    const parent = isElement(tr) && tr.closest(`.${REACT_BOOTSTRAP_TABLE}`);
     const foundTr = isFunction(get(parent, 'nextSibling.getElementsByTagName')) && parent.nextSibling.getElementsByTagName('tr');
     const node = get(foundTr, [index]) && head(foundTr[index].getElementsByClassName('ecos-grid__checkbox'));
 
@@ -600,7 +695,7 @@ class Grid extends Component {
     });
   };
 
-  initFormatter = ({ editable, className, column }) => {
+  initFormatter = ({ editable, className, column, isViewNewJournal, isBlockNewJournalFormatter }) => {
     return (cell, row, rowIndex, formatExtraData = {}) => {
       const { newFormatter = {} } = column;
       const { error } = row;
@@ -608,7 +703,10 @@ class Grid extends Component {
 
       let content = cell;
       if (!isEmpty(newFormatter) && newFormatter.type) {
-        content = FormatterService.format({ cell, row, rowIndex, column }, newFormatter);
+        content = FormatterService.format(
+          { cell, row, rowIndex, column, isViewNewJournal: isBlockNewJournalFormatter ? false : isViewNewJournal },
+          newFormatter
+        );
       } else if (Formatter) {
         content = <Formatter row={row} cell={cell} rowIndex={rowIndex} {...formatExtraData} />;
       }
@@ -631,7 +729,9 @@ class Grid extends Component {
     };
   };
 
-  initFooterFormatter = () => {
+  initFooterFormatter = name => {
+    const { loading = false, journalId = '' } = this.props;
+
     return column => {
       const { newFormatter = {}, footer } = column;
 
@@ -641,24 +741,44 @@ class Grid extends Component {
         return '';
       }
 
-      if (content === 'loading') {
+      if (content === 'loading' || loading) {
         content = <Loader type="points" height={10} width={18} />;
       } else if (!isEmpty(newFormatter) && ['duration', 'number'].includes(newFormatter.type)) {
         content = FormatterService.format({ cell: footer, column }, newFormatter);
       }
 
+      if (!this.state.hasFooter) {
+        this.setState({ hasFooter: true });
+      }
+
+      const targetId = `total-amount-${journalId}_${name}`;
+
       return (
         <div className="ecos-grid__table_footer__value">
-          <div className="ecos-grid__table_footer__item">{t('grid.footer.total-amount')}</div>
+          <EcosTooltip target={targetId} showAsNeeded uncontrolled text={content}>
+            <div id={targetId} className="ecos-grid__table_footer__item text">
+              {t('grid.footer.total-amount')}
+            </div>
 
-          <div className="ecos-grid__table_footer__item">{content}</div>
+            <div className="ecos-grid__table_footer__item">{content}</div>
+          </EcosTooltip>
         </div>
       );
     };
   };
 
   setHeaderFormatter = (column, filterable, sortable, width) => {
-    const { filters, sortBy, onSort, onFilter, onOpenSettings, originPredicates, recordRef, deselectAllRecords } = this.props;
+    const {
+      filters,
+      sortBy,
+      onSort,
+      onFilter,
+      onOpenSettings,
+      originPredicates,
+      recordRef,
+      deselectAllRecords,
+      isViewNewJournal
+    } = this.props;
     const isFilterable = filterable && column.searchable && column.searchableByText && isFunction(onFilter);
     const disableSelect = column.disableSelect;
     const isSortable = sortable && isFunction(onSort);
@@ -691,6 +811,7 @@ class Grid extends Component {
           deselectAllRecords={deselectAllRecords}
           clearSelectedState={this.clearSelectedState}
           colWidth={width}
+          isViewNewJournal={isViewNewJournal}
         />
       );
     };
@@ -880,6 +1001,11 @@ class Grid extends Component {
       journalSetting.groupBy.length !== 0 &&
       !isEqual(journalSetting.groupBy, get(originSetting, 'settings.groupBy'))
     );
+  }
+
+  get hasGrouping() {
+    const { journalSetting = {} } = this.props;
+    return isArray(get(journalSetting, 'groupBy')) && journalSetting.groupBy.length !== 0;
   }
 
   clearResizingColumn = e => {
@@ -1194,20 +1320,36 @@ class Grid extends Component {
   };
 
   renderScrollableGrid() {
-    const { minHeight, autoHeight, scrollAutoHide, tableViewClassName, gridWrapperClassName, hTrackClassName } = this.props;
+    const {
+      minHeight: _minHeight,
+      autoHeight,
+      scrollAutoHide,
+      tableViewClassName,
+      gridWrapperClassName,
+      hTrackClassName,
+      isViewNewJournal
+    } = this.props;
 
     let { maxHeight } = this.state;
     let scrollStyle = {};
     let scrollProps = {};
 
-    if (autoHeight) {
-      scrollProps = { ...scrollProps, autoHeight, autoHeightMax: maxHeight, autoHeightMin: minHeight };
+    const ecosJournalEl = this._ref && this._ref.current ? this._ref.current.closest(`.${ECOS_JOURNAL_CLASS}`) : null;
+    const minHeight = _minHeight > JOURNAL_MIN_HEIGHT && isViewNewJournal && ecosJournalEl ? JOURNAL_MIN_HEIGHT : _minHeight;
+
+    if (isViewNewJournal && ecosJournalEl) {
+      scrollStyle = { ...scrollStyle, height: maxHeight };
     } else {
-      scrollStyle = { ...scrollStyle, height: minHeight || '100%' };
+      if (autoHeight) {
+        scrollProps = { ...scrollProps, autoHeight, autoHeightMax: maxHeight, autoHeightMin: minHeight };
+      } else {
+        scrollStyle = { ...scrollStyle, height: minHeight || '100%' };
+      }
     }
 
     return (
       <Scrollbars
+        minHeight={isViewNewJournal && ecosJournalEl ? maxHeight : null}
         ref={this.scrollRefCallback}
         onScrollStart={this.onScrollStart}
         onScrollFrame={this.onScrollFrame}
@@ -1251,8 +1393,9 @@ class Grid extends Component {
       'noHeader',
       'resizableColumns'
     ]);
-    const { rowClassName, resizableColumns, ...extraProps } = pick(this.props, [
+    const { rowClassName, resizableColumns, isViewNewJournal, ...extraProps } = pick(this.props, [
       'rowClassName',
+      'isViewNewJournal',
       'resizableColumns',
       'columns',
       'rowEvents'
@@ -1265,11 +1408,15 @@ class Grid extends Component {
         <ErrorTable>
           <BootstrapTable
             {...bootProps}
-            classes="ecos-grid__table"
-            headerClasses={classNames('ecos-grid__header', {
+            classes={classNames('ecos-grid__table', {
+              'ecos-grid__table_grouping': this.hasGrouping && isViewNewJournal
+            })}
+            headerClasses={classNames(ECOS_GRID_HEADER, {
               'ecos-grid__header_columns-not-resizable': !resizableColumns
             })}
-            rowClasses={classNames(ECOS_GRID_ROW_CLASS, rowClassName)}
+            rowClasses={classNames(ECOS_GRID_ROW_CLASS, rowClassName, {
+              'ecos-grid__row_new': isViewNewJournal
+            })}
             footerClasses={classNames('ecos-grid__table_footer', {
               'ecos-grid__table_footer-hide': !this.props.footerValue
             })}
@@ -1280,8 +1427,19 @@ class Grid extends Component {
   }
 
   render() {
-    const { className, noTopBorder, columns, noHeader, scrollable, selected, multiSelectable, noHorizontalScroll } = this.props;
-    const { updatedColumn, updatedColumnBlocked } = this.state;
+    const {
+      className,
+      noTopBorder,
+      columns,
+      noHeader,
+      scrollable,
+      selected,
+      multiSelectable,
+      noHorizontalScroll,
+      isViewNewJournal,
+      data
+    } = this.props;
+    const { updatedColumn, updatedColumnBlocked, maxHeight, hasFooter } = this.state;
 
     if (isEmpty(columns)) {
       return null;
@@ -1308,6 +1466,10 @@ class Grid extends Component {
         {!!toolsVisible && this.tools(selected)}
 
         {scrollable ? this.renderScrollableGrid() : this.renderGrid()}
+
+        {isViewNewJournal && !hasFooter && !!data && !!data.length && (
+          <div style={{ height: cssNum(maxHeight) }} className="ecos-grid__border" />
+        )}
 
         {updatedColumn && (
           <Tooltip
@@ -1384,6 +1546,7 @@ Grid.propTypes = {
   selectAll: PropTypes.bool,
   noSelectorMenu: PropTypes.bool,
   fixedHeader: PropTypes.bool,
+  loading: PropTypes.bool,
   noHeader: PropTypes.bool,
   noTopBorder: PropTypes.bool,
   scrollable: PropTypes.bool,

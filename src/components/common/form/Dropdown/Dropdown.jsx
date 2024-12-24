@@ -5,9 +5,11 @@ import PropTypes from 'prop-types';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 import { Scrollbars } from 'react-custom-scrollbars';
+import uuidV4 from 'uuid/v4';
 
+import { Tooltip } from '../../../common';
 import { IcoBtn, TwoIcoBtn } from '../../btns';
-import { getPropByStringKey, getTextByLocale } from '../../../../helpers/util';
+import { getPropByStringKey, getTextByLocale, isMobileDevice } from '../../../../helpers/util';
 import { getIconUpDown } from '../../../../helpers/icon';
 import MenuItem from './MenuItem';
 
@@ -41,7 +43,9 @@ export default class Dropdown extends Component {
     CustomItem: PropTypes.element,
     getStateOpen: PropTypes.func,
     onChange: PropTypes.func,
-    labelIsDiv: PropTypes.bool
+    labelIsDiv: PropTypes.bool,
+    otherFuncForCustomItem: PropTypes.object,
+    wrapperClassName: PropTypes.string
   };
 
   static defaultProps = {
@@ -79,11 +83,12 @@ export default class Dropdown extends Component {
   }
 
   get cssDropdownMenu() {
-    const { right, isLinks, cascade, menuClassName } = this.props;
+    const { right, isLinks, cascade, menuClassName, isViewNewJournal } = this.props;
 
     return classNames(
       'ecos-dropdown__menu',
       menuClassName,
+      { 'ecos-dropdown__menu_new': isViewNewJournal },
       { 'ecos-dropdown__menu_right': right },
       { 'ecos-dropdown__menu_links': isLinks },
       { 'ecos-dropdown__menu_cascade': cascade }
@@ -188,9 +193,18 @@ export default class Dropdown extends Component {
   }
 
   renderMenuItems() {
-    const { valueField, source = [], value, hideSelected, withScrollbar, scrollbarHeightMin, scrollbarHeightMax } = this.props;
+    const {
+      valueField,
+      source = [],
+      value,
+      hideSelected,
+      withScrollbar,
+      scrollbarHeightMin,
+      scrollbarHeightMax,
+      wrapperClassName
+    } = this.props;
     const filteredSource = hideSelected ? source.filter(item => item[valueField] !== value) : source;
-    let Wrapper = ({ children }) => <div>{children}</div>;
+    let Wrapper = ({ children }) => <div className={wrapperClassName}>{children}</div>;
 
     if (withScrollbar) {
       Wrapper = ({ children }) => (
@@ -198,6 +212,7 @@ export default class Dropdown extends Component {
           autoHeight
           autoHeightMin={scrollbarHeightMin}
           autoHeightMax={scrollbarHeightMax || '100%'}
+          className={wrapperClassName}
           renderView={props => <div {...props} className="ecos-dropdown__scrollbar" />}
         >
           {children}
@@ -213,19 +228,22 @@ export default class Dropdown extends Component {
   }
 
   renderMenuItem = (item, i) => {
-    const { CustomItem, titleField, valueField, value, itemClassName } = this.props;
+    const { CustomItem, titleField, valueField, value, itemClassName, otherFuncForCustomItem } = this.props;
 
     if (CustomItem) {
-      return <CustomItem key={this.getKey(item, i)} onClick={this.onChange} item={item} />;
+      return <CustomItem key={this.getKey(item, i)} onClick={this.onChange} item={item} {...otherFuncForCustomItem} />;
     }
 
     const text = getPropByStringKey(item, titleField);
     const className = isFunction(itemClassName) ? itemClassName(item) : itemClassName;
     const selected = item[valueField] === value;
+    const targetId = 'dropdown-menu-item_' + uuidV4();
 
     return (
-      <MenuItem key={this.getKey(item, i)} onClick={this.onChange} item={item} selected={selected} className={className}>
-        {getTextByLocale(text)}
+      <MenuItem key={this.getKey(item, i)} id={targetId} onClick={this.onChange} item={item} selected={selected} className={className}>
+        <Tooltip uncontrolled showAsNeeded target={targetId} text={getTextByLocale(text)} off={isMobileDevice()}>
+          {getTextByLocale(text)}
+        </Tooltip>
       </MenuItem>
     );
   };

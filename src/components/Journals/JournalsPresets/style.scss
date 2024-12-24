@@ -30,3 +30,9 @@
     justify-content: space-between;
   }
 }
+
+.journal-preset {
+  &__group-item {
+    cursor: pointer;
+  }
+}

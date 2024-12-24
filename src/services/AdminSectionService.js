@@ -4,6 +4,7 @@ import get from 'lodash/get';
 
 import { SectionNewTab, SectionTypes } from '../constants/adminSection';
 import { URL } from '../constants';
+import { getWorkspaceId } from '../helpers/urls';
 
 export default class AdminSectionService {
   static getSelectedSectionIndex(list, active) {
@@ -52,13 +53,14 @@ export default class AdminSectionService {
 
   static getURLSection(info) {
     const type = get(info, 'type');
+    const ws = getWorkspaceId();
 
     switch (type) {
       case SectionTypes.JOURNAL: {
-        return queryString.stringifyUrl({ url: URL.ADMIN_PAGE, query: { type, journalId: get(info, 'config.journalId') } });
+        return queryString.stringifyUrl({ url: URL.ADMIN_PAGE, query: { type, ws, journalId: get(info, 'config.journalId') } });
       }
       default: {
-        return queryString.stringifyUrl({ url: URL.ADMIN_PAGE, query: { type } });
+        return queryString.stringifyUrl({ url: URL.ADMIN_PAGE, query: { type, ws } });
       }
     }
   }

@@ -10,13 +10,13 @@ import isNil from 'lodash/isNil';
 import isUndefined from 'lodash/isUndefined';
 import isElement from 'lodash/isElement';
 import ReactResizeDetector from 'react-resize-detector';
+import EcosTooltip from '../../../../Tooltip';
 
 import { closest, getId } from '../../../../../../helpers/util';
 import { getIconUpDown } from '../../../../../../helpers/icon';
 import { t } from '../../../../../../helpers/export/util';
 import ClickOutside from '../../../../../ClickOutside';
 import Icon from '../../../../icons/Icon/Icon';
-import EcosTooltip from '../../../../Tooltip';
 import InlineFilter from '../../../../../../components/Filters/Filter/InlineFilter';
 import { ParserPredicate } from '../../../../../Filters/predicates';
 
@@ -378,7 +378,7 @@ export default class HeaderFormatter extends Component {
   };
 
   render() {
-    const { column = {}, sortable, colWidth } = this.props;
+    const { column = {}, sortable, colWidth, isViewNewJournal } = this.props;
     const id = `${replace(column.dataField, /[\W]*/g, '')}-${this._id}`;
 
     this.tooltipFilterId = `filter-${id}`;
@@ -391,16 +391,20 @@ export default class HeaderFormatter extends Component {
         ref={this.thRef}
         className={classNames('ecos-th', {
           'ecos-th_filtered': this.activeFilter,
-          'ecos-th_sortable': sortable
+          'ecos-th_filtered_new': this.activeFilter && isViewNewJournal,
+          'ecos-th_sortable': sortable,
+          'ecos-th_new': isViewNewJournal
         })}
         style={{ minWidth: this.minWidth, ...(colWidth && { width: colWidth }) }}
       >
         <div className="ecos-th__content" onClick={this.onSort} id={this.tooltipLabelId}>
           <EcosTooltip
+            isViewNewJournal={isViewNewJournal}
             target={this.tooltipLabelId}
             elementId={this.tooltipTextId}
             text={column.text}
             placement="bottom"
+            hideArrow
             uncontrolled
             showAsNeeded
           >
@@ -434,6 +438,7 @@ HeaderFormatter.propTypes = {
   colWidth: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   onDividerMouseDown: PropTypes.func,
 
+  isViewNewJournal: PropTypes.bool,
   isComplexFilter: PropTypes.bool,
   predicate: PropTypes.object,
   originPredicate: PropTypes.object,

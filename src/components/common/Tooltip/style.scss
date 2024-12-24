@@ -25,6 +25,13 @@
     &_no-indents {
       padding: 0;
     }
+
+    &_new {
+      font-weight: 600;
+      font-size: 11px;
+      line-height: 13px;
+      color: $color-gray-5;
+    }
   }
 
   &-arrow {
@@ -36,6 +43,9 @@
       height: $size;
       background: $color-white;
       transform: rotate(45deg);
+
+      bottom: 0;
+      z-index: 0;
     }
   }
 

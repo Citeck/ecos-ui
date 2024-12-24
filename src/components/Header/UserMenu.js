@@ -11,13 +11,16 @@ import UserService from '../../services/UserService';
 import { Avatar, EcosDropdownMenu, Tooltip, EcosIcon } from '../common';
 import { IcoBtn } from '../common/btns';
 import { getFitnesseClassName } from '../../helpers/tools';
+import { selectIsViewNewJournal } from '../../selectors/view';
+import AvatarBtn from '../common/btns/AvatarBtn';
 
 const mapStateToProps = state => ({
   userFullName: state.user.fullName,
   userPhotoUrl: UserService.getAvatarUrl(state.user.thumbnail),
   items: state.header.userMenu.items,
   isLoading: state.header.userMenu.isLoading,
-  theme: state.view.theme
+  theme: state.view.theme,
+  isViewNewJournal: selectIsViewNewJournal(state)
 });
 
 const Labels = {
@@ -68,7 +71,7 @@ class UserMenu extends React.Component {
 
   render() {
     const { dropdownOpen } = this.state;
-    const { userFullName, items, isMobile, widthParent, userPhotoUrl, theme, isLoading } = this.props;
+    const { userFullName, items, isMobile, widthParent, userPhotoUrl, theme, isLoading, isViewNewJournal } = this.props;
     const medium = widthParent > 600 && widthParent < 910;
     const mob = isMobile || medium;
     const classNameIcoBtn = classNames(
@@ -79,20 +82,24 @@ class UserMenu extends React.Component {
       getFitnesseClassName('header-user-menu', 'toggle-button'),
       {
         [`ecos-btn_theme_${theme}`]: !mob && !!theme,
-        'ecos-btn_no-back ecos-btn_width_auto': mob
+        'ecos-btn_no-back ecos-btn_width_auto': mob,
+        'ecos-btn-with-avatar': !mob && isViewNewJournal
       }
     );
 
     return (
       <>
-        {!mob ? <Avatar className="ecos-header-user-avatar" theme={theme} url={userPhotoUrl} /> : null}
+        {!mob && !isViewNewJournal ? <Avatar className="ecos-header-user-avatar" theme={theme} url={userPhotoUrl} /> : null}
         <Dropdown className="ecos-header-user ecos-header-dropdown" isOpen={dropdownOpen} toggle={this.toggle}>
           <DropdownToggle tag="div" className="ecos-header-dropdown__toggle" id="ecos-header-dropdown--user-name">
             <Tooltip target="ecos-header-dropdown--user-name" text={userFullName} placement={'left'} uncontrolled showAsNeeded>
               {mob ? <Avatar className="ecos-header-user-avatar" theme={theme} url={userPhotoUrl} /> : null}
-              <IcoBtn invert={true} icon={getIconUpDown(dropdownOpen)} className={classNameIcoBtn}>
-                {!mob && userFullName}
-              </IcoBtn>
+              {(!isViewNewJournal || mob) && (
+                <IcoBtn invert={true} icon={getIconUpDown(dropdownOpen)} className={classNameIcoBtn}>
+                  {!mob && userFullName}
+                </IcoBtn>
+              )}
+              {!mob && isViewNewJournal && <AvatarBtn icon={getIconUpDown(dropdownOpen)} className={classNameIcoBtn} />}
             </Tooltip>
           </DropdownToggle>
           <DropdownMenu className="ecos-header-user__menu ecos-dropdown__menu ecos-dropdown__menu_right ecos-dropdown__menu_links">

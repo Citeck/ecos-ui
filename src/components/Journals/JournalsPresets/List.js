@@ -9,21 +9,24 @@ import { selectViewMode } from '../../../selectors/journals';
 import { resetFilter } from '../../../actions/kanban';
 import { CollapsibleList } from '../../common';
 import { Well } from '../../common/form';
-import { isKanban, Labels } from '../constants';
-import ListItem from './ListItem';
+import { Labels } from '../constants';
+import { selectIsViewNewJournal } from '../../../selectors/view';
+import classNames from 'classnames';
+import Export from '../../Export/Export';
+import { onSelect, renderList, selectedIndex } from './helpers';
 
 class List extends React.Component {
   onSelect = setting => {
-    const { journalSetting = [] } = this.props;
+    const { journalSetting, openSelectedPreset, getJournalsData, kanbanResetFilter, viewMode } = this.props;
 
-    if (journalSetting.id !== setting.id) {
-      this.props.openSelectedPreset(setting.id);
-    } else {
-      this.props.getJournalsData({ savePredicate: false });
-      if (isKanban(this.props.viewMode)) {
-        this.props.kanbanResetFilter();
-      }
-    }
+    onSelect({
+      setting,
+      journalSetting,
+      openSelectedPreset,
+      getJournalsData,
+      kanbanResetFilter,
+      viewMode
+    });
   };
 
   onDelete = item => {
@@ -34,39 +37,55 @@ class List extends React.Component {
     this.props.editJournalSetting(item.id);
   };
 
-  filterList = () => {
-    const { searchText, journalSettings = [] } = this.props;
-    const compare = item => new RegExp(`(${searchText})`, 'ig').test(get(item, 'displayName'));
-    return !searchText ? journalSettings : journalSettings.filter(compare);
-  };
-
   get renderList() {
-    const { journalSettings = [] } = this.props;
-    return this.filterList(journalSettings).map(item => (
-      <ListItem key={get(item, 'id')} onClick={this.onSelect} onDelete={this.onDelete} onEdit={this.onEdit} item={item} />
-    ));
-  }
+    const { journalSettings = [], searchText } = this.props;
 
-  get selectedIndex() {
-    const { journalSetting, journalSettings = [] } = this.props;
-    return journalSettings.findIndex(item => item.id === (journalSetting.id || ''));
+    return renderList({
+      journalSettings,
+      searchText,
+      onDelete: this.onDelete,
+      onEdit: this.onEdit,
+      onSelect: this.onSelect
+    });
   }
 
   render() {
+    const { journalConfig, grid, selectedRecords, isViewNewJournal, loading, isMobile, journalSetting, journalSettings = [] } = this.props;
+
     return (
-      <Well className="ecos-journal-menu__presets">
-        <CollapsibleList
-          isLoading={this.props.loading}
-          needScrollbar={false}
-          className="ecos-journal-menu__collapsible-list"
-          classNameList="ecos-list-group_mode_journal"
-          list={this.renderList}
-          emptyText={t(Labels.Menu.EMPTY_LIST)}
-          selected={this.selectedIndex}
-        >
-          {t(Labels.Preset.TEMPLATES_TITLE)}
-        </CollapsibleList>
-      </Well>
+      <div
+        className={classNames('ecos-journal-menu__container', {
+          'ecos-journal-menu__container_mobile': isMobile && isViewNewJournal
+        })}
+      >
+        <Well className="ecos-journal-menu__presets">
+          <CollapsibleList
+            isLoading={loading}
+            needScrollbar={false}
+            className="ecos-journal-menu__collapsible-list"
+            classNameList="ecos-list-group_mode_journal"
+            list={this.renderList}
+            emptyText={t(Labels.Menu.EMPTY_LIST)}
+            selected={selectedIndex({ journalSetting, journalSettings })}
+          >
+            {t(Labels.Preset.TEMPLATES_TITLE)}
+          </CollapsibleList>
+        </Well>
+        {isMobile && isViewNewJournal && (
+          <Export
+            loading={loading}
+            isViewNewJournal={isViewNewJournal}
+            isMobile={isMobile}
+            journalConfig={journalConfig}
+            grid={grid}
+            className="ecos-journal__settings-bar-export"
+            classNameBtn={classNames('ecos-btn_i ecos-journal__settings-bar-export-btn', {
+              'ecos-journal__btn_new': isViewNewJournal
+            })}
+            selectedItems={selectedRecords}
+          />
+        )}
+      </div>
     );
   }
 }
@@ -74,11 +93,17 @@ class List extends React.Component {
 const mapStateToProps = (state, props) => {
   const newState = get(state, ['journals', props.stateId]) || {};
   const viewMode = selectViewMode(state, props.stateId);
+  const isViewNewJournal = selectIsViewNewJournal(state);
 
   return {
     journalSettings: newState.journalSettings,
     journalSetting: newState.journalSetting,
+    journalConfig: newState.journalConfig,
+    selectedRecords: newState.selectedRecords,
+    grid: newState.grid,
     loading: newState.loading,
+    isMobile: get(state, 'view.isMobile'),
+    isViewNewJournal,
     viewMode
   };
 };

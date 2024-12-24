@@ -8,6 +8,7 @@ import { Search, Tooltip } from '../../../common';
 import DialogManager from '../../../common/dialogs/Manager/DialogManager';
 import { IcoBtn, TwoIcoBtn } from '../../../common/btns';
 import { Dropdown } from '../../../common/form';
+import { NODE_TYPES } from '../../../../constants/docLib';
 
 import ViewTabs from '../../ViewTabs';
 import DocLibService from '../DocLibService';
@@ -15,7 +16,7 @@ import DocLibPagination from '../DocLibPagination';
 
 import './DocLibSettingsBar.scss';
 
-const DocLibSettingsBar = ({ stateId, searchText, createVariants, createNode, isMobile, startSearch, onRefresh }) => {
+const DocLibSettingsBar = ({ stateId, searchText, createVariants: _createVariants, createNode, isMobile, startSearch, onRefresh }) => {
   const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const step = classNames('ecos-doclib__settings-bar_step', { 'ecos-doclib__settings-bar_step-mobile': isMobile });
 
@@ -32,9 +33,13 @@ const DocLibSettingsBar = ({ stateId, searchText, createVariants, createNode, is
   };
 
   const renderCreateMenu = () => {
-    if (!createVariants || !createVariants.length) {
+    if (!_createVariants || !_createVariants.length) {
       return null;
     }
+
+    const createVariants = _createVariants.map(createVariant =>
+      createVariant.nodeType === NODE_TYPES.FILE ? { ...createVariant, title: t('document-library.file') } : createVariant
+    );
 
     if (createVariants.length === 1) {
       return (

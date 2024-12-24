@@ -9,16 +9,16 @@ import EcosIcon from '../common/EcosIcon';
 import FileIcon from '../common/FileIcon';
 import { detectFormat } from '../common/FileIcon/helpers';
 import { NODE_TYPES } from '../../constants/docLib';
-import { useDropFile } from '../../hooks/useDropFile';
+import { useDropFile } from '../../hooks';
 
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm';
 
-const FilesViewerItem = ({ item, isSelected, isLastClicked, isMobile, onClick, onDoubleClick, onDrop }) => {
-  const { title, type, modified, actions } = item;
+const FilesViewerItem = ({ item, isSelected, isLastClicked, setParentItem, isMobile, onClick, onDoubleClick, onDrop }) => {
+  const { title, type, modified, actions, isEmpty = false } = item;
   const {
     flags: { isAboveDir },
     handlers
-  } = useDropFile({ item, callback: onDrop });
+  } = useDropFile({ item, callback: onDrop, setParentItem });
   let extraProps = {};
 
   if (typeof onDrop === 'function') {
@@ -30,6 +30,14 @@ const FilesViewerItem = ({ item, isSelected, isLastClicked, isMobile, onClick, o
 
   const _onClick = e => typeof onClick === 'function' && onClick(item, e);
   const _onDoubleClick = e => typeof onDoubleClick === 'function' && onDoubleClick(item, e);
+
+  const handleDragStart = e => {
+    if (!isEmpty) {
+      const dragData = JSON.stringify({ id: item.id, title: item.title, type: item.type });
+      e.dataTransfer.clearData();
+      e.dataTransfer.setData('application/json', dragData);
+    }
+  };
 
   let modifiedDisp = '-';
 
@@ -48,34 +56,42 @@ const FilesViewerItem = ({ item, isSelected, isLastClicked, isMobile, onClick, o
       className={classNames('ecos-files-viewer__item', {
         'ecos-files-viewer__item_selected': isSelected || isAboveDir,
         'ecos-files-viewer__item_lastclicked': isLastClicked,
-        'ecos-files-viewer__item_mobile': isMobile
+        'ecos-files-viewer__item_mobile': isMobile,
+        'ecos-files-viewer__item_empty': isEmpty
       })}
+      data-id={item.id}
       onClick={_onClick}
       onDoubleClick={_onDoubleClick}
+      draggable={!isEmpty}
+      onDragStart={handleDragStart}
       {...extraProps}
     >
-      <div className="ecos-files-viewer__item-left">
-        <div className="ecos-files-viewer__item-icon-wrapper">
-          {type === NODE_TYPES.DIR ? (
-            <EcosIcon className={classNames('ecos-files-viewer__item-icon')} data={{ value: 'icon-folder' }} />
-          ) : (
-            <FileIcon className={classNames('ecos-files-viewer__item-file-icon')} format={detectFormat(title)} />
-          )}
-        </div>
-        <span className="ecos-files-viewer__item-title" title={title}>
-          {title}
-        </span>
-      </div>
-      <div
-        className={classNames('ecos-files-viewer__item-right', {
-          'ecos-files-viewer__item-right_mobile': isMobile
-        })}
-      >
-        <span className="ecos-files-viewer__item-modified" title={modifiedDisp}>
-          {modifiedDisp}
-        </span>
-        <div className="ecos-files-viewer__item-actions">{actionsList}</div>
-      </div>
+      {!isEmpty && (
+        <>
+          <div className="ecos-files-viewer__item-left">
+            <div className="ecos-files-viewer__item-icon-wrapper">
+              {type === NODE_TYPES.DIR ? (
+                <EcosIcon className={classNames('ecos-files-viewer__item-icon')} data={{ value: 'icon-folder' }} />
+              ) : (
+                <FileIcon className={classNames('ecos-files-viewer__item-file-icon')} format={detectFormat(title)} />
+              )}
+            </div>
+            <span className="ecos-files-viewer__item-title" title={title}>
+              {title}
+            </span>
+          </div>
+          <div
+            className={classNames('ecos-files-viewer__item-right', {
+              'ecos-files-viewer__item-right_mobile': isMobile
+            })}
+          >
+            <span className="ecos-files-viewer__item-modified" title={modifiedDisp}>
+              {modifiedDisp}
+            </span>
+            <div className="ecos-files-viewer__item-actions">{actionsList}</div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
@@ -94,6 +110,7 @@ FilesViewerItem.propTypes = {
   isLastClicked: PropTypes.bool,
   isMobile: PropTypes.bool,
   onClick: PropTypes.func,
+  setParentItem: PropTypes.func,
   onDoubleClick: PropTypes.func,
   onDrop: PropTypes.func
 };

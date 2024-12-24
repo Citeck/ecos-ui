@@ -7,7 +7,7 @@
   $search-focused-width: 440px;
 
   background: $color-blue-light;
-  padding: 10px 26px;
+  padding: 10px 16px;
   display: flex;
   justify-content: space-between;
 
@@ -65,7 +65,10 @@
     }
 
     #{$root}-hamburger {
+      margin-left: 10px;
       margin-right: 26px;
+      align-self: center;
+      cursor: pointer;
     }
   }
 
@@ -78,7 +81,7 @@
       }
 
       .ecos-btn__text {
-        margin-left: 6px;
+        margin-left: 1px;
       }
     }
   }
@@ -135,9 +138,6 @@
               color: $color-blue-light2;
               background: $color-white;
             }
-          }
-
-          &-data {
           }
 
           &-title {
@@ -208,6 +208,7 @@
     &__menu {
       &-item {
         display: flex;
+        align-items: center;
         width: 100%;
         border: unset;
         padding: 10px 15px;
@@ -266,6 +267,9 @@
 
     &__menu {
       min-width: 100% !important;
+      .ecos-dropdown__menu_new {
+        min-width: unset !important;
+      }
 
       li a {
         padding: 9px 10px;
@@ -283,14 +287,182 @@
 
   &-hamburger {
     color: $color-white;
-    display: inline-flex;
-    align-items: center;
-    line-height: normal;
-    font-weight: normal;
-    cursor: pointer;
 
     .icon {
       font-size: 17px;
+    }
+  }
+
+  &-workspaces {
+    display: inline-flex;
+    padding: 0 8px;
+    align-items: center;
+    line-height: normal;
+    background-color: #4b75b7;
+    border-radius: 6px;
+    cursor: pointer;
+
+    &.active,
+    &:hover {
+      background: $color-gray-4;
+
+      & path {
+        fill: $color-blue-dark;
+      }
+    }
+
+    div.workspace-panel {
+      position: absolute;
+      top: 58px;
+      background: #ffffff;
+      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 3px 4px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.14);
+      border-radius: 8px;
+      color: #444444;
+      z-index: 1001;
+      overflow: hidden;
+
+      ul {
+        user-select: none;
+        overflow: hidden;
+
+        li {
+          display: flex;
+          padding: 10px 15px;
+          align-items: center;
+          gap: 10px;
+          font-size: 12px;
+          font-weight: 700;
+          color: '#fff';
+
+          &:hover {
+            background-color: #f3f3f3;
+          }
+        }
+      }
+
+      &-create-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-bottom: 1rem;
+      }
+    }
+  }
+}
+
+.ecos-header_new {
+  padding: 10px 19px 10px 12px;
+
+  .ecos-btn {
+    font-size: $font-size-small;
+    height: 32px;
+  }
+
+  .ecos-btn__text :not(.ecos-header-lang__btn) :not(.ecos-header-lang__img) {
+    margin-left: 1px;
+  }
+
+  .icon:not(.ecos-avatar__icon) {
+    font-size: $font-size-standard;
+    line-height: 1em;
+  }
+
+  .ecos-header__side {
+    & > :not(:last-child) {
+      margin-right: 6px;
+    }
+    .ecos-header-hamburger {
+      margin-left: 8px;
+      margin-right: 16px;
+      align-self: center;
+    }
+  }
+
+  .ecos-header-site {
+    &__btn.ecos-btn {
+      padding: 8px;
+    }
+  }
+
+  .ecos-header-lang {
+    &__btn {
+      padding: 9px;
+    }
+    &__img {
+      width: 16px;
+      margin-right: 6px;
+    }
+  }
+
+  .ecos-header-user-avatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  .ecos-btn-with-avatar {
+    justify-content: space-between;
+    gap: 6px;
+    max-width: unset;
+    padding: 6px 12px;
+  }
+
+  .ecos-header-user__menu-item {
+    font-size: $font-size-small;
+
+    .icon:not(.icon_on):not(.icon_off) {
+      &:before {
+        font-size: $font-size-large;
+      }
+    }
+  }
+}
+
+.workspace {
+  &-panel-list {
+    max-width: 450px;
+
+    &_item {
+      display: inline-flex;
+      align-items: center;
+      position: relative;
+      width: 100%;
+
+      &:hover {
+        background-color: $color-gray-25 !important;
+      }
+
+      &:hover &_btn {
+        display: flex;
+        background: linear-gradient(to right, rgba($color-gray-25, 0), $color-gray-25 15%);
+      }
+
+      &_btn {
+        display: none;
+
+        position: absolute;
+        right: 0;
+        width: 40px;
+        height: 50px;
+
+        padding-right: 10px;
+        align-items: center;
+        justify-content: flex-end;
+
+        & > svg,
+        path {
+          fill: $color-gray-5 !important;
+        }
+
+        &:hover > svg,
+        &:hover path {
+          fill: $color-blue-dark !important;
+        }
+      }
+
+      &-info {
+        @extend %ellipsis;
+        margin: 0;
+      }
     }
   }
 }

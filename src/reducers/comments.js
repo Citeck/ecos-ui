@@ -46,7 +46,7 @@ export default handleActions(
     },
     [setComments]: (state, action) => ({
       ...state,
-      [action.payload.nodeRef]: {
+      [action.payload.recordRef]: {
         comments: action.payload.comments,
         hasMore: action.payload.hasMore,
         totalCount: action.payload.totalCount
@@ -57,10 +57,10 @@ export default handleActions(
     }),
     [createCommentSuccess]: (state, action) => ({
       ...state,
-      [action.payload.nodeRef]: {
-        ...state[action.payload.nodeRef],
+      [action.payload.recordRef]: {
+        ...state[action.payload.recordRef],
         comments: [...action.payload.comments],
-        totalCount: state[action.payload.nodeRef].totalCount + 1,
+        totalCount: state[action.payload.recordRef].totalCount + 1,
         errorMessage: ''
       }
     }),
@@ -69,17 +69,17 @@ export default handleActions(
     }),
     [deleteCommentSuccess]: (state, action) => ({
       ...state,
-      [action.payload.nodeRef]: {
-        ...state[action.payload.nodeRef],
+      [action.payload.recordRef]: {
+        ...state[action.payload.recordRef],
         comments: [...action.payload.comments],
-        totalCount: state[action.payload.nodeRef].totalCount - 1,
+        totalCount: state[action.payload.recordRef].totalCount - 1,
         errorMessage: ''
       }
     }),
     [setError]: (state, action) => ({
       ...state,
-      [action.payload.nodeRef]: {
-        ...state[action.payload.nodeRef],
+      [action.payload.recordRef]: {
+        ...state[action.payload.recordRef],
         errorMessage: action.payload.message,
         sendingInProcess: false
       }
@@ -103,8 +103,8 @@ export default handleActions(
     }),
     [updateCommentSuccess]: (state, action) => ({
       ...state,
-      [action.payload.nodeRef]: {
-        ...state[action.payload.nodeRef],
+      [action.payload.recordRef]: {
+        ...state[action.payload.recordRef],
         comments: [...action.payload.comments],
         errorMessage: ''
       }
@@ -141,8 +141,8 @@ export default handleActions(
     }),
     [setActionFailedStatus]: (state, { payload }) => ({
       ...state,
-      [payload.nodeRef]: {
-        ...state[payload.nodeRef],
+      [payload.recordRef]: {
+        ...state[payload.recordRef],
         actionFailed: payload.status
       }
     })

@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
-import { UncontrolledTooltip } from 'reactstrap';
 import { Scrollbars } from 'react-custom-scrollbars';
 import uniqueId from 'lodash/uniqueId';
 import get from 'lodash/get';
@@ -38,6 +37,7 @@ import Panel from './parts/Panel';
 import TypesTable from './parts/TypesTable';
 import BaseDocuments from './_BaseDocuments';
 import { AvailableTypeInterface, DocumentInterface, DynamicTypeInterface, GrouppedTypeInterface } from './propsInterfaces';
+import UncontrolledTooltip from '../../common/UncontrolledTooltip';
 
 class DesktopDocuments extends BaseDocuments {
   scrollPosition = {};

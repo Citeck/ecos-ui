@@ -396,6 +396,34 @@ export default class SelectComponent extends BaseComponent {
       }
     }
 
+    function isItemsContainElement(items, element) {
+      return _.find(items, item => {
+        if (_.isEmpty(item)) {
+          return false;
+        }
+
+        if (_.isString(item)) {
+          return item === element;
+        }
+
+        if (_.isArray(element) && !_.isEmpty(element)) {
+          return element.includes(_.get(item, 'value'));
+        }
+
+        return _.get(item, 'value') === element;
+      });
+    }
+
+    if (
+      this.options.editInFormBuilder &&
+      this.dataValue &&
+      this.component.key === 'defaultValue' &&
+      !isItemsContainElement(items, this.dataValue)
+    ) {
+      items = [...items];
+      items.push({ label: this.dataValue, value: this.dataValue });
+    }
+
     // Helps to remove unnecessary updates, get rid of looping
     if (_.isEmpty(items) && _.isEmpty(this.currentItems)) {
       // If the component has no refresh attributes but has some dataValue and the select is empty,
@@ -410,21 +438,7 @@ export default class SelectComponent extends BaseComponent {
       return;
     }
 
-    const isFound = _.find(items, item => {
-      if (_.isEmpty(item)) {
-        return false;
-      }
-
-      if (_.isString(item)) {
-        return item === this.dataValue;
-      }
-
-      if (_.isArray(this.dataValue) && !_.isEmpty(this.dataValue)) {
-        return this.dataValue.includes(_.get(item, 'value'));
-      }
-
-      return _.get(item, 'value') === this.dataValue;
-    });
+    const isFound = isItemsContainElement(items, this.dataValue);
 
     // Reset the selected value if it is not in the list
     if (this.dataValue && !isFound) {
@@ -968,9 +982,46 @@ export default class SelectComponent extends BaseComponent {
         const items = this.choices._store.activeItems;
 
         if (!items.length) {
-          this.choices._addItem(placeholderValue, placeholderValue, 0, -1, null, true, null);
+          this.choices._addItem({
+            value: placeholderValue,
+            label: placeholderValue,
+            choiceId: 0,
+            groupId: -1,
+            customProperties: null,
+            placeholder: true,
+            keyCode: null
+          });
         }
       });
+    }
+
+    if (this.component.multiple) {
+      let selected;
+      const inputPlaceholder = this.choices.containerInner.element.querySelector('input[type=text]');
+      inputPlaceholder.style.opacity = '0.7';
+      inputPlaceholder.style.minWidth = 'fit-content';
+
+      this.choices.passedElement.element.addEventListener(
+        'addItem',
+        () => {
+          selected = this.choices.passedElement.element.selectedOptions.length;
+          if (selected) {
+            inputPlaceholder.removeAttribute('placeholder');
+          }
+        },
+        false
+      );
+
+      this.choices.passedElement.element.addEventListener(
+        'removeItem',
+        () => {
+          selected = this.choices.passedElement.element.selectedOptions.length;
+          if (!selected) {
+            inputPlaceholder.setAttribute('placeholder', placeholderValue);
+          }
+        },
+        false
+      );
     }
 
     // Add value options.
@@ -1299,6 +1350,10 @@ export default class SelectComponent extends BaseComponent {
           return;
         }
 
+        if (!this.hasOwnProperty('refreshOnValue')) {
+          return;
+        }
+
         this.refresh(refreshData === 'data' ? this.data : this.data[refreshData], refreshData);
       },
       true
@@ -1315,6 +1370,19 @@ export default class SelectComponent extends BaseComponent {
     );
   }
 
+  isElementOrParentsHidden() {
+    let current = this;
+
+    while (!!current) {
+      if (_.get(current, 'element.hidden') === true) {
+        return true;
+      }
+      current = _.get(current, 'parent', null);
+    }
+
+    return false;
+  }
+
   refresh(value, refreshOnKey) {
     // Cause https://citeck.atlassian.net/browse/ECOSCOM-2465
     if (this.hasOwnProperty('refreshOnValue')) {
@@ -1327,7 +1395,7 @@ export default class SelectComponent extends BaseComponent {
       };
     }
 
-    if (this.refreshOnChanged) {
+    if (this.refreshOnChanged && !this.isElementOrParentsHidden()) {
       if (this.component.clearOnRefresh) {
         this.setValue(null);
       }

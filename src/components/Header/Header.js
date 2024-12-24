@@ -11,14 +11,16 @@ import { fetchCreateCaseWidgetData, fetchSiteMenuData, fetchUserMenuData } from 
 import { JournalUrlParams, SourcesId, URL } from '../../constants';
 import { MenuTypes } from '../../constants/menu';
 import Records from '../Records';
-import SlideMenuBtn from './SlideMenuBtn';
 import CreateMenu from './CreateMenu';
 import UserMenu from './UserMenu';
 import SiteMenu from './SiteMenu';
 import Search from './Search';
+import WorkspacesSwitcher from './Workspaces';
 import LanguageSwitcher from './LanguageSwitcher';
+import { selectIsViewNewJournal } from '../../selectors/view';
 
 import './style.scss';
+import SlideMenuButton from './SlideMenuButton';
 
 const MenuSettings = lazy(() => import('../MenuSettings'));
 
@@ -33,7 +35,8 @@ const mapStateToProps = state => ({
   isMobile: get(state, 'view.isMobile'),
   theme: get(state, 'view.theme'),
   menuType: get(state, 'menu.type', ''),
-  isOpenMenuSettings: get(state, 'menuSettings.isOpenMenuSettings', false)
+  isOpenMenuSettings: get(state, 'menuSettings.isOpenMenuSettings', false),
+  isViewNewJournal: selectIsViewNewJournal(state)
 });
 
 class Header extends React.Component {
@@ -108,7 +111,7 @@ class Header extends React.Component {
 
   render() {
     const { widthHeader, hasAlfresco } = this.state;
-    const { isMobile, hideSiteMenu, legacySiteMenuItems, theme } = this.props;
+    const { isMobile, hideSiteMenu, legacySiteMenuItems, theme, isViewNewJournal } = this.props;
     const hiddenSiteMenu = hideSiteMenu || isMobile || widthHeader < 600;
     const hiddenLanguageSwitcher = isMobile || widthHeader < 600;
 
@@ -116,9 +119,14 @@ class Header extends React.Component {
       <>
         {this.renderMenuSettings()}
         <ReactResizeDetector handleWidth handleHeight onResize={debounce(this.onResize, 400)} />
-        <div className={classNames('ecos-header', `ecos-header_theme_${theme}`, { 'ecos-header_small': isMobile })}>
+        <div
+          className={classNames('ecos-header', `ecos-header_theme_${theme}`, {
+            'ecos-header_small': isMobile,
+            'ecos-header_new': isViewNewJournal
+          })}
+        >
           <div className="ecos-header__side ecos-header__side_left">
-            <SlideMenuBtn />
+            {get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false) ? <WorkspacesSwitcher /> : <SlideMenuButton />}
             <CreateMenu isMobile={widthHeader < 910} />
           </div>
           <div className="ecos-header__side ecos-header__side_right">
