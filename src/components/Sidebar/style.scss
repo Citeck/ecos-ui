@@ -518,6 +518,7 @@ $transition-duration: 0.3s;
   .ecos-sidebar-list {
     &_lvl-0 {
       #{$menu-item}_lvl-0 {
+        margin-bottom: 6px;
         padding-left: 12px;
 
         &::after {
