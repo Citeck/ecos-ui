@@ -17,7 +17,7 @@ export class KanbanApi {
         journalRef: 'journalRef?id',
         name: 'name',
         disableTitle: 'disableTitle?bool!false',
-        isInlineCard: 'isInlineCard?bool!true',
+        cardFieldsLabelLayout: 'cardFieldsLabelLayout?str!TOP',
         typeRef: 'typeRef?id',
         readOnly: 'readOnly?bool!true'
       },
