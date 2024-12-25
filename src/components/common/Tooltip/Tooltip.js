@@ -133,7 +133,7 @@ class Tooltip extends Component {
     const { onToggle, uncontrolled } = this.props;
 
     if (isFunction(onToggle) && !uncontrolled) {
-      onToggle.call(this);
+      onToggle.call(this, ...data);
     } else {
       this.setState(state => ({ isOpen: !state.isOpen }));
     }
