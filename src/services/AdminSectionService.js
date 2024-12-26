@@ -5,6 +5,7 @@ import get from 'lodash/get';
 import { SectionNewTab, SectionTypes } from '../constants/adminSection';
 import { URL } from '../constants';
 import { getWorkspaceId } from '../helpers/urls';
+import { getEnabledWorkspaces } from '../helpers/util';
 
 export default class AdminSectionService {
   static getSelectedSectionIndex(list, active) {
@@ -44,9 +45,15 @@ export default class AdminSectionService {
   }
 
   static getTabOptions(currentType, newType) {
+    const sectionNewTab = SectionNewTab;
+
+    if (getEnabledWorkspaces()) {
+      sectionNewTab.push(SectionTypes.BPM, SectionTypes.DMN, SectionTypes.BPMN_ADMIN);
+    }
+
     const openNewTab =
       currentType !== newType &&
-      (SectionNewTab.includes(newType) || (SectionNewTab.includes(currentType) && !SectionNewTab.includes(newType)));
+      (sectionNewTab.includes(newType) || (sectionNewTab.includes(currentType) && !sectionNewTab.includes(newType)));
 
     return { updateUrl: !openNewTab, pushHistory: true, openNewTab };
   }
