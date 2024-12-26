@@ -123,7 +123,7 @@ class Card extends React.PureComponent {
     return (
       <div className={classNames('ecos-kanban__card-body', { 'ecos-kanban__card-body_hidden': openerSet.has(data.cardId) })}>
         <FormWrapper
-          className={classNames('ecos-kanban__card-form', { 'ecos-kanban__card-form_inline': cardFieldsLabelLayout === 'LEFT' })}
+          className={classNames('ecos-kanban__card-form', { 'ecos-kanban__card-form_inline': cardFieldsLabelLayout === 'TOP' })}
           isVisible
           {...formProps}
           formData={data}

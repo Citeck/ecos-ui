@@ -26,7 +26,9 @@
 
   & .formio-form_view-mode dt,
   & .formio-form_view-mode dd {
-    word-break: break-word;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
   }
 
   &__dropdown {
@@ -355,6 +357,18 @@
         @extend %animationStripes;
         height: 15px;
       }
+
+      &_inline {
+        & > div dt,
+        dd {
+          width: 100%;
+        }
+
+        & > div dl {
+          display: grid;
+          padding: 2px 0;
+        }
+      }
     }
 
     &-action {
@@ -552,7 +566,6 @@
 
     &-head {
       padding-bottom: 0;
-      margin-bottom: 10px;
       position: relative;
       border-bottom: 1px solid $color-gray-6;
     }
