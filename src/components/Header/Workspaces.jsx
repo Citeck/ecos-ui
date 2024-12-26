@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 
 import WorkspaceSwitcher from '../common/icons/WorkspacesSwitcher';
 import WorkspacePreview from '../WorkspacePreview';
-import ClickOutside from '../ClickOutside';
 import { getWorkspaces, visitedAction } from '../../actions/workspaces';
 import { selectWorkspaces, selectWorkspaceIsLoading, selectWorkspaceIsError } from '../../selectors/workspaces';
 import { Loader } from '../common';
@@ -35,10 +34,27 @@ const Workspaces = ({
   fetchCreateCaseWidgetData
 }) => {
   const [active, setActive] = useState(false);
-  const [isClickOutside, setIsClickOutside] = useState(false);
+  const wrapperRef = useRef(null);
+
+  const toggleMenu = () => {
+    setActive(prev => !prev);
+  };
+
+  const closeMenu = () => {
+    setActive(false);
+  };
+
+  const handleClickOutside = event => {
+    if (wrapperRef.current && !wrapperRef.current.contains(event.target) && !event.target.closest(`#${documentId}`)) {
+      closeMenu();
+    }
+  };
 
   useEffect(() => {
-    getWorkspaces();
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
   const openLink = (id, homePageLink, openNewBrowserTab = false) => {
@@ -79,75 +95,62 @@ const Workspaces = ({
     }
   };
 
-  const handleClick = isOutside => {
-    if (isOutside && active) {
-      setIsClickOutside(true);
-      setActive(false);
-    } else if (!isClickOutside) {
-      setActive(true);
-    } else {
-      setIsClickOutside(false);
-    }
-  };
-
   const onEditWorkspace = (event, { id }) => {
     event.stopPropagation();
     FormManager.openFormModal({ record: id, saveOnSubmit: true, onSubmit: () => getWorkspaces() });
   };
 
   return (
-    <span id={documentId} className={classNames('ecos-header-workspaces', { active })} onClick={() => handleClick(false)}>
+    <span id={documentId} className={classNames('ecos-header-workspaces', { active })} onClick={toggleMenu}>
       {isLoading ? <Loader type="points" height={20} width={24} /> : <WorkspaceSwitcher />}
 
       {active && (
-        <ClickOutside handleClickOutside={() => handleClick(true)} excludeElements={[element]}>
-          <div className="workspace-panel">
-            {isError ? (
-              <h1>error</h1>
-            ) : (
-              <ul className="workspace-panel-list">
-                {workspaces.map(({ id, wsId, wsName, wsImage, homePageLink, hasWrite, isCurrentUserManager }, index) => (
-                  <li
-                    className="workspace-panel-list_item"
-                    key={index}
-                    onClick={e => handleClickLi(e, wsId, homePageLink)}
-                    onMouseDown={e => handleMouseDown(e, wsId, homePageLink)}
-                  >
-                    <WorkspacePreview url={wsImage} name={wsName} />
-                    <p className="workspace-panel-list_item-info" title={wsName}>
-                      {wsName}
-                    </p>
-                    {hasWrite && (
-                      <div className="workspace-panel-list_item_btn" onClick={e => onEditWorkspace(e, { id })}>
-                        <EditIcon />
-                      </div>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            )}
-            <hr />
-            <div className="workspace-panel-create-button">
-              <Btn
-                onClick={async () => {
-                  setActive(false);
+        <div ref={wrapperRef} className="workspace-panel">
+          {isError ? (
+            <h1>error</h1>
+          ) : (
+            <ul className="workspace-panel-list">
+              {workspaces.map(({ id, wsId, wsName, wsImage, homePageLink, hasWrite, isCurrentUserManager }, index) => (
+                <li
+                  className="workspace-panel-list_item"
+                  key={index}
+                  onClick={e => handleClickLi(e, wsId, homePageLink)}
+                  onMouseDown={e => handleMouseDown(e, wsId, homePageLink)}
+                >
+                  <WorkspacePreview url={wsImage} name={wsName} />
+                  <p className="workspace-panel-list_item-info" title={wsName}>
+                    {wsName}
+                  </p>
+                  {hasWrite && (
+                    <div className="workspace-panel-list_item_btn" onClick={e => onEditWorkspace(e, { id })}>
+                      <EditIcon />
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+          <hr />
+          <div className="workspace-panel-create-button">
+            <Btn
+              onClick={async () => {
+                setActive(false);
 
-                  const variant = await Records.get('emodel/type@workspace').load('createVariants?json');
+                const variant = await Records.get('emodel/type@workspace').load('createVariants?json');
 
-                  FormManager.createRecordByVariant(variant, {
-                    onAfterHideModal: () => getWorkspaces(),
-                    initiator: {
-                      type: 'form-component',
-                      name: 'CreateVariants'
-                    }
-                  });
-                }}
-              >
-                + {t('workspaces.create-button')}
-              </Btn>
-            </div>
+                FormManager.createRecordByVariant(variant, {
+                  onAfterHideModal: () => getWorkspaces(),
+                  initiator: {
+                    type: 'form-component',
+                    name: 'CreateVariants'
+                  }
+                });
+              }}
+            >
+              + {t('workspaces.create-button')}
+            </Btn>
           </div>
-        </ClickOutside>
+        </div>
       )}
     </span>
   );

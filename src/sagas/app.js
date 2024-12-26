@@ -200,10 +200,23 @@ export function* fetchAppEdition({ api, logger }) {
 
 export function* fetchLeftMenuEditable({ api, logger }) {
   try {
-    const isAdmin = yield select(state => get(state, 'user.isAdmin', false));
-    const menuVersion = yield select(state => get(state, 'menu.version', 0));
+    const state = yield select();
+    const workspaces = selectWorkspaces(state);
+    const wsId = getWorkspaceId();
 
-    yield put(setLeftMenuEditable(isAdmin && menuVersion > 0));
+    const isAdmin = get(state, 'user.isAdmin', false);
+    const menuVersion = get(state, 'menu.version', 0);
+    const workspacesEnabled = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+
+    let isEditable = isAdmin && menuVersion > 0;
+
+    if (workspacesEnabled && wsId) {
+      const currentWs = workspaces?.find(ws => ws?.wsId === wsId);
+      const isCurrentUserManager = get(currentWs, 'isCurrentUserManager', false);
+      isEditable = (isAdmin || isCurrentUserManager) && menuVersion > 0;
+    }
+
+    yield put(setLeftMenuEditable(isEditable));
   } catch (e) {
     logger.error('[app saga] fetchLeftMenuEditable error', e);
   }
