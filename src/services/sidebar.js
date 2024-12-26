@@ -50,8 +50,7 @@ export default class SidebarService {
       value = SourcesId.JOURNAL + '@' + query.journalId;
       key = 'config.recordRef';
     } else {
-      const params = new URLSearchParams(omit(query, ['activeLayoutId']));
-      value = `${pathname}?${params.toString()}`;
+      value = queryString.stringifyUrl({ url: pathname, query: omit(query, ['activeLayoutId']) }, { encode: false });
       key = 'config.url';
     }
 
@@ -94,6 +93,10 @@ export default class SidebarService {
 
       if (!targetUrl) {
         targetUrl = get(item, key);
+      }
+
+      if (targetUrl && value.includes('$') && targetUrl.includes('%24')) {
+        targetUrl = targetUrl.replace(/%24/g, '$'); // Removing the character encoding $
       }
 
       if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false) && targetUrl && targetUrl.includes('ws=')) {
