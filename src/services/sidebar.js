@@ -13,7 +13,7 @@ import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../consta
 import { MenuSettings } from '../constants/menu';
 import { ActionTypes, CountableItems } from '../constants/sidebar';
 import ULS from './userLocalSettings';
-import { JOURNAL_VIEW_MODE } from '../components/Journals/constants';
+import { isKanban, JOURNAL_VIEW_MODE } from '../components/Journals/constants';
 
 export default class SidebarService {
   static DROPDOWN_LEVEL = 1;
@@ -46,11 +46,12 @@ export default class SidebarService {
 
     let value, key;
 
-    if (pathname === URL.JOURNAL) {
+    if (pathname === URL.JOURNAL && !isKanban(get(query, 'viewMode'))) {
       value = SourcesId.JOURNAL + '@' + query.journalId;
       key = 'config.recordRef';
     } else {
-      value = queryString.stringifyUrl({ url: pathname, query: omit(query, ['activeLayoutId']) }, { encode: false });
+      const params = new URLSearchParams(omit(query, ['activeLayoutId']));
+      value = `${pathname}?${params.toString()}`;
       key = 'config.url';
     }
 
