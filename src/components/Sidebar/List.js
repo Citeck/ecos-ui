@@ -75,6 +75,7 @@ class List extends React.Component {
       <React.Fragment key={listItemKey}>
         <Item
           domId={listItemDomId}
+          viewTooltip={!hasSubItems && !isOpen && isItemExpanded && level === SidebarService.DROPDOWN_LEVEL}
           data={item}
           level={level}
           isExpanded={isItemExpanded}

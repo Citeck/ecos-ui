@@ -20,6 +20,7 @@ import RemoteBadge from './RemoteBadge';
 import WorkspacePreview from '../WorkspacePreview';
 import { ItemBtn, ItemLink } from './item-components';
 import { selectIsNewUIAvailable } from '../../selectors/user';
+import './style.scss';
 
 class Item extends React.Component {
   static propTypes = {
@@ -28,6 +29,7 @@ class Item extends React.Component {
     styleProps: PropTypes.object,
     level: PropTypes.number,
     isExpanded: PropTypes.bool,
+    viewTooltip: PropTypes.bool,
     isSelected: PropTypes.bool,
     inDropdown: PropTypes.bool,
     workspace: PropTypes.object
@@ -178,6 +180,18 @@ class Item extends React.Component {
     );
   }
 
+  renderLinkTooltip() {
+    const { isSiteDashboardEnable, data, isNewUIAvailable, handleClick } = this.props;
+    const extraParams = { isSiteDashboardEnable, isNewUIAvailable };
+    const label = extractLabel(data.label);
+
+    return (
+      <ItemLink data={data} extraParams={extraParams} handleClick={handleClick}>
+        <label className="ecos-sidebar-item__tooltip-link">{label}</label>
+      </ItemLink>
+    );
+  }
+
   renderBadge() {
     const { isOpen, data } = this.props;
 
@@ -198,7 +212,6 @@ class Item extends React.Component {
 
   render() {
     const {
-      data,
       level,
       domId,
       isOpen,
@@ -207,30 +220,30 @@ class Item extends React.Component {
       inDropdown,
       boundariesElement = 'viewport',
       toggleTooltip,
-      styleProps: { noIcon, isSeparator, isClosedSeparator, hiddenLabel }
+      viewTooltip,
+      styleProps: { isSeparator, isClosedSeparator, hiddenLabel }
     } = this.props;
     const events = {};
+
+    const targetId = this.removeDollarAndHash(domId);
 
     if (isOpen || inDropdown) {
       events.onClick = this.onToggleList;
     }
 
-    const isViewTooltip = !isOpen && !noIcon && !this.hasSubItems;
-    const targetId = this.removeDollarAndHash(domId);
-
     return (
       <Tooltip
         target={targetId}
+        isOpen={viewTooltip}
         placement="right-start"
         trigger="hover"
-        uncontrolled
         delay={250}
-        autohide
+        autohide={false}
         onToggle={toggleTooltip}
         hideArrow
         boundariesElement={boundariesElement}
-        off={!isViewTooltip}
-        text={isViewTooltip && extractLabel(get(data, 'label', ''))}
+        contentComponent={this.renderLinkTooltip()}
+        innerClassName="ecos-sidebar-item__tooltip-inner"
         className="ecos-sidebar-list-dropdown-menu"
         modifiers={[
           {

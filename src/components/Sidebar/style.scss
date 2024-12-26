@@ -237,6 +237,38 @@ $transition-duration: 0.3s;
       }
     }
 
+    &__tooltip {
+      &-inner {
+        cursor: pointer;
+      }
+
+      &-inner.tooltip-inner {
+        width: 100%;
+        height: 100%;
+        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 3px 4px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.14);
+        border-radius: $border-radius-extra-large;
+        background-color: $color-white;
+        text-align: left;
+        padding: 0;
+        margin: 0;
+        max-width: 277px;
+        max-height: 100vh;
+        overflow-y: auto;
+
+        &:hover {
+          background-color: $color-gray-25;
+        }
+      }
+
+      &-link {
+        cursor: pointer;
+        color: $text-color-dark;
+        font-size: 13px;
+        font-weight: $font-weight-semi-bold;
+        margin: 9px;
+      }
+    }
+
     &__link {
       width: 100%;
       height: 100%;
