@@ -368,13 +368,26 @@
   }
 
   .ecos-header__side {
-    & > :not(:last-child) {
+    &_left {
       margin-right: 6px;
     }
+
+    & > :not(:last-child) {
+      margin-right: 6px;
+      height: 32px;
+    }
+
     .ecos-header-hamburger {
       margin-left: 8px;
       margin-right: 16px;
       align-self: center;
+    }
+  }
+
+  .ecos-input-search {
+    .ecos-input {
+      height: 32px;
+      font-size: 12px;
     }
   }
 
