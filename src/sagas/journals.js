@@ -658,7 +658,10 @@ export function* getGridData(api, params, stateId) {
   const journalData = JournalsConverter.getJournalDataWeb(resultData);
 
   if (!get(grouping, 'groupBy', []).length) {
-    yield put(setGrid(w({ ...params, ...journalData })));
+    const gridParams = { ...params, ...journalData };
+    delete gridParams.fromGroupBy;
+
+    yield put(setGrid(w(gridParams)));
     yield put(setLoadingGrid(w(false)));
   }
 
