@@ -18,6 +18,8 @@ import { NODE_TYPES } from '../../../constants/docLib';
 
 import './styles.scss';
 
+const STORAGE_KEY_ACTIVE_TAB = 'uploadStatus_currentTabActive';
+
 const UploadStatus = () => {
   const [isReadyLoadData, setIsReadyLoadData] = useState(false);
   const [titleRenamingItem, setTitleRenamingItem] = useState('');
@@ -45,10 +47,30 @@ const UploadStatus = () => {
         }
       };
 
+      const handleVisibilityChange = () => {
+        if (document.visibilityState === 'hidden') {
+          localStorage.setItem(STORAGE_KEY_ACTIVE_TAB, 'false');
+          handleConfirmResponseRenameItem(false);
+        } else {
+          localStorage.setItem(STORAGE_KEY_ACTIVE_TAB, 'true');
+        }
+      };
+
+      // When switching to the same tab, disable the name conflict warning
+      const handleStorageEvent = event => {
+        if (event.key === STORAGE_KEY_ACTIVE_TAB && event.newValue === 'false') {
+          handleConfirmResponseRenameItem(false);
+        }
+      };
+
       window.addEventListener('beforeunload', handleBeforeUnload);
+      window.addEventListener('storage', handleStorageEvent);
+      document.addEventListener('visibilitychange', handleVisibilityChange);
 
       return () => {
         window.removeEventListener('beforeunload', handleBeforeUnload);
+        window.removeEventListener('storage', handleStorageEvent);
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
       };
     },
     [status]

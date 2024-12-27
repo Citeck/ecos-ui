@@ -291,7 +291,7 @@ class JournalsDashletGrid extends Component {
           {/* loadingGrid is an indicator of the loading of the primary data of the table. You can't change it to global loading */}
           {!isWidget && loadingGrid && <Loader blur />}
           {!loading && isEmpty(viewColumns) && <InfoText text={t('journal.table.no-columns')} />}
-          <HeightCalculation loading={loading} minHeight={minHeight} maxHeight={maxHeight} total={total} maxItems={maxItems}>
+          <HeightCalculation loading={loadingGrid} minHeight={minHeight} maxHeight={maxHeight} total={total} maxItems={maxItems}>
             <Grid
               isBlockNewJournalFormatter={isBlockNewJournalFormatter}
               recordRef={meta.metaRecord}

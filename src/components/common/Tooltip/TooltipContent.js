@@ -138,7 +138,7 @@ export class TooltipContent extends Component {
       return this.props.container === 'inline'
         ? this.renderChildren()
         : ReactDOM.createPortal(
-            <div ref={this.getRef} style={{ zIndex: 10001, position: 'relative' }}>
+            <div ref={this.getRef} style={{ zIndex: 10002, position: 'relative' }}>
               {this.renderChildren()}
             </div>,
             this.getContainerNode()

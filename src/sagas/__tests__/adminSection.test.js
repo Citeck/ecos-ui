@@ -48,7 +48,7 @@ describe('adminSection sagas tests', () => {
       ).done;
 
       expect(_changeUrlLink).toHaveBeenCalled();
-      expect(_changeUrlLink).toHaveBeenCalledWith('/v2/admin?type=BPM&ws=', { openNewTab: false, pushHistory: true, updateUrl: true });
+      expect(_changeUrlLink).toHaveBeenCalledWith('/v2/admin?type=BPM', { openNewTab: false, pushHistory: true, updateUrl: true });
       expect(dispatched.length).toEqual(0);
     });
 
@@ -67,7 +67,7 @@ describe('adminSection sagas tests', () => {
       ).done;
 
       expect(_changeUrlLink).toHaveBeenCalled();
-      expect(_changeUrlLink).toHaveBeenCalledWith('/v2/admin?journalId=test&type=JOURNAL&ws=', {
+      expect(_changeUrlLink).toHaveBeenCalledWith('/v2/admin?journalId=test&type=JOURNAL', {
         openNewTab: false,
         pushHistory: true,
         updateUrl: true
@@ -90,7 +90,7 @@ describe('adminSection sagas tests', () => {
       ).done;
 
       expect(_changeUrlLink).toHaveBeenCalled();
-      expect(_changeUrlLink).toHaveBeenCalledWith('/v2/admin?type=DEV_TOOLS&ws=', {
+      expect(_changeUrlLink).toHaveBeenCalledWith('/v2/admin?type=DEV_TOOLS', {
         openNewTab: false,
         pushHistory: true,
         updateUrl: true
@@ -113,7 +113,7 @@ describe('adminSection sagas tests', () => {
       ).done;
 
       expect(_changeUrlLink).toHaveBeenCalled();
-      expect(_changeUrlLink).toHaveBeenCalledWith('/v2/admin?type=DEV_TOOLS&ws=', {
+      expect(_changeUrlLink).toHaveBeenCalledWith('/v2/admin?type=DEV_TOOLS', {
         openNewTab: true,
         pushHistory: true,
         updateUrl: false

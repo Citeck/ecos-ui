@@ -110,7 +110,7 @@ function* filterSiteMenu({ logger }, { payload = {} }) {
 
     let isDashboardPage = false;
 
-    if (identification) {
+    if (identification && url) {
       isDashboardPage = Boolean(get(payload, ['identification', 'id'], null));
     }
 

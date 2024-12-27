@@ -61,13 +61,17 @@ export default class AdminSectionService {
   static getURLSection(info) {
     const type = get(info, 'type');
     const ws = getWorkspaceId();
+    const query = { type };
+    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+      query.ws = ws;
+    }
 
     switch (type) {
       case SectionTypes.JOURNAL: {
-        return queryString.stringifyUrl({ url: URL.ADMIN_PAGE, query: { type, ws, journalId: get(info, 'config.journalId') } });
+        return queryString.stringifyUrl({ url: URL.ADMIN_PAGE, query: { ...query, journalId: get(info, 'config.journalId') } });
       }
       default: {
-        return queryString.stringifyUrl({ url: URL.ADMIN_PAGE, query: { type, ws } });
+        return queryString.stringifyUrl({ url: URL.ADMIN_PAGE, query });
       }
     }
   }
