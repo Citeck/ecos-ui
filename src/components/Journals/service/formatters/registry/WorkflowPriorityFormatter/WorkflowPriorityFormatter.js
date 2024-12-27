@@ -1,4 +1,5 @@
 import React from 'react';
+import get from 'lodash/get';
 
 import { t } from '../../../../../../helpers/util';
 
@@ -24,14 +25,17 @@ export default class WorkflowPriorityFormatter extends BaseFormatter {
   format(props) {
     const { cell } = props;
     const priority = WorkflowPriorityFormatter.getDisplayText(cell);
+    const enabledNewJournal = get(window, 'Citeck.navigator.NEW_JOURNAL_ENABLED', false);
 
-    return priority ? (
+    const ContentPriority = enabledNewJournal ? (
       <div className="workflow-priority-formatter">
         <span className={`workflow-priority-formatter__pointer workflow-priority-formatter_${Codes[cell]}`} />
         <span className="workflow-priority-formatter__priority">{priority}</span>
       </div>
     ) : (
-      <React.Fragment>{this.value(cell)}</React.Fragment>
+      <span className={`workflow-priority-formatter workflow-priority-formatter_${Codes[cell]}`}>{priority}</span>
     );
+
+    return priority ? ContentPriority : <React.Fragment>{this.value(cell)}</React.Fragment>;
   }
 }

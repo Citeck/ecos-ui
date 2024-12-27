@@ -51,6 +51,7 @@ export function* initApp({ api, logger }, { payload }) {
 
     try {
       const { query } = queryString.parseUrl(window.location.href);
+      const isViewNewJournal = yield ConfigService.getValue(NEW_JOURNAL_ENABLED);
 
       const resp = yield call(api.user.getUserData);
       const workspaceConfig = yield loadConfigs({
@@ -83,6 +84,7 @@ export function* initApp({ api, logger }, { payload }) {
         // TODO remove in future: see src/helpers/util.js getCurrentUserName()
         lodashSet(window, 'Citeck.constants.USERNAME', get(resp.payload, 'userName'));
         lodashSet(window, 'Citeck.navigator.WORKSPACES_ENABLED', workspaceConfig[WORKSPACES_ENABLED]);
+        lodashSet(window, 'Citeck.navigator.NEW_JOURNAL_ENABLED', isViewNewJournal);
 
         if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
           lodashSet(window, 'Citeck.navigator.WORKSPACE', getWorkspaceId());
@@ -98,7 +100,6 @@ export function* initApp({ api, logger }, { payload }) {
       yield put(setRedirectToNewUi(!isForceOldUserDashboardEnabled));
 
       const homeLink = yield ConfigService.getValue(HOME_LINK_URL);
-      const isViewNewJournal = yield ConfigService.getValue(NEW_JOURNAL_ENABLED);
       if (isBoolean(isViewNewJournal)) {
         yield put(setViewNewJournal(isViewNewJournal));
       }
