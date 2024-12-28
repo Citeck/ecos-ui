@@ -108,6 +108,10 @@ function* filterSiteMenu({ logger }, { payload = {} }) {
       url = tabLink;
     }
 
+    if (!url) {
+      url = window.location.pathname;
+    }
+
     let isDashboardPage = false;
 
     if (identification && url) {

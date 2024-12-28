@@ -931,7 +931,12 @@ export function isClosestHidden(el = null) {
   let node = el;
 
   if (isString(node)) {
-    node = document.querySelector(el);
+    try {
+      node = document.querySelector(el);
+    } catch (error) {
+      console.error(`Invalid selector: ${el}`);
+      return true;
+    }
   }
 
   if (!node) {

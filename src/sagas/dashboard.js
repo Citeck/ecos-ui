@@ -67,7 +67,7 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
     if (isReset) {
       throw new Error('info: Dashboard is unmounted');
     }
-    yield put(setDashboardIdentification({ ...webKeyInfo, key: payload.key }));
+    yield put(setDashboardIdentification({ ...webKeyInfo, key: payload.key, url: window.location.pathname }));
     yield put(
       setDashboardConfig({
         config: get(webConfigs, 'config.layouts', []),
