@@ -361,7 +361,7 @@
       &_inline {
         & > div dt,
         dd {
-          width: max-content;
+          width: max-content !important;
         }
 
         & > div dl {
