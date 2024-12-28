@@ -51,6 +51,7 @@ class Item extends React.Component {
       nextProps.isExpanded !== this.props.isExpanded ||
       nextProps.isSelected !== this.props.isSelected ||
       nextProps.inDropdown !== this.props.inDropdown ||
+      nextProps.viewTooltip !== this.props.viewTooltip ||
       nextProps.isOpen !== this.props.isOpen ||
       !isEqual({ label: label_1, icon: icon_1 }, { label: label_2, icon: icon_2 })
     );
@@ -210,26 +211,47 @@ class Item extends React.Component {
     ) : null;
   }
 
-  render() {
+  renderContentItem(targetId = '') {
     const {
       level,
-      domId,
       isOpen,
       isExpanded,
       isSelected,
       inDropdown,
-      boundariesElement = 'viewport',
-      toggleTooltip,
-      viewTooltip,
       styleProps: { isSeparator, isClosedSeparator, hiddenLabel }
     } = this.props;
     const events = {};
 
-    const targetId = this.removeDollarAndHash(domId);
-
     if (isOpen || inDropdown) {
       events.onClick = this.onToggleList;
     }
+
+    return (
+      <div
+        id={targetId}
+        className={classNames('ecos-sidebar-item', `ecos-sidebar-item_lvl-${level}`, {
+          'ecos-sidebar-item_collapsible': this.collapsible,
+          'ecos-sidebar-item_last-lvl': !this.hasSubItems,
+          'ecos-sidebar-item_nested-expanded': isExpanded && this.hasSubItems,
+          'ecos-sidebar-item_selected': !isSeparator && isSelected,
+          'ecos-sidebar-item_title-separator': isSeparator,
+          'ecos-sidebar-item_line-separator': !isOpen && isClosedSeparator,
+          'ecos-sidebar-item_hidden': hiddenLabel
+        })}
+        ref={this.menuItemRef}
+        {...events}
+      >
+        {this.renderLabel()}
+        {this.renderBadge()}
+        {this.renderToggle()}
+      </div>
+    );
+  }
+
+  render() {
+    const { domId, boundariesElement = 'viewport', toggleTooltip, viewTooltip } = this.props;
+
+    const targetId = this.removeDollarAndHash(domId);
 
     return (
       <Tooltip
@@ -254,31 +276,14 @@ class Item extends React.Component {
           }
         ]}
       >
-        <div
-          id={targetId}
-          className={classNames('ecos-sidebar-item', `ecos-sidebar-item_lvl-${level}`, {
-            'ecos-sidebar-item_collapsible': this.collapsible,
-            'ecos-sidebar-item_last-lvl': !this.hasSubItems,
-            'ecos-sidebar-item_nested-expanded': isExpanded && this.hasSubItems,
-            'ecos-sidebar-item_selected': !isSeparator && isSelected,
-            'ecos-sidebar-item_title-separator': isSeparator,
-            'ecos-sidebar-item_line-separator': !isOpen && isClosedSeparator,
-            'ecos-sidebar-item_hidden': hiddenLabel
-          })}
-          ref={this.menuItemRef}
-          {...events}
-        >
-          {this.renderLabel()}
-          {this.renderBadge()}
-          {this.renderToggle()}
-        </div>
+        {this.renderContentItem(targetId)}
       </Tooltip>
     );
   }
 }
 
 const mapStateToProps = state => ({
-  isOpen: state.slideMenu.isOpen,
+  isOpen: get(state, 'slideMenu.isOpen'),
   isSiteDashboardEnable: state.slideMenu.isSiteDashboardEnable,
   isMobile: state.view.isMobile,
   isNewUIAvailable: selectIsNewUIAvailable(state)
