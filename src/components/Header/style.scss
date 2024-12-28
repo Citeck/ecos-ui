@@ -364,7 +364,7 @@
 
   .icon:not(.ecos-avatar__icon) {
     font-size: $font-size-standard;
-    line-height: 1em;
+    line-height: 0;
   }
 
   .ecos-header__side {
@@ -387,6 +387,7 @@
   .ecos-input-search {
     .ecos-input {
       height: 32px;
+      padding-left: 32px;
       font-size: 12px;
     }
   }
