@@ -1,3 +1,8 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { Provider } from 'react-redux';
+import { $getRoot } from 'lexical';
+import { $generateNodesFromDOM } from '@lexical/html';
 import get from 'lodash/get';
 import merge from 'lodash/merge';
 import cloneDeep from 'lodash/cloneDeep';
@@ -7,6 +12,8 @@ import NativePromise from 'native-promise-only';
 import Formio from 'formiojs/Formio';
 import FormIOTextAreaComponent from 'formiojs/components/textarea/TextArea';
 
+import RichTextEditor from '../../../../components/RichTextEditor';
+import { store } from '../../../../index';
 import { overrideTriggerChange } from '../misc';
 
 export default class TextAreaComponent extends FormIOTextAreaComponent {
@@ -33,6 +40,10 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     return TextAreaComponent.schema();
   }
 
+  get isLexicalEditor() {
+    return this.component.editor === 'lexical';
+  }
+
   get isCkeEditor() {
     return this.component.editor === 'ckeditor';
   }
@@ -49,6 +60,12 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     const skipSetting = isEqual(value, this.getValue());
 
     value = value || '';
+
+    if (this.isLexicalEditor) {
+      this.dataValue = value;
+      this.setWysiwygValue(value, skipSetting, flags);
+      return this.updateValue(flags);
+    }
 
     if (this.options.readOnly || this.htmlView) {
       // For readOnly, just view the contents.
@@ -75,6 +92,25 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     this.setWysiwygValue(value, skipSetting, flags);
 
     return this.updateValue(flags); // Cause: ECOSUI-675 - Group list is not loaded in user info
+  }
+
+  setWysiwygValue(value, skipSetting, flags) {
+    if (this.isLexicalEditor) {
+      this.editorReady.then(editor => {
+        editor.update(() => {
+          const parser = new DOMParser();
+          const dom = parser.parseFromString(value || '', 'text/html');
+          const nodes = $generateNodesFromDOM(editor, dom);
+
+          const root = $getRoot();
+          root.clear();
+          root.append(...nodes);
+        });
+      });
+      return;
+    }
+
+    super.setWysiwygValue(value, skipSetting, flags);
   }
 
   createViewOnlyElement() {
@@ -133,6 +169,27 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     } else {
       element.textContent = value;
     }
+  }
+
+  addLexical(element, settings, onChange) {
+    return new Promise(resolve => {
+      const container = document.createElement('div');
+      container.className = 'lexical-editor-container';
+      element.appendChild(container);
+
+      ReactDOM.render(
+        <Provider store={store}>
+          <RichTextEditor
+            hideToolbar={settings.hideToolbar}
+            readonly={settings.readonly}
+            onChange={onChange}
+            editorState={this.dataValue || ''}
+          />
+        </Provider>,
+        container,
+        () => resolve(container)
+      );
+    });
   }
 
   addCKE(element, settings, onChange) {
@@ -289,6 +346,14 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       return;
     }
 
+    if (this.isLexicalEditor) {
+      const settings = this.component.wysiwyg || {};
+      this.addLexical(this.input, settings, newValue => {
+        this.updateEditorValue(newValue);
+      });
+      return this.input;
+    }
+
     if (this.isAceEditor) {
       const settings = cloneDeep(this.component.wysiwyg || {});
       const props = { rows: this.component.rows };
@@ -373,6 +438,15 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       this.wysiwygRendered = false;
       this.editorReady = null;
     }
+  }
+
+  destroyWysiwyg() {
+    if (this.isLexicalEditor && this.editor) {
+      this.editor.unmount();
+      this.editor = null;
+    }
+
+    super.destroyWysiwyg();
   }
 
   show(show, noClear) {
