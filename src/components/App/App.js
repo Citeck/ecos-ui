@@ -29,7 +29,7 @@ import { isMobileAppWebView, t } from '../../helpers/util';
 import pageTabList from '../../services/pageTabs/PageTabList';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import { PopupContainer } from '../common/Popper';
-import { getLinkWithWs, getWorkspaceId } from '../../helpers/urls';
+import { getLinkWithWs, getUrlWithWorkspace, getWorkspaceId } from '../../helpers/urls';
 import { MenuSettingsController } from '../MenuSettings';
 import PageService from '../../services/PageService';
 import PageTabList from '../../services/pageTabs/PageTabList';
@@ -120,9 +120,7 @@ class App extends Component {
 
       if (!search.includes('ws=') && !BASE_URLS_REDIRECT.includes(location.pathname)) {
         const activePrev = PageTabList.activeTab;
-        searchParams.set('ws', workspaceId);
-
-        const newUrl = `${location.pathname}?${searchParams.toString()}`;
+        const newUrl = getUrlWithWorkspace(location.pathname, search, workspaceId);
 
         PageService.changeUrlLink(newUrl, { openNewTab: true });
 

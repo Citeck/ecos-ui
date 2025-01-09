@@ -398,6 +398,18 @@ export const getLinkWithOrigin = (link = '') => {
   return link && !link.includes('http') && link[0] === '/' ? window.location.origin + link : link;
 };
 
+export const getUrlWithWorkspace = (path, urlSearch, workspaceId) => {
+  const pathname = path || window.location.pathname;
+  const search = urlSearch || window.location.search;
+  const searchParams = search ? new URLSearchParams(search) : new URLSearchParams();
+
+  if (!!workspaceId) {
+    searchParams.set('ws', workspaceId);
+  }
+
+  return `${pathname}?${searchParams.toString()}`;
+};
+
 export const getWsIdOfTabLink = (link = '') => {
   if (link && link.includes('ws=')) {
     const url = !link.includes('http') && link[0] === '/' ? window.location.origin + link : link;

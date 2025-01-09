@@ -144,4 +144,31 @@ describe('Urls helpers', () => {
       });
     });
   });
+
+  describe('Method getUrlWithWorkspace', () => {
+    const url = new URL(
+      'https://example.com/v2/dashboard?activeTab=0&recordRef=emodel/sd-request-type@28ad7478-b848-40cc-8056-afaa512daf0a'
+    );
+    const wsId = 'example-default';
+
+    // URLSearchParams encodes special characters ('/', '@')
+    const data = [
+      {
+        title: 'Add a workspace ID for a direct link',
+        input: [url.pathname, url.search, wsId],
+        output: `/v2/dashboard?activeTab=0&recordRef=emodel%2Fsd-request-type%4028ad7478-b848-40cc-8056-afaa512daf0a&ws=${wsId}`
+      },
+      {
+        title: 'Do not add a workspace identifier if it is not defined',
+        input: [url.pathname, url.search],
+        output: `/v2/dashboard?activeTab=0&recordRef=emodel%2Fsd-request-type%4028ad7478-b848-40cc-8056-afaa512daf0a`
+      }
+    ];
+
+    data.forEach(item => {
+      it(item.title, () => {
+        expect(UrlUtils.getUrlWithWorkspace(...item.input)).toEqual(item.output);
+      });
+    });
+  });
 });
