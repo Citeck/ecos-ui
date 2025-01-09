@@ -92,8 +92,8 @@ class App extends Component {
     const prevSearch = get(prevProps, 'location.search');
     const search = get(location, 'search');
 
-    const searchParams = new URLSearchParams(search);
-    const prevSearchParams = new URLSearchParams(prevSearch);
+    const searchParams = search ? new URLSearchParams(search) : new URLSearchParams();
+    const prevSearchParams = prevSearch ? new URLSearchParams(prevSearch) : new URLSearchParams();
 
     const workspaceId = getWorkspaceId(defaultWorkspace, search);
     const enabledWorkspaces = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
@@ -120,9 +120,9 @@ class App extends Component {
 
       if (!search.includes('ws=') && !BASE_URLS_REDIRECT.includes(location.pathname)) {
         const activePrev = PageTabList.activeTab;
+        searchParams.set('ws', workspaceId);
 
-        const newUrl =
-          search && search[0] === '?' ? `${location.pathname}${search}&ws=${workspaceId}` : `${location.pathname}?ws=${workspaceId}`;
+        const newUrl = `${location.pathname}?${searchParams.toString()}`;
 
         PageService.changeUrlLink(newUrl, { openNewTab: true });
 
