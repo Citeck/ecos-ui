@@ -235,7 +235,7 @@ const JournalsSettingsBar = ({
               'ecos-journal__btn_new_focus': isOpenDropdownImport
               // 'ecos-journal__btn_new export': isViewNewJournal
             })}
-            loading={isLoading}
+            // loading={isLoading}
           >
             {/*{isViewNewJournal ? <ImportIcon /> : t(Labels.BTN_IMPORT)}*/}
             {t(Labels.BTN_IMPORT)}
