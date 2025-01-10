@@ -98,8 +98,6 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     if (this.isLexicalEditor) {
       this.editorReady.then(editor => {
         editor.update(() => {
-          const htmlContent = $generateHtmlFromNodes(editor, null);
-          console.log('htmlContent:', htmlContent); // FIXME: при обновлении/сохранении редактора сюда не заходит
           const parser = new DOMParser();
           const dom = parser.parseFromString(value || '', 'text/html');
           const nodes = $generateNodesFromDOM(editor, dom);
@@ -352,12 +350,11 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
     if (this.isLexicalEditor) {
       const settings = this.component.wysiwyg || {};
-      this.addLexical(this.input, settings, (newValue, editor) => {
+      this.addLexical(this.input, settings, (editorState, editor) => {
         editor.update(() => {
-          const htmlComment = $generateHtmlFromNodes(editor, null);
-          console.log('htmlComment:', htmlComment); // TODO: updateEditorValue не принимает отсюда htmlComment. Ноды заменить на htmlComment
+          const html = $generateHtmlFromNodes(editor);
+          this.updateEditorValue(html);
         });
-        this.updateEditorValue(newValue);
       });
       return this.input;
     }
