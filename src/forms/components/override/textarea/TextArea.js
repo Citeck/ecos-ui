@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { $getRoot } from 'lexical';
-import { $generateNodesFromDOM } from '@lexical/html';
+import { $generateNodesFromDOM, $generateHtmlFromNodes } from '@lexical/html';
 import get from 'lodash/get';
 import merge from 'lodash/merge';
 import cloneDeep from 'lodash/cloneDeep';
@@ -13,8 +13,8 @@ import Formio from 'formiojs/Formio';
 import FormIOTextAreaComponent from 'formiojs/components/textarea/TextArea';
 
 import RichTextEditor from '../../../../components/RichTextEditor';
-import { store } from '../../../../index';
 import { overrideTriggerChange } from '../misc';
+import { getStore } from '../../../../store';
 
 export default class TextAreaComponent extends FormIOTextAreaComponent {
   static schema(...extend) {
@@ -98,6 +98,8 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     if (this.isLexicalEditor) {
       this.editorReady.then(editor => {
         editor.update(() => {
+          const htmlContent = $generateHtmlFromNodes(editor, null);
+          console.log('htmlContent:', htmlContent); // FIXME: при обновлении/сохранении редактора сюда не заходит
           const parser = new DOMParser();
           const dom = parser.parseFromString(value || '', 'text/html');
           const nodes = $generateNodesFromDOM(editor, dom);
@@ -173,6 +175,8 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
   addLexical(element, settings, onChange) {
     return new Promise(resolve => {
+      const store = getStore();
+
       const container = document.createElement('div');
       container.className = 'lexical-editor-container';
       element.appendChild(container);
@@ -348,7 +352,11 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
     if (this.isLexicalEditor) {
       const settings = this.component.wysiwyg || {};
-      this.addLexical(this.input, settings, newValue => {
+      this.addLexical(this.input, settings, (newValue, editor) => {
+        editor.update(() => {
+          const htmlComment = $generateHtmlFromNodes(editor, null);
+          console.log('htmlComment:', htmlComment); // TODO: updateEditorValue не принимает отсюда htmlComment. Ноды заменить на htmlComment
+        });
         this.updateEditorValue(newValue);
       });
       return this.input;
