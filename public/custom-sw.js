@@ -29,13 +29,14 @@ self.addEventListener('message', (event) => {
 
   switch (type) {
     case 'UPLOAD_PROGRESS':
-      const { status, errorStatus, file, totalCount, successFileCount, requestId, isCancelled } = event.data;
+      const { status, isImporting, errorStatus, file, totalCount, successFileCount, requestId, isCancelled } = event.data;
       self.clients.matchAll().then(clients => {
         clients.forEach(client => {
           client.postMessage({
             type: 'UPDATE_UPLOAD_STATUS',
             status,
             errorStatus,
+            isImporting,
             isCancelled,
             file,
             totalCount,

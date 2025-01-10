@@ -72,7 +72,8 @@ import {
   cancelReloadGrid,
   cancelLoadGrid,
   cancelInitJournal,
-  cancelGoToPageJournal
+  cancelGoToPageJournal,
+  setImportDataConfig
 } from '../actions/journals';
 import {
   selectGridPaginationMaxItems,
@@ -968,6 +969,12 @@ function* sagaInitJournal({ api, logger, stateId, w }, { payload }) {
           if (isBoolean(isViewNewJournal)) {
             yield put(setViewNewJournal(isViewNewJournal));
           }
+        }
+
+        const journalType = yield Records.get(`uiserv/rjournal@${journalId}`).load('typeRef?str');
+        const importDataConfig = yield call(api.journals.getImportDataConfig, journalType);
+        if (importDataConfig && importDataConfig.length) {
+          yield put(setImportDataConfig(w(importDataConfig)));
         }
 
         const isEmptyConfig = isEqual(journalConfig, emptyJournalConfig);

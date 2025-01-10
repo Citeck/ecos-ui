@@ -457,6 +457,7 @@
   "document-library.no-folders": "Нет папок",
   "document-library.empty-folder": "Папка пуста",
   "document-library.files-loader": "Загрузка файлов",
+  "document-library.file-loader": "Загрузка файла",
   "document-library.failure-to-fetch-data": "Не удалось загрузить данные",
   "document-library.sidebar.failure-to-load-children": "Не удалось загрузить вложенные папки",
   "document-library.create-node.title": "Создать \"{{name}}\"",
@@ -754,6 +755,10 @@
   "kanban-widget.settings.bnt.save": "Сохранить",
   "kanban-widget.title": "Доска {{ journal }}",
   "kanban-widget.no-journal": "Нет выбранных журналов. Перейдите в настройки.",
+
+  "import-component.record.error-update": "Ошибка при обновлении Record'а {{ record }}: {{ error }}",
+  "import-component.attributes.error": "Ошибка в настройке варианта импорта",
+  "import-component.download": "Скачать шаблон",
 
   "export-component.action.html-load": "HTML (скачивание)",
   "export-component.action.html-read": "HTML (просмотр)",
@@ -1132,6 +1137,7 @@
   "journals.bar.btn.settings-table": "Настройки таблицы",
   "journals.bar.btn.settings-journal": "Настройки журнала",
   "journals.bar.btn.export": "Экспорт",
+  "journals.bar.btn.import": "Импорт",
   "journals.bar.btn.update": "Обновить данные",
   "journals.bar.btn.filter-del": "Сбросить фильтры",
   "journals.bar.btn.toggle-menu": "Меню",
