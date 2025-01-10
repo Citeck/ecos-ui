@@ -269,7 +269,12 @@ class Import extends Component {
           const file = get(form, 'data.inputFileRef[0]');
           const formSubmitDonePromise = get(form, 'options.formSubmitDonePromise');
 
-          const fileData = { file };
+          const fileData = {
+            file: {
+              ...file,
+              name: get(file, 'originalName', get(file, 'name'))
+            }
+          };
 
           if (formSubmitDonePromise) {
             formSubmitDonePromise.then(res => {
