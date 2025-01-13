@@ -20,7 +20,7 @@ self.onmessage = async (event) => {
   let isAllReplace = false;
 
   const items = [];
-  const childrenRootDir = await getFolderItems(folderId);
+  const childrenRootDir = await getFolderItems(folderId, ws);
 
   const isFoundItem = (item, children) =>
     children &&
@@ -58,8 +58,8 @@ self.onmessage = async (event) => {
           break;
 
         case foundItem && foundItem.attributes.nodeType === NODE_TYPES.DIR && !!foundItem.id:
-          const childrenFirstDir = await getFolderItems(foundItem.id);
-          const foldersWithChildren = await getAllFolders(item.files, childrenFirstDir, foundItem.attributes.name);
+          const childrenFirstDir = await getFolderItems(foundItem.id, ws);
+          const foldersWithChildren = await getAllFolders(item.files, childrenFirstDir, foundItem.attributes.name, ws);
 
           const dirFiles = [];
           for (const file of item.files) {
@@ -119,7 +119,7 @@ self.onmessage = async (event) => {
   }
 };
 
-async function getAllFolders(files, childrenRootDir, rootFolderTitle) {
+async function getAllFolders(files, childrenRootDir, rootFolderTitle, ws) {
   const uniqueFolders = new Set();
   const foldersWithChildren = {};
 
@@ -156,7 +156,7 @@ async function getAllFolders(files, childrenRootDir, rootFolderTitle) {
 
           if (foundFolder && foundFolder.id) {
             if (!foldersWithChildren[lastPathFolder]) {
-              foldersWithChildren[lastPathFolder] = await getFolderItems(foundFolder.id);
+              foldersWithChildren[lastPathFolder] = await getFolderItems(foundFolder.id, ws);
             }
 
             if (foundFolder.attributes.hasChildrenDirs) {
@@ -175,7 +175,7 @@ async function getAllFolders(files, childrenRootDir, rootFolderTitle) {
 
           if (foundFolder && foundFolder.id) {
             if (!foldersWithChildren[lastPathFolder]) {
-              foldersWithChildren[lastPathFolder] = await getFolderItems(foundFolder.id);
+              foldersWithChildren[lastPathFolder] = await getFolderItems(foundFolder.id, ws);
             }
 
             if (foundFolder.attributes.hasChildrenDirs) {
@@ -319,7 +319,7 @@ function getConfirmationFromMainThread(file) {
   });
 }
 
-async function getFolderItems(parentRef) {
+async function getFolderItems(parentRef, ws) {
   const query = { parentRef };
 
   const querySettings = {
@@ -328,6 +328,10 @@ async function getFolderItems(parentRef) {
     language: 'children',
     sortBy: [{ attribute: 'nodeType', ascending: true }, { attribute: '?disp', ascending: true }]
   };
+
+  if (!!ws) {
+    querySettings.workspaces = [ws];
+  }
 
   const response = await citeckFetch("/gateway/api/records/query", {
     body: {
