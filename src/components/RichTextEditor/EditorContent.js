@@ -11,6 +11,7 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
 import { $generateNodesFromDOM } from '@lexical/html';
 import { $getRoot, $createTextNode, TextNode, ElementNode, $createParagraphNode } from 'lexical';
+import isFunction from 'lodash/isFunction';
 import isNil from 'lodash/isNil';
 import classNames from 'classnames';
 
@@ -29,7 +30,7 @@ import { t } from '../../helpers/util';
 
 import './style.scss';
 
-export const EditorContent = ({ onChange, htmlString, readonly = false, hideToolbar = false, className }) => {
+export const EditorContent = ({ onChange, htmlString, readonly = false, hideToolbar = false, className, onEditorReady }) => {
   const [editor] = useLexicalComposerContext();
   const [floatingAnchorElem, setFloatingAnchorElem] = useState(null);
   const [isMaxLength, setIsMaxLength] = useState(false);
@@ -40,6 +41,15 @@ export const EditorContent = ({ onChange, htmlString, readonly = false, hideTool
       setFloatingAnchorElem(_floatingAnchorElem);
     }
   };
+
+  useEffect(
+    () => {
+      if (isFunction(onEditorReady)) {
+        onEditorReady(editor);
+      }
+    },
+    [onEditorReady]
+  );
 
   useEffect(
     () => {

@@ -24,11 +24,18 @@ class Editor extends React.Component {
   };
 
   render() {
-    const { onChange, htmlString, readonly = false, hideToolbar = false, className = '' } = this.props;
+    const { onChange, htmlString, readonly = false, hideToolbar = false, className = '', onEditorReady } = this.props;
 
     return (
       <LexicalComposer initialConfig={this.initialConfig}>
-        <EditorContent hideToolbar={hideToolbar} readonly={readonly} htmlString={htmlString} onChange={onChange} className={className} />
+        <EditorContent
+          onEditorReady={onEditorReady}
+          hideToolbar={hideToolbar}
+          readonly={readonly}
+          htmlString={htmlString}
+          onChange={onChange}
+          className={className}
+        />
       </LexicalComposer>
     );
   }

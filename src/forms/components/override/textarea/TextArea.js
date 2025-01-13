@@ -34,6 +34,9 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     super(...args);
 
     overrideTriggerChange.call(this);
+
+    this._lexicalContainer = null;
+    this._lexicalInited = false;
   }
 
   get defaultSchema() {
@@ -96,17 +99,32 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
   setWysiwygValue(value, skipSetting, flags) {
     if (this.isLexicalEditor) {
+      if (skipSetting) {
+        return;
+      }
+
+      // It should be performed only when initializing data from the backend
       this.editorReady.then(editor => {
         editor.update(() => {
-          const parser = new DOMParser();
-          const dom = parser.parseFromString(value || '', 'text/html');
-          const nodes = $generateNodesFromDOM(editor, dom);
+          if (!this._lexicalInited) {
+            const parser = new DOMParser();
+            const dom = parser.parseFromString(value || '', 'text/html');
+            const nodes = $generateNodesFromDOM(editor, dom);
 
-          const root = $getRoot();
-          root.clear();
-          root.append(...nodes);
+            const root = $getRoot();
+            root.clear();
+            root.append(...nodes);
+            root.select();
+
+            const textContent = root.getTextContent();
+
+            if (!!textContent) {
+              this._lexicalInited = true;
+            }
+          }
         });
       });
+
       return;
     }
 
@@ -171,26 +189,43 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     }
   }
 
-  addLexical(element, settings, onChange) {
-    return new Promise(resolve => {
+  renderLexicalProvider(settings, onChange) {
+    if (onChange) {
       const store = getStore();
 
-      const container = document.createElement('div');
-      container.className = 'lexical-editor-container';
-      element.appendChild(container);
-
-      ReactDOM.render(
+      return (
         <Provider store={store}>
           <RichTextEditor
             hideToolbar={settings.hideToolbar}
             readonly={settings.readonly}
             onChange={onChange}
             editorState={this.dataValue || ''}
+            onEditorReady={editor => {
+              this.editor = editor;
+              this.editorReadyResolve(editor);
+            }}
           />
-        </Provider>,
-        container,
-        () => resolve(container)
+        </Provider>
       );
+    }
+
+    return null;
+  }
+
+  addLexical(element, settings, onChange) {
+    return new Promise(resolve => {
+      if (this._lexicalContainer) {
+        ReactDOM.render(this.renderLexicalProvider(settings, onChange), this._lexicalContainer, () => resolve(this._lexicalContainer));
+        return;
+      }
+
+      const container = document.createElement('div');
+      container.className = 'lexical-editor-container';
+      element.appendChild(container);
+
+      this._lexicalContainer = container;
+
+      ReactDOM.render(this.renderLexicalProvider(settings, onChange), container, () => resolve(container));
     });
   }
 
@@ -333,6 +368,27 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       console.error('TextAreaComponent.addAce | cant load Ace editor', error);
       return {};
     }
+  }
+
+  updateEditorValue(value) {
+    let newValue = value;
+
+    if (this.isLexicalEditor) {
+      newValue = this.getConvertedValue(newValue);
+    } else {
+      newValue = this.getConvertedValue(this.removeBlanks(newValue));
+    }
+
+    if (newValue !== this.dataValue && (!isEmpty(newValue) || !isEmpty(this.dataValue))) {
+      this.updateValue(
+        {
+          modified: !this.autoModified
+        },
+        newValue
+      );
+    }
+
+    this.autoModified = false;
   }
 
   enableWysiwyg() {
