@@ -66,14 +66,18 @@ class DocLibService {
       .then(DocLibConverter.completeItemsIds);
   }
 
-  async createChild(rootId, parentId, typeRef, attributes = {}) {
+  async createChild(rootId, parentId, typeRef, attributes = {}, priorityNameItem) {
     const atts = {
       _parent: parentId || rootId,
       _type: typeRef,
       ...attributes
     };
 
-    if (get(atts, 'name') && get(atts, '_content') && atts._content.length) {
+    if (!!priorityNameItem) {
+      atts.name = priorityNameItem;
+    }
+
+    if (get(atts, 'name') && get(atts, '_content') && atts._content.length && !priorityNameItem) {
       const fileName = get(atts._content[0], 'originalName', '') || get(atts._content[0], 'name', '');
       const format = fileName.split('.').pop();
 
