@@ -29,7 +29,7 @@ import PageTabList from '../services/pageTabs/PageTabList';
 import PageService from '../services/PageService';
 import { TITLE } from '../constants/pageTabs';
 import { getWorkspaceId, getWsIdOfTabLink } from '../helpers/urls';
-import { BASE_URLS_REDIRECT } from '../constants';
+import { BASE_URLS_REDIRECT, RELOCATED_URL } from '../constants';
 
 const lng = getCurrentLocale();
 
@@ -110,6 +110,12 @@ function* sagaSetOneTab({ api, logger }, { payload }) {
   try {
     const { data: dataTab, params } = payload;
     const { closeActiveTab } = params || {};
+
+    const urlLocation = new URL(dataTab.link, window.location.origin);
+
+    if (Object.keys(RELOCATED_URL).includes(urlLocation.pathname)) {
+      dataTab.link = RELOCATED_URL[urlLocation.pathname] + urlLocation.search;
+    }
 
     if (closeActiveTab) {
       yield put(deleteTab(PageTabList.activeTab));
