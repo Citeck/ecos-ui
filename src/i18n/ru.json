@@ -2729,6 +2729,6 @@
   "bpmn-linter.participant.no-process-id": "Не определен ID Процесса",
 
   "workspaces.create-button": "Создать пространство",
-  "workspaces.error-blocked.msg": "Пространство недоступно или не создано",
+  "workspaces.error-blocked.msg": "Рабочее пространство недоступно или не создано",
   "workspaces.error-blocked.action.msg": "Перейти на домашнюю страницу"
 }

@@ -17,6 +17,7 @@ import AdminSectionService from '../services/AdminSectionService';
 import { equalsQueryUrls } from '../helpers/urls';
 import { wrapArgs } from '../helpers/redux';
 import { getEnabledWorkspaces } from '../helpers/util';
+import { SectionTypes } from '../constants/adminSection';
 
 function* init({ logger }, action) {
   try {
@@ -73,11 +74,17 @@ export function* openActiveSection({ api, logger }, action) {
     const item = cloneDeep(action.payload);
     const currentType = yield call(AdminSectionService.getActiveSectionType);
     const newType = get(item, 'type');
+    const enabledWorkspaces = getEnabledWorkspaces();
+
+    if (enabledWorkspaces && newType === SectionTypes.JOURNAL) {
+      return;
+    }
+
     const options = yield call(AdminSectionService.getTabOptions, currentType, newType);
     const href = yield call(AdminSectionService.getURLSection, item);
     const compareBy = ['activeTab', 'type', 'journalId'];
 
-    if (getEnabledWorkspaces()) {
+    if (enabledWorkspaces) {
       compareBy.push('ws');
     }
 
