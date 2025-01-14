@@ -24,7 +24,7 @@ import { TITLE } from '../../constants/pageTabs';
  */
 export default class PageTab {
   constructor(data) {
-    let { link, title, id, isLoading = false, isActive = false, workspace } = data || {};
+    let { link, title, id, isLoading = false, isActive = false, isLastActive, workspace } = data || {};
 
     this.id = id || `page-tab-${uuidv4()}`;
     this.link = decodeLink(link && link.replace(window.location.origin, ''));
@@ -32,6 +32,7 @@ export default class PageTab {
     this.workspace = workspace;
     this.isLoading = isLoading;
     this.isActive = isActive;
+    this.isLastActive = isLastActive;
 
     if (isLoading) {
       this.title = t(TITLE.LOADING);
@@ -43,15 +44,15 @@ export default class PageTab {
   }
 
   get storage() {
-    const { id, link, title, workspace } = this;
+    const { id, link, title, workspace, isLastActive } = this;
 
-    return { id, link, title, workspace };
+    return { id, link, title, workspace, isLastActive };
   }
 
   get store() {
-    const { id, link, title, isActive, isLoading, workspace } = this;
+    const { id, link, title, isActive, isLoading, workspace, isLastActive } = this;
 
-    return { id, link, title, isActive, isLoading, workspace };
+    return { id, link, title, isActive, isLoading, workspace, isLastActive };
   }
 
   change(data) {
