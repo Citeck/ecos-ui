@@ -503,7 +503,6 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
   destroyWysiwyg() {
     if (this.isLexicalEditor && this.editor) {
-      this.editor.unmount();
       this.editor = null;
     }
 
