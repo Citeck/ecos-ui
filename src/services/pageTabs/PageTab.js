@@ -24,7 +24,7 @@ import { TITLE } from '../../constants/pageTabs';
  */
 export default class PageTab {
   constructor(data) {
-    let { link, title, id, isLoading = false, isActive = false, isLastActive, workspace } = data || {};
+    let { link, title, id, isLoading = false, isActive = false, isLastActive = false, workspace } = data || {};
 
     this.id = id || `page-tab-${uuidv4()}`;
     this.link = decodeLink(link && link.replace(window.location.origin, ''));

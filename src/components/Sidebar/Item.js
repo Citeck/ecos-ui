@@ -56,17 +56,6 @@ class Item extends React.Component {
     );
   }
 
-  componentDidUpdate(prevProps) {
-    const { isSelected } = this.props;
-
-    if (isSelected && prevProps.isSelected !== isSelected) {
-      const activeElement = this.menuItemRef.current;
-      activeElement.scrollIntoView({
-        block: 'center'
-      });
-    }
-  }
-
   get hasSubItems() {
     return !isEmpty(get(this.props, 'data.items'));
   }

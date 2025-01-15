@@ -56,7 +56,7 @@ const styles = {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    fontSize: '18px',
+    fontSize: '14px',
     fontWeight: '700',
     color: '#fff'
   }
