@@ -24,7 +24,7 @@ import {
 } from '../actions/pageTabs';
 import { selectInitStatus } from '../selectors/pageTabs';
 import { selectIsAuthenticated } from '../selectors/user';
-import { getCurrentUserName, getCurrentLocale } from '../helpers/util';
+import { getCurrentUserName, getCurrentLocale, getEnabledWorkspaces } from '../helpers/util';
 import PageTabList from '../services/pageTabs/PageTabList';
 import PageService from '../services/PageService';
 import { TITLE } from '../constants/pageTabs';
@@ -276,12 +276,7 @@ function* sagaUpdateTabData({ api, logger }, { payload }) {
     const updatingPayload = get(payload, 'updates', {});
     let tab = get(payload, 'tab');
 
-    if (
-      get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false) &&
-      updatingPayload &&
-      updatingPayload.link &&
-      !getWsIdOfTabLink(updatingPayload.link)
-    ) {
+    if (getEnabledWorkspaces() && updatingPayload && updatingPayload.link && !getWsIdOfTabLink(updatingPayload.link)) {
       updatingPayload.link += '&ws=' + get(PageTabList.activeTab, 'workspace', getWorkspaceId());
     }
 
@@ -293,7 +288,12 @@ function* sagaUpdateTabData({ api, logger }, { payload }) {
     }
 
     if (tab.link && !tab.link.includes('activeTab')) {
-      PageTabList.changeOne({ tab, updates: { ...updatingPayload, title: undefined, isLoading: true } });
+      if (get(updatingPayload, 'link') !== get(tab, 'link')) {
+        PageTabList.changeOne({ tab, updates: { ...updatingPayload, title: undefined, isLoading: true } });
+      } else {
+        PageTabList.changeOne({ tab, updates: { ...updatingPayload } });
+      }
+
       yield put(setTabs(PageTabList.storeList));
     }
 
