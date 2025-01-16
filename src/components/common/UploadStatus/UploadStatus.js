@@ -31,6 +31,8 @@ const UploadStatus = () => {
   const [isReplaceAllFiles, setIsReplaceAllFiles] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showConfirmRenameDirModal, setShowConfirmRenameDirModal] = useState(false);
+  const [isReplacement, setIsReplacement] = useState(false);
+
   const [status, setStatus] = useState(null);
   const [fileDataConfirm, setFileDataConfirm] = useState(null);
   const [fileStatuses, setFileStatuses] = useState({});
@@ -91,7 +93,8 @@ const UploadStatus = () => {
           currentItemTitle,
           targetDirTitle,
           parentDirTitles,
-          typeCurrentItem
+          typeCurrentItem,
+          isReplacementItem
         } = event.data;
 
         if (type === 'UPDATE_UPLOAD_STATUS') {
@@ -176,6 +179,7 @@ const UploadStatus = () => {
             setTitleRenamingItem(currentItemTitle);
           }
 
+          setIsReplacement(isReplacementItem);
           setParentItemsTitles(parentDirTitles);
           setParentDirTitle(targetDirTitle);
           setShowConfirmRenameDirModal(true);
@@ -273,7 +277,9 @@ const UploadStatus = () => {
       <div className="citeck-file-replacement-modal">
         <div className="citeck-file-replacement-modal__card">
           <div className="citeck-file-replacement-modal__card-header">
-            <h4 className="citeck-file-replacement-modal__card-header_text">{t('document-library.actions.replacement-item')}</h4>
+            <h4 className="citeck-file-replacement-modal__card-header_text">
+              {isReplacement ? t('document-library.actions.replacement-item') : t('document-library.actions.specify-name')}
+            </h4>
             <div className="citeck-file-replacement-modal__card-header_btn" onClick={() => handleConfirmResponseRenameItem(false)}>
               <Close width={16} height={16} />
             </div>
