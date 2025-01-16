@@ -75,16 +75,12 @@ class List extends React.Component {
       <React.Fragment key={listItemKey}>
         <Item
           domId={listItemDomId}
-          viewTooltip={!hasSubItems && !isOpen && isItemExpanded && level === SidebarService.DROPDOWN_LEVEL}
           data={item}
           level={level}
           isExpanded={isItemExpanded}
           isSelected={isItemSelected || isChildSelected}
           styleProps={styleProps}
           inDropdown={inDropdown}
-          boundariesElement={this.boundariesElement}
-          workspace={workspace}
-          toggleTooltip={this.onToggleSubMenu.bind(this, item)}
         />
         {hasSubItems && this.renderSubList(item.items, isSubListExpanded, inDropdown, workspace)}
         {!isMobile && level === SidebarService.DROPDOWN_LEVEL && hasSubItems && (
