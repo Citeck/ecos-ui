@@ -2,6 +2,7 @@ import FormIOTextFieldComponent from 'formiojs/components/textfield/TextField';
 import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 
 import { overrideTriggerChange } from '../misc';
@@ -74,6 +75,39 @@ export default class TextFieldComponent extends FormIOTextFieldComponent {
     }
 
     return [];
+  }
+
+  isElementOrParentsHidden() {
+    let current = this;
+
+    while (!!current) {
+      if (get(current, 'element.hidden') === true) {
+        return true;
+      }
+      current = get(current, 'parent', null);
+    }
+
+    return false;
+  }
+
+  refresh(value, refreshOnKey) {
+    if (this.hasOwnProperty('refreshOnValue')) {
+      this.refreshOnChanged = !isEqual(value, this.refreshOnValue[refreshOnKey]);
+      this.refreshOnValue[refreshOnKey] = value;
+    } else {
+      this.refreshOnChanged = true;
+      this.refreshOnValue = {
+        [refreshOnKey]: value
+      };
+    }
+
+    if (this.refreshOnChanged && !this.isElementOrParentsHidden()) {
+      if (this.component.clearOnRefresh) {
+        this.setValue(null);
+      }
+
+      this.triggerRedraw();
+    }
   }
 
   clearTypeahead() {
