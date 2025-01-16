@@ -25,7 +25,7 @@ import { BASE_LEFT_MENU_ID, MenuTypes } from '../../constants/menu';
 import { showWarningMessage } from '../../helpers/tools';
 import { goToDefaultFromBlockedWs, updateUIWorkspace } from '../../actions/workspaces';
 import { PANEL_CLASS_NAME } from '../../constants/pageTabs';
-import { isMobileAppWebView, t } from '../../helpers/util';
+import { getEnabledWorkspaces, isMobileAppWebView, t } from '../../helpers/util';
 import pageTabList from '../../services/pageTabs/PageTabList';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import { PopupContainer } from '../common/Popper';
@@ -96,7 +96,7 @@ class App extends Component {
     const prevSearchParams = prevSearch ? new URLSearchParams(prevSearch) : new URLSearchParams();
 
     const workspaceId = getWorkspaceId(defaultWorkspace, search);
-    const enabledWorkspaces = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+    const enabledWorkspaces = getEnabledWorkspaces();
 
     const propsWarning = {
       className: 'ecos-modal__btn_full',
