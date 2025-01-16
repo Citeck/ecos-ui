@@ -448,6 +448,7 @@
   "document-library.actions.replacement-btn-cancel": "Отменить",
   "document-library.actions.replacement-btn-next": "Продолжить",
   "document-library.actions.replacement-item": "Переместить",
+  "document-library.actions.specify-name": "Укажите название",
   "document-library.actions.replacement-item-warning": "Выберите другое имя - такое уже используется внутри папки «{{ parentDirTitle }}»",
   "document-library.actions.replacement-item-success": "Элемент «{{ currentItemTitle }}» перемещен в папку «{{ targetDirTitle }}»",
   "document-library.actions.cancel-title": "Отменить загрузку файла",

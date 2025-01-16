@@ -511,6 +511,7 @@
   "document-library.actions.replacement-btn-cancel": "Cancel",
   "document-library.actions.replacement-btn-next": "Continue",
   "document-library.actions.replacement-item": "Move",
+  "document-library.actions.specify-name": "Enter a name",
   "document-library.actions.replacement-item-warning": "Choose a different name - this one is already in use inside the folder '{{ parentDirTitle }}'",
   "document-library.actions.replacement-item-success": "The item '{{ currentItemTitle }}' has been moved to the folder '{{ targetDirTitle }}'",
   "document-library.actions.cancel-title": "Cancel file upload",

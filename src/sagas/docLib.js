@@ -549,6 +549,7 @@ function* sagaSetParentItem({ api, logger, stateId, w }, { payload }) {
           navigator.serviceWorker.controller.postMessage({
             type: 'CONFIRMATION_RENAME_DIR_REQUEST',
             typeCurrentItem: get(item, 'type'),
+            isReplacementItem: true,
             parentDirTitles,
             currentItemTitle,
             targetDirTitle
