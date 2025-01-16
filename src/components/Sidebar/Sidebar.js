@@ -132,8 +132,6 @@ class Sidebar extends React.Component {
     } else {
       this.props.setExpandableItems(true);
     }
-
-    this.scrollToActiveItem();
   };
 
   render() {

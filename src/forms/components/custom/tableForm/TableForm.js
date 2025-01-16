@@ -423,7 +423,17 @@ export default class TableFormComponent extends BaseReactComponent {
               inputsPromise = Promise.resolve({});
             } else {
               const firstCreateVariant = _.head(createVariants) || _.head(spareCreateVariants);
-              const cvRecordRef = firstCreateVariant.recordRef;
+              const { sourceId, type } = firstCreateVariant;
+
+              let cvRecordRef = firstCreateVariant.recordRef;
+
+              if (!cvRecordRef && sourceId) {
+                cvRecordRef = `${firstCreateVariant.sourceId}@`;
+              }
+
+              if (!cvRecordRef && type) {
+                cvRecordRef = `dict@${firstCreateVariant.type}`;
+              }
 
               columnsInfoPromise = Records.get(cvRecordRef)
                 .load(Object.keys(columnsMap))
