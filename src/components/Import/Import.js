@@ -314,7 +314,9 @@ class Import extends Component {
     return (
       <li className="citeck-import-data__menu-item" onClick={() => this.handleImport(item)}>
         <Tooltip target={`import-data-text_${variantId}`} uncontrolled showAsNeeded text={textItem} off={isMobileDevice()}>
-          <span id={`import-data-text_${variantId}`}>{textItem}</span>
+          <span id={`import-data-text_${variantId}`} className="citeck-import-data__menu-item_text">
+            {textItem}
+          </span>
         </Tooltip>
         <Tooltip
           target={`import-data-download_${variantId}`}

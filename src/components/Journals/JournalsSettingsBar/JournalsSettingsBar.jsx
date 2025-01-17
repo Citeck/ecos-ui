@@ -7,6 +7,7 @@ import isBoolean from 'lodash/isBoolean';
 import Shape from '../../common/icons/Shape';
 import Setting from '../../common/icons/Setting';
 import ExportIcon from '../../common/icons/Export';
+import ImportIcon from '../../common/icons/Import';
 import Filter from '../../common/icons/Icon/Filter';
 import Repeat from '../../common/icons/Repeat';
 import { t } from '../../../helpers/util';
@@ -225,20 +226,19 @@ const JournalsSettingsBar = ({
           getStateOpen={changeIsOpenImport}
           className="ecos-journal__settings-bar-export"
           classNameBtn={classNames('ecos-btn_i ecos-journal__settings-bar-export-btn', {
-            // 'ecos-journal__btn_new': isViewNewJournal
+            'ecos-journal__btn_new': isViewNewJournal
           })}
         >
           <IcoBtn
             invert
             icon="icon-small-down"
             className={classNames('ecos-journal__settings-bar-export-btn ecos-btn_hover_blue2 ecos-btn_drop-down ecos-btn_grey3', {
-              'ecos-journal__btn_new_focus': isOpenDropdownImport
-              // 'ecos-journal__btn_new export': isViewNewJournal
+              'ecos-journal__btn_new_focus': isOpenDropdownImport,
+              'ecos-journal__btn_new export': isViewNewJournal
             })}
             // loading={isLoading}
           >
-            {/*{isViewNewJournal ? <ImportIcon /> : t(Labels.BTN_IMPORT)}*/}
-            {t(Labels.BTN_IMPORT)}
+            {isViewNewJournal ? <ImportIcon /> : t(Labels.BTN_IMPORT)}
           </IcoBtn>
         </Import>
 
