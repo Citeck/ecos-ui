@@ -44,6 +44,7 @@ import ConfigService, {
   HOME_LINK_URL,
   NEW_JOURNAL_ENABLED
 } from '../services/config/ConfigService';
+import { SETTING_ENABLE_VIEW_NEW_JOURNAL } from '../pages/DevTools/constants';
 
 export function* initApp({ api, logger }, { payload }) {
   try {
@@ -51,7 +52,9 @@ export function* initApp({ api, logger }, { payload }) {
 
     try {
       const { query } = queryString.parseUrl(window.location.href);
-      const isViewNewJournal = yield ConfigService.getValue(NEW_JOURNAL_ENABLED);
+      const isViewNewJournal = yield loadConfigs({
+        [NEW_JOURNAL_ENABLED]: 'value?bool'
+      });
 
       const resp = yield call(api.user.getUserData);
       const workspaceConfig = yield loadConfigs({
@@ -100,8 +103,19 @@ export function* initApp({ api, logger }, { payload }) {
       yield put(setRedirectToNewUi(!isForceOldUserDashboardEnabled));
 
       const homeLink = yield ConfigService.getValue(HOME_LINK_URL);
-      if (isBoolean(isViewNewJournal)) {
-        yield put(setViewNewJournal(isViewNewJournal));
+
+      const isViewNewJournalStorage = Boolean(localStorage.getItem(SETTING_ENABLE_VIEW_NEW_JOURNAL));
+
+      switch (true) {
+        case isViewNewJournalStorage:
+          yield put(setViewNewJournal(true));
+          break;
+
+        default:
+          if (isBoolean(isViewNewJournal)) {
+            yield put(setViewNewJournal(isViewNewJournal));
+          }
+          break;
       }
 
       yield put(setHomeLink(homeLink));

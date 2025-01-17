@@ -11,3 +11,4 @@ export const ECOS_UI_LABEL = 'ECOS UI';
 export const SETTING_FORCE_ENABLE_NEW_FORMS = 'forceEnableNewForms';
 export const SETTING_ENABLE_LOGGING_FOR_NEW_FORMS = 'enableLoggerForNewForms';
 export const SETTING_ENABLE_RECORDS_API_DEBUG = 'enableRecordsApiDebug';
+export const SETTING_ENABLE_VIEW_NEW_JOURNAL = 'enableViewNewJournal'; // View new journal (2.0)

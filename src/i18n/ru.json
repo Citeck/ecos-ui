@@ -388,7 +388,7 @@
   "dev-tools.settings.forceEnableNewForms": "Принудительно включить новые формы",
   "dev-tools.settings.enableLoggerForNewForms": "Включить логгер для новых форм",
   "dev-tools.settings.enableRecordsApiDebug": "Включить дебаг для Records API",
-  "dev-tools.settings.enableViewNewJournal": "Включить/Выключить новый вид журнала (2.0)",
+  "dev-tools.settings.enableViewNewJournal": "Включить приоритет нового вида журнала (2.0)",
   "dev-tools.settings.on": "Вкл",
   "dev-tools.settings.off": "Выкл",
   "dev-tools.dev-modules.panel-title": "Модули",
