@@ -110,10 +110,7 @@ class App extends Component {
 
     if (enabledWorkspaces && !blockedCurrentWorkspace) {
       if (search.includes('ws=') && !searchParams.get('ws') && workspaceId && !BASE_URLS_REDIRECT.includes(location.pathname)) {
-        const newUrl =
-          search && search[0] === '?'
-            ? `${location.pathname}${search.replace(/ws=[^&]*/, `ws=${workspaceId}`)}`
-            : `${location.pathname}?ws=${workspaceId}`;
+        const newUrl = getUrlWithWorkspace(location.pathname, search, workspaceId);
 
         replace(newUrl);
       }
@@ -250,7 +247,7 @@ class App extends Component {
   };
 
   renderCachedRouter = React.memo(props => {
-    const enabledWorkspaces = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+    const enabledWorkspaces = getEnabledWorkspaces();
     const { tab } = props;
     const isCurrent = pageTabList.isActiveTab(tab.id);
     const baseCacheRouteProps = {
@@ -289,7 +286,7 @@ class App extends Component {
                 path={Urls.DASHBOARD}
                 exact
                 render={props =>
-                  get(props, 'location.search', '').includes('ws=') && get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false) ? (
+                  get(props, 'location.search', '').includes('ws=') && getEnabledWorkspaces() ? (
                     <Page pageKey={Pages.DASHBOARD} {...props} {...basePageProps} />
                   ) : (
                     <Redirect to={this.#homePageLink} />

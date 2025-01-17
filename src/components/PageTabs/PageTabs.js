@@ -22,7 +22,7 @@ import {
   updateTab,
   updateTabsFromStorage
 } from '../../actions/pageTabs';
-import { animateScrollTo, getScrollbarWidth, IS_DEV_ENV, t } from '../../helpers/util';
+import { animateScrollTo, getEnabledWorkspaces, getScrollbarWidth, IS_DEV_ENV, t } from '../../helpers/util';
 import PageService from '../../services/PageService';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import { SortableContainer } from '../Drag-n-Drop';
@@ -31,7 +31,7 @@ import { dropByCacheKey } from '../ReactRouterCache';
 import Tab from './Tab';
 import { _LOCALHOST_, URL as Urls } from '../../constants';
 import { MIN_CONTEXT_WIDTH, PANEL_CLASS_NAME } from '../../constants/pageTabs';
-import { getWorkspaceId, replaceHistoryLink } from '../../helpers/urls';
+import { getLinkWithWs, getWorkspaceId, replaceHistoryLink } from '../../helpers/urls';
 import { selectWorkspaceHomeLinkById } from '../../selectors/workspaces';
 import pageTabList, { updateTabEmitter } from '../../services/pageTabs/PageTabList';
 import DialogManager from '../common/dialogs/Manager';
@@ -343,8 +343,8 @@ class PageTabs extends React.Component {
   handleCloseTabs = (tabs = this.props.tabs, tab) => {
     const { closeTabs, homepageLink, homePageLink } = this.props;
 
-    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
-      const defaultPageLink = `${Urls.DASHBOARD}?ws=${getWorkspaceId()}`;
+    if (getEnabledWorkspaces()) {
+      const defaultPageLink = getLinkWithWs(Urls.DASHBOARD);
       closeTabs({ tabs, homepageLink: homePageLink || defaultPageLink, tab });
     } else {
       closeTabs({ tabs, homepageLink, tab });

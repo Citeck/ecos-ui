@@ -40,6 +40,7 @@ export const URL = {
 
 export const RELOCATED_URL = {
   [URL.BPMN_DESIGNER]: `${URL.ADMIN_PAGE}?type=${SectionTypes.BPM}`
+  // [URL.BPMN_DESIGNER]: URL.ADMIN_PAGE
 };
 
 export const URL_MATCHING = {

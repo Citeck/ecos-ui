@@ -4,8 +4,8 @@ import cloneDeep from 'lodash/cloneDeep';
 import { EventEmitter2 } from 'eventemitter2';
 import * as queryString from 'query-string';
 
-import { getCustomDasboardUrl, getJournalPageUrl, getWorkspaceId } from '../helpers/urls';
-import { arrayFlat, hasChildWithId } from '../helpers/util';
+import { getCustomDasboardUrl, getJournalPageUrl, getLinkWithWs, getWorkspaceId } from '../helpers/urls';
+import { arrayFlat, getEnabledWorkspaces, hasChildWithId } from '../helpers/util';
 import { isNewVersionPage, NEW_VERSION_PREFIX } from '../helpers/export/urls';
 import { treeFindFirstItem } from '../helpers/arrayOfObjects';
 import { SourcesId, URL, URL_MATCHING } from '../constants';
@@ -56,7 +56,7 @@ export default class SidebarService {
 
     const [baseUrl, queryStringValue] = value.split('?');
 
-    if (queryStringValue && get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+    if (queryStringValue && getEnabledWorkspaces()) {
       const params = queryStringValue
         .split('&')
         .filter(param => !param.startsWith('ws='))
@@ -99,7 +99,7 @@ export default class SidebarService {
         targetUrl = targetUrl.replace(/%24/g, '$'); // Removing the character encoding $
       }
 
-      if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false) && targetUrl && targetUrl.includes('ws=')) {
+      if (getEnabledWorkspaces() && targetUrl && targetUrl.includes('ws=')) {
         const [baseUrl, queryString] = targetUrl.split('?');
 
         if (queryString) {
@@ -112,6 +112,7 @@ export default class SidebarService {
         }
       }
 
+      // console.log("value:", value, "\ntargetUrl:", targetUrl);
       const _exact = targetUrl === value || value === URL_MATCHING[targetUrl];
 
       if (_exact) {
@@ -308,12 +309,7 @@ export default class SidebarService {
     const workspaceId = getWorkspaceId();
 
     return {
-      targetUrl:
-        workspaceId && targetUrl && get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)
-          ? targetUrl.includes('?')
-            ? `${targetUrl}&ws=${workspaceId}`
-            : `${targetUrl}?ws=${workspaceId}`
-          : targetUrl,
+      targetUrl: workspaceId && targetUrl && getEnabledWorkspaces() ? getLinkWithWs(targetUrl, workspaceId) : targetUrl,
       attributes
     };
   }
