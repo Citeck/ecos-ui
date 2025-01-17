@@ -241,10 +241,13 @@ const UploadStatus = () => {
     }
   };
 
+  const isEmptyInputRenaming = !titleRenamingItem;
+
   const isDisabledInputRenaming =
-    parentItemsTitles &&
-    titleRenamingItem &&
-    parentItemsTitles.includes(expansionCurrentFile ? titleRenamingItem + `.${expansionCurrentFile}` : titleRenamingItem);
+    isEmptyInputRenaming ||
+    (parentItemsTitles &&
+      titleRenamingItem &&
+      parentItemsTitles.includes(expansionCurrentFile ? titleRenamingItem + `.${expansionCurrentFile}` : titleRenamingItem));
 
   if (status && status === 'confirm-file-replacement') {
     return showConfirmModal && get(fileDataConfirm, 'file.name') ? (
@@ -301,7 +304,9 @@ const UploadStatus = () => {
             <Input value={titleRenamingItem} onChange={onChangeRenameItem} isValid={!isDisabledInputRenaming} needValidCheck />
             {isDisabledInputRenaming && (
               <FormText color="red" className="citeck-file-replacement-modal__card-field_label">
-                {t('document-library.actions.replacement-item-warning', { parentDirTitle })}
+                {isEmptyInputRenaming
+                  ? t('document-library.actions.empty.replacement-item-warning')
+                  : t('document-library.actions.replacement-item-warning', { parentDirTitle })}
               </FormText>
             )}
           </div>
