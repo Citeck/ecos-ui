@@ -105,9 +105,6 @@ import { setKanbanSettings, reloadBoardData, selectTemplateId, applyPreset, clea
 import { selectKanban } from '../selectors/kanban';
 import { GROUPING_COUNT_ALL } from '../constants/journal';
 import { selectIsViewNewJournal } from '../selectors/view';
-import ConfigService, { NEW_JOURNAL_ENABLED } from '../services/config/ConfigService';
-import { setViewNewJournal } from '../actions/view';
-import isBoolean from 'lodash/isBoolean';
 
 const getDefaultSortBy = config => {
   const params = config.params || {};
@@ -962,14 +959,6 @@ function* sagaInitJournal({ api, logger, stateId, w }, { payload }) {
         const id = !customJournalMode || !customJournal ? journalId : customJournal;
         let { journalSettingId, savePredicate = true } = payload;
         let { journalConfig } = yield select(selectJournalData, stateId);
-        const _isViewNewJournal = yield select(selectIsViewNewJournal);
-
-        if (!_isViewNewJournal) {
-          const isViewNewJournal = yield ConfigService.getValue(NEW_JOURNAL_ENABLED);
-          if (isBoolean(isViewNewJournal)) {
-            yield put(setViewNewJournal(isViewNewJournal));
-          }
-        }
 
         const journalType = yield Records.get(`uiserv/rjournal@${journalId}`).load('typeRef?str');
         const importDataConfig = yield call(api.journals.getImportDataConfig, journalType);
