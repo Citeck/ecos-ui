@@ -443,6 +443,11 @@ export function* sagaCreateNode({ api, logger, stateId, w }, action) {
       currentItemTitle = originalNameItem || nameItem || '';
     }
 
+    if (!currentItemTitle) {
+      NotificationManager.error(t('document-library.uploading-file.message.info.error'));
+      return;
+    }
+
     const parentDirTitles = [];
     const fileViewer = yield select(state => selectDocLibFileViewer(state, stateId));
     const selectFolderTitle = yield select(state => selectDocLibFolderTitle(state, stateId));
