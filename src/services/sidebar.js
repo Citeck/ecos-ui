@@ -8,7 +8,7 @@ import { getCustomDasboardUrl, getJournalPageUrl, getLinkWithWs, getWorkspaceId 
 import { arrayFlat, getEnabledWorkspaces, hasChildWithId } from '../helpers/util';
 import { isNewVersionPage, NEW_VERSION_PREFIX } from '../helpers/export/urls';
 import { treeFindFirstItem } from '../helpers/arrayOfObjects';
-import { SourcesId, URL, URL_MATCHING } from '../constants';
+import { RELOCATED_URL, SourcesId, URL, URL_MATCHING } from '../constants';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../constants/pageTabs';
 import { MenuSettings } from '../constants/menu';
 import { ActionTypes, CountableItems } from '../constants/sidebar';
@@ -307,9 +307,10 @@ export default class SidebarService {
     }
 
     const workspaceId = getWorkspaceId();
+    const hasRedirects = Object.keys(RELOCATED_URL).some(key => targetUrl && targetUrl.includes(key));
 
     return {
-      targetUrl: workspaceId && targetUrl && getEnabledWorkspaces() ? getLinkWithWs(targetUrl, workspaceId) : targetUrl,
+      targetUrl: workspaceId && targetUrl && getEnabledWorkspaces() && !hasRedirects ? getLinkWithWs(targetUrl, workspaceId) : targetUrl,
       attributes
     };
   }

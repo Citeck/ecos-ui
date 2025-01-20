@@ -441,7 +441,6 @@ export const getUrlWithWorkspace = (path, urlSearch, workspaceId) => {
     searchParams.set('ws', workspaceId.trim());
   }
 
-  console.log('searchParams.toString():', decodeLinkWithEncodeParams(searchParams.toString()));
   const newUrl = `${pathname}?${searchParams.toString()}`;
 
   return decodeLinkWithEncodeParams(newUrl);

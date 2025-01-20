@@ -166,7 +166,7 @@ function* sagaAddOneTab({ api, logger }, { payload }) {
       return;
     }
 
-    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+    if (getEnabledWorkspaces()) {
       const workspace = workspaceId || getWorkspaceId();
 
       if (workspace) {
