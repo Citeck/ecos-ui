@@ -21,9 +21,11 @@ import { SectionTypes } from '../constants/adminSection';
 
 function* init({ logger }, action) {
   try {
-    const { stateId } = action.payload || {};
+    const stateId = action.payload;
+    const w = wrapArgs(stateId);
+
     yield put(getIsAccessible(stateId));
-    yield put(setAdminSectionInitStatus(true));
+    yield put(setAdminSectionInitStatus(w(true)));
   } catch (e) {
     logger.error('[adminSection init saga] error', e);
   }
@@ -59,7 +61,7 @@ function* doFetchGroupSectionList({ api, logger }, action) {
 
 function* updateActiveSection({ logger }, action) {
   try {
-    const { stateId } = action.payload || {};
+    const stateId = action.payload;
     const w = wrapArgs(stateId);
     const sectionsGroup = yield select(state => state.adminSection.groupSectionList || []);
     const activeSection = AdminSectionService.getActiveSectionInGroups(sectionsGroup);

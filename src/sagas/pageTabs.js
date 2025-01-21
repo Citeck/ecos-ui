@@ -28,7 +28,7 @@ import { getCurrentUserName, getCurrentLocale, getEnabledWorkspaces } from '../h
 import PageTabList from '../services/pageTabs/PageTabList';
 import PageService from '../services/PageService';
 import { TITLE } from '../constants/pageTabs';
-import { getWorkspaceId, getWsIdOfTabLink } from '../helpers/urls';
+import { getLinkWithWs, getWorkspaceId, getWsIdOfTabLink } from '../helpers/urls';
 import { BASE_URLS_REDIRECT, RELOCATED_URL } from '../constants';
 
 const lng = getCurrentLocale();
@@ -110,10 +110,10 @@ function* sagaSetOneTab({ api, logger }, { payload }) {
   try {
     const { data: dataTab, params } = payload;
     const { closeActiveTab } = params || {};
+    const enabledWorkspaces = getEnabledWorkspaces();
 
     const urlLocation = new URL(dataTab.link, window.location.origin);
-
-    if (Object.keys(RELOCATED_URL).includes(urlLocation.pathname)) {
+    if (enabledWorkspaces && Object.keys(RELOCATED_URL).includes(urlLocation.pathname)) {
       dataTab.link = RELOCATED_URL[urlLocation.pathname] + urlLocation.search;
     }
 
@@ -130,7 +130,7 @@ function* sagaSetOneTab({ api, logger }, { payload }) {
       yield put(setTabs(PageTabList.storeList));
     }
 
-    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+    if (enabledWorkspaces) {
       const workspace = getWorkspaceId();
 
       if (workspace) {
@@ -138,7 +138,7 @@ function* sagaSetOneTab({ api, logger }, { payload }) {
       }
 
       if (dataTab && dataTab.link && !getWsIdOfTabLink(dataTab.link)) {
-        dataTab.link += '&ws=' + workspace;
+        dataTab.link = getLinkWithWs(dataTab.link, workspace);
       }
     }
 
@@ -166,7 +166,7 @@ function* sagaAddOneTab({ api, logger }, { payload }) {
       return;
     }
 
-    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+    if (getEnabledWorkspaces()) {
       const workspace = workspaceId || getWorkspaceId();
 
       if (workspace) {
@@ -174,7 +174,7 @@ function* sagaAddOneTab({ api, logger }, { payload }) {
       }
 
       if (dataTab && dataTab.link && !getWsIdOfTabLink(dataTab.link)) {
-        dataTab.link += '&ws=' + workspace;
+        dataTab.link = getLinkWithWs(dataTab.link, workspace);
       }
     }
 
@@ -277,7 +277,7 @@ function* sagaUpdateTabData({ api, logger }, { payload }) {
     let tab = get(payload, 'tab');
 
     if (getEnabledWorkspaces() && updatingPayload && updatingPayload.link && !getWsIdOfTabLink(updatingPayload.link)) {
-      updatingPayload.link += '&ws=' + get(PageTabList.activeTab, 'workspace', getWorkspaceId());
+      updatingPayload.link = getLinkWithWs(updatingPayload.link, get(PageTabList.activeTab, 'workspace', getWorkspaceId()));
     }
 
     if (!tab) {

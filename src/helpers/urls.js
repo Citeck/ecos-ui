@@ -1,11 +1,12 @@
 import * as queryString from 'query-string';
 import isEmpty from 'lodash/isEmpty';
+import isUndefined from 'lodash/isUndefined';
 import get from 'lodash/get';
 import pick from 'lodash/pick';
 import omit from 'lodash/omit';
 import isArray from 'lodash/isArray';
 
-import { JournalUrlParams, SourcesId, URL } from '../constants';
+import { JournalUrlParams, SourcesId, URL as Urls } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
 import { ParserPredicate } from '../components/Filters/predicates/index';
 import PageTabList from '../services/pageTabs/PageTabList';
@@ -49,7 +50,7 @@ export { NEW_VERSION_PREFIX, isNewVersionPage, isNewVersionSharePage } from './e
 export const OLD_LINKS = false;
 
 export const getCustomDasboardUrl = dashboardId => {
-  return `${URL.DASHBOARD}?dashboardId=${dashboardId}`;
+  return `${Urls.DASHBOARD}?dashboardId=${dashboardId}`;
 };
 
 export const changeUrl = (url, opts = {}) => {
@@ -61,11 +62,11 @@ export const changeUrl = (url, opts = {}) => {
 };
 
 export const createProfileUrl = userName => {
-  return `${URL.DASHBOARD}?recordRef=${SourcesId.PERSON}@${userName ? userName.toLowerCase() : ''}`;
+  return `${Urls.DASHBOARD}?recordRef=${SourcesId.PERSON}@${userName ? userName.toLowerCase() : ''}`;
 };
 
 export const createDocumentUrl = recordRef => {
-  return `${URL.DASHBOARD}?recordRef=${recordRef}`;
+  return `${Urls.DASHBOARD}?recordRef=${recordRef}`;
 };
 
 export const getSelectedValueLink = item => {
@@ -86,7 +87,7 @@ export const createTaskUrl = (taskId, recordRef) => {
       taskId = `${taskPrefix}${taskId}`;
     }
 
-    return `${URL.DASHBOARD}?recordRef=${taskId}`;
+    return `${Urls.DASHBOARD}?recordRef=${taskId}`;
   }
 
   return `/citeck/components/redirect-to-task?nodeRef=${recordRef}`;
@@ -133,7 +134,7 @@ export const getJournalPageUrl = ({ journalId, journalSettingId, filter, search,
     [VIEW_MODE]: viewMode
   });
 
-  return `${URL.JOURNAL}?${qString}`;
+  return `${Urls.JOURNAL}?${qString}`;
 };
 
 function getValidNodeRef(nodeRef) {
@@ -188,7 +189,7 @@ export const goToJournalsPage = options => {
 
 export const goToAdminPage = options => {
   const params = queryString.stringify(options);
-  let link = URL.ADMIN_PAGE;
+  let link = Urls.ADMIN_PAGE;
 
   if (params) {
     link += `?${params}`;
@@ -198,13 +199,13 @@ export const goToAdminPage = options => {
 };
 
 export const goToCardDetailsPage = (nodeRef, params = { openNewTab: true }) => {
-  let dashboardLink = `${URL.DASHBOARD}?recordRef=${nodeRef}`;
+  let dashboardLink = `${Urls.DASHBOARD}?recordRef=${nodeRef}`;
 
-  if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+  if (getEnabledWorkspaces()) {
     const workspaceId = getWorkspaceId();
 
     if (!workspaceId.startsWith('user$')) {
-      dashboardLink += `&ws=${workspaceId}`;
+      dashboardLink = getLinkWithWs(dashboardLink, workspaceId);
     }
   }
 
@@ -269,6 +270,39 @@ export const decodeLink = str => {
   } catch (e) {
     return str;
   }
+};
+
+/**
+ * Decoder for strings from URLSearchParams
+ * @param str {string}
+ * @returns {string}
+ */
+export const decodeLinkWithEncodeParams = str => {
+  let newStr = str;
+
+  newStr = newStr.replace(/%24/g, '$'); // $
+  newStr = newStr.replace(/%40/g, '@'); // @
+  newStr = newStr.replace(/%2F/g, '/'); // /
+  newStr = newStr.replace(/%2B/g, '+'); // +
+  newStr = newStr.replace(/%3A/g, ':'); // :
+  newStr = newStr.replace(/%3F/g, '?'); // ?
+  newStr = newStr.replace(/%3D/g, '='); // =
+  newStr = newStr.replace(/%26/g, '&'); // &
+  newStr = newStr.replace(/%25/g, '%'); // %
+  newStr = newStr.replace(/%20/g, ' '); // (space)
+  newStr = newStr.replace(/%2C/g, ','); // ,
+  newStr = newStr.replace(/%3B/g, ';'); // ;
+  newStr = newStr.replace(/%23/g, '#'); // #
+  newStr = newStr.replace(/%22/g, '"'); // "
+  newStr = newStr.replace(/%27/g, "'"); // '
+  newStr = newStr.replace(/%5B/g, '['); // [
+  newStr = newStr.replace(/%5D/g, ']'); // ]
+  newStr = newStr.replace(/%7B/g, '{'); // {
+  newStr = newStr.replace(/%7D/g, '}'); // }
+  newStr = newStr.replace(/%7C/g, '|'); // |
+  newStr = newStr.replace(/%5C/g, '\\'); // \
+
+  return newStr;
 };
 
 /**
@@ -351,14 +385,14 @@ export const getLinkWithout = params => {
 
 export const isDashboard = (url = window.location.href) => {
   if (isNewVersionPage()) {
-    return (hasInString(url, URL.DASHBOARD) && !hasInString(url, URL.DASHBOARD_SETTINGS)) || hasInString(url, URL.ORGSTRUCTURE);
+    return (hasInString(url, Urls.DASHBOARD) && !hasInString(url, Urls.DASHBOARD_SETTINGS)) || hasInString(url, Urls.ORGSTRUCTURE);
   }
 
   return false;
 };
 
 export const isHomePage = (url = window.location.href) => {
-  if (!hasInString(url, URL.DASHBOARD) || hasInString(url, URL.DASHBOARD_SETTINGS)) {
+  if (!hasInString(url, Urls.DASHBOARD) || hasInString(url, Urls.DASHBOARD_SETTINGS)) {
     return false;
   }
 
@@ -400,19 +434,21 @@ export const getLinkWithOrigin = (link = '') => {
 
 export const getUrlWithWorkspace = (path, urlSearch, workspaceId) => {
   const pathname = path || window.location.pathname;
-  const search = urlSearch || window.location.search;
+  const search = isUndefined(urlSearch) ? window.location.search : urlSearch;
   const searchParams = search ? new URLSearchParams(search) : new URLSearchParams();
 
-  if (!!workspaceId) {
-    searchParams.set('ws', workspaceId);
+  if (!!workspaceId && !!workspaceId.trim()) {
+    searchParams.set('ws', workspaceId.trim());
   }
 
-  return `${pathname}?${searchParams.toString()}`;
+  const newUrl = `${pathname}?${searchParams.toString()}`;
+
+  return decodeLinkWithEncodeParams(newUrl);
 };
 
 export const getWsIdOfTabLink = (link = '') => {
   if (link && link.includes('ws=')) {
-    const url = !link.includes('http') && link[0] === '/' ? window.location.origin + link : link;
+    const url = getLinkWithOrigin(link);
     const { query } = queryString.parseUrl(url);
     return get(query, 'ws', null);
   } else {
@@ -420,24 +456,13 @@ export const getWsIdOfTabLink = (link = '') => {
   }
 };
 
-export const getLinkWithWs = (link = '', workspaceId) => {
+export const getLinkWithWs = (link = '', workspaceId = getWorkspaceId()) => {
   if (!link) {
-    return null;
+    return link;
   }
 
-  if (link.includes('ws=')) {
-    const url = !link.includes('http') && link[0] === '/' ? window.location.origin + link : link;
-    const { query } = queryString.parseUrl(url);
-    const ws = get(query, 'ws');
-
-    if (ws !== '') {
-      return link;
-    } else {
-      return link.replace('ws=', workspaceId ? `ws=${workspaceId}` : '');
-    }
-  }
-
-  return link + (link.includes('?') ? `&ws=${workspaceId}` : `?ws=${workspaceId}`);
+  const url = new URL(link, window.location.origin || 'https://exmaple.com');
+  return getUrlWithWorkspace(url.pathname, url.search, workspaceId);
 };
 
 window.Citeck.Navigator = {
