@@ -1,0 +1,18 @@
+@import '../../../styles/constants';
+
+.citeck-html-widget {
+  &__body {
+    padding: 20px;
+  }
+
+  &__editor {
+    &-title {
+      margin-bottom: 20px;
+    }
+
+    &-buttons {
+      display: inline-flex;
+      gap: 1rem;
+    }
+  }
+}
