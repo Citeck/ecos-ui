@@ -431,6 +431,60 @@ export function* sagaCreateNode({ api, logger, stateId, w }, action) {
   try {
     const { createVariant, submission } = action.payload;
 
+    let currentItemTitle;
+
+    const nameItem = get(submission, 'name');
+    const originalNameItem = get(submission, '_content[0].originalName');
+
+    if (nameItem && originalNameItem && createVariant.nodeType === NODE_TYPES.FILE) {
+      const format = originalNameItem.split('.').pop();
+      currentItemTitle = nameItem + '.' + format;
+    } else {
+      currentItemTitle = originalNameItem || nameItem || '';
+    }
+
+    if (!currentItemTitle) {
+      NotificationManager.error(t('document-library.uploading-file.message.info.error'));
+      return;
+    }
+
+    const parentDirTitles = [];
+    const fileViewer = yield select(state => selectDocLibFileViewer(state, stateId));
+    const selectFolderTitle = yield select(state => selectDocLibFolderTitle(state, stateId));
+    const items = get(fileViewer, 'items') || [];
+
+    items.forEach(item => get(item, 'title') && parentDirTitles.push(item.title));
+
+    const renamePromise = new Promise(resolve => {
+      if (currentItemTitle && parentDirTitles.includes(currentItemTitle)) {
+        if (navigator.serviceWorker.controller) {
+          navigator.serviceWorker.controller.postMessage({
+            type: 'CONFIRMATION_RENAME_DIR_REQUEST',
+            typeCurrentItem: createVariant.nodeType,
+            parentDirTitles,
+            currentItemTitle,
+            targetDirTitle: selectFolderTitle
+          });
+
+          navigator.serviceWorker.onmessage = event => {
+            const { type, confirmedRenameItem, titleRenamingItem } = event.data;
+
+            if (type === 'CONFIRMATION_RENAME_DIR_RESPONSE' && confirmedRenameItem) {
+              currentItemTitle = titleRenamingItem;
+              resolve();
+            }
+          };
+        }
+      } else {
+        resolve();
+      }
+    });
+
+    yield call(() => renamePromise);
+    if (currentItemTitle && parentDirTitles.includes(currentItemTitle)) {
+      return;
+    }
+
     if (createVariant.nodeType === NODE_TYPES.FILE) {
       yield put(setFileViewerLoadingStatus(w(true)));
     }
@@ -439,7 +493,7 @@ export function* sagaCreateNode({ api, logger, stateId, w }, action) {
     const currentFolderId = yield select(state => selectDocLibFolderId(state, stateId));
     const typeRef = createVariant.destination;
 
-    const createChildResult = yield call(DocLibService.createChild, rootId, currentFolderId, typeRef, submission);
+    const createChildResult = yield call(DocLibService.createChild, rootId, currentFolderId, typeRef, submission, currentItemTitle);
     const newRecord = yield call(DocLibService.loadNode, createChildResult.id);
 
     if (createVariant.nodeType === NODE_TYPES.DIR) {
@@ -500,6 +554,7 @@ function* sagaSetParentItem({ api, logger, stateId, w }, { payload }) {
           navigator.serviceWorker.controller.postMessage({
             type: 'CONFIRMATION_RENAME_DIR_REQUEST',
             typeCurrentItem: get(item, 'type'),
+            isReplacementItem: true,
             parentDirTitles,
             currentItemTitle,
             targetDirTitle

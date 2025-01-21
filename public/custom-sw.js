@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-globals */
 
-const CACHE_NAME = 'app-cache-v2';
+const CACHE_NAME = 'app-cache-v2.1';
 
 self.addEventListener('install', (event) => {
   console.log('[Service Worker] Install Event');
@@ -29,13 +29,14 @@ self.addEventListener('message', (event) => {
 
   switch (type) {
     case 'UPLOAD_PROGRESS':
-      const { status, errorStatus, file, totalCount, successFileCount, requestId, isCancelled } = event.data;
+      const { status, isImporting, errorStatus, file, totalCount, successFileCount, requestId, isCancelled } = event.data;
       self.clients.matchAll().then(clients => {
         clients.forEach(client => {
           client.postMessage({
             type: 'UPDATE_UPLOAD_STATUS',
             status,
             errorStatus,
+            isImporting,
             isCancelled,
             file,
             totalCount,
@@ -56,10 +57,17 @@ self.addEventListener('message', (event) => {
       break;
 
     case 'CONFIRMATION_RENAME_DIR_REQUEST':
-      const { currentItemTitle, targetDirTitle, parentDirTitles, typeCurrentItem } = event.data;
+      const { currentItemTitle, targetDirTitle, parentDirTitles, typeCurrentItem, isReplacementItem = false } = event.data;
       self.clients.matchAll().then(clients => {
         clients.forEach(client => {
-          client.postMessage({ type: 'CONFIRMATION_RENAME_DIR_REQUEST', currentItemTitle, parentDirTitles, typeCurrentItem, targetDirTitle });
+          client.postMessage({
+            type: 'CONFIRMATION_RENAME_DIR_REQUEST',
+            currentItemTitle,
+            parentDirTitles,
+            typeCurrentItem,
+            targetDirTitle,
+            isReplacementItem
+          });
         });
       });
       break;

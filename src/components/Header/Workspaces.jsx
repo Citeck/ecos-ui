@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
+import get from 'lodash/get';
 
 import WorkspaceSwitcher from '../common/icons/WorkspacesSwitcher';
 import WorkspacePreview from '../WorkspacePreview';
@@ -18,6 +19,7 @@ import { getMenuConfig } from '../../actions/menu';
 import { fetchCreateCaseWidgetData } from '../../actions/header';
 import { getWorkspaceId } from '../../helpers/urls';
 import EditIcon from '../common/icons/Edit';
+import PageTabList from '../../services/pageTabs/PageTabList';
 import './style.scss';
 
 export const documentId = 'workspace-menu-switcher';
@@ -58,6 +60,9 @@ const Workspaces = ({
   }, []);
 
   const openLink = (id, homePageLink, openNewBrowserTab = false) => {
+    PageTabList.setLastActiveTabWs();
+    const lastActiveTabWs = PageTabList.getLastActiveTabWs(id);
+
     visitedAction(id);
 
     const needUpdateTabsWorkspace = id !== getWorkspaceId();
@@ -68,7 +73,7 @@ const Workspaces = ({
       needUpdateTabs: needUpdateTabsWorkspace
     };
 
-    const url = new URL(homePageLink || Urls.DASHBOARD, window.location.origin);
+    const url = new URL(get(lastActiveTabWs, 'link') || homePageLink || Urls.DASHBOARD, window.location.origin);
     url.searchParams.set('ws', id);
 
     if (!openNewBrowserTab) {

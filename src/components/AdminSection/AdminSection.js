@@ -64,9 +64,14 @@ class AdminSection extends React.PureComponent {
   isHidden = type => {
     const { activeSection, isAccessibleSectionType, urlParams, isAccessible } = this.props;
     const { type: typeFromUrl } = urlParams;
+    const enabledWorkspaces = getEnabledWorkspaces();
 
-    if (!isAccessible) {
+    if (!isAccessible || enabledWorkspaces) {
       if (isAccessibleSectionType) {
+        return typeFromUrl !== type;
+      }
+
+      if (enabledWorkspaces && !isAccessibleSectionType && typeFromUrl === SectionTypes.DEV_TOOLS) {
         return typeFromUrl !== type;
       }
 
@@ -194,8 +199,8 @@ const mapStateToProps = (state, props) => {
     journals: state.journals
   };
 
-  if (getEnabledWorkspaces() && state.adminSection.wsSections && state.adminSection.wsSections[stateId]) {
-    obj.activeSection = state.adminSection.wsSections[stateId].activeSection || {};
+  if (getEnabledWorkspaces()) {
+    obj.activeSection = state.adminSection.wsSections[stateId]?.activeSection || {};
   }
 
   return obj;

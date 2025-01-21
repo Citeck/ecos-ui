@@ -366,6 +366,38 @@ class PageTabList {
     return get(this.#tabs.find(tab => tab.id === tabId), 'isActive', false);
   };
 
+  setLastActiveTabWs = (tab = this.activeTab) => {
+    if (!tab || !get(tab, 'workspace') || !get(tab, 'id')) {
+      return;
+    }
+
+    this.#tabs
+      .filter(item => item.workspace === tab.workspace)
+      .forEach(item => {
+        item.isLastActive = item.id === tab.id;
+      });
+
+    this.setToStorage();
+  };
+
+  isLastActiveTabWs = (tabId, ws) => {
+    if (!tabId || !ws) {
+      return false;
+    }
+
+    return get(this.#tabs.find(tab => tab.id === tabId && tab.workspace === ws), 'isLastActive', false);
+  };
+
+  getLastActiveTabWs = (wsId = getWorkspaceId()) => {
+    if (!wsId) {
+      return false;
+    }
+
+    const wsTabs = this.tabs.filter(tab => tab.workspace === wsId);
+    console.log('wsTabs:', wsTabs);
+    return wsTabs.find(tab => get(tab, 'isLastActive') === true);
+  };
+
   getTabById = tabId => {
     if (!tabId) {
       return;

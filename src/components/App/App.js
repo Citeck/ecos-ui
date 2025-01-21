@@ -25,11 +25,11 @@ import { BASE_LEFT_MENU_ID, MenuTypes } from '../../constants/menu';
 import { showWarningMessage } from '../../helpers/tools';
 import { goToDefaultFromBlockedWs, updateUIWorkspace } from '../../actions/workspaces';
 import { PANEL_CLASS_NAME } from '../../constants/pageTabs';
-import { isMobileAppWebView, t } from '../../helpers/util';
+import { getEnabledWorkspaces, isMobileAppWebView, t } from '../../helpers/util';
 import pageTabList from '../../services/pageTabs/PageTabList';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import { PopupContainer } from '../common/Popper';
-import { getLinkWithWs, getWorkspaceId } from '../../helpers/urls';
+import { getLinkWithWs, getUrlWithWorkspace, getWorkspaceId } from '../../helpers/urls';
 import { MenuSettingsController } from '../MenuSettings';
 import PageService from '../../services/PageService';
 import PageTabList from '../../services/pageTabs/PageTabList';
@@ -92,11 +92,11 @@ class App extends Component {
     const prevSearch = get(prevProps, 'location.search');
     const search = get(location, 'search');
 
-    const searchParams = new URLSearchParams(search);
-    const prevSearchParams = new URLSearchParams(prevSearch);
+    const searchParams = search ? new URLSearchParams(search) : new URLSearchParams();
+    const prevSearchParams = prevSearch ? new URLSearchParams(prevSearch) : new URLSearchParams();
 
     const workspaceId = getWorkspaceId(defaultWorkspace, search);
-    const enabledWorkspaces = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+    const enabledWorkspaces = getEnabledWorkspaces();
 
     const propsWarning = {
       className: 'ecos-modal__btn_full',
@@ -110,19 +110,14 @@ class App extends Component {
 
     if (enabledWorkspaces && !blockedCurrentWorkspace) {
       if (search.includes('ws=') && !searchParams.get('ws') && workspaceId && !BASE_URLS_REDIRECT.includes(location.pathname)) {
-        const newUrl =
-          search && search[0] === '?'
-            ? `${location.pathname}${search.replace(/ws=[^&]*/, `ws=${workspaceId}`)}`
-            : `${location.pathname}?ws=${workspaceId}`;
+        const newUrl = getUrlWithWorkspace(location.pathname, search, workspaceId);
 
         replace(newUrl);
       }
 
       if (!search.includes('ws=') && !BASE_URLS_REDIRECT.includes(location.pathname)) {
         const activePrev = PageTabList.activeTab;
-
-        const newUrl =
-          search && search[0] === '?' ? `${location.pathname}${search}&ws=${workspaceId}` : `${location.pathname}?ws=${workspaceId}`;
+        const newUrl = getUrlWithWorkspace(location.pathname, search, workspaceId);
 
         PageService.changeUrlLink(newUrl, { openNewTab: true });
 
@@ -252,7 +247,7 @@ class App extends Component {
   };
 
   renderCachedRouter = React.memo(props => {
-    const enabledWorkspaces = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+    const enabledWorkspaces = getEnabledWorkspaces();
     const { tab } = props;
     const isCurrent = pageTabList.isActiveTab(tab.id);
     const baseCacheRouteProps = {
@@ -291,7 +286,7 @@ class App extends Component {
                 path={Urls.DASHBOARD}
                 exact
                 render={props =>
-                  get(props, 'location.search', '').includes('ws=') && get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false) ? (
+                  get(props, 'location.search', '').includes('ws=') && getEnabledWorkspaces() ? (
                     <Page pageKey={Pages.DASHBOARD} {...props} {...basePageProps} />
                   ) : (
                     <Redirect to={this.#homePageLink} />

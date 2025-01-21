@@ -17,12 +17,15 @@ import AdminSectionService from '../services/AdminSectionService';
 import { equalsQueryUrls } from '../helpers/urls';
 import { wrapArgs } from '../helpers/redux';
 import { getEnabledWorkspaces } from '../helpers/util';
+import { SectionTypes } from '../constants/adminSection';
 
 function* init({ logger }, action) {
   try {
-    const { stateId } = action.payload || {};
+    const stateId = action.payload;
+    const w = wrapArgs(stateId);
+
     yield put(getIsAccessible(stateId));
-    yield put(setAdminSectionInitStatus(true));
+    yield put(setAdminSectionInitStatus(w(true)));
   } catch (e) {
     logger.error('[adminSection init saga] error', e);
   }
@@ -58,7 +61,7 @@ function* doFetchGroupSectionList({ api, logger }, action) {
 
 function* updateActiveSection({ logger }, action) {
   try {
-    const { stateId } = action.payload || {};
+    const stateId = action.payload;
     const w = wrapArgs(stateId);
     const sectionsGroup = yield select(state => state.adminSection.groupSectionList || []);
     const activeSection = AdminSectionService.getActiveSectionInGroups(sectionsGroup);
@@ -73,11 +76,17 @@ export function* openActiveSection({ api, logger }, action) {
     const item = cloneDeep(action.payload);
     const currentType = yield call(AdminSectionService.getActiveSectionType);
     const newType = get(item, 'type');
+    const enabledWorkspaces = getEnabledWorkspaces();
+
+    if (enabledWorkspaces && newType === SectionTypes.JOURNAL) {
+      return;
+    }
+
     const options = yield call(AdminSectionService.getTabOptions, currentType, newType);
     const href = yield call(AdminSectionService.getURLSection, item);
     const compareBy = ['activeTab', 'type', 'journalId'];
 
-    if (getEnabledWorkspaces()) {
+    if (enabledWorkspaces) {
       compareBy.push('ws');
     }
 

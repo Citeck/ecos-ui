@@ -1,0 +1,25 @@
+@import '../../styles/constants';
+
+.citeck-import-data {
+  display: inline-block;
+
+  &__menu-item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+
+    &_text {
+      @extend %ellipsis;
+    }
+  }
+
+  &__menu-item:hover &__menu-item_i {
+    display: block;
+    //width: 30px;
+  }
+  &__menu-item_i {
+    display: none;
+  }
+}

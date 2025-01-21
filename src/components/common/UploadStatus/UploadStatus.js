@@ -2,6 +2,8 @@ import { FormText } from 'reactstrap';
 import React, { useState, useEffect } from 'react';
 import { NotificationManager } from 'react-notifications';
 import get from 'lodash/get';
+import isBoolean from 'lodash/isBoolean';
+import isNumber from 'lodash/isNumber';
 import classNames from 'classnames';
 
 import { Loader } from '../index';
@@ -27,10 +29,13 @@ const UploadStatus = () => {
   const [expansionCurrentFile, setExpansionCurrentFile] = useState(null);
   const [parentItemsTitles, setParentItemsTitles] = useState([]);
 
+  const [isImporting, setIsImporting] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isReplaceAllFiles, setIsReplaceAllFiles] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showConfirmRenameDirModal, setShowConfirmRenameDirModal] = useState(false);
+  const [isReplacement, setIsReplacement] = useState(false);
+
   const [status, setStatus] = useState(null);
   const [fileDataConfirm, setFileDataConfirm] = useState(null);
   const [fileStatuses, setFileStatuses] = useState({});
@@ -91,11 +96,17 @@ const UploadStatus = () => {
           currentItemTitle,
           targetDirTitle,
           parentDirTitles,
-          typeCurrentItem
+          typeCurrentItem,
+          isReplacementItem,
+          isImporting
         } = event.data;
 
         if (type === 'UPDATE_UPLOAD_STATUS') {
           setStatus(status);
+
+          if (isBoolean(isImporting)) {
+            setIsImporting(isImporting);
+          }
 
           const fileName = get(fileData, 'file.name', '');
           const fileId = `file-${get(fileData, 'file.size', 0)}-${fileName}-${get(fileData, 'file.lastModified', 0)}`;
@@ -125,13 +136,18 @@ const UploadStatus = () => {
                   file: get(fileData, 'file'),
                   isLoading: get(fileData, 'isLoading', true),
                   isError: get(fileData, 'isError', false),
-                  requestId,
-                  cancelRequest
+                  cancelRequest,
+                  requestId
                 }
               }));
               break;
 
             case 'error':
+              if (isNumber(totalCount) && isNumber(successFileCount)) {
+                setTotalCountFiles(totalCount);
+                setSuccessCountFiles(successFileCount);
+              }
+
               setFileStatuses(prevState => ({
                 ...prevState,
                 [fileId]: {
@@ -176,6 +192,7 @@ const UploadStatus = () => {
             setTitleRenamingItem(currentItemTitle);
           }
 
+          setIsReplacement(isReplacementItem);
           setParentItemsTitles(parentDirTitles);
           setParentDirTitle(targetDirTitle);
           setShowConfirmRenameDirModal(true);
@@ -224,10 +241,13 @@ const UploadStatus = () => {
     }
   };
 
+  const isEmptyInputRenaming = !titleRenamingItem;
+
   const isDisabledInputRenaming =
-    parentItemsTitles &&
-    titleRenamingItem &&
-    parentItemsTitles.includes(expansionCurrentFile ? titleRenamingItem + `.${expansionCurrentFile}` : titleRenamingItem);
+    isEmptyInputRenaming ||
+    (parentItemsTitles &&
+      titleRenamingItem &&
+      parentItemsTitles.includes(expansionCurrentFile ? titleRenamingItem + `.${expansionCurrentFile}` : titleRenamingItem));
 
   if (status && status === 'confirm-file-replacement') {
     return showConfirmModal && get(fileDataConfirm, 'file.name') ? (
@@ -273,7 +293,9 @@ const UploadStatus = () => {
       <div className="citeck-file-replacement-modal">
         <div className="citeck-file-replacement-modal__card">
           <div className="citeck-file-replacement-modal__card-header">
-            <h4 className="citeck-file-replacement-modal__card-header_text">{t('document-library.actions.replacement-item')}</h4>
+            <h4 className="citeck-file-replacement-modal__card-header_text">
+              {isReplacement ? t('document-library.actions.replacement-item') : t('document-library.actions.specify-name')}
+            </h4>
             <div className="citeck-file-replacement-modal__card-header_btn" onClick={() => handleConfirmResponseRenameItem(false)}>
               <Close width={16} height={16} />
             </div>
@@ -282,7 +304,9 @@ const UploadStatus = () => {
             <Input value={titleRenamingItem} onChange={onChangeRenameItem} isValid={!isDisabledInputRenaming} needValidCheck />
             {isDisabledInputRenaming && (
               <FormText color="red" className="citeck-file-replacement-modal__card-field_label">
-                {t('document-library.actions.replacement-item-warning', { parentDirTitle })}
+                {isEmptyInputRenaming
+                  ? t('document-library.actions.empty.replacement-item-warning')
+                  : t('document-library.actions.replacement-item-warning', { parentDirTitle })}
               </FormText>
             )}
           </div>
@@ -305,16 +329,31 @@ const UploadStatus = () => {
     );
   }
 
-  if (!status || !totalCountFiles) {
+  if (!status || (!totalCountFiles && !isImporting)) {
     return null;
   }
+
+  const renderCounter = () => {
+    if (isImporting) {
+      return (
+        <>
+          {t('document-library.file-loader')}
+          {totalCountFiles ? `: ${successCountFiles}/${totalCountFiles}` : ''}
+        </>
+      );
+    }
+
+    return (
+      <>
+        {t('document-library.files-loader')}: {successCountFiles}/{totalCountFiles}
+      </>
+    );
+  };
 
   return (
     <div className="citeck-upload-status">
       <div className="citeck-upload-status__header">
-        <h4 className="citeck-upload-status__header-title">
-          {t('document-library.files-loader')}: {successCountFiles}/{totalCountFiles}
-        </h4>
+        <h4 className="citeck-upload-status__header-title">{renderCounter()}</h4>
         <div className="citeck-upload-status__header-actions">
           <div className="citeck-upload-status__header-actions_btn" onClick={onCollapsed}>
             <ChevronDown />
@@ -337,7 +376,7 @@ const UploadStatus = () => {
                   <div
                     key={fileId}
                     className={classNames('citeck-upload-status__file', {
-                      'citeck-upload-status__file_loading': isLoading
+                      'citeck-upload-status__file_loading': isLoading && !isImporting
                     })}
                   >
                     <div className="citeck-upload-status__file-info">
@@ -351,7 +390,7 @@ const UploadStatus = () => {
                     >
                       {isLoading ? <Loader height="18px" type="points" /> : isError ? <Error /> : <Success />}
                     </div>
-                    {isLoading && (
+                    {!isImporting && isLoading && (
                       <div
                         className="citeck-upload-status__file-action_cancel"
                         onClick={cancelRequest}
