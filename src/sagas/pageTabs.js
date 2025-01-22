@@ -24,12 +24,12 @@ import {
 } from '../actions/pageTabs';
 import { selectInitStatus } from '../selectors/pageTabs';
 import { selectIsAuthenticated } from '../selectors/user';
-import { getCurrentUserName, getCurrentLocale } from '../helpers/util';
+import { getCurrentUserName, getCurrentLocale, getEnabledWorkspaces } from '../helpers/util';
 import PageTabList from '../services/pageTabs/PageTabList';
 import PageService from '../services/PageService';
 import { TITLE } from '../constants/pageTabs';
-import { getWorkspaceId, getWsIdOfTabLink } from '../helpers/urls';
-import { BASE_URLS_REDIRECT } from '../constants';
+import { getLinkWithWs, getWorkspaceId, getWsIdOfTabLink } from '../helpers/urls';
+import { BASE_URLS_REDIRECT, RELOCATED_URL } from '../constants';
 
 const lng = getCurrentLocale();
 
@@ -110,6 +110,12 @@ function* sagaSetOneTab({ api, logger }, { payload }) {
   try {
     const { data: dataTab, params } = payload;
     const { closeActiveTab } = params || {};
+    const enabledWorkspaces = getEnabledWorkspaces();
+
+    const urlLocation = new URL(dataTab.link, window.location.origin);
+    if (enabledWorkspaces && Object.keys(RELOCATED_URL).includes(urlLocation.pathname)) {
+      dataTab.link = RELOCATED_URL[urlLocation.pathname] + urlLocation.search;
+    }
 
     if (closeActiveTab) {
       yield put(deleteTab(PageTabList.activeTab));
@@ -124,7 +130,7 @@ function* sagaSetOneTab({ api, logger }, { payload }) {
       yield put(setTabs(PageTabList.storeList));
     }
 
-    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+    if (enabledWorkspaces) {
       const workspace = getWorkspaceId();
 
       if (workspace) {
@@ -132,7 +138,7 @@ function* sagaSetOneTab({ api, logger }, { payload }) {
       }
 
       if (dataTab && dataTab.link && !getWsIdOfTabLink(dataTab.link)) {
-        dataTab.link += '&ws=' + workspace;
+        dataTab.link = getLinkWithWs(dataTab.link, workspace);
       }
     }
 
@@ -160,7 +166,7 @@ function* sagaAddOneTab({ api, logger }, { payload }) {
       return;
     }
 
-    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+    if (getEnabledWorkspaces()) {
       const workspace = workspaceId || getWorkspaceId();
 
       if (workspace) {
@@ -168,7 +174,7 @@ function* sagaAddOneTab({ api, logger }, { payload }) {
       }
 
       if (dataTab && dataTab.link && !getWsIdOfTabLink(dataTab.link)) {
-        dataTab.link += '&ws=' + workspace;
+        dataTab.link = getLinkWithWs(dataTab.link, workspace);
       }
     }
 
@@ -270,13 +276,8 @@ function* sagaUpdateTabData({ api, logger }, { payload }) {
     const updatingPayload = get(payload, 'updates', {});
     let tab = get(payload, 'tab');
 
-    if (
-      get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false) &&
-      updatingPayload &&
-      updatingPayload.link &&
-      !getWsIdOfTabLink(updatingPayload.link)
-    ) {
-      updatingPayload.link += '&ws=' + get(PageTabList.activeTab, 'workspace', getWorkspaceId());
+    if (getEnabledWorkspaces() && updatingPayload && updatingPayload.link && !getWsIdOfTabLink(updatingPayload.link)) {
+      updatingPayload.link = getLinkWithWs(updatingPayload.link, get(PageTabList.activeTab, 'workspace', getWorkspaceId()));
     }
 
     if (!tab) {
@@ -287,7 +288,12 @@ function* sagaUpdateTabData({ api, logger }, { payload }) {
     }
 
     if (tab.link && !tab.link.includes('activeTab')) {
-      PageTabList.changeOne({ tab, updates: { ...updatingPayload, title: undefined, isLoading: true } });
+      if (get(updatingPayload, 'link') !== get(tab, 'link')) {
+        PageTabList.changeOne({ tab, updates: { ...updatingPayload, title: undefined, isLoading: true } });
+      } else {
+        PageTabList.changeOne({ tab, updates: { ...updatingPayload } });
+      }
+
       yield put(setTabs(PageTabList.storeList));
     }
 

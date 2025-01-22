@@ -24,7 +24,26 @@ Object.freeze(initialState);
 export default handleActions(
   {
     [setGroupSectionList]: (state, action) => ({ ...state, groupSectionList: action.payload || [] }),
-    [setAdminSectionInitStatus]: (state, action) => ({ ...state, isInitiated: action.payload || false }),
+    [setAdminSectionInitStatus]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      if (!stateId) {
+        return { ...state, isInitiated: action.payload || false };
+      }
+
+      return {
+        ...state,
+        wsSections: {
+          ...state.wsSections,
+          [stateId]: {
+            ...state.wsSections[stateId],
+            isInitiated: action.payload || {}
+          }
+        },
+        isInitiated: action.payload || false
+      };
+    },
     [setActiveSection]: (state, action) => {
       const stateId = action.payload.stateId;
       action = handleAction(action);

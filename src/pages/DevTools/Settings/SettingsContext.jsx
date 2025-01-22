@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
 
 import ConfigService, { ALFRESCO_ENABLED } from '../../../services/config/ConfigService';
-import { SETTING_ENABLE_RECORDS_API_DEBUG, SETTING_ENABLE_LOGGING_FOR_NEW_FORMS, SETTING_FORCE_ENABLE_NEW_FORMS } from '../constants';
+import {
+  SETTING_ENABLE_RECORDS_API_DEBUG,
+  SETTING_ENABLE_LOGGING_FOR_NEW_FORMS,
+  SETTING_FORCE_ENABLE_NEW_FORMS,
+  SETTING_ENABLE_VIEW_NEW_JOURNAL
+} from '../constants';
 
 export const SettingsContext = React.createContext();
 
@@ -9,10 +14,12 @@ export const SettingsContextProvider = props => {
   const initEnableNewForms = !!JSON.parse(localStorage.getItem(SETTING_FORCE_ENABLE_NEW_FORMS));
   const initEnableLoggingNewForm = !!JSON.parse(localStorage.getItem(SETTING_ENABLE_LOGGING_FOR_NEW_FORMS));
   const initEnableRecordsApi = !!JSON.parse(localStorage.getItem(SETTING_ENABLE_RECORDS_API_DEBUG));
+  const initEnableViewNewJournal = !!JSON.parse(localStorage.getItem(SETTING_ENABLE_VIEW_NEW_JOURNAL));
 
   const [stateEnableNewFormsValue, setNewEnableFormsState] = useState(initEnableNewForms);
   const [stateEnableLoggingNewForm, setNewLoggingNewFormState] = useState(initEnableLoggingNewForm);
   const [stateEnableRecordsApi, setNewEnableRecordsApi] = useState(initEnableRecordsApi);
+  const [stateEnableViewNewJournal, setNewEnableViewNewJournal] = useState(initEnableViewNewJournal);
   const [settings, setSettings] = useState({});
 
   useEffect(
@@ -41,6 +48,29 @@ export const SettingsContextProvider = props => {
       });
     },
     [stateEnableNewFormsValue]
+  );
+
+  useEffect(
+    () => {
+      const _setNewValue = value => {
+        setNewEnableViewNewJournal(value);
+
+        if (value) {
+          localStorage.setItem(SETTING_ENABLE_VIEW_NEW_JOURNAL, JSON.stringify(value));
+        } else {
+          localStorage.removeItem(SETTING_ENABLE_VIEW_NEW_JOURNAL);
+        }
+      };
+
+      setSettings(prev => ({
+        ...prev,
+        [SETTING_ENABLE_VIEW_NEW_JOURNAL]: {
+          value: stateEnableViewNewJournal,
+          setValue: _setNewValue
+        }
+      }));
+    },
+    [initEnableViewNewJournal]
   );
 
   useEffect(

@@ -7,7 +7,7 @@ import { SourcesId, URL } from '../constants';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, LINK_HREF, LINK_TAG, OPEN_IN_BACKGROUND, TITLE } from '../constants/pageTabs';
 import { SectionTypes } from '../constants/adminSection';
 import { getCurrentUserName, getEnabledWorkspaces, getMLValue, t } from '../helpers/util';
-import { decodeLink, getLinkWithout, getSearchParams, IgnoredUrlParams, isNewVersionPage } from '../helpers/urls';
+import { decodeLink, getLinkWithout, getLinkWithWs, getSearchParams, IgnoredUrlParams, isNewVersionPage } from '../helpers/urls';
 import { getData, isExistLocalStorage, setData } from '../helpers/ls';
 import { PageApi } from '../api/page';
 import Records from '../components/Records';
@@ -335,7 +335,16 @@ export default class PageService {
       }
 
       if (target) {
-        const tab = window.open(link, target);
+        let tab;
+
+        if (getEnabledWorkspaces() && window.location.href.includes('ws=') && link && !link.includes('ws=')) {
+          const url = new URLSearchParams(window.location.search);
+          const wsId = url.get('ws');
+
+          tab = window.open(getLinkWithWs(link, wsId), target);
+        } else {
+          tab = window.open(link, target);
+        }
 
         tab.focus();
 
