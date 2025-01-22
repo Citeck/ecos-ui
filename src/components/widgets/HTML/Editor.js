@@ -1,23 +1,46 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 import isFunction from 'lodash/isFunction';
+import AceEditor from 'react-ace';
+import get from 'lodash/get';
+import 'ace-builds/src-noconflict/mode-html';
+import 'ace-builds/src-noconflict/theme-monokai';
 
+import { t } from '../../../helpers/export/util';
+import { getDOMElementMeasurer, getHtmlIdByUid } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 import { setEditorMode, updateHtmlWidget } from '../../../actions/customWidgetHtml';
 import { selectCustomWidgetData } from '../../../selectors/customWidgetHtml';
+import { Caption, Field, MLText } from '../../common/form';
 import { Btn } from '../../common/btns';
-import { Caption, Field, MLText, Textarea } from '../../common/form';
+import { Labels } from './util';
 import './styles.scss';
 
 class EditorCustomHtmlWidget extends Component {
+  #editorId = getHtmlIdByUid(undefined, 'ml-textarea');
+
   constructor(props) {
     super(props);
 
     this.state = {
-      htmlString: null,
-      title: props.title || ''
+      htmlString: get(props, 'config.htmlString', null),
+      title: get(props, 'config.title', ''),
+      _ref: null
     };
   }
+
+  get isSmall() {
+    const measurer = getDOMElementMeasurer(this.state._ref);
+
+    return measurer && !!measurer.width && (measurer.xs || measurer.xxs || measurer.xxxs);
+  }
+
+  setEditorRef = _ref => {
+    if (_ref) {
+      this.setState({ _ref });
+    }
+  };
 
   onCloseEditor = () => {
     this.props.setEditorMode(false);
@@ -28,7 +51,6 @@ class EditorCustomHtmlWidget extends Component {
     const { htmlString, title } = this.state;
 
     this.props.updateHtmlWidget(htmlString);
-    this.onCloseEditor();
 
     isFunction(onSave) &&
       onSave({
@@ -45,41 +67,74 @@ class EditorCustomHtmlWidget extends Component {
   };
 
   render() {
-    const { loading, text } = this.props;
+    const { loading } = this.props;
     const { htmlString, title } = this.state;
 
     const isDisableSave = !htmlString || loading;
 
     return (
-      <div className="citeck-html-widget__editor">
+      <div className="citeck-html-widget__editor" ref={this.setEditorRef}>
         <Caption middle className="citeck-html-widget__editor-title">
-          {'Настройки виджета'}
+          {t(Labels.Editor.EDITOR_TITLE)}
         </Caption>
 
-        <Field label={'Название виджета'} labelPosition="top">
+        <Field
+          label={t(Labels.Editor.TITLE_FIELD_WIDGET)}
+          className="citeck-html-widget__editor_field"
+          labelPosition="top"
+          isSmall={this.isSmall}
+        >
           <MLText value={title} onChange={title => this.onChangeSetting({ title })} />
         </Field>
 
-        <Field label={'Произвольный HTML'} labelPosition="top">
-          <Textarea
-            defaultValue={text}
+        <Field
+          label={t(Labels.Editor.HTML_FIELD_LABEL)}
+          className="citeck-html-widget__editor_field"
+          labelPosition="top"
+          isSmall={this.isSmall}
+        >
+          <AceEditor
+            mode="html"
             value={htmlString}
-            onChange={event => this.onChangeSetting({ htmlString: event?.target?.value || '' })}
+            enableSnippets
+            enableBasicAutocompletion
+            enableLiveAutocompletion
+            setOptions={{
+              useWorker: false,
+              enableBasicAutocompletion: true,
+              enableLiveAutocompletion: true,
+              showLineNumbers: true,
+              tabSize: 3
+            }}
+            style={{ width: 'auto' }}
+            editorProps={{
+              $blockScrolling: true
+            }}
+            name={this.#editorId}
+            onChange={htmlString => this.onChangeSetting({ htmlString })}
           />
         </Field>
 
         <div className="citeck-html-widget__editor-buttons">
           <Btn className="ecos-btn_hover_light-blue" onClick={this.onCloseEditor}>
-            {'Отменить'}
+            {t(Labels.Editor.ACTION_CANCEL)}
           </Btn>
           <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" loading={loading} disabled={isDisableSave} onClick={this.onSave}>
-            {'Сохранить'}
+            {t(Labels.Editor.ACTION_SAVE)}
           </Btn>
         </div>
       </div>
     );
   }
 }
+
+EditorCustomHtmlWidget.propTypes = {
+  onSave: PropTypes.func.isRequired,
+  stateId: PropTypes.string.isRequired,
+  config: PropTypes.object,
+  setEditorMode: PropTypes.func,
+  updateHtmlWidget: PropTypes.func
+};
 
 const mapStateToProps = (state, props) => selectCustomWidgetData(state, props.stateId);
 const mapDispatchToProps = (dispatch, props) => {

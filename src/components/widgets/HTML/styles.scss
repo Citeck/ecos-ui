@@ -14,5 +14,9 @@
       display: inline-flex;
       gap: 1rem;
     }
+
+    &_field .ecos-field__control {
+      width: 100%;
+    }
   }
 }

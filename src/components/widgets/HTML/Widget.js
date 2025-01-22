@@ -3,14 +3,16 @@ import { connect } from 'react-redux';
 import isEqual from 'lodash/isEqual';
 import isString from 'lodash/isString';
 import isFunction from 'lodash/isFunction';
+import PropTypes from 'prop-types';
 import get from 'lodash/get';
 
 import { DashboardTypes } from '../../../constants/dashboard';
-import { setEditorMode } from '../../../actions/customWidgetHtml';
+import { setEditorMode, setLoading } from '../../../actions/customWidgetHtml';
 import { getStateId, wrapArgs } from '../../../helpers/redux';
 import { selectCustomWidgetData } from '../../../selectors/customWidgetHtml';
 import { InfoText } from '../../common';
 import { Labels } from './util';
+import { t } from '../../../helpers/export/util';
 import { getCurrentLocale } from '../../../helpers/util';
 import DAction from '../../../services/DashletActionService';
 import EditorCustomHtmlWidget from './Editor';
@@ -36,7 +38,8 @@ const mapDispatchToProps = (dispatch, ownProps) => {
   const w = wrapArgs(getKey(ownProps));
 
   return {
-    setEditorMode: isVisible => dispatch(setEditorMode(w(isVisible)))
+    setEditorMode: isVisible => dispatch(setEditorMode(w(isVisible))),
+    setLoading: isLoading => dispatch(setLoading(w(isLoading)))
   };
 };
 
@@ -65,7 +68,7 @@ class CustomWidgetHtmlDashlet extends BaseWidget {
   }
 
   get title() {
-    const titleFromConfig = this.config.title || Labels.DEFAULT_TITLE;
+    const titleFromConfig = this.config.title || Labels.Widget.DEFAULT_TITLE;
 
     return isString(titleFromConfig) ? titleFromConfig : titleFromConfig[getCurrentLocale()];
   }
@@ -79,13 +82,13 @@ class CustomWidgetHtmlDashlet extends BaseWidget {
   }
 
   renderEditor() {
-    const { isVisibleEditor, text, stateId } = this.props;
+    const { isVisibleEditor, stateId } = this.props;
 
     if (!isVisibleEditor) {
       return null;
     }
 
-    return <EditorCustomHtmlWidget onSave={this.handleSaveSettings} stateId={stateId} text={text} />;
+    return <EditorCustomHtmlWidget config={this.config} onSave={this.handleSaveSettings} stateId={stateId} />;
   }
 
   renderContent() {
@@ -97,10 +100,20 @@ class CustomWidgetHtmlDashlet extends BaseWidget {
     }
 
     if (!html) {
-      return <InfoText text={'Настройте контент для данного виджета'} />;
+      return <InfoText text={t(Labels.Widget.WARNING_NEED_SETTINGS)} />;
     }
 
-    return <div dangerouslySetInnerHTML={{ __html: html }} />;
+    const parsedHtml = html.replace(/\{([^}]+)\}/g, (_, code) => {
+      try {
+        // eslint-disable-next-line
+        return new Function(`return ${code}`)();
+      } catch (error) {
+        console.error('Error when executing the code:', error);
+        return `{${code}}`;
+      }
+    });
+
+    return <div dangerouslySetInnerHTML={{ __html: parsedHtml }} />;
   }
 
   handleSaveSettings = async configToSave => {
@@ -117,6 +130,7 @@ class CustomWidgetHtmlDashlet extends BaseWidget {
 
   onCloseEditor = () => {
     this.props.setEditorMode(false);
+    this.props.setLoading(false);
   };
 
   render() {
@@ -147,6 +161,16 @@ class CustomWidgetHtmlDashlet extends BaseWidget {
     );
   }
 }
+
+CustomWidgetHtmlDashlet.propTypes = {
+  setEditorMode: PropTypes.func,
+  setLoading: PropTypes.func,
+  config: PropTypes.object,
+  onSave: PropTypes.object,
+  id: PropTypes.string,
+  dashboardId: PropTypes.string,
+  isVisibleEditor: PropTypes.bool
+};
 
 export default connect(
   mapStateToProps,

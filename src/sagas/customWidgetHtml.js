@@ -8,10 +8,7 @@ function* sagaUpdateHtmlWidget({ api, logger }, { payload }) {
     const { html, stateId } = payload;
     const w = wrapArgs(stateId);
     yield put(setLoading(w(true)));
-
     yield put(setHtml(w(html)));
-
-    yield put(setLoading(w(false)));
   } catch (e) {
     logger.error('[publications/sagaUpdateHtmlWidget saga] error', e);
   }
