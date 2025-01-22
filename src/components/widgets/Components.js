@@ -36,6 +36,7 @@ export const ComponentKeys = {
   PROCESS_STATISTICS: 'process-statistics',
   STAGES: 'stages',
   CHARTS: 'charts',
+  PUBLICATION: 'publication',
   KANBAN_BOARD: 'kanban-board'
 };
 
@@ -248,6 +249,22 @@ export default class Components {
       label: 'dashboard-settings.widget.charts',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS, DashboardTypes.USER, DashboardTypes.CUSTOM]
     },
+    [ComponentKeys.PUBLICATION]: {
+      load: () =>
+        lazy(() =>
+          import('../../plugins').then(plugins => ({
+            default: get(plugins, 'default.PublicationWidget', () => null)
+          }))
+        ),
+      additionalProps: {
+        isDragDisabledByLayout: layout =>
+          layout &&
+          (!layout.columns || (layout.columns.length !== 1 && !layout.columns.find(column => Array.isArray(column) && column.length === 1)))
+      },
+      checkIsAvailable: () => Boolean(get(window, 'Citeck.Plugins.PublicationWidget')),
+      label: 'dashboard-settings.widget.publication',
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
+    },
     [ComponentKeys.STAGES]: {
       load: () =>
         lazy(() =>
@@ -274,7 +291,7 @@ export default class Components {
     }
   });
 
-  static allDashboardsComponents = [ComponentKeys.JOURNAL, ComponentKeys.WEB_PAGE];
+  static allDashboardsComponents = [ComponentKeys.JOURNAL, ComponentKeys.WEB_PAGE, ComponentKeys.PUBLICATION];
 
   static get allDashboardTypes() {
     return Object.values(DashboardTypes);
