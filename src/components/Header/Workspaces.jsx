@@ -113,7 +113,7 @@ const Workspaces = ({ isLoading, isError, workspaces, getWorkspaces, visitedActi
             <h1>error</h1>
           ) : (
             <ul className="workspace-panel-list">
-              {workspaces.map(({ id, wsId, wsName, wsImage, homePageLink, hasWrite, isCurrentUserManager }, index) => (
+              {workspaces.map(({ id, wsId, wsName, wsImage, homePageLink, hasWrite }, index) => (
                 <li
                   className="workspace-panel-list_item"
                   key={index}
@@ -142,7 +142,7 @@ const Workspaces = ({ isLoading, isError, workspaces, getWorkspaces, visitedActi
                 const variant = await Records.get('emodel/type@workspace').load('createVariants?json');
 
                 FormManager.createRecordByVariant(variant, {
-                  onAfterHideModal: () => getWorkspaces(),
+                  onHideModal: () => getWorkspaces(),
                   initiator: {
                     type: 'form-component',
                     name: 'CreateVariants'
