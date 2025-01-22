@@ -13,6 +13,7 @@ import ConfigService, { ALFRESCO_ENABLED } from '../../services/config/ConfigSer
 import { FORM_MODE_EDIT, FORM_MODE_VIEW } from '../EcosForm';
 
 export const ComponentKeys = {
+  HTML: 'html',
   PAGINATION: 'pagination',
   DOC_PREVIEW: 'doc-preview',
   JOURNAL: 'journal',
@@ -82,6 +83,12 @@ export default class Components {
       supportedDashboardTypes: [],
       props: {},
       settings: () => lazy(() => import('./JournalsDashlet/Settings'))
+    },
+    [ComponentKeys.HTML]: {
+      load: () => lazy(() => import('./HTML/Widget')),
+      label: 'HTML',
+      supportedDashboardTypes: [],
+      props: {}
     },
     [ComponentKeys.REPORT]: {
       load: () => lazy(() => import('./Report')),
@@ -291,7 +298,7 @@ export default class Components {
     }
   });
 
-  static allDashboardsComponents = [ComponentKeys.JOURNAL, ComponentKeys.WEB_PAGE, ComponentKeys.PUBLICATION];
+  static allDashboardsComponents = [ComponentKeys.JOURNAL, ComponentKeys.WEB_PAGE, ComponentKeys.PUBLICATION, ComponentKeys.HTML];
 
   static get allDashboardTypes() {
     return Object.values(DashboardTypes);

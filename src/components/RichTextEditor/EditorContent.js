@@ -131,7 +131,7 @@ export const EditorContent = ({ onChange, htmlString, readonly = false, hideTool
             setTextLength(textContent.length);
             setIsMaxLength(textContent.length > LENGTH_LIMIT);
 
-            onChange(state, editor, tags, textContent.length === 0);
+            isFunction(onChange) && onChange(state, editor, tags, textContent.length === 0);
           }}
         />
       </div>

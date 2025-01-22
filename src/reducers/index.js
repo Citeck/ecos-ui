@@ -51,6 +51,7 @@ import adminSection from './adminSection';
 import cmmnEditor from './cmmnEditor';
 import kanban from './kanban';
 import processStatistics from './processStatistics';
+import customWidgetHtml from './customWidgetHtml';
 import orgstructure from './orgstructure';
 
 const reducers = {
@@ -104,6 +105,7 @@ const reducers = {
   cmmnEditor,
   kanban,
   processStatistics,
+  customWidgetHtml,
   orgstructure
 };
 

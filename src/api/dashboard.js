@@ -3,7 +3,7 @@ import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import isString from 'lodash/isString';
 
-import { getCurrentUserName, getMLValue, isExistIndex, t } from '../helpers/util';
+import { getCurrentUserName, getEnabledWorkspaces, getMLValue, isExistIndex, t } from '../helpers/util';
 import Cache from '../helpers/cache';
 import { getRefWithAlfrescoPrefix, parseJournalId, parseTypeId } from '../helpers/ref';
 import { EmodelTypes, SourcesId } from '../constants';
@@ -173,7 +173,7 @@ export class DashboardApi {
       query.recordRef = recordRef;
     }
 
-    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+    if (getEnabledWorkspaces()) {
       const wsId = getWorkspaceId();
       if (wsId) {
         query.workspace = wsId;
@@ -188,7 +188,7 @@ export class DashboardApi {
   };
 
   getDashboardByRecordRef = async recordRef => {
-    const enabledWorkspaces = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+    const enabledWorkspaces = getEnabledWorkspaces();
     const wsId = getWorkspaceId();
     let recType;
 

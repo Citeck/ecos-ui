@@ -247,6 +247,13 @@
   "comments-widget.edited-by": "edited by",
   "comments-widget.edited-in": "in",
 
+  "custom-widget-html.warning.need-settings": "Configure the content for this widget",
+  "custom-widget-html.editor.title": "Widget Settings",
+  "custom-widget-html.editor.title-field-widget": "Widget Title",
+  "custom-widget-html.editor.html-field-label": "Custom HTML",
+  "custom-widget-html.editor.actions.cancel": "Cancel",
+  "custom-widget-html.editor.actions.save": "Save",
+
   "dashboard-settings.widget.activities": "Activities",
   "activities-widget.participants-all": "All participants",
   "activities-widget.editor.create": "To create",

@@ -184,6 +184,13 @@
   "comments-widget.edited-by": "отредактировано",
   "comments-widget.edited-in": "в",
 
+  "custom-widget-html.warning.need-settings": "Настройте контент для данного виджета",
+  "custom-widget-html.editor.title": "Настройки виджета",
+  "custom-widget-html.editor.title-field-widget": "Название виджета",
+  "custom-widget-html.editor.html-field-label": "Произвольный HTML",
+  "custom-widget-html.editor.actions.cancel": "Отменить",
+  "custom-widget-html.editor.actions.save": "Сохранить",
+
   "charts-widget.title": "Графическая статистика",
   "charts-widget.no-source": "Нет источника типа",
   "charts-widget.data-build-error": "Произошла ошибка:\n {{error}}",
