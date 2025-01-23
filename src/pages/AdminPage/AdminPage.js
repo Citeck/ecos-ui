@@ -33,10 +33,11 @@ class AdminPage extends React.Component {
   constructor(props) {
     super(props);
 
-    this.stateId = getKeys(props);
+    const enabledWorkspaces = getEnabledWorkspaces();
+    this.stateId = enabledWorkspaces ? getKeys(props) : null;
 
     this.state = {
-      isAccessible: !getEnabledWorkspaces() ? props.isAccessible : props.wsSections[this.stateId]?.isAccessible || false
+      isAccessible: !enabledWorkspaces ? props.isAccessible : props.wsSections[this.stateId]?.isAccessible || false
     };
   }
 
@@ -53,7 +54,11 @@ class AdminPage extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { wsSections } = this.props;
+    const { wsSections, isAccessible } = this.props;
+
+    if (!getEnabledWorkspaces() && prevProps.isAccessible !== isAccessible) {
+      this.setState({ isAccessible });
+    }
 
     if (prevProps.tabLink !== this.props.tabLink) {
       this.props.updateActiveSection(this.stateId);
