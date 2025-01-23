@@ -20,21 +20,14 @@ import { fetchCreateCaseWidgetData } from '../../actions/header';
 import { getWorkspaceId } from '../../helpers/urls';
 import EditIcon from '../common/icons/Edit';
 import PageTabList from '../../services/pageTabs/PageTabList';
+import WorkspaceService from '../../services/WorkspaceService';
+
 import './style.scss';
 
 export const documentId = 'workspace-menu-switcher';
 export const element = document.getElementById(documentId);
 
-const Workspaces = ({
-  isLoading,
-  isError,
-  workspaces,
-  getWorkspaces,
-  fetchSlideMenuItems,
-  getMenuConfig,
-  visitedAction,
-  fetchCreateCaseWidgetData
-}) => {
+const Workspaces = ({ isLoading, isError, workspaces, getWorkspaces, visitedAction }) => {
   const [active, setActive] = useState(false);
   const wrapperRef = useRef(null);
 
@@ -54,8 +47,13 @@ const Workspaces = ({
 
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
+
+    WorkspaceService.emitter.on(WorkspaceService.Events.UPDATE_LIST, () => getWorkspaces());
+
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+
+      WorkspaceService.emitter.off(WorkspaceService.Events.UPDATE_LIST, () => getWorkspaces());
     };
   }, []);
 
@@ -115,7 +113,7 @@ const Workspaces = ({
             <h1>error</h1>
           ) : (
             <ul className="workspace-panel-list">
-              {workspaces.map(({ id, wsId, wsName, wsImage, homePageLink, hasWrite, isCurrentUserManager }, index) => (
+              {workspaces.map(({ id, wsId, wsName, wsImage, homePageLink, hasWrite }, index) => (
                 <li
                   className="workspace-panel-list_item"
                   key={index}
@@ -144,7 +142,7 @@ const Workspaces = ({
                 const variant = await Records.get('emodel/type@workspace').load('createVariants?json');
 
                 FormManager.createRecordByVariant(variant, {
-                  onAfterHideModal: () => getWorkspaces(),
+                  onHideModal: () => getWorkspaces(),
                   initiator: {
                     type: 'form-component',
                     name: 'CreateVariants'
