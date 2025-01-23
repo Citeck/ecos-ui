@@ -6,3 +6,5 @@ export * from './MaxLenghtPlugin';
 export * from './TablePlugin';
 export * from './ToolbarPlugin';
 export * from './MentionsPlugin';
+export * from './ImagesPlugin';
+export * from './FontFamilyPlugin';

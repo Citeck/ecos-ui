@@ -8,6 +8,7 @@ import { TableCellNode, TableNode, TableRowNode } from '@lexical/table';
 
 import { FileNode } from './FileNode';
 import { MentionNode } from './MentionNode';
+import { ImageNode } from './ImageNode';
 
 export const nodes = [
   HeadingNode,
@@ -20,6 +21,7 @@ export const nodes = [
   TableRowNode,
   FileNode,
   MentionNode,
+  ImageNode,
   CodeHighlightNode,
   AutoLinkNode,
   LinkNode,

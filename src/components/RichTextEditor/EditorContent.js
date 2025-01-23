@@ -23,6 +23,7 @@ import {
   MarkdownShortcutPlugin,
   TablePlugin as CustomTablePlugin,
   ToolbarPlugin,
+  ImagesPlugin,
   MentionsPlugin
 } from './plugins';
 import { Placeholder } from './components';
@@ -109,6 +110,7 @@ export const EditorContent = ({ onChange, htmlString, readonly = false, hideTool
           placeholder={Placeholder}
           ErrorBoundary={LexicalErrorBoundary}
         />
+        <ImagesPlugin />
         <FilePlugin />
         <ListPlugin />
         <LinkPlugin />
