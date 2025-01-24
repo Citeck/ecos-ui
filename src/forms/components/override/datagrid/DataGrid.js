@@ -126,6 +126,112 @@ export default class DataGridComponent extends FormIODataGridComponent {
     return needsHeader ? thead : null;
   }
 
+  addNewValue(value) {
+    if (value === undefined) {
+      value = {};
+    }
+    let dataValue = this.dataValue || [];
+    if (!Array.isArray(dataValue)) {
+      dataValue = [dataValue];
+    }
+    if (Array.isArray(value)) {
+      dataValue = dataValue.concat(value);
+    } else {
+      dataValue.push(value);
+    }
+    this.dataValue = dataValue;
+  }
+
+  buildRows() {
+    this.setVisibleComponents();
+
+    const oldRows = this.rows || [];
+
+    this.rows = [];
+
+    const tableRows = [];
+    for (let i = 0; i < this.dataValue.length; i++) {
+      const rowData = this.dataValue[i];
+      const rowElement = this.buildRow(rowData, i);
+      tableRows.push(rowElement);
+    }
+
+    // When creating an instance of the element, it doesn't render the element completely.
+    // Need to wait for `dataReady` before inserting the element into the table.
+    const creationPromises = [];
+    if (this.rows && this.rows.length) {
+      this.rows.forEach((row, index) => {
+        if (isObject(row) && !isEmpty(row)) {
+          Object.keys(row).forEach(key => {
+            const item = this.rows[index][key];
+
+            if (item && item.dataReady) {
+              creationPromises.push(item.dataReady);
+            }
+          });
+        }
+      });
+    }
+
+    Promise.all(creationPromises).then(() => {
+      const oldTable = this.tableElement;
+
+      const newTable = this.ce('table', {
+        class: oldTable.className
+      });
+
+      const header = this.createHeader();
+      if (header) {
+        newTable.appendChild(header);
+      }
+
+      const newTbody = this.ce('tbody', null, tableRows);
+      newTable.appendChild(newTbody);
+
+      if (this.allowReorder) {
+        this.addDraggable([newTbody]);
+      }
+
+      if (this.hasRowGroups() && !this.options.builder) {
+        this.buildGroups();
+      }
+
+      if (this.hasBottomSubmit()) {
+        newTable.appendChild(this.ce('tfoot', null, this.ce('tr', null, this.ce('td', { colspan: this.numColumns }, this.addButton()))));
+      }
+
+      if (oldTable.parentNode) {
+        oldTable.parentNode.replaceChild(newTable, oldTable);
+      }
+
+      this.tableElement = newTable;
+      this.tableBody = newTbody;
+
+      const state = { rows: {} };
+      oldRows.forEach((row, rowIndex) => {
+        forIn(row, col => {
+          const compState = this.removeComponent(col, row);
+          if (col.key && compState) {
+            if (!state.rows[rowIndex]) {
+              state.rows[rowIndex] = {};
+            }
+            state.rows[rowIndex][col.key] = compState;
+          }
+        });
+      });
+    });
+  }
+
+  addValue() {
+    this.addNewValue();
+    this.buildRows();
+    this.checkConditions();
+    this.restoreValue();
+    if (this.root) {
+      this.root.onChange();
+    }
+  }
+
   setValue(value, flags) {
     flags = this.getFlags.apply(this, arguments);
 
