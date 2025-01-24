@@ -142,6 +142,17 @@ export default class DataGridComponent extends FormIODataGridComponent {
     this.dataValue = dataValue;
   }
 
+  build() {
+    super.build();
+
+    this._buildPromise = this.buildRows();
+    return this._buildPromise;
+  }
+
+  get dataReady() {
+    return this._buildPromise;
+  }
+
   buildRows() {
     this.setVisibleComponents();
 
@@ -173,7 +184,7 @@ export default class DataGridComponent extends FormIODataGridComponent {
       });
     }
 
-    Promise.all(creationPromises).then(() => {
+    return Promise.all(creationPromises).then(() => {
       const oldTable = this.tableElement;
 
       const newTable = this.ce('table', {
