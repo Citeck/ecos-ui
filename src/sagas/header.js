@@ -102,7 +102,7 @@ function* filterSiteMenu({ logger }, { payload = {} }) {
     const params = yield fetchInfluentialParams();
     const { identification = null } = payload;
     const tabLink = get(payload, 'tab.link', '');
-    let { url = '' } = payload;
+    let { url = window.location.pathname } = payload;
 
     if (!url && tabLink) {
       url = tabLink;

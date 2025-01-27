@@ -247,6 +247,13 @@
   "comments-widget.edited-by": "edited by",
   "comments-widget.edited-in": "in",
 
+  "custom-widget-html.warning.need-settings": "Configure the content for this widget",
+  "custom-widget-html.editor.title": "Widget Settings",
+  "custom-widget-html.editor.title-field-widget": "Widget Title",
+  "custom-widget-html.editor.html-field-label": "Custom HTML",
+  "custom-widget-html.editor.actions.cancel": "Cancel",
+  "custom-widget-html.editor.actions.save": "Save",
+
   "dashboard-settings.widget.activities": "Activities",
   "activities-widget.participants-all": "All participants",
   "activities-widget.editor.create": "To create",
@@ -421,6 +428,7 @@
   "dashboard-settings.widget.process-statistics": "Process Statistics",
   "dashboard-settings.widget.stages": "stages",
   "dashboard-settings.widget.charts": "Graphic statistic",
+  "dashboard-settings.widget.publication": "Publication",
   "dashboard-settings.widget.with-config": "This widget has settings. When you delete the widget, the settings will be lost",
   "dashboard-settings.layout.tooltip.adaptive": "The number of columns is adjusted to the size of the browser window",
   "dashboard-settings.layout.empty-layout": "Widgets not configured.",
@@ -2734,5 +2742,8 @@
 
   "workspaces.create-button": "Create workspace",
   "workspaces.error-blocked.msg": "The workspace is unavailable or has not been created",
-  "workspaces.error-blocked.action.msg": "Go to the homepage"
+  "workspaces.error-blocked.action.msg": "Go to the homepage",
+
+  "publication.creator.name": "Created by",
+  "publication.modifier.name": ", Modified by"
 }

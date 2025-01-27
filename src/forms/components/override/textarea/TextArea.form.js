@@ -3,9 +3,17 @@ import TextAreaDisplay from 'formiojs/components/textarea/editForm/TextArea.edit
 
 import { t } from '../../../../helpers/export/util';
 
+const editor = TextAreaDisplay.find(el => el.key === 'editor');
 const wysiwyg = TextAreaDisplay.find(el => el.key === 'wysiwyg');
 delete wysiwyg.tooltip;
 delete wysiwyg.customDefaultValue;
+
+if (editor && editor.data && editor.data.values && editor.data.values.length) {
+  editor.data.values.push({
+    label: 'Lexical',
+    value: 'lexical'
+  });
+}
 
 export default function(...extend) {
   return BaseEditForm(
@@ -14,6 +22,9 @@ export default function(...extend) {
         key: 'display',
         components: [
           ...TextAreaDisplay,
+          {
+            ...editor
+          },
           {
             ...wysiwyg,
             description: 'Enter the WYSIWYG editor JSON configuration.',

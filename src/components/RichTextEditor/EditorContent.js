@@ -11,6 +11,7 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
 import { $generateNodesFromDOM } from '@lexical/html';
 import { $getRoot, $createTextNode, TextNode, ElementNode, $createParagraphNode } from 'lexical';
+import isFunction from 'lodash/isFunction';
 import isNil from 'lodash/isNil';
 import classNames from 'classnames';
 
@@ -22,6 +23,7 @@ import {
   MarkdownShortcutPlugin,
   TablePlugin as CustomTablePlugin,
   ToolbarPlugin,
+  ImagesPlugin,
   MentionsPlugin
 } from './plugins';
 import { Placeholder } from './components';
@@ -29,7 +31,7 @@ import { t } from '../../helpers/util';
 
 import './style.scss';
 
-export const EditorContent = ({ onChange, htmlString, readonly = false, hideToolbar = false, className }) => {
+export const EditorContent = ({ onChange, htmlString, readonly = false, hideToolbar = false, className, onEditorReady }) => {
   const [editor] = useLexicalComposerContext();
   const [floatingAnchorElem, setFloatingAnchorElem] = useState(null);
   const [isMaxLength, setIsMaxLength] = useState(false);
@@ -40,6 +42,15 @@ export const EditorContent = ({ onChange, htmlString, readonly = false, hideTool
       setFloatingAnchorElem(_floatingAnchorElem);
     }
   };
+
+  useEffect(
+    () => {
+      if (isFunction(onEditorReady)) {
+        onEditorReady(editor);
+      }
+    },
+    [onEditorReady]
+  );
 
   useEffect(
     () => {
@@ -99,6 +110,7 @@ export const EditorContent = ({ onChange, htmlString, readonly = false, hideTool
           placeholder={Placeholder}
           ErrorBoundary={LexicalErrorBoundary}
         />
+        <ImagesPlugin />
         <FilePlugin />
         <ListPlugin />
         <LinkPlugin />
@@ -121,7 +133,7 @@ export const EditorContent = ({ onChange, htmlString, readonly = false, hideTool
             setTextLength(textContent.length);
             setIsMaxLength(textContent.length > LENGTH_LIMIT);
 
-            onChange(state, editor, tags, textContent.length === 0);
+            isFunction(onChange) && onChange(state, editor, tags, textContent.length === 0);
           }}
         />
       </div>

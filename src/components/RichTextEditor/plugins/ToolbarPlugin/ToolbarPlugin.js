@@ -35,6 +35,7 @@ import './style.scss';
 
 import { getSelectedNode } from '../../utils';
 import { Divider } from '../../components/Divider';
+import { FontFamilyPlugin } from '../FontFamilyPlugin';
 
 const ToolbarPlugin = () => {
   const [editor] = useLexicalComposerContext();
@@ -153,6 +154,7 @@ const ToolbarPlugin = () => {
       <UndoButton editor={activeEditor} canUndo={canUndo} />
       <RedoButton editor={activeEditor} canRedo={canRedo} />
       <Divider />
+      <FontFamilyPlugin />
       <TextFormatDropdownButton editor={activeEditor} blockType={blockType} />
       <Divider />
       <BoldFormatButton editor={activeEditor} isBold={isBold} />

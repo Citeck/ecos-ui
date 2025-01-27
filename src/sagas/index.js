@@ -47,6 +47,7 @@ import cmmnEditor from './cmmnEditor';
 import customEvent from './customEvent';
 import kanban from './kanban';
 import processStatistics from './processStatistics';
+import customWidgetHtml from './customWidgetHtml';
 import orgstructure from './orgstructure';
 
 export default function* rootSaga(extraArguments) {
@@ -99,6 +100,7 @@ export default function* rootSaga(extraArguments) {
     customEvent(extraArguments),
     kanban(extraArguments),
     processStatistics(extraArguments),
+    customWidgetHtml(extraArguments),
     orgstructure(extraArguments)
   ]);
 }
