@@ -104,7 +104,7 @@ export function* initApp({ api, logger }, { payload }) {
         // TODO remove in future: see src/helpers/util.js getCurrentUserName()
         lodashSet(window, 'Citeck.constants.USERNAME', get(resp.payload, 'userName'));
         lodashSet(window, 'Citeck.constants.FIRSTNAME', get(resp.payload, 'firstName'));
-        lodashSet(window, 'Citeck.navigator.WORKSPACES_ENABLED', workspaceConfig[WORKSPACES_ENABLED]);
+        lodashSet(window, 'Citeck.navigator.WORKSPACES_ENABLED', configs[WORKSPACES_ENABLED]);
         lodashSet(window, 'Citeck.navigator.NEW_JOURNAL_ENABLED', isViewNewJournal);
 
         if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
