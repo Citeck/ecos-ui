@@ -1173,7 +1173,6 @@ class Grid extends Component {
         const rows = this._tableDom.querySelectorAll(`tr.${ECOS_GRID_ROW_CLASS}`);
         if (rows && rows.length) {
           rows.forEach((row) => {
-            console.log(row.clientHeight);
             scrollStyle.height += row.clientHeight - HEIGHT_TABLE_ROW_IN_WIDGET;
           });
         }
