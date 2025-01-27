@@ -52,17 +52,34 @@ export function* initApp({ api, logger }, { payload }) {
 
     try {
       const { query } = queryString.parseUrl(window.location.href);
-      const isViewNewJournal = yield loadConfigs({
-        [NEW_JOURNAL_ENABLED]: 'value?bool'
-      });
 
       const resp = yield call(api.user.getUserData);
-      const workspaceConfig = yield loadConfigs({
+      const configs = yield loadConfigs({
+        [NEW_JOURNAL_ENABLED]: 'value?bool',
         [DEFAULT_WORKSPACE]: 'value?str',
         [WORKSPACES_ENABLED]: 'value?bool'
       });
 
-      if (get(query, 'ws') && workspaceConfig[WORKSPACES_ENABLED]) {
+      const _isViewNewJournal = configs[NEW_JOURNAL_ENABLED];
+
+      let isViewNewJournal;
+      const isViewNewJournalStorage = Boolean(localStorage.getItem(SETTING_ENABLE_VIEW_NEW_JOURNAL));
+
+      switch (true) {
+        case isViewNewJournalStorage:
+          isViewNewJournal = true;
+          break;
+
+        default:
+          isViewNewJournal = _isViewNewJournal;
+          break;
+      }
+
+      if (isBoolean(isViewNewJournal)) {
+        yield put(setViewNewJournal(isViewNewJournal));
+      }
+
+      if (get(query, 'ws') && configs[WORKSPACES_ENABLED]) {
         const isViewWorkspace = yield call(api.workspaces.isViewWorkspace, query.ws);
 
         if (isBoolean(isViewWorkspace)) {
@@ -70,11 +87,11 @@ export function* initApp({ api, logger }, { payload }) {
         }
       }
 
-      if (isString(workspaceConfig[DEFAULT_WORKSPACE])) {
-        yield put(setDefaultWorkspace(workspaceConfig[DEFAULT_WORKSPACE]));
+      if (isString(configs[DEFAULT_WORKSPACE])) {
+        yield put(setDefaultWorkspace(configs[DEFAULT_WORKSPACE]));
       }
 
-      if (workspaceConfig[WORKSPACES_ENABLED]) {
+      if (configs[WORKSPACES_ENABLED]) {
         yield put(getWorkspaces());
       }
 
@@ -86,7 +103,7 @@ export function* initApp({ api, logger }, { payload }) {
 
         // TODO remove in future: see src/helpers/util.js getCurrentUserName()
         lodashSet(window, 'Citeck.constants.USERNAME', get(resp.payload, 'userName'));
-        lodashSet(window, 'Citeck.navigator.WORKSPACES_ENABLED', workspaceConfig[WORKSPACES_ENABLED]);
+        lodashSet(window, 'Citeck.navigator.WORKSPACES_ENABLED', configs[WORKSPACES_ENABLED]);
         lodashSet(window, 'Citeck.navigator.NEW_JOURNAL_ENABLED', isViewNewJournal);
 
         if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
@@ -103,20 +120,6 @@ export function* initApp({ api, logger }, { payload }) {
       yield put(setRedirectToNewUi(!isForceOldUserDashboardEnabled));
 
       const homeLink = yield ConfigService.getValue(HOME_LINK_URL);
-
-      const isViewNewJournalStorage = Boolean(localStorage.getItem(SETTING_ENABLE_VIEW_NEW_JOURNAL));
-
-      switch (true) {
-        case isViewNewJournalStorage:
-          yield put(setViewNewJournal(true));
-          break;
-
-        default:
-          if (isBoolean(isViewNewJournal)) {
-            yield put(setViewNewJournal(isViewNewJournal));
-          }
-          break;
-      }
 
       yield put(setHomeLink(homeLink));
     } catch (e) {
