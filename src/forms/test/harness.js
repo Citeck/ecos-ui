@@ -133,9 +133,19 @@ const Harness = {
         if (err) {
           return reject(err);
         }
-        component.build();
-        assert(Boolean(component.element) === expected, `No ${component.type} element created.`);
-        return resolve(component);
+        const buildResult = component.build();
+
+        if (buildResult && typeof buildResult.then === 'function') {
+          buildResult
+            .then(() => {
+              assert(Boolean(component.element) === expected, `No ${component.type} element created.`);
+              resolve(component);
+            })
+            .catch(reject);
+        } else {
+          assert(Boolean(component.element) === expected, `No ${component.type} element created.`);
+          resolve(component);
+        }
       });
     });
   },
