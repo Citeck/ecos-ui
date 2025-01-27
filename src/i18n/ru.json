@@ -2741,5 +2741,8 @@
 
   "workspaces.create-button": "Создать пространство",
   "workspaces.error-blocked.msg": "Рабочее пространство недоступно или не создано",
-  "workspaces.error-blocked.action.msg": "Перейти на домашнюю страницу"
+  "workspaces.error-blocked.action.msg": "Перейти на домашнюю страницу",
+
+  "publication.creator.name": "Создал (а)",
+  "publication.modifier.name": ", Обновил (а)"
 }

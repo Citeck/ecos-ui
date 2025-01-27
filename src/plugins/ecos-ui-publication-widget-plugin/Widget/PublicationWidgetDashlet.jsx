@@ -1,19 +1,16 @@
 import moment from 'moment';
 import React from 'react';
 import get from 'lodash/get';
-import isFunction from 'lodash/isFunction';
 
-import { getStateId } from '../../../helpers/redux';
-import DAction from '../../../services/DashletActionService';
 import Dashlet from '../../../components/Dashlet/Dashlet';
 import { Loader } from '../../../components/common';
 import Records from '../../../components/Records/Records';
-import { getCurrentLocale, t } from '../../../helpers/util';
-import { getRecordRef } from '../../../helpers/urls';
-import { getSourceId } from '../../../components/Records/utils/recordUtils';
 import FormManager from '../../../components/EcosForm/FormManager';
 import BaseWidget from '../../../components/widgets/BaseWidget';
-import { Labels } from './constants';
+import DAction from '../../../services/DashletActionService';
+import { getCurrentLocale, t } from '../../../helpers/util';
+import { getRecordRef } from '../../../helpers/urls';
+import { getStateId } from '../../../helpers/redux';
 
 import './style.scss';
 
@@ -28,27 +25,35 @@ class PublicationWidgetDashlet extends BaseWidget {
 
     this.stateId = getStateId(props);
     this.recordRefFromUrl = getRecordRef() || '';
+
+    this.observableFieldsToUpdate = [...new Set([...this.observableFieldsToUpdate, 'title?str', 'text?str'])];
   }
 
   componentDidMount() {
+    super.componentDidMount();
+
+    this.fetchPublication();
+  }
+
+  fetchPublication() {
     const recordRef = this.recordRefFromUrl;
 
-    Records.queryOne(
-      { recordRef: recordRef, sourceId: getSourceId(recordRef) },
-      {
+    return Records.get(recordRef)
+      .load({
         id: 'id',
         text: 'text?str',
         title: '?disp',
         modified: '_modified?str',
-        modifierId: '_modifier.id?str',
-        modifierAvatarUrl: '_modifier.avatarUrl?str',
-        modifierName: '_modifier',
+        modifier: '_modifier{id,avatarUrl,name:?disp}',
         created: '_created?str',
-        createdId: '_creator{id,avatarUrl,name:?disp}',
-        createdAvatarUrl: '_creator.avatarUrl?str',
-        createdName: '_creator'
-      }
-    ).then(record => this.setState({ publication: record, isLoading: false }));
+        creator: '_creator{id,avatarUrl,name:?disp}'
+      })
+      .then(record =>
+        this.setState({
+          publication: record,
+          isLoading: false
+        })
+      );
   }
 
   get config() {
@@ -73,15 +78,6 @@ class PublicationWidgetDashlet extends BaseWidget {
     return actions;
   }
 
-  watchAttrsToLoad = () => {
-    const { config = {} } = this.props;
-    const { attrsToLoad } = config[this.state.typeRef] || {};
-
-    if (attrsToLoad && attrsToLoad.length) {
-      attrsToLoad.forEach(att => this.instanceRecord.watch(`${att.value}[]?id`, this.fetchRecordRefs));
-    }
-  };
-
   toggleEdit = () => {
     FormManager.openFormModal({
       record: this.recordRefFromUrl,
@@ -90,32 +86,20 @@ class PublicationWidgetDashlet extends BaseWidget {
     });
   };
 
-  onSaveWidgetSettings = async configToSave => {
-    const { id, config, onSave } = this.props;
+  handleUpdate() {
+    super.handleUpdate();
 
-    const configFromRecordRef = config[this.state.typeRef];
-
-    const noSavedConfig = !configFromRecordRef;
-    const noNewTitle = !get(configToSave, ['title', getCurrentLocale()]);
-
-    if (noSavedConfig || noNewTitle) {
-      const journal = await Records.get(configToSave.journalId).load('.disp');
-      configToSave.title = {
-        [getCurrentLocale()]: t(Labels.Widget.WIDGET_TITLE, { journal })
-      };
-    }
-
-    const newConfig = { ...config, [this.state.typeRef]: { ...configFromRecordRef, ...configToSave } };
-
-    isFunction(onSave) && (await onSave(id, { config: newConfig }, this.toggleShowSettings));
-  };
-
-  onCancelWidgetSaveSettings = () => {
-    this.toggleShowSettings();
-  };
+    this.fetchPublication();
+  }
 
   render() {
     const { isLoading, publication } = this.state;
+
+    if (!publication) {
+      return null;
+    }
+
+    const { creator = {}, modifier = {} } = publication;
 
     return (
       <Dashlet
@@ -129,11 +113,15 @@ class PublicationWidgetDashlet extends BaseWidget {
         {!isLoading && (
           <>
             <div className="ecos-publication">
-              <img className="ecos-avatar__image" src={`${publication.createdAvatarUrl}&width=150`} alt={publication.createdName} />
+              <img className="ecos-avatar__image" src={`${creator.avatarUrl}&width=150`} alt={creator.name} />
               <div className="ecos-publication-info">
                 <p className="ecos-publication-info__name">
-                  <span>Создал (а) </span>
-                  {publication.createdName}
+                  <span>{t('publication.creator.name')} </span> {creator.name}
+                  {creator.id !== modifier.id && (
+                    <>
+                      <span>{t('publication.moifier.name')} </span> {modifier.name}
+                    </>
+                  )}
                 </p>
                 <p className="ecos-publication-info__date">{moment(publication.modified).format('dddd, MMMM Do YYYY, h:mm:ss')}</p>
               </div>

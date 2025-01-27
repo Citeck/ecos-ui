@@ -2742,5 +2742,8 @@
 
   "workspaces.create-button": "Create workspace",
   "workspaces.error-blocked.msg": "The workspace is unavailable or has not been created",
-  "workspaces.error-blocked.action.msg": "Go to the homepage"
+  "workspaces.error-blocked.action.msg": "Go to the homepage",
+
+  "publication.creator.name": "Created by",
+  "publication.modifier.name": ", Modified by"
 }
