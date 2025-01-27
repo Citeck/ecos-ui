@@ -64,6 +64,8 @@ const ECOS_GRID_LEFT_SHADOW = 'ecos-grid__left-shadow';
 const ECOS_GRID_INLINE_TOOLS_CONTAINER = 'ecos-grid__inline-tools-container';
 const REACT_BOOTSTRAP_TABLE = 'react-bootstrap-table';
 
+const HEIGHT_TABLE_ROW_IN_WIDGET = 38;
+
 const cssNum = v => `${v}px`;
 
 class Grid extends Component {
@@ -1327,7 +1329,8 @@ class Grid extends Component {
       tableViewClassName,
       gridWrapperClassName,
       hTrackClassName,
-      isViewNewJournal
+      isViewNewJournal,
+      data
     } = this.props;
 
     let { maxHeight } = this.state;
@@ -1344,6 +1347,19 @@ class Grid extends Component {
         scrollProps = { ...scrollProps, autoHeight, autoHeightMax: maxHeight, autoHeightMin: minHeight };
       } else {
         scrollStyle = { ...scrollStyle, height: minHeight || '100%' };
+      }
+    }
+
+    if (this._scrollRef && data && data.length && !ecosJournalEl && this._tableDom && get(scrollStyle, 'height') && !autoHeight) {
+      const scrollHeight = this._scrollRef.getScrollHeight();
+      if (scrollStyle.height !== '100%' && scrollHeight > scrollStyle.height) {
+        const rows = this._tableDom.querySelectorAll(`tr.${ECOS_GRID_ROW_CLASS}`);
+        if (rows && rows.length) {
+          rows.forEach(row => {
+            console.log(row.clientHeight);
+            scrollStyle.height += row.clientHeight - HEIGHT_TABLE_ROW_IN_WIDGET;
+          });
+        }
       }
     }
 
