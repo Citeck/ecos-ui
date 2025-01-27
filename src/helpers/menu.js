@@ -1,12 +1,11 @@
 import isEmpty from 'lodash/isEmpty';
-import get from 'lodash/get';
 import queryString from 'query-string';
 
 import { URL } from '../constants';
 import { BASE_LEFT_MENU_ID, MenuTypes } from '../constants/menu';
 import MenuSettingsService from '../services/MenuSettingsService';
 import DashboardService from '../services/dashboard';
-import { documentScrollTop } from './util';
+import { documentScrollTop, getEnabledWorkspaces } from './util';
 
 export function processMenuItemsFromOldMenu(oldMenuItems) {
   let siteMenuItems = [];
@@ -75,7 +74,7 @@ export function makeSiteMenu(params = {}) {
     }
   ];
 
-  if (!get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+  if (!getEnabledWorkspaces()) {
     menu.push({
       id: 'GO_ADMIN_PAGE',
       label: 'header.site-menu.admin-page',

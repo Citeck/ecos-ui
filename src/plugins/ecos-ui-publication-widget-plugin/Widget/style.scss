@@ -1,0 +1,39 @@
+@import '../../../styles/constants';
+
+.ecos-publication-widget {
+  $root: &;
+
+  &-dashlet {
+    padding: 0;
+
+    .dashlet__body {
+      padding: 10px 20px;
+
+      .ecos-publication {
+        display: flex;
+        margin-bottom: 15px;
+
+        &-info {
+          margin: 0;
+          margin-left: 5px;
+
+          span {
+            color: '#b7b7b7';
+          }
+
+          &__name,
+          &__date {
+            margin: 0;
+            font-size: 13px;
+            color: #767676;
+          }
+        }
+      }
+
+      .ecos-avatar__image {
+        width: 38px;
+        height: 38px;
+      }
+    }
+  }
+}

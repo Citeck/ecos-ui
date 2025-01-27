@@ -3,7 +3,6 @@ import lodashSet from 'lodash/set';
 import isFunction from 'lodash/isFunction';
 import last from 'lodash/last';
 import head from 'lodash/head';
-import _ from 'lodash';
 
 import { generateSearchTerm, getCurrentUserName } from '../helpers/util';
 import { getWorkspaceId } from '../helpers/urls';
@@ -84,7 +83,7 @@ export class MenuApi extends CommonApi {
   getMainMenuCreateVariants = (version = MENU_VERSION) => {
     const user = getCurrentUserName();
     const workspaceId = getWorkspaceId();
-    const enabledWorkspaces = _.get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+    const enabledWorkspaces = lodashGet(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
 
     return Records.queryOne(
       {
@@ -142,7 +141,7 @@ export class MenuApi extends CommonApi {
   };
 
   getMenuItems = async ({ version, id, resolved }) => {
-    const enabledWorkspaces = _.get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+    const enabledWorkspaces = lodashGet(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
     const user = getCurrentUserName();
     let config;
 
@@ -189,7 +188,7 @@ export class MenuApi extends CommonApi {
    * @returns {*|RecordsComponent}
    */
   getUserCustomMenuConfig = (user = getCurrentUserName(), version = 1) => {
-    const enabledWorkspaces = _.get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+    const enabledWorkspaces = lodashGet(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
     const workspaceId = getWorkspaceId();
 
     return Records.queryOne(
@@ -219,7 +218,7 @@ export class MenuApi extends CommonApi {
   getUserMenuConfig = async () => {
     const user = getCurrentUserName();
     const workspace = getWorkspaceId();
-    const enabledWorkspaces = _.get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+    const enabledWorkspaces = lodashGet(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
 
     const configVersion = await ConfigService.getValue(MAIN_MENU_TYPE);
     const version = configVersion && configVersion.includes('left-v') ? +configVersion.replace('left-v', '') : 0;
@@ -308,7 +307,7 @@ export class MenuApi extends CommonApi {
     rec.att('authorities[]?str', authorities);
     rec.att('version', version);
 
-    if (_.get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+    if (lodashGet(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
       rec.att('workspace', getWorkspaceId());
     }
 
