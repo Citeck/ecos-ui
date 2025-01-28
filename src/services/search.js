@@ -1,4 +1,4 @@
-import { nth, split } from 'lodash';
+import { nth, split, get, isNil } from 'lodash';
 import { formatFileSize, getIconFileByMimetype, getRelativeTime, t } from '../helpers/util';
 import { getData, getSessionData, isExistLocalStorage, isExistSessionStorage, setSessionData } from '../helpers/ls';
 import { createDocumentUrl, createProfileUrl } from '../helpers/urls';
@@ -8,12 +8,14 @@ const Urls = {
   USER: login => createProfileUrl(login)
 };
 
+export const LiveSearchTypes = {
+  PEOPLE: 'PEOPLE',
+  DOCUMENTS: 'DOCUMENTS',
+  SITES: 'SITES'
+};
+
 export default class SearchService {
-  static SearchAutocompleteTypes = {
-    DOCUMENTS: 0,
-    SITES: 1,
-    PEOPLE: 2
-  };
+  static SearchAutocompleteTypes = Object.fromEntries(Object.keys(LiveSearchTypes).map((key, index) => [key, index]));
 
   static formatSearchAutocompleteResults = function(item, type) {
     const Types = SearchService.SearchAutocompleteTypes;
@@ -25,6 +27,8 @@ export default class SearchService {
       url: ''
     };
 
+    const isEnabledAlfresco = isNil(get(item, 'isNotAlfresco')) || get(item, 'isNotAlfresco') === false;
+
     switch (type) {
       case Types.DOCUMENTS:
         const modifiedTimeParts = getRelativeTime(item.modifiedOn);
@@ -34,21 +38,37 @@ export default class SearchService {
         data.icon = getIconFileByMimetype(item.mimetype);
         data.title = item.name;
         data.url = link;
-        data.description = `${modifiedTimeParts.relative} / ${t('search.size')}: ${fileSize}`;
+
+        data.description = `${modifiedTimeParts.relative}`;
+        if (isEnabledAlfresco) {
+          data.description += ` / ${t('search.size')}: ${fileSize}`;
+        }
+
         break;
+
       case Types.SITES:
-        const siteRef = 'workspace://' + nth(split(item.node, 'node/workspace/'), 1);
         data.icon = '';
         data.title = item.title;
-        data.url = Urls.DASHBOARD(siteRef);
-        data.description = item.description;
+
+        if (isEnabledAlfresco) {
+          const siteRef = 'workspace://' + nth(split(item.node, 'node/workspace/'), 1);
+          data.url = Urls.DASHBOARD(siteRef);
+
+          data.description = item.description;
+        } else {
+          // TODO: Чтобы это работало, надо в 'sagaRunSearchAutocomplete' запросить конфиг воркспейса
+          data.url = item.url;
+        }
+
         break;
+
       case Types.PEOPLE:
         data.avatarUrl = '';
         data.title = `${item.firstName} ${item.lastName} (${item.userName})`;
         data.url = Urls.USER(item.userName);
-        data.description = (item.jobtitle || '') + (item.location ? ', ' + item.location : '');
+        data.description = [item.jobtitle, item.location].filter(Boolean).join(', ');
         break;
+
       default:
         console.warn('Unknown search autocomplete item type');
     }
