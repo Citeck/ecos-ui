@@ -394,7 +394,6 @@ class PageTabList {
     }
 
     const wsTabs = this.tabs.filter(tab => tab.workspace === wsId);
-    console.log('wsTabs:', wsTabs);
     return wsTabs.find(tab => get(tab, 'isLastActive') === true);
   };
 
