@@ -38,6 +38,7 @@ export const ComponentKeys = {
   STAGES: 'stages',
   CHARTS: 'charts',
   PUBLICATION: 'publication',
+  HIERARCHICAL_TREE: 'hierarchical-tree',
   KANBAN_BOARD: 'kanban-board'
 };
 
@@ -270,6 +271,22 @@ export default class Components {
       },
       checkIsAvailable: () => Boolean(get(window, 'Citeck.Plugins.PublicationWidget')),
       label: 'dashboard-settings.widget.publication',
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
+    },
+    [ComponentKeys.HIERARCHICAL_TREE]: {
+      load: () =>
+        lazy(() =>
+          import('../../plugins').then(plugins => ({
+            default: get(plugins, 'default.HierarchicalTreeWidget', () => null)
+          }))
+        ),
+      additionalProps: {
+        isDragDisabledByLayout: layout =>
+          layout &&
+          (!layout.columns || (layout.columns.length !== 1 && !layout.columns.find(column => Array.isArray(column) && column.length === 1)))
+      },
+      checkIsAvailable: () => Boolean(get(window, 'Citeck.Plugins.HierarchicalTreeWidget')),
+      label: 'dashboard-settings.widget.hierarchical-tree',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
     },
     [ComponentKeys.STAGES]: {
