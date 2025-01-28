@@ -144,10 +144,16 @@ export default class DataGridComponent extends FormIODataGridComponent {
 
   build() {
     super.build();
-    this.buildRows(true);
+
+    this._buildPromise = this.buildRows();
+    return this._buildPromise;
   }
 
-  buildRows(force = false) {
+  get dataReady() {
+    return this._buildPromise;
+  }
+
+  buildRows() {
     this.setVisibleComponents();
 
     const oldRows = this.rows || [];
@@ -164,7 +170,7 @@ export default class DataGridComponent extends FormIODataGridComponent {
     // When creating an instance of the element, it doesn't render the element completely.
     // Need to wait for `dataReady` before inserting the element into the table.
     const creationPromises = [];
-    if (this.rows && this.rows.length && !force) {
+    if (this.rows && this.rows.length) {
       this.rows.forEach((row, index) => {
         if (isObject(row) && !isEmpty(row)) {
           Object.keys(row).forEach(key => {
