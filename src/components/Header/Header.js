@@ -110,7 +110,7 @@ class Header extends React.Component {
   };
 
   render() {
-    const { widthHeader, hasAlfresco } = this.state;
+    const { widthHeader } = this.state;
     const { isMobile, hideSiteMenu, legacySiteMenuItems, theme, isViewNewJournal } = this.props;
     const hiddenSiteMenu = hideSiteMenu || isMobile || widthHeader < 600;
     const hiddenLanguageSwitcher = isMobile || widthHeader < 600;
@@ -130,9 +130,7 @@ class Header extends React.Component {
             <CreateMenu isMobile={widthHeader < 910} />
           </div>
           <div className="ecos-header__side ecos-header__side_right">
-            {hasAlfresco && (
-              <Search isMobile={isMobile || widthHeader <= 600} searchPageUrl={`${URL.JOURNAL}?${JournalUrlParams.JOURNAL_ID}=search`} />
-            )}
+            <Search isMobile={isMobile || widthHeader <= 600} searchPageUrl={`${URL.JOURNAL}?${JournalUrlParams.JOURNAL_ID}=search`} />
             {!hiddenSiteMenu && <SiteMenu legacyItems={legacySiteMenuItems} />}
             {!hiddenLanguageSwitcher && <LanguageSwitcher theme={theme} />}
             <UserMenu isMobile={widthHeader < 910} widthParent={widthHeader} />

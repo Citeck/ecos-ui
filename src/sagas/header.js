@@ -30,6 +30,8 @@ import PageService from '../services/PageService';
 import configService, { CREATE_MENU_TYPE } from '../services/config/ConfigService';
 import MenuConverter from '../dto/menu';
 import { isDashboard } from '../helpers/urls';
+import { LiveSearchAttributes } from '../api/menu';
+import { LiveSearchTypes } from '../services/search';
 
 function* fetchCreateCaseWidget({ api, logger }) {
   try {
@@ -139,12 +141,62 @@ function* goToPageSiteMenu({ logger }, { payload }) {
 
 function* sagaRunSearchAutocomplete({ api, logger }, { payload }) {
   try {
-    const documents = yield api.menu.getLiveSearchDocuments(payload, 0);
-    const sites = yield api.menu.getLiveSearchSites(payload);
-    const people = yield api.menu.getLiveSearchPeople(payload);
-    const noResults = !(!!sites.totalRecords + !!documents.totalRecords + !!people.totalRecords);
+    const isAlfrescoEnabled = yield select(state => state.app.isEnabledAlfresco);
 
-    yield put(setSearchAutocompleteItems({ documents, sites, people, noResults }));
+    if (isAlfrescoEnabled) {
+      const documents = yield api.menu.getLiveSearchDocuments(payload, 0);
+      const sites = yield api.menu.getLiveSearchSites(payload);
+      const people = yield api.menu.getLiveSearchPeople(payload);
+      const noResults = !(!!sites.totalRecords + !!documents.totalRecords + !!people.totalRecords);
+      yield put(setSearchAutocompleteItems({ documents, sites, people, noResults }));
+    } else {
+      const result = yield api.menu.getNewLiveSearch(payload);
+      const records = get(result, 'records', []);
+
+      const documents = [];
+      const sites = [];
+      const people = [];
+
+      for (const record of records) {
+        switch (record.groupType) {
+          case LiveSearchTypes.PEOPLE:
+            const otherParams = yield api.menu.getSearchPeopleParams(record.id);
+            people.push({ ...record, ...otherParams, isNotAlfresco: true });
+
+            break;
+
+          case LiveSearchTypes.DOCUMENTS:
+            documents.push({
+              ...record,
+              modifiedOn: get(record, LiveSearchAttributes.MODIFIED),
+              nodeRef: get(record, LiveSearchAttributes.ID),
+              name: get(record, LiveSearchAttributes.DISP),
+              isNotAlfresco: true
+            });
+            break;
+
+          case LiveSearchTypes.SITES:
+            // TODO: Здесь надо добавить метод в 'api.workspaces' на получение отдельного воркспейса и запросить у него конфиг. Из конфига нужна только ссылка
+            sites.push({ ...record, title: get(record, LiveSearchAttributes.DISP), isNotAlfresco: true });
+            break;
+
+          default:
+            break;
+        }
+      }
+
+      const noResults = !(!!documents.length + !!sites.length + !!people.length);
+      const getObject = arr => ({ items: arr });
+
+      yield put(
+        setSearchAutocompleteItems({
+          documents: getObject(documents),
+          sites: getObject(sites),
+          people: getObject(people),
+          noResults
+        })
+      );
+    }
   } catch (e) {
     logger.error('[sagaRunSearchAutocomplete saga] error', e);
   }
