@@ -147,31 +147,6 @@ export default class DataGridComponent extends FormIODataGridComponent {
     this.buildRows(true);
   }
 
-  hasAsyncDataItem(item) {
-    if (item && item.type && item.type === 'asyncData') {
-      return true;
-    }
-
-    if (item && item.components) {
-      return item.components.some(comp => this.hasAsyncDataItem(comp));
-    }
-
-    return false;
-  }
-
-  handleDataRowsItems(callback) {
-    if (this.rows && this.rows.length) {
-      this.rows.forEach((row, index) => {
-        if (isObject(row) && !isEmpty(row)) {
-          Object.keys(row).forEach(key => {
-            const item = this.rows[index][key];
-            callback(item);
-          });
-        }
-      });
-    }
-  }
-
   buildRows(force = false) {
     this.setVisibleComponents();
 
@@ -189,19 +164,16 @@ export default class DataGridComponent extends FormIODataGridComponent {
     // When creating an instance of the element, it doesn't render the element completely.
     // Need to wait for `dataReady` before inserting the element into the table.
     const creationPromises = [];
+    if (this.rows && this.rows.length && !force) {
+      this.rows.forEach((row, index) => {
+        if (isObject(row) && !isEmpty(row)) {
+          Object.keys(row).forEach(key => {
+            const item = this.rows[index][key];
 
-    let hasAsyncDataItems = false; // AsyncData component causes the function to go into perpetual waiting
-
-    this.handleDataRowsItems(item => {
-      if (!hasAsyncDataItems) {
-        hasAsyncDataItems = this.hasAsyncDataItem(item);
-      }
-    });
-
-    if (!force && !hasAsyncDataItems) {
-      this.handleDataRowsItems(item => {
-        if (item && item.dataReady) {
-          creationPromises.push(item.dataReady);
+            if (item && item.dataReady) {
+              creationPromises.push(item.dataReady);
+            }
+          });
         }
       });
     }
