@@ -1,10 +1,11 @@
 import lodashGet from 'lodash/get';
 import lodashSet from 'lodash/set';
+import Omit from 'lodash/omit';
 import isFunction from 'lodash/isFunction';
 import last from 'lodash/last';
 import head from 'lodash/head';
 
-import { generateSearchTerm, getCurrentUserName } from '../helpers/util';
+import { generateSearchTerm, getCurrentUserName, getEnabledWorkspaces } from '../helpers/util';
 import { getWorkspaceId } from '../helpers/urls';
 import { SourcesId, URL } from '../constants';
 import { ActionTypes } from '../constants/sidebar';
@@ -17,10 +18,29 @@ import { CommonApi } from './common';
 import ConfigService, { MAIN_MENU_TYPE, SITE_DASHBOARD_ENABLE, MENU_GROUP_PRIORITY } from '../services/config/ConfigService';
 import AuthorityService from '../services/authrority/AuthorityService';
 import { PERMISSION_CHANGE_PASSWORD } from '../components/Records/constants';
+import { LiveSearchTypes } from '../services/search';
 
 const $4H = 14400000;
 const SITE = 'site';
 const GLOBAL = 'global';
+
+export const LiveSearchAttributes = {
+  ID: 'id',
+  DISP: '?disp',
+  CREATED: '_created',
+  MODIFIED: '_modified',
+  GROUP_TYPE: 'groupType',
+  TYPE_ID: '_type?id'
+};
+
+const PeopleSearchParams = {
+  CITY: 'city?str',
+  JOB_TITLE: 'jobTitle?str',
+  ID: 'id?str',
+  LAST_NAME: 'lastName?str',
+  FIRST_NAME: 'firstName?str',
+  AVATAR: 'avatar.url'
+};
 
 const postProcessMenuItemChildren = items => {
   if (items && items.length) {
@@ -105,6 +125,33 @@ export class MenuApi extends CommonApi {
         console.error(e);
         return [];
       });
+  };
+
+  getNewLiveSearch = async text => {
+    return await Records.query(
+      {
+        sourceId: SourcesId.SEARCH,
+        query: {
+          text,
+          types: Object.keys(LiveSearchTypes)
+            .map(key => LiveSearchTypes[key])
+            .filter(item => (!getEnabledWorkspaces() ? item !== LiveSearchTypes.WORKSPACES : true)),
+          maxItemsForType: 5
+        }
+      },
+      Object.keys(Omit(LiveSearchAttributes, 'ID')).map(key => LiveSearchAttributes[key])
+    );
+  };
+
+  getSearchPeopleParams = async id => {
+    return await Records.get(id).load({
+      location: PeopleSearchParams.CITY,
+      jobtitle: PeopleSearchParams.JOB_TITLE,
+      userName: PeopleSearchParams.ID,
+      lastName: PeopleSearchParams.LAST_NAME,
+      firstName: PeopleSearchParams.FIRST_NAME,
+      avatarUrl: PeopleSearchParams.AVATAR
+    });
   };
 
   getLiveSearchDocuments = (terms, startIndex) => {

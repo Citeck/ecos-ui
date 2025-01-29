@@ -117,18 +117,31 @@
           background: $color-gray-10;
           color: $color-gray-dark;
           font-weight: $font-weight-bold;
-          font-size: $font-size-large;
-          padding: 15px;
+          font-size: $font-size-15;
+          padding: 12px;
           max-width: $dropdown-max-width;
         }
 
         &__content {
           display: flex;
 
+          &-worspace-preview {
+            display: flex;
+            align-items: center;
+            margin-right: 10px;
+            width: 100%;
+            height: 100%;
+          }
+
           &-icon {
             color: $color-blue-light2;
             font-size: 33px;
             padding-right: 12px;
+
+            &.url {
+              width: 38px;
+              height: 38px;
+            }
           }
 
           &-avatar {
