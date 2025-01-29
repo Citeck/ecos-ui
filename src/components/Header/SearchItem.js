@@ -5,6 +5,8 @@ import get from 'lodash/get';
 
 import { Avatar, Icon, Separator } from '../common';
 import { getFitnesseClassName } from '../../helpers/tools';
+import { getEnabledWorkspaces } from '../../helpers/util';
+import WorkspacePreview from '../WorkspacePreview';
 
 export default class SearchItem extends React.PureComponent {
   static propTypes = {
@@ -53,7 +55,8 @@ export default class SearchItem extends React.PureComponent {
 
   render() {
     const { data } = this.props;
-    const { icon, iconUrl, title, description, groupName, avatarUrl, isLast, isAvatar } = data || {};
+    const { icon, iconUrl, title, wsName, description, groupName, avatarUrl, isLast, isAvatar } = data || {};
+    const enabledWorkspaces = getEnabledWorkspaces();
 
     return groupName ? (
       <li className="ecos-header-search-result ecos-header-search-result__group-name">{groupName}</li>
@@ -66,7 +69,12 @@ export default class SearchItem extends React.PureComponent {
         >
           <div className="ecos-header-search-result__content-left">
             {icon && !iconUrl && <Icon className={`${icon} ecos-header-search-result__content-icon`} />}
-            {iconUrl && <img src={iconUrl} alt={title} className="ecos-header-search-result__content-icon" />}
+            {iconUrl && !enabledWorkspaces && <img src={iconUrl} alt={title} className="ecos-header-search-result__content-icon url" />}
+            {wsName && enabledWorkspaces && (
+              <div className="ecos-header-search-result__content-worspace-preview">
+                <WorkspacePreview url={iconUrl} name={wsName} />
+              </div>
+            )}
             {isAvatar && <Avatar url={avatarUrl} className="ecos-header-search-result__content-avatar" />}
           </div>
           <div className="ecos-header-search-result__content-data">

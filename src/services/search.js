@@ -11,7 +11,8 @@ const Urls = {
 export const LiveSearchTypes = {
   PEOPLE: 'PEOPLE',
   DOCUMENTS: 'DOCUMENTS',
-  SITES: 'SITES'
+  SITES: 'SITES',
+  WORKSPACES: 'WORKSPACES'
 };
 
 export default class SearchService {
@@ -24,7 +25,9 @@ export default class SearchService {
       title: '',
       description: '',
       icon: '',
-      url: ''
+      url: '',
+      wsName: '',
+      iconUrl: ''
     };
 
     const isEnabledAlfresco = isNil(get(item, 'isNotAlfresco')) || get(item, 'isNotAlfresco') === false;
@@ -58,6 +61,15 @@ export default class SearchService {
           data.url = item.url;
           data.iconUrl = item.icon;
         }
+
+        break;
+
+      case Types.WORKSPACES:
+        data.title = item.title;
+        data.description = item.description;
+        data.url = item.url;
+        data.iconUrl = item.icon;
+        data.wsName = item.wsName;
 
         break;
 

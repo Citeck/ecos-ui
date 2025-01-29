@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
-import get from 'lodash/get';
 
 import WorkspaceSwitcher from '../common/icons/WorkspacesSwitcher';
 import WorkspacePreview from '../WorkspacePreview';
@@ -13,11 +12,10 @@ import FormManager from '../EcosForm/FormManager';
 import { t } from '../../helpers/util';
 import Records from '../Records';
 import PageService from '../../services/PageService';
-import { URL as Urls } from '../../constants';
 import { fetchSlideMenuItems } from '../../actions/slideMenu';
 import { getMenuConfig } from '../../actions/menu';
 import { fetchCreateCaseWidgetData } from '../../actions/header';
-import { getWorkspaceId } from '../../helpers/urls';
+import { getBaseUrlWorkspace, getWorkspaceId } from '../../helpers/urls';
 import EditIcon from '../common/icons/Edit';
 import PageTabList from '../../services/pageTabs/PageTabList';
 import WorkspaceService from '../../services/WorkspaceService';
@@ -59,7 +57,6 @@ const Workspaces = ({ isLoading, isError, workspaces, getWorkspaces, visitedActi
 
   const openLink = (id, homePageLink, openNewBrowserTab = false) => {
     PageTabList.setLastActiveTabWs();
-    const lastActiveTabWs = PageTabList.getLastActiveTabWs(id);
 
     visitedAction(id);
 
@@ -71,13 +68,12 @@ const Workspaces = ({ isLoading, isError, workspaces, getWorkspaces, visitedActi
       needUpdateTabs: needUpdateTabsWorkspace
     };
 
-    const url = new URL(get(lastActiveTabWs, 'link') || homePageLink || Urls.DASHBOARD, window.location.origin);
-    url.searchParams.set('ws', id);
+    const url = getBaseUrlWorkspace(id, homePageLink);
 
     if (!openNewBrowserTab) {
-      PageService.changeUrlLink(url.toString(), params);
+      PageService.changeUrlLink(url, params);
     } else {
-      PageService.changeUrlLink(url.toString(), { openNewBrowserTab });
+      PageService.changeUrlLink(url, { openNewBrowserTab });
     }
   };
 

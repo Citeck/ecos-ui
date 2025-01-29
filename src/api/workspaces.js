@@ -22,7 +22,9 @@ export class WorkspaceApi extends CommonApi {
 
   getWorkspace = async recordRef => {
     return await Records.get(recordRef).load({
-      url: 'homePageLink?str',
+      wsId: '?localId',
+      homePageLink: 'homePageLink?str',
+      wsName: '?disp!?localId',
       description: 'description?json',
       icon: 'icon.url'
     });

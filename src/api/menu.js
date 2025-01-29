@@ -5,7 +5,7 @@ import isFunction from 'lodash/isFunction';
 import last from 'lodash/last';
 import head from 'lodash/head';
 
-import { generateSearchTerm, getCurrentUserName } from '../helpers/util';
+import { generateSearchTerm, getCurrentUserName, getEnabledWorkspaces } from '../helpers/util';
 import { getWorkspaceId } from '../helpers/urls';
 import { SourcesId, URL } from '../constants';
 import { ActionTypes } from '../constants/sidebar';
@@ -133,7 +133,9 @@ export class MenuApi extends CommonApi {
         sourceId: SourcesId.SEARCH,
         query: {
           text,
-          types: Object.keys(LiveSearchTypes).map(key => LiveSearchTypes[key]),
+          types: Object.keys(LiveSearchTypes)
+            .map(key => LiveSearchTypes[key])
+            .filter(item => (!getEnabledWorkspaces() ? item !== LiveSearchTypes.WORKSPACES : true)),
           maxItemsForType: 5
         }
       },
