@@ -7,7 +7,15 @@ import { SourcesId, URL } from '../constants';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, LINK_HREF, LINK_TAG, OPEN_IN_BACKGROUND, TITLE } from '../constants/pageTabs';
 import { SectionTypes } from '../constants/adminSection';
 import { getCurrentUserName, getEnabledWorkspaces, getMLValue, t } from '../helpers/util';
-import { decodeLink, getLinkWithout, getLinkWithWs, getSearchParams, IgnoredUrlParams, isNewVersionPage } from '../helpers/urls';
+import {
+  decodeLink,
+  getLinkWithout,
+  getLinkWithWs,
+  getSearchParams,
+  getWorkspaceId,
+  IgnoredUrlParams,
+  isNewVersionPage
+} from '../helpers/urls';
 import { getData, isExistLocalStorage, setData } from '../helpers/ls';
 import { PageApi } from '../api/page';
 import Records from '../components/Records';
@@ -164,11 +172,12 @@ export default class PageService {
     }
   }
 
-  static keyId({ link, type, key }) {
+  static keyId({ link, type, key, wsId }) {
     const _type = type || PageService.getType(link);
     const _key = key || PageService.getKey({ link, type });
+    const _wsId = wsId || getWorkspaceId();
 
-    return `${_type}-${_key}`;
+    return `${_type}-${_key}-${_wsId}`;
   }
 
   static getPage({ link, type }) {

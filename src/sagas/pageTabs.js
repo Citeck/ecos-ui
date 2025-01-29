@@ -135,6 +135,7 @@ function* sagaSetOneTab({ api, logger }, { payload }) {
 
       if (workspace) {
         params.workspace = workspace;
+        dataTab.workspace = workspace;
       }
 
       if (dataTab && dataTab.link && !getWsIdOfTabLink(dataTab.link)) {
