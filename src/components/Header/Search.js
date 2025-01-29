@@ -108,7 +108,7 @@ class Search extends React.Component {
   };
 
   get searchResult() {
-    const { documents, people } = this.props;
+    const { documents, people, sites } = this.props;
     const searchResult = [];
 
     if (!isEmpty(documents)) {
@@ -119,6 +119,11 @@ class Search extends React.Component {
     if (!isEmpty(people)) {
       searchResult.push({ groupName: t('header.search.people') });
       searchResult.push(...setOutputParams(people, Types.PEOPLE));
+    }
+
+    if (!isEmpty(sites) && sites.some(site => !!site.isNotAlfresco)) {
+      searchResult.push({ groupName: t('header.search.sites') });
+      searchResult.push(...setOutputParams(sites, Types.SITES));
     }
 
     return searchResult;

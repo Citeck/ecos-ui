@@ -1017,6 +1017,7 @@
   "header.menu.msg.empty-list": "No available items",
   "header.menu.msg.loading": "Loading...",
   "header.search.people": "People",
+  "header.search.sites": "Workspaces",
   "header.search.documents": "Documents",
   "header.create-workflow-adhoc.label": "Assignment",
   "header.create-workflow-adhoc.description": "Create an assignment",

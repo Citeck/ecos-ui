@@ -38,7 +38,8 @@ const PeopleSearchParams = {
   JOB_TITLE: 'jobTitle?str',
   ID: 'id?str',
   LAST_NAME: 'lastName?str',
-  FIRST_NAME: 'firstName?str'
+  FIRST_NAME: 'firstName?str',
+  AVATAR: 'avatar.url'
 };
 
 const postProcessMenuItemChildren = items => {
@@ -146,7 +147,8 @@ export class MenuApi extends CommonApi {
       jobtitle: PeopleSearchParams.JOB_TITLE,
       userName: PeopleSearchParams.ID,
       lastName: PeopleSearchParams.LAST_NAME,
-      firstName: PeopleSearchParams.FIRST_NAME
+      firstName: PeopleSearchParams.FIRST_NAME,
+      avatarUrl: PeopleSearchParams.AVATAR
     });
   };
 

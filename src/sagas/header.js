@@ -160,8 +160,8 @@ function* sagaRunSearchAutocomplete({ api, logger }, { payload }) {
       for (const record of records) {
         switch (record.groupType) {
           case LiveSearchTypes.PEOPLE:
-            const otherParams = yield api.menu.getSearchPeopleParams(record.id);
-            people.push({ ...record, ...otherParams, isNotAlfresco: true });
+            const otherParamsPeople = yield api.menu.getSearchPeopleParams(record.id);
+            people.push({ ...record, ...otherParamsPeople, isNotAlfresco: true });
 
             break;
 
@@ -176,8 +176,8 @@ function* sagaRunSearchAutocomplete({ api, logger }, { payload }) {
             break;
 
           case LiveSearchTypes.SITES:
-            // TODO: Здесь надо добавить метод в 'api.workspaces' на получение отдельного воркспейса и запросить у него конфиг. Из конфига нужна только ссылка
-            sites.push({ ...record, title: get(record, LiveSearchAttributes.DISP), isNotAlfresco: true });
+            const otherParamsSites = yield api.workspaces.getWorkspace(record.id);
+            sites.push({ ...record, ...otherParamsSites, title: get(record, LiveSearchAttributes.DISP), isNotAlfresco: true });
             break;
 
           default:

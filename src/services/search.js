@@ -47,23 +47,22 @@ export default class SearchService {
         break;
 
       case Types.SITES:
-        data.icon = '';
         data.title = item.title;
+        data.description = item.description;
+        data.icon = '';
 
         if (isEnabledAlfresco) {
           const siteRef = 'workspace://' + nth(split(item.node, 'node/workspace/'), 1);
           data.url = Urls.DASHBOARD(siteRef);
-
-          data.description = item.description;
         } else {
-          // TODO: Чтобы это работало, надо в 'sagaRunSearchAutocomplete' запросить конфиг воркспейса
           data.url = item.url;
+          data.iconUrl = item.icon;
         }
 
         break;
 
       case Types.PEOPLE:
-        data.avatarUrl = '';
+        data.avatarUrl = item.avatarUrl || '';
         data.title = `${item.firstName} ${item.lastName} (${item.userName})`;
         data.url = Urls.USER(item.userName);
         data.description = [item.jobtitle, item.location].filter(Boolean).join(', ');

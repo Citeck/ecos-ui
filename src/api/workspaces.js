@@ -20,6 +20,14 @@ export class WorkspaceApi extends CommonApi {
     );
   };
 
+  getWorkspace = async recordRef => {
+    return await Records.get(recordRef).load({
+      url: 'homePageLink?str',
+      description: 'description?json',
+      icon: 'icon.url'
+    });
+  };
+
   visitedAction = wsId => {
     const record = Records.getRecordToEdit('emodel/workspace-visited-action@');
 
