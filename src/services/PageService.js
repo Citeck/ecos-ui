@@ -177,7 +177,11 @@ export default class PageService {
     const _key = key || PageService.getKey({ link, type });
     const _wsId = wsId || getWorkspaceId();
 
-    return `${_type}-${_key}-${_wsId}`;
+    if (getEnabledWorkspaces()) {
+      return `${_type}-${_key}-${_wsId}`;
+    }
+
+    return `${_type}-${_key}`;
   }
 
   static getPage({ link, type }) {
