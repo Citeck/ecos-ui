@@ -71,7 +71,11 @@ class AdminSection extends React.PureComponent {
         return typeFromUrl !== type;
       }
 
-      if (enabledWorkspaces && !isAccessibleSectionType && typeFromUrl === SectionTypes.DEV_TOOLS) {
+      if (
+        enabledWorkspaces &&
+        !isAccessibleSectionType &&
+        (typeFromUrl === SectionTypes.DEV_TOOLS || typeFromUrl === SectionTypes.JOURNAL)
+      ) {
         return typeFromUrl !== type;
       }
 
@@ -121,7 +125,7 @@ class AdminSection extends React.PureComponent {
   );
 
   render() {
-    const { activeSection, tabId, isActivePage, isOpenMenu, isAccessible, isAccessibleSectionType, isViewNewJournal } = this.props;
+    const { activeSection, tabId, isActivePage, isOpenMenu, isAccessible, isAccessibleSectionType, isViewNewJournal, stateId } = this.props;
     const { journalStateId, additionalHeights, needResetJournalView } = this.state;
 
     const enabledWorkspaces = getEnabledWorkspaces();
@@ -163,15 +167,14 @@ class AdminSection extends React.PureComponent {
                 <BpmAdministration hidden={this.isHidden(SectionTypes.BPMN_ADMIN)} />
                 <DMNDesigner hidden={this.isHidden(SectionTypes.DMN)} />
                 <BPMNDesigner hidden={this.isHidden(SectionTypes.BPM)} />
-                {!enabledWorkspaces && (
-                  <JournalViewer
-                    hidden={this.isHidden(SectionTypes.JOURNAL)}
-                    tabId={tabId}
-                    upStateId={this.setJournalStateId}
-                    additionalHeights={-additionalHeights}
-                    stateId={needResetJournalView ? null : journalStateId}
-                  />
-                )}
+                <JournalViewer
+                  hidden={this.isHidden(SectionTypes.JOURNAL)}
+                  tabId={tabId}
+                  upStateId={this.setJournalStateId}
+                  additionalHeights={-additionalHeights}
+                  stateId={needResetJournalView ? null : journalStateId}
+                  sectionStateId={stateId}
+                />
                 <DevTools hidden={this.isHidden(SectionTypes.DEV_TOOLS)} isActivePage={isActivePage} />
               </Col>
             </Row>

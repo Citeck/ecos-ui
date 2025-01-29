@@ -40,7 +40,7 @@ export default class PageTab {
   }
 
   get uniqueKey() {
-    return PageService.keyId({ link: this.link });
+    return PageService.keyId({ link: this.link, wsId: this.workspace });
   }
 
   get storage() {

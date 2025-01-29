@@ -8,7 +8,7 @@ import { EventEmitter2 } from 'eventemitter2';
 
 import * as storage from '../../helpers/ls';
 import { equalsQueryUrls, getWorkspaceId, IgnoredUrlParams } from '../../helpers/urls';
-import { t, getCurrentLocale } from '../../helpers/util';
+import { t, getCurrentLocale, getEnabledWorkspaces } from '../../helpers/util';
 import { TITLE } from '../../constants/pageTabs';
 import PageTab from './PageTab';
 import PageService from '../PageService';
@@ -154,7 +154,7 @@ class PageTabList {
       tab.id = this.#tabs[currentTabIndex].id;
     }
 
-    if (workspace && get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+    if (workspace && getEnabledWorkspaces() && !tab.workspace) {
       tab.workspace = workspace;
     }
 
