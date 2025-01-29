@@ -301,11 +301,8 @@ class DocAssociations extends BaseWidget {
         </DropdownToggle>
         <DropdownMenu
           className="ecos-dropdown__menu ecos-dropdown__menu_links ecos-dropdown__menu_cascade ecos-doc-associations__menu"
-          modifiers={[
-            {
-              name: 'computeStyle',
-              enabled: true,
-              phase: 'write',
+          modifiers={{
+            computeStyle: {
               fn: data => {
                 const { popper } = data.instance;
                 const style = popper.getAttribute('style');
@@ -315,28 +312,20 @@ class DocAssociations extends BaseWidget {
                 return data;
               }
             }
-          ]}
+          }}
         >
           <EcosDropdownMenu
             emptyMessage={t(LABELS.EMPTY_ALLOWED_ASSOCIATIONS_MESSAGE)}
             items={menu}
             mode="cascade"
             isLoading={isLoadingMenu}
-            modifiers={[
-              {
-                name: 'preventOverflow',
-                enabled: true,
-                options: {
-                  escapeWithReference: true,
-                  boundary: 'viewport'
-                }
+            modifiers={{
+              preventOverflow: {
+                escapeWithReference: true,
+                boundariesElement: 'viewport'
               },
-              {
-                name: 'onlyFirstParent',
-                enabled: true,
-                phase: 'main'
-              }
-            ]}
+              onlyFirstParent: true
+            }}
             onClick={this.handleSelectMenuItem}
           />
         </DropdownMenu>
