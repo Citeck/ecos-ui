@@ -5,7 +5,7 @@ import isEqual from 'lodash/isEqual';
 
 import pageTabList from '../../services/pageTabs/PageTabList';
 import { getStateId } from '../../helpers/redux';
-import { getId } from '../../helpers/util';
+import { getEnabledWorkspaces, getId } from '../../helpers/util';
 import { initState, setSearchText } from '../../actions/journals';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Journals } from '../Journals';
@@ -80,11 +80,19 @@ const JournalViewer = React.memo(
   }
 );
 
-const mapStateToProps = (store, props) => ({
-  isViewNewJournal: get(store, 'view.isViewNewJournal'),
-  isActivePage: pageTabList.isActiveTab(props.tabId),
-  activeSection: store.adminSection.activeSection
-});
+const mapStateToProps = (store, props) => {
+  const obj = {
+    isViewNewJournal: get(store, 'view.isViewNewJournal'),
+    isActivePage: pageTabList.isActiveTab(props.tabId),
+    activeSection: store.adminSection.activeSection
+  };
+
+  if (getEnabledWorkspaces()) {
+    obj.activeSection = store.adminSection.wsSections[props.sectionStateId || '']?.activeSection || {};
+  }
+
+  return obj;
+};
 
 const mapDispatchToProps = dispatch => ({
   initStateJournal: stateId => dispatch(initState(stateId)),

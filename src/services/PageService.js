@@ -116,7 +116,15 @@ export default class PageService {
     if (_type === PageTypes.ADMIN_PAGE && enabledWorkspaces && _link.includes(splitter)) {
       const { type: adminType } = getSearchParams(splitter + _link.split('?')[1]);
       if (adminType) {
-        _type = adminType;
+        switch (adminType) {
+          case SectionTypes.JOURNAL:
+            _type = PageTypes.JOURNALS;
+            break;
+
+          default:
+            _type = adminType;
+            break;
+        }
       }
     }
 
