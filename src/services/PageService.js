@@ -7,7 +7,15 @@ import { SourcesId, URL } from '../constants';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, LINK_HREF, LINK_TAG, OPEN_IN_BACKGROUND, TITLE } from '../constants/pageTabs';
 import { SectionTypes } from '../constants/adminSection';
 import { getCurrentUserName, getEnabledWorkspaces, getMLValue, t } from '../helpers/util';
-import { decodeLink, getLinkWithout, getLinkWithWs, getSearchParams, IgnoredUrlParams, isNewVersionPage } from '../helpers/urls';
+import {
+  decodeLink,
+  getLinkWithout,
+  getLinkWithWs,
+  getSearchParams,
+  getWorkspaceId,
+  IgnoredUrlParams,
+  isNewVersionPage
+} from '../helpers/urls';
 import { getData, isExistLocalStorage, setData } from '../helpers/ls';
 import { PageApi } from '../api/page';
 import Records from '../components/Records';
@@ -108,7 +116,15 @@ export default class PageService {
     if (_type === PageTypes.ADMIN_PAGE && enabledWorkspaces && _link.includes(splitter)) {
       const { type: adminType } = getSearchParams(splitter + _link.split('?')[1]);
       if (adminType) {
-        _type = adminType;
+        switch (adminType) {
+          case SectionTypes.JOURNAL:
+            _type = PageTypes.JOURNALS;
+            break;
+
+          default:
+            _type = adminType;
+            break;
+        }
       }
     }
 
@@ -164,9 +180,14 @@ export default class PageService {
     }
   }
 
-  static keyId({ link, type, key }) {
+  static keyId({ link, type, key, wsId }) {
     const _type = type || PageService.getType(link);
     const _key = key || PageService.getKey({ link, type });
+    const _wsId = wsId || getWorkspaceId();
+
+    if (getEnabledWorkspaces()) {
+      return `${_type}-${_key}-${_wsId}`;
+    }
 
     return `${_type}-${_key}`;
   }

@@ -5,7 +5,7 @@ import isFunction from 'lodash/isFunction';
 import last from 'lodash/last';
 import head from 'lodash/head';
 
-import { generateSearchTerm, getCurrentUserName } from '../helpers/util';
+import { generateSearchTerm, getCurrentUserName, getEnabledWorkspaces } from '../helpers/util';
 import { getWorkspaceId } from '../helpers/urls';
 import { SourcesId, URL } from '../constants';
 import { ActionTypes } from '../constants/sidebar';
@@ -38,7 +38,8 @@ const PeopleSearchParams = {
   JOB_TITLE: 'jobTitle?str',
   ID: 'id?str',
   LAST_NAME: 'lastName?str',
-  FIRST_NAME: 'firstName?str'
+  FIRST_NAME: 'firstName?str',
+  AVATAR: 'avatar.url'
 };
 
 const postProcessMenuItemChildren = items => {
@@ -132,7 +133,9 @@ export class MenuApi extends CommonApi {
         sourceId: SourcesId.SEARCH,
         query: {
           text,
-          types: Object.keys(LiveSearchTypes).map(key => LiveSearchTypes[key]),
+          types: Object.keys(LiveSearchTypes)
+            .map(key => LiveSearchTypes[key])
+            .filter(item => (!getEnabledWorkspaces() ? item !== LiveSearchTypes.WORKSPACES : true)),
           maxItemsForType: 5
         }
       },
@@ -146,7 +149,8 @@ export class MenuApi extends CommonApi {
       jobtitle: PeopleSearchParams.JOB_TITLE,
       userName: PeopleSearchParams.ID,
       lastName: PeopleSearchParams.LAST_NAME,
-      firstName: PeopleSearchParams.FIRST_NAME
+      firstName: PeopleSearchParams.FIRST_NAME,
+      avatarUrl: PeopleSearchParams.AVATAR
     });
   };
 

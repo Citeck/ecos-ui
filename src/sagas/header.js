@@ -29,9 +29,10 @@ import MenuService from '../services/MenuService';
 import PageService from '../services/PageService';
 import configService, { CREATE_MENU_TYPE } from '../services/config/ConfigService';
 import MenuConverter from '../dto/menu';
-import { isDashboard } from '../helpers/urls';
+import { getBaseUrlWorkspace, isDashboard } from '../helpers/urls';
 import { LiveSearchAttributes } from '../api/menu';
 import { LiveSearchTypes } from '../services/search';
+import { getMLValue } from '../helpers/util';
 
 function* fetchCreateCaseWidget({ api, logger }) {
   try {
@@ -156,12 +157,13 @@ function* sagaRunSearchAutocomplete({ api, logger }, { payload }) {
       const documents = [];
       const sites = [];
       const people = [];
+      const workspaces = [];
 
       for (const record of records) {
         switch (record.groupType) {
           case LiveSearchTypes.PEOPLE:
-            const otherParams = yield api.menu.getSearchPeopleParams(record.id);
-            people.push({ ...record, ...otherParams, isNotAlfresco: true });
+            const otherParamsPeople = yield api.menu.getSearchPeopleParams(record.id);
+            people.push({ ...record, ...otherParamsPeople, isNotAlfresco: true });
 
             break;
 
@@ -176,8 +178,23 @@ function* sagaRunSearchAutocomplete({ api, logger }, { payload }) {
             break;
 
           case LiveSearchTypes.SITES:
-            // TODO: Здесь надо добавить метод в 'api.workspaces' на получение отдельного воркспейса и запросить у него конфиг. Из конфига нужна только ссылка
-            sites.push({ ...record, title: get(record, LiveSearchAttributes.DISP), isNotAlfresco: true });
+            sites.push({
+              ...record,
+              title: get(record, LiveSearchAttributes.DISP),
+              isNotAlfresco: true
+            });
+            break;
+
+          case LiveSearchTypes.WORKSPACES:
+            const otherParamsWorkspaces = yield api.workspaces.getWorkspace(record.id);
+            workspaces.push({
+              ...record,
+              ...otherParamsWorkspaces,
+              url: getBaseUrlWorkspace(otherParamsWorkspaces.wsId, otherParamsWorkspaces.homePageLink),
+              description: getMLValue(otherParamsWorkspaces.description),
+              title: get(record, LiveSearchAttributes.DISP),
+              isNotAlfresco: true
+            });
             break;
 
           default:
@@ -185,7 +202,7 @@ function* sagaRunSearchAutocomplete({ api, logger }, { payload }) {
         }
       }
 
-      const noResults = !(!!documents.length + !!sites.length + !!people.length);
+      const noResults = !(!!documents.length + !!sites.length + !!people.length + !!workspaces.length);
       const getObject = arr => ({ items: arr });
 
       yield put(
@@ -193,6 +210,7 @@ function* sagaRunSearchAutocomplete({ api, logger }, { payload }) {
           documents: getObject(documents),
           sites: getObject(sites),
           people: getObject(people),
+          workspaces: getObject(workspaces),
           noResults
         })
       );

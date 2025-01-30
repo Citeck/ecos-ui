@@ -465,6 +465,15 @@ export const getLinkWithWs = (link = '', workspaceId = getWorkspaceId()) => {
   return getUrlWithWorkspace(url.pathname, url.search, workspaceId);
 };
 
+export const getBaseUrlWorkspace = (wsId, homePageLink) => {
+  const lastActiveTabWs = PageTabList.getLastActiveTabWs(wsId);
+  const url = new URL(get(lastActiveTabWs, 'link') || homePageLink || Urls.DASHBOARD, window.location.origin);
+
+  url.searchParams.set('ws', wsId);
+
+  return url.toString();
+};
+
 window.Citeck.Navigator = {
   goToDashboard: (recordRef, options) => {
     goToCardDetailsPage(recordRef, options);
