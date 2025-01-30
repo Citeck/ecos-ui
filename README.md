@@ -1,4 +1,4 @@
-![Citeck ECOS Logo](public/img/logo/ecos-logo.png)
+![Citeck ECOS Logo](public/img/logo/ecos-logo.svg)
 
 # `ecos-ui`
 
