@@ -242,12 +242,10 @@ const UploadStatus = () => {
   };
 
   const isEmptyInputRenaming = !titleRenamingItem;
+  const currentTitleRenaming = expansionCurrentFile ? titleRenamingItem + `.${expansionCurrentFile}` : titleRenamingItem;
 
   const isDisabledInputRenaming =
-    isEmptyInputRenaming ||
-    (parentItemsTitles &&
-      titleRenamingItem &&
-      parentItemsTitles.includes(expansionCurrentFile ? titleRenamingItem + `.${expansionCurrentFile}` : titleRenamingItem));
+    isEmptyInputRenaming || (parentItemsTitles && titleRenamingItem && parentItemsTitles.includes(currentTitleRenaming.trim()));
 
   if (status && status === 'confirm-file-replacement') {
     return showConfirmModal && get(fileDataConfirm, 'file.name') ? (
