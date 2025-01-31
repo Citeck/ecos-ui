@@ -1,12 +1,12 @@
-![Citeck ECOS Logo](public/img/logo/ecos-logo.png)
+![Citeck ECOS Logo](public/img/logo/ecos-logo.svg)
 
 # `ecos-ui`
 
-Welcome to the Citeck `ecos-ui` repository! This repository contains the user interface (UI) components and modules for the Citeck ECOS platform. Citeck ECOS is a powerful and comprehensive enterprise content and operations system designed to streamline and automate business processes within organizations.
+Welcome to the Citeck `ecos-ui` repository! This repository contains the user interface (UI) components and modules for the Citeck platform. Citeck is a powerful and comprehensive enterprise content and operations system designed to streamline and automate business processes within organizations.
 
 ## Get started
 
-If you are new to ECOS platform and would like to load the software locally, we recommend you download the Dockerized version from [Demo repository](https://github.com/Citeck/ecos-community-demo).
+If you are new to Citeck platform and would like to load the software locally, we recommend you download the Dockerized version from [Demo repository](https://github.com/Citeck/ecos-community-demo).
 
 ## Useful Links
 
@@ -44,7 +44,7 @@ To install and use `ecos-ui`, follow these steps:
 
 ## Features
 
-Citeck `ecos-ui` offers a wide range of features to enhance your experience with the Citeck ECOS platform. Some of the key features include:
+Citeck `ecos-ui` offers a wide range of features to enhance your experience with the Citeck platform. Some of the key features include:
 
 - **Intuitive User Interface**: The UI is designed to be user-friendly, providing a seamless and intuitive experience for users.
 
@@ -64,7 +64,7 @@ Citeck `ecos-ui` offers a wide range of features to enhance your experience with
 
 ## Contributing
 
-We welcome contributions from the community to make ECOS even better. Everyone interacting in the Citeck project’s codebases, issue trackers, chat rooms, and forum is expected to follow the [contributor code of conduct](https://github.com/rubygems/rubygems/blob/master/CODE_OF_CONDUCT.md).
+We welcome contributions from the community to make Citeck even better. Everyone interacting in the Citeck project’s codebases, issue trackers, chat rooms, and forum is expected to follow the [contributor code of conduct](https://github.com/rubygems/rubygems/blob/master/CODE_OF_CONDUCT.md).
 
 ## Support
 
