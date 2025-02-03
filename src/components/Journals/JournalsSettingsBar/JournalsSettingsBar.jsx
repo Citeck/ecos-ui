@@ -49,6 +49,7 @@ const JournalsSettingsBar = ({
   targetId,
   grid,
   journalConfig,
+  journalSetting,
   predicate,
   searchText,
   selectedRecords,
@@ -176,6 +177,7 @@ const JournalsSettingsBar = ({
         {!isViewNewJournal && (
           <Export
             journalConfig={journalConfig}
+            journalSetting={journalSetting}
             grid={grid}
             className="ecos-journal__settings-bar-export"
             classNameBtn="ecos-btn_i ecos-journal__settings-bar-export-btn"
@@ -197,6 +199,7 @@ const JournalsSettingsBar = ({
         {isViewNewJournal && !isMobile && (
           <Export
             journalConfig={journalConfig}
+            journalSetting={journalSetting}
             grid={grid}
             className="ecos-journal__settings-bar-export"
             classNameBtn="ecos-btn_i ecos-journal__settings-bar-export-btn ecos-journal__btn_new"

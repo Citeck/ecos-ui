@@ -130,7 +130,7 @@ export default class Export extends Component {
   };
 
   handleCopyUrl = async () => {
-    const data = await this.getSelectionFilter();
+    const data = this.getSelectionFilter();
     const url = this.getSelectionUrl();
 
     if (!isEmpty(this.props.selectedItems)) {
@@ -177,13 +177,13 @@ export default class Export extends Component {
     };
   };
 
-  getSelectionFilter = async () => {
-    const { grid, journalConfig } = this.props;
+  getSelectionFilter = () => {
+    const { grid, journalConfig, journalSetting } = this.props;
     const { columns } = journalConfig || {};
-    const { groupBy, sortBy, pagination, search } = grid || {};
-    const predicate = await journalsService.getPredicates(journalConfig, this.getJSettings());
+    const { predicate } = journalSetting || {};
+    const { groupBy, sortBy, pagination, search, grouping } = grid || {};
 
-    return { columns, groupBy, sortBy, pagination, predicate, search };
+    return { columns, groupBy, sortBy, pagination, predicate, search, grouping };
   };
 
   getSelectionUrl = () => {

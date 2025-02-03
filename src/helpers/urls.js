@@ -456,13 +456,15 @@ export const getWsIdOfTabLink = (link = '') => {
   }
 };
 
-export const getLinkWithWs = (link = '', workspaceId = getWorkspaceId()) => {
+export const getLinkWithWs = (link = '', workspaceId = getWorkspaceId(), isFullLink = false) => {
   if (!link) {
     return link;
   }
 
   const url = new URL(link, window.location.origin || 'https://exmaple.com');
-  return getUrlWithWorkspace(url.pathname, url.search, workspaceId);
+  const newUrl = getUrlWithWorkspace(url.pathname, url.search, workspaceId);
+
+  return isFullLink ? url.origin + newUrl : newUrl;
 };
 
 export const getBaseUrlWorkspace = (wsId, homePageLink) => {
