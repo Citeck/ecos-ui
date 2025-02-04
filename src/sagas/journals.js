@@ -105,6 +105,7 @@ import { setKanbanSettings, reloadBoardData, selectTemplateId, applyPreset, clea
 import { selectKanban } from '../selectors/kanban';
 import { GROUPING_COUNT_ALL } from '../constants/journal';
 import { selectIsViewNewJournal } from '../selectors/view';
+import { initPreviewList } from '../actions/previewList';
 
 const getDefaultSortBy = config => {
   const params = config.params || {};
@@ -195,9 +196,16 @@ export function getGridParams({ journalConfig = {}, journalSetting = {}, paginat
   const { sortBy = [], groupBy = [], columns: columnsSetting, predicate: journalSettingPredicate } = journalSetting;
   const predicates = beArray(journalSettingPredicate);
 
+  const attsForListView = {
+    creator: '_creator{id:?id,disp:?disp}',
+    created: '_created',
+    previewUrl: 'listview:preview{url}'
+  };
+
   const columns = columnsConfig || columnsSetting || [];
 
   return {
+    attributes: attsForListView,
     groupActions: groupActions || [],
     journalId,
     journalActions,
@@ -955,12 +963,14 @@ function* sagaInitJournal({ api, logger, stateId, w }, { payload }) {
         yield put(setJournalExpandableProp(w(false)));
         yield put(setLoading(w(true)));
 
+        yield put(initPreviewList(w()));
+
         const { journalId, userConfigId, customJournal, customJournalMode, force } = payload;
         const id = !customJournalMode || !customJournal ? journalId : customJournal;
         let { journalSettingId, savePredicate = true } = payload;
         let { journalConfig } = yield select(selectJournalData, stateId);
 
-        const journalType = yield Records.get(`uiserv/rjournal@${journalId}`).load('typeRef?str');
+        const journalType = yield call(api.journals.getJournalTypeRef, journalId);
         const importDataConfig = yield call(api.journals.getImportDataConfig, journalType);
         if (importDataConfig && importDataConfig.length) {
           yield put(setImportDataConfig(w(importDataConfig)));

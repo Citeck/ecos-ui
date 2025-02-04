@@ -510,6 +510,10 @@
   "doc-preview.doc-transition.msg": "Scroll down to view next document or click the button",
   "doc-preview.doc-transition.btn": "Next document",
 
+  "preview-list.no-title": "Text not specified",
+  "preview-list.no-description": "Description not specified",
+  "preview-list.created-by": "Created by",
+
   "document-library.title": "Document library",
   "document-library.file": "File",
   "document-library.settings-upload": "Upload Settings",
@@ -1201,6 +1205,7 @@
   "journals.view.label.journal": "Journal",
   "journals.view.label.journal-preview": "Preview",
   "journals.view.label.document-library": "Document library",
+  "journals.view.label.preview-list": "List",
   "journals.view.label.kanban": "Kanban",
 
   "journal.presets.menu.title": "Template Settings",

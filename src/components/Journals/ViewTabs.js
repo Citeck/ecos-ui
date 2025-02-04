@@ -7,6 +7,7 @@ import uniqueId from 'lodash/uniqueId';
 import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
 
+import PreviewList from '../common/icons/PreviewList';
 import { toggleViewMode } from '../../actions/journals';
 import { selectCommonJournalPageProps } from '../../selectors/journals';
 import { getSearchParams, t } from '../../helpers/util';
@@ -15,7 +16,7 @@ import { Tooltip } from '../common';
 import { IcoBtn } from '../common/btns';
 import { updateCurrentUrl } from '../../helpers/urls';
 import { JournalUrlParams } from '../../constants';
-import { isDocLib, isKanban, isPreview, isTable, JOURNAL_VIEW_MODE as JVM, Labels } from './constants';
+import { isDocLib, isKanban, isPreview, isPreviewList, isTable, JOURNAL_VIEW_MODE as JVM, Labels } from './constants';
 
 const mapStateToProps = (state, props) => {
   const commonProps = selectCommonJournalPageProps(state, props.stateId);
@@ -69,17 +70,18 @@ class ViewTabs extends React.Component {
   };
 
   render() {
-    const { isMobile, isDocLibEnabled, isKanbanEnabled, viewMode } = this.props;
+    const { isMobile, isDocLibEnabled, isKanbanEnabled, isPreviewListEnabled, viewMode } = this.props;
     const common = classNames(
-      'ecos-journal__view-tabs-btn ecos-btn_i ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue',
+      'ecos-journal__view-tabs-btn ecos-journal__view-svg-btn_blue_hover ecos-btn_i ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue',
       { 'ecos-journal__view-tabs_mobile': isMobile }
     );
-    const available = 'ecos-btn_blue2 ecos-journal__view-tabs-btn_disabled';
+    const available = 'ecos-btn_blue2 ecos-journal__view-svg-btn_blue_selected ecos-journal__view-tabs-btn_disabled';
     const disable = 'ecos-btn_grey';
     const isPreviewMode = isPreview(viewMode);
     const isTableMode = isTable(viewMode);
     const isDocLibMode = isDocLib(viewMode);
     const isKanbanMode = isKanban(viewMode);
+    const isPreviewListMode = isPreviewList(viewMode);
     const target = str => `${this.targetId}-${str}`;
 
     return (
@@ -134,6 +136,26 @@ class ViewTabs extends React.Component {
               })}
               onClick={() => this.onToggleViewMode(JVM.DOC_LIB)}
             />
+          </Tooltip>
+        )}
+        {isPreviewListEnabled && (
+          <Tooltip
+            off={isMobile}
+            target={target(JVM.PREVIEW_LIST)}
+            text={t(Labels.Views.PREVIEW_LIST)}
+            uncontrolled
+            modifiers={tooltipModifiers}
+          >
+            <IcoBtn
+              id={target(JVM.PREVIEW_LIST)}
+              className={classNames(common, {
+                [available]: isPreviewListMode,
+                [disable]: !isPreviewListMode
+              })}
+              onClick={() => this.onToggleViewMode(JVM.PREVIEW_LIST)}
+            >
+              <PreviewList />
+            </IcoBtn>
           </Tooltip>
         )}
       </div>

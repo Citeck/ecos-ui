@@ -447,6 +447,10 @@
   "doc-preview.doc-transition.msg": "Для перехода к следующему документу прокрутите страницу вниз или нажмите на кнопку",
   "doc-preview.doc-transition.btn": "Следующий документ",
 
+  "preview-list.no-title": "Текст не указан",
+  "preview-list.no-description": "Описание не указано",
+  "preview-list.created-by": "Создал (а)",
+
   "document-library.title": "Библиотека документов",
   "document-library.file": "Файл",
   "document-library.settings-upload": "Параметры загрузки",
@@ -1157,6 +1161,7 @@
   "journals.view.label.journal": "Журнал",
   "journals.view.label.journal-preview": "Предпросмотр",
   "journals.view.label.document-library": "Библиотека документов",
+  "journals.view.label.preview-list": "Список",
   "journals.view.label.kanban": "Канбан",
 
   "journal.presets.menu.title": "Шаблоны настроек",
