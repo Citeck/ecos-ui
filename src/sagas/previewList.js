@@ -1,6 +1,12 @@
 import isEmpty from 'lodash/isEmpty';
 
-import { initPreviewList, setIsEnabledPreviewList, setLoadingPreviewList, setPreviewListConfig } from '../actions/previewList';
+import {
+  initPreviewList,
+  setInitiatedPreviewList,
+  setIsEnabledPreviewList,
+  setLoadingPreviewList,
+  setPreviewListConfig
+} from '../actions/previewList';
 import { takeLatest, put, select, call } from 'redux-saga/effects';
 import { wrapArgs } from '../helpers/redux';
 import { selectUrl } from '../selectors/journals';
@@ -24,8 +30,10 @@ function* sagaInitPreviewList({ api, logger }, action) {
     }
 
     yield put(setLoadingPreviewList(w(false)));
+    yield put(setInitiatedPreviewList(w(true)));
   } catch (e) {
     yield put(setLoadingPreviewList(w(false)));
+    yield put(setInitiatedPreviewList(w(true)));
     logger.error('[previewList/sagaInitPreviewList saga] error', e);
   }
 }

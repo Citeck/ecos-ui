@@ -15,7 +15,8 @@ import {
   PAGINATION_SIZES,
   MAX_HEIGHT_TOTAL_AMOUNT,
   HEIGHT_LIST_VIEW_ITEM,
-  isPreviewList
+  isPreviewList,
+  isTable
 } from '../constants';
 
 const mapStateToProps = (state, props) => {
@@ -67,9 +68,15 @@ class JournalsDashletPagination extends Component {
 
     const MAX_HEIGHT = isPreviewList(viewMode) ? HEIGHT_LIST_VIEW_ITEM : HEIGHT_GRID_ROW;
 
+    const isSwapPreviewAndTable =
+      (isTable(prevProps.viewMode) || isPreviewList(prevProps.viewMode)) &&
+      (isTable(viewMode) || isPreviewList(viewMode)) &&
+      prevProps.viewMode !== viewMode;
+
     if (
       (maxHeightJournalData && !prevState.maxHeightJournalData) ||
       prevProps.isDecrementLastRow !== isDecrementLastRow ||
+      isSwapPreviewAndTable ||
       (stateMaxItems && gridMaxItems && stateMaxItems !== gridMaxItems)
     ) {
       this.setState({ maxHeightJournalData });
@@ -92,13 +99,19 @@ class JournalsDashletPagination extends Component {
           }
         }
 
+        const pagination = {
+          skipCount: 0,
+          maxItems,
+          page: 1
+        };
+
         this.setState({ updatedPaginationOfNewJournal: true });
         this.setState({ maxItems }, () => {
-          setGridPagination({
-            skipCount: 0,
-            maxItems,
-            page: 1
-          });
+          setGridPagination(pagination);
+
+          if (isSwapPreviewAndTable) {
+            this.changePage(pagination);
+          }
         });
       }
     }

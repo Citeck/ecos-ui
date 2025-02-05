@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
-import isEmpty from 'lodash/isEmpty';
 import classnames from 'classnames';
 import moment from 'moment';
 
 import Clock from '../../common/icons/Clock';
+import NoData from '../../common/icons/NoData';
 import { t } from '../../../helpers/export/util';
 import { URL } from '../../../constants';
 import { Wall } from '../../common/form';
@@ -15,9 +15,9 @@ import { getLinkWithWs } from '../../../helpers/urls';
 import { selectIsViewNewJournal } from '../../../selectors/view';
 import { selectPreviewListProps } from '../../../selectors/previewList';
 import { PREVIEW_LIST_ASPECT_ATTRIBUTES } from '../../../api/previewList';
+import { stripHTML } from '../../../helpers/util';
 
 import './PreviewListContent.scss';
-import { stripHTML } from '../../../helpers/util';
 
 const mapStateToProps = (state, props) => {
   const newState = get(state, ['journals', props.stateId]) || {};
@@ -35,31 +35,10 @@ const mapStateToProps = (state, props) => {
 };
 
 class PreviewListContent extends Component {
-  state = {};
-
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      recordId: props.gridData.length === 1 ? props.gridData[0].id : ''
-    };
-  }
-
   shouldComponentUpdate(nextProps, nextState, nextContext) {
     return (
       nextProps.isActivePage || !isEqual(nextProps.gridData, this.props.gridData) || !isEqual(nextProps.isLoading, this.props.isLoading)
     );
-  }
-
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    const { journalId, gridData } = this.props;
-    const { recordId } = this.state;
-
-    if (gridData.length === 1 && prevState.recordId !== gridData[0].id) {
-      this.setState({ recordId: gridData[0].id });
-    } else if (prevProps.journalId !== journalId && recordId) {
-      this.setState({ recordId: '' });
-    }
   }
 
   getLinkOfId = id => {
@@ -77,16 +56,23 @@ class PreviewListContent extends Component {
     const { id: creatorId, disp: creatorName } = creator || {};
     const formattedDate = moment(created).format('dddd, D MMMM YYYY, H:mm');
 
+    const srcPreviewImg = previewUrl || require('./defaultImage.png');
+
+    const creatorLink = this.getLinkOfId(creatorId);
+    const itemLink = this.getLinkOfId(itemId);
+
     const title = item[previewListConfig[PREVIEW_LIST_ASPECT_ATTRIBUTES.title]] || t('preview-list.no-title');
     const description = item[previewListConfig[PREVIEW_LIST_ASPECT_ATTRIBUTES.description]] || t('preview-list.no-description');
 
     return (
       <div className="citeck-preview-list-content__card" key={idx}>
         <div className="citeck-preview-list-content__card_img">
-          <img className="citeck-preview-list-content__card_img" src={previewUrl || require('./defaultImage.png')} alt={title} />
+          <a href={itemLink} className="citeck-preview-list-content__card-info_title">
+            <img className="citeck-preview-list-content__card_img" src={srcPreviewImg} alt={title} />
+          </a>
         </div>
         <div className="citeck-preview-list-content__card-info">
-          <a href={this.getLinkOfId(itemId)} className="citeck-preview-list-content__card-info_title">
+          <a href={itemLink} className="citeck-preview-list-content__card-info_title">
             {title}
           </a>
           <p className="citeck-preview-list-content__card-info_description" title={description}>
@@ -95,7 +81,7 @@ class PreviewListContent extends Component {
           <div className="citeck-preview-list-content__card-info-author">
             <div className="citeck-preview-list-content__card-info-author person">
               <span className="citeck-preview-list-content__card-info-author_text">{t('preview-list.created-by')}</span>
-              <a href={this.getLinkOfId(creatorId)} className="citeck-preview-list-content__card-info-author_text link">
+              <a href={creatorLink} className="citeck-preview-list-content__card-info-author_text link">
                 {creatorName}
               </a>
             </div>
@@ -110,13 +96,18 @@ class PreviewListContent extends Component {
   };
 
   render() {
-    const { maxHeight, isViewNewJournal, isLoadingPreviewList, isLoadingJournal, gridData, previewListConfig } = this.props;
+    const {
+      maxHeight,
+      isViewNewJournal,
+      isLoadingPreviewList,
+      isLoadingJournal,
+      gridData,
+      previewListConfig,
+      isInitiatedPreviewList = false
+    } = this.props;
 
-    if (!previewListConfig || isEmpty(previewListConfig)) {
-      return null;
-    }
-
-    const isLoading = isLoadingPreviewList || isLoadingJournal;
+    const isLoading = isLoadingPreviewList || isLoadingJournal || !isInitiatedPreviewList;
+    const isNoData = !isLoading && (!gridData || !gridData.length || !previewListConfig);
 
     return (
       <Wall
@@ -125,7 +116,16 @@ class PreviewListContent extends Component {
         maxHeight={maxHeight}
       >
         {isLoading && <Loader />}
-        {!isLoading && (gridData || []).map((item, idx) => this.renderItemData(item, idx))}
+        {!isNoData && (gridData || []).map((item, idx) => this.renderItemData(item, idx))}
+        {isNoData && (
+          <div className="citeck-preview-list-content__no-data">
+            <NoData />
+            <div className="citeck-preview-list-content__no-data-info">
+              <h3 className="citeck-preview-list-content__no-data-info_head">{t('comp.no-data.head')}</h3>
+              <span className="citeck-preview-list-content__no-data-info_description">{t('comp.no-data.indication')}</span>
+            </div>
+          </div>
+        )}
       </Wall>
     );
   }

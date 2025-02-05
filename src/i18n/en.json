@@ -990,9 +990,10 @@
   "batch-edit.message.NOT_ALLOWED": "Not Allowed",
   "batch-edit.message.no-status": "No status",
 
+  "comp.no-data.head": "No data available",
+  "comp.no-data.indication": "No items in the list",
+
   "grid.inline-tools.details": "Details",
-  "grid.no-data-head": "No data available",
-  "grid.no-data-indication": "No items in the list",
   "grid.tools.copy-to": "Copy to...",
   "grid.tools.delete": "Delete",
   "grid.tools.group-actions": "More actions",

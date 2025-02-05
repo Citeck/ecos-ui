@@ -17,6 +17,40 @@
     }
   }
 
+  &__no-data {
+    display: flex;
+    flex-direction: column;
+
+    gap: 32px;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    height: 100%;
+
+    &-info {
+      text-align: center;
+      flex-direction: column;
+      display: flex;
+
+      &_head {
+        line-height: 22px;
+        font-size: 16px;
+        color: $text-color-gray;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      &_description {
+        color: $color-gray-5;
+        font-weight: 600;
+        line-height: 22px;
+        margin: 0;
+        font-size: 12px;
+      }
+    }
+  }
+
   &__card {
     display: inline-flex;
     align-items: center;

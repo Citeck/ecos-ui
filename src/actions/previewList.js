@@ -7,5 +7,6 @@ export const setIsEnabledPreviewList = createAction(prefix + 'SET_IS_ENABLED_PRE
 export const setPreviewListConfig = createAction(prefix + 'SET_PREVIEW_LIST_CONFIG');
 export const setPreviewList = createAction(prefix + 'SET_PREVIEW_LIST');
 export const setLoadingPreviewList = createAction(prefix + 'SET_LOADING_PREVIEW_LIST');
+export const setInitiatedPreviewList = createAction(prefix + 'SET_INITIATED_PREVIEW_LIST');
 
 export const initPreviewList = createAction(prefix + 'INIT_PREVIEW_LIST');

@@ -130,6 +130,12 @@ class PreviewListView extends React.Component {
     }
   }
 
+  getSelectedBoardFromUrl() {
+    const { urlParams = {}, boardList } = this.props;
+
+    return urlParams.boardId || get(boardList, '[0].id');
+  }
+
   componentWillUnmount() {
     this.setState({ isClose: true });
   }

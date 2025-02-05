@@ -1,5 +1,11 @@
 import { handleActions } from 'redux-actions';
-import { setIsEnabledPreviewList, setLoadingPreviewList, setPreviewList, setPreviewListConfig } from '../actions/previewList';
+import {
+  setInitiatedPreviewList,
+  setIsEnabledPreviewList,
+  setLoadingPreviewList,
+  setPreviewList,
+  setPreviewListConfig
+} from '../actions/previewList';
 import { handleAction } from '../helpers/redux';
 
 export const initialState = {};
@@ -53,6 +59,18 @@ export default handleActions(
         [stateId]: {
           ...state[stateId],
           isLoading: !!action.payload
+        }
+      };
+    },
+    [setInitiatedPreviewList]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return {
+        ...state,
+        [stateId]: {
+          ...state[stateId],
+          isInitiated: !!action.payload
         }
       };
     }
