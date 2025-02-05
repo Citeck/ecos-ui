@@ -2703,6 +2703,7 @@
   "bpmn-linter.user-task.duration.manual-business-no-one-duration": "Not selected Task due date for business time",
   "bpmn-linter.user-task.duration.manual-business-no-schedule": "Not selected Working schedule for due date",
   "bpmn-linter.user-task.due-date.selected-expression-and-manual-at-same-time": "Expression and manual task due date are selected at the same time. Manual due date will be ignored",
+  "bpmn-linter.user-task.due-date.incorrect-manual-duration-input": "Incorrect duration format",
   "bpmn-linter.script-task.no-script": "Script not completed",
   "bpmn-linter.send-task.no-notification-type": "Notification type not specified",
   "bpmn-linter.send-task.no-message": "Not defined Notification message",
