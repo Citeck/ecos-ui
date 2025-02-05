@@ -510,6 +510,10 @@
   "doc-preview.doc-transition.msg": "Scroll down to view next document or click the button",
   "doc-preview.doc-transition.btn": "Next document",
 
+  "preview-list.no-title": "Text not specified",
+  "preview-list.no-description": "Description not specified",
+  "preview-list.created-by": "Created by",
+
   "document-library.title": "Document library",
   "document-library.file": "File",
   "document-library.settings-upload": "Upload Settings",
@@ -986,9 +990,10 @@
   "batch-edit.message.NOT_ALLOWED": "Not Allowed",
   "batch-edit.message.no-status": "No status",
 
+  "comp.no-data.head": "No data available",
+  "comp.no-data.indication": "No items in the list",
+
   "grid.inline-tools.details": "Details",
-  "grid.no-data-head": "No data available",
-  "grid.no-data-indication": "No items in the list",
   "grid.tools.copy-to": "Copy to...",
   "grid.tools.delete": "Delete",
   "grid.tools.group-actions": "More actions",
@@ -1201,6 +1206,7 @@
   "journals.view.label.journal": "Journal",
   "journals.view.label.journal-preview": "Preview",
   "journals.view.label.document-library": "Document library",
+  "journals.view.label.preview-list": "List",
   "journals.view.label.kanban": "Kanban",
 
   "journal.presets.menu.title": "Template Settings",

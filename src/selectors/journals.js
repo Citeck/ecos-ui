@@ -11,6 +11,7 @@ import { ParserPredicate } from '../components/Filters/predicates';
 import { beArray, getId, getTextByLocale } from '../helpers/util';
 import { selectIsDocLibEnabled } from './docLib';
 import { selectIsKanbanEnabled } from './kanban';
+import { selectIsEnabledPreviewList } from './previewList';
 
 const selectState = (state, key) => get(state, ['journals', key], { ...defaultState }) || {};
 
@@ -228,13 +229,14 @@ export const selectKanbanJournalProps = createSelector(
 );
 
 export const selectCommonJournalPageProps = createSelector(
-  [selectState, selectUrl, selectIsDocLibEnabled, selectIsKanbanEnabled],
-  (ownState, urlParams, isDocLibEnabled, isKanbanEnabled) => ({
+  [selectState, selectUrl, selectIsDocLibEnabled, selectIsKanbanEnabled, selectIsEnabledPreviewList],
+  (ownState, urlParams, isDocLibEnabled, isKanbanEnabled, isPreviewListEnabled) => ({
     viewMode: ownState.viewMode,
     title: getTextByLocale(get(ownState, 'journalConfig.name')),
     urlParams,
     isDocLibEnabled,
-    isKanbanEnabled
+    isKanbanEnabled,
+    isPreviewListEnabled
   })
 );
 

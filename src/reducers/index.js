@@ -53,6 +53,7 @@ import kanban from './kanban';
 import processStatistics from './processStatistics';
 import customWidgetHtml from './customWidgetHtml';
 import orgstructure from './orgstructure';
+import previewList from './previewList';
 
 const reducers = {
   app,
@@ -106,6 +107,7 @@ const reducers = {
   kanban,
   processStatistics,
   customWidgetHtml,
+  previewList,
   orgstructure
 };
 

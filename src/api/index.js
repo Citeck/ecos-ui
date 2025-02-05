@@ -40,6 +40,7 @@ import { DevToolsApi } from './devTools';
 import { InstanceAdminApi } from './instanceAdmin';
 import { ProcessApi } from './process';
 import { KanbanApi } from './kanban';
+import { PreviewListApi } from './previewList';
 
 import '../components/Records/actions/actions';
 
@@ -88,6 +89,7 @@ export function configureAPI() {
   api.instanceAdmin = new InstanceAdminApi();
   api.kanban = new KanbanApi();
   api.charts = new ChartsApi();
+  api.previewList = new PreviewListApi();
 
   const setNotAuthCallback = function(cb) {
     for (let key in api) {

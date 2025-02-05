@@ -8,6 +8,7 @@ import AttributesService from '../services/AttributesService';
 
 import { DocPreviewApi } from './docPreview';
 import { RecordService } from './recordService';
+import { SourcesId } from '../constants';
 
 /**
  * @description Settings, Storage and special functions are actual here, other ↩
@@ -155,5 +156,9 @@ export class JournalsApi extends RecordService {
 
   getImportDataConfig = journalType => {
     return Records.get(journalType).load('aspectById.import-data-config.config.variants[]?json');
+  };
+
+  getJournalTypeRef = journalId => {
+    return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load('typeRef?str');
   };
 }

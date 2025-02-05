@@ -49,6 +49,7 @@ const JournalsSettingsBar = ({
   targetId,
   grid,
   journalConfig,
+  journalSetting,
   predicate,
   searchText,
   selectedRecords,
@@ -75,7 +76,13 @@ const JournalsSettingsBar = ({
   hasBtnMenu,
   onEditJournal,
   hasBtnEdit,
-  rightBarChild
+  rightBarChild,
+
+  hideActionsBtn = false,
+  hideSettingsJournalBtn = false,
+  hidePresetsBtn = false,
+  hideImportBtn = false,
+  hideExportBtn = false
 }) => {
   const [isOpenDropdownExport, setIsOpenDropdownExport] = useState(false);
   const [isOpenDropdownImport, setIsOpenDropdownImport] = useState(false);
@@ -136,7 +143,7 @@ const JournalsSettingsBar = ({
           </Tooltip>
         )}
 
-        {isViewNewJournal && !isMobile && hasBtnEdit && (
+        {!hideSettingsJournalBtn && isViewNewJournal && !isMobile && hasBtnEdit && (
           <Tooltip target={`${targetId}-journal-settings`} text={t(Labels.BTN_JOURNAL_SETTINGS)} {...tooltipSettings}>
             <IcoBtn
               id={`${targetId}-journal-settings`}
@@ -167,15 +174,18 @@ const JournalsSettingsBar = ({
           />
         )}
 
-        {(!isMobile || isViewNewJournal) && !noGroupActions && <GroupActions isViewNewJournal={isViewNewJournal} stateId={stateId} />}
+        {(!isMobile || isViewNewJournal) && !noGroupActions && !hideActionsBtn && (
+          <GroupActions isViewNewJournal={isViewNewJournal} stateId={stateId} />
+        )}
 
         {isViewNewJournal && leftChild}
 
-        {isViewNewJournal && !isMobile && <JournalsPresetListDropdown stateId={stateId} />}
+        {!hidePresetsBtn && isViewNewJournal && !isMobile && <JournalsPresetListDropdown stateId={stateId} />}
 
-        {!isViewNewJournal && (
+        {!hideExportBtn && !isViewNewJournal && (
           <Export
             journalConfig={journalConfig}
+            journalSetting={journalSetting}
             grid={grid}
             className="ecos-journal__settings-bar-export"
             classNameBtn="ecos-btn_i ecos-journal__settings-bar-export-btn"
@@ -194,9 +204,10 @@ const JournalsSettingsBar = ({
           </Export>
         )}
 
-        {isViewNewJournal && !isMobile && (
+        {!hideExportBtn && isViewNewJournal && !isMobile && (
           <Export
             journalConfig={journalConfig}
+            journalSetting={journalSetting}
             grid={grid}
             className="ecos-journal__settings-bar-export"
             classNameBtn="ecos-btn_i ecos-journal__settings-bar-export-btn ecos-journal__btn_new"
@@ -220,27 +231,29 @@ const JournalsSettingsBar = ({
           </Export>
         )}
 
-        <Import
-          stateId={stateId}
-          isViewNewJournal={isViewNewJournal}
-          getStateOpen={changeIsOpenImport}
-          className="ecos-journal__settings-bar-export"
-          classNameBtn={classNames('ecos-btn_i ecos-journal__settings-bar-export-btn', {
-            'ecos-journal__btn_new': isViewNewJournal
-          })}
-        >
-          <IcoBtn
-            invert
-            icon="icon-small-down"
-            className={classNames('ecos-journal__settings-bar-export-btn ecos-btn_hover_blue2 ecos-btn_drop-down ecos-btn_grey3', {
-              'ecos-journal__btn_new_focus': isOpenDropdownImport,
-              'ecos-journal__btn_new export': isViewNewJournal
+        {!hideImportBtn && (
+          <Import
+            stateId={stateId}
+            isViewNewJournal={isViewNewJournal}
+            getStateOpen={changeIsOpenImport}
+            className="ecos-journal__settings-bar-export"
+            classNameBtn={classNames('ecos-btn_i ecos-journal__settings-bar-export-btn', {
+              'ecos-journal__btn_new': isViewNewJournal
             })}
-            // loading={isLoading}
           >
-            {isViewNewJournal ? <ImportIcon /> : t(Labels.BTN_IMPORT)}
-          </IcoBtn>
-        </Import>
+            <IcoBtn
+              invert
+              icon="icon-small-down"
+              className={classNames('ecos-journal__settings-bar-export-btn ecos-btn_hover_blue2 ecos-btn_drop-down ecos-btn_grey3', {
+                'ecos-journal__btn_new_focus': isOpenDropdownImport,
+                'ecos-journal__btn_new export': isViewNewJournal
+              })}
+              // loading={isLoading}
+            >
+              {isViewNewJournal ? <ImportIcon /> : t(Labels.BTN_IMPORT)}
+            </IcoBtn>
+          </Import>
+        )}
 
         <Tooltip target={`${targetId}-update`} text={t(Labels.BTN_UPDATE)} {...tooltipSettings} modifiers={{}}>
           <IcoBtn

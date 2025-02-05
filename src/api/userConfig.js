@@ -3,9 +3,10 @@ import get from 'lodash/get';
 
 import { CommonApi } from './common';
 import Records from '../components/Records';
-import { t } from '../helpers/util';
+import { getEnabledWorkspaces, t } from '../helpers/util';
 import CopyToClipboard from '../helpers/copyToClipboard';
 import { SourcesId } from '../constants';
+import { getLinkWithWs, getWorkspaceId } from '../helpers/urls';
 
 const context = SourcesId.USER_CONF + '@';
 
@@ -46,7 +47,7 @@ export class UserConfigApi extends CommonApi {
         const fullId = get(response, 'id');
         const shortId = fullId && get(fullId.split(context), '[1]');
         const text = `${url}&userConfigId=${shortId}`;
-        const copied = CopyToClipboard.copy(text);
+        const copied = CopyToClipboard.copy(getEnabledWorkspaces() ? getLinkWithWs(text, getWorkspaceId(), true) : text);
 
         if (shortId && copied) {
           NotificationManager.success(t('export-component.notice.buffer-link-done'), t('success'), 3000);
