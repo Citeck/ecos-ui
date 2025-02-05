@@ -34,7 +34,7 @@ import {
 } from './constants';
 import JournalsMenu from './JournalsMenu';
 import JournalsHead from './JournalsHead';
-import { DocLibView, KanbanView, TableView } from './Views';
+import { DocLibView, KanbanView, PreviewListView, TableView } from './Views';
 
 import Records from '../Records';
 import PageService, { PageTypes } from '../../services/PageService';
@@ -430,6 +430,7 @@ class Journals extends React.Component {
           <TableView {...commonProps} />
           <DocLibView {...commonProps} />
           <KanbanView {...commonProps} />
+          <PreviewListView {...commonProps} />
           <this.RightMenu />
         </div>
       </ReactResizeDetector>

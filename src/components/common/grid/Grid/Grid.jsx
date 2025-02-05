@@ -366,13 +366,13 @@ class Grid extends Component {
         >
           <NoData />
           <div className="ecos-grid__no-data_info">
-            <h3 className="ecos-grid__no-data_info-head">{t('grid.no-data-head')}</h3>
-            <span className="ecos-grid__no-data_info-description">{t('grid.no-data-indication')}</span>
+            <h3 className="ecos-grid__no-data_info-head">{t('comp.no-data.head')}</h3>
+            <span className="ecos-grid__no-data_info-description">{t('comp.no-data.indication')}</span>
           </div>
         </div>
       );
     } else if (!isViewNewJournal || isWidget) {
-      noDataIndication = t('grid.no-data-indication');
+      noDataIndication = t('comp.no-data.indication');
     }
 
     const options = {

@@ -49,6 +49,7 @@ import kanban from './kanban';
 import processStatistics from './processStatistics';
 import customWidgetHtml from './customWidgetHtml';
 import orgstructure from './orgstructure';
+import previewList from './previewList';
 
 export default function* rootSaga(extraArguments) {
   yield all([
@@ -101,6 +102,7 @@ export default function* rootSaga(extraArguments) {
     kanban(extraArguments),
     processStatistics(extraArguments),
     customWidgetHtml(extraArguments),
+    previewList(extraArguments),
     orgstructure(extraArguments)
   ]);
 }
