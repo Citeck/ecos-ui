@@ -6513,7 +6513,8 @@ export const AVAILABLE_CREATE_OPTIONS = [
       MenuSettingsService.leftMenuCreateOptions[5],
       MenuSettingsService.leftMenuCreateOptions[6],
       MenuSettingsService.leftMenuCreateOptions[7],
-      MenuSettingsService.leftMenuCreateOptions[8]
+      MenuSettingsService.leftMenuCreateOptions[8],
+      MenuSettingsService.leftMenuCreateOptions[9]
     ])
   ],
   [
@@ -6526,7 +6527,8 @@ export const AVAILABLE_CREATE_OPTIONS = [
       MenuSettingsService.leftMenuCreateOptions[5],
       MenuSettingsService.leftMenuCreateOptions[6],
       MenuSettingsService.leftMenuCreateOptions[7],
-      MenuSettingsService.leftMenuCreateOptions[8]
+      MenuSettingsService.leftMenuCreateOptions[8],
+      MenuSettingsService.leftMenuCreateOptions[9]
     ])
   ],
   [{ type: 'ARBITRARY' }, { configType: 'left', level: 3 }, []],
