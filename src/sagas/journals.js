@@ -1,5 +1,5 @@
 import { NotificationManager } from 'react-notifications';
-import { call, put, select, takeEvery, takeLatest, race, take } from 'redux-saga/effects';
+import { call, put, race, select, take, takeEvery, takeLatest } from 'redux-saga/effects';
 import * as queryString from 'query-string';
 import get from 'lodash/get';
 import getFirst from 'lodash/first';
@@ -15,6 +15,10 @@ import concat from 'lodash/concat';
 
 import {
   applyJournalSetting,
+  cancelGoToPageJournal,
+  cancelInitJournal,
+  cancelLoadGrid,
+  cancelReloadGrid,
   checkConfig,
   createJournalSetting,
   deleteJournalSetting,
@@ -47,14 +51,19 @@ import {
   setDashletConfig,
   setDashletConfigByParams,
   setEditorMode,
+  setFooterValue,
+  setForceUpdate,
   setGrid,
   setGridInlineToolSettings,
   setGrouping,
+  setImportDataConfig,
   setJournalConfig,
   setJournalExistStatus,
+  setJournalExpandableProp,
   setJournalSetting,
   setJournalSettings,
   setLoading,
+  setLoadingGrid,
   setOriginGridSettings,
   setPredicate,
   setPreviewFileName,
@@ -64,16 +73,7 @@ import {
   setSelectedJournals,
   setSelectedRecords,
   setUrl,
-  setForceUpdate,
-  setFooterValue,
-  toggleViewMode,
-  setJournalExpandableProp,
-  setLoadingGrid,
-  cancelReloadGrid,
-  cancelLoadGrid,
-  cancelInitJournal,
-  cancelGoToPageJournal,
-  setImportDataConfig
+  toggleViewMode
 } from '../actions/journals';
 import {
   selectGridPaginationMaxItems,
@@ -86,7 +86,12 @@ import {
   selectViewMode
 } from '../selectors/journals';
 import JournalsService, { EditorService, PresetsServiceApi } from '../components/Journals/service';
-import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_PAGINATION, JOURNAL_DASHLET_CONFIG_VERSION } from '../components/Journals/constants';
+import {
+  DEFAULT_INLINE_TOOL_SETTINGS,
+  DEFAULT_PAGINATION,
+  isKanban,
+  JOURNAL_DASHLET_CONFIG_VERSION
+} from '../components/Journals/constants';
 import { ParserPredicate } from '../components/Filters/predicates';
 import Records from '../components/Records';
 import { convertAttributeValues } from '../components/Records/predicates/util';
@@ -94,18 +99,23 @@ import { ActionTypes } from '../components/Records/actions/constants';
 import ActionsRegistry from '../components/Records/actions/actionsRegistry';
 import { decodeLink, getFilterParam, getSearchParams, getUrlWithoutOrigin, removeUrlSearchParams } from '../helpers/urls';
 import { wrapArgs, wrapSaga } from '../helpers/redux';
-import { beArray, isNodeRef, hasInString, t } from '../helpers/util';
+import { beArray, hasInString, isNodeRef, t } from '../helpers/util';
 import PageService from '../services/PageService';
 import { PREDICATE_EQ } from '../components/Records/predicates/predicates';
 import JournalsConverter from '../dto/journals';
 import { emptyJournalConfig, initialStateGrouping } from '../reducers/journals';
 import { JournalUrlParams, SourcesId } from '../constants';
-import { isKanban } from '../components/Journals/constants';
-import { setKanbanSettings, reloadBoardData, selectTemplateId, applyPreset, clearFiltered } from '../actions/kanban';
+import { applyPreset, clearFiltered, reloadBoardData, selectTemplateId, setKanbanSettings } from '../actions/kanban';
 import { selectKanban } from '../selectors/kanban';
 import { GROUPING_COUNT_ALL } from '../constants/journal';
 import { selectIsViewNewJournal } from '../selectors/view';
 import { initPreviewList } from '../actions/previewList';
+
+const attsForListView = {
+  creator: '_creator{id:?id,disp:?disp}',
+  created: '_created',
+  previewUrl: 'listview:preview{url}'
+};
 
 const getDefaultSortBy = config => {
   const params = config.params || {};
@@ -195,12 +205,6 @@ export function getGridParams({ journalConfig = {}, journalSetting = {}, paginat
   const { sourceId, id: journalId, columns: columnsConfig } = journalConfig;
   const { sortBy = [], groupBy = [], columns: columnsSetting, predicate: journalSettingPredicate } = journalSetting;
   const predicates = beArray(journalSettingPredicate);
-
-  const attsForListView = {
-    creator: '_creator{id:?id,disp:?disp}',
-    created: '_created',
-    previewUrl: 'listview:preview{url}'
-  };
 
   const columns = columnsConfig || columnsSetting || [];
 
@@ -868,6 +872,12 @@ function* sagaReloadGrid({ api, logger, stateId, w }, { payload = {} }) {
         const { grid, selectAllRecordsVisible, selectedRecords, excludedRecords } = journalData;
         const searchPredicate = get(payload, 'searchPredicate') || (yield getSearchPredicate({ logger, stateId }));
         const params = { ...grid, ...payload, searchPredicate };
+
+        params.attributes = {
+          ...params.attributes,
+          ...attsForListView
+        };
+
         const gridData = yield getGridData(api, params, stateId);
         const editingRules = yield getGridEditingRules(api, gridData);
         const pageRecords = get(gridData, 'data', []).map(item => item.id);
