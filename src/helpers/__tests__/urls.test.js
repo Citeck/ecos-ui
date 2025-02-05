@@ -2,7 +2,6 @@ import cloneDeep from 'lodash/cloneDeep';
 
 import * as UrlUtils from '../urls';
 import { history } from '../__mocks__/urls.mock';
-import { getLinkWithWs } from '../urls';
 
 describe('Urls helpers', () => {
   describe('Method replaceHistoryLink', () => {
@@ -189,6 +188,10 @@ describe('Urls helpers', () => {
   });
 
   describe('Method getLinkWithWs', () => {
+    const location = {
+      origin: 'https://example.com/'
+    };
+
     const data = [
       {
         title: 'Attempt to add an empty workspace',
@@ -214,10 +217,20 @@ describe('Urls helpers', () => {
         title: 'Add a workspace with a special symbol to the link',
         input: ['/v2/journal?journalId=test&activeTab=true', 'user$test-user'],
         output: `/v2/journal?journalId=test&activeTab=true&ws=user$test-user`
+      },
+      {
+        title: 'Add a workspace with a special character and the full url to the link',
+        input: ['/v2/journal?journalId=test&activeTab=true', 'user$test-user', true],
+        output: `${location.origin}v2/journal?journalId=test&activeTab=true&ws=user$test-user`
       }
     ];
 
     data.forEach(item => {
+      beforeEach(() => {
+        delete window.location;
+        window.location = location;
+      });
+
       it(item.title, () => {
         expect(UrlUtils.getLinkWithWs(...item.input)).toEqual(item.output);
       });
