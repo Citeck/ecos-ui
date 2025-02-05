@@ -702,7 +702,7 @@ class PageTabs extends React.Component {
 
 const mapStateToProps = state => {
   const wsId = getWorkspaceId();
-  const enabledWorkspaces = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+  const enabledWorkspaces = getEnabledWorkspaces();
   const wsTabs = get(state, 'pageTabs.tabs', []).filter(tab => (tab.workspace && tab.workspace === wsId) || tab.link === Urls.DASHBOARD);
 
   return {

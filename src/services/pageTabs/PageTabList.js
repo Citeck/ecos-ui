@@ -278,6 +278,18 @@ class PageTabList {
   }
 
   move(indexFrom, indexTo) {
+    const wsId = getWorkspaceId();
+    if (getEnabledWorkspaces()) {
+      const filteredTabs = this.#tabs.filter(tab => tab.workspace === wsId);
+
+      const tab = filteredTabs[indexFrom];
+
+      indexFrom = this.#tabs.indexOf(tab);
+
+      const targetTab = filteredTabs[indexTo];
+      indexTo = targetTab ? this.#tabs.indexOf(targetTab) : this.#tabs.length;
+    }
+
     const tab = this.#tabs.splice(indexFrom, 1)[0];
     indexTo = indexTo < 0 ? this.#tabs.length + indexTo : indexTo;
 
@@ -394,7 +406,6 @@ class PageTabList {
     }
 
     const wsTabs = this.tabs.filter(tab => tab.workspace === wsId);
-    console.log('wsTabs:', wsTabs);
     return wsTabs.find(tab => get(tab, 'isLastActive') === true);
   };
 
