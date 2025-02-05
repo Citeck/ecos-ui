@@ -1799,6 +1799,7 @@
   "menu-item.type.journal": "Журнал",
   "menu-item.type.kanban": "Канбан-доску",
   "menu-item.type.dashboard": "Дашборд",
+  "menu-item.type.wiki": "База знаний",
   "menu-item.type.doclib": "DocLib",
   "menu-item.type.arbitrary": "Произвольный пункт меню",
   "menu-item.type.link-create-case": "Ссылку на создание кейса",

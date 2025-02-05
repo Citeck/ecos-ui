@@ -224,7 +224,16 @@ export default class Components {
           }))
         ),
       label: 'dashboard-settings.widget.activities',
-      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS],
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS, DashboardTypes.CUSTOM],
+      checkIsAvailable: () => {
+        const workspacesEnabled = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+
+        if (!workspacesEnabled) {
+          return false;
+        }
+
+        return Boolean(get(window, 'Citeck.Plugins.ActivitiesWidget'));
+      },
       props: {
         dataStorageFormat: 'html'
       }
@@ -269,7 +278,15 @@ export default class Components {
           layout &&
           (!layout.columns || (layout.columns.length !== 1 && !layout.columns.find(column => Array.isArray(column) && column.length === 1)))
       },
-      checkIsAvailable: () => Boolean(get(window, 'Citeck.Plugins.PublicationWidget')),
+      checkIsAvailable: () => {
+        const workspacesEnabled = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+
+        if (!workspacesEnabled) {
+          return false;
+        }
+
+        return Boolean(get(window, 'Citeck.Plugins.PublicationWidget'));
+      },
       label: 'dashboard-settings.widget.publication',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
     },
@@ -287,7 +304,7 @@ export default class Components {
       },
       checkIsAvailable: () => Boolean(get(window, 'Citeck.Plugins.HierarchicalTreeWidget')),
       label: 'dashboard-settings.widget.hierarchical-tree',
-      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS, DashboardTypes.CUSTOM]
     },
     [ComponentKeys.STAGES]: {
       load: () =>
@@ -315,7 +332,14 @@ export default class Components {
     }
   });
 
-  static allDashboardsComponents = [ComponentKeys.JOURNAL, ComponentKeys.WEB_PAGE, ComponentKeys.PUBLICATION, ComponentKeys.HTML];
+  static allDashboardsComponents = [
+    ComponentKeys.JOURNAL,
+    ComponentKeys.WEB_PAGE,
+    ComponentKeys.PUBLICATION,
+    ComponentKeys.HTML,
+    ComponentKeys.ACTIVITIES,
+    ComponentKeys.HIERARCHICAL_TREE
+  ];
 
   static get allDashboardTypes() {
     return Object.values(DashboardTypes);

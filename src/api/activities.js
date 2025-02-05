@@ -4,6 +4,7 @@ import isArray from 'lodash/isArray';
 import Records from '../components/Records';
 import { SourcesId } from '../constants';
 import { ActivityTypes } from '../constants/activity';
+import { getWorkspaceId } from '../helpers/urls';
 
 const EMODEL_FIELDS = {
   title: 'title',
@@ -42,7 +43,7 @@ export class ActivitiesApi {
   getByPage = ({ record, skipCount = 0, maxItems = 10 }) => {
     return Records.query(
       {
-        query: { t: 'eq', att: '_parent', val: record },
+        query: { t: 'eq', att: '_parent', val: record || `emodel/workspace@${getWorkspaceId()}` },
         language: 'predicate',
         page: {
           skipCount,
@@ -66,7 +67,7 @@ export class ActivitiesApi {
 
     comment.att('text', text);
     comment.att('_type', selectedType.id);
-    comment.att('_parent', record);
+    comment.att('_parent', record || `emodel/workspace@${getWorkspaceId()}`);
     comment.att('_parentAtt', 'has-ecos-activities:ecosActivities');
 
     switch (selectedType.id) {

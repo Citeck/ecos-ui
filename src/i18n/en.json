@@ -1843,6 +1843,7 @@
   "menu-item.type.journal": "Journal",
   "menu-item.type.kanban": "Kanban Board",
   "menu-item.type.dashboard": "Dashboard",
+  "menu-item.type.wiki": "Wiki",
   "menu-item.type.doclib": "DocLib",
   "menu-item.type.arbitrary": "Arbitrary menu item",
   "menu-item.type.link-create-case": "Link to create a case",

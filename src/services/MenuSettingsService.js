@@ -181,6 +181,7 @@ export default class MenuSettingsService {
     { ...CreateOptions.JOURNAL, when: { minLevel: 0 } },
     { ...CreateOptions.KANBAN, when: { minLevel: 0 } },
     { ...CreateOptions.DASHBOARD, when: { minLevel: 0 } },
+    { ...CreateOptions.WIKI, when: { minLevel: 0 } },
     { ...CreateOptions.DOCLIB, when: { minLevel: 0 } },
     { ...CreateOptions.ARBITRARY, when: { minLevel: 0 } },
     { ...CreateOptions.LINK_CREATE_CASE, when: { minLevel: 0 } },

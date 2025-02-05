@@ -3,7 +3,7 @@ import React from 'react';
 import get from 'lodash/get';
 
 import Dashlet from '../../../components/Dashlet/Dashlet';
-import { Loader } from '../../../components/common';
+import { Avatar, Loader } from '../../../components/common';
 import Records from '../../../components/Records/Records';
 import FormManager from '../../../components/EcosForm/FormManager';
 import BaseWidget from '../../../components/widgets/BaseWidget';
@@ -44,9 +44,9 @@ class PublicationWidgetDashlet extends BaseWidget {
         text: 'text?str',
         title: '?disp',
         modified: '_modified?str',
-        modifier: '_modifier{id,avatarUrl,name:?disp}',
+        modifier: '_modifier{id:?localId,avatarUrl,name:?disp}',
         created: '_created?str',
-        creator: '_creator{id,avatarUrl,name:?disp}'
+        creator: '_creator{id:?localId,avatarUrl,name:?disp}'
       })
       .then(record =>
         this.setState({
@@ -113,13 +113,19 @@ class PublicationWidgetDashlet extends BaseWidget {
         {!isLoading && (
           <>
             <div className="ecos-publication">
-              <img className="ecos-avatar__image" src={`${creator.avatarUrl}&width=150`} alt={creator.name} />
+              <Avatar
+                noBorder
+                url={`${creator.avatarUrl}&width=150`}
+                userName={creator.name}
+                className="ecos-publications__publication-image-stack_img"
+                classNameEmpty="ecos-publications__publication-avatar_empty"
+              />
               <div className="ecos-publication-info">
                 <p className="ecos-publication-info__name">
                   <span>{t('publication.creator.name')} </span> {creator.name}
                   {creator.id !== modifier.id && (
                     <>
-                      <span>{t('publication.moifier.name')} </span> {modifier.name}
+                      <span>{t('publication.modifier.name')} </span> {modifier.name}
                     </>
                   )}
                 </p>

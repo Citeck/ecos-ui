@@ -4,7 +4,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import { EventEmitter2 } from 'eventemitter2';
 import * as queryString from 'query-string';
 
-import { getCustomDasboardUrl, getJournalPageUrl, getLinkWithWs, getWorkspaceId } from '../helpers/urls';
+import { getCustomDasboardUrl, getJournalPageUrl, getLinkWithWs, getWikiDasboardUrl, getWorkspaceId } from '../helpers/urls';
 import { arrayFlat, getEnabledWorkspaces, hasChildWithId } from '../helpers/util';
 import { isNewVersionPage, NEW_VERSION_PREFIX } from '../helpers/export/urls';
 import { treeFindFirstItem } from '../helpers/arrayOfObjects';
@@ -267,6 +267,10 @@ export default class SidebarService {
             viewMode: JOURNAL_VIEW_MODE.KANBAN
           });
         }
+        ignoreTabHandler = false;
+        break;
+      case MenuItemsTypes.WIKI:
+        targetUrl = getWikiDasboardUrl();
         ignoreTabHandler = false;
         break;
       case MenuItemsTypes.DOCLIB:

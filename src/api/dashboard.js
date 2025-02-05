@@ -3,10 +3,6 @@ import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import isString from 'lodash/isString';
 
-import { getCurrentUserName, getEnabledWorkspaces, getMLValue, isExistIndex, t } from '../helpers/util';
-import Cache from '../helpers/cache';
-import { getRefWithAlfrescoPrefix, parseJournalId, parseTypeId } from '../helpers/ref';
-import { EmodelTypes, SourcesId } from '../constants';
 import { TITLE } from '../constants/pageTabs';
 import { DashboardTypes } from '../constants/dashboard';
 import Components from '../components/widgets/Components';
@@ -14,14 +10,18 @@ import Records from '../components/Records';
 import { ASSOC_TYPES } from '../components/Journals/service/journalColumnsResolver';
 import DashboardService from '../services/dashboard';
 import { getWorkspaceId } from '../helpers/urls';
+import { getCurrentUserName, getEnabledWorkspaces, getMLValue, isExistIndex, t } from '../helpers/util';
+import Cache from '../helpers/cache';
+import { getRefWithAlfrescoPrefix, parseJournalId, parseTypeId } from '../helpers/ref';
+import { EmodelTypes, SourcesId } from '../constants';
 
 const defaultAttr = {
+  id: 'id',
   config: 'config?json',
   authority: 'authority',
   user: 'authority',
   type: 'typeRef.inhDashboardType?str!appliedToRef._type.inhDashboardType?str',
   key: 'typeRef?id',
-  id: 'id',
   appliedToRef: 'appliedToRef?str'
 };
 

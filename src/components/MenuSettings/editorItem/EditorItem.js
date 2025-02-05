@@ -34,6 +34,7 @@ export default class EditorItem extends React.Component {
       case MS.ItemTypes.ARBITRARY:
         return <Arbitrary {...this.props} />;
       case MS.ItemTypes.DASHBOARD:
+      case MS.ItemTypes.WIKI:
         return <Dashboard {...this.props} />;
       case MS.ItemTypes.HEADER_DIVIDER:
         return <Divider {...this.props} />;

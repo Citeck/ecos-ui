@@ -53,6 +53,12 @@ export const getCustomDasboardUrl = dashboardId => {
   return `${Urls.DASHBOARD}?dashboardId=${dashboardId}`;
 };
 
+export const getWikiDasboardUrl = () => {
+  const workspaceId = getWorkspaceId();
+
+  return `${Urls.DASHBOARD}?recordRef=emodel/wiki@${workspaceId}$ROOT&ws=${workspaceId}`;
+};
+
 export const changeUrl = (url, opts = {}) => {
   if (isNewVersionSharePage() || !isNewVersionPage()) {
     window.open(url, opts.openNewTab === true ? '_blank' : '_self');
