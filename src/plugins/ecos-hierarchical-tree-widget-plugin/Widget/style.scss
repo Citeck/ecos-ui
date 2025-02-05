@@ -1,0 +1,47 @@
+@import '../../../styles/constants';
+
+.ecos-hierarchical-tree-widget {
+  $root: &;
+
+  padding: 0;
+  margin: 0;
+  background-color: white;
+  border-radius: 12px;
+
+  &-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px 11px;
+
+    h4 {
+      margin: 0;
+      font-family: 'Open Sans', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #767676;
+    }
+  }
+
+  hr {
+    margin-top: 0;
+    border-top: 2px solid #e8edef;
+  }
+
+  &-empty {
+    display: flex;
+    flex-direction: column;
+    justify-items: center;
+    align-items: center;
+    margin: 0 20px;
+    padding: 40px 0;
+
+    p {
+      font-family: 'Open Sans', sans-serif;
+      font-size: 14px;
+      opacity: 0.4;
+      color: #767676;
+    }
+  }
+}

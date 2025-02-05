@@ -366,6 +366,7 @@
   "dashboard-settings.widget.stages": "Стадии",
   "dashboard-settings.widget.charts": "Графическая статистика",
   "dashboard-settings.widget.publication": "Публикация",
+  "dashboard-settings.widget.hierarchical-tree": "Иерархия",
   "dashboard-settings.widget.with-config": "У данного виджета есть настройки. При удалении виджета, настройки будут утеряны",
   "dashboard-settings.layout.tooltip.adaptive": "Количество колонок подстраивается под размер окна браузера",
   "dashboard-settings.layout.empty-layout": "Виджеты не настроены.",

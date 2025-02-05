@@ -297,12 +297,15 @@ export default class Components {
             default: get(plugins, 'default.HierarchicalTreeWidget', () => null)
           }))
         ),
-      additionalProps: {
-        isDragDisabledByLayout: layout =>
-          layout &&
-          (!layout.columns || (layout.columns.length !== 1 && !layout.columns.find(column => Array.isArray(column) && column.length === 1)))
+      checkIsAvailable: () => {
+        const workspacesEnabled = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+
+        if (!workspacesEnabled) {
+          return false;
+        }
+
+        return Boolean(get(window, 'Citeck.Plugins.HierarchicalTreeWidget'));
       },
-      checkIsAvailable: () => Boolean(get(window, 'Citeck.Plugins.HierarchicalTreeWidget')),
       label: 'dashboard-settings.widget.hierarchical-tree',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS, DashboardTypes.CUSTOM]
     },
