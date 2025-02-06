@@ -139,6 +139,7 @@ class PageTabList {
    */
   setTab(data, params = {}) {
     const { last, reopen, workspace } = params;
+    const enabledWorkspaces = getEnabledWorkspaces();
 
     const title = {
       ...data.title,
@@ -154,7 +155,7 @@ class PageTabList {
       tab.id = this.#tabs[currentTabIndex].id;
     }
 
-    if (workspace && getEnabledWorkspaces() && !tab.workspace) {
+    if (workspace && enabledWorkspaces && !tab.workspace) {
       tab.workspace = workspace;
     }
 
@@ -174,7 +175,10 @@ class PageTabList {
         };
 
         this.changeOne({ updates, tab });
-        this.move(currentTabIndex, indexTo);
+
+        if (!enabledWorkspaces) {
+          this.move(currentTabIndex, indexTo);
+        }
       } else {
         this.add(tab, indexTo);
       }
