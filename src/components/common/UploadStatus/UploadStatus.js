@@ -241,8 +241,9 @@ const UploadStatus = () => {
     }
   };
 
-  const isEmptyInputRenaming = !titleRenamingItem;
-  const currentTitleRenaming = expansionCurrentFile ? titleRenamingItem + `.${expansionCurrentFile}` : titleRenamingItem;
+  const trimTitleRenamingItem = titleRenamingItem?.trim();
+  const isEmptyInputRenaming = !trimTitleRenamingItem;
+  const currentTitleRenaming = expansionCurrentFile ? trimTitleRenamingItem + `.${expansionCurrentFile}` : trimTitleRenamingItem;
 
   const isDisabledInputRenaming =
     isEmptyInputRenaming || (parentItemsTitles && titleRenamingItem && parentItemsTitles.includes(currentTitleRenaming.trim()));

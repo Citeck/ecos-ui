@@ -21,6 +21,8 @@ export const selectDocLibTypeRef = createSelector(selectDocLib, docLib => get(do
 
 export const selectDocLibSidebar = createSelector(selectDocLib, docLib => get(docLib, 'sidebar', {}));
 
+export const selectDocLibSidebarItems = createSelector(selectDocLib, docLib => get(docLib, 'sidebar.items', {}));
+
 export const selectDocLibFileViewer = createSelector(selectDocLib, docLib => get(docLib, 'fileViewer', {}));
 
 export const selectDocLibFileViewerIsReady = createSelector(selectDocLibFileViewer, fileViewer => get(fileViewer, 'isReady', false));
