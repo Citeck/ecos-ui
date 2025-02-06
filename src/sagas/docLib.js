@@ -61,6 +61,7 @@ import {
   selectDocLibRootId,
   selectDocLibSearchText,
   selectDocLibSidebar,
+  selectDocLibSidebarItems,
   selectDocLibTypeRef,
   selectJournalId
 } from '../selectors/docLib';
@@ -437,13 +438,12 @@ export function* sagaExecGroupAction({ api, logger, stateId, w }, action) {
 
 function* checkUniqueNameNode({ api, logger, stateId, w }, { submission, nodeType, isExistsItem, originName }) {
   try {
-    debugger;
     if (!submission || !nodeType) {
       return;
     }
 
     let currentItemTitle;
-    const nameItem = get(submission, 'name');
+    const nameItem = get(submission, 'name')?.trim();
     const originalNameItem = get(submission, '_content[0].originalName') || get(submission, '_content[0].name');
 
     if (nameItem && originalNameItem && nodeType === NODE_TYPES.FILE) {
@@ -583,6 +583,32 @@ export function* sagaChangeNode({ api, logger, w }, action) {
     }
 
     yield record.save();
+
+    if (nodeType === NODE_TYPES.DIR) {
+      const sidebarItems = yield select(state => selectDocLibSidebarItems(state, stateId));
+      const newSidebarItems = [];
+
+      const editDirId = yield record.load('?id');
+      const newRecord = yield call(DocLibService.loadNode, editDirId);
+
+      if (newRecord && newRecord.id) {
+        (sidebarItems || []).forEach(item => {
+          const itemId = get(item, 'id', '');
+          const substringItemId = itemId.substring(itemId.indexOf('$') + 1);
+
+          if (substringItemId && substringItemId === newRecord.id) {
+            newSidebarItems.push({
+              ...item,
+              ...newRecord
+            });
+          } else {
+            newSidebarItems.push(item);
+          }
+        });
+
+        yield put(setSidebarItems(w(newSidebarItems)));
+      }
+    }
 
     yield put(loadFilesViewerData(w()));
   } catch (e) {
