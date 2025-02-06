@@ -114,7 +114,6 @@ const HierarchicalTreeWidget = () => {
   };
 
   const create = async parent => {
-    console.log(parent || `emodel/wiki@${getWorkspaceId()}$ROOT`);
     FormManager.openFormModal({
       record: 'emodel/wiki@',
       title: t(Labels.TITLE),
