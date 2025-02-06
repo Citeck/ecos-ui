@@ -149,7 +149,6 @@ const HierarchicalTreeWidget = () => {
         </Tooltip>
       </div>
       <hr />
-
       {records.length === 0 ? (
         <div className="ecos-hierarchical-tree-widget-empty">
           <svg width="152" height="182" viewBox="0 0 152 182" fill="none" xmlns="http://www.w3.org/2000/svg">

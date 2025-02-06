@@ -26,7 +26,7 @@ class PublicationWidgetDashlet extends BaseWidget {
     this.stateId = getStateId(props);
     this.recordRefFromUrl = getRecordRef() || '';
 
-    this.observableFieldsToUpdate = [...new Set([...this.observableFieldsToUpdate, 'title?str', 'text?str'])];
+    this.observableFieldsToUpdate = [...new Set([...this.observableFieldsToUpdate, 'id', 'title?str', 'text?str'])];
   }
 
   componentDidMount() {
