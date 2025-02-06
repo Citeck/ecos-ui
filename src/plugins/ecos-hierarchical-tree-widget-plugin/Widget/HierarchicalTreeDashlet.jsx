@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import isFunction from 'lodash/isFunction';
+import get from 'lodash/get';
 
 import FormManager from '../../../components/EcosForm/FormManager';
 import Records from '../../../components/Records';
@@ -18,14 +20,38 @@ const tooltipId = 'create-tree-node-button';
 
 const TreeNode = ({ node, onFetchChildren }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [children, setChildren] = useState([]);
+  const [children, setChildren] = useState(node.children || []);
+
+  const create = parent => {
+    FormManager.openFormModal({
+      record: 'emodel/wiki@',
+      title: t(Labels.TITLE),
+      attributes: {
+        _parent: parent || `emodel/wiki@${node.id}`,
+        _parentAtt: 'children'
+      },
+      onSubmit: () => {
+        isFunction(onFetchChildren) &&
+          onFetchChildren(`emodel/wiki@${node.id}`).then(({ records = [] }) => {
+            setChildren(records);
+          });
+      }
+    });
+  };
 
   useEffect(
     () => {
-      if (isOpen && !children.length) {
-        onFetchChildren(node).then(fetchedChildren => {
-          setChildren(fetchedChildren);
-        });
+      const hasFirstChildrenName = get(children, '[0].name', '');
+
+      if (isOpen && hasFirstChildrenName.length === 0) {
+        isFunction(onFetchChildren) &&
+          onFetchChildren(`emodel/wiki@${node.id}`).then(({ records = [] }) => {
+            setChildren(records);
+
+            if (records.length > 0) {
+              setIsOpen(true);
+            }
+          });
       }
     },
     [isOpen]
@@ -33,16 +59,25 @@ const TreeNode = ({ node, onFetchChildren }) => {
 
   return (
     <details open={isOpen}>
-      <summary onClick={() => setIsOpen(!isOpen)}>{node.name}</summary>
-      {isOpen && (
-        <ul style={{ paddingLeft: '20px' }}>
-          {children.map(child => (
-            <li key={child.id}>
-              <TreeNode node={child} onFetchChildren={onFetchChildren} />
-            </li>
-          ))}
-        </ul>
-      )}
+      <summary
+        onClick={e => {
+          setIsOpen(!isOpen);
+        }}
+      >
+        {node.name}
+      </summary>
+      <ul style={{ paddingTop: '5px', paddingLeft: '20px' }}>
+        {children.map(child => (
+          <li key={child.id}>
+            <TreeNode node={child} onFetchChildren={onFetchChildren} />
+            <div className="tree-actions">
+              <div className="ecos-hierarchical-tree-widget__structure__bnt-create" onClick={() => create(`emodel/wiki@${child.id}`)}>
+                <Icon className="icon-plus" />
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
     </details>
   );
 };
@@ -60,7 +95,7 @@ const HierarchicalTreeWidget = () => {
     return Records.query(
       {
         language: 'predicate',
-        ecosType: 'company-wiki',
+        ecosType: 'wiki',
         query: {
           t: 'eq',
           a: '_parent',
@@ -70,18 +105,20 @@ const HierarchicalTreeWidget = () => {
       {
         name: '_disp',
         parent: '_parent?id',
-        children: 'children[]{name:_disp,parent:_parent?id,children:children[]?id}',
+        children: 'children[]{id?localId,name:_disp,parent:_parent?id,children:children[]?id}',
         id: 'id'
       }
     );
   };
 
-  const create = async () => {
+  const create = async parent => {
+    console.log(parent || `emodel/wiki@${getWorkspaceId()}$ROOT`);
     FormManager.openFormModal({
       record: 'emodel/wiki@',
       title: t(Labels.TITLE),
       attributes: {
-        _parent: `emodel/wiki@${getWorkspaceId()}$ROOT`
+        _parent: parent || `emodel/wiki@${getWorkspaceId()}$ROOT`,
+        _parentAtt: 'children'
       },
       onSubmit: () => {
         fetchRecords().then(({ records = [] }) => {
@@ -96,19 +133,14 @@ const HierarchicalTreeWidget = () => {
       <div className="ecos-hierarchical-tree-widget-header">
         <h4>База знаний</h4>
         <Tooltip uncontrolled text={t(Labels.ADD_GROUP)} target={tooltipId} off={isMobileDevice()}>
-          <div id={tooltipId} className="ecos-hierarchical-tree-widget__structure__bnt-create" onClick={create}>
+          <div id={tooltipId} className="ecos-hierarchical-tree-widget__structure__bnt-create" onClick={() => create()}>
             <Icon className="icon-plus" />
           </div>
         </Tooltip>
       </div>
       <hr />
-      {records.map(record => (
-        <TreeNode key={record.id} node={record}>
-          {record.children.length > 0 &&
-            record.children.map(child => <TreeNode key={child.id} node={child} onFetchChildren={fetchRecords} />)}
-        </TreeNode>
-      ))}
-      {records.length === 0 && (
+
+      {records.length === 0 ? (
         <div className="ecos-hierarchical-tree-widget-empty">
           <svg width="152" height="182" viewBox="0 0 152 182" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
@@ -188,6 +220,21 @@ const HierarchicalTreeWidget = () => {
           </svg>
           <p>Нет элементов</p>
           <Btn onClick={() => create()}>Добавить элемент</Btn>
+        </div>
+      ) : (
+        <div className="ecos-hierarchical-tree-widget-body">
+          <ul className="tree">
+            {records.map(record => (
+              <li>
+                <TreeNode key={record.id} node={record} onFetchChildren={fetchRecords} />
+                <div className="tree-actions">
+                  <div className="ecos-hierarchical-tree-widget__structure__bnt-create" onClick={() => create(`emodel/wiki@${record.id}`)}>
+                    <Icon className="icon-plus" />
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>

@@ -3,6 +3,10 @@
 .ecos-hierarchical-tree-widget {
   $root: &;
 
+  i.icon {
+    color: #b7b7b7;
+  }
+
   padding: 0;
   margin: 0;
   background-color: white;
@@ -42,6 +46,105 @@
       font-size: 14px;
       opacity: 0.4;
       color: #767676;
+    }
+  }
+
+  &-body {
+    margin: 0;
+    padding: 0 20px;
+    list-style-type: none;
+
+    ul.tree {
+      --spacing: 1rem;
+      --radius: 2px;
+
+      padding: 0 0 20px;
+
+      li {
+        display: flex;
+        flex-direction: row;
+        position: relative;
+        padding-bottom: 0.5rem;
+        padding-left: calc(2 * var(--spacing) - var(--radius) - 2px);
+
+        div.tree-actions {
+          position: absolute;
+          right: 0;
+        }
+
+        i.icon {
+          font-size: 14px;
+        }
+      }
+
+      ul {
+        margin-left: calc(var(--radius) - var(--spacing));
+        padding-left: 0;
+
+        li {
+          border-left: 2px dashed #ddd;
+        }
+
+        li:last-child {
+          border-color: transparent;
+        }
+
+        li::before {
+          content: '';
+          display: block;
+          position: absolute;
+          top: calc(var(--spacing) / -2);
+          left: -2px;
+          width: calc(var(--spacing) + 2px);
+          height: calc(var(--spacing) + 1px);
+          border: dashed #ddd;
+          border-width: 0 0 2px 2px;
+        }
+      }
+
+      summary {
+        display: block;
+        cursor: pointer;
+
+        &::marker,
+        &::-webkit-details-marker {
+          display: none;
+        }
+
+        &:focus {
+          outline: none;
+        }
+
+        &:focus-visible {
+          outline: 1px dotted #000;
+        }
+
+        &::before {
+          background: #c6d6f0;
+          z-index: 1;
+        }
+      }
+
+      li::after,
+      summary::before {
+        content: '';
+        display: block;
+        position: absolute;
+        top: calc(var(--spacing) / 2 - var(--radius));
+        left: calc(var(--spacing) - var(--radius) - 1px);
+        width: calc(2 * var(--radius));
+        height: calc(2 * var(--radius));
+        border-radius: 50%;
+        background: #ddd;
+      }
+
+      details[open] {
+        min-width: 100%;
+      }
+
+      details[open] > summary::before {
+        background-position: calc(-2 * var(--radius)) 0;
+      }
     }
   }
 }
