@@ -70,7 +70,16 @@ const TreeNode = ({ node, onFetchChildren }) => {
       </summary>
       <ul style={{ paddingTop: '5px', paddingLeft: '15px' }}>
         {children.map(child => (
-          <li key={child.id} className="child-tree">
+          <li
+            key={child.id}
+            className="child-tree"
+            onClick={() => {
+              const params = new URLSearchParams(window.location.search);
+              params.set('recordRef', `emodel/wiki@${child.id}`);
+              const newUrl = window.location.origin + window.location.pathname + '?' + params.toString();
+              window.history.pushState({ path: newUrl }, '', newUrl);
+            }}
+          >
             <TreeNode node={child} onFetchChildren={onFetchChildren} />
             <div className="tree-actions">
               <div className="ecos-hierarchical-tree-widget__structure__bnt-create" onClick={() => create(`emodel/wiki@${child.id}`)}>
@@ -226,7 +235,15 @@ const HierarchicalTreeWidget = () => {
         <div className="ecos-hierarchical-tree-widget-body">
           <ul className="tree">
             {records.map(record => (
-              <li className="parent-tree">
+              <li
+                className="parent-tree"
+                onClick={() => {
+                  const params = new URLSearchParams(window.location.search);
+                  params.set('recordRef', `emodel/wiki@${record.id}`);
+                  const newUrl = window.location.origin + window.location.pathname + '?' + params.toString();
+                  window.history.pushState({ path: newUrl }, '', newUrl);
+                }}
+              >
                 <TreeNode key={record.id} node={record} onFetchChildren={fetchRecords} />
                 <div className="tree-actions">
                   <div className="ecos-hierarchical-tree-widget__structure__bnt-create" onClick={() => create(`emodel/wiki@${record.id}`)}>
