@@ -11,6 +11,7 @@
   margin: 0;
   background-color: white;
   border-radius: 12px;
+  color: #444444;
 
   &-header {
     display: flex;
@@ -60,17 +61,71 @@
 
       padding: 0 0 20px;
 
-      li {
-        display: flex;
-        flex-direction: row;
-        position: relative;
-        padding-bottom: 0.5rem;
-        padding-left: calc(2 * var(--spacing) - var(--radius) - 2px);
+      li.parent-tree {
+        margin-bottom: 5px;
+        margin-left: -10px;
 
         div.tree-actions {
           position: absolute;
+          height: 38px;
+          align-content: center;
           right: 0;
         }
+
+        details {
+          width: calc(100% + 25px);
+          margin-left: -25px;
+
+          summary {
+            width: 100%;
+            padding: 10px 25px;
+            background-color: #eef0f8;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+
+            &::before {
+              width: 8px;
+              height: 8px;
+              top: 16px;
+              border-right: 0.2em solid #767676;
+              border-top: 0.2em solid #767676;
+              border-radius: 0;
+              transform: rotate(45deg);
+              background: transparent;
+            }
+          }
+        }
+
+        &::after {
+          display: none !important;
+        }
+      }
+
+      li.child-tree {
+        details {
+          summary {
+            padding: 5px 20px;
+            background-color: white;
+            font-size: 12px;
+            font-weight: 300;
+
+            &::before {
+              display: none;
+            }
+          }
+        }
+
+        div.tree-actions {
+          height: 20px;
+        }
+      }
+
+      li {
+        display: flex;
+        position: relative;
+        flex-direction: row;
+        padding-left: calc(2 * var(--spacing) - var(--radius) + 3px);
 
         i.icon {
           font-size: 14px;
@@ -82,7 +137,8 @@
         padding-left: 0;
 
         li {
-          border-left: 2px dashed #ddd;
+          border-left: 2px dashed #c6d6f0;
+          border: hidden;
         }
 
         li:last-child {
@@ -93,12 +149,12 @@
           content: '';
           display: block;
           position: absolute;
-          top: calc(var(--spacing) / -2);
-          left: -2px;
+          top: calc(var(--spacing) / -4); // p
+          left: 3px;
           width: calc(var(--spacing) + 2px);
-          height: calc(var(--spacing) + 1px);
-          border: dashed #ddd;
-          border-width: 0 0 2px 2px;
+          height: calc(var(--spacing) + 4px);
+          border: dashed #c6d6f0;
+          border-width: 0 0 1px 1px;
         }
       }
 
@@ -130,12 +186,12 @@
         content: '';
         display: block;
         position: absolute;
-        top: calc(var(--spacing) / 2 - var(--radius));
-        left: calc(var(--spacing) - var(--radius) - 1px);
+        top: calc(var(--spacing) / 1.05 - var(--radius));
+        left: calc(var(--spacing) - var(--radius) + 3px);
         width: calc(2 * var(--radius));
         height: calc(2 * var(--radius));
         border-radius: 50%;
-        background: #ddd;
+        background: #c6d6f0;
       }
 
       details[open] {
@@ -143,7 +199,7 @@
       }
 
       details[open] > summary::before {
-        background-position: calc(-2 * var(--radius)) 0;
+        background-position: calc(-4 * var(--radius)) 0;
       }
     }
   }

@@ -61,14 +61,16 @@ const TreeNode = ({ node, onFetchChildren }) => {
     <details open={isOpen}>
       <summary
         onClick={e => {
+          e.preventDefault();
+
           setIsOpen(!isOpen);
         }}
       >
         {node.name}
       </summary>
-      <ul style={{ paddingTop: '5px', paddingLeft: '20px' }}>
+      <ul style={{ paddingTop: '5px', paddingLeft: '15px' }}>
         {children.map(child => (
-          <li key={child.id}>
+          <li key={child.id} className="child-tree">
             <TreeNode node={child} onFetchChildren={onFetchChildren} />
             <div className="tree-actions">
               <div className="ecos-hierarchical-tree-widget__structure__bnt-create" onClick={() => create(`emodel/wiki@${child.id}`)}>
@@ -225,7 +227,7 @@ const HierarchicalTreeWidget = () => {
         <div className="ecos-hierarchical-tree-widget-body">
           <ul className="tree">
             {records.map(record => (
-              <li>
+              <li className="parent-tree">
                 <TreeNode key={record.id} node={record} onFetchChildren={fetchRecords} />
                 <div className="tree-actions">
                   <div className="ecos-hierarchical-tree-widget__structure__bnt-create" onClick={() => create(`emodel/wiki@${record.id}`)}>
