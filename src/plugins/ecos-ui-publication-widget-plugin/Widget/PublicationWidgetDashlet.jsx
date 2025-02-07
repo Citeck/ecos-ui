@@ -9,7 +9,6 @@ import FormManager from '../../../components/EcosForm/FormManager';
 import BaseWidget from '../../../components/widgets/BaseWidget';
 import DAction from '../../../services/DashletActionService';
 import { getCurrentLocale, t } from '../../../helpers/util';
-import { getRecordRef } from '../../../helpers/urls';
 import { getStateId } from '../../../helpers/redux';
 
 import './style.scss';
@@ -24,9 +23,8 @@ class PublicationWidgetDashlet extends BaseWidget {
     };
 
     this.stateId = getStateId(props);
-    this.recordRefFromUrl = getRecordRef() || '';
 
-    this.observableFieldsToUpdate = [...new Set([...this.observableFieldsToUpdate, 'id', 'title?str', 'text?str'])];
+    this.observableFieldsToUpdate = [...new Set([...this.observableFieldsToUpdate, 'title?str', 'text?str'])];
   }
 
   componentDidMount() {
@@ -35,8 +33,16 @@ class PublicationWidgetDashlet extends BaseWidget {
     this.fetchPublication();
   }
 
+  componentDidUpdate(prevProps) {
+    const { record } = this.props;
+
+    if (prevProps.record !== record) {
+      this.fetchPublication();
+    }
+  }
+
   fetchPublication() {
-    const recordRef = this.recordRefFromUrl;
+    const { record: recordRef } = this.props;
 
     return Records.get(recordRef)
       .load({
@@ -79,8 +85,10 @@ class PublicationWidgetDashlet extends BaseWidget {
   }
 
   toggleEdit = () => {
+    const { record: recordRef } = this.props;
+
     FormManager.openFormModal({
-      record: this.recordRefFromUrl,
+      record: recordRef,
       saveOnSubmit: true,
       onSubmit: () => this.reload()
     });

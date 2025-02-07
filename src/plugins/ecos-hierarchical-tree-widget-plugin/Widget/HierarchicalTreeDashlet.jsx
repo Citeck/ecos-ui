@@ -6,7 +6,7 @@ import FormManager from '../../../components/EcosForm/FormManager';
 import Records from '../../../components/Records';
 import { Icon, Tooltip } from '../../../components/common';
 import { Btn } from '../../../components/common/btns';
-import { getWorkspaceId } from '../../../helpers/urls';
+import { getWorkspaceId, updateCurrentUrl } from '../../../helpers/urls';
 import { isMobileDevice, t } from '../../../helpers/util';
 
 import './style.scss';
@@ -73,11 +73,12 @@ const TreeNode = ({ node, onFetchChildren }) => {
           <li
             key={child.id}
             className="child-tree"
-            onClick={() => {
-              const params = new URLSearchParams(window.location.search);
-              params.set('recordRef', `emodel/wiki@${child.id}`);
-              const newUrl = window.location.origin + window.location.pathname + '?' + params.toString();
-              window.history.pushState({ path: newUrl }, '', newUrl);
+            onClick={e => {
+              e.stopPropagation();
+
+              updateCurrentUrl({
+                recordRef: `emodel/wiki@${child.id}`
+              });
             }}
           >
             <TreeNode node={child} onFetchChildren={onFetchChildren} />
@@ -236,11 +237,12 @@ const HierarchicalTreeWidget = () => {
             {records.map(record => (
               <li
                 className="parent-tree"
-                onClick={() => {
-                  const params = new URLSearchParams(window.location.search);
-                  params.set('recordRef', `emodel/wiki@${record.id}`);
-                  const newUrl = window.location.origin + window.location.pathname + '?' + params.toString();
-                  window.history.pushState({ path: newUrl }, '', newUrl);
+                onClick={e => {
+                  e.stopPropagation();
+
+                  updateCurrentUrl({
+                    recordRef: `emodel/wiki@${record.id}`
+                  });
                 }}
               >
                 <TreeNode key={record.id} node={record} onFetchChildren={fetchRecords} />
