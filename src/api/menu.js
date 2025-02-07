@@ -375,7 +375,7 @@ export class MenuApi extends CommonApi {
 }
 
 async function fetchExtraItemInfo(data = [], attributes) {
-  const { JOURNAL, KANBAN, DOCLIB, LINK_CREATE_CASE, EDIT_RECORD, START_WORKFLOW } = ms.ItemTypes;
+  const { JOURNAL, KANBAN, DOCLIB, LINK_CREATE_CASE, EDIT_RECORD, START_WORKFLOW, PREVIEW_LIST } = ms.ItemTypes;
 
   return Promise.all(
     data.map(async item => {
@@ -384,7 +384,7 @@ async function fetchExtraItemInfo(data = [], attributes) {
       let attrs = isFunction(attributes) ? attributes(item) : attributes;
       let ref = lodashGet(item, 'config.recordRef') || lodashGet(item, 'config.sectionId') || lodashGet(item, 'config.processDef');
 
-      if (attrs && ref && [JOURNAL, KANBAN, DOCLIB, EDIT_RECORD, START_WORKFLOW].includes(item.type)) {
+      if (attrs && ref && [JOURNAL, KANBAN, DOCLIB, PREVIEW_LIST, EDIT_RECORD, START_WORKFLOW].includes(item.type)) {
         ref = ref.replace('/journal@', '/rjournal@');
         ref = ref.replace('/journal_all@', '/rjournal@');
         target._remoteData_ = await Records.get(ref).load(attrs);

@@ -75,7 +75,7 @@ export default class BaseEditorMenu extends React.Component {
   handleChooseOption(editItemInfo = {}) {
     const itemInfoType = get(editItemInfo, 'type.key');
 
-    if (itemInfoType === ms.ItemTypes.JOURNAL) {
+    if (itemInfoType === ms.ItemTypes.JOURNAL || itemInfoType === ms.ItemTypes.PREVIEW_LIST) {
       this.setState({
         editItemInfo: {
           ...editItemInfo,

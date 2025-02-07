@@ -50,6 +50,7 @@ export default class EditorItem extends React.Component {
       }
       case MS.ItemTypes.JOURNAL:
       case MS.ItemTypes.KANBAN:
+      case MS.ItemTypes.PREVIEW_LIST:
       case MS.ItemTypes.DOCLIB: {
         const { onSave, onClose, journalId, presetFilterPredicates } = this.props;
 
