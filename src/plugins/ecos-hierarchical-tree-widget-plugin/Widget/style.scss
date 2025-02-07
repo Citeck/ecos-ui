@@ -101,6 +101,12 @@
           }
         }
 
+        &:hover {
+          & > div.tree-actions {
+            display: block;
+          }
+        }
+
         &::after {
           display: none !important;
         }
@@ -120,6 +126,12 @@
           }
         }
 
+        &:hover {
+          div.tree-actions {
+            display: block;
+          }
+        }
+
         div.tree-actions {
           height: 20px;
         }
@@ -131,6 +143,14 @@
         flex-direction: row;
         padding-left: calc(2 * var(--spacing) - var(--radius) + 3px);
 
+        div.tree-actions {
+          display: none;
+
+          i {
+            cursor: pointer;
+          }
+        }
+
         i.icon {
           font-size: 14px;
         }
@@ -139,11 +159,6 @@
       ul {
         margin-left: calc(var(--radius) - var(--spacing));
         padding-left: 0;
-
-        li {
-          border-left: 2px dashed #c6d6f0;
-          border: hidden;
-        }
 
         li:last-child {
           border-color: transparent;

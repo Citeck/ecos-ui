@@ -115,6 +115,10 @@ export class DashboardApi {
       record.att('scope', 'orgstructure');
     }
 
+    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+      record.att('workspace', getWorkspaceId());
+    }
+
     return record.save().then(response => {
       cache.clear();
       return response;
