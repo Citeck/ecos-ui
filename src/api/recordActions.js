@@ -16,6 +16,10 @@ export class RecordActionsApi extends CommonApi {
     }
   };
 
+  getActionProps = ({ action }) => {
+    return recordActions.getActionProps(action);
+  };
+
   executeAction = ({ records, action, context }) => {
     let result;
     if (Array.isArray(records)) {

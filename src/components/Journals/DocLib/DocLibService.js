@@ -11,7 +11,7 @@ import EcosFormUtils from '../../../components/EcosForm/EcosFormUtils';
 import docLibApi from './DocLibServiceApi';
 import Records from '../../Records';
 
-const CREATE_VARIANTS_ATT = 'createVariants[]{id,name,typeRef?id,formRef?id,attributes?json}!';
+const CREATE_VARIANTS_ATT = 'createVariants[]{id,name,typeRef?id,formRef?id,attributes?json,postActionRef?id}!';
 
 /**
  * Service to work with document library.
