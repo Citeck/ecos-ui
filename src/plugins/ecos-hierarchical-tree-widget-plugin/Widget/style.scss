@@ -56,8 +56,8 @@
     list-style-type: none;
 
     ul.tree {
-      --spacing: 1rem;
-      --radius: 2px;
+      $spacing: 1rem;
+      $radius: 2px;
 
       padding: 0 0 20px;
 
@@ -141,7 +141,7 @@
         display: flex;
         position: relative;
         flex-direction: row;
-        padding-left: calc(2 * var(--spacing) - var(--radius) + 3px);
+        padding-left: calc(2 * $spacing - $radius + 3px);
 
         div.tree-actions {
           display: none;
@@ -157,7 +157,7 @@
       }
 
       ul {
-        margin-left: calc(var(--radius) - var(--spacing));
+        margin-left: calc($radius - $spacing);
         padding-left: 0;
 
         li:last-child {
@@ -168,10 +168,10 @@
           content: '';
           display: block;
           position: absolute;
-          top: calc(var(--spacing) / -4); // p
+          top: calc($spacing / -4); // p
           left: 3px;
-          width: calc(var(--spacing) + 2px);
-          height: calc(var(--spacing) + 4px);
+          width: calc($spacing + 2px);
+          height: calc($spacing + 4px);
           border: dashed #c6d6f0;
           border-width: 0 0 1px 1px;
         }
@@ -205,10 +205,10 @@
         content: '';
         display: block;
         position: absolute;
-        top: calc(var(--spacing) / 1.05 - var(--radius));
-        left: calc(var(--spacing) - var(--radius) + 3px);
-        width: calc(2 * var(--radius));
-        height: calc(2 * var(--radius));
+        top: calc($spacing / 1.05 - $radius);
+        left: calc($spacing - $radius + 3px);
+        width: calc(2 * $radius);
+        height: calc(2 * $radius);
         border-radius: 50%;
         background: #c6d6f0;
       }
@@ -218,7 +218,7 @@
       }
 
       details[open] > summary::before {
-        background-position: calc(-4 * var(--radius)) 0;
+        background-position: calc(-4 * $radius) 0;
       }
     }
   }
