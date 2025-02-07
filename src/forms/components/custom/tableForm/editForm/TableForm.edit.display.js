@@ -31,6 +31,17 @@ export default [
     defaultValue: false
   },
   {
+    type: 'mlText',
+    input: true,
+    key: 'customButtonName',
+    label: {
+      ru: 'Пользовательское название кнопки',
+      en: 'Custom button name'
+    },
+    weight: 18,
+    defaultValue: ''
+  },
+  {
     type: 'textfield',
     input: true,
     key: 'customStringForConcatWithStaticTitle',

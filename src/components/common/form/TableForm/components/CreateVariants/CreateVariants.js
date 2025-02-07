@@ -5,12 +5,12 @@ import get from 'lodash/get';
 import { Btn, IcoBtn } from '../../../../../common/btns';
 import Dropdown from '../../../Dropdown/Dropdown';
 import { TableFormContext } from '../../TableFormContext';
-import { t } from '../../../../../../helpers/util';
+import { getMLValue, t } from '../../../../../../helpers/util';
 
 const CreateVariants = () => {
   const context = useContext(TableFormContext);
 
-  const { disabled, multiple, viewOnly, displayElements } = context.controlProps;
+  const { disabled, multiple, viewOnly, displayElements, customButtonName } = context.controlProps;
   const { showCreateForm, createVariants = [], gridRows } = context;
 
   const shouldShowCreateButton = isBoolean(get(displayElements, 'create')) ? displayElements.create : true;
@@ -53,7 +53,7 @@ const CreateVariants = () => {
 
       createButton = (
         <Btn className={buttonClasses} onClick={onClick} disabled={isButtonDisabled}>
-          {t('ecos-table-form.create-button')}
+          {getMLValue(customButtonName) || t('ecos-table-form.create-button')}
         </Btn>
       );
     } else {
@@ -64,7 +64,7 @@ const CreateVariants = () => {
       createButton = (
         <Dropdown source={variantsToRender} valueField={'createVariantKey'} titleField={'label'} isStatic onChange={onSelect}>
           <IcoBtn invert icon="icon-small-down" className={classNames('btn_drop-down btn_r_8 btn_blue', buttonClasses)}>
-            {t('ecos-table-form.create-button')}
+            {getMLValue(customButtonName) || t('ecos-table-form.create-button')}
           </IcoBtn>
         </Dropdown>
       );
