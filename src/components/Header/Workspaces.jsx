@@ -139,6 +139,13 @@ const Workspaces = ({ isLoading, isError, workspaces, getWorkspaces, visitedActi
 
                 FormManager.createRecordByVariant(variant, {
                   onHideModal: () => getWorkspaces(),
+                  onSubmit: async record => {
+                    const { id: wsId, homePageLink } = await Records.get(record).load({
+                      id: 'id',
+                      homePageLink: 'homePageLink?str'
+                    });
+                    openLink(wsId, homePageLink);
+                  },
                   initiator: {
                     type: 'form-component',
                     name: 'CreateVariants'

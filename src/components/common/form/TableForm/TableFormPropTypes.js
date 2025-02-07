@@ -21,7 +21,7 @@ export default {
   placeholder: PropTypes.string,
   disabled: PropTypes.bool,
   isStaticModalTitle: PropTypes.bool,
-  customButtonName: PropTypes.string,
+  customButtonName: PropTypes.object,
   customStringForConcatWithStaticTitle: PropTypes.string,
   onChange: PropTypes.func,
   isSelectableRows: PropTypes.bool,

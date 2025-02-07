@@ -69,7 +69,7 @@ export default class TableFormComponent extends BaseReactComponent {
         triggerEventOnChange: false,
         isInstantClone: false,
         defaultValue: [],
-        customButtonName: '',
+        customButtonName: {},
         noHorizontalScroll: false
       },
       ...extend
