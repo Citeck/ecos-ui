@@ -2757,5 +2757,8 @@
   "workspaces.error-blocked.action.msg": "Go to the homepage",
 
   "publication.creator.name": "Created by",
-  "publication.modifier.name": ", Modified by"
+  "publication.modifier.name": ", Modified by",
+
+  "hierarchical-tree-widget.title": "Add publication",
+  "hierarchical-tree-widget.create": "Add publication"
 }

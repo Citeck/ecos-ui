@@ -2756,5 +2756,8 @@
   "workspaces.error-blocked.action.msg": "Перейти на домашнюю страницу",
 
   "publication.creator.name": "Создал (а)",
-  "publication.modifier.name": ", Обновил (а)"
+  "publication.modifier.name": ", Обновил (а)",
+
+  "hierarchical-tree-widget.title": "Добавить публикацию",
+  "hierarchical-tree-widget.create": "Добавить публикацию"
 }

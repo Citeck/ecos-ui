@@ -12,8 +12,8 @@ import { isMobileDevice, t } from '../../../helpers/util';
 import './style.scss';
 
 const Labels = {
-  TITLE: 'hierarchical-tree-widget-title',
-  ADD_GROUP: 'hierarchical-tree-widget-create'
+  TITLE: 'hierarchical-tree-widget.title',
+  ADD_GROUP: 'hierarchical-tree-widget.create'
 };
 
 const tooltipId = 'create-tree-node-button';
