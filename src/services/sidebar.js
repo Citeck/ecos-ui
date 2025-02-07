@@ -283,6 +283,16 @@ export default class SidebarService {
         }
         ignoreTabHandler = false;
         break;
+      case MenuItemsTypes.PREVIEW_LIST:
+        if (get(item, 'params.journalId')) {
+          targetUrl = getJournalPageUrl({
+            journalsListId: get(item, 'params.journalsListId'),
+            journalId: get(item, 'params.journalId'),
+            viewMode: JOURNAL_VIEW_MODE.PREVIEW_LIST
+          });
+        }
+        ignoreTabHandler = false;
+        break;
       case MenuItemsTypes.JOURNAL:
         if (get(item, 'params.journalId')) {
           targetUrl = getJournalPageUrl({

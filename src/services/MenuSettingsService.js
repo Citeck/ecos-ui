@@ -92,7 +92,11 @@ export default class MenuSettingsService {
     const { level, configType } = params || {};
 
     return {
-      editable: knownType && ![ms.ItemTypes.JOURNAL, ms.ItemTypes.KANBAN, ms.ItemTypes.DOCLIB, ms.ItemTypes.DASHBOARD].includes(item.type),
+      editable:
+        knownType &&
+        ![ms.ItemTypes.JOURNAL, ms.ItemTypes.KANBAN, ms.ItemTypes.DOCLIB, ms.ItemTypes.PREVIEW_LIST, ms.ItemTypes.DASHBOARD].includes(
+          item.type
+        ),
       draggable: knownType && ![].includes(item.type),
       removable: ![].includes(item.type),
       hideable: ![].includes(item.type),
@@ -183,6 +187,7 @@ export default class MenuSettingsService {
     { ...CreateOptions.DASHBOARD, when: { minLevel: 0 } },
     { ...CreateOptions.WIKI, when: { minLevel: 0 } },
     { ...CreateOptions.DOCLIB, when: { minLevel: 0 } },
+    { ...CreateOptions.PREVIEW_LIST, when: { minLevel: 0 } },
     { ...CreateOptions.ARBITRARY, when: { minLevel: 0 } },
     { ...CreateOptions.LINK_CREATE_CASE, when: { minLevel: 0 } },
     { ...CreateOptions.START_WORKFLOW, when: { minLevel: 0 } }
