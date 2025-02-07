@@ -197,7 +197,7 @@ class Tooltip extends Component {
       return null;
     }
 
-    if (showAsNeeded && element) {
+    if (showAsNeeded && element && element.clientWidth && element.clientHeight) {
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d');
       const styles = window.getComputedStyle(element, null);
