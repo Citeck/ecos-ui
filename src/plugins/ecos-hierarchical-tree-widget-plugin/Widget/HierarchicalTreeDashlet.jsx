@@ -19,7 +19,7 @@ const Labels = {
 const tooltipId = 'create-tree-node-button';
 
 const TreeNode = ({ node, onFetchChildren }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(get(node, 'children.length', 0));
   const [children, setChildren] = useState(node.children || []);
 
   const create = parent => {
