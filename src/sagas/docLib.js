@@ -443,7 +443,7 @@ function* checkUniqueNameNode({ api, logger, stateId, w }, { submission, nodeTyp
     }
 
     let currentItemTitle;
-    const nameItem = get(submission, 'name')?.trim();
+    const nameItem = get(submission, 'name')?.trim() || get(submission, '_disp')?.trim();
     const originalNameItem = get(submission, '_content[0].originalName') || get(submission, '_content[0].name');
 
     if (nameItem && originalNameItem && nodeType === NODE_TYPES.FILE) {
@@ -528,7 +528,7 @@ export function* sagaCreateNode({ api, logger, stateId, w }, action) {
 
     const rootId = yield select(state => selectDocLibRootId(state, stateId));
     const currentFolderId = yield select(state => selectDocLibFolderId(state, stateId));
-    const typeRef = createVariant.destination;
+    const typeRef = createVariant.typeRef;
 
     const createChildResult = yield call(DocLibService.createChild, rootId, currentFolderId, typeRef, submission, currentItemTitle);
     const newRecord = yield call(DocLibService.loadNode, createChildResult.id);
