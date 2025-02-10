@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import classNames from 'classnames';
 import isFunction from 'lodash/isFunction';
 import get from 'lodash/get';
 
@@ -18,7 +19,7 @@ const Labels = {
 
 const tooltipId = 'create-tree-node-button';
 
-const TreeNode = ({ node, onFetchChildren }) => {
+const TreeNode = ({ node, recordRef, onFetchChildren }) => {
   const [isOpen, setIsOpen] = useState(get(node, 'children.length', 0));
   const [children, setChildren] = useState(node.children || []);
 
@@ -72,7 +73,9 @@ const TreeNode = ({ node, onFetchChildren }) => {
         {children.map(child => (
           <li
             key={child.id}
-            className="child-tree"
+            className={classNames('child-tree', {
+              'child-tree__active': recordRef && recordRef.includes(child.id)
+            })}
             onClick={e => {
               e.stopPropagation();
 
@@ -94,7 +97,7 @@ const TreeNode = ({ node, onFetchChildren }) => {
   );
 };
 
-const HierarchicalTreeWidget = () => {
+const HierarchicalTreeWidget = ({ record: recordRef }) => {
   const [records, setRecords] = useState([]);
 
   useEffect(() => {
@@ -236,7 +239,9 @@ const HierarchicalTreeWidget = () => {
           <ul className="tree">
             {records.map(record => (
               <li
-                className="parent-tree"
+                className={classNames('parent-tree', {
+                  'parent-tree__active': recordRef && recordRef.includes(record.id)
+                })}
                 onClick={e => {
                   e.stopPropagation();
 
@@ -245,7 +250,7 @@ const HierarchicalTreeWidget = () => {
                   });
                 }}
               >
-                <TreeNode key={record.id} node={record} onFetchChildren={fetchRecords} />
+                <TreeNode key={record.id} recordRef={recordRef} node={record} onFetchChildren={fetchRecords} />
                 <div className="tree-actions">
                   <div className="ecos-hierarchical-tree-widget__structure__bnt-create" onClick={() => create(`emodel/wiki@${record.id}`)}>
                     <Icon className="icon-plus" />

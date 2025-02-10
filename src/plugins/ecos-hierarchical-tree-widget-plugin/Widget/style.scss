@@ -101,6 +101,13 @@
           }
         }
 
+        &__active {
+          & > details > summary {
+            font-weight: 800;
+            color: #4b75b7;
+          }
+        }
+
         &:hover {
           & > div.tree-actions {
             display: block;
@@ -123,6 +130,13 @@
             &::before {
               display: none;
             }
+          }
+        }
+
+        &__active {
+          & > details > summary {
+            font-weight: 800;
+            color: #4b75b7;
           }
         }
 
