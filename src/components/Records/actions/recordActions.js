@@ -24,6 +24,7 @@ import ActionsExecutor from './handler/ActionsExecutor';
 import ActionsResolver from './handler/ActionsResolver';
 import RecordActionsResolver from './handler/RecordActionsResolver';
 import RecordsIterator from './RecordsIterator';
+import { SourcesId } from '../../../constants';
 
 const ACTION_CONTEXT_KEY = '__act_ctx__';
 
@@ -364,6 +365,18 @@ class RecordActions {
     const resolvedActions = await this.getActionsForRecords([recordRef], actions, context);
 
     return get(resolvedActions, ['forRecord', recordRef]) || [];
+  }
+
+  async getActionProps(actionIdOrRef) {
+    let actionRef = actionIdOrRef;
+    if (actionRef.indexOf(SourcesId.ACTION) !== 0) {
+      actionRef = SourcesId.ACTION + '@' + actionRef;
+    }
+    let actionProps = await Records.get(actionRef).load('?json');
+    if (actionProps == null) {
+      throw new Error('Action is not found: ' + actionIdOrRef);
+    }
+    return this.getActionInfo(actionProps);
   }
 
   /**

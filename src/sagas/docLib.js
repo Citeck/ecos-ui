@@ -78,6 +78,8 @@ import JournalsService from '../components/Journals/service/journalsService';
 import DocLibConverter from '../dto/docLib';
 import JournalsConverter from '../dto/journals';
 
+const DOCLIB_INNER_DOC_ID_REGEX = /^emodel\/doclib@.+\$(.+)$/;
+
 export function* sagaGetTypeRef({ logger, stateId, w }, action) {
   try {
     const { journalId } = action.payload;
@@ -541,7 +543,15 @@ export function* sagaCreateNode({ api, logger, stateId, w }, action) {
       yield put(addSidebarItems(w([...newChildren, { id: currentFolderId, hasChildren: true }])));
       yield put(unfoldSidebarItem(w(currentFolderId)));
     } else {
-      // Cause: https://jira.citeck.ru/browse/ECOSUI-3137
+      if (createVariant.postActionRef) {
+        const actionProps = yield call(api.recordActions.getActionProps, { action: createVariant.postActionRef });
+        let recordId = createChildResult.id;
+        const recordIdParts = DOCLIB_INNER_DOC_ID_REGEX.exec(createChildResult.id);
+        if (recordIdParts) {
+          recordId = recordIdParts[1];
+        }
+        yield call(api.recordActions.executeAction, { records: recordId, action: actionProps });
+      }
       yield put(loadFilesViewerData(w()));
       // const localDobLibRecordRef = newRecord.id.substring(newRecord.id.indexOf('$') + 1);
       // yield call(goToCardDetailsPage, localDobLibRecordRef);
