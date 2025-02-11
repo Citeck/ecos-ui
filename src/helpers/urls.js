@@ -6,7 +6,7 @@ import pick from 'lodash/pick';
 import omit from 'lodash/omit';
 import isArray from 'lodash/isArray';
 
-import { JournalUrlParams, SourcesId, URL as Urls } from '../constants';
+import { JournalUrlParams, KanbanUrlParams, SourcesId, URL as Urls } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
 import { ParserPredicate } from '../components/Filters/predicates/index';
 import PageTabList from '../services/pageTabs/PageTabList';
@@ -19,6 +19,7 @@ const DASHBOARD_ID_KEY = 'dashboardId';
 const DASHBOARD_KEY_KEY = 'dashboardKey';
 const RECORD_REF_KEY = JournalUrlParams.RECORD_REF;
 const JOURNAL_SETTING_ID_KEY = JournalUrlParams.JOURNAL_SETTING_ID;
+const KANBAN_BOARD_ID = KanbanUrlParams.BOARD_ID;
 const TYPE_KEY = 'type';
 const DESTINATION_KEY = 'destination';
 const VIEW_MODE = 'viewMode';
@@ -132,15 +133,19 @@ export const getFilterParam = options => {
   return ParserPredicate.getRowPredicates(options);
 };
 
-export const getJournalPageUrl = ({ journalId, journalSettingId, filter, search, viewMode }) => {
-  const qString = queryString.stringify({
+export const getJournalPageUrl = ({ journalId, journalSettingId, boardId, filter, search, viewMode }) => {
+  let params = {
     [JOURNAL_ID_KEY]: journalId,
     [JOURNAL_SETTING_ID_KEY]: filter ? undefined : journalSettingId,
     [SEARCH_KEY]: search || filter,
     [VIEW_MODE]: viewMode
-  });
+  };
 
-  return `${Urls.JOURNAL}?${qString}`;
+  if (boardId) {
+    params = { ...params, [KANBAN_BOARD_ID]: boardId };
+  }
+
+  return `${Urls.JOURNAL}?${queryString.stringify(params)}`;
 };
 
 function getValidNodeRef(nodeRef) {

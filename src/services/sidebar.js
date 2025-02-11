@@ -261,11 +261,19 @@ export default class SidebarService {
         break;
       case MenuItemsTypes.KANBAN:
         if (get(item, 'params.journalId')) {
-          targetUrl = getJournalPageUrl({
+          let kanbanParams = {
             journalsListId: get(item, 'params.journalsListId'),
             journalId: get(item, 'params.journalId'),
             viewMode: JOURNAL_VIEW_MODE.KANBAN
-          });
+          };
+
+          const boardId = get(item, 'config.recordRef', '');
+
+          if (boardId) {
+            kanbanParams = { ...kanbanParams, boardId: boardId };
+          }
+
+          targetUrl = getJournalPageUrl(kanbanParams);
         }
         ignoreTabHandler = false;
         break;
