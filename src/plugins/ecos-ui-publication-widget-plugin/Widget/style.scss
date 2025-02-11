@@ -30,6 +30,10 @@
         }
       }
 
+      &-content {
+        overflow: hidden;
+      }
+
       .ecos-avatar__image {
         width: 38px;
         height: 38px;
