@@ -91,12 +91,12 @@
     "vanilla-text-mask": "5.1.1"
   },
   "scripts": {
-    "start": "npm-run-all clean export:dev start:react",
+    "start": "NODE_OPTIONS=--openssl-legacy-provider npm-run-all clean export:dev start:react",
     "start:react": "react-scripts --max_old_space_size=4096 start",
     "build": "cross-env REACT_APP_BUILD_TIME=$(date +%s) npm-run-all clean export build:src",
     "build:ci": "cross-env REACT_APP_BUILD_TIME=$(date +%s) npm-run-all build:src",
     "build-win": "npm-run-all export-win build:src",
-    "build:src": "node --max_old_space_size=3000 node_modules/.bin/react-scripts build",
+    "build:src": "NODE_OPTIONS=--openssl-legacy-provider node --max_old_space_size=3000 node_modules/.bin/react-scripts build",
     "clean": "rimraf public/ecosui/export",
     "export": "cross-env NODE_ENV=production node --max_old_space_size=3000 node_modules/webpack/bin/webpack.js --config webpack.config.export.js",
     "export:dev": "cross-env NODE_ENV=development webpack --config webpack.config.export.js",
@@ -196,7 +196,7 @@
     "react-scripts@3.4.4": "patch:react-scripts@npm%3A3.4.4#./.yarn/patches/react-scripts-npm-3.4.4-c1da7c6209.patch"
   },
   "volta": {
-    "node": "14.21.3",
+    "node": "18.20.6",
     "yarn": "3.6.2"
   }
 }
