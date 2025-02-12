@@ -120,15 +120,20 @@ function* sagaPerformAction({ api, logger }, { payload }) {
 
     FormManager.createRecordByVariant(createVariant, {
       title: createVariant.formTitle,
-      onSubmit: record => {
+      onSubmit: (record, postCreateActionExecuted) => {
         switch (createVariant.afterSubmit) {
           case 'reload':
             window.location.reload();
             break;
+          case 'open-card':
+            goToCardDetailsPage(record.id);
+            break;
           case 'none':
             break;
           default:
-            goToCardDetailsPage(record.id);
+            if (!postCreateActionExecuted) {
+              goToCardDetailsPage(record.id);
+            }
         }
       }
     });

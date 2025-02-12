@@ -44,7 +44,13 @@ const mapDispatchToProps = (dispatch, props) => {
 class JournalsDashletToolbar extends Component {
   addRecord = createVariant => {
     FormManager.createRecordByVariant(createVariant, {
-      onSubmit: record => goToCardDetailsPage(record.id),
+      onSubmit: (record, postCreateActionExecuted) => {
+        if (!postCreateActionExecuted) {
+          goToCardDetailsPage(record.id);
+        } else {
+          this.props.handleReload && this.props.handleReload();
+        }
+      },
       initiator: {
         type: 'dashboard-journal-widget',
         dashboardRecordRef: this.props.recordRef
