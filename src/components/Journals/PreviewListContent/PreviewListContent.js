@@ -7,7 +7,6 @@ import moment from 'moment';
 
 import Clock from '../../common/icons/Clock';
 import NoData from '../../common/icons/NoData';
-import { t } from '../../../helpers/export/util';
 import { URL } from '../../../constants';
 import { Wall } from '../../common/form';
 import { Loader } from '../../common';
@@ -15,7 +14,7 @@ import { getLinkWithWs } from '../../../helpers/urls';
 import { selectIsViewNewJournal } from '../../../selectors/view';
 import { selectPreviewListProps } from '../../../selectors/previewList';
 import { PREVIEW_LIST_ASPECT_ATTRIBUTES } from '../../../api/previewList';
-import { stripHTML } from '../../../helpers/util';
+import { stripHTML, t } from '../../../helpers/util';
 
 import './PreviewListContent.scss';
 
