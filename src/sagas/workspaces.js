@@ -1,4 +1,4 @@
-import { call, put, takeLatest, takeEvery, select } from 'redux-saga/effects';
+import { call, put, takeLatest, takeEvery } from 'redux-saga/effects';
 import isBoolean from 'lodash/isBoolean';
 import get from 'lodash/get';
 
@@ -11,7 +11,7 @@ import {
   updateUIWorkspace,
   visitedAction
 } from '../actions/workspaces';
-import { getLinkWithWs, getWsIdOfTabLink } from '../helpers/urls';
+import { getLinkWithWs, getPersonalWorkspaceId, getWsIdOfTabLink } from '../helpers/urls';
 import PageService from '../services/PageService';
 import { URL } from '../constants';
 import { fetchSlideMenuItems } from '../actions/slideMenu';
@@ -72,8 +72,7 @@ function* sagaVisitedActionRequest({ api, logger }, { payload }) {
 
 function* sagaGoToDefaultFromBlockedWs({ logger }) {
   try {
-    const defaultWorkspace = yield select(state => get(state, ['workspaces', 'defaultWorkspace']));
-    const newUrl = getLinkWithWs(URL.DASHBOARD, defaultWorkspace);
+    const newUrl = getLinkWithWs(URL.DASHBOARD, getPersonalWorkspaceId());
 
     yield put(setBlockedCurrenWorkspace(false));
 
