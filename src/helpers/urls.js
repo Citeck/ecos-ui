@@ -435,6 +435,8 @@ export const getWorkspaceId = (defaultWorkspace = '', search = window.location.s
   return defaultWorkspace || `user$${getCurrentUserName()}`;
 };
 
+export const getPersonalWorkspaceId = () => `user$${getCurrentUserName()}`;
+
 if (!window.Citeck) {
   window.Citeck = {};
 }
