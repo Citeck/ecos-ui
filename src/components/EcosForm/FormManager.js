@@ -3,9 +3,11 @@ import ReactDOM from 'react-dom';
 import isFunction from 'lodash/isFunction';
 
 import Modal from '../common/EcosModal/CiteckEcosModal';
+import recordActions from '../../components/Records/actions';
 import EcosFormUtils from './EcosFormUtils';
 import EcosFormModal from './EcosFormModal';
 import EcosForm from './EcosForm';
+import logger from '../../services/logger';
 import { getId } from '../../helpers/util';
 
 class FormManager {
@@ -59,6 +61,28 @@ class FormManager {
 
     if (EcosFormUtils.isFormId(formId)) {
       props.formId = formId;
+    }
+
+    const baseOnSubmit = props.onSubmit || (() => {});
+    if (variant.postActionRef) {
+      props.onSubmit = async record => {
+        let actionProps = null;
+        try {
+          actionProps = await recordActions.getActionProps(variant.postActionRef);
+          await recordActions.execForRecord(record, actionProps);
+          return baseOnSubmit(record, true);
+        } catch (error) {
+          logger.error(
+            'Error occurred while post-create action execution. ' + 'ActionRef: ' + variant.postActionRef + ' Record: ' + record.id,
+            error
+          );
+          return baseOnSubmit(record, false);
+        }
+      };
+    } else {
+      props.onSubmit = record => {
+        return baseOnSubmit(record, false);
+      };
     }
 
     return this.openFormModal(props);

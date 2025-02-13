@@ -84,7 +84,13 @@ class Bar extends Component {
     this.setState({ isCreateLoading: true });
 
     FormManager.createRecordByVariant(createVariant, {
-      onSubmit: record => goToCardDetailsPage(record.id),
+      onSubmit: (record, postCreateActionExecuted) => {
+        if (!postCreateActionExecuted) {
+          goToCardDetailsPage(record.id);
+        } else {
+          this.handleRefresh();
+        }
+      },
       onReady: () => this.setState({ isCreateLoading: false }),
       onAfterHideModal: () => this.setState({ isCreateLoading: false })
     });

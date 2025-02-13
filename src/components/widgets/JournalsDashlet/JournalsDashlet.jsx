@@ -264,6 +264,7 @@ class JournalsDashlet extends BaseWidget {
           forwardRef={this.setToolbarRef}
           stateId={stateId}
           isSmall={isSmall}
+          handleReload={this.handleReload}
           onChangeSelectedJournal={this.handleChangeSelectedJournal}
         />
 
