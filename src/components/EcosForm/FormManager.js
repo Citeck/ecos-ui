@@ -73,7 +73,7 @@ class FormManager {
           return baseOnSubmit(record, true);
         } catch (error) {
           logger.error(
-            'Error occurred while post-create action execution. ' + 'ActionRef: ' + variant.postActionRef + ' Record: ' + record.id,
+            'Error occurred while post-create action execution. ActionRef: ' + variant.postActionRef + ' Record: ' + record.id,
             error
           );
           return baseOnSubmit(record, false);
