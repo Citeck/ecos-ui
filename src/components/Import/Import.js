@@ -37,7 +37,8 @@ const ATT_AUTHORITY_GROUPS = 'authorityGroups[]?json';
 const importFormId = 'import-data-form';
 const importFormRecord = 'integrations/import-data@';
 
-const importEndpointLink = `${process.env.REACT_APP_SHARE_PROXY_URL || ''}/gateway/integrations/api/import-data/download-template`;
+const basePathTemplates = '/gateway/integrations/api/import-data/download-template';
+const importEndpointLink = `${process.env.REACT_APP_SHARE_PROXY_URL || window.location.origin || ''}` + basePathTemplates;
 
 const StatusesUpdate = {
   RUNNING: 'RUNNING',
@@ -292,10 +293,13 @@ class Import extends Component {
     const { journalConfig = {} } = this.props;
 
     const params = { openNewBrowserTab: true };
+    const journalId = get(journalConfig, 'id');
     const journalType = get(journalConfig, 'typeRef');
 
-    if (journalType && variantId) {
-      PageService.changeUrlLink(`${importEndpointLink}?typeRef=${journalType}&variantId=${variantId}`, params);
+    const journalRef = SourcesId.JOURNAL + '@' + journalId;
+
+    if (journalType && variantId && journalId && journalRef) {
+      PageService.changeUrlLink(`${importEndpointLink}?typeRef=${journalType}&variantId=${variantId}&journalRef=${journalRef}`, params);
     }
   };
 
