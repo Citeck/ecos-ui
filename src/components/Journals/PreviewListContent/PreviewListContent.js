@@ -60,8 +60,8 @@ class PreviewListContent extends Component {
     const creatorLink = this.getLinkOfId(creatorId);
     const itemLink = this.getLinkOfId(itemId);
 
-    const title = item[previewListConfig[PREVIEW_LIST_ASPECT_ATTRIBUTES.title]] || t('preview-list.no-title');
-    const description = item[previewListConfig[PREVIEW_LIST_ASPECT_ATTRIBUTES.description]] || t('preview-list.no-description');
+    const title = get(item, get(previewListConfig, PREVIEW_LIST_ASPECT_ATTRIBUTES.title)) || t('preview-list.no-title');
+    const description = get(item, get(previewListConfig, PREVIEW_LIST_ASPECT_ATTRIBUTES.description)) || t('preview-list.no-description');
 
     return (
       <div className="citeck-preview-list-content__card" key={idx}>
