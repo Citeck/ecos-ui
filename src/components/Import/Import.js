@@ -7,6 +7,7 @@ import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import isBoolean from 'lodash/isBoolean';
 import isFunction from 'lodash/isFunction';
+import isArray from 'lodash/isArray';
 
 import { selectImportDataConfig, selectJournalConfig } from '../../selectors/journals';
 import { Dropdown } from '../common/form';
@@ -347,6 +348,11 @@ class Import extends Component {
     const allowVariants = get(variants, 'length')
       ? variants.filter(variant => {
           const allowedFor = get(variant, 'allowedFor', []);
+
+          if (isArray(allowedFor) && !allowedFor.length) {
+            return true; // All groups are allowed
+          }
+
           return allowedFor.some(
             allowed =>
               allowed &&
