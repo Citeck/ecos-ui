@@ -89,6 +89,10 @@ class DocLibService {
       }
     }
 
+    if (atts._disp && atts.name) {
+      delete atts._disp; // If there is a 'name' attribute, then '_disp' is not needed. They can be different
+    }
+
     return docLibApi.createChild(rootId, { attributes: atts });
   }
 
