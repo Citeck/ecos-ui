@@ -354,7 +354,7 @@ export default class SelectComponent extends BaseComponent {
           ...this.selectOptions,
           {
             value: '',
-            label: 'Loading...',
+            label: this.t('loading...'),
             disabled: true
           }
         ],
@@ -1131,7 +1131,7 @@ export default class SelectComponent extends BaseComponent {
       value = value ? [value] : [];
     }
     const hasPreviousValue = Array.isArray(previousValue) ? previousValue.length : previousValue;
-    const hasValue = Array.isArray(value) ? value.length : value;
+    const hasValue = Array.isArray(value) ? value.length : !_.isEmpty(value);
     const changed = this.hasChanged(value, previousValue);
     this.dataValue = value;
 
@@ -1196,7 +1196,6 @@ export default class SelectComponent extends BaseComponent {
       }
     }
 
-    this.updateOnChange(flags, changed);
     return changed;
   }
 
