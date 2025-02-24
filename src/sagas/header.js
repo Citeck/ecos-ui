@@ -1,7 +1,6 @@
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 import get from 'lodash/get';
 import set from 'lodash/set';
-import cloneDeep from 'lodash/cloneDeep';
 import isString from 'lodash/isString';
 
 import {
@@ -49,10 +48,11 @@ function* fetchUserMenu({ api, logger }) {
     const userData = yield select(state => state.user);
     const { userName, isDeputyAvailable: isAvailable } = userData || {};
     const isExternalIDP = yield call(api.app.getIsExternalIDP);
-    let config = (yield call(api.menu.getUserCustomMenuConfig, userName)) || {};
+    const config = (yield call(api.menu.getUserCustomMenuConfig, userName)) || {};
 
-    if (!config.items) config.items = [];
-    set(config, 'items', [...DefaultUserMenu, ...config.items]);
+    if (!config.items) {
+      set(config, 'items', DefaultUserMenu);
+    }
 
     const items = MenuConverter.getUserMenuItems(config.items, { isAvailable, isExternalIDP });
 

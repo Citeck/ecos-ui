@@ -3,7 +3,6 @@ import { call, put, select, takeLatest } from 'redux-saga/effects';
 import set from 'lodash/set';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-
 import { t } from '../helpers/util';
 import { ConfigTypes, GROUP_EVERYONE, MenuSettings as ms } from '../constants/menu';
 import MenuConverter from '../dto/menu';
@@ -95,7 +94,6 @@ function* runSaveMenuConfig({ api, logger }, action) {
     const newCreateItems = MenuConverter.getMenuItemsServer({ originalItems: get(result, 'menu.create.items'), items: createItems });
     const newUserMenuItems = MenuConverter.getMenuItemsServer({ originalItems: get(result, 'menu.user.items'), items: userMenuItems });
     const subMenu = {};
-    debugger;
 
     set(subMenu, 'left.items', newLeftItems);
     set(subMenu, 'create.items', newCreateItems);
