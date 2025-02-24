@@ -49,9 +49,10 @@ function* fetchUserMenu({ api, logger }) {
     const userData = yield select(state => state.user);
     const { userName, isDeputyAvailable: isAvailable } = userData || {};
     const isExternalIDP = yield call(api.app.getIsExternalIDP);
-    const config = (yield call(api.menu.getUserCustomMenuConfig, userName)) || {};
+    let config = (yield call(api.menu.getUserCustomMenuConfig, userName)) || {};
 
-    set(config, 'items', cloneDeep(DefaultUserMenu));
+    if (!config.items) config.items = [];
+    set(config, 'items', [...DefaultUserMenu, ...config.items]);
 
     const items = MenuConverter.getUserMenuItems(config.items, { isAvailable, isExternalIDP });
 

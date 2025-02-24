@@ -95,6 +95,7 @@ function* runSaveMenuConfig({ api, logger }, action) {
     const newCreateItems = MenuConverter.getMenuItemsServer({ originalItems: get(result, 'menu.create.items'), items: createItems });
     const newUserMenuItems = MenuConverter.getMenuItemsServer({ originalItems: get(result, 'menu.user.items'), items: userMenuItems });
     const subMenu = {};
+    debugger;
 
     set(subMenu, 'left.items', newLeftItems);
     set(subMenu, 'create.items', newCreateItems);
