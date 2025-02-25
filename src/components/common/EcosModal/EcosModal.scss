@@ -3,6 +3,10 @@
 .ecos-modal {
   $eModal: &;
 
+  &_blur-bg {
+    backdrop-filter: blur(10px);
+  }
+
   &.modal-dialog {
     margin-bottom: 0;
   }

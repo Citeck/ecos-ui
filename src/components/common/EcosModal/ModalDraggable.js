@@ -339,7 +339,8 @@ class Modal extends React.Component {
         role,
         labelledBy,
         external,
-        innerRef
+        innerRef,
+        isblurbackground
       } = this.props;
 
       const modalAttributes = {
@@ -353,6 +354,7 @@ class Modal extends React.Component {
         tabIndex: '-1'
       };
 
+      const baseClass = isblurbackground ? 'ecos-modal_blur-bg' : '';
       const hasTransition = this.props.fade;
       const modalTransition = {
         ...Fade.defaultProps,
@@ -384,6 +386,7 @@ class Modal extends React.Component {
             <Fade
               {...modalAttributes}
               {...modalTransition}
+              baseClass={baseClass}
               in={isOpen}
               onEntered={this.onOpened}
               onExited={this.onClosed}

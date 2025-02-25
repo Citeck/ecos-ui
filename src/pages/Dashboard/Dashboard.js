@@ -12,9 +12,9 @@ import isNil from 'lodash/isNil';
 import { LoaderTypes, URL } from '../../constants';
 import { MenuTypes } from '../../constants/menu';
 import { DashboardTypes } from '../../constants/dashboard';
-import { isMobileAppWebView, t } from '../../helpers/util';
+import { getEnabledWorkspaces, isMobileAppWebView, t } from '../../helpers/util';
 import { showModalJson } from '../../helpers/tools';
-import { decodeLink, getSortedUrlParams, isDashboard, pushHistoryLink, replaceHistoryLink } from '../../helpers/urls';
+import { decodeLink, getLinkWithWs, getSortedUrlParams, isDashboard, pushHistoryLink, replaceHistoryLink } from '../../helpers/urls';
 import {
   getDashboardConfig,
   getDashboardTitle,
@@ -215,7 +215,7 @@ class Dashboard extends Component {
       }
     }
 
-    if (warningMessage !== prevProps.warningMessage) {
+    if (!!warningMessage) {
       this.showWarningMessage();
     }
   }
@@ -244,7 +244,8 @@ class Dashboard extends Component {
           className: 'ecos-btn_blue',
           key: 'home-page',
           onClick: () => {
-            PageService.changeUrlLink(URL.DASHBOARD, { openNewTab: true, closeActiveTab: true });
+            const linkWithWs = getEnabledWorkspaces() ? getLinkWithWs(URL.DASHBOARD) : URL.DASHBOARD;
+            PageService.changeUrlLink(linkWithWs, { openNewTab: true, closeActiveTab: true });
           },
           label: t('go-to.home-page')
         }

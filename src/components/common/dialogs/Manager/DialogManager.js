@@ -6,7 +6,7 @@ import isNil from 'lodash/isNil';
 import isFunction from 'lodash/isFunction';
 import { Collapse, Card, CardBody } from 'reactstrap';
 
-import { objectByString, t } from '../../../../helpers/util';
+import { getEnabledNewJournal, getEnabledWorkspaces, objectByString, t } from '../../../../helpers/util';
 import { Btn } from '../../btns';
 import EcosModal from '../../EcosModal';
 import RemoveDialog from '../RemoveDialog';
@@ -233,6 +233,7 @@ export const dialogsById = {
       buttons = [],
       handlers = {},
       buttonsClassName,
+      isBlurBackground: _isBlurBackground,
       ...modalProps
     } = props.dialogProps;
 
@@ -243,12 +244,15 @@ export const dialogsById = {
 
     handlers.hideModal = hideModal;
 
+    const isBlurBackground = isNil(_isBlurBackground) ? getEnabledWorkspaces() || getEnabledNewJournal() : _isBlurBackground;
+
     return (
       <EcosModal
         title={t(title)}
         isOpen={isVisible}
         hideModal={hideModal}
         className={classNames('ecos-dialog ecos-dialog_custom', modalClass)}
+        isBlurBackground={!!isBlurBackground}
         {...modalProps}
       >
         <div className="ecos-dialog__body">{body}</div>

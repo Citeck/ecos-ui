@@ -152,7 +152,18 @@ export default class EcosModal extends Component {
   }
 
   render() {
-    const { hideModal, children, className, classNameBody, reactstrapProps, isLoading, onResize, size, container } = this.props;
+    const {
+      hideModal,
+      children,
+      className,
+      classNameBody,
+      reactstrapProps,
+      isLoading,
+      onResize,
+      size,
+      container,
+      isBlurBackground
+    } = this.props;
     const { isOpen, level, draggableState, zIndexCalc } = this.state;
     const modalLevel = level > MAX_LEVEL ? MAX_LEVEL : level;
     const classMobile = isMobileDevice() ? 'ecos-modal_mobile' : '';
@@ -197,6 +208,7 @@ export default class EcosModal extends Component {
         data-level={level}
         container={container}
         containerClassName="ecos-modal-container ecosZIndexAnchor"
+        isblurbackground={isBlurBackground}
       >
         {this.renderModalHeader()}
         <ModalBody className={classNames(classNameBody, classMobile)}>{children}</ModalBody>
