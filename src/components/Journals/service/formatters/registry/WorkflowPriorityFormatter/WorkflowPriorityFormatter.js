@@ -25,7 +25,7 @@ export default class WorkflowPriorityFormatter extends BaseFormatter {
   format(props) {
     const { cell } = props;
     const priority = WorkflowPriorityFormatter.getDisplayText(cell);
-    const enabledNewJournal = get(window, 'Citeck.navigator.NEW_JOURNAL_ENABLED', false);
+    const enabledNewJournal = get(window, 'Citeck.constants.NEW_JOURNAL_ENABLED', false);
 
     const ContentPriority = enabledNewJournal ? (
       <div className="workflow-priority-formatter">

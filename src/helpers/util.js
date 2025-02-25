@@ -504,6 +504,10 @@ export function getEnabledWorkspaces() {
   return lodashGet(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
 }
 
+export function getEnabledNewJournal() {
+  return lodashGet(window, 'Citeck.constants.NEW_JOURNAL_ENABLED', false);
+}
+
 export const isSmallMode = width => width <= MIN_WIDTH_DASHLET_LARGE;
 
 export function isExistIndex(idx) {
