@@ -217,6 +217,9 @@
 .icon-notify:before {
   content: '\e849';
 } /* '' */
+.icon-platform:before {
+  content: '\e925';
+} /* '' */
 .icon-custom-file-doc:before {
   content: '\e84a';
 } /* '' */

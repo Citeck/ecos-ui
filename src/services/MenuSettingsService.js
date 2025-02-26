@@ -227,6 +227,10 @@ export default class MenuSettingsService {
       ...UserOptions.USER_LOGOUT,
       default: UserMenu.USER_LOGOUT
     },
+    {
+      ...UserOptions.USER_ABOUT_PLATFORM,
+      default: UserMenu.USER_ABOUT_PLATFORM
+    },
     UserOptions.ARBITRARY
   ];
 

@@ -205,7 +205,6 @@ export default class Dropdown extends Component {
     } = this.props;
     const filteredSource = hideSelected ? source.filter(item => item[valueField] !== value) : source;
     let Wrapper = ({ children }) => <div className={wrapperClassName}>{children}</div>;
-
     if (withScrollbar) {
       Wrapper = ({ children }) => (
         <Scrollbars

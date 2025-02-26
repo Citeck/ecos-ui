@@ -46,7 +46,11 @@ function EcosIcon({ code, className, data, title, family, onClick, id, defaultVa
     );
   }
 
-  return <Icon className={classNames(commonClass, { [defaultVal]: !value, fa: type === 'fa', [value]: !!value })} {...commonProps} />;
+  return (
+    <>
+      <Icon className={classNames(commonClass, { [defaultVal]: !value, fa: type === 'fa', [value]: !!value })} {...commonProps} />
+    </>
+  );
 }
 
 EcosIcon.propTypes = {

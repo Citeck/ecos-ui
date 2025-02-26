@@ -29,7 +29,6 @@ class EditorUserMenu extends BaseEditorMenu {
 
   renderDescription() {
     const { items } = this.props;
-
     if (!isEmpty(items.filter(item => !item.hidden))) {
       return null;
     }

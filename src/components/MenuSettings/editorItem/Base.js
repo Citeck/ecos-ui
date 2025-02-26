@@ -90,7 +90,7 @@ class Base extends React.Component {
     const { defaultIcon = {}, icon = defaultIcon, isOpenSelectIcon, isLoading } = this.state;
     const { item, fontIcons, onClose } = this.props;
     const { hasIcon } = this.permissions;
-
+    console.log('menu count', icon);
     return (
       <EcosModal
         className="ecos-menu-editor-item__modal ecos-modal_width-sm"

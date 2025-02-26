@@ -19,7 +19,6 @@ export default class Icon extends Component {
     const cssClasses = classNames('icon', className, {
       icon_btn: isFunction(props.onClick)
     });
-
     return <i {...props} className={cssClasses} />;
   }
 }

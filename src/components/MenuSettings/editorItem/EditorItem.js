@@ -67,6 +67,7 @@ export default class EditorItem extends React.Component {
         );
       }
       case MS.ItemTypes.USER_LOGOUT:
+      case MS.ItemTypes.USER_ABOUT_PLATFORM:
       case MS.ItemTypes.USER_SEND_PROBLEM_REPORT:
       case MS.ItemTypes.USER_FEEDBACK:
       case MS.ItemTypes.USER_CHANGE_PASSWORD:

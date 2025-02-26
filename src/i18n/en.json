@@ -1867,6 +1867,7 @@
   "menu-item.type.user-feedback": "Feedback",
   "menu-item.type.user-send-problem-report": "Report a problem",
   "menu-item.type.user-logout": "Log out",
+  "menu-item.type.user-about-platform": "About platform",
 
   "icon-select.title": "Select Icon",
   "icon-select.btn.upload-custom": "Upload",

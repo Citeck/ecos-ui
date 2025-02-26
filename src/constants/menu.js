@@ -1,3 +1,6 @@
+import AboutPlatform from '../components/common/icons/AboutPlatform';
+import React from 'react';
+
 export const GROUP_EVERYONE = 'GROUP_EVERYONE';
 
 export const BASE_LEFT_MENU_ID = 'ecos-left-menu-id';
@@ -62,6 +65,7 @@ export const MenuSettings = {
     USER_FEEDBACK: 'USER-FEEDBACK',
     USER_SEND_PROBLEM_REPORT: 'USER-SEND-PROBLEM-REPORT',
     USER_LOGOUT: 'USER-LOGOUT',
+    USER_ABOUT_PLATFORM: 'USER-ABOUT-PLATFORM',
     START_WORKFLOW: 'START_WORKFLOW'
   }
 };
@@ -146,6 +150,10 @@ export const UserOptions = {
     key: MenuSettings.ItemTypes.USER_LOGOUT,
     label: 'menu-item.type.user-logout'
   },
+  USER_ABOUT_PLATFORM: {
+    key: MenuSettings.ItemTypes.USER_ABOUT_PLATFORM,
+    label: 'menu-item.type.user-about-platform'
+  },
   ARBITRARY: {
     key: MenuSettings.ItemTypes.ARBITRARY,
     label: 'menu-item.type.arbitrary'
@@ -177,6 +185,11 @@ export const UserMenu = {
     label: { ru: 'Сообщить о проблеме', en: 'Report an issue' },
     icon: { type: 'icon', value: 'icon-alert' },
     type: MenuSettings.ItemTypes.USER_SEND_PROBLEM_REPORT
+  },
+  USER_ABOUT_PLATFORM: {
+    label: { ru: 'О платформе', en: 'About platform' },
+    icon: { type: 'icon', value: 'icon-about-platform' },
+    type: MenuSettings.ItemTypes.USER_ABOUT_PLATFORM
   },
   USER_LOGOUT: {
     label: { ru: 'Выйти', en: 'Log out' },
