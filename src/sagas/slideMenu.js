@@ -131,7 +131,7 @@ function* sagaPerformAction({ api, logger }, { payload }) {
           case 'none':
             break;
           default:
-            if (!postCreateActionExecuted) {
+            if (!postCreateActionExecuted || createVariant.postActionRef === 'uiserv/action@none') {
               goToCardDetailsPage(record.id);
             }
         }
