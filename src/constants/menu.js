@@ -1,6 +1,3 @@
-import AboutPlatform from '../components/common/icons/AboutPlatform';
-import React from 'react';
-
 export const GROUP_EVERYONE = 'GROUP_EVERYONE';
 
 export const BASE_LEFT_MENU_ID = 'ecos-left-menu-id';
@@ -188,7 +185,7 @@ export const UserMenu = {
   },
   USER_ABOUT_PLATFORM: {
     label: { ru: 'О платформе', en: 'About platform' },
-    icon: { type: 'icon', value: 'icon-about-platform' },
+    icon: { type: 'icon', value: 'icon-platform' },
     type: MenuSettings.ItemTypes.USER_ABOUT_PLATFORM
   },
   USER_LOGOUT: {
@@ -204,5 +201,6 @@ export const DefaultUserMenu = [
   // UserMenu.USER_CHANGE_PASSWORD,
   UserMenu.USER_FEEDBACK,
   UserMenu.USER_SEND_PROBLEM_REPORT,
-  UserMenu.USER_LOGOUT
+  UserMenu.USER_LOGOUT,
+  UserMenu.USER_ABOUT_PLATFORM
 ];

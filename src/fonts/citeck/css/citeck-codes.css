@@ -1,3 +1,6 @@
+.icon-platform:before {
+  content: '\e85b';
+} /* '' */
 .icon-arrow:before {
   content: '\e800';
 } /* '' */
@@ -217,9 +220,7 @@
 .icon-notify:before {
   content: '\e849';
 } /* '' */
-.icon-platform:before {
-  content: '\e925';
-} /* '' */
+
 .icon-custom-file-doc:before {
   content: '\e84a';
 } /* '' */
