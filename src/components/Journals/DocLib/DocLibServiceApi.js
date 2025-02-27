@@ -49,7 +49,7 @@ class DocLibServiceApi {
     }
 
     if (searchText.length) {
-      query.recursive = false;
+      query.recursive = true;
       query.filter = {
         t: 'contains',
         att: 'ALL',
