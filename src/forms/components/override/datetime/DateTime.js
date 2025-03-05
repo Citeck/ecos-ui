@@ -14,7 +14,54 @@ export default class DateTimeComponent extends FormIODateTimeComponent {
     this.widget.on('update', () => {
       this.setPristine(false);
       this.addClass(this.getElement(), 'formio-modified');
+      this.updateValue();
     });
+  }
+
+  calculateValue(data, flags) {
+    // If no calculated value or
+    // hidden and set to clearOnHide (Don't calculate a value for a hidden field set to clear when hidden)
+    if (!this.component.calculateValue || ((!this.visible || this.component.hidden) && this.component.clearOnHide)) {
+      return false;
+    } // Get the dataValue.
+
+    let firstPass = false;
+    let dataValue = null;
+    const allowOverride = this.component.allowCalculateOverride;
+
+    if (allowOverride) {
+      dataValue = this.dataValue;
+    } // First pass, the calculatedValue is undefined.
+
+    if (this.calculatedValue === undefined) {
+      firstPass = true;
+      this.calculatedValue = null;
+    } // Check to ensure that the calculated value is different than the previously calculated value.
+
+    if (allowOverride && this.calculatedValue !== null && isEqual(dataValue, this.calculatedValue)) {
+      return false;
+    } // Calculate the new value.
+
+    const calculatedValue = this.evaluate(
+      this.component.calculateValue,
+      {
+        value: this.defaultValue,
+        data: data
+      },
+      'value'
+    ); // If this is the firstPass, and the dataValue is different than to the calculatedValue.
+
+    if (allowOverride && firstPass && !this.isEmpty(dataValue) && isEqual(dataValue, calculatedValue)) {
+      // Return that we have a change so it will perform another pass.
+      this.calculatedValue = calculatedValue;
+      return true;
+    }
+
+    flags = flags || {};
+    flags.noCheck = true;
+    const changed = this.setValue(calculatedValue, flags);
+    this.calculatedValue = this.dataValue;
+    return changed;
   }
 
   setValue(value, flags) {
@@ -30,7 +77,7 @@ export default class DateTimeComponent extends FormIODateTimeComponent {
       value = value.toISOString().replace('.000Z', 'Z');
     }
 
-    super.setValue(value, flags);
+    return super.setValue(value, flags);
   }
 
   getValue() {
