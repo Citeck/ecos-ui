@@ -15,7 +15,7 @@ function* _registerEventListeners() {
 }
 
 function* registerEventListenerChangeUrlLink() {
-  const channel = eventChannel(emitter => {
+  const channel = eventChannel((emitter) => {
     const _emitter = emitter;
     document.addEventListener(Events.CHANGE_URL_LINK_EVENT, _emitter);
 
@@ -34,12 +34,12 @@ function* registerEventListenerChangeUrlLink() {
   }
 }
 
-function* _handleChangeUrl({ api, logger }, { payload: event }) {
-  const isShowTabs = yield select(state => get(state, 'pageTabs.isShow', false));
-  const isMobile = yield select(state => get(state, 'view.isMobile', false));
+function* _handleChangeUrl({ api }, { payload: event }) {
+  const isShowTabs = yield select((state) => get(state, 'pageTabs.isShow', false));
+  const isMobile = yield select((state) => get(state, 'view.isMobile', false));
 
   const {
-    params: { link = '', rerenderPage, replaceHistory }
+    params: { link = '', rerenderPage, replaceHistory },
   } = event;
 
   if (!(isShowTabs && !isOnlyContent() && !isMobile) || (rerenderPage && replaceHistory)) {
@@ -47,7 +47,7 @@ function* _handleChangeUrl({ api, logger }, { payload: event }) {
 
     pushHistoryLink(window, {
       pathname: url,
-      search: decodeLink(queryString.stringify(query))
+      search: decodeLink(queryString.stringify(query)),
     });
 
     yield put(replace(link));
@@ -65,7 +65,7 @@ function* _handleChangeUrl({ api, logger }, { payload: event }) {
 
         pushHistoryLink(window, {
           pathname: url,
-          search: decodeLink(queryString.stringify(query))
+          search: decodeLink(queryString.stringify(query)),
         });
       } else {
         replaceHistoryLink(window, link);

@@ -1,5 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`<Orgstructure /> render with selected recordRef 1`] = `<Connect(Orgstructure) />`;
-
-exports[`<Orgstructure /> render without selected recordRef 1`] = `<Connect(Orgstructure) />`;

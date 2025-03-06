@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { t } from '../../../../helpers/export/util';
-import logger from '../../../../services/logger';
 
 import editorRegistry from './registry';
 import EditorScope from './EditorScope';
@@ -88,7 +87,7 @@ class EditorService {
         />
       );
     } catch (e) {
-      logger.error('[EditorService.initEditor] error', e);
+      console.error('[EditorService.initEditor] error', e);
       return EditorService.errorMessage;
     }
   }

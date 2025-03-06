@@ -27,7 +27,7 @@ import {
   setHomeLink,
   setLeftMenuEditable,
   setRedirectToNewUi,
-  setSeparateActionListForQuery
+  setSeparateActionListForQuery,
 } from '../actions/app';
 import { getWorkspaceId } from '../helpers/urls';
 import { getWorkspaces, setBlockedCurrenWorkspace, setDefaultWorkspace } from '../actions/workspaces';
@@ -42,11 +42,11 @@ import ConfigService, {
   WORKSPACES_ENABLED,
   FOOTER_CONTENT,
   HOME_LINK_URL,
-  NEW_JOURNAL_ENABLED
+  NEW_JOURNAL_ENABLED,
 } from '../services/config/ConfigService';
 import { SETTING_ENABLE_VIEW_NEW_JOURNAL } from '../pages/DevTools/constants';
 
-export function* initApp({ api, logger }, { payload }) {
+export function* initApp({ api }, { payload }) {
   try {
     let isAuthenticated = false;
 
@@ -57,7 +57,7 @@ export function* initApp({ api, logger }, { payload }) {
       const configs = yield loadConfigs({
         [NEW_JOURNAL_ENABLED]: 'value?bool',
         [DEFAULT_WORKSPACE]: 'value?str',
-        [WORKSPACES_ENABLED]: 'value?bool'
+        [WORKSPACES_ENABLED]: 'value?bool',
       });
 
       const _isViewNewJournal = configs[NEW_JOURNAL_ENABLED];
@@ -127,7 +127,7 @@ export function* initApp({ api, logger }, { payload }) {
       if (e.message === 'User is disabled') {
         alert('User is disabled');
       }
-      logger.error('[initApp saga] error inner', e);
+      console.error('[initApp saga] error inner', e);
       yield put(validateUserFailure());
     }
 
@@ -136,12 +136,12 @@ export function* initApp({ api, logger }, { payload }) {
 
     payload && isFunction(payload.onSuccess) && payload.onSuccess(isAuthenticated);
   } catch (e) {
-    logger.error('[app saga] initApp error', e);
+    console.error('[app saga] initApp error', e);
     yield put(initAppFailure());
   }
 }
 
-export function* fetchAppSettings({ logger }) {
+export function* fetchAppSettings() {
   try {
     yield put(getMenuConfig());
     yield put(getDashboardEditable());
@@ -151,11 +151,11 @@ export function* fetchAppSettings({ logger }) {
     yield put(getSeparateActionListForQuery());
     yield put(registerEventListeners());
   } catch (e) {
-    logger.error('[app saga] fetchAppSettings error', e);
+    console.error('[app saga] fetchAppSettings error', e);
   }
 }
 
-export function* sagaRedirectToLoginPage({ api, logger }) {
+export function* sagaRedirectToLoginPage({ api }) {
   try {
     const url = yield call(api.app.getLoginPageUrl);
 
@@ -168,21 +168,21 @@ export function* sagaRedirectToLoginPage({ api, logger }) {
       window.location.reload();
     }
   } catch (e) {
-    logger.error('[app saga] sagaRedirectToLoginPage error', e);
+    console.error('[app saga] sagaRedirectToLoginPage error', e);
   }
 }
 
-export function* fetchDashboardEditable({ api, logger }) {
+export function* fetchDashboardEditable({ api }) {
   try {
     const username = getCurrentUserName();
     const editable = yield call(api.app.isDashboardEditable, { username });
 
     if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
       const wsId = getWorkspaceId();
-      const workspaces = yield select(state => selectWorkspaces(state));
+      const workspaces = yield select((state) => selectWorkspaces(state));
 
       if (wsId && workspaces && workspaces.length) {
-        const currentWs = workspaces.find(ws => ws && ws.wsId && ws.wsId === wsId);
+        const currentWs = workspaces.find((ws) => ws && ws.wsId && ws.wsId === wsId);
 
         if (currentWs) {
           yield put(setDashboardEditable(get(currentWs, 'isCurrentUserManager', editable)));
@@ -193,31 +193,31 @@ export function* fetchDashboardEditable({ api, logger }) {
 
     yield put(setDashboardEditable(editable));
   } catch (e) {
-    logger.error('[app saga] fetchDashboardEditable error', e);
+    console.error('[app saga] fetchDashboardEditable error', e);
   }
 }
 
-export function* fetchWidgetEditable({ api, logger }) {
+export function* fetchWidgetEditable({ api }) {
   try {
     const username = getCurrentUserName();
     const editable = yield call(api.app.isWidgetEditable, { username });
 
     yield put(setWidgetEditable(editable));
   } catch (e) {
-    logger.error('[app saga] fetchWidgetEditable error', e);
+    console.error('[app saga] fetchWidgetEditable error', e);
   }
 }
 
-export function* fetchAppEdition({ api, logger }) {
+export function* fetchAppEdition({ api }) {
   try {
     const edition = yield call(api.app.getAppEdition);
     yield put(setAppEdition(edition));
   } catch (e) {
-    logger.error('[app saga] fetchAppEdition error', e);
+    console.error('[app saga] fetchAppEdition error', e);
   }
 }
 
-export function* fetchLeftMenuEditable({ api, logger }) {
+export function* fetchLeftMenuEditable({ api }) {
   try {
     const state = yield select();
     const workspaces = selectWorkspaces(state);
@@ -230,37 +230,37 @@ export function* fetchLeftMenuEditable({ api, logger }) {
     let isEditable = isAdmin && menuVersion > 0;
 
     if (workspacesEnabled && wsId) {
-      const currentWs = workspaces?.find(ws => ws?.wsId === wsId);
+      const currentWs = workspaces?.find((ws) => ws?.wsId === wsId);
       const isCurrentUserManager = get(currentWs, 'isCurrentUserManager', false);
       isEditable = (isAdmin || isCurrentUserManager) && menuVersion > 0;
     }
 
     yield put(setLeftMenuEditable(isEditable));
   } catch (e) {
-    logger.error('[app saga] fetchLeftMenuEditable error', e);
+    console.error('[app saga] fetchLeftMenuEditable error', e);
   }
 }
 
-export function* fetchFooter({ logger }) {
+export function* fetchFooter() {
   try {
     let footer = yield ConfigService.getValue(FOOTER_CONTENT);
     if (footer) {
       yield put(setFooter(footer));
     }
   } catch (e) {
-    logger.error('[app saga] fetchFooter error', e);
+    console.error('[app saga] fetchFooter error', e);
   }
 }
 
-function* sagaBackFromHistory({ api, logger }) {
+function* sagaBackFromHistory({ api }) {
   try {
-    const isShowTabs = yield select(state => get(state, 'pageTabs.isShow'));
+    const isShowTabs = yield select((state) => get(state, 'pageTabs.isShow'));
 
     if (!isShowTabs) {
       window.history.length > 1 ? window.history.back() : PageService.changeUrlLink(URL.DASHBOARD);
     } else {
-      const location = yield select(state => state.router.location);
-      const lenTabs = yield select(state => get(state, 'pageTabs.tabs.length', 0));
+      const location = yield select((state) => state.router.location);
+      const lenTabs = yield select((state) => get(state, 'pageTabs.tabs.length', 0));
 
       const subsidiaryLink = location ? location.pathname + location.search : window.location.href;
       const pageUrl = lenTabs > 1 ? '' : PageService.extractWhereLinkOpen({ subsidiaryLink }) || URL.DASHBOARD;
@@ -268,16 +268,16 @@ function* sagaBackFromHistory({ api, logger }) {
       PageService.changeUrlLink(pageUrl, { reopen: lenTabs <= 1, closeActiveTab: lenTabs > 1 });
     }
   } catch (e) {
-    logger.error('[app saga] sagaBackFromHistory error', e);
+    console.error('[app saga] sagaBackFromHistory error', e);
   }
 }
 
-function* fetchGetSeparateActionListForQuery({ api, logger }) {
+function* fetchGetSeparateActionListForQuery({ api }) {
   try {
     const flag = yield call(api.app.getSeparateActionListForQuery);
     yield put(setSeparateActionListForQuery(flag));
   } catch (e) {
-    logger.error('[app saga] fetchGetSeparateActionListForQuery error', e);
+    console.error('[app saga] fetchGetSeparateActionListForQuery error', e);
   }
 }
 

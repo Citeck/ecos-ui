@@ -1,7 +1,7 @@
 import React from 'react';
 import moment from 'moment';
 import uuidV4 from 'uuid/v4';
-import { NotificationManager } from 'react-notifications';
+import { NotificationManager } from '@/services/notifications';
 import isEmpty from 'lodash/isEmpty';
 import lodashGet from 'lodash/get';
 import lodashSet from 'lodash/set';

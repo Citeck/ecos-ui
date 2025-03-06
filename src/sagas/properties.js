@@ -1,7 +1,7 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
 import { getFormList, setFormList } from '../actions/properties';
 
-function* sagaGetFormList({ api, logger }, { payload }) {
+function* sagaGetFormList({ api }, { payload }) {
   const { record, stateId } = payload;
 
   try {
@@ -10,7 +10,7 @@ function* sagaGetFormList({ api, logger }, { payload }) {
 
     yield put(setFormList({ list, totalCount, stateId }));
   } catch (e) {
-    logger.error('[properties/sagaGetFormList saga] error', e);
+    console.error('[properties/sagaGetFormList saga] error', e);
   }
 }
 

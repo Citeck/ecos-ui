@@ -15,6 +15,7 @@ import { selectIsViewNewJournal } from '../../../selectors/view';
 import { selectPreviewListProps } from '../../../selectors/previewList';
 import { PREVIEW_LIST_ASPECT_ATTRIBUTES } from '../../../api/previewList';
 import { stripHTML, t } from '../../../helpers/util';
+import defaultImage from './defaultImage.png';
 
 import './PreviewListContent.scss';
 
@@ -29,7 +30,7 @@ const mapStateToProps = (state, props) => {
     gridData: get(newState, 'grid.data', []),
     isLoadingJournal: get(newState, 'loading', []),
     isViewNewJournal,
-    ...previewListProps
+    ...previewListProps,
   };
 };
 
@@ -40,7 +41,7 @@ class PreviewListContent extends Component {
     );
   }
 
-  getLinkOfId = id => {
+  getLinkOfId = (id) => {
     if (!id) {
       return null;
     }
@@ -55,8 +56,6 @@ class PreviewListContent extends Component {
     const { id: creatorId, disp: creatorName } = creator || {};
     const formattedDate = moment(created).format('dddd, D MMMM YYYY, H:mm');
 
-    const srcPreviewImg = previewUrl || require('./defaultImage.png');
-
     const creatorLink = this.getLinkOfId(creatorId);
     const itemLink = this.getLinkOfId(itemId);
 
@@ -67,7 +66,7 @@ class PreviewListContent extends Component {
       <div className="citeck-preview-list-content__card" key={idx}>
         <div className="citeck-preview-list-content__card_img">
           <a href={itemLink} className="citeck-preview-list-content__card-info_title">
-            <img className="citeck-preview-list-content__card_img" src={srcPreviewImg} alt={title} />
+            <img className="citeck-preview-list-content__card_img" src={previewUrl || defaultImage} alt={title} />
           </a>
         </div>
         <div className="citeck-preview-list-content__card-info">
@@ -102,7 +101,7 @@ class PreviewListContent extends Component {
       isLoadingJournal,
       gridData,
       previewListConfig,
-      isInitiatedPreviewList = false
+      isInitiatedPreviewList = false,
     } = this.props;
 
     const isLoading = isLoadingPreviewList || isLoadingJournal || !isInitiatedPreviewList;

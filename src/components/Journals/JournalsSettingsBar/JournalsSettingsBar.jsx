@@ -255,7 +255,7 @@ const JournalsSettingsBar = ({
           </Import>
         )}
 
-        <Tooltip target={`${targetId}-update`} text={t(Labels.BTN_UPDATE)} {...tooltipSettings} modifiers={{}}>
+        <Tooltip target={`${targetId}-update`} text={t(Labels.BTN_UPDATE)} {...tooltipSettings} modifiers={[]}>
           <IcoBtn
             id={`${targetId}-update`}
             icon={!isViewNewJournal ? 'icon-reload' : null}

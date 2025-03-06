@@ -32,7 +32,7 @@ export function register(config) {
     }
 
     window.addEventListener('load', () => {
-      const swUrl = `${process.env.PUBLIC_URL}/custom-sw.js`;
+      const swUrl = `${publicUrl.origin}/custom-sw.js`;
 
       checkValidServiceWorker(swUrl, config);
       navigator.serviceWorker.ready.then((registration) => {

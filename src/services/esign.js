@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import isString from 'lodash/isString';
@@ -13,6 +13,8 @@ import ConfigService, { ALFRESCO_ENABLED } from '../services/config/ConfigServic
 import { t, objectByString } from '../helpers/util';
 
 class Esign {
+  #root = null;
+
   static #queryParams = {};
 
   /**
@@ -56,15 +58,15 @@ class Esign {
     const recordRefs = Esign.dataPreparation(refs, queryParams);
     const container = document.createElement('div');
 
-    ReactDOM.render(
+    this.#root = createRoot(container);
+    this.#root.render(
       <EsignComponent
         recordRefs={recordRefs}
         {...componentProps}
         onClose={() => {
           this.#onClose(container);
         }}
-      />,
-      container
+      />
     );
 
     document.body.appendChild(container);
@@ -81,15 +83,15 @@ class Esign {
         return resolve(selectedCertificate);
       };
 
-      ReactDOM.render(
+      this.#root = createRoot(container);
+      this.#root.render(
         <EsignComponent
           handleSelectCert={handleSelectCert}
           recordRefs={['']}
           onClose={() => {
             this.#onClose(container);
           }}
-        />,
-        container
+        />
       );
 
       document.body.appendChild(container);
@@ -122,7 +124,7 @@ class Esign {
   }
 
   #onClose = container => {
-    ReactDOM.unmountComponentAtNode(container);
+    this.#root?.unmount();
     document.body.removeChild(container);
   };
 

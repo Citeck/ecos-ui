@@ -5,13 +5,13 @@ import {
   setInitiatedPreviewList,
   setIsEnabledPreviewList,
   setLoadingPreviewList,
-  setPreviewListConfig
+  setPreviewListConfig,
 } from '../actions/previewList';
 import { takeLatest, put, select, call } from 'redux-saga/effects';
 import { wrapArgs } from '../helpers/redux';
 import { selectUrl } from '../selectors/journals';
 
-function* sagaInitPreviewList({ api, logger }, action) {
+function* sagaInitPreviewList({ api }, action) {
   const { stateId } = action.payload || {};
   const w = wrapArgs(stateId);
 
@@ -34,7 +34,7 @@ function* sagaInitPreviewList({ api, logger }, action) {
   } catch (e) {
     yield put(setLoadingPreviewList(w(false)));
     yield put(setInitiatedPreviewList(w(true)));
-    logger.error('[previewList/sagaInitPreviewList saga] error', e);
+    console.error('[previewList/sagaInitPreviewList saga] error', e);
   }
 }
 

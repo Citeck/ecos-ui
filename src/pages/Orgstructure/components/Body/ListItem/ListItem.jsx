@@ -6,7 +6,7 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import noop from 'lodash/noop';
 import isFunction from 'lodash/isFunction';
-import { NotificationManager } from 'react-notifications';
+import { NotificationManager } from '@/services/notifications';
 
 import { OrgstructContext } from '../../../../../components/common/Orgstruct/OrgstructContext';
 import { EcosModal } from '../../../../../components/common';

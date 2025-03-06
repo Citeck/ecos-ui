@@ -12,7 +12,7 @@ import {
   setLoading,
   setMergedList,
   setPopupMessage,
-  setUpdatingEventDayHours
+  setUpdatingEventDayHours,
 } from '../../actions/timesheet/delegated';
 import { selectUserName } from '../../selectors/user';
 import { selectTDelegatedMergedList, selectTDelegatedUpdatingHours } from '../../selectors/timesheet';
@@ -31,7 +31,7 @@ function* sagaGetDelegatedTimesheetByParams({ api, logger }, { payload }) {
       year: currentDate.getFullYear(),
       userName,
       delegationType,
-      statuses: Array.isArray(status) ? status : [status]
+      statuses: Array.isArray(status) ? status : [status],
     });
 
     const userNames = CommonTimesheetService.getUserNameList(requestList.records);
@@ -41,46 +41,46 @@ function* sagaGetDelegatedTimesheetByParams({ api, logger }, { payload }) {
     const innerCounts = yield call(api.timesheetDelegated.getTotalCountsForTypes, {
       month: currentDate.getMonth(),
       year: currentDate.getFullYear(),
-      userName
+      userName,
     });
 
     const calendarEvents = yield call(api.timesheetCommon.getTimesheetCalendarEventsList, {
       month: currentDate.getMonth(),
       year: currentDate.getFullYear(),
-      userNames: userNames
+      userNames: userNames,
     });
 
     const list = DelegatedTimesheetService.mergeManyToOneList({
       requestList: requestList.records,
       peopleList: peopleList.records,
-      calendarEvents
+      calendarEvents,
     });
 
     const mergedList = DelegatedTimesheetConverter.getDelegatedEventsListForWeb(list);
 
     yield put(setDelegatedTimesheetByParams({ mergedList, innerCounts }));
   } catch (e) {
-    logger.error('[timesheetDelegated sagaGetDelegatedTimesheetByParams saga] error', e);
+    console.error('[timesheetDelegated sagaGetDelegatedTimesheetByParams saga] error', e);
   }
 }
 
 function* updateEvents({ value, number, userName, eventType }) {
   try {
     const list = deepClone(yield select(selectTDelegatedMergedList));
-    const subordinateIndex = list.findIndex(item => item.userName === userName);
+    const subordinateIndex = list.findIndex((item) => item.userName === userName);
 
     if (!~subordinateIndex) {
       return;
     }
 
-    const eventsIndex = list[subordinateIndex].eventTypes.findIndex(event => event.name === eventType);
+    const eventsIndex = list[subordinateIndex].eventTypes.findIndex((event) => event.name === eventType);
 
     if (!~eventsIndex) {
       return;
     }
 
     const event = list[subordinateIndex].eventTypes[eventsIndex];
-    let dayIndex = event.days.findIndex(day => day.number === number);
+    let dayIndex = event.days.findIndex((day) => day.number === number);
 
     if (!~dayIndex) {
       event.days.push({ number, hours: value });
@@ -119,7 +119,7 @@ function* sagaModifyEventDayHours({ api, logger }, { payload }) {
 
     yield put(setUpdatingEventDayHours(thirdState));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
-    logger.error('[timesheetDelegated sagaModifyStatus saga] error', e);
+    console.error('[timesheetDelegated sagaModifyStatus saga] error', e);
   }
 }
 
@@ -136,7 +136,7 @@ function* sagaResetEventDayHours({ api, logger }, { payload }) {
 
     yield put(setUpdatingEventDayHours(secondState));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
-    logger.error('[timesheetDelegated sagaResetEventDayHours saga] error', e);
+    console.error('[timesheetDelegated sagaResetEventDayHours saga] error', e);
   }
 }
 
@@ -151,7 +151,7 @@ function* sagaModifyTaskStatus({ api, logger }, { payload }) {
       outcome,
       taskId,
       currentUser,
-      comment
+      comment,
     });
 
     const newMergedList = CommonTimesheetService.deleteRecordLocalByUserName(mergedList, userName);
@@ -160,7 +160,7 @@ function* sagaModifyTaskStatus({ api, logger }, { payload }) {
   } catch (e) {
     yield put(setLoading(false));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_STATUS));
-    logger.error('[timesheetDelegated sagaModifyTaskStatus saga] error', e);
+    console.error('[timesheetDelegated sagaModifyTaskStatus saga] error', e);
   }
 }
 
@@ -187,7 +187,7 @@ function* sagaDeclineDelegation({ api, logger }, { payload }) {
     yield call(api.timesheetDelegated.removeRecord, {
       userName: _userName,
       delegationType,
-      deputyName: _deputyName
+      deputyName: _deputyName,
     });
 
     const newMergedList = CommonTimesheetService.deleteRecordLocalByUserName(mergedList, userName);
@@ -196,7 +196,7 @@ function* sagaDeclineDelegation({ api, logger }, { payload }) {
   } catch (e) {
     yield put(setLoading(false));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_STATUS));
-    logger.error('[timesheetDelegated sagaModifyTaskStatus saga] error', e);
+    console.error('[timesheetDelegated sagaModifyTaskStatus saga] error', e);
   }
 }
 
@@ -206,14 +206,14 @@ function* sagaGetDelegatedDeputies({ api, logger }, { payload }) {
     const { type } = payload;
     const result = yield call(api.timesheetDelegated.getDeputyList, {
       userName,
-      type
+      type,
     });
     const deputyList = DelegatedTimesheetConverter.getDeputyListForWeb(result.records);
 
     yield put(setDelegatedDeputies(deputyList));
   } catch (e) {
     yield put(setDelegatedDeputies([]));
-    logger.error('[timesheetDelegated sagaModifyTaskStatus saga] error', e);
+    console.error('[timesheetDelegated sagaModifyTaskStatus saga] error', e);
   }
 }
 

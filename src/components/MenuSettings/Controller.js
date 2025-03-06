@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { NotificationManager } from 'react-notifications';
+import { NotificationManager } from '@/services/notifications';
 
 import { getSettingsConfig, resetStore, setOpenMenuSettings } from '../../actions/menuSettings';
 import MenuSettingsService from '../../services/MenuSettingsService';

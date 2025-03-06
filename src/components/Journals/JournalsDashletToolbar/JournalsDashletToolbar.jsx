@@ -28,7 +28,7 @@ const mapStateToProps = (state, props) => {
     selectedRecords: ownState.selectedRecords,
     selectedJournals: ownState.selectedJournals,
     config,
-    recordRef: ownState.recordRef
+    recordRef: ownState.recordRef,
   };
 };
 
@@ -36,13 +36,13 @@ const mapDispatchToProps = (dispatch, props) => {
   const w = wrapArgs(props.stateId);
 
   return {
-    selectJournal: journalId => dispatch(selectJournal(w(journalId))),
-    selectPreset: journalSettingId => dispatch(selectPreset(w(journalSettingId)))
+    selectJournal: (journalId) => dispatch(selectJournal(w(journalId))),
+    selectPreset: (journalSettingId) => dispatch(selectPreset(w(journalSettingId))),
   };
 };
 
 class JournalsDashletToolbar extends Component {
-  addRecord = createVariant => {
+  addRecord = (createVariant) => {
     FormManager.createRecordByVariant(createVariant, {
       onSubmit: (record, postCreateActionExecuted) => {
         if (!postCreateActionExecuted) {
@@ -53,19 +53,19 @@ class JournalsDashletToolbar extends Component {
       },
       initiator: {
         type: 'dashboard-journal-widget',
-        dashboardRecordRef: this.props.recordRef
-      }
+        dashboardRecordRef: this.props.recordRef,
+      },
     });
   };
 
-  onChangeJournal = journal => {
+  onChangeJournal = (journal) => {
     const { onChangeSelectedJournal, selectJournal } = this.props;
 
     selectJournal(journal.id);
     isFunction(onChangeSelectedJournal) && onChangeSelectedJournal(journal.id);
   };
 
-  onChangeJournalSetting = setting => {
+  onChangeJournalSetting = (setting) => {
     this.props.selectPreset(setting.id);
   };
 
@@ -118,7 +118,7 @@ class JournalsDashletToolbar extends Component {
       config,
       selectedRecords,
       lsJournalId,
-      recordRef
+      recordRef,
     } = this.props;
     const nodeRef = get(this.props, 'journalConfig.meta.nodeRef', '');
     const isWide = !isSmall;
@@ -184,7 +184,4 @@ class JournalsDashletToolbar extends Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(JournalsDashletToolbar);
+export default connect(mapStateToProps, mapDispatchToProps)(JournalsDashletToolbar);

@@ -15,7 +15,7 @@ import { Loader, PointsLoader } from '../../common/index';
 import { IcoBtn } from '../../common/btns/index';
 import { Caption, Dropdown } from '../../common/form/index';
 import BaseWidget from '../BaseWidget';
-import { baseModifiers } from '../../common/Tooltip';
+import { baseModifiersUncontrolled } from '../../common/UncontrolledTooltip';
 
 import './style.scss';
 
@@ -149,7 +149,7 @@ class DocStatus extends BaseWidget {
           innerClassName="ecos-base-tooltip-inner"
           arrowClassName="ecos-base-tooltip-arrow"
           target={id}
-          modifiers={baseModifiers}
+          modifiers={baseModifiersUncontrolled}
         >
           {status.name}
         </UncontrolledTooltip>

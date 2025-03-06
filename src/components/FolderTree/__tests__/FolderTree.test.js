@@ -1,104 +1,122 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { render } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
-import { item1, item1111, item1112, demoItems } from '../__fixtures__/FolderTree.fixtures';
 import FolderTree from '../FolderTree';
 import FolderTreeItem from '../FolderTreeItem';
+
+import { item1, item1111, item1112, demoItems } from '../__fixtures__/FolderTree.fixtures';
 
 describe('FolderTree tests', () => {
   describe('<FolderTree />', () => {
     it('should render FolderTree component', () => {
-      const component = shallow(<FolderTree />);
-      expect(component).toMatchSnapshot();
+      const { container, asFragment } = render(<FolderTree />);
+      expect(container).toMatchSnapshot();
+      expect(asFragment()).toMatchSnapshot();
     });
 
     it('should render all visible items', () => {
-      const component = shallow(<FolderTree items={demoItems} />);
-      const visibleItems = demoItems.filter(item => {
+      const { container } = render(<FolderTree items={demoItems} />);
+
+      const visibleItems = demoItems.filter((item) => {
         if (item.parent) {
-          const parent = demoItems.find(i => i.id === item.parent);
+          const parent = demoItems.find((i) => i.id === item.parent);
           if (parent && !parent.isUnfolded) {
             return false;
           }
         }
         return true;
       });
-      expect(component.find(FolderTreeItem)).toHaveLength(visibleItems.length);
+
+      expect(container.getElementsByClassName('ecos-folder-tree__item')).toHaveLength(visibleItems.length);
     });
   });
 
   describe('<FolderTreeItem />', () => {
     it('should render FolderTreeItem component', () => {
-      const component = shallow(<FolderTreeItem item={{ id: '', title: '' }} />);
-      expect(component).toMatchSnapshot();
+      const { container, asFragment } = render(<FolderTreeItem item={{ id: '', title: '' }} />);
+      expect(container).toMatchSnapshot();
+      expect(asFragment()).toMatchSnapshot();
     });
 
     it('should render title', () => {
-      const component = shallow(<FolderTreeItem item={item1} />);
-      const title = component.find('.ecos-folder-tree__item-title');
+      const { container } = render(<FolderTreeItem item={item1} />);
+      const title = container.getElementsByClassName('ecos-folder-tree__item-title');
       expect(title).toHaveLength(1);
-      expect(title.text()).toBe(item1.title);
+      expect(title[0].textContent).toBe(item1.title);
     });
 
     it('should render children', () => {
       const childText = 'Child text';
       const child = <div className="child-class">{childText}</div>;
-      const component = shallow(<FolderTreeItem item={item1}>{child}</FolderTreeItem>);
-      const children = component.find('.ecos-folder-tree__item-children');
-      expect(children.find('.child-class')).toHaveLength(1);
-      expect(children.text()).toBe(childText);
+      const { container } = render(<FolderTreeItem item={item1}>{child}</FolderTreeItem>);
+      const children = container.getElementsByClassName('ecos-folder-tree__item-children');
+      expect(children[0].getElementsByClassName('child-class')).toHaveLength(1);
+      expect(children[0].textContent).toBe(childText);
     });
 
     it('should render selected', () => {
-      const component = shallow(<FolderTreeItem item={item1} isSelected={true} />);
-      expect(component.find('.ecos-folder-tree__folder-image_selected')).toHaveLength(1);
-      expect(component.find('.ecos-folder-tree__item-title_selected')).toHaveLength(1);
+      const { container } = render(<FolderTreeItem item={item1} isSelected={true} />);
+      expect(container.getElementsByClassName('ecos-folder-tree__folder-image_selected')).toHaveLength(1);
+      expect(container.getElementsByClassName('ecos-folder-tree__item-title_selected')).toHaveLength(1);
     });
 
     it('should render switch icon if has children', () => {
-      const component = shallow(<FolderTreeItem item={item1} />);
-      const switchIcon = component.find('.ecos-folder-tree__fold-switch-icon');
+      const { container } = render(<FolderTreeItem item={item1} />);
+      const switchIcon = container.getElementsByClassName('ecos-folder-tree__fold-switch-icon');
       expect(switchIcon).toHaveLength(1);
     });
 
     it(`shouldn't render switch icon if has not children`, () => {
-      const component = shallow(<FolderTreeItem item={item1111} />);
-      const switchIcon = component.find('.ecos-folder-tree__fold-switch-icon');
+      const { container } = render(<FolderTreeItem item={item1111} />);
+      const switchIcon = container.getElementsByClassName('ecos-folder-tree__fold-switch-icon');
       expect(switchIcon).toHaveLength(0);
     });
 
     it(`should render 'icon-small-down' switch icon if unfolded`, () => {
-      const component = shallow(<FolderTreeItem item={item1} />);
-      const switchIcon = component.find({ data: { value: 'icon-small-down' } });
+      const { container } = render(<FolderTreeItem item={item1} />);
+      const switchIcon = container.getElementsByClassName('icon-small-down');
       expect(switchIcon).toHaveLength(1);
     });
 
     it(`should render 'icon-small-right' switch icon if folded`, () => {
-      const component = shallow(<FolderTreeItem item={item1112} />);
-      const switchIcon = component.find({ data: { value: 'icon-small-right' } });
+      const { container } = render(<FolderTreeItem item={item1112} />);
+      const switchIcon = container.getElementsByClassName('icon-small-right');
       expect(switchIcon).toHaveLength(1);
     });
 
-    it(`should call 'onSelect' when click by item`, () => {
+    it(`should call 'onSelect' when click by item`, async () => {
+      const user = userEvent.setup();
+
       const onSelect = jest.fn();
-      const component = shallow(<FolderTreeItem item={item1} onSelect={onSelect} />);
-      component.find('.ecos-folder-tree__item-body').simulate('click');
+      const { container } = render(<FolderTreeItem item={item1} onSelect={onSelect} />);
+
+      await user.click(container.getElementsByClassName('ecos-folder-tree__item-body')[0]);
+
       expect(onSelect).toHaveBeenCalledTimes(1);
       expect(onSelect).toHaveBeenCalledWith(item1.id);
     });
 
-    it(`should call 'onUnfold' when click by folded switch icon`, () => {
+    it(`should call 'onUnfold' when click by folded switch icon`, async () => {
+      const user = userEvent.setup();
+
       const onUnfold = jest.fn();
-      const component = shallow(<FolderTreeItem item={item1112} onUnfold={onUnfold} />);
-      component.find('.ecos-folder-tree__fold-switch-icon').simulate('click');
+      const { container } = render(<FolderTreeItem item={item1112} onUnfold={onUnfold} />);
+
+      await user.click(container.getElementsByClassName('ecos-folder-tree__fold-switch-icon')[0]);
+
       expect(onUnfold).toHaveBeenCalledTimes(1);
       expect(onUnfold).toHaveBeenCalledWith(item1112.id);
     });
 
-    it(`should call 'onFold' when click by unfolded switch icon`, () => {
+    it(`should call 'onFold' when click by unfolded switch icon`, async () => {
+      const user = userEvent.setup();
+
       const onFold = jest.fn();
-      const component = shallow(<FolderTreeItem item={item1} onFold={onFold} />);
-      component.find('.ecos-folder-tree__fold-switch-icon').simulate('click');
+      const { container } = render(<FolderTreeItem item={item1} onFold={onFold} />);
+
+      await user.click(container.getElementsByClassName('ecos-folder-tree__fold-switch-icon')[0]);
+
       expect(onFold).toHaveBeenCalledTimes(1);
       expect(onFold).toHaveBeenCalledWith(item1.id);
     });

@@ -1,5 +1,5 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
-import { NotificationManager } from 'react-notifications';
+import { NotificationManager } from '@/services/notifications';
 
 import {
   getFormProps,
@@ -10,7 +10,7 @@ import {
   setFormProps,
   setLoading,
   setScenario,
-  setTitle
+  setTitle,
 } from '../actions/cmmnEditor';
 import { deleteTab } from '../actions/pageTabs';
 import { t } from '../helpers/export/util';
@@ -18,27 +18,27 @@ import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
 import * as CmmnUtils from '../components/ModelEditor/CMMNModeler/utils';
 import PageTabList from '../services/pageTabs/PageTabList';
 
-export function* init({ api, logger }, { payload: { stateId, record } }) {
+export function* init({ api }, { payload: { stateId, record } }) {
   try {
     yield put(getTitle({ stateId, record }));
     yield put(getScenario({ stateId, record }));
   } catch (e) {
-    logger.error('[cmmnEditor/init saga] error', e);
+    console.error('[cmmnEditor/init saga] error', e);
   }
 }
 
-export function* fetchScenario({ api, logger }, { payload: { stateId, record } }) {
+export function* fetchScenario({ api }, { payload: { stateId, record } }) {
   try {
     const scenario = yield call(api.process.getDefinition, record);
 
     yield put(setScenario({ stateId, scenario }));
   } catch (e) {
     yield put(setScenario({ stateId, scenario: null }));
-    logger.error('[cmmnEditor/fetchScenario saga] error', e);
+    console.error('[cmmnEditor/fetchScenario saga] error', e);
   }
 }
 
-export function* runSaveScenario({ api, logger }, { payload: { stateId, record, xml, img } }) {
+export function* runSaveScenario({ api }, { payload: { stateId, record, xml, img } }) {
   try {
     if (xml && img) {
       const base64 = yield call(api.app.getBase64, new Blob([img], { type: 'image/svg+xml' }));
@@ -54,22 +54,22 @@ export function* runSaveScenario({ api, logger }, { payload: { stateId, record, 
   } catch (e) {
     yield put(setLoading({ stateId, isLoading: false }));
     NotificationManager.error(e.message || t('error'), t('cmmn-editor.error.can-not-save-scenario'));
-    logger.error('[cmmnEditor/runSaveScenario  saga] error', e);
+    console.error('[cmmnEditor/runSaveScenario  saga] error', e);
   }
 }
 
-export function* fetchTitle({ api, logger }, { payload: { stateId, record } }) {
+export function* fetchTitle({ api }, { payload: { stateId, record } }) {
   try {
     const title = yield call(api.page.getRecordTitle, record);
 
     yield put(setTitle({ stateId, title }));
   } catch (e) {
     yield put(setTitle({ stateId, title: '' }));
-    logger.error('[cmmnEditor/fetchTitle saga] error', e);
+    console.error('[cmmnEditor/fetchTitle saga] error', e);
   }
 }
 
-export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, element } }) {
+export function* fetchFormProps({ api }, { payload: { stateId, formId, element } }) {
   try {
     if (!formId) {
       throw new Error('No form ID ' + formId);
@@ -85,7 +85,7 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
     const formData = {};
 
     if (element) {
-      inputs.forEach(input => {
+      inputs.forEach((input) => {
         const att = input.attribute;
         let value = CmmnUtils.getValue(element, att);
         const inputType = input.component && input.component.type;
@@ -105,7 +105,7 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
   } catch (e) {
     yield put(setFormProps({ stateId, formProps: {} }));
     NotificationManager.error(t('model-editor.error.form-not-found'), t('success'));
-    logger.error('[cmmnEditor/fetchFormProps saga] error', e);
+    console.error('[cmmnEditor/fetchFormProps saga] error', e);
   }
 }
 

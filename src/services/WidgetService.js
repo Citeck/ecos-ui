@@ -1,4 +1,4 @@
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import React from 'react';
 
 import { t } from '../helpers/util';
@@ -14,17 +14,19 @@ import { notifyFailure, notifySuccess } from '../components/Records/actions/util
 import FormManager from '../components/EcosForm/FormManager';
 
 export default class WidgetService {
+  #root = null;
+
   static uploadNewVersion(params = {}) {
     const { record, onClose } = params;
     const container = document.createElement('div');
 
     const onCloseModal = done => {
-      ReactDOM.unmountComponentAtNode(container);
+      this.#root?.unmount();
       document.body.removeChild(container);
       onClose && onClose(done);
     };
 
-    ReactDOM.render(<UploadNewVersion record={record} onClose={onCloseModal} />, container);
+    createRoot(container).render(<UploadNewVersion record={record} onClose={onCloseModal} />);
     document.body.appendChild(container);
   }
 
@@ -45,7 +47,7 @@ export default class WidgetService {
     let timer;
 
     const handleClose = () => {
-      ReactDOM.unmountComponentAtNode(container);
+      this.#root?.unmount();
       document.body.removeChild(container);
       clearTimeout(timer);
     };
@@ -63,7 +65,8 @@ export default class WidgetService {
     let userSearchExtraFieldsStr = orgstructParams.userSearchExtraFields || '';
     const userSearchExtraFields = userSearchExtraFieldsStr.length > 0 ? userSearchExtraFieldsStr.split(',').map(item => item.trim()) : [];
 
-    ReactDOM.render(
+    this.#root = createRoot(container);
+    this.#root.render(
       <SelectOrgstruct
         openByDefault
         hideInputView
@@ -75,8 +78,7 @@ export default class WidgetService {
         modalTitle={t('select-orgstruct.modal.title.edit-task-assignee')}
         allowedAuthorityTypes={[AUTHORITY_TYPE_USER]}
         defaultTab={TabTypes.USERS}
-      />,
-      container
+      />
     );
     document.body.appendChild(container);
   }

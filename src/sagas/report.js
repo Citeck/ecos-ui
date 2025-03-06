@@ -3,7 +3,7 @@ import { put, takeEvery } from 'redux-saga/effects';
 import { getReportData, setReportData } from '../actions/report';
 import { reportDataPrepare, reportDataConvert } from '../dto/report';
 
-function* sagaGetReportData({ api, logger }, action) {
+function* sagaGetReportData({ api }, action) {
   try {
     const urgent = yield api.report.getReportData('urgent');
     const today = yield api.report.getReportData('today');
@@ -12,7 +12,7 @@ function* sagaGetReportData({ api, logger }, action) {
     const mergedResponseData = {
       urgent,
       today,
-      later
+      later,
     };
 
     const reportDataPrepared = reportDataPrepare(mergedResponseData);
@@ -20,7 +20,7 @@ function* sagaGetReportData({ api, logger }, action) {
 
     yield put(setReportData({ stateId: action.payload, reportData }));
   } catch (e) {
-    logger.error('[report sagaGetReportData saga error', e);
+    console.error('[report sagaGetReportData saga error', e);
   }
 }
 

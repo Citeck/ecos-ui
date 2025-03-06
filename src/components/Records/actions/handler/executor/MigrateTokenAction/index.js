@@ -1,11 +1,5 @@
+import Mock from './Mock';
+import MigrateTokenAction from './MigrateTokenAction';
 import { IS_TEST_ENV } from '../../../../../../helpers/util';
 
-let Action;
-
-if (IS_TEST_ENV) {
-  Action = require('./Mock');
-} else {
-  Action = require('./MigrateTokenAction');
-}
-
-export default Action.default;
+export default IS_TEST_ENV ? Mock : MigrateTokenAction;

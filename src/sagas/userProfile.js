@@ -1,5 +1,5 @@
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
-import { NotificationManager } from 'react-notifications';
+import { NotificationManager } from '@/services/notifications';
 import set from 'lodash/set';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
@@ -12,13 +12,13 @@ import {
   setUserData,
   setUserPhoto,
   updAppUserData,
-  validateUserSuccess
+  validateUserSuccess,
 } from '../actions/user';
 import { setNotificationMessage } from '../actions/notification';
 import { isNodeRef, t } from '../helpers/util';
 import UserService from '../services/UserService';
 
-function* sagaGetUserData({ api, logger }, { payload }) {
+function* sagaGetUserData({ api }, { payload }) {
   const { record, stateId } = payload;
 
   try {
@@ -32,11 +32,11 @@ function* sagaGetUserData({ api, logger }, { payload }) {
     yield put(setUserPhoto({ thumbnail: data.thumbnail, stateId }));
   } catch (e) {
     yield put(setNotificationMessage(t('user-profile-widget.error.get-profile-data')));
-    logger.error('[userProfile/sagaGetUserData saga] error', e);
+    console.error('[userProfile/sagaGetUserData saga] error', e);
   }
 }
 
-function* sagaChangePhoto({ api, logger }, { payload }) {
+function* sagaChangePhoto({ api }, { payload }) {
   const { data: file, record, stateId } = payload;
 
   try {
@@ -63,8 +63,8 @@ function* sagaChangePhoto({ api, logger }, { payload }) {
       data: {
         size: file.size,
         name: file.name,
-        data: { entityRef }
-      }
+        data: { entityRef },
+      },
     });
     let message = '';
 
@@ -80,13 +80,13 @@ function* sagaChangePhoto({ api, logger }, { payload }) {
     NotificationManager[response.success ? 'success' : 'error'](message);
   } catch (e) {
     yield put(setNotificationMessage(t('user-profile-widget.error.upload-profile-photo')));
-    logger.error('[userProfile/sagaChangePhoto saga] error', e);
+    console.error('[userProfile/sagaChangePhoto saga] error', e);
   } finally {
     yield put(setUserData({ stateId, isLoadingPhoto: false }));
   }
 }
 
-function* fetchAppUserData({ api, logger }) {
+function* fetchAppUserData({ api }) {
   try {
     const resp = yield call(api.user.getUserData);
 
@@ -94,13 +94,13 @@ function* fetchAppUserData({ api, logger }) {
     yield put(getAppUserThumbnail());
     set(window, 'Citeck.constants.USERNAME', get(resp.payload, 'userName'));
   } catch (e) {
-    logger.error('[user/getUpdUserData saga] error', e);
+    console.error('[user/getUpdUserData saga] error', e);
   }
 }
 
-function* fetchAppUserThumbnail({ api, logger }) {
+function* fetchAppUserThumbnail({ api }) {
   try {
-    const userData = yield select(state => state.user);
+    const userData = yield select((state) => state.user);
     let { thumbnail } = userData || {};
 
     if (!thumbnail) {
@@ -111,7 +111,7 @@ function* fetchAppUserThumbnail({ api, logger }) {
       yield put(setAppUserThumbnail(thumbnail));
     }
   } catch (e) {
-    logger.error('[user/getUpdUserData saga] error', e);
+    console.error('[user/getUpdUserData saga] error', e);
   }
 }
 

@@ -166,7 +166,7 @@ CustomWidgetHtmlDashlet.propTypes = {
   setEditorMode: PropTypes.func,
   setLoading: PropTypes.func,
   config: PropTypes.object,
-  onSave: PropTypes.object,
+  onSave: PropTypes.func,
   id: PropTypes.string,
   dashboardId: PropTypes.string,
   isVisibleEditor: PropTypes.bool

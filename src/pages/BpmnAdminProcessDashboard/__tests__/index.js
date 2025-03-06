@@ -1,19 +1,20 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render } from 'enzyme';
-import configureStore from '../../../store';
+import { render } from '@testing-library/react';
+
 import { getIncidentsTableColumns, getInstancesTableColumns, getProcessJobDefs } from '../ProcessJournalWidget/VersionTable/constants';
 import { ProcessContextProvider } from '../ProcessContext';
 import InfoPanel from '../InfoPanel';
+import configureStore from '../../../store';
 import { PROCESS_TABS_TYPES } from '../../../constants/processAdmin';
 
 const initialState = {};
 
 const tableProps = {
-  documentJournalId: 'document-journal-id'
+  documentJournalId: 'document-journal-id',
 };
 
-const renderWithRedux = Component => {
+const renderWithRedux = (Component) => {
   const store = configureStore(null, { bpmnAdmin: initialState });
 
   return (
@@ -24,11 +25,12 @@ const renderWithRedux = Component => {
     </Provider>
   );
 };
+
 describe('', () => {
   describe('', () => {
     it('should render InfoPanel component', () => {
-      const component = render(renderWithRedux(() => <InfoPanel processId="test-process-id" />));
-      expect(component).toMatchSnapshot();
+      const { container } = render(renderWithRedux(() => <InfoPanel processId="test-process-id" />));
+      expect(container).toMatchSnapshot();
     });
 
     it('should render corrent columns for instances', () => {

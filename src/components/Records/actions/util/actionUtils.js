@@ -1,5 +1,5 @@
 import React from 'react';
-import { NotificationManager } from 'react-notifications';
+import { NotificationManager } from '@/services/notifications';
 import isBoolean from 'lodash/isBoolean';
 import get from 'lodash/get';
 import set from 'lodash/set';

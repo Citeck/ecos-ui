@@ -147,7 +147,7 @@ export default class CacheComponent extends Component {
    * Compatible React 16.3 -
    * 兼容 React 16.3 - 版本
    */
-  componentWillReceiveProps = !isUsingNewLifecycle
+  UNSAFE_componentWillReceiveProps = !isUsingNewLifecycle
     ? nextProps => {
         const nextState = getDerivedStateFromProps(nextProps, this.state);
 

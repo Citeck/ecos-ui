@@ -27,7 +27,7 @@ import './style.scss';
 
 // 2.4.456 version of worker for 2.4.456 version of pdfjs-dist:
 // pdfjs.GlobalWorkerOptions.workerSrc = '//cdn.jsdelivr.net/npm/pdfjs-dist@2.4.456/build/pdf.worker.min.js';
-pdfjs.GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL}/js/lib/pdf.worker.min.js?v=2.4.456`;
+pdfjs.GlobalWorkerOptions.workerSrc = `${import.meta.env.BASE_URL}js/lib/pdf.worker.min.js?v=2.4.456`;
 
 const decreasingSteps = [562, 387, 293];
 
@@ -129,7 +129,7 @@ class DocPreview extends Component {
    * @deprecated
    * @todo use static getDerivedStateFromProps instead
    */
-  componentWillReceiveProps(nextProps, nextContext) {
+  UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
     const prevProps = this.props;
     const { isLoading, byLink, runUpdate, clear } = nextProps;
     const { recordId, link, fileName } = this.state;

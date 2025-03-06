@@ -1,6 +1,6 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import classNames from 'classnames';
+import { createRoot } from 'react-dom/client';
 
 import { Btn } from '../../../components/common/btns';
 import { Input } from '../../../components/common/form';
@@ -11,6 +11,7 @@ class Popup {
   #container = null;
   #initialized = false;
   #destroyed = false;
+  #root = false;
 
   get initialized() {
     return this.#initialized;
@@ -52,7 +53,7 @@ class Popup {
 
   destroy = () => {
     if (this.#container) {
-      ReactDOM.unmountComponentAtNode(this.#container);
+      this.#root?.unmount();
       this.#container.remove();
       this.#container = null;
     }
@@ -61,7 +62,8 @@ class Popup {
   };
 
   render = (props = {}, callback = () => null) => {
-    ReactDOM.render(React.createElement(TunableDialog, props), this.#container, callback);
+    this.#root = createRoot(this.#container);
+    this.#root.render(React.createElement(TunableDialog, props, callback));
   };
 }
 

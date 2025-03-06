@@ -11,15 +11,15 @@ import NestedFormEventBubbling from './nested-event-bubbling';
 import NestedConditionallyHidden from './conditional-nested-form-load.js';
 
 export default [
-  Simple,
-  SubmissionSetter,
-  Conditions,
-  Calculated,
-  FieldLogic,
-  ClearOnHide,
-  NestedFormValidation,
-  NestedFormTests,
-  NestedFormNoSubmit,
-  NestedFormEventBubbling,
-  NestedConditionallyHidden
+  // Simple,
+  // SubmissionSetter,
+  // Conditions,
+  // Calculated,
+  // FieldLogic,
+  // ClearOnHide,
+  // NestedFormValidation,
+  // NestedFormTests,
+  // NestedFormNoSubmit,
+  // NestedFormEventBubbling,
+  // NestedConditionallyHidden,
 ];

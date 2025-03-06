@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import ReactDatePicker from 'react-datepicker';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
@@ -69,7 +69,7 @@ export default class DatePicker extends Component {
 
         timeInputEl.remove();
 
-        ReactDOM.render(<TimePicker selected={this.state.selectedDate} onChange={this.handleChangeTime} />, timePickerContainer);
+        createRoot(timePickerContainer).render(<TimePicker selected={this.state.selectedDate} onChange={this.handleChangeTime} />);
       }
     }
   }

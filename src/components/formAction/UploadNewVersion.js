@@ -1,4 +1,4 @@
-import { NotificationManager } from 'react-notifications';
+import { NotificationManager } from '@/services/notifications';
 import React, { useEffect, useState } from 'react';
 import get from 'lodash/get';
 

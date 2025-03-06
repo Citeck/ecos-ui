@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
 import { handleCloseMenuOnScroll } from '../../../../../../helpers/util';
-import logger from '../../../../../../services/logger';
 import ZIndex from '../../../../../../services/ZIndex';
 import { t } from '../../../../../../helpers/export/util';
 import Records from '../../../../../Records';
@@ -47,7 +46,7 @@ export default class SelectEditor extends BaseEditor {
           try {
             propOptions = JSON.parse(config.options);
           } catch (e) {
-            logger.error('[SelectEditor config.options] error', e);
+            console.error('[SelectEditor config.options] error', e);
             propOptions = [];
           }
         }

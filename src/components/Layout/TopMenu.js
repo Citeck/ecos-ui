@@ -33,7 +33,7 @@ class TopMenu extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (!nextProps.isLoading && JSON.stringify(nextProps.links) !== JSON.stringify(this.state.links)) {
       this.setState({ links: nextProps.links });
     }

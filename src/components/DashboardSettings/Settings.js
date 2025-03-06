@@ -155,7 +155,7 @@ class Settings extends Component {
     return true;
   }
 
-  componentWillReceiveProps(nextProps, nextContext) {
+  UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
     const { urlParams } = this.state;
     const newUrlParams = getSortedUrlParams();
     let { config, mobileConfig, availableWidgets, identification } = this.props;

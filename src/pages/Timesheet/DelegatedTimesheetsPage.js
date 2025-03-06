@@ -46,8 +46,8 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
     this.getData();
   }
 
-  componentWillReceiveProps(nextProps, nextContext) {
-    super.componentWillReceiveProps(nextProps, nextContext);
+  UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
+    super.UNSAFE_componentWillReceiveProps(nextProps, nextContext);
 
     const { innerCounts } = this.props;
     const badge = key => (nextProps.isLoading ? '• • •' : nextProps.innerCounts[key] || 0);

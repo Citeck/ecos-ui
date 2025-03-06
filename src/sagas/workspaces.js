@@ -9,7 +9,7 @@ import {
   setWorkspaces,
   setWorkspacesError,
   updateUIWorkspace,
-  visitedAction
+  visitedAction,
 } from '../actions/workspaces';
 import { getLinkWithWs, getPersonalWorkspaceId, getWsIdOfTabLink } from '../helpers/urls';
 import PageService from '../services/PageService';
@@ -18,11 +18,11 @@ import { fetchSlideMenuItems } from '../actions/slideMenu';
 import { fetchCreateCaseWidgetData } from '../actions/header';
 import { getMenuConfig } from '../actions/menu';
 
-function* sagaGetWorkspacesRequest({ api, logger }) {
+function* sagaGetWorkspacesRequest({ api }) {
   try {
     const { records } = yield call(api.workspaces.getWorkspaces);
 
-    const resolveRecords = (records || []).map(record => {
+    const resolveRecords = (records || []).map((record) => {
       const homePageLink = get(record, 'homePageLink');
       const isCurrentUserManager = get(record, 'isCurrentUserManager');
 
@@ -56,21 +56,21 @@ function* sagaGetWorkspacesRequest({ api, logger }) {
       yield put(setWorkspaces(records));
     }
   } catch (e) {
-    logger.error('[workspaces/ doGetWorkspacesRequest] error', e);
+    console.error('[workspaces/ doGetWorkspacesRequest] error', e);
     yield put(setWorkspacesError());
   }
 }
 
-function* sagaVisitedActionRequest({ api, logger }, { payload }) {
+function* sagaVisitedActionRequest({ api }, { payload }) {
   try {
     yield call(api.workspaces.visitedAction, payload);
   } catch (e) {
-    logger.error('[workspaces/ sagaVisitedActionRequest] error', e);
+    console.error('[workspaces/ sagaVisitedActionRequest] error', e);
     yield put(setWorkspacesError());
   }
 }
 
-function* sagaGoToDefaultFromBlockedWs({ logger }) {
+function* sagaGoToDefaultFromBlockedWs() {
   try {
     const newUrl = getLinkWithWs(URL.DASHBOARD, getPersonalWorkspaceId());
 
@@ -78,18 +78,18 @@ function* sagaGoToDefaultFromBlockedWs({ logger }) {
 
     PageService.changeUrlLink(newUrl, { openNewTab: true, needUpdateTabs: true });
   } catch (e) {
-    logger.error('[workspaces/ sagaGoToDefaultFromBlockedWs] error', e);
+    console.error('[workspaces/ sagaGoToDefaultFromBlockedWs] error', e);
     yield put(setWorkspacesError());
   }
 }
 
-function* sagaUpdateUIWorkspace({ logger }) {
+function* sagaUpdateUIWorkspace() {
   try {
     yield put(getMenuConfig());
     yield put(fetchSlideMenuItems());
     yield put(fetchCreateCaseWidgetData());
   } catch (e) {
-    logger.error('[workspaces/ sagaUpdateUIWorkspace] error', e);
+    console.error('[workspaces/ sagaUpdateUIWorkspace] error', e);
     yield put(setWorkspacesError());
   }
 }

@@ -10,13 +10,13 @@ import Records from '../Records';
  * @desc Batches of records by a given number are requested
  */
 class RecordsIterator {
-  #page = 1;
-  #amountPerIteration;
-  #query = null;
-  #queryInitial = null;
-  #lastDate = null;
-  #isEnd = false;
-  #skipCount = 0;
+  _page = 1;
+  _amountPerIteration;
+  _query = null;
+  _queryInitial = null;
+  _lastDate = null;
+  _isEnd = false;
+  _skipCount = 0;
 
   /**
    * @param {Object} query
@@ -27,55 +27,55 @@ class RecordsIterator {
       throw new Error('No Query');
     }
 
-    this.#query = cloneDeep(query);
-    this.#queryInitial = query;
+    this._query = cloneDeep(query);
+    this._queryInitial = query;
     const { amountPerIteration = 10 } = config || {};
-    this.#amountPerIteration = Number(amountPerIteration);
+    this._amountPerIteration = Number(amountPerIteration);
   }
 
   get pagination() {
     return {
-      skipCount: this.#skipCount,
-      maxItems: this.#amountPerIteration,
-      page: this.#page
+      skipCount: this._skipCount,
+      maxItems: this._amountPerIteration,
+      page: this._page,
     };
   }
 
   async next() {
-    this.#query.page = this.pagination;
-    const res = await Records.query(this.#query, ['_created']).catch(e => {
+    this._query.page = this.pagination;
+    const res = await Records.query(this._query, ['_created']).catch((e) => {
       console.error(e);
       return [];
     });
 
     if (res.records && res.records.length) {
-      if (this.#lastDate === res.records[res.records.length - 1]['_created']) {
-        this.#skipCount += this.#amountPerIteration;
+      if (this._lastDate === res.records[res.records.length - 1]['_created']) {
+        this._skipCount += this._amountPerIteration;
       } else {
         const lastDateRecords = res.records[res.records.length - 1]['_created'];
         if (lastDateRecords) {
-          this.#lastDate = lastDateRecords;
+          this._lastDate = lastDateRecords;
         }
-        this.#skipCount = 0;
-        res.records.forEach(record => record['_created'] && record['_created'] === this.#lastDate && this.#skipCount++);
+        this._skipCount = 0;
+        res.records.forEach((record) => record['_created'] && record['_created'] === this._lastDate && this._skipCount++);
       }
     }
 
-    if (this.#lastDate) {
-      this.#query.query = {
+    if (this._lastDate) {
+      this._query.query = {
         t: 'and',
         val: [
-          ...this.#queryInitial.query.val,
+          ...this._queryInitial.query.val,
           {
             att: '_created',
             t: 'ge',
-            val: this.#lastDate
-          }
-        ]
+            val: this._lastDate,
+          },
+        ],
       };
     }
 
-    this.#page++;
+    this._page++;
 
     if (!get(res, 'records.length')) {
       return null;
@@ -89,15 +89,15 @@ class RecordsIterator {
    * @param {?Function} callback
    */
   async iterate(callback) {
-    while (!this.#isEnd) {
+    while (!this._isEnd) {
       const res = await this.next();
 
       if (res && isFunction(callback)) {
         await callback(res);
       }
 
-      if (!res || (res.records && res.records.length < this.#amountPerIteration)) {
-        this.#isEnd = true;
+      if (!res || (res.records && res.records.length < this._amountPerIteration)) {
+        this._isEnd = true;
       }
     }
   }

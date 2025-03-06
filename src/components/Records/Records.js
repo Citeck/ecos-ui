@@ -1,10 +1,10 @@
 import cloneDeep from 'lodash/cloneDeep';
 import isString from 'lodash/isString';
 import isArray from 'lodash/isArray';
-import { recordsDeleteFetch, recordsQueryFetch } from './recordsApi';
-import Record from './Record';
 import uuidV4 from 'uuid/v4';
 
+import { recordsDeleteFetch, recordsQueryFetch } from './recordsApi';
+import Record from './Record';
 import recordsClientManager from './client';
 import { prepareAttsToLoad } from './utils/recordUtils';
 
@@ -33,9 +33,9 @@ class RecordsComponent {
     } else if (id instanceof Record) {
       record = id;
     } else if (isArray(id)) {
-      let result = id.map(i => this.get(i));
-      result.load = function() {
-        return Promise.all(this.map(r => r.load.apply(r, arguments)));
+      let result = id.map((i) => this.get(i));
+      result.load = function () {
+        return Promise.all(this.map((r) => r.load.apply(r, arguments)));
       };
       return result;
     } else if (isString(id)) {
@@ -162,7 +162,7 @@ class RecordsComponent {
       records = [records];
     }
 
-    records = records.map(r => (r.id ? r.id : r));
+    records = records.map((r) => (r.id ? r.id : r));
     return recordsDeleteFetch({ records }).then(() => this.forget(records));
   }
 
@@ -174,7 +174,7 @@ class RecordsComponent {
 
     query.page = page;
 
-    return this.query(query, attributes).then(resp => {
+    return this.query(query, attributes).then((resp) => {
       if (resp.records.length === 0) {
         return defaultResult;
       }
@@ -209,7 +209,7 @@ class RecordsComponent {
       }
     }
 
-    const processRespRecords = async respRecords => {
+    const processRespRecords = async (respRecords) => {
       let records = [];
       for (let idx in respRecords) {
         if (!respRecords.hasOwnProperty(idx)) {
@@ -264,7 +264,7 @@ class RecordsComponent {
 
     let queryBody = {
       query: query,
-      attributes: queryAttributes
+      attributes: queryAttributes,
     };
 
     if (options && options.debug) {
@@ -281,7 +281,7 @@ class RecordsComponent {
       hasMore,
       totalCount,
       attributes: queryBody.attributes,
-      errors: messages && messages.filter(msg => msg && msg.level === 'ERROR')
+      errors: messages && messages.filter((msg) => msg && msg.level === 'ERROR'),
     };
   }
 }

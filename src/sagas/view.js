@@ -6,15 +6,15 @@ import { setIsMobile, loadThemeRequest } from '../actions/view';
 import { applyTheme, isMobileDevice, loadStylesheet } from '../helpers/util';
 import { selectActiveThemeStylesheet } from '../selectors/view';
 
-export function* doDetectMobileDevice({ logger }) {
+export function* doDetectMobileDevice() {
   try {
     yield put(setIsMobile(isMobileDevice()));
   } catch (e) {
-    logger.error('[doDetectMobileDevice saga] error', e);
+    console.error('[doDetectMobileDevice saga] error', e);
   }
 }
 
-export function* loadTheme({ api, logger }, { payload }) {
+export function* loadTheme({ api }, { payload }) {
   try {
     const { isAuthenticated, onSuccess } = payload;
     const id = yield call(api.view.getActiveThemeId);
@@ -35,7 +35,7 @@ export function* loadTheme({ api, logger }, { payload }) {
     const stylesheetUrl = yield select(selectActiveThemeStylesheet);
     yield call(loadStylesheet, stylesheetUrl, onSuccess, onSuccess);
   } catch (e) {
-    logger.error('[loadTheme saga] error', e);
+    console.error('[loadTheme saga] error', e);
   }
 }
 

@@ -1,11 +1,5 @@
 import { IS_TEST_ENV } from '../../../helpers/util';
+import BaseEcosFormUtils from './BaseEcosFormUtils';
+import EcosFormUtils from './EcosFormUtils';
 
-let EcosFormUtils;
-
-if (IS_TEST_ENV) {
-  EcosFormUtils = require('./BaseEcosFormUtils');
-} else {
-  EcosFormUtils = require('./EcosFormUtils');
-}
-
-export default EcosFormUtils.default;
+export default IS_TEST_ENV ? BaseEcosFormUtils : EcosFormUtils;

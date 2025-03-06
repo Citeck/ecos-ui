@@ -1,4 +1,4 @@
-import { NotificationManager } from 'react-notifications';
+import { NotificationManager } from '@/services/notifications';
 
 import PageService from '../../../../../../services/PageService';
 import { NEW_VERSION_PREFIX } from '../../../../../../helpers/export/urls';

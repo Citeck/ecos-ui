@@ -1,0 +1,52 @@
+@import '../../../../styles/constants.scss';
+
+.file-node {
+  display: inline-grid;
+  grid-template-columns: 1fr auto 1fr;
+  column-gap: 5px;
+
+  max-width: 250px;
+  min-width: 30%;
+  height: 80px;
+  padding: 10px;
+
+  margin: 0 10px 10px;
+
+  border: 1px solid $color-gray-3;
+  border-radius: 10px;
+  box-shadow: $box-shadow-default;
+
+  &__preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 50px;
+
+    border: 1px solid $color-gray-3;
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    max-width: 110px;
+
+    &-name {
+      @extend %ellipsis;
+      font-weight: bold;
+    }
+
+    &-wrapper {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    &-download {
+      color: $color-black;
+    }
+  }
+}

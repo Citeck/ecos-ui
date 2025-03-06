@@ -11,7 +11,7 @@ import {
   sagaGetTypeRef,
   sagaInitDocumentLibrary,
   sagaInitDocumentLibrarySidebar,
-  sagaInitGroupActions
+  sagaInitGroupActions,
 } from '../docLib';
 import {
   loadFolderData,
@@ -20,7 +20,7 @@ import {
   setIsDocLibEnabled,
   setIsGroupActionsReady,
   setSearchText,
-  setSidebarIsReady
+  setSidebarIsReady,
 } from '../../actions/docLib';
 
 const journalId = 'testJournalId';
@@ -30,25 +30,28 @@ const rootId = 'testRootId';
 const dirType = 'testDirType';
 const fileType = 'testFileType';
 const w = wrapArgs(stateId);
-const logger = {
-  error: jest.fn()
-};
 
 const fakeState = {
   journals: {
     [stateId]: {
-      url: {}
-    }
+      url: {},
+    },
   },
   documentLibrary: {
     [stateId]: {
-      rootId: ''
-    }
-  }
+      rootId: '',
+    },
+  },
 };
+
+console.error = jest.fn();
 
 afterEach(() => {
   jest.clearAllMocks();
+});
+
+beforeEach(() => {
+  console.error.mockClear();
 });
 
 describe('docLib sagas tests', () => {
@@ -59,11 +62,11 @@ describe('docLib sagas tests', () => {
 
       await runSaga(
         {
-          dispatch: action => dispatched.push(action)
+          dispatch: (action) => dispatched.push(action),
         },
         sagaGetTypeRef,
-        { logger, stateId, w },
-        { payload: { journalId } }
+        { stateId, w },
+        { payload: { journalId } },
       ).done;
 
       expect(getTypeRefSpy).toHaveBeenCalledTimes(1);
@@ -77,11 +80,11 @@ describe('docLib sagas tests', () => {
 
       await runSaga(
         {
-          dispatch: action => dispatched.push(action)
+          dispatch: (action) => dispatched.push(action),
         },
         sagaGetTypeRef,
-        { logger, stateId, w },
-        { payload: { journalId } }
+        { stateId, w },
+        { payload: { journalId } },
       ).done;
 
       expect(getTypeRefSpy).toHaveBeenCalledTimes(1);
@@ -102,11 +105,11 @@ describe('docLib sagas tests', () => {
 
       await runSaga(
         {
-          dispatch: action => dispatched.push(action)
+          dispatch: (action) => dispatched.push(action),
         },
         loadDocumentLibrarySettings,
         typeRef,
-        w
+        w,
       ).done;
 
       expect(getFileTypeRefsSpy).toHaveBeenCalled();
@@ -130,14 +133,14 @@ describe('docLib sagas tests', () => {
 
       await runSaga(
         {
-          dispatch: action => dispatched.push(action),
-          getState: () => thisState
+          dispatch: (action) => dispatched.push(action),
+          getState: () => thisState,
         },
         sagaInitDocumentLibrary,
-        { stateId, w, logger }
+        { stateId, w },
       ).done;
 
-      const setFolderIdAction = dispatched.find(item => item.type === setFolderId().type);
+      const setFolderIdAction = dispatched.find((item) => item.type === setFolderId().type);
       expect(setFolderIdAction.payload).toEqual(w(rootId));
     });
 
@@ -148,14 +151,14 @@ describe('docLib sagas tests', () => {
 
       await runSaga(
         {
-          dispatch: action => dispatched.push(action),
-          getState: () => thisState
+          dispatch: (action) => dispatched.push(action),
+          getState: () => thisState,
         },
         sagaInitDocumentLibrary,
-        { stateId, w, logger }
+        { stateId, w },
       ).done;
 
-      const setFolderIdAction = dispatched.find(item => item.type === setFolderId().type);
+      const setFolderIdAction = dispatched.find((item) => item.type === setFolderId().type);
       expect(setFolderIdAction.payload).toEqual(w('folder1'));
     });
 
@@ -166,14 +169,14 @@ describe('docLib sagas tests', () => {
 
       await runSaga(
         {
-          dispatch: action => dispatched.push(action),
-          getState: () => thisState
+          dispatch: (action) => dispatched.push(action),
+          getState: () => thisState,
         },
         sagaInitDocumentLibrary,
-        { stateId, w, logger }
+        { stateId, w },
       ).done;
 
-      const setSearchTextAction = dispatched.find(item => item.type === setSearchText().type);
+      const setSearchTextAction = dispatched.find((item) => item.type === setSearchText().type);
       expect(setSearchTextAction.payload).toEqual(w('search text'));
     });
 
@@ -182,14 +185,14 @@ describe('docLib sagas tests', () => {
 
       await runSaga(
         {
-          dispatch: action => dispatched.push(action),
-          getState: () => fakeState
+          dispatch: (action) => dispatched.push(action),
+          getState: () => fakeState,
         },
         sagaInitDocumentLibrary,
-        { stateId, w, logger }
+        { stateId, w },
       ).done;
 
-      const loadFolderDataAction = dispatched.findIndex(item => item.type === loadFolderData().type);
+      const loadFolderDataAction = dispatched.findIndex((item) => item.type === loadFolderData().type);
       expect(loadFolderDataAction).not.toEqual(-1);
     });
   });
@@ -210,11 +213,11 @@ describe('docLib sagas tests', () => {
 
       await runSaga(
         {
-          dispatch: action => dispatched.push(action),
-          getState: () => thisState
+          dispatch: (action) => dispatched.push(action),
+          getState: () => thisState,
         },
         sagaInitDocumentLibrarySidebar,
-        { stateId, w, logger }
+        { stateId, w },
       ).done;
 
       expect(getFolderTitleSpy).toHaveBeenCalledTimes(1);
@@ -228,7 +231,7 @@ describe('docLib sagas tests', () => {
       // remove all unfoldedItems, because getChildrenDirsSpy always returns mockResolvedValue([])
       expect(removeUnfoldedItemSpy).toHaveBeenCalledTimes(unfoldedItems.length);
 
-      const setSidebarIsReadyActions = dispatched.filter(item => item.type === setSidebarIsReady().type);
+      const setSidebarIsReadyActions = dispatched.filter((item) => item.type === setSidebarIsReady().type);
       expect(setSidebarIsReadyActions.length).toBe(2);
       expect(setSidebarIsReadyActions[0].payload).toEqual(w(false));
       expect(setSidebarIsReadyActions[1].payload).toEqual(w(true));
@@ -241,11 +244,11 @@ describe('docLib sagas tests', () => {
 
       await runSaga(
         {
-          dispatch: action => dispatched.push(action)
+          dispatch: (action) => dispatched.push(action),
         },
         sagaInitGroupActions,
-        { logger, stateId, w },
-        { payload: [] }
+        { stateId, w },
+        { payload: [] },
       ).done;
 
       expect(dispatched[0]).toEqual(setGroupActions(w({})));
@@ -261,11 +264,11 @@ describe('docLib sagas tests', () => {
 
       await runSaga(
         {
-          dispatch: action => dispatched.push(action)
+          dispatch: (action) => dispatched.push(action),
         },
         sagaInitGroupActions,
-        { logger, stateId, w, skipDelay: true },
-        { payload: selectedItems }
+        { stateId, w, skipDelay: true },
+        { payload: selectedItems },
       ).done;
 
       expect(dispatched[0]).toEqual(setIsGroupActionsReady(w(false)));
@@ -284,15 +287,15 @@ describe('docLib sagas tests', () => {
 
       await runSaga(
         {
-          dispatch: action => dispatched.push(action)
+          dispatch: (action) => dispatched.push(action),
         },
         sagaInitGroupActions,
-        { logger, stateId, w, skipDelay: true },
-        { payload: selectedItems }
+        { stateId, w, skipDelay: true },
+        { payload: selectedItems },
       ).done;
 
       expect(getRecordActionsSpy).toHaveBeenCalledTimes(1);
-      expect(logger.error).toHaveBeenCalledTimes(1);
+      expect(console.error).toHaveBeenCalledTimes(1);
 
       expect(dispatched[dispatched.length - 1]).toEqual(setIsGroupActionsReady(w(true)));
     });
@@ -307,23 +310,22 @@ describe('docLib sagas tests', () => {
 
       const api = {
         recordActions: {
-          executeAction: jest.fn().mockResolvedValue([])
-        }
+          executeAction: jest.fn().mockResolvedValue([]),
+        },
       };
 
       await runSaga(
         {
-          dispatch: action => dispatched.push(action),
-          getState: () => thisState
+          dispatch: (action) => dispatched.push(action),
+          getState: () => thisState,
         },
         sagaExecGroupAction,
         {
           api,
-          logger,
           stateId,
-          w
+          w,
         },
-        { payload: {} }
+        { payload: {} },
       ).done;
 
       expect(api.recordActions.executeAction).toHaveBeenCalledTimes(1);
@@ -335,23 +337,22 @@ describe('docLib sagas tests', () => {
 
       await runSaga(
         {
-          dispatch: action => dispatched.push(action)
+          dispatch: (action) => dispatched.push(action),
         },
         sagaExecGroupAction,
         {
           api: {
             recordActions: {
-              executeAction: jest.fn().mockRejectedValue(new Error('api.recordActions.executeAction error'))
-            }
+              executeAction: jest.fn().mockRejectedValue(new Error('api.recordActions.executeAction error')),
+            },
           },
-          logger,
           stateId,
-          w
+          w,
         },
-        { payload: {} }
+        { payload: {} },
       ).done;
 
-      expect(logger.error).toHaveBeenCalledTimes(1);
+      expect(console.error).toHaveBeenCalledTimes(1);
     });
   });
 

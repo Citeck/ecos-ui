@@ -1,6 +1,6 @@
 import { FormText } from 'reactstrap';
 import React, { useState, useEffect } from 'react';
-import { NotificationManager } from 'react-notifications';
+import { NotificationManager } from '@/services/notifications';
 import get from 'lodash/get';
 import isBoolean from 'lodash/isBoolean';
 import isNumber from 'lodash/isNumber';

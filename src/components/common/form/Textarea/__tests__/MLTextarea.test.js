@@ -1,5 +1,5 @@
 import React from 'react';
-import { shallow, mount } from 'enzyme';
+import { render } from '@testing-library/react';
 
 import MLTextarea from '../MLTextarea';
 import { LANGUAGE_RU, LANGUAGE_EN } from '../../../../../constants/lang';
@@ -8,43 +8,43 @@ global.getSelection = () => '';
 
 describe('<MLTextarea />', () => {
   it('renders without crashing', () => {
-    shallow(<MLTextarea />);
+    render(<MLTextarea />);
   });
 
   it('switch between languages', () => {
     const defaultProps = {
       value: {
         en: 'Test',
-        ru: 'Тест'
+        ru: 'Тест',
       },
-      lang: LANGUAGE_EN
+      lang: LANGUAGE_EN,
     };
 
-    const wrapper = mount(<MLTextarea {...defaultProps} />);
+    const wrapper = render(<MLTextarea {...defaultProps} />);
+    const outerText = defaultProps.value[defaultProps.lang];
+
     return Promise.resolve(wrapper)
-      .then(() => {
-        const textarea = wrapper.find('textarea');
-        expect(textarea.length).toBe(1);
-        const textareaProps = textarea.props();
-        expect(textareaProps.value).toBe(defaultProps.value.en);
+      .then(async () => {
+        const textarea = await wrapper.findByText(outerText);
+        expect(textarea).toBeInstanceOf(HTMLTextAreaElement);
+        expect(textarea.textContent).toBe(outerText);
       })
       .then(() => {
-        wrapper.setProps({ lang: LANGUAGE_RU });
-        return wrapper.update();
+        wrapper.rerender(<MLTextarea {...defaultProps} lang={LANGUAGE_RU} />);
+      })
+      .then(async () => {
+        const changedText = defaultProps.value[LANGUAGE_RU];
+        const textarea = await wrapper.findByText(changedText);
+        expect(textarea.textContent).toBe(changedText);
       })
       .then(() => {
-        const textarea = wrapper.find('textarea');
-        const textareaProps = textarea.props();
-        expect(textareaProps.value).toBe(defaultProps.value.ru);
+        wrapper.rerender(<MLTextarea {...defaultProps} lang={LANGUAGE_EN} />);
       })
-      .then(() => {
-        wrapper.setProps({ lang: LANGUAGE_EN });
-        return wrapper.update();
-      })
-      .then(() => {
-        const textarea = wrapper.find('textarea');
-        const textareaProps = textarea.props();
-        expect(textareaProps.value).toBe(defaultProps.value.en);
+      .then(async () => {
+        const changedText = defaultProps.value[LANGUAGE_EN];
+        const textarea = await wrapper.findByText(changedText);
+        expect(textarea.textContent).toBe(changedText);
+        expect(changedText).toBe(outerText);
       })
       .then(() => wrapper.unmount());
   });

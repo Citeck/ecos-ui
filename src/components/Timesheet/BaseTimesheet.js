@@ -59,7 +59,7 @@ class BaseTimesheet extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps, nextContext) {
+  UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
     if (JSON.stringify(nextProps.eventTypes) !== JSON.stringify(this.state.eventTypes)) {
       this.setState({
         eventTypes: nextProps.eventTypes,
