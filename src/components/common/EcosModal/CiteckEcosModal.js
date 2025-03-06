@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
@@ -129,15 +130,17 @@ class Modal {
       node = <div dangerouslySetInnerHTML={{ __html: node }} />;
     }
 
+    const root = createRoot(this.el);
+
     this.onHideModal = () => {
-      this.destroy();
+      this.destroy(root);
 
       if (isFunction(config.onHideModal)) {
         config.onHideModal();
       }
     };
 
-    ReactDOM.render(
+    root.render(
       <ModalWrapper
         title={config.title || config.header || EMPTY_HEADER_TITLE}
         isBigHeader={config.isBigHeader}
@@ -151,22 +154,27 @@ class Modal {
         {isFunction(contentBefore) ? contentBefore() : contentBefore}
         {node}
         {isFunction(contentAfter) ? contentAfter() : contentAfter}
-      </ModalWrapper>,
-      this.el,
-      callback
+      </ModalWrapper>
     );
+
+    if (callback) {
+      callback();
+    }
   };
 
   close = callback => {
     this.modal.close(callback);
   };
 
-  destroy = () => {
+  destroy = root => {
     if (!this.el) {
       return;
     }
 
-    ReactDOM.unmountComponentAtNode(this.el);
+    if (root) {
+      root.unmount();
+    }
+
     document.body.removeChild(this.el);
     this.el = null;
   };

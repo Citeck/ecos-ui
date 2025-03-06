@@ -1,4 +1,4 @@
-import { shallow } from 'enzyme';
+import { render } from '@testing-library/react';
 
 import HtmlFormatter from './HtmlFormatter';
 
@@ -10,20 +10,22 @@ describe('HtmlFormatter', () => {
   it('getType should return correct type', () => {
     expect(htmlFormatterInstance.getType()).toBe(HtmlFormatter.TYPE);
   });
+
   describe('format method', () => {
     it('should render an html content', () => {
       const result = htmlFormatterInstance.format({
         config: {
-          html: '<strong>Test</strong>'
-        }
+          html: '<strong>Test</strong>',
+        },
       });
-      const component = shallow(result);
-      expect(component.html()).toBe('<div><strong>Test</strong></div>');
+      const { container } = render(result);
+      expect(container.innerHTML).toBe('<div><strong>Test</strong></div>');
     });
+
     it('should throw Error if config.html is not specified', () => {
       const format = () => {
         htmlFormatterInstance.format({
-          config: {}
+          config: {},
         });
       };
       expect(format).toThrow('mandatory');

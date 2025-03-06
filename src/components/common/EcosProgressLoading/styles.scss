@@ -1,6 +1,11 @@
 @import '../../../styles/constants';
 
 .ecos-progress-loading {
+  &__td-container {
+    width: 100%;
+    position: absolute;
+  }
+
   &__container {
     width: 100%;
     position: absolute;

@@ -12,7 +12,7 @@ import { Fullpage, Icon, InfoText } from '../../common';
 import { Btn } from '../../common/btns';
 import { Labels } from './util';
 import { camelize, t } from '../../../helpers/util';
-import StyleVariables from './style.scss';
+import * as StyleVariables from './style.scss';
 import { DocScaleOptions } from '../../../constants';
 
 const $PAGE = '.ecos-doc-preview__viewer-page';

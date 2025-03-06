@@ -112,13 +112,13 @@ class Modal extends React.Component {
     this._isMounted = true;
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps.isOpen && !this.props.isOpen) {
       this.setState({ isOpen: nextProps.isOpen });
     }
   }
 
-  componentWillUpdate(nextProps, nextState) {
+  UNSAFE_componentWillUpdate(nextProps, nextState) {
     if (nextState.isOpen && !this.state.isOpen) {
       this.init();
     }

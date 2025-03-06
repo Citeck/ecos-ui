@@ -1,187 +1,386 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`  should render MetaInfo component 1`] = `
-<div
-  class="dashlet"
->
-  <div
-    class="ecos-well ecos-panel dashlet"
-  >
-    <div
-      class="ecos-panel__head dashlet__header-wrapper"
-    >
+{
+  "asFragment": [Function],
+  "baseElement": <body>
+    <div>
       <div
-        class="dashlet__header"
-      >
-        <span
-          class="dashlet__caption"
-        >
-          instance-admin.info-widget.title
-        </span>
-        <span
-          class="ecos-badge ecos-badge_info ecos-badge_large"
-        />
-        <div
-          class="dashlet__header-actions"
-        />
-      </div>
-    </div>
-    <div
-      class="ecos-panel__body dashlet__body"
-    >
-      <div
-        class="dashlet__body-content"
+        class="dashlet"
       >
         <div
-          class="bpmn-admin-info"
+          class="ecos-well ecos-panel dashlet"
         >
           <div
-            class="bpmn-admin-info__main"
+            class="ecos-panel__head dashlet__header-wrapper"
           >
             <div
-              class="bpmn-admin-info__main-item"
+              class="dashlet__header"
+            >
+              <span
+                class="dashlet__caption"
+              >
+                instance-admin.info-widget.title
+              </span>
+              <span
+                class="ecos-badge ecos-badge_info ecos-badge_large"
+              />
+              <div
+                class="dashlet__header-actions"
+              />
+            </div>
+          </div>
+          <div
+            class="ecos-panel__body dashlet__body"
+          >
+            <div
+              class="dashlet__body-content"
             >
               <div
-                class="ecos-panel-title ecos-panel-title_color-gray ecos-panel-title_narrow"
-              >
-                instance-admin.info-widget.document
-              </div>
-              <button
-                class="ecos-btn ecos-btn_disabled ecos-btn_blue"
-                disabled=""
+                class="bpmn-admin-info"
               >
                 <div
-                  class="ecos-btn__content"
+                  class="bpmn-admin-info__main"
                 >
-                  instance-admin.info-widget.not-defined
-                  <i
-                    class="icon-small-right"
-                  />
+                  <div
+                    class="bpmn-admin-info__main-item"
+                  >
+                    <div
+                      class="ecos-panel-title ecos-panel-title_color-gray ecos-panel-title_narrow"
+                    >
+                      instance-admin.info-widget.document
+                    </div>
+                    <button
+                      class="ecos-btn ecos-btn_disabled ecos-btn_blue"
+                      disabled=""
+                    >
+                      <div
+                        class="ecos-btn__content"
+                      >
+                        instance-admin.info-widget.not-defined
+                        <i
+                          class="icon-small-right"
+                        />
+                      </div>
+                    </button>
+                  </div>
+                  <div
+                    class="bpmn-admin-info__main-item"
+                  >
+                    <div
+                      class="ecos-panel-title ecos-panel-title_color-gray ecos-panel-title_narrow"
+                    >
+                      instance-admin.info-widget.actions-title
+                    </div>
+                    <div
+                      class="dropdown"
+                    >
+                      <div
+                        aria-expanded="false"
+                        aria-haspopup="true"
+                        class=""
+                      >
+                        <button
+                          class="ecos-btn bpmn-admin-info__actions ecos-btn_blue"
+                        >
+                          <div
+                            class="ecos-btn__content"
+                          >
+                            instance-admin.info-widget.choose-action
+                            <i
+                              class="icon-small-down"
+                            />
+                          </div>
+                        </button>
+                      </div>
+                      <div
+                        aria-hidden="true"
+                        class="dropdown-menu dropdown-menu-right"
+                        container="body"
+                        role="menu"
+                        tabindex="-1"
+                      />
+                    </div>
+                  </div>
+                  <div
+                    class="bpmn-admin-info__main-item"
+                  >
+                    <div
+                      class="ecos-panel-title ecos-panel-title_color-gray ecos-panel-title_narrow"
+                    >
+                      instance-admin.info-widget.definition-ref
+                    </div>
+                    <button
+                      class="ecos-btn ecos-btn_disabled ecos-btn_blue"
+                      disabled=""
+                    >
+                      <div
+                        class="ecos-btn__content"
+                      >
+                        instance-admin.info-widget.not-defined
+                        <i
+                          class="icon-small-right"
+                        />
+                      </div>
+                    </button>
+                  </div>
                 </div>
-              </button>
+                <div
+                  class="bpmn-admin-info__secondary"
+                >
+                  <span>
+                    instance-admin.info-widget.version: instance-admin.info-widget.not-defined
+                  </span>
+                  <span>
+                    instance-admin.info-widget.start-time: instance-admin.info-widget.not-defined
+                  </span>
+                </div>
+              </div>
             </div>
             <div
-              class="bpmn-admin-info__main-item"
+              class="dashlet__body-indent dashlet__body-indent_bottom"
+            />
+          </div>
+        </div>
+        <div />
+      </div>
+    </div>
+  </body>,
+  "container": <div>
+    <div
+      class="dashlet"
+    >
+      <div
+        class="ecos-well ecos-panel dashlet"
+      >
+        <div
+          class="ecos-panel__head dashlet__header-wrapper"
+        >
+          <div
+            class="dashlet__header"
+          >
+            <span
+              class="dashlet__caption"
+            >
+              instance-admin.info-widget.title
+            </span>
+            <span
+              class="ecos-badge ecos-badge_info ecos-badge_large"
+            />
+            <div
+              class="dashlet__header-actions"
+            />
+          </div>
+        </div>
+        <div
+          class="ecos-panel__body dashlet__body"
+        >
+          <div
+            class="dashlet__body-content"
+          >
+            <div
+              class="bpmn-admin-info"
             >
               <div
-                class="ecos-panel-title ecos-panel-title_color-gray ecos-panel-title_narrow"
-              >
-                instance-admin.info-widget.actions-title
-              </div>
-              <div
-                class="dropdown"
+                class="bpmn-admin-info__main"
               >
                 <div
-                  aria-expanded="false"
-                  aria-haspopup="true"
-                  class=""
+                  class="bpmn-admin-info__main-item"
                 >
+                  <div
+                    class="ecos-panel-title ecos-panel-title_color-gray ecos-panel-title_narrow"
+                  >
+                    instance-admin.info-widget.document
+                  </div>
                   <button
-                    class="ecos-btn bpmn-admin-info__actions ecos-btn_blue"
+                    class="ecos-btn ecos-btn_disabled ecos-btn_blue"
+                    disabled=""
                   >
                     <div
                       class="ecos-btn__content"
                     >
-                      instance-admin.info-widget.choose-action
+                      instance-admin.info-widget.not-defined
                       <i
-                        class="icon-small-down"
+                        class="icon-small-right"
                       />
                     </div>
                   </button>
                 </div>
                 <div
-                  aria-hidden="true"
-                  class="dropdown-menu dropdown-menu-right"
-                  container="body"
-                  role="menu"
-                  tabindex="-1"
-                />
-              </div>
-            </div>
-            <div
-              class="bpmn-admin-info__main-item"
-            >
-              <div
-                class="ecos-panel-title ecos-panel-title_color-gray ecos-panel-title_narrow"
-              >
-                instance-admin.info-widget.definition-ref
-              </div>
-              <button
-                class="ecos-btn ecos-btn_disabled ecos-btn_blue"
-                disabled=""
-              >
-                <div
-                  class="ecos-btn__content"
+                  class="bpmn-admin-info__main-item"
                 >
-                  instance-admin.info-widget.not-defined
-                  <i
-                    class="icon-small-right"
-                  />
+                  <div
+                    class="ecos-panel-title ecos-panel-title_color-gray ecos-panel-title_narrow"
+                  >
+                    instance-admin.info-widget.actions-title
+                  </div>
+                  <div
+                    class="dropdown"
+                  >
+                    <div
+                      aria-expanded="false"
+                      aria-haspopup="true"
+                      class=""
+                    >
+                      <button
+                        class="ecos-btn bpmn-admin-info__actions ecos-btn_blue"
+                      >
+                        <div
+                          class="ecos-btn__content"
+                        >
+                          instance-admin.info-widget.choose-action
+                          <i
+                            class="icon-small-down"
+                          />
+                        </div>
+                      </button>
+                    </div>
+                    <div
+                      aria-hidden="true"
+                      class="dropdown-menu dropdown-menu-right"
+                      container="body"
+                      role="menu"
+                      tabindex="-1"
+                    />
+                  </div>
                 </div>
-              </button>
+                <div
+                  class="bpmn-admin-info__main-item"
+                >
+                  <div
+                    class="ecos-panel-title ecos-panel-title_color-gray ecos-panel-title_narrow"
+                  >
+                    instance-admin.info-widget.definition-ref
+                  </div>
+                  <button
+                    class="ecos-btn ecos-btn_disabled ecos-btn_blue"
+                    disabled=""
+                  >
+                    <div
+                      class="ecos-btn__content"
+                    >
+                      instance-admin.info-widget.not-defined
+                      <i
+                        class="icon-small-right"
+                      />
+                    </div>
+                  </button>
+                </div>
+              </div>
+              <div
+                class="bpmn-admin-info__secondary"
+              >
+                <span>
+                  instance-admin.info-widget.version: instance-admin.info-widget.not-defined
+                </span>
+                <span>
+                  instance-admin.info-widget.start-time: instance-admin.info-widget.not-defined
+                </span>
+              </div>
             </div>
           </div>
           <div
-            class="bpmn-admin-info__secondary"
-          >
-            <span>
-              instance-admin.info-widget.version: instance-admin.info-widget.not-defined
-            </span>
-            <span>
-              instance-admin.info-widget.start-time: instance-admin.info-widget.not-defined
-            </span>
-          </div>
+            class="dashlet__body-indent dashlet__body-indent_bottom"
+          />
         </div>
       </div>
-      <div
-        class="dashlet__body-indent dashlet__body-indent_bottom"
-      />
+      <div />
     </div>
-  </div>
-  <div />
-</div>
+  </div>,
+  "debug": [Function],
+  "findAllByAltText": [Function],
+  "findAllByDisplayValue": [Function],
+  "findAllByLabelText": [Function],
+  "findAllByPlaceholderText": [Function],
+  "findAllByRole": [Function],
+  "findAllByTestId": [Function],
+  "findAllByText": [Function],
+  "findAllByTitle": [Function],
+  "findByAltText": [Function],
+  "findByDisplayValue": [Function],
+  "findByLabelText": [Function],
+  "findByPlaceholderText": [Function],
+  "findByRole": [Function],
+  "findByTestId": [Function],
+  "findByText": [Function],
+  "findByTitle": [Function],
+  "getAllByAltText": [Function],
+  "getAllByDisplayValue": [Function],
+  "getAllByLabelText": [Function],
+  "getAllByPlaceholderText": [Function],
+  "getAllByRole": [Function],
+  "getAllByTestId": [Function],
+  "getAllByText": [Function],
+  "getAllByTitle": [Function],
+  "getByAltText": [Function],
+  "getByDisplayValue": [Function],
+  "getByLabelText": [Function],
+  "getByPlaceholderText": [Function],
+  "getByRole": [Function],
+  "getByTestId": [Function],
+  "getByText": [Function],
+  "getByTitle": [Function],
+  "queryAllByAltText": [Function],
+  "queryAllByDisplayValue": [Function],
+  "queryAllByLabelText": [Function],
+  "queryAllByPlaceholderText": [Function],
+  "queryAllByRole": [Function],
+  "queryAllByTestId": [Function],
+  "queryAllByText": [Function],
+  "queryAllByTitle": [Function],
+  "queryByAltText": [Function],
+  "queryByDisplayValue": [Function],
+  "queryByLabelText": [Function],
+  "queryByPlaceholderText": [Function],
+  "queryByRole": [Function],
+  "queryByTestId": [Function],
+  "queryByText": [Function],
+  "queryByTitle": [Function],
+  "rerender": [Function],
+  "unmount": [Function],
+}
 `;
 
 exports[`  should render corrent columns for called processes 1`] = `
-Array [
-  Object {
+[
+  {
     "attribute": "calledProcessDisp",
     "dataField": "calledProcessDisp",
-    "newFormatter": Object {
-      "config": Object {
+    "newFormatter": {
+      "config": {
         "getUrl": [Function],
       },
       "type": "link",
     },
     "text": "Called instance",
   },
-  Object {
+  {
     "attribute": "bpmnDefEngineDisp",
     "dataField": "bpmnDefEngineDisp",
-    "newFormatter": Object {
-      "config": Object {
+    "newFormatter": {
+      "config": {
         "getUrl": [Function],
       },
       "type": "link",
     },
     "text": "Process definition",
   },
-  Object {
+  {
     "attribute": "callActivityId",
     "dataField": "callActivityId",
-    "newFormatter": Object {
-      "config": Object {
+    "newFormatter": {
+      "config": {
         "Component": [Function],
       },
       "type": "component",
     },
     "text": "Element",
   },
-  Object {
+  {
     "attribute": "id",
     "dataField": "id",
-    "newFormatter": Object {
-      "config": Object {
+    "newFormatter": {
+      "config": {
         "Component": [Function],
       },
       "type": "component",
@@ -192,16 +391,16 @@ Array [
 `;
 
 exports[`  should render corrent columns for external tasks 1`] = `
-Array [
-  Object {
+[
+  {
     "attribute": "id",
     "dataField": "dispId",
-    "newEditor": Object {
-      "config": Object {},
+    "newEditor": {
+      "config": {},
       "type": "text",
     },
-    "predicates": Array [
-      Object {
+    "predicates": [
+      {
         "label": "predicate.eq",
         "needValue": true,
         "value": "eq",
@@ -212,21 +411,21 @@ Array [
     "sortable": true,
     "text": "ID",
   },
-  Object {
+  {
     "attribute": "activityId",
     "dataField": "activityId",
-    "newEditor": Object {
-      "config": Object {},
+    "newEditor": {
+      "config": {},
       "type": "text",
     },
-    "newFormatter": Object {
-      "config": Object {
+    "newFormatter": {
+      "config": {
         "Component": [Function],
       },
       "type": "component",
     },
-    "predicates": Array [
-      Object {
+    "predicates": [
+      {
         "label": "predicate.eq",
         "needValue": true,
         "value": "eq",
@@ -236,20 +435,20 @@ Array [
     "searchableByText": true,
     "text": "Element",
   },
-  Object {
+  {
     "attribute": "retries",
     "dataField": "retries",
     "text": "Retries",
   },
-  Object {
+  {
     "attribute": "workerId",
     "dataField": "workerId",
-    "newEditor": Object {
-      "config": Object {},
+    "newEditor": {
+      "config": {},
       "type": "text",
     },
-    "predicates": Array [
-      Object {
+    "predicates": [
+      {
         "label": "predicate.eq",
         "needValue": true,
         "value": "eq",
@@ -259,26 +458,26 @@ Array [
     "searchableByText": true,
     "text": "Handler's ID",
   },
-  Object {
+  {
     "attribute": "lockExpirationTime",
     "dataField": "lockExpirationTime",
-    "newFormatter": Object {
-      "config": Object {
+    "newFormatter": {
+      "config": {
         "format": "LLL",
       },
       "type": "date",
     },
     "text": "Expiration time",
   },
-  Object {
+  {
     "attribute": "topicName",
     "dataField": "topic",
-    "newEditor": Object {
-      "config": Object {},
+    "newEditor": {
+      "config": {},
       "type": "text",
     },
-    "predicates": Array [
-      Object {
+    "predicates": [
+      {
         "label": "predicate.eq",
         "needValue": true,
         "value": "eq",
@@ -288,7 +487,7 @@ Array [
     "searchableByText": true,
     "text": "Topic",
   },
-  Object {
+  {
     "attribute": "priority",
     "dataField": "priority",
     "sortable": true,
@@ -298,16 +497,16 @@ Array [
 `;
 
 exports[`  should render corrent columns for incidents 1`] = `
-Array [
-  Object {
+[
+  {
     "attribute": "message",
     "dataField": "message",
-    "newEditor": Object {
-      "config": Object {},
+    "newEditor": {
+      "config": {},
       "type": "text",
     },
-    "newFormatter": Object {
-      "config": Object {
+    "newFormatter": {
+      "config": {
         "Component": [Function],
       },
       "type": "component",
@@ -316,75 +515,75 @@ Array [
     "searchableByText": true,
     "text": "Message",
   },
-  Object {
+  {
     "attribute": "processInstance",
     "dataField": "processInstance",
-    "newEditor": Object {
-      "config": Object {},
+    "newEditor": {
+      "config": {},
       "type": "text",
     },
-    "newFormatter": Object {
-      "config": Object {
+    "newFormatter": {
+      "config": {
         "getUrl": [Function],
       },
       "type": "link",
     },
     "text": "Process instance",
   },
-  Object {
+  {
     "attribute": "created",
     "dataField": "created",
-    "newFormatter": Object {
-      "config": Object {
+    "newFormatter": {
+      "config": {
         "format": "LLL",
       },
       "type": "date",
     },
     "text": "Created",
   },
-  Object {
+  {
     "attribute": "activityId",
     "dataField": "activityId",
-    "newFormatter": Object {
-      "config": Object {
+    "newFormatter": {
+      "config": {
         "Component": [Function],
       },
       "type": "component",
     },
     "text": "Element",
   },
-  Object {
+  {
     "attribute": "activityId",
     "dataField": "activityId",
-    "newFormatter": Object {
-      "config": Object {
+    "newFormatter": {
+      "config": {
         "Component": [Function],
       },
       "type": "component",
     },
     "text": "Failed element",
   },
-  Object {
+  {
     "attribute": "incidentType",
     "dataField": "incidentType",
     "text": "Type",
   },
-  Object {
+  {
     "attribute": "note",
     "dataField": "note",
-    "newFormatter": Object {
-      "config": Object {
+    "newFormatter": {
+      "config": {
         "Component": [Function],
       },
       "type": "component",
     },
     "text": "Note",
   },
-  Object {
+  {
     "attribute": "id",
     "dataField": "id",
-    "newFormatter": Object {
-      "config": Object {
+    "newFormatter": {
+      "config": {
         "Component": [Function],
       },
       "type": "component",
@@ -395,29 +594,29 @@ Array [
 `;
 
 exports[`  should render corrent columns for job definitions 1`] = `
-Array [
-  Object {
+[
+  {
     "attribute": "id",
     "dataField": "dispId",
     "sortable": true,
     "text": "ID",
   },
-  Object {
+  {
     "attribute": "created",
     "dataField": "created",
-    "newFormatter": Object {
-      "config": Object {
+    "newFormatter": {
+      "config": {
         "format": "LLL",
       },
       "type": "date",
     },
     "text": "Created",
   },
-  Object {
+  {
     "attribute": "dueDate",
     "dataField": "dueDate",
-    "newFormatter": Object {
-      "config": Object {
+    "newFormatter": {
+      "config": {
         "format": "LLL",
       },
       "type": "date",
@@ -425,44 +624,44 @@ Array [
     "sortable": true,
     "text": "Due date",
   },
-  Object {
+  {
     "attribute": "retries",
     "dataField": "retries",
     "sortable": true,
     "text": "Retries",
   },
-  Object {
+  {
     "attribute": "activityId",
     "dataField": "activityId",
-    "newFormatter": Object {
-      "config": Object {
+    "newFormatter": {
+      "config": {
         "Component": [Function],
       },
       "type": "component",
     },
     "text": "Element",
   },
-  Object {
+  {
     "attribute": "failedActivityId",
     "dataField": "failedActivityId",
-    "newFormatter": Object {
-      "config": Object {
+    "newFormatter": {
+      "config": {
         "Component": [Function],
       },
       "type": "component",
     },
     "text": "Failed element",
   },
-  Object {
+  {
     "attribute": "configuration",
     "dataField": "configuration",
     "text": "Configuration",
   },
-  Object {
+  {
     "attribute": "id",
     "dataField": "id",
-    "newFormatter": Object {
-      "config": Object {
+    "newFormatter": {
+      "config": {
         "Component": [Function],
       },
       "type": "component",
@@ -473,12 +672,12 @@ Array [
 `;
 
 exports[`  should render corrent columns for variables 1`] = `
-Array [
-  Object {
+[
+  {
     "attribute": "name",
     "dataField": "name",
-    "newEditor": Object {
-      "config": Object {},
+    "newEditor": {
+      "config": {},
       "type": "text",
     },
     "searchable": true,
@@ -486,35 +685,35 @@ Array [
     "sortable": true,
     "text": "Name",
   },
-  Object {
+  {
     "attribute": "type",
     "dataField": "type",
     "text": "Type",
   },
-  Object {
+  {
     "attribute": "value",
     "dataField": "value",
-    "newFormatter": Object {
-      "config": Object {
+    "newFormatter": {
+      "config": {
         "Component": [Function],
       },
       "type": "component",
     },
     "text": "Value",
   },
-  Object {
+  {
     "attribute": "scope",
     "dataField": "scope",
     "disableSelect": true,
-    "newEditor": Object {
-      "config": Object {
+    "newEditor": {
+      "config": {
         "journalId": "bpmn-process-def",
         "multiple": false,
       },
       "type": "journal",
     },
-    "newFormatter": Object {
-      "config": Object {
+    "newFormatter": {
+      "config": {
         "Component": [Function],
       },
       "type": "component",
@@ -523,12 +722,12 @@ Array [
     "searchableByText": true,
     "text": "Scope",
   },
-  Object {
+  {
     "attribute": "id",
     "classes": "common-table-column__small",
     "dataField": "id",
-    "newFormatter": Object {
-      "config": Object {
+    "newFormatter": {
+      "config": {
         "Component": [Function],
       },
       "type": "component",

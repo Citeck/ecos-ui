@@ -46,7 +46,7 @@ export default class EcosFormModal extends React.Component {
     };
   }
 
-  componentWillUpdate(nextProps, nextState, nextContext) {
+  UNSAFE_componentWillUpdate(nextProps, nextState, nextContext) {
     if (nextProps.isModalOpen !== this.state.isModalOpen) {
       if (nextProps.isModalOpen && !nextState.addedListener) {
         window.addEventListener('beforeunload', this._onbeforeunload);

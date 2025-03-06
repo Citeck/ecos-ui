@@ -5,13 +5,13 @@ import { getBirthdayDateForWeb, sortByBirthDate } from '../dto/birthday';
 import { getMonthPeriodByDate, t } from '../helpers/util';
 import { Labels } from '../components/widgets/Birthdays/Birthdays';
 
-function* sagaGetBirthdays({ api, logger }, action) {
+function* sagaGetBirthdays({ api }, action) {
   try {
     const datePeriod = getMonthPeriodByDate();
     const result = yield call(api.birthdays.getBirthdays, datePeriod);
     const data = {
       totalCount: result.totalCount,
-      birthdays: sortByBirthDate(result.records).map(getBirthdayDateForWeb)
+      birthdays: sortByBirthDate(result.records).map(getBirthdayDateForWeb),
     };
 
     yield put(setBirthdays({ stateId: action.payload, data }));
@@ -19,10 +19,10 @@ function* sagaGetBirthdays({ api, logger }, action) {
     yield put(
       setError({
         stateId: action.payload,
-        data: e.message || t(Labels.ERROR_DEFAULT_MESSAGE)
-      })
+        data: e.message || t(Labels.ERROR_DEFAULT_MESSAGE),
+      }),
     );
-    logger.error('[birthdays sagaGetBirthdays saga] error', e);
+    console.error('[birthdays sagaGetBirthdays saga] error', e);
   }
 }
 

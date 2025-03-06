@@ -2,7 +2,6 @@ import { runSaga } from 'redux-saga';
 
 import { reloadBoardData } from '../../actions/kanban';
 import { setForceUpdate } from '../../actions/journals';
-
 import { JOURNAL_VIEW_MODE } from '../../components/Journals/constants';
 import KanbanApi from '../__mocks__/kanbanApi';
 import JournalApi from '../__mocks__/journalApi';
@@ -15,10 +14,10 @@ const stateId = 'stateId',
 
 const api = {
   kanban: new KanbanApi(),
-  journals: new JournalApi()
+  journals: new JournalApi(),
 };
 
-const logger = { error: jest.fn() };
+console.error = jest.fn();
 
 beforeEach(() => {
   delete window.location;
@@ -35,12 +34,12 @@ async function wrapRunSaga(sagaFun, payload = {}, state = {}) {
 
   await runSaga(
     {
-      dispatch: action => dispatched.push(action),
-      getState: () => state
+      dispatch: (action) => dispatched.push(action),
+      getState: () => state,
     },
     sagaFun,
-    { api, logger, w },
-    { payload: { stateId, boardId, templateId, ...payload } }
+    { api, w },
+    { payload: { stateId, boardId, templateId, ...payload } },
   ).done;
 
   return dispatched;
@@ -55,18 +54,18 @@ describe('journals sagas tests', () => {
         journals: {
           [stateId]: {
             forceUpdate: true,
-            viewMode: JOURNAL_VIEW_MODE.TABLE
-          }
+            viewMode: JOURNAL_VIEW_MODE.TABLE,
+          },
         },
         kanban: {
           [stateId]: {
-            isFirstLoading: false
-          }
-        }
-      }
+            isFirstLoading: false,
+          },
+        },
+      },
     );
 
-    expect(logger.error).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
     expect(dispatched).toHaveLength(0);
   });
 
@@ -76,20 +75,20 @@ describe('journals sagas tests', () => {
       { stateId },
       {
         payload: {
-          stateId
+          stateId,
         },
         journals: {
           [stateId]: {
             forceUpdate: true,
-            viewMode: JOURNAL_VIEW_MODE.KANBAN
-          }
+            viewMode: JOURNAL_VIEW_MODE.KANBAN,
+          },
         },
         kanban: {
           [stateId]: {
-            isFirstLoading: false
-          }
-        }
-      }
+            isFirstLoading: false,
+          },
+        },
+      },
     );
 
     const [first, second] = dispatched;
@@ -99,7 +98,7 @@ describe('journals sagas tests', () => {
 
     expect(second.payload._args).toEqual(false);
 
-    expect(logger.error).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
     expect(dispatched).toHaveLength(2);
   });
 });

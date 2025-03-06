@@ -7,7 +7,7 @@ import omit from 'lodash/omit';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 import isBoolean from 'lodash/isBoolean';
-import { NotificationManager } from 'react-notifications';
+import { NotificationManager } from '@/services/notifications';
 
 import { instUserConfigApi as api } from '../../api/userConfig';
 import ConfigService, { ALFRESCO_ENABLED } from '../../services/config/ConfigService';
@@ -212,7 +212,15 @@ export default class Export extends Component {
   render() {
     const { hasAlfresco, hasGroupActionsLicense, isOpenDropdown } = this.state;
     const { right, className, children, classNameBtn, isMobile, isViewNewJournal, loading, ...props } = this.props;
-    const attributes = omit(props, ['selectedItems', 'journalConfig', 'dashletConfig', 'grid', 'recordRef']);
+    const attributes = omit(props, [
+      'selectedItems',
+      'journalConfig',
+      'dashletConfig',
+      'grid',
+      'recordRef',
+      'getStateOpen',
+      'journalSetting'
+    ]);
 
     if (isMobile && isViewNewJournal) {
       return (

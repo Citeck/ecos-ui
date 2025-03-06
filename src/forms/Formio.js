@@ -11,14 +11,14 @@ const originProviders = Formio.providers;
 function getLocalLibraryUrl(src) {
   const replaceUrlMap = {
     // prettier-ignore
-    'https://cdn.staticaly.com/gh/formio/ckeditor5-build-classic/v12.2.0-formio.2/build/': '/js/lib/ckeditor5-build-classic/v12.2.0-formio.2/',
-    'https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.1/': '/js/lib/ace/1.4.1/',
-    'https://cdn.quilljs.com/1.3.6/': '/js/lib/quill/1.3.6/'
+    'https://cdn.staticaly.com/gh/formio/ckeditor5-build-classic/v12.2.0-formio.2/build/': 'js/lib/ckeditor5-build-classic/v12.2.0-formio.2/',
+    'https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.1/': 'js/lib/ace/1.4.1/',
+    'https://cdn.quilljs.com/1.3.6/': 'js/lib/quill/1.3.6/'
   };
 
   for (let url in replaceUrlMap) {
     if (src.startsWith(url)) {
-      return src.replace(url, `${process.env.PUBLIC_URL}${replaceUrlMap[url]}`);
+      return src.replace(url, `${import.meta.env.BASE_URL}${replaceUrlMap[url]}`);
     }
   }
 

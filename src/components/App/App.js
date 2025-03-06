@@ -4,7 +4,7 @@ import get from 'lodash/get';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { Redirect, Route, Switch } from 'react-router';
-import { NotificationContainer } from 'react-notifications';
+import { NotificationContainer } from '@/services/notifications';
 import { replace } from 'connected-react-router';
 
 import CacheRoute, { CacheSwitch } from '../ReactRouterCache';

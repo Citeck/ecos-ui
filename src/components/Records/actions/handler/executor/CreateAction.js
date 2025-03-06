@@ -8,7 +8,7 @@ import { showForm } from '../../util/actionUtils';
 import ActionsExecutor from '../ActionsExecutor';
 import FormManager from '../../../../EcosForm/FormManager';
 import { SourcesId } from '../../../../../constants';
-import { NotificationManager } from 'react-notifications';
+import { NotificationManager } from '@/services/notifications';
 import { t } from '../../../../../helpers/export/util';
 
 export default class CreateAction extends ActionsExecutor {

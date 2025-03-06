@@ -20,13 +20,13 @@ export default class BtnTooltipInfo extends React.Component {
     minHeight: PropTypes.string,
     text: PropTypes.string,
     count: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    handleClick: PropTypes.func
+    handleClick: PropTypes.func,
   };
 
   static defaultProps = {
     isShow: true,
     minHeight: '',
-    handleClick: () => null
+    handleClick: () => null,
   };
 
   openTooltip = () => {
@@ -81,24 +81,22 @@ export default class BtnTooltipInfo extends React.Component {
             className="ecos-base-tooltip ecos-current-task__tooltip"
             innerClassName="ecos-base-tooltip-inner"
             arrowClassName="ecos-base-tooltip-arrow"
-            modifiers={[
-              {
+            modifiers={{
+              offset: {
                 name: 'offset',
                 enabled: true,
-                options: {
-                  offset: [0, 14]
-                }
-              }
-            ]}
+                offset: '0, 14px',
+              },
+            }}
           >
             <div className="ecos-current-task__tooltip-text">
               <Scrollbars
                 autoHeight
                 autoHeightMin={20}
                 autoHeightMax={145}
-                renderTrackVertical={props => <div {...props} className="ecos-current-task__tooltip__v-scroll" />}
-                renderTrackHorizontal={props => <div {...props} hidden />}
-                renderThumbHorizontal={props => <div {...props} hidden />}
+                renderTrackVertical={(props) => <div {...props} className="ecos-current-task__tooltip__v-scroll" />}
+                renderTrackHorizontal={(props) => <div {...props} hidden />}
+                renderThumbHorizontal={(props) => <div {...props} hidden />}
               >
                 {this.renderContent()}
               </Scrollbars>

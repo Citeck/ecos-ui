@@ -1,81 +1,405 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`DevTools tests <ErrorText /> should render ErrorText component 1`] = `
-<div
-  className="dev-tools-page__error"
-/>
+<div>
+  <div
+    class="dev-tools-page__error"
+  />
+</div>
 `;
 
 exports[`DevTools tests <Loader /> should render Loader component 1`] = `
-<Loader
-  blur={true}
-  className=""
-  color="light-blue"
-  darkened={false}
-  height={45}
-  rounded={true}
-  style={
-    Object {
-      "margin": "2em 0",
-      "position": "relative",
-    }
-  }
-  type="circle"
-  width={45}
-  zIndex={null}
-/>
+<div>
+  <div
+    class="ecos-loader ecos-loader_blur ecos-loader_rounded"
+    style="position: relative; margin: 2em 0px;"
+  >
+    <div>
+      <svg
+        height="45"
+        stroke="#7396cd"
+        viewBox="0 0 38 38"
+        width="45"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <g
+          fill="none"
+          fill-rule="evenodd"
+        >
+          <g
+            stroke-width="2"
+            transform="translate(1 1)"
+          >
+            <circle
+              cx="18"
+              cy="18"
+              r="18"
+              stroke-opacity=".5"
+            />
+            <path
+              d="M36 18c0-9.94-8.06-18-18-18"
+            >
+              <animatetransform
+                attributeName="transform"
+                dur="1s"
+                from="0 18 18"
+                repeatCount="indefinite"
+                to="360 18 18"
+                type="rotate"
+              />
+            </path>
+          </g>
+        </g>
+      </svg>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`DevTools tests <TabContent /> should render Build component 1`] = `
+<div>
+  <div
+    class="ecos-well dev-tools-page__tab-content"
+  >
+    <div
+      class="ecos-panel-title ecos-panel-title_color-yellow"
+    >
+      dev-tools.build.system.panel-title
+    </div>
+    <div
+      class="ecos-loader ecos-loader_blur ecos-loader_rounded"
+      style="position: relative; margin: 2em 0px;"
+    >
+      <div>
+        <svg
+          height="45"
+          stroke="#7396cd"
+          viewBox="0 0 38 38"
+          width="45"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <g
+            fill="none"
+            fill-rule="evenodd"
+          >
+            <g
+              stroke-width="2"
+              transform="translate(1 1)"
+            >
+              <circle
+                cx="18"
+                cy="18"
+                r="18"
+                stroke-opacity=".5"
+              />
+              <path
+                d="M36 18c0-9.94-8.06-18-18-18"
+              >
+                <animatetransform
+                  attributeName="transform"
+                  dur="1s"
+                  from="0 18 18"
+                  repeatCount="indefinite"
+                  to="360 18 18"
+                  type="rotate"
+                />
+              </path>
+            </g>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`DevTools tests <TabContent /> should render Commits component 1`] = `
+<div>
+  <div
+    class="ecos-well dev-tools-page__tab-content"
+  >
+    <div
+      class="ecos-loader ecos-loader_blur ecos-loader_rounded"
+      style="position: relative; margin: 2em 0px;"
+    >
+      <div>
+        <svg
+          height="45"
+          stroke="#7396cd"
+          viewBox="0 0 38 38"
+          width="45"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <g
+            fill="none"
+            fill-rule="evenodd"
+          >
+            <g
+              stroke-width="2"
+              transform="translate(1 1)"
+            >
+              <circle
+                cx="18"
+                cy="18"
+                r="18"
+                stroke-opacity=".5"
+              />
+              <path
+                d="M36 18c0-9.94-8.06-18-18-18"
+              >
+                <animatetransform
+                  attributeName="transform"
+                  dur="1s"
+                  from="0 18 18"
+                  repeatCount="indefinite"
+                  to="360 18 18"
+                  type="rotate"
+                />
+              </path>
+            </g>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`DevTools tests <TabContent /> should render DevModules component 1`] = `
+<div>
+  <div
+    class="ecos-well dev-tools-page__tab-content"
+  >
+    <div
+      class="ecos-panel-title ecos-panel-title_color-yellow"
+    >
+      dev-tools.dev-modules.panel-title
+    </div>
+    <div
+      class="ecos-loader ecos-loader_blur ecos-loader_rounded"
+      style="position: relative; margin: 2em 0px;"
+    >
+      <div>
+        <svg
+          height="45"
+          stroke="#7396cd"
+          viewBox="0 0 38 38"
+          width="45"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <g
+            fill="none"
+            fill-rule="evenodd"
+          >
+            <g
+              stroke-width="2"
+              transform="translate(1 1)"
+            >
+              <circle
+                cx="18"
+                cy="18"
+                r="18"
+                stroke-opacity=".5"
+              />
+              <path
+                d="M36 18c0-9.94-8.06-18-18-18"
+              >
+                <animatetransform
+                  attributeName="transform"
+                  dur="1s"
+                  from="0 18 18"
+                  repeatCount="indefinite"
+                  to="360 18 18"
+                  type="rotate"
+                />
+              </path>
+            </g>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`DevTools tests <TabContent /> should render Settings component 1`] = `
+<div>
+  <div
+    class="ecos-well dev-tools-page__tab-content"
+  >
+    <div
+      class="row"
+    >
+      <div
+        class="col-lg-6 col-xl-4"
+      >
+        <div
+          class="dev-tools-page__setting"
+        >
+          <div
+            class="ecos-panel-title ecos-panel-title_color-gray ecos-panel-title_narrow"
+          >
+            dev-tools.settings.enableViewNewJournal
+          </div>
+          <div
+            class="dev-tools-page__setting-body"
+          >
+            <div
+              class="dev-tools-page__switch-setting"
+            >
+              <div
+                class="ecos-switch"
+              />
+              dev-tools.settings.off
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="col-lg-6 col-xl-4"
+      >
+        <div
+          class="dev-tools-page__setting"
+        >
+          <div
+            class="ecos-panel-title ecos-panel-title_color-gray ecos-panel-title_narrow"
+          >
+            dev-tools.settings.enableLoggerForNewForms
+          </div>
+          <div
+            class="dev-tools-page__setting-body"
+          >
+            <div
+              class="dev-tools-page__switch-setting"
+            >
+              <div
+                class="ecos-switch"
+              />
+              dev-tools.settings.off
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="col-lg-6 col-xl-4"
+      >
+        <div
+          class="dev-tools-page__setting"
+        >
+          <div
+            class="ecos-panel-title ecos-panel-title_color-gray ecos-panel-title_narrow"
+          >
+            dev-tools.settings.enableRecordsApiDebug
+          </div>
+          <div
+            class="dev-tools-page__setting-body"
+          >
+            <div
+              class="dev-tools-page__switch-setting"
+            >
+              <div
+                class="ecos-switch"
+              />
+              dev-tools.settings.off
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 `;
 
 exports[`DevTools tests <TabContent /> should render TabContent component 1`] = `
-<Wall
-  className="dev-tools-page__tab-content"
->
-  <BuildTab />
-</Wall>
+<div>
+  <div
+    class="ecos-well dev-tools-page__tab-content"
+  >
+    <div
+      class="ecos-panel-title ecos-panel-title_color-yellow"
+    >
+      dev-tools.build.system.panel-title
+    </div>
+    <div
+      class="ecos-loader ecos-loader_blur ecos-loader_rounded"
+      style="position: relative; margin: 2em 0px;"
+    >
+      <div>
+        <svg
+          height="45"
+          stroke="#7396cd"
+          viewBox="0 0 38 38"
+          width="45"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <g
+            fill="none"
+            fill-rule="evenodd"
+          >
+            <g
+              stroke-width="2"
+              transform="translate(1 1)"
+            >
+              <circle
+                cx="18"
+                cy="18"
+                r="18"
+                stroke-opacity=".5"
+              />
+              <path
+                d="M36 18c0-9.94-8.06-18-18-18"
+              >
+                <animatetransform
+                  attributeName="transform"
+                  dur="1s"
+                  from="0 18 18"
+                  repeatCount="indefinite"
+                  to="360 18 18"
+                  type="rotate"
+                />
+              </path>
+            </g>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
 `;
 
 exports[`DevTools tests <Tabs /> should render Tabs component 1`] = `
-<div
-  className="dev-tools-page__tabs"
->
-  <Tabs
-    activeTabKey=""
-    className=""
-    hasHint={false}
-    hasHover={false}
-    items={
-      Array [
-        Object {
-          "id": "build",
-          "isActive": false,
-          "label": "dev-tools.tab.build",
-          "onClick": [Function],
-        },
-        Object {
-          "id": "dev-modules",
-          "isActive": false,
-          "label": "dev-tools.tab.dev-modules",
-          "onClick": [Function],
-        },
-        Object {
-          "id": "commits",
-          "isActive": false,
-          "label": "dev-tools.tab.commits",
-          "onClick": [Function],
-        },
-        Object {
-          "id": "settings",
-          "isActive": false,
-          "label": "dev-tools.tab.settings",
-          "onClick": [Function],
-        },
-      ]
-    }
-    keyField="id"
-    narrow={true}
-    onClick={null}
-    valueField="label"
-    valuePrefix=""
-  />
+<div>
+  <div
+    class="dev-tools-page__tabs"
+  >
+    <div
+      class="ecos-tabs ecos-tabs_narrow"
+    >
+      <div
+        class="ecos-tab"
+        title=""
+      >
+        dev-tools.tab.build
+      </div>
+      <div
+        class="ecos-tab"
+        title=""
+      >
+        dev-tools.tab.dev-modules
+      </div>
+      <div
+        class="ecos-tab"
+        title=""
+      >
+        dev-tools.tab.commits
+      </div>
+      <div
+        class="ecos-tab"
+        title=""
+      >
+        dev-tools.tab.settings
+      </div>
+    </div>
+  </div>
 </div>
 `;

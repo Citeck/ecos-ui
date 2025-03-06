@@ -1,4 +1,4 @@
-import variables from '../styles/constants.scss';
+import * as variables from '../styles/constants.scss';
 
 export const BASE_HEIGHT = 21;
 export const typeInternal = 'INTERNAL';

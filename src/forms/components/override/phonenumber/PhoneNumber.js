@@ -1,4 +1,5 @@
 import FormIOPhoneNumberComponent from 'formiojs/components/phonenumber/PhoneNumber';
+
 import { overrideTriggerChange } from '../misc';
 
 export default class PhoneNumberComponent extends FormIOPhoneNumberComponent {
@@ -8,9 +9,9 @@ export default class PhoneNumberComponent extends FormIOPhoneNumberComponent {
         allowMultipleMasks: false,
         showWordCount: false,
         showCharCount: false,
-        inputFormat: 'plain'
+        inputFormat: 'plain',
       },
-      ...extend
+      ...extend,
     );
   }
 

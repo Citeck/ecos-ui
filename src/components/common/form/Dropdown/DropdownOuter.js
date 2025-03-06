@@ -16,7 +16,7 @@ export default class DropdownOuter extends Dropdown {
     trigger: PropTypes.string,
     boundariesElement: PropTypes.string,
     placement: PropTypes.string,
-    modifiers: PropTypes.object,
+    modifiers: PropTypes.array,
     needClose: PropTypes.bool,
     disabled: PropTypes.bool
   };

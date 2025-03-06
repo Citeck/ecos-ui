@@ -4,7 +4,7 @@ import get from 'lodash/get';
 import find from 'lodash/find';
 import cloneDeep from 'lodash/cloneDeep';
 import isEmpty from 'lodash/isEmpty';
-import { EventEmitter2 } from 'eventemitter2';
+import { EventEmitter } from 'events';
 
 import * as storage from '../../helpers/ls';
 import { equalsQueryUrls, getWorkspaceId, IgnoredUrlParams } from '../../helpers/urls';
@@ -13,7 +13,7 @@ import { TITLE } from '../../constants/pageTabs';
 import PageTab from './PageTab';
 import PageService from '../PageService';
 
-const exist = index => !!~index;
+const exist = (index) => !!~index;
 
 const lng = getCurrentLocale();
 
@@ -41,7 +41,7 @@ class PageTabList {
     this.#tabs = [];
 
     tabs = isArray(tabs) ? tabs : [];
-    this.#tabs = tabs.map(item => this.setTab(item, params));
+    this.#tabs = tabs.map((item) => this.setTab(item, params));
   }
 
   set displayState(state) {
@@ -49,15 +49,15 @@ class PageTabList {
   }
 
   get activeTab() {
-    return this.tabs.find(item => item.isActive) || {};
+    return this.tabs.find((item) => item.isActive) || {};
   }
 
   get storageList() {
-    return this.tabs.map(item => item.storage);
+    return this.tabs.map((item) => item.storage);
   }
 
   get storeList() {
-    return this.tabs.map(item => item.store);
+    return this.tabs.map((item) => item.store);
   }
 
   get activeTabId() {
@@ -65,14 +65,14 @@ class PageTabList {
   }
 
   get hasActiveTab() {
-    return !isEmpty(this.#tabs.find(tab => tab.isActive));
+    return !isEmpty(this.#tabs.find((tab) => tab.isActive));
   }
 
-  pushCallback = callback => {
+  pushCallback = (callback) => {
     this.#callbacks.push(callback);
   };
 
-  getWsIdOfTab = tab => {
+  getWsIdOfTab = (tab) => {
     if (tab && tab.link && tab.link.includes('ws=')) {
       const url = new URL(!tab.link.includes('http') && tab.link[0] === '/' ? window.location.origin + tab.link : tab.link);
       return url.searchParams.get('ws');
@@ -95,7 +95,7 @@ class PageTabList {
     params = { ...params, last: true };
 
     if (enabledWorkspace) {
-      tabs.forEach(tab => {
+      tabs.forEach((tab) => {
         if (tab && !!tab.link && !tab.workspace) {
           tab.workspace = this.getWsIdOfTab(tab);
         }
@@ -120,13 +120,13 @@ class PageTabList {
       }
     }
 
-    this.#callbacks.forEach(callback => {
+    this.#callbacks.forEach((callback) => {
       callback({
         tabs: this.tabs,
         activeTab: this.activeTab,
         storeList: this.storeList,
         storageList: this.storageList,
-        activeTabId: this.activeTabId
+        activeTabId: this.activeTabId,
       });
     });
   }
@@ -143,7 +143,7 @@ class PageTabList {
 
     const title = {
       ...data.title,
-      [lng]: data.title?.[lng] || t(TITLE.LOADING)
+      [lng]: data.title?.[lng] || t(TITLE.LOADING),
     };
     const isLoading = title[lng] === t(TITLE.LOADING);
 
@@ -171,7 +171,7 @@ class PageTabList {
       if (isExist) {
         const updates = {
           ...tab,
-          isActive: this.equals(this.activeTab, tab) || tab.isActive
+          isActive: this.equals(this.activeTab, tab) || tab.isActive,
         };
 
         this.changeOne({ updates, tab });
@@ -188,7 +188,7 @@ class PageTabList {
   }
 
   activate(tab) {
-    this.#tabs.forEach(item => {
+    this.#tabs.forEach((item) => {
       item.isActive = item.id === tab.id;
     });
 
@@ -207,10 +207,10 @@ class PageTabList {
     }
 
     tab = tab.uniqueKey ? tab : new PageTab(tab);
-    const workspaceTabs = this.#tabs.filter(t => t && t.workspace === tab.workspace);
+    const workspaceTabs = this.#tabs.filter((t) => t && t.workspace === tab.workspace);
 
-    const tabIndex = this.#tabs.findIndex(item => this.equals(tab, item));
-    const workspaceTabIndex = workspaceTabs.findIndex(item => this.equals(tab, item));
+    const tabIndex = this.#tabs.findIndex((item) => this.equals(tab, item));
+    const workspaceTabIndex = workspaceTabs.findIndex((item) => this.equals(tab, item));
 
     if (tabIndex === -1 || workspaceTabs.length < 2) {
       return;
@@ -224,7 +224,7 @@ class PageTabList {
     if (deletedWorkspaceTab.isActive && !!length) {
       const newIndex = workspaceTabIndex >= length ? length - 1 : workspaceTabIndex;
       const foundTab = this.#tabs.find(
-        t => t && t.id && workspaceTabs[newIndex] && workspaceTabs[newIndex].id && t.id === workspaceTabs[newIndex].id
+        (t) => t && t.id && workspaceTabs[newIndex] && workspaceTabs[newIndex].id && t.id === workspaceTabs[newIndex].id,
       );
       this.activate(foundTab);
     }
@@ -234,10 +234,10 @@ class PageTabList {
     return deletedTab;
   }
 
-  #deleteTabs = tabs => {
-    const ids = tabs.map(tab => tab.id);
+  #deleteTabs = (tabs) => {
+    const ids = tabs.map((tab) => tab.id);
 
-    this.#tabs = this.#tabs.filter(tab => !ids.includes(tab.id));
+    this.#tabs = this.#tabs.filter((tab) => !ids.includes(tab.id));
     this.setToStorage();
   };
 
@@ -264,7 +264,7 @@ class PageTabList {
       updates.isActive = true;
     }
 
-    this.#tabs.forEach(item => {
+    this.#tabs.forEach((item) => {
       if (this.equals(item, tab)) {
         item.change(updates);
         item.link = item.link.replace(window.location.origin, '');
@@ -284,7 +284,7 @@ class PageTabList {
   move(indexFrom, indexTo) {
     const wsId = getWorkspaceId();
     if (getEnabledWorkspaces()) {
-      const filteredTabs = this.#tabs.filter(tab => tab.workspace === wsId);
+      const filteredTabs = this.#tabs.filter((tab) => tab.workspace === wsId);
 
       const tab = filteredTabs[indexFrom];
 
@@ -304,10 +304,10 @@ class PageTabList {
 
   existTabIndex(tab) {
     if (this.#isDuplicateAllowed) {
-      return this.#tabs.findIndex(item => this.equalsLink(tab, item));
+      return this.#tabs.findIndex((item) => this.equalsLink(tab, item));
     }
 
-    return this.#tabs.findIndex(item => this.equals(tab, item));
+    return this.#tabs.findIndex((item) => this.equals(tab, item));
   }
 
   existTab(data) {
@@ -323,7 +323,7 @@ class PageTabList {
   equalsLink(tab1, tab2) {
     return equalsQueryUrls({
       urls: [tab1.link, tab2.link],
-      ignored: IgnoredUrlParams
+      ignored: IgnoredUrlParams,
     });
   }
 
@@ -335,13 +335,13 @@ class PageTabList {
    * @returns {*}
    */
   getPlaceTab({ currentTabIndex, last }) {
-    const activeIndex = this.#tabs.findIndex(item => item.isActive);
+    const activeIndex = this.#tabs.findIndex((item) => item.isActive);
 
     return last || !this.#tabs.length || !exist(activeIndex)
       ? this.#tabs.length
       : exist(currentTabIndex) && currentTabIndex <= activeIndex
-      ? activeIndex
-      : activeIndex + 1;
+        ? activeIndex
+        : activeIndex + 1;
   }
 
   getValidList(tabs = this.#tabs) {
@@ -349,7 +349,7 @@ class PageTabList {
 
     if (!this.#isDuplicateAllowed) {
       tabs = tabs.reduce((result, item) => {
-        const found = result.find(tab => PageTab.equals(tab, item));
+        const found = result.find((tab) => PageTab.equals(tab, item));
 
         if (!found) {
           result.push(item);
@@ -361,7 +361,7 @@ class PageTabList {
       }, []);
     }
 
-    return tabs.filter(tab => tab.link);
+    return tabs.filter((tab) => tab.link);
   }
 
   setToStorage() {
@@ -374,12 +374,16 @@ class PageTabList {
     }
   }
 
-  isActiveTab = tabId => {
+  isActiveTab = (tabId) => {
     if (!tabId) {
       return false;
     }
 
-    return get(this.#tabs.find(tab => tab.id === tabId), 'isActive', false);
+    return get(
+      this.#tabs.find((tab) => tab.id === tabId),
+      'isActive',
+      false,
+    );
   };
 
   setLastActiveTabWs = (tab = this.activeTab) => {
@@ -388,8 +392,8 @@ class PageTabList {
     }
 
     this.#tabs
-      .filter(item => item.workspace === tab.workspace)
-      .forEach(item => {
+      .filter((item) => item.workspace === tab.workspace)
+      .forEach((item) => {
         item.isLastActive = item.id === tab.id;
       });
 
@@ -401,7 +405,11 @@ class PageTabList {
       return false;
     }
 
-    return get(this.#tabs.find(tab => tab.id === tabId && tab.workspace === ws), 'isLastActive', false);
+    return get(
+      this.#tabs.find((tab) => tab.id === tabId && tab.workspace === ws),
+      'isLastActive',
+      false,
+    );
   };
 
   getLastActiveTabWs = (wsId = getWorkspaceId()) => {
@@ -409,11 +417,11 @@ class PageTabList {
       return false;
     }
 
-    const wsTabs = this.tabs.filter(tab => tab.workspace === wsId);
-    return wsTabs.find(tab => get(tab, 'isLastActive') === true);
+    const wsTabs = this.tabs.filter((tab) => tab.workspace === wsId);
+    return wsTabs.find((tab) => get(tab, 'isLastActive') === true);
   };
 
-  getTabById = tabId => {
+  getTabById = (tabId) => {
     if (!tabId) {
       return;
     }
@@ -424,16 +432,16 @@ class PageTabList {
 
 const pageTabList = get(window, 'Citeck.PageTabList', new PageTabList());
 
-export const updateTabEmitter = new EventEmitter2();
+export const updateTabEmitter = new EventEmitter();
 
-window.addEventListener('popstate', event => {
+window.addEventListener('popstate', (event) => {
   const { href, origin } = get(event, 'target.location');
   const link = href.replace(origin, '');
   let tabs = cloneDeep(pageTabList.storeList);
-  const founded = tabs.find(tab => PageTab.equals(tab, { link }));
+  const founded = tabs.find((tab) => PageTab.equals(tab, { link }));
 
   if (founded) {
-    tabs.forEach(tab => {
+    tabs.forEach((tab) => {
       tab.isActive = tab.link === founded.link;
     });
   } else {
@@ -442,10 +450,10 @@ window.addEventListener('popstate', event => {
       isLoading: true,
       isActive: true,
       link: window.encodeURIComponent(link),
-      workspace: getWorkspaceId()
+      workspace: getWorkspaceId(),
     });
 
-    tabs.forEach(tab => {
+    tabs.forEach((tab) => {
       tab.isActive = false;
     });
 
@@ -453,7 +461,7 @@ window.addEventListener('popstate', event => {
       const decodedLink = decodeURIComponent(link);
       const getTitle = PageService.getPage({ link: decodedLink }).getTitle({}, decodedLink);
 
-      Promise.all([getTitle]).then(values => {
+      Promise.all([getTitle]).then((values) => {
         newTab.title = values[0];
         newTab.isLoading = false;
         pageTabList.setTab(newTab);

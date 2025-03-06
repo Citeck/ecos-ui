@@ -1,8 +1,8 @@
-import preval from 'preval.macro';
+// import preval from 'preval.macro';
 import packageJson from '../package.json';
 
 const info = {
-  time: preval`module.exports = new Date().toISOString()`,
+  time: new Date().toISOString(),
   version: packageJson.version
 };
 

@@ -1,4 +1,4 @@
-import { NotificationManager } from 'react-notifications';
+import { NotificationManager } from '@/services/notifications';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 
 import {
@@ -8,38 +8,38 @@ import {
   setCustomIcons,
   setFontIcons,
   setLoading,
-  uploadCustomIcon
+  uploadCustomIcon,
 } from '../actions/iconSelect';
 import { t } from '../helpers/util';
 import { getIconObjectWeb, getIconRef } from '../helpers/icon';
 
-function* fetchGetCustomIcons({ api, logger }, { payload: { family } }) {
+function* fetchGetCustomIcons({ api }, { payload: { family } }) {
   try {
     const icons = yield call(api.customIcon.getIcons, { family });
 
-    yield put(setCustomIcons(icons.map(icon => getIconObjectWeb(icon))));
+    yield put(setCustomIcons(icons.map((icon) => getIconObjectWeb(icon))));
   } catch (e) {
     yield put(setLoading(false));
     NotificationManager.error(t('icon-select.error.get-custom-icons'), t('error'));
-    logger.error('[menu-settings / fetchGetCustomIcons]', e);
+    console.error('[menu-settings / fetchGetCustomIcons]', e);
   }
 }
 
-function* fetchGetFontIcons({ api, logger }, { payload: prefix }) {
+function* fetchGetFontIcons({ api }, { payload: prefix }) {
   try {
     const common = yield import('../fonts/citeck/config.json');
-    const icons = common.glyphs.map(item => ({ value: `icon-${item.css}`, type: 'icon' }));
+    const icons = common.glyphs.map((item) => ({ value: `icon-${item.css}`, type: 'icon' }));
 
-    yield put(setFontIcons(prefix ? icons.filter(item => item.value.startsWith(prefix)) : icons));
+    yield put(setFontIcons(prefix ? icons.filter((item) => item.value.startsWith(prefix)) : icons));
   } catch (e) {
     NotificationManager.error(t('icon-select.error.get-font-icons'), t('error'));
-    logger.error('[menu-settings / fetchGetFontIcons]', e);
+    console.error('[menu-settings / fetchGetFontIcons]', e);
   }
 }
 
-function* runUploadCustomIcon({ api, logger }, { payload: { file, family } }) {
+function* runUploadCustomIcon({ api }, { payload: { file, family } }) {
   try {
-    const customIcons = yield select(state => state.iconSelect.customIcons);
+    const customIcons = yield select((state) => state.iconSelect.customIcons);
 
     const type = 'img';
     const { name } = file;
@@ -56,23 +56,23 @@ function* runUploadCustomIcon({ api, logger }, { payload: { file, family } }) {
   } catch (e) {
     yield put(setLoading(false));
     NotificationManager.error(t('icon-select.error.upload-custom-icon'), t('error'));
-    logger.error('[menu-settings / runUploadCustomIcon]', e);
+    console.error('[menu-settings / runUploadCustomIcon]', e);
   }
 }
 
-function* runDeleteCustomIcon({ api, logger }, { payload: deleted }) {
+function* runDeleteCustomIcon({ api }, { payload: deleted }) {
   try {
-    const customIcons = yield select(state => state.iconSelect.customIcons);
+    const customIcons = yield select((state) => state.iconSelect.customIcons);
 
     yield call(api.customIcon.deleteIcon, [getIconRef(deleted)]);
 
-    const filtered = customIcons.filter(icon => icon.value !== deleted.value);
+    const filtered = customIcons.filter((icon) => icon.value !== deleted.value);
 
     yield put(setCustomIcons([...filtered]));
   } catch (e) {
     yield put(setLoading(false));
     NotificationManager.error(t('icon-select.error.delete-custom-icon'), t('error'));
-    logger.error('[menu-settings / runDeleteCustomIcon]', e);
+    console.error('[menu-settings / runDeleteCustomIcon]', e);
   }
 }
 

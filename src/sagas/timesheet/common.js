@@ -11,12 +11,12 @@ function* sagaGetTotalCounts({ api, logger }, { payload }) {
     const delegatedCount = yield call(api.timesheetCommon.getTotalCountDelegated, {
       month: currentDate.getMonth(),
       year: currentDate.getFullYear(),
-      userName: userName
+      userName: userName,
     });
 
     yield put(setTotalCounts({ [TimesheetTypes.DELEGATED]: delegatedCount }));
   } catch (e) {
-    logger.error('[timesheetCommon sagaGetTotalCounts saga] error', e);
+    console.error('[timesheetCommon sagaGetTotalCounts saga] error', e);
   }
 }
 

@@ -1,5 +1,5 @@
 import { put, call, takeEvery } from 'redux-saga/effects';
-import { NotificationManager } from 'react-notifications';
+import { NotificationManager } from '@/services/notifications';
 
 import {
   initData,
@@ -12,7 +12,7 @@ import {
   getTitle,
   setLoading,
   setTitle,
-  saveModel
+  saveModel,
 } from '../actions/dmnEditor';
 import { t } from '../helpers/export/util';
 import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
@@ -23,27 +23,27 @@ import { isJsonObjectString } from '../helpers/util';
 import * as BpmnUtils from '../components/ModelEditor/BPMNModeler/utils';
 import { PROCESS_DEF_API_ACTIONS } from '../api/process';
 
-export function* init({ api, logger }, { payload: { stateId, record } }) {
+export function* init({ api }, { payload: { stateId, record } }) {
   try {
     yield put(getTitle({ stateId, record }));
     yield put(getModel({ stateId, record }));
     yield put(getHasDeployRights({ stateId, record }));
   } catch (e) {
-    logger.error('[dmnEditor/init saga] error', e);
+    console.error('[dmnEditor/init saga] error', e);
   }
 }
 
-export function* fetchModel({ api, logger }, { payload: { stateId, record } }) {
+export function* fetchModel({ api }, { payload: { stateId, record } }) {
   try {
     const model = yield call(api.dmnEditor.getDefinition, record);
     yield put(setModel({ stateId, model }));
   } catch (e) {
     yield put(setModel({ stateId, model: null }));
-    logger.error('[dmnEditor/fetchModel saga] error', e);
+    console.error('[dmnEditor/fetchModel saga] error', e);
   }
 }
 
-export function* runSaveModel({ api, logger }, { payload: { stateId, record, xml, img, definitionAction } }) {
+export function* runSaveModel({ api }, { payload: { stateId, record, xml, img, definitionAction } }) {
   try {
     if (xml && img) {
       const base64 = yield call(api.app.getBase64, new Blob([img], { type: 'image/svg+xml' }));
@@ -71,22 +71,22 @@ export function* runSaveModel({ api, logger }, { payload: { stateId, record, xml
       title = t('editor.error.can-not-save-deploy-model');
     }
     NotificationManager.error(message, title);
-    logger.error('[dmnEditor/runSaveModel saga] error', e);
+    console.error('[dmnEditor/runSaveModel saga] error', e);
   }
 }
 
-export function* fetchTitle({ api, logger }, { payload: { stateId, record } }) {
+export function* fetchTitle({ api }, { payload: { stateId, record } }) {
   try {
     const title = yield call(api.page.getRecordTitle, record);
 
     yield put(setTitle({ stateId, title }));
   } catch (e) {
     yield put(setTitle({ stateId, title: '' }));
-    logger.error('[dmnEditor/fetchTitle saga] error', e);
+    console.error('[dmnEditor/fetchTitle saga] error', e);
   }
 }
 
-export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, element } }) {
+export function* fetchFormProps({ api }, { payload: { stateId, formId, element } }) {
   try {
     if (!formId) {
       throw new Error('No form ID ' + formId);
@@ -104,7 +104,7 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
     if (element) {
       const addedKeys = [];
 
-      inputs.forEach(input => {
+      inputs.forEach((input) => {
         const component = get(input, 'scope.component', input.component);
         const att = component.key;
 
@@ -135,17 +135,17 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
     yield put(setFormProps({ stateId, formProps: {} }));
 
     NotificationManager.error(t('model-editor.error.form-not-found'), t('error'));
-    logger.error('[dmnEditor/fetchFormProps saga] error', e);
+    console.error('[dmnEditor/fetchFormProps saga] error', e);
   }
 }
 
-export function* fetchHasDeployRights({ api, logger }, { payload: { stateId, record } }) {
+export function* fetchHasDeployRights({ api }, { payload: { stateId, record } }) {
   try {
     const hasDeployRights = yield call(api.process.getHasDeployRights, record, true);
 
     yield put(setHasDeployRights({ stateId, hasDeployRights }));
   } catch (e) {
-    logger.error('[dmnEditor/fetchHasDeployRights saga] error', e);
+    console.error('[dmnEditor/fetchHasDeployRights saga] error', e);
   }
 }
 

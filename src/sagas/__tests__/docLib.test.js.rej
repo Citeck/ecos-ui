@@ -1,0 +1,140 @@
+diff a/src/sagas/__tests__/docLib.test.js b/src/sagas/__tests__/docLib.test.js	(rejected hunks)
+@@ -14 +14 @@ import {
+-  sagaInitGroupActions
++  sagaInitGroupActions,
+@@ -23 +23 @@ import {
+-  setSidebarIsReady
++  setSidebarIsReady,
+@@ -37,2 +37,2 @@ const fakeState = {
+-      url: {}
+-    }
++      url: {},
++    },
+@@ -42,3 +42,3 @@ const fakeState = {
+-      rootId: ''
+-    }
+-  }
++      rootId: '',
++    },
++  },
+@@ -59 +59 @@ describe('docLib sagas tests', () => {
+-          dispatch: action => dispatched.push(action)
++          dispatch: (action) => dispatched.push(action),
+@@ -63 +63 @@ describe('docLib sagas tests', () => {
+-        { payload: { journalId } }
++        { payload: { journalId } },
+@@ -77 +77 @@ describe('docLib sagas tests', () => {
+-          dispatch: action => dispatched.push(action)
++          dispatch: (action) => dispatched.push(action),
+@@ -81 +81 @@ describe('docLib sagas tests', () => {
+-        { payload: { journalId } }
++        { payload: { journalId } },
+@@ -102 +102 @@ describe('docLib sagas tests', () => {
+-          dispatch: action => dispatched.push(action)
++          dispatch: (action) => dispatched.push(action),
+@@ -106 +106 @@ describe('docLib sagas tests', () => {
+-        w
++        w,
+@@ -130,2 +130,2 @@ describe('docLib sagas tests', () => {
+-          dispatch: action => dispatched.push(action),
+-          getState: () => thisState
++          dispatch: (action) => dispatched.push(action),
++          getState: () => thisState,
+@@ -134 +134 @@ describe('docLib sagas tests', () => {
+-        { stateId, w }
++        { stateId, w },
+@@ -137 +137 @@ describe('docLib sagas tests', () => {
+-      const setFolderIdAction = dispatched.find(item => item.type === setFolderId().type);
++      const setFolderIdAction = dispatched.find((item) => item.type === setFolderId().type);
+@@ -148,2 +148,2 @@ describe('docLib sagas tests', () => {
+-          dispatch: action => dispatched.push(action),
+-          getState: () => thisState
++          dispatch: (action) => dispatched.push(action),
++          getState: () => thisState,
+@@ -152 +152 @@ describe('docLib sagas tests', () => {
+-        { stateId, w }
++        { stateId, w },
+@@ -155 +155 @@ describe('docLib sagas tests', () => {
+-      const setFolderIdAction = dispatched.find(item => item.type === setFolderId().type);
++      const setFolderIdAction = dispatched.find((item) => item.type === setFolderId().type);
+@@ -166,2 +166,2 @@ describe('docLib sagas tests', () => {
+-          dispatch: action => dispatched.push(action),
+-          getState: () => thisState
++          dispatch: (action) => dispatched.push(action),
++          getState: () => thisState,
+@@ -170 +170 @@ describe('docLib sagas tests', () => {
+-        { stateId, w }
++        { stateId, w },
+@@ -173 +173 @@ describe('docLib sagas tests', () => {
+-      const setSearchTextAction = dispatched.find(item => item.type === setSearchText().type);
++      const setSearchTextAction = dispatched.find((item) => item.type === setSearchText().type);
+@@ -182,2 +182,2 @@ describe('docLib sagas tests', () => {
+-          dispatch: action => dispatched.push(action),
+-          getState: () => fakeState
++          dispatch: (action) => dispatched.push(action),
++          getState: () => fakeState,
+@@ -186 +186 @@ describe('docLib sagas tests', () => {
+-        { stateId, w }
++        { stateId, w },
+@@ -189 +189 @@ describe('docLib sagas tests', () => {
+-      const loadFolderDataAction = dispatched.findIndex(item => item.type === loadFolderData().type);
++      const loadFolderDataAction = dispatched.findIndex((item) => item.type === loadFolderData().type);
+@@ -210,2 +210,2 @@ describe('docLib sagas tests', () => {
+-          dispatch: action => dispatched.push(action),
+-          getState: () => thisState
++          dispatch: (action) => dispatched.push(action),
++          getState: () => thisState,
+@@ -214 +214 @@ describe('docLib sagas tests', () => {
+-        { stateId, w }
++        { stateId, w },
+@@ -228 +228 @@ describe('docLib sagas tests', () => {
+-      const setSidebarIsReadyActions = dispatched.filter(item => item.type === setSidebarIsReady().type);
++      const setSidebarIsReadyActions = dispatched.filter((item) => item.type === setSidebarIsReady().type);
+@@ -241 +241 @@ describe('docLib sagas tests', () => {
+-          dispatch: action => dispatched.push(action)
++          dispatch: (action) => dispatched.push(action),
+@@ -245 +245 @@ describe('docLib sagas tests', () => {
+-        { payload: [] }
++        { payload: [] },
+@@ -261 +261 @@ describe('docLib sagas tests', () => {
+-          dispatch: action => dispatched.push(action)
++          dispatch: (action) => dispatched.push(action),
+@@ -265 +265 @@ describe('docLib sagas tests', () => {
+-        { payload: selectedItems }
++        { payload: selectedItems },
+@@ -284 +284 @@ describe('docLib sagas tests', () => {
+-          dispatch: action => dispatched.push(action)
++          dispatch: (action) => dispatched.push(action),
+@@ -288 +288 @@ describe('docLib sagas tests', () => {
+-        { payload: selectedItems }
++        { payload: selectedItems },
+@@ -307,2 +307,2 @@ describe('docLib sagas tests', () => {
+-          executeAction: jest.fn().mockResolvedValue([])
+-        }
++          executeAction: jest.fn().mockResolvedValue([]),
++        },
+@@ -313,2 +313,2 @@ describe('docLib sagas tests', () => {
+-          dispatch: action => dispatched.push(action),
+-          getState: () => thisState
++          dispatch: (action) => dispatched.push(action),
++          getState: () => thisState,
+@@ -320 +320 @@ describe('docLib sagas tests', () => {
+-          w
++          w,
+@@ -322 +322 @@ describe('docLib sagas tests', () => {
+-        { payload: {} }
++        { payload: {} },
+@@ -334 +334 @@ describe('docLib sagas tests', () => {
+-          dispatch: action => dispatched.push(action)
++          dispatch: (action) => dispatched.push(action),
+@@ -340,2 +340,2 @@ describe('docLib sagas tests', () => {
+-              executeAction: jest.fn().mockRejectedValue(new Error('api.recordActions.executeAction error'))
+-            }
++              executeAction: jest.fn().mockRejectedValue(new Error('api.recordActions.executeAction error')),
++            },
+@@ -344 +344 @@ describe('docLib sagas tests', () => {
+-          w
++          w,
+@@ -346 +346 @@ describe('docLib sagas tests', () => {
+-        { payload: {} }
++        { payload: {} },

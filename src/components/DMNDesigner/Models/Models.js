@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { NotificationManager } from 'react-notifications';
+import { NotificationManager } from '@/services/notifications';
 
 import { createModel, updateModels, savePagePosition } from '../../../actions/dmn';
 import { selectModelsByCategoryId } from '../../../selectors/dmn';

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { NotificationManager } from 'react-notifications';
+import { NotificationManager } from '@/services/notifications';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import uniqueId from 'lodash/uniqueId';

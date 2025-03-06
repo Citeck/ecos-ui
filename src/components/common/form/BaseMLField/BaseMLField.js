@@ -25,8 +25,8 @@ class BaseMLField extends Component {
       PropTypes.shape({
         id: PropTypes.string.isRequired,
         label: PropTypes.string,
-        img: PropTypes.string
-      })
+        img: PropTypes.string,
+      }),
     ),
     value: PropTypes.object,
     style: PropTypes.object,
@@ -34,11 +34,11 @@ class BaseMLField extends Component {
     placeholder: PropTypes.string,
     disabled: PropTypes.bool,
     viewOnly: PropTypes.bool,
-    onChange: PropTypes.func
+    onChange: PropTypes.func,
   };
 
   static defaultProps = {
-    languages: allowedLanguages
+    languages: allowedLanguages,
   };
 
   _key = prepareTooltipId(uuidV4());
@@ -60,7 +60,7 @@ class BaseMLField extends Component {
       isShowButton: false,
       isFocus: false,
       cursorPosition: null,
-      canCheckLang: currentLang === selectedLang
+      canCheckLang: currentLang === selectedLang,
     };
   }
 
@@ -83,7 +83,7 @@ class BaseMLField extends Component {
       if (value === undefined) {
         this.props.onChange({
           ...this.props.value,
-          [selectedLang]: ''
+          [selectedLang]: '',
         });
       }
 
@@ -124,11 +124,11 @@ class BaseMLField extends Component {
       onBlur: this.handleBlur,
       onClick: this.handleClick,
       onMouseEnter: () => this.handleToggleShowButton(true),
-      onMouseLeave: () => this.handleToggleShowButton(false)
+      onMouseLeave: () => this.handleToggleShowButton(false),
     };
   }
 
-  setInputRef = ref => {
+  setInputRef = (ref) => {
     if (!ref) {
       return;
     }
@@ -165,7 +165,7 @@ class BaseMLField extends Component {
       return LANGUAGE_EN;
     }
 
-    const firstNotEmptyLang = Object.keys(values).find(key => !isEmpty(values[key]));
+    const firstNotEmptyLang = Object.keys(values).find((key) => !isEmpty(values[key]));
 
     return firstNotEmptyLang || currentLocale;
   }
@@ -180,13 +180,13 @@ class BaseMLField extends Component {
     this.setState({ ...newState });
   }, 150);
 
-  handleChangeText = event => {
+  handleChangeText = (event) => {
     const { value: oldValue, onChange } = this.props;
     const { selectedLang } = this.state;
     const { value } = event.target;
     const newValue = {
       ...oldValue,
-      [selectedLang]: value
+      [selectedLang]: value,
     };
 
     for (let key in newValue) {
@@ -241,8 +241,8 @@ class BaseMLField extends Component {
     const { selectedLang } = this.state;
 
     return languages
-      .filter(lang => lang.id !== selectedLang)
-      .map(lang => (
+      .filter((lang) => lang.id !== selectedLang)
+      .map((lang) => (
         <div key={lang.id} className="ecos-ml-text__tooltip-lang" onClick={() => this.handleClickLang(lang.id)}>
           <span className="ecos-ml-text__tooltip-lang-label">{lang.label}</span>
           <img className="ecos-ml-text__tooltip-lang-image" src={lang.img} alt={lang.label} />
@@ -257,7 +257,7 @@ class BaseMLField extends Component {
   renderLang() {
     const { languages, imgClassName } = this.props;
     const { selectedLang, isShowTooltip } = this.state;
-    const lang = languages.find(item => item.id === selectedLang);
+    const lang = languages.find((item) => item.id === selectedLang);
     const extraImageProps = {};
 
     if (!lang) {
@@ -265,7 +265,7 @@ class BaseMLField extends Component {
     }
 
     if (languages.length === 2) {
-      const unselected = languages.find(item => item.id !== selectedLang);
+      const unselected = languages.find((item) => item.id !== selectedLang);
 
       extraImageProps.onClick = () => this.handleClickLang(unselected.id);
     }
@@ -273,7 +273,7 @@ class BaseMLField extends Component {
     return (
       <Tooltip
         target={this._key}
-        isOpen={isShowTooltip}
+        isOpen={!!isShowTooltip}
         trigger="hover"
         onToggle={this.handleToggleTooltip}
         className="ecos-ml-text__tooltip"
@@ -299,7 +299,7 @@ class BaseMLField extends Component {
       <div
         style={style}
         className={classNames('ecos-ml-text', className, {
-          'ecos-ml-text_disabled': disabled
+          'ecos-ml-text_disabled': disabled,
         })}
       >
         {viewOnly ? this.renderViewElement() : this.renderInputElement()}

@@ -19,12 +19,12 @@ export default class Input extends Component {
     autoSelect: PropTypes.string,
     className: PropTypes.string,
     isValid: PropTypes.bool,
-    needValidCheck: PropTypes.bool
+    needValidCheck: PropTypes.bool,
   };
 
   static defaultProps = {
     align: 'left',
-    needValidCheck: false
+    needValidCheck: false,
   };
 
   constructor(props) {
@@ -54,7 +54,7 @@ export default class Input extends Component {
     }
   }
 
-  setRef = ref => {
+  setRef = (ref) => {
     if (!ref) {
       return;
     }
@@ -107,7 +107,7 @@ export default class Input extends Component {
   }
 
   render() {
-    const { getInputRef, className, autoSelect, forwardedRef, align, clear, narrow, needValidCheck, ...props } = this.props;
+    const { getInputRef, className, autoSelect, forwardedRef, align, clear, narrow, needValidCheck, isValid, ...props } = this.props;
     const isValidClass = needValidCheck ? this.isValidClass() : '';
 
     return (
@@ -116,7 +116,7 @@ export default class Input extends Component {
           ref={this.setRef}
           {...props}
           className={classNames('ecos-input', className, `ecos-input_${align}`, isValidClass, {
-            'ecos-input_narrow': narrow
+            'ecos-input_narrow': narrow,
           })}
         />
         {this.renderClearButton()}

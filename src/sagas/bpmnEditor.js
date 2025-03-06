@@ -1,5 +1,5 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
-import { NotificationManager } from 'react-notifications';
+import { NotificationManager } from '@/services/notifications';
 import isUndefined from 'lodash/isUndefined';
 import get from 'lodash/get';
 
@@ -14,7 +14,7 @@ import {
   setFormProps,
   setLoading,
   setModel,
-  setTitle
+  setTitle,
 } from '../actions/bpmnEditor';
 import { t } from '../helpers/export/util';
 import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
@@ -25,17 +25,17 @@ import { PROCESS_DEF_API_ACTIONS } from '../api/process';
 import { updateModels } from '../actions/bpmn';
 import { SourcesId } from '../constants';
 
-export function* init({ api, logger }, { payload: { stateId, record } }) {
+export function* init({ api }, { payload: { stateId, record } }) {
   try {
     yield put(getTitle({ stateId, record }));
     yield put(getModel({ stateId, record }));
     yield put(getHasDeployRights({ stateId, record }));
   } catch (e) {
-    logger.error('[bpmnEditor/init saga] error', e);
+    console.error('[bpmnEditor/init saga] error', e);
   }
 }
 
-export function* fetchModel({ api, logger }, { payload: { stateId, record } }) {
+export function* fetchModel({ api }, { payload: { stateId, record } }) {
   try {
     const sectionPath = yield call(api.process.getSectionPath, record);
     const model = yield call(api.process.getDefinition, record);
@@ -43,11 +43,11 @@ export function* fetchModel({ api, logger }, { payload: { stateId, record } }) {
     yield put(setModel({ stateId, model, sectionPath }));
   } catch (e) {
     yield put(setModel({ stateId, model: null }));
-    logger.error('[bpmnEditor/fetchModel saga] error', e);
+    console.error('[bpmnEditor/fetchModel saga] error', e);
   }
 }
 
-export function* runSaveModel({ api, logger }, { payload: { stateId, record, xml, img, definitionAction, processDefId } }) {
+export function* runSaveModel({ api }, { payload: { stateId, record, xml, img, definitionAction, processDefId } }) {
   try {
     if (xml && img) {
       const base64 = yield call(api.app.getBase64, new Blob([img], { type: 'image/svg+xml' }));
@@ -67,7 +67,7 @@ export function* runSaveModel({ api, logger }, { payload: { stateId, record, xml
       const updatePayload = {
         action: 'edit',
         modelId: record,
-        resultModelId: processDefId ? `${SourcesId.BPMN_DEF}@${processDefId}` : record
+        resultModelId: processDefId ? `${SourcesId.BPMN_DEF}@${processDefId}` : record,
       };
 
       yield put(updateModels(updatePayload));
@@ -82,32 +82,32 @@ export function* runSaveModel({ api, logger }, { payload: { stateId, record, xml
       title = t('editor.error.can-not-save-deploy-model');
     }
     NotificationManager.error(message, title);
-    logger.error('[bpmnEditor/runSaveModel saga] error', e);
+    console.error('[bpmnEditor/runSaveModel saga] error', e);
   }
 }
 
-export function* fetchTitle({ api, logger }, { payload: { stateId, record } }) {
+export function* fetchTitle({ api }, { payload: { stateId, record } }) {
   try {
     const title = yield call(api.page.getRecordTitle, record);
 
     yield put(setTitle({ stateId, title }));
   } catch (e) {
     yield put(setTitle({ stateId, title: '' }));
-    logger.error('[bpmnEditor/fetchTitle saga] error', e);
+    console.error('[bpmnEditor/fetchTitle saga] error', e);
   }
 }
 
-export function* fetchHasDeployRights({ api, logger }, { payload: { stateId, record } }) {
+export function* fetchHasDeployRights({ api }, { payload: { stateId, record } }) {
   try {
     const hasDeployRights = yield call(api.process.getHasDeployRights, record);
 
     yield put(setHasDeployRights({ stateId, hasDeployRights }));
   } catch (e) {
-    logger.error('[bpmnEditor/fetchHasDeployRights saga] error', e);
+    console.error('[bpmnEditor/fetchHasDeployRights saga] error', e);
   }
 }
 
-export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, element } }) {
+export function* fetchFormProps({ api }, { payload: { stateId, formId, element } }) {
   try {
     if (!formId) {
       throw new Error('No form ID ' + formId);
@@ -125,7 +125,7 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
     if (element) {
       const addedKeys = [];
 
-      inputs.forEach(input => {
+      inputs.forEach((input) => {
         const component = get(input, 'scope.component', input.component);
         const att = component.key;
 
@@ -156,7 +156,7 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
     yield put(setFormProps({ stateId, formProps: {} }));
 
     NotificationManager.error(t('model-editor.error.form-not-found'), t('error'));
-    logger.error('[bpmnEditor/fetchFormProps saga] error', e);
+    console.error('[bpmnEditor/fetchFormProps saga] error', e);
   }
 }
 

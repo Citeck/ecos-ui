@@ -33,7 +33,7 @@ export default {
         inputMask: '',
         inputType: 'text',
         tableView: true,
-        input: true
+        input: true,
       },
       {
         tags: [],
@@ -53,7 +53,7 @@ export default {
         inputMask: '',
         inputType: 'text',
         tableView: true,
-        input: true
+        input: true,
       },
       {
         conditional: { eq: '', when: null, show: '' },
@@ -71,7 +71,7 @@ export default {
         label: 'Email',
         inputType: 'email',
         tableView: true,
-        input: true
+        input: true,
       },
       {
         conditional: { eq: '', when: null, show: '' },
@@ -86,7 +86,7 @@ export default {
         label: 'Password',
         inputType: 'password',
         tableView: false,
-        input: true
+        input: true,
       },
       {
         validate: { custom: "valid = (input == '{{ password }}') ? true : 'Passwords must match.';" },
@@ -102,7 +102,7 @@ export default {
         label: 'Verify Password',
         inputType: 'password',
         tableView: false,
-        input: true
+        input: true,
       },
       {
         maxDate: null,
@@ -124,7 +124,7 @@ export default {
           minMode: 'day',
           maxMode: 'year',
           yearRange: '20',
-          datepickerMode: 'day'
+          datepickerMode: 'day',
         },
         timePicker: { hourStep: 1, minuteStep: 1, showMeridian: true, readonlyInput: false, mousewheel: true, arrowkeys: true },
         protected: false,
@@ -132,7 +132,7 @@ export default {
         validate: { required: false, custom: '' },
         type: 'datetime',
         tags: [],
-        conditional: { show: '', when: null, eq: '' }
+        conditional: { show: '', when: null, eq: '' },
       },
       {
         type: 'textfield',
@@ -141,7 +141,7 @@ export default {
         defaultValue: '',
         validate: { required: true },
         disabled: true,
-        optionalWhenDisabled: true
+        optionalWhenDisabled: true,
       },
       {
         type: 'textfield',
@@ -150,7 +150,7 @@ export default {
         defaultValue: '',
         validate: { required: true },
         disabled: false,
-        optionalWhenDisabled: true
+        optionalWhenDisabled: true,
       },
       {
         type: 'button',
@@ -164,8 +164,8 @@ export default {
         key: 'submit',
         tableView: false,
         label: 'Submit',
-        input: true
-      }
+        input: true,
+      },
     ],
     owner: '553dbfc08d22d5cb1a7024f2',
     submissionAccess: [
@@ -179,7 +179,7 @@ export default {
       { type: 'delete_own', roles: [] },
       { type: 'team_read', roles: [] },
       { type: 'team_write', roles: [] },
-      { type: 'team_admin', roles: [] }
+      { type: 'team_admin', roles: [] },
     ],
     access: [
       { type: 'create_all', roles: [] },
@@ -192,9 +192,9 @@ export default {
       { type: 'delete_own', roles: [] },
       { type: 'team_read', roles: [] },
       { type: 'team_write', roles: [] },
-      { type: 'team_admin', roles: [] }
+      { type: 'team_admin', roles: [] },
     ],
-    tags: []
+    tags: [],
   },
   tests: {
     'Test valid submission'(form, done) {
@@ -209,8 +209,8 @@ export default {
           date: Harness.getDate(),
           disabledRequiredEmpty: '',
           notDisabledButRequiredAndEmpty: '',
-          submit: false
-        }
+          submit: false,
+        },
       });
       done();
     },
@@ -227,16 +227,16 @@ export default {
             email: 'bademail',
             submit: false,
             password: '',
-            verifyPassword: ''
-          }
+            verifyPassword: '',
+          },
         },
         [
           {
             component: 'email',
-            message: 'Email must be a valid email.'
-          }
+            message: 'Email must be a valid email.',
+          },
         ],
-        done
+        done,
       );
     },
     'Test required disabled empty field with active option: optionalWhenDisabled'(form, done) {
@@ -252,11 +252,11 @@ export default {
             date: Harness.getDate(),
             disabledRequiredEmpty: '',
             notDisabledButRequiredAndEmpty: 'test',
-            submit: false
-          }
+            submit: false,
+          },
         },
         [],
-        done
+        done,
       );
     },
     'Test not disabled but required and empty field with active option: optionalWhenDisabled'(form, done) {
@@ -272,16 +272,16 @@ export default {
             date: Harness.getDate(),
             disabledRequiredEmpty: '',
             notDisabledButRequiredAndEmpty: '',
-            submit: false
-          }
+            submit: false,
+          },
         },
         [
           {
             component: 'notDisabledButRequiredAndEmpty',
-            message: 'Not Disabled, but Required and Empty field is required'
-          }
+            message: 'Not Disabled, but Required and Empty field is required',
+          },
         ],
-        done
+        done,
       );
     },
     'Test not disabled but required and not empty field with active option: optionalWhenDisabled'(form, done) {
@@ -297,12 +297,12 @@ export default {
             date: Harness.getDate(),
             disabledRequiredEmpty: '',
             notDisabledButRequiredAndEmpty: 'not empty',
-            submit: false
-          }
+            submit: false,
+          },
         },
         [],
-        done
+        done,
       );
-    }
-  }
+    },
+  },
 };

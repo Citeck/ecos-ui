@@ -1,85 +1,71 @@
 import React from 'react';
-import { mount } from 'enzyme';
 import { unmountComponentAtNode } from 'react-dom';
+import { render, screen, waitFor } from '@testing-library/react';
 
 import formatterStore from '../../formatterStore';
 import '../__mocks__/LocaleFormatter.mock';
 
 const { LocaleFormatter } = formatterStore;
 
-let container = null;
-
-beforeEach(() => {
-  container = document.createElement('div');
-  document.body.appendChild(container);
-});
-
-afterEach(() => {
-  unmountComponentAtNode(container);
-  container.remove();
-  container = null;
-});
-
 describe('LocaleFormatter React Component', () => {
   const defaultProps = {
     params: {
       prefix: '',
-      postfix: ''
+      postfix: '',
     },
     rowIndex: 0,
-    cell: ''
+    cell: '',
   };
   const data = [
     {
       title: 'Empty input data without prefix and postfix',
       input: {},
-      output: ''
+      output: '',
     },
     {
       title: 'Use prefix: listconstraint.wfnc_correctOutcomeOptions, value: answer',
       input: {
         ...defaultProps,
         params: {
-          prefix: 'listconstraint.wfnc_correctOutcomeOptions.'
+          prefix: 'listconstraint.wfnc_correctOutcomeOptions.',
         },
-        cell: 'answer'
+        cell: 'answer',
       },
-      output: 'Вернуть на нормоконтроль'
+      output: 'Вернуть на нормоконтроль',
     },
     {
       title: 'Use prefix: listconstraint.wfnc_correctOutcomeOptions, value: cancel',
       input: {
         ...defaultProps,
         params: {
-          prefix: 'listconstraint.wfnc_correctOutcomeOptions.'
+          prefix: 'listconstraint.wfnc_correctOutcomeOptions.',
         },
-        cell: 'cancel'
+        cell: 'cancel',
       },
-      output: 'Отменить нормоконтроль'
+      output: 'Отменить нормоконтроль',
     },
     {
       title: 'Use prefix: listconstraint.wfnc_correctOutcomeOptions, value: exit',
       input: {
         ...defaultProps,
         params: {
-          prefix: 'listconstraint.wfnc_correctOutcomeOptions.'
+          prefix: 'listconstraint.wfnc_correctOutcomeOptions.',
         },
-        cell: 'exit'
+        cell: 'exit',
       },
-      output: 'Завершить задачу'
-    }
+      output: 'Завершить задачу',
+    },
   ];
 
-  data.forEach(item => {
+  data.forEach((item) => {
     it(item.title, async () => {
-      const mounted = mount(<LocaleFormatter {...item.input} />);
+      const { container } = render(<LocaleFormatter {...item.input} />);
 
-      return await Promise.resolve(mounted)
-        .then(() => mounted.update())
-        .then(() => {
-          expect(mounted.state().value).toBe(item.output);
-          expect(mounted.text()).toBe(item.output);
-        });
+      if (item.output) {
+        await waitFor(() => expect(screen.getByText(item.output)).toBeInTheDocument());
+      } else {
+        expect(container.textContent).toBe(item.output);
+      }
     });
   });
 });

@@ -11,7 +11,7 @@ import {
   setMergedList,
   setPopupMessage,
   setUpdatingEventDayHours,
-  setVerificationTimesheetByParams
+  setVerificationTimesheetByParams,
 } from '../../actions/timesheet/verification';
 import { setUsers } from '../../actions/timesheet/common';
 import VerificationTimesheetService from '../../services/timesheet/verification';
@@ -29,8 +29,8 @@ function* sagaGetVerificationTimesheetByParams({ api, logger }, { payload }) {
       yield call(api.timesheetCommon.getAllUsersByDate, {
         status,
         month: currentDate.getMonth(),
-        year: currentDate.getFullYear()
-      })
+        year: currentDate.getFullYear(),
+      }),
     );
 
     if (!allUsers.length) {
@@ -44,32 +44,32 @@ function* sagaGetVerificationTimesheetByParams({ api, logger }, { payload }) {
     const mergedList = VerificationTimesheetService.mergeList({
       currentList,
       newItem: allUsers,
-      eventTypes: CommonTimesheetService.eventTypes
+      eventTypes: CommonTimesheetService.eventTypes,
     });
 
     yield put(setVerificationTimesheetByParams({ mergedList }));
   } catch (e) {
-    logger.error('[timesheetVerification sagaGetVerificationTimesheetByParams saga error', e);
+    console.error('[timesheetVerification sagaGetVerificationTimesheetByParams saga error', e);
   }
 }
 
 function* updateEvents({ value, number, userName, eventType }) {
   try {
     const list = cloneDeep(yield select(selectTVerificationMergedList));
-    const itemIndex = list.findIndex(item => item.userName === userName);
+    const itemIndex = list.findIndex((item) => item.userName === userName);
 
     if (!~itemIndex) {
       return;
     }
 
-    const eventsIndex = list[itemIndex].eventTypes.findIndex(event => event.name === eventType);
+    const eventsIndex = list[itemIndex].eventTypes.findIndex((event) => event.name === eventType);
 
     if (!~eventsIndex) {
       return;
     }
 
     const event = list[itemIndex].eventTypes[eventsIndex];
-    let dayIndex = event.days.findIndex(day => day.number === number);
+    let dayIndex = event.days.findIndex((day) => day.number === number);
 
     if (!~dayIndex) {
       event.days.push({ number, hours: value });
@@ -108,7 +108,7 @@ function* sagaModifyEventDayHours({ api, logger }, { payload }) {
 
     yield put(setUpdatingEventDayHours(thirdState));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
-    logger.error('[timesheetVerification sagaModifyStatus saga] error', e);
+    console.error('[timesheetVerification sagaModifyStatus saga] error', e);
   }
 }
 
@@ -125,7 +125,7 @@ function* sagaResetEventDayHours({ api, logger }, { payload }) {
 
     yield put(setUpdatingEventDayHours(secondState));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
-    logger.error('[timesheetVerification sagaResetEventDayHours saga] error', e);
+    console.error('[timesheetVerification sagaResetEventDayHours saga] error', e);
   }
 }
 
@@ -134,10 +134,10 @@ function* sagaGetCalendarEvents({ api, logger }, { payload }) {
     const calendarEvents = yield call(api.timesheetCommon.getTimesheetCalendarEventsByUserName, {
       month: payload.month,
       year: payload.year,
-      userName: payload.userName
+      userName: payload.userName,
     });
     const currentList = yield select(selectTVerificationMergedList);
-    const index = currentList.findIndex(item => item.userName === payload.userName);
+    const index = currentList.findIndex((item) => item.userName === payload.userName);
 
     if (index === -1) {
       return;
@@ -148,7 +148,7 @@ function* sagaGetCalendarEvents({ api, logger }, { payload }) {
     yield put(setVerificationTimesheetByParams({ mergedList: currentList }));
   } catch (e) {
     yield put(setLoading(false));
-    logger.error('[timesheetVerification sagaGetCalendarEvents saga] error', e);
+    console.error('[timesheetVerification sagaGetCalendarEvents saga] error', e);
   }
 }
 
@@ -164,7 +164,7 @@ function* sagaModifyTaskStatus({ api, logger }, { payload }) {
       outcome,
       taskId,
       currentUser,
-      comment
+      comment,
     });
 
     const newMergedList = CommonTimesheetService.deleteRecordLocalByUserName(mergedList, userName);
@@ -173,7 +173,7 @@ function* sagaModifyTaskStatus({ api, logger }, { payload }) {
   } catch (e) {
     yield put(setLoading(false));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_STATUS));
-    logger.error('[timesheetVerification sagaModifyTaskStatus saga] error', e);
+    console.error('[timesheetVerification sagaModifyTaskStatus saga] error', e);
   }
 }
 

@@ -57,7 +57,7 @@ export class CommonApi {
 
     let shareProxyUrl = '';
     if (process.env.NODE_ENV === 'development') {
-      shareProxyUrl = process.env.REACT_APP_SHARE_PROXY_URL;
+      shareProxyUrl = import.meta.env.VITE_SHARE_PROXY_URL;
     }
 
     const locale = getCurrentLocale();

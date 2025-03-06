@@ -13,7 +13,7 @@ import {
   setCreateCaseWidgetItems,
   setSearchAutocompleteItems,
   setSiteMenuItems,
-  setUserMenuItems
+  setUserMenuItems,
 } from '../actions/header';
 import { setDashboardIdentification } from '../actions/dashboard';
 import { getAppUserThumbnail, validateUserSuccess } from '../actions/user';
@@ -33,22 +33,22 @@ import { LiveSearchAttributes } from '../api/menu';
 import { LiveSearchTypes } from '../services/search';
 import { getMLValue } from '../helpers/util';
 
-function* fetchCreateCaseWidget({ api, logger }) {
+function* fetchCreateCaseWidget({ api }) {
   try {
-    const createMenuView = yield call(key => configService.getValue(key), CREATE_MENU_TYPE);
+    const createMenuView = yield call((key) => configService.getValue(key), CREATE_MENU_TYPE);
     const menuConfigItems = yield call(api.menu.getMainMenuCreateVariants);
     const config = MenuConverter.getMainMenuCreateItems(menuConfigItems);
 
     yield put(setCreateCaseWidgetItems(config));
     yield put(setCreateCaseWidgetIsCascade(createMenuView === 'cascad'));
   } catch (e) {
-    logger.error('[fetchCreateCaseWidget saga] error', e);
+    console.error('[fetchCreateCaseWidget saga] error', e);
   }
 }
 
-function* fetchUserMenu({ api, logger }) {
+function* fetchUserMenu({ api }) {
   try {
-    const userData = yield select(state => state.user);
+    const userData = yield select((state) => state.user);
     const { userName, isDeputyAvailable: isAvailable } = userData || {};
     const isExternalIDP = yield call(api.app.getIsExternalIDP);
     const config = (yield call(api.menu.getUserCustomMenuConfig, userName)) || {};
@@ -60,7 +60,7 @@ function* fetchUserMenu({ api, logger }) {
     const items = MenuConverter.getUserMenuItems(config.items, { isAvailable, isExternalIDP });
 
     yield Promise.all(
-      items.map(async item => {
+      items.map(async (item) => {
         const icon = get(item, 'icon');
 
         if (isString(icon) && icon.indexOf(SourcesId.ICON) === 0) {
@@ -70,26 +70,26 @@ function* fetchUserMenu({ api, logger }) {
         }
 
         item.icon = getIconObjectWeb(item.icon);
-      })
+      }),
     );
 
     yield put(setUserMenuItems(items));
     yield put(getAppUserThumbnail());
   } catch (e) {
-    logger.error('[fetchUserMenu saga] error', e);
+    console.error('[fetchUserMenu saga] error', e);
   }
 }
 
 function* fetchInfluentialParams() {
-  const isAdmin = yield select(state => state.user.isAdmin);
-  const leftMenuEditable = yield select(state => state.app.leftMenuEditable);
-  const dashboardEditable = yield select(state => state.app.dashboardEditable);
-  const widgetEditable = yield select(state => state.app.widgetEditable);
+  const isAdmin = yield select((state) => state.user.isAdmin);
+  const leftMenuEditable = yield select((state) => state.app.leftMenuEditable);
+  const dashboardEditable = yield select((state) => state.app.dashboardEditable);
+  const widgetEditable = yield select((state) => state.app.widgetEditable);
 
   return { isAdmin, dashboardEditable, widgetEditable, leftMenuEditable };
 }
 
-function* fetchSiteMenu({ logger }) {
+function* fetchSiteMenu() {
   try {
     const params = yield fetchInfluentialParams();
     const url = document.location.href;
@@ -97,11 +97,11 @@ function* fetchSiteMenu({ logger }) {
     const menuItems = makeSiteMenu({ isDashboardPage, ...params });
     yield put(setSiteMenuItems(menuItems));
   } catch (e) {
-    logger.error('[fetchSiteMenu saga] error', e);
+    console.error('[fetchSiteMenu saga] error', e);
   }
 }
 
-function* filterSiteMenu({ logger }, { payload = {} }) {
+function* filterSiteMenu({}, { payload = {} }) {
   try {
     const params = yield fetchInfluentialParams();
     const { identification = null } = payload;
@@ -126,24 +126,24 @@ function* filterSiteMenu({ logger }, { payload = {} }) {
 
     yield put(setSiteMenuItems(menuItems));
   } catch (e) {
-    logger.error('[filterSiteMenu saga] error', e);
+    console.error('[filterSiteMenu saga] error', e);
   }
 }
 
-function* goToPageSiteMenu({ logger }, { payload }) {
+function* goToPageSiteMenu({}, { payload }) {
   try {
     const dashboard = yield select(selectIdentificationForView);
     const link = yield MenuService.getSiteMenuLink(payload, dashboard);
 
     PageService.changeUrlLink(link, { openNewTab: true });
   } catch (e) {
-    logger.error('[header goToPageSiteMenu saga] error', e);
+    console.error('[header goToPageSiteMenu saga] error', e);
   }
 }
 
-function* sagaRunSearchAutocomplete({ api, logger }, { payload }) {
+function* sagaRunSearchAutocomplete({ api }, { payload }) {
   try {
-    const isAlfrescoEnabled = yield select(state => state.app.isEnabledAlfresco);
+    const isAlfrescoEnabled = yield select((state) => state.app.isEnabledAlfresco);
 
     if (isAlfrescoEnabled) {
       const documents = yield api.menu.getLiveSearchDocuments(payload, 0);
@@ -174,7 +174,7 @@ function* sagaRunSearchAutocomplete({ api, logger }, { payload }) {
               modifiedOn: get(record, LiveSearchAttributes.MODIFIED),
               nodeRef: get(record, LiveSearchAttributes.ID),
               name: get(record, LiveSearchAttributes.DISP),
-              isNotAlfresco: true
+              isNotAlfresco: true,
             });
             break;
 
@@ -182,7 +182,7 @@ function* sagaRunSearchAutocomplete({ api, logger }, { payload }) {
             sites.push({
               ...record,
               title: get(record, LiveSearchAttributes.DISP),
-              isNotAlfresco: true
+              isNotAlfresco: true,
             });
             break;
 
@@ -194,7 +194,7 @@ function* sagaRunSearchAutocomplete({ api, logger }, { payload }) {
               url: getBaseUrlWorkspace(otherParamsWorkspaces.wsId, otherParamsWorkspaces.homePageLink),
               description: getMLValue(otherParamsWorkspaces.description),
               title: get(record, LiveSearchAttributes.DISP),
-              isNotAlfresco: true
+              isNotAlfresco: true,
             });
             break;
 
@@ -204,7 +204,7 @@ function* sagaRunSearchAutocomplete({ api, logger }, { payload }) {
       }
 
       const noResults = !(!!documents.length + !!sites.length + !!people.length + !!workspaces.length);
-      const getObject = arr => ({ items: arr });
+      const getObject = (arr) => ({ items: arr });
 
       yield put(
         setSearchAutocompleteItems({
@@ -212,12 +212,12 @@ function* sagaRunSearchAutocomplete({ api, logger }, { payload }) {
           sites: getObject(sites),
           people: getObject(people),
           workspaces: getObject(workspaces),
-          noResults
-        })
+          noResults,
+        }),
       );
     }
   } catch (e) {
-    logger.error('[sagaRunSearchAutocomplete saga] error', e);
+    console.error('[sagaRunSearchAutocomplete saga] error', e);
   }
 }
 
@@ -228,7 +228,7 @@ function* headerSaga(ea) {
   yield takeLatest(
     [setDashboardIdentification().type, changeTab().type, validateUserSuccess().type, setLeftMenuEditable().type],
     filterSiteMenu,
-    ea
+    ea,
   );
   yield takeLatest(goToPageFromSiteMenu().type, goToPageSiteMenu, ea);
   yield takeLatest(runSearchAutocompleteItems().type, sagaRunSearchAutocomplete, ea);

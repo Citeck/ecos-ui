@@ -59,7 +59,7 @@ class Select extends Component {
     }
   };
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const { value, options } = nextProps;
     this.setState({ value: this.handleSetValue(value, options || this._options) });
   }

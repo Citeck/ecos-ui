@@ -1,7 +1,6 @@
-import { shallow } from 'enzyme';
+import { render } from '@testing-library/react';
 
 import FileIcon from '../../../../../common/FileIcon';
-
 import FileNameFormatter from './FileNameFormatter';
 
 const fileNameFormatterInstance = new FileNameFormatter();
@@ -12,9 +11,9 @@ describe('FileNameFormatter', () => {
   });
   describe('format method', () => {
     it('should render file icon', () => {
-      const result = fileNameFormatterInstance.format();
-      const component = shallow(result);
-      expect(component.find(FileIcon)).toHaveLength(1);
+      const { container } = render(fileNameFormatterInstance.format());
+      expect(container.getElementsByClassName('fiv-icon-blank')).toHaveLength(1);
+      expect(container).toMatchSnapshot();
     });
   });
 });

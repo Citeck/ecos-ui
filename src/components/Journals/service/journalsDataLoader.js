@@ -1,4 +1,4 @@
-import { NotificationManager } from 'react-notifications';
+import { NotificationManager } from '@/services/notifications';
 
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';

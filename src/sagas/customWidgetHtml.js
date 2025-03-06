@@ -1,16 +1,15 @@
 import { setHtml, setLoading, updateHtmlWidget } from '../actions/customWidgetHtml';
-import { takeEvery } from 'redux-saga';
-import { put } from 'redux-saga/effects';
+import { put, takeEvery } from 'redux-saga/effects';
 import { wrapArgs } from '../helpers/redux';
 
-function* sagaUpdateHtmlWidget({ api, logger }, { payload }) {
+function* sagaUpdateHtmlWidget({ api }, { payload }) {
   try {
     const { html, stateId } = payload;
     const w = wrapArgs(stateId);
     yield put(setLoading(w(true)));
     yield put(setHtml(w(html)));
   } catch (e) {
-    logger.error('[publications/sagaUpdateHtmlWidget saga] error', e);
+    console.error('[publications/sagaUpdateHtmlWidget saga] error', e);
   }
 }
 

@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import cn from 'classnames';
-import { NotificationManager } from 'react-notifications';
+import { NotificationManager } from '@/services/notifications';
 import { Collapse, Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from 'reactstrap';
 
 import { ViewTypes } from '../../../constants/commonDesigner';

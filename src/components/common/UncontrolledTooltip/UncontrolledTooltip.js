@@ -5,6 +5,14 @@ import omit from 'lodash/omit';
 
 const omitKeys = ['defaultOpen'];
 
+export const baseModifiersUncontrolled = {
+  offset: {
+    name: 'offset',
+    enabled: true,
+    offset: '0, 5px'
+  }
+};
+
 export default class UncontrolledTooltip extends Component {
   constructor(props) {
     super(props);

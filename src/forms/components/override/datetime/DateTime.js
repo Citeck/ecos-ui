@@ -71,7 +71,7 @@ export default class DateTimeComponent extends FormIODateTimeComponent {
     } else {
       this.refreshOnChanged = true;
       this.refreshOnValue = {
-        [refreshOnKey]: value
+        [refreshOnKey]: value,
       };
     }
 

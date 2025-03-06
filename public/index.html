@@ -1,13 +1,12 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" translate="no">
   <head>
-    %REACT_APP_HTML_SCRIPT_IMPORTS%
-    <meta charset="utf-8">
-    <meta id="metaviewport" name=viewport content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#000000">
-    <meta name="google" content="notranslate">
+    <meta charset="utf-8" />
+    <meta id="metaviewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="google" content="notranslate" />
 
-    <link rel="icon" href="/gateway/uiserv/api/theme/active/image/favicon" type="image/vnd.microsoft.icon">
+    <link rel="icon" href="/gateway/uiserv/api/theme/active/image/favicon" type="image/vnd.microsoft.icon" />
     <!--
       manifest.json provides metadata used when your web app is added to the
       homescreen on Android. See https://developers.google.com/web/fundamentals/web-app-manifest/
@@ -23,12 +22,18 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>#ECOS_PAGE_TITLE</title>
-    <script src="/js/lib/require.js"></script>
+    <script type="module">
+      import RefreshRuntime from "http://localhost:3000/@react-refresh";
+      RefreshRuntime.injectIntoGlobalHook(window);
+      window.$RefreshReg$ = () => {};
+      window.$RefreshSig$ = () => (type) => type;
+      window.__vite_plugin_react_preamble_installed__ = true;
+    </script>
+
+    <script type="module" src="/src/index.js"></script>
   </head>
   <body>
-    <noscript>
-      You need to enable JavaScript to run this app.
-    </noscript>
+    <noscript> You need to enable JavaScript to run this app. </noscript>
 
     <div id="root" class="page-content-root notranslate" lang="notranslate"></div>
   </body>

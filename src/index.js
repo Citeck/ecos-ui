@@ -2,13 +2,12 @@ import 'react-app-polyfill/ie9';
 import 'regenerator-runtime/runtime.js';
 import './helpers/polyfills';
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { registerLocale, setDefaultLocale } from 'react-datepicker';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 import * as serviceWorker from './serviceWorkerRegistration';
-import preval from 'preval.macro';
-import { NotificationManager } from 'react-notifications';
+import { NotificationManager } from '@/services/notifications';
 import moment from 'moment';
 import 'moment/locale/ru';
 import 'moment/locale/en-gb';
@@ -17,7 +16,6 @@ import datePickerLocaleEn from 'date-fns/locale/en-GB';
 import datePickerLocaleRu from 'date-fns/locale/ru';
 
 import { getCurrentLocale, isMobileAppWebView } from './helpers/util';
-import logger from './services/logger';
 import authService from './services/auth';
 import configureStore, { getHistory } from './store';
 import { initAppRequest } from './actions/app';
@@ -45,7 +43,7 @@ registerLocale('ru', datePickerLocaleRu);
 setDefaultLocale(currentLocale);
 
 const { api, setNotAuthCallback } = configureAPI();
-export const store = configureStore({ api, logger });
+export const store = configureStore({ api });
 const history = getHistory();
 const setAuthStatus = () => {
   store.dispatch(setIsAuthenticated(false));
@@ -55,14 +53,14 @@ setNotAuthCallback(setAuthStatus);
 
 emitter.on(RESET_AUTH_STATE_EVENT, setAuthStatus);
 
-window.requirejs.config({
-  baseUrl: '/share/res', // leave it for now
-  urlArgs: 'b=' + preval`module.exports = new Date().getTime()`,
-  paths: {
-    ecosui: '/js/ecos/ecosui',
-    css: '/js/lib/require-css'
-  }
-});
+// window.requirejs.config({
+//   baseUrl: '/share/res', // leave it for now
+//   urlArgs: 'b=' + preval`module.exports = new Date().getTime()`,
+//   paths: {
+//     ecosui: '/js/ecos/ecosui',
+//     css: '/js/lib/require-css'
+//   }
+// });
 
 if (!window.Citeck) {
   window.Citeck = {};
@@ -81,13 +79,12 @@ const runApp = () => {
             isAuthenticated,
             onSuccess: () => {
               i18nInit({ debug: process.env.NODE_ENV === 'development' }).then(() => {
-                ReactDOM.render(
+                createRoot(document.getElementById('root')).render(
                   <Provider store={store}>
                     <ConnectedRouter history={history}>
                       <App />
                     </ConnectedRouter>
-                  </Provider>,
-                  document.getElementById('root')
+                  </Provider>
                 );
               });
             }

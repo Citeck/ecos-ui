@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import Formio from 'formiojs/Formio';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
@@ -27,6 +27,8 @@ const _array = (str, checkForEmpty) => {
 
   return split(str, ',').map(item => item.trim());
 };
+
+let root = null;
 
 export default class SelectOrgstructComponent extends BaseComponent {
   static schema(...extend) {
@@ -145,11 +147,19 @@ export default class SelectOrgstructComponent extends BaseComponent {
 
     let renderControl = () => {
       if (comp.unreadable) {
-        ReactDOM.render(<UnreadableLabel />, this.reactContainer);
+        if (!root) {
+          root = createRoot(this.reactContainer);
+        }
+
+        root.render(<UnreadableLabel />, this.reactContainer);
         return;
       }
 
-      ReactDOM.render(
+      if (!root) {
+        root = createRoot(this.reactContainer);
+      }
+
+      root.render(
         <SelectOrgstruct
           defaultValue={this.dataValue}
           isCompact={comp.isCompact}
@@ -173,8 +183,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
           onChange={this.onValueChange}
           onError={console.error}
           viewModeType={comp.viewModeType}
-        />,
-        this.reactContainer
+        />
       );
     };
 

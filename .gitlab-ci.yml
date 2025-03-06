@@ -1,4 +1,4 @@
-image: node:14.21-alpine
+image: node:18.20-alpine
 
 cache:
   key: ${CI_COMMIT_REF_SLUG}
@@ -14,8 +14,8 @@ testing:
     - kuber-run-new
   stage: testing
   before_script:
-    - yarn install --frozen-lockfile
+    - yarn
   script:
-    - yarn && yarn test --watchAll=false --ci --coverage --maxWorkers=2
+    - yarn test:ci
   rules:
     - if: ($CI_PIPELINE_SOURCE == 'merge_request_event') && ($CI_PIPELINE_SOURCE != $CI_MERGE_REQUEST_DRAFT)

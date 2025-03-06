@@ -19,7 +19,7 @@ export default class FiltersProvider extends Component {
     }
   }
 
-  componentWillReceiveProps() {
+  UNSAFE_componentWillReceiveProps() {
     const { columns } = this.props;
     const { isReady } = this.state;
 

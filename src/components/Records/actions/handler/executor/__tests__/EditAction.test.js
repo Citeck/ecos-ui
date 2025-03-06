@@ -1,4 +1,4 @@
-import { NotificationManager } from 'react-notifications';
+import { NotificationManager } from '@/services/notifications';
 
 import EcosFormUtils from '../../../../../EcosForm/EcosFormUtils';
 import Records from '../../../../Records';

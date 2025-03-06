@@ -1,6 +1,6 @@
 import { delay } from 'redux-saga';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
-import { NotificationManager } from 'react-notifications';
+import { NotificationManager } from '@/services/notifications';
 import endsWith from 'lodash/endsWith';
 import isFunction from 'lodash/isFunction';
 import get from 'lodash/get';
@@ -20,7 +20,7 @@ import {
   setModels,
   setCreateVariants,
   importProcessModelRequest,
-  createModel
+  createModel,
 } from '../actions/dmn';
 import { INFO_DIALOG_ID } from '../components/common/dialogs/Manager/DialogManager';
 import { showModal } from '../actions/modal';
@@ -31,7 +31,7 @@ import Records from '../components/Records';
 import FormManager from '../components/EcosForm/FormManager';
 import { t } from '../helpers/util';
 
-function* initDmn({ api, logger }) {
+function* initDmn({ api }) {
   try {
     const categories = yield call(api.dmn.fetchCategories);
     const models = yield call(api.dmn.fetchProcessModels);
@@ -57,11 +57,11 @@ function* initDmn({ api, logger }) {
 
     yield put(setIsReady(true));
   } catch (e) {
-    logger.error('[dmn initRequest saga] error', e);
+    console.error('[dmn initRequest saga] error', e);
   }
 }
 
-function* doCreateModel({ api, logger }, action) {
+function* doCreateModel({ api }, action) {
   try {
     const payload = action.payload || {};
 
@@ -73,14 +73,14 @@ function* doCreateModel({ api, logger }, action) {
     if (payload.categoryId) {
       cv.attributes = {
         ...(cv.attributes || {}),
-        sectionRef: payload.categoryId
+        sectionRef: payload.categoryId,
       };
     }
 
-    const saved = yield new Promise(resolve => {
+    const saved = yield new Promise((resolve) => {
       FormManager.createRecordByVariant(cv, {
         onSubmit: () => resolve(true),
-        onFormCancel: () => resolve(false)
+        onFormCancel: () => resolve(false),
       });
     });
     if (saved) {
@@ -88,14 +88,14 @@ function* doCreateModel({ api, logger }, action) {
       yield put(setModels(models));
     }
   } catch (e) {
-    logger.error('[dmn doCreateModel saga] error', e);
+    console.error('[dmn doCreateModel saga] error', e);
   }
 }
 
-function* doSaveCategoryRequest({ api, logger }, action) {
+function* doSaveCategoryRequest({ api }, action) {
   try {
     const categories = yield select(selectAllCategories);
-    const currentCategory = categories.find(item => item.id === action.payload.id);
+    const currentCategory = categories.find((item) => item.id === action.payload.id);
 
     let newId = null;
 
@@ -105,14 +105,14 @@ function* doSaveCategoryRequest({ api, logger }, action) {
       const categoryData = yield call(api.dmn.createCategory, action.payload.code, action.payload.label, currentCategory.parentId);
       newId = categoryData.id;
 
-      const parentCategory = categories.find(item => item.id === currentCategory.parentId);
+      const parentCategory = categories.find((item) => item.id === currentCategory.parentId);
 
       canCreateDef = categoryData.canCreateDef || get(parentCategory, 'canCreateDef');
       canCreateSubSection = categoryData.canCreateSubSection || get(parentCategory, 'canCreateSubSection');
     } else {
       yield call(api.dmn.updateCategory, action.payload.id, {
         title: action.payload.label,
-        code: action.payload.code
+        code: action.payload.code,
       });
     }
 
@@ -123,16 +123,16 @@ function* doSaveCategoryRequest({ api, logger }, action) {
         code: action.payload.code,
         canCreateDef,
         canCreateSubSection,
-        newId
-      })
+        newId,
+      }),
     );
   } catch (e) {
     NotificationManager.error(t('designer.add-category.failure-message'));
-    logger.error('[dmn doSaveCategoryRequest saga] error', e);
+    console.error('[dmn doSaveCategoryRequest saga] error', e);
   }
 }
 
-function* doDeleteCategoryRequest({ api, logger }, action) {
+function* doDeleteCategoryRequest({ api }, action) {
   try {
     const categoryId = action.payload;
 
@@ -140,8 +140,8 @@ function* doDeleteCategoryRequest({ api, logger }, action) {
     const allModels = yield select(selectAllModels);
 
     const isCategoryHasChildren =
-      allCategories.findIndex(item => endsWith(item.parentId, categoryId)) !== -1 ||
-      allModels.findIndex(item => item.categoryId.includes(categoryId)) !== -1;
+      allCategories.findIndex((item) => endsWith(item.parentId, categoryId)) !== -1 ||
+      allModels.findIndex((item) => item.categoryId.includes(categoryId)) !== -1;
 
     if (isCategoryHasChildren) {
       yield delay(100);
@@ -149,8 +149,8 @@ function* doDeleteCategoryRequest({ api, logger }, action) {
         showModal({
           dialogId: INFO_DIALOG_ID,
           title: t('designer.delete-category-dialog.failure-title'),
-          text: t('designer.delete-category-dialog.failure-text')
-        })
+          text: t('designer.delete-category-dialog.failure-text'),
+        }),
       );
       return;
     }
@@ -158,28 +158,28 @@ function* doDeleteCategoryRequest({ api, logger }, action) {
     yield call(api.dmn.deleteCategory, categoryId);
     yield put(deleteCategory(categoryId));
   } catch (e) {
-    logger.error('[dmn doDeleteCategoryRequest saga] error', e);
+    console.error('[dmn doDeleteCategoryRequest saga] error', e);
   }
 }
 
-function* doImportProcessModelRequest({ api, logger }, action) {
+function* doImportProcessModelRequest({ api }, action) {
   try {
     const model = yield call(api.dmn.importProcessModel, action.payload);
     const recordId = model.id.replace('workspace://SpacesStore/', '');
 
     window.location.href = `${EDITOR_PAGE_CONTEXT}#/editor/${recordId}`;
   } catch (e) {
-    logger.error('[dmn doImportProcessModelRequest saga] error', e);
+    console.error('[dmn doImportProcessModelRequest saga] error', e);
   }
 }
 
-function* doSavePagePosition({ api, logger }, action) {
+function* doSavePagePosition({ api }, action) {
   try {
     const allCategories = yield select(selectAllCategories);
-    const viewType = yield select(state => state.dmn.viewType);
+    const viewType = yield select((state) => state.dmn.viewType);
 
     const openedCategories = [];
-    allCategories.forEach(item => {
+    allCategories.forEach((item) => {
       if (item.isOpen) {
         openedCategories.push(item.id);
       }
@@ -188,21 +188,21 @@ function* doSavePagePosition({ api, logger }, action) {
     yield call(savePagePositionState, {
       scrollTop: document.body.scrollTop,
       openedCategories,
-      viewType
+      viewType,
     });
 
     action.payload && isFunction(action.payload.callback) && action.payload.callback();
   } catch (e) {
-    logger.error('[dmn doShowImportModelForm saga] error', e);
+    console.error('[dmn doShowImportModelForm saga] error', e);
   }
 }
 
-function* doUpdateModels({ api, logger }) {
+function* doUpdateModels({ api }) {
   try {
     const models = yield call(api.dmn.fetchProcessModels);
     yield put(setModels(models));
   } catch (e) {
-    logger.console.error(('[dmn doUpdateModels saga] error', e));
+    console.error(('[dmn doUpdateModels saga] error', e));
   }
 }
 

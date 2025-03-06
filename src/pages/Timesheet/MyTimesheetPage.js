@@ -45,8 +45,8 @@ class MyTimesheetPage extends BaseTimesheetPage {
     this.getData();
   }
 
-  componentWillReceiveProps(nextProps, nextContext) {
-    super.componentWillReceiveProps(nextProps, nextContext);
+  UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
+    super.UNSAFE_componentWillReceiveProps(nextProps, nextContext);
 
     const { countAttemptGetStatus, status } = this.props;
 

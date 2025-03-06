@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { NotificationManager } from 'react-notifications';
+import { NotificationManager } from '@/services/notifications';
 
 import { createModel, getFullModels, getNextModels, initModels, savePagePosition, updateModels } from '../../../actions/bpmn';
 import { EDITOR_PAGE_CONTEXT, LOCAL_STORAGE_KEY_REFERER_PAGE_PATHNAME } from '../../../constants/bpmn';

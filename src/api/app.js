@@ -1,9 +1,8 @@
 import * as queryString from 'query-string';
-import { NotificationManager } from 'react-notifications';
+import { NotificationManager } from '@/services/notifications';
 import get from 'lodash/get';
 import isNil from 'lodash/isNil';
 
-import logger from '../services/logger';
 import ecosXhr from '../helpers/ecosXhr';
 import ecosFetch, { RESET_AUTH_STATE_EVENT, emitter } from '../helpers/ecosFetch';
 import { t } from '../helpers/export/util';
@@ -130,11 +129,12 @@ export class AppApi extends CommonApi {
     return ConfigService.getValue(FOOTER_CONTENT);
   };
 
-  static getDictionaryLocal(lang) {
+  static async getDictionaryLocal(lang) {
     let isExist;
 
     try {
-      isExist = require.resolve(`../i18n/${lang}`);
+      await import(/* @vite-ignore */ `../i18n/${lang}`);
+      isExist = true;
     } catch (e) {
       isExist = false;
     }
@@ -143,7 +143,7 @@ export class AppApi extends CommonApi {
       lang = get(allowedLanguages, '0.id', LANGUAGE_EN);
     }
 
-    return import(`../i18n/${lang}`)
+    return import(/* @vite-ignore */ `../i18n/${lang}`)
       .then(module => module.default)
       .catch(e => {
         console.error(e);
@@ -280,7 +280,7 @@ export class AppApi extends CommonApi {
         return '';
       })
       .catch(e => {
-        logger.error('Error while availability changing', e);
+        console.error('Error while availability changing', e);
       });
   };
 

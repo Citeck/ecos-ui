@@ -25,7 +25,7 @@ class AvatarBtn extends Component {
   };
 
   render() {
-    const { className, icon, children, userFullName, theme, userPhotoUrl, ...props } = this.props;
+    const { className, icon, children, userFullName, theme, userPhotoUrl, dispatch, ...props } = this.props;
     const cssClasses = classNames('ecos-btn', className);
 
     return (

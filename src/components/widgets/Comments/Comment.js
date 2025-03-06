@@ -1,23 +1,23 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { $generateHtmlFromNodes } from '@lexical/html';
 import moment from 'moment';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 import get from 'lodash/get';
 import isNil from 'lodash/isNil';
+import { $generateHtmlFromNodes } from '@lexical/html';
 
 import { Avatar, Loader, Popper } from '../../common/index';
 import { t } from '../../../helpers/export/util';
 import { num2str } from '../../../helpers/util';
 import { Btn } from '../../common/btns';
 import { Badge, Checkbox, Label } from '../../common/form';
-import RichTextEditor from '../../RichTextEditor';
 import { CommentInterface } from './propsInterfaces';
 import { selectStateByRecordRef } from '../../../selectors/comments';
 import { createCommentRequest, setError, deleteCommentRequest, getComments, updateCommentRequest } from '../../../actions/comments';
 import Records from '../../Records';
+import LexicalEditor from '../../LexicalEditor';
 
 export const LENGTH_LIMIT = 5000;
 
@@ -25,7 +25,7 @@ export class Comment extends Component {
   static propTypes = {
     comment: PropTypes.shape(CommentInterface),
     userName: PropTypes.string,
-    actionFailed: PropTypes.bool
+    actionFailed: PropTypes.bool,
   };
 
   state = {
@@ -35,7 +35,7 @@ export class Comment extends Component {
     isEdit: false,
     isMaxLength: false,
     isInternal: false,
-    noChanges: true
+    noChanges: true,
   };
 
   get canSendComment() {
@@ -48,7 +48,7 @@ export class Comment extends Component {
   componentDidMount() {
     Records.get(this.props.recordRef)
       .load('_aspects._has.has-internal-comments?bool!')
-      .then(hasInternal => {
+      .then((hasInternal) => {
         this.setState({ isInternalSupported: hasInternal });
       });
   }
@@ -74,19 +74,19 @@ export class Comment extends Component {
 
     if (hours > 0) {
       return `${hours} ${t(num2str(hours, ['comments-widget.hour-form1', 'comments-widget.hour-form2', 'comments-widget.hour-form3']))} ${t(
-        'comments-widget.time-ago'
+        'comments-widget.time-ago',
       )}`;
     }
 
     if (minutes > 0) {
       return `${minutes} ${t(
-        num2str(minutes, ['comments-widget.minute-form1', 'comments-widget.minute-form2', 'comments-widget.minute-form3'])
+        num2str(minutes, ['comments-widget.minute-form1', 'comments-widget.minute-form2', 'comments-widget.minute-form3']),
       )} ${t('comments-widget.time-ago')}`;
     }
 
     if (seconds > 0) {
       return `${seconds} ${t(
-        num2str(seconds, ['comments-widget.second-form1', 'comments-widget.second-form2', 'comments-widget.second-form3'])
+        num2str(seconds, ['comments-widget.second-form1', 'comments-widget.second-form2', 'comments-widget.second-form3']),
       )} ${t('comments-widget.time-ago')}`;
     }
 
@@ -95,7 +95,7 @@ export class Comment extends Component {
 
   handleEditComment = () => {
     this.setState({
-      isEdit: true
+      isEdit: true,
     });
   };
 
@@ -104,21 +104,21 @@ export class Comment extends Component {
 
     this.setState({
       isEdit: false,
-      htmlString: ''
+      htmlString: '',
     });
 
     isFunction(onClose) && onClose();
   };
 
   toggleConfirmDialog = () => {
-    this.setState(state => ({ isOpenConfirmDialog: !state.isOpenConfirmDialog }));
+    this.setState((state) => ({ isOpenConfirmDialog: !state.isOpenConfirmDialog }));
   };
 
   toggleLoading = () => {
-    this.setState(state => ({ isLoading: !state.isLoading }));
+    this.setState((state) => ({ isLoading: !state.isLoading }));
   };
 
-  handleConfirmDeletion = callback => {
+  handleConfirmDeletion = (callback) => {
     const { comment, deleteComment, recordRef } = this.props;
 
     isFunction(deleteComment) && deleteComment(recordRef, comment.id);
@@ -140,10 +140,7 @@ export class Comment extends Component {
 
     if (userName === editorUserName) {
       const now = moment();
-      const yesterday = now
-        .clone()
-        .subtract(1, 'days')
-        .startOf('day');
+      const yesterday = now.clone().subtract(1, 'days').startOf('day');
 
       if (inMoment.isSame(yesterday, 'd')) {
         title += ` ${inMoment.format('DD.MM.YYYY')}`;
@@ -199,7 +196,7 @@ export class Comment extends Component {
       return null;
     }
 
-    return tags.map(tag => {
+    return tags.map((tag) => {
       const style = {};
 
       if (tag.color) {
@@ -220,7 +217,7 @@ export class Comment extends Component {
     });
   }
 
-  handleEditorStateChange = (editorState, editor, _, noChanges) => {
+  handleEditorStateChange = (editorState, editor, noChanges) => {
     const { textContent = '' } = editor.getRootElement();
 
     this.setState({ isMaxLength: textContent.length > LENGTH_LIMIT, noChanges });
@@ -230,7 +227,7 @@ export class Comment extends Component {
       if (!isNil(htmlComment)) {
         this.setState({
           htmlComment,
-          rawComment: JSON.stringify(editorState)
+          rawComment: JSON.stringify(editorState),
         });
       }
     });
@@ -239,7 +236,7 @@ export class Comment extends Component {
   handleTextBeforeSave = () => {
     const { dataStorageFormat } = this.props;
     const { htmlComment, rawComment } = this.state;
-    let text = '';
+    let text;
     switch (dataStorageFormat) {
       case 'raw':
         text = rawComment;
@@ -281,9 +278,9 @@ export class Comment extends Component {
           recordRef,
           {
             id: comment.id,
-            text
+            text,
           },
-          callback
+          callback,
         );
   };
 
@@ -294,7 +291,7 @@ export class Comment extends Component {
     return (
       <div className="ecos-comments__editor">
         {isLoading && <Loader blur />}
-        <RichTextEditor htmlString={comment ? comment.text : null} onChange={this.handleEditorStateChange} />
+        <LexicalEditor htmlString={comment ? comment.text : null} onChange={this.handleEditorStateChange} />
         <div className="ecos-comments__editor-footer">
           {this.state.isInternalSupported && (
             <div className="ecos-comments__editor-footer-chbx-wrapper">
@@ -384,7 +381,7 @@ export class Comment extends Component {
           )}
         </div>
         {!isEdit && (
-          <RichTextEditor readonly className="ecos-comments__comment-editor" htmlString={text} onChange={this.handleEditorStateChange} />
+          <LexicalEditor readonly className="ecos-comments__comment-editor" htmlString={text} onChange={this.handleEditorStateChange} />
         )}
         {isEdit && this.renderEditor()}
 
@@ -397,7 +394,7 @@ export class Comment extends Component {
 const mapStateToProps = (state, ownProps) => ({
   ...selectStateByRecordRef(state, ownProps.record),
   isMobile: state.view.isMobile,
-  userName: state.user.userName
+  userName: state.user.userName,
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
@@ -405,10 +402,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   createComment: (recordRef, comment, isInternal, callback) => dispatch(createCommentRequest({ comment, recordRef, isInternal, callback })),
   updateComment: (recordRef, comment, callback) => dispatch(updateCommentRequest({ comment, recordRef, callback })),
   deleteComment: (recordRef, id, callback) => dispatch(deleteCommentRequest({ id, recordRef, callback })),
-  setErrorMessage: message => dispatch(setError({ message, recordRef: ownProps.record }))
+  setErrorMessage: (message) => dispatch(setError({ message, recordRef: ownProps.record })),
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Comment);
+export default connect(mapStateToProps, mapDispatchToProps)(Comment);

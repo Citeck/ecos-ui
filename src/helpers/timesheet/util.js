@@ -1,10 +1,14 @@
 import moment from 'moment';
-import 'moment-business-days';
 import get from 'lodash/get';
 import { pagesWithOnlyContent } from '../../constants';
 import { ServerDateFormats } from '../../constants/timesheet';
 import { t } from '../util';
 import { CommonLabels } from './dictionary';
+
+const isBusinessDay = date => {
+  const dayOfWeek = date.day();
+  return dayOfWeek !== 0 && dayOfWeek !== 6;
+};
 
 export function getDaysOfMonth(currentDate) {
   const arr = Array.from({ length: moment(currentDate).daysInMonth() }, (x, i) => {
@@ -17,7 +21,7 @@ export function getDaysOfMonth(currentDate) {
     number: day.format('D'),
     title: day.format('dd, D'),
     // рабочий день
-    isBusinessDay: moment(day).isBusinessDay(),
+    isBusinessDay: isBusinessDay(moment(day)),
     // короткий день
     // isShortenedDay: true,
     // текущий день

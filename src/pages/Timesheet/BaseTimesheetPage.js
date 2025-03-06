@@ -41,7 +41,7 @@ class BaseTimesheetPage extends React.Component {
     return [{}, {}];
   }
 
-  componentWillReceiveProps(nextProps, nextContext) {
+  UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
     const { popupMsg } = nextProps;
 
     this.resetPopupMsgTimer(popupMsg);

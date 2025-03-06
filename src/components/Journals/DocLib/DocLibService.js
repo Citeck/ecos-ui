@@ -1,4 +1,4 @@
-import { EventEmitter2 } from 'eventemitter2';
+import { EventEmitter } from 'events';
 import get from 'lodash/get';
 
 import { SourcesId } from '../../../constants';
@@ -20,7 +20,7 @@ class DocLibService {
   actionSuccessCallback = 'ACTION_SUCCESS_CALLBACK';
 
   constructor() {
-    this.emitter = new EventEmitter2();
+    this.emitter = new EventEmitter();
   }
 
   getRootId(typeRef) {
@@ -52,9 +52,9 @@ class DocLibService {
   }
 
   async getChildren(id, options = {}) {
-    return docLibApi.getChildren(id, options).then(result => ({
+    return docLibApi.getChildren(id, options).then((result) => ({
       ...result,
-      records: DocLibConverter.completeItemsIds(result.records)
+      records: DocLibConverter.completeItemsIds(result.records),
     }));
   }
 
@@ -65,7 +65,7 @@ class DocLibService {
   async getChildrenDirs(id) {
     return docLibApi
       .getChildren(id, { nodeType: NODE_TYPES.DIR })
-      .then(result => result.records)
+      .then((result) => result.records)
       .then(DocLibConverter.completeItemsIds);
   }
 
@@ -73,7 +73,7 @@ class DocLibService {
     const atts = {
       _parent: parentId || rootId,
       _type: typeRef,
-      ...attributes
+      ...attributes,
     };
 
     if (!!priorityNameItem) {
@@ -99,7 +99,7 @@ class DocLibService {
   async changeParent(id, newParent, title) {
     const atts = {
       _parent: newParent,
-      name: title
+      name: title,
     };
 
     return docLibApi.changeAttributesItem(id, { attributes: atts });
@@ -151,7 +151,7 @@ class DocLibService {
   }
 
   removeUnfoldedItem(typeRef, id) {
-    const items = this.loadUnfoldedFolders(typeRef).filter(item => item !== id);
+    const items = this.loadUnfoldedFolders(typeRef).filter((item) => item !== id);
     this.saveUnfoldedFolders(typeRef, items);
   }
 
@@ -161,12 +161,12 @@ class DocLibService {
     if (dirTypeRef) {
       const promise = Records.get(dirTypeRef)
         .load(CREATE_VARIANTS_ATT)
-        .then(dirVariants => {
+        .then((dirVariants) => {
           const createVariants = [];
           for (let variant of dirVariants || []) {
             createVariants.push({
               ...variant,
-              nodeType: NODE_TYPES.DIR
+              nodeType: NODE_TYPES.DIR,
             });
           }
           return createVariants;
@@ -177,7 +177,7 @@ class DocLibService {
     if (Array.isArray(fileTypeRefs)) {
       const promise = Records.get(fileTypeRefs)
         .load(CREATE_VARIANTS_ATT)
-        .then(fileVariants => {
+        .then((fileVariants) => {
           const createVariants = [];
           if (fileTypeRefs.length === 1) {
             for (let variant of fileVariants[0] || []) {
@@ -191,7 +191,7 @@ class DocLibService {
             for (let variant of typeVariants || []) {
               createVariants.push({
                 ...variant,
-                nodeType: NODE_TYPES.FILE
+                nodeType: NODE_TYPES.FILE,
               });
             }
           }
@@ -237,9 +237,9 @@ class DocLibService {
           storage: 'url',
           url: '/gateway/emodel/api/ecos/webapp/content',
           validate: {
-            required: true
+            required: true,
           },
-          input: true
+          input: true,
         },
         {
           clearOnHide: false,
@@ -253,8 +253,8 @@ class DocLibService {
             }
           `,
           key: 'name',
-          type: 'textfield'
-        }
+          type: 'textfield',
+        },
       );
     } else if (nodeType === NODE_TYPES.DIR) {
       components.push({
@@ -262,8 +262,8 @@ class DocLibService {
         type: 'textfield',
         key: 'name',
         validate: {
-          required: true
-        }
+          required: true,
+        },
       });
     }
 
@@ -283,9 +283,9 @@ class DocLibService {
               action: 'event',
               block: true,
               event: 'cancel',
-              removeIndents: true
-            }
-          ]
+              removeIndents: true,
+            },
+          ],
         },
         {
           sm: 12,
@@ -299,17 +299,17 @@ class DocLibService {
               theme: 'primary',
               action: 'submit',
               block: true,
-              removeIndents: true
-            }
-          ]
-        }
+              removeIndents: true,
+            },
+          ],
+        },
       ],
-      type: 'columns'
+      type: 'columns',
     });
 
     return {
       display: 'form',
-      components
+      components,
     };
   }
 }

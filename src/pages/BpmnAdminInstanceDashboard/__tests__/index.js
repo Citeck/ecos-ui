@@ -1,13 +1,14 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render } from 'enzyme';
+import { render } from '@testing-library/react';
+
 import configureStore from '../../../store';
 import {
   getCalledProcessesColumns,
   getExternalTasksColumns,
   getIncidentsColumns,
   getJobDefinitionsColumns,
-  getVariableColumns
+  getVariableColumns,
 } from '../JournalsTabs/columns';
 import { INSTANCE_TABS_TYPES } from '../../../constants/instanceAdmin';
 import { InstanceContextProvider } from '../InstanceContext';
@@ -17,10 +18,10 @@ const initialState = {};
 
 const tableProps = {
   instanceId: 'test-instance-id',
-  actions: []
+  actions: [],
 };
 
-const renderWithRedux = Component => {
+const renderWithRedux = (Component) => {
   const store = configureStore(null, { bpmnAdmin: initialState });
 
   return (
@@ -31,6 +32,7 @@ const renderWithRedux = Component => {
     </Provider>
   );
 };
+
 describe('', () => {
   describe('', () => {
     it('should render MetaInfo component', () => {

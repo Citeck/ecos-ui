@@ -30,7 +30,7 @@ export default class EmailComponent extends FormIOEmailComponent {
     } else {
       this.refreshOnChanged = true;
       this.refreshOnValue = {
-        [refreshOnKey]: value
+        [refreshOnKey]: value,
       };
     }
 

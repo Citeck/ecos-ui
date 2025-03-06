@@ -2,10 +2,9 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import React from 'react';
 import ActionsExecutor from '../ActionsExecutor';
-import logger from '../../../../../services/logger';
 import Records from '../../../Records';
 import LicenseService from '../../../../../services/license/LicenseService';
-import { NotificationManager } from 'react-notifications';
+import { NotificationManager } from '@/services/notifications';
 import { DialogManager } from '../../../../common/dialogs';
 import EcosProgressBar from '../../../../common/EcosProgressBar';
 
@@ -146,12 +145,12 @@ export default class ServerGroupActionV2 extends ActionsExecutor {
             }
             promiseResolve(result);
           } else {
-            logger.error('[ServerGroupActionV2] error', { values, action, actionAtts });
+            console.error('[ServerGroupActionV2] error', { values, action, actionAtts });
             promiseReject(new Error('Group action completed with unexpected status. Result: ' + JSON.stringify(actionAtts)));
           }
         }
       } catch (e) {
-        logger.error('[ServerGroupActionV2] error', { values, action });
+        console.error('[ServerGroupActionV2] error', { values, action });
         promiseReject(e);
       }
     };

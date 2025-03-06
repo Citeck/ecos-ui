@@ -1,0 +1,131 @@
+diff a/src/sagas/__tests__/kanban.test.js b/src/sagas/__tests__/kanban.test.js	(rejected hunks)
+@@ -20 +20 @@ import {
+-  setTotalCount
++  setTotalCount,
+@@ -43 +43 @@ const api = {
+-  journals: new JournalApi()
++  journals: new JournalApi(),
+@@ -46 +46 @@ const api = {
+-const load = async attrs => ({ ...attrs });
++const load = async (attrs) => ({ ...attrs });
+@@ -48 +48 @@ const load = async attrs => ({ ...attrs });
+-const recordsGet = id => ({
++const recordsGet = (id) => ({
+@@ -52 +52 @@ const recordsGet = id => ({
+-  load
++  load,
+@@ -69 +69 @@ const spyGetFormById = jest
+-  .mockImplementation(formId => (formId ? (formId === 'no-def' ? {} : data.formConfig) : null));
++  .mockImplementation((formId) => (formId ? (formId === 'no-def' ? {} : data.formConfig) : null));
+@@ -76 +76 @@ const spyGetJournalData = jest
+-  .mockImplementation(d => (d.id === 'set-data-cards' ? data.journalData : {}));
++  .mockImplementation((d) => (d.id === 'set-data-cards' ? data.journalData : {}));
+@@ -86,2 +86,2 @@ async function wrapRunSaga(sagaFun, payload = {}, state = {}) {
+-      dispatch: action => dispatched.push(action),
+-      getState: () => state
++      dispatch: (action) => dispatched.push(action),
++      getState: () => state,
+@@ -91 +91 @@ async function wrapRunSaga(sagaFun, payload = {}, state = {}) {
+-    { payload: { stateId, boardId, templateId, ...payload } }
++    { payload: { stateId, boardId, templateId, ...payload } },
+@@ -189,4 +189,4 @@ describe('kanban sagas tests', () => {
+-            journalConfig: {}
+-          }
+-        }
+-      }
++            journalConfig: {},
++          },
++        },
++      },
+@@ -222,4 +222,4 @@ describe('kanban sagas tests', () => {
+-            journalConfig: { ...data.journalConfig, id: 'set-data-cards' }
+-          }
+-        }
+-      }
++            journalConfig: { ...data.journalConfig, id: 'set-data-cards' },
++          },
++        },
++      },
+@@ -340 +340 @@ describe('kanban sagas tests', () => {
+-      type: 'templates'
++      type: 'templates',
+@@ -360,2 +360,2 @@ describe('kanban sagas tests', () => {
+-            journalConfig: data.journalConfig
+-          }
++            journalConfig: data.journalConfig,
++          },
+@@ -367,4 +367,4 @@ describe('kanban sagas tests', () => {
+-            pagination: DEFAULT_PAGINATION
+-          }
+-        }
+-      }
++            pagination: DEFAULT_PAGINATION,
++          },
++        },
++      },
+@@ -416 +416 @@ describe('kanban sagas tests', () => {
+-        toColumnRef: 'some-id-2'
++        toColumnRef: 'some-id-2',
+@@ -422,4 +422,4 @@ describe('kanban sagas tests', () => {
+-            boardConfig: data.boardConfig
+-          }
+-        }
+-      }
++            boardConfig: data.boardConfig,
++          },
++        },
++      },
+@@ -449 +449 @@ describe('kanban sagas tests', () => {
+-        settings: { predicate: { a: 1 } }
++        settings: { predicate: { a: 1 } },
+@@ -455,2 +455,2 @@ describe('kanban sagas tests', () => {
+-            journalSetting: data.journalSetting
+-          }
++            journalSetting: data.journalSetting,
++          },
+@@ -462,4 +462,4 @@ describe('kanban sagas tests', () => {
+-            pagination: { page: 1000 }
+-          }
+-        }
+-      }
++            pagination: { page: 1000 },
++          },
++        },
++      },
+@@ -489,2 +489,2 @@ describe('kanban sagas tests', () => {
+-            originGridSettings: { predicate: { b: 1 } }
+-          }
++            originGridSettings: { predicate: { b: 1 } },
++          },
+@@ -496,4 +496,4 @@ describe('kanban sagas tests', () => {
+-            pagination: { page: 1000 }
+-          }
+-        }
+-      }
++            pagination: { page: 1000 },
++          },
++        },
++      },
+@@ -568,4 +568,4 @@ describe('kanban sagas tests', () => {
+-            journalSetting: {}
+-          }
+-        }
+-      }
++            journalSetting: {},
++          },
++        },
++      },
+@@ -591,2 +591,2 @@ describe('kanban sagas tests', () => {
+-            journalSetting: data.journalSetting
+-          }
++            journalSetting: data.journalSetting,
++          },
+@@ -598,4 +598,4 @@ describe('kanban sagas tests', () => {
+-            pagination: { page: 1000 }
+-          }
+-        }
+-      }
++            pagination: { page: 1000 },
++          },
++        },
++      },

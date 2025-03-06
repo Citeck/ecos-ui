@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import BootstrapTable from 'react-bootstrap-table-next';
@@ -26,7 +26,7 @@ import isObject from 'lodash/isObject';
 import isElement from 'lodash/isElement';
 
 import { Tooltip } from 'reactstrap';
-import { NotificationManager } from 'react-notifications';
+import { NotificationManager } from '@/services/notifications';
 
 import EcosTooltip from '../../Tooltip';
 import Loader from '../../../common/Loader';
@@ -72,6 +72,7 @@ class Grid extends Component {
   #columnsSizes = {};
   #gridRef = null;
   #pageId = null;
+  #root = null;
 
   constructor(props) {
     super(props);
@@ -197,6 +198,8 @@ class Grid extends Component {
       const headerElement = current.querySelector(`.${ECOS_GRID_HEADER}`);
       const headerLoaderElement = current.querySelector(`.${ECOS_GRID_HEADER_LOADER}`);
 
+      let root = null;
+
       if (headerElement && !headerLoaderElement && loading) {
         const theadElement = headerElement.closest('thead');
 
@@ -206,10 +209,11 @@ class Grid extends Component {
 
           theadElement.appendChild(loaderDiv);
 
-          ReactDOM.render(<EcosProgressLoading />, loaderDiv);
+          root = createRoot(loaderDiv);
+          root.render(<EcosProgressLoading />);
         }
       } else if (headerLoaderElement && !loading) {
-        ReactDOM.unmountComponentAtNode(headerLoaderElement);
+        root?.unmount();
         headerLoaderElement.remove();
       }
     }
@@ -573,14 +577,14 @@ class Grid extends Component {
     if (currentTarget) {
       const inlineToolsElement = currentTarget.querySelector(`.${ECOS_GRID_INLINE_TOOLS_CONTAINER}`);
       if (inlineToolsElement) {
-        ReactDOM.unmountComponentAtNode(inlineToolsElement);
+        this.#root?.unmount();
         currentTarget.removeChild(inlineToolsElement);
         currentTarget.classList.remove('has-inline-tools');
       }
     } else {
       const inlineToolsElement = document.querySelector(`.${ECOS_GRID_INLINE_TOOLS_CONTAINER}`);
       if (inlineToolsElement) {
-        ReactDOM.unmountComponentAtNode(inlineToolsElement);
+        this.#root?.unmount();
         const parentElement = inlineToolsElement.parentNode;
         inlineToolsElement.remove();
 
@@ -599,7 +603,9 @@ class Grid extends Component {
       const inlineTools = this.inlineTools(settingInlineTools);
 
       if (inlineTools) {
-        ReactDOM.render(inlineTools, inlineToolsElement);
+        this.#root = createRoot(inlineToolsElement);
+        this.#root.render(inlineTools);
+
         currentTarget.appendChild(inlineToolsElement);
         currentTarget.classList.add('has-inline-tools');
       }
@@ -607,7 +613,9 @@ class Grid extends Component {
       const inlineActions = this.props.inlineActions(get(settingInlineTools, 'row.id') || null);
 
       if (inlineActions) {
-        ReactDOM.render(inlineActions, inlineToolsElement);
+        this.#root = createRoot(inlineToolsElement);
+        this.#root.render(inlineActions);
+
         currentTarget.appendChild(inlineToolsElement);
         currentTarget.classList.add('has-inline-tools');
       }
@@ -1364,7 +1372,6 @@ class Grid extends Component {
 
     return (
       <Scrollbars
-        minHeight={isViewNewJournal && ecosJournalEl ? maxHeight : null}
         ref={this.scrollRefCallback}
         onScrollStart={this.onScrollStart}
         onScrollFrame={this.onScrollFrame}

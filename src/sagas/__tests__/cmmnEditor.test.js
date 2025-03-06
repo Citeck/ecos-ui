@@ -1,5 +1,5 @@
 import { runSaga } from 'redux-saga';
-import { NotificationManager } from 'react-notifications';
+import { NotificationManager } from '@/services/notifications';
 
 import { setFormProps, setScenario, setTitle } from '../../actions/cmmnEditor';
 import { deleteTab } from '../../actions/pageTabs';

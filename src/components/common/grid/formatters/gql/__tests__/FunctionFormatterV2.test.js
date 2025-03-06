@@ -1,6 +1,6 @@
 import React from 'react';
-import { mount } from 'enzyme';
 import { unmountComponentAtNode } from 'react-dom';
+import { render, screen, waitFor } from '@testing-library/react';
 
 import formatterStore from '../../formatterStore';
 
@@ -24,9 +24,9 @@ describe('FunctionFormatterV2 React Component', () => {
     params: {},
     row: {
       'cm:name': 'ae9f0b14-66eb-46b8-98fc-64a24d536f53',
-      id: 'workspace://SpacesStore/ae9f0b14-66eb-46b8-98fc-64a24d536f53'
+      id: 'workspace://SpacesStore/ae9f0b14-66eb-46b8-98fc-64a24d536f53',
     },
-    rowIndex: 0
+    rowIndex: 0,
   };
   const data = [
     {
@@ -34,105 +34,101 @@ describe('FunctionFormatterV2 React Component', () => {
       props: {
         ...defaultProps,
         params: {
-          fn: () => 'test'
-        }
+          fn: () => 'test',
+        },
       },
-      output: 'test'
+      output: 'test',
     },
     {
       title: 'fn - a function with using lodash',
       props: {
         ...defaultProps,
         params: {
-          fn: function(...params) {
+          fn: function (...params) {
             const utils = params.slice(-1)[0];
 
             return utils.lodash.get(params, '[1].id');
-          }
-        }
+          },
+        },
       },
-      output: 'workspace://SpacesStore/ae9f0b14-66eb-46b8-98fc-64a24d536f53'
+      output: 'workspace://SpacesStore/ae9f0b14-66eb-46b8-98fc-64a24d536f53',
     },
     {
       title: 'fn - the string representation of the function body',
       props: {
         ...defaultProps,
         params: {
-          fn: "return utils.lodash.get(row, 'id');"
-        }
+          fn: "return utils.lodash.get(row, 'id');",
+        },
       },
-      output: 'workspace://SpacesStore/ae9f0b14-66eb-46b8-98fc-64a24d536f53'
+      output: 'workspace://SpacesStore/ae9f0b14-66eb-46b8-98fc-64a24d536f53',
     },
     {
       title: 'fn - plain text',
       props: {
         ...defaultProps,
         params: {
-          fn: 'Test message!'
-        }
+          fn: 'Test message!',
+        },
       },
-      output: 'Test message!'
+      output: 'Test message!',
     },
     {
       title: 'fn - function returning bool (setting Yes/No by locale)',
       props: {
         ...defaultProps,
         params: {
-          fn: () => true
-        }
+          fn: () => true,
+        },
       },
-      output: 'predicate.boolean-true'
+      output: 'predicate.boolean-true',
     },
     {
       title: 'fn - function returning promisified bool (No)',
       props: {
         ...defaultProps,
         params: {
-          fn: () => Promise.resolve(false)
-        }
+          fn: () => Promise.resolve(false),
+        },
       },
-      output: 'predicate.boolean-false'
+      output: 'predicate.boolean-false',
     },
     {
       title: 'fn - function returning promisified bool (Yes)',
       props: {
         ...defaultProps,
         params: {
-          fn: () => Promise.resolve(true)
-        }
+          fn: () => Promise.resolve(true),
+        },
       },
-      output: 'predicate.boolean-true'
+      output: 'predicate.boolean-true',
     },
     {
       title: 'fn - function returning promisified value ("some string")',
       props: {
         ...defaultProps,
         params: {
-          fn: () => Promise.resolve('some string')
-        }
+          fn: () => Promise.resolve('some string'),
+        },
       },
-      output: 'some string'
+      output: 'some string',
     },
     {
       title: 'fn - function returning promisified number (1000)',
       props: {
         ...defaultProps,
         params: {
-          fn: () => Promise.resolve(1000)
-        }
+          fn: () => Promise.resolve(1000),
+        },
       },
-      output: '1000'
-    }
+      output: '1000',
+    },
   ];
 
-  data.forEach(item => {
-    it(item.title, () => {
-      const mounted = mount(<FunctionFormatterV2 {...item.props} />);
-      return Promise.resolve(mounted)
-        .then(() => mounted.update())
-        .then(() => {
-          expect(mounted.text()).toBe(item.output);
-        });
+  data.forEach((item) => {
+    it(item.title, async () => {
+      const { container } = render(<FunctionFormatterV2 {...item.props} />);
+      await waitFor(() => expect(screen.getByText(item.output)).toBeInTheDocument());
     });
   });
 });
@@ -142,7 +138,7 @@ describe('FunctionFormatterV2 getFilterValue static method', () => {
     {
       title: 'fn - a function that returns text',
       input: ['', {}, { fn: () => 'test' }, 0],
-      output: 'test'
+      output: 'test',
     },
     {
       title: 'fn - a function with using lodash',
@@ -150,18 +146,18 @@ describe('FunctionFormatterV2 getFilterValue static method', () => {
         '',
         {
           'cm:name': 'ae9f0b14-66eb-46b8-98fc-64a24d536f53',
-          id: 'workspace://SpacesStore/ae9f0b14-66eb-46b8-98fc-64a24d536f53'
+          id: 'workspace://SpacesStore/ae9f0b14-66eb-46b8-98fc-64a24d536f53',
         },
         {
-          fn: function(...params) {
+          fn: function (...params) {
             const utils = params.slice(-1)[0];
 
             return utils.lodash.get(params, '[1].id');
-          }
+          },
         },
-        0
+        0,
       ],
-      output: 'workspace://SpacesStore/ae9f0b14-66eb-46b8-98fc-64a24d536f53'
+      output: 'workspace://SpacesStore/ae9f0b14-66eb-46b8-98fc-64a24d536f53',
     },
     {
       title: 'fn - the string representation of the function body',
@@ -169,14 +165,14 @@ describe('FunctionFormatterV2 getFilterValue static method', () => {
         '',
         {
           'cm:name': 'ae9f0b14-66eb-46b8-98fc-64a24d536f53',
-          id: 'workspace://SpacesStore/ae9f0b14-66eb-46b8-98fc-64a24d536f53'
+          id: 'workspace://SpacesStore/ae9f0b14-66eb-46b8-98fc-64a24d536f53',
         },
         {
-          fn: "return utils.lodash.get(row, 'id');"
+          fn: "return utils.lodash.get(row, 'id');",
         },
-        0
+        0,
       ],
-      output: 'workspace://SpacesStore/ae9f0b14-66eb-46b8-98fc-64a24d536f53'
+      output: 'workspace://SpacesStore/ae9f0b14-66eb-46b8-98fc-64a24d536f53',
     },
     {
       title: 'fn - plain text',
@@ -184,14 +180,14 @@ describe('FunctionFormatterV2 getFilterValue static method', () => {
         '',
         {
           'cm:name': 'ae9f0b14-66eb-46b8-98fc-64a24d536f53',
-          id: 'workspace://SpacesStore/ae9f0b14-66eb-46b8-98fc-64a24d536f53'
+          id: 'workspace://SpacesStore/ae9f0b14-66eb-46b8-98fc-64a24d536f53',
         },
         {
-          fn: 'message'
+          fn: 'message',
         },
-        0
+        0,
       ],
-      output: 'message'
+      output: 'message',
     },
     {
       title: 'fn - function returning bool (setting Yes/No by locale)',
@@ -199,14 +195,14 @@ describe('FunctionFormatterV2 getFilterValue static method', () => {
         '',
         {
           'cm:name': 'ae9f0b14-66eb-46b8-98fc-64a24d536f53',
-          id: 'workspace://SpacesStore/ae9f0b14-66eb-46b8-98fc-64a24d536f53'
+          id: 'workspace://SpacesStore/ae9f0b14-66eb-46b8-98fc-64a24d536f53',
         },
         {
-          fn: () => false
+          fn: () => false,
         },
-        0
+        0,
       ],
-      output: 'predicate.boolean-false'
+      output: 'predicate.boolean-false',
     },
     {
       title: 'fn - the string representation of the function body with Promise (will return an empty string anyway)',
@@ -214,20 +210,20 @@ describe('FunctionFormatterV2 getFilterValue static method', () => {
         '',
         {
           'cm:name': 'ae9f0b14-66eb-46b8-98fc-64a24d536f53',
-          id: 'workspace://SpacesStore/ae9f0b14-66eb-46b8-98fc-64a24d536f53'
+          id: 'workspace://SpacesStore/ae9f0b14-66eb-46b8-98fc-64a24d536f53',
         },
         {
           fn: `return new Promise(((resolve) => {
             resolve(utils.lodash.get(row, 'name'));
-          }))`
+          }))`,
         },
-        0
+        0,
       ],
-      output: ''
-    }
+      output: '',
+    },
   ];
 
-  data.forEach(item => {
+  data.forEach((item) => {
     it(item.title, () => {
       const result = FunctionFormatterV2.getFilterValue(...item.input);
 

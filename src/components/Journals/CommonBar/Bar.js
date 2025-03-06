@@ -16,7 +16,7 @@ class Bar extends Component {
   state = {
     isReset: false,
     settingsVisible: false,
-    isCreateLoading: false
+    isCreateLoading: false,
   };
 
   getSearchText() {
@@ -43,10 +43,10 @@ class Bar extends Component {
     this.handleToggleSettings();
   };
 
-  handleCreateSettings = settings => {
+  handleCreateSettings = (settings) => {
     const {
       journalConfig: { id },
-      createJournalSetting
+      createJournalSetting,
     } = this.props;
 
     isFunction(createJournalSetting) && createJournalSetting(id, settings, this.handleToggleSettings);
@@ -64,7 +64,7 @@ class Bar extends Component {
     isFunction(reloadGrid) && reloadGrid();
   };
 
-  handleSearch = text => {
+  handleSearch = (text) => {
     const { urlParams, runSearch } = this.props;
 
     if (text === get(urlParams, [JUP.SEARCH], '')) {
@@ -74,7 +74,7 @@ class Bar extends Component {
     isFunction(runSearch) && runSearch(text);
   };
 
-  handleAddRecord = createVariant => {
+  handleAddRecord = (createVariant) => {
     const { isCreateLoading } = this.state;
 
     if (isCreateLoading) {
@@ -92,7 +92,7 @@ class Bar extends Component {
         }
       },
       onReady: () => this.setState({ isCreateLoading: false }),
-      onAfterHideModal: () => this.setState({ isCreateLoading: false })
+      onAfterHideModal: () => this.setState({ isCreateLoading: false }),
     });
   };
 
@@ -205,7 +205,7 @@ Bar.propTypes = {
   createJournalSetting: PropTypes.func,
   saveJournalSetting: PropTypes.func,
   reloadGrid: PropTypes.func,
-  runSearch: PropTypes.func
+  runSearch: PropTypes.func,
 };
 
 export default Bar;

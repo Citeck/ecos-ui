@@ -1,4 +1,3 @@
-import logger from '../logger';
 import { getLicenseInfo } from './licenseApi';
 
 import { LICENSE_FEATURE_GROUP_ACTIONS, FLAG_DEVELOPER, FEATURES, LICENSE_FEATURE_IMPORT_DATA } from './licenseConstants';
@@ -16,7 +15,7 @@ class LicenseService {
     return getLicenseInfo()
       .then(r => r[FLAG_DEVELOPER] === true || !!r[FEATURES][feature])
       .catch(error => {
-        logger.error("[LicenseService] Feature flag loading error. Feature: '" + feature + "'", error);
+        console.error("[LicenseService] Feature flag loading error. Feature: '" + feature + "'", error);
         return false;
       });
   }

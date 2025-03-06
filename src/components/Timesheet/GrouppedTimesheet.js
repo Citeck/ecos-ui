@@ -89,7 +89,7 @@ class GrouppedTimesheet extends BaseTimesheet {
     };
   }
 
-  componentWillReceiveProps(nextProps, nextContext) {}
+  UNSAFE_componentWillReceiveProps(nextProps, nextContext) {}
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { eventTypes, groupBy, onGetCalendarEvents } = this.props;

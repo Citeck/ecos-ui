@@ -25,7 +25,7 @@ import {
   setEditorMode,
   setRecordRef,
   setSelectAllPageRecords,
-  setSelectedRecords
+  setSelectedRecords,
 } from '../../../actions/journals';
 import { selectJournalDashletProps } from '../../../selectors/dashletJournals';
 import Dashlet from '../../Dashlet';
@@ -41,7 +41,7 @@ import { JOURNAL_DASHLET_CONFIG_VERSION } from '../../Journals/constants';
 const Labels = {
   J_TITLE: 'journal.title',
   J_NOT_EXISTED: 'journal.not-exists.warning',
-  J_NO_COLS: 'journal.no-config-columns.warning'
+  J_NO_COLS: 'journal.no-config-columns.warning',
 };
 
 const getKey = ({ tabId = '', stateId, id }) =>
@@ -54,7 +54,7 @@ const mapStateToProps = (state, ownProps) => {
   return {
     stateId,
     isMobile: !!get(state, 'view.isMobile'),
-    ...ownState
+    ...ownState,
   };
 };
 
@@ -64,15 +64,15 @@ const mapDispatchToProps = (dispatch, ownProps) => {
   return {
     initState: () => dispatch(initState(getKey(ownProps))),
     resetState: () => dispatch(resetState(getKey(ownProps))),
-    getDashletConfig: id => dispatch(getDashletConfig(w(id))),
-    setRecordRef: recordRef => dispatch(setRecordRef(w(recordRef))),
-    setEditorMode: visible => dispatch(setEditorMode(w(visible))),
-    reloadGrid: options => dispatch(reloadGrid(w(options))),
+    getDashletConfig: (id) => dispatch(getDashletConfig(w(id))),
+    setRecordRef: (recordRef) => dispatch(setRecordRef(w(recordRef))),
+    setEditorMode: (visible) => dispatch(setEditorMode(w(visible))),
+    reloadGrid: (options) => dispatch(reloadGrid(w(options))),
     setDashletConfigByParams: (id, config, recordRef, lsJournalId) =>
       dispatch(setDashletConfigByParams(w({ id, config, recordRef, lsJournalId }))),
-    setSelectedRecords: records => dispatch(setSelectedRecords(w(records))),
-    setSelectAllPageRecords: need => dispatch(setSelectAllPageRecords(w(need))),
-    execRecordsAction: (records, action, context) => dispatch(execRecordsAction(w({ records, action, context })))
+    setSelectedRecords: (records) => dispatch(setSelectedRecords(w(records))),
+    setSelectAllPageRecords: (need) => dispatch(setSelectAllPageRecords(w(need))),
+    execRecordsAction: (records, action, context) => dispatch(execRecordsAction(w({ records, action, context }))),
   };
 };
 
@@ -83,7 +83,7 @@ function mergeProps(stateProps, dispatchProps, ownProps) {
     ...ownProps,
     ...stateProps,
     ...dispatchProps,
-    config: ownProps.onSave ? ownProps.config : newState.config
+    config: ownProps.onSave ? ownProps.config : newState.config,
   };
 }
 
@@ -105,11 +105,11 @@ class JournalsDashlet extends BaseWidget {
     journalConfig: PropTypes.object,
     selectedRecords: PropTypes.array,
     selectAllPageRecords: PropTypes.bool,
-    selectAllRecordsVisible: PropTypes.bool
+    selectAllRecordsVisible: PropTypes.bool,
   };
 
   static defaultProps = {
-    dragHandleProps: {}
+    dragHandleProps: {},
   };
 
   constructor(props) {
@@ -117,7 +117,7 @@ class JournalsDashlet extends BaseWidget {
 
     this.state = {
       ...this.state,
-      journalId: UserLocalSettingsService.getDashletProperty(this.state.lsId, 'journalId')
+      journalId: UserLocalSettingsService.getDashletProperty(this.state.lsId, 'journalId'),
     };
 
     this.props.initState();
@@ -161,19 +161,19 @@ class JournalsDashlet extends BaseWidget {
     return get(this._footerRef, 'offsetHeight', 0);
   }
 
-  setToolbarRef = ref => !!ref && (this._toolbarRef = ref);
+  setToolbarRef = (ref) => !!ref && (this._toolbarRef = ref);
 
-  setFooterRef = ref => !!ref && (this._footerRef = ref);
+  setFooterRef = (ref) => !!ref && (this._footerRef = ref);
 
-  setGroupActionsRef = ref => !!ref && (this._groupActionsRef = ref);
+  setGroupActionsRef = (ref) => !!ref && (this._groupActionsRef = ref);
 
-  setEditorRef = ref => {
+  setEditorRef = (ref) => {
     if (ref) {
       this._editorRef = ref;
     }
   };
 
-  handleResize = width => !!width && this.setState({ width });
+  handleResize = (width) => !!width && this.setState({ width });
 
   showEditor = () => this.props.setEditorMode(true);
 
@@ -191,7 +191,7 @@ class JournalsDashlet extends BaseWidget {
     goToJournalsPage({ journalId: nodeRef, journalSettingId, nodeRef });
   };
 
-  handleChangeSelectedJournal = journalId => {
+  handleChangeSelectedJournal = (journalId) => {
     UserLocalSettingsService.setDashletProperty(this.state.lsId, { journalId });
     this.setState({ journalId });
   };
@@ -286,16 +286,16 @@ class JournalsDashlet extends BaseWidget {
     const { width } = this.state;
     const actions = {
       [DAction.Actions.HELP]: {
-        onClick: () => null
-      }
+        onClick: () => null,
+      },
     };
 
     if (!editorMode) {
       actions[DAction.Actions.SETTINGS] = {
-        onClick: this.showEditor
+        onClick: this.showEditor,
       };
       actions[DAction.Actions.RELOAD] = {
-        onClick: this.handleReload
+        onClick: this.handleReload,
       };
     }
 
@@ -319,7 +319,7 @@ class JournalsDashlet extends BaseWidget {
         isCollapsed={this.isCollapsed}
         setRef={this.setDashletRef}
       >
-        {warnings.map(msg => (
+        {warnings.map((msg) => (
           <div className="alert alert-warning mb-0" key={msg}>
             {t(msg, { configJournalId, journalName }).trim()}
           </div>
@@ -331,8 +331,4 @@ class JournalsDashlet extends BaseWidget {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-  mergeProps
-)(JournalsDashlet);
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(JournalsDashlet);

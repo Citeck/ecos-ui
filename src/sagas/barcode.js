@@ -2,7 +2,7 @@ import { call, put, takeEvery } from 'redux-saga/effects';
 import { getBase64Barcode, init, setAllowedTypes, setBase64Barcode, setDisplayElements, setError } from '../actions/barcode';
 import { t } from '../helpers/util';
 
-function* sagaInit({ api, logger }, { payload: { stateId, record, config } }) {
+function* sagaInit({ api }, { payload: { stateId, record, config } }) {
   try {
     const allowedTypes = yield call(api.barcode.getAllowedTypes);
     const displayElements = yield call(api.dashboard.getDisplayElementsByCondition, config.elementsDisplayCondition, { recordRef: record });
@@ -11,17 +11,17 @@ function* sagaInit({ api, logger }, { payload: { stateId, record, config } }) {
     yield put(setAllowedTypes({ stateId, allowedTypes }));
   } catch (e) {
     yield put(setError({ stateId, error: t('barcode-widget.saga.error1') }));
-    logger.error('[barcode/sagaInit saga] error', e);
+    console.error('[barcode/sagaInit saga] error', e);
   }
 }
 
-function* sagaGetBase64Barcode({ api, logger }, { payload }) {
+function* sagaGetBase64Barcode({ api }, { payload }) {
   const { record, stateId } = payload;
 
   try {
     const response = yield call(api.barcode.getBade64Barcode, {
       record,
-      params: { height: 100, width: 210 }
+      params: { height: 100, width: 210 },
     });
 
     if (response.data) {
@@ -31,7 +31,7 @@ function* sagaGetBase64Barcode({ api, logger }, { payload }) {
     }
   } catch (e) {
     yield put(setError({ stateId, error: t('barcode-widget.saga.error1') }));
-    logger.error('[barcode/sagaGetBase64Barcode saga] error', e);
+    console.error('[barcode/sagaGetBase64Barcode saga] error', e);
   }
 }
 
