@@ -13,10 +13,6 @@ export default defineConfig(() => ({
   },
   build: {
     outDir: 'build',
-    commonjsOptions: {
-      transformMixedEsModules: true,
-      requireReturnsDefault: 'auto',
-    },
     minify: false,
     rollupOptions: {
       input: {
