@@ -13,7 +13,7 @@
     "test": "node ./node_modules/.bin/jest --watch",
     "test:ci": "node ./node_modules/.bin/jest --watchAll=false",
     "format": "prettier --single-quote --write 'src/**/*.{js,jsx,ts,tsx,json,css,scss,md}' 'server/**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
-    "start:prod": "yarn build && cross-env NODE_ENV=production SHARE_PROXY_URL=http://localhost:8080 node server",
+    "start:prod": "cross-env NODE_ENV=production node node_modules/.bin/vite preview",
     "bpmnlint-config": "npx bpmnlint-pack-config -c .bpmnlintrc -o src/components/ModelEditor/BPMNModeler/modules/linter/bpmnlint-config.js -t es"
   },
   "dependencies": {
