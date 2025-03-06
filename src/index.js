@@ -1,5 +1,5 @@
-import 'moment/locale/ru';
-import 'moment/locale/en-gb';
+import 'moment/dist/locale/ru.js';
+import 'moment/dist/locale/en-gb.js';
 import { ConnectedRouter } from 'connected-react-router';
 import datePickerLocaleEn from 'date-fns/locale/en-GB';
 import datePickerLocaleRu from 'date-fns/locale/ru';
