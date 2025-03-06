@@ -1,3 +1,6 @@
+import 'regenerator-runtime/runtime';
+import 'moment/locale/ru';
+import 'moment/locale/en-gb';
 import { ConnectedRouter } from 'connected-react-router';
 import datePickerLocaleEn from 'date-fns/locale/en-GB';
 import datePickerLocaleRu from 'date-fns/locale/ru';
@@ -31,14 +34,6 @@ import './services/esign';
 import './services/EcosModules';
 
 import './styles/index.scss';
-
-function loadLocale(locale) {
-  import(/* @vite-ignore */ `moment/dist/locale/${locale}.js`);
-}
-
-loadLocale('ru');
-loadLocale('en-gb');
-
 /* set moment locale */
 const currentLocale = getCurrentLocale();
 moment.locale(currentLocale);
