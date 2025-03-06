@@ -228,6 +228,7 @@
     "typescript": "^5.8.2",
     "vite": "5.2.11",
     "vite-express": "^0.20.0",
+    "vite-plugin-commonjs": "^0.10.4",
     "vite-plugin-node-polyfills": "^0.23.0",
     "vite-tsconfig-paths": "^5.1.4"
   },
