@@ -1,5 +1,6 @@
 type: ecos-ui
 properties:
+  buildImage: ecos-nodejs-build:1.1
   image:
     configVersion: v7
   builds:
