@@ -1,4 +1,3 @@
-import 'regenerator-runtime/runtime';
 import 'moment/locale/ru';
 import 'moment/locale/en-gb';
 import { ConnectedRouter } from 'connected-react-router';

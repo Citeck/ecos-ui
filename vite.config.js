@@ -72,7 +72,6 @@ export default defineConfig(() => {
           '.js': 'jsx',
         },
       },
-      include: ['regenerator-runtime/runtime'],
     },
   };
 });

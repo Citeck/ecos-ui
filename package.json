@@ -108,7 +108,6 @@
     "redux-logger": "3.0.6",
     "redux-saga": "0.16.2",
     "redux-thunk": "2.4.2",
-    "regenerator-runtime": "0.13.11",
     "reselect": "4.0.0",
     "sass": "1.59.3",
     "text-mask-addons": "3.8.0",
