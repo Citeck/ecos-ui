@@ -690,6 +690,10 @@ Base.prototype.checkValidity = function(data, dirty, rowData) {
     return true;
   }
 
+  if (!this.component.validate.required && isEmpty(this.dataValue)) {
+    return true;
+  }
+
   if (this.component.optionalWhenDisabled && this.component.validate.required && isEmpty(this.dataValue) && this.component.disabled) {
     return true;
   }
