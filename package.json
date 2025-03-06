@@ -8,6 +8,7 @@
     "build": "cross-env REACT_APP_BUILD_TIME=$(date +%s) npm-run-all build:src",
     "build:ci": "cross-env REACT_APP_BUILD_TIME=$(date +%s) npm-run-all build:src",
     "build:src": "node node_modules/.bin/vite build",
+    "clean": "rimraf public/ecosui/export",
     "test": "node ./node_modules/.bin/jest --watch",
     "test:ci": "node ./node_modules/.bin/jest --watchAll=false",
     "format": "prettier --single-quote --write 'src/**/*.{js,jsx,ts,tsx,json,css,scss,md}' 'server/**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
