@@ -41,7 +41,7 @@ export default defineConfig((env) => {
       outDir: 'build',
       rollupOptions: {
         input: {
-          app: './public/index.html',
+          app: './index.html',
         },
       },
       target: 'es2020',

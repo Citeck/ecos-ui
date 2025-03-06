@@ -1,10 +1,11 @@
-import express from 'express';
-import path from 'path';
-import proxy from 'http-proxy-middleware';
-import fs from 'fs';
-import ViteExpress from 'vite-express';
 import dotenv from 'dotenv';
 import dotenvExpand from 'dotenv-expand';
+import express from 'express';
+import fs from 'fs';
+import proxy from 'http-proxy-middleware';
+import path from 'path';
+// eslint-disable-next-line import/default
+import ViteExpress from 'vite-express';
 
 const pathDevelopment = '.env.development';
 const pathDevelopmentLocal = '.env.development.local';
@@ -20,13 +21,13 @@ if (envFile) {
 }
 
 const PROXY_URL = {
-  SHARE: process.env.SHARE_PROXY_URL || 'http://localhost:8080'
+  SHARE: process.env.SHARE_PROXY_URL || 'http://localhost:8080',
 };
 
 const shareProxyOptions = {
   target: PROXY_URL.SHARE,
   changeOrigin: true,
-  secure: false
+  secure: false,
 };
 
 // ======================== APP SETTINGS ========================
@@ -69,7 +70,7 @@ const server = app.listen(PORT, () => {
     ║    Press Ctrl+C to stop the server
     ╚════════════════════════════════════════════════════
   `,
-    '\x1b[0m'
+    '\x1b[0m',
   );
 });
 
@@ -78,7 +79,7 @@ ViteExpress.bind(app, server);
 function createMainRoute() {
   const assetsCacheHash = generateAssetsCacheHash();
 
-  const filePath = path.resolve(process.cwd(), 'public', 'index.html');
+  const filePath = path.resolve(process.cwd(), 'index.html');
   const indexHtmlData = fs.readFileSync(filePath, 'utf8');
 
   return (req, res) => {
@@ -95,10 +96,7 @@ function generateAssetsCacheHash() {
   let version = process.env.RELEASE_VERSION || 'x.x.x';
 
   const dt = new Date();
-  version = `${version}.${dt
-    .getFullYear()
-    .toString()
-    .slice(2)}.${dt.getMonth() + 1}.${dt.getDate()}.${dt.getHours()}.${dt.getMinutes()}`;
+  version = `${version}.${dt.getFullYear().toString().slice(2)}.${dt.getMonth() + 1}.${dt.getDate()}.${dt.getHours()}.${dt.getMinutes()}`;
 
   return version;
 }
