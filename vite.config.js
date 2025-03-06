@@ -9,19 +9,7 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 
 import packageInfo from './package.json';
 
-export default defineConfig((env) => {
-  const mode = env.mode;
-
-  let pathReact = 'umd/react.production.min.js';
-  let pathReactDom = 'umd/react-dom.production.min.js';
-  let pathReactJsx = 'cjs/react-jsx-runtime.production.min.js';
-
-  if (mode === 'development') {
-    pathReact = 'umd/react.development.js';
-    pathReactDom = 'umd/react-dom.development.js';
-    pathReactJsx = 'cjs/react-jsx-dev-runtime.development.js';
-  }
-
+export default defineConfig(() => {
   return {
     define: {
       'process.env': JSON.stringify({ NODE_DEBUG: false }),
@@ -84,6 +72,7 @@ export default defineConfig((env) => {
           '.js': 'jsx',
         },
       },
+      include: ['regenerator-runtime/runtime'],
     },
   };
 });
