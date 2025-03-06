@@ -78,7 +78,6 @@
     "query-string": "6.12.1",
     "react": "18.2.0",
     "react-ace": "10.1.0",
-    "react-app-polyfill": "0.2.2",
     "react-beautiful-dnd": "11.0.5",
     "react-bootstrap-table-next": "2.2.0",
     "react-bootstrap-table2-editor": "1.2.3",

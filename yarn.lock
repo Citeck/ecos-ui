@@ -3888,7 +3888,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"asap@npm:~2.0.3, asap@npm:~2.0.6":
+"asap@npm:~2.0.3":
   version: 2.0.6
   resolution: "asap@npm:2.0.6"
   checksum: b296c92c4b969e973260e47523207cd5769abd27c245a68c26dc7a0fe8053c55bb04360237cb51cab1df52be939da77150ace99ad331fb7fb13b3423ed73ff3d
@@ -5418,13 +5418,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js@npm:2.6.4":
-  version: 2.6.4
-  resolution: "core-js@npm:2.6.4"
-  checksum: ac9ed1967f4389de4aa3764a9c8773416b50e4942f9194646643810d35b597377764819dc0365f41385215be6934aa8b0fda5b887e60a849e36fbaab62104e87
-  languageName: node
-  linkType: hard
-
 "core-js@npm:^1.0.0":
   version: 1.2.7
   resolution: "core-js@npm:1.2.7"
@@ -6601,7 +6594,6 @@ __metadata:
     query-string: 6.12.1
     react: 18.2.0
     react-ace: 10.1.0
-    react-app-polyfill: 0.2.2
     react-beautiful-dnd: 11.0.5
     react-bootstrap-table-next: 2.2.0
     react-bootstrap-table2-editor: 1.2.3
@@ -12073,7 +12065,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"object-assign@npm:4.1.1, object-assign@npm:^4.0.1, object-assign@npm:^4.1.0, object-assign@npm:^4.1.1":
+"object-assign@npm:^4.0.1, object-assign@npm:^4.1.0, object-assign@npm:^4.1.1":
   version: 4.1.1
   resolution: "object-assign@npm:4.1.1"
   checksum: fcc6e4ea8c7fe48abfbb552578b1c53e0d194086e2e6bbbf59e0a536381a292f39943c6e9628af05b5528aa5e3318bb30d6b2e53cadaf5b8fe9e12c4b69af23f
@@ -12995,15 +12987,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"promise@npm:8.0.2":
-  version: 8.0.2
-  resolution: "promise@npm:8.0.2"
-  dependencies:
-    asap: ~2.0.6
-  checksum: f4a867bb8d57d20c8becab346bcadfff9d39365db1dccd780ea7d20f6fcc91cd2821b4d6470a4f6d36f37ec7e5ea06ebca63aacc98e886749b474be7ae5be377
-  languageName: node
-  linkType: hard
-
 "promise@npm:^7.1.1":
   version: 7.3.1
   resolution: "promise@npm:7.3.1"
@@ -13188,7 +13171,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"raf@npm:3.4.1, raf@npm:^3.1.0, raf@npm:^3.4.0":
+"raf@npm:^3.1.0, raf@npm:^3.4.0":
   version: 3.4.1
   resolution: "raf@npm:3.4.1"
   dependencies:
@@ -13248,19 +13231,6 @@ __metadata:
     react: ^0.13.0 || ^0.14.0 || ^15.0.1 || ^16.0.0 || ^17.0.0 || ^18.0.0
     react-dom: ^0.13.0 || ^0.14.0 || ^15.0.1 || ^16.0.0 || ^17.0.0 || ^18.0.0
   checksum: 8fc67e02f911dcc31cf474df97c06f2ba5b5f402d9ed425895e479e2daddf4894a2cd0e81744b37b7f2b07109cfe4470fc5ebeed305d648c596e3442142e4823
-  languageName: node
-  linkType: hard
-
-"react-app-polyfill@npm:0.2.2":
-  version: 0.2.2
-  resolution: "react-app-polyfill@npm:0.2.2"
-  dependencies:
-    core-js: 2.6.4
-    object-assign: 4.1.1
-    promise: 8.0.2
-    raf: 3.4.1
-    whatwg-fetch: 3.0.0
-  checksum: e98aaa252595b8249999e5e5ed5cc8867882d36c2ff787fa2587802214ac76646f60eedc16b353faeeef9ed9a4afc3d1ea779a754dbde512da9d93df4fd5cda7
   languageName: node
   linkType: hard
 
@@ -16586,13 +16556,6 @@ __metadata:
   dependencies:
     iconv-lite: 0.6.3
   checksum: 7087810c410aa9b689cbd6af8773341a53cdc1f3aae2a882c163bd5522ec8ca4cdfc269aef417a5792f411807d5d77d50df4c24e3abb00bb60192858a40cc675
-  languageName: node
-  linkType: hard
-
-"whatwg-fetch@npm:3.0.0":
-  version: 3.0.0
-  resolution: "whatwg-fetch@npm:3.0.0"
-  checksum: dcb90ab919e742d275c32d397d7480f6981da4c1b49961f0d0a2fa6825325b553fee2d793bc38ed85b9bcc8c50de39802440e2480fe40243067b3dab228c52c3
   languageName: node
   linkType: hard
 

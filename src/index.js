@@ -1,19 +1,16 @@
-import 'react-app-polyfill/ie9';
 import 'regenerator-runtime/runtime.js';
 import './helpers/polyfills';
-import React from 'react';
-import { createRoot } from 'react-dom/client';
-import { registerLocale, setDefaultLocale } from 'react-datepicker';
-import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
-import * as serviceWorker from './serviceWorkerRegistration';
-import { NotificationManager } from '@/services/notifications';
 import moment from 'moment';
 import 'moment/locale/ru';
 import 'moment/locale/en-gb';
-import { Base64 } from 'js-base64';
 import datePickerLocaleEn from 'date-fns/locale/en-GB';
 import datePickerLocaleRu from 'date-fns/locale/ru';
+import { Base64 } from 'js-base64';
+import React from 'react';
+import { registerLocale, setDefaultLocale } from 'react-datepicker';
+import { createRoot } from 'react-dom/client';
+import { Provider } from 'react-redux';
 
 import { getCurrentLocale, isMobileAppWebView } from './helpers/util';
 import authService from './services/auth';
@@ -30,6 +27,9 @@ import './services/esign';
 import './services/EcosModules';
 import { RESET_AUTH_STATE_EVENT, emitter } from './helpers/ecosFetch';
 import { i18nInit } from './i18n';
+import * as serviceWorker from './serviceWorkerRegistration';
+
+import { NotificationManager } from '@/services/notifications';
 
 import './styles/index.scss';
 
@@ -73,7 +73,7 @@ window.Citeck.Base64 = Base64;
 const runApp = () => {
   store.dispatch(
     initAppRequest({
-      onSuccess: isAuthenticated => {
+      onSuccess: (isAuthenticated) => {
         store.dispatch(
           loadThemeRequest({
             isAuthenticated,
@@ -84,14 +84,14 @@ const runApp = () => {
                     <ConnectedRouter history={history}>
                       <App />
                     </ConnectedRouter>
-                  </Provider>
+                  </Provider>,
                 );
               });
-            }
-          })
+            },
+          }),
         );
-      }
-    })
+      },
+    }),
   );
 };
 
@@ -106,7 +106,7 @@ const idleTimer = new IdleTimer();
 idleTimer
   .setCallbackRepeatTime(30 * 1000) // 30s
   .setIdleTimeout(60 * 60 * 1000) // 1h
-  .setCallback(idle => {
+  .setCallback((idle) => {
     if (!idle) {
       api.app.touch().catch(() => {});
     }
