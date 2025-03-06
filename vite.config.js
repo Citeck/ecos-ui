@@ -14,6 +14,9 @@ export default defineConfig(() => ({
   build: {
     outDir: 'build',
     minify: false,
+    commonjsOptions: {
+      transformMixedEsModules: true,
+    },
     rollupOptions: {
       input: {
         main: new URL('./index.html', import.meta.url).pathname,
