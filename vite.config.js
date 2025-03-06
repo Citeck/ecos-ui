@@ -6,28 +6,30 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 
 import packageInfo from './package.json';
 
-export default defineConfig(({ mode }) => ({
+export default defineConfig(() => ({
   define: {
     'process.env': JSON.stringify({ NODE_DEBUG: false }),
     'process.versions': JSON.stringify({ node: packageInfo.volta.node }),
   },
   build: {
     outDir: 'build',
+    commonjsOptions: {
+      transformMixedEsModules: true,
+      requireReturnsDefault: 'auto',
+    },
+    minify: false,
     rollupOptions: {
       input: {
-        app: './index.html',
+        main: new URL('./index.html', import.meta.url).pathname,
+      },
+      onwarn(warning, warn) {
+        if (warning.code === 'EVAL' && warning.id && /[\\/]node_modules[\\/]@excalidraw\/excalidraw[\\/]/.test(warning.id)) {
+          return;
+        }
+        warn(warning);
       },
     },
     target: 'es2020',
-    ...(mode === 'production' && {
-      minify: 'terser',
-      terserOptions: {
-        compress: {
-          toplevel: true,
-        },
-        keep_classnames: true,
-      },
-    }),
   },
   resolve: {
     alias: [
