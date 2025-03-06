@@ -38,10 +38,6 @@ export default class DateTimeComponent extends FormIODateTimeComponent {
       this.calculatedValue = null;
     } // Check to ensure that the calculated value is different than the previously calculated value.
 
-    if (allowOverride && this.calculatedValue !== null && isEqual(dataValue, this.calculatedValue)) {
-      return false;
-    } // Calculate the new value.
-
     const calculatedValue = this.evaluate(
       this.component.calculateValue,
       {
@@ -50,6 +46,10 @@ export default class DateTimeComponent extends FormIODateTimeComponent {
       },
       'value'
     ); // If this is the firstPass, and the dataValue is different than to the calculatedValue.
+
+    if (allowOverride && this.calculatedValue !== null && isEqual(dataValue, calculatedValue)) {
+      return false;
+    } // Calculate the new value.
 
     if (allowOverride && firstPass && !this.isEmpty(dataValue) && isEqual(dataValue, calculatedValue)) {
       // Return that we have a change so it will perform another pass.
