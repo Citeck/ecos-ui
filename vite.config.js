@@ -28,11 +28,7 @@ export default defineConfig(() => ({
         }
         warn(warning);
       },
-      output: {
-        manualChunks: {
-          formio: ['formiojs'],
-        },
-      },
+      plugins: [commonjsPlugin()],
     },
     target: 'es2020',
   },
