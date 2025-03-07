@@ -7,7 +7,7 @@
     "start": "NODE_ENV=development node -r dotenv/config server/index.js",
     "build": "cross-env REACT_APP_BUILD_TIME=$(date +%s) npm-run-all build:src",
     "build:ci": "cross-env REACT_APP_BUILD_TIME=$(date +%s) npm-run-all build:src",
-    "build:src": "node --max_old_space_size=4096 node_modules/.bin/vite build --mode production",
+    "build:src": "node --max_old_space_size=5120 node_modules/.bin/vite build --mode production",
     "build:win": "NODE_OPTIONS=--max-old-space-size=8192 vite build --mode production",
     "clean": "rimraf public/ecosui/export",
     "export": "",
