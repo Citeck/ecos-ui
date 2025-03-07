@@ -283,8 +283,8 @@ class EcosForm extends React.Component {
         options.events = new CustomEventEmitter({
           wildcard: false,
           maxListeners: 0,
-          loadLimit: get(formData, 'atts.loadLimit', 200),
-          onOverload: () => !!this._form && this._form.showErrors(t('ecos-form.event-overload'))
+          loadLimit: get(formData, 'atts.loadLimit', 200)
+          // onOverload: () => !!this._form && this._form.showErrors(t('ecos-form.event-overload'))
         });
         options.initiator = initiator;
 
