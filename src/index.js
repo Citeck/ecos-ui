@@ -18,17 +18,17 @@ import { configureAPI } from './api';
 import App from './components/App';
 import IdleTimer from './components/IdleTimer';
 import { RESET_AUTH_STATE_EVENT, emitter } from './helpers/ecosFetch';
-import { getCurrentLocale, isMobileAppWebView } from './helpers/util';
+import { getCurrentLocale, IS_TEST_ENV, isMobileAppWebView } from './helpers/util';
 import { i18nInit } from './i18n';
 import plugins from './plugins';
 import * as serviceWorker from './serviceWorkerRegistration';
 import authService from './services/auth';
 import configureStore, { getHistory } from './store';
 
+import { registerAllActions } from '@/components/Records/actions/actions';
 import { NotificationManager } from '@/services/notifications';
 
 import './helpers/polyfills';
-
 import './build-info';
 import './services/esign';
 import './services/EcosModules';
@@ -95,6 +95,10 @@ const runApp = () => {
     }),
   );
 };
+
+if (!IS_TEST_ENV) {
+  registerAllActions();
+}
 
 if (process.env.NODE_ENV === 'development' && !isMobileAppWebView()) {
   authService.init().then(runApp);

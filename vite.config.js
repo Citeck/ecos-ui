@@ -1,7 +1,6 @@
 import babel from '@rollup/plugin-babel';
 import path from 'path';
 import { defineConfig, transformWithEsbuild } from 'vite';
-import commonjsPlugin from 'vite-plugin-commonjs';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
@@ -28,7 +27,6 @@ export default defineConfig(() => ({
         }
         warn(warning);
       },
-      plugins: [commonjsPlugin()],
     },
     target: 'es2020',
   },
@@ -64,7 +62,6 @@ export default defineConfig(() => ({
       },
     },
     tsconfigPaths(),
-    commonjsPlugin(),
   ],
   optimizeDeps: {
     esbuildOptions: {
