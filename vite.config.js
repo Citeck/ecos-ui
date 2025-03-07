@@ -13,9 +13,21 @@ export default defineConfig(() => ({
   },
   build: {
     outDir: 'build',
-    minify: false,
-    commonjsOptions: {
-      transformMixedEsModules: true,
+    minify: 'terser',
+    sourcemap: true,
+    terserOptions: {
+      sourceMap: true,
+      compress: {
+        ecma: 5,
+        comparisons: false,
+        inline: 2,
+      },
+      mangle: {
+        safari10: true,
+      },
+      output: {
+        ecma: 5,
+      },
     },
     rollupOptions: {
       input: {
