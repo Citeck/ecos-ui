@@ -336,8 +336,13 @@ export class Comment extends Component {
       return this.renderEditor();
     }
 
-    const { id, avatar = '', firstName, lastName, middleName, displayName, text, canEdit = false, canDelete = false } = comment;
+    const { id, avatar = '', firstName, lastName, middleName, displayName, text, canEdit = false, canDelete = false, userName } = comment;
     const { isEdit } = this.state;
+
+    let explicitFirstName = firstName;
+    if (!firstName && !lastName && !middleName) {
+      explicitFirstName = userName;
+    }
 
     return (
       <div className="ecos-comments__comment" key={id}>
@@ -353,7 +358,7 @@ export class Comment extends Component {
 
             <div className="ecos-comments__comment-header-column ecos-comments__comment-name-container">
               <div className="ecos-comments__comment-name">
-                {firstName} {middleName}
+                {explicitFirstName} {middleName}
               </div>
               <div className="ecos-comments__comment-name">{lastName}</div>
               {this.renderCommentDate()}
