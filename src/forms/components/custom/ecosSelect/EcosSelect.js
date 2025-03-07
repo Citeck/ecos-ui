@@ -1196,8 +1196,6 @@ export default class SelectComponent extends BaseComponent {
       }
     }
 
-    this.updateOnChange(flags, changed);
-
     return changed;
   }
 
