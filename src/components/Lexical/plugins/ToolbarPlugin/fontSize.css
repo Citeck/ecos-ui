@@ -32,6 +32,9 @@ input[type='number']::-webkit-inner-spin-button {
 
 input[type='number'] {
   -moz-appearance: textfield;
+  border-width: 0;
+  line-height: 5px;
+  outline: none;
 }
 
 .add-icon {

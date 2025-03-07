@@ -60,10 +60,7 @@
     display: block;
     z-index: 10001;
     position: fixed !important;
-    box-shadow:
-      0 12px 28px 0 rgba(0, 0, 0, 0.2),
-      0 2px 4px 0 rgba(0, 0, 0, 0.1),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+    box-shadow: 0 12px 28px 0 rgba(0, 0, 0, 0.2), 0 2px 4px 0 rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
     border-radius: 8px;
     min-height: 40px;
     background-color: #fff;
@@ -153,12 +150,7 @@ button.ecos-btn.ecos-rt-editor-toolbar__button {
 
 body {
   margin: 0;
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    '.SFNSText-Regular',
-    sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, '.SFNSText-Regular', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: #eee;
@@ -950,6 +942,8 @@ i.page-break,
 
   .text {
     min-width: 120px;
+    font-size: 10pt;
+    text-align: left;
   }
 }
 
