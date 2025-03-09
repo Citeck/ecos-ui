@@ -21,7 +21,7 @@
       $isearch: &;
 
       left: 10px;
-      top: 9px;
+      top: calc(50% - 1em / 2);
       color: $color-white;
 
       &#{$isearch}_no-collapse {
@@ -30,8 +30,8 @@
     }
 
     &-clear {
-      right: 13px;
-      top: 11px;
+      top: calc(50% - 1em / 2);
+      right: 3%;
       font-size: $font-size-small;
       color: $color-blue-light2;
 
@@ -78,7 +78,7 @@
     #{$root}__no-results {
       color: $color-gray-5;
       font-weight: $font-weight-bold;
-      font-size: $font-size-large;
+      font-size: $font-size-small;
       padding: 13px 15px;
       text-align: center;
     }
