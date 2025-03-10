@@ -1,21 +1,22 @@
+import { $generateHtmlFromNodes, $generateNodesFromDOM } from '@lexical/html';
+import Formio from 'formiojs/Formio';
+import FormIOTextAreaComponent from 'formiojs/components/textarea/TextArea';
+import { $getRoot } from 'lexical';
+import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
+import merge from 'lodash/merge';
+import NativePromise from 'native-promise-only';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
-import { $getRoot } from 'lexical';
-import { $generateHtmlFromNodes, $generateNodesFromDOM } from '@lexical/html';
-import ESMRequire from '@/services/ESMRequire.js';
-import get from 'lodash/get';
-import merge from 'lodash/merge';
-import cloneDeep from 'lodash/cloneDeep';
-import isEqual from 'lodash/isEqual';
-import isEmpty from 'lodash/isEmpty';
-import NativePromise from 'native-promise-only';
-import Formio from 'formiojs/Formio';
-import FormIOTextAreaComponent from 'formiojs/components/textarea/TextArea';
 
 import LexicalEditor from '../../../../components/LexicalEditor';
-import { overrideTriggerChange } from '../misc';
 import { getStore } from '../../../../store';
+import { overrideTriggerChange } from '../misc';
+
+import ESMRequire from '@/services/ESMRequire.js';
 
 export default class TextAreaComponent extends FormIOTextAreaComponent {
   static schema(...extend) {

@@ -50,6 +50,7 @@ class ESMRequire {
   }
 
   getGlobalModuleName(src) {
+    if (src.includes('quill')) return 'Quill'; // as default
     if (src.includes('ckeditor')) return 'ClassicEditor';
     if (src.includes('ace')) return 'ace';
     return null;

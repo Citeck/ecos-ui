@@ -89,7 +89,6 @@
     }
   }
   &__tabs {
-    height: 28px;
     align-self: flex-end;
     display: flex;
     max-width: 100%;
@@ -144,8 +143,7 @@
         $height: 70%;
         content: '';
         height: $height;
-
-        width: 2px;
+        width: 1px;
         background-color: $color-gray-5;
         position: absolute;
         top: calc(50% - (#{$height} / 2));
