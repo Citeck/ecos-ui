@@ -1,13 +1,16 @@
+import Formio from 'formiojs/Formio';
+import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
+import split from 'lodash/split';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import Formio from 'formiojs/Formio';
-import isEqual from 'lodash/isEqual';
-import isEmpty from 'lodash/isEmpty';
-import split from 'lodash/split';
 
-import { OrgStructApi } from '../../../../api/orgStruct';
-import { FORM_MODE_CREATE } from '../../../../components/EcosForm';
-import SelectOrgstruct from '../../../../components/common/form/SelectOrgstruct';
+import UnreadableLabel from '../../UnreadableLabel';
+import BaseComponent from '../base/BaseComponent';
+
+import { OrgStructApi } from '@/api/orgStruct.js';
+import { FORM_MODE_CREATE } from '@/components/EcosForm/index.js';
+import SelectOrgstruct from '@/components/common/form/SelectOrgstruct';
 import {
   AUTHORITY_TYPE_GROUP,
   AUTHORITY_TYPE_USER,
@@ -15,22 +18,20 @@ import {
   GroupTypes,
   ROOT_GROUP_NAME,
   TabTypes,
-  ViewModes
-} from '../../../../components/common/form/SelectOrgstruct/constants';
-import BaseComponent from '../base/BaseComponent';
-import UnreadableLabel from '../../UnreadableLabel';
+  ViewModes,
+} from '@/components/common/form/SelectOrgstruct/constants';
 
 const _array = (str, checkForEmpty) => {
   if (checkForEmpty && !str) {
     return [];
   }
 
-  return split(str, ',').map(item => item.trim());
+  return split(str, ',').map((item) => item.trim());
 };
 
-let root = null;
-
 export default class SelectOrgstructComponent extends BaseComponent {
+  _root = null;
+
   static schema(...extend) {
     return BaseComponent.schema(
       {
@@ -51,9 +52,9 @@ export default class SelectOrgstructComponent extends BaseComponent {
         dataType: DataTypes.NODE_REF,
         userSearchExtraFields: '',
         isIncludedAdminGroup: false,
-        viewModeType: ViewModes.DEFAULT
+        viewModeType: ViewModes.DEFAULT,
       },
-      ...extend
+      ...extend,
     );
   }
 
@@ -63,7 +64,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
       icon: 'fa fa-th-list',
       group: 'advanced',
       weight: 0,
-      schema: SelectOrgstructComponent.schema()
+      schema: SelectOrgstructComponent.schema(),
     };
   }
 
@@ -147,19 +148,19 @@ export default class SelectOrgstructComponent extends BaseComponent {
 
     let renderControl = () => {
       if (comp.unreadable) {
-        if (!root) {
-          root = createRoot(this.reactContainer);
+        if (!this._root) {
+          this._root = createRoot(this.reactContainer);
         }
 
-        root.render(<UnreadableLabel />, this.reactContainer);
+        this._root.render(<UnreadableLabel />, this.reactContainer);
         return;
       }
 
-      if (!root) {
-        root = createRoot(this.reactContainer);
+      if (!this._root) {
+        this._root = createRoot(this.reactContainer);
       }
 
-      root.render(
+      this._root.render(
         <SelectOrgstruct
           defaultValue={this.dataValue}
           isCompact={comp.isCompact}
@@ -183,7 +184,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
           onChange={this.onValueChange}
           onError={console.error}
           viewModeType={comp.viewModeType}
-        />
+        />,
       );
     };
 
@@ -194,7 +195,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
     this.reactContainer && this.renderReactComponent();
   };
 
-  onValueChange = value => {
+  onValueChange = (value) => {
     this.updateValue({ modified: true, changeByUser: true }, value === null ? this.emptyValue : value);
     this.refreshDOM();
   };
@@ -239,14 +240,14 @@ export default class SelectOrgstructComponent extends BaseComponent {
       value = Array.isArray(value) ? [currentUser] : currentUser;
     }
 
-    const setValueImpl = v => {
+    const setValueImpl = (v) => {
       const val = v || this.component.defaultValue || this.emptyValue;
       this.updateValue(flags, val);
       this.refreshDOM();
     };
 
     if (Array.isArray(value)) {
-      const promises = value.map(auth => new Promise(resolve => this._getAuthorityRef(auth, resolve)));
+      const promises = value.map((auth) => new Promise((resolve) => this._getAuthorityRef(auth, resolve)));
       Promise.all(promises).then(setValueImpl);
     } else {
       this._getAuthorityRef(value, setValueImpl);
