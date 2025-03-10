@@ -1,9 +1,8 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { createRoot } from 'react-dom/client';
-import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
+import PropTypes from 'prop-types';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
 
 import EcosModal from './EcosModal';
 
@@ -11,7 +10,7 @@ const EMPTY_HEADER_TITLE = ' ';
 
 class ModalWrapper extends React.Component {
   state = {
-    isOpen: true
+    isOpen: true,
   };
 
   componentDidMount() {
@@ -20,10 +19,10 @@ class ModalWrapper extends React.Component {
     }
   }
 
-  close = callback => {
+  close = (callback) => {
     this.setState(
       {
-        isOpen: false
+        isOpen: false,
       },
       () => {
         if (typeof this.props.onHideModal === 'function') {
@@ -32,7 +31,7 @@ class ModalWrapper extends React.Component {
         if (typeof callback === 'function') {
           callback();
         }
-      }
+      },
     );
   };
 
@@ -69,10 +68,13 @@ ModalWrapper.propTypes = {
   title: PropTypes.string,
   onHideModal: PropTypes.func,
   getInstance: PropTypes.func,
-  reactstrapProps: PropTypes.object
+  reactstrapProps: PropTypes.object,
 };
 
 class Modal {
+  _modalRef = null;
+  _root = null;
+
   create = (Component, props) => {
     if (!Component) {
       return;
@@ -88,28 +90,32 @@ class Modal {
 
     this.mountContainer();
 
-    let modal = ReactDOM.render(
+    this._modalRef = React.createRef();
+
+    this._root = ReactDOM.createRoot(this.el);
+    this._root.render(
       <Component
         {...props}
+        forwardRef={this._modalRef}
         onAfterHideModal={() => {
           if (isFunction(props.onAfterHideModal)) {
             props.onAfterHideModal();
           }
 
           this.destroy();
-          modal = null;
         }}
       />,
-      this.el
     );
 
-    this.modal = {
-      close: () => {
-        if (modal && isFunction(modal.hide)) {
-          modal.hide.call(modal);
-        }
-      }
-    };
+    setTimeout(() => {
+      this.modal = {
+        close: () => {
+          if (this._modalRef?.current && isFunction(this._modalRef?.current?.hide)) {
+            this._modalRef?.current?.hide();
+          }
+        },
+      };
+    }, 0);
   };
 
   mountContainer = () => {
@@ -130,50 +136,49 @@ class Modal {
       node = <div dangerouslySetInnerHTML={{ __html: node }} />;
     }
 
-    const root = createRoot(this.el);
-
     this.onHideModal = () => {
-      this.destroy(root);
+      this.destroy();
 
       if (isFunction(config.onHideModal)) {
         config.onHideModal();
       }
     };
 
-    root.render(
+    this._root = ReactDOM.createRoot(this.el);
+    this._root.render(
       <ModalWrapper
         title={config.title || config.header || EMPTY_HEADER_TITLE}
         isBigHeader={config.isBigHeader}
         className={config.class}
         classNameBody={config.classBody}
         onHideModal={this.onHideModal}
-        getInstance={el => (this.modal = el)}
+        getInstance={(el) => (this.modal = el)}
         reactstrapProps={config.reactstrapProps}
         size={config.size}
       >
         {isFunction(contentBefore) ? contentBefore() : contentBefore}
         {node}
         {isFunction(contentAfter) ? contentAfter() : contentAfter}
-      </ModalWrapper>
+      </ModalWrapper>,
     );
 
-    if (callback) {
+    setTimeout(() => {
       callback();
-    }
+    }, 0);
   };
 
-  close = callback => {
+  close = (callback) => {
     this.modal.close(callback);
   };
 
-  destroy = root => {
-    if (!this.el) {
+  destroy = () => {
+    if (!this.el || !this._root) {
       return;
     }
 
-    if (root) {
-      root.unmount();
-    }
+    setTimeout(() => {
+      this._root.unmount();
+    }, 0);
 
     document.body.removeChild(this.el);
     this.el = null;

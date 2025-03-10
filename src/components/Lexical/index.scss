@@ -48,6 +48,19 @@
 }
 
 .citeck-lexical-editor {
+  input[type='number']::-webkit-outer-spin-button,
+  input[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type='number'] {
+    -moz-appearance: textfield;
+    border-width: 0;
+    line-height: 5px;
+    outline: none;
+  }
+
   & .ContentEditable__root {
     padding: 8px 0 0 0;
   }
@@ -60,7 +73,10 @@
     display: block;
     z-index: 10001;
     position: fixed !important;
-    box-shadow: 0 12px 28px 0 rgba(0, 0, 0, 0.2), 0 2px 4px 0 rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+    box-shadow:
+      0 12px 28px 0 rgba(0, 0, 0, 0.2),
+      0 2px 4px 0 rgba(0, 0, 0, 0.1),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.5);
     border-radius: 8px;
     min-height: 40px;
     background-color: #fff;
@@ -150,7 +166,12 @@ button.ecos-btn.ecos-rt-editor-toolbar__button {
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, '.SFNSText-Regular', sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    '.SFNSText-Regular',
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: #eee;
@@ -1778,7 +1799,7 @@ button.toolbar-item.active i {
   padding: 20px 10px;
   position: relative;
   border: 1px solid #e8e8e8;
-  font-family: 'Reenie Beanie';
+  font-family: 'Reenie Beanie', serif;
   font-size: 24px;
   border-bottom-right-radius: 60px 5px;
   display: block;

@@ -1,19 +1,21 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import React from 'react';
 
-import { t } from '../../helpers/util';
 import { SourcesId } from '../../constants';
+import { t } from '../../helpers/util';
 import Records from '../Records';
-import IcoBtn from '../common/btns/IcoBtn';
-import EcosModal from '../common/EcosModal';
 import TaskAssignmentPanel from '../TaskAssignmentPanel';
-import EcosFormUtils from './EcosFormUtils';
-import EcosForm from './EcosForm';
-import { FORM_MODE_EDIT } from './constants';
-import { emitter, RESET_AUTH_STATE_EVENT } from '../../helpers/ecosFetch';
-import DialogManager from '../common/dialogs/Manager';
+import EcosModal from '../common/EcosModal';
 import UncontrolledTooltip from '../common/UncontrolledTooltip';
+import IcoBtn from '../common/btns/IcoBtn';
+import DialogManager from '../common/dialogs/Manager';
+
+import EcosForm from './EcosForm';
+import EcosFormUtils from './EcosFormUtils';
+import { FORM_MODE_EDIT } from './constants';
+
+import { emitter, RESET_AUTH_STATE_EVENT } from '@/helpers/ecosFetch.js';
 
 import './EcosFormModal.scss';
 
@@ -22,7 +24,7 @@ const Labels = {
   CONFIRM_RELOAD_TITLE: 'ecos.form.reload.confirm.title',
   CONFIRM_RELOAD_MESSAGE: 'ecos.form.reload.confirm.message',
   CONFIRM_RELOAD_BTN_CANCEL: 'ecos.form.reload.confirm.button-cancel',
-  CONFIRM_RELOAD_BTN_CONFIRM: 'ecos.form.reload.confirm.button-confirm'
+  CONFIRM_RELOAD_BTN_CONFIRM: 'ecos.form.reload.confirm.button-confirm',
 };
 
 export default class EcosFormModal extends React.Component {
@@ -42,7 +44,7 @@ export default class EcosFormModal extends React.Component {
       isModalOpen: false,
       isConfigurableForm: false,
       addedListener: false,
-      isLoading: false
+      isLoading: false,
     };
   }
 
@@ -72,9 +74,9 @@ export default class EcosFormModal extends React.Component {
     this.instanceRecord = Records.get(record);
     this.instanceRecord
       .load({
-        displayName: '.disp'
+        displayName: '.disp',
       })
-      .then(recordData => {
+      .then((recordData) => {
         const { typeRef } = options || {};
         let typeNamePromise;
 
@@ -86,7 +88,7 @@ export default class EcosFormModal extends React.Component {
 
         recordData.formMode = formMode || EcosFormUtils.getFormMode(this.instanceRecord);
 
-        typeNamePromise.then(typeName => {
+        typeNamePromise.then((typeName) => {
           if (typeName) {
             recordData.typeName = typeName;
           }
@@ -94,12 +96,12 @@ export default class EcosFormModal extends React.Component {
           this.setState({ recordData });
         });
       });
-    this.watcher = this.instanceRecord.watch(['.disp'], changed => {
+    this.watcher = this.instanceRecord.watch(['.disp'], (changed) => {
       this.setState({
         recordData: {
           ...this.state.recordData,
-          displayName: changed['.disp']
-        }
+          displayName: changed['.disp'],
+        },
       });
     });
   }
@@ -143,12 +145,12 @@ export default class EcosFormModal extends React.Component {
   }
 
   checkEditRights() {
-    EcosFormUtils.isConfigurableForm().then(isConfigurableForm => {
+    EcosFormUtils.isConfigurableForm().then((isConfigurableForm) => {
       !!isConfigurableForm && this.setState({ isConfigurableForm });
     });
   }
 
-  _onbeforeunload = e => {
+  _onbeforeunload = (e) => {
     if (!this.state.isModalOpen || !this.state.isAuthenticated) {
       return;
     }
@@ -174,7 +176,7 @@ export default class EcosFormModal extends React.Component {
       text: t(Labels.CONFIRM_RELOAD_MESSAGE),
       cancelText: t(Labels.CONFIRM_RELOAD_BTN_CANCEL),
       confirmText: t(Labels.CONFIRM_RELOAD_BTN_CONFIRM),
-      onDelete: () => window.location.reload()
+      onDelete: () => window.location.reload(),
     });
   };
 
@@ -216,8 +218,8 @@ export default class EcosFormModal extends React.Component {
             offset: {
               name: 'offset',
               enabled: true,
-              offset: '0, 10px'
-            }
+              offset: '0, 10px',
+            },
           }}
         >
           {t(Labels.CONSTRUCTOR_BTN_TOOLTIP)}
@@ -237,7 +239,7 @@ export default class EcosFormModal extends React.Component {
   }
 
   render() {
-    const { title, isBigHeader, contentAfter, container } = this.props;
+    const { title, isBigHeader, contentAfter, container, forwardRef } = this.props;
     const { recordData, isModalOpen, isLoading } = this.state;
 
     if (!isModalOpen || !recordData) {
@@ -274,10 +276,10 @@ export default class EcosFormModal extends React.Component {
     };
 
     return (
-      <div>
+      <div ref={forwardRef}>
         <EcosModal
           reactstrapProps={{
-            backdrop: 'static'
+            backdrop: 'static',
           }}
           className="ecos-modal_width-lg ecos-form-modal"
           isBigHeader={isBigHeader}
@@ -304,6 +306,7 @@ export default class EcosFormModal extends React.Component {
 }
 
 EcosFormModal.propTypes = {
+  forwardRef: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
   record: PropTypes.string.isRequired,
   formId: PropTypes.string,
   formKey: PropTypes.string,
@@ -318,11 +321,11 @@ EcosFormModal.propTypes = {
   onAfterHideModal: PropTypes.func,
   title: PropTypes.string,
   contentBefore: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
-  contentAfter: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node])
+  contentAfter: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
 };
 
 EcosFormModal.defaultProps = {
   isBigHeader: true,
   contentBefore: null,
-  contentAfter: null
+  contentAfter: null,
 };

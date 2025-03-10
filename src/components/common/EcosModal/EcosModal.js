@@ -1,16 +1,18 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { ModalBody, ModalHeader } from 'reactstrap';
-import ReactResizeDetector from 'react-resize-detector';
-import throttle from 'lodash/throttle';
 import isUndefined from 'lodash/isUndefined';
+import throttle from 'lodash/throttle';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import ReactResizeDetector from 'react-resize-detector';
+import { ModalBody, ModalHeader } from 'reactstrap';
 
-import { getMLValue, isMobileDevice, t, trigger } from '../../../helpers/util';
-import ZIndex from '../../../services/ZIndex';
-import Modal from './ModalDraggable';
-import Icon from '../icons/Icon/Icon';
 import Popper from '../Popper';
+import Icon from '../icons/Icon/Icon';
+
+import Modal from './ModalDraggable';
+
+import { getMLValue, isMobileDevice, t, trigger } from '@/helpers/util.js';
+import ZIndex from '@/services/ZIndex';
 
 import './EcosModal.scss';
 
@@ -20,7 +22,7 @@ export default class EcosModal extends Component {
   state = {
     isOpen: false,
     level: 0,
-    draggableState: null
+    draggableState: null,
   };
 
   static getDerivedStateFromProps(props, state) {
@@ -38,13 +40,13 @@ export default class EcosModal extends Component {
       newState = {
         ...newState,
         isOpen: props.isOpen,
-        level: isUndefined(props.customLevel) ? openModalsCounter : props.customLevel
+        level: isUndefined(props.customLevel) ? openModalsCounter : props.customLevel,
       };
     }
 
     newState = {
       ...newState,
-      zIndexCalc: ZIndex.calcZ()
+      zIndexCalc: ZIndex.calcZ(),
     };
 
     return newState;
@@ -55,7 +57,7 @@ export default class EcosModal extends Component {
 
     this._onResizeHandlerThrottled = throttle(this.calculateBounds, 300, {
       leading: false,
-      trailing: true
+      trailing: true,
     });
 
     window.addEventListener('resize', this._onResizeHandlerThrottled);
@@ -88,8 +90,8 @@ export default class EcosModal extends Component {
         this.setState({
           draggableState: {
             boundX,
-            boundY
-          }
+            boundY,
+          },
         });
       }
     }
@@ -142,7 +144,7 @@ export default class EcosModal extends Component {
         close={this.renderCloseButton()}
         className={classNames('ecos-modal-header', classNameHeader, `ecos-modal-header_level-${level}`, {
           'ecos-modal-header_big': isBigHeader,
-          'ecos-modal-header_divider': isTopDivider
+          'ecos-modal-header_divider': isTopDivider,
         })}
       >
         {this.renderTitle()}
@@ -152,18 +154,8 @@ export default class EcosModal extends Component {
   }
 
   render() {
-    const {
-      hideModal,
-      children,
-      className,
-      classNameBody,
-      reactstrapProps,
-      isLoading,
-      onResize,
-      size,
-      container,
-      isBlurBackground
-    } = this.props;
+    const { hideModal, children, className, classNameBody, reactstrapProps, isLoading, onResize, size, container, isBlurBackground } =
+      this.props;
     const { isOpen, level, draggableState, zIndexCalc } = this.state;
     const modalLevel = level > MAX_LEVEL ? MAX_LEVEL : level;
     const classMobile = isMobileDevice() ? 'ecos-modal_mobile' : '';
@@ -171,11 +163,11 @@ export default class EcosModal extends Component {
     const modalClassName = classNames('ecos-modal', className, classMobile, {
       'ecos-modal_draggable': draggableState !== null,
       [`ecos-modal_level-${modalLevel}`]: !!modalLevel,
-      'ecos-modal_small-screen': window.innerWidth < 720
+      'ecos-modal_small-screen': window.innerWidth < 720,
     });
 
     const draggableProps = {
-      disabled: true
+      disabled: true,
     };
 
     if (draggableState) {
@@ -186,10 +178,10 @@ export default class EcosModal extends Component {
       draggableProps.bounds = {
         top: -boundY,
         left: -boundX,
-        right: boundX
+        right: boundX,
       };
       // Cause: https://citeck.atlassian.net/browse/ECOSUI-803
-      draggableProps.onMouseDown = event => {
+      draggableProps.onMouseDown = (event) => {
         event.stopPropagation();
       };
     }
@@ -203,7 +195,7 @@ export default class EcosModal extends Component {
         size={size}
         className={modalClassName}
         {...reactstrapProps}
-        getDialogRef={el => (this._dialog = el)}
+        getDialogRef={(el) => (this._dialog = el)}
         draggableProps={draggableProps}
         data-level={level}
         container={container}
@@ -235,7 +227,7 @@ EcosModal.propTypes = {
   reactstrapProps: PropTypes.object,
   title: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   onResize: PropTypes.func,
-  customButtons: PropTypes.array
+  customButtons: PropTypes.array,
 };
 
 EcosModal.defaultProps = {
@@ -247,5 +239,5 @@ EcosModal.defaultProps = {
   title: '',
   customButtons: [],
   hideModal: () => null,
-  onResize: () => null
+  onResize: () => null,
 };
