@@ -4913,16 +4913,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"choices.js@npm:6.0.3":
-  version: 6.0.3
-  resolution: "choices.js@npm:6.0.3"
+"choices.js@npm:8.0.0":
+  version: 8.0.0
+  resolution: "choices.js@npm:8.0.0"
   dependencies:
-    classnames: ^2.2.6
-    custom-event-polyfill: ^0.3.0
-    deepmerge: ^2.2.1
-    fuse.js: 3.4.2
-    redux: ^3.3.1
-  checksum: 27fb5ff58f5f020f9ca201c2f1d25bd061be015cffd3425f638d3deb2c5fba8e0f96f67c93f3aa3fd52feea1d94abd3268f78160851685d6bbff85eaa6839ad0
+    deepmerge: ^4.2.0
+    fuse.js: ^3.4.5
+    redux: ^4.0.4
+  checksum: b5fdf2d23472c34e5878ad9f6e03a0d51437f608c3daec4c3b370df92a3e8343aa14f3c28bbee232d9a22ac283cb7732844c582967acc7f9d29d813c05e75451
   languageName: node
   linkType: hard
 
@@ -5688,13 +5686,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"custom-event-polyfill@npm:^0.3.0":
-  version: 0.3.0
-  resolution: "custom-event-polyfill@npm:0.3.0"
-  checksum: 449d8e8497699ef5fe8ce6a9b041b6d7e36099c40710a5e853afe5912a530e71ac177f52f1b1836403c9973dc2668df82006935d0517f1549d3e11e97f55043d
-  languageName: node
-  linkType: hard
-
 "custom-event-polyfill@npm:^1.0.7":
   version: 1.0.7
   resolution: "custom-event-polyfill@npm:1.0.7"
@@ -5871,13 +5862,6 @@ __metadata:
   version: 0.1.4
   resolution: "deep-is@npm:0.1.4"
   checksum: edb65dd0d7d1b9c40b2f50219aef30e116cedd6fc79290e740972c132c09106d2e80aa0bc8826673dd5a00222d4179c84b36a790eef63a4c4bca75a37ef90804
-  languageName: node
-  linkType: hard
-
-"deepmerge@npm:^2.2.1":
-  version: 2.2.1
-  resolution: "deepmerge@npm:2.2.1"
-  checksum: 284b71065079e66096229f735a9a0222463c9ca9ee9dda7d5e9a0545bf254906dbc7377e3499ca3b2212073672b1a430d80587993b43b87d8de17edc6af649a8
   languageName: node
   linkType: hard
 
@@ -6508,7 +6492,7 @@ __metadata:
     chance: 1.1.6
     chart.js: 3.9.1
     chartjs-plugin-datalabels: 2.2.0
-    choices.js: 6.0.3
+    choices.js: 8.0.0
     classnames: 2.3.2
     clipboard: 2.0.11
     cmmn-js: 0.20.0
@@ -8290,6 +8274,13 @@ __metadata:
   version: 3.4.2
   resolution: "fuse.js@npm:3.4.2"
   checksum: ca855a8945867056143d60319bf3a5fb18b0c69340ffa7eaafe7f9ed8cc1c88987fd3d6a76573723068936629694b813bad9a46452c41186206fbfb0ccdebe62
+  languageName: node
+  linkType: hard
+
+"fuse.js@npm:^3.4.5":
+  version: 3.6.1
+  resolution: "fuse.js@npm:3.6.1"
+  checksum: 958aa877ace65dc900df776becd39a03df68d7eebc7890b5fd2fc8c5d88e2fff238f60c37f80013ce70e9d9e7ac8efa9f503695fdd23d1eca3cc983797b50191
   languageName: node
   linkType: hard
 
@@ -10935,7 +10926,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash-es@npm:^4.17.15, lodash-es@npm:^4.2.1":
+"lodash-es@npm:^4.17.15":
   version: 4.17.21
   resolution: "lodash-es@npm:4.17.21"
   checksum: 05cbffad6e2adbb331a4e16fbd826e7faee403a1a04873b82b42c0f22090f280839f85b95393f487c1303c8a3d2a010048bf06151a6cbe03eee4d388fb0a12d2
@@ -10991,7 +10982,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:4.17.21, lodash@npm:^4.17.11, lodash@npm:^4.17.15, lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.2.1, lodash@npm:^4.3.0, lodash@npm:^4.7.0":
+"lodash@npm:4.17.21, lodash@npm:^4.17.11, lodash@npm:^4.17.15, lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.3.0, lodash@npm:^4.7.0":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: eb835a2e51d381e561e508ce932ea50a8e5a68f4ebdd771ea240d3048244a8d13658acbd502cd4829768c56f2e16bdd4340b9ea141297d472517b83868e677f7
@@ -13847,18 +13838,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"redux@npm:^3.3.1":
-  version: 3.7.2
-  resolution: "redux@npm:3.7.2"
-  dependencies:
-    lodash: ^4.2.1
-    lodash-es: ^4.2.1
-    loose-envify: ^1.1.0
-    symbol-observable: ^1.0.3
-  checksum: c349b77e68d009bc530d3cb6252a6a3e43e20a6e52f9483a048b24cd2f266d9bfa6f0bbd4769d40fe36795e2f7a7a884c3ddc92c13e82efd3328890f94821091
-  languageName: node
-  linkType: hard
-
 "reflect.getprototypeof@npm:^1.0.6, reflect.getprototypeof@npm:^1.0.9":
   version: 1.0.10
   resolution: "reflect.getprototypeof@npm:1.0.10"
@@ -15415,7 +15394,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"symbol-observable@npm:^1.0.3, symbol-observable@npm:^1.1.0":
+"symbol-observable@npm:^1.1.0":
   version: 1.2.0
   resolution: "symbol-observable@npm:1.2.0"
   checksum: 48ffbc22e3d75f9853b3ff2ae94a44d84f386415110aea5effc24d84c502e03a4a6b7a8f75ebaf7b585780bda34eb5d6da3121f826a6f93398429d30032971b6

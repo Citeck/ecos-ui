@@ -1,13 +1,15 @@
+import isFunction from 'lodash/isFunction';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import isFunction from 'lodash/isFunction';
 
 import Modal from '../common/EcosModal/CiteckEcosModal';
-import recordActions from '../../components/Records/actions';
-import EcosFormUtils from './EcosFormUtils';
-import EcosFormModal from './EcosFormModal';
+
 import EcosForm from './EcosForm';
-import { getId } from '../../helpers/util';
+import EcosFormModal from './EcosFormModal';
+import EcosFormUtils from './EcosFormUtils';
+
+import recordActions from '@/components/Records/actions';
+import { getId } from '@/helpers/util.js';
 
 class FormManager {
   #root = null;
@@ -106,7 +108,10 @@ class FormManager {
         isFunction(props.onHideModal) && props.onHideModal();
       },
       onCancelModal: () => {
-        root.unmount();
+        setTimeout(() => {
+          root.unmount();
+        }, 0);
+
         this.destroyForm(container);
         isFunction(props.onModalCancel) && props.onModalCancel();
       },

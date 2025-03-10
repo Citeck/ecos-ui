@@ -1,14 +1,16 @@
-import React from 'react';
-import { createRoot } from 'react-dom/client';
+import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
-import get from 'lodash/get';
 import pick from 'lodash/pick';
+import React from 'react';
+import { createRoot } from 'react-dom/client';
 
-import RawHtmlWrapper from '../../../../components/common/RawHtmlWrapper';
 import UnreadableLabel from '../../UnreadableLabel';
+
 import BaseComponent from './BaseComponent';
+
+import RawHtmlWrapper from '@/components/common/RawHtmlWrapper';
 
 export default class BaseReactComponent extends BaseComponent {
   static schema(...extend) {
@@ -21,9 +23,9 @@ export default class BaseReactComponent extends BaseComponent {
   }
 
   react = {};
-  #root = null;
-  #viewOnlyPrev = {};
-  #refreshOnValuePrev = {};
+  _root = null;
+  _viewOnlyPrev = {};
+  _refreshOnValuePrev = {};
 
   get isShowElement() {
     if (this.options.builder) {
@@ -51,13 +53,13 @@ export default class BaseReactComponent extends BaseComponent {
 
   build() {
     if (
-      !isEqual(this.#viewOnlyPrev, this.viewOnly) ||
-      (!isEmpty(this.refreshOnValue) && !isEqual(this.#refreshOnValuePrev, this.refreshOnValue))
+      !isEqual(this._viewOnlyPrev, this.viewOnly) ||
+      (!isEmpty(this.refreshOnValue) && !isEqual(this._refreshOnValuePrev, this.refreshOnValue))
     ) {
       super.clear();
       this.react = {};
-      this.#viewOnlyPrev = this.viewOnly;
-      this.#refreshOnValuePrev = this.refreshOnValue;
+      this._viewOnlyPrev = this.viewOnly;
+      this._refreshOnValuePrev = this.refreshOnValue;
     }
 
     const firstBuild = isEmpty(this.react);
@@ -195,9 +197,9 @@ export default class BaseReactComponent extends BaseComponent {
           }
         };
 
-        if (!this.#root) {
-          this.#root = createRoot(this.react.container);
-          this.#root.render(
+        if (!this._root) {
+          this._root = createRoot(this.react.container);
+          this._root.render(
             <RawHtmlWrapper
               onMounted={() => {
                 this.react.isMounted = true;
@@ -231,8 +233,10 @@ export default class BaseReactComponent extends BaseComponent {
 
   destroy() {
     if (this.react.container) {
-      this.#root?.unmount();
-      this.react.wrapper = null;
+      setTimeout(() => {
+        this._root?.unmount();
+        this.react.wrapper = null;
+      }, 0);
     }
 
     return super.destroy();
