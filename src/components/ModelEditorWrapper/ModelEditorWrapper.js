@@ -1,23 +1,24 @@
-import React from 'react';
 import classNames from 'classnames';
-import PropTypes from 'prop-types';
 import get from 'lodash/get';
-import uniqueId from 'lodash/uniqueId';
-import uuidv4 from 'uuid/v4';
-import isNil from 'lodash/isNil';
-import isFunction from 'lodash/isFunction';
 import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
+import isNil from 'lodash/isNil';
+import uniqueId from 'lodash/uniqueId';
+import PropTypes from 'prop-types';
+import React from 'react';
+import uuidv4 from 'uuid/v4';
 
-import { t } from '../../helpers/util';
 import { Icon, InfoText, ResizeBoxes } from '../common';
-import { Caption } from '../common/form';
 import TitlePageLoader from '../common/TitlePageLoader';
-import { generateKey, getData, setData } from '../../helpers/ls';
+import { Caption } from '../common/form';
+
 import Tools from './Tools';
 import { ToolsInterface } from './propsInterfaces';
 
+import { PROCESS_DEF_API_ACTIONS } from '@/api/process';
+import { generateKey, getData, setData } from '@/helpers/ls';
+import { t } from '@/helpers/util';
 import './style.scss';
-import { PROCESS_DEF_API_ACTIONS } from '../../api/process';
 
 const Labels = {
   NO_EDITOR: 'model-editor.error.no-editor',
@@ -30,7 +31,7 @@ const Labels = {
   SAVE_AS_SVG: 'model-editor.btn.download-as-svg',
   RESET_ZOOM: 'model-editor.btn.reset-zoom',
   ZOOM_IN: 'model-editor.btn.zoom-in',
-  ZOOM_OUT: 'model-editor.btn.zoom-out'
+  ZOOM_OUT: 'model-editor.btn.zoom-out',
 };
 
 class ModelEditorWrapper extends React.Component {
@@ -43,12 +44,12 @@ class ModelEditorWrapper extends React.Component {
     onCreate: PropTypes.func,
     extraButtons: PropTypes.shape({
       config: PropTypes.arrayOf(PropTypes.shape(ToolsInterface)),
-      zoom: PropTypes.arrayOf(PropTypes.shape(ToolsInterface))
-    })
+      zoom: PropTypes.arrayOf(PropTypes.shape(ToolsInterface)),
+    }),
   };
 
   state = {
-    rightSidebarOpen: true
+    rightSidebarOpen: true,
   };
 
   #sidebarRightRef = null;
@@ -62,7 +63,7 @@ class ModelEditorWrapper extends React.Component {
     const sizes = getData(this.#lsKey);
 
     this.state = {
-      rightSidebarOpen: true
+      rightSidebarOpen: true,
     };
 
     if (sizes) {
@@ -83,7 +84,7 @@ class ModelEditorWrapper extends React.Component {
         text: t(Labels.CREATE),
         id: `bpmn-create-btn-${uuidv4()}`,
         trigger: 'hover',
-        className: ''
+        className: '',
       });
     }
 
@@ -93,7 +94,7 @@ class ModelEditorWrapper extends React.Component {
       text: t(Labels.SAVE_DRAFT),
       id: `bpmn-save-btn-${uuidv4()}`,
       trigger: 'hover',
-      className: ''
+      className: '',
     });
 
     configButtons.push({
@@ -102,7 +103,7 @@ class ModelEditorWrapper extends React.Component {
       text: t(Labels.APPLY),
       id: `bpmn-save-btn-${uuidv4()}`,
       trigger: 'hover',
-      className: ''
+      className: '',
     });
 
     if (hasDeployRights) {
@@ -112,7 +113,7 @@ class ModelEditorWrapper extends React.Component {
         text: t(Labels.SAVE_DEPLOY),
         id: `bpmn-download-btn-${uuidv4()}`,
         trigger: 'hover',
-        className: 'ecos-btn_green'
+        className: 'ecos-btn_green',
       });
     }
 
@@ -123,7 +124,7 @@ class ModelEditorWrapper extends React.Component {
         text: t(Labels.VIEW_XML),
         id: `bpmn-view-btn-${uuidv4()}`,
         trigger: 'hover',
-        className: 'ecos-btn_blue'
+        className: 'ecos-btn_blue',
       });
     }
 
@@ -134,7 +135,7 @@ class ModelEditorWrapper extends React.Component {
         text: t(Labels.SAVE_AS_SVG),
         id: `bpmn-download-as-svg-${uuidv4()}`,
         trigger: 'hover',
-        className: ''
+        className: '',
       });
     }
 
@@ -162,7 +163,7 @@ class ModelEditorWrapper extends React.Component {
         text: t(Labels.RESET_ZOOM),
         id: `bpmn-zoom-reset-btn-${uuidv4()}`,
         trigger: 'hover',
-        className: ''
+        className: '',
       });
     }
 
@@ -173,7 +174,7 @@ class ModelEditorWrapper extends React.Component {
         text: t(Labels.ZOOM_IN),
         id: `bpmn-zoom-in-btn-${uuidv4()}`,
         trigger: 'hover',
-        className: ''
+        className: '',
       });
     }
 
@@ -184,7 +185,7 @@ class ModelEditorWrapper extends React.Component {
         text: t(Labels.ZOOM_OUT),
         id: `bpmn-zoom-out-btn-${uuidv4()}`,
         trigger: 'hover',
-        className: ''
+        className: '',
       });
     }
 
@@ -217,7 +218,7 @@ class ModelEditorWrapper extends React.Component {
     this.setState(({ rightSidebarOpen }) => ({ rightSidebarOpen: !rightSidebarOpen }));
   };
 
-  setRightSidebarRef = ref => {
+  setRightSidebarRef = (ref) => {
     if (!ref) {
       return;
     }
@@ -228,7 +229,7 @@ class ModelEditorWrapper extends React.Component {
     this.#sidebarRightRef = ref;
   };
 
-  handleResizeComplete = sizes => {
+  handleResizeComplete = (sizes) => {
     this.setState({ sizes });
     setData(this.#lsKey, sizes);
   };
@@ -268,7 +269,7 @@ class ModelEditorWrapper extends React.Component {
       <div
         id={this.#editorId}
         className={classNames('ecos-model-editor__sidebar-right', {
-          'ecos-model-editor__sidebar-right_open': sideBarVisible
+          'ecos-model-editor__sidebar-right_open': sideBarVisible,
         })}
         style={{ width: sideBarVisible ? get(sizes, 'right') : '' }}
       >

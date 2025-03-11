@@ -6,5 +6,5 @@ export const ToolsInterface = {
   text: PropTypes.string,
   id: PropTypes.string.isRequired,
   trigger: PropTypes.string,
-  className: PropTypes.string
+  className: PropTypes.string,
 };

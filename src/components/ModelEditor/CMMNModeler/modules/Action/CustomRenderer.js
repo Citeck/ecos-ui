@@ -1,18 +1,17 @@
+import { getName } from 'cmmn-js/lib/util/ModelUtil';
 import BaseRenderer from 'diagram-js/lib/draw/BaseRenderer';
 import TextUtil from 'diagram-js/lib/util/Text';
 import { append as svgAppend, attr as svgAttr, classes as svgClasses, create as svgCreate } from 'tiny-svg';
-import { getName } from 'cmmn-js/lib/util/ModelUtil';
 
 import * as CmmnUtils from '../../utils';
-import actionTypes from './action-types.json';
 
-import 'bpmn-font/dist/css/bpmn.css';
+import actionTypes from './action-types.json';
 
 const HIGH_PRIORITY = 1500;
 const TASK_BORDER_RADIUS = 10;
 const LABEL_STYLE = {
   fontFamily: 'Arial, sans-serif',
-  fontSize: '12px'
+  fontSize: '12px',
 };
 const DEFAULT_TYPES_TO_RENDER = ['ecos:Action'];
 
@@ -20,7 +19,7 @@ export default class CustomRenderer extends BaseRenderer {
   constructor(eventBus, cmmnRenderer) {
     super(eventBus, HIGH_PRIORITY);
     this.cmmnRenderer = cmmnRenderer;
-    this._actionTypesToRender = [...DEFAULT_TYPES_TO_RENDER, ...actionTypes.map(type => type.id)];
+    this._actionTypesToRender = [...DEFAULT_TYPES_TO_RENDER, ...actionTypes.map((type) => type.id)];
   }
 
   canRender(element) {
@@ -48,7 +47,7 @@ CustomRenderer.$inject = ['eventBus', 'cmmnRenderer'];
 
 const textUtil = new TextUtil({
   style: LABEL_STYLE,
-  size: { width: 100 }
+  size: { width: 100 },
 });
 
 function renderLabel(parentGfx, label, options) {
@@ -77,7 +76,7 @@ function drawRect(parentNode, width, height, borderRadius, strokeColor) {
     ry: borderRadius,
     stroke: strokeColor || '#000',
     strokeWidth: 2,
-    fill: '#fff'
+    fill: '#fff',
   });
 
   svgAppend(parentNode, rect);

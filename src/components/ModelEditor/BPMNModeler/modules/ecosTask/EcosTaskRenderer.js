@@ -1,20 +1,21 @@
-import { append as svgAppend, classes as svgClasses, create as svgCreate, remove as svgRemove, select as svgSelect } from 'tiny-svg';
 import { is, getBusinessObject } from 'bpmn-js/lib/util/ModelUtil';
 import TextUtil from 'diagram-js/lib/util/Text';
-import { isNil } from 'min-dash';
 import _ from 'lodash';
+import { isNil } from 'min-dash';
+import { append as svgAppend, classes as svgClasses, create as svgCreate, remove as svgRemove, select as svgSelect } from 'tiny-svg';
 
 import KPIRenderer from './EcosKPIRenderer';
-import Records from '../../../../../components/Records/Records';
+
+import Records from '@/components/Records/Records';
 import {
   ECOS_TASK_TYPE_SET_STATUS,
   ECOS_TASK_BASE_ELEMENT,
   SUBPROCESS_TYPE,
   BPMN_TASK_TYPES,
   LABEL_STYLE,
-  STATUS_CHANGE_ICON_PATH
-} from '../../../../../constants/bpmn';
-import { t } from '../../../../../helpers/util';
+  STATUS_CHANGE_ICON_PATH,
+} from '@/constants/bpmn';
+import { t } from '@/helpers/util';
 
 const HIGH_PRIORITY = 1500;
 
@@ -38,7 +39,7 @@ class CustomRenderer extends KPIRenderer {
       d: path,
       opacity: '0.8',
       stroke: 'none',
-      fill: 'black'
+      fill: 'black',
     });
   }
 
@@ -58,9 +59,9 @@ class CustomRenderer extends KPIRenderer {
 
         Records.get(ecosType)
           .load('model.statuses[]{value:id,label:name}', false)
-          .then(statuses => {
+          .then((statuses) => {
             if (!_.isEmpty(statuses)) {
-              const status = statuses.find(field => field.value === statusName);
+              const status = statuses.find((field) => field.value === statusName);
 
               if (status) {
                 const text = `${t('dashboard-settings.widget.doc-status')}: "${status.label || ''}"`;
@@ -69,7 +70,7 @@ class CustomRenderer extends KPIRenderer {
                   this.renderLabel(parentNode, text, {
                     align: 'center-middle',
                     box: element,
-                    padding: 5
+                    padding: 5,
                   });
               }
             }
@@ -113,7 +114,7 @@ class CustomRenderer extends KPIRenderer {
 
   renderLabel(parentGfx, label, options) {
     const textUtil = new TextUtil({
-      style: LABEL_STYLE
+      style: LABEL_STYLE,
     });
 
     const text = textUtil.createText(label, options);

@@ -1,9 +1,10 @@
 import { is } from 'bpmn-js/lib/util/ModelUtil';
 import get from 'lodash/get';
 
-import { PREFIX_FIELD } from '../../../../../../constants/cmmn';
-import { t } from '../../../../../../helpers/util';
 import { BPMN_LINT_PREFIX } from '../constants';
+
+import { PREFIX_FIELD } from '@/constants/cmmn';
+import { t } from '@/helpers/util';
 
 const SERVICE_TASK = 'bpmn:ServiceTask';
 
@@ -24,9 +25,9 @@ const serviceTaskHasType = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 const serviceTaskHasTopicExternalTask = {
@@ -49,9 +50,9 @@ const serviceTaskHasTopicExternalTask = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 const serviceTaskHasExpression = {
@@ -74,19 +75,19 @@ const serviceTaskHasExpression = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 export const serviceTaskRulesMap = {
   [serviceTaskHasType.id]: 'error',
   [serviceTaskHasTopicExternalTask.id]: 'error',
-  [serviceTaskHasExpression.id]: 'error'
+  [serviceTaskHasExpression.id]: 'error',
 };
 
 export const serviceTaskCacheMap = {
   [`${BPMN_LINT_PREFIX}${serviceTaskHasType.id}`]: serviceTaskHasType.callback,
   [`${BPMN_LINT_PREFIX}${serviceTaskHasTopicExternalTask.id}`]: serviceTaskHasTopicExternalTask.callback,
-  [`${BPMN_LINT_PREFIX}${serviceTaskHasExpression.id}`]: serviceTaskHasExpression.callback
+  [`${BPMN_LINT_PREFIX}${serviceTaskHasExpression.id}`]: serviceTaskHasExpression.callback,
 };

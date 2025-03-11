@@ -1,9 +1,10 @@
 import { is } from 'bpmn-js/lib/util/ModelUtil';
 import get from 'lodash/get';
 
-import { PREFIX_FIELD } from '../../../../../../constants/cmmn';
-import { t } from '../../../../../../helpers/util';
 import { BPMN_LINT_PREFIX } from '../constants';
+
+import { PREFIX_FIELD } from '@/constants/cmmn';
+import { t } from '@/helpers/util';
 
 const SIGNAL_EVENT_DEFINITION = 'bpmn:SignalEventDefinition';
 
@@ -11,7 +12,7 @@ const signalEventHasEventType = {
   id: 'signal-event-has-event-type',
   callback: () => {
     const check = (node, reporter) => {
-      if (!node.eventDefinitions || !node.eventDefinitions.find(def => is(def, SIGNAL_EVENT_DEFINITION))) {
+      if (!node.eventDefinitions || !node.eventDefinitions.find((def) => is(def, SIGNAL_EVENT_DEFINITION))) {
         return;
       }
 
@@ -27,16 +28,16 @@ const signalEventHasEventType = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 const signalEventHasSignalName = {
   id: 'signal-event-has-signal-name',
   callback: () => {
     const check = (node, reporter) => {
-      if (!node.eventDefinitions || !node.eventDefinitions.find(def => is(def, SIGNAL_EVENT_DEFINITION))) {
+      if (!node.eventDefinitions || !node.eventDefinitions.find((def) => is(def, SIGNAL_EVENT_DEFINITION))) {
         return;
       }
 
@@ -52,16 +53,16 @@ const signalEventHasSignalName = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 const userEventIsSetOnUserEventSignal = {
   id: 'user-event-is-set-on-user-event-signal',
   callback: () => {
     const check = (node, reporter) => {
-      if (!node.eventDefinitions || !node.eventDefinitions.find(def => is(def, SIGNAL_EVENT_DEFINITION))) {
+      if (!node.eventDefinitions || !node.eventDefinitions.find((def) => is(def, SIGNAL_EVENT_DEFINITION))) {
         return;
       }
 
@@ -77,16 +78,16 @@ const userEventIsSetOnUserEventSignal = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 const changeTypeIsSetOnStatusSignal = {
   id: 'change-type-is-set-on-status-signal',
   callback: () => {
     const check = (node, reporter) => {
-      if (!node.eventDefinitions || !node.eventDefinitions.find(def => is(def, SIGNAL_EVENT_DEFINITION))) {
+      if (!node.eventDefinitions || !node.eventDefinitions.find((def) => is(def, SIGNAL_EVENT_DEFINITION))) {
         return;
       }
 
@@ -104,16 +105,16 @@ const changeTypeIsSetOnStatusSignal = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 const manualStatusNameIsSetOnStatusSignal = {
   id: 'manual-status-name-is-set-on-status-signal',
   callback: () => {
     const check = (node, reporter) => {
-      if (!node.eventDefinitions || !node.eventDefinitions.find(def => is(def, SIGNAL_EVENT_DEFINITION))) {
+      if (!node.eventDefinitions || !node.eventDefinitions.find((def) => is(def, SIGNAL_EVENT_DEFINITION))) {
         return;
       }
 
@@ -131,16 +132,16 @@ const manualStatusNameIsSetOnStatusSignal = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 const signalEventHasFilterEventByDocumentType = {
   id: 'signal-event-has-filter-event-by-document-type',
   callback: () => {
     const check = (node, reporter) => {
-      if (!node.eventDefinitions || !node.eventDefinitions.find(def => is(def, SIGNAL_EVENT_DEFINITION))) {
+      if (!node.eventDefinitions || !node.eventDefinitions.find((def) => is(def, SIGNAL_EVENT_DEFINITION))) {
         return;
       }
       const eventTypeAttr = `${PREFIX_FIELD}eventType`;
@@ -159,16 +160,16 @@ const signalEventHasFilterEventByDocumentType = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 const signalEventHasEventFilter = {
   id: 'signal-event-has-event-filter',
   callback: () => {
     const check = (node, reporter) => {
-      if (!node.eventDefinitions || !node.eventDefinitions.find(def => is(def, SIGNAL_EVENT_DEFINITION))) {
+      if (!node.eventDefinitions || !node.eventDefinitions.find((def) => is(def, SIGNAL_EVENT_DEFINITION))) {
         return;
       }
 
@@ -184,16 +185,16 @@ const signalEventHasEventFilter = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 const signalEventHasVariableName = {
   id: 'signal-event-has-variable-name',
   callback: () => {
     const check = (node, reporter) => {
-      if (!node.eventDefinitions || !node.eventDefinitions.find(def => is(def, SIGNAL_EVENT_DEFINITION))) {
+      if (!node.eventDefinitions || !node.eventDefinitions.find((def) => is(def, SIGNAL_EVENT_DEFINITION))) {
         return;
       }
 
@@ -209,16 +210,16 @@ const signalEventHasVariableName = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 const signalEventHasRecordFields = {
   id: 'signal-event-has-record-fields',
   callback: () => {
     const check = (node, reporter) => {
-      if (!node.eventDefinitions || !node.eventDefinitions.find(def => is(def, SIGNAL_EVENT_DEFINITION))) {
+      if (!node.eventDefinitions || !node.eventDefinitions.find((def) => is(def, SIGNAL_EVENT_DEFINITION))) {
         return;
       }
 
@@ -236,9 +237,9 @@ const signalEventHasRecordFields = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 export const signalEventRulesMap = {
@@ -250,7 +251,7 @@ export const signalEventRulesMap = {
   [signalEventHasFilterEventByDocumentType.id]: 'error',
   [changeTypeIsSetOnStatusSignal.id]: 'error',
   [manualStatusNameIsSetOnStatusSignal.id]: 'error',
-  [userEventIsSetOnUserEventSignal.id]: 'error'
+  [userEventIsSetOnUserEventSignal.id]: 'error',
 };
 
 export const signalEventCacheMap = {
@@ -262,5 +263,5 @@ export const signalEventCacheMap = {
   [`${BPMN_LINT_PREFIX}${[signalEventHasFilterEventByDocumentType.id]}`]: signalEventHasFilterEventByDocumentType.callback,
   [`${BPMN_LINT_PREFIX}${changeTypeIsSetOnStatusSignal.id}`]: changeTypeIsSetOnStatusSignal.callback,
   [`${BPMN_LINT_PREFIX}${manualStatusNameIsSetOnStatusSignal.id}`]: manualStatusNameIsSetOnStatusSignal.callback,
-  [`${BPMN_LINT_PREFIX}${userEventIsSetOnUserEventSignal.id}`]: userEventIsSetOnUserEventSignal.callback
+  [`${BPMN_LINT_PREFIX}${userEventIsSetOnUserEventSignal.id}`]: userEventIsSetOnUserEventSignal.callback,
 };

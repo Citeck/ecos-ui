@@ -1,9 +1,10 @@
 import { is } from 'bpmn-js/lib/util/ModelUtil';
 import get from 'lodash/get';
 
-import { PREFIX_FIELD } from '../../../../../../constants/cmmn';
-import { t } from '../../../../../../helpers/util';
 import { BPMN_LINT_PREFIX } from '../constants';
+
+import { PREFIX_FIELD } from '@/constants/cmmn';
+import { t } from '@/helpers/util';
 
 const CALL_ACTIVITY = 'bpmn:CallActivity';
 
@@ -27,9 +28,9 @@ const callActivityHasProcessOrElement = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 const callActivityHasConnection = {
@@ -50,9 +51,9 @@ const callActivityHasConnection = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 const callActivityHasVersionTag = {
@@ -75,9 +76,9 @@ const callActivityHasVersionTag = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 const callActivityHasVersion = {
@@ -100,21 +101,21 @@ const callActivityHasVersion = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 export const callActivityRulesMap = {
   [callActivityHasProcessOrElement.id]: 'error',
   [callActivityHasConnection.id]: 'error',
   [callActivityHasVersionTag.id]: 'error',
-  [callActivityHasVersion.id]: 'error'
+  [callActivityHasVersion.id]: 'error',
 };
 
 export const callActivityCacheMap = {
   [`${BPMN_LINT_PREFIX}${callActivityHasProcessOrElement.id}`]: callActivityHasProcessOrElement.callback,
   [`${BPMN_LINT_PREFIX}${callActivityHasConnection.id}`]: callActivityHasConnection.callback,
   [`${BPMN_LINT_PREFIX}${callActivityHasVersionTag.id}`]: callActivityHasVersionTag.callback,
-  [`${BPMN_LINT_PREFIX}${callActivityHasVersion.id}`]: callActivityHasVersion.callback
+  [`${BPMN_LINT_PREFIX}${callActivityHasVersion.id}`]: callActivityHasVersion.callback,
 };

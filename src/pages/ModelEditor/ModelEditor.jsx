@@ -1,19 +1,33 @@
-import React from 'react';
-import queryString from 'query-string';
+import { is } from 'bpmn-js/lib/util/ModelUtil';
 import classNames from 'classnames';
-import isEmpty from 'lodash/isEmpty';
-import isString from 'lodash/isString';
-import isUndefined from 'lodash/isUndefined';
-import isEqual from 'lodash/isEqual';
+import { flattenComponents } from 'formiojs/utils/formUtils';
 import debounce from 'lodash/debounce';
 import get from 'lodash/get';
-import set from 'lodash/set';
+import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
+import isString from 'lodash/isString';
+import isUndefined from 'lodash/isUndefined';
+import set from 'lodash/set';
+import queryString from 'query-string';
+import React from 'react';
 import XMLViewer from 'react-xml-viewer';
-import { flattenComponents } from 'formiojs/utils/formUtils';
-import { is } from 'bpmn-js/lib/util/ModelUtil';
 
-import { getCurrentLocale, getMLValue, getTextByLocale, t, fileDownload } from '../../helpers/util';
+import { PROCESS_DEF_API_ACTIONS } from '@/api/process';
+import { getEcosType, getValue } from '@/components/ModelEditor/CMMNModeler/utils';
+import ModelEditorWrapper from '@/components/ModelEditorWrapper';
+import { EcosModal, InfoText, Loader } from '@/components/common';
+import { FormWrapper } from '@/components/common/dialogs';
+import {
+  DEFINITON_TYPE,
+  GATEWAY_TYPES,
+  SEQUENCE_TYPE,
+  TASK_TYPES,
+  LOOP_CHARACTERISTICS,
+  COLLABORATION_TYPE,
+  PARTICIPANT_TYPE,
+  TYPE_BPMN_PROCESS,
+} from '@/constants/bpmn';
 import {
   EventListeners,
   IGNORED_VALUE_COMPONENTS,
@@ -23,25 +37,10 @@ import {
   KEY_FIELDS,
   LABEL_POSTFIX,
   ML_POSTFIX,
-  PREFIX_FIELD
-} from '../../constants/cmmn';
-import {
-  DEFINITON_TYPE,
-  GATEWAY_TYPES,
-  SEQUENCE_TYPE,
-  TASK_TYPES,
-  LOOP_CHARACTERISTICS,
-  COLLABORATION_TYPE,
-  PARTICIPANT_TYPE,
-  TYPE_BPMN_PROCESS
-} from '../../constants/bpmn';
-import { EcosModal, InfoText, Loader } from '../../components/common';
-import { FormWrapper } from '../../components/common/dialogs';
-import ModelEditorWrapper from '../../components/ModelEditorWrapper';
-import { getEcosType, getValue } from '../../components/ModelEditor/CMMNModeler/utils';
-import { DMN_DEFINITIONS } from '../../constants/dmn';
-
-import { PROCESS_DEF_API_ACTIONS } from '../../api/process';
+  PREFIX_FIELD,
+} from '@/constants/cmmn';
+import { DMN_DEFINITIONS } from '@/constants/dmn';
+import { getCurrentLocale, getMLValue, getTextByLocale, t, fileDownload } from '@/helpers/util';
 
 import './ModelEditor.scss';
 
@@ -55,7 +54,7 @@ class ModelEditorPage extends React.Component {
     xmlViewerXml: '',
     xmlViewerIsOpen: false,
     errors: 0,
-    warnings: 0
+    warnings: 0,
   };
 
   designer;
@@ -154,7 +153,7 @@ class ModelEditorPage extends React.Component {
 
     return {
       ...formData,
-      ...get(this._formsCache, selectedElement.id, {})
+      ...get(this._formsCache, selectedElement.id, {}),
     };
   }
 
@@ -165,7 +164,7 @@ class ModelEditorPage extends React.Component {
       [EventListeners.CS_ELEMENT_DELETE_POST]: this.handleElementDelete,
       [EventListeners.DRAG_START]: this.handleDragStart,
       [EventListeners.ROOT_SET]: this.handleSetRoot,
-      [EventListeners.CS_CONNECTION_CREATE_PRE_EXECUTE]: this.handleCreateConnection
+      [EventListeners.CS_CONNECTION_CREATE_PRE_EXECUTE]: this.handleCreateConnection,
     };
   }
 
@@ -222,7 +221,7 @@ class ModelEditorPage extends React.Component {
     return get(element, 'businessObject.cancelActivity') === false || get(element, 'businessObject.isInterrupting') === false;
   };
 
-  #findOutcomes = source => {
+  #findOutcomes = (source) => {
     if (isEmpty(source)) {
       return [];
     }
@@ -238,7 +237,7 @@ class ModelEditorPage extends React.Component {
     if (!isEmpty(rawIncomingOutcomes)) {
       return {
         source: childSource,
-        incomingOutcomes: JSON.parse(rawIncomingOutcomes)
+        incomingOutcomes: JSON.parse(rawIncomingOutcomes),
       };
     }
 
@@ -277,10 +276,10 @@ class ModelEditorPage extends React.Component {
             result.push({
               id: source.id,
               name: getMLValue(getValue(source, KEY_FIELD_NAME)),
-              outcomes: incomingOutcomes.map(item => ({
+              outcomes: incomingOutcomes.map((item) => ({
                 id: item.id,
-                name: getMLValue(item.name)
-              }))
+                name: getMLValue(item.name),
+              })),
             });
         }
 
@@ -293,10 +292,10 @@ class ModelEditorPage extends React.Component {
       result.push({
         id: get(item, 'source.id'),
         name: getMLValue(getValue(item.source, KEY_FIELD_NAME)),
-        outcomes: outcomes.map(item => ({
+        outcomes: outcomes.map((item) => ({
           id: item.id,
-          name: getMLValue(item.name)
-        }))
+          name: getMLValue(item.name),
+        })),
       });
     }
 
@@ -315,8 +314,8 @@ class ModelEditorPage extends React.Component {
         getMultiInstanceType: this.#getMultiInstanceType,
         getElementType: this.#getElementType,
         getElementParentType: this.#getElementParentType,
-        elementIsNonInterrupting: this.#elementIsNonInterrupting
-      }
+        elementIsNonInterrupting: this.#elementIsNonInterrupting,
+      },
     };
   }
 
@@ -334,7 +333,7 @@ class ModelEditorPage extends React.Component {
   set tempFormData(data) {
     this._tempFormData = {
       ...this._tempFormData,
-      ...data
+      ...data,
     };
   }
 
@@ -342,7 +341,7 @@ class ModelEditorPage extends React.Component {
     this.handleSelectItem(this.designer.elementDefinitions);
   };
 
-  handleChangeElement = element => {
+  handleChangeElement = (element) => {
     const { isLoadingProps } = this.props;
 
     if (!element || isLoadingProps || !this._formReady) {
@@ -388,7 +387,7 @@ class ModelEditorPage extends React.Component {
       return formFields;
     }
 
-    Object.keys(get(element, 'businessObject', {})).forEach(key => {
+    Object.keys(get(element, 'businessObject', {})).forEach((key) => {
       if (this.keyFields.includes(key)) {
         const value = get(element, ['businessObject', key]);
 
@@ -452,10 +451,10 @@ class ModelEditorPage extends React.Component {
     }
 
     const promiseXml = new Promise((resolve, reject) =>
-      this.designer.saveXML({ callback: ({ error, xml }) => (xml ? resolve(xml) : reject(error)) })
+      this.designer.saveXML({ callback: ({ error, xml }) => (xml ? resolve(xml) : reject(error)) }),
     );
     const promiseImg = new Promise((resolve, reject) =>
-      this.designer.saveSVG({ callback: ({ error, svg }) => (svg ? resolve(svg) : reject(error)) })
+      this.designer.saveSVG({ callback: ({ error, svg }) => (svg ? resolve(svg) : reject(error)) }),
     );
 
     this.cacheFormData();
@@ -464,7 +463,7 @@ class ModelEditorPage extends React.Component {
       .then(([xml, img]) => {
         this.props.saveModel(xml, img, definitionAction, this._processDefId);
       })
-      .catch(error => {
+      .catch((error) => {
         throw new Error(`Failure to save xml or image: ${error.message}`);
       });
   };
@@ -473,7 +472,7 @@ class ModelEditorPage extends React.Component {
     const form = get(this._formWrapperRef, 'current.form');
     const data = get(form, 'submission.data');
 
-    Object.keys(this._cachedLabels).forEach(id => {
+    Object.keys(this._cachedLabels).forEach((id) => {
       this._labelIsEdited = false;
 
       if (this._formsCache[id] && this.designer.modeler && isFunction(this.designer.modeler.get)) {
@@ -490,7 +489,7 @@ class ModelEditorPage extends React.Component {
     }
   };
 
-  handleSelectItem = element => {
+  handleSelectItem = (element) => {
     const { selectedElement: currentSelected } = this.state;
     const selectedElement = this._getBusinessObjectByDiagramElement(element);
 
@@ -608,7 +607,7 @@ class ModelEditorPage extends React.Component {
 
           isFunction(modeling.updateModdleProperties) &&
             modeling.updateModdleProperties(selectedDiagramElement, process, {
-              id: rawValue
+              id: rawValue,
             });
         }
       }
@@ -637,14 +636,14 @@ class ModelEditorPage extends React.Component {
     }
   };
 
-  handleCreateConnection = async event => {
+  handleCreateConnection = async (event) => {
     if (!event.context.hints) {
       const connection = event.context.connection;
       const connectionElement = this._getBusinessObjectByDiagramElement(connection);
 
       this.designer.updateProps(connection, {
         [`${PREFIX_FIELD}conditionType`]:
-          getValue(connectionElement, 'conditionType') || getValue(connectionElement, `${PREFIX_FIELD}conditionType`) || 'NONE'
+          getValue(connectionElement, 'conditionType') || getValue(connectionElement, `${PREFIX_FIELD}conditionType`) || 'NONE',
       });
     }
 
@@ -671,7 +670,7 @@ class ModelEditorPage extends React.Component {
         if (xml) {
           this.setState({ xmlViewerXml: xml, xmlViewerIsOpen: true });
         }
-      }
+      },
     });
   };
 
@@ -683,11 +682,11 @@ class ModelEditorPage extends React.Component {
     this.designer.saveSVG({
       callback: ({ error, svg }) => {
         const svgBlob = new Blob([svg], {
-          type: 'image/svg+xml'
+          type: 'image/svg+xml',
         });
         const link = window.URL.createObjectURL(svgBlob);
         fileDownload(link, 'diagram.svg');
-      }
+      },
     });
   };
 
@@ -695,7 +694,7 @@ class ModelEditorPage extends React.Component {
     this._labelIsEdited = false;
   };
 
-  handleChangeLabel = label => {
+  handleChangeLabel = (label) => {
     const { selectedElement: currentSelected } = this.state;
     const { isTableView } = this.props;
     const selectedElement = this._getBusinessObjectByDiagramElement(currentSelected);
@@ -710,7 +709,7 @@ class ModelEditorPage extends React.Component {
         : {};
       const newName = {
         ...prevLabel,
-        [getCurrentLocale()]: label || ''
+        [getCurrentLocale()]: label || '',
       };
 
       this._labelIsEdited = true;
@@ -722,7 +721,7 @@ class ModelEditorPage extends React.Component {
     }
   };
 
-  handleElementCreateEnd = event => {
+  handleElementCreateEnd = (event) => {
     const element = get(event, 'elements.0');
 
     if (element.type === PARTICIPANT_TYPE) {
@@ -735,9 +734,9 @@ class ModelEditorPage extends React.Component {
           element,
           {
             'ecos:processRef': get(participant, 'businessObject.processRef.id'),
-            'ecos:ecosType': isEmpty(type) ? root.$attrs['ecos:ecosType'] : type
+            'ecos:ecosType': isEmpty(type) ? root.$attrs['ecos:ecosType'] : type,
           },
-          true
+          true,
         );
 
         const eventBus = this.designer.getEventBus();
@@ -750,13 +749,13 @@ class ModelEditorPage extends React.Component {
     element && this.handleSelectItem(element);
   };
 
-  handleElementUpdateId = data => {
+  handleElementUpdateId = (data) => {
     const element = get(data, 'element');
 
     element && this.handleSelectItem(element);
   };
 
-  handleElementDelete = data => {
+  handleElementDelete = (data) => {
     const element = get(data, 'context.elements.0');
 
     if (element) {
@@ -769,7 +768,7 @@ class ModelEditorPage extends React.Component {
     }
   };
 
-  handleDragStart = start => {
+  handleDragStart = (start) => {
     const isCreateEvent = !isEmpty(get(start, 'elements'));
 
     // If this is a creation event (drag and drop from a palette or copy-paste),
@@ -808,7 +807,7 @@ class ModelEditorPage extends React.Component {
         onChangeElement: this.handleChangeElement,
         onChangeElementLabel: this.handleChangeLabel,
         extraEvents: this.extraEvents,
-        sectionPath
+        sectionPath,
       });
     } else {
       return <InfoText text={t(`editor.error.no-model`)} />;

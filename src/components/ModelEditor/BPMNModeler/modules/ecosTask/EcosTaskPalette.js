@@ -1,4 +1,4 @@
-import { ECOS_TASK_TYPE_SET_STATUS, ECOS_TASK_BASE_ELEMENT } from '../../../../../constants/bpmn';
+import { ECOS_TASK_TYPE_SET_STATUS, ECOS_TASK_BASE_ELEMENT } from '@/constants/bpmn';
 
 export default class CustomPalette {
   constructor(bpmnFactory, create, elementFactory, palette, translate) {
@@ -14,13 +14,13 @@ export default class CustomPalette {
     const { bpmnFactory, create, elementFactory, translate } = this;
 
     function createEcosTask(taskType) {
-      return function(event) {
+      return function (event) {
         const businessObject = bpmnFactory.create(ECOS_TASK_BASE_ELEMENT);
         businessObject.taskType = taskType;
 
         const shape = elementFactory.createShape({
           type: ECOS_TASK_BASE_ELEMENT,
-          businessObject: businessObject
+          businessObject: businessObject,
         });
 
         create.start(event, shape);
@@ -34,9 +34,9 @@ export default class CustomPalette {
         title: translate('Set document status'),
         action: {
           dragstart: createEcosTask(ECOS_TASK_TYPE_SET_STATUS),
-          click: createEcosTask(ECOS_TASK_TYPE_SET_STATUS)
-        }
-      }
+          click: createEcosTask(ECOS_TASK_TYPE_SET_STATUS),
+        },
+      },
     };
   }
 }

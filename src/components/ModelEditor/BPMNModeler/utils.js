@@ -1,12 +1,13 @@
+import { getBusinessObject } from 'cmmn-js/lib/util/ModelUtil';
+import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isString from 'lodash/isString';
-import get from 'lodash/get';
-import { getBusinessObject } from 'cmmn-js/lib/util/ModelUtil';
 import uuidV4 from 'uuid/v4';
 
-import { PARTICIPANT_TYPE } from '../../../constants/bpmn';
-import { KEY_FIELD_NAME, ML_POSTFIX, PREFIX_FIELD } from '../../../constants/cmmn';
 import { getName } from '../CMMNModeler/utils';
+
+import { PARTICIPANT_TYPE } from '@/constants/bpmn';
+import { KEY_FIELD_NAME, ML_POSTFIX, PREFIX_FIELD } from '@/constants/cmmn';
 
 export function createReviver(moddle) {
   const elCache = {};
@@ -23,7 +24,7 @@ export function createReviver(moddle) {
    *
    * @return {Object} actual element
    */
-  return function(_key, object = {}) {
+  return function (_key, object = {}) {
     if (!isEmpty(object) && isString(object.$type)) {
       const objectId = object.id;
 

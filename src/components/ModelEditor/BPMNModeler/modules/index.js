@@ -1,17 +1,17 @@
 import BpmnColorPickerModule from 'bpmn-js-color-picker';
 
-import EcosTaskPalette from './ecosTask/EcosTaskPalette';
-import EcosTaskRenderer from './ecosTask/EcosTaskRenderer';
 import EcosKPIRenderer from './ecosTask/EcosKPIRenderer';
 import EcosNumberRenderer from './ecosTask/EcosNumberRenderer';
 import EcosTaskContextPad from './ecosTask/EcosTaskContextPad';
+import EcosTaskPalette from './ecosTask/EcosTaskPalette';
+import EcosTaskRenderer from './ecosTask/EcosTaskRenderer';
 import lintModule from './linter';
 
 export const onlyRenderer = {
   __init__: ['customRenderer', 'KPIRenderer', 'numberRenderer'],
   numberRenderer: ['type', EcosNumberRenderer],
   KPIRenderer: ['type', EcosKPIRenderer],
-  customRenderer: ['type', EcosTaskRenderer]
+  customRenderer: ['type', EcosTaskRenderer],
 };
 
 export default [
@@ -21,8 +21,8 @@ export default [
     customPalette: ['type', EcosTaskPalette],
     numberRenderer: ['type', EcosNumberRenderer],
     KPIRenderer: ['type', EcosKPIRenderer],
-    customRenderer: ['type', EcosTaskRenderer]
+    customRenderer: ['type', EcosTaskRenderer],
   },
   lintModule,
-  BpmnColorPickerModule
+  BpmnColorPickerModule,
 ];

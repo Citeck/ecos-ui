@@ -5,7 +5,7 @@ const colorImageSvg =
 
 const colorImageUrl = 'data:image/svg+xml;utf8,' + encodeURIComponent(colorImageSvg);
 
-ColorContextPadProvider.prototype._createPopupAction = function(elements) {
+ColorContextPadProvider.prototype._createPopupAction = function (elements) {
   const translate = this._translate;
   const contextPad = this._contextPad;
   const popupMenu = this._popupMenu;
@@ -17,21 +17,21 @@ ColorContextPadProvider.prototype._createPopupAction = function(elements) {
       title: translate('Set Color'),
       imageUrl: colorImageUrl,
       action: {
-        click: event => {
+        click: (event) => {
           // get start popup draw start position
           const position = {
             ...getStartPosition(contextPad, elements),
             cursor: {
               x: event.x,
-              y: event.y
-            }
+              y: event.y,
+            },
           };
 
           // open new color-picker popup
           popupMenu.open(elements, 'color-picker', position);
-        }
-      }
-    }
+        },
+      },
+    },
   };
 };
 
@@ -45,7 +45,7 @@ const getStartPosition = (contextPad, elements) => {
 
   const pos = {
     x: left,
-    y: top + padRect.height
+    y: top + padRect.height,
   };
 
   return pos;

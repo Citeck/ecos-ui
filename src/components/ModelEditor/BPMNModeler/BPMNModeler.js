@@ -3,28 +3,34 @@ import { getParent } from 'cmmn-js/lib/features/modeling/util/ModelingUtil';
 import { getBusinessObject } from 'cmmn-js/lib/util/ModelUtil';
 
 import BaseModeler from '../BaseModeler';
-import customModules from './modules';
-import { linting } from './modules/linter';
-import { DEFINITON_TYPE } from '../../../constants/bpmn';
-
-import './modules/colorContextPadProvider/ColorContextPadProvider';
-import './patches';
 
 import ecosTask from './moddle/ecosTask.json';
+import customModules from './modules';
+import { linting } from './modules/linter';
 
-import 'bpmn-js/dist/assets/diagram-js.css';
-import 'bpmn-js/dist/assets/bpmn-font/css/bpmn.css';
-import 'bpmn-js-color-picker/colors/color-picker.css';
+import { DEFINITON_TYPE } from '@/constants/bpmn';
+
+import './modules/colorContextPadProvider/ColorContextPadProvider';
+import './patches/features/modeling/ElementFactory';
+import './patches/features/modeling/Modeling';
+import './patches/features/modeling/cmd/UpdatePropertiesHandler';
+import './patches/features/palette/PaletteProvider';
+import './patches/features/popup-menu/ReplaceMenuProvider';
+import './patches/features/context-pad/ContextPadProvider';
+import './patches/features/keyboard/BpmnKeyboardBindings';
+import './patches/features/label-editing/LabelEditingProvider';
+import './patches/features/command/CommandStack';
+import './patches/features/selection/Selection';
 
 export default class BPMNModeler extends BaseModeler {
   initModelerInstance = () => {
     this.modeler = new Modeler({
       additionalModules: [customModules],
       moddleExtensions: {
-        ecosTask: ecosTask
+        ecosTask: ecosTask,
       },
       keyboard: { bindTo: document },
-      linting
+      linting,
     });
   };
 
@@ -40,10 +46,7 @@ export default class BPMNModeler extends BaseModeler {
       return;
     }
 
-    this.modeler
-      .saveXML({ format: true })
-      .then(callback)
-      .catch(callback);
+    this.modeler.saveXML({ format: true }).then(callback).catch(callback);
   };
 
   saveSVG = ({ callback }) => {
@@ -51,9 +54,6 @@ export default class BPMNModeler extends BaseModeler {
       return;
     }
 
-    this.modeler
-      .saveSVG({ format: true })
-      .then(callback)
-      .catch(callback);
+    this.modeler.saveSVG({ format: true }).then(callback).catch(callback);
   };
 }

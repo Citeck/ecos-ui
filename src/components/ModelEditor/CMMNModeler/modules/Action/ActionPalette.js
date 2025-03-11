@@ -1,15 +1,15 @@
-import { GROUP_CUSTOM } from '../../../../../constants/cmmn';
+import { GROUP_CUSTOM } from '@/constants/cmmn';
 
 function createAction(elementFactory, cmmnFactory) {
   return elementFactory.createShape({
     type: 'cmmn:PlanItem',
-    businessObject: (function() {
+    businessObject: (function () {
       const definitionRef = cmmnFactory.create('cmmn:Task', {
-        'ecos:cmmnType': 'ecos:Action'
+        'ecos:cmmnType': 'ecos:Action',
       });
 
       return cmmnFactory.create('cmmn:PlanItem', { definitionRef });
-    })()
+    })(),
   });
 }
 
@@ -37,9 +37,9 @@ export default class ActionPalette {
         title: 'Create Action',
         action: {
           dragstart: createServiceTask,
-          click: createServiceTask
-        }
-      }
+          click: createServiceTask,
+        },
+      },
     };
   }
 }

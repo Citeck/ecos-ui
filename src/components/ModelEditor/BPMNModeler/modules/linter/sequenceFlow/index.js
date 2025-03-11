@@ -1,9 +1,10 @@
 import { is } from 'bpmn-js/lib/util/ModelUtil';
 import get from 'lodash/get';
 
-import { PREFIX_FIELD } from '../../../../../../constants/cmmn';
-import { t } from '../../../../../../helpers/util';
 import { BPMN_LINT_PREFIX } from '../constants';
+
+import { PREFIX_FIELD } from '@/constants/cmmn';
+import { t } from '@/helpers/util';
 
 const SEQUENCE_FLOW = 'bpmn:SequenceFlow';
 const EXCLUSIVE_GATEWAY = 'bpmn:ExclusiveGateway';
@@ -15,7 +16,7 @@ const isDefaultFlow = (node, flow) => {
   return node['default'] === flow;
 };
 
-const hasCondition = flow => {
+const hasCondition = (flow) => {
   const conditionType = get(flow.$attrs, [CONDITION_TYPE_ATTR], '').trim();
 
   return !!conditionType && conditionType !== 'NONE';
@@ -31,7 +32,7 @@ const sequenceFlowsFromGatewaysShouldBeDefault = {
 
       const outgoing = node.outgoing || [];
 
-      const noneConditionFlows = outgoing.filter(flow => get(flow.$attrs, CONDITION_TYPE_ATTR, '').trim() === 'NONE');
+      const noneConditionFlows = outgoing.filter((flow) => get(flow.$attrs, CONDITION_TYPE_ATTR, '').trim() === 'NONE');
 
       if (noneConditionFlows.length === 1 && !isDefaultFlow(node, noneConditionFlows[0]) && outgoing.length > 1) {
         reporter.report(noneConditionFlows[0].id, t('bpmn-linter.sequence-flow.should-be-default'));
@@ -39,9 +40,9 @@ const sequenceFlowsFromGatewaysShouldBeDefault = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 const sequenceFlowsFromGatewaysAreCorrect = {
@@ -54,9 +55,9 @@ const sequenceFlowsFromGatewaysAreCorrect = {
 
       const outgoing = node.outgoing || [];
 
-      const hasOnlyOneNoneCondition = outgoing.filter(flow => get(flow.$attrs, CONDITION_TYPE_ATTR, '').trim() === 'NONE').length === 1;
+      const hasOnlyOneNoneCondition = outgoing.filter((flow) => get(flow.$attrs, CONDITION_TYPE_ATTR, '').trim() === 'NONE').length === 1;
 
-      outgoing.forEach(flow => {
+      outgoing.forEach((flow) => {
         const missingCondition = !hasCondition(flow) && !isDefaultFlow(node, flow);
 
         if (missingCondition && !hasOnlyOneNoneCondition) {
@@ -66,9 +67,9 @@ const sequenceFlowsFromGatewaysAreCorrect = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 const sequenceFlowHasCorrectConditionType = {
@@ -88,9 +89,9 @@ const sequenceFlowHasCorrectConditionType = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 const sequenceFlowHasIncomingConditionalResult = {
@@ -118,9 +119,9 @@ const sequenceFlowHasIncomingConditionalResult = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 const sequenceFlowHasScript = {
@@ -148,9 +149,9 @@ const sequenceFlowHasScript = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 const sequenceFlowHasExpression = {
@@ -178,9 +179,9 @@ const sequenceFlowHasExpression = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 export const sequenceFlowRulesMap = {
@@ -189,7 +190,7 @@ export const sequenceFlowRulesMap = {
   [sequenceFlowHasCorrectConditionType.id]: 'error',
   [sequenceFlowHasIncomingConditionalResult.id]: 'error',
   [sequenceFlowHasScript.id]: 'error',
-  [sequenceFlowHasExpression.id]: 'error'
+  [sequenceFlowHasExpression.id]: 'error',
 };
 
 export const sequenceFlowCacheMap = {
@@ -198,5 +199,5 @@ export const sequenceFlowCacheMap = {
   [`${BPMN_LINT_PREFIX}${sequenceFlowHasCorrectConditionType.id}`]: sequenceFlowHasCorrectConditionType.callback,
   [`${BPMN_LINT_PREFIX}${sequenceFlowHasIncomingConditionalResult.id}`]: sequenceFlowHasIncomingConditionalResult.callback,
   [`${BPMN_LINT_PREFIX}${sequenceFlowHasScript.id}`]: sequenceFlowHasScript.callback,
-  [`${BPMN_LINT_PREFIX}${sequenceFlowHasExpression.id}`]: sequenceFlowHasExpression.callback
+  [`${BPMN_LINT_PREFIX}${sequenceFlowHasExpression.id}`]: sequenceFlowHasExpression.callback,
 };

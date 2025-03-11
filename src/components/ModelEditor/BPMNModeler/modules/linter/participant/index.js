@@ -1,8 +1,9 @@
 import { is } from 'bpmn-js/lib/util/ModelUtil';
 import get from 'lodash/get';
 
-import { t } from '../../../../../../helpers/util';
 import { BPMN_LINT_PREFIX } from '../constants';
+
+import { t } from '@/helpers/util';
 
 const PARTICIPANT = 'bpmn:Participant';
 
@@ -20,15 +21,15 @@ const participantHasProcessId = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 export const participantRulesMap = {
-  [participantHasProcessId.id]: 'error'
+  [participantHasProcessId.id]: 'error',
 };
 
 export const participantCacheMap = {
-  [`${BPMN_LINT_PREFIX}${participantHasProcessId.id}`]: participantHasProcessId.callback
+  [`${BPMN_LINT_PREFIX}${participantHasProcessId.id}`]: participantHasProcessId.callback,
 };

@@ -1,9 +1,10 @@
 import { is } from 'bpmn-js/lib/util/ModelUtil';
 import get from 'lodash/get';
 
-import { PREFIX_FIELD } from '../../../../../../constants/cmmn';
-import { t } from '../../../../../../helpers/util';
 import { BPMN_LINT_PREFIX } from '../constants';
+
+import { PREFIX_FIELD } from '@/constants/cmmn';
+import { t } from '@/helpers/util';
 
 const BUSINESS_RULE_TASK = 'bpmn:BusinessRuleTask';
 
@@ -24,9 +25,9 @@ const businessRuleTaskHasSolution = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 const businessRuleTaskHasConnection = {
@@ -46,9 +47,9 @@ const businessRuleTaskHasConnection = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 const businessRuleTaskHasVersionTag = {
@@ -71,9 +72,9 @@ const businessRuleTaskHasVersionTag = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 const businessRuleTaskHasVersion = {
@@ -96,21 +97,21 @@ const businessRuleTaskHasVersion = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 export const businessRuleTaskRulesMap = {
   [businessRuleTaskHasSolution.id]: 'error',
   [businessRuleTaskHasConnection.id]: 'error',
   [businessRuleTaskHasVersionTag.id]: 'error',
-  [businessRuleTaskHasVersion.id]: 'error'
+  [businessRuleTaskHasVersion.id]: 'error',
 };
 
 export const businessRuleTaskCacheMap = {
   [`${BPMN_LINT_PREFIX}${businessRuleTaskHasSolution.id}`]: businessRuleTaskHasSolution.callback,
   [`${BPMN_LINT_PREFIX}${businessRuleTaskHasConnection.id}`]: businessRuleTaskHasConnection.callback,
   [`${BPMN_LINT_PREFIX}${businessRuleTaskHasVersionTag.id}`]: businessRuleTaskHasVersionTag.callback,
-  [`${BPMN_LINT_PREFIX}${businessRuleTaskHasVersion.id}`]: businessRuleTaskHasVersion.callback
+  [`${BPMN_LINT_PREFIX}${businessRuleTaskHasVersion.id}`]: businessRuleTaskHasVersion.callback,
 };

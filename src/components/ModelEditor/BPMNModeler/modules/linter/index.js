@@ -1,9 +1,9 @@
 import Linter from 'bpmn-js-bpmnlint';
 
-import { t } from '../../../../../helpers/export/util';
 import config from './bpmnlint-config';
 
-import 'bpmn-js-bpmnlint/dist/assets/css/bpmn-js-bpmnlint.css';
+import { t } from '@/helpers/export/util';
+
 import './style.scss';
 
 const translations = {
@@ -30,13 +30,13 @@ const translations = {
   'Gateway is superfluous. It only has one source and target': 'bpmn-linter.gateway.superfluous',
   'Rule error: no check implemented': 'bpmn-linter.rule.no-check',
   'Rule error: enter is not a function': 'bpmn-linter.rule.no-func',
-  'Toggle linting': 'bpmn-linter.toggle'
+  'Toggle linting': 'bpmn-linter.toggle',
 };
 
 export const linting = {
   bpmnlint: config,
   active: true,
-  disableToggleButton: true
+  disableToggleButton: true,
 };
 
 const Linting = Linter.linting[1];
@@ -45,7 +45,7 @@ const originUpdateButton = Linting.prototype._updateButton;
 const originSetButtonState = Linting.prototype._setButtonState;
 const originCreateElementIssues = Linting.prototype._createElementIssues;
 
-Linting.prototype._createButton = function() {
+Linting.prototype._createButton = function () {
   if (linting.disableToggleButton) {
     return;
   }
@@ -53,7 +53,7 @@ Linting.prototype._createButton = function() {
   originCreateButton.call(this);
 };
 
-Linting.prototype._updateButton = function() {
+Linting.prototype._updateButton = function () {
   if (linting.disableToggleButton) {
     return;
   }
@@ -61,7 +61,7 @@ Linting.prototype._updateButton = function() {
   originUpdateButton.call(this);
 };
 
-Linting.prototype._setButtonState = function() {
+Linting.prototype._setButtonState = function () {
   if (linting.disableToggleButton) {
     return;
   }
@@ -69,12 +69,12 @@ Linting.prototype._setButtonState = function() {
   originSetButtonState.call(this);
 };
 
-Linting.prototype.getLintResult = function() {
+Linting.prototype.getLintResult = function () {
   let errors = 0;
   let warnings = 0;
 
-  Object.keys(this._issues).forEach(key => {
-    this._issues[key].forEach(issue => {
+  Object.keys(this._issues).forEach((key) => {
+    this._issues[key].forEach((issue) => {
       if (issue.category === 'error') {
         errors++;
       }
@@ -90,7 +90,7 @@ Linting.prototype.getLintResult = function() {
 
 Linter.translate = ['value', (template, replacements = {}) => t(translations[template] || template, replacements)];
 
-Linting.prototype._createElementIssues = function(elementId, elementIssues) {
+Linting.prototype._createElementIssues = function (elementId, elementIssues) {
   originCreateElementIssues.call(this, elementId, elementIssues);
 
   const header = document.querySelector('.bjsl-issue-heading');

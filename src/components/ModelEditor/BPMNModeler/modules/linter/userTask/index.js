@@ -1,9 +1,10 @@
 import { is } from 'bpmn-js/lib/util/ModelUtil';
 import get from 'lodash/get';
 
-import { PREFIX_FIELD } from '../../../../../../constants/cmmn';
-import { t } from '../../../../../../helpers/util';
 import { BPMN_LINT_PREFIX } from '../constants';
+
+import { PREFIX_FIELD } from '@/constants/cmmn';
+import { t } from '@/helpers/util';
 
 const USER_TASK = 'bpmn:UserTask';
 
@@ -30,7 +31,7 @@ const userTaskHasRecipients = {
       const manualRecipientsAttr = `${PREFIX_FIELD}manualRecipients`;
       const autoRecipientsAttr = `${PREFIX_FIELD}assignees`;
       const recipients = JSON.parse(get(node.$attrs, [isManualRecipientsMode ? manualRecipientsAttr : autoRecipientsAttr], '[]'));
-      const notEmptyRecipients = recipients.filter(recipient => recipient.trim());
+      const notEmptyRecipients = recipients.filter((recipient) => recipient.trim());
 
       if (!notEmptyRecipients.length) {
         reporter.report(node.id, t('bpmn-linter.user-task.no-recipients'));
@@ -38,9 +39,9 @@ const userTaskHasRecipients = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 const userTaskHasPriority = {
@@ -62,9 +63,9 @@ const userTaskHasPriority = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 const userTaskManualDueDateCalendarTimeNoDuration = {
@@ -85,9 +86,9 @@ const userTaskManualDueDateCalendarTimeNoDuration = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 const userTaskManualDueDateBusinessTimeNoDuration = {
@@ -104,15 +105,15 @@ const userTaskManualDueDateBusinessTimeNoDuration = {
       const durationType = get(dueDateManualMeta, [ATT_DURATION_TYPE], '').trim();
 
       // should be selected workingDays or duration
-      if (durationType === DURATION_TYPE_BUSINESS && (!duration && !workingDays)) {
+      if (durationType === DURATION_TYPE_BUSINESS && !duration && !workingDays) {
         reporter.report(node.id, t('bpmn-linter.user-task.duration.manual-business-no-one-duration'));
       }
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 const userTaskManualDueDateBusinessTimeNoSchedule = {
@@ -133,9 +134,9 @@ const userTaskManualDueDateBusinessTimeNoSchedule = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 const userTaskDueDateSelectedExpressionAndManualAtSameTime = {
@@ -156,9 +157,9 @@ const userTaskDueDateSelectedExpressionAndManualAtSameTime = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 const userTaskDueDateIncorrectManualDurationInput = {
@@ -179,9 +180,9 @@ const userTaskDueDateIncorrectManualDurationInput = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 export const userTaskRulesMap = {
@@ -191,7 +192,7 @@ export const userTaskRulesMap = {
   [userTaskManualDueDateBusinessTimeNoDuration.id]: 'error',
   [userTaskManualDueDateBusinessTimeNoSchedule.id]: 'error',
   [userTaskDueDateSelectedExpressionAndManualAtSameTime.id]: 'warn',
-  [userTaskDueDateIncorrectManualDurationInput.id]: 'error'
+  [userTaskDueDateIncorrectManualDurationInput.id]: 'error',
 };
 
 export const userTaskCacheMap = {
@@ -200,8 +201,7 @@ export const userTaskCacheMap = {
   [`${BPMN_LINT_PREFIX}${userTaskManualDueDateCalendarTimeNoDuration.id}`]: userTaskManualDueDateCalendarTimeNoDuration.callback,
   [`${BPMN_LINT_PREFIX}${userTaskManualDueDateBusinessTimeNoDuration.id}`]: userTaskManualDueDateBusinessTimeNoDuration.callback,
   [`${BPMN_LINT_PREFIX}${userTaskManualDueDateBusinessTimeNoSchedule.id}`]: userTaskManualDueDateBusinessTimeNoSchedule.callback,
-  [`${BPMN_LINT_PREFIX}${
-    userTaskDueDateSelectedExpressionAndManualAtSameTime.id
-  }`]: userTaskDueDateSelectedExpressionAndManualAtSameTime.callback,
-  [`${BPMN_LINT_PREFIX}${userTaskDueDateIncorrectManualDurationInput.id}`]: userTaskDueDateIncorrectManualDurationInput.callback
+  [`${BPMN_LINT_PREFIX}${userTaskDueDateSelectedExpressionAndManualAtSameTime.id}`]:
+    userTaskDueDateSelectedExpressionAndManualAtSameTime.callback,
+  [`${BPMN_LINT_PREFIX}${userTaskDueDateIncorrectManualDurationInput.id}`]: userTaskDueDateIncorrectManualDurationInput.callback,
 };

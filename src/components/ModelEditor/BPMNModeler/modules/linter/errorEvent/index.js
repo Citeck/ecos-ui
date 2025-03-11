@@ -1,9 +1,10 @@
 import { is } from 'bpmn-js/lib/util/ModelUtil';
 import get from 'lodash/get';
 
-import { PREFIX_FIELD } from '../../../../../../constants/cmmn';
-import { t } from '../../../../../../helpers/util';
 import { BPMN_LINT_PREFIX } from '../constants';
+
+import { PREFIX_FIELD } from '@/constants/cmmn';
+import { t } from '@/helpers/util';
 
 const ERROR_EVENT_DEFINITION = 'bpmn:ErrorEventDefinition';
 const END_EVENT = 'bpmn:EndEvent';
@@ -12,7 +13,7 @@ const errorEventHasErrorName = {
   id: 'error-event-has-error-name',
   callback: () => {
     const check = (node, reporter) => {
-      if (!node.eventDefinitions || !node.eventDefinitions.find(def => is(def, ERROR_EVENT_DEFINITION))) {
+      if (!node.eventDefinitions || !node.eventDefinitions.find((def) => is(def, ERROR_EVENT_DEFINITION))) {
         return;
       }
 
@@ -25,16 +26,16 @@ const errorEventHasErrorName = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 const errorEndEventHasCode = {
   id: 'error-end-event-has-code',
   callback: () => {
     const check = (node, reporter) => {
-      if (!node.eventDefinitions || !node.eventDefinitions.find(def => is(def, ERROR_EVENT_DEFINITION))) {
+      if (!node.eventDefinitions || !node.eventDefinitions.find((def) => is(def, ERROR_EVENT_DEFINITION))) {
         return;
       }
 
@@ -51,17 +52,17 @@ const errorEndEventHasCode = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 export const errorEventRulesMap = {
   [errorEventHasErrorName.id]: 'error',
-  [errorEndEventHasCode.id]: 'error'
+  [errorEndEventHasCode.id]: 'error',
 };
 
 export const errorEventCacheMap = {
   [`${BPMN_LINT_PREFIX}${errorEventHasErrorName.id}`]: errorEventHasErrorName.callback,
-  [`${BPMN_LINT_PREFIX}${errorEndEventHasCode.id}`]: errorEndEventHasCode.callback
+  [`${BPMN_LINT_PREFIX}${errorEndEventHasCode.id}`]: errorEndEventHasCode.callback,
 };

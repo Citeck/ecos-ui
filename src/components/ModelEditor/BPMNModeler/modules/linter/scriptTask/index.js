@@ -1,9 +1,10 @@
 import { is } from 'bpmn-js/lib/util/ModelUtil';
 import get from 'lodash/get';
 
-import { PREFIX_FIELD } from '../../../../../../constants/cmmn';
-import { t } from '../../../../../../helpers/util';
 import { BPMN_LINT_PREFIX } from '../constants';
+
+import { PREFIX_FIELD } from '@/constants/cmmn';
+import { t } from '@/helpers/util';
 
 const SCRIPT_TASK = 'bpmn:ScriptTask';
 
@@ -24,15 +25,15 @@ const scriptTaskHasScript = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 export const scriptTaskRulesMap = {
-  [scriptTaskHasScript.id]: 'error'
+  [scriptTaskHasScript.id]: 'error',
 };
 
 export const scriptTaskCacheMap = {
-  [`${BPMN_LINT_PREFIX}${scriptTaskHasScript.id}`]: scriptTaskHasScript.callback
+  [`${BPMN_LINT_PREFIX}${scriptTaskHasScript.id}`]: scriptTaskHasScript.callback,
 };

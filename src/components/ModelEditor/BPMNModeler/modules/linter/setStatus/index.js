@@ -1,8 +1,9 @@
 import { is } from 'bpmn-js/lib/util/ModelUtil';
 
-import { ECOS_TASK_TYPE_SET_STATUS } from '../../../../../../constants/bpmn';
-import { t } from '../../../../../../helpers/util';
 import { BPMN_LINT_PREFIX } from '../constants';
+
+import { ECOS_TASK_TYPE_SET_STATUS } from '@/constants/bpmn';
+import { t } from '@/helpers/util';
 
 const SET_STATUS_TASK = 'bpmn:Task';
 
@@ -20,15 +21,15 @@ const setStatusTaskHasStatus = {
     };
 
     return {
-      check
+      check,
     };
-  }
+  },
 };
 
 export const setStatusRulesMap = {
-  [setStatusTaskHasStatus.id]: 'error'
+  [setStatusTaskHasStatus.id]: 'error',
 };
 
 export const setStatusCacheMap = {
-  [`${BPMN_LINT_PREFIX}${setStatusTaskHasStatus.id}`]: setStatusTaskHasStatus.callback
+  [`${BPMN_LINT_PREFIX}${setStatusTaskHasStatus.id}`]: setStatusTaskHasStatus.callback,
 };

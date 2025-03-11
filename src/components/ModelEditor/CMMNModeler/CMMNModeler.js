@@ -3,10 +3,8 @@ import { getParent } from 'cmmn-js/lib/features/modeling/util/ModelingUtil';
 import { getBusinessObject } from 'cmmn-js/lib/util/ModelUtil';
 
 import BaseModeler from '../BaseModeler';
-import additionalModules from './modules';
 
-import 'cmmn-js/dist/assets/diagram-js.css';
-import 'cmmn-js/dist/assets/cmmn-font/css/cmmn.css';
+import additionalModules from './modules';
 
 export default class CMMNModeler extends BaseModeler {
   initModelerInstance = () => {

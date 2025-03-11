@@ -1,6 +1,14 @@
 import 'regenerator-runtime/runtime';
 import 'moment/locale/ru';
 import 'moment/locale/en-gb';
+import 'bpmn-js/dist/assets/diagram-js.css';
+import 'bpmn-js/dist/assets/bpmn-font/css/bpmn.css';
+import 'bpmn-js-color-picker/colors/color-picker.css';
+import 'bpmn-js-bpmnlint/dist/assets/css/bpmn-js-bpmnlint.css';
+import 'camunda-dmn-js/dist/assets/camunda-platform-modeler.css';
+import 'cmmn-js/dist/assets/diagram-js.css';
+import 'cmmn-js/dist/assets/cmmn-font/css/cmmn.css';
+import 'bpmn-font/dist/css/bpmn.css';
 import { ConnectedRouter } from 'connected-react-router';
 import datePickerLocaleEn from 'date-fns/locale/en-GB';
 import datePickerLocaleRu from 'date-fns/locale/ru';

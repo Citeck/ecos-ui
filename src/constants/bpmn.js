@@ -3,14 +3,14 @@ export const Labels = {
   TOTAL: 'bpmn-designer.total',
   Views: {
     CARDS: 'bpmn-designer.view-mode.cards',
-    LIST: 'bpmn-designer.view-mode.list'
-  }
+    LIST: 'bpmn-designer.view-mode.list',
+  },
 };
 
 export const ViewTypes = {
   CARDS: 'cards',
   LIST: 'list',
-  TABLE: 'table'
+  TABLE: 'table',
 };
 
 export const ECOS_TASK_TYPE_SET_STATUS = 'setStatus';
@@ -24,7 +24,7 @@ export const ELEMENT_TYPES_WITH_CUSTOM_FORM_DETERMINER = [
   'bpmn:StartEvent',
   'bpmn:EndEvent',
   'bpmn:BoundaryEvent',
-  'bpmn:Task'
+  'bpmn:Task',
 ];
 export const ELEMENT_TYPES_FORM_DETERMINER_BY_DEF_TYPE_MAP = new Map([
   ['bpmn:TimerEventDefinition', 'bpmn:TimerEvent'],
@@ -35,14 +35,14 @@ export const ELEMENT_TYPES_FORM_DETERMINER_BY_DEF_TYPE_MAP = new Map([
   ['bpmn:CompensateEventDefinition', 'bpmn:CompensateEvent'],
   ['bpmn:EscalationEventDefinition', 'bpmn:EscalationEvent'],
   ['bpmn:TerminateEventDefinition', 'bpmn:TerminateEvent'],
-  ['bpmn:ErrorEventDefinition', 'bpmn:ErrorEvent']
+  ['bpmn:ErrorEventDefinition', 'bpmn:ErrorEvent'],
 ]);
 export const ELEMENT_TYPES_FORM_DETERMINER_BY_ECOS_TASK_TYPE_MAP = new Map([[ECOS_TASK_TYPE_SET_STATUS, 'bpmn:EcosTaskSetStatus']]);
 
 export const LOOP_CHARACTERISTICS = {
   LOOP: 'loop',
   SEQUENCE: 'sequence',
-  PARALLEL: 'parallel'
+  PARALLEL: 'parallel',
 };
 
 export const GATEWAY_TYPES = [
@@ -50,7 +50,7 @@ export const GATEWAY_TYPES = [
   'bpmn:ParallelGateway',
   'bpmn:InclusiveGateway',
   'bpmn:ComplexGateway',
-  EVENT_BASED_GATEWAY
+  EVENT_BASED_GATEWAY,
 ];
 
 export const BPMN_TASK_TYPES = [
@@ -62,7 +62,7 @@ export const BPMN_TASK_TYPES = [
   'bpmn:ServiceTask',
   'bpmn:ScriptTask',
   'bpmn:CallActivity',
-  'bpmn:SubProcess'
+  'bpmn:SubProcess',
 ];
 
 export const TASK_TYPES = ['bpmn:Task', ...BPMN_TASK_TYPES];
@@ -113,5 +113,5 @@ export const LABEL_STYLE = {
   fontFamily: 'Arial, sans-serif',
   fontSize: '12px',
   lineHeight: '1.2',
-  color: '#444444'
+  color: '#444444',
 };

@@ -1,4 +1,4 @@
-import { ECOS_TASK_TYPE_SET_STATUS, ECOS_TASK_BASE_ELEMENT, DISABLE_SET_STATUS_ACTION_FOR_ELEMENTS } from '../../../../../constants/bpmn';
+import { ECOS_TASK_TYPE_SET_STATUS, ECOS_TASK_BASE_ELEMENT, DISABLE_SET_STATUS_ACTION_FOR_ELEMENTS } from '@/constants/bpmn';
 
 export default class CustomContextPad {
   constructor(bpmnFactory, config, contextPad, create, elementFactory, injector, translate) {
@@ -22,14 +22,14 @@ export default class CustomContextPad {
     }
 
     function appendEcosTask(taskType) {
-      return function(event, element) {
+      return function (event, element) {
         if (autoPlace) {
           const businessObject = bpmnFactory.create(ECOS_TASK_BASE_ELEMENT);
           businessObject.taskType = taskType;
 
           const shape = elementFactory.createShape({
             type: ECOS_TASK_BASE_ELEMENT,
-            businessObject: businessObject
+            businessObject: businessObject,
           });
 
           autoPlace.append(element, shape);
@@ -40,13 +40,13 @@ export default class CustomContextPad {
     }
 
     function appendEcosTaskStart(taskType) {
-      return function(event) {
+      return function (event) {
         const businessObject = bpmnFactory.create(ECOS_TASK_BASE_ELEMENT);
         businessObject.taskType = taskType;
 
         const shape = elementFactory.createShape({
           type: ECOS_TASK_BASE_ELEMENT,
-          businessObject: businessObject
+          businessObject: businessObject,
         });
 
         create.start(event, shape, element);
@@ -60,9 +60,9 @@ export default class CustomContextPad {
         title: translate('Append Set document status'),
         action: {
           click: appendEcosTask(ECOS_TASK_TYPE_SET_STATUS),
-          dragstart: appendEcosTaskStart(ECOS_TASK_TYPE_SET_STATUS)
-        }
-      }
+          dragstart: appendEcosTaskStart(ECOS_TASK_TYPE_SET_STATUS),
+        },
+      },
     };
   }
 }
