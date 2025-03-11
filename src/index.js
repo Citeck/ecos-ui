@@ -28,7 +28,12 @@ import configureStore, { getHistory } from './store';
 import { registerAllActions } from '@/components/Records/actions/actions';
 import { NotificationManager } from '@/services/notifications';
 
-import './forms';
+import '@/forms/Formio';
+import '@/forms/components';
+import '@/forms/Webform';
+import '@/forms/WebformBuilder';
+import '@/forms/Component';
+
 import './helpers/polyfills';
 import './build-info';
 import './services/esign';
