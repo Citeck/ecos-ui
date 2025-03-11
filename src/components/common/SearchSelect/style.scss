@@ -32,7 +32,7 @@
     &-clear {
       top: calc(50% - 1em / 2);
       right: 3%;
-      font-size: $font-size-small;
+      font-size: $font-size-large;
       color: $color-blue-light2;
 
       &:hover {
@@ -78,7 +78,7 @@
     #{$root}__no-results {
       color: $color-gray-5;
       font-weight: $font-weight-bold;
-      font-size: $font-size-small;
+      font-size: $font-size-large;
       padding: 13px 15px;
       text-align: center;
     }
