@@ -1,19 +1,20 @@
+import { EventEmitter } from 'events';
+import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import omit from 'lodash/omit';
-import cloneDeep from 'lodash/cloneDeep';
-import { EventEmitter } from 'events';
 import * as queryString from 'query-string';
 
+import { isKanban, JOURNAL_VIEW_MODE } from '../components/Journals/constants';
+import { RELOCATED_URL, SourcesId, URL, URL_MATCHING } from '../constants';
+import { MenuSettings } from '../constants/menu';
+import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../constants/pageTabs';
+import { ActionTypes, CountableItems } from '../constants/sidebar';
+import { treeFindFirstItem } from '../helpers/arrayOfObjects';
+import { isNewVersionPage, NEW_VERSION_PREFIX } from '../helpers/export/urls';
 import { getCustomDasboardUrl, getJournalPageUrl, getLinkWithWs, getWikiDasboardUrl, getWorkspaceId } from '../helpers/urls';
 import { arrayFlat, getEnabledWorkspaces, hasChildWithId } from '../helpers/util';
-import { isNewVersionPage, NEW_VERSION_PREFIX } from '../helpers/export/urls';
-import { treeFindFirstItem } from '../helpers/arrayOfObjects';
-import { RELOCATED_URL, SourcesId, URL, URL_MATCHING } from '../constants';
-import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../constants/pageTabs';
-import { MenuSettings } from '../constants/menu';
-import { ActionTypes, CountableItems } from '../constants/sidebar';
+
 import ULS from './userLocalSettings';
-import { isKanban, JOURNAL_VIEW_MODE } from '../components/Journals/constants';
 
 export default class SidebarService {
   static DROPDOWN_LEVEL = 1;
@@ -112,16 +113,18 @@ export default class SidebarService {
         }
       }
 
-      // console.log("value:", value, "\ntargetUrl:", targetUrl);
       const _exact = targetUrl === value || value === URL_MATCHING[targetUrl];
-
       if (_exact) {
         exact = item;
         break;
       }
 
-      const _suitable = reverse ? String(value).includes(get(item, key)) : String(get(item, key)).includes(value);
+      if (String(value) === get(item, key)) {
+        exact = item;
+        break;
+      }
 
+      const _suitable = reverse ? String(value).includes(get(item, key)) : String(get(item, key)).includes(value);
       if ((!onlyExact && _suitable) || value.includes(URL_MATCHING[targetUrl])) {
         suitable = item;
       }
