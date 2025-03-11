@@ -14,7 +14,33 @@ export default defineConfig(() => ({
   build: {
     outDir: 'build',
     sourcemap: true,
+    minify: 'terser',
+    terserOptions: {
+      keep_classnames: true,
+      parse: {
+        ecma: 2017,
+      },
+      compress: {
+        ecma: 5,
+        comparisons: false,
+        inline: 2,
+      },
+      mangle: {
+        safari10: true,
+      },
+      output: {
+        ecma: 5,
+        comments: false,
+        ascii_only: true,
+      },
+      sourceMap: true,
+    },
     rollupOptions: {
+      output: {
+        sourcemapPathTransform: (relativeSourcePath) => {
+          return path.relative('src', relativeSourcePath).replace(/\\/g, '/');
+        },
+      },
       input: {
         main: new URL('./index.html', import.meta.url).pathname,
       },
