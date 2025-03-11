@@ -11,13 +11,11 @@ const Tags = ({ tags = [], onTagsChange, onAddTag, className, exception = [] }) 
   return (
     <div className={`ecos-tags ${className}`}>
       <div className="ecos-tags-body">
-        {tags.map((tag, index) => (
+        {tags.map((tag, index, originTags) => (
           <div key={index} className="ecos-tag">
             <span>{tag.name}</span>
 
-            {onTagsChange && !exception.includes(tag.id) && (
-              <Icon className="icon_small icon-small-close ecos-tag-remove" onClick={() => handleRemoveTag(tag)} />
-            )}
+            {originTags.length > 1 && <Icon className="icon_small icon-small-close ecos-tag-remove" onClick={() => handleRemoveTag(tag)} />}
           </div>
         ))}
 
