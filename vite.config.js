@@ -33,7 +33,6 @@ export default defineConfig(() => ({
         comments: false,
         ascii_only: true,
       },
-      sourceMap: true,
     },
     rollupOptions: {
       output: {
