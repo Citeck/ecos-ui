@@ -10,18 +10,6 @@ import { linting } from './modules/linter';
 
 import { DEFINITON_TYPE } from '@/constants/bpmn';
 
-import './modules/colorContextPadProvider/ColorContextPadProvider';
-import './patches/features/modeling/ElementFactory';
-import './patches/features/modeling/Modeling';
-import './patches/features/modeling/cmd/UpdatePropertiesHandler';
-import './patches/features/palette/PaletteProvider';
-import './patches/features/popup-menu/ReplaceMenuProvider';
-import './patches/features/context-pad/ContextPadProvider';
-import './patches/features/keyboard/BpmnKeyboardBindings';
-import './patches/features/label-editing/LabelEditingProvider';
-import './patches/features/command/CommandStack';
-import './patches/features/selection/Selection';
-
 export default class BPMNModeler extends BaseModeler {
   initModelerInstance = () => {
     this.modeler = new Modeler({

@@ -8,8 +8,6 @@ import { Sheet } from '../Sheet';
 
 import customModules from './modules';
 
-import './patches/features/modeling/ElementFactory';
-import './patches/features/keyboard/BpmnKeyboardBindings';
 import './style.scss';
 
 export default class BPMNViewer extends ModelViewer {
