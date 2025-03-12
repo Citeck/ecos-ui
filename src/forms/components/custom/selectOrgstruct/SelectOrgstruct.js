@@ -156,10 +156,11 @@ export default class SelectOrgstructComponent extends BaseComponent {
         return;
       }
 
-      if (!this._root) {
-        this._root = createRoot(this.reactContainer);
+      if (this._root) {
+        this._root.unmount();
       }
 
+      this._root = createRoot(this.reactContainer);
       this._root.render(
         <SelectOrgstruct
           defaultValue={this.dataValue}
