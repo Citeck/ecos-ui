@@ -1,14 +1,11 @@
-import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
-import lodashSet from 'lodash/set';
 import get from 'lodash/get';
-import isFunction from 'lodash/isFunction';
 import isBoolean from 'lodash/isBoolean';
+import isFunction from 'lodash/isFunction';
 import isString from 'lodash/isString';
+import lodashSet from 'lodash/set';
 import queryString from 'query-string';
+import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 
-import { URL } from '../constants';
-import { getCurrentUserName } from '../helpers/util';
-import PageService from '../services/PageService';
 import {
   backPageFromTransitionsHistory,
   getAppEdition,
@@ -28,23 +25,26 @@ import {
   setLeftMenuEditable,
   setRedirectToNewUi,
   setSeparateActionListForQuery,
-} from '../actions/app';
-import { getWorkspaceId } from '../helpers/urls';
-import { getWorkspaces, setBlockedCurrenWorkspace, setDefaultWorkspace } from '../actions/workspaces';
-import { loadConfigs } from '../services/config/configApi';
-import { setNewUIAvailableStatus, validateUserFailure, validateUserSuccess } from '../actions/user';
-import { detectMobileDevice, setViewNewJournal } from '../actions/view';
-import { getMenuConfig, setMenuConfig } from '../actions/menu';
-import { registerEventListeners } from '../actions/customEvent';
-import { selectWorkspaces } from '../selectors/workspaces';
+} from '@/actions/app';
+import { registerEventListeners } from '@/actions/customEvent';
+import { getMenuConfig, setMenuConfig } from '@/actions/menu';
+import { setNewUIAvailableStatus, validateUserFailure, validateUserSuccess } from '@/actions/user';
+import { detectMobileDevice, setViewNewJournal } from '@/actions/view';
+import { getWorkspaces, setBlockedCurrenWorkspace, setDefaultWorkspace } from '@/actions/workspaces';
+import { URL } from '@/constants';
+import { getWorkspaceId } from '@/helpers/urls';
+import { getCurrentUserName } from '@/helpers/util';
+import { SETTING_ENABLE_VIEW_NEW_JOURNAL } from '@/pages/DevTools/constants';
+import { selectWorkspaces } from '@/selectors/workspaces';
+import PageService from '@/services/PageService';
 import ConfigService, {
   DEFAULT_WORKSPACE,
   WORKSPACES_ENABLED,
   FOOTER_CONTENT,
   HOME_LINK_URL,
   NEW_JOURNAL_ENABLED,
-} from '../services/config/ConfigService';
-import { SETTING_ENABLE_VIEW_NEW_JOURNAL } from '../pages/DevTools/constants';
+} from '@/services/config/ConfigService';
+import { loadConfigs } from '@/services/config/configApi';
 
 export function* initApp({ api }, { payload }) {
   try {
@@ -105,6 +105,7 @@ export function* initApp({ api }, { payload }) {
         lodashSet(window, 'Citeck.constants.USERNAME', get(resp.payload, 'userName'));
         lodashSet(window, 'Citeck.constants.FIRSTNAME', get(resp.payload, 'firstName'));
         lodashSet(window, 'Citeck.navigator.WORKSPACES_ENABLED', configs[WORKSPACES_ENABLED]);
+        lodashSet(window, 'Citeck.navigator.DEFAULT_WORKSPACE', configs[DEFAULT_WORKSPACE]);
         lodashSet(window, 'Citeck.constants.NEW_JOURNAL_ENABLED', isViewNewJournal);
 
         if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {

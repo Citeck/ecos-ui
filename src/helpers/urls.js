@@ -1,18 +1,19 @@
-import * as queryString from 'query-string';
+import get from 'lodash/get';
+import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import isUndefined from 'lodash/isUndefined';
-import get from 'lodash/get';
-import pick from 'lodash/pick';
 import omit from 'lodash/omit';
-import isArray from 'lodash/isArray';
+import pick from 'lodash/pick';
+import * as queryString from 'query-string';
 
+import { ParserPredicate } from '../components/Filters/predicates/index';
 import { JournalUrlParams, KanbanUrlParams, SourcesId, URL as Urls } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
-import { ParserPredicate } from '../components/Filters/predicates/index';
-import PageTabList from '../services/pageTabs/PageTabList';
 import PageService from '../services/PageService';
+import PageTabList from '../services/pageTabs/PageTabList';
+
 import { isNewVersionPage, isNewVersionSharePage } from './export/urls';
-import { IS_TEST_ENV, getCurrentUserName, hasInString, getEnabledWorkspaces } from './util';
+import { IS_TEST_ENV, getCurrentUserName, hasInString, getEnabledWorkspaces, getDefaultWorkspace } from './util';
 
 const JOURNAL_ID_KEY = JournalUrlParams.JOURNAL_ID;
 const DASHBOARD_ID_KEY = 'dashboardId';
@@ -420,7 +421,7 @@ export const isTaskDashboard = (url = window.location.href) => {
   return isDashboard(url) && hasInString(url, `${SourcesId.TASK}@`);
 };
 
-export const getWorkspaceId = (defaultWorkspace = '', search = window.location.search) => {
+export const getWorkspaceId = (defaultWorkspace = getDefaultWorkspace(), search = window.location.search) => {
   if (!getEnabledWorkspaces()) {
     return '';
   }

@@ -1,16 +1,16 @@
+import cloneDeep from 'lodash/cloneDeep';
+import lodashGet from 'lodash/get';
+import isArray from 'lodash/isArray';
+import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
+import isFunction from 'lodash/isFunction';
+import isNil from 'lodash/isNil';
+import isObject from 'lodash/isObject';
+import isString from 'lodash/isString';
+import lodashSet from 'lodash/set';
 import moment from 'moment';
 import * as queryString from 'query-string';
 import uuidV4 from 'uuid/v4';
-import lodashGet from 'lodash/get';
-import lodashSet from 'lodash/set';
-import cloneDeep from 'lodash/cloneDeep';
-import isEqual from 'lodash/isEqual';
-import isNil from 'lodash/isNil';
-import isEmpty from 'lodash/isEmpty';
-import isObject from 'lodash/isObject';
-import isString from 'lodash/isString';
-import isArray from 'lodash/isArray';
-import isFunction from 'lodash/isFunction';
 
 import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE, MOBILE_APP_USER_AGENT } from '../constants';
 
@@ -485,11 +485,15 @@ export function getEnabledWorkspaces() {
   return lodashGet(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
 }
 
+export function getDefaultWorkspace() {
+  return lodashGet(window, 'Citeck.navigator.DEFAULT_WORKSPACE', false);
+}
+
 export function getEnabledNewJournal() {
   return lodashGet(window, 'Citeck.constants.NEW_JOURNAL_ENABLED', false);
 }
 
-export const isSmallMode = width => width <= MIN_WIDTH_DASHLET_LARGE;
+export const isSmallMode = (width) => width <= MIN_WIDTH_DASHLET_LARGE;
 
 export function isExistIndex(idx) {
   return !(idx === null || idx === undefined || idx === -1);
