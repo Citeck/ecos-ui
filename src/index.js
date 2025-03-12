@@ -58,6 +58,7 @@ import '@/components/ModelEditor/DMNModeler/patches/Viewer';
 
 import '@/forms/Formio';
 import '@/forms/components';
+import '@/forms/components/Validator';
 import '@/forms/Webform';
 import '@/forms/WebformBuilder';
 import '@/forms/Component';

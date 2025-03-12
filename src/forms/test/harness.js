@@ -1,3 +1,4 @@
+/* eslint-disable */ // Eslint breaks the tests
 import i18next from 'i18next';
 import assert from 'power-assert';
 import camelCase from 'lodash/camelCase';
@@ -11,9 +12,9 @@ import EventEmitter from 'eventemitter2';
 import i18Defaults from 'formiojs/i18n';
 import WebformBuilder from 'formiojs/WebformBuilder';
 
-import { getTextByLocale } from '../../helpers/util';
+import { getTextByLocale } from '@/helpers/util';
 
-import '../components';
+import '../components'; // It cannot be deleted (breaks the tests). Imported into index.js
 import './mocks';
 
 const originalUpdateComponent = WebformBuilder.prototype.updateComponent;

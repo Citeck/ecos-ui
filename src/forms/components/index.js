@@ -1,3 +1,4 @@
+/* eslint-disable */ // Eslint breaks the application (before initialization)
 import DefaultComponents from 'formiojs/components';
 import Components from 'formiojs/components/Components';
 import get from 'lodash/get';
@@ -43,8 +44,6 @@ import IncludeForm from './custom/includeForm';
 
 import { prepareComponents } from '../utils';
 
-import './Validator';
-
 const components = {
   ...DefaultComponents,
   asyncData: AsyncData,
@@ -83,19 +82,19 @@ const components = {
   importButton: ImportButton,
   datagrid: DataGrid,
   editgrid: EditGrid,
-  includeForm: IncludeForm
+  includeForm: IncludeForm,
 };
 
 for (const key in components) {
   const component = components[key];
   const originEditForm = component.editForm;
 
-  component.editForm = function(...extend) {
+  component.editForm = function (...extend) {
     const result = originEditForm(...extend);
     const components = get(result, 'components.0.components');
 
     if (!isEmpty(components)) {
-      components.forEach(item => {
+      components.forEach((item) => {
         item.components = (item.components || []).sort((prev, next) => prev.weight - next.weight);
       });
     }
