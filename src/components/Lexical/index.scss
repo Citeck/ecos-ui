@@ -61,6 +61,17 @@
     outline: none;
   }
 
+  pre {
+    line-height: 1.1;
+    background: #222;
+    color: #fff;
+    margin: 0;
+    padding: 10px;
+    font-size: 12px;
+    overflow: auto;
+    max-height: 400px;
+  }
+
   & .ContentEditable__root {
     padding: 8px 0 0 0;
   }
@@ -275,17 +286,6 @@ header h1 {
 .test-recorder-output {
   margin: 20px auto 20px auto;
   width: 100%;
-}
-
-pre {
-  line-height: 1.1;
-  background: #222;
-  color: #fff;
-  margin: 0;
-  padding: 10px;
-  font-size: 12px;
-  overflow: auto;
-  max-height: 400px;
 }
 
 .tree-view-output {
