@@ -249,14 +249,15 @@
 
       display: flex;
       width: 100%;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
 
       &_full {
         min-width: 100%;
       }
 
       &_widgets-to {
-        display: flex;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 210px));
         width: 100%;
 
         &_mobile {
@@ -280,21 +281,23 @@
       }
 
       &_col {
+        min-height: 54px;
+        padding: 5px;
+        gap: 10px;
         &:not(:last-child) {
           margin-bottom: 27px;
         }
+        .ecos-drag-item {
+          min-width: 0;
+          flex-shrink: 0;
+        }
       }
-
       &_widgets-from_mobile {
         margin-right: 15px;
         margin-bottom: 0 !important;
         height: 100%;
         padding: unset;
       }
-    }
-
-    &-scrollbar-wrapper {
-      padding: 10px;
     }
 
     &-item {
@@ -343,11 +346,7 @@
     }
 
     &-item {
-      width: 100%;
-
-      &:not(:last-child) {
-        margin-bottom: 5px;
-      }
+      margin: 10px 10px 0 10px;
     }
   }
 }
