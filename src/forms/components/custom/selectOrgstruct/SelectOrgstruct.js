@@ -228,7 +228,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
     const { customRootGroupName, rootGroupName } = this.component;
 
     if (customRootGroupName) {
-      return formioEvaluate(customRootGroupName, {}, 'value', '');
+      return this.evaluate(customRootGroupName, {}, 'value', '');
     }
 
     return rootGroupName || ROOT_GROUP_NAME;
