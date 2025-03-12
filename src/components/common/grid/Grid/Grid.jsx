@@ -66,7 +66,7 @@ const REACT_BOOTSTRAP_TABLE = 'react-bootstrap-table';
 
 const HEIGHT_TABLE_ROW_IN_WIDGET = 38;
 
-const cssNum = v => `${v}px`;
+const cssNum = (v) => `${v}px`;
 
 class Grid extends Component {
   #columnsSizes = {};
@@ -100,7 +100,7 @@ class Grid extends Component {
       selected: props.selected || [],
       updatedColumn: null,
       updatedColumnBlocked: null,
-      ecosGridWidth: 0
+      ecosGridWidth: 0,
     };
 
     this.userName = getCurrentUserName();
@@ -129,7 +129,7 @@ class Grid extends Component {
     this.createDragEvents();
 
     if (typeof ResizeObserver !== 'undefined') {
-      this.resizeObserver = new ResizeObserver(entries => {
+      this.resizeObserver = new ResizeObserver((entries) => {
         for (let entry of entries) {
           const { width } = entry.contentRect;
           this.setState({ ecosGridWidth: width });
@@ -174,7 +174,12 @@ class Grid extends Component {
       resizableColumns ? this.createColumnResizeEvents() : this.removeColumnResizeEvents();
     }
 
-    if (!isEqual(prevProps.columns.map(i => i.id), columns.map(i => i.id))) {
+    if (
+      !isEqual(
+        prevProps.columns.map((i) => i.id),
+        columns.map((i) => i.id),
+      )
+    ) {
       this.setState({ needCellUpdate: true }, () => this.setState({ needCellUpdate: false }));
     }
 
@@ -232,7 +237,7 @@ class Grid extends Component {
     }
   }
 
-  setGridRef = ref => {
+  setGridRef = (ref) => {
     if (!ref) {
       return;
     }
@@ -299,7 +304,7 @@ class Grid extends Component {
     }
   }
 
-  onKeydown = e => {
+  onKeydown = (e) => {
     if (this.props.changeTrOptionsByRowClick) {
       const tr = this._tr;
 
@@ -329,7 +334,7 @@ class Grid extends Component {
 
   onSelect = ({ allPage, newSelected, allPossible, newExcluded }) => {
     const { onSelect, nonSelectable = [], selected: oldSelected } = this.props;
-    const selectedAndDisabled = oldSelected.filter(item => nonSelectable.includes(item));
+    const selectedAndDisabled = oldSelected.filter((item) => nonSelectable.includes(item));
     const selected = [...new Set([...newSelected, ...selectedAndDisabled])];
     const excluded = [...new Set(newExcluded)];
     const props = { selected };
@@ -365,7 +370,7 @@ class Grid extends Component {
             position: isScrolling ? 'fixed' : 'absolute',
             width: width ? width - ECOS_GRID_PADDING_HORIZONTAL * 2 : `calc(100% - ${cssNum(ECOS_GRID_PADDING_HORIZONTAL * 2)})`,
             ...(!isScrolling && scrollLeft && { left: scrollLeft + ECOS_GRID_PADDING_HORIZONTAL }),
-            ...(theadElement && { minHeight: maxHeight - theadElement.clientHeight - 70 })
+            ...(theadElement && { minHeight: maxHeight - theadElement.clientHeight - 70 }),
           }}
         >
           <NoData />
@@ -385,7 +390,7 @@ class Grid extends Component {
       bordered: false,
       scrollable: true,
       noDataIndication: () => noDataIndication,
-      ...props
+      ...props,
     };
 
     if (Array.isArray(extra.columns)) {
@@ -414,7 +419,7 @@ class Grid extends Component {
             className: column.className,
             column,
             isViewNewJournal: props.isViewNewJournal,
-            isBlockNewJournalFormatter: props.isBlockNewJournalFormatter || false
+            isBlockNewJournalFormatter: props.isBlockNewJournalFormatter || false,
           });
           column.footerFormatter = this.initFooterFormatter(column.name || column.attribute);
         } else {
@@ -436,7 +441,7 @@ class Grid extends Component {
     }
 
     options.rowEvents = {
-      onMouseEnter: e => {
+      onMouseEnter: (e) => {
         const tr = e.currentTarget;
         let settingInlineTools = {};
 
@@ -457,7 +462,7 @@ class Grid extends Component {
 
         this.appendInlineToolsElement(tr, settingInlineTools);
       },
-      onMouseLeave: e => {
+      onMouseLeave: (e) => {
         const relatedTarget = e.relatedTarget;
         const currentTarget = e.currentTarget;
 
@@ -482,7 +487,7 @@ class Grid extends Component {
           this.removeInlineToolsElement(currentTarget);
         }
       },
-      onClick: e => {
+      onClick: (e) => {
         const currentTarget = e.currentTarget;
 
         if (props.changeTrOptionsByRowClick) {
@@ -497,7 +502,7 @@ class Grid extends Component {
       onDoubleClick: this.onDoubleClick,
       onDragOver: this.onDragOver,
       onDrop: this.onDrop,
-      ...extra.rowEvents
+      ...extra.rowEvents,
     };
 
     if (props.multiSelectable) {
@@ -508,16 +513,16 @@ class Grid extends Component {
       options.selectRow = this.createSingleSelectionCheckboxes(props);
     }
 
-    const replaceDefaultNestedDelimiterForData = items => {
+    const replaceDefaultNestedDelimiterForData = (items) => {
       if (!Array.isArray(items)) {
         return items;
       }
 
-      return items.map(item => {
+      return items.map((item) => {
         const newItem = {};
         const fields = Object.keys(item);
 
-        fields.forEach(field => {
+        fields.forEach((field) => {
           const hasDot = field.includes('.');
 
           if (hasDot) {
@@ -538,15 +543,15 @@ class Grid extends Component {
       });
     };
 
-    const replaceDefaultNestedDelimiterForColumns = items => {
+    const replaceDefaultNestedDelimiterForColumns = (items) => {
       if (!Array.isArray(items)) {
         return items;
       }
-      return items.map(item => {
+      return items.map((item) => {
         if (isString(item.dataField) && item.dataField.includes('.')) {
           return {
             ...item,
-            dataField: item.dataField.replace(/\./g, CUSTOM_NESTED_DELIMITER)
+            dataField: item.dataField.replace(/\./g, CUSTOM_NESTED_DELIMITER),
           };
         }
 
@@ -558,7 +563,7 @@ class Grid extends Component {
     options.columns = replaceDefaultNestedDelimiterForColumns(options.columns);
 
     if (props.footerValue && options.columns && options.columns.length) {
-      options.columns.forEach(column => {
+      options.columns.forEach((column) => {
         const columnSum = props.footerValue[column.attribute];
 
         if (columnSum) {
@@ -573,7 +578,7 @@ class Grid extends Component {
     return options;
   }
 
-  removeInlineToolsElement = currentTarget => {
+  removeInlineToolsElement = (currentTarget) => {
     if (currentTarget) {
       const inlineToolsElement = currentTarget.querySelector(`.${ECOS_GRID_INLINE_TOOLS_CONTAINER}`);
       if (inlineToolsElement) {
@@ -674,7 +679,7 @@ class Grid extends Component {
     }
   };
 
-  getCheckboxGridTrClassList = tr => {
+  getCheckboxGridTrClassList = (tr) => {
     const index = tr.rowIndex;
     const parent = isElement(tr) && tr.closest(`.${REACT_BOOTSTRAP_TABLE}`);
     const foundTr = isFunction(get(parent, 'nextSibling.getElementsByTagName')) && parent.nextSibling.getElementsByTagName('tr');
@@ -683,7 +688,7 @@ class Grid extends Component {
     return get(node, 'classList', null);
   };
 
-  getTrOptions = tr => {
+  getTrOptions = (tr) => {
     const { data, onChangeTrOptions } = this.props;
 
     const rowIndex = tr.rowIndex - 1;
@@ -701,7 +706,7 @@ class Grid extends Component {
     return cellEditFactory({
       mode: 'dbclick',
       blurToSave: true,
-      afterSaveCell: this.onEdit
+      afterSaveCell: this.onEdit,
     });
   };
 
@@ -715,7 +720,7 @@ class Grid extends Component {
       if (!isEmpty(newFormatter) && newFormatter.type) {
         content = FormatterService.format(
           { cell, row, rowIndex, column, isViewNewJournal: isBlockNewJournalFormatter ? false : isViewNewJournal },
-          newFormatter
+          newFormatter,
         );
       } else if (Formatter) {
         content = <Formatter row={row} cell={cell} rowIndex={rowIndex} {...formatExtraData} />;
@@ -729,7 +734,7 @@ class Grid extends Component {
               'ecos-grid__td_error': error && row[error] === cell,
               'ecos-grid__td_max-width':
                 newFormatter && (newFormatter.type === DateTimeFormatter.TYPE || newFormatter.type === DateFormatter.TYPE),
-              [className]: !!className
+              [className]: !!className,
             })}
           >
             {content}
@@ -739,10 +744,10 @@ class Grid extends Component {
     };
   };
 
-  initFooterFormatter = name => {
+  initFooterFormatter = (name) => {
     const { loading = false, journalId = '' } = this.props;
 
-    return column => {
+    return (column) => {
       const { newFormatter = {}, footer } = column;
 
       let content = footer;
@@ -761,7 +766,7 @@ class Grid extends Component {
         this.setState({ hasFooter: true });
       }
 
-      const targetId = `total-amount-${journalId}_${name}`;
+      const targetId = `total-amount-${journalId}_${name}`.replace(/\:/g, '');
 
       return (
         <div className="ecos-grid__table_footer__value">
@@ -778,28 +783,19 @@ class Grid extends Component {
   };
 
   setHeaderFormatter = (column, filterable, sortable, width) => {
-    const {
-      filters,
-      sortBy,
-      onSort,
-      onFilter,
-      onOpenSettings,
-      originPredicates,
-      recordRef,
-      deselectAllRecords,
-      isViewNewJournal
-    } = this.props;
+    const { filters, sortBy, onSort, onFilter, onOpenSettings, originPredicates, recordRef, deselectAllRecords, isViewNewJournal } =
+      this.props;
     const isFilterable = filterable && column.searchable && column.searchableByText && isFunction(onFilter);
     const disableSelect = column.disableSelect;
     const isSortable = sortable && isFunction(onSort);
 
     column.headerFormatter = (column, colIndex) => {
-      const filterPredicates = (filters || []).filter(filter => filter.att === column.attribute) || [];
+      const filterPredicates = (filters || []).filter((filter) => filter.att === column.attribute) || [];
       const filterPredicate = head(filterPredicates) || {};
       const filterValue = filterPredicate.val || '';
-      const sort = find(sortBy, sort => sort.attribute === column.attribute) || {};
+      const sort = find(sortBy, (sort) => sort.attribute === column.attribute) || {};
       const ascending = sort.ascending;
-      const originPredicate = find(originPredicates, predicate => predicate.att === column.attribute) || {};
+      const originPredicate = find(originPredicates, (predicate) => predicate.att === column.attribute) || {};
 
       return (
         <HeaderFormatter
@@ -838,12 +834,12 @@ class Grid extends Component {
       selected,
       nonSelectable: props.nonSelectable || [],
       onSelect: this.handleSelectRadio,
-      selectionHeaderRenderer: props => <SelectorHeader {...props} />,
-      selectionRenderer: props => <Selector {...props} />
+      selectionHeaderRenderer: (props) => <SelectorHeader {...props} />,
+      selectionRenderer: (props) => <Selector {...props} />,
     };
   }
 
-  handleSelectRadio = row => {
+  handleSelectRadio = (row) => {
     const prevValue = head(this.state.selected);
     const newValue = row[this.props.keyField];
     const newSelected = newValue !== prevValue ? [newValue] : [];
@@ -861,10 +857,10 @@ class Grid extends Component {
       nonSelectable: gridProps.nonSelectable || [],
       onSelect: this.handleSelectCheckbox,
       onSelectAll: this.handleSelectAllCheckbox,
-      selectionHeaderRenderer: props => (
+      selectionHeaderRenderer: (props) => (
         <SelectorHeader {...props} hasMenu={!gridProps.noSelectorMenu} onClickMenu={this.handleClickMenuCheckbox} />
       ),
-      selectionRenderer: props => <Selector {...props} />
+      selectionRenderer: (props) => <Selector {...props} />,
     };
   }
 
@@ -872,8 +868,8 @@ class Grid extends Component {
     const { keyField, excluded } = this.props;
     const { selected } = this.state;
     const keyValue = row[keyField];
-    const newSelected = isSelect ? [...selected, keyValue] : selected.filter(x => x !== keyValue);
-    const newExcluded = isSelect ? excluded.filter(x => x !== keyValue) : [...excluded, keyValue];
+    const newSelected = isSelect ? [...selected, keyValue] : selected.filter((x) => x !== keyValue);
+    const newExcluded = isSelect ? excluded.filter((x) => x !== keyValue) : [...excluded, keyValue];
 
     this.onSelect({ allPage: false, newSelected, newExcluded });
   };
@@ -882,11 +878,11 @@ class Grid extends Component {
     const { nonSelectable } = this.props;
     const { selected } = this.state;
     const page = this.getSelectedPageItems();
-    const ids = rows.map(row => row.id);
+    const ids = rows.map((row) => row.id);
     const isSelectedPage = allPage || (!allPage && rows.length < page.length);
-    const newSelected = isSelectedPage ? [...selected, ...page] : selected.filter(item => !ids.includes(item));
+    const newSelected = isSelectedPage ? [...selected, ...page] : selected.filter((item) => !ids.includes(item));
 
-    (nonSelectable || []).forEach(item => {
+    (nonSelectable || []).forEach((item) => {
       if (selected.includes(item)) {
         newSelected.push(item);
       }
@@ -895,7 +891,7 @@ class Grid extends Component {
     this.onSelect({ allPage, newSelected, newExcluded: [] });
   };
 
-  handleClickMenuCheckbox = option => {
+  handleClickMenuCheckbox = (option) => {
     const newSelected = option.id === SELECTOR_MENU_KEY.NONE ? [] : this.getSelectedPageItems();
     const allPage = option.id !== SELECTOR_MENU_KEY.NONE;
     const allPossible = option.id === SELECTOR_MENU_KEY.ALL;
@@ -910,19 +906,19 @@ class Grid extends Component {
   getSelectedPageItems = () => {
     const { nonSelectable, keyField, data = [] } = this.props;
 
-    return data.filter(item => Array.isArray(nonSelectable) && !nonSelectable.includes(item[keyField])).map(item => item[keyField]);
+    return data.filter((item) => Array.isArray(nonSelectable) && !nonSelectable.includes(item[keyField])).map((item) => item[keyField]);
   };
 
   getSelectedByPage = (records, onPage) => {
     const { nonSelectable, keyField } = this.props;
     const { selected } = this.state;
 
-    return selected.filter(id => {
+    return selected.filter((id) => {
       if (Array.isArray(nonSelectable) && nonSelectable.includes(id)) {
         return false;
       }
 
-      const found = find(records, record => record[keyField] === id);
+      const found = find(records, (record) => record[keyField] === id);
 
       return onPage && found;
     });
@@ -943,7 +939,7 @@ class Grid extends Component {
       top: 0,
       right: 0,
       bottom: 0,
-      left: 0
+      left: 0,
     };
 
     if (!element) {
@@ -960,7 +956,7 @@ class Grid extends Component {
     return paddings;
   };
 
-  getStartDividerPosition = options => {
+  getStartDividerPosition = (options) => {
     this._resizingTh = options.th;
     this._resizingTh.dataset.name = options.name;
     this._resizingTh.dataset.id = options.id;
@@ -968,7 +964,7 @@ class Grid extends Component {
     this._startResizingThOffset = this._resizingTh.offsetWidth - options.e.pageX;
   };
 
-  resizeColumn = e => {
+  resizeColumn = (e) => {
     const th = this._resizingTh;
 
     if (th && this._tableDom) {
@@ -1002,7 +998,7 @@ class Grid extends Component {
     let originSetting;
 
     if (isArray(journalSettings) && !isUndefined(get(journalSetting, 'id'))) {
-      originSetting = journalSettings.find(setting => setting.id === journalSetting.id);
+      originSetting = journalSettings.find((setting) => setting.id === journalSetting.id);
     }
 
     return (
@@ -1018,7 +1014,7 @@ class Grid extends Component {
     return isArray(get(journalSetting, 'groupBy')) && journalSetting.groupBy.length !== 0;
   }
 
-  clearResizingColumn = e => {
+  clearResizingColumn = (e) => {
     const { journalId } = this.props;
 
     if (this._resizingTh && this._tableDom) {
@@ -1045,15 +1041,15 @@ class Grid extends Component {
               cellIndex: this._resizingTh.cellIndex,
               width: this._resizingTh.style.width,
               name: this._resizingTh.dataset.name,
-              id: this._resizingTh.dataset.id
-            }
+              id: this._resizingTh.dataset.id,
+            },
           });
         } else {
           this.setState({
             updatedColumnBlocked: {
               flag: true,
-              id: this._resizingTh.dataset.id
-            }
+              id: this._resizingTh.dataset.id,
+            },
           });
         }
       }
@@ -1062,13 +1058,13 @@ class Grid extends Component {
     this._resizingTh = null;
   };
 
-  inlineTools = settings => {
+  inlineTools = (settings) => {
     const { inlineTools } = this.props;
 
     return isFunction(inlineTools) ? inlineTools(settings) : null;
   };
 
-  tools = selected => {
+  tools = (selected) => {
     const { tools } = this.props;
 
     isFunction(tools) && tools(selected);
@@ -1091,8 +1087,8 @@ class Grid extends Component {
         pageId: journalId,
         [this.userName]: {
           settings: {},
-          columns: {}
-        }
+          columns: {},
+        },
       };
 
       let currentColumn = dbValue[this.userName]?.columns[name] || {};
@@ -1106,10 +1102,10 @@ class Grid extends Component {
               ...get(dbValue, `${this.userName}.settings.${journalSetting.id}`),
               [name]: {
                 ...currentColumn,
-                width
-              }
-            }
-          }
+                width,
+              },
+            },
+          },
         };
       } else {
         dbValue[this.userName] = {
@@ -1118,9 +1114,9 @@ class Grid extends Component {
             ...get(dbValue[this.userName], 'columns', {}),
             [name]: {
               ...currentColumn,
-              width
-            }
-          }
+              width,
+            },
+          },
         };
       }
 
@@ -1138,21 +1134,21 @@ class Grid extends Component {
   closeColumnWidth = () => {
     this.setState({
       updatedColumn: null,
-      updatedColumnBlocked: null
+      updatedColumnBlocked: null,
     });
   };
 
-  onMouseLeave = e => {
+  onMouseLeave = (e) => {
     const { onMouseLeave } = this.props;
     isFunction(onMouseLeave) && onMouseLeave(e);
   };
 
-  onMouseEnter = e => {
+  onMouseEnter = (e) => {
     const { onGridMouseEnter } = this.props;
     isFunction(onGridMouseEnter) && onGridMouseEnter(e);
   };
 
-  onRowClick = tr => {
+  onRowClick = (tr) => {
     this.setHover(tr, ECOS_GRID_HOVERED_CLASS, true);
 
     const { onRowClick } = this.props;
@@ -1163,7 +1159,7 @@ class Grid extends Component {
     this.props.onRowDoubleClick && this.props.onRowDoubleClick(params);
   };
 
-  onSort = e => {
+  onSort = (e) => {
     const { onSort } = this.props;
     isFunction(onSort) && onSort(e);
   };
@@ -1181,13 +1177,13 @@ class Grid extends Component {
         onEdit({
           id: row[this.props.keyField],
           attributes: {
-            [column.attribute]: newValue
-          }
+            [column.attribute]: newValue,
+          },
         });
     }
   };
 
-  onScrollStart = e => {
+  onScrollStart = (e) => {
     const { onScrollStart } = this.props;
 
     this.setState({ isScrolling: true });
@@ -1195,7 +1191,7 @@ class Grid extends Component {
     isFunction(onScrollStart) && onScrollStart(e);
   };
 
-  onScrollFrame = e => {
+  onScrollFrame = (e) => {
     const { onScrolling } = this.props;
 
     this._scrollValues = e;
@@ -1211,14 +1207,14 @@ class Grid extends Component {
     isFunction(onScrolling) && onScrolling(e);
   };
 
-  onScrollStop = e => {
+  onScrollStop = (e) => {
     const { onScrollStop } = this.props;
 
     this.setState({ isScrolling: false });
     isFunction(onScrollStop) && onScrollStop(e || this._scrollRef.getValues());
   };
 
-  onDragOver = e => {
+  onDragOver = (e) => {
     const { onRowDrop, onDragOver } = this.props;
 
     if (onRowDrop) {
@@ -1234,7 +1230,7 @@ class Grid extends Component {
     isFunction(onDragOver) && onDragOver(e);
   };
 
-  checkDropPermission = tr => {
+  checkDropPermission = (tr) => {
     const { onCheckDropPermission, data } = this.props;
 
     if (isFunction(onCheckDropPermission)) {
@@ -1256,7 +1252,7 @@ class Grid extends Component {
     return true;
   };
 
-  onDragEnter = e => {
+  onDragEnter = (e) => {
     const dataTypes = get(e, 'dataTransfer.types', []);
 
     if (!dataTypes.includes('Files')) {
@@ -1299,7 +1295,7 @@ class Grid extends Component {
     return false;
   };
 
-  onDrop = e => {
+  onDrop = (e) => {
     if (!this.props.onRowDrop) {
       return false;
     }
@@ -1316,7 +1312,7 @@ class Grid extends Component {
     isFunction(onRowDrop) &&
       onRowDrop({
         files: Array.from(e.dataTransfer.files),
-        type: this.props.data[tr.rowIndex - 1]
+        type: this.props.data[tr.rowIndex - 1],
       });
     e.dataTransfer.clearData();
 
@@ -1325,7 +1321,7 @@ class Grid extends Component {
     return false;
   };
 
-  scrollRefCallback = scroll => {
+  scrollRefCallback = (scroll) => {
     this._scrollRef = scroll;
   };
 
@@ -1338,7 +1334,7 @@ class Grid extends Component {
       gridWrapperClassName,
       hTrackClassName,
       isViewNewJournal,
-      data
+      data,
     } = this.props;
 
     let { maxHeight } = this.state;
@@ -1363,7 +1359,7 @@ class Grid extends Component {
       if (scrollStyle.height !== '100%' && scrollHeight > scrollStyle.height) {
         const rows = this._tableDom.querySelectorAll(`tr.${ECOS_GRID_ROW_CLASS}`);
         if (rows && rows.length) {
-          rows.forEach(row => {
+          rows.forEach((row) => {
             scrollStyle.height += row.clientHeight - HEIGHT_TABLE_ROW_IN_WIDGET;
           });
         }
@@ -1380,13 +1376,13 @@ class Grid extends Component {
         autoHide={scrollAutoHide}
         hideTracksWhenNotNeeded
         className={gridWrapperClassName}
-        renderView={props => <div {...props} className={tableViewClassName} />}
-        renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
-        renderTrackHorizontal={props => (
+        renderView={(props) => <div {...props} className={tableViewClassName} />}
+        renderTrackVertical={(props) => <div {...props} className="ecos-grid__v-scroll" />}
+        renderTrackHorizontal={(props) => (
           <div
             {...props}
             className={classNames('ecos-grid__h-scroll', hTrackClassName, {
-              'ecos-grid__h-scroll_higher': minHeight > maxHeight
+              'ecos-grid__h-scroll_higher': minHeight > maxHeight,
             })}
           />
         )}
@@ -1413,14 +1409,14 @@ class Grid extends Component {
       'rowEvents',
       'byContentHeight',
       'noHeader',
-      'resizableColumns'
+      'resizableColumns',
     ]);
     const { rowClassName, resizableColumns, isViewNewJournal, ...extraProps } = pick(this.props, [
       'rowClassName',
       'isViewNewJournal',
       'resizableColumns',
       'columns',
-      'rowEvents'
+      'rowEvents',
     ]);
 
     const bootProps = this.getBootstrapTableProps(props, cloneDeep(extraProps));
@@ -1431,16 +1427,16 @@ class Grid extends Component {
           <BootstrapTable
             {...bootProps}
             classes={classNames('ecos-grid__table', {
-              'ecos-grid__table_grouping': this.hasGrouping && isViewNewJournal
+              'ecos-grid__table_grouping': this.hasGrouping && isViewNewJournal,
             })}
             headerClasses={classNames(ECOS_GRID_HEADER, {
-              'ecos-grid__header_columns-not-resizable': !resizableColumns
+              'ecos-grid__header_columns-not-resizable': !resizableColumns,
             })}
             rowClasses={classNames(ECOS_GRID_ROW_CLASS, rowClassName, {
-              'ecos-grid__row_new': isViewNewJournal
+              'ecos-grid__row_new': isViewNewJournal,
             })}
             footerClasses={classNames('ecos-grid__table_footer', {
-              'ecos-grid__table_footer-hide': !this.props.footerValue
+              'ecos-grid__table_footer-hide': !this.props.footerValue,
             })}
           />
         </ErrorTable>
@@ -1449,18 +1445,8 @@ class Grid extends Component {
   }
 
   render() {
-    const {
-      className,
-      noTopBorder,
-      columns,
-      noHeader,
-      scrollable,
-      selected,
-      multiSelectable,
-      noHorizontalScroll,
-      isViewNewJournal,
-      data
-    } = this.props;
+    const { className, noTopBorder, columns, noHeader, scrollable, selected, multiSelectable, noHorizontalScroll, isViewNewJournal, data } =
+      this.props;
     const { updatedColumn, updatedColumnBlocked, maxHeight, hasFooter } = this.state;
 
     if (isEmpty(columns)) {
@@ -1480,7 +1466,7 @@ class Grid extends Component {
           'ecos-grid_selectable_multi': multiSelectable,
           'ecos-grid_no-top-border': noTopBorder,
           'ecos-grid_no-scroll_h': noHorizontalScroll,
-          [className]: !!className
+          [className]: !!className,
         })}
         onMouseLeave={this.onMouseLeave}
         onMouseEnter={this.onMouseEnter}
@@ -1613,7 +1599,7 @@ Grid.propTypes = {
   journalSetting: PropTypes.object,
   journalSettings: PropTypes.array,
 
-  deselectAllRecords: PropTypes.func
+  deselectAllRecords: PropTypes.func,
 };
 
 Grid.defaultProps = {
@@ -1623,7 +1609,7 @@ Grid.defaultProps = {
   nonSelectable: [],
   selected: [],
   excluded: [],
-  keyField: 'id'
+  keyField: 'id',
 };
 
 export default Grid;
