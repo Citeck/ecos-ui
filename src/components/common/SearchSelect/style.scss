@@ -21,7 +21,7 @@
       $isearch: &;
 
       left: 10px;
-      top: 9px;
+      top: calc(50% - 1em / 2);
       color: $color-white;
 
       &#{$isearch}_no-collapse {
@@ -30,9 +30,9 @@
     }
 
     &-clear {
-      right: 13px;
-      top: 11px;
-      font-size: $font-size-small;
+      top: calc(50% - 1em / 2);
+      right: 3%;
+      font-size: $font-size-large;
       color: $color-blue-light2;
 
       &:hover {
