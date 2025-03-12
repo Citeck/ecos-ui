@@ -211,6 +211,16 @@ export default class SelectOrgstructComponent extends BaseComponent {
     return this.dataValue;
   }
 
+  _getRootGroup() {
+    const { customRootGroupName, rootGroupName } = this.component;
+
+    if (customRootGroupName) {
+      return this.evaluate(customRootGroupName, {}, 'value', '');
+    }
+
+    return rootGroupName || ROOT_GROUP_NAME;
+  }
+
   setValue(value, flags) {
     if (isEqual(value, this.dataValue) && !isEmpty(value)) {
       return;
