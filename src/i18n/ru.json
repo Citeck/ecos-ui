@@ -2019,7 +2019,7 @@
   "form-constructor.tabs-content.allowedGroupType": "Разрешенный тип группы",
   "form-constructor.tabs-content.rootGroupName": "Имя корневой группы",
   "form-constructor.tabs-content.allowedGroupSubType": "Разрешенный подтип группы",
-  "form-constructor.tabs-content.excludeAuthoritiesByName": "Исключить объекты по \"authorityName\"",
+  "form-constructor.tabs-content.excludeAuthoritiesByName": "Исключить группы по идентификатору",
   "form-constructor.tabs-content.excludeAuthoritiesByType": "Исключить группы по типу или подтипу",
   "form-constructor.tabs-content.userSearchExtraFields": "Поиск пользователя: дополнительное поле",
   "form-constructor.tabs-content.isIncludedAdminGroup": "Включить группу администраторов",
