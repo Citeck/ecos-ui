@@ -13,9 +13,23 @@ const Body = ({ reloadList, tabId, toggleToFirstTab }) => {
   const context = useContext(OrgstructContext);
   const { currentTab, tabItems, isSearching } = context;
 
-  const children = tabItems[currentTab].filter(i => !i.parentId);
+  const filteredData = (data) => {
+    const filteredData = [];
+    let foundPerson = false;
 
-  const renderView = props => {
+    data.forEach((item) => {
+      if (item.id.startsWith('emodel/person')) {
+        foundPerson = true;
+      }
+      if (!foundPerson || item.id.startsWith('emodel/person')) {
+        filteredData.push(item);
+      }
+    });
+    return filteredData;
+  };
+  const children = filteredData(tabItems[currentTab]);
+
+  const renderView = (props) => {
     return <div {...props} style={{ ...props.style, marginBottom: '140px' }} />;
   };
 
