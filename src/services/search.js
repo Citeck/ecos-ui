@@ -2,24 +2,30 @@ import { nth, split, get, isNil } from 'lodash';
 import { formatFileSize, getIconFileByMimetype, getRelativeTime, t } from '../helpers/util';
 import { getData, getSessionData, isExistLocalStorage, isExistSessionStorage, setSessionData } from '../helpers/ls';
 import { createDocumentUrl, createProfileUrl } from '../helpers/urls';
+import ConfigService, { ALFRESCO_ENABLED } from './config/ConfigService';
 
 const Urls = {
-  DASHBOARD: ref => createDocumentUrl(ref),
-  USER: login => createProfileUrl(login)
+  DASHBOARD: (ref) => createDocumentUrl(ref),
+  USER: (login) => createProfileUrl(login),
 };
 
 export const LiveSearchTypes = {
   PEOPLE: 'PEOPLE',
   DOCUMENTS: 'DOCUMENTS',
   SITES: 'SITES',
-  WORKSPACES: 'WORKSPACES'
+  WORKSPACES: 'WORKSPACES',
 };
 
 export default class SearchService {
   static SearchAutocompleteTypes = Object.fromEntries(Object.keys(LiveSearchTypes).map((key, index) => [key, index]));
 
-  static formatSearchAutocompleteResults = function(item, type) {
+  static formatSearchAutocompleteResults = function (item, type, hasAlfresco) {
     const Types = SearchService.SearchAutocompleteTypes;
+
+    if (!hasAlfresco) {
+      delete LiveSearchTypes.SITES;
+    }
+
     const data = {
       type,
       title: '',
@@ -27,9 +33,8 @@ export default class SearchService {
       icon: '',
       url: '',
       wsName: '',
-      iconUrl: ''
+      iconUrl: '',
     };
-
     const isEnabledAlfresco = isNil(get(item, 'isNotAlfresco')) || get(item, 'isNotAlfresco') === false;
 
     switch (type) {

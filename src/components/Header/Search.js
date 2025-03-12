@@ -16,24 +16,24 @@ import PageTabList from '../../services/pageTabs/PageTabList';
 
 const Types = SearchService.SearchAutocompleteTypes;
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   documents: state.header.search.documents,
   people: state.header.search.people,
   sites: state.header.search.sites,
   workspaces: state.header.search.workspaces,
   noResults: state.header.search.noResults,
   isLoading: state.header.search.isLoading,
-  theme: state.view.theme
+  theme: state.view.theme,
 });
 
-const mapDispatchToProps = dispatch => ({
-  runSearchAutocomplete: payload => dispatch(runSearchAutocompleteItems(payload)),
-  resetSearchAutocomplete: payload => dispatch(resetSearchAutocompleteItems(payload))
+const mapDispatchToProps = (dispatch) => ({
+  runSearchAutocomplete: (payload) => dispatch(runSearchAutocompleteItems(payload)),
+  resetSearchAutocomplete: (payload) => dispatch(resetSearchAutocompleteItems(payload)),
 });
 
-const setOutputParams = (array, type) => {
+const setOutputParams = (array, type, hasAlfresco) => {
   return array.map((item, i) => {
-    const res = SearchService.formatSearchAutocompleteResults(item, type);
+    const res = SearchService.formatSearchAutocompleteResults(item, type, hasAlfresco);
 
     res.isLast = isLastItem(array, i);
     res.isAvatar = type === Types.PEOPLE;
@@ -44,20 +44,20 @@ const setOutputParams = (array, type) => {
 
 class Search extends React.Component {
   static propTypes = {
-    isMobile: PropTypes.bool
+    isMobile: PropTypes.bool,
   };
 
   static defaultProps = {
-    isMobile: false
+    isMobile: false,
   };
 
   state = {
-    isFocused: false
+    isFocused: false,
   };
 
   _searchSelectRef = React.createRef();
 
-  onSearch = searchText => {
+  onSearch = (searchText) => {
     this.props.resetSearchAutocomplete();
 
     if (searchText) {
@@ -65,11 +65,11 @@ class Search extends React.Component {
     }
   };
 
-  toggleFocus = isFocused => {
+  toggleFocus = (isFocused) => {
     this.setState({ isFocused });
   };
 
-  openFullSearch = searchText => {
+  openFullSearch = (searchText) => {
     const { searchPageUrl, hiddenSearchTerms } = this.props;
     let url = searchPageUrl || 'hdp/ws/faceted-search#searchTerm=' + generateSearchTerm(searchText, hiddenSearchTerms) + '&scope=repo';
 
@@ -90,7 +90,7 @@ class Search extends React.Component {
     PageService.changeUrlLink(url, params);
   };
 
-  goToResult = data => {
+  goToResult = (data) => {
     this.toggleFocus(false);
 
     if (!isNewVersionPage()) {
@@ -115,7 +115,7 @@ class Search extends React.Component {
   };
 
   get searchResult() {
-    const { documents, people, sites, workspaces } = this.props;
+    const { documents, people, sites, workspaces, hasAlfresco } = this.props;
     const searchResult = [];
 
     if (!isEmpty(documents)) {
@@ -130,7 +130,7 @@ class Search extends React.Component {
 
     if (!isEmpty(sites)) {
       searchResult.push({ groupName: t('header.search.sites') });
-      searchResult.push(...setOutputParams(sites, Types.SITES));
+      searchResult.push(...setOutputParams(sites, Types.SITES, hasAlfresco));
     }
 
     if (!isEmpty(workspaces) && getEnabledWorkspaces()) {
@@ -158,7 +158,7 @@ class Search extends React.Component {
 
     const classes = classNames('ecos-header-search', `ecos-header-search_theme_${theme}`, {
       'ecos-header-search_focused': isFocused,
-      'ecos-header-search_mobile': isMobile
+      'ecos-header-search_mobile': isMobile,
     });
 
     return (
@@ -182,7 +182,4 @@ class Search extends React.Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Search);
+export default connect(mapStateToProps, mapDispatchToProps)(Search);

@@ -24,19 +24,19 @@ import SlideMenuButton from './SlideMenuButton';
 
 const MenuSettings = lazy(() => import('../MenuSettings'));
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   fetchCreateCaseWidgetData: () => dispatch(fetchCreateCaseWidgetData()),
   fetchUserMenuData: () => dispatch(fetchUserMenuData()),
-  fetchSiteMenuData: () => dispatch(fetchSiteMenuData())
+  fetchSiteMenuData: () => dispatch(fetchSiteMenuData()),
 });
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   menuId: get(state, 'menu.id'),
   isMobile: get(state, 'view.isMobile'),
   theme: get(state, 'view.theme'),
   menuType: get(state, 'menu.type', ''),
   isOpenMenuSettings: get(state, 'menuSettings.isOpenMenuSettings', false),
-  isViewNewJournal: selectIsViewNewJournal(state)
+  isViewNewJournal: selectIsViewNewJournal(state),
 });
 
 class Header extends React.Component {
@@ -45,7 +45,7 @@ class Header extends React.Component {
 
   state = {
     hasAlfresco: false,
-    widthHeader: 0
+    widthHeader: 0,
   };
 
   componentDidMount() {
@@ -53,9 +53,9 @@ class Header extends React.Component {
     this.props.fetchUserMenuData();
     this.props.fetchSiteMenuData();
 
-    ConfigService.getValue(ALFRESCO_ENABLED).then(value => {
+    ConfigService.getValue(ALFRESCO_ENABLED).then((value) => {
       this.setState({
-        hasAlfresco: value
+        hasAlfresco: value,
       });
     });
   }
@@ -95,7 +95,7 @@ class Header extends React.Component {
     return menuType === MenuTypes.LEFT ? width : 0;
   }
 
-  onResize = width => {
+  onResize = (width) => {
     this.setState({ widthHeader: width });
   };
 
@@ -110,7 +110,7 @@ class Header extends React.Component {
   };
 
   render() {
-    const { widthHeader } = this.state;
+    const { widthHeader, hasAlfresco } = this.state;
     const { isMobile, hideSiteMenu, legacySiteMenuItems, theme, isViewNewJournal } = this.props;
     const hiddenSiteMenu = hideSiteMenu || isMobile || widthHeader < 600;
     const hiddenLanguageSwitcher = isMobile || widthHeader < 600;
@@ -122,7 +122,7 @@ class Header extends React.Component {
         <div
           className={classNames('ecos-header', `ecos-header_theme_${theme}`, {
             'ecos-header_small': isMobile,
-            'ecos-header_new': isViewNewJournal
+            'ecos-header_new': isViewNewJournal,
           })}
         >
           <div className="ecos-header__side ecos-header__side_left">
@@ -130,7 +130,11 @@ class Header extends React.Component {
             <CreateMenu isMobile={widthHeader < 910} />
           </div>
           <div className="ecos-header__side ecos-header__side_right">
-            <Search isMobile={isMobile || widthHeader <= 600} searchPageUrl={`${URL.JOURNAL}?${JournalUrlParams.JOURNAL_ID}=search`} />
+            <Search
+              hasAlfresco
+              isMobile={isMobile || widthHeader <= 600}
+              searchPageUrl={`${URL.JOURNAL}?${JournalUrlParams.JOURNAL_ID}=search`}
+            />
             {!hiddenSiteMenu && <SiteMenu legacyItems={legacySiteMenuItems} />}
             {!hiddenLanguageSwitcher && <LanguageSwitcher theme={theme} />}
             <UserMenu isMobile={widthHeader < 910} widthParent={widthHeader} />
@@ -143,10 +147,7 @@ class Header extends React.Component {
 
 Header.propTypes = {
   hideSiteMenu: PropTypes.bool,
-  legacySiteMenuItems: PropTypes.array
+  legacySiteMenuItems: PropTypes.array,
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Header);
+export default connect(mapStateToProps, mapDispatchToProps)(Header);
