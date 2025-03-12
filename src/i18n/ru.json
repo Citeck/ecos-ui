@@ -747,6 +747,7 @@
   "ecos.forms.journals.formatter.workflowPriority.name": "Приоритет рабочего процесса",
   "ecos.forms.journals.formatter.duration.name": "Продолжительность",
   "ecos.forms.journals.formatter.component.name": "Компонент",
+  "ecos.forms.journals.formatter.valueColor.name": "Цвет значения",
 
   "events-history-widget.info.no-columns": "Нет настроек отображения",
   "events-history-widget.info.no-events": "Нет событий",

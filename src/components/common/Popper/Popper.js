@@ -1,12 +1,13 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import ReactResizeDetector from 'react-resize-detector';
 import debounce from 'lodash/debounce';
 import isNil from 'lodash/isNil';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import ReactResizeDetector from 'react-resize-detector';
 
-import { getFirstNotNil } from '../../../helpers/util';
 import { Events, popupEmitter } from './emitter';
+
+import { getFirstNotNil } from '@/helpers/util';
 
 import './style.scss';
 
@@ -39,20 +40,20 @@ export default class Popper extends Component {
       'bottom-end',
       'left',
       'left-start',
-      'left-end'
-    ])
+      'left-end',
+    ]),
   };
 
   static defaultProps = {
     showAsNeeded: false,
-    uncontrolled: true
+    uncontrolled: true,
   };
 
   #iconRef = null;
   #textRef = null;
 
   state = {
-    needPopover: false
+    needPopover: false,
   };
 
   componentWillUnmount() {
@@ -84,7 +85,7 @@ export default class Popper extends Component {
     return true;
   }
 
-  getDisp = val => (isNil(val) ? '' : val);
+  getDisp = (val) => (isNil(val) ? '' : val);
 
   checkNeedShowPopper = () => {
     const element = this.#textRef;
@@ -95,17 +96,17 @@ export default class Popper extends Component {
     }
 
     this.setState({
-      needPopover: 0 > element.clientWidth - element.scrollWidth
+      needPopover: 0 > element.clientWidth - element.scrollWidth,
     });
   };
 
-  setIconRef = ref => {
+  setIconRef = (ref) => {
     if (ref) {
       this.#iconRef = ref;
     }
   };
 
-  setTextRef = ref => {
+  setTextRef = (ref) => {
     if (ref) {
       this.#textRef = ref;
 
@@ -115,12 +116,12 @@ export default class Popper extends Component {
       }
 
       this.setState({
-        needPopover: 0 > ref.clientWidth - ref.scrollWidth
+        needPopover: 0 > ref.clientWidth - ref.scrollWidth,
       });
     }
   };
 
-  handleMouseOut = e => {
+  handleMouseOut = (e) => {
     const { uncontrolled, isOpen, autohide } = this.props;
 
     const relatedTarget = e.relatedTarget;
@@ -146,9 +147,9 @@ export default class Popper extends Component {
         element,
         this.getDisp(getFirstNotNil(contentComponent, text)),
         classNames(popupClassName, {
-          'ecos-popper__text_new': isViewNewJournal
+          'ecos-popper__text_new': isViewNewJournal,
         }),
-        placement
+        placement,
       );
     }
   };

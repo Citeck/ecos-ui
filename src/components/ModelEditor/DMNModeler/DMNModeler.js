@@ -11,10 +11,6 @@ import BaseModeler from '../BaseModeler';
 
 import { LABEL_POSTFIX, PLANE_POSTFIX } from '@/constants/cmmn';
 
-import './patches/features/modeling/cmd/UpdatePropertiesHandler';
-import './patches/features/modeling/Modeling';
-import './patches/Viewer';
-
 export default class DMNModeler extends BaseModeler {
   __saveSvgFunc;
 

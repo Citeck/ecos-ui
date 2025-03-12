@@ -1,27 +1,28 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Formio from 'formiojs/Formio';
-import get from 'lodash/get';
 import debounce from 'lodash/debounce';
-import isEqual from 'lodash/isEqual';
+import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 import isString from 'lodash/isString';
+import PropTypes from 'prop-types';
+import React from 'react';
 
-import '../../forms';
-import CustomEventEmitter from '../../forms/EventEmitter';
-import { getCurrentLocale, getMLValue, isMobileDevice, strSplice, t } from '../../helpers/util';
-import { PROXY_URI } from '../../constants/alfresco';
+import { PRE_SETTINGS_TYPES, PreSettings } from '../PreSettings';
 import Records from '../Records';
+
+import EcosFormUtils from './EcosFormUtils';
 import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
-import EcosFormUtils from './EcosFormUtils';
-import { LANGUAGE_EN } from '../../constants/lang';
-import { PANEL_CLASS_NAME } from '../../constants/pageTabs';
-import { SUBMIT_FORM_TIMEOUT } from '../../constants/forms';
-import { PRE_SETTINGS_TYPES, PreSettings } from '../PreSettings';
 import { FORM_MODE_EDIT } from './constants';
+
+import { PROXY_URI } from '@/constants/alfresco';
+import { SUBMIT_FORM_TIMEOUT } from '@/constants/forms';
+import { LANGUAGE_EN } from '@/constants/lang';
+import { PANEL_CLASS_NAME } from '@/constants/pageTabs';
+import CustomEventEmitter from '@/forms/EventEmitter';
+import { getCurrentLocale, getMLValue, isMobileDevice, strSplice, t } from '@/helpers/util';
 
 import './formio.full.min.css';
 import './glyphicon-to-fa.scss';
@@ -44,7 +45,7 @@ class EcosForm extends React.Component {
 
     this.state = {
       containerId: 'ecos-ui-form-' + formCounter++,
-      ...this.initState
+      ...this.initState,
     };
   }
 
@@ -94,13 +95,13 @@ class EcosForm extends React.Component {
     return {
       formId: 'form@',
       error: null,
-      formDefinition: {}
+      formDefinition: {},
     };
   }
 
   get recoverableComponentsProperties() {
     return {
-      tabs: ['currentTab']
+      tabs: ['currentTab'],
     };
   }
 
@@ -108,7 +109,7 @@ class EcosForm extends React.Component {
     return this._form;
   }
 
-  setRefFormBuilderModal = element => {
+  setRefFormBuilderModal = (element) => {
     if (element) {
       this._formBuilderModal = element;
     }
@@ -126,7 +127,7 @@ class EcosForm extends React.Component {
       i18n: 'i18n?json',
       width: 'width',
       atts: 'attributes?json',
-      formId: '?localId'
+      formId: '?localId',
     };
 
     let formLoadingPromise;
@@ -142,7 +143,7 @@ class EcosForm extends React.Component {
 
     options.recordId = recordId;
     options.isMobileDevice = options.ecosIsMobile || isMobileDevice();
-    options.formSubmitDonePromise = new Promise(resolve => (this._formSubmitDoneResolve = resolve));
+    options.formSubmitDonePromise = new Promise((resolve) => (this._formSubmitDoneResolve = resolve));
     options.forceReload = forceReload;
 
     proxyUri = proxyUri.substring(0, proxyUri.length - 1);
@@ -157,7 +158,7 @@ class EcosForm extends React.Component {
       isFunction(this.props.onReady) && this.props.onReady();
     };
 
-    formLoadingPromise.then(formData => {
+    formLoadingPromise.then((formData) => {
       if (this._lastFormOptions !== propsOptions) {
         return;
       }
@@ -180,9 +181,9 @@ class EcosForm extends React.Component {
         }
       }
 
-      const customModulePromise = new Promise(function(resolve) {
+      const customModulePromise = new Promise(function (resolve) {
         if (formData.customModule) {
-          window.require([formData.customModule], Module => resolve(new Module.default({ recordId })));
+          window.require([formData.customModule], (Module) => resolve(new Module.default({ recordId })));
         } else {
           resolve({});
         }
@@ -267,14 +268,14 @@ class EcosForm extends React.Component {
 
           return {
             ...result,
-            ...translate
+            ...translate,
           };
         }, {});
 
         i18n[language] = {
           ...translations,
           ...enTranslate,
-          ...currentLangTranslate
+          ...currentLangTranslate,
         };
 
         options.theme = EcosFormUtils.getThemeName();
@@ -284,7 +285,7 @@ class EcosForm extends React.Component {
           wildcard: false,
           maxListeners: 0,
           loadLimit: get(formData, 'atts.loadLimit', 200),
-          onOverload: () => !!this._form && this._form.showErrors(t('ecos-form.event-overload'))
+          onOverload: () => !!this._form && this._form.showErrors(t('ecos-form.event-overload')),
         });
         options.initiator = initiator;
 
@@ -298,7 +299,7 @@ class EcosForm extends React.Component {
 
         const formPromise = Formio.createForm(containerElement, formDefinition, options);
 
-        Promise.all([formPromise, customModulePromise]).then(formAndCustom => {
+        Promise.all([formPromise, customModulePromise]).then((formAndCustom) => {
           if (this._lastFormOptions !== propsOptions) {
             return;
           }
@@ -306,7 +307,7 @@ class EcosForm extends React.Component {
           const data = {
             ...this._evalOptionsInitAttributes(recordData.inputs, options),
             ...(this.props.attributes || {}),
-            ...recordData.submission
+            ...recordData.submission,
           };
           const [form, customModule] = formAndCustom;
           const HANDLER_PREFIX = 'onForm';
@@ -317,26 +318,26 @@ class EcosForm extends React.Component {
           form.on(
             'change',
             debounce(
-              submission => {
+              (submission) => {
                 if (options.formMode === FORM_MODE_EDIT && EcosFormUtils.isFormChangedByUser(submission)) {
                   isFunction(this.props.onFormChanged) && this.props.onFormChanged(submission, this.form);
                 }
               },
               1000,
-              { trailing: true }
-            )
+              { trailing: true },
+            ),
           );
 
           Object.keys(this.props)
-            .filter(key => key.startsWith(HANDLER_PREFIX))
-            .map(prop => {
+            .filter((key) => key.startsWith(HANDLER_PREFIX))
+            .map((prop) => {
               const str = prop.replace(HANDLER_PREFIX, '');
               const event = strSplice(str, 0, 1, str[0].toLowerCase());
               return { prop, event };
             })
-            .forEach(o => {
+            .forEach((o) => {
               if (o.event !== 'submit') {
-                form.on(o.event, data => {
+                form.on(o.event, (data) => {
                   const fun = this.props[o.prop];
                   isFunction(fun) && fun.apply(form, [...arguments, data]);
                 });
@@ -355,7 +356,7 @@ class EcosForm extends React.Component {
             this._containerHeightTimerId = window.setTimeout(() => this.toggleContainerHeight(), 500);
 
             isFunction(this.props.onReadyToSubmit) &&
-              EcosFormUtils.isComponentsReadyWaiting(form.components).then(state => this.props.onReadyToSubmit(form, state));
+              EcosFormUtils.isComponentsReadyWaiting(form.components).then((state) => this.props.onReadyToSubmit(form, state));
           });
 
           this._form = form;
@@ -382,7 +383,7 @@ class EcosForm extends React.Component {
     }
     if (!hasTypeField) {
       return {
-        _type: typeRef
+        _type: typeRef,
       };
     }
     return {};
@@ -395,9 +396,9 @@ class EcosForm extends React.Component {
 
     const components = {};
 
-    EcosFormUtils.forEachComponent(formDefinition, component => (components[component.id] = component));
+    EcosFormUtils.forEachComponent(formDefinition, (component) => (components[component.id] = component));
 
-    EcosFormUtils.forEachComponent(this._form, prevDefinitionComponent => {
+    EcosFormUtils.forEachComponent(this._form, (prevDefinitionComponent) => {
       const component = components[prevDefinitionComponent.id];
       if (!component) {
         return;
@@ -408,7 +409,7 @@ class EcosForm extends React.Component {
         return;
       }
 
-      recoverableProperties.forEach(property => {
+      recoverableProperties.forEach((property) => {
         const propertyValue = prevDefinitionComponent[property];
         if (propertyValue === undefined) {
           return;
@@ -426,7 +427,7 @@ class EcosForm extends React.Component {
     }
   }
 
-  toggleLoader = state => {
+  toggleLoader = (state) => {
     const { onToggleLoader } = this.props;
 
     if (state && get(this.form, 'withoutLoader')) {
@@ -436,7 +437,7 @@ class EcosForm extends React.Component {
     isFunction(onToggleLoader) && onToggleLoader(state);
   };
 
-  onScrollBarClick = e => {
+  onScrollBarClick = (e) => {
     const isScrollbar =
       e.target && e.target.classList && (e.target.classList.contains('panel-body') || e.target.classList.contains(PANEL_CLASS_NAME));
 
@@ -445,7 +446,7 @@ class EcosForm extends React.Component {
     }
   };
 
-  onScrollWindow = event => {
+  onScrollWindow = (event) => {
     if (event.target && event.target.classList && event.target.classList.contains('choices__list')) {
       return;
     }
@@ -454,9 +455,9 @@ class EcosForm extends React.Component {
       return;
     }
 
-    const selectComponents = this.form.getAllComponents().filter(component => component.type === 'ecosSelect');
+    const selectComponents = this.form.getAllComponents().filter((component) => component.type === 'ecosSelect');
 
-    selectComponents.forEach(selectComponent => {
+    selectComponents.forEach((selectComponent) => {
       if (
         selectComponent &&
         selectComponent.choices &&
@@ -470,7 +471,7 @@ class EcosForm extends React.Component {
   };
 
   onScrollStart = debounce(
-    _event => {
+    (_event) => {
       if (!this.form) {
         return;
       }
@@ -479,15 +480,15 @@ class EcosForm extends React.Component {
         this._cachedFormComponents = this.getComponents(this.form, true);
       }
 
-      this._cachedFormComponents.forEach(item => {
+      this._cachedFormComponents.forEach((item) => {
         item.callFunction('hideDropdown');
       });
     },
     500,
-    { leading: true }
+    { leading: true },
   );
 
-  onShowFormBuilder = async callback => {
+  onShowFormBuilder = async (callback) => {
     const { showPreSettings } = get(this, 'form.options', {});
     const { options, onFormSubmitDone, onSavePreSettings, onFormCancel } = this.props;
     const { formId } = this.state;
@@ -496,7 +497,7 @@ class EcosForm extends React.Component {
     if (this._preSettings && showPreSettings) {
       const config = {
         presettingsType: PRE_SETTINGS_TYPES.FORM,
-        definition: definitionToEdit
+        definition: definitionToEdit,
       };
 
       const preSettingsCallback = () => {
@@ -511,16 +512,16 @@ class EcosForm extends React.Component {
     if (this._formBuilderModal && !showPreSettings) {
       this._formBuilderModal.show(
         definitionToEdit,
-        form => {
+        (form) => {
           EcosFormUtils.saveFormBuilder(form, formId).then(() => {
-            EcosFormUtils.getFormById(formId, 'definition?json', true).then(newFormDef => {
+            EcosFormUtils.getFormById(formId, 'definition?json', true).then((newFormDef) => {
               this.initForm(newFormDef);
               isFunction(onFormSubmitDone) && onFormSubmitDone();
               isFunction(callback) && callback(newFormDef);
             });
           });
         },
-        options
+        options,
       );
     }
   };
@@ -583,7 +584,7 @@ class EcosForm extends React.Component {
 
           const attName = keysMapping[key] || key;
 
-          const currentComponent = allComponents.find(item => get(item, 'component.key', '') === key);
+          const currentComponent = allComponents.find((item) => get(item, 'component.key', '') === key);
           if (!currentComponent || EcosFormUtils.isOutcomeButton(currentComponent.component)) {
             sRecord.att(attName, value);
           } else {
@@ -620,7 +621,7 @@ class EcosForm extends React.Component {
         const allComponents = form.getAllComponents();
         const outcomeButtonsKeys = [];
 
-        allComponents.forEach(item => {
+        allComponents.forEach((item) => {
           if (EcosFormUtils.isOutcomeButton(item.component)) {
             outcomeButtonsKeys.push(item.component.key);
           }
@@ -642,10 +643,10 @@ class EcosForm extends React.Component {
       if (forceSave || this.props.saveOnSubmit !== false) {
         sRecord
           .save()
-          .then(persistedRecord => {
+          .then((persistedRecord) => {
             onSubmit(persistedRecord, form, sRecord);
           })
-          .catch(e => {
+          .catch((e) => {
             form.showErrors(e, true);
             resetOutcomeButtonsValues();
 
@@ -664,8 +665,8 @@ class EcosForm extends React.Component {
     SUBMIT_FORM_TIMEOUT,
     {
       leading: true,
-      trailing: false
-    }
+      trailing: false,
+    },
   );
 
   onReload(withSaveState) {
@@ -706,7 +707,7 @@ class EcosForm extends React.Component {
     return components;
   };
 
-  getInternalComponents = component => {
+  getInternalComponents = (component) => {
     const components = [];
 
     if (isEmpty(component.components)) {
@@ -720,7 +721,7 @@ class EcosForm extends React.Component {
     return components;
   };
 
-  getInternalRows = component => {
+  getInternalRows = (component) => {
     const components = [];
 
     if (!component.rows) {
@@ -728,7 +729,7 @@ class EcosForm extends React.Component {
     }
 
     for (let i = 0; i < component.rows.length; i++) {
-      Object.keys(component.rows[i]).forEach(key => {
+      Object.keys(component.rows[i]).forEach((key) => {
         components.push(...this.getComponents(component.rows[i][key]));
       });
     }
@@ -780,14 +781,14 @@ EcosForm.propTypes = {
 
   initiator: PropTypes.shape({
     type: PropTypes.string.isRequired,
-    name: PropTypes.string
-  }) // initiator of form creation
+    name: PropTypes.string,
+  }), // initiator of form creation
 };
 
 EcosForm.defaultProps = {
   className: '',
   builderModalIsShow: false,
-  options: {}
+  options: {},
 };
 
 export default EcosForm;

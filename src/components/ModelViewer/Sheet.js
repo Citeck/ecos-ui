@@ -1,5 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
 import get from 'lodash/get';
+import React, { useState, useRef, useEffect } from 'react';
+
 import ModelViewer from './ModelViewer';
 
 export const Sheet = ({
@@ -27,34 +28,28 @@ export const Sheet = ({
     }
   }
 
-  useEffect(
-    () => {
-      if (!initialized && get(containerRef, 'current')) {
-        setInitialized(true);
-        init({
-          diagram,
-          sectionPath,
-          container: containerRef.current,
-          onInit,
-          onMounted,
-          modelEvents,
-          markedElement,
-          zoom,
-          zoomCenter
-        });
-      }
-    },
-    [initialized, containerRef, sectionPath]
-  );
+  useEffect(() => {
+    if (!initialized && get(containerRef, 'current')) {
+      setInitialized(true);
+      init({
+        diagram,
+        sectionPath,
+        container: containerRef.current,
+        onInit,
+        onMounted,
+        modelEvents,
+        markedElement,
+        zoom,
+        zoomCenter,
+      });
+    }
+  }, [initialized, containerRef, sectionPath]);
 
-  useEffect(
-    () => {
-      if (markedElement) {
-        setMarkedElement(markedElement);
-      }
-    },
-    [markedElement]
-  );
+  useEffect(() => {
+    if (markedElement) {
+      setMarkedElement(markedElement);
+    }
+  }, [markedElement]);
 
   return <div ref={containerRef} style={{ height: `${defHeight}px` }} className={className} {...events} />;
 };

@@ -197,24 +197,22 @@ export default class BaseReactComponent extends BaseComponent {
           }
         };
 
-        if (!this._root) {
-          this._root = createRoot(this.react.container);
-          this._root.render(
-            <RawHtmlWrapper
-              onMounted={() => {
-                this.react.isMounted = true;
-                updateLoadingState();
-              }}
-              onComponentLoaded={(comp) => {
-                this.react.innerComponent = comp;
-                updateLoadingState();
-              }}
-              component={component}
-              ref={this.react.resolve}
-              props={props}
-            />,
-          );
-        }
+        this._root = createRoot(this.react.container);
+        this._root.render(
+          <RawHtmlWrapper
+            onMounted={() => {
+              this.react.isMounted = true;
+              updateLoadingState();
+            }}
+            onComponentLoaded={(comp) => {
+              this.react.innerComponent = comp;
+              updateLoadingState();
+            }}
+            component={component}
+            ref={this.react.resolve}
+            props={props}
+          />,
+        );
 
         if (!firstBuild && !isEqual(this.react?.innerComponent?.props, props)) {
           this.setReactProps(props);
@@ -233,10 +231,8 @@ export default class BaseReactComponent extends BaseComponent {
 
   destroy() {
     if (this.react.container) {
-      setTimeout(() => {
-        this._root?.unmount();
-        this.react.wrapper = null;
-      }, 0);
+      this._root?.unmount();
+      this.react.wrapper = null;
     }
 
     return super.destroy();

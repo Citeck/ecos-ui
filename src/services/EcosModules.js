@@ -1,12 +1,12 @@
+import lodash from 'lodash';
 import reactDefault, * as react from 'react';
 import reactDomDefault, * as reactDom from 'react-dom';
-import Records from '../components/Records';
-import lodash from 'lodash';
-import '../build-info';
-import reduxThunk from 'redux-thunk';
-import * as redux from 'redux';
 import * as reactRedux from 'react-redux';
-import * as util from '../helpers/export/util';
+import * as redux from 'redux';
+import reduxThunk from 'redux-thunk';
+
+import Records from '@/components/Records';
+import * as util from '@/helpers/export/util';
 
 const pageUtils = {
   goToDashboard: (recordRef, config) => {
@@ -17,7 +17,7 @@ const pageUtils = {
     } else {
       window.open('/v2/dashboard?recordRef=' + recordRef);
     }
-  }
+  },
 };
 
 export const modules = {
@@ -39,7 +39,7 @@ export const modules = {
   'dialog-manager': () => import('../components/common/dialogs/Manager'),
   'ecos-fetch': () => import('../helpers/ecosFetch'),
   'page-utils': pageUtils,
-  'ecos-utils': { default: util, __esModule: true }
+  'ecos-utils': { default: util, __esModule: true },
 };
 
 /**
@@ -58,7 +58,7 @@ class EcosModules {
       return fromCache;
     }
 
-    const resolve = m => {
+    const resolve = (m) => {
       this.cache[key] = m;
       callback(m);
     };
@@ -69,7 +69,7 @@ class EcosModules {
     }
 
     if (module && module.then) {
-      module.then(resolve).catch(err => {
+      module.then(resolve).catch((err) => {
         console.error('ECOS UI Resource ' + path + 'is not found! Key: ' + key, err);
         resolve(null);
       });

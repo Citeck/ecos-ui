@@ -1,6 +1,6 @@
-import isBoolean from 'lodash/isBoolean';
 import FormioValidator from 'formiojs/components/Validator';
 import { boolValue } from 'formiojs/utils/utils';
+import isBoolean from 'lodash/isBoolean';
 
 FormioValidator.validators.required = {
   ...FormioValidator.validators.required,
@@ -17,7 +17,7 @@ FormioValidator.validators.required = {
     }
 
     return disabled || !component.isEmpty(value);
-  }
+  },
 };
 
 FormioValidator.validators.maxLength = {
@@ -26,9 +26,9 @@ FormioValidator.validators.maxLength = {
     return component.t(component.errorMessage('maxLength'), {
       field: component.errorLabel,
       length: setting,
-      data: component.data
+      data: component.data,
     });
-  }
+  },
 };
 
 export default FormioValidator;
