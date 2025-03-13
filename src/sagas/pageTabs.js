@@ -1,10 +1,10 @@
-import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import { push } from 'connected-react-router';
-import queryString from 'query-string';
+import assign from 'lodash/assign';
 import find from 'lodash/find';
 import get from 'lodash/get';
-import assign from 'lodash/assign';
 import isEmpty from 'lodash/isEmpty';
+import queryString from 'query-string';
+import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 
 import {
   addTab,
@@ -21,15 +21,15 @@ import {
   setTabs,
   updateTab,
   updateTabsFromStorage,
-} from '../actions/pageTabs';
-import { selectInitStatus } from '../selectors/pageTabs';
-import { selectIsAuthenticated } from '../selectors/user';
-import { getCurrentUserName, getCurrentLocale, getEnabledWorkspaces } from '../helpers/util';
-import PageTabList from '../services/pageTabs/PageTabList';
-import PageService from '../services/PageService';
-import { TITLE } from '../constants/pageTabs';
-import { getLinkWithWs, getWorkspaceId, getWsIdOfTabLink } from '../helpers/urls';
-import { BASE_URLS_REDIRECT, RELOCATED_URL } from '../constants';
+} from '@/actions/pageTabs';
+import { BASE_URLS_REDIRECT, RELOCATED_URL } from '@/constants';
+import { TITLE } from '@/constants/pageTabs';
+import { getLinkWithWs, getWorkspaceId, getWsIdOfTabLink } from '@/helpers/urls';
+import { getCurrentUserName, getCurrentLocale, getEnabledWorkspaces } from '@/helpers/util';
+import { selectInitStatus } from '@/selectors/pageTabs';
+import { selectIsAuthenticated } from '@/selectors/user';
+import PageService from '@/services/PageService';
+import PageTabList from '@/services/pageTabs/PageTabList';
 
 const lng = getCurrentLocale();
 
@@ -54,6 +54,8 @@ function* sagaInitTabs({ api }) {
     yield put(setTabs(PageTabList.storeList));
     yield put(initTabsComplete());
 
+    debugger; // for debug
+
     yield PageTabList.tabs.map(function* (tab) {
       if (tab.isActive || tab.isLoading) {
         const updates = yield* getTitle(tab);
@@ -62,6 +64,9 @@ function* sagaInitTabs({ api }) {
     });
 
     yield put(setTabs(PageTabList.storeList));
+
+    const active = PageTabList.activeTab;
+    console.log('active tab:', active, '\ntabs:', PageTabList.tabs); // for debug
   } catch (e) {
     console.error('[pageTabs] sagaInitTabs saga error', e);
   }
