@@ -132,6 +132,10 @@ export class DashboardApi {
     record.att('name?json', name);
     record.att('config?json', DashboardService.getEmptyDashboardConfig());
 
+    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+      record.att('workspace', getWorkspaceId());
+    }
+
     return record
       .save()
       .then(response => {
