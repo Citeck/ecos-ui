@@ -47,7 +47,6 @@ import { INSERT_COLLAPSIBLE_COMMAND } from '../CollapsiblePlugin';
 import { OPEN_UPLOAD_MODAL } from '../FilePlugin/constants';
 import { InsertImageDialog } from '../ImagesPlugin';
 import InsertLayoutDialog from '../LayoutPlugin/InsertLayoutDialog';
-import { InsertPollDialog } from '../PollPlugin';
 import { SHORTCUTS } from '../ShortcutsPlugin/shortcuts';
 import { InsertTableDialog } from '../TablePlugin';
 
@@ -783,17 +782,6 @@ export default function ToolbarPlugin({
                 >
                   <i className="icon table" />
                   <span className="text">{t('table')}</span>
-                </DropDownItem>
-                <DropDownItem
-                  onClick={() => {
-                    showModal(t('lexical.plugins.toolbar.insert.poll'), (onClose) => (
-                      <InsertPollDialog activeEditor={activeEditor} onClose={onClose} />
-                    ));
-                  }}
-                  className="item"
-                >
-                  <i className="icon poll" />
-                  <span className="text">{t('poll')}</span>
                 </DropDownItem>
                 <DropDownItem
                   onClick={() => {

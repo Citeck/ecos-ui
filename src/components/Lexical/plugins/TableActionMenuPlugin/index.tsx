@@ -87,10 +87,7 @@ function $cellContainsEmptyParagraph(cell: TableCellNode): boolean {
     return false;
   }
   const firstChild = cell.getFirstChildOrThrow();
-  if (!$isParagraphNode(firstChild) || !firstChild.isEmpty()) {
-    return false;
-  }
-  return true;
+  return !(!$isParagraphNode(firstChild) || !firstChild.isEmpty());
 }
 
 function $selectLastDescendant(node: ElementNode): void {
@@ -585,134 +582,141 @@ function TableActionMenu({
   return createPortal(
     // eslint-disable-next-line jsx-a11y/no-static-element-interactions
     <div
-      className="dropdown citeck-lexical-editor__dropdown"
+      className="citeck-lexical-editor__dropdown"
       ref={dropDownRef}
       onClick={(e) => {
         e.stopPropagation();
       }}
     >
-      {mergeCellButton}
-      <button
-        type="button"
-        className="item"
-        onClick={() =>
-          showColorPickerModal(t('lexical.plugins.table.actions.cell-bg-color'), () => (
-            <ColorPicker color={backgroundColor} onChange={handleCellBackgroundColor} />
-          ))
-        }
-        data-test-id="table-background-color"
-      >
-        <span className="text">{t('lexical.plugins.table.actions.bg-color')}</span>
-      </button>
-      <button type="button" className="item" onClick={() => toggleRowStriping()} data-test-id="table-row-striping">
-        <span className="text">{t('lexical.plugins.table.actions.toggle-row-striping')}</span>
-      </button>
-      <DropDown
-        buttonLabel={t('lexical.plugins.table.actions.vertical-align')}
-        buttonClassName="item"
-        buttonAriaLabel={t('lexical.plugins.table.actions.vertical-align-label')}
-      >
-        <DropDownItem
-          onClick={() => {
-            formatVerticalAlign('top');
-          }}
-          className="item wide"
+      <div className="dropdown">
+        {mergeCellButton}
+        <button
+          type="button"
+          className="item"
+          onClick={() =>
+            showColorPickerModal(t('lexical.plugins.table.actions.cell-bg-color'), () => (
+              <ColorPicker color={backgroundColor} onChange={handleCellBackgroundColor} />
+            ))
+          }
+          data-test-id="table-background-color"
         >
-          <div className="icon-text-container">
-            <i className="icon vertical-top" />
-            <span className="text">{t('lexical.plugins.table.actions.top-align')}</span>
-          </div>
-        </DropDownItem>
-        <DropDownItem
-          onClick={() => {
-            formatVerticalAlign('middle');
-          }}
-          className="item wide"
+          <span className="text">{t('lexical.plugins.table.actions.bg-color')}</span>
+        </button>
+        <button type="button" className="item" onClick={() => toggleRowStriping()} data-test-id="table-row-striping">
+          <span className="text">{t('lexical.plugins.table.actions.toggle-row-striping')}</span>
+        </button>
+        <DropDown
+          buttonLabel={t('lexical.plugins.table.actions.vertical-align')}
+          buttonClassName="item"
+          buttonAriaLabel={t('lexical.plugins.table.actions.vertical-align-label')}
         >
-          <div className="icon-text-container">
-            <i className="icon vertical-middle" />
-            <span className="text">{t('lexical.plugins.table.actions.middle-align')}</span>
-          </div>
-        </DropDownItem>
-        <DropDownItem
-          onClick={() => {
-            formatVerticalAlign('bottom');
-          }}
-          className="item wide"
+          <DropDownItem
+            onClick={() => {
+              formatVerticalAlign('top');
+            }}
+            className="item wide"
+          >
+            <div className="icon-text-container">
+              <i className="icon vertical-top" />
+              <span className="text">{t('lexical.plugins.table.actions.top-align')}</span>
+            </div>
+          </DropDownItem>
+          <DropDownItem
+            onClick={() => {
+              formatVerticalAlign('middle');
+            }}
+            className="item wide"
+          >
+            <div className="icon-text-container">
+              <i className="icon vertical-middle" />
+              <span className="text">{t('lexical.plugins.table.actions.middle-align')}</span>
+            </div>
+          </DropDownItem>
+          <DropDownItem
+            onClick={() => {
+              formatVerticalAlign('bottom');
+            }}
+            className="item wide"
+          >
+            <div className="icon-text-container">
+              <i className="icon vertical-bottom" />
+              <span className="text">{t('lexical.plugins.table.actions.bottom-align')}</span>
+            </div>
+          </DropDownItem>
+        </DropDown>
+        <button type="button" className="item" onClick={() => toggleFirstRowFreeze()} data-test-id="table-freeze-first-row">
+          <span className="text">{t('lexical.plugins.table.actions.toggle-first-row-freeze')}</span>
+        </button>
+        <button type="button" className="item" onClick={() => toggleFirstColumnFreeze()} data-test-id="table-freeze-first-column">
+          <span className="text">{t('lexical.plugins.table.actions.toggle-first-column-freeze')}</span>
+        </button>
+        <hr />
+        <button type="button" className="item" onClick={() => insertTableRowAtSelection(false)} data-test-id="table-insert-row-above">
+          <span className="text">
+            {t('insert')}{' '}
+            {selectionCounts.rows === 1
+              ? t('lexical.plugins.table.actions.row')
+              : `${selectionCounts.rows} ${t('lexical.plugins.table.actions.rows')}`}{' '}
+            {t('lexical.plugins.table.actions.above')}
+          </span>
+        </button>
+        <button type="button" className="item" onClick={() => insertTableRowAtSelection(true)} data-test-id="table-insert-row-below">
+          <span className="text">
+            {t('insert')}{' '}
+            {selectionCounts.rows === 1
+              ? t('lexical.plugins.table.actions.row')
+              : `${selectionCounts.rows} ${t('lexical.plugins.table.actions.rows')}`}{' '}
+            {t('lexical.plugins.table.actions.below')}
+          </span>
+        </button>
+        <hr />
+        <button
+          type="button"
+          className="item"
+          onClick={() => insertTableColumnAtSelection(false)}
+          data-test-id="table-insert-column-before"
         >
-          <div className="icon-text-container">
-            <i className="icon vertical-bottom" />
-            <span className="text">{t('lexical.plugins.table.actions.bottom-align')}</span>
-          </div>
-        </DropDownItem>
-      </DropDown>
-      <button type="button" className="item" onClick={() => toggleFirstRowFreeze()} data-test-id="table-freeze-first-row">
-        <span className="text">{t('lexical.plugins.table.actions.toggle-first-row-freeze')}</span>
-      </button>
-      <button type="button" className="item" onClick={() => toggleFirstColumnFreeze()} data-test-id="table-freeze-first-column">
-        <span className="text">{t('lexical.plugins.table.actions.toggle-first-column-freeze')}</span>
-      </button>
-      <hr />
-      <button type="button" className="item" onClick={() => insertTableRowAtSelection(false)} data-test-id="table-insert-row-above">
-        <span className="text">
-          {t('insert')}{' '}
-          {selectionCounts.rows === 1
-            ? t('lexical.plugins.table.actions.row')
-            : `${selectionCounts.rows} ${t('lexical.plugins.table.actions.rows')}`}{' '}
-          {t('lexical.plugins.table.actions.above')}
-        </span>
-      </button>
-      <button type="button" className="item" onClick={() => insertTableRowAtSelection(true)} data-test-id="table-insert-row-below">
-        <span className="text">
-          {t('insert')}{' '}
-          {selectionCounts.rows === 1
-            ? t('lexical.plugins.table.actions.row')
-            : `${selectionCounts.rows} ${t('lexical.plugins.table.actions.rows')}`}{' '}
-          {t('lexical.plugins.table.actions.below')}
-        </span>
-      </button>
-      <hr />
-      <button type="button" className="item" onClick={() => insertTableColumnAtSelection(false)} data-test-id="table-insert-column-before">
-        <span className="text">
-          {t('insert')}{' '}
-          {selectionCounts.columns === 1
-            ? t('lexical.plugins.table.actions.column')
-            : `${selectionCounts.columns} ${t('lexical.plugins.table.actions.columns')}`}{' '}
-          {t('lexical.plugins.table.actions.left')}
-        </span>
-      </button>
-      <button type="button" className="item" onClick={() => insertTableColumnAtSelection(true)} data-test-id="table-insert-column-after">
-        <span className="text">
-          {t('insert')}{' '}
-          {selectionCounts.columns === 1
-            ? t('lexical.plugins.table.actions.column')
-            : `${selectionCounts.columns} ${t('lexical.plugins.table.actions.columns')}`}{' '}
-          {t('lexical.plugins.table.actions.right')}
-        </span>
-      </button>
-      <hr />
-      <button type="button" className="item" onClick={() => deleteTableColumnAtSelection()} data-test-id="table-delete-columns">
-        <span className="text">{t('lexical.plugins.table.actions.delete.column')}</span>
-      </button>
-      <button type="button" className="item" onClick={() => deleteTableRowAtSelection()} data-test-id="table-delete-rows">
-        <span className="text">{t('lexical.plugins.table.actions.delete.row')}</span>
-      </button>
-      <button type="button" className="item" onClick={() => deleteTableAtSelection()} data-test-id="table-delete">
-        <span className="text">{t('lexical.plugins.table.actions.delete.table')}</span>
-      </button>
-      <hr />
-      <button type="button" className="item" onClick={() => toggleTableRowIsHeader()}>
-        <span className="text">
-          {(tableCellNode.__headerState & TableCellHeaderStates.ROW) === TableCellHeaderStates.ROW ? t('remove') : t('add')}{' '}
-          {t('lexical.plugins.table.actions.action.row-header')}
-        </span>
-      </button>
-      <button type="button" className="item" onClick={() => toggleTableColumnIsHeader()} data-test-id="table-column-header">
-        <span className="text">
-          {(tableCellNode.__headerState & TableCellHeaderStates.COLUMN) === TableCellHeaderStates.COLUMN ? t('remove') : t('add')}{' '}
-          {t('lexical.plugins.table.actions.action.column-header')}
-        </span>
-      </button>
+          <span className="text">
+            {t('insert')}{' '}
+            {selectionCounts.columns === 1
+              ? t('lexical.plugins.table.actions.column')
+              : `${selectionCounts.columns} ${t('lexical.plugins.table.actions.columns')}`}{' '}
+            {t('lexical.plugins.table.actions.left')}
+          </span>
+        </button>
+        <button type="button" className="item" onClick={() => insertTableColumnAtSelection(true)} data-test-id="table-insert-column-after">
+          <span className="text">
+            {t('insert')}{' '}
+            {selectionCounts.columns === 1
+              ? t('lexical.plugins.table.actions.column')
+              : `${selectionCounts.columns} ${t('lexical.plugins.table.actions.columns')}`}{' '}
+            {t('lexical.plugins.table.actions.right')}
+          </span>
+        </button>
+        <hr />
+        <button type="button" className="item" onClick={() => deleteTableColumnAtSelection()} data-test-id="table-delete-columns">
+          <span className="text">{t('lexical.plugins.table.actions.delete.column')}</span>
+        </button>
+        <button type="button" className="item" onClick={() => deleteTableRowAtSelection()} data-test-id="table-delete-rows">
+          <span className="text">{t('lexical.plugins.table.actions.delete.row')}</span>
+        </button>
+        <button type="button" className="item" onClick={() => deleteTableAtSelection()} data-test-id="table-delete">
+          <span className="text">{t('lexical.plugins.table.actions.delete.table')}</span>
+        </button>
+        <hr />
+        <button type="button" className="item" onClick={() => toggleTableRowIsHeader()}>
+          <span className="text">
+            {(tableCellNode.__headerState & TableCellHeaderStates.ROW) === TableCellHeaderStates.ROW ? t('remove') : t('add')}{' '}
+            {t('lexical.plugins.table.actions.action.row-header')}
+          </span>
+        </button>
+        <button type="button" className="item" onClick={() => toggleTableColumnIsHeader()} data-test-id="table-column-header">
+          <span className="text">
+            {(tableCellNode.__headerState & TableCellHeaderStates.COLUMN) === TableCellHeaderStates.COLUMN ? t('remove') : t('add')}{' '}
+            {t('lexical.plugins.table.actions.action.column-header')}
+          </span>
+        </button>
+      </div>
     </div>,
     document.body,
   );

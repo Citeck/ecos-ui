@@ -117,8 +117,8 @@ function DropDownItems({
 
   return (
     <DropDownContext.Provider value={contextValue}>
-      <div className="dropdown citeck-lexical-editor__dropdown" ref={dropDownRef} onKeyDown={handleKeyDown}>
-        {children}
+      <div className="citeck-lexical-editor__dropdown" ref={dropDownRef} onKeyDown={handleKeyDown}>
+        <div className="dropdown">{children}</div>
       </div>
     </DropDownContext.Provider>
   );

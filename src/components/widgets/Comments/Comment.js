@@ -1,23 +1,25 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
-import moment from 'moment';
+import { $generateHtmlFromNodes } from '@lexical/html';
+import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
-import get from 'lodash/get';
 import isNil from 'lodash/isNil';
-import { $generateHtmlFromNodes } from '@lexical/html';
+import moment from 'moment';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
-import { Avatar, Loader, Popper } from '../../common/index';
-import { t } from '../../../helpers/export/util';
-import { num2str } from '../../../helpers/util';
+import LexicalEditor from '../../LexicalEditor';
+import Records from '../../Records';
 import { Btn } from '../../common/btns';
 import { Badge, Checkbox, Label } from '../../common/form';
+import { Avatar, Loader, Popper } from '../../common/index';
+
 import { CommentInterface } from './propsInterfaces';
-import { selectStateByRecordRef } from '../../../selectors/comments';
-import { createCommentRequest, setError, deleteCommentRequest, getComments, updateCommentRequest } from '../../../actions/comments';
-import Records from '../../Records';
-import LexicalEditor from '../../LexicalEditor';
+
+import { createCommentRequest, setError, deleteCommentRequest, getComments, updateCommentRequest } from '@/actions/comments';
+import { t } from '@/helpers/export/util';
+import { num2str } from '@/helpers/util';
+import { selectStateByRecordRef } from '@/selectors/comments';
 
 export const LENGTH_LIMIT = 5000;
 

@@ -7,6 +7,11 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 import packageInfo from './package.json';
 
 export default defineConfig(() => ({
+  server: {
+    hmr: {
+      overlay: false,
+    },
+  },
   define: {
     'process.env': JSON.stringify({ NODE_DEBUG: false }),
     'process.versions': JSON.stringify({ node: packageInfo.volta.node }),
