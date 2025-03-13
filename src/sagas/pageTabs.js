@@ -54,8 +54,6 @@ function* sagaInitTabs({ api }) {
     yield put(setTabs(PageTabList.storeList));
     yield put(initTabsComplete());
 
-    debugger; // for debug
-
     yield PageTabList.tabs.map(function* (tab) {
       if (tab.isActive || tab.isLoading) {
         const updates = yield* getTitle(tab);
@@ -64,9 +62,6 @@ function* sagaInitTabs({ api }) {
     });
 
     yield put(setTabs(PageTabList.storeList));
-
-    const active = PageTabList.activeTab;
-    console.log('active tab:', active, '\ntabs:', PageTabList.tabs); // for debug
   } catch (e) {
     console.error('[pageTabs] sagaInitTabs saga error', e);
   }

@@ -26,10 +26,11 @@ export default class WidgetService {
       onClose && onClose(done);
     };
 
-    if (!this._root) {
-      this._root = createRoot(container);
+    if (this._root) {
+      this._root.unmount();
     }
 
+    this._root = createRoot(container);
     this._root.render(<UploadNewVersion record={record} onClose={onCloseModal} />);
     document.body.appendChild(container);
   }
@@ -69,10 +70,11 @@ export default class WidgetService {
     let userSearchExtraFieldsStr = orgstructParams.userSearchExtraFields || '';
     const userSearchExtraFields = userSearchExtraFieldsStr.length > 0 ? userSearchExtraFieldsStr.split(',').map((item) => item.trim()) : [];
 
-    if (!this._root) {
-      this._root = createRoot(container);
+    if (this._root) {
+      this._root.unmount();
     }
 
+    this._root = createRoot(container);
     this._root.render(
       <SelectOrgstruct
         openByDefault

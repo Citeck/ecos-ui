@@ -1,38 +1,40 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { Collapse } from 'reactstrap';
 import classNames from 'classnames';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
-import merge from 'lodash/merge';
-import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
+import merge from 'lodash/merge';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { Collapse } from 'reactstrap';
 
-import { Attributes, Permissions } from '../../../../constants';
-import { getHtmlIdByUid, beArray, isMobileDevice, t, isNodeRef } from '../../../../helpers/util';
-import { getIconUpDown } from '../../../../helpers/icon';
-import JournalsConverter from '../../../../dto/journals';
+import FormManager from '../../../EcosForm/FormManager';
 import JournalsService from '../../../Journals/service';
 import { mergeFilters } from '../../../Journals/service/util';
+import Records from '../../../Records';
+import { PERMISSION_WRITE_ATTR } from '../../../Records/constants';
+import { PREDICATE_EQ } from '../../../Records/predicates/predicates';
+import { parseAttribute } from '../../../Records/utils/attStrUtils';
 import { EcosModal, Icon, Loader, Pagination } from '../../../common';
 import { Btn, IcoBtn } from '../../../common/btns';
 import { Grid } from '../../../common/grid';
-import FormManager from '../../../EcosForm/FormManager';
-import Records from '../../../Records';
-import { parseAttribute } from '../../../Records/utils/attStrUtils';
 import { DialogManager } from '../../dialogs';
 import { matchCardDetailsLinkFormatterColumn } from '../../grid/mapping/Mapper';
-import { DataTypes, DisplayModes, Labels } from './constants';
-import InputView from './InputView';
-import ViewMode from './ViewMode';
-import Filters from './Filters';
-import Search from './Search';
+
 import CreateVariants from './CreateVariants';
+import Filters from './Filters';
 import FiltersProvider from './Filters/FiltersProvider';
-import { TEMPLATE_REGEX } from '../../../../forms/components/custom/selectJournal/constants';
-import { PREDICATE_EQ } from '../../../Records/predicates/predicates';
-import { PERMISSION_WRITE_ATTR } from '../../../Records/constants';
+import InputView from './InputView';
+import Search from './Search';
+import ViewMode from './ViewMode';
+import { DataTypes, DisplayModes, Labels } from './constants';
+
+import { Attributes, Permissions } from '@/constants';
+import JournalsConverter from '@/dto/journals';
+import { TEMPLATE_REGEX } from '@/forms/components/custom/selectJournal/constants';
+import { getIconUpDown } from '@/helpers/icon';
+import { getHtmlIdByUid, beArray, isMobileDevice, t, isNodeRef } from '@/helpers/util';
 
 import './SelectJournal.scss';
 
@@ -915,7 +917,7 @@ export default class SelectJournal extends Component {
     const DefaultView = viewOnly ? (
       <ViewMode {...inputViewProps} />
     ) : (
-      <InputView {...inputViewProps} disabled={disabled || !journalId || journalId.match(TEMPLATE_REGEX)} />
+      <InputView {...inputViewProps} disabled={disabled || !journalId || !!journalId.match(TEMPLATE_REGEX)} />
     );
 
     return (
