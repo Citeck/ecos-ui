@@ -282,7 +282,6 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
         }
 
         if (hideSortableGhost) {
-          console.log('node:', node.styles);
           this.sortableGhost = node;
 
           setInlineStyles(node, {
