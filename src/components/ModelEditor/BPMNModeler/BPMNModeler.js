@@ -10,6 +10,10 @@ import { linting } from './modules/linter';
 
 import { DEFINITON_TYPE } from '@/constants/bpmn';
 
+import 'bpmn-js/dist/assets/diagram-js.css';
+import 'bpmn-js/dist/assets/bpmn-font/css/bpmn.css';
+import 'bpmn-js-color-picker/colors/color-picker.css';
+
 export default class BPMNModeler extends BaseModeler {
   initModelerInstance = () => {
     this.modeler = new Modeler({

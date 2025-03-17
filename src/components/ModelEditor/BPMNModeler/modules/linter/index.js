@@ -4,6 +4,8 @@ import config from './bpmnlint-config';
 
 import { t } from '@/helpers/export/util';
 
+import 'bpmn-js-bpmnlint/dist/assets/css/bpmn-js-bpmnlint.css';
+
 import './style.scss';
 
 const translations = {

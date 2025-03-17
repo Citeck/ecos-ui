@@ -6,6 +6,9 @@ import BaseModeler from '../BaseModeler';
 
 import additionalModules from './modules';
 
+import 'cmmn-js/dist/assets/diagram-js.css';
+import 'cmmn-js/dist/assets/cmmn-font/css/cmmn.css';
+
 export default class CMMNModeler extends BaseModeler {
   initModelerInstance = () => {
     this.modeler = new Modeler({ additionalModules });

@@ -11,6 +11,8 @@ import BaseModeler from '../BaseModeler';
 
 import { LABEL_POSTFIX, PLANE_POSTFIX } from '@/constants/cmmn';
 
+import 'camunda-dmn-js/dist/assets/camunda-platform-modeler.css';
+
 export default class DMNModeler extends BaseModeler {
   __saveSvgFunc;
 

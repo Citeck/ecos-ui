@@ -7,6 +7,8 @@ import * as CmmnUtils from '../../utils';
 
 import actionTypes from './action-types.json';
 
+import 'bpmn-font/dist/css/bpmn.css';
+
 const HIGH_PRIORITY = 1500;
 const TASK_BORDER_RADIUS = 10;
 const LABEL_STYLE = {
