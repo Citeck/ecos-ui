@@ -1,15 +1,22 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { Scrollbars } from 'react-custom-scrollbars';
-import get from 'lodash/get';
+import classNames from 'classnames';
 import debounce from 'lodash/debounce';
+import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { Scrollbars } from 'react-custom-scrollbars';
+import ReactDOM from 'react-dom';
+import { connect } from 'react-redux';
 import ReactResizeDetector from 'react-resize-detector';
-import classNames from 'classnames';
 import { withRouter } from 'react-router-dom';
+
+import ClickOutside from '../ClickOutside';
+import { SortableList } from '../DndKit';
+import { dropByCacheKey } from '../ReactRouterCache';
+import DialogManager from '../common/dialogs/Manager';
+
+import Tab from './Tab';
 
 import {
   changeTab,
@@ -21,26 +28,22 @@ import {
   setTab,
   updateTab,
   updateTabsFromStorage,
-} from '../../actions/pageTabs';
-import { animateScrollTo, getEnabledWorkspaces, getScrollbarWidth, IS_DEV_ENV, t } from '../../helpers/util';
-import PageService from '../../services/PageService';
-import UserLocalSettingsService from '../../services/userLocalSettings';
-import { SortableList } from '../DndKit';
-import ClickOutside from '../ClickOutside';
-import { dropByCacheKey } from '../ReactRouterCache';
-import Tab from './Tab';
-import { _LOCALHOST_, URL as Urls } from '../../constants';
-import { MIN_CONTEXT_WIDTH, PANEL_CLASS_NAME } from '../../constants/pageTabs';
-import { getLinkWithWs, getWorkspaceId, replaceHistoryLink } from '../../helpers/urls';
-import { selectWorkspaceHomeLinkById } from '../../selectors/workspaces';
-import pageTabList, { updateTabEmitter } from '../../services/pageTabs/PageTabList';
-import DialogManager from '../common/dialogs/Manager';
-import CopyToClipboard from '../../helpers/copyToClipboard';
+} from '@/actions/pageTabs';
+import { _LOCALHOST_, URL as Urls } from '@/constants';
+import { MIN_CONTEXT_WIDTH, PANEL_CLASS_NAME } from '@/constants/pageTabs';
+import CopyToClipboard from '@/helpers/copyToClipboard';
+import { getLinkWithWs, getWorkspaceId, replaceHistoryLink } from '@/helpers/urls';
+import { animateScrollTo, getEnabledWorkspaces, getScrollbarWidth, IS_DEV_ENV, t } from '@/helpers/util';
+import { selectWorkspaceHomeLinkById } from '@/selectors/workspaces';
+import PageService from '@/services/PageService';
+import pageTabList, { updateTabEmitter } from '@/services/pageTabs/PageTabList';
+import UserLocalSettingsService from '@/services/userLocalSettings';
 
 import './style.scss';
 
 const Labels = {
   GO_HOME: 'page-tabs.go-home-page',
+  GO_TO: 'page-tabs.go-to',
   CLOSE_ALL_TABS: 'page-tabs.close-all-tabs',
   CONFIRM_REMOVE_ALL_TABS_TITLE: 'page-tabs.close-all-tabs-title',
   CONFIRM_REMOVE_ALL_TABS_TEXT: 'page-tabs.close-all-tabs-text',
@@ -325,7 +328,7 @@ class PageTabs extends React.Component {
         this.handleCloseTab(tab);
         break;
       case ContextMenuTypes.GO_SOURCE_HOST:
-        const host = IS_DEV_ENV ? import.meta.env.VITE_SHARE_PROXY_URL : _LOCALHOST_;
+        const host = IS_DEV_ENV ? process.env.SHARE_PROXY_URL : _LOCALHOST_;
         window.open(`${host}${window.location.pathname}${window.location.search}`, '_blank');
         break;
       default:
@@ -687,7 +690,7 @@ class PageTabs extends React.Component {
 
     if ((IS_DEV_ENV || (ctrlKey && shiftKey) || (metaKey && shiftKey)) && get(this.state, 'contextMenu.tab.isActive')) {
       actions.push({
-        title: `Go to ${IS_DEV_ENV ? import.meta.env.VITE_SHARE_PROXY_URL : 'local'}`,
+        title: `${t(Labels.GO_TO)} ${IS_DEV_ENV ? process.env.SHARE_PROXY_URL : 'local'}`,
         onClick: () => this.handleClickContextMenuItem(ContextMenuTypes.GO_SOURCE_HOST),
       });
     }

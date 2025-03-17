@@ -1,27 +1,27 @@
+import classNames from 'classnames';
+import get from 'lodash/get';
+import isArray from 'lodash/isArray';
+import isBoolean from 'lodash/isBoolean';
+import isEqual from 'lodash/isEqual';
+import isFunction from 'lodash/isFunction';
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { NotificationManager } from '@/services/notifications';
-import classNames from 'classnames';
-import PropTypes from 'prop-types';
-import get from 'lodash/get';
-import isEqual from 'lodash/isEqual';
-import isBoolean from 'lodash/isBoolean';
-import isFunction from 'lodash/isFunction';
-import isArray from 'lodash/isArray';
 
-import { selectImportDataConfig, selectJournalConfig } from '../../selectors/journals';
-import { Dropdown } from '../common/form';
-import LicenseService from '../../services/license/LicenseService';
-import { getCurrentUserName, getTextByLocale, isMobileDevice } from '../../helpers/util';
-import { t } from '../../helpers/export/util';
-import { Tooltip } from '../common';
-import DownloadIcon from '../common/icons/Download';
-import PageService from '../../services/PageService';
 import FormManager from '../EcosForm/FormManager';
-import { SourcesId } from '../../constants';
-import Records from '../../components/Records';
-import { wrapArgs } from '../../helpers/redux';
-import { deselectAllRecords, reloadGrid } from '../../actions/journals';
+import { Tooltip } from '../common';
+import { Dropdown } from '../common/form';
+import DownloadIcon from '../common/icons/Download';
+
+import { deselectAllRecords, reloadGrid } from '@/actions/journals';
+import Records from '@/components/Records';
+import { SourcesId } from '@/constants';
+import { wrapArgs } from '@/helpers/redux';
+import { t, getCurrentUserName, getTextByLocale, isMobileDevice } from '@/helpers/util';
+import { selectImportDataConfig, selectJournalConfig } from '@/selectors/journals';
+import PageService from '@/services/PageService';
+import LicenseService from '@/services/license/LicenseService';
+import { NotificationManager } from '@/services/notifications';
 
 import './Import.scss';
 
@@ -38,7 +38,7 @@ const importFormId = 'import-data-form';
 const importFormRecord = 'integrations/import-data@';
 
 const basePathTemplates = '/gateway/integrations/api/import-data/download-template';
-const importEndpointLink = `${import.meta.env.VITE_SHARE_PROXY_URL || window.location.origin || ''}` + basePathTemplates;
+const importEndpointLink = `${process.env.SHARE_PROXY_URL || window.location.origin || ''}` + basePathTemplates;
 
 const StatusesUpdate = {
   RUNNING: 'RUNNING',
