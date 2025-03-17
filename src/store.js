@@ -1,12 +1,14 @@
-import { applyMiddleware, compose, createStore } from 'redux';
-import createSagaMiddleware from 'redux-saga';
-import thunk from 'redux-thunk';
-import { createLogger } from 'redux-logger';
 import { routerMiddleware } from 'connected-react-router';
 import { createBrowserHistory } from 'history';
+import { applyMiddleware, compose, createStore } from 'redux';
+import { createLogger } from 'redux-logger';
+import createSagaMiddleware from 'redux-saga';
+import thunk from 'redux-thunk';
 
 import createRootReducer, { createReducer } from './reducers';
 import sagas from './sagas';
+
+import { allowedModes } from '@/constants/index.js';
 
 const sagaMiddleware = createSagaMiddleware();
 const history = createBrowserHistory();
@@ -14,10 +16,11 @@ const history = createBrowserHistory();
 let store = {};
 
 let optionalMiddlewares = [];
-if (process.env.NODE_ENV === 'development') {
+if ([...allowedModes, 'production'].includes(process.env.NODE_ENV)) {
+  // TODO: need delete 'production'. For debug on stand (ECOSUI-3285)
   const logger = createLogger({
     collapsed: true,
-    diff: true
+    diff: true,
     //please, don't delete predicate, it's needed for dev
     //predicate: (getState, action) => action.type.startsWith('journal')
   });
@@ -35,7 +38,7 @@ export default function configureStore(ea, defaultState = {}) {
   store = createStore(
     createRootReducer(history),
     initialState,
-    composeEnhancers(applyMiddleware(routerMiddleware(history), sagaMiddleware, thunk.withExtraArgument(ea), ...optionalMiddlewares))
+    composeEnhancers(applyMiddleware(routerMiddleware(history), sagaMiddleware, thunk.withExtraArgument(ea), ...optionalMiddlewares)),
   );
 
   sagaMiddleware.run(sagas, ea);

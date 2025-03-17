@@ -5,18 +5,18 @@
   "type": "module",
   "scripts": {
     "start": "NODE_ENV=development node -r dotenv/config server/index.js",
-    "build": "cross-env REACT_APP_BUILD_TIME=$(date +%s) npm-run-all build:src",
+    "start:stage": "NODE_ENV=dev-stage node -r dotenv/config server/index.js",
+    "build:stage": "NODE_ENV=dev-stage NODE_OPTIONS=--max-old-space-size=6144 vite build --mode dev-stage",
+    "build:win": "NODE_OPTIONS=--max-old-space-size=6144 vite build --mode production",
     "build:ci": "cross-env REACT_APP_BUILD_TIME=$(date +%s) npm-run-all build:src",
     "build:src": "node --max_old_space_size=6144 node_modules/.bin/vite build --mode production",
-    "build:win": "NODE_OPTIONS=--max-old-space-size=6144 vite build --mode production",
+    "build": "cross-env REACT_APP_BUILD_TIME=$(date +%s) npm-run-all build:src",
     "clean": "rimraf public/ecosui/export",
     "export": "",
     "test": "node ./node_modules/.bin/jest --watch",
     "test:ci": "node ./node_modules/.bin/jest --watchAll=false",
     "test:win": "jest --watch",
     "format": "prettier --single-quote --write 'src/**/*.{js,jsx,ts,tsx,json,css,scss,md}' 'server/**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
-    "start:prod": "cross-env NODE_ENV=production node node_modules/.bin/vite preview",
-    "start:prod:win": "NODE_ENV=production vite preview",
     "bpmnlint-config": "npx bpmnlint-pack-config -c .bpmnlintrc -o src/components/ModelEditor/BPMNModeler/modules/linter/bpmnlint-config.js -t es"
   },
   "dependencies": {

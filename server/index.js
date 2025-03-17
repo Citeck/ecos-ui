@@ -7,6 +7,8 @@ import path from 'path';
 // eslint-disable-next-line import/default
 import ViteExpress from 'vite-express';
 
+const isDevStage = process.env.NODE_ENV === 'dev-stage';
+
 const pathDevelopment = '.env.development';
 const pathDevelopmentLocal = '.env.development.local';
 
@@ -36,7 +38,13 @@ const app = express();
 const router = express.Router();
 
 // React app routes
-router.get(['/', '/v2', '/v2/*'], createMainRoute());
+if (isDevStage) {
+  router.get(['/', '/v2', '/v2/*'], (req, res) => {
+    res.sendFile(path.resolve(process.cwd(), 'build', 'index.html'));
+  });
+} else {
+  router.get(['/', '/v2', '/v2/*'], createMainRoute());
+}
 
 // Proxy to /share
 const SHARE_PROXY_URL = process.env.SHARE_PROXY_URL;
@@ -53,7 +61,11 @@ app.use('/gateway/**', shareProxy);
 app.use('/build-info/**', shareProxy);
 app.use('/', router);
 
-app.use(express.static(path.resolve(process.cwd(), 'public')));
+if (isDevStage) {
+  app.use(express.static(path.resolve(process.cwd(), 'build')));
+} else {
+  app.use(express.static(path.resolve(process.cwd(), 'public')));
+}
 app.use(ViteExpress.static());
 
 // Run app
@@ -74,7 +86,9 @@ const server = app.listen(PORT, () => {
   );
 });
 
-ViteExpress.bind(app, server);
+if (!isDevStage) {
+  ViteExpress.bind(app, server);
+}
 
 function createMainRoute() {
   const assetsCacheHash = generateAssetsCacheHash();

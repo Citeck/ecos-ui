@@ -1,5 +1,6 @@
-import ecosFetch from '../helpers/ecosFetch';
-import { getCurrentLocale } from '../helpers/util';
+import { allowedModes } from '@/constants/index.js';
+import ecosFetch from '@/helpers/ecosFetch';
+import { getCurrentLocale } from '@/helpers/util';
 
 const getOptions = {
   credentials: 'include',
@@ -56,7 +57,7 @@ export class CommonApi {
     let { timeout, onError, url, postProcess, cacheKey } = config;
 
     let shareProxyUrl = '';
-    if (process.env.NODE_ENV === 'development') {
+    if (allowedModes.includes(process.env.NODE_ENV)) {
       shareProxyUrl = process.env.SHARE_PROXY_URL;
     }
 

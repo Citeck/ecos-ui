@@ -1,9 +1,9 @@
-import { CITECK_URI } from './alfresco';
 import { SectionTypes } from './adminSection';
+import { CITECK_URI } from './alfresco';
 
 export const DEFAULT_EIS = Object.freeze({
   EIS_ID: 'EIS_ID',
-  LOGOUT_URL: 'LOGOUT_URL'
+  LOGOUT_URL: 'LOGOUT_URL',
 });
 
 export const BASE_URLS_REDIRECT = ['/', '/v2', '/v2/'];
@@ -35,25 +35,25 @@ export const URL = {
   TIMESHEET_IFRAME_FOR_VERIFICATION: '/v2/pure-timesheet/for-verification',
   TIMESHEET_IFRAME_DELEGATED: '/v2/pure-timesheet/delegated',
   FORM_COMPONENTS: '/v2/debug/formio-develop',
-  ORGSTRUCTURE: '/v2/orgstructure'
+  ORGSTRUCTURE: '/v2/orgstructure',
 };
 
 export const RELOCATED_URL = {
-  [URL.BPMN_DESIGNER]: `${URL.ADMIN_PAGE}?type=${SectionTypes.BPM}`
+  [URL.BPMN_DESIGNER]: `${URL.ADMIN_PAGE}?type=${SectionTypes.BPM}`,
   // [URL.BPMN_DESIGNER]: URL.ADMIN_PAGE
 };
 
 export const URL_MATCHING = {
   [URL.DEV_TOOLS]: URL.ADMIN_PAGE,
   [`${URL.ADMIN_PAGE}?type=${SectionTypes.BPM}`]: URL.BPMN_DESIGNER,
-  [URL.BPMN_DESIGNER]: `${URL.ADMIN_PAGE}?type=${SectionTypes.BPM}`
+  [URL.BPMN_DESIGNER]: `${URL.ADMIN_PAGE}?type=${SectionTypes.BPM}`,
 };
 
 export const pagesWithOnlyContent = [
   URL.TIMESHEET_IFRAME,
   URL.TIMESHEET_IFRAME_SUBORDINATES,
   URL.TIMESHEET_IFRAME_FOR_VERIFICATION,
-  URL.TIMESHEET_IFRAME_DELEGATED
+  URL.TIMESHEET_IFRAME_DELEGATED,
 ];
 
 export const SourcesId = {
@@ -111,12 +111,12 @@ export const SourcesId = {
   },
   get HISTORY_REC() {
     return `${SourcesId.HISTORY}/history-record`;
-  }
+  },
 };
 
 export const QueryLanguages = {
   TASKS: 'tasks',
-  FORM: 'form'
+  FORM: 'form',
 };
 
 export const EmodelTypes = {
@@ -125,18 +125,18 @@ export const EmodelTypes = {
   BASE: 'emodel/type@base',
   HISTORY_REC: 'emodel/type@history-record',
   WS_DASHBOARD: 'emodel/type@workspace-dashboard',
-  PERSONAL_WS_DASHBOARD: 'emodel/type@personal-workspace-dashboard'
+  PERSONAL_WS_DASHBOARD: 'emodel/type@personal-workspace-dashboard',
 };
 
 export const ActionModes = {
   DASHBOARD: 'dashboard',
-  JOURNAL: 'journal'
+  JOURNAL: 'journal',
 };
 
 export const RequestStatuses = {
   SUCCESS: 'SUCCESS',
   FAILURE: 'FAILURE',
-  RESET: 'RESET'
+  RESET: 'RESET',
 };
 
 export const MIN_WIDTH_DASHLET_SMALL = 290;
@@ -148,7 +148,7 @@ export const MIN_DEFAULT_HEIGHT_DASHLET = 155;
 export const DataFormatTypes = {
   DATE: 'date',
   DATETIME: 'datetime',
-  TEXT: 'text'
+  TEXT: 'text',
 };
 
 export const USER_CURRENT = '$CURRENT';
@@ -157,7 +157,7 @@ export const USER_GUEST = 'guest';
 
 export const LoaderTypes = {
   CIRCLE: 'circle',
-  POINTS: 'points'
+  POINTS: 'points',
 };
 
 export const IMAGE_URL_PATH = `${CITECK_URI}ecos/image/thumbnail`;
@@ -167,19 +167,19 @@ export const DocScaleOptions = {
   PAGE_WHOLE: 'page-whole',
   PAGE_FIT: 'page-fit',
   PAGE_HEIGHT: 'page-height',
-  PAGE_WIDTH: 'page-width'
+  PAGE_WIDTH: 'page-width',
 };
 
 export const Permissions = {
   Write: 'Write',
-  Read: 'Read'
+  Read: 'Read',
 };
 
 export const MOBILE_APP_USER_AGENT = 'ecos-mobile-app';
 
 export const Attributes = {
   DBID: 'sys:node-dbid',
-  CREATED: '_created'
+  CREATED: '_created',
 };
 
 export const TMP_ICON_EMPTY = 'icon-empty';
@@ -203,12 +203,12 @@ export const Pages = {
   BPMN_EDITOR: 'bpmn-editor',
   DMN_EDITOR: 'dmn-editor',
   DEV_TOOLS: 'dev-tools',
-  ORGSTRUCTURE: 'orgstructure'
+  ORGSTRUCTURE: 'orgstructure',
 };
 
 export const AppEditions = {
   COMMUNITY: 'community',
-  ENTERPRISE: 'enterprise'
+  ENTERPRISE: 'enterprise',
 };
 
 export const JournalUrlParams = {
@@ -219,18 +219,18 @@ export const JournalUrlParams = {
   USER_CONFIG_ID: 'userConfigId',
   SHOW_PREVIEW: 'showPreview',
   SEARCH: 'search',
-  VIEW_MODE: 'viewMode'
+  VIEW_MODE: 'viewMode',
 };
 
 export const DocLibUrlParams = {
   FOLDER_ID: 'folderId',
-  SEARCH: 'dlSearch'
+  SEARCH: 'dlSearch',
 };
 
 export const KanbanUrlParams = {
   BOARD_ID: 'boardId',
   TEMPLATE_ID: JournalUrlParams.JOURNAL_SETTING_ID,
-  SEARCH: 'kbSearch'
+  SEARCH: 'kbSearch',
 };
 
 export const SYSTEM_LIST = 'global-system';
@@ -242,7 +242,7 @@ export const SystemJournals = {
   MENUS: 'ecos-menus',
   FORMS: 'ecos-forms',
   PROCESS: 'bpmn-process-latest',
-  PROCESS_ELMS: 'bpmn-process-elements'
+  PROCESS_ELMS: 'bpmn-process-elements',
 };
 
 export const COMMENT_TYPE = 'ecos-comment';
@@ -250,12 +250,13 @@ export const COMMENT_TYPE = 'ecos-comment';
 export const DateFormats = {
   DATE: 'DD.MM.YYYY',
   DATETIME: 'DD.MM.YYYY HH:mm',
-  TIME: 'HH:mm'
+  TIME: 'HH:mm',
 };
 
 export const IGNORED_EVENT_ATTRIBUTE = '_isIgnoredEvent';
 
 export const DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS = ['id', '_name'];
+export const allowedModes = ['development', 'dev-stage'];
 
 window.Citeck = window.Citeck || {};
 window.Citeck.constants = window.Citeck.constants || {};

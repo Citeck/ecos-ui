@@ -47,6 +47,9 @@ export default defineConfig(({ mode }) => {
           ecma: 5,
           comparisons: false,
           inline: 2,
+
+          /** Attention! Don't forget to remove the 'debugger' from the codebase if you don't need it! **/
+          drop_debugger: false, // for debug on stand
         },
         mangle: {
           safari10: true,

@@ -18,6 +18,8 @@ import { getCurrentLocale, t } from './export/util';
 
 export { getCookie, getCurrentLocale, t } from './export/util';
 
+import { allowedModes } from '@/constants/index.js';
+
 const UTC_AS_LOCAL_FORMAT = 'YYYY-MM-DDTHH:mm:ss';
 
 const BYTES_KB = 1024;
@@ -26,7 +28,7 @@ const BYTES_GB = 1073741824;
 
 const LOCALE_EN = 'en';
 
-export const IS_DEV_ENV = process.env.NODE_ENV === 'development';
+export const IS_DEV_ENV = allowedModes.includes(process.env.NODE_ENV);
 export const IS_TEST_ENV = process.env.NODE_ENV === 'test';
 
 export function setCookie(name, value, options = {}) {

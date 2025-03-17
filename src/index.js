@@ -26,6 +26,7 @@ import authService from './services/auth';
 import configureStore, { getHistory } from './store';
 
 import { registerAllActions } from '@/components/Records/actions/actions';
+import { allowedModes } from '@/constants/index.js';
 import { NotificationManager } from '@/services/notifications';
 
 // Files are included in the build only if imported from here
@@ -106,7 +107,7 @@ const runApp = () => {
           loadThemeRequest({
             isAuthenticated,
             onSuccess: () => {
-              i18nInit({ debug: process.env.NODE_ENV === 'development' }).then(() => {
+              i18nInit({ debug: allowedModes.includes(process.env.NODE_ENV) }).then(() => {
                 createRoot(document.getElementById('root')).render(
                   <Provider store={store}>
                     <ConnectedRouter history={history}>
@@ -127,7 +128,7 @@ if (!IS_TEST_ENV) {
   registerAllActions();
 }
 
-if (process.env.NODE_ENV === 'development' && !isMobileAppWebView()) {
+if (allowedModes.includes(process.env.NODE_ENV) && !isMobileAppWebView()) {
   authService.init().then(runApp);
   api.app.setCustomLogoutAction(() => authService.logout());
 } else {
