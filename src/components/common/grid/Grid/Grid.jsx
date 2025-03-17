@@ -1,53 +1,54 @@
-import React, { Component } from 'react';
-import { createRoot } from 'react-dom/client';
 import classNames from 'classnames';
+import cloneDeep from 'lodash/cloneDeep';
+import find from 'lodash/find';
+import get from 'lodash/get';
+import head from 'lodash/head';
+import isArray from 'lodash/isArray';
+import isBoolean from 'lodash/isBoolean';
+import isElement from 'lodash/isElement';
+import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
+import isFunction from 'lodash/isFunction';
+import isNil from 'lodash/isNil';
+import isObject from 'lodash/isObject';
+import isString from 'lodash/isString';
+import isUndefined from 'lodash/isUndefined';
+import last from 'lodash/last';
+import omit from 'lodash/omit';
+import pick from 'lodash/pick';
+import set from 'lodash/set';
 import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
 import BootstrapTableConst from 'react-bootstrap-table-next/lib/src/const';
 import cellEditFactory from 'react-bootstrap-table2-editor';
 import { Scrollbars } from 'react-custom-scrollbars';
-import set from 'lodash/set';
-import get from 'lodash/get';
-import head from 'lodash/head';
-import last from 'lodash/last';
-import cloneDeep from 'lodash/cloneDeep';
-import omit from 'lodash/omit';
-import pick from 'lodash/pick';
-import find from 'lodash/find';
-import isEmpty from 'lodash/isEmpty';
-import isEqual from 'lodash/isEqual';
-import isNil from 'lodash/isNil';
-import isUndefined from 'lodash/isUndefined';
-import isArray from 'lodash/isArray';
-import isFunction from 'lodash/isFunction';
-import isString from 'lodash/isString';
-import isBoolean from 'lodash/isBoolean';
-import isObject from 'lodash/isObject';
-import isElement from 'lodash/isElement';
-
+import { createRoot } from 'react-dom/client';
 import { Tooltip } from 'reactstrap';
-import { NotificationManager } from '@/services/notifications';
 
-import EcosTooltip from '../../Tooltip';
-import Loader from '../../../common/Loader';
-import { getId, t, getCurrentUserName } from '../../../../helpers/util';
-import FormatterService from '../../../Journals/service/formatters/FormatterService';
-import EcosProgressLoading from '../../EcosProgressLoading';
-import DateTimeFormatter from '../../../Journals/service/formatters/registry/DateTimeFormatter';
-import DateFormatter from '../../../Journals/service/formatters/registry/DateFormatter';
+import ClickOutside from '../../../ClickOutside';
 import { COMPLEX_FILTER_LIMIT, ECOS_GRID_PADDING_HORIZONTAL, JOURNAL_MIN_HEIGHT } from '../../../Journals/constants';
-import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
-import { SELECTOR_MENU_KEY } from '../util';
+import FormatterService from '../../../Journals/service/formatters/FormatterService';
+import DateFormatter from '../../../Journals/service/formatters/registry/DateFormatter';
+import DateTimeFormatter from '../../../Journals/service/formatters/registry/DateTimeFormatter';
+import Loader from '../../../common/Loader';
+import EcosProgressLoading from '../../EcosProgressLoading';
+import EcosTooltip from '../../Tooltip';
+import Button from '../../btns/Btn';
+import Icon from '../../icons/Icon';
+import NoData from '../../icons/NoData';
 import ErrorCell from '../ErrorCell';
 import ErrorTable from '../ErrorTable';
-import SelectorHeader from './SelectorHeader';
+import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
+import { SELECTOR_MENU_KEY } from '../util';
+
 import Selector from './Selector';
-import pageTabList from '../../../../services/pageTabs/PageTabList';
-import NoData from '../../icons/NoData';
-import Button from '../../btns/Btn';
-import { pagesStore } from '../../../../helpers/indexedDB';
-import ClickOutside from '../../../ClickOutside';
-import Icon from '../../icons/Icon';
+import SelectorHeader from './SelectorHeader';
+
+import { pagesStore } from '@/helpers/indexedDB';
+import { getId, t, getCurrentUserName } from '@/helpers/util';
+import { NotificationManager } from '@/services/notifications';
+import pageTabList from '@/services/pageTabs/PageTabList';
 
 import './Grid.scss';
 import '../../Tooltip/style.scss';
@@ -72,7 +73,6 @@ class Grid extends Component {
   #columnsSizes = {};
   #gridRef = null;
   #pageId = null;
-  #root = null;
 
   constructor(props) {
     super(props);
@@ -582,14 +582,14 @@ class Grid extends Component {
     if (currentTarget) {
       const inlineToolsElement = currentTarget.querySelector(`.${ECOS_GRID_INLINE_TOOLS_CONTAINER}`);
       if (inlineToolsElement) {
-        this.#root?.unmount();
+        currentTarget._inlineToolsRoot?.unmount();
         currentTarget.removeChild(inlineToolsElement);
         currentTarget.classList.remove('has-inline-tools');
       }
     } else {
       const inlineToolsElement = document.querySelector(`.${ECOS_GRID_INLINE_TOOLS_CONTAINER}`);
       if (inlineToolsElement) {
-        this.#root?.unmount();
+        currentTarget._inlineToolsRoot?.unmount();
         const parentElement = inlineToolsElement.parentNode;
         inlineToolsElement.remove();
 
@@ -608,21 +608,25 @@ class Grid extends Component {
       const inlineTools = this.inlineTools(settingInlineTools);
 
       if (inlineTools) {
-        this.#root = createRoot(inlineToolsElement);
-        this.#root.render(inlineTools);
+        const root = createRoot(inlineToolsElement);
+        root.render(inlineTools);
 
         currentTarget.appendChild(inlineToolsElement);
         currentTarget.classList.add('has-inline-tools');
+
+        currentTarget._inlineToolsRoot = root;
       }
     } else if (isFunction(this.props.inlineActions)) {
       const inlineActions = this.props.inlineActions(get(settingInlineTools, 'row.id') || null);
 
       if (inlineActions) {
-        this.#root = createRoot(inlineToolsElement);
-        this.#root.render(inlineActions);
+        const root = createRoot(inlineToolsElement);
+        root.render(inlineActions);
 
         currentTarget.appendChild(inlineToolsElement);
         currentTarget.classList.add('has-inline-tools');
+
+        currentTarget._inlineToolsRoot = root;
       }
     }
   };
