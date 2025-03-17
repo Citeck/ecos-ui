@@ -33,3 +33,6 @@ ignore/
 .yarn/cache
 .yarn/install-state.gz
 /tsconfig.tsbuildinfo
+/src/plugins/*
+!/src/plugins/ecos-ui-publication-widget-plugin/
+!/src/plugins/ecos-hierarchical-tree-widget-plugin/
