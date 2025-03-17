@@ -89,6 +89,11 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
     }
 
     componentWillUnmount() {
+      if (this.helper) {
+        this.helper.parentNode?.removeChild(this.helper);
+        this.helper = null;
+      }
+
       if (this.helper && this.helper.parentNode) {
         this.helper.parentNode.removeChild(this.helper);
       }
@@ -103,6 +108,10 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
     }
 
     handleStart = (event) => {
+      if (this.state.sorting) {
+        this.handleSortEnd(event);
+      }
+
       const { distance, shouldCancelStart } = this.props;
 
       if (event.button === 2 || shouldCancelStart(event)) {
@@ -191,6 +200,11 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
     };
 
     handlePress = async (event) => {
+      if (this.helper) {
+        this.helper.parentNode?.removeChild(this.helper);
+        this.helper = null;
+      }
+
       const active = this.manager.getActive();
 
       if (active) {
@@ -275,6 +289,8 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
           top: `${this.boundingClientRect.top - margin.top}px`,
           width: `${this.width}px`,
           zIndex: 10001,
+          opacity: 1,
+          visibility: 'unset',
         });
 
         if (isKeySorting) {
@@ -351,7 +367,7 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
           this.listenerNode.addEventListener('keydown', this.handleKeyDown);
         } else {
           events.move.forEach((eventName) => this.listenerNode.addEventListener(eventName, this.handleSortMove, false));
-          events.end.forEach((eventName) => this.listenerNode.addEventListener(eventName, this.handleSortEnd, false));
+          events.end.forEach((eventName) => this.listenerNode.addEventListener(eventName, this.handleSortEnd, true));
         }
 
         this.setState({
@@ -418,58 +434,67 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
       }
 
       // Remove the helper from the DOM
-      this.helper.parentNode.removeChild(this.helper);
+      if (this.helper && this.helper.parentNode) {
+        this.helper.parentNode.removeChild(this.helper);
 
-      if (hideSortableGhost && this.sortableGhost) {
-        setInlineStyles(this.sortableGhost, {
-          opacity: '',
-          visibility: '',
+        if (hideSortableGhost && this.sortableGhost) {
+          setInlineStyles(this.sortableGhost, {
+            opacity: '',
+            visibility: '',
+          });
+        }
+
+        for (let i = 0, len = nodes.length; i < len; i++) {
+          const node = nodes[i];
+          const el = node.node;
+
+          // Clear the cached offset/boundingClientRect
+          node.edgeOffset = null;
+          node.boundingClientRect = null;
+
+          // Remove the transforms / transitions
+          setTranslate3d(el, null);
+          setTransitionDuration(el, null);
+          node.translate = null;
+        }
+
+        // Stop autoscroll
+        this.autoScroller.clear();
+
+        // Update manager state
+        this.manager.active = null;
+        this.manager.isKeySorting = false;
+
+        this.setState({
+          sorting: false,
+          sortingIndex: null,
         });
+
+        if (typeof onSortEnd === 'function') {
+          onSortEnd(
+            {
+              collection,
+              newIndex: this.newIndex,
+              oldIndex: this.index,
+              isKeySorting,
+              nodes,
+            },
+            event,
+          );
+        }
+
+        this.touched = false;
       }
 
-      for (let i = 0, len = nodes.length; i < len; i++) {
-        const node = nodes[i];
-        const el = node.node;
-
-        // Clear the cached offset/boundingClientRect
-        node.edgeOffset = null;
-        node.boundingClientRect = null;
-
-        // Remove the transforms / transitions
-        setTranslate3d(el, null);
-        setTransitionDuration(el, null);
-        node.translate = null;
+      if (this.helper) {
+        this.helper.parentNode?.removeChild(this.helper);
+        this.helper = null;
       }
-
-      // Stop autoscroll
-      this.autoScroller.clear();
-
-      // Update manager state
-      this.manager.active = null;
-      this.manager.isKeySorting = false;
-
-      this.setState({
-        sorting: false,
-        sortingIndex: null,
-      });
-
-      if (typeof onSortEnd === 'function') {
-        onSortEnd(
-          {
-            collection,
-            newIndex: this.newIndex,
-            oldIndex: this.index,
-            isKeySorting,
-            nodes,
-          },
-          event,
-        );
-      }
-
-      this.touched = false;
     };
 
     updateHelperPosition(event) {
+      if (!this.helper || !this.helper.parentNode) return;
+
       const {
         lockAxis,
         lockOffset,

@@ -49,8 +49,6 @@ function* sagaInitTabs({ api }) {
 
     yield call(api.pageTabs.checkOldVersion, userName);
 
-    debugger; // TODO: need delete. For debug on stand (ECOSUI-3285)
-
     PageTabList.init({ activeUrl, keyStorage: api.pageTabs.lsKey, displayState });
 
     yield put(setTabs(PageTabList.storeList));
@@ -64,7 +62,6 @@ function* sagaInitTabs({ api }) {
     });
 
     yield put(setTabs(PageTabList.storeList));
-    console.log('tabs:', PageTabList.tabs); // TODO: need delete. For debug on stand (ECOSUI-3285)
   } catch (e) {
     console.error('[pageTabs] sagaInitTabs saga error', e);
   }

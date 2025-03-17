@@ -239,6 +239,31 @@ exports[`DevTools tests <TabContent /> should render Settings component 1`] = `
           <div
             class="ecos-panel-title ecos-panel-title_color-gray ecos-panel-title_narrow"
           >
+            dev-tools.settings.enableSagaLogger
+          </div>
+          <div
+            class="dev-tools-page__setting-body"
+          >
+            <div
+              class="dev-tools-page__switch-setting"
+            >
+              <div
+                class="ecos-switch"
+              />
+              dev-tools.settings.off
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="col-lg-6 col-xl-4"
+      >
+        <div
+          class="dev-tools-page__setting"
+        >
+          <div
+            class="ecos-panel-title ecos-panel-title_color-gray ecos-panel-title_narrow"
+          >
             dev-tools.settings.enableViewNewJournal
           </div>
           <div

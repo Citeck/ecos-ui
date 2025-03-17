@@ -9,6 +9,7 @@ import createRootReducer, { createReducer } from './reducers';
 import sagas from './sagas';
 
 import { allowedModes } from '@/constants/index.js';
+import { SETTING_ENABLE_SAGA_LOGGER } from '@/pages/DevTools/constants.js';
 
 const sagaMiddleware = createSagaMiddleware();
 const history = createBrowserHistory();
@@ -16,8 +17,7 @@ const history = createBrowserHistory();
 let store = {};
 
 let optionalMiddlewares = [];
-if ([...allowedModes, 'production'].includes(process.env.NODE_ENV)) {
-  // TODO: need delete 'production'. For debug on stand (ECOSUI-3285)
+if (allowedModes.includes(process.env.NODE_ENV) || !!localStorage.getItem(SETTING_ENABLE_SAGA_LOGGER)) {
   const logger = createLogger({
     collapsed: true,
     diff: true,

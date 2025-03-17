@@ -1,28 +1,27 @@
-import React from 'react';
-import { Provider } from 'react-redux';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import React from 'react';
+import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 
 import DevToolsConverter from '../../../dto/devTools';
-import * as DevToolsContext from '../DevToolsContext';
-import { SettingsContextProvider } from '../Settings/SettingsContext';
-import { CommitsContext, CommitsContextProvider } from '../Commits/CommitsContext';
-import { DevModulesContextProvider } from '../DevModules/DevModulesContext';
+import { Labels as BuildLabels } from '../Build/Build';
 import { BuildContextProvider } from '../Build/BuildContext';
+import { CommitsContextProvider } from '../Commits/CommitsContext';
+import { getRepoProject, parseTasksLinks, getHostName } from '../Commits/helpers';
+import { Labels as DevModulesLabels } from '../DevModules/DevModules';
+import { DevModulesContextProvider } from '../DevModules/DevModulesContext';
+import * as DevToolsContext from '../DevToolsContext';
 import ErrorText from '../ErrorText';
 import Loader from '../Loader';
-import Tabs from '../Tabs';
+import { SettingsContextProvider } from '../Settings/SettingsContext';
 import TabContent from '../TabContent';
-import Build from '../Build';
-import { Labels as BuildLabels } from '../Build/Build';
-import { Labels as DevModulesLabels } from '../DevModules/DevModules';
-import { getRepoProject, parseTasksLinks, getHostName } from '../Commits/helpers';
-
+import Tabs from '../Tabs';
 import { input1, output1, input2, output2, input3_4, output3, output4 } from '../__fixtures__/DevTools.fixtures';
 
-const { TABS } = require('@/pages/DevTools/constants');
 const { JIRA, BITBUCKET } = require('../Commits/constants');
+
+const { TABS } = require('@/pages/DevTools/constants');
 
 describe('DevTools tests', () => {
   describe('DevToolsConverter', () => {
@@ -186,7 +185,7 @@ describe('DevTools tests', () => {
 
     it('should render Settings component', () => {
       const wrapper = renderComponent({ activeTab: TABS.SETTINGS });
-      expect(wrapper.getElementsByClassName('dev-tools-page__setting')).toHaveLength(3);
+      expect(wrapper.getElementsByClassName('dev-tools-page__setting')).toHaveLength(4);
       expect(wrapper).toMatchSnapshot();
     });
   });

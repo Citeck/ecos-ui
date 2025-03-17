@@ -461,6 +461,7 @@
   "dev-tools.settings.enableLoggerForNewForms": "Enable logger for new forms",
   "dev-tools.settings.enableRecordsApiDebug": "Enable debug for Records API",
   "dev-tools.settings.enableViewNewJournal": "Enable the priority of the new log view (2.0)",
+  "dev-tools.settings.enableSagaLogger": "Enable logging for the UI",
   "dev-tools.settings.on": "On",
   "dev-tools.settings.off": "Off",
   "dev-tools.dev-modules.panel-title": "Modules",

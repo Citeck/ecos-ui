@@ -1,15 +1,15 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import * as queryString from 'query-string';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
+import PropTypes from 'prop-types';
+import * as queryString from 'query-string';
+import React, { Component } from 'react';
 
-import { t, getCurrentLocale } from '../../helpers/util';
-import { PointsLoader, Tooltip } from '../common';
-import { SortableElement } from '../DndKit';
+import { SortableElement } from '../Drag-n-Drop';
 import Records from '../Records';
-import './style.scss';
+import { PointsLoader, Tooltip } from '../common';
+
+import { t, getCurrentLocale } from '@/helpers/util';
 
 const lng = getCurrentLocale();
 class Tab extends Component {
@@ -21,6 +21,7 @@ class Tab extends Component {
     onClick: PropTypes.func,
     onClose: PropTypes.func,
     onMouseUp: PropTypes.func,
+    onSortEnd: PropTypes.func,
     runUpdate: PropTypes.func,
   };
 
@@ -32,6 +33,7 @@ class Tab extends Component {
     onClick: () => null,
     onClose: () => null,
     onMouseUp: () => null,
+    onSortEnd: () => null,
   };
 
   componentDidMount() {
@@ -108,10 +110,10 @@ class Tab extends Component {
   }
 
   render() {
-    const { tab } = this.props;
+    const { tab, position, onSortEnd } = this.props;
 
     return (
-      <SortableElement id={tab.id}>
+      <SortableElement key={tab.id} index={position} onSortEnd={onSortEnd}>
         <Tooltip
           target={tab.id}
           text={t(tab.title?.[lng])}

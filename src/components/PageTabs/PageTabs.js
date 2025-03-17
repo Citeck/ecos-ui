@@ -12,7 +12,7 @@ import ReactResizeDetector from 'react-resize-detector';
 import { withRouter } from 'react-router-dom';
 
 import ClickOutside from '../ClickOutside';
-import { SortableList } from '../DndKit';
+import { SortableContainer } from '../Drag-n-Drop';
 import { dropByCacheKey } from '../ReactRouterCache';
 import DialogManager from '../common/dialogs/Manager';
 
@@ -43,7 +43,6 @@ import './style.scss';
 
 const Labels = {
   GO_HOME: 'page-tabs.go-home-page',
-  GO_TO: 'page-tabs.go-to',
   CLOSE_ALL_TABS: 'page-tabs.close-all-tabs',
   CONFIRM_REMOVE_ALL_TABS_TITLE: 'page-tabs.close-all-tabs-title',
   CONFIRM_REMOVE_ALL_TABS_TEXT: 'page-tabs.close-all-tabs-text',
@@ -440,39 +439,21 @@ class PageTabs extends React.Component {
     this.checkNeedArrow();
   };
 
-  handleBeforeSortStart = (event) => {
-    const { active } = event;
-
-    const node = document.getElementById(active.id);
-    if (node) {
-      node.classList.add('page-tab__tabs-item_sorting');
-    }
-
-    if (this.wrapper) {
-      this.wrapper.classList.add('page-tab__tabs_sorting');
-    }
+  handleBeforeSortStart = ({ node }) => {
+    node.classList.add('page-tab__tabs-item_sorting');
+    this.wrapper && this.wrapper.classList.add('page-tab__tabs_sorting');
 
     this.setState({ draggableNode: node });
   };
 
-  handleSortEnd = (event) => {
-    const { active, over } = event;
+  handleSortEnd = ({ oldIndex, newIndex }, event) => {
     const { draggableNode } = this.state;
 
-    if (!over || active.id === over.id) {
-      return;
-    }
-
+    event.stopPropagation();
     draggableNode && draggableNode.classList.remove('page-tab__tabs-item_sorting');
     this.wrapper && this.wrapper.classList.remove('page-tab__tabs_sorting');
 
-    const { tabs, moveTabs } = this.props;
-
-    const oldIndex = tabs.findIndex((tab) => tab.id === active.id);
-    const newIndex = tabs.findIndex((tab) => tab.id === over.id);
-
-    moveTabs({ indexFrom: oldIndex, indexTo: newIndex });
-
+    this.props.moveTabs({ indexFrom: oldIndex, indexTo: newIndex });
     this.setState({ draggableNode: null });
   };
 
@@ -587,14 +568,19 @@ class PageTabs extends React.Component {
         key="tabs-wrapper"
       >
         {this.renderLeftButton()}
-        <div className="page-tab__tabs" ref={this.$tabWrapper}>
-          <SortableList
-            handleBeforeSortStart={this.handleBeforeSortStart}
-            handleSortEnd={this.handleSortEnd}
-            renderTabItem={this.renderTabItem}
-            tabs={tabs}
-          />
-        </div>
+        <SortableContainer
+          axis="x"
+          lockAxis="x"
+          lockToContainerEdges={true}
+          lockOffset="20%"
+          distance={3}
+          updateBeforeSortStart={this.handleBeforeSortStart}
+          onSortEnd={this.handleSortEnd}
+        >
+          <div className="page-tab__tabs" ref={this.$tabWrapper}>
+            {tabs.map(this.renderTabItem)}
+          </div>
+        </SortableContainer>
         {this.renderCloseAllTabsButton()}
         {this.renderRightButton()}
         <ReactResizeDetector handleWidth handleHeight onResize={this.handleResize} />

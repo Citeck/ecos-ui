@@ -1,17 +1,17 @@
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
 
 export default class ClickOutside extends React.Component {
   static propTypes = {
     handleClickOutside: PropTypes.func,
     className: PropTypes.string,
     type: PropTypes.string,
-    excludeElements: PropTypes.array
+    excludeElements: PropTypes.array,
   };
 
   static defaultProps = {
     className: '',
-    type: 'mousedown'
+    type: 'mousedown',
   };
 
   constructor(props) {
@@ -22,7 +22,7 @@ export default class ClickOutside extends React.Component {
   }
 
   componentDidMount() {
-    document.addEventListener(this.props.type, this.handleClickOutside);
+    document.addEventListener(this.props.type, this.handleClickOutside, true);
   }
 
   componentWillUnmount() {
@@ -40,7 +40,7 @@ export default class ClickOutside extends React.Component {
       typeof handleClickOutside === 'function' &&
       this.wrapperRef &&
       !this.wrapperRef.contains(event.target) &&
-      (!Array.isArray(excludeElements) || excludeElements.some(elm => !(elm && elm.contains(event.target))))
+      (!Array.isArray(excludeElements) || excludeElements.some((elm) => !(elm && elm.contains(event.target))))
     ) {
       handleClickOutside(event);
     }
