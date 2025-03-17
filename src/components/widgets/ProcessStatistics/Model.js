@@ -198,19 +198,21 @@ class Model extends React.Component {
   };
 
   handleWheel = () => {
-    let handle = null;
+    const { isShowHeatmap, isTempHeatmapOff } = this.state;
 
-    if (handle) {
-      clearTimeout(handle);
+    if (isShowHeatmap && !isTempHeatmapOff) {
+      this.setState({ isTempHeatmapOff: true, isShowHeatmap: false }, () => this.toggleHeatmap());
     }
 
-    this.state.isShowHeatmap && this.toggleTempHeatmap(true);
-
-    handle = setTimeout(this.handleStopWheel, 100);
+    setTimeout(this.handleStopWheel, 100);
   };
 
   handleStopWheel = () => {
-    this.state.isTempHeatmapOff && this.toggleTempHeatmap(false);
+    const { isTempHeatmapOff } = this.state;
+
+    if (isTempHeatmapOff) {
+      this.setState({ isTempHeatmapOff: false, isShowHeatmap: true }, () => this.toggleHeatmap());
+    }
   };
 
   renderBadges = () => {
@@ -302,25 +304,25 @@ class Model extends React.Component {
   };
 
   handleToggleHeatmap = () => {
-    const { isModelMounted, isHeatmapMounted } = this.state;
-
     this.setState(
       ({ isShowHeatmap }) => ({ isShowHeatmap: !isShowHeatmap }),
-      () => {
-        const { isShowHeatmap } = this.state;
-
-        switch (true) {
-          case isHeatmapMounted && !isShowHeatmap:
-            this.switchHeatMapOff();
-            break;
-          case isShowHeatmap && isModelMounted:
-            this.reRenderHeatmap();
-            break;
-          default:
-            break;
-        }
-      },
+      () => this.toggleHeatmap(),
     );
+  };
+
+  toggleHeatmap = () => {
+    const { isModelMounted, isHeatmapMounted, isShowHeatmap } = this.state;
+
+    switch (true) {
+      case isHeatmapMounted && !isShowHeatmap:
+        this.switchHeatMapOff();
+        break;
+      case isShowHeatmap && isModelMounted:
+        this.reRenderHeatmap();
+        break;
+      default:
+        break;
+    }
   };
 
   handleChangeHeatmap = (legendData) => {
