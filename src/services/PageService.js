@@ -1,12 +1,14 @@
-import queryString from 'query-string';
 import get from 'lodash/get';
-import isString from 'lodash/isString';
 import isArray from 'lodash/isArray';
+import isString from 'lodash/isString';
+import queryString from 'query-string';
 
-import { SourcesId, URL } from '../constants';
-import { IGNORE_TABS_HANDLER_ATTR_NAME, LINK_HREF, LINK_TAG, OPEN_IN_BACKGROUND, TITLE } from '../constants/pageTabs';
-import { SectionTypes } from '../constants/adminSection';
-import { getCurrentUserName, getEnabledWorkspaces, getMLValue, t } from '../helpers/util';
+import { PageApi } from '@/api/page';
+import Records from '@/components/Records';
+import { SourcesId, URL } from '@/constants';
+import { SectionTypes } from '@/constants/adminSection';
+import { IGNORE_TABS_HANDLER_ATTR_NAME, LINK_HREF, LINK_TAG, OPEN_IN_BACKGROUND, TITLE } from '@/constants/pageTabs';
+import { getData, isExistLocalStorage, setData } from '@/helpers/ls';
 import {
   decodeLink,
   getLinkWithout,
@@ -14,11 +16,9 @@ import {
   getSearchParams,
   getWorkspaceId,
   IgnoredUrlParams,
-  isNewVersionPage
-} from '../helpers/urls';
-import { getData, isExistLocalStorage, setData } from '../helpers/ls';
-import { PageApi } from '../api/page';
-import Records from '../components/Records';
+  isNewVersionPage,
+} from '@/helpers/urls';
+import { getCurrentUserName, getEnabledWorkspaces, getMLValue, t } from '@/helpers/util';
 
 const pageApi = new PageApi();
 
@@ -35,11 +35,11 @@ export const PageTypes = {
   BPMN_DESIGNER: 'bpmn-designer',
   ORGSTRUCTURE: 'orgstructure',
   DEV_TOOLS: 'dev-tools',
-  TIMESHEET: 'timesheet'
+  TIMESHEET: 'timesheet',
 };
 
 export const Events = {
-  CHANGE_URL_LINK_EVENT: 'CHANGE_URL_LINK_EVENT'
+  CHANGE_URL_LINK_EVENT: 'CHANGE_URL_LINK_EVENT',
 };
 
 const CHANGE_URL = document.createEvent('Event');
@@ -49,14 +49,14 @@ const TYPES = {
   TYPE: 'emodel/type@type',
   BOARD: 'emodel/type@board',
   FORM: 'emodel/type@form',
-  JOURNAL: 'emodel/type@journal'
+  JOURNAL: 'emodel/type@journal',
 };
 
 const TYPE_TITLES = {
   [TYPES.TYPE]: TITLE.TYPE,
   [TYPES.BOARD]: TITLE.BOARD,
   [TYPES.JOURNAL]: TITLE.JOURNAL,
-  [TYPES.FORM]: TITLE.FORM
+  [TYPES.FORM]: TITLE.FORM,
 };
 
 export default class PageService {
@@ -199,7 +199,7 @@ export default class PageService {
   }
 
   static getTypeTitle(recordRef, typeTitle) {
-    return pageApi.getRecordTitle(recordRef).then(title => `${t(typeTitle)} "${convertTitle(title)}"`);
+    return pageApi.getRecordTitle(recordRef).then((title) => `${t(typeTitle)} "${convertTitle(title)}"`);
   }
 
   static async getDashboardTitle(recordRef, dashboardId) {
@@ -220,7 +220,7 @@ export default class PageService {
     return pageApi.getRecordTitle(recordRef).then(convertTitle);
   }
 
-  static isTypeRecord = recordRef => isString(recordRef) && recordRef.indexOf(SourcesId.TYPE) === 0;
+  static isTypeRecord = (recordRef) => isString(recordRef) && recordRef.indexOf(SourcesId.TYPE) === 0;
 
   static pageTypes = Object.freeze({
     [PageTypes.DASHBOARD]: {
@@ -229,7 +229,7 @@ export default class PageService {
           recordRef = PageService.getRef(link);
         }
         return PageService.getDashboardTitle(recordRef, dashboardId);
-      }
+      },
     },
     [PageTypes.JOURNALS]: {
       getTitle: ({ journalId, force } = {}, link) => {
@@ -237,20 +237,20 @@ export default class PageService {
           journalId = PageService.getRef(link);
         }
 
-        return pageApi.getJournalTitle(journalId, force).then(title => `${t(TITLE.JOURNAL)} "${convertTitle(title)}"`);
-      }
+        return pageApi.getJournalTitle(journalId, force).then((title) => `${t(TITLE.JOURNAL)} "${convertTitle(title)}"`);
+      },
     },
     [PageTypes.TIMESHEET]: {
-      getTitle: () => staticTitle(TITLE.TIMESHEET)
+      getTitle: () => staticTitle(TITLE.TIMESHEET),
     },
     [PageTypes.ORGSTRUCTURE]: {
-      getTitle: () => staticTitle(TITLE.ORGSTRUCTURE)
+      getTitle: () => staticTitle(TITLE.ORGSTRUCTURE),
     },
     [PageTypes.DEV_TOOLS]: {
-      getTitle: () => staticTitle(TITLE[URL.DEV_TOOLS])
+      getTitle: () => staticTitle(TITLE[URL.DEV_TOOLS]),
     },
     [PageTypes.BPMN_MIGRATION]: {
-      getTitle: () => staticTitle(TITLE[URL.BPMN_MIGRATION])
+      getTitle: () => staticTitle(TITLE[URL.BPMN_MIGRATION]),
     },
     [PageTypes.ADMIN_PAGE]: {
       getTitle: ({ type, journalId }) => {
@@ -271,25 +271,28 @@ export default class PageService {
         }
 
         return staticTitle(TITLE.ADMIN_PAGE);
-      }
+      },
     },
     [PageTypes.BPMN_ADMIN_PROCESS]: {
       getTitle: ({ recordRef }) =>
-        pageApi.getRecordTitle(recordRef).then(title => `${t(TITLE[URL.BPMN_ADMIN_PROCESS])} "${convertTitle(title)}"`)
+        pageApi.getRecordTitle(recordRef).then((title) => `${t(TITLE[URL.BPMN_ADMIN_PROCESS])} "${convertTitle(title)}"`),
     },
     [PageTypes.BPMN_ADMIN_INSTANCE]: {
       getTitle: ({ recordRef }) =>
-        pageApi.getRecordTitle(recordRef).then(title => `${t(TITLE[URL.BPMN_ADMIN_INSTANCE])} "${convertTitle(title)}"`)
+        pageApi.getRecordTitle(recordRef).then((title) => `${t(TITLE[URL.BPMN_ADMIN_INSTANCE])} "${convertTitle(title)}"`),
     },
     [PageTypes.DMN_EDITOR]: {
-      getTitle: ({ recordRef }) => pageApi.getRecordTitle(recordRef).then(title => `${t(TITLE[URL.DMN_EDITOR])} "${convertTitle(title)}"`)
+      getTitle: ({ recordRef }) =>
+        pageApi.getRecordTitle(recordRef).then((title) => `${t(TITLE[URL.DMN_EDITOR])} "${convertTitle(title)}"`),
     },
     [PageTypes.BPMN_EDITOR]: {
-      getTitle: ({ recordRef }) => pageApi.getRecordTitle(recordRef).then(title => `${t(TITLE[URL.BPMN_EDITOR])} "${convertTitle(title)}"`)
+      getTitle: ({ recordRef }) =>
+        pageApi.getRecordTitle(recordRef).then((title) => `${t(TITLE[URL.BPMN_EDITOR])} "${convertTitle(title)}"`),
     },
     [PageTypes.CMMN_EDITOR]: {
-      getTitle: ({ recordRef }) => pageApi.getRecordTitle(recordRef).then(title => `${t(TITLE[URL.CMMN_EDITOR])} "${convertTitle(title)}"`)
-    }
+      getTitle: ({ recordRef }) =>
+        pageApi.getRecordTitle(recordRef).then((title) => `${t(TITLE[URL.CMMN_EDITOR])} "${convertTitle(title)}"`),
+    },
   });
 
   /**
@@ -316,6 +319,9 @@ export default class PageService {
     PageService.eventIsDispatched = true;
 
     try {
+      if (link && link.includes('deals-journal')) {
+        debugger; // TODO: need delete. For debug on stand (ECOSUI-3285)
+      }
       CHANGE_URL.params = { link: decodeLink(link), ...params };
       document.dispatchEvent(CHANGE_URL);
     } finally {
@@ -343,7 +349,7 @@ export default class PageService {
         return {
           ...props,
           link,
-          updates: { link }
+          updates: { link },
         };
       }
 
@@ -378,7 +384,7 @@ export default class PageService {
         return {
           ...props,
           link,
-          isActive: false
+          isActive: false,
         };
       }
 
@@ -386,7 +392,7 @@ export default class PageService {
         ...props,
         link,
         isActive: true,
-        reopen: !openNewTab
+        reopen: !openNewTab,
       };
     }
 
@@ -420,7 +426,7 @@ export default class PageService {
 
     return {
       link,
-      isActive: !(isBackgroundOpening || (event.button === 0 && event.ctrlKey))
+      isActive: !(isBackgroundOpening || (event.button === 0 && event.ctrlKey)),
     };
   };
 
@@ -431,14 +437,14 @@ export default class PageService {
       const keyLink = PageService.keyId({ link: decodeLink(subsidiaryLink) });
       const parent = getLinkWithout({
         url: decodeLink(parentLink),
-        ignored: IgnoredUrlParams
+        ignored: IgnoredUrlParams,
       });
 
       if (!history[parent]) {
         history[parent] = [];
       }
 
-      const found = history[parent].find(item => keyLink === item);
+      const found = history[parent].find((item) => keyLink === item);
 
       if (found) {
         return;
@@ -459,7 +465,7 @@ export default class PageService {
       for (const parentLink in history) {
         if (history.hasOwnProperty(parentLink)) {
           const source = history[parentLink] || [];
-          const index = source.findIndex(item => keyLink === item);
+          const index = source.findIndex((item) => keyLink === item);
           const isFound = index >= 0;
 
           isFound && source.splice(index, 1);
@@ -488,7 +494,7 @@ function staticTitle(keyTitle) {
 
 function getDefaultPage(link) {
   return Object.freeze({
-    getTitle: () => staticTitle(TITLE[link] || TITLE.NO_NAME)
+    getTitle: () => staticTitle(TITLE[link] || TITLE.NO_NAME),
   });
 }
 
