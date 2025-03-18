@@ -1,11 +1,12 @@
-import JSONPretty from 'react-json-pretty';
-import React from 'react';
-import isFunction from 'lodash/isFunction';
-import debounce from 'lodash/debounce';
 import classNames from 'classnames';
+import debounce from 'lodash/debounce';
+import isFunction from 'lodash/isFunction';
+import React from 'react';
+import JSONPretty from 'react-json-pretty';
 
-import DialogManager from '../components/common/dialogs/Manager';
-import { t } from './export/util';
+import { t } from './util';
+
+import DialogManager from '@/components/common/dialogs/Manager';
 
 export function showModalJson(data, title = 'Configuration') {
   DialogManager.showCustomDialog({
@@ -15,7 +16,7 @@ export function showModalJson(data, title = 'Configuration') {
       <div style={{ overflow: 'auto', maxHeight: '85vh' }}>
         <JSONPretty data={data} />
       </div>
-    )
+    ),
   });
 }
 
@@ -27,7 +28,7 @@ export const showWarningMessage = debounce(
       buttons.push({
         key: 'close',
         onClick: closeWarningMessage,
-        label: t('button.close-modal')
+        label: t('button.close-modal'),
       });
     }
 
@@ -36,7 +37,7 @@ export const showWarningMessage = debounce(
         className: 'ecos-btn_blue',
         key: 'action',
         onClick: actionCallback,
-        label: actionLabel
+        label: actionLabel,
       });
     }
 
@@ -46,10 +47,10 @@ export const showWarningMessage = debounce(
       title: t('warning'),
       body: warningMessage,
       modalClass: classNames('ecos-modal_width-xs ecos-modal_level-4', className),
-      buttons
+      buttons,
     });
   },
-  0
+  0,
 );
 
 /**
@@ -57,10 +58,10 @@ export const showWarningMessage = debounce(
  * @returns {string}
  */
 export function getFitnesseClassName(...args) {
-  args = args.filter(item => !!item);
+  args = args.filter((item) => !!item);
 
   const postfix = args.pop();
-  const parts = [args.join('-'), postfix].filter(item => !!item);
+  const parts = [args.join('-'), postfix].filter((item) => !!item);
 
   return `fitnesse-${parts.join('__')}`.toLowerCase();
 }

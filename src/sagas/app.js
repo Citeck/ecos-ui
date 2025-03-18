@@ -79,8 +79,9 @@ export function* initApp({ api }, { payload }) {
         yield put(setViewNewJournal(isViewNewJournal));
       }
 
-      if (get(query, 'ws') && configs[WORKSPACES_ENABLED]) {
-        const isViewWorkspace = yield call(api.workspaces.isViewWorkspace, query.ws);
+      if (configs[WORKSPACES_ENABLED]) {
+        const wsId = get(query, 'ws', getWorkspaceId(configs[DEFAULT_WORKSPACE]));
+        const isViewWorkspace = yield call(api.workspaces.isViewWorkspace, wsId);
 
         if (isBoolean(isViewWorkspace)) {
           yield put(setBlockedCurrenWorkspace(!isViewWorkspace));
@@ -218,7 +219,7 @@ export function* fetchAppEdition({ api }) {
   }
 }
 
-export function* fetchLeftMenuEditable({ api }) {
+export function* fetchLeftMenuEditable() {
   try {
     const state = yield select();
     const workspaces = selectWorkspaces(state);
@@ -253,7 +254,7 @@ export function* fetchFooter() {
   }
 }
 
-function* sagaBackFromHistory({ api }) {
+function* sagaBackFromHistory() {
   try {
     const isShowTabs = yield select((state) => get(state, 'pageTabs.isShow'));
 

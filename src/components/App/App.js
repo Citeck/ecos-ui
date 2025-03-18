@@ -96,7 +96,10 @@ class App extends Component {
       onHide: () => showWarningMessage(propsWarning),
     };
 
-    showWarningMessage(propsWarning);
+    // If the workspace is no longer blocked, you need to update the dialog box so that it closes
+    if (!!propsWarning.warningMessage || (prevProps.blockedCurrentWorkspace && !blockedCurrentWorkspace)) {
+      showWarningMessage(propsWarning);
+    }
 
     if (enabledWorkspaces && !blockedCurrentWorkspace && homePageLink) {
       const newHomePageLink = getLinkWithWs(homePageLink, workspaceId);
