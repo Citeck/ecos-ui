@@ -1,6 +1,7 @@
 import 'regenerator-runtime/runtime';
 import 'moment/locale/ru';
 import 'moment/locale/en-gb';
+import 'flatpickr/dist/l10n/ru.js';
 import { ConnectedRouter } from 'connected-react-router';
 import datePickerLocaleEn from 'date-fns/locale/en-GB';
 import datePickerLocaleRu from 'date-fns/locale/ru';

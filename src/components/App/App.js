@@ -76,10 +76,9 @@ class App extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { defaultWorkspace, workspace, replace, addTab, blockedCurrentWorkspace, goToDefaultFromBlockedWs, updateUIWorkspace } =
+    const { location, defaultWorkspace, workspace, replace, addTab, blockedCurrentWorkspace, goToDefaultFromBlockedWs, updateUIWorkspace } =
       this.props;
     const { homePageLink = '' } = workspace || {};
-    const { location } = window;
 
     const prevSearch = get(prevProps, 'location.search');
     const search = get(location, 'search');
@@ -110,7 +109,7 @@ class App extends Component {
       if (!search.includes('ws=') && !BASE_URLS_REDIRECT.includes(location.pathname)) {
         const activePrev = PageTabList.activeTab;
         const newUrl = getUrlWithWorkspace(location.pathname, search, workspaceId);
-        console.log('newUrl:', newUrl); // TODO: need delete. For debug on stand (ECOSUI-3285)
+        console.log('newUrl:', newUrl, 'location:', location, 'search:', search, 'workspaceId:', workspaceId); // TODO: need delete. For debug on stand (ECOSUI-3285)
 
         PageService.changeUrlLink(newUrl, { openNewTab: true });
 

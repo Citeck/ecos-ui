@@ -1,17 +1,16 @@
-import FormIOCalendarWidget from 'formiojs/widgets/CalendarWidget';
-import { convertFormatToMask, convertFormatToMoment } from 'formiojs/utils/utils';
 import Flatpickr from 'flatpickr';
+import { convertFormatToMask, convertFormatToMoment } from 'formiojs/utils/utils';
+import FormIOCalendarWidget from 'formiojs/widgets/CalendarWidget';
 import moment from 'moment';
 
-import { getCurrentLocale } from '../../../helpers/util';
-import 'flatpickr/dist/l10n/ru.js';
-import { DateFormats } from '../../../constants';
+import { DateFormats } from '@/constants';
+import { getCurrentLocale } from '@/helpers/util';
 
 export default class CalendarWidget extends FormIOCalendarWidget {
   static get defaultSettings() {
     return {
       ...FormIOCalendarWidget.defaultSettings,
-      locale: getCurrentLocale() // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2912
+      locale: getCurrentLocale(), // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2912
     };
   }
 
@@ -30,9 +29,7 @@ export default class CalendarWidget extends FormIOCalendarWidget {
     }
 
     if (this.settings.format && this.settings.format === DateFormats.DATE) {
-      return moment(value)
-        .utcOffset(0, true)
-        .format();
+      return moment(value).utcOffset(0, true).format();
     }
 
     return value;
@@ -88,13 +85,25 @@ export default class CalendarWidget extends FormIOCalendarWidget {
 
       // Cause: https://citeck.atlassian.net/browse/ECOSUI-1535
       this.removeEventListener(this.calendar._input, 'keydown');
-      this.addEventListener(this.calendar._input, 'keydown', event => {
+      this.addEventListener(this.calendar._input, 'keydown', (event) => {
         if (event.keyCode === 13) {
           this.calendar.close();
         }
       });
 
       window.addEventListener('scroll', this.onScrollWindow, true);
+
+      this.handleClickOutside = (event) => {
+        if (
+          this.calendar.isOpen &&
+          !this.calendar._input.contains(event.target) &&
+          !this.calendar.calendarContainer.contains(event.target)
+        ) {
+          this.calendar.close();
+        }
+      };
+
+      document.addEventListener('click', this.handleClickOutside);
     }
   }
 
@@ -102,5 +111,9 @@ export default class CalendarWidget extends FormIOCalendarWidget {
     super.destroy();
 
     window.removeEventListener('scroll', this.onScrollWindow, true);
+
+    if (this.handleClickOutside) {
+      document.removeEventListener('click', this.handleClickOutside);
+    }
   }
 }
