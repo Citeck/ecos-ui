@@ -34,7 +34,7 @@ const Labels = {
   CONFIRM_GROUP_DELETE: 'orgstructure-delete-modal-body-group',
   FULL_DELETE: 'orgstructure-delete-modal-full-delete',
   GROUP_DELETE: 'orgstructure-delete-modal-group-delete',
-  CANCEL: 'orgstructure-delete-modal-cancel'
+  CANCEL: 'orgstructure-delete-modal-cancel',
 };
 
 const FORM_CONFIG = {
@@ -42,22 +42,22 @@ const FORM_CONFIG = {
     id: 'DEFAULT',
     name: {
       ru: 'Группа',
-      en: 'Group'
+      en: 'Group',
     },
     sourceId: SourcesId.GROUP,
     typeRef: `${SourcesId.TYPE}@authority-group`,
-    formRef: `${SourcesId.FORM}@authority-group-form`
+    formRef: `${SourcesId.FORM}@authority-group-form`,
   },
   PERSON: {
     id: 'DEFAULT',
     name: {
       ru: 'Пользователь',
-      en: 'Person'
+      en: 'Person',
     },
     sourceId: SourcesId.PERSON,
     typeRef: `${SourcesId.TYPE}@person`,
-    formRef: `${SourcesId.FORM}@person-form`
-  }
+    formRef: `${SourcesId.FORM}@person-form`,
+  },
 };
 
 const Avatar = ({ item }) => {
@@ -72,7 +72,7 @@ const renderListItem = (item, nestingLevel, isPerson) => {
   return (
     <div
       className={classNames('orgstructure-page__list-item-label-with-extra', {
-        'orgstructure-page__list-item-label-with-extra_fullwidth': nestingLevel === 0
+        'orgstructure-page__list-item-label-with-extra_fullwidth': nestingLevel === 0,
       })}
     >
       {isPerson && <Avatar item={item} />}
@@ -96,14 +96,14 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
     }
   };
   const onScroll = useCallback(
-    e => {
+    (e) => {
       const targetScrollLeft = get(e, 'target.scrollLeft', 0);
 
       if (scrollLeft !== targetScrollLeft) {
         setScrollLeftPosition(targetScrollLeft);
       }
     },
-    [scrollLeft]
+    [scrollLeft],
   );
 
   useEffect(() => {
@@ -123,14 +123,14 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
 
       const collapseHandlerClassNames = classNames('icon select-orgstruct__collapse-handler', {
         'icon-small-right': !isOpen,
-        'icon-small-down': isOpen
+        'icon-small-down': isOpen,
       });
 
       return <span className={collapseHandlerClassNames} />;
     }
   };
 
-  const handleMouseEnter = e => {
+  const handleMouseEnter = (e) => {
     const parent = e.target.closest('.slide-menu-list > div');
 
     setHovered(true);
@@ -141,59 +141,61 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
     setHovered(false);
   };
 
-  const createForm = formConfig => (e, isEditMode = false) => {
-    e.stopPropagation();
+  const createForm =
+    (formConfig) =>
+    (e, isEditMode = false) => {
+      e.stopPropagation();
 
-    const isPerson = formConfig.sourceId === SourcesId.PERSON;
-    const extraConfig = {};
-    let title;
+      const isPerson = formConfig.sourceId === SourcesId.PERSON;
+      const extraConfig = {};
+      let title;
 
-    set(extraConfig, 'attributes.authorityGroups', [item.id]);
+      set(extraConfig, 'attributes.authorityGroups', [item.id]);
 
-    if (isPerson) {
-      extraConfig.recordRef = null;
+      if (isPerson) {
+        extraConfig.recordRef = null;
 
-      title = t(Labels.TITLE_PERSON_CREATE);
-    } else {
-      title = isEditMode ? t(Labels.TITLE_GROUP_EDIT) : t(Labels.TITLE_SUBGROUP_CREATE);
-    }
-
-    if (isEditMode) {
-      extraConfig.recordRef = item.id;
-    }
-
-    FormManager.createRecordByVariant(
-      { ...formConfig, ...extraConfig },
-      {
-        title,
-        onSubmit: () => {
-          getItemsByParent(item, isEditMode);
-        },
-        initiator: {
-          type: 'form-component',
-          name: 'CreateVariants'
-        }
+        title = t(Labels.TITLE_PERSON_CREATE);
+      } else {
+        title = isEditMode ? t(Labels.TITLE_GROUP_EDIT) : t(Labels.TITLE_SUBGROUP_CREATE);
       }
-    );
-  };
+
+      if (isEditMode) {
+        extraConfig.recordRef = item.id;
+      }
+
+      FormManager.createRecordByVariant(
+        { ...formConfig, ...extraConfig },
+        {
+          title,
+          onSubmit: () => {
+            getItemsByParent(item, isEditMode);
+          },
+          initiator: {
+            type: 'form-component',
+            name: 'CreateVariants',
+          },
+        },
+      );
+    };
 
   const createPerson = createForm(FORM_CONFIG.PERSON);
   const createGroup = createForm(FORM_CONFIG.AUTHORITY_GROUP);
 
-  const openModal = type => e => {
+  const openModal = (type) => (e) => {
     e.stopPropagation();
     setModalType(type);
     setModalOpen(true);
   };
 
-  const closeModal = e => {
+  const closeModal = (e) => {
     e.stopPropagation();
     setModalOpen(false);
   };
 
   const openPersonModal = openModal('person');
 
-  const deleteFromGroup = async e => {
+  const deleteFromGroup = async (e) => {
     closeModal(e);
 
     try {
@@ -211,13 +213,13 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
       {
         text: t(Labels.CANCEL),
         className: 'gray',
-        handleClick: closeModal
+        handleClick: closeModal,
       },
       {
         text: t(Labels.GROUP_DELETE),
-        handleClick: deleteFromGroup
-      }
-    ]
+        handleClick: deleteFromGroup,
+      },
+    ],
   };
 
   let modalTitle = '';
@@ -238,11 +240,11 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
     return null;
   };
 
-  const handleModalClick = e => {
+  const handleModalClick = (e) => {
     e.stopPropagation();
   };
 
-  const selectPerson = e => {
+  const selectPerson = (e) => {
     e.stopPropagation();
     dispatch(setSelectedPerson({ recordRef: item.id }));
     dispatch(getDashboardConfig({ recordRef: item.id }));
@@ -250,6 +252,7 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
     isFunction(toggleToFirstTab) && toggleToFirstTab();
   };
 
+  const canEdit = get(item, 'attributes.canEdit', false);
   const isPerson = item.id.includes(SourcesId.PERSON);
   const isGroup = item.id.includes(SourcesId.GROUP);
 
@@ -257,10 +260,10 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
     <li>
       <div
         className={classNames('select-orgstruct__list-item', 'orgstructure-page', {
-          'select-orgstruct__list-item_strong': item.isStrong
+          'select-orgstruct__list-item_strong': item.isStrong,
         })}
         style={{
-          paddingLeft: 20 * nestingLevel
+          paddingLeft: 20 * nestingLevel,
         }}
         onClick={isPerson ? selectPerson : noop}
         onMouseEnter={handleMouseEnter}
@@ -269,7 +272,7 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
         <div
           className={classNames('select-orgstruct__list-item-label', 'orgstructure-page', {
             'select-orgstruct__list-item-label_clickable': item.hasChildren,
-            'select-orgstruct__list-item-label_margin-left': nestingLevel > 0 && !item.hasChildren
+            'select-orgstruct__list-item-label_margin-left': nestingLevel > 0 && !item.hasChildren,
           })}
           onClick={onClickLabel}
         >
@@ -281,14 +284,14 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
 
             <div
               className={classNames('orgstructure-page__list-item-icons', {
-                'orgstructure-page__list-item-icons_hidden': !hovered
+                'orgstructure-page__list-item-icons_hidden': !hovered,
               })}
               style={{ right: 12 - scrollLeft }}
             >
-              {isPerson && item.parentId && (
+              {canEdit && isPerson && item.parentId && (
                 <GroupIcon title={t(Labels.TITLE_PERSON_DELETE)} icon="remove-person" onClick={openPersonModal} />
               )}
-              {isPerson && (
+              {canEdit && isPerson && (
                 <GroupIcon
                   title={t(Labels.TITLE_PERSON_SELECT)}
                   icon="select-person"
@@ -297,30 +300,30 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
                 />
               )}
 
-              {isGroup && <GroupIcon title={t(Labels.TITLE_GROUP_EDIT)} icon="edit" onClick={e => createGroup(e, true)} />}
-              {isGroup && (
+              {canEdit && isGroup && <GroupIcon title={t(Labels.TITLE_GROUP_EDIT)} icon="edit" onClick={(e) => createGroup(e, true)} />}
+              {canEdit && isGroup && (
                 <GroupIcon
                   title={t(Labels.TITLE_SUBGROUP_CREATE)}
                   icon="add-group"
-                  onClick={event => {
+                  onClick={(event) => {
                     event.preventDefault();
                     event.stopPropagation();
                     onToggleCollapse(item, () => setGroupModal(item));
                   }}
                 />
               )}
-              {isGroup && (
+              {canEdit && isGroup && (
                 <GroupIcon
                   title={t(Labels.TITLE_PERSON_ADD)}
                   icon="add-user"
-                  onClick={event => {
+                  onClick={(event) => {
                     event.preventDefault();
                     event.stopPropagation();
                     onToggleCollapse(item, () => setPersonModal(item));
                   }}
                 />
               )}
-              {isGroup && <GroupIcon title={t(Labels.TITLE_PERSON_CREATE)} icon="create-user" onClick={createPerson} />}
+              {canEdit && isGroup && <GroupIcon title={t(Labels.TITLE_PERSON_CREATE)} icon="create-user" onClick={createPerson} />}
 
               <EcosModal
                 className="ecos-modal_width-lg ecos-form-modal orgstructure-page-modal"
@@ -351,18 +354,18 @@ export const itemPropType = PropTypes.shape({
   attributes: PropTypes.shape({
     authorityType: PropTypes.string,
     groupType: PropTypes.string,
-    groupSubType: PropTypes.string
-  })
+    groupSubType: PropTypes.string,
+  }),
 });
 
 ListItem.propTypes = {
   item: itemPropType,
   nestingLevel: PropTypes.number,
-  nestedList: PropTypes.node
+  nestedList: PropTypes.node,
 };
 
-const mapStateToProps = state => ({
-  selectedPerson: get(state, 'orgstructure.id', '')
+const mapStateToProps = (state) => ({
+  selectedPerson: get(state, 'orgstructure.id', ''),
 });
 
 export default connect(mapStateToProps)(ListItem);
