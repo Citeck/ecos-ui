@@ -1837,7 +1837,7 @@
   "icon-select.custom.tip": "Иконка выглядит лучше, если используется формат png/svg, размер 20x20px и отсутствуют мелкие детали",
   "icon-select.error.get-custom-icons": "Пользовательские иконки меню не получены",
   "icon-select.error.get-font-icons": "Шрифт-иконки не получены",
-  "icon-select.error.upload-custom-icon": "Загузка иконки не удалась",
+  "icon-select.error.upload-custom-icon": "Загрузка иконки не удалась",
   "icon-select.error.delete-custom-icon": "Удаление иконки не удалось",
 
   "model-editor.error.no-form": "Форма не найдена",

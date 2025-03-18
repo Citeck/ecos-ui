@@ -1,6 +1,6 @@
-# ValueColorFormatter
+# ColoredFormatter
 
-Universal formatter for displaying values with color indication. The formatter uses the identifier (value) for color mapping, but displays the localized value (disp).
+Universal formatter for displaying values with color indication.
 
 ## Features
 
@@ -8,9 +8,7 @@ Universal formatter for displaying values with color indication. The formatter u
 - Using identifier for color mapping and localized value for display
 - Ability to display color indicator as pointer or background
 - When `showPointer` is false, the background color is displayed as a rounded oval
-- Support for new and old journal
-- Validation of supported colors with warning in console for unsupported colors
-- Full support for color pointer in both new and old journal formats
+- Support for new and old journal formats
 
 ## Usage
 
@@ -25,9 +23,9 @@ Universal formatter for displaying values with color indication. The formatter u
   editor:
     type: select
   formatter:
-    type: valueColor
+    type: colored
     config:
-      colorMapping:
+      color:
         low: green
         medium: yellow
         high: pink
@@ -45,9 +43,9 @@ Universal formatter for displaying values with color indication. The formatter u
   editor:
     type: select
   formatter:
-    type: valueColor
+    type: colored
     config:
-      colorMapping:
+      color:
         low: '#00FF00'
         medium: '#FFFF00'
         high: '#FF69B4'
@@ -65,9 +63,9 @@ Universal formatter for displaying values with color indication. The formatter u
   editor:
     type: select
   formatter:
-    type: valueColor
+    type: colored
     config:
-      colorMapping:
+      color:
         low: green
         medium: yellow
         high: pink
@@ -86,9 +84,9 @@ Universal formatter for displaying values with color indication. The formatter u
   editor:
     type: select
   formatter:
-    type: valueColor
+    type: colored
     config:
-      colorMapping:
+      color:
         low: green
       defaultColor: '#CCCCCC'
 ```
@@ -104,20 +102,40 @@ Universal formatter for displaying values with color indication. The formatter u
   editor:
     type: select
   formatter:
-    type: valueColor
+    type: colored
     config:
-      colorMapping:
+      color:
         low: green
       defaultColor: 'red'
 ```
 
+### Script-based color formatting
+
+```yaml
+- id: priority
+  name:
+    ru: Приоритет
+    en: Priority
+  type: TEXT
+  editor:
+    type: select
+  formatter:
+    type: colored
+    config:
+      fn: 'if (cell.value > 2) return "#e2e2e2"'
+      defaultColor: '#FFFFFF'
+```
+
 ## Configuration Parameters
 
-| Parameter    | Type    | Default   | Description                                                                   |
-| ------------ | ------- | --------- | ----------------------------------------------------------------------------- |
-| colorMapping | Object  | {}        | Object mapping values to colors                                               |
-| showPointer  | Boolean | false     | Whether to show color pointer. If false, shows rounded oval background        |
-| defaultColor | String  | '#FFFFFF' | Default color for values not found in colorMapping. Can be HEX or named color |
+### Value Color Mode Parameters
+
+| Parameter    | Type            | Default   | Description                                                            |
+| ------------ | --------------- | --------- | ---------------------------------------------------------------------- |
+| color        | Object          | {}        | Object mapping values to colors                                        |
+| showPointer  | Boolean         | false     | Whether to show color pointer. If false, shows rounded oval background |
+| defaultColor | String          | '#FFFFFF' | Default color for values not found in color. Can be HEX or named color |
+| fn           | String/Function | -         | Script or function to determine text color                             |
 
 ## Predefined Colors
 
