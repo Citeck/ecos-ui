@@ -79,15 +79,6 @@ export function* initApp({ api }, { payload }) {
         yield put(setViewNewJournal(isViewNewJournal));
       }
 
-      if (configs[WORKSPACES_ENABLED]) {
-        const wsId = get(query, 'ws', getWorkspaceId(configs[DEFAULT_WORKSPACE]));
-        const isViewWorkspace = yield call(api.workspaces.isViewWorkspace, wsId);
-
-        if (isBoolean(isViewWorkspace)) {
-          yield put(setBlockedCurrenWorkspace(!isViewWorkspace));
-        }
-      }
-
       if (isString(configs[DEFAULT_WORKSPACE])) {
         yield put(setDefaultWorkspace(configs[DEFAULT_WORKSPACE]));
       }
@@ -111,6 +102,15 @@ export function* initApp({ api }, { payload }) {
 
         if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
           lodashSet(window, 'Citeck.navigator.WORKSPACE', getWorkspaceId());
+        }
+      }
+
+      if (configs[WORKSPACES_ENABLED]) {
+        const wsId = get(query, 'ws') || getWorkspaceId(configs[DEFAULT_WORKSPACE]);
+        const isViewWorkspace = yield call(api.workspaces.isViewWorkspace, wsId);
+
+        if (isBoolean(isViewWorkspace)) {
+          yield put(setBlockedCurrenWorkspace(!isViewWorkspace));
         }
       }
 
