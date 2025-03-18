@@ -1,4 +1,3 @@
-import RecordUpdater from '@components/Records/RecordUpdater';
 import classNames from 'classnames';
 import cloneDeep from 'lodash/cloneDeep';
 import debounce from 'lodash/debounce';
@@ -23,6 +22,7 @@ import { DndUtils } from '@/components/Drag-n-Drop';
 import Layout from '@/components/Layout';
 import TopMenu from '@/components/Layout/TopMenu';
 import Records from '@/components/Records';
+import RecordUpdater from '@/components/Records/RecordUpdater';
 import { Loader, ScrollArrow, Tabs } from '@/components/common';
 import TitlePageLoader from '@/components/common/TitlePageLoader';
 import DialogManager from '@/components/common/dialogs/Manager';
