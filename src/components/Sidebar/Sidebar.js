@@ -1,9 +1,17 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { connect } from 'react-redux';
-import { Scrollbars } from 'react-custom-scrollbars';
 import get from 'lodash/get';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { Scrollbars } from 'react-custom-scrollbars';
+import { connect } from 'react-redux';
+
+import Records from '../Records';
+import WorkspacePreview from '../WorkspacePreview';
+import { Tooltip } from '../common';
+import SidebarToggle from '../common/icons/SidebarToggle';
+
+import List from './List';
+import Logo from './Logo';
 
 import {
   collapseAllItems,
@@ -11,21 +19,15 @@ import {
   getSiteDashboardEnable,
   setExpandableItems,
   setInitialSelectedId,
-  toggleIsOpen
-} from '../../actions/slideMenu';
-import WorkspacePreview from '../WorkspacePreview';
-import { isExistValue, t } from '../../helpers/util';
-import { SourcesId, URL as Urls } from '../../constants';
-import Records from '../Records';
-import Logo from './Logo';
-import List from './List';
-import { selectActiveThemeImage, selectIsViewNewJournal } from '../../selectors/view';
-import { DefaultImages } from '../../constants/theme';
-import { Tooltip } from '../common';
-import PageService, { Events } from '../../services/PageService';
-import SidebarToggle from '../common/icons/SidebarToggle';
-import { getWorkspaceId } from '../../helpers/urls';
-import { selectWorkspaceById } from '../../selectors/workspaces';
+  toggleIsOpen,
+} from '@/actions/slideMenu';
+import { SourcesId, URL as Urls } from '@/constants';
+import { DefaultImages } from '@/constants/theme';
+import { getWorkspaceId } from '@/helpers/urls';
+import { isExistValue, t } from '@/helpers/util';
+import { selectActiveThemeImage, selectIsViewNewJournal } from '@/selectors/view';
+import { selectWorkspaceById } from '@/selectors/workspaces';
+import PageService, { Events } from '@/services/PageService';
 
 import './style.scss';
 
@@ -46,11 +48,11 @@ class Sidebar extends React.Component {
     getSiteDashboardEnable: PropTypes.func,
     setExpandableItems: PropTypes.func,
     collapseAllItems: PropTypes.func,
-    setInitialSelectedId: PropTypes.func
+    setInitialSelectedId: PropTypes.func,
   };
 
   state = {
-    fetchItems: false
+    fetchItems: false,
   };
 
   componentDidMount() {
@@ -80,7 +82,7 @@ class Sidebar extends React.Component {
     const item = document.getElementsByClassName('ecos-sidebar-item_selected')[0];
     item &&
       item.scrollIntoView({
-        block: 'center'
+        block: 'center',
       });
   };
 
@@ -158,7 +160,7 @@ class Sidebar extends React.Component {
           'ecos-sidebar_collapsed': !isOpen,
           'ecos-sidebar_new': isViewNewJournal,
           'ecos-sidebar_new_expanded': isViewNewJournal && isOpen,
-          'ecos-sidebar_new_collapsed': isViewNewJournal && !isOpen
+          'ecos-sidebar_new_collapsed': isViewNewJournal && !isOpen,
         })}
       >
         <div id={`${id}-logo`} className={classNames('ecos-sidebar-head', { 'ecos-sidebar-head_expanded': isOpen })}>
@@ -183,9 +185,9 @@ class Sidebar extends React.Component {
           style={{ height: '100%' }}
           className="ecos-sidebar-scroll"
           autoHide
-          renderTrackVertical={props => <div {...props} className="ecos-sidebar-scroll-v" />}
+          renderTrackVertical={(props) => <div {...props} className="ecos-sidebar-scroll-v" />}
           renderTrackHorizontal={() => <div hidden />}
-          renderView={props => <div {...props} className="ecos-sidebar-scroll-area" />}
+          renderView={(props) => <div {...props} className="ecos-sidebar-scroll-area" />}
         >
           <List items={items} workspace={workspace} isExpanded />
         </Scrollbars>
@@ -200,7 +202,7 @@ class Sidebar extends React.Component {
   }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   const workspaceId = getWorkspaceId();
 
   return {
@@ -216,20 +218,17 @@ const mapStateToProps = state => {
     homeLink: get(state, 'app.homeLink'),
     locationKey: get(state, 'router.location.key'),
     isViewNewJournal: selectIsViewNewJournal(state),
-    selectedId: get(state, 'slideMenu.selectedId')
+    selectedId: get(state, 'slideMenu.selectedId'),
   };
 };
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   fetchSlideMenuItems: () => dispatch(fetchSlideMenuItems()),
-  toggleIsOpen: isOpen => dispatch(toggleIsOpen(isOpen)),
+  toggleIsOpen: (isOpen) => dispatch(toggleIsOpen(isOpen)),
   getSiteDashboardEnable: () => dispatch(getSiteDashboardEnable()),
-  setExpandableItems: force => dispatch(setExpandableItems({ force })),
+  setExpandableItems: (force) => dispatch(setExpandableItems({ force })),
   collapseAllItems: () => dispatch(collapseAllItems()),
-  setInitialSelectedId: () => dispatch(setInitialSelectedId())
+  setInitialSelectedId: () => dispatch(setInitialSelectedId()),
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Sidebar);
+export default connect(mapStateToProps, mapDispatchToProps)(Sidebar);

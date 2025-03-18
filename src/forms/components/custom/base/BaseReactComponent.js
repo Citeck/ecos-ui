@@ -23,7 +23,6 @@ export default class BaseReactComponent extends BaseComponent {
   }
 
   react = {};
-  _root = null;
   _viewOnlyPrev = {};
   _refreshOnValuePrev = {};
 
@@ -197,8 +196,9 @@ export default class BaseReactComponent extends BaseComponent {
           }
         };
 
-        this._root = createRoot(this.react.container);
-        this._root.render(
+        const root = this.react.container?._root?._internalRoot ? this.react.container._root : createRoot(this.react.container);
+
+        root.render(
           <RawHtmlWrapper
             onMounted={() => {
               this.react.isMounted = true;
@@ -213,6 +213,8 @@ export default class BaseReactComponent extends BaseComponent {
             props={props}
           />,
         );
+
+        this.react.container._root = root;
 
         if (!firstBuild && !isEqual(this.react?.innerComponent?.props, props)) {
           this.setReactProps(props);
@@ -231,7 +233,7 @@ export default class BaseReactComponent extends BaseComponent {
 
   destroy() {
     if (this.react.container) {
-      this._root?.unmount();
+      this.react.container._root?.unmount();
       this.react.wrapper = null;
     }
 

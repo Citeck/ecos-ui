@@ -1,12 +1,9 @@
-import { NotificationManager } from '@/services/notifications';
-import { call, put, select, takeLatest } from 'redux-saga/effects';
-import set from 'lodash/set';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-import { t } from '../helpers/util';
-import { ConfigTypes, GROUP_EVERYONE, MenuSettings as ms } from '../constants/menu';
-import MenuConverter from '../dto/menu';
-import MenuSettingsService from '../services/MenuSettingsService';
+import set from 'lodash/set';
+import { call, put, select, takeLatest } from 'redux-saga/effects';
+
+import { getMenuConfig } from '@/actions/menu';
 import {
   addJournalMenuItems,
   getAuthorityInfoByRefs,
@@ -24,9 +21,14 @@ import {
   setMenuIcons,
   setOriginalConfig,
   setUserMenuItems,
-} from '../actions/menuSettings';
-import { selectMenuByType } from '../selectors/menu';
-import { getMenuConfig } from '../actions/menu';
+} from '@/actions/menuSettings';
+import { fetchSlideMenuItems } from '@/actions/slideMenu.js';
+import { ConfigTypes, GROUP_EVERYONE, MenuSettings as ms } from '@/constants/menu';
+import MenuConverter from '@/dto/menu';
+import { t } from '@/helpers/util';
+import { selectMenuByType } from '@/selectors/menu';
+import MenuSettingsService from '@/services/MenuSettingsService';
+import { NotificationManager } from '@/services/notifications';
 
 function* fetchSettingsConfig({ api }) {
   try {
@@ -72,6 +74,7 @@ function* runSaveMenuSettings(props, action) {
 
     if (id !== prevId) {
       yield put(getMenuConfig());
+      yield put(fetchSlideMenuItems());
     }
 
     MenuSettingsService.emitter.emit(MenuSettingsService.Events.HIDE);
@@ -81,7 +84,7 @@ function* runSaveMenuSettings(props, action) {
   yield put(setLoading(false));
 }
 
-function* runSaveMenuConfig({ api }, action) {
+function* runSaveMenuConfig({ api }) {
   try {
     const id = yield select((state) => state.menuSettings.editedId);
     const result = yield select((state) => state.menuSettings.originalConfig);
@@ -107,7 +110,7 @@ function* runSaveMenuConfig({ api }, action) {
   }
 }
 
-function* runSaveGlobalSettings({ api }, action) {
+function* runSaveGlobalSettings({ api }) {
   try {
     const _groupPriority = yield select((state) => state.menuSettings.groupPriority);
 
