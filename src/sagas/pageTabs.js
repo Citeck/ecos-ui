@@ -24,7 +24,7 @@ import {
 } from '@/actions/pageTabs';
 import { BASE_URLS_REDIRECT, RELOCATED_URL } from '@/constants';
 import { TITLE } from '@/constants/pageTabs';
-import { getLinkWithWs, getWorkspaceId, getWsIdOfTabLink } from '@/helpers/urls';
+import { getLinkWithWs, getUrlWithWorkspace, getWorkspaceId, getWsIdOfTabLink } from '@/helpers/urls';
 import { getCurrentUserName, getCurrentLocale, getEnabledWorkspaces } from '@/helpers/util';
 import { selectInitStatus } from '@/selectors/pageTabs';
 import { selectIsAuthenticated } from '@/selectors/user';
@@ -36,10 +36,16 @@ const lng = getCurrentLocale();
 function* sagaInitTabs({ api }) {
   try {
     const location = yield select((state) => get(state, 'router.location') || {});
-    const activeUrl = location.pathname + location.search;
+    const search = location.search;
+    const searchParams = search ? new URLSearchParams(search) : new URLSearchParams();
+
+    const url = location.pathname + search;
     const isAuthorized = yield select(selectIsAuthenticated);
     const displayState = yield call(api.pageTabs.getShowStatus);
     const userName = yield call(getCurrentUserName);
+
+    const enabledWorkspaces = getEnabledWorkspaces();
+    const activeUrl = enabledWorkspaces ? getLinkWithWs(url) : url;
 
     yield put(setShowTabsStatus(displayState));
 
@@ -62,6 +68,13 @@ function* sagaInitTabs({ api }) {
     });
 
     yield put(setTabs(PageTabList.storeList));
+
+    if (search.includes('ws=') && !searchParams.get('ws') && !BASE_URLS_REDIRECT.includes(location.pathname) && enabledWorkspaces) {
+      yield put(push(getUrlWithWorkspace(location.pathname, search, getWorkspaceId())));
+    } else if (!url?.includes('ws=') && enabledWorkspaces) {
+      // If the old link didn't have a 'ws', then the new one definitely does
+      yield put(push(activeUrl));
+    }
   } catch (e) {
     console.error('[pageTabs] sagaInitTabs saga error', e);
   }
@@ -310,7 +323,7 @@ function* sagaUpdateTabData({ api }, { payload }) {
   }
 }
 
-function* sagaUpdateTabs({ api }, { payload }) {
+function* sagaUpdateTabs() {
   try {
     yield put(setTabs(PageTabList.storeList));
   } catch (e) {

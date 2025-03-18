@@ -26,11 +26,10 @@ import { allowedModes } from '@/constants/index.js';
 import { BASE_LEFT_MENU_ID, MenuTypes } from '@/constants/menu';
 import { PANEL_CLASS_NAME } from '@/constants/pageTabs';
 import { showWarningMessage } from '@/helpers/tools';
-import { getLinkWithWs, getUrlWithWorkspace, getWorkspaceId } from '@/helpers/urls';
+import { getLinkWithWs, getWorkspaceId } from '@/helpers/urls';
 import { getEnabledWorkspaces, isMobileAppWebView, t } from '@/helpers/util';
 import Page from '@/pages';
 import { selectCurrentWorkspaceIsBlocked, selectWorkspaceById } from '@/selectors/workspaces';
-import PageService from '@/services/PageService';
 import { NotificationContainer } from '@/services/notifications';
 import PageTabList from '@/services/pageTabs/PageTabList';
 import UserLocalSettingsService from '@/services/userLocalSettings';
@@ -76,7 +75,7 @@ class App extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { location, defaultWorkspace, workspace, replace, addTab, blockedCurrentWorkspace, goToDefaultFromBlockedWs, updateUIWorkspace } =
+    const { location, defaultWorkspace, workspace, addTab, blockedCurrentWorkspace, goToDefaultFromBlockedWs, updateUIWorkspace } =
       this.props;
     const { homePageLink = '' } = workspace || {};
 
@@ -99,27 +98,10 @@ class App extends Component {
 
     showWarningMessage(propsWarning);
 
-    if (enabledWorkspaces && !blockedCurrentWorkspace) {
-      if (search.includes('ws=') && !searchParams.get('ws') && workspaceId && !BASE_URLS_REDIRECT.includes(location.pathname)) {
-        const newUrl = getUrlWithWorkspace(location.pathname, search, workspaceId);
-
-        replace(newUrl);
-      }
-
-      if (!search.includes('ws=') && !BASE_URLS_REDIRECT.includes(location.pathname)) {
-        const activePrev = PageTabList.activeTab;
-        const newUrl = getUrlWithWorkspace(location.pathname, search, workspaceId);
-        console.log('newUrl:', newUrl, 'location:', location, 'search:', search, 'workspaceId:', workspaceId); // TODO: need delete. For debug on stand (ECOSUI-3285)
-
-        PageService.changeUrlLink(newUrl, { openNewTab: true });
-
-        if (activePrev) {
-          PageTabList.delete(activePrev);
-        }
-      }
-
+    if (enabledWorkspaces && !blockedCurrentWorkspace && homePageLink) {
       const newHomePageLink = getLinkWithWs(homePageLink, workspaceId);
-      if (homePageLink && newHomePageLink && newHomePageLink !== this.#homePageLink) {
+
+      if (newHomePageLink && newHomePageLink !== this.#homePageLink) {
         this.#homePageLink = newHomePageLink;
 
         if (BASE_URLS_REDIRECT.includes(location.pathname)) {
@@ -131,7 +113,10 @@ class App extends Component {
       }
     }
 
-    if (enabledWorkspaces && prevSearchParams.get('ws') !== searchParams.get('ws')) {
+    const prevWsId = prevSearchParams.get('ws');
+    const nextWsId = searchParams.get('ws');
+
+    if (enabledWorkspaces && prevWsId && nextWsId && prevWsId !== nextWsId && !blockedCurrentWorkspace) {
       updateUIWorkspace();
     }
 
@@ -239,7 +224,6 @@ class App extends Component {
   };
 
   renderCachedRouter = React.memo((props) => {
-    const enabledWorkspaces = getEnabledWorkspaces();
     const { tab } = props;
     const isCurrent = PageTabList.isActiveTab(tab.id);
     const baseCacheRouteProps = {
@@ -264,28 +248,12 @@ class App extends Component {
       <div className="ecos-main-content" style={styles}>
         <Suspense fallback={null}>
           <CacheSwitch isCurrent={isCurrent} tabLink={tab.link}>
-            {!enabledWorkspaces && (
-              <CacheRoute
-                {...baseCacheRouteProps}
-                path={Urls.DASHBOARD}
-                exact
-                render={(props) => <Page pageKey={Pages.DASHBOARD} {...props} {...basePageProps} />}
-              />
-            )}
-            {enabledWorkspaces && (
-              <CacheRoute
-                {...baseCacheRouteProps}
-                path={Urls.DASHBOARD}
-                exact
-                render={(props) =>
-                  get(props, 'location.search', '').includes('ws=') && getEnabledWorkspaces() ? (
-                    <Page pageKey={Pages.DASHBOARD} {...props} {...basePageProps} />
-                  ) : (
-                    <Redirect to={this.#homePageLink} />
-                  )
-                }
-              />
-            )}
+            <CacheRoute
+              {...baseCacheRouteProps}
+              path={Urls.DASHBOARD}
+              exact
+              render={(props) => <Page pageKey={Pages.DASHBOARD} {...props} {...basePageProps} />}
+            />
             <CacheRoute
               {...baseCacheRouteProps}
               cacheKey="admin"
@@ -399,26 +367,11 @@ class App extends Component {
   });
 
   renderRouter = () => {
-    const enabledWorkspaces = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
-
     return (
       <div className="ecos-main-content" style={this.wrapperStyle}>
         <Suspense fallback={null}>
           <Switch>
-            {!enabledWorkspaces && <Route path={Urls.DASHBOARD} exact render={(props) => <Page pageKey={Pages.DASHBOARD} {...props} />} />}
-            {enabledWorkspaces && (
-              <Route
-                path={Urls.DASHBOARD}
-                exact
-                render={(props) =>
-                  get(props, 'location.search', '').includes('ws=') ? (
-                    <Page pageKey={Pages.DASHBOARD} {...props} />
-                  ) : (
-                    <Redirect to={this.#homePageLink} />
-                  )
-                }
-              />
-            )}
+            <Route path={Urls.DASHBOARD} exact render={(props) => <Page pageKey={Pages.DASHBOARD} {...props} />} />
             <Route path={Urls.ADMIN_PAGE} render={(props) => <Page pageKey={Pages.BPMN} {...props} />} />
             <Route path={Urls.JOURNAL} render={(props) => <Page pageKey={Pages.JOURNAL} {...props} />} />
             <Route path={Urls.DEV_TOOLS} render={(props) => <Page pageKey={Pages.DEV_TOOLS} {...props} />} />

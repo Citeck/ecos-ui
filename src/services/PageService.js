@@ -319,9 +319,6 @@ export default class PageService {
     PageService.eventIsDispatched = true;
 
     try {
-      if (link && link.includes('deals-journal')) {
-        debugger; // TODO: need delete. For debug on stand (ECOSUI-3285)
-      }
       CHANGE_URL.params = { link: decodeLink(link), ...params };
       document.dispatchEvent(CHANGE_URL);
     } finally {
@@ -485,7 +482,7 @@ export default class PageService {
 }
 
 function staticTitle(keyTitle) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     setTimeout(() => {
       resolve(t(keyTitle));
     }, 80);

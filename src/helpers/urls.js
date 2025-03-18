@@ -451,6 +451,10 @@ export const getUrlWithWorkspace = (path, urlSearch, workspaceId) => {
   const search = isUndefined(urlSearch) ? window.location.search : urlSearch;
   const searchParams = search ? new URLSearchParams(search) : new URLSearchParams();
 
+  if (!workspaceId) {
+    console.error('This method requires the required "workspaceId" parameter');
+  }
+
   if (!!workspaceId && !!workspaceId.trim()) {
     searchParams.set('ws', workspaceId.trim());
   }
