@@ -1,10 +1,9 @@
 import Formio from 'formiojs/Formio';
-import { evaluate as formioEvaluate } from 'formiojs/utils/utils';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import split from 'lodash/split';
 import React from 'react';
-import { createRoot } from 'react-dom/client';
+import ReactDOM from 'react-dom';
 
 import UnreadableLabel from '../../UnreadableLabel';
 import BaseComponent from '../base/BaseComponent';
@@ -150,20 +149,19 @@ export default class SelectOrgstructComponent extends BaseComponent {
 
     let renderControl = () => {
       if (comp.unreadable) {
-        if (!this._root) {
-          this._root = createRoot(this.reactContainer);
-        }
-
-        this._root.render(<UnreadableLabel />, this.reactContainer);
+        // TODO: Figure out how to make the changes from createRoot invisible
+        //  (it will first unmount the component completely, then it will mount)
+        // this._root = createRoot(this.reactContainer);
+        // eslint-disable-next-line react/no-deprecated
+        ReactDOM.render(<UnreadableLabel />, this.reactContainer);
         return;
       }
 
-      if (this._root) {
-        this._root.unmount();
-      }
-
-      this._root = createRoot(this.reactContainer);
-      this._root.render(
+      // TODO: Figure out how to make the changes from createRoot invisible
+      //  (it will first unmount the component completely, then it will mount)
+      // this._root = createRoot(this.reactContainer);
+      // eslint-disable-next-line react/no-deprecated
+      ReactDOM.render(
         <SelectOrgstruct
           defaultValue={this.dataValue}
           isCompact={comp.isCompact}
@@ -188,6 +186,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
           onError={console.error}
           viewModeType={comp.viewModeType}
         />,
+        this.reactContainer,
       );
     };
 

@@ -1,15 +1,15 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import ReactSelect from 'react-select';
-import AsyncSelect from 'react-select/lib/Async';
 import get from 'lodash/get';
-import isString from 'lodash/isString';
 import isBoolean from 'lodash/isBoolean';
 import isFunction from 'lodash/isFunction';
+import isString from 'lodash/isString';
 import isUndefined from 'lodash/isUndefined';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import ReactSelect from 'react-select';
+import AsyncSelect from 'react-select/lib/Async';
 
-import { t } from '../../../../helpers/export/util';
+import { t } from '@/helpers/export/util';
 
 import './Select.scss';
 
@@ -27,7 +27,7 @@ class Select extends Component {
     const { loadOptions, value } = this.props;
 
     if (loadOptions && isFunction(loadOptions)) {
-      return loadOptions().then(res => {
+      return loadOptions().then((res) => {
         this._options = res;
 
         this.setState({ value: this.handleSetValue(value, res) });
@@ -51,7 +51,7 @@ class Select extends Component {
     const { closeMenuOnScroll } = this.props;
 
     if (isFunction(closeMenuOnScroll)) {
-      return function(e) {
+      return function (e) {
         const cl = get(e, 'target.classList');
         const innerSelect = !!cl && cl.contains('select__menu-list');
         return closeMenuOnScroll(e, { innerSelect });
@@ -78,7 +78,7 @@ class Select extends Component {
         loadOptions={this.loadOptions}
         value={this.state.value}
         className={classNames('ecos-select', props.className, {
-          select_narrow: narrow
+          select_narrow: narrow,
         })}
         classNamePrefix="fitnesse-select select"
         closeMenuOnScroll={this.handleCloseMenuOnScroll()}
@@ -90,7 +90,7 @@ class Select extends Component {
 Select.propTypes = {
   loadOptions: PropTypes.bool,
   narrow: PropTypes.bool,
-  className: PropTypes.string
+  className: PropTypes.string,
 };
 
 export default Select;
