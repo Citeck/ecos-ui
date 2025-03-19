@@ -238,7 +238,6 @@ const JournalsSettingsBar = ({
             })}
           >
             {isViewNewJournal ? <ImportIcon /> : t(Labels.BTN_IMPORT)}
-            {t(Labels.BTN_IMPORT)}
           </IcoBtn>
         </Import>
 
