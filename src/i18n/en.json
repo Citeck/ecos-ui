@@ -120,6 +120,9 @@
   "migration-info.widget.confirm-info": "Migration will execute in the background",
   "migration-info.widget.confirm-question": "Are you sure about starting migration?",
   "migration-info.widget.start-button": "Start",
+  "migration.error.version-not-found": "Process with version '{{sourceVersion}}' not found",
+  "migration.error.version-not-found.info": "Error when searching for the process version: the process was not found!\nAvailable versions:",
+  "migration.error.versions": "Error when receiving processes",
 
   "version-migration.title": "Version's migration",
 

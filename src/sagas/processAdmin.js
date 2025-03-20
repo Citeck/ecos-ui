@@ -9,11 +9,11 @@ import {
   setJournalTabInfo,
   getActionsInfo,
   setActionsInfo,
-} from '../actions/processAdmin';
-import { selectProcessTabInfo } from '../selectors/processAdmin';
-import RecordActionsApi from '../components/Records/actions/recordActionsApi';
-import RecordActions from '../components/Records/actions/recordActions';
-import { SourcesId } from '../constants';
+} from '@/actions/processAdmin';
+import RecordActions from '@/components/Records/actions/recordActions';
+import RecordActionsApi from '@/components/Records/actions/recordActionsApi';
+import { SourcesId } from '@/constants';
+import { selectProcessTabInfo } from '@/selectors/processAdmin';
 
 function* sagaGetMetaInfo({ api }, { payload }) {
   try {
