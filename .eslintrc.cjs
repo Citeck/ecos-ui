@@ -89,6 +89,8 @@ module.exports = {
       {
         endOfLine: "auto",
         singleQuote: true,
+        trailingComma: "none",
+        arrowParens: "avoid",
       },
     ],
     "import/no-unresolved": "off",
