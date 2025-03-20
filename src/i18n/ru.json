@@ -2681,6 +2681,9 @@
   "migration-info.widget.confirm-info": "Миграция будет запущена в фоновом режиме",
   "migration-info.widget.confirm-question": "Вы уверены, что хотите запустить миграцию?",
   "migration-info.widget.start-button": "Запустить",
+  "migration.error.version-not-found": "Процесс с версией '{{sourceVersion}}' не найден",
+  "migration.error.version-not-found.info": "Ошибка при поиске версии процесса: процесс не был найден!\nДоступные версии:",
+  "migration.error.versions": "Ошибка при получении процессов",
 
   "version-migration.title": "Миграция версий",
 
