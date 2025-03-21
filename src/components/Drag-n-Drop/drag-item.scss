@@ -42,6 +42,8 @@ $ecos_btn_grey5: ecos-btn_grey5;
   }
 
   &_clone {
+    position: absolute;
+    opacity: 0;
     user-select: none;
     pointer-events: none;
     background: $color-gray-13;
