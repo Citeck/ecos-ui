@@ -134,7 +134,10 @@
     }
   },
   "lint-staged": {
-    "src/**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
+    "src/**/*.{css,scss}": [
+      "prettier --single-quote --write"
+    ],
+    "src/**/*.{js,jsx,json,ts,tsx,md}": [
       "eslint --fix",
       "git add"
     ]

@@ -29,6 +29,10 @@
     display: flex;
     justify-content: space-between;
   }
+
+  & .assoc-value {
+    width: auto;
+  }
 }
 
 .journal-preset {
