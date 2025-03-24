@@ -12,10 +12,10 @@ import { EditorThemeClasses, Klass, LexicalEditor, LexicalNode } from 'lexical';
 import React, { JSX, createContext, useContext, useEffect, useMemo, useState } from 'react';
 
 import invariant from '../shared/invariant';
-import Button from '../ui/Button';
 import { DialogActions } from '../ui/Dialog';
 import TextInput from '../ui/TextInput';
 
+import Button from '@/components/common/btns/Btn';
 import { t } from '@/helpers/export/util';
 
 export type InsertTableCommandPayload = Readonly<{
@@ -43,7 +43,7 @@ export const CellContext = createContext<CellContextShape>({
   cellEditorPlugins: null,
   set: () => {
     // Empty
-  },
+  }
 });
 
 export function TableContext({ children }: { children: React.JSX.Element }) {
@@ -52,7 +52,7 @@ export function TableContext({ children }: { children: React.JSX.Element }) {
     cellEditorPlugins: null | React.JSX.Element | Array<React.JSX.Element>;
   }>({
     cellEditorConfig: null,
-    cellEditorPlugins: null,
+    cellEditorPlugins: null
   });
   return (
     <CellContext.Provider
@@ -62,9 +62,9 @@ export function TableContext({ children }: { children: React.JSX.Element }) {
           cellEditorPlugins: contextValue.cellEditorPlugins,
           set: (cellEditorConfig, cellEditorPlugins) => {
             setContextValue({ cellEditorConfig, cellEditorPlugins });
-          },
+          }
         }),
-        [contextValue.cellEditorConfig, contextValue.cellEditorPlugins],
+        [contextValue.cellEditorConfig, contextValue.cellEditorPlugins]
       )}
     >
       {children}
@@ -90,7 +90,7 @@ export function InsertTableDialog({ activeEditor, onClose }: { activeEditor: Lex
   const onClick = () => {
     activeEditor.dispatchCommand(INSERT_TABLE_COMMAND, {
       columns,
-      rows,
+      rows
     });
 
     onClose();
@@ -125,7 +125,7 @@ export function InsertTableDialog({ activeEditor, onClose }: { activeEditor: Lex
 
 export function TablePlugin({
   cellEditorConfig,
-  children,
+  children
 }: {
   cellEditorConfig: CellEditorConfig;
   children: JSX.Element | Array<JSX.Element>;

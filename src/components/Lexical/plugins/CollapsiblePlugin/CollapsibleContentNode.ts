@@ -14,7 +14,7 @@ import {
   ElementNode,
   LexicalEditor,
   LexicalNode,
-  SerializedElementNode,
+  SerializedElementNode
 } from 'lexical';
 
 import { IS_CHROME } from '../../shared/environment';
@@ -28,7 +28,7 @@ type SerializedCollapsibleContentNode = SerializedElementNode;
 export function $convertCollapsibleContentElement(domNode: HTMLElement): DOMConversionOutput | null {
   const node = $createCollapsibleContentNode();
   return {
-    node,
+    node
   };
 }
 
@@ -72,14 +72,14 @@ export class CollapsibleContentNode extends ElementNode {
   static importDOM(): DOMConversionMap | null {
     return {
       div: (domNode: HTMLElement) => {
-        if (!domNode.hasAttribute('data-lexical-collapsible-content')) {
+        if (!domNode.hasAttribute('data-lexical-collapsible-content') && domNode.className !== 'Collapsible__content') {
           return null;
         }
         return {
           conversion: $convertCollapsibleContentElement,
-          priority: 2,
+          priority: 2
         };
-      },
+      }
     };
   }
 

@@ -10,40 +10,43 @@ import { LexicalEditor } from 'lexical';
 import * as React from 'react';
 import { JSX, useState } from 'react';
 
-import Button from '../../ui/Button';
-import DropDown, { DropDownItem } from '../../ui/DropDown';
-
 import { INSERT_LAYOUT_COMMAND } from './LayoutPlugin';
 
+import Button from '@/components/common/btns/Btn';
+import { Dropdown } from '@/components/common/form';
 import { t } from '@/helpers/export/util';
 
-const LAYOUTS = [
+interface LayoutItem {
+  label: string;
+  value: string;
+}
+
+const LAYOUTS: LayoutItem[] = [
   { label: 'lexical.plugins.layout.two-col', value: '1fr 1fr' },
   { label: 'lexical.plugins.layout.two-col-alternative', value: '1fr 3fr' },
   { label: 'lexical.plugins.layout.three-col', value: '1fr 1fr 1fr' },
   { label: 'lexical.plugins.layout.three-col-alternative', value: '1fr 2fr 1fr' },
-  { label: 'lexical.plugins.layout.fore-col', value: '1fr 1fr 1fr 1fr' },
+  { label: 'lexical.plugins.layout.fore-col', value: '1fr 1fr 1fr 1fr' }
 ];
 
 export default function InsertLayoutDialog({ activeEditor, onClose }: { activeEditor: LexicalEditor; onClose: () => void }): JSX.Element {
-  const [layout, setLayout] = useState(LAYOUTS[0].value);
-  const buttonLabel = LAYOUTS.find((item) => item.value === layout)?.label || '';
+  const [selectedValue, setSelectedValue] = useState<string>(LAYOUTS[0].value);
 
   const onClick = () => {
-    activeEditor.dispatchCommand(INSERT_LAYOUT_COMMAND, layout);
+    activeEditor.dispatchCommand(INSERT_LAYOUT_COMMAND, selectedValue);
     onClose();
   };
 
   return (
-    <>
-      <DropDown buttonClassName="toolbar-item dialog-dropdown" buttonLabel={t(buttonLabel)}>
-        {LAYOUTS.map(({ label, value }) => (
-          <DropDownItem key={value} className="item" onClick={() => setLayout(value)}>
-            <span className="text">{t(label)}</span>
-          </DropDownItem>
-        ))}
-      </DropDown>
+    <div className="citeck-lexical-editor__dropdown-wrapper">
+      <Dropdown
+        source={LAYOUTS}
+        valueField="value"
+        titleField="label"
+        value={selectedValue}
+        onChange={(selected: LayoutItem) => setSelectedValue(selected.value)}
+      />
       <Button onClick={onClick}>{t('insert')}</Button>
-    </>
+    </div>
   );
 }

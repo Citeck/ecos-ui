@@ -11,6 +11,8 @@ import './Input.css';
 import * as React from 'react';
 import { JSX } from 'react';
 
+import { Field, Input } from '@/components/common/form';
+
 type Props = Readonly<{
   'data-test-id'?: string;
   accept?: string;
@@ -20,9 +22,14 @@ type Props = Readonly<{
 
 export default function FileInput({ accept, label, onChange, 'data-test-id': dataTestId }: Props): JSX.Element {
   return (
-    <div className="Input__wrapper">
-      <label className="Input__label">{label}</label>
-      <input type="file" accept={accept} className="Input__input" onChange={(e) => onChange(e.target.files)} data-test-id={dataTestId} />
-    </div>
+    <Field label={label} className="citeck-lexical-editor__field">
+      <Input
+        type="file"
+        accept={accept}
+        className="Input__input"
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.files)}
+        data-test-id={dataTestId}
+      />
+    </Field>
   );
 }

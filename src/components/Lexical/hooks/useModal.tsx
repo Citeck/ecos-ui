@@ -9,11 +9,10 @@
 import { useCallback, useMemo, useState, JSX } from 'react';
 import * as React from 'react';
 
-import Modal from '../ui/Modal';
+import EcosModal from '../../common/EcosModal';
 
 export default function useModal(): [JSX.Element | null, (title: string, showModal: (onClose: () => void) => JSX.Element) => void] {
   const [modalContent, setModalContent] = useState<null | {
-    closeOnClickOutside: boolean;
     content: JSX.Element;
     title: string;
   }>(null);
@@ -26,28 +25,22 @@ export default function useModal(): [JSX.Element | null, (title: string, showMod
     if (modalContent === null) {
       return null;
     }
-    const { title, content, closeOnClickOutside } = modalContent;
+    const { title, content } = modalContent;
     return (
-      <Modal onClose={onClose} title={title} closeOnClickOutside={closeOnClickOutside}>
+      <EcosModal className="ecos-modal_width-xs" isOpen hideModal={onClose} title={title} isBigHeader={false}>
         {content}
-      </Modal>
+      </EcosModal>
     );
   }, [modalContent, onClose]);
 
   const showModal = useCallback(
-    (
-      title: string,
-      // eslint-disable-next-line no-shadow
-      getContent: (onClose: () => void) => JSX.Element,
-      closeOnClickOutside = false,
-    ) => {
+    (title: string, getContent: (onClose: () => void) => JSX.Element) => {
       setModalContent({
-        closeOnClickOutside,
         content: getContent(onClose),
-        title,
+        title
       });
     },
-    [onClose],
+    [onClose]
   );
 
   return [modal, showModal];

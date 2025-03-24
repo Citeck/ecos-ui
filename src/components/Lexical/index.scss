@@ -48,6 +48,26 @@
 }
 
 .citeck-lexical-editor {
+  &__dropdown-wrapper {
+    display: inline-flex;
+    gap: 20px;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+
+    & .ecos-field__control {
+      width: 100%;
+      min-width: 0;
+    }
+  }
+
   input[type='number']::-webkit-outer-spin-button,
   input[type='number']::-webkit-inner-spin-button {
     -webkit-appearance: none;
