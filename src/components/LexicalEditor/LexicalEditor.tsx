@@ -50,7 +50,7 @@ function extractStyles(element: HTMLElement): string {
     }
   });
 
-  indexes.forEach((key) => {
+  indexes.forEach(key => {
     const property = computedStyles[key];
     const value = computedStyles.getPropertyValue(property);
 
@@ -64,7 +64,7 @@ function extractStyles(element: HTMLElement): string {
 
 function setStyleNode(node: null | LexicalNode | Array<LexicalNode>, styles: string) {
   if (isArray(node) && node.length) {
-    node.forEach((node) => {
+    node.forEach(node => {
       if (node instanceof TextNode) {
         node.setStyle(styles);
       }
@@ -76,22 +76,29 @@ function setStyleNode(node: null | LexicalNode | Array<LexicalNode>, styles: str
   }
 }
 
+export const theme = defaultTheme;
+
 function buildImportMap(): DOMConversionMap {
   const importMap: DOMConversionMap = {};
 
   // Wrap all TextNode importers with a function that also imports
   // the custom styles implemented by the playground
   for (const [tag, fn] of Object.entries(TextNode.importDOM() || {})) {
-    importMap[tag] = (importNode) => {
+    importMap[tag] = importNode => {
       const importer = fn(importNode);
       if (!importer) {
         return null;
       }
       return {
         ...importer,
-        conversion: (element) => {
-          const parentStyles = element.parentElement ? extractStyles(element.parentElement) : '';
+        conversion: element => {
+          let parentStyles = element.parentElement ? extractStyles(element.parentElement) : '';
           const output = importer.conversion(element);
+
+          // Lexical does not allow you to insert an external className
+          if (element.parentElement?.classList.contains(theme.text?.strikethrough)) {
+            parentStyles += 'text-decoration: line-through; ';
+          }
 
           if (output === null || output.forChild === undefined || output.after !== undefined || output.node !== null) {
             if (output) {
@@ -113,11 +120,11 @@ function buildImportMap(): DOMConversionMap {
                   textNode.setStyle(textNode.getStyle() + extraStyles);
                 }
                 return textNode;
-              },
+              }
             };
           }
           return output;
-        },
+        }
       };
     };
   }
@@ -129,14 +136,14 @@ function EditorWrapper({ htmlString, onChange, readonly = false, className, hide
   const initialConfig = {
     editable: !readonly,
     html: {
-      import: buildImportMap(),
+      import: buildImportMap()
     },
     namespace: 'Playground',
     nodes: [...PlaygroundNodes],
     onError: (error: Error) => {
       console.error(error);
     },
-    theme: defaultTheme,
+    theme
   };
 
   return (
@@ -166,7 +173,7 @@ export default function LexicalEditor({
   readonly = false,
   className,
   hideToolbar,
-  onEditorReady,
+  onEditorReady
 }: LexicalEditorProps): JSX.Element {
   return (
     <SettingsContext>

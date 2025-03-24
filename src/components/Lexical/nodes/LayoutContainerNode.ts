@@ -18,7 +18,7 @@ import type {
   LexicalUpdateJSON,
   NodeKey,
   SerializedElementNode,
-  Spread,
+  Spread
 } from 'lexical';
 
 export type SerializedLayoutContainerNode = Spread<
@@ -30,7 +30,12 @@ export type SerializedLayoutContainerNode = Spread<
 
 function $convertLayoutContainerElement(domNode: HTMLElement): DOMConversionOutput | null {
   const styleAttributes = window.getComputedStyle(domNode);
-  const templateColumns = styleAttributes.getPropertyValue('grid-template-columns');
+  let templateColumns = styleAttributes.getPropertyValue('grid-template-columns');
+
+  if (!templateColumns || templateColumns.trim() === '') {
+    templateColumns = domNode.style.gridTemplateColumns;
+  }
+
   if (templateColumns) {
     const node = $createLayoutContainerNode(templateColumns);
     return { node };
@@ -85,9 +90,9 @@ export class LayoutContainerNode extends ElementNode {
         }
         return {
           conversion: $convertLayoutContainerElement,
-          priority: 2,
+          priority: 2
         };
-      },
+      }
     };
   }
 
@@ -110,7 +115,7 @@ export class LayoutContainerNode extends ElementNode {
   exportJSON(): SerializedLayoutContainerNode {
     return {
       ...super.exportJSON(),
-      templateColumns: this.__templateColumns,
+      templateColumns: this.__templateColumns
     };
   }
 
