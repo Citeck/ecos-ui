@@ -259,7 +259,6 @@ class SetWidgets extends React.Component {
               classNameView="ecos-dashboard-settings__drag-scrollbar-wrapper"
               placeholder={t(Labels.TIP_NO_AVAILABLE)}
               isDropDisabled
-              scrollHeight={250}
               autoHeight
             >
               {this.availableWidgets.map((item, index) => (
