@@ -10,10 +10,12 @@ const FileComponent = ({ size, name = '', downLoadUrl = '' }: { size: number; na
 
   return (
     <div className="file-node">
-      <div className="file-node__preview">{fileExtension}</div>
-      <div className="file-node__info">
-        <span className="file-node__info-name">{name}</span>
-        <div className="file-node__info-size">{`${bytesToKBytes(size)} KB`}</div>
+      <div className="">
+        <div className="file-node__preview">{fileExtension}</div>
+        <div className="file-node__info">
+          <span className="file-node__info-name">{name}</span>
+          <div className="file-node__info-size">{`${bytesToKBytes(size)} KB`}</div>
+        </div>
       </div>
       <div className="file-node__info-wrapper">
         <a href={downLoadUrl} download="file" data-external>

@@ -21,12 +21,7 @@
 .Input__input {
   display: flex;
   flex: 2;
-  border: 1px solid #999;
-  padding-top: 7px;
-  padding-bottom: 7px;
-  padding-left: 10px;
-  padding-right: 10px;
-  font-size: 16px;
-  border-radius: 5px;
+  padding: 7px 10px;
+  font-size: 12px;
   min-width: 0;
 }

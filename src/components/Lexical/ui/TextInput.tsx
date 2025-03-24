@@ -11,6 +11,8 @@ import './Input.css';
 import * as React from 'react';
 import { JSX, HTMLInputTypeAttribute } from 'react';
 
+import { Field, Input } from '@/components/common/form';
+
 type Props = Readonly<{
   'data-test-id'?: string;
   label: string;
@@ -26,21 +28,20 @@ export default function TextInput({
   onChange,
   placeholder = '',
   'data-test-id': dataTestId,
-  type = 'text',
+  type = 'text'
 }: Props): JSX.Element {
   return (
-    <div className="Input__wrapper">
-      <label className="Input__label">{label}</label>
-      <input
+    <Field label={label} className="citeck-lexical-editor__field">
+      <Input
         type={type}
         className="Input__input"
         placeholder={placeholder}
         value={value}
-        onChange={(e) => {
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
           onChange(e.target.value);
         }}
         data-test-id={dataTestId}
       />
-    </div>
+    </Field>
   );
 }

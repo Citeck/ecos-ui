@@ -25,13 +25,13 @@ import {
   getDOMSelectionFromTarget,
   isHTMLElement,
   LexicalCommand,
-  LexicalEditor,
+  LexicalEditor
 } from 'lexical';
 import { JSX, useEffect, useRef, useState } from 'react';
 import * as React from 'react';
 
+import Button from '../../../common/btns/Btn';
 import { $createImageNode, $isImageNode, ImageNode, ImagePayload } from '../../nodes/ImageNode';
-import Button from '../../ui/Button';
 import { DialogActions, DialogButtonsList } from '../../ui/Dialog';
 import FileInput from '../../ui/FileInput';
 import TextInput from '../../ui/TextInput';
@@ -173,7 +173,7 @@ export default function ImagesPlugin({ captionsEnabled }: { captionsEnabled?: bo
     return mergeRegister(
       editor.registerCommand<InsertImagePayload>(
         INSERT_IMAGE_COMMAND,
-        (payload) => {
+        payload => {
           const imageNode = $createImageNode(payload);
           $insertNodes([imageNode]);
           if ($isRootOrShadowRoot(imageNode.getParentOrThrow())) {
@@ -182,29 +182,29 @@ export default function ImagesPlugin({ captionsEnabled }: { captionsEnabled?: bo
 
           return true;
         },
-        COMMAND_PRIORITY_EDITOR,
+        COMMAND_PRIORITY_EDITOR
       ),
       editor.registerCommand<DragEvent>(
         DRAGSTART_COMMAND,
-        (event) => {
+        event => {
           return $onDragStart(event);
         },
-        COMMAND_PRIORITY_HIGH,
+        COMMAND_PRIORITY_HIGH
       ),
       editor.registerCommand<DragEvent>(
         DRAGOVER_COMMAND,
-        (event) => {
+        event => {
           return $onDragover(event);
         },
-        COMMAND_PRIORITY_LOW,
+        COMMAND_PRIORITY_LOW
       ),
       editor.registerCommand<DragEvent>(
         DROP_COMMAND,
-        (event) => {
+        event => {
           return $onDrop(event, editor);
         },
-        COMMAND_PRIORITY_HIGH,
-      ),
+        COMMAND_PRIORITY_HIGH
+      )
     );
   }, [captionsEnabled, editor]);
 
@@ -237,10 +237,10 @@ function $onDragStart(event: DragEvent): boolean {
         maxWidth: node.__maxWidth,
         showCaption: node.__showCaption,
         src: node.__src,
-        width: node.__width,
+        width: node.__width
       },
-      type: 'image',
-    }),
+      type: 'image'
+    })
   );
 
   return true;

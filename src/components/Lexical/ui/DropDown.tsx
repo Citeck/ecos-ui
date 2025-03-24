@@ -23,7 +23,7 @@ export function DropDownItem({
   children,
   className,
   onClick,
-  title,
+  title
 }: {
   children: React.ReactNode;
   className: string;
@@ -57,7 +57,7 @@ export function DropDownItem({
 function DropDownItems({
   children,
   dropDownRef,
-  onClose,
+  onClose
 }: {
   children: React.ReactNode;
   dropDownRef: React.Ref<HTMLDivElement>;
@@ -68,9 +68,9 @@ function DropDownItems({
 
   const registerItem = useCallback(
     (itemRef: React.RefObject<HTMLButtonElement>) => {
-      setItems((prev) => (prev ? [...prev, itemRef] : [itemRef]));
+      setItems(prev => (prev ? [...prev, itemRef] : [itemRef]));
     },
-    [setItems],
+    [setItems]
   );
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -85,13 +85,13 @@ function DropDownItems({
     if (key === 'Escape' || key === 'Tab') {
       onClose();
     } else if (key === 'ArrowUp') {
-      setHighlightedItem((prev) => {
+      setHighlightedItem(prev => {
         if (!prev) return items[0];
         const index = items.indexOf(prev) - 1;
         return items[index === -1 ? items.length - 1 : index];
       });
     } else if (key === 'ArrowDown') {
-      setHighlightedItem((prev) => {
+      setHighlightedItem(prev => {
         if (!prev) return items[0];
         return items[items.indexOf(prev) + 1];
       });
@@ -100,9 +100,9 @@ function DropDownItems({
 
   const contextValue = useMemo(
     () => ({
-      registerItem,
+      registerItem
     }),
-    [registerItem],
+    [registerItem]
   );
 
   useEffect(() => {
@@ -131,7 +131,7 @@ export default function DropDown({
   buttonClassName,
   buttonIconClassName,
   children,
-  stopCloseOnClickSelf,
+  stopCloseOnClickSelf
 }: {
   disabled?: boolean;
   buttonAriaLabel?: string;
@@ -151,6 +151,14 @@ export default function DropDown({
       buttonRef.current.focus();
     }
   };
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleClose, true);
+
+    return () => {
+      window.removeEventListener('scroll', handleClose, true);
+    };
+  }, []);
 
   useEffect(() => {
     const button = buttonRef.current;
@@ -189,28 +197,6 @@ export default function DropDown({
     }
   }, [dropDownRef, buttonRef, showDropDown, stopCloseOnClickSelf]);
 
-  useEffect(() => {
-    const handleButtonPositionUpdate = () => {
-      if (showDropDown) {
-        const button = buttonRef.current;
-        const dropDown = dropDownRef.current;
-        if (button !== null && dropDown !== null) {
-          const { top } = button.getBoundingClientRect();
-          const newPosition = top + button.offsetHeight + dropDownPadding;
-          if (newPosition !== dropDown.getBoundingClientRect().top) {
-            dropDown.style.top = `${newPosition}px`;
-          }
-        }
-      }
-    };
-
-    document.addEventListener('scroll', handleButtonPositionUpdate);
-
-    return () => {
-      document.removeEventListener('scroll', handleButtonPositionUpdate);
-    };
-  }, [buttonRef, dropDownRef, showDropDown]);
-
   return (
     <>
       <button
@@ -231,7 +217,7 @@ export default function DropDown({
           <DropDownItems dropDownRef={dropDownRef} onClose={handleClose}>
             {children}
           </DropDownItems>,
-          document.body,
+          document.body
         )}
     </>
   );
