@@ -1,24 +1,29 @@
-import React, { useContext, useState, useEffect, useCallback } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
-import set from 'lodash/set';
-import noop from 'lodash/noop';
 import isFunction from 'lodash/isFunction';
 import { NotificationManager } from 'react-notifications';
+import noop from 'lodash/noop';
+import set from 'lodash/set';
+import PropTypes from 'prop-types';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
+import { connect } from 'react-redux';
 
-import { OrgstructContext } from '../../../../../components/common/Orgstruct/OrgstructContext';
-import { EcosModal } from '../../../../../components/common';
-import FormManager from '../../../../../components/EcosForm/FormManager';
-import ModalContent from '../ModalContent';
-import { setSelectedPerson } from '../../../../../actions/orgstructure';
-import { t } from '../../../../../helpers/util';
-import { updateCurrentUrl } from '../../../../../helpers/urls';
 import { getDashboardConfig } from '../../../../../actions/dashboard';
-import GroupIcon from './GroupIcon';
+import { setSelectedPerson } from '../../../../../actions/orgstructure';
+import FormManager from '../../../../../components/EcosForm/FormManager';
+import { EcosModal } from '../../../../../components/common';
+import { OrgstructContext } from '../../../../../components/common/Orgstruct/OrgstructContext';
+import { ROOT_GROUP_NAME } from '../../../../../components/common/Orgstruct/constants';
 import { SourcesId } from '../../../../../constants';
+import { updateCurrentUrl } from '../../../../../helpers/urls';
+import { t } from '../../../../../helpers/util';
+import ModalContent from '../ModalContent';
+
+import GroupIcon from './GroupIcon';
+
 import defaultAvatar from './Vector.png';
+
+import Records from '@/components/Records';
 
 import './ListItem.scss';
 
@@ -168,8 +173,19 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
         { ...formConfig, ...extraConfig },
         {
           title,
-          onSubmit: () => {
-            getItemsByParent(item, isEditMode);
+          onSubmit: async (submitedRecord) => {
+            const newGroups = await Records.get(submitedRecord).load('authorityGroups[]?id');
+            const prevGroups = get(item, 'attributes.groups', []);
+            const difference = prevGroups.filter((authorityGroup) => !newGroups.includes(authorityGroup));
+
+            getItemsByParent(
+              {
+                ...item,
+                attributes: { ...item.attributes, groups: newGroups },
+              },
+              isEditMode,
+              difference.includes(`emodel/authority-group@${ROOT_GROUP_NAME}`),
+            );
           },
           initiator: {
             type: 'form-component',

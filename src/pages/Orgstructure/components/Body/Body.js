@@ -1,9 +1,9 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 
-import { t } from '../../../../helpers/util';
 import { InfoText, Loader } from '../../../../components/common';
 import { OrgstructContext } from '../../../../components/common/Orgstruct/OrgstructContext';
+import { t } from '../../../../helpers/util';
 
 import List from './List';
 
@@ -27,7 +27,8 @@ const Body = ({ reloadList, tabId, toggleToFirstTab }) => {
     });
     return filteredData;
   };
-  const children = filteredData(tabItems[currentTab]);
+
+  const children = useMemo(() => filteredData(tabItems[currentTab]), [tabId, tabItems]);
 
   const renderView = (props) => {
     return <div {...props} style={{ ...props.style, marginBottom: '140px' }} />;
