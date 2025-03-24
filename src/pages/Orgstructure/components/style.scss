@@ -34,6 +34,10 @@
 
     &__bnt-create {
       cursor: pointer;
+
+      i.icon-plus {
+        color: #767676;
+      }
     }
   }
   &__search {
