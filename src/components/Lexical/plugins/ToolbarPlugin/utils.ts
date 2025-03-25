@@ -19,7 +19,7 @@ import { DEFAULT_FONT_SIZE, MAX_ALLOWED_FONT_SIZE, MIN_ALLOWED_FONT_SIZE } from 
 // eslint-disable-next-line no-shadow
 export enum UpdateFontSizeType {
   increment = 1,
-  decrement,
+  decrement
 }
 
 /**
@@ -105,7 +105,7 @@ export const updateFontSizeInSelection = (editor: LexicalEditor, newFontSize: st
       const selection = $getSelection();
       if (selection !== null) {
         $patchStyleText(selection, {
-          'font-size': newFontSize || getNextFontSize,
+          'font-size': newFontSize || getNextFontSize
         });
       }
     }
@@ -247,3 +247,11 @@ export const clearFormatting = (editor: LexicalEditor) => {
     }
   });
 };
+
+export function dropDownActiveClass(active: boolean) {
+  if (active) {
+    return 'active dropdown-item-active';
+  } else {
+    return '';
+  }
+}

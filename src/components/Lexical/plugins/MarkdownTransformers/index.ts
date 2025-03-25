@@ -16,7 +16,7 @@ import {
   TEXT_FORMAT_TRANSFORMERS,
   TEXT_MATCH_TRANSFORMERS,
   TextMatchTransformer,
-  Transformer,
+  Transformer
 } from '@lexical/markdown';
 import { $createHorizontalRuleNode, $isHorizontalRuleNode, HorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode';
 import {
@@ -29,13 +29,12 @@ import {
   TableCellHeaderStates,
   TableCellNode,
   TableNode,
-  TableRowNode,
+  TableRowNode
 } from '@lexical/table';
 import { $createTextNode, $isParagraphNode, $isTextNode, LexicalNode } from 'lexical';
 
 import { $createEquationNode, $isEquationNode, EquationNode } from '../../nodes/EquationNode';
 import { $createImageNode, $isImageNode, ImageNode } from '../../nodes/ImageNode';
-import { $createTweetNode, $isTweetNode, TweetNode } from '../../nodes/TweetNode';
 import emojiList from '../../utils/emoji-list';
 
 export const HR: ElementTransformer = {
@@ -56,12 +55,12 @@ export const HR: ElementTransformer = {
 
     line.selectNext();
   },
-  type: 'element',
+  type: 'element'
 };
 
 export const IMAGE: TextMatchTransformer = {
   dependencies: [ImageNode],
-  export: (node) => {
+  export: node => {
     if (!$isImageNode(node)) {
       return null;
     }
@@ -75,12 +74,12 @@ export const IMAGE: TextMatchTransformer = {
     const imageNode = $createImageNode({
       altText,
       maxWidth: 800,
-      src,
+      src
     });
     textNode.replace(imageNode);
   },
   trigger: ')',
-  type: 'text-match',
+  type: 'text-match'
 };
 
 export const EMOJI: TextMatchTransformer = {
@@ -89,18 +88,18 @@ export const EMOJI: TextMatchTransformer = {
   importRegExp: /:([a-z0-9_]+):/,
   regExp: /:([a-z0-9_]+):$/,
   replace: (textNode, [, name]) => {
-    const emoji = emojiList.find((e) => e.aliases.includes(name))?.emoji;
+    const emoji = emojiList.find(e => e.aliases.includes(name))?.emoji;
     if (emoji) {
       textNode.replace($createTextNode(emoji));
     }
   },
   trigger: ':',
-  type: 'text-match',
+  type: 'text-match'
 };
 
 export const EQUATION: TextMatchTransformer = {
   dependencies: [EquationNode],
-  export: (node) => {
+  export: node => {
     if (!$isEquationNode(node)) {
       return null;
     }
@@ -115,25 +114,7 @@ export const EQUATION: TextMatchTransformer = {
     textNode.replace(equationNode);
   },
   trigger: '$',
-  type: 'text-match',
-};
-
-export const TWEET: ElementTransformer = {
-  dependencies: [TweetNode],
-  export: (node) => {
-    if (!$isTweetNode(node)) {
-      return null;
-    }
-
-    return `<tweet id="${node.getId()}" />`;
-  },
-  regExp: /<tweet id="([^"]+?)"\s?\/>\s?$/,
-  replace: (textNode, _1, match) => {
-    const [, id] = match;
-    const tweetNode = $createTweetNode(id);
-    textNode.replace(tweetNode);
-  },
-  type: 'element',
+  type: 'text-match'
 };
 
 // Very primitive table setup
@@ -168,7 +149,7 @@ export const TABLE: ElementTransformer = {
 
       output.push(`| ${rowOutput.join(' | ')} |`);
       if (isHeaderRow) {
-        output.push(`| ${rowOutput.map((_) => '---').join(' | ')} |`);
+        output.push(`| ${rowOutput.map(_ => '---').join(' | ')} |`);
       }
     }
 
@@ -190,7 +171,7 @@ export const TABLE: ElementTransformer = {
       }
 
       // Add header state to row cells
-      lastRow.getChildren().forEach((cell) => {
+      lastRow.getChildren().forEach(cell => {
         if (!$isTableCellNode(cell)) {
           return;
         }
@@ -261,7 +242,7 @@ export const TABLE: ElementTransformer = {
 
     table.selectEnd();
   },
-  type: 'element',
+  type: 'element'
 };
 
 function getTableColumnsSize(table: TableNode) {
@@ -281,7 +262,7 @@ const mapToTableCells = (textContent: string): Array<TableCellNode> | null => {
   if (!match || !match[1]) {
     return null;
   }
-  return match[1].split('|').map((text) => $createTableCell(text));
+  return match[1].split('|').map(text => $createTableCell(text));
 };
 
 export const PLAYGROUND_TRANSFORMERS: Array<Transformer> = [
@@ -290,10 +271,9 @@ export const PLAYGROUND_TRANSFORMERS: Array<Transformer> = [
   IMAGE,
   EMOJI,
   EQUATION,
-  TWEET,
   CHECK_LIST,
   ...ELEMENT_TRANSFORMERS,
   ...MULTILINE_ELEMENT_TRANSFORMERS,
   ...TEXT_FORMAT_TRANSFORMERS,
-  ...TEXT_MATCH_TRANSFORMERS,
+  ...TEXT_MATCH_TRANSFORMERS
 ];

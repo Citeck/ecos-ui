@@ -153,14 +153,6 @@ export default function DropDown({
   };
 
   useEffect(() => {
-    window.addEventListener('scroll', handleClose, true);
-
-    return () => {
-      window.removeEventListener('scroll', handleClose, true);
-    };
-  }, []);
-
-  useEffect(() => {
     const button = buttonRef.current;
     const dropDown = dropDownRef.current;
 

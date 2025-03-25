@@ -10,7 +10,7 @@ const FileComponent = ({ size, name = '', downLoadUrl = '' }: { size: number; na
 
   return (
     <div className="file-node">
-      <div className="">
+      <div className="file-node__wrapper">
         <div className="file-node__preview">{fileExtension}</div>
         <div className="file-node__info">
           <span className="file-node__info-name">{name}</span>
