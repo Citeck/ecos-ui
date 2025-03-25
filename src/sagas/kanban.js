@@ -226,7 +226,7 @@ export function* sagaGetData({ api }, { payload }) {
       : [];
 
     const result = yield all(
-      (boardConfig.columns || []).map(function* (column, i) {
+      (get(journalSetting, 'kanban.columns') || boardConfig.columns || []).map(function* (column, i) {
         if (get(prevDataCards, [i, 'records', 'length'], 0) === get(prevDataCards, [i, 'totalCount'])) {
           return {};
         }
