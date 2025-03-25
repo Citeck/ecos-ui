@@ -7,9 +7,10 @@
  */
 
 import * as React from 'react';
+import { useState } from 'react';
+import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 
 import ColorPicker from './ColorPicker';
-import DropDown from './DropDown';
 
 type Props = {
   disabled?: boolean;
@@ -23,10 +24,28 @@ type Props = {
   onChange?: (color: string, skipHistoryStack: boolean) => void;
 };
 
-export default function DropdownColorPicker({ disabled = false, stopCloseOnClickSelf = true, color, onChange, ...rest }: Props) {
+export default function DropdownColorPicker({ disabled = false, color, onChange, buttonIconClassName }: Props) {
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const toggle = () => setDropdownOpen(!dropdownOpen);
+
   return (
-    <DropDown {...rest} disabled={disabled} stopCloseOnClickSelf={stopCloseOnClickSelf}>
-      <ColorPicker color={color} onChange={onChange} />
-    </DropDown>
+    <Dropdown isOpen={dropdownOpen} toggle={toggle} disabled={disabled}>
+      <DropdownToggle
+        onClick={toggle}
+        data-toggle="dropdown"
+        aria-expanded={dropdownOpen}
+        className="citeck-lexical-editor__dropdown-toggle toolbar-item color-picker"
+        tag="span"
+      >
+        <span className={`icon ${buttonIconClassName}`} />
+        <i className="chevron-down" />
+      </DropdownToggle>
+      <div className="citeck-lexical-editor__dropdown">
+        <DropdownMenu className="ecos-dropdown__menu dropdown">
+          <ColorPicker color={color} onChange={onChange} />
+        </DropdownMenu>
+      </div>
+    </Dropdown>
   );
 }

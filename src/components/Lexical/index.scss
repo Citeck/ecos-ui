@@ -48,12 +48,22 @@
 }
 
 .citeck-lexical-editor {
+  ul {
+    display: block;
+    list-style-type: disc;
+    unicode-bidi: isolate;
+  }
+
   &__dropdown-wrapper {
     display: inline-flex;
     gap: 20px;
     align-items: center;
     justify-content: space-between;
     width: 100%;
+  }
+
+  &__dropdown-toggle {
+    height: 100%;
   }
 
   &__field {
@@ -112,7 +122,7 @@
   &__dropdown {
     display: block;
     z-index: 10001;
-    position: fixed !important;
+    position: absolute !important;
     box-shadow:
       0 12px 28px 0 rgba(0, 0, 0, 0.2),
       0 2px 4px 0 rgba(0, 0, 0, 0.1),
@@ -120,6 +130,10 @@
     border-radius: 8px;
     min-height: 40px;
     background-color: $color-white;
+
+    & .ecos-dropdown__menu {
+      top: 0 !important;
+    }
 
     & .table {
       margin-bottom: 0;
@@ -193,7 +207,7 @@
       display: flex;
       line-height: 20px;
       flex-grow: 1;
-      min-width: 150px;
+      min-width: 180px;
     }
 
     & .dropdown .item .icon {
@@ -209,9 +223,9 @@
     }
 
     & .dropdown .divider {
-      width: auto;
-      background-color: $color-gray;
-      margin: 4px 8px;
+      width: auto !important;
+      background-color: $color-gray !important;
+      margin: 4px 8px !important;
       height: 1px;
     }
 
@@ -784,15 +798,10 @@
     padding: 4px;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
-    vertical-align: middle;
-    overflow: auto;
     height: 36px;
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    overflow-y: hidden; /* disable vertical scroll*/
   }
 
+  span.toolbar-item,
   button.toolbar-item {
     border: 0;
     display: flex;
@@ -806,14 +815,17 @@
     justify-content: space-between;
   }
 
+  span.toolbar-item:disabled,
   button.toolbar-item:disabled {
     cursor: not-allowed;
   }
 
+  span.toolbar-item.spaced,
   button.toolbar-item.spaced {
     margin-right: 2px;
   }
 
+  span.toolbar-item i.format,
   button.toolbar-item i.format {
     background-size: contain;
     height: 18px;
@@ -823,6 +835,10 @@
     opacity: 0.6;
   }
 
+  span.toolbar-item:disabled .icon,
+  span.toolbar-item:disabled .text,
+  span.toolbar-item:disabled i.format,
+  span.toolbar-item:disabled .chevron-down,
   button.toolbar-item:disabled .icon,
   button.toolbar-item:disabled .text,
   button.toolbar-item:disabled i.format,
@@ -834,6 +850,7 @@
     background-color: rgba(223, 232, 250, 0.3);
   }
 
+  span.toolbar-item.active i,
   button.toolbar-item.active i {
     opacity: 1;
   }

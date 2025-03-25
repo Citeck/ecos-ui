@@ -1567,68 +1567,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@dnd-kit/accessibility@npm:^3.1.1":
-  version: 3.1.1
-  resolution: "@dnd-kit/accessibility@npm:3.1.1"
-  dependencies:
-    tslib: ^2.0.0
-  peerDependencies:
-    react: ">=16.8.0"
-  checksum: f71b98b29e005d15c1300922b201bea9189aceeb15662e6e86231034f72b53812566361f8c14b0521278ac104f9703ca069d43f2c73862ea10181a2211ca5b27
-  languageName: node
-  linkType: hard
-
-"@dnd-kit/core@npm:^6.3.1":
-  version: 6.3.1
-  resolution: "@dnd-kit/core@npm:6.3.1"
-  dependencies:
-    "@dnd-kit/accessibility": ^3.1.1
-    "@dnd-kit/utilities": ^3.2.2
-    tslib: ^2.0.0
-  peerDependencies:
-    react: ">=16.8.0"
-    react-dom: ">=16.8.0"
-  checksum: abe5ca5c63af2652b50df2636111a8eecb1560338f3b57e27af0d4eac31f89a278347049dbd59897aeec262477ef88d7a906a79254360c40480e490ee910947c
-  languageName: node
-  linkType: hard
-
-"@dnd-kit/modifiers@npm:^9.0.0":
-  version: 9.0.0
-  resolution: "@dnd-kit/modifiers@npm:9.0.0"
-  dependencies:
-    "@dnd-kit/utilities": ^3.2.2
-    tslib: ^2.0.0
-  peerDependencies:
-    "@dnd-kit/core": ^6.3.0
-    react: ">=16.8.0"
-  checksum: 9827cd40ae70cb382b22c6a5a83cae5b320e45c41732db198ecc7beba88fba670bd3968c0a66a7963401021f1e1644e6b00a5295941edfa96e86226169c1b953
-  languageName: node
-  linkType: hard
-
-"@dnd-kit/sortable@npm:^10.0.0":
-  version: 10.0.0
-  resolution: "@dnd-kit/sortable@npm:10.0.0"
-  dependencies:
-    "@dnd-kit/utilities": ^3.2.2
-    tslib: ^2.0.0
-  peerDependencies:
-    "@dnd-kit/core": ^6.3.0
-    react: ">=16.8.0"
-  checksum: c853cb65d2ffb3d58d400d9f1c993b00413932acf5cf5b780c76acf3b1057aa88e7866021c6b178c4b33fc17db7fe7640584dba4449772e02edcb72cc797eeb0
-  languageName: node
-  linkType: hard
-
-"@dnd-kit/utilities@npm:^3.2.2":
-  version: 3.2.2
-  resolution: "@dnd-kit/utilities@npm:3.2.2"
-  dependencies:
-    tslib: ^2.0.0
-  peerDependencies:
-    react: ">=16.8.0"
-  checksum: 8a5015c2faa52760ab82a64287b2ac6a3d798867a1bca5ccbc1178560dbd9a1f9f1a21faea80f590ba1a4277c3eb7e7c4d3b4a39f1f32171bf6bc8174b370547
-  languageName: node
-  linkType: hard
-
 "@emotion/babel-utils@npm:^0.6.4":
   version: 0.6.10
   resolution: "@emotion/babel-utils@npm:0.6.10"
@@ -2633,7 +2571,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@popperjs/core@npm:^2.4.4, @popperjs/core@npm:^2.6.0, @popperjs/core@npm:^2.9.0":
+"@popperjs/core@npm:^2.4.4, @popperjs/core@npm:^2.9.0":
   version: 2.11.8
   resolution: "@popperjs/core@npm:2.11.8"
   checksum: e5c69fdebf52a4012f6a1f14817ca8e9599cb1be73dd1387e1785e2ed5e5f0862ff817f420a87c7fc532add1f88a12e25aeb010ffcbdc98eace3d55ce2139cf0
@@ -3215,12 +3153,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/reactstrap@npm:^8.7.2":
-  version: 8.7.2
-  resolution: "@types/reactstrap@npm:8.7.2"
+"@types/reactstrap@npm:8.5.1":
+  version: 8.5.1
+  resolution: "@types/reactstrap@npm:8.5.1"
   dependencies:
-    reactstrap: "*"
-  checksum: d94ec000e300140cf2a3773f81bff19855ce00d82f67d626e17aedee993b5380f6ed06e1c17579d43729807d203acaa34a628aeabe1531581c2835e1746a55a0
+    "@types/react": "*"
+    popper.js: ^1.14.1
+  checksum: bd36edd7aee36af0252b03516af9a5d87c05a81a32b71ab83a9685c9841ee97d9524658ab601f6330b516adea04f8d5f4fe8f390e131b3807fad138c305d7aaa
   languageName: node
   linkType: hard
 
@@ -6444,9 +6383,6 @@ __metadata:
     "@babel/preset-typescript": ^7.26.0
     "@babel/runtime": ^7.26.9
     "@bpmn-io/properties-panel": ^3.26.3
-    "@dnd-kit/core": ^6.3.1
-    "@dnd-kit/modifiers": ^9.0.0
-    "@dnd-kit/sortable": ^10.0.0
     "@excalidraw/excalidraw": ^0.17.0
     "@lexical/clipboard": 0.26.0
     "@lexical/code": 0.26.0
@@ -6475,7 +6411,7 @@ __metadata:
     "@types/react": ^19.0.10
     "@types/react-dom": ^19.0.4
     "@types/react-redux": ^7.1.34
-    "@types/reactstrap": ^8.7.2
+    "@types/reactstrap": 8.5.1
     "@typescript-eslint/eslint-plugin": ^5.32.0
     "@typescript-eslint/parser": ^5.32.0
     async-cadesplugin: 0.9.9
@@ -12675,7 +12611,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"popper.js@npm:^1.0.2, popper.js@npm:^1.14.4":
+"popper.js@npm:^1.0.2, popper.js@npm:^1.14.1, popper.js@npm:^1.14.4":
   version: 1.16.1
   resolution: "popper.js@npm:1.16.1"
   checksum: c56ae5001ec50a77ee297a8061a0221d99d25c7348d2e6bcd3e45a0d0f32a1fd81bca29d46cb0d4bdf13efb77685bd6a0ce93f9eb3c608311a461f945fffedbe
@@ -13441,7 +13377,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-popper@npm:2.3.0, react-popper@npm:^2.2.4":
+"react-popper@npm:2.3.0":
   version: 2.3.0
   resolution: "react-popper@npm:2.3.0"
   dependencies:
@@ -13597,7 +13533,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-transition-group@npm:^4.4.2, react-transition-group@npm:^4.4.5":
+"react-transition-group@npm:^4.4.5":
   version: 4.4.5
   resolution: "react-transition-group@npm:4.4.5"
   dependencies:
@@ -13631,23 +13567,6 @@ __metadata:
   dependencies:
     loose-envify: ^1.1.0
   checksum: 88e38092da8839b830cda6feef2e8505dec8ace60579e46aa5490fc3dc9bba0bd50336507dc166f43e3afc1c42939c09fe33b25fae889d6f402721dcd78fca1b
-  languageName: node
-  linkType: hard
-
-"reactstrap@npm:*":
-  version: 9.2.3
-  resolution: "reactstrap@npm:9.2.3"
-  dependencies:
-    "@babel/runtime": ^7.12.5
-    "@popperjs/core": ^2.6.0
-    classnames: ^2.2.3
-    prop-types: ^15.5.8
-    react-popper: ^2.2.4
-    react-transition-group: ^4.4.2
-  peerDependencies:
-    react: ">=16.8.0"
-    react-dom: ">=16.8.0"
-  checksum: cd060827f7be4589133c68b5128632b11245071725c34d8ee897bca732da2f3584cd470ac706ac6a7394f5f5e1909a816be61c64e9845329d723d39ef243b6ab
   languageName: node
   linkType: hard
 
@@ -15822,7 +15741,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.0.0, tslib@npm:^2.0.1, tslib@npm:^2.6.2":
+"tslib@npm:^2.0.1, tslib@npm:^2.6.2":
   version: 2.8.1
   resolution: "tslib@npm:2.8.1"
   checksum: e4aba30e632b8c8902b47587fd13345e2827fa639e7c3121074d5ee0880723282411a8838f830b55100cbe4517672f84a2472667d355b81e8af165a55dc6203a

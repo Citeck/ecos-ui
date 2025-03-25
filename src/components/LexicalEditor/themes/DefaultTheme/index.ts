@@ -10,12 +10,12 @@ export const defaultTheme: EditorThemeClasses = {
     listitemUnchecked: 'LEd__listItemUnchecked',
     nested: {
       listitem: 'rt-editor-theme__nested-list-item',
-      list: undefined,
+      list: undefined
     },
-    olDepth: ['rt-editor-theme__ol1', 'rt-editor-theme__ol2', 'rt-editor-theme__ol3', 'rt-editor-theme__ol4', 'rt-editor-theme__ol5'],
-    ul: 'rt-editor-theme__ul',
+    olDepth: ['LEd__ol1', 'LEd__ol2', 'LEd__ol3', 'LEd__ol4', 'LEd__ol5'],
+    ul: 'LEd__ul',
     ulDepth: undefined,
-    ol: undefined,
+    ol: undefined
   },
   text: {
     bold: 'rt-editor-theme__text_bold',
@@ -30,7 +30,7 @@ export const defaultTheme: EditorThemeClasses = {
     capitalize: 'LEd__textCapitalize',
     highlight: 'LEd__textHighlight',
     lowercase: 'LEd__textLowercase',
-    uppercase: 'LEd__textUppercase',
+    uppercase: 'LEd__textUppercase'
   },
   table: 'rt-editor-theme__table',
   tableAddColumns: 'rt-editor-theme__tableAddColumns',
@@ -80,11 +80,11 @@ export const defaultTheme: EditorThemeClasses = {
     symbol: 'LEd__tokenProperty',
     tag: 'LEd__tokenProperty',
     url: 'LEd__tokenOperator',
-    variable: 'LEd__tokenVariable',
+    variable: 'LEd__tokenVariable'
   },
   embedBlock: {
     base: 'LEd__embedBlock',
-    focus: 'LEd__embedBlockFocus',
+    focus: 'LEd__embedBlockFocus'
   },
   hashtag: 'LEd__hashtag',
   heading: {
@@ -93,7 +93,7 @@ export const defaultTheme: EditorThemeClasses = {
     h3: 'LEd__h3',
     h4: 'PlaygroundEditorTheme__h4',
     h5: 'PlaygroundEditorTheme__h5',
-    h6: 'PlaygroundEditorTheme__h6',
+    h6: 'PlaygroundEditorTheme__h6'
   },
   image: 'PlaygroundEditorTheme__image',
   indent: 'LEd__indent',
@@ -113,10 +113,10 @@ export const defaultTheme: EditorThemeClasses = {
   tab: 'LEd__tabNode',
   tableAlignment: {
     center: 'LEd__tableAlignmentCenter',
-    right: 'LEd__tableAlignmentRight',
+    right: 'LEd__tableAlignmentRight'
   },
   tableFrozenColumn: 'LEd__tableFrozenColumn',
   tableFrozenRow: 'LEd__tableFrozenRow',
   tableRowStriping: 'LEd__tableRowStriping',
-  tableScrollableWrapper: 'LEd__tableScrollableWrapper',
+  tableScrollableWrapper: 'LEd__tableScrollableWrapper'
 };
