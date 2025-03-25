@@ -222,7 +222,6 @@
 
       &-item {
         margin-bottom: 11px;
-        overflow: hidden;
 
         &:not(:last-child) {
           margin-right: 11px;
@@ -240,13 +239,18 @@
     width: 100%;
     justify-content: flex-start;
 
+    &-scrollbar-wrapper {
+      all: unset;
+      overflow: hidden;
+      margin: 0;
+    }
+
     &_multiline {
       flex-wrap: wrap;
     }
 
     &-container {
       $container: &;
-
       display: flex;
       width: 100%;
 
@@ -280,16 +284,10 @@
       }
 
       &_col {
-        min-height: 54px;
-        padding: 5px;
         gap: 10px;
         flex-wrap: wrap;
         &:not(:last-child) {
           margin-bottom: 27px;
-        }
-        .ecos-drag-item {
-          min-width: 0;
-          flex-shrink: 0;
         }
       }
       &_widgets-from_mobile {
@@ -346,7 +344,7 @@
     }
 
     &-item {
-      margin: 10px 10px 0 10px;
+      margin: 10px 20px 0 10px;
     }
   }
 }
@@ -408,4 +406,8 @@
       }
     }
   }
+}
+
+.ecos-dashboard-settings__drag-container_col.ecos-dnd__droppable_row {
+  padding: 10px 0 0 10px;
 }
