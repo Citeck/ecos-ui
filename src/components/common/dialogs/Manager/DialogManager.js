@@ -362,17 +362,20 @@ export const dialogsById = {
     }
 
     return (
-      <EcosModal
-        title={title}
-        isOpen={isVisible}
-        hideModal={hideModal}
-        className={classNames('ecos-dialog ecos-dialog_form', modalClass)}
-        reactstrapProps={{ backdrop: 'static', ...reactstrapProps }}
-      >
-        <div className="ecos-dialog__body">
-          <FormWrapper isVisible {...formProps} />
-        </div>
-      </EcosModal>
+      <>
+        { isVisible && <EcosModal
+            title={title}
+            isOpen={isVisible}
+            hideModal={hideModal}
+            className={classNames('ecos-dialog ecos-dialog_form', modalClass)}
+            reactstrapProps={{ backdrop: 'static', ...reactstrapProps }}
+          >
+            <div className="ecos-dialog__body">
+              <FormWrapper isVisible {...formProps} />
+            </div>
+          </EcosModal>
+        }
+      </>
     );
   },
   [ERROR_DIALOG_ID]: props => {
