@@ -48,10 +48,25 @@
 }
 
 .citeck-lexical-editor {
+  position: relative;
+  z-index: 10;
+
   ul {
     display: block;
     list-style-type: disc;
     unicode-bidi: isolate;
+  }
+
+  code {
+    color: initial;
+    font-size: 13px;
+    line-height: 1.53;
+  }
+
+  &__load-node {
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   &__dropdown-wrapper {
@@ -793,12 +808,12 @@
 
   .toolbar {
     display: flex;
+    flex-wrap: wrap;
     margin-bottom: 1px;
     background: $color-white;
     padding: 4px;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
-    height: 36px;
   }
 
   span.toolbar-item,

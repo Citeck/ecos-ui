@@ -27,7 +27,7 @@ export class Comment extends Component {
   static propTypes = {
     comment: PropTypes.shape(CommentInterface),
     userName: PropTypes.string,
-    actionFailed: PropTypes.bool,
+    actionFailed: PropTypes.bool
   };
 
   state = {
@@ -37,7 +37,7 @@ export class Comment extends Component {
     isEdit: false,
     isMaxLength: false,
     isInternal: false,
-    noChanges: true,
+    noChanges: true
   };
 
   get canSendComment() {
@@ -50,7 +50,7 @@ export class Comment extends Component {
   componentDidMount() {
     Records.get(this.props.recordRef)
       .load('_aspects._has.has-internal-comments?bool!')
-      .then((hasInternal) => {
+      .then(hasInternal => {
         this.setState({ isInternalSupported: hasInternal });
       });
   }
@@ -76,19 +76,19 @@ export class Comment extends Component {
 
     if (hours > 0) {
       return `${hours} ${t(num2str(hours, ['comments-widget.hour-form1', 'comments-widget.hour-form2', 'comments-widget.hour-form3']))} ${t(
-        'comments-widget.time-ago',
+        'comments-widget.time-ago'
       )}`;
     }
 
     if (minutes > 0) {
       return `${minutes} ${t(
-        num2str(minutes, ['comments-widget.minute-form1', 'comments-widget.minute-form2', 'comments-widget.minute-form3']),
+        num2str(minutes, ['comments-widget.minute-form1', 'comments-widget.minute-form2', 'comments-widget.minute-form3'])
       )} ${t('comments-widget.time-ago')}`;
     }
 
     if (seconds > 0) {
       return `${seconds} ${t(
-        num2str(seconds, ['comments-widget.second-form1', 'comments-widget.second-form2', 'comments-widget.second-form3']),
+        num2str(seconds, ['comments-widget.second-form1', 'comments-widget.second-form2', 'comments-widget.second-form3'])
       )} ${t('comments-widget.time-ago')}`;
     }
 
@@ -97,7 +97,7 @@ export class Comment extends Component {
 
   handleEditComment = () => {
     this.setState({
-      isEdit: true,
+      isEdit: true
     });
   };
 
@@ -106,21 +106,21 @@ export class Comment extends Component {
 
     this.setState({
       isEdit: false,
-      htmlString: '',
+      htmlString: ''
     });
 
     isFunction(onClose) && onClose();
   };
 
   toggleConfirmDialog = () => {
-    this.setState((state) => ({ isOpenConfirmDialog: !state.isOpenConfirmDialog }));
+    this.setState(state => ({ isOpenConfirmDialog: !state.isOpenConfirmDialog }));
   };
 
   toggleLoading = () => {
-    this.setState((state) => ({ isLoading: !state.isLoading }));
+    this.setState(state => ({ isLoading: !state.isLoading }));
   };
 
-  handleConfirmDeletion = (callback) => {
+  handleConfirmDeletion = callback => {
     const { comment, deleteComment, recordRef } = this.props;
 
     isFunction(deleteComment) && deleteComment(recordRef, comment.id);
@@ -198,7 +198,7 @@ export class Comment extends Component {
       return null;
     }
 
-    return tags.map((tag) => {
+    return tags.map(tag => {
       const style = {};
 
       if (tag.color) {
@@ -220,16 +220,15 @@ export class Comment extends Component {
   }
 
   handleEditorStateChange = (editorState, editor, noChanges) => {
-    const { textContent = '' } = editor.getRootElement();
-
-    this.setState({ isMaxLength: textContent.length > LENGTH_LIMIT, noChanges });
-
     editor.update(() => {
+      const { textContent = '' } = editor.getRootElement();
+      this.setState({ isMaxLength: textContent.length > LENGTH_LIMIT, noChanges });
+
       const htmlComment = $generateHtmlFromNodes(editor, null);
       if (!isNil(htmlComment)) {
         this.setState({
           htmlComment,
-          rawComment: JSON.stringify(editorState),
+          rawComment: JSON.stringify(editorState)
         });
       }
     });
@@ -280,9 +279,9 @@ export class Comment extends Component {
           recordRef,
           {
             id: comment.id,
-            text,
+            text
           },
-          callback,
+          callback
         );
   };
 
@@ -401,7 +400,7 @@ export class Comment extends Component {
 const mapStateToProps = (state, ownProps) => ({
   ...selectStateByRecordRef(state, ownProps.record),
   isMobile: state.view.isMobile,
-  userName: state.user.userName,
+  userName: state.user.userName
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
@@ -409,7 +408,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   createComment: (recordRef, comment, isInternal, callback) => dispatch(createCommentRequest({ comment, recordRef, isInternal, callback })),
   updateComment: (recordRef, comment, callback) => dispatch(updateCommentRequest({ comment, recordRef, callback })),
   deleteComment: (recordRef, id, callback) => dispatch(deleteCommentRequest({ id, recordRef, callback })),
-  setErrorMessage: (message) => dispatch(setError({ message, recordRef: ownProps.record })),
+  setErrorMessage: message => dispatch(setError({ message, recordRef: ownProps.record }))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Comment);

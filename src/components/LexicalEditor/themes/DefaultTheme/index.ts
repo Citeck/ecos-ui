@@ -25,7 +25,7 @@ export const defaultTheme: EditorThemeClasses = {
     underlineStrikethrough: 'rt-editor-theme__text_underline-strike-through',
     subscript: 'rt-editor-theme__text_subscript',
     superscript: 'rt-editor-theme__text_superscript',
-    code: 'rt-editor-theme__tex_code',
+    code: 'LEd__textCode',
     base: 'LEd__embedBlock',
     capitalize: 'LEd__textCapitalize',
     highlight: 'LEd__textHighlight',
