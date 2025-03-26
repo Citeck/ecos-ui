@@ -251,8 +251,6 @@
 
     &-container {
       $container: &;
-      display: flex;
-      width: 100%;
 
       &_full {
         min-width: 100%;
@@ -262,6 +260,7 @@
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 210px));
         width: 100%;
+        gap: 15px;
 
         &_mobile {
           max-width: 30%;
@@ -308,10 +307,11 @@
 
   &__widgets {
     $widgets: &;
-
+    
     &-column {
       display: flex;
       flex-direction: column;
+      gap: 10px;
       width: 195px;
       margin-bottom: 16px;
 
