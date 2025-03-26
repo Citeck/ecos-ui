@@ -95,7 +95,7 @@ export default function Editor({
   hideToolbar = false,
   className,
   onEditorReady,
-  onUpload,
+  onUpload
 }: LexicalEditorProps): React.JSX.Element {
   const { historyState } = useSharedHistoryContext();
 
@@ -115,8 +115,8 @@ export default function Editor({
       tableCellBackgroundColor,
       tableHorizontalScroll,
       shouldAllowHighlightingWithBrackets,
-      selectionAlwaysOnDisplay,
-    },
+      selectionAlwaysOnDisplay
+    }
   } = useSettings();
 
   const isEditable = useLexicalEditable();
@@ -184,7 +184,7 @@ export default function Editor({
       {isRichText && <ShortcutsPlugin editor={activeEditor} setIsLinkEditMode={setIsLinkEditMode} />}
       <div
         className={classNames('ecos-rt-editor', className, `editor-container tree-view`, {
-          'plain-text': !isRichText,
+          'plain-text': !isRichText
         })}
       >
         {isMaxLength && <MaxLengthPlugin maxLength={30} />}
@@ -205,14 +205,14 @@ export default function Editor({
           <OnChangePlugin
             onChange={(state, editor) => {
               const editorProps = editor.getRootElement();
-              const { textContent = '' } = editorProps || {};
+              const { textContent = '', innerHTML = '' } = editorProps || {};
 
               if (textContent) {
                 setTextLength(textContent.length);
                 setOption('isMaxLength', textContent.length > LENGTH_LIMIT);
               }
 
-              isFunction(onChange) && onChange(state, editor, textContent?.length === 0);
+              isFunction(onChange) && onChange(state, editor, textContent?.length === 0 && !innerHTML.includes('img'));
             }}
           />
         )}
@@ -298,8 +298,8 @@ export default function Editor({
           dangerouslySetInnerHTML={{
             __html: t('comments-widget.editor.limit.error', {
               textLength: textLength,
-              limit: LENGTH_LIMIT,
-            }),
+              limit: LENGTH_LIMIT
+            })
           }}
         />
       )}

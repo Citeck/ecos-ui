@@ -1,23 +1,24 @@
-import isObject from 'lodash/isObject';
-import isBoolean from 'lodash/isBoolean';
-import clone from 'lodash/clone';
-import isEqual from 'lodash/isEqual';
-import isEmpty from 'lodash/isEmpty';
-import get from 'lodash/get';
-import set from 'lodash/set';
-import cloneDeep from 'lodash/cloneDeep';
-import isFunction from 'lodash/isFunction';
-import isUndefined from 'lodash/isUndefined';
 import Base from 'formiojs/components/base/Base';
 import { flattenComponents, getInputMask } from 'formiojs/utils/utils';
+import clone from 'lodash/clone';
+import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
+import isBoolean from 'lodash/isBoolean';
+import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
+import isFunction from 'lodash/isFunction';
+import isObject from 'lodash/isObject';
+import isUndefined from 'lodash/isUndefined';
+import set from 'lodash/set';
 import Tooltip from 'tooltip.js';
 
-import { FORM_MODE_CREATE } from '../../../../components/EcosForm/constants';
-import { getCurrentLocale, getMLValue, getTextByLocale } from '../../../../helpers/util';
-import ZIndex from '../../../../services/ZIndex';
 import { checkIsEmptyMlField, clearFormFromCache } from '../../../utils';
 import Widgets from '../../../widgets';
-import { t } from '../../../../helpers/export/util';
+
+import { FORM_MODE_CREATE } from '@/components/EcosForm/constants';
+import { t } from '@/helpers/export/util';
+import { getCurrentLocale, getMLValue, getTextByLocale } from '@/helpers/util';
+import ZIndex from '@/services/ZIndex';
 
 // >>> Methods
 const originalCreateViewOnlyValue = Base.prototype.createViewOnlyValue;
@@ -81,7 +82,7 @@ Base.schema = (...extend) => {
   );
 };
 
-Base.prototype.callFunction = function(functionName, ...args) {
+Base.prototype.callFunction = function (functionName, ...args) {
   if (isFunction(this[functionName])) {
     this[functionName].call(this, ...args);
   }
@@ -101,7 +102,7 @@ Object.defineProperty(Base.prototype, 'calculatedValueWasCalculated', {
   value: false
 });
 
-Base.prototype.onChange = function(flags, fromRoot) {
+Base.prototype.onChange = function (flags, fromRoot) {
   const isCreateMode = get(this.options, 'formMode') === FORM_MODE_CREATE;
 
   if (get(flags, 'modified') || get(flags, 'skipReactWrapperUpdating')) {
@@ -116,7 +117,7 @@ Base.prototype.onChange = function(flags, fromRoot) {
   return originalOnChange.call(this, flags, fromRoot);
 };
 
-Base.prototype.isEmptyValue = function(value) {
+Base.prototype.isEmptyValue = function (value) {
   const isCreateMode = get(this.options, 'formMode') === FORM_MODE_CREATE;
 
   if (isCreateMode) {
@@ -126,7 +127,7 @@ Base.prototype.isEmptyValue = function(value) {
   return !isBoolean(value) && this.isEmpty(value);
 };
 
-Base.prototype.customIsEqual = function(val1, val2) {
+Base.prototype.customIsEqual = function (val1, val2) {
   if (typeof val1 === 'number' || typeof val2 === 'number') {
     return parseFloat(val1) === parseFloat(val2);
   }
@@ -136,7 +137,7 @@ Base.prototype.customIsEqual = function(val1, val2) {
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-166
 Object.defineProperty(Base.prototype, 'className', {
-  get: function() {
+  get: function () {
     let className = originalGetClassName.get.call(this);
 
     if (this._isInlineEditingMode) {
@@ -152,7 +153,7 @@ Object.defineProperty(Base.prototype, 'className', {
 });
 
 Object.defineProperty(Base.prototype, 'hasSetValue', {
-  get: function() {
+  get: function () {
     // Cause: https://citeck.atlassian.net/browse/ECOSUI-664
     if (!this.hasValue()) {
       this.dataValue = this.component.multiple ? [] : this.emptyValue;
@@ -168,7 +169,7 @@ Object.defineProperty(Base.prototype, 'hasSetValue', {
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-826
 Object.defineProperty(Base.prototype, 'viewOnly', {
-  get: function() {
+  get: function () {
     const _viewOnly = originalPropertyViewOnly.get.call(this);
     return this.component.unreadable || _viewOnly;
   }
@@ -176,7 +177,7 @@ Object.defineProperty(Base.prototype, 'viewOnly', {
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-829
 Object.defineProperty(Base.prototype, 'label', {
-  set: function(value) {
+  set: function (value) {
     if (typeof value === 'string') {
       value = {
         [getCurrentLocale()]: value
@@ -190,21 +191,21 @@ Object.defineProperty(Base.prototype, 'label', {
     }
   },
 
-  get: function() {
+  get: function () {
     return getTextByLocale(this.component.label);
   }
 });
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-829
 Object.defineProperty(Base.prototype, 'placeholder', {
-  get: function() {
+  get: function () {
     return getTextByLocale(this.component.placeholder);
   }
 });
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-829
 Object.defineProperty(Base.prototype, 'name', {
-  get: function() {
+  get: function () {
     return this.t(this.label || this.placeholder || this.key);
   }
 });
@@ -212,7 +213,7 @@ Object.defineProperty(Base.prototype, 'name', {
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-208
 const emptyCalculateValue = Symbol('empty calculate value');
 
-const modifiedOriginalCalculateValue = function(data, flags) {
+const modifiedOriginalCalculateValue = function (data, flags) {
   // clear calculate value from comments and empty lines
   let calculateValue = this.component.calculateValue;
 
@@ -286,7 +287,7 @@ const modifiedOriginalCalculateValue = function(data, flags) {
   return changed;
 };
 
-Base.prototype.calculateValue = function(data, flags) {
+Base.prototype.calculateValue = function (data, flags) {
   if (!this.component.calculateValue) {
     return false;
   }
@@ -311,11 +312,11 @@ Base.prototype.calculateValue = function(data, flags) {
   return changed;
 };
 
-Base.prototype.isEmpty = function(value) {
+Base.prototype.isEmpty = function (value) {
   return value === undefined || value === null || value.length === 0 || isEqual(value, this.emptyValue);
 };
 
-Base.prototype.applyActions = function(actions, result, data, newComponent) {
+Base.prototype.applyActions = function (actions, result, data, newComponent) {
   return actions.reduce((changed, action) => {
     switch (action.type) {
       // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3102
@@ -329,7 +330,7 @@ Base.prototype.applyActions = function(actions, result, data, newComponent) {
   }, false);
 };
 
-Base.prototype.setValue = function(value, flags) {
+Base.prototype.setValue = function (value, flags) {
   // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2980
   if (this.viewOnly /* && !this.calculatedValueWasCalculated*/) {
     this.dataValue = value;
@@ -338,7 +339,7 @@ Base.prototype.setValue = function(value, flags) {
   return originalSetValue.call(this, value, flags);
 };
 
-Base.prototype.createTooltip = function(container, component, classes) {
+Base.prototype.createTooltip = function (container, component, classes) {
   // Cause: https://citeck.atlassian.net/browse/ECOSUI-829
   if (this.tooltip) {
     return;
@@ -371,7 +372,7 @@ Base.prototype.createTooltip = function(container, component, classes) {
 };
 
 // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2661
-Base.prototype.addInputError = function(message, dirty) {
+Base.prototype.addInputError = function (message, dirty) {
   if (!message) {
     return;
   }
@@ -397,7 +398,7 @@ Base.prototype.addInputError = function(message, dirty) {
 };
 
 // Cause: https://citeck.atlassian.net/browse/ECOSENT-832 - Add inline edit support in view mode to the ECOS forms
-Base.prototype.createInlineEditButton = function(container) {
+Base.prototype.createInlineEditButton = function (container) {
   if (this.component.unreadable) {
     return;
   }
@@ -472,7 +473,7 @@ Base.prototype.createInlineEditButton = function(container) {
   container.appendChild(editButton);
 };
 
-Base.prototype.createViewOnlyValue = function(container) {
+Base.prototype.createViewOnlyValue = function (container) {
   originalCreateViewOnlyValue.call(this, container);
 
   this.createInlineEditButton(container);
@@ -485,7 +486,7 @@ Base.prototype.createViewOnlyValue = function(container) {
   }
 };
 
-Base.prototype.createViewOnlyElement = function() {
+Base.prototype.createViewOnlyElement = function () {
   if (this.element) {
     return this.element;
   }
@@ -501,14 +502,14 @@ Base.prototype.createViewOnlyElement = function() {
  *
  * @param data
  */
-Base.prototype.updateCachedData = function(data = {}) {
+Base.prototype.updateCachedData = function (data = {}) {
   if (!isEmpty(this._cachedData)) {
     this._cachedData = cloneDeep(data);
   }
 };
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-2231
-Base.prototype.silentSaveForm = function() {
+Base.prototype.silentSaveForm = function () {
   if (!this._isInlineEditingMode) {
     return Promise.resolve();
   }
@@ -551,7 +552,7 @@ Base.prototype.silentSaveForm = function() {
     });
 };
 
-Base.prototype.createInlineEditSaveAndCancelButtons = function() {
+Base.prototype.createInlineEditSaveAndCancelButtons = function () {
   if (this._isInlineEditingMode) {
     this._inlineEditSaveButton = this.ce(
       'button',
@@ -626,17 +627,23 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
     const onCancelButtonClick = () => {
       // Cause: https://citeck.atlassian.net/browse/ECOSUI-1538
       if (!isEmpty(this._cachedData)) {
-        this.root.setValue({ data: this._cachedData });
-        this.root.onChange();
-        this._cachedData = {};
+        if (this.isLexicalEditor) {
+          this.editor = null;
+          this._lexicalRoot = null;
+          this._lexicalInited = false;
+        } else {
+          this.root.setValue({ data: this._cachedData });
+          this.root.onChange();
+          this._cachedData = {};
 
-        const components = flattenComponents(this.root.components);
+          const components = flattenComponents(this.root.components);
 
-        for (const key in components) {
-          if (components.hasOwnProperty(key)) {
-            const component = components[key];
+          for (const key in components) {
+            if (components.hasOwnProperty(key)) {
+              const component = components[key];
 
-            component.inlineEditRollback.call(component);
+              component.inlineEditRollback.call(component);
+            }
           }
         }
       }
@@ -665,7 +672,7 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
   }
 };
 
-Base.prototype.build = function(state) {
+Base.prototype.build = function (state) {
   originalBuild.call(this, state);
 
   // Cause: https://citeck.atlassian.net/browse/ECOSUI-37
@@ -685,7 +692,7 @@ Base.prototype.build = function(state) {
   this.createInlineEditSaveAndCancelButtons();
 };
 
-Base.prototype.checkValidity = function(data, dirty, rowData) {
+Base.prototype.checkValidity = function (data, dirty, rowData) {
   if (this.component.unreadable) {
     return true;
   }
@@ -712,7 +719,7 @@ Base.prototype.checkValidity = function(data, dirty, rowData) {
   return validity;
 };
 
-Base.prototype.toggleDisableSaveButton = function(disabled) {
+Base.prototype.toggleDisableSaveButton = function (disabled) {
   if (this._inlineEditSaveButton) {
     const saveButtonClassList = this._inlineEditSaveButton.classList;
 
@@ -725,7 +732,7 @@ Base.prototype.toggleDisableSaveButton = function(disabled) {
   }
 };
 
-Base.prototype.isDisabledSaveButton = function() {
+Base.prototype.isDisabledSaveButton = function () {
   if (this._inlineEditSaveButton) {
     const saveButtonClassList = this._inlineEditSaveButton.classList;
 
@@ -735,7 +742,7 @@ Base.prototype.isDisabledSaveButton = function() {
   return false;
 };
 
-Base.prototype.checkConditions = function(data) {
+Base.prototype.checkConditions = function (data) {
   // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2967
   if (!this.parentVisible) {
     return false;
@@ -745,7 +752,7 @@ Base.prototype.checkConditions = function(data) {
 };
 
 // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3000
-Base.prototype.__t = function(content, params) {
+Base.prototype.__t = function (content, params) {
   const replacements = content.match(new RegExp(/__t\((.*?)\)/, 'g'));
   if (!replacements) {
     return content;
@@ -760,7 +767,7 @@ Base.prototype.__t = function(content, params) {
   return result;
 };
 
-Base.prototype.t = function(text, params) {
+Base.prototype.t = function (text, params) {
   if (typeof text === 'string' && text.includes('__t(')) {
     return this.__t(text, params) || text;
   }
@@ -768,7 +775,7 @@ Base.prototype.t = function(text, params) {
   return originalT.call(this, getMLValue(text), params) || text;
 };
 
-Base.prototype.createWidget = function() {
+Base.prototype.createWidget = function () {
   if (!this.component.widget) {
     return null;
   }
@@ -796,7 +803,7 @@ Base.prototype.createWidget = function() {
 };
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-829
-Base.prototype.createLabel = function(container) {
+Base.prototype.createLabel = function (container) {
   originalCreateLabel.call(this, container);
 
   if (!this.labelIsHidden()) {
@@ -806,7 +813,7 @@ Base.prototype.createLabel = function(container) {
 };
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-829
-Base.prototype.createViewOnlyLabel = function(container) {
+Base.prototype.createViewOnlyLabel = function (container) {
   if (this.labelIsHidden()) {
     return;
   }
@@ -827,13 +834,13 @@ Base.prototype.createViewOnlyLabel = function(container) {
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-829
 Object.defineProperty(Base.prototype, 'errorLabel', {
-  get: function() {
+  get: function () {
     return this.t(this.component.errorLabel || getTextByLocale(this.component.label) || this.component.placeholder || this.key);
   }
 });
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-829
-Base.prototype.elementInfo = function() {
+Base.prototype.elementInfo = function () {
   const info = originalElementInfo.call(this);
 
   if (this.component.placeholder) {
@@ -844,7 +851,7 @@ Base.prototype.elementInfo = function() {
 };
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-829
-Base.prototype.createDescription = function(container) {
+Base.prototype.createDescription = function (container) {
   originalCreateDescription.call(this, container);
 
   if (!this.component.description) {
@@ -855,7 +862,7 @@ Base.prototype.createDescription = function(container) {
 };
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-829
-Base.prototype.setInputMask = function(input, inputMask) {
+Base.prototype.setInputMask = function (input, inputMask) {
   const result = originalSetInputMask.call(this, input, inputMask, !isEmpty(this.placeholder));
 
   if (isEmpty(this.placeholder) && input && inputMask) {
@@ -866,7 +873,7 @@ Base.prototype.setInputMask = function(input, inputMask) {
 };
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-829
-Base.prototype.addShortcutToLabel = function(label, shortcut) {
+Base.prototype.addShortcutToLabel = function (label, shortcut) {
   if (!label) {
     label = this.label;
   }
@@ -875,7 +882,7 @@ Base.prototype.addShortcutToLabel = function(label, shortcut) {
 };
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-826
-Base.prototype.setUnreadableLabel = function(element) {
+Base.prototype.setUnreadableLabel = function (element) {
   if (!element) {
     return;
   }
@@ -887,7 +894,7 @@ Base.prototype.setUnreadableLabel = function(element) {
 };
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-826
-Base.prototype.setupValueElement = function(element) {
+Base.prototype.setupValueElement = function (element) {
   if (!element) {
     return;
   }
@@ -918,7 +925,7 @@ function extendingOfComponent(component) {
     }
 
     Object.defineProperty(component, `${key}ByLocale`, {
-      get: function() {
+      get: function () {
         return getTextByLocale(this[key]);
       },
       mutable: true,
@@ -935,11 +942,11 @@ function extendingOfComponent(component) {
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-918
 Object.defineProperty(Base.prototype, 'component', {
-  get: function() {
+  get: function () {
     return extendingOfComponent(this._component);
   },
 
-  set: function(component) {
+  set: function (component) {
     if (component.addAnother) {
       component.addAnother = t(component.addAnother);
     }
@@ -948,7 +955,7 @@ Object.defineProperty(Base.prototype, 'component', {
   }
 });
 
-Base.prototype.evalContext = function(additional) {
+Base.prototype.evalContext = function (additional) {
   const context = originalEvalContext.call(this, additional);
   const utils = {
     ...context.utils,
@@ -964,16 +971,16 @@ Base.prototype.evalContext = function(additional) {
 };
 
 Object.defineProperty(Base.prototype, 'originalComponent', {
-  get: function() {
+  get: function () {
     return extendingOfComponent(this._originalComponent);
   },
 
-  set: function(value) {
+  set: function (value) {
     this._originalComponent = extendingOfComponent(value);
   }
 });
 
-Base.prototype.createModal = function(...params) {
+Base.prototype.createModal = function (...params) {
   const modalBody = this.ce('div');
   const modalOverlay = this.ce('div', {
     class: 'formio-dialog-overlay'
@@ -996,11 +1003,11 @@ Base.prototype.createModal = function(...params) {
     },
     [modalOverlay, modalBodyContainer]
   );
-  this.addEventListener(modalOverlay, 'click', function(event) {
+  this.addEventListener(modalOverlay, 'click', function (event) {
     event.preventDefault();
     dialog.close();
   });
-  this.addEventListener(closeDialog, 'click', function(event) {
+  this.addEventListener(closeDialog, 'click', function (event) {
     event.preventDefault();
     dialog.close();
   });
@@ -1025,7 +1032,7 @@ Base.prototype.createModal = function(...params) {
   return dialog;
 };
 
-Base.prototype.inlineEditRollback = function() {
+Base.prototype.inlineEditRollback = function () {
   if (this.hasOwnProperty('_valueBeforeEdit')) {
     if (!isEqual(this.getValue(), this._valueBeforeEdit)) {
       this.setValue(this._valueBeforeEdit);
@@ -1035,7 +1042,7 @@ Base.prototype.inlineEditRollback = function() {
   this.switchToViewOnlyMode();
 };
 
-Base.prototype.switchToViewOnlyMode = function() {
+Base.prototype.switchToViewOnlyMode = function () {
   if (isFunction(this.cleanAfterInlineEditMode)) {
     this.cleanAfterInlineEditMode();
   }

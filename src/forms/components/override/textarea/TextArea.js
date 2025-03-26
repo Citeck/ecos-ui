@@ -12,11 +12,11 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 
-import LexicalEditor from '../../../../components/LexicalEditor';
-import { getStore } from '../../../../store';
 import { overrideTriggerChange } from '../misc';
 
+import LexicalEditor from '@/components/LexicalEditor';
 import ESMRequire from '@/services/ESMRequire.js';
+import { getStore } from '@/store';
 
 export default class TextAreaComponent extends FormIOTextAreaComponent {
   static schema(...extend) {
@@ -26,9 +26,9 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         isUploadEnabled: false,
         showWordCount: false,
         showCharCount: false,
-        inputFormat: 'plain',
+        inputFormat: 'plain'
       },
-      ...extend,
+      ...extend
     );
   }
 
@@ -38,7 +38,6 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     overrideTriggerChange.call(this);
 
     this._lexicalRoot = null;
-    this._lexicalContainer = null;
     this._lexicalInited = false;
   }
 
@@ -88,7 +87,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
       return changed;
     } else if (this.isPlain) {
-      value = Array.isArray(value) ? value.map((val) => this.setConvertedValue(val)) : this.setConvertedValue(value);
+      value = Array.isArray(value) ? value.map(val => this.setConvertedValue(val)) : this.setConvertedValue(value);
 
       return super.setValue(value, flags);
     }
@@ -107,11 +106,11 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       }
 
       // It should be performed only when initializing data from the backend
-      this.editorReady.then((editor) => {
+      this.editorReady.then(editor => {
         editor.update(() => {
           if (!this._lexicalInited) {
             const parser = new DOMParser();
-            const dom = parser.parseFromString(value || '', 'text/html');
+            const dom = parser.parseFromString(value ?? '', 'text/html');
             const nodes = $generateNodesFromDOM(editor, dom);
 
             const root = $getRoot();
@@ -119,7 +118,8 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
             root.append(...nodes);
             root.select();
 
-            const textContent = root.getTextContent();
+            const editorProps = editor.getRootElement();
+            const { textContent = '' } = editorProps || {};
 
             if (!!textContent) {
               this._lexicalInited = true;
@@ -158,7 +158,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       const newElement = document.createElement('div');
 
       if (get(this.valueElement, 'attributes')) {
-        Array.from(this.valueElement.attributes).forEach((attr) => {
+        Array.from(this.valueElement.attributes).forEach(attr => {
           newElement.setAttribute(attr.name, attr.value);
         });
       }
@@ -170,7 +170,14 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         this.valueElement.parentNode.replaceChild(newElement, this.valueElement);
       }
 
-      this.valueElement = newElement;
+      if (this.isLexicalEditor) {
+        setTimeout(() => {
+          newElement.innerHTML = this.valueElement.innerText;
+          this.valueElement = newElement;
+        }, 200);
+      } else {
+        this.valueElement = newElement;
+      }
     }
   }
 
@@ -218,7 +225,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
             readonly={settings.readonly}
             onChange={onChange}
             htmlString={this.dataValue || ''}
-            onEditorReady={(editor) => {
+            onEditorReady={editor => {
               this.editor = editor;
               this.editorReadyResolve(editor);
             }}
@@ -231,10 +238,8 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
   }
 
   addLexical(element, settings, onChange) {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       if (this._lexicalRoot) {
-        this._lexicalRoot.render(this.renderLexicalProvider(settings, onChange));
-        resolve(this._lexicalContainer);
         return;
       }
 
@@ -242,7 +247,6 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       container.className = 'lexical-editor-container';
       element.appendChild(container);
 
-      this._lexicalContainer = container;
       this._lexicalRoot = createRoot(container);
 
       this._lexicalRoot.render(this.renderLexicalProvider(settings, onChange));
@@ -255,13 +259,13 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     settings.base64Upload = true;
 
     return new Promise((resolve, reject) => {
-      ESMRequire.require(['/js/lib/ckeditor5-build-classic/v12.2.0-formio.2/ckeditor.js'], (ckeditor) => {
+      ESMRequire.require(['/js/lib/ckeditor5-build-classic/v12.2.0-formio.2/ckeditor.js'], ckeditor => {
         if (!get(element, 'parentNode')) {
           reject();
           return;
         }
 
-        return ckeditor.create(element, settings).then((editor) => {
+        return ckeditor.create(element, settings).then(editor => {
           editor.model.document.on('change', () => {
             if (!this._ckEditorInitialized) {
               this._ckEditorInitialized = true;
@@ -273,12 +277,12 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
           // Allows you to move the button tooltips to the left to prevent unnecessary indentation
           const ckTooltips = document.querySelectorAll('.ck-tooltip');
-          [...ckTooltips].map((ckTooltip) => (ckTooltip.style.left = '-150%'));
+          [...ckTooltips].map(ckTooltip => (ckTooltip.style.left = '-150%'));
 
           // Allows you to add an internal scroll when expanding
           const ckEditorContainer = editor.ui.view.editable.element.parentElement;
           Object.assign(ckEditorContainer.style, {
-            maxWidth: '100%',
+            maxWidth: '100%'
           });
 
           resolve(editor);
@@ -297,11 +301,11 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       `quill-css-${_settings.theme}`,
       'Quill',
       [{ type: 'styles', src: `https://cdn.quilljs.com/1.3.6/quill.${_settings.theme}.css` }],
-      true,
+      true
     );
 
-    return new Promise((resolve) => {
-      ESMRequire.require(['/js/lib/quill/1.3.6/quill.js'], (Quill) => {
+    return new Promise(resolve => {
+      ESMRequire.require(['/js/lib/quill/1.3.6/quill.js'], Quill => {
         if (!get(element, 'parentNode')) {
           return NativePromise.reject();
         }
@@ -316,7 +320,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         const qlSource = element.parentNode.querySelector('.ql-source');
         let onClickSource;
         if (qlSource) {
-          onClickSource = (event) => {
+          onClickSource = event => {
             event.preventDefault();
             if (txtArea.style.display === 'inherit') {
               quill.setContents(quill.clipboard.convert(txtArea.value));
@@ -333,11 +337,11 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
         // Allows the container to expand based on the text height value
         const qlContainers = document.querySelectorAll('.ql-container');
-        [...qlContainers].map((qlContainer) => (qlContainer.style.minHeight = '100%'));
+        [...qlContainers].map(qlContainer => (qlContainer.style.minHeight = '100%'));
 
         // Allows users to skip toolbar items when tabbing though form
         const buttons = document.querySelectorAll('.ql-formats > button');
-        [...buttons].map((btn) => btn.setAttribute('tabindex', '-1'));
+        [...buttons].map(btn => btn.setAttribute('tabindex', '-1'));
 
         const onTextChange = () => {
           txtArea.value = get(quill, 'root.innerHTML');
@@ -403,9 +407,9 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     if (newValue !== this.dataValue && (!isEmpty(newValue) || !isEmpty(this.dataValue))) {
       this.updateValue(
         {
-          modified: !this.autoModified,
+          modified: !this.autoModified
         },
-        newValue,
+        newValue
       );
     }
 
@@ -415,7 +419,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
   enableWysiwyg() {
     if (this.isPlain || this.options.readOnly || this.options.htmlView) {
       if (this.autoExpand) {
-        this.element.childNodes.forEach((element) => {
+        this.element.childNodes.forEach(element => {
           if (element.nodeName === 'TEXTAREA') {
             this.addAutoExpanding(element);
           }
@@ -429,7 +433,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       const settings = this.component.wysiwyg || {};
       this.addLexical(this.input, settings, (editorState, editor) => {
         editor.update(() => {
-          const html = $generateHtmlFromNodes(editor);
+          const html = $generateHtmlFromNodes(editor, null);
           this.updateEditorValue(html);
         });
       });
@@ -447,8 +451,8 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     if (this.isCkeEditor) {
       const settings = this.component.wysiwyg || {};
       settings.rows = this.component.rows;
-      this.addCKE(this.input, settings, (newValue) => this.updateEditorValue(newValue))
-        .then((editor) => {
+      this.addCKE(this.input, settings, newValue => this.updateEditorValue(newValue))
+        .then(editor => {
           this.editor = editor;
           if (this.options.readOnly || this.component.disabled) {
             this.editor.isReadOnly = true;
@@ -470,7 +474,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       console.warn(
         'The WYSIWYG settings are configured for CKEditor. For this renderer, ' +
           'you will need to use configurations for the Quill Editor. ' +
-          'See https://quilljs.com/docs/configuration for more information.',
+          'See https://quilljs.com/docs/configuration for more information.'
       );
       this.component.wysiwyg = this.wysiwygDefault;
       this.emit('componentEdit', this);
@@ -482,8 +486,8 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     }
 
     // Add the quill editor.
-    this.addQuill(this.input, this.component.wysiwyg, (txt) => this.updateEditorValue(txt.value))
-      .then((quill) => {
+    this.addQuill(this.input, this.component.wysiwyg, txt => this.updateEditorValue(txt.value))
+      .then(quill => {
         if (this.component.isUploadEnabled) {
           const _this = this;
           quill.getModule('toolbar').addHandler('image', function () {
@@ -500,11 +504,11 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         this.editorReadyResolve(quill);
         return quill;
       })
-      .catch((err) => console.warn(err));
+      .catch(err => console.warn(err));
   }
 
   refreshWysiwyg() {
-    this.editorReady = new Promise((resolve) => (this.editorReadyResolve = resolve));
+    this.editorReady = new Promise(resolve => (this.editorReadyResolve = resolve));
     this.enableWysiwyg();
     this.setWysiwygValue(this.dataValue);
     this.wysiwygRendered = true;
@@ -534,12 +538,12 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     // Cause: https://citeck.atlassian.net/browse/ECOSUI-89
     if (show && this.editorReady) {
       this.editorReady
-        .then((editor) => {
+        .then(editor => {
           const source = this.isCkeEditor ? 'sourceElement' : 'container';
           const parentNode = get(editor, `${source}.parentNode`);
           !parentNode && this.refreshWysiwyg();
         })
-        .catch((err) => console.warn(err));
+        .catch(err => console.warn(err));
     }
 
     return super.show(show, noClear);
