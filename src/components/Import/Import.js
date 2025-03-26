@@ -4,15 +4,14 @@ import { NotificationManager } from 'react-notifications';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
-import isEqual from 'lodash/isEqual';
 import isBoolean from 'lodash/isBoolean';
 import isFunction from 'lodash/isFunction';
 import isArray from 'lodash/isArray';
 
-import { selectImportDataConfig, selectJournalConfig } from '../../selectors/journals';
+import { selectJournalConfig } from '../../selectors/journals';
 import { Dropdown } from '../common/form';
 import LicenseService from '../../services/license/LicenseService';
-import { getCurrentUserName, getTextByLocale, isMobileDevice } from '../../helpers/util';
+import { getCurrentUserName, isMobileDevice } from '../../helpers/util';
 import { t } from '../../helpers/export/util';
 import { Tooltip } from '../common';
 import DownloadIcon from '../common/icons/Download';
@@ -43,48 +42,57 @@ const importEndpointLink = `${process.env.REACT_APP_SHARE_PROXY_URL || window.lo
 const StatusesUpdate = {
   RUNNING: 'RUNNING',
   STOPPED: 'STOPPED',
-  ERROR: 'ERROR'
+  ERROR: 'ERROR',
 };
 
 class Import extends Component {
   static propTypes = {
     className: PropTypes.string,
     classNameBtn: PropTypes.string,
-    importDataConfig: PropTypes.arrayOf(PropTypes.object),
     isViewNewJournal: PropTypes.bool,
     right: PropTypes.bool,
     getStateOpen: PropTypes.func,
     reloadGrid: PropTypes.func,
-    deselectAllRecords: PropTypes.func
+    deselectAllRecords: PropTypes.func,
   };
 
   state = {
     importDataConfig: [],
     authorityGroupsCurrentUser: [],
     isOpenDropdown: false,
-    hasImportDataLicense: false
+    hasImportDataLicense: false,
   };
 
   componentDidMount() {
-    LicenseService.hasImportDataFeature().then(hasFeature => {
+    LicenseService.hasImportDataFeature().then((hasFeature) => {
       if (hasFeature) {
-        this.setState({
-          hasImportDataLicense: true
-        });
+        this.setState(
+          {
+            hasImportDataLicense: true,
+          },
+          () => {
+            const { journalConfig = {} } = this.props;
+            const typeRef = get(journalConfig, 'typeRef');
+
+            Records.query(
+              {
+                sourceId: 'integrations/import-data-variant',
+                query: {
+                  typeRef: typeRef,
+                },
+              },
+              { variantId: 'variantId?str', name: 'name?str', allowedFor: 'allowedFor[]?str' },
+            ).then(({ records }) => {
+              this.setState({ importDataConfig: records });
+            });
+          },
+        );
       }
     });
 
     Records.get(`${SourcesId.PERSON}@${getCurrentUserName()}`)
       .load(ATT_AUTHORITY_GROUPS)
-      .then(res => this.setState({ authorityGroupsCurrentUser: res.map(group => group.id) }));
-  }
-
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    const { importDataConfig } = this.props;
-
-    if (!isEqual(importDataConfig, prevProps.importDataConfig)) {
-      this.setState({ importDataConfig });
-    }
+      .then((res) => this.setState({ authorityGroupsCurrentUser: res.map((group) => group.id) }));
   }
 
   componentWillUnmount() {
@@ -93,7 +101,7 @@ class Import extends Component {
     }
   }
 
-  changeIsOpen = isOpenDropdown => {
+  changeIsOpen = (isOpenDropdown) => {
     if (isBoolean(isOpenDropdown)) {
       this.setState({ isOpenDropdown });
       isFunction(this.props.getStateOpen) && this.props.getStateOpen(isOpenDropdown);
@@ -111,7 +119,7 @@ class Import extends Component {
       navigator.serviceWorker.controller.postMessage({
         type: 'UPLOAD_PROGRESS',
         status: 'start',
-        isImporting: true
+        isImporting: true,
       });
 
       navigator.serviceWorker.controller.postMessage({
@@ -119,12 +127,12 @@ class Import extends Component {
         status: 'in-progress',
         totalCount: 0,
         successFileCount: 0,
-        file: fileData
+        file: fileData,
       });
 
       const record = Records.get(persistedRecordId);
 
-      record.watch([ATT_PROCESSED_ROW_COUNT, ATT_TOTAL_COUNT, ATT_FULL_STATE], updatedAttributes => {
+      record.watch([ATT_PROCESSED_ROW_COUNT, ATT_TOTAL_COUNT, ATT_FULL_STATE], (updatedAttributes) => {
         const processedRowCount = updatedAttributes[ATT_PROCESSED_ROW_COUNT];
         const jsonData = updatedAttributes[ATT_FULL_STATE];
         const totalCount = updatedAttributes[ATT_TOTAL_COUNT];
@@ -139,7 +147,7 @@ class Import extends Component {
                 status: 'in-progress',
                 totalCount,
                 successFileCount: processedRowCount || 0,
-                file: fileData
+                file: fileData,
               });
               break;
 
@@ -151,8 +159,8 @@ class Import extends Component {
                 successFileCount: processedRowCount || 0,
                 file: {
                   ...fileData,
-                  isLoading: false
-                }
+                  isLoading: false,
+                },
               });
               stopPolling();
               break;
@@ -172,7 +180,7 @@ class Import extends Component {
 
       const startPolling = () => {
         record.pollingIntervalId = setInterval(() => {
-          record.update().catch(error => {
+          record.update().catch((error) => {
             console.error(t('import-component.record.error-update', { record: record.id, error }));
           });
         }, pollingInterval);
@@ -186,14 +194,14 @@ class Import extends Component {
 
         navigator.serviceWorker.controller.postMessage({
           type: 'UPLOAD_PROGRESS',
-          status: 'success'
+          status: 'success',
         });
 
         isFunction(deselectAllRecords) && deselectAllRecords();
         isFunction(reloadGrid) && reloadGrid();
       };
 
-      const handleError = async fileData => {
+      const handleError = async (fileData) => {
         const errorMsg = await record.load(ATT_ERROR_MSG);
         const shortErrorMsg = await record.load(ATT_SHORT_ERROR_MSG);
 
@@ -208,8 +216,8 @@ class Import extends Component {
           successFileCount: record.att(ATT_PROCESSED_ROW_COUNT) || 0,
           file: {
             ...fileData,
-            isLoading: false
-          }
+            isLoading: false,
+          },
         });
       };
 
@@ -227,8 +235,8 @@ class Import extends Component {
               successFileCount: record.att(ATT_PROCESSED_ROW_COUNT) || 0,
               file: {
                 ...fileData,
-                isLoading: false
-              }
+                isLoading: false,
+              },
             });
             stopPolling();
             break;
@@ -249,7 +257,7 @@ class Import extends Component {
     }
   };
 
-  handleImport = async item => {
+  handleImport = async (item) => {
     const { journalConfig = {} } = this.props;
     const typeRef = get(journalConfig, 'typeRef');
     const variantId = get(item, 'variantId');
@@ -265,7 +273,7 @@ class Import extends Component {
         formId: importFormId,
         attributes: {
           typeRef,
-          variantId
+          variantId,
         },
         onSubmit: async (record, form) => {
           const file = get(form, 'data.inputFileRef[0]');
@@ -274,22 +282,22 @@ class Import extends Component {
           const fileData = {
             file: {
               ...file,
-              name: get(file, 'originalName', get(file, 'name'))
-            }
+              name: get(file, 'originalName', get(file, 'name')),
+            },
           };
 
           if (formSubmitDonePromise) {
-            formSubmitDonePromise.then(res => {
+            formSubmitDonePromise.then((res) => {
               const persistedRecord = get(res, 'persistedRecord');
               this.handleSubmit(fileData, get(persistedRecord, 'id'));
             });
           }
-        }
+        },
       });
     }
   };
 
-  handleDownloadTemplates = variantId => {
+  handleDownloadTemplates = (variantId) => {
     const { journalConfig = {} } = this.props;
 
     const params = { openNewBrowserTab: true };
@@ -309,7 +317,7 @@ class Import extends Component {
   };
 
   renderItemMenu = ({ item }) => {
-    const textItem = getTextByLocale(get(item, 'name', ''));
+    const textItem = get(item, 'name', '');
     const variantId = get(item, 'variantId');
 
     if (!variantId) {
@@ -333,7 +341,7 @@ class Import extends Component {
           <i
             id={`import-data-download_${variantId}`}
             className="citeck-import-data__menu-item_i"
-            onClick={e => this.handleOnClick(e, this.handleDownloadTemplates(variantId))}
+            onClick={(e) => this.handleOnClick(e, this.handleDownloadTemplates(variantId))}
           >
             <DownloadIcon />
           </i>
@@ -348,9 +356,8 @@ class Import extends Component {
     const { hideImportDataActions = false } = journalConfig || {};
 
     const variants = this.dropdownSourceVariants(importDataConfig, hasImportDataLicense);
-
     const allowVariants = get(variants, 'length')
-      ? variants.filter(variant => {
+      ? variants.filter((variant) => {
           const allowedFor = get(variant, 'allowedFor', []);
 
           if (isArray(allowedFor) && !allowedFor.length) {
@@ -358,12 +365,12 @@ class Import extends Component {
           }
 
           return allowedFor.some(
-            allowed =>
+            (allowed) =>
               allowed &&
               get(authorityGroupsCurrentUser, 'length') &&
               (authorityGroupsCurrentUser.includes(allowed) ||
                 authorityGroupsCurrentUser.includes(allowed.replace('GROUP_', '')) ||
-                allowed === getCurrentUserName())
+                allowed === getCurrentUserName()),
           );
         })
       : [];
@@ -382,7 +389,7 @@ class Import extends Component {
           source={allowVariants}
           controlIcon="icon-download"
           controlClassName={classNames('ecos-btn_grey ecos-btn_settings-down', classNameBtn, {
-            'ecos-journal__btn_new_focus': isOpenDropdown && isViewNewJournal
+            'ecos-journal__btn_new_focus': isOpenDropdown && isViewNewJournal,
           })}
           getStateOpen={this.changeIsOpen}
           isViewNewJournal={isViewNewJournal}
@@ -396,8 +403,7 @@ class Import extends Component {
 }
 
 const mapStateToProps = (state, props) => ({
-  importDataConfig: selectImportDataConfig(state, props.stateId),
-  journalConfig: selectJournalConfig(state, props.stateId)
+  journalConfig: selectJournalConfig(state, props.stateId),
 });
 
 function mapDispatchToProps(dispatch, props) {
@@ -405,11 +411,8 @@ function mapDispatchToProps(dispatch, props) {
 
   return {
     reloadGrid: () => dispatch(reloadGrid(w({}))),
-    deselectAllRecords: stateId => dispatch(deselectAllRecords({ stateId }))
+    deselectAllRecords: (stateId) => dispatch(deselectAllRecords({ stateId })),
   };
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Import);
+export default connect(mapStateToProps, mapDispatchToProps)(Import);

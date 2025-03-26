@@ -1,8 +1,8 @@
-import { handleActions } from 'redux-actions';
-import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
-import isEqual from 'lodash/isEqual';
+import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
+import { handleActions } from 'redux-actions';
 
 import {
   deselectAllRecords,
@@ -41,20 +41,20 @@ import {
   openSelectedJournal,
   setSearchText,
   saveColumn,
-  setImportDataConfig
+  setImportDataConfig,
 } from '../actions/journals';
+import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_PAGINATION, relatedViews } from '../components/Journals/constants';
 import { t } from '../helpers/export/util';
 import { getCurrentStateById, handleAction, handleState, updateState } from '../helpers/redux';
-import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_PAGINATION, relatedViews } from '../components/Journals/constants';
 
 export const initialStateGrouping = {
   needCount: false,
   columns: [],
-  groupBy: []
+  groupBy: [],
 };
 
 export const emptyJournalConfig = Object.freeze({
-  meta: { createVariants: [] }
+  meta: { createVariants: [] },
 });
 
 export const defaultState = {
@@ -78,10 +78,9 @@ export const defaultState = {
     pagination: DEFAULT_PAGINATION,
     minHeight: null,
     editingRules: {},
-    search: ''
+    search: '',
   },
 
-  importDataConfig: [],
   journalsList: [],
   journals: [],
   journalSettings: [],
@@ -99,15 +98,15 @@ export const defaultState = {
     columnsSetup: {
       columns: [],
       isExpandedFromGrouped: false,
-      sortBy: []
+      sortBy: [],
     },
-    grouping: initialStateGrouping
+    grouping: initialStateGrouping,
   },
 
   columnsSetup: {
     columns: [],
     isExpandedFromGrouped: false,
-    sortBy: []
+    sortBy: [],
   },
   grouping: initialStateGrouping,
 
@@ -120,8 +119,8 @@ export const defaultState = {
     isExpandedFromGrouped: false,
     predicate: null,
     permissions: {
-      Write: true
-    }
+      Write: true,
+    },
   },
 
   selectedRecords: [],
@@ -137,7 +136,7 @@ export const defaultState = {
 
   isLoadingPerformGroupActions: false,
   performGroupActionResponse: [],
-  selectedJournals: []
+  selectedJournals: [],
 };
 
 const initialState = {};
@@ -152,7 +151,7 @@ export default handleActions(
 
       return {
         ...state,
-        [stateId]: { ...cloneDeep(defaultState), ...(state[stateId] || {}) }
+        [stateId]: { ...cloneDeep(defaultState), ...(state[stateId] || {}) },
       };
     },
     [toggleViewMode]: (state, action) => {
@@ -166,7 +165,7 @@ export default handleActions(
 
       return {
         ...state,
-        [id]: { ...cloneDeep(defaultState) }
+        [id]: { ...cloneDeep(defaultState) },
       };
     },
     [setUrl]: (state, action) => {
@@ -179,15 +178,15 @@ export default handleActions(
             [stateId]: {
               ...(state[stateId] || {}),
               url: {
-                ...action.payload
-              }
-            }
+                ...action.payload,
+              },
+            },
           }
         : {
             ...state,
             url: {
-              ...action.payload
-            }
+              ...action.payload,
+            },
           };
     },
     [setPredicate]: (state, action) => {
@@ -203,8 +202,8 @@ export default handleActions(
       return handleState(state, stateId, {
         originGridSettings: {
           ...action.payload,
-          isExpandedFromGrouped: false
-        }
+          isExpandedFromGrouped: false,
+        },
       });
     },
     [setPreviewUrl]: (state, action) => {
@@ -245,8 +244,8 @@ export default handleActions(
       return handleState(state, stateId, {
         grid: {
           ...(state[stateId] || {}).grid,
-          isExpandedFromGrouped: !!action.payload
-        }
+          isExpandedFromGrouped: !!action.payload,
+        },
       });
     },
     [setJournalSetting]: (state, action) => {
@@ -257,7 +256,7 @@ export default handleActions(
       const wasChangedSettingsOn = [];
 
       if (!isEqual(curState.journalSetting, defaultState.journalSetting) && !isEmpty(curState.journalSetting)) {
-        wasChangedSettingsOn.push(...relatedViews.filter(item => item !== curState.viewMode));
+        wasChangedSettingsOn.push(...relatedViews.filter((item) => item !== curState.viewMode));
       }
 
       const newJournalSetting = { ...curState.journalSetting, ...action.payload };
@@ -268,15 +267,15 @@ export default handleActions(
             [stateId]: {
               ...curState,
               wasChangedSettingsOn,
-              journalSetting: newJournalSetting
-            }
+              journalSetting: newJournalSetting,
+            },
           }
         : {
             ...state,
             journalSetting: {
               ...state.journalSetting,
-              ...action.payload
-            }
+              ...action.payload,
+            },
           };
     },
     [setGridInlineToolSettings]: (state, action) => {
@@ -285,7 +284,7 @@ export default handleActions(
 
       return handleState(state, stateId, {
         inlineToolSettings: action.payload,
-        previewFileName: get(action.payload, ['row', 'cm:title'], '')
+        previewFileName: get(action.payload, ['row', 'cm:title'], ''),
       });
     },
     [setEditorMode]: (state, action) => {
@@ -305,16 +304,16 @@ export default handleActions(
               ...(state[stateId] || {}),
               grid: {
                 ...(state[stateId] || {}).grid,
-                ...action.payload
-              }
-            }
+                ...action.payload,
+              },
+            },
           }
         : {
             ...state,
             grid: {
               ...state.grid,
-              ...action.payload
-            }
+              ...action.payload,
+            },
           };
     },
     [setDashletConfig]: (state, action) => {
@@ -368,7 +367,7 @@ export default handleActions(
         selectAllRecordsVisible: false,
         selectAllPageRecords: false,
         selectedRecords: [],
-        excludedRecords: []
+        excludedRecords: [],
       });
     },
     [setLoading]: (state, action) => {
@@ -410,9 +409,9 @@ export default handleActions(
           pagination: {
             ...(state[stateId] || {}).grid.pagination,
             skipCount: 0,
-            page: 1
-          }
-        }
+            page: 1,
+          },
+        },
       });
     },
     [selectJournal]: (state, action) => {
@@ -421,8 +420,8 @@ export default handleActions(
       return handleState(state, stateId, {
         grid: {
           ...(state[stateId] || {}).grid,
-          pagination: { ...DEFAULT_PAGINATION }
-        }
+          pagination: { ...DEFAULT_PAGINATION },
+        },
       });
     },
     [setSelectedJournals]: (state, action) => {
@@ -430,7 +429,7 @@ export default handleActions(
       const handledAction = handleAction(action);
 
       return handleState(state, stateId, {
-        selectedJournals: handledAction.payload
+        selectedJournals: handledAction.payload,
       });
     },
     [setJournalExistStatus]: (state, action) => {
@@ -438,7 +437,7 @@ export default handleActions(
       const handledAction = handleAction(action);
 
       return handleState(state, stateId, {
-        isExistJournal: Boolean(handledAction.payload)
+        isExistJournal: Boolean(handledAction.payload),
       });
     },
     [setCheckLoading]: (state, action) => {
@@ -446,7 +445,7 @@ export default handleActions(
       const handledAction = handleAction(action);
 
       return handleState(state, stateId, {
-        isCheckLoading: Boolean(handledAction.payload)
+        isCheckLoading: Boolean(handledAction.payload),
       });
     },
     [setSearchText]: (state, action) => {
@@ -459,9 +458,9 @@ export default handleActions(
           pagination: {
             ...(state[stateId] || {}).grid.pagination,
             skipCount: 0,
-            page: 1
-          }
-        }
+            page: 1,
+          },
+        },
       });
     },
     [saveColumn]: (state, action) => {
@@ -471,13 +470,13 @@ export default handleActions(
       const journalSetting = get(state, [stateId, 'journalSetting']);
       const cloneJournalSetting = cloneDeep(journalSetting);
 
-      const updatedColumn = cloneJournalSetting.columns.find(x => x.name === action.payload.name);
+      const updatedColumn = cloneJournalSetting.columns.find((x) => x.name === action.payload.name);
       updatedColumn.width = action.payload.width;
 
       const grid = get(state, [stateId, 'grid']);
       const cloneGrid = cloneDeep(grid);
 
-      const updatedColumnGrid = cloneGrid.columns.find(x => x.name === action.payload.name);
+      const updatedColumnGrid = cloneGrid.columns.find((x) => x.name === action.payload.name);
       updatedColumnGrid.width = action.payload.width;
 
       return updateState(state, stateId, { grid: cloneGrid, journalSetting: cloneJournalSetting }, defaultState);
@@ -487,15 +486,9 @@ export default handleActions(
       const handledAction = handleAction(action);
 
       return handleState(state, stateId, {
-        footerValue: handledAction.payload
+        footerValue: handledAction.payload,
       });
     },
-    [setImportDataConfig]: (state, action) => {
-      const stateId = action.payload.stateId;
-      const handledAction = handleAction(action);
-
-      return handleState(state, stateId, { importDataConfig: handledAction.payload });
-    }
   },
-  initialState
+  initialState,
 );

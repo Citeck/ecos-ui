@@ -1,9 +1,10 @@
-import { CITECK_URI, PROXY_URI } from '../constants/alfresco';
-import { debounce } from '../helpers/util';
-import * as ls from '../helpers/ls';
-import TreeDataSource from '../components/common/grid/dataSource/TreeDataSource';
 import Records from '../components/Records';
 import { PERMISSION_WRITE_ATTR } from '../components/Records/constants';
+import TreeDataSource from '../components/common/grid/dataSource/TreeDataSource';
+import { SourcesId } from '../constants';
+import { CITECK_URI, PROXY_URI } from '../constants/alfresco';
+import * as ls from '../helpers/ls';
+import { debounce } from '../helpers/util';
 import AttributesService from '../services/AttributesService';
 
 import { DocPreviewApi } from './docPreview';
@@ -26,18 +27,18 @@ export class JournalsApi extends RecordService {
     return ids;
   };
 
-  setLsJournalSettingIds = ids => {
+  setLsJournalSettingIds = (ids) => {
     ls.setData(this.lsJournalSettingIdsKey, ids);
   };
 
   setLsJournalSettingId = (journalConfigId, journalSettingId) => {
-    const ids = this.getLsJournalSettingIds().filter(j => j.key !== journalConfigId);
+    const ids = this.getLsJournalSettingIds().filter((j) => j.key !== journalConfigId);
     ids.push({ key: journalConfigId, value: journalSettingId });
     this.setLsJournalSettingIds(ids);
   };
 
-  getLsJournalSettingId = journalConfigId => {
-    return (this.getLsJournalSettingIds().filter(j => j.key === journalConfigId)[0] || {}).value;
+  getLsJournalSettingId = (journalConfigId) => {
+    return (this.getLsJournalSettingIds().filter((j) => j.key === journalConfigId)[0] || {}).value;
   };
 
   getRecord = ({ id, attributes, noCache = false }) => {
@@ -55,13 +56,13 @@ export class JournalsApi extends RecordService {
 
     return Records.get(recordRef)
       .load(attributes)
-      .then(records => {
+      .then((records) => {
         const recordRefs = Object.values(records)
           .reduce((result, current) => result.concat(current), [])
           .map(AttributesService.parseId);
         return recordRefs;
       })
-      .catch(e => {
+      .catch((e) => {
         console.error(e);
         return [];
       });
@@ -72,7 +73,7 @@ export class JournalsApi extends RecordService {
     return this.mutate({ record: { id, attributes } }).catch(() => null);
   };
 
-  getDashletConfig = id => {
+  getDashletConfig = (id) => {
     return this.getJson(`${CITECK_URI}dashlet/config?key=${id}`).catch(() => null);
   };
 
@@ -82,9 +83,9 @@ export class JournalsApi extends RecordService {
 
   getPreviewUrl = DocPreviewApi.getPreviewLinkByRecord;
 
-  getStatus = nodeRef => {
+  getStatus = (nodeRef) => {
     return this.getJson(`${PROXY_URI}api/internal/downloads/${nodeRef.replace(':/', '')}/status`)
-      .then(status => {
+      .then((status) => {
         if (status.status !== 'DONE') {
           return debounce(this.getStatus, 500)(nodeRef);
         }
@@ -94,7 +95,7 @@ export class JournalsApi extends RecordService {
       .catch(() => null);
   };
 
-  deleteDownloadsProgress = nodeRef => {
+  deleteDownloadsProgress = (nodeRef) => {
     return this.deleteJson(`${PROXY_URI}api/internal/downloads/${nodeRef.replace(':/', '')}`, true);
   };
 
@@ -106,7 +107,7 @@ export class JournalsApi extends RecordService {
    * @returns {*}
    * @todo move to Journals/service
    */
-  checkRowEditRules = recordRef => {
+  checkRowEditRules = (recordRef) => {
     return Records.get(recordRef)
       .load(PERMISSION_WRITE_ATTR)
       .catch(() => null);
@@ -136,7 +137,7 @@ export class JournalsApi extends RecordService {
   getTreeGridData = () => {
     const dataSource = new TreeDataSource();
 
-    return dataSource.load().then(function({ data, total }) {
+    return dataSource.load().then(function ({ data, total }) {
       const columns = dataSource.getColumns();
       return { data, total, columns, isTree: true };
     });
@@ -147,13 +148,13 @@ export class JournalsApi extends RecordService {
       return;
     }
 
-    const attributes = countFields.map(field => `sum(${field})`);
+    const attributes = countFields.map((field) => `sum(${field})`);
     const sourceId = journalType.replace('type@', '');
 
     return Records.queryOne({ sourceId, query, language: 'predicate', groupBy: ['*'] }, attributes);
   };
 
-  getImportDataConfig = journalType => {
-    return Records.get(journalType).load('aspectById.import-data-config.config.variants[]?json');
+  getJournalTypeRef = (journalId) => {
+    return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load('typeRef?str');
   };
 }
