@@ -409,5 +409,7 @@
 }
 
 .ecos-dashboard-settings__drag-container_col.ecos-dnd__droppable_row {
-  padding: 10px 0 0 10px;
+  padding-inline: 10px;
+  align-content: center;
+  gap: 10px;
 }
