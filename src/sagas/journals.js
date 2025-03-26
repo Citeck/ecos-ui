@@ -72,8 +72,7 @@ import {
   cancelReloadGrid,
   cancelLoadGrid,
   cancelInitJournal,
-  cancelGoToPageJournal,
-  setImportDataConfig
+  cancelGoToPageJournal
 } from '../actions/journals';
 import {
   selectGridPaginationMaxItems,
