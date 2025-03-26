@@ -1,27 +1,28 @@
-import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
 import get from 'lodash/get';
-import isEmpty from 'lodash/isEmpty';
 import isBoolean from 'lodash/isBoolean';
+import isEmpty from 'lodash/isEmpty';
+import React, { useMemo, useState } from 'react';
 
-import Shape from '../../common/icons/Shape';
-import Setting from '../../common/icons/Setting';
-import ExportIcon from '../../common/icons/Export';
-import ImportIcon from '../../common/icons/Import';
-import Filter from '../../common/icons/Icon/Filter';
-import Repeat from '../../common/icons/Repeat';
 import { t } from '../../../helpers/util';
+import Export from '../../Export/Export';
 import { ParserPredicate } from '../../Filters/predicates';
-import { JournalsPresetListDropdown } from '../JournalsPresets';
+import Import from '../../Import';
 import { Search, Tooltip } from '../../common';
 import { IcoBtn } from '../../common/btns';
-import Export from '../../Export/Export';
-import GroupActions from '../GroupActions';
-import ViewTabs from '../ViewTabs';
-import Import from '../../Import';
-import CreateMenu from './CreateMenu';
+import ExportIcon from '../../common/icons/Export';
+import Filter from '../../common/icons/Icon/Filter';
+import ImportIcon from '../../common/icons/Import';
 import Menu from '../../common/icons/Menu';
+import Repeat from '../../common/icons/Repeat';
+import Setting from '../../common/icons/Setting';
+import Shape from '../../common/icons/Shape';
+import GroupActions from '../GroupActions';
+import { JournalsPresetListDropdown } from '../JournalsPresets';
+import ViewTabs from '../ViewTabs';
 import { isKanban } from '../constants';
+
+import CreateMenu from './CreateMenu';
 
 import './JournalsSettingsBar.scss';
 
@@ -231,7 +232,7 @@ const JournalsSettingsBar = ({
           </Export>
         )}
 
-        {!hideImportBtn && (
+        {!hideImportBtn && get(journalConfig, 'typeRef') && (
           <Import
             stateId={stateId}
             isViewNewJournal={isViewNewJournal}

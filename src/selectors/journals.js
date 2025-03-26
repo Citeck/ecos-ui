@@ -1,14 +1,15 @@
-import { createSelector } from 'reselect';
-import get from 'lodash/get';
-import isEqual from 'lodash/isEqual';
-import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
+import { createSelector } from 'reselect';
 
-import { defaultState, emptyJournalConfig } from '../reducers/journals';
+import { ParserPredicate } from '../components/Filters/predicates';
 import { DEFAULT_PAGINATION, isTable, JOURNAL_DASHLET_CONFIG_VERSION } from '../components/Journals/constants';
 import JournalsConverter from '../dto/journals';
-import { ParserPredicate } from '../components/Filters/predicates';
 import { beArray, getId, getTextByLocale } from '../helpers/util';
+import { defaultState, emptyJournalConfig } from '../reducers/journals';
+
 import { selectIsDocLibEnabled } from './docLib';
 import { selectIsKanbanEnabled } from './kanban';
 import { selectIsEnabledPreviewList } from './previewList';
@@ -19,8 +20,6 @@ export const selectJournalData = selectState;
 
 export const selectJournalSetting = createSelector(selectState, ownState => get(ownState, 'journalSetting', defaultState.journalSetting));
 export const selectJournalSettings = createSelector(selectState, ownState => get(ownState, 'journalSettings', []));
-
-export const selectImportDataConfig = createSelector(selectState, ownState => get(ownState, 'importDataConfig', []));
 
 export const selectJournals = createSelector(selectState, ownState => get(ownState, 'journals', []));
 
