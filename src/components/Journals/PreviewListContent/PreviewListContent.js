@@ -1,21 +1,23 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import classnames from 'classnames';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
-import classnames from 'classnames';
 import moment from 'moment';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
+import { Loader } from '../../common';
+import { Wall } from '../../common/form';
 import Clock from '../../common/icons/Clock';
 import NoData from '../../common/icons/NoData';
-import { URL } from '../../../constants';
-import { Wall } from '../../common/form';
-import { Loader } from '../../common';
-import { getLinkWithWs } from '../../../helpers/urls';
-import { selectIsViewNewJournal } from '../../../selectors/view';
-import { selectPreviewListProps } from '../../../selectors/previewList';
-import { PREVIEW_LIST_ASPECT_ATTRIBUTES } from '../../../api/previewList';
-import { stripHTML, t } from '../../../helpers/util';
+
 import defaultImage from './defaultImage.png';
+
+import { PREVIEW_LIST_ASPECT_ATTRIBUTES } from '@/api/previewList';
+import { URL } from '@/constants';
+import { getLinkWithWs } from '@/helpers/urls';
+import { stripHTML, t } from '@/helpers/util';
+import { selectPreviewListProps } from '@/selectors/previewList';
+import { selectIsViewNewJournal } from '@/selectors/view';
 
 import './PreviewListContent.scss';
 
@@ -30,7 +32,7 @@ const mapStateToProps = (state, props) => {
     gridData: get(newState, 'grid.data', []),
     isLoadingJournal: get(newState, 'loading', []),
     isViewNewJournal,
-    ...previewListProps,
+    ...previewListProps
   };
 };
 
@@ -41,7 +43,7 @@ class PreviewListContent extends Component {
     );
   }
 
-  getLinkOfId = (id) => {
+  getLinkOfId = id => {
     if (!id) {
       return null;
     }
@@ -70,12 +72,14 @@ class PreviewListContent extends Component {
           </a>
         </div>
         <div className="citeck-preview-list-content__card-info">
-          <a href={itemLink} className="citeck-preview-list-content__card-info_title">
-            {title}
-          </a>
-          <p className="citeck-preview-list-content__card-info_description" title={description}>
-            {stripHTML(description)}
-          </p>
+          <div className="citeck-preview-list-content__card-info-container">
+            <a href={itemLink} className="citeck-preview-list-content__card-info_title">
+              {title}
+            </a>
+            <p className="citeck-preview-list-content__card-info_description" title={description}>
+              {stripHTML(description)}
+            </p>
+          </div>
           <div className="citeck-preview-list-content__card-info-author">
             <div className="citeck-preview-list-content__card-info-author person">
               <span className="citeck-preview-list-content__card-info-author_text">{t('preview-list.created-by')}</span>
@@ -84,7 +88,7 @@ class PreviewListContent extends Component {
               </a>
             </div>
             <div className="citeck-preview-list-content__card-info-time">
-              <Clock width={8.57} height={8.57} />
+              <Clock width={10} height={10} />
               <span className="citeck-preview-list-content__card-info-author_text">{formattedDate}</span>
             </div>
           </div>
@@ -101,7 +105,7 @@ class PreviewListContent extends Component {
       isLoadingJournal,
       gridData,
       previewListConfig,
-      isInitiatedPreviewList = false,
+      isInitiatedPreviewList = false
     } = this.props;
 
     const isLoading = isLoadingPreviewList || isLoadingJournal || !isInitiatedPreviewList;

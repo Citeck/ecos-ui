@@ -54,7 +54,7 @@
   &__card {
     display: inline-flex;
     align-items: center;
-    gap: 28px;
+    gap: 18px;
 
     width: 100%;
     height: calc(116px + $padding-card);
@@ -80,22 +80,27 @@
       flex-direction: column;
       justify-content: space-between;
 
-      padding: 10px 0;
+      max-height: 116px;
       height: 100%;
+      width: 100%;
+
+      &-container {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
 
       &_title {
         font-size: 18px;
         font-weight: 600;
-        line-height: 23px;
         margin: 0;
-        color: $text-color-dark;
+        color: $color-black;
         text-decoration: none;
       }
 
       &_description {
         font-size: 12px;
         font-weight: 400;
-        line-height: 15px;
         margin: 0;
 
         display: -webkit-box;
@@ -111,7 +116,7 @@
         gap: 2px;
 
         > svg {
-          fill: $color-gray-6;
+          fill: $color-gray-26;
         }
 
         path {
@@ -126,10 +131,9 @@
         gap: 9px;
 
         &_text {
-          font-size: 10px;
-          font-weight: 600;
-          line-height: 20px;
-          color: $color-gray-6;
+          font-size: 12px;
+          font-weight: 400;
+          color: $color-gray-26;
 
           &.link {
             text-decoration: none;
