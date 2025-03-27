@@ -34,7 +34,7 @@ export const IS_TEST_ENV = process.env.NODE_ENV === 'test';
 export function setCookie(name, value, options = {}) {
   options = {
     path: '/',
-    ...options,
+    ...options
   };
 
   if (options.expires && options.expires.toUTCString) {
@@ -54,9 +54,9 @@ export function setCookie(name, value, options = {}) {
   document.cookie = updatedCookie;
 }
 
-export const utcAsLocal = (jsonDate) => moment(jsonDate).utcOffset(0).format(UTC_AS_LOCAL_FORMAT);
+export const utcAsLocal = jsonDate => moment(jsonDate).utcOffset(0).format(UTC_AS_LOCAL_FORMAT);
 
-export const revokeUtcAsLocal = (jsonDate) => moment(jsonDate).format(UTC_AS_LOCAL_FORMAT) + 'Z';
+export const revokeUtcAsLocal = jsonDate => moment(jsonDate).format(UTC_AS_LOCAL_FORMAT) + 'Z';
 
 /**
  * @deprecated use lodash/debounce
@@ -74,16 +74,16 @@ export const debounce = (func, ms = 0) => {
     timer = setTimeout(() => {
       let result = func(...args);
 
-      resolves.forEach((r) => r(result));
+      resolves.forEach(r => r(result));
 
       resolves = [];
     }, ms);
 
-    return new Promise((r) => resolves.push(r));
+    return new Promise(r => resolves.push(r));
   };
 };
 
-export const getBool = (val) => (val === 'false' ? false : val === 'true' ? true : val);
+export const getBool = val => (val === 'false' ? false : val === 'true' ? true : val);
 
 /**
  * @deprecated use Element.closest()
@@ -134,9 +134,9 @@ export function getSelectedValue(source, field, value, selectedField) {
     return;
   }
 
-  const selected = source.filter((option) => option[field] === value);
+  const selected = source.filter(option => option[field] === value);
 
-  return isEmpty(selectedField) ? selected : selected.map((item) => item[selectedField]);
+  return isEmpty(selectedField) ? selected : selected.map(item => item[selectedField]);
 }
 
 /**
@@ -189,10 +189,10 @@ export function isMobileDevice() {
   return (
     ecosMobileAppRegex.test(ua) ||
     /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(
-      ua,
+      ua
     ) ||
     /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw-(n|u)|c55\/|capi|ccwa|cdm-|cell|chtm|cldc|cmd-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc-s|devi|dica|dmob|do(c|p)o|ds(12|-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(-|_)|g1 u|g560|gene|gf-5|g-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd-(m|p|t)|hei-|hi(pt|ta)|hp( i|ip)|hs-c|ht(c(-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i-(20|go|ma)|i230|iac( |-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|-[a-w])|libw|lynx|m1-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|-([1-8]|c))|phil|pire|pl(ay|uc)|pn-2|po(ck|rt|se)|prox|psio|pt-g|qa-a|qc(07|12|21|32|60|-[2-7]|i-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h-|oo|p-)|sdk\/|se(c(-|0|1)|47|mc|nd|ri)|sgh-|shar|sie(-|m)|sk-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h-|v-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl-|tdg-|tel(i|m)|tim-|t-mo|to(pl|sh)|ts(70|m-|m3|m5)|tx-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas-|your|zeto|zte-/i.test(
-      ua.substr(0, 4),
+      ua.substr(0, 4)
     )
   );
 }
@@ -201,6 +201,18 @@ export function isMobileAppWebView() {
   return navigator.userAgent === MOBILE_APP_USER_AGENT;
 }
 
+export const isEqualLexicalValue = (html1, html2) => {
+  if (!html1 || !html2) {
+    return html1 === html2;
+  }
+
+  function cleanHtml(html) {
+    return html?.replaceAll('dir="ltr"', '').replaceAll(' >', '>').trim();
+  }
+
+  return cleanHtml(html1) === cleanHtml(html2);
+};
+
 export function getTextByLocale(data, locale = getCurrentLocale()) {
   if (isEmpty(data)) {
     return '';
@@ -208,7 +220,7 @@ export function getTextByLocale(data, locale = getCurrentLocale()) {
 
   if (typeof data === 'object') {
     if (Array.isArray(data)) {
-      return data.map((item) => getTextByLocale(item, locale));
+      return data.map(item => getTextByLocale(item, locale));
     }
 
     let text = data[locale];
@@ -219,7 +231,7 @@ export function getTextByLocale(data, locale = getCurrentLocale()) {
 
       // get first translation, if for 'en' locale not found
       if (!text) {
-        const firstNotEmpty = Object.keys(data).find((key) => !isEmpty(data[key]));
+        const firstNotEmpty = Object.keys(data).find(key => !isEmpty(data[key]));
 
         text = data[firstNotEmpty] || '';
       }
@@ -290,7 +302,7 @@ export function getRelativeTime(from, to) {
   if (!(from instanceof Date)) {
     return {
       relative: originalFrom,
-      formatted: originalFrom,
+      formatted: originalFrom
     };
   }
 
@@ -314,7 +326,7 @@ export function getRelativeTime(from, to) {
 
     return {
       relative: t(...args),
-      formatted,
+      formatted
     };
   };
 
@@ -425,7 +437,7 @@ export function getScaleModes() {
     { id: '150', title: '150%', scale: 1.5 },
     { id: '200', title: '200%', scale: 2 },
     { id: '300', title: '300%', scale: 3 },
-    { id: '400', title: '400%', scale: 4 },
+    { id: '400', title: '400%', scale: 4 }
   ];
 }
 
@@ -445,7 +457,7 @@ export function getScale(scale, paramsContainer, paramsPage, ratioAuto = 50) {
     return +Number(c / so).toFixed(2);
   };
 
-  const fit = (ratio) => {
+  const fit = ratio => {
     if (Math.min(cH, cW) === cH) {
       return calcScale(cH + ratio, origH);
     }
@@ -495,7 +507,7 @@ export function getEnabledNewJournal() {
   return lodashGet(window, 'Citeck.constants.NEW_JOURNAL_ENABLED', false);
 }
 
-export const isSmallMode = (width) => width <= MIN_WIDTH_DASHLET_LARGE;
+export const isSmallMode = width => width <= MIN_WIDTH_DASHLET_LARGE;
 
 export function isExistIndex(idx) {
   return !(idx === null || idx === undefined || idx === -1);
@@ -549,8 +561,8 @@ export function arrayCompare(arr1 = [], arr2 = [], byField = '') {
   }
 
   return isEqual(
-    arr1.map((item) => item[byField]),
-    arr2.map((item) => item[byField]),
+    arr1.map(item => item[byField]),
+    arr2.map(item => item[byField])
   );
 }
 
@@ -643,10 +655,10 @@ export function getAdaptiveNumberStr(number) {
 
 export function removeItemFromArray(array = [], item = '', byKey = '') {
   if (byKey) {
-    return array.filter((elem) => elem[byKey] !== item[byKey]);
+    return array.filter(elem => elem[byKey] !== item[byKey]);
   }
 
-  return array.filter((elem) => elem !== item);
+  return array.filter(elem => elem !== item);
 }
 
 export function isNodeRef(str) {
@@ -708,7 +720,7 @@ export function animateScrollTo(element = '', scrollTo = {}, delay = 0) {
   }
 
   if (element.length) {
-    element.forEach((item) => animateScrollTo(item, scrollTo, delay));
+    element.forEach(item => animateScrollTo(item, scrollTo, delay));
     return;
   }
 
@@ -717,20 +729,20 @@ export function animateScrollTo(element = '', scrollTo = {}, delay = 0) {
   if (scrollLeft !== undefined) {
     element.scrollTo({
       left: scrollLeft,
-      behavior: 'smooth',
+      behavior: 'smooth'
     });
   }
 
   if (scrollTop !== undefined) {
     element.scrollTo({
       top: scrollTop,
-      behavior: 'smooth',
+      behavior: 'smooth'
     });
   }
 }
 
 export function hasChildWithId(items = [], selectedId) {
-  let childIndex = items.findIndex((item) => item.id === selectedId);
+  let childIndex = items.findIndex(item => item.id === selectedId);
 
   if (childIndex !== -1) {
     return true;
@@ -790,7 +802,7 @@ export function arrayFlat({ data = [], depth = Infinity, byField = '', withParen
     return array.flat(depth);
   }
 
-  const getChildren = (child) => {
+  const getChildren = child => {
     const childItems = lodashGet(child, byField);
 
     if (isEmpty(childItems) || !Array.isArray(childItems)) {
@@ -816,22 +828,22 @@ export function objectCompare(obj1, obj2, params = {}) {
   let keys = [...new Set([...Object.keys(obj1), ...Object.keys(obj2)])];
 
   if (include.length) {
-    keys = keys.filter((key) => include.includes(key));
+    keys = keys.filter(key => include.includes(key));
   }
 
   if (exclude.length) {
-    keys = keys.filter((key) => !exclude.includes(key));
+    keys = keys.filter(key => !exclude.includes(key));
   }
 
   const filteredFirst = Object.keys(obj1)
-    .filter((key) => keys.includes(key))
+    .filter(key => keys.includes(key))
     .reduce((obj, key) => {
       obj[key] = obj1[key];
 
       return obj;
     }, {});
   const filteredSecond = Object.keys(obj2)
-    .filter((key) => keys.includes(key))
+    .filter(key => keys.includes(key))
     .reduce((obj, key) => {
       obj[key] = obj2[key];
 
@@ -873,7 +885,7 @@ export function packInLabel(text = '') {
   if (isString(text)) {
     return {
       [LOCALE_EN]: text,
-      [getCurrentLocale()]: text,
+      [getCurrentLocale()]: text
     };
   }
 
@@ -881,11 +893,11 @@ export function packInLabel(text = '') {
 }
 
 export function isFilledLabelWeak(label) {
-  return typeof label === 'string' ? !!label.trim() : label && Object.values(label).some((val) => !!val);
+  return typeof label === 'string' ? !!label.trim() : label && Object.values(label).some(val => !!val);
 }
 
 export function isFilledLabelStrict(label) {
-  return typeof label === 'string' ? !!label.trim() : label && Object.values(label).every((val) => !!val);
+  return typeof label === 'string' ? !!label.trim() : label && Object.values(label).every(val => !!val);
 }
 
 export function getTimezoneValue() {
@@ -965,7 +977,7 @@ export function trimFields(source) {
     return target;
   }
 
-  keys.forEach((key) => {
+  keys.forEach(key => {
     switch (typeof source[key]) {
       case 'string': {
         target[key] = source[key].trim();
@@ -1043,7 +1055,7 @@ export function reverseString(str = '') {
 export function getNumberSeparators(locale = getCurrentLocale()) {
   const result = {
     decimal: '.',
-    thousand: '',
+    thousand: ''
   };
   const str = parseFloat('1234.56').toLocaleString(locale);
 
@@ -1122,11 +1134,11 @@ export function getModule(srcModule) {
   return new Promise((resolve, reject) => {
     window.require(
       [srcModule],
-      (module) => resolve(module),
-      (error) => {
+      module => resolve(module),
+      error => {
         console.error(error);
         reject(error);
-      },
+      }
     );
   });
 }
@@ -1164,13 +1176,13 @@ export function getDOMElementMeasurer(element) {
   const LG = 992;
   const XL = 1200;
 
-  const xxxs = (w) => w < XXS;
-  const xxs = (w) => w >= XXS && w < XS;
-  const xs = (w) => w >= XS && w < SM;
-  const sm = (w) => w >= SM && w < MD;
-  const md = (w) => w >= MD && w < LG;
-  const lg = (w) => w >= LG && w < XL;
-  const xl = (w) => w >= XL;
+  const xxxs = w => w < XXS;
+  const xxs = w => w >= XXS && w < XS;
+  const xs = w => w >= XS && w < SM;
+  const sm = w => w >= SM && w < MD;
+  const md = w => w >= MD && w < LG;
+  const lg = w => w >= LG && w < XL;
+  const xl = w => w >= XL;
 
   const width = element.offsetWidth;
   const measurer = {};
@@ -1204,7 +1216,7 @@ export function beArray(data) {
  * @returns {*} first found by condition
  */
 export function getFirstNotNil(...array) {
-  return array.find((val) => !isNil(val));
+  return array.find(val => !isNil(val));
 }
 
 /**
@@ -1298,7 +1310,7 @@ export function normalize(source, byField) {
   }
 
   const arr = cloneDeep(source);
-  const median = getMedian(byField ? arr.map((i) => i[byField]) : arr);
+  const median = getMedian(byField ? arr.map(i => i[byField]) : arr);
   const distribution = 0.5;
   const minValue = median * (1 - distribution);
   const maxValue = median * (1 + distribution);
@@ -1336,7 +1348,7 @@ export function getMonthPeriodByDate(date) {
 
   return {
     start: monthDay,
-    end: monthDay + 100,
+    end: monthDay + 100
   };
 }
 
@@ -1349,7 +1361,7 @@ export function getMonthPeriodByDate(date) {
  */
 export function permute(arr = []) {
   if (arr.length <= 1) return [arr];
-  return arr.reduce((acc, item, i) => acc.concat(permute([...arr.slice(0, i), ...arr.slice(i + 1)]).map((val) => [item, ...val])), []);
+  return arr.reduce((acc, item, i) => acc.concat(permute([...arr.slice(0, i), ...arr.slice(i + 1)]).map(val => [item, ...val])), []);
 }
 
 /**
@@ -1361,7 +1373,7 @@ export function permute(arr = []) {
  */
 export function camelize(s = '') {
   if (isString(s)) {
-    return s.replace(/-./g, (x) => x[1].toUpperCase());
+    return s.replace(/-./g, x => x[1].toUpperCase());
   }
 
   return s;

@@ -17,7 +17,7 @@ import Widgets from '../../../widgets';
 
 import { FORM_MODE_CREATE } from '@/components/EcosForm/constants';
 import { t } from '@/helpers/export/util';
-import { getCurrentLocale, getMLValue, getTextByLocale } from '@/helpers/util';
+import { getCurrentLocale, getMLValue, getTextByLocale, isEqualLexicalValue } from '@/helpers/util';
 import ZIndex from '@/services/ZIndex';
 
 // >>> Methods
@@ -106,8 +106,11 @@ Base.prototype.onChange = function (flags, fromRoot) {
   const isCreateMode = get(this.options, 'formMode') === FORM_MODE_CREATE;
 
   if (get(flags, 'modified') || get(flags, 'skipReactWrapperUpdating')) {
-    this.valueChangedByUser =
-      (!isCreateMode && !this.customIsEqual(this.dataValue, this.calculatedValue)) || (isCreateMode && !this.isEmptyValue(this.dataValue));
+    const isEqualValues = this.isLexicalEditor
+      ? isEqualLexicalValue(this.dataValue, this.calculatedValue)
+      : this.customIsEqual(this.dataValue, this.calculatedValue);
+
+    this.valueChangedByUser = (!isCreateMode && !isEqualValues) || (isCreateMode && !this.isEmptyValue(this.dataValue));
   }
 
   if (get(flags, 'changeByUser')) {

@@ -25,12 +25,12 @@ import type {
   NodeKey,
   SerializedEditor,
   SerializedLexicalNode,
-  Spread,
+  Spread
 } from 'lexical';
 
 const ImageComponent = React.lazy(
   // @ts-ignore
-  () => import('./ImageComponent'),
+  () => import('./ImageComponent')
 );
 export interface ImagePayload {
   altText: string;
@@ -100,7 +100,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
       node.__caption,
       node.__captionsEnabled,
       node.__key,
-      node.__file,
+      node.__file
     );
   }
 
@@ -112,7 +112,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
       maxWidth,
       showCaption,
       src,
-      width,
+      width
     });
     const nestedEditor = node.__caption;
     const editorState = nestedEditor.parseEditorState(caption.editorState);
@@ -126,7 +126,8 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     const className = genClassName(editor._config.theme);
     const element = document.createElement('img');
     element.className = className;
-    element.setAttribute('src', this.__src);
+
+    element.setAttribute('src', this.__src?.replace(window.location.origin, ''));
     element.setAttribute('alt', this.__altText);
     element.setAttribute('width', this.__width.toString());
     element.setAttribute('height', this.__height.toString());
@@ -137,8 +138,8 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     return {
       img: (node: Node) => ({
         conversion: convertImageElement,
-        priority: 0,
-      }),
+        priority: 0
+      })
     };
   }
 
@@ -152,7 +153,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     caption?: LexicalEditor,
     captionsEnabled?: boolean,
     key?: NodeKey,
-    file?: File,
+    file?: File
   ) {
     super(key);
     this.__src = src;
@@ -176,7 +177,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
       src: this.getSrc(),
       type: 'image',
       version: 1,
-      width: this.__width === 'inherit' ? 0 : this.__width,
+      width: this.__width === 'inherit' ? 0 : this.__width
     };
   }
 
@@ -259,7 +260,7 @@ export function $createImageNode({
   showCaption,
   caption,
   key,
-  file,
+  file
 }: ImagePayload): ImageNode {
   return $applyNodeReplacement(new ImageNode(src, altText, maxWidth, width, height, showCaption, caption, captionsEnabled, key, file));
 }

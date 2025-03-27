@@ -226,6 +226,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
             onChange={onChange}
             htmlString={this.dataValue || ''}
             onEditorReady={editor => {
+              this.calculatedValue = this.dataValue;
               this.editor = editor;
               this.editorReadyResolve(editor);
             }}
