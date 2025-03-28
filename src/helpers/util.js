@@ -19,6 +19,7 @@ import { getCurrentLocale, t } from './export/util';
 export { getCookie, getCurrentLocale, t } from './export/util';
 
 import { allowedModes } from '@/constants/index.js';
+import ESMRequire from '@/services/ESMRequire';
 
 const UTC_AS_LOCAL_FORMAT = 'YYYY-MM-DDTHH:mm:ss';
 
@@ -1132,7 +1133,7 @@ export function copyToClipboard(text) {
 
 export function getModule(srcModule) {
   return new Promise((resolve, reject) => {
-    window.require(
+    ESMRequire.require(
       [srcModule],
       module => resolve(module),
       error => {

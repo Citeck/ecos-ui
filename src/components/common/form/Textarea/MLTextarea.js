@@ -1,12 +1,15 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import AceEditor from 'react-ace';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import PropTypes from 'prop-types';
+import React from 'react';
+import AceEditor from 'react-ace';
+
+import BaseMLField from '../BaseMLField';
 
 import Textarea from './Textarea';
-import BaseMLField from '../BaseMLField';
-import { getHtmlIdByUid } from '../../../../helpers/util';
+
+import { getHtmlIdByUid } from '@/helpers/util';
+import ESMRequire from '@/services/ESMRequire';
 
 import './Textarea.scss';
 
@@ -63,7 +66,7 @@ class MlTextarea extends BaseMLField {
   }
 
   loadEditor() {
-    window.require(
+    ESMRequire.require(
       [
         `/js/lib/ace/1.4.1/mode-${this.props.editorLang}.js`,
         '/js/lib/ace/1.4.1/ext-language_tools.js',
