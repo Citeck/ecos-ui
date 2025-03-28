@@ -55,7 +55,6 @@ import {
   setGrid,
   setGridInlineToolSettings,
   setGrouping,
-  setImportDataConfig,
   setJournalConfig,
   setJournalExistStatus,
   setJournalExpandableProp,
@@ -87,17 +86,15 @@ import JournalsService, { EditorService, PresetsServiceApi } from '../components
 import Records from '../components/Records';
 import ActionsRegistry from '../components/Records/actions/actionsRegistry';
 import { ActionTypes } from '../components/Records/actions/constants';
-import { emptyJournalConfig, initialStateGrouping } from '../reducers/journals';
-import { selectKanban } from '../selectors/kanban';
-import PageService from '../services/PageService';
 import { PREDICATE_EQ } from '../components/Records/predicates/predicates';
 import { convertAttributeValues } from '../components/Records/predicates/util';
-import JournalsConverter from '../dto/journals';
 import { JournalUrlParams, SourcesId } from '../constants';
 import { GROUPING_COUNT_ALL } from '../constants/journal';
+import JournalsConverter from '../dto/journals';
 import { wrapArgs, wrapSaga } from '../helpers/redux';
 import { decodeLink, getFilterParam, getSearchParams, getUrlWithoutOrigin, removeUrlSearchParams } from '../helpers/urls';
 import { beArray, hasInString, isNodeRef, t } from '../helpers/util';
+import { emptyJournalConfig, initialStateGrouping } from '../reducers/journals';
 import {
   selectGridPaginationMaxItems,
   selectJournalConfig,
@@ -108,7 +105,9 @@ import {
   selectUrl,
   selectViewMode
 } from '../selectors/journals';
+import { selectKanban } from '../selectors/kanban';
 import { selectIsViewNewJournal } from '../selectors/view';
+import PageService from '../services/PageService';
 
 import { NotificationManager } from '@/services/notifications';
 
