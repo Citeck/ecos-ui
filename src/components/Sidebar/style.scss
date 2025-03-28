@@ -118,6 +118,32 @@ $transition-duration: 0.3s;
     border-top: 2px solid #e8edef;
     cursor: pointer;
 
+    &__menu_btn {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+
+      width: 46px;
+      height: 46px;
+
+      z-index: 1001;
+
+      border: none;
+      outline: none;
+      border-radius: 50%;
+      background-color: $color-blue-light;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover,
+      &:focus,
+      &:active {
+        background-color: $color-blue-dark;
+      }
+    }
+
     &:hover {
       background: $color-gray-25;
     }

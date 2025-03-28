@@ -12,6 +12,7 @@ import SidebarToggle from '../common/icons/SidebarToggle';
 
 import List from './List';
 import Logo from './Logo';
+import MobileMenuBtn from './MobileMenuBtn';
 
 import {
   collapseAllItems,
@@ -19,7 +20,7 @@ import {
   getSiteDashboardEnable,
   setExpandableItems,
   setInitialSelectedId,
-  toggleIsOpen,
+  toggleIsOpen
 } from '@/actions/slideMenu';
 import { SourcesId, URL as Urls } from '@/constants';
 import { DefaultImages } from '@/constants/theme';
@@ -48,11 +49,11 @@ class Sidebar extends React.Component {
     getSiteDashboardEnable: PropTypes.func,
     setExpandableItems: PropTypes.func,
     collapseAllItems: PropTypes.func,
-    setInitialSelectedId: PropTypes.func,
+    setInitialSelectedId: PropTypes.func
   };
 
   state = {
-    fetchItems: false,
+    fetchItems: false
   };
 
   componentDidMount() {
@@ -82,7 +83,7 @@ class Sidebar extends React.Component {
     const item = document.getElementsByClassName('ecos-sidebar-item_selected')[0];
     item &&
       item.scrollIntoView({
-        block: 'center',
+        block: 'center'
       });
   };
 
@@ -137,7 +138,7 @@ class Sidebar extends React.Component {
   };
 
   render() {
-    const { isOpen, isReady, largeLogoSrc, smallLogoSrc, items, id, isViewNewJournal, workspace } = this.props;
+    const { isOpen, isReady, largeLogoSrc, smallLogoSrc, items, id, isViewNewJournal, workspace, isMobile } = this.props;
     const { homePageLink, wsId, wsName } = workspace || {};
 
     if (!isReady) {
@@ -152,6 +153,10 @@ class Sidebar extends React.Component {
 
     const workspaceHomeLink = url.toString();
 
+    if (!isOpen && isMobile) {
+      return <MobileMenuBtn openMenu={this.toggleSlideMenu} />;
+    }
+
     return (
       <div
         id={id}
@@ -160,7 +165,7 @@ class Sidebar extends React.Component {
           'ecos-sidebar_collapsed': !isOpen,
           'ecos-sidebar_new': isViewNewJournal,
           'ecos-sidebar_new_expanded': isViewNewJournal && isOpen,
-          'ecos-sidebar_new_collapsed': isViewNewJournal && !isOpen,
+          'ecos-sidebar_new_collapsed': isViewNewJournal && !isOpen
         })}
       >
         <div id={`${id}-logo`} className={classNames('ecos-sidebar-head', { 'ecos-sidebar-head_expanded': isOpen })}>
@@ -185,9 +190,9 @@ class Sidebar extends React.Component {
           style={{ height: '100%' }}
           className="ecos-sidebar-scroll"
           autoHide
-          renderTrackVertical={(props) => <div {...props} className="ecos-sidebar-scroll-v" />}
+          renderTrackVertical={props => <div {...props} className="ecos-sidebar-scroll-v" />}
           renderTrackHorizontal={() => <div hidden />}
-          renderView={(props) => <div {...props} className="ecos-sidebar-scroll-area" />}
+          renderView={props => <div {...props} className="ecos-sidebar-scroll-area" />}
         >
           <List items={items} workspace={workspace} isExpanded />
         </Scrollbars>
@@ -202,10 +207,11 @@ class Sidebar extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
   const workspaceId = getWorkspaceId();
 
   return {
+    isMobile: !!get(state, 'view.isMobile'),
     idMenu: get(state, 'menu.id', ''),
     versionMenu: get(state, 'menu.version'),
     isOpen: get(state, 'slideMenu.isOpen'),
@@ -218,17 +224,17 @@ const mapStateToProps = (state) => {
     homeLink: get(state, 'app.homeLink'),
     locationKey: get(state, 'router.location.key'),
     isViewNewJournal: selectIsViewNewJournal(state),
-    selectedId: get(state, 'slideMenu.selectedId'),
+    selectedId: get(state, 'slideMenu.selectedId')
   };
 };
 
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = dispatch => ({
   fetchSlideMenuItems: () => dispatch(fetchSlideMenuItems()),
-  toggleIsOpen: (isOpen) => dispatch(toggleIsOpen(isOpen)),
+  toggleIsOpen: isOpen => dispatch(toggleIsOpen(isOpen)),
   getSiteDashboardEnable: () => dispatch(getSiteDashboardEnable()),
-  setExpandableItems: (force) => dispatch(setExpandableItems({ force })),
+  setExpandableItems: force => dispatch(setExpandableItems({ force })),
   collapseAllItems: () => dispatch(collapseAllItems()),
-  setInitialSelectedId: () => dispatch(setInitialSelectedId()),
+  setInitialSelectedId: () => dispatch(setInitialSelectedId())
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Sidebar);
