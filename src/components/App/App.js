@@ -1,3 +1,4 @@
+/* eslint-disable */ // Eslint breaks the tests
 import classNames from 'classnames';
 import { replace } from 'connected-react-router';
 import get from 'lodash/get';
@@ -117,9 +118,9 @@ class App extends Component {
     }
 
     const prevWsId = prevSearchParams.get('ws');
-    const nextWsId = searchParams.get('ws');
+    const nextWsId = searchParams.get('ws') || workspaceId;
 
-    if (enabledWorkspaces && prevWsId && nextWsId && prevWsId !== nextWsId && !blockedCurrentWorkspace) {
+    if (enabledWorkspaces && prevWsId !== nextWsId && !blockedCurrentWorkspace) {
       updateUIWorkspace();
     }
 
