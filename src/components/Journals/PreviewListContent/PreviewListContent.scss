@@ -96,12 +96,20 @@
         margin: 0;
         color: $color-black;
         text-decoration: none;
+
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       &_description {
         font-size: 12px;
         font-weight: 400;
         margin: 0;
+
+        color: $color-black;
 
         display: -webkit-box;
         -webkit-box-orient: vertical;
