@@ -1,18 +1,19 @@
-import { lazy } from 'react';
+import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
-import isString from 'lodash/isString';
-import cloneDeep from 'lodash/cloneDeep';
 import isFunction from 'lodash/isFunction';
+import isString from 'lodash/isString';
+import { lazy } from 'react';
 import uuidV4 from 'uuid/v4';
 
-import { getCurrentLocale, t } from '../../helpers/util';
 import { CONFIG_VERSION, DashboardTypes } from '../../constants/dashboard';
+import { getCurrentLocale, t } from '../../helpers/util';
 import ConfigService, { ALFRESCO_ENABLED } from '../../services/config/ConfigService';
 import { FORM_MODE_EDIT, FORM_MODE_VIEW } from '../EcosForm';
 
 export const ComponentKeys = {
+  NEWS: 'news',
   HTML: 'html',
   PAGINATION: 'pagination',
   DOC_PREVIEW: 'doc-preview',
@@ -67,6 +68,25 @@ export default class Components {
    * @supportedDashboardTypes {Array} - types of dashboards where this widget is available. If empty - available everywhere
    */
   static components = Object.freeze({
+    [ComponentKeys.NEWS]: {
+      load: () =>
+        lazy(() =>
+          import('../../plugins').then(plugins => ({
+            default: get(plugins, 'default.NewsWidget', () => null)
+          }))
+        ),
+      checkIsAvailable: () => {
+        const workspacesEnabled = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+
+        if (!workspacesEnabled) {
+          return false;
+        }
+
+        return Boolean(get(window, 'Citeck.Plugins.NewsWidget'));
+      },
+      label: 'dashboard-settings.widget.news',
+      supportedDashboardTypes: [DashboardTypes.USER, DashboardTypes.CUSTOM]
+    },
     [ComponentKeys.DOC_PREVIEW]: {
       load: () => lazy(() => import('./DocPreview')),
       label: 'dashboard-settings.widget.preview',
@@ -336,6 +356,7 @@ export default class Components {
   });
 
   static allDashboardsComponents = [
+    ComponentKeys.NEWS,
     ComponentKeys.JOURNAL,
     ComponentKeys.WEB_PAGE,
     ComponentKeys.PUBLICATION,

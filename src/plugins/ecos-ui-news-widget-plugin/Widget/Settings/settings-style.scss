@@ -1,0 +1,200 @@
+@import "../../../../styles/constants";
+
+.ecos-charts {
+  .legend-list {
+    display: grid;
+    margin: 16px;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+  }
+
+  .legend-list-item {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    margin-left: 10px;
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  .legend-box-color {
+    display: inline-block;
+    flex-shrink: 0;
+    height: 20px;
+    margin-right: 10px;
+    width: 20px;
+  }
+
+  &-list {
+    --bg-color: #{$color-gray-7};
+    --hover-bg-color: #{darken($color-gray-7, 10%)};
+
+    display: flex;
+    flex-wrap: wrap;
+    row-gap: 5px;
+    column-gap: 5px;
+    margin: 10px 40px 10px 20px;
+
+    &__item {
+      --hover-bg-color: #{darken($color-gray-5, 10%)};
+
+      $radius: $border-radius-small;
+      $size: 40px;
+      $item: &;
+
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      min-width: 100px;
+      flex-grow: 1;
+      background: var(--bg-color);
+      height: $size;
+      cursor: default;
+      max-width: calc(50% - 5px);
+
+      &:hover {
+        background: var(--hover-bg-color);
+
+        &:after {
+          border-left-color: var(--hover-bg-color) !important;
+        }
+      }
+
+      &:not(&:last-child) {
+        &:after {
+          content: '';
+          border-top: $size*0.5 solid transparent;
+          border-bottom: $size*0.5 solid transparent;
+          border-left: $size*0.5 solid var(--bg-color);
+          position: absolute;
+          right: -$size*0.5;
+          top: 0;
+          z-index: 2;
+        }
+      }
+
+      &:not(&:first-child) {
+        &:before {
+          content: '';
+          border-top: $size*0.5 solid transparent;
+          border-bottom: $size*0.5 solid transparent;
+          border-left: $size*0.5 solid $color-white;
+          position: absolute;
+          left: 0;
+          top: 0;
+          z-index: 1;
+        }
+      }
+
+      &:first-child {
+        border-top-left-radius: $radius;
+        border-bottom-left-radius: $radius;
+        max-width: 50%;
+      }
+
+      &:last-child {
+        border-top-right-radius: $radius;
+        border-bottom-right-radius: $radius;
+        margin-right: -$size*0.5;
+        padding-right: $size*0.25;
+        max-width: calc(100% + #{$size*0.5});
+      }
+
+      &-icon.icon {
+        color: darken($color-white, 5%);
+
+        &:hover {
+          color: $color-white;
+        }
+      }
+
+      &-popup {
+        padding: 10px 5px;
+      }
+
+      &_active {
+        --bg-color: #{$color-blue-light};
+        --hover-bg-color: #{darken($color-blue-light, 10%)};
+      }
+
+      &-content {
+        color: $color-white;
+        margin-left: $size * 3*0.25;
+        margin-right: $size*0.5;
+
+        display: flex;
+        align-items: center;
+        column-gap: 5px;
+      }
+    }
+  }
+
+  &-settings {
+    padding: 20px 20px 0;
+
+    .ecos-field {
+      &__label {
+        &_required:after {
+          position: relative;
+          margin-left: 5px;
+        }
+      }
+    }
+
+    &__select {
+      min-width: 160px;
+      width: 200px;
+    }
+
+    &__label {
+      font-size: $font-size-large;
+      font-weight: $font-weight-semi-bold;
+      margin-bottom: 20px;
+    }
+
+    &__percent-options {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    &__buttons {
+      margin-top: 10px;
+    }
+
+    &__title {
+      margin-bottom: 20px;
+
+      &.ecos-caption_small {
+        color: $text-color-gray;
+      }
+    }
+    
+    &__dropdown {
+      &-menu {
+        & .selected {
+          font-weight: $font-weight-bold;
+          pointer-events: none;
+        }
+      }
+    }
+
+    &__validate-message {
+      padding: 0;
+      padding-top: 10px;
+      justify-content: flex-start;
+    }
+
+    button.ecos-btn.widget-dropdown {
+      width: 100%;
+      background: #ffffff;
+      border: 2px solid #d0d0d0;
+      border-radius: 5px;
+      font-family: "Open Sans", sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      color: #444444;
+    }
+  }
+}
