@@ -1,21 +1,16 @@
-import React from 'react';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
-
-import { selectCommonJournalPageProps, selectJournalPageProps } from '../../../selectors/journals';
-import { wrapArgs } from '../../../helpers/redux';
-import { CLASSNAME_JOURNAL_BODY_TOP, isPreviewList } from '../constants';
-import { JournalUrlParams as JUP, KanbanUrlParams as KUP, SourcesId } from '../../../constants';
-import { getTextByLocale } from '../../../helpers/util';
-import Bar from '../CommonBar';
-import { selectKanbanPageProps } from '../../../selectors/kanban';
-import { selectIsViewNewJournal } from '../../../selectors/view';
-import { getSearchParams } from '../../../helpers/urls';
-import isEqualWith from 'lodash/isEqualWith';
-import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
-import { getBoardData } from '../../../actions/kanban';
+import isEqual from 'lodash/isEqual';
+import isEqualWith from 'lodash/isEqualWith';
+import React from 'react';
+import { connect } from 'react-redux';
+
+import Bar from '../CommonBar';
+import JournalsDashletPagination from '../JournalsDashletPagination/JournalsDashletPagination';
+import PreviewListContent from '../PreviewListContent';
+import { CLASSNAME_JOURNAL_BODY_TOP, isPreviewList } from '../constants';
+
 import {
   applyJournalSetting,
   createJournalSetting,
@@ -32,11 +27,17 @@ import {
   setSelectAllPageRecords,
   setSelectedRecords,
   setUrl
-} from '../../../actions/journals';
-import JournalsDashletPagination from '../JournalsDashletPagination/JournalsDashletPagination';
-import PreviewListContent from '../PreviewListContent';
-import { initPreviewList } from '../../../actions/previewList';
-import { selectPreviewListProps } from '../../../selectors/previewList';
+} from '@/actions/journals';
+import { getBoardData } from '@/actions/kanban';
+import { initPreviewList } from '@/actions/previewList';
+import { JournalUrlParams as JUP, KanbanUrlParams as KUP, SourcesId } from '@/constants';
+import { wrapArgs } from '@/helpers/redux';
+import { getSearchParams } from '@/helpers/urls';
+import { getTextByLocale } from '@/helpers/util';
+import { selectCommonJournalPageProps, selectJournalPageProps } from '@/selectors/journals';
+import { selectKanbanPageProps } from '@/selectors/kanban';
+import { selectPreviewListProps } from '@/selectors/previewList';
+import { selectIsViewNewJournal } from '@/selectors/view';
 
 const mapStateToProps = (state, props) => {
   const commonProps = selectCommonJournalPageProps(state, props.stateId);
@@ -233,7 +234,4 @@ class PreviewListView extends React.Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(PreviewListView);
+export default connect(mapStateToProps, mapDispatchToProps)(PreviewListView);

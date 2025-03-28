@@ -1,6 +1,7 @@
 import get from 'lodash/get';
-import { initialState } from '../reducers/previewList';
 import { createSelector } from 'reselect';
+
+import { initialState } from '@/reducers/previewList';
 
 const prefix = 'previewList';
 

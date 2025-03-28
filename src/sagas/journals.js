@@ -109,6 +109,7 @@ import { selectKanban } from '../selectors/kanban';
 import { selectIsViewNewJournal } from '../selectors/view';
 import PageService from '../services/PageService';
 
+import { selectPreviewListConfig } from '@/selectors/previewList.js';
 import { NotificationManager } from '@/services/notifications';
 
 const attsForListView = {
@@ -628,9 +629,26 @@ export function* getGridData(api, params, stateId) {
   const w = wrapArgs(stateId);
   yield put(setLoadingGrid(w(true)));
   const { recordRef, journalConfig, journalSetting } = yield select(selectJournalData, stateId);
+  const previewListConfig = yield select(selectPreviewListConfig, stateId);
   const config = yield select(state => selectNewVersionDashletConfig(state, stateId));
   const onlyLinked = get(config, 'onlyLinked');
-  const attrsToLoad = get(config, 'attrsToLoad');
+  let attrsToLoad = get(config, 'attrsToLoad');
+
+  // If you remove this, then PreviewListView will not work with redefined columns!
+  if (previewListConfig) {
+    const attrsPreviewList = Object.values(previewListConfig);
+    if (isArray(get(journalConfig, 'configData.attributesToLoad'))) {
+      journalConfig.configData.attributesToLoad = [...journalConfig.configData.attributesToLoad, ...attrsPreviewList];
+    } else {
+      journalConfig.configData.attributesToLoad = [...attrsPreviewList];
+    }
+
+    if (isArray(attrsToLoad)) {
+      attrsToLoad = [...attrsToLoad, ...attrsPreviewList];
+    } else {
+      attrsToLoad = [...attrsPreviewList];
+    }
+  }
 
   const { pagination: _pagination, predicates: _predicates, searchPredicate, fromGroupBy = false, grouping, ...forRequest } = params;
   const predicateRecords = yield call(api.journals.fetchLinkedRefs, recordRef, attrsToLoad);

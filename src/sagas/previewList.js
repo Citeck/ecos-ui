@@ -1,15 +1,15 @@
 import isEmpty from 'lodash/isEmpty';
+import { takeLatest, put, select, call } from 'redux-saga/effects';
 
 import {
   initPreviewList,
   setInitiatedPreviewList,
   setIsEnabledPreviewList,
   setLoadingPreviewList,
-  setPreviewListConfig,
-} from '../actions/previewList';
-import { takeLatest, put, select, call } from 'redux-saga/effects';
-import { wrapArgs } from '../helpers/redux';
-import { selectUrl } from '../selectors/journals';
+  setPreviewListConfig
+} from '@/actions/previewList';
+import { wrapArgs } from '@/helpers/redux';
+import { selectUrl } from '@/selectors/journals';
 
 function* sagaInitPreviewList({ api }, action) {
   const { stateId } = action.payload || {};
