@@ -1,4 +1,4 @@
-@import "../../../../styles/constants";
+@import '../../../../styles/constants';
 
 .ecos-charts {
   .legend-list {
@@ -64,11 +64,11 @@
       &:not(&:last-child) {
         &:after {
           content: '';
-          border-top: $size*0.5 solid transparent;
-          border-bottom: $size*0.5 solid transparent;
-          border-left: $size*0.5 solid var(--bg-color);
+          border-top: $size * 0.5 solid transparent;
+          border-bottom: $size * 0.5 solid transparent;
+          border-left: $size * 0.5 solid var(--bg-color);
           position: absolute;
-          right: -$size*0.5;
+          right: -$size * 0.5;
           top: 0;
           z-index: 2;
         }
@@ -77,9 +77,9 @@
       &:not(&:first-child) {
         &:before {
           content: '';
-          border-top: $size*0.5 solid transparent;
-          border-bottom: $size*0.5 solid transparent;
-          border-left: $size*0.5 solid $color-white;
+          border-top: $size * 0.5 solid transparent;
+          border-bottom: $size * 0.5 solid transparent;
+          border-left: $size * 0.5 solid $color-white;
           position: absolute;
           left: 0;
           top: 0;
@@ -96,9 +96,9 @@
       &:last-child {
         border-top-right-radius: $radius;
         border-bottom-right-radius: $radius;
-        margin-right: -$size*0.5;
-        padding-right: $size*0.25;
-        max-width: calc(100% + #{$size*0.5});
+        margin-right: -$size * 0.5;
+        padding-right: $size * 0.25;
+        max-width: calc(100% + #{$size * 0.5});
       }
 
       &-icon.icon {
@@ -120,8 +120,8 @@
 
       &-content {
         color: $color-white;
-        margin-left: $size * 3*0.25;
-        margin-right: $size*0.5;
+        margin-left: $size * 3 * 0.25;
+        margin-right: $size * 0.5;
 
         display: flex;
         align-items: center;
@@ -134,11 +134,22 @@
     padding: 20px 20px 0;
 
     .ecos-field {
+      display: flex;
+      flex-direction: column;
       &__label {
         &_required:after {
           position: relative;
           margin-left: 5px;
         }
+      }
+
+      & .assoc-container {
+        display: flex;
+        min-width: 0;
+        flex-grow: 1;
+      }
+      &__control {
+        min-width: 100%;
       }
     }
 
@@ -161,6 +172,16 @@
 
     &__buttons {
       margin-top: 10px;
+      display: flex;
+      margin-top: 10px;
+      flex-direction: row;
+      justify-self: right;
+      gap: 8px;
+      flex-wrap: wrap;
+      & > button {
+        flex-grow: 1;
+        margin: 0 !important;
+      }
     }
 
     &__title {
@@ -170,7 +191,6 @@
         color: $text-color-gray;
       }
     }
-    
     &__dropdown {
       &-menu {
         & .selected {
@@ -191,7 +211,7 @@
       background: #ffffff;
       border: 2px solid #d0d0d0;
       border-radius: 5px;
-      font-family: "Open Sans", sans-serif;
+      font-family: 'Open Sans', sans-serif;
       font-weight: 600;
       font-size: 14px;
       color: #444444;
