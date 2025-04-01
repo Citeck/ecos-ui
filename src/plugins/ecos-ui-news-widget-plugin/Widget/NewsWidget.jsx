@@ -85,7 +85,7 @@ class NewsWidget extends BaseWidget {
       date: '_created|fmt("dd MMMM yyyy")',
       image: 'image.url'
     };
-    const ecosTypeForRequest = typeIdFromSettings || typeId.split('@')[1];
+    const ecosTypeForRequest = typeIdFromSettings || typeId?.split('@')[1] || 'company-news';
 
     this.handleCancelSettings();
     Records.query({ ecosType: ecosTypeForRequest, language: 'predicate', query: {} }, attributes).then(res => {
@@ -131,8 +131,12 @@ class NewsWidget extends BaseWidget {
 
     const newConfig = { ...config, [this.state.recordRef]: { ...configFromRecordRef, ...configToSave } };
 
-    this.fetchNews(configToSave.typeId.split('@')[1]);
-    isFunction(onSave) && onSave(id, { config: newConfig }, this.handleCancelSettings);
+    if (configToSave.typeId) {
+      this.setState({ isLoading: true });
+      this.fetchNews(configToSave.typeId.split('@')[1]);
+      isFunction(onSave) && onSave(id, { config: newConfig }, this.handleCancelSettings);
+    }
+    this.handleCancelSettings();
   };
 
   formatDateRu(dateStr) {
