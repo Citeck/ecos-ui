@@ -1,117 +1,129 @@
-import React, { useContext } from 'react';
-import classNames from 'classnames';
-import isBoolean from 'lodash/isBoolean';
+import React, { useMemo } from 'react';
 import get from 'lodash/get';
+import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 
+import RecordActions from '../../../../../Records/actions/recordActions';
+import Records from '../../../../../../components/Records';
+import EditAction from '../../../../../../components/Records/actions/handler/executor/EditAction';
+import DeleteAction from '../../../../../../components/Records/actions/handler/executor/DeleteAction';
 import { t } from '../../../../../../helpers/export/util';
-import { IcoBtn } from '../../../../btns';
+import { getFitnesseInlineToolsClassName } from '../../../../../../helpers/tools';
+import { renderAction } from '../../../../grid/InlineTools/helpers';
 import InlineToolsDisconnected from '../../../../grid/InlineTools/InlineToolsDisconnected';
-import { TableFormContext } from '../../TableFormContext';
 
-const InlineActions = () => {
-  const iconButtons = [];
-  const context = useContext(TableFormContext);
+const InlineActions = ({ context, rowId = null }) => {
   const {
     deleteSelectedItem,
     showEditForm,
+    onEditFormSubmit,
     runCloneRecord,
     showPreview,
     showViewOnlyForm,
-    inlineToolsOffsets,
-    setInlineToolsOffsets,
     createVariants,
     controlProps
   } = context;
-  const { disabled, viewOnly, displayElements, selectedRows } = controlProps;
-
-  const onClickDelete = () => {
-    setInlineToolsOffsets({ height: 0, top: 0, row: {} });
-    deleteSelectedItem(inlineToolsOffsets.rowId);
-  };
-
-  const onClickEdit = () => {
-    showEditForm(inlineToolsOffsets.rowId, inlineToolsOffsets.position);
-  };
-
-  const onClickClone = () => {
-    runCloneRecord(inlineToolsOffsets.rowId);
-  };
-
-  const onClickView = () => {
-    showViewOnlyForm(inlineToolsOffsets.rowId, inlineToolsOffsets.position);
-  };
-
-  const onClickPreview = () => {
-    showPreview(inlineToolsOffsets.rowId, inlineToolsOffsets.position);
-  };
+  const { disabled, viewOnly, displayElements, selectedRows, isUsedJournalActions, journalActions } = controlProps;
 
   const shouldShowViewButton = isBoolean(get(displayElements, 'view')) ? displayElements.view : true;
   const shouldShowPreviewButton = isBoolean(get(displayElements, 'preview')) ? displayElements.preview : false;
-  const shouldShowEditButton = isBoolean(get(displayElements, 'edit')) ? displayElements.edit : true;
-  const shouldShowCloneButton = isBoolean(get(displayElements, 'clone')) ? displayElements.clone : false;
-  const shouldShowDeleteButton = isBoolean(get(displayElements, 'delete')) ? displayElements.delete : true;
+  const shouldShowEditButton = !disabled && !viewOnly && (isBoolean(get(displayElements, 'edit')) ? displayElements.edit : true);
+  const shouldShowCloneButton =
+    !disabled && !viewOnly && !isEmpty(createVariants) && (isBoolean(get(displayElements, 'clone')) ? displayElements.clone : false);
+  const shouldShowDeleteButton = !disabled && !viewOnly && (isBoolean(get(displayElements, 'delete')) ? displayElements.delete : true);
 
-  const inlineToolsActionClassName = classNames('ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_x-step_10 ecos-inline-tools-btn');
+  const renderButtons = useMemo(() => {
+    const keyRender = act => `${act.id}-${act.key}`;
 
-  if (shouldShowViewButton) {
-    iconButtons.push(
-      <IcoBtn
-        key={'view'}
-        icon={'icon-eye-show'}
-        title={t('ecos-table-form.view.btn')}
-        className={classNames(inlineToolsActionClassName, 'fitnesse-inline-tools-actions-btn__on')}
-        onClick={onClickView}
-      />
-    );
-  }
+    let actions = [];
 
-  if (shouldShowPreviewButton) {
-    iconButtons.push(
-      <IcoBtn
-        key={'preview'}
-        icon={'icon-eye-show'}
-        title={t('ecos-table-form.preview.btn')}
-        className={classNames(inlineToolsActionClassName, 'fitnesse-inline-tools-actions-btn__preview')}
-        onClick={onClickPreview}
-      />
-    );
-  }
+    if (isUsedJournalActions) {
+      actions = get(journalActions, ['forRecord', rowId], []);
+      actions = actions.map(act => {
+        let recordAction = { ...act };
 
-  if (!disabled && !viewOnly && shouldShowEditButton) {
-    iconButtons.push(
-      <IcoBtn
-        key={'edit'}
-        icon={'icon-edit'}
-        className={classNames(inlineToolsActionClassName, 'ecos-btn_hover_t-dark-brown fitnesse-inline-tools-actions-btn__edit')}
-        onClick={onClickEdit}
-      />
-    );
-  }
+        if (recordAction.type === 'edit') {
+          recordAction.config = {
+            ...(recordAction.config || {}),
+            saveOnSubmit: !!viewOnly
+          };
+        }
 
-  if (!disabled && !viewOnly && !isEmpty(createVariants) && shouldShowCloneButton) {
-    iconButtons.push(
-      <IcoBtn
-        key={'clone'}
-        icon={'icon-copy'}
-        className={classNames(inlineToolsActionClassName, 'ecos-btn_hover_t-dark-brown fitnesse-inline-tools-actions-btn__clone')}
-        onClick={onClickClone}
-      />
-    );
-  }
+        return {
+          ...act,
+          onClick: async () => {
+            if (recordAction.type === EditAction.ACTION_ID) {
+              const record = Records.getRecordToEdit(rowId);
+              const recordWasChanged = await RecordActions.execForRecord(record, recordAction);
 
-  if (!disabled && !viewOnly && shouldShowDeleteButton) {
-    iconButtons.push(
-      <IcoBtn
-        key={'delete'}
-        icon={'icon-delete'}
-        className={classNames(inlineToolsActionClassName, 'ecos-btn_hover_t_red fitnesse-inline-tools-actions-btn__delete')}
-        onClick={onClickDelete}
-      />
-    );
-  }
+              if (recordWasChanged) {
+                onEditFormSubmit(record);
+              }
+            } else if (recordAction.type === DeleteAction.ACTION_ID) {
+              const record = Records.get(rowId);
+              const recordWasChanged = await RecordActions.execForRecord(record, recordAction);
 
-  return <InlineToolsDisconnected selectedRecords={selectedRows} {...inlineToolsOffsets} tools={iconButtons} />;
+              if (recordWasChanged) {
+                deleteSelectedItem(rowId);
+              }
+            } else {
+              await RecordActions.execForRecord(rowId, recordAction);
+            }
+          }
+        };
+      });
+    } else {
+      //todo: should use action service for inline buttons
+
+      shouldShowViewButton &&
+        actions.push({
+          key: 'view',
+          icon: 'icon-eye-show',
+          name: t('ecos-table-form.view.btn'),
+          className: getFitnesseInlineToolsClassName('view'),
+          onClick: () => showViewOnlyForm(rowId)
+        });
+
+      shouldShowPreviewButton &&
+        actions.push({
+          key: 'preview',
+          icon: 'icon-eye-show',
+          name: t('ecos-table-form.preview.btn'),
+          className: getFitnesseInlineToolsClassName('preview'),
+          onClick: () => showPreview(rowId)
+        });
+
+      shouldShowEditButton &&
+        actions.push({
+          key: 'edit',
+          icon: 'icon-edit',
+          className: getFitnesseInlineToolsClassName('edit'),
+          onClick: () => showEditForm(rowId)
+        });
+
+      shouldShowCloneButton &&
+        actions.push({
+          key: 'clone',
+          icon: 'icon-copy',
+          className: getFitnesseInlineToolsClassName('clone'),
+          onClick: () => runCloneRecord(rowId)
+        });
+
+      shouldShowDeleteButton &&
+        actions.push({
+          key: 'delete',
+          icon: 'icon-delete',
+          className: getFitnesseInlineToolsClassName('delete'),
+          onClick: () => {
+            deleteSelectedItem(rowId);
+          }
+        });
+    }
+
+    return actions.map(action => renderAction(action, keyRender(action), !!action.name));
+  }, [displayElements, journalActions, rowId]);
+
+  return <InlineToolsDisconnected selectedRecords={selectedRows} rowId={rowId} tools={renderButtons} />;
 };
 
 export default InlineActions;
