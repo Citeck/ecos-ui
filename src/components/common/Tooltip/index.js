@@ -1,1 +1,1 @@
-export { default } from './Tooltip';
+export { default, baseDelay, baseModifiers } from './Tooltip';
