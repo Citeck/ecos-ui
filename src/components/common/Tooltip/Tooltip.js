@@ -2,9 +2,22 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Tooltip as RTooltip } from 'reactstrap';
 import classNames from 'classnames';
+import isFunction from 'lodash/isFunction';
+import isNil from 'lodash/isNil';
+
 import { isClosestHidden } from '../../../helpers/util';
+import ZIndex from '../../../services/ZIndex';
 
 import './style.scss';
+
+export const baseModifiers = {
+  offset: {
+    name: 'offset',
+    enabled: true,
+    offset: '0, 5px'
+  }
+};
+export const baseDelay = { show: 250, hide: 0 };
 
 class Tooltip extends Component {
   /**
@@ -51,6 +64,7 @@ class Tooltip extends Component {
     className: PropTypes.string,
     innerClassName: PropTypes.string,
     arrowClassName: PropTypes.string,
+    popperClassName: PropTypes.string,
     onToggle: PropTypes.func
   };
 
@@ -63,13 +77,14 @@ class Tooltip extends Component {
     text: '',
     delay: 0,
     placement: 'top',
-    boundariesElement: 'window'
+    boundariesElement: 'window',
+    modifiers: { ...baseModifiers }
   };
 
   static getDerivedStateFromProps(props, state) {
     const newState = {};
 
-    if (typeof props.onToggle === 'function' && props.isOpen !== state.isOpen && !props.uncontrolled) {
+    if (isFunction(props.onToggle) && props.isOpen !== state.isOpen && !props.uncontrolled) {
       newState.isOpen = props.isOpen;
     }
 
@@ -85,7 +100,7 @@ class Tooltip extends Component {
 
     this.state = {
       isOpen: props.isOpen,
-      isHidden: true
+      isHiddenTarget: true
     };
   }
 
@@ -95,20 +110,25 @@ class Tooltip extends Component {
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     this.stealthCheck();
+
+    if (this.state.isOpen) {
+      ZIndex.calcZ();
+      ZIndex.setZ('ecos-base-tooltip');
+    }
   }
 
   stealthCheck = () => {
-    const isHidden = isClosestHidden(`#${this.props.target}`);
+    const isHiddenTarget = isClosestHidden(`#${this.props.target}`);
 
-    if (isHidden !== this.state.isHidden) {
-      this.setState({ isHidden });
+    if (isHiddenTarget !== this.state.isHiddenTarget) {
+      this.setState({ isHiddenTarget });
     }
   };
 
-  onToggle = () => {
+  onToggle = (...data) => {
     const { onToggle, uncontrolled } = this.props;
 
-    if (typeof onToggle === 'function' && !uncontrolled) {
+    if (isFunction(onToggle) && !uncontrolled) {
       onToggle.call(this);
     } else {
       this.setState(state => ({ isOpen: !state.isOpen }));
@@ -127,6 +147,7 @@ class Tooltip extends Component {
       className,
       innerClassName,
       arrowClassName,
+      popperClassName,
       trigger,
       uncontrolled,
       autohide,
@@ -153,18 +174,19 @@ class Tooltip extends Component {
       className: classNames('ecos-base-tooltip', className),
       innerClassName: classNames('ecos-base-tooltip-inner', innerClassName),
       arrowClassName: classNames('ecos-base-tooltip-arrow', arrowClassName),
+      popperClassName: classNames('ecos-base-tooltip-popper', 'ecosZIndexAnchor', popperClassName),
       toggle: this.onToggle
     };
   };
 
   renderTooltip = () => {
     const { text, showAsNeeded, target, elementId, minWidthByContent, contentComponent, getIsNeeded } = this.props;
-    const { isOpen } = this.state;
+    const { isOpen, isHiddenTarget } = this.state;
     const element = document.getElementById(elementId || target);
     const styles = {};
     let needTooltip = !showAsNeeded;
 
-    if (isClosestHidden(`#${this.props.target}`)) {
+    if (isHiddenTarget) {
       return null;
     }
 
@@ -178,7 +200,7 @@ class Tooltip extends Component {
 
       context.font = styles.getPropertyValue('font');
 
-      if (width && height) {
+      if (!isNil(width) && !isNil(height)) {
         needTooltip = context.measureText(text).width > width - (paddingLeft + paddingRight);
       }
 
