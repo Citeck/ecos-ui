@@ -78,6 +78,15 @@ ShallowWrapper {
             hideArrow={false}
             isOpen={false}
             minWidthByContent={false}
+            modifiers={
+              Object {
+                "offset": Object {
+                  "enabled": true,
+                  "name": "offset",
+                  "offset": "0, 5px",
+                },
+              }
+            }
             placement="top"
             showAsNeeded={true}
             target="group-actions-1-rec"
@@ -115,6 +124,15 @@ ShallowWrapper {
             hideArrow={false}
             isOpen={false}
             minWidthByContent={false}
+            modifiers={
+              Object {
+                "offset": Object {
+                  "enabled": true,
+                  "name": "offset",
+                  "offset": "0, 5px",
+                },
+              }
+            }
             placement="top"
             showAsNeeded={true}
             target="group-actions-1-rec"
@@ -185,6 +203,13 @@ ShallowWrapper {
             "hideArrow": false,
             "isOpen": false,
             "minWidthByContent": false,
+            "modifiers": Object {
+              "offset": Object {
+                "enabled": true,
+                "name": "offset",
+                "offset": "0, 5px",
+              },
+            },
             "placement": "top",
             "showAsNeeded": true,
             "target": "group-actions-1-rec",
@@ -266,6 +291,15 @@ ShallowWrapper {
               hideArrow={false}
               isOpen={false}
               minWidthByContent={false}
+              modifiers={
+                Object {
+                  "offset": Object {
+                    "enabled": true,
+                    "name": "offset",
+                    "offset": "0, 5px",
+                  },
+                }
+              }
               placement="top"
               showAsNeeded={true}
               target="group-actions-1-rec"
@@ -303,6 +337,15 @@ ShallowWrapper {
               hideArrow={false}
               isOpen={false}
               minWidthByContent={false}
+              modifiers={
+                Object {
+                  "offset": Object {
+                    "enabled": true,
+                    "name": "offset",
+                    "offset": "0, 5px",
+                  },
+                }
+              }
               placement="top"
               showAsNeeded={true}
               target="group-actions-1-rec"
@@ -373,6 +416,13 @@ ShallowWrapper {
               "hideArrow": false,
               "isOpen": false,
               "minWidthByContent": false,
+              "modifiers": Object {
+                "offset": Object {
+                  "enabled": true,
+                  "name": "offset",
+                  "offset": "0, 5px",
+                },
+              },
               "placement": "top",
               "showAsNeeded": true,
               "target": "group-actions-1-rec",
