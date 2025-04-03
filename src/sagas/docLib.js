@@ -1,12 +1,8 @@
-import { all, call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
-import { delay } from 'redux-saga';
-import * as queryString from 'query-string';
-import { NotificationManager } from '@/services/notifications';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
-import initializeWorker from '../workers/docLib';
-import { getStore } from '../store';
+import * as queryString from 'query-string';
+import { delay } from 'redux-saga';
+import { all, call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 
 import {
   addSidebarItems,
@@ -49,8 +45,19 @@ import {
   startSearch,
   unfoldSidebarItem,
   updateSidebarItem,
-  uploadFiles,
+  uploadFiles
 } from '../actions/docLib';
+import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
+import DocLibService from '../components/Journals/DocLib/DocLibService';
+import JournalsService from '../components/Journals/service/journalsService';
+import { ActionTypes } from '../components/Records/actions/constants';
+import { DocLibUrlParams } from '../constants';
+import { DEFAULT_DOCLIB_PAGINATION, NODE_TYPES } from '../constants/docLib';
+import DocLibConverter from '../dto/docLib';
+import JournalsConverter from '../dto/journals';
+import { t } from '../helpers/export/util';
+import { wrapSaga } from '../helpers/redux';
+import { getSearchParams, getUrlWithoutOrigin, getWorkspaceId } from '../helpers/urls';
 import {
   selectDocLibCreateVariants,
   selectDocLibFileCanUploadFiles,
@@ -63,20 +70,14 @@ import {
   selectDocLibSidebar,
   selectDocLibSidebarItems,
   selectDocLibTypeRef,
-  selectJournalId,
+  selectJournalId
 } from '../selectors/docLib';
 import { selectJournalData, selectUrl } from '../selectors/journals';
-import { DocLibUrlParams } from '../constants';
-import { DEFAULT_DOCLIB_PAGINATION, NODE_TYPES } from '../constants/docLib';
-import { t } from '../helpers/export/util';
-import { getSearchParams, getUrlWithoutOrigin, getWorkspaceId } from '../helpers/urls';
-import { wrapSaga } from '../helpers/redux';
 import PageService from '../services/PageService';
-import { ActionTypes } from '../components/Records/actions/constants';
-import DocLibService from '../components/Journals/DocLib/DocLibService';
-import JournalsService from '../components/Journals/service/journalsService';
-import DocLibConverter from '../dto/docLib';
-import JournalsConverter from '../dto/journals';
+import { getStore } from '../store';
+import initializeWorker from '../workers/docLib';
+
+import { NotificationManager } from '@/services/notifications';
 
 const DOCLIB_INNER_DOC_ID_REGEX = /^emodel\/doclib@.+\$(.+)$/;
 
@@ -116,7 +117,7 @@ export function* loadDocumentLibrarySettings(typeRef, w) {
   const createVariants = yield call(DocLibService.getCreateVariants, dirTypeRef, fileTypeRefs);
   yield put(setCreateVariants(w(createVariants)));
 
-  const createVariant = (createVariants || []).find((item) => item.nodeType === NODE_TYPES.FILE);
+  const createVariant = (createVariants || []).find(item => item.nodeType === NODE_TYPES.FILE);
 
   if (!isEmpty(createVariant)) {
     const formDefinition = yield DocLibService.getCreateFormDefinition(createVariant);
@@ -132,7 +133,7 @@ export function* loadDocumentLibrarySettings(typeRef, w) {
 
 export function* sagaInitDocumentLibrary({ stateId, w }) {
   try {
-    const typeRef = yield select((state) => selectDocLibTypeRef(state, stateId));
+    const typeRef = yield select(state => selectDocLibTypeRef(state, stateId));
     let { rootId: selectedItemId } = yield call(loadDocumentLibrarySettings, typeRef, w);
 
     // set selected item from url
@@ -159,8 +160,8 @@ export function* sagaInitDocumentLibrarySidebar({ stateId, w }) {
     yield put(setSidebarError(w(false)));
     yield put(setSidebarIsReady(w(false)));
 
-    const rootId = yield select((state) => selectDocLibRootId(state, stateId));
-    const typeRef = yield select((state) => selectDocLibTypeRef(state, stateId));
+    const rootId = yield select(state => selectDocLibRootId(state, stateId));
+    const typeRef = yield select(state => selectDocLibTypeRef(state, stateId));
 
     const rootFolderTitle = yield call(DocLibService.getFolderTitle, rootId);
     const rootItem = { id: rootId, title: rootFolderTitle, parent: null, hasChildren: true };
@@ -168,13 +169,13 @@ export function* sagaInitDocumentLibrarySidebar({ stateId, w }) {
 
     // load children for persisted items
     const unfoldedItemsId = yield call([DocLibService, 'loadUnfoldedFolders'], typeRef);
-    const getChildrenCalls = unfoldedItemsId.map((id) => call(DocLibService.getChildrenDirs, id));
+    const getChildrenCalls = unfoldedItemsId.map(id => call(DocLibService.getChildrenDirs, id));
     const loadedChildren = yield all(getChildrenCalls);
     loadedChildren.forEach((children, key) => {
       const currentChildren = DocLibConverter.prepareFolderTreeItems(children, unfoldedItemsId[key]);
       sidebarItems.push(...currentChildren);
     });
-    sidebarItems = sidebarItems.map((item) => {
+    sidebarItems = sidebarItems.map(item => {
       if (unfoldedItemsId.includes(item.id)) {
         return { ...item, isChildrenLoaded: true, isUnfolded: true };
       }
@@ -184,8 +185,8 @@ export function* sagaInitDocumentLibrarySidebar({ stateId, w }) {
 
     // remove not found items from localStorage
     const removeIds = [];
-    unfoldedItemsId.forEach((itemId) => {
-      if (sidebarItems.findIndex((item) => item.id === itemId) === -1) {
+    unfoldedItemsId.forEach(itemId => {
+      if (sidebarItems.findIndex(item => item.id === itemId) === -1) {
         removeIds.push(call([DocLibService, 'removeUnfoldedItem'], typeRef, itemId));
       }
     });
@@ -200,11 +201,11 @@ export function* sagaInitDocumentLibrarySidebar({ stateId, w }) {
 }
 
 function* sagaUnfoldDocumentLibrarySidebarItem({ api, stateId, w }, action) {
-  const typeRef = yield select((state) => selectDocLibTypeRef(state, stateId));
-  const sidebar = yield select((state) => selectDocLibSidebar(state, stateId));
+  const typeRef = yield select(state => selectDocLibTypeRef(state, stateId));
+  const sidebar = yield select(state => selectDocLibSidebar(state, stateId));
   const items = sidebar.items;
   const currentItemId = action.payload;
-  const currentItem = items.find((i) => i.id === currentItemId);
+  const currentItem = items.find(i => i.id === currentItemId);
   if (!currentItem) {
     return;
   }
@@ -234,7 +235,7 @@ function* sagaUnfoldDocumentLibrarySidebarItem({ api, stateId, w }, action) {
 
 function* sagaFoldDocumentLibrarySidebarItem({ api, stateId, w }, action) {
   try {
-    const typeRef = yield select((state) => selectDocLibTypeRef(state, stateId));
+    const typeRef = yield select(state => selectDocLibTypeRef(state, stateId));
     const currentItemId = action.payload;
     yield call([DocLibService, 'removeUnfoldedItem'], typeRef, currentItemId);
   } catch (e) {
@@ -245,7 +246,7 @@ function* sagaFoldDocumentLibrarySidebarItem({ api, stateId, w }, action) {
 function* sagaOpenFolder({ api, stateId, w }, action) {
   try {
     const folderId = action.payload;
-    const currentFolderId = yield select((state) => selectDocLibFolderId(state, stateId));
+    const currentFolderId = yield select(state => selectDocLibFolderId(state, stateId));
     if (folderId === currentFolderId) {
       return;
     }
@@ -260,14 +261,14 @@ function* sagaOpenFolder({ api, stateId, w }, action) {
     yield put(setFolderId(w(folderId)));
     yield put(loadFolderData(w()));
 
-    const sidebar = yield select((state) => selectDocLibSidebar(state, stateId));
+    const sidebar = yield select(state => selectDocLibSidebar(state, stateId));
     const items = sidebar.items;
-    const currentItem = items.find((item) => item.id === folderId);
+    const currentItem = items.find(item => item.id === folderId);
     if (currentItem && currentItem.hasChildren && !currentItem.isUnfolded) {
       yield put(unfoldSidebarItem(w(folderId)));
     }
 
-    const rootId = yield select((state) => selectDocLibRootId(state, stateId));
+    const rootId = yield select(state => selectDocLibRootId(state, stateId));
     const query = getSearchParams();
     query[DocLibUrlParams.FOLDER_ID] = folderId === rootId ? undefined : folderId;
     query[DocLibUrlParams.SEARCH] = undefined;
@@ -280,7 +281,7 @@ function* sagaOpenFolder({ api, stateId, w }, action) {
 
 function* sagaDocLibLoadFolderData({ api, stateId, w }) {
   try {
-    const folderId = yield select((state) => selectDocLibFolderId(state, stateId));
+    const folderId = yield select(state => selectDocLibFolderId(state, stateId));
 
     yield put(loadFilesViewerData(w()));
 
@@ -312,10 +313,10 @@ function* sagaLoadFilesViewerData({ api, stateId, w }) {
 function* getFilesViewerData({ api, stateId, w }) {
   try {
     const store = getStore();
-    const folderId = yield select((state) => selectDocLibFolderId(state, stateId));
-    const pagination = yield select((state) => selectDocLibFileViewerPagination(state, stateId));
-    const searchText = yield select((state) => selectDocLibSearchText(state, stateId));
-    const journalId = yield select((state) => selectJournalId(state, stateId));
+    const folderId = yield select(state => selectDocLibFolderId(state, stateId));
+    const pagination = yield select(state => selectDocLibFileViewerPagination(state, stateId));
+    const searchText = yield select(state => selectDocLibSearchText(state, stateId));
+    const journalId = yield select(state => selectJournalId(state, stateId));
 
     const docLibRef = journalId.includes('$') ? journalId.split('$')[1] : journalId;
 
@@ -325,9 +326,9 @@ function* getFilesViewerData({ api, stateId, w }) {
     yield put(setFileViewerTotal(w(totalCount)));
     const journalConfig = yield call([JournalsService, JournalsService.getJournalConfig], journalId);
 
-    const recordRefs = records.map((r) => r.id);
+    const recordRefs = records.map(r => r.id);
     const dirActionsRefs = yield call(DocLibService.getDirActions, docLibRef);
-    const dirActions = (dirActionsRefs || []).map((ref) => (ref && ref.includes('@') ? ref.split('@')[1] : ref));
+    const dirActions = (dirActionsRefs || []).map(ref => (ref && ref.includes('@') ? ref.split('@')[1] : ref));
 
     const resultActions = yield call([JournalsService, JournalsService.getRecordActions], journalConfig, recordRefs);
     const actions = JournalsConverter.getJournalActions(resultActions);
@@ -336,11 +337,11 @@ function* getFilesViewerData({ api, stateId, w }) {
 
     (records || []).forEach(({ nodeType, id }) => {
       if (nodeType === NODE_TYPES.DIR) {
-        actionsForRecord[id] = (actionsForRecord[id] || []).filter((action) => dirActions.includes(action.id));
+        actionsForRecord[id] = (actionsForRecord[id] || []).filter(action => dirActions.includes(action.id));
       }
     });
 
-    const changeNodeFn = (params) => store.dispatch(changeNode({ ...params, stateId }));
+    const changeNodeFn = params => store.dispatch(changeNode({ ...params, stateId }));
 
     yield put(
       setFileViewerItems(
@@ -349,10 +350,10 @@ function* getFilesViewerData({ api, stateId, w }) {
             records,
             actions.forRecord,
             () => DocLibService.emitter.emit(DocLibService.actionSuccessCallback),
-            { changeNode: changeNodeFn },
-          ),
-        ),
-      ),
+            { changeNode: changeNodeFn }
+          )
+        )
+      )
     );
 
     yield put(setFileViewerLoadingStatus(w(false)));
@@ -371,14 +372,14 @@ function* sagaDocLibStartSearch({ api, stateId, w }, action) {
     const url = queryString.stringifyUrl({ url: getUrlWithoutOrigin(), query });
     yield call(PageService.changeUrlLink, url, { updateUrl: true });
 
-    const pagination = yield select((state) => selectDocLibFileViewerPagination(state, stateId));
+    const pagination = yield select(state => selectDocLibFileViewerPagination(state, stateId));
     yield put(
       setFileViewerPagination(
         w({
           ...DEFAULT_DOCLIB_PAGINATION,
-          maxItems: pagination.maxItems,
-        }),
-      ),
+          maxItems: pagination.maxItems
+        })
+      )
     );
 
     yield put(setFileViewerTotal(w(0)));
@@ -421,11 +422,11 @@ export function* sagaInitGroupActions({ api, stateId, w, skipDelay = false }, ac
 
 export function* sagaExecGroupAction({ api, stateId, w }, action) {
   try {
-    const fileViewer = yield select((state) => selectDocLibFileViewer(state, stateId));
+    const fileViewer = yield select(state => selectDocLibFileViewer(state, stateId));
     const records = fileViewer.selected || [];
 
     const actionResult = yield call(api.recordActions.executeAction, { action: action.payload, records });
-    const check = Array.isArray(actionResult) ? actionResult.some((res) => res !== false) : actionResult !== false;
+    const check = Array.isArray(actionResult) ? actionResult.some(res => res !== false) : actionResult !== false;
 
     if (check) {
       if (get(action, 'payload.action.type', '') !== ActionTypes.BACKGROUND_VIEW) {
@@ -463,11 +464,11 @@ function* checkUniqueNameNode({ api, stateId, w }, { submission, nodeType, isExi
     }
 
     const parentDirTitles = [];
-    const fileViewer = yield select((state) => selectDocLibFileViewer(state, stateId));
-    const selectFolderTitle = yield select((state) => selectDocLibFolderTitle(state, stateId));
+    const fileViewer = yield select(state => selectDocLibFileViewer(state, stateId));
+    const selectFolderTitle = yield select(state => selectDocLibFolderTitle(state, stateId));
     const items = get(fileViewer, 'items') || [];
 
-    items.forEach((item) => get(item, 'title') && parentDirTitles.push(item.title));
+    items.forEach(item => get(item, 'title') && parentDirTitles.push(item.title));
     if (isExistsItem && originName === currentItemTitle) {
       const indexExistsItem = parentDirTitles.indexOf(currentItemTitle);
       if (indexExistsItem !== -1) {
@@ -475,7 +476,7 @@ function* checkUniqueNameNode({ api, stateId, w }, { submission, nodeType, isExi
       }
     }
 
-    const renamePromise = new Promise((resolve) => {
+    const renamePromise = new Promise(resolve => {
       if (currentItemTitle && parentDirTitles.includes(currentItemTitle)) {
         if (navigator.serviceWorker.controller) {
           navigator.serviceWorker.controller.postMessage({
@@ -483,10 +484,10 @@ function* checkUniqueNameNode({ api, stateId, w }, { submission, nodeType, isExi
             typeCurrentItem: nodeType,
             parentDirTitles,
             currentItemTitle,
-            targetDirTitle: selectFolderTitle,
+            targetDirTitle: selectFolderTitle
           });
 
-          navigator.serviceWorker.onmessage = (event) => {
+          navigator.serviceWorker.onmessage = event => {
             const { type, confirmedRenameItem, titleRenamingItem } = event.data;
 
             if (type === 'CONFIRMATION_RENAME_DIR_RESPONSE' && confirmedRenameItem) {
@@ -516,8 +517,8 @@ export function* sagaCreateNode({ api, stateId, w }, action) {
       { api, stateId, w },
       {
         submission,
-        nodeType: createVariant.nodeType,
-      },
+        nodeType: createVariant.nodeType
+      }
     );
 
     if (currentItemTitle && parentDirTitles.includes(currentItemTitle)) {
@@ -528,8 +529,8 @@ export function* sagaCreateNode({ api, stateId, w }, action) {
       yield put(setFileViewerLoadingStatus(w(true)));
     }
 
-    const rootId = yield select((state) => selectDocLibRootId(state, stateId));
-    const currentFolderId = yield select((state) => selectDocLibFolderId(state, stateId));
+    const rootId = yield select(state => selectDocLibRootId(state, stateId));
+    const currentFolderId = yield select(state => selectDocLibFolderId(state, stateId));
     const typeRef = createVariant.typeRef;
 
     const createChildResult = yield call(DocLibService.createChild, rootId, currentFolderId, typeRef, submission, currentItemTitle);
@@ -580,8 +581,8 @@ export function* sagaChangeNode({ api, w }, action) {
         submission,
         nodeType,
         originName,
-        isExistsItem: true,
-      },
+        isExistsItem: true
+      }
     );
     if (currentItemTitle && parentDirTitles.includes(currentItemTitle)) {
       return;
@@ -595,21 +596,21 @@ export function* sagaChangeNode({ api, w }, action) {
     yield record.save();
 
     if (nodeType === NODE_TYPES.DIR) {
-      const sidebarItems = yield select((state) => selectDocLibSidebarItems(state, stateId));
+      const sidebarItems = yield select(state => selectDocLibSidebarItems(state, stateId));
       const newSidebarItems = [];
 
       const editDirId = yield record.load('?id');
       const newRecord = yield call(DocLibService.loadNode, editDirId);
 
       if (newRecord && newRecord.id) {
-        (sidebarItems || []).forEach((item) => {
+        (sidebarItems || []).forEach(item => {
           const itemId = get(item, 'id', '');
           const substringItemId = itemId.substring(itemId.indexOf('$') + 1);
 
           if (substringItemId && substringItemId === newRecord.id) {
             newSidebarItems.push({
               ...item,
-              ...newRecord,
+              ...newRecord
             });
           } else {
             newSidebarItems.push(item);
@@ -628,7 +629,7 @@ export function* sagaChangeNode({ api, w }, action) {
 
 function formKeysCheck(formDefinition) {
   const componentKeys = new Set();
-  EcosFormUtils.forEachComponent(formDefinition, (component) => {
+  EcosFormUtils.forEachComponent(formDefinition, component => {
     if (component.input && component.type !== 'button') {
       componentKeys.add(component.key);
     }
@@ -653,14 +654,14 @@ function* sagaSetParentItem({ api, stateId, w }, { payload }) {
 
     const children = yield call(DocLibService.getChildren, parent);
     if (get(children, 'records') && children.records.length) {
-      children.records.forEach((item) => {
+      children.records.forEach(item => {
         if (item && item.id && item.title) {
           parentDirTitles.push(item.title);
         }
       });
     }
 
-    const renamePromise = new Promise((resolve) => {
+    const renamePromise = new Promise(resolve => {
       if (itemTitle && parentDirTitles.includes(itemTitle)) {
         if (navigator.serviceWorker.controller) {
           navigator.serviceWorker.controller.postMessage({
@@ -669,10 +670,10 @@ function* sagaSetParentItem({ api, stateId, w }, { payload }) {
             isReplacementItem: true,
             parentDirTitles,
             currentItemTitle,
-            targetDirTitle,
+            targetDirTitle
           });
 
-          navigator.serviceWorker.onmessage = (event) => {
+          navigator.serviceWorker.onmessage = event => {
             const { type, confirmedRenameItem, titleRenamingItem } = event.data;
 
             if (type === 'CONFIRMATION_RENAME_DIR_RESPONSE' && confirmedRenameItem) {
@@ -707,13 +708,13 @@ function* sagaUploadFiles({ api, stateId, w }, action) {
     yield put(setFileViewerLoadingStatus(w(true)));
 
     const item = get(action, 'payload.item', {});
-    const rootId = yield select((state) => selectDocLibRootId(state, stateId));
-    const createVariants = yield select((state) => selectDocLibCreateVariants(state, stateId));
-    const createVariantFile = (createVariants || []).find((item) => item.nodeType === NODE_TYPES.FILE);
-    const createVariantDir = (createVariants || []).find((item) => item.nodeType === NODE_TYPES.DIR);
-    const canUpload = yield select((state) => selectDocLibFileCanUploadFiles(state, stateId));
-    let folderId = yield select((state) => selectDocLibFolderId(state, stateId));
-    let folderTitle = yield select((state) => selectDocLibFolderTitle(state, stateId));
+    const rootId = yield select(state => selectDocLibRootId(state, stateId));
+    const createVariants = yield select(state => selectDocLibCreateVariants(state, stateId));
+    const createVariantFile = (createVariants || []).find(item => item.nodeType === NODE_TYPES.FILE);
+    const createVariantDir = (createVariants || []).find(item => item.nodeType === NODE_TYPES.DIR);
+    const canUpload = yield select(state => selectDocLibFileCanUploadFiles(state, stateId));
+    let folderId = yield select(state => selectDocLibFolderId(state, stateId));
+    let folderTitle = yield select(state => selectDocLibFolderTitle(state, stateId));
 
     if (!canUpload) {
       NotificationManager.error(t('document-library.uploading-file.message.abort'));
@@ -723,14 +724,14 @@ function* sagaUploadFiles({ api, stateId, w }, action) {
     let { files = [], items } = action.payload;
 
     let hasFolders = false;
-    Array.from(items).forEach((item) => {
+    Array.from(items).forEach(item => {
       const entry = item.webkitGetAsEntry();
       if (entry && entry.isDirectory) {
         hasFolders = true;
       }
     });
 
-    files = files.filter((file) => !isEmpty(file.type));
+    files = files.filter(file => !isEmpty(file.type));
 
     if (isEmpty(files) && !hasFolders) {
       NotificationManager.error(t('document-library.uploading-file.message.abort'), t('error'));
@@ -749,7 +750,7 @@ function* sagaUploadFiles({ api, stateId, w }, action) {
         const currentPath = path ? `${path}/${entry.name}` : entry.name;
 
         const readEntries = () => {
-          dirReader.readEntries(async (entries) => {
+          dirReader.readEntries(async entries => {
             if (entries.length === 0) {
               resolve(files);
               return;
@@ -758,7 +759,7 @@ function* sagaUploadFiles({ api, stateId, w }, action) {
             try {
               for (const entry of entries) {
                 if (entry.isFile) {
-                  const file = await new Promise((resolveFile) => entry.file(resolveFile));
+                  const file = await new Promise(resolveFile => entry.file(resolveFile));
                   files.push({ file, name: file.name, path: `${currentPath}/${file.name}` });
                 } else if (entry.isDirectory) {
                   const nestedFiles = await traverseDirectory(entry, currentPath);
@@ -777,7 +778,7 @@ function* sagaUploadFiles({ api, stateId, w }, action) {
       });
     }
 
-    const entries = yield action.payload.items.map((item) => item.webkitGetAsEntry());
+    const entries = yield action.payload.items.map(item => item.webkitGetAsEntry());
     let totalCount = 0;
 
     const itemsObj = yield entries.map(function* (entry) {
@@ -791,8 +792,8 @@ function* sagaUploadFiles({ api, stateId, w }, action) {
 
         const file = yield new Promise((resolve, reject) => {
           entry.file(
-            (file) => resolve(file),
-            (error) => reject(error),
+            file => resolve(file),
+            error => reject(error)
           );
         });
 
@@ -801,15 +802,15 @@ function* sagaUploadFiles({ api, stateId, w }, action) {
     });
 
     const destinations = {
-      file: get(createVariantFile, 'destination'),
-      dir: get(createVariantDir, 'destination'),
+      file: get(createVariantFile, 'typeRef'),
+      dir: get(createVariantDir, 'typeRef')
     };
 
     // Init web-worker
     const { worker, send } = yield call(initializeWorker);
 
-    const uploadPromise = new Promise((resolve) => {
-      worker.onmessage = (event) => {
+    const uploadPromise = new Promise(resolve => {
+      worker.onmessage = event => {
         const { status, result, file = {}, totalCount, successFileCount, requestId, isCancelled, errorStatus } = event.data;
 
         if (navigator.serviceWorker.controller) {
@@ -819,7 +820,7 @@ function* sagaUploadFiles({ api, stateId, w }, action) {
               navigator.serviceWorker.controller.postMessage({
                 type: 'UPLOAD_PROGRESS',
                 status,
-                file,
+                file
               });
               break;
 
@@ -830,7 +831,7 @@ function* sagaUploadFiles({ api, stateId, w }, action) {
                 file,
                 totalCount,
                 successFileCount,
-                requestId,
+                requestId
               });
               break;
 
@@ -838,7 +839,7 @@ function* sagaUploadFiles({ api, stateId, w }, action) {
               navigator.serviceWorker.controller.postMessage({
                 type: 'UPLOAD_PROGRESS',
                 status,
-                result,
+                result
               });
               resolve();
               break;
@@ -849,7 +850,7 @@ function* sagaUploadFiles({ api, stateId, w }, action) {
                 status,
                 errorStatus,
                 file,
-                isCancelled,
+                isCancelled
               });
               break;
 
@@ -859,7 +860,7 @@ function* sagaUploadFiles({ api, stateId, w }, action) {
         }
       };
 
-      navigator.serviceWorker.onmessage = (event) => {
+      navigator.serviceWorker.onmessage = event => {
         const { type, confirmed, isReplaceAllFiles } = event.data;
 
         if (type === 'CONFIRMATION_FILE_RESPONSE') {
@@ -875,7 +876,7 @@ function* sagaUploadFiles({ api, stateId, w }, action) {
       folderTitle,
       destinations,
       totalCount,
-      ...(get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false) && { ws: getWorkspaceId() }),
+      ...(get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false) && { ws: getWorkspaceId() })
     });
 
     yield call(() => uploadPromise);
