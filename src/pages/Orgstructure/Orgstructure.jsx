@@ -24,7 +24,7 @@ import {
   ROOT_GROUP_NAME,
   TabTypes
 } from '../../components/common/Orgstruct/constants';
-import { URL } from '../../constants';
+import { URL, SourcesId } from '../../constants';
 import { decodeLink, getSearchParams, getSortedUrlParams, pushHistoryLink, replaceHistoryLink } from '../../helpers/urls';
 import { t } from '../../helpers/util';
 import DashboardService from '../../services/dashboard';
