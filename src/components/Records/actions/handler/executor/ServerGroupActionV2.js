@@ -30,6 +30,16 @@ const Labels = {
 export default class ServerGroupActionV2 extends ActionsExecutor {
   static ACTION_ID = 'server-group-action-v2';
 
+  async execForRecord(record, action, context) {
+    const values = {
+      type: 'records-list',
+      config: {
+        records: [record.id]
+      }
+    };
+    return this.execForValues(values, action);
+  }
+
   async execForRecords(records, action, context) {
     const values = {
       type: 'records-list',
@@ -59,7 +69,7 @@ export default class ServerGroupActionV2 extends ActionsExecutor {
 
     const { targetApp, executionParams = {}, valuesParams = {}, outputParams = {} } = action.config || {};
 
-    const actionValuesParams = { ...valuesParams, ...values };
+    const actionValuesParams = { ...values, ...valuesParams };
     const actionExecutionParams = { ...executionParams };
     const actionOutputParams = { ...outputParams };
 
