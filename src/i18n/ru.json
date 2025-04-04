@@ -257,7 +257,7 @@
   "activities-widget.fields.term": "Срок",
   "activities-widget.fields.term-placeholder": "Срок выполнения",
   "activities-widget.fields.title": "Название",
-  "activities-widget.fields.title-placeholder": "Название поручения",
+  "activities-widget.fields.title-placeholder": "Название",
   "activities-widget.fields.priority": "Приоритет",
   "activities-widget.fields.priority-placeholder": "Приоритет поручения",
   "activities-widget.fields.initiator": "Инициатор",

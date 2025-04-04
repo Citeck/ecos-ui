@@ -1,10 +1,10 @@
-import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 
-import { getBool, getColorByString } from '../helpers/util';
-import { t } from '../helpers/export/util';
-import UserService from '../services/UserService';
 import { AllowedTagTypes, TagColorByType, typeInternal } from '../constants/comments';
+import { t } from '../helpers/export/util';
+import { getBool, getColorByString } from '../helpers/util';
+import UserService from '../services/UserService';
 
 export const getTag = data => {
   const type = get(data, 'type');
@@ -52,6 +52,7 @@ export function getCommentForWeb(source) {
   target.participants = source.participants;
   target.responsible = source.responsible;
   target.title = source.title;
+  target.topic = source.topic;
 
   target.dateModify = source.modifiedAt;
   target.edited = getBool(source.edited);
