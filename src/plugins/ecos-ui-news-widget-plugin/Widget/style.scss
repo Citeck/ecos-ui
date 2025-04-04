@@ -38,6 +38,13 @@
         height: 250px;
         object-fit: cover;
       }
+      &__default-img {
+        border-radius: 8px;
+        flex-shrink: 1;
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+      }
       &__title {
         @include clamp(2);
         font-size: 16px;
@@ -60,6 +67,7 @@
         font-size: 15px;
         color: #323237;
       }
+      
     }
   }
 }

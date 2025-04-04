@@ -3,13 +3,17 @@ import isFunction from 'lodash/isFunction';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 
-import { InfoText } from '../../../../components/common';
-import { Btn } from '../../../../components/common/btns';
-import { Caption, Dropdown, Field, MLText, SelectJournal } from '../../../../components/common/form';
-import { SystemJournals } from '../../../../constants';
-import { t } from '../../../../helpers/export/util';
-import { getDOMElementMeasurer } from '../../../../helpers/util';
 import Labels, { ERROR_TYPES } from '../../labels';
+
+import DropDown, { DropDownItem } from '@/components/Lexical/ui/DropDown';
+import Records from '@/components/Records';
+import { InfoText } from '@/components/common';
+import Loader from '@/components/common/Loader';
+import { Btn } from '@/components/common/btns';
+import { Field } from '@/components/common/form';
+import { SystemJournals } from '@/constants';
+import { t } from '@/helpers/export/util';
+import { getDOMElementMeasurer } from '@/helpers/util';
 
 import './settings-style.scss';
 
@@ -21,10 +25,52 @@ class Settings extends Component {
 
     this.state = {
       title: get(props, 'config.title', ''),
-      typeId: get(props, 'config.typeId', ''),
+      typeId: get(props, 'config.currentType', ''),
       error: null,
-      isLoading: false
+      warning: '',
+      isLoading: true,
+      types: [],
+      currentType: ''
     };
+  }
+
+  componentDidMount() {
+    this.fetchTypes();
+  }
+
+  fetchTypes() {
+    Records.query(
+      {
+        language: 'predicate',
+        sourceId: 'emodel/type',
+        query: {
+          t: 'or',
+          v: [
+            { t: 'eq', a: 'id', v: 'news' },
+            { t: 'contains', a: 'parents[]', v: 'emodel/type@news' }
+          ]
+        }
+      },
+      {
+        id: 'id',
+        title: '?disp'
+      }
+    )
+      .then(res => {
+        this.setState({
+          types: res.records
+        });
+      })
+      .catch(err => {
+        this.setState({
+          error: err.message
+        });
+      })
+      .finally(() => {
+        this.setState({
+          isLoading: false
+        });
+      });
   }
 
   get isSmall() {
@@ -39,11 +85,14 @@ class Settings extends Component {
     }
   };
 
-  handleChangeTypeId = newTypeId => {
-    const { typeId } = this.state;
+  handleChangeTypeId = newType => {
+    const { currentType } = this.state;
 
-    if (typeId !== newTypeId) {
-      this.setState({ typeId: newTypeId });
+    if (currentType !== newType.id) {
+      this.setState({
+        currentType: newType.id,
+        title: newType.title
+      });
     }
   };
 
@@ -54,46 +103,64 @@ class Settings extends Component {
   };
 
   handleSave = () => {
-    const { typeId, title } = this.state;
+    const { title, currentType } = this.state;
     const { onSave, config } = this.props;
 
-    const stateOptions = this.state[typeId] || {};
-    const configOptions = config[typeId] || {};
+    if (!title || !currentType) {
+      this.setState({
+        warning: 'Выберите тип'
+      });
+      return;
+    } else {
+      this.setState({
+        warning: '',
+        isLoading: true
+      });
+    }
 
     isFunction(onSave) &&
       onSave({
         title,
-        typeId
+        currentType: currentType || config.typeId
       });
   };
 
   render() {
-    const { title, typeId, isLoading, error } = this.state;
-    const { onCancel } = this.props;
+    const { isLoading, error, types, currentType, warning } = this.state;
+    const { onCancel, config } = this.props;
 
     return (
-      <div className="ecos-charts-settings" ref={this.setEditorRef}>
-        <Field label={t(Labels.Settings.JOURNAL_FIELD)} labelPosition="top" isSmall={this.isSmall}>
-          <SelectJournal
-            journalId={SystemJournals.TYPES}
-            defaultValue={typeId}
-            hideCreateButton
-            isSelectedValueAsText
-            onChange={this.handleChangeTypeId}
-          />
+      <>
+        {isLoading && <Loader />}
+        {!isLoading && (
+          <div className="ecos-charts-settings" ref={this.setEditorRef}>
+            <Field labelPosition="top" isSmall={this.isSmall}>
+              <DropDown buttonClassName="ecos-charts-settings__type-select" buttonLabel="Выберите тип">
+                {types.map(item => {
+                  return (
+                    <DropDownItem className="ecos-charts-settings__type-elem" key={item.id} onClick={() => this.handleChangeTypeId(item)}>
+                      <span>{item.title}</span>
+                    </DropDownItem>
+                  );
+                })}
+              </DropDown>
 
-          {error && <InfoText text={t(Labels.Errors[error])} className="ecos-charts-settings__validate-message" type="error" />}
-        </Field>
+              <span>{currentType}</span>
+              {error && <InfoText text={t(error)} className="ecos-charts-settings__validate-message" type="error" />}
+            </Field>
 
-        <div className="ecos-charts-settings__buttons">
-          <Btn className="mr-3" onClick={onCancel}>
-            {t(Labels.Settings.SETTINGS_BTN_CANCEL)}
-          </Btn>
-          <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleSave} loading={isLoading}>
-            {t(Labels.Settings.SETTINGS_BTN_SAVE)}
-          </Btn>
-        </div>
-      </div>
+            {warning && <InfoText text={t(warning)} className="ecos-charts-settings__validate-message" type="warning" />}
+            <div className="ecos-charts-settings__buttons">
+              <Btn className="mr-3" onClick={onCancel}>
+                {t(Labels.Settings.SETTINGS_BTN_CANCEL)}
+              </Btn>
+              <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleSave} loading={isLoading}>
+                {t(Labels.Settings.SETTINGS_BTN_SAVE)}
+              </Btn>
+            </div>
+          </div>
+        )}
+      </>
     );
   }
 }
