@@ -8,6 +8,7 @@ import { getWorkspaceId } from '../helpers/urls';
 
 const EMODEL_FIELDS = {
   title: 'title',
+  topic: 'topic',
   text: 'text',
   createdAt: '_created',
   modifiedAt: '_modified',
@@ -76,6 +77,7 @@ export class ActivitiesApi {
       case ActivityTypes.EMAIL:
         comment.att('activityDate', rest.activityDate);
         comment.att('responsible', rest.responsible);
+        comment.att('topic', rest.topic);
         if (get(rest, 'activityDuration.id')) {
           comment.att('activityDuration', rest.activityDuration.id);
         }
@@ -84,7 +86,7 @@ export class ActivitiesApi {
         }
         break;
       case ActivityTypes.ASSIGNMENT:
-        comment.att('title', rest.titleAssignment);
+        comment.att('title', rest.topic);
         comment.att('initiator', rest.initiator);
         comment.att('performer', rest.performer);
         if (get(rest, 'dueDate')) {
@@ -113,12 +115,11 @@ export class ActivitiesApi {
     comment.att('_parent', record);
     comment.att('_parentAtt', 'has-ecos-activities:ecosActivities');
 
-    console.log('rest.participants:', rest.participants);
-
     switch (selectedType.id) {
       case ActivityTypes.MEETING:
       case ActivityTypes.CALL:
       case ActivityTypes.EMAIL:
+        comment.att('topic', rest.topic);
         comment.att('activityDate', rest.activityDate);
         if (get(rest, 'activityDuration.id')) {
           comment.att('activityDuration', rest.activityDuration.id);

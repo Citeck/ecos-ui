@@ -274,7 +274,7 @@
   "activities-widget.fields.term": "Term",
   "activities-widget.fields.term-placeholder": "Period of execution",
   "activities-widget.fields.title": "Title",
-  "activities-widget.fields.title-placeholder": "Assignment Title",
+  "activities-widget.fields.title-placeholder": "Title",
   "activities-widget.fields.priority": "Priority",
   "activities-widget.fields.priority-placeholder": "Priority of the order",
   "activities-widget.fields.initiator": "Initiator",
