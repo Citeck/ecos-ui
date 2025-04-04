@@ -1,9 +1,9 @@
+import { render } from '@testing-library/react';
 import React from 'react';
-import { shallow } from 'enzyme';
 
 import FileIcon from '../FileIcon';
-import { detectFormat } from '../helpers';
 import { blankFormat } from '../constants';
+import { detectFormat } from '../helpers';
 
 console.error = jest.fn();
 
@@ -12,21 +12,22 @@ const mainFormats = ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf', 'jpg', 
 describe('FileIcon tests', () => {
   describe('<FileIcon />', () => {
     it('should render FileIcon component', () => {
-      const component = shallow(<FileIcon />);
-      expect(component).toMatchSnapshot();
+      const component = render(<FileIcon />);
+      expect(component.asFragment(<FileIcon />)).toMatchSnapshot();
     });
 
     it('should apply className', () => {
-      const component = shallow(<FileIcon className="testClass" />);
-      expect(component.find('.testClass')).toHaveLength(1);
+      const { container } = render(<FileIcon className="testClass" />);
+      expect(container.getElementsByClassName('testClass')).toHaveLength(1);
     });
 
     describe('should display default icon when file format is invalid', () => {
       const inputs = [undefined, null, true, 1, 'unknown'];
+
       inputs.forEach(format => {
         it(`case ${format + ''}`, () => {
-          const component = shallow(<FileIcon format={format} />);
-          expect(component.find('.fiv-icon-blank')).toHaveLength(1);
+          const { container } = render(<FileIcon format={format} />);
+          expect(container.getElementsByClassName('fiv-icon-blank')).toHaveLength(1);
         });
       });
     });
@@ -34,8 +35,8 @@ describe('FileIcon tests', () => {
     describe('should display an icon corresponding to the file format', () => {
       mainFormats.forEach(format => {
         it(`case ${format + ''}`, () => {
-          const component = shallow(<FileIcon format={format} />);
-          expect(component.find(`.fiv-icon-${format}`)).toHaveLength(1);
+          const { container } = render(<FileIcon format={format} />);
+          expect(container.getElementsByClassName(`fiv-icon-${format}`)).toHaveLength(1);
         });
       });
     });
@@ -44,6 +45,7 @@ describe('FileIcon tests', () => {
   describe('detectFormat helper', () => {
     describe('should return format if filename contains correct extension', () => {
       const testCases = mainFormats.map(format => ({ input: `file.${format}`, output: format }));
+
       testCases.forEach(testCase => {
         it(`case ${testCase.input}`, () => {
           expect(detectFormat(testCase.input)).toBe(testCase.output);

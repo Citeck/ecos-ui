@@ -1,14 +1,19 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
 import isFunction from 'lodash/isFunction';
+import React from 'react';
+import { createRoot } from 'react-dom/client';
 
 import Modal from '../common/EcosModal/CiteckEcosModal';
-import EcosFormUtils from './EcosFormUtils';
-import EcosFormModal from './EcosFormModal';
+
 import EcosForm from './EcosForm';
-import { getId } from '../../helpers/util';
+import EcosFormModal from './EcosFormModal';
+import EcosFormUtils from './EcosFormUtils';
+
+import recordActions from '@/components/Records/actions';
+import { getId } from '@/helpers/util.js';
 
 class FormManager {
+  #root = null;
+
   static createRecordByVariant = (variant, options = {}) => {
     if (!variant) {
       console.error("[FormManager createRecordByVariant] Create variant is undefined. Record creation can't be preformed");
@@ -61,6 +66,28 @@ class FormManager {
       props.formId = formId;
     }
 
+    const baseOnSubmit = props.onSubmit || (() => {});
+    if (variant.postActionRef) {
+      props.onSubmit = async record => {
+        let actionProps = null;
+        try {
+          actionProps = await recordActions.getActionProps(variant.postActionRef);
+          await recordActions.execForRecord(record, actionProps);
+          return baseOnSubmit(record, true);
+        } catch (error) {
+          console.error(
+            'Error occurred while post-create action execution. ActionRef: ' + variant.postActionRef + ' Record: ' + record.id,
+            error
+          );
+          return baseOnSubmit(record, false);
+        }
+      };
+    } else {
+      props.onSubmit = record => {
+        return baseOnSubmit(record, false);
+      };
+    }
+
     return this.openFormModal(props);
   };
 
@@ -68,29 +95,34 @@ class FormManager {
     const container = document.createElement('div');
     container.id = getId();
 
+    document.body.appendChild(container);
+    const root = createRoot(container);
+
     const form = React.createElement(EcosFormModal, {
       ...props,
       container,
       isModalOpen: true,
       onHideModal: () => {
+        root.unmount();
         this.destroyForm(container);
         isFunction(props.onHideModal) && props.onHideModal();
       },
       onCancelModal: () => {
+        setTimeout(() => {
+          root.unmount();
+        }, 0);
+
         this.destroyForm(container);
         isFunction(props.onModalCancel) && props.onModalCancel();
       }
     });
 
-    document.body.appendChild(container);
-    ReactDOM.render(form, container);
+    root.render(form);
 
     return container;
   }
 
   static destroyForm(container) {
-    ReactDOM.unmountComponentAtNode(container);
-
     if (document.getElementById(container.id)) {
       document.body.removeChild(container);
     }
@@ -123,7 +155,7 @@ window.Citeck.FormManager = FormManager;
 window.Citeck.forms = window.Citeck.forms || {};
 window.Citeck.forms.eform =
   window.Citeck.forms.eform ||
-  function(record, config = {}) {
+  function (record, config = {}) {
     const { params = {}, ...other } = config;
     FormManager.openFormModal({ record, ...params, ...other });
   };

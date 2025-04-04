@@ -1,5 +1,5 @@
-import { createSelector } from 'reselect';
 import get from 'lodash/get';
+import { createSelector } from 'reselect';
 
 import { defaultState } from '../reducers/documentLibrary';
 
@@ -20,6 +20,8 @@ export const selectJournalId = createSelector(selectDocLib, docLib => get(docLib
 export const selectDocLibTypeRef = createSelector(selectDocLib, docLib => get(docLib, 'typeRef', null));
 
 export const selectDocLibSidebar = createSelector(selectDocLib, docLib => get(docLib, 'sidebar', {}));
+
+export const selectDocLibSidebarItems = createSelector(selectDocLib, docLib => get(docLib, 'sidebar.items', {}));
 
 export const selectDocLibFileViewer = createSelector(selectDocLib, docLib => get(docLib, 'fileViewer', {}));
 

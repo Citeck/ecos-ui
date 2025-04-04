@@ -1,3 +1,4 @@
+/* eslint-disable */ // eslint break the initialization
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
@@ -7,15 +8,16 @@ import debounce from 'lodash/debounce';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 
-import { getModel, setNewData, changeFilter } from '../../../actions/processStatistics';
 import { InfoText, Legend, ResizableBox, Scaler } from '../../common';
 import { ControlledCheckbox, Range } from '../../common/form';
 import { ScaleOptions } from '../../common/Scaler/util';
-import { t } from '../../../helpers/export/util';
 import BPMNViewer from '../../ModelViewer/BPMNViewer';
 import { DefSets, getPreparedHeatItem, getPreparedKPIItem, Labels } from './util';
 import { EXTENDED_MODE, KPI_MODE } from './constants';
 import Section from './Section';
+
+import { getModel, setNewData, changeFilter } from '@/actions/processStatistics';
+import { t } from '@/helpers/util';
 
 import './style.scss';
 
@@ -29,14 +31,14 @@ const mapStateToProps = (state, context) => {
     heatmapData: psState.heatmapData,
     isNewData: psState.isNewData,
     KPIData: psState.KPIData,
-    isMobile: state.view.isMobile
+    isMobile: state.view.isMobile,
   };
 };
 
-const mapDispatchToProps = dispatch => ({
-  getModelData: payload => dispatch(getModel(payload)),
-  setNewData: payload => dispatch(setNewData(payload)),
-  changeFilter: payload => dispatch(changeFilter(payload))
+const mapDispatchToProps = (dispatch) => ({
+  getModelData: (payload) => dispatch(getModel(payload)),
+  setNewData: (payload) => dispatch(setNewData(payload)),
+  changeFilter: (payload) => dispatch(changeFilter(payload)),
 });
 
 class Model extends React.Component {
@@ -56,14 +58,14 @@ class Model extends React.Component {
         id: PropTypes.string,
         name: PropTypes.string,
         activeCount: PropTypes.number,
-        completedCount: PropTypes.number
-      })
-    )
+        completedCount: PropTypes.number,
+      }),
+    ),
   };
 
   static defaultProps = {
     className: '',
-    withPercentCount: false
+    withPercentCount: false,
   };
 
   constructor(props) {
@@ -79,7 +81,7 @@ class Model extends React.Component {
       isCompletedCount: true,
       legendData: {},
       isTempHeatmapOff: false,
-      opacity: DefSets.OPACITY
+      opacity: DefSets.OPACITY,
     };
   }
 
@@ -114,13 +116,13 @@ class Model extends React.Component {
       this.setState(
         {
           isShowCounters: this.props.formMode === KPI_MODE ? false : prevState.isShowCounters,
-          isHeatmapMounted: false
+          isHeatmapMounted: false,
         },
         () => {
           this.designer.heatmap.destroy();
           showHeatmapDefault ? this.renderHeatmap() : this.switchHeatMapOff();
           this.renderBadges();
-        }
+        },
       );
     }
 
@@ -146,7 +148,7 @@ class Model extends React.Component {
     const { isActiveCount, isCompletedCount } = this.state;
 
     if (formMode === KPI_MODE) {
-      return KPIData.map(item => getPreparedKPIItem(item)).filter(item => item.value);
+      return KPIData.map((item) => getPreparedKPIItem(item)).filter((item) => item.value);
     }
 
     setNewData({ stateId, isNewData: false });
@@ -155,14 +157,14 @@ class Model extends React.Component {
       return [];
     }
 
-    return heatmapData.map(item => getPreparedHeatItem(item, { isActiveCount, isCompletedCount })).filter(item => item.value);
+    return heatmapData.map((item) => getPreparedHeatItem(item, { isActiveCount, isCompletedCount })).filter((item) => item.value);
   };
 
-  setHeight = height => {
+  setHeight = (height) => {
     this.designer.setHeight(height);
   };
 
-  handleInitSheet = isModelMounting => {
+  handleInitSheet = (isModelMounting) => {
     this.setState({ isModelMounting });
   };
 
@@ -177,7 +179,7 @@ class Model extends React.Component {
     }
   };
 
-  toggleTempHeatmap = isTempHeatmapOff => {
+  toggleTempHeatmap = (isTempHeatmapOff) => {
     this.setState({ isTempHeatmapOff }, () => {
       this.handleToggleHeatmap();
     });
@@ -196,19 +198,21 @@ class Model extends React.Component {
   };
 
   handleWheel = () => {
-    let handle = null;
+    const { isShowHeatmap, isTempHeatmapOff } = this.state;
 
-    if (handle) {
-      clearTimeout(handle);
+    if (isShowHeatmap && !isTempHeatmapOff) {
+      this.setState({ isTempHeatmapOff: true, isShowHeatmap: false }, () => this.toggleHeatmap());
     }
 
-    this.state.isShowHeatmap && this.toggleTempHeatmap(true);
-
-    handle = setTimeout(this.handleStopWheel, 100);
+    setTimeout(this.handleStopWheel, 100);
   };
 
   handleStopWheel = () => {
-    this.state.isTempHeatmapOff && this.toggleTempHeatmap(false);
+    const { isTempHeatmapOff } = this.state;
+
+    if (isTempHeatmapOff) {
+      this.setState({ isTempHeatmapOff: false, isShowHeatmap: true }, () => this.toggleHeatmap());
+    }
   };
 
   renderBadges = () => {
@@ -232,7 +236,7 @@ class Model extends React.Component {
     this.designer.drawBadges({
       keys,
       data: this.props.heatmapData,
-      withPercentCount
+      withPercentCount,
     });
   };
 
@@ -259,7 +263,7 @@ class Model extends React.Component {
           }, 100)();
         },
         formMode,
-        hasTooltip: false
+        hasTooltip: false,
       });
     } else {
       setNewData({ stateId, isNewData: false });
@@ -300,44 +304,44 @@ class Model extends React.Component {
   };
 
   handleToggleHeatmap = () => {
-    const { isModelMounted, isHeatmapMounted } = this.state;
-
     this.setState(
       ({ isShowHeatmap }) => ({ isShowHeatmap: !isShowHeatmap }),
-      () => {
-        const { isShowHeatmap } = this.state;
-
-        switch (true) {
-          case isHeatmapMounted && !isShowHeatmap:
-            this.switchHeatMapOff();
-            break;
-          case isShowHeatmap && isModelMounted:
-            this.reRenderHeatmap();
-            break;
-          default:
-            break;
-        }
-      }
+      () => this.toggleHeatmap(),
     );
   };
 
-  handleChangeHeatmap = legendData => {
+  toggleHeatmap = () => {
+    const { isModelMounted, isHeatmapMounted, isShowHeatmap } = this.state;
+
+    switch (true) {
+      case isHeatmapMounted && !isShowHeatmap:
+        this.switchHeatMapOff();
+        break;
+      case isShowHeatmap && isModelMounted:
+        this.reRenderHeatmap();
+        break;
+      default:
+        break;
+    }
+  };
+
+  handleChangeHeatmap = (legendData) => {
     this.setState({ legendData }, () => {
       this.renderBadges();
     });
   };
 
-  handleChangeOpacity = value => {
+  handleChangeOpacity = (value) => {
     this.setState({ opacity: Number(value) }, () => {
       this.designer && this.designer.heatmap && this.designer.heatmap.setOpacity(value);
     });
   };
 
-  handleClickZoom = value => {
+  handleClickZoom = (value) => {
     this.designer.setZoom(value);
   };
 
-  handleChangeCountFlag = data => {
+  handleChangeCountFlag = (data) => {
     const { changeFilter, stateId, record } = this.props;
     let { isCompletedCount, isActiveCount } = data;
 
@@ -355,20 +359,20 @@ class Model extends React.Component {
       val: [
         {
           att: 'completed',
-          t: isActiveCount ? 'empty' : 'not-empty'
+          t: isActiveCount ? 'empty' : 'not-empty',
         },
         {
           att: 'completed',
-          t: isCompletedCount ? 'not-empty' : 'empty'
-        }
-      ]
+          t: isCompletedCount ? 'not-empty' : 'empty',
+        },
+      ],
     };
 
     changeFilter({ stateId, record, data: [predicate] });
     this.setState(data);
   };
 
-  handleToggleShowCounters = () => this.setState(state => ({ isShowBadges: !state.isShowBadges }));
+  handleToggleShowCounters = () => this.setState((state) => ({ isShowBadges: !state.isShowBadges }));
 
   renderSwitches = () => {
     const { isShowHeatmap, isShowBadges, isTempHeatmapOff } = this.state;
@@ -435,14 +439,14 @@ class Model extends React.Component {
       isActiveCount,
       isCompletedCount,
       legendData,
-      opacity
+      opacity,
     } = this.state;
 
     const Sheet = this.designer && this.designer.renderSheet;
 
     const zoomCenter = {
       x: 0,
-      y: 0
+      y: 0,
     };
 
     const showHeatmap = isTempHeatmapOff || isShowHeatmap;
@@ -456,7 +460,7 @@ class Model extends React.Component {
           'ecos-process-statistics-model_hidden-completed-count': !isCompletedCount,
           'ecos-process-statistics-model_hidden-badges': !isShowBadges,
           'ecos-process-statistics-model_hidden-heatmap': !isShowHeatmap,
-          'ecos-process-statistics-model-kpi': this.props.formMode === KPI_MODE
+          'ecos-process-statistics-model-kpi': this.props.formMode === KPI_MODE,
         })}
       >
         <Section title={t(Labels.MODEL_TITLE)} isLoading={isLoading || isModelMounting} opened>
@@ -501,7 +505,4 @@ class Model extends React.Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Model);
+export default connect(mapStateToProps, mapDispatchToProps)(Model);

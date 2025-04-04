@@ -1,53 +1,54 @@
-import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
 import classNames from 'classnames';
+import cloneDeep from 'lodash/cloneDeep';
+import find from 'lodash/find';
+import get from 'lodash/get';
+import head from 'lodash/head';
+import isArray from 'lodash/isArray';
+import isBoolean from 'lodash/isBoolean';
+import isElement from 'lodash/isElement';
+import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
+import isFunction from 'lodash/isFunction';
+import isNil from 'lodash/isNil';
+import isObject from 'lodash/isObject';
+import isString from 'lodash/isString';
+import isUndefined from 'lodash/isUndefined';
+import last from 'lodash/last';
+import omit from 'lodash/omit';
+import pick from 'lodash/pick';
+import set from 'lodash/set';
 import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
 import BootstrapTableConst from 'react-bootstrap-table-next/lib/src/const';
 import cellEditFactory from 'react-bootstrap-table2-editor';
 import { Scrollbars } from 'react-custom-scrollbars';
-import set from 'lodash/set';
-import get from 'lodash/get';
-import head from 'lodash/head';
-import last from 'lodash/last';
-import cloneDeep from 'lodash/cloneDeep';
-import omit from 'lodash/omit';
-import pick from 'lodash/pick';
-import find from 'lodash/find';
-import isEmpty from 'lodash/isEmpty';
-import isEqual from 'lodash/isEqual';
-import isNil from 'lodash/isNil';
-import isUndefined from 'lodash/isUndefined';
-import isArray from 'lodash/isArray';
-import isFunction from 'lodash/isFunction';
-import isString from 'lodash/isString';
-import isBoolean from 'lodash/isBoolean';
-import isObject from 'lodash/isObject';
-import isElement from 'lodash/isElement';
-
+import { createRoot } from 'react-dom/client';
 import { Tooltip } from 'reactstrap';
-import { NotificationManager } from 'react-notifications';
 
-import EcosTooltip from '../../Tooltip';
-import Loader from '../../../common/Loader';
-import { getId, t, getCurrentUserName } from '../../../../helpers/util';
-import FormatterService from '../../../Journals/service/formatters/FormatterService';
-import EcosProgressLoading from '../../EcosProgressLoading';
-import DateTimeFormatter from '../../../Journals/service/formatters/registry/DateTimeFormatter';
-import DateFormatter from '../../../Journals/service/formatters/registry/DateFormatter';
+import ClickOutside from '../../../ClickOutside';
 import { COMPLEX_FILTER_LIMIT, ECOS_GRID_PADDING_HORIZONTAL, JOURNAL_MIN_HEIGHT } from '../../../Journals/constants';
-import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
-import { SELECTOR_MENU_KEY } from '../util';
+import FormatterService from '../../../Journals/service/formatters/FormatterService';
+import DateFormatter from '../../../Journals/service/formatters/registry/DateFormatter';
+import DateTimeFormatter from '../../../Journals/service/formatters/registry/DateTimeFormatter';
+import Loader from '../../../common/Loader';
+import EcosProgressLoading from '../../EcosProgressLoading';
+import EcosTooltip from '../../Tooltip';
+import Button from '../../btns/Btn';
+import Icon from '../../icons/Icon';
+import NoData from '../../icons/NoData';
 import ErrorCell from '../ErrorCell';
 import ErrorTable from '../ErrorTable';
-import SelectorHeader from './SelectorHeader';
+import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
+import { SELECTOR_MENU_KEY } from '../util';
+
 import Selector from './Selector';
-import pageTabList from '../../../../services/pageTabs/PageTabList';
-import NoData from '../../icons/NoData';
-import Button from '../../btns/Btn';
-import { pagesStore } from '../../../../helpers/indexedDB';
-import ClickOutside from '../../../ClickOutside';
-import Icon from '../../icons/Icon';
+import SelectorHeader from './SelectorHeader';
+
+import { pagesStore } from '@/helpers/indexedDB';
+import { getId, t, getCurrentUserName } from '@/helpers/util';
+import { NotificationManager } from '@/services/notifications';
+import pageTabList from '@/services/pageTabs/PageTabList';
 
 import './Grid.scss';
 import '../../Tooltip/style.scss';
@@ -57,12 +58,15 @@ const ECOS_JOURNAL_CLASS = 'ecos-journal';
 const ECOS_GRID_HOVERED_CLASS = 'ecos-grid_hovered';
 const ECOS_GRID_GRAG_CLASS = 'ecos-grid_drag';
 const ECOS_GRID_ROW_CLASS = 'ecos-grid__row';
+const HAS_INLINE_TOOLS_CLASS = 'has-inline-tools';
 const ECOS_GRID_HEADER = 'ecos-grid__header';
 const ECOS_GRID_HEADER_LOADER = 'ecos-grid__header-loader';
 const ECOS_GRID_HEAD_SHADOW = 'ecos-grid__head-shadow';
 const ECOS_GRID_LEFT_SHADOW = 'ecos-grid__left-shadow';
 const ECOS_GRID_INLINE_TOOLS_CONTAINER = 'ecos-grid__inline-tools-container';
 const REACT_BOOTSTRAP_TABLE = 'react-bootstrap-table';
+
+const HEIGHT_TABLE_ROW_IN_WIDGET = 38;
 
 const cssNum = v => `${v}px`;
 
@@ -171,7 +175,12 @@ class Grid extends Component {
       resizableColumns ? this.createColumnResizeEvents() : this.removeColumnResizeEvents();
     }
 
-    if (!isEqual(prevProps.columns.map(i => i.id), columns.map(i => i.id))) {
+    if (
+      !isEqual(
+        prevProps.columns.map(i => i.id),
+        columns.map(i => i.id)
+      )
+    ) {
       this.setState({ needCellUpdate: true }, () => this.setState({ needCellUpdate: false }));
     }
 
@@ -195,6 +204,8 @@ class Grid extends Component {
       const headerElement = current.querySelector(`.${ECOS_GRID_HEADER}`);
       const headerLoaderElement = current.querySelector(`.${ECOS_GRID_HEADER_LOADER}`);
 
+      let root = null;
+
       if (headerElement && !headerLoaderElement && loading) {
         const theadElement = headerElement.closest('thead');
 
@@ -204,10 +215,11 @@ class Grid extends Component {
 
           theadElement.appendChild(loaderDiv);
 
-          ReactDOM.render(<EcosProgressLoading />, loaderDiv);
+          root = createRoot(loaderDiv);
+          root.render(<EcosProgressLoading />);
         }
       } else if (headerLoaderElement && !loading) {
-        ReactDOM.unmountComponentAtNode(headerLoaderElement);
+        root?.unmount();
         headerLoaderElement.remove();
       }
     }
@@ -364,13 +376,13 @@ class Grid extends Component {
         >
           <NoData />
           <div className="ecos-grid__no-data_info">
-            <h3 className="ecos-grid__no-data_info-head">{t('grid.no-data-head')}</h3>
-            <span className="ecos-grid__no-data_info-description">{t('grid.no-data-indication')}</span>
+            <h3 className="ecos-grid__no-data_info-head">{t('comp.no-data.head')}</h3>
+            <span className="ecos-grid__no-data_info-description">{t('comp.no-data.indication')}</span>
           </div>
         </div>
       );
     } else if (!isViewNewJournal || isWidget) {
-      noDataIndication = t('grid.no-data-indication');
+      noDataIndication = t('comp.no-data.indication');
     }
 
     const options = {
@@ -571,19 +583,19 @@ class Grid extends Component {
     if (currentTarget) {
       const inlineToolsElement = currentTarget.querySelector(`.${ECOS_GRID_INLINE_TOOLS_CONTAINER}`);
       if (inlineToolsElement) {
-        ReactDOM.unmountComponentAtNode(inlineToolsElement);
+        currentTarget._inlineToolsRoot?.unmount();
         currentTarget.removeChild(inlineToolsElement);
-        currentTarget.classList.remove('has-inline-tools');
+        currentTarget.classList.remove(HAS_INLINE_TOOLS_CLASS);
       }
     } else {
       const inlineToolsElement = document.querySelector(`.${ECOS_GRID_INLINE_TOOLS_CONTAINER}`);
       if (inlineToolsElement) {
-        ReactDOM.unmountComponentAtNode(inlineToolsElement);
         const parentElement = inlineToolsElement.parentNode;
         inlineToolsElement.remove();
 
         if (parentElement && !parentElement.querySelector(`.${ECOS_GRID_INLINE_TOOLS_CONTAINER}`)) {
-          parentElement.classList.remove('has-inline-tools');
+          parentElement._inlineToolsRoot?.unmount();
+          parentElement.classList.remove(HAS_INLINE_TOOLS_CLASS);
         }
       }
     }
@@ -597,17 +609,25 @@ class Grid extends Component {
       const inlineTools = this.inlineTools(settingInlineTools);
 
       if (inlineTools) {
-        ReactDOM.render(inlineTools, inlineToolsElement);
+        const root = createRoot(inlineToolsElement);
+        root.render(inlineTools);
+
         currentTarget.appendChild(inlineToolsElement);
-        currentTarget.classList.add('has-inline-tools');
+        currentTarget.classList.add(HAS_INLINE_TOOLS_CLASS);
+
+        currentTarget._inlineToolsRoot = root;
       }
     } else if (isFunction(this.props.inlineActions)) {
       const inlineActions = this.props.inlineActions(get(settingInlineTools, 'row.id') || null);
 
       if (inlineActions) {
-        ReactDOM.render(inlineActions, inlineToolsElement);
+        const root = createRoot(inlineToolsElement);
+        root.render(inlineActions);
+
         currentTarget.appendChild(inlineToolsElement);
-        currentTarget.classList.add('has-inline-tools');
+        currentTarget.classList.add(HAS_INLINE_TOOLS_CLASS);
+
+        currentTarget._inlineToolsRoot = root;
       }
     }
   };
@@ -751,7 +771,7 @@ class Grid extends Component {
         this.setState({ hasFooter: true });
       }
 
-      const targetId = `total-amount-${journalId}_${name}`;
+      const targetId = `total-amount-${journalId}_${name}`.replace(/\:/g, '');
 
       return (
         <div className="ecos-grid__table_footer__value">
@@ -768,17 +788,8 @@ class Grid extends Component {
   };
 
   setHeaderFormatter = (column, filterable, sortable, width) => {
-    const {
-      filters,
-      sortBy,
-      onSort,
-      onFilter,
-      onOpenSettings,
-      originPredicates,
-      recordRef,
-      deselectAllRecords,
-      isViewNewJournal
-    } = this.props;
+    const { filters, sortBy, onSort, onFilter, onOpenSettings, originPredicates, recordRef, deselectAllRecords, isViewNewJournal } =
+      this.props;
     const isFilterable = filterable && column.searchable && column.searchableByText && isFunction(onFilter);
     const disableSelect = column.disableSelect;
     const isSortable = sortable && isFunction(onSort);
@@ -1327,7 +1338,8 @@ class Grid extends Component {
       tableViewClassName,
       gridWrapperClassName,
       hTrackClassName,
-      isViewNewJournal
+      isViewNewJournal,
+      data
     } = this.props;
 
     let { maxHeight } = this.state;
@@ -1347,9 +1359,20 @@ class Grid extends Component {
       }
     }
 
+    if (this._scrollRef && data && data.length && !ecosJournalEl && this._tableDom && get(scrollStyle, 'height') && !autoHeight) {
+      const scrollHeight = this._scrollRef.getScrollHeight();
+      if (scrollStyle.height !== '100%' && scrollHeight > scrollStyle.height) {
+        const rows = this._tableDom.querySelectorAll(`tr.${ECOS_GRID_ROW_CLASS}`);
+        if (rows && rows.length) {
+          rows.forEach(row => {
+            scrollStyle.height += row.clientHeight - HEIGHT_TABLE_ROW_IN_WIDGET;
+          });
+        }
+      }
+    }
+
     return (
       <Scrollbars
-        minHeight={isViewNewJournal && ecosJournalEl ? maxHeight : null}
         ref={this.scrollRefCallback}
         onScrollStart={this.onScrollStart}
         onScrollFrame={this.onScrollFrame}
@@ -1427,18 +1450,8 @@ class Grid extends Component {
   }
 
   render() {
-    const {
-      className,
-      noTopBorder,
-      columns,
-      noHeader,
-      scrollable,
-      selected,
-      multiSelectable,
-      noHorizontalScroll,
-      isViewNewJournal,
-      data
-    } = this.props;
+    const { className, noTopBorder, columns, noHeader, scrollable, selected, multiSelectable, noHorizontalScroll, isViewNewJournal, data } =
+      this.props;
     const { updatedColumn, updatedColumnBlocked, maxHeight, hasFooter } = this.state;
 
     if (isEmpty(columns)) {

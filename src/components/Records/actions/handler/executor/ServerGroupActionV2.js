@@ -1,17 +1,17 @@
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import React from 'react';
-import ActionsExecutor from '../ActionsExecutor';
-import logger from '../../../../../services/logger';
-import Records from '../../../Records';
-import LicenseService from '../../../../../services/license/LicenseService';
-import { NotificationManager } from 'react-notifications';
-import { DialogManager } from '../../../../common/dialogs';
-import EcosProgressBar from '../../../../common/EcosProgressBar';
 
 import { t } from '../../../../../helpers/export/util';
+import LicenseService from '../../../../../services/license/LicenseService';
+import EcosProgressBar from '../../../../common/EcosProgressBar';
+import { DialogManager } from '../../../../common/dialogs';
+import Records from '../../../Records';
 import { notifyStart, removeNotify } from '../../util/actionUtils';
 import { ResultTypes } from '../../util/constants';
+import ActionsExecutor from '../ActionsExecutor';
+
+import { NotificationManager } from '@/services/notifications';
 
 const STATUS_WAITING = 'WAITING';
 const STATUS_RUNNING = 'RUNNING';
@@ -30,6 +30,16 @@ const Labels = {
 
 export default class ServerGroupActionV2 extends ActionsExecutor {
   static ACTION_ID = 'server-group-action-v2';
+
+  async execForRecord(record, action, context) {
+    const values = {
+      type: 'records-list',
+      config: {
+        records: [record.id]
+      }
+    };
+    return this.execForValues(values, action);
+  }
 
   async execForRecords(records, action, context) {
     const values = {
@@ -60,7 +70,7 @@ export default class ServerGroupActionV2 extends ActionsExecutor {
 
     const { targetApp, executionParams = {}, valuesParams = {}, outputParams = {} } = action.config || {};
 
-    const actionValuesParams = { ...valuesParams, ...values };
+    const actionValuesParams = { ...values, ...valuesParams };
     const actionExecutionParams = { ...executionParams };
     const actionOutputParams = { ...outputParams };
 
@@ -146,12 +156,12 @@ export default class ServerGroupActionV2 extends ActionsExecutor {
             }
             promiseResolve(result);
           } else {
-            logger.error('[ServerGroupActionV2] error', { values, action, actionAtts });
+            console.error('[ServerGroupActionV2] error', { values, action, actionAtts });
             promiseReject(new Error('Group action completed with unexpected status. Result: ' + JSON.stringify(actionAtts)));
           }
         }
       } catch (e) {
-        logger.error('[ServerGroupActionV2] error', { values, action });
+        console.error('[ServerGroupActionV2] error', { values, action });
         promiseReject(e);
       }
     };

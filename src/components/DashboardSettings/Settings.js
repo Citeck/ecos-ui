@@ -1,19 +1,20 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import * as queryString from 'query-string';
-import get from 'lodash/get';
-import isNull from 'lodash/isNull';
-import isEmpty from 'lodash/isEmpty';
-import isArray from 'lodash/isArray';
-import find from 'lodash/find';
 import cloneDeep from 'lodash/cloneDeep';
-import isEqualWith from 'lodash/isEqualWith';
+import find from 'lodash/find';
+import get from 'lodash/get';
+import isArray from 'lodash/isArray';
+import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
+import isEqualWith from 'lodash/isEqualWith';
 import isFunction from 'lodash/isFunction';
+import isNull from 'lodash/isNull';
 import last from 'lodash/last';
+import PropTypes from 'prop-types';
+import * as queryString from 'query-string';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Container } from 'reactstrap';
 
+import { getDashboardConfig as getDashboardConfigPage, resetAllDashboardsConfig } from '../../actions/dashboard';
 import {
   getCheckUpdatedDashboardConfig,
   initDashboardSettings,
@@ -22,27 +23,26 @@ import {
   saveDashboardConfig,
   setCheckUpdatedDashboardConfig
 } from '../../actions/dashboardSettings';
-import { getDashboardConfig as getDashboardConfigPage, resetAllDashboardsConfig } from '../../actions/dashboard';
-import { selectStateByKey } from '../../selectors/dashboardSettings';
-import { decodeLink, getSearchParams, getSortedUrlParams, SearchKeys } from '../../helpers/urls';
-import { t } from '../../helpers/util';
-import { removeItems } from '../../helpers/ls';
-import { RequestStatuses } from '../../constants';
-import { DefaultWidgetsByLayout, Layouts, LayoutTypes } from '../../constants/layout';
-import { DashboardTypes, DeviceTabs } from '../../constants/dashboard';
-import DashboardSettingsConverter from '../../dto/dashboardSettings';
-import DashboardService from '../../services/dashboard';
-import PageTabList from '../../services/pageTabs/PageTabList';
-import UserLocalSettingsService from '../../services/userLocalSettings';
 import { DndUtils } from '../../components/Drag-n-Drop';
 import { Loader, Tabs } from '../../components/common';
 import { Btn } from '../../components/common/btns';
 import { TunableDialog } from '../../components/common/dialogs';
+import { RequestStatuses } from '../../constants';
+import { DashboardTypes, DeviceTabs } from '../../constants/dashboard';
+import { DefaultWidgetsByLayout, Layouts, LayoutTypes } from '../../constants/layout';
+import DashboardSettingsConverter from '../../dto/dashboardSettings';
+import { removeItems } from '../../helpers/ls';
+import { decodeLink, getSearchParams, getSortedUrlParams, SearchKeys } from '../../helpers/urls';
+import { t } from '../../helpers/util';
+import { selectStateByKey } from '../../selectors/dashboardSettings';
+import DashboardService from '../../services/dashboard';
+import PageTabList from '../../services/pageTabs/PageTabList';
+import UserLocalSettingsService from '../../services/userLocalSettings';
 import { clearCache } from '../ReactRouterCache';
 
 import SetBind from './parts/SetBind';
-import SetTabs from './parts/SetTabs';
 import SetLayouts from './parts/SetLayouts';
+import SetTabs from './parts/SetTabs';
 import SetWidgets from './parts/SetWidgets';
 
 import './style.scss';
@@ -155,7 +155,7 @@ class Settings extends Component {
     return true;
   }
 
-  componentWillReceiveProps(nextProps, nextContext) {
+  UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
     const { urlParams } = this.state;
     const newUrlParams = getSortedUrlParams();
     let { config, mobileConfig, availableWidgets, identification } = this.props;
@@ -810,7 +810,4 @@ export const mapDispatchToProps = (dispatch, ownProps) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Settings);
+export default connect(mapStateToProps, mapDispatchToProps)(Settings);

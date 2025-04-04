@@ -1,13 +1,12 @@
-import { takeEvery } from 'redux-saga';
-import { call, put, select } from 'redux-saga/effects';
+import { call, put, select, takeEvery } from 'redux-saga/effects';
 
 import { getJournalTabInfo, getMetaInfo, getActionsInfo, setJournalTabInfo, setMetaInfo, setActionsInfo } from '../actions/instanceAdmin';
-import { selectInstanceTabInfo } from '../selectors/instanceAdmin';
-import { SourcesId } from '../constants';
-import RecordActionsApi from '../components/Records/actions/recordActionsApi';
 import RecordActions from '../components/Records/actions/recordActions';
+import RecordActionsApi from '../components/Records/actions/recordActionsApi';
+import { SourcesId } from '../constants';
+import { selectInstanceTabInfo } from '../selectors/instanceAdmin';
 
-function* sagaGetMetaInfo({ api, logger }, { payload }) {
+function* sagaGetMetaInfo({ api }, { payload }) {
   try {
     const { instanceId } = payload;
 
@@ -15,11 +14,11 @@ function* sagaGetMetaInfo({ api, logger }, { payload }) {
 
     yield put(setMetaInfo({ instanceId, metaInfo }));
   } catch (e) {
-    logger.error('[bpmnAdmin sagaGetMetaInfo saga] error', e);
+    console.error('[bpmnAdmin sagaGetMetaInfo saga] error', e);
   }
 }
 
-function* sagaGetJournalTabInfo({ api, logger }, { payload }) {
+function* sagaGetJournalTabInfo({ api }, { payload }) {
   try {
     const tabInfo = yield select(selectInstanceTabInfo, payload);
 
@@ -27,11 +26,11 @@ function* sagaGetJournalTabInfo({ api, logger }, { payload }) {
 
     yield put(setJournalTabInfo({ ...payload, ...tabInfo, data: tabInfoResponse.records, totalCount: tabInfoResponse.totalCount }));
   } catch (e) {
-    logger.error('[bpmnAdmin sagaGetJournalTabInfo saga] error', e);
+    console.error('[bpmnAdmin sagaGetJournalTabInfo saga] error', e);
   }
 }
 
-function* sagaGetActionsInfo({ api, logger }, { payload }) {
+function* sagaGetActionsInfo({ api }, { payload }) {
   try {
     const { instanceId } = payload;
 
@@ -45,7 +44,7 @@ function* sagaGetActionsInfo({ api, logger }, { payload }) {
 
     yield put(setActionsInfo({ instanceId, actions: actionsResponse.forRecord[instanceId] }));
   } catch (e) {
-    logger.error('[bpmnAdmin sagaGetJournalTabInfo saga] error', e);
+    console.error('[bpmnAdmin sagaGetJournalTabInfo saga] error', e);
   }
 }
 

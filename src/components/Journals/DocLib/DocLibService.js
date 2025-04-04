@@ -1,14 +1,16 @@
-import { EventEmitter2 } from 'eventemitter2';
+import { EventEmitter } from 'events';
 import get from 'lodash/get';
 
-import { SourcesId } from '../../../constants';
-import DocLibConverter from '../../../dto/docLib';
-
-import { LS_UNFOLDED_PREFIX, NODE_TYPES } from '../../../constants/docLib';
-import { t } from '../../../helpers/export/util';
 import EcosFormUtils from '../../../components/EcosForm/EcosFormUtils';
+import { SourcesId } from '../../../constants';
+import { LS_UNFOLDED_PREFIX, NODE_TYPES } from '../../../constants/docLib';
+import DocLibConverter from '../../../dto/docLib';
+import { t } from '../../../helpers/export/util';
+import Records from '../../Records';
 
 import docLibApi from './DocLibServiceApi';
+
+const CREATE_VARIANTS_ATT = 'createVariants[]{id,name,typeRef?id,formRef?id,attributes?json,postActionRef?id}!';
 
 /**
  * Service to work with document library.
@@ -17,7 +19,7 @@ class DocLibService {
   actionSuccessCallback = 'ACTION_SUCCESS_CALLBACK';
 
   constructor() {
-    this.emitter = new EventEmitter2();
+    this.emitter = new EventEmitter();
   }
 
   getRootId(typeRef) {
@@ -86,6 +88,10 @@ class DocLibService {
       }
     }
 
+    if (atts._disp && atts.name) {
+      delete atts._disp; // If there is a 'name' attribute, then '_disp' is not needed. They can be different
+    }
+
     return docLibApi.createChild(rootId, { attributes: atts });
   }
 
@@ -149,31 +155,67 @@ class DocLibService {
   }
 
   async getCreateVariants(dirTypeRef, fileTypeRefs) {
-    const cv = [];
+    const createVariantsPromises = [];
 
     if (dirTypeRef) {
-      cv.push({
-        title: await docLibApi.getDisp(dirTypeRef),
-        destination: dirTypeRef,
-        nodeType: NODE_TYPES.DIR
-      });
+      const promise = Records.get(dirTypeRef)
+        .load(CREATE_VARIANTS_ATT)
+        .then(dirVariants => {
+          const createVariants = [];
+          for (let variant of dirVariants || []) {
+            createVariants.push({
+              ...variant,
+              nodeType: NODE_TYPES.DIR
+            });
+          }
+          return createVariants;
+        });
+      createVariantsPromises.push(promise);
     }
 
     if (Array.isArray(fileTypeRefs)) {
-      for (let fileTypeRef of fileTypeRefs) {
-        cv.push({
-          title: await docLibApi.getDisp(fileTypeRef),
-          destination: fileTypeRef,
-          nodeType: NODE_TYPES.FILE
+      const promise = Records.get(fileTypeRefs)
+        .load(CREATE_VARIANTS_ATT)
+        .then(fileVariants => {
+          const createVariants = [];
+          if (fileTypeRefs.length === 1) {
+            for (let variant of fileVariants[0] || []) {
+              if (variant.id === 'DEFAULT') {
+                variant.name = t('document-library.file');
+                break;
+              }
+            }
+          }
+          for (let typeVariants of fileVariants) {
+            for (let variant of typeVariants || []) {
+              createVariants.push({
+                ...variant,
+                nodeType: NODE_TYPES.FILE
+              });
+            }
+          }
+          return createVariants;
         });
-      }
+      createVariantsPromises.push(promise);
     }
 
-    return cv;
+    const createVariants = (await Promise.all(createVariantsPromises)).flat();
+
+    for (let idx in createVariants) {
+      const variant = createVariants[idx];
+      const typeRef = variant.typeRef;
+      variant.key = typeRef.substring(typeRef.indexOf('@')) + '-' + variant.id + '-' + idx;
+    }
+
+    return createVariants;
   }
 
   async getCreateFormDefinition(createVariant) {
     const nodeType = createVariant.nodeType;
+
+    if (createVariant.formRef) {
+      return EcosFormUtils.getFormById(createVariant.formRef, 'definition?json');
+    }
 
     if (nodeType === NODE_TYPES.FILE) {
       const formId = await docLibApi.getInhFormRef(createVariant.destination);

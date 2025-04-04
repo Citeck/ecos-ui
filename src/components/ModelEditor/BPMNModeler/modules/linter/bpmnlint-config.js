@@ -1,4 +1,4 @@
-import { t } from '../../../../../helpers/util';
+import { t } from '@/helpers/util';
 
 import { userTaskRulesMap, userTaskCacheMap } from './userTask';
 import { scriptTaskRulesMap, scriptTaskCacheMap } from './scriptTask';
@@ -17,13 +17,13 @@ import { participantRulesMap, participantCacheMap } from './participant';
 function getAugmentedNamespace(n) {
   var f = n.default;
   if (typeof f == 'function') {
-    var a = function() {
+    var a = function () {
       return f.apply(this, arguments);
     };
     a.prototype = f.prototype;
   } else a = {};
   Object.defineProperty(a, '__esModule', { value: true });
-  Object.keys(n).forEach(function(k) {
+  Object.keys(n).forEach(function (k) {
     var d = Object.getOwnPropertyDescriptor(n, k);
     Object.defineProperty(
       a,
@@ -32,10 +32,10 @@ function getAugmentedNamespace(n) {
         ? d
         : {
             enumerable: true,
-            get: function() {
+            get: function () {
               return n[k];
-            }
-          }
+            },
+          },
     );
   });
   return a;
@@ -74,7 +74,7 @@ function is$c(node, type) {
  * @return {Boolean}
  */
 function isAny$5(node, types) {
-  return types.some(function(type) {
+  return types.some(function (type) {
     return is$c(node, type);
   });
 }
@@ -82,7 +82,7 @@ function isAny$5(node, types) {
 var index_esm$1 = /*#__PURE__*/ Object.freeze({
   __proto__: null,
   is: is$c,
-  isAny: isAny$5
+  isAny: isAny$5,
 });
 
 var require$$0 = /*@__PURE__*/ getAugmentedNamespace(index_esm$1);
@@ -92,11 +92,11 @@ const { is: is$b, isAny: isAny$4 } = require$$0;
 /**
  * A rule that checks the presence of an end event per scope.
  */
-var endEventRequired = function() {
+var endEventRequired = function () {
   function hasEndEvent(node) {
     const flowElements = node.flowElements || [];
 
-    return flowElements.some(node => is$b(node, 'bpmn:EndEvent'));
+    return flowElements.some((node) => is$b(node, 'bpmn:EndEvent'));
   }
 
   function check(node, reporter) {
@@ -120,7 +120,7 @@ const { is: is$a } = require$$0;
  * A rule that checks that start events inside an event sub-process
  * are typed.
  */
-var eventSubProcessTypedStartEvent = function() {
+var eventSubProcessTypedStartEvent = function () {
   function check(node, reporter) {
     if (!is$a(node, 'bpmn:SubProcess') || !node.triggeredByEvent) {
       return;
@@ -128,7 +128,7 @@ var eventSubProcessTypedStartEvent = function() {
 
     const flowElements = node.flowElements || [];
 
-    flowElements.forEach(function(flowElement) {
+    flowElements.forEach(function (flowElement) {
       if (!is$a(flowElement, 'bpmn:StartEvent')) {
         return false;
       }
@@ -142,7 +142,7 @@ var eventSubProcessTypedStartEvent = function() {
   }
 
   return {
-    check
+    check,
   };
 };
 
@@ -155,7 +155,7 @@ const { isAny: isAny$3 } = require$$0;
  * Users should model a parallel joining gateway
  * to achieve the desired behavior.
  */
-var fakeJoin = function() {
+var fakeJoin = function () {
   function check(node, reporter) {
     if (!isAny$3(node, ['bpmn:Task', 'bpmn:Event'])) {
       return;
@@ -169,7 +169,7 @@ var fakeJoin = function() {
   }
 
   return {
-    check
+    check,
   };
 };
 
@@ -255,7 +255,7 @@ function has(target, key) {
 function find(collection, matcher) {
   matcher = toMatcher(matcher);
   var match;
-  forEach(collection, function(val, key) {
+  forEach(collection, function (val, key) {
     if (matcher(val, key)) {
       match = val;
       return false;
@@ -275,7 +275,7 @@ function find(collection, matcher) {
 function findIndex(collection, matcher) {
   matcher = toMatcher(matcher);
   var idx = isArray(collection) ? -1 : undefined;
-  forEach(collection, function(val, key) {
+  forEach(collection, function (val, key) {
     if (matcher(val, key)) {
       idx = key;
       return false;
@@ -294,7 +294,7 @@ function findIndex(collection, matcher) {
 
 function filter(collection, matcher) {
   var result = [];
-  forEach(collection, function(val, key) {
+  forEach(collection, function (val, key) {
     if (matcher(val, key)) {
       result.push(val);
     }
@@ -347,7 +347,7 @@ function without(arr, matcher) {
 
   ensureArray(arr);
   matcher = toMatcher(matcher);
-  return arr.filter(function(el, idx) {
+  return arr.filter(function (el, idx) {
     return !matcher(el, idx);
   });
 }
@@ -362,7 +362,7 @@ function without(arr, matcher) {
  */
 
 function reduce(collection, iterator, result) {
-  forEach(collection, function(value, idx) {
+  forEach(collection, function (value, idx) {
     result = iterator(result, value, idx);
   });
   return result;
@@ -380,10 +380,10 @@ function reduce(collection, iterator, result) {
 function every(collection, matcher) {
   return !!reduce(
     collection,
-    function(matches, val, key) {
+    function (matches, val, key) {
       return matches && matcher(val, key);
     },
-    true
+    true,
   );
 }
 /**
@@ -411,7 +411,7 @@ function some(collection, matcher) {
 
 function map(collection, fn) {
   var result = [];
-  forEach(collection, function(val, key) {
+  forEach(collection, function (val, key) {
     result.push(fn(val, key));
   });
   return result;
@@ -447,7 +447,7 @@ function size(collection) {
  */
 
 function values(collection) {
-  return map(collection, function(val) {
+  return map(collection, function (val) {
     return val;
   });
 }
@@ -463,7 +463,7 @@ function values(collection) {
 function groupBy(collection, extractor) {
   var grouped = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
   extractor = toExtractor(extractor);
-  forEach(collection, function(val) {
+  forEach(collection, function (val) {
     var discriminator = extractor(val) || '_';
     var group = grouped[discriminator];
 
@@ -483,10 +483,10 @@ function uniqueBy(extractor) {
     collections[_key - 1] = arguments[_key];
   }
 
-  forEach(collections, function(c) {
+  forEach(collections, function (c) {
     return groupBy(c, extractor, grouped);
   });
-  var result = map(grouped, function(val, key) {
+  var result = map(grouped, function (val, key) {
     return val[0];
   });
   return result;
@@ -504,11 +504,11 @@ var unionBy = uniqueBy;
 function sortBy(collection, extractor) {
   extractor = toExtractor(extractor);
   var sorted = [];
-  forEach(collection, function(value, key) {
+  forEach(collection, function (value, key) {
     var disc = extractor(value, key);
     var entry = {
       d: disc,
-      v: value
+      v: value,
     };
 
     for (var idx = 0; idx < sorted.length; idx++) {
@@ -522,7 +522,7 @@ function sortBy(collection, extractor) {
 
     sorted.push(entry);
   });
-  return map(sorted, function(e) {
+  return map(sorted, function (e) {
     return e.v;
   });
 }
@@ -541,8 +541,8 @@ function sortBy(collection, extractor) {
  */
 
 function matchPattern(pattern) {
-  return function(el) {
-    return every(pattern, function(val, key) {
+  return function (el) {
+    return every(pattern, function (val, key) {
       return el[key] === val;
     });
   };
@@ -551,7 +551,7 @@ function matchPattern(pattern) {
 function toExtractor(extractor) {
   return isFunction(extractor)
     ? extractor
-    : function(e) {
+    : function (e) {
         return e[extractor];
       };
 }
@@ -559,7 +559,7 @@ function toExtractor(extractor) {
 function toMatcher(matcher) {
   return isFunction(matcher)
     ? matcher
-    : function(e) {
+    : function (e) {
         return e === matcher;
       };
 }
@@ -653,14 +653,14 @@ function debounce(fn, timeout) {
 
 function throttle(fn, interval) {
   var throttling = false;
-  return function() {
+  return function () {
     if (throttling) {
       return;
     }
 
     fn.apply(void 0, arguments);
     throttling = true;
-    setTimeout(function() {
+    setTimeout(function () {
       throttling = false;
     }, interval);
   };
@@ -683,12 +683,12 @@ function _typeof(obj) {
 
   if (typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol') {
     // eslint-disable-next-line
-    _typeof = function(obj) {
+    _typeof = function (obj) {
       return typeof obj;
     };
   } else {
     // eslint-disable-next-line
-    _typeof = function(obj) {
+    _typeof = function (obj) {
       return obj && typeof Symbol === 'function' && obj.constructor === Symbol && obj !== Symbol.prototype ? 'symbol' : typeof obj;
     };
   }
@@ -699,7 +699,7 @@ function _extends() {
   // eslint-disable-next-line
   _extends =
     Object.assign ||
-    function(target) {
+    function (target) {
       for (var i = 1; i < arguments.length; i++) {
         var source = arguments[i];
 
@@ -744,7 +744,7 @@ function assign(target) {
 
 function set(target, path, value) {
   var currentTarget = target;
-  forEach(path, function(key, idx) {
+  forEach(path, function (key, idx) {
     if (typeof key !== 'number' && typeof key !== 'string') {
       throw new Error('illegal key type: ' + _typeof(key) + '. Key should be of type number or string.');
     }
@@ -786,7 +786,7 @@ function set(target, path, value) {
 
 function get(target, path, defaultValue) {
   var currentTarget = target;
-  forEach(path, function(key) {
+  forEach(path, function (key) {
     // accessing nil property yields <undefined>
     if (isNil(currentTarget)) {
       currentTarget = undefined;
@@ -809,7 +809,7 @@ function get(target, path, defaultValue) {
 function pick(target, properties) {
   var result = {};
   var obj = Object(target);
-  forEach(properties, function(prop) {
+  forEach(properties, function (prop) {
     if (prop in obj) {
       result[prop] = target[prop];
     }
@@ -828,7 +828,7 @@ function pick(target, properties) {
 function omit(target, properties) {
   var result = {};
   var obj = Object(target);
-  forEach(obj, function(prop, key) {
+  forEach(obj, function (prop, key) {
     if (properties.indexOf(key) === -1) {
       result[key] = prop;
     }
@@ -855,13 +855,13 @@ function merge(target) {
     return target;
   }
 
-  forEach(sources, function(source) {
+  forEach(sources, function (source) {
     // skip non-obj sources, i.e. null
     if (!source || !isObject(source)) {
       return;
     }
 
-    forEach(source, function(sourceVal, key) {
+    forEach(source, function (sourceVal, key) {
       if (key === '__proto__') {
         return;
       }
@@ -921,7 +921,7 @@ var index_esm = /*#__PURE__*/ Object.freeze({
   unionBy: unionBy,
   uniqueBy: uniqueBy,
   values: values,
-  without: without
+  without: without,
 });
 
 var require$$1 = /*@__PURE__*/ getAugmentedNamespace(index_esm);
@@ -934,7 +934,7 @@ const { flatten } = require$$1;
  * A rule that checks that there is no BPMNDI information missing for elements,
  * which require BPMNDI.
  */
-var noBpmndi = function() {
+var noBpmndi = function () {
   function check(node, reporter) {
     if (!is$9(node, 'bpmn:Definitions')) {
       return false;
@@ -950,7 +950,7 @@ var noBpmndi = function() {
     const diBpmnReferences = getAllDiBpmnReferences(node);
 
     // (4) Report elements without BPMNDI
-    visualBpmnElements.forEach(element => {
+    visualBpmnElements.forEach((element) => {
       if (diBpmnReferences.indexOf(element.id) === -1) {
         reporter.report(element.id, 'Element is missing bpmndi');
       }
@@ -958,7 +958,7 @@ var noBpmndi = function() {
   }
 
   return {
-    check
+    check,
   };
 };
 
@@ -973,7 +973,7 @@ var noBpmndi = function() {
  */
 function getAllBpmnElements(rootElements) {
   return flatten(
-    rootElements.map(rootElement => {
+    rootElements.map((rootElement) => {
       const laneSet = (rootElement.laneSets && rootElement.laneSets[0]) || rootElement.childLaneSet;
 
       // Include
@@ -994,22 +994,22 @@ function getAllBpmnElements(rootElements) {
           rootElement.artifacts || [],
           (laneSet && laneSet.lanes) || [],
           (laneSet && laneSet.lanes && getAllBpmnElements(laneSet.lanes.filter(hasChildLaneSet))) || [],
-          rootElement.messageFlows || []
-        )
+          rootElement.messageFlows || [],
+        ),
       );
 
       if (elements.length > 0) {
-        return elements.map(element => {
+        return elements.map((element) => {
           return {
             id: element.id,
-            $type: element.$type
+            $type: element.$type,
           };
         });
       } else {
         // We are not interested in the rest here (DI)
         return [];
       }
-    })
+    }),
   );
 }
 
@@ -1024,13 +1024,13 @@ function getAllBpmnElements(rootElements) {
  */
 function getAllDiBpmnReferences(definitionsNode) {
   return flatten(
-    definitionsNode.diagrams.map(diagram => {
+    definitionsNode.diagrams.map((diagram) => {
       const diElements = diagram.plane.planeElement || [];
 
-      return diElements.map(element => {
+      return diElements.map((element) => {
         return element.bpmnElement.id;
       });
-    })
+    }),
   );
 }
 
@@ -1060,7 +1060,7 @@ const { is: is$8 } = require$$0;
  * @return {Function} ruleImpl
  */
 function disallowNodeType$2(type) {
-  return function() {
+  return function () {
     function check(node, reporter) {
       if (is$8(node, type)) {
         reporter.report(node.id, 'Element has disallowed type <' + type + '>');
@@ -1068,7 +1068,7 @@ function disallowNodeType$2(type) {
     }
 
     return {
-      check
+      check,
     };
   };
 }
@@ -1086,7 +1086,7 @@ const { isAny: isAny$2, is: is$7 } = require$$0;
  * flow elements, i.e. elements without incoming
  * _or_ outgoing sequence flows
  */
-var noDisconnected = function() {
+var noDisconnected = function () {
   function check(node, reporter) {
     if (!isAny$2(node, ['bpmn:Task', 'bpmn:Gateway', 'bpmn:CallActivity', 'bpmn:SubProcess', 'bpmn:Event']) || node.triggeredByEvent) {
       return;
@@ -1108,7 +1108,7 @@ var noDisconnected = function() {
   }
 
   return {
-    check
+    check,
   };
 };
 
@@ -1147,7 +1147,7 @@ const { is: is$6 } = require$$0;
  * flow elements, i.e. elements without incoming
  * _or_ outgoing sequence flows
  */
-var noDuplicateSequenceFlows = function() {
+var noDuplicateSequenceFlows = function () {
   const keyed = {};
 
   const outgoingReported = {};
@@ -1183,7 +1183,7 @@ var noDuplicateSequenceFlows = function() {
   }
 
   return {
-    check
+    check,
   };
 };
 
@@ -1205,7 +1205,7 @@ const { is: is$5 } = require$$0;
  * A rule that checks, whether a gateway forks and joins
  * at the same time.
  */
-var noGatewayJoinFork = function() {
+var noGatewayJoinFork = function () {
   function check(node, reporter) {
     if (!is$5(node, 'bpmn:Gateway')) {
       return;
@@ -1220,7 +1220,7 @@ var noGatewayJoinFork = function() {
   }
 
   return {
-    check
+    check,
   };
 };
 
@@ -1233,7 +1233,7 @@ const { isAny: isAny$1 } = require$$0;
  * users should model the parallel splitting gateway
  * explicitly instead.
  */
-var noImplicitSplit = function() {
+var noImplicitSplit = function () {
   function check(node, reporter) {
     if (!isAny$1(node, ['bpmn:Task', 'bpmn:Event'])) {
       return;
@@ -1241,7 +1241,7 @@ var noImplicitSplit = function() {
 
     const outgoing = node.outgoing || [];
 
-    const outgoingWithoutCondition = outgoing.filter(flow => {
+    const outgoingWithoutCondition = outgoing.filter((flow) => {
       return !hasCondition(flow) && !isDefaultFlow(node, flow);
     });
 
@@ -1251,7 +1251,7 @@ var noImplicitSplit = function() {
   }
 
   return {
-    check
+    check,
   };
 };
 
@@ -1271,7 +1271,7 @@ const { is: is$4 } = require$$0;
  * A rule that checks whether not more than one blank start event
  * exists per scope.
  */
-var singleBlankStartEvent = function() {
+var singleBlankStartEvent = function () {
   function check(node, reporter) {
     if (!is$4(node, 'bpmn:FlowElementsContainer')) {
       return;
@@ -1279,7 +1279,7 @@ var singleBlankStartEvent = function() {
 
     const flowElements = node.flowElements || [];
 
-    const blankStartEvents = flowElements.filter(function(flowElement) {
+    const blankStartEvents = flowElements.filter(function (flowElement) {
       if (!is$4(flowElement, 'bpmn:StartEvent')) {
         return false;
       }
@@ -1297,7 +1297,7 @@ var singleBlankStartEvent = function() {
   }
 
   return {
-    check
+    check,
   };
 };
 
@@ -1306,7 +1306,7 @@ const { is: is$3 } = require$$0;
 /**
  * A rule that verifies that an event contains maximum one event definition.
  */
-var singleEventDefinition = function() {
+var singleEventDefinition = function () {
   function check(node, reporter) {
     if (!is$3(node, 'bpmn:Event')) {
       return;
@@ -1320,7 +1320,7 @@ var singleEventDefinition = function() {
   }
 
   return {
-    check
+    check,
   };
 };
 
@@ -1329,11 +1329,11 @@ const { is: is$2, isAny } = require$$0;
 /**
  * A rule that checks for the presence of a start event per scope.
  */
-var startEventRequired = function() {
+var startEventRequired = function () {
   function hasStartEvent(node) {
     const flowElements = node.flowElements || [];
 
-    return flowElements.some(node => is$2(node, 'bpmn:StartEvent'));
+    return flowElements.some((node) => is$2(node, 'bpmn:StartEvent'));
   }
 
   function check(node, reporter) {
@@ -1357,7 +1357,7 @@ const { is: is$1 } = require$$0;
  * A rule that checks that start events inside a normal sub-processes
  * are blank (do not have an event definition).
  */
-var subProcessBlankStartEvent = function() {
+var subProcessBlankStartEvent = function () {
   function check(node, reporter) {
     if (!is$1(node, 'bpmn:SubProcess') || node.triggeredByEvent) {
       return;
@@ -1365,7 +1365,7 @@ var subProcessBlankStartEvent = function() {
 
     const flowElements = node.flowElements || [];
 
-    flowElements.forEach(function(flowElement) {
+    flowElements.forEach(function (flowElement) {
       if (!is$1(flowElement, 'bpmn:StartEvent')) {
         return false;
       }
@@ -1379,7 +1379,7 @@ var subProcessBlankStartEvent = function() {
   }
 
   return {
-    check
+    check,
   };
 };
 
@@ -1390,7 +1390,7 @@ const { is } = require$$0;
  *
  * Those gateways are superfluous since they don't do anything.
  */
-var superfluousGateway = function() {
+var superfluousGateway = function () {
   function check(node, reporter) {
     if (!is(node, 'bpmn:Gateway')) {
       return;
@@ -1405,7 +1405,7 @@ var superfluousGateway = function() {
   }
 
   return {
-    check
+    check,
   };
 };
 
@@ -1419,7 +1419,7 @@ let cache = {};
  */
 function Resolver() {}
 
-Resolver.prototype.resolveRule = function(pkg, ruleName) {
+Resolver.prototype.resolveRule = function (pkg, ruleName) {
   const rule = cache[pkg + '/' + ruleName];
 
   if (!rule) {
@@ -1429,7 +1429,7 @@ Resolver.prototype.resolveRule = function(pkg, ruleName) {
   return rule;
 };
 
-Resolver.prototype.resolveConfig = function(pkg, configName) {
+Resolver.prototype.resolveConfig = function (pkg, configName) {
   throw new Error('cannot resolve config <' + configName + '> in <' + pkg + '>');
 };
 
@@ -1463,16 +1463,16 @@ const rules = {
   ...conditionalEventRulesMap,
   ...errorEventRulesMap,
   ...signalEventRulesMap,
-  ...participantRulesMap
+  ...participantRulesMap,
 };
 
 const config = {
-  rules: rules
+  rules: rules,
 };
 
 const bundle = {
   resolver: resolver,
-  config: config
+  config: config,
 };
 
 cache['bpmnlint/end-event-required'] = endEventRequired;
@@ -1504,7 +1504,7 @@ cache = {
   ...conditionalEventCacheMap,
   ...errorEventCacheMap,
   ...signalEventCacheMap,
-  ...participantCacheMap
+  ...participantCacheMap,
 };
 
 export { config, bundle as default, resolver };

@@ -1,37 +1,39 @@
-import React from 'react';
-import moment from 'moment';
-import uuidV4 from 'uuid/v4';
-import { NotificationManager } from 'react-notifications';
-import isEmpty from 'lodash/isEmpty';
-import lodashGet from 'lodash/get';
-import lodashSet from 'lodash/set';
+import cloneDeep from 'lodash/cloneDeep';
 import first from 'lodash/first';
 import flatMap from 'lodash/flatMap';
-import isPlainObject from 'lodash/isPlainObject';
-import cloneDeep from 'lodash/cloneDeep';
-import isString from 'lodash/isString';
+import lodashGet from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isBoolean from 'lodash/isBoolean';
-import omitBy from 'lodash/omitBy';
+import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
+import isPlainObject from 'lodash/isPlainObject';
+import isString from 'lodash/isString';
 import isUndefined from 'lodash/isUndefined';
+import omitBy from 'lodash/omitBy';
+import lodashSet from 'lodash/set';
+import moment from 'moment';
+import React from 'react';
+import uuidV4 from 'uuid/v4';
 
+import { AppApi } from '../../../api/app';
+import { UserApi } from '../../../api/user';
 import { SourcesId } from '../../../constants';
 import { OUTCOME_BUTTONS_PREFIX } from '../../../constants/forms';
-import { getCurrentUserName, getMLValue, t } from '../../../helpers/util';
-import { UserApi } from '../../../api/user';
-import { AppApi } from '../../../api/app';
 import { Components } from '../../../forms/components';
 import DataGridAssocComponent from '../../../forms/components/custom/datagridAssoc/DataGridAssoc';
+import { getCurrentUserName, getMLValue, t } from '../../../helpers/util';
 import { PRE_SETTINGS_TYPES, PreSettings } from '../../PreSettings';
-import Modal from '../../common/EcosModal/CiteckEcosModal';
-import { PERMISSION_WRITE_ATTR } from '../../Records/constants';
 import Records from '../../Records';
-import { FORM_MODE_CREATE, FORM_MODE_EDIT } from '../constants';
+import { PERMISSION_WRITE_ATTR } from '../../Records/constants';
+import Modal from '../../common/EcosModal/CiteckEcosModal';
 import EcosForm from '../EcosForm';
 import EcosFormModal from '../EcosFormModal';
+import { FORM_MODE_CREATE, FORM_MODE_EDIT } from '../constants';
+
 import BaseEcosFormUtils from './BaseEcosFormUtils';
+
+import { NotificationManager } from '@/services/notifications';
 
 const SOURCE_DIVIDER = '@';
 const EDGE_PREFIX = 'edge__';
@@ -86,7 +88,7 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
         language: 'fts-alfresco'
       },
       'cm:member[].cm:userName'
-    ).then(function(userNames) {
+    ).then(function (userNames) {
       return (userNames || []).indexOf(currentPersonName) !== -1;
     });
   }
@@ -129,7 +131,7 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
         displayName: '.disp',
         formMode: '_formMode'
       })
-      .then(function(recordData) {
+      .then(function (recordData) {
         const formMode = config.formMode || recordData.formMode || EcosFormUtils.getFormMode(instanceRec);
 
         if (formMode === FORM_MODE_CREATE) {
@@ -141,7 +143,7 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
         options.formMode = formMode;
         formParams.options = options;
 
-        formParams['onSubmit'] = function(record, form, alias) {
+        formParams['onSubmit'] = function (record, form, alias) {
           if (modal) {
             modal.close();
           }
@@ -158,7 +160,7 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
           }
         };
 
-        formParams['onFormCancel'] = function(record, form) {
+        formParams['onFormCancel'] = function (record, form) {
           if (modal) {
             modal.close();
           }
@@ -168,7 +170,7 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
           }
         };
 
-        formParams['onCancelModal'] = function() {
+        formParams['onCancelModal'] = function () {
           const onHideModal = lodashGet(configParams, 'onHideModal');
           const onCancel = lodashGet(configParams, 'onCancel');
 
@@ -185,8 +187,8 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
           }
         };
 
-        formParams['onReady'] = function() {
-          setTimeout(function(record, form) {
+        formParams['onReady'] = function () {
+          setTimeout(function (record, form) {
             if (isFunction(configParams.onReady)) {
               configParams.onReady(record, form);
             }
@@ -654,7 +656,7 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
     const leaveAtts = ['key', 'type', 'input'];
     const removeAtts = ['id'];
 
-    return EcosFormUtils.forEachComponent(form, function(comp) {
+    return EcosFormUtils.forEachComponent(form, function (comp) {
       const currentComponent = Components.components[comp.type];
       if (!currentComponent) {
         return comp;

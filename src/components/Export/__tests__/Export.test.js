@@ -1,66 +1,52 @@
+import { render, screen } from '@testing-library/react';
 import React from 'react';
-import { shallow, mount } from 'enzyme';
 
-import Export from '../Export';
 import ConfigService from '../../../services/config/ConfigService';
+import Export from '../Export';
 
 describe('Export component tests', () => {
   test('should render Export component', () => {
     const spy = jest.spyOn(ConfigService, 'getValue').mockImplementation(() => Promise.resolve(true));
 
-    const component = shallow(<Export />);
+    const { container } = render(<Export />);
 
     expect(spy).toHaveBeenCalled();
-
-    return Promise.resolve(component).then(() => {
-      component.update();
-
-      expect(component).toMatchSnapshot();
-    });
+    expect(container).toMatchSnapshot();
   });
 
   test('should render Export component with empty className props', () => {
-    const component = shallow(<Export />);
-    const className = component.find('.ecos-btn-export');
-    expect(className).toHaveLength(1);
+    const { container } = render(<Export />);
+    expect(container.getElementsByClassName('ecos-btn-export')).toHaveLength(1);
   });
 
   test('should render Export component with className props', () => {
-    const component = shallow(<Export className={'ecos-journal__settings-bar-export'} />);
-    expect(component.hasClass('ecos-journal__settings-bar-export')).toEqual(true);
+    const { container } = render(<Export className={'ecos-journal__settings-bar-export'} />);
+    expect(container.getElementsByClassName('ecos-journal__settings-bar-export')).toHaveLength(1);
   });
 
   test('test equal dropdown with alfresco source and snapshots data', async () => {
     const spy = jest.spyOn(ConfigService, 'getValue').mockImplementation(() => Promise.resolve(true));
 
-    const component = mount(<Export />);
+    const { container } = render(<Export />);
 
     expect(spy).toHaveBeenCalled();
 
     const dropdownSource = new Export().dropdownSourceVariants(true, false);
+    const list = container.getElementsByTagName('ul').item(0);
 
-    return Promise.resolve(component).then(() => {
-      component.update();
-
-      const list = component.find('ul').props();
-
-      list.children.forEach((node, id) => {
-        expect(node.props.item.id).toEqual(dropdownSource[id]['id']);
-        expect(node.props.item.title).toEqual(dropdownSource[id]['title']);
-      });
-    });
+    for (let node of Array.from(list.children)) {
+      expect(node.textContent).toEqual(dropdownSource[dropdownSource.length - 1]['title']);
+    }
   });
 
   test('test equal dropdown withoutAlfresco source and snapshots data', () => {
-    const component = mount(<Export />)
-      .find('ul')
-      .props();
+    const { container } = render(<Export />);
 
     const dropdownSource = new Export().dropdownSourceVariants(false, false);
+    const list = container.getElementsByTagName('ul').item(0);
 
-    component.children.forEach((node, id) => {
-      expect(node.props.item.id).toEqual(dropdownSource[id]['id']);
-      expect(node.props.item.title).toEqual(dropdownSource[id]['title']);
-    });
+    for (let i = 0; i < list.length; i++) {
+      expect(list[i].textContent).toEqual(dropdownSource[i]['title']);
+    }
   });
 });

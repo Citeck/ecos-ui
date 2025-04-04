@@ -1,9 +1,10 @@
-import { CITECK_URI, PROXY_URI } from '../constants/alfresco';
-import { debounce } from '../helpers/util';
-import * as ls from '../helpers/ls';
-import TreeDataSource from '../components/common/grid/dataSource/TreeDataSource';
 import Records from '../components/Records';
 import { PERMISSION_WRITE_ATTR } from '../components/Records/constants';
+import TreeDataSource from '../components/common/grid/dataSource/TreeDataSource';
+import { SourcesId } from '../constants';
+import { CITECK_URI, PROXY_URI } from '../constants/alfresco';
+import * as ls from '../helpers/ls';
+import { debounce } from '../helpers/util';
 import AttributesService from '../services/AttributesService';
 
 import { DocPreviewApi } from './docPreview';
@@ -136,7 +137,7 @@ export class JournalsApi extends RecordService {
   getTreeGridData = () => {
     const dataSource = new TreeDataSource();
 
-    return dataSource.load().then(function({ data, total }) {
+    return dataSource.load().then(function ({ data, total }) {
       const columns = dataSource.getColumns();
       return { data, total, columns, isTree: true };
     });
@@ -151,5 +152,9 @@ export class JournalsApi extends RecordService {
     const sourceId = journalType.replace('type@', '');
 
     return Records.queryOne({ sourceId, query, language: 'predicate', groupBy: ['*'] }, attributes);
+  };
+
+  getJournalTypeRef = journalId => {
+    return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load('typeRef?str');
   };
 }

@@ -1,8 +1,9 @@
-import { connect } from 'react-redux';
 import * as queryString from 'query-string';
+import { connect } from 'react-redux';
 
-import { getFormProps, initData, saveModel, setModel, setFormProps, setIsTableView } from '../../../actions/dmnEditor';
 import DMNEditorPage from './DMNEditor';
+
+import { getFormProps, initData, saveModel, setModel, setFormProps, setIsTableView } from '@/actions/dmnEditor';
 
 const mapStateToProps = (state, props) => {
   const ownState = state.dmnEditor[props.tabId] || {};
@@ -33,7 +34,4 @@ const mapDispatchToProps = (dispatch, props) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(DMNEditorPage);
+export default connect(mapStateToProps, mapDispatchToProps)(DMNEditorPage);

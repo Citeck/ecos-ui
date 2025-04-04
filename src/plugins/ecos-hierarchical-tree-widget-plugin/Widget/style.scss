@@ -1,0 +1,239 @@
+@import '../../../styles/constants';
+
+.ecos-hierarchical-tree-widget {
+  $root: &;
+
+  i.icon {
+    color: #b7b7b7;
+  }
+
+  padding: 0;
+  margin: 0;
+  background-color: white;
+  border-radius: 12px;
+  font-family: 'Open Sans', sans-serif;
+  color: #444444;
+
+  &-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px 11px;
+
+    h4 {
+      margin: 0;
+      font-family: 'Open Sans', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #767676;
+    }
+  }
+
+  hr {
+    margin-top: 0;
+    border-top: 2px solid #e8edef;
+  }
+
+  &-empty {
+    display: flex;
+    flex-direction: column;
+    justify-items: center;
+    align-items: center;
+    margin: 0 20px;
+    padding: 40px 0;
+
+    p {
+      font-size: 14px;
+      opacity: 0.4;
+      color: #767676;
+    }
+  }
+
+  &-body {
+    margin: 0;
+    padding: 0 20px;
+    list-style-type: none;
+
+    ul.tree {
+      $spacing: 1rem;
+      $radius: 2px;
+
+      padding: 0 0 20px;
+
+      li.parent-tree {
+        margin-bottom: 5px;
+        margin-left: -10px;
+
+        div.tree-actions {
+          position: absolute;
+          height: 38px;
+          align-content: center;
+          right: 0;
+        }
+
+        details {
+          width: calc(100% + 25px);
+          margin-left: -25px;
+
+          summary {
+            width: calc(100% + 5px);
+            padding: 10px 25px;
+            background-color: #eef0f8;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+
+            &:hover {
+              color: #4b75b7;
+            }
+
+            &::before {
+              width: 8px;
+              height: 8px;
+              top: 16px;
+              border-right: 0.2em solid #767676;
+              border-top: 0.2em solid #767676;
+              border-radius: 0;
+              transform: rotate(45deg);
+              background: transparent;
+            }
+          }
+        }
+
+        &__active {
+          & > details > summary {
+            font-weight: 800;
+            color: #4b75b7;
+          }
+        }
+
+        &:hover {
+          & > div.tree-actions {
+            display: block;
+          }
+        }
+
+        &::after {
+          display: none !important;
+        }
+      }
+
+      li.child-tree {
+        details {
+          summary {
+            padding: 5px 20px;
+            background-color: white;
+            font-size: 13px;
+            font-weight: 300;
+
+            &::before {
+              display: none;
+            }
+          }
+        }
+
+        &__active {
+          & > details > summary {
+            font-weight: 800;
+            color: #4b75b7;
+          }
+        }
+
+        &:hover {
+          div.tree-actions {
+            display: block;
+          }
+        }
+
+        div.tree-actions {
+          height: 20px;
+        }
+      }
+
+      li {
+        display: flex;
+        position: relative;
+        flex-direction: row;
+        padding-left: calc(2 * $spacing - $radius + 3px);
+
+        div.tree-actions {
+          display: none;
+
+          i {
+            cursor: pointer;
+          }
+        }
+
+        i.icon {
+          font-size: 14px;
+        }
+      }
+
+      ul {
+        margin-left: calc($radius - $spacing);
+        padding-left: 0;
+
+        li:last-child {
+          border-color: transparent;
+        }
+
+        li::before {
+          content: '';
+          display: block;
+          position: absolute;
+          top: calc($spacing / -4); // p
+          left: 3px;
+          width: calc($spacing + 2px);
+          height: calc($spacing + 4px);
+          border: dashed #c6d6f0;
+          border-width: 0 0 1px 1px;
+        }
+      }
+
+      summary {
+        display: block;
+        cursor: pointer;
+
+        &::marker,
+        &::-webkit-details-marker {
+          display: none;
+        }
+
+        &:focus {
+          outline: none;
+        }
+
+        &:focus-visible {
+          outline: 1px dotted #000;
+        }
+
+        &::before {
+          background: #c6d6f0;
+          z-index: 1;
+        }
+      }
+
+      li::after,
+      summary::before {
+        content: '';
+        display: block;
+        position: absolute;
+        top: calc($spacing / 1.05 - $radius);
+        left: calc($spacing - $radius + 3px);
+        width: calc(2 * $radius);
+        height: calc(2 * $radius);
+        border-radius: 50%;
+        background: #c6d6f0;
+      }
+
+      details[open] {
+        min-width: 100%;
+      }
+
+      details[open] > summary::before {
+        background-position: calc(-4 * $radius) 0;
+      }
+    }
+  }
+}

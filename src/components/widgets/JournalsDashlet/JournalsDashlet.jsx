@@ -1,20 +1,14 @@
-import React from 'react';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
-import isNil from 'lodash/isNil';
 import isFunction from 'lodash/isFunction';
+import isNil from 'lodash/isNil';
 import PropTypes from 'prop-types';
 import queryString from 'query-string';
+import React from 'react';
+import { connect } from 'react-redux';
 
-import { goToJournalsPage } from '../../../helpers/urls';
-import { getStateId, wrapArgs } from '../../../helpers/redux';
-import { extractLabel, getDOMElementMeasurer, getTextByLocale, t } from '../../../helpers/util';
-import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
-import DAction from '../../../services/DashletActionService';
-import UserLocalSettingsService from '../../../services/userLocalSettings';
 import {
   execRecordsAction,
   getDashletConfig,
@@ -27,12 +21,18 @@ import {
   setSelectAllPageRecords,
   setSelectedRecords
 } from '../../../actions/journals';
+import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
+import { getStateId, wrapArgs } from '../../../helpers/redux';
+import { goToJournalsPage } from '../../../helpers/urls';
+import { extractLabel, getDOMElementMeasurer, getTextByLocale, t } from '../../../helpers/util';
 import { selectJournalDashletProps } from '../../../selectors/dashletJournals';
+import DAction from '../../../services/DashletActionService';
+import UserLocalSettingsService from '../../../services/userLocalSettings';
 import Dashlet from '../../Dashlet';
-import JournalsDashletGrid from '../../Journals/JournalsDashletGrid';
-import JournalsDashletToolbar from '../../Journals/JournalsDashletToolbar';
 import JournalsDashletEditor from '../../Journals/JournalsDashletEditor';
 import JournalsDashletFooter from '../../Journals/JournalsDashletFooter';
+import JournalsDashletGrid from '../../Journals/JournalsDashletGrid';
+import JournalsDashletToolbar from '../../Journals/JournalsDashletToolbar';
 import BaseWidget from '../BaseWidget';
 
 import './JournalsDashlet.scss';
@@ -264,6 +264,7 @@ class JournalsDashlet extends BaseWidget {
           forwardRef={this.setToolbarRef}
           stateId={stateId}
           isSmall={isSmall}
+          handleReload={this.handleReload}
           onChangeSelectedJournal={this.handleChangeSelectedJournal}
         />
 
@@ -330,8 +331,4 @@ class JournalsDashlet extends BaseWidget {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-  mergeProps
-)(JournalsDashlet);
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(JournalsDashlet);

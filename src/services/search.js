@@ -1,29 +1,43 @@
-import { nth, split } from 'lodash';
-import { formatFileSize, getIconFileByMimetype, getRelativeTime, t } from '../helpers/util';
+import { nth, split, get, isNil } from 'lodash';
+
 import { getData, getSessionData, isExistLocalStorage, isExistSessionStorage, setSessionData } from '../helpers/ls';
 import { createDocumentUrl, createProfileUrl } from '../helpers/urls';
+import { formatFileSize, getIconFileByMimetype, getRelativeTime, t } from '../helpers/util';
+
+import ConfigService, { ALFRESCO_ENABLED } from './config/ConfigService';
 
 const Urls = {
   DASHBOARD: ref => createDocumentUrl(ref),
   USER: login => createProfileUrl(login)
 };
 
-export default class SearchService {
-  static SearchAutocompleteTypes = {
-    DOCUMENTS: 0,
-    SITES: 1,
-    PEOPLE: 2
-  };
+export const LiveSearchTypes = {
+  PEOPLE: 'PEOPLE',
+  DOCUMENTS: 'DOCUMENTS',
+  SITES: 'SITES',
+  WORKSPACES: 'WORKSPACES'
+};
 
-  static formatSearchAutocompleteResults = function(item, type) {
+export default class SearchService {
+  static SearchAutocompleteTypes = Object.fromEntries(Object.keys(LiveSearchTypes).map((key, index) => [key, index]));
+
+  static formatSearchAutocompleteResults = function (item, type, hasAlfresco) {
     const Types = SearchService.SearchAutocompleteTypes;
+
+    if (!hasAlfresco) {
+      delete LiveSearchTypes.SITES;
+    }
+
     const data = {
       type,
       title: '',
       description: '',
       icon: '',
-      url: ''
+      url: '',
+      wsName: '',
+      iconUrl: ''
     };
+    const isEnabledAlfresco = isNil(get(item, 'isNotAlfresco')) || get(item, 'isNotAlfresco') === false;
 
     switch (type) {
       case Types.DOCUMENTS:
@@ -34,21 +48,45 @@ export default class SearchService {
         data.icon = getIconFileByMimetype(item.mimetype);
         data.title = item.name;
         data.url = link;
-        data.description = `${modifiedTimeParts.relative} / ${t('search.size')}: ${fileSize}`;
+
+        data.description = `${modifiedTimeParts.relative}`;
+        if (isEnabledAlfresco) {
+          data.description += ` / ${t('search.size')}: ${fileSize}`;
+        }
+
         break;
+
       case Types.SITES:
-        const siteRef = 'workspace://' + nth(split(item.node, 'node/workspace/'), 1);
-        data.icon = '';
         data.title = item.title;
-        data.url = Urls.DASHBOARD(siteRef);
         data.description = item.description;
+        data.icon = '';
+
+        if (isEnabledAlfresco) {
+          const siteRef = 'workspace://' + nth(split(item.node, 'node/workspace/'), 1);
+          data.url = Urls.DASHBOARD(siteRef);
+        } else {
+          data.url = item.url;
+          data.iconUrl = item.icon;
+        }
+
         break;
+
+      case Types.WORKSPACES:
+        data.title = item.title;
+        data.description = item.description;
+        data.url = item.url;
+        data.iconUrl = item.icon;
+        data.wsName = item.wsName;
+
+        break;
+
       case Types.PEOPLE:
-        data.avatarUrl = '';
+        data.avatarUrl = item.avatarUrl || '';
         data.title = `${item.firstName} ${item.lastName} (${item.userName})`;
         data.url = Urls.USER(item.userName);
-        data.description = (item.jobtitle || '') + (item.location ? ', ' + item.location : '');
+        data.description = [item.jobtitle, item.location].filter(Boolean).join(', ');
         break;
+
       default:
         console.warn('Unknown search autocomplete item type');
     }

@@ -1,8 +1,9 @@
 import get from 'lodash/get';
-import isEmpty from 'lodash/isEmpty';
 import isArray from 'lodash/isArray';
+import isEmpty from 'lodash/isEmpty';
 import isString from 'lodash/isString';
 
+import Records from '../components/Records';
 import {
   ALFRESCO_ADMINISTRATORS_GROUP,
   AUTHORITY_TYPE_GROUP,
@@ -19,7 +20,8 @@ import {
   getAuthRef,
   getRecordRef
 } from '../components/common/form/SelectOrgstruct/helpers';
-import Records from '../components/Records';
+import { SourcesId, DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS } from '../constants';
+import { permute } from '../helpers/util';
 import ConfigService, {
   ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS,
   ORGSTRUCT_HIDE_DISABLED_USERS,
@@ -28,9 +30,8 @@ import ConfigService, {
   ORGSTRUCT_SHOW_INACTIVE_USER_ONLY_FOR_ADMIN,
   HIDE_IN_ORGSTRUCT
 } from '../services/config/ConfigService';
-import { SourcesId, DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS } from '../constants';
+
 import { CommonApi } from './common';
-import { permute } from '../helpers/util';
 
 export class OrgStructApi extends CommonApi {
   get groupAttributes() {
@@ -41,6 +42,7 @@ export class OrgStructApi extends CommonApi {
       fullName: 'authorityName',
       groupSubType: 'groupSubType!""',
       isPersonDisabled: 'personDisabled?bool',
+      canEdit: 'permissions._has.Write?bool',
       groupType: 'groupType!""',
       email: 'email',
       nodeRef: '?id',
@@ -55,6 +57,7 @@ export class OrgStructApi extends CommonApi {
       fullName: 'authorityName',
       email: 'email',
       isPersonDisabled: 'personDisabled?bool',
+      canEdit: 'permissions._has.Write?bool',
       firstName: 'firstName',
       lastName: 'lastName',
       nodeRef: '?id',
@@ -314,9 +317,7 @@ export class OrgStructApi extends CommonApi {
       return Records.get(recordRef).load(OrgStructApi.userAttributes);
     }
 
-    return Records.get(recordRef)
-      .load(this.groupAttributes)
-      .then(this._prepareGroups);
+    return Records.get(recordRef).load(this.groupAttributes).then(this._prepareGroups);
   };
 
   addAuthorityGroups = (selectedEntity, authorityGroups) => {
@@ -441,10 +442,7 @@ export class OrgStructApi extends CommonApi {
           {
             t: 'contains',
             a,
-            v: value
-              .split(' ')
-              .reverse()
-              .join(' ')
+            v: value.split(' ').reverse().join(' ')
           }
         ]
       }))
@@ -481,7 +479,11 @@ export class OrgStructApi extends CommonApi {
             query.v.push(singleFieldQuery(searchFieldsThreeWords, val.join(' '))); // three words is completely one field of full name
 
             // two words standing next to each other out of three are completely one field of full name
-            [['firstName', 'middleName'], ['lastName', 'middleName'], ['lastName', 'firstName']].forEach(fields => {
+            [
+              ['firstName', 'middleName'],
+              ['lastName', 'middleName'],
+              ['lastName', 'firstName']
+            ].forEach(fields => {
               query.v.push(generateQuery(fields, permute(firstSimilarOptions)));
               query.v.push(generateQuery(fields, permute(secSimilarOptions)));
             });

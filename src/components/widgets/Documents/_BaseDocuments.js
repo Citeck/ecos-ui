@@ -1,32 +1,34 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import head from 'lodash/head';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
-import cloneDeep from 'lodash/cloneDeep';
+import PropTypes from 'prop-types';
+import React from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
-import { NotificationManager } from 'react-notifications';
 
 import { DocumentsApi } from '../../../api/documents';
-import BaseWidget from '../BaseWidget';
-import { EcosModal, Icon, Loader, Tooltip } from '../../common';
-import { Dropdown } from '../../common/form';
-import { Btn } from '../../common/btns';
-import FormManager from '../../EcosForm/FormManager';
-import DropZone from './parts/DropZone';
-import UserLocalSettingsService from '../../../services/userLocalSettings';
-import DAction from '../../../services/DashletActionService';
-import DocumentsConverter from '../../../dto/documents';
-import { Labels, statusesKeys, tooltips, typesStatuses, typeStatusesByFields } from '../../../constants/documents';
-import { prepareTooltipId } from '../../../helpers/util';
-import { t } from '../../../helpers/export/util';
-import { AvailableTypeInterface, DynamicTypeInterface } from './propsInterfaces';
 import { MAX_DEFAULT_HEIGHT_DASHLET } from '../../../constants';
-import Badge from './parts/Badge';
+import { Labels, statusesKeys, tooltips, typesStatuses, typeStatusesByFields } from '../../../constants/documents';
+import DocumentsConverter from '../../../dto/documents';
+import { t } from '../../../helpers/export/util';
+import { prepareTooltipId } from '../../../helpers/util';
 import { selectTypeStatus } from '../../../selectors/documents';
+import DAction from '../../../services/DashletActionService';
+import UserLocalSettingsService from '../../../services/userLocalSettings';
+import FormManager from '../../EcosForm/FormManager';
+import { EcosModal, Icon, Loader, Tooltip } from '../../common';
+import { Btn } from '../../common/btns';
+import { Dropdown } from '../../common/form';
+import BaseWidget from '../BaseWidget';
+
+import Badge from './parts/Badge';
+import DropZone from './parts/DropZone';
 import Settings from './parts/Settings';
+import { AvailableTypeInterface, DynamicTypeInterface } from './propsInterfaces';
+
+import { NotificationManager } from '@/services/notifications';
 
 import './style.scss';
 
@@ -260,7 +262,13 @@ class BaseDocuments extends BaseWidget {
     const { availableTypes } = this.props;
     const typeId = typeof type === 'string' ? type : type.type;
 
-    return get(availableTypes.find(item => item.id === typeId), 'createVariants', {}) || {};
+    return (
+      get(
+        availableTypes.find(item => item.id === typeId),
+        'createVariants',
+        {}
+      ) || {}
+    );
   };
 
   handleToggleUploadModalByType = async (type = null) => {

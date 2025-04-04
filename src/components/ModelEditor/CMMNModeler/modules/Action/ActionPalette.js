@@ -1,9 +1,9 @@
-import { GROUP_CUSTOM } from '../../../../../constants/cmmn';
+import { GROUP_CUSTOM } from '@/constants/cmmn';
 
 function createAction(elementFactory, cmmnFactory) {
   return elementFactory.createShape({
     type: 'cmmn:PlanItem',
-    businessObject: (function() {
+    businessObject: (function () {
       const definitionRef = cmmnFactory.create('cmmn:Task', {
         'ecos:cmmnType': 'ecos:Action'
       });

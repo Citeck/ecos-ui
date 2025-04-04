@@ -1,11 +1,12 @@
-import { append as svgAppend, classes as svgClasses, create as svgCreate, remove as svgRemove, select as svgSelect } from 'tiny-svg';
 import { is, getBusinessObject } from 'bpmn-js/lib/util/ModelUtil';
 import TextUtil from 'diagram-js/lib/util/Text';
-import { isNil } from 'min-dash';
 import _ from 'lodash';
+import { isNil } from 'min-dash';
+import { append as svgAppend, classes as svgClasses, create as svgCreate, remove as svgRemove, select as svgSelect } from 'tiny-svg';
 
 import KPIRenderer from './EcosKPIRenderer';
-import Records from '../../../../../components/Records/Records';
+
+import Records from '@/components/Records/Records';
 import {
   ECOS_TASK_TYPE_SET_STATUS,
   ECOS_TASK_BASE_ELEMENT,
@@ -13,8 +14,8 @@ import {
   BPMN_TASK_TYPES,
   LABEL_STYLE,
   STATUS_CHANGE_ICON_PATH
-} from '../../../../../constants/bpmn';
-import { t } from '../../../../../helpers/util';
+} from '@/constants/bpmn';
+import { t } from '@/helpers/util';
 
 const HIGH_PRIORITY = 1500;
 

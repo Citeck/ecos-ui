@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
 import { cloneDeep } from 'lodash';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 
-import { SortableContainer, SortableElement, SortableHandle } from '../Drag-n-Drop';
 import { t } from '../../helpers/util';
+import { SortableContainer, SortableElement, SortableHandle } from '../Drag-n-Drop';
 
 import './style.scss';
 
@@ -33,7 +33,7 @@ class TopMenu extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (!nextProps.isLoading && JSON.stringify(nextProps.links) !== JSON.stringify(this.state.links)) {
       this.setState({ links: nextProps.links });
     }

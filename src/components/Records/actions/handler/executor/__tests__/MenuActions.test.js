@@ -1,11 +1,11 @@
-import { NotificationManager } from 'react-notifications';
+import { NotificationManager } from '@/services/notifications';
 
 import MenuSettingsService from '../../../../../../services/MenuSettingsService';
 import Records from '../../../../Records';
 import actionsRegistry from '../../../actionsRegistry';
 import '../../../index';
-import ViewMenuAction from '../ViewMenuAction';
 import EditMenuAction from '../EditMenuAction';
+import ViewMenuAction from '../ViewMenuAction';
 
 const RecordIds = {
   MENU_1: 'uiserv/menu@test-menu-1'

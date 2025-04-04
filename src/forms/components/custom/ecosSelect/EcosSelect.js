@@ -2,10 +2,11 @@ import Formio from 'formiojs/Formio';
 import _ from 'lodash';
 
 import Choices from '../../../choices';
-import BaseComponent from '../base/BaseComponent';
-import { getMLValue, isNodeRef } from '../../../../helpers/util';
-import { createDocumentUrl } from '../../../../helpers/urls';
 import { requestAnimationFrame } from '../../override/misc';
+import BaseComponent from '../base/BaseComponent';
+
+import { createDocumentUrl } from '@/helpers/urls.js';
+import { getMLValue, isNodeRef } from '@/helpers/util.js';
 
 export default class SelectComponent extends BaseComponent {
   static schema(...extend) {
@@ -669,10 +670,7 @@ export default class SelectComponent extends BaseComponent {
 
     // Make the request.
     options.header = headers;
-    Formio.makeRequest(this.options.formio, 'select', url, method, body, options)
-      .then(processItems)
-      .then(resolveItems)
-      .catch(rejectItems);
+    Formio.makeRequest(this.options.formio, 'select', url, method, body, options).then(processItems).then(resolveItems).catch(rejectItems);
   }
 
   /**
@@ -913,10 +911,10 @@ export default class SelectComponent extends BaseComponent {
 
             return template(`
               <div title="${pureLabel}" class="${classNames.item} ${classNames.itemChoice} ${
-              data.disabled ? classNames.itemDisabled : classNames.itemSelectable
-            }" data-select-text="${itemSelectText}" data-choice ${
-              data.disabled ? 'data-choice-disabled aria-disabled="true"' : 'data-choice-selectable'
-            } data-id="${data.id}" data-value="${data.value}" ${data.groupId > 0 ? 'role="treeitem"' : 'role="option"'}>
+                data.disabled ? classNames.itemDisabled : classNames.itemSelectable
+              }" data-select-text="${itemSelectText}" data-choice ${
+                data.disabled ? 'data-choice-disabled aria-disabled="true"' : 'data-choice-selectable'
+              } data-id="${data.id}" data-value="${data.value}" ${data.groupId > 0 ? 'role="treeitem"' : 'role="option"'}>
                 ${data.label}
               </div>
             `);
@@ -1302,8 +1300,8 @@ export default class SelectComponent extends BaseComponent {
         this.component.multiple && Array.isArray(value)
           ? _.filter(items, item => value.includes(item[valueProperty]))
           : valueProperty
-          ? _.find(items, [valueProperty, value])
-          : value;
+            ? _.find(items, [valueProperty, value])
+            : value;
     }
 
     if (_.isString(value)) {

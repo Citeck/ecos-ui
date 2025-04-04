@@ -1,8 +1,8 @@
-import { handleActions } from 'redux-actions';
-import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
-import isEqual from 'lodash/isEqual';
+import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
+import { handleActions } from 'redux-actions';
 
 import {
   deselectAllRecords,
@@ -40,11 +40,12 @@ import {
   setUrl,
   openSelectedJournal,
   setSearchText,
-  saveColumn
+  saveColumn,
+  setImportDataConfig
 } from '../actions/journals';
+import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_PAGINATION, relatedViews } from '../components/Journals/constants';
 import { t } from '../helpers/export/util';
 import { getCurrentStateById, handleAction, handleState, updateState } from '../helpers/redux';
-import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_PAGINATION, relatedViews } from '../components/Journals/constants';
 
 export const initialStateGrouping = {
   needCount: false,

@@ -1,4 +1,7 @@
-import { mount } from 'enzyme';
+/**
+ * @jest-environment jsdom
+ */
+import { render } from '@testing-library/react';
 
 import FormatterService from './FormatterService';
 import formatterRegistry from './registry';
@@ -23,7 +26,7 @@ describe('FormatterService', () => {
         }
       );
       expect(spy).toHaveBeenCalled();
-      expect(mount(result).text()).toBe('OK');
+      expect(result.props.contentComponent).toBe(spy.mock.results[0].value);
     });
     it('ScriptFormatter with various props', () => {
       const props = {
@@ -38,19 +41,19 @@ describe('FormatterService', () => {
       const resultWithFuncInConfig = FormatterService.format(props, {
         type: FORMATTER_TYPE_SCRIPT,
         config: {
-          fn: function({ cell, row, customArg }) {
+          fn: function ({ cell, row, customArg }) {
             return cell + '-' + row.rowAtt + '-' + customArg;
           }
         }
       });
-      expect(mount(resultWithFuncInConfig).text()).toBe('abc-def-ghi');
+      expect(resultWithFuncInConfig.props.contentComponent).toBe('abc-def-ghi');
       const resultWithScriptAsText = FormatterService.format(props, {
         type: FORMATTER_TYPE_SCRIPT,
         config: {
           fn: 'return cell + "-" + row.rowAtt + "-" + customArg'
         }
       });
-      expect(mount(resultWithScriptAsText).text()).toBe('abc-def-ghi');
+      expect(resultWithScriptAsText.props.contentComponent).toBe('abc-def-ghi');
     });
     it('should replace placeholders in the config fields', () => {
       const result = FormatterService.format(
@@ -67,11 +70,11 @@ describe('FormatterService', () => {
           type: FORMATTER_TYPE_SCRIPT,
           config: {
             /* eslint-disable-next-line */
-            fn: 'return ${a} + ${b}'
+            fn: 'return ${a} + ${b}',
           }
         }
       );
-      expect(mount(result).text()).toBe('15');
+      expect(result.props.contentComponent).toBe(15);
     });
     it('should display error message when formatter type is empty', () => {
       expect(FormatterService.format({}, {})).toBe(FormatterService.errorMessage);

@@ -1,11 +1,11 @@
-import { t } from '../../../../../helpers/export/util';
 import {
   AUTHORITY_TYPE_GROUP,
   AUTHORITY_TYPE_USER,
-  GroupTypes,
   ROOT_GROUP_NAME,
+  GroupTypes,
   TabTypes
 } from '../../../../../components/common/form/SelectOrgstruct/constants';
+import { t } from '../../../../../helpers/export/util';
 
 export default [
   {
@@ -67,7 +67,7 @@ export default [
     description: `Available types: ${Object.values(GroupTypes).join(', ')}`,
     defaultValue: `${GroupTypes.ROLE}, ${GroupTypes.BRANCH}`,
     weight: 19,
-    tooltip: 'only if Allowed authority type has ' + AUTHORITY_TYPE_GROUP,
+    tooltip: 'Only if Allowed authority type has ' + AUTHORITY_TYPE_GROUP,
     customConditional: `
       const allowedTypes = data.allowedAuthorityType.split(',').map(item => item.trim());
       show = allowedTypes.indexOf('${AUTHORITY_TYPE_GROUP}') !== -1;
@@ -83,12 +83,56 @@ export default [
     validate: {
       required: false
     },
+    logic: [
+      {
+        name: 'Disabled field',
+        trigger: {
+          type: 'javascript',
+          javascript: "result = data['customRootGroupName'].length > 0"
+        },
+        actions: [
+          {
+            name: 'Disable action',
+            type: 'property',
+            property: {
+              label: 'Disabled',
+              value: 'disabled',
+              type: 'boolean'
+            },
+            state: true
+          },
+          {
+            name: 'Edit tips',
+            type: 'property',
+            property: {
+              label: 'Description',
+              value: 'description',
+              type: 'string'
+            },
+            text: () => t('form-constructor.tabs-description.rootGroupName.disabled')
+          }
+        ]
+      }
+    ],
     weight: 20,
-    tooltip: 'only if Allowed authority type has ' + AUTHORITY_TYPE_GROUP,
+    tooltip: 'Only if Allowed authority type has ' + AUTHORITY_TYPE_GROUP,
     customConditional: `
       const allowedTypes = data.allowedAuthorityType.split(',').map(item => item.trim());
       show = allowedTypes.indexOf('${AUTHORITY_TYPE_GROUP}') !== -1;
     `
+  },
+  {
+    type: 'textarea',
+    weight: 21,
+    input: true,
+    key: 'customRootGroupName',
+    label: {
+      ru: 'Пользовательское значение корневой группы',
+      en: 'Custom value of root group'
+    },
+    editor: 'ace',
+    rows: 10,
+    placeholder: `value = "${ROOT_GROUP_NAME}"`
   },
   {
     type: 'textfield',
@@ -100,8 +144,8 @@ export default [
     validate: {
       required: false
     },
-    weight: 20,
-    tooltip: 'only if Allowed authority type has ' + AUTHORITY_TYPE_GROUP,
+    weight: 22,
+    tooltip: 'Only if Allowed authority type has ' + AUTHORITY_TYPE_GROUP,
     customConditional: `
       const allowedTypes = data.allowedAuthorityType.split(',').map(item => item.trim());
       show = allowedTypes.indexOf('${AUTHORITY_TYPE_GROUP}') !== -1;
@@ -142,7 +186,7 @@ export default [
       required: false
     },
     weight: 24,
-    tooltip: 'only if Allowed authority type has ' + AUTHORITY_TYPE_USER,
+    tooltip: 'Only if Allowed authority type has ' + AUTHORITY_TYPE_USER,
     customConditional: `
       const allowedTypes = data.allowedAuthorityType.split(',').map(item => item.trim());
       show = allowedTypes.indexOf('${AUTHORITY_TYPE_USER}') !== -1;

@@ -1,14 +1,16 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
-import get from 'lodash/get';
 import pick from 'lodash/pick';
+import React from 'react';
+import { createRoot } from 'react-dom/client';
 
-import RawHtmlWrapper from '../../../../components/common/RawHtmlWrapper';
 import UnreadableLabel from '../../UnreadableLabel';
+
 import BaseComponent from './BaseComponent';
+
+import RawHtmlWrapper from '@/components/common/RawHtmlWrapper';
 
 export default class BaseReactComponent extends BaseComponent {
   static schema(...extend) {
@@ -21,8 +23,8 @@ export default class BaseReactComponent extends BaseComponent {
   }
 
   react = {};
-  #viewOnlyPrev = {};
-  #refreshOnValuePrev = {};
+  _viewOnlyPrev = {};
+  _refreshOnValuePrev = {};
 
   get isShowElement() {
     if (this.options.builder) {
@@ -50,13 +52,13 @@ export default class BaseReactComponent extends BaseComponent {
 
   build() {
     if (
-      !isEqual(this.#viewOnlyPrev, this.viewOnly) ||
-      (!isEmpty(this.refreshOnValue) && !isEqual(this.#refreshOnValuePrev, this.refreshOnValue))
+      !isEqual(this._viewOnlyPrev, this.viewOnly) ||
+      (!isEmpty(this.refreshOnValue) && !isEqual(this._refreshOnValuePrev, this.refreshOnValue))
     ) {
       super.clear();
       this.react = {};
-      this.#viewOnlyPrev = this.viewOnly;
-      this.#refreshOnValuePrev = this.refreshOnValue;
+      this._viewOnlyPrev = this.viewOnly;
+      this._refreshOnValuePrev = this.refreshOnValue;
     }
 
     const firstBuild = isEmpty(this.react);
@@ -194,7 +196,9 @@ export default class BaseReactComponent extends BaseComponent {
           }
         };
 
-        ReactDOM.render(
+        const root = this.react.container?._root?._internalRoot ? this.react.container._root : createRoot(this.react.container);
+
+        root.render(
           <RawHtmlWrapper
             onMounted={() => {
               this.react.isMounted = true;
@@ -207,11 +211,12 @@ export default class BaseReactComponent extends BaseComponent {
             component={component}
             ref={this.react.resolve}
             props={props}
-          />,
-          this.react.container
+          />
         );
 
-        if (!firstBuild && !isEqual(this.react.innerComponent.props, props)) {
+        this.react.container._root = root;
+
+        if (!firstBuild && !isEqual(this.react?.innerComponent?.props, props)) {
           this.setReactProps(props);
         }
       };
@@ -228,7 +233,7 @@ export default class BaseReactComponent extends BaseComponent {
 
   destroy() {
     if (this.react.container) {
-      ReactDOM.unmountComponentAtNode(this.react.container);
+      this.react.container._root?.unmount();
       this.react.wrapper = null;
     }
 

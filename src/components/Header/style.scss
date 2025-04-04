@@ -3,7 +3,7 @@
 .ecos-header {
   $root: &;
   $dropdown-max-width: 815px;
-  $search-base-width: 300px;
+  $search-base-width: 345px;
   $search-focused-width: 440px;
 
   background: $color-blue-light;
@@ -117,18 +117,31 @@
           background: $color-gray-10;
           color: $color-gray-dark;
           font-weight: $font-weight-bold;
-          font-size: $font-size-large;
-          padding: 15px;
+          font-size: $font-size-15;
+          padding: 12px;
           max-width: $dropdown-max-width;
         }
 
         &__content {
           display: flex;
 
+          &-worspace-preview {
+            display: flex;
+            align-items: center;
+            margin-right: 10px;
+            width: 100%;
+            height: 100%;
+          }
+
           &-icon {
             color: $color-blue-light2;
             font-size: 33px;
             padding-right: 12px;
+
+            &.url {
+              width: 38px;
+              height: 38px;
+            }
           }
 
           &-avatar {
@@ -295,7 +308,7 @@
 
   &-workspaces {
     display: inline-flex;
-    padding: 0 8px;
+    padding: 0 5px;
     align-items: center;
     line-height: normal;
     background-color: #4b75b7;
@@ -313,45 +326,76 @@
 
     div.workspace-panel {
       position: absolute;
-      top: 58px;
-      background: #ffffff;
-      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 3px 4px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.14);
-      border-radius: 8px;
-      color: #444444;
       z-index: 1001;
-      overflow: hidden;
+      top: 48px;
+      left: 21px;
 
-      ul {
-        user-select: none;
-        overflow: hidden;
+      border-radius: 6px;
+      color: $text-color-dark;
+      background: $color-white;
+      box-shadow:
+        0 1px 5px rgba(0, 0, 0, 0.2),
+        0 3px 4px rgba(0, 0, 0, 0.12),
+        0 2px 4px rgba(0, 0, 0, 0.14);
 
-        li {
-          display: flex;
-          padding: 10px 15px;
-          align-items: center;
-          gap: 10px;
+      cursor: initial;
+      max-width: 522px;
+      padding: 24px;
+
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+
+      & .citek-workspace-sidebar__card {
+        padding: 9px 6px;
+        height: 88px;
+
+        &-info_title {
+          font-weight: 600;
           font-size: 12px;
-          font-weight: 700;
-          color: '#fff';
-
-          &:hover {
-            background-color: #f3f3f3;
-          }
+          line-height: 16px;
         }
       }
 
-      &-create-button {
+      &__wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: center;
+      }
+
+      &__create-button {
         display: flex;
         align-items: center;
         justify-content: center;
-        padding-bottom: 1rem;
+        width: 100%;
+
+        & .ecos-btn__content {
+          text-align: center;
+          width: 100%;
+          color: $text-color-gray;
+          font-weight: 600;
+          font-size: 12px;
+          line-height: 9.61px;
+
+          > span {
+            margin-left: 9px;
+            margin-top: 2px;
+          }
+        }
+
+        & .ecos-btn {
+          width: 100%;
+        }
       }
     }
   }
 }
 
 .ecos-header_new {
-  padding: 10px 19px 10px 12px;
+  $search-focused-width: 440px;
+  $search-base-width-new: 310px;
+  padding: 10px 10px 10px 21px;
 
   .ecos-btn {
     font-size: $font-size-small;
@@ -364,7 +408,8 @@
 
   .icon:not(.ecos-avatar__icon) {
     font-size: $font-size-standard;
-    line-height: 0;
+    line-height: 1em;
+    top: 8px;
   }
 
   .ecos-header__side {
@@ -384,12 +429,24 @@
     }
   }
 
+  .ecos-header-search {
+    width: $search-base-width-new;
+    transition: width 0.3s;
+    &_focused {
+      width: $search-focused-width;
+    }
+  }
+
   .ecos-input-search {
     .ecos-input {
       height: 32px;
       padding-left: 32px;
       font-size: 12px;
     }
+  }
+
+  .ecos-input-search__no-results {
+    font-size: 12px !important;
   }
 
   .ecos-header-site {
@@ -451,17 +508,6 @@
       }
 
       &_btn {
-        display: none;
-
-        position: absolute;
-        right: 0;
-        width: 40px;
-        height: 50px;
-
-        padding-right: 10px;
-        align-items: center;
-        justify-content: flex-end;
-
         & > svg,
         path {
           fill: $color-gray-5 !important;

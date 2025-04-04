@@ -1,15 +1,15 @@
-import get from 'lodash/get';
-import set from 'lodash/set';
-import isUndefined from 'lodash/isUndefined';
 import ElementFactory from 'bpmn-js/lib/features/modeling/ElementFactory';
+import get from 'lodash/get';
+import isUndefined from 'lodash/isUndefined';
+import set from 'lodash/set';
 
-import { getMLValue } from '../../../../../../helpers/util';
-import { ML_POSTFIX, PREFIX_FIELD } from '../../../../../../constants/cmmn';
-import { getRecordRef } from '../../../../../../helpers/urls';
+import { ML_POSTFIX, PREFIX_FIELD } from '@/constants/cmmn';
+import { getRecordRef } from '@/helpers/urls';
+import { getMLValue } from '@/helpers/util';
 
 const originalCreate = ElementFactory.prototype.create;
 
-ElementFactory.prototype.create = function(elementType, attrs) {
+ElementFactory.prototype.create = function (elementType, attrs) {
   const mlFieldName = `name${ML_POSTFIX}`;
   const mlName =
     get(attrs, ['businessObject', '$attrs', `${PREFIX_FIELD}${mlFieldName}`]) || get(attrs, ['businessObject', '$attrs', mlFieldName]);

@@ -13,7 +13,8 @@ import {
   TASK as BPMN_TASK,
   TRANSACTION
 } from 'bpmn-js/lib/features/replace/ReplaceOptions';
-import { ECOS_TASK_TYPE_SET_STATUS, REPLACE_TO_SET_STATUS } from '../../../../../../constants/bpmn';
+
+import { ECOS_TASK_TYPE_SET_STATUS, REPLACE_TO_SET_STATUS } from '@/constants/bpmn';
 
 const TASK = [
   ...BPMN_TASK,

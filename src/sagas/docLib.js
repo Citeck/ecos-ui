@@ -1,14 +1,12 @@
-import { all, call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
-import { delay } from 'redux-saga';
-import * as queryString from 'query-string';
-import { NotificationManager } from 'react-notifications';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
-import initializeWorker from '../workers/docLib';
+import * as queryString from 'query-string';
+import { delay } from 'redux-saga';
+import { all, call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 
 import {
   addSidebarItems,
+  changeNode,
   createNode,
   execGroupAction,
   foldSidebarItem,
@@ -49,6 +47,17 @@ import {
   updateSidebarItem,
   uploadFiles
 } from '../actions/docLib';
+import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
+import DocLibService from '../components/Journals/DocLib/DocLibService';
+import JournalsService from '../components/Journals/service/journalsService';
+import { ActionTypes } from '../components/Records/actions/constants';
+import { DocLibUrlParams } from '../constants';
+import { DEFAULT_DOCLIB_PAGINATION, NODE_TYPES } from '../constants/docLib';
+import DocLibConverter from '../dto/docLib';
+import JournalsConverter from '../dto/journals';
+import { t } from '../helpers/export/util';
+import { wrapSaga } from '../helpers/redux';
+import { getSearchParams, getUrlWithoutOrigin, getWorkspaceId } from '../helpers/urls';
 import {
   selectDocLibCreateVariants,
   selectDocLibFileCanUploadFiles,
@@ -59,23 +68,20 @@ import {
   selectDocLibRootId,
   selectDocLibSearchText,
   selectDocLibSidebar,
+  selectDocLibSidebarItems,
   selectDocLibTypeRef,
   selectJournalId
 } from '../selectors/docLib';
 import { selectJournalData, selectUrl } from '../selectors/journals';
-import { DocLibUrlParams } from '../constants';
-import { DEFAULT_DOCLIB_PAGINATION, NODE_TYPES } from '../constants/docLib';
-import { t } from '../helpers/export/util';
-import { getSearchParams, getUrlWithoutOrigin, getWorkspaceId } from '../helpers/urls';
-import { wrapSaga } from '../helpers/redux';
 import PageService from '../services/PageService';
-import { ActionTypes } from '../components/Records/actions/constants';
-import DocLibService from '../components/Journals/DocLib/DocLibService';
-import JournalsService from '../components/Journals/service/journalsService';
-import DocLibConverter from '../dto/docLib';
-import JournalsConverter from '../dto/journals';
+import { getStore } from '../store';
+import initializeWorker from '../workers/docLib';
 
-export function* sagaGetTypeRef({ logger, stateId, w }, action) {
+import { NotificationManager } from '@/services/notifications';
+
+const DOCLIB_INNER_DOC_ID_REGEX = /^emodel\/doclib@.+\$(.+)$/;
+
+export function* sagaGetTypeRef({ stateId, w }, action) {
   try {
     const { journalId } = action.payload;
     const typeRef = yield call(DocLibService.getTypeRef, journalId);
@@ -93,7 +99,7 @@ export function* sagaGetTypeRef({ logger, stateId, w }, action) {
 
     return { typeRef };
   } catch (e) {
-    logger.error('[docLib sagaGetTypeRef saga error', e);
+    console.error('[docLib sagaGetTypeRef saga error', e);
   }
 }
 
@@ -125,7 +131,7 @@ export function* loadDocumentLibrarySettings(typeRef, w) {
   return { rootId };
 }
 
-export function* sagaInitDocumentLibrary({ logger, stateId, w }) {
+export function* sagaInitDocumentLibrary({ stateId, w }) {
   try {
     const typeRef = yield select(state => selectDocLibTypeRef(state, stateId));
     let { rootId: selectedItemId } = yield call(loadDocumentLibrarySettings, typeRef, w);
@@ -145,11 +151,11 @@ export function* sagaInitDocumentLibrary({ logger, stateId, w }) {
     yield put(setFolderId(w(selectedItemId)));
     yield put(loadFolderData(w()));
   } catch (e) {
-    logger.error('[docLib sagaInitDocumentLibrary saga error', e);
+    console.error('[docLib sagaInitDocumentLibrary saga error', e);
   }
 }
 
-export function* sagaInitDocumentLibrarySidebar({ logger, stateId, w }) {
+export function* sagaInitDocumentLibrarySidebar({ stateId, w }) {
   try {
     yield put(setSidebarError(w(false)));
     yield put(setSidebarIsReady(w(false)));
@@ -190,11 +196,11 @@ export function* sagaInitDocumentLibrarySidebar({ logger, stateId, w }) {
   } catch (e) {
     yield put(setSidebarError(w(true)));
     yield put(setSidebarIsReady(w(true)));
-    logger.error('[docLib sagaInitDocumentLibrarySidebar saga error', e);
+    console.error('[docLib sagaInitDocumentLibrarySidebar saga error', e);
   }
 }
 
-function* sagaUnfoldDocumentLibrarySidebarItem({ api, logger, stateId, w }, action) {
+function* sagaUnfoldDocumentLibrarySidebarItem({ api, stateId, w }, action) {
   const typeRef = yield select(state => selectDocLibTypeRef(state, stateId));
   const sidebar = yield select(state => selectDocLibSidebar(state, stateId));
   const items = sidebar.items;
@@ -223,21 +229,21 @@ function* sagaUnfoldDocumentLibrarySidebarItem({ api, logger, stateId, w }, acti
 
     yield call([NotificationManager, 'error'], t('document-library.sidebar.failure-to-load-children'));
 
-    logger.error('[docLib sagaUnfoldDocumentLibrarySidebarItem saga error', e);
+    console.error('[docLib sagaUnfoldDocumentLibrarySidebarItem saga error', e);
   }
 }
 
-function* sagaFoldDocumentLibrarySidebarItem({ api, logger, stateId, w }, action) {
+function* sagaFoldDocumentLibrarySidebarItem({ api, stateId, w }, action) {
   try {
     const typeRef = yield select(state => selectDocLibTypeRef(state, stateId));
     const currentItemId = action.payload;
     yield call([DocLibService, 'removeUnfoldedItem'], typeRef, currentItemId);
   } catch (e) {
-    logger.error('[docLib sagaFoldDocumentLibrarySidebarItem saga error', e);
+    console.error('[docLib sagaFoldDocumentLibrarySidebarItem saga error', e);
   }
 }
 
-function* sagaOpenFolder({ api, logger, stateId, w }, action) {
+function* sagaOpenFolder({ api, stateId, w }, action) {
   try {
     const folderId = action.payload;
     const currentFolderId = yield select(state => selectDocLibFolderId(state, stateId));
@@ -269,11 +275,11 @@ function* sagaOpenFolder({ api, logger, stateId, w }, action) {
     const url = queryString.stringifyUrl({ url: getUrlWithoutOrigin(), query });
     yield call(PageService.changeUrlLink, url, { updateUrl: true });
   } catch (e) {
-    logger.error('[docLib sagaOpenFolder saga error', e);
+    console.error('[docLib sagaOpenFolder saga error', e);
   }
 }
 
-function* sagaDocLibLoadFolderData({ api, logger, stateId, w }) {
+function* sagaDocLibLoadFolderData({ api, stateId, w }) {
   try {
     const folderId = yield select(state => selectDocLibFolderId(state, stateId));
 
@@ -286,26 +292,27 @@ function* sagaDocLibLoadFolderData({ api, logger, stateId, w }) {
     yield put(setFolderPath(w(folderPath)));
   } catch (e) {
     yield put(setFileViewerError(w(true)));
-    logger.error('[docLib sagaDocLibLoadFolderData saga error', e);
+    console.error('[docLib sagaDocLibLoadFolderData saga error', e);
   }
 }
 
-function* sagaLoadFilesViewerData({ api, logger, stateId, w }) {
+function* sagaLoadFilesViewerData({ api, stateId, w }) {
   try {
     yield put(setFileViewerError(w(false)));
     yield put(setFileViewerIsReady(w(false)));
 
-    yield* getFilesViewerData({ api, logger, stateId, w });
+    yield* getFilesViewerData({ api, stateId, w });
 
     yield put(setFileViewerIsReady(w(true)));
   } catch (e) {
     yield put(setFileViewerError(w(true)));
-    logger.error('[docLib sagaLoadFilesViewerData saga error', e);
+    console.error('[docLib sagaLoadFilesViewerData saga error', e);
   }
 }
 
-function* getFilesViewerData({ api, logger, stateId, w }) {
+function* getFilesViewerData({ api, stateId, w }) {
   try {
+    const store = getStore();
     const folderId = yield select(state => selectDocLibFolderId(state, stateId));
     const pagination = yield select(state => selectDocLibFileViewerPagination(state, stateId));
     const searchText = yield select(state => selectDocLibSearchText(state, stateId));
@@ -334,11 +341,16 @@ function* getFilesViewerData({ api, logger, stateId, w }) {
       }
     });
 
+    const changeNodeFn = params => store.dispatch(changeNode({ ...params, stateId }));
+
     yield put(
       setFileViewerItems(
         w(
-          DocLibConverter.prepareFileListItems(records, actions.forRecord, () =>
-            DocLibService.emitter.emit(DocLibService.actionSuccessCallback)
+          DocLibConverter.prepareFileListItems(
+            records,
+            actions.forRecord,
+            () => DocLibService.emitter.emit(DocLibService.actionSuccessCallback),
+            { changeNode: changeNodeFn }
           )
         )
       )
@@ -346,11 +358,11 @@ function* getFilesViewerData({ api, logger, stateId, w }) {
 
     yield put(setFileViewerLoadingStatus(w(false)));
   } catch (e) {
-    logger.error('[docLib getFilesViewerData error', e);
+    console.error('[docLib getFilesViewerData error', e);
   }
 }
 
-function* sagaDocLibStartSearch({ api, logger, stateId, w }, action) {
+function* sagaDocLibStartSearch({ api, stateId, w }, action) {
   try {
     const searchText = action.payload;
     yield put(setSearchText(w(searchText)));
@@ -376,11 +388,11 @@ function* sagaDocLibStartSearch({ api, logger, stateId, w }, action) {
 
     yield put(loadFilesViewerData(w()));
   } catch (e) {
-    logger.error('[docLib sagaDocLibStartSearch saga error', e);
+    console.error('[docLib sagaDocLibStartSearch saga error', e);
   }
 }
 
-export function* sagaInitGroupActions({ api, logger, stateId, w, skipDelay = false }, action) {
+export function* sagaInitGroupActions({ api, stateId, w, skipDelay = false }, action) {
   try {
     const selected = action.payload;
     if (!Array.isArray(selected) || selected.length < 2) {
@@ -404,11 +416,11 @@ export function* sagaInitGroupActions({ api, logger, stateId, w, skipDelay = fal
   } catch (e) {
     yield put(setGroupActions(w({})));
     yield put(setIsGroupActionsReady(w(true)));
-    logger.error('[docLib sagaInitGroupActions saga error', e);
+    console.error('[docLib sagaInitGroupActions saga error', e);
   }
 }
 
-export function* sagaExecGroupAction({ api, logger, stateId, w }, action) {
+export function* sagaExecGroupAction({ api, stateId, w }, action) {
   try {
     const fileViewer = yield select(state => selectDocLibFileViewer(state, stateId));
     const records = fileViewer.selected || [];
@@ -423,25 +435,28 @@ export function* sagaExecGroupAction({ api, logger, stateId, w }, action) {
       // @todo reload sidebar - yield put(initSidebar(w()));
     }
   } catch (e) {
-    logger.error('[docLib sagaExecGroupAction saga error', e);
+    console.error('[docLib sagaExecGroupAction saga error', e);
   }
 }
 
-export function* sagaCreateNode({ api, logger, stateId, w }, action) {
+function* checkUniqueNameNode({ api, stateId, w }, { submission, nodeType, isExistsItem, originName }) {
   try {
-    const { createVariant, submission } = action.payload;
+    if (!submission || !nodeType) {
+      return;
+    }
 
     let currentItemTitle;
+    const nameItem = get(submission, 'name')?.trim() || get(submission, '_disp')?.trim();
+    const originalNameItem = get(submission, '_content[0].originalName') || get(submission, '_content[0].name');
 
-    const nameItem = get(submission, 'name');
-    const originalNameItem = get(submission, '_content[0].originalName');
-
-    if (nameItem && originalNameItem && createVariant.nodeType === NODE_TYPES.FILE) {
+    if (nameItem && originalNameItem && nodeType === NODE_TYPES.FILE) {
       const format = originalNameItem.split('.').pop();
       currentItemTitle = nameItem + '.' + format;
     } else {
       currentItemTitle = originalNameItem || nameItem || '';
     }
+
+    currentItemTitle = currentItemTitle.trim();
 
     if (!currentItemTitle) {
       NotificationManager.error(t('document-library.uploading-file.message.info.error'));
@@ -454,13 +469,19 @@ export function* sagaCreateNode({ api, logger, stateId, w }, action) {
     const items = get(fileViewer, 'items') || [];
 
     items.forEach(item => get(item, 'title') && parentDirTitles.push(item.title));
+    if (isExistsItem && originName === currentItemTitle) {
+      const indexExistsItem = parentDirTitles.indexOf(currentItemTitle);
+      if (indexExistsItem !== -1) {
+        parentDirTitles.splice(indexExistsItem, 1);
+      }
+    }
 
     const renamePromise = new Promise(resolve => {
       if (currentItemTitle && parentDirTitles.includes(currentItemTitle)) {
         if (navigator.serviceWorker.controller) {
           navigator.serviceWorker.controller.postMessage({
             type: 'CONFIRMATION_RENAME_DIR_REQUEST',
-            typeCurrentItem: createVariant.nodeType,
+            typeCurrentItem: nodeType,
             parentDirTitles,
             currentItemTitle,
             targetDirTitle: selectFolderTitle
@@ -481,6 +502,25 @@ export function* sagaCreateNode({ api, logger, stateId, w }, action) {
     });
 
     yield call(() => renamePromise);
+
+    return { currentItemTitle, parentDirTitles };
+  } catch (e) {
+    console.error('[docLib checkUniqueNameNode saga error', e);
+  }
+}
+
+export function* sagaCreateNode({ api, stateId, w }, action) {
+  try {
+    const { createVariant, submission } = action.payload;
+
+    const { currentItemTitle, parentDirTitles } = yield* checkUniqueNameNode(
+      { api, stateId, w },
+      {
+        submission,
+        nodeType: createVariant.nodeType
+      }
+    );
+
     if (currentItemTitle && parentDirTitles.includes(currentItemTitle)) {
       return;
     }
@@ -491,7 +531,7 @@ export function* sagaCreateNode({ api, logger, stateId, w }, action) {
 
     const rootId = yield select(state => selectDocLibRootId(state, stateId));
     const currentFolderId = yield select(state => selectDocLibFolderId(state, stateId));
-    const typeRef = createVariant.destination;
+    const typeRef = createVariant.typeRef;
 
     const createChildResult = yield call(DocLibService.createChild, rootId, currentFolderId, typeRef, submission, currentItemTitle);
     const newRecord = yield call(DocLibService.loadNode, createChildResult.id);
@@ -504,13 +544,86 @@ export function* sagaCreateNode({ api, logger, stateId, w }, action) {
       yield put(addSidebarItems(w([...newChildren, { id: currentFolderId, hasChildren: true }])));
       yield put(unfoldSidebarItem(w(currentFolderId)));
     } else {
-      // Cause: https://jira.citeck.ru/browse/ECOSUI-3137
+      if (createVariant.postActionRef) {
+        const actionProps = yield call(api.recordActions.getActionProps, { action: createVariant.postActionRef });
+        let recordId = createChildResult.id;
+        const recordIdParts = DOCLIB_INNER_DOC_ID_REGEX.exec(createChildResult.id);
+        if (recordIdParts) {
+          recordId = recordIdParts[1];
+        }
+        yield call(api.recordActions.executeAction, { records: recordId, action: actionProps });
+      }
       yield put(loadFilesViewerData(w()));
       // const localDobLibRecordRef = newRecord.id.substring(newRecord.id.indexOf('$') + 1);
       // yield call(goToCardDetailsPage, localDobLibRecordRef);
     }
   } catch (e) {
-    logger.error('[docLib sagaCreateNode saga error', e);
+    console.error('[docLib sagaCreateNode saga error', e);
+  }
+}
+
+export function* sagaChangeNode({ api, w }, action) {
+  try {
+    const { record, submission, nodeType, stateId } = action.payload;
+
+    if (!(record && nodeType && stateId)) {
+      return;
+    }
+
+    const originName = yield record.load('name?str');
+    if (nodeType === NODE_TYPES.FILE && submission?.name) {
+      submission.name = submission.name.replace(/\.[^.]+$/, '');
+    }
+
+    const { currentItemTitle, parentDirTitles } = yield* checkUniqueNameNode(
+      { api, stateId, w },
+      {
+        submission,
+        nodeType,
+        originName,
+        isExistsItem: true
+      }
+    );
+    if (currentItemTitle && parentDirTitles.includes(currentItemTitle)) {
+      return;
+    }
+
+    record.att('name', currentItemTitle);
+    if (get(submission, '_content')) {
+      record.att('_content', submission._content);
+    }
+
+    yield record.save();
+
+    if (nodeType === NODE_TYPES.DIR) {
+      const sidebarItems = yield select(state => selectDocLibSidebarItems(state, stateId));
+      const newSidebarItems = [];
+
+      const editDirId = yield record.load('?id');
+      const newRecord = yield call(DocLibService.loadNode, editDirId);
+
+      if (newRecord && newRecord.id) {
+        (sidebarItems || []).forEach(item => {
+          const itemId = get(item, 'id', '');
+          const substringItemId = itemId.substring(itemId.indexOf('$') + 1);
+
+          if (substringItemId && substringItemId === newRecord.id) {
+            newSidebarItems.push({
+              ...item,
+              ...newRecord
+            });
+          } else {
+            newSidebarItems.push(item);
+          }
+        });
+
+        yield put(setSidebarItems(w(newSidebarItems)));
+      }
+    }
+
+    yield put(loadFilesViewerData(w()));
+  } catch (e) {
+    console.error('[docLib sagaChangeNode saga error', e);
   }
 }
 
@@ -524,7 +637,7 @@ function formKeysCheck(formDefinition) {
   return componentKeys.has('name') && componentKeys.has('_content') && componentKeys.size === 2;
 }
 
-function* sagaSetParentItem({ api, logger, stateId, w }, { payload }) {
+function* sagaSetParentItem({ api, stateId, w }, { payload }) {
   try {
     const { item, parent } = payload;
     const { id: itemId, title: itemTitle } = item || {};
@@ -586,11 +699,11 @@ function* sagaSetParentItem({ api, logger, stateId, w }, { payload }) {
       yield put(loadFolderData(w()));
     }
   } catch (e) {
-    logger.error('[docLib sagaSetParentItem saga error', e);
+    console.error('[docLib sagaSetParentItem saga error', e);
   }
 }
 
-function* sagaUploadFiles({ api, logger, stateId, w }, action) {
+function* sagaUploadFiles({ api, stateId, w }, action) {
   try {
     yield put(setFileViewerLoadingStatus(w(true)));
 
@@ -668,7 +781,7 @@ function* sagaUploadFiles({ api, logger, stateId, w }, action) {
     const entries = yield action.payload.items.map(item => item.webkitGetAsEntry());
     let totalCount = 0;
 
-    const itemsObj = yield entries.map(function*(entry) {
+    const itemsObj = yield entries.map(function* (entry) {
       if (entry && entry.isDirectory) {
         const filesOfDir = yield traverseDirectory(entry);
         totalCount += (filesOfDir || []).length;
@@ -678,7 +791,10 @@ function* sagaUploadFiles({ api, logger, stateId, w }, action) {
         totalCount += 1;
 
         const file = yield new Promise((resolve, reject) => {
-          entry.file(file => resolve(file), error => reject(error));
+          entry.file(
+            file => resolve(file),
+            error => reject(error)
+          );
         });
 
         return { file, name: file.name, nodeType: NODE_TYPES.FILE, path: `/${file.name}` };
@@ -686,8 +802,8 @@ function* sagaUploadFiles({ api, logger, stateId, w }, action) {
     });
 
     const destinations = {
-      file: get(createVariantFile, 'destination'),
-      dir: get(createVariantDir, 'destination')
+      file: get(createVariantFile, 'typeRef'),
+      dir: get(createVariantDir, 'typeRef')
     };
 
     // Init web-worker
@@ -768,7 +884,7 @@ function* sagaUploadFiles({ api, logger, stateId, w }, action) {
     yield put(loadFolderData(w()));
     yield put(loadFilesViewerData(w()));
   } catch (e) {
-    logger.error('[docLib sagaUploadFiles saga error', e);
+    console.error('[docLib sagaUploadFiles saga error', e);
   } finally {
     yield put(setFileViewerLoadingStatus(w(false)));
   }
@@ -786,6 +902,7 @@ function* saga(ea) {
   yield takeLatest(setFileViewerSelected().type, wrapSaga, { ...ea, saga: sagaInitGroupActions });
   yield takeLatest(execGroupAction().type, wrapSaga, { ...ea, saga: sagaExecGroupAction });
   yield takeLatest(createNode().type, wrapSaga, { ...ea, saga: sagaCreateNode });
+  yield takeLatest(changeNode().type, wrapSaga, { ...ea, saga: sagaChangeNode });
   yield takeEvery(uploadFiles().type, wrapSaga, { ...ea, saga: sagaUploadFiles });
   yield takeEvery(getTypeRef().type, wrapSaga, { ...ea, saga: sagaGetTypeRef });
   yield takeEvery(setParentItem().type, wrapSaga, { ...ea, saga: sagaSetParentItem });

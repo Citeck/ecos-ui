@@ -1,23 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import uuidv4 from 'uuid/v4';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import React, { useEffect, useState } from 'react';
+import uuidv4 from 'uuid/v4';
 
-import { SourcesId } from '../../../constants';
-import { PREFIX_FORM_ELM, SUBPROCESS_TYPE, TYPE_BPMN_PROCESS } from '../../../constants/bpmn';
-import BPMNModeler from '../../../components/ModelEditor/BPMNModeler';
+import ModelEditor from '../ModelEditor';
 
+import BPMNModeler from '@/components/ModelEditor/BPMNModeler';
+import { SourcesId } from '@/constants';
 import {
+  PREFIX_FORM_ELM,
+  SUBPROCESS_TYPE,
+  TYPE_BPMN_PROCESS,
   ELEMENT_TYPES_WITH_CUSTOM_FORM_DETERMINER,
   ELEMENT_TYPES_FORM_DETERMINER_BY_DEF_TYPE_MAP,
   ELEMENT_TYPES_FORM_DETERMINER_BY_ECOS_TASK_TYPE_MAP,
   BPMN_DELIMITER,
   BPMN_PREFIX_UNDERLINE
-} from '../../../constants/bpmn';
-
-import { t } from '../../../helpers/export/util';
-
-import ModelEditor from '../ModelEditor';
+} from '@/constants/bpmn';
+import { t } from '@/helpers/export/util';
 
 class BPMNEditorPage extends ModelEditor {
   static modelType = 'bpmn';
@@ -43,38 +43,29 @@ class BPMNEditorPage extends ModelEditor {
     const [warnings, setWarnings] = useState(linterResult.warnings || 0);
     const [text, setText] = useState(t('bpmn-linter.toggle') || '');
 
-    useEffect(
-      () => {
-        if (errors !== linterResult.errors) {
-          setErrors(linterResult.errors);
-        }
-      },
-      [linterResult.errors]
-    );
+    useEffect(() => {
+      if (errors !== linterResult.errors) {
+        setErrors(linterResult.errors);
+      }
+    }, [linterResult.errors]);
 
-    useEffect(
-      () => {
-        if (warnings !== linterResult.warnings) {
-          setWarnings(linterResult.warnings);
-        }
-      },
-      [linterResult.warnings]
-    );
+    useEffect(() => {
+      if (warnings !== linterResult.warnings) {
+        setWarnings(linterResult.warnings);
+      }
+    }, [linterResult.warnings]);
 
-    useEffect(
-      () => {
-        let newText = t('bpmn-linter.toggle');
+    useEffect(() => {
+      let newText = t('bpmn-linter.toggle');
 
-        if (warnings || errors) {
-          newText += `\n${t('bpmn-linter.all-errors', { errors, warnings })}`;
-        }
+      if (warnings || errors) {
+        newText += `\n${t('bpmn-linter.all-errors', { errors, warnings })}`;
+      }
 
-        if (text !== newText) {
-          setText(newText);
-        }
-      },
-      [warnings, errors]
-    );
+      if (text !== newText) {
+        setText(newText);
+      }
+    }, [warnings, errors]);
 
     return <div>{text}</div>;
   };

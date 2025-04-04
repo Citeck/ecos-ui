@@ -1,12 +1,13 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import ReactResizeDetector from 'react-resize-detector';
 import debounce from 'lodash/debounce';
 import isNil from 'lodash/isNil';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import ReactResizeDetector from 'react-resize-detector';
 
-import { getFirstNotNil } from '../../../helpers/util';
 import { Events, popupEmitter } from './emitter';
+
+import { getFirstNotNil } from '@/helpers/util';
 
 import './style.scss';
 

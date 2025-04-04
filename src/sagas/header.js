@@ -1,9 +1,10 @@
-import { call, put, select, takeLatest } from 'redux-saga/effects';
 import get from 'lodash/get';
-import set from 'lodash/set';
-import cloneDeep from 'lodash/cloneDeep';
 import isString from 'lodash/isString';
+import set from 'lodash/set';
+import { call, put, select, takeLatest } from 'redux-saga/effects';
 
+import { setLeftMenuEditable } from '../actions/app';
+import { setDashboardIdentification } from '../actions/dashboard';
 import {
   fetchCreateCaseWidgetData,
   fetchSiteMenuData,
@@ -16,22 +17,23 @@ import {
   setSiteMenuItems,
   setUserMenuItems
 } from '../actions/header';
-import { setDashboardIdentification } from '../actions/dashboard';
-import { getAppUserThumbnail, validateUserSuccess } from '../actions/user';
 import { changeTab } from '../actions/pageTabs';
-import { setLeftMenuEditable } from '../actions/app';
-import { selectIdentificationForView } from '../selectors/dashboard';
-import { makeSiteMenu } from '../helpers/menu';
-import { getIconObjectWeb } from '../helpers/icon';
+import { getAppUserThumbnail, validateUserSuccess } from '../actions/user';
+import { LiveSearchAttributes } from '../api/menu';
 import { SourcesId } from '../constants';
 import { DefaultUserMenu } from '../constants/menu';
+import MenuConverter from '../dto/menu';
+import { getIconObjectWeb } from '../helpers/icon';
+import { makeSiteMenu } from '../helpers/menu';
+import { getBaseUrlWorkspace, isDashboard } from '../helpers/urls';
+import { getMLValue } from '../helpers/util';
+import { selectIdentificationForView } from '../selectors/dashboard';
 import MenuService from '../services/MenuService';
 import PageService from '../services/PageService';
 import configService, { CREATE_MENU_TYPE } from '../services/config/ConfigService';
-import MenuConverter from '../dto/menu';
-import { isDashboard } from '../helpers/urls';
+import { LiveSearchTypes } from '../services/search';
 
-function* fetchCreateCaseWidget({ api, logger }) {
+function* fetchCreateCaseWidget({ api }) {
   try {
     const createMenuView = yield call(key => configService.getValue(key), CREATE_MENU_TYPE);
     const menuConfigItems = yield call(api.menu.getMainMenuCreateVariants);
@@ -40,18 +42,20 @@ function* fetchCreateCaseWidget({ api, logger }) {
     yield put(setCreateCaseWidgetItems(config));
     yield put(setCreateCaseWidgetIsCascade(createMenuView === 'cascad'));
   } catch (e) {
-    logger.error('[fetchCreateCaseWidget saga] error', e);
+    console.error('[fetchCreateCaseWidget saga] error', e);
   }
 }
 
-function* fetchUserMenu({ api, logger }) {
+function* fetchUserMenu({ api }) {
   try {
     const userData = yield select(state => state.user);
     const { userName, isDeputyAvailable: isAvailable } = userData || {};
     const isExternalIDP = yield call(api.app.getIsExternalIDP);
     const config = (yield call(api.menu.getUserCustomMenuConfig, userName)) || {};
 
-    set(config, 'items', cloneDeep(DefaultUserMenu));
+    if (!config.items) {
+      set(config, 'items', DefaultUserMenu);
+    }
 
     const items = MenuConverter.getUserMenuItems(config.items, { isAvailable, isExternalIDP });
 
@@ -72,7 +76,7 @@ function* fetchUserMenu({ api, logger }) {
     yield put(setUserMenuItems(items));
     yield put(getAppUserThumbnail());
   } catch (e) {
-    logger.error('[fetchUserMenu saga] error', e);
+    console.error('[fetchUserMenu saga] error', e);
   }
 }
 
@@ -85,7 +89,7 @@ function* fetchInfluentialParams() {
   return { isAdmin, dashboardEditable, widgetEditable, leftMenuEditable };
 }
 
-function* fetchSiteMenu({ logger }) {
+function* fetchSiteMenu() {
   try {
     const params = yield fetchInfluentialParams();
     const url = document.location.href;
@@ -93,16 +97,16 @@ function* fetchSiteMenu({ logger }) {
     const menuItems = makeSiteMenu({ isDashboardPage, ...params });
     yield put(setSiteMenuItems(menuItems));
   } catch (e) {
-    logger.error('[fetchSiteMenu saga] error', e);
+    console.error('[fetchSiteMenu saga] error', e);
   }
 }
 
-function* filterSiteMenu({ logger }, { payload = {} }) {
+function* filterSiteMenu({}, { payload = {} }) {
   try {
     const params = yield fetchInfluentialParams();
     const { identification = null } = payload;
     const tabLink = get(payload, 'tab.link', '');
-    let { url = '' } = payload;
+    let { url = window.location.pathname } = payload;
 
     if (!url && tabLink) {
       url = tabLink;
@@ -126,31 +130,98 @@ function* filterSiteMenu({ logger }, { payload = {} }) {
 
     yield put(setSiteMenuItems(menuItems));
   } catch (e) {
-    logger.error('[filterSiteMenu saga] error', e);
+    console.error('[filterSiteMenu saga] error', e);
   }
 }
 
-function* goToPageSiteMenu({ logger }, { payload }) {
+function* goToPageSiteMenu({}, { payload }) {
   try {
     const dashboard = yield select(selectIdentificationForView);
     const link = yield MenuService.getSiteMenuLink(payload, dashboard);
 
     PageService.changeUrlLink(link, { openNewTab: true });
   } catch (e) {
-    logger.error('[header goToPageSiteMenu saga] error', e);
+    console.error('[header goToPageSiteMenu saga] error', e);
   }
 }
 
-function* sagaRunSearchAutocomplete({ api, logger }, { payload }) {
+function* sagaRunSearchAutocomplete({ api }, { payload }) {
   try {
-    const documents = yield api.menu.getLiveSearchDocuments(payload, 0);
-    const sites = yield api.menu.getLiveSearchSites(payload);
-    const people = yield api.menu.getLiveSearchPeople(payload);
-    const noResults = !(!!sites.totalRecords + !!documents.totalRecords + !!people.totalRecords);
+    const isAlfrescoEnabled = yield select(state => state.app.isEnabledAlfresco);
 
-    yield put(setSearchAutocompleteItems({ documents, sites, people, noResults }));
+    if (isAlfrescoEnabled) {
+      const documents = yield api.menu.getLiveSearchDocuments(payload, 0);
+      const sites = yield api.menu.getLiveSearchSites(payload);
+      const people = yield api.menu.getLiveSearchPeople(payload);
+      const noResults = !(!!sites.totalRecords + !!documents.totalRecords + !!people.totalRecords);
+      yield put(setSearchAutocompleteItems({ documents, sites, people, noResults }));
+    } else {
+      const result = yield api.menu.getNewLiveSearch(payload);
+      const records = get(result, 'records', []);
+
+      const documents = [];
+      const sites = [];
+      const people = [];
+      const workspaces = [];
+
+      for (const record of records) {
+        switch (record.groupType) {
+          case LiveSearchTypes.PEOPLE:
+            const otherParamsPeople = yield api.menu.getSearchPeopleParams(record.id);
+            people.push({ ...record, ...otherParamsPeople, isNotAlfresco: true });
+
+            break;
+
+          case LiveSearchTypes.DOCUMENTS:
+            documents.push({
+              ...record,
+              modifiedOn: get(record, LiveSearchAttributes.MODIFIED),
+              nodeRef: get(record, LiveSearchAttributes.ID),
+              name: get(record, LiveSearchAttributes.DISP),
+              isNotAlfresco: true
+            });
+            break;
+
+          case LiveSearchTypes.SITES:
+            sites.push({
+              ...record,
+              title: get(record, LiveSearchAttributes.DISP),
+              isNotAlfresco: true
+            });
+            break;
+
+          case LiveSearchTypes.WORKSPACES:
+            const otherParamsWorkspaces = yield api.workspaces.getWorkspace(record.id);
+            workspaces.push({
+              ...record,
+              ...otherParamsWorkspaces,
+              url: getBaseUrlWorkspace(otherParamsWorkspaces.wsId, otherParamsWorkspaces.homePageLink),
+              description: getMLValue(otherParamsWorkspaces.description),
+              title: get(record, LiveSearchAttributes.DISP),
+              isNotAlfresco: true
+            });
+            break;
+
+          default:
+            break;
+        }
+      }
+
+      const noResults = !(!!documents.length + !!sites.length + !!people.length + !!workspaces.length);
+      const getObject = arr => ({ items: arr });
+
+      yield put(
+        setSearchAutocompleteItems({
+          documents: getObject(documents),
+          sites: getObject(sites),
+          people: getObject(people),
+          workspaces: getObject(workspaces),
+          noResults
+        })
+      );
+    }
   } catch (e) {
-    logger.error('[sagaRunSearchAutocomplete saga] error', e);
+    console.error('[sagaRunSearchAutocomplete saga] error', e);
   }
 }
 

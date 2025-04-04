@@ -1,26 +1,27 @@
+import { EventEmitter } from 'events';
+import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import omit from 'lodash/omit';
-import cloneDeep from 'lodash/cloneDeep';
-import { EventEmitter2 } from 'eventemitter2';
 import * as queryString from 'query-string';
 
-import { getCustomDasboardUrl, getJournalPageUrl, getWorkspaceId } from '../helpers/urls';
-import { arrayFlat, hasChildWithId } from '../helpers/util';
-import { isNewVersionPage, NEW_VERSION_PREFIX } from '../helpers/export/urls';
-import { treeFindFirstItem } from '../helpers/arrayOfObjects';
-import { SourcesId, URL, URL_MATCHING } from '../constants';
-import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../constants/pageTabs';
-import { MenuSettings } from '../constants/menu';
-import { ActionTypes, CountableItems } from '../constants/sidebar';
-import ULS from './userLocalSettings';
 import { isKanban, JOURNAL_VIEW_MODE } from '../components/Journals/constants';
+import { RELOCATED_URL, SourcesId, URL, URL_MATCHING } from '../constants';
+import { MenuSettings } from '../constants/menu';
+import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../constants/pageTabs';
+import { ActionTypes, CountableItems } from '../constants/sidebar';
+import { treeFindFirstItem } from '../helpers/arrayOfObjects';
+import { isNewVersionPage, NEW_VERSION_PREFIX } from '../helpers/export/urls';
+import { getCustomDasboardUrl, getJournalPageUrl, getLinkWithWs, getWikiDasboardUrl, getWorkspaceId } from '../helpers/urls';
+import { arrayFlat, getEnabledWorkspaces, hasChildWithId } from '../helpers/util';
+
+import ULS from './userLocalSettings';
 
 export default class SidebarService {
   static DROPDOWN_LEVEL = 1;
   static SELECTED_MENU_ITEM_ID_KEY = 'selectedMenuItemId';
   static UPDATE_EVENT = 'menu-update-event';
 
-  static emitter = new EventEmitter2();
+  static emitter = new EventEmitter();
 
   static getOpenState() {
     // Cause: https://citeck.atlassian.net/browse/ECOSUI-354
@@ -56,7 +57,7 @@ export default class SidebarService {
 
     const [baseUrl, queryStringValue] = value.split('?');
 
-    if (queryStringValue && get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+    if (queryStringValue && getEnabledWorkspaces()) {
       const params = queryStringValue
         .split('&')
         .filter(param => !param.startsWith('ws='))
@@ -99,7 +100,7 @@ export default class SidebarService {
         targetUrl = targetUrl.replace(/%24/g, '$'); // Removing the character encoding $
       }
 
-      if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false) && targetUrl && targetUrl.includes('ws=')) {
+      if (getEnabledWorkspaces() && targetUrl && targetUrl.includes('ws=')) {
         const [baseUrl, queryString] = targetUrl.split('?');
 
         if (queryString) {
@@ -113,14 +114,17 @@ export default class SidebarService {
       }
 
       const _exact = targetUrl === value || value === URL_MATCHING[targetUrl];
-
       if (_exact) {
         exact = item;
         break;
       }
 
-      const _suitable = reverse ? String(value).includes(get(item, key)) : String(get(item, key)).includes(value);
+      if (String(value) === get(item, key)) {
+        exact = item;
+        break;
+      }
 
+      const _suitable = reverse ? String(value).includes(get(item, key)) : String(get(item, key)).includes(value);
       if ((!onlyExact && _suitable) || value.includes(URL_MATCHING[targetUrl])) {
         suitable = item;
       }
@@ -260,12 +264,24 @@ export default class SidebarService {
         break;
       case MenuItemsTypes.KANBAN:
         if (get(item, 'params.journalId')) {
-          targetUrl = getJournalPageUrl({
+          let kanbanParams = {
             journalsListId: get(item, 'params.journalsListId'),
             journalId: get(item, 'params.journalId'),
             viewMode: JOURNAL_VIEW_MODE.KANBAN
-          });
+          };
+
+          const boardId = get(item, 'config.recordRef', '');
+
+          if (boardId) {
+            kanbanParams = { ...kanbanParams, boardId: boardId };
+          }
+
+          targetUrl = getJournalPageUrl(kanbanParams);
         }
+        ignoreTabHandler = false;
+        break;
+      case MenuItemsTypes.WIKI:
+        targetUrl = getWikiDasboardUrl();
         ignoreTabHandler = false;
         break;
       case MenuItemsTypes.DOCLIB:
@@ -274,6 +290,16 @@ export default class SidebarService {
             journalsListId: get(item, 'params.journalsListId'),
             journalId: get(item, 'params.journalId'),
             viewMode: JOURNAL_VIEW_MODE.DOC_LIB
+          });
+        }
+        ignoreTabHandler = false;
+        break;
+      case MenuItemsTypes.PREVIEW_LIST:
+        if (get(item, 'params.journalId')) {
+          targetUrl = getJournalPageUrl({
+            journalsListId: get(item, 'params.journalsListId'),
+            journalId: get(item, 'params.journalId'),
+            viewMode: JOURNAL_VIEW_MODE.PREVIEW_LIST
           });
         }
         ignoreTabHandler = false;
@@ -306,14 +332,10 @@ export default class SidebarService {
     }
 
     const workspaceId = getWorkspaceId();
+    const hasRedirects = Object.keys(RELOCATED_URL).some(key => targetUrl && targetUrl.includes(key));
 
     return {
-      targetUrl:
-        workspaceId && targetUrl && get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)
-          ? targetUrl.includes('?')
-            ? `${targetUrl}&ws=${workspaceId}`
-            : `${targetUrl}?ws=${workspaceId}`
-          : targetUrl,
+      targetUrl: workspaceId && targetUrl && getEnabledWorkspaces() && !hasRedirects ? getLinkWithWs(targetUrl, workspaceId) : targetUrl,
       attributes
     };
   }

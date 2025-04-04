@@ -1,23 +1,23 @@
-import React from 'react';
+import classNames from 'classnames';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
-import uniqueId from 'lodash/uniqueId';
 import isFunction from 'lodash/isFunction';
-import classNames from 'classnames';
+import uniqueId from 'lodash/uniqueId';
+import React from 'react';
 
-import { extractLabel, t } from '../../../helpers/util';
-import { treeMoveItem } from '../../../helpers/arrayOfObjects';
 import { SystemJournals } from '../../../constants';
 import { MenuSettings as ms } from '../../../constants/menu';
+import { treeMoveItem } from '../../../helpers/arrayOfObjects';
+import { extractLabel, t } from '../../../helpers/util';
 import MenuSettingsService from '../../../services/MenuSettingsService';
 import IconSelect from '../../IconSelect';
+import { PREDICATE_NOT_EMPTY } from '../../Records/predicates/predicates';
 import { Tree } from '../../common';
 import { Btn } from '../../common/btns';
-import { Badge, DropdownOuter } from '../../common/form';
 import DialogManager from '../../common/dialogs/Manager';
-import { PREDICATE_NOT_EMPTY } from '../../Records/predicates/predicates';
-import { Labels } from '../utils';
+import { Badge, DropdownOuter } from '../../common/form';
 import EditorItem from '../editorItem/EditorItem';
+import { Labels } from '../utils';
 
 import '../style.scss';
 
@@ -75,7 +75,7 @@ export default class BaseEditorMenu extends React.Component {
   handleChooseOption(editItemInfo = {}) {
     const itemInfoType = get(editItemInfo, 'type.key');
 
-    if (itemInfoType === ms.ItemTypes.JOURNAL) {
+    if (itemInfoType === ms.ItemTypes.JOURNAL || itemInfoType === ms.ItemTypes.PREVIEW_LIST) {
       this.setState({
         editItemInfo: {
           ...editItemInfo,

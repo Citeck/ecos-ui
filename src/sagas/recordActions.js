@@ -1,17 +1,18 @@
-import { call, put, takeEvery } from 'redux-saga/effects';
 import isEmpty from 'lodash/isEmpty';
-import { NotificationManager } from 'react-notifications';
+import { call, put, takeEvery } from 'redux-saga/effects';
 
 import { backPageFromTransitionsHistory } from '../actions/app';
 import { backExecuteAction, getActions, runExecuteAction, setActions, setLoading } from '../actions/recordActions';
 import { ActionTypes } from '../components/Records/actions/constants';
 import { t } from '../helpers/util';
 
+import { NotificationManager } from '@/services/notifications';
+
 function notify(type, keyMsg) {
   NotificationManager[type](t(keyMsg), t('records-actions.notify.title'));
 }
 
-function* sagaGetActions({ api, logger }, { payload }) {
+function* sagaGetActions({ api }, { payload }) {
   const { record, stateId, context } = payload;
 
   try {
@@ -25,11 +26,11 @@ function* sagaGetActions({ api, logger }, { payload }) {
   } catch (e) {
     yield put(setActions({ stateId, list: [] }));
     notify('error', 'records-actions.error.get-actions');
-    logger.error('[recordActions/sagaGetActions saga] error', e);
+    console.error('[recordActions/sagaGetActions saga] error', e);
   }
 }
 
-function* sagaExecuteAction({ api, logger }, { payload }) {
+function* sagaExecuteAction({ api }, { payload }) {
   const { record, action, stateId } = payload;
 
   try {
@@ -51,7 +52,7 @@ function* sagaExecuteAction({ api, logger }, { payload }) {
   } catch (e) {
     yield put(backExecuteAction({ stateId }));
     notify('error', 'records-actions.error.execute-action');
-    logger.error('[recordActions/sagaExecuteAction saga] error', e);
+    console.error('[recordActions/sagaExecuteAction saga] error', e);
   }
 }
 

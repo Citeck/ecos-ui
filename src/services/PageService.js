@@ -1,16 +1,24 @@
-import queryString from 'query-string';
 import get from 'lodash/get';
-import isString from 'lodash/isString';
 import isArray from 'lodash/isArray';
+import isString from 'lodash/isString';
+import queryString from 'query-string';
 
-import { SourcesId, URL } from '../constants';
-import { IGNORE_TABS_HANDLER_ATTR_NAME, LINK_HREF, LINK_TAG, OPEN_IN_BACKGROUND, TITLE } from '../constants/pageTabs';
-import { SectionTypes } from '../constants/adminSection';
-import { getCurrentUserName, getEnabledWorkspaces, getMLValue, t } from '../helpers/util';
-import { decodeLink, getLinkWithout, getSearchParams, IgnoredUrlParams, isNewVersionPage } from '../helpers/urls';
-import { getData, isExistLocalStorage, setData } from '../helpers/ls';
-import { PageApi } from '../api/page';
-import Records from '../components/Records';
+import { PageApi } from '@/api/page';
+import Records from '@/components/Records';
+import { SourcesId, URL } from '@/constants';
+import { SectionTypes } from '@/constants/adminSection';
+import { IGNORE_TABS_HANDLER_ATTR_NAME, LINK_HREF, LINK_TAG, OPEN_IN_BACKGROUND, TITLE } from '@/constants/pageTabs';
+import { getData, isExistLocalStorage, setData } from '@/helpers/ls';
+import {
+  decodeLink,
+  getLinkWithout,
+  getLinkWithWs,
+  getSearchParams,
+  getWorkspaceId,
+  IgnoredUrlParams,
+  isNewVersionPage
+} from '@/helpers/urls';
+import { getCurrentUserName, getEnabledWorkspaces, getMLValue, t } from '@/helpers/util';
 
 const pageApi = new PageApi();
 
@@ -108,7 +116,15 @@ export default class PageService {
     if (_type === PageTypes.ADMIN_PAGE && enabledWorkspaces && _link.includes(splitter)) {
       const { type: adminType } = getSearchParams(splitter + _link.split('?')[1]);
       if (adminType) {
-        _type = adminType;
+        switch (adminType) {
+          case SectionTypes.JOURNAL:
+            _type = PageTypes.JOURNALS;
+            break;
+
+          default:
+            _type = adminType;
+            break;
+        }
       }
     }
 
@@ -164,9 +180,14 @@ export default class PageService {
     }
   }
 
-  static keyId({ link, type, key }) {
+  static keyId({ link, type, key, wsId }) {
     const _type = type || PageService.getType(link);
     const _key = key || PageService.getKey({ link, type });
+    const _wsId = wsId || getWorkspaceId();
+
+    if (getEnabledWorkspaces()) {
+      return `${_type}-${_key}-${_wsId}`;
+    }
 
     return `${_type}-${_key}`;
   }
@@ -335,7 +356,16 @@ export default class PageService {
       }
 
       if (target) {
-        const tab = window.open(link, target);
+        let tab;
+
+        if (getEnabledWorkspaces() && window.location.href.includes('ws=') && link && !link.includes('ws=')) {
+          const url = new URLSearchParams(window.location.search);
+          const wsId = url.get('ws');
+
+          tab = window.open(getLinkWithWs(link, wsId), target);
+        } else {
+          tab = window.open(link, target);
+        }
 
         tab.focus();
 
@@ -449,7 +479,7 @@ export default class PageService {
 }
 
 function staticTitle(keyTitle) {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     setTimeout(() => {
       resolve(t(keyTitle));
     }, 80);

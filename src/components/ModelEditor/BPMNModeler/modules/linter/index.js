@@ -1,9 +1,11 @@
 import Linter from 'bpmn-js-bpmnlint';
 
-import { t } from '../../../../../helpers/export/util';
 import config from './bpmnlint-config';
 
+import { t } from '@/helpers/export/util';
+
 import 'bpmn-js-bpmnlint/dist/assets/css/bpmn-js-bpmnlint.css';
+
 import './style.scss';
 
 const translations = {
@@ -45,7 +47,7 @@ const originUpdateButton = Linting.prototype._updateButton;
 const originSetButtonState = Linting.prototype._setButtonState;
 const originCreateElementIssues = Linting.prototype._createElementIssues;
 
-Linting.prototype._createButton = function() {
+Linting.prototype._createButton = function () {
   if (linting.disableToggleButton) {
     return;
   }
@@ -53,7 +55,7 @@ Linting.prototype._createButton = function() {
   originCreateButton.call(this);
 };
 
-Linting.prototype._updateButton = function() {
+Linting.prototype._updateButton = function () {
   if (linting.disableToggleButton) {
     return;
   }
@@ -61,7 +63,7 @@ Linting.prototype._updateButton = function() {
   originUpdateButton.call(this);
 };
 
-Linting.prototype._setButtonState = function() {
+Linting.prototype._setButtonState = function () {
   if (linting.disableToggleButton) {
     return;
   }
@@ -69,7 +71,7 @@ Linting.prototype._setButtonState = function() {
   originSetButtonState.call(this);
 };
 
-Linting.prototype.getLintResult = function() {
+Linting.prototype.getLintResult = function () {
   let errors = 0;
   let warnings = 0;
 
@@ -90,7 +92,7 @@ Linting.prototype.getLintResult = function() {
 
 Linter.translate = ['value', (template, replacements = {}) => t(translations[template] || template, replacements)];
 
-Linting.prototype._createElementIssues = function(elementId, elementIssues) {
+Linting.prototype._createElementIssues = function (elementId, elementIssues) {
   originCreateElementIssues.call(this, elementId, elementIssues);
 
   const header = document.querySelector('.bjsl-issue-heading');

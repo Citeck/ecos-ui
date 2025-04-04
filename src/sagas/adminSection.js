@@ -1,6 +1,6 @@
-import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
-import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
+import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 
 import {
   fetchGroupSectionList,
@@ -12,35 +12,37 @@ import {
   updActiveSection,
   setAdminSectionInitStatus
 } from '../actions/adminSection';
-import PageService from '../services/PageService';
-import AdminSectionService from '../services/AdminSectionService';
-import { equalsQueryUrls } from '../helpers/urls';
-import { wrapArgs } from '../helpers/redux';
-import { getEnabledWorkspaces } from '../helpers/util';
 import { SectionTypes } from '../constants/adminSection';
+import { wrapArgs } from '../helpers/redux';
+import { equalsQueryUrls } from '../helpers/urls';
+import { getEnabledWorkspaces } from '../helpers/util';
+import AdminSectionService from '../services/AdminSectionService';
+import PageService from '../services/PageService';
 
-function* init({ logger }, action) {
+function* init({}, action) {
   try {
-    const { stateId } = action.payload || {};
+    const stateId = action.payload;
+    const w = wrapArgs(stateId);
+
     yield put(getIsAccessible(stateId));
-    yield put(setAdminSectionInitStatus(true));
+    yield put(setAdminSectionInitStatus(w(true)));
   } catch (e) {
-    logger.error('[adminSection init saga] error', e);
+    console.error('[adminSection init saga] error', e);
   }
 }
 
-function* fetchIsAccessible({ api, logger }, { payload }) {
+function* fetchIsAccessible({ api }, { payload }) {
   try {
     const w = wrapArgs(payload);
     const isAccessible = yield call(api.devTools.getIsAccessiblePage);
 
     yield put(setIsAccessible(w(isAccessible)));
   } catch (e) {
-    logger.error('[adminSection fetchIsAccessible saga] error', e);
+    console.error('[adminSection fetchIsAccessible saga] error', e);
   }
 }
 
-function* doFetchGroupSectionList({ api, logger }, action) {
+function* doFetchGroupSectionList({ api }, action) {
   try {
     const { stateId } = action.payload || {};
     const w = wrapArgs(stateId);
@@ -53,23 +55,23 @@ function* doFetchGroupSectionList({ api, logger }, action) {
       yield put(setActiveSection(w(activeSection)));
     }
   } catch (e) {
-    logger.error('[adminSection doFetchGroupSectionList saga] error', e);
+    console.error('[adminSection doFetchGroupSectionList saga] error', e);
   }
 }
 
-function* updateActiveSection({ logger }, action) {
+function* updateActiveSection({}, action) {
   try {
-    const { stateId } = action.payload || {};
+    const stateId = action.payload;
     const w = wrapArgs(stateId);
     const sectionsGroup = yield select(state => state.adminSection.groupSectionList || []);
     const activeSection = AdminSectionService.getActiveSectionInGroups(sectionsGroup);
     yield put(setActiveSection(w(activeSection)));
   } catch (e) {
-    logger.error('[adminSection doFetchGroupSectionList saga] error', e);
+    console.error('[adminSection doFetchGroupSectionList saga] error', e);
   }
 }
 
-export function* openActiveSection({ api, logger }, action) {
+export function* openActiveSection({ api }, action) {
   try {
     const item = cloneDeep(action.payload);
     const currentType = yield call(AdminSectionService.getActiveSectionType);
@@ -96,7 +98,7 @@ export function* openActiveSection({ api, logger }, action) {
       yield call(PageService.changeUrlLink, contains ? window.location.href : href, options);
     }
   } catch (e) {
-    logger.error('[adminSection openActiveSection saga] error', e);
+    console.error('[adminSection openActiveSection saga] error', e);
   }
 }
 

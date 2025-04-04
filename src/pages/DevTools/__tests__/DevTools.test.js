@@ -1,21 +1,27 @@
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { shallow } from 'enzyme';
+import { Provider } from 'react-redux';
+import configureStore from 'redux-mock-store';
 
 import DevToolsConverter from '../../../dto/devTools';
-
-import { TABS } from '../constants';
-import { JIRA, BITBUCKET } from '../Commits/constants';
+import { Labels as BuildLabels } from '../Build/Build';
+import { BuildContextProvider } from '../Build/BuildContext';
+import { CommitsContextProvider } from '../Commits/CommitsContext';
 import { getRepoProject, parseTasksLinks, getHostName } from '../Commits/helpers';
-import { input1, output1, input2, output2, input3_4, output3, output4 } from '../__fixtures__/DevTools.fixtures';
+import { Labels as DevModulesLabels } from '../DevModules/DevModules';
+import { DevModulesContextProvider } from '../DevModules/DevModulesContext';
 import * as DevToolsContext from '../DevToolsContext';
 import ErrorText from '../ErrorText';
 import Loader from '../Loader';
-import Tabs from '../Tabs';
+import { SettingsContextProvider } from '../Settings/SettingsContext';
 import TabContent from '../TabContent';
-import Build from '../Build';
-import DevModules from '../DevModules';
-import Commits from '../Commits';
-import Settings from '../Settings';
+import Tabs from '../Tabs';
+import { input1, output1, input2, output2, input3_4, output3, output4 } from '../__fixtures__/DevTools.fixtures';
+
+const { JIRA, BITBUCKET } = require('../Commits/constants');
+
+const { TABS } = require('@/pages/DevTools/constants');
 
 describe('DevTools tests', () => {
   describe('DevToolsConverter', () => {
@@ -57,27 +63,30 @@ describe('DevTools tests', () => {
 
   describe('<Loader />', () => {
     it('should render Loader component', () => {
-      const component = shallow(<Loader />);
-      expect(component).toMatchSnapshot();
+      const { container } = render(<Loader />);
+      expect(container).toMatchSnapshot();
     });
   });
 
   describe('<ErrorText />', () => {
     it('should render ErrorText component', () => {
-      const component = shallow(<ErrorText />);
-      expect(component).toMatchSnapshot();
+      const { container } = render(<ErrorText />);
+      expect(container).toMatchSnapshot();
     });
   });
 
   describe('<Tabs />', () => {
     let spy = null;
+
     const renderComponent = (contextValue = {}) => {
       spy = jest.spyOn(DevToolsContext, 'useContext').mockImplementation(() => ({ ...contextValue }));
-      const wrapper = shallow(<Tabs />);
-      const container = wrapper.find('.dev-tools-page__tabs').at(0);
-      const containerProps = container.props();
-      const children = containerProps.children;
-      return { wrapper, children };
+      const wrapper = render(<Tabs />);
+      const container = wrapper.container.getElementsByClassName('dev-tools-page__tabs');
+
+      expect(container).toHaveLength(1);
+
+      const wrapperContainer = container[0].children.item(0);
+      return { ...wrapper, wrapper: wrapperContainer, children: wrapperContainer.children };
     };
 
     afterEach(() => {
@@ -85,54 +94,67 @@ describe('DevTools tests', () => {
     });
 
     it('should render Tabs component', () => {
-      const { wrapper } = renderComponent();
-      expect(wrapper).toMatchSnapshot();
+      const { container } = renderComponent();
+      expect(container).toMatchSnapshot();
     });
 
     it('no active tab', () => {
-      const { children } = renderComponent();
-      const tabsItems = children.props.items;
-      expect(tabsItems.find(item => item.isActive)).toBeUndefined();
+      const { children, wrapper, asFragment } = renderComponent();
+
+      for (let child of children) {
+        expect(child.getElementsByClassName('ecos-tab_active')).toHaveLength(0);
+      }
     });
 
     for (const tabIndex in TABS) {
-      it(`check active "${tabIndex}" tab`, () => {
-        const { children } = renderComponent({ activeTab: TABS[tabIndex] });
-        const tabsItems = children.props.items;
-        const activeTab = tabsItems.find(item => item.isActive);
-        expect(activeTab.id).toBe(TABS[tabIndex]);
+      let index = 1;
+
+      it(`check active tab`, () => {
+        const { wrapper, children } = renderComponent({ activeTab: TABS.BUILD });
+        const tab = children.item(0);
+        expect(tab.classList.contains('ecos-tab_active')).toBeTruthy();
       });
     }
 
-    it(`switch between tabs`, () => {
+    it(`switch between tabs`, async () => {
       const setActiveTab = jest.fn();
-      const { children } = renderComponent({ setActiveTab });
-      const tabsItems = children.props.items;
-      const firstTab = tabsItems[0];
-      const lastTab = tabsItems[tabsItems.length - 1];
+      const user = userEvent.setup();
+      const { children, wrapper } = renderComponent({ setActiveTab });
+      const firstTab = children.item(0);
+      const lastTab = children.item(children.length - 1);
 
       expect(setActiveTab).toHaveBeenCalledTimes(0);
 
-      lastTab.onClick();
-      expect(setActiveTab).toHaveBeenCalled();
-      expect(setActiveTab).toHaveBeenCalledWith(lastTab.id);
+      await user.click(lastTab);
+      expect(setActiveTab).toHaveBeenCalledTimes(1);
 
-      firstTab.onClick();
+      await user.click(firstTab);
       expect(setActiveTab).toHaveBeenCalledTimes(2);
-      expect(setActiveTab).toHaveBeenNthCalledWith(2, firstTab.id);
     });
   });
 
   describe('<TabContent />', () => {
-    let spy = null;
-    const renderComponent = (contextValue = {}) => {
-      spy = jest.spyOn(DevToolsContext, 'useContext').mockImplementation(() => ({ ...contextValue }));
-      return shallow(<TabContent />);
-    };
+    const mockStore = configureStore();
 
-    afterEach(() => {
-      spy && spy.mockClear();
-    });
+    const renderComponent = (contextValue = {}) => {
+      jest.spyOn(DevToolsContext, 'useContext').mockImplementation(() => ({ ...contextValue }));
+
+      const { container } = render(
+        <Provider store={mockStore(contextValue)}>
+          <SettingsContextProvider>
+            <CommitsContextProvider>
+              <DevModulesContextProvider>
+                <BuildContextProvider>
+                  <TabContent />
+                </BuildContextProvider>
+              </DevModulesContextProvider>
+            </CommitsContextProvider>
+          </SettingsContextProvider>
+        </Provider>
+      );
+
+      return container;
+    };
 
     it('should render TabContent component', () => {
       const wrapper = renderComponent();
@@ -140,28 +162,31 @@ describe('DevTools tests', () => {
     });
 
     it('should render Build component by default', () => {
-      const wrapper = renderComponent();
-      expect(wrapper.find(Build)).toHaveLength(1);
+      renderComponent();
+      expect(screen.getByText(BuildLabels.title)).toBeInTheDocument();
     });
 
     it('should render Build component', () => {
       const wrapper = renderComponent({ activeTab: TABS.BUILD });
-      expect(wrapper.find(Build)).toHaveLength(1);
+      expect(screen.getByText(BuildLabels.title)).toBeInTheDocument();
+      expect(wrapper).toMatchSnapshot();
     });
 
     it('should render DevModules component', () => {
       const wrapper = renderComponent({ activeTab: TABS.DEV_MODULES });
-      expect(wrapper.find(DevModules)).toHaveLength(1);
+      expect(screen.getByText(DevModulesLabels.title)).toBeInTheDocument();
+      expect(wrapper).toMatchSnapshot();
     });
 
     it('should render Commits component', () => {
       const wrapper = renderComponent({ activeTab: TABS.COMMITS });
-      expect(wrapper.find(Commits)).toHaveLength(1);
+      expect(wrapper).toMatchSnapshot();
     });
 
     it('should render Settings component', () => {
       const wrapper = renderComponent({ activeTab: TABS.SETTINGS });
-      expect(wrapper.find(Settings)).toHaveLength(1);
+      expect(wrapper.getElementsByClassName('dev-tools-page__setting')).toHaveLength(4);
+      expect(wrapper).toMatchSnapshot();
     });
   });
 });

@@ -1,13 +1,12 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import uuid from 'uuid/v4';
 
+import { t } from '../../../helpers/export/util';
 import { Icon } from '../../common';
 import { Grid } from '../../common/grid';
 import InlineToolsDisconnected from '../../common/grid/InlineTools/InlineToolsDisconnected';
-import { t } from '../../../helpers/export/util';
-import { objectCompare } from '../../../helpers/util';
 
 class AssociationGrid extends Component {
   static propTypes = {
@@ -27,39 +26,13 @@ class AssociationGrid extends Component {
   state = {
     key: uuid(),
     scrollLeft: 0,
-    inlineToolsOffsets: { rowId: null },
     scrollPosition: {}
   };
 
   #toolsRef = React.createRef();
   #tableRef = React.createRef();
 
-  isNewOffsets = offsets => {
-    const { inlineToolsOffsets } = this.state;
-
-    if (!offsets || !inlineToolsOffsets) {
-      return false;
-    }
-
-    return !objectCompare(offsets, inlineToolsOffsets);
-  };
-
-  handleSetInlineToolsOffsets = offsets => {
-    if (this.isNewOffsets(offsets)) {
-      this.setState(state => ({
-        inlineToolsOffsets: {
-          ...state.inlineToolsOffsets,
-          rowId: offsets.row.id || null
-        }
-      }));
-    }
-  };
-
-  handleResetInlineTools = () => {
-    this.handleSetInlineToolsOffsets({ row: {} });
-  };
-
-  handleScrollStart = () => this.setState({ ...this.state, scrollPosition: {} });
+  handleScrollStart = () => this.setState({ scrollPosition: {} });
 
   handleScrollingTable = event => {
     if (this.#toolsRef.current) {
@@ -67,36 +40,24 @@ class AssociationGrid extends Component {
     }
   };
 
-  handleScrollStop = scrollPosition => this.setState({ ...this.state, scrollPosition });
+  handleScrollStop = scrollPosition => this.setState({ scrollPosition });
 
-  handleClickAction = (callback, data) => {
-    callback(data);
-    this.handleResetInlineTools();
-  };
-
-  renderButton = button => {
+  renderButton = (button, rowId) => {
     const { associations } = this.props;
-    const { inlineToolsOffsets } = this.state;
-    const row = associations.find(row => row.id === inlineToolsOffsets.rowId);
+    const row = associations.find(row => row.id === rowId);
     const { name = uuid(), onClick = () => null, className = '' } = button;
 
-    return (
-      <Icon
-        key={name}
-        onClick={() => this.handleClickAction(onClick, row)}
-        className={classNames(className, 'ecos-doc-associations__icon')}
-      />
-    );
+    return <Icon key={name} onClick={() => onClick(row)} className={classNames(className, 'ecos-doc-associations__icon')} />;
   };
 
-  renderInlineTools = () => {
+  renderInlineTools = settings => {
     const { actions } = this.props;
-    const { inlineToolsOffsets, scrollPosition } = this.state;
-    const buttons = actions.map(this.renderButton);
+    const { row } = settings || {};
+    const { id: rowId } = row || {};
+    const { scrollPosition } = this.state;
+    const buttons = actions.map(action => this.renderButton(action, rowId));
 
-    return (
-      <InlineToolsDisconnected forwardedRef={this.#toolsRef} tools={buttons} {...inlineToolsOffsets} left={scrollPosition.scrollLeft} />
-    );
+    return <InlineToolsDisconnected forwardedRef={this.#toolsRef} tools={buttons} rowId={rowId} left={scrollPosition.scrollLeft} />;
   };
 
   render() {
@@ -120,7 +81,6 @@ class AssociationGrid extends Component {
           forwardedRef={this.#tableRef}
           columns={columns}
           inlineTools={this.renderInlineTools}
-          onChangeTrOptions={this.handleSetInlineToolsOffsets}
           onScrollStart={this.handleScrollStart}
           onScrolling={this.handleScrollingTable}
           onScrollStop={this.handleScrollStop}

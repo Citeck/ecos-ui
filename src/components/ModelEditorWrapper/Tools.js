@@ -1,8 +1,9 @@
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
 
-import { IcoBtn } from '../common/btns';
 import { Tooltip } from '../common';
+import { IcoBtn } from '../common/btns';
+
 import { ToolsInterface } from './propsInterfaces';
 
 const Tools = ({ configButtons, className }) =>

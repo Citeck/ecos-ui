@@ -1,26 +1,14 @@
 import { all } from 'redux-saga/effects';
+
+import activities from './activities';
+import adminSection from './adminSection';
 import app from './app';
+import barcode from './barcode';
+import birthdays from './birthdays';
 import bpmn from './bpmn';
 import bpmnAdmin from './bpmnAdmin';
 import bpmnEditor from './bpmnEditor';
-import docLib from './docLib';
-import header from './header';
-import workspaces from './workspaces';
-import journals from './journals';
-import pageTabs from './pageTabs';
-import tasks from './tasks';
-import comments from './comments';
-import activities from './activities';
-import dashboard from './dashboard';
-import dashboardSettings from './dashboardSettings';
-import dmn from './dmn';
-import dmnEditor from './dmnEditor';
-import processAdmin from './processAdmin';
 import charts from './charts';
-import menu from './menu';
-import slideMenu from './slideMenu';
-import menuSettings from './menuSettings';
-import currentTasks from './currentTasks';
 import docStatus from './docStatus';
 import eventsHistory from './eventsHistory';
 import versionsJournal from './versionsJournal';
@@ -33,21 +21,36 @@ import timesheetDelegated from './timesheet/delegated';
 import timesheetCommon from './timesheet/common';
 import view from './view';
 import webPage from './webPage';
-import birthdays from './birthdays';
 import report from './report';
-import barcode from './barcode';
 import properties from './properties';
 import documents from './documents';
 import userProfile from './userProfile';
 import docConstructor from './docConstructor';
 import iconSelect from './iconSelect';
 import instanceAdmin from './instanceAdmin';
-import adminSection from './adminSection';
 import cmmnEditor from './cmmnEditor';
+import comments from './comments';
+import currentTasks from './currentTasks';
 import customEvent from './customEvent';
+import customWidgetHtml from './customWidgetHtml';
+import dashboard from './dashboard';
+import dashboardSettings from './dashboardSettings';
+import dmn from './dmn';
+import dmnEditor from './dmnEditor';
+import docLib from './docLib';
+import header from './header';
+import journals from './journals';
 import kanban from './kanban';
-import processStatistics from './processStatistics';
+import menu from './menu';
+import menuSettings from './menuSettings';
 import orgstructure from './orgstructure';
+import pageTabs from './pageTabs';
+import previewList from './previewList';
+import processAdmin from './processAdmin';
+import processStatistics from './processStatistics';
+import slideMenu from './slideMenu';
+import tasks from './tasks';
+import workspaces from './workspaces';
 
 export default function* rootSaga(extraArguments) {
   yield all([
@@ -99,6 +102,8 @@ export default function* rootSaga(extraArguments) {
     customEvent(extraArguments),
     kanban(extraArguments),
     processStatistics(extraArguments),
+    customWidgetHtml(extraArguments),
+    previewList(extraArguments),
     orgstructure(extraArguments)
   ]);
 }

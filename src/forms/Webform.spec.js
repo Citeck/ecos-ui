@@ -1,15 +1,16 @@
 import each from 'lodash/each';
 
-import Harness from './test/harness';
-import FormTests from './test/forms';
+import { COOKIE_KEY_LOCALE } from '../constants/alfresco';
+
 import Formio from './Formio';
 import Webform from './Webform';
 import { APIMock } from './test/APIMock';
-
-import { COOKIE_KEY_LOCALE } from '../constants/alfresco';
+import FormTests from './test/forms';
+import Harness from './test/harness';
 
 describe('Formio Form Renderer tests', () => {
   let simpleForm = null;
+
   it('Should create a simple form', done => {
     const formElement = document.createElement('div');
     simpleForm = new Webform(formElement);
@@ -386,7 +387,7 @@ describe('Test the saveDraft and restoreDraft feature', () => {
     ]
   });
 
-  const saveDraft = function(user, draft, newData, done) {
+  const saveDraft = function (user, draft, newData, done) {
     const formElement = document.createElement('div');
     const form = new Webform(formElement, {
       saveDraft: true,

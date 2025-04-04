@@ -1,18 +1,20 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
-import isString from 'lodash/isString';
 import isFunction from 'lodash/isFunction';
+import isString from 'lodash/isString';
+import React from 'react';
+import { createRoot } from 'react-dom/client';
 
 import api from '../api/esign';
 import EsignComponent from '../components/Esign';
-import EsignConverter from '../dto/esign';
 import { ErrorTypes, Labels } from '../constants/esign';
-import ConfigService, { ALFRESCO_ENABLED } from '../services/config/ConfigService';
+import EsignConverter from '../dto/esign';
 import { t, objectByString } from '../helpers/util';
+import ConfigService, { ALFRESCO_ENABLED } from '../services/config/ConfigService';
 
 class Esign {
+  #root = null;
+
   static #queryParams = {};
 
   /**
@@ -56,15 +58,15 @@ class Esign {
     const recordRefs = Esign.dataPreparation(refs, queryParams);
     const container = document.createElement('div');
 
-    ReactDOM.render(
+    this.#root = createRoot(container);
+    this.#root.render(
       <EsignComponent
         recordRefs={recordRefs}
         {...componentProps}
         onClose={() => {
           this.#onClose(container);
         }}
-      />,
-      container
+      />
     );
 
     document.body.appendChild(container);
@@ -81,15 +83,15 @@ class Esign {
         return resolve(selectedCertificate);
       };
 
-      ReactDOM.render(
+      this.#root = createRoot(container);
+      this.#root.render(
         <EsignComponent
           handleSelectCert={handleSelectCert}
           recordRefs={['']}
           onClose={() => {
             this.#onClose(container);
           }}
-        />,
-        container
+        />
       );
 
       document.body.appendChild(container);
@@ -122,7 +124,7 @@ class Esign {
   }
 
   #onClose = container => {
-    ReactDOM.unmountComponentAtNode(container);
+    this.#root?.unmount();
     document.body.removeChild(container);
   };
 
@@ -166,7 +168,7 @@ class Esign {
       }
 
       const certificates = await Promise.all(
-        (await api.getCertificates(thumbprints)).map(async function(certificate) {
+        (await api.getCertificates(thumbprints)).map(async function (certificate) {
           return await EsignConverter.getCertificateForModal(certificate);
         })
       );

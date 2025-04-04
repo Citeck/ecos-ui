@@ -1,49 +1,115 @@
-import React from 'react';
-import isString from 'lodash/isString';
-import isFunction from 'lodash/isFunction';
+import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
+import isPlainObject from 'lodash/isPlainObject';
+import isString from 'lodash/isString';
+import React from 'react';
 
+import Records from '../../../../../Records';
 import BaseFormatter from '../../BaseFormatter';
 import CellType from '../../CellType';
-import Records from '../../../../../Records';
 
 import './ColoredFormatter.scss';
+
+const HEX_COLOR_REGEX = /^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/;
+const SUPPORTED_DEFAULT_COLOR = ['green', 'yellow', 'pink', 'red'];
 
 export default class ColoredFormatter extends BaseFormatter {
   static TYPE = 'colored';
 
-  static DEFAULT_TEXT_COLOR = '#000000';
+  static DEFAULT_COLOR = '#FFFFFF';
+
+  static isHexColor(color) {
+    return isString(color) && HEX_COLOR_REGEX.test(color);
+  }
 
   format(props) {
     const { cell, row, config = {}, valueIndex: index } = props;
-    const color = config.color || ColoredFormatter.DEFAULT_TEXT_COLOR;
-    const script = config.fn;
+    const {
+      color = {},
+      enabledNewJournal = get(window, 'Citeck.constants.NEW_JOURNAL_ENABLED', false),
+      showPointer = false,
+      defaultColor = ColoredFormatter.DEFAULT_COLOR
+    } = config;
 
-    let backgroundColor = config.defaultColor || '#FFFFFF';
-    if (!isString(color)) {
-      backgroundColor = color[cell.value || ''] || backgroundColor;
-    }
+    let key, displayText;
 
-    let style = {
-      color: isString(color) ? color : undefined,
-      backgroundColor
-    };
-
-    let text = '';
-
-    if (config.textHidden !== true) {
-      text = cell.disp;
+    if (isPlainObject(cell)) {
+      key = cell.value || '';
+      displayText = cell.disp || key;
     } else {
-      style['display'] = 'table';
-      style['margin'] = '0 auto';
+      key = cell;
+      displayText = cell;
     }
 
-    const args = { Records, cell, row, index };
+    let colorByScript = this.colorByScript({ Records, cell, row, index }, config.fn);
+    let finalColor = colorByScript || color[key] || defaultColor;
 
-    /**
-     * @type {?String} HEX or RGB(A) value
-     */
-    let scriptResult;
+    const isHexColor = ColoredFormatter.isHexColor(finalColor);
+
+    // Check supported colors
+    if (!isHexColor && finalColor && !SUPPORTED_DEFAULT_COLOR.includes(finalColor)) {
+      console.warn(`ColoredFormatter: Unsupported color "${finalColor}". Use one of ${SUPPORTED_DEFAULT_COLOR.join(', ')} or HEX color.`);
+    }
+
+    const isHexFinalColor = ColoredFormatter.isHexColor(finalColor);
+    const colorStyle = isHexFinalColor ? { backgroundColor: finalColor } : {};
+    const colorClass = !isHexFinalColor && finalColor ? `value-color-formatter_${finalColor}` : '';
+
+    // If defaultColor is not HEX, and it's a supported color, use its class
+    const defaultIsHex = ColoredFormatter.isHexColor(defaultColor);
+    const defaultColorClass =
+      !defaultIsHex && SUPPORTED_DEFAULT_COLOR.includes(defaultColor) ? `value-color-formatter_${defaultColor}` : '';
+
+    // If there is no color and defaultColor is not HEX, use defaultColor class
+    const finalColorClass = colorClass || (!isHexFinalColor && !finalColor ? defaultColorClass : '');
+
+    if (!displayText) {
+      return <React.Fragment>{this.value(cell)}</React.Fragment>;
+    }
+
+    return enabledNewJournal ? (
+      <div className="value-color-formatter">
+        {showPointer ? (
+          <span
+            className={`value-color-formatter__pointer ${!isHexFinalColor ? finalColorClass : ''}`}
+            style={isHexFinalColor ? colorStyle : {}}
+          />
+        ) : null}
+        <span className="value-color-formatter__text">
+          {!showPointer ? (
+            isHexFinalColor ? (
+              <span className="value-color-formatter__oval" style={colorStyle}>
+                {displayText}
+              </span>
+            ) : (
+              <span className={`value-color-formatter__oval ${finalColorClass}`}>{displayText}</span>
+            )
+          ) : (
+            displayText
+          )}
+        </span>
+      </div>
+    ) : !showPointer ? (
+      <span
+        className={`value-color-formatter value-color-formatter__oval ${!isHexFinalColor ? finalColorClass : ''}`}
+        style={isHexFinalColor ? colorStyle : {}}
+      >
+        {displayText}
+      </span>
+    ) : (
+      <div className="value-color-formatter">
+        <span
+          className={`value-color-formatter__pointer ${!isHexFinalColor ? finalColorClass : ''}`}
+          style={isHexFinalColor ? colorStyle : {}}
+        />
+        <span className="value-color-formatter__text">{displayText}</span>
+      </div>
+    );
+  }
+
+  colorByScript(args, script) {
+    let scriptResult = '';
 
     if (!isEmpty(script)) {
       if (isString(script)) {
@@ -60,15 +126,7 @@ export default class ColoredFormatter extends BaseFormatter {
       }
     }
 
-    if (scriptResult) {
-      style = { ...style, color: scriptResult };
-    }
-
-    return (
-      <span style={style} className={`colored-formatter`}>
-        {text}
-      </span>
-    );
+    return scriptResult;
   }
 
   getSupportedCellType() {

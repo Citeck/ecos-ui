@@ -1,9 +1,10 @@
+import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import uniqueId from 'lodash/uniqueId';
-import cloneDeep from 'lodash/cloneDeep';
 
 import { MenuSettings as ms } from '../constants/menu';
+
 import MenuConverter from './menu';
 
 export default class SidebarConverter {
@@ -27,7 +28,7 @@ export default class SidebarConverter {
           const journalRef = get(item, '_remoteData_.journalRef') || '';
           const [, journalId] = journalRef.split('@');
           set(targetItem, 'params.journalId', journalId);
-        } else if (ms.ItemTypes.JOURNAL === item.type || ms.ItemTypes.DOCLIB === item.type) {
+        } else if (ms.ItemTypes.JOURNAL === item.type || ms.ItemTypes.DOCLIB === item.type || ms.ItemTypes.PREVIEW_LIST === item.type) {
           set(targetItem, 'params.journalId', get(item, '_remoteData_.journalId'));
         } else if (ms.ItemTypes.LINK_CREATE_CASE === item.type) {
           targetItem = SidebarConverter.getMenuCreateVariantWeb(targetItem, get(item, 'config.variant'));

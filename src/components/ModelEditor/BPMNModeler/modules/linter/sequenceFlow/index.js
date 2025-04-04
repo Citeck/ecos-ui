@@ -1,9 +1,10 @@
 import { is } from 'bpmn-js/lib/util/ModelUtil';
 import get from 'lodash/get';
 
-import { PREFIX_FIELD } from '../../../../../../constants/cmmn';
-import { t } from '../../../../../../helpers/util';
 import { BPMN_LINT_PREFIX } from '../constants';
+
+import { PREFIX_FIELD } from '@/constants/cmmn';
+import { t } from '@/helpers/util';
 
 const SEQUENCE_FLOW = 'bpmn:SequenceFlow';
 const EXCLUSIVE_GATEWAY = 'bpmn:ExclusiveGateway';

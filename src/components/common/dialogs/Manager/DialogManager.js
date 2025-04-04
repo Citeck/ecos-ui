@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
-import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
-import isNil from 'lodash/isNil';
 import isFunction from 'lodash/isFunction';
+import isNil from 'lodash/isNil';
+import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
 import { Collapse, Card, CardBody } from 'reactstrap';
 
-import { objectByString, t } from '../../../../helpers/util';
-import { Btn } from '../../btns';
+import { getEnabledNewJournal, getEnabledWorkspaces, objectByString, t } from '../../../../helpers/util';
 import EcosModal from '../../EcosModal';
+import { Btn } from '../../btns';
 import RemoveDialog from '../RemoveDialog';
+
 import FormWrapper from './FormWrapper';
 
 import './DialogManager.scss';
@@ -233,6 +234,7 @@ export const dialogsById = {
       buttons = [],
       handlers = {},
       buttonsClassName,
+      isBlurBackground: _isBlurBackground,
       ...modalProps
     } = props.dialogProps;
 
@@ -243,12 +245,15 @@ export const dialogsById = {
 
     handlers.hideModal = hideModal;
 
+    const isBlurBackground = isNil(_isBlurBackground) ? getEnabledWorkspaces() || getEnabledNewJournal() : _isBlurBackground;
+
     return (
       <EcosModal
         title={t(title)}
         isOpen={isVisible}
         hideModal={hideModal}
         className={classNames('ecos-dialog ecos-dialog_custom', modalClass)}
+        isBlurBackground={!!isBlurBackground}
         {...modalProps}
       >
         <div className="ecos-dialog__body">{body}</div>
@@ -358,17 +363,21 @@ export const dialogsById = {
     }
 
     return (
-      <EcosModal
-        title={title}
-        isOpen={isVisible}
-        hideModal={hideModal}
-        className={classNames('ecos-dialog ecos-dialog_form', modalClass)}
-        reactstrapProps={{ backdrop: 'static', ...reactstrapProps }}
-      >
-        <div className="ecos-dialog__body">
-          <FormWrapper isVisible {...formProps} />
-        </div>
-      </EcosModal>
+      <>
+        {isVisible && (
+          <EcosModal
+            title={title}
+            isOpen={isVisible}
+            hideModal={hideModal}
+            className={classNames('ecos-dialog ecos-dialog_form', modalClass)}
+            reactstrapProps={{ backdrop: 'static', ...reactstrapProps }}
+          >
+            <div className="ecos-dialog__body">
+              <FormWrapper isVisible {...formProps} />
+            </div>
+          </EcosModal>
+        )}
+      </>
     );
   },
   [ERROR_DIALOG_ID]: props => {

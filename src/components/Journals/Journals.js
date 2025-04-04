@@ -1,26 +1,34 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
-import ReactResizeDetector from 'react-resize-detector';
+import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
-import debounce from 'lodash/debounce';
-import throttle from 'lodash/throttle';
 import merge from 'lodash/merge';
+import throttle from 'lodash/throttle';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
+import ReactResizeDetector from 'react-resize-detector';
 
-import { execJournalAction, setUrl, toggleViewMode } from '../../actions/journals';
 import { getTypeRef } from '../../actions/docLib';
+import { execJournalAction, setUrl, toggleViewMode } from '../../actions/journals';
 import { getBoardList } from '../../actions/kanban';
-import { selectCommonJournalPageProps } from '../../selectors/journals';
+import { updateTab } from '../../actions/pageTabs';
 import { DocLibUrlParams as DLUP, JournalUrlParams as JUP, SourcesId } from '../../constants';
-import { animateScrollTo, getBool, t } from '../../helpers/util';
-import { equalsQueryUrls, getSearchParams } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
 import { showModalJson } from '../../helpers/tools';
+import { equalsQueryUrls, getSearchParams } from '../../helpers/urls';
+import { animateScrollTo, getBool, t } from '../../helpers/util';
+import { selectCommonJournalPageProps } from '../../selectors/journals';
+import { selectIsViewNewJournal } from '../../selectors/view';
+import PageService, { PageTypes } from '../../services/PageService';
+import pageTabList from '../../services/pageTabs/PageTabList';
+import Records from '../Records';
 import { ActionTypes } from '../Records/actions/constants';
 
+import JournalsHead from './JournalsHead';
+import JournalsMenu from './JournalsMenu';
+import { DocLibView, KanbanView, PreviewListView, TableView } from './Views';
 import {
   isDocLib,
   isUnknownView,
@@ -30,17 +38,9 @@ import {
   PADDING_NEW_JOURNAL,
   JOURNAL_VIEW_MODE as JVM,
   Labels,
-  isTable
+  isTable,
+  isKanban
 } from './constants';
-import JournalsMenu from './JournalsMenu';
-import JournalsHead from './JournalsHead';
-import { DocLibView, KanbanView, TableView } from './Views';
-
-import Records from '../Records';
-import PageService, { PageTypes } from '../../services/PageService';
-import pageTabList from '../../services/pageTabs/PageTabList';
-import { updateTab } from '../../actions/pageTabs';
-import { selectIsViewNewJournal } from '../../selectors/view';
 
 import './style.scss';
 
@@ -143,7 +143,7 @@ class Journals extends React.Component {
     const { _url, isActivePage, stateId, viewMode, tabId, isViewNewJournal } = this.props;
     const { journalId } = this.state;
 
-    if (isViewNewJournal && prevProps.viewMode !== viewMode && isTable(viewMode)) {
+    if (isViewNewJournal && prevProps.viewMode !== viewMode && (isTable(viewMode) || isKanban(viewMode))) {
       this.setState({ menuOpen: false });
     }
 
@@ -430,6 +430,7 @@ class Journals extends React.Component {
           <TableView {...commonProps} />
           <DocLibView {...commonProps} />
           <KanbanView {...commonProps} />
+          <PreviewListView {...commonProps} />
           <this.RightMenu />
         </div>
       </ReactResizeDetector>
@@ -464,7 +465,4 @@ Journals.defaultProps = {
   displayElements: { ...defaultDisplayElements }
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Journals);
+export default connect(mapStateToProps, mapDispatchToProps)(Journals);

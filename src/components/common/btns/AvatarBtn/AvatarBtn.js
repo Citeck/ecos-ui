@@ -1,9 +1,10 @@
-import React, { Component } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import { Avatar } from '../../index';
-import UserService from '../../../../services/UserService';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
+
+import UserService from '../../../../services/UserService';
+import { Avatar } from '../../index';
 
 import './style.scss';
 
@@ -25,7 +26,7 @@ class AvatarBtn extends Component {
   };
 
   render() {
-    const { className, icon, children, userFullName, theme, userPhotoUrl, ...props } = this.props;
+    const { className, icon, children, userFullName, theme, userPhotoUrl, dispatch, ...props } = this.props;
     const cssClasses = classNames('ecos-btn', className);
 
     return (

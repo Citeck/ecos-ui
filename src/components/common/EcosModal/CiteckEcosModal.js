@@ -1,8 +1,8 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
+import PropTypes from 'prop-types';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
 
 import EcosModal from './EcosModal';
 
@@ -72,6 +72,9 @@ ModalWrapper.propTypes = {
 };
 
 class Modal {
+  _modalRef = null;
+  _root = null;
+
   create = (Component, props) => {
     if (!Component) {
       return;
@@ -87,28 +90,32 @@ class Modal {
 
     this.mountContainer();
 
-    let modal = ReactDOM.render(
+    this._modalRef = React.createRef();
+
+    this._root = ReactDOM.createRoot(this.el);
+    this._root.render(
       <Component
         {...props}
+        forwardRef={this._modalRef}
         onAfterHideModal={() => {
           if (isFunction(props.onAfterHideModal)) {
             props.onAfterHideModal();
           }
 
           this.destroy();
-          modal = null;
         }}
-      />,
-      this.el
+      />
     );
 
-    this.modal = {
-      close: () => {
-        if (modal && isFunction(modal.hide)) {
-          modal.hide.call(modal);
+    setTimeout(() => {
+      this.modal = {
+        close: () => {
+          if (this._modalRef?.current && isFunction(this._modalRef?.current?.hide)) {
+            this._modalRef?.current?.hide();
+          }
         }
-      }
-    };
+      };
+    }, 0);
   };
 
   mountContainer = () => {
@@ -137,7 +144,8 @@ class Modal {
       }
     };
 
-    ReactDOM.render(
+    this._root = ReactDOM.createRoot(this.el);
+    this._root.render(
       <ModalWrapper
         title={config.title || config.header || EMPTY_HEADER_TITLE}
         isBigHeader={config.isBigHeader}
@@ -151,10 +159,12 @@ class Modal {
         {isFunction(contentBefore) ? contentBefore() : contentBefore}
         {node}
         {isFunction(contentAfter) ? contentAfter() : contentAfter}
-      </ModalWrapper>,
-      this.el,
-      callback
+      </ModalWrapper>
     );
+
+    setTimeout(() => {
+      callback();
+    }, 0);
   };
 
   close = callback => {
@@ -162,11 +172,14 @@ class Modal {
   };
 
   destroy = () => {
-    if (!this.el) {
+    if (!this.el || !this._root) {
       return;
     }
 
-    ReactDOM.unmountComponentAtNode(this.el);
+    setTimeout(() => {
+      this._root.unmount();
+    }, 0);
+
     document.body.removeChild(this.el);
     this.el = null;
   };

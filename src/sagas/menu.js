@@ -1,12 +1,13 @@
-import { NotificationManager } from 'react-notifications';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 
-import { t } from '../helpers/util';
+import { getMenuConfig, saveMenuConfig, setMenuConfig, setRequestResultMenuConfig } from '../actions/menu';
 import { RequestStatuses } from '../constants';
 import MenuConverter from '../dto/menu';
-import { getMenuConfig, saveMenuConfig, setMenuConfig, setRequestResultMenuConfig } from '../actions/menu';
+import { t } from '../helpers/util';
 
-function* doGetMenuConfigRequest({ api, logger }) {
+import { NotificationManager } from '@/services/notifications';
+
+function* doGetMenuConfigRequest({ api }) {
   try {
     const result2 = yield call(api.menu.getUserMenuConfig);
     const menu = MenuConverter.parseGetResult({ ...result2 });
@@ -14,11 +15,11 @@ function* doGetMenuConfigRequest({ api, logger }) {
     yield put(setMenuConfig(menu));
   } catch (e) {
     NotificationManager.error(t('menu.error.get-config'), t('error'));
-    logger.error('[menu/ doGetMenuConfigRequest] error', e);
+    console.error('[menu/ doGetMenuConfigRequest] error', e);
   }
 }
 
-function* doSaveMenuConfigRequest({ api, logger }, { payload }) {
+function* doSaveMenuConfigRequest({ api }, { payload }) {
   try {
     const curSet = yield select(state => state.menu);
     const config = MenuConverter.getSettingsConfigForServer(payload);
@@ -28,7 +29,7 @@ function* doSaveMenuConfigRequest({ api, logger }, { payload }) {
     yield put(setRequestResultMenuConfig({ status: RequestStatuses.SUCCESS }));
   } catch (e) {
     NotificationManager.error(t('menu.error.save-config'), t('error'));
-    logger.error('[menu/ doSaveMenuConfigRequest] error', e);
+    console.error('[menu/ doSaveMenuConfigRequest] error', e);
   }
 }
 

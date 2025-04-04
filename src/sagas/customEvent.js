@@ -1,14 +1,14 @@
+import { replace } from 'connected-react-router';
+import get from 'lodash/get';
+import * as queryString from 'query-string';
 import { eventChannel } from 'redux-saga';
 import { put, select, take, takeLatest } from 'redux-saga/effects';
-import { replace } from 'connected-react-router';
-import * as queryString from 'query-string';
-import get from 'lodash/get';
 
-import { decodeLink, pushHistoryLink, replaceHistoryLink } from '../helpers/urls';
-import { isOnlyContent } from '../helpers/timesheet/util';
-import PageService, { Events } from '../services/PageService';
-import { setTab, updateTab } from '../actions/pageTabs';
 import { handleEventChangeUrl, registerEventListeners } from '../actions/customEvent';
+import { setTab, updateTab } from '../actions/pageTabs';
+import { isOnlyContent } from '../helpers/timesheet/util';
+import { decodeLink, pushHistoryLink, replaceHistoryLink } from '../helpers/urls';
+import PageService, { Events } from '../services/PageService';
 
 function* _registerEventListeners() {
   yield registerEventListenerChangeUrlLink();
@@ -34,7 +34,7 @@ function* registerEventListenerChangeUrlLink() {
   }
 }
 
-function* _handleChangeUrl({ api, logger }, { payload: event }) {
+function* _handleChangeUrl({ api }, { payload: event }) {
   const isShowTabs = yield select(state => get(state, 'pageTabs.isShow', false));
   const isMobile = yield select(state => get(state, 'view.isMobile', false));
 

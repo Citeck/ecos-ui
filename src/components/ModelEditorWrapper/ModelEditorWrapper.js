@@ -1,23 +1,24 @@
-import React from 'react';
 import classNames from 'classnames';
-import PropTypes from 'prop-types';
 import get from 'lodash/get';
-import uniqueId from 'lodash/uniqueId';
-import uuidv4 from 'uuid/v4';
-import isNil from 'lodash/isNil';
-import isFunction from 'lodash/isFunction';
 import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
+import isNil from 'lodash/isNil';
+import uniqueId from 'lodash/uniqueId';
+import PropTypes from 'prop-types';
+import React from 'react';
+import uuidv4 from 'uuid/v4';
 
-import { t } from '../../helpers/util';
 import { Icon, InfoText, ResizeBoxes } from '../common';
-import { Caption } from '../common/form';
 import TitlePageLoader from '../common/TitlePageLoader';
-import { generateKey, getData, setData } from '../../helpers/ls';
+import { Caption } from '../common/form';
+
 import Tools from './Tools';
 import { ToolsInterface } from './propsInterfaces';
 
+import { PROCESS_DEF_API_ACTIONS } from '@/api/process';
+import { generateKey, getData, setData } from '@/helpers/ls';
+import { t } from '@/helpers/util';
 import './style.scss';
-import { PROCESS_DEF_API_ACTIONS } from '../../api/process';
 
 const Labels = {
   NO_EDITOR: 'model-editor.error.no-editor',

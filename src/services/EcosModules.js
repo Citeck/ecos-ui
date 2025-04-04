@@ -1,12 +1,12 @@
+import lodash from 'lodash';
 import reactDefault, * as react from 'react';
 import reactDomDefault, * as reactDom from 'react-dom';
-import Records from '../components/Records';
-import lodash from 'lodash';
-import '../build-info';
-import reduxThunk from 'redux-thunk';
-import * as redux from 'redux';
 import * as reactRedux from 'react-redux';
-import * as util from '../helpers/export/util';
+import * as redux from 'redux';
+import reduxThunk from 'redux-thunk';
+
+import Records from '@/components/Records';
+import * as util from '@/helpers/export/util';
 
 const pageUtils = {
   goToDashboard: (recordRef, config) => {

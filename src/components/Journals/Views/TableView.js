@@ -1,7 +1,15 @@
-import React from 'react';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
+import isEqualWith from 'lodash/isEqualWith';
+import React from 'react';
+import { connect } from 'react-redux';
+
+import Bar from '../CommonBar';
+import JournalsContent from '../JournalsContent';
+import JournalsDashletPagination from '../JournalsDashletPagination';
+import { CLASSNAME_JOURNAL_BODY_TOP, isPreview, isTableOrPreview } from '../constants';
 
 import {
   applyJournalSetting,
@@ -19,22 +27,15 @@ import {
   setSelectAllPageRecords,
   setSelectedRecords,
   setUrl
-} from '../../../actions/journals';
-import { selectCommonJournalPageProps, selectJournalPageProps } from '../../../selectors/journals';
-import { JournalUrlParams as JUP, KanbanUrlParams as KUP, SourcesId } from '../../../constants';
-import { wrapArgs } from '../../../helpers/redux';
-import { getSearchParams } from '../../../helpers/urls';
-import { selectKanbanPageProps } from '../../../selectors/kanban';
-import { getBoardData } from '../../../actions/kanban';
-import { getTextByLocale } from '../../../helpers/util';
-import { CLASSNAME_JOURNAL_BODY_TOP, isPreview, isTableOrPreview } from '../constants';
-import Bar from '../CommonBar';
-import JournalsContent from '../JournalsContent';
-import JournalsDashletPagination from '../JournalsDashletPagination';
-import isEqualWith from 'lodash/isEqualWith';
-import isEqual from 'lodash/isEqual';
-import isEmpty from 'lodash/isEmpty';
-import { selectIsViewNewJournal } from '../../../selectors/view';
+} from '@/actions/journals';
+import { getBoardData } from '@/actions/kanban';
+import { JournalUrlParams as JUP, KanbanUrlParams as KUP, SourcesId } from '@/constants';
+import { wrapArgs } from '@/helpers/redux';
+import { getSearchParams } from '@/helpers/urls';
+import { getTextByLocale } from '@/helpers/util';
+import { selectCommonJournalPageProps, selectJournalPageProps } from '@/selectors/journals';
+import { selectKanbanPageProps } from '@/selectors/kanban';
+import { selectIsViewNewJournal } from '@/selectors/view';
 
 function mapStateToProps(state, props) {
   const commonProps = selectCommonJournalPageProps(state, props.stateId);
@@ -105,7 +106,7 @@ class TableView extends React.Component {
     }
 
     if (urlParams[JUP.SEARCH] !== get(prevProps, ['urlParams', JUP.SEARCH])) {
-      this.props.reloadGrid();
+      this.props.getJournalsData({ force });
     }
 
     if (
@@ -229,7 +230,4 @@ class TableView extends React.Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(TableView);
+export default connect(mapStateToProps, mapDispatchToProps)(TableView);

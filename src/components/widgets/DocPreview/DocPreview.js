@@ -1,14 +1,14 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import debounce from 'lodash/debounce';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
+import isFunction from 'lodash/isFunction';
 import pdfjs from 'pdfjs-dist';
 import { isArrayEqual } from 'pdfjs-dist/lib/shared/util';
+import PropTypes from 'prop-types';
 import * as queryString from 'query-string';
-import get from 'lodash/get';
-import debounce from 'lodash/debounce';
-import isEmpty from 'lodash/isEmpty';
-import isFunction from 'lodash/isFunction';
-import isEqual from 'lodash/isEqual';
+import React, { Component } from 'react';
 import ReactResizeDetector from 'react-resize-detector';
 
 import { DocPreviewApi } from '../../../api/docPreview';
@@ -17,9 +17,10 @@ import { getOptimalHeight } from '../../../helpers/layout';
 import { isPDFbyStr, t } from '../../../helpers/util';
 import { InfoText, Loader } from '../../common';
 import { Btn } from '../../common/btns';
-import Toolbar from './Toolbar';
-import PdfViewer from './PdfViewer';
+
 import ImgViewer from './ImgViewer';
+import PdfViewer from './PdfViewer';
+import Toolbar from './Toolbar';
 import getViewer from './Viewer';
 import { Labels } from './util';
 
@@ -27,7 +28,7 @@ import './style.scss';
 
 // 2.4.456 version of worker for 2.4.456 version of pdfjs-dist:
 // pdfjs.GlobalWorkerOptions.workerSrc = '//cdn.jsdelivr.net/npm/pdfjs-dist@2.4.456/build/pdf.worker.min.js';
-pdfjs.GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL}/js/lib/pdf.worker.min.js?v=2.4.456`;
+pdfjs.GlobalWorkerOptions.workerSrc = `${import.meta.env.BASE_URL}js/lib/pdf.worker.min.js?v=2.4.456`;
 
 const decreasingSteps = [562, 387, 293];
 
@@ -129,7 +130,7 @@ class DocPreview extends Component {
    * @deprecated
    * @todo use static getDerivedStateFromProps instead
    */
-  componentWillReceiveProps(nextProps, nextContext) {
+  UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
     const prevProps = this.props;
     const { isLoading, byLink, runUpdate, clear } = nextProps;
     const { recordId, link, fileName } = this.state;

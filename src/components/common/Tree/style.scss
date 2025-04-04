@@ -11,6 +11,7 @@
   &__item {
     $item: &;
 
+    z-index: 10001;
     position: relative;
 
     &:not(:first-child) {
@@ -94,6 +95,14 @@
         font-weight: $font-weight-bold;
         font-size: $font-size-standard;
         color: $text-color-dark;
+
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+        -khtml-user-select: none; /* Konqueror HTML */
+        -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+        user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
 
         &-tooltip {
           padding: 10px 12px;

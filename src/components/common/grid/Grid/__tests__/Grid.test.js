@@ -1,24 +1,8 @@
+import { render } from '@testing-library/react';
 import React from 'react';
-import { configure, shallow } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
 import { unmountComponentAtNode } from 'react-dom';
 
 import Grid from '../Grid';
-
-configure({ adapter: new Adapter() });
-
-let container = null;
-
-beforeEach(() => {
-  container = document.createElement('div');
-  document.body.appendChild(container);
-});
-
-afterEach(() => {
-  unmountComponentAtNode(container);
-  container.remove();
-  container = null;
-});
 
 describe('Grid', () => {
   describe('Check noHorizontalScroll props', () => {
@@ -36,11 +20,11 @@ describe('Grid', () => {
         input: {},
         output: [
           {
-            query: '.ecos-grid.ecos-grid_no-scroll_h',
+            query: 'ecos-grid_no-scroll_h',
             result: 0
           },
           {
-            query: '.ecos-grid',
+            query: 'ecos-grid',
             result: 1
           }
         ]
@@ -50,11 +34,11 @@ describe('Grid', () => {
         input: { noHorizontalScroll: true },
         output: [
           {
-            query: '.ecos-grid.ecos-grid_no-scroll_h',
+            query: 'ecos-grid_no-scroll_h',
             result: 1
           },
           {
-            query: '.ecos-grid',
+            query: 'ecos-grid',
             result: 1
           }
         ]
@@ -64,11 +48,11 @@ describe('Grid', () => {
         input: { noHorizontalScroll: false },
         output: [
           {
-            query: '.ecos-grid.ecos-grid_no-scroll_h',
+            query: 'ecos-grid_no-scroll_h',
             result: 0
           },
           {
-            query: '.ecos-grid',
+            query: 'ecos-grid',
             result: 1
           }
         ]
@@ -77,19 +61,20 @@ describe('Grid', () => {
 
     data.forEach(item => {
       it(item.title, () => {
-        const wrapper = shallow(<Grid {...defaultProps} />);
+        const wrapper = render(<Grid {...defaultProps} />);
 
         return Promise.resolve(wrapper)
           .then(() => {
-            wrapper.setProps({
+            const newProps = {
               ...defaultProps,
               ...item.input
-            });
+            };
+
+            wrapper.rerender(<Grid {...newProps} />);
           })
-          .then(() => wrapper.update())
           .then(() => {
             item.output.forEach(output => {
-              const element = wrapper.find(output.query);
+              const element = wrapper.container.getElementsByClassName(output.query);
 
               expect(element.length).toBe(output.result);
             });

@@ -4,7 +4,12 @@ export const DEFAULT_PAGINATION = {
   page: 1
 };
 
-export const PAGINATION_SIZES = [{ value: 10, label: 10 }, { value: 30, label: 30 }, { value: 50, label: 50 }, { value: 100, label: 100 }];
+export const PAGINATION_SIZES = [
+  { value: 10, label: 10 },
+  { value: 30, label: 30 },
+  { value: 50, label: 50 },
+  { value: 100, label: 100 }
+];
 
 export const MIN_CARD_DATA_NEW_JOURNAL = 6;
 
@@ -14,6 +19,8 @@ export const HEIGHT_GRID_ROW = 28;
 export const HEIGHT_THEAD = 35;
 export const MAX_HEIGHT_TOTAL_AMOUNT = 40;
 export const ECOS_GRID_PADDING_HORIZONTAL = 14;
+
+export const HEIGHT_LIST_VIEW_ITEM = 134 + 18; // 18px - gap
 
 export const CLASSNAME_JOURNAL_BODY_TOP = 'ecos-journal__body-top';
 
@@ -32,6 +39,7 @@ export const JOURNAL_VIEW_MODE = {
   TABLE: 'table',
   PREVIEW: 'table-preview',
   DOC_LIB: 'document-library',
+  PREVIEW_LIST: 'preview-list',
   KANBAN: 'kanban'
 };
 
@@ -65,6 +73,7 @@ export const Labels = {
   Views: {
     JOURNAL: 'journals.view.label.journal',
     PREVIEW: 'journals.view.label.journal-preview',
+    PREVIEW_LIST: 'journals.view.label.preview-list',
     DOC_LIB: 'journals.view.label.document-library',
     KANBAN: 'journals.view.label.kanban'
   },
@@ -101,6 +110,7 @@ export const isTable = vm => vm === JOURNAL_VIEW_MODE.TABLE;
 export const isPreview = vm => vm === JOURNAL_VIEW_MODE.PREVIEW;
 export const isDocLib = vm => vm === JOURNAL_VIEW_MODE.DOC_LIB;
 export const isKanban = vm => vm === JOURNAL_VIEW_MODE.KANBAN;
+export const isPreviewList = vm => vm === JOURNAL_VIEW_MODE.PREVIEW_LIST;
 export const isTableOrPreview = vm => isTable(vm) || isPreview(vm);
 export const isUnknownView = vm => !Object.values(JOURNAL_VIEW_MODE).includes(vm);
 

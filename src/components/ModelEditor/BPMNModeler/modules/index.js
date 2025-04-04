@@ -1,10 +1,10 @@
 import BpmnColorPickerModule from 'bpmn-js-color-picker';
 
-import EcosTaskPalette from './ecosTask/EcosTaskPalette';
-import EcosTaskRenderer from './ecosTask/EcosTaskRenderer';
 import EcosKPIRenderer from './ecosTask/EcosKPIRenderer';
 import EcosNumberRenderer from './ecosTask/EcosNumberRenderer';
 import EcosTaskContextPad from './ecosTask/EcosTaskContextPad';
+import EcosTaskPalette from './ecosTask/EcosTaskPalette';
+import EcosTaskRenderer from './ecosTask/EcosTaskRenderer';
 import lintModule from './linter';
 
 export const onlyRenderer = {

@@ -1,18 +1,20 @@
-import { lazy } from 'react';
+import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
-import isString from 'lodash/isString';
-import cloneDeep from 'lodash/cloneDeep';
 import isFunction from 'lodash/isFunction';
+import isString from 'lodash/isString';
+import { lazy } from 'react';
 import uuidV4 from 'uuid/v4';
 
-import { getCurrentLocale, t } from '../../helpers/util';
 import { CONFIG_VERSION, DashboardTypes } from '../../constants/dashboard';
+import { getCurrentLocale, t } from '../../helpers/util';
 import ConfigService, { ALFRESCO_ENABLED } from '../../services/config/ConfigService';
 import { FORM_MODE_EDIT, FORM_MODE_VIEW } from '../EcosForm';
 
 export const ComponentKeys = {
+  NEWS: 'news',
+  HTML: 'html',
   PAGINATION: 'pagination',
   DOC_PREVIEW: 'doc-preview',
   JOURNAL: 'journal',
@@ -36,6 +38,8 @@ export const ComponentKeys = {
   PROCESS_STATISTICS: 'process-statistics',
   STAGES: 'stages',
   CHARTS: 'charts',
+  PUBLICATION: 'publication',
+  HIERARCHICAL_TREE: 'hierarchical-tree',
   KANBAN_BOARD: 'kanban-board'
 };
 
@@ -64,6 +68,25 @@ export default class Components {
    * @supportedDashboardTypes {Array} - types of dashboards where this widget is available. If empty - available everywhere
    */
   static components = Object.freeze({
+    [ComponentKeys.NEWS]: {
+      load: () =>
+        lazy(() =>
+          import('../../plugins').then(plugins => ({
+            default: get(plugins, 'default.NewsWidget', () => null)
+          }))
+        ),
+      checkIsAvailable: () => {
+        const workspacesEnabled = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+
+        if (!workspacesEnabled) {
+          return false;
+        }
+
+        return Boolean(get(window, 'Citeck.Plugins.NewsWidget'));
+      },
+      label: 'dashboard-settings.widget.news',
+      supportedDashboardTypes: [DashboardTypes.USER, DashboardTypes.CUSTOM]
+    },
     [ComponentKeys.DOC_PREVIEW]: {
       load: () => lazy(() => import('./DocPreview')),
       label: 'dashboard-settings.widget.preview',
@@ -81,6 +104,12 @@ export default class Components {
       supportedDashboardTypes: [],
       props: {},
       settings: () => lazy(() => import('./JournalsDashlet/Settings'))
+    },
+    [ComponentKeys.HTML]: {
+      load: () => lazy(() => import('./HTML/Widget')),
+      label: 'HTML',
+      supportedDashboardTypes: [],
+      props: {}
     },
     [ComponentKeys.REPORT]: {
       load: () => lazy(() => import('./Report')),
@@ -215,7 +244,16 @@ export default class Components {
           }))
         ),
       label: 'dashboard-settings.widget.activities',
-      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS],
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS, DashboardTypes.CUSTOM],
+      checkIsAvailable: () => {
+        const workspacesEnabled = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+
+        if (!workspacesEnabled) {
+          return false;
+        }
+
+        return Boolean(get(window, 'Citeck.Plugins.ActivitiesWidget'));
+      },
       props: {
         dataStorageFormat: 'html'
       }
@@ -248,6 +286,49 @@ export default class Components {
       label: 'dashboard-settings.widget.charts',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS, DashboardTypes.USER, DashboardTypes.CUSTOM]
     },
+    [ComponentKeys.PUBLICATION]: {
+      load: () =>
+        lazy(() =>
+          import('../../plugins').then(plugins => ({
+            default: get(plugins, 'default.PublicationWidget', () => null)
+          }))
+        ),
+      additionalProps: {
+        isDragDisabledByLayout: layout =>
+          layout &&
+          (!layout.columns || (layout.columns.length !== 1 && !layout.columns.find(column => Array.isArray(column) && column.length === 1)))
+      },
+      checkIsAvailable: () => {
+        const workspacesEnabled = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+
+        if (!workspacesEnabled) {
+          return false;
+        }
+
+        return Boolean(get(window, 'Citeck.Plugins.PublicationWidget'));
+      },
+      label: 'dashboard-settings.widget.publication',
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
+    },
+    [ComponentKeys.HIERARCHICAL_TREE]: {
+      load: () =>
+        lazy(() =>
+          import('../../plugins').then(plugins => ({
+            default: get(plugins, 'default.HierarchicalTreeWidget', () => null)
+          }))
+        ),
+      checkIsAvailable: () => {
+        const workspacesEnabled = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+
+        if (!workspacesEnabled) {
+          return false;
+        }
+
+        return Boolean(get(window, 'Citeck.Plugins.HierarchicalTreeWidget'));
+      },
+      label: 'dashboard-settings.widget.hierarchical-tree',
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS, DashboardTypes.CUSTOM]
+    },
     [ComponentKeys.STAGES]: {
       load: () =>
         lazy(() =>
@@ -274,7 +355,15 @@ export default class Components {
     }
   });
 
-  static allDashboardsComponents = [ComponentKeys.JOURNAL, ComponentKeys.WEB_PAGE];
+  static allDashboardsComponents = [
+    ComponentKeys.NEWS,
+    ComponentKeys.JOURNAL,
+    ComponentKeys.WEB_PAGE,
+    ComponentKeys.PUBLICATION,
+    ComponentKeys.HTML,
+    ComponentKeys.ACTIVITIES,
+    ComponentKeys.HIERARCHICAL_TREE
+  ];
 
   static get allDashboardTypes() {
     return Object.values(DashboardTypes);

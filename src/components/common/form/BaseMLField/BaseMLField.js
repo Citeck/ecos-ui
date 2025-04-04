@@ -1,18 +1,17 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import get from 'lodash/get';
 import debounce from 'lodash/debounce';
-import isEqual from 'lodash/isEqual';
+import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import omit from 'lodash/omit';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import uuidV4 from 'uuid/v4';
 
-import Tooltip from '../../Tooltip';
-import { getCurrentLocale } from '../../../../helpers/export/util';
-import { prepareTooltipId } from '../../../../helpers/util';
-import { t } from '../../../../helpers/export/util';
 import { allowedLanguages, LANGUAGE_EN } from '../../../../constants/lang';
+import { t, getCurrentLocale } from '../../../../helpers/export/util';
+import { prepareTooltipId } from '../../../../helpers/util';
+import Tooltip from '../../Tooltip';
 
 import './style.scss';
 
@@ -273,7 +272,7 @@ class BaseMLField extends Component {
     return (
       <Tooltip
         target={this._key}
-        isOpen={isShowTooltip}
+        isOpen={!!isShowTooltip}
         trigger="hover"
         onToggle={this.handleToggleTooltip}
         className="ecos-ml-text__tooltip"

@@ -1,16 +1,17 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
 import classNames from 'classnames';
+import React from 'react';
+import { createRoot } from 'react-dom/client';
 
 import { Btn } from '../../../components/common/btns';
-import { Input } from '../../../components/common/form';
 import { TunableDialog } from '../../../components/common/dialogs';
+import { Input } from '../../../components/common/form';
 import { t } from '../../../helpers/util';
 
 class Popup {
   #container = null;
   #initialized = false;
   #destroyed = false;
+  #root = false;
 
   get initialized() {
     return this.#initialized;
@@ -52,7 +53,7 @@ class Popup {
 
   destroy = () => {
     if (this.#container) {
-      ReactDOM.unmountComponentAtNode(this.#container);
+      this.#root?.unmount();
       this.#container.remove();
       this.#container = null;
     }
@@ -61,7 +62,8 @@ class Popup {
   };
 
   render = (props = {}, callback = () => null) => {
-    ReactDOM.render(React.createElement(TunableDialog, props), this.#container, callback);
+    this.#root = createRoot(this.#container);
+    this.#root.render(React.createElement(TunableDialog, props, callback));
   };
 }
 
@@ -213,8 +215,9 @@ class PopupManager {
     return (
       <Btn
         key={text}
-        className={classNames('', {
-          'ecos-btn_blue ecos-btn_hover_light-blue': !isDefault
+        className={classNames({
+          'ecos-btn_blue': !isDefault,
+          'ecos-btn_hover_light-blue': !isDefault
         })}
         onClick={handler.bind(this)}
       >

@@ -1,29 +1,31 @@
+import chunk from 'lodash/chunk';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
-import set from 'lodash/set';
-import chunk from 'lodash/chunk';
+import isArray from 'lodash/isArray';
 import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
-import isArray from 'lodash/isArray';
 import isObject from 'lodash/isObject';
 import isString from 'lodash/isString';
+import set from 'lodash/set';
 
-import { beArray, extractLabel, getMLValue, getModule, t } from '../../../helpers/util';
-import { DialogManager } from '../../common/dialogs';
-import EcosFormUtils from '../../EcosForm/EcosFormUtils';
-import { EVENTS } from '../../widgets/BaseWidget';
-import { replaceAttributeValues } from '../utils/recordUtils';
+import { SourcesId } from '../../../constants';
 import { getFitnesseInlineToolsClassName } from '../../../helpers/tools';
-import { DetailActionResult, getActionResultTitle, getRef, notifyFailure, notifySuccess } from './util/actionUtils';
-import { ResultTypes } from './util/constants';
+import { beArray, extractLabel, getMLValue, getModule, t } from '../../../helpers/util';
+import EcosFormUtils from '../../EcosForm/EcosFormUtils';
+import { DialogManager } from '../../common/dialogs';
+import { EVENTS } from '../../widgets/BaseWidget';
 import Records from '../Records';
-import actionsApi from './recordActionsApi';
+import { replaceAttributeValues } from '../utils/recordUtils';
+
+import RecordsIterator from './RecordsIterator';
 import actionsRegistry from './actionsRegistry';
 import ActionsExecutor from './handler/ActionsExecutor';
 import ActionsResolver from './handler/ActionsResolver';
 import RecordActionsResolver from './handler/RecordActionsResolver';
-import RecordsIterator from './RecordsIterator';
+import actionsApi from './recordActionsApi';
+import { DetailActionResult, getActionResultTitle, getRef, notifyFailure, notifySuccess } from './util/actionUtils';
+import { ResultTypes } from './util/constants';
 
 const ACTION_CONTEXT_KEY = '__act_ctx__';
 
@@ -366,6 +368,18 @@ class RecordActions {
     return get(resolvedActions, ['forRecord', recordRef]) || [];
   }
 
+  async getActionProps(actionIdOrRef) {
+    let actionRef = actionIdOrRef;
+    if (actionRef.indexOf(SourcesId.ACTION) !== 0) {
+      actionRef = SourcesId.ACTION + '@' + actionRef;
+    }
+    let actionProps = await Records.get(actionRef).load('?json');
+    if (actionProps == null) {
+      throw new Error('Action is not found: ' + actionIdOrRef);
+    }
+    return this.getActionInfo(actionProps);
+  }
+
   /**
    * Get actions for records.
    *
@@ -589,7 +603,7 @@ class RecordActions {
 
     const chunkedRecords = this._chunkedRecords;
 
-    const execution = await (async function() {
+    const execution = await (async function () {
       if (!records || !records.length) {
         return false;
       }
@@ -616,7 +630,10 @@ class RecordActions {
       }
 
       if (!ungearedPopups) {
-        popupExecution = await DetailActionResult.showPreviewRecords(recordInstances.map(r => getRef(r)), resultOptions);
+        popupExecution = await DetailActionResult.showPreviewRecords(
+          recordInstances.map(r => getRef(r)),
+          resultOptions
+        );
       }
 
       const allowedInfo = await getActionAllowedInfoForRecords(recordInstances, action, context);
@@ -763,11 +780,14 @@ class RecordActions {
                 }
               };
             } else {
-              await DetailActionResult.showPreviewRecords(allowedRecords.map(r => getRef(r)), {
-                ...resultOptions,
-                withoutLoader: true,
-                forRecords: get(result, 'data.results', []).map(item => getRef(item))
-              });
+              await DetailActionResult.showPreviewRecords(
+                allowedRecords.map(r => getRef(r)),
+                {
+                  ...resultOptions,
+                  withoutLoader: true,
+                  forRecords: get(result, 'data.results', []).map(item => getRef(item))
+                }
+              );
 
               actResult = {
                 ...(actResult || {}),

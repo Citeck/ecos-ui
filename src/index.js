@@ -1,40 +1,68 @@
-import 'react-app-polyfill/ie9';
-import 'regenerator-runtime/runtime.js';
-import './helpers/polyfills';
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { registerLocale, setDefaultLocale } from 'react-datepicker';
-import { Provider } from 'react-redux';
-import { ConnectedRouter } from 'connected-react-router';
-import * as serviceWorker from './serviceWorkerRegistration';
-import preval from 'preval.macro';
-import { NotificationManager } from 'react-notifications';
-import moment from 'moment';
+import 'regenerator-runtime/runtime';
 import 'moment/locale/ru';
 import 'moment/locale/en-gb';
-import { Base64 } from 'js-base64';
+import 'flatpickr/dist/l10n/ru.js';
+import { ConnectedRouter } from 'connected-react-router';
 import datePickerLocaleEn from 'date-fns/locale/en-GB';
 import datePickerLocaleRu from 'date-fns/locale/ru';
+import { Base64 } from 'js-base64';
+import moment from 'moment';
+import React from 'react';
+import { registerLocale, setDefaultLocale } from 'react-datepicker';
+import { createRoot } from 'react-dom/client';
+import { Provider } from 'react-redux';
 
-import { getCurrentLocale, isMobileAppWebView } from './helpers/util';
-import logger from './services/logger';
-import authService from './services/auth';
-import configureStore, { getHistory } from './store';
 import { initAppRequest } from './actions/app';
 import { setIsAuthenticated } from './actions/user';
 import { loadThemeRequest } from './actions/view';
 import { configureAPI } from './api';
 import App from './components/App';
 import IdleTimer from './components/IdleTimer';
+import { RESET_AUTH_STATE_EVENT, emitter } from './helpers/ecosFetch';
+import { getCurrentLocale, IS_TEST_ENV, isMobileAppWebView } from './helpers/util';
+import { i18nInit } from './i18n';
 import plugins from './plugins';
+import * as serviceWorker from './serviceWorkerRegistration';
+import authService from './services/auth';
+import configureStore, { getHistory } from './store';
+
+import { registerAllActions } from '@/components/Records/actions/actions';
+import { allowedModes } from '@/constants/index.js';
+import { NotificationManager } from '@/services/notifications';
+
+// Files are included in the build only if imported from here
+import '@/components/ModelViewer/BPMNViewer/patches/features/modeling/ElementFactory.js';
+import '@/components/ModelViewer/BPMNViewer/patches/features/keyboard/BpmnKeyboardBindings.js';
+
+import '@/components/ModelEditor/BPMNModeler/modules/colorContextPadProvider/ColorContextPadProvider';
+import '@/components/ModelEditor/BPMNModeler/patches/features/modeling/ElementFactory';
+import '@/components/ModelEditor/BPMNModeler/patches/features/modeling/Modeling';
+import '@/components/ModelEditor/BPMNModeler/patches/features/modeling/cmd/UpdatePropertiesHandler';
+import '@/components/ModelEditor/BPMNModeler/patches/features/palette/PaletteProvider';
+import '@/components/ModelEditor/BPMNModeler/patches/features/popup-menu/ReplaceMenuProvider';
+import '@/components/ModelEditor/BPMNModeler/patches/features/context-pad/ContextPadProvider';
+import '@/components/ModelEditor/BPMNModeler/patches/features/keyboard/BpmnKeyboardBindings';
+import '@/components/ModelEditor/BPMNModeler/patches/features/label-editing/LabelEditingProvider';
+import '@/components/ModelEditor/BPMNModeler/patches/features/command/CommandStack';
+import '@/components/ModelEditor/BPMNModeler/patches/features/selection/Selection';
+
+import '@/components/ModelEditor/DMNModeler/patches/features/modeling/cmd/UpdatePropertiesHandler';
+import '@/components/ModelEditor/DMNModeler/patches/features/modeling/Modeling';
+import '@/components/ModelEditor/DMNModeler/patches/Viewer';
+
+import '@/forms/Formio';
+import '@/forms/components';
+import '@/forms/components/Validator';
+import '@/forms/Webform';
+import '@/forms/WebformBuilder';
+import '@/forms/Component';
+
+import './helpers/polyfills';
 import './build-info';
 import './services/esign';
 import './services/EcosModules';
-import { RESET_AUTH_STATE_EVENT, emitter } from './helpers/ecosFetch';
-import { i18nInit } from './i18n';
 
 import './styles/index.scss';
-
 /* set moment locale */
 const currentLocale = getCurrentLocale();
 moment.locale(currentLocale);
@@ -45,7 +73,7 @@ registerLocale('ru', datePickerLocaleRu);
 setDefaultLocale(currentLocale);
 
 const { api, setNotAuthCallback } = configureAPI();
-export const store = configureStore({ api, logger });
+export const store = configureStore({ api });
 const history = getHistory();
 const setAuthStatus = () => {
   store.dispatch(setIsAuthenticated(false));
@@ -55,14 +83,14 @@ setNotAuthCallback(setAuthStatus);
 
 emitter.on(RESET_AUTH_STATE_EVENT, setAuthStatus);
 
-window.requirejs.config({
-  baseUrl: '/share/res', // leave it for now
-  urlArgs: 'b=' + preval`module.exports = new Date().getTime()`,
-  paths: {
-    ecosui: '/js/ecos/ecosui',
-    css: '/js/lib/require-css'
-  }
-});
+// window.requirejs.config({
+//   baseUrl: '/share/res', // leave it for now
+//   urlArgs: 'b=' + preval`module.exports = new Date().getTime()`,
+//   paths: {
+//     ecosui: '/js/ecos/ecosui',
+//     css: '/js/lib/require-css'
+//   }
+// });
 
 if (!window.Citeck) {
   window.Citeck = {};
@@ -80,14 +108,13 @@ const runApp = () => {
           loadThemeRequest({
             isAuthenticated,
             onSuccess: () => {
-              i18nInit({ debug: process.env.NODE_ENV === 'development' }).then(() => {
-                ReactDOM.render(
+              i18nInit({ debug: allowedModes.includes(process.env.NODE_ENV) }).then(() => {
+                createRoot(document.getElementById('root')).render(
                   <Provider store={store}>
                     <ConnectedRouter history={history}>
                       <App />
                     </ConnectedRouter>
-                  </Provider>,
-                  document.getElementById('root')
+                  </Provider>
                 );
               });
             }
@@ -98,7 +125,11 @@ const runApp = () => {
   );
 };
 
-if (process.env.NODE_ENV === 'development' && !isMobileAppWebView()) {
+if (!IS_TEST_ENV) {
+  registerAllActions();
+}
+
+if (allowedModes.includes(process.env.NODE_ENV) && !isMobileAppWebView()) {
   authService.init().then(runApp);
   api.app.setCustomLogoutAction(() => authService.logout());
 } else {

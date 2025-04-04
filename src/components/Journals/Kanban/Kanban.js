@@ -1,24 +1,25 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
-import { Scrollbars } from 'react-custom-scrollbars';
+import PropTypes from 'prop-types';
+import React from 'react';
 import { DragDropContext } from 'react-beautiful-dnd';
+import { Scrollbars } from 'react-custom-scrollbars';
+import { connect } from 'react-redux';
 import ReactResizeDetector from 'react-resize-detector';
 
-import { cancelGetNextBoardPage, getNextPage, moveCard, runAction } from '../../../actions/kanban';
-import { selectKanbanProps } from '../../../selectors/kanban';
-import { t } from '../../../helpers/util';
 import { InfoText, Loader, PointsLoader } from '../../common';
 import { Labels } from '../constants';
-import HeaderColumn from './HeaderColumn';
-import Column from './Column';
 
+import Column from './Column';
+import HeaderColumn from './HeaderColumn';
+
+import { cancelGetNextBoardPage, getNextPage, moveCard, runAction } from '@/actions/kanban';
+import { t } from '@/helpers/util';
+import { selectKanbanProps } from '@/selectors/kanban';
+import { selectIsViewNewJournal } from '@/selectors/view';
 import './style.scss';
-import { selectIsViewNewJournal } from '../../../selectors/view';
 
 function mapStateToProps(state, props) {
   return {
@@ -166,12 +167,16 @@ class Kanban extends React.Component {
     const defaultColumns = Array.isArray(columns) ? columns.filter(item => item && item.id) : [];
     const colsFromSettings = get(kanbanSettings, 'columns');
     const cols = colsFromSettings ? [] : defaultColumns;
-    if (colsFromSettings) {
-      colsFromSettings.forEach(item => {
-        const defaultColumn = defaultColumns.find(i => i && i.id === item.id);
 
-        if (defaultColumn && defaultColumn.id && item.default) {
-          cols.push(defaultColumn);
+    /* To prevent the columns from changing places, you need to go through the default columns and insert them in the same order */
+    if (colsFromSettings) {
+      defaultColumns.forEach(item => {
+        if (item?.id) {
+          const column = colsFromSettings.find(i => i && i.id === item.id);
+
+          if (column?.default) {
+            cols.push(item);
+          }
         }
       });
     }
@@ -231,7 +236,4 @@ class Kanban extends React.Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Kanban);
+export default connect(mapStateToProps, mapDispatchToProps)(Kanban);

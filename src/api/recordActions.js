@@ -1,9 +1,10 @@
-import isString from 'lodash/isString';
-import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import isString from 'lodash/isString';
 
-import { PROXY_URI } from '../constants/alfresco';
 import recordActions from '../components/Records/actions/recordActions';
+import { PROXY_URI } from '../constants/alfresco';
+
 import { CommonApi } from './common';
 
 export class RecordActionsApi extends CommonApi {
@@ -14,6 +15,10 @@ export class RecordActionsApi extends CommonApi {
     } else {
       return recordActions.getActionsForRecord(records, context.actions, context);
     }
+  };
+
+  getActionProps = ({ action }) => {
+    return recordActions.getActionProps(action);
   };
 
   executeAction = ({ records, action, context }) => {

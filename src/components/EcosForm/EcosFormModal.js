@@ -1,19 +1,21 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import React from 'react';
 
-import { t } from '../../helpers/util';
 import { SourcesId } from '../../constants';
+import { t } from '../../helpers/util';
 import Records from '../Records';
-import IcoBtn from '../common/btns/IcoBtn';
-import EcosModal from '../common/EcosModal';
 import TaskAssignmentPanel from '../TaskAssignmentPanel';
-import EcosFormUtils from './EcosFormUtils';
-import EcosForm from './EcosForm';
-import { FORM_MODE_EDIT } from './constants';
-import { emitter, RESET_AUTH_STATE_EVENT } from '../../helpers/ecosFetch';
-import DialogManager from '../common/dialogs/Manager';
+import EcosModal from '../common/EcosModal';
 import UncontrolledTooltip from '../common/UncontrolledTooltip';
+import IcoBtn from '../common/btns/IcoBtn';
+import DialogManager from '../common/dialogs/Manager';
+
+import EcosForm from './EcosForm';
+import EcosFormUtils from './EcosFormUtils';
+import { FORM_MODE_EDIT } from './constants';
+
+import { emitter, RESET_AUTH_STATE_EVENT } from '@/helpers/ecosFetch.js';
 
 import './EcosFormModal.scss';
 
@@ -46,7 +48,7 @@ export default class EcosFormModal extends React.Component {
     };
   }
 
-  componentWillUpdate(nextProps, nextState, nextContext) {
+  UNSAFE_componentWillUpdate(nextProps, nextState, nextContext) {
     if (nextProps.isModalOpen !== this.state.isModalOpen) {
       if (nextProps.isModalOpen && !nextState.addedListener) {
         window.addEventListener('beforeunload', this._onbeforeunload);
@@ -237,7 +239,7 @@ export default class EcosFormModal extends React.Component {
   }
 
   render() {
-    const { title, isBigHeader, contentAfter, container } = this.props;
+    const { title, isBigHeader, contentAfter, container, forwardRef } = this.props;
     const { recordData, isModalOpen, isLoading } = this.state;
 
     if (!isModalOpen || !recordData) {
@@ -274,7 +276,7 @@ export default class EcosFormModal extends React.Component {
     };
 
     return (
-      <div>
+      <div ref={forwardRef}>
         <EcosModal
           reactstrapProps={{
             backdrop: 'static'
@@ -304,6 +306,7 @@ export default class EcosFormModal extends React.Component {
 }
 
 EcosFormModal.propTypes = {
+  forwardRef: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
   record: PropTypes.string.isRequired,
   formId: PropTypes.string,
   formKey: PropTypes.string,

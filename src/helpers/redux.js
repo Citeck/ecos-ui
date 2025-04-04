@@ -32,13 +32,13 @@ export function wrapArgs(stateId) {
   return _args => ({ _args, stateId });
 }
 
-export function* wrapSaga({ api, logger, saga }, action) {
+export function* wrapSaga({ api, saga }, action) {
   const stateId = get(action, 'payload.stateId');
   const w = wrapArgs(stateId);
 
   action = handleAction(action);
 
-  yield saga({ api, logger, stateId, w }, action);
+  yield saga({ api, stateId, w }, action);
 }
 
 export function getStateId({ tabId = '', id = '' }) {
@@ -58,7 +58,7 @@ export function deleteStateById(state, stateId) {
 }
 
 export function startLoading(initialState, keyLoader = 'isLoading') {
-  return function(state, action = {}) {
+  return function (state, action = {}) {
     const stateId = get(action, 'payload.stateId');
 
     if (stateId) {

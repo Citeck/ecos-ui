@@ -1,13 +1,14 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import get from 'lodash/get';
-import uniqueId from 'lodash/uniqueId';
 import isFunction from 'lodash/isFunction';
+import uniqueId from 'lodash/uniqueId';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
-import { getSearchParams, goToCardDetailsPage, removeUrlSearchParams } from '../../../helpers/urls';
 import { JournalUrlParams as JUP } from '../../../constants';
+import { getSearchParams, goToCardDetailsPage, removeUrlSearchParams } from '../../../helpers/urls';
 import FormManager from '../../EcosForm/FormManager';
 import JournalsSettingsBar from '../JournalsSettingsBar';
+
 import SettingsModal from './SettingsModal';
 
 class Bar extends Component {
@@ -84,7 +85,13 @@ class Bar extends Component {
     this.setState({ isCreateLoading: true });
 
     FormManager.createRecordByVariant(createVariant, {
-      onSubmit: record => goToCardDetailsPage(record.id),
+      onSubmit: (record, postCreateActionExecuted) => {
+        if (!postCreateActionExecuted) {
+          goToCardDetailsPage(record.id);
+        } else {
+          this.handleRefresh();
+        }
+      },
       onReady: () => this.setState({ isCreateLoading: false }),
       onAfterHideModal: () => this.setState({ isCreateLoading: false })
     });

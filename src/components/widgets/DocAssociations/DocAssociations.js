@@ -1,17 +1,14 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { connect } from 'react-redux';
-import { Scrollbars } from 'react-custom-scrollbars';
-import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 import get from 'lodash/get';
-import isEqualWith from 'lodash/isEqualWith';
-import isEqual from 'lodash/isEqual';
 import isArray from 'lodash/isArray';
+import isEqual from 'lodash/isEqual';
+import isEqualWith from 'lodash/isEqualWith';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { Scrollbars } from 'react-custom-scrollbars';
+import { connect } from 'react-redux';
+import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 
-import BaseWidget, { EVENTS } from '../BaseWidget';
-import { getAdaptiveNumberStr, t, isMobileDevice } from '../../../helpers/util';
-import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
 import {
   addAssociations,
   getAssociations,
@@ -20,15 +17,19 @@ import {
   resetStore,
   viewAssociation
 } from '../../../actions/docAssociations';
+import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
+import { getAdaptiveNumberStr, t, isMobileDevice } from '../../../helpers/util';
 import { selectStateByKey } from '../../../selectors/docAssociations';
-import UserLocalSettingsService from '../../../services/userLocalSettings';
 import DAction from '../../../services/DashletActionService';
+import UserLocalSettingsService from '../../../services/userLocalSettings';
+import Dashlet from '../../Dashlet';
+import FormManager from '../../EcosForm/FormManager';
 import { EcosDropdownMenu, Icon, Loader, Tooltip } from '../../common';
 import { RemoveDialog } from '../../common/dialogs';
 import SelectJournal from '../../common/form/SelectJournal';
-import Dashlet from '../../Dashlet';
+import BaseWidget, { EVENTS } from '../BaseWidget';
+
 import AssociationGrid from './AssociationGrid';
-import FormManager from '../../EcosForm/FormManager';
 
 import './style.scss';
 
@@ -272,7 +273,11 @@ class DocAssociations extends BaseWidget {
   renderAssociationsItem = (data = {}) => {
     const { allowedAssociations } = this.props;
     const { associations, title, key } = data;
-    const columns = get(allowedAssociations.find(i => i.name === key), 'columnsConfig.columns', []);
+    const columns = get(
+      allowedAssociations.find(i => i.name === key),
+      'columnsConfig.columns',
+      []
+    );
 
     if (!associations || !associations.length) {
       return null;
@@ -301,11 +306,8 @@ class DocAssociations extends BaseWidget {
         </DropdownToggle>
         <DropdownMenu
           className="ecos-dropdown__menu ecos-dropdown__menu_links ecos-dropdown__menu_cascade ecos-doc-associations__menu"
-          modifiers={[
-            {
-              name: 'computeStyle',
-              enabled: true,
-              phase: 'write',
+          modifiers={{
+            computeStyle: {
               fn: data => {
                 const { popper } = data.instance;
                 const style = popper.getAttribute('style');
@@ -315,28 +317,20 @@ class DocAssociations extends BaseWidget {
                 return data;
               }
             }
-          ]}
+          }}
         >
           <EcosDropdownMenu
             emptyMessage={t(LABELS.EMPTY_ALLOWED_ASSOCIATIONS_MESSAGE)}
             items={menu}
             mode="cascade"
             isLoading={isLoadingMenu}
-            modifiers={[
-              {
-                name: 'preventOverflow',
-                enabled: true,
-                options: {
-                  escapeWithReference: true,
-                  boundary: 'viewport'
-                }
+            modifiers={{
+              preventOverflow: {
+                escapeWithReference: true,
+                boundariesElement: 'viewport'
               },
-              {
-                name: 'onlyFirstParent',
-                enabled: true,
-                phase: 'main'
-              }
-            ]}
+              onlyFirstParent: true
+            }}
             onClick={this.handleSelectMenuItem}
           />
         </DropdownMenu>
@@ -464,7 +458,4 @@ const mapDispatchToProps = (dispatch, { record }) => ({
     )
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(DocAssociations);
+export default connect(mapStateToProps, mapDispatchToProps)(DocAssociations);

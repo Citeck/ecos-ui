@@ -1,9 +1,9 @@
-import get from 'lodash/get';
 import first from 'lodash/first';
+import get from 'lodash/get';
 import last from 'lodash/last';
 import { runSaga } from 'redux-saga';
-import { NotificationManager } from 'react-notifications';
 
+import { initJournalSettingData, setJournalConfig, setJournalSetting, setPredicate } from '../../actions/journals';
 import {
   setBoardConfig,
   setBoardList,
@@ -19,18 +19,19 @@ import {
   setResolvedActions,
   setTotalCount
 } from '../../actions/kanban';
-import { initJournalSettingData, setJournalConfig, setJournalSetting, setPredicate } from '../../actions/journals';
 import EcosFormUtils from '../../components/EcosForm/EcosFormUtils';
-import JournalsService from '../../components/Journals/service/journalsService';
 import { DEFAULT_PAGINATION } from '../../components/Journals/constants';
-import RecordActions from '../../components/Records/actions/recordActions';
+import JournalsService from '../../components/Journals/service/journalsService';
 import Records from '../../components/Records/Records';
+import RecordActions from '../../components/Records/actions/recordActions';
+import { KanbanUrlParams } from '../../constants';
 import PageService from '../../services/PageService';
+import JournalApi from '../__mocks__/journalApi';
 import KanbanApi from '../__mocks__/kanbanApi';
 import data from '../__mocks__/kanbanData';
-import JournalApi from '../__mocks__/journalApi';
 import * as kanban from '../kanban';
-import { KanbanUrlParams } from '../../constants';
+
+import { NotificationManager } from '@/services/notifications';
 
 const journalId = 'journalId',
   stateId = 'stateId',
@@ -52,11 +53,12 @@ const recordsGet = id => ({
   load
 });
 
-const logger = { error: jest.fn() };
+console.error = jest.fn();
 
 beforeEach(() => {
   delete window.location;
   window.location = {};
+  console.error.mockClear();
 });
 
 afterEach(() => {
@@ -87,7 +89,7 @@ async function wrapRunSaga(sagaFun, payload = {}, state = {}) {
       getState: () => state
     },
     sagaFun,
-    { api, logger },
+    { api, logger: console.error },
     { payload: { stateId, boardId, templateId, ...payload } }
   ).done;
 
@@ -105,7 +107,7 @@ describe('kanban sagas tests', () => {
     expect(second.payload.boardList).toEqual(data.boardList);
     expect(second.payload.templateList).toEqual(data.templateList);
 
-    expect(logger.error).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
 
     expect(dispatched).toHaveLength(2);
   });
@@ -117,7 +119,7 @@ describe('kanban sagas tests', () => {
     expect(first.type).toEqual(setIsEnabled().type);
     expect(first.payload.isEnabled).toBeFalsy();
 
-    expect(logger.error).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
 
     expect(dispatched).toHaveLength(1);
   });
@@ -129,7 +131,7 @@ describe('kanban sagas tests', () => {
     expect(first.type).toEqual(setBoardConfig().type);
     expect(first.payload.boardConfig).toEqual(data.boardConfig);
 
-    expect(logger.error).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
 
     expect(dispatched).toHaveLength(2);
   });
@@ -144,7 +146,7 @@ describe('kanban sagas tests', () => {
     expect(spyGetFormById).toHaveBeenCalledTimes(1);
     expect(spyGetFormInputs).toHaveBeenCalledTimes(1);
     expect(spyError).not.toHaveBeenCalled();
-    expect(logger.error).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
 
     expect(dispatched).toHaveLength(1);
   });
@@ -159,7 +161,7 @@ describe('kanban sagas tests', () => {
     expect(spyGetFormById).not.toHaveBeenCalled();
     expect(spyGetFormInputs).not.toHaveBeenCalled();
     expect(spyError).toHaveBeenCalledTimes(1);
-    expect(logger.error).toHaveBeenCalled();
+    expect(console.error).toHaveBeenCalled();
 
     expect(dispatched).toHaveLength(1);
   });
@@ -174,7 +176,7 @@ describe('kanban sagas tests', () => {
     expect(spyGetFormById).toHaveBeenCalledTimes(1);
     expect(spyGetFormInputs).not.toHaveBeenCalled();
     expect(spyError).toHaveBeenCalledTimes(1);
-    expect(logger.error).toHaveBeenCalled();
+    expect(console.error).toHaveBeenCalled();
 
     expect(dispatched).toHaveLength(1);
   });
@@ -209,7 +211,7 @@ describe('kanban sagas tests', () => {
     expect(spyGetFormInputs).toHaveBeenCalledTimes(1);
     expect(spyGetJournalConfig).toHaveBeenCalledTimes(2);
     expect(spyGetJournalData).toHaveBeenCalledTimes(colsLen);
-    expect(logger.error).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
   });
 
   it('sagaGetBoardData > there is _journal config', async () => {
@@ -240,7 +242,7 @@ describe('kanban sagas tests', () => {
     expect(spyGetFormInputs).toHaveBeenCalledTimes(1);
     expect(spyGetJournalConfig).not.toHaveBeenCalled();
     expect(spyGetJournalData).toHaveBeenCalledTimes(colsLen);
-    expect(logger.error).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
   });
 
   it('sagaGetBoardData > there is _no board config', async () => {
@@ -255,7 +257,7 @@ describe('kanban sagas tests', () => {
     expect(_loading.type).toEqual(setLoading().type);
     expect(_loading.payload.isLoading).toBeFalsy();
 
-    expect(logger.error).toHaveBeenCalled();
+    expect(console.error).toHaveBeenCalled();
     expect(spyGetFormInputs).not.toHaveBeenCalled();
     expect(spyGetJournalConfig).not.toHaveBeenCalled();
     expect(spyGetJournalData).not.toHaveBeenCalled();
@@ -273,7 +275,7 @@ describe('kanban sagas tests', () => {
     expect(_totalCount.payload.totalCount).toEqual(0);
 
     expect(spyGetJournalData).not.toHaveBeenCalled();
-    expect(logger.error).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
   });
 
   it('sagaGetData > there is _some data', async () => {
@@ -288,7 +290,7 @@ describe('kanban sagas tests', () => {
 
     expect(spyGetJournalData).toHaveBeenCalledTimes(colsLen);
     expect(spyPostProcessingAttrs).toHaveBeenCalled();
-    expect(logger.error).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
   });
 
   it('sagaGetActions > there is _no data', async () => {
@@ -299,7 +301,7 @@ describe('kanban sagas tests', () => {
     expect(_resolvedActions.payload.resolvedActions).toHaveLength(0);
 
     expect(spyGetRecordActions).not.toHaveBeenCalled();
-    expect(logger.error).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
 
     expect(dispatched).toHaveLength(1);
   });
@@ -313,7 +315,7 @@ describe('kanban sagas tests', () => {
     expect(_resolvedActions.payload.resolvedActions).toHaveLength(colsLen);
 
     expect(spyGetRecordActions).toHaveBeenCalledTimes(colsLen);
-    expect(logger.error).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
 
     expect(dispatched).toHaveLength(1);
   });
@@ -325,7 +327,7 @@ describe('kanban sagas tests', () => {
 
     expect(spyChangeUrlLink).toHaveBeenCalledTimes(1);
     expect(spyChangeUrlLink).toHaveBeenCalledWith('/test?boardId=boardId', { updateUrl: true });
-    expect(logger.error).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
     expect(first(dispatched).type).toEqual(setLoading().type);
     expect(first(dispatched).payload.isLoading).toBeTruthy();
 
@@ -343,7 +345,7 @@ describe('kanban sagas tests', () => {
     const url = `/test?${KanbanUrlParams.TEMPLATE_ID}=templateId`;
 
     expect(spyChangeUrlLink).toHaveBeenCalledWith(url, { updateUrl: true });
-    expect(logger.error).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
     expect(first(dispatched).type).toEqual(setLoading().type);
     expect(first(dispatched).payload.isLoading).toBeTruthy();
 
@@ -378,7 +380,7 @@ describe('kanban sagas tests', () => {
     expect(_pagination.payload.pagination.page).toEqual(DEFAULT_PAGINATION.page + 1);
     expect(_lastLoading.payload.isLoading).toBeFalsy();
 
-    expect(logger.error).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
   });
 
   it('sagaRunAction', async () => {
@@ -398,7 +400,7 @@ describe('kanban sagas tests', () => {
     expect(_dataCards.payload.dataCards).toEqual([]);
 
     expect(spyError).toHaveBeenCalled();
-    expect(logger.error).toHaveBeenCalled();
+    expect(console.error).toHaveBeenCalled();
 
     expect(dispatched).toHaveLength(2);
   });
@@ -437,7 +439,7 @@ describe('kanban sagas tests', () => {
     expect(_lastLoadingColumns.payload.isLoadingColumns).toEqual([]);
 
     expect(spyError).not.toHaveBeenCalled();
-    expect(logger.error).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
 
     expect(dispatched).toHaveLength(3);
   });
@@ -474,7 +476,7 @@ describe('kanban sagas tests', () => {
     expect(_pagination.payload.pagination.page).toEqual(DEFAULT_PAGINATION.page);
     expect(_loading.type).toEqual(setLoading().type);
 
-    expect(logger.error).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
   });
 
   it('sagaResetFilter', async () => {
@@ -510,7 +512,7 @@ describe('kanban sagas tests', () => {
     expect(_isFiltered.type).toEqual(setIsFiltered().type);
     expect(_isFiltered.payload.isFiltered).toEqual(false);
 
-    expect(logger.error).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
   });
 
   it('sagaRunSearchCard > there is _no text & was no', async () => {
@@ -519,7 +521,7 @@ describe('kanban sagas tests', () => {
     const dispatched = await wrapRunSaga(kanban.sagaRunSearchCard);
 
     expect(spyChangeUrlLink).not.toHaveBeenCalled();
-    expect(logger.error).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
 
     expect(dispatched).toHaveLength(0);
   });
@@ -531,7 +533,7 @@ describe('kanban sagas tests', () => {
 
     expect(spyChangeUrlLink).toHaveBeenCalledTimes(1);
     expect(spyChangeUrlLink).toHaveBeenCalledWith('/test?search=test', { updateUrl: true });
-    expect(logger.error).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
 
     expect(dispatched).toHaveLength(0);
   });
@@ -552,7 +554,7 @@ describe('kanban sagas tests', () => {
 
     expect(spyChangeUrlLink).toHaveBeenCalledTimes(1);
     expect(spyChangeUrlLink).toHaveBeenCalledWith('/test', { updateUrl: true });
-    expect(logger.error).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
 
     expect(dispatched).toHaveLength(0);
   });
@@ -607,7 +609,7 @@ describe('kanban sagas tests', () => {
     expect(spyPreProcessingAttrs).toHaveBeenCalled();
     expect(_firstLoading.type).toEqual(setLoading().type);
     expect(_firstLoading.payload.isLoading).toBeTruthy();
-    expect(logger.error).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
     expect(_lastLoading.type).toEqual(setLoading().type);
     expect(_lastLoading.payload.isLoading).toBeFalsy();
   });

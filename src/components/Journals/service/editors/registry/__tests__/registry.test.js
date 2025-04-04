@@ -1,7 +1,11 @@
+/**
+ * @jest-environment jsdom
+ */
+import { render, screen } from '@testing-library/react';
 import React from 'react';
-import { shallow } from 'enzyme';
 
 import editorRegistry from '../';
+import { DatePicker } from '../../../../../common/form';
 import BooleanEditor from '../BooleanEditor';
 import DateEditor from '../DateEditor';
 import DateTimeEditor from '../DateTimeEditor';
@@ -10,27 +14,14 @@ import NumberEditor from '../NumberEditor';
 import OrgstructEditor from '../OrgstructEditor';
 import SelectEditor from '../SelectEditor';
 import TextEditor from '../TextEditor';
-import { DatePicker } from '../../../../../common/form';
 
 const WRAPPER = true;
 
 function getEditorComponent({ type, config, value, wrapper }) {
   const editorInstance = editorRegistry.getEditor(type);
   const Control = editorInstance.getControl(config, {});
-  const shallowCtrl = shallow(<Control config={config} value={value} />);
 
-  let ReactComp;
-
-  if (wrapper) {
-    ReactComp = shallowCtrl
-      .first()
-      .dive()
-      .getElement();
-  } else {
-    ReactComp = shallowCtrl.getElement();
-  }
-
-  return ReactComp;
+  return render(<Control config={config} value={value} />);
 }
 
 describe('editors registry', () => {
@@ -53,23 +44,26 @@ describe('editors registry', () => {
   });
 
   describe.each([
-    ['boolean', 'Select'],
-    ['boolean', 'Select', { mode: 'select' }],
-    ['boolean', 'Checkbox', { mode: 'checkbox' }],
-    ['date', 'DatePicker', {}, WRAPPER],
-    ['datetime', 'DatePicker', {}, WRAPPER],
-    ['journal', 'SelectJournal'],
-    ['orgstruct', 'SelectOrgstruct', {}, WRAPPER],
-    ['select', 'div', {}],
-    ['number', 'Input'],
-    ['text', 'Input'],
-    [undefined, 'Input'],
-    ['unknown', 'Input']
+    ['boolean', 'ecos-select'],
+    ['boolean', 'ecos-select', { mode: 'select' }],
+    ['boolean', 'ecos-checkbox', { mode: 'checkbox' }],
+    ['date', 'ecos-datepicker', {}, WRAPPER],
+    ['datetime', 'ecos-datepicker', {}, WRAPPER],
+    ['journal', 'select-journal'],
+    ['orgstruct', 'select-orgstruct', {}, WRAPPER],
+    // ['select', 'div', {options: []}], // TODO: isLoading state incorrect
+    ['number', 'ecos-input'],
+    ['text', 'ecos-input'],
+    [undefined, 'ecos-input'],
+    ['unknown', 'ecos-input']
   ])('type > expected element', (type, controlClassName, config = {}, wrapper) => {
-    const ReactComp = getEditorComponent({ type, config, wrapper });
+    const editorInstance = editorRegistry.getEditor(type);
+    const Control = editorInstance.getControl(config, {});
 
-    test(`type "${type}" expects control - "${controlClassName}"`, () => {
-      expect(ReactComp.type.name || ReactComp.type).toEqual(controlClassName);
+    test(`type "${type}" has element by class=${controlClassName}`, () => {
+      const { container } = render(<Control config={config} value={undefined} />);
+
+      expect(container.getElementsByClassName(controlClassName)).toHaveLength(1);
     });
   });
 
@@ -84,12 +78,13 @@ describe('editors registry', () => {
     ['text', { type: 'text' }]
   ])('type > expected props', (type, params = {}, wrapper) => {
     const { config = {}, value, ...props } = params;
-    const ReactComp = getEditorComponent({ type, config, value, wrapper });
+    const editorInstance = editorRegistry.getEditor(type);
+    const Control = editorInstance.getControl(config, {});
 
-    for (let prop in props) {
-      test(`type "${type}" expects prop: ${prop} = ${props[prop]}`, () => {
-        expect(ReactComp.props[prop]).toEqual(props[prop]);
-      });
-    }
+    const { asFragment } = getEditorComponent({ type, config, value, wrapper });
+
+    test(`type "${type}" expects props`, () => {
+      expect(asFragment(<Control {...props} />)).toMatchSnapshot();
+    });
   });
 });

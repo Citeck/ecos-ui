@@ -1,7 +1,7 @@
 import cloneDeep from 'lodash/cloneDeep';
 
-import * as UrlUtils from '../urls';
 import { history } from '../__mocks__/urls.mock';
+import * as UrlUtils from '../urls';
 
 describe('Urls helpers', () => {
   describe('Method replaceHistoryLink', () => {
@@ -72,19 +72,20 @@ describe('Urls helpers', () => {
     });
   });
 
-  describe.each([['/v2/journals', false], ['/v2/dashboard', true], ['/v2/dashboard/settings', false]])(
-    'fun isDashboard %s',
-    (url, expected) => {
-      beforeEach(() => {
-        delete window.location;
-        window.location = { pathname: url };
-      });
+  describe.each([
+    ['/v2/journals', false],
+    ['/v2/dashboard', true],
+    ['/v2/dashboard/settings', false]
+  ])('fun isDashboard %s', (url, expected) => {
+    beforeEach(() => {
+      delete window.location;
+      window.location = { pathname: url };
+    });
 
-      it(`returns ${expected}`, () => {
-        expect(UrlUtils.isDashboard(url)).toEqual(expected);
-      });
-    }
-  );
+    it(`returns ${expected}`, () => {
+      expect(UrlUtils.isDashboard(url)).toEqual(expected);
+    });
+  });
 
   describe('Method isHomePage', () => {
     const data = [
@@ -151,23 +152,88 @@ describe('Urls helpers', () => {
     );
     const wsId = 'example-default';
 
-    // URLSearchParams encodes special characters ('/', '@')
     const data = [
       {
         title: 'Add a workspace ID for a direct link',
         input: [url.pathname, url.search, wsId],
-        output: `/v2/dashboard?activeTab=0&recordRef=emodel%2Fsd-request-type%4028ad7478-b848-40cc-8056-afaa512daf0a&ws=${wsId}`
+        output: `/v2/dashboard?activeTab=0&recordRef=emodel/sd-request-type@28ad7478-b848-40cc-8056-afaa512daf0a&ws=${wsId}`
       },
       {
         title: 'Do not add a workspace identifier if it is not defined',
         input: [url.pathname, url.search],
-        output: `/v2/dashboard?activeTab=0&recordRef=emodel%2Fsd-request-type%4028ad7478-b848-40cc-8056-afaa512daf0a`
+        output: `/v2/dashboard?activeTab=0&recordRef=emodel/sd-request-type@28ad7478-b848-40cc-8056-afaa512daf0a`
+      },
+      {
+        title: 'Pass empty parameters',
+        input: [url.pathname, '', wsId],
+        output: `/v2/dashboard?ws=${wsId}` // It should return a link without parameters, even if there is a search in the current location
+      },
+      {
+        title: 'Pass undefined parameters',
+        input: [url.pathname, undefined, wsId],
+        output: `/v2/dashboard?example-params=test&ws=${wsId}` // The method should return a link with the parameters that are in the current location
       }
     ];
 
     data.forEach(item => {
+      beforeEach(() => {
+        delete window.location;
+        window.location = { pathname: url.pathname };
+        window.location.search = '?example-params=test';
+      });
+
       it(item.title, () => {
         expect(UrlUtils.getUrlWithWorkspace(...item.input)).toEqual(item.output);
+      });
+    });
+  });
+
+  describe('Method getLinkWithWs', () => {
+    const location = {
+      origin: 'https://example.com/'
+    };
+
+    const data = [
+      {
+        title: 'Attempt to add an empty workspace',
+        input: ['/v2/journal?journalId=example123', ''],
+        output: `/v2/journal?journalId=example123`
+      },
+      {
+        title: 'An attempt to add an empty workspace with a space',
+        input: ['/v2/journal?journalId=example123', ' '],
+        output: `/v2/journal?journalId=example123`
+      },
+      {
+        title: 'Add a workspace to the link with the parameter',
+        input: ['/v2/journal?journalId=example123', 'example-default'],
+        output: `/v2/journal?journalId=example123&ws=example-default`
+      },
+      {
+        title: 'Add a workspace to the full link without the parameter',
+        input: ['https://example.com/v2/journal?journalId=example123', 'example-default'],
+        output: `/v2/journal?journalId=example123&ws=example-default`
+      },
+      {
+        title: 'Add a workspace with a special symbol to the link',
+        input: ['/v2/journal?journalId=test&activeTab=true', 'user$test-user'],
+        output: `/v2/journal?journalId=test&activeTab=true&ws=user$test-user`
+      },
+      {
+        title: 'Add a workspace with a special character and the full url to the link',
+        input: ['/v2/journal?journalId=test&activeTab=true', 'user$test-user', true],
+        output: `${location.origin}v2/journal?journalId=test&activeTab=true&ws=user$test-user`
+      }
+    ];
+
+    data.forEach(item => {
+      beforeEach(() => {
+        delete window.location;
+        window.location = location;
+      });
+
+      it(item.title, () => {
+        expect(UrlUtils.getLinkWithWs(...item.input)).toEqual(item.output);
       });
     });
   });

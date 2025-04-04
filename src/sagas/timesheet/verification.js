@@ -1,6 +1,7 @@
-import { put, select, takeEvery, takeLatest, call } from 'redux-saga/effects';
 import cloneDeep from 'lodash/cloneDeep';
+import { put, select, takeEvery, takeLatest, call } from 'redux-saga/effects';
 
+import { setUsers } from '../../actions/timesheet/common';
 import {
   getCalendarEvents,
   getVerificationTimesheetByParams,
@@ -13,13 +14,12 @@ import {
   setUpdatingEventDayHours,
   setVerificationTimesheetByParams
 } from '../../actions/timesheet/verification';
-import { setUsers } from '../../actions/timesheet/common';
-import VerificationTimesheetService from '../../services/timesheet/verification';
 import VerificationTimesheetConverter from '../../dto/timesheet/verification';
-import CommonTimesheetService from '../../services/timesheet/common';
-import { selectTVerificationUpdatingHours, selectTVerificationMergedList } from '../../selectors/timesheet';
 import { TimesheetMessages } from '../../helpers/timesheet/dictionary';
+import { selectTVerificationUpdatingHours, selectTVerificationMergedList } from '../../selectors/timesheet';
 import { selectUserName } from '../../selectors/user';
+import CommonTimesheetService from '../../services/timesheet/common';
+import VerificationTimesheetService from '../../services/timesheet/verification';
 
 function* sagaGetVerificationTimesheetByParams({ api, logger }, { payload }) {
   try {
@@ -49,7 +49,7 @@ function* sagaGetVerificationTimesheetByParams({ api, logger }, { payload }) {
 
     yield put(setVerificationTimesheetByParams({ mergedList }));
   } catch (e) {
-    logger.error('[timesheetVerification sagaGetVerificationTimesheetByParams saga error', e);
+    console.error('[timesheetVerification sagaGetVerificationTimesheetByParams saga error', e);
   }
 }
 
@@ -108,7 +108,7 @@ function* sagaModifyEventDayHours({ api, logger }, { payload }) {
 
     yield put(setUpdatingEventDayHours(thirdState));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
-    logger.error('[timesheetVerification sagaModifyStatus saga] error', e);
+    console.error('[timesheetVerification sagaModifyStatus saga] error', e);
   }
 }
 
@@ -125,7 +125,7 @@ function* sagaResetEventDayHours({ api, logger }, { payload }) {
 
     yield put(setUpdatingEventDayHours(secondState));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
-    logger.error('[timesheetVerification sagaResetEventDayHours saga] error', e);
+    console.error('[timesheetVerification sagaResetEventDayHours saga] error', e);
   }
 }
 
@@ -148,7 +148,7 @@ function* sagaGetCalendarEvents({ api, logger }, { payload }) {
     yield put(setVerificationTimesheetByParams({ mergedList: currentList }));
   } catch (e) {
     yield put(setLoading(false));
-    logger.error('[timesheetVerification sagaGetCalendarEvents saga] error', e);
+    console.error('[timesheetVerification sagaGetCalendarEvents saga] error', e);
   }
 }
 
@@ -173,7 +173,7 @@ function* sagaModifyTaskStatus({ api, logger }, { payload }) {
   } catch (e) {
     yield put(setLoading(false));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_STATUS));
-    logger.error('[timesheetVerification sagaModifyTaskStatus saga] error', e);
+    console.error('[timesheetVerification sagaModifyTaskStatus saga] error', e);
   }
 }
 

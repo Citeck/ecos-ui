@@ -5,7 +5,7 @@ const colorImageSvg =
 
 const colorImageUrl = 'data:image/svg+xml;utf8,' + encodeURIComponent(colorImageSvg);
 
-ColorContextPadProvider.prototype._createPopupAction = function(elements) {
+ColorContextPadProvider.prototype._createPopupAction = function (elements) {
   const translate = this._translate;
   const contextPad = this._contextPad;
   const popupMenu = this._popupMenu;

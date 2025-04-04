@@ -1,9 +1,10 @@
 import React from 'react';
 
+import { t, extractLabel } from '../../../../../../helpers/util';
 import RecordActions from '../../../../../Records/actions/recordActions';
 import BaseFormatter from '../../BaseFormatter';
-import { t, extractLabel } from '../../../../../../helpers/util';
-import { NotificationManager } from 'react-notifications';
+
+import { NotificationManager } from '@/services/notifications';
 
 export default class ActionFormatter extends BaseFormatter {
   static TYPE = 'action';

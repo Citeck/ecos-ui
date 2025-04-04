@@ -1,21 +1,20 @@
+import classNames from 'classnames';
+import isEmpty from 'lodash/isEmpty';
+import PropTypes from 'prop-types';
 import * as React from 'react';
 import { connect } from 'react-redux';
-import classNames from 'classnames';
-import PropTypes from 'prop-types';
-import isEmpty from 'lodash/isEmpty';
 import uuid from 'uuid/v4';
 
-import { deepClone } from '../../../helpers/util';
-import { LoaderTypes } from '../../../constants/index';
 import { changeDocStatus, getDocStatus, initDocStatus, resetDocStatus } from '../../../actions/docStatus';
-import UncontrolledTooltip from '../../common/UncontrolledTooltip';
+import { LoaderTypes } from '../../../constants/index';
+import { deepClone } from '../../../helpers/util';
 import { selectStateDocStatusById } from '../../../selectors/docStatus';
 import DocStatusService from '../../../services/docStatus';
-import { Loader, PointsLoader } from '../../common/index';
+import UncontrolledTooltip, { baseModifiersUncontrolled } from '../../common/UncontrolledTooltip';
 import { IcoBtn } from '../../common/btns/index';
 import { Caption, Dropdown } from '../../common/form/index';
+import { Loader, PointsLoader } from '../../common/index';
 import BaseWidget from '../BaseWidget';
-import { baseModifiers } from '../../common/Tooltip';
 
 import './style.scss';
 
@@ -149,7 +148,7 @@ class DocStatus extends BaseWidget {
           innerClassName="ecos-base-tooltip-inner"
           arrowClassName="ecos-base-tooltip-arrow"
           target={id}
-          modifiers={baseModifiers}
+          modifiers={baseModifiersUncontrolled}
         >
           {status.name}
         </UncontrolledTooltip>
@@ -210,7 +209,4 @@ class DocStatus extends BaseWidget {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(DocStatus);
+export default connect(mapStateToProps, mapDispatchToProps)(DocStatus);

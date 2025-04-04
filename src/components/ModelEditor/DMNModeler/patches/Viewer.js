@@ -1,10 +1,10 @@
-import { wrapForCompatibility } from 'dmn-js-shared/lib/util/CompatibilityUtils';
 import Viewer from 'dmn-js-drd/lib/Viewer';
+import { wrapForCompatibility } from 'dmn-js-shared/lib/util/CompatibilityUtils';
 import { query as domQuery } from 'min-dom';
 import { innerSVG } from 'tiny-svg';
 
-Viewer.prototype.saveSVG = wrapForCompatibility(function(layer, canvasSvg, bbox, options) {
-  return new Promise(function(resolve, reject) {
+Viewer.prototype.saveSVG = wrapForCompatibility(function (layer, canvasSvg, bbox, options) {
+  return new Promise(function (resolve, reject) {
     try {
       const contentNode = layer;
       const defsNode = domQuery('defs', canvasSvg);

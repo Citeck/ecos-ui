@@ -1,45 +1,38 @@
+import classNames from 'classnames';
 import React, { useState, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
-import classNames from 'classnames';
-import get from 'lodash/get';
 
-import WorkspaceSwitcher from '../common/icons/WorkspacesSwitcher';
-import WorkspacePreview from '../WorkspacePreview';
-import { getWorkspaces, visitedAction } from '../../actions/workspaces';
-import { selectWorkspaces, selectWorkspaceIsLoading, selectWorkspaceIsError } from '../../selectors/workspaces';
+import FormManager from '../EcosForm/FormManager';
+import Records from '../Records';
 import { Loader } from '../common';
 import { Btn } from '../common/btns';
-import FormManager from '../EcosForm/FormManager';
-import { t } from '../../helpers/util';
-import Records from '../Records';
-import PageService from '../../services/PageService';
-import { URL as Urls } from '../../constants';
-import { fetchSlideMenuItems } from '../../actions/slideMenu';
-import { getMenuConfig } from '../../actions/menu';
-import { fetchCreateCaseWidgetData } from '../../actions/header';
-import { getWorkspaceId } from '../../helpers/urls';
-import EditIcon from '../common/icons/Edit';
-import PageTabList from '../../services/pageTabs/PageTabList';
+import WorkspaceSwitcher from '../common/icons/WorkspacesSwitcher';
+
+import { fetchCreateCaseWidgetData } from '@/actions/header';
+import { getMenuConfig } from '@/actions/menu';
+import { fetchSlideMenuItems } from '@/actions/slideMenu';
+import { getWorkspaces, visitedAction } from '@/actions/workspaces';
+import { WorkspaceCard } from '@/components/WorkspaceSidebar/Card';
+import CreateIcon from '@/components/common/icons/Create';
+import { getBaseUrlWorkspace, getWorkspaceId } from '@/helpers/urls';
+import { t } from '@/helpers/util';
+import { selectWorkspaces, selectWorkspaceIsLoading, selectWorkspaceIsError } from '@/selectors/workspaces';
+import PageService from '@/services/PageService';
+import WorkspaceService from '@/services/WorkspaceService';
+import PageTabList from '@/services/pageTabs/PageTabList';
 import './style.scss';
 
 export const documentId = 'workspace-menu-switcher';
 export const element = document.getElementById(documentId);
 
-const Workspaces = ({
-  isLoading,
-  isError,
-  workspaces,
-  getWorkspaces,
-  fetchSlideMenuItems,
-  getMenuConfig,
-  visitedAction,
-  fetchCreateCaseWidgetData
-}) => {
+const Workspaces = ({ isLoading, isError, workspaces, getWorkspaces, visitedAction }) => {
   const [active, setActive] = useState(false);
   const wrapperRef = useRef(null);
 
-  const toggleMenu = () => {
-    setActive(prev => !prev);
+  const toggleMenu = event => {
+    if (!wrapperRef || !wrapperRef.current || (wrapperRef.current && !wrapperRef.current.contains(event.target))) {
+      setActive(prev => !prev);
+    }
   };
 
   const closeMenu = () => {
@@ -54,14 +47,18 @@ const Workspaces = ({
 
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
+
+    WorkspaceService.emitter.on(WorkspaceService.Events.UPDATE_LIST, () => getWorkspaces());
+
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+
+      WorkspaceService.emitter.off(WorkspaceService.Events.UPDATE_LIST, () => getWorkspaces());
     };
   }, []);
 
   const openLink = (id, homePageLink, openNewBrowserTab = false) => {
     PageTabList.setLastActiveTabWs();
-    const lastActiveTabWs = PageTabList.getLastActiveTabWs(id);
 
     visitedAction(id);
 
@@ -73,25 +70,16 @@ const Workspaces = ({
       needUpdateTabs: needUpdateTabsWorkspace
     };
 
-    const url = new URL(get(lastActiveTabWs, 'link') || homePageLink || Urls.DASHBOARD, window.location.origin);
-    url.searchParams.set('ws', id);
+    const url = getBaseUrlWorkspace(id, homePageLink);
 
     if (!openNewBrowserTab) {
-      PageService.changeUrlLink(url.toString(), params);
+      PageService.changeUrlLink(url, params);
     } else {
-      PageService.changeUrlLink(url.toString(), { openNewBrowserTab });
+      PageService.changeUrlLink(url, { openNewBrowserTab });
     }
   };
 
-  const handleMouseDown = (event, id, link) => {
-    event.preventDefault();
-
-    if (event.button === 1) {
-      openLink(id, link, true);
-    }
-  };
-
-  const handleClickLi = (event, wsId, homePageLink) => {
+  const handleClick = (event, wsId, homePageLink) => {
     event.stopPropagation();
     setActive(false);
 
@@ -100,13 +88,13 @@ const Workspaces = ({
     }
   };
 
-  const onEditWorkspace = (event, { id }) => {
+  const onEditWorkspace = (event, id) => {
     event.stopPropagation();
     FormManager.openFormModal({ record: id, saveOnSubmit: true, onSubmit: () => getWorkspaces() });
   };
 
   return (
-    <span id={documentId} className={classNames('ecos-header-workspaces', { active })} onClick={toggleMenu}>
+    <span id={documentId} className={classNames('ecos-header-workspaces', { active })} onClick={e => toggleMenu(e)}>
       {isLoading ? <Loader type="points" height={20} width={24} /> : <WorkspaceSwitcher />}
 
       {active && (
@@ -114,29 +102,23 @@ const Workspaces = ({
           {isError ? (
             <h1>error</h1>
           ) : (
-            <ul className="workspace-panel-list">
-              {workspaces.map(({ id, wsId, wsName, wsImage, homePageLink, hasWrite, isCurrentUserManager }, index) => (
-                <li
-                  className="workspace-panel-list_item"
+            <div className="workspace-panel__wrapper">
+              {workspaces.map(({ id, wsId, wsName, wsImage, homePageLink, hasWrite, description }, index) => (
+                <WorkspaceCard
+                  onEditWorkspace={onEditWorkspace}
+                  id={id}
+                  onClick={e => handleClick(e, wsId, homePageLink)}
                   key={index}
-                  onClick={e => handleClickLi(e, wsId, homePageLink)}
-                  onMouseDown={e => handleMouseDown(e, wsId, homePageLink)}
-                >
-                  <WorkspacePreview url={wsImage} name={wsName} />
-                  <p className="workspace-panel-list_item-info" title={wsName}>
-                    {wsName}
-                  </p>
-                  {hasWrite && (
-                    <div className="workspace-panel-list_item_btn" onClick={e => onEditWorkspace(e, { id })}>
-                      <EditIcon />
-                    </div>
-                  )}
-                </li>
+                  wsDescription={description || ''}
+                  wsImage={wsImage}
+                  wsName={wsName}
+                  hasWrite={hasWrite}
+                  isSmallView
+                />
               ))}
-            </ul>
+            </div>
           )}
-          <hr />
-          <div className="workspace-panel-create-button">
+          <div className="workspace-panel__create-button">
             <Btn
               onClick={async () => {
                 setActive(false);
@@ -144,7 +126,14 @@ const Workspaces = ({
                 const variant = await Records.get('emodel/type@workspace').load('createVariants?json');
 
                 FormManager.createRecordByVariant(variant, {
-                  onAfterHideModal: () => getWorkspaces(),
+                  onHideModal: () => getWorkspaces(),
+                  onSubmit: async record => {
+                    const { id: wsId, homePageLink } = await Records.get(record).load({
+                      id: 'id',
+                      homePageLink: 'homePageLink?str'
+                    });
+                    openLink(wsId, homePageLink);
+                  },
                   initiator: {
                     type: 'form-component',
                     name: 'CreateVariants'
@@ -152,7 +141,8 @@ const Workspaces = ({
                 });
               }}
             >
-              + {t('workspaces.create-button')}
+              <CreateIcon width={13} height={13} />
+              <span>{t('workspaces.create-button')}</span>
             </Btn>
           </div>
         </div>
@@ -175,7 +165,4 @@ const mapDispatchToProps = dispatch => ({
   getWorkspaces: () => dispatch(getWorkspaces())
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Workspaces);
+export default connect(mapStateToProps, mapDispatchToProps)(Workspaces);

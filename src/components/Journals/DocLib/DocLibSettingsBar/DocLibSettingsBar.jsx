@@ -1,22 +1,19 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 import { t } from '../../../../helpers/util';
-import { getCreateVariantKeyField } from '../../service/util';
 import { Search, Tooltip } from '../../../common';
-import DialogManager from '../../../common/dialogs/Manager/DialogManager';
 import { IcoBtn, TwoIcoBtn } from '../../../common/btns';
+import DialogManager from '../../../common/dialogs/Manager/DialogManager';
 import { Dropdown } from '../../../common/form';
-import { NODE_TYPES } from '../../../../constants/docLib';
-
 import ViewTabs from '../../ViewTabs';
-import DocLibService from '../DocLibService';
 import DocLibPagination from '../DocLibPagination';
+import DocLibService from '../DocLibService';
 
 import './DocLibSettingsBar.scss';
 
-const DocLibSettingsBar = ({ stateId, searchText, createVariants: _createVariants, createNode, isMobile, startSearch, onRefresh }) => {
+const DocLibSettingsBar = ({ stateId, searchText, createVariants, createNode, isMobile, startSearch, onRefresh }) => {
   const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const step = classNames('ecos-doclib__settings-bar_step', { 'ecos-doclib__settings-bar_step-mobile': isMobile });
 
@@ -24,8 +21,11 @@ const DocLibSettingsBar = ({ stateId, searchText, createVariants: _createVariant
     const formDefinition = await DocLibService.getCreateFormDefinition(createVariant);
 
     DialogManager.showFormDialog({
-      title: t('document-library.create-node.title', { name: createVariant.title }),
+      title: t('document-library.create-node.title', { name: createVariant.name }),
       formDefinition,
+      formData: {
+        ...(createVariant.attributes || {})
+      },
       onSubmit: submission => {
         createNode({ createVariant, submission: submission.data });
       }
@@ -33,13 +33,9 @@ const DocLibSettingsBar = ({ stateId, searchText, createVariants: _createVariant
   };
 
   const renderCreateMenu = () => {
-    if (!_createVariants || !_createVariants.length) {
+    if (!createVariants || !createVariants.length) {
       return null;
     }
-
-    const createVariants = _createVariants.map(createVariant =>
-      createVariant.nodeType === NODE_TYPES.FILE ? { ...createVariant, title: t('document-library.file') } : createVariant
-    );
 
     if (createVariants.length === 1) {
       return (
@@ -54,17 +50,15 @@ const DocLibSettingsBar = ({ stateId, searchText, createVariants: _createVariant
       );
     }
 
-    const keyFields = getCreateVariantKeyField(createVariants[0]);
-
     return (
       <Dropdown
         hasEmpty
         isButton
         className={step}
         source={createVariants}
-        keyFields={keyFields}
-        valueField="destination"
-        titleField="title"
+        keyFields="key"
+        valueField="key"
+        titleField="name"
         onChange={openCreateForm}
       >
         <TwoIcoBtn
@@ -113,8 +107,12 @@ DocLibSettingsBar.propTypes = {
   searchText: PropTypes.string,
   createVariants: PropTypes.arrayOf(
     PropTypes.shape({
-      title: PropTypes.string,
-      destination: PropTypes.string
+      id: PropTypes.string,
+      name: PropTypes.string,
+      typeRef: PropTypes.string,
+      formRef: PropTypes.string,
+      attributes: PropTypes.objectOf(PropTypes.string),
+      key: PropTypes.string
     })
   ),
   createNode: PropTypes.func,

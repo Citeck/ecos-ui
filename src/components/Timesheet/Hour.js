@@ -1,7 +1,7 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 import { Icon, PointsLoader } from '../common';
 import { Input } from '../common/form';
@@ -49,7 +49,7 @@ class Hour extends React.PureComponent {
     this._input = React.createRef();
   }
 
-  componentWillReceiveProps(nextProps, nextContext) {
+  UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
     if (get(nextProps, 'updatingInfo.hasError', false) && !get(this.props, 'updatingInfo.hasError', false)) {
       this.resetValue();
     }

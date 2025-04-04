@@ -1,30 +1,37 @@
-import ReactDOM from 'react-dom';
 import React from 'react';
+import { createRoot } from 'react-dom/client';
 
-import { t } from '../helpers/util';
-import { UploadNewVersion } from '../components/formAction';
 import BusinessProcessViewer from '../components/BusinessProcessViewer';
-import { DocPreview } from '../components/widgets/DocPreview';
-import Modal from '../components/common/EcosModal/CiteckEcosModal';
-import { SelectOrgstruct } from '../components/common/form';
 import { isFlowableProcess } from '../components/BusinessProcessViewer/util';
-import { AUTHORITY_TYPE_USER, TabTypes } from '../components/common/form/SelectOrgstruct/constants';
+import FormManager from '../components/EcosForm/FormManager';
 import { JournalsPresetEditor } from '../components/Journals/JournalsPresets';
 import { notifyFailure, notifySuccess } from '../components/Records/actions/util/actionUtils';
-import FormManager from '../components/EcosForm/FormManager';
+import Modal from '../components/common/EcosModal/CiteckEcosModal';
+import { SelectOrgstruct } from '../components/common/form';
+import { AUTHORITY_TYPE_USER, TabTypes } from '../components/common/form/SelectOrgstruct/constants';
+import { UploadNewVersion } from '../components/formAction';
+import { DocPreview } from '../components/widgets/DocPreview';
+import { t } from '../helpers/util';
 
 export default class WidgetService {
+  _root = null;
+
   static uploadNewVersion(params = {}) {
     const { record, onClose } = params;
     const container = document.createElement('div');
 
     const onCloseModal = done => {
-      ReactDOM.unmountComponentAtNode(container);
+      this._root?.unmount();
       document.body.removeChild(container);
       onClose && onClose(done);
     };
 
-    ReactDOM.render(<UploadNewVersion record={record} onClose={onCloseModal} />, container);
+    if (this._root) {
+      this._root.unmount();
+    }
+
+    this._root = createRoot(container);
+    this._root.render(<UploadNewVersion record={record} onClose={onCloseModal} />);
     document.body.appendChild(container);
   }
 
@@ -45,7 +52,7 @@ export default class WidgetService {
     let timer;
 
     const handleClose = () => {
-      ReactDOM.unmountComponentAtNode(container);
+      this._root?.unmount();
       document.body.removeChild(container);
       clearTimeout(timer);
     };
@@ -63,7 +70,12 @@ export default class WidgetService {
     let userSearchExtraFieldsStr = orgstructParams.userSearchExtraFields || '';
     const userSearchExtraFields = userSearchExtraFieldsStr.length > 0 ? userSearchExtraFieldsStr.split(',').map(item => item.trim()) : [];
 
-    ReactDOM.render(
+    if (this._root) {
+      this._root.unmount();
+    }
+
+    this._root = createRoot(container);
+    this._root.render(
       <SelectOrgstruct
         openByDefault
         hideInputView
@@ -75,8 +87,7 @@ export default class WidgetService {
         modalTitle={t('select-orgstruct.modal.title.edit-task-assignee')}
         allowedAuthorityTypes={[AUTHORITY_TYPE_USER]}
         defaultTab={TabTypes.USERS}
-      />,
-      container
+      />
     );
     document.body.appendChild(container);
   }

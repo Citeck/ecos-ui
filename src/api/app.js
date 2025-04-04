@@ -1,18 +1,15 @@
-import * as queryString from 'query-string';
-import { NotificationManager } from 'react-notifications';
 import get from 'lodash/get';
 import isNil from 'lodash/isNil';
+import * as queryString from 'query-string';
 
-import logger from '../services/logger';
-import ecosXhr from '../helpers/ecosXhr';
-import ecosFetch, { RESET_AUTH_STATE_EVENT, emitter } from '../helpers/ecosFetch';
-import { t } from '../helpers/export/util';
-import { AppEditions, DEFAULT_EIS, SourcesId } from '../constants';
-import { PROXY_URI, UISERV_API } from '../constants/alfresco';
 import Records from '../components/Records/Records';
 import { ALL_USERS_GROUP_SHORT_NAME } from '../components/common/form/SelectOrgstruct/constants';
-import { CommonApi } from './common';
+import { AppEditions, DEFAULT_EIS, SourcesId } from '../constants';
+import { PROXY_URI, UISERV_API } from '../constants/alfresco';
 import { allowedLanguages, LANGUAGE_EN } from '../constants/lang';
+import ecosFetch, { RESET_AUTH_STATE_EVENT, emitter } from '../helpers/ecosFetch';
+import ecosXhr from '../helpers/ecosXhr';
+import { t } from '../helpers/export/util';
 import ConfigService, {
   RESTRICT_ACCESS_TO_EDIT_DASHBOARD,
   RESTRICT_ACCESS_TO_EDIT_DASHBOARD_WIDGETS,
@@ -25,7 +22,13 @@ import ConfigService, {
   TOUCH_CONFIG
 } from '../services/config/ConfigService';
 
+import { CommonApi } from './common';
+
+import { NotificationManager } from '@/services/notifications';
+
 let customLogoutAction = null;
+
+const dictionaries = import.meta.glob('../i18n/*.json');
 
 export class AppApi extends CommonApi {
   #isAuthenticated = true;
@@ -130,20 +133,15 @@ export class AppApi extends CommonApi {
     return ConfigService.getValue(FOOTER_CONTENT);
   };
 
-  static getDictionaryLocal(lang) {
-    let isExist;
+  static async getDictionaryLocal(lang) {
+    let filePath = `../i18n/${lang}.json`;
 
-    try {
-      isExist = require.resolve(`../i18n/${lang}`);
-    } catch (e) {
-      isExist = false;
-    }
-
-    if (!isExist) {
+    if (!dictionaries[filePath]) {
       lang = get(allowedLanguages, '0.id', LANGUAGE_EN);
+      filePath = `../i18n/${lang}.json`;
     }
 
-    return import(`../i18n/${lang}`)
+    return dictionaries[filePath]()
       .then(module => module.default)
       .catch(e => {
         console.error(e);
@@ -280,7 +278,7 @@ export class AppApi extends CommonApi {
         return '';
       })
       .catch(e => {
-        logger.error('Error while availability changing', e);
+        console.error('Error while availability changing', e);
       });
   };
 

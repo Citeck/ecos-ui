@@ -1,11 +1,6 @@
-import { IS_TEST_ENV } from '../../../helpers/util';
+import actions from './actions';
+import recordActions from './recordActions';
 
-let moduleExports;
+import { IS_TEST_ENV } from '@/helpers/util.js';
 
-if (IS_TEST_ENV) {
-  moduleExports = require('./recordActions').default;
-} else {
-  moduleExports = require('./actions').default;
-}
-
-export default moduleExports;
+export default IS_TEST_ENV ? recordActions : actions;

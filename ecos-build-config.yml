@@ -1,12 +1,13 @@
 type: ecos-ui
 properties:
+  buildImage: ecos-nodejs-build:1.1
   image:
     configVersion: v7
   builds:
     - enterprise: true
       plugins:
-        - heatmap:1.10.0
-        - charts-widget:1.1.1
+        - heatmap:1.11.0-snapshot
+        - charts-widget:1.1.0-snapshot
         - stages-widget:1.4.0
         - kanban-widget:1.6.0
         - activities-widget:1.1.1

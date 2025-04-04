@@ -1,20 +1,20 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
 import { selectJournal, selectPreset } from '../../../actions/journals';
-import { selectJournalData, selectNewVersionDashletConfig } from '../../../selectors/journals';
 import { wrapArgs } from '../../../helpers/redux';
 import { goToCardDetailsPage } from '../../../helpers/urls';
+import { selectJournalData, selectNewVersionDashletConfig } from '../../../selectors/journals';
+import FormManager from '../../EcosForm/FormManager';
+import Export from '../../Export/Export';
 import { IcoBtn, TwoIcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
-import Export from '../../Export/Export';
-import FormManager from '../../EcosForm/FormManager';
-import { getCreateVariantKeyField } from '../service/util';
-import JournalsDashletPagination from '../JournalsDashletPagination';
 import GroupActions from '../GroupActions';
+import JournalsDashletPagination from '../JournalsDashletPagination';
+import { getCreateVariantKeyField } from '../service/util';
 
 const mapStateToProps = (state, props) => {
   const ownState = selectJournalData(state, props.stateId);
@@ -44,7 +44,13 @@ const mapDispatchToProps = (dispatch, props) => {
 class JournalsDashletToolbar extends Component {
   addRecord = createVariant => {
     FormManager.createRecordByVariant(createVariant, {
-      onSubmit: record => goToCardDetailsPage(record.id),
+      onSubmit: (record, postCreateActionExecuted) => {
+        if (!postCreateActionExecuted) {
+          goToCardDetailsPage(record.id);
+        } else {
+          this.props.handleReload && this.props.handleReload();
+        }
+      },
       initiator: {
         type: 'dashboard-journal-widget',
         dashboardRecordRef: this.props.recordRef
@@ -178,7 +184,4 @@ class JournalsDashletToolbar extends Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(JournalsDashletToolbar);
+export default connect(mapStateToProps, mapDispatchToProps)(JournalsDashletToolbar);

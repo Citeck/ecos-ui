@@ -1,14 +1,15 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import * as queryString from 'query-string';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
+import PropTypes from 'prop-types';
+import * as queryString from 'query-string';
+import React, { Component } from 'react';
 
-import { t, getCurrentLocale } from '../../helpers/util';
-import { PointsLoader, Tooltip } from '../common';
 import { SortableElement } from '../Drag-n-Drop';
 import Records from '../Records';
+import { PointsLoader, Tooltip } from '../common';
+
+import { t, getCurrentLocale } from '@/helpers/util';
 
 const lng = getCurrentLocale();
 class Tab extends Component {

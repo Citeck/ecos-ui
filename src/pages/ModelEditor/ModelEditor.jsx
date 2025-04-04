@@ -1,19 +1,33 @@
-import React from 'react';
-import queryString from 'query-string';
+import { is } from 'bpmn-js/lib/util/ModelUtil';
 import classNames from 'classnames';
-import isEmpty from 'lodash/isEmpty';
-import isString from 'lodash/isString';
-import isUndefined from 'lodash/isUndefined';
-import isEqual from 'lodash/isEqual';
+import { flattenComponents } from 'formiojs/utils/formUtils';
 import debounce from 'lodash/debounce';
 import get from 'lodash/get';
-import set from 'lodash/set';
+import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
+import isString from 'lodash/isString';
+import isUndefined from 'lodash/isUndefined';
+import set from 'lodash/set';
+import queryString from 'query-string';
+import React from 'react';
 import XMLViewer from 'react-xml-viewer';
-import { flattenComponents } from 'formiojs/utils/formUtils';
-import { is } from 'bpmn-js/lib/util/ModelUtil';
 
-import { getCurrentLocale, getMLValue, getTextByLocale, t, fileDownload } from '../../helpers/util';
+import { PROCESS_DEF_API_ACTIONS } from '@/api/process';
+import { getEcosType, getValue } from '@/components/ModelEditor/CMMNModeler/utils';
+import ModelEditorWrapper from '@/components/ModelEditorWrapper';
+import { EcosModal, InfoText, Loader } from '@/components/common';
+import { FormWrapper } from '@/components/common/dialogs';
+import {
+  DEFINITON_TYPE,
+  GATEWAY_TYPES,
+  SEQUENCE_TYPE,
+  TASK_TYPES,
+  LOOP_CHARACTERISTICS,
+  COLLABORATION_TYPE,
+  PARTICIPANT_TYPE,
+  TYPE_BPMN_PROCESS
+} from '@/constants/bpmn';
 import {
   EventListeners,
   IGNORED_VALUE_COMPONENTS,
@@ -24,24 +38,9 @@ import {
   LABEL_POSTFIX,
   ML_POSTFIX,
   PREFIX_FIELD
-} from '../../constants/cmmn';
-import {
-  DEFINITON_TYPE,
-  GATEWAY_TYPES,
-  SEQUENCE_TYPE,
-  TASK_TYPES,
-  LOOP_CHARACTERISTICS,
-  COLLABORATION_TYPE,
-  PARTICIPANT_TYPE,
-  TYPE_BPMN_PROCESS
-} from '../../constants/bpmn';
-import { EcosModal, InfoText, Loader } from '../../components/common';
-import { FormWrapper } from '../../components/common/dialogs';
-import ModelEditorWrapper from '../../components/ModelEditorWrapper';
-import { getEcosType, getValue } from '../../components/ModelEditor/CMMNModeler/utils';
-import { DMN_DEFINITIONS } from '../../constants/dmn';
-
-import { PROCESS_DEF_API_ACTIONS } from '../../api/process';
+} from '@/constants/cmmn';
+import { DMN_DEFINITIONS } from '@/constants/dmn';
+import { getCurrentLocale, getMLValue, getTextByLocale, t, fileDownload } from '@/helpers/util';
 
 import './ModelEditor.scss';
 

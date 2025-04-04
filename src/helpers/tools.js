@@ -1,11 +1,12 @@
-import JSONPretty from 'react-json-pretty';
-import React from 'react';
-import isFunction from 'lodash/isFunction';
-import debounce from 'lodash/debounce';
 import classNames from 'classnames';
+import debounce from 'lodash/debounce';
+import isFunction from 'lodash/isFunction';
+import React from 'react';
+import JSONPretty from 'react-json-pretty';
 
-import DialogManager from '../components/common/dialogs/Manager';
-import { t } from './export/util';
+import { t } from './util';
+
+import DialogManager from '@/components/common/dialogs/Manager';
 
 export function showModalJson(data, title = 'Configuration') {
   DialogManager.showCustomDialog({

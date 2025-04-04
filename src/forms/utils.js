@@ -1,19 +1,19 @@
+import BaseEditApi from 'formiojs/components/base/editForm/Base.edit.api';
+import BaseEditConditional from 'formiojs/components/base/editForm/Base.edit.conditional';
+import BaseEditData from 'formiojs/components/base/editForm/Base.edit.data';
+import BaseEditDisplay from 'formiojs/components/base/editForm/Base.edit.display';
+import BaseEditLogic from 'formiojs/components/base/editForm/Base.edit.logic';
+import BaseEditValidation from 'formiojs/components/base/editForm/Base.edit.validation';
+import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
-import get from 'lodash/get';
-import set from 'lodash/set';
 import omit from 'lodash/omit';
-import cloneDeep from 'lodash/cloneDeep';
+import set from 'lodash/set';
 
-import BaseEditDisplay from 'formiojs/components/base/editForm/Base.edit.display';
-import BaseEditData from 'formiojs/components/base/editForm/Base.edit.data';
-import BaseEditLogic from 'formiojs/components/base/editForm/Base.edit.logic';
-import BaseEditApi from 'formiojs/components/base/editForm/Base.edit.api';
-import BaseEditValidation from 'formiojs/components/base/editForm/Base.edit.validation';
-import BaseEditConditional from 'formiojs/components/base/editForm/Base.edit.conditional';
-
-import { getCompDoc } from '../constants/documentation';
 import Formio from './Formio';
+
+import { getCompDoc } from '@/constants/documentation';
 
 export const checkIsEmptyMlField = field => {
   if ((typeof field === 'string' && isEmpty(field)) || isNil(field)) {
@@ -119,7 +119,7 @@ const _expandEditForm = component => {
 
   const originEditForm = component.editForm;
 
-  component.editForm = function(...extend) {
+  component.editForm = function (...extend) {
     let originTabs = get(originEditForm(), 'components.0.components', []);
     const { config, tabsByKey } = runTransform(null, cloneDeep(originTabs));
 
@@ -254,10 +254,11 @@ export const prepareComponents = components => {
     const builderInfo = component.builderInfo || {};
 
     Object.defineProperty(component, 'builderInfo', {
-      get: function() {
+      get: function () {
         //set doc-url for all who has documentation in different service
         return { ...builderInfo, documentation: getCompDoc(key) || builderInfo.documentation };
-      }
+      },
+      configurable: true
     });
 
     _expandEditForm(component);

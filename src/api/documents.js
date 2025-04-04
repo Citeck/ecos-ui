@@ -1,9 +1,13 @@
-import Records from '../components/Records';
-import { documentFields } from '../constants/documents';
-import { SourcesId } from '../constants';
 import journalsService from '../components/Journals/service/journalsService';
+import Records from '../components/Records';
+import { SourcesId } from '../constants';
+import { documentFields } from '../constants/documents';
 
 export class DocumentsApi {
+  getImageUrl = entityRef => {
+    return Records.get(entityRef).load('_content.url');
+  };
+
   getDocumentTypes = () => {
     return Records.query(
       {

@@ -72,7 +72,7 @@ class AuthService {
         clientId: process.env.REACT_APP_KEYCLOAK_CONFIG_CLIENT_ID || KC_DEFAULT_CLIENT_ID
       };
 
-      this._kc = Keycloak(config);
+      this._kc = new Keycloak(config);
 
       this._kc.onTokenExpired = () => {
         this._kc

@@ -1,9 +1,9 @@
 import isEmpty from 'lodash/isEmpty';
 
-import BaseReactComponent from '../base/BaseReactComponent';
 import MLText from '../../../../components/common/form/Input/MLText';
 import { getCurrentLocale } from '../../../../helpers/export/util';
 import { checkIsEmptyMlField } from '../../../utils';
+import BaseReactComponent from '../base/BaseReactComponent';
 
 export default class MLTextComponent extends BaseReactComponent {
   static schema(...extend) {

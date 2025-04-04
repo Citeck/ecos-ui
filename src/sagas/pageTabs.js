@@ -1,10 +1,10 @@
-import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import { push } from 'connected-react-router';
-import queryString from 'query-string';
+import assign from 'lodash/assign';
 import find from 'lodash/find';
 import get from 'lodash/get';
-import assign from 'lodash/assign';
 import isEmpty from 'lodash/isEmpty';
+import queryString from 'query-string';
+import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 
 import {
   addTab,
@@ -21,25 +21,31 @@ import {
   setTabs,
   updateTab,
   updateTabsFromStorage
-} from '../actions/pageTabs';
-import { selectInitStatus } from '../selectors/pageTabs';
-import { selectIsAuthenticated } from '../selectors/user';
-import { getCurrentUserName, getCurrentLocale, getEnabledWorkspaces } from '../helpers/util';
-import PageTabList from '../services/pageTabs/PageTabList';
-import PageService from '../services/PageService';
-import { TITLE } from '../constants/pageTabs';
-import { getWorkspaceId, getWsIdOfTabLink } from '../helpers/urls';
-import { BASE_URLS_REDIRECT, RELOCATED_URL } from '../constants';
+} from '@/actions/pageTabs';
+import { BASE_URLS_REDIRECT, RELOCATED_URL } from '@/constants';
+import { TITLE } from '@/constants/pageTabs';
+import { getLinkWithWs, getUrlWithWorkspace, getWorkspaceId, getWsIdOfTabLink } from '@/helpers/urls';
+import { getCurrentUserName, getCurrentLocale, getEnabledWorkspaces } from '@/helpers/util';
+import { selectInitStatus } from '@/selectors/pageTabs';
+import { selectIsAuthenticated } from '@/selectors/user';
+import PageService from '@/services/PageService';
+import PageTabList from '@/services/pageTabs/PageTabList';
 
 const lng = getCurrentLocale();
 
-function* sagaInitTabs({ api, logger }) {
+function* sagaInitTabs({ api }) {
   try {
     const location = yield select(state => get(state, 'router.location') || {});
-    const activeUrl = location.pathname + location.search;
+    const search = location.search;
+    const searchParams = search ? new URLSearchParams(search) : new URLSearchParams();
+
+    const url = location.pathname + search;
     const isAuthorized = yield select(selectIsAuthenticated);
     const displayState = yield call(api.pageTabs.getShowStatus);
     const userName = yield call(getCurrentUserName);
+
+    const enabledWorkspaces = getEnabledWorkspaces();
+    const activeUrl = enabledWorkspaces ? getLinkWithWs(url) : url;
 
     yield put(setShowTabsStatus(displayState));
 
@@ -54,7 +60,7 @@ function* sagaInitTabs({ api, logger }) {
     yield put(setTabs(PageTabList.storeList));
     yield put(initTabsComplete());
 
-    yield PageTabList.tabs.map(function*(tab) {
+    yield PageTabList.tabs.map(function* (tab) {
       if (tab.isActive || tab.isLoading) {
         const updates = yield* getTitle(tab);
         PageTabList.changeOne({ tab, updates });
@@ -62,12 +68,19 @@ function* sagaInitTabs({ api, logger }) {
     });
 
     yield put(setTabs(PageTabList.storeList));
+
+    if (search.includes('ws=') && !searchParams.get('ws') && !BASE_URLS_REDIRECT.includes(location.pathname) && enabledWorkspaces) {
+      yield put(push(getUrlWithWorkspace(location.pathname, search, getWorkspaceId())));
+    } else if (!url?.includes('ws=') && enabledWorkspaces) {
+      // If the old link didn't have a 'ws', then the new one definitely does
+      yield put(push(activeUrl));
+    }
   } catch (e) {
-    logger.error('[pageTabs] sagaInitTabs saga error', e);
+    console.error('[pageTabs] sagaInitTabs saga error', e);
   }
 }
 
-function* sagaGetTabs({ api, logger }, action) {
+function* sagaGetTabs({ api }, action) {
   try {
     const inited = yield select(selectInitStatus);
     const isAuthorized = yield select(selectIsAuthenticated);
@@ -83,37 +96,37 @@ function* sagaGetTabs({ api, logger }, action) {
 
     yield put(initTabs());
   } catch (e) {
-    logger.error('[pageTabs] sagaGetTabs saga error', e);
+    console.error('[pageTabs] sagaGetTabs saga error', e);
   }
 }
 
-function sagaSetDisplayState({ api, logger }, { payload }) {
+function sagaSetDisplayState({ api }, { payload }) {
   try {
     PageTabList.displayState = payload;
   } catch (e) {
-    logger.error('[pageTabs] sagaSetDisplayState saga error', e);
+    console.error('[pageTabs] sagaSetDisplayState saga error', e);
   }
 }
 
-function* sagaMoveTabs({ api, logger }, action) {
+function* sagaMoveTabs({ api }, action) {
   try {
     const { indexFrom, indexTo } = action.payload;
 
     PageTabList.move(indexFrom, indexTo);
     yield put(setTabs(PageTabList.storeList));
   } catch (e) {
-    logger.error('[pageTabs] sagaMoveTabs saga error', e);
+    console.error('[pageTabs] sagaMoveTabs saga error', e);
   }
 }
 
-function* sagaSetOneTab({ api, logger }, { payload }) {
+function* sagaSetOneTab({ api }, { payload }) {
   try {
     const { data: dataTab, params } = payload;
     const { closeActiveTab } = params || {};
+    const enabledWorkspaces = getEnabledWorkspaces();
 
     const urlLocation = new URL(dataTab.link, window.location.origin);
-
-    if (Object.keys(RELOCATED_URL).includes(urlLocation.pathname)) {
+    if (enabledWorkspaces && Object.keys(RELOCATED_URL).includes(urlLocation.pathname)) {
       dataTab.link = RELOCATED_URL[urlLocation.pathname] + urlLocation.search;
     }
 
@@ -130,15 +143,16 @@ function* sagaSetOneTab({ api, logger }, { payload }) {
       yield put(setTabs(PageTabList.storeList));
     }
 
-    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+    if (enabledWorkspaces) {
       const workspace = getWorkspaceId();
 
       if (workspace) {
         params.workspace = workspace;
+        dataTab.workspace = workspace;
       }
 
       if (dataTab && dataTab.link && !getWsIdOfTabLink(dataTab.link)) {
-        dataTab.link += '&ws=' + workspace;
+        dataTab.link = getLinkWithWs(dataTab.link, workspace);
       }
     }
 
@@ -153,11 +167,11 @@ function* sagaSetOneTab({ api, logger }, { payload }) {
 
     yield put(changeTab({ data, tab }));
   } catch (e) {
-    logger.error('[pageTabs] sagaSetTab saga error', e);
+    console.error('[pageTabs] sagaSetTab saga error', e);
   }
 }
 
-function* sagaAddOneTab({ api, logger }, { payload }) {
+function* sagaAddOneTab({ api }, { payload }) {
   try {
     const { data: dataTab, params } = payload;
     const { workspaceId } = params || {};
@@ -166,7 +180,7 @@ function* sagaAddOneTab({ api, logger }, { payload }) {
       return;
     }
 
-    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+    if (getEnabledWorkspaces()) {
       const workspace = workspaceId || getWorkspaceId();
 
       if (workspace) {
@@ -174,7 +188,7 @@ function* sagaAddOneTab({ api, logger }, { payload }) {
       }
 
       if (dataTab && dataTab.link && !getWsIdOfTabLink(dataTab.link)) {
-        dataTab.link += '&ws=' + workspace;
+        dataTab.link = getLinkWithWs(dataTab.link, workspace);
       }
     }
 
@@ -192,11 +206,11 @@ function* sagaAddOneTab({ api, logger }, { payload }) {
 
     yield put(setTabs(PageTabList.storeList));
   } catch (e) {
-    logger.error('[pageTabs] sagaAddOneTab saga error', e);
+    console.error('[pageTabs] sagaAddOneTab saga error', e);
   }
 }
 
-function* sagaDeleteTab({ api, logger }, action) {
+function* sagaDeleteTab({ api }, action) {
   try {
     const activePrev = PageTabList.activeTab;
     const deletedTab = PageTabList.delete(action.payload);
@@ -206,11 +220,11 @@ function* sagaDeleteTab({ api, logger }, action) {
     deletedTab && PageService.extractWhereLinkOpen({ subsidiaryLink: deletedTab.link });
     yield put(changeTab({ tab, updates }));
   } catch (e) {
-    logger.error('[pageTabs] sagaDeleteTab saga error', e);
+    console.error('[pageTabs] sagaDeleteTab saga error', e);
   }
 }
 
-function* sagaCloseTabs({ api, logger }, { payload }) {
+function* sagaCloseTabs({ api }, { payload }) {
   try {
     const { tabs, homepageLink, tab } = payload;
     const wsId = getWorkspaceId();
@@ -233,11 +247,11 @@ function* sagaCloseTabs({ api, logger }, { payload }) {
 
     yield put(setTabs(PageTabList.storeList));
   } catch (e) {
-    logger.error('[pageTabs] sagaCloseTabs saga error', e);
+    console.error('[pageTabs] sagaCloseTabs saga error', e);
   }
 }
 
-function* sagaChangeTabData({ api, logger }, { payload }) {
+function* sagaChangeTabData({ api }, { payload }) {
   try {
     const inited = yield select(selectInitStatus);
 
@@ -261,11 +275,11 @@ function* sagaChangeTabData({ api, logger }, { payload }) {
 
     yield put(setTabs(PageTabList.storeList));
   } catch (e) {
-    logger.error('[pageTabs] sagaChangeTabData saga error', e);
+    console.error('[pageTabs] sagaChangeTabData saga error', e);
   }
 }
 
-function* sagaUpdateTabData({ api, logger }, { payload }) {
+function* sagaUpdateTabData({ api }, { payload }) {
   try {
     const inited = yield select(selectInitStatus);
 
@@ -277,7 +291,7 @@ function* sagaUpdateTabData({ api, logger }, { payload }) {
     let tab = get(payload, 'tab');
 
     if (getEnabledWorkspaces() && updatingPayload && updatingPayload.link && !getWsIdOfTabLink(updatingPayload.link)) {
-      updatingPayload.link += '&ws=' + get(PageTabList.activeTab, 'workspace', getWorkspaceId());
+      updatingPayload.link = getLinkWithWs(updatingPayload.link, get(PageTabList.activeTab, 'workspace', getWorkspaceId()));
     }
 
     if (!tab) {
@@ -303,15 +317,15 @@ function* sagaUpdateTabData({ api, logger }, { payload }) {
 
     yield put(setTabs(PageTabList.storeList));
   } catch (e) {
-    logger.error('[pageTabs] sagaUpdateTabData saga error', e);
+    console.error('[pageTabs] sagaUpdateTabData saga error', e);
   }
 }
 
-function* sagaUpdateTabs({ api, logger }, { payload }) {
+function* sagaUpdateTabs() {
   try {
     yield put(setTabs(PageTabList.storeList));
   } catch (e) {
-    logger.error('[pageTabs] sagaUpdateTabs saga error', e);
+    console.error('[pageTabs] sagaUpdateTabs saga error', e);
   }
 }
 

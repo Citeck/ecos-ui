@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
 import Icon from '../../icons/Icon/Icon';
 
@@ -107,7 +107,7 @@ export default class Input extends Component {
   }
 
   render() {
-    const { getInputRef, className, autoSelect, forwardedRef, align, clear, narrow, needValidCheck, ...props } = this.props;
+    const { getInputRef, className, autoSelect, forwardedRef, align, clear, narrow, needValidCheck, isValid, ...props } = this.props;
     const isValidClass = needValidCheck ? this.isValidClass() : '';
 
     return (

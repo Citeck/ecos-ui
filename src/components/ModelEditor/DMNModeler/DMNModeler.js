@@ -1,17 +1,17 @@
+import { getDi } from 'bpmn-js/lib/util/ModelUtil';
 import { CamundaPlatformModeler as Modeler } from 'camunda-dmn-js';
 import NavigatedViewer from 'dmn-js-drd/lib/NavigatedViewer';
 import { getBusinessObject } from 'dmn-js-shared/lib/util/ModelUtil';
-import 'camunda-dmn-js/dist/assets/camunda-platform-modeler.css';
-import { getDi } from 'bpmn-js/lib/util/ModelUtil';
-import isFunction from 'lodash/isFunction';
+import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-import cloneDeep from 'lodash/cloneDeep';
+import isFunction from 'lodash/isFunction';
 
-import { LABEL_POSTFIX, PLANE_POSTFIX } from '../../../constants/cmmn';
 import BaseModeler from '../BaseModeler';
 
-import './patches';
+import { LABEL_POSTFIX, PLANE_POSTFIX } from '@/constants/cmmn';
+
+import 'camunda-dmn-js/dist/assets/camunda-platform-modeler.css';
 
 export default class DMNModeler extends BaseModeler {
   __saveSvgFunc;

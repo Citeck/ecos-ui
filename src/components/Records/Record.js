@@ -1,16 +1,16 @@
+import { EventEmitter } from 'events';
 import _ from 'lodash';
-import { EventEmitter2 } from 'eventemitter2';
+import get from 'lodash/get';
 
-import { mapValueToScalar, parseAttribute } from './utils/attStrUtils';
-import { loadAttribute, recordsMutateFetch } from './recordsApi';
+import { SourcesId } from '../../constants';
+import { getWorkspaceId } from '../../helpers/urls';
+
 import Attribute from './Attribute';
 import RecordWatcher from './RecordWatcher';
 import recordsClientManager from './client';
+import { loadAttribute, recordsMutateFetch } from './recordsApi';
+import { mapValueToScalar, parseAttribute } from './utils/attStrUtils';
 import { prepareAttsToLoad } from './utils/recordUtils';
-import { getWorkspaceId } from '../../helpers/urls';
-
-import { SourcesId } from '../../constants';
-import get from 'lodash/get';
 
 export const EVENT_CHANGE = 'change';
 
@@ -27,7 +27,7 @@ export default class Record {
     } else {
       this._baseRecord = null;
     }
-    this._emitter = new EventEmitter2();
+    this._emitter = new EventEmitter();
     this._modified = null;
     this._pendingUpdate = false;
     this._updatePromise = Promise.resolve();
@@ -547,7 +547,10 @@ export default class Record {
   async _saveWithAtts(attributes) {
     const loadAttsCtx = await this._preProcessAttsToLoadWithClient(attributes);
     if (this.isVirtual()) {
-      return this._postProcessLoadedAttsWithClient(loadAttsCtx.attsToLoad.map(() => null), loadAttsCtx);
+      return this._postProcessLoadedAttsWithClient(
+        loadAttsCtx.attsToLoad.map(() => null),
+        loadAttsCtx
+      );
     }
 
     const recordsToSave = await this._getWhenReadyToSave().then(baseRecordToSave => {

@@ -1,9 +1,9 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 
-import { t } from '../../../../helpers/util';
 import { InfoText, Loader } from '../../../../components/common';
 import { OrgstructContext } from '../../../../components/common/Orgstruct/OrgstructContext';
+import { t } from '../../../../helpers/util';
 
 import List from './List';
 
@@ -13,7 +13,22 @@ const Body = ({ reloadList, tabId, toggleToFirstTab }) => {
   const context = useContext(OrgstructContext);
   const { currentTab, tabItems, isSearching } = context;
 
-  const children = tabItems[currentTab].filter(i => !i.parentId);
+  const filteredData = data => {
+    const filteredData = [];
+    let foundPerson = false;
+
+    data.forEach(item => {
+      if (item.id.startsWith('emodel/person')) {
+        foundPerson = true;
+      }
+      if (!foundPerson || item.id.startsWith('emodel/person')) {
+        filteredData.push(item);
+      }
+    });
+    return filteredData;
+  };
+
+  const children = useMemo(() => filteredData(tabItems[currentTab]), [tabId, tabItems]);
 
   const renderView = props => {
     return <div {...props} style={{ ...props.style, marginBottom: '140px' }} />;

@@ -1,8 +1,9 @@
+import get from 'lodash/get';
 import isNil from 'lodash/isNil';
 import isUndefined from 'lodash/isUndefined';
-import get from 'lodash/get';
 
 import { SourcesId } from '../../../../constants';
+
 import { AUTHORITY_TYPE_USER, AUTHORITY_TYPE_GROUP } from './constants';
 
 export const getGroupName = str => str.replace(`${AUTHORITY_TYPE_GROUP}_`, '');
@@ -10,10 +11,7 @@ export const getGroupRef = str => `${SourcesId.GROUP}@${str}`;
 export const getPersonRef = str => `${SourcesId.PERSON}@${str}`;
 export const getRecordRef = str => str.replace('emodel/@', '');
 export const getAuthRef = str =>
-  str
-    .replace(`${SourcesId.GROUP}@`, `${AUTHORITY_TYPE_GROUP}_`)
-    .replace(`${SourcesId.PERSON}@`, '')
-    .replace('emodel/@', '');
+  str.replace(`${SourcesId.GROUP}@`, `${AUTHORITY_TYPE_GROUP}_`).replace(`${SourcesId.PERSON}@`, '').replace('emodel/@', '');
 
 export function handleResponse(result) {
   if (!Array.isArray(result)) {
@@ -24,6 +22,7 @@ export function handleResponse(result) {
     id: item.nodeRef,
     label: item.displayName,
     isPersonDisabled: get(item, 'isPersonDisabled', false),
+    canEdit: get(item, 'canEdit', false),
     extraLabel: item.authorityType === AUTHORITY_TYPE_USER ? item.fullName : null,
     hasChildren: !isNil(item.groupType),
     isLoaded: isUndefined(item.isLoaded) ? false : item.isLoaded,
@@ -71,6 +70,7 @@ export function converterUserList(source) {
     label: item.displayName,
     extraLabel: item.fullName,
     isPersonDisabled: !!item.isPersonDisabled,
+    canEdit: !!item.canEdit,
     attributes: item
   }));
 }

@@ -1,8 +1,8 @@
+import classNames from 'classnames';
+import isFunction from 'lodash/isFunction';
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
-import classNames from 'classnames';
-import PropTypes from 'prop-types';
-import isFunction from 'lodash/isFunction';
 
 import { cancelReloadGrid, reloadGrid, setGrid } from '../../../actions/journals';
 import { wrapArgs } from '../../../helpers/redux';
@@ -13,7 +13,10 @@ import {
   HEIGHT_THEAD,
   MIN_CARD_DATA_NEW_JOURNAL,
   PAGINATION_SIZES,
-  MAX_HEIGHT_TOTAL_AMOUNT
+  MAX_HEIGHT_TOTAL_AMOUNT,
+  HEIGHT_LIST_VIEW_ITEM,
+  isPreviewList,
+  isTable
 } from '../constants';
 
 const mapStateToProps = (state, props) => {
@@ -59,40 +62,56 @@ class JournalsDashletPagination extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { maxHeightJournalData, isViewNewJournal, setGridPagination, isDecrementLastRow, grid } = this.props;
+    const { maxHeightJournalData, isViewNewJournal, setGridPagination, isDecrementLastRow, grid, viewMode } = this.props;
     const { maxItems: gridMaxItems } = grid || {};
     const { maxItems: stateMaxItems } = this.state;
+
+    const MAX_HEIGHT = isPreviewList(viewMode) ? HEIGHT_LIST_VIEW_ITEM : HEIGHT_GRID_ROW;
+
+    const isSwapPreviewAndTable =
+      (isTable(prevProps.viewMode) || isPreviewList(prevProps.viewMode)) &&
+      (isTable(viewMode) || isPreviewList(viewMode)) &&
+      prevProps.viewMode !== viewMode;
 
     if (
       (maxHeightJournalData && !prevState.maxHeightJournalData) ||
       prevProps.isDecrementLastRow !== isDecrementLastRow ||
+      isSwapPreviewAndTable ||
       (stateMaxItems && gridMaxItems && stateMaxItems !== gridMaxItems)
     ) {
       this.setState({ maxHeightJournalData });
 
       if (isViewNewJournal && isFunction(setGridPagination)) {
         const gridMaxHeight = maxHeightJournalData - HEIGHT_GRID_WRAPPER - HEIGHT_THEAD;
-        let maxItems = Math.floor(gridMaxHeight / HEIGHT_GRID_ROW);
+        let maxItems = Math.floor(gridMaxHeight / MAX_HEIGHT);
 
-        if (isDecrementLastRow) {
-          if (gridMaxHeight - HEIGHT_GRID_ROW * (maxItems - 1) >= MAX_HEIGHT_TOTAL_AMOUNT) {
-            maxItems -= 1;
-          } else {
-            maxItems -= 2;
+        if (!isPreviewList(viewMode)) {
+          if (isDecrementLastRow) {
+            if (gridMaxHeight - MAX_HEIGHT * (maxItems - 1) >= MAX_HEIGHT_TOTAL_AMOUNT) {
+              maxItems -= 1;
+            } else {
+              maxItems -= 2;
+            }
+          }
+
+          if (maxItems < MIN_CARD_DATA_NEW_JOURNAL) {
+            maxItems = MIN_CARD_DATA_NEW_JOURNAL;
           }
         }
 
-        if (maxItems < MIN_CARD_DATA_NEW_JOURNAL) {
-          maxItems = MIN_CARD_DATA_NEW_JOURNAL;
-        }
+        const pagination = {
+          skipCount: 0,
+          maxItems,
+          page: 1
+        };
 
         this.setState({ updatedPaginationOfNewJournal: true });
         this.setState({ maxItems }, () => {
-          setGridPagination({
-            skipCount: 0,
-            maxItems,
-            page: 1
-          });
+          setGridPagination(pagination);
+
+          if (isSwapPreviewAndTable) {
+            this.changePage(pagination);
+          }
         });
       }
     }
@@ -130,7 +149,4 @@ class JournalsDashletPagination extends Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(JournalsDashletPagination);
+export default connect(mapStateToProps, mapDispatchToProps)(JournalsDashletPagination);

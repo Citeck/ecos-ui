@@ -1,23 +1,23 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import uniqueId from 'lodash/uniqueId';
+import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-import cloneDeep from 'lodash/cloneDeep';
+import uniqueId from 'lodash/uniqueId';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 
-import { t } from '../../helpers/util';
+import { ServerEventTypes } from '../../constants/timesheet';
 import { CommonLabels } from '../../helpers/timesheet/dictionary';
+import { t } from '../../helpers/util';
 import CommonTimesheetService from '../../services/timesheet/common';
-
-import { Icon, ResizeBoxes } from '../common';
 import { SortableContainer, SortableElement, SortableHandle } from '../Drag-n-Drop';
+import { Icon, ResizeBoxes } from '../common';
 import { Input } from '../common/form';
+
+import { CalendarCell, CalendarRow, Header } from './Calendar';
 import Hour from './Hour';
 import Tooltip from './Tooltip';
-import { CalendarCell, CalendarRow, Header } from './Calendar';
-import { ServerEventTypes } from '../../constants/timesheet';
 
 import './style.scss';
 
@@ -59,7 +59,7 @@ class BaseTimesheet extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps, nextContext) {
+  UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
     if (JSON.stringify(nextProps.eventTypes) !== JSON.stringify(this.state.eventTypes)) {
       this.setState({
         eventTypes: nextProps.eventTypes,

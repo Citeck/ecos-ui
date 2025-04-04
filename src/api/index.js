@@ -1,47 +1,46 @@
+import { ActivitiesApi } from './activities';
+import { AdminSectionApi } from './adminSection';
 import { AppApi } from './app';
 import { BarcodeApi } from './barcode';
 import { BirthdaysApi } from './birthdays';
-import { ReportApi } from './report';
 import { BpmnApi } from './bpmn';
 import { BpmnAdminApi } from './bpmnAdmin';
-import { WorkspaceApi } from './workspaces';
+import { ChartsApi } from './charts';
 import { CommentsApi } from './comments';
-import { ActivitiesApi } from './activities';
+import { CustomIconApi } from './customIcon';
 import { DashboardApi } from './dashboard';
+import { DevToolsApi } from './devTools';
 import { DmnApi } from './dmn';
 import { DmnEditorApi } from './dmnEditor';
 import { DocAssociationsApi } from './docAssociations';
+import { DocConstructorApi } from './docConstructor';
 import { DocStatusApi } from './docStatus';
 import { DocumentsApi } from './documents';
 import { EventsHistoryApi } from './eventsHistory';
+import { InstanceAdminApi } from './instanceAdmin';
 import { JournalsApi } from './journalsApi';
+import { KanbanApi } from './kanban';
 import { MenuApi } from './menu';
-import { MyTimesheetApi } from './timesheet/mine';
 import { OrgStructApi } from './orgStruct';
 import { PageApi } from './page';
 import { PageTabsApi } from './pageTabs';
+import { PreviewListApi } from './previewList';
+import { ProcessApi } from './process';
 import { ProcessAdminApi } from './processAdmin';
 import { PropertiesApi } from './properties';
 import { RecordActionsApi } from './recordActions';
+import { ReportApi } from './report';
 import { TasksApi } from './tasks';
 import { TimesheetCommonApi } from './timesheet/common';
 import { TimesheetDelegatedApi } from './timesheet/delegated';
+import { MyTimesheetApi } from './timesheet/mine';
 import { TimesheetSubordinatesApi } from './timesheet/subordinates';
 import { TimesheetVerificationApi } from './timesheet/verification';
 import { UserApi } from './user';
 import { UserConfigApi } from './userConfig';
 import { VersionsJournalApi } from './versionsJournal';
 import { ViewApi } from './view';
-import { DocConstructorApi } from './docConstructor';
-import { ChartsApi } from './charts';
-import { CustomIconApi } from './customIcon';
-import { AdminSectionApi } from './adminSection';
-import { DevToolsApi } from './devTools';
-import { InstanceAdminApi } from './instanceAdmin';
-import { ProcessApi } from './process';
-import { KanbanApi } from './kanban';
-
-import '../components/Records/actions/actions';
+import { WorkspaceApi } from './workspaces';
 
 export function configureAPI() {
   const api = {};
@@ -88,8 +87,9 @@ export function configureAPI() {
   api.instanceAdmin = new InstanceAdminApi();
   api.kanban = new KanbanApi();
   api.charts = new ChartsApi();
+  api.previewList = new PreviewListApi();
 
-  const setNotAuthCallback = function(cb) {
+  const setNotAuthCallback = function (cb) {
     for (let key in api) {
       if (!api.hasOwnProperty(key)) {
         continue;

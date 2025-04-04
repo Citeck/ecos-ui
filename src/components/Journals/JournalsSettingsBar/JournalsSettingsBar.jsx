@@ -1,25 +1,28 @@
-import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
 import get from 'lodash/get';
-import isEmpty from 'lodash/isEmpty';
 import isBoolean from 'lodash/isBoolean';
+import isEmpty from 'lodash/isEmpty';
+import React, { useMemo, useState } from 'react';
 
-import Shape from '../../common/icons/Shape';
-import Setting from '../../common/icons/Setting';
-import ExportIcon from '../../common/icons/Export';
-import Filter from '../../common/icons/Icon/Filter';
-import Repeat from '../../common/icons/Repeat';
 import { t } from '../../../helpers/util';
+import Export from '../../Export/Export';
 import { ParserPredicate } from '../../Filters/predicates';
-import { JournalsPresetListDropdown } from '../JournalsPresets';
+import Import from '../../Import';
 import { Search, Tooltip } from '../../common';
 import { IcoBtn } from '../../common/btns';
-import Export from '../../Export/Export';
-import GroupActions from '../GroupActions';
-import ViewTabs from '../ViewTabs';
-import CreateMenu from './CreateMenu';
+import ExportIcon from '../../common/icons/Export';
+import Filter from '../../common/icons/Icon/Filter';
+import ImportIcon from '../../common/icons/Import';
 import Menu from '../../common/icons/Menu';
+import Repeat from '../../common/icons/Repeat';
+import Setting from '../../common/icons/Setting';
+import Shape from '../../common/icons/Shape';
+import GroupActions from '../GroupActions';
+import { JournalsPresetListDropdown } from '../JournalsPresets';
+import ViewTabs from '../ViewTabs';
 import { isKanban } from '../constants';
+
+import CreateMenu from './CreateMenu';
 
 import './JournalsSettingsBar.scss';
 
@@ -28,6 +31,7 @@ const Labels = {
   BTN_TABLE_SETTINGS: 'journals.bar.btn.settings-table',
   BTN_JOURNAL_SETTINGS: 'journals.bar.btn.settings-journal',
   BTN_EXPORT: 'journals.bar.btn.export',
+  BTN_IMPORT: 'journals.bar.btn.import',
   BTN_UPDATE: 'journals.bar.btn.update',
   BTN_FILTER_DEL: 'journals.bar.btn.filter-del',
   BTN_TOGGLE_MENU: 'journals.bar.btn.toggle-menu'
@@ -46,6 +50,7 @@ const JournalsSettingsBar = ({
   targetId,
   grid,
   journalConfig,
+  journalSetting,
   predicate,
   searchText,
   selectedRecords,
@@ -72,10 +77,16 @@ const JournalsSettingsBar = ({
   hasBtnMenu,
   onEditJournal,
   hasBtnEdit,
-  rightBarChild
+  rightBarChild,
+
+  hideActionsBtn = false,
+  hideSettingsJournalBtn = false,
+  hidePresetsBtn = false,
+  hideImportBtn = false,
+  hideExportBtn = false
 }) => {
   const [isOpenDropdownExport, setIsOpenDropdownExport] = useState(false);
-
+  const [isOpenDropdownImport, setIsOpenDropdownImport] = useState(false);
   const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const createVariants = get(journalConfig, 'meta.createVariants') || [];
   const headerSearchEnabled = get(journalConfig, 'searchConfig.headerSearchEnabled', true);
@@ -85,6 +96,12 @@ const JournalsSettingsBar = ({
     off: isMobile,
     modifiers: [tooltipModifiers],
     uncontrolled: true
+  };
+
+  const changeIsOpenImport = isOpenDropdown => {
+    if (isBoolean(isOpenDropdown)) {
+      setIsOpenDropdownImport(isOpenDropdown);
+    }
   };
 
   const changeIsOpen = isOpenDropdown => {
@@ -127,7 +144,7 @@ const JournalsSettingsBar = ({
           </Tooltip>
         )}
 
-        {isViewNewJournal && !isMobile && hasBtnEdit && (
+        {!hideSettingsJournalBtn && isViewNewJournal && !isMobile && hasBtnEdit && (
           <Tooltip target={`${targetId}-journal-settings`} text={t(Labels.BTN_JOURNAL_SETTINGS)} {...tooltipSettings}>
             <IcoBtn
               id={`${targetId}-journal-settings`}
@@ -158,15 +175,18 @@ const JournalsSettingsBar = ({
           />
         )}
 
-        {(!isMobile || isViewNewJournal) && !noGroupActions && <GroupActions isViewNewJournal={isViewNewJournal} stateId={stateId} />}
+        {(!isMobile || isViewNewJournal) && !noGroupActions && !hideActionsBtn && (
+          <GroupActions isViewNewJournal={isViewNewJournal} stateId={stateId} />
+        )}
 
         {isViewNewJournal && leftChild}
 
-        {isViewNewJournal && !isMobile && <JournalsPresetListDropdown stateId={stateId} />}
+        {!hidePresetsBtn && isViewNewJournal && !isMobile && <JournalsPresetListDropdown stateId={stateId} />}
 
-        {!isViewNewJournal && (
+        {!hideExportBtn && !isViewNewJournal && (
           <Export
             journalConfig={journalConfig}
+            journalSetting={journalSetting}
             grid={grid}
             className="ecos-journal__settings-bar-export"
             classNameBtn="ecos-btn_i ecos-journal__settings-bar-export-btn"
@@ -185,9 +205,10 @@ const JournalsSettingsBar = ({
           </Export>
         )}
 
-        {isViewNewJournal && !isMobile && (
+        {!hideExportBtn && isViewNewJournal && !isMobile && (
           <Export
             journalConfig={journalConfig}
+            journalSetting={journalSetting}
             grid={grid}
             className="ecos-journal__settings-bar-export"
             classNameBtn="ecos-btn_i ecos-journal__settings-bar-export-btn ecos-journal__btn_new"
@@ -211,7 +232,31 @@ const JournalsSettingsBar = ({
           </Export>
         )}
 
-        <Tooltip target={`${targetId}-update`} text={t(Labels.BTN_UPDATE)} {...tooltipSettings} modifiers={{}}>
+        {!hideImportBtn && get(journalConfig, 'typeRef') && (
+          <Import
+            stateId={stateId}
+            isViewNewJournal={isViewNewJournal}
+            getStateOpen={changeIsOpenImport}
+            className="ecos-journal__settings-bar-export"
+            classNameBtn={classNames('ecos-btn_i ecos-journal__settings-bar-export-btn', {
+              'ecos-journal__btn_new': isViewNewJournal
+            })}
+          >
+            <IcoBtn
+              invert
+              icon="icon-small-down"
+              className={classNames('ecos-journal__settings-bar-export-btn ecos-btn_hover_blue2 ecos-btn_drop-down ecos-btn_grey3', {
+                'ecos-journal__btn_new_focus': isOpenDropdownImport,
+                'ecos-journal__btn_new export': isViewNewJournal
+              })}
+              // loading={isLoading}
+            >
+              {isViewNewJournal ? <ImportIcon /> : t(Labels.BTN_IMPORT)}
+            </IcoBtn>
+          </Import>
+        )}
+
+        <Tooltip target={`${targetId}-update`} text={t(Labels.BTN_UPDATE)} {...tooltipSettings} modifiers={[]}>
           <IcoBtn
             id={`${targetId}-update`}
             icon={!isViewNewJournal ? 'icon-reload' : null}

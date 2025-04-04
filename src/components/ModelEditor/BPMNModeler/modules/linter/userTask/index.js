@@ -1,9 +1,10 @@
 import { is } from 'bpmn-js/lib/util/ModelUtil';
 import get from 'lodash/get';
 
-import { PREFIX_FIELD } from '../../../../../../constants/cmmn';
-import { t } from '../../../../../../helpers/util';
 import { BPMN_LINT_PREFIX } from '../constants';
+
+import { PREFIX_FIELD } from '@/constants/cmmn';
+import { t } from '@/helpers/util';
 
 const USER_TASK = 'bpmn:UserTask';
 
@@ -104,7 +105,7 @@ const userTaskManualDueDateBusinessTimeNoDuration = {
       const durationType = get(dueDateManualMeta, [ATT_DURATION_TYPE], '').trim();
 
       // should be selected workingDays or duration
-      if (durationType === DURATION_TYPE_BUSINESS && (!duration && !workingDays)) {
+      if (durationType === DURATION_TYPE_BUSINESS && !duration && !workingDays) {
         reporter.report(node.id, t('bpmn-linter.user-task.duration.manual-business-no-one-duration'));
       }
     };
@@ -161,13 +162,37 @@ const userTaskDueDateSelectedExpressionAndManualAtSameTime = {
   }
 };
 
+const userTaskDueDateIncorrectManualDurationInput = {
+  id: 'user-task-due-date-incorrect-manual-duration-input',
+  callback: () => {
+    const check = (node, reporter) => {
+      if (!is(node, USER_TASK)) {
+        return;
+      }
+
+      const dueDateManualMeta = JSON.parse(get(node.$attrs, [ATT_DUE_DATE_MANUAL], '{}').trim());
+      const duration = get(dueDateManualMeta, [ATT_DURATION], '').trim();
+      const durationRegex = /^PT(?:(\d+H)(\d+M)?|(\d+M))$/;
+
+      if (duration && !durationRegex.test(duration)) {
+        reporter.report(node.id, t('bpmn-linter.user-task.due-date.incorrect-manual-duration-input'));
+      }
+    };
+
+    return {
+      check
+    };
+  }
+};
+
 export const userTaskRulesMap = {
   [userTaskHasRecipients.id]: 'error',
   [userTaskHasPriority.id]: 'error',
   [userTaskManualDueDateCalendarTimeNoDuration.id]: 'error',
   [userTaskManualDueDateBusinessTimeNoDuration.id]: 'error',
   [userTaskManualDueDateBusinessTimeNoSchedule.id]: 'error',
-  [userTaskDueDateSelectedExpressionAndManualAtSameTime.id]: 'warn'
+  [userTaskDueDateSelectedExpressionAndManualAtSameTime.id]: 'warn',
+  [userTaskDueDateIncorrectManualDurationInput.id]: 'error'
 };
 
 export const userTaskCacheMap = {
@@ -176,7 +201,7 @@ export const userTaskCacheMap = {
   [`${BPMN_LINT_PREFIX}${userTaskManualDueDateCalendarTimeNoDuration.id}`]: userTaskManualDueDateCalendarTimeNoDuration.callback,
   [`${BPMN_LINT_PREFIX}${userTaskManualDueDateBusinessTimeNoDuration.id}`]: userTaskManualDueDateBusinessTimeNoDuration.callback,
   [`${BPMN_LINT_PREFIX}${userTaskManualDueDateBusinessTimeNoSchedule.id}`]: userTaskManualDueDateBusinessTimeNoSchedule.callback,
-  [`${BPMN_LINT_PREFIX}${
-    userTaskDueDateSelectedExpressionAndManualAtSameTime.id
-  }`]: userTaskDueDateSelectedExpressionAndManualAtSameTime.callback
+  [`${BPMN_LINT_PREFIX}${userTaskDueDateSelectedExpressionAndManualAtSameTime.id}`]:
+    userTaskDueDateSelectedExpressionAndManualAtSameTime.callback,
+  [`${BPMN_LINT_PREFIX}${userTaskDueDateIncorrectManualDurationInput.id}`]: userTaskDueDateIncorrectManualDurationInput.callback
 };

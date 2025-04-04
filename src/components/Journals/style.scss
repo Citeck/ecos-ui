@@ -32,6 +32,13 @@
   }
 
   &__view {
+    &-svg-btn {
+      &_blue_selected rect,
+      &_blue_hover:hover rect {
+        fill: $color-blue-light;
+      }
+    }
+
     &-tabs {
       &:empty {
         display: none;
@@ -263,7 +270,9 @@
     &:hover td,
     &.has-inline-tools td {
       border: none !important;
-      box-shadow: 0 -1px 0 0 $color-brown-2 inset, 0 1px 0 0 $color-brown-2 inset;
+      box-shadow:
+        0 -1px 0 0 $color-brown-2 inset,
+        0 1px 0 0 $color-brown-2 inset;
     }
 
     &:hover .ecos-grid__checkbox_block {
@@ -471,6 +480,7 @@
   .ecos-popper__text {
     font-size: 11px;
     font-weight: 600;
+    width: calc(100% + 1px);
   }
 
   .ecos-journal__body {

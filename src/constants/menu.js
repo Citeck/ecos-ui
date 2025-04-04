@@ -48,8 +48,10 @@ export const MenuSettings = {
     JOURNAL: 'JOURNAL',
     KANBAN: 'KANBAN',
     DASHBOARD: 'DASHBOARD',
+    WIKI: 'WIKI',
     DOCLIB: 'DOCLIB',
     ARBITRARY: 'ARBITRARY',
+    PREVIEW_LIST: 'PREVIEW_LIST',
     LINK_CREATE_CASE: 'LINK-CREATE-CASE',
     HEADER_DIVIDER: 'HEADER-DIVIDER',
     CREATE_IN_SECTION: 'CREATE_IN_SECTION',
@@ -85,9 +87,17 @@ export const CreateOptions = {
     key: MenuSettings.ItemTypes.DASHBOARD,
     label: 'menu-item.type.dashboard'
   },
+  WIKI: {
+    key: MenuSettings.ItemTypes.WIKI,
+    label: 'menu-item.type.wiki'
+  },
   DOCLIB: {
     key: MenuSettings.ItemTypes.DOCLIB,
     label: 'menu-item.type.doclib'
+  },
+  PREVIEW_LIST: {
+    key: MenuSettings.ItemTypes.PREVIEW_LIST,
+    label: 'menu-item.type.previewList'
   },
   ARBITRARY: {
     key: MenuSettings.ItemTypes.ARBITRARY,

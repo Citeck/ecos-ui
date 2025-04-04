@@ -1,13 +1,14 @@
-import React from 'react';
 import { getDi } from 'bpmn-js/lib/util/ModelUtil';
 import get from 'lodash/get';
-import isFunction from 'lodash/isFunction';
-import isNil from 'lodash/isNil';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
+import isFunction from 'lodash/isFunction';
+import isNil from 'lodash/isNil';
+import React from 'react';
 
-import { DI_POSTFIX, LABEL_POSTFIX, PLANE_POSTFIX, SEARCH_INPUT_ID } from '../../constants/cmmn';
 import { Sheet } from './Sheet';
+
+import { DI_POSTFIX, LABEL_POSTFIX, PLANE_POSTFIX, SEARCH_INPUT_ID } from '@/constants/cmmn';
 
 /**
  * Expansion for Modeler

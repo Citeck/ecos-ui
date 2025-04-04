@@ -1,9 +1,10 @@
-import React from 'react';
 import isFunction from 'lodash/isFunction';
+import React from 'react';
 
-import { DashboardApi } from '../../api/dashboard';
-import { getDOMElementMeasurer, t } from '../../helpers/util';
 import { Checkbox, Field, Label, Select } from '../common/form';
+
+import { DashboardApi } from '@/api/dashboard.js';
+import { getDOMElementMeasurer, t } from '@/helpers/util.js';
 
 import './style.scss';
 
@@ -11,8 +12,6 @@ export const Labels = {
   LINKED_ATTRIBUTES_FIELD: 'linked-select.linked-attributes-field',
   ONLY_LINKED_FIELD: 'journals.action.only-linked'
 };
-
-const api = new DashboardApi();
 
 class LinkedAttributesSelect extends React.Component {
   constructor(props) {
@@ -43,6 +42,7 @@ class LinkedAttributesSelect extends React.Component {
 
   fetchAttributes = async () => {
     const { typeRef, journalId } = this.props;
+    const api = new DashboardApi();
 
     if (!typeRef || !journalId) {
       this.setState({ attribuesOptions: [] });

@@ -1,13 +1,16 @@
+import Formio from 'formiojs/Formio';
+import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
+import split from 'lodash/split';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Formio from 'formiojs/Formio';
-import isEqual from 'lodash/isEqual';
-import isEmpty from 'lodash/isEmpty';
-import split from 'lodash/split';
 
-import { OrgStructApi } from '../../../../api/orgStruct';
-import { FORM_MODE_CREATE } from '../../../../components/EcosForm';
-import SelectOrgstruct from '../../../../components/common/form/SelectOrgstruct';
+import UnreadableLabel from '../../UnreadableLabel';
+import BaseComponent from '../base/BaseComponent';
+
+import { OrgStructApi } from '@/api/orgStruct.js';
+import { FORM_MODE_CREATE } from '@/components/EcosForm/index.js';
+import SelectOrgstruct from '@/components/common/form/SelectOrgstruct';
 import {
   AUTHORITY_TYPE_GROUP,
   AUTHORITY_TYPE_USER,
@@ -16,9 +19,7 @@ import {
   ROOT_GROUP_NAME,
   TabTypes,
   ViewModes
-} from '../../../../components/common/form/SelectOrgstruct/constants';
-import BaseComponent from '../base/BaseComponent';
-import UnreadableLabel from '../../UnreadableLabel';
+} from '@/components/common/form/SelectOrgstruct/constants';
 
 const _array = (str, checkForEmpty) => {
   if (checkForEmpty && !str) {
@@ -29,6 +30,8 @@ const _array = (str, checkForEmpty) => {
 };
 
 export default class SelectOrgstructComponent extends BaseComponent {
+  _root = null;
+
   static schema(...extend) {
     return BaseComponent.schema(
       {
@@ -38,6 +41,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
         allowedAuthorityType: [AUTHORITY_TYPE_USER, AUTHORITY_TYPE_GROUP].join(', '),
         allowedGroupType: [GroupTypes.ROLE, GroupTypes.BRANCH].join(', '),
         rootGroupName: ROOT_GROUP_NAME,
+        customRootGroupName: '',
         allowedGroupSubType: '',
         currentUserByDefault: false,
         excludeAuthoritiesByName: '',
@@ -145,10 +149,18 @@ export default class SelectOrgstructComponent extends BaseComponent {
 
     let renderControl = () => {
       if (comp.unreadable) {
+        // TODO: Figure out how to make the changes from createRoot invisible
+        //  (it will first unmount the component completely, then it will mount)
+        // this._root = createRoot(this.reactContainer);
+        // eslint-disable-next-line react/no-deprecated
         ReactDOM.render(<UnreadableLabel />, this.reactContainer);
         return;
       }
 
+      // TODO: Figure out how to make the changes from createRoot invisible
+      //  (it will first unmount the component completely, then it will mount)
+      // this._root = createRoot(this.reactContainer);
+      // eslint-disable-next-line react/no-deprecated
       ReactDOM.render(
         <SelectOrgstruct
           defaultValue={this.dataValue}
@@ -158,7 +170,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
           disabled={comp.disabled}
           allowedAuthorityTypes={allowedAuthorityTypes}
           allowedGroupTypes={allowedGroupTypes}
-          rootGroupName={comp.rootGroupName || ROOT_GROUP_NAME}
+          rootGroupName={this._getRootGroup()}
           allowedGroupSubTypes={allowedGroupSubTypes}
           excludeAuthoritiesByName={comp.excludeAuthoritiesByName}
           excludeAuthoritiesByType={excludeAuthoritiesByType}
@@ -209,6 +221,16 @@ export default class SelectOrgstructComponent extends BaseComponent {
 
   getValue() {
     return this.dataValue;
+  }
+
+  _getRootGroup() {
+    const { customRootGroupName, rootGroupName } = this.component;
+
+    if (customRootGroupName) {
+      return this.evaluate(customRootGroupName, {}, 'value', '');
+    }
+
+    return rootGroupName || ROOT_GROUP_NAME;
   }
 
   setValue(value, flags) {

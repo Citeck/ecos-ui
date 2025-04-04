@@ -1,24 +1,28 @@
-import React, { useContext, useState, useEffect, useCallback } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
-import set from 'lodash/set';
-import noop from 'lodash/noop';
 import isFunction from 'lodash/isFunction';
-import { NotificationManager } from 'react-notifications';
+import noop from 'lodash/noop';
+import set from 'lodash/set';
+import PropTypes from 'prop-types';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
+import { connect } from 'react-redux';
 
-import { OrgstructContext } from '../../../../../components/common/Orgstruct/OrgstructContext';
-import { EcosModal } from '../../../../../components/common';
-import FormManager from '../../../../../components/EcosForm/FormManager';
-import ModalContent from '../ModalContent';
-import { setSelectedPerson } from '../../../../../actions/orgstructure';
-import { t } from '../../../../../helpers/util';
-import { updateCurrentUrl } from '../../../../../helpers/urls';
 import { getDashboardConfig } from '../../../../../actions/dashboard';
-import GroupIcon from './GroupIcon';
+import { setSelectedPerson } from '../../../../../actions/orgstructure';
+import FormManager from '../../../../../components/EcosForm/FormManager';
+import { EcosModal } from '../../../../../components/common';
+import { OrgstructContext } from '../../../../../components/common/Orgstruct/OrgstructContext';
+import { ROOT_GROUP_NAME } from '../../../../../components/common/Orgstruct/constants';
 import { SourcesId } from '../../../../../constants';
+import { updateCurrentUrl } from '../../../../../helpers/urls';
+import { t } from '../../../../../helpers/util';
+import ModalContent from '../ModalContent';
+
+import GroupIcon from './GroupIcon';
 import defaultAvatar from './Vector.png';
+
+import Records from '@/components/Records';
+import { NotificationManager } from '@/services/notifications';
 
 import './ListItem.scss';
 
@@ -141,41 +145,54 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
     setHovered(false);
   };
 
-  const createForm = formConfig => (e, isEditMode = false) => {
-    e.stopPropagation();
+  const createForm =
+    formConfig =>
+    (e, isEditMode = false) => {
+      e.stopPropagation();
 
-    const isPerson = formConfig.sourceId === SourcesId.PERSON;
-    const extraConfig = {};
-    let title;
+      const isPerson = formConfig.sourceId === SourcesId.PERSON;
+      const extraConfig = {};
+      let title;
 
-    set(extraConfig, 'attributes.authorityGroups', [item.id]);
+      set(extraConfig, 'attributes.authorityGroups', [item.id]);
 
-    if (isPerson) {
-      extraConfig.recordRef = null;
+      if (isPerson) {
+        extraConfig.recordRef = null;
 
-      title = t(Labels.TITLE_PERSON_CREATE);
-    } else {
-      title = isEditMode ? t(Labels.TITLE_GROUP_EDIT) : t(Labels.TITLE_SUBGROUP_CREATE);
-    }
-
-    if (isEditMode) {
-      extraConfig.recordRef = item.id;
-    }
-
-    FormManager.createRecordByVariant(
-      { ...formConfig, ...extraConfig },
-      {
-        title,
-        onSubmit: () => {
-          getItemsByParent(item, isEditMode);
-        },
-        initiator: {
-          type: 'form-component',
-          name: 'CreateVariants'
-        }
+        title = t(Labels.TITLE_PERSON_CREATE);
+      } else {
+        title = isEditMode ? t(Labels.TITLE_GROUP_EDIT) : t(Labels.TITLE_SUBGROUP_CREATE);
       }
-    );
-  };
+
+      if (isEditMode) {
+        extraConfig.recordRef = item.id;
+      }
+
+      FormManager.createRecordByVariant(
+        { ...formConfig, ...extraConfig },
+        {
+          title,
+          onSubmit: async submitedRecord => {
+            const newGroups = await Records.get(submitedRecord).load('authorityGroups[]?id');
+            const prevGroups = get(item, 'attributes.groups', []);
+            const difference = prevGroups.filter(authorityGroup => !newGroups.includes(authorityGroup));
+
+            getItemsByParent(
+              {
+                ...item,
+                attributes: { ...item.attributes, groups: newGroups }
+              },
+              isEditMode,
+              difference.includes(`emodel/authority-group@${ROOT_GROUP_NAME}`)
+            );
+          },
+          initiator: {
+            type: 'form-component',
+            name: 'CreateVariants'
+          }
+        }
+      );
+    };
 
   const createPerson = createForm(FORM_CONFIG.PERSON);
   const createGroup = createForm(FORM_CONFIG.AUTHORITY_GROUP);
@@ -250,6 +267,7 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
     isFunction(toggleToFirstTab) && toggleToFirstTab();
   };
 
+  const canEdit = get(item, 'attributes.canEdit', false);
   const isPerson = item.id.includes(SourcesId.PERSON);
   const isGroup = item.id.includes(SourcesId.GROUP);
 
@@ -285,10 +303,10 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
               })}
               style={{ right: 12 - scrollLeft }}
             >
-              {isPerson && item.parentId && (
+              {canEdit && isPerson && item.parentId && (
                 <GroupIcon title={t(Labels.TITLE_PERSON_DELETE)} icon="remove-person" onClick={openPersonModal} />
               )}
-              {isPerson && (
+              {canEdit && isPerson && (
                 <GroupIcon
                   title={t(Labels.TITLE_PERSON_SELECT)}
                   icon="select-person"
@@ -297,8 +315,8 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
                 />
               )}
 
-              {isGroup && <GroupIcon title={t(Labels.TITLE_GROUP_EDIT)} icon="edit" onClick={e => createGroup(e, true)} />}
-              {isGroup && (
+              {canEdit && isGroup && <GroupIcon title={t(Labels.TITLE_GROUP_EDIT)} icon="edit" onClick={e => createGroup(e, true)} />}
+              {canEdit && isGroup && (
                 <GroupIcon
                   title={t(Labels.TITLE_SUBGROUP_CREATE)}
                   icon="add-group"
@@ -309,7 +327,7 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
                   }}
                 />
               )}
-              {isGroup && (
+              {canEdit && isGroup && (
                 <GroupIcon
                   title={t(Labels.TITLE_PERSON_ADD)}
                   icon="add-user"
@@ -320,7 +338,7 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
                   }}
                 />
               )}
-              {isGroup && <GroupIcon title={t(Labels.TITLE_PERSON_CREATE)} icon="create-user" onClick={createPerson} />}
+              {canEdit && isGroup && <GroupIcon title={t(Labels.TITLE_PERSON_CREATE)} icon="create-user" onClick={createPerson} />}
 
               <EcosModal
                 className="ecos-modal_width-lg ecos-form-modal orgstructure-page-modal"

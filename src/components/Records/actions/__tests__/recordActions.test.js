@@ -1,14 +1,16 @@
+/**
+ * @jest-environment jsdom
+ */
 import isBoolean from 'lodash/isBoolean';
-import DialogManager from '../../../common/dialogs/Manager';
-import { DetailActionResult, prepareResult } from '../util/actionUtils';
-import * as util from '../../../../helpers/util';
-import recordActions, { DEFAULT_MODEL as GLOBAL_DEFAULT_MODEL } from '../recordActions';
-import actionsRegistry from '../actionsRegistry';
 
-import { ACTION_DTO_BY_ID, ACTIONS_BY_RECORD, ACTIONS_BY_TYPE, RECORD_TYPE, RECORDS } from '../__mocks__/recordActionsApi';
-import '../__mocks__/recordActions.mock';
+import * as util from '../../../../helpers/util';
+import DialogManager from '../../../common/dialogs/Manager';
 import TestActionExecutor, { TEST_ACTION_CONFIG } from '../__mocks__/TestActionExecutor.mock';
 import { ActionResultFormation, ActionResultTypes } from '../__mocks__/recordActions.mock';
+import { ACTION_DTO_BY_ID, ACTIONS_BY_RECORD, ACTIONS_BY_TYPE, RECORD_TYPE, RECORDS } from '../__mocks__/recordActionsApi';
+import actionsRegistry from '../actionsRegistry';
+import recordActions, { DEFAULT_MODEL as GLOBAL_DEFAULT_MODEL } from '../recordActions';
+import { DetailActionResult, prepareResult } from '../util/actionUtils';
 
 jest.mock('../recordActionsApi');
 

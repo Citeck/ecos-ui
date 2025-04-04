@@ -1,16 +1,17 @@
-import React, { Component } from 'react';
-import { Dropdown as Drd, DropdownMenu, DropdownToggle } from 'reactstrap';
 import classNames from 'classnames';
-import PropTypes from 'prop-types';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
+import { Dropdown as Drd, DropdownMenu, DropdownToggle } from 'reactstrap';
 import uuidV4 from 'uuid/v4';
 
+import { getIconUpDown } from '../../../../helpers/icon';
+import { getPropByStringKey, getTextByLocale, isMobileDevice } from '../../../../helpers/util';
 import { Tooltip } from '../../../common';
 import { IcoBtn, TwoIcoBtn } from '../../btns';
-import { getPropByStringKey, getTextByLocale, isMobileDevice } from '../../../../helpers/util';
-import { getIconUpDown } from '../../../../helpers/icon';
+
 import MenuItem from './MenuItem';
 
 import './Dropdown.scss';
@@ -40,7 +41,7 @@ export default class Dropdown extends Component {
     hideSelected: PropTypes.bool,
     scrollbarHeightMin: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     scrollbarHeightMax: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    CustomItem: PropTypes.element,
+    CustomItem: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
     getStateOpen: PropTypes.func,
     onChange: PropTypes.func,
     labelIsDiv: PropTypes.bool,

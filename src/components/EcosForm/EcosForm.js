@@ -1,27 +1,29 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Formio from 'formiojs/Formio';
-import get from 'lodash/get';
 import debounce from 'lodash/debounce';
-import isEqual from 'lodash/isEqual';
+import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 import isString from 'lodash/isString';
+import PropTypes from 'prop-types';
+import React from 'react';
 
-import '../../forms';
-import CustomEventEmitter from '../../forms/EventEmitter';
-import { getCurrentLocale, getMLValue, isMobileDevice, strSplice, t } from '../../helpers/util';
-import { PROXY_URI } from '../../constants/alfresco';
+import { PRE_SETTINGS_TYPES, PreSettings } from '../PreSettings';
 import Records from '../Records';
+
+import EcosFormUtils from './EcosFormUtils';
 import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
-import EcosFormUtils from './EcosFormUtils';
-import { LANGUAGE_EN } from '../../constants/lang';
-import { PANEL_CLASS_NAME } from '../../constants/pageTabs';
-import { SUBMIT_FORM_TIMEOUT } from '../../constants/forms';
-import { PRE_SETTINGS_TYPES, PreSettings } from '../PreSettings';
 import { FORM_MODE_EDIT } from './constants';
+
+import { PROXY_URI } from '@/constants/alfresco';
+import { SUBMIT_FORM_TIMEOUT } from '@/constants/forms';
+import { LANGUAGE_EN } from '@/constants/lang';
+import { PANEL_CLASS_NAME } from '@/constants/pageTabs';
+import CustomEventEmitter from '@/forms/EventEmitter';
+import { getCurrentLocale, getMLValue, isMobileDevice, strSplice, t } from '@/helpers/util';
+import ESMRequire from '@/services/ESMRequire';
 
 import './formio.full.min.css';
 import './glyphicon-to-fa.scss';
@@ -180,9 +182,9 @@ class EcosForm extends React.Component {
         }
       }
 
-      const customModulePromise = new Promise(function(resolve) {
+      const customModulePromise = new Promise(function (resolve) {
         if (formData.customModule) {
-          window.require([formData.customModule], Module => resolve(new Module.default({ recordId })));
+          ESMRequire.require([formData.customModule], Module => resolve(new Module.default({ recordId })));
         } else {
           resolve({});
         }

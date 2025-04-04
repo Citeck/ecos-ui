@@ -1,7 +1,6 @@
-import { call, put, select, takeEvery } from 'redux-saga/effects';
-import { NotificationManager } from 'react-notifications';
 import get from 'lodash/get';
 import isUndefined from 'lodash/isUndefined';
+import { call, put, select, takeEvery } from 'redux-saga/effects';
 
 import {
   getAvailableWidgets,
@@ -20,15 +19,14 @@ import {
   setLoadingKeys,
   setRequestResultDashboard
 } from '../actions/dashboardSettings';
-import { selectIdentificationForSet } from '../selectors/dashboard';
-import { selectIsAdmin, selectUserName } from '../selectors/user';
-import { t } from '../helpers/util';
-import { getSearchParams } from '../helpers/urls';
-import { getRefExceptAlfrescoPrefix, getRefWithAlfrescoPrefix } from '../helpers/ref';
 import { RequestStatuses } from '../constants';
-import DashboardService from '../services/dashboard';
-import DashboardSettingsConverter from '../dto/dashboardSettings';
 import { CONFIG_VERSION } from '../constants/dashboard';
+import DashboardConverter from '../dto/dashboard';
+import DashboardSettingsConverter from '../dto/dashboardSettings';
+import { getRefExceptAlfrescoPrefix, getRefWithAlfrescoPrefix } from '../helpers/ref';
+import { getSearchParams } from '../helpers/urls';
+import { t } from '../helpers/util';
+import { selectIdentificationForSet } from '../selectors/dashboard';
 import {
   selectIdentification,
   selectNewVersionConfig,
@@ -36,19 +34,22 @@ import {
   selectRecordRef,
   selectSelectedWidgetsById
 } from '../selectors/dashboardSettings';
-import DashboardConverter from '../dto/dashboard';
+import { selectIsAdmin, selectUserName } from '../selectors/user';
+import DashboardService from '../services/dashboard';
 import UserLocalSettingsService from '../services/userLocalSettings';
 
-function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
+import { NotificationManager } from '@/services/notifications';
+
+function* doInitDashboardSettingsRequest({ api }, { payload }) {
   try {
     // добавить проверку: если конфиг уже есть, не отправлять
     yield put(getDashboardConfig(payload));
   } catch (e) {
-    logger.error('[dashboard-settings/ doInitDashboardSettingsRequest saga] error', e);
+    console.error('[dashboard-settings/ doInitDashboardSettingsRequest saga] error', e);
   }
 }
 
-function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
+function* doGetDashboardConfigRequest({ api }, { payload }) {
   const { key, dashboardId, recordRef } = payload;
 
   try {
@@ -80,24 +81,24 @@ function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
     yield put(getDashboardKeys({ ...payload, recordRef: recordRef || _recordRef }));
   } catch (e) {
     NotificationManager.error(t('dashboard-settings.error.get-config'), t('error'));
-    logger.error('[dashboard-settings/ doGetDashboardConfigRequest saga] error', e);
+    console.error('[dashboard-settings/ doGetDashboardConfigRequest saga] error', e);
   } finally {
     yield put(setLoading({ key: payload.key, status: false }));
   }
 }
 
-function* doGetWidgetsRequest({ api, logger }, { payload }) {
+function* doGetWidgetsRequest({ api }, { payload }) {
   try {
     const widgets = yield call(api.dashboard.getWidgetsByDashboardType, payload.type);
 
     yield put(setAvailableWidgets({ widgets, key: payload.key }));
   } catch (e) {
     NotificationManager.error(t('dashboard-settings.error.get-widget-list'), t('error'));
-    logger.error('[dashboard-settings/ doGetWidgetsRequest saga] error', e);
+    console.error('[dashboard-settings/ doGetWidgetsRequest saga] error', e);
   }
 }
 
-function* doGetDashboardKeys({ api, logger }, { payload }) {
+function* doGetDashboardKeys({ api }, { payload }) {
   try {
     yield put(setLoadingKeys({ status: true, key: payload.key }));
 
@@ -114,13 +115,13 @@ function* doGetDashboardKeys({ api, logger }, { payload }) {
     yield put(setDashboardKeys({ keys, key: payload.key }));
   } catch (e) {
     NotificationManager.error(t('dashboard-settings.error.get-board-key'), t('error'));
-    logger.error('[dashboard-settings/ doGetDashboardKeys saga] error', e);
+    console.error('[dashboard-settings/ doGetDashboardKeys saga] error', e);
   } finally {
     yield put(setLoadingKeys({ status: false, key: payload.key }));
   }
 }
 
-function* doCheckUpdatedSettings({ api, logger }, { payload }) {
+function* doCheckUpdatedSettings({ api }, { payload }) {
   try {
     const identification = yield select(selectIdentificationForSet, payload.key);
     const user = payload.isForAllUsers ? null : identification.user;
@@ -153,11 +154,11 @@ function* doCheckUpdatedSettings({ api, logger }, { payload }) {
     yield put(setCheckUpdatedDashboardConfig({ saveWay, dashboardId, key: payload.key }));
   } catch (e) {
     NotificationManager.error(t('dashboard-settings.error.check-updates'), t('error'));
-    logger.error('[dashboard-settings/ doCheckUpdatedSettings saga] error', e);
+    console.error('[dashboard-settings/ doCheckUpdatedSettings saga] error', e);
   }
 }
 
-function* doSaveSettingsRequest({ api, logger }, { payload }) {
+function* doSaveSettingsRequest({ api }, { payload }) {
   try {
     const identification = yield select(selectIdentificationForSet, payload.key);
     const newIdentification = payload.newIdentification || {};
@@ -228,11 +229,11 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
   } catch (e) {
     yield put(setLoading({ key: payload.key, status: false }));
     NotificationManager.error(t('dashboard-settings.error.save-config'), t('error'));
-    logger.error('[dashboard-settings/ doSaveSettingsRequest saga] error', e);
+    console.error('[dashboard-settings/ doSaveSettingsRequest saga] error', e);
   }
 }
 
-function* doResetConfigToDefault({ api, logger }, { payload }) {
+function* doResetConfigToDefault({ api }, { payload }) {
   const { key, recordRef } = payload;
 
   try {
@@ -247,7 +248,7 @@ function* doResetConfigToDefault({ api, logger }, { payload }) {
   } catch (e) {
     yield put(setLoading({ key, status: false }));
     NotificationManager.error(t('dashboard-settings.error.reset-config'), t('error'));
-    logger.error('[dashboard-settings/ doGetDashboardKeys saga] error', e);
+    console.error('[dashboard-settings/ doGetDashboardKeys saga] error', e);
   }
 }
 

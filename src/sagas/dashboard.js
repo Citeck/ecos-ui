@@ -1,11 +1,7 @@
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
-import { NotificationManager } from 'react-notifications';
 
-import { RequestStatuses } from '../constants';
-import { t } from '../helpers/util';
-import { getRefWithAlfrescoPrefix } from '../helpers/ref';
 import {
   getDashboardConfig,
   getDashboardTitle,
@@ -19,13 +15,18 @@ import {
   setWarningMessage
 } from '../actions/dashboard';
 import { setDashboardConfig as setDashboardSettingsConfig } from '../actions/dashboardSettings';
-import { selectDashboardConfigs, selectIdentificationForView, selectResetStatus } from '../selectors/dashboard';
+import { RequestStatuses } from '../constants';
 import DashboardConverter from '../dto/dashboard';
-import DashboardService from '../services/dashboard';
+import { getRefWithAlfrescoPrefix } from '../helpers/ref';
+import { t } from '../helpers/util';
+import { selectDashboardConfigs, selectIdentificationForView, selectResetStatus } from '../selectors/dashboard';
 import { selectNewVersionConfig, selectSelectedWidgetsById } from '../selectors/dashboardSettings';
 import { selectCurrentWorkspaceIsBlocked } from '../selectors/workspaces';
+import DashboardService from '../services/dashboard';
 
-export function* _parseConfig({ api, logger }, { recordRef, config }) {
+import { NotificationManager } from '@/services/notifications';
+
+export function* _parseConfig({ api }, { recordRef, config }) {
   const migratedConfig = DashboardService.migrateConfigFromOldVersion(config);
   const newConfig = yield select(() => selectNewVersionConfig(migratedConfig));
 
@@ -35,7 +36,7 @@ export function* _parseConfig({ api, logger }, { recordRef, config }) {
   return DashboardConverter.getNewDashboardForWeb(newConfig, widgetsById, migratedConfig.version);
 }
 
-function* doGetDashboardRequest({ api, logger }, { payload }) {
+function* doGetDashboardRequest({ api }, { payload }) {
   const workspaceIsBlocked = yield select(selectCurrentWorkspaceIsBlocked);
 
   try {
@@ -61,7 +62,7 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
 
     const modelAttributes = yield call(api.dashboard.getModelAttributes, result.key);
     const webKeyInfo = DashboardConverter.getKeyInfoDashboardForWeb(result);
-    const webConfigs = yield _parseConfig({ api, logger }, { config: result.config, recordRef });
+    const webConfigs = yield _parseConfig({ api }, { config: result.config, recordRef });
     const isReset = yield select(selectResetStatus);
 
     if (isReset) {
@@ -84,11 +85,11 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
       NotificationManager.error(t('dashboard.error.get-config'), t('error'));
     }
 
-    logger.error('[dashboard/ doGetDashboardRequest saga] error', e);
+    console.error('[dashboard/ doGetDashboardRequest saga] error', e);
   }
 }
 
-function* doGetDashboardTitleRequest({ api, logger }, { payload }) {
+function* doGetDashboardTitleRequest({ api }, { payload }) {
   try {
     const { dashboardId, recordRef } = payload;
     const resTitle = yield call(api.dashboard.getTitleInfo, recordRef, dashboardId);
@@ -97,11 +98,11 @@ function* doGetDashboardTitleRequest({ api, logger }, { payload }) {
     yield put(setDashboardTitleInfo({ titleInfo, key: payload.key }));
   } catch (e) {
     NotificationManager.error(t('dashboard.error.get-title'), t('error'));
-    logger.error('[dashboard/ doGetDashboardTitleRequest saga] error', e);
+    console.error('[dashboard/ doGetDashboardTitleRequest saga] error', e);
   }
 }
 
-function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
+function* doSaveDashboardConfigRequest({ api }, { payload }) {
   yield put(setRequestResultDashboard({ key: payload.key }));
 
   try {
@@ -122,7 +123,7 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
       config = dashboardConfig;
     }
 
-    const forWeb = yield _parseConfig({ api, logger }, { config, recordRef });
+    const forWeb = yield _parseConfig({ api }, { config, recordRef });
 
     if (recordRef && identification.appliedToRef) {
       recordRef = getRefWithAlfrescoPrefix(recordRef);
@@ -176,7 +177,7 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
   } catch (e) {
     yield put(setLoading({ key: payload.key, status: false }));
     NotificationManager.error(t('dashboard.error.save-config'), t('error'));
-    logger.error('[dashboard/ doSaveDashboardConfigRequest saga] error', e);
+    console.error('[dashboard/ doSaveDashboardConfigRequest saga] error', e);
   }
 }
 

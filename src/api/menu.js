@@ -1,27 +1,47 @@
 import lodashGet from 'lodash/get';
-import lodashSet from 'lodash/set';
+import head from 'lodash/head';
 import isFunction from 'lodash/isFunction';
 import last from 'lodash/last';
-import head from 'lodash/head';
-import _ from 'lodash';
+import Omit from 'lodash/omit';
+import lodashSet from 'lodash/set';
 
-import { generateSearchTerm, getCurrentUserName } from '../helpers/util';
-import { getWorkspaceId } from '../helpers/urls';
+import Records from '../components/Records';
+import { PERMISSION_CHANGE_PASSWORD } from '../components/Records/constants';
+import { AUTHORITY_TYPE_GROUP } from '../components/common/form/SelectOrgstruct/constants';
 import { SourcesId, URL } from '../constants';
-import { ActionTypes } from '../constants/sidebar';
 import { CITECK_URI, PROXY_URI, UISERV_API } from '../constants/alfresco';
 import { GROUP_EVERYONE, MENU_VERSION, MenuSettings as ms } from '../constants/menu';
+import { ActionTypes } from '../constants/sidebar';
 import MenuConverter from '../dto/export/menu';
-import Records from '../components/Records';
-import { AUTHORITY_TYPE_GROUP } from '../components/common/form/SelectOrgstruct/constants';
-import { CommonApi } from './common';
-import ConfigService, { MAIN_MENU_TYPE, SITE_DASHBOARD_ENABLE, MENU_GROUP_PRIORITY } from '../services/config/ConfigService';
+import { getWorkspaceId } from '../helpers/urls';
+import { generateSearchTerm, getCurrentUserName, getEnabledWorkspaces } from '../helpers/util';
 import AuthorityService from '../services/authrority/AuthorityService';
-import { PERMISSION_CHANGE_PASSWORD } from '../components/Records/constants';
+import ConfigService, { MAIN_MENU_TYPE, SITE_DASHBOARD_ENABLE, MENU_GROUP_PRIORITY } from '../services/config/ConfigService';
+import { LiveSearchTypes } from '../services/search';
+
+import { CommonApi } from './common';
 
 const $4H = 14400000;
 const SITE = 'site';
 const GLOBAL = 'global';
+
+export const LiveSearchAttributes = {
+  ID: 'id',
+  DISP: '?disp',
+  CREATED: '_created',
+  MODIFIED: '_modified',
+  GROUP_TYPE: 'groupType',
+  TYPE_ID: '_type?id'
+};
+
+const PeopleSearchParams = {
+  CITY: 'city?str',
+  JOB_TITLE: 'jobTitle?str',
+  ID: 'id?str',
+  LAST_NAME: 'lastName?str',
+  FIRST_NAME: 'firstName?str',
+  AVATAR: 'avatar.url'
+};
 
 const postProcessMenuItemChildren = items => {
   if (items && items.length) {
@@ -84,7 +104,7 @@ export class MenuApi extends CommonApi {
   getMainMenuCreateVariants = (version = MENU_VERSION) => {
     const user = getCurrentUserName();
     const workspaceId = getWorkspaceId();
-    const enabledWorkspaces = _.get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+    const enabledWorkspaces = lodashGet(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
 
     return Records.queryOne(
       {
@@ -106,6 +126,33 @@ export class MenuApi extends CommonApi {
         console.error(e);
         return [];
       });
+  };
+
+  getNewLiveSearch = async text => {
+    return await Records.query(
+      {
+        sourceId: SourcesId.SEARCH,
+        query: {
+          text,
+          types: Object.keys(LiveSearchTypes)
+            .map(key => LiveSearchTypes[key])
+            .filter(item => (!getEnabledWorkspaces() ? item !== LiveSearchTypes.WORKSPACES : true)),
+          maxItemsForType: 5
+        }
+      },
+      Object.keys(Omit(LiveSearchAttributes, 'ID')).map(key => LiveSearchAttributes[key])
+    );
+  };
+
+  getSearchPeopleParams = async id => {
+    return await Records.get(id).load({
+      location: PeopleSearchParams.CITY,
+      jobtitle: PeopleSearchParams.JOB_TITLE,
+      userName: PeopleSearchParams.ID,
+      lastName: PeopleSearchParams.LAST_NAME,
+      firstName: PeopleSearchParams.FIRST_NAME,
+      avatarUrl: PeopleSearchParams.AVATAR
+    });
   };
 
   getLiveSearchDocuments = (terms, startIndex) => {
@@ -142,7 +189,7 @@ export class MenuApi extends CommonApi {
   };
 
   getMenuItems = async ({ version, id, resolved }) => {
-    const enabledWorkspaces = _.get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+    const enabledWorkspaces = lodashGet(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
     const user = getCurrentUserName();
     let config;
 
@@ -189,7 +236,7 @@ export class MenuApi extends CommonApi {
    * @returns {*|RecordsComponent}
    */
   getUserCustomMenuConfig = (user = getCurrentUserName(), version = 1) => {
-    const enabledWorkspaces = _.get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+    const enabledWorkspaces = lodashGet(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
     const workspaceId = getWorkspaceId();
 
     return Records.queryOne(
@@ -219,7 +266,7 @@ export class MenuApi extends CommonApi {
   getUserMenuConfig = async () => {
     const user = getCurrentUserName();
     const workspace = getWorkspaceId();
-    const enabledWorkspaces = _.get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+    const enabledWorkspaces = lodashGet(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
 
     const configVersion = await ConfigService.getValue(MAIN_MENU_TYPE);
     const version = configVersion && configVersion.includes('left-v') ? +configVersion.replace('left-v', '') : 0;
@@ -308,7 +355,7 @@ export class MenuApi extends CommonApi {
     rec.att('authorities[]?str', authorities);
     rec.att('version', version);
 
-    if (_.get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+    if (lodashGet(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
       rec.att('workspace', getWorkspaceId());
     }
 
@@ -329,7 +376,7 @@ export class MenuApi extends CommonApi {
 }
 
 async function fetchExtraItemInfo(data = [], attributes) {
-  const { JOURNAL, KANBAN, DOCLIB, LINK_CREATE_CASE, EDIT_RECORD, START_WORKFLOW } = ms.ItemTypes;
+  const { JOURNAL, KANBAN, DOCLIB, LINK_CREATE_CASE, EDIT_RECORD, START_WORKFLOW, PREVIEW_LIST } = ms.ItemTypes;
 
   return Promise.all(
     data.map(async item => {
@@ -338,7 +385,7 @@ async function fetchExtraItemInfo(data = [], attributes) {
       let attrs = isFunction(attributes) ? attributes(item) : attributes;
       let ref = lodashGet(item, 'config.recordRef') || lodashGet(item, 'config.sectionId') || lodashGet(item, 'config.processDef');
 
-      if (attrs && ref && [JOURNAL, KANBAN, DOCLIB, EDIT_RECORD, START_WORKFLOW].includes(item.type)) {
+      if (attrs && ref && [JOURNAL, KANBAN, DOCLIB, PREVIEW_LIST, EDIT_RECORD, START_WORKFLOW].includes(item.type)) {
         ref = ref.replace('/journal@', '/rjournal@');
         ref = ref.replace('/journal_all@', '/rjournal@');
         target._remoteData_ = await Records.get(ref).load(attrs);

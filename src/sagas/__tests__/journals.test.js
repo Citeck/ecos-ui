@@ -1,13 +1,12 @@
 import { runSaga } from 'redux-saga';
 
-import { reloadBoardData } from '../../actions/kanban';
 import { setForceUpdate } from '../../actions/journals';
-
+import { reloadBoardData } from '../../actions/kanban';
 import { JOURNAL_VIEW_MODE } from '../../components/Journals/constants';
-import KanbanApi from '../__mocks__/kanbanApi';
-import JournalApi from '../__mocks__/journalApi';
-import * as journals from '../journals';
 import { wrapArgs } from '../../helpers/redux';
+import JournalApi from '../__mocks__/journalApi';
+import KanbanApi from '../__mocks__/kanbanApi';
+import * as journals from '../journals';
 
 const stateId = 'stateId',
   boardId = 'boardId',
@@ -18,7 +17,7 @@ const api = {
   journals: new JournalApi()
 };
 
-const logger = { error: jest.fn() };
+console.error = jest.fn();
 
 beforeEach(() => {
   delete window.location;
@@ -39,7 +38,7 @@ async function wrapRunSaga(sagaFun, payload = {}, state = {}) {
       getState: () => state
     },
     sagaFun,
-    { api, logger, w },
+    { api, w },
     { payload: { stateId, boardId, templateId, ...payload } }
   ).done;
 
@@ -66,7 +65,7 @@ describe('journals sagas tests', () => {
       }
     );
 
-    expect(logger.error).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
     expect(dispatched).toHaveLength(0);
   });
 
@@ -99,7 +98,7 @@ describe('journals sagas tests', () => {
 
     expect(second.payload._args).toEqual(false);
 
-    expect(logger.error).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
     expect(dispatched).toHaveLength(2);
   });
 });

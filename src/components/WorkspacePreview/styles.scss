@@ -1,0 +1,39 @@
+@import '../../styles/constants';
+
+.workspace-preview {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: end !important;
+  gap: 10px;
+
+  &__image-preview {
+    display: flex;
+    width: 30px;
+    height: 30px;
+    border-radius: 4px;
+    object-fit: cover;
+    background-color: $color-blue-morning;
+    justify-content: center;
+    align-items: center;
+
+    &_icon {
+      width: 20px;
+      height: 20px;
+      object-fit: cover;
+      color: $color-blue-light;
+    }
+  }
+
+  &__preview {
+    width: 30px;
+    height: 30px;
+    border-radius: 4px;
+    background-color: $color-blue-morning;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: $color-blue-light;
+  }
+}

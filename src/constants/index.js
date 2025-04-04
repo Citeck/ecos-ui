@@ -1,5 +1,5 @@
-import { CITECK_URI } from './alfresco';
 import { SectionTypes } from './adminSection';
+import { CITECK_URI } from './alfresco';
 
 export const DEFAULT_EIS = Object.freeze({
   EIS_ID: 'EIS_ID',
@@ -40,6 +40,7 @@ export const URL = {
 
 export const RELOCATED_URL = {
   [URL.BPMN_DESIGNER]: `${URL.ADMIN_PAGE}?type=${SectionTypes.BPM}`
+  // [URL.BPMN_DESIGNER]: URL.ADMIN_PAGE
 };
 
 export const URL_MATCHING = {
@@ -104,6 +105,7 @@ export const SourcesId = {
   PROC_TASK: 'eproc/proc-task',
   PROC_HISTORIC_TASK: 'eproc/proc-historic-task',
   DOCUMENTS: 'emodel/documents',
+  SEARCH: 'emodel/search',
   get CURRENT_USER() {
     return `${SourcesId.PERSON}@CURRENT`;
   },
@@ -254,6 +256,7 @@ export const DateFormats = {
 export const IGNORED_EVENT_ATTRIBUTE = '_isIgnoredEvent';
 
 export const DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS = ['id', '_name'];
+export const allowedModes = ['development', 'dev-stage'];
 
 window.Citeck = window.Citeck || {};
 window.Citeck.constants = window.Citeck.constants || {};

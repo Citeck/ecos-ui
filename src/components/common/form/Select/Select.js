@@ -1,15 +1,15 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import ReactSelect from 'react-select';
-import AsyncSelect from 'react-select/lib/Async';
 import get from 'lodash/get';
-import isString from 'lodash/isString';
 import isBoolean from 'lodash/isBoolean';
 import isFunction from 'lodash/isFunction';
+import isString from 'lodash/isString';
 import isUndefined from 'lodash/isUndefined';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import ReactSelect from 'react-select';
+import AsyncSelect from 'react-select/lib/Async';
 
-import { t } from '../../../../helpers/export/util';
+import { t } from '@/helpers/export/util';
 
 import './Select.scss';
 
@@ -51,7 +51,7 @@ class Select extends Component {
     const { closeMenuOnScroll } = this.props;
 
     if (isFunction(closeMenuOnScroll)) {
-      return function(e) {
+      return function (e) {
         const cl = get(e, 'target.classList');
         const innerSelect = !!cl && cl.contains('select__menu-list');
         return closeMenuOnScroll(e, { innerSelect });
@@ -59,7 +59,7 @@ class Select extends Component {
     }
   };
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const { value, options } = nextProps;
     this.setState({ value: this.handleSetValue(value, options || this._options) });
   }

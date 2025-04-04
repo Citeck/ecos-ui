@@ -1,23 +1,25 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
 import { $generateHtmlFromNodes } from '@lexical/html';
-import moment from 'moment';
+import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
-import get from 'lodash/get';
 import isNil from 'lodash/isNil';
+import moment from 'moment';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
-import { Avatar, Loader, Popper } from '../../common/index';
-import { t } from '../../../helpers/export/util';
-import { num2str } from '../../../helpers/util';
+import LexicalEditor from '../../LexicalEditor';
+import Records from '../../Records';
 import { Btn } from '../../common/btns';
 import { Badge, Checkbox, Label } from '../../common/form';
-import RichTextEditor from '../../RichTextEditor';
+import { Avatar, Loader, Popper } from '../../common/index';
+
 import { CommentInterface } from './propsInterfaces';
-import { selectStateByRecordRef } from '../../../selectors/comments';
-import { createCommentRequest, setError, deleteCommentRequest, getComments, updateCommentRequest } from '../../../actions/comments';
-import Records from '../../Records';
+
+import { createCommentRequest, setError, deleteCommentRequest, getComments, updateCommentRequest } from '@/actions/comments';
+import { t } from '@/helpers/export/util';
+import { num2str } from '@/helpers/util';
+import { selectStateByRecordRef } from '@/selectors/comments';
 
 export const LENGTH_LIMIT = 5000;
 
@@ -140,10 +142,7 @@ export class Comment extends Component {
 
     if (userName === editorUserName) {
       const now = moment();
-      const yesterday = now
-        .clone()
-        .subtract(1, 'days')
-        .startOf('day');
+      const yesterday = now.clone().subtract(1, 'days').startOf('day');
 
       if (inMoment.isSame(yesterday, 'd')) {
         title += ` ${inMoment.format('DD.MM.YYYY')}`;
@@ -220,12 +219,11 @@ export class Comment extends Component {
     });
   }
 
-  handleEditorStateChange = (editorState, editor, _, noChanges) => {
-    const { textContent = '' } = editor.getRootElement();
-
-    this.setState({ isMaxLength: textContent.length > LENGTH_LIMIT, noChanges });
-
+  handleEditorStateChange = (editorState, editor, noChanges) => {
     editor.update(() => {
+      const { textContent = '' } = editor.getRootElement();
+      this.setState({ isMaxLength: textContent.length > LENGTH_LIMIT, noChanges });
+
       const htmlComment = $generateHtmlFromNodes(editor, null);
       if (!isNil(htmlComment)) {
         this.setState({
@@ -239,7 +237,7 @@ export class Comment extends Component {
   handleTextBeforeSave = () => {
     const { dataStorageFormat } = this.props;
     const { htmlComment, rawComment } = this.state;
-    let text = '';
+    let text;
     switch (dataStorageFormat) {
       case 'raw':
         text = rawComment;
@@ -294,7 +292,7 @@ export class Comment extends Component {
     return (
       <div className="ecos-comments__editor">
         {isLoading && <Loader blur />}
-        <RichTextEditor htmlString={comment ? comment.text : null} onChange={this.handleEditorStateChange} />
+        <LexicalEditor htmlString={comment ? comment.text : null} onChange={this.handleEditorStateChange} />
         <div className="ecos-comments__editor-footer">
           {this.state.isInternalSupported && (
             <div className="ecos-comments__editor-footer-chbx-wrapper">
@@ -339,8 +337,13 @@ export class Comment extends Component {
       return this.renderEditor();
     }
 
-    const { id, avatar = '', firstName, lastName, middleName, displayName, text, canEdit = false, canDelete = false } = comment;
+    const { id, avatar = '', firstName, lastName, middleName, displayName, text, canEdit = false, canDelete = false, userName } = comment;
     const { isEdit } = this.state;
+
+    let explicitFirstName = firstName;
+    if (!firstName && !lastName && !middleName) {
+      explicitFirstName = userName;
+    }
 
     return (
       <div className="ecos-comments__comment" key={id}>
@@ -356,7 +359,7 @@ export class Comment extends Component {
 
             <div className="ecos-comments__comment-header-column ecos-comments__comment-name-container">
               <div className="ecos-comments__comment-name">
-                {firstName} {middleName}
+                {explicitFirstName} {middleName}
               </div>
               <div className="ecos-comments__comment-name">{lastName}</div>
               {this.renderCommentDate()}
@@ -384,7 +387,7 @@ export class Comment extends Component {
           )}
         </div>
         {!isEdit && (
-          <RichTextEditor readonly className="ecos-comments__comment-editor" htmlString={text} onChange={this.handleEditorStateChange} />
+          <LexicalEditor readonly className="ecos-comments__comment-editor" htmlString={text} onChange={this.handleEditorStateChange} />
         )}
         {isEdit && this.renderEditor()}
 
@@ -408,7 +411,4 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   setErrorMessage: message => dispatch(setError({ message, recordRef: ownProps.record }))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Comment);
+export default connect(mapStateToProps, mapDispatchToProps)(Comment);

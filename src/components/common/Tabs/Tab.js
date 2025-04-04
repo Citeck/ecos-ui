@@ -1,13 +1,14 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import isString from 'lodash/isString';
+import PropTypes from 'prop-types';
+import React from 'react';
 import uuidV4 from 'uuid/v4';
 
-import { commonOneTabDefaultProps, commonOneTabPropTypes } from './utils';
 import { getCurrentLocale, getMLValue, t } from '../../../helpers/util';
-import EditTabForm from './EditTabForm';
+
 import { Actions } from './Actions';
+import EditTabForm from './EditTabForm';
+import { commonOneTabDefaultProps, commonOneTabPropTypes } from './utils';
 
 class Tab extends React.Component {
   static propTypes = {
@@ -202,7 +203,7 @@ class Tab extends React.Component {
 
     return (
       <div className={tabClassNames} onClick={onClick}>
-        <div class={classNames('ecos-tab-label', { 'ecos-tab-label_editing': isEdit })}>{this.renderLocaleText()}</div>
+        <div className={classNames('ecos-tab-label', { 'ecos-tab-label_editing': isEdit })}>{this.renderLocaleText()}</div>
         <Actions
           id={id}
           isActive={isActive}

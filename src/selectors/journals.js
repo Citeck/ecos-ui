@@ -1,16 +1,18 @@
-import { createSelector } from 'reselect';
-import get from 'lodash/get';
-import isEqual from 'lodash/isEqual';
-import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
+import { createSelector } from 'reselect';
 
-import { defaultState, emptyJournalConfig } from '../reducers/journals';
+import { ParserPredicate } from '../components/Filters/predicates';
 import { DEFAULT_PAGINATION, isTable, JOURNAL_DASHLET_CONFIG_VERSION } from '../components/Journals/constants';
 import JournalsConverter from '../dto/journals';
-import { ParserPredicate } from '../components/Filters/predicates';
 import { beArray, getId, getTextByLocale } from '../helpers/util';
+import { defaultState, emptyJournalConfig } from '../reducers/journals';
+
 import { selectIsDocLibEnabled } from './docLib';
 import { selectIsKanbanEnabled } from './kanban';
+import { selectIsEnabledPreviewList } from './previewList';
 
 const selectState = (state, key) => get(state, ['journals', key], { ...defaultState }) || {};
 
@@ -226,13 +228,14 @@ export const selectKanbanJournalProps = createSelector(
 );
 
 export const selectCommonJournalPageProps = createSelector(
-  [selectState, selectUrl, selectIsDocLibEnabled, selectIsKanbanEnabled],
-  (ownState, urlParams, isDocLibEnabled, isKanbanEnabled) => ({
+  [selectState, selectUrl, selectIsDocLibEnabled, selectIsKanbanEnabled, selectIsEnabledPreviewList],
+  (ownState, urlParams, isDocLibEnabled, isKanbanEnabled, isPreviewListEnabled) => ({
     viewMode: ownState.viewMode,
     title: getTextByLocale(get(ownState, 'journalConfig.name')),
     urlParams,
     isDocLibEnabled,
-    isKanbanEnabled
+    isKanbanEnabled,
+    isPreviewListEnabled
   })
 );
 

@@ -1,9 +1,17 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { Tooltip } from 'reactstrap';
 import omit from 'lodash/omit';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { Tooltip } from 'reactstrap';
 
 const omitKeys = ['defaultOpen'];
+
+export const baseModifiersUncontrolled = {
+  offset: {
+    name: 'offset',
+    enabled: true,
+    offset: '0, 5px'
+  }
+};
 
 export default class UncontrolledTooltip extends Component {
   constructor(props) {

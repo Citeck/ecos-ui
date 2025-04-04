@@ -1,9 +1,18 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { connect } from 'react-redux';
-import { Scrollbars } from 'react-custom-scrollbars';
 import get from 'lodash/get';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { Scrollbars } from 'react-custom-scrollbars';
+import { connect } from 'react-redux';
+
+import Records from '../Records';
+import WorkspacePreview from '../WorkspacePreview';
+import { Tooltip } from '../common';
+import SidebarToggle from '../common/icons/SidebarToggle';
+
+import List from './List';
+import Logo from './Logo';
+import MobileMenuBtn from './MobileMenuBtn';
 
 import {
   collapseAllItems,
@@ -12,20 +21,14 @@ import {
   setExpandableItems,
   setInitialSelectedId,
   toggleIsOpen
-} from '../../actions/slideMenu';
-import WorkspacePreview from '../WorkspacePreview';
-import { isExistValue, t } from '../../helpers/util';
-import { SourcesId, URL as Urls } from '../../constants';
-import Records from '../Records';
-import Logo from './Logo';
-import List from './List';
-import { selectActiveThemeImage, selectIsViewNewJournal } from '../../selectors/view';
-import { DefaultImages } from '../../constants/theme';
-import { Tooltip } from '../common';
-import PageService, { Events } from '../../services/PageService';
-import SidebarToggle from '../common/icons/SidebarToggle';
-import { getWorkspaceId } from '../../helpers/urls';
-import { selectWorkspaceById } from '../../selectors/workspaces';
+} from '@/actions/slideMenu';
+import { SourcesId, URL as Urls } from '@/constants';
+import { DefaultImages } from '@/constants/theme';
+import { getWorkspaceId } from '@/helpers/urls';
+import { isExistValue, t } from '@/helpers/util';
+import { selectActiveThemeImage, selectIsViewNewJournal } from '@/selectors/view';
+import { selectWorkspaceById } from '@/selectors/workspaces';
+import PageService, { Events } from '@/services/PageService';
 
 import './style.scss';
 
@@ -135,7 +138,7 @@ class Sidebar extends React.Component {
   };
 
   render() {
-    const { isOpen, isReady, largeLogoSrc, smallLogoSrc, items, id, isViewNewJournal, workspace } = this.props;
+    const { isOpen, isReady, largeLogoSrc, smallLogoSrc, items, id, isViewNewJournal, workspace, isMobile } = this.props;
     const { homePageLink, wsId, wsName } = workspace || {};
 
     if (!isReady) {
@@ -149,6 +152,10 @@ class Sidebar extends React.Component {
     }
 
     const workspaceHomeLink = url.toString();
+
+    if (!isOpen && isMobile) {
+      return <MobileMenuBtn openMenu={this.toggleSlideMenu} />;
+    }
 
     return (
       <div
@@ -204,6 +211,7 @@ const mapStateToProps = state => {
   const workspaceId = getWorkspaceId();
 
   return {
+    isMobile: !!get(state, 'view.isMobile'),
     idMenu: get(state, 'menu.id', ''),
     versionMenu: get(state, 'menu.version'),
     isOpen: get(state, 'slideMenu.isOpen'),
@@ -229,7 +237,4 @@ const mapDispatchToProps = dispatch => ({
   setInitialSelectedId: () => dispatch(setInitialSelectedId())
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Sidebar);
+export default connect(mapStateToProps, mapDispatchToProps)(Sidebar);

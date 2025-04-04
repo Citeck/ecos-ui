@@ -1,19 +1,20 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { Scrollbars } from 'react-custom-scrollbars';
 import fscreen from 'fscreen';
-import get from 'lodash/get';
-import set from 'lodash/set';
 import debounce from 'lodash/debounce';
+import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
+import set from 'lodash/set';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { Scrollbars } from 'react-custom-scrollbars';
 
+import { DocScaleOptions } from '../../../constants';
+import { camelize, t } from '../../../helpers/util';
 import { Fullpage, Icon, InfoText } from '../../common';
 import { Btn } from '../../common/btns';
+
+import * as StyleVariables from './style.scss';
 import { Labels } from './util';
-import { camelize, t } from '../../../helpers/util';
-import StyleVariables from './style.scss';
-import { DocScaleOptions } from '../../../constants';
 
 const $PAGE = '.ecos-doc-preview__viewer-page';
 const fullscreenEnabled = fscreen.fullscreenEnabled;

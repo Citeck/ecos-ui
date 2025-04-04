@@ -1,11 +1,8 @@
+import { render } from '@testing-library/react';
 import React from 'react';
-import { shallow, configure, mount } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
 import 'jest-canvas-mock';
 
 import { GroupActions } from '../GroupActions';
-
-configure({ adapter: new Adapter() });
 
 describe('GroupActions tests', () => {
   const baseProps = {
@@ -28,32 +25,24 @@ describe('GroupActions tests', () => {
 
   describe('<GroupActions />', () => {
     it('should render GroupActions component', () => {
-      const component = shallow(<GroupActions {...baseProps} />);
+      const { container } = render(<GroupActions {...baseProps} />);
 
-      expect(component).toMatchSnapshot();
+      expect(container).toMatchSnapshot();
     });
   });
 
   describe('<GroupActions />', () => {
     it('should group action button is disabled', () => {
       const attachTo = document.createElement('div');
-
       document.body.appendChild(attachTo);
 
-      const component = mount(<GroupActions {...baseProps} />, { attachTo });
+      const { container } = render(<GroupActions {...baseProps} />, { attachTo });
 
-      return Promise.resolve(component)
-        .then(() => {
-          const disabledComponents = component.find('.ecos-dropdown-outer_disabled');
+      const disabledComponents = container.getElementsByClassName('ecos-dropdown-outer_disabled');
+      expect(disabledComponents).toHaveLength(1);
 
-          expect(disabledComponents.length).toBe(1);
-
-          const groupActionSelector = component.find('.ecos-btn.ecos-group-actions__control');
-
-          expect(groupActionSelector.props().disabled).toBeTruthy();
-          expect(groupActionSelector.is('[disabled]')).toBe(true);
-        })
-        .then(() => component.unmount());
+      const groupActionSelector = container.getElementsByClassName('ecos-group-actions__control');
+      expect(groupActionSelector[0].disabled).toBeTruthy();
     });
   });
 
@@ -84,23 +73,15 @@ describe('GroupActions tests', () => {
         }
       };
       const attachTo = document.createElement('div');
-
       document.body.appendChild(attachTo);
 
-      const component = mount(<GroupActions {...props} />, { attachTo });
+      const { container } = render(<GroupActions {...props} />, { attachTo });
 
-      return Promise.resolve(component)
-        .then(() => {
-          const disabledComponent = component.find('.ecos-dropdown-outer_disabled');
+      const disabledComponent = container.getElementsByClassName('ecos-dropdown-outer_disabled');
+      expect(disabledComponent).toHaveLength(0);
 
-          expect(disabledComponent.length).toBe(0);
-
-          const groupActionSelector = component.find('.ecos-btn.ecos-group-actions__control');
-
-          expect(groupActionSelector.instance().getAttribute('disabled')).toBeNull();
-          expect(groupActionSelector.props().disabled).toBe(false);
-        })
-        .then(() => component.unmount());
+      const groupActionSelector = container.getElementsByClassName('ecos-group-actions__control');
+      expect(groupActionSelector[0].disabled).toBeFalsy();
     });
   });
 });

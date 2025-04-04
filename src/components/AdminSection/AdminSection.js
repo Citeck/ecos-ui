@@ -1,29 +1,31 @@
-import React from 'react';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
-import { Col, Container, Row } from 'reactstrap';
 import get from 'lodash/get';
 import throttle from 'lodash/throttle';
+import React from 'react';
+import { connect } from 'react-redux';
+import { Col, Container, Row } from 'reactstrap';
 
-import BpmAdministration from '../../pages/BPMAdministrationPage/BpmAdministration';
-import { getEnabledWorkspaces, t } from '../../helpers/util';
-
-import { Labels, SectionTypes } from '../../constants/adminSection';
-import pageTabList from '../../services/pageTabs/PageTabList';
-import DevTools from '../../pages/DevTools';
-import { Caption } from '../common/form';
 import BPMNDesigner from '../BPMNDesigner';
 import DMNDesigner from '../DMNDesigner';
 import { JournalPresets } from '../Journals';
-import JournalViewer from './JournalViewer';
-import { AdminMenu } from './';
-import { showModalJson } from '../../helpers/tools';
-import { IcoBtn } from '../common/btns';
-import { wrapArgs } from '../../helpers/redux';
-import { execJournalAction } from '../../actions/journals';
 import { ActionTypes } from '../Records/actions/constants';
-import { fetchGroupSectionList } from '../../actions/adminSection';
-import { SourcesId } from '../../constants';
+import { IcoBtn } from '../common/btns';
+import { Caption } from '../common/form';
+
+import JournalViewer from './JournalViewer';
+
+import { AdminMenu } from './';
+
+import { fetchGroupSectionList } from '@/actions/adminSection';
+import { execJournalAction } from '@/actions/journals';
+import { SourcesId } from '@/constants';
+import { Labels, SectionTypes } from '@/constants/adminSection';
+import { wrapArgs } from '@/helpers/redux';
+import { showModalJson } from '@/helpers/tools';
+import { getEnabledWorkspaces, t } from '@/helpers/util';
+import BpmAdministration from '@/pages/BPMAdministrationPage/BpmAdministration';
+import DevTools from '@/pages/DevTools';
+import pageTabList from '@/services/pageTabs/PageTabList';
 
 import './style.scss';
 
@@ -64,9 +66,18 @@ class AdminSection extends React.PureComponent {
   isHidden = type => {
     const { activeSection, isAccessibleSectionType, urlParams, isAccessible } = this.props;
     const { type: typeFromUrl } = urlParams;
+    const enabledWorkspaces = getEnabledWorkspaces();
 
-    if (!isAccessible) {
+    if (!isAccessible || enabledWorkspaces) {
       if (isAccessibleSectionType) {
+        return typeFromUrl !== type;
+      }
+
+      if (
+        enabledWorkspaces &&
+        !isAccessibleSectionType &&
+        (typeFromUrl === SectionTypes.DEV_TOOLS || typeFromUrl === SectionTypes.JOURNAL)
+      ) {
         return typeFromUrl !== type;
       }
 
@@ -116,7 +127,7 @@ class AdminSection extends React.PureComponent {
   );
 
   render() {
-    const { activeSection, tabId, isActivePage, isOpenMenu, isAccessible, isAccessibleSectionType, isViewNewJournal } = this.props;
+    const { activeSection, tabId, isActivePage, isOpenMenu, isAccessible, isAccessibleSectionType, isViewNewJournal, stateId } = this.props;
     const { journalStateId, additionalHeights, needResetJournalView } = this.state;
 
     const enabledWorkspaces = getEnabledWorkspaces();
@@ -153,23 +164,24 @@ class AdminSection extends React.PureComponent {
                 </Col>
               </Row>
             )}
-            <Row className="m-0 p-0">
-              <Col className="m-0 p-0" md={12}>
-                <BpmAdministration hidden={this.isHidden(SectionTypes.BPMN_ADMIN)} />
-                <DMNDesigner hidden={this.isHidden(SectionTypes.DMN)} />
-                <BPMNDesigner hidden={this.isHidden(SectionTypes.BPM)} />
-                {!enabledWorkspaces && (
+            {(isAccessibleSectionType || isAccessible) && (
+              <Row className="m-0 p-0">
+                <Col className="m-0 p-0" md={12}>
+                  <BpmAdministration hidden={this.isHidden(SectionTypes.BPMN_ADMIN)} />
+                  <DMNDesigner hidden={this.isHidden(SectionTypes.DMN)} />
+                  <BPMNDesigner hidden={this.isHidden(SectionTypes.BPM)} />
                   <JournalViewer
                     hidden={this.isHidden(SectionTypes.JOURNAL)}
                     tabId={tabId}
                     upStateId={this.setJournalStateId}
                     additionalHeights={-additionalHeights}
                     stateId={needResetJournalView ? null : journalStateId}
+                    sectionStateId={stateId}
                   />
-                )}
-                <DevTools hidden={this.isHidden(SectionTypes.DEV_TOOLS)} isActivePage={isActivePage} />
-              </Col>
-            </Row>
+                  <DevTools hidden={this.isHidden(SectionTypes.DEV_TOOLS)} isActivePage={isActivePage} />
+                </Col>
+              </Row>
+            )}
           </Container>
         </div>
         {!enabledWorkspaces && isAccessible && (
@@ -194,8 +206,8 @@ const mapStateToProps = (state, props) => {
     journals: state.journals
   };
 
-  if (getEnabledWorkspaces() && state.adminSection.wsSections && state.adminSection.wsSections[stateId]) {
-    obj.activeSection = state.adminSection.wsSections[stateId].activeSection || {};
+  if (getEnabledWorkspaces()) {
+    obj.activeSection = state.adminSection.wsSections[stateId]?.activeSection || {};
   }
 
   return obj;
@@ -210,7 +222,4 @@ const mapDispatchToProps = (dispatch, props) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(AdminSection);
+export default connect(mapStateToProps, mapDispatchToProps)(AdminSection);

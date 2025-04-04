@@ -1,27 +1,27 @@
-import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 import isString from 'lodash/isString';
 
-import { getCurrentUserName, getMLValue, isExistIndex, t } from '../helpers/util';
+import { ASSOC_TYPES } from '../components/Journals/service/journalColumnsResolver';
+import Records from '../components/Records';
+import Components from '../components/widgets/Components';
+import { EmodelTypes, SourcesId } from '../constants';
+import { DashboardTypes } from '../constants/dashboard';
+import { TITLE } from '../constants/pageTabs';
 import Cache from '../helpers/cache';
 import { getRefWithAlfrescoPrefix, parseJournalId, parseTypeId } from '../helpers/ref';
-import { EmodelTypes, SourcesId } from '../constants';
-import { TITLE } from '../constants/pageTabs';
-import { DashboardTypes } from '../constants/dashboard';
-import Components from '../components/widgets/Components';
-import Records from '../components/Records';
-import { ASSOC_TYPES } from '../components/Journals/service/journalColumnsResolver';
-import DashboardService from '../services/dashboard';
 import { getWorkspaceId } from '../helpers/urls';
+import { getCurrentUserName, getEnabledWorkspaces, getMLValue, isExistIndex, t } from '../helpers/util';
+import DashboardService from '../services/dashboard';
 
 const defaultAttr = {
+  id: 'id',
   config: 'config?json',
   authority: 'authority',
   user: 'authority',
   type: 'typeRef.inhDashboardType?str!appliedToRef._type.inhDashboardType?str',
   key: 'typeRef?id',
-  id: 'id',
   appliedToRef: 'appliedToRef?str'
 };
 
@@ -115,6 +115,10 @@ export class DashboardApi {
       record.att('scope', 'orgstructure');
     }
 
+    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+      record.att('workspace', getWorkspaceId());
+    }
+
     return record.save().then(response => {
       cache.clear();
       return response;
@@ -127,6 +131,10 @@ export class DashboardApi {
     record.att('id', id);
     record.att('name?json', name);
     record.att('config?json', DashboardService.getEmptyDashboardConfig());
+
+    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+      record.att('workspace', getWorkspaceId());
+    }
 
     return record
       .save()
@@ -173,7 +181,7 @@ export class DashboardApi {
       query.recordRef = recordRef;
     }
 
-    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+    if (getEnabledWorkspaces()) {
       const wsId = getWorkspaceId();
       if (wsId) {
         query.workspace = wsId;
@@ -188,7 +196,7 @@ export class DashboardApi {
   };
 
   getDashboardByRecordRef = async recordRef => {
-    const enabledWorkspaces = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+    const enabledWorkspaces = getEnabledWorkspaces();
     const wsId = getWorkspaceId();
     let recType;
 
@@ -313,7 +321,7 @@ export class DashboardApi {
     }
   };
 
-  checkExistDashboard = function*({ key, type, user }) {
+  checkExistDashboard = function* ({ key, type, user }) {
     return yield Records.queryOne({
       sourceId: SourcesId.DASHBOARD,
       query: {

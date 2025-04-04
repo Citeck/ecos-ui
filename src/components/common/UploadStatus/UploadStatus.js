@@ -1,20 +1,23 @@
-import { FormText } from 'reactstrap';
-import React, { useState, useEffect } from 'react';
-import { NotificationManager } from 'react-notifications';
-import get from 'lodash/get';
 import classNames from 'classnames';
+import get from 'lodash/get';
+import isBoolean from 'lodash/isBoolean';
+import isNumber from 'lodash/isNumber';
+import React, { useState, useEffect } from 'react';
+import { FormText } from 'reactstrap';
 
-import { Loader } from '../index';
+import { NODE_TYPES } from '../../../constants/docLib';
+import { t } from '../../../helpers/util';
+import { sendToWorker } from '../../../workers/docLib';
 import Btn from '../btns/Btn';
+import { Input, Radio } from '../form';
 import ChevronDown from '../icons/ChevronDown';
-import Success from '../icons/Success';
-import File from '../icons/File';
 import Close from '../icons/Close';
 import Error from '../icons/Error';
-import { t } from '../../../helpers/util';
-import { Input, Radio } from '../form';
-import { sendToWorker } from '../../../workers/docLib';
-import { NODE_TYPES } from '../../../constants/docLib';
+import File from '../icons/File';
+import Success from '../icons/Success';
+import { Loader } from '../index';
+
+import { NotificationManager } from '@/services/notifications';
 
 import './styles.scss';
 
@@ -27,6 +30,7 @@ const UploadStatus = () => {
   const [expansionCurrentFile, setExpansionCurrentFile] = useState(null);
   const [parentItemsTitles, setParentItemsTitles] = useState([]);
 
+  const [isImporting, setIsImporting] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isReplaceAllFiles, setIsReplaceAllFiles] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -40,43 +44,40 @@ const UploadStatus = () => {
   const [totalCountFiles, setTotalCountFiles] = useState(0);
   const [successCountFiles, setSuccessCountFiles] = useState(0);
 
-  useEffect(
-    () => {
-      const handleBeforeUnload = e => {
-        if (status === 'in-progress') {
-          e.preventDefault();
-          e.returnValue = ''; // Required for some browsers to show a warning
-        }
-      };
+  useEffect(() => {
+    const handleBeforeUnload = e => {
+      if (status === 'in-progress') {
+        e.preventDefault();
+        e.returnValue = ''; // Required for some browsers to show a warning
+      }
+    };
 
-      const handleVisibilityChange = () => {
-        if (document.visibilityState === 'hidden') {
-          localStorage.setItem(STORAGE_KEY_ACTIVE_TAB, 'false');
-          handleConfirmResponseRenameItem(false);
-        } else {
-          localStorage.setItem(STORAGE_KEY_ACTIVE_TAB, 'true');
-        }
-      };
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        localStorage.setItem(STORAGE_KEY_ACTIVE_TAB, 'false');
+        handleConfirmResponseRenameItem(false);
+      } else {
+        localStorage.setItem(STORAGE_KEY_ACTIVE_TAB, 'true');
+      }
+    };
 
-      // When switching to the same tab, disable the name conflict warning
-      const handleStorageEvent = event => {
-        if (event.key === STORAGE_KEY_ACTIVE_TAB && event.newValue === 'false') {
-          handleConfirmResponseRenameItem(false);
-        }
-      };
+    // When switching to the same tab, disable the name conflict warning
+    const handleStorageEvent = event => {
+      if (event.key === STORAGE_KEY_ACTIVE_TAB && event.newValue === 'false') {
+        handleConfirmResponseRenameItem(false);
+      }
+    };
 
-      window.addEventListener('beforeunload', handleBeforeUnload);
-      window.addEventListener('storage', handleStorageEvent);
-      document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('storage', handleStorageEvent);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
-      return () => {
-        window.removeEventListener('beforeunload', handleBeforeUnload);
-        window.removeEventListener('storage', handleStorageEvent);
-        document.removeEventListener('visibilitychange', handleVisibilityChange);
-      };
-    },
-    [status]
-  );
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('storage', handleStorageEvent);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [status]);
 
   useEffect(() => {
     navigator.serviceWorker &&
@@ -94,11 +95,16 @@ const UploadStatus = () => {
           targetDirTitle,
           parentDirTitles,
           typeCurrentItem,
-          isReplacementItem
+          isReplacementItem,
+          isImporting
         } = event.data;
 
         if (type === 'UPDATE_UPLOAD_STATUS') {
           setStatus(status);
+
+          if (isBoolean(isImporting)) {
+            setIsImporting(isImporting);
+          }
 
           const fileName = get(fileData, 'file.name', '');
           const fileId = `file-${get(fileData, 'file.size', 0)}-${fileName}-${get(fileData, 'file.lastModified', 0)}`;
@@ -128,13 +134,18 @@ const UploadStatus = () => {
                   file: get(fileData, 'file'),
                   isLoading: get(fileData, 'isLoading', true),
                   isError: get(fileData, 'isError', false),
-                  requestId,
-                  cancelRequest
+                  cancelRequest,
+                  requestId
                 }
               }));
               break;
 
             case 'error':
+              if (isNumber(totalCount) && isNumber(successFileCount)) {
+                setTotalCountFiles(totalCount);
+                setSuccessCountFiles(successFileCount);
+              }
+
               setFileStatuses(prevState => ({
                 ...prevState,
                 [fileId]: {
@@ -228,13 +239,12 @@ const UploadStatus = () => {
     }
   };
 
-  const isEmptyInputRenaming = !titleRenamingItem;
+  const trimTitleRenamingItem = titleRenamingItem?.trim();
+  const isEmptyInputRenaming = !trimTitleRenamingItem;
+  const currentTitleRenaming = expansionCurrentFile ? trimTitleRenamingItem + `.${expansionCurrentFile}` : trimTitleRenamingItem;
 
   const isDisabledInputRenaming =
-    isEmptyInputRenaming ||
-    (parentItemsTitles &&
-      titleRenamingItem &&
-      parentItemsTitles.includes(expansionCurrentFile ? titleRenamingItem + `.${expansionCurrentFile}` : titleRenamingItem));
+    isEmptyInputRenaming || (parentItemsTitles && titleRenamingItem && parentItemsTitles.includes(currentTitleRenaming.trim()));
 
   if (status && status === 'confirm-file-replacement') {
     return showConfirmModal && get(fileDataConfirm, 'file.name') ? (
@@ -316,16 +326,31 @@ const UploadStatus = () => {
     );
   }
 
-  if (!status || !totalCountFiles) {
+  if (!status || (!totalCountFiles && !isImporting)) {
     return null;
   }
+
+  const renderCounter = () => {
+    if (isImporting) {
+      return (
+        <>
+          {t('document-library.file-loader')}
+          {totalCountFiles ? `: ${successCountFiles}/${totalCountFiles}` : ''}
+        </>
+      );
+    }
+
+    return (
+      <>
+        {t('document-library.files-loader')}: {successCountFiles}/{totalCountFiles}
+      </>
+    );
+  };
 
   return (
     <div className="citeck-upload-status">
       <div className="citeck-upload-status__header">
-        <h4 className="citeck-upload-status__header-title">
-          {t('document-library.files-loader')}: {successCountFiles}/{totalCountFiles}
-        </h4>
+        <h4 className="citeck-upload-status__header-title">{renderCounter()}</h4>
         <div className="citeck-upload-status__header-actions">
           <div className="citeck-upload-status__header-actions_btn" onClick={onCollapsed}>
             <ChevronDown />
@@ -348,7 +373,7 @@ const UploadStatus = () => {
                   <div
                     key={fileId}
                     className={classNames('citeck-upload-status__file', {
-                      'citeck-upload-status__file_loading': isLoading
+                      'citeck-upload-status__file_loading': isLoading && !isImporting
                     })}
                   >
                     <div className="citeck-upload-status__file-info">
@@ -362,7 +387,7 @@ const UploadStatus = () => {
                     >
                       {isLoading ? <Loader height="18px" type="points" /> : isError ? <Error /> : <Success />}
                     </div>
-                    {isLoading && (
+                    {!isImporting && isLoading && (
                       <div
                         className="citeck-upload-status__file-action_cancel"
                         onClick={cancelRequest}

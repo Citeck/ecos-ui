@@ -1,11 +1,11 @@
 import cloneDeep from 'lodash/cloneDeep';
-import isString from 'lodash/isString';
 import isArray from 'lodash/isArray';
-import { recordsDeleteFetch, recordsQueryFetch } from './recordsApi';
-import Record from './Record';
+import isString from 'lodash/isString';
 import uuidV4 from 'uuid/v4';
 
+import Record from './Record';
 import recordsClientManager from './client';
+import { recordsDeleteFetch, recordsQueryFetch } from './recordsApi';
 import { prepareAttsToLoad } from './utils/recordUtils';
 
 let Records;
@@ -34,7 +34,7 @@ class RecordsComponent {
       record = id;
     } else if (isArray(id)) {
       let result = id.map(i => this.get(i));
-      result.load = function() {
+      result.load = function () {
         return Promise.all(this.map(r => r.load.apply(r, arguments)));
       };
       return result;

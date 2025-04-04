@@ -1,9 +1,9 @@
-import { connect } from 'react-redux';
 import * as queryString from 'query-string';
-
-import { getFormProps, initData, saveModel, setFormProps, setModel } from '../../../actions/bpmnEditor';
+import { connect } from 'react-redux';
 
 import BPMNEditorPage from './BPMNEditor';
+
+import { getFormProps, initData, saveModel, setFormProps, setModel } from '@/actions/bpmnEditor';
 
 const mapStateToProps = (store, props) => {
   const ownStore = store.bpmnEditor[props.tabId] || {};
@@ -34,7 +34,4 @@ const mapDispatchToProps = (dispatch, props) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(BPMNEditorPage);
+export default connect(mapStateToProps, mapDispatchToProps)(BPMNEditorPage);

@@ -1,14 +1,21 @@
-import React from 'react';
-import { connect } from 'react-redux';
-import get from 'lodash/get';
-import cloneDeep from 'lodash/cloneDeep';
-import isArray from 'lodash/isArray';
 import classNames from 'classnames';
-import * as queryString from 'query-string';
+import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
+import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
+import * as queryString from 'query-string';
+import React from 'react';
+import { connect } from 'react-redux';
 
+import { getDashboardConfig, getDashboardTitle, setDashboardIdentification } from '../../actions/dashboard';
+import { setOrgstructureConfig, setSelectedPerson } from '../../actions/orgstructure';
 import { OrgStructApi } from '../../api/orgStruct';
+import { DndUtils } from '../../components/Drag-n-Drop';
+import Layout from '../../components/Layout';
+import Records from '../../components/Records';
+import { ScrollArrow, Tabs } from '../../components/common';
+import { OrgstructProvider } from '../../components/common/Orgstruct/OrgstructContext';
 import {
   AUTHORITY_TYPE_GROUP,
   AUTHORITY_TYPE_USER,
@@ -17,20 +24,13 @@ import {
   ROOT_GROUP_NAME,
   TabTypes
 } from '../../components/common/Orgstruct/constants';
-import { OrgstructProvider } from '../../components/common/Orgstruct/OrgstructContext';
-
-import { setOrgstructureConfig, setSelectedPerson } from '../../actions/orgstructure';
+import { URL, SourcesId } from '../../constants';
 import { decodeLink, getSearchParams, getSortedUrlParams, pushHistoryLink, replaceHistoryLink } from '../../helpers/urls';
-import { getDashboardConfig, getDashboardTitle, setDashboardIdentification } from '../../actions/dashboard';
-import { ScrollArrow, Tabs } from '../../components/common';
-import Layout from '../../components/Layout';
-import PageTabList from '../../services/pageTabs/PageTabList';
-import { DndUtils } from '../../components/Drag-n-Drop';
-import Records from '../../components/Records';
 import { t } from '../../helpers/util';
 import DashboardService from '../../services/dashboard';
-import { URL } from '../../constants';
+import PageTabList from '../../services/pageTabs/PageTabList';
 import Dashboard from '../Dashboard/Dashboard';
+
 import Structure from './components/Structure';
 
 import './style.scss';
@@ -130,12 +130,11 @@ class Orgstructure extends React.Component {
 
   componentDidMount() {
     const { onSelectPerson, getDashboardConfig, getDashboardTitle } = this.props;
-    const { recordRef } = getSearchParams() || {};
+    const { recordRef = '' } = getSearchParams() || {};
 
-    getDashboardConfig({ recordRef });
-    getDashboardTitle({ recordRef });
-
-    if (recordRef) {
+    if (recordRef.startsWith(SourcesId.PERSON)) {
+      getDashboardConfig({ recordRef });
+      getDashboardTitle({ recordRef });
       onSelectPerson(recordRef);
     }
   }
@@ -402,14 +401,11 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 const mapDispatchToProps = (dispatch, state) => ({
-  getDashboardConfig: () => dispatch(getDashboardConfig({ key: state.tabId })),
+  getDashboardConfig: ({ recordRef }) => dispatch(getDashboardConfig({ key: state.tabId, recordRef })),
   onSelectPerson: recordRef => dispatch(setSelectedPerson({ recordRef: recordRef, key: state.tabId })),
   setOrgstructureConfig: config => dispatch(setOrgstructureConfig(config)),
   setDashboardIdentification: payload => dispatch(setDashboardIdentification(payload)),
   getDashboardTitle: payload => dispatch(getDashboardTitle({ ...payload, key: getStateId(state) }))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Orgstructure);
+export default connect(mapStateToProps, mapDispatchToProps)(Orgstructure);

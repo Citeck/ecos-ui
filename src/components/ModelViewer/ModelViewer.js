@@ -1,16 +1,18 @@
 import NavigatedViewer from 'bpmn-js/lib/NavigatedViewer';
-import React from 'react';
+import { isExpanded } from 'bpmn-js/lib/util/DiUtil';
+import { is } from 'bpmn-js/lib/util/ModelUtil';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import isNumber from 'lodash/isNumber';
-import { is } from 'bpmn-js/lib/util/ModelUtil';
-import { isExpanded } from 'bpmn-js/lib/util/DiUtil';
+import React from 'react';
 
-import { ScaleOptions } from '../common/Scaler/util';
-import plugins from '../../../src/plugins';
 import ecosTask from '../ModelEditor/BPMNModeler/moddle/ecosTask.json';
 import { onlyRenderer } from '../ModelEditor/BPMNModeler/modules';
+import { ScaleOptions } from '../common/Scaler/util';
+
 import { Sheet } from './Sheet';
+
+import plugins from '@/plugins';
 
 export default class ModelViewer {
   static querySelector = 'ecos-model-container';

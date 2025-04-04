@@ -1,13 +1,14 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import React from 'react';
 import { connect } from 'react-redux';
-import { TooltipContainer as Tooltip } from '../common/Tooltip/TooltipContainer';
 
-import SidebarService from '../../services/sidebar';
 import { toggleExpanded } from '../../actions/slideMenu';
 import { HiddenItemsMobile } from '../../constants/sidebar';
 import { getMLValue } from '../../helpers/util';
+import SidebarService from '../../services/sidebar';
+import { TooltipContainer as Tooltip } from '../common/Tooltip/TooltipContainer';
+
 import Item from './Item';
 
 class List extends React.Component {
@@ -81,6 +82,7 @@ class List extends React.Component {
           isSelected={isItemSelected || isChildSelected}
           styleProps={styleProps}
           inDropdown={inDropdown}
+          workspace={workspace}
         />
         {hasSubItems && this.renderSubList(item.items, isSubListExpanded, inDropdown, workspace)}
         {!isMobile && level === SidebarService.DROPDOWN_LEVEL && hasSubItems && (
@@ -143,9 +145,6 @@ const mapDispatchToProps = dispatch => ({
   toggleExpanded: item => dispatch(toggleExpanded(item))
 });
 
-const ConnectList = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(List);
+const ConnectList = connect(mapStateToProps, mapDispatchToProps)(List);
 
 export default ConnectList;

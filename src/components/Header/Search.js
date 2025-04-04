@@ -1,16 +1,18 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { connect } from 'react-redux';
-import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
 
 import { resetSearchAutocompleteItems, runSearchAutocompleteItems } from '../../actions/header';
-import { generateSearchTerm, isLastItem, t } from '../../helpers/util';
 import { isNewVersionPage } from '../../helpers/urls';
-import SearchService from '../../services/search';
+import { generateSearchTerm, getEnabledWorkspaces, isLastItem, t } from '../../helpers/util';
 import PageService from '../../services/PageService';
+import PageTabList from '../../services/pageTabs/PageTabList';
+import SearchService from '../../services/search';
 import { SearchSelect } from '../common';
+
 import SearchItem from './SearchItem';
 
 const Types = SearchService.SearchAutocompleteTypes;
@@ -19,6 +21,7 @@ const mapStateToProps = state => ({
   documents: state.header.search.documents,
   people: state.header.search.people,
   sites: state.header.search.sites,
+  workspaces: state.header.search.workspaces,
   noResults: state.header.search.noResults,
   isLoading: state.header.search.isLoading,
   theme: state.view.theme
@@ -29,9 +32,9 @@ const mapDispatchToProps = dispatch => ({
   resetSearchAutocomplete: payload => dispatch(resetSearchAutocompleteItems(payload))
 });
 
-const setOutputParams = (array, type) => {
+const setOutputParams = (array, type, hasAlfresco) => {
   return array.map((item, i) => {
-    const res = SearchService.formatSearchAutocompleteResults(item, type);
+    const res = SearchService.formatSearchAutocompleteResults(item, type, hasAlfresco);
 
     res.isLast = isLastItem(array, i);
     res.isAvatar = type === Types.PEOPLE;
@@ -96,10 +99,15 @@ class Search extends React.Component {
     }
 
     const reopenBrowserTab = !isNewVersionPage(data.url);
-    const openNewTab = [Types.DOCUMENTS, Types.SITES, Types.PEOPLE].includes(data.type) && !reopenBrowserTab;
+    const openNewTab = [Types.DOCUMENTS, Types.SITES, Types.PEOPLE, Types.WORKSPACES].includes(data.type) && !reopenBrowserTab;
     const onResetSearch = get(this._searchSelectRef, 'current.resetSearch');
+    const needUpdateTabs = !!data.wsName && getEnabledWorkspaces();
 
-    PageService.changeUrlLink(data.url, { openNewTab, reopenBrowserTab });
+    if (needUpdateTabs) {
+      PageTabList.setLastActiveTabWs();
+    }
+
+    PageService.changeUrlLink(data.url, { openNewTab, reopenBrowserTab, needUpdateTabs });
     this.props.resetSearchAutocomplete();
 
     if (typeof onResetSearch === 'function') {
@@ -108,7 +116,7 @@ class Search extends React.Component {
   };
 
   get searchResult() {
-    const { documents, people } = this.props;
+    const { documents, people, sites, workspaces, hasAlfresco } = this.props;
     const searchResult = [];
 
     if (!isEmpty(documents)) {
@@ -119,6 +127,16 @@ class Search extends React.Component {
     if (!isEmpty(people)) {
       searchResult.push({ groupName: t('header.search.people') });
       searchResult.push(...setOutputParams(people, Types.PEOPLE));
+    }
+
+    if (!isEmpty(sites)) {
+      searchResult.push({ groupName: t('header.search.sites') });
+      searchResult.push(...setOutputParams(sites, Types.SITES, hasAlfresco));
+    }
+
+    if (!isEmpty(workspaces) && getEnabledWorkspaces()) {
+      searchResult.push({ groupName: t('header.search.workspaces') });
+      searchResult.push(...setOutputParams(workspaces, Types.WORKSPACES));
     }
 
     return searchResult;
@@ -165,7 +183,4 @@ class Search extends React.Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Search);
+export default connect(mapStateToProps, mapDispatchToProps)(Search);

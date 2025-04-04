@@ -222,7 +222,6 @@
 
       &-item {
         margin-bottom: 11px;
-        overflow: hidden;
 
         &:not(:last-child) {
           margin-right: 11px;
@@ -240,6 +239,12 @@
     width: 100%;
     justify-content: flex-start;
 
+    &-scrollbar-wrapper {
+      all: unset;
+      overflow: hidden;
+      margin: 0;
+    }
+
     &_multiline {
       flex-wrap: wrap;
     }
@@ -247,17 +252,15 @@
     &-container {
       $container: &;
 
-      display: flex;
-      width: 100%;
-      flex-wrap: wrap;
-
       &_full {
         min-width: 100%;
       }
 
       &_widgets-to {
-        display: flex;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 210px));
         width: 100%;
+        gap: 15px;
 
         &_mobile {
           max-width: 30%;
@@ -280,21 +283,18 @@
       }
 
       &_col {
+        gap: 10px;
+        flex-wrap: wrap;
         &:not(:last-child) {
           margin-bottom: 27px;
         }
       }
-
       &_widgets-from_mobile {
         margin-right: 15px;
         margin-bottom: 0 !important;
         height: 100%;
         padding: unset;
       }
-    }
-
-    &-scrollbar-wrapper {
-      padding: 10px;
     }
 
     &-item {
@@ -311,6 +311,7 @@
     &-column {
       display: flex;
       flex-direction: column;
+      gap: 10px;
       width: 195px;
       margin-bottom: 16px;
 
@@ -343,11 +344,7 @@
     }
 
     &-item {
-      width: 100%;
-
-      &:not(:last-child) {
-        margin-bottom: 5px;
-      }
+      margin: 10px 20px 0 10px;
     }
   }
 }
@@ -409,4 +406,10 @@
       }
     }
   }
+}
+
+.ecos-dashboard-settings__drag-container_col.ecos-dnd__droppable_row {
+  padding-inline: 10px;
+  align-content: center;
+  gap: 10px;
 }

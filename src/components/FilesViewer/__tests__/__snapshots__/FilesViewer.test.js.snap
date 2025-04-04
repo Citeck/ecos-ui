@@ -1,48 +1,48 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`FilesViewer tests <FilesViewer /> should render FilesViewer component 1`] = `
-<div
-  className="ecos-files-viewer"
-/>
+<div>
+  <div
+    class="ecos-files-viewer"
+  />
+</div>
 `;
 
 exports[`FilesViewer tests <FilesViewerItem /> should render FilesViewerItem component 1`] = `
-<div
-  className="ecos-files-viewer__item"
-  data-id=""
-  draggable={true}
-  onClick={[Function]}
-  onDoubleClick={[Function]}
-  onDragStart={[Function]}
->
+<div>
   <div
-    className="ecos-files-viewer__item-left"
+    class="ecos-files-viewer__item"
+    data-id=""
+    draggable="true"
   >
     <div
-      className="ecos-files-viewer__item-icon-wrapper"
+      class="ecos-files-viewer__item-left"
     >
-      <FileIcon
-        className="ecos-files-viewer__item-file-icon"
-        format="blank"
+      <div
+        class="ecos-files-viewer__item-icon-wrapper"
+      >
+        <span
+          class="ecos-file-icon fiv-hct ecos-files-viewer__item-file-icon fiv-icon-blank"
+        />
+      </div>
+      <span
+        class="ecos-files-viewer__item-title"
+        title=""
       />
     </div>
-    <span
-      className="ecos-files-viewer__item-title"
-      title=""
-    />
-  </div>
-  <div
-    className="ecos-files-viewer__item-right"
-  >
-    <span
-      className="ecos-files-viewer__item-modified"
-      title="-"
-    >
-      -
-    </span>
     <div
-      className="ecos-files-viewer__item-actions"
-    />
+      class="ecos-files-viewer__item-right"
+    >
+      <span
+        class="ecos-files-viewer__item-modified"
+        title="-"
+      >
+        -
+      </span>
+      <div
+        class="ecos-files-viewer__item-actions"
+      />
+    </div>
   </div>
 </div>
 `;

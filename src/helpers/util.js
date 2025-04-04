@@ -1,22 +1,25 @@
+import cloneDeep from 'lodash/cloneDeep';
+import lodashGet from 'lodash/get';
+import isArray from 'lodash/isArray';
+import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
+import isFunction from 'lodash/isFunction';
+import isNil from 'lodash/isNil';
+import isObject from 'lodash/isObject';
+import isString from 'lodash/isString';
+import lodashSet from 'lodash/set';
 import moment from 'moment';
 import * as queryString from 'query-string';
 import uuidV4 from 'uuid/v4';
-import lodashGet from 'lodash/get';
-import lodashSet from 'lodash/set';
-import cloneDeep from 'lodash/cloneDeep';
-import isEqual from 'lodash/isEqual';
-import isNil from 'lodash/isNil';
-import isEmpty from 'lodash/isEmpty';
-import isObject from 'lodash/isObject';
-import isString from 'lodash/isString';
-import isArray from 'lodash/isArray';
-import isFunction from 'lodash/isFunction';
 
 import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE, MOBILE_APP_USER_AGENT } from '../constants';
 
 import { getCurrentLocale, t } from './export/util';
 
 export { getCookie, getCurrentLocale, t } from './export/util';
+
+import { allowedModes } from '@/constants/index.js';
+import ESMRequire from '@/services/ESMRequire';
 
 const UTC_AS_LOCAL_FORMAT = 'YYYY-MM-DDTHH:mm:ss';
 
@@ -26,7 +29,7 @@ const BYTES_GB = 1073741824;
 
 const LOCALE_EN = 'en';
 
-export const IS_DEV_ENV = process.env.NODE_ENV === 'development';
+export const IS_DEV_ENV = allowedModes.includes(process.env.NODE_ENV);
 export const IS_TEST_ENV = process.env.NODE_ENV === 'test';
 
 export function setCookie(name, value, options = {}) {
@@ -52,10 +55,7 @@ export function setCookie(name, value, options = {}) {
   document.cookie = updatedCookie;
 }
 
-export const utcAsLocal = jsonDate =>
-  moment(jsonDate)
-    .utcOffset(0)
-    .format(UTC_AS_LOCAL_FORMAT);
+export const utcAsLocal = jsonDate => moment(jsonDate).utcOffset(0).format(UTC_AS_LOCAL_FORMAT);
 
 export const revokeUtcAsLocal = jsonDate => moment(jsonDate).format(UTC_AS_LOCAL_FORMAT) + 'Z';
 
@@ -69,7 +69,7 @@ export const debounce = (func, ms = 0) => {
   let timer = null;
   let resolves = [];
 
-  return function(...args) {
+  return function (...args) {
     clearTimeout(timer);
 
     timer = setTimeout(() => {
@@ -153,10 +153,7 @@ export function trigger(name, data) {
   }
 }
 
-export const getId = (prefix = '') =>
-  `${prefix}${Math.random()
-    .toString(36)
-    .substr(2, 9)}`;
+export const getId = (prefix = '') => `${prefix}${Math.random().toString(36).substr(2, 9)}`;
 
 export function applyTheme(themeName, callback) {
   lodashSet(window, 'Citeck.config.theme', themeName);
@@ -205,6 +202,18 @@ export function isMobileAppWebView() {
   return navigator.userAgent === MOBILE_APP_USER_AGENT;
 }
 
+export const isEqualLexicalValue = (html1, html2) => {
+  if (!html1 || !html2) {
+    return html1 === html2;
+  }
+
+  function cleanHtml(html) {
+    return html?.replaceAll('dir="ltr"', '').replaceAll(' >', '>').trim();
+  }
+
+  return cleanHtml(html1) === cleanHtml(html2);
+};
+
 export function getTextByLocale(data, locale = getCurrentLocale()) {
   if (isEmpty(data)) {
     return '';
@@ -235,19 +244,6 @@ export function getTextByLocale(data, locale = getCurrentLocale()) {
   return data;
 }
 
-export function loadScript(url, callback) {
-  const script = document.createElement('script');
-
-  const prefix = url.indexOf('?') === -1 ? '?' : '&v=';
-  script.src = `${url}${prefix}${process.env.REACT_APP_BUILD_VERSION}`;
-
-  document.body.appendChild(script);
-
-  if (typeof callback === 'function') {
-    script.onload = callback;
-  }
-}
-
 export function loadStylesheet(url, onLoadCb, onErrorCb) {
   const link = document.createElement('link');
 
@@ -267,7 +263,7 @@ export function loadStylesheet(url, onLoadCb, onErrorCb) {
 }
 
 export function cellMsg(prefix) {
-  return function(elCell, oRecord, oColumn, sData) {
+  return function (elCell, oRecord, oColumn, sData) {
     elCell.innerHTML = t(prefix + sData);
   };
 }
@@ -504,6 +500,14 @@ export function getEnabledWorkspaces() {
   return lodashGet(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
 }
 
+export function getDefaultWorkspace() {
+  return lodashGet(window, 'Citeck.navigator.DEFAULT_WORKSPACE', false);
+}
+
+export function getEnabledNewJournal() {
+  return lodashGet(window, 'Citeck.constants.NEW_JOURNAL_ENABLED', false);
+}
+
 export const isSmallMode = width => width <= MIN_WIDTH_DASHLET_LARGE;
 
 export function isExistIndex(idx) {
@@ -557,7 +561,10 @@ export function arrayCompare(arr1 = [], arr2 = [], byField = '') {
     return isEqual(arr1, arr2);
   }
 
-  return isEqual(arr1.map(item => item[byField]), arr2.map(item => item[byField]));
+  return isEqual(
+    arr1.map(item => item[byField]),
+    arr2.map(item => item[byField])
+  );
 }
 
 /** The function returns the key of the selected business process **/
@@ -1043,10 +1050,7 @@ export function reverseString(str = '') {
     return str;
   }
 
-  return str
-    .split('')
-    .reverse()
-    .join('');
+  return str.split('').reverse().join('');
 }
 
 /**
@@ -1134,7 +1138,7 @@ export function copyToClipboard(text) {
 
 export function getModule(srcModule) {
   return new Promise((resolve, reject) => {
-    window.require(
+    ESMRequire.require(
       [srcModule],
       module => resolve(module),
       error => {

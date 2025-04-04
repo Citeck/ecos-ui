@@ -1,15 +1,16 @@
+import findIndex from 'lodash/findIndex';
 import isEmpty from 'lodash/isEmpty';
 import values from 'lodash/values';
-import findIndex from 'lodash/findIndex';
 
+import { SourcesId } from '../../../../../constants';
+import { t } from '../../../../../helpers/export/util';
 import { goToCardDetailsPage } from '../../../../../helpers/urls';
+import FormManager from '../../../../EcosForm/FormManager';
 import Records from '../../../Records';
 import { showForm } from '../../util/actionUtils';
 import ActionsExecutor from '../ActionsExecutor';
-import FormManager from '../../../../EcosForm/FormManager';
-import { SourcesId } from '../../../../../constants';
-import { NotificationManager } from 'react-notifications';
-import { t } from '../../../../../helpers/export/util';
+
+import { NotificationManager } from '@/services/notifications';
 
 export default class CreateAction extends ActionsExecutor {
   static ACTION_ID = 'create';

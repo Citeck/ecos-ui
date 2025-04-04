@@ -3,14 +3,12 @@ import { getParent } from 'cmmn-js/lib/features/modeling/util/ModelingUtil';
 import { getBusinessObject } from 'cmmn-js/lib/util/ModelUtil';
 
 import BaseModeler from '../BaseModeler';
-import customModules from './modules';
-import { linting } from './modules/linter';
-import { DEFINITON_TYPE } from '../../../constants/bpmn';
-
-import './modules/colorContextPadProvider/ColorContextPadProvider';
-import './patches';
 
 import ecosTask from './moddle/ecosTask.json';
+import customModules from './modules';
+import { linting } from './modules/linter';
+
+import { DEFINITON_TYPE } from '@/constants/bpmn';
 
 import 'bpmn-js/dist/assets/diagram-js.css';
 import 'bpmn-js/dist/assets/bpmn-font/css/bpmn.css';
@@ -40,10 +38,7 @@ export default class BPMNModeler extends BaseModeler {
       return;
     }
 
-    this.modeler
-      .saveXML({ format: true })
-      .then(callback)
-      .catch(callback);
+    this.modeler.saveXML({ format: true }).then(callback).catch(callback);
   };
 
   saveSVG = ({ callback }) => {
@@ -51,9 +46,6 @@ export default class BPMNModeler extends BaseModeler {
       return;
     }
 
-    this.modeler
-      .saveSVG({ format: true })
-      .then(callback)
-      .catch(callback);
+    this.modeler.saveSVG({ format: true }).then(callback).catch(callback);
   };
 }

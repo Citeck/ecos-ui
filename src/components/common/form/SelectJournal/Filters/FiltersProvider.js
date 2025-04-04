@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 import { getPredicates } from '../../../../Records/predicates/predicates';
 import { getPredicateInput } from '../../../../Records/predicates/util';
+
 import FiltersContext from './FiltersContext';
 
 export default class FiltersProvider extends Component {
@@ -19,7 +20,7 @@ export default class FiltersProvider extends Component {
     }
   }
 
-  componentWillReceiveProps() {
+  UNSAFE_componentWillReceiveProps() {
     const { columns } = this.props;
     const { isReady } = this.state;
 

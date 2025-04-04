@@ -1,14 +1,14 @@
+import FormBuilder from 'formiojs/FormBuilder';
 import React from 'react';
 import { Col, Container, Row } from 'reactstrap';
+
 // import Form from 'formiojs/Form';
-import FormBuilder from 'formiojs/FormBuilder';
 // import schema from './form.json';
 // import schema from './calendarForm.json';
 // import schema from './contractor.json';
-import '../../../forms';
 // import Formio from 'formiojs/Formio';
-import { getCurrentLocale } from '../../../helpers/export/util';
-import EcosFormUtils from '../../../components/EcosForm/EcosFormUtils';
+import EcosFormUtils from '@/components/EcosForm/EcosFormUtils';
+import { getCurrentLocale } from '@/helpers/export/util';
 
 import './temp.scss';
 
@@ -81,7 +81,7 @@ class FormIOPage extends React.Component {
 
     formBuilder.render().then(form => {
       // Everytime the form changes, this will fire.
-      form.on('change', function(changed) {
+      form.on('change', function (changed) {
         console.log('Builder form was changed', changed);
       });
     });

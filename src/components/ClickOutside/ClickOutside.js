@@ -1,5 +1,5 @@
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
 
 export default class ClickOutside extends React.Component {
   static propTypes = {
@@ -22,7 +22,7 @@ export default class ClickOutside extends React.Component {
   }
 
   componentDidMount() {
-    document.addEventListener(this.props.type, this.handleClickOutside);
+    document.addEventListener(this.props.type, this.handleClickOutside, true);
   }
 
   componentWillUnmount() {

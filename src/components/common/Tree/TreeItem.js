@@ -1,18 +1,20 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { Collapse } from 'reactstrap';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
-import isEqualWith from 'lodash/isEqualWith';
 import isEqual from 'lodash/isEqual';
+import isEqualWith from 'lodash/isEqualWith';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { Collapse } from 'reactstrap';
 
-import { extractLabel, isExistValue, t } from '../../../helpers/util';
+import { SortableElement, SortableHandle } from '../../Drag-n-Drop';
 import { EcosIcon, Icon, Tooltip } from '../../common';
 import { Badge, Checkbox } from '../../common/form';
-import { SortableElement, SortableHandle } from '../../Drag-n-Drop';
-import { ItemInterface, Labels, STEP_LVL, TOP_LVL } from './constants';
-import Actions from './Actions';
 import Popper from '../Popper';
+
+import Actions from './Actions';
+import { ItemInterface, Labels, STEP_LVL, TOP_LVL } from './constants';
+
+import { extractLabel, isExistValue, t } from '@/helpers/util';
 
 import './style.scss';
 
@@ -184,18 +186,8 @@ class TreeItem extends Component {
   renderPopperContent = label => <div className="ecos-tree__item-element-label-tooltip">{extractLabel(label)}</div>;
 
   renderItem = (targetId, canDrag) => {
-    const {
-      isChild,
-      item,
-      selectable,
-      prefixClassName,
-      level,
-      isMajor,
-      renderExtraComponents,
-      onClickIcon,
-      getActions,
-      convertItemProps
-    } = this.props;
+    const { isChild, item, selectable, prefixClassName, level, isMajor, renderExtraComponents, onClickIcon, getActions, convertItemProps } =
+      this.props;
     const { isOpen } = this.state;
     const _item = typeof convertItemProps === 'function' ? convertItemProps(item) : item || {};
     const { items, selected, locked, icon, label, actionConfig, badge } = _item;

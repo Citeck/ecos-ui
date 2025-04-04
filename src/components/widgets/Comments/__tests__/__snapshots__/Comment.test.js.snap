@@ -1,405 +1,213 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Comment tests should render Comment component 1`] = `
-<div
-  className="ecos-comments__comment"
->
+<div>
   <div
-    className="ecos-comments__comment-header"
+    class="ecos-comments__comment"
   >
     <div
-      className="ecos-comments__comment-header-cell"
+      class="ecos-comments__comment-header"
     >
-      <Avatar
-        className="ecos-comments__comment-avatar"
-        classNameEmpty="ecos-comments__comment-avatar_empty"
-        noBorder={true}
-        url=""
-        userName=""
-      />
       <div
-        className="ecos-comments__comment-header-column ecos-comments__comment-name-container"
+        class="ecos-comments__comment-header-cell"
       >
         <div
-          className="ecos-comments__comment-name"
+          class="ecos-avatar ecos-comments__comment-avatar ecos-comments__comment-avatar_empty ecos-avatar_no-border"
         >
-          Admin
-           
-          Adminovich
+          <i
+            class="icon ecos-avatar__icon icon-user-normal"
+          />
         </div>
         <div
-          className="ecos-comments__comment-name"
+          class="ecos-comments__comment-header-column ecos-comments__comment-name-container"
         >
-          Administratorov
+          <div
+            class="ecos-comments__comment-name"
+          >
+            Admin
+             
+            Adminovich
+          </div>
+          <div
+            class="ecos-comments__comment-name"
+          >
+            Administratorov
+          </div>
+          <div
+            class="ecos-comments__comment-date"
+          >
+            comments-widget.now
+          </div>
         </div>
         <div
-          className="ecos-comments__comment-date"
-        >
-          comments-widget.now
-        </div>
+          class="ecos-comments__comment-header-column ecos-comments__comment-tag-container"
+        />
       </div>
       <div
-        className="ecos-comments__comment-header-column ecos-comments__comment-tag-container"
+        class="ecos-comments__comment-header-cell ecos-comments__comment-header-cell_actions"
       />
     </div>
     <div
-      className="ecos-comments__comment-header-cell ecos-comments__comment-header-cell_actions"
+      class="citeck-lexical-editor"
+    >
+      <div
+        class="editor-shell"
+      >
+        <div
+          class="ecos-rt-editor ecos-comments__comment-editor editor-container tree-view"
+        >
+          <div
+            class="file-node-wrapper"
+            id="file-node-wrapper"
+          />
+          <div
+            class="editor-scroller"
+          >
+            <div
+              class="editor"
+            >
+              <div
+                aria-autocomplete="none"
+                aria-placeholder="lexical.editor.placeholder.rich"
+                aria-readonly="true"
+                autocapitalize="off"
+                class="ecos-rt-editor__content content_readonly"
+                contenteditable="false"
+                data-lexical-editor="true"
+                spellcheck="true"
+                style="user-select: text; white-space: pre-wrap; word-break: break-word;"
+              >
+                <p
+                  class="PlaygroundEditorTheme__paragraph"
+                >
+                  <br />
+                </p>
+              </div>
+              <div
+                aria-hidden="true"
+              >
+                <div
+                  class="ContentEditable__placeholder"
+                >
+                  lexical.editor.placeholder.rich
+                </div>
+              </div>
+            </div>
+          </div>
+          <div />
+        </div>
+      </div>
+    </div>
+    <button
+      class="editor-dev-button "
+      id="options-button"
     />
-  </div>
-  <Editor
-    className="ecos-comments__comment-editor"
-    htmlString="Comment"
-    onChange={[Function]}
-    readonly={true}
-  />
-</div>
-`;
-
-exports[`Comment tests should render Comment component with opened delete confirm dialog 1`] = `
-<div
-  className="ecos-comments__comment"
->
-  <div
-    className="ecos-comments__comment-header"
-  >
-    <div
-      className="ecos-comments__comment-header-cell"
-    >
-      <Avatar
-        className="ecos-comments__comment-avatar"
-        classNameEmpty="ecos-comments__comment-avatar_empty"
-        noBorder={true}
-        url=""
-        userName=""
-      />
-      <div
-        className="ecos-comments__comment-header-column ecos-comments__comment-name-container"
-      >
-        <div
-          className="ecos-comments__comment-name"
-        >
-          Admin
-           
-          Adminovich
-        </div>
-        <div
-          className="ecos-comments__comment-name"
-        >
-          Administratorov
-        </div>
-        <div
-          className="ecos-comments__comment-date"
-        >
-          comments-widget.now
-        </div>
-      </div>
-      <div
-        className="ecos-comments__comment-header-column ecos-comments__comment-tag-container"
-      />
-    </div>
-    <div
-      className="ecos-comments__comment-header-cell ecos-comments__comment-header-cell_actions"
-    />
-  </div>
-  <Editor
-    className="ecos-comments__comment-editor"
-    htmlString="Comment"
-    onChange={[Function]}
-    readonly={true}
-  />
-  <div
-    className="ecos-comments__comment-confirm"
-  >
-    <div
-      className="ecos-comments__comment-confirm-group"
-    >
-      <div
-        className="ecos-comments__comment-confirm-title"
-      >
-        comments-widget.confirm.title
-        ?
-      </div>
-      <div
-        className="ecos-comments__comment-confirm-btns"
-      >
-        <Btn
-          className="ecos-btn_grey5 ecos-btn_hover_color-grey ecos-comments__comment-confirm-btn"
-          onClick={[Function]}
-        >
-          comments-widget.confirm.cancel
-        </Btn>
-        <Btn
-          className="ecos-btn_red ecos-comments__comment-confirm-btn"
-          onClick={[Function]}
-        >
-          comments-widget.confirm.delete
-        </Btn>
-      </div>
-    </div>
-  </div>
-</div>
-`;
-
-exports[`Comment tests should render Comment component with opened delete confirm dialog with loader 1`] = `
-<div
-  className="ecos-comments__comment"
->
-  <div
-    className="ecos-comments__comment-header"
-  >
-    <div
-      className="ecos-comments__comment-header-cell"
-    >
-      <Avatar
-        className="ecos-comments__comment-avatar"
-        classNameEmpty="ecos-comments__comment-avatar_empty"
-        noBorder={true}
-        url=""
-        userName=""
-      />
-      <div
-        className="ecos-comments__comment-header-column ecos-comments__comment-name-container"
-      >
-        <div
-          className="ecos-comments__comment-name"
-        >
-          Admin
-           
-          Adminovich
-        </div>
-        <div
-          className="ecos-comments__comment-name"
-        >
-          Administratorov
-        </div>
-        <div
-          className="ecos-comments__comment-date"
-        >
-          comments-widget.now
-        </div>
-      </div>
-      <div
-        className="ecos-comments__comment-header-column ecos-comments__comment-tag-container"
-      />
-    </div>
-    <div
-      className="ecos-comments__comment-header-cell ecos-comments__comment-header-cell_actions"
-    />
-  </div>
-  <Editor
-    className="ecos-comments__comment-editor"
-    htmlString="Comment"
-    onChange={[Function]}
-    readonly={true}
-  />
-  <div
-    className="ecos-comments__comment-confirm"
-  >
-    <div
-      className="ecos-comments__comment-confirm-group"
-    >
-      <div
-        className="ecos-comments__comment-confirm-title"
-      >
-        comments-widget.confirm.title
-        ?
-      </div>
-      <div
-        className="ecos-comments__comment-confirm-btns"
-      >
-        <Btn
-          className="ecos-btn_grey5 ecos-btn_hover_color-grey ecos-comments__comment-confirm-btn"
-          onClick={[Function]}
-        >
-          comments-widget.confirm.cancel
-        </Btn>
-        <Btn
-          className="ecos-btn_red ecos-comments__comment-confirm-btn"
-          onClick={[Function]}
-        >
-          comments-widget.confirm.delete
-        </Btn>
-      </div>
-    </div>
-    <Loader
-      blur={true}
-      className=""
-      color="light-blue"
-      darkened={false}
-      height={45}
-      rounded={false}
-      type="circle"
-      width={45}
-      zIndex={null}
-    />
-  </div>
-</div>
-`;
-
-exports[`Comment tests should render Comment component with opened delete confirm dialog without loader (because of a mistake) 1`] = `
-<div
-  className="ecos-comments__comment"
->
-  <div
-    className="ecos-comments__comment-header"
-  >
-    <div
-      className="ecos-comments__comment-header-cell"
-    >
-      <Avatar
-        className="ecos-comments__comment-avatar"
-        classNameEmpty="ecos-comments__comment-avatar_empty"
-        noBorder={true}
-        url=""
-        userName=""
-      />
-      <div
-        className="ecos-comments__comment-header-column ecos-comments__comment-name-container"
-      >
-        <div
-          className="ecos-comments__comment-name"
-        >
-          Admin
-           
-          Adminovich
-        </div>
-        <div
-          className="ecos-comments__comment-name"
-        >
-          Administratorov
-        </div>
-        <div
-          className="ecos-comments__comment-date"
-        >
-          comments-widget.now
-        </div>
-      </div>
-      <div
-        className="ecos-comments__comment-header-column ecos-comments__comment-tag-container"
-      />
-    </div>
-    <div
-      className="ecos-comments__comment-header-cell ecos-comments__comment-header-cell_actions"
-    />
-  </div>
-  <Editor
-    className="ecos-comments__comment-editor"
-    htmlString="Comment"
-    onChange={[Function]}
-    readonly={true}
-  />
-  <div
-    className="ecos-comments__comment-confirm"
-  >
-    <div
-      className="ecos-comments__comment-confirm-group"
-    >
-      <div
-        className="ecos-comments__comment-confirm-title"
-      >
-        comments-widget.confirm.title
-        ?
-      </div>
-      <div
-        className="ecos-comments__comment-confirm-btns"
-      >
-        <Btn
-          className="ecos-btn_grey5 ecos-btn_hover_color-grey ecos-comments__comment-confirm-btn"
-          onClick={[Function]}
-        >
-          comments-widget.confirm.cancel
-        </Btn>
-        <Btn
-          className="ecos-btn_red ecos-comments__comment-confirm-btn"
-          onClick={[Function]}
-        >
-          comments-widget.confirm.delete
-        </Btn>
-      </div>
-    </div>
   </div>
 </div>
 `;
 
 exports[`Comment tests should render Comment component with tags 1`] = `
-<div
-  className="ecos-comments__comment"
->
+<div>
   <div
-    className="ecos-comments__comment-header"
+    class="ecos-comments__comment"
   >
     <div
-      className="ecos-comments__comment-header-cell"
+      class="ecos-comments__comment-header"
     >
-      <Avatar
-        className="ecos-comments__comment-avatar"
-        classNameEmpty="ecos-comments__comment-avatar_empty"
-        noBorder={true}
-        url=""
-        userName=""
+      <div
+        class="ecos-comments__comment-header-cell"
+      >
+        <div
+          class="ecos-avatar ecos-comments__comment-avatar ecos-comments__comment-avatar_empty ecos-avatar_no-border"
+        >
+          <i
+            class="icon ecos-avatar__icon icon-user-normal"
+          />
+        </div>
+        <div
+          class="ecos-comments__comment-header-column ecos-comments__comment-name-container"
+        >
+          <div
+            class="ecos-comments__comment-name"
+          >
+            Admin
+             
+            Adminovich
+          </div>
+          <div
+            class="ecos-comments__comment-name"
+          >
+            Administratorov
+          </div>
+          <div
+            class="ecos-comments__comment-date"
+          >
+            comments-widget.now
+          </div>
+        </div>
+        <div
+          class="ecos-comments__comment-header-column ecos-comments__comment-tag-container"
+        />
+      </div>
+      <div
+        class="ecos-comments__comment-header-cell ecos-comments__comment-header-cell_actions"
       />
-      <div
-        className="ecos-comments__comment-header-column ecos-comments__comment-name-container"
-      >
-        <div
-          className="ecos-comments__comment-name"
-        >
-          Admin
-           
-          Adminovich
-        </div>
-        <div
-          className="ecos-comments__comment-name"
-        >
-          Administratorov
-        </div>
-        <div
-          className="ecos-comments__comment-date"
-        >
-          comments-widget.now
-        </div>
-      </div>
-      <div
-        className="ecos-comments__comment-header-column ecos-comments__comment-tag-container"
-      >
-        <Badge
-          className="ecos-comments__comment-tag"
-          popupClassName="ecos-comments__comment-tag-popper"
-          size="small"
-          state="info"
-          style={Object {}}
-          text=""
-          withPopup={true}
-        />
-        <Badge
-          className="ecos-comments__comment-tag"
-          popupClassName="ecos-comments__comment-tag-popper"
-          size="small"
-          state="info"
-          style={Object {}}
-          text=""
-          withPopup={true}
-        />
-        <Badge
-          className="ecos-comments__comment-tag"
-          popupClassName="ecos-comments__comment-tag-popper"
-          size="small"
-          state="info"
-          style={Object {}}
-          text=""
-          withPopup={true}
-        />
-      </div>
     </div>
     <div
-      className="ecos-comments__comment-header-cell ecos-comments__comment-header-cell_actions"
+      class="citeck-lexical-editor"
+    >
+      <div
+        class="editor-shell"
+      >
+        <div
+          class="ecos-rt-editor ecos-comments__comment-editor editor-container tree-view"
+        >
+          <div
+            class="file-node-wrapper"
+            id="file-node-wrapper"
+          />
+          <div
+            class="editor-scroller"
+          >
+            <div
+              class="editor"
+            >
+              <div
+                aria-autocomplete="none"
+                aria-placeholder="lexical.editor.placeholder.rich"
+                aria-readonly="true"
+                autocapitalize="off"
+                class="ecos-rt-editor__content content_readonly"
+                contenteditable="false"
+                data-lexical-editor="true"
+                spellcheck="true"
+                style="user-select: text; white-space: pre-wrap; word-break: break-word;"
+              >
+                <p
+                  class="PlaygroundEditorTheme__paragraph"
+                >
+                  <br />
+                </p>
+              </div>
+              <div
+                aria-hidden="true"
+              >
+                <div
+                  class="ContentEditable__placeholder"
+                >
+                  lexical.editor.placeholder.rich
+                </div>
+              </div>
+            </div>
+          </div>
+          <div />
+        </div>
+      </div>
+    </div>
+    <button
+      class="editor-dev-button "
+      id="options-button"
     />
   </div>
-  <Editor
-    className="ecos-comments__comment-editor"
-    htmlString="Comment"
-    onChange={[Function]}
-    readonly={true}
-  />
 </div>
 `;

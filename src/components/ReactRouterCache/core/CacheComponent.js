@@ -1,7 +1,8 @@
-import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
 import { run, get, value, isExist, isFunction, saveScrollPosition } from '../helpers';
+
 import { addToComponents, getComponents, removeFromComponents } from './constants';
 
 const isUsingNewLifecycle = isExist(React.forwardRef);
@@ -147,7 +148,7 @@ export default class CacheComponent extends Component {
    * Compatible React 16.3 -
    * 兼容 React 16.3 - 版本
    */
-  componentWillReceiveProps = !isUsingNewLifecycle
+  UNSAFE_componentWillReceiveProps = !isUsingNewLifecycle
     ? nextProps => {
         const nextState = getDerivedStateFromProps(nextProps, this.state);
 

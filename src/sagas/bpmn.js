@@ -1,12 +1,9 @@
-import { delay, takeEvery } from 'redux-saga';
-import { call, put, select, takeLatest } from 'redux-saga/effects';
-import { NotificationManager } from 'react-notifications';
 import endsWith from 'lodash/endsWith';
-import isFunction from 'lodash/isFunction';
 import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
+import { delay } from 'redux-saga';
+import { call, put, select, takeLatest, takeEvery } from 'redux-saga/effects';
 
-import { BPMN_MODELS_PAGE_MAX_ITEMS, EDITOR_PAGE_CONTEXT } from '../constants/bpmn';
-import { t } from '../helpers/util';
 import {
   getNextModels,
   getTotalCount,
@@ -30,14 +27,18 @@ import {
   setIsModelsLoading,
   getFullModels
 } from '../actions/bpmn';
-import { INFO_DIALOG_ID } from '../components/common/dialogs/Manager/DialogManager';
 import { showModal } from '../actions/modal';
-import { selectAllCategories, selectAllModels, selectModelsInfoByCategoryId } from '../selectors/bpmn';
-import { getPagePositionState, savePagePositionState } from '../helpers/bpmn';
-import Records from '../components/Records';
 import FormManager from '../components/EcosForm/FormManager';
+import Records from '../components/Records';
+import { INFO_DIALOG_ID } from '../components/common/dialogs/Manager/DialogManager';
+import { BPMN_MODELS_PAGE_MAX_ITEMS, EDITOR_PAGE_CONTEXT } from '../constants/bpmn';
+import { getPagePositionState, savePagePositionState } from '../helpers/bpmn';
+import { t } from '../helpers/util';
+import { selectAllCategories, selectAllModels, selectModelsInfoByCategoryId } from '../selectors/bpmn';
 
-function* doInitRequest({ api, logger }) {
+import { NotificationManager } from '@/services/notifications';
+
+function* doInitRequest({ api }) {
   try {
     const categories = yield call(api.bpmn.fetchCategories);
     const createVariants = yield call(api.bpmn.fetchCreateVariants);
@@ -68,11 +69,11 @@ function* doInitRequest({ api, logger }) {
       document.body.scrollTo(0, pagePosition.scrollTop);
     }
   } catch (e) {
-    logger.error('[bpmn doInitRequest saga] error', e);
+    console.error('[bpmn doInitRequest saga] error', e);
   }
 }
 
-function* doInitModels({ api, logger }, { payload }) {
+function* doInitModels({ api }, { payload }) {
   try {
     const { categoryId } = payload;
 
@@ -101,21 +102,21 @@ function* doInitModels({ api, logger }, { payload }) {
     const { categoryId } = payload;
 
     yield put(setIsModelsLoading({ categoryId, isLoading: false }));
-    logger.error('[bpmn doInitModels saga] error', e);
+    console.error('[bpmn doInitModels saga] error', e);
   }
 }
 
-function* doGetTotalCount({ api, logger }) {
+function* doGetTotalCount({ api }) {
   try {
     const totalCount = yield call(api.bpmn.fetchTotalCount);
 
     yield put(setTotalCount(totalCount));
   } catch (e) {
-    logger.error('[bpmn doGetTotalCount saga] error', e);
+    console.error('[bpmn doGetTotalCount saga] error', e);
   }
 }
 
-function* doGetNextModels({ api, logger }, { payload }) {
+function* doGetNextModels({ api }, { payload }) {
   try {
     const { categoryId } = payload;
 
@@ -148,11 +149,11 @@ function* doGetNextModels({ api, logger }, { payload }) {
       })
     );
   } catch (e) {
-    logger.error('[bpmn doInitModels saga] error', e);
+    console.error('[bpmn doInitModels saga] error', e);
   }
 }
 
-function* doGetFullModels({ api, logger }, { payload }) {
+function* doGetFullModels({ api }, { payload }) {
   try {
     const { categoryId } = payload;
 
@@ -181,11 +182,11 @@ function* doGetFullModels({ api, logger }, { payload }) {
     const { categoryId } = payload;
 
     yield put(setIsModelsLoading({ categoryId, isLoading: false }));
-    logger.error('[bpmn doGetFullModels saga] error', e);
+    console.error('[bpmn doGetFullModels saga] error', e);
   }
 }
 
-function* doCreateModel({ api, logger }, action) {
+function* doCreateModel({ api }, action) {
   try {
     const payload = action.payload || {};
 
@@ -228,11 +229,11 @@ function* doCreateModel({ api, logger }, action) {
       );
     }
   } catch (e) {
-    logger.error('[bpmn doCreateModel saga] error', e);
+    console.error('[bpmn doCreateModel saga] error', e);
   }
 }
 
-function* doSaveCategoryRequest({ api, logger }, action) {
+function* doSaveCategoryRequest({ api }, action) {
   try {
     const categories = yield select(selectAllCategories);
     const currentCategory = categories.find(item => item.id === action.payload.id);
@@ -267,11 +268,11 @@ function* doSaveCategoryRequest({ api, logger }, action) {
     );
   } catch (e) {
     NotificationManager.error(t('designer.add-category.failure-message'));
-    logger.error('[bpmn doSaveCategoryRequest saga] error', e);
+    console.error('[bpmn doSaveCategoryRequest saga] error', e);
   }
 }
 
-function* doDeleteCategoryRequest({ api, logger }, action) {
+function* doDeleteCategoryRequest({ api }, action) {
   try {
     const categoryId = action.payload;
 
@@ -297,11 +298,11 @@ function* doDeleteCategoryRequest({ api, logger }, action) {
     yield call(api.bpmn.deleteCategory, categoryId);
     yield put(deleteCategory(categoryId));
   } catch (e) {
-    logger.error('[bpmn doDeleteCategoryRequest saga] error', e);
+    console.error('[bpmn doDeleteCategoryRequest saga] error', e);
   }
 }
 
-function* doImportProcessModelRequest({ api, logger }, action) {
+function* doImportProcessModelRequest({ api }, action) {
   try {
     const model = yield call(api.bpmn.importProcessModel, action.payload);
     const recordId = model.id.replace('workspace://SpacesStore/', '');
@@ -311,11 +312,11 @@ function* doImportProcessModelRequest({ api, logger }, action) {
     // yield delay(100);
     //
   } catch (e) {
-    logger.error('[bpmn doImportProcessModelRequest saga] error', e);
+    console.error('[bpmn doImportProcessModelRequest saga] error', e);
   }
 }
 
-function* doSavePagePosition({ api, logger }, action) {
+function* doSavePagePosition({ api }, action) {
   try {
     const allCategories = yield select(selectAllCategories);
     const viewType = yield select(state => state.bpmn.viewType);
@@ -335,11 +336,11 @@ function* doSavePagePosition({ api, logger }, action) {
 
     action.payload && isFunction(action.payload.callback) && action.payload.callback();
   } catch (e) {
-    logger.error('[bpmn doShowImportModelForm saga] error', e);
+    console.error('[bpmn doShowImportModelForm saga] error', e);
   }
 }
 
-function* doUpdateModels({ api, logger }, { payload }) {
+function* doUpdateModels({ api }, { payload }) {
   try {
     const { modelId, resultModelId, prevCategoryId, action } = payload;
 
@@ -406,7 +407,7 @@ function* doUpdateModels({ api, logger }, { payload }) {
       );
     }
   } catch (e) {
-    logger.error('[bpmn doUpdateModels saga] error', e);
+    console.error('[bpmn doUpdateModels saga] error', e);
   }
 }
 

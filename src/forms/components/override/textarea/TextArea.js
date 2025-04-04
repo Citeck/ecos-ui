@@ -1,13 +1,22 @@
-import get from 'lodash/get';
-import merge from 'lodash/merge';
-import cloneDeep from 'lodash/cloneDeep';
-import isEqual from 'lodash/isEqual';
-import isEmpty from 'lodash/isEmpty';
-import NativePromise from 'native-promise-only';
+import { $generateHtmlFromNodes, $generateNodesFromDOM } from '@lexical/html';
 import Formio from 'formiojs/Formio';
 import FormIOTextAreaComponent from 'formiojs/components/textarea/TextArea';
+import { $getRoot } from 'lexical';
+import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
+import merge from 'lodash/merge';
+import NativePromise from 'native-promise-only';
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import { Provider } from 'react-redux';
 
 import { overrideTriggerChange } from '../misc';
+
+import LexicalEditor from '@/components/LexicalEditor';
+import ESMRequire from '@/services/ESMRequire.js';
+import { getStore } from '@/store';
 
 export default class TextAreaComponent extends FormIOTextAreaComponent {
   static schema(...extend) {
@@ -27,10 +36,17 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     super(...args);
 
     overrideTriggerChange.call(this);
+
+    this._lexicalRoot = null;
+    this._lexicalInited = false;
   }
 
   get defaultSchema() {
     return TextAreaComponent.schema();
+  }
+
+  get isLexicalEditor() {
+    return this.component.editor === 'lexical';
   }
 
   get isCkeEditor() {
@@ -49,6 +65,12 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     const skipSetting = isEqual(value, this.getValue());
 
     value = value || '';
+
+    if (this.isLexicalEditor) {
+      this.dataValue = value;
+      this.setWysiwygValue(value, skipSetting, flags);
+      return this.updateValue(flags);
+    }
 
     if (this.options.readOnly || this.htmlView) {
       // For readOnly, just view the contents.
@@ -75,6 +97,41 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     this.setWysiwygValue(value, skipSetting, flags);
 
     return this.updateValue(flags); // Cause: ECOSUI-675 - Group list is not loaded in user info
+  }
+
+  setWysiwygValue(value, skipSetting, flags) {
+    if (this.isLexicalEditor) {
+      if (skipSetting) {
+        return;
+      }
+
+      // It should be performed only when initializing data from the backend
+      this.editorReady.then(editor => {
+        editor.update(() => {
+          if (!this._lexicalInited) {
+            const parser = new DOMParser();
+            const dom = parser.parseFromString(value ?? '', 'text/html');
+            const nodes = $generateNodesFromDOM(editor, dom);
+
+            const root = $getRoot();
+            root.clear();
+            root.append(...nodes);
+            root.select();
+
+            const editorProps = editor.getRootElement();
+            const { textContent = '' } = editorProps || {};
+
+            if (!!textContent) {
+              this._lexicalInited = true;
+            }
+          }
+        });
+      });
+
+      return;
+    }
+
+    super.setWysiwygValue(value, skipSetting, flags);
   }
 
   createViewOnlyElement() {
@@ -113,7 +170,14 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         this.valueElement.parentNode.replaceChild(newElement, this.valueElement);
       }
 
-      this.valueElement = newElement;
+      if (this.isLexicalEditor) {
+        setTimeout(() => {
+          newElement.innerHTML = this.valueElement.innerText;
+          this.valueElement = newElement;
+        }, 200);
+      } else {
+        this.valueElement = newElement;
+      }
     }
   }
 
@@ -135,12 +199,68 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     }
   }
 
+  loadScript(src) {
+    return new Promise((resolve, reject) => {
+      if (document.querySelector(`script[src="${src}"]`)) {
+        return resolve();
+      }
+
+      const script = document.createElement('script');
+      script.src = src;
+      script.async = true;
+      script.onload = resolve;
+      script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
+      document.body.appendChild(script);
+    });
+  }
+
+  renderLexicalProvider(settings, onChange) {
+    if (onChange) {
+      const store = getStore();
+
+      return (
+        <Provider store={store}>
+          <LexicalEditor
+            hideToolbar={settings.hideToolbar}
+            readonly={settings.readonly}
+            onChange={onChange}
+            htmlString={this.dataValue || ''}
+            onEditorReady={editor => {
+              this.calculatedValue = this.dataValue;
+              this.editor = editor;
+              this.editorReadyResolve(editor);
+            }}
+          />
+        </Provider>
+      );
+    }
+
+    return null;
+  }
+
+  addLexical(element, settings, onChange) {
+    return new Promise(resolve => {
+      if (this._lexicalRoot) {
+        return;
+      }
+
+      const container = document.createElement('div');
+      container.className = 'lexical-editor-container';
+      element.appendChild(container);
+
+      this._lexicalRoot = createRoot(container);
+
+      this._lexicalRoot.render(this.renderLexicalProvider(settings, onChange));
+      resolve(container);
+    });
+  }
+
   addCKE(element, settings, onChange) {
     settings = isEmpty(settings) ? {} : settings;
     settings.base64Upload = true;
 
     return new Promise((resolve, reject) => {
-      window.require(['/js/lib/ckeditor5-build-classic/v12.2.0-formio.2/ckeditor.js'], ckeditor => {
+      ESMRequire.require(['/js/lib/ckeditor5-build-classic/v12.2.0-formio.2/ckeditor.js'], ckeditor => {
         if (!get(element, 'parentNode')) {
           reject();
           return;
@@ -186,7 +306,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     );
 
     return new Promise(resolve => {
-      window.require(['/js/lib/quill/1.3.6/quill.js'], Quill => {
+      ESMRequire.require(['/js/lib/quill/1.3.6/quill.js'], Quill => {
         if (!get(element, 'parentNode')) {
           return NativePromise.reject();
         }
@@ -239,7 +359,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
   addAce(element, settings, props) {
     try {
-      window.require(['/js/lib/ace/1.4.1/ace.js', '/js/lib/ace/1.4.1/ext-searchbox.js'], () => {
+      ESMRequire.require(['/js/lib/ace/1.4.1/ace.js', '/js/lib/ace/1.4.1/ext-searchbox.js'], () => {
         if (!element) {
           return NativePromise.reject();
         }
@@ -276,6 +396,27 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     }
   }
 
+  updateEditorValue(value) {
+    let newValue = value;
+
+    if (this.isLexicalEditor) {
+      newValue = this.getConvertedValue(newValue);
+    } else {
+      newValue = this.getConvertedValue(this.removeBlanks(newValue));
+    }
+
+    if (newValue !== this.dataValue && (!isEmpty(newValue) || !isEmpty(this.dataValue))) {
+      this.updateValue(
+        {
+          modified: !this.autoModified
+        },
+        newValue
+      );
+    }
+
+    this.autoModified = false;
+  }
+
   enableWysiwyg() {
     if (this.isPlain || this.options.readOnly || this.options.htmlView) {
       if (this.autoExpand) {
@@ -287,6 +428,17 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       }
 
       return;
+    }
+
+    if (this.isLexicalEditor) {
+      const settings = this.component.wysiwyg || {};
+      this.addLexical(this.input, settings, (editorState, editor) => {
+        editor.update(() => {
+          const html = $generateHtmlFromNodes(editor, null);
+          this.updateEditorValue(html);
+        });
+      });
+      return this.input;
     }
 
     if (this.isAceEditor) {
@@ -339,7 +491,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       .then(quill => {
         if (this.component.isUploadEnabled) {
           const _this = this;
-          quill.getModule('toolbar').addHandler('image', function() {
+          quill.getModule('toolbar').addHandler('image', function () {
             //we need initial 'this' because quill calls this method with its own context and we need some inner quill methods exposed in it
             //we also need current component instance as we use some fields and methods from it as well
             _this.imageHandler.call(_this, this);
@@ -373,6 +525,14 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       this.wysiwygRendered = false;
       this.editorReady = null;
     }
+  }
+
+  destroyWysiwyg() {
+    if (this.isLexicalEditor && this.editor) {
+      this.editor = null;
+    }
+
+    super.destroyWysiwyg();
   }
 
   show(show, noClear) {

@@ -1,19 +1,14 @@
-import React from 'react';
 import Modeler from 'bpmn-js/lib/Modeler';
 import isFunction from 'lodash/isFunction';
+import React from 'react';
+
+import ecosTask from '../../ModelEditor/BPMNModeler/moddle/ecosTask.json';
+import ModelViewer from '../ModelViewer';
+import { Sheet } from '../Sheet';
 
 import customModules from './modules';
 
-import './patches';
-
-import ecosTask from '../../ModelEditor/BPMNModeler/moddle/ecosTask.json';
-
-import 'bpmn-js/dist/assets/diagram-js.css';
-import 'bpmn-js/dist/assets/bpmn-font/css/bpmn.css';
 import './style.scss';
-
-import ModelViewer from '../ModelViewer';
-import { Sheet } from '../Sheet';
 
 export default class BPMNViewer extends ModelViewer {
   static querySelector = 'ecos-bpmn-model-container';

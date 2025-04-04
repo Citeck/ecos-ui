@@ -1,11 +1,11 @@
 import UpdatePropertiesHandler from 'bpmn-js/lib/features/modeling/cmd/UpdatePropertiesHandler';
 import get from 'lodash/get';
 
-import { PREFIX_FIELD } from '../../../../../../../constants/cmmn';
+import { PREFIX_FIELD } from '@/constants/cmmn';
 
 const originalExecute = UpdatePropertiesHandler.prototype.execute;
 
-UpdatePropertiesHandler.prototype.execute = function(context, withClear) {
+UpdatePropertiesHandler.prototype.execute = function (context, withClear) {
   const element = context.element;
   const translate = this._translate;
 

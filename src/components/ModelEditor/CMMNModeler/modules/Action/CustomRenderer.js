@@ -1,9 +1,10 @@
+import { getName } from 'cmmn-js/lib/util/ModelUtil';
 import BaseRenderer from 'diagram-js/lib/draw/BaseRenderer';
 import TextUtil from 'diagram-js/lib/util/Text';
 import { append as svgAppend, attr as svgAttr, classes as svgClasses, create as svgCreate } from 'tiny-svg';
-import { getName } from 'cmmn-js/lib/util/ModelUtil';
 
 import * as CmmnUtils from '../../utils';
+
 import actionTypes from './action-types.json';
 
 import 'bpmn-font/dist/css/bpmn.css';

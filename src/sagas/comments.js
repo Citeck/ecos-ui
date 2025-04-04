@@ -1,6 +1,5 @@
-import { call, put, select, takeEvery } from 'redux-saga/effects';
-import { NotificationManager } from 'react-notifications';
 import { get, isArray } from 'lodash';
+import { call, put, select, takeEvery } from 'redux-saga/effects';
 
 import {
   createCommentRequest,
@@ -21,16 +20,19 @@ import {
   uploadFilesFinally,
   updateComments
 } from '../actions/comments';
-import { selectAllComments } from '../selectors/comments';
-import { getCommentForWeb } from '../dto/comments';
-import { isNodeRef, t } from '../helpers/util';
-import { uploadFile, uploadFileV2 } from './documents';
 import { setUploadError } from '../actions/documents';
 import Records from '../components/Records/Records';
+import { getCommentForWeb } from '../dto/comments';
+import { isNodeRef, t } from '../helpers/util';
+import { selectAllComments } from '../selectors/comments';
+
+import { uploadFile, uploadFileV2 } from './documents';
+
+import { NotificationManager } from '@/services/notifications';
 
 const getPureMessage = message => (message || '').replace(/\d/g, '');
 
-function* sagaGetComments({ api, logger }, action) {
+function* sagaGetComments({ api }, action) {
   try {
     yield put(fetchStart(action.payload));
 
@@ -46,11 +48,11 @@ function* sagaGetComments({ api, logger }, action) {
 
     yield put(fetchEnd(action.payload));
   } catch (e) {
-    logger.error('[comments sagaGetComments saga error', e);
+    console.error('[comments sagaGetComments saga error', e);
   }
 }
 
-function* sagaUpdateComments({ api, logger }, action) {
+function* sagaUpdateComments({ api }, action) {
   try {
     const { record, prevComments } = action.payload;
     const { records, ...extraProps } = yield api.comments.getAll(record);
@@ -67,13 +69,13 @@ function* sagaUpdateComments({ api, logger }, action) {
       );
     }
   } catch (e) {
-    logger.error('[comments sagaGetComments saga error', e);
+    console.error('[comments sagaGetComments saga error', e);
   } finally {
     yield put(fetchEnd(action.payload));
   }
 }
 
-function* sagaCreateComment({ api, logger }, action) {
+function* sagaCreateComment({ api }, action) {
   try {
     const {
       payload: { recordRef, comment: text, isInternal = false }
@@ -99,7 +101,7 @@ function* sagaCreateComment({ api, logger }, action) {
         recordRef: action.payload.recordRef
       })
     );
-    logger.error('[comments sagaCreateComment saga error', e);
+    console.error('[comments sagaCreateComment saga error', e);
   } finally {
     if (action.payload && action.payload.callback && typeof action.payload.callback === 'function') {
       action.payload.callback();
@@ -107,7 +109,7 @@ function* sagaCreateComment({ api, logger }, action) {
   }
 }
 
-function* sagaUpdateComment({ api, logger }, action) {
+function* sagaUpdateComment({ api }, action) {
   try {
     const {
       payload: { comment, recordRef }
@@ -138,7 +140,7 @@ function* sagaUpdateComment({ api, logger }, action) {
         recordRef: action.payload.recordRef
       })
     );
-    logger.error('[comments sagaUpdateComment saga error', e);
+    console.error('[comments sagaUpdateComment saga error', e);
   } finally {
     if (action.payload && action.payload.callback && typeof action.payload.callback === 'function') {
       action.payload.callback();
@@ -146,7 +148,7 @@ function* sagaUpdateComment({ api, logger }, action) {
   }
 }
 
-function* sagaUploadFilesInComment({ api, logger }, { payload }) {
+function* sagaUploadFilesInComment({ api }, { payload }) {
   let fileRecords;
 
   try {
@@ -160,7 +162,7 @@ function* sagaUploadFilesInComment({ api, logger }, { payload }) {
       fileUploadFunc = uploadFileV2;
     }
 
-    const files = yield payload.files.map(function*(file) {
+    const files = yield payload.files.map(function* (file) {
       return yield fileUploadFunc({ api, file, callback: payload.callback });
     });
 
@@ -176,7 +178,7 @@ function* sagaUploadFilesInComment({ api, logger }, { payload }) {
       recordRef = (yield Records.get(payload.type).load('sourceId')) + '@';
     }
 
-    fileRecords = yield files.map(function(file, index) {
+    fileRecords = yield files.map(function (file, index) {
       const fileResult = results[index];
 
       if (fileResult.status === 'fulfilled') {
@@ -190,7 +192,7 @@ function* sagaUploadFilesInComment({ api, logger }, { payload }) {
     );
   } catch (e) {
     yield put(setUploadError({ ...payload, message: e.message }));
-    logger.error('[comments sagaUploadFilesInComment saga error', e);
+    console.error('[comments sagaUploadFilesInComment saga error', e);
     NotificationManager.error(
       t(payload.files.length > 1 ? 'documents-widget.notification.add-many.error' : 'documents-widget.notification.add-one.error'),
       t('error')
@@ -203,7 +205,7 @@ function* sagaUploadFilesInComment({ api, logger }, { payload }) {
   }
 }
 
-function* sagaDeleteComment({ api, logger }, { payload }) {
+function* sagaDeleteComment({ api }, { payload }) {
   const { recordRef, id: commentId, callback } = payload;
 
   try {
@@ -224,7 +226,7 @@ function* sagaDeleteComment({ api, logger }, { payload }) {
     NotificationManager.error(originMessage || t('comments-widget.error'), t('error'));
     yield put(setActionFailedStatus({ recordRef, status: true }));
 
-    logger.error('[comments sagaDeleteComment saga error', e);
+    console.error('[comments sagaDeleteComment saga error', e);
   } finally {
     yield put(sendingEnd(recordRef));
 

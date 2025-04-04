@@ -1,6 +1,7 @@
-import Records from '../components/Records';
 import { CommonApi } from './common';
-import { SourcesId } from '../constants';
+
+import Records from '@/components/Records';
+import { SourcesId } from '@/constants';
 
 export class WorkspaceApi extends CommonApi {
   getWorkspaces = () => {
@@ -15,9 +16,20 @@ export class WorkspaceApi extends CommonApi {
         homePageLink: 'homePageLink?str',
         isCurrentUserManager: 'isCurrentUserManager?bool',
         hasWrite: 'permissions._has.Write?bool',
+        description: 'description?str',
         wsImage: 'icon.url'
       }
     );
+  };
+
+  getWorkspace = async recordRef => {
+    return await Records.get(recordRef).load({
+      wsId: '?localId',
+      homePageLink: 'homePageLink?str',
+      wsName: '?disp!?localId',
+      description: 'description?json',
+      icon: 'icon.url'
+    });
   };
 
   visitedAction = wsId => {

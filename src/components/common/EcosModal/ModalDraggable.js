@@ -1,9 +1,9 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import React from 'react';
 import Draggable from 'react-draggable';
-import Portal from 'reactstrap/lib/Portal';
 import Fade from 'reactstrap/lib/Fade';
+import Portal from 'reactstrap/lib/Portal';
 import {
   conditionallyUpdateScrollbar,
   focusableElements,
@@ -13,6 +13,7 @@ import {
   setScrollbarWidth,
   TransitionTimeouts
 } from 'reactstrap/lib/utils';
+
 import Loader from '../Loader/Loader';
 
 function noop() {}
@@ -112,13 +113,13 @@ class Modal extends React.Component {
     this._isMounted = true;
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps.isOpen && !this.props.isOpen) {
       this.setState({ isOpen: nextProps.isOpen });
     }
   }
 
-  componentWillUpdate(nextProps, nextState) {
+  UNSAFE_componentWillUpdate(nextProps, nextState) {
     if (nextState.isOpen && !this.state.isOpen) {
       this.init();
     }
@@ -339,7 +340,8 @@ class Modal extends React.Component {
         role,
         labelledBy,
         external,
-        innerRef
+        innerRef,
+        isblurbackground
       } = this.props;
 
       const modalAttributes = {
@@ -353,6 +355,7 @@ class Modal extends React.Component {
         tabIndex: '-1'
       };
 
+      const baseClass = isblurbackground ? 'ecos-modal_blur-bg' : '';
       const hasTransition = this.props.fade;
       const modalTransition = {
         ...Fade.defaultProps,
@@ -384,6 +387,7 @@ class Modal extends React.Component {
             <Fade
               {...modalAttributes}
               {...modalTransition}
+              baseClass={baseClass}
               in={isOpen}
               onEntered={this.onOpened}
               onExited={this.onClosed}

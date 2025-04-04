@@ -1,23 +1,26 @@
-import React, { lazy, Suspense } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
 import get from 'lodash/get';
+import PropTypes from 'prop-types';
+import React, { lazy, Suspense } from 'react';
+import { connect } from 'react-redux';
 import ReactResizeDetector from 'react-resize-detector';
 
-import ConfigService, { ALFRESCO_ENABLED } from '../../services/config/ConfigService';
 import { fetchCreateCaseWidgetData, fetchSiteMenuData, fetchUserMenuData } from '../../actions/header';
 import { JournalUrlParams, SourcesId, URL } from '../../constants';
 import { MenuTypes } from '../../constants/menu';
-import Records from '../Records';
-import CreateMenu from './CreateMenu';
+
 import UserMenu from './UserMenu';
-import SiteMenu from './SiteMenu';
-import Search from './Search';
 import WorkspacesSwitcher from './Workspaces';
-import LanguageSwitcher from './LanguageSwitcher';
+
 import { selectIsViewNewJournal } from '../../selectors/view';
+import ConfigService, { ALFRESCO_ENABLED } from '../../services/config/ConfigService';
+import Records from '../Records';
+
+import CreateMenu from './CreateMenu';
+import LanguageSwitcher from './LanguageSwitcher';
+import Search from './Search';
+import SiteMenu from './SiteMenu';
 
 import './style.scss';
 import SlideMenuButton from './SlideMenuButton';
@@ -130,9 +133,11 @@ class Header extends React.Component {
             <CreateMenu isMobile={widthHeader < 910} />
           </div>
           <div className="ecos-header__side ecos-header__side_right">
-            {hasAlfresco && (
-              <Search isMobile={isMobile || widthHeader <= 600} searchPageUrl={`${URL.JOURNAL}?${JournalUrlParams.JOURNAL_ID}=search`} />
-            )}
+            <Search
+              hasAlfresco
+              isMobile={isMobile || widthHeader <= 600}
+              searchPageUrl={`${URL.JOURNAL}?${JournalUrlParams.JOURNAL_ID}=search`}
+            />
             {!hiddenSiteMenu && <SiteMenu legacyItems={legacySiteMenuItems} />}
             {!hiddenLanguageSwitcher && <LanguageSwitcher theme={theme} />}
             <UserMenu isMobile={widthHeader < 910} widthParent={widthHeader} />
@@ -148,7 +153,4 @@ Header.propTypes = {
   legacySiteMenuItems: PropTypes.array
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Header);
+export default connect(mapStateToProps, mapDispatchToProps)(Header);

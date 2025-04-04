@@ -1,16 +1,18 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { ModalBody, ModalHeader } from 'reactstrap';
-import ReactResizeDetector from 'react-resize-detector';
-import throttle from 'lodash/throttle';
 import isUndefined from 'lodash/isUndefined';
+import throttle from 'lodash/throttle';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import ReactResizeDetector from 'react-resize-detector';
+import { ModalBody, ModalHeader } from 'reactstrap';
 
-import { getMLValue, isMobileDevice, t, trigger } from '../../../helpers/util';
-import ZIndex from '../../../services/ZIndex';
-import Modal from './ModalDraggable';
-import Icon from '../icons/Icon/Icon';
 import Popper from '../Popper';
+import Icon from '../icons/Icon/Icon';
+
+import Modal from './ModalDraggable';
+
+import { getMLValue, isMobileDevice, t, trigger } from '@/helpers/util.js';
+import ZIndex from '@/services/ZIndex';
 
 import './EcosModal.scss';
 
@@ -152,7 +154,8 @@ export default class EcosModal extends Component {
   }
 
   render() {
-    const { hideModal, children, className, classNameBody, reactstrapProps, isLoading, onResize, size, container } = this.props;
+    const { hideModal, children, className, classNameBody, reactstrapProps, isLoading, onResize, size, container, isBlurBackground } =
+      this.props;
     const { isOpen, level, draggableState, zIndexCalc } = this.state;
     const modalLevel = level > MAX_LEVEL ? MAX_LEVEL : level;
     const classMobile = isMobileDevice() ? 'ecos-modal_mobile' : '';
@@ -197,6 +200,7 @@ export default class EcosModal extends Component {
         data-level={level}
         container={container}
         containerClassName="ecos-modal-container ecosZIndexAnchor"
+        isblurbackground={isBlurBackground}
       >
         {this.renderModalHeader()}
         <ModalBody className={classNames(classNameBody, classMobile)}>{children}</ModalBody>

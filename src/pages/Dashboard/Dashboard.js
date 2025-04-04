@@ -1,20 +1,14 @@
-import React, { Component } from 'react';
 import classNames from 'classnames';
-import { connect } from 'react-redux';
-import * as queryString from 'query-string';
+import cloneDeep from 'lodash/cloneDeep';
+import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
-import debounce from 'lodash/debounce';
-import cloneDeep from 'lodash/cloneDeep';
 import isNil from 'lodash/isNil';
+import * as queryString from 'query-string';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
-import { LoaderTypes, URL } from '../../constants';
-import { MenuTypes } from '../../constants/menu';
-import { DashboardTypes } from '../../constants/dashboard';
-import { isMobileAppWebView, t } from '../../helpers/util';
-import { showModalJson } from '../../helpers/tools';
-import { decodeLink, getSortedUrlParams, isDashboard, pushHistoryLink, replaceHistoryLink } from '../../helpers/urls';
 import {
   getDashboardConfig,
   getDashboardTitle,
@@ -22,22 +16,28 @@ import {
   saveDashboardConfig,
   setLoading,
   setWarningMessage
-} from '../../actions/dashboard';
-import { saveMenuConfig } from '../../actions/menu';
-import { Loader, ScrollArrow, Tabs } from '../../components/common';
-import { Badge } from '../../components/common/form';
-import { DocStatus } from '../../components/widgets/DocStatus';
-import Layout from '../../components/Layout';
-import { DndUtils } from '../../components/Drag-n-Drop';
-import TopMenu from '../../components/Layout/TopMenu';
-import Records from '../../components/Records';
-import RecordUpdater from '../../components/Records/RecordUpdater';
-import DashboardService from '../../services/dashboard';
-import PageTabList from '../../services/pageTabs/PageTabList';
-import { selectDashboardByKey, selectDashboardConfig, selectDashboardConfigVersion } from '../../selectors/dashboard';
-import PageService from '../../services/PageService';
-import DialogManager from '../../components/common/dialogs/Manager';
-import TitlePageLoader from '../../components/common/TitlePageLoader';
+} from '@/actions/dashboard';
+import { saveMenuConfig } from '@/actions/menu';
+import { DndUtils } from '@/components/Drag-n-Drop';
+import Layout from '@/components/Layout';
+import TopMenu from '@/components/Layout/TopMenu';
+import Records from '@/components/Records';
+import RecordUpdater from '@/components/Records/RecordUpdater';
+import { Loader, ScrollArrow, Tabs } from '@/components/common';
+import TitlePageLoader from '@/components/common/TitlePageLoader';
+import DialogManager from '@/components/common/dialogs/Manager';
+import { Badge } from '@/components/common/form';
+import { DocStatus } from '@/components/widgets/DocStatus';
+import { LoaderTypes, URL } from '@/constants';
+import { DashboardTypes } from '@/constants/dashboard';
+import { MenuTypes } from '@/constants/menu';
+import { showModalJson } from '@/helpers/tools';
+import { decodeLink, getLinkWithWs, getSortedUrlParams, isDashboard, pushHistoryLink, replaceHistoryLink } from '@/helpers/urls';
+import { getEnabledWorkspaces, isMobileAppWebView, t } from '@/helpers/util';
+import { selectDashboardByKey, selectDashboardConfig, selectDashboardConfigVersion } from '@/selectors/dashboard';
+import PageService from '@/services/PageService';
+import DashboardService from '@/services/dashboard';
+import PageTabList from '@/services/pageTabs/PageTabList';
 
 import './style.scss';
 
@@ -215,7 +215,7 @@ class Dashboard extends Component {
       }
     }
 
-    if (warningMessage !== prevProps.warningMessage) {
+    if (!!warningMessage) {
       this.showWarningMessage();
     }
   }
@@ -244,7 +244,8 @@ class Dashboard extends Component {
           className: 'ecos-btn_blue',
           key: 'home-page',
           onClick: () => {
-            PageService.changeUrlLink(URL.DASHBOARD, { openNewTab: true, closeActiveTab: true });
+            const linkWithWs = getEnabledWorkspaces() ? getLinkWithWs(URL.DASHBOARD) : URL.DASHBOARD;
+            PageService.changeUrlLink(linkWithWs, { openNewTab: true, closeActiveTab: true });
           },
           label: t('go-to.home-page')
         }
@@ -684,7 +685,4 @@ class Dashboard extends Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Dashboard);
+export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);

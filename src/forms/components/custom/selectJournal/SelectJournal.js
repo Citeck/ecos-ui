@@ -1,13 +1,15 @@
-import _ from 'lodash';
 import { evaluate as formioEvaluate } from 'formiojs/utils/utils';
+import _ from 'lodash';
 
-import { getTextByLocale, trimFields } from '../../../../helpers/util';
-import SelectJournal from '../../../../components/common/form/SelectJournal';
-import Records from '../../../../components/Records';
-import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
-import GqlDataSource from '../../../../components/common/grid/dataSource/GqlDataSource';
 import BaseReactComponent from '../base/BaseReactComponent';
+
 import { DataTypes, DisplayModes, SortOrderOptions, TableTypes, TEMPLATE_REGEX } from './constants';
+
+import EcosFormUtils from '@/components/EcosForm/EcosFormUtils';
+import Records from '@/components/Records';
+import SelectJournal from '@/components/common/form/SelectJournal';
+import GqlDataSource from '@/components/common/grid/dataSource/GqlDataSource';
+import { getTextByLocale, trimFields } from '@/helpers/util';
 
 export default class SelectJournalComponent extends BaseReactComponent {
   static schema(...extend) {

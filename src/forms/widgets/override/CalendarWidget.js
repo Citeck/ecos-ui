@@ -1,11 +1,10 @@
-import FormIOCalendarWidget from 'formiojs/widgets/CalendarWidget';
-import { convertFormatToMask, convertFormatToMoment } from 'formiojs/utils/utils';
 import Flatpickr from 'flatpickr';
+import { convertFormatToMask, convertFormatToMoment } from 'formiojs/utils/utils';
+import FormIOCalendarWidget from 'formiojs/widgets/CalendarWidget';
 import moment from 'moment';
 
-import { getCurrentLocale } from '../../../helpers/util';
-import 'flatpickr/dist/l10n/ru.js';
-import { DateFormats } from '../../../constants';
+import { DateFormats } from '@/constants';
+import { getCurrentLocale } from '@/helpers/util';
 
 export default class CalendarWidget extends FormIOCalendarWidget {
   static get defaultSettings() {
@@ -30,9 +29,7 @@ export default class CalendarWidget extends FormIOCalendarWidget {
     }
 
     if (this.settings.format && this.settings.format === DateFormats.DATE) {
-      return moment(value)
-        .utcOffset(0, true)
-        .format();
+      return moment(value).utcOffset(0, true).format();
     }
 
     return value;
@@ -95,6 +92,18 @@ export default class CalendarWidget extends FormIOCalendarWidget {
       });
 
       window.addEventListener('scroll', this.onScrollWindow, true);
+
+      this.handleClickOutside = event => {
+        if (
+          this.calendar.isOpen &&
+          !this.calendar._input.contains(event.target) &&
+          !this.calendar.calendarContainer.contains(event.target)
+        ) {
+          this.calendar.close();
+        }
+      };
+
+      document.addEventListener('click', this.handleClickOutside);
     }
   }
 
@@ -102,5 +111,9 @@ export default class CalendarWidget extends FormIOCalendarWidget {
     super.destroy();
 
     window.removeEventListener('scroll', this.onScrollWindow, true);
+
+    if (this.handleClickOutside) {
+      document.removeEventListener('click', this.handleClickOutside);
+    }
   }
 }

@@ -1,4 +1,5 @@
 import { handleActions } from 'redux-actions';
+
 import {
   fetchCreateCaseWidgetData,
   fetchUserMenuData,
@@ -22,6 +23,7 @@ const initialState = {
     documents: [],
     sites: [],
     people: [],
+    workspaces: [],
     noResults: false
   },
   siteMenu: {
@@ -73,7 +75,7 @@ export default handleActions(
       };
     },
     [setSearchAutocompleteItems]: (state, action) => {
-      const { documents, sites, people, noResults } = action.payload || {};
+      const { documents, sites, people, workspaces, noResults } = action.payload || {};
 
       return {
         ...state,
@@ -81,6 +83,7 @@ export default handleActions(
           documents: documents.items || [],
           people: people.items || [],
           sites: sites.items || [],
+          workspaces: workspaces.items || [],
           noResults,
           isLoading: false
         }

@@ -1,16 +1,16 @@
-import uuidV4 from 'uuid/v4';
+import { EventEmitter } from 'events';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import set from 'lodash/set';
-import { EventEmitter2 } from 'eventemitter2';
+import uuidV4 from 'uuid/v4';
 
-import { isExistValue, packInLabel, t } from '../helpers/util';
-import { getIconObjectWeb } from '../helpers/icon';
-import { treeFindFirstItem, treeGetPathItem, treeRemoveItem } from '../helpers/arrayOfObjects';
 import { ConfigTypes, CreateOptions, MenuSettings as ms, MenuTypes, UserMenu, UserOptions } from '../constants/menu';
+import { treeFindFirstItem, treeGetPathItem, treeRemoveItem } from '../helpers/arrayOfObjects';
+import { getIconObjectWeb } from '../helpers/icon';
+import { isExistValue, packInLabel, t } from '../helpers/util';
 
 export default class MenuSettingsService {
-  static emitter = new EventEmitter2();
+  static emitter = new EventEmitter();
 
   static Events = {
     SHOW: 'ecos-menu-settings-show',
@@ -92,7 +92,11 @@ export default class MenuSettingsService {
     const { level, configType } = params || {};
 
     return {
-      editable: knownType && ![ms.ItemTypes.JOURNAL, ms.ItemTypes.KANBAN, ms.ItemTypes.DOCLIB, ms.ItemTypes.DASHBOARD].includes(item.type),
+      editable:
+        knownType &&
+        ![ms.ItemTypes.JOURNAL, ms.ItemTypes.KANBAN, ms.ItemTypes.DOCLIB, ms.ItemTypes.PREVIEW_LIST, ms.ItemTypes.DASHBOARD].includes(
+          item.type
+        ),
       draggable: knownType && ![].includes(item.type),
       removable: ![].includes(item.type),
       hideable: ![].includes(item.type),
@@ -181,7 +185,9 @@ export default class MenuSettingsService {
     { ...CreateOptions.JOURNAL, when: { minLevel: 0 } },
     { ...CreateOptions.KANBAN, when: { minLevel: 0 } },
     { ...CreateOptions.DASHBOARD, when: { minLevel: 0 } },
+    { ...CreateOptions.WIKI, when: { minLevel: 0 } },
     { ...CreateOptions.DOCLIB, when: { minLevel: 0 } },
+    { ...CreateOptions.PREVIEW_LIST, when: { minLevel: 0 } },
     { ...CreateOptions.ARBITRARY, when: { minLevel: 0 } },
     { ...CreateOptions.LINK_CREATE_CASE, when: { minLevel: 0 } },
     { ...CreateOptions.START_WORKFLOW, when: { minLevel: 0 } }

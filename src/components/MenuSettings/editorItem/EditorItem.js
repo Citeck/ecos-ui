@@ -1,17 +1,17 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import get from 'lodash/get';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 import { MenuSettings as MS } from '../../../constants/menu';
 import { SelectJournal } from '../../common/form';
 
-import Section from './Section';
 import Arbitrary from './Arbitrary';
+import CreateInSection from './CreateInSection';
 import Dashboard from './Dashboard';
 import Divider from './Divider';
-import CreateInSection from './CreateInSection';
 import EditRecord from './EditRecord';
 import LinkCreateCase from './LinkCreateCase';
+import Section from './Section';
 import StartWorkflow from './StartWorkflow';
 import UserMenuItem from './UserMenuItem';
 
@@ -34,6 +34,7 @@ export default class EditorItem extends React.Component {
       case MS.ItemTypes.ARBITRARY:
         return <Arbitrary {...this.props} />;
       case MS.ItemTypes.DASHBOARD:
+      case MS.ItemTypes.WIKI:
         return <Dashboard {...this.props} />;
       case MS.ItemTypes.HEADER_DIVIDER:
         return <Divider {...this.props} />;
@@ -49,6 +50,7 @@ export default class EditorItem extends React.Component {
       }
       case MS.ItemTypes.JOURNAL:
       case MS.ItemTypes.KANBAN:
+      case MS.ItemTypes.PREVIEW_LIST:
       case MS.ItemTypes.DOCLIB: {
         const { onSave, onClose, journalId, presetFilterPredicates } = this.props;
 

@@ -1,7 +1,10 @@
-import { call, put, takeLatest, takeEvery } from 'redux-saga/effects';
-import isBoolean from 'lodash/isBoolean';
 import get from 'lodash/get';
+import isBoolean from 'lodash/isBoolean';
+import { call, put, takeLatest, takeEvery } from 'redux-saga/effects';
 
+import { fetchCreateCaseWidgetData } from '../actions/header';
+import { getMenuConfig } from '../actions/menu';
+import { fetchSlideMenuItems } from '../actions/slideMenu';
 import {
   getWorkspaces,
   goToDefaultFromBlockedWs,
@@ -11,14 +14,11 @@ import {
   updateUIWorkspace,
   visitedAction
 } from '../actions/workspaces';
-import { getWsIdOfTabLink } from '../helpers/urls';
-import PageService from '../services/PageService';
 import { URL } from '../constants';
-import { fetchSlideMenuItems } from '../actions/slideMenu';
-import { fetchCreateCaseWidgetData } from '../actions/header';
-import { getMenuConfig } from '../actions/menu';
+import { getLinkWithWs, getPersonalWorkspaceId, getWsIdOfTabLink } from '../helpers/urls';
+import PageService from '../services/PageService';
 
-function* sagaGetWorkspacesRequest({ api, logger }) {
+function* sagaGetWorkspacesRequest({ api }) {
   try {
     const { records } = yield call(api.workspaces.getWorkspaces);
 
@@ -56,37 +56,40 @@ function* sagaGetWorkspacesRequest({ api, logger }) {
       yield put(setWorkspaces(records));
     }
   } catch (e) {
-    logger.error('[workspaces/ doGetWorkspacesRequest] error', e);
+    console.error('[workspaces/ doGetWorkspacesRequest] error', e);
     yield put(setWorkspacesError());
   }
 }
 
-function* sagaVisitedActionRequest({ api, logger }, { payload }) {
+function* sagaVisitedActionRequest({ api }, { payload }) {
   try {
     yield call(api.workspaces.visitedAction, payload);
   } catch (e) {
-    logger.error('[workspaces/ sagaVisitedActionRequest] error', e);
+    console.error('[workspaces/ sagaVisitedActionRequest] error', e);
     yield put(setWorkspacesError());
   }
 }
 
-function* sagaGoToDefaultFromBlockedWs({ logger }) {
+function* sagaGoToDefaultFromBlockedWs() {
   try {
+    const newUrl = getLinkWithWs(URL.DASHBOARD, getPersonalWorkspaceId());
+
     yield put(setBlockedCurrenWorkspace(false));
-    PageService.changeUrlLink(URL.DASHBOARD, { openNewTab: true });
+
+    PageService.changeUrlLink(newUrl, { openNewTab: true, needUpdateTabs: true });
   } catch (e) {
-    logger.error('[workspaces/ sagaGoToDefaultFromBlockedWs] error', e);
+    console.error('[workspaces/ sagaGoToDefaultFromBlockedWs] error', e);
     yield put(setWorkspacesError());
   }
 }
 
-function* sagaUpdateUIWorkspace({ logger }) {
+function* sagaUpdateUIWorkspace() {
   try {
     yield put(getMenuConfig());
     yield put(fetchSlideMenuItems());
     yield put(fetchCreateCaseWidgetData());
   } catch (e) {
-    logger.error('[workspaces/ sagaUpdateUIWorkspace] error', e);
+    console.error('[workspaces/ sagaUpdateUIWorkspace] error', e);
     yield put(setWorkspacesError());
   }
 }

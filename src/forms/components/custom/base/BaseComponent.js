@@ -1,6 +1,7 @@
 import FormIOBase from '../../override/base/Base';
-import Records from '../../../../components/Records/Records';
-import { t } from '../../../../helpers/util';
+
+import Records from '@/components/Records/Records';
+import { t } from '@/helpers/util';
 
 export default class BaseComponent extends FormIOBase {
   getRecordId() {

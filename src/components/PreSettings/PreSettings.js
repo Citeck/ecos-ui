@@ -1,5 +1,6 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
+
 import PreSettingsModal from './PreSettingsModal';
 
 class PreSettings {
@@ -18,15 +19,17 @@ class PreSettings {
   open = (recordRef, config, callback, toggleLoader) => {
     const { presettingsType } = config;
 
+    const root = createRoot(this.el);
+
     const handleUnmount = () => {
       try {
-        ReactDOM.unmountComponentAtNode(this.el);
+        root.unmount();
       } catch (e) {
         console.error(e);
       }
     };
 
-    ReactDOM.render(
+    root.render(
       <PreSettingsModal
         isOpen
         type={presettingsType}
@@ -35,8 +38,7 @@ class PreSettings {
         config={config}
         onHide={handleUnmount}
         toggleLoader={toggleLoader}
-      />,
-      this.el
+      />
     );
   };
 }
