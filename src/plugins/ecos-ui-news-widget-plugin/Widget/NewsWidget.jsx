@@ -3,21 +3,23 @@ import get from 'lodash/get';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import Dashlet from '../../../components/Dashlet/Dashlet';
-import Records from '../../../components/Records/Records'; // Ensure RecordsType is exported from the module
-import { notifyFailure } from '../../../components/Records/actions/util/actionUtils';
-import { Loader } from '../../../components/common';
-import BaseWidget from '../../../components/widgets/BaseWidget';
-import { DashboardTypes } from '../../../constants/dashboard';
-import { getRecordRef } from '../../../helpers/urls';
-import { t } from '../../../helpers/util';
-import DAction from '../../../services/DashletActionService';
 import Labels from '../labels';
 
+import { DefaultImgNews } from './DefaultImgNews';
 import Settings from './Settings';
 
+import Dashlet from '@/components/Dashlet/Dashlet';
+import Records from '@/components/Records/Records'; // Ensure RecordsType is exported from the module
+import { notifyFailure } from '@/components/Records/actions/util/actionUtils';
+import { Loader } from '@/components/common';
+import BaseWidget from '@/components/widgets/BaseWidget';
+import { DashboardTypes } from '@/constants/dashboard';
+import { getRecordRef } from '@/helpers/urls';
+import { t } from '@/helpers/util';
+import DAction from '@/services/DashletActionService';
+import PageService from '@/services/PageService';
+
 import './style.scss';
-import { DefaultImgNews } from './DefaultImgNews';
 
 class NewsWidget extends BaseWidget {
   constructor(props) {
@@ -30,8 +32,11 @@ class NewsWidget extends BaseWidget {
     this.state = {
       isLoading: true,
       isOpenSettings: false,
+      isTypeIdExist: false,
+      error: '',
       recordRef: dashboardId === DashboardTypes.USER || !this.recordRefFromUrl ? dashboardId : null,
-      news: []
+      news: [],
+      typeId: ''
     };
   }
 
@@ -64,36 +69,55 @@ class NewsWidget extends BaseWidget {
         }
 
         const preparedType = value.split('/')[0];
-        this.setState(
-          {
-            recordRef: preparedType
-          },
-          () => {
-            this.fetchNews();
-          }
-        );
+        this.setState({ recordRef: preparedType }, () => this.fetchNews());
       });
   };
 
-  fetchNews(typeIdFromSettings) {
-    const { typeId } = this.config;
+  fetchNews(newTypeId) {
+    const { config } = this.props;
+    const { recordRef } = this.state;
 
-    const attributes = {
-      id: 'id',
-      text: 'text?str',
-      title: '?disp',
-      date: '_created|fmt("dd MMMM yyyy")',
-      image: 'image.url'
-    };
-    const ecosTypeForRequest = typeIdFromSettings || typeId?.split('@')[1] || 'company-news';
+    const ecosTypeForRequest = newTypeId || config[recordRef]?.currentType || '';
 
-    this.handleCancelSettings();
-    Records.query({ ecosType: ecosTypeForRequest, language: 'predicate', query: {} }, attributes).then(res => {
+    if (!ecosTypeForRequest) {
       this.setState({
-        news: res.records,
-        isLoading: false
+        isLoading: false,
+        isTypeIdExist: false
       });
-    });
+      return;
+    }
+
+    Records.query(
+      {
+        ecosType: ecosTypeForRequest,
+        language: 'predicate',
+        query: {}
+      },
+      {
+        id: 'id',
+        text: 'text?str',
+        title: '?disp',
+        date: '_created|fmt("dd MMMM yyyy")',
+        image: 'image.url',
+        preview: 'listview:preview.url'
+      }
+    )
+      .then(res => {
+        this.setState({
+          news: res.records,
+          isTypeIdExist: true
+        });
+      })
+      .catch(err => {
+        this.setState({
+          error: err.message
+        });
+      })
+      .finally(_ => {
+        this.setState({
+          isLoading: false
+        });
+      });
   }
 
   get config() {
@@ -126,17 +150,37 @@ class NewsWidget extends BaseWidget {
 
   handleSaveSettings = async configToSave => {
     const { id, config, onSave } = this.props;
+    const { recordRef } = this.state;
 
-    const configFromRecordRef = config[this.state.recordRef] || {};
+    const configFromRecordRef = config[recordRef] || {};
+    const newConfig = { ...config, [recordRef]: { ...configFromRecordRef, ...configToSave } };
 
-    const newConfig = { ...config, [this.state.recordRef]: { ...configFromRecordRef, ...configToSave } };
-
-    if (configToSave.typeId) {
-      this.setState({ isLoading: true });
-      this.fetchNews(configToSave.typeId.split('@')[1]);
+    if (config[recordRef]?.currentType === configToSave.currentType) {
+      this.setState({
+        isTypeIdExist: true
+      });
       isFunction(onSave) && onSave(id, { config: newConfig }, this.handleCancelSettings);
+      return;
     }
-    this.handleCancelSettings();
+
+    if (configToSave.currentType) {
+      const newTypeId = configToSave.currentType;
+      isFunction(onSave) && onSave(id, { config: newConfig });
+
+      this.setState({
+        isLoading: true,
+        typeId: newTypeId,
+        isTypeIdExist: true,
+        isOpenSettings: false
+      });
+      this.fetchNews(newTypeId);
+      return;
+    }
+
+    isFunction(onSave) && onSave(id, { config: newConfig }, this.handleCancelSettings);
+    this.setState({
+      isTypeIdExist: false
+    });
   };
 
   formatDateRu(dateStr) {
@@ -150,21 +194,43 @@ class NewsWidget extends BaseWidget {
       .replace(/\sг\.$/, '');
   }
 
+  get currentWS() {
+    return Citeck.Navigator.getWorkspaceId();
+  }
+
+  goToNews = async type => {
+    const config = this.config;
+    const journalId = await Records.get(`emodel/type@${config.currentType}`).load('journalRef?localId');
+    PageService.changeUrlLink(`/v2/journals?journalId=${journalId}&viewMode=preview-list&ws=${this.currentWS}`, { openNewTab: true });
+  };
+
   render() {
-    const { isLoading, isOpenSettings, recordRef, news } = this.state;
+    const { isLoading, isOpenSettings, news, isTypeIdExist, error } = this.state;
+    const { config } = this.props;
+
+    const warnings = !isOpenSettings && (
+      <>
+        {error && <div className="ecos-news-widget-dashlet__error">{t(error)}</div>}
+        {!isTypeIdExist && <div className="ecos-news-widget-dashlet__empty">{t('Выберите тип новостей')}</div>}
+        {!news.length && isTypeIdExist && <div className="ecos-news-widget-dashlet__empty">{t('Нет новостей')}</div>}
+      </>
+    );
+
     return (
       <Dashlet
         title={t('dashboard-settings.widget.news')}
         actionConfig={this.dashletActions}
         className="ecos-news-widget-dashlet"
         disableCollapse={false}
-        needGoTo={false}
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={this.isCollapsed}
+        goToButtonName={'Перейти'}
+        needGoTo={!!news.length}
+        onGoTo={() => this.goToNews()}
       >
-        {!news.length && !isOpenSettings && <div className="ecos-news-widget-dashlet__empty">{t('Нет новостей')}</div>}
         {isLoading && <Loader />}
         {isOpenSettings && <Settings config={this.config} onSave={this.handleSaveSettings} onCancel={this.handleCancelSettings} />}
+        {warnings}
 
         {!isLoading && !isOpenSettings && (
           <div className="ecos-news">
@@ -173,17 +239,15 @@ class NewsWidget extends BaseWidget {
                 const date = this.formatDateRu(item.date);
                 return (
                   <article className="ecos-news-widget-article" key={item.id}>
-                    {item.image ? (
-                      <img alt="news image" src={item.image} className="ecos-news-widget-article__image" />
+                    {item.image || item.preview ? (
+                      <img alt="news image" src={item.image || item.preview} className="ecos-news-widget-article__image" />
                     ) : (
-                      <div className="ecos-news-widget-article__image">
-                        <DefaultImgNews />
-                      </div>
+                      <DefaultImgNews />
                     )}
 
                     <Link
                       className="ecos-news-widget-article__title"
-                      to={`/v2/dashboard?recordRef=emodel/company-news@${item.id}&ws=publications-news `}
+                      to={`/v2/dashboard?recordRef=emodel/${this.config.currentType}@${item.id}&ws=${this.currentWS}`}
                     >
                       {item.title}
                     </Link>

@@ -1,7 +1,9 @@
 import React from 'react';
+import './style.scss';
+
 export const DefaultImgNews = () => {
   return (
-    <svg viewBox="0 0 220 116" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg className="ecos-news-widget-article__default-img" viewBox="0 0 220 116" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="0.570268" y="0.570268" rx="6.64848" fill="#EEF0F8" />
       <rect x="0.570268" y="0.570268" rx="6.64848" stroke="#EEF0F8" strokeWidth="1.14054" />
       <path
