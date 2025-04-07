@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, memo } from 'react';
 
 import FormManager from '../../../components/EcosForm/FormManager';
 import Records from '../../../components/Records';
@@ -16,11 +16,11 @@ const Labels = {
   ADD_GROUP: 'orgstructure-page-add-group'
 };
 
-export const rootGroup = 'emodel/authority-group@_orgstruct_home_';
+const rootGroup = 'emodel/authority-group@_orgstruct_home_';
 const tooltipId = 'add-group-button';
 
-const Structure = ({ tabId, toggleToFirstTab }) => {
-  const { onUpdateTree } = useOrgstructContext();
+const Structure = memo(function Structure({ tabId, toggleToFirstTab }) {
+  const context = useOrgstructContext();
 
   const [canEdit, setCanEdit] = useState(false);
 
@@ -39,7 +39,7 @@ const Structure = ({ tabId, toggleToFirstTab }) => {
         authorityGroups: [rootGroup]
       },
       onSubmit: () => {
-        onUpdateTree();
+        context.onUpdateTree();
       }
     });
   };
@@ -60,6 +60,10 @@ const Structure = ({ tabId, toggleToFirstTab }) => {
       <OrgstructBody tabId={tabId} toggleToFirstTab={toggleToFirstTab} />
     </>
   );
-};
+}, arePropsEqual);
+
+function arePropsEqual(oldProps, newProps) {
+  return oldProps.tabId === newProps.tabId;
+}
 
 export default Structure;

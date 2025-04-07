@@ -1,21 +1,19 @@
-import React, { useEffect } from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 
 import { Pagination } from '../../../components/common';
 import Orgstruct from '../../../components/common/Orgstruct';
 import { AUTHORITY_TYPE_GROUP, GroupTypes, PAGINATION_SIZES, AUTHORITY_TYPE_USER } from '../../../components/common/Orgstruct/constants';
-
-import { useOrgstructContext } from '../../../components/common/Orgstruct/OrgstructContext';
+import { OrgstructContext } from '../../../components/common/Orgstruct/OrgstructContext';
 
 import Body from './Body';
 
 import './style.scss';
 
-const OrgstructBody = ({ reloadList, tabId, toggleToFirstTab }) => {
-  const context = useOrgstructContext();
+const OrgstructBody = ({ tabId, toggleToFirstTab }) => {
+  const context = useContext(OrgstructContext);
 
   const {
-    toggleSelectModal,
     pagination,
     onChangePage,
     groupModal,
@@ -25,16 +23,13 @@ const OrgstructBody = ({ reloadList, tabId, toggleToFirstTab }) => {
     orgStructApi,
     onUpdateTree,
     currentTab,
+    isSearching,
     tabItems
   } = context;
 
-  useEffect(() => {
-    toggleSelectModal();
-  }, []);
-
   return (
     <div className={'orgstructure-page__body__container'}>
-      <Body reloadList={reloadList} tabId={tabId} toggleToFirstTab={toggleToFirstTab} />
+      <Body currentTab={currentTab} tabId={tabId} tabItems={tabItems} toggleToFirstTab={toggleToFirstTab} isSearching={isSearching} />
 
       <Pagination
         page={pagination.page}

@@ -4,7 +4,7 @@ import find from 'lodash/find';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import queryString from 'query-string';
-import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
+import { call, put, select, takeEvery, takeLatest, all } from 'redux-saga/effects';
 
 import {
   addTab,
@@ -60,12 +60,14 @@ function* sagaInitTabs({ api }) {
     yield put(setTabs(PageTabList.storeList));
     yield put(initTabsComplete());
 
-    yield PageTabList.tabs.map(function* (tab) {
-      if (tab.isActive || tab.isLoading) {
-        const updates = yield* getTitle(tab);
-        PageTabList.changeOne({ tab, updates });
-      }
-    });
+    yield all(
+      PageTabList.tabs.map(function*(tab) {
+        if (tab.isActive || tab.isLoading) {
+          const updates = yield* getTitle(tab);
+          PageTabList.changeOne({ tab, updates });
+        }
+      })
+    );
 
     yield put(setTabs(PageTabList.storeList));
 
