@@ -3,13 +3,15 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { toggleExpanded } from '../../actions/slideMenu';
-import { HiddenItemsMobile } from '../../constants/sidebar';
-import { getMLValue } from '../../helpers/util';
-import SidebarService from '../../services/sidebar';
 import { TooltipContainer as Tooltip } from '../common/Tooltip/TooltipContainer';
 
 import Item from './Item';
+
+import { toggleExpanded } from '@/actions/slideMenu';
+import { HiddenItemsMobile } from '@/constants/sidebar';
+import { getWorkspaceId } from '@/helpers/urls.js';
+import { getMLValue } from '@/helpers/util';
+import SidebarService from '@/services/sidebar';
 
 class List extends React.Component {
   static propTypes = {
@@ -58,7 +60,7 @@ class List extends React.Component {
   renderItem = (item, i) => {
     const { level, expandableItems, isOpen, inDropdown, selectedId, isMobile, workspace } = this.props;
     const listItemDomId = `_${item.id}-${level}-${i}`;
-    const listItemKey = `${item.id}-${getMLValue(item.label)}-${level}`;
+    const listItemKey = `${item.id}-${getMLValue(item.label)}-${level}_${getWorkspaceId()}`;
     const hasSubItems = !!(item.items && item.items.length);
     const styleProps = SidebarService.getPropsStyleLevel({ level, item });
     const isClosedSeparator = !isOpen && styleProps.isClosedSeparator;
