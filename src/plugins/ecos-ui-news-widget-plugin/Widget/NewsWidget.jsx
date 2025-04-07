@@ -91,7 +91,10 @@ class NewsWidget extends BaseWidget {
       {
         ecosType: ecosTypeForRequest,
         language: 'predicate',
-        query: {}
+        query: {},
+        page: { maxItems: 3 },
+        sortBy: [{ attribute: '_created', ascending: false }],
+        workspaces: [`${this.currentWS}`]
       },
       {
         id: 'id',
@@ -194,6 +197,15 @@ class NewsWidget extends BaseWidget {
       .replace(/\sг\.$/, '');
   }
 
+  getTextNews(newsText) {
+    const regex = /<img\s+[^>]*?>/gi;
+
+    const imgTags = newsText.match(regex) || [];
+    const cleanedHtml = newsText.replace(regex, '');
+
+    return cleanedHtml;
+  }
+
   get currentWS() {
     return Citeck.Navigator.getWorkspaceId();
   }
@@ -235,8 +247,9 @@ class NewsWidget extends BaseWidget {
         {!isLoading && !isOpenSettings && (
           <div className="ecos-news">
             <div className="ecos-news-widget">
-              {news.slice(0, 3).map((item, index) => {
+              {news.map((item, index) => {
                 const date = this.formatDateRu(item.date);
+                const cleanedHtml = this.getTextNews(item.text);
                 return (
                   <article className="ecos-news-widget-article" key={item.id}>
                     {item.image || item.preview ? (
@@ -252,7 +265,7 @@ class NewsWidget extends BaseWidget {
                       {item.title}
                     </Link>
                     <span className="ecos-news-widget-article__date">{date}</span>
-                    <p className="ecos-news-widget-article__description" dangerouslySetInnerHTML={{ __html: item.text }}></p>
+                    <p className="ecos-news-widget-article__description" dangerouslySetInnerHTML={{ __html: cleanedHtml }}></p>
                   </article>
                 );
               })}
