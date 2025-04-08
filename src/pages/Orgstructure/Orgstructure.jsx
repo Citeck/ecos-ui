@@ -24,7 +24,7 @@ import {
   ROOT_GROUP_NAME,
   TabTypes
 } from '../../components/common/Orgstruct/constants';
-import { URL, SourcesId } from '../../constants';
+import { URL } from '../../constants';
 import { decodeLink, getSearchParams, getSortedUrlParams, pushHistoryLink, replaceHistoryLink } from '../../helpers/urls';
 import { t } from '../../helpers/util';
 import DashboardService from '../../services/dashboard';
@@ -132,9 +132,10 @@ class Orgstructure extends React.Component {
     const { onSelectPerson, getDashboardConfig, getDashboardTitle } = this.props;
     const { recordRef = '' } = getSearchParams() || {};
 
-    if (recordRef.startsWith(SourcesId.PERSON)) {
-      getDashboardConfig({ recordRef });
-      getDashboardTitle({ recordRef });
+    getDashboardConfig({ recordRef });
+    getDashboardTitle({ recordRef });
+
+    if (recordRef) {
       onSelectPerson(recordRef);
     }
   }
