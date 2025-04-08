@@ -1,12 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { initState } from '../../actions/journals';
-import { getStateId } from '../../helpers/redux';
-import { getId, t } from '../../helpers/util';
-import pageTabList from '../../services/pageTabs/PageTabList';
-import { ErrorBoundary } from '../../components/ErrorBoundary';
-import { Journals } from '../../components/Journals';
+import { initState } from '@/actions/journals';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { Journals } from '@/components/Journals';
+import { getStateId } from '@/helpers/redux';
+import { getId, t } from '@/helpers/util';
+import pageTabList from '@/services/pageTabs/PageTabList';
 
 import './style.scss';
 
@@ -47,7 +47,4 @@ class JournalsPage extends React.Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(JournalsPage);
+export default connect(mapStateToProps, mapDispatchToProps)(JournalsPage);

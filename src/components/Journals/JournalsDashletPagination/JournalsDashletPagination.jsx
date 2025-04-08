@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import isFunction from 'lodash/isFunction';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import connect from 'react-redux/es/connect/connect';
+import { connect } from 'react-redux';
 
 import Pagination from '../../common/Pagination/Pagination';
 import {

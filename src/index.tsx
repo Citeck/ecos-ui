@@ -5,6 +5,7 @@ import 'flatpickr/dist/l10n/ru.js';
 import { ConnectedRouter } from 'connected-react-router';
 import datePickerLocaleEn from 'date-fns/locale/en-GB';
 import datePickerLocaleRu from 'date-fns/locale/ru';
+import { History } from 'history';
 import { Base64 } from 'js-base64';
 import moment from 'moment';
 import React from 'react';
@@ -63,6 +64,7 @@ import './services/esign';
 import './services/EcosModules';
 
 import './styles/index.scss';
+
 /* set moment locale */
 const currentLocale = getCurrentLocale();
 moment.locale(currentLocale);
@@ -74,7 +76,7 @@ setDefaultLocale(currentLocale);
 
 const { api, setNotAuthCallback } = configureAPI();
 export const store = configureStore({ api });
-const history = getHistory();
+const history: History = getHistory();
 const setAuthStatus = () => {
   store.dispatch(setIsAuthenticated(false));
 };
@@ -103,13 +105,13 @@ window.Citeck.Base64 = Base64;
 const runApp = () => {
   store.dispatch(
     initAppRequest({
-      onSuccess: isAuthenticated => {
+      onSuccess: (isAuthenticated: boolean) => {
         store.dispatch(
           loadThemeRequest({
             isAuthenticated,
             onSuccess: () => {
               i18nInit({ debug: allowedModes.includes(process.env.NODE_ENV) }).then(() => {
-                createRoot(document.getElementById('root')).render(
+                createRoot(document.getElementById('root') as HTMLElement).render(
                   <Provider store={store}>
                     <ConnectedRouter history={history}>
                       <App />
@@ -140,7 +142,7 @@ const idleTimer = new IdleTimer();
 idleTimer
   .setCallbackRepeatTime(30 * 1000) // 30s
   .setIdleTimeout(60 * 60 * 1000) // 1h
-  .setCallback(idle => {
+  .setCallback((idle: typeof IdleTimer) => {
     if (!idle) {
       api.app.touch().catch(() => {});
     }

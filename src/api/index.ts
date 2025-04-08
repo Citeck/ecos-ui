@@ -42,60 +42,62 @@ import { VersionsJournalApi } from './versionsJournal';
 import { ViewApi } from './view';
 import { WorkspaceApi } from './workspaces';
 
-export function configureAPI() {
-  const api = {};
+import { ApiType, ConfigureAPIType } from '@/api/types';
 
-  api.app = new AppApi();
-  api.adminSection = new AdminSectionApi();
-  api.bpmn = new BpmnApi();
-  api.bpmnAdmin = new BpmnAdminApi();
-  api.workspaces = new WorkspaceApi();
-  api.menu = new MenuApi();
-  api.orgStruct = new OrgStructApi();
-  api.user = new UserApi();
-  api.journals = new JournalsApi();
-  api.tasks = new TasksApi();
-  api.comments = new CommentsApi();
-  api.activities = new ActivitiesApi();
-  api.dashboard = new DashboardApi();
-  api.dmn = new DmnApi();
-  api.dmnEditor = new DmnEditorApi();
-  api.pageTabs = new PageTabsApi();
-  api.docStatus = new DocStatusApi();
-  api.eventsHistory = new EventsHistoryApi();
-  api.versionsJournal = new VersionsJournalApi();
-  api.recordActions = new RecordActionsApi();
-  api.docAssociations = new DocAssociationsApi();
-  api.view = new ViewApi();
-  api.birthdays = new BirthdaysApi();
-  api.report = new ReportApi();
-  api.barcode = new BarcodeApi();
-  api.timesheetCommon = new TimesheetCommonApi();
-  api.timesheetSubordinates = new TimesheetSubordinatesApi();
-  api.timesheetMine = new MyTimesheetApi();
-  api.timesheetVerification = new TimesheetVerificationApi();
-  api.timesheetDelegated = new TimesheetDelegatedApi();
-  api.properties = new PropertiesApi();
-  api.documents = new DocumentsApi();
-  api.page = new PageApi();
-  api.processAdmin = new ProcessAdminApi();
-  api.userConfig = new UserConfigApi();
-  api.docConstructor = new DocConstructorApi();
-  api.customIcon = new CustomIconApi();
-  api.process = new ProcessApi();
-  api.devTools = new DevToolsApi();
-  api.instanceAdmin = new InstanceAdminApi();
-  api.kanban = new KanbanApi();
-  api.charts = new ChartsApi();
-  api.previewList = new PreviewListApi();
+export function configureAPI(): ConfigureAPIType {
+  const api: ApiType = {
+    app: new AppApi(),
+    adminSection: new AdminSectionApi(),
+    bpmn: new BpmnApi(),
+    bpmnAdmin: new BpmnAdminApi(),
+    workspaces: new WorkspaceApi(),
+    menu: new MenuApi(),
+    orgStruct: new OrgStructApi(),
+    user: new UserApi(),
+    journals: new JournalsApi(),
+    tasks: new TasksApi(),
+    comments: new CommentsApi(),
+    activities: new ActivitiesApi(),
+    dashboard: new DashboardApi(),
+    dmn: new DmnApi(),
+    dmnEditor: new DmnEditorApi(),
+    pageTabs: new PageTabsApi(),
+    docStatus: new DocStatusApi(),
+    eventsHistory: new EventsHistoryApi(),
+    versionsJournal: new VersionsJournalApi(),
+    recordActions: new RecordActionsApi(),
+    docAssociations: new DocAssociationsApi(),
+    view: new ViewApi(),
+    birthdays: new BirthdaysApi(),
+    report: new ReportApi(),
+    barcode: new BarcodeApi(),
+    timesheetCommon: new TimesheetCommonApi(),
+    timesheetSubordinates: new TimesheetSubordinatesApi(),
+    timesheetMine: new MyTimesheetApi(),
+    timesheetVerification: new TimesheetVerificationApi(),
+    timesheetDelegated: new TimesheetDelegatedApi(),
+    properties: new PropertiesApi(),
+    documents: new DocumentsApi(),
+    page: new PageApi(),
+    processAdmin: new ProcessAdminApi(),
+    userConfig: new UserConfigApi(),
+    docConstructor: new DocConstructorApi(),
+    customIcon: new CustomIconApi(),
+    process: new ProcessApi(),
+    devTools: new DevToolsApi(),
+    instanceAdmin: new InstanceAdminApi(),
+    kanban: new KanbanApi(),
+    charts: new ChartsApi(),
+    previewList: new PreviewListApi()
+  };
 
-  const setNotAuthCallback = function (cb) {
-    for (let key in api) {
+  const setNotAuthCallback = function (cb: Function) {
+    for (const key in api) {
       if (!api.hasOwnProperty(key)) {
         continue;
       }
 
-      const apiItem = api[key];
+      const apiItem = api[key as keyof ApiType];
       if (typeof apiItem.setNotAuthCallback !== 'function') {
         continue;
       }

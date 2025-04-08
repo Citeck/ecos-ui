@@ -9,6 +9,14 @@ import queryString from 'query-string';
 import React from 'react';
 import { connect } from 'react-redux';
 
+import Dashlet from '../../Dashlet';
+import JournalsDashletEditor from '../../Journals/JournalsDashletEditor';
+import JournalsDashletFooter from '../../Journals/JournalsDashletFooter';
+import JournalsDashletGrid from '../../Journals/JournalsDashletGrid';
+import JournalsDashletToolbar from '../../Journals/JournalsDashletToolbar';
+import { JOURNAL_DASHLET_CONFIG_VERSION } from '../../Journals/constants';
+import BaseWidget from '../BaseWidget';
+
 import {
   execRecordsAction,
   getDashletConfig,
@@ -20,23 +28,16 @@ import {
   setRecordRef,
   setSelectAllPageRecords,
   setSelectedRecords
-} from '../../../actions/journals';
-import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
-import { getStateId, wrapArgs } from '../../../helpers/redux';
-import { goToJournalsPage } from '../../../helpers/urls';
-import { extractLabel, getDOMElementMeasurer, getTextByLocale, t } from '../../../helpers/util';
-import { selectJournalDashletProps } from '../../../selectors/dashletJournals';
-import DAction from '../../../services/DashletActionService';
-import UserLocalSettingsService from '../../../services/userLocalSettings';
-import Dashlet from '../../Dashlet';
-import JournalsDashletEditor from '../../Journals/JournalsDashletEditor';
-import JournalsDashletFooter from '../../Journals/JournalsDashletFooter';
-import JournalsDashletGrid from '../../Journals/JournalsDashletGrid';
-import JournalsDashletToolbar from '../../Journals/JournalsDashletToolbar';
-import BaseWidget from '../BaseWidget';
+} from '@/actions/journals';
+import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '@/constants';
+import { getStateId, wrapArgs } from '@/helpers/redux';
+import { goToJournalsPage } from '@/helpers/urls';
+import { extractLabel, getDOMElementMeasurer, getTextByLocale, t } from '@/helpers/util';
+import { selectJournalDashletProps } from '@/selectors/dashletJournals';
+import DAction from '@/services/DashletActionService';
+import UserLocalSettingsService from '@/services/userLocalSettings';
 
 import './JournalsDashlet.scss';
-import { JOURNAL_DASHLET_CONFIG_VERSION } from '../../Journals/constants';
 
 const Labels = {
   J_TITLE: 'journal.title',
@@ -62,7 +63,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
   const w = wrapArgs(getKey(ownProps));
 
   return {
-    initState: () => dispatch(initState(getKey(ownProps))),
+    initState: () => dispatch(initState({ stateId: getKey(ownProps) })),
     resetState: () => dispatch(resetState(getKey(ownProps))),
     getDashletConfig: id => dispatch(getDashletConfig(w(id))),
     setRecordRef: recordRef => dispatch(setRecordRef(w(recordRef))),

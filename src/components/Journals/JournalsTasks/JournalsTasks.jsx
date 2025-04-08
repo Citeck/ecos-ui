@@ -1,8 +1,10 @@
-import React, { Component } from 'react';
-import connect from 'react-redux/es/connect/connect';
 import classNames from 'classnames';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+
 import { Well } from '../../common/form';
-import { t } from '../../../helpers/util';
+
+import { t } from '@/helpers/util';
 
 import './JournalsTasks.scss';
 
@@ -20,7 +22,4 @@ class JournalsTasks extends Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(JournalsTasks);
+export default connect(mapStateToProps, mapDispatchToProps)(JournalsTasks);

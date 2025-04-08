@@ -3014,7 +3014,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/history@npm:4.7.11":
+"@types/history@npm:*, @types/history@npm:4.7.11, @types/history@npm:^4.7.11":
   version: 4.7.11
   resolution: "@types/history@npm:4.7.11"
   checksum: c92e2ba407dcab0581a9afdf98f533aa41b61a71133420a6d92b1ca9839f741ab1f9395b17454ba5b88cb86020b70b22d74a1950ccfbdfd9beeaa5459fdc3464
@@ -3130,6 +3130,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/react-datepicker@npm:2.3.0":
+  version: 2.3.0
+  resolution: "@types/react-datepicker@npm:2.3.0"
+  dependencies:
+    "@types/react": "*"
+    popper.js: ^1.14.1
+  checksum: 2a26c0f63b48a623c8729479c729aa1ef64ba83255edcbbdf22d593e53b6a2d8e25fee9bc906ee60b5dbf43c5eb7f4acb4e75d71424f44e8efb1c4690462d158
+  languageName: node
+  linkType: hard
+
 "@types/react-dom@npm:^19.0.4":
   version: 19.0.4
   resolution: "@types/react-dom@npm:19.0.4"
@@ -3151,6 +3161,27 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/react-router-dom@npm:5.1.2":
+  version: 5.1.2
+  resolution: "@types/react-router-dom@npm:5.1.2"
+  dependencies:
+    "@types/history": "*"
+    "@types/react": "*"
+    "@types/react-router": "*"
+  checksum: 66c108c28b76910eb0881ad417db4421892e902eec7d8b25b229b4736038e3911c3634f5369f7d00cfb73cf0c805188439b3bf3cffdf053afe54b34b38a75b2e
+  languageName: node
+  linkType: hard
+
+"@types/react-router@npm:*":
+  version: 5.1.20
+  resolution: "@types/react-router@npm:5.1.20"
+  dependencies:
+    "@types/history": ^4.7.11
+    "@types/react": "*"
+  checksum: 128764143473a5e9457ddc715436b5d49814b1c214dde48939b9bef23f0e77f52ffcdfa97eb8d3cc27e2c229869c0cdd90f637d887b62f2c9f065a87d6425419
+  languageName: node
+  linkType: hard
+
 "@types/react@npm:*, @types/react@npm:^19.0.10":
   version: 19.0.10
   resolution: "@types/react@npm:19.0.10"
@@ -3167,6 +3198,13 @@ __metadata:
     "@types/react": "*"
     popper.js: ^1.14.1
   checksum: bd36edd7aee36af0252b03516af9a5d87c05a81a32b71ab83a9685c9841ee97d9524658ab601f6330b516adea04f8d5f4fe8f390e131b3807fad138c305d7aaa
+  languageName: node
+  linkType: hard
+
+"@types/redux-actions@npm:^2.6.5":
+  version: 2.6.5
+  resolution: "@types/redux-actions@npm:2.6.5"
+  checksum: 77600f56432b7b8c6f8c5c905a1d3a6966e46c08f2d2556fbf8faa05f404f8488cca4aa9c3475f5fbe1e3859bd23ba9d2f41533a4813484dc4dae9609c672276
   languageName: node
   linkType: hard
 
@@ -5250,19 +5288,35 @@ __metadata:
   languageName: node
   linkType: hard
 
-"connected-react-router@npm:5.0.1":
-  version: 5.0.1
-  resolution: "connected-react-router@npm:5.0.1"
+"connected-react-router@npm:6.0.0":
+  version: 6.0.0
+  resolution: "connected-react-router@npm:6.0.0"
   dependencies:
     immutable: ^3.8.1
     seamless-immutable: ^7.1.3
   peerDependencies:
     history: ^4.7.2
-    react: ^15.5.4 || ^16.0.0
-    react-redux: ^4.4.8 || ^5.0.7
+    react: ^16.4.0
+    react-redux: ^6.0.0
     react-router: ^4.3.1
     redux: ^3.6.0 || ^4.0.0
-  checksum: e9d5085c1cc17e622a340db8186950d2defaef36f3612e678ae4f3d7fd263f8662a4f69d2fadc0ba59085a4b80d11cc5e910a5572806104d09b7651afa3c5f16
+  checksum: 528cf1979fa5a1888ce05208ea4d47352af0a932c2d4f8d1150df4b65a8cfc31a60a380d4700fde15f8128d4c1f7e9d8cc66237c3e86397f68ccc28b5f854582
+  languageName: node
+  linkType: hard
+
+"connected-react-router@patch:connected-react-router@npm%3A6.0.0#./.yarn/patches/connected-react-router-npm-6.0.0-4d298ac2d7.patch::locator=ecos-ui%40workspace%3A.":
+  version: 6.0.0
+  resolution: "connected-react-router@patch:connected-react-router@npm%3A6.0.0#./.yarn/patches/connected-react-router-npm-6.0.0-4d298ac2d7.patch::version=6.0.0&hash=709a48&locator=ecos-ui%40workspace%3A."
+  dependencies:
+    immutable: ^3.8.1
+    seamless-immutable: ^7.1.3
+  peerDependencies:
+    history: ^4.7.2
+    react: ^16.4.0
+    react-redux: ^6.0.0
+    react-router: ^4.3.1
+    redux: ^3.6.0 || ^4.0.0
+  checksum: fc7299ee68b4e1b08ad474a7272c43d7fe9cce1f42c16b6770e7b0475afa6269c5fb5ab3bf4899f2094c6bc776dc91d82d28717b0ede2c9cba2b161f102ef8a8
   languageName: node
   linkType: hard
 
@@ -6426,9 +6480,12 @@ __metadata:
     "@types/katex": ^0.16.7
     "@types/lodash": ^4.17.15
     "@types/react": ^19.0.10
+    "@types/react-datepicker": 2.3.0
     "@types/react-dom": ^19.0.4
     "@types/react-redux": ^7.1.34
+    "@types/react-router-dom": 5.1.2
     "@types/reactstrap": 8.5.1
+    "@types/redux-actions": ^2.6.5
     "@types/redux-logger": 3.0.6
     "@typescript-eslint/eslint-plugin": ^5.32.0
     "@typescript-eslint/parser": ^5.32.0
@@ -6451,7 +6508,7 @@ __metadata:
     clipboard: 2.0.11
     cmmn-js: 0.20.0
     compression: ^1.8.0
-    connected-react-router: 5.0.1
+    connected-react-router: 6.0.0
     contra: 1.9.4
     cross-env: 5.2.0
     cross-fetch: ^4.1.0
@@ -6527,7 +6584,7 @@ __metadata:
     react-motion: 0.5.2
     react-placeholder: 3.0.2
     react-popper: 2.3.0
-    react-redux: 5.1.1
+    react-redux: 7.2.0
     react-resize-detector: 4.2.3
     react-router: 5.1.2
     react-router-dom: 5.1.2
@@ -13306,7 +13363,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-is@npm:^16.13.1, react-is@npm:^16.3.2, react-is@npm:^16.6.0, react-is@npm:^16.7.0":
+"react-is@npm:^16.13.1, react-is@npm:^16.3.2, react-is@npm:^16.6.0, react-is@npm:^16.7.0, react-is@npm:^16.9.0":
   version: 16.13.1
   resolution: "react-is@npm:16.13.1"
   checksum: f7a19ac3496de32ca9ae12aa030f00f14a3d45374f1ceca0af707c831b2a6098ef0d6bdae51bd437b0a306d7f01d4677fcc8de7c0d331eb47ad0f46130e53c5f
@@ -13339,7 +13396,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-lifecycles-compat@npm:^3.0.0, react-lifecycles-compat@npm:^3.0.4":
+"react-lifecycles-compat@npm:^3.0.4":
   version: 3.0.4
   resolution: "react-lifecycles-compat@npm:3.0.4"
   checksum: a904b0fc0a8eeb15a148c9feb7bc17cec7ef96e71188280061fc340043fd6d8ee3ff233381f0e8f95c1cf926210b2c4a31f38182c8f35ac55057e453d6df204f
@@ -13426,21 +13483,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-redux@npm:5.1.1":
-  version: 5.1.1
-  resolution: "react-redux@npm:5.1.1"
+"react-redux@npm:7.2.0":
+  version: 7.2.0
+  resolution: "react-redux@npm:7.2.0"
   dependencies:
-    "@babel/runtime": ^7.1.2
-    hoist-non-react-statics: ^3.1.0
-    invariant: ^2.2.4
-    loose-envify: ^1.1.0
-    prop-types: ^15.6.1
-    react-is: ^16.6.0
-    react-lifecycles-compat: ^3.0.0
+    "@babel/runtime": ^7.5.5
+    hoist-non-react-statics: ^3.3.0
+    loose-envify: ^1.4.0
+    prop-types: ^15.7.2
+    react-is: ^16.9.0
   peerDependencies:
-    react: ^0.14.0 || ^15.0.0-0 || ^16.0.0-0
+    react: ^16.8.3
     redux: ^2.0.0 || ^3.0.0 || ^4.0.0-0
-  checksum: 6c79892e8dd40d33af056fa6064184287f7237891c6a858708b4decc9e1a456bab84b4f0a9ae14cb7b0bf520bbed044adae952c0d688d9a1c33072d3a058ad3c
+  peerDependenciesMeta:
+    react-dom:
+      optional: true
+    react-native:
+      optional: true
+  checksum: fb6e4597619a01aabc916bd0ebcf449fbbdcf63137ff5238469c1f8bc241828dd19efff3ab306556c38be39a3a84d34e48f5b68773de891b283ee64018ebf3bc
   languageName: node
   linkType: hard
 

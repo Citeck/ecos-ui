@@ -1,6 +1,6 @@
 import { routerMiddleware } from 'connected-react-router';
-import { createBrowserHistory } from 'history';
-import { applyMiddleware, compose, createStore } from 'redux';
+import { createBrowserHistory, History } from 'history';
+import { applyMiddleware, compose, createStore, Middleware, Reducer, Store } from 'redux';
 import { createLogger } from 'redux-logger';
 import createSagaMiddleware from 'redux-saga';
 import thunk from 'redux-thunk';
@@ -10,13 +10,18 @@ import sagas from './sagas';
 
 import { allowedModes } from '@/constants/index.js';
 import { SETTING_ENABLE_SAGA_LOGGER } from '@/pages/DevTools/constants.js';
+import { ExtraArgumentsStore, RootState } from '@/types/store';
+
+interface ExtendedStore extends Store<RootState> {
+  asyncReducers: Record<string, Reducer>;
+}
 
 const sagaMiddleware = createSagaMiddleware();
-const history = createBrowserHistory();
+const history: History = createBrowserHistory();
 
-let store = {};
+let store: ExtendedStore;
 
-let optionalMiddlewares = [];
+const optionalMiddlewares: Middleware[] = [];
 if (allowedModes.includes(process.env.NODE_ENV) || !!localStorage.getItem(SETTING_ENABLE_SAGA_LOGGER)) {
   const logger = createLogger({
     collapsed: true,
@@ -28,26 +33,29 @@ if (allowedModes.includes(process.env.NODE_ENV) || !!localStorage.getItem(SETTIN
 }
 
 let composeEnhancers = compose;
-if (typeof window === 'object' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) {
-  composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__;
+if (typeof window === 'object' && (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) {
+  composeEnhancers = (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__;
 }
 
-export default function configureStore(ea, defaultState = {}) {
+export default function configureStore(ea: ExtraArgumentsStore, defaultState = {}): ExtendedStore {
   const initialState = { ...defaultState };
 
-  store = createStore(
+  const baseStore = createStore(
     createRootReducer(history),
     initialState,
     composeEnhancers(applyMiddleware(routerMiddleware(history), sagaMiddleware, thunk.withExtraArgument(ea), ...optionalMiddlewares))
   );
 
   sagaMiddleware.run(sagas, ea);
-  store.asyncReducers = {}; // Async reducer registry
+  store = {
+    ...baseStore,
+    asyncReducers: {} // Async reducer registry
+  };
 
   return store;
 }
 
-export function getHistory() {
+export function getHistory(): History {
   return history;
 }
 
@@ -55,7 +63,9 @@ export function getStore() {
   return store || {};
 }
 
-export function injectAsyncReducer(store, name, reducer) {
+export function injectAsyncReducer(store: ExtendedStore, name: string, reducer: Reducer) {
   store.asyncReducers[name] = reducer;
+
+  // @ts-ignore
   store.replaceReducer(createReducer(store.asyncReducers, history));
 }
