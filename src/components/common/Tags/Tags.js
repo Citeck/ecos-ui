@@ -1,10 +1,11 @@
 import React from 'react';
+
 import './Tags.scss';
 import Icon from '../icons/Icon';
 
 const Tags = ({ tags = [], onTagsChange, onAddTag, className, exception = [] }) => {
-  const handleRemoveTag = (tagToRemove) => {
-    const filtered = tags.filter((tag) => tag.name !== tagToRemove.name);
+  const handleRemoveTag = tagToRemove => {
+    const filtered = tags.filter(tag => tag.name !== tagToRemove.name);
     onTagsChange && onTagsChange(filtered);
   };
 
@@ -13,9 +14,10 @@ const Tags = ({ tags = [], onTagsChange, onAddTag, className, exception = [] }) 
       <div className="ecos-tags-body">
         {tags.map((tag, index, originTags) => (
           <div key={index} className="ecos-tag">
-            <span>{tag.name}</span>
-
-            {originTags.length > 1 && <Icon className="icon_small icon-small-close ecos-tag-remove" onClick={() => handleRemoveTag(tag)} />}
+            <span title={tag.name} className="ecos-tag__name">
+              {tag.name}
+            </span>
+            <Icon className="icon_small icon-small-close ecos-tag-remove" onClick={() => handleRemoveTag(tag)} />
           </div>
         ))}
 
