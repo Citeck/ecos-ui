@@ -1,14 +1,15 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import classnames from 'classnames';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
-import classnames from 'classnames';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
 import { ResizeBoxes } from '../../common';
 import { Wall } from '../../common/form';
 import JournalsDashletGrid from '../JournalsDashletGrid';
 import JournalsPreview from '../JournalsPreview';
-import { selectIsViewNewJournal } from '../../../selectors/view';
+
+import { selectIsViewNewJournal } from '@/selectors/view';
 
 import './JournalsContent.scss';
 

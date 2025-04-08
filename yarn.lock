@@ -3014,6 +3014,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/history@npm:4.7.11":
+  version: 4.7.11
+  resolution: "@types/history@npm:4.7.11"
+  checksum: c92e2ba407dcab0581a9afdf98f533aa41b61a71133420a6d92b1ca9839f741ab1f9395b17454ba5b88cb86020b70b22d74a1950ccfbdfd9beeaa5459fdc3464
+  languageName: node
+  linkType: hard
+
 "@types/hoist-non-react-statics@npm:^3.3.0":
   version: 3.3.6
   resolution: "@types/hoist-non-react-statics@npm:3.3.6"
@@ -3160,6 +3167,15 @@ __metadata:
     "@types/react": "*"
     popper.js: ^1.14.1
   checksum: bd36edd7aee36af0252b03516af9a5d87c05a81a32b71ab83a9685c9841ee97d9524658ab601f6330b516adea04f8d5f4fe8f390e131b3807fad138c305d7aaa
+  languageName: node
+  linkType: hard
+
+"@types/redux-logger@npm:3.0.6":
+  version: 3.0.6
+  resolution: "@types/redux-logger@npm:3.0.6"
+  dependencies:
+    redux: ^3.6.0
+  checksum: 7ce29314013a89b4de5e194fac3a122678524180511bf764f8e936aa163149410a21246c6b0cb86d1d13fa57b943e6e1993da202162225782e1766355007ae32
   languageName: node
   linkType: hard
 
@@ -6405,6 +6421,7 @@ __metadata:
     "@testing-library/react": ^16.2.0
     "@testing-library/react-hooks": ^8.0.1
     "@testing-library/user-event": ^14.6.1
+    "@types/history": 4.7.11
     "@types/jest": ^29.5.14
     "@types/katex": ^0.16.7
     "@types/lodash": ^4.17.15
@@ -6412,6 +6429,7 @@ __metadata:
     "@types/react-dom": ^19.0.4
     "@types/react-redux": ^7.1.34
     "@types/reactstrap": 8.5.1
+    "@types/redux-logger": 3.0.6
     "@typescript-eslint/eslint-plugin": ^5.32.0
     "@typescript-eslint/parser": ^5.32.0
     async-cadesplugin: 0.9.9
@@ -10862,7 +10880,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash-es@npm:^4.17.15":
+"lodash-es@npm:^4.17.15, lodash-es@npm:^4.2.1":
   version: 4.17.21
   resolution: "lodash-es@npm:4.17.21"
   checksum: 05cbffad6e2adbb331a4e16fbd826e7faee403a1a04873b82b42c0f22090f280839f85b95393f487c1303c8a3d2a010048bf06151a6cbe03eee4d388fb0a12d2
@@ -10918,7 +10936,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:4.17.21, lodash@npm:^4.17.11, lodash@npm:^4.17.15, lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.3.0, lodash@npm:^4.7.0":
+"lodash@npm:4.17.21, lodash@npm:^4.17.11, lodash@npm:^4.17.15, lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.2.1, lodash@npm:^4.3.0, lodash@npm:^4.7.0":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: eb835a2e51d381e561e508ce932ea50a8e5a68f4ebdd771ea240d3048244a8d13658acbd502cd4829768c56f2e16bdd4340b9ea141297d472517b83868e677f7
@@ -13742,6 +13760,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"redux@npm:^3.6.0":
+  version: 3.7.2
+  resolution: "redux@npm:3.7.2"
+  dependencies:
+    lodash: ^4.2.1
+    lodash-es: ^4.2.1
+    loose-envify: ^1.1.0
+    symbol-observable: ^1.0.3
+  checksum: c349b77e68d009bc530d3cb6252a6a3e43e20a6e52f9483a048b24cd2f266d9bfa6f0bbd4769d40fe36795e2f7a7a884c3ddc92c13e82efd3328890f94821091
+  languageName: node
+  linkType: hard
+
 "reflect.getprototypeof@npm:^1.0.6, reflect.getprototypeof@npm:^1.0.9":
   version: 1.0.10
   resolution: "reflect.getprototypeof@npm:1.0.10"
@@ -15298,7 +15328,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"symbol-observable@npm:^1.1.0":
+"symbol-observable@npm:^1.0.3, symbol-observable@npm:^1.1.0":
   version: 1.2.0
   resolution: "symbol-observable@npm:1.2.0"
   checksum: 48ffbc22e3d75f9853b3ff2ae94a44d84f386415110aea5effc24d84c502e03a4a6b7a8f75ebaf7b585780bda34eb5d6da3121f826a6f93398429d30032971b6

@@ -10,19 +10,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 import ReactResizeDetector from 'react-resize-detector';
 
-import { getTypeRef } from '../../actions/docLib';
-import { execJournalAction, setUrl, toggleViewMode } from '../../actions/journals';
-import { getBoardList } from '../../actions/kanban';
-import { updateTab } from '../../actions/pageTabs';
-import { DocLibUrlParams as DLUP, JournalUrlParams as JUP, SourcesId } from '../../constants';
-import { wrapArgs } from '../../helpers/redux';
-import { showModalJson } from '../../helpers/tools';
-import { equalsQueryUrls, getSearchParams } from '../../helpers/urls';
-import { animateScrollTo, getBool, t } from '../../helpers/util';
-import { selectCommonJournalPageProps } from '../../selectors/journals';
-import { selectIsViewNewJournal } from '../../selectors/view';
-import PageService, { PageTypes } from '../../services/PageService';
-import pageTabList from '../../services/pageTabs/PageTabList';
 import Records from '../Records';
 import { ActionTypes } from '../Records/actions/constants';
 
@@ -41,6 +28,20 @@ import {
   isTable,
   isKanban
 } from './constants';
+
+import { getTypeRef } from '@/actions/docLib';
+import { execJournalAction, setUrl, toggleViewMode } from '@/actions/journals';
+import { getBoardList } from '@/actions/kanban';
+import { updateTab } from '@/actions/pageTabs';
+import { DocLibUrlParams as DLUP, JournalUrlParams as JUP, SourcesId } from '@/constants';
+import { wrapArgs } from '@/helpers/redux';
+import { showModalJson } from '@/helpers/tools';
+import { equalsQueryUrls, getSearchParams } from '@/helpers/urls';
+import { animateScrollTo, getBool, t } from '@/helpers/util';
+import { selectCommonJournalPageProps } from '@/selectors/journals';
+import { selectIsViewNewJournal } from '@/selectors/view';
+import PageService, { PageTypes } from '@/services/PageService';
+import pageTabList from '@/services/pageTabs/PageTabList';
 
 import './style.scss';
 
@@ -97,7 +98,8 @@ class Journals extends React.Component {
   state = {
     menuOpen: isDocLib(get(getSearchParams(), JUP.VIEW_MODE)),
     menuOpenAnimate: isDocLib(get(getSearchParams(), JUP.VIEW_MODE)),
-    journalId: undefined
+    journalId: undefined,
+    maxHeightJournal: 0
   };
 
   static getDerivedStateFromProps(props, state) {
@@ -251,18 +253,25 @@ class Journals extends React.Component {
 
   getJournalContentMaxHeight = () => {
     let headH = (this._journalBodyTopRef && get(this._journalBodyTopRef.getBoundingClientRect(), 'bottom')) || 0;
-
-    if (!headH) {
-      const head = document.querySelector(`.${CLASSNAME_JOURNAL_BODY_TOP}`);
-      headH = (head && get(head.getBoundingClientRect(), 'bottom')) || 0;
-    }
-
     const jFooterH = (this._journalFooterRef && get(this._journalFooterRef, 'offsetHeight')) || 0;
     const footerH = get(document.querySelector('.app-footer'), 'offsetHeight') || 0;
     const scrollHeight = get(document.querySelector('.ecos-kanban__scroll_h'), 'offsetHeight') || 0;
     const height = document.documentElement.clientHeight - headH - jFooterH - footerH - scrollHeight;
 
-    return Math.max(height, this.minHeight) - PADDING_NEW_JOURNAL;
+    const maxHeightJournal = Math.max(height, this.minHeight) - PADDING_NEW_JOURNAL;
+
+    // When switching between tabs, the table elements disappear, which is why the maxHeight changes.
+    // Therefore, we remember the last correct maxHeight in the state.
+    if (this._journalBodyTopRef) {
+      if (maxHeightJournal !== this.state.maxHeightJournal) {
+        this.setState({ maxHeightJournal });
+      }
+
+      return maxHeightJournal;
+    }
+
+    // The first state may be incorrect when initializing the table.
+    return this.state.maxHeightJournal || maxHeightJournal;
   };
 
   setJournalRef = ref => !!ref && (this._journalRef = ref);
