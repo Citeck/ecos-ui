@@ -152,9 +152,8 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
 
       const isPerson = formConfig.sourceId === SourcesId.PERSON;
       const extraConfig = {};
-      let title;
 
-      set(extraConfig, 'attributes.authorityGroups', [item.id]);
+      let title;
 
       if (isPerson) {
         extraConfig.recordRef = null;
