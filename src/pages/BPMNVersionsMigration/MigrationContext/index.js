@@ -8,7 +8,7 @@ import { getKeyProcessBPMN, getSearchParams } from '@/helpers/util';
 
 export const MigrationContext = React.createContext();
 
-export const MigrationContextProvider = (props) => {
+export const MigrationContextProvider = props => {
   const urlParams = getSearchParams();
   const typeSchema = getLastPathSegmentBeforeQuery();
   const { recordRef, version } = urlParams;
@@ -35,7 +35,7 @@ export const MigrationContextProvider = (props) => {
   };
 
   /* Saving the state of the selected process so that there is no reset after switching tabs */
-  const handleChangeProcess = (process) => {
+  const handleChangeProcess = process => {
     if (process && process.id && process.key) {
       replaceHistoryLink(
         undefined,
@@ -43,10 +43,10 @@ export const MigrationContextProvider = (props) => {
           queryString.stringify({
             ...urlParams,
             recordRef: process.id,
-            version: process.version,
-          }),
+            version: process.version
+          })
         )}`,
-        true,
+        true
       );
 
       updateCurrentUrl();
@@ -104,7 +104,7 @@ export const MigrationContextProvider = (props) => {
         setSourceProcessDefinitionId,
 
         targetProcessDefinitionId,
-        setTargetProcessDefinitionId,
+        setTargetProcessDefinitionId
       }}
     >
       {props.children}

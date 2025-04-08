@@ -9,9 +9,9 @@ export default class PhoneNumberComponent extends FormIOPhoneNumberComponent {
         allowMultipleMasks: false,
         showWordCount: false,
         showCharCount: false,
-        inputFormat: 'plain',
+        inputFormat: 'plain'
       },
-      ...extend,
+      ...extend
     );
   }
 

@@ -1,18 +1,18 @@
-import React from 'react';
 import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import React from 'react';
 
 import DocLibBreadcrumbs from '../DocLibBreadcrumbs';
 
 const demoItems = [
   {
     id: 'item1',
-    disp: 'Folder 1',
+    disp: 'Folder 1'
   },
   {
     id: 'item2',
-    disp: 'Folder 2',
-  },
+    disp: 'Folder 2'
+  }
 ];
 
 describe('DocLibBreadcrumbs tests', () => {

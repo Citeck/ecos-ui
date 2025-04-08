@@ -40,7 +40,7 @@ const basicColors = [
   '#000000',
   '#4a4a4a',
   '#9b9b9b',
-  '#ffffff',
+  '#ffffff'
 ];
 
 const WIDTH = 214;
@@ -54,16 +54,16 @@ export default function ColorPicker({ color, onChange }: Readonly<ColorPickerPro
   const saturationPosition = useMemo(
     () => ({
       x: (selfColor.hsv.s / 100) * WIDTH,
-      y: ((100 - selfColor.hsv.v) / 100) * HEIGHT,
+      y: ((100 - selfColor.hsv.v) / 100) * HEIGHT
     }),
-    [selfColor.hsv.s, selfColor.hsv.v],
+    [selfColor.hsv.s, selfColor.hsv.v]
   );
 
   const huePosition = useMemo(
     () => ({
-      x: (selfColor.hsv.h / 360) * WIDTH,
+      x: (selfColor.hsv.h / 360) * WIDTH
     }),
-    [selfColor.hsv],
+    [selfColor.hsv]
   );
 
   const onSetHex = (hex: string) => {
@@ -78,7 +78,7 @@ export default function ColorPicker({ color, onChange }: Readonly<ColorPickerPro
     const newHsv = {
       ...selfColor.hsv,
       s: (x / WIDTH) * 100,
-      v: 100 - (y / HEIGHT) * 100,
+      v: 100 - (y / HEIGHT) * 100
     };
     const newColor = transformColor('hsv', newHsv);
     setSelfColor(newColor);
@@ -114,7 +114,7 @@ export default function ColorPicker({ color, onChange }: Readonly<ColorPickerPro
     <div className="color-picker-wrapper" style={{ width: WIDTH }} ref={innerDivRef}>
       <TextInput label="Hex" onChange={onSetHex} value={inputColor} />
       <div className="color-picker-basic-color">
-        {basicColors.map((basicColor) => (
+        {basicColors.map(basicColor => (
           <button
             className={basicColor === selfColor.hex ? ' active' : ''}
             key={basicColor}
@@ -136,7 +136,7 @@ export default function ColorPicker({ color, onChange }: Readonly<ColorPickerPro
           style={{
             backgroundColor: selfColor.hex,
             left: saturationPosition.x,
-            top: saturationPosition.y,
+            top: saturationPosition.y
           }}
         />
       </MoveWrapper>
@@ -145,7 +145,7 @@ export default function ColorPicker({ color, onChange }: Readonly<ColorPickerPro
           className="color-picker-hue_cursor"
           style={{
             backgroundColor: `hsl(${selfColor.hsv.h}, 100%, 50%)`,
-            left: huePosition.x,
+            left: huePosition.x
           }}
         />
       </MoveWrapper>
@@ -269,12 +269,12 @@ function hex2rgb(hex: string): RGB {
       .replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, (m, r, g, b) => '#' + r + r + g + g + b + b)
       .substring(1)
       .match(/.{2}/g) || []
-  ).map((x) => parseInt(x, 16));
+  ).map(x => parseInt(x, 16));
 
   return {
     b: rbgArr[2],
     g: rbgArr[1],
-    r: rbgArr[0],
+    r: rbgArr[0]
   };
 }
 
@@ -312,7 +312,7 @@ function hsv2rgb({ h, s, v }: HSV): RGB {
 }
 
 function rgb2hex({ b, g, r }: RGB): string {
-  return '#' + [r, g, b].map((x) => x.toString(16).padStart(2, '0')).join('');
+  return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
 }
 
 function transformColor<M extends keyof Color, C extends Color[M]>(format: M, color: C): Color {

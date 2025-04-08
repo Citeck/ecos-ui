@@ -1,10 +1,10 @@
 import { call, put, select, takeEvery } from 'redux-saga/effects';
 
 import { getJournalTabInfo, getMetaInfo, getActionsInfo, setJournalTabInfo, setMetaInfo, setActionsInfo } from '../actions/instanceAdmin';
-import { selectInstanceTabInfo } from '../selectors/instanceAdmin';
-import { SourcesId } from '../constants';
-import RecordActionsApi from '../components/Records/actions/recordActionsApi';
 import RecordActions from '../components/Records/actions/recordActions';
+import RecordActionsApi from '../components/Records/actions/recordActionsApi';
+import { SourcesId } from '../constants';
+import { selectInstanceTabInfo } from '../selectors/instanceAdmin';
 
 function* sagaGetMetaInfo({ api }, { payload }) {
   try {

@@ -22,6 +22,6 @@ export default function FlashMessage({ children }: FlashMessageProps): JSX.Eleme
         {children}
       </p>
     </div>,
-    document.body,
+    document.body
   );
 }

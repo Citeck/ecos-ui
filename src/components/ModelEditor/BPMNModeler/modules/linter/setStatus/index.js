@@ -21,15 +21,15 @@ const setStatusTaskHasStatus = {
     };
 
     return {
-      check,
+      check
     };
-  },
+  }
 };
 
 export const setStatusRulesMap = {
-  [setStatusTaskHasStatus.id]: 'error',
+  [setStatusTaskHasStatus.id]: 'error'
 };
 
 export const setStatusCacheMap = {
-  [`${BPMN_LINT_PREFIX}${setStatusTaskHasStatus.id}`]: setStatusTaskHasStatus.callback,
+  [`${BPMN_LINT_PREFIX}${setStatusTaskHasStatus.id}`]: setStatusTaskHasStatus.callback
 };

@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
 import Icon from '../../icons/Icon/Icon';
 
@@ -19,12 +19,12 @@ export default class Input extends Component {
     autoSelect: PropTypes.string,
     className: PropTypes.string,
     isValid: PropTypes.bool,
-    needValidCheck: PropTypes.bool,
+    needValidCheck: PropTypes.bool
   };
 
   static defaultProps = {
     align: 'left',
-    needValidCheck: false,
+    needValidCheck: false
   };
 
   constructor(props) {
@@ -54,7 +54,7 @@ export default class Input extends Component {
     }
   }
 
-  setRef = (ref) => {
+  setRef = ref => {
     if (!ref) {
       return;
     }
@@ -116,7 +116,7 @@ export default class Input extends Component {
           ref={this.setRef}
           {...props}
           className={classNames('ecos-input', className, `ecos-input_${align}`, isValidClass, {
-            'ecos-input_narrow': narrow,
+            'ecos-input_narrow': narrow
           })}
         />
         {this.renderClearButton()}

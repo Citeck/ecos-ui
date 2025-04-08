@@ -1,10 +1,11 @@
-import { NotificationManager } from '@/services/notifications';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 
-import { t } from '../helpers/util';
+import { getMenuConfig, saveMenuConfig, setMenuConfig, setRequestResultMenuConfig } from '../actions/menu';
 import { RequestStatuses } from '../constants';
 import MenuConverter from '../dto/menu';
-import { getMenuConfig, saveMenuConfig, setMenuConfig, setRequestResultMenuConfig } from '../actions/menu';
+import { t } from '../helpers/util';
+
+import { NotificationManager } from '@/services/notifications';
 
 function* doGetMenuConfigRequest({ api }) {
   try {
@@ -20,7 +21,7 @@ function* doGetMenuConfigRequest({ api }) {
 
 function* doSaveMenuConfigRequest({ api }, { payload }) {
   try {
-    const curSet = yield select((state) => state.menu);
+    const curSet = yield select(state => state.menu);
     const config = MenuConverter.getSettingsConfigForServer(payload);
 
     yield call(api.menu.saveMenuConfig, { config });

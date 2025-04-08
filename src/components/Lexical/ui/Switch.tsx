@@ -13,7 +13,7 @@ export default function Switch({
   checked,
   onClick,
   text,
-  id,
+  id
 }: Readonly<{
   checked: boolean;
   id?: string;

@@ -1,12 +1,9 @@
+import endsWith from 'lodash/endsWith';
+import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 import { delay } from 'redux-saga';
 import { call, put, select, takeLatest, takeEvery } from 'redux-saga/effects';
-import { NotificationManager } from '@/services/notifications';
-import endsWith from 'lodash/endsWith';
-import isFunction from 'lodash/isFunction';
-import get from 'lodash/get';
 
-import { BPMN_MODELS_PAGE_MAX_ITEMS, EDITOR_PAGE_CONTEXT } from '../constants/bpmn';
-import { t } from '../helpers/util';
 import {
   getNextModels,
   getTotalCount,
@@ -28,14 +25,18 @@ import {
   setViewType,
   createModel,
   setIsModelsLoading,
-  getFullModels,
+  getFullModels
 } from '../actions/bpmn';
-import { INFO_DIALOG_ID } from '../components/common/dialogs/Manager/DialogManager';
 import { showModal } from '../actions/modal';
-import { selectAllCategories, selectAllModels, selectModelsInfoByCategoryId } from '../selectors/bpmn';
-import { getPagePositionState, savePagePositionState } from '../helpers/bpmn';
-import Records from '../components/Records';
 import FormManager from '../components/EcosForm/FormManager';
+import Records from '../components/Records';
+import { INFO_DIALOG_ID } from '../components/common/dialogs/Manager/DialogManager';
+import { BPMN_MODELS_PAGE_MAX_ITEMS, EDITOR_PAGE_CONTEXT } from '../constants/bpmn';
+import { getPagePositionState, savePagePositionState } from '../helpers/bpmn';
+import { t } from '../helpers/util';
+import { selectAllCategories, selectAllModels, selectModelsInfoByCategoryId } from '../selectors/bpmn';
+
+import { NotificationManager } from '@/services/notifications';
 
 function* doInitRequest({ api }) {
   try {
@@ -50,7 +51,7 @@ function* doInitRequest({ api }) {
       // TODO: optimization
       if (pagePosition.openedCategories) {
         for (let categoryId of pagePosition.openedCategories) {
-          const existedCategory = categories.find((category) => category.id === categoryId);
+          const existedCategory = categories.find(category => category.id === categoryId);
           if (existedCategory) {
             yield put(setCategoryCollapseState({ id: categoryId, isOpen: true }));
           }
@@ -80,7 +81,7 @@ function* doInitModels({ api }, { payload }) {
 
     const page = {
       page: 0,
-      maxItems: BPMN_MODELS_PAGE_MAX_ITEMS,
+      maxItems: BPMN_MODELS_PAGE_MAX_ITEMS
     };
 
     const modelsResponse = yield call(api.bpmn.fetchProcessModels, { categoryId, page });
@@ -94,8 +95,8 @@ function* doInitModels({ api }, { payload }) {
         models,
         hasMore,
         page,
-        force: true,
-      }),
+        force: true
+      })
     );
   } catch (e) {
     const { categoryId } = payload;
@@ -122,11 +123,11 @@ function* doGetNextModels({ api }, { payload }) {
     yield put(
       setModelsInfoByCategoryId({
         categoryId,
-        isNextModelsLoading: true,
-      }),
+        isNextModelsLoading: true
+      })
     );
 
-    const modelsInfo = yield select((state) => selectModelsInfoByCategoryId(state, { categoryId }));
+    const modelsInfo = yield select(state => selectModelsInfoByCategoryId(state, { categoryId }));
 
     const page = modelsInfo.page;
 
@@ -144,8 +145,8 @@ function* doGetNextModels({ api }, { payload }) {
         models,
         hasMore,
         isNextModelsLoading: false,
-        page,
-      }),
+        page
+      })
     );
   } catch (e) {
     console.error('[bpmn doInitModels saga] error', e);
@@ -160,7 +161,7 @@ function* doGetFullModels({ api }, { payload }) {
 
     const page = {
       page: 0,
-      maxItems: 1000,
+      maxItems: 1000
     };
 
     const modelsResponse = yield call(api.bpmn.fetchProcessModels, { categoryId, page });
@@ -174,8 +175,8 @@ function* doGetFullModels({ api }, { payload }) {
         models,
         hasMore,
         page,
-        force: true,
-      }),
+        force: true
+      })
     );
   } catch (e) {
     const { categoryId } = payload;
@@ -197,25 +198,25 @@ function* doCreateModel({ api }, action) {
     if (payload.categoryId) {
       cv.attributes = {
         ...(cv.attributes || {}),
-        sectionRef: payload.categoryId,
+        sectionRef: payload.categoryId
       };
     }
 
     let newModelId;
-    const saved = yield new Promise((resolve) => {
+    const saved = yield new Promise(resolve => {
       FormManager.createRecordByVariant(cv, {
-        onSubmit: (result) => {
+        onSubmit: result => {
           newModelId = result.id;
           resolve(true);
         },
-        onFormCancel: () => resolve(false),
+        onFormCancel: () => resolve(false)
       });
     });
     if (saved) {
       const newModel = yield call(api.bpmn.fetchModelAttributes, newModelId, true);
       const { categoryId } = newModel;
 
-      const modelsInfo = yield select((state) => selectModelsInfoByCategoryId(state, { categoryId }));
+      const modelsInfo = yield select(state => selectModelsInfoByCategoryId(state, { categoryId }));
       const models = modelsInfo.models || [];
 
       yield put(
@@ -223,8 +224,8 @@ function* doCreateModel({ api }, action) {
           categoryId,
           ...modelsInfo,
           models: [newModel, ...models],
-          force: true,
-        }),
+          force: true
+        })
       );
     }
   } catch (e) {
@@ -235,7 +236,7 @@ function* doCreateModel({ api }, action) {
 function* doSaveCategoryRequest({ api }, action) {
   try {
     const categories = yield select(selectAllCategories);
-    const currentCategory = categories.find((item) => item.id === action.payload.id);
+    const currentCategory = categories.find(item => item.id === action.payload.id);
 
     let newId = null;
 
@@ -245,13 +246,13 @@ function* doSaveCategoryRequest({ api }, action) {
       const categoryData = yield call(api.bpmn.createCategory, action.payload.code, action.payload.label, currentCategory.parentId);
       newId = categoryData.id;
 
-      const parentCategory = categories.find((item) => item.id === currentCategory.parentId);
+      const parentCategory = categories.find(item => item.id === currentCategory.parentId);
       canCreateDef = categoryData.canCreateDef || get(parentCategory, 'canCreateDef');
       canCreateSubSection = categoryData.canCreateSubSection || get(parentCategory, 'canCreateSubSection');
     } else {
       yield call(api.bpmn.updateCategory, action.payload.id, {
         title: action.payload.label,
-        code: action.payload.code,
+        code: action.payload.code
       });
     }
 
@@ -262,8 +263,8 @@ function* doSaveCategoryRequest({ api }, action) {
         code: action.payload.code,
         canCreateDef,
         canCreateSubSection,
-        newId,
-      }),
+        newId
+      })
     );
   } catch (e) {
     NotificationManager.error(t('designer.add-category.failure-message'));
@@ -279,8 +280,8 @@ function* doDeleteCategoryRequest({ api }, action) {
     const allModels = yield select(selectAllModels);
 
     const isCategoryHasChildren =
-      allCategories.findIndex((item) => endsWith(item.parentId, categoryId)) !== -1 ||
-      allModels.findIndex((item) => item.categoryId.includes(categoryId)) !== -1;
+      allCategories.findIndex(item => endsWith(item.parentId, categoryId)) !== -1 ||
+      allModels.findIndex(item => item.categoryId.includes(categoryId)) !== -1;
 
     if (isCategoryHasChildren) {
       yield delay(100);
@@ -288,8 +289,8 @@ function* doDeleteCategoryRequest({ api }, action) {
         showModal({
           dialogId: INFO_DIALOG_ID,
           title: t('designer.delete-category-dialog.failure-title'),
-          text: t('designer.delete-category-dialog.failure-text'),
-        }),
+          text: t('designer.delete-category-dialog.failure-text')
+        })
       );
       return;
     }
@@ -318,10 +319,10 @@ function* doImportProcessModelRequest({ api }, action) {
 function* doSavePagePosition({ api }, action) {
   try {
     const allCategories = yield select(selectAllCategories);
-    const viewType = yield select((state) => state.bpmn.viewType);
+    const viewType = yield select(state => state.bpmn.viewType);
 
     const openedCategories = [];
-    allCategories.forEach((item) => {
+    allCategories.forEach(item => {
       if (item.isOpen) {
         openedCategories.push(item.id);
       }
@@ -330,7 +331,7 @@ function* doSavePagePosition({ api }, action) {
     yield call(savePagePositionState, {
       scrollTop: document.body.scrollTop,
       openedCategories,
-      viewType,
+      viewType
     });
 
     action.payload && isFunction(action.payload.callback) && action.payload.callback();
@@ -346,12 +347,12 @@ function* doUpdateModels({ api }, { payload }) {
     const editedModel = yield call(api.bpmn.fetchModelAttributes, resultModelId || modelId);
     const categoryId = editedModel.categoryId;
 
-    const modelsInfo = yield select((state) => selectModelsInfoByCategoryId(state, { categoryId }));
+    const modelsInfo = yield select(state => selectModelsInfoByCategoryId(state, { categoryId }));
 
     let prevModelsInfo = {};
 
     if (prevCategoryId) {
-      prevModelsInfo = yield select((state) => selectModelsInfoByCategoryId(state, { categoryId: prevCategoryId }));
+      prevModelsInfo = yield select(state => selectModelsInfoByCategoryId(state, { categoryId: prevCategoryId }));
     }
 
     if (action === 'edit') {
@@ -359,13 +360,13 @@ function* doUpdateModels({ api }, { payload }) {
 
       if (prevModelsInfo.models && prevCategoryId !== categoryId) {
         copyPrevModels = [...prevModelsInfo.models];
-        const editedIndex = copyPrevModels.findIndex((model) => model.id === modelId);
+        const editedIndex = copyPrevModels.findIndex(model => model.id === modelId);
 
         copyPrevModels.splice(editedIndex, 1);
       }
 
       const copyModels = [...modelsInfo.models];
-      const editedIndex = copyModels.findIndex((model) => model.id === modelId);
+      const editedIndex = copyModels.findIndex(model => model.id === modelId);
 
       if (prevCategoryId === categoryId) {
         copyModels.splice(editedIndex, 1, editedModel);
@@ -380,8 +381,8 @@ function* doUpdateModels({ api }, { payload }) {
           models: copyModels,
           prevCategoryId: prevCategoryId !== categoryId ? prevCategoryId : null,
           prevModels: copyPrevModels,
-          force: true,
-        }),
+          force: true
+        })
       );
     }
 
@@ -392,7 +393,7 @@ function* doUpdateModels({ api }, { payload }) {
         copyPrevModels = [...prevModelsInfo.models];
 
         // the deleted model from back doesn't know about its category, so we get "previous" category
-        const deletedIndex = copyPrevModels.findIndex((model) => model.id === modelId);
+        const deletedIndex = copyPrevModels.findIndex(model => model.id === modelId);
         copyPrevModels.splice(deletedIndex, 1);
       }
 
@@ -401,8 +402,8 @@ function* doUpdateModels({ api }, { payload }) {
           categoryId: prevCategoryId,
           ...prevModelsInfo,
           models: copyPrevModels,
-          force: true,
-        }),
+          force: true
+        })
       );
     }
   } catch (e) {

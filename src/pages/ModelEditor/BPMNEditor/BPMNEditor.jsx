@@ -15,7 +15,7 @@ import {
   ELEMENT_TYPES_FORM_DETERMINER_BY_DEF_TYPE_MAP,
   ELEMENT_TYPES_FORM_DETERMINER_BY_ECOS_TASK_TYPE_MAP,
   BPMN_DELIMITER,
-  BPMN_PREFIX_UNDERLINE,
+  BPMN_PREFIX_UNDERLINE
 } from '@/constants/bpmn';
 import { t } from '@/helpers/export/util';
 
@@ -81,7 +81,7 @@ class BPMNEditorPage extends ModelEditor {
         id: `bpmn-linter-toggle-${uuidv4()}`,
         trigger: 'hover',
         className: linter.isActive() ? 'ecos-btn_red' : '',
-        contentComponent: () => <this.Component linterResult={this.linter.getLintResult()} />,
+        contentComponent: () => <this.Component linterResult={this.linter.getLintResult()} />
       });
     }
 
@@ -163,7 +163,7 @@ class BPMNEditorPage extends ModelEditor {
     return element;
   }
 
-  handleToggleLinter = (event) => {
+  handleToggleLinter = event => {
     const linter = this.linter;
 
     event.persist();

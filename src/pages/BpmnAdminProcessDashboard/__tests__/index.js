@@ -1,20 +1,20 @@
+import { render } from '@testing-library/react';
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render } from '@testing-library/react';
 
-import { getIncidentsTableColumns, getInstancesTableColumns, getProcessJobDefs } from '../ProcessJournalWidget/VersionTable/constants';
-import { ProcessContextProvider } from '../ProcessContext';
-import InfoPanel from '../InfoPanel';
-import configureStore from '../../../store';
 import { PROCESS_TABS_TYPES } from '../../../constants/processAdmin';
+import configureStore from '../../../store';
+import InfoPanel from '../InfoPanel';
+import { ProcessContextProvider } from '../ProcessContext';
+import { getIncidentsTableColumns, getInstancesTableColumns, getProcessJobDefs } from '../ProcessJournalWidget/VersionTable/constants';
 
 const initialState = {};
 
 const tableProps = {
-  documentJournalId: 'document-journal-id',
+  documentJournalId: 'document-journal-id'
 };
 
-const renderWithRedux = (Component) => {
+const renderWithRedux = Component => {
   const store = configureStore(null, { bpmnAdmin: initialState });
 
   return (

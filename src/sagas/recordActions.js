@@ -1,11 +1,12 @@
-import { call, put, takeEvery } from 'redux-saga/effects';
 import isEmpty from 'lodash/isEmpty';
-import { NotificationManager } from '@/services/notifications';
+import { call, put, takeEvery } from 'redux-saga/effects';
 
 import { backPageFromTransitionsHistory } from '../actions/app';
 import { backExecuteAction, getActions, runExecuteAction, setActions, setLoading } from '../actions/recordActions';
 import { ActionTypes } from '../components/Records/actions/constants';
 import { t } from '../helpers/util';
+
+import { NotificationManager } from '@/services/notifications';
 
 function notify(type, keyMsg) {
   NotificationManager[type](t(keyMsg), t('records-actions.notify.title'));

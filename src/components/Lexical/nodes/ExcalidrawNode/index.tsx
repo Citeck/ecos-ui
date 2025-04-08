@@ -19,7 +19,7 @@ import type {
   LexicalNode,
   NodeKey,
   SerializedLexicalNode,
-  Spread,
+  Spread
 } from 'lexical';
 
 type Dimension = number | 'inherit';
@@ -46,7 +46,7 @@ function $convertExcalidrawElement(domNode: HTMLElement): DOMConversionOutput | 
   if (excalidrawData) {
     const node = $createExcalidrawNode(excalidrawData, width, height);
     return {
-      node,
+      node
     };
   }
   return null;
@@ -67,7 +67,7 @@ export class ExcalidrawNode extends DecoratorNode<JSX.Element> {
 
   static importJSON(serializedNode: SerializedExcalidrawNode): ExcalidrawNode {
     return new ExcalidrawNode(serializedNode.data, serializedNode.width ?? 'inherit', serializedNode.height ?? 'inherit').updateFromJSON(
-      serializedNode,
+      serializedNode
     );
   }
 
@@ -76,7 +76,7 @@ export class ExcalidrawNode extends DecoratorNode<JSX.Element> {
       ...super.exportJSON(),
       data: this.__data,
       height: this.__height === 'inherit' ? undefined : this.__height,
-      width: this.__width === 'inherit' ? undefined : this.__width,
+      width: this.__width === 'inherit' ? undefined : this.__width
     };
   }
 
@@ -110,9 +110,9 @@ export class ExcalidrawNode extends DecoratorNode<JSX.Element> {
         }
         return {
           conversion: $convertExcalidrawElement,
-          priority: 1,
+          priority: 1
         };
-      },
+      }
     };
   }
 

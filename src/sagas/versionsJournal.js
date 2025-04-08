@@ -1,6 +1,5 @@
-import { NotificationManager } from '@/services/notifications';
-import { call, put, takeEvery } from 'redux-saga/effects';
 import get from 'lodash/get';
+import { call, put, takeEvery } from 'redux-saga/effects';
 
 import {
   addNewVersion,
@@ -14,11 +13,13 @@ import {
   setActiveVersionSuccess,
   setVersions,
   setVersionsComparison,
-  setWritePermission,
+  setWritePermission
 } from '../actions/versionsJournal';
-import VersionsJournalConverter from '../dto/versionsJournal';
 import Records from '../components/Records';
+import VersionsJournalConverter from '../dto/versionsJournal';
 import { t } from '../helpers/util';
+
+import { NotificationManager } from '@/services/notifications';
 
 function* sagaGetVersions({ api }, { payload }) {
   try {
@@ -28,8 +29,8 @@ function* sagaGetVersions({ api }, { payload }) {
       setVersions({
         id: payload.id,
         versions: result.records.map(VersionsJournalConverter.getVersionForWeb),
-        ...VersionsJournalConverter.getAdditionParamsForWeb(result),
-      }),
+        ...VersionsJournalConverter.getAdditionParamsForWeb(result)
+      })
     );
   } catch (e) {
     console.error('[versionJournal/sagaGetVersions saga] error', e);
@@ -40,7 +41,7 @@ function* sagaAddNewVersion({ api }, { payload }) {
   try {
     const result = yield call(api.versionsJournal.addNewVersion, {
       body: VersionsJournalConverter.getAddVersionFormDataForServer(payload),
-      handleProgress: payload.handleProgress,
+      handleProgress: payload.handleProgress
     });
 
     if (result.status.code === 200) {

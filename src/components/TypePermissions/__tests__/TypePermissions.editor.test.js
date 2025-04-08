@@ -1,12 +1,12 @@
-import { mountWithContext } from '@/helpers/tests';
-
 import { TypePermissionsEditorContext } from '../TypePermissionsEditor/Context';
 import TypePermissionsEditor from '../TypePermissionsEditor/TypePermissionsEditor';
+
+import { mountWithContext } from '@/helpers/tests';
 
 describe('<TypePermissionsEditor />', () => {
   it('fetching data (show loader)', () => {
     const { container } = mountWithContext(TypePermissionsEditor, TypePermissionsEditorContext, {
-      isReady: false,
+      isReady: false
     });
 
     const loader = container.getElementsByClassName('ecos-loader');
@@ -17,7 +17,7 @@ describe('<TypePermissionsEditor />', () => {
     const errorText = 'Some error';
 
     const { container } = mountWithContext(TypePermissionsEditor, TypePermissionsEditorContext, {
-      error: errorText,
+      error: errorText
     });
 
     const error = container.getElementsByClassName('type-permissions-editor__error');
@@ -31,7 +31,7 @@ describe('<TypePermissionsEditor />', () => {
       isReady: true,
       matrixConfig: { id: 'fakeId', permissions: [] },
       roles: [],
-      statuses: [],
+      statuses: []
     });
 
     const loader = container.getElementsByClassName('ecos-loader');

@@ -16,7 +16,7 @@ export default function sortableHandle(WrappedComponent, config = { withRef: fal
     getWrappedInstance() {
       invariant(
         config.withRef,
-        'To access the wrapped instance, you need to pass in {withRef: true} as the second argument of the SortableHandle() call',
+        'To access the wrapped instance, you need to pass in {withRef: true} as the second argument of the SortableHandle() call'
       );
       return this.wrappedInstance.current;
     }

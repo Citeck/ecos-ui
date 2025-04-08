@@ -34,13 +34,13 @@ CustomReplaceMenuProvider.prototype.getEntries = function (element) {
     return ReplaceMenuProvider.prototype.getEntries.call(this, element);
   }
 
-  return actionTypes.map((actionType) => ({
+  return actionTypes.map(actionType => ({
     id: `action_${actionType.id}`,
     label: extractLabel(actionType.name),
     action: function () {
       element.businessObject.definitionRef.set('ecos:cmmnType', actionType.id);
       eventBus.fire('element.changed', { element });
-    },
+    }
   }));
 };
 
@@ -75,15 +75,15 @@ CustomReplaceMenuProvider.prototype.getHeaderEntries = function (element) {
       className: 'cmmn-icon-manual-activation-marker',
       title: 'Manual Activation Rule',
       active: manualActivation,
-      action: toggleControlEntry('manualActivationRule', 'cmmn:ManualActivationRule'),
+      action: toggleControlEntry('manualActivationRule', 'cmmn:ManualActivationRule')
     },
     {
       id: 'toggle-repetition-rule',
       className: 'cmmn-icon-repetition-marker',
       title: 'Repetition Rule',
       active: repeatable,
-      action: toggleControlEntry('repetitionRule', 'cmmn:RepetitionRule'),
-    },
+      action: toggleControlEntry('repetitionRule', 'cmmn:RepetitionRule')
+    }
   ];
 };
 

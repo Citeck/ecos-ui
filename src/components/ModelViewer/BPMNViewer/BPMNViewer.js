@@ -19,9 +19,9 @@ export default class BPMNViewer extends ModelViewer {
     this.modeler = new Modeler({
       additionalModules: [...customModules],
       moddleExtensions: {
-        ecosTask: ecosTask,
+        ecosTask: ecosTask
       },
-      keyboard: { bindTo: document },
+      keyboard: { bindTo: document }
     });
 
     if (container) {
@@ -40,7 +40,7 @@ export default class BPMNViewer extends ModelViewer {
     this.scaleByWidth();
   };
 
-  renderSheet = (props) => (
+  renderSheet = props => (
     <Sheet {...props} className={BPMNViewer.querySelector} init={this.init} setMarkedElement={this.setMarkedElement} />
   );
 

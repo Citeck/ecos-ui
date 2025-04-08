@@ -38,7 +38,7 @@ import {
   ParagraphNode,
   RootNode,
   SELECTION_CHANGE_COMMAND,
-  TextNode,
+  TextNode
 } from 'lexical';
 import * as React from 'react';
 import { Suspense, useCallback, useEffect, useRef, useState, JSX } from 'react';
@@ -67,7 +67,7 @@ export const RIGHT_CLICK_IMAGE_COMMAND: LexicalCommand<MouseEvent> = createComma
 
 function useSuspenseImage(src: string) {
   if (!imageCache.has(src)) {
-    throw new Promise((resolve) => {
+    throw new Promise(resolve => {
       const img = new Image();
       img.src = src;
       img.onload = () => {
@@ -89,7 +89,7 @@ function LazyImage({
   width,
   height,
   maxWidth,
-  onError,
+  onError
 }: {
   altText: string;
   className: string | null;
@@ -110,7 +110,7 @@ function LazyImage({
       style={{
         height,
         maxWidth,
-        width,
+        width
       }}
       onError={onError}
       draggable="false"
@@ -125,7 +125,7 @@ function BrokenImage(): JSX.Element {
       style={{
         height: 200,
         opacity: 0.2,
-        width: 200,
+        width: 200
       }}
       draggable="false"
       alt="img"
@@ -143,7 +143,7 @@ export default function ImageComponent({
   resizable,
   showCaption,
   caption,
-  captionsEnabled,
+  captionsEnabled
 }: {
   altText: string;
   caption: LexicalEditor;
@@ -172,7 +172,7 @@ export default function ImageComponent({
       const deleteSelection = $getSelection();
       if (isSelected && $isNodeSelection(deleteSelection)) {
         payload.preventDefault();
-        deleteSelection.getNodes().forEach((node) => {
+        deleteSelection.getNodes().forEach(node => {
           if ($isImageNode(node)) {
             node.remove();
           }
@@ -180,7 +180,7 @@ export default function ImageComponent({
       }
       return false;
     },
-    [isSelected],
+    [isSelected]
   );
 
   const $onEnter = useCallback(
@@ -202,7 +202,7 @@ export default function ImageComponent({
       }
       return false;
     },
-    [caption, isSelected, showCaption],
+    [caption, isSelected, showCaption]
   );
 
   const $onEscape = useCallback(
@@ -220,7 +220,7 @@ export default function ImageComponent({
       }
       return false;
     },
-    [caption, editor, setSelected],
+    [caption, editor, setSelected]
   );
 
   const onClick = useCallback(
@@ -242,7 +242,7 @@ export default function ImageComponent({
 
       return false;
     },
-    [isResizing, isSelected, setSelected, clearSelection],
+    [isResizing, isSelected, setSelected, clearSelection]
   );
 
   const onRightClick = useCallback(
@@ -255,7 +255,7 @@ export default function ImageComponent({
         }
       });
     },
-    [editor],
+    [editor]
   );
 
   useEffect(() => {
@@ -275,13 +275,13 @@ export default function ImageComponent({
           activeEditorRef.current = activeEditor;
           return false;
         },
-        COMMAND_PRIORITY_LOW,
+        COMMAND_PRIORITY_LOW
       ),
       editor.registerCommand<MouseEvent>(CLICK_COMMAND, onClick, COMMAND_PRIORITY_LOW),
       editor.registerCommand<MouseEvent>(RIGHT_CLICK_IMAGE_COMMAND, onClick, COMMAND_PRIORITY_LOW),
       editor.registerCommand(
         DRAGSTART_COMMAND,
-        (event) => {
+        event => {
           if (event.target === imageRef.current) {
             // TODO This is just a temporary workaround for FF to behave like other browsers.
             // Ideally, this handles drag & drop too (and all browsers).
@@ -290,12 +290,12 @@ export default function ImageComponent({
           }
           return false;
         },
-        COMMAND_PRIORITY_LOW,
+        COMMAND_PRIORITY_LOW
       ),
       editor.registerCommand(KEY_DELETE_COMMAND, $onDelete, COMMAND_PRIORITY_LOW),
       editor.registerCommand(KEY_BACKSPACE_COMMAND, $onDelete, COMMAND_PRIORITY_LOW),
       editor.registerCommand(KEY_ENTER_COMMAND, $onEnter, COMMAND_PRIORITY_LOW),
-      editor.registerCommand(KEY_ESCAPE_COMMAND, $onEscape, COMMAND_PRIORITY_LOW),
+      editor.registerCommand(KEY_ESCAPE_COMMAND, $onEscape, COMMAND_PRIORITY_LOW)
     );
 
     rootElement?.addEventListener('contextmenu', onRightClick);

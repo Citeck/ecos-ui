@@ -3,7 +3,7 @@ import {
   LexicalTypeaheadMenuPlugin,
   MenuOption,
   MenuTextMatch,
-  useBasicTypeaheadTriggerMatch,
+  useBasicTypeaheadTriggerMatch
 } from '@lexical/react/LexicalTypeaheadMenuPlugin';
 import React, { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -38,14 +38,14 @@ const VALID_JOINS =
 const LENGTH_LIMIT = 75;
 
 const AtSignMentionsRegex = new RegExp(
-  '(^|\\s|\\()(' + '[' + TRIGGERS + ']' + '((?:' + VALID_CHARS + VALID_JOINS + '){0,' + LENGTH_LIMIT + '})' + ')$',
+  '(^|\\s|\\()(' + '[' + TRIGGERS + ']' + '((?:' + VALID_CHARS + VALID_JOINS + '){0,' + LENGTH_LIMIT + '})' + ')$'
 );
 
 const ALIAS_LENGTH_LIMIT = 50;
 
 // Regex used to match alias.
 const AtSignMentionsRegexAliasRegex = new RegExp(
-  '(^|\\s|\\()(' + '[' + TRIGGERS + ']' + '((?:' + VALID_CHARS + '){0,' + ALIAS_LENGTH_LIMIT + '})' + ')$',
+  '(^|\\s|\\()(' + '[' + TRIGGERS + ']' + '((?:' + VALID_CHARS + '){0,' + ALIAS_LENGTH_LIMIT + '})' + ')$'
 );
 
 const SUGGESTION_LIST_LENGTH_LIMIT = 10;
@@ -75,7 +75,7 @@ const lookupService = {
     if (Array.isArray(items)) {
       callback(items || []);
     }
-  },
+  }
 };
 
 function useMentionLookupService(mentionString: string | null) {
@@ -98,7 +98,7 @@ function useMentionLookupService(mentionString: string | null) {
 
     mentionsCache.set(mentionString, null);
 
-    lookupService.search(mentionString, (newResults) => {
+    lookupService.search(mentionString, newResults => {
       mentionsCache.set(mentionString, newResults);
       setResults(newResults);
     });
@@ -122,7 +122,7 @@ function checkForAtSignMentions(text: string, minMatchLength: number) {
       return {
         leadOffset: match.index + maybeLeadingWhitespace.length,
         matchingString,
-        replaceableString: match[2],
+        replaceableString: match[2]
       };
     }
   }
@@ -148,7 +148,7 @@ function MentionsTypeaheadMenuItem({
   isSelected,
   onClick,
   onMouseEnter,
-  option,
+  option
 }: {
   index: number;
   isSelected: boolean;
@@ -191,15 +191,15 @@ export default function MentionsPlugin() {
   const results = useMentionLookupService(queryString);
 
   const checkForSlashTriggerMatch = useBasicTypeaheadTriggerMatch('/', {
-    minLength: 0,
+    minLength: 0
   });
 
   const options = useMemo(
     () =>
       results
-        .map((item) => new MentionTypeaheadOption(item.id, item.label, <Avatar url={item?.attributes?.photo} noBorder />))
+        .map(item => new MentionTypeaheadOption(item.id, item.label, <Avatar url={item?.attributes?.photo} noBorder />))
         .slice(0, SUGGESTION_LIST_LENGTH_LIMIT),
-    [results],
+    [results]
   );
 
   const onSelectOption = useCallback(
@@ -218,7 +218,7 @@ export default function MentionsPlugin() {
         closeMenu();
       });
     },
-    [editor],
+    [editor]
   );
 
   const checkForMentionMatch = useCallback(
@@ -231,7 +231,7 @@ export default function MentionsPlugin() {
 
       return getPossibleQueryMatch(text);
     },
-    [checkForSlashTriggerMatch, editor],
+    [checkForSlashTriggerMatch, editor]
   );
 
   // @ts-ignore
@@ -266,7 +266,7 @@ export default function MentionsPlugin() {
                   ))}
                 </ul>
               </div>,
-              anchorElementRef.current,
+              anchorElementRef.current
             )
           : null
       }

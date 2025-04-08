@@ -1,6 +1,5 @@
 import { put, select, takeLatest, takeEvery, call } from 'redux-saga/effects';
 
-import { TimesheetMessages } from '../../helpers/timesheet/dictionary';
 import {
   getMyTimesheetByParams,
   getStatus,
@@ -14,14 +13,15 @@ import {
   setUpdatingStatus,
   delegateTo,
   setDelegatedTo,
-  removeDelegation,
+  removeDelegation
 } from '../../actions/timesheet/mine';
-import { selectUserName } from '../../selectors/user';
-import { selectTMineUpdatingHours, selectTMineDelegatedTo } from '../../selectors/timesheet';
+import { DelegationTypes } from '../../constants/timesheet';
 import CommonTimesheetConverter from '../../dto/timesheet/common';
 import DelegationTimesheetConverter from '../../dto/timesheet/delegated';
+import { TimesheetMessages } from '../../helpers/timesheet/dictionary';
+import { selectTMineUpdatingHours, selectTMineDelegatedTo } from '../../selectors/timesheet';
+import { selectUserName } from '../../selectors/user';
 import CommonTimesheetService from '../../services/timesheet/common';
-import { DelegationTypes } from '../../constants/timesheet';
 
 function* sagaGetMyTimesheetByParams({ api, logger }, { payload }) {
   try {
@@ -31,7 +31,7 @@ function* sagaGetMyTimesheetByParams({ api, logger }, { payload }) {
     const statuses = yield call(api.timesheetCommon.getTimesheetStatusList, {
       month: currentDate.getMonth(),
       year: currentDate.getFullYear(),
-      userNames: [userName],
+      userNames: [userName]
     });
 
     const status = CommonTimesheetConverter.getStatusForWeb(statuses);
@@ -39,7 +39,7 @@ function* sagaGetMyTimesheetByParams({ api, logger }, { payload }) {
     const calendar = yield call(api.timesheetCommon.getTimesheetCalendarEventsList, {
       month: currentDate.getMonth(),
       year: currentDate.getFullYear(),
-      userNames: [userName],
+      userNames: [userName]
     });
     const delegationStatus = yield call(api.timesheetDelegated.getDelegationInfo, { user: userName, delegationType: DelegationTypes.FILL });
     const deputy = DelegationTimesheetConverter.getDelegationInfo(delegationStatus.records);
@@ -60,7 +60,7 @@ function* sagaGetStatus({ api, logger }, { payload }) {
     const statuses = yield call(api.timesheetCommon.getTimesheetStatusList, {
       month: currentDate.getMonth(),
       year: currentDate.getFullYear(),
-      userNames: [userName],
+      userNames: [userName]
     });
 
     yield put(setStatus(CommonTimesheetConverter.getStatusForWeb(statuses)));
@@ -75,7 +75,7 @@ function* sagaModifyStatus({ api, logger }, { payload }) {
     const {
       outcome,
       status: { taskId },
-      comment,
+      comment
     } = payload;
 
     yield call(api.timesheetCommon.changeTaskOwner, { taskId, currentUser });
@@ -83,7 +83,7 @@ function* sagaModifyStatus({ api, logger }, { payload }) {
       outcome,
       taskId,
       currentUser,
-      comment,
+      comment
     });
     yield put(setUpdatingStatus(true));
   } catch (e) {
@@ -143,7 +143,7 @@ function* sagaDelegateTo({ api, logger }, { payload }) {
     yield call(api.timesheetDelegated.setRecord, {
       userName,
       deputyName: deputy.userName,
-      delegationType: payload.delegationType,
+      delegationType: payload.delegationType
     });
 
     yield put(setDelegatedTo(deputy));

@@ -14,7 +14,7 @@ import './CommentEditorTheme.css';
 
 const theme: EditorThemeClasses = {
   ...baseTheme,
-  paragraph: 'CommentEditorTheme__paragraph',
+  paragraph: 'CommentEditorTheme__paragraph'
 };
 
 export default theme;

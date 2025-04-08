@@ -45,11 +45,11 @@ const theme: EditorThemeClasses = {
     symbol: 'PlaygroundEditorTheme__tokenProperty',
     tag: 'PlaygroundEditorTheme__tokenProperty',
     url: 'PlaygroundEditorTheme__tokenOperator',
-    variable: 'PlaygroundEditorTheme__tokenVariable',
+    variable: 'PlaygroundEditorTheme__tokenVariable'
   },
   embedBlock: {
     base: 'PlaygroundEditorTheme__embedBlock',
-    focus: 'PlaygroundEditorTheme__embedBlockFocus',
+    focus: 'PlaygroundEditorTheme__embedBlockFocus'
   },
   hashtag: 'PlaygroundEditorTheme__hashtag',
   heading: {
@@ -58,7 +58,7 @@ const theme: EditorThemeClasses = {
     h3: 'PlaygroundEditorTheme__h3',
     h4: 'PlaygroundEditorTheme__h4',
     h5: 'PlaygroundEditorTheme__h5',
-    h6: 'PlaygroundEditorTheme__h6',
+    h6: 'PlaygroundEditorTheme__h6'
   },
   hr: 'PlaygroundEditorTheme__hr',
   image: 'editor-image',
@@ -73,16 +73,16 @@ const theme: EditorThemeClasses = {
     listitemChecked: 'PlaygroundEditorTheme__listItemChecked',
     listitemUnchecked: 'PlaygroundEditorTheme__listItemUnchecked',
     nested: {
-      listitem: 'PlaygroundEditorTheme__nestedListItem',
+      listitem: 'PlaygroundEditorTheme__nestedListItem'
     },
     olDepth: [
       'PlaygroundEditorTheme__ol1',
       'PlaygroundEditorTheme__ol2',
       'PlaygroundEditorTheme__ol3',
       'PlaygroundEditorTheme__ol4',
-      'PlaygroundEditorTheme__ol5',
+      'PlaygroundEditorTheme__ol5'
     ],
-    ul: 'PlaygroundEditorTheme__ul',
+    ul: 'PlaygroundEditorTheme__ul'
   },
   ltr: 'PlaygroundEditorTheme__ltr',
   mark: 'PlaygroundEditorTheme__mark',
@@ -97,7 +97,7 @@ const theme: EditorThemeClasses = {
   tableAddRows: 'PlaygroundEditorTheme__tableAddRows',
   tableAlignment: {
     center: 'PlaygroundEditorTheme__tableAlignmentCenter',
-    right: 'PlaygroundEditorTheme__tableAlignmentRight',
+    right: 'PlaygroundEditorTheme__tableAlignmentRight'
   },
   tableCell: 'PlaygroundEditorTheme__tableCell',
   tableCellActionButton: 'PlaygroundEditorTheme__tableCellActionButton',
@@ -123,8 +123,8 @@ const theme: EditorThemeClasses = {
     superscript: 'PlaygroundEditorTheme__textSuperscript',
     underline: 'PlaygroundEditorTheme__textUnderline',
     underlineStrikethrough: 'PlaygroundEditorTheme__textUnderlineStrikethrough',
-    uppercase: 'PlaygroundEditorTheme__textUppercase',
-  },
+    uppercase: 'PlaygroundEditorTheme__textUppercase'
+  }
 };
 
 export default theme;

@@ -1,4 +1,5 @@
 import emitter from 'contra/emitter';
+
 import classes from './classes';
 
 const doc = document;
@@ -70,7 +71,7 @@ export default function dragula(initialContainers, options) {
     remove: remove,
     destroy: destroy,
     canMove: canMove,
-    dragging: false,
+    dragging: false
   });
 
   if (o.removeOnSpill === true) {
@@ -213,7 +214,7 @@ export default function dragula(initialContainers, options) {
 
     return {
       item: item,
-      source: source,
+      source: source
     };
   }
 
@@ -540,17 +541,17 @@ function touchy(el, op, type, fn) {
   let touch = {
     mouseup: 'touchend',
     mousedown: 'touchstart',
-    mousemove: 'touchmove',
+    mousemove: 'touchmove'
   };
   let pointers = {
     mouseup: 'pointerup',
     mousedown: 'pointerdown',
-    mousemove: 'pointermove',
+    mousemove: 'pointermove'
   };
   let microsoft = {
     mouseup: 'MSPointerUp',
     mousedown: 'MSPointerDown',
-    mousemove: 'MSPointerMove',
+    mousemove: 'MSPointerMove'
   };
 
   const options = { capture: true };
@@ -586,7 +587,7 @@ function getOffset(el) {
   let rect = el.getBoundingClientRect();
   return {
     left: rect.left + getScroll('scrollLeft', 'pageXOffset'),
-    top: rect.top + getScroll('scrollTop', 'pageYOffset'),
+    top: rect.top + getScroll('scrollTop', 'pageYOffset')
   };
 }
 
@@ -669,7 +670,7 @@ function getCoord(coord, e) {
   let host = getEventHost(e);
   let missMap = {
     pageX: 'clientX', // IE8
-    pageY: 'clientY', // IE8
+    pageY: 'clientY' // IE8
   };
   if (coord in missMap && !(coord in host) && missMap[coord] in host) {
     coord = missMap[coord];

@@ -1,6 +1,6 @@
 import get from 'lodash/get';
 
-export const getTitleFormatter = (module) => {
+export const getTitleFormatter = module => {
   return (action, time, took) => `${module} >>> action @ ${action.type}`;
 };
 
@@ -10,15 +10,15 @@ export const handleState = (state, stateId, payload) =>
         ...state,
         [stateId]: {
           ...state[stateId],
-          ...payload,
-        },
+          ...payload
+        }
       }
     : {
         ...state,
-        ...payload,
+        ...payload
       };
 
-export const handleAction = (action) => {
+export const handleAction = action => {
   const _args = get(action, 'payload._args');
 
   if (_args !== undefined) {
@@ -29,7 +29,7 @@ export const handleAction = (action) => {
 };
 
 export function wrapArgs(stateId) {
-  return (_args) => ({ _args, stateId });
+  return _args => ({ _args, stateId });
 }
 
 export function* wrapSaga({ api, saga }, action) {
@@ -66,8 +66,8 @@ export function startLoading(initialState, keyLoader = 'isLoading') {
         ...state,
         [stateId]: {
           ...getCurrentStateById(state, stateId, initialState),
-          [keyLoader]: true,
-        },
+          [keyLoader]: true
+        }
       };
     }
 
@@ -80,7 +80,7 @@ export const updateState = (state = {}, stateId, newData = {}, initialState) => 
     ...state,
     [stateId]: {
       ...getCurrentStateById(state, stateId, initialState),
-      ...newData,
-    },
+      ...newData
+    }
   };
 };

@@ -1,15 +1,15 @@
-import React from 'react';
-import { connect } from 'react-redux';
 import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
+import React from 'react';
+import { connect } from 'react-redux';
 
 import { initAdminSection, updActiveSection } from '../../actions/adminSection';
-import { getEnabledWorkspaces, getId, getSearchParams, t } from '../../helpers/util';
+import AdminSection from '../../components/AdminSection';
 import { Loader } from '../../components/common';
 import { Well } from '../../components/common/form';
-import AdminSection from '../../components/AdminSection';
 import { SectionTypes } from '../../constants/adminSection';
 import { getStateId } from '../../helpers/redux';
+import { getEnabledWorkspaces, getId, getSearchParams, t } from '../../helpers/util';
 
 import './style.scss';
 
@@ -104,7 +104,4 @@ class AdminPage extends React.Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(AdminPage);
+export default connect(mapStateToProps, mapDispatchToProps)(AdminPage);

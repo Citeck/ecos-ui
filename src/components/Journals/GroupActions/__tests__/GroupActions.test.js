@@ -1,5 +1,5 @@
-import React from 'react';
 import { render } from '@testing-library/react';
+import React from 'react';
 import 'jest-canvas-mock';
 
 import { GroupActions } from '../GroupActions';
@@ -11,16 +11,16 @@ describe('GroupActions tests', () => {
     grid: {
       actions: {
         forRecords: {
-          actions: [],
-        },
-      },
+          actions: []
+        }
+      }
     },
     columnsSetup: {},
     selectedRecords: [],
     excludedRecords: [],
     selectAllPageRecords: false,
     selectAllRecordsVisible: false,
-    source: [],
+    source: []
   };
 
   describe('<GroupActions />', () => {
@@ -65,12 +65,12 @@ describe('GroupActions tests', () => {
                   result: null,
                   features: { execForQuery: false, execForRecord: false, execForRecords: true },
                   id: 'download-zip',
-                  __act_ctx__: { recordMask: 1, context: { mode: 'journal', scope: 'gr-requests-view' } },
-                },
-              ],
-            },
-          },
-        },
+                  __act_ctx__: { recordMask: 1, context: { mode: 'journal', scope: 'gr-requests-view' } }
+                }
+              ]
+            }
+          }
+        }
       };
       const attachTo = document.createElement('div');
       document.body.appendChild(attachTo);

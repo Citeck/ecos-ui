@@ -1,6 +1,5 @@
-import { call, put, select, takeEvery } from 'redux-saga/effects';
-import { NotificationManager } from '@/services/notifications';
 import { get, isArray } from 'lodash';
+import { call, put, select, takeEvery } from 'redux-saga/effects';
 
 import {
   createCommentRequest,
@@ -19,16 +18,19 @@ import {
   updateCommentSuccess,
   uploadFilesInComment,
   uploadFilesFinally,
-  updateComments,
+  updateComments
 } from '../actions/comments';
-import { selectAllComments } from '../selectors/comments';
-import { getCommentForWeb } from '../dto/comments';
-import { isNodeRef, t } from '../helpers/util';
-import { uploadFile, uploadFileV2 } from './documents';
 import { setUploadError } from '../actions/documents';
 import Records from '../components/Records/Records';
+import { getCommentForWeb } from '../dto/comments';
+import { isNodeRef, t } from '../helpers/util';
+import { selectAllComments } from '../selectors/comments';
 
-const getPureMessage = (message) => (message || '').replace(/\d/g, '');
+import { uploadFile, uploadFileV2 } from './documents';
+
+import { NotificationManager } from '@/services/notifications';
+
+const getPureMessage = message => (message || '').replace(/\d/g, '');
 
 function* sagaGetComments({ api }, action) {
   try {
@@ -39,9 +41,9 @@ function* sagaGetComments({ api }, action) {
     yield put(
       setComments({
         recordRef: action.payload,
-        comments: records.map((record) => getCommentForWeb(record)),
-        ...extraProps,
-      }),
+        comments: records.map(record => getCommentForWeb(record)),
+        ...extraProps
+      })
     );
 
     yield put(fetchEnd(action.payload));
@@ -61,9 +63,9 @@ function* sagaUpdateComments({ api }, action) {
       yield put(
         setComments({
           recordRef: record,
-          comments: records.map((record) => getCommentForWeb(record)),
-          ...extraProps,
-        }),
+          comments: records.map(record => getCommentForWeb(record)),
+          ...extraProps
+        })
       );
     }
   } catch (e) {
@@ -76,14 +78,14 @@ function* sagaUpdateComments({ api }, action) {
 function* sagaCreateComment({ api }, action) {
   try {
     const {
-      payload: { recordRef, comment: text, isInternal = false },
+      payload: { recordRef, comment: text, isInternal = false }
     } = action;
 
     yield put(sendingStart(recordRef));
 
     const record = yield api.comments.create({ text, record: recordRef, isInternal });
     const comment = yield api.comments.getCommentById(record.id);
-    const comments = yield select((state) => selectAllComments(state, recordRef));
+    const comments = yield select(state => selectAllComments(state, recordRef));
 
     comment.id = record.id;
     comments.unshift(getCommentForWeb(comment));
@@ -96,8 +98,8 @@ function* sagaCreateComment({ api }, action) {
     yield put(
       setError({
         message: originMessage || t('comments-widget.error'),
-        recordRef: action.payload.recordRef,
-      }),
+        recordRef: action.payload.recordRef
+      })
     );
     console.error('[comments sagaCreateComment saga error', e);
   } finally {
@@ -110,13 +112,13 @@ function* sagaCreateComment({ api }, action) {
 function* sagaUpdateComment({ api }, action) {
   try {
     const {
-      payload: { comment, recordRef },
+      payload: { comment, recordRef }
     } = action;
     yield put(sendingStart(recordRef));
     yield api.comments.update(action.payload.comment);
 
-    let comments = yield select((state) => selectAllComments(state, recordRef));
-    const commentIndex = comments.findIndex((item) => item.id === comment.id);
+    let comments = yield select(state => selectAllComments(state, recordRef));
+    const commentIndex = comments.findIndex(item => item.id === comment.id);
     comments[commentIndex].text = comment.text;
 
     yield put(updateCommentSuccess({ comments, recordRef }));
@@ -124,7 +126,7 @@ function* sagaUpdateComment({ api }, action) {
     //  get all data about updated comment from server
     const updatedComment = yield api.comments.getCommentById(comment.id);
 
-    comments = yield select((state) => selectAllComments(state, recordRef));
+    comments = yield select(state => selectAllComments(state, recordRef));
     comments[commentIndex] = { ...comments[commentIndex], ...getCommentForWeb(updatedComment) };
     yield put(updateCommentSuccess({ comments, recordRef }));
 
@@ -135,8 +137,8 @@ function* sagaUpdateComment({ api }, action) {
     yield put(
       setError({
         message: originMessage || t('comments-widget.error'),
-        recordRef: action.payload.recordRef,
-      }),
+        recordRef: action.payload.recordRef
+      })
     );
     console.error('[comments sagaUpdateComment saga error', e);
   } finally {
@@ -166,7 +168,7 @@ function* sagaUploadFilesInComment({ api }, { payload }) {
 
     const results = yield Promise.allSettled(files);
 
-    const rejected = results.find((result) => result.status === 'rejected');
+    const rejected = results.find(result => result.status === 'rejected');
     if (rejected) {
       throw new Error('One or more file uploads failed');
     }
@@ -186,14 +188,14 @@ function* sagaUploadFilesInComment({ api }, { payload }) {
       }
     });
     NotificationManager.success(
-      t(payload.files.length > 1 ? 'documents-widget.notification.add-many.success' : 'documents-widget.notification.add-one.success'),
+      t(payload.files.length > 1 ? 'documents-widget.notification.add-many.success' : 'documents-widget.notification.add-one.success')
     );
   } catch (e) {
     yield put(setUploadError({ ...payload, message: e.message }));
     console.error('[comments sagaUploadFilesInComment saga error', e);
     NotificationManager.error(
       t(payload.files.length > 1 ? 'documents-widget.notification.add-many.error' : 'documents-widget.notification.add-one.error'),
-      t('error'),
+      t('error')
     );
   } finally {
     yield put(uploadFilesFinally(payload.key));
@@ -210,8 +212,8 @@ function* sagaDeleteComment({ api }, { payload }) {
     yield put(sendingStart(recordRef));
     yield api.comments.delete(commentId);
 
-    const comments = yield select((state) => selectAllComments(state, recordRef));
-    const index = comments.findIndex((comment) => comment.id === commentId);
+    const comments = yield select(state => selectAllComments(state, recordRef));
+    const index = comments.findIndex(comment => comment.id === commentId);
 
     if (index !== -1) {
       comments.splice(index, 1);

@@ -19,10 +19,10 @@ export default class BPMNModeler extends BaseModeler {
     this.modeler = new Modeler({
       additionalModules: [customModules],
       moddleExtensions: {
-        ecosTask: ecosTask,
+        ecosTask: ecosTask
       },
       keyboard: { bindTo: document },
-      linting,
+      linting
     });
   };
 

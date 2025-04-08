@@ -11,7 +11,7 @@ export const onlyRenderer = {
   __init__: ['customRenderer', 'KPIRenderer', 'numberRenderer'],
   numberRenderer: ['type', EcosNumberRenderer],
   KPIRenderer: ['type', EcosKPIRenderer],
-  customRenderer: ['type', EcosTaskRenderer],
+  customRenderer: ['type', EcosTaskRenderer]
 };
 
 export default [
@@ -21,8 +21,8 @@ export default [
     customPalette: ['type', EcosTaskPalette],
     numberRenderer: ['type', EcosNumberRenderer],
     KPIRenderer: ['type', EcosKPIRenderer],
-    customRenderer: ['type', EcosTaskRenderer],
+    customRenderer: ['type', EcosTaskRenderer]
   },
   lintModule,
-  BpmnColorPickerModule,
+  BpmnColorPickerModule
 ];

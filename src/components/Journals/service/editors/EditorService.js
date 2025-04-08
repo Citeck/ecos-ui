@@ -2,11 +2,11 @@ import React from 'react';
 
 import { t } from '../../../../helpers/export/util';
 
-import editorRegistry from './registry';
-import EditorScope from './EditorScope';
 import EditorControlWrapper from './EditorControlWrapper';
-import { getEditorValue } from './editorUtils';
+import EditorScope from './EditorScope';
 import { DEFAULT_EDITOR_TYPE } from './constants';
+import { getEditorValue } from './editorUtils';
+import editorRegistry from './registry';
 import JournalEditor from './registry/JournalEditor';
 import OrgstructEditor from './registry/OrgstructEditor';
 

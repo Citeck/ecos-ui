@@ -27,6 +27,6 @@ export default function simpleDiffWithCursor(a: string, b: string, cursor: numbe
   return {
     index: left,
     insert: b.slice(left, bLength - right),
-    remove: aLength - left - right,
+    remove: aLength - left - right
   };
 }

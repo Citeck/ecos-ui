@@ -1,11 +1,12 @@
-import React from 'react';
-import { TooltipContainer as Tooltip } from '../../Tooltip/TooltipContainer';
 import classNames from 'classnames';
-import PropTypes from 'prop-types';
 import uniqueId from 'lodash/uniqueId';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 import ZIndex from '../../../../services/ZIndex';
 import ClickOutside from '../../../ClickOutside';
+import { TooltipContainer as Tooltip } from '../../Tooltip/TooltipContainer';
+
 import Dropdown from './Dropdown';
 
 import './Dropdown.scss';

@@ -1,13 +1,14 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import isString from 'lodash/isString';
+import PropTypes from 'prop-types';
+import React from 'react';
 import uuidV4 from 'uuid/v4';
 
-import { commonOneTabDefaultProps, commonOneTabPropTypes } from './utils';
 import { getCurrentLocale, getMLValue, t } from '../../../helpers/util';
-import EditTabForm from './EditTabForm';
+
 import { Actions } from './Actions';
+import EditTabForm from './EditTabForm';
+import { commonOneTabDefaultProps, commonOneTabPropTypes } from './utils';
 
 class Tab extends React.Component {
   static propTypes = {
@@ -18,7 +19,7 @@ class Tab extends React.Component {
     index: PropTypes.number,
     onDelete: PropTypes.func,
     onEdit: PropTypes.func,
-    onStartEdit: PropTypes.func,
+    onStartEdit: PropTypes.func
   };
 
   static defaultProps = {
@@ -26,7 +27,7 @@ class Tab extends React.Component {
     classNameTooltip: '',
     disabled: false,
     isNew: false,
-    index: 0,
+    index: 0
   };
 
   constructor(props) {
@@ -38,7 +39,7 @@ class Tab extends React.Component {
       isOpenMenu: false,
       isValidText: !!getMLValue(props.label).trim(),
       text: props.label,
-      defText: `${t('page-tabs.tab-name-default')} ${props.index + 1}`,
+      defText: `${t('page-tabs.tab-name-default')} ${props.index + 1}`
     };
   }
 
@@ -89,7 +90,7 @@ class Tab extends React.Component {
     this.setState({ isOpenEditModal: false });
   };
 
-  startEdit = (e) => {
+  startEdit = e => {
     if (!this.isEditable) {
       this.setState({ editing: true });
 
@@ -115,11 +116,11 @@ class Tab extends React.Component {
     this.hideEditModal();
   };
 
-  onChange = (text) => {
+  onChange = text => {
     this.setState({ text, isValidText: !!getMLValue(text).trim() });
   };
 
-  onClose = (e) => {
+  onClose = e => {
     const { text } = this.state;
 
     e.persist();
@@ -127,7 +128,7 @@ class Tab extends React.Component {
     text ? this.onClear(e) : this.onDelete(e);
   };
 
-  onClear = (e) => {
+  onClear = e => {
     this.setState({ text: '' });
     e.stopPropagation();
   };
@@ -145,12 +146,12 @@ class Tab extends React.Component {
     this.hideEditModal();
   };
 
-  onDelete = (e) => {
+  onDelete = e => {
     this.props.onDelete && this.props.onDelete();
     e.stopPropagation();
   };
 
-  onClick = (e) => {
+  onClick = e => {
     if (this.isEditable) {
       e.preventDefault();
       e.stopPropagation();
@@ -165,7 +166,7 @@ class Tab extends React.Component {
     this.setState({ isOpenMenu: false });
   };
 
-  onToggleMenu = (e) => {
+  onToggleMenu = e => {
     this.setState({ isOpenMenu: !this.state.isOpenMenu });
     e.preventDefault();
     e.stopPropagation();
@@ -188,7 +189,7 @@ class Tab extends React.Component {
     const tabClassNames = classNames('ecos-tab ecos-tab_editable', className, {
       'ecos-tab_active': isActive,
       'ecos-tab_hover': hasHover,
-      'ecos-tab_editing': isEdit,
+      'ecos-tab_editing': isEdit
     });
     const addProps = {};
 

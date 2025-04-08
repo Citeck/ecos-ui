@@ -4,7 +4,7 @@ class WorkspaceService {
   static emitter = new EventEmitter();
 
   static Events = {
-    UPDATE_LIST: 'ecos-workspace-update-list',
+    UPDATE_LIST: 'ecos-workspace-update-list'
   };
 }
 

@@ -21,7 +21,7 @@ type BaseEquationEditorProps = {
 
 function EquationEditor(
   { equation, setEquation, inline }: BaseEquationEditorProps,
-  forwardedRef: Ref<HTMLInputElement | HTMLTextAreaElement>,
+  forwardedRef: Ref<HTMLInputElement | HTMLTextAreaElement>
 ): JSX.Element {
   const onChange = (event: ChangeEvent) => {
     setEquation((event.target as HTMLInputElement).value);

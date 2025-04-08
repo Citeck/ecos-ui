@@ -20,7 +20,7 @@ export default class CustomPalette {
 
         const shape = elementFactory.createShape({
           type: ECOS_TASK_BASE_ELEMENT,
-          businessObject: businessObject,
+          businessObject: businessObject
         });
 
         create.start(event, shape);
@@ -34,9 +34,9 @@ export default class CustomPalette {
         title: translate('Set document status'),
         action: {
           dragstart: createEcosTask(ECOS_TASK_TYPE_SET_STATUS),
-          click: createEcosTask(ECOS_TASK_TYPE_SET_STATUS),
-        },
-      },
+          click: createEcosTask(ECOS_TASK_TYPE_SET_STATUS)
+        }
+      }
     };
   }
 }

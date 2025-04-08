@@ -12,7 +12,7 @@ function* sagaGetReportData({ api }, action) {
     const mergedResponseData = {
       urgent,
       today,
-      later,
+      later
     };
 
     const reportDataPrepared = reportDataPrepare(mergedResponseData);

@@ -16,7 +16,7 @@ import {
   type SerializedTextNode,
   type DOMConversionMap,
   type DOMConversionOutput,
-  type DOMExportOutput,
+  type DOMExportOutput
 } from 'lexical';
 
 export type SerializedMentionNode = Spread<
@@ -34,7 +34,7 @@ function convertMentionElement(domNode: HTMLElement): DOMConversionOutput | null
   if (textContent !== null) {
     const node = $createMentionNode(textContent);
     return {
-      node,
+      node
     };
   }
 
@@ -80,7 +80,7 @@ export class MentionNode extends TextNode {
       ...super.exportJSON(),
       mentionName: this.__mention,
       type: 'mention',
-      version: 1,
+      version: 1
     };
   }
 
@@ -111,9 +111,9 @@ export class MentionNode extends TextNode {
         }
         return {
           conversion: convertMentionElement,
-          priority: 4,
+          priority: 4
         };
-      },
+      }
     };
   }
 

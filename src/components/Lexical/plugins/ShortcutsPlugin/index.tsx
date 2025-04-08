@@ -15,7 +15,7 @@ import {
   INDENT_CONTENT_COMMAND,
   KEY_MODIFIER_COMMAND,
   LexicalEditor,
-  OUTDENT_CONTENT_COMMAND,
+  OUTDENT_CONTENT_COMMAND
 } from 'lexical';
 import { Dispatch, useEffect } from 'react';
 
@@ -31,7 +31,7 @@ import {
   formatParagraph,
   formatQuote,
   updateFontSize,
-  UpdateFontSizeType,
+  UpdateFontSizeType
 } from '../ToolbarPlugin/utils';
 
 import {
@@ -58,12 +58,12 @@ import {
   isStrikeThrough,
   isSubscript,
   isSuperscript,
-  isUppercase,
+  isUppercase
 } from './shortcuts';
 
 export default function ShortcutsPlugin({
   editor,
-  setIsLinkEditMode,
+  setIsLinkEditMode
 }: {
   editor: LexicalEditor;
   setIsLinkEditMode: Dispatch<boolean>;

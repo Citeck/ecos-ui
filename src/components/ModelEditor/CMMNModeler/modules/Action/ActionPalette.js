@@ -5,11 +5,11 @@ function createAction(elementFactory, cmmnFactory) {
     type: 'cmmn:PlanItem',
     businessObject: (function () {
       const definitionRef = cmmnFactory.create('cmmn:Task', {
-        'ecos:cmmnType': 'ecos:Action',
+        'ecos:cmmnType': 'ecos:Action'
       });
 
       return cmmnFactory.create('cmmn:PlanItem', { definitionRef });
-    })(),
+    })()
   });
 }
 
@@ -37,9 +37,9 @@ export default class ActionPalette {
         title: 'Create Action',
         action: {
           dragstart: createServiceTask,
-          click: createServiceTask,
-        },
-      },
+          click: createServiceTask
+        }
+      }
     };
   }
 }

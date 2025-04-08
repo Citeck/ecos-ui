@@ -1,5 +1,4 @@
 import { call, put, select, takeEvery } from 'redux-saga/effects';
-import { NotificationManager } from '@/services/notifications';
 
 import {
   createDocument,
@@ -11,11 +10,13 @@ import {
   recreateDocument,
   setError,
   setLoading,
-  setSettings,
+  setSettings
 } from '../actions/docConstructor';
+import Records from '../components/Records';
 import { t } from '../helpers/util';
 import PageService from '../services/PageService';
-import Records from '../components/Records';
+
+import { NotificationManager } from '@/services/notifications';
 
 const KEY_URL = 'doc.one.base.url';
 const POSTFIX_URL = '/document/';
@@ -53,7 +54,7 @@ function* fetchDocumentParams({ api }, { payload: { stateId, record } }) {
 
 function* runCreateDocument({ api }, { payload: { stateId, record, templateRef } }) {
   try {
-    const data = yield select((state) => state.docConstructor[stateId]);
+    const data = yield select(state => state.docConstructor[stateId]);
 
     yield call(api.docConstructor.setContractTemplate, { record, templateRef });
     const docOneDocumentId = yield call(api.docConstructor.createDocumentDocOne, { record });
@@ -86,7 +87,7 @@ function* runRecreateDocument({ api }, { payload: { stateId, record, templateRef
 
 function* runEditDocument({ api }, { payload: { stateId, record } }) {
   try {
-    const { docOneDocumentId, docOneUrl } = yield select((state) => state.docConstructor[stateId]);
+    const { docOneDocumentId, docOneUrl } = yield select(state => state.docConstructor[stateId]);
 
     yield call(api.docConstructor.setPermissionForRole, { record, docOneDocumentId, options: OPTIONS });
     PageService.changeUrlLink(docOneUrl + docOneDocumentId, { openNewBrowserTab: true, openInBackground: true });
@@ -102,7 +103,7 @@ function* runEditDocument({ api }, { payload: { stateId, record } }) {
 
 function* fetchGetDocument({ api }, { payload: { stateId, record } }) {
   try {
-    const { docOneDocumentId } = yield select((state) => state.docConstructor[stateId]);
+    const { docOneDocumentId } = yield select(state => state.docConstructor[stateId]);
     const result = yield call(api.docConstructor.getDocumentDocOne, { record, docOneDocumentId });
 
     yield put(setError({ stateId, error: result ? '' : t('doc-constructor-widget.error.content-not-changed') }));

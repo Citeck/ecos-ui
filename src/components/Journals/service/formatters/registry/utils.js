@@ -1,4 +1,5 @@
 import isFunction from 'lodash/isFunction';
+
 import BaseFormatter from '../BaseFormatter';
 
 export const getAllFormattersModules = modules => {

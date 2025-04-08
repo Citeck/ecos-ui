@@ -9,7 +9,7 @@ import { provideDisplayName, omit } from '../utils';
 const propTypes = {
   index: PropTypes.number.isRequired,
   collection: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  disabled: PropTypes.bool,
+  disabled: PropTypes.bool
 };
 
 const omittedProps = Object.keys(propTypes);
@@ -23,7 +23,7 @@ export default function sortableElement(WrappedComponent, config = { withRef: fa
     static propTypes = propTypes;
 
     static defaultProps = {
-      collection: 0,
+      collection: 0
     };
 
     componentDidMount() {
@@ -59,7 +59,7 @@ export default function sortableElement(WrappedComponent, config = { withRef: fa
         collection,
         disabled,
         index,
-        manager: this.context.manager,
+        manager: this.context.manager
       };
 
       this.node = node;
@@ -75,7 +75,7 @@ export default function sortableElement(WrappedComponent, config = { withRef: fa
     getWrappedInstance() {
       invariant(
         config.withRef,
-        'To access the wrapped instance, you need to pass in {withRef: true} as the second argument of the SortableElement() call',
+        'To access the wrapped instance, you need to pass in {withRef: true} as the second argument of the SortableElement() call'
       );
       return this.wrappedInstance.current;
     }

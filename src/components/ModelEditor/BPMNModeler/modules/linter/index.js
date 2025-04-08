@@ -32,13 +32,13 @@ const translations = {
   'Gateway is superfluous. It only has one source and target': 'bpmn-linter.gateway.superfluous',
   'Rule error: no check implemented': 'bpmn-linter.rule.no-check',
   'Rule error: enter is not a function': 'bpmn-linter.rule.no-func',
-  'Toggle linting': 'bpmn-linter.toggle',
+  'Toggle linting': 'bpmn-linter.toggle'
 };
 
 export const linting = {
   bpmnlint: config,
   active: true,
-  disableToggleButton: true,
+  disableToggleButton: true
 };
 
 const Linting = Linter.linting[1];
@@ -75,8 +75,8 @@ Linting.prototype.getLintResult = function () {
   let errors = 0;
   let warnings = 0;
 
-  Object.keys(this._issues).forEach((key) => {
-    this._issues[key].forEach((issue) => {
+  Object.keys(this._issues).forEach(key => {
+    this._issues[key].forEach(issue => {
       if (issue.category === 'error') {
         errors++;
       }

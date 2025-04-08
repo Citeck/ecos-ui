@@ -17,7 +17,7 @@ import {
   COMMAND_PRIORITY_EDITOR,
   createCommand,
   LexicalCommand,
-  LexicalEditor,
+  LexicalEditor
 } from 'lexical';
 import { JSX, useCallback, useEffect } from 'react';
 import * as React from 'react';
@@ -38,7 +38,7 @@ export function InsertEquationDialog({ activeEditor, onClose }: { activeEditor: 
       activeEditor.dispatchCommand(INSERT_EQUATION_COMMAND, { equation, inline });
       onClose();
     },
-    [activeEditor, onClose],
+    [activeEditor, onClose]
   );
 
   return <KatexEquationAlterer onConfirm={onEquationConfirm} />;
@@ -54,7 +54,7 @@ export default function EquationsPlugin(): JSX.Element | null {
 
     return editor.registerCommand<CommandPayload>(
       INSERT_EQUATION_COMMAND,
-      (payload) => {
+      payload => {
         const { equation, inline } = payload;
         const equationNode = $createEquationNode(equation, inline);
 
@@ -65,7 +65,7 @@ export default function EquationsPlugin(): JSX.Element | null {
 
         return true;
       },
-      COMMAND_PRIORITY_EDITOR,
+      COMMAND_PRIORITY_EDITOR
     );
   }, [editor]);
 

@@ -6,7 +6,7 @@ if (!IS_TEST_ENV) {
   const plugins = import.meta.glob('./**/*-plugin/index.js', { eager: true });
   const modules = Object.values(plugins);
 
-  modules.forEach((module) => {
+  modules.forEach(module => {
     if (module.__esModule || module[Symbol.toStringTag] === 'Module') {
       delete module.default;
     }

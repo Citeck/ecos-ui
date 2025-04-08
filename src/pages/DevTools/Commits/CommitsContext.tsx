@@ -10,7 +10,7 @@ import { reducer, initialState } from './reducer';
 
 export const CommitsContext = React.createContext();
 
-export const CommitsContextProvider = (props) => {
+export const CommitsContextProvider = props => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const getCommitsInfo = async () => {
@@ -21,9 +21,9 @@ export const CommitsContextProvider = (props) => {
         {
           id: uiCommits.id || ECOS_UI_ID,
           label: uiCommits.label || ECOS_UI_LABEL,
-          ...uiCommits,
+          ...uiCommits
         },
-        ...(otherAppsCommits.records || []),
+        ...(otherAppsCommits.records || [])
       ];
 
       dispatch({ type: SET_REPOS, payload: DevToolsConverter.fetchRepos(allAppsCommits) });
@@ -34,7 +34,7 @@ export const CommitsContextProvider = (props) => {
     }
   };
 
-  const selectRepo = (repo) => {
+  const selectRepo = repo => {
     dispatch({ type: SELECT_REPO, payload: repo });
   };
 
@@ -43,7 +43,7 @@ export const CommitsContextProvider = (props) => {
       value={{
         state,
         getCommitsInfo,
-        selectRepo,
+        selectRepo
       }}
     >
       {props.children}

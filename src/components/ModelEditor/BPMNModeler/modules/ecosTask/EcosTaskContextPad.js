@@ -29,7 +29,7 @@ export default class CustomContextPad {
 
           const shape = elementFactory.createShape({
             type: ECOS_TASK_BASE_ELEMENT,
-            businessObject: businessObject,
+            businessObject: businessObject
           });
 
           autoPlace.append(element, shape);
@@ -46,7 +46,7 @@ export default class CustomContextPad {
 
         const shape = elementFactory.createShape({
           type: ECOS_TASK_BASE_ELEMENT,
-          businessObject: businessObject,
+          businessObject: businessObject
         });
 
         create.start(event, shape, element);
@@ -60,9 +60,9 @@ export default class CustomContextPad {
         title: translate('Append Set document status'),
         action: {
           click: appendEcosTask(ECOS_TASK_TYPE_SET_STATUS),
-          dragstart: appendEcosTaskStart(ECOS_TASK_TYPE_SET_STATUS),
-        },
-      },
+          dragstart: appendEcosTaskStart(ECOS_TASK_TYPE_SET_STATUS)
+        }
+      }
     };
   }
 }

@@ -7,8 +7,8 @@ export const Sheet = ({ diagram, sectionPath, onMounted, extraEvents, init, clas
   const events = {};
 
   Object.keys(props)
-    .filter((key) => key.startsWith('on'))
-    .forEach((key) => (events[key] = props[key]));
+    .filter(key => key.startsWith('on'))
+    .forEach(key => (events[key] = props[key]));
 
   useEffect(() => {
     if (!initialized && get(containerRef, 'current')) {
@@ -18,7 +18,7 @@ export const Sheet = ({ diagram, sectionPath, onMounted, extraEvents, init, clas
         container: containerRef.current,
         events,
         extraEvents,
-        callback: (res) => onMounted(true, res),
+        callback: res => onMounted(true, res)
       });
       setInitialized(true);
     }

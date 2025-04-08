@@ -1,8 +1,9 @@
 import userEvent from '@testing-library/user-event';
 
-import { mountWithContext } from '@/helpers/tests';
-import { TypePermissionsEditorContext } from '../TypePermissionsEditor/Context';
 import ButtonsPanel from '../TypePermissionsEditor/ButtonsPanel';
+import { TypePermissionsEditorContext } from '../TypePermissionsEditor/Context';
+
+import { mountWithContext } from '@/helpers/tests';
 
 describe('<ButtonsPanel />', () => {
   it('render buttons', async () => {
@@ -12,7 +13,7 @@ describe('<ButtonsPanel />', () => {
     const closeEditor = jest.fn();
     const { container } = mountWithContext(ButtonsPanel, TypePermissionsEditorContext, {
       savePermissions,
-      closeEditor,
+      closeEditor
     });
 
     const buttons = container.getElementsByTagName('button');

@@ -55,14 +55,14 @@ class NumberRenderer extends BaseRenderer {
     const textUtil = new TextUtil({
       style: {
         ...LABEL_STYLE,
-        fontSize: is(element, 'bpmn:Event') ? '9px' : LABEL_STYLE.fontSize,
-      },
+        fontSize: is(element, 'bpmn:Event') ? '9px' : LABEL_STYLE.fontSize
+      }
     });
 
     const text = textUtil.createText(number, {
       align: is(element, 'bpmn:Event') ? 'center-top' : 'left-top',
       box: element,
-      padding: padding,
+      padding: padding
     });
 
     svgAppend(parentNode, text);

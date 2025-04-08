@@ -47,9 +47,9 @@ export class LayoutItemNode extends ElementNode {
         }
         return {
           conversion: $convertLayoutItemElement,
-          priority: 2,
+          priority: 2
         };
-      },
+      }
     };
   }
 

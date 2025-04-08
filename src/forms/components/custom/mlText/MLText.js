@@ -1,9 +1,9 @@
 import isEmpty from 'lodash/isEmpty';
 
-import BaseReactComponent from '../base/BaseReactComponent';
 import MLText from '../../../../components/common/form/Input/MLText';
 import { getCurrentLocale } from '../../../../helpers/export/util';
 import { checkIsEmptyMlField } from '../../../utils';
+import BaseReactComponent from '../base/BaseReactComponent';
 
 export default class MLTextComponent extends BaseReactComponent {
   static schema(...extend) {
@@ -11,9 +11,9 @@ export default class MLTextComponent extends BaseReactComponent {
       {
         label: 'ML Text',
         key: 'mlText',
-        type: 'mlText',
+        type: 'mlText'
       },
-      ...extend,
+      ...extend
     );
   }
 
@@ -23,7 +23,7 @@ export default class MLTextComponent extends BaseReactComponent {
       icon: 'fa fa-language',
       group: 'basic',
       weight: 0,
-      schema: MLTextComponent.schema(),
+      schema: MLTextComponent.schema()
     };
   }
 
@@ -34,14 +34,14 @@ export default class MLTextComponent extends BaseReactComponent {
   get emptyValue() {
     return {
       ru: '',
-      en: '',
+      en: ''
     };
   }
 
   convertStringValue(value) {
     if (typeof value === 'string') {
       value = {
-        [getCurrentLocale()]: value,
+        [getCurrentLocale()]: value
       };
     }
 
@@ -75,7 +75,7 @@ export default class MLTextComponent extends BaseReactComponent {
     this.setContainerStyles();
   }
 
-  handleChange = (value) => {
+  handleChange = value => {
     this.setPristine(false);
     this.valueChangedByUser = true;
     this.setValue(isEmpty(value) ? this.emptyValue : value);
@@ -87,7 +87,7 @@ export default class MLTextComponent extends BaseReactComponent {
       viewOnly: this.viewOnly,
       value: this.getInitialValue(),
       placeholder: this.placeholder,
-      onChange: this.handleChange,
+      onChange: this.handleChange
     };
   }
 }

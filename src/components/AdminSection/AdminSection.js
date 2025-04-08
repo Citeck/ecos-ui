@@ -35,7 +35,7 @@ class AdminSection extends React.PureComponent {
   state = {
     journalStateId: null,
     additionalHeights: 0,
-    needResetJournalView: false,
+    needResetJournalView: false
   };
 
   componentDidMount() {
@@ -57,13 +57,13 @@ class AdminSection extends React.PureComponent {
     }
   }
 
-  setWrapperRef = (ref) => {
+  setWrapperRef = ref => {
     if (ref) {
       this._setWrapperRef = ref;
     }
   };
 
-  isHidden = (type) => {
+  isHidden = type => {
     const { activeSection, isAccessibleSectionType, urlParams, isAccessible } = this.props;
     const { type: typeFromUrl } = urlParams;
     const enabledWorkspaces = getEnabledWorkspaces();
@@ -89,7 +89,7 @@ class AdminSection extends React.PureComponent {
 
   isFluid = () => ![SectionTypes.DEV_TOOLS].includes(get(this.props, 'activeSection.type'));
 
-  setJournalStateId = (stateId) => {
+  setJournalStateId = stateId => {
     const { journalStateId } = this.state;
 
     if (journalStateId === stateId) {
@@ -99,7 +99,7 @@ class AdminSection extends React.PureComponent {
     this.setState({ journalStateId: stateId });
   };
 
-  handleClickCaption = (event) => {
+  handleClickCaption = event => {
     if (!getEnabledWorkspaces() && event.shiftKey && (event.ctrlKey || event.metaKey)) {
       const { journalStateId } = this.state;
 
@@ -122,8 +122,8 @@ class AdminSection extends React.PureComponent {
     300,
     {
       leading: false,
-      trailing: true,
-    },
+      trailing: true
+    }
   );
 
   render() {
@@ -140,7 +140,7 @@ class AdminSection extends React.PureComponent {
       >
         <div
           className={classNames('ecos-admin-section__content', {
-            'ecos-admin-section__content_full': enabledWorkspaces || !isOpenMenu || !isAccessible,
+            'ecos-admin-section__content_full': enabledWorkspaces || !isOpenMenu || !isAccessible
           })}
         >
           <Container fluid={this.isFluid()} className="p-0">
@@ -203,7 +203,7 @@ const mapStateToProps = (state, props) => {
     activeSection: state.adminSection.activeSection || {},
     groupSectionList: state.adminSection.groupSectionList,
     isActivePage: pageTabList.isActiveTab(props.tabId),
-    journals: state.journals,
+    journals: state.journals
   };
 
   if (getEnabledWorkspaces()) {
@@ -218,7 +218,7 @@ const mapDispatchToProps = (dispatch, props) => {
 
   return {
     getGroupSectionList: () => dispatch(fetchGroupSectionList(w())),
-    execJournalAction: (records, action, context) => dispatch(execJournalAction(w({ records, action, context }))),
+    execJournalAction: (records, action, context) => dispatch(execJournalAction(w({ records, action, context })))
   };
 };
 

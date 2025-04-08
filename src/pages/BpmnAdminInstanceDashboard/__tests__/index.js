@@ -1,27 +1,27 @@
+import { render } from '@testing-library/react';
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render } from '@testing-library/react';
 
+import { INSTANCE_TABS_TYPES } from '../../../constants/instanceAdmin';
 import configureStore from '../../../store';
+import { InstanceContextProvider } from '../InstanceContext';
 import {
   getCalledProcessesColumns,
   getExternalTasksColumns,
   getIncidentsColumns,
   getJobDefinitionsColumns,
-  getVariableColumns,
+  getVariableColumns
 } from '../JournalsTabs/columns';
-import { INSTANCE_TABS_TYPES } from '../../../constants/instanceAdmin';
-import { InstanceContextProvider } from '../InstanceContext';
 import MetaInfo from '../MetaInfo';
 
 const initialState = {};
 
 const tableProps = {
   instanceId: 'test-instance-id',
-  actions: [],
+  actions: []
 };
 
-const renderWithRedux = (Component) => {
+const renderWithRedux = Component => {
   const store = configureStore(null, { bpmnAdmin: initialState });
 
   return (

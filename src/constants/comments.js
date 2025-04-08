@@ -8,5 +8,5 @@ export const AllowedTagTypes = ['task', 'action'];
 
 export const TagColorByType = {
   TASK: primary,
-  ACTION: success,
+  ACTION: success
 };

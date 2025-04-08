@@ -48,6 +48,7 @@ const controlProps = {
   currentUserByDefault: false,
   excludeAuthoritiesByName: '',
   excludeAuthoritiesByType: [],
+  openByDefault: true,
   modalTitle: null,
   isSelectedValueAsText: false,
   hideTabSwitcher: false,
@@ -138,6 +139,16 @@ class Orgstructure extends React.Component {
     if (recordRef) {
       onSelectPerson(recordRef);
     }
+  }
+
+  shouldComponentUpdate(_nextProps, nextState) {
+    const newUrlParams = getSortedUrlParams();
+
+    if (nextState.urlParams !== newUrlParams) {
+      return true;
+    }
+
+    return false;
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -345,14 +356,13 @@ class Orgstructure extends React.Component {
   }
 
   renderDashboard() {
-    const { config } = this.props;
+    const { config, menuType, isMobile, tabId, isLoading } = this.props;
     const { recordRef } = getSearchParams() || {};
 
     if (!recordRef || !config) {
       return <div className="orgstructure-page__grid-empty-widgets">{t(Labels.NO_DATA_TEXT)}</div>;
     }
 
-    const { menuType, isMobile, tabId, isLoading } = this.props;
     const { activeTab } = this.state;
     const activeLayout = config[activeTab];
     const { columns, type } = activeLayout ? activeLayout : get(config, '0') || {};
@@ -380,15 +390,16 @@ class Orgstructure extends React.Component {
 
   render() {
     return (
-      <div className="orgstructure-page__grid-container">
-        <div className="orgstructure-page__grid-main">
-          <OrgstructProvider orgStructApi={api} controlProps={controlProps}>
-            <Structure tabId={this.props.tabId} toggleToFirstTab={this.toggleToFirstTab} />
-          </OrgstructProvider>
+      <StrictMode>
+        <div className="orgstructure-page__grid-container">
+          <div className="orgstructure-page__grid-main">
+            <OrgstructProvider orgStructApi={api} controlProps={controlProps}>
+              <Structure tabId={this.props.tabId} toggleToFirstTab={this.toggleToFirstTab} />
+            </OrgstructProvider>
+          </div>
+          {this.renderDashboard()}
         </div>
-
-        {this.renderDashboard()}
-      </div>
+      </StrictMode>
     );
   }
 }
@@ -403,10 +414,10 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = (dispatch, state) => ({
   getDashboardConfig: ({ recordRef }) => dispatch(getDashboardConfig({ key: state.tabId, recordRef })),
+  getDashboardTitle: payload => dispatch(getDashboardTitle({ ...payload, key: getStateId(state) })),
   onSelectPerson: recordRef => dispatch(setSelectedPerson({ recordRef: recordRef, key: state.tabId })),
   setOrgstructureConfig: config => dispatch(setOrgstructureConfig(config)),
-  setDashboardIdentification: payload => dispatch(setDashboardIdentification(payload)),
-  getDashboardTitle: payload => dispatch(getDashboardTitle({ ...payload, key: getStateId(state) }))
+  setDashboardIdentification: payload => dispatch(setDashboardIdentification(payload))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Orgstructure);

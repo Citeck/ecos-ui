@@ -1,8 +1,8 @@
-import React from 'react';
 import { render } from '@testing-library/react';
+import React from 'react';
 
-import MLTextarea from '../MLTextarea';
 import { LANGUAGE_RU, LANGUAGE_EN } from '../../../../../constants/lang';
+import MLTextarea from '../MLTextarea';
 
 global.getSelection = () => '';
 
@@ -15,9 +15,9 @@ describe('<MLTextarea />', () => {
     const defaultProps = {
       value: {
         en: 'Test',
-        ru: 'Тест',
+        ru: 'Тест'
       },
-      lang: LANGUAGE_EN,
+      lang: LANGUAGE_EN
     };
 
     const wrapper = render(<MLTextarea {...defaultProps} />);

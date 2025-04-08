@@ -1,13 +1,7 @@
-import React from 'react';
 import get from 'lodash/get';
+import React from 'react';
 import { connect } from 'react-redux';
 
-import { deepClone, t } from '../../helpers/util';
-import { CommonLabels, DelegateTimesheetLabels } from '../../helpers/timesheet/dictionary';
-import { DelegationTypes, ServerStatusKeys, ServerStatusOutcomeKeys, TimesheetTypes } from '../../constants/timesheet';
-import { BaseConfigGroupButtons } from '../../helpers/timesheet/util';
-import CommonTimesheetService from '../../services/timesheet/common';
-import DelegatedTimesheetService from '../../services/timesheet/delegated';
 import {
   declineDelegation,
   getDelegatedTimesheetByParams,
@@ -17,13 +11,19 @@ import {
   resetEventDayHours,
   setPopupMessage
 } from '../../actions/timesheet/delegated';
-
-import { Loader } from '../../components/common';
-import { Btn } from '../../components/common/btns';
 import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
-import BaseTimesheetPage from './BaseTimesheetPage';
 import DelegatedDeputiesModal from '../../components/Timesheet/DelegatedDeputiesModal';
 import RouteTypeTabs from '../../components/Timesheet/RouteTypeTabs';
+import { Loader } from '../../components/common';
+import { Btn } from '../../components/common/btns';
+import { DelegationTypes, ServerStatusKeys, ServerStatusOutcomeKeys, TimesheetTypes } from '../../constants/timesheet';
+import { CommonLabels, DelegateTimesheetLabels } from '../../helpers/timesheet/dictionary';
+import { BaseConfigGroupButtons } from '../../helpers/timesheet/util';
+import { deepClone, t } from '../../helpers/util';
+import CommonTimesheetService from '../../services/timesheet/common';
+import DelegatedTimesheetService from '../../services/timesheet/delegated';
+
+import BaseTimesheetPage from './BaseTimesheetPage';
 
 const initDType = DelegationTypes.FILL;
 const initStatus = ServerStatusKeys.CORRECTION;
@@ -281,7 +281,4 @@ const mapDispatchToProps = dispatch => ({
   setPopupMessage: payload => dispatch(setPopupMessage(payload))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(DelegatedTimesheetsPage);
+export default connect(mapStateToProps, mapDispatchToProps)(DelegatedTimesheetsPage);

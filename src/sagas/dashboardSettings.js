@@ -1,7 +1,6 @@
-import { call, put, select, takeEvery } from 'redux-saga/effects';
-import { NotificationManager } from '@/services/notifications';
 import get from 'lodash/get';
 import isUndefined from 'lodash/isUndefined';
+import { call, put, select, takeEvery } from 'redux-saga/effects';
 
 import {
   getAvailableWidgets,
@@ -18,26 +17,28 @@ import {
   setDashboardKeys,
   setLoading,
   setLoadingKeys,
-  setRequestResultDashboard,
+  setRequestResultDashboard
 } from '../actions/dashboardSettings';
-import { selectIdentificationForSet } from '../selectors/dashboard';
-import { selectIsAdmin, selectUserName } from '../selectors/user';
-import { t } from '../helpers/util';
-import { getSearchParams } from '../helpers/urls';
-import { getRefExceptAlfrescoPrefix, getRefWithAlfrescoPrefix } from '../helpers/ref';
 import { RequestStatuses } from '../constants';
-import DashboardService from '../services/dashboard';
-import DashboardSettingsConverter from '../dto/dashboardSettings';
 import { CONFIG_VERSION } from '../constants/dashboard';
+import DashboardConverter from '../dto/dashboard';
+import DashboardSettingsConverter from '../dto/dashboardSettings';
+import { getRefExceptAlfrescoPrefix, getRefWithAlfrescoPrefix } from '../helpers/ref';
+import { getSearchParams } from '../helpers/urls';
+import { t } from '../helpers/util';
+import { selectIdentificationForSet } from '../selectors/dashboard';
 import {
   selectIdentification,
   selectNewVersionConfig,
   selectOriginalConfig,
   selectRecordRef,
-  selectSelectedWidgetsById,
+  selectSelectedWidgetsById
 } from '../selectors/dashboardSettings';
-import DashboardConverter from '../dto/dashboard';
+import { selectIsAdmin, selectUserName } from '../selectors/user';
+import DashboardService from '../services/dashboard';
 import UserLocalSettingsService from '../services/userLocalSettings';
+
+import { NotificationManager } from '@/services/notifications';
 
 function* doInitDashboardSettingsRequest({ api }, { payload }) {
   try {
@@ -101,9 +102,9 @@ function* doGetDashboardKeys({ api }, { payload }) {
   try {
     yield put(setLoadingKeys({ status: true, key: payload.key }));
 
-    const identification = yield select((state) => selectIdentification(state, payload.key));
+    const identification = yield select(state => selectIdentification(state, payload.key));
     const keys = yield call(api.dashboard.getDashboardTypes, payload, identification.key);
-    const recordRef = yield select((state) => selectRecordRef(state, payload.key));
+    const recordRef = yield select(state => selectRecordRef(state, payload.key));
 
     if (recordRef) {
       const displayName = get(yield call(api.dashboard.getTitleInfo, recordRef), 'displayName');
@@ -134,7 +135,7 @@ function* doCheckUpdatedSettings({ api }, { payload }) {
       const checkResult = yield call(api.dashboard.checkExistDashboard, {
         key: payload.dashboardKey,
         type: identification.type,
-        user,
+        user
       });
 
       if (checkResult.id) {
@@ -163,10 +164,10 @@ function* doSaveSettingsRequest({ api }, { payload }) {
     const newIdentification = payload.newIdentification || {};
     const isAdmin = yield select(selectIsAdmin);
     const identificationData = { ...identification, ...newIdentification };
-    let recordRef = yield select((state) => selectRecordRef(state, payload.key));
+    let recordRef = yield select(state => selectRecordRef(state, payload.key));
 
     if (!isAdmin) {
-      const user = yield select((state) => {
+      const user = yield select(state => {
         return selectUserName(state);
       });
 
@@ -183,26 +184,26 @@ function* doSaveSettingsRequest({ api }, { payload }) {
       recordRef = '';
     }
 
-    const originalConfig = yield select((state) => selectOriginalConfig(state, payload.key));
+    const originalConfig = yield select(state => selectOriginalConfig(state, payload.key));
     const dashboardResult = yield call(api.dashboard.saveDashboardConfig, {
       config: {
         ...originalConfig,
         [CONFIG_VERSION]: DashboardSettingsConverter.getNewSettingsConfigForServer(payload),
-        version: CONFIG_VERSION,
+        version: CONFIG_VERSION
       },
       identification: identificationData,
-      recordRef,
+      recordRef
     });
 
     const parseDashboard = DashboardService.parseRequestResult(dashboardResult);
     const request = {
       status: parseDashboard.dashboardId ? RequestStatuses.SUCCESS : RequestStatuses.FAILURE,
-      dashboardId: parseDashboard.dashboardId,
+      dashboardId: parseDashboard.dashboardId
     };
 
-    Object.keys(get(payload, 'widgets')).forEach((key) => {
+    Object.keys(get(payload, 'widgets')).forEach(key => {
       const widgets = get(payload, ['widgets', key], []);
-      const clearWidgetLSData = (widget) => {
+      const clearWidgetLSData = widget => {
         if (Array.isArray(widget)) {
           widget.forEach(clearWidgetLSData);
           return;
@@ -222,7 +223,7 @@ function* doSaveSettingsRequest({ api }, { payload }) {
 
     yield call(api.dashboard.deleteFromCache, [
       DashboardService.getCacheKey({ type: identification.key, user: identification.user }),
-      DashboardService.getCacheKey({ type: newIdentification.key, user: newIdentification.user }),
+      DashboardService.getCacheKey({ type: newIdentification.key, user: newIdentification.user })
     ]);
     yield put(setRequestResultDashboard({ request, key: payload.key }));
   } catch (e) {

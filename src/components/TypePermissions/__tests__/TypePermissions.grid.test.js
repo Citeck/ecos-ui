@@ -1,9 +1,10 @@
 import userEvent from '@testing-library/user-event';
 
-import { mountWithContext } from '@/helpers/tests';
-import { TYPE_PERM_READ, TYPE_PERM_WRITE } from '../constants';
 import { TypePermissionsEditorContext } from '../TypePermissionsEditor/Context';
 import TypePermissionsGrid from '../TypePermissionsEditor/TypePermissionsGrid';
+import { TYPE_PERM_READ, TYPE_PERM_WRITE } from '../constants';
+
+import { mountWithContext } from '@/helpers/tests';
 
 describe('<TypePermissionsGrid />', () => {
   it('render grid; switch button READ -> WRITE', async () => {
@@ -16,9 +17,9 @@ describe('<TypePermissionsGrid />', () => {
       statuses: [{ id: 'status1', name: 'Status 1' }],
       matrixConfig: {
         role1: {
-          status1: TYPE_PERM_READ,
-        },
-      },
+          status1: TYPE_PERM_READ
+        }
+      }
     });
 
     const gridContainer = container.getElementsByClassName('type-permissions__grid-container');

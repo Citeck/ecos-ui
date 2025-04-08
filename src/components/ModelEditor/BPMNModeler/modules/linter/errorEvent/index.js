@@ -13,7 +13,7 @@ const errorEventHasErrorName = {
   id: 'error-event-has-error-name',
   callback: () => {
     const check = (node, reporter) => {
-      if (!node.eventDefinitions || !node.eventDefinitions.find((def) => is(def, ERROR_EVENT_DEFINITION))) {
+      if (!node.eventDefinitions || !node.eventDefinitions.find(def => is(def, ERROR_EVENT_DEFINITION))) {
         return;
       }
 
@@ -26,16 +26,16 @@ const errorEventHasErrorName = {
     };
 
     return {
-      check,
+      check
     };
-  },
+  }
 };
 
 const errorEndEventHasCode = {
   id: 'error-end-event-has-code',
   callback: () => {
     const check = (node, reporter) => {
-      if (!node.eventDefinitions || !node.eventDefinitions.find((def) => is(def, ERROR_EVENT_DEFINITION))) {
+      if (!node.eventDefinitions || !node.eventDefinitions.find(def => is(def, ERROR_EVENT_DEFINITION))) {
         return;
       }
 
@@ -52,17 +52,17 @@ const errorEndEventHasCode = {
     };
 
     return {
-      check,
+      check
     };
-  },
+  }
 };
 
 export const errorEventRulesMap = {
   [errorEventHasErrorName.id]: 'error',
-  [errorEndEventHasCode.id]: 'error',
+  [errorEndEventHasCode.id]: 'error'
 };
 
 export const errorEventCacheMap = {
   [`${BPMN_LINT_PREFIX}${errorEventHasErrorName.id}`]: errorEventHasErrorName.callback,
-  [`${BPMN_LINT_PREFIX}${errorEndEventHasCode.id}`]: errorEndEventHasCode.callback,
+  [`${BPMN_LINT_PREFIX}${errorEndEventHasCode.id}`]: errorEndEventHasCode.callback
 };

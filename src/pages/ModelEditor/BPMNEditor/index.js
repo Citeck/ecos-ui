@@ -16,7 +16,7 @@ const mapStateToProps = (store, props) => {
     hasDeployRights: ownStore.hasDeployRights,
     formProps: ownStore.formProps,
     isLoading: ownStore.isLoading,
-    isLoadingProps: ownStore.isLoadingProps,
+    isLoadingProps: ownStore.isLoadingProps
   };
 };
 
@@ -28,9 +28,9 @@ const mapDispatchToProps = (dispatch, props) => {
     initData: () => dispatch(initData({ stateId, record })),
     saveModel: (xml, img, definitionAction, processDefId) =>
       dispatch(saveModel({ stateId, record, xml, img, definitionAction, processDefId })),
-    setModel: (model) => dispatch(setModel({ stateId, model })),
+    setModel: model => dispatch(setModel({ stateId, model })),
     getFormProps: (formId, element) => dispatch(getFormProps({ stateId, formId, element })),
-    clearFormProps: () => dispatch(setFormProps({ stateId, formProps: {} })),
+    clearFormProps: () => dispatch(setFormProps({ stateId, formProps: {} }))
   };
 };
 

@@ -1,15 +1,16 @@
-import React, { Fragment } from 'react';
-import PropTypes from 'prop-types';
 import cn from 'classnames';
-import { NotificationManager } from '@/services/notifications';
+import PropTypes from 'prop-types';
+import React, { Fragment } from 'react';
 import { Collapse, Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from 'reactstrap';
 
 import { ViewTypes } from '../../../constants/commonDesigner';
 import { getMLValue, t } from '../../../helpers/util';
-import { Input, MLText } from '../../common/form';
 import actionsService from '../../Records/actions/recordActions';
+import { Input, MLText } from '../../common/form';
 
 import styles from './Category.module.scss';
+
+import { NotificationManager } from '@/services/notifications';
 
 import './Category.scss';
 

@@ -22,7 +22,7 @@ const emojis: Map<string, [string, string]> = new Map([
   ['🙂', ['emoji happysmile', '🙂']],
   ['😀', ['emoji veryhappysmile', '😀']],
   ['🙁', ['emoji unhappysmile', '🙁']],
-  ['❤', ['emoji heart', '❤']],
+  ['❤', ['emoji heart', '❤']]
 ]);
 
 function $findAndTransformEmoji(node: TextNode): null | TextNode {

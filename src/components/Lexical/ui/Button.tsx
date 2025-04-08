@@ -20,7 +20,7 @@ export default function Button({
   onClick,
   disabled,
   small,
-  title,
+  title
 }: {
   'data-test-id'?: string;
   children: ReactNode;

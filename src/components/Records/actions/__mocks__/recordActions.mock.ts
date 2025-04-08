@@ -29,27 +29,27 @@
 export const ActionResultTypes = {
   RESULTS: {
     type: 'results',
-    data: { results: [] },
+    data: { results: [] }
   },
   TRUE: true,
   FALSE: false,
-  BAD_RESULT: [{ message: 'Бизнес-процесс не найден' }, { message: 'Бизнес-процесс не найден' }],
+  BAD_RESULT: [{ message: 'Бизнес-процесс не найден' }, { message: 'Бизнес-процесс не найден' }]
 };
 
 export const ActionResultFormation = {
   RESULTS: {
     input: ActionResultTypes.RESULTS,
-    output: ActionResultTypes.RESULTS,
+    output: ActionResultTypes.RESULTS
   },
   BOOL: {
     input: ActionResultTypes.TRUE,
-    output: ActionResultTypes.TRUE,
+    output: ActionResultTypes.TRUE
   },
   ARRAY: {
     input: ActionResultTypes.BAD_RESULT,
     output: {
       type: 'results',
-      data: { results: ActionResultTypes.BAD_RESULT },
-    },
-  },
+      data: { results: ActionResultTypes.BAD_RESULT }
+    }
+  }
 };

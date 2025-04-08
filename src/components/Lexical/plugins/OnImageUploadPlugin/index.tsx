@@ -31,7 +31,7 @@ export default function OnImageUploadPlugin({ onUpload }: DragDropPasteProps): n
   useEffect(() => {
     if (!onUpload) return;
 
-    const unregisterMutationListener = editor.registerMutationListener(ImageNode, (nodeMutations) => {
+    const unregisterMutationListener = editor.registerMutationListener(ImageNode, nodeMutations => {
       for (const [nodeKey, mutation] of nodeMutations) {
         if (mutation === 'created') {
           editor.getEditorState().read(() => {

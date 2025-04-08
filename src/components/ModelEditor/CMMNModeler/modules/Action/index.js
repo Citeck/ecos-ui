@@ -6,5 +6,5 @@ export default {
   __init__: ['actionPalette', 'replaceMenuProvider', 'customRenderer'],
   actionPalette: ['type', ActionPalette],
   replaceMenuProvider: ['type', CustomReplaceMenuProvider],
-  customRenderer: ['type', CustomRenderer],
+  customRenderer: ['type', CustomRenderer]
 };

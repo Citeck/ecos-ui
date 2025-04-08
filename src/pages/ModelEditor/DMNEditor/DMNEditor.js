@@ -58,10 +58,10 @@ class DMNEditorPage extends ModelEditor {
 
     return {
       ...parents,
-      [EventListeners.VIEWS_CHANGED]: (e) => {
+      [EventListeners.VIEWS_CHANGED]: e => {
         const activeView = e.activeView;
         setIsTableView(activeView.type !== 'drd');
-      },
+      }
     };
   }
 

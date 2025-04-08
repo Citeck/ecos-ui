@@ -150,7 +150,7 @@ describe('DevTools tests', () => {
               </DevModulesContextProvider>
             </CommitsContextProvider>
           </SettingsContextProvider>
-        </Provider>,
+        </Provider>
       );
 
       return container;

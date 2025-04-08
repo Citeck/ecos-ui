@@ -23,7 +23,7 @@ class EmojiOption extends MenuOption {
     emoji: string,
     options: {
       keywords?: Array<string>;
-    },
+    }
   ) {
     super(title);
     this.title = title;
@@ -36,7 +36,7 @@ function EmojiMenuItem({
   isSelected,
   onClick,
   onMouseEnter,
-  option,
+  option
 }: {
   index: number;
   isSelected: boolean;
@@ -86,7 +86,7 @@ export default function EmojiPickerPlugin() {
   const [emojis, setEmojis] = useState<Array<Emoji>>([]);
 
   useEffect(() => {
-    import('../../utils/emoji-list').then((file) => setEmojis(file.default));
+    import('../../utils/emoji-list').then(file => setEmojis(file.default));
   }, []);
 
   const emojiOptions = useMemo(
@@ -95,15 +95,15 @@ export default function EmojiPickerPlugin() {
         ? emojis.map(
             ({ emoji, aliases, tags }) =>
               new EmojiOption(aliases[0], emoji, {
-                keywords: [...aliases, ...tags],
-              }),
+                keywords: [...aliases, ...tags]
+              })
           )
         : [],
-    [emojis],
+    [emojis]
   );
 
   const checkForTriggerMatch = useBasicTypeaheadTriggerMatch(':', {
-    minLength: 0,
+    minLength: 0
   });
 
   const options: Array<EmojiOption> = useMemo(() => {
@@ -136,7 +136,7 @@ export default function EmojiPickerPlugin() {
         closeMenu();
       });
     },
-    [editor],
+    [editor]
   );
 
   return (
@@ -171,7 +171,7 @@ export default function EmojiPickerPlugin() {
                   ))}
                 </ul>
               </div>,
-              anchorElementRef.current,
+              anchorElementRef.current
             )
           : null;
       }}

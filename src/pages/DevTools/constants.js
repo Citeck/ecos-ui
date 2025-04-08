@@ -2,7 +2,7 @@ export const TABS = {
   BUILD: 'build',
   DEV_MODULES: 'dev-modules',
   COMMITS: 'commits',
-  SETTINGS: 'settings',
+  SETTINGS: 'settings'
 };
 
 export const ECOS_UI_ID = 'ecos-ui';

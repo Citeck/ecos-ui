@@ -1,9 +1,10 @@
+import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import uniqueId from 'lodash/uniqueId';
-import cloneDeep from 'lodash/cloneDeep';
 
 import { MenuSettings as ms } from '../constants/menu';
+
 import MenuConverter from './menu';
 
 export default class SidebarConverter {

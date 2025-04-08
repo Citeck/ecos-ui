@@ -25,15 +25,15 @@ const scriptTaskHasScript = {
     };
 
     return {
-      check,
+      check
     };
-  },
+  }
 };
 
 export const scriptTaskRulesMap = {
-  [scriptTaskHasScript.id]: 'error',
+  [scriptTaskHasScript.id]: 'error'
 };
 
 export const scriptTaskCacheMap = {
-  [`${BPMN_LINT_PREFIX}${scriptTaskHasScript.id}`]: scriptTaskHasScript.callback,
+  [`${BPMN_LINT_PREFIX}${scriptTaskHasScript.id}`]: scriptTaskHasScript.callback
 };

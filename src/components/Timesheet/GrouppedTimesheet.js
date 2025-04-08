@@ -1,26 +1,26 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { Scrollbars } from 'react-custom-scrollbars';
 import classNames from 'classnames';
-import uniqueId from 'lodash/uniqueId';
+import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
-import cloneDeep from 'lodash/cloneDeep';
 import isFunction from 'lodash/isFunction';
-import get from 'lodash/get';
+import uniqueId from 'lodash/uniqueId';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { Scrollbars } from 'react-custom-scrollbars';
 
-import { t } from '../../helpers/util';
 import { CommonLabels } from '../../helpers/timesheet/dictionary';
-
-import { Icon, Loader, ResizeBoxes } from '../common';
-import { Input } from '../common/form';
-import { Btn, IcoBtn } from '../common/btns';
+import { t } from '../../helpers/util';
 import { SortableContainer, SortableElement, SortableHandle } from '../Drag-n-Drop';
-import { CalendarCell, CalendarRow, Collapse, Header } from './Calendar';
+import { Icon, Loader, ResizeBoxes } from '../common';
+import { Btn, IcoBtn } from '../common/btns';
+import { Input } from '../common/form';
+
 import BaseTimesheet from './BaseTimesheet';
+import { CalendarCell, CalendarRow, Collapse, Header } from './Calendar';
+import EventHistoryModal from './EventHistoryModal';
 import Tabs from './Tabs';
 import Tooltip from './Tooltip';
-import EventHistoryModal from './EventHistoryModal';
 
 import './style.scss';
 

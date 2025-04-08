@@ -10,7 +10,7 @@ const EMPTY_HEADER_TITLE = ' ';
 
 class ModalWrapper extends React.Component {
   state = {
-    isOpen: true,
+    isOpen: true
   };
 
   componentDidMount() {
@@ -19,10 +19,10 @@ class ModalWrapper extends React.Component {
     }
   }
 
-  close = (callback) => {
+  close = callback => {
     this.setState(
       {
-        isOpen: false,
+        isOpen: false
       },
       () => {
         if (typeof this.props.onHideModal === 'function') {
@@ -31,7 +31,7 @@ class ModalWrapper extends React.Component {
         if (typeof callback === 'function') {
           callback();
         }
-      },
+      }
     );
   };
 
@@ -68,7 +68,7 @@ ModalWrapper.propTypes = {
   title: PropTypes.string,
   onHideModal: PropTypes.func,
   getInstance: PropTypes.func,
-  reactstrapProps: PropTypes.object,
+  reactstrapProps: PropTypes.object
 };
 
 class Modal {
@@ -104,7 +104,7 @@ class Modal {
 
           this.destroy();
         }}
-      />,
+      />
     );
 
     setTimeout(() => {
@@ -113,7 +113,7 @@ class Modal {
           if (this._modalRef?.current && isFunction(this._modalRef?.current?.hide)) {
             this._modalRef?.current?.hide();
           }
-        },
+        }
       };
     }, 0);
   };
@@ -152,14 +152,14 @@ class Modal {
         className={config.class}
         classNameBody={config.classBody}
         onHideModal={this.onHideModal}
-        getInstance={(el) => (this.modal = el)}
+        getInstance={el => (this.modal = el)}
         reactstrapProps={config.reactstrapProps}
         size={config.size}
       >
         {isFunction(contentBefore) ? contentBefore() : contentBefore}
         {node}
         {isFunction(contentAfter) ? contentAfter() : contentAfter}
-      </ModalWrapper>,
+      </ModalWrapper>
     );
 
     setTimeout(() => {
@@ -167,7 +167,7 @@ class Modal {
     }, 0);
   };
 
-  close = (callback) => {
+  close = callback => {
     this.modal.close(callback);
   };
 

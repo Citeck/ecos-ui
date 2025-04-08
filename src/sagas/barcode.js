@@ -1,4 +1,5 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
+
 import { getBase64Barcode, init, setAllowedTypes, setBase64Barcode, setDisplayElements, setError } from '../actions/barcode';
 import { t } from '../helpers/util';
 
@@ -21,7 +22,7 @@ function* sagaGetBase64Barcode({ api }, { payload }) {
   try {
     const response = yield call(api.barcode.getBade64Barcode, {
       record,
-      params: { height: 100, width: 210 },
+      params: { height: 100, width: 210 }
     });
 
     if (response.data) {

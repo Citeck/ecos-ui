@@ -9,7 +9,7 @@ import { DevModulesContext } from './DevModulesContext';
 import DevModulesGrid from './DevModulesGrid';
 
 export const Labels = {
-  title: 'dev-tools.dev-modules.panel-title',
+  title: 'dev-tools.dev-modules.panel-title'
 };
 
 const DevModulesTab = (): React.JSX.Element => {

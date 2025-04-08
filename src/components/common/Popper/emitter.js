@@ -4,5 +4,5 @@ export const popupEmitter = new EventEmitter();
 
 export const Events = {
   SHOW: 'ecos-popover-show',
-  HIDE: 'ecos-popover-hide',
+  HIDE: 'ecos-popover-hide'
 };

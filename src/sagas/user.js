@@ -1,6 +1,6 @@
-import { call, put, takeLatest } from 'redux-saga/effects';
-import set from 'lodash/set';
 import get from 'lodash/get';
+import set from 'lodash/set';
+import { call, put, takeLatest } from 'redux-saga/effects';
 
 import { getUserData, setNewUIAvailableStatus, validateUserSuccess } from '../actions/user';
 

@@ -52,7 +52,7 @@ const BpmnSchema = ({ processId, metaInfo, versionsInfo, getMetaInfo, getAllVers
     handleChangeProcess,
     setMigrationPlan,
     setProcesses,
-    processes,
+    processes
   } = useContext(MigrationContext);
 
   /* Designer update, if we go through the tabs and come back */
@@ -65,12 +65,12 @@ const BpmnSchema = ({ processId, metaInfo, versionsInfo, getMetaInfo, getAllVers
   const Sheet = designer && designer.renderSheet;
   const zoomCenter = {
     x: 0,
-    y: 0,
+    y: 0
   };
 
   const handleSelectProcess = () => {
     if (versionsInfo && versionsInfo.data) {
-      const selectedVersion = versionsInfo.data.find((item) => item.version === Number(sourceVersion) || sourceVersion === item.version);
+      const selectedVersion = versionsInfo.data.find(item => item.version === Number(sourceVersion) || sourceVersion === item.version);
 
       if (!selectedVersion) {
         NotificationManager.error(t('migration.error.version-not-found', { sourceVersion }));
@@ -79,7 +79,7 @@ const BpmnSchema = ({ processId, metaInfo, versionsInfo, getMetaInfo, getAllVers
 
       setSourceProcessDefinitionId(selectedVersion || null);
       if (selectedVersion && metaInfo && metaInfo.version !== sourceVersion) {
-        setSelectedProcess(versionsInfo.data.find((version) => version === selectedVersion));
+        setSelectedProcess(versionsInfo.data.find(version => version === selectedVersion));
       }
     }
   };
@@ -90,17 +90,17 @@ const BpmnSchema = ({ processId, metaInfo, versionsInfo, getMetaInfo, getAllVers
         page: {
           skipCount: 0,
           page: 1,
-          maxItems: 1000,
-        },
+          maxItems: 1000
+        }
       })
-      .then((res) => {
+      .then(res => {
         if (res?.records) {
           setProcesses(res.records);
         }
 
         setIsInitProcesses(true);
       })
-      .catch((e) => {
+      .catch(e => {
         NotificationManager.error(t('migration.error.versions'));
         console.error(`${t('migration.error.versions')}:`, e);
         setIsInitProcesses(true);
@@ -113,7 +113,7 @@ const BpmnSchema = ({ processId, metaInfo, versionsInfo, getMetaInfo, getAllVers
     }
 
     if (!selectedProcess && processes.length > 0) {
-      setSelectedProcess(processes.find((process) => process.key === getKeyProcessBPMN(processId)));
+      setSelectedProcess(processes.find(process => process.key === getKeyProcessBPMN(processId)));
     }
 
     if (selectedProcess && isString(selectedProcess.key)) {
@@ -141,7 +141,7 @@ const BpmnSchema = ({ processId, metaInfo, versionsInfo, getMetaInfo, getAllVers
   }, [sourceProcessDefinitionId]);
 
   useEffect(() => {
-    setMigrationPlan((prev) => {
+    setMigrationPlan(prev => {
       if (!prev) {
         return prev;
       }
@@ -162,8 +162,8 @@ const BpmnSchema = ({ processId, metaInfo, versionsInfo, getMetaInfo, getAllVers
         ...prev,
         processInstanceQuery: {
           processDefinitionId: source,
-          activityIdIn: activities,
-        },
+          activityIdIn: activities
+        }
       };
     });
   }, [activities]);
@@ -181,30 +181,30 @@ const BpmnSchema = ({ processId, metaInfo, versionsInfo, getMetaInfo, getAllVers
       return;
     }
 
-    const getInstancesCount = (item) => {
+    const getInstancesCount = item => {
       return item.incidentStatistics.reduce((result, current) => result + current.count, 0);
     };
 
     designer.drawBadges({
-      data: metaInfo.activityStatistics.map((item) => ({
+      data: metaInfo.activityStatistics.map(item => ({
         ...item,
         id: item.activityId,
         incidents: getInstancesCount(item) || undefined,
         titles: {
           instances: t('bpmn-admin.process-tabs.process-instances'),
-          incidents: t('bpmn-admin.process-tabs.process-incidents'),
-        },
+          incidents: t('bpmn-admin.process-tabs.process-incidents')
+        }
       })),
-      keys: ['instances', 'incidents'],
+      keys: ['instances', 'incidents']
     });
   };
 
-  const handleClickZoom = (value) => {
+  const handleClickZoom = value => {
     designer.setZoom(value);
   };
 
   const handleClickElement = (_event, elementInfo) => {
-    setActivities((prev) => Array.from(new Set([...prev, get(elementInfo, 'element.id')])));
+    setActivities(prev => Array.from(new Set([...prev, get(elementInfo, 'element.id')])));
   };
 
   const showLoader =
@@ -212,9 +212,9 @@ const BpmnSchema = ({ processId, metaInfo, versionsInfo, getMetaInfo, getAllVers
   const noSchema = processId && !metaInfo.bpmnDefinition;
   const noProcess = !processId;
 
-  const handleLinkClick = (href) => {
+  const handleLinkClick = href => {
     PageService.changeUrlLink(createDocumentUrl(href), {
-      openNewTab: true,
+      openNewTab: true
     });
   };
 
@@ -265,7 +265,7 @@ const BpmnSchema = ({ processId, metaInfo, versionsInfo, getMetaInfo, getAllVers
             zoomCenter={zoomCenter}
             onMounted={handleReadySheet}
             modelEvents={{
-              'element.click': handleClickElement,
+              'element.click': handleClickElement
             }}
           />
         </>
@@ -310,13 +310,13 @@ const BpmnSchema = ({ processId, metaInfo, versionsInfo, getMetaInfo, getAllVers
             </div>
           )}
           <div className={`${SCHEMA_BLOCK_CLASS}__activities`}>
-            {activities.map((activityId) => (
+            {activities.map(activityId => (
               <div className={`${SCHEMA_BLOCK_CLASS}__activities-item`}>
                 <span>{activityId}</span>
                 <IcoBtn
                   className="ecos-btn_transparent"
                   icon="icon-small-close"
-                  onClick={() => setActivities((prev) => [...prev.filter((item) => item !== activityId)])}
+                  onClick={() => setActivities(prev => [...prev.filter(item => item !== activityId)])}
                 />
               </div>
             ))}
@@ -329,12 +329,12 @@ const BpmnSchema = ({ processId, metaInfo, versionsInfo, getMetaInfo, getAllVers
 
 const mapStateToProps = (store, props) => ({
   metaInfo: selectProcessMetaInfo(store, props),
-  versionsInfo: selectProcessVersions(store, props),
+  versionsInfo: selectProcessVersions(store, props)
 });
 
-const mapDispatchToProps = (dispatch) => ({
-  getMetaInfo: (processId) => dispatch(getMetaInfo({ processId })),
-  getAllVersions: (processId, processKey) => dispatch(getAllVersions({ processId, processKey })),
+const mapDispatchToProps = dispatch => ({
+  getMetaInfo: processId => dispatch(getMetaInfo({ processId })),
+  getAllVersions: (processId, processKey) => dispatch(getAllVersions({ processId, processKey }))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(BpmnSchema);

@@ -12,7 +12,7 @@ import CommitsGrid from './CommitsGrid';
 import { ALL_REPOS } from './constants';
 
 export const Labels = {
-  title: 'dev-tools.commits.all-repos',
+  title: 'dev-tools.commits.all-repos'
 };
 
 const CommitsTab = (): React.JSX.Element => {
@@ -35,9 +35,9 @@ const CommitsTab = (): React.JSX.Element => {
   const options = [
     {
       repo: ALL_REPOS,
-      label: t(Labels.title),
+      label: t(Labels.title)
     },
-    ...Object.keys(repos).map((id) => repos[id]),
+    ...Object.keys(repos).map(id => repos[id])
   ];
 
   const _selectRepo = (option: { repo: string; label: string }) => {
@@ -52,7 +52,7 @@ const CommitsTab = (): React.JSX.Element => {
             options={options}
             getOptionLabel={(option: { label: string }) => option.label}
             getOptionValue={(option: { repo: string }) => option.repo}
-            value={options.find((item) => item.repo === repo)}
+            value={options.find(item => item.repo === repo)}
             onChange={_selectRepo}
             isSearchable={false}
             className={'select_narrow'}

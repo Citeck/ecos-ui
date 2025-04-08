@@ -53,7 +53,7 @@ class KPIRenderer extends NumberRenderer {
 
     const isAccessible = await Records.get(recordRef).load(PERMISSION_VIEW_REPORTS);
     const { KPIData = [] } = window.Citeck;
-    const KPI = KPIData.find((i) => i.displayKpiOnBpmnActivityId === activityId);
+    const KPI = KPIData.find(i => i.displayKpiOnBpmnActivityId === activityId);
 
     if (KPI && isAccessible && this._isKPIModeDashlet() && !this._isEditor()) {
       const durationFormatterInstance = new DurationFormatter();
@@ -64,25 +64,25 @@ class KPIRenderer extends NumberRenderer {
       const percentRect = this.drawRect(parentNode, 45, 20, 8, '#000');
 
       svgAttr(timerRect, {
-        transform: `translate(${timerTransform[0]}, ${timerTransform[1]})`,
+        transform: `translate(${timerTransform[0]}, ${timerTransform[1]})`
       });
       svgAttr(percentRect, {
-        transform: `translate(${percentTransform[0]}, ${percentTransform[1]})`,
+        transform: `translate(${percentTransform[0]}, ${percentTransform[1]})`
       });
 
       this._drawKPITimer(
         parentNode,
         durationFormatterInstance.format({
           cell: KPI.kpi,
-          config: { showSeconds: false },
+          config: { showSeconds: false }
         }),
-        [timerTransform[0] + 2, timerTransform[1] + 15],
+        [timerTransform[0] + 2, timerTransform[1] + 15]
       );
 
       const percent = Math.round(KPI.kpiDeviation);
       this._drawKPIPercentage(parentNode, percent > 0 ? `+${percent >= 1000 ? '1K' : percent}%` : `${percent}%`, [
         percentTransform[0] + 2,
-        percentTransform[1] + 15,
+        percentTransform[1] + 15
       ]);
     }
 
@@ -94,7 +94,7 @@ class KPIRenderer extends NumberRenderer {
 
     svgAttr(text, {
       fill: '#000',
-      transform: `translate(${transform[0]}, ${transform[1]})`,
+      transform: `translate(${transform[0]}, ${transform[1]})`
     });
 
     svgClasses(text).add('djs-label');
@@ -107,7 +107,7 @@ class KPIRenderer extends NumberRenderer {
 
     svgAttr(text, {
       fill: '#000',
-      transform: `translate(${transform[0]}, ${transform[1]})`,
+      transform: `translate(${transform[0]}, ${transform[1]})`
     });
 
     svgClasses(text).add('djs-label');
@@ -125,7 +125,7 @@ class KPIRenderer extends NumberRenderer {
       ry: borderRadius,
       stroke: strokeColor || '#000',
       strokeWidth: 2,
-      fill: '#fff',
+      fill: '#fff'
     });
 
     svgAppend(parentNode, rect);

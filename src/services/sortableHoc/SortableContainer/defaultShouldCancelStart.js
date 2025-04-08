@@ -9,7 +9,7 @@ export default function defaultShouldCancelStart(event) {
     return true;
   }
 
-  if (closest(event.target, (el) => el.contentEditable === 'true')) {
+  if (closest(event.target, el => el.contentEditable === 'true')) {
     return true;
   }
 

@@ -1,8 +1,8 @@
-import isString from 'lodash/isString';
+import { EventEmitter } from 'events';
 import isEmpty from 'lodash/isEmpty';
+import isString from 'lodash/isString';
 
 import { getCurrentLocale } from './export/util';
-import { EventEmitter } from 'events';
 
 const acceptLanguage = getCurrentLocale();
 const timezoneOffset = -new Date().getTimezoneOffset();
@@ -10,7 +10,7 @@ const timezoneOffset = -new Date().getTimezoneOffset();
 export const emitter = new EventEmitter();
 export const RESET_AUTH_STATE_EVENT = 'set-auth-status-event';
 
-const ecosFetch = function(url, options = {}) {
+const ecosFetch = function (url, options = {}) {
   const { method, headers = {}, body, noHeaders = false, mode } = options;
 
   const params = {};

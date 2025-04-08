@@ -1,10 +1,10 @@
-import isEmpty from 'lodash/isEmpty';
-import get from 'lodash/get';
 import clone from 'lodash/clone';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 
-import Records from '../../Records/Records';
 import { SourcesId } from '../../../constants';
 import { getWorkspaceId } from '../../../helpers/urls';
+import Records from '../../Records/Records';
 
 class DocLibServiceApi {
   static defaultAttributes = {
@@ -61,7 +61,10 @@ class DocLibServiceApi {
       sourceId: SourcesId.DOCLIB,
       query,
       language: 'children',
-      sortBy: [{ attribute: 'nodeType', ascending: true }, { attribute: '?disp', ascending: true }]
+      sortBy: [
+        { attribute: 'nodeType', ascending: true },
+        { attribute: '?disp', ascending: true }
+      ]
     };
 
     if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {

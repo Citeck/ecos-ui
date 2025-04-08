@@ -1,8 +1,7 @@
-import { put, takeLatest, call, select } from 'redux-saga/effects';
 import get from 'lodash/get';
+import { put, takeLatest, call, select } from 'redux-saga/effects';
 
-import { detectMobileDevice, setTheme, setThemeConfig } from '../actions/view';
-import { setIsMobile, loadThemeRequest } from '../actions/view';
+import { detectMobileDevice, setTheme, setThemeConfig, setIsMobile, loadThemeRequest } from '../actions/view';
 import { applyTheme, isMobileDevice, loadStylesheet } from '../helpers/util';
 import { selectActiveThemeStylesheet } from '../selectors/view';
 

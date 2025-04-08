@@ -1,5 +1,6 @@
-import { setHtml, setLoading, updateHtmlWidget } from '../actions/customWidgetHtml';
 import { put, takeEvery } from 'redux-saga/effects';
+
+import { setHtml, setLoading, updateHtmlWidget } from '../actions/customWidgetHtml';
 import { wrapArgs } from '../helpers/redux';
 
 function* sagaUpdateHtmlWidget({ api }, { payload }) {

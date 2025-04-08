@@ -1,18 +1,17 @@
 import { connect } from 'react-redux';
-import { NotificationManager } from '@/services/notifications';
 
 import { createModel, getFullModels, getNextModels, initModels, savePagePosition, updateModels } from '../../../actions/bpmn';
+import EcosFormUtils from '../../../components/EcosForm/EcosFormUtils';
+import recordActions from '../../../components/Records/actions/recordActions';
+import RecordActions from '../../../components/Records/actions/recordActions';
 import { EDITOR_PAGE_CONTEXT, LOCAL_STORAGE_KEY_REFERER_PAGE_PATHNAME } from '../../../constants/bpmn';
+import { Labels } from '../../../constants/commonDesigner';
+import { t } from '../../../helpers/export/util';
 import { selectModelsInfoByCategoryId } from '../../../selectors/bpmn';
 import PageService from '../../../services/PageService';
-import recordActions from '../../../components/Records/actions/recordActions';
-
-import EcosFormUtils from '../../../components/EcosForm/EcosFormUtils';
-
-import RecordActions from '../../../components/Records/actions/recordActions';
 import Models from '../../designerCommon/Models';
-import { t } from '../../../helpers/export/util';
-import { Labels } from '../../../constants/commonDesigner';
+
+import { NotificationManager } from '@/services/notifications';
 
 const OPEN_BPMN_EDITOR_ACTION_REF = 'uiserv/action@open-bpmn-editor';
 
@@ -89,7 +88,4 @@ const mapDispatchToProps = dispatch => ({
   showModelCreationForm: categoryId => dispatch(createModel({ categoryId }))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Models);
+export default connect(mapStateToProps, mapDispatchToProps)(Models);

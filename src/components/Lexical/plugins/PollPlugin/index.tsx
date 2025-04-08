@@ -15,7 +15,7 @@ import {
   COMMAND_PRIORITY_EDITOR,
   createCommand,
   LexicalCommand,
-  LexicalEditor,
+  LexicalEditor
 } from 'lexical';
 import { useEffect, useState, JSX } from 'react';
 import * as React from 'react';
@@ -58,7 +58,7 @@ export default function PollPlugin(): JSX.Element | null {
 
     return editor.registerCommand<string>(
       INSERT_POLL_COMMAND,
-      (payload) => {
+      payload => {
         const pollNode = $createPollNode(payload, [createPollOption(), createPollOption()]);
         $insertNodes([pollNode]);
         if ($isRootOrShadowRoot(pollNode.getParentOrThrow())) {
@@ -67,7 +67,7 @@ export default function PollPlugin(): JSX.Element | null {
 
         return true;
       },
-      COMMAND_PRIORITY_EDITOR,
+      COMMAND_PRIORITY_EDITOR
     );
   }, [editor]);
   return null;

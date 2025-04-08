@@ -15,7 +15,7 @@ type Props = {
 const PanelTitle = ({ children, color = COLOR_YELLOW, narrow = false }: Props): React.JSX.Element => {
   const classes = classNames('ecos-panel-title', {
     [`ecos-panel-title_color-${color}`]: color,
-    'ecos-panel-title_narrow': narrow,
+    'ecos-panel-title_narrow': narrow
   });
 
   return <div className={classes}>{children}</div>;

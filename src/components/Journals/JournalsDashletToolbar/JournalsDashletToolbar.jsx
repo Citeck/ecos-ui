@@ -1,20 +1,20 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
 import { selectJournal, selectPreset } from '../../../actions/journals';
-import { selectJournalData, selectNewVersionDashletConfig } from '../../../selectors/journals';
 import { wrapArgs } from '../../../helpers/redux';
 import { goToCardDetailsPage } from '../../../helpers/urls';
+import { selectJournalData, selectNewVersionDashletConfig } from '../../../selectors/journals';
+import FormManager from '../../EcosForm/FormManager';
+import Export from '../../Export/Export';
 import { IcoBtn, TwoIcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
-import Export from '../../Export/Export';
-import FormManager from '../../EcosForm/FormManager';
-import { getCreateVariantKeyField } from '../service/util';
-import JournalsDashletPagination from '../JournalsDashletPagination';
 import GroupActions from '../GroupActions';
+import JournalsDashletPagination from '../JournalsDashletPagination';
+import { getCreateVariantKeyField } from '../service/util';
 
 const mapStateToProps = (state, props) => {
   const ownState = selectJournalData(state, props.stateId);
@@ -28,7 +28,7 @@ const mapStateToProps = (state, props) => {
     selectedRecords: ownState.selectedRecords,
     selectedJournals: ownState.selectedJournals,
     config,
-    recordRef: ownState.recordRef,
+    recordRef: ownState.recordRef
   };
 };
 
@@ -36,13 +36,13 @@ const mapDispatchToProps = (dispatch, props) => {
   const w = wrapArgs(props.stateId);
 
   return {
-    selectJournal: (journalId) => dispatch(selectJournal(w(journalId))),
-    selectPreset: (journalSettingId) => dispatch(selectPreset(w(journalSettingId))),
+    selectJournal: journalId => dispatch(selectJournal(w(journalId))),
+    selectPreset: journalSettingId => dispatch(selectPreset(w(journalSettingId)))
   };
 };
 
 class JournalsDashletToolbar extends Component {
-  addRecord = (createVariant) => {
+  addRecord = createVariant => {
     FormManager.createRecordByVariant(createVariant, {
       onSubmit: (record, postCreateActionExecuted) => {
         if (!postCreateActionExecuted) {
@@ -53,19 +53,19 @@ class JournalsDashletToolbar extends Component {
       },
       initiator: {
         type: 'dashboard-journal-widget',
-        dashboardRecordRef: this.props.recordRef,
-      },
+        dashboardRecordRef: this.props.recordRef
+      }
     });
   };
 
-  onChangeJournal = (journal) => {
+  onChangeJournal = journal => {
     const { onChangeSelectedJournal, selectJournal } = this.props;
 
     selectJournal(journal.id);
     isFunction(onChangeSelectedJournal) && onChangeSelectedJournal(journal.id);
   };
 
-  onChangeJournalSetting = (setting) => {
+  onChangeJournalSetting = setting => {
     this.props.selectPreset(setting.id);
   };
 
@@ -118,7 +118,7 @@ class JournalsDashletToolbar extends Component {
       config,
       selectedRecords,
       lsJournalId,
-      recordRef,
+      recordRef
     } = this.props;
     const nodeRef = get(this.props, 'journalConfig.meta.nodeRef', '');
     const isWide = !isSmall;

@@ -1,16 +1,16 @@
-import React from 'react';
-import { createRoot } from 'react-dom/client';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
-import isString from 'lodash/isString';
 import isFunction from 'lodash/isFunction';
+import isString from 'lodash/isString';
+import React from 'react';
+import { createRoot } from 'react-dom/client';
 
 import api from '../api/esign';
 import EsignComponent from '../components/Esign';
-import EsignConverter from '../dto/esign';
 import { ErrorTypes, Labels } from '../constants/esign';
-import ConfigService, { ALFRESCO_ENABLED } from '../services/config/ConfigService';
+import EsignConverter from '../dto/esign';
 import { t, objectByString } from '../helpers/util';
+import ConfigService, { ALFRESCO_ENABLED } from '../services/config/ConfigService';
 
 class Esign {
   #root = null;
@@ -168,7 +168,7 @@ class Esign {
       }
 
       const certificates = await Promise.all(
-        (await api.getCertificates(thumbprints)).map(async function(certificate) {
+        (await api.getCertificates(thumbprints)).map(async function (certificate) {
           return await EsignConverter.getCertificateForModal(certificate);
         })
       );

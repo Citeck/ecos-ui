@@ -85,7 +85,7 @@ export default function ExcalidrawImage({
   appState,
   rootClassName = null,
   width = 'inherit',
-  height = 'inherit',
+  height = 'inherit'
 }: Props): JSX.Element {
   const [Svg, setSvg] = useState<SVGElement | null>(null);
 
@@ -94,7 +94,7 @@ export default function ExcalidrawImage({
       const svg: SVGElement = await exportToSvg({
         appState,
         elements,
-        files,
+        files
       });
       removeStyleFromSvg_HACK(svg);
 
@@ -117,7 +117,7 @@ export default function ExcalidrawImage({
 
   return (
     <div
-      ref={(node) => {
+      ref={node => {
         if (node) {
           if (imageContainerRef) {
             imageContainerRef.current = node;

@@ -1,16 +1,16 @@
+import classNames from 'classnames';
+import get from 'lodash/get';
+import isEqual from 'lodash/isEqual';
 import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
-import classNames from 'classnames';
-import isEqual from 'lodash/isEqual';
 
-import pageTabList from '../../services/pageTabs/PageTabList';
-import { getStateId } from '../../helpers/redux';
-import { getEnabledWorkspaces, getId } from '../../helpers/util';
 import { initState, setSearchText } from '../../actions/journals';
+import { getStateId } from '../../helpers/redux';
+import { getSearchParams } from '../../helpers/urls';
+import { getEnabledWorkspaces, getId } from '../../helpers/util';
+import pageTabList from '../../services/pageTabs/PageTabList';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Journals } from '../Journals';
-import { getSearchParams } from '../../helpers/urls';
-import get from 'lodash/get';
 
 const JournalViewer = React.memo(
   ({ hidden, isActivePage, initStateJournal, upStateId, stateId, setJournalSearch, activeSection, isViewNewJournal, ...props }) => {
@@ -19,17 +19,14 @@ const JournalViewer = React.memo(
     const [prefixStateId, setPrefixStateId] = useState('');
     const [searchParams, setSearchParams] = useState(getSearchParams());
 
-    useEffect(
-      () => {
-        if (isActivePage && !hidden && !initialized) {
-          const id = getStateId({ tabId: props.tabId, id: getId() });
+    useEffect(() => {
+      if (isActivePage && !hidden && !initialized) {
+        const id = getStateId({ tabId: props.tabId, id: getId() });
 
-          setPrefixStateId(id);
-          setInitialized(true);
-        }
-      },
-      [isActivePage, hidden, initialized]
-    );
+        setPrefixStateId(id);
+        setInitialized(true);
+      }
+    }, [isActivePage, hidden, initialized]);
 
     useEffect(() => {
       const { journalId } = getSearchParams();
@@ -41,18 +38,15 @@ const JournalViewer = React.memo(
       }
     });
 
-    useEffect(
-      () => {
-        const params = getSearchParams();
+    useEffect(() => {
+      const params = getSearchParams();
 
-        !isEqual(params, searchParams) && setSearchParams(params);
+      !isEqual(params, searchParams) && setSearchParams(params);
 
-        if (stateId && params.journalId !== searchParams.journalId) {
-          setJournalSearch({ stateId, text: '' });
-        }
-      },
-      [activeSection]
-    );
+      if (stateId && params.journalId !== searchParams.journalId) {
+        setJournalSearch({ stateId, text: '' });
+      }
+    }, [activeSection]);
 
     return (
       <div
@@ -99,7 +93,4 @@ const mapDispatchToProps = dispatch => ({
   setJournalSearch: data => dispatch(setSearchText(data))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(JournalViewer);
+export default connect(mapStateToProps, mapDispatchToProps)(JournalViewer);

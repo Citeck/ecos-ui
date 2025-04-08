@@ -4,7 +4,12 @@ export const DEFAULT_PAGINATION = {
   page: 1
 };
 
-export const PAGINATION_SIZES = [{ value: 10, label: 10 }, { value: 30, label: 30 }, { value: 50, label: 50 }, { value: 100, label: 100 }];
+export const PAGINATION_SIZES = [
+  { value: 10, label: 10 },
+  { value: 30, label: 30 },
+  { value: 50, label: 50 },
+  { value: 100, label: 100 }
+];
 
 export const MIN_CARD_DATA_NEW_JOURNAL = 6;
 

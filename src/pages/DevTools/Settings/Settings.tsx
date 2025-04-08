@@ -12,7 +12,7 @@ const SettingsTab = (): React.JSX.Element => {
   const context = useContext(SettingsContext);
   const { settings = {} } = context;
 
-  const settingsSwitches = Object.keys(settings).map((settingKey) => {
+  const settingsSwitches = Object.keys(settings).map(settingKey => {
     const setting = settings[settingKey];
 
     return (

@@ -1,11 +1,7 @@
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
-import { NotificationManager } from '@/services/notifications';
 
-import { RequestStatuses } from '../constants';
-import { t } from '../helpers/util';
-import { getRefWithAlfrescoPrefix } from '../helpers/ref';
 import {
   getDashboardConfig,
   getDashboardTitle,
@@ -16,14 +12,19 @@ import {
   setLoading,
   setMobileDashboardConfig,
   setRequestResultDashboard,
-  setWarningMessage,
+  setWarningMessage
 } from '../actions/dashboard';
 import { setDashboardConfig as setDashboardSettingsConfig } from '../actions/dashboardSettings';
-import { selectDashboardConfigs, selectIdentificationForView, selectResetStatus } from '../selectors/dashboard';
+import { RequestStatuses } from '../constants';
 import DashboardConverter from '../dto/dashboard';
-import DashboardService from '../services/dashboard';
+import { getRefWithAlfrescoPrefix } from '../helpers/ref';
+import { t } from '../helpers/util';
+import { selectDashboardConfigs, selectIdentificationForView, selectResetStatus } from '../selectors/dashboard';
 import { selectNewVersionConfig, selectSelectedWidgetsById } from '../selectors/dashboardSettings';
 import { selectCurrentWorkspaceIsBlocked } from '../selectors/workspaces';
+import DashboardService from '../services/dashboard';
+
+import { NotificationManager } from '@/services/notifications';
 
 export function* _parseConfig({ api }, { recordRef, config }) {
   const migratedConfig = DashboardService.migrateConfigFromOldVersion(config);
@@ -67,14 +68,14 @@ function* doGetDashboardRequest({ api }, { payload }) {
     if (isReset) {
       throw new Error('info: Dashboard is unmounted');
     }
-    yield put(setDashboardIdentification({ ...webKeyInfo, key: payload.key }));
+    yield put(setDashboardIdentification({ ...webKeyInfo, key: payload.key, url: window.location.pathname }));
     yield put(
       setDashboardConfig({
         config: get(webConfigs, 'config.layouts', []),
         originalConfig: result.config,
         modelAttributes,
-        key: payload.key,
-      }),
+        key: payload.key
+      })
     );
     yield put(setMobileDashboardConfig({ config: get(webConfigs, 'config.mobile', []), key: payload.key }));
   } catch (e) {
@@ -137,15 +138,15 @@ function* doSaveDashboardConfigRequest({ api }, { payload }) {
     }
 
     const res = DashboardService.parseRequestResult(dashboardResult);
-    const isExistSettings = !!(yield select((state) => get(state, ['dashboardSettings', res.dashboardId])));
+    const isExistSettings = !!(yield select(state => get(state, ['dashboardSettings', res.dashboardId])));
 
     if (isExistSettings) {
       yield put(
         setDashboardSettingsConfig({
           ...forWeb,
           key: res.dashboardId,
-          originalConfig: payload.config,
-        }),
+          originalConfig: payload.config
+        })
       );
     }
 
@@ -153,23 +154,23 @@ function* doSaveDashboardConfigRequest({ api }, { payload }) {
       setDashboardConfig({
         config: get(forWeb, 'config.layouts', []),
         originalConfig: payload.config,
-        key: payload.key,
-      }),
+        key: payload.key
+      })
     );
 
     yield put(
       setMobileDashboardConfig({
         config: get(forWeb, 'config.mobile', []),
-        key: payload.key,
-      }),
+        key: payload.key
+      })
     );
 
     yield put(
       setRequestResultDashboard({
         ...res,
         status: res.dashboardId ? RequestStatuses.SUCCESS : RequestStatuses.FAILURE,
-        key: payload.key,
-      }),
+        key: payload.key
+      })
     );
 
     isFunction(callback) && callback();

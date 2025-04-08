@@ -13,7 +13,7 @@ const mapStateToProps = (store, props) => {
     title: ownStore.title,
     savedModel: ownStore.scenario,
     formProps: ownStore.formProps,
-    isLoading: ownStore.isLoading,
+    isLoading: ownStore.isLoading
   };
 };
 
@@ -24,8 +24,8 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     initData: () => dispatch(initData({ stateId, record })),
     saveModel: (xml, img) => dispatch(saveScenario({ stateId, record, xml, img })),
-    setModel: (scenario) => dispatch(setScenario({ stateId, scenario })),
-    getFormProps: (formId, element) => dispatch(getFormProps({ stateId, formId, element })),
+    setModel: scenario => dispatch(setScenario({ stateId, scenario })),
+    getFormProps: (formId, element) => dispatch(getFormProps({ stateId, formId, element }))
   };
 };
 

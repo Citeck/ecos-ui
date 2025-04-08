@@ -21,7 +21,7 @@ import {
   NodeKey,
   RangeSelection,
   SerializedElementNode,
-  Spread,
+  Spread
 } from 'lexical';
 
 import { IS_CHROME } from '../../shared/environment';
@@ -40,7 +40,7 @@ export function $convertDetailsElement(domNode: HTMLDetailsElement): DOMConversi
   const isOpen = domNode.open !== undefined ? domNode.open : true;
   const node = $createCollapsibleContainerNode(isOpen);
   return {
-    node,
+    node
   };
 }
 
@@ -133,9 +133,9 @@ export class CollapsibleContainerNode extends ElementNode {
       details: (domNode: HTMLDetailsElement) => {
         return {
           conversion: $convertDetailsElement,
-          priority: 1,
+          priority: 1
         };
-      },
+      }
     };
   }
 
@@ -153,7 +153,7 @@ export class CollapsibleContainerNode extends ElementNode {
   exportJSON(): SerializedCollapsibleContainerNode {
     return {
       ...super.exportJSON(),
-      open: this.__open,
+      open: this.__open
     };
   }
 

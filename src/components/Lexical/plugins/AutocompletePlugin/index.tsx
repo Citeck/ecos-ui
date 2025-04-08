@@ -19,7 +19,7 @@ import {
   $setSelection,
   COMMAND_PRIORITY_LOW,
   KEY_ARROW_RIGHT_COMMAND,
-  KEY_TAB_COMMAND,
+  KEY_TAB_COMMAND
 } from 'lexical';
 import { JSX, useCallback, useEffect } from 'react';
 
@@ -162,12 +162,12 @@ export default function AutocompletePlugin(): JSX.Element | null {
         $clearSuggestion();
         searchPromise = query(match);
         searchPromise.promise
-          .then((newSuggestion) => {
+          .then(newSuggestion => {
             if (searchPromise !== null) {
               updateAsyncSuggestion(searchPromise, newSuggestion);
             }
           })
-          .catch((e) => {
+          .catch(e => {
             if (e !== 'Dismissed') {
               console.error(e);
             }
@@ -219,7 +219,7 @@ export default function AutocompletePlugin(): JSX.Element | null {
       editor.registerCommand(KEY_TAB_COMMAND, $handleKeypressCommand, COMMAND_PRIORITY_LOW),
       editor.registerCommand(KEY_ARROW_RIGHT_COMMAND, $handleKeypressCommand, COMMAND_PRIORITY_LOW),
       ...(rootElem !== null ? [addSwipeRightListener(rootElem, handleSwipeRight)] : []),
-      unmountSuggestion,
+      unmountSuggestion
     );
   }, [editor, query, toolbarState.fontSize]);
 
@@ -253,7 +253,7 @@ class AutocompleteServer {
         const char0 = searchText.charCodeAt(0);
         const isCapitalized = char0 >= 65 && char0 <= 90;
         const caseInsensitiveSearchText = isCapitalized ? String.fromCharCode(char0 + 32) + searchText.substring(1) : searchText;
-        const match = this.DATABASE.find((dictionaryWord) => dictionaryWord.startsWith(caseInsensitiveSearchText) ?? null);
+        const match = this.DATABASE.find(dictionaryWord => dictionaryWord.startsWith(caseInsensitiveSearchText) ?? null);
         if (match === undefined) {
           return resolve(null);
         }
@@ -268,7 +268,7 @@ class AutocompleteServer {
 
     return {
       dismiss,
-      promise,
+      promise
     };
   };
 }
@@ -2515,5 +2515,5 @@ const DICTIONARY = [
   'swaziland',
   'varieties',
   'mediawiki',
-  'configurations',
+  'configurations'
 ];

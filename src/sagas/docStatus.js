@@ -1,16 +1,17 @@
 import { head, isEmpty } from 'lodash';
 import { call, put, takeEvery } from 'redux-saga/effects';
+
 import {
   changeDocStatus,
   getAvailableToChangeStatuses,
   getDocStatus,
   initDocStatus,
   setAvailableToChangeStatuses,
-  setDocStatus,
+  setDocStatus
 } from '../actions/docStatus';
 import { setNotificationMessage } from '../actions/notification';
-import { t } from '../helpers/util';
 import DocStatusConverter from '../dto/docStatus';
+import { t } from '../helpers/util';
 import DocStatusService from '../services/docStatus';
 
 function* sagaInitDocStatus({ api }, { payload }) {
@@ -33,8 +34,8 @@ function* sagaGetDocStatus({ api }, { payload }) {
     yield put(
       setDocStatus({
         stateId,
-        status: DocStatusService.processStatusFromServer(status),
-      }),
+        status: DocStatusService.processStatusFromServer(status)
+      })
     );
   } catch (e) {
     yield put(setNotificationMessage(err));
@@ -53,8 +54,8 @@ function* sagaGetAvailableToChangeStatuses({ api }, { payload }) {
       yield put(
         setAvailableToChangeStatuses({
           stateId,
-          availableToChangeStatuses: DocStatusConverter.getAvailableToChangeStatusesForWeb(res.records),
-        }),
+          availableToChangeStatuses: DocStatusConverter.getAvailableToChangeStatusesForWeb(res.records)
+        })
       );
     }
   } catch (e) {

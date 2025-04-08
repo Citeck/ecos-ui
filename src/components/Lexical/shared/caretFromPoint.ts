@@ -8,7 +8,7 @@
 
 export default function caretFromPoint(
   x: number,
-  y: number,
+  y: number
 ): null | {
   offset: number;
   node: Node;
@@ -20,7 +20,7 @@ export default function caretFromPoint(
     }
     return {
       node: range.startContainer,
-      offset: range.startOffset,
+      offset: range.startOffset
     };
     // @ts-ignore
   } else if (document.caretPositionFromPoint !== 'undefined') {
@@ -31,7 +31,7 @@ export default function caretFromPoint(
     }
     return {
       node: range.offsetNode,
-      offset: range.offset,
+      offset: range.offset
     };
   } else {
     // Gracefully handle IE

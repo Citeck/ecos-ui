@@ -18,7 +18,7 @@ export default class DMNModeler extends BaseModeler {
 
   initModelerInstance = () => {
     this.modeler = new Modeler({
-      additionalModules: [],
+      additionalModules: []
     });
   };
 
@@ -88,10 +88,10 @@ export default class DMNModeler extends BaseModeler {
 
     this.__saveSvgFunc()
       .then(callback)
-      .catch((error) => callback({ error, svg: null }));
+      .catch(error => callback({ error, svg: null }));
   };
 
-  setDrdViewerEvents = (event) => {
+  setDrdViewerEvents = event => {
     const activeViewer = event.viewer;
     if (!activeViewer) {
       return;
@@ -101,7 +101,7 @@ export default class DMNModeler extends BaseModeler {
     const extraEvents = this.defaultExtraEvents;
 
     if (events && events.onSelectElement) {
-      this.events.onSelectElement = (e) => {
+      this.events.onSelectElement = e => {
         if (get(e, 'newSelection.length', 0) < 2) {
           events.onSelectElement(get(e, 'newSelection[0]'));
         }
@@ -110,28 +110,28 @@ export default class DMNModeler extends BaseModeler {
     }
 
     if (events && events.onChangeElement) {
-      this.events.onChangeElement = (e) => events.onChangeElement(get(e, 'element'));
+      this.events.onChangeElement = e => events.onChangeElement(get(e, 'element'));
       activeViewer.on('element.changed', this.events.onChangeElement);
     }
 
     if (events && events.onClickElement) {
-      this.events.onClickElement = (e) => events.onClickElement(get(e, 'element'));
+      this.events.onClickElement = e => events.onClickElement(get(e, 'element'));
       activeViewer.on('element.click', this.events.onClickElement);
     }
 
     if (events && events.onChangeElementLabel) {
-      this.events.onChangeElementLabel = (e) => events.onChangeElementLabel(get(e, 'target.innerText'));
+      this.events.onChangeElementLabel = e => events.onChangeElementLabel(get(e, 'target.innerText'));
       activeViewer._container.addEventListener('keyup', this.events.onChangeElementLabel);
     }
 
     if (extraEvents) {
-      Object.keys(extraEvents).forEach((key) => {
+      Object.keys(extraEvents).forEach(key => {
         activeViewer.on(key, extraEvents[key]);
         this.modeler.on(key, extraEvents[key]);
       });
     }
 
-    activeViewer.on('element.changed', (e) => {
+    activeViewer.on('element.changed', e => {
       if (Object.getPrototypeOf(activeViewer) instanceof NavigatedViewer) {
         const canvas = activeViewer.get('canvas');
         const activeLayer = canvas.getActiveLayer();

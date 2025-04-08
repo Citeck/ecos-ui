@@ -21,7 +21,7 @@ import {
   START_EVENT_SUB_PROCESS,
   SUBPROCESS_EXPANDED,
   TASK,
-  TRANSACTION,
+  TRANSACTION
 } from './ReplaceOptions';
 
 import { ECOS_TASK_BASE_ELEMENT, GATEWAY_TYPES, TASK_TYPES } from '@/constants/bpmn';
@@ -32,12 +32,12 @@ const originGetHeaderEntries = ReplaceMenuProvider.prototype.getPopupMenuHeaderE
 
 const disableReplaceMenuForStart = [
   'replace-with-conditional-start', // Conditional Start Event
-  'replace-with-message-start', // Message Start Event
+  'replace-with-message-start' // Message Start Event
 ];
 
 const disabledReplaceMenuForTasks = [
   'replace-with-manual-task', // Manual Task
-  'replace-with-receive-task', // Receive task
+  'replace-with-receive-task' // Receive task
 ];
 
 const disabledReplaceMenuForEvents = [
@@ -46,7 +46,7 @@ const disabledReplaceMenuForEvents = [
   'replace-with-link-intermediate-throw', // Link Intermediate Throw Event
   'replace-with-link-intermediate-catch', // Link Intermediate Catch Event
   'replace-with-compensation-end', // Compensation End Event
-  'replace-with-escalation-end', // Escalation End Event
+  'replace-with-escalation-end' // Escalation End Event
 ];
 
 const disabledForBoundaryEvents = [
@@ -54,33 +54,33 @@ const disabledForBoundaryEvents = [
   'replace-with-escalation-boundary', // Escalation Boundary Event
   'replace-with-compensation-boundary', // Compensation Boundary Event
   'replace-with-non-interrupting-message-boundary', // Message Boundary Event (non-interrupting)
-  'replace-with-non-interrupting-escalation-boundary', // Escalation Boundary Event (non-interrupting)
+  'replace-with-non-interrupting-escalation-boundary' // Escalation Boundary Event (non-interrupting)
 ];
 
 const disabledReplaceMenuForGateway = [
-  'replace-with-complex-gateway', // Complex Gateway
+  'replace-with-complex-gateway' // Complex Gateway
 ];
 
 const disableReplaceMenuForFlows = [
-  'replace-with-conditional-flow', // Conditional Flow
+  'replace-with-conditional-flow' // Conditional Flow
 ];
 
 const disabledHeaderEntries = [
-  'toggle-loop', // Loop
+  'toggle-loop' // Loop
 ];
 
 const disabledHeaderEntriesByElements = {
   'bpmn:SubProcess': [
-    'toggle-adhoc', // Ad-hoc
-  ],
+    'toggle-adhoc' // Ad-hoc
+  ]
 };
 
 const disabledReplaceMenuForSubprocess = [
-  'replace-with-transaction', // Transaction
+  'replace-with-transaction' // Transaction
 ];
 
 const disabledEventSubProcess = [
-  'replace-with-transaction', // Transaction
+  'replace-with-transaction' // Transaction
 ];
 
 const disabledSubProcessStartEvent = [
@@ -88,16 +88,16 @@ const disabledSubProcessStartEvent = [
   'replace-with-non-interrupting-message-start', // Message Start Event (non-interrupting)
   'replace-with-escalation-start', // Escalation Start Event
   'replace-with-non-interrupting-escalation-start', // Escalation Start Event (non-interrupting)
-  'replace-with-compensation-start', // Compensation Start Event
+  'replace-with-compensation-start' // Compensation Start Event
 ];
 
 const disabledIntermidiateEvent = [
   'replace-with-message-intermediate-catch', // Message Intermediate Catch Event
-  'replace-with-message-intermediate-throw', // Message Intermediate Throw Event
+  'replace-with-message-intermediate-throw' // Message Intermediate Throw Event
 ];
 
 const disabledEndEvent = [
-  'replace-with-message-end', // Message End Event
+  'replace-with-message-end' // Message End Event
 ];
 
 //TODO: find a better way to disable elements
@@ -287,17 +287,17 @@ ReplaceMenuProvider.prototype.getPopupMenuEntries = function (element) {
 
 ReplaceMenuProvider.prototype._createEntries = function (element, replaceOptions) {
   if (TASK_TYPES.includes(element.type)) {
-    replaceOptions = replaceOptions.filter((option) => !disabledReplaceMenuForTasks.includes(option.actionName));
+    replaceOptions = replaceOptions.filter(option => !disabledReplaceMenuForTasks.includes(option.actionName));
 
     return originCreateEntries.call(this, element, replaceOptions);
   }
 
   if (GATEWAY_TYPES.includes(element.type)) {
-    replaceOptions = replaceOptions.filter((option) => !disabledReplaceMenuForGateway.includes(option.actionName));
+    replaceOptions = replaceOptions.filter(option => !disabledReplaceMenuForGateway.includes(option.actionName));
   }
 
   if (element.businessObject.eventDefinitions || element.type.endsWith('Event')) {
-    replaceOptions = replaceOptions.filter((option) => !disabledReplaceMenuForEvents.includes(option.actionName));
+    replaceOptions = replaceOptions.filter(option => !disabledReplaceMenuForEvents.includes(option.actionName));
   }
 
   return originCreateEntries.call(this, element, replaceOptions);
@@ -310,7 +310,7 @@ ReplaceMenuProvider.prototype.getPopupMenuHeaderEntries = function (element) {
     entries = Object.entries(entries).reduce(
       (result, [currentKey, currentValue]) =>
         disabledHeaderEntriesByElements[element.type].includes(currentKey) ? result : { ...result, [currentKey]: currentValue },
-      {},
+      {}
     );
   }
 
@@ -321,6 +321,6 @@ ReplaceMenuProvider.prototype.getPopupMenuHeaderEntries = function (element) {
   return Object.entries(entries).reduce(
     (result, [currentKey, currentValue]) =>
       disabledHeaderEntries.includes(currentKey) ? result : { ...result, [currentKey]: currentValue },
-    {},
+    {}
   );
 };

@@ -15,7 +15,7 @@ export const DEFAULT_FONT_SIZE = 15;
 
 const rootTypeToRootName = {
   root: 'Root',
-  table: 'Table',
+  table: 'Table'
 };
 
 export const blockTypeToBlockName = {
@@ -30,7 +30,7 @@ export const blockTypeToBlockName = {
   h6: 'lexical.plugins.toolbar.options-styles.heading6',
   number: 'lexical.plugins.toolbar.options-styles.numbered-list',
   paragraph: 'lexical.plugins.toolbar.options-styles.normal',
-  quote: 'lexical.plugins.toolbar.options-styles.quote',
+  quote: 'lexical.plugins.toolbar.options-styles.quote'
 };
 
 //disable eslint sorting rule for quick reference to toolbar state
@@ -62,7 +62,7 @@ const INITIAL_TOOLBAR_STATE = {
   isLowercase: false,
   isUppercase: false,
   isCapitalize: false,
-  rootType: 'root' as keyof typeof rootTypeToRootName,
+  rootType: 'root' as keyof typeof rootTypeToRootName
 };
 
 type ToolbarState = typeof INITIAL_TOOLBAR_STATE;
@@ -83,9 +83,9 @@ export const ToolbarContext = ({ children }: { children: ReactNode }): JSX.Eleme
   const selectionFontSize = toolbarState.fontSize;
 
   const updateToolbarState = useCallback(<Key extends ToolbarStateKey>(key: Key, value: ToolbarStateValue<Key>) => {
-    setToolbarState((prev) => ({
+    setToolbarState(prev => ({
       ...prev,
-      [key]: value,
+      [key]: value
     }));
   }, []);
 
@@ -96,7 +96,7 @@ export const ToolbarContext = ({ children }: { children: ReactNode }): JSX.Eleme
   const contextValue = useMemo(() => {
     return {
       toolbarState,
-      updateToolbarState,
+      updateToolbarState
     };
   }, [toolbarState, updateToolbarState]);
 

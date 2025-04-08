@@ -1,12 +1,13 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import * as React from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 
-import { Icon } from '../../common';
 import ClickOutside from '../../ClickOutside';
-import { cleanTaskId } from './utils';
+import { Icon } from '../../common';
 import UncontrolledTooltip from '../../common/UncontrolledTooltip';
+
+import { cleanTaskId } from './utils';
 
 import './style.scss';
 
@@ -20,13 +21,13 @@ export default class BtnTooltipInfo extends React.Component {
     minHeight: PropTypes.string,
     text: PropTypes.string,
     count: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    handleClick: PropTypes.func,
+    handleClick: PropTypes.func
   };
 
   static defaultProps = {
     isShow: true,
     minHeight: '',
-    handleClick: () => null,
+    handleClick: () => null
   };
 
   openTooltip = () => {
@@ -85,8 +86,8 @@ export default class BtnTooltipInfo extends React.Component {
               offset: {
                 name: 'offset',
                 enabled: true,
-                offset: '0, 14px',
-              },
+                offset: '0, 14px'
+              }
             }}
           >
             <div className="ecos-current-task__tooltip-text">
@@ -94,9 +95,9 @@ export default class BtnTooltipInfo extends React.Component {
                 autoHeight
                 autoHeightMin={20}
                 autoHeightMax={145}
-                renderTrackVertical={(props) => <div {...props} className="ecos-current-task__tooltip__v-scroll" />}
-                renderTrackHorizontal={(props) => <div {...props} hidden />}
-                renderThumbHorizontal={(props) => <div {...props} hidden />}
+                renderTrackVertical={props => <div {...props} className="ecos-current-task__tooltip__v-scroll" />}
+                renderTrackHorizontal={props => <div {...props} hidden />}
+                renderThumbHorizontal={props => <div {...props} hidden />}
               >
                 {this.renderContent()}
               </Scrollbars>

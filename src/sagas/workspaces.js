@@ -1,7 +1,10 @@
-import { call, put, takeLatest, takeEvery } from 'redux-saga/effects';
-import isBoolean from 'lodash/isBoolean';
 import get from 'lodash/get';
+import isBoolean from 'lodash/isBoolean';
+import { call, put, takeLatest, takeEvery } from 'redux-saga/effects';
 
+import { fetchCreateCaseWidgetData } from '../actions/header';
+import { getMenuConfig } from '../actions/menu';
+import { fetchSlideMenuItems } from '../actions/slideMenu';
 import {
   getWorkspaces,
   goToDefaultFromBlockedWs,
@@ -9,20 +12,17 @@ import {
   setWorkspaces,
   setWorkspacesError,
   updateUIWorkspace,
-  visitedAction,
+  visitedAction
 } from '../actions/workspaces';
+import { URL } from '../constants';
 import { getLinkWithWs, getPersonalWorkspaceId, getWsIdOfTabLink } from '../helpers/urls';
 import PageService from '../services/PageService';
-import { URL } from '../constants';
-import { fetchSlideMenuItems } from '../actions/slideMenu';
-import { fetchCreateCaseWidgetData } from '../actions/header';
-import { getMenuConfig } from '../actions/menu';
 
 function* sagaGetWorkspacesRequest({ api }) {
   try {
     const { records } = yield call(api.workspaces.getWorkspaces);
 
-    const resolveRecords = (records || []).map((record) => {
+    const resolveRecords = (records || []).map(record => {
       const homePageLink = get(record, 'homePageLink');
       const isCurrentUserManager = get(record, 'isCurrentUserManager');
 

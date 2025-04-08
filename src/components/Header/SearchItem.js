@@ -1,12 +1,12 @@
-import * as React from 'react';
 import classNames from 'classnames';
-import PropTypes from 'prop-types';
 import get from 'lodash/get';
+import PropTypes from 'prop-types';
+import * as React from 'react';
 
-import { Avatar, Icon, Separator } from '../common';
 import { getFitnesseClassName } from '../../helpers/tools';
 import { getEnabledWorkspaces } from '../../helpers/util';
 import WorkspacePreview from '../WorkspacePreview';
+import { Avatar, Icon, Separator } from '../common';
 
 export default class SearchItem extends React.PureComponent {
   static propTypes = {

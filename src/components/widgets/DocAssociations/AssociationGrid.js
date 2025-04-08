@@ -1,12 +1,12 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import uuid from 'uuid/v4';
 
+import { t } from '../../../helpers/export/util';
 import { Icon } from '../../common';
 import { Grid } from '../../common/grid';
 import InlineToolsDisconnected from '../../common/grid/InlineTools/InlineToolsDisconnected';
-import { t } from '../../../helpers/export/util';
 
 class AssociationGrid extends Component {
   static propTypes = {

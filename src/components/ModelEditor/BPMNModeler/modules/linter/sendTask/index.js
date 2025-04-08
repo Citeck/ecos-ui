@@ -8,7 +8,7 @@ import { t } from '@/helpers/util';
 
 const SEND_TASK = 'bpmn:SendTask';
 
-const parseArray = (node, att) => JSON.parse(get(node.$attrs, [att], '[]')).filter((item) => item.trim());
+const parseArray = (node, att) => JSON.parse(get(node.$attrs, [att], '[]')).filter(item => item.trim());
 
 const sendTaskHasNotificationType = {
   id: 'send-task-no-notification-type',
@@ -27,9 +27,9 @@ const sendTaskHasNotificationType = {
     };
 
     return {
-      check,
+      check
     };
-  },
+  }
 };
 
 const sendTaskHasMessage = {
@@ -51,9 +51,9 @@ const sendTaskHasMessage = {
     };
 
     return {
-      check,
+      check
     };
-  },
+  }
 };
 
 const sendTaskHasRecipients = {
@@ -90,19 +90,19 @@ const sendTaskHasRecipients = {
     };
 
     return {
-      check,
+      check
     };
-  },
+  }
 };
 
 export const sendTaskRulesMap = {
   [sendTaskHasNotificationType.id]: 'error',
   [sendTaskHasMessage.id]: 'error',
-  [sendTaskHasRecipients.id]: 'error',
+  [sendTaskHasRecipients.id]: 'error'
 };
 
 export const sendTaskCacheMap = {
   [`${BPMN_LINT_PREFIX}${sendTaskHasNotificationType.id}`]: sendTaskHasNotificationType.callback,
   [`${BPMN_LINT_PREFIX}${sendTaskHasMessage.id}`]: sendTaskHasMessage.callback,
-  [`${BPMN_LINT_PREFIX}${sendTaskHasRecipients.id}`]: sendTaskHasRecipients.callback,
+  [`${BPMN_LINT_PREFIX}${sendTaskHasRecipients.id}`]: sendTaskHasRecipients.callback
 };

@@ -1,12 +1,14 @@
-import { NotificationManager } from '@/services/notifications';
 import get from 'lodash/get';
 
-import { CommonApi } from './common';
 import Records from '../components/Records';
-import { getEnabledWorkspaces, t } from '../helpers/util';
-import CopyToClipboard from '../helpers/copyToClipboard';
 import { SourcesId } from '../constants';
+import CopyToClipboard from '../helpers/copyToClipboard';
 import { getLinkWithWs, getWorkspaceId } from '../helpers/urls';
+import { getEnabledWorkspaces, t } from '../helpers/util';
+
+import { CommonApi } from './common';
+
+import { NotificationManager } from '@/services/notifications';
 
 const context = SourcesId.USER_CONF + '@';
 

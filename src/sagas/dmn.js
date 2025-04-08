@@ -1,9 +1,8 @@
+import endsWith from 'lodash/endsWith';
+import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 import { delay } from 'redux-saga';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
-import { NotificationManager } from '@/services/notifications';
-import endsWith from 'lodash/endsWith';
-import isFunction from 'lodash/isFunction';
-import get from 'lodash/get';
 
 import {
   updateModels,
@@ -20,16 +19,18 @@ import {
   setModels,
   setCreateVariants,
   importProcessModelRequest,
-  createModel,
+  createModel
 } from '../actions/dmn';
-import { INFO_DIALOG_ID } from '../components/common/dialogs/Manager/DialogManager';
 import { showModal } from '../actions/modal';
-import { selectAllCategories, selectAllModels } from '../selectors/dmn';
-import { getPagePositionState, savePagePositionState } from '../helpers/dmn';
-import { EDITOR_PAGE_CONTEXT } from '../constants/dmn';
-import Records from '../components/Records';
 import FormManager from '../components/EcosForm/FormManager';
+import Records from '../components/Records';
+import { INFO_DIALOG_ID } from '../components/common/dialogs/Manager/DialogManager';
+import { EDITOR_PAGE_CONTEXT } from '../constants/dmn';
+import { getPagePositionState, savePagePositionState } from '../helpers/dmn';
 import { t } from '../helpers/util';
+import { selectAllCategories, selectAllModels } from '../selectors/dmn';
+
+import { NotificationManager } from '@/services/notifications';
 
 function* initDmn({ api }) {
   try {
@@ -73,14 +74,14 @@ function* doCreateModel({ api }, action) {
     if (payload.categoryId) {
       cv.attributes = {
         ...(cv.attributes || {}),
-        sectionRef: payload.categoryId,
+        sectionRef: payload.categoryId
       };
     }
 
-    const saved = yield new Promise((resolve) => {
+    const saved = yield new Promise(resolve => {
       FormManager.createRecordByVariant(cv, {
         onSubmit: () => resolve(true),
-        onFormCancel: () => resolve(false),
+        onFormCancel: () => resolve(false)
       });
     });
     if (saved) {
@@ -95,7 +96,7 @@ function* doCreateModel({ api }, action) {
 function* doSaveCategoryRequest({ api }, action) {
   try {
     const categories = yield select(selectAllCategories);
-    const currentCategory = categories.find((item) => item.id === action.payload.id);
+    const currentCategory = categories.find(item => item.id === action.payload.id);
 
     let newId = null;
 
@@ -105,14 +106,14 @@ function* doSaveCategoryRequest({ api }, action) {
       const categoryData = yield call(api.dmn.createCategory, action.payload.code, action.payload.label, currentCategory.parentId);
       newId = categoryData.id;
 
-      const parentCategory = categories.find((item) => item.id === currentCategory.parentId);
+      const parentCategory = categories.find(item => item.id === currentCategory.parentId);
 
       canCreateDef = categoryData.canCreateDef || get(parentCategory, 'canCreateDef');
       canCreateSubSection = categoryData.canCreateSubSection || get(parentCategory, 'canCreateSubSection');
     } else {
       yield call(api.dmn.updateCategory, action.payload.id, {
         title: action.payload.label,
-        code: action.payload.code,
+        code: action.payload.code
       });
     }
 
@@ -123,8 +124,8 @@ function* doSaveCategoryRequest({ api }, action) {
         code: action.payload.code,
         canCreateDef,
         canCreateSubSection,
-        newId,
-      }),
+        newId
+      })
     );
   } catch (e) {
     NotificationManager.error(t('designer.add-category.failure-message'));
@@ -140,8 +141,8 @@ function* doDeleteCategoryRequest({ api }, action) {
     const allModels = yield select(selectAllModels);
 
     const isCategoryHasChildren =
-      allCategories.findIndex((item) => endsWith(item.parentId, categoryId)) !== -1 ||
-      allModels.findIndex((item) => item.categoryId.includes(categoryId)) !== -1;
+      allCategories.findIndex(item => endsWith(item.parentId, categoryId)) !== -1 ||
+      allModels.findIndex(item => item.categoryId.includes(categoryId)) !== -1;
 
     if (isCategoryHasChildren) {
       yield delay(100);
@@ -149,8 +150,8 @@ function* doDeleteCategoryRequest({ api }, action) {
         showModal({
           dialogId: INFO_DIALOG_ID,
           title: t('designer.delete-category-dialog.failure-title'),
-          text: t('designer.delete-category-dialog.failure-text'),
-        }),
+          text: t('designer.delete-category-dialog.failure-text')
+        })
       );
       return;
     }
@@ -176,10 +177,10 @@ function* doImportProcessModelRequest({ api }, action) {
 function* doSavePagePosition({ api }, action) {
   try {
     const allCategories = yield select(selectAllCategories);
-    const viewType = yield select((state) => state.dmn.viewType);
+    const viewType = yield select(state => state.dmn.viewType);
 
     const openedCategories = [];
-    allCategories.forEach((item) => {
+    allCategories.forEach(item => {
       if (item.isOpen) {
         openedCategories.push(item.id);
       }
@@ -188,7 +189,7 @@ function* doSavePagePosition({ api }, action) {
     yield call(savePagePositionState, {
       scrollTop: document.body.scrollTop,
       openedCategories,
-      viewType,
+      viewType
     });
 
     action.payload && isFunction(action.payload.callback) && action.payload.callback();

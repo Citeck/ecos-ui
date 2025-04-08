@@ -20,7 +20,7 @@ export default class WidgetService {
     const { record, onClose } = params;
     const container = document.createElement('div');
 
-    const onCloseModal = (done) => {
+    const onCloseModal = done => {
       this._root?.unmount();
       document.body.removeChild(container);
       onClose && onClose(done);
@@ -42,7 +42,7 @@ export default class WidgetService {
     modal.open(<DocPreview height={'100%'} scale={scale} recordId={recordId} className="ecos-modal-preview-doc__content" />, {
       title: t(title),
       class: 'ecos-modal-preview-doc',
-      classBody: 'ecos-modal-preview-doc__body',
+      classBody: 'ecos-modal-preview-doc__body'
     });
   }
 
@@ -62,13 +62,13 @@ export default class WidgetService {
       timer = setTimeout(handleClose, 100);
     };
 
-    const handleSelect = (values) => {
+    const handleSelect = values => {
       onSelect && onSelect(values);
       timer = setTimeout(handleClose, 100);
     };
 
     let userSearchExtraFieldsStr = orgstructParams.userSearchExtraFields || '';
-    const userSearchExtraFields = userSearchExtraFieldsStr.length > 0 ? userSearchExtraFieldsStr.split(',').map((item) => item.trim()) : [];
+    const userSearchExtraFields = userSearchExtraFieldsStr.length > 0 ? userSearchExtraFieldsStr.split(',').map(item => item.trim()) : [];
 
     if (this._root) {
       this._root.unmount();
@@ -87,7 +87,7 @@ export default class WidgetService {
         modalTitle={t('select-orgstruct.modal.title.edit-task-assignee')}
         allowedAuthorityTypes={[AUTHORITY_TYPE_USER]}
         defaultTab={TabTypes.USERS}
-      />,
+      />
     );
     document.body.appendChild(container);
   }
@@ -97,33 +97,33 @@ export default class WidgetService {
     const modal = new Modal();
 
     modal.open(<BusinessProcessViewer {...props} modal={modal} hideModal={onClose} />, {
-      title: [name, version].filter((val) => !!val).join(' / '),
+      title: [name, version].filter(val => !!val).join(' / '),
       class: `ecos-modal-business-process ${isFlowableProcess(props.recordId) ? '' : 'ecos-modal_width-full'}`,
-      onHideModal: onClose,
+      onHideModal: onClose
     });
   }
 
   static openEditorPassword(params = {}) {
-    const open = (newProps) => {
+    const open = newProps => {
       FormManager.openFormModal({
         record: newProps.recordRef,
         formKey: 'change-password-form',
         saveOnSubmit: true,
-        onSubmit: (rec) => {
+        onSubmit: rec => {
           rec
             .load('newPassword')
             .then(() => {
               notifySuccess(t('password-editor.success.change-profile-password'));
             })
-            .catch((e) => {
+            .catch(e => {
               notifyFailure(`${t('password-editor.error.change-profile-password')}. ${e.message}`);
             });
-        },
+        }
       });
     };
 
     return {
-      open,
+      open
     };
   }
 
@@ -139,7 +139,7 @@ export default class WidgetService {
         onClose={params.onClose}
         onSave={params.onSave}
       />,
-      { title: t(params.title), size: 'md' },
+      { title: t(params.title), size: 'md' }
     );
 
     return modal;

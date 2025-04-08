@@ -22,7 +22,7 @@ function EditorContent({
   hideToolbar,
   readonly = false,
   className,
-  uploadFilesInComment,
+  uploadFilesInComment
 }: EditorContentProps): JSX.Element {
   useSyncWithInputHtml(htmlString);
 
@@ -35,7 +35,7 @@ function EditorContent({
         files: [img],
         type: `${SourcesId.TYPE}@attachment`,
         callback: undefined,
-        uploadCallback: (fileRecords) => {
+        uploadCallback: fileRecords => {
           if (fileRecords?.length) {
             docApi
               .getImageUrl(fileRecords[0].data.entityRef)
@@ -52,7 +52,7 @@ function EditorContent({
           } else {
             reject(new Error('Failed to load image'));
           }
-        },
+        }
       });
     });
   };
@@ -76,11 +76,11 @@ function EditorContent({
 const mapDispatchToProps = (dispatch: any) => {
   const baseParams = {
     record: getRecordRef(),
-    key: getRecordRef(),
+    key: getRecordRef()
   };
 
   return {
-    uploadFilesInComment: (data: UploadFilesInCommentProps) => dispatch(uploadFilesInComment({ ...baseParams, ...data })),
+    uploadFilesInComment: (data: UploadFilesInCommentProps) => dispatch(uploadFilesInComment({ ...baseParams, ...data }))
   };
 };
 

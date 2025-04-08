@@ -17,7 +17,7 @@ FormioValidator.validators.required = {
     }
 
     return disabled || !component.isEmpty(value);
-  },
+  }
 };
 
 FormioValidator.validators.maxLength = {
@@ -26,9 +26,9 @@ FormioValidator.validators.maxLength = {
     return component.t(component.errorMessage('maxLength'), {
       field: component.errorLabel,
       length: setting,
-      data: component.data,
+      data: component.data
     });
-  },
+  }
 };
 
 export default FormioValidator;

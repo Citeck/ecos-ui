@@ -1,8 +1,10 @@
-import moment from 'moment';
 import get from 'lodash/get';
+import moment from 'moment';
+
 import { pagesWithOnlyContent } from '../../constants';
 import { ServerDateFormats } from '../../constants/timesheet';
 import { t } from '../util';
+
 import { CommonLabels } from './dictionary';
 
 const isBusinessDay = date => {
@@ -12,9 +14,7 @@ const isBusinessDay = date => {
 
 export function getDaysOfMonth(currentDate) {
   const arr = Array.from({ length: moment(currentDate).daysInMonth() }, (x, i) => {
-    return moment(currentDate)
-      .startOf('month')
-      .add(i, 'days');
+    return moment(currentDate).startOf('month').add(i, 'days');
   });
 
   return arr.map(day => ({
@@ -36,9 +36,7 @@ export function isOnlyContent() {
 }
 
 export function getNewDateByDayNumber(currentDate, number) {
-  return moment(currentDate)
-    .date(number)
-    .format(ServerDateFormats.DDMMYYYY);
+  return moment(currentDate).date(number).format(ServerDateFormats.DDMMYYYY);
 }
 
 export const BaseConfigGroupButtons = {

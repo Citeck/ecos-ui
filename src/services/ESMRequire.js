@@ -44,9 +44,9 @@ class ESMRequire {
   }
 
   require(scripts, callback) {
-    Promise.all(scripts.map((src) => this.loadModule(src)))
-      .then((modules) => callback && callback(...modules))
-      .catch((error) => console.error('ESMRequire error:', error));
+    Promise.all(scripts.map(src => this.loadModule(src)))
+      .then(modules => callback && callback(...modules))
+      .catch(error => console.error('ESMRequire error:', error));
   }
 
   getGlobalModuleName(src) {

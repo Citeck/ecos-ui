@@ -28,9 +28,9 @@ const callActivityHasProcessOrElement = {
     };
 
     return {
-      check,
+      check
     };
-  },
+  }
 };
 
 const callActivityHasConnection = {
@@ -51,9 +51,9 @@ const callActivityHasConnection = {
     };
 
     return {
-      check,
+      check
     };
-  },
+  }
 };
 
 const callActivityHasVersionTag = {
@@ -76,9 +76,9 @@ const callActivityHasVersionTag = {
     };
 
     return {
-      check,
+      check
     };
-  },
+  }
 };
 
 const callActivityHasVersion = {
@@ -101,21 +101,21 @@ const callActivityHasVersion = {
     };
 
     return {
-      check,
+      check
     };
-  },
+  }
 };
 
 export const callActivityRulesMap = {
   [callActivityHasProcessOrElement.id]: 'error',
   [callActivityHasConnection.id]: 'error',
   [callActivityHasVersionTag.id]: 'error',
-  [callActivityHasVersion.id]: 'error',
+  [callActivityHasVersion.id]: 'error'
 };
 
 export const callActivityCacheMap = {
   [`${BPMN_LINT_PREFIX}${callActivityHasProcessOrElement.id}`]: callActivityHasProcessOrElement.callback,
   [`${BPMN_LINT_PREFIX}${callActivityHasConnection.id}`]: callActivityHasConnection.callback,
   [`${BPMN_LINT_PREFIX}${callActivityHasVersionTag.id}`]: callActivityHasVersionTag.callback,
-  [`${BPMN_LINT_PREFIX}${callActivityHasVersion.id}`]: callActivityHasVersion.callback,
+  [`${BPMN_LINT_PREFIX}${callActivityHasVersion.id}`]: callActivityHasVersion.callback
 };

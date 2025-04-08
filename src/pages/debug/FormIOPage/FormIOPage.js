@@ -74,12 +74,12 @@ class FormIOPage extends React.Component {
       {
         language: getCurrentLocale(),
         i18n: {
-          [getCurrentLocale()]: EcosFormUtils.getI18n({}, {}, {}),
-        },
-      },
+          [getCurrentLocale()]: EcosFormUtils.getI18n({}, {}, {})
+        }
+      }
     );
 
-    formBuilder.render().then((form) => {
+    formBuilder.render().then(form => {
       // Everytime the form changes, this will fire.
       form.on('change', function (changed) {
         console.log('Builder form was changed', changed);

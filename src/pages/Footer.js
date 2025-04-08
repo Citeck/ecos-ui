@@ -4,7 +4,7 @@ import { withRouter } from 'react-router-dom';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
-const Footer = React.forwardRef(({ content, forwardedRef }) => {
+const Footer = React.forwardRef(({ content, forwardedRef }, _ref) => {
   if (isEmpty(content)) {
     return null;
   }

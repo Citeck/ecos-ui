@@ -1,22 +1,23 @@
-import { FormText } from 'reactstrap';
-import React, { useState, useEffect } from 'react';
-import { NotificationManager } from '@/services/notifications';
+import classNames from 'classnames';
 import get from 'lodash/get';
 import isBoolean from 'lodash/isBoolean';
 import isNumber from 'lodash/isNumber';
-import classNames from 'classnames';
+import React, { useState, useEffect } from 'react';
+import { FormText } from 'reactstrap';
 
-import { Loader } from '../index';
+import { NODE_TYPES } from '../../../constants/docLib';
+import { t } from '../../../helpers/util';
+import { sendToWorker } from '../../../workers/docLib';
 import Btn from '../btns/Btn';
+import { Input, Radio } from '../form';
 import ChevronDown from '../icons/ChevronDown';
-import Success from '../icons/Success';
-import File from '../icons/File';
 import Close from '../icons/Close';
 import Error from '../icons/Error';
-import { t } from '../../../helpers/util';
-import { Input, Radio } from '../form';
-import { sendToWorker } from '../../../workers/docLib';
-import { NODE_TYPES } from '../../../constants/docLib';
+import File from '../icons/File';
+import Success from '../icons/Success';
+import { Loader } from '../index';
+
+import { NotificationManager } from '@/services/notifications';
 
 import './styles.scss';
 
@@ -43,43 +44,40 @@ const UploadStatus = () => {
   const [totalCountFiles, setTotalCountFiles] = useState(0);
   const [successCountFiles, setSuccessCountFiles] = useState(0);
 
-  useEffect(
-    () => {
-      const handleBeforeUnload = e => {
-        if (status === 'in-progress') {
-          e.preventDefault();
-          e.returnValue = ''; // Required for some browsers to show a warning
-        }
-      };
+  useEffect(() => {
+    const handleBeforeUnload = e => {
+      if (status === 'in-progress') {
+        e.preventDefault();
+        e.returnValue = ''; // Required for some browsers to show a warning
+      }
+    };
 
-      const handleVisibilityChange = () => {
-        if (document.visibilityState === 'hidden') {
-          localStorage.setItem(STORAGE_KEY_ACTIVE_TAB, 'false');
-          handleConfirmResponseRenameItem(false);
-        } else {
-          localStorage.setItem(STORAGE_KEY_ACTIVE_TAB, 'true');
-        }
-      };
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        localStorage.setItem(STORAGE_KEY_ACTIVE_TAB, 'false');
+        handleConfirmResponseRenameItem(false);
+      } else {
+        localStorage.setItem(STORAGE_KEY_ACTIVE_TAB, 'true');
+      }
+    };
 
-      // When switching to the same tab, disable the name conflict warning
-      const handleStorageEvent = event => {
-        if (event.key === STORAGE_KEY_ACTIVE_TAB && event.newValue === 'false') {
-          handleConfirmResponseRenameItem(false);
-        }
-      };
+    // When switching to the same tab, disable the name conflict warning
+    const handleStorageEvent = event => {
+      if (event.key === STORAGE_KEY_ACTIVE_TAB && event.newValue === 'false') {
+        handleConfirmResponseRenameItem(false);
+      }
+    };
 
-      window.addEventListener('beforeunload', handleBeforeUnload);
-      window.addEventListener('storage', handleStorageEvent);
-      document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('storage', handleStorageEvent);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
-      return () => {
-        window.removeEventListener('beforeunload', handleBeforeUnload);
-        window.removeEventListener('storage', handleStorageEvent);
-        document.removeEventListener('visibilitychange', handleVisibilityChange);
-      };
-    },
-    [status]
-  );
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('storage', handleStorageEvent);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [status]);
 
   useEffect(() => {
     navigator.serviceWorker &&

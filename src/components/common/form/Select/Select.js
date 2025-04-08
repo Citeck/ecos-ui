@@ -27,7 +27,7 @@ class Select extends Component {
     const { loadOptions, value } = this.props;
 
     if (loadOptions && isFunction(loadOptions)) {
-      return loadOptions().then((res) => {
+      return loadOptions().then(res => {
         this._options = res;
 
         this.setState({ value: this.handleSetValue(value, res) });
@@ -78,7 +78,7 @@ class Select extends Component {
         loadOptions={this.loadOptions}
         value={this.state.value}
         className={classNames('ecos-select', props.className, {
-          select_narrow: narrow,
+          select_narrow: narrow
         })}
         classNamePrefix="fitnesse-select select"
         closeMenuOnScroll={this.handleCloseMenuOnScroll()}
@@ -90,7 +90,7 @@ class Select extends Component {
 Select.propTypes = {
   loadOptions: PropTypes.bool,
   narrow: PropTypes.bool,
-  className: PropTypes.string,
+  className: PropTypes.string
 };
 
 export default Select;

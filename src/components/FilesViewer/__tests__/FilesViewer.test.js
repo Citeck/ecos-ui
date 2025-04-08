@@ -1,11 +1,10 @@
-import React from 'react';
 import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import React from 'react';
 
 import FileIcon from '../../common/FileIcon';
 import FilesViewer from '../FilesViewer';
 import FilesViewerItem from '../FilesViewerItem';
-
 import { file1, folder1, demoItems, demoActions } from '../__fixtures__/FilesViewer.fixtures';
 
 describe('FilesViewer tests', () => {
@@ -58,14 +57,14 @@ describe('FilesViewer tests', () => {
       const emptyCases = [
         { input: undefined, output: empty },
         { input: null, output: empty },
-        { input: '', output: empty },
+        { input: '', output: empty }
       ];
 
       emptyCases.forEach((caseItem, idx) => {
         it(`case ${idx + 1}: "${caseItem.input}"`, () => {
           const item = {
             ...folder1,
-            modified: caseItem.input,
+            modified: caseItem.input
           };
           const { container } = render(<FilesViewerItem item={item} />);
           const modified = container.getElementsByClassName('ecos-files-viewer__item-modified');
@@ -88,7 +87,7 @@ describe('FilesViewer tests', () => {
     it('should render actions', () => {
       const itemWithActions = {
         ...file1,
-        actions: [...demoActions],
+        actions: [...demoActions]
       };
       const { container } = render(<FilesViewerItem item={itemWithActions} isSelected={true} />);
       const actions = container.getElementsByClassName('ecos-files-viewer__item-actions')[0];

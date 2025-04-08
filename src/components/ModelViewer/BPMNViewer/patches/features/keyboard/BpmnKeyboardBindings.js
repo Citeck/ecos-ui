@@ -11,7 +11,7 @@ Keyboard.prototype._keyHandler = function (event, type) {
   }
 
   const context = {
-    keyEvent: event,
+    keyEvent: event
   };
 
   const location = window.location.href;

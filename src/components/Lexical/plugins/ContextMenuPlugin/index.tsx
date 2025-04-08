@@ -18,7 +18,7 @@ import {
   COPY_COMMAND,
   CUT_COMMAND,
   type LexicalNode,
-  PASTE_COMMAND,
+  PASTE_COMMAND
 } from 'lexical';
 import { useCallback, useMemo, JSX } from 'react';
 import * as React from 'react';
@@ -29,7 +29,7 @@ function ContextMenuItem({
   isSelected,
   onClick,
   onMouseEnter,
-  option,
+  option
 }: {
   index: number;
   isSelected: boolean;
@@ -62,7 +62,7 @@ function ContextMenu({
   options,
   selectedItemIndex,
   onOptionClick,
-  onOptionMouseEnter,
+  onOptionMouseEnter
 }: {
   selectedItemIndex: number | null;
   onOptionClick: (option: ContextMenuOption, index: number) => void;
@@ -94,7 +94,7 @@ export class ContextMenuOption extends MenuOption {
     title: string,
     options: {
       onSelect: (targetNode: LexicalNode | null) => void;
-    },
+    }
   ) {
     super(title);
     this.title = title;
@@ -108,17 +108,17 @@ export default function ContextMenuPlugin(): JSX.Element {
   const defaultOptions = useMemo(() => {
     return [
       new ContextMenuOption(`Copy`, {
-        onSelect: (_node) => {
+        onSelect: _node => {
           editor.dispatchCommand(COPY_COMMAND, null);
-        },
+        }
       }),
       new ContextMenuOption(`Cut`, {
-        onSelect: (_node) => {
+        onSelect: _node => {
           editor.dispatchCommand(CUT_COMMAND, null);
-        },
+        }
       }),
       new ContextMenuOption(`Paste`, {
-        onSelect: (_node) => {
+        onSelect: _node => {
           navigator.clipboard.read().then(async function (...args) {
             const data = new DataTransfer();
 
@@ -127,7 +127,7 @@ export default function ContextMenuPlugin(): JSX.Element {
 
             const permission = await navigator.permissions.query({
               // @ts-expect-error These types are incorrect.
-              name: 'clipboard-read',
+              name: 'clipboard-read'
             });
             if (permission.state === 'denied') {
               alert('Not allowed to paste from clipboard.');
@@ -140,19 +140,19 @@ export default function ContextMenuPlugin(): JSX.Element {
             }
 
             const event = new ClipboardEvent('paste', {
-              clipboardData: data,
+              clipboardData: data
             });
 
             editor.dispatchCommand(PASTE_COMMAND, event);
           });
-        },
+        }
       }),
       new ContextMenuOption(`Paste as Plain Text`, {
-        onSelect: (_node) => {
+        onSelect: _node => {
           navigator.clipboard.read().then(async function (...args) {
             const permission = await navigator.permissions.query({
               // @ts-expect-error These types are incorrect.
-              name: 'clipboard-read',
+              name: 'clipboard-read'
             });
 
             if (permission.state === 'denied') {
@@ -165,14 +165,14 @@ export default function ContextMenuPlugin(): JSX.Element {
             data.setData('text/plain', items);
 
             const event = new ClipboardEvent('paste', {
-              clipboardData: data,
+              clipboardData: data
             });
             editor.dispatchCommand(PASTE_COMMAND, event);
           });
-        },
+        }
       }),
       new ContextMenuOption(`Delete Node`, {
-        onSelect: (_node) => {
+        onSelect: _node => {
           const selection = $getSelection();
           if ($isRangeSelection(selection)) {
             const currentNode = selection.anchor.getNode();
@@ -181,14 +181,14 @@ export default function ContextMenuPlugin(): JSX.Element {
             ancestorNodeWithRootAsParent?.remove();
           } else if ($isNodeSelection(selection)) {
             const selectedNodes = selection.getNodes();
-            selectedNodes.forEach((node) => {
+            selectedNodes.forEach(node => {
               if ($isDecoratorNode(node)) {
                 node.remove();
               }
             });
           }
-        },
-      }),
+        }
+      })
     ];
   }, [editor]);
 
@@ -201,7 +201,7 @@ export default function ContextMenuPlugin(): JSX.Element {
         closeMenu();
       });
     },
-    [editor],
+    [editor]
   );
 
   const onWillOpen = (event: MouseEvent) => {
@@ -213,11 +213,11 @@ export default function ContextMenuPlugin(): JSX.Element {
         if ($isLinkNode(parent)) {
           newOptions = [
             new ContextMenuOption(`Remove Link`, {
-              onSelect: (_node) => {
+              onSelect: _node => {
                 editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
-              },
+              }
             }),
-            ...defaultOptions,
+            ...defaultOptions
           ];
         }
       }
@@ -233,7 +233,7 @@ export default function ContextMenuPlugin(): JSX.Element {
       menuRenderFn={(
         anchorElementRef,
         { selectedIndex, options: _options, selectOptionAndCleanUp, setHighlightedIndex },
-        { setMenuRef },
+        { setMenuRef }
       ) =>
         anchorElementRef.current
           ? ReactDOM.createPortal(
@@ -242,7 +242,7 @@ export default function ContextMenuPlugin(): JSX.Element {
                 style={{
                   marginLeft: anchorElementRef.current.style.width,
                   userSelect: 'none',
-                  width: 200,
+                  width: 200
                 }}
                 ref={setMenuRef}
               >
@@ -258,7 +258,7 @@ export default function ContextMenuPlugin(): JSX.Element {
                   }}
                 />
               </div>,
-              anchorElementRef.current,
+              anchorElementRef.current
             )
           : null
       }

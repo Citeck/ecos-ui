@@ -19,7 +19,7 @@ import type {
   NodeKey,
   SerializedEditor,
   SerializedLexicalNode,
-  Spread,
+  Spread
 } from 'lexical';
 
 const StickyComponent = React.lazy(() => import('./StickyComponent'));
@@ -78,7 +78,7 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
       caption: this.__caption.toJSON(),
       color: this.__color,
       xOffset: this.__x,
-      yOffset: this.__y,
+      yOffset: this.__y
     };
   }
 
@@ -107,7 +107,7 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
   decorate(editor: LexicalEditor, config: EditorConfig): JSX.Element {
     return createPortal(
       <StickyComponent color={this.__color} x={this.__x} y={this.__y} nodeKey={this.getKey()} caption={this.__caption} />,
-      document.body,
+      document.body
     );
   }
 

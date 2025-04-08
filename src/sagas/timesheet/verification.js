@@ -1,6 +1,7 @@
-import { put, select, takeEvery, takeLatest, call } from 'redux-saga/effects';
 import cloneDeep from 'lodash/cloneDeep';
+import { put, select, takeEvery, takeLatest, call } from 'redux-saga/effects';
 
+import { setUsers } from '../../actions/timesheet/common';
 import {
   getCalendarEvents,
   getVerificationTimesheetByParams,
@@ -11,15 +12,14 @@ import {
   setMergedList,
   setPopupMessage,
   setUpdatingEventDayHours,
-  setVerificationTimesheetByParams,
+  setVerificationTimesheetByParams
 } from '../../actions/timesheet/verification';
-import { setUsers } from '../../actions/timesheet/common';
-import VerificationTimesheetService from '../../services/timesheet/verification';
 import VerificationTimesheetConverter from '../../dto/timesheet/verification';
-import CommonTimesheetService from '../../services/timesheet/common';
-import { selectTVerificationUpdatingHours, selectTVerificationMergedList } from '../../selectors/timesheet';
 import { TimesheetMessages } from '../../helpers/timesheet/dictionary';
+import { selectTVerificationUpdatingHours, selectTVerificationMergedList } from '../../selectors/timesheet';
 import { selectUserName } from '../../selectors/user';
+import CommonTimesheetService from '../../services/timesheet/common';
+import VerificationTimesheetService from '../../services/timesheet/verification';
 
 function* sagaGetVerificationTimesheetByParams({ api, logger }, { payload }) {
   try {
@@ -29,8 +29,8 @@ function* sagaGetVerificationTimesheetByParams({ api, logger }, { payload }) {
       yield call(api.timesheetCommon.getAllUsersByDate, {
         status,
         month: currentDate.getMonth(),
-        year: currentDate.getFullYear(),
-      }),
+        year: currentDate.getFullYear()
+      })
     );
 
     if (!allUsers.length) {
@@ -44,7 +44,7 @@ function* sagaGetVerificationTimesheetByParams({ api, logger }, { payload }) {
     const mergedList = VerificationTimesheetService.mergeList({
       currentList,
       newItem: allUsers,
-      eventTypes: CommonTimesheetService.eventTypes,
+      eventTypes: CommonTimesheetService.eventTypes
     });
 
     yield put(setVerificationTimesheetByParams({ mergedList }));
@@ -56,20 +56,20 @@ function* sagaGetVerificationTimesheetByParams({ api, logger }, { payload }) {
 function* updateEvents({ value, number, userName, eventType }) {
   try {
     const list = cloneDeep(yield select(selectTVerificationMergedList));
-    const itemIndex = list.findIndex((item) => item.userName === userName);
+    const itemIndex = list.findIndex(item => item.userName === userName);
 
     if (!~itemIndex) {
       return;
     }
 
-    const eventsIndex = list[itemIndex].eventTypes.findIndex((event) => event.name === eventType);
+    const eventsIndex = list[itemIndex].eventTypes.findIndex(event => event.name === eventType);
 
     if (!~eventsIndex) {
       return;
     }
 
     const event = list[itemIndex].eventTypes[eventsIndex];
-    let dayIndex = event.days.findIndex((day) => day.number === number);
+    let dayIndex = event.days.findIndex(day => day.number === number);
 
     if (!~dayIndex) {
       event.days.push({ number, hours: value });
@@ -134,10 +134,10 @@ function* sagaGetCalendarEvents({ api, logger }, { payload }) {
     const calendarEvents = yield call(api.timesheetCommon.getTimesheetCalendarEventsByUserName, {
       month: payload.month,
       year: payload.year,
-      userName: payload.userName,
+      userName: payload.userName
     });
     const currentList = yield select(selectTVerificationMergedList);
-    const index = currentList.findIndex((item) => item.userName === payload.userName);
+    const index = currentList.findIndex(item => item.userName === payload.userName);
 
     if (index === -1) {
       return;
@@ -164,7 +164,7 @@ function* sagaModifyTaskStatus({ api, logger }, { payload }) {
       outcome,
       taskId,
       currentUser,
-      comment,
+      comment
     });
 
     const newMergedList = CommonTimesheetService.deleteRecordLocalByUserName(mergedList, userName);

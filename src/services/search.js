@@ -1,19 +1,21 @@
 import { nth, split, get, isNil } from 'lodash';
-import { formatFileSize, getIconFileByMimetype, getRelativeTime, t } from '../helpers/util';
+
 import { getData, getSessionData, isExistLocalStorage, isExistSessionStorage, setSessionData } from '../helpers/ls';
 import { createDocumentUrl, createProfileUrl } from '../helpers/urls';
+import { formatFileSize, getIconFileByMimetype, getRelativeTime, t } from '../helpers/util';
+
 import ConfigService, { ALFRESCO_ENABLED } from './config/ConfigService';
 
 const Urls = {
-  DASHBOARD: (ref) => createDocumentUrl(ref),
-  USER: (login) => createProfileUrl(login),
+  DASHBOARD: ref => createDocumentUrl(ref),
+  USER: login => createProfileUrl(login)
 };
 
 export const LiveSearchTypes = {
   PEOPLE: 'PEOPLE',
   DOCUMENTS: 'DOCUMENTS',
   SITES: 'SITES',
-  WORKSPACES: 'WORKSPACES',
+  WORKSPACES: 'WORKSPACES'
 };
 
 export default class SearchService {
@@ -33,7 +35,7 @@ export default class SearchService {
       icon: '',
       url: '',
       wsName: '',
-      iconUrl: '',
+      iconUrl: ''
     };
     const isEnabledAlfresco = isNil(get(item, 'isNotAlfresco')) || get(item, 'isNotAlfresco') === false;
 

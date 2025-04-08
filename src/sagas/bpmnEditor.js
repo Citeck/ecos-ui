@@ -1,8 +1,8 @@
-import { call, put, takeEvery } from 'redux-saga/effects';
-import { NotificationManager } from '@/services/notifications';
-import isUndefined from 'lodash/isUndefined';
 import get from 'lodash/get';
+import isUndefined from 'lodash/isUndefined';
+import { call, put, takeEvery } from 'redux-saga/effects';
 
+import { updateModels } from '../actions/bpmn';
 import {
   getFormProps,
   getModel,
@@ -14,16 +14,17 @@ import {
   setFormProps,
   setLoading,
   setModel,
-  setTitle,
+  setTitle
 } from '../actions/bpmnEditor';
-import { t } from '../helpers/export/util';
+import { PROCESS_DEF_API_ACTIONS } from '../api/process';
 import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
 import * as BpmnUtils from '../components/ModelEditor/BPMNModeler/utils';
-import { isJsonObjectString } from '../helpers/util';
-import { JSON_VALUE_COMPONENTS } from '../constants/cmmn';
-import { PROCESS_DEF_API_ACTIONS } from '../api/process';
-import { updateModels } from '../actions/bpmn';
 import { SourcesId } from '../constants';
+import { JSON_VALUE_COMPONENTS } from '../constants/cmmn';
+import { t } from '../helpers/export/util';
+import { isJsonObjectString } from '../helpers/util';
+
+import { NotificationManager } from '@/services/notifications';
 
 export function* init({ api }, { payload: { stateId, record } }) {
   try {
@@ -67,7 +68,7 @@ export function* runSaveModel({ api }, { payload: { stateId, record, xml, img, d
       const updatePayload = {
         action: 'edit',
         modelId: record,
-        resultModelId: processDefId ? `${SourcesId.BPMN_DEF}@${processDefId}` : record,
+        resultModelId: processDefId ? `${SourcesId.BPMN_DEF}@${processDefId}` : record
       };
 
       yield put(updateModels(updatePayload));
@@ -125,7 +126,7 @@ export function* fetchFormProps({ api }, { payload: { stateId, formId, element }
     if (element) {
       const addedKeys = [];
 
-      inputs.forEach((input) => {
+      inputs.forEach(input => {
         const component = get(input, 'scope.component', input.component);
         const att = component.key;
 

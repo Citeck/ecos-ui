@@ -28,7 +28,7 @@ CommandStack.prototype.undo = function () {
           const oldProperties = get(action, 'context.oldProperties', {});
           const keys = Object.keys(properties);
 
-          if (keys.includes((key) => !key.startsWith('ecos')) && !isEqual(properties, oldProperties)) {
+          if (keys.includes(key => !key.startsWith('ecos')) && !isEqual(properties, oldProperties)) {
             break;
           }
         } else {

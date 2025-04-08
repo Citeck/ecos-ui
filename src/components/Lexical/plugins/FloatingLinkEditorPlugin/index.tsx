@@ -22,7 +22,7 @@ import {
   getDOMSelection,
   KEY_ESCAPE_COMMAND,
   LexicalEditor,
-  SELECTION_CHANGE_COMMAND,
+  SELECTION_CHANGE_COMMAND
 } from 'lexical';
 import { Dispatch, useCallback, useEffect, useRef, useState, JSX } from 'react';
 import * as React from 'react';
@@ -42,7 +42,7 @@ function FloatingLinkEditor({
   setIsLink,
   anchorElem,
   isLinkEditMode,
-  setIsLinkEditMode,
+  setIsLinkEditMode
 }: {
   editor: LexicalEditor;
   isLink: boolean;
@@ -147,7 +147,7 @@ function FloatingLinkEditor({
           $updateLinkEditor();
           return true;
         },
-        COMMAND_PRIORITY_LOW,
+        COMMAND_PRIORITY_LOW
       ),
       editor.registerCommand(
         KEY_ESCAPE_COMMAND,
@@ -158,8 +158,8 @@ function FloatingLinkEditor({
           }
           return false;
         },
-        COMMAND_PRIORITY_HIGH,
-      ),
+        COMMAND_PRIORITY_HIGH
+      )
     );
   }, [editor, $updateLinkEditor, setIsLink, isLink]);
 
@@ -197,7 +197,7 @@ function FloatingLinkEditor({
               const linkNode = $createLinkNode(parent.getURL(), {
                 rel: parent.__rel,
                 target: parent.__target,
-                title: parent.__title,
+                title: parent.__title
               });
               parent.replace(linkNode, true);
             }
@@ -217,10 +217,10 @@ function FloatingLinkEditor({
             ref={inputRef}
             className="link-input"
             value={editedLinkUrl}
-            onChange={(event) => {
+            onChange={event => {
               setEditedLinkUrl(event.target.value);
             }}
-            onKeyDown={(event) => {
+            onKeyDown={event => {
               monitorInputInteraction(event);
             }}
           />
@@ -248,7 +248,7 @@ function FloatingLinkEditor({
             role="button"
             tabIndex={0}
             onMouseDown={preventDefault}
-            onClick={(event) => {
+            onClick={event => {
               event.preventDefault();
               setEditedLinkUrl(linkUrl);
               setIsLinkEditMode(true);
@@ -273,7 +273,7 @@ function useFloatingLinkEditorToolbar(
   editor: LexicalEditor,
   anchorElem: HTMLElement,
   isLinkEditMode: boolean,
-  setIsLinkEditMode: Dispatch<boolean>,
+  setIsLinkEditMode: Dispatch<boolean>
 ): JSX.Element | null {
   const [activeEditor, setActiveEditor] = useState(editor);
   const [isLink, setIsLink] = useState(false);
@@ -291,8 +291,8 @@ function useFloatingLinkEditorToolbar(
         }
         const badNode = selection
           .getNodes()
-          .filter((node) => !$isLineBreakNode(node))
-          .find((node) => {
+          .filter(node => !$isLineBreakNode(node))
+          .find(node => {
             const linkNode = $findMatchingParent(node, $isLinkNode);
             const autoLinkNode = $findMatchingParent(node, $isAutoLinkNode);
             return (
@@ -322,11 +322,11 @@ function useFloatingLinkEditorToolbar(
           setActiveEditor(newEditor);
           return false;
         },
-        COMMAND_PRIORITY_CRITICAL,
+        COMMAND_PRIORITY_CRITICAL
       ),
       editor.registerCommand(
         CLICK_COMMAND,
-        (payload) => {
+        payload => {
           const selection = $getSelection();
           if ($isRangeSelection(selection)) {
             const node = getSelectedNode(selection);
@@ -338,8 +338,8 @@ function useFloatingLinkEditorToolbar(
           }
           return false;
         },
-        COMMAND_PRIORITY_LOW,
-      ),
+        COMMAND_PRIORITY_LOW
+      )
     );
   }, [editor]);
 
@@ -352,14 +352,14 @@ function useFloatingLinkEditorToolbar(
       isLinkEditMode={isLinkEditMode}
       setIsLinkEditMode={setIsLinkEditMode}
     />,
-    anchorElem,
+    anchorElem
   );
 }
 
 export default function FloatingLinkEditorPlugin({
   anchorElem = document.body,
   isLinkEditMode,
-  setIsLinkEditMode,
+  setIsLinkEditMode
 }: {
   anchorElem?: HTMLElement;
   isLinkEditMode: boolean;

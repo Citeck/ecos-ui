@@ -29,9 +29,9 @@ async function validateEditorState(editor: LexicalEditor): Promise<void> {
       body: stringifiedEditorState,
       headers: {
         Accept: 'application/json',
-        'Content-type': 'application/json',
+        'Content-type': 'application/json'
       },
-      method: 'POST',
+      method: 'POST'
     });
   } catch {
     // NO-OP
@@ -52,7 +52,7 @@ export default function ActionsPlugin(props: { isRichText: boolean; shouldPreser
     if (INITIAL_SETTINGS.isCollab) {
       return;
     }
-    docFromHash(window.location.hash).then((doc) => {
+    docFromHash(window.location.hash).then(doc => {
       if (doc && doc.source === 'Playground') {
         editor.setEditorState(editorStateFromSerializedDocument(editor, doc));
         editor.dispatchCommand(CLEAR_HISTORY_COMMAND, undefined);
@@ -61,18 +61,18 @@ export default function ActionsPlugin(props: { isRichText: boolean; shouldPreser
   }, [editor]);
   useEffect(() => {
     return mergeRegister(
-      editor.registerEditableListener((editable) => {
+      editor.registerEditableListener(editable => {
         setIsEditable(editable);
       }),
       editor.registerCommand<boolean>(
         CONNECTED_COMMAND,
-        (payload) => {
+        payload => {
           const isConnected = payload;
           setConnected(isConnected);
           return false;
         },
-        COMMAND_PRIORITY_EDITOR,
-      ),
+        COMMAND_PRIORITY_EDITOR
+      )
     );
   }, [editor]);
 

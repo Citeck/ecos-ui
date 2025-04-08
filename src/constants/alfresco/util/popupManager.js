@@ -27,7 +27,7 @@ class Popup {
     this.render({
       ...props,
       noHeader: !props.title,
-      onClose: this.onClose,
+      onClose: this.onClose
     });
 
     wrapper.appendChild(this.#container);
@@ -42,7 +42,7 @@ class Popup {
     this.close();
   };
 
-  close = (callback) => {
+  close = callback => {
     this.render({ isOpen: false }, () => {
       if (typeof callback === 'function') {
         callback();
@@ -77,7 +77,7 @@ class PopupManager {
       text: null,
       spanClass: 'message',
       visible: false,
-      noEscape: false,
+      noEscape: false
     };
   }
 
@@ -98,9 +98,9 @@ class PopupManager {
         {
           text: null,
           handler: () => this.destroy(),
-          isDefault: true,
-        },
-      ],
+          isDefault: true
+        }
+      ]
     };
   }
 
@@ -126,13 +126,13 @@ class PopupManager {
         {
           text: null,
           handler: null,
-          isDefault: true,
+          isDefault: true
         },
         {
           text: null,
-          handler: () => this.destroy(),
-        },
-      ],
+          handler: () => this.destroy()
+        }
+      ]
     };
   }
 
@@ -170,9 +170,9 @@ class PopupManager {
         content,
         isOpen: true,
         noHeader: true,
-        className: 'ecos-modal_center',
+        className: 'ecos-modal_center'
       },
-      container,
+      container
     );
   }
 
@@ -184,9 +184,9 @@ class PopupManager {
         title,
         isOpen: true,
         content: text,
-        footer: buttons.map(this.renderButton),
+        footer: buttons.map(this.renderButton)
       },
-      container,
+      container
     );
   }
 
@@ -199,7 +199,7 @@ class PopupManager {
             type="text"
             defaultValue=""
             className="mt-2"
-            onChange={(event) => (this.#inputValue = event.target.value)}
+            onChange={event => (this.#inputValue = event.target.value)}
             placeholder={t('Enter text')}
           />
         );
@@ -217,7 +217,7 @@ class PopupManager {
         key={text}
         className={classNames({
           'ecos-btn_blue': !isDefault,
-          'ecos-btn_hover_light-blue': !isDefault,
+          'ecos-btn_hover_light-blue': !isDefault
         })}
         onClick={handler.bind(this)}
       >
@@ -244,7 +244,7 @@ class PopupManager {
           </Btn>,
           <Btn key="cancel" onClick={this.destroy.bind(this)}>
             {t('btn.cancel.label')}
-          </Btn>,
+          </Btn>
         ];
 
     this.createModal({
@@ -256,11 +256,11 @@ class PopupManager {
           {this.renderInput(props)}
         </>
       ),
-      footer,
+      footer
     });
   }
 
-  msg = (text) => t(text);
+  msg = text => t(text);
 }
 
 const popupManager = new PopupManager();

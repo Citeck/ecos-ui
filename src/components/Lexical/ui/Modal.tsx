@@ -17,7 +17,7 @@ function PortalImpl({
   onClose,
   children,
   title,
-  closeOnClickOutside,
+  closeOnClickOutside
 }: {
   children: ReactNode;
   closeOnClickOutside: boolean;
@@ -80,7 +80,7 @@ export default function Modal({
   onClose,
   children,
   title,
-  closeOnClickOutside = false,
+  closeOnClickOutside = false
 }: {
   children: ReactNode;
   closeOnClickOutside?: boolean;
@@ -91,6 +91,6 @@ export default function Modal({
     <PortalImpl onClose={onClose} title={title} closeOnClickOutside={closeOnClickOutside}>
       {children}
     </PortalImpl>,
-    document.body,
+    document.body
   );
 }

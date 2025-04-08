@@ -21,9 +21,9 @@ describe('FormatterService', () => {
         {
           type: FORMATTER_TYPE_SCRIPT,
           config: {
-            fn: 'return "OK"',
-          },
-        },
+            fn: 'return "OK"'
+          }
+        }
       );
       expect(spy).toHaveBeenCalled();
       expect(result.props.contentComponent).toBe(spy.mock.results[0].value);
@@ -32,26 +32,26 @@ describe('FormatterService', () => {
       const props = {
         cell: 'abc',
         row: {
-          rowAtt: 'def',
+          rowAtt: 'def'
         },
         fnArgs: {
-          customArg: 'ghi',
-        },
+          customArg: 'ghi'
+        }
       };
       const resultWithFuncInConfig = FormatterService.format(props, {
         type: FORMATTER_TYPE_SCRIPT,
         config: {
           fn: function ({ cell, row, customArg }) {
             return cell + '-' + row.rowAtt + '-' + customArg;
-          },
-        },
+          }
+        }
       });
       expect(resultWithFuncInConfig.props.contentComponent).toBe('abc-def-ghi');
       const resultWithScriptAsText = FormatterService.format(props, {
         type: FORMATTER_TYPE_SCRIPT,
         config: {
-          fn: 'return cell + "-" + row.rowAtt + "-" + customArg',
-        },
+          fn: 'return cell + "-" + row.rowAtt + "-" + customArg'
+        }
       });
       expect(resultWithScriptAsText.props.contentComponent).toBe('abc-def-ghi');
     });
@@ -62,17 +62,17 @@ describe('FormatterService', () => {
           row: {
             rawAttributes: {
               a: 5,
-              b: 10,
-            },
-          },
+              b: 10
+            }
+          }
         },
         {
           type: FORMATTER_TYPE_SCRIPT,
           config: {
             /* eslint-disable-next-line */
             fn: 'return ${a} + ${b}',
-          },
-        },
+          }
+        }
       );
       expect(result.props.contentComponent).toBe(15);
     });

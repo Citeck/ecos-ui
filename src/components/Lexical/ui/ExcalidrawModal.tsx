@@ -71,7 +71,7 @@ export default function ExcalidrawModal({
   initialFiles,
   isShown = false,
   onDelete,
-  onClose,
+  onClose
 }: Props): ReactPortal | null {
   const excaliDrawModelRef = useRef<HTMLDivElement | null>(null);
   const [excalidrawAPI, excalidrawAPIRefCallback] = useCallbackRefState();
@@ -130,7 +130,7 @@ export default function ExcalidrawModal({
   }, [elements, files, onDelete]);
 
   const save = () => {
-    if (elements && elements.filter((el) => !el.isDeleted).length > 0) {
+    if (elements && elements.filter(el => !el.isDeleted).length > 0) {
       const appState = excalidrawAPI?.getAppState();
       // We only need a subset of the state
       const partialState: Partial<AppState> = {
@@ -144,7 +144,7 @@ export default function ExcalidrawModal({
         viewBackgroundColor: appState?.viewBackgroundColor,
         viewModeEnabled: appState?.viewModeEnabled,
         zenModeEnabled: appState?.zenModeEnabled,
-        zoom: appState?.zoom,
+        zoom: appState?.zoom
       };
       onSave(elements, partialState, files);
     } else {
@@ -208,7 +208,7 @@ export default function ExcalidrawModal({
             initialData={{
               appState: initialAppState || { isLoading: false },
               elements: initialElements,
-              files: initialFiles,
+              files: initialFiles
             }}
           />
           <div className="ExcalidrawModal__actions">
@@ -222,6 +222,6 @@ export default function ExcalidrawModal({
         </div>
       </div>
     </div>,
-    document.body,
+    document.body
   );
 }

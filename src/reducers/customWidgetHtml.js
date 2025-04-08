@@ -1,4 +1,5 @@
 import { handleActions } from 'redux-actions';
+
 import { setEditorMode, setHtml, setLoading } from '../actions/customWidgetHtml';
 import { handleAction } from '../helpers/redux';
 

@@ -1,7 +1,5 @@
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
-import { NotificationManager } from '@/services/notifications';
 
-import { TimesheetMessages } from '../../helpers/timesheet/dictionary';
 import {
   delegateTo,
   getSubordinatesTimesheetByParams,
@@ -14,21 +12,24 @@ import {
   setMergedList,
   setPopupMessage,
   setSubordinatesTimesheetByParams,
-  setUpdatingEventDayHours,
+  setUpdatingEventDayHours
 } from '../../actions/timesheet/subordinates';
+import { DelegationTypes } from '../../constants/timesheet';
+import DelegationTimesheetConverter from '../../dto/timesheet/delegated';
+import SubordinatesTimesheetConverter from '../../dto/timesheet/subordinates';
+import { TimesheetMessages } from '../../helpers/timesheet/dictionary';
+import { deepClone, t } from '../../helpers/util';
 import {
   selectTSubordinatesDelegatedTo,
   selectTSubordinatesList,
   selectTSubordinatesMergedList,
-  selectTSubordinatesUpdatingHours,
+  selectTSubordinatesUpdatingHours
 } from '../../selectors/timesheet';
 import { selectUserName } from '../../selectors/user';
-import SubordinatesTimesheetConverter from '../../dto/timesheet/subordinates';
 import CommonTimesheetService from '../../services/timesheet/common';
 import SubordinatesTimesheetService from '../../services/timesheet/subordinates';
-import DelegationTimesheetConverter from '../../dto/timesheet/delegated';
-import { DelegationTypes } from '../../constants/timesheet';
-import { deepClone, t } from '../../helpers/util';
+
+import { NotificationManager } from '@/services/notifications';
 
 function* sagaGetSubordinatesTimesheetByParams({ api, logger }, { payload }) {
   try {
@@ -54,7 +55,7 @@ function* sagaGetSubordinatesTimesheetByParams({ api, logger }, { payload }) {
       month: currentDate.getMonth(),
       year: currentDate.getFullYear(),
       userNames,
-      statuses: Array.isArray(status) ? status : [status],
+      statuses: Array.isArray(status) ? status : [status]
     });
 
     const userNamesPure = CommonTimesheetService.getUserNameList(requestList.records);
@@ -62,19 +63,19 @@ function* sagaGetSubordinatesTimesheetByParams({ api, logger }, { payload }) {
     const calendarEvents = yield call(api.timesheetCommon.getTimesheetCalendarEventsList, {
       month: currentDate.getMonth(),
       year: currentDate.getFullYear(),
-      userNames: userNamesPure,
+      userNames: userNamesPure
     });
 
     const delegationStatus = yield call(api.timesheetDelegated.getDelegationInfo, {
       user: userName,
-      delegationType: DelegationTypes.APPROVE,
+      delegationType: DelegationTypes.APPROVE
     });
     const deputy = DelegationTimesheetConverter.getDelegationInfo(delegationStatus.records);
 
     const list = SubordinatesTimesheetService.mergeManyToOneList({
       peopleList: subordinates.records,
       calendarEvents,
-      requestList: requestList.records,
+      requestList: requestList.records
     });
 
     const mergedList = SubordinatesTimesheetConverter.getSubordinatesEventsListForWeb(list);
@@ -97,7 +98,7 @@ function* sagaModifyTaskStatus({ api, logger }, { payload }) {
       outcome,
       taskId,
       currentUser,
-      comment,
+      comment
     });
 
     const newMergedList = CommonTimesheetService.deleteRecordLocalByUserName(mergedList, userName);
@@ -113,20 +114,20 @@ function* sagaModifyTaskStatus({ api, logger }, { payload }) {
 function* updateEvents({ value, number, userName, eventType }) {
   try {
     const list = deepClone(yield select(selectTSubordinatesList));
-    const subordinateIndex = list.findIndex((item) => item.userName === userName);
+    const subordinateIndex = list.findIndex(item => item.userName === userName);
 
     if (!~subordinateIndex) {
       return;
     }
 
-    const eventsIndex = list[subordinateIndex].eventTypes.findIndex((event) => event.name === eventType);
+    const eventsIndex = list[subordinateIndex].eventTypes.findIndex(event => event.name === eventType);
 
     if (!~eventsIndex) {
       return;
     }
 
     const event = list[subordinateIndex].eventTypes[eventsIndex];
-    let dayIndex = event.days.findIndex((day) => day.number === number);
+    let dayIndex = event.days.findIndex(day => day.number === number);
 
     if (!~dayIndex) {
       event.days.push({ number, hours: value });
@@ -194,7 +195,7 @@ function* sagaDelegateTo({ api, logger }, { payload }) {
     yield call(api.timesheetDelegated.setRecord, {
       userName,
       deputyName: deputy.userName,
-      delegationType: payload.delegationType,
+      delegationType: payload.delegationType
     });
 
     yield put(setDelegatedTo(deputy));

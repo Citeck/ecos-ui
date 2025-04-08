@@ -11,7 +11,7 @@ import {
   mapToCssModules,
   omit,
   setScrollbarWidth,
-  TransitionTimeouts,
+  TransitionTimeouts
 } from 'reactstrap/lib/utils';
 
 import Loader from '../Loader/Loader';
@@ -51,7 +51,7 @@ const propTypes = {
   modalTransition: FadePropTypes,
   innerRef: PropTypes.oneOfType([PropTypes.object, PropTypes.string, PropTypes.func]),
   draggableProps: PropTypes.object,
-  getDialogRef: PropTypes.func,
+  getDialogRef: PropTypes.func
 };
 
 const propsToOmit = Object.keys(propTypes);
@@ -70,12 +70,12 @@ const defaultProps = {
   onOpened: noop,
   onClosed: noop,
   modalTransition: {
-    timeout: TransitionTimeouts.Modal,
+    timeout: TransitionTimeouts.Modal
   },
   backdropTransition: {
     mountOnEnter: true,
-    timeout: TransitionTimeouts.Fade, // uses standard fade transition
-  },
+    timeout: TransitionTimeouts.Fade // uses standard fade transition
+  }
 };
 
 class Modal extends React.Component {
@@ -93,7 +93,7 @@ class Modal extends React.Component {
     this.onClosed = this.onClosed.bind(this);
 
     this.state = {
-      isOpen: props.isOpen,
+      isOpen: props.isOpen
     };
 
     if (props.isOpen) {
@@ -297,12 +297,12 @@ class Modal extends React.Component {
           classNames(dialogBaseClass, className, {
             [`modal-${size}`]: size,
             [`${dialogBaseClass}-centered`]: centered,
-            [`${dialogBaseClass}-scrollable`]: scrollable,
+            [`${dialogBaseClass}-scrollable`]: scrollable
           }),
-          cssModule,
+          cssModule
         )}
         role="document"
-        ref={(c) => {
+        ref={c => {
           this._dialog = c;
           typeof getDialogRef === 'function' && getDialogRef(c);
         }}
@@ -341,7 +341,7 @@ class Modal extends React.Component {
         labelledBy,
         external,
         innerRef,
-        isblurbackground,
+        isblurbackground
       } = this.props;
 
       const modalAttributes = {
@@ -352,7 +352,7 @@ class Modal extends React.Component {
         style: { display: 'block' },
         'aria-labelledby': labelledBy,
         role,
-        tabIndex: '-1',
+        tabIndex: '-1'
       };
 
       const baseClass = isblurbackground ? 'ecos-modal_blur-bg' : '';
@@ -361,13 +361,13 @@ class Modal extends React.Component {
         ...Fade.defaultProps,
         ...this.props.modalTransition,
         baseClass: hasTransition ? this.props.modalTransition.baseClass : '',
-        timeout: hasTransition ? this.props.modalTransition.timeout : 0,
+        timeout: hasTransition ? this.props.modalTransition.timeout : 0
       };
       const backdropTransition = {
         ...Fade.defaultProps,
         ...this.props.backdropTransition,
         baseClass: hasTransition ? this.props.backdropTransition.baseClass : '',
-        timeout: hasTransition ? this.props.backdropTransition.timeout : 0,
+        timeout: hasTransition ? this.props.backdropTransition.timeout : 0
       };
 
       const Backdrop = hasTransition ? (

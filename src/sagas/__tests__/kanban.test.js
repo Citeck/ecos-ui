@@ -1,9 +1,9 @@
-import get from 'lodash/get';
 import first from 'lodash/first';
+import get from 'lodash/get';
 import last from 'lodash/last';
 import { runSaga } from 'redux-saga';
-import { NotificationManager } from '@/services/notifications';
 
+import { initJournalSettingData, setJournalConfig, setJournalSetting, setPredicate } from '../../actions/journals';
 import {
   setBoardConfig,
   setBoardList,
@@ -17,20 +17,21 @@ import {
   setOriginKanbanSettings,
   setPagination,
   setResolvedActions,
-  setTotalCount,
+  setTotalCount
 } from '../../actions/kanban';
-import { initJournalSettingData, setJournalConfig, setJournalSetting, setPredicate } from '../../actions/journals';
 import EcosFormUtils from '../../components/EcosForm/EcosFormUtils';
-import JournalsService from '../../components/Journals/service/journalsService';
 import { DEFAULT_PAGINATION } from '../../components/Journals/constants';
-import RecordActions from '../../components/Records/actions/recordActions';
+import JournalsService from '../../components/Journals/service/journalsService';
 import Records from '../../components/Records/Records';
+import RecordActions from '../../components/Records/actions/recordActions';
+import { KanbanUrlParams } from '../../constants';
 import PageService from '../../services/PageService';
+import JournalApi from '../__mocks__/journalApi';
 import KanbanApi from '../__mocks__/kanbanApi';
 import data from '../__mocks__/kanbanData';
-import JournalApi from '../__mocks__/journalApi';
 import * as kanban from '../kanban';
-import { KanbanUrlParams } from '../../constants';
+
+import { NotificationManager } from '@/services/notifications';
 
 const journalId = 'journalId',
   stateId = 'stateId',
@@ -40,16 +41,16 @@ const journalId = 'journalId',
 
 const api = {
   kanban: new KanbanApi(),
-  journals: new JournalApi(),
+  journals: new JournalApi()
 };
 
-const load = async (attrs) => ({ ...attrs });
+const load = async attrs => ({ ...attrs });
 
-const recordsGet = (id) => ({
+const recordsGet = id => ({
   id,
   getBaseRecord: () => ({ id, load }),
   get,
-  load,
+  load
 });
 
 console.error = jest.fn();
@@ -67,14 +68,14 @@ afterEach(() => {
 const spyError = jest.spyOn(NotificationManager, 'error').mockResolvedValue(null);
 const spyGetFormById = jest
   .spyOn(EcosFormUtils, 'getFormById')
-  .mockImplementation((formId) => (formId ? (formId === 'no-def' ? {} : data.formConfig) : null));
+  .mockImplementation(formId => (formId ? (formId === 'no-def' ? {} : data.formConfig) : null));
 const spyGetFormInputs = jest.spyOn(EcosFormUtils, 'getFormInputs').mockReturnValue(data.formFields);
 const spyPreProcessingAttrs = jest.spyOn(EcosFormUtils, 'preProcessingAttrs').mockReturnValue({ attributes: {}, inputByKey: {} });
 const spyPostProcessingAttrs = jest.spyOn(EcosFormUtils, 'postProcessingAttrsData').mockImplementation(({ recordData }) => recordData);
 const spyGetJournalConfig = jest.spyOn(JournalsService, 'getJournalConfig').mockResolvedValue(data.journalConfig);
 const spyGetJournalData = jest
   .spyOn(JournalsService, 'getJournalData')
-  .mockImplementation((d) => (d.id === 'set-data-cards' ? data.journalData : {}));
+  .mockImplementation(d => (d.id === 'set-data-cards' ? data.journalData : {}));
 const spyGetRecordActions = jest.spyOn(JournalsService, 'getRecordActions').mockResolvedValue(data.journalActions);
 const spyChangeUrlLink = jest.spyOn(PageService, 'changeUrlLink').mockResolvedValue(data.journalActions);
 const spyRecordsGet = jest.spyOn(Records, 'get').mockImplementation(recordsGet);
@@ -84,12 +85,12 @@ async function wrapRunSaga(sagaFun, payload = {}, state = {}) {
 
   await runSaga(
     {
-      dispatch: (action) => dispatched.push(action),
-      getState: () => state,
+      dispatch: action => dispatched.push(action),
+      getState: () => state
     },
     sagaFun,
     { api, logger: console.error },
-    { payload: { stateId, boardId, templateId, ...payload } },
+    { payload: { stateId, boardId, templateId, ...payload } }
   ).done;
 
   return dispatched;
@@ -187,10 +188,10 @@ describe('kanban sagas tests', () => {
       {
         journals: {
           [stateId]: {
-            journalConfig: {},
-          },
-        },
-      },
+            journalConfig: {}
+          }
+        }
+      }
     );
 
     const [_boardConfig, _originKanbanSettings, _formProps, _journalConfig, _journalSetting, _initJournalSettingData] = dispatched;
@@ -220,10 +221,10 @@ describe('kanban sagas tests', () => {
       {
         journals: {
           [stateId]: {
-            journalConfig: { ...data.journalConfig, id: 'set-data-cards' },
-          },
-        },
-      },
+            journalConfig: { ...data.journalConfig, id: 'set-data-cards' }
+          }
+        }
+      }
     );
 
     const [_boardConfig, _originKanbanSettings, _formProps, _pagination] = dispatched;
@@ -338,7 +339,7 @@ describe('kanban sagas tests', () => {
 
     const dispatched = await wrapRunSaga(kanban.sagaSelectFromUrl, {
       text: templateId,
-      type: 'templates',
+      type: 'templates'
     });
 
     const url = `/test?${KanbanUrlParams.TEMPLATE_ID}=templateId`;
@@ -358,17 +359,17 @@ describe('kanban sagas tests', () => {
       {
         journals: {
           [stateId]: {
-            journalConfig: data.journalConfig,
-          },
+            journalConfig: data.journalConfig
+          }
         },
         kanban: {
           [stateId]: {
             formProps: data.formProps,
             boardConfig: data.boardConfig,
-            pagination: DEFAULT_PAGINATION,
-          },
-        },
-      },
+            pagination: DEFAULT_PAGINATION
+          }
+        }
+      }
     );
     const [_firstLoading, _pagination] = dispatched;
     const _lastLoading = last(dispatched);
@@ -414,16 +415,16 @@ describe('kanban sagas tests', () => {
       {
         cardIndex: 0,
         fromColumnRef: 'some-id-1',
-        toColumnRef: 'some-id-2',
+        toColumnRef: 'some-id-2'
       },
       {
         kanban: {
           [stateId]: {
             dataCards,
-            boardConfig: data.boardConfig,
-          },
-        },
-      },
+            boardConfig: data.boardConfig
+          }
+        }
+      }
     );
     const [_firstLoadingColumns, _dataCards, _lastLoadingColumns] = dispatched;
 
@@ -447,23 +448,23 @@ describe('kanban sagas tests', () => {
     const dispatched = await wrapRunSaga(
       kanban.sagaApplyFilter,
       {
-        settings: { predicate: { a: 1 } },
+        settings: { predicate: { a: 1 } }
       },
       {
         journals: {
           [stateId]: {
             journalConfig: data.journalConfig,
-            journalSetting: data.journalSetting,
-          },
+            journalSetting: data.journalSetting
+          }
         },
         kanban: {
           [stateId]: {
             boardConfig: data.boardConfig,
             formProps: data.formProps,
-            pagination: { page: 1000 },
-          },
-        },
-      },
+            pagination: { page: 1000 }
+          }
+        }
+      }
     );
     const [_predicate, _journalSetting, _kanbanSettings, _pagination] = dispatched;
     const _loading = last(dispatched);
@@ -487,17 +488,17 @@ describe('kanban sagas tests', () => {
           [stateId]: {
             journalConfig: data.journalConfig,
             journalSetting: data.journalSetting,
-            originGridSettings: { predicate: { b: 1 } },
-          },
+            originGridSettings: { predicate: { b: 1 } }
+          }
         },
         kanban: {
           [stateId]: {
             boardConfig: data.boardConfig,
             formProps: data.formProps,
-            pagination: { page: 1000 },
-          },
-        },
-      },
+            pagination: { page: 1000 }
+          }
+        }
+      }
     );
     const [_predicate, _journalSetting, _kanbanSettings, _pagination] = dispatched;
     const _isFiltered = last(dispatched);
@@ -566,10 +567,10 @@ describe('kanban sagas tests', () => {
         journals: {
           [stateId]: {
             journalConfig: {},
-            journalSetting: {},
-          },
-        },
-      },
+            journalSetting: {}
+          }
+        }
+      }
     );
 
     const _firstLoading = first(dispatched);
@@ -589,17 +590,17 @@ describe('kanban sagas tests', () => {
         journals: {
           [stateId]: {
             journalConfig: data.journalConfig,
-            journalSetting: data.journalSetting,
-          },
+            journalSetting: data.journalSetting
+          }
         },
         kanban: {
           [stateId]: {
             boardConfig: data.boardConfig,
             formProps: data.formProps,
-            pagination: { page: 1000 },
-          },
-        },
-      },
+            pagination: { page: 1000 }
+          }
+        }
+      }
     );
 
     const _firstLoading = first(dispatched);

@@ -29,6 +29,6 @@ export function createWebsocketProvider(id: string, yjsDocMap: Map<string, Doc>)
 
   // @ts-expect-error
   return new WebsocketProvider(WEBSOCKET_ENDPOINT, WEBSOCKET_SLUG + '/' + WEBSOCKET_ID + '/' + id, doc, {
-    connect: false,
+    connect: false
   });
 }

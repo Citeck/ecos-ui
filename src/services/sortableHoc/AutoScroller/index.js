@@ -16,15 +16,15 @@ export default class AutoScroller {
   update({ translate, minTranslate, maxTranslate, width, height }) {
     const direction = {
       x: 0,
-      y: 0,
+      y: 0
     };
     const speed = {
       x: 1,
-      y: 1,
+      y: 1
     };
     const acceleration = {
       x: 10,
-      y: 10,
+      y: 10
     };
 
     const { scrollTop, scrollLeft, scrollHeight, scrollWidth, clientHeight, clientWidth } = this.container;
@@ -62,7 +62,7 @@ export default class AutoScroller {
         this.isAutoScrolling = true;
         const offset = {
           left: speed.x * direction.x,
-          top: speed.y * direction.y,
+          top: speed.y * direction.y
         };
         this.container.scrollTop += offset.top;
         this.container.scrollLeft += offset.left;

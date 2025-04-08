@@ -24,13 +24,13 @@ import {
   setTransitionDuration,
   setTranslate3d,
   getTargetIndex,
-  getScrollAdjustedBoundingClientRect,
+  getScrollAdjustedBoundingClientRect
 } from '../utils';
 
 import { defaultProps, omittedProps, propTypes, validateProps, defaultKeyCodes } from './props';
 
 export const SortableContext = React.createContext({
-  manager: {},
+  manager: {}
 });
 
 export default function sortableContainer(WrappedComponent, config = { withRef: false }) {
@@ -47,7 +47,7 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
       this.events = {
         end: this.handleEnd,
         move: this.handleMove,
-        start: this.handleStart,
+        start: this.handleStart
       };
     }
 
@@ -61,7 +61,7 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
       const { useWindowAsScrollContainer } = this.props;
       const container = this.getContainer();
 
-      Promise.resolve(container).then((containerNode) => {
+      Promise.resolve(container).then(containerNode => {
         this.container = containerNode;
         this.document = this.container.ownerDocument || document;
 
@@ -80,8 +80,8 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
 
         this.autoScroller = new AutoScroller(this.scrollContainer, this.onAutoScroll);
 
-        Object.keys(this.events).forEach((key) =>
-          events[key].forEach((eventName) => this.container.addEventListener(eventName, this.events[key], false)),
+        Object.keys(this.events).forEach(key =>
+          events[key].forEach(eventName => this.container.addEventListener(eventName, this.events[key], false))
         );
 
         this.container.addEventListener('keydown', this.handleKeyDown);
@@ -101,13 +101,13 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
         return;
       }
 
-      Object.keys(this.events).forEach((key) =>
-        events[key].forEach((eventName) => this.container.removeEventListener(eventName, this.events[key])),
+      Object.keys(this.events).forEach(key =>
+        events[key].forEach(eventName => this.container.removeEventListener(eventName, this.events[key]))
       );
       this.container.removeEventListener('keydown', this.handleKeyDown);
     }
 
-    handleStart = (event) => {
+    handleStart = event => {
       if (this.state.sorting) {
         this.handleSortEnd(event);
       }
@@ -121,7 +121,7 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
       this.touched = true;
       this.position = getPosition(event);
 
-      const node = closest(event.target, (el) => el.sortableInfo != null);
+      const node = closest(event.target, el => el.sortableInfo != null);
 
       if (node && node.sortableInfo && this.nodeIsChild(node) && !this.state.sorting) {
         const { useDragHandle } = this.props;
@@ -156,18 +156,18 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
       }
     };
 
-    nodeIsChild = (node) => {
+    nodeIsChild = node => {
       return node.sortableInfo.manager === this.manager;
     };
 
-    handleMove = (event) => {
+    handleMove = event => {
       const { distance, pressThreshold } = this.props;
 
       if (!this.state.sorting && this.touched && !this._awaitingUpdateBeforeSortStart) {
         const position = getPosition(event);
         const delta = {
           x: this.position.x - position.x,
-          y: this.position.y - position.y,
+          y: this.position.y - position.y
         };
         const combinedDelta = Math.abs(delta.x) + Math.abs(delta.y);
 
@@ -199,7 +199,7 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
       }
     };
 
-    handlePress = async (event) => {
+    handlePress = async event => {
       if (this.helper) {
         this.helper.parentNode?.removeChild(this.helper);
         this.helper = null;
@@ -215,7 +215,7 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
           hideSortableGhost,
           updateBeforeSortStart,
           onSortStart,
-          useWindowAsScrollContainer,
+          useWindowAsScrollContainer
         } = this.props;
         const { node, collection } = active;
         const { isKeySorting } = this.manager;
@@ -245,7 +245,7 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
         this.height = dimensions.height;
         this.marginOffset = {
           x: this.margin.left + this.margin.right + this.gridGap.x,
-          y: Math.max(this.margin.top, this.margin.bottom, this.gridGap.y),
+          y: Math.max(this.margin.top, this.margin.bottom, this.gridGap.y)
         };
         this.boundingClientRect = node.getBoundingClientRect();
         this.containerBoundingRect = containerBoundingRect;
@@ -254,7 +254,7 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
 
         this.axis = {
           x: axis.indexOf('x') >= 0,
-          y: axis.indexOf('y') >= 0,
+          y: axis.indexOf('y') >= 0
         };
         this.offsetEdge = getEdgeOffset(node, this.container);
 
@@ -262,7 +262,7 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
           this.initialOffset = getPosition({
             ...event,
             pageX: this.boundingClientRect.left,
-            pageY: this.boundingClientRect.top,
+            pageY: this.boundingClientRect.top
           });
         } else {
           this.initialOffset = getPosition(event);
@@ -270,12 +270,12 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
 
         this.initialScroll = {
           left: this.scrollContainer.scrollLeft,
-          top: this.scrollContainer.scrollTop,
+          top: this.scrollContainer.scrollTop
         };
 
         this.initialWindowScroll = {
           left: window.pageXOffset,
-          top: window.pageYOffset,
+          top: window.pageYOffset
         };
 
         this.helper = this.helperContainer.appendChild(cloneNode(node));
@@ -290,7 +290,7 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
           width: `${this.width}px`,
           zIndex: 10001,
           opacity: 1,
-          visibility: 'unset',
+          visibility: 'unset'
         });
 
         if (isKeySorting) {
@@ -302,7 +302,7 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
 
           setInlineStyles(node, {
             opacity: 0,
-            visibility: 'hidden',
+            visibility: 'hidden'
           });
         }
 
@@ -314,13 +314,13 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
             top: containerTop,
             left: containerLeft,
             width: containerWidth,
-            height: containerHeight,
+            height: containerHeight
           } = useWindowAsScrollContainer
             ? {
                 top: 0,
                 left: 0,
                 width: this.contentWindow.innerWidth,
-                height: this.contentWindow.innerHeight,
+                height: this.contentWindow.innerHeight
               }
             : this.containerBoundingRect;
           const containerBottom = containerTop + containerHeight;
@@ -356,7 +356,7 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
         }
 
         if (helperClass) {
-          helperClass.split(' ').forEach((className) => this.helper.classList.add(className));
+          helperClass.split(' ').forEach(className => this.helper.classList.add(className));
         }
 
         this.listenerNode = event.touches ? event.target : this.contentWindow;
@@ -366,13 +366,13 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
           this.listenerNode.addEventListener('mousedown', this.handleKeyEnd, true);
           this.listenerNode.addEventListener('keydown', this.handleKeyDown);
         } else {
-          events.move.forEach((eventName) => this.listenerNode.addEventListener(eventName, this.handleSortMove, false));
-          events.end.forEach((eventName) => this.listenerNode.addEventListener(eventName, this.handleSortEnd, true));
+          events.move.forEach(eventName => this.listenerNode.addEventListener(eventName, this.handleSortMove, false));
+          events.end.forEach(eventName => this.listenerNode.addEventListener(eventName, this.handleSortEnd, true));
         }
 
         this.setState({
           sorting: true,
-          sortingIndex: index,
+          sortingIndex: index
         });
 
         if (onSortStart) {
@@ -383,9 +383,9 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
               collection,
               isKeySorting,
               nodes: this.manager.getOrderedRefs(),
-              helper: this.helper,
+              helper: this.helper
             },
-            event,
+            event
           );
         }
 
@@ -396,7 +396,7 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
       }
     };
 
-    handleSortMove = (event) => {
+    handleSortMove = event => {
       const { onSortMove } = this.props;
 
       // Prevent scrolling on mobile
@@ -413,11 +413,11 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
       }
     };
 
-    handleSortEnd = (event) => {
+    handleSortEnd = event => {
       const { hideSortableGhost, onSortEnd } = this.props;
       const {
         active: { collection },
-        isKeySorting,
+        isKeySorting
       } = this.manager;
       const nodes = this.manager.getOrderedRefs();
 
@@ -428,8 +428,8 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
           this.listenerNode.removeEventListener('mousedown', this.handleKeyEnd, true);
           this.listenerNode.removeEventListener('keydown', this.handleKeyDown);
         } else {
-          events.move.forEach((eventName) => this.listenerNode.removeEventListener(eventName, this.handleSortMove));
-          events.end.forEach((eventName) => this.listenerNode.removeEventListener(eventName, this.handleSortEnd));
+          events.move.forEach(eventName => this.listenerNode.removeEventListener(eventName, this.handleSortMove));
+          events.end.forEach(eventName => this.listenerNode.removeEventListener(eventName, this.handleSortEnd));
         }
       }
 
@@ -440,7 +440,7 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
         if (hideSortableGhost && this.sortableGhost) {
           setInlineStyles(this.sortableGhost, {
             opacity: '',
-            visibility: '',
+            visibility: ''
           });
         }
 
@@ -467,7 +467,7 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
 
         this.setState({
           sorting: false,
-          sortingIndex: null,
+          sortingIndex: null
         });
 
         if (typeof onSortEnd === 'function') {
@@ -477,9 +477,9 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
               newIndex: this.newIndex,
               oldIndex: this.index,
               isKeySorting,
-              nodes,
+              nodes
             },
-            event,
+            event
           );
         }
 
@@ -500,7 +500,7 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
         lockOffset,
         lockToContainerEdges,
         transitionDuration,
-        keyboardSortingTransitionDuration = transitionDuration,
+        keyboardSortingTransitionDuration = transitionDuration
       } = this.props;
       const { isKeySorting } = this.manager;
       const { ignoreTransition } = event;
@@ -508,7 +508,7 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
       const offset = getPosition(event);
       const translate = {
         x: offset.x - this.initialOffset.x,
-        y: offset.y - this.initialOffset.y,
+        y: offset.y - this.initialOffset.y
       };
 
       // Adjust for window scroll
@@ -521,15 +521,15 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
         const [minLockOffset, maxLockOffset] = getLockPixelOffsets({
           height: this.height,
           lockOffset,
-          width: this.width,
+          width: this.width
         });
         const minOffset = {
           x: this.width / 2 - minLockOffset.x,
-          y: this.height / 2 - minLockOffset.y,
+          y: this.height / 2 - minLockOffset.y
         };
         const maxOffset = {
           x: this.width / 2 - maxLockOffset.x,
-          y: this.height / 2 - maxLockOffset.y,
+          y: this.height / 2 - maxLockOffset.y
         };
 
         translate.x = limit(this.minTranslate.x + minOffset.x, this.maxTranslate.x - maxOffset.x, translate.x);
@@ -555,7 +555,7 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
       const nodes = this.manager.getOrderedRefs();
       const sortingOffset = {
         left: this.offsetEdge.left + this.translate.x + containerScrollDelta.left,
-        top: this.offsetEdge.top + this.translate.y + containerScrollDelta.top,
+        top: this.offsetEdge.top + this.translate.y + containerScrollDelta.top
       };
       const { isKeySorting } = this.manager;
 
@@ -569,7 +569,7 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
         const height = node.offsetHeight;
         const offset = {
           height: this.height > height ? height / 2 : this.height / 2,
-          width: this.width > width ? width / 2 : this.width / 2,
+          width: this.width > width ? width / 2 : this.width / 2
         };
 
         // For keyboard sorting, we want user input to dictate the position of the nodes
@@ -578,7 +578,7 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
 
         const translate = {
           x: 0,
-          y: 0,
+          y: 0
         };
         let { edgeOffset } = nodes[i];
 
@@ -617,7 +617,7 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
 
             setInlineStyles(node, {
               opacity: 0,
-              visibility: 'hidden',
+              visibility: 'hidden'
             });
           }
           continue;
@@ -728,7 +728,7 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
           oldIndex,
           isKeySorting,
           nodes,
-          helper: this.helper,
+          helper: this.helper
         });
       }
     }
@@ -770,11 +770,11 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
         maxTranslate: this.maxTranslate,
         minTranslate: this.minTranslate,
         translate: this.translate,
-        width: this.width,
+        width: this.width
       });
     };
 
-    onAutoScroll = (offset) => {
+    onAutoScroll = offset => {
       this.translate.x += offset.left;
       this.translate.y += offset.top;
 
@@ -784,7 +784,7 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
     getWrappedInstance() {
       invariant(
         config.withRef,
-        'To access the wrapped instance, you need to pass in {withRef: true} as the second argument of the SortableContainer() call',
+        'To access the wrapped instance, you need to pass in {withRef: true} as the second argument of the SortableContainer() call'
       );
 
       return this.wrappedInstance.current;
@@ -800,13 +800,13 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
       return getContainer(config.withRef ? this.getWrappedInstance() : undefined);
     }
 
-    handleKeyDown = (event) => {
+    handleKeyDown = event => {
       const { keyCode } = event;
       const { shouldCancelStart, keyCodes: customKeyCodes = {} } = this.props;
 
       const keyCodes = {
         ...defaultKeyCodes,
-        ...customKeyCodes,
+        ...customKeyCodes
       };
 
       if (
@@ -833,9 +833,9 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
       }
     };
 
-    keyLift = (event) => {
+    keyLift = event => {
       const { target } = event;
-      const node = closest(target, (el) => el.sortableInfo != null);
+      const node = closest(target, el => el.sortableInfo != null);
       const { index, collection } = node.sortableInfo;
 
       this.initialFocusedNode = target;
@@ -843,13 +843,13 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
       this.manager.isKeySorting = true;
       this.manager.active = {
         index,
-        collection,
+        collection
       };
 
       this.handlePress(event);
     };
 
-    keyMove = (shift) => {
+    keyMove = shift => {
       const nodes = this.manager.getOrderedRefs();
       const { index: lastIndex } = nodes[nodes.length - 1].node.sortableInfo;
       const newIndex = this.newIndex + shift;
@@ -872,23 +872,23 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
 
       const targetPosition = {
         top: targetBoundingClientRect.top + targetTranslate.y - scrollDelta.top,
-        left: targetBoundingClientRect.left + targetTranslate.x - scrollDelta.left,
+        left: targetBoundingClientRect.left + targetTranslate.x - scrollDelta.left
       };
 
       const shouldAdjustForSize = prevIndex < newIndex;
       const sizeAdjustment = {
         x: shouldAdjustForSize && this.axis.x ? targetNode.offsetWidth - this.width : 0,
-        y: shouldAdjustForSize && this.axis.y ? targetNode.offsetHeight - this.height : 0,
+        y: shouldAdjustForSize && this.axis.y ? targetNode.offsetHeight - this.height : 0
       };
 
       this.handleSortMove({
         pageX: targetPosition.left + sizeAdjustment.x,
         pageY: targetPosition.top + sizeAdjustment.y,
-        ignoreTransition: shift === 0,
+        ignoreTransition: shift === 0
       });
     };
 
-    keyDrop = (event) => {
+    keyDrop = event => {
       this.handleSortEnd(event);
 
       if (this.initialFocusedNode) {
@@ -896,16 +896,16 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
       }
     };
 
-    handleKeyEnd = (event) => {
+    handleKeyEnd = event => {
       if (this.manager.active) {
         this.keyDrop(event);
       }
     };
 
-    isValidSortingTarget = (event) => {
+    isValidSortingTarget = event => {
       const { useDragHandle } = this.props;
       const { target } = event;
-      const node = closest(target, (el) => el.sortableInfo != null);
+      const node = closest(target, el => el.sortableInfo != null);
 
       return node && node.sortableInfo && !node.sortableInfo.disabled && (useDragHandle ? isSortableHandle(target) : target.sortableInfo);
     };
@@ -939,14 +939,14 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
 
       return {
         left: this.scrollContainer.scrollLeft - this.initialScroll.left,
-        top: this.scrollContainer.scrollTop - this.initialScroll.top,
+        top: this.scrollContainer.scrollTop - this.initialScroll.top
       };
     }
 
     get windowScrollDelta() {
       return {
         left: this.contentWindow.pageXOffset - this.initialWindowScroll.left,
-        top: this.contentWindow.pageYOffset - this.initialWindowScroll.top,
+        top: this.contentWindow.pageYOffset - this.initialWindowScroll.top
       };
     }
   };

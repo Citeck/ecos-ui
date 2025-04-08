@@ -1,10 +1,10 @@
-import Records from '../components/Records';
-import { documentFields } from '../constants/documents';
-import { SourcesId } from '../constants';
 import journalsService from '../components/Journals/service/journalsService';
+import Records from '../components/Records';
+import { SourcesId } from '../constants';
+import { documentFields } from '../constants/documents';
 
 export class DocumentsApi {
-  getImageUrl = (entityRef) => {
+  getImageUrl = entityRef => {
     return Records.get(entityRef).load('_content.url');
   };
 
@@ -13,12 +13,12 @@ export class DocumentsApi {
       {
         sourceId: SourcesId.TYPE,
         query: {},
-        language: 'predicate',
+        language: 'predicate'
       },
       {
         name: 'name',
-        parent: 'parent?id',
-      },
+        parent: 'parent?id'
+      }
     );
   };
 
@@ -30,38 +30,38 @@ export class DocumentsApi {
         name: 'name',
         formId: 'form?id',
         createVariants: 'inhCreateVariants[]?json',
-        actions: 'actions[]?id',
-      },
+        actions: 'actions[]?id'
+      }
     );
   };
 
-  getParent = (type) => {
+  getParent = type => {
     return Records.get(type).load({
       id: 'parent?id',
-      name: 'parent?disp',
+      name: 'parent?disp'
     });
   };
 
-  getDynamicTypes = (recordRef) => {
+  getDynamicTypes = recordRef => {
     return Records.query(
       {
         sourceId: SourcesId.DOCUMENTS,
         language: 'document-types',
-        query: { recordRef },
+        query: { recordRef }
       },
       {
         type: 'type?id',
         multiple: 'multiple?bool',
-        mandatory: 'mandatory?bool',
-      },
+        mandatory: 'mandatory?bool'
+      }
     );
   };
 
-  getColumnsConfigByType = (typeRef) => {
+  getColumnsConfigByType = typeRef => {
     return journalsService.getJournalConfigByType(typeRef);
   };
 
-  getFormIdByType = (type) => {
+  getFormIdByType = type => {
     return Records.get(type)
       .load('form?id')
       .catch(() => null);
@@ -70,25 +70,25 @@ export class DocumentsApi {
   uploadFilesWithNodes = (data = {}, recordRef) => {
     const record = Records.getRecordToEdit(recordRef);
 
-    Object.keys(data).forEach((key) => {
+    Object.keys(data).forEach(key => {
       record.att(key, data[key]);
     });
 
     return record.save();
   };
 
-  downloadAllDocumentsWithAlfresco = (documentsRefs) => {
+  downloadAllDocumentsWithAlfresco = documentsRefs => {
     return fetch('/alfresco/s/citeck/zip/download', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json;odata=verbose',
+        'Content-Type': 'application/json;odata=verbose'
       },
       body: JSON.stringify({
-        documentsRef: documentsRefs,
-      }),
+        documentsRef: documentsRefs
+      })
     })
-      .then((res) => res.blob())
-      .then((blob) => {
+      .then(res => res.blob())
+      .then(blob => {
         var file = window.URL.createObjectURL(blob);
         window.location.assign(file);
       });
@@ -101,7 +101,7 @@ export class DocumentsApi {
       [documentFields.name]: '?disp',
       [documentFields.modified]: '_modified',
       [documentFields.loadedBy]: '_modifier',
-      ...attributes,
+      ...attributes
     };
     let attsToRequestStr = '';
     for (let alias in baseAttrs) {
@@ -119,21 +119,21 @@ export class DocumentsApi {
         sourceId: SourcesId.DOCUMENTS,
         query: {
           recordRef,
-          types,
+          types
         },
-        language: 'types-documents',
+        language: 'types-documents'
       },
       {
         documents: `documents[]{${attsToRequestStr}}`,
-        type: 'type',
-      },
+        type: 'type'
+      }
     );
   };
 
-  getCreateVariants = (type) => {
+  getCreateVariants = type => {
     return Records.get(type)
       .load('createVariants?json')
-      .then((response) => response || {})
+      .then(response => response || {})
       .catch(() => null);
   };
 }

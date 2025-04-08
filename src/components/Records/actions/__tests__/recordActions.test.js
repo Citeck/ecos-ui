@@ -3,15 +3,14 @@
  */
 import isBoolean from 'lodash/isBoolean';
 
-import DialogManager from '../../../common/dialogs/Manager';
-import recordActions, { DEFAULT_MODEL as GLOBAL_DEFAULT_MODEL } from '../recordActions';
-import actionsRegistry from '../actionsRegistry';
-import { DetailActionResult, prepareResult } from '../util/actionUtils';
 import * as util from '../../../../helpers/util';
-
-import { ACTION_DTO_BY_ID, ACTIONS_BY_RECORD, ACTIONS_BY_TYPE, RECORD_TYPE, RECORDS } from '../__mocks__/recordActionsApi';
+import DialogManager from '../../../common/dialogs/Manager';
 import TestActionExecutor, { TEST_ACTION_CONFIG } from '../__mocks__/TestActionExecutor.mock';
 import { ActionResultFormation, ActionResultTypes } from '../__mocks__/recordActions.mock';
+import { ACTION_DTO_BY_ID, ACTIONS_BY_RECORD, ACTIONS_BY_TYPE, RECORD_TYPE, RECORDS } from '../__mocks__/recordActionsApi';
+import actionsRegistry from '../actionsRegistry';
+import recordActions, { DEFAULT_MODEL as GLOBAL_DEFAULT_MODEL } from '../recordActions';
+import { DetailActionResult, prepareResult } from '../util/actionUtils';
 
 jest.mock('../recordActionsApi');
 
@@ -29,16 +28,16 @@ describe('RecordActions service', () => {
       config: {},
       confirm: {
         attributesMapping: {
-          'body.comment': 'comment',
-        },
-      },
+          'body.comment': 'comment'
+        }
+      }
     };
 
     recordActions.constructor._fillDataByMap({
       action,
       data: { comment: 'test' },
       targetPath: 'config.',
-      sourcePath: 'confirm.',
+      sourcePath: 'confirm.'
     });
 
     expect(action.config.body).toEqual({ comment: 'test' });
@@ -50,14 +49,14 @@ describe('RecordActions service', () => {
     beforeEach(() => {
       action = {
         config: {
-          A: 'A',
+          A: 'A'
         },
         preActionModule: 'module.js',
         features: {
           execForQuery: false,
           execForRecord: false,
-          execForRecords: false,
-        },
+          execForRecords: false
+        }
       };
     });
 
@@ -65,8 +64,8 @@ describe('RecordActions service', () => {
       action.features.execForRecord = true;
       mockGetModule.mockImplementation(() =>
         Promise.resolve({
-          execForRecord: () => ({ config: { B: 'B' } }),
-        }),
+          execForRecord: () => ({ config: { B: 'B' } })
+        })
       );
       const response = await recordActions.constructor._preProcessAction({ action }, 'execForRecord');
       expect(action.config).toEqual({ A: 'A' });
@@ -79,8 +78,8 @@ describe('RecordActions service', () => {
       action.features.execForRecord = true;
       mockGetModule.mockImplementation(() =>
         Promise.resolve({
-          execForRecord: () => {},
-        }),
+          execForRecord: () => {}
+        })
       );
       const response = await recordActions.constructor._preProcessAction({ action }, 'execForRecord');
       expect(action.config).toEqual({ A: 'A' });
@@ -110,19 +109,19 @@ describe('RecordActions service', () => {
       return res;
     };
 
-    const getExpectedActionsByRecord = (recordId) => {
-      return ACTIONS_BY_TYPE[RECORD_TYPE[recordId]].filter((a) => ACTIONS_BY_RECORD[recordId].indexOf(a) >= 0);
+    const getExpectedActionsByRecord = recordId => {
+      return ACTIONS_BY_TYPE[RECORD_TYPE[recordId]].filter(a => ACTIONS_BY_RECORD[recordId].indexOf(a) >= 0);
     };
 
     const compareActions = (expected, actual, context = {}, msg) => {
       let mask = 1;
       expected = expected
-        .map((a) => ACTION_DTO_BY_ID[a])
-        .map((a) => {
+        .map(a => ACTION_DTO_BY_ID[a])
+        .map(a => {
           let modelFromHandler = actionsRegistry.getHandler(a.type).getDefaultActionModel();
           return mergeModel(mergeModel(GLOBAL_DEFAULT_MODEL, modelFromHandler), a);
         })
-        .map((a) => {
+        .map(a => {
           let currMask = mask;
           mask = mask << 1;
           let pluralName = a.pluralName || a.name;
@@ -131,17 +130,17 @@ describe('RecordActions service', () => {
             pluralName,
             __act_ctx__: {
               context: context || {},
-              recordMask: currMask,
+              recordMask: currMask
             },
             features: {
               execForRecord: true,
               execForRecords: true,
               execForQuery: true,
-              ...(a.features || {}),
-            },
+              ...(a.features || {})
+            }
           };
         })
-        .filter((a) => a.features.execForRecord !== false);
+        .filter(a => a.features.execForRecord !== false);
 
       expect(actual.length).toEqual(expected.length);
       expect(actual).toEqual(expected);
@@ -176,10 +175,10 @@ describe('RecordActions service', () => {
 
     beforeEach(() => {
       winOpenSpy = jest.spyOn(window, 'open').mockImplementation(() => true);
-      showCustomDialogSpy = jest.spyOn(DialogManager, 'showCustomDialog').mockImplementation((p1) => p1.onHide());
+      showCustomDialogSpy = jest.spyOn(DialogManager, 'showCustomDialog').mockImplementation(p1 => p1.onHide());
       getActionAllowedInfoForRecordsSpy = jest
         .spyOn(recordActions, '_getActionAllowedInfoForRecords')
-        .mockImplementation((allowedRecords) => ({ allowedRecords, notAllowedRecords: [] }));
+        .mockImplementation(allowedRecords => ({ allowedRecords, notAllowedRecords: [] }));
       detailActionResultSpy = jest.spyOn(DetailActionResult, 'showResult');
       detailActionPreviewSpy = jest.spyOn(DetailActionResult, 'showPreviewRecords');
     });
@@ -241,7 +240,7 @@ describe('RecordActions service', () => {
       it('execForQueryConfig.execAsForRecords - bad query language', async () => {
         const result = await recordActions.execForQuery(
           { query: { language: 'bad-predicate' } },
-          { ...TEST_ACTION_CONFIG, execForQueryConfig: { execAsForRecords: true } },
+          { ...TEST_ACTION_CONFIG, execForQueryConfig: { execAsForRecords: true } }
         );
         const execForQueryAsForRecordsSpy = jest.spyOn(recordActions, 'execForQueryAsForRecords');
 

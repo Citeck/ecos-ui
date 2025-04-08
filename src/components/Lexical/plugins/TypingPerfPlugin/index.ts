@@ -26,7 +26,7 @@ const validInputTypes = new Set([
   'deleteHardLineBackward',
   'deleteSoftLineBackward',
   'deleteHardLineForward',
-  'deleteSoftLineForward',
+  'deleteSoftLineForward'
 ]);
 
 export default function TypingPerfPlugin(): JSX.Element | null {

@@ -195,7 +195,7 @@ ${steps.map(formatStep).join(`\n`)}
   // coalesce some actions like insertText/moveNativeSelection
   const pushStep = useCallback(
     (name: string, value: Step['value']) => {
-      setSteps((currentSteps) => {
+      setSteps(currentSteps => {
         // trying to group steps
         const currentIndex = steps.length - 1;
         const lastStep = steps[currentIndex];
@@ -216,7 +216,7 @@ ${steps.map(formatStep).join(`\n`)}
         return [...currentSteps, { count: 1, name, value }];
       });
     },
-    [steps, setSteps],
+    [steps, setSteps]
   );
 
   useLayoutEffect(() => {
@@ -329,9 +329,9 @@ ${steps.map(formatStep).join(`\n`)}
         });
         setSteps([]);
       }
-      setIsRecording((currentIsRecording) => !currentIsRecording);
+      setIsRecording(currentIsRecording => !currentIsRecording);
     },
-    [isRecording],
+    [isRecording]
   );
 
   const onSnapshotClick = useCallback(() => {
@@ -358,7 +358,7 @@ ${steps.map(formatStep).join(`\n`)}
       anchorPath,
       focusNode,
       focusOffset,
-      focusPath,
+      focusPath
     });
   }, [pushStep, isRecording, getCurrentEditor]);
 

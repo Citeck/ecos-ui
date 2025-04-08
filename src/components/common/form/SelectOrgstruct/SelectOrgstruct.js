@@ -11,7 +11,7 @@ import './SelectOrgstruct.scss';
 
 const orgStructApi = new OrgStructApi();
 
-const SelectOrgstruct = (props) => {
+const SelectOrgstruct = props => {
   return (
     <SelectOrgstructProvider controlProps={props} orgStructApi={orgStructApi}>
       <SelectOrgstructRoot />
@@ -28,7 +28,7 @@ SelectOrgstruct.defaultProps = {
   defaultTab: TabTypes.LEVELS,
   dataType: DataTypes.NODE_REF,
   userSearchExtraFields: [],
-  viewModeType: ViewModes.DEFAULT,
+  viewModeType: ViewModes.DEFAULT
 };
 
 SelectOrgstruct.propTypes = {
@@ -59,7 +59,7 @@ SelectOrgstruct.propTypes = {
   liveSearch: PropTypes.bool, // search by key down
   userSearchExtraFields: PropTypes.array,
   isIncludedAdminGroup: PropTypes.bool,
-  isLoading: PropTypes.bool,
+  isLoading: PropTypes.bool
 };
 
 export default SelectOrgstruct;

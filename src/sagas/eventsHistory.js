@@ -1,15 +1,16 @@
 import { call, put, select, takeEvery } from 'redux-saga/effects';
+
 import { filterJournalHistory, getEventsHistory, getJournalHistory, setEventsHistory } from '../actions/eventsHistory';
-import { selectDataEventsHistoryByStateId } from '../selectors/eventsHistory';
 import JournalsService from '../components/Journals/service/journalsService';
-import JournalsConverter from '../dto/journals';
 import { PREDICATE_EQ } from '../components/Records/predicates/predicates';
+import JournalsConverter from '../dto/journals';
+import { selectDataEventsHistoryByStateId } from '../selectors/eventsHistory';
 import EventsHistoryService from '../services/eventsHistory';
 
 const getSettings = ({ predicates, record }) => {
   return JournalsConverter.getSettingsForDataLoaderServer({
     predicate: { att: 'document', val: record, t: PREDICATE_EQ },
-    predicates,
+    predicates
   });
 };
 
@@ -36,7 +37,7 @@ function* sagaGetJournalHistory({}, { payload }) {
     const journalConfig = yield call(
       [JournalsService, JournalsService.getJournalConfig],
       selectedJournal || EventsHistoryService.defaultJournal,
-      true,
+      true
     );
 
     const res = yield call([JournalsService, JournalsService.getJournalData], journalConfig, getSettings({ record }));
@@ -52,7 +53,7 @@ function* sagaFilterJournalHistory({}, { payload }) {
   const { record, stateId, predicates } = payload;
 
   try {
-    const { journalConfig } = yield select((state) => selectDataEventsHistoryByStateId(state, stateId) || {});
+    const { journalConfig } = yield select(state => selectDataEventsHistoryByStateId(state, stateId) || {});
     const settings = getSettings({ predicates, record });
     const res = yield call([JournalsService, JournalsService.getJournalData], journalConfig, settings);
 

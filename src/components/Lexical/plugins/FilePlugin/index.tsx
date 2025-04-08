@@ -7,7 +7,7 @@ import {
   COMMAND_PRIORITY_EDITOR,
   SELECTION_CHANGE_COMMAND,
   COMMAND_PRIORITY_CRITICAL,
-  LexicalEditor,
+  LexicalEditor
 } from 'lexical';
 import React, { useCallback, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
@@ -41,7 +41,7 @@ export type UploadFilesInCommentProps = {
 
 const FilePlugin = ({
   isUploadingFile,
-  uploadFilesInComment,
+  uploadFilesInComment
 }: {
   isUploadingFile: boolean;
   uploadFilesInComment: (data: UploadFilesInCommentProps) => void;
@@ -58,7 +58,7 @@ const FilePlugin = ({
         setActiveEditor(newEditor);
         return false;
       },
-      COMMAND_PRIORITY_CRITICAL,
+      COMMAND_PRIORITY_CRITICAL
     );
   }, [editor]);
 
@@ -74,7 +74,7 @@ const FilePlugin = ({
           setIsModalOpen(true);
           return true;
         },
-        COMMAND_PRIORITY_EDITOR,
+        COMMAND_PRIORITY_EDITOR
       ),
       activeEditor.registerCommand(
         UPLOAD_FILE_COMMAND,
@@ -83,12 +83,12 @@ const FilePlugin = ({
             return false;
           }
 
-          const nodes = files.map((file) =>
+          const nodes = files.map(file =>
             $createFileNode({
               size: file.size,
               name: file.name,
-              fileRecordId: file.fileRecordId,
-            }),
+              fileRecordId: file.fileRecordId
+            })
           );
 
           const selection = $getRoot().selectEnd();
@@ -99,8 +99,8 @@ const FilePlugin = ({
           }
           return true;
         },
-        COMMAND_PRIORITY_EDITOR,
-      ),
+        COMMAND_PRIORITY_EDITOR
+      )
     );
   }, [activeEditor]);
 
@@ -121,7 +121,7 @@ const FilePlugin = ({
         hideModal();
         setIsLoadingUploadingModal(false);
         activeEditor.dispatchCommand(UPLOAD_FILE_COMMAND, fileRecords);
-      },
+      }
     });
   };
 
@@ -136,17 +136,17 @@ const FilePlugin = ({
 };
 
 const mapStateToProps = (state: any) => ({
-  ...selectStateByRecordRef(state, getRecordRef()),
+  ...selectStateByRecordRef(state, getRecordRef())
 });
 
 const mapDispatchToProps = (dispatch: any) => {
   const baseParams = {
     record: getRecordRef(),
-    key: getRecordRef(),
+    key: getRecordRef()
   };
 
   return {
-    uploadFilesInComment: (data: UploadFilesInCommentProps) => dispatch(uploadFilesInComment({ ...baseParams, ...data })),
+    uploadFilesInComment: (data: UploadFilesInCommentProps) => dispatch(uploadFilesInComment({ ...baseParams, ...data }))
   };
 };
 

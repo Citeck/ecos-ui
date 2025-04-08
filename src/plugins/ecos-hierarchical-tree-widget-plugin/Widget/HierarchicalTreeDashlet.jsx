@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
 import classNames from 'classnames';
-import isFunction from 'lodash/isFunction';
 import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
+import React, { useState, useEffect } from 'react';
 
 import FormManager from '../../../components/EcosForm/FormManager';
 import Records from '../../../components/Records';
@@ -40,23 +40,20 @@ const TreeNode = ({ node, recordRef, onFetchChildren }) => {
     });
   };
 
-  useEffect(
-    () => {
-      const hasFirstChildrenName = get(children, '[0].name', '');
+  useEffect(() => {
+    const hasFirstChildrenName = get(children, '[0].name', '');
 
-      if (isOpen && hasFirstChildrenName.length === 0) {
-        isFunction(onFetchChildren) &&
-          onFetchChildren(`emodel/wiki@${node.id}`).then(({ records = [] }) => {
-            setChildren(records);
+    if (isOpen && hasFirstChildrenName.length === 0) {
+      isFunction(onFetchChildren) &&
+        onFetchChildren(`emodel/wiki@${node.id}`).then(({ records = [] }) => {
+          setChildren(records);
 
-            if (records.length > 0) {
-              setIsOpen(true);
-            }
-          });
-      }
-    },
-    [isOpen]
-  );
+          if (records.length > 0) {
+            setIsOpen(true);
+          }
+        });
+    }
+  }, [isOpen]);
 
   return (
     <details open={isOpen}>
@@ -160,9 +157,9 @@ const HierarchicalTreeWidget = ({ record: recordRef }) => {
               d="M1 23.6171H150V144.617C150 147.931 147.314 150.617 144 150.617H7C3.68629 150.617 1 147.931 1 144.617V23.6171Z"
               fill="white"
               stroke="#EEF0F8"
-              stroke-width="2"
+              strokeWidth="2"
             />
-            <path d="M21 45.6171V122.617H39" stroke="#EEF0F8" stroke-width="3" stroke-linecap="square" stroke-linejoin="round" />
+            <path d="M21 45.6171V122.617H39" stroke="#EEF0F8" strokeWidth="3" strokeLinecap="square" strokeLinejoin="round" />
             <mask id="path-3-inside-1_4673_76086" fill="white">
               <rect x="39.2432" y="116.617" width="14" height="14" rx="2.33333" />
             </mask>
@@ -173,7 +170,7 @@ const HierarchicalTreeWidget = ({ record: recordRef }) => {
               height="14"
               rx="2.33333"
               stroke="#EEF0F8"
-              stroke-width="6"
+              strokeWidth="6"
               mask="url(#path-3-inside-1_4673_76086)"
             />
             <mask id="path-4-inside-2_4673_76086" fill="white">
@@ -186,11 +183,11 @@ const HierarchicalTreeWidget = ({ record: recordRef }) => {
               height="14"
               rx="2.33333"
               stroke="#EEF0F8"
-              stroke-width="6"
+              strokeWidth="6"
               mask="url(#path-4-inside-2_4673_76086)"
             />
-            <path d="M21.2432 93H38.7432" stroke="#EEF0F8" stroke-width="3" stroke-linecap="square" stroke-linejoin="round" />
-            <path d="M21.2432 63H38.7432" stroke="#EEF0F8" stroke-width="3" stroke-linecap="square" stroke-linejoin="round" />
+            <path d="M21.2432 93H38.7432" stroke="#EEF0F8" strokeWidth="3" strokeLinecap="square" strokeLinejoin="round" />
+            <path d="M21.2432 63H38.7432" stroke="#EEF0F8" strokeWidth="3" strokeLinecap="square" strokeLinejoin="round" />
             <mask id="path-7-inside-3_4673_76086" fill="white">
               <rect x="39.2432" y="56" width="14" height="14" rx="2.33333" />
             </mask>
@@ -201,14 +198,14 @@ const HierarchicalTreeWidget = ({ record: recordRef }) => {
               height="14"
               rx="2.33333"
               stroke="#EEF0F8"
-              stroke-width="6"
+              strokeWidth="6"
               mask="url(#path-7-inside-3_4673_76086)"
             />
-            <path d="M21.2432 63H38.7432" stroke="#EEF0F8" stroke-width="3" stroke-linecap="square" stroke-linejoin="round" />
-            <path d="M66.2432 63H129.243" stroke="#EEF0F8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M41.2432 39H104.243" stroke="#EEF0F8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M66.2432 93H129.243" stroke="#EEF0F8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-            <path d="M66.2432 123.617H129.243" stroke="#EEF0F8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M21.2432 63H38.7432" stroke="#EEF0F8" strokeWidth="3" strokeLinecap="square" strokeLinejoin="round" />
+            <path d="M66.2432 63H129.243" stroke="#EEF0F8" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M41.2432 39H104.243" stroke="#EEF0F8" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M66.2432 93H129.243" stroke="#EEF0F8" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M66.2432 123.617H129.243" stroke="#EEF0F8" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
             <mask id="path-13-inside-4_4673_76086" fill="white">
               <rect x="14.2432" y="32" width="14" height="14" rx="2.33333" />
             </mask>
@@ -219,7 +216,7 @@ const HierarchicalTreeWidget = ({ record: recordRef }) => {
               height="14"
               rx="2.33333"
               stroke="#EEF0F8"
-              stroke-width="6"
+              strokeWidth="6"
               mask="url(#path-13-inside-4_4673_76086)"
             />
             <ellipse cx="14.1813" cy="9.06449" rx="1.93816" ry="2.06449" fill="white" />
@@ -228,7 +225,7 @@ const HierarchicalTreeWidget = ({ record: recordRef }) => {
             <path
               d="M1 8.61706C1 5.30336 3.68629 2.61707 7 2.61707L144 2.61707C147.314 2.61707 150 5.30336 150 8.61706V23.6171L1 23.6171L1 8.61706Z"
               stroke="#EEF0F8"
-              stroke-width="2"
+              strokeWidth="2"
             />
           </svg>
           <p>Нет элементов</p>

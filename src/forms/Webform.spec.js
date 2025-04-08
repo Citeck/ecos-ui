@@ -1,17 +1,17 @@
 import each from 'lodash/each';
 
-import Harness from './test/harness';
-import FormTests from './test/forms';
+import { COOKIE_KEY_LOCALE } from '../constants/alfresco';
+
 import Formio from './Formio';
 import Webform from './Webform';
 import { APIMock } from './test/APIMock';
-
-import { COOKIE_KEY_LOCALE } from '../constants/alfresco';
+import FormTests from './test/forms';
+import Harness from './test/harness';
 
 describe('Formio Form Renderer tests', () => {
   let simpleForm = null;
 
-  it('Should create a simple form', (done) => {
+  it('Should create a simple form', done => {
     const formElement = document.createElement('div');
     simpleForm = new Webform(formElement);
     simpleForm
@@ -21,14 +21,14 @@ describe('Formio Form Renderer tests', () => {
           {
             type: 'textfield',
             key: 'firstName',
-            input: true,
+            input: true
           },
           {
             type: 'textfield',
             key: 'lastName',
-            input: true,
-          },
-        ],
+            input: true
+          }
+        ]
       })
       .then(() => {
         Harness.testElements(simpleForm, 'input[type="text"]', 2);
@@ -42,21 +42,21 @@ describe('Formio Form Renderer tests', () => {
     Harness.testSubmission(simpleForm, {
       data: {
         firstName: 'Joe',
-        lastName: 'Smith',
-      },
+        lastName: 'Smith'
+      }
     });
   });
 
-  it('Should translate a form from options', (done) => {
+  it('Should translate a form from options', done => {
     document.cookie = `${COOKIE_KEY_LOCALE}=es`;
     const formElement = document.createElement('div');
     const translateForm = new Webform(formElement, {
       language: 'es',
       i18n: {
         es: {
-          'Default Label': 'Spanish Label',
-        },
-      },
+          'Default Label': 'Spanish Label'
+        }
+      }
     });
     translateForm
       .setForm({
@@ -68,9 +68,9 @@ describe('Formio Form Renderer tests', () => {
             key: 'myfield',
             input: true,
             inputType: 'text',
-            validate: {},
-          },
-        ],
+            validate: {}
+          }
+        ]
       })
       .then(() => {
         const label = formElement.querySelector('.control-label');
@@ -79,15 +79,15 @@ describe('Formio Form Renderer tests', () => {
       });
   });
 
-  it('Should translate a form after instantiate', (done) => {
+  it('Should translate a form after instantiate', done => {
     document.cookie = `${COOKIE_KEY_LOCALE}=es`;
     const formElement = document.createElement('div');
     const translateForm = new Webform(formElement, {
       i18n: {
         es: {
-          'Default Label': 'Spanish Label',
-        },
-      },
+          'Default Label': 'Spanish Label'
+        }
+      }
     });
     translateForm
       .setForm({
@@ -99,9 +99,9 @@ describe('Formio Form Renderer tests', () => {
             key: 'myfield',
             input: true,
             inputType: 'text',
-            validate: {},
-          },
-        ],
+            validate: {}
+          }
+        ]
       })
       .then(() => {
         translateForm.language = 'es';
@@ -111,19 +111,19 @@ describe('Formio Form Renderer tests', () => {
       });
   });
 
-  it('Should add a translation after instantiate', (done) => {
+  it('Should add a translation after instantiate', done => {
     document.cookie = `${COOKIE_KEY_LOCALE}=fr`;
     const formElement = document.createElement('div');
     const translateForm = new Webform(formElement, {
       i18n: {
         language: 'es',
         es: {
-          'Default Label': 'Spanish Label',
+          'Default Label': 'Spanish Label'
         },
         fr: {
-          'Default Label': 'French Label',
-        },
-      },
+          'Default Label': 'French Label'
+        }
+      }
     });
     translateForm
       .setForm({
@@ -135,9 +135,9 @@ describe('Formio Form Renderer tests', () => {
             key: 'myfield',
             input: true,
             inputType: 'text',
-            validate: {},
-          },
-        ],
+            validate: {}
+          }
+        ]
       })
       .then(() => {
         translateForm.language = 'fr';
@@ -147,7 +147,7 @@ describe('Formio Form Renderer tests', () => {
       });
   });
 
-  it('Should switch a translation after instantiate', (done) => {
+  it('Should switch a translation after instantiate', done => {
     document.cookie = `${COOKIE_KEY_LOCALE}=es`;
     const formElement = document.createElement('div');
     const translateForm = new Webform(formElement);
@@ -161,9 +161,9 @@ describe('Formio Form Renderer tests', () => {
             key: 'myfield',
             input: true,
             inputType: 'text',
-            validate: {},
-          },
-        ],
+            validate: {}
+          }
+        ]
       })
       .then(() => {
         translateForm.addLanguage('es', { 'Default Label': 'Spanish Label' }, true);
@@ -173,7 +173,7 @@ describe('Formio Form Renderer tests', () => {
       });
   });
 
-  it('Should keep translation after redraw', (done) => {
+  it('Should keep translation after redraw', done => {
     document.cookie = `${COOKIE_KEY_LOCALE}=ru`;
     const formElement = document.createElement('div');
     const form = new Webform(formElement);
@@ -186,9 +186,9 @@ describe('Formio Form Renderer tests', () => {
           key: 'myfield',
           input: true,
           inputType: 'text',
-          validate: {},
-        },
-      ],
+          validate: {}
+        }
+      ]
     };
 
     try {
@@ -212,7 +212,7 @@ describe('Formio Form Renderer tests', () => {
     }
   });
 
-  it('Should fire languageChanged event when language is set', (done) => {
+  it('Should fire languageChanged event when language is set', done => {
     document.cookie = `${COOKIE_KEY_LOCALE}=ru`;
     let isLanguageChangedEventFired = false;
     const formElement = document.createElement('div');
@@ -226,9 +226,9 @@ describe('Formio Form Renderer tests', () => {
           key: 'myfield',
           input: true,
           inputType: 'text',
-          validate: {},
-        },
-      ],
+          validate: {}
+        }
+      ]
     };
 
     try {
@@ -251,7 +251,7 @@ describe('Formio Form Renderer tests', () => {
     }
   });
 
-  it('Should fire initialized event after change event when language is set', (done) => {
+  it('Should fire initialized event after change event when language is set', done => {
     let isChangeEventFired = false;
     const formElement = document.createElement('div');
     const schema = {
@@ -263,11 +263,11 @@ describe('Formio Form Renderer tests', () => {
           key: 'myfield',
           input: true,
           inputType: 'text',
-          validate: {},
-        },
-      ],
+          validate: {}
+        }
+      ]
     };
-    Formio.createForm(formElement, schema).then((form) => {
+    Formio.createForm(formElement, schema).then(form => {
       form.ready.then(() => {
         form.language = 'en-GB';
       });
@@ -281,7 +281,7 @@ describe('Formio Form Renderer tests', () => {
     });
   });
 
-  it('When submitted should strip fields with persistent: client-only from submission', (done) => {
+  it('When submitted should strip fields with persistent: client-only from submission', done => {
     const formElement = document.createElement('div');
     simpleForm = new Webform(formElement);
     /* eslint-disable quotes */
@@ -298,8 +298,8 @@ describe('Formio Form Renderer tests', () => {
           input: true,
           key: 'name',
           widget: {
-            type: '',
-          },
+            type: ''
+          }
         },
         {
           label: 'Age',
@@ -308,23 +308,23 @@ describe('Formio Form Renderer tests', () => {
           tableView: true,
           type: 'number',
           input: true,
-          key: 'age',
-        },
-      ],
+          key: 'age'
+        }
+      ]
     });
     /* eslint-enable quotes */
 
     Harness.testSubmission(simpleForm, {
-      data: { name: 'noname', age: '1' },
+      data: { name: 'noname', age: '1' }
     });
 
-    simpleForm.submit().then((submission) => {
+    simpleForm.submit().then(submission => {
       expect(submission.data).toEqual({ name: 'noname' });
       done();
     });
   });
 
-  it('When submitted should showing loader', (done) => {
+  it('When submitted should showing loader', done => {
     const formElement = document.createElement('div');
 
     simpleForm = new Webform(formElement);
@@ -352,9 +352,9 @@ describe('Formio Form Renderer tests', () => {
     });
   });
 
-  each(FormTests, (formTest) => {
+  each(FormTests, formTest => {
     each(formTest.tests, (formTestTest, title) => {
-      it(`[${formTest.title}]: ${title}`, (done) => {
+      it(`[${formTest.title}]: ${title}`, done => {
         document.cookie = `${COOKIE_KEY_LOCALE}=en`;
         const formElement = document.createElement('div');
         const form = new Webform(formElement, { language: 'en' /*, formMode: 'EDIT'*/ });
@@ -363,7 +363,7 @@ describe('Formio Form Renderer tests', () => {
           .then(() => {
             formTestTest(form, done);
           })
-          .catch((error) => {
+          .catch(error => {
             done(error);
           });
       });
@@ -377,29 +377,29 @@ describe('Test the saveDraft and restoreDraft feature', () => {
       {
         type: 'textfield',
         key: 'a',
-        label: 'A',
+        label: 'A'
       },
       {
         type: 'textfield',
         key: 'b',
-        label: 'B',
-      },
-    ],
+        label: 'B'
+      }
+    ]
   });
 
   const saveDraft = function (user, draft, newData, done) {
     const formElement = document.createElement('div');
     const form = new Webform(formElement, {
       saveDraft: true,
-      saveDraftThrottle: false,
+      saveDraftThrottle: false
     });
     form.src = 'https://savedraft.form.io/myform';
     Formio.setUser(user);
-    form.on('restoreDraft', (existing) => {
+    form.on('restoreDraft', existing => {
       expect(existing ? existing.data : null).toEqual(draft);
       form.setSubmission({ data: newData }, { modified: true });
     });
-    form.on('saveDraft', (saved) => {
+    form.on('saveDraft', saved => {
       // Make sure the modified class was added to the components.
       const a = form.getComponent('a');
       const b = form.getComponent('b');
@@ -414,57 +414,57 @@ describe('Test the saveDraft and restoreDraft feature', () => {
     });
   };
 
-  it('Should allow a user to start a save draft session.', (done) =>
+  it('Should allow a user to start a save draft session.', done =>
     saveDraft(
       {
         _id: '1234',
         data: {
           firstName: 'Joe',
-          lastName: 'Smith',
-        },
+          lastName: 'Smith'
+        }
       },
       null,
       {
         a: 'one',
-        b: 'two',
+        b: 'two'
       },
-      done,
+      done
     ));
 
-  it('Should allow a different user to start a new draft session', (done) =>
+  it('Should allow a different user to start a new draft session', done =>
     saveDraft(
       {
         _id: '2468',
         data: {
           firstName: 'Sally',
-          lastName: 'Thompson',
-        },
+          lastName: 'Thompson'
+        }
       },
       null,
       {
         a: 'three',
-        b: 'four',
+        b: 'four'
       },
-      done,
+      done
     ));
 
-  it('Should restore a users existing draft', (done) =>
+  it('Should restore a users existing draft', done =>
     saveDraft(
       {
         _id: '1234',
         data: {
           firstName: 'Joe',
-          lastName: 'Smith',
-        },
+          lastName: 'Smith'
+        }
       },
       {
         a: 'one',
-        b: 'two',
+        b: 'two'
       },
       {
         a: 'five',
-        b: 'six',
+        b: 'six'
       },
-      done,
+      done
     ));
 });

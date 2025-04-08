@@ -29,7 +29,7 @@ export default function ExcalidrawComponent({
   nodeKey,
   data,
   width,
-  height,
+  height
 }: {
   data: string;
   nodeKey: NodeKey;
@@ -56,7 +56,7 @@ export default function ExcalidrawComponent({
       }
       return false;
     },
-    [isSelected, nodeKey],
+    [isSelected, nodeKey]
   );
 
   useEffect(() => {
@@ -90,10 +90,10 @@ export default function ExcalidrawComponent({
 
           return false;
         },
-        COMMAND_PRIORITY_LOW,
+        COMMAND_PRIORITY_LOW
       ),
       editor.registerCommand(KEY_DELETE_COMMAND, $onDelete, COMMAND_PRIORITY_LOW),
-      editor.registerCommand(KEY_BACKSPACE_COMMAND, $onDelete, COMMAND_PRIORITY_LOW),
+      editor.registerCommand(KEY_BACKSPACE_COMMAND, $onDelete, COMMAND_PRIORITY_LOW)
     );
   }, [clearSelection, editor, isSelected, isResizing, $onDelete, setSelected, isEditable]);
 
@@ -116,8 +116,8 @@ export default function ExcalidrawComponent({
             JSON.stringify({
               appState: aps,
               elements: els,
-              files: fls,
-            }),
+              files: fls
+            })
           );
         } else {
           node.remove();
@@ -197,7 +197,7 @@ export default function ExcalidrawComponent({
               className="image-edit-button"
               role="button"
               tabIndex={0}
-              onMouseDown={(event) => event.preventDefault()}
+              onMouseDown={event => event.preventDefault()}
               onClick={openModal}
             />
           )}

@@ -34,7 +34,7 @@ function CodeActionMenuContainer({ anchorElem }: { anchorElem: HTMLElement }): J
   const [shouldListenMouseMove, setShouldListenMouseMove] = useState<boolean>(false);
   const [position, setPosition] = useState<Position>({
     right: '0',
-    top: '0',
+    top: '0'
   });
   const codeSetRef = useRef<Set<string>>(new Set());
   const codeDOMNodeRef = useRef<HTMLElement | null>(null);
@@ -76,12 +76,12 @@ function CodeActionMenuContainer({ anchorElem }: { anchorElem: HTMLElement }): J
         setShown(true);
         setPosition({
           right: `${editorElemRight - right + CODE_PADDING}px`,
-          top: `${y - editorElemY}px`,
+          top: `${y - editorElemY}px`
         });
       }
     },
     50,
-    1000,
+    1000
   );
 
   useEffect(() => {
@@ -101,7 +101,7 @@ function CodeActionMenuContainer({ anchorElem }: { anchorElem: HTMLElement }): J
   useEffect(() => {
     return editor.registerMutationListener(
       CodeNode,
-      (mutations) => {
+      mutations => {
         editor.getEditorState().read(() => {
           for (const [key, type] of mutations) {
             switch (type) {
@@ -120,7 +120,7 @@ function CodeActionMenuContainer({ anchorElem }: { anchorElem: HTMLElement }): J
         });
         setShouldListenMouseMove(codeSetRef.current.size > 0);
       },
-      { skipInitialization: false },
+      { skipInitialization: false }
     );
   }, [editor]);
 

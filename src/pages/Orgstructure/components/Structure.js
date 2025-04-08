@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, memo } from 'react';
 
 import FormManager from '../../../components/EcosForm/FormManager';
 import Records from '../../../components/Records';
@@ -13,21 +13,21 @@ import './style.scss';
 
 const Labels = {
   TITLE: 'orgstructure-page-title',
-  ADD_GROUP: 'orgstructure-page-add-group',
+  ADD_GROUP: 'orgstructure-page-add-group'
 };
 
-export const rootGroup = 'emodel/authority-group@_orgstruct_home_';
+const rootGroup = 'emodel/authority-group@_orgstruct_home_';
 const tooltipId = 'add-group-button';
 
-const Structure = ({ tabId, toggleToFirstTab }) => {
-  const { onUpdateTree } = useOrgstructContext();
+const Structure = memo(function Structure({ tabId, toggleToFirstTab }) {
+  const context = useOrgstructContext();
 
   const [canEdit, setCanEdit] = useState(false);
 
   useEffect(() => {
     Records.get(rootGroup)
       .load('permissions._has.Write?bool')
-      .then((value) => setCanEdit(value));
+      .then(value => setCanEdit(value));
   });
 
   const handleClickAddButton = () => {
@@ -36,11 +36,11 @@ const Structure = ({ tabId, toggleToFirstTab }) => {
       formId: 'authority-group-form',
       title: t('orgstructure-page-add-group'),
       attributes: {
-        authorityGroups: [rootGroup],
+        authorityGroups: [rootGroup]
       },
       onSubmit: () => {
-        onUpdateTree();
-      },
+        context.onUpdateTree();
+      }
     });
   };
 
@@ -60,6 +60,10 @@ const Structure = ({ tabId, toggleToFirstTab }) => {
       <OrgstructBody tabId={tabId} toggleToFirstTab={toggleToFirstTab} />
     </>
   );
-};
+}, arePropsEqual);
+
+function arePropsEqual(oldProps, newProps) {
+  return oldProps.tabId === newProps.tabId;
+}
 
 export default Structure;

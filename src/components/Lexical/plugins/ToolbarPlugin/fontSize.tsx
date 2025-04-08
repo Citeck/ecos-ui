@@ -30,7 +30,7 @@ export function parseAllowedFontSize(input: string): string {
 export default function FontSize({
   selectionFontSize,
   disabled,
-  editor,
+  editor
 }: {
   selectionFontSize: string;
   disabled: boolean;
@@ -103,7 +103,7 @@ export default function FontSize({
         className="toolbar-item font-size-input"
         min={MIN_ALLOWED_FONT_SIZE}
         max={MAX_ALLOWED_FONT_SIZE}
-        onChange={(e) => setInputValue(e.target.value)}
+        onChange={e => setInputValue(e.target.value)}
         onKeyDown={handleKeyPress}
         onBlur={handleInputBlur}
       />

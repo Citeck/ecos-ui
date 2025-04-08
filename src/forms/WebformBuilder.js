@@ -1,15 +1,17 @@
-import Components from 'formiojs/components/Components';
 import EventEmitter from 'formiojs/EventEmitter';
-import BuilderUtils from 'formiojs/utils/builder';
-import { getComponent } from 'formiojs/utils/formUtils';
 import Webform from 'formiojs/Webform';
 import WebformBuilder from 'formiojs/WebformBuilder';
-import dragula from '@/services/dragula';
+import Components from 'formiojs/components/Components';
+import BuilderUtils from 'formiojs/utils/builder';
+import { getComponent } from 'formiojs/utils/formUtils';
 import _ from 'lodash';
 
 import { t } from '../helpers/export/util';
-import { prepareComponentBuilderInfo } from './utils';
 import { getMLValue } from '../helpers/util';
+
+import { prepareComponentBuilderInfo } from './utils';
+
+import dragula from '@/services/dragula';
 
 const originAddBuilderComponentInfo = WebformBuilder.prototype.addBuilderComponentInfo;
 const originAddBuilderComponent = WebformBuilder.prototype.addBuilderComponent;
@@ -20,22 +22,22 @@ Object.defineProperty(WebformBuilder.prototype, 'defaultComponents', {
       basic: {
         title: t('form-constructor.builder.basic'),
         weight: 0,
-        default: true,
+        default: true
       },
       advanced: {
         title: t('form-constructor.builder.advanced'),
-        weight: 10,
+        weight: 10
       },
       layout: {
         title: t('form-constructor.builder.layout'),
-        weight: 20,
+        weight: 20
       },
       data: {
         title: t('form-constructor.builder.data'),
-        weight: 30,
-      },
+        weight: 30
+      }
     };
-  },
+  }
 });
 
 WebformBuilder.prototype.deleteComponent = function (component) {
@@ -171,14 +173,14 @@ WebformBuilder.prototype.updateComponent = function (component) {
         preview: true,
         events: new EventEmitter({
           wildcard: false,
-          maxListeners: 0,
+          maxListeners: 0
         }),
-        ..._.pick(_.get(this, 'options', {}), ['typeRef', 'recordRef']),
+        ..._.pick(_.get(this, 'options', {}), ['typeRef', 'recordRef'])
       },
       {},
-      true,
+      true
     );
-    this.preview.on('componentEdit', (comp) => {
+    this.preview.on('componentEdit', comp => {
       _.merge(component.component, comp.component);
       this.editForm.redraw();
     });
@@ -217,15 +219,15 @@ WebformBuilder.prototype.updateComponent = function (component) {
         'disabled',
         'fields.day.required',
         'fields.month.required',
-        'fields.year.required',
+        'fields.year.required'
       ]),
       {
-        customClass: `webform-builder-dv-${component.type}`,
-      },
+        customClass: `webform-builder-dv-${component.type}`
+      }
     );
   }
 
-  const componentInForm = this.getAllComponents().find((c) => c.id === component.id);
+  const componentInForm = this.getAllComponents().find(c => c.id === component.id);
   if (componentInForm) {
     componentInForm.dataValue = component.defaultValue;
   }
@@ -248,7 +250,7 @@ WebformBuilder.prototype.editComponent = function (component, isJsonEdit) {
   this.dialog = this.createModal(componentCopy.name);
   const formioForm = this.ce('div');
   this.componentPreview = this.ce('div', {
-    class: 'component-preview',
+    class: 'component-preview'
   });
   const componentInfo = componentClass ? componentClass.builderInfo : {};
 
@@ -256,137 +258,137 @@ WebformBuilder.prototype.editComponent = function (component, isJsonEdit) {
     'button',
     {
       class: 'btn btn-success',
-      style: 'margin-right: 10px;',
+      style: 'margin-right: 10px;'
     },
-    t('form-editor.save-button'),
+    t('form-editor.save-button')
   );
 
   const cancelButton = this.ce(
     'button',
     {
       class: 'btn btn-default',
-      style: 'margin-right: 10px;',
+      style: 'margin-right: 10px;'
     },
-    t('form-editor.cancel-button'),
+    t('form-editor.cancel-button')
   );
 
   const removeButton = this.ce(
     'button',
     {
-      class: 'btn btn-danger',
+      class: 'btn btn-danger'
     },
-    t('form-editor.remove-button'),
+    t('form-editor.remove-button')
   );
 
   const componentEdit = this.ce('div', {}, [
     this.ce(
       'div',
       {
-        class: 'row',
+        class: 'row'
       },
       [
         this.ce(
           'div',
           {
-            class: 'col col-sm-6',
+            class: 'col col-sm-6'
           },
           this.ce(
             'p',
             {
-              class: 'lead',
+              class: 'lead'
             },
-            `${this.t(componentInfo.title)} ${this.t('Component')}`,
-          ),
+            `${this.t(componentInfo.title)} ${this.t('Component')}`
+          )
         ),
         this.ce(
           'div',
           {
-            class: 'col col-sm-6',
+            class: 'col col-sm-6'
           },
           [
             this.ce(
               'div',
               {
                 class: 'pull-right',
-                style: 'margin-right: 20px; margin-top: 10px',
+                style: 'margin-right: 20px; margin-top: 10px'
               },
               this.ce(
                 'a',
                 {
                   href: componentInfo.documentation || '#',
-                  target: '_blank',
+                  target: '_blank'
                 },
                 this.ce(
                   'i',
                   {
-                    class: this.iconClass('new-window'),
+                    class: this.iconClass('new-window')
                   },
-                  t('form-editor.help'),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
+                  t('form-editor.help')
+                )
+              )
+            )
+          ]
+        )
+      ]
     ),
     this.ce(
       'div',
       {
-        class: 'row',
+        class: 'row'
       },
       [
         this.ce(
           'div',
           {
-            class: 'col col-sm-6',
+            class: 'col col-sm-6'
           },
-          formioForm,
+          formioForm
         ),
         this.ce(
           'div',
           {
-            class: 'col col-sm-6',
+            class: 'col col-sm-6'
           },
           [
             this.ce(
               'div',
               {
-                class: 'card panel panel-default preview-panel',
+                class: 'card panel panel-default preview-panel'
               },
               [
                 this.ce(
                   'div',
                   {
-                    class: 'card-header panel-heading',
+                    class: 'card-header panel-heading'
                   },
                   this.ce(
                     'h4',
                     {
-                      class: 'card-title panel-title mb-0',
+                      class: 'card-title panel-title mb-0'
                     },
-                    t('form-editor.preview-button'),
-                  ),
+                    t('form-editor.preview-button')
+                  )
                 ),
                 this.ce(
                   'div',
                   {
-                    class: 'card-body panel-body',
+                    class: 'card-body panel-body'
                   },
-                  this.componentPreview,
-                ),
-              ],
+                  this.componentPreview
+                )
+              ]
             ),
             this.ce(
               'div',
               {
-                style: 'margin-top: 10px;',
+                style: 'margin-top: 10px;'
               },
-              [removeButton, cancelButton, saveButton],
-            ),
-          ],
-        ),
-      ],
-    ),
+              [removeButton, cancelButton, saveButton]
+            )
+          ]
+        )
+      ]
+    )
   ]);
 
   // Append the settings page to the dialog body.
@@ -409,9 +411,9 @@ WebformBuilder.prototype.editComponent = function (component, isJsonEdit) {
           input: true,
           key: 'componentJson',
           label: 'Component JSON',
-          tooltip: 'Edit the JSON for this component.',
-        },
-      ],
+          tooltip: 'Edit the JSON for this component.'
+        }
+      ]
     };
   } else {
     editForm = componentClass.editForm(_.cloneDeep(overrides));
@@ -434,8 +436,8 @@ WebformBuilder.prototype.editComponent = function (component, isJsonEdit) {
       'disabled',
       'fields.day.required',
       'fields.month.required',
-      'fields.year.required',
-    ]),
+      'fields.year.required'
+    ])
   );
 
   // Create the form instance.
@@ -449,7 +451,7 @@ WebformBuilder.prototype.editComponent = function (component, isJsonEdit) {
     language: this.options.language,
     ...editFormOptions,
     parentId: this.id,
-    editInFormBuilder: true,
+    editInFormBuilder: true
   });
 
   // Set the form to the edit form.
@@ -463,7 +465,7 @@ WebformBuilder.prototype.editComponent = function (component, isJsonEdit) {
   this.updateComponent(componentCopy);
 
   // Register for when the edit form changes.
-  this.editForm.on('change', (event) => {
+  this.editForm.on('change', event => {
     if (event.changed) {
       // See if this is a manually modified key. Treat JSON edited component keys as manually modified
       if ((event.changed.component && event.changed.component.key === 'key') || isJsonEdit) {
@@ -490,27 +492,27 @@ WebformBuilder.prototype.editComponent = function (component, isJsonEdit) {
     if (isJsonEdit) {
       this.editForm.setValue({
         data: {
-          componentJson: _.cloneDeep(componentCopy.component),
-        },
+          componentJson: _.cloneDeep(componentCopy.component)
+        }
       });
     } else {
       this.editForm.setValue({ data: componentCopy.component });
     }
   });
 
-  this.addEventListener(cancelButton, 'click', (event) => {
+  this.addEventListener(cancelButton, 'click', event => {
     event.preventDefault();
     this.emit('cancelComponent', component);
     this.dialog.close();
   });
 
-  this.addEventListener(removeButton, 'click', (event) => {
+  this.addEventListener(removeButton, 'click', event => {
     event.preventDefault();
     this.deleteComponent(component);
     this.dialog.close();
   });
 
-  this.addEventListener(saveButton, 'click', (event) => {
+  this.addEventListener(saveButton, 'click', event => {
     event.preventDefault();
     const originalComponent = component.schema;
     component.isNew = false;
@@ -550,7 +552,7 @@ WebformBuilder.prototype.editComponent = function (component, isJsonEdit) {
     const config = {
       childList: true,
       attributes: true,
-      characterData: true,
+      characterData: true
     };
 
     observer.observe(target, config);
@@ -578,7 +580,7 @@ WebformBuilder.prototype.addBuilderComponent = function (...props) {
     const helper = this.ce('i', {
       class: 'fa fa-question-circle-o formcomponent__doc',
       style: 'right: 5px; position: absolute;font-size: 13px;cursor: pointer;',
-      title: t('form-editor.open-comp-doc', { name: component.title || component.key }),
+      title: t('form-editor.open-comp-doc', { name: component.title || component.key })
     });
 
     this.addEventListener(helper, 'click', () => window.open(component.documentation, '_blank'), true);
@@ -602,7 +604,7 @@ WebformBuilder.prototype.refreshDraggable = function () {
     },
     accepts(el, target) {
       return !el.contains(target) && !target.classList.contains('no-drop');
-    },
+    }
   }).on('drop', (element, target, source, sibling) => {
     return this.onDrop(element, target, source, sibling);
   });

@@ -18,7 +18,7 @@ import {
   GroupTypes,
   ROOT_GROUP_NAME,
   TabTypes,
-  ViewModes,
+  ViewModes
 } from '@/components/common/form/SelectOrgstruct/constants';
 
 const _array = (str, checkForEmpty) => {
@@ -26,7 +26,7 @@ const _array = (str, checkForEmpty) => {
     return [];
   }
 
-  return split(str, ',').map((item) => item.trim());
+  return split(str, ',').map(item => item.trim());
 };
 
 export default class SelectOrgstructComponent extends BaseComponent {
@@ -53,9 +53,9 @@ export default class SelectOrgstructComponent extends BaseComponent {
         dataType: DataTypes.NODE_REF,
         userSearchExtraFields: '',
         isIncludedAdminGroup: false,
-        viewModeType: ViewModes.DEFAULT,
+        viewModeType: ViewModes.DEFAULT
       },
-      ...extend,
+      ...extend
     );
   }
 
@@ -65,7 +65,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
       icon: 'fa fa-th-list',
       group: 'advanced',
       weight: 0,
-      schema: SelectOrgstructComponent.schema(),
+      schema: SelectOrgstructComponent.schema()
     };
   }
 
@@ -186,7 +186,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
           onError={console.error}
           viewModeType={comp.viewModeType}
         />,
-        this.reactContainer,
+        this.reactContainer
       );
     };
 
@@ -197,7 +197,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
     this.reactContainer && this.renderReactComponent();
   };
 
-  onValueChange = (value) => {
+  onValueChange = value => {
     this.updateValue({ modified: true, changeByUser: true }, value === null ? this.emptyValue : value);
     this.refreshDOM();
   };
@@ -252,14 +252,14 @@ export default class SelectOrgstructComponent extends BaseComponent {
       value = Array.isArray(value) ? [currentUser] : currentUser;
     }
 
-    const setValueImpl = (v) => {
+    const setValueImpl = v => {
       const val = v || this.component.defaultValue || this.emptyValue;
       this.updateValue(flags, val);
       this.refreshDOM();
     };
 
     if (Array.isArray(value)) {
-      const promises = value.map((auth) => new Promise((resolve) => this._getAuthorityRef(auth, resolve)));
+      const promises = value.map(auth => new Promise(resolve => this._getAuthorityRef(auth, resolve)));
       Promise.all(promises).then(setValueImpl);
     } else {
       this._getAuthorityRef(value, setValueImpl);

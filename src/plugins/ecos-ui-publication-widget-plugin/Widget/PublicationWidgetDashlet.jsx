@@ -1,15 +1,15 @@
+import get from 'lodash/get';
 import moment from 'moment';
 import React from 'react';
-import get from 'lodash/get';
 
 import Dashlet from '../../../components/Dashlet/Dashlet';
-import { Avatar, Loader } from '../../../components/common';
-import Records from '../../../components/Records/Records';
 import FormManager from '../../../components/EcosForm/FormManager';
+import Records from '../../../components/Records/Records';
+import { Avatar, Loader } from '../../../components/common';
 import BaseWidget from '../../../components/widgets/BaseWidget';
-import DAction from '../../../services/DashletActionService';
-import { getCurrentLocale, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
+import { getCurrentLocale, t } from '../../../helpers/util';
+import DAction from '../../../services/DashletActionService';
 
 import './style.scss';
 

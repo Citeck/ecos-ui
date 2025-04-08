@@ -1,19 +1,19 @@
-import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 import isString from 'lodash/isString';
 
-import { TITLE } from '../constants/pageTabs';
-import { DashboardTypes } from '../constants/dashboard';
-import Components from '../components/widgets/Components';
-import Records from '../components/Records';
 import { ASSOC_TYPES } from '../components/Journals/service/journalColumnsResolver';
-import DashboardService from '../services/dashboard';
-import { getWorkspaceId } from '../helpers/urls';
-import { getCurrentUserName, getEnabledWorkspaces, getMLValue, isExistIndex, t } from '../helpers/util';
+import Records from '../components/Records';
+import Components from '../components/widgets/Components';
+import { EmodelTypes, SourcesId } from '../constants';
+import { DashboardTypes } from '../constants/dashboard';
+import { TITLE } from '../constants/pageTabs';
 import Cache from '../helpers/cache';
 import { getRefWithAlfrescoPrefix, parseJournalId, parseTypeId } from '../helpers/ref';
-import { EmodelTypes, SourcesId } from '../constants';
+import { getWorkspaceId } from '../helpers/urls';
+import { getCurrentUserName, getEnabledWorkspaces, getMLValue, isExistIndex, t } from '../helpers/util';
+import DashboardService from '../services/dashboard';
 
 const defaultAttr = {
   id: 'id',
@@ -321,7 +321,7 @@ export class DashboardApi {
     }
   };
 
-  checkExistDashboard = function*({ key, type, user }) {
+  checkExistDashboard = function* ({ key, type, user }) {
     return yield Records.queryOne({
       sourceId: SourcesId.DASHBOARD,
       query: {

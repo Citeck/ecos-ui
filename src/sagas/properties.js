@@ -1,4 +1,5 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
+
 import { getFormList, setFormList } from '../actions/properties';
 
 function* sagaGetFormList({ api }, { payload }) {

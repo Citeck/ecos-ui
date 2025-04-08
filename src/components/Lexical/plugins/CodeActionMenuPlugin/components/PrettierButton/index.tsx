@@ -24,14 +24,14 @@ const PRETTIER_PARSER_MODULES = {
   html: [() => import('prettier/parser-html')],
   js: [() => import('prettier/parser-babel'), () => import('prettier/plugins/estree')],
   markdown: [() => import('prettier/parser-markdown')],
-  typescript: [() => import('prettier/parser-typescript'), () => import('prettier/plugins/estree')],
+  typescript: [() => import('prettier/parser-typescript'), () => import('prettier/plugins/estree')]
 } as const;
 
 type LanguagesType = keyof typeof PRETTIER_PARSER_MODULES;
 
 async function loadPrettierParserByLang(lang: string) {
   const dynamicImports = PRETTIER_PARSER_MODULES[lang as LanguagesType];
-  const modules = await Promise.all(dynamicImports.map((dynamicImport) => dynamicImport()));
+  const modules = await Promise.all(dynamicImports.map(dynamicImport => dynamicImport()));
   return modules;
 }
 
@@ -42,20 +42,20 @@ async function loadPrettierFormat() {
 
 const PRETTIER_OPTIONS_BY_LANG: Record<string, Options> = {
   css: {
-    parser: 'css',
+    parser: 'css'
   },
   html: {
-    parser: 'html',
+    parser: 'html'
   },
   js: {
-    parser: 'babel',
+    parser: 'babel'
   },
   markdown: {
-    parser: 'markdown',
+    parser: 'markdown'
   },
   typescript: {
-    parser: 'typescript',
-  },
+    parser: 'typescript'
+  }
 };
 
 const LANG_CAN_BE_PRETTIER = Object.keys(PRETTIER_OPTIONS_BY_LANG);
@@ -98,7 +98,7 @@ export function PrettierButton({ lang, editor, getCodeDOMNode }: Props) {
       const format = await loadPrettierFormat();
       const options = getPrettierOptions(lang);
       const prettierParsers = await loadPrettierParserByLang(lang);
-      options.plugins = prettierParsers.map((parser) => parser.default || parser);
+      options.plugins = prettierParsers.map(parser => parser.default || parser);
       const formattedCode = await format(content, options);
 
       editor.update(() => {

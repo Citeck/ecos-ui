@@ -14,7 +14,7 @@ import './StickyEditorTheme.css';
 
 const theme: EditorThemeClasses = {
   ...baseTheme,
-  paragraph: 'StickyEditorTheme__paragraph',
+  paragraph: 'StickyEditorTheme__paragraph'
 };
 
 export default theme;

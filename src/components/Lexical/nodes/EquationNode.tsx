@@ -15,7 +15,7 @@ import type { DOMConversionMap, DOMConversionOutput, EditorConfig, LexicalNode, 
 
 const EquationComponent = React.lazy(
   // @ts-ignore
-  () => import('./EquationComponent'),
+  () => import('./EquationComponent')
 );
 
 export type SerializedEquationNode = Spread<
@@ -65,7 +65,7 @@ export class EquationNode extends DecoratorNode<JSX.Element> {
     return {
       ...super.exportJSON(),
       equation: this.getEquation(),
-      inline: this.__inline,
+      inline: this.__inline
     };
   }
 
@@ -88,7 +88,7 @@ export class EquationNode extends DecoratorNode<JSX.Element> {
       output: 'html',
       strict: 'warn',
       throwOnError: false,
-      trust: false,
+      trust: false
     });
     return { element };
   }
@@ -101,7 +101,7 @@ export class EquationNode extends DecoratorNode<JSX.Element> {
         }
         return {
           conversion: $convertEquationElement,
-          priority: 2,
+          priority: 2
         };
       },
       span: (domNode: HTMLElement) => {
@@ -110,9 +110,9 @@ export class EquationNode extends DecoratorNode<JSX.Element> {
         }
         return {
           conversion: $convertEquationElement,
-          priority: 1,
+          priority: 1
         };
-      },
+      }
     };
   }
 

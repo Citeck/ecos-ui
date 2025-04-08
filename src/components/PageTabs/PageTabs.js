@@ -27,7 +27,7 @@ import {
   setDisplayState,
   setTab,
   updateTab,
-  updateTabsFromStorage,
+  updateTabsFromStorage
 } from '@/actions/pageTabs';
 import { _LOCALHOST_, URL as Urls } from '@/constants';
 import { MIN_CONTEXT_WIDTH, PANEL_CLASS_NAME } from '@/constants/pageTabs';
@@ -51,7 +51,7 @@ const Labels = {
   CONTEXT_CLOSE_OTHER: 'page-tabs.context-menu.close-other',
   CONTEXT_CLOSE_LEFT: 'page-tabs.context-menu.close-left',
   CONTEXT_CLOSE_RIGHT: 'page-tabs.context-menu.close-right',
-  CONTEXT_CLOSE_ALL: 'page-tabs.context-menu.close-all',
+  CONTEXT_CLOSE_ALL: 'page-tabs.context-menu.close-all'
 };
 const ContextMenuTypes = {
   COPY_LINK: 'copy-link',
@@ -60,7 +60,7 @@ const ContextMenuTypes = {
   CLOSE_RIGHT: 'close-right',
   CLOSE_OTHER: 'close-other',
   CLOSE_ALL: 'close-all',
-  GO_SOURCE_HOST: 'go-source-host',
+  GO_SOURCE_HOST: 'go-source-host'
 };
 
 class PageTabs extends React.Component {
@@ -70,7 +70,7 @@ class PageTabs extends React.Component {
     homepageLink: PropTypes.string.isRequired,
     allowedLinks: PropTypes.array,
     isShow: PropTypes.bool,
-    enableCache: PropTypes.bool,
+    enableCache: PropTypes.bool
   };
 
   #contextPortalElement;
@@ -81,7 +81,7 @@ class PageTabs extends React.Component {
     needArrow: false,
     enableCache: false,
     draggableNode: null,
-    contextMenu: null,
+    contextMenu: null
   };
 
   inited = false;
@@ -123,14 +123,14 @@ class PageTabs extends React.Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { tabs, isShow, inited, setDisplayState } = this.props;
     const activeTabPrev = get(
-      prevProps.tabs.find((tab) => tab.isActive),
+      prevProps.tabs.find(tab => tab.isActive),
       'id',
-      '',
+      ''
     );
     const activeTab = get(
-      tabs.find((tab) => tab.isActive),
+      tabs.find(tab => tab.isActive),
       'id',
-      '',
+      ''
     );
 
     if (prevProps.isShow !== isShow) {
@@ -209,7 +209,7 @@ class PageTabs extends React.Component {
       this.setState({
         needArrow,
         isActiveRightArrow: !(scrollWidth <= offsetWidth + scrollLeft),
-        isActiveLeftArrow: scrollLeft > 0,
+        isActiveLeftArrow: scrollLeft > 0
       });
     }
   }
@@ -240,7 +240,7 @@ class PageTabs extends React.Component {
     deleteTab(tab);
   }
 
-  handleClickLink = (event) => {
+  handleClickLink = event => {
     const { isShow, setTab } = this.props;
 
     if (!isShow) {
@@ -271,7 +271,7 @@ class PageTabs extends React.Component {
     }
   };
 
-  handleCloseTab = (tab) => {
+  handleCloseTab = tab => {
     this.closeTab(tab);
   };
 
@@ -281,7 +281,7 @@ class PageTabs extends React.Component {
     }
   };
 
-  handleClickTab = (tab) => {
+  handleClickTab = tab => {
     if (tab.isActive) {
       this.scrollToTop();
       return;
@@ -290,14 +290,14 @@ class PageTabs extends React.Component {
     this.props.changeTab({
       data: { isActive: true },
       filter: { id: tab.id },
-      url: tab.link,
+      url: tab.link
     });
   };
 
-  handleClickContextMenuItem = (type) => {
+  handleClickContextMenuItem = type => {
     const { tabs } = this.props;
     const {
-      contextMenu: { tab, position },
+      contextMenu: { tab, position }
     } = this.state;
 
     if (!tab) {
@@ -319,8 +319,8 @@ class PageTabs extends React.Component {
         break;
       case ContextMenuTypes.CLOSE_OTHER:
         this.handleCloseTabs(
-          tabs.filter((item) => item.id !== tab.id),
-          tab,
+          tabs.filter(item => item.id !== tab.id),
+          tab
         );
         break;
       case ContextMenuTypes.CLOSE_SELF:
@@ -341,7 +341,7 @@ class PageTabs extends React.Component {
     animateScrollTo(document.querySelectorAll(`.${PANEL_CLASS_NAME}`), { scrollTop: 0 });
   };
 
-  updateTab = (tab) => {
+  updateTab = tab => {
     this.props.updateTab({ tab });
   };
 
@@ -349,7 +349,7 @@ class PageTabs extends React.Component {
     DialogManager.confirmDialog({
       title: t(Labels.CONFIRM_REMOVE_ALL_TABS_TITLE),
       text: t(Labels.CONFIRM_REMOVE_ALL_TABS_TEXT),
-      onYes: this.handleCloseTabs,
+      onYes: this.handleCloseTabs
     });
   };
 
@@ -459,7 +459,7 @@ class PageTabs extends React.Component {
 
   handleContextMenu = ({ tab, position, x, y, ctrlKey, shiftKey, metaKey }) => {
     this.setState({
-      contextMenu: { tab, position, x, y, ctrlKey, shiftKey, metaKey },
+      contextMenu: { tab, position, x, y, ctrlKey, shiftKey, metaKey }
     });
   };
 
@@ -483,7 +483,7 @@ class PageTabs extends React.Component {
       <div className="page-tab__nav-btn-placeholder">
         <div
           className={classNames('page-tab__nav-btn', {
-            'page-tab__nav-btn_disable': !isActiveLeftArrow,
+            'page-tab__nav-btn_disable': !isActiveLeftArrow
           })}
           onClick={this.handleScrollLeft}
         >
@@ -520,7 +520,7 @@ class PageTabs extends React.Component {
       <div className="page-tab__nav-btn-placeholder">
         <div
           className={classNames('page-tab__nav-btn', {
-            'page-tab__nav-btn_disable': !isActiveRightArrow,
+            'page-tab__nav-btn_disable': !isActiveRightArrow
           })}
           onClick={this.handleScrollRight}
         >
@@ -563,7 +563,7 @@ class PageTabs extends React.Component {
         handleClickOutside={this.handleClickLink}
         className={classNames('page-tab', {
           'page-tab_gradient-left': needArrow && isActiveLeftArrow,
-          'page-tab_gradient-right': needArrow && isActiveRightArrow,
+          'page-tab_gradient-right': needArrow && isActiveRightArrow
         })}
         key="tabs-wrapper"
       >
@@ -604,15 +604,15 @@ class PageTabs extends React.Component {
     return children;
   }
 
-  renderTabPanes = React.memo((props) => {
+  renderTabPanes = React.memo(props => {
     const { tabs, ContentComponent, url } = props;
 
-    return tabs.map((tab) => {
+    return tabs.map(tab => {
       return React.createElement(ContentComponent, {
         tab,
         url,
         isActive: pageTabList.activeTab.id === tab.id,
-        key: tab.id,
+        key: tab.id
       });
     });
   });
@@ -629,8 +629,8 @@ class PageTabs extends React.Component {
     const actions = [
       {
         title: t(Labels.CONTEXT_COPY_LINK),
-        onClick: () => this.handleClickContextMenuItem(ContextMenuTypes.COPY_LINK),
-      },
+        onClick: () => this.handleClickContextMenuItem(ContextMenuTypes.COPY_LINK)
+      }
     ];
     const minLeft = MIN_CONTEXT_WIDTH + getScrollbarWidth();
     let left = x;
@@ -642,42 +642,42 @@ class PageTabs extends React.Component {
     if (tabs.length > 1) {
       actions.push({
         title: t(Labels.CONTEXT_CLOSE_SELF),
-        onClick: () => this.handleClickContextMenuItem(ContextMenuTypes.CLOSE_SELF),
+        onClick: () => this.handleClickContextMenuItem(ContextMenuTypes.CLOSE_SELF)
       });
     }
 
     if (position !== tabs.length - 1 && position !== 0) {
       actions.push({
         title: t(Labels.CONTEXT_CLOSE_OTHER),
-        onClick: () => this.handleClickContextMenuItem(ContextMenuTypes.CLOSE_OTHER),
+        onClick: () => this.handleClickContextMenuItem(ContextMenuTypes.CLOSE_OTHER)
       });
     }
 
     if (position > 0) {
       actions.push({
         title: t(Labels.CONTEXT_CLOSE_LEFT),
-        onClick: () => this.handleClickContextMenuItem(ContextMenuTypes.CLOSE_LEFT),
+        onClick: () => this.handleClickContextMenuItem(ContextMenuTypes.CLOSE_LEFT)
       });
     }
 
     if (position !== tabs.length - 1) {
       actions.push({
         title: t(Labels.CONTEXT_CLOSE_RIGHT),
-        onClick: () => this.handleClickContextMenuItem(ContextMenuTypes.CLOSE_RIGHT),
+        onClick: () => this.handleClickContextMenuItem(ContextMenuTypes.CLOSE_RIGHT)
       });
     }
 
     if (tabs.length > 1) {
       actions.push({
         title: t(Labels.CONTEXT_CLOSE_ALL),
-        onClick: () => this.handleClickContextMenuItem(ContextMenuTypes.CLOSE_ALL),
+        onClick: () => this.handleClickContextMenuItem(ContextMenuTypes.CLOSE_ALL)
       });
     }
 
     if ((IS_DEV_ENV || (ctrlKey && shiftKey) || (metaKey && shiftKey)) && get(this.state, 'contextMenu.tab.isActive')) {
       actions.push({
         title: `${t(Labels.GO_TO)} ${IS_DEV_ENV ? process.env.SHARE_PROXY_URL : 'local'}`,
-        onClick: () => this.handleClickContextMenuItem(ContextMenuTypes.GO_SOURCE_HOST),
+        onClick: () => this.handleClickContextMenuItem(ContextMenuTypes.GO_SOURCE_HOST)
       });
     }
 
@@ -688,13 +688,13 @@ class PageTabs extends React.Component {
         key="tab-context-menu"
         style={{ top: y, left }}
       >
-        {actions.map((action) => (
+        {actions.map(action => (
           <div key={action.title} className="page-tab__context-menu-item" onClick={action.onClick}>
             {action.title}
           </div>
         ))}
       </ClickOutside>,
-      this.#contextPortalElement,
+      this.#contextPortalElement
     );
   }
 
@@ -713,30 +713,30 @@ class PageTabs extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
   const wsId = getWorkspaceId();
   const enabledWorkspaces = getEnabledWorkspaces();
-  const wsTabs = get(state, 'pageTabs.tabs', []).filter((tab) => (tab.workspace && tab.workspace === wsId) || tab.link === Urls.DASHBOARD);
+  const wsTabs = get(state, 'pageTabs.tabs', []).filter(tab => (tab.workspace && tab.workspace === wsId) || tab.link === Urls.DASHBOARD);
 
   return {
     location: get(state, 'router.location', {}),
     enableCache: get(state, 'app.enableCache', false),
     inited: get(state, 'pageTabs.inited', false),
     homePageLink: selectWorkspaceHomeLinkById(state, wsId),
-    tabs: enabledWorkspaces ? wsTabs : get(state, 'pageTabs.tabs', []),
+    tabs: enabledWorkspaces ? wsTabs : get(state, 'pageTabs.tabs', [])
   };
 };
 
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = dispatch => ({
   initTabs: () => dispatch(initTabs()),
-  moveTabs: (params) => dispatch(moveTabs(params)),
-  setDisplayState: (state) => dispatch(setDisplayState(state)),
-  changeTab: (tab) => dispatch(changeTab(tab)),
-  setTab: (params) => dispatch(setTab(params)),
-  updateTab: (tab) => dispatch(updateTab(tab)),
-  deleteTab: (tab) => dispatch(deleteTab(tab)),
-  closeTabs: (data) => dispatch(closeTabs(data)),
-  updateTabs: () => dispatch(updateTabsFromStorage()),
+  moveTabs: params => dispatch(moveTabs(params)),
+  setDisplayState: state => dispatch(setDisplayState(state)),
+  changeTab: tab => dispatch(changeTab(tab)),
+  setTab: params => dispatch(setTab(params)),
+  updateTab: tab => dispatch(updateTab(tab)),
+  deleteTab: tab => dispatch(deleteTab(tab)),
+  closeTabs: data => dispatch(closeTabs(data)),
+  updateTabs: () => dispatch(updateTabsFromStorage())
 });
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(PageTabs));

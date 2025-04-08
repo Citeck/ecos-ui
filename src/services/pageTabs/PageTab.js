@@ -1,9 +1,9 @@
 import uuidv4 from 'uuid/v4';
 
+import { TITLE } from '../../constants/pageTabs';
+import { t } from '../../helpers/export/util';
 import { decodeLink } from '../../helpers/urls';
 import PageService from '../PageService';
-import { t } from '../../helpers/export/util';
-import { TITLE } from '../../constants/pageTabs';
 
 /**
  * @define Describe One Application Tab

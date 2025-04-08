@@ -11,7 +11,7 @@ import {
   START_EVENT,
   START_EVENT_SUB_PROCESS,
   TASK as BPMN_TASK,
-  TRANSACTION,
+  TRANSACTION
 } from 'bpmn-js/lib/features/replace/ReplaceOptions';
 
 import { ECOS_TASK_TYPE_SET_STATUS, REPLACE_TO_SET_STATUS } from '@/constants/bpmn';
@@ -24,9 +24,9 @@ const TASK = [
     className: 'bpmn-icon-set-status-task',
     target: {
       type: 'bpmn:Task',
-      taskType: ECOS_TASK_TYPE_SET_STATUS,
-    },
-  },
+      taskType: ECOS_TASK_TYPE_SET_STATUS
+    }
+  }
 ];
 
 export {
@@ -42,5 +42,5 @@ export {
   START_EVENT_SUB_PROCESS,
   SUBPROCESS_EXPANDED,
   TASK,
-  TRANSACTION,
+  TRANSACTION
 };

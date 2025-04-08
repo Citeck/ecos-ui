@@ -1,12 +1,13 @@
-import { call, put, takeEvery } from 'redux-saga/effects';
 import isEmpty from 'lodash/isEmpty';
-import { NotificationManager } from '@/services/notifications';
+import { call, put, takeEvery } from 'redux-saga/effects';
 
 import { changeTaskAssignee, getTaskList, setTaskAssignee, setTaskList } from '../actions/tasks';
-import { t } from '../helpers/util';
-import TasksConverter from '../dto/tasks';
-import SidebarService from '../services/sidebar';
 import Records from '../components/Records';
+import TasksConverter from '../dto/tasks';
+import { t } from '../helpers/util';
+import SidebarService from '../services/sidebar';
+
+import { NotificationManager } from '@/services/notifications';
 
 function notify(type, keyMsg) {
   NotificationManager[type](t(keyMsg), t('current-tasks-widget.notify.title'));
@@ -25,8 +26,8 @@ function* sagaGetTasks({ api }, { payload }) {
         setTaskList({
           stateId,
           list: TasksConverter.getTaskListForWeb(res.records),
-          totalCount: res.totalCount || 0,
-        }),
+          totalCount: res.totalCount || 0
+        })
       );
     }
 

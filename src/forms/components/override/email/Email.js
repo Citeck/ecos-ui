@@ -1,6 +1,7 @@
+import FormIOEmailComponent from 'formiojs/components/email/Email';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
-import FormIOEmailComponent from 'formiojs/components/email/Email';
+
 import { overrideTriggerChange } from '../misc';
 
 export default class EmailComponent extends FormIOEmailComponent {
@@ -30,7 +31,7 @@ export default class EmailComponent extends FormIOEmailComponent {
     } else {
       this.refreshOnChanged = true;
       this.refreshOnValue = {
-        [refreshOnKey]: value,
+        [refreshOnKey]: value
       };
     }
 

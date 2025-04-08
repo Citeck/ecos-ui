@@ -20,7 +20,7 @@ let optionalMiddlewares = [];
 if (allowedModes.includes(process.env.NODE_ENV) || !!localStorage.getItem(SETTING_ENABLE_SAGA_LOGGER)) {
   const logger = createLogger({
     collapsed: true,
-    diff: true,
+    diff: true
     //please, don't delete predicate, it's needed for dev
     //predicate: (getState, action) => action.type.startsWith('journal')
   });
@@ -38,7 +38,7 @@ export default function configureStore(ea, defaultState = {}) {
   store = createStore(
     createRootReducer(history),
     initialState,
-    composeEnhancers(applyMiddleware(routerMiddleware(history), sagaMiddleware, thunk.withExtraArgument(ea), ...optionalMiddlewares)),
+    composeEnhancers(applyMiddleware(routerMiddleware(history), sagaMiddleware, thunk.withExtraArgument(ea), ...optionalMiddlewares))
   );
 
   sagaMiddleware.run(sagas, ea);

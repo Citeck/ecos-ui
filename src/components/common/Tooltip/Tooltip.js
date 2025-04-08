@@ -1,13 +1,14 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import isArray from 'lodash/isArray';
 import isFunction from 'lodash/isFunction';
 import isNil from 'lodash/isNil';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
 import { isClosestHidden } from '../../../helpers/util';
-import { TooltipWrapper } from './TooltipWrapper';
 import ZIndex from '../../../services/ZIndex';
-import isArray from 'lodash/isArray';
+
+import { TooltipWrapper } from './TooltipWrapper';
 
 import './style.scss';
 

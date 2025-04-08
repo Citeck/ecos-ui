@@ -27,5 +27,5 @@ function rmClass(el, className) {
 
 export default {
   add: addClass,
-  rm: rmClass,
+  rm: rmClass
 };

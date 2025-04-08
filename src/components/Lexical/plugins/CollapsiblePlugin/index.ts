@@ -20,7 +20,7 @@ import {
   KEY_ARROW_DOWN_COMMAND,
   KEY_ARROW_LEFT_COMMAND,
   KEY_ARROW_RIGHT_COMMAND,
-  KEY_ARROW_UP_COMMAND,
+  KEY_ARROW_UP_COMMAND
 } from 'lexical';
 import { useEffect } from 'react';
 
@@ -36,7 +36,7 @@ export default function CollapsiblePlugin(): null {
   useEffect(() => {
     if (!editor.hasNodes([CollapsibleContainerNode, CollapsibleTitleNode, CollapsibleContentNode])) {
       throw new Error(
-        'CollapsiblePlugin: CollapsibleContainerNode, CollapsibleTitleNode, or CollapsibleContentNode not registered on editor',
+        'CollapsiblePlugin: CollapsibleContainerNode, CollapsibleTitleNode, or CollapsibleContentNode not registered on editor'
       );
     }
 
@@ -92,7 +92,7 @@ export default function CollapsiblePlugin(): null {
       // Structure enforcing transformers for each node type. In case nesting structure is not
       // "Container > Title + Content" it'll unwrap nodes and convert it back
       // to regular content.
-      editor.registerNodeTransform(CollapsibleContentNode, (node) => {
+      editor.registerNodeTransform(CollapsibleContentNode, node => {
         const parent = node.getParent();
         if (!$isCollapsibleContainerNode(parent)) {
           const children = node.getChildren();
@@ -103,7 +103,7 @@ export default function CollapsiblePlugin(): null {
         }
       }),
 
-      editor.registerNodeTransform(CollapsibleTitleNode, (node) => {
+      editor.registerNodeTransform(CollapsibleTitleNode, node => {
         const parent = node.getParent();
         if (!$isCollapsibleContainerNode(parent)) {
           node.replace($createParagraphNode().append(...node.getChildren()));
@@ -111,7 +111,7 @@ export default function CollapsiblePlugin(): null {
         }
       }),
 
-      editor.registerNodeTransform(CollapsibleContainerNode, (node) => {
+      editor.registerNodeTransform(CollapsibleContainerNode, node => {
         const children = node.getChildren();
         if (children.length !== 2 || !$isCollapsibleTitleNode(children[0]) || !$isCollapsibleContentNode(children[1])) {
           for (const child of children) {
@@ -143,7 +143,7 @@ export default function CollapsiblePlugin(): null {
         () => {
           const selection = $getSelection();
           if ($isRangeSelection(selection)) {
-            const titleNode = $findMatchingParent(selection.anchor.getNode(), (node) => $isCollapsibleTitleNode(node));
+            const titleNode = $findMatchingParent(selection.anchor.getNode(), node => $isCollapsibleTitleNode(node));
 
             if ($isCollapsibleTitleNode(titleNode)) {
               const container = titleNode.getParent();
@@ -159,7 +159,7 @@ export default function CollapsiblePlugin(): null {
 
           return false;
         },
-        COMMAND_PRIORITY_LOW,
+        COMMAND_PRIORITY_LOW
       ),
       editor.registerCommand(
         INSERT_COLLAPSIBLE_COMMAND,
@@ -170,15 +170,15 @@ export default function CollapsiblePlugin(): null {
             $insertNodeToNearestRoot(
               $createCollapsibleContainerNode(true).append(
                 title.append(paragraph),
-                $createCollapsibleContentNode().append($createParagraphNode()),
-              ),
+                $createCollapsibleContentNode().append($createParagraphNode())
+              )
             );
             paragraph.select();
           });
           return true;
         },
-        COMMAND_PRIORITY_LOW,
-      ),
+        COMMAND_PRIORITY_LOW
+      )
     );
   }, [editor]);
 

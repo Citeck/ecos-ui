@@ -15,6 +15,6 @@ export function getThemeSelector(getTheme: () => EditorThemeClasses | null | und
   invariant(typeof className === 'string', 'getThemeClass: required theme property %s not defined', String(name));
   return className
     .split(/\s+/g)
-    .map((cls) => `.${cls}`)
+    .map(cls => `.${cls}`)
     .join();
 }

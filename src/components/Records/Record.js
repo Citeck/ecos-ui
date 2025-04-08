@@ -1,16 +1,16 @@
-import _ from 'lodash';
 import { EventEmitter } from 'events';
+import _ from 'lodash';
+import get from 'lodash/get';
 
-import { mapValueToScalar, parseAttribute } from './utils/attStrUtils';
-import { loadAttribute, recordsMutateFetch } from './recordsApi';
+import { SourcesId } from '../../constants';
+import { getWorkspaceId } from '../../helpers/urls';
+
 import Attribute from './Attribute';
 import RecordWatcher from './RecordWatcher';
 import recordsClientManager from './client';
+import { loadAttribute, recordsMutateFetch } from './recordsApi';
+import { mapValueToScalar, parseAttribute } from './utils/attStrUtils';
 import { prepareAttsToLoad } from './utils/recordUtils';
-import { getWorkspaceId } from '../../helpers/urls';
-
-import { SourcesId } from '../../constants';
-import get from 'lodash/get';
 
 export const EVENT_CHANGE = 'change';
 
@@ -72,7 +72,7 @@ export default class Record {
       }
     }
 
-    const isPersistedAssocValue = (value) => {
+    const isPersistedAssocValue = value => {
       return _.isString(value) && value.includes('workspace://') && !value.includes('alias');
     };
 
@@ -86,7 +86,7 @@ export default class Record {
           if (value && withDisplayNames) {
             if (Array.isArray(value)) {
               let hasPromises = false;
-              let mappedValues = value.map((it) => {
+              let mappedValues = value.map(it => {
                 if (isPersistedAssocValue(it)) {
                   hasPromises = true;
                   return this._records.get(it).load('.disp');
@@ -134,7 +134,7 @@ export default class Record {
       const att = json.attributes[key];
 
       if (att && att.then) {
-        const promise = att.then((res) => (json.attributes[key] = res)).catch(() => (json.attributes[key] = null));
+        const promise = att.then(res => (json.attributes[key] = res)).catch(() => (json.attributes[key] = null));
 
         promises.push(promise);
       }
@@ -175,9 +175,9 @@ export default class Record {
     return this.load(
       {
         modified: '_modified?str',
-        pendingUpdate: 'pendingUpdate?bool',
+        pendingUpdate: 'pendingUpdate?bool'
       },
-      true,
+      true
     ).then(({ modified, pendingUpdate }) => {
       if (pendingUpdate === true) {
         setTimeout(() => {
@@ -188,23 +188,23 @@ export default class Record {
           this._modified = modified;
 
           Promise.all(
-            this._watchers.map((watcher) => {
+            this._watchers.map(watcher => {
               return this.load(watcher.getWatchedAttributes(), true)
-                .then((loadedAtts) => {
+                .then(loadedAtts => {
                   return {
                     watcher,
-                    loadedAtts,
+                    loadedAtts
                   };
                 })
-                .catch((e) => {
+                .catch(e => {
                   console.error(e);
                   return {
                     watcher,
-                    loadedAtts: watcher.getAttributes(),
+                    loadedAtts: watcher.getAttributes()
                   };
                 });
-            }),
-          ).then((watchersData) => {
+            })
+          ).then(watchersData => {
             for (let data of watchersData) {
               try {
                 data.watcher.setAttributes(data.loadedAtts);
@@ -235,9 +235,9 @@ export default class Record {
       return false;
     }
 
-    const checkConditions = (attr) => attr.includes('.') || attr.includes('assoc_src_');
+    const checkConditions = attr => attr.includes('.') || attr.includes('assoc_src_');
 
-    return this._watchers.some((watcher) => {
+    return this._watchers.some(watcher => {
       const attrs = watcher.getWatchedAttributes();
 
       if (Array.isArray(attrs)) {
@@ -270,7 +270,7 @@ export default class Record {
       this._innerUpdate(resolve, reject);
     })
       .then(cleanUpdateStatus)
-      .catch((e) => {
+      .catch(e => {
         console.error(e);
         cleanUpdateStatus();
       });
@@ -307,10 +307,10 @@ export default class Record {
 
         watcher.setAttributes(loadedAtts);
       })
-      .catch((e) => {
+      .catch(e => {
         console.error(e);
 
-        attsPromise.then((atts) => watcher.setAttributes(atts)).catch(console.error);
+        attsPromise.then(atts => watcher.setAttributes(atts)).catch(console.error);
       });
 
     return watcher;
@@ -344,7 +344,7 @@ export default class Record {
       attsToLoad,
       attsToLoadLengthWithoutClient,
       isSingleAttribute,
-      clientData,
+      clientData
     };
   }
 
@@ -376,7 +376,7 @@ export default class Record {
 
   async load(attributes, force) {
     const attsLoadingCtx = await this._preProcessAttsToLoadWithClient(attributes);
-    let loadedAtts = await Promise.all(attsLoadingCtx.attsToLoad.map((att) => this._loadAttWithCacheImpl(att, force)));
+    let loadedAtts = await Promise.all(attsLoadingCtx.attsToLoad.map(att => this._loadAttWithCacheImpl(att, force)));
     return this._postProcessLoadedAttsWithClient(loadedAtts, attsLoadingCtx);
   }
 
@@ -401,11 +401,11 @@ export default class Record {
       value = this._loadRecordAttImpl(att, force);
       if (value && value.then) {
         this._recordFields[att] = value
-          .then((loaded) => {
+          .then(loaded => {
             this._recordFields[att] = loaded;
             return loaded;
           })
-          .catch((e) => {
+          .catch(e => {
             console.error(e);
             this._recordFields[att] = null;
             return null;
@@ -535,11 +535,11 @@ export default class Record {
         return acc;
       }
       value = Array.isArray(value) ? value : [value];
-      return acc.concat(value.map((id) => this._records.get(id)).map((rec) => rec._getWhenReadyToSave()));
+      return acc.concat(value.map(id => this._records.get(id)).map(rec => rec._getWhenReadyToSave()));
     }, []);
 
-    const linkedRecords = await Promise.all(result).then((records) => records.filter((r) => !r.isPersisted()));
-    const nestedLinkedRecords = await Promise.all(linkedRecords.map(async (r) => await r._getLinkedRecordsToSave()));
+    const linkedRecords = await Promise.all(result).then(records => records.filter(r => !r.isPersisted()));
+    const nestedLinkedRecords = await Promise.all(linkedRecords.map(async r => await r._getLinkedRecordsToSave()));
     const nestedLinkedRecordsFlatten = nestedLinkedRecords.reduce((acc, val) => acc.concat(val), []);
     return [...linkedRecords, ...nestedLinkedRecordsFlatten];
   }
@@ -549,12 +549,12 @@ export default class Record {
     if (this.isVirtual()) {
       return this._postProcessLoadedAttsWithClient(
         loadAttsCtx.attsToLoad.map(() => null),
-        loadAttsCtx,
+        loadAttsCtx
       );
     }
 
-    const recordsToSave = await this._getWhenReadyToSave().then((baseRecordToSave) => {
-      return this._getLinkedRecordsToSave().then((linkedRecords) => [baseRecordToSave, ...linkedRecords]);
+    const recordsToSave = await this._getWhenReadyToSave().then(baseRecordToSave => {
+      return this._getLinkedRecordsToSave().then(linkedRecords => [baseRecordToSave, ...linkedRecords]);
     });
     let requestRecords = [];
 
@@ -569,7 +569,7 @@ export default class Record {
         let baseId = record.getBaseRecord().id;
         requestRecords.push({
           id: baseId,
-          attributes: attributesToSave,
+          attributes: attributesToSave
         });
       }
     }
@@ -581,7 +581,7 @@ export default class Record {
 
     const mutResponse = await recordsMutateFetch({
       records: requestRecords,
-      attributes: requestAttributes,
+      attributes: requestAttributes
     });
 
     for (let record of requestRecords) {
@@ -629,13 +629,13 @@ export default class Record {
 
     let requestRecords = [];
 
-    let recordsToSavePromises = this._getWhenReadyToSave().then((baseRecordToSave) => {
-      return this._getLinkedRecordsToSave().then((linkedRecords) => [baseRecordToSave, ...linkedRecords]);
+    let recordsToSavePromises = this._getWhenReadyToSave().then(baseRecordToSave => {
+      return this._getLinkedRecordsToSave().then(linkedRecords => [baseRecordToSave, ...linkedRecords]);
     });
 
     const nonBaseRecordsToReset = [];
 
-    return recordsToSavePromises.then(async (recordsToSave) => {
+    return recordsToSavePromises.then(async recordsToSave => {
       for (let record of recordsToSave) {
         let attributesToSave = record.getAttributesToSave();
 
@@ -650,7 +650,7 @@ export default class Record {
           }
           requestRecords.push({
             id: baseId,
-            attributes: attributesToSave,
+            attributes: attributesToSave
           });
         }
       }
@@ -659,7 +659,7 @@ export default class Record {
         return Promise.resolve(this);
       }
 
-      return recordsMutateFetch({ records: requestRecords }).then((response) => {
+      return recordsMutateFetch({ records: requestRecords }).then(response => {
         let attributesToLoad = {};
 
         for (let record of requestRecords) {
@@ -750,7 +750,7 @@ export default class Record {
       arguments.length === 1,
       Attribute.prototype.getPersistedValue,
       Attribute.prototype.setPersistedValue,
-      false,
+      false
     );
   }
 
@@ -803,7 +803,7 @@ export default class Record {
           let currentValue = this._recordFields[name];
           if (currentValue === undefined) {
             this._recordFieldsToSave[name] = this.load(name, true)
-              .then((loadedValue) => {
+              .then(loadedValue => {
                 if (!_.isEqual(loadedValue, value)) {
                   this._recordFieldsToSave[name] = value;
                   return value;
@@ -812,7 +812,7 @@ export default class Record {
                   return null;
                 }
               })
-              .catch((e) => {
+              .catch(e => {
                 console.error(e);
                 delete this._recordFieldsToSave[name];
                 return null;
@@ -858,7 +858,7 @@ export default class Record {
   }
 
   forceUpdate() {
-    this._watchers.forEach((watcher) => {
+    this._watchers.forEach(watcher => {
       watcher.callCallback();
     });
   }
@@ -866,7 +866,7 @@ export default class Record {
   async getTypeId() {
     const typeAtt = this._attributes['_type'];
     if (typeAtt == null) {
-      return this.load('_type?id').then((typeRef) => {
+      return this.load('_type?id').then(typeRef => {
         return this.__getTypeIdFromRef(typeRef);
       });
     }

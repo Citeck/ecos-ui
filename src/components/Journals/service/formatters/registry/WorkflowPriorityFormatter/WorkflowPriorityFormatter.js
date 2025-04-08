@@ -1,8 +1,7 @@
-import React from 'react';
 import get from 'lodash/get';
+import React from 'react';
 
 import { t } from '../../../../../../helpers/util';
-
 import BaseFormatter from '../../BaseFormatter';
 
 import './WorkflowPriorityFormatter.scss';

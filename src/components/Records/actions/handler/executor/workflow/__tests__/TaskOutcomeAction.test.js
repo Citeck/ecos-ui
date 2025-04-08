@@ -1,9 +1,8 @@
+import EcosFormUtils from '../../../../../../EcosForm/EcosFormUtils';
+import DialogManager from '../../../../../../common/dialogs/Manager';
 import Record from '../../../../../Record';
 import Records from '../../../../../Records';
 import actionsRegistry from '../../../../actionsRegistry';
-import EcosFormUtils from '../../../../../../EcosForm/EcosFormUtils';
-import DialogManager from '../../../../../../common/dialogs/Manager';
-
 import TaskOutcomeAction from '../TaskOutcomeAction';
 
 console.error = jest.fn();
@@ -17,7 +16,7 @@ describe('TaskOutcome action', () => {
   beforeEach(() => {
     console.error.mockClear();
 
-    recordQuerySpy = jest.spyOn(Records, 'query').mockImplementation((query) => {
+    recordQuerySpy = jest.spyOn(Records, 'query').mockImplementation(query => {
       let definition;
       let formNotExists;
       switch (query.query.formRef) {
@@ -37,18 +36,18 @@ describe('TaskOutcome action', () => {
 
       return Promise.resolve({ records: [{ id: '', '.json': { definition }, '_notExists?bool': formNotExists }] });
     });
-    getFormInputsSpy = jest.spyOn(EcosFormUtils, 'getFormInputs').mockImplementation((data) => data.formInputs);
+    getFormInputsSpy = jest.spyOn(EcosFormUtils, 'getFormInputs').mockImplementation(data => data.formInputs);
     errorSpy = jest.spyOn(console, 'error');
     saveTaskSpy = jest.spyOn(Record.prototype, 'save').mockImplementation(() => Promise.resolve());
-    confirmDialogSpy = jest.spyOn(DialogManager, 'confirmDialog').mockImplementation((data) => data.onYes());
-    showFormDialogSpy = jest.spyOn(DialogManager, 'showFormDialog').mockImplementation((data) => data.onSubmit({}));
+    confirmDialogSpy = jest.spyOn(DialogManager, 'confirmDialog').mockImplementation(data => data.onYes());
+    showFormDialogSpy = jest.spyOn(DialogManager, 'showFormDialog').mockImplementation(data => data.onSubmit({}));
   });
 
   afterEach(() => jest.clearAllMocks());
 
   it('No important data', async () => {
     const result = await actionTaskOutcome.execForRecord(record, {
-      config: { outcome: '', formRef: '', taskRef: '' },
+      config: { outcome: '', formRef: '', taskRef: '' }
     });
 
     expect(recordQuerySpy).toHaveBeenCalledTimes(0);
@@ -58,7 +57,7 @@ describe('TaskOutcome action', () => {
 
   it('Form not exists', async () => {
     const result = await actionTaskOutcome.execForRecord(record, {
-      config: { outcome: 'outcome', formRef: 'form-not-exists', taskRef: 'taskRef' },
+      config: { outcome: 'outcome', formRef: 'form-not-exists', taskRef: 'taskRef' }
     });
 
     expect(recordQuerySpy).toHaveBeenCalledTimes(1);
@@ -69,7 +68,7 @@ describe('TaskOutcome action', () => {
 
   it('Empty Hidden form', async () => {
     const result = await actionTaskOutcome.execForRecord(record, {
-      config: { outcome: 'outcome', formRef: 'no-inputs', taskRef: 'taskRef', hideConfirmEmptyForm: true },
+      config: { outcome: 'outcome', formRef: 'no-inputs', taskRef: 'taskRef', hideConfirmEmptyForm: true }
     });
 
     expect(recordQuerySpy).toHaveBeenCalledTimes(1);
@@ -84,7 +83,7 @@ describe('TaskOutcome action', () => {
 
   it('Empty form with confirm dialog', async () => {
     const result = await actionTaskOutcome.execForRecord(record, {
-      config: { outcome: 'outcome', formRef: 'no-inputs', taskRef: 'taskRef' },
+      config: { outcome: 'outcome', formRef: 'no-inputs', taskRef: 'taskRef' }
     });
 
     expect(recordQuerySpy).toHaveBeenCalledTimes(1);
@@ -99,7 +98,7 @@ describe('TaskOutcome action', () => {
 
   it('Not empty form dialog', async () => {
     const result = await actionTaskOutcome.execForRecord(record, {
-      config: { outcome: 'outcome', formRef: 'formRef', taskRef: 'taskRef' },
+      config: { outcome: 'outcome', formRef: 'formRef', taskRef: 'taskRef' }
     });
 
     expect(recordQuerySpy).toHaveBeenCalledTimes(1);

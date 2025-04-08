@@ -8,7 +8,7 @@ import {
   getJournalTabInfo,
   setJournalTabInfo,
   getActionsInfo,
-  setActionsInfo,
+  setActionsInfo
 } from '@/actions/processAdmin';
 import RecordActions from '@/components/Records/actions/recordActions';
 import RecordActionsApi from '@/components/Records/actions/recordActionsApi';

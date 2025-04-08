@@ -1,8 +1,8 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
+import React from 'react';
 
-import Export from '../Export';
 import ConfigService from '../../../services/config/ConfigService';
+import Export from '../Export';
 
 describe('Export component tests', () => {
   test('should render Export component', () => {

@@ -5,7 +5,7 @@ import Formatter from './ColoredFormatter';
 
 const coloredFormatterInstance = new Formatter();
 
-jest.spyOn(util, 't').mockImplementation((key) => en[key]);
+jest.spyOn(util, 't').mockImplementation(key => en[key]);
 
 describe('ColoredFormatter', () => {
   it('getType should return correct type', () => {
@@ -36,8 +36,8 @@ describe('ColoredFormatter', () => {
       const result = coloredFormatterInstance.format({
         cell: { disp: '4', value: 4 },
         config: {
-          fn: 'if (cell.value > 2) return "#e2e2e2"',
-        },
+          fn: 'if (cell.value > 2) return "#e2e2e2"'
+        }
       });
 
       const color = result.props.style.backgroundColor;
@@ -49,8 +49,8 @@ describe('ColoredFormatter', () => {
       const result = coloredFormatterInstance.format({
         cell: { disp: '2', value: 2 },
         config: {
-          fn: 'if (cell.value > 2) return "#e2e2e2"',
-        },
+          fn: 'if (cell.value > 2) return "#e2e2e2"'
+        }
       });
 
       const color = result.props.style.backgroundColor;
@@ -68,15 +68,15 @@ describe('ColoredFormatter', () => {
       it('should apply background color with named colors when showPointer = false', () => {
         const config = {
           color: {
-            low: 'low',
+            low: 'low'
           },
           enabledNewJournal: false,
-          showPointer: false,
+          showPointer: false
         };
 
         const result = coloredFormatterInstance.format({
           cell: 'low',
-          config,
+          config
         });
 
         expect(result.props.className).toContain('value-color-formatter_low');
@@ -88,15 +88,15 @@ describe('ColoredFormatter', () => {
       it('should apply background color with hex colors when showPointer = false', () => {
         const config = {
           color: {
-            low: '#00FF00',
+            low: '#00FF00'
           },
           enabledNewJournal: false,
-          showPointer: false,
+          showPointer: false
         };
 
         const result = coloredFormatterInstance.format({
           cell: 'low',
-          config,
+          config
         });
 
         expect(result.props.className).toContain('value-color-formatter__oval');
@@ -107,15 +107,15 @@ describe('ColoredFormatter', () => {
       it('should display pointer with named colors when showPointer = true', () => {
         const config = {
           color: {
-            low: 'low',
+            low: 'low'
           },
           enabledNewJournal: false,
-          showPointer: true,
+          showPointer: true
         };
 
         const result = coloredFormatterInstance.format({
           cell: 'low',
-          config,
+          config
         });
 
         expect(result.props.className).toBe('value-color-formatter');
@@ -133,15 +133,15 @@ describe('ColoredFormatter', () => {
       it('should display pointer with hex colors when showPointer = true', () => {
         const config = {
           color: {
-            low: '#00FF00',
+            low: '#00FF00'
           },
           enabledNewJournal: false,
-          showPointer: true,
+          showPointer: true
         };
 
         const result = coloredFormatterInstance.format({
           cell: 'low',
-          config,
+          config
         });
 
         expect(result.props.className).toBe('value-color-formatter');
@@ -160,15 +160,15 @@ describe('ColoredFormatter', () => {
       it('should apply background color with named colors when showPointer = false', () => {
         const config = {
           color: {
-            low: 'low',
+            low: 'low'
           },
           enabledNewJournal: true,
-          showPointer: false,
+          showPointer: false
         };
 
         const result = coloredFormatterInstance.format({
           cell: 'low',
-          config,
+          config
         });
 
         expect(result.props.className).toBe('value-color-formatter');
@@ -185,15 +185,15 @@ describe('ColoredFormatter', () => {
       it('should apply background color with hex colors when showPointer = false', () => {
         const config = {
           color: {
-            low: '#00FF00',
+            low: '#00FF00'
           },
           enabledNewJournal: true,
-          showPointer: false,
+          showPointer: false
         };
 
         const result = coloredFormatterInstance.format({
           cell: 'low',
-          config,
+          config
         });
 
         expect(result.props.className).toBe('value-color-formatter');
@@ -210,15 +210,15 @@ describe('ColoredFormatter', () => {
       it('should display only pointer with named colors when showPointer = true', () => {
         const config = {
           color: {
-            low: 'low',
+            low: 'low'
           },
           enabledNewJournal: true,
-          showPointer: true,
+          showPointer: true
         };
 
         const result = coloredFormatterInstance.format({
           cell: 'low',
-          config,
+          config
         });
 
         expect(result.props.className).toBe('value-color-formatter');
@@ -236,15 +236,15 @@ describe('ColoredFormatter', () => {
       it('should display only pointer with hex colors when showPointer = true', () => {
         const config = {
           color: {
-            low: '#00FF00',
+            low: '#00FF00'
           },
           enabledNewJournal: true,
-          showPointer: true,
+          showPointer: true
         };
 
         const result = coloredFormatterInstance.format({
           cell: 'low',
-          config,
+          config
         });
 
         expect(result.props.className).toBe('value-color-formatter');
@@ -264,12 +264,12 @@ describe('ColoredFormatter', () => {
         color: {},
         defaultColor: '#CCCCCC',
         showPointer: false,
-        enabledNewJournal: false,
+        enabledNewJournal: false
       };
 
       const result = coloredFormatterInstance.format({
         cell: 'low',
-        config,
+        config
       });
 
       expect(result.props.className).toContain('value-color-formatter__oval');
@@ -281,12 +281,12 @@ describe('ColoredFormatter', () => {
         color: {},
         defaultColor: 'green',
         showPointer: false,
-        enabledNewJournal: false,
+        enabledNewJournal: false
       };
 
       const result = coloredFormatterInstance.format({
         cell: 'low',
-        config,
+        config
       });
 
       expect(result.props.className).toContain('value-color-formatter__oval');
@@ -297,15 +297,15 @@ describe('ColoredFormatter', () => {
     it('should use value for mapping and disp for display when cell is an object', () => {
       const config = {
         color: {
-          low: 'low',
+          low: 'low'
         },
         showPointer: false,
-        enabledNewJournal: false,
+        enabledNewJournal: false
       };
 
       const result = coloredFormatterInstance.format({
         cell: { value: 'low', disp: 'Низкий' },
-        config,
+        config
       });
 
       expect(result.props.className).toContain('value-color-formatter_low');
@@ -317,15 +317,15 @@ describe('ColoredFormatter', () => {
     it('should log warning for unsupported colors', () => {
       const config = {
         color: {
-          low: 'unsupported-color',
+          low: 'unsupported-color'
         },
         showPointer: false,
-        enabledNewJournal: false,
+        enabledNewJournal: false
       };
 
       coloredFormatterInstance.format({
         cell: 'low',
-        config,
+        config
       });
 
       expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('ColoredFormatter: Unsupported color "unsupported-color"'));

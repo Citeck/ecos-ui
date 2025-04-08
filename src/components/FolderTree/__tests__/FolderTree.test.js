@@ -1,10 +1,9 @@
-import React from 'react';
 import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import React from 'react';
 
 import FolderTree from '../FolderTree';
 import FolderTreeItem from '../FolderTreeItem';
-
 import { item1, item1111, item1112, demoItems } from '../__fixtures__/FolderTree.fixtures';
 
 describe('FolderTree tests', () => {
@@ -18,9 +17,9 @@ describe('FolderTree tests', () => {
     it('should render all visible items', () => {
       const { container } = render(<FolderTree items={demoItems} />);
 
-      const visibleItems = demoItems.filter((item) => {
+      const visibleItems = demoItems.filter(item => {
         if (item.parent) {
-          const parent = demoItems.find((i) => i.id === item.parent);
+          const parent = demoItems.find(i => i.id === item.parent);
           if (parent && !parent.isUnfolded) {
             return false;
           }

@@ -22,7 +22,7 @@ class Tab extends Component {
     onClose: PropTypes.func,
     onMouseUp: PropTypes.func,
     onSortEnd: PropTypes.func,
-    runUpdate: PropTypes.func,
+    runUpdate: PropTypes.func
   };
 
   static defaultProps = {
@@ -33,7 +33,7 @@ class Tab extends Component {
     onClick: () => null,
     onClose: () => null,
     onMouseUp: () => null,
-    onSortEnd: () => null,
+    onSortEnd: () => null
   };
 
   componentDidMount() {
@@ -58,13 +58,13 @@ class Tab extends Component {
     this.props.onClick(this.props.tab);
   };
 
-  handleMouseUp = (event) => {
+  handleMouseUp = event => {
     const isWheelButton = get(event, 'nativeEvent.button', 0) === 1;
 
     this.props.onMouseUp(this.props.tab, isWheelButton);
   };
 
-  handleContextMenu = (event) => {
+  handleContextMenu = event => {
     const { tab, position, onContextMenu } = this.props;
 
     if (typeof onContextMenu !== 'function') {
@@ -80,11 +80,11 @@ class Tab extends Component {
       y: event.clientY,
       ctrlKey: event.ctrlKey,
       shiftKey: event.shiftKey,
-      metaKey: event.metaKey,
+      metaKey: event.metaKey
     });
   };
 
-  handleCloseTab = (event) => {
+  handleCloseTab = event => {
     event.stopPropagation();
     this.props.onClose(this.props.tab);
   };
@@ -129,7 +129,7 @@ class Tab extends Component {
             key={tab.id}
             className={classNames('page-tab__tabs-item', {
               'page-tab__tabs-item_active': tab.isActive,
-              'page-tab__tabs-item_disabled': tab.isLoading,
+              'page-tab__tabs-item_disabled': tab.isLoading
             })}
             onClick={this.handleClickTab}
             onMouseUp={this.handleMouseUp}

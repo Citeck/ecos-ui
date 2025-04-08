@@ -22,16 +22,16 @@ const Context: React.Context<SettingsContextShape> = createContext({
   setOption: (name: SettingName, value: boolean) => {
     return;
   },
-  settings: INITIAL_SETTINGS,
+  settings: INITIAL_SETTINGS
 });
 
 export const SettingsContext = ({ children }: { children: ReactNode }): React.JSX.Element => {
   const [settings, setSettings] = useState(INITIAL_SETTINGS);
 
   const setOption = useCallback((setting: SettingName, value: boolean) => {
-    setSettings((options) => ({
+    setSettings(options => ({
       ...options,
-      [setting]: value,
+      [setting]: value
     }));
     setURLParam(setting, value);
   }, []);

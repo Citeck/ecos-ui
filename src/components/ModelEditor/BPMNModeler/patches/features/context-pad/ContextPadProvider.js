@@ -7,8 +7,8 @@ const originGetContextPadEntries = ContextPadProvider.prototype.getContextPadEnt
 const disabledActionsMap = {
   [EVENT_BASED_GATEWAY]: [
     'append.receive-task', // ReceiveTask
-    'append.message-intermediate-event', // MessageIntermediateCatchEvent
-  ],
+    'append.message-intermediate-event' // MessageIntermediateCatchEvent
+  ]
 };
 
 ContextPadProvider.prototype.getContextPadEntries = function (element) {
@@ -19,7 +19,7 @@ ContextPadProvider.prototype.getContextPadEntries = function (element) {
   if (disabledActions && disabledActions.length) {
     return Object.entries(actions).reduce(
       (result, [key, value]) => (disabledActions.includes(key) ? result : { ...result, [key]: value }),
-      {},
+      {}
     );
   }
 

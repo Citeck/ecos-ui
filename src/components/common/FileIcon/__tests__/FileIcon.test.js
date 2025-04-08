@@ -1,9 +1,9 @@
-import React from 'react';
 import { render } from '@testing-library/react';
+import React from 'react';
 
 import FileIcon from '../FileIcon';
-import { detectFormat } from '../helpers';
 import { blankFormat } from '../constants';
+import { detectFormat } from '../helpers';
 
 console.error = jest.fn();
 
@@ -24,7 +24,7 @@ describe('FileIcon tests', () => {
     describe('should display default icon when file format is invalid', () => {
       const inputs = [undefined, null, true, 1, 'unknown'];
 
-      inputs.forEach((format) => {
+      inputs.forEach(format => {
         it(`case ${format + ''}`, () => {
           const { container } = render(<FileIcon format={format} />);
           expect(container.getElementsByClassName('fiv-icon-blank')).toHaveLength(1);
@@ -33,7 +33,7 @@ describe('FileIcon tests', () => {
     });
 
     describe('should display an icon corresponding to the file format', () => {
-      mainFormats.forEach((format) => {
+      mainFormats.forEach(format => {
         it(`case ${format + ''}`, () => {
           const { container } = render(<FileIcon format={format} />);
           expect(container.getElementsByClassName(`fiv-icon-${format}`)).toHaveLength(1);
@@ -44,9 +44,9 @@ describe('FileIcon tests', () => {
 
   describe('detectFormat helper', () => {
     describe('should return format if filename contains correct extension', () => {
-      const testCases = mainFormats.map((format) => ({ input: `file.${format}`, output: format }));
+      const testCases = mainFormats.map(format => ({ input: `file.${format}`, output: format }));
 
-      testCases.forEach((testCase) => {
+      testCases.forEach(testCase => {
         it(`case ${testCase.input}`, () => {
           expect(detectFormat(testCase.input)).toBe(testCase.output);
         });
@@ -55,7 +55,7 @@ describe('FileIcon tests', () => {
 
     describe('should return default format if filename is not a string', () => {
       const inputs = [undefined, null, true, 1, [], {}];
-      inputs.forEach((fileName) => {
+      inputs.forEach(fileName => {
         it(`case ${JSON.stringify(fileName)}`, () => {
           expect(detectFormat(fileName)).toBe(blankFormat);
         });

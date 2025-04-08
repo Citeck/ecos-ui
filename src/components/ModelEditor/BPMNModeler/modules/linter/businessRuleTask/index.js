@@ -25,9 +25,9 @@ const businessRuleTaskHasSolution = {
     };
 
     return {
-      check,
+      check
     };
-  },
+  }
 };
 
 const businessRuleTaskHasConnection = {
@@ -47,9 +47,9 @@ const businessRuleTaskHasConnection = {
     };
 
     return {
-      check,
+      check
     };
-  },
+  }
 };
 
 const businessRuleTaskHasVersionTag = {
@@ -72,9 +72,9 @@ const businessRuleTaskHasVersionTag = {
     };
 
     return {
-      check,
+      check
     };
-  },
+  }
 };
 
 const businessRuleTaskHasVersion = {
@@ -97,21 +97,21 @@ const businessRuleTaskHasVersion = {
     };
 
     return {
-      check,
+      check
     };
-  },
+  }
 };
 
 export const businessRuleTaskRulesMap = {
   [businessRuleTaskHasSolution.id]: 'error',
   [businessRuleTaskHasConnection.id]: 'error',
   [businessRuleTaskHasVersionTag.id]: 'error',
-  [businessRuleTaskHasVersion.id]: 'error',
+  [businessRuleTaskHasVersion.id]: 'error'
 };
 
 export const businessRuleTaskCacheMap = {
   [`${BPMN_LINT_PREFIX}${businessRuleTaskHasSolution.id}`]: businessRuleTaskHasSolution.callback,
   [`${BPMN_LINT_PREFIX}${businessRuleTaskHasConnection.id}`]: businessRuleTaskHasConnection.callback,
   [`${BPMN_LINT_PREFIX}${businessRuleTaskHasVersionTag.id}`]: businessRuleTaskHasVersionTag.callback,
-  [`${BPMN_LINT_PREFIX}${businessRuleTaskHasVersion.id}`]: businessRuleTaskHasVersion.callback,
+  [`${BPMN_LINT_PREFIX}${businessRuleTaskHasVersion.id}`]: businessRuleTaskHasVersion.callback
 };

@@ -1,23 +1,24 @@
+import get from 'lodash/get';
+import isEqual from 'lodash/isEqual';
+import isFunction from 'lodash/isFunction';
+import isString from 'lodash/isString';
+import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import isEqual from 'lodash/isEqual';
-import isString from 'lodash/isString';
-import isFunction from 'lodash/isFunction';
-import PropTypes from 'prop-types';
-import get from 'lodash/get';
 
-import { DashboardTypes } from '../../../constants/dashboard';
 import { setEditorMode, setLoading } from '../../../actions/customWidgetHtml';
-import { getStateId, wrapArgs } from '../../../helpers/redux';
-import { selectCustomWidgetData } from '../../../selectors/customWidgetHtml';
-import { InfoText } from '../../common';
-import { Labels } from './util';
+import { DashboardTypes } from '../../../constants/dashboard';
 import { t } from '../../../helpers/export/util';
+import { getStateId, wrapArgs } from '../../../helpers/redux';
 import { getCurrentLocale } from '../../../helpers/util';
+import { selectCustomWidgetData } from '../../../selectors/customWidgetHtml';
 import DAction from '../../../services/DashletActionService';
-import EditorCustomHtmlWidget from './Editor';
-import BaseWidget from '../BaseWidget';
 import Dashlet from '../../Dashlet';
+import { InfoText } from '../../common';
+import BaseWidget from '../BaseWidget';
+
+import EditorCustomHtmlWidget from './Editor';
+import { Labels } from './util';
 
 import './styles.scss';
 
@@ -172,7 +173,4 @@ CustomWidgetHtmlDashlet.propTypes = {
   isVisibleEditor: PropTypes.bool
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(CustomWidgetHtmlDashlet);
+export default connect(mapStateToProps, mapDispatchToProps)(CustomWidgetHtmlDashlet);

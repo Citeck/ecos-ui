@@ -1,8 +1,10 @@
-import { call, put, select, takeLatest } from 'redux-saga/effects';
 import get from 'lodash/get';
-import set from 'lodash/set';
 import isString from 'lodash/isString';
+import set from 'lodash/set';
+import { call, put, select, takeLatest } from 'redux-saga/effects';
 
+import { setLeftMenuEditable } from '../actions/app';
+import { setDashboardIdentification } from '../actions/dashboard';
 import {
   fetchCreateCaseWidgetData,
   fetchSiteMenuData,
@@ -13,29 +15,27 @@ import {
   setCreateCaseWidgetItems,
   setSearchAutocompleteItems,
   setSiteMenuItems,
-  setUserMenuItems,
+  setUserMenuItems
 } from '../actions/header';
-import { setDashboardIdentification } from '../actions/dashboard';
-import { getAppUserThumbnail, validateUserSuccess } from '../actions/user';
 import { changeTab } from '../actions/pageTabs';
-import { setLeftMenuEditable } from '../actions/app';
-import { selectIdentificationForView } from '../selectors/dashboard';
-import { makeSiteMenu } from '../helpers/menu';
-import { getIconObjectWeb } from '../helpers/icon';
+import { getAppUserThumbnail, validateUserSuccess } from '../actions/user';
+import { LiveSearchAttributes } from '../api/menu';
 import { SourcesId } from '../constants';
 import { DefaultUserMenu } from '../constants/menu';
+import MenuConverter from '../dto/menu';
+import { getIconObjectWeb } from '../helpers/icon';
+import { makeSiteMenu } from '../helpers/menu';
+import { getBaseUrlWorkspace, isDashboard } from '../helpers/urls';
+import { getMLValue } from '../helpers/util';
+import { selectIdentificationForView } from '../selectors/dashboard';
 import MenuService from '../services/MenuService';
 import PageService from '../services/PageService';
 import configService, { CREATE_MENU_TYPE } from '../services/config/ConfigService';
-import MenuConverter from '../dto/menu';
-import { getBaseUrlWorkspace, isDashboard } from '../helpers/urls';
-import { LiveSearchAttributes } from '../api/menu';
 import { LiveSearchTypes } from '../services/search';
-import { getMLValue } from '../helpers/util';
 
 function* fetchCreateCaseWidget({ api }) {
   try {
-    const createMenuView = yield call((key) => configService.getValue(key), CREATE_MENU_TYPE);
+    const createMenuView = yield call(key => configService.getValue(key), CREATE_MENU_TYPE);
     const menuConfigItems = yield call(api.menu.getMainMenuCreateVariants);
     const config = MenuConverter.getMainMenuCreateItems(menuConfigItems);
 
@@ -48,7 +48,7 @@ function* fetchCreateCaseWidget({ api }) {
 
 function* fetchUserMenu({ api }) {
   try {
-    const userData = yield select((state) => state.user);
+    const userData = yield select(state => state.user);
     const { userName, isDeputyAvailable: isAvailable } = userData || {};
     const isExternalIDP = yield call(api.app.getIsExternalIDP);
     const config = (yield call(api.menu.getUserCustomMenuConfig, userName)) || {};
@@ -60,7 +60,7 @@ function* fetchUserMenu({ api }) {
     const items = MenuConverter.getUserMenuItems(config.items, { isAvailable, isExternalIDP });
 
     yield Promise.all(
-      items.map(async (item) => {
+      items.map(async item => {
         const icon = get(item, 'icon');
 
         if (isString(icon) && icon.indexOf(SourcesId.ICON) === 0) {
@@ -70,7 +70,7 @@ function* fetchUserMenu({ api }) {
         }
 
         item.icon = getIconObjectWeb(item.icon);
-      }),
+      })
     );
 
     yield put(setUserMenuItems(items));
@@ -81,10 +81,10 @@ function* fetchUserMenu({ api }) {
 }
 
 function* fetchInfluentialParams() {
-  const isAdmin = yield select((state) => state.user.isAdmin);
-  const leftMenuEditable = yield select((state) => state.app.leftMenuEditable);
-  const dashboardEditable = yield select((state) => state.app.dashboardEditable);
-  const widgetEditable = yield select((state) => state.app.widgetEditable);
+  const isAdmin = yield select(state => state.user.isAdmin);
+  const leftMenuEditable = yield select(state => state.app.leftMenuEditable);
+  const dashboardEditable = yield select(state => state.app.dashboardEditable);
+  const widgetEditable = yield select(state => state.app.widgetEditable);
 
   return { isAdmin, dashboardEditable, widgetEditable, leftMenuEditable };
 }
@@ -110,6 +110,10 @@ function* filterSiteMenu({}, { payload = {} }) {
 
     if (!url && tabLink) {
       url = tabLink;
+    }
+
+    if (!url) {
+      url = window.location.pathname;
     }
 
     let isDashboardPage = false;
@@ -143,7 +147,7 @@ function* goToPageSiteMenu({}, { payload }) {
 
 function* sagaRunSearchAutocomplete({ api }, { payload }) {
   try {
-    const isAlfrescoEnabled = yield select((state) => state.app.isEnabledAlfresco);
+    const isAlfrescoEnabled = yield select(state => state.app.isEnabledAlfresco);
 
     if (isAlfrescoEnabled) {
       const documents = yield api.menu.getLiveSearchDocuments(payload, 0);
@@ -174,7 +178,7 @@ function* sagaRunSearchAutocomplete({ api }, { payload }) {
               modifiedOn: get(record, LiveSearchAttributes.MODIFIED),
               nodeRef: get(record, LiveSearchAttributes.ID),
               name: get(record, LiveSearchAttributes.DISP),
-              isNotAlfresco: true,
+              isNotAlfresco: true
             });
             break;
 
@@ -182,7 +186,7 @@ function* sagaRunSearchAutocomplete({ api }, { payload }) {
             sites.push({
               ...record,
               title: get(record, LiveSearchAttributes.DISP),
-              isNotAlfresco: true,
+              isNotAlfresco: true
             });
             break;
 
@@ -194,7 +198,7 @@ function* sagaRunSearchAutocomplete({ api }, { payload }) {
               url: getBaseUrlWorkspace(otherParamsWorkspaces.wsId, otherParamsWorkspaces.homePageLink),
               description: getMLValue(otherParamsWorkspaces.description),
               title: get(record, LiveSearchAttributes.DISP),
-              isNotAlfresco: true,
+              isNotAlfresco: true
             });
             break;
 
@@ -204,7 +208,7 @@ function* sagaRunSearchAutocomplete({ api }, { payload }) {
       }
 
       const noResults = !(!!documents.length + !!sites.length + !!people.length + !!workspaces.length);
-      const getObject = (arr) => ({ items: arr });
+      const getObject = arr => ({ items: arr });
 
       yield put(
         setSearchAutocompleteItems({
@@ -212,8 +216,8 @@ function* sagaRunSearchAutocomplete({ api }, { payload }) {
           sites: getObject(sites),
           people: getObject(people),
           workspaces: getObject(workspaces),
-          noResults,
-        }),
+          noResults
+        })
       );
     }
   } catch (e) {
@@ -228,7 +232,7 @@ function* headerSaga(ea) {
   yield takeLatest(
     [setDashboardIdentification().type, changeTab().type, validateUserSuccess().type, setLeftMenuEditable().type],
     filterSiteMenu,
-    ea,
+    ea
   );
   yield takeLatest(goToPageFromSiteMenu().type, goToPageSiteMenu, ea);
   yield takeLatest(runSearchAutocompleteItems().type, sagaRunSearchAutocomplete, ea);

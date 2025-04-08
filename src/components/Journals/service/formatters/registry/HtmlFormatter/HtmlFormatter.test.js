@@ -15,8 +15,8 @@ describe('HtmlFormatter', () => {
     it('should render an html content', () => {
       const result = htmlFormatterInstance.format({
         config: {
-          html: '<strong>Test</strong>',
-        },
+          html: '<strong>Test</strong>'
+        }
       });
       const { container } = render(result);
       expect(container.innerHTML).toBe('<div><strong>Test</strong></div>');
@@ -25,7 +25,7 @@ describe('HtmlFormatter', () => {
     it('should throw Error if config.html is not specified', () => {
       const format = () => {
         htmlFormatterInstance.format({
-          config: {},
+          config: {}
         });
       };
       expect(format).toThrow('mandatory');

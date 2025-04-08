@@ -24,7 +24,7 @@ import {
   setHomeLink,
   setLeftMenuEditable,
   setRedirectToNewUi,
-  setSeparateActionListForQuery,
+  setSeparateActionListForQuery
 } from '@/actions/app';
 import { registerEventListeners } from '@/actions/customEvent';
 import { getMenuConfig, setMenuConfig } from '@/actions/menu';
@@ -42,7 +42,7 @@ import ConfigService, {
   WORKSPACES_ENABLED,
   FOOTER_CONTENT,
   HOME_LINK_URL,
-  NEW_JOURNAL_ENABLED,
+  NEW_JOURNAL_ENABLED
 } from '@/services/config/ConfigService';
 import { loadConfigs } from '@/services/config/configApi';
 
@@ -57,7 +57,7 @@ export function* initApp({ api }, { payload }) {
       const configs = yield loadConfigs({
         [NEW_JOURNAL_ENABLED]: 'value?bool',
         [DEFAULT_WORKSPACE]: 'value?str',
-        [WORKSPACES_ENABLED]: 'value?bool',
+        [WORKSPACES_ENABLED]: 'value?bool'
       });
 
       const _isViewNewJournal = configs[NEW_JOURNAL_ENABLED];
@@ -181,10 +181,10 @@ export function* fetchDashboardEditable({ api }) {
 
     if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
       const wsId = getWorkspaceId();
-      const workspaces = yield select((state) => selectWorkspaces(state));
+      const workspaces = yield select(state => selectWorkspaces(state));
 
       if (wsId && workspaces && workspaces.length) {
-        const currentWs = workspaces.find((ws) => ws && ws.wsId && ws.wsId === wsId);
+        const currentWs = workspaces.find(ws => ws && ws.wsId && ws.wsId === wsId);
 
         if (currentWs) {
           yield put(setDashboardEditable(get(currentWs, 'isCurrentUserManager', editable)));
@@ -232,7 +232,7 @@ export function* fetchLeftMenuEditable() {
     let isEditable = isAdmin && menuVersion > 0;
 
     if (workspacesEnabled && wsId) {
-      const currentWs = workspaces?.find((ws) => ws?.wsId === wsId);
+      const currentWs = workspaces?.find(ws => ws?.wsId === wsId);
       const isCurrentUserManager = get(currentWs, 'isCurrentUserManager', false);
       isEditable = (isAdmin || isCurrentUserManager) && menuVersion > 0;
     }
@@ -256,13 +256,13 @@ export function* fetchFooter() {
 
 function* sagaBackFromHistory() {
   try {
-    const isShowTabs = yield select((state) => get(state, 'pageTabs.isShow'));
+    const isShowTabs = yield select(state => get(state, 'pageTabs.isShow'));
 
     if (!isShowTabs) {
       window.history.length > 1 ? window.history.back() : PageService.changeUrlLink(URL.DASHBOARD);
     } else {
-      const location = yield select((state) => state.router.location);
-      const lenTabs = yield select((state) => get(state, 'pageTabs.tabs.length', 0));
+      const location = yield select(state => state.router.location);
+      const lenTabs = yield select(state => get(state, 'pageTabs.tabs.length', 0));
 
       const subsidiaryLink = location ? location.pathname + location.search : window.location.href;
       const pageUrl = lenTabs > 1 ? '' : PageService.extractWhereLinkOpen({ subsidiaryLink }) || URL.DASHBOARD;

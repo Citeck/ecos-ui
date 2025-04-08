@@ -34,8 +34,8 @@ export default function Settings(): React.JSX.Element {
       shouldPreserveNewLinesInMarkdown,
       shouldAllowHighlightingWithBrackets,
       // tableHorizontalScroll,
-      selectionAlwaysOnDisplay,
-    },
+      selectionAlwaysOnDisplay
+    }
   } = useSettings();
   useEffect(() => {
     if (INITIAL_SETTINGS.disableBeforeInput && CAN_USE_BEFORE_INPUT) {

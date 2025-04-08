@@ -1,19 +1,21 @@
-import React from 'react';
-import { NotificationManager } from '@/services/notifications';
-import isBoolean from 'lodash/isBoolean';
-import get from 'lodash/get';
-import set from 'lodash/set';
-import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 import difference from 'lodash/difference';
+import get from 'lodash/get';
+import isBoolean from 'lodash/isBoolean';
+import isEmpty from 'lodash/isEmpty';
+import set from 'lodash/set';
+import React from 'react';
 
 import { t } from '../../../../helpers/export/util';
-import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
-import Records from '../../Records';
 import { extractLabel, getBool, isNodeRef } from '../../../../helpers/util';
+import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 import DialogManager from '../../../common/dialogs/Manager';
+import Records from '../../Records';
 import ExecuteInfoAction from '../components/ExecuteInfoAction';
+
 import { ResultTypes } from './constants';
+
+import { NotificationManager } from '@/services/notifications';
 
 const Labels = {
   MSG_SUCCESS: 'record-action.msg.success.text',

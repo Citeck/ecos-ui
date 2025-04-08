@@ -1,24 +1,25 @@
 import lodashGet from 'lodash/get';
-import lodashSet from 'lodash/set';
-import Omit from 'lodash/omit';
+import head from 'lodash/head';
 import isFunction from 'lodash/isFunction';
 import last from 'lodash/last';
-import head from 'lodash/head';
+import Omit from 'lodash/omit';
+import lodashSet from 'lodash/set';
 
-import { generateSearchTerm, getCurrentUserName, getEnabledWorkspaces } from '../helpers/util';
-import { getWorkspaceId } from '../helpers/urls';
+import Records from '../components/Records';
+import { PERMISSION_CHANGE_PASSWORD } from '../components/Records/constants';
+import { AUTHORITY_TYPE_GROUP } from '../components/common/form/SelectOrgstruct/constants';
 import { SourcesId, URL } from '../constants';
-import { ActionTypes } from '../constants/sidebar';
 import { CITECK_URI, PROXY_URI, UISERV_API } from '../constants/alfresco';
 import { GROUP_EVERYONE, MENU_VERSION, MenuSettings as ms } from '../constants/menu';
+import { ActionTypes } from '../constants/sidebar';
 import MenuConverter from '../dto/export/menu';
-import Records from '../components/Records';
-import { AUTHORITY_TYPE_GROUP } from '../components/common/form/SelectOrgstruct/constants';
-import { CommonApi } from './common';
-import ConfigService, { MAIN_MENU_TYPE, SITE_DASHBOARD_ENABLE, MENU_GROUP_PRIORITY } from '../services/config/ConfigService';
+import { getWorkspaceId } from '../helpers/urls';
+import { generateSearchTerm, getCurrentUserName, getEnabledWorkspaces } from '../helpers/util';
 import AuthorityService from '../services/authrority/AuthorityService';
-import { PERMISSION_CHANGE_PASSWORD } from '../components/Records/constants';
+import ConfigService, { MAIN_MENU_TYPE, SITE_DASHBOARD_ENABLE, MENU_GROUP_PRIORITY } from '../services/config/ConfigService';
 import { LiveSearchTypes } from '../services/search';
+
+import { CommonApi } from './common';
 
 const $4H = 14400000;
 const SITE = 'site';

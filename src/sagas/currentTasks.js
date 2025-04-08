@@ -1,14 +1,15 @@
-import { call, put, takeEvery } from 'redux-saga/effects';
 import isEmpty from 'lodash/isEmpty';
-import { NotificationManager } from '@/services/notifications';
+import { call, put, takeEvery } from 'redux-saga/effects';
 
-import Records from '../components/Records/Records';
 import { executeAction, getCurrentTaskList, initCurrentTasks, setCurrentTaskList } from '../actions/currentTasks';
-import { t } from '../helpers/util';
+import Records from '../components/Records/Records';
 import { EVENTS } from '../components/widgets/BaseWidget';
 import { AssignActions } from '../constants/tasks';
 import TasksConverter from '../dto/tasks';
+import { t } from '../helpers/util';
 import ConfigService, { ALFRESCO_ENABLED } from '../services/config/ConfigService';
+
+import { NotificationManager } from '@/services/notifications';
 
 function* runInit({ api }, { payload }) {
   try {
@@ -38,15 +39,15 @@ function* sagaGetCurrentTasks({ api }, { payload }) {
         currentTask.actions = yield call(api.tasks.getCurrentTaskActionsForUser, {
           taskId: currentTask.id,
           reassignAvailable: currentTask.hasPermissionReassign,
-          canReadDef,
+          canReadDef
         });
       }
       yield put(
         setCurrentTaskList({
           stateId,
           list: currentTasksList,
-          totalCount: result.totalCount || 0,
-        }),
+          totalCount: result.totalCount || 0
+        })
       );
     }
   } catch (e) {
@@ -61,7 +62,7 @@ function* sagaExecuteAction({ api }, { payload }) {
 
     yield call(api.recordActions.executeAction, {
       records,
-      action: { ...action, actionOfAssignment: AssignActions.CLAIM, workflowFromRecord: true },
+      action: { ...action, actionOfAssignment: AssignActions.CLAIM, workflowFromRecord: true }
     });
 
     Records.get(record).update();

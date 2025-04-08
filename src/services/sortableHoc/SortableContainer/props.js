@@ -16,7 +16,7 @@ export const propTypes = {
   helperClass: PropTypes.string,
   helperContainer: PropTypes.oneOfType([
     PropTypes.func,
-    typeof HTMLElement === 'undefined' ? PropTypes.any : PropTypes.instanceOf(HTMLElement),
+    typeof HTMLElement === 'undefined' ? PropTypes.any : PropTypes.instanceOf(HTMLElement)
   ]),
   hideSortableGhost: PropTypes.bool,
   keyboardSortingTransitionDuration: PropTypes.number,
@@ -24,7 +24,7 @@ export const propTypes = {
   lockOffset: PropTypes.oneOfType([
     PropTypes.number,
     PropTypes.string,
-    PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.number, PropTypes.string])),
+    PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.number, PropTypes.string]))
   ]),
   lockToContainerEdges: PropTypes.bool,
   onSortEnd: PropTypes.func,
@@ -38,13 +38,13 @@ export const propTypes = {
     drop: PropTypes.arrayOf(PropTypes.number),
     cancel: PropTypes.arrayOf(PropTypes.number),
     up: PropTypes.arrayOf(PropTypes.number),
-    down: PropTypes.arrayOf(PropTypes.number),
+    down: PropTypes.arrayOf(PropTypes.number)
   }),
   shouldCancelStart: PropTypes.func,
   transitionDuration: PropTypes.number,
   updateBeforeSortStart: PropTypes.func,
   useDragHandle: PropTypes.bool,
-  useWindowAsScrollContainer: PropTypes.bool,
+  useWindowAsScrollContainer: PropTypes.bool
 };
 
 export const defaultKeyCodes = {
@@ -52,7 +52,7 @@ export const defaultKeyCodes = {
   drop: [KEYCODE.SPACE],
   cancel: [KEYCODE.ESC],
   up: [KEYCODE.UP, KEYCODE.LEFT],
-  down: [KEYCODE.DOWN, KEYCODE.RIGHT],
+  down: [KEYCODE.DOWN, KEYCODE.RIGHT]
 };
 
 export const defaultProps = {
@@ -68,7 +68,7 @@ export const defaultProps = {
   keyCodes: defaultKeyCodes,
   shouldCancelStart: defaultShouldCancelStart,
   transitionDuration: 300,
-  useWindowAsScrollContainer: false,
+  useWindowAsScrollContainer: false
 };
 
 export const omittedProps = Object.keys(propTypes);
@@ -76,6 +76,6 @@ export const omittedProps = Object.keys(propTypes);
 export function validateProps(props) {
   invariant(
     !(props.distance && props.pressDelay),
-    'Attempted to set both `pressDelay` and `distance` on SortableContainer, you may only use one or the other, not both at the same time.',
+    'Attempted to set both `pressDelay` and `distance` on SortableContainer, you may only use one or the other, not both at the same time.'
   );
 }

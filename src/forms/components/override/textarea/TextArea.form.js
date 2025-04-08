@@ -3,15 +3,15 @@ import TextAreaDisplay from 'formiojs/components/textarea/editForm/TextArea.edit
 
 import { t } from '../../../../helpers/export/util';
 
-const editor = TextAreaDisplay.find((el) => el.key === 'editor');
-const wysiwyg = TextAreaDisplay.find((el) => el.key === 'wysiwyg');
+const editor = TextAreaDisplay.find(el => el.key === 'editor');
+const wysiwyg = TextAreaDisplay.find(el => el.key === 'wysiwyg');
 delete wysiwyg.tooltip;
 delete wysiwyg.customDefaultValue;
 
 if (editor && editor.data && editor.data.values && editor.data.values.length) {
   editor.data.values.push({
     label: 'Lexical',
-    value: 'lexical',
+    value: 'lexical'
   });
 }
 
@@ -23,13 +23,13 @@ export default function (...extend) {
         components: [
           ...TextAreaDisplay,
           {
-            ...editor,
+            ...editor
           },
           {
             ...wysiwyg,
             description: 'Enter the WYSIWYG editor JSON configuration.',
             customDefaultValue: (value, component, row, data, instance) =>
-              (instance && instance.wysiwygDefault) || (value.instance && value.instance.wysiwygDefault) || {},
+              (instance && instance.wysiwygDefault) || (value.instance && value.instance.wysiwygDefault) || {}
           },
           {
             key: 'configHelpInfo',
@@ -39,11 +39,11 @@ export default function (...extend) {
             },
             type: 'htmlelement',
             input: false,
-            weight: 418,
-          },
-        ],
-      },
+            weight: 418
+          }
+        ]
+      }
     ],
-    ...extend,
+    ...extend
   );
 }

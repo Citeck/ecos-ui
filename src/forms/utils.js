@@ -15,7 +15,7 @@ import Formio from './Formio';
 
 import { getCompDoc } from '@/constants/documentation';
 
-export const checkIsEmptyMlField = (field) => {
+export const checkIsEmptyMlField = field => {
   if ((typeof field === 'string' && isEmpty(field)) || isNil(field)) {
     return true;
   }
@@ -28,7 +28,7 @@ export const checkIsEmptyMlField = (field) => {
     }
 
     return !keys
-      .map((key) => {
+      .map(key => {
         if (field[key] === undefined) {
           return true;
         }
@@ -65,17 +65,17 @@ const getBaseTabConfig = () => ({
     event: { weight: 113 },
     custom: { weight: 114 },
     url: { weight: 115 },
-    headers: { weight: 116 },
+    headers: { weight: 116 }
   },
   api: {
-    key: { weight: 100 },
+    key: { weight: 100 }
   },
   validation: {
-    'validate.required': { weight: 800 },
+    'validate.required': { weight: 800 }
   },
   conditional: {
-    'simple-conditional': { weight: 900 },
-  },
+    'simple-conditional': { weight: 900 }
+  }
 });
 
 export const runTransform = (config, tabs) => {
@@ -86,7 +86,7 @@ export const runTransform = (config, tabs) => {
     { key: 'logic', components: cloneDeep(BaseEditLogic) },
     { key: 'api', components: cloneDeep(BaseEditApi) },
     { key: 'validation', components: cloneDeep(BaseEditValidation) },
-    { key: 'conditional', components: cloneDeep(BaseEditConditional) },
+    { key: 'conditional', components: cloneDeep(BaseEditConditional) }
   ];
 
   return { config: advancedConfig, tabsByKey: processEditFormConfig(advancedConfig, tabsByKey) };
@@ -99,18 +99,18 @@ const _removeDuplicateComponents = (components = []) => {
 
   return [
     ...new Set(
-      components.map((component) => {
+      components.map(component => {
         if (Array.isArray(component.components)) {
           component.components = _removeDuplicateComponents(component.components);
         }
 
         return component;
-      }),
-    ),
+      })
+    )
   ];
 };
 
-const _expandEditForm = (component) => {
+const _expandEditForm = component => {
   const ignoredComponents = ['recaptcha', 'custom', 'horizontalLine', 'asyncData'];
 
   if (ignoredComponents.includes(component.type)) {
@@ -131,17 +131,17 @@ const _expandEditForm = (component) => {
         ...get(config, 'display.components', []),
         ...get(config, 'api.components', []),
         ...get(config, 'validation.components', []),
-        ...get(config, 'conditional.components', []),
-      ],
+        ...get(config, 'conditional.components', [])
+      ]
     };
-    const removed = tabsByKey.map((item) => ({
+    const removed = tabsByKey.map(item => ({
       key: item.key,
-      ignore: true,
+      ignore: true
     }));
 
-    originTabs = originTabs.map((item) => ({
+    originTabs = originTabs.map(item => ({
       ...omit(item, ['components']),
-      key: `${item.key}-reworked`,
+      key: `${item.key}-reworked`
     }));
 
     const result = originEditForm([
@@ -149,14 +149,14 @@ const _expandEditForm = (component) => {
       editFormSectionBasic,
       ...removed,
       ...originTabs,
-      ...tabsByKey.map((item) => ({
+      ...tabsByKey.map(item => ({
         ...item,
-        key: `${item.key}-reworked`,
-      })),
+        key: `${item.key}-reworked`
+      }))
     ]);
 
-    const tabs = result.components ? result.components.find((item) => item.type === 'tabs') : {};
-    const filtered = tabs && tabs.components ? tabs.components.filter((item) => item.key !== 'condition-reworked') : [];
+    const tabs = result.components ? result.components.find(item => item.type === 'tabs') : {};
+    const filtered = tabs && tabs.components ? tabs.components.filter(item => item.key !== 'condition-reworked') : [];
 
     if (tabs && filtered) {
       tabs.components = filtered;
@@ -164,12 +164,12 @@ const _expandEditForm = (component) => {
       return result;
     }
 
-    const basic = tabs.components && tabs.components.find((item) => item.key === 'basic');
-    const simpleLogic = basic && basic.components ? basic.components.find((item) => item.key === 'simple-conditional') : {};
+    const basic = tabs.components && tabs.components.find(item => item.key === 'basic');
+    const simpleLogic = basic && basic.components ? basic.components.find(item => item.key === 'simple-conditional') : {};
 
     if (tabs && basic && simpleLogic) {
-      basic.components = basic.components.filter((item) => item.key !== 'simple-conditional');
-      const display = tabs.components.find((item) => item.key === 'conditional-reworked');
+      basic.components = basic.components.filter(item => item.key !== 'simple-conditional');
+      const display = tabs.components.find(item => item.key === 'conditional-reworked');
       if (display && display.components.length) {
         display.components.unshift(simpleLogic);
       }
@@ -203,10 +203,10 @@ export const disabledComponents = Object.freeze([
   'editgrid',
   'nested',
   'form',
-  'unknown',
+  'unknown'
 ]);
 
-export const prepareComponentBuilderInfo = (builderInfo) => {
+export const prepareComponentBuilderInfo = builderInfo => {
   const groups = {
     basic: ['textfield', 'number', 'textarea', 'checkbox', 'ecosSelect', 'button', 'selectJournal', 'selectOrgstruct', 'datetime', 'day'],
     advanced: [
@@ -221,10 +221,10 @@ export const prepareComponentBuilderInfo = (builderInfo) => {
       'address',
       'htmlelement',
       'file',
-      'importButton',
+      'importButton'
     ],
     layout: ['horizontalLine', 'columns', 'panel', 'tableForm', 'tabs'],
-    data: ['hidden', 'asyncData', 'container', 'datagrid', 'datagridAssoc', 'datamap'],
+    data: ['hidden', 'asyncData', 'container', 'datagrid', 'datagridAssoc', 'datamap']
   };
 
   if (!builderInfo || !builderInfo.key) {
@@ -235,7 +235,7 @@ export const prepareComponentBuilderInfo = (builderInfo) => {
     return;
   }
 
-  Object.keys(groups).some((key) => {
+  Object.keys(groups).some(key => {
     if (groups[key].includes(builderInfo.key)) {
       builderInfo.group = key;
 
@@ -248,8 +248,8 @@ export const prepareComponentBuilderInfo = (builderInfo) => {
   return builderInfo;
 };
 
-export const prepareComponents = (components) => {
-  Object.keys(components).forEach((key) => {
+export const prepareComponents = components => {
+  Object.keys(components).forEach(key => {
     const component = components[key];
     const builderInfo = component.builderInfo || {};
 
@@ -258,7 +258,7 @@ export const prepareComponents = (components) => {
         //set doc-url for all who has documentation in different service
         return { ...builderInfo, documentation: getCompDoc(key) || builderInfo.documentation };
       },
-      configurable: true,
+      configurable: true
     });
 
     _expandEditForm(component);
@@ -275,9 +275,9 @@ export const prepareComponents = (components) => {
  * @param tabsByKey - where to change, data source
  */
 export const processEditFormConfig = (advancedConfig, tabsByKey) => {
-  tabsByKey = tabsByKey.map((tab) => {
+  tabsByKey = tabsByKey.map(tab => {
     tab.components = tab.components
-      .map((item) => {
+      .map(item => {
         const tabConfig = advancedConfig[tab.key];
 
         if (!tabConfig) {
@@ -299,7 +299,7 @@ export const processEditFormConfig = (advancedConfig, tabsByKey) => {
 
         return item;
       })
-      .filter((item) => item !== null);
+      .filter(item => item !== null);
 
     return tab;
   });
@@ -318,7 +318,7 @@ export const replaceComponentConfig = (components = [], componentKey = '', newCo
     return;
   }
 
-  const component = components.find((item) => item.key === componentKey);
+  const component = components.find(item => item.key === componentKey);
 
   if (isEmpty(component)) {
     return;
@@ -329,6 +329,6 @@ export const replaceComponentConfig = (components = [], componentKey = '', newCo
   }
 };
 
-export const clearFormFromCache = (formId) => {
+export const clearFormFromCache = formId => {
   delete Formio.forms[formId];
 };

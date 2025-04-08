@@ -41,11 +41,11 @@ import './SelectJournal.scss';
 const paginationInitState = {
   skipCount: 0,
   maxItems: 10,
-  page: 1,
+  page: 1
 };
 
 const emptyJournalConfig = Object.freeze({
-  meta: {},
+  meta: {}
 });
 
 export default class SelectJournal extends Component {
@@ -60,7 +60,7 @@ export default class SelectJournal extends Component {
       data: [],
       inMemoryData: [],
       columns: [],
-      selected: [],
+      selected: []
     },
     pagination: paginationInitState,
     filterPredicate: [],
@@ -68,7 +68,7 @@ export default class SelectJournal extends Component {
     error: null,
     customPredicate: null,
     value: undefined,
-    isLoading: false,
+    isLoading: false
   };
 
   liveComponent = true;
@@ -105,12 +105,12 @@ export default class SelectJournal extends Component {
       const predicate = {
         t: PREDICATE_EQ,
         att: 'id',
-        val: customValues.map((value) => {
+        val: customValues.map(value => {
           const fullId = String(value);
 
           const [, id] = fullId.split('@');
           return id;
-        }),
+        })
       };
 
       filters.push(predicate);
@@ -155,7 +155,7 @@ export default class SelectJournal extends Component {
   componentWillUnmount() {
     this.setState({
       pagination: paginationInitState,
-      filterPredicate: [],
+      filterPredicate: []
     });
     this.liveComponent = false;
   }
@@ -197,14 +197,14 @@ export default class SelectJournal extends Component {
 
   isEmptyJournalConfig(config) {
     const isEmptyEachItem = !Object.entries(config || {})
-      .map((item) => isEmpty(item[1]))
+      .map(item => isEmpty(item[1]))
       .includes(false);
 
     return isEmpty(config) || isEqual(config, emptyJournalConfig) || isEmptyEachItem;
   }
 
   shouldResetValue = () => {
-    return new Promise(async (resolve) => {
+    return new Promise(async resolve => {
       const { sortBy, disableResetOnApplyCustomPredicate } = this.props;
       const { selectedRows, customPredicate, pagination, filterPredicate } = this.state;
       let { journalConfig } = this.state;
@@ -217,8 +217,8 @@ export default class SelectJournal extends Component {
         selectedRows.map(({ id }) =>
           Records.get(id)
             .load(isNodeRef(id) ? Attributes.DBID : '?localId')
-            .then((dbID) => ({ id, dbID })),
-        ),
+            .then(dbID => ({ id, dbID }))
+        )
       );
 
       const dbIDsObj = {};
@@ -227,11 +227,11 @@ export default class SelectJournal extends Component {
       const selectedRowsPredicate = customPredicate
         ? {
             t: 'or',
-            val: selectedRows.map((item) => ({
+            val: selectedRows.map(item => ({
               t: 'eq',
               att: isNodeRef(item.id) ? Attributes.DBID : 'id',
-              val: dbIDsObj[item.id],
-            })),
+              val: dbIDsObj[item.id]
+            }))
           }
         : null;
 
@@ -239,7 +239,7 @@ export default class SelectJournal extends Component {
         sortBy,
         pagination,
         predicates: JournalsConverter.cleanUpPredicate([customPredicate, selectedRowsPredicate, ...(filterPredicate || [])]),
-        permissions: { [Permissions.Write]: true },
+        permissions: { [Permissions.Write]: true }
       });
 
       if (this.isEmptyJournalConfig(journalConfig)) {
@@ -256,7 +256,7 @@ export default class SelectJournal extends Component {
       }
 
       const matchedRows = Array.isArray(gridData.data)
-        ? selectedRows.filter((row) => gridData.data.findIndex((item) => item.id === row.id) !== -1)
+        ? selectedRows.filter(row => gridData.data.findIndex(item => item.id === row.id) !== -1)
         : null;
 
       return resolve({ shouldReset: true, matchedRows });
@@ -274,7 +274,7 @@ export default class SelectJournal extends Component {
       const journalConfig = await JournalsService.getJournalConfig(journalId);
       let displayedColumns = cloneDeep(journalConfig.columns || []);
 
-      displayedColumns = displayedColumns.map((item) => {
+      displayedColumns = displayedColumns.map(item => {
         const column = { ...item };
         if (matchCardDetailsLinkFormatterColumn(item)) {
           column.disableFormatter = true;
@@ -283,7 +283,7 @@ export default class SelectJournal extends Component {
       });
 
       if (Array.isArray(displayColumns) && displayColumns.length > 0) {
-        displayedColumns = displayedColumns.map((item) => ({ ...item, default: displayColumns.indexOf(item.attribute) !== -1 }));
+        displayedColumns = displayedColumns.map(item => ({ ...item, default: displayColumns.indexOf(item.attribute) !== -1 }));
       }
 
       if (this.isEmptyJournalConfig(journalConfig)) {
@@ -291,20 +291,20 @@ export default class SelectJournal extends Component {
       }
 
       this.setState(
-        (state) => ({
+        state => ({
           filterPredicate: this._getPresetFilterPredicates(journalConfig),
           displayedColumns,
           journalConfig,
           isJournalConfigFetched: true,
-          isSelectModalOpen: state.isSelectModalOpen && this.isEmptyJournalConfig(journalConfig) ? false : state.isSelectModalOpen,
+          isSelectModalOpen: state.isSelectModalOpen && this.isEmptyJournalConfig(journalConfig) ? false : state.isSelectModalOpen
         }),
-        () => resolve(),
+        () => resolve()
       );
     });
   };
 
   refreshGridData = () => {
-    const getData = async (resolve) => {
+    const getData = async resolve => {
       const { sortBy, queryData, customSourceId } = this.props;
       const { customPredicate, journalConfig, gridData, pagination, filterPredicate, displayedColumns } = this.state;
       const predicates = JournalsConverter.cleanUpPredicate([customPredicate, ...(filterPredicate || [])]);
@@ -314,7 +314,7 @@ export default class SelectJournal extends Component {
         sortBy,
         pagination,
         predicates,
-        permissions: { [Permissions.Write]: true },
+        permissions: { [Permissions.Write]: true }
       });
       settings.queryData = queryData;
 
@@ -327,18 +327,18 @@ export default class SelectJournal extends Component {
 
       this.setState({
         gridData: { ...gridData, ...mergedData },
-        isGridDataReady: true,
+        isGridDataReady: true
       });
 
       resolve(gridData);
     };
 
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       this.setState({ isGridDataReady: false }, () => getData(resolve));
     });
   };
 
-  mergeFetchedDataWithInMemoryData = async (fetchedGridData) => {
+  mergeFetchedDataWithInMemoryData = async fetchedGridData => {
     const { gridData, pagination } = this.state;
     const { inMemoryData = [] } = gridData;
 
@@ -350,11 +350,11 @@ export default class SelectJournal extends Component {
 
     for (let i = 0; i < inMemoryData.length; i++) {
       const memoryRecord = inMemoryData[i];
-      const exists = fetchedGridData.data.find((item) => item.id === memoryRecord.id);
+      const exists = fetchedGridData.data.find(item => item.id === memoryRecord.id);
 
       if (exists) {
         // if the record has been indexed, remove it from inMemoryData
-        newInMemoryData = newInMemoryData.filter((item) => item.id !== memoryRecord.id);
+        newInMemoryData = newInMemoryData.filter(item => item.id !== memoryRecord.id);
       } else if (fetchedGridData.data.length < pagination.maxItems) {
         // otherwise, try to load absent attributes
         const rec = Records.get(memoryRecord.id);
@@ -395,7 +395,7 @@ export default class SelectJournal extends Component {
     return {
       ...fetchedGridData,
       inMemoryData: newInMemoryData,
-      total: fetchedGridData.total + newInMemoryData.length,
+      total: fetchedGridData.total + newInMemoryData.length
     };
   };
 
@@ -412,23 +412,23 @@ export default class SelectJournal extends Component {
 
   onSelectFromJournalPopup = () => {
     const {
-      gridData: { query, selected },
+      gridData: { query, selected }
     } = this.state;
     const value = this.isQuery ? query : selected;
 
     this.setValue(value).then(() => this.liveComponent && this.setState({ isSelectModalOpen: false, wasChangedFromPopup: true }));
   };
 
-  fillCanEdit = (rows) => {
-    return Records.get(rows.map((r) => r.id))
+  fillCanEdit = rows => {
+    return Records.get(rows.map(r => r.id))
       .load(PERMISSION_WRITE_ATTR)
-      .then((permissions) => {
+      .then(permissions => {
         let result = [];
 
         for (let i = 0; i < rows.length; i++) {
           result.push({
             ...rows[i],
-            canEdit: permissions[i],
+            canEdit: permissions[i]
           });
         }
 
@@ -436,7 +436,7 @@ export default class SelectJournal extends Component {
       });
   };
 
-  fetchTableAttributes = (rows) => {
+  fetchTableAttributes = rows => {
     const { viewMode, forceReload } = this.props;
     const { isJournalConfigFetched, isGridDataReady } = this.state;
 
@@ -475,10 +475,10 @@ export default class SelectJournal extends Component {
       });
 
       return Promise.all(
-        rows.map((r) => {
+        rows.map(r => {
           return Records.get(r.id)
             .load(atts, forceReload)
-            .then((result) => {
+            .then(result => {
               const fetchedAtts = {};
               let currentAttIndex = 0;
 
@@ -503,15 +503,15 @@ export default class SelectJournal extends Component {
 
               return { ...fetchedAtts, ...r };
             });
-        }),
+        })
       );
     });
   };
 
-  fetchDisplayNames = (selectedRows) => {
+  fetchDisplayNames = selectedRows => {
     let computedDispName = get(this.props, 'computed.valueDisplayName', null);
     return Promise.all(
-      selectedRows.map((r) => {
+      selectedRows.map(r => {
         if (r.disp) {
           return r.disp;
         }
@@ -519,13 +519,13 @@ export default class SelectJournal extends Component {
           return computedDispName(r);
         }
         return Records.get(r).load('.disp');
-      }),
-    ).then((dispNames) =>
+      })
+    ).then(dispNames =>
       selectedRows.map((row, index) => {
         const id = get(row, 'id') || row;
         const disp = get(dispNames, [index]) || id;
         return { id, disp };
-      }),
+      })
     );
   };
 
@@ -542,7 +542,7 @@ export default class SelectJournal extends Component {
 
     if (this.isQuery) {
       !this.state.gridData.total && this.getJournalConfig().then(this.refreshGridData);
-      return new Promise((resolve) => {
+      return new Promise(resolve => {
         this.setState({ value: selected, isLoading: false }, () => shouldTriggerOnChange && isFunction(onChange) && onChange(selected));
         resolve();
       });
@@ -553,28 +553,28 @@ export default class SelectJournal extends Component {
     return this.fetchDisplayNames(selected)
       .then(this.fillCanEdit)
       .then(this.fetchTableAttributes)
-      .then((selected) => {
+      .then(selected => {
         if (!this.liveComponent) {
           return;
         }
 
-        const newValue = multiple ? selected.map((item) => item.id) : get(selected, '[0].id', '');
+        const newValue = multiple ? selected.map(item => item.id) : get(selected, '[0].id', '');
 
-        return new Promise((resolve) => {
+        return new Promise(resolve => {
           this.setState(
-            (prevState) => ({
+            prevState => ({
               value: newValue,
               selectedRows: selected,
               gridData: {
                 ...prevState.gridData,
-                selected: selected.map((item) => item.id),
+                selected: selected.map(item => item.id)
               },
-              isLoading: false,
+              isLoading: false
             }),
             () => {
               shouldTriggerOnChange && isFunction(onChange) && onChange(newValue, selected, flags);
               resolve();
-            },
+            }
           );
         });
       });
@@ -583,22 +583,22 @@ export default class SelectJournal extends Component {
   onCancelSelect = () => {
     const { multiple, onCancel } = this.props;
 
-    this.setState((prevState) => ({
+    this.setState(prevState => ({
       gridData: {
         ...prevState.gridData,
-        selected: multiple ? prevState.value : [prevState.value],
+        selected: multiple ? prevState.value : [prevState.value]
       },
-      isSelectModalOpen: false,
+      isSelectModalOpen: false
     }));
     isFunction(onCancel) && onCancel();
   };
 
-  onSelectGridItem = (value) => {
-    this.setState((prevState) => ({
+  onSelectGridItem = value => {
+    this.setState(prevState => ({
       gridData: {
         ...prevState.gridData,
-        selected: value.selected,
-      },
+        selected: value.selected
+      }
     }));
   };
 
@@ -606,7 +606,7 @@ export default class SelectJournal extends Component {
     const { multiple } = this.props;
     const val = data.id;
     const _selected = this.state.gridData.selected;
-    const filtered = _selected.filter((v) => v !== val);
+    const filtered = _selected.filter(v => v !== val);
     let selected;
 
     if (filtered.length !== _selected.length) {
@@ -619,7 +619,7 @@ export default class SelectJournal extends Component {
         selected = [val];
       }
     }
-    this.setState((prevState) => ({ gridData: { ...prevState.gridData, selected } }), this.onSelectFromJournalPopup);
+    this.setState(prevState => ({ gridData: { ...prevState.gridData, selected } }), this.onSelectFromJournalPopup);
   };
 
   openSelectModal = () => {
@@ -647,14 +647,14 @@ export default class SelectJournal extends Component {
     const { gridData, pagination } = this.state;
 
     const prevSelected = gridData.selected || [];
-    const createdSortObject = gridData.query.sortBy.find((el) => el.attribute === '_created');
+    const createdSortObject = gridData.query.sortBy.find(el => el.attribute === '_created');
     const isAscending = createdSortObject && createdSortObject.ascending;
     const newSkipCount = isAscending
       ? Math.floor(gridData.total / pagination.maxItems) * pagination.maxItems
       : paginationInitState.skipCount;
     const newPageNum = isAscending ? Math.ceil((gridData.total + 1) / pagination.maxItems) : paginationInitState.page;
 
-    alias.toJsonAsync(true).then((res) => {
+    alias.toJsonAsync(true).then(res => {
       const newData = cloneDeep(this.state);
       const aliasAttrs = alias.getRawAttributes();
       const resolvedAttrs = cloneDeep(res.attributes);
@@ -664,14 +664,14 @@ export default class SelectJournal extends Component {
       merge(newData, {
         gridData: { selected, inMemoryData },
         filterPredicate: [],
-        pagination: { skipCount: newSkipCount, page: newPageNum },
+        pagination: { skipCount: newSkipCount, page: newPageNum }
       });
 
       this.setState(newData, this.refreshGridData);
     });
   };
 
-  onValueEdit = (record) => {
+  onValueEdit = record => {
     FormManager.openFormModal({
       record,
       onSubmit: () => {
@@ -680,40 +680,40 @@ export default class SelectJournal extends Component {
       },
       initiator: {
         type: 'form-component',
-        name: 'SelectJournal',
-      },
+        name: 'SelectJournal'
+      }
     });
   };
 
-  onValueDelete = (id) => {
+  onValueDelete = id => {
     let newValue;
 
     if (this.isQuery) {
       newValue = null;
     } else {
-      newValue = this.state.selectedRows.filter((item) => item.id !== id);
+      newValue = this.state.selectedRows.filter(item => item.id !== id);
     }
 
     this.setValue(newValue, true, { changeByUser: true });
   };
 
-  onChangePage = (_pagination_) => {
+  onChangePage = _pagination_ => {
     const pagination = { ...this.state.pagination, ..._pagination_ };
     this.setState({ pagination }, this.refreshGridData);
   };
 
-  onApplyFilters = (filterPredicate) => {
+  onApplyFilters = filterPredicate => {
     this.setState(
       () => ({
         filterPredicate,
         pagination: paginationInitState,
-        isJournalConfigFetched: true,
+        isJournalConfigFetched: true
       }),
-      this.refreshGridData,
+      this.refreshGridData
     );
   };
 
-  onCreate = (record) => {
+  onCreate = record => {
     this.setValue(record.id);
   };
 
@@ -725,20 +725,20 @@ export default class SelectJournal extends Component {
       return baseColumns;
     }
 
-    return columns.map((item) => {
-      const { dataField, ...otherData } = baseColumns.find((column) => column.dataField === item.dataField) || {};
+    return columns.map(item => {
+      const { dataField, ...otherData } = baseColumns.find(column => column.dataField === item.dataField) || {};
 
       return {
         ...otherData,
         ...item,
-        dataField: dataField || item.attribute,
+        dataField: dataField || item.attribute
       };
     });
   };
 
   showWarningMessage = () => {
     DialogManager.showInfoDialog({
-      text: t(Labels.NO_JOURNAL_CONFIG_ERROR, { journalId: this.props.journalId }),
+      text: t(Labels.NO_JOURNAL_CONFIG_ERROR, { journalId: this.props.journalId })
     });
   };
 
@@ -759,7 +759,7 @@ export default class SelectJournal extends Component {
     }
 
     if (this.isQuery) {
-      const demoSelected = get(gridData, 'data', []).map((item) => item.id);
+      const demoSelected = get(gridData, 'data', []).map(item => item.id);
 
       extraProps.singleSelectable = false;
       extraProps.multiSelectable = true;
@@ -778,7 +778,7 @@ export default class SelectJournal extends Component {
         hideModal={this.hideSelectModal}
         className={classNames('select-journal-select-modal', {
           'ecos-modal_width-lg': !isFullScreenWidthModal,
-          'ecos-modal_width-full': isFullScreenWidthModal,
+          'ecos-modal_width-full': isFullScreenWidthModal
         })}
       >
         {!hideSelectPanel && (
@@ -870,7 +870,7 @@ export default class SelectJournal extends Component {
       isSelectedValueAsText,
       isInlineEditingMode,
       isModalMode,
-      viewMode,
+      viewMode
     } = this.props;
     const { journalConfig, selectedRows, error, gridData, value, isLoading } = this.state;
     const selectedQueryInfo = this.isQuery && !isEmpty(value) && t(Labels.SELECTED_LABEL, { data: gridData.total });
@@ -909,9 +909,9 @@ export default class SelectJournal extends Component {
         selectAllRecords: null,
         selectAllRecordsVisible: null,
         className: 'select-journal__grid',
-        scrollable: false,
+        scrollable: false
       },
-      onCreate: this.onCreate,
+      onCreate: this.onCreate
     };
 
     const DefaultView = viewOnly ? (
@@ -924,7 +924,7 @@ export default class SelectJournal extends Component {
       <div
         className={classNames('select-journal', {
           'select-journal_compact': isCompact,
-          'select-journal_view-only': viewOnly,
+          'select-journal_view-only': viewOnly
         })}
       >
         {isFunction(renderView) ? renderView(inputViewProps) : DefaultView}
@@ -947,7 +947,7 @@ export default class SelectJournal extends Component {
 const predicateShape = PropTypes.shape({
   t: PropTypes.string.isRequired,
   att: PropTypes.string.isRequired,
-  val: PropTypes.any,
+  val: PropTypes.any
 });
 
 SelectJournal.propTypes = {
@@ -979,15 +979,15 @@ SelectJournal.propTypes = {
   isSelectedValueAsText: PropTypes.bool,
   sortBy: PropTypes.shape({
     attribute: PropTypes.string,
-    ascending: PropTypes.bool,
+    ascending: PropTypes.bool
   }),
   columns: PropTypes.array,
-  title: PropTypes.string,
+  title: PropTypes.string
 };
 
 SelectJournal.defaultProps = {
   enableCreateButton: false,
   customActionRefs: [],
   isSelectModalOpen: false,
-  presetFilterPredicates: [],
+  presetFilterPredicates: []
 };

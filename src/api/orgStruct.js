@@ -1,15 +1,16 @@
 import get from 'lodash/get';
-import isEmpty from 'lodash/isEmpty';
 import isArray from 'lodash/isArray';
+import isEmpty from 'lodash/isEmpty';
 import isString from 'lodash/isString';
 
+import Records from '../components/Records';
 import {
   ALFRESCO_ADMINISTRATORS_GROUP,
   AUTHORITY_TYPE_GROUP,
   AUTHORITY_TYPE_USER,
   DataTypes,
   ITEMS_PER_PAGE,
-  ROOT_GROUP_NAME,
+  ROOT_GROUP_NAME
 } from '../components/common/form/SelectOrgstruct/constants';
 import {
   converterUserList,
@@ -17,20 +18,20 @@ import {
   getGroupRef,
   getPersonRef,
   getAuthRef,
-  getRecordRef,
+  getRecordRef
 } from '../components/common/form/SelectOrgstruct/helpers';
-import Records from '../components/Records';
+import { SourcesId, DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS } from '../constants';
+import { permute } from '../helpers/util';
 import ConfigService, {
   ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS,
   ORGSTRUCT_HIDE_DISABLED_USERS,
   ORGSTRUCT_SEARCH_USER_MIDLLE_NAME,
   ORGSTRUCT_SHOW_USERNAME_MASK,
   ORGSTRUCT_SHOW_INACTIVE_USER_ONLY_FOR_ADMIN,
-  HIDE_IN_ORGSTRUCT,
+  HIDE_IN_ORGSTRUCT
 } from '../services/config/ConfigService';
-import { SourcesId, DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS } from '../constants';
+
 import { CommonApi } from './common';
-import { permute } from '../helpers/util';
 
 export class OrgStructApi extends CommonApi {
   get groupAttributes() {
@@ -46,7 +47,7 @@ export class OrgStructApi extends CommonApi {
       email: 'email',
       nodeRef: '?id',
       authorityType: `authorityType!"${AUTHORITY_TYPE_GROUP}"`,
-      groups: 'authorityGroups[]?id',
+      groups: 'authorityGroups[]?id'
     };
   }
 
@@ -62,22 +63,22 @@ export class OrgStructApi extends CommonApi {
       nodeRef: '?id',
       authorityType: `authorityType!"${AUTHORITY_TYPE_USER}"`,
       photo: 'avatar.url',
-      groups: 'authorityGroups[]?id',
+      groups: 'authorityGroups[]?id'
     };
   }
 
   getUsers = (searchText = '') => {
-    return OrgStructApi.getUserList(searchText, [], { maxItems: 50 }).then((result) =>
-      get(result, 'items', []).map((item) => get(item, 'attributes', {})),
+    return OrgStructApi.getUserList(searchText, [], { maxItems: 50 }).then(result =>
+      get(result, 'items', []).map(item => get(item, 'attributes', {}))
     );
   };
 
-  _prepareGroups = (groups) => {
-    const replace = (group) => ({
+  _prepareGroups = groups => {
+    const replace = group => ({
       ...group,
       groupType: (group.groupType || '').toUpperCase(),
       groupSubType: (group.groupSubType || '').toUpperCase(),
-      shortName: getGroupName(group.fullName || ''),
+      shortName: getGroupName(group.fullName || '')
     });
 
     if (!Array.isArray(groups)) {
@@ -111,9 +112,9 @@ export class OrgStructApi extends CommonApi {
 
     if (searchText) {
       const addExtraFields = (fields = []) => {
-        const attributes = fields.map((field) => field.trim()).filter((field) => !!field);
+        const attributes = fields.map(field => field.trim()).filter(field => !!field);
 
-        searchFields.push(...attributes.filter((att) => !searchFields.includes(att)));
+        searchFields.push(...attributes.filter(att => !searchFields.includes(att)));
       };
 
       const globalSearchConfig = await OrgStructApi.fetchGlobalSearchFields();
@@ -138,8 +139,8 @@ export class OrgStructApi extends CommonApi {
 
   fetchGroup = async ({ query, excludeAuthoritiesByType = [], excludeAuthoritiesByName, isIncludedAdminGroup }) => {
     const { groupName, searchText } = query;
-    const filterByType = (items) =>
-      items.filter((item) => {
+    const filterByType = items =>
+      items.filter(item => {
         if (item.groupType === '') {
           return true;
         }
@@ -155,8 +156,8 @@ export class OrgStructApi extends CommonApi {
           {
             t: 'contains',
             a: 'authorityGroups',
-            v: getGroupRef(groupName),
-          },
+            v: getGroupRef(groupName)
+          }
         ];
 
     let queryValPerson = searchText
@@ -165,8 +166,8 @@ export class OrgStructApi extends CommonApi {
           {
             t: 'contains',
             a: 'authorityGroups',
-            v: getGroupRef(groupName),
-          },
+            v: getGroupRef(groupName)
+          }
         ];
 
     const notDisabledPredicate = await OrgStructApi.getNotDisabledPredicate();
@@ -178,14 +179,14 @@ export class OrgStructApi extends CommonApi {
     const extraQueryVal = [];
 
     if (excludeAuthoritiesByName) {
-      excludeAuthoritiesByName.split(',').forEach((name) => {
+      excludeAuthoritiesByName.split(',').forEach(name => {
         extraQueryVal.push({
           t: 'not',
           v: {
             t: 'contains',
             a: '_name',
-            v: name,
-          },
+            v: name
+          }
         });
       });
     }
@@ -193,7 +194,7 @@ export class OrgStructApi extends CommonApi {
     const globalSearchConfig = await OrgStructApi.fetchGlobalSearchFields();
 
     const excludedUsers = await OrgStructApi.fetchGlobalHideInOrgstruct();
-    (excludedUsers || []).forEach((item) => {
+    (excludedUsers || []).forEach(item => {
       if (item) {
         queryVal.push({ t: 'not-eq', att: 'id', val: item.replace('GROUP_', '') });
         queryValPerson.push({ t: 'not-eq', att: 'id', val: item.replace('GROUP_', '') });
@@ -204,14 +205,14 @@ export class OrgStructApi extends CommonApi {
       {
         sourceId: SourcesId.GROUP,
         query: { t: 'and', v: [...queryVal, ...extraQueryVal] },
-        language: 'predicate',
+        language: 'predicate'
       },
-      { ...this.groupAttributes, ...globalSearchConfig },
+      { ...this.groupAttributes, ...globalSearchConfig }
     )
-      .then((r) => get(r, 'records', []))
+      .then(r => get(r, 'records', []))
       .then(filterByType)
       .then(this._prepareGroups)
-      .then((records) => {
+      .then(records => {
         if (
           isIncludedAdminGroup &&
           groupName === ROOT_GROUP_NAME &&
@@ -225,7 +226,7 @@ export class OrgStructApi extends CommonApi {
             groupSubType: '',
             groupType: 'BRANCH',
             nodeRef: getGroupRef(ALFRESCO_ADMINISTRATORS_GROUP),
-            authorityType: AUTHORITY_TYPE_GROUP,
+            authorityType: AUTHORITY_TYPE_GROUP
           });
         }
 
@@ -236,10 +237,10 @@ export class OrgStructApi extends CommonApi {
       {
         sourceId: SourcesId.PERSON,
         query: { t: 'and', v: queryValPerson },
-        language: 'predicate',
+        language: 'predicate'
       },
-      { ...OrgStructApi.userAttributes, ...globalSearchConfig },
-    ).then((r) => get(r, 'records', []));
+      { ...OrgStructApi.userAttributes, ...globalSearchConfig }
+    ).then(r => get(r, 'records', []));
 
     return Promise.all([groups, users]).then(([groups, users]) => [...groups, ...users]);
   };
@@ -258,13 +259,13 @@ export class OrgStructApi extends CommonApi {
     return this.fetchAuthorityByRef(recordRef);
   };
 
-  static prepareRecordRef = async (recordRef) => {
+  static prepareRecordRef = async recordRef => {
     const authorityType = recordRef.includes(SourcesId.GROUP) ? AUTHORITY_TYPE_GROUP : AUTHORITY_TYPE_USER;
 
     if (recordRef.includes(SourcesId.GROUP) || recordRef.includes(SourcesId.PERSON)) {
       return {
         recordRef,
-        authorityType,
+        authorityType
       };
     }
 
@@ -273,43 +274,43 @@ export class OrgStructApi extends CommonApi {
 
       const attributes = await Records.get(recordRef).load({
         userName: 'cm:userName',
-        authorityName: 'cm:authorityName',
+        authorityName: 'cm:authorityName'
       });
 
       if (get(attributes, 'userName')) {
         return {
           authorityType,
-          recordRef: `${SourcesId.PERSON}@${attributes.userName}`,
+          recordRef: `${SourcesId.PERSON}@${attributes.userName}`
         };
       }
 
       if (get(attributes, 'authorityName')) {
         return {
           recordRef: getGroupRef(getGroupName(attributes.authorityName)),
-          authorityType: AUTHORITY_TYPE_GROUP,
+          authorityType: AUTHORITY_TYPE_GROUP
         };
       }
 
       return {
         authorityType,
-        recordRef: newRecordRef,
+        recordRef: newRecordRef
       };
     }
 
     if (recordRef.includes(`${AUTHORITY_TYPE_GROUP}_`)) {
       return {
         recordRef: getGroupRef(getGroupName(recordRef)),
-        authorityType: AUTHORITY_TYPE_GROUP,
+        authorityType: AUTHORITY_TYPE_GROUP
       };
     }
 
     return {
       recordRef: getPersonRef(recordRef),
-      authorityType,
+      authorityType
     };
   };
 
-  fetchAuthorityByRef = async (nodeRef) => {
+  fetchAuthorityByRef = async nodeRef => {
     const { recordRef, authorityType } = await OrgStructApi.prepareRecordRef(nodeRef);
 
     if (authorityType === AUTHORITY_TYPE_USER) {
@@ -320,13 +321,13 @@ export class OrgStructApi extends CommonApi {
   };
 
   addAuthorityGroups = (selectedEntity, authorityGroups) => {
-    const promises = selectedEntity.map((entity) => {
+    const promises = selectedEntity.map(entity => {
       const rec = Records.get(entity.id);
       const recData = rec.load('?json');
 
-      return recData.then((data) => {
+      return recData.then(data => {
         const prevAuthorityGroups = data.authorityGroups || [];
-        rec.att('authorityGroups', [...prevAuthorityGroups, ...authorityGroups.map((group) => group.id)]);
+        rec.att('authorityGroups', [...prevAuthorityGroups, ...authorityGroups.map(group => group.id)]);
 
         return rec.save();
       });
@@ -352,8 +353,8 @@ export class OrgStructApi extends CommonApi {
       return authorityIds
         .join()
         .split(',')
-        .filter((id) => id && id.length)
-        .map((id) => id.trim());
+        .filter(id => id && id.length)
+        .map(id => id.trim());
     }
 
     return [];
@@ -381,7 +382,7 @@ export class OrgStructApi extends CommonApi {
 
   static getSearchQuery = (search = '', searchFields = DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS, sourcesId = '') => {
     const valRaw = search.trim();
-    const val = valRaw.split(' ').filter((item) => !!item);
+    const val = valRaw.split(' ').filter(item => !!item);
 
     const isEModelPerson = sourcesId === SourcesId.PERSON;
 
@@ -409,42 +410,42 @@ export class OrgStructApi extends CommonApi {
 
     const generateQuery = (fields, values) => ({
       t: 'or',
-      v: values.map((item) => ({
+      v: values.map(item => ({
         t: 'and',
         v: fields.map((field, index) => ({
           t: 'contains',
           a: field,
-          v: item[index],
-        })),
-      })),
+          v: item[index]
+        }))
+      }))
     });
 
     const singleFieldQuery = (fields, value) => ({
       t: 'or',
-      v: fields.map((a) => ({
+      v: fields.map(a => ({
         t: 'contains',
         a,
-        v: value,
-      })),
+        v: value
+      }))
     });
 
     const multiFieldQuery = (fields, value) => ({
       t: 'or',
-      v: fields.map((a) => ({
+      v: fields.map(a => ({
         t: 'or',
         v: [
           {
             t: 'contains',
             a,
-            v: value,
+            v: value
           },
           {
             t: 'contains',
             a,
-            v: value.split(' ').reverse().join(' '),
-          },
-        ],
-      })),
+            v: value.split(' ').reverse().join(' ')
+          }
+        ]
+      }))
     });
 
     if (isEModelPerson) {
@@ -481,8 +482,8 @@ export class OrgStructApi extends CommonApi {
             [
               ['firstName', 'middleName'],
               ['lastName', 'middleName'],
-              ['lastName', 'firstName'],
-            ].forEach((fields) => {
+              ['lastName', 'firstName']
+            ].forEach(fields => {
               query.v.push(generateQuery(fields, permute(firstSimilarOptions)));
               query.v.push(generateQuery(fields, permute(secSimilarOptions)));
             });
@@ -519,7 +520,7 @@ export class OrgStructApi extends CommonApi {
     }
 
     const excludedUsers = await OrgStructApi.fetchGlobalHideInOrgstruct();
-    (excludedUsers || []).forEach((item) => {
+    (excludedUsers || []).forEach(item => {
       if (item) {
         queryVal.push({ t: 'not-eq', att: 'id', val: item.replace('GROUP_', '') });
       }
@@ -535,14 +536,14 @@ export class OrgStructApi extends CommonApi {
         query: { t: 'and', v: queryVal },
         page: {
           maxItems: params.maxItems,
-          skipCount: params.page * params.maxItems,
+          skipCount: params.page * params.maxItems
         },
-        language: 'predicate',
+        language: 'predicate'
       },
-      { ...OrgStructApi.userAttributes, ...searchFields, ...extraFields },
-    ).then((result) => ({
+      { ...OrgStructApi.userAttributes, ...searchFields, ...extraFields }
+    ).then(result => ({
       items: converterUserList(result.records),
-      totalCount: result.totalCount,
+      totalCount: result.totalCount
     }));
   }
 }

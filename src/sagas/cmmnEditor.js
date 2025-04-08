@@ -1,5 +1,4 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
-import { NotificationManager } from '@/services/notifications';
 
 import {
   getFormProps,
@@ -10,13 +9,15 @@ import {
   setFormProps,
   setLoading,
   setScenario,
-  setTitle,
+  setTitle
 } from '../actions/cmmnEditor';
 import { deleteTab } from '../actions/pageTabs';
-import { t } from '../helpers/export/util';
 import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
 import * as CmmnUtils from '../components/ModelEditor/CMMNModeler/utils';
+import { t } from '../helpers/export/util';
 import PageTabList from '../services/pageTabs/PageTabList';
+
+import { NotificationManager } from '@/services/notifications';
 
 export function* init({ api }, { payload: { stateId, record } }) {
   try {
@@ -85,7 +86,7 @@ export function* fetchFormProps({ api }, { payload: { stateId, formId, element }
     const formData = {};
 
     if (element) {
-      inputs.forEach((input) => {
+      inputs.forEach(input => {
         const att = input.attribute;
         let value = CmmnUtils.getValue(element, att);
         const inputType = input.component && input.component.type;

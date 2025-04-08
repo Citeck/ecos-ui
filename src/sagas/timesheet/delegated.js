@@ -1,5 +1,5 @@
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
-import { TimesheetMessages } from '../../helpers/timesheet/dictionary';
+
 import {
   declineDelegation,
   getDelegatedDeputies,
@@ -12,15 +12,16 @@ import {
   setLoading,
   setMergedList,
   setPopupMessage,
-  setUpdatingEventDayHours,
+  setUpdatingEventDayHours
 } from '../../actions/timesheet/delegated';
-import { selectUserName } from '../../selectors/user';
+import { DelegationTypes } from '../../constants/timesheet';
+import DelegatedTimesheetConverter from '../../dto/timesheet/delegated';
+import { TimesheetMessages } from '../../helpers/timesheet/dictionary';
+import { deepClone } from '../../helpers/util';
 import { selectTDelegatedMergedList, selectTDelegatedUpdatingHours } from '../../selectors/timesheet';
+import { selectUserName } from '../../selectors/user';
 import CommonTimesheetService from '../../services/timesheet/common';
 import DelegatedTimesheetService from '../../services/timesheet/delegated';
-import DelegatedTimesheetConverter from '../../dto/timesheet/delegated';
-import { DelegationTypes } from '../../constants/timesheet';
-import { deepClone } from '../../helpers/util';
 
 function* sagaGetDelegatedTimesheetByParams({ api, logger }, { payload }) {
   try {
@@ -31,7 +32,7 @@ function* sagaGetDelegatedTimesheetByParams({ api, logger }, { payload }) {
       year: currentDate.getFullYear(),
       userName,
       delegationType,
-      statuses: Array.isArray(status) ? status : [status],
+      statuses: Array.isArray(status) ? status : [status]
     });
 
     const userNames = CommonTimesheetService.getUserNameList(requestList.records);
@@ -41,19 +42,19 @@ function* sagaGetDelegatedTimesheetByParams({ api, logger }, { payload }) {
     const innerCounts = yield call(api.timesheetDelegated.getTotalCountsForTypes, {
       month: currentDate.getMonth(),
       year: currentDate.getFullYear(),
-      userName,
+      userName
     });
 
     const calendarEvents = yield call(api.timesheetCommon.getTimesheetCalendarEventsList, {
       month: currentDate.getMonth(),
       year: currentDate.getFullYear(),
-      userNames: userNames,
+      userNames: userNames
     });
 
     const list = DelegatedTimesheetService.mergeManyToOneList({
       requestList: requestList.records,
       peopleList: peopleList.records,
-      calendarEvents,
+      calendarEvents
     });
 
     const mergedList = DelegatedTimesheetConverter.getDelegatedEventsListForWeb(list);
@@ -67,20 +68,20 @@ function* sagaGetDelegatedTimesheetByParams({ api, logger }, { payload }) {
 function* updateEvents({ value, number, userName, eventType }) {
   try {
     const list = deepClone(yield select(selectTDelegatedMergedList));
-    const subordinateIndex = list.findIndex((item) => item.userName === userName);
+    const subordinateIndex = list.findIndex(item => item.userName === userName);
 
     if (!~subordinateIndex) {
       return;
     }
 
-    const eventsIndex = list[subordinateIndex].eventTypes.findIndex((event) => event.name === eventType);
+    const eventsIndex = list[subordinateIndex].eventTypes.findIndex(event => event.name === eventType);
 
     if (!~eventsIndex) {
       return;
     }
 
     const event = list[subordinateIndex].eventTypes[eventsIndex];
-    let dayIndex = event.days.findIndex((day) => day.number === number);
+    let dayIndex = event.days.findIndex(day => day.number === number);
 
     if (!~dayIndex) {
       event.days.push({ number, hours: value });
@@ -151,7 +152,7 @@ function* sagaModifyTaskStatus({ api, logger }, { payload }) {
       outcome,
       taskId,
       currentUser,
-      comment,
+      comment
     });
 
     const newMergedList = CommonTimesheetService.deleteRecordLocalByUserName(mergedList, userName);
@@ -187,7 +188,7 @@ function* sagaDeclineDelegation({ api, logger }, { payload }) {
     yield call(api.timesheetDelegated.removeRecord, {
       userName: _userName,
       delegationType,
-      deputyName: _deputyName,
+      deputyName: _deputyName
     });
 
     const newMergedList = CommonTimesheetService.deleteRecordLocalByUserName(mergedList, userName);
@@ -206,7 +207,7 @@ function* sagaGetDelegatedDeputies({ api, logger }, { payload }) {
     const { type } = payload;
     const result = yield call(api.timesheetDelegated.getDeputyList, {
       userName,
-      type,
+      type
     });
     const deputyList = DelegatedTimesheetConverter.getDeputyListForWeb(result.records);
 

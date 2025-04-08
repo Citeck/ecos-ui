@@ -1,21 +1,22 @@
-import React, { Component } from 'react';
-import { NotificationManager } from '@/services/notifications';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import uniqueId from 'lodash/uniqueId';
 import isEmpty from 'lodash/isEmpty';
+import uniqueId from 'lodash/uniqueId';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
-import { getMLValue, t } from '../../../../../helpers/util';
 import Records from '../../../../../components/Records/Records';
 import RecordActions from '../../../../../components/Records/actions/recordActions';
 import { createDocumentUrl, getSelectedValueLink } from '../../../../../helpers/urls';
+import { getMLValue, t } from '../../../../../helpers/util';
 import { Tooltip } from '../../../../common';
-import CreateVariants from '../CreateVariants';
 import { Btn, IcoBtn } from '../../../../common/btns';
-import InlineToolsDisconnected from '../../../grid/InlineTools/InlineToolsDisconnected';
 import { Grid } from '../../../../common/grid';
+import InlineToolsDisconnected from '../../../grid/InlineTools/InlineToolsDisconnected';
 import { AssocLink } from '../../AssocLink';
+import CreateVariants from '../CreateVariants';
 import { Labels } from '../constants';
+
+import { NotificationManager } from '@/services/notifications';
 
 import './InputView.scss';
 

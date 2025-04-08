@@ -1,11 +1,12 @@
 import get from 'lodash/get';
 import { put, takeLatest } from 'redux-saga/effects';
-import { NotificationManager } from '@/services/notifications';
 
+import { setDashboardConfig, setDashboardIdentification } from '../actions/dashboard';
 import { getDashboardConfig } from '../actions/orgstructure';
 import { t } from '../helpers/export/util';
 import { ORGSTRUCTURE_CONFIG } from '../pages/Orgstructure/config';
-import { setDashboardConfig, setDashboardIdentification } from '../actions/dashboard';
+
+import { NotificationManager } from '@/services/notifications';
 
 function* sagaGetDashboardConfig({ api }, { payload }) {
   try {
@@ -16,10 +17,10 @@ function* sagaGetDashboardConfig({ api }, { payload }) {
         identification: {
           id: 'orgstructure',
           key: 'emodel/type@orgstructure-person-dashboard',
-          type: 'orgstructure-person-dashboard',
+          type: 'orgstructure-person-dashboard'
         },
-        key: payload.key,
-      }),
+        key: payload.key
+      })
     );
 
     yield put(
@@ -30,9 +31,9 @@ function* sagaGetDashboardConfig({ api }, { payload }) {
         identification: {
           id: 'orgstructure',
           key: 'emodel/type@orgstructure-person-dashboard',
-          type: 'orgstructure-person-dashboard',
-        },
-      }),
+          type: 'orgstructure-person-dashboard'
+        }
+      })
     );
   } catch (e) {
     NotificationManager.error(t('dashboard.error.get-config'), t('error'));

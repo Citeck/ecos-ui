@@ -1,4 +1,3 @@
-import { NotificationManager } from '@/services/notifications';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 
 import {
@@ -8,16 +7,18 @@ import {
   setCustomIcons,
   setFontIcons,
   setLoading,
-  uploadCustomIcon,
+  uploadCustomIcon
 } from '../actions/iconSelect';
-import { t } from '../helpers/util';
 import { getIconObjectWeb, getIconRef } from '../helpers/icon';
+import { t } from '../helpers/util';
+
+import { NotificationManager } from '@/services/notifications';
 
 function* fetchGetCustomIcons({ api }, { payload: { family } }) {
   try {
     const icons = yield call(api.customIcon.getIcons, { family });
 
-    yield put(setCustomIcons(icons.map((icon) => getIconObjectWeb(icon))));
+    yield put(setCustomIcons(icons.map(icon => getIconObjectWeb(icon))));
   } catch (e) {
     yield put(setLoading(false));
     NotificationManager.error(t('icon-select.error.get-custom-icons'), t('error'));
@@ -28,9 +29,9 @@ function* fetchGetCustomIcons({ api }, { payload: { family } }) {
 function* fetchGetFontIcons({ api }, { payload: prefix }) {
   try {
     const common = yield import('../fonts/citeck/config.json');
-    const icons = common.glyphs.map((item) => ({ value: `icon-${item.css}`, type: 'icon' }));
+    const icons = common.glyphs.map(item => ({ value: `icon-${item.css}`, type: 'icon' }));
 
-    yield put(setFontIcons(prefix ? icons.filter((item) => item.value.startsWith(prefix)) : icons));
+    yield put(setFontIcons(prefix ? icons.filter(item => item.value.startsWith(prefix)) : icons));
   } catch (e) {
     NotificationManager.error(t('icon-select.error.get-font-icons'), t('error'));
     console.error('[menu-settings / fetchGetFontIcons]', e);
@@ -39,7 +40,7 @@ function* fetchGetFontIcons({ api }, { payload: prefix }) {
 
 function* runUploadCustomIcon({ api }, { payload: { file, family } }) {
   try {
-    const customIcons = yield select((state) => state.iconSelect.customIcons);
+    const customIcons = yield select(state => state.iconSelect.customIcons);
 
     const type = 'img';
     const { name } = file;
@@ -62,11 +63,11 @@ function* runUploadCustomIcon({ api }, { payload: { file, family } }) {
 
 function* runDeleteCustomIcon({ api }, { payload: deleted }) {
   try {
-    const customIcons = yield select((state) => state.iconSelect.customIcons);
+    const customIcons = yield select(state => state.iconSelect.customIcons);
 
     yield call(api.customIcon.deleteIcon, [getIconRef(deleted)]);
 
-    const filtered = customIcons.filter((icon) => icon.value !== deleted.value);
+    const filtered = customIcons.filter(icon => icon.value !== deleted.value);
 
     yield put(setCustomIcons([...filtered]));
   } catch (e) {

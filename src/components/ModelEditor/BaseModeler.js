@@ -132,7 +132,7 @@ export default class BaseModeler {
 
       if (events) {
         if (events.onSelectElement) {
-          this.events.onSelectElement = (e) => {
+          this.events.onSelectElement = e => {
             if (get(e, 'newSelection.length', 0) < 2) {
               events.onSelectElement(get(e, 'newSelection[0]'));
             }
@@ -141,17 +141,17 @@ export default class BaseModeler {
         }
 
         if (events.onChangeElement) {
-          this.events.onChangeElement = (e) => events.onChangeElement(get(e, 'element'));
+          this.events.onChangeElement = e => events.onChangeElement(get(e, 'element'));
           this.modeler.on('element.changed', this.events.onChangeElement);
         }
 
         if (events.onClickElement) {
-          this.events.onClickElement = (e) => events.onClickElement(get(e, 'element'));
+          this.events.onClickElement = e => events.onClickElement(get(e, 'element'));
           this.modeler.on('element.click', this.events.onClickElement);
         }
 
         if (events.onChangeElementLabel) {
-          this.events.onChangeElementLabel = (e) => {
+          this.events.onChangeElementLabel = e => {
             if (get(e, 'target.id') === SEARCH_INPUT_ID) {
               return;
             }
@@ -163,7 +163,7 @@ export default class BaseModeler {
       }
 
       if (extraEvents) {
-        Object.keys(extraEvents).forEach((key) => {
+        Object.keys(extraEvents).forEach(key => {
           this.modeler.on(key, extraEvents[key]);
         });
       }
@@ -205,7 +205,7 @@ export default class BaseModeler {
     }
   };
 
-  setCustomContainer = (container) => {
+  setCustomContainer = container => {
     this._isCustomContainer = true;
     this.modeler.attachTo(container);
   };
@@ -264,7 +264,7 @@ export default class BaseModeler {
    * see available events
    * @return {ReactComponent}
    */
-  renderSheet = (props) => <Sheet {...props} init={this.init} className={BaseModeler.querySelector} />;
+  renderSheet = props => <Sheet {...props} init={this.init} className={BaseModeler.querySelector} />;
 
   destroy = () => {
     if (this.events) {

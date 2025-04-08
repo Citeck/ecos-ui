@@ -20,6 +20,6 @@ export default function formatProdErrorMessage(code: string, ...args: string[]):
   url.search = params.toString();
 
   throw Error(
-    `Minified Lexical error #${code}; visit ${url.toString()} for the full message or use the non-minified dev environment for full errors and additional helpful warnings.`,
+    `Minified Lexical error #${code}; visit ${url.toString()} for the full message or use the non-minified dev environment for full errors and additional helpful warnings.`
   );
 }

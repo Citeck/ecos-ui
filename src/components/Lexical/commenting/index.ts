@@ -45,7 +45,7 @@ export function createComment(content: string, author: string, id?: string, time
     deleted: deleted === undefined ? false : deleted,
     id: id === undefined ? createUID() : id,
     timeStamp: timeStamp === undefined ? performance.timeOrigin + performance.now() : timeStamp,
-    type: 'comment',
+    type: 'comment'
   };
 }
 
@@ -54,7 +54,7 @@ export function createThread(quote: string, comments: Array<Comment>, id?: strin
     comments,
     id: id === undefined ? createUID() : id,
     quote,
-    type: 'thread',
+    type: 'thread'
   };
 }
 
@@ -63,7 +63,7 @@ function cloneThread(thread: Thread): Thread {
     comments: Array.from(thread.comments),
     id: thread.id,
     quote: thread.quote,
-    type: 'thread',
+    type: 'thread'
   };
 }
 
@@ -74,7 +74,7 @@ function markDeleted(comment: Comment): Comment {
     deleted: true,
     id: comment.id,
     timeStamp: comment.timeStamp,
-    type: 'comment',
+    type: 'comment'
   };
 }
 
@@ -184,7 +184,7 @@ export class CommentStore {
     if (commentOrThread.type === 'comment') {
       return {
         index: commentIndex as number,
-        markedComment: markDeleted(commentOrThread as Comment),
+        markedComment: markDeleted(commentOrThread as Comment)
       };
     }
 
@@ -272,7 +272,7 @@ export class CommentStore {
 
     const unsubscribe = this._editor.registerCommand(
       TOGGLE_CONNECT_COMMAND,
-      (payload) => {
+      payload => {
         if (connect !== undefined && disconnect !== undefined) {
           const shouldConnect = payload;
 
@@ -289,14 +289,14 @@ export class CommentStore {
 
         return false;
       },
-      COMMAND_PRIORITY_LOW,
+      COMMAND_PRIORITY_LOW
     );
 
     const onSharedCommentChanges = (
       // The YJS types explicitly use `any` as well.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       events: Array<YEvent<any>>,
-      transaction: Transaction,
+      transaction: Transaction
     ) => {
       if (transaction.origin !== this) {
         for (let i = 0; i < events.length; i++) {
@@ -316,7 +316,7 @@ export class CommentStore {
               const parentThread =
                 target === sharedCommentsArray
                   ? undefined
-                  : parent instanceof YMap && (this._comments.find((t) => t.id === parent.get('id')) as Thread | undefined);
+                  : parent instanceof YMap && (this._comments.find(t => t.id === parent.get('id')) as Thread | undefined);
 
               if (Array.isArray(insert)) {
                 insert
@@ -340,10 +340,10 @@ export class CommentStore {
                                   innerComment.get('author') as string,
                                   innerComment.get('id') as string,
                                   innerComment.get('timeStamp') as number,
-                                  innerComment.get('deleted') as boolean,
-                                ),
+                                  innerComment.get('deleted') as boolean
+                                )
                               ),
-                            id,
+                            id
                           )
                         : createComment(map.get('content'), map.get('author'), id, map.get('timeStamp'), map.get('deleted'));
                     this._withLocalTransaction(() => {

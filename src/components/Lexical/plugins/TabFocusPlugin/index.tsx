@@ -25,7 +25,7 @@ function registerKeyTimeStampTracker() {
         lastTabKeyDownTimestamp = event.timeStamp;
       }
     },
-    true,
+    true
   );
 }
 
@@ -49,7 +49,7 @@ export default function TabFocusPlugin(): null {
         }
         return false;
       },
-      COMMAND_PRIORITY_LOW,
+      COMMAND_PRIORITY_LOW
     );
   }, [editor]);
 

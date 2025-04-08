@@ -1,17 +1,17 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import get from 'lodash/get';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 import { MenuSettings as MS } from '../../../constants/menu';
 import { SelectJournal } from '../../common/form';
 
-import Section from './Section';
 import Arbitrary from './Arbitrary';
+import CreateInSection from './CreateInSection';
 import Dashboard from './Dashboard';
 import Divider from './Divider';
-import CreateInSection from './CreateInSection';
 import EditRecord from './EditRecord';
 import LinkCreateCase from './LinkCreateCase';
+import Section from './Section';
 import StartWorkflow from './StartWorkflow';
 import UserMenuItem from './UserMenuItem';
 

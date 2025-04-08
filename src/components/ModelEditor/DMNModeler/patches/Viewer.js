@@ -36,7 +36,7 @@ Viewer.prototype.saveSVG = wrapForCompatibility(function (layer, canvasSvg, bbox
         '</svg>';
 
       resolve({
-        svg,
+        svg
       });
     } catch (error) {
       reject({ error, svg: null });

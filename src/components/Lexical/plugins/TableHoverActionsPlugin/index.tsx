@@ -19,7 +19,7 @@ import {
   getTableElement,
   TableCellNode,
   TableNode,
-  TableRowNode,
+  TableRowNode
 } from '@lexical/table';
 import { $findMatchingParent, mergeRegister } from '@lexical/utils';
 import { $getNearestNodeFromDOMNode, EditorThemeClasses, isHTMLElement, NodeKey } from 'lexical';
@@ -67,7 +67,7 @@ function TableHoverActionsContainer({ anchorElem }: { anchorElem: HTMLElement })
           const maybeTableCell = $getNearestNodeFromDOMNode(tableDOMNode);
 
           if ($isTableCellNode(maybeTableCell)) {
-            const table = $findMatchingParent(maybeTableCell, (node) => $isTableNode(node));
+            const table = $findMatchingParent(maybeTableCell, node => $isTableNode(node));
             if (!$isTableNode(table)) {
               return;
             }
@@ -89,7 +89,7 @@ function TableHoverActionsContainer({ anchorElem }: { anchorElem: HTMLElement })
             }
           }
         },
-        { editor },
+        { editor }
       );
 
       if (tableDOMElement) {
@@ -99,7 +99,7 @@ function TableHoverActionsContainer({ anchorElem }: { anchorElem: HTMLElement })
           right: tableElemRight,
           left: tableElemLeft,
           bottom: tableElemBottom,
-          height: tableElemHeight,
+          height: tableElemHeight
         } = (tableDOMElement as HTMLTableElement).getBoundingClientRect();
 
         // Adjust for using the scrollable table container
@@ -117,7 +117,7 @@ function TableHoverActionsContainer({ anchorElem }: { anchorElem: HTMLElement })
             height: BUTTON_WIDTH_PX,
             left: tableHasScroll && parentElement ? parentElement.offsetLeft : tableElemLeft - editorElemLeft,
             top: tableElemBottom - editorElemY + 5,
-            width: tableHasScroll && parentElement ? parentElement.offsetWidth : tableElemWidth,
+            width: tableHasScroll && parentElement ? parentElement.offsetWidth : tableElemWidth
           });
         } else if (hoveredColumnNode) {
           setShownColumn(true);
@@ -126,13 +126,13 @@ function TableHoverActionsContainer({ anchorElem }: { anchorElem: HTMLElement })
             height: tableElemHeight,
             left: tableElemRight - editorElemLeft + 5,
             top: tableElemY - editorElemY,
-            width: BUTTON_WIDTH_PX,
+            width: BUTTON_WIDTH_PX
           });
         }
       }
     },
     50,
-    250,
+    250
   );
 
   // Hide the buttons on any table dimensions change to prevent last row cells
@@ -163,7 +163,7 @@ function TableHoverActionsContainer({ anchorElem }: { anchorElem: HTMLElement })
     return mergeRegister(
       editor.registerMutationListener(
         TableNode,
-        (mutations) => {
+        mutations => {
           editor.getEditorState().read(
             () => {
               let resetObserver = false;
@@ -193,11 +193,11 @@ function TableHoverActionsContainer({ anchorElem }: { anchorElem: HTMLElement })
                 setShouldListenMouseMove(tableSetRef.current.size > 0);
               }
             },
-            { editor },
+            { editor }
           );
         },
-        { skipInitialization: false },
-      ),
+        { skipInitialization: false }
+      )
     );
   }, [editor, tableResizeObserver]);
 
@@ -231,7 +231,7 @@ function TableHoverActionsContainer({ anchorElem }: { anchorElem: HTMLElement })
 
 function getMouseInfo(
   event: MouseEvent,
-  getTheme: () => EditorThemeClasses | null | undefined,
+  getTheme: () => EditorThemeClasses | null | undefined
 ): {
   tableDOMNode: HTMLElement | null;
   isOutside: boolean;

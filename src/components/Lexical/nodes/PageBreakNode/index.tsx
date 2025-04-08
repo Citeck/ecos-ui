@@ -24,7 +24,7 @@ import {
   KEY_DELETE_COMMAND,
   LexicalNode,
   NodeKey,
-  SerializedLexicalNode,
+  SerializedLexicalNode
 } from 'lexical';
 import { JSX, useCallback, useEffect } from 'react';
 import * as React from 'react';
@@ -40,7 +40,7 @@ function PageBreakComponent({ nodeKey }: { nodeKey: NodeKey }) {
       event.preventDefault();
       const deleteSelection = $getSelection();
       if (isSelected && $isNodeSelection(deleteSelection)) {
-        deleteSelection.getNodes().forEach((node) => {
+        deleteSelection.getNodes().forEach(node => {
           if ($isPageBreakNode(node)) {
             node.remove();
           }
@@ -48,7 +48,7 @@ function PageBreakComponent({ nodeKey }: { nodeKey: NodeKey }) {
       }
       return false;
     },
-    [isSelected],
+    [isSelected]
   );
 
   useEffect(() => {
@@ -68,10 +68,10 @@ function PageBreakComponent({ nodeKey }: { nodeKey: NodeKey }) {
 
           return false;
         },
-        COMMAND_PRIORITY_LOW,
+        COMMAND_PRIORITY_LOW
       ),
       editor.registerCommand(KEY_DELETE_COMMAND, $onDelete, COMMAND_PRIORITY_LOW),
-      editor.registerCommand(KEY_BACKSPACE_COMMAND, $onDelete, COMMAND_PRIORITY_LOW),
+      editor.registerCommand(KEY_BACKSPACE_COMMAND, $onDelete, COMMAND_PRIORITY_LOW)
     );
   }, [clearSelection, editor, isSelected, nodeKey, $onDelete, setSelected]);
 
@@ -108,9 +108,9 @@ export class PageBreakNode extends DecoratorNode<JSX.Element> {
 
         return {
           conversion: $convertPageBreakElement,
-          priority: COMMAND_PRIORITY_HIGH,
+          priority: COMMAND_PRIORITY_HIGH
         };
-      },
+      }
     };
   }
 

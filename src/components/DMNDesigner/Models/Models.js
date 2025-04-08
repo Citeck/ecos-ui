@@ -1,18 +1,18 @@
 import { connect } from 'react-redux';
-import { NotificationManager } from '@/services/notifications';
 
 import { createModel, updateModels, savePagePosition } from '../../../actions/dmn';
-import { selectModelsByCategoryId } from '../../../selectors/dmn';
-import { t } from '../../../helpers/export/util';
-import Models from './ModelComponent';
-import recordActions from '../../../components/Records/actions/recordActions';
-
 import EcosFormUtils from '../../../components/EcosForm/EcosFormUtils';
-
+import recordActions from '../../../components/Records/actions/recordActions';
 import RecordActions from '../../../components/Records/actions/recordActions';
-import PageService from '../../../services/PageService';
 import { Labels } from '../../../constants/commonDesigner';
 import { EDITOR_PAGE_CONTEXT, LOCAL_STORAGE_KEY_REFERER_PAGE_PATHNAME } from '../../../constants/dmn';
+import { t } from '../../../helpers/export/util';
+import { selectModelsByCategoryId } from '../../../selectors/dmn';
+import PageService from '../../../services/PageService';
+
+import Models from './ModelComponent';
+
+import { NotificationManager } from '@/services/notifications';
 
 const OPEN_DMN_EDITOR_ACTION_REF = 'uiserv/action@open-dmn-editor';
 
@@ -85,7 +85,4 @@ const mapDispatchToProps = dispatch => ({
   showModelCreationForm: categoryId => dispatch(createModel({ categoryId }))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Models);
+export default connect(mapStateToProps, mapDispatchToProps)(Models);

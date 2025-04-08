@@ -1,7 +1,8 @@
-import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
 import { run, get, value, isExist, isFunction, saveScrollPosition } from '../helpers';
+
 import { addToComponents, getComponents, removeFromComponents } from './constants';
 
 const isUsingNewLifecycle = isExist(React.forwardRef);

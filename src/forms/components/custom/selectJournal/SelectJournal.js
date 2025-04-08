@@ -34,22 +34,22 @@ export default class SelectJournalComponent extends BaseReactComponent {
         sortAscending: SortOrderOptions.DESC.value,
         source: {
           custom: {
-            columns: [],
+            columns: []
           },
           type: TableTypes.JOURNAL,
           viewMode: DisplayModes.DEFAULT,
-          customValues: [],
+          customValues: []
         },
         displayColumns: [],
         computed: {
-          valueDisplayName: '',
+          valueDisplayName: ''
         },
         searchField: '',
         ecos: {
-          dataType: DataTypes.ASSOC,
-        },
+          dataType: DataTypes.ASSOC
+        }
       },
-      ...extend,
+      ...extend
     );
   }
 
@@ -59,7 +59,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
       icon: 'fa fa-th-list',
       group: 'advanced',
       weight: 0,
-      schema: SelectJournalComponent.schema(),
+      schema: SelectJournalComponent.schema()
     };
   }
 
@@ -76,7 +76,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
       return journalId;
     }
 
-    matches.forEach((matchString) => {
+    matches.forEach(matchString => {
       const stringWithoutBraskets = matchString.substring(2, matchString.length - 1);
       journalId = journalId.replace(matchString, this.root.data[stringWithoutBraskets]);
     });
@@ -99,7 +99,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
       if (this.react && this.react.innerComponent) {
         this.react.innerComponent.setCustomPredicate && this.react.innerComponent.setCustomPredicate(customPredicate);
       } else {
-        this.updateReactComponent((component) => component.setCustomPredicate && component.setCustomPredicate(customPredicate));
+        this.updateReactComponent(component => component.setCustomPredicate && component.setCustomPredicate(customPredicate));
       }
     }
 
@@ -110,8 +110,8 @@ export default class SelectJournalComponent extends BaseReactComponent {
     return SelectJournal;
   }
 
-  fetchAsyncProperties = (source) => {
-    return new Promise(async (resolve) => {
+  fetchAsyncProperties = source => {
+    return new Promise(async resolve => {
       if (!source || source.viewMode !== DisplayModes.TABLE) {
         return resolve([]);
       }
@@ -125,7 +125,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         let createVariantsPromise = Promise.resolve([]);
 
         const columns = await Promise.all(
-          source.custom.columns.map(async (item) => {
+          source.custom.columns.map(async item => {
             const col = { ...item };
             let additionalInfo = {};
 
@@ -138,7 +138,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
             }
 
             return { ...col, ...additionalInfo };
-          }),
+          })
         );
 
         if (component.customCreateVariantsJs) {
@@ -159,18 +159,18 @@ export default class SelectJournalComponent extends BaseReactComponent {
           }
 
           createVariantsPromise = Promise.all(
-            (await fetchCustomCreateVariantsPromise).map((variant) => {
+            (await fetchCustomCreateVariantsPromise).map(variant => {
               if (_.isObject(variant)) {
                 return variant;
               }
 
               return Records.get(variant)
                 .load('.disp')
-                .then((dispName) => ({
+                .then(dispName => ({
                   recordRef: variant,
-                  label: dispName,
+                  label: dispName
                 }));
-            }),
+            })
           );
         } else if (attribute) {
           createVariantsPromise = EcosFormUtils.getCreateVariants(record, attribute);
@@ -184,7 +184,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
           let columnsInfoPromise;
           let inputsPromise;
 
-          columns.forEach((item) => {
+          columns.forEach(item => {
             const key = `.edge(n:"${item.name}"){title,type,multiple}`;
 
             columnsMap[key] = item;
@@ -196,7 +196,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
 
           if (createVariants.length < 1 || columns.length < 1) {
             columnsInfoPromise = await Promise.all(
-              columns.map(async (item) => {
+              columns.map(async item => {
                 let data = item;
                 const text = item.title ? this.t(item.title) : '';
 
@@ -205,9 +205,9 @@ export default class SelectJournalComponent extends BaseReactComponent {
                   type: data.type,
                   text: text || data.title,
                   multiple: data.multiple,
-                  attribute: data.name,
+                  attribute: data.name
                 };
-              }),
+              })
             );
             inputsPromise = Promise.resolve({});
           } else {
@@ -215,7 +215,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
 
             columnsInfoPromise = Records.get(cvRecordRef)
               .load(Object.keys(columnsMap))
-              .then((loadedAtt) => {
+              .then(loadedAtt => {
                 const cols = [];
 
                 for (let i in columnsMap) {
@@ -231,7 +231,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
                     type: isManualAttributes && originalColumn.type ? originalColumn.type : loadedAtt[i].type,
                     text: isManualAttributes ? this.t(originalColumn.title) : loadedAtt[i].title,
                     multiple: isManualAttributes ? originalColumn.multiple : loadedAtt[i].multiple,
-                    attribute: originalColumn.name,
+                    attribute: originalColumn.name
                   });
                 }
 
@@ -242,7 +242,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
           }
 
           Promise.all([columnsInfoPromise, inputsPromise])
-            .then((columnsAndInputs) => {
+            .then(columnsAndInputs => {
               const [columns, inputs] = columnsAndInputs;
 
               for (let column of columns) {
@@ -253,7 +253,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
                   //todo: Is this filter required?
                   column.formatter = {
                     name: 'FormFieldFormatter',
-                    params: input,
+                    params: input
                   };
                 }
 
@@ -264,9 +264,9 @@ export default class SelectJournalComponent extends BaseReactComponent {
 
               resolve(GqlDataSource.getColumnsStatic(columns));
             })
-            .catch((err) => {
+            .catch(err => {
               console.warn("[SelectJournal fetchAsyncProperties] Can't fetch Columns & Fields", err);
-              columnsInfoPromise.then((columns) => resolve(GqlDataSource.getColumnsStatic(columns)));
+              columnsInfoPromise.then(columns => resolve(GqlDataSource.getColumnsStatic(columns)));
             });
         } catch (e) {
           console.warn("[SelectJournal fetchAsyncProperties] Can't fetch Create variants", e);
@@ -298,7 +298,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
   onChangeValue = (value, selected = [], flags = {}) => {
     this.onReactValueChanged(value, {
       noUpdateEvent: this._isInlineEditingMode,
-      ...flags,
+      ...flags
     });
 
     !_.get(this.root, 'options.saveDraft') && this.checkValidity(this.dataValue);
@@ -345,14 +345,14 @@ export default class SelectJournalComponent extends BaseReactComponent {
       searchField: comp.searchField,
       sortBy: {
         attribute: comp.sortAttribute,
-        ascending: comp.sortAscending !== SortOrderOptions.DESC.value,
+        ascending: comp.sortAscending !== SortOrderOptions.DESC.value
       },
       // Cause https://citeck.atlassian.net/browse/ECOSUI-208
       // If component has calculateValue, disable value reset when apply custom predicate
       disableResetOnApplyCustomPredicate: !!comp.calculateValue,
       title: this.modalTitle,
       dataType: this.component.ecos.dataType,
-      journalId: this.journalId,
+      journalId: this.journalId
     };
   };
 
@@ -380,10 +380,10 @@ export default class SelectJournalComponent extends BaseReactComponent {
         isModalMode,
         presetFilterPredicates,
         computed: {
-          valueDisplayName: (value) => SelectJournalComponent.getValueDisplayName(this.component, value),
+          valueDisplayName: value => SelectJournalComponent.getValueDisplayName(this.component, value)
         },
         onError: () => undefined,
-        ...this.getComponentAttributes(),
+        ...this.getComponentAttributes()
       };
 
       if (component.enableCreateButton) {
@@ -406,7 +406,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
     };
 
     const journalId = this.journalId;
-    const fetchPropertiesAndResolve = async (journalId) => {
+    const fetchPropertiesAndResolve = async journalId => {
       const columns = await this.fetchAsyncProperties(this.component.source);
 
       journalId = await this.getJournalId(journalId);
@@ -423,7 +423,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         return new Promise(() => fetchPropertiesAndResolve(null));
       }
 
-      return record.then((editorKey) => fetchPropertiesAndResolve(editorKey)).catch(() => fetchPropertiesAndResolve(null));
+      return record.then(editorKey => fetchPropertiesAndResolve(editorKey)).catch(() => fetchPropertiesAndResolve(null));
     } else {
       return fetchPropertiesAndResolve(journalId);
     }
@@ -476,7 +476,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
 
     const labelElement = this.ce('label', {
       class: className,
-      style,
+      style
     });
 
     if (!isLabelHidden) {
@@ -520,14 +520,14 @@ export default class SelectJournalComponent extends BaseReactComponent {
   }
 
   delayedSettingProps = _.debounce(
-    (props) => {
+    props => {
       this.setReactProps({
         ...props,
-        ...this.getComponentAttributes(),
+        ...this.getComponentAttributes()
       });
     },
     250,
-    { maxWait: 500, trailing: true },
+    { maxWait: 500, trailing: true }
   );
 
   refreshElementHasValueClasses() {
@@ -575,7 +575,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
     return result || value;
   };
 
-  static getCustomValues = (component) => {
+  static getCustomValues = component => {
     if (component.source.customValues) {
       return formioEvaluate(component.source.customValues, {}, 'values', true);
     }

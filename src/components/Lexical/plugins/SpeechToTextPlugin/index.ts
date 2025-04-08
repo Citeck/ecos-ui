@@ -25,7 +25,7 @@ const VOICE_COMMANDS: Readonly<Record<string, (arg0: { editor: LexicalEditor; se
   },
   undo: ({ editor }) => {
     editor.dispatchCommand(UNDO_COMMAND, undefined);
-  },
+  }
 };
 
 export const SUPPORT_SPEECH_RECOGNITION: boolean = 'SpeechRecognition' in window || 'webkitSpeechRecognition' in window;
@@ -62,7 +62,7 @@ function SpeechToTextPlugin(): null {
             if (command) {
               command({
                 editor,
-                selection,
+                selection
               });
             } else if (transcript.match(/\s*\n\s*/)) {
               selection.insertParagraph();
@@ -95,7 +95,7 @@ function SpeechToTextPlugin(): null {
         setIsEnabled(_isEnabled);
         return true;
       },
-      COMMAND_PRIORITY_EDITOR,
+      COMMAND_PRIORITY_EDITOR
     );
   }, [editor]);
 

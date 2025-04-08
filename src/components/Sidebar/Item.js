@@ -29,8 +29,7 @@ class Item extends React.Component {
     level: PropTypes.number,
     isExpanded: PropTypes.bool,
     isSelected: PropTypes.bool,
-    inDropdown: PropTypes.bool,
-    workspace: PropTypes.object
+    inDropdown: PropTypes.bool
   };
 
   static defaultProps = {

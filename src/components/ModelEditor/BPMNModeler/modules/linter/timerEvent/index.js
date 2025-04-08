@@ -12,7 +12,7 @@ const timerEventHasType = {
   id: 'time-event-has-type',
   callback: () => {
     const check = (node, reporter) => {
-      if (!node.eventDefinitions || !node.eventDefinitions.find((def) => is(def, TIMER_EVENT_DEFINITION))) {
+      if (!node.eventDefinitions || !node.eventDefinitions.find(def => is(def, TIMER_EVENT_DEFINITION))) {
         return;
       }
 
@@ -26,16 +26,16 @@ const timerEventHasType = {
     };
 
     return {
-      check,
+      check
     };
-  },
+  }
 };
 
 const timerEventHasValue = {
   id: 'time-event-has-value',
   callback: () => {
     const check = (node, reporter) => {
-      if (!node.eventDefinitions || !node.eventDefinitions.find((def) => is(def, TIMER_EVENT_DEFINITION))) {
+      if (!node.eventDefinitions || !node.eventDefinitions.find(def => is(def, TIMER_EVENT_DEFINITION))) {
         return;
       }
 
@@ -49,17 +49,17 @@ const timerEventHasValue = {
     };
 
     return {
-      check,
+      check
     };
-  },
+  }
 };
 
 export const timerEventRulesMap = {
   [timerEventHasType.id]: 'error',
-  [timerEventHasValue.id]: 'error',
+  [timerEventHasValue.id]: 'error'
 };
 
 export const timerEventCacheMap = {
   [`${BPMN_LINT_PREFIX}${timerEventHasType.id}`]: timerEventHasType.callback,
-  [`${BPMN_LINT_PREFIX}${timerEventHasValue.id}`]: timerEventHasValue.callback,
+  [`${BPMN_LINT_PREFIX}${timerEventHasValue.id}`]: timerEventHasValue.callback
 };

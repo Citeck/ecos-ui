@@ -19,8 +19,6 @@ import { t } from '../../../../../helpers/util';
 import ModalContent from '../ModalContent';
 
 import GroupIcon from './GroupIcon';
-
-
 import defaultAvatar from './Vector.png';
 
 import Records from '@/components/Records';

@@ -16,7 +16,7 @@ import {
   LexicalEditor,
   LexicalNode,
   RangeSelection,
-  SerializedElementNode,
+  SerializedElementNode
 } from 'lexical';
 
 import { IS_CHROME } from '../../shared/environment';
@@ -30,7 +30,7 @@ type SerializedCollapsibleTitleNode = SerializedElementNode;
 export function $convertSummaryElement(domNode: HTMLElement): DOMConversionOutput | null {
   const node = $createCollapsibleTitleNode();
   return {
-    node,
+    node
   };
 }
 
@@ -67,9 +67,9 @@ export class CollapsibleTitleNode extends ElementNode {
       summary: (domNode: HTMLElement) => {
         return {
           conversion: $convertSummaryElement,
-          priority: 1,
+          priority: 1
         };
-      },
+      }
     };
   }
 

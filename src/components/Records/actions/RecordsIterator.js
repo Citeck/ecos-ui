@@ -1,7 +1,7 @@
-import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
-import isFunction from 'lodash/isFunction';
+import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
 
 import Records from '../Records';
 
@@ -37,13 +37,13 @@ class RecordsIterator {
     return {
       skipCount: this._skipCount,
       maxItems: this._amountPerIteration,
-      page: this._page,
+      page: this._page
     };
   }
 
   async next() {
     this._query.page = this.pagination;
-    const res = await Records.query(this._query, ['_created']).catch((e) => {
+    const res = await Records.query(this._query, ['_created']).catch(e => {
       console.error(e);
       return [];
     });
@@ -57,7 +57,7 @@ class RecordsIterator {
           this._lastDate = lastDateRecords;
         }
         this._skipCount = 0;
-        res.records.forEach((record) => record['_created'] && record['_created'] === this._lastDate && this._skipCount++);
+        res.records.forEach(record => record['_created'] && record['_created'] === this._lastDate && this._skipCount++);
       }
     }
 
@@ -69,9 +69,9 @@ class RecordsIterator {
           {
             att: '_created',
             t: 'ge',
-            val: this._lastDate,
-          },
-        ],
+            val: this._lastDate
+          }
+        ]
       };
     }
 

@@ -24,7 +24,7 @@ export default class Manager {
   getActive() {
     return this.refs[this.active.collection].find(
       // eslint-disable-next-line eqeqeq
-      ({ node }) => node.sortableInfo.index == this.active.index,
+      ({ node }) => node.sortableInfo.index == this.active.index
     );
   }
 
@@ -40,14 +40,14 @@ export default class Manager {
 function sortByIndex(
   {
     node: {
-      sortableInfo: { index: index1 },
-    },
+      sortableInfo: { index: index1 }
+    }
   },
   {
     node: {
-      sortableInfo: { index: index2 },
-    },
-  },
+      sortableInfo: { index: index2 }
+    }
+  }
 ) {
   return index1 - index2;
 }

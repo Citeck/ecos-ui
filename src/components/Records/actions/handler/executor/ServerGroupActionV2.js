@@ -1,16 +1,17 @@
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import React from 'react';
-import ActionsExecutor from '../ActionsExecutor';
-import Records from '../../../Records';
-import LicenseService from '../../../../../services/license/LicenseService';
-import { NotificationManager } from '@/services/notifications';
-import { DialogManager } from '../../../../common/dialogs';
-import EcosProgressBar from '../../../../common/EcosProgressBar';
 
 import { t } from '../../../../../helpers/export/util';
+import LicenseService from '../../../../../services/license/LicenseService';
+import EcosProgressBar from '../../../../common/EcosProgressBar';
+import { DialogManager } from '../../../../common/dialogs';
+import Records from '../../../Records';
 import { notifyStart, removeNotify } from '../../util/actionUtils';
 import { ResultTypes } from '../../util/constants';
+import ActionsExecutor from '../ActionsExecutor';
+
+import { NotificationManager } from '@/services/notifications';
 
 const STATUS_WAITING = 'WAITING';
 const STATUS_RUNNING = 'RUNNING';

@@ -42,7 +42,7 @@ export const SearchKeys = {
   DASHBOARD_ID: [DASHBOARD_ID_KEY],
   DASHBOARD_KEY: [DASHBOARD_KEY_KEY],
   SHOW_PREVIEW: [SHOW_PREVIEW_KEY],
-  JOURNAL_SETTING_ID: [JOURNAL_SETTING_ID_KEY],
+  JOURNAL_SETTING_ID: [JOURNAL_SETTING_ID_KEY]
 };
 
 export const IgnoredUrlParams = [SearchKeys.PAGINATION, SearchKeys.FILTER, SearchKeys.SORT, SearchKeys.SHOW_PREVIEW];
@@ -51,7 +51,7 @@ export { NEW_VERSION_PREFIX, isNewVersionPage, isNewVersionSharePage } from './e
 
 export const OLD_LINKS = false;
 
-export const getCustomDasboardUrl = (dashboardId) => {
+export const getCustomDasboardUrl = dashboardId => {
   return `${Urls.DASHBOARD}?dashboardId=${dashboardId}`;
 };
 
@@ -69,15 +69,15 @@ export const changeUrl = (url, opts = {}) => {
   }
 };
 
-export const createProfileUrl = (userName) => {
+export const createProfileUrl = userName => {
   return `${Urls.DASHBOARD}?recordRef=${SourcesId.PERSON}@${userName ? userName.toLowerCase() : ''}`;
 };
 
-export const createDocumentUrl = (recordRef) => {
+export const createDocumentUrl = recordRef => {
   return `${Urls.DASHBOARD}?recordRef=${recordRef}`;
 };
 
-export const getSelectedValueLink = (item) => {
+export const getSelectedValueLink = item => {
   switch (true) {
     // Cause: https://citeck.atlassian.net/browse/ECOSUI-2312
     case PageService.isTypeRecord(item.id):
@@ -120,7 +120,7 @@ export function createPrintUrl({ record, config }) {
     templateType: config.templateType,
     format: config.format,
     timezone: config.timezone,
-    offset: config.offset,
+    offset: config.offset
   };
 
   return `${PROXY_URI}citeck/print/metadata-printpdf?` + queryString.stringify(params);
@@ -130,7 +130,7 @@ export function createContentUrl({ value }) {
   return `${PROXY_URI}api/node/workspace/SpacesStore/${value}/content;cm:content`;
 }
 
-export const getFilterParam = (options) => {
+export const getFilterParam = options => {
   return ParserPredicate.getRowPredicates(options);
 };
 
@@ -139,7 +139,7 @@ export const getJournalPageUrl = ({ journalId, journalSettingId, boardId, filter
     [JOURNAL_ID_KEY]: journalId,
     [JOURNAL_SETTING_ID_KEY]: filter ? undefined : journalSettingId,
     [SEARCH_KEY]: search || filter,
-    [VIEW_MODE]: viewMode,
+    [VIEW_MODE]: viewMode
   };
 
   if (boardId) {
@@ -160,18 +160,18 @@ function getValidNodeRef(nodeRef) {
   return nodeRef;
 }
 
-export const getDownloadContentUrl = (entityRef) => {
+export const getDownloadContentUrl = entityRef => {
   if (entityRef.indexOf('workspace://SpacesStore/') !== -1) {
     return `${PROXY_URI}citeck/print/content?nodeRef=${getValidNodeRef(entityRef)}`;
   }
   return `/gateway/emodel/api/ecos/webapp/content?ref=${entityRef}`;
 };
 
-export const getZipUrl = (nodeRef) => {
+export const getZipUrl = nodeRef => {
   return `${PROXY_URI}api/node/content/${getValidNodeRef(nodeRef).replace(':/', '')}/Archive.zip`;
 };
 
-export const getTemplateUrl = (nodeRef) => {
+export const getTemplateUrl = nodeRef => {
   return `${PROXY_URI}citeck/case/template?nodeRef=${getValidNodeRef(nodeRef)}`;
 };
 
@@ -183,7 +183,7 @@ export const getBarcodePrintUrl = (record, settings = 'barcodeType=code-128&scal
   }
 };
 
-export const goToJournalsPage = (options) => {
+export const goToJournalsPage = options => {
   const journalPageUrl = getJournalPageUrl(options);
 
   if (OLD_LINKS || !isNewVersionPage()) {
@@ -199,7 +199,7 @@ export const goToJournalsPage = (options) => {
   }
 };
 
-export const goToAdminPage = (options) => {
+export const goToAdminPage = options => {
   const params = queryString.stringify(options);
   let link = Urls.ADMIN_PAGE;
 
@@ -249,8 +249,8 @@ export const getSortedUrlParams = (params = window.location.search) => {
   const byObject = decodeLink(params)
     .slice(1, params.length)
     .split('&')
-    .map((i) => i.split('='))
-    .map((i) => ({ [i[0]]: i[1] }))
+    .map(i => i.split('='))
+    .map(i => ({ [i[0]]: i[1] }))
     .reduce((r = {}, n = {}) => ({ ...r, ...n }));
   const sortedParams = Object.keys(byObject).sort((a, b) => {
     if (a.toLowerCase() < b.toLowerCase()) {
@@ -264,7 +264,7 @@ export const getSortedUrlParams = (params = window.location.search) => {
     return 0;
   });
 
-  return sortedParams.map((key) => `${key}=${byObject[key]}`).join('&');
+  return sortedParams.map(key => `${key}=${byObject[key]}`).join('&');
 };
 
 export const getSearchParams = (params = window.location.search, options) => {
@@ -276,7 +276,7 @@ export const getSearchParams = (params = window.location.search, options) => {
  * @param str {string}
  * @returns {string}
  */
-export const decodeLink = (str) => {
+export const decodeLink = str => {
   try {
     return decodeURIComponent(str);
   } catch (e) {
@@ -289,7 +289,7 @@ export const decodeLink = (str) => {
  * @param str {string}
  * @returns {string}
  */
-export const decodeLinkWithEncodeParams = (str) => {
+export const decodeLinkWithEncodeParams = str => {
   let newStr = str;
 
   newStr = newStr.replace(/%24/g, '$'); // $
@@ -321,7 +321,7 @@ export const decodeLinkWithEncodeParams = (str) => {
  * Get the last path to the segment before the query
  * @returns {string}
  */
-export const getLastPathSegmentBeforeQuery = (path) => {
+export const getLastPathSegmentBeforeQuery = path => {
   let pathname = path || getUrlWithoutOrigin();
   if (pathname.includes('?')) {
     pathname = pathname.split('?')[0];
@@ -339,10 +339,10 @@ export const getLastPathSegmentBeforeQuery = (path) => {
  *
  * @returns {boolean}
  */
-export const equalsQueryUrls = (params) => {
+export const equalsQueryUrls = params => {
   const { urls = [], ignored = [], compareBy = [] } = params;
 
-  if (!Array.isArray(urls) || urls.some((u) => typeof u !== 'string' || !u.length)) {
+  if (!Array.isArray(urls) || urls.some(u => typeof u !== 'string' || !u.length)) {
     return false;
   }
 
@@ -355,7 +355,7 @@ export const equalsQueryUrls = (params) => {
     return false;
   }
 
-  if (ignored.some((key) => compareBy.includes(key))) {
+  if (ignored.some(key => compareBy.includes(key))) {
     console.warn("List 'ignored' has key(s) from list 'compareBy'");
   }
 
@@ -374,7 +374,7 @@ export const equalsQueryUrls = (params) => {
   return queryString.stringify(firstParams) === queryString.stringify(secondParams);
 };
 
-export const getLinkWithout = (params) => {
+export const getLinkWithout = params => {
   const { url = '', ignored = [] } = params;
 
   if (!url || !ignored.length) {
@@ -388,7 +388,7 @@ export const getLinkWithout = (params) => {
     return url;
   }
 
-  ignored.forEach((param) => {
+  ignored.forEach(param => {
     delete query[param];
   });
 
@@ -498,7 +498,7 @@ window.Citeck.Navigator = {
   goToDashboard: (recordRef, options) => {
     goToCardDetailsPage(recordRef, options);
   },
-  getWorkspaceId: () => getWorkspaceId(),
+  getWorkspaceId: () => getWorkspaceId()
 };
 
 export const replaceHistoryLink = (history = window, link = '', force = false) => {
@@ -537,7 +537,7 @@ export const pushHistoryLink = (history = window, linkData = {}, force = false) 
     search = search.slice(1);
   }
 
-  const newLink = decodeLink([pathname, search].filter((item) => !isEmpty(item)).join('?'));
+  const newLink = decodeLink([pathname, search].filter(item => !isEmpty(item)).join('?'));
 
   if (`${currentPathname}${currentSearch}` === newLink && !force) {
     return;
@@ -567,7 +567,7 @@ export const removeUrlSearchParams = (sourceUrl = window.location.href, keys = [
   }
 
   if (Array.isArray(keys)) {
-    keys.forEach((key) => {
+    keys.forEach(key => {
       delete url.query[key];
     });
   }
@@ -592,7 +592,7 @@ export const getRecordRef = (sourceUrl = window.location.href) => {
   return isArray(recordRef) ? recordRef.shift() : recordRef;
 };
 
-export const isUrl = (value) => {
+export const isUrl = value => {
   const str = value.toString();
 
   return str.trim().startsWith('http://') || str.trim().startsWith('https://');

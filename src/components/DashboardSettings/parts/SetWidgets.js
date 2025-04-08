@@ -1,16 +1,17 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { DragDropContext } from 'react-beautiful-dnd';
 import classNames from 'classnames';
-import isEmpty from 'lodash/isEmpty';
-import get from 'lodash/get';
-import set from 'lodash/set';
-import isFunction from 'lodash/isFunction';
 import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
+import set from 'lodash/set';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { DragDropContext } from 'react-beautiful-dnd';
 
-import { t } from '../../../helpers/util';
-import Components from '../../../components/widgets/Components';
 import { DndUtils, DragItem, Droppable } from '../../../components/Drag-n-Drop';
+import Components from '../../../components/widgets/Components';
+import { t } from '../../../helpers/util';
+
 import SelectedWidget from './SelectedWidget';
 
 import '../style.scss';

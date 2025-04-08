@@ -42,7 +42,7 @@ export default function KeywordsPlugin(): JSX.Element | null {
     const endOffset = startOffset + hashtagLength;
     return {
       end: endOffset,
-      start: startOffset,
+      start: startOffset
     };
   }, []);
 

@@ -25,9 +25,9 @@ const serviceTaskHasType = {
     };
 
     return {
-      check,
+      check
     };
-  },
+  }
 };
 
 const serviceTaskHasTopicExternalTask = {
@@ -50,9 +50,9 @@ const serviceTaskHasTopicExternalTask = {
     };
 
     return {
-      check,
+      check
     };
-  },
+  }
 };
 
 const serviceTaskHasExpression = {
@@ -75,19 +75,19 @@ const serviceTaskHasExpression = {
     };
 
     return {
-      check,
+      check
     };
-  },
+  }
 };
 
 export const serviceTaskRulesMap = {
   [serviceTaskHasType.id]: 'error',
   [serviceTaskHasTopicExternalTask.id]: 'error',
-  [serviceTaskHasExpression.id]: 'error',
+  [serviceTaskHasExpression.id]: 'error'
 };
 
 export const serviceTaskCacheMap = {
   [`${BPMN_LINT_PREFIX}${serviceTaskHasType.id}`]: serviceTaskHasType.callback,
   [`${BPMN_LINT_PREFIX}${serviceTaskHasTopicExternalTask.id}`]: serviceTaskHasTopicExternalTask.callback,
-  [`${BPMN_LINT_PREFIX}${serviceTaskHasExpression.id}`]: serviceTaskHasExpression.callback,
+  [`${BPMN_LINT_PREFIX}${serviceTaskHasExpression.id}`]: serviceTaskHasExpression.callback
 };

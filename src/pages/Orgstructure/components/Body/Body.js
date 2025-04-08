@@ -1,18 +1,14 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useMemo, memo } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import { InfoText, Loader } from '../../../../components/common';
-import { OrgstructContext } from '../../../../components/common/Orgstruct/OrgstructContext';
 import { t } from '../../../../helpers/util';
 
 import List from './List';
 
 import './Body.scss';
 
-const Body = ({ reloadList, tabId, toggleToFirstTab }) => {
-  const context = useContext(OrgstructContext);
-  const { currentTab, tabItems, isSearching } = context;
-
+const Body = memo(function Body({ currentTab, tabId, toggleToFirstTab, tabItems, isSearching = false }) {
   const filteredData = data => {
     const filteredData = [];
     let foundPerson = false;
@@ -45,6 +41,6 @@ const Body = ({ reloadList, tabId, toggleToFirstTab }) => {
       </Scrollbars>
     </div>
   );
-};
+});
 
 export default Body;

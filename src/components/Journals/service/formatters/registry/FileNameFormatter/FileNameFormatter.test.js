@@ -1,6 +1,7 @@
 import { render } from '@testing-library/react';
 
 import FileIcon from '../../../../../common/FileIcon';
+
 import FileNameFormatter from './FileNameFormatter';
 
 const fileNameFormatterInstance = new FileNameFormatter();

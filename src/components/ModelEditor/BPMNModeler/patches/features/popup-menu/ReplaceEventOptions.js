@@ -4,24 +4,24 @@ export const START_EVENT = [
     actionName: 'replace-with-none-start',
     className: 'bpmn-icon-start-event-none',
     target: {
-      type: 'bpmn:StartEvent',
-    },
+      type: 'bpmn:StartEvent'
+    }
   },
   {
     label: 'Intermediate Throw Event',
     actionName: 'replace-with-none-intermediate-throwing',
     className: 'bpmn-icon-intermediate-event-none',
     target: {
-      type: 'bpmn:IntermediateThrowEvent',
-    },
+      type: 'bpmn:IntermediateThrowEvent'
+    }
   },
   {
     label: 'End Event',
     actionName: 'replace-with-none-end',
     className: 'bpmn-icon-end-event-none',
     target: {
-      type: 'bpmn:EndEvent',
-    },
+      type: 'bpmn:EndEvent'
+    }
   },
   {
     label: 'Conditional Start Event',
@@ -29,9 +29,9 @@ export const START_EVENT = [
     className: 'bpmn-icon-start-event-condition',
     target: {
       type: 'bpmn:StartEvent',
-      eventDefinitionType: 'bpmn:ConditionalEventDefinition',
-    },
-  },
+      eventDefinitionType: 'bpmn:ConditionalEventDefinition'
+    }
+  }
 ];
 
 export const INTERMEDIATE_EVENT = [
@@ -40,16 +40,16 @@ export const INTERMEDIATE_EVENT = [
     actionName: 'replace-with-none-start',
     className: 'bpmn-icon-start-event-none',
     target: {
-      type: 'bpmn:StartEvent',
-    },
+      type: 'bpmn:StartEvent'
+    }
   },
   {
     label: 'End Event',
     actionName: 'replace-with-none-end',
     className: 'bpmn-icon-end-event-none',
     target: {
-      type: 'bpmn:EndEvent',
-    },
+      type: 'bpmn:EndEvent'
+    }
   },
   {
     label: 'Timer Intermediate Catch Event',
@@ -57,8 +57,8 @@ export const INTERMEDIATE_EVENT = [
     className: 'bpmn-icon-intermediate-event-catch-timer',
     target: {
       type: 'bpmn:IntermediateCatchEvent',
-      eventDefinitionType: 'bpmn:TimerEventDefinition',
-    },
+      eventDefinitionType: 'bpmn:TimerEventDefinition'
+    }
   },
   {
     label: 'Escalation Intermediate Throw Event',
@@ -66,8 +66,8 @@ export const INTERMEDIATE_EVENT = [
     className: 'bpmn-icon-intermediate-event-throw-escalation',
     target: {
       type: 'bpmn:IntermediateThrowEvent',
-      eventDefinitionType: 'bpmn:EscalationEventDefinition',
-    },
+      eventDefinitionType: 'bpmn:EscalationEventDefinition'
+    }
   },
   {
     label: 'Conditional Intermediate Catch Event',
@@ -75,8 +75,8 @@ export const INTERMEDIATE_EVENT = [
     className: 'bpmn-icon-intermediate-event-catch-condition',
     target: {
       type: 'bpmn:IntermediateCatchEvent',
-      eventDefinitionType: 'bpmn:ConditionalEventDefinition',
-    },
+      eventDefinitionType: 'bpmn:ConditionalEventDefinition'
+    }
   },
   {
     label: 'Link Intermediate Catch Event',
@@ -86,9 +86,9 @@ export const INTERMEDIATE_EVENT = [
       type: 'bpmn:IntermediateCatchEvent',
       eventDefinitionType: 'bpmn:LinkEventDefinition',
       eventDefinitionAttrs: {
-        name: '',
-      },
-    },
+        name: ''
+      }
+    }
   },
   {
     label: 'Link Intermediate Throw Event',
@@ -98,9 +98,9 @@ export const INTERMEDIATE_EVENT = [
       type: 'bpmn:IntermediateThrowEvent',
       eventDefinitionType: 'bpmn:LinkEventDefinition',
       eventDefinitionAttrs: {
-        name: '',
-      },
-    },
+        name: ''
+      }
+    }
   },
   {
     label: 'Compensation Intermediate Throw Event',
@@ -108,9 +108,9 @@ export const INTERMEDIATE_EVENT = [
     className: 'bpmn-icon-intermediate-event-throw-compensation',
     target: {
       type: 'bpmn:IntermediateThrowEvent',
-      eventDefinitionType: 'bpmn:CompensateEventDefinition',
-    },
-  },
+      eventDefinitionType: 'bpmn:CompensateEventDefinition'
+    }
+  }
 ];
 
 export const END_EVENT = [
@@ -119,24 +119,24 @@ export const END_EVENT = [
     actionName: 'replace-with-none-start',
     className: 'bpmn-icon-start-event-none',
     target: {
-      type: 'bpmn:StartEvent',
-    },
+      type: 'bpmn:StartEvent'
+    }
   },
   {
     label: 'Intermediate Throw Event',
     actionName: 'replace-with-none-intermediate-throw',
     className: 'bpmn-icon-intermediate-event-none',
     target: {
-      type: 'bpmn:IntermediateThrowEvent',
-    },
+      type: 'bpmn:IntermediateThrowEvent'
+    }
   },
   {
     label: 'End Event',
     actionName: 'replace-with-none-end',
     className: 'bpmn-icon-end-event-none',
     target: {
-      type: 'bpmn:EndEvent',
-    },
+      type: 'bpmn:EndEvent'
+    }
   },
   {
     label: 'Escalation End Event',
@@ -144,8 +144,8 @@ export const END_EVENT = [
     className: 'bpmn-icon-end-event-escalation',
     target: {
       type: 'bpmn:EndEvent',
-      eventDefinitionType: 'bpmn:EscalationEventDefinition',
-    },
+      eventDefinitionType: 'bpmn:EscalationEventDefinition'
+    }
   },
   {
     label: 'Error End Event',
@@ -153,8 +153,8 @@ export const END_EVENT = [
     className: 'bpmn-icon-end-event-error',
     target: {
       type: 'bpmn:EndEvent',
-      eventDefinitionType: 'bpmn:ErrorEventDefinition',
-    },
+      eventDefinitionType: 'bpmn:ErrorEventDefinition'
+    }
   },
   {
     label: 'Cancel End Event',
@@ -162,8 +162,8 @@ export const END_EVENT = [
     className: 'bpmn-icon-end-event-cancel',
     target: {
       type: 'bpmn:EndEvent',
-      eventDefinitionType: 'bpmn:CancelEventDefinition',
-    },
+      eventDefinitionType: 'bpmn:CancelEventDefinition'
+    }
   },
   {
     label: 'Compensation End Event',
@@ -171,8 +171,8 @@ export const END_EVENT = [
     className: 'bpmn-icon-end-event-compensation',
     target: {
       type: 'bpmn:EndEvent',
-      eventDefinitionType: 'bpmn:CompensateEventDefinition',
-    },
+      eventDefinitionType: 'bpmn:CompensateEventDefinition'
+    }
   },
   {
     label: 'Terminate End Event',
@@ -180,9 +180,9 @@ export const END_EVENT = [
     className: 'bpmn-icon-end-event-terminate',
     target: {
       type: 'bpmn:EndEvent',
-      eventDefinitionType: 'bpmn:TerminateEventDefinition',
-    },
-  },
+      eventDefinitionType: 'bpmn:TerminateEventDefinition'
+    }
+  }
 ];
 
 export const TASK = [
@@ -191,72 +191,72 @@ export const TASK = [
     actionName: 'replace-with-task',
     className: 'bpmn-icon-task',
     target: {
-      type: 'bpmn:Task',
-    },
+      type: 'bpmn:Task'
+    }
   },
   {
     label: 'Send Task',
     actionName: 'replace-with-send-task',
     className: 'bpmn-icon-send',
     target: {
-      type: 'bpmn:SendTask',
-    },
+      type: 'bpmn:SendTask'
+    }
   },
   {
     label: 'Receive Task',
     actionName: 'replace-with-receive-task',
     className: 'bpmn-icon-receive',
     target: {
-      type: 'bpmn:ReceiveTask',
-    },
+      type: 'bpmn:ReceiveTask'
+    }
   },
   {
     label: 'User Task',
     actionName: 'replace-with-user-task',
     className: 'bpmn-icon-user',
     target: {
-      type: 'bpmn:UserTask',
-    },
+      type: 'bpmn:UserTask'
+    }
   },
   {
     label: 'Manual Task',
     actionName: 'replace-with-manual-task',
     className: 'bpmn-icon-manual',
     target: {
-      type: 'bpmn:ManualTask',
-    },
+      type: 'bpmn:ManualTask'
+    }
   },
   {
     label: 'Business Rule Task',
     actionName: 'replace-with-rule-task',
     className: 'bpmn-icon-business-rule',
     target: {
-      type: 'bpmn:BusinessRuleTask',
-    },
+      type: 'bpmn:BusinessRuleTask'
+    }
   },
   {
     label: 'Service Task',
     actionName: 'replace-with-service-task',
     className: 'bpmn-icon-service',
     target: {
-      type: 'bpmn:ServiceTask',
-    },
+      type: 'bpmn:ServiceTask'
+    }
   },
   {
     label: 'Script Task',
     actionName: 'replace-with-script-task',
     className: 'bpmn-icon-script',
     target: {
-      type: 'bpmn:ScriptTask',
-    },
+      type: 'bpmn:ScriptTask'
+    }
   },
   {
     label: 'Call Activity',
     actionName: 'replace-with-call-activity',
     className: 'bpmn-icon-call-activity',
     target: {
-      type: 'bpmn:CallActivity',
-    },
+      type: 'bpmn:CallActivity'
+    }
   },
   {
     label: 'Sub Process (collapsed)',
@@ -264,8 +264,8 @@ export const TASK = [
     className: 'bpmn-icon-subprocess-collapsed',
     target: {
       type: 'bpmn:SubProcess',
-      isExpanded: false,
-    },
+      isExpanded: false
+    }
   },
   {
     label: 'Sub Process (expanded)',
@@ -273,9 +273,9 @@ export const TASK = [
     className: 'bpmn-icon-subprocess-expanded',
     target: {
       type: 'bpmn:SubProcess',
-      isExpanded: true,
-    },
-  },
+      isExpanded: true
+    }
+  }
 ];
 
 export const BOUNDARY_EVENT = [
@@ -285,8 +285,8 @@ export const BOUNDARY_EVENT = [
     className: 'bpmn-icon-intermediate-event-catch-timer',
     target: {
       type: 'bpmn:BoundaryEvent',
-      eventDefinitionType: 'bpmn:TimerEventDefinition',
-    },
+      eventDefinitionType: 'bpmn:TimerEventDefinition'
+    }
   },
   {
     label: 'Timer Boundary Event (non-interrupting)',
@@ -295,7 +295,7 @@ export const BOUNDARY_EVENT = [
     target: {
       type: 'bpmn:BoundaryEvent',
       eventDefinitionType: 'bpmn:TimerEventDefinition',
-      cancelActivity: false,
-    },
-  },
+      cancelActivity: false
+    }
+  }
 ];

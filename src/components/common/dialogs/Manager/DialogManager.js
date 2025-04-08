@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
-import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
-import isNil from 'lodash/isNil';
 import isFunction from 'lodash/isFunction';
+import isNil from 'lodash/isNil';
+import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
 import { Collapse, Card, CardBody } from 'reactstrap';
 
 import { getEnabledNewJournal, getEnabledWorkspaces, objectByString, t } from '../../../../helpers/util';
-import { Btn } from '../../btns';
 import EcosModal from '../../EcosModal';
+import { Btn } from '../../btns';
 import RemoveDialog from '../RemoveDialog';
+
 import FormWrapper from './FormWrapper';
 
 import './DialogManager.scss';
@@ -363,7 +364,8 @@ export const dialogsById = {
 
     return (
       <>
-        { isVisible && <EcosModal
+        {isVisible && (
+          <EcosModal
             title={title}
             isOpen={isVisible}
             hideModal={hideModal}
@@ -374,7 +376,7 @@ export const dialogsById = {
               <FormWrapper isVisible {...formProps} />
             </div>
           </EcosModal>
-        }
+        )}
       </>
     );
   },

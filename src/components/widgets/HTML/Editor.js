@@ -1,19 +1,20 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
-import isFunction from 'lodash/isFunction';
-import AceEditor from 'react-ace';
 import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import AceEditor from 'react-ace';
+import { connect } from 'react-redux';
 import 'ace-builds/src-noconflict/mode-html';
 import 'ace-builds/src-noconflict/theme-monokai';
 
-import { t } from '../../../helpers/export/util';
-import { getDOMElementMeasurer, getHtmlIdByUid } from '../../../helpers/util';
-import { wrapArgs } from '../../../helpers/redux';
 import { setEditorMode, updateHtmlWidget } from '../../../actions/customWidgetHtml';
+import { t } from '../../../helpers/export/util';
+import { wrapArgs } from '../../../helpers/redux';
+import { getDOMElementMeasurer, getHtmlIdByUid } from '../../../helpers/util';
 import { selectCustomWidgetData } from '../../../selectors/customWidgetHtml';
-import { Caption, Field, MLText } from '../../common/form';
 import { Btn } from '../../common/btns';
+import { Caption, Field, MLText } from '../../common/form';
+
 import { Labels } from './util';
 import './styles.scss';
 
@@ -147,7 +148,4 @@ const mapDispatchToProps = (dispatch, props) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(EditorCustomHtmlWidget);
+export default connect(mapStateToProps, mapDispatchToProps)(EditorCustomHtmlWidget);

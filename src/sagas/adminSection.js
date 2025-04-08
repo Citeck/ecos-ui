@@ -1,6 +1,6 @@
-import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
-import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
+import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 
 import {
   fetchGroupSectionList,
@@ -10,14 +10,14 @@ import {
   setGroupSectionList,
   setIsAccessible,
   updActiveSection,
-  setAdminSectionInitStatus,
+  setAdminSectionInitStatus
 } from '../actions/adminSection';
-import PageService from '../services/PageService';
-import AdminSectionService from '../services/AdminSectionService';
-import { equalsQueryUrls } from '../helpers/urls';
-import { wrapArgs } from '../helpers/redux';
-import { getEnabledWorkspaces } from '../helpers/util';
 import { SectionTypes } from '../constants/adminSection';
+import { wrapArgs } from '../helpers/redux';
+import { equalsQueryUrls } from '../helpers/urls';
+import { getEnabledWorkspaces } from '../helpers/util';
+import AdminSectionService from '../services/AdminSectionService';
+import PageService from '../services/PageService';
 
 function* init({}, action) {
   try {
@@ -63,7 +63,7 @@ function* updateActiveSection({}, action) {
   try {
     const stateId = action.payload;
     const w = wrapArgs(stateId);
-    const sectionsGroup = yield select((state) => state.adminSection.groupSectionList || []);
+    const sectionsGroup = yield select(state => state.adminSection.groupSectionList || []);
     const activeSection = AdminSectionService.getActiveSectionInGroups(sectionsGroup);
     yield put(setActiveSection(w(activeSection)));
   } catch (e) {

@@ -41,8 +41,8 @@ export class FileNode extends DecoratorNode<JSX.Element> {
     return {
       span: () => ({
         conversion: convertFileElement,
-        priority: 4,
-      }),
+        priority: 4
+      })
     };
   }
 
@@ -51,7 +51,7 @@ export class FileNode extends DecoratorNode<JSX.Element> {
     return $createFileNode({
       size,
       name,
-      fileRecordId,
+      fileRecordId
     });
   }
 
@@ -61,7 +61,7 @@ export class FileNode extends DecoratorNode<JSX.Element> {
       type: FileNode.getHtmlElementType(),
       size: this.__size,
       name: this.__name,
-      fileRecordId: this.__fileRecordId,
+      fileRecordId: this.__fileRecordId
     };
     element.innerText = JSON.stringify(jsonObj);
     return { element };
@@ -73,7 +73,7 @@ export class FileNode extends DecoratorNode<JSX.Element> {
       name: this.__name,
       fileRecordId: this.__fileRecordId,
       type: 'file',
-      version: 1,
+      version: 1
     };
   }
 

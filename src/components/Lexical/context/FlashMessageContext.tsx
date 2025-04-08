@@ -25,7 +25,7 @@ export const FlashMessageContext = ({ children }: { children: ReactNode }): Reac
   const [props, setProps] = useState(INITIAL_STATE);
   const showFlashMessage = useCallback<ShowFlashMessage>(
     (message, duration) => setProps(message ? { duration, message } : INITIAL_STATE),
-    [],
+    []
   );
   useEffect(() => {
     if (props.message) {

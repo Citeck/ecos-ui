@@ -15,7 +15,7 @@ import {
   resetDashboardConfig,
   saveDashboardConfig,
   setLoading,
-  setWarningMessage,
+  setWarningMessage
 } from '@/actions/dashboard';
 import { saveMenuConfig } from '@/actions/menu';
 import { DndUtils } from '@/components/Drag-n-Drop';
@@ -41,7 +41,7 @@ import PageTabList from '@/services/pageTabs/PageTabList';
 
 import './style.scss';
 
-const getStateId = (state) => {
+const getStateId = state => {
   return state.enableCache ? state.tabId || DashboardService.key : null;
 };
 
@@ -68,18 +68,18 @@ const mapStateToProps = (state, ownProps) => {
     isMobile,
     redirectToNewUi: get(state, 'app.redirectToNewUi', false),
     originalConfig: get(dashboardState, 'originalConfig', {}),
-    configVersion: selectDashboardConfigVersion(dashboardState),
+    configVersion: selectDashboardConfigVersion(dashboardState)
   };
 };
 
 const mapDispatchToProps = (dispatch, state) => ({
-  getDashboardConfig: (payload) => dispatch(getDashboardConfig({ ...payload, key: getStateId(state) })),
-  getDashboardTitle: (payload) => dispatch(getDashboardTitle({ ...payload, key: getStateId(state) })),
-  saveDashboardConfig: (payload) => dispatch(saveDashboardConfig({ ...payload, key: getStateId(state) })),
-  saveMenuConfig: (config) => dispatch(saveMenuConfig({ config, key: getStateId(state) })),
-  setLoading: (status) => dispatch(setLoading({ status, key: getStateId(state) })),
+  getDashboardConfig: payload => dispatch(getDashboardConfig({ ...payload, key: getStateId(state) })),
+  getDashboardTitle: payload => dispatch(getDashboardTitle({ ...payload, key: getStateId(state) })),
+  saveDashboardConfig: payload => dispatch(saveDashboardConfig({ ...payload, key: getStateId(state) })),
+  saveMenuConfig: config => dispatch(saveMenuConfig({ config, key: getStateId(state) })),
+  setLoading: status => dispatch(setLoading({ status, key: getStateId(state) })),
   resetDashboardConfig: () => dispatch(resetDashboardConfig(getStateId(state))),
-  closeWarningMessage: () => dispatch(setWarningMessage({ key: getStateId(state), message: '' })),
+  closeWarningMessage: () => dispatch(setWarningMessage({ key: getStateId(state), message: '' }))
 });
 
 class Dashboard extends Component {
@@ -89,7 +89,7 @@ class Dashboard extends Component {
     activeLayoutId: null,
     activeTab: null,
     needGetConfig: false,
-    openedTabs: new Set(),
+    openedTabs: new Set()
   };
 
   constructor(props) {
@@ -112,7 +112,7 @@ class Dashboard extends Component {
     const activeTab = get(queryString.parse(window.location.search), 'activeTab', null);
     const activeLayoutId = get(queryString.parse(window.location.search), 'activeLayoutId');
 
-    const isExistLayoutById = isArray(props.config) && !!props.config.find((layout) => layout.id === activeLayoutId);
+    const isExistLayoutById = isArray(props.config) && !!props.config.find(layout => layout.id === activeLayoutId);
     const isExistLayoutByTab = isArray(props.config) && !isNil(activeTab) && !!props.config[Number(activeTab)];
 
     if (isNil(state.activeTab) && !isEmpty(props.config)) {
@@ -199,7 +199,7 @@ class Dashboard extends Component {
 
       if (isNil(activeTabIndex) && !!layoutId) {
         const searchParams = queryString.parse(window.location.search);
-        const tabIndex = config.findIndex((layout) => layout.id === layoutId);
+        const tabIndex = config.findIndex(layout => layout.id === layoutId);
 
         if (hasManyTabs) {
           searchParams.activeTab = tabIndex === -1 ? 0 : tabIndex;
@@ -208,9 +208,9 @@ class Dashboard extends Component {
 
         this.setState(
           {
-            activeTab: tabIndex === -1 ? 0 : tabIndex,
+            activeTab: tabIndex === -1 ? 0 : tabIndex
           },
-          () => this.addSearchParams(searchParams),
+          () => this.addSearchParams(searchParams)
         );
       }
     }
@@ -238,7 +238,7 @@ class Dashboard extends Component {
         {
           key: 'close',
           onClick: closeWarningMessage,
-          label: t('button.close-modal'),
+          label: t('button.close-modal')
         },
         {
           className: 'ecos-btn_blue',
@@ -247,9 +247,9 @@ class Dashboard extends Component {
             const linkWithWs = getEnabledWorkspaces() ? getLinkWithWs(URL.DASHBOARD) : URL.DASHBOARD;
             PageService.changeUrlLink(linkWithWs, { openNewTab: true, closeActiveTab: true });
           },
-          label: t('go-to.home-page'),
-        },
-      ],
+          label: t('go-to.home-page')
+        }
+      ]
     });
   }, 0);
 
@@ -262,7 +262,7 @@ class Dashboard extends Component {
       recordRef: isArray(recordRef) ? recordRef.shift() : recordRef,
       dashboardId,
       dashboardKey,
-      search,
+      search
     };
   }
 
@@ -290,11 +290,11 @@ class Dashboard extends Component {
     return {};
   }
 
-  getLayout = (layoutId) => {
+  getLayout = layoutId => {
     const { config } = this.state;
 
     if (!isEmpty(config) && isArray(config) && !!layoutId) {
-      return config.find((item) => item.id === layoutId) || {};
+      return config.find(item => item.id === layoutId) || {};
     }
 
     return {};
@@ -321,7 +321,7 @@ class Dashboard extends Component {
     getDashboardTitle({ dashboardId, recordRef });
   };
 
-  saveDashboardConfig = (payload) => {
+  saveDashboardConfig = payload => {
     this.props.saveDashboardConfig && this.props.saveDashboardConfig(payload);
   };
 
@@ -370,7 +370,7 @@ class Dashboard extends Component {
     this.saveDashboardConfig({ config });
   };
 
-  setActiveLink = (activeTabIndex) => {
+  setActiveLink = activeTabIndex => {
     const searchParams = queryString.parse(window.location.search);
 
     if (this.tabList && this.tabList.length > 1) {
@@ -380,7 +380,7 @@ class Dashboard extends Component {
     this.addSearchParams(searchParams);
   };
 
-  addSearchParams = (searchParams) => {
+  addSearchParams = searchParams => {
     const { urlParams } = this.state;
     const prevSearchParams = queryString.parse(urlParams);
     const isEqualRefs = get(prevSearchParams, 'recordRef', '') === get(searchParams, 'recordRef');
@@ -390,27 +390,27 @@ class Dashboard extends Component {
       replaceHistoryLink(
         cloneDeep(this.props.history),
         `${URL.DASHBOARD}${isEmpty(searchParams) ? '' : '?' + decodeLink(queryString.stringify(searchParams))}`,
-        true,
+        true
       );
     } else {
       pushHistoryLink(
         undefined,
         isEmpty(searchParams)
           ? {
-              pathname: URL.DASHBOARD,
+              pathname: URL.DASHBOARD
             }
           : {
               pathname: URL.DASHBOARD,
-              search: decodeLink(queryString.stringify(searchParams)),
+              search: decodeLink(queryString.stringify(searchParams))
             },
-        true,
+        true
       );
     }
 
     Dashboard.updateTabLink();
   };
 
-  handleSaveMenu = (links) => {
+  handleSaveMenu = links => {
     const { saveMenuConfig, menuType } = this.props;
 
     saveMenuConfig({ type: menuType, links });
@@ -422,13 +422,13 @@ class Dashboard extends Component {
     if (configVersion) {
       const originalConfig = cloneDeep(this.props.originalConfig);
       const widgets = get(originalConfig, [configVersion, 'widgets'], []);
-      const widget = widgets.find((widget) => widget.id === id);
+      const widget = widgets.find(widget => widget.id === id);
       const { recordRef } = this.getPathInfo();
 
       if (widget) {
         widget.props = {
           ...widget.props,
-          ...props,
+          ...props
         };
       }
 
@@ -439,8 +439,8 @@ class Dashboard extends Component {
 
     const activeLayout = cloneDeep(this.activeLayout);
     const columns = activeLayout.columns || [];
-    const eachColumns = (column) => {
-      const index = column.widgets.findIndex((widget) => widget.id === id);
+    const eachColumns = column => {
+      const index = column.widgets.findIndex(widget => widget.id === id);
 
       if (index !== -1) {
         column.widgets[index].props = { ...column.widgets[index].props, ...props };
@@ -450,7 +450,7 @@ class Dashboard extends Component {
       return true;
     };
 
-    columns.forEach((column) => {
+    columns.forEach(column => {
       if (isArray(column)) {
         column.forEach(eachColumns);
       } else {
@@ -464,24 +464,24 @@ class Dashboard extends Component {
     this.saveDashboardConfig({ config, callback });
   };
 
-  handleReloadContent = (event) => {
+  handleReloadContent = event => {
     if (event.ctrlKey) {
       event.stopPropagation();
       this.setState({ reloadContent: true }, () => this.setState({ reloadContent: false }));
     }
   };
 
-  handleShowConfig = (event) => {
+  handleShowConfig = event => {
     if (event.shiftKey && (event.ctrlKey || event.metaKey)) {
       event.stopPropagation();
       showModalJson(this.props.originalConfig);
     }
   };
 
-  toggleTabLayout = (index) => {
+  toggleTabLayout = index => {
     const tab = get(this.tabList, [index], {});
 
-    this.setState((state) => ({ openedTabs: state.openedTabs.add(tab.index) }));
+    this.setState(state => ({ openedTabs: state.openedTabs.add(tab.index) }));
     this.setActiveLink(tab.index);
   };
 
@@ -493,9 +493,9 @@ class Dashboard extends Component {
       const tab = this.tabList[activeTab];
 
       if (tab && activeTab !== Number(this.state.activeTab)) {
-        this.setState((state) => ({
+        this.setState(state => ({
           activeTab,
-          openedTabs: state.openedTabs.add(activeTab),
+          openedTabs: state.openedTabs.add(activeTab)
         }));
         return;
       }
@@ -505,7 +505,7 @@ class Dashboard extends Component {
 
         pushHistoryLink(this.props.history, {
           pathname: URL.DASHBOARD,
-          search: queryString.stringify(searchParams),
+          search: queryString.stringify(searchParams)
         });
       }
     }
@@ -552,7 +552,7 @@ class Dashboard extends Component {
     );
   }
 
-  renderLayout = React.memo((props) => {
+  renderLayout = React.memo(props => {
     return <Layout className={classNames({ 'ecos-layout_mobile': props.isMobile })} {...props} />;
   });
 
@@ -576,7 +576,7 @@ class Dashboard extends Component {
       dashboardType,
       isMobile,
       isLoadingDashboard,
-      stateKey,
+      stateKey
     } = this.props;
     const { recordRef } = this.getPathInfo();
 
@@ -609,7 +609,7 @@ class Dashboard extends Component {
       <div
         className={classNames('ecos-dashboard__header', {
           'ecos-dashboard__header_mobile': isMobile,
-          'ecos-dashboard__header_no-next': isMobile && !this.isShowTabs,
+          'ecos-dashboard__header_no-next': isMobile && !this.isShowTabs
         })}
         onDoubleClick={this.handleReloadContent}
         onClick={this.handleShowConfig}
@@ -640,7 +640,7 @@ class Dashboard extends Component {
     const { menuType, isMobile, tabId, identificationId } = this.props;
     const { canDragging, activeTab, openedTabs } = this.state;
 
-    return this.tabList.map((tab) => {
+    return this.tabList.map(tab => {
       const { columns, type } = this.getLayout(tab.idLayout);
       const styles = {};
       const isActive = tab.index === activeTab;

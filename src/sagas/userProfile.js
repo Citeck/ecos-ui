@@ -1,9 +1,9 @@
-import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
-import { NotificationManager } from '@/services/notifications';
-import set from 'lodash/set';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import set from 'lodash/set';
+import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 
+import { setNotificationMessage } from '../actions/notification';
 import {
   changePhoto,
   getAppUserThumbnail,
@@ -12,11 +12,12 @@ import {
   setUserData,
   setUserPhoto,
   updAppUserData,
-  validateUserSuccess,
+  validateUserSuccess
 } from '../actions/user';
-import { setNotificationMessage } from '../actions/notification';
 import { isNodeRef, t } from '../helpers/util';
 import UserService from '../services/UserService';
+
+import { NotificationManager } from '@/services/notifications';
 
 function* sagaGetUserData({ api }, { payload }) {
   const { record, stateId } = payload;
@@ -63,8 +64,8 @@ function* sagaChangePhoto({ api }, { payload }) {
       data: {
         size: file.size,
         name: file.name,
-        data: { entityRef },
-      },
+        data: { entityRef }
+      }
     });
     let message = '';
 
@@ -100,7 +101,7 @@ function* fetchAppUserData({ api }) {
 
 function* fetchAppUserThumbnail({ api }) {
   try {
-    const userData = yield select((state) => state.user);
+    const userData = yield select(state => state.user);
     let { thumbnail } = userData || {};
 
     if (!thumbnail) {

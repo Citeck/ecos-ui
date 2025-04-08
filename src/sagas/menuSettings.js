@@ -20,7 +20,7 @@ import {
   setLoading,
   setMenuIcons,
   setOriginalConfig,
-  setUserMenuItems,
+  setUserMenuItems
 } from '@/actions/menuSettings';
 import { fetchSlideMenuItems } from '@/actions/slideMenu.js';
 import { ConfigTypes, GROUP_EVERYONE, MenuSettings as ms } from '@/constants/menu';
@@ -32,7 +32,7 @@ import { NotificationManager } from '@/services/notifications';
 
 function* fetchSettingsConfig({ api }) {
   try {
-    const id = yield select((state) => state.menuSettings.editedId);
+    const id = yield select(state => state.menuSettings.editedId);
 
     if (!id) {
       NotificationManager.error(t('menu-settings.error.no-id-config'), t('error'));
@@ -47,8 +47,8 @@ function* fetchSettingsConfig({ api }) {
     const _font = yield import('../fonts/citeck-leftmenu/selection.json');
     const icons = get(_font, 'icons') || [];
     const prefix = get(_font, 'preferences.fontPref.prefix') || '';
-    const font = icons.map((item) => ({ value: `${prefix}${get(item, 'properties.name')}`, type: 'icon' }));
-    const authorities = config.authorities.filter((item) => item.name !== GROUP_EVERYONE);
+    const font = icons.map(item => ({ value: `${prefix}${get(item, 'properties.name')}`, type: 'icon' }));
+    const authorities = config.authorities.filter(item => item.name !== GROUP_EVERYONE);
 
     yield put(setOriginalConfig(config));
     yield put(setLeftMenuItems(leftItems));
@@ -70,7 +70,7 @@ function* runSaveMenuSettings(props, action) {
 
   if (![resultMenu, resultGlobal].includes(false)) {
     const id = yield resultMenu.load('id');
-    const prevId = yield select((state) => state.menuSettings.editedId);
+    const prevId = yield select(state => state.menuSettings.editedId);
 
     if (id !== prevId) {
       yield put(getMenuConfig());
@@ -86,13 +86,13 @@ function* runSaveMenuSettings(props, action) {
 
 function* runSaveMenuConfig({ api }) {
   try {
-    const id = yield select((state) => state.menuSettings.editedId);
-    const result = yield select((state) => state.menuSettings.originalConfig);
-    const leftItems = yield select((state) => state.menuSettings.leftItems);
-    const createItems = yield select((state) => state.menuSettings.createItems);
-    const userMenuItems = yield select((state) => state.menuSettings.userMenuItems);
-    const authoritiesInfo = yield select((state) => state.menuSettings.authorities);
-    const authorities = authoritiesInfo.map((item) => item.name);
+    const id = yield select(state => state.menuSettings.editedId);
+    const result = yield select(state => state.menuSettings.originalConfig);
+    const leftItems = yield select(state => state.menuSettings.leftItems);
+    const createItems = yield select(state => state.menuSettings.createItems);
+    const userMenuItems = yield select(state => state.menuSettings.userMenuItems);
+    const authoritiesInfo = yield select(state => state.menuSettings.authorities);
+    const authorities = authoritiesInfo.map(item => item.name);
     const newLeftItems = MenuConverter.getMenuItemsServer({ originalItems: get(result, 'menu.left.items'), items: leftItems });
     const newCreateItems = MenuConverter.getMenuItemsServer({ originalItems: get(result, 'menu.create.items'), items: createItems });
     const newUserMenuItems = MenuConverter.getMenuItemsServer({ originalItems: get(result, 'menu.user.items'), items: userMenuItems });
@@ -112,7 +112,7 @@ function* runSaveMenuConfig({ api }) {
 
 function* runSaveGlobalSettings({ api }) {
   try {
-    const _groupPriority = yield select((state) => state.menuSettings.groupPriority);
+    const _groupPriority = yield select(state => state.menuSettings.groupPriority);
 
     if (!isEmpty(_groupPriority)) {
       const groupPriority = MenuConverter.getGroupPriorityConfigServer(_groupPriority);
@@ -131,12 +131,12 @@ function* runSaveGlobalSettings({ api }) {
 function* runAddJournalMenuItems({ api }, { payload }) {
   try {
     const { records, id, type, level, configType } = payload;
-    const items = yield select((state) => selectMenuByType(state, configType));
+    const items = yield select(state => selectMenuByType(state, configType));
     const infoList = yield call(api.menu.getItemInfoByRef, records);
     const excluded = [];
 
     const data = infoList
-      .filter((item) => {
+      .filter(item => {
         const flag = type !== ms.ItemTypes.LINK_CREATE_CASE || !isEmpty(item.createVariants);
         !flag && excluded.push(t(item.label));
         return flag;
@@ -152,7 +152,7 @@ function* runAddJournalMenuItems({ api }, { payload }) {
       NotificationManager.warning(
         t('menu-settings.warn.set-create-items-from-journal', { names: excluded.join(', ') }),
         t('warning'),
-        10000,
+        10000
       );
     }
 
@@ -174,7 +174,7 @@ function* runAddJournalMenuItems({ api }, { payload }) {
 
 function* fetchGroupPriority({ api }) {
   try {
-    const authorities = yield select((state) => state.menuSettings.authorities || []);
+    const authorities = yield select(state => state.menuSettings.authorities || []);
     const groupPriority = yield call(api.menu.getFullGroupPriority, { authorities });
 
     yield put(setGroupPriority(MenuConverter.getGroupPriorityConfigWeb(groupPriority)));
@@ -187,7 +187,7 @@ function* fetchGroupPriority({ api }) {
 
 function* fetchAuthorityInfoByRefs({ api }, { payload = [] }) {
   try {
-    yield put(setAuthorities(payload.map((ref) => ({ ref }))));
+    yield put(setAuthorities(payload.map(ref => ({ ref }))));
 
     if (payload && payload.length) {
       const authorities = yield call(api.menu.getAuthoritiesInfo, payload);

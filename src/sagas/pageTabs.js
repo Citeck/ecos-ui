@@ -4,7 +4,7 @@ import find from 'lodash/find';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import queryString from 'query-string';
-import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
+import { call, put, select, takeEvery, takeLatest, all } from 'redux-saga/effects';
 
 import {
   addTab,
@@ -20,7 +20,7 @@ import {
   setTab,
   setTabs,
   updateTab,
-  updateTabsFromStorage,
+  updateTabsFromStorage
 } from '@/actions/pageTabs';
 import { BASE_URLS_REDIRECT, RELOCATED_URL } from '@/constants';
 import { TITLE } from '@/constants/pageTabs';
@@ -35,7 +35,7 @@ const lng = getCurrentLocale();
 
 function* sagaInitTabs({ api }) {
   try {
-    const location = yield select((state) => get(state, 'router.location') || {});
+    const location = yield select(state => get(state, 'router.location') || {});
     const search = location.search;
     const searchParams = search ? new URLSearchParams(search) : new URLSearchParams();
 
@@ -60,12 +60,14 @@ function* sagaInitTabs({ api }) {
     yield put(setTabs(PageTabList.storeList));
     yield put(initTabsComplete());
 
-    yield PageTabList.tabs.map(function* (tab) {
-      if (tab.isActive || tab.isLoading) {
-        const updates = yield* getTitle(tab);
-        PageTabList.changeOne({ tab, updates });
-      }
-    });
+    yield all(
+      PageTabList.tabs.map(function*(tab) {
+        if (tab.isActive || tab.isLoading) {
+          const updates = yield* getTitle(tab);
+          PageTabList.changeOne({ tab, updates });
+        }
+      })
+    );
 
     yield put(setTabs(PageTabList.storeList));
 
@@ -195,7 +197,7 @@ function* sagaAddOneTab({ api }, { payload }) {
     const data = yield* getTitle({ link: dataTab.link });
     const tab = PageTabList.setTab({ ...dataTab, ...data }, params);
 
-    const intermediatePage = PageTabList.storeList.find((tab) => BASE_URLS_REDIRECT.includes(tab.link));
+    const intermediatePage = PageTabList.storeList.find(tab => BASE_URLS_REDIRECT.includes(tab.link));
     if (intermediatePage) {
       yield put(deleteTab(intermediatePage));
     }
@@ -234,9 +236,7 @@ function* sagaCloseTabs({ api }, { payload }) {
     if (
       homepageLink &&
       isEmpty(
-        (PageTabList.tabs || []).filter(
-          (tab) => !get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false) || get(tab, 'workspace') === wsId,
-        ),
+        (PageTabList.tabs || []).filter(tab => !get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false) || get(tab, 'workspace') === wsId)
       )
     ) {
       PageService.changeUrlLink(homepageLink, { openNewTab: true });
@@ -299,7 +299,7 @@ function* sagaUpdateTabData({ api }, { payload }) {
     if (!tab) {
       tab = PageTabList.changeOne({
         tab: PageTabList.activeTab,
-        updates: updatingPayload,
+        updates: updatingPayload
       });
     }
 
@@ -340,17 +340,17 @@ function* getTitle(tab) {
 
     return {
       title: {
-        [lng]: title,
+        [lng]: title
       },
-      isLoading: false,
+      isLoading: false
     };
   } catch (e) {
     console.error('[pageTabs] getTitle]', e);
     return {
       title: {
-        [lng]: TITLE.NO_NAME,
+        [lng]: TITLE.NO_NAME
       },
-      isLoading: false,
+      isLoading: false
     };
   }
 }

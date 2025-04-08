@@ -1,5 +1,5 @@
 import { handleActions } from 'redux-actions';
-import { handleAction } from '../helpers/redux';
+
 import {
   setActiveSection,
   setAdminSectionInitStatus,
@@ -8,6 +8,7 @@ import {
   toggleMenu,
   toggleSection
 } from '../actions/adminSection';
+import { handleAction } from '../helpers/redux';
 
 const initialState = {
   wsSections: {},

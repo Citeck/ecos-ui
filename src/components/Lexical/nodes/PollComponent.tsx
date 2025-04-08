@@ -19,7 +19,7 @@ import {
   COMMAND_PRIORITY_LOW,
   KEY_BACKSPACE_COMMAND,
   KEY_DELETE_COMMAND,
-  NodeKey,
+  NodeKey
 } from 'lexical';
 import * as React from 'react';
 import { JSX, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -45,7 +45,7 @@ function PollOptionComponent({
   index,
   options,
   totalVotes,
-  withPollNode,
+  withPollNode
 }: {
   index: number;
   option: Option;
@@ -68,8 +68,8 @@ function PollOptionComponent({
           ref={checkboxRef}
           className="PollNode__optionCheckbox"
           type="checkbox"
-          onChange={(e) => {
-            withPollNode((node) => {
+          onChange={e => {
+            withPollNode(node => {
               node.toggleVote(option, clientID);
             });
           }}
@@ -85,19 +85,19 @@ function PollOptionComponent({
           className="PollNode__optionInput"
           type="text"
           value={text}
-          onChange={(e) => {
+          onChange={e => {
             const target = e.target;
             const value = target.value;
             const selectionStart = target.selectionStart;
             const selectionEnd = target.selectionEnd;
             withPollNode(
-              (node) => {
+              node => {
                 node.setOptionText(option, value);
               },
               () => {
                 target.selectionStart = selectionStart;
                 target.selectionEnd = selectionEnd;
-              },
+              }
             );
           }}
           placeholder={`${t('lexical.plugins.poll.option')} ${index + 1}`}
@@ -108,7 +108,7 @@ function PollOptionComponent({
         className={joinClasses('PollNode__optionDelete', options.length < 3 && 'PollNode__optionDeleteDisabled')}
         aria-label={t('remove')}
         onClick={() => {
-          withPollNode((node) => {
+          withPollNode(node => {
             node.deleteOption(option);
           });
         }}
@@ -120,7 +120,7 @@ function PollOptionComponent({
 export default function PollComponent({
   question,
   options,
-  nodeKey,
+  nodeKey
 }: {
   nodeKey: NodeKey;
   options: Options;
@@ -137,7 +137,7 @@ export default function PollComponent({
       const deleteSelection = $getSelection();
       if (isSelected && $isNodeSelection(deleteSelection)) {
         payload.preventDefault();
-        deleteSelection.getNodes().forEach((node) => {
+        deleteSelection.getNodes().forEach(node => {
           if ($isPollNode(node)) {
             node.remove();
           }
@@ -145,7 +145,7 @@ export default function PollComponent({
       }
       return false;
     },
-    [isSelected],
+    [isSelected]
   );
 
   useEffect(() => {
@@ -155,7 +155,7 @@ export default function PollComponent({
       }),
       editor.registerCommand<MouseEvent>(
         CLICK_COMMAND,
-        (payload) => {
+        payload => {
           const event = payload;
 
           if (event.target === ref.current) {
@@ -168,10 +168,10 @@ export default function PollComponent({
 
           return false;
         },
-        COMMAND_PRIORITY_LOW,
+        COMMAND_PRIORITY_LOW
       ),
       editor.registerCommand(KEY_DELETE_COMMAND, $onDelete, COMMAND_PRIORITY_LOW),
-      editor.registerCommand(KEY_BACKSPACE_COMMAND, $onDelete, COMMAND_PRIORITY_LOW),
+      editor.registerCommand(KEY_BACKSPACE_COMMAND, $onDelete, COMMAND_PRIORITY_LOW)
     );
   }, [clearSelection, editor, isSelected, nodeKey, $onDelete, setSelected]);
 
@@ -183,12 +183,12 @@ export default function PollComponent({
           cb(node);
         }
       },
-      { onUpdate },
+      { onUpdate }
     );
   };
 
   const addOption = () => {
-    withPollNode((node) => {
+    withPollNode(node => {
       node.addOption(createPollOption());
     });
   };

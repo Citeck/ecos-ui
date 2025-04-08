@@ -19,7 +19,7 @@ UpdatePropertiesHandler.prototype.execute = function (context, withClear) {
     const elementAttrs = get(context, 'element.businessObject.$attrs', {});
     const propertiesKeys = Object.keys(context.properties);
     const notInclidedAttrs = Object.keys(elementAttrs)
-      .filter((property) => !propertiesKeys.includes(property) && property.startsWith(PREFIX_FIELD))
+      .filter(property => !propertiesKeys.includes(property) && property.startsWith(PREFIX_FIELD))
       .reduce((res, current) => ({ ...res, [current]: '' }), {});
 
     context.properties = { ...context.properties, ...notInclidedAttrs };

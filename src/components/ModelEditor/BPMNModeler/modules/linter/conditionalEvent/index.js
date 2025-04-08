@@ -12,7 +12,7 @@ const conditionalEventHasConditionalType = {
   id: 'conditional-event-has-conditional-type',
   callback: () => {
     const check = (node, reporter) => {
-      if (!node.eventDefinitions || !node.eventDefinitions.find((def) => is(def, CONDITIONAL_EVENT_DEFINITION))) {
+      if (!node.eventDefinitions || !node.eventDefinitions.find(def => is(def, CONDITIONAL_EVENT_DEFINITION))) {
         return;
       }
 
@@ -25,16 +25,16 @@ const conditionalEventHasConditionalType = {
     };
 
     return {
-      check,
+      check
     };
-  },
+  }
 };
 
 const conditionalEventHasScript = {
   id: 'conditional-event-has-script',
   callback: () => {
     const check = (node, reporter) => {
-      if (!node.eventDefinitions || !node.eventDefinitions.find((def) => is(def, CONDITIONAL_EVENT_DEFINITION))) {
+      if (!node.eventDefinitions || !node.eventDefinitions.find(def => is(def, CONDITIONAL_EVENT_DEFINITION))) {
         return;
       }
 
@@ -51,16 +51,16 @@ const conditionalEventHasScript = {
     };
 
     return {
-      check,
+      check
     };
-  },
+  }
 };
 
 const conditionalEventHasExpression = {
   id: 'conditional-event-has-expression',
   callback: () => {
     const check = (node, reporter) => {
-      if (!node.eventDefinitions || !node.eventDefinitions.find((def) => is(def, CONDITIONAL_EVENT_DEFINITION))) {
+      if (!node.eventDefinitions || !node.eventDefinitions.find(def => is(def, CONDITIONAL_EVENT_DEFINITION))) {
         return;
       }
 
@@ -77,19 +77,19 @@ const conditionalEventHasExpression = {
     };
 
     return {
-      check,
+      check
     };
-  },
+  }
 };
 
 export const conditionalEventRulesMap = {
   [conditionalEventHasConditionalType.id]: 'error',
   [conditionalEventHasScript.id]: 'error',
-  [conditionalEventHasExpression.id]: 'error',
+  [conditionalEventHasExpression.id]: 'error'
 };
 
 export const conditionalEventCacheMap = {
   [`${BPMN_LINT_PREFIX}${conditionalEventHasConditionalType.id}`]: conditionalEventHasConditionalType.callback,
   [`${BPMN_LINT_PREFIX}${conditionalEventHasScript.id}`]: conditionalEventHasScript.callback,
-  [`${BPMN_LINT_PREFIX}${conditionalEventHasExpression.id}`]: conditionalEventHasExpression.callback,
+  [`${BPMN_LINT_PREFIX}${conditionalEventHasExpression.id}`]: conditionalEventHasExpression.callback
 };

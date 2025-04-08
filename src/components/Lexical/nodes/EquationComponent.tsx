@@ -15,7 +15,7 @@ import {
   $isNodeSelection,
   COMMAND_PRIORITY_HIGH,
   KEY_ESCAPE_COMMAND,
-  SELECTION_CHANGE_COMMAND,
+  SELECTION_CHANGE_COMMAND
 } from 'lexical';
 import * as React from 'react';
 import { useCallback, useEffect, useRef, useState, JSX } from 'react';
@@ -54,7 +54,7 @@ export default function EquationComponent({ equation, inline, nodeKey }: Equatio
         }
       });
     },
-    [editor, equationValue, nodeKey],
+    [editor, equationValue, nodeKey]
   );
 
   useEffect(() => {
@@ -71,7 +71,7 @@ export default function EquationComponent({ equation, inline, nodeKey }: Equatio
       return mergeRegister(
         editor.registerCommand(
           SELECTION_CHANGE_COMMAND,
-          (payload) => {
+          payload => {
             const activeElement = document.activeElement;
             const inputElem = inputRef.current;
             if (inputElem !== activeElement) {
@@ -79,11 +79,11 @@ export default function EquationComponent({ equation, inline, nodeKey }: Equatio
             }
             return false;
           },
-          COMMAND_PRIORITY_HIGH,
+          COMMAND_PRIORITY_HIGH
         ),
         editor.registerCommand(
           KEY_ESCAPE_COMMAND,
-          (payload) => {
+          payload => {
             const activeElement = document.activeElement;
             const inputElem = inputRef.current;
             if (inputElem === activeElement) {
@@ -92,8 +92,8 @@ export default function EquationComponent({ equation, inline, nodeKey }: Equatio
             }
             return false;
           },
-          COMMAND_PRIORITY_HIGH,
-        ),
+          COMMAND_PRIORITY_HIGH
+        )
       );
     } else {
       return editor.registerUpdateListener(({ editorState }) => {
@@ -113,7 +113,7 @@ export default function EquationComponent({ equation, inline, nodeKey }: Equatio
       {showEquationEditor && isEditable ? (
         <EquationEditor equation={equationValue} setEquation={setEquationValue} inline={inline} ref={inputRef} />
       ) : (
-        <ErrorBoundary onError={(e) => editor._onError(e)} fallback={null}>
+        <ErrorBoundary onError={e => editor._onError(e)} fallback={null}>
           <KatexRenderer
             equation={equationValue}
             inline={inline}

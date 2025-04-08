@@ -9,7 +9,7 @@ export function arrayMove(array, from, to) {
     if (typeof console !== 'undefined') {
       // eslint-disable-next-line no-console
       console.warn(
-        "Deprecation warning: arrayMove will no longer be exported by 'react-sortable-hoc' in the next major release. Please install the `array-move` package locally instead. https://www.npmjs.com/package/array-move",
+        "Deprecation warning: arrayMove will no longer be exported by 'react-sortable-hoc' in the next major release. Please install the `array-move` package locally instead. https://www.npmjs.com/package/array-move"
       );
     }
   }
@@ -33,7 +33,7 @@ export function omit(obj, keysToOmit) {
 export const events = {
   end: ['touchend', 'touchcancel', 'mouseup'],
   move: ['touchmove', 'mousemove'],
-  start: ['touchstart', 'mousedown'],
+  start: ['touchstart', 'mousedown']
 };
 
 export const vendorPrefix = (function () {
@@ -61,7 +61,7 @@ export const vendorPrefix = (function () {
 })();
 
 export function setInlineStyles(node, styles) {
-  Object.keys(styles).forEach((key) => {
+  Object.keys(styles).forEach(key => {
     node.style[key] = styles[key];
   });
 }
@@ -105,7 +105,7 @@ export function getElementMargin(element) {
     bottom: getPixelValue(style.marginBottom),
     left: getPixelValue(style.marginLeft),
     right: getPixelValue(style.marginRight),
-    top: getPixelValue(style.marginTop),
+    top: getPixelValue(style.marginTop)
   };
 }
 
@@ -120,7 +120,7 @@ export function getScrollAdjustedBoundingClientRect(node, scrollDelta) {
 
   return {
     top: boundingClientRect.top + scrollDelta.top,
-    left: boundingClientRect.left + scrollDelta.left,
+    left: boundingClientRect.left + scrollDelta.left
   };
 }
 
@@ -128,17 +128,17 @@ export function getPosition(event) {
   if (event.touches && event.touches.length) {
     return {
       x: event.touches[0].pageX,
-      y: event.touches[0].pageY,
+      y: event.touches[0].pageY
     };
   } else if (event.changedTouches && event.changedTouches.length) {
     return {
       x: event.changedTouches[0].pageX,
-      y: event.changedTouches[0].pageY,
+      y: event.changedTouches[0].pageY
     };
   } else {
     return {
       x: event.pageX,
-      y: event.pageY,
+      y: event.pageY
     };
   }
 }
@@ -155,7 +155,7 @@ export function getEdgeOffset(node, parent, offset = { left: 0, top: 0 }) {
   // Get the actual offsetTop / offsetLeft value, no matter how deep the node is nested
   const nodeOffset = {
     left: offset.left + node.offsetLeft,
-    top: offset.top + node.offsetTop,
+    top: offset.top + node.offsetTop
   };
 
   if (node.parentNode === parent) {
@@ -186,7 +186,7 @@ export function getLockPixelOffset({ lockOffset, width, height }) {
     invariant(
       match !== null,
       'lockOffset value should be a number or a string of a ' + 'number followed by "px" or "%". Given %s',
-      lockOffset,
+      lockOffset
     );
 
     offsetX = parseFloat(lockOffset);
@@ -203,7 +203,7 @@ export function getLockPixelOffset({ lockOffset, width, height }) {
 
   return {
     x: offsetX,
-    y: offsetY,
+    y: offsetY
   };
 }
 
@@ -213,14 +213,14 @@ export function getLockPixelOffsets({ height, width, lockOffset }) {
   invariant(
     offsets.length === 2,
     'lockOffset prop of SortableContainer should be a single ' + 'value or an array of exactly two values. Given %s',
-    lockOffset,
+    lockOffset
   );
 
   const [minLockOffset, maxLockOffset] = offsets;
 
   return [
     getLockPixelOffset({ height, lockOffset: minLockOffset, width }),
-    getLockPixelOffset({ height, lockOffset: maxLockOffset, width }),
+    getLockPixelOffset({ height, lockOffset: maxLockOffset, width })
   ];
 }
 
@@ -229,7 +229,7 @@ function isScrollable(el) {
   const overflowRegex = /(auto|scroll)/;
   const properties = ['overflow', 'overflowX', 'overflowY'];
 
-  return properties.find((property) => overflowRegex.test(computedStyle[property]));
+  return properties.find(property => overflowRegex.test(computedStyle[property]));
 }
 
 export function getScrollingParent(el) {
@@ -248,7 +248,7 @@ export function getContainerGridGap(element) {
   if (style.display === 'grid') {
     return {
       x: getPixelValue(style.gridColumnGap),
-      y: getPixelValue(style.gridRowGap),
+      y: getPixelValue(style.gridRowGap)
     };
   }
 
@@ -262,7 +262,7 @@ export const KEYCODE = {
   LEFT: 37,
   UP: 38,
   RIGHT: 39,
-  DOWN: 40,
+  DOWN: 40
 };
 
 export const NodeType = {
@@ -272,7 +272,7 @@ export const NodeType = {
   Input: 'INPUT',
   Option: 'OPTION',
   Textarea: 'TEXTAREA',
-  Select: 'SELECT',
+  Select: 'SELECT'
 };
 
 export function cloneNode(node) {

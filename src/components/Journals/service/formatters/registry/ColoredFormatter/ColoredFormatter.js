@@ -1,13 +1,13 @@
-import React from 'react';
-import isString from 'lodash/isString';
-import isFunction from 'lodash/isFunction';
-import isEmpty from 'lodash/isEmpty';
-import isPlainObject from 'lodash/isPlainObject';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
+import isPlainObject from 'lodash/isPlainObject';
+import isString from 'lodash/isString';
+import React from 'react';
 
+import Records from '../../../../../Records';
 import BaseFormatter from '../../BaseFormatter';
 import CellType from '../../CellType';
-import Records from '../../../../../Records';
 
 import './ColoredFormatter.scss';
 
@@ -29,7 +29,7 @@ export default class ColoredFormatter extends BaseFormatter {
       color = {},
       enabledNewJournal = get(window, 'Citeck.constants.NEW_JOURNAL_ENABLED', false),
       showPointer = false,
-      defaultColor = ColoredFormatter.DEFAULT_COLOR,
+      defaultColor = ColoredFormatter.DEFAULT_COLOR
     } = config;
 
     let key, displayText;
@@ -114,8 +114,8 @@ export default class ColoredFormatter extends BaseFormatter {
     if (!isEmpty(script)) {
       if (isString(script)) {
         const entries = Object.entries(args);
-        const fnArgNames = entries.map((e) => e[0]);
-        const fnArgValues = entries.map((e) => e[1]);
+        const fnArgNames = entries.map(e => e[0]);
+        const fnArgValues = entries.map(e => e[1]);
 
         // eslint-disable-next-line
         scriptResult = new Function(...fnArgNames, script)(...fnArgValues);

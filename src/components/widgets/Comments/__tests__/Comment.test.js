@@ -1,7 +1,7 @@
-import React from 'react';
-import { Provider } from 'react-redux';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import React from 'react';
+import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 
 import { Comment } from '../Comment';
@@ -14,22 +14,22 @@ const baseProps = {
     text: 'Comment',
     firstName: 'Admin',
     lastName: 'Administratorov',
-    middleName: 'Adminovich',
-  },
+    middleName: 'Adminovich'
+  }
 };
 
 const mutationObserverMock = jest.fn(function MutationObserver(callback) {
   this.observe = jest.fn();
   this.disconnect = jest.fn();
   // Optionally add a trigger() method to manually trigger a change
-  this.trigger = (mockedMutationsList) => {
+  this.trigger = mockedMutationsList => {
     callback(mockedMutationsList, this);
   };
 });
 
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation((query) => ({
+  value: jest.fn().mockImplementation(query => ({
     matches: false,
     media: query,
     onchange: null,
@@ -37,8 +37,8 @@ Object.defineProperty(window, 'matchMedia', {
     removeListener: jest.fn(), // Deprecated
     addEventListener: jest.fn(),
     removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
-  })),
+    dispatchEvent: jest.fn()
+  }))
 });
 
 global.MutationObserver = mutationObserverMock;
@@ -56,13 +56,13 @@ describe('Comment tests', () => {
               text: 'Comment text with tags',
               firstName: 'Admin',
               middleName: 'Adminovich',
-              tags: [{ name: 'Tester' }, { type: 'task', name: '№1 (01.01.2021)' }, { type: 'action', name: '№22 (09.02.2021)' }],
-            },
-          ],
+              tags: [{ name: 'Tester' }, { type: 'task', name: '№1 (01.01.2021)' }, { type: 'action', name: '№22 (09.02.2021)' }]
+            }
+          ]
         })}
       >
         <Comment {...baseProps} />
-      </Provider>,
+      </Provider>
     );
     expect(container).toMatchSnapshot();
   });
@@ -77,13 +77,13 @@ describe('Comment tests', () => {
             {
               text: 'Comment',
               firstName: 'Admin',
-              middleName: 'Adminovich',
-            },
-          ],
+              middleName: 'Adminovich'
+            }
+          ]
         })}
       >
         <Comment {...baseProps} />
-      </Provider>,
+      </Provider>
     );
 
     await user.click(container);
@@ -100,13 +100,13 @@ describe('Comment tests', () => {
               text: 'Comment text with tags',
               firstName: 'Admin',
               middleName: 'Adminovich',
-              tags: [{ name: 'Tester' }, { type: 'task', name: '№1 (01.01.2021)' }, { type: 'action', name: '№22 (09.02.2021)' }],
-            },
-          ],
+              tags: [{ name: 'Tester' }, { type: 'task', name: '№1 (01.01.2021)' }, { type: 'action', name: '№22 (09.02.2021)' }]
+            }
+          ]
         })}
       >
         <Comment {...baseProps} />
-      </Provider>,
+      </Provider>
     );
 
     expect(container).toMatchSnapshot();

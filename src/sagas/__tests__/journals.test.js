@@ -1,12 +1,12 @@
 import { runSaga } from 'redux-saga';
 
-import { reloadBoardData } from '../../actions/kanban';
 import { setForceUpdate } from '../../actions/journals';
+import { reloadBoardData } from '../../actions/kanban';
 import { JOURNAL_VIEW_MODE } from '../../components/Journals/constants';
-import KanbanApi from '../__mocks__/kanbanApi';
-import JournalApi from '../__mocks__/journalApi';
-import * as journals from '../journals';
 import { wrapArgs } from '../../helpers/redux';
+import JournalApi from '../__mocks__/journalApi';
+import KanbanApi from '../__mocks__/kanbanApi';
+import * as journals from '../journals';
 
 const stateId = 'stateId',
   boardId = 'boardId',
@@ -14,7 +14,7 @@ const stateId = 'stateId',
 
 const api = {
   kanban: new KanbanApi(),
-  journals: new JournalApi(),
+  journals: new JournalApi()
 };
 
 console.error = jest.fn();
@@ -34,12 +34,12 @@ async function wrapRunSaga(sagaFun, payload = {}, state = {}) {
 
   await runSaga(
     {
-      dispatch: (action) => dispatched.push(action),
-      getState: () => state,
+      dispatch: action => dispatched.push(action),
+      getState: () => state
     },
     sagaFun,
     { api, w },
-    { payload: { stateId, boardId, templateId, ...payload } },
+    { payload: { stateId, boardId, templateId, ...payload } }
   ).done;
 
   return dispatched;
@@ -54,15 +54,15 @@ describe('journals sagas tests', () => {
         journals: {
           [stateId]: {
             forceUpdate: true,
-            viewMode: JOURNAL_VIEW_MODE.TABLE,
-          },
+            viewMode: JOURNAL_VIEW_MODE.TABLE
+          }
         },
         kanban: {
           [stateId]: {
-            isFirstLoading: false,
-          },
-        },
-      },
+            isFirstLoading: false
+          }
+        }
+      }
     );
 
     expect(console.error).not.toHaveBeenCalled();
@@ -75,20 +75,20 @@ describe('journals sagas tests', () => {
       { stateId },
       {
         payload: {
-          stateId,
+          stateId
         },
         journals: {
           [stateId]: {
             forceUpdate: true,
-            viewMode: JOURNAL_VIEW_MODE.KANBAN,
-          },
+            viewMode: JOURNAL_VIEW_MODE.KANBAN
+          }
         },
         kanban: {
           [stateId]: {
-            isFirstLoading: false,
-          },
-        },
-      },
+            isFirstLoading: false
+          }
+        }
+      }
     );
 
     const [first, second] = dispatched;

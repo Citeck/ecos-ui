@@ -1,21 +1,22 @@
-import React from 'react';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
-import merge from 'lodash/merge';
-import uniqueId from 'lodash/uniqueId';
 import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
+import merge from 'lodash/merge';
+import uniqueId from 'lodash/uniqueId';
+import React from 'react';
+import { connect } from 'react-redux';
 
-import PreviewList from '../common/icons/PreviewList';
 import { toggleViewMode } from '../../actions/journals';
-import { selectCommonJournalPageProps } from '../../selectors/journals';
-import { getSearchParams, t } from '../../helpers/util';
+import { JournalUrlParams } from '../../constants';
 import { wrapArgs } from '../../helpers/redux';
+import { updateCurrentUrl } from '../../helpers/urls';
+import { getSearchParams, t } from '../../helpers/util';
+import { selectCommonJournalPageProps } from '../../selectors/journals';
 import { Tooltip } from '../common';
 import { IcoBtn } from '../common/btns';
-import { updateCurrentUrl } from '../../helpers/urls';
-import { JournalUrlParams } from '../../constants';
+import PreviewList from '../common/icons/PreviewList';
+
 import { isDocLib, isKanban, isPreview, isPreviewList, isTable, JOURNAL_VIEW_MODE as JVM, Labels } from './constants';
 
 const mapStateToProps = (state, props) => {
@@ -163,7 +164,4 @@ class ViewTabs extends React.Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ViewTabs);
+export default connect(mapStateToProps, mapDispatchToProps)(ViewTabs);

@@ -31,7 +31,7 @@ class TreeItem extends Component {
     onClickAction: PropTypes.func,
     onClickIcon: PropTypes.func,
     renderExtraComponents: PropTypes.func,
-    convertItemProps: PropTypes.func,
+    convertItemProps: PropTypes.func
   };
 
   static defaultProps = {
@@ -41,14 +41,14 @@ class TreeItem extends Component {
     openAll: false,
     level: TOP_LVL,
     prefixClassName: '',
-    onClickAction: () => null,
+    onClickAction: () => null
   };
 
   constructor(props) {
     super(props);
 
     this.state = {
-      isOpen: props.openAll,
+      isOpen: props.openAll
     };
   }
 
@@ -90,11 +90,11 @@ class TreeItem extends Component {
   get hasGrandchildren() {
     const { item } = this.props;
 
-    return !!item && !isEmpty(item.items) && item.items.some((child) => !isEmpty(child.items));
+    return !!item && !isEmpty(item.items) && item.items.some(child => !isEmpty(child.items));
   }
 
   handleToggleOpen = () => {
-    this.setState((state) => ({ isOpen: !state.isOpen }));
+    this.setState(state => ({ isOpen: !state.isOpen }));
   };
 
   handleToggleCheck = ({ checked }) => {
@@ -107,7 +107,7 @@ class TreeItem extends Component {
     onToggleSelect && onToggleSelect({ item, checked });
   };
 
-  handleActionItem = (action) => {
+  handleActionItem = action => {
     const { item, level, onClickAction } = this.props;
 
     onClickAction && onClickAction({ action, item, level });
@@ -124,7 +124,7 @@ class TreeItem extends Component {
     return (
       <Icon
         className={classNames('ecos-tree__item-element-arrow icon-small-right', {
-          'ecos-tree__item-element-arrow_open': isOpen,
+          'ecos-tree__item-element-arrow_open': isOpen
         })}
         onClick={this.handleToggleOpen}
       />
@@ -146,7 +146,7 @@ class TreeItem extends Component {
       moveInParent,
       renderExtraComponents,
       convertItemProps,
-      getActions,
+      getActions
     } = this.props;
     const { isOpen } = this.state;
 
@@ -183,7 +183,7 @@ class TreeItem extends Component {
     );
   };
 
-  renderPopperContent = (label) => <div className="ecos-tree__item-element-label-tooltip">{extractLabel(label)}</div>;
+  renderPopperContent = label => <div className="ecos-tree__item-element-label-tooltip">{extractLabel(label)}</div>;
 
   renderItem = (targetId, canDrag) => {
     const { isChild, item, selectable, prefixClassName, level, isMajor, renderExtraComponents, onClickIcon, getActions, convertItemProps } =
@@ -204,7 +204,7 @@ class TreeItem extends Component {
           'ecos-tree__item_has-grandchildren': this.hasGrandchildren,
           'ecos-tree__item_major': isMajor,
           [`ecos-tree__item-level--${level}`]: true,
-          [`${prefixClassName}--item-container`]: !!prefixClassName,
+          [`${prefixClassName}--item-container`]: !!prefixClassName
         })}
       >
         <div
@@ -243,7 +243,7 @@ class TreeItem extends Component {
           <Popper showAsNeeded text={extractLabel(label)} icon="icon-question" contentComponent={this.renderPopperContent(label)}>
             <div
               className={classNames('ecos-tree__item-element-label', {
-                'ecos-tree__item-element-label_locked': item.locked,
+                'ecos-tree__item-element-label_locked': item.locked
               })}
             >
               {extractLabel(label)}

@@ -19,7 +19,7 @@ import {
   KEY_ARROW_DOWN_COMMAND,
   KEY_ARROW_LEFT_COMMAND,
   KEY_ARROW_RIGHT_COMMAND,
-  KEY_ARROW_UP_COMMAND,
+  KEY_ARROW_UP_COMMAND
 } from 'lexical';
 import { useEffect } from 'react';
 
@@ -101,7 +101,7 @@ export function LayoutPlugin(): null {
       editor.registerCommand(KEY_ARROW_LEFT_COMMAND, () => $onEscape(true), COMMAND_PRIORITY_LOW),
       editor.registerCommand(
         INSERT_LAYOUT_COMMAND,
-        (template) => {
+        template => {
           editor.update(() => {
             const container = $createLayoutContainerNode(template);
             const itemsCount = getItemsCountFromTemplate(template);
@@ -116,7 +116,7 @@ export function LayoutPlugin(): null {
 
           return true;
         },
-        COMMAND_PRIORITY_EDITOR,
+        COMMAND_PRIORITY_EDITOR
       ),
       editor.registerCommand(
         UPDATE_LAYOUT_COMMAND,
@@ -151,10 +151,10 @@ export function LayoutPlugin(): null {
 
           return true;
         },
-        COMMAND_PRIORITY_EDITOR,
+        COMMAND_PRIORITY_EDITOR
       ),
 
-      editor.registerNodeTransform(LayoutItemNode, (node) => {
+      editor.registerNodeTransform(LayoutItemNode, node => {
         // Structure enforcing transformers for each node type. In case nesting structure is not
         // "Container > Item" it'll unwrap nodes and convert it back
         // to regular content.
@@ -166,7 +166,7 @@ export function LayoutPlugin(): null {
           $fillLayoutItemIfEmpty(node);
         }
       }),
-      editor.registerNodeTransform(LayoutContainerNode, (node) => {
+      editor.registerNodeTransform(LayoutContainerNode, node => {
         const children = node.getChildren<LexicalNode>();
         if (!children.every($isLayoutItemNode)) {
           for (const child of children) {
@@ -174,7 +174,7 @@ export function LayoutPlugin(): null {
           }
           node.remove();
         }
-      }),
+      })
     );
   }, [editor]);
 

@@ -49,7 +49,7 @@ export default function useReport(): (arg0: string) => ReturnType<typeof setTime
   }, [cleanup]);
 
   return useCallback(
-    (content) => {
+    content => {
       // eslint-disable-next-line no-console
       console.log(content);
       const element = getElement();
@@ -60,6 +60,6 @@ export default function useReport(): (arg0: string) => ReturnType<typeof setTime
       timer.current = setTimeout(cleanup, 1000);
       return timer.current;
     },
-    [cleanup],
+    [cleanup]
   );
 }

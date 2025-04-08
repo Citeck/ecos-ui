@@ -19,7 +19,7 @@ import ConfigService, {
   CUSTOM_FEEDBACK_URL,
   SEPARATE_ACTION_LIST_FOR_QUERY,
   LOGIN_PAGE_REDIRECT_URL,
-  TOUCH_CONFIG,
+  TOUCH_CONFIG
 } from '../services/config/ConfigService';
 
 import { CommonApi } from './common';
@@ -49,16 +49,16 @@ export class AppApi extends CommonApi {
     if (!this.#isAuthenticated || document.hidden) {
       return Promise.resolve();
     }
-    return ConfigService.getValue(TOUCH_CONFIG).then((config) => {
+    return ConfigService.getValue(TOUCH_CONFIG).then(config => {
       if (!config.enabled || !config.uri) {
         return Promise.resolve('OK');
       }
-      return ecosFetch(config.uri).then((r) => r.text());
+      return ecosFetch(config.uri).then(r => r.text());
     });
   };
 
   getOrgstructAllUsersGroupName = () => {
-    return ConfigService.getValue(ORGSTRUCT_ALL_USERS_GROUP_SHORT_NAME).then((resp) => resp || ALL_USERS_GROUP_SHORT_NAME);
+    return ConfigService.getValue(ORGSTRUCT_ALL_USERS_GROUP_SHORT_NAME).then(resp => resp || ALL_USERS_GROUP_SHORT_NAME);
   };
 
   // upload file without alfresco
@@ -66,12 +66,12 @@ export class AppApi extends CommonApi {
     return ecosXhr('/gateway/emodel/api/ecos/webapp/content', {
       method: 'POST',
       body: data,
-      handleProgress: callback,
+      handleProgress: callback
     }).then(
-      (response) => response,
-      (error) => {
+      response => response,
+      error => {
         throw error;
-      },
+      }
     );
   };
 
@@ -79,12 +79,12 @@ export class AppApi extends CommonApi {
     return ecosXhr(`${PROXY_URI}eform/file`, {
       method: 'POST',
       body: data,
-      handleProgress: callback,
+      handleProgress: callback
     }).then(
-      (response) => response,
-      (error) => {
+      response => response,
+      error => {
         throw error;
-      },
+      }
     );
   };
 
@@ -93,7 +93,7 @@ export class AppApi extends CommonApi {
       ConfigService.getValue(RESTRICT_ACCESS_TO_EDIT_DASHBOARD),
       Records.get(`${SourcesId.PERSON}@${username}`)
         .load('isAdmin?bool')
-        .catch(() => false),
+        .catch(() => false)
     ]).then(([isRestrictionOn, isAdmin]) => !isRestrictionOn || isAdmin);
   };
 
@@ -103,7 +103,7 @@ export class AppApi extends CommonApi {
       ConfigService.getValue(RESTRICT_ACCESS_TO_EDIT_DASHBOARD_WIDGETS),
       Records.get(`${SourcesId.PERSON}@${username}`)
         .load('isAdmin?bool')
-        .catch(() => false),
+        .catch(() => false)
     ]).then(([isDashboardRestrictionOn, isWidgetRestrictionOn, isAdmin]) => {
       if (isAdmin) {
         return true;
@@ -117,13 +117,13 @@ export class AppApi extends CommonApi {
     });
   };
 
-  getBase64 = (file) => {
+  getBase64 = file => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
-    }).catch((err) => {
+      reader.onerror = error => reject(error);
+    }).catch(err => {
       console.error(err);
       return {};
     });
@@ -142,8 +142,8 @@ export class AppApi extends CommonApi {
     }
 
     return dictionaries[filePath]()
-      .then((module) => module.default)
-      .catch((e) => {
+      .then(module => module.default)
+      .catch(e => {
         console.error(e);
         return {};
       });
@@ -157,13 +157,13 @@ export class AppApi extends CommonApi {
   static async getDictionaryServer(id) {
     const cb = await Records.get(`${SourcesId.META}@`)
       .load('attributes.i18n-cache-key')
-      .then((k) => k || '0')
-      .catch((_) => '0');
+      .then(k => k || '0')
+      .catch(_ => '0');
     const url = queryString.stringifyUrl({ url: `${UISERV_API}messages/locale`, query: { id, cb } });
 
     return ecosFetch(url)
-      .then((res) => (res.ok ? res.json() : Promise.reject(res)))
-      .catch((e) => {
+      .then(res => (res.ok ? res.json() : Promise.reject(res)))
+      .catch(e => {
         console.error(e);
         return {};
       });
@@ -176,14 +176,14 @@ export class AppApi extends CommonApi {
   recordIsExist(recordRef, showNotification = false) {
     return Records.get(recordRef)
       .load('_notExists?bool', true)
-      .then((status) => {
+      .then(status => {
         if (status === null) {
           return true;
         }
 
         return !status;
       })
-      .catch((e) => {
+      .catch(e => {
         if (showNotification) {
           NotificationManager.error(t('page.error-loading.message'), t('page.error-loading.title'));
         }
@@ -196,14 +196,14 @@ export class AppApi extends CommonApi {
   hasRecordReadPermission(recordRef, showNotification = false) {
     return Records.get(recordRef)
       .load('.att(n:"permissions"){has(n:"Read")}')
-      .then((status) => {
+      .then(status => {
         if (status === null) {
           return true;
         }
 
         return status;
       })
-      .catch((e) => {
+      .catch(e => {
         if (showNotification) {
           NotificationManager.error(t('page.error-loading.message'), t('page.error-loading.title'));
         }
@@ -220,14 +220,14 @@ export class AppApi extends CommonApi {
   getAppEdition = () => {
     return Records.get(`${SourcesId.MODEL_META}@`)
       .load('$license.enterprise?bool')
-      .then((result) => (result ? AppEditions.ENTERPRISE : AppEditions.COMMUNITY))
+      .then(result => (result ? AppEditions.ENTERPRISE : AppEditions.COMMUNITY))
       .catch(() => AppEditions.COMMUNITY);
   };
 
   getIsExternalIDP = () => {
     return ecosFetch('/eis.json')
-      .then((r) => r.json())
-      .then((config) => {
+      .then(r => r.json())
+      .then(config => {
         const { logoutUrl } = config || {};
         return !logoutUrl || logoutUrl === DEFAULT_EIS.LOGOUT_URL;
       })
@@ -247,8 +247,8 @@ export class AppApi extends CommonApi {
     }
 
     const url = await ecosFetch('/eis.json')
-      .then((r) => r.json())
-      .then((config) => {
+      .then(r => r.json())
+      .then(config => {
         const { logoutUrl, eisId } = config || {};
         const isLogoutUrl = logoutUrl && logoutUrl !== DEFAULT_EIS.LOGOUT_URL;
         const isNoEisId = !eisId || eisId === DEFAULT_EIS.EIS_ID;
@@ -277,7 +277,7 @@ export class AppApi extends CommonApi {
         window.location.reload();
         return '';
       })
-      .catch((e) => {
+      .catch(e => {
         console.error('Error while availability changing', e);
       });
   };

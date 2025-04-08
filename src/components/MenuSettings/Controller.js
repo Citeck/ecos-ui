@@ -1,11 +1,13 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { NotificationManager } from '@/services/notifications';
 
 import { getSettingsConfig, resetStore, setOpenMenuSettings } from '../../actions/menuSettings';
-import MenuSettingsService from '../../services/MenuSettingsService';
 import { t } from '../../helpers/export/util';
+import MenuSettingsService from '../../services/MenuSettingsService';
+
 import { Labels } from './utils';
+
+import { NotificationManager } from '@/services/notifications';
 
 class Controller extends React.Component {
   state = {
@@ -66,9 +68,6 @@ const mapDispatchToProps = dispatch => ({
   resetStore: payload => dispatch(resetStore(payload))
 });
 
-const MSController = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Controller);
+const MSController = connect(mapStateToProps, mapDispatchToProps)(Controller);
 
 export default MSController;

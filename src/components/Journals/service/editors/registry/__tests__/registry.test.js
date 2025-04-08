@@ -1,10 +1,11 @@
 /**
  * @jest-environment jsdom
  */
-import React from 'react';
 import { render, screen } from '@testing-library/react';
+import React from 'react';
 
 import editorRegistry from '../';
+import { DatePicker } from '../../../../../common/form';
 import BooleanEditor from '../BooleanEditor';
 import DateEditor from '../DateEditor';
 import DateTimeEditor from '../DateTimeEditor';
@@ -13,7 +14,6 @@ import NumberEditor from '../NumberEditor';
 import OrgstructEditor from '../OrgstructEditor';
 import SelectEditor from '../SelectEditor';
 import TextEditor from '../TextEditor';
-import { DatePicker } from '../../../../../common/form';
 
 const WRAPPER = true;
 
@@ -35,7 +35,7 @@ describe('editors registry', () => {
     ['select', SelectEditor],
     ['text', TextEditor],
     [undefined, TextEditor],
-    ['unknown', TextEditor],
+    ['unknown', TextEditor]
   ])('type > editor class', (type, editorClass) => {
     test(`type "${type}" expects editor "${editorClass.name}"`, () => {
       const editorInstance = editorRegistry.getEditor(type);
@@ -55,7 +55,7 @@ describe('editors registry', () => {
     ['number', 'ecos-input'],
     ['text', 'ecos-input'],
     [undefined, 'ecos-input'],
-    ['unknown', 'ecos-input'],
+    ['unknown', 'ecos-input']
   ])('type > expected element', (type, controlClassName, config = {}, wrapper) => {
     const editorInstance = editorRegistry.getEditor(type);
     const Control = editorInstance.getControl(config, {});
@@ -75,7 +75,7 @@ describe('editors registry', () => {
     ['journal', { config: { journalId: '1' }, journalId: '1' }],
     ['orgstruct', { config: { allowedAuthorityTypes: 'USER' }, allowedAuthorityTypes: ['USER'] }, WRAPPER],
     ['number', { type: 'number' }],
-    ['text', { type: 'text' }],
+    ['text', { type: 'text' }]
   ])('type > expected props', (type, params = {}, wrapper) => {
     const { config = {}, value, ...props } = params;
     const editorInstance = editorRegistry.getEditor(type);

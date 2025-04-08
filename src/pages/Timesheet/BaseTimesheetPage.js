@@ -1,14 +1,14 @@
-import React from 'react';
-import debounce from 'lodash/debounce';
 import cloneDeep from 'lodash/cloneDeep';
+import debounce from 'lodash/debounce';
 import isFunction from 'lodash/isFunction';
+import React from 'react';
 
-import { t } from '../../helpers/util';
+import { CommentModal } from '../../components/Timesheet';
+import { TunableDialog } from '../../components/common/dialogs';
 import { CommonLabels } from '../../helpers/timesheet/dictionary';
 import { getDaysOfMonth, getNewDateByDayNumber } from '../../helpers/timesheet/util';
+import { t } from '../../helpers/util';
 import CommonTimesheetService from '../../services/timesheet/common';
-import { TunableDialog } from '../../components/common/dialogs';
-import { CommentModal } from '../../components/Timesheet';
 
 import './style.scss';
 

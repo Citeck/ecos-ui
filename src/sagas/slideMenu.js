@@ -1,7 +1,8 @@
-import { call, put, select, takeLatest } from 'redux-saga/effects';
 import get from 'lodash/get';
 import isNil from 'lodash/isNil';
+import { call, put, select, takeLatest } from 'redux-saga/effects';
 
+import { setTabs } from '../actions/pageTabs';
 import {
   fetchSlideMenuItems,
   getSiteDashboardEnable,
@@ -12,22 +13,21 @@ import {
   setSelectedId,
   setSiteDashboardEnable,
   setSlideMenuItems,
-  toggleIsOpen,
+  toggleIsOpen
 } from '../actions/slideMenu';
-import SidebarService from '../services/sidebar';
-import SidebarConverter from '../dto/sidebar';
-import { goToCardDetailsPage } from '../helpers/urls';
+import { FORM_MODE_CREATE } from '../components/EcosForm';
+import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
+import FormManager from '../components/EcosForm/FormManager';
+import Records from '../components/Records';
 import { SourcesId } from '../constants';
 import { MenuSettings } from '../constants/menu';
-import Records from '../components/Records';
-import FormManager from '../components/EcosForm/FormManager';
-import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
-import { FORM_MODE_CREATE } from '../components/EcosForm';
-import { setTabs } from '../actions/pageTabs';
+import SidebarConverter from '../dto/sidebar';
+import { goToCardDetailsPage } from '../helpers/urls';
+import SidebarService from '../services/sidebar';
 
 function* fetchSlideMenu({ api }, action) {
   try {
-    const version = yield select((state) => state.menu.version);
+    const version = yield select(state => state.menu.version);
     const isOpen = SidebarService.getOpenState();
     const id = get(action, 'payload.id');
 
@@ -72,7 +72,7 @@ function* sagaToggleMenu({ api }, action) {
 
 function* sagaSetSelectedId({ api }) {
   try {
-    const { isReady, items } = yield select((state) => state.slideMenu);
+    const { isReady, items } = yield select(state => state.slideMenu);
 
     if (!isReady) {
       return;
@@ -135,7 +135,7 @@ function* sagaPerformAction({ api }, { payload }) {
               goToCardDetailsPage(record.id);
             }
         }
-      },
+      }
     });
   } catch (e) {
     console.error('[sagaSetSelectedId saga] error', e);

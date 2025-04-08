@@ -1,12 +1,9 @@
-import React from 'react';
+import { debounce } from 'lodash';
 import get from 'lodash/get';
 import values from 'lodash/values';
+import React from 'react';
 import { connect } from 'react-redux';
-import { debounce } from 'lodash';
 
-import { t } from '../../helpers/util';
-import { CommonLabels, MyTimesheetLabels } from '../../helpers/timesheet/dictionary';
-import { DelegationTypes, ServerStatusKeys } from '../../constants/timesheet';
 import {
   delegateTo,
   getMyTimesheetByParams,
@@ -19,12 +16,15 @@ import {
   setPopupMessage,
   setUpdatingStatus
 } from '../../actions/timesheet/mine';
-import MyTimesheetService from '../../services/timesheet/mine';
-
-import { Loader } from '../../components/common';
-import { Switch } from '../../components/common/form';
 import Timesheet, { BlockStatus, DateSlider, SelectUserModal } from '../../components/Timesheet';
 import RouteTypeTabs from '../../components/Timesheet/RouteTypeTabs';
+import { Loader } from '../../components/common';
+import { Switch } from '../../components/common/form';
+import { DelegationTypes, ServerStatusKeys } from '../../constants/timesheet';
+import { CommonLabels, MyTimesheetLabels } from '../../helpers/timesheet/dictionary';
+import { t } from '../../helpers/util';
+import MyTimesheetService from '../../services/timesheet/mine';
+
 import BaseTimesheetPage from './BaseTimesheetPage';
 
 class MyTimesheetPage extends BaseTimesheetPage {
@@ -290,7 +290,4 @@ const mapDispatchToProps = dispatch => ({
   removeDelegation: payload => dispatch(removeDelegation(payload))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(MyTimesheetPage);
+export default connect(mapStateToProps, mapDispatchToProps)(MyTimesheetPage);

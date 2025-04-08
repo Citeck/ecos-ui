@@ -1,15 +1,15 @@
+import classNames from 'classnames';
+import set from 'lodash/set';
+import uniqueId from 'lodash/uniqueId';
 import React, { useCallback, useState } from 'react';
 import BootstrapTableConst from 'react-bootstrap-table-next/lib/src/const';
-import classNames from 'classnames';
-import uniqueId from 'lodash/uniqueId';
-import set from 'lodash/set';
 import { Tooltip } from 'reactstrap';
 
 import { t } from '../../../../helpers/util';
+import ZIndex from '../../../../services/ZIndex';
 import { Checkbox } from '../../form';
 import Icon from '../../icons/Icon/Icon';
 import { SELECTOR_MENU } from '../util';
-import ZIndex from '../../../../services/ZIndex';
 
 import '../../Tooltip/style.scss';
 import './Grid.scss';

@@ -13,7 +13,7 @@ import { useEffect, useRef, JSX } from 'react';
 export default function KatexRenderer({
   equation,
   inline,
-  onDoubleClick,
+  onDoubleClick
 }: Readonly<{
   equation: string;
   inline: boolean;
@@ -31,7 +31,7 @@ export default function KatexRenderer({
         output: 'html',
         strict: 'warn',
         throwOnError: false,
-        trust: false,
+        trust: false
       });
     }
   }, [equation, inline]);

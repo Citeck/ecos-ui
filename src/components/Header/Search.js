@@ -1,34 +1,35 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { connect } from 'react-redux';
-import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
 
 import { resetSearchAutocompleteItems, runSearchAutocompleteItems } from '../../actions/header';
-import { generateSearchTerm, getEnabledWorkspaces, isLastItem, t } from '../../helpers/util';
 import { isNewVersionPage } from '../../helpers/urls';
-import SearchService from '../../services/search';
+import { generateSearchTerm, getEnabledWorkspaces, isLastItem, t } from '../../helpers/util';
 import PageService from '../../services/PageService';
-import { SearchSelect } from '../common';
-import SearchItem from './SearchItem';
 import PageTabList from '../../services/pageTabs/PageTabList';
+import SearchService from '../../services/search';
+import { SearchSelect } from '../common';
+
+import SearchItem from './SearchItem';
 
 const Types = SearchService.SearchAutocompleteTypes;
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   documents: state.header.search.documents,
   people: state.header.search.people,
   sites: state.header.search.sites,
   workspaces: state.header.search.workspaces,
   noResults: state.header.search.noResults,
   isLoading: state.header.search.isLoading,
-  theme: state.view.theme,
+  theme: state.view.theme
 });
 
-const mapDispatchToProps = (dispatch) => ({
-  runSearchAutocomplete: (payload) => dispatch(runSearchAutocompleteItems(payload)),
-  resetSearchAutocomplete: (payload) => dispatch(resetSearchAutocompleteItems(payload)),
+const mapDispatchToProps = dispatch => ({
+  runSearchAutocomplete: payload => dispatch(runSearchAutocompleteItems(payload)),
+  resetSearchAutocomplete: payload => dispatch(resetSearchAutocompleteItems(payload))
 });
 
 const setOutputParams = (array, type, hasAlfresco) => {
@@ -44,20 +45,20 @@ const setOutputParams = (array, type, hasAlfresco) => {
 
 class Search extends React.Component {
   static propTypes = {
-    isMobile: PropTypes.bool,
+    isMobile: PropTypes.bool
   };
 
   static defaultProps = {
-    isMobile: false,
+    isMobile: false
   };
 
   state = {
-    isFocused: false,
+    isFocused: false
   };
 
   _searchSelectRef = React.createRef();
 
-  onSearch = (searchText) => {
+  onSearch = searchText => {
     this.props.resetSearchAutocomplete();
 
     if (searchText) {
@@ -65,11 +66,11 @@ class Search extends React.Component {
     }
   };
 
-  toggleFocus = (isFocused) => {
+  toggleFocus = isFocused => {
     this.setState({ isFocused });
   };
 
-  openFullSearch = (searchText) => {
+  openFullSearch = searchText => {
     const { searchPageUrl, hiddenSearchTerms } = this.props;
     let url = searchPageUrl || 'hdp/ws/faceted-search#searchTerm=' + generateSearchTerm(searchText, hiddenSearchTerms) + '&scope=repo';
 
@@ -90,7 +91,7 @@ class Search extends React.Component {
     PageService.changeUrlLink(url, params);
   };
 
-  goToResult = (data) => {
+  goToResult = data => {
     this.toggleFocus(false);
 
     if (!isNewVersionPage()) {
@@ -158,7 +159,7 @@ class Search extends React.Component {
 
     const classes = classNames('ecos-header-search', `ecos-header-search_theme_${theme}`, {
       'ecos-header-search_focused': isFocused,
-      'ecos-header-search_mobile': isMobile,
+      'ecos-header-search_mobile': isMobile
     });
 
     return (

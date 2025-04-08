@@ -29,7 +29,7 @@ import {
   TableCellNode,
   TableObserver,
   TableRowNode,
-  TableSelection,
+  TableSelection
 } from '@lexical/table';
 import { mergeRegister } from '@lexical/utils';
 import {
@@ -43,7 +43,7 @@ import {
   COMMAND_PRIORITY_CRITICAL,
   getDOMSelection,
   isDOMNode,
-  SELECTION_CHANGE_COMMAND,
+  SELECTION_CHANGE_COMMAND
 } from 'lexical';
 import * as React from 'react';
 import { JSX, ReactPortal, useCallback, useEffect, useRef, useState } from 'react';
@@ -65,7 +65,7 @@ function computeSelectionCount(selection: TableSelection): {
   const selectionShape = selection.getShape();
   return {
     columns: selectionShape.toX - selectionShape.fromX + 1,
-    rows: selectionShape.toY - selectionShape.fromY + 1,
+    rows: selectionShape.toY - selectionShape.fromY + 1
   };
 }
 
@@ -129,14 +129,14 @@ function TableActionMenu({
   setIsMenuOpen,
   contextRef,
   cellMerge,
-  showColorPickerModal,
+  showColorPickerModal
 }: TableCellActionMenuProps) {
   const [editor] = useLexicalComposerContext();
   const dropDownRef = useRef<HTMLDivElement | null>(null);
   const [tableCellNode, updateTableCellNode] = useState(_tableCellNode);
   const [selectionCounts, updateSelectionCounts] = useState({
     columns: 1,
-    rows: 1,
+    rows: 1
   });
   const [canMergeCells, setCanMergeCells] = useState(false);
   const [canUnmergeCell, setCanUnmergeCell] = useState(false);
@@ -145,7 +145,7 @@ function TableActionMenu({
   useEffect(() => {
     return editor.registerMutationListener(
       TableCellNode,
-      (nodeMutations) => {
+      nodeMutations => {
         const nodeUpdated = nodeMutations.get(tableCellNode.getKey()) === 'updated';
 
         if (nodeUpdated) {
@@ -155,7 +155,7 @@ function TableActionMenu({
           setBackgroundColor(currentCellBackgroundColor(editor) || '');
         }
       },
-      { skipInitialization: true },
+      { skipInitialization: true }
     );
   }, [editor, tableCellNode]);
 
@@ -275,7 +275,7 @@ function TableActionMenu({
               continue;
             }
 
-            if (tableCells.some((cell) => cell.is(mapCell.cell))) {
+            if (tableCells.some(cell => cell.is(mapCell.cell))) {
               processedCells.add(cellKey);
               // Get the actual position of this cell in the grid
               const cellStartRow = mapCell.startRow;
@@ -363,7 +363,7 @@ function TableActionMenu({
         onClose();
       });
     },
-    [editor, onClose, selectionCounts.rows],
+    [editor, onClose, selectionCounts.rows]
   );
 
   const insertTableColumnAtSelection = useCallback(
@@ -375,7 +375,7 @@ function TableActionMenu({
         onClose();
       });
     },
-    [editor, onClose, selectionCounts.columns],
+    [editor, onClose, selectionCounts.columns]
   );
 
   const deleteTableRowAtSelection = useCallback(() => {
@@ -421,7 +421,7 @@ function TableActionMenu({
       }
 
       const newStyle = tableCellNode.getHeaderStyles() ^ TableCellHeaderStates.ROW;
-      tableRow.getChildren().forEach((tableCell) => {
+      tableRow.getChildren().forEach(tableCell => {
         if (!$isTableCellNode(tableCell)) {
           throw new Error('Expected table cell');
         }
@@ -441,7 +441,7 @@ function TableActionMenu({
       const tableColumnIndex = $getTableColumnIndexFromTableCellNode(tableCellNode);
 
       const tableRows = tableNode.getChildren<TableRowNode>();
-      const maxRowsLength = Math.max(...tableRows.map((row) => row.getChildren().length));
+      const maxRowsLength = Math.max(...tableRows.map(row => row.getChildren().length));
 
       if (tableColumnIndex >= maxRowsLength || tableColumnIndex < 0) {
         throw new Error('Expected table cell to be inside of table row.');
@@ -536,7 +536,7 @@ function TableActionMenu({
         }
       });
     },
-    [editor],
+    [editor]
   );
 
   const formatVerticalAlign = (value: string) => {
@@ -584,7 +584,7 @@ function TableActionMenu({
     <div
       className="citeck-lexical-editor__dropdown"
       ref={dropDownRef}
-      onClick={(e) => {
+      onClick={e => {
         e.stopPropagation();
       }}
     >
@@ -718,7 +718,7 @@ function TableActionMenu({
         </button>
       </div>
     </div>,
-    document.body,
+    document.body
   );
 }
 
@@ -831,7 +831,7 @@ function TableCellActionMenuContainer({ anchorElem, cellMerge }: { anchorElem: H
           delayedCallback();
         }
       }),
-      () => timeoutId && clearTimeout(timeoutId),
+      () => timeoutId && clearTimeout(timeoutId)
     );
   });
 
@@ -852,7 +852,7 @@ function TableCellActionMenuContainer({ anchorElem, cellMerge }: { anchorElem: H
           <button
             type="button"
             className="table-cell-action-button chevron-down"
-            onClick={(e) => {
+            onClick={e => {
               e.stopPropagation();
               setIsMenuOpen(!isMenuOpen);
             }}
@@ -879,7 +879,7 @@ function TableCellActionMenuContainer({ anchorElem, cellMerge }: { anchorElem: H
 
 export default function TableActionMenuPlugin({
   anchorElem = document.body,
-  cellMerge = false,
+  cellMerge = false
 }: {
   anchorElem?: HTMLElement;
   cellMerge?: boolean;

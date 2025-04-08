@@ -12,7 +12,7 @@ LabelEditingProvider.prototype.update = function (element, newLabel, _activeCont
       x: element.x,
       y: element.y,
       width: element.width,
-      height: element.height,
+      height: element.height
     };
   }
 

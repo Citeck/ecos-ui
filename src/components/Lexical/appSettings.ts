@@ -29,12 +29,12 @@ export const DEFAULT_SETTINGS = {
   showTreeView: true,
   tableCellBackgroundColor: true,
   tableCellMerge: true,
-  tableHorizontalScroll: true,
+  tableHorizontalScroll: true
 } as const;
 
 // These are mutated in setupEnv
 export const INITIAL_SETTINGS: Record<SettingName, boolean> = {
-  ...DEFAULT_SETTINGS,
+  ...DEFAULT_SETTINGS
 };
 
 export type SettingName = keyof typeof DEFAULT_SETTINGS;

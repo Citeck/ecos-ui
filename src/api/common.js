@@ -4,38 +4,38 @@ import { getCurrentLocale } from '@/helpers/util';
 
 const getOptions = {
   credentials: 'include',
-  method: 'get',
+  method: 'get'
 };
 
 const postOptions = {
   ...getOptions,
   method: 'post',
   headers: {
-    'Content-Type': 'application/json',
-  },
+    'Content-Type': 'application/json'
+  }
 };
 
 const putOptions = {
   ...getOptions,
   method: 'put',
   headers: {
-    'Content-Type': 'application/json',
-  },
+    'Content-Type': 'application/json'
+  }
 };
 
 const deleteOptions = {
   ...getOptions,
-  method: 'delete',
+  method: 'delete'
 };
 
 const loadingCacheByKey = {};
 
 export class CommonApi {
-  setNotAuthCallback = (cb) => {
+  setNotAuthCallback = cb => {
     this.notAuthCallback = cb;
   };
 
-  checkStatus = (response) => {
+  checkStatus = response => {
     if (response.status >= 200 && response.status < 300) {
       return response;
     }
@@ -49,7 +49,7 @@ export class CommonApi {
     throw error;
   };
 
-  getJsonWithSessionCache = (config) => {
+  getJsonWithSessionCache = config => {
     if (!window.sessionStorage) {
       return this.getJson(config.url);
     }
@@ -83,23 +83,23 @@ export class CommonApi {
         }
       }
     }
-    const addToStorage = (response) => {
+    const addToStorage = response => {
       sessionStorage.setItem(
         key,
         JSON.stringify({
           time: new Date().getTime(),
           cacheKey: cacheKey,
-          response,
-        }),
+          response
+        })
       );
       return response;
     };
 
-    let resultPromise = this.getJson(url).then((response) => {
+    let resultPromise = this.getJson(url).then(response => {
       if (postProcess) {
         response = postProcess(response);
         if (response.then) {
-          return response.then((resp) => addToStorage(resp));
+          return response.then(resp => addToStorage(resp));
         } else {
           return addToStorage(response);
         }
@@ -109,14 +109,14 @@ export class CommonApi {
     });
 
     if (onError) {
-      resultPromise = resultPromise.catch((err) => {
+      resultPromise = resultPromise.catch(err => {
         return addToStorage(onError(err));
       });
     }
 
     loadingCacheByKey[key] = {
       promise: resultPromise,
-      cacheKey,
+      cacheKey
     };
 
     return resultPromise.finally(() => {
@@ -126,27 +126,27 @@ export class CommonApi {
 
   getCommonHeaders = () => {
     return {
-      'Accept-Language': getCurrentLocale(),
+      'Accept-Language': getCurrentLocale()
     };
   };
 
-  getJson = (url) => {
+  getJson = url => {
     return ecosFetch(url, {
       ...getOptions,
       headers: {
-        ...this.getCommonHeaders(),
-      },
+        ...this.getCommonHeaders()
+      }
     })
       .then(this.checkStatus)
       .then(parseJSON);
   };
 
-  getHtml = (url) => {
+  getHtml = url => {
     return ecosFetch(url, {
       ...getOptions,
       headers: {
-        ...this.getCommonHeaders(),
-      },
+        ...this.getCommonHeaders()
+      }
     })
       .then(this.checkStatus)
       .then(parseHtml);
@@ -156,8 +156,8 @@ export class CommonApi {
     const prms = ecosFetch(url, {
       ...deleteOptions,
       headers: {
-        ...this.getCommonHeaders(),
-      },
+        ...this.getCommonHeaders()
+      }
     }).then(this.checkStatus);
 
     return notJsonResp ? prms : prms.then(parseJSON);
@@ -169,8 +169,8 @@ export class CommonApi {
       body: data,
       headers: {
         ...this.getCommonHeaders(),
-        ...putOptions.headers,
-      },
+        ...putOptions.headers
+      }
     }).then(this.checkStatus);
 
     return notJsonResp ? prms : prms.then(parseJSON);
@@ -182,11 +182,11 @@ export class CommonApi {
       body: data,
       headers: {
         ...this.getCommonHeaders(),
-        ...postOptions.headers,
-      },
+        ...postOptions.headers
+      }
     }).then(this.checkStatus);
 
-    return notJsonResp ? prms.then((resp) => resp.text()) : prms.then(parseJSON);
+    return notJsonResp ? prms.then(resp => resp.text()) : prms.then(parseJSON);
   };
 }
 

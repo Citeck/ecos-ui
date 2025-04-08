@@ -13,7 +13,7 @@ import {
   SUBPROCESS_TYPE,
   BPMN_TASK_TYPES,
   LABEL_STYLE,
-  STATUS_CHANGE_ICON_PATH,
+  STATUS_CHANGE_ICON_PATH
 } from '@/constants/bpmn';
 import { t } from '@/helpers/util';
 
@@ -39,7 +39,7 @@ class CustomRenderer extends KPIRenderer {
       d: path,
       opacity: '0.8',
       stroke: 'none',
-      fill: 'black',
+      fill: 'black'
     });
   }
 
@@ -59,9 +59,9 @@ class CustomRenderer extends KPIRenderer {
 
         Records.get(ecosType)
           .load('model.statuses[]{value:id,label:name}', false)
-          .then((statuses) => {
+          .then(statuses => {
             if (!_.isEmpty(statuses)) {
-              const status = statuses.find((field) => field.value === statusName);
+              const status = statuses.find(field => field.value === statusName);
 
               if (status) {
                 const text = `${t('dashboard-settings.widget.doc-status')}: "${status.label || ''}"`;
@@ -70,7 +70,7 @@ class CustomRenderer extends KPIRenderer {
                   this.renderLabel(parentNode, text, {
                     align: 'center-middle',
                     box: element,
-                    padding: 5,
+                    padding: 5
                   });
               }
             }
@@ -114,7 +114,7 @@ class CustomRenderer extends KPIRenderer {
 
   renderLabel(parentGfx, label, options) {
     const textUtil = new TextUtil({
-      style: LABEL_STYLE,
+      style: LABEL_STYLE
     });
 
     const text = textUtil.createText(label, options);

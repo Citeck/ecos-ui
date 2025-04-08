@@ -12,7 +12,7 @@ import { t } from '@/helpers/export/util';
 
 export const Labels = {
   title: 'dev-tools.build.system.panel-title',
-  alfrescoTitle: 'dev-tools.build.alfresco.panel-title',
+  alfrescoTitle: 'dev-tools.build.alfresco.panel-title'
 };
 
 const BuildTab = () => {
@@ -30,15 +30,15 @@ const BuildTab = () => {
       dataField: 'version',
       get text() {
         return t('dev-tools.columns.version');
-      },
+      }
     },
     {
       dataField: 'buildDate',
       get text() {
         return t('dev-tools.columns.build-date');
       },
-      formatExtraData: { formatter: DateTimeFormatter, params: { format: 'DD.MM.YYYY HH:mm:ss' } },
-    },
+      formatExtraData: { formatter: DateTimeFormatter, params: { format: 'DD.MM.YYYY HH:mm:ss' } }
+    }
   ];
 
   let systemModules = null;

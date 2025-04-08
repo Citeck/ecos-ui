@@ -1,42 +1,45 @@
-import React, { lazy, Suspense } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
 import get from 'lodash/get';
+import PropTypes from 'prop-types';
+import React, { lazy, Suspense } from 'react';
+import { connect } from 'react-redux';
 import ReactResizeDetector from 'react-resize-detector';
 
-import ConfigService, { ALFRESCO_ENABLED } from '../../services/config/ConfigService';
 import { fetchCreateCaseWidgetData, fetchSiteMenuData, fetchUserMenuData } from '../../actions/header';
 import { JournalUrlParams, SourcesId, URL } from '../../constants';
 import { MenuTypes } from '../../constants/menu';
-import Records from '../Records';
-import CreateMenu from './CreateMenu';
+
 import UserMenu from './UserMenu';
-import SiteMenu from './SiteMenu';
-import Search from './Search';
 import WorkspacesSwitcher from './Workspaces';
-import LanguageSwitcher from './LanguageSwitcher';
+
 import { selectIsViewNewJournal } from '../../selectors/view';
+import ConfigService, { ALFRESCO_ENABLED } from '../../services/config/ConfigService';
+import Records from '../Records';
+
+import CreateMenu from './CreateMenu';
+import LanguageSwitcher from './LanguageSwitcher';
+import Search from './Search';
+import SiteMenu from './SiteMenu';
 
 import './style.scss';
 import SlideMenuButton from './SlideMenuButton';
 
 const MenuSettings = lazy(() => import('../MenuSettings'));
 
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = dispatch => ({
   fetchCreateCaseWidgetData: () => dispatch(fetchCreateCaseWidgetData()),
   fetchUserMenuData: () => dispatch(fetchUserMenuData()),
-  fetchSiteMenuData: () => dispatch(fetchSiteMenuData()),
+  fetchSiteMenuData: () => dispatch(fetchSiteMenuData())
 });
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   menuId: get(state, 'menu.id'),
   isMobile: get(state, 'view.isMobile'),
   theme: get(state, 'view.theme'),
   menuType: get(state, 'menu.type', ''),
   isOpenMenuSettings: get(state, 'menuSettings.isOpenMenuSettings', false),
-  isViewNewJournal: selectIsViewNewJournal(state),
+  isViewNewJournal: selectIsViewNewJournal(state)
 });
 
 class Header extends React.Component {
@@ -45,7 +48,7 @@ class Header extends React.Component {
 
   state = {
     hasAlfresco: false,
-    widthHeader: 0,
+    widthHeader: 0
   };
 
   componentDidMount() {
@@ -53,9 +56,9 @@ class Header extends React.Component {
     this.props.fetchUserMenuData();
     this.props.fetchSiteMenuData();
 
-    ConfigService.getValue(ALFRESCO_ENABLED).then((value) => {
+    ConfigService.getValue(ALFRESCO_ENABLED).then(value => {
       this.setState({
-        hasAlfresco: value,
+        hasAlfresco: value
       });
     });
   }
@@ -95,7 +98,7 @@ class Header extends React.Component {
     return menuType === MenuTypes.LEFT ? width : 0;
   }
 
-  onResize = (width) => {
+  onResize = width => {
     this.setState({ widthHeader: width });
   };
 
@@ -122,7 +125,7 @@ class Header extends React.Component {
         <div
           className={classNames('ecos-header', `ecos-header_theme_${theme}`, {
             'ecos-header_small': isMobile,
-            'ecos-header_new': isViewNewJournal,
+            'ecos-header_new': isViewNewJournal
           })}
         >
           <div className="ecos-header__side ecos-header__side_left">
@@ -147,7 +150,7 @@ class Header extends React.Component {
 
 Header.propTypes = {
   hideSiteMenu: PropTypes.bool,
-  legacySiteMenuItems: PropTypes.array,
+  legacySiteMenuItems: PropTypes.array
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Header);

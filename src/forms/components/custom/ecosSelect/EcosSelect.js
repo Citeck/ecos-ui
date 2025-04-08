@@ -20,7 +20,7 @@ export default class SelectComponent extends BaseComponent {
           json: '',
           url: '',
           resource: '',
-          custom: '',
+          custom: ''
         },
         limit: 100,
         dataSrc: 'url',
@@ -40,7 +40,7 @@ export default class SelectComponent extends BaseComponent {
         dataPreProcessingCode: '',
         unavailableItems: {
           isActive: false,
-          code: '',
+          code: ''
         },
         lazyLoad: false,
         selectValues: '',
@@ -49,9 +49,9 @@ export default class SelectComponent extends BaseComponent {
         refreshOnEvent: false,
         selectThreshold: 0.3,
         refreshOn: [],
-        isSelectedValueAsText: false,
+        isSelectedValueAsText: false
       },
-      ...extend,
+      ...extend
     );
   }
 
@@ -62,7 +62,7 @@ export default class SelectComponent extends BaseComponent {
       icon: 'fa fa-th-list',
       weight: 70,
       documentation: 'http://help.form.io/userguide/#select',
-      schema: SelectComponent.schema(),
+      schema: SelectComponent.schema()
     };
   }
 
@@ -76,7 +76,7 @@ export default class SelectComponent extends BaseComponent {
       const roads = path.split(splitter);
       let currentData = data;
 
-      roads.forEach((road) => {
+      roads.forEach(road => {
         if (Array.isArray(currentData)) {
           if (currentData.length === 0) {
             return false;
@@ -110,7 +110,7 @@ export default class SelectComponent extends BaseComponent {
         break;
       }
       case result && _.isArray(refreshOn) && refreshOn.length > 0 && !_.isUndefined(this.component.forceReload): {
-        const find = refreshOn.filter((item) => this.checkEnclosureData(data, item));
+        const find = refreshOn.filter(item => this.checkEnclosureData(data, item));
 
         if (find && find.length) {
           this.triggerUpdate();
@@ -134,7 +134,7 @@ export default class SelectComponent extends BaseComponent {
         () => {
           this.triggerUpdate();
         },
-        true,
+        true
       );
     }
   }
@@ -155,7 +155,7 @@ export default class SelectComponent extends BaseComponent {
     // Trigger an update.
     this.triggerUpdate = _.debounce(this.updateItems.bind(this), 100, {
       leading: true,
-      trailing: true,
+      trailing: true
     });
 
     // Keep track of the select options.
@@ -171,7 +171,7 @@ export default class SelectComponent extends BaseComponent {
     this.activated = false;
 
     // Determine when the items have been loaded.
-    this.itemsLoaded = new Promise((resolve) => {
+    this.itemsLoaded = new Promise(resolve => {
       this.itemsLoadedResolve = resolve;
     });
   }
@@ -286,7 +286,7 @@ export default class SelectComponent extends BaseComponent {
       label: label,
       disabled: this.unavailableItems.includes(value),
       // TODO: unable to add multiple custom properties
-      customProperties: this.unavailableItems.includes(value),
+      customProperties: this.unavailableItems.includes(value)
     };
 
     if (value) {
@@ -356,12 +356,12 @@ export default class SelectComponent extends BaseComponent {
           {
             value: '',
             label: 'Loading...',
-            disabled: true,
-          },
+            disabled: true
+          }
         ],
         'value',
         'label',
-        true,
+        true
       );
     } else {
       const loadingItem = this.scrollList.querySelector('.choices__item--disabled');
@@ -398,7 +398,7 @@ export default class SelectComponent extends BaseComponent {
     }
 
     function isItemsContainElement(items, element) {
-      return _.find(items, (item) => {
+      return _.find(items, item => {
         if (_.isEmpty(item)) {
           return false;
         }
@@ -505,7 +505,7 @@ export default class SelectComponent extends BaseComponent {
     }
 
     // Iterate through each of the items.
-    _.each(items, (item) => {
+    _.each(items, item => {
       this.addOption(this.itemValue(item), this.itemTemplate(item));
     });
 
@@ -561,7 +561,7 @@ export default class SelectComponent extends BaseComponent {
         ? {}
         : {
             limit: limit,
-            skip: skip,
+            skip: skip
           };
 
     // Allow for url interpolation.
@@ -570,7 +570,7 @@ export default class SelectComponent extends BaseComponent {
       search,
       limit,
       skip,
-      page: Math.abs(Math.floor(skip / limit)),
+      page: Math.abs(Math.floor(skip / limit))
     });
 
     // Add search capability.
@@ -594,12 +594,12 @@ export default class SelectComponent extends BaseComponent {
 
     if (!_.isEmpty(query)) {
       // Add the query string.
-      url += (!url.includes('?') ? '?' : '&') + Formio.serialize(query, (item) => this.interpolate(item));
+      url += (!url.includes('?') ? '?' : '&') + Formio.serialize(query, item => this.interpolate(item));
     }
 
     this.loading = true;
 
-    const processItems = (items) => {
+    const processItems = items => {
       if (this.component.dataPreProcessingCode) {
         return this.evaluate(this.component.dataPreProcessingCode, { queryResult: items }, 'values', true);
       }
@@ -607,7 +607,7 @@ export default class SelectComponent extends BaseComponent {
       return items;
     };
 
-    let resolveItems = (items) => {
+    let resolveItems = items => {
       this.loading = false;
       const scrollTop = !this.scrollLoading && this.currentItems.length === 0;
       this.setItems(items, !!search);
@@ -619,7 +619,7 @@ export default class SelectComponent extends BaseComponent {
       }
     };
 
-    let rejectItems = (err) => {
+    let rejectItems = err => {
       this.stopInfiniteScroll();
       this.loading = false;
       this.itemsLoadedResolve();
@@ -628,7 +628,7 @@ export default class SelectComponent extends BaseComponent {
 
       this.emit('componentError', {
         component: this.component,
-        message: err.toString(),
+        message: err.toString()
       });
       console.warn(`Unable to load resources for ${this.key}`);
     };
@@ -683,7 +683,7 @@ export default class SelectComponent extends BaseComponent {
     // Add custom headers to the url.
     if (this.component.data && this.component.data.headers) {
       try {
-        _.each(this.component.data.headers, (header) => {
+        _.each(this.component.data.headers, header => {
           if (header.key) {
             headers.set(header.key, this.interpolate(header.value));
           }
@@ -700,9 +700,9 @@ export default class SelectComponent extends BaseComponent {
     return this.evaluate(
       this.component.data.custom,
       {
-        values: [],
+        values: []
       },
-      'values',
+      'values'
     );
   }
 
@@ -825,12 +825,12 @@ export default class SelectComponent extends BaseComponent {
         [
           {
             value: '',
-            label: `<i class="${this.iconClass('refresh')}" style="font-size:1.3em;"></i>`,
-          },
+            label: `<i class="${this.iconClass('refresh')}" style="font-size:1.3em;"></i>`
+          }
         ],
         'value',
         'label',
-        true,
+        true
       );
     } else {
       this.addOption('', this.t('loading...'));
@@ -853,7 +853,7 @@ export default class SelectComponent extends BaseComponent {
       this.triggerUpdate();
       this.focusableElement = input;
       this.addEventListener(input, 'focus', () => this.update());
-      this.addEventListener(input, 'keydown', (event) => {
+      this.addEventListener(input, 'keydown', event => {
         const { keyCode } = event;
 
         if ([8, 46].includes(keyCode)) {
@@ -880,7 +880,7 @@ export default class SelectComponent extends BaseComponent {
       itemSelectText: '',
       classNames: {
         containerOuter: 'choices form-group formio-choices',
-        containerInner: 'form-control',
+        containerInner: 'form-control'
       },
       addItemText: false,
       placeholder: !!this.component.placeholder,
@@ -895,12 +895,12 @@ export default class SelectComponent extends BaseComponent {
       fuseOptions: Object.assign(
         {
           include: 'score',
-          threshold: _.get(this, 'component.searchThreshold', 0.3),
+          threshold: _.get(this, 'component.searchThreshold', 0.3)
         },
-        _.get(this, 'component.fuseOptions', {}),
+        _.get(this, 'component.fuseOptions', {})
       ),
       itemComparer: _.isEqual,
-      callbackOnCreateTemplates: (template) => {
+      callbackOnCreateTemplates: template => {
         return {
           choice: (classNames, data, itemSelectText) => {
             // label is wrapped in template
@@ -918,10 +918,10 @@ export default class SelectComponent extends BaseComponent {
                 ${data.label}
               </div>
             `);
-          },
+          }
         };
       },
-      ...customOptions,
+      ...customOptions
     };
 
     const tabIndex = input.tabIndex;
@@ -958,13 +958,13 @@ export default class SelectComponent extends BaseComponent {
     if (this.component.searchField) {
       // Make sure to clear the search when no value is provided.
       if (this.choices && this.choices.input && this.choices.input.element) {
-        this.addEventListener(this.choices.input.element, 'input', (event) => {
+        this.addEventListener(this.choices.input.element, 'input', event => {
           if (!event.target.value) {
             this.triggerUpdate();
           }
         });
       }
-      this.addEventListener(input, 'search', (event) => this.triggerUpdate(event.detail.value));
+      this.addEventListener(input, 'search', event => this.triggerUpdate(event.detail.value));
       this.addEventListener(input, 'stopSearch', () => this.triggerUpdate());
     }
 
@@ -987,7 +987,7 @@ export default class SelectComponent extends BaseComponent {
             groupId: -1,
             customProperties: null,
             placeholder: true,
-            keyCode: null,
+            keyCode: null
           });
         }
       });
@@ -1007,7 +1007,7 @@ export default class SelectComponent extends BaseComponent {
             inputPlaceholder.removeAttribute('placeholder');
           }
         },
-        false,
+        false
       );
 
       this.choices.passedElement.element.addEventListener(
@@ -1018,7 +1018,7 @@ export default class SelectComponent extends BaseComponent {
             inputPlaceholder.setAttribute('placeholder', placeholderValue);
           }
         },
-        false,
+        false
       );
     }
 
@@ -1103,7 +1103,7 @@ export default class SelectComponent extends BaseComponent {
       // us to read correct value from the item.
       const isSelectOptions = items === this.selectOptions;
       if (items && items.length) {
-        _.each(items, (choice) => {
+        _.each(items, choice => {
           if (choice._id && value._id && choice._id === value._id) {
             found = true;
             return false;
@@ -1118,7 +1118,7 @@ export default class SelectComponent extends BaseComponent {
       if (!found) {
         notFoundValuesToAdd.push({
           value: this.itemValue(value),
-          label: this.itemTemplate(value),
+          label: this.itemTemplate(value)
         });
         return true;
       }
@@ -1146,7 +1146,7 @@ export default class SelectComponent extends BaseComponent {
       }
     } else {
       const values = [];
-      _.each(this.selectOptions, (selectOption) => {
+      _.each(this.selectOptions, selectOption => {
         if (selectOption.element && selectOption.element.selected) {
           values.push(selectOption.value);
         }
@@ -1226,8 +1226,8 @@ export default class SelectComponent extends BaseComponent {
     } else {
       if (hasValue) {
         const values = Array.isArray(value) ? value : [value];
-        _.each(this.selectOptions, (selectOption) => {
-          _.each(values, (val) => {
+        _.each(this.selectOptions, selectOption => {
+          _.each(values, val => {
             if (_.isEqual(val, selectOption.value)) {
               selectOption.element.selected = true;
               selectOption.element.setAttribute('selected', 'selected');
@@ -1236,7 +1236,7 @@ export default class SelectComponent extends BaseComponent {
           });
         });
       } else {
-        _.each(this.selectOptions, (selectOption) => {
+        _.each(this.selectOptions, selectOption => {
           if (selectOption.element) {
             selectOption.element.selected = false;
             selectOption.element.removeAttribute('selected');
@@ -1254,7 +1254,7 @@ export default class SelectComponent extends BaseComponent {
    */
   deleteValue() {
     this.setValue('', {
-      noUpdateEvent: true,
+      noUpdateEvent: true
     });
     _.unset(this.data, this.key);
   }
@@ -1298,7 +1298,7 @@ export default class SelectComponent extends BaseComponent {
 
       value =
         this.component.multiple && Array.isArray(value)
-          ? _.filter(items, (item) => value.includes(item[valueProperty]))
+          ? _.filter(items, item => value.includes(item[valueProperty]))
           : valueProperty
             ? _.find(items, [valueProperty, value])
             : value;
@@ -1310,7 +1310,7 @@ export default class SelectComponent extends BaseComponent {
 
     if (Array.isArray(value)) {
       const items = [];
-      value.forEach((item) => items.push(this.itemTemplate(item)));
+      value.forEach(item => items.push(this.itemTemplate(item)));
       return items.length > 0 ? items.join('<br />') : '-';
     }
 
@@ -1354,17 +1354,17 @@ export default class SelectComponent extends BaseComponent {
 
         this.refresh(refreshData === 'data' ? this.data : this.data[refreshData], refreshData);
       },
-      true,
+      true
     );
 
     this.on(
       'componentChange',
-      (event) => {
+      event => {
         if (refreshData !== 'data' && event && event.component && event.component.key === refreshData && this.inContext(event.instance)) {
           this.refresh(event.value, refreshData); // Cause https://citeck.atlassian.net/browse/ECOSCOM-2465
         }
       },
-      true,
+      true
     );
   }
 
@@ -1389,7 +1389,7 @@ export default class SelectComponent extends BaseComponent {
     } else {
       this.refreshOnChanged = true;
       this.refreshOnValue = {
-        [refreshOnKey]: value,
+        [refreshOnKey]: value
       };
     }
 
@@ -1405,7 +1405,7 @@ export default class SelectComponent extends BaseComponent {
   static optimizeSchema(comp) {
     return {
       ...comp,
-      data: _.omitBy(comp.data, (value, key) => key !== comp.dataSrc && key !== 'headers'),
+      data: _.omitBy(comp.data, (value, key) => key !== comp.dataSrc && key !== 'headers')
     };
   }
 }

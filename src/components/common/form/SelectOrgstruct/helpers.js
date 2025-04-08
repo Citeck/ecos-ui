@@ -1,15 +1,16 @@
+import get from 'lodash/get';
 import isNil from 'lodash/isNil';
 import isUndefined from 'lodash/isUndefined';
-import get from 'lodash/get';
 
 import { SourcesId } from '../../../../constants';
+
 import { AUTHORITY_TYPE_USER, AUTHORITY_TYPE_GROUP } from './constants';
 
-export const getGroupName = (str) => str.replace(`${AUTHORITY_TYPE_GROUP}_`, '');
-export const getGroupRef = (str) => `${SourcesId.GROUP}@${str}`;
-export const getPersonRef = (str) => `${SourcesId.PERSON}@${str}`;
-export const getRecordRef = (str) => str.replace('emodel/@', '');
-export const getAuthRef = (str) =>
+export const getGroupName = str => str.replace(`${AUTHORITY_TYPE_GROUP}_`, '');
+export const getGroupRef = str => `${SourcesId.GROUP}@${str}`;
+export const getPersonRef = str => `${SourcesId.PERSON}@${str}`;
+export const getRecordRef = str => str.replace('emodel/@', '');
+export const getAuthRef = str =>
   str.replace(`${SourcesId.GROUP}@`, `${AUTHORITY_TYPE_GROUP}_`).replace(`${SourcesId.PERSON}@`, '').replace('emodel/@', '');
 
 export function handleResponse(result) {
@@ -17,7 +18,7 @@ export function handleResponse(result) {
     result = [result];
   }
 
-  return result.map((item) => ({
+  return result.map(item => ({
     id: item.nodeRef,
     label: item.displayName,
     isPersonDisabled: get(item, 'isPersonDisabled', false),
@@ -26,13 +27,13 @@ export function handleResponse(result) {
     hasChildren: !isNil(item.groupType),
     isLoaded: isUndefined(item.isLoaded) ? false : item.isLoaded,
     isOpen: isUndefined(item.isOpen) ? false : item.isOpen,
-    attributes: item,
+    attributes: item
   }));
 }
 
 export function unionWithPrevious(newItems, oldItems) {
-  return newItems.map((newItem) => {
-    const prevItem = oldItems.find((i) => i.id === newItem.id);
+  return newItems.map(newItem => {
+    const prevItem = oldItems.find(i => i.id === newItem.id);
 
     if (!prevItem) {
       return newItem;
@@ -50,7 +51,7 @@ export function unionWithPrevious(newItems, oldItems) {
 export function prepareParentId(item, parentId) {
   return {
     ...item,
-    parentId,
+    parentId
   };
 }
 
@@ -59,32 +60,32 @@ export function prepareSelected(selectedItem) {
     ...selectedItem,
     hasChildren: false,
     isSelected: true,
-    parentId: undefined,
+    parentId: undefined
   };
 }
 
 export function converterUserList(source) {
-  return source.map((item) => ({
+  return source.map(item => ({
     id: item.id,
     label: item.displayName,
     extraLabel: item.fullName,
     isPersonDisabled: !!item.isPersonDisabled,
     canEdit: !!item.canEdit,
-    attributes: item,
+    attributes: item
   }));
 }
 
 export function isHTML(str) {
   const doc = new DOMParser().parseFromString(str, 'text/html');
 
-  return Array.from(doc.body.childNodes).some((node) => node.nodeType === 1);
+  return Array.from(doc.body.childNodes).some(node => node.nodeType === 1);
 }
 
 export function renderUsernameString(str, replacements) {
   const regex = /\${[^{]+}/g;
 
   function interpolate(template, variables, fallback) {
-    return template.replace(regex, (match) => {
+    return template.replace(regex, match => {
       const path = match.slice(2, -1).trim();
 
       return getObjPath(path, variables, fallback);

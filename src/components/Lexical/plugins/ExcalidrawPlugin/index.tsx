@@ -34,7 +34,7 @@ export default function ExcalidrawPlugin(): JSX.Element | null {
         setModalOpen(true);
         return true;
       },
-      COMMAND_PRIORITY_EDITOR,
+      COMMAND_PRIORITY_EDITOR
     );
   }, [editor]);
 
@@ -53,8 +53,8 @@ export default function ExcalidrawPlugin(): JSX.Element | null {
         JSON.stringify({
           appState,
           elements,
-          files,
-        }),
+          files
+        })
       );
       $insertNodes([excalidrawNode]);
       if ($isRootOrShadowRoot(excalidrawNode.getParentOrThrow())) {

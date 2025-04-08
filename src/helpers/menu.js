@@ -5,6 +5,7 @@ import { URL } from '../constants';
 import { BASE_LEFT_MENU_ID, MenuTypes } from '../constants/menu';
 import MenuSettingsService from '../services/MenuSettingsService';
 import DashboardService from '../services/dashboard';
+
 import { documentScrollTop, getEnabledWorkspaces } from './util';
 
 export function processMenuItemsFromOldMenu(oldMenuItems) {

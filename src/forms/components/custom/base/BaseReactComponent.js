@@ -16,9 +16,9 @@ export default class BaseReactComponent extends BaseComponent {
   static schema(...extend) {
     return BaseComponent.schema(
       {
-        defaultValue: '',
+        defaultValue: ''
       },
-      ...extend,
+      ...extend
     );
   }
 
@@ -38,7 +38,7 @@ export default class BaseReactComponent extends BaseComponent {
   get htmlAttributes() {
     return {
       ...pick(get(this, 'info.attr', {}), ['id', 'name', 'type']),
-      disabled: this.disabled,
+      disabled: this.disabled
     };
   }
 
@@ -63,14 +63,14 @@ export default class BaseReactComponent extends BaseComponent {
 
     const firstBuild = isEmpty(this.react);
 
-    this.react.wrapper = new Promise((resolveComponent) => (this.react.resolve = resolveComponent)).then((component) => {
+    this.react.wrapper = new Promise(resolveComponent => (this.react.resolve = resolveComponent)).then(component => {
       this.react.wrapper = component;
       this.react.resolve = null;
 
       return component;
     });
 
-    this.react.innerPromise = new Promise((innerResolve) => (this.react.innerResolve = innerResolve)).then((component) => {
+    this.react.innerPromise = new Promise(innerResolve => (this.react.innerResolve = innerResolve)).then(component => {
       this.react.innerResolve = null;
 
       return component;
@@ -153,7 +153,7 @@ export default class BaseReactComponent extends BaseComponent {
   }
 
   updateReactComponent(updateFunc) {
-    this.react.innerPromise.then((comp) => isFunction(updateFunc) && updateFunc(comp));
+    this.react.innerPromise.then(comp => isFunction(updateFunc) && updateFunc(comp));
   }
 
   replaceReactComponent(component) {
@@ -165,7 +165,7 @@ export default class BaseReactComponent extends BaseComponent {
       this.react.waitingProps = { ...(this.react.waitingProps || {}), ...props };
 
       !isEmpty(this.react.wrapper) &&
-        this.react.wrapper.then((w) => {
+        this.react.wrapper.then(w => {
           w.setProps(this.react.waitingProps);
           this.react.waitingProps = {};
         });
@@ -204,14 +204,14 @@ export default class BaseReactComponent extends BaseComponent {
               this.react.isMounted = true;
               updateLoadingState();
             }}
-            onComponentLoaded={(comp) => {
+            onComponentLoaded={comp => {
               this.react.innerComponent = comp;
               updateLoadingState();
             }}
             component={component}
             ref={this.react.resolve}
             props={props}
-          />,
+          />
         );
 
         this.react.container._root = root;
@@ -310,7 +310,7 @@ export default class BaseReactComponent extends BaseComponent {
     this.updateOnChange(flags, changed);
 
     if (!flags.skipReactWrapperUpdating && changed) {
-      this.updateReactComponent((component) => this.setReactValue(component, this.dataValue));
+      this.updateReactComponent(component => this.setReactValue(component, this.dataValue));
     }
 
     return changed;

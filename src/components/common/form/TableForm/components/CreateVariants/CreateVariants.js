@@ -1,11 +1,12 @@
-import React, { useContext } from 'react';
 import classNames from 'classnames';
-import isBoolean from 'lodash/isBoolean';
 import get from 'lodash/get';
+import isBoolean from 'lodash/isBoolean';
+import React, { useContext } from 'react';
+
+import { getMLValue, t } from '../../../../../../helpers/util';
 import { Btn, IcoBtn } from '../../../../../common/btns';
 import Dropdown from '../../../Dropdown/Dropdown';
 import { TableFormContext } from '../../TableFormContext';
-import { getMLValue, t } from '../../../../../../helpers/util';
 
 const CreateVariants = () => {
   const context = useContext(TableFormContext);

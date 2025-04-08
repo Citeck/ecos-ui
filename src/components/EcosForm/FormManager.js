@@ -30,7 +30,7 @@ class FormManager {
       formMode,
       attributes = {},
       destination,
-      formOptions = {},
+      formOptions = {}
     } = variant;
 
     formId = formRef || formId;
@@ -53,9 +53,9 @@ class FormManager {
       formMode,
       attributes,
       options: {
-        ...formOptions,
+        ...formOptions
       },
-      ...options,
+      ...options
     };
 
     if (variant.typeRef) {
@@ -68,7 +68,7 @@ class FormManager {
 
     const baseOnSubmit = props.onSubmit || (() => {});
     if (variant.postActionRef) {
-      props.onSubmit = async (record) => {
+      props.onSubmit = async record => {
         let actionProps = null;
         try {
           actionProps = await recordActions.getActionProps(variant.postActionRef);
@@ -77,13 +77,13 @@ class FormManager {
         } catch (error) {
           console.error(
             'Error occurred while post-create action execution. ActionRef: ' + variant.postActionRef + ' Record: ' + record.id,
-            error,
+            error
           );
           return baseOnSubmit(record, false);
         }
       };
     } else {
-      props.onSubmit = (record) => {
+      props.onSubmit = record => {
         return baseOnSubmit(record, false);
       };
     }
@@ -114,7 +114,7 @@ class FormManager {
 
         this.destroyForm(container);
         isFunction(props.onModalCancel) && props.onModalCancel();
-      },
+      }
     });
 
     root.render(form);
@@ -132,7 +132,7 @@ class FormManager {
     const { title, onSubmit, onFormCancel, ...props } = params;
     const modal = new Modal();
 
-    const _onSubmit = (record) => {
+    const _onSubmit = record => {
       modal.close();
       isFunction(onSubmit) && onSubmit(record);
     };

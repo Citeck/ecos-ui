@@ -45,7 +45,7 @@ export default function KatexEquationAlterer({ onConfirm, initialEquation = '' }
       <div className="KatexEquationAlterer_centerRow">
         {inline ? (
           <input
-            onChange={(event) => {
+            onChange={event => {
               setEquation(event.target.value);
             }}
             value={equation}
@@ -53,7 +53,7 @@ export default function KatexEquationAlterer({ onConfirm, initialEquation = '' }
           />
         ) : (
           <textarea
-            onChange={(event) => {
+            onChange={event => {
               setEquation(event.target.value);
             }}
             value={equation}
@@ -63,7 +63,7 @@ export default function KatexEquationAlterer({ onConfirm, initialEquation = '' }
       </div>
       <div className="KatexEquationAlterer_defaultRow">Visualization </div>
       <div className="KatexEquationAlterer_centerRow">
-        <ErrorBoundary onError={(e) => editor._onError(e)} fallback={null}>
+        <ErrorBoundary onError={e => editor._onError(e)} fallback={null}>
           <KatexRenderer equation={equation} inline={false} onDoubleClick={() => null} />
         </ErrorBoundary>
       </div>

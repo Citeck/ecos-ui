@@ -50,7 +50,7 @@ export default class BaseComponent extends FormIOBase {
    */
   evalContext(additional) {
     return Object.assign(super.evalContext(additional), {
-      recordId: this.getRecordId(),
+      recordId: this.getRecordId()
     });
   }
 
@@ -59,9 +59,9 @@ export default class BaseComponent extends FormIOBase {
       'dl',
       {
         id: this.id,
-        class: 'd-none',
+        class: 'd-none'
       },
-      this.component.key,
+      this.component.key
     );
   }
 }

@@ -1,6 +1,6 @@
-import React, { cloneElement } from 'react';
 import { render, fireEvent } from '@testing-library/react';
 import isEmpty from 'lodash/isEmpty';
+import React, { cloneElement } from 'react';
 
 /**
  * A class that wraps RTL's render and supplies it with Enzyme-like methods
@@ -23,7 +23,7 @@ class EnzymeWrapper {
     return {
       ...this.wrapper,
       find: this.find,
-      setProps: this.setProps,
+      setProps: this.setProps
     };
   }
 
@@ -46,7 +46,7 @@ class EnzymeWrapper {
     selection.simulate = (eventType, opts) => this.simulate(selection, eventType, opts);
     selection.length = !isEmpty(elements) ? elements.length : 0;
     selection.exists = selection.length >= 1;
-    selection.at = (pos) => {
+    selection.at = pos => {
       if (!elements || elements[pos] === undefined) throw Error('wrapper::at(): Unable to locate an element at that position.');
 
       let nextSelection = elements[pos];
@@ -78,12 +78,12 @@ class EnzymeWrapper {
  * @param {node} Component - Component to be mounted
  * @returns {object} - an Enzyme-like wrapper
  */
-export const mount = (Component) => new EnzymeWrapper(Component);
+export const mount = Component => new EnzymeWrapper(Component);
 
 export const mountWithContext = (Component, Context, contextValue) => {
   return render(
     <Context.Provider value={contextValue}>
       <Component />
-    </Context.Provider>,
+    </Context.Provider>
   );
 };

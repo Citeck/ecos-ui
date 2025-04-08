@@ -1,23 +1,24 @@
-import { NotificationManager } from '@/services/notifications';
-
 import cloneDeep from 'lodash/cloneDeep';
-import get from 'lodash/get';
 import filter from 'lodash/filter';
+import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isObject from 'lodash/isObject';
 
 import { Attributes } from '../../../constants';
-import AttributesService from '../../../services/AttributesService';
 import JournalsConverter from '../../../dto/journals';
 import { t } from '../../../helpers/util';
+import AttributesService from '../../../services/AttributesService';
+import { ParserPredicate } from '../../Filters/predicates';
+import Records from '../../Records';
 import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_AND, PREDICATE_CONTAINS, PREDICATE_EQ, PREDICATE_OR } from '../../Records/predicates/predicates';
 import { convertAttributeValues } from '../../Records/predicates/util';
-import Records from '../../Records';
 import * as RecordUtils from '../../Records/utils/recordUtils';
-import journalsServiceApi from './journalsServiceApi';
+
 import computedService from './computed/computedService';
+import journalsServiceApi from './journalsServiceApi';
 import { COMPUTED_ATT_PREFIX } from './util';
-import { ParserPredicate } from '../../Filters/predicates';
+
+import { NotificationManager } from '@/services/notifications';
 
 class JournalsDataLoader {
   /**
@@ -244,7 +245,10 @@ class JournalsDataLoader {
    */
   getPredicates = async (journalConfig, settings) => {
     const columns = journalConfig.columns || settings.columns || [];
-    const predicateFilter = convertAttributeValues(filter(settings.filter, p => !!p), columns);
+    const predicateFilter = convertAttributeValues(
+      filter(settings.filter, p => !!p),
+      columns
+    );
 
     let predicates = [journalConfig.predicate, settings.predicate, ...predicateFilter].filter(p => !!p);
 

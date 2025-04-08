@@ -25,9 +25,9 @@ export default class ModelViewer {
   static getElementName = async (diagram, elementId) => {
     const modeler = new NavigatedViewer({
       moddleExtensions: {
-        ecosTask: ecosTask,
+        ecosTask: ecosTask
       },
-      additionalModules: [onlyRenderer],
+      additionalModules: [onlyRenderer]
     });
 
     await modeler.importXML(diagram);
@@ -41,9 +41,9 @@ export default class ModelViewer {
 
     this.modeler = new NavigatedViewer({
       moddleExtensions: {
-        ecosTask: ecosTask,
+        ecosTask: ecosTask
       },
-      additionalModules: [onlyRenderer],
+      additionalModules: [onlyRenderer]
     });
 
     if (container) {
@@ -68,7 +68,7 @@ export default class ModelViewer {
     return this.modeler && this.modeler._container.querySelector('.viewport');
   }
 
-  setMarkedElement = (element) => {
+  setMarkedElement = element => {
     if (this.markedElement) {
       isFunction(this.canvas.removeMarker) && this.canvas.removeMarker(this.markedElement, 'marked-element');
     }
@@ -88,14 +88,14 @@ export default class ModelViewer {
 
       const elementMid = {
         x: elementToFocus.x + elementToFocus.width / 2,
-        y: elementToFocus.y + elementToFocus.height / 2,
+        y: elementToFocus.y + elementToFocus.height / 2
       };
 
       canvas.viewbox({
         x: elementMid.x - currentViewbox.width / 2,
         y: elementMid.y - currentViewbox.height / 2,
         width: currentViewbox.width,
-        height: currentViewbox.height,
+        height: currentViewbox.height
       });
 
       canvas.zoom(1);
@@ -115,11 +115,11 @@ export default class ModelViewer {
 
     canvas.viewbox({
       ...currentViewbox,
-      y: currentViewbox.inner.y,
+      y: currentViewbox.inner.y
     });
   };
 
-  markElements = (markerMap) => {
+  markElements = markerMap => {
     if (!this.modeler) {
       return;
     }
@@ -165,22 +165,22 @@ export default class ModelViewer {
     isFunction(onMounted) && onMounted(callbackData);
   };
 
-  setEvents = (events) => {
+  setEvents = events => {
     if (events) {
-      Object.keys(events).forEach((key) => {
+      Object.keys(events).forEach(key => {
         this.modeler.on(key, events[key]);
       });
     }
   };
 
-  setHeight = (height) => {
+  setHeight = height => {
     if (this.container) {
       height = height || this.viewport.getBoundingClientRect().height;
       this.container.style.height = `${height}px`;
     }
   };
 
-  setZoom = (value) => {
+  setZoom = value => {
     let nv;
     let defaultViewbox;
 
@@ -214,7 +214,7 @@ export default class ModelViewer {
     this.redrawHeatmap();
   };
 
-  renderSheet = (props) => <Sheet {...props} init={this.init} />;
+  renderSheet = props => <Sheet {...props} init={this.init} />;
 
   /**
    * Draw Heatmap
@@ -235,7 +235,7 @@ export default class ModelViewer {
         hasTooltip,
         onChange,
         onMounted,
-        formMode,
+        formMode
       });
     }
   };
@@ -261,7 +261,7 @@ export default class ModelViewer {
 
     const _data =
       data &&
-      data.filter((item) => {
+      data.filter(item => {
         const element = elementRegistry.get(item.id);
         const parent = get(element, 'parent') || {};
 

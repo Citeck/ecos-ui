@@ -103,7 +103,7 @@ window.Citeck.Base64 = Base64;
 const runApp = () => {
   store.dispatch(
     initAppRequest({
-      onSuccess: (isAuthenticated) => {
+      onSuccess: isAuthenticated => {
         store.dispatch(
           loadThemeRequest({
             isAuthenticated,
@@ -114,14 +114,14 @@ const runApp = () => {
                     <ConnectedRouter history={history}>
                       <App />
                     </ConnectedRouter>
-                  </Provider>,
+                  </Provider>
                 );
               });
-            },
-          }),
+            }
+          })
         );
-      },
-    }),
+      }
+    })
   );
 };
 
@@ -140,7 +140,7 @@ const idleTimer = new IdleTimer();
 idleTimer
   .setCallbackRepeatTime(30 * 1000) // 30s
   .setIdleTimeout(60 * 60 * 1000) // 1h
-  .setCallback((idle) => {
+  .setCallback(idle => {
     if (!idle) {
       api.app.touch().catch(() => {});
     }

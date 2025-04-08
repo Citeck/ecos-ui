@@ -40,7 +40,7 @@ export const Sheet = ({
         modelEvents,
         markedElement,
         zoom,
-        zoomCenter,
+        zoomCenter
       });
     }
   }, [initialized, containerRef, sectionPath]);

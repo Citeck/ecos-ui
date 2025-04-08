@@ -13,7 +13,7 @@ import {
   TYPE_IF_PART,
   TYPE_LABEL,
   TYPE_PLAN_ITEM,
-  PREFIX_FORM_ELM,
+  PREFIX_FORM_ELM
 } from '@/constants/cmmn';
 
 class CMMNEditorPage extends ModelEditor {

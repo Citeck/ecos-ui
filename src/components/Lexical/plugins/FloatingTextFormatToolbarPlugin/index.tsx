@@ -21,7 +21,7 @@ import {
   FORMAT_TEXT_COMMAND,
   getDOMSelection,
   LexicalEditor,
-  SELECTION_CHANGE_COMMAND,
+  SELECTION_CHANGE_COMMAND
 } from 'lexical';
 import { JSX, Dispatch, useCallback, useEffect, useRef, useState } from 'react';
 import * as React from 'react';
@@ -43,7 +43,7 @@ function TextFormatFloatingToolbar({
   isStrikethrough,
   isSubscript,
   isSuperscript,
-  setIsLinkEditMode,
+  setIsLinkEditMode
 }: {
   editor: LexicalEditor;
   anchorElem: HTMLElement;
@@ -173,8 +173,8 @@ function TextFormatFloatingToolbar({
           $updateTextFormatFloatingToolbar();
           return false;
         },
-        COMMAND_PRIORITY_LOW,
-      ),
+        COMMAND_PRIORITY_LOW
+      )
     );
   }, [editor, $updateTextFormatFloatingToolbar]);
 
@@ -286,7 +286,7 @@ function TextFormatFloatingToolbar({
 function useFloatingTextFormatToolbar(
   editor: LexicalEditor,
   anchorElem: HTMLElement,
-  setIsLinkEditMode: Dispatch<boolean>,
+  setIsLinkEditMode: Dispatch<boolean>
 ): JSX.Element | null {
   const [isText, setIsText] = useState(false);
   const [isLink, setIsLink] = useState(false);
@@ -375,7 +375,7 @@ function useFloatingTextFormatToolbar(
         if (editor.getRootElement() === null) {
           setIsText(false);
         }
-      }),
+      })
     );
   }, [editor, updatePopup]);
 
@@ -400,13 +400,13 @@ function useFloatingTextFormatToolbar(
       isCode={isCode}
       setIsLinkEditMode={setIsLinkEditMode}
     />,
-    anchorElem,
+    anchorElem
   );
 }
 
 export default function FloatingTextFormatToolbarPlugin({
   anchorElem = document.body,
-  setIsLinkEditMode,
+  setIsLinkEditMode
 }: {
   anchorElem?: HTMLElement;
   setIsLinkEditMode: Dispatch<boolean>;

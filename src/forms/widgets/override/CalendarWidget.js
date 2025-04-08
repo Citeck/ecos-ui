@@ -10,7 +10,7 @@ export default class CalendarWidget extends FormIOCalendarWidget {
   static get defaultSettings() {
     return {
       ...FormIOCalendarWidget.defaultSettings,
-      locale: getCurrentLocale(), // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2912
+      locale: getCurrentLocale() // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2912
     };
   }
 
@@ -85,7 +85,7 @@ export default class CalendarWidget extends FormIOCalendarWidget {
 
       // Cause: https://citeck.atlassian.net/browse/ECOSUI-1535
       this.removeEventListener(this.calendar._input, 'keydown');
-      this.addEventListener(this.calendar._input, 'keydown', (event) => {
+      this.addEventListener(this.calendar._input, 'keydown', event => {
         if (event.keyCode === 13) {
           this.calendar.close();
         }
@@ -93,7 +93,7 @@ export default class CalendarWidget extends FormIOCalendarWidget {
 
       window.addEventListener('scroll', this.onScrollWindow, true);
 
-      this.handleClickOutside = (event) => {
+      this.handleClickOutside = event => {
         if (
           this.calendar.isOpen &&
           !this.calendar._input.contains(event.target) &&

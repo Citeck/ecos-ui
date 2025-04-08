@@ -46,7 +46,7 @@ export const SHORTCUTS = Object.freeze({
   BOLD: IS_APPLE ? '⌘+B' : 'Ctrl+B',
   ITALIC: IS_APPLE ? '⌘+I' : 'Ctrl+I',
   UNDERLINE: IS_APPLE ? '⌘+U' : 'Ctrl+U',
-  INSERT_LINK: IS_APPLE ? '⌘+K' : 'Ctrl+K',
+  INSERT_LINK: IS_APPLE ? '⌘+K' : 'Ctrl+K'
 });
 
 export function controlOrMeta(metaKey: boolean, ctrlKey: boolean): boolean {

@@ -24,7 +24,7 @@ export default function LinkPlugin({ hasLinkAttributes = false }: Props): JSX.El
         hasLinkAttributes
           ? {
               rel: 'noopener noreferrer',
-              target: '_blank',
+              target: '_blank'
             }
           : undefined
       }
