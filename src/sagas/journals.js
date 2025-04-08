@@ -10,7 +10,7 @@ import isString from 'lodash/isString';
 import omit from 'lodash/omit';
 import set from 'lodash/set';
 import * as queryString from 'query-string';
-import { call, put, race, select, take, takeEvery, takeLatest } from 'redux-saga/effects';
+import { call, put, all, race, select, take, takeEvery, takeLatest } from 'redux-saga/effects';
 
 import {
   applyJournalSetting,
@@ -754,7 +754,7 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
       const sharedSettings = yield getJournalSharedSettings(api, userConfigId) || {};
 
       if (!isEmpty(sharedSettings) && !isEmpty(sharedSettings.columns)) {
-        sharedSettings.columns = yield JournalsService.resolveColumns(sharedSettings.columns);
+        // sharedSettings.columns = yield JournalsService.resolveColumns(sharedSettings.columns);
       }
 
       const journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId, initPredicate }, w);
@@ -836,32 +836,34 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
 
 function* getGridEditingRules(api, gridData) {
   const { data = [], columns = [] } = gridData;
-  let editingRules = yield data.map(function* (row) {
-    const canEditing = yield call(api.journals.checkRowEditRules, row.id);
-    let byColumns = false;
+  let editingRules = yield all(
+    data.map(function* (row) {
+      const canEditing = yield call(api.journals.checkRowEditRules, row.id);
+      let byColumns = false;
 
-    if (canEditing) {
-      byColumns = yield columns.map(function* (column) {
-        const isProtected = yield call(api.journals.checkCellProtectedFromEditing, row.id, column.dataField);
+      if (canEditing) {
+        byColumns = yield columns.map(function* (column) {
+          const isProtected = yield call(api.journals.checkCellProtectedFromEditing, row.id, column.dataField);
 
-        return {
-          [column.dataField]: !isProtected
-        };
-      });
+          return {
+            [column.dataField]: !isProtected
+          };
+        });
 
-      byColumns = byColumns.reduce(
-        (current, result) => ({
-          ...result,
-          ...current
-        }),
-        {}
-      );
-    }
+        byColumns = byColumns.reduce(
+          (current, result) => ({
+            ...result,
+            ...current
+          }),
+          {}
+        );
+      }
 
-    return {
-      [row.id]: byColumns
-    };
-  });
+      return {
+        [row.id]: byColumns
+      };
+    })
+  );
 
   editingRules = editingRules.reduce(
     (current, result) => ({

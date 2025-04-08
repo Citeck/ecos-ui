@@ -1,16 +1,16 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import connect from 'react-redux/es/connect/connect';
+import first from 'lodash/first';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
-import first from 'lodash/first';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
 import { ParserPredicate } from '../../Filters/predicates';
 import { InfoText, Loader } from '../../common';
 import { EmptyGrid, Grid, InlineTools } from '../../common/grid';
-import { t } from '../../../helpers/util';
-import { wrapArgs } from '../../../helpers/redux';
+import { DEFAULT_PAGINATION } from '../constants';
+
 import {
   deselectAllRecords,
   execRecordsAction,
@@ -26,11 +26,12 @@ import {
   setSelectAllRecordsVisible,
   setSelectedRecords,
   saveColumn
-} from '../../../actions/journals';
-import { selectJournalDashletGridProps } from '../../../selectors/dashletJournals';
-import { DEFAULT_PAGINATION } from '../constants';
-import { selectOriginGridPredicates } from '../../../selectors/journals';
-import { selectIsViewNewJournal } from '../../../selectors/view';
+} from '@/actions/journals';
+import { wrapArgs } from '@/helpers/redux';
+import { t } from '@/helpers/util';
+import { selectJournalDashletGridProps } from '@/selectors/dashletJournals';
+import { selectOriginGridPredicates } from '@/selectors/journals';
+import { selectIsViewNewJournal } from '@/selectors/view';
 
 const mapStateToProps = (state, props) => {
   const ownState = selectJournalDashletGridProps(state, props.stateId);
@@ -360,7 +361,4 @@ JournalsDashletGrid.propTypes = {
   onOpenSettings: PropTypes.func
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(JournalsDashletGrid);
+export default connect(mapStateToProps, mapDispatchToProps)(JournalsDashletGrid);

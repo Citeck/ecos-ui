@@ -47,17 +47,6 @@ import {
   updateSidebarItem,
   uploadFiles
 } from '../actions/docLib';
-import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
-import DocLibService from '../components/Journals/DocLib/DocLibService';
-import JournalsService from '../components/Journals/service/journalsService';
-import { ActionTypes } from '../components/Records/actions/constants';
-import { DocLibUrlParams } from '../constants';
-import { DEFAULT_DOCLIB_PAGINATION, NODE_TYPES } from '../constants/docLib';
-import DocLibConverter from '../dto/docLib';
-import JournalsConverter from '../dto/journals';
-import { t } from '../helpers/export/util';
-import { wrapSaga } from '../helpers/redux';
-import { getSearchParams, getUrlWithoutOrigin, getWorkspaceId } from '../helpers/urls';
 import {
   selectDocLibCreateVariants,
   selectDocLibFileCanUploadFiles,
@@ -73,11 +62,22 @@ import {
   selectJournalId
 } from '../selectors/docLib';
 import { selectJournalData, selectUrl } from '../selectors/journals';
-import PageService from '../services/PageService';
-import { getStore } from '../store';
-import initializeWorker from '../workers/docLib';
 
+import EcosFormUtils from '@/components/EcosForm/EcosFormUtils';
+import DocLibService from '@/components/Journals/DocLib/DocLibService';
+import JournalsService from '@/components/Journals/service/journalsService';
+import { ActionTypes } from '@/components/Records/actions/constants';
+import { DocLibUrlParams } from '@/constants';
+import { DEFAULT_DOCLIB_PAGINATION, NODE_TYPES } from '@/constants/docLib';
+import DocLibConverter from '@/dto/docLib';
+import JournalsConverter from '@/dto/journals';
+import { t } from '@/helpers/export/util';
+import { wrapSaga } from '@/helpers/redux';
+import { getSearchParams, getUrlWithoutOrigin, getWorkspaceId } from '@/helpers/urls';
+import PageService from '@/services/PageService';
 import { NotificationManager } from '@/services/notifications';
+import { getStore } from '@/store';
+import initializeWorker from '@/workers/docLib';
 
 const DOCLIB_INNER_DOC_ID_REGEX = /^emodel\/doclib@.+\$(.+)$/;
 

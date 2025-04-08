@@ -1,0 +1,13 @@
+diff --git a/index.d.ts b/index.d.ts
+index 2fe68d617ead4c8430a1b4322c2f6eed412d34b4..0f33ae4716db391ac318b8cae33d58f3c5b1cd8b 100644
+--- a/index.d.ts
++++ b/index.d.ts
+@@ -63,7 +63,7 @@ declare module 'connected-react-router' {
+   }
+
+   export class ConnectedRouter extends React.Component<
+-    ConnectedRouterProps,
++    React.PropsWithChildren<ConnectedRouterProps>,
+     {}
+   > {}
+
