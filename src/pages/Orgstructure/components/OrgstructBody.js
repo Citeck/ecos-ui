@@ -1,10 +1,10 @@
-import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
+import React, { useContext } from 'react';
 
 import { Pagination } from '../../../components/common';
 import Orgstruct from '../../../components/common/Orgstruct';
-import { AUTHORITY_TYPE_GROUP, GroupTypes, PAGINATION_SIZES, AUTHORITY_TYPE_USER } from '../../../components/common/Orgstruct/constants';
 import { OrgstructContext } from '../../../components/common/Orgstruct/OrgstructContext';
+import { AUTHORITY_TYPE_GROUP, GroupTypes, PAGINATION_SIZES, AUTHORITY_TYPE_USER } from '../../../components/common/Orgstruct/constants';
 
 import Body from './Body';
 
@@ -71,4 +71,4 @@ OrgstructBody.propTypes = {
   setEmployee: PropTypes.func
 };
 
-export default OrgstructBody;
+export default React.memo(OrgstructBody);

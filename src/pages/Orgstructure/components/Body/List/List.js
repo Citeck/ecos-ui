@@ -1,27 +1,29 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import { Collapse } from 'reactstrap';
 import get from 'lodash/get';
+import PropTypes from 'prop-types';
+import React, { Suspense, useState, useCallback } from 'react';
+import { useSelector } from 'react-redux';
+import { Collapse } from 'reactstrap';
 
-import ListItem, { itemPropType } from '../ListItem';
-import { useOrgstructContext } from '../../../../../components/common/Orgstruct/OrgstructContext';
 import Records from '../../../../../components/Records';
+import { useOrgstructContext } from '../../../../../components/common/Orgstruct/OrgstructContext';
+import ListItem, { itemPropType } from '../ListItem';
 
 import './List.scss';
+import { Loader } from '@/components/common';
 
 const List = ({ items, nestingLevel = 0, tabId, toggleToFirstTab, previousParent }) => {
-  const context = useOrgstructContext();
+  const { currentTab, tabItems, openedItems } = useOrgstructContext();
 
   const [selectedId, setSelectedId] = useState('');
 
-  const groups = item => get(item, 'attributes.groups', []);
-  const deletePersonItem = item => {
+  const getGroups = useCallback(item => get(item, 'attributes.groups', []), []);
+  const deletePersonItem = useCallback(item => {
     const record = Records.get(item.id);
 
     record.att('att_rem_authorityGroups', item.parentId);
 
     return record.save();
-  };
+  });
 
   return (
     <ul className={'select-orgstruct__list'}>
@@ -29,8 +31,7 @@ const List = ({ items, nestingLevel = 0, tabId, toggleToFirstTab, previousParent
         let nestedList = null;
 
         if (item.hasChildren) {
-          const { currentTab, tabItems, openedItems } = context;
-          const children = tabItems[currentTab].filter(i => i.parentId === item.id || groups(i).includes(item.id));
+          const children = tabItems[currentTab].filter(i => i.parentId === item.id || getGroups(i).includes(item.id));
 
           nestedList = (
             <Collapse
@@ -40,13 +41,15 @@ const List = ({ items, nestingLevel = 0, tabId, toggleToFirstTab, previousParent
                   : item.isOpen
               }
             >
-              <List
-                previousParent={item.id}
-                items={children}
-                nestingLevel={nestingLevel + 1}
-                tabId={tabId}
-                toggleToFirstTab={toggleToFirstTab}
-              />
+              <Suspense fallback={<Loader type="points" />}>
+                <List
+                  previousParent={item.id}
+                  items={children}
+                  nestingLevel={nestingLevel + 1}
+                  tabId={tabId}
+                  toggleToFirstTab={toggleToFirstTab}
+                />
+              </Suspense>
             </Collapse>
           );
         }
@@ -75,4 +78,4 @@ List.propTypes = {
   nestingLevel: PropTypes.number
 };
 
-export default List;
+export default React.memo(List);

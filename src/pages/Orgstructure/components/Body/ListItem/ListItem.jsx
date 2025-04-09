@@ -4,7 +4,7 @@ import isFunction from 'lodash/isFunction';
 import noop from 'lodash/noop';
 import set from 'lodash/set';
 import PropTypes from 'prop-types';
-import React, { useContext, useState, useEffect, useCallback } from 'react';
+import React, { useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 
 import { getDashboardConfig } from '../../../../../actions/dashboard';
@@ -93,12 +93,14 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
   const [scrollLeft, setScrollLeftPosition] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState('');
-  const selected = selectedPerson === item.id;
-  const onClickLabel = () => {
+
+  const selected = useMemo(() => selectedPerson === item.id, [item.id]);
+
+  const onClickLabel = useCallback(() => {
     if (item.hasChildren) {
       onToggleCollapse(item, null, previousParent);
     }
-  };
+  }, [item.id]);
   const onScroll = useCallback(
     e => {
       const targetScrollLeft = get(e, 'target.scrollLeft', 0);
@@ -118,7 +120,7 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
     };
   });
 
-  const renderCollapseHandler = () => {
+  const renderCollapseHandler = useCallback(() => {
     if (item.hasChildren) {
       const isOpen =
         previousParent && openedItems[item.id] && openedItems[item.id].length >= 0
@@ -132,84 +134,89 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
 
       return <span className={collapseHandlerClassNames} />;
     }
-  };
+  }, [item.id]);
 
-  const handleMouseEnter = e => {
-    const parent = e.target.closest('.slide-menu-list > div');
+  const handleMouseEnter = useCallback(
+    e => {
+      const parent = e.target.closest('.slide-menu-list > div');
 
-    setHovered(true);
-    parent && setScrollLeftPosition(parent.scrollLeft);
-  };
+      setHovered(true);
+      parent && setScrollLeftPosition(parent.scrollLeft);
+    },
+    [item.id]
+  );
 
-  const handleMouseLeave = () => {
+  const handleMouseLeave = useCallback(() => {
     setHovered(false);
-  };
+  }, [item.id]);
 
-  const createForm =
+  const createForm = useCallback(
     formConfig =>
-    (e, isEditMode = false) => {
-      e.stopPropagation();
+      (e, isEditMode = false) => {
+        e.stopPropagation();
 
-      const isPerson = formConfig.sourceId === SourcesId.PERSON;
-      const extraConfig = {};
+        const isPerson = formConfig.sourceId === SourcesId.PERSON;
+        const extraConfig = {};
 
-      let title;
+        let title;
 
-      if (isPerson) {
-        extraConfig.recordRef = null;
+        if (isPerson) {
+          extraConfig.recordRef = null;
 
-        title = t(Labels.TITLE_PERSON_CREATE);
-      } else {
-        title = isEditMode ? t(Labels.TITLE_GROUP_EDIT) : t(Labels.TITLE_SUBGROUP_CREATE);
-      }
-
-      if (isEditMode) {
-        extraConfig.recordRef = item.id;
-      }
-
-      FormManager.createRecordByVariant(
-        { ...formConfig, ...extraConfig },
-        {
-          title,
-          onSubmit: async submitedRecord => {
-            const newGroups = await Records.get(submitedRecord).load('authorityGroups[]?id');
-            const prevGroups = get(item, 'attributes.groups', []);
-            const difference = prevGroups.filter(authorityGroup => !newGroups.includes(authorityGroup));
-
-            getItemsByParent(
-              {
-                ...item,
-                attributes: { ...item.attributes, groups: newGroups }
-              },
-              isEditMode,
-              difference.includes(`emodel/authority-group@${ROOT_GROUP_NAME}`)
-            );
-          },
-          initiator: {
-            type: 'form-component',
-            name: 'CreateVariants'
-          }
+          title = t(Labels.TITLE_PERSON_CREATE);
+        } else {
+          title = isEditMode ? t(Labels.TITLE_GROUP_EDIT) : t(Labels.TITLE_SUBGROUP_CREATE);
         }
-      );
-    };
 
-  const createPerson = createForm(FORM_CONFIG.PERSON);
-  const createGroup = createForm(FORM_CONFIG.AUTHORITY_GROUP);
+        if (isEditMode) {
+          extraConfig.recordRef = item.id;
+        }
 
-  const openModal = type => e => {
+        FormManager.createRecordByVariant(
+          { ...formConfig, ...extraConfig },
+          {
+            title,
+            onSubmit: async submitedRecord => {
+              const newGroups = await Records.get(submitedRecord).load('authorityGroups[]?id');
+              const prevGroups = get(item, 'attributes.groups', []);
+              const difference = prevGroups.filter(authorityGroup => !newGroups.includes(authorityGroup));
+
+              getItemsByParent(
+                {
+                  ...item,
+                  attributes: { ...item.attributes, groups: newGroups }
+                },
+                isEditMode,
+                difference.includes(`emodel/authority-group@${ROOT_GROUP_NAME}`)
+              );
+            },
+            initiator: {
+              type: 'form-component',
+              name: 'CreateVariants'
+            }
+          }
+        );
+      },
+    []
+  );
+
+  const createPerson = useCallback(() => createForm(FORM_CONFIG.PERSON));
+  const createGroup = useCallback(() => createForm(FORM_CONFIG.AUTHORITY_GROUP));
+
+  const openModal = useCallback(type => e => {
     e.stopPropagation();
     setModalType(type);
     setModalOpen(true);
-  };
+  });
 
-  const closeModal = e => {
+  const closeModal = useCallback(e => {
     e.stopPropagation();
     setModalOpen(false);
-  };
+  });
 
-  const openPersonModal = openModal('person');
+  const openPersonModal = useCallback(() => openModal('person'));
 
-  const deleteFromGroup = async e => {
+  const deleteFromGroup = useCallback(async e => {
     closeModal(e);
 
     try {
@@ -219,7 +226,7 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
     } finally {
       getItemsByParent(item);
     }
-  };
+  });
 
   const personConfig = {
     text: t(Labels.CONFIRM_PERSON_DELETE),
@@ -266,9 +273,9 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
     isFunction(toggleToFirstTab) && toggleToFirstTab();
   };
 
-  const canEdit = get(item, 'attributes.canEdit', false);
-  const isPerson = item.id.includes(SourcesId.PERSON);
-  const isGroup = item.id.includes(SourcesId.GROUP);
+  const canEdit = useMemo(() => get(item, 'attributes.canEdit', false), []);
+  const isPerson = useMemo(() => item.id.includes(SourcesId.PERSON), [item.id]);
+  const isGroup = useMemo(() => item.id.includes(SourcesId.GROUP), [item.id]);
 
   return (
     <li>
@@ -382,4 +389,4 @@ const mapStateToProps = state => ({
   selectedPerson: get(state, 'orgstructure.id', '')
 });
 
-export default connect(mapStateToProps)(ListItem);
+export default connect(mapStateToProps)(React.memo(ListItem));

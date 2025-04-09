@@ -390,16 +390,14 @@ class Orgstructure extends React.Component {
 
   render() {
     return (
-      <StrictMode>
-        <div className="orgstructure-page__grid-container">
-          <div className="orgstructure-page__grid-main">
-            <OrgstructProvider orgStructApi={api} controlProps={controlProps}>
-              <Structure tabId={this.props.tabId} toggleToFirstTab={this.toggleToFirstTab} />
-            </OrgstructProvider>
-          </div>
-          {this.renderDashboard()}
+      <div className="orgstructure-page__grid-container">
+        <div className="orgstructure-page__grid-main">
+          <OrgstructProvider orgStructApi={api} controlProps={controlProps}>
+            <Structure tabId={this.props.tabId} toggleToFirstTab={this.toggleToFirstTab} />
+          </OrgstructProvider>
         </div>
-      </StrictMode>
+        {this.renderDashboard()}
+      </div>
     );
   }
 }

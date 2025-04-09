@@ -1,4 +1,4 @@
-import React, { useMemo, memo } from 'react';
+import React, { useMemo, memo, useCallback } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import { InfoText, Loader } from '../../../../components/common';
@@ -8,23 +8,28 @@ import List from './List';
 
 import './Body.scss';
 
-const Body = memo(function Body({ currentTab, tabId, toggleToFirstTab, tabItems, isSearching = false }) {
-  const filteredData = data => {
-    const filteredData = [];
-    let foundPerson = false;
+const Body = ({ currentTab, tabId, toggleToFirstTab, tabItems, isSearching = false }) => {
+  const filteredData = useCallback(
+    data => {
+      const filteredData = [];
 
-    data.forEach(item => {
-      if (item.id.startsWith('emodel/person')) {
-        foundPerson = true;
-      }
-      if (!foundPerson || item.id.startsWith('emodel/person')) {
-        filteredData.push(item);
-      }
-    });
-    return filteredData;
-  };
+      let foundPerson = false;
 
-  const children = useMemo(() => filteredData(tabItems[currentTab]), [tabId, tabItems]);
+      data.forEach(item => {
+        if (item.id.startsWith('emodel/person')) {
+          foundPerson = true;
+        }
+        if (!foundPerson || item.id.startsWith('emodel/person')) {
+          filteredData.push(item);
+        }
+      });
+
+      return filteredData;
+    },
+    [tabItems]
+  );
+
+  const children = useMemo(() => filteredData(tabItems[currentTab]), [tabItems, currentTab]);
 
   const renderView = props => {
     return <div {...props} style={{ ...props.style, marginBottom: '140px' }} />;
@@ -41,6 +46,6 @@ const Body = memo(function Body({ currentTab, tabId, toggleToFirstTab, tabItems,
       </Scrollbars>
     </div>
   );
-});
+};
 
-export default Body;
+export default React.memo(Body);
