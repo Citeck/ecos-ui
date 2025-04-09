@@ -3,18 +3,18 @@ import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import isNil from 'lodash/isNil';
 import * as queryString from 'query-string';
-import React from 'react';
+import React, { Suspense } from 'react';
 import { connect } from 'react-redux';
 
-import { getDashboardConfig, getDashboardTitle, setDashboardIdentification } from '../../actions/dashboard';
-import { setOrgstructureConfig, setSelectedPerson } from '../../actions/orgstructure';
+import { getDashboardConfig, getDashboardTitle, setLoading } from '../../actions/dashboard';
+import { setSelectedPerson } from '../../actions/orgstructure';
 import { OrgStructApi } from '../../api/orgStruct';
 import { DndUtils } from '../../components/Drag-n-Drop';
 import Layout from '../../components/Layout';
-import Records from '../../components/Records';
-import { ScrollArrow, Tabs } from '../../components/common';
+import { Loader, ScrollArrow, Tabs } from '../../components/common';
 import { OrgstructProvider } from '../../components/common/Orgstruct/OrgstructContext';
 import {
   AUTHORITY_TYPE_GROUP,
@@ -24,7 +24,7 @@ import {
   ROOT_GROUP_NAME,
   TabTypes
 } from '../../components/common/Orgstruct/constants';
-import { URL } from '../../constants';
+import { URL, SourcesId } from '../../constants';
 import { decodeLink, getSearchParams, getSortedUrlParams, pushHistoryLink, replaceHistoryLink } from '../../helpers/urls';
 import { t } from '../../helpers/util';
 import DashboardService from '../../services/dashboard';
@@ -76,14 +76,6 @@ class Orgstructure extends React.Component {
     activeTab: null
   };
 
-  constructor(props) {
-    super(props);
-
-    const { recordRef } = getSearchParams() || {};
-
-    this.instanceRecord = Records.get(recordRef);
-  }
-
   static getDerivedStateFromProps(props, state) {
     const newState = {};
     const newUrlParams = getSortedUrlParams();
@@ -130,21 +122,32 @@ class Orgstructure extends React.Component {
   }
 
   componentDidMount() {
-    const { onSelectPerson, getDashboardConfig, getDashboardTitle } = this.props;
+    const { onSelectPerson, getDashboardConfig, getDashboardTitle, setLoading } = this.props;
     const { recordRef = '' } = getSearchParams() || {};
 
-    getDashboardConfig({ recordRef });
-    getDashboardTitle({ recordRef });
+    setLoading(true);
 
-    if (recordRef) {
+    if (recordRef && recordRef.startsWith(SourcesId.PERSON)) {
+      getDashboardTitle({ recordRef });
+      getDashboardConfig({ recordRef });
+
       onSelectPerson(recordRef);
     }
   }
 
-  shouldComponentUpdate(_nextProps, nextState) {
-    const newUrlParams = getSortedUrlParams();
+  shouldComponentUpdate(nextProps, nextState) {
+    const { recordRef } = this.props;
+    const { urlParams, activeTab, config } = this.state;
 
-    if (nextState.urlParams !== newUrlParams) {
+    if (nextState.urlParams !== urlParams || nextState.activeTab !== activeTab) {
+      return true;
+    }
+
+    if (!isEqual(nextProps.config, config)) {
+      return true;
+    }
+
+    if (nextProps.recordRef !== recordRef) {
       return true;
     }
 
@@ -356,15 +359,19 @@ class Orgstructure extends React.Component {
   }
 
   renderDashboard() {
-    const { config, menuType, isMobile, tabId, isLoading } = this.props;
-    const { recordRef } = getSearchParams() || {};
+    const { config = {}, menuType, isMobile, tabId, isLoading, recordRef } = this.props;
 
-    if (!recordRef || !config) {
+    if (!recordRef) {
       return <div className="orgstructure-page__grid-empty-widgets">{t(Labels.NO_DATA_TEXT)}</div>;
     }
 
     const { activeTab } = this.state;
     const activeLayout = config[activeTab];
+
+    if (isEmpty(activeLayout)) {
+      return <Loader />;
+    }
+
     const { columns, type } = activeLayout ? activeLayout : get(config, '0') || {};
 
     return (
@@ -411,11 +418,10 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 const mapDispatchToProps = (dispatch, state) => ({
+  setLoading: status => dispatch(setLoading({ status, key: getStateId(state) })),
   getDashboardConfig: ({ recordRef }) => dispatch(getDashboardConfig({ key: state.tabId, recordRef })),
   getDashboardTitle: payload => dispatch(getDashboardTitle({ ...payload, key: getStateId(state) })),
-  onSelectPerson: recordRef => dispatch(setSelectedPerson({ recordRef: recordRef, key: state.tabId })),
-  setOrgstructureConfig: config => dispatch(setOrgstructureConfig(config)),
-  setDashboardIdentification: payload => dispatch(setDashboardIdentification(payload))
+  onSelectPerson: recordRef => dispatch(setSelectedPerson({ recordRef: recordRef, key: state.tabId }))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Orgstructure);

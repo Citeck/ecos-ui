@@ -2,12 +2,11 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import noop from 'lodash/noop';
-import set from 'lodash/set';
 import PropTypes from 'prop-types';
 import React, { useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 
-import { getDashboardConfig } from '../../../../../actions/dashboard';
+import { getDashboardConfig, setLoading } from '../../../../../actions/dashboard';
 import { setSelectedPerson } from '../../../../../actions/orgstructure';
 import FormManager from '../../../../../components/EcosForm/FormManager';
 import { EcosModal } from '../../../../../components/common';
@@ -267,8 +266,11 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
 
   const selectPerson = e => {
     e.stopPropagation();
-    dispatch(setSelectedPerson({ recordRef: item.id }));
-    dispatch(getDashboardConfig({ recordRef: item.id }));
+
+    dispatch(setSelectedPerson({ recordRef: item.id, key: tabId }));
+    dispatch(setLoading({ status: true, key: tabId }));
+    dispatch(getDashboardConfig({ recordRef: item.id, key: tabId }));
+
     updateCurrentUrl({ recordRef: item.id });
     isFunction(toggleToFirstTab) && toggleToFirstTab();
   };
@@ -380,6 +382,7 @@ export const itemPropType = PropTypes.shape({
 });
 
 ListItem.propTypes = {
+  tabId: PropTypes.string,
   item: itemPropType,
   nestingLevel: PropTypes.number,
   nestedList: PropTypes.node

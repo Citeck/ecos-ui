@@ -279,7 +279,7 @@ class PropertiesDashlet extends BaseWidget {
   };
 
   onClickShowFormBuilder = () => {
-    const onShowBuilder = get(this._propertiesRef, 'current.wrappedInstance.onShowBuilder');
+    const onShowBuilder = get(this._propertiesRef, 'current.onShowBuilder');
 
     if (isFunction(onShowBuilder)) {
       onShowBuilder();

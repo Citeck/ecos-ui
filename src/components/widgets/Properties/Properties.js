@@ -1,17 +1,17 @@
-import React from 'react';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { Scrollbars } from 'react-custom-scrollbars';
-import get from 'lodash/get';
-import isFunction from 'lodash/isFunction';
-import debounce from 'lodash/debounce';
 import cloneDeep from 'lodash/cloneDeep';
+import debounce from 'lodash/debounce';
+import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
+import isFunction from 'lodash/isFunction';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { Scrollbars } from 'react-custom-scrollbars';
+import { connect } from 'react-redux';
 
 import { t } from '../../../helpers/util';
-import EcosForm from '../../EcosForm/EcosForm';
 import { FORM_MODE_EDIT } from '../../EcosForm';
+import EcosForm from '../../EcosForm/EcosForm';
 import { InfoText, Loader } from '../../common';
 import { ComponentKeys } from '../Components';
 
@@ -223,11 +223,6 @@ const mapStateToProps = state => {
   return { isMobile: state.view.isMobile };
 };
 
-export default connect(
-  mapStateToProps,
-  null,
-  null,
-  {
-    withRef: true
-  }
-)(Properties);
+export default connect(mapStateToProps, null, null, {
+  forwardRef: true
+})(Properties);
