@@ -200,8 +200,8 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
     []
   );
 
-  const createPerson = useCallback(() => createForm(FORM_CONFIG.PERSON));
-  const createGroup = useCallback(() => createForm(FORM_CONFIG.AUTHORITY_GROUP));
+  const createPerson = createForm(FORM_CONFIG.PERSON);
+  const createGroup = createForm(FORM_CONFIG.AUTHORITY_GROUP);
 
   const openModal = useCallback(type => e => {
     e.stopPropagation();
