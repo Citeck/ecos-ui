@@ -4,11 +4,11 @@ import React, { Suspense, useState, useCallback } from 'react';
 import { Collapse } from 'reactstrap';
 
 import Records from '../../../../../components/Records';
+import { Loader } from '../../../../../components/common';
 import { useOrgstructContext } from '../../../../../components/common/Orgstruct/OrgstructContext';
 import ListItem, { itemPropType } from '../ListItem';
 
 import './List.scss';
-import { Loader } from '@/components/common';
 
 const List = ({ items, nestingLevel = 0, tabId, toggleToFirstTab, previousParent }) => {
   const { currentTab, tabItems, openedItems } = useOrgstructContext();
