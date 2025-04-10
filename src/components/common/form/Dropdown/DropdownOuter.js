@@ -3,11 +3,12 @@ import uniqueId from 'lodash/uniqueId';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import ZIndex from '../../../../services/ZIndex';
 import ClickOutside from '../../../ClickOutside';
 import { TooltipContainer as Tooltip } from '../../Tooltip/TooltipContainer';
 
 import Dropdown from './Dropdown';
+
+import ZIndex from '@/services/ZIndex';
 
 import './Dropdown.scss';
 
@@ -92,7 +93,7 @@ export default class DropdownOuter extends Dropdown {
             handleClickOutside={() => dropdownOpen && this.toggle()}
             excludeElements={[this.dropdownOuterRef.current]}
           >
-            {this.renderMenuItems()}
+            <this.renderMenuItems />
           </ClickOutside>
         </Tooltip>
       </div>

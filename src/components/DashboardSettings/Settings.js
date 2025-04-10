@@ -14,7 +14,14 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Container } from 'reactstrap';
 
-import { getDashboardConfig as getDashboardConfigPage, resetAllDashboardsConfig } from '../../actions/dashboard';
+import { clearCache } from '../ReactRouterCache';
+
+import SetBind from './parts/SetBind';
+import SetLayouts from './parts/SetLayouts';
+import SetTabs from './parts/SetTabs';
+import SetWidgets from './parts/SetWidgets';
+
+import { getDashboardConfig as getDashboardConfigPage, resetAllDashboardsConfig } from '@/actions/dashboard';
 import {
   getCheckUpdatedDashboardConfig,
   initDashboardSettings,
@@ -22,28 +29,22 @@ import {
   resetDashboardConfig,
   saveDashboardConfig,
   setCheckUpdatedDashboardConfig
-} from '../../actions/dashboardSettings';
-import { DndUtils } from '../../components/Drag-n-Drop';
-import { Loader, Tabs } from '../../components/common';
-import { Btn } from '../../components/common/btns';
-import { TunableDialog } from '../../components/common/dialogs';
-import { RequestStatuses } from '../../constants';
-import { DashboardTypes, DeviceTabs } from '../../constants/dashboard';
-import { DefaultWidgetsByLayout, Layouts, LayoutTypes } from '../../constants/layout';
-import DashboardSettingsConverter from '../../dto/dashboardSettings';
-import { removeItems } from '../../helpers/ls';
-import { decodeLink, getSearchParams, getSortedUrlParams, SearchKeys } from '../../helpers/urls';
-import { t } from '../../helpers/util';
-import { selectStateByKey } from '../../selectors/dashboardSettings';
-import DashboardService from '../../services/dashboard';
-import PageTabList from '../../services/pageTabs/PageTabList';
-import UserLocalSettingsService from '../../services/userLocalSettings';
-import { clearCache } from '../ReactRouterCache';
-
-import SetBind from './parts/SetBind';
-import SetLayouts from './parts/SetLayouts';
-import SetTabs from './parts/SetTabs';
-import SetWidgets from './parts/SetWidgets';
+} from '@/actions/dashboardSettings';
+import { DndUtils } from '@/components/Drag-n-Drop';
+import { Loader, Tabs } from '@/components/common';
+import { Btn } from '@/components/common/btns';
+import { TunableDialog } from '@/components/common/dialogs';
+import { RequestStatuses } from '@/constants';
+import { DashboardTypes, DeviceTabs } from '@/constants/dashboard';
+import { DefaultWidgetsByLayout, Layouts, LayoutTypes } from '@/constants/layout';
+import DashboardSettingsConverter from '@/dto/dashboardSettings';
+import { removeItems } from '@/helpers/ls';
+import { decodeLink, getSearchParams, getSortedUrlParams, SearchKeys } from '@/helpers/urls';
+import { t } from '@/helpers/util';
+import { selectStateByKey } from '@/selectors/dashboardSettings';
+import DashboardService from '@/services/dashboard';
+import PageTabList from '@/services/pageTabs/PageTabList';
+import UserLocalSettingsService from '@/services/userLocalSettings';
 
 import './style.scss';
 

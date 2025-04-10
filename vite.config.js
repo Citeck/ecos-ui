@@ -15,7 +15,25 @@ const needEnvSettings = [
   'PORT',
   'REACT_APP_KEYCLOAK_CONFIG_REALM_ID',
   'REACT_APP_KEYCLOAK_CONFIG_CLIENT_ID',
-  'REACT_APP_KEYCLOAK_CONFIG_EIS_ID',
+  'REACT_APP_KEYCLOAK_CONFIG_EIS_ID'
+];
+
+const preOptimizeDepsLibs = [
+  'react-placeholder',
+  'react-placeholder/lib/placeholders',
+  'lodash/isNull',
+  'lodash/isArrayLike',
+  'regenerator-runtime',
+  'moment',
+  'flatpickr',
+  'date-fns',
+  'bpmn-js',
+  'diagram-js',
+  'keycloak-js',
+  'bpmn-js-color-picker',
+  'formiojs',
+  'dmn-js-drd',
+  'react-router'
 ];
 
 export default defineConfig(({ mode }) => {
@@ -24,15 +42,15 @@ export default defineConfig(({ mode }) => {
   return {
     server: {
       hmr: {
-        overlay: false,
-      },
+        overlay: false
+      }
     },
     define: {
       'process.env': JSON.stringify({
         NODE_DEBUG: false,
-        ...needEnvSettings.reduce((acc, key) => ({ ...acc, [key]: env[key] }), {}),
+        ...needEnvSettings.reduce((acc, key) => ({ ...acc, [key]: env[key] }), {})
       }),
-      'process.versions': JSON.stringify({ node: packageInfo.volta.node }),
+      'process.versions': JSON.stringify({ node: packageInfo.volta.node })
     },
     build: {
       outDir: 'build',
@@ -41,7 +59,7 @@ export default defineConfig(({ mode }) => {
       terserOptions: {
         keep_classnames: true,
         parse: {
-          ecma: 2017,
+          ecma: 2017
         },
         compress: {
           ecma: 5,
@@ -49,46 +67,46 @@ export default defineConfig(({ mode }) => {
           inline: 2,
 
           /** Attention! Don't forget to remove the 'debugger' from the codebase if you don't need it! **/
-          drop_debugger: false, // for debug on stand
+          drop_debugger: false // for debug on stand
         },
         mangle: {
-          safari10: true,
+          safari10: true
         },
         output: {
           ecma: 5,
           comments: false,
-          ascii_only: true,
-        },
+          ascii_only: true
+        }
       },
       rollupOptions: {
         output: {
-          sourcemapPathTransform: (relativeSourcePath) => {
+          sourcemapPathTransform: relativeSourcePath => {
             return path.relative('src', relativeSourcePath).replace(/\\/g, '/');
-          },
+          }
         },
         input: {
-          main: new URL('./index.html', import.meta.url).pathname,
+          main: new URL('./index.html', import.meta.url).pathname
         },
         onwarn(warning, warn) {
           if (warning.code === 'EVAL' && warning.id && /[\\/]node_modules[\\/]@excalidraw\/excalidraw[\\/]/.test(warning.id)) {
             return;
           }
           warn(warning);
-        },
+        }
       },
-      target: 'es2020',
+      target: 'es2020'
     },
     resolve: {
       alias: [
         {
           find: '@',
-          replacement: path.resolve(__dirname, 'src'),
-        },
-      ],
+          replacement: path.resolve(__dirname, 'src')
+        }
+      ]
     },
     plugins: [
       nodePolyfills({
-        include: ['crypto', 'events'],
+        include: ['crypto', 'events']
       }),
       babel({
         babelHelpers: 'bundled',
@@ -97,7 +115,7 @@ export default defineConfig(({ mode }) => {
         exclude: '/**/node_modules/**',
         extensions: ['jsx', 'js', 'ts', 'tsx', 'mjs'],
         plugins: ['@babel/plugin-transform-flow-strip-types'],
-        presets: [['@babel/preset-react', { runtime: 'automatic' }]],
+        presets: [['@babel/preset-react', { runtime: 'automatic' }]]
       }),
       {
         name: 'treat-js-files-as-jsx',
@@ -105,19 +123,20 @@ export default defineConfig(({ mode }) => {
           if (!id.match(/src\/.*\.js$/)) return null;
           return transformWithEsbuild(code, id, {
             loader: 'jsx',
-            jsx: 'automatic',
+            jsx: 'automatic'
           });
-        },
+        }
       },
-      tsconfigPaths(),
+      tsconfigPaths()
     ],
     optimizeDeps: {
+      include: preOptimizeDepsLibs,
       esbuildOptions: {
         target: 'es2020',
         loader: {
-          '.js': 'jsx',
-        },
-      },
-    },
+          '.js': 'jsx'
+        }
+      }
+    }
   };
 });

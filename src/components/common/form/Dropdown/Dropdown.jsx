@@ -193,7 +193,7 @@ export default class Dropdown extends Component {
     return isStatic ? this.getStaticControl() : this.getControl(getPropByStringKey(this.selected, titleField));
   }
 
-  renderMenuItems() {
+  renderMenuItems = React.memo(() => {
     const {
       valueField,
       source = [],
@@ -226,7 +226,7 @@ export default class Dropdown extends Component {
         <ul>{filteredSource.map(this.renderMenuItem)}</ul>
       </Wrapper>
     );
-  }
+  });
 
   renderMenuItem = (item, i) => {
     const { CustomItem, titleField, valueField, value, itemClassName, otherFuncForCustomItem } = this.props;
@@ -261,7 +261,9 @@ export default class Dropdown extends Component {
         <DropdownToggle onClick={this.toggle} data-toggle="dropdown" aria-expanded={dropdownOpen} className={cssDropdownToggle} tag="span">
           {this.renderToggle()}
         </DropdownToggle>
-        <DropdownMenu className={this.cssDropdownMenu}>{this.renderMenuItems()}</DropdownMenu>
+        <DropdownMenu className={this.cssDropdownMenu}>
+          <this.renderMenuItems />
+        </DropdownMenu>
       </Drd>
     );
   }

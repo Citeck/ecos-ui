@@ -1,21 +1,22 @@
-import React, { lazy, Suspense } from 'react';
-import { Provider } from 'react-redux';
-import uuid from 'uuid/v4';
+import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isString from 'lodash/isString';
-import cloneDeep from 'lodash/cloneDeep';
+import React, { lazy, Suspense } from 'react';
+import { Provider } from 'react-redux';
+import uuid from 'uuid/v4';
 
-import { SourcesId } from '../constants';
-import { CONFIG_VERSION } from '../constants/dashboard';
-import { LayoutTypes } from '../constants/layout';
-import { Loader } from '../components/common';
-import DialogManager from '../components/common/dialogs/Manager/DialogManager';
-import { ParserPredicate } from '../components/Filters/predicates';
-import { getStore } from '../store';
 import PageTabList from './pageTabs/PageTabList';
-import ru from '../i18n/ru.json';
-import en from '../i18n/en.json';
+
+import { ParserPredicate } from '@/components/Filters/predicates';
+import { Loader } from '@/components/common';
+import DialogManager from '@/components/common/dialogs/Manager/DialogManager';
+import { SourcesId } from '@/constants';
+import { CONFIG_VERSION } from '@/constants/dashboard';
+import { LayoutTypes } from '@/constants/layout';
+import en from '@/i18n/en.json';
+import ru from '@/i18n/ru.json';
+import { getStore } from '@/store';
 
 const separatorId = '@';
 
@@ -156,7 +157,13 @@ export default class DashboardService {
           {
             widgets: columns.reduce((result, current) => {
               if (Array.isArray(current)) {
-                return [...result, ...[].concat.apply([], current.map(item => get(item, 'widgets', [])))];
+                return [
+                  ...result,
+                  ...[].concat.apply(
+                    [],
+                    current.map(item => get(item, 'widgets', []))
+                  )
+                ];
               }
 
               return [...result, ...get(current, 'widgets', [])];
