@@ -95,11 +95,12 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
 
   const selected = useMemo(() => selectedPerson === item.id, [item.id]);
 
-  const onClickLabel = useCallback(() => {
+  const onClickLabel = useCallback((e) => {
     if (item.hasChildren) {
       onToggleCollapse(item, null, previousParent);
     }
-  }, [item.id]);
+  }, [item]);
+
   const onScroll = useCallback(
     e => {
       const targetScrollLeft = get(e, 'target.scrollLeft', 0);
@@ -133,7 +134,7 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
 
       return <span className={collapseHandlerClassNames} />;
     }
-  }, [item.id]);
+  }, [openedItems, item.id]);
 
   const handleMouseEnter = useCallback(
     e => {
@@ -212,8 +213,6 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
     e.stopPropagation();
     setModalOpen(false);
   });
-
-  const openPersonModal = useCallback(() => openModal('person'));
 
   const deleteFromGroup = useCallback(async e => {
     closeModal(e);
@@ -312,7 +311,7 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
               style={{ right: 12 - scrollLeft }}
             >
               {canEdit && isPerson && item.parentId && (
-                <GroupIcon title={t(Labels.TITLE_PERSON_DELETE)} icon="remove-person" onClick={openPersonModal} />
+                <GroupIcon title={t(Labels.TITLE_PERSON_DELETE)} icon="remove-person" onClick={openModal('person')} />
               )}
               {canEdit && isPerson && (
                 <GroupIcon
@@ -382,6 +381,7 @@ export const itemPropType = PropTypes.shape({
 });
 
 ListItem.propTypes = {
+  key: PropTypes.string,
   tabId: PropTypes.string,
   item: itemPropType,
   nestingLevel: PropTypes.number,
