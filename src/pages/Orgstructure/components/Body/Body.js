@@ -1,10 +1,10 @@
 import React, { useMemo, memo, useCallback } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 
-import { InfoText, Loader } from '../../../../components/common';
-import { t } from '../../../../helpers/util';
-
 import List from './List';
+
+import { InfoText, Loader } from '@/components/common';
+import { t } from '@/helpers/util';
 
 import './Body.scss';
 
@@ -29,7 +29,7 @@ const Body = ({ currentTab, tabId, toggleToFirstTab, tabItems, isSearching = fal
     [tabItems]
   );
 
-  const children = useMemo(() => filteredData(tabItems[currentTab]), [tabItems, currentTab]);
+  const children = useMemo(() => filteredData(tabItems[currentTab]).filter(item => !item.parentId), [tabItems, currentTab]);
 
   const renderView = props => {
     return <div {...props} style={{ ...props.style, marginBottom: '140px' }} />;
