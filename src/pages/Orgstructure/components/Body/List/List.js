@@ -15,7 +15,7 @@ const List = ({ items, nestingLevel = 0, tabId, toggleToFirstTab, previousParent
 
   const [selectedId, setSelectedId] = useState('');
 
-  const getGroups = useCallback(item => get(item, 'attributes.groups', []), []);
+  const getGroups = useCallback(item => get(item, 'attributes.groups', []), [nestingLevel]);
   const deletePersonItem = useCallback(item => {
     const record = Records.get(item.id);
 

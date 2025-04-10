@@ -29,7 +29,7 @@ const Body = ({ currentTab, tabId, toggleToFirstTab, tabItems, isSearching = fal
     [tabItems]
   );
 
-  const children = useMemo(() => filteredData(tabItems[currentTab]).filter(item => !item.parentId), [tabItems, currentTab]);
+  const children = useMemo(() => filteredData(tabItems[currentTab]), [tabItems, currentTab]);
 
   const renderView = props => {
     return <div {...props} style={{ ...props.style, marginBottom: '140px' }} />;
