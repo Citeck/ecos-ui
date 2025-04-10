@@ -81,8 +81,7 @@ class PropertiesDashlet extends BaseWidget {
   componentDidMount() {
     super.componentDidMount();
 
-    const { current } = this._propertiesRef;
-    const widgetWidth = get(current, 'wrappedInstance.props.forwardedRef.current.clientWidth');
+    const widgetWidth = get(this.ref, '_dashletRef.clientWidth');
 
     this.setState({ isSmallMode: isSmallMode(widgetWidth) }, () => {
       this.checkPermissions();
@@ -151,7 +150,7 @@ class PropertiesDashlet extends BaseWidget {
           ),
           onClick: () =>
             this.setState({ formIsChanged: false }, () => {
-              const currentForm = get(this._propertiesRef, 'current.wrappedInstance._ecosForm.current');
+              const currentForm = get(this._propertiesRef, 'current._ecosForm.current');
 
               PropertiesApi.resetPropertipesDashlet(currentForm.state.recordId).then(() => {
                 this.onReloadDashlet();
@@ -185,7 +184,7 @@ class PropertiesDashlet extends BaseWidget {
   }
 
   reload() {
-    if (get(this._propertiesRef, 'current.wrappedInstance.form')) {
+    if (get(this._propertiesRef, 'current.form')) {
       return;
     }
 
@@ -222,7 +221,7 @@ class PropertiesDashlet extends BaseWidget {
   }
 
   onReloadDashlet = withSaveData => {
-    const onUpdate = get(this._propertiesRef, 'current.wrappedInstance.onUpdateForm');
+    const onUpdate = get(this._propertiesRef, 'current.onUpdateForm');
 
     this.checkPermissions();
     this.setPreviousHeight();
@@ -258,13 +257,13 @@ class PropertiesDashlet extends BaseWidget {
       return;
     }
 
-    const currentForm = get(this._propertiesRef, 'current.wrappedInstance._ecosForm.current');
+    const currentForm = get(this._propertiesRef, 'current._ecosForm.current');
 
     this.setState({ formIsChanged: false }, () => {
       currentForm.submitForm.cancel();
 
       const submission = currentForm._form;
-      const baseForm = get(this._propertiesRef, 'current.wrappedInstance._hiddenEcosForm.current._form');
+      const baseForm = get(this._propertiesRef, 'current._hiddenEcosForm.current._form');
 
       currentForm.submitForm(baseForm, submission, true);
     });
