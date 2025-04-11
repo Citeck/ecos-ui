@@ -1,8 +1,15 @@
 import classNames from 'classnames';
-import React from 'react';
+import React, { ReactNode } from 'react';
 import './styles.scss';
 
-const WorkspacePreview = ({ url = '', name = '', hovered = false }) => {
+interface WorkspacePreviewProps {
+  url?: string | null;
+  name: string;
+  hovered?: boolean;
+  customImagePreview?: ReactNode;
+}
+
+const WorkspacePreview = ({ url = '', name = '', hovered = false, customImagePreview }: WorkspacePreviewProps) => {
   const getInitials = (name: string) => {
     const nameParts = name.split(' ');
     return nameParts[0].charAt(0).toUpperCase();
@@ -14,6 +21,8 @@ const WorkspacePreview = ({ url = '', name = '', hovered = false }) => {
         <div className="workspace-preview__image-preview">
           <img src={url} alt={url} className="workspace-preview__image-preview_icon" />
         </div>
+      ) : customImagePreview ? (
+        customImagePreview
       ) : (
         <div className="workspace-preview__preview">{getInitials(name)}</div>
       )}

@@ -2760,8 +2760,18 @@
   "bpmn-linter.participant.no-process-id": "Не определен ID Процесса",
 
   "workspaces.create-button": "Добавить пространство",
+  "workspaces.see-more": "Посмотреть больше",
+  "workspaces.card.go-to-workspace": "Перейти в пространство",
+  "workspaces.card.edit-workspace": "Редактировать",
+  "workspaces.card.my-workspaces": "Мои пространства",
+  "workspaces.card.public-workspaces": "Публичные пространства",
+  "workspaces.card.join-workspace": "Присоединиться",
+  "workspaces.card.join-workspace.error": "Ошибка при присоедении к рабочему пространству",
   "workspaces.error-blocked.msg": "Рабочее пространство недоступно или не создано",
   "workspaces.error-blocked.action.msg": "Перейти на персональное пространство",
+  "workspaces.join-confirm.cancel": "Отменить",
+  "workspaces.join-confirm.description": "Вы действительно хотите присоединиться к рабочему пространству?",
+  "workspaces.join-confirm.workspace": "Присоединиться к пространству «{{wsName}}»?",
 
   "publication.creator.name": "Создал (а)",
   "publication.modifier.name": ", Обновил (а)",

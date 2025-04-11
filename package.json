@@ -167,6 +167,7 @@
     "@types/reactstrap": "8.5.1",
     "@types/redux-actions": "^2.6.5",
     "@types/redux-logger": "3.0.6",
+    "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^5.32.0",
     "@typescript-eslint/parser": "^5.32.0",
     "babel-jest": "^29.7.0",

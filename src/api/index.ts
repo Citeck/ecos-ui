@@ -91,7 +91,7 @@ export function configureAPI(): ConfigureAPIType {
     previewList: new PreviewListApi()
   };
 
-  const setNotAuthCallback = function (cb: Function) {
+  const setNotAuthCallback = function (cb: () => void) {
     for (const key in api) {
       if (!api.hasOwnProperty(key)) {
         continue;

@@ -1,6 +1,8 @@
+import { IWorkspaceApi } from '@/api/workspaces';
+
 export type ConfigureAPIType = {
   api: ApiType;
-  setNotAuthCallback: (callback: Function) => void;
+  setNotAuthCallback: (callback: () => void) => void;
 };
 
 export type ApiType = {
@@ -8,7 +10,7 @@ export type ApiType = {
   adminSection: any;
   bpmn: any;
   bpmnAdmin: any;
-  workspaces: any;
+  workspaces: IWorkspaceApi;
   menu: any;
   orgStruct: any;
   user: any;
@@ -48,3 +50,13 @@ export type ApiType = {
   charts: any;
   previewList: any;
 };
+
+export type RecordsQueryResponse<T> = {
+  hasMore: boolean;
+  messages: string[];
+  records: T[];
+  totalCount: number;
+  version: number;
+};
+
+export type PureQueryResponse<T = unknown> = Promise<RecordsQueryResponse<T>>;

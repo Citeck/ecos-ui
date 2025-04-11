@@ -324,6 +324,14 @@
       }
     }
 
+    &.isActivePreview {
+      & .citeck-workspace-sidebar__card {
+        &-settings-menu--left--small {
+          left: 100%;
+        }
+      }
+    }
+
     div.workspace-panel {
       position: absolute;
       z-index: 1001;
@@ -346,14 +354,24 @@
       flex-direction: column;
       gap: 12px;
 
-      & .citek-workspace-sidebar__card {
-        padding: 9px 6px;
+      & .citeck-workspace-sidebar__card {
         height: 88px;
+      }
 
-        &-info_title {
-          font-weight: 600;
-          font-size: 12px;
-          line-height: 16px;
+      & .workspace-preview {
+        &__preview {
+          width: 30px;
+          height: 30px;
+        }
+
+        &__image-preview {
+          width: 30px;
+          height: 30px;
+
+          &_icon {
+            width: 20px;
+            height: 20px;
+          }
         }
       }
 
@@ -376,11 +394,11 @@
           color: $text-color-gray;
           font-weight: 600;
           font-size: 12px;
-          line-height: 9.61px;
 
           > span {
             margin-left: 9px;
             margin-top: 2px;
+            line-height: 1.2;
           }
         }
 
@@ -489,6 +507,18 @@
 }
 
 .workspace {
+  &-preview_more {
+    width: 30px;
+    height: 30px;
+    border-radius: 4px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-color: $color-blue-morning;
+  }
+
   &-panel-list {
     max-width: 450px;
 

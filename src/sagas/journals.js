@@ -754,7 +754,7 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
       const sharedSettings = yield getJournalSharedSettings(api, userConfigId) || {};
 
       if (!isEmpty(sharedSettings) && !isEmpty(sharedSettings.columns)) {
-        // sharedSettings.columns = yield JournalsService.resolveColumns(sharedSettings.columns);
+        sharedSettings.columns = yield JournalsService.resolveColumns(sharedSettings.columns);
       }
 
       const journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId, initPredicate }, w);
@@ -842,13 +842,15 @@ function* getGridEditingRules(api, gridData) {
       let byColumns = false;
 
       if (canEditing) {
-        byColumns = yield columns.map(function* (column) {
-          const isProtected = yield call(api.journals.checkCellProtectedFromEditing, row.id, column.dataField);
+        byColumns = yield all(
+          columns.map(function* (column) {
+            const isProtected = yield call(api.journals.checkCellProtectedFromEditing, row.id, column.dataField);
 
-          return {
-            [column.dataField]: !isProtected
-          };
-        });
+            return {
+              [column.dataField]: !isProtected
+            };
+          })
+        );
 
         byColumns = byColumns.reduce(
           (current, result) => ({
