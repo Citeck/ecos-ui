@@ -8,7 +8,7 @@ import datePickerLocaleRu from 'date-fns/locale/ru';
 import { History } from 'history';
 import { Base64 } from 'js-base64';
 import moment from 'moment';
-import React from 'react';
+import React, { StrictMode } from 'react';
 import { registerLocale, setDefaultLocale } from 'react-datepicker';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
@@ -23,7 +23,7 @@ import { RESET_AUTH_STATE_EVENT, emitter } from './helpers/ecosFetch';
 import { getCurrentLocale, IS_TEST_ENV, isMobileAppWebView } from './helpers/util';
 import { i18nInit } from './i18n';
 import plugins from './plugins';
-import * as serviceWorker from './serviceWorkerRegistration';
+import { register as registerServiceWorker } from './serviceWorkerRegistration';
 import authService from './services/auth';
 import configureStore, { getHistory } from './store';
 
@@ -114,7 +114,9 @@ const runApp = () => {
                 createRoot(document.getElementById('root') as HTMLElement).render(
                   <Provider store={store}>
                     <ConnectedRouter history={history}>
-                      <App />
+                      <StrictMode>
+                        <App />
+                      </StrictMode>
                     </ConnectedRouter>
                   </Provider>
                 );
@@ -152,4 +154,4 @@ idleTimer
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: http://bit.ly/CRA-PWA
-serviceWorker.register();
+registerServiceWorker();

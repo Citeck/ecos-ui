@@ -2761,8 +2761,18 @@
   "bpmn-linter.participant.no-process-id": "Process ID not defined",
 
   "workspaces.create-button": "Add a workspace",
+  "workspaces.see-more": "See more",
+  "workspaces.card.go-to-workspace": "Go to the workspace",
+  "workspaces.card.edit-workspace": "Edit",
+  "workspaces.card.my-workspaces": "My workspaces",
+  "workspaces.card.public-workspaces": "Public workspaces",
+  "workspaces.card.join-workspace": "Join",
+  "workspaces.card.join-workspace.error": "Error when joining the workspace",
   "workspaces.error-blocked.msg": "The workspace is unavailable or has not been created",
   "workspaces.error-blocked.action.msg": "Go to the personal workspace",
+  "workspaces.join-confirm.cancel": "Cancel",
+  "workspaces.join-confirm.description": "Do you really want to join the workspace?",
+  "workspaces.join-confirm.workspace": "Join the space «{{wsName}}»?",
 
   "publication.creator.name": "Created by",
   "publication.modifier.name": ", Modified by",
