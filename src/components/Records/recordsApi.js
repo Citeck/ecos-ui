@@ -19,7 +19,14 @@ function getRecognizableUrl(url, body) {
   let urlKey = '';
 
   if (body.query) {
-    urlKey = 'q_' + (body.query.sourceId ? body.query.sourceId : (JSON.stringify(body.query.query) || '').substring(0, 15));
+    urlKey = 'q_'
+    if (body.query.sourceId) {
+      urlKey += body.query.sourceId;
+    } else if (body.query.ecosType) {
+      urlKey += 't_' + body.query.ecosType;
+    } else {
+      urlKey += (JSON.stringify(body.query.query) || '').substring(0, 15)
+    }
   } else if (body.record) {
     urlKey = `rec_${body.record}`;
   } else if (body.records) {
@@ -27,7 +34,7 @@ function getRecognizableUrl(url, body) {
     urlKey = `recs_count_${(body.records || []).length}_${sourceId}`;
   }
 
-  url += '?k=' + encodeURIComponent(urlKey);
+  url += '?k=' + urlKey.replace(/[^A-Z0-9]+/ig, "_");
 
   return url;
 }
