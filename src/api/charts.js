@@ -1,9 +1,9 @@
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
-import { PREDICATE_AND, PREDICATE_EQ } from '../components/Records/predicates/predicates';
-import Records from '../components/Records/Records';
 import { ParserPredicate } from '../components/Filters/predicates';
+import Records from '../components/Records/Records';
+import { PREDICATE_AND, PREDICATE_EQ } from '../components/Records/predicates/predicates';
 import JournalsConverter from '../dto/journals';
 import AttributesService from '../services/AttributesService';
 
@@ -34,7 +34,8 @@ export class ChartsApi {
           : {
               t: PREDICATE_AND,
               val: [typePredicate, predicate, ...this._getTimeRangeFilters(groupByParams)]
-            }
+            },
+        workspaces: [`${Citeck.Navigator.getWorkspaceId()}`]
       },
       {
         aggregationParam: `${aggregationParam}?num`,
