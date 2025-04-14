@@ -27,6 +27,7 @@ import { allowedModes } from '@/constants/index.js';
 import { BASE_LEFT_MENU_ID, MenuTypes } from '@/constants/menu';
 import { PANEL_CLASS_NAME } from '@/constants/pageTabs';
 import { showWarningMessage } from '@/helpers/tools';
+import { initClassToColorMap } from "@/helpers/lexical";
 import { getLinkWithWs, getWorkspaceId } from '@/helpers/urls';
 import { getEnabledWorkspaces, isMobileAppWebView, t } from '@/helpers/util';
 import Page from '@/pages';
@@ -73,6 +74,10 @@ class App extends Component {
   componentDidMount() {
     this.props.initAppSettings();
     UserLocalSettingsService.checkDashletsUpdatedDate();
+
+    // In order not to make a permanent tree render in the future,
+    // it is necessary to request all the colors once (optimization)
+    initClassToColorMap();
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {

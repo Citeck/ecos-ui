@@ -171,8 +171,20 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       }
 
       if (this.isLexicalEditor) {
+        newElement.classList = 'citeck-lexical-editor_textarea';
+
         setTimeout(() => {
           newElement.innerHTML = this.valueElement.innerText;
+
+          const pre = newElement.querySelector('pre');
+          if (pre) {
+            const content = pre.textContent || '';
+            const lineCount = content.includes('\n') ? content.split('\n').length : content.split(/(?:^|\s{4,})/).filter(Boolean).length;
+
+            const gutter = Array.from({ length: lineCount }, (_, i) => i + 1).join('\n');
+            pre.setAttribute('data-gutter', gutter);
+          }
+
           this.valueElement = newElement;
         }, 200);
       } else {

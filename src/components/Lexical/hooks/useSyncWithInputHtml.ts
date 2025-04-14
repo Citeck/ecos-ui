@@ -22,7 +22,9 @@ const useSyncWithInputHtml = (html?: string | null, { timeoutMs = 800 }: Options
         const phNode = $createParagraphNode();
         phNode.append($createTextNode(''));
         $getRoot().append(phNode);
-        $getRoot().select();
+
+        /** Why is this? This select makes auto-transfer when you start typing text **/
+        // $getRoot().select();
 
         const parser = new DOMParser();
         const dom = parser.parseFromString(normHtml ?? '', 'text/html');

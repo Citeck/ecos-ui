@@ -47,6 +47,20 @@
   }
 }
 
+.citeck-lexical-editor_textarea {
+  ul {
+    display: block;
+    list-style-type: disc;
+    unicode-bidi: isolate;
+  }
+
+  code {
+    color: initial;
+    font-size: 13px;
+    line-height: 1.53;
+  }
+}
+
 .citeck-lexical-editor {
   position: relative;
 
