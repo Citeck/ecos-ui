@@ -3,24 +3,25 @@ import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import noop from 'lodash/noop';
 import PropTypes from 'prop-types';
-import React, { useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { connect } from 'react-redux';
 
-import { getDashboardConfig, setLoading } from '../../../../../actions/dashboard';
-import { setSelectedPerson } from '../../../../../actions/orgstructure';
-import FormManager from '../../../../../components/EcosForm/FormManager';
-import { EcosModal } from '../../../../../components/common';
-import { OrgstructContext } from '../../../../../components/common/Orgstruct/OrgstructContext';
-import { ROOT_GROUP_NAME } from '../../../../../components/common/Orgstruct/constants';
-import { SourcesId } from '../../../../../constants';
-import { updateCurrentUrl } from '../../../../../helpers/urls';
-import { t } from '../../../../../helpers/util';
 import ModalContent from '../ModalContent';
 
+import CollapseArrow from './CollapseArrow';
 import GroupIcon from './GroupIcon';
-import defaultAvatar from './Vector.png';
+import InternalList from './InternalList';
 
+import { getDashboardConfig, setLoading } from '@/actions/dashboard';
+import { setSelectedPerson } from '@/actions/orgstructure';
+import FormManager from '@/components/EcosForm/FormManager';
 import Records from '@/components/Records';
+import { EcosModal } from '@/components/common';
+import { OrgstructContext } from '@/components/common/Orgstruct/OrgstructContext';
+import { ROOT_GROUP_NAME } from '@/components/common/Orgstruct/constants';
+import { SourcesId } from '@/constants';
+import { updateCurrentUrl } from '@/helpers/urls';
+import { t } from '@/helpers/util';
 import { NotificationManager } from '@/services/notifications';
 
 import './ListItem.scss';
@@ -63,28 +64,6 @@ const FORM_CONFIG = {
   }
 };
 
-const Avatar = ({ item }) => {
-  return <img src={item?.attributes?.photo || defaultAvatar} alt="avatar" className="orgstructure-page__avatar" />;
-};
-
-const renderListItem = (item, nestingLevel, isPerson) => {
-  if (!item.extraLabel) {
-    return <span className="orgstructure-page__list-item-label">{item.label}</span>;
-  }
-
-  return (
-    <div
-      className={classNames('orgstructure-page__list-item-label-with-extra', {
-        'orgstructure-page__list-item-label-with-extra_fullwidth': nestingLevel === 0
-      })}
-    >
-      {isPerson && <Avatar item={item} />}
-      <span className="orgstructure-page__list-item-label">{item.label}</span>
-      <span className="select-orgstruct__list-item-label-extra">({item.extraLabel})</span>
-    </div>
-  );
-};
-
 const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, selectedPerson, tabId, toggleToFirstTab, previousParent }) => {
   const { onToggleCollapse, getItemsByParent, setGroupModal, setPersonModal, openedItems } = useContext(OrgstructContext);
 
@@ -92,15 +71,16 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
   const [scrollLeft, setScrollLeftPosition] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState('');
+  const [isToggle, setToggle] = useState(false);
 
   const selected = useMemo(() => selectedPerson === item.id, [item.id]);
 
-  const onClickLabel = useCallback((e) => {
+  const onClickLabel = () => {
     if (item.hasChildren) {
       onToggleCollapse(item, null, previousParent);
+      setToggle(!item.isOpen);
     }
-  }, [item]);
-
+  };
   const onScroll = useCallback(
     e => {
       const targetScrollLeft = get(e, 'target.scrollLeft', 0);
@@ -118,23 +98,7 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
     return () => {
       window.removeEventListener('scroll', onScroll, true);
     };
-  });
-
-  const renderCollapseHandler = useCallback(() => {
-    if (item.hasChildren) {
-      const isOpen =
-        previousParent && openedItems[item.id] && openedItems[item.id].length >= 0
-          ? openedItems[item.id].includes(previousParent)
-          : item.isOpen;
-
-      const collapseHandlerClassNames = classNames('icon select-orgstruct__collapse-handler', {
-        'icon-small-right': !isOpen,
-        'icon-small-down': isOpen
-      });
-
-      return <span className={collapseHandlerClassNames} />;
-    }
-  }, [openedItems, item.id]);
+  }, []);
 
   const handleMouseEnter = useCallback(
     e => {
@@ -156,40 +120,33 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
         e.stopPropagation();
 
         const isPerson = formConfig.sourceId === SourcesId.PERSON;
-        const extraConfig = {};
 
-        let title;
+        const extraConfig = {
+          recordRef: isEditMode ? item.id : isPerson ? null : undefined
+        };
 
-        if (isPerson) {
-          extraConfig.recordRef = null;
+        const title = isPerson ? t(Labels.TITLE_PERSON_CREATE) : isEditMode ? t(Labels.TITLE_GROUP_EDIT) : t(Labels.TITLE_SUBGROUP_CREATE);
 
-          title = t(Labels.TITLE_PERSON_CREATE);
-        } else {
-          title = isEditMode ? t(Labels.TITLE_GROUP_EDIT) : t(Labels.TITLE_SUBGROUP_CREATE);
-        }
+        const onSubmit = async submitedRecord => {
+          const newGroups = await Records.get(submitedRecord).load('authorityGroups[]?id');
+          const prevGroups = get(item, 'attributes.groups', []);
+          const difference = prevGroups.filter(authorityGroup => !newGroups.includes(authorityGroup));
 
-        if (isEditMode) {
-          extraConfig.recordRef = item.id;
-        }
+          getItemsByParent(
+            {
+              ...item,
+              attributes: { ...item.attributes, groups: newGroups }
+            },
+            isEditMode,
+            difference.includes(`emodel/authority-group@${ROOT_GROUP_NAME}`)
+          );
+        };
 
         FormManager.createRecordByVariant(
           { ...formConfig, ...extraConfig },
           {
             title,
-            onSubmit: async submitedRecord => {
-              const newGroups = await Records.get(submitedRecord).load('authorityGroups[]?id');
-              const prevGroups = get(item, 'attributes.groups', []);
-              const difference = prevGroups.filter(authorityGroup => !newGroups.includes(authorityGroup));
-
-              getItemsByParent(
-                {
-                  ...item,
-                  attributes: { ...item.attributes, groups: newGroups }
-                },
-                isEditMode,
-                difference.includes(`emodel/authority-group@${ROOT_GROUP_NAME}`)
-              );
-            },
+            onSubmit,
             initiator: {
               type: 'form-component',
               name: 'CreateVariants'
@@ -241,27 +198,14 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
     ]
   };
 
-  let modalTitle = '';
-
-  if (modalType === 'group') {
-    modalTitle = t(Labels.TITLE_GROUP_DELETE);
-  }
-
-  if (modalType === 'person') {
-    modalTitle = t(Labels.TITLE_PERSON_DELETE);
-  }
-
-  const renderModalContent = () => {
-    if (modalType === 'person') {
-      return <ModalContent config={personConfig} />;
-    }
-
-    return null;
+  const modalTitleMap = {
+    group: t(Labels.TITLE_GROUP_DELETE),
+    person: t(Labels.TITLE_PERSON_DELETE)
   };
 
-  const handleModalClick = e => {
-    e.stopPropagation();
-  };
+  const modalTitle = modalTitleMap[modalType] || '';
+
+  const renderModalContent = () => (modalType === 'person' ? <ModalContent config={personConfig} /> : null);
 
   const selectPerson = e => {
     e.stopPropagation();
@@ -300,8 +244,8 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
         >
           <div className="orgstructure-page__list-item-container">
             <div>
-              {renderCollapseHandler()}
-              {renderListItem(item, nestingLevel, isPerson)}
+              <CollapseArrow isToggle={isToggle} hasChildren={item.hasChildren} />
+              <InternalList infoLabel={item} nestingLevel={nestingLevel} isPerson={isPerson} />
             </div>
 
             <div
@@ -352,7 +296,7 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
                 isOpen={modalOpen}
                 title={modalTitle}
                 hideModal={closeModal}
-                onClick={handleModalClick}
+                onClick={e => e.stopPropagation()}
               >
                 {renderModalContent()}
               </EcosModal>

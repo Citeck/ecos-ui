@@ -4,32 +4,17 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import List from './List';
 
 import { InfoText, Loader } from '@/components/common';
+import { ROOT_GROUP_NAME } from '@/components/common/Orgstruct/constants';
+import { SourcesId } from '@/constants';
 import { t } from '@/helpers/util';
 
 import './Body.scss';
 
 const Body = ({ currentTab, tabId, toggleToFirstTab, tabItems, isSearching = false }) => {
-  const filteredData = useCallback(
-    data => {
-      const filteredData = [];
-
-      let foundPerson = false;
-
-      data.forEach(item => {
-        if (item.id.startsWith('emodel/person')) {
-          foundPerson = true;
-        }
-        if (!foundPerson || item.id.startsWith('emodel/person')) {
-          filteredData.push(item);
-        }
-      });
-
-      return filteredData;
-    },
-    [tabItems]
+  const children = useMemo(
+    () => tabItems[currentTab].filter(item => item.attributes.groups.includes(`${SourcesId.GROUP}@${ROOT_GROUP_NAME}`)),
+    [tabItems, currentTab]
   );
-
-  const children = useMemo(() => filteredData(tabItems[currentTab]), [tabItems, currentTab]);
 
   const renderView = props => {
     return <div {...props} style={{ ...props.style, marginBottom: '140px' }} />;
