@@ -214,7 +214,7 @@ class NewsWidget extends BaseWidget {
     const config = this.config;
     const { typeId } = this.state;
     const journalId = await Records.get(`${SourcesId.TYPE}@${config.currentType || typeId}`).load('journalRef?localId');
-    PageService.changeUrlLink(`${SourcesId.JOURNAL}?journalId=${journalId}&viewMode=preview-list&ws=${this.currentWS}`, {
+    PageService.changeUrlLink(`${URL.JOURNAL}?journalId=${journalId}&viewMode=preview-list&ws=${this.currentWS}`, {
       openNewTab: true
     });
   };
