@@ -2762,6 +2762,9 @@
 
   "workspaces.create-button": "Add a workspace",
   "workspaces.see-more": "See more",
+  "workspaces.sidebar.no-data-workspace.head": "There are no available workspaces",
+  "workspaces.sidebar.no-data-workspace.description": "There are no items in the list",
+  "workspaces.card.empty-description": "The workspace description has not been added",
   "workspaces.card.go-to-workspace": "Go to the workspace",
   "workspaces.card.edit-workspace": "Edit",
   "workspaces.card.my-workspaces": "My workspaces",

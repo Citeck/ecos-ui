@@ -8,7 +8,7 @@ import WorkspaceCard from '@/components/WorkspaceSidebar/Card';
 import SearchWorkspaceSidebar from '@/components/WorkspaceSidebar/Search';
 import { Loader, Tabs } from '@/components/common';
 import Close from '@/components/common/icons/Close';
-import NoData from '@/components/common/icons/NoData';
+import NoDataWorkspaces from '@/components/common/icons/NoDataWorkspaces';
 import { getWorkspaceId } from '@/helpers/urls';
 import { t } from '@/helpers/util';
 import { selectMyWorkspaces, selectPublicWorkspaces, selectWorkspaceIsLoading } from '@/selectors/workspaces';
@@ -46,8 +46,8 @@ const TabsId: {
 const Labels = {
   MY_WORKSPACE: 'workspaces.card.my-workspaces',
   PUBLIC_WORKSPACE: 'workspaces.card.public-workspaces',
-  NO_DATA_HEAD: 'comp.no-data.head',
-  NO_DATA_DESCRIPTION: 'comp.no-data.indication'
+  NO_DATA_HEAD: 'workspaces.sidebar.no-data-workspace.head',
+  NO_DATA_DESCRIPTION: 'workspaces.sidebar.no-data-workspace.description'
 };
 
 class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebarState> {
@@ -150,7 +150,7 @@ class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebar
   NoDataWorkspaces = (
     <div className="citeck-workspace-sidebar__content-wrapper">
       <div className="citeck-workspace-sidebar__no-data">
-        <NoData />
+        <NoDataWorkspaces />
         <div className="citeck-workspace-sidebar__no-data-info">
           <h3 className="citeck-workspace-sidebar__no-data-info_head">{t(Labels.NO_DATA_HEAD)}</h3>
           <span className="citeck-workspace-sidebar__no-data-info_description">{t(Labels.NO_DATA_DESCRIPTION)}</span>

@@ -135,7 +135,10 @@ const Workspaces = ({ isLoading, isError, workspaces, getWorkspaces, visitedActi
       <WorkspaceSidebar openLink={openLink} isOpen={isOpenSidebarWorkspace} toggleIsOpen={toggleOpenSideBarWorkspace} />
       <span
         id={documentId}
-        className={classNames('ecos-header-workspaces', { isActivePreview: !isOpenSidebarWorkspace && isActivePreview })}
+        className={classNames('ecos-header-workspaces', {
+          active: isActivePreview,
+          isActivePreview: !isOpenSidebarWorkspace && isActivePreview
+        })}
         onClick={e => toggleMenu(e)}
       >
         {isLoading ? <Loader type="points" height={20} width={24} /> : <WorkspaceSwitcher />}
@@ -147,18 +150,15 @@ const Workspaces = ({ isLoading, isError, workspaces, getWorkspaces, visitedActi
             ) : (
               <div className="workspace-panel__wrapper">
                 {workspaces.map(
-                  ({ id, wsId, wsName, wsImage, homePageLink, hasWrite, wsDescription }, index) =>
+                  ({ wsId, homePageLink, wsDescription, ...rest }, index) =>
                     index <= MAX_WORKSPACE_PREVIEW_ITEMS - 1 && (
                       <WorkspaceCard
-                        id={id}
-                        openWorkspace={e => handleClick(e, wsId, homePageLink)}
+                        {...rest}
                         key={index}
-                        wsDescription={wsDescription || ''}
-                        wsImage={wsImage}
-                        wsName={wsName}
-                        hasWrite={hasWrite}
-                        isSmallView
                         onMouseDown={e => onMouseDown(e, wsId, homePageLink)}
+                        openWorkspace={e => handleClick(e, wsId, homePageLink)}
+                        wsDescription={wsDescription || ''}
+                        isSmallView
                       />
                     )
                 )}

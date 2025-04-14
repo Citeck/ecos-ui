@@ -46,7 +46,8 @@ type OpenWsEventType = React.MouseEvent<HTMLDivElement | HTMLLIElement | HTMLBut
 const Labels = {
   GO_TO_WORKSPACE: 'workspaces.card.go-to-workspace',
   EDIT_WORKSPACE: 'workspaces.card.edit-workspace',
-  JOIN_TO_WORKSPACE: 'workspaces.card.join-workspace'
+  JOIN_TO_WORKSPACE: 'workspaces.card.join-workspace',
+  EMPTY_DESCRIPTION_WORKSPACE: 'workspaces.card.empty-description'
 };
 
 const MAX_WIDTH_ACTION_MENU = 170;
@@ -214,6 +215,8 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
     } = this.props;
     const { isViewConfirmJoin, showMenuSettings, showBtnSettings } = this.state;
 
+    const description = wsDescription?.trim() || t(Labels.EMPTY_DESCRIPTION_WORKSPACE);
+
     return (
       <div
         ref={this._cardContainerRef}
@@ -239,11 +242,9 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
             <h3 className="citeck-workspace-sidebar__card-info_title" title={wsName}>
               {wsName}
             </h3>
-            {wsDescription && (
-              <p className="citeck-workspace-sidebar__card-info_description" title={wsDescription}>
-                {wsDescription}
-              </p>
-            )}
+            <p className="citeck-workspace-sidebar__card-info_description" title={description}>
+              {description}
+            </p>
           </div>
         </div>
       </div>

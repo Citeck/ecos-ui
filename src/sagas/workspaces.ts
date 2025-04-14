@@ -87,6 +87,7 @@ function* sagaJoinToWorkspaceRequest({ api }: ExtraArgumentsStore, { payload }: 
     yield put(setLoadingJoin(true));
     const { wsId, callback } = payload;
     yield call(api.workspaces.joinToWorkspace, wsId);
+    yield put(getSidebarWorkspaces());
 
     if (callback) {
       callback();
