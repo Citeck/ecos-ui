@@ -1,20 +1,20 @@
-import React, { useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
-import { connect } from 'react-redux';
 import get from 'lodash/get';
-import uniqueId from 'lodash/uniqueId';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isNil from 'lodash/isNil';
+import uniqueId from 'lodash/uniqueId';
+import React, { useCallback, useEffect, useState } from 'react';
+import { connect } from 'react-redux';
 
-import { t } from '../../../helpers/export/util';
-import { wrapArgs } from '../../../helpers/redux';
-import { execRecordsAction, deselectAllRecords } from '../../../actions/journals';
-import { selectGroupActionsProps } from '../../../selectors/journals';
-import { ActionTypes } from '../../Records/actions/constants';
-import { DropdownOuter } from '../../common/form';
-import { IcoBtn, TwoIcoBtn } from '../../common/btns';
-import { Tooltip } from '../../common';
+import { execRecordsAction, deselectAllRecords } from '@/actions/journals';
+import { ActionTypes } from '@/components/Records/actions/constants';
+import { Tooltip } from '@/components/common';
+import { IcoBtn, TwoIcoBtn } from '@/components/common/btns';
+import { DropdownOuter } from '@/components/common/form';
+import { t } from '@/helpers/export/util';
+import { wrapArgs } from '@/helpers/redux';
+import { selectGroupActionsProps } from '@/selectors/journals';
 
 import './style.scss';
 
@@ -57,34 +57,26 @@ const GroupActions = React.memo(
     const selected = selectAllRecordsVisible ? total - excludedRecords.length : selectedLen;
     const labelRecActionsCount = t(Labels.SELECTED_COUNT, { selected, total });
 
-    const labelRecActions = useCallback(() => t(Labels.SELECTED_SHORT, { data: selectedLen === 0 ? grid.total : labelRecActionsCount }), [
-      total,
-      selected,
-      selectedLen,
-      grid.total
-    ]);
+    const labelRecActions = useCallback(
+      () => t(Labels.SELECTED_SHORT, { data: selectedLen === 0 ? grid.total : labelRecActionsCount }),
+      [total, selected, selectedLen, grid.total]
+    );
 
     useEffect(() => {
       setLabel(labelRecActions);
     }, []);
 
-    useEffect(
-      () => {
-        setLabel(labelRecActions);
-      },
-      [labelRecActions]
-    );
+    useEffect(() => {
+      setLabel(labelRecActions);
+    }, [labelRecActions]);
 
-    useEffect(
-      () => {
-        const recordsActions = get(grid, 'actions.forRecords.actions', []).map(item => ({ ...item, _typeAct: TYPE_ACT.RECORDS }));
-        const queryActions = get(grid, 'actions.forQuery.actions', []).map(item => ({ ...item, _typeAct: TYPE_ACT.QUERY }));
+    useEffect(() => {
+      const recordsActions = get(grid, 'actions.forRecords.actions', []).map(item => ({ ...item, _typeAct: TYPE_ACT.RECORDS }));
+      const queryActions = get(grid, 'actions.forQuery.actions', []).map(item => ({ ...item, _typeAct: TYPE_ACT.QUERY }));
 
-        setRecordsActions(recordsActions);
-        setQueryActions(queryActions);
-      },
-      [grid, isSeparateActionListForQuery]
-    );
+      setRecordsActions(recordsActions);
+      setQueryActions(queryActions);
+    }, [grid, isSeparateActionListForQuery]);
 
     const handleExecuteAction = useCallback(
       action => {
@@ -94,9 +86,7 @@ const GroupActions = React.memo(
           execRecordsAction(grid.query, action, context);
         } else {
           action.executeCallback = () => {
-            if (action.type === ActionTypes.DELETE) {
-              deselectAllRecords();
-            }
+            deselectAllRecords();
           };
           execRecordsAction(selectedRecords, action);
         }
@@ -214,7 +204,4 @@ const mapDispatchToProps = (dispatch, props) => {
 
 export { GroupActions };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(GroupActions);
+export default connect(mapStateToProps, mapDispatchToProps)(GroupActions);
