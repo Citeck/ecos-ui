@@ -120,7 +120,7 @@ class Grid extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
-    return !nextState.isScrolling || (nextProps.isViewNewJournal && !(nextProps.data && nextProps.data.length));
+    return !nextState.isScrolling || (nextProps.isViewNewJournal && !(nextProps.data && nextProps.data.length)) || false;
   }
 
   componentDidMount() {

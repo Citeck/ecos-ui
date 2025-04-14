@@ -253,7 +253,7 @@ export const dialogsById = {
         isOpen={isVisible}
         hideModal={hideModal}
         className={classNames('ecos-dialog ecos-dialog_custom', modalClass)}
-        isBlurBackground={!!isBlurBackground}
+        isBlurBackground={(!!isBlurBackground).toString()}
         {...modalProps}
       >
         <div className="ecos-dialog__body">{body}</div>
