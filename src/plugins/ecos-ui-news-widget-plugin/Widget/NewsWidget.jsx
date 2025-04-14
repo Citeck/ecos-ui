@@ -13,6 +13,7 @@ import Records from '@/components/Records/Records'; // Ensure RecordsType is exp
 import { notifyFailure } from '@/components/Records/actions/util/actionUtils';
 import { Loader } from '@/components/common';
 import BaseWidget from '@/components/widgets/BaseWidget';
+import { SourcesId, URL } from '@/constants';
 import { DashboardTypes } from '@/constants/dashboard';
 import { getRecordRef } from '@/helpers/urls';
 import { t } from '@/helpers/util';
@@ -36,7 +37,7 @@ class NewsWidget extends BaseWidget {
       error: '',
       recordRef: dashboardId === DashboardTypes.USER || !this.recordRefFromUrl ? dashboardId : null,
       news: [],
-      typeId: ''
+      typeId: 'news'
     };
   }
 
@@ -74,10 +75,9 @@ class NewsWidget extends BaseWidget {
   };
 
   fetchNews(newTypeId) {
-    const { config } = this.props;
-    const { recordRef } = this.state;
+    const { typeId: defaultTypeId } = this.state;
 
-    const ecosTypeForRequest = newTypeId || config[recordRef]?.currentType || '';
+    const ecosTypeForRequest = newTypeId || this.config?.currentType || defaultTypeId;
 
     if (!ecosTypeForRequest) {
       this.setState({
@@ -212,12 +212,15 @@ class NewsWidget extends BaseWidget {
 
   goToNews = async type => {
     const config = this.config;
-    const journalId = await Records.get(`emodel/type@${config.currentType}`).load('journalRef?localId');
-    PageService.changeUrlLink(`/v2/journals?journalId=${journalId}&viewMode=preview-list&ws=${this.currentWS}`, { openNewTab: true });
+    const { typeId } = this.state;
+    const journalId = await Records.get(`${SourcesId.TYPE}@${config.currentType || typeId}`).load('journalRef?localId');
+    PageService.changeUrlLink(`${SourcesId.JOURNAL}?journalId=${journalId}&viewMode=preview-list&ws=${this.currentWS}`, {
+      openNewTab: true
+    });
   };
 
   render() {
-    const { isLoading, isOpenSettings, news, isTypeIdExist, error } = this.state;
+    const { isLoading, isOpenSettings, news, isTypeIdExist, error, typeId } = this.state;
     const { config } = this.props;
 
     const warnings = !isOpenSettings && (
@@ -260,7 +263,7 @@ class NewsWidget extends BaseWidget {
 
                     <Link
                       className="ecos-news-widget-article__title"
-                      to={`/v2/dashboard?recordRef=emodel/${this.config.currentType}@${item.id}&ws=${this.currentWS}`}
+                      to={`${URL.DASHBOARD}?recordRef=emodel/${typeId || this.config.currentType}@${item.id}&ws=${this.currentWS}`}
                     >
                       {item.title}
                     </Link>
