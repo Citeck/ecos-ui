@@ -20,9 +20,9 @@
 
   &__grid {
     margin-bottom: 15px;
-    overflow: auto;
+    overflow-y: auto;
     position: static;
-
+    height: 295px;
     &-wrapper {
       position: relative;
     }

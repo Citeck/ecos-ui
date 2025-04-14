@@ -3,10 +3,11 @@ import PropTypes from 'prop-types';
 import React, { Suspense, useState, useCallback } from 'react';
 import { Collapse } from 'reactstrap';
 
-import Records from '../../../../../components/Records';
-import { Loader } from '../../../../../components/common';
-import { useOrgstructContext } from '../../../../../components/common/Orgstruct/OrgstructContext';
 import ListItem, { itemPropType } from '../ListItem';
+
+import Records from '@/components/Records';
+import { Loader } from '@/components/common';
+import { useOrgstructContext } from '@/components/common/Orgstruct/OrgstructContext';
 
 import './List.scss';
 
@@ -29,7 +30,7 @@ const List = ({ items, nestingLevel = 0, tabId, toggleToFirstTab, previousParent
       {items.map((item, index) => {
         let nestedList = null;
 
-        if (item.hasChildren) {
+        if (item.hasChildren && item.isOpen) {
           const children = tabItems[currentTab].filter(i => i.parentId === item.id || getGroups(i).includes(item.id));
 
           nestedList = (
