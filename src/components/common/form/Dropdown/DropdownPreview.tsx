@@ -21,7 +21,9 @@ export default class DropdownPreview extends Dropdown {
           <i className="chevron-down" />
         </DropdownToggle>
         <div className={menuWrapperClasses}>
-          <DropdownMenu className={this.cssDropdownMenu}>{this.renderMenuItems()}</DropdownMenu>
+          <DropdownMenu className={this.cssDropdownMenu}>
+            <this.renderMenuItems />
+          </DropdownMenu>
         </div>
       </Drd>
     );
