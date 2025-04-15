@@ -11,7 +11,6 @@ import { t } from '../../../helpers/export/util';
 import { wrapArgs } from '../../../helpers/redux';
 import { execRecordsAction, deselectAllRecords } from '../../../actions/journals';
 import { selectGroupActionsProps } from '../../../selectors/journals';
-import { ActionTypes } from '../../Records/actions/constants';
 import { DropdownOuter } from '../../common/form';
 import { IcoBtn, TwoIcoBtn } from '../../common/btns';
 import { Tooltip } from '../../common';
@@ -61,9 +60,10 @@ const GroupActions = React.memo(
       [total, selected, selectedLen, grid.total],
     );
 
-    useEffect(() => {
-      setLabel(labelRecActions);
-    }, []);
+    if (total < recordsLength.current && selectedRecords.length) {
+      deselectAllRecords();
+      selectedRecords.length = 0;
+    }
 
     useEffect(() => {
       setLabel(labelRecActions);
