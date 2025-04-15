@@ -44,8 +44,7 @@ type OpenWsEventType = React.MouseEvent<HTMLDivElement | HTMLLIElement | HTMLBut
 const Labels = {
   GO_TO_WORKSPACE: 'workspaces.card.go-to-workspace',
   EDIT_WORKSPACE: 'workspaces.card.edit-workspace',
-  JOIN_TO_WORKSPACE: 'workspaces.card.join-workspace',
-  EMPTY_DESCRIPTION_WORKSPACE: 'workspaces.card.empty-description'
+  JOIN_TO_WORKSPACE: 'workspaces.card.join-workspace'
 };
 
 const MAX_WIDTH_ACTION_MENU = 170;
@@ -217,7 +216,7 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
     } = this.props;
     const { isViewConfirmJoin, showMenuSettings, showBtnSettings } = this.state;
 
-    const description = (isString(wsDescription) && wsDescription.trim()) || t(Labels.EMPTY_DESCRIPTION_WORKSPACE);
+    const description = (isString(wsDescription) && wsDescription.trim()) || '';
 
     return (
       <div

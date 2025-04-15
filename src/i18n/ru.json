@@ -2762,7 +2762,6 @@
   "workspaces.create-button": "Добавить пространство",
   "workspaces.see-more": "Посмотреть больше",
   "workspaces.sidebar.no-data-workspace.head": "Нет доступных пространств",
-  "workspaces.card.empty-description": "Описание рабочего пространства не добавлено",
   "workspaces.card.go-to-workspace": "Перейти в пространство",
   "workspaces.card.edit-workspace": "Редактировать",
   "workspaces.card.my-workspaces": "Мои пространства",
