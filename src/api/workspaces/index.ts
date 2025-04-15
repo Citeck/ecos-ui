@@ -1,6 +1,6 @@
 import { CommonApi } from '../common';
 
-import { WorkspaceFullType, WorkspaceType } from './types';
+import { WorkspaceType } from './types';
 
 import { PureQueryResponse } from '@/api/types';
 // @ts-ignore
@@ -8,26 +8,27 @@ import Records from '@/components/Records';
 import { SourcesId } from '@/constants';
 
 export interface IWorkspaceApi {
-  getMyWorkspaces: () => PureQueryResponse<WorkspaceFullType>;
-  getPublicWorkspaces: () => PureQueryResponse<WorkspaceFullType>;
-  getWorkspaces: () => PureQueryResponse<WorkspaceFullType>;
+  getMyWorkspaces: () => PureQueryResponse<WorkspaceType>;
+  getPublicWorkspaces: () => PureQueryResponse<WorkspaceType>;
+  getWorkspaces: () => PureQueryResponse<WorkspaceType>;
   getWorkspace: (recordRef: string) => PureQueryResponse<WorkspaceType>;
-  isViewWorkspace: (wsId: string) => PureQueryResponse<boolean>;
-  visitedAction: (wsId: string) => void;
-  joinToWorkspace: (wsId: string) => void;
+  isViewWorkspace: (wsId: WorkspaceType['id']) => PureQueryResponse<boolean>;
+  visitedAction: (wsId: WorkspaceType['id']) => void;
+  joinToWorkspace: (wsId: WorkspaceType['id']) => void;
   searchMyWorkspaces: (text: string) => void;
   searchPublicWorkspaces: (text: string) => void;
 }
 
-const fullWorkspaceAttributes: Partial<Record<keyof WorkspaceFullType, string>> = {
-  wsId: '?localId', // this is a shortened version of the ID, there is no 'emodel/' here
-  wsName: '?disp!?localId',
+const workspaceAttributes: Partial<Record<keyof WorkspaceType, string>> = {
+  id: '?localId', // this is a shortened version of the ID, there is no 'emodel/' here
   homePageLink: 'homePageLink?str',
+  name: '?disp!?localId',
+  description: 'description?str',
+  image: 'icon.url',
+  isCurrentUserMember: 'isCurrentUserMember?bool',
   isCurrentUserManager: 'isCurrentUserManager?bool',
-  hasWrite: 'permissions._has.Write?bool',
-  wsDescription: 'description?str',
-  wsImage: 'icon.url',
-  isCurrentUserMember: 'isCurrentUserMember?bool'
+  visibility: 'visibility.value',
+  hasWrite: 'permissions._has.Write?bool'
 };
 
 export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
@@ -38,9 +39,7 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
         sourceId: SourcesId.WORKSPACE,
         language: 'user-workspaces'
       },
-      {
-        ...fullWorkspaceAttributes
-      }
+      workspaceAttributes
     );
   };
 
@@ -51,7 +50,7 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
         sourceId: SourcesId.WORKSPACE,
         language: 'user-workspaces'
       },
-      { ...fullWorkspaceAttributes }
+      workspaceAttributes
     );
   };
 
@@ -77,22 +76,16 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
           ]
         }
       },
-      { ...fullWorkspaceAttributes }
+      workspaceAttributes
     );
   };
 
   getWorkspace = async (recordRef: string) => {
     // @ts-ignore
-    return await Records.get(recordRef).load({
-      wsId: '?localId',
-      homePageLink: 'homePageLink?str',
-      wsName: '?disp!?localId',
-      description: 'description?json',
-      icon: 'icon.url'
-    });
+    return await Records.get(recordRef).load(workspaceAttributes);
   };
 
-  visitedAction = (wsId: string) => {
+  visitedAction = (wsId: WorkspaceType['id']) => {
     // @ts-ignore
     const record = Records.getRecordToEdit(`${SourcesId.WORKSPACE}-visited-action@`);
 
@@ -103,12 +96,12 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
     return record.save();
   };
 
-  isViewWorkspace = (wsId: string) => {
+  isViewWorkspace = (wsId: WorkspaceType['id']) => {
     // @ts-ignore
     return Records.get(`${SourcesId.WORKSPACE}@${wsId}`).load('isCurrentUserMember?bool!');
   };
 
-  joinToWorkspace = (wsId: string) => {
+  joinToWorkspace = (wsId: WorkspaceType['id']) => {
     // @ts-ignore
     const record = Records.get(`${SourcesId.WORKSPACE}@${wsId}`);
     record.att('action', 'JOIN');
@@ -152,7 +145,7 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
           ]
         }
       },
-      { ...fullWorkspaceAttributes }
+      workspaceAttributes
     );
   };
 
@@ -188,7 +181,7 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
           ]
         }
       },
-      { ...fullWorkspaceAttributes }
+      workspaceAttributes
     );
   };
 }

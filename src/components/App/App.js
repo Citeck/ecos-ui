@@ -21,7 +21,7 @@ import UploadStatus from '../common/UploadStatus';
 
 import { initAppSettings } from '@/actions/app';
 import { addTab, setTab, updateTab } from '@/actions/pageTabs';
-import { goToDefaultFromBlockedWs, updateUIWorkspace } from '@/actions/workspaces';
+import {goToDefaultFromBlockedWs, joinToWorkspace, updateUIWorkspace} from '@/actions/workspaces';
 import { BASE_URLS_REDIRECT, Pages, pagesWithOnlyContent, RELOCATED_URL, URL as Urls } from '@/constants';
 import { allowedModes } from '@/constants/index.js';
 import { BASE_LEFT_MENU_ID, MenuTypes } from '@/constants/menu';
@@ -31,7 +31,12 @@ import { initClassToColorMap } from "@/helpers/lexical";
 import { getLinkWithWs, getWorkspaceId } from '@/helpers/urls';
 import { getEnabledWorkspaces, isMobileAppWebView, t } from '@/helpers/util';
 import Page from '@/pages';
-import { selectCurrentWorkspaceIsBlocked, selectWorkspaceById } from '@/selectors/workspaces';
+import {
+  selectCurrentWorkspaceBlocked,
+  selectCurrentWorkspaceIsBlocked,
+  selectWorkspaceById,
+  selectWorkspaceIsLoadingJoin
+} from '@/selectors/workspaces';
 import { NotificationContainer } from '@/services/notifications';
 import PageTabList from '@/services/pageTabs/PageTabList';
 import UserLocalSettingsService from '@/services/userLocalSettings';
@@ -81,8 +86,14 @@ class App extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { location, defaultWorkspace, workspace, addTab, blockedCurrentWorkspace, goToDefaultFromBlockedWs, updateUIWorkspace } =
-      this.props;
+    const {
+      location,
+      defaultWorkspace,
+      workspace,
+      addTab,
+      isBlockedCurrentWorkspace,
+      updateUIWorkspace
+    } = this.props;
     const { homePageLink = '' } = workspace || {};
 
     const prevSearch = get(prevProps, 'location.search');
@@ -94,20 +105,14 @@ class App extends Component {
     const workspaceId = getWorkspaceId(defaultWorkspace, search);
     const enabledWorkspaces = getEnabledWorkspaces();
 
-    const propsWarning = {
-      className: 'ecos-modal__btn_full',
-      warningMessage: enabledWorkspaces && blockedCurrentWorkspace && t('workspaces.error-blocked.msg'),
-      actionCallback: () => goToDefaultFromBlockedWs(),
-      actionLabel: t('workspaces.error-blocked.action.msg'),
-      onHide: () => showWarningMessage(propsWarning),
-    };
+    const propsWarning = this.propsWarningBlockedWorkspace;
 
     // If the workspace is no longer blocked, you need to update the dialog box so that it closes
-    if (!!propsWarning.warningMessage || (prevProps.blockedCurrentWorkspace && !blockedCurrentWorkspace)) {
+    if (!!propsWarning.warningMessage || (prevProps.isBlockedCurrentWorkspace && !isBlockedCurrentWorkspace)) {
       showWarningMessage(propsWarning);
     }
 
-    if (enabledWorkspaces && !blockedCurrentWorkspace && homePageLink) {
+    if (enabledWorkspaces && !isBlockedCurrentWorkspace && homePageLink) {
       const newHomePageLink = getLinkWithWs(homePageLink, workspaceId);
 
       if (newHomePageLink && newHomePageLink !== this.#homePageLink) {
@@ -125,13 +130,53 @@ class App extends Component {
     const prevWsId = prevSearchParams.get('ws');
     const nextWsId = searchParams.get('ws') || workspaceId;
 
-    if (enabledWorkspaces && prevWsId !== nextWsId && !blockedCurrentWorkspace) {
+    if (enabledWorkspaces && prevWsId !== nextWsId && !isBlockedCurrentWorkspace) {
       updateUIWorkspace();
     }
 
     if (prevProps.isAuthenticated && !this.props.isAuthenticated) {
       EcosFormModal.countOpenedModals <= 0 && window.location.reload();
     }
+  }
+
+  get propsWarningBlockedWorkspace() {
+    const { isBlockedCurrentWorkspace, blockedCurrentWorkspace, goToDefaultFromBlockedWs, joinToWorkspace, isLoadingJoinToWorkspace = false } = this.props;
+    const enabledWorkspaces = getEnabledWorkspaces();
+
+    const isPublicWorkspace = get(blockedCurrentWorkspace, 'visibility') === 'PUBLIC';
+    const goToDefaultWorkspaceLabel = t('workspaces.error-blocked.action.msg');
+    const joinToWorkspaceLabel = t('workspaces.join.message');
+
+    const buttons = isPublicWorkspace ? [
+      {
+        loading: isLoadingJoinToWorkspace,
+        className: 'ecos-btn_blue',
+        key: 'join-action',
+        onClick: () => joinToWorkspace({ wsId: get(blockedCurrentWorkspace, 'id') }),
+        label: joinToWorkspaceLabel
+      },
+      {
+        key: 'action',
+        onClick: () => goToDefaultFromBlockedWs(),
+        label: goToDefaultWorkspaceLabel
+      }
+    ] : [
+      {
+        className: 'ecos-btn_blue',
+        key: 'action',
+        onClick: () => goToDefaultFromBlockedWs(),
+        label: goToDefaultWorkspaceLabel
+      }
+    ];
+
+    const propsWarning = {
+      className: 'ecos-modal__btn_full app-warning-message',
+      warningMessage: enabledWorkspaces && isBlockedCurrentWorkspace && t('workspaces.error-blocked.msg'),
+      onHide: () => showWarningMessage(propsWarning),
+      buttons
+    }
+
+    return propsWarning;
   }
 
   get isOnlyContent() {
@@ -470,7 +515,9 @@ const mapStateToProps = (state) => {
 
   return {
     isViewNewJournal: get(state, ['view', 'isViewNewJournal']),
-    blockedCurrentWorkspace: selectCurrentWorkspaceIsBlocked(state),
+    isLoadingJoinToWorkspace: selectWorkspaceIsLoadingJoin(state),
+    isBlockedCurrentWorkspace: selectCurrentWorkspaceIsBlocked(state),
+    blockedCurrentWorkspace: selectCurrentWorkspaceBlocked(state),
     workspace: selectWorkspaceById(state, workspaceId),
     enableCache: get(state, ['app', 'enableCache']),
     isInit: get(state, ['app', 'isInit']),
@@ -489,6 +536,7 @@ const mapDispatchToProps = (dispatch) => ({
 
   goToDefaultFromBlockedWs: () => dispatch(goToDefaultFromBlockedWs()),
   updateUIWorkspace: () => dispatch(updateUIWorkspace()),
+  joinToWorkspace: ({ wsId }) => dispatch(joinToWorkspace({ wsId })),
   setTab: (params) => dispatch(setTab(params)),
   addTab: (params) => dispatch(addTab(params)),
   updateTab: (params) => dispatch(updateTab(params)),

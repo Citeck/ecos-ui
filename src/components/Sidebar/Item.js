@@ -6,20 +6,21 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { setScrollTop, setSelectedId, toggleExpanded, toggleIsOpen } from '../../actions/slideMenu';
-import { SourcesId } from '../../constants';
-import { MenuSettings } from '../../constants/menu';
-import { ActionTypes } from '../../constants/sidebar';
-import { isNewVersionPage } from '../../helpers/export/urls';
-import { getIconObjectWeb, getIconUpDown } from '../../helpers/icon';
-import { extractLabel } from '../../helpers/util';
-import { selectIsNewUIAvailable } from '../../selectors/user';
-import SidebarService from '../../services/sidebar';
 import WorkspacePreview from '../WorkspacePreview';
 import { EcosIcon, Icon } from '../common';
 
 import RemoteBadge from './RemoteBadge';
 import { ItemBtn, ItemLink } from './item-components';
+
+import { setScrollTop, setSelectedId, toggleExpanded, toggleIsOpen } from '@/actions/slideMenu';
+import { SourcesId } from '@/constants';
+import { MenuSettings } from '@/constants/menu';
+import { ActionTypes } from '@/constants/sidebar';
+import { isNewVersionPage } from '@/helpers/export/urls';
+import { getIconObjectWeb, getIconUpDown } from '@/helpers/icon';
+import { extractLabel, getEnabledWorkspaces } from '@/helpers/util';
+import { selectIsNewUIAvailable } from '@/selectors/user';
+import SidebarService from '@/services/sidebar';
 
 class Item extends React.Component {
   static propTypes = {
@@ -100,12 +101,12 @@ class Item extends React.Component {
 
   renderContent = React.memo(({ isOpen, data, styleProps: { noIcon } }) => {
     const label = extractLabel(data.label);
-    const wsId = get(this.props, 'workspace.wsId');
+    const wsId = get(this.props, 'workspace.id');
 
     let iconCode;
     let iconData;
 
-    if (data.type !== 'SECTION' && wsId === 'admin$workspace' && !data.icon && get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+    if (data.type !== 'SECTION' && wsId === 'admin$workspace' && !data.icon && getEnabledWorkspaces()) {
       return (
         <>
           <WorkspacePreview name={label} />

@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import { getSidebarWorkspaces, onSearchWorkspaces } from '@/actions/workspaces';
-import { WorkspaceFullType } from '@/api/workspaces/types';
+import { WorkspaceType } from '@/api/workspaces/types';
 import WorkspaceCard from '@/components/WorkspaceSidebar/Card';
 import SearchWorkspaceSidebar from '@/components/WorkspaceSidebar/Search';
 import { Loader, Tabs } from '@/components/common';
@@ -23,9 +23,9 @@ interface WorkspaceSidebarProps {
   toggleIsOpen: () => void;
   getSidebarWorkspaces: () => void;
   onSearch: (text: string) => void;
-  openLink: (id: string, homePageLink: string, openNewBrowserTab?: boolean) => void;
-  myWorkspaces: WorkspaceFullType[];
-  publicWorkspaces: WorkspaceFullType[];
+  openLink: (id: WorkspaceType['id'], homePageLink: WorkspaceType['homePageLink'], openNewBrowserTab?: boolean) => void;
+  myWorkspaces: WorkspaceType[];
+  publicWorkspaces: WorkspaceType[];
 }
 
 interface WorkspaceSidebarState {
@@ -46,8 +46,7 @@ const TabsId: {
 const Labels = {
   MY_WORKSPACE: 'workspaces.card.my-workspaces',
   PUBLIC_WORKSPACE: 'workspaces.card.public-workspaces',
-  NO_DATA_HEAD: 'workspaces.sidebar.no-data-workspace.head',
-  NO_DATA_DESCRIPTION: 'workspaces.sidebar.no-data-workspace.description'
+  NO_DATA_HEAD: 'workspaces.sidebar.no-data-workspace.head'
 };
 
 class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebarState> {
@@ -125,12 +124,16 @@ class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebar
 
         this.timeoutId = setTimeout(() => {
           this.setState({ visible: false });
-        }, 300);
+        }, 500);
       }
     }
   }
 
-  openWorkspace = (event: React.MouseEvent<HTMLDivElement | HTMLLIElement | HTMLButtonElement>, wsId: string, homePageLink: string) => {
+  openWorkspace = (
+    event: React.MouseEvent<HTMLDivElement | HTMLLIElement | HTMLButtonElement>,
+    wsId: WorkspaceType['id'],
+    homePageLink: WorkspaceType['homePageLink']
+  ) => {
     event.stopPropagation();
     this.props.toggleIsOpen();
 
@@ -140,7 +143,11 @@ class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebar
   };
 
   // Opening in a new tab using the central button on mouse
-  onMouseDown = (event: React.MouseEvent<HTMLDivElement, MouseEvent>, wsId: string, homePageLink: string) => {
+  onMouseDown = (
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    wsId: WorkspaceType['id'],
+    homePageLink: WorkspaceType['homePageLink']
+  ) => {
     if (event.button === 1) {
       event.preventDefault();
       this.props.openLink(wsId, homePageLink, true);
@@ -153,7 +160,6 @@ class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebar
         <NoDataWorkspaces />
         <div className="citeck-workspace-sidebar__no-data-info">
           <h3 className="citeck-workspace-sidebar__no-data-info_head">{t(Labels.NO_DATA_HEAD)}</h3>
-          <span className="citeck-workspace-sidebar__no-data-info_description">{t(Labels.NO_DATA_DESCRIPTION)}</span>
         </div>
       </div>
     </div>
@@ -175,8 +181,8 @@ class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebar
               {...workspace}
               isSmallView
               key={idx}
-              onMouseDown={e => this.onMouseDown(e, workspace.wsId, workspace.homePageLink)}
-              openWorkspace={e => this.openWorkspace(e, workspace.wsId, workspace.homePageLink)}
+              onMouseDown={e => this.onMouseDown(e, workspace.id, workspace.homePageLink)}
+              openWorkspace={e => this.openWorkspace(e, workspace.id, workspace.homePageLink)}
             />
           ))}
       </div>
@@ -198,8 +204,8 @@ class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebar
             <WorkspaceCard
               {...workspace}
               key={idx}
-              onMouseDown={e => this.onMouseDown(e, workspace.wsId, workspace.homePageLink)}
-              openWorkspace={e => this.openWorkspace(e, workspace.wsId, workspace.homePageLink)}
+              onMouseDown={e => this.onMouseDown(e, workspace.id, workspace.homePageLink)}
+              openWorkspace={e => this.openWorkspace(e, workspace.id, workspace.homePageLink)}
               onJoinCallback={toggleIsOpen}
             />
           ))}
@@ -237,15 +243,15 @@ class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebar
   }
 }
 
-const mapStateToProps = (state: RootState) => ({
+const mapStateToProps = (state: RootState): Pick<WorkspaceSidebarProps, 'isLoading' | 'myWorkspaces' | 'publicWorkspaces'> => ({
   isLoading: selectWorkspaceIsLoading(state),
   myWorkspaces: selectMyWorkspaces(state),
   publicWorkspaces: selectPublicWorkspaces(state)
 });
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
+const mapDispatchToProps = (dispatch: Dispatch): Pick<WorkspaceSidebarProps, 'getSidebarWorkspaces' | 'onSearch'> => ({
   getSidebarWorkspaces: () => dispatch(getSidebarWorkspaces()),
-  onSearch: (text: string) => dispatch(onSearchWorkspaces(text))
+  onSearch: text => dispatch(onSearchWorkspaces(text))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(WorkspaceSidebar);

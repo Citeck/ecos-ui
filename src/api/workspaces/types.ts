@@ -1,14 +1,13 @@
 export type WorkspaceType = {
   id: string;
-  wsId: string;
-  wsName: string;
-  homePageLink: string;
-  wsDescription: string | null;
-  wsImage: string | null;
+  homePageLink: string | null;
+  name: string;
+  description: string | null;
+  image: string | null;
+  isCurrentUserMember: boolean;
+  isCurrentUserManager: boolean;
+  visibility: VisibilityType;
+  hasWrite: boolean;
 };
 
-export type WorkspaceFullType = WorkspaceType & {
-  hasWrite: boolean;
-  isCurrentUserManager: boolean;
-  isCurrentUserMember: boolean;
-};
+export type VisibilityType = 'PUBLIC' | 'PRIVATE';

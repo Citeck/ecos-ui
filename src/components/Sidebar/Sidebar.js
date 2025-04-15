@@ -25,7 +25,7 @@ import {
 import { SourcesId, URL as Urls } from '@/constants';
 import { DefaultImages } from '@/constants/theme';
 import { getWorkspaceId } from '@/helpers/urls';
-import { isExistValue, t } from '@/helpers/util';
+import { getEnabledWorkspaces, isExistValue, t } from '@/helpers/util';
 import { selectActiveThemeImage, selectIsViewNewJournal } from '@/selectors/view';
 import { selectWorkspaceById } from '@/selectors/workspaces';
 import PageService, { Events } from '@/services/PageService';
@@ -139,7 +139,7 @@ class Sidebar extends React.Component {
 
   render() {
     const { isOpen, isReady, largeLogoSrc, smallLogoSrc, items, id, isViewNewJournal, workspace, isMobile } = this.props;
-    const { homePageLink, wsId, wsName } = workspace || {};
+    const { homePageLink, id: wsId, name: wsName, image: wsImage } = workspace || {};
 
     if (!isReady) {
       return null;
@@ -147,7 +147,7 @@ class Sidebar extends React.Component {
 
     const url = new URL(homePageLink || Urls.DASHBOARD, window.location.origin);
 
-    if (workspace && get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+    if (workspace && getEnabledWorkspaces()) {
       url.searchParams.set('ws', wsId);
     }
 
@@ -181,7 +181,7 @@ class Sidebar extends React.Component {
               }}
             >
               <Tooltip uncontrolled target={`${id}-logo`} text={wsName} hideArrow placement="bottom-end">
-                <WorkspacePreview url={workspace.wsImage} name={workspace.wsName} hovered={wsId.length} />
+                <WorkspacePreview url={wsImage} name={wsName} hovered={wsId.length} />
               </Tooltip>
             </div>
           )}

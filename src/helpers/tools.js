@@ -21,7 +21,7 @@ export function showModalJson(data, title = 'Configuration') {
 }
 
 export const showWarningMessage = debounce(
-  ({ warningMessage, closeWarningMessage, actionCallback, actionLabel, onHide, className = '' }) => {
+  ({ warningMessage, closeWarningMessage, actionCallback, actionLabel, onHide, className = '', buttons: otherButtons }) => {
     const buttons = [];
 
     if (closeWarningMessage) {
@@ -39,6 +39,10 @@ export const showWarningMessage = debounce(
         onClick: actionCallback,
         label: actionLabel
       });
+    }
+
+    if (otherButtons && otherButtons.length) {
+      otherButtons.forEach(button => button && button.key && button.onClick && button.label && buttons.push({ ...button }));
     }
 
     DialogManager.showCustomDialog({

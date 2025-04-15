@@ -4,8 +4,6 @@ import { getData, getSessionData, isExistLocalStorage, isExistSessionStorage, se
 import { createDocumentUrl, createProfileUrl } from '../helpers/urls';
 import { formatFileSize, getIconFileByMimetype, getRelativeTime, t } from '../helpers/util';
 
-import ConfigService, { ALFRESCO_ENABLED } from './config/ConfigService';
-
 const Urls = {
   DASHBOARD: ref => createDocumentUrl(ref),
   USER: login => createProfileUrl(login)
@@ -75,8 +73,8 @@ export default class SearchService {
         data.title = item.title;
         data.description = item.description;
         data.url = item.url;
-        data.iconUrl = item.icon;
-        data.wsName = item.wsName;
+        data.iconUrl = item.image;
+        data.wsName = item.name;
 
         break;
 

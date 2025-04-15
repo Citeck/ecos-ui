@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import isString from 'lodash/isString';
 import React, { Component, ReactNode, RefObject } from 'react';
 import { connect } from 'react-redux';
 
@@ -7,27 +8,24 @@ import { WorkspaceType } from '@/api/workspaces/types';
 import FormManager from '@/components/EcosForm/FormManager';
 import WorkspacePreview from '@/components/WorkspacePreview';
 import Confirm from '@/components/WorkspaceSidebar/Confirm';
+import { SourcesId } from '@/constants';
 import { t } from '@/helpers/util';
 import { selectWorkspaceIsLoadingJoin } from '@/selectors/workspaces';
 import { Dispatch, RootState } from '@/types/store';
 import './styles.scss';
 
-interface WorkspaceCardProps extends Omit<WorkspaceType, 'id' | 'wsId' | 'homePageLink'> {
-  id?: string;
-  wsId?: string;
-  homePageLink?: string;
+interface WorkspaceCardProps extends WorkspaceType {
   isSmallView?: boolean;
-  isCurrentUserMember?: boolean;
-  hasWrite?: boolean;
   className?: string;
   openWorkspace?: (e: OpenWsEventType) => void;
   customImagePreview?: ReactNode;
   onMouseDown?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+  onJoinCallback?: () => void;
+
+  joinToWorkspace: (id: WorkspaceType['id'], cb: () => void) => void;
+  isLoadingJoin: boolean;
   getWorkspaces: () => void;
   getSidebarWorkspaces: () => void;
-  onJoinCallback?: () => void;
-  joinToWorkspace: (wsId: string, cb: () => void) => void;
-  isLoadingJoin: boolean;
 }
 
 interface WorkspaceCardState {
@@ -67,10 +65,10 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
   };
 
   get actions(): IAction[] {
-    const { id, hasWrite, isCurrentUserMember, wsId, openWorkspace } = this.props;
+    const { id: wsId, hasWrite, isCurrentUserMember, openWorkspace } = this.props;
     const actions: IAction[] = [];
 
-    if (!id) {
+    if (!wsId) {
       return actions;
     }
 
@@ -96,7 +94,11 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
 
   onEditWorkspace = (event: OpenWsEventType) => {
     event.stopPropagation();
-    FormManager.openFormModal({ record: this.props.id, saveOnSubmit: true, onSubmit: () => this.refetchWorkspaces() });
+    FormManager.openFormModal({
+      record: `${SourcesId.WORKSPACE}@${this.props.id}`,
+      saveOnSubmit: true,
+      onSubmit: () => this.refetchWorkspaces()
+    });
     this.toggleMenuSettings();
   };
 
@@ -181,7 +183,7 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
   }
 
   onConfirmJoin = (e: OpenWsEventType) => {
-    const { wsId, joinToWorkspace, onJoinCallback, openWorkspace } = this.props;
+    const { id: wsId, joinToWorkspace, onJoinCallback, openWorkspace } = this.props;
 
     if (!wsId) {
       return;
@@ -202,11 +204,11 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
 
   render() {
     const {
-      wsImage,
-      wsName,
+      image,
+      name,
       isSmallView,
       className,
-      wsDescription,
+      description: wsDescription,
       customImagePreview,
       isCurrentUserMember,
       isLoadingJoin,
@@ -215,7 +217,7 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
     } = this.props;
     const { isViewConfirmJoin, showMenuSettings, showBtnSettings } = this.state;
 
-    const description = wsDescription?.trim() || t(Labels.EMPTY_DESCRIPTION_WORKSPACE);
+    const description = (isString(wsDescription) && wsDescription.trim()) || t(Labels.EMPTY_DESCRIPTION_WORKSPACE);
 
     return (
       <div
@@ -225,7 +227,7 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
         onMouseLeave={() => this.handleShowBtnSettings(false)}
       >
         {isViewConfirmJoin && (
-          <Confirm isLoading={isLoadingJoin} onConfirm={this.onConfirmJoin} onHide={this.toggleViewConfirm} wsName={wsName} />
+          <Confirm isLoading={isLoadingJoin} onConfirm={this.onConfirmJoin} onHide={this.toggleViewConfirm} wsName={name} />
         )}
         {this.renderMenuActions()}
         {this.actions.length > 0 && this.renderBtnSettings()}
@@ -237,10 +239,10 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
           onMouseDown={onMouseDown}
           onClick={e => isCurrentUserMember && openWorkspace && openWorkspace(e)}
         >
-          <WorkspacePreview url={wsImage} name={wsName} customImagePreview={customImagePreview} />
+          <WorkspacePreview url={image} name={name} customImagePreview={customImagePreview} />
           <div className="citeck-workspace-sidebar__card-info">
-            <h3 className="citeck-workspace-sidebar__card-info_title" title={wsName}>
-              {wsName}
+            <h3 className="citeck-workspace-sidebar__card-info_title" title={name}>
+              {name}
             </h3>
             <p className="citeck-workspace-sidebar__card-info_description" title={description}>
               {description}
@@ -252,14 +254,16 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
   }
 }
 
-const mapStateToProps = (state: RootState) => ({
+const mapStateToProps = (state: RootState): Pick<WorkspaceCardProps, 'isLoadingJoin'> => ({
   isLoadingJoin: selectWorkspaceIsLoadingJoin(state)
 });
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
+const mapDispatchToProps = (
+  dispatch: Dispatch
+): Pick<WorkspaceCardProps, 'getWorkspaces' | 'getSidebarWorkspaces' | 'joinToWorkspace'> => ({
   getWorkspaces: () => dispatch(getWorkspaces()),
   getSidebarWorkspaces: () => dispatch(getSidebarWorkspaces()),
-  joinToWorkspace: (wsId: string, callback: () => void) => dispatch(joinToWorkspace({ wsId, callback }))
+  joinToWorkspace: (wsId, callback) => dispatch(joinToWorkspace({ wsId, callback }))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(WorkspaceCard);
