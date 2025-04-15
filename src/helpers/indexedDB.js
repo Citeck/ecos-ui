@@ -9,7 +9,6 @@ const openConnection = (dbName = 'citeck', ver = 1) => {
     };
 
     request.onsuccess = () => {
-      console.log(`DB: ${dbName} created`);
       resolve(request.result);
     };
     request.onerror = e => {
