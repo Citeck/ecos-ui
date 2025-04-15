@@ -30,8 +30,8 @@ import { registerEventListeners } from '@/actions/customEvent';
 import { getMenuConfig, setMenuConfig } from '@/actions/menu';
 import { setNewUIAvailableStatus, validateUserFailure, validateUserSuccess } from '@/actions/user';
 import { detectMobileDevice, setViewNewJournal } from '@/actions/view';
-import { getWorkspaces, setBlockedCurrenWorkspace, setDefaultWorkspace } from '@/actions/workspaces';
-import { URL } from '@/constants';
+import { getWorkspaces, setBlockedCurrentWorkspace, setDefaultWorkspace } from '@/actions/workspaces';
+import { SourcesId, URL } from '@/constants';
 import { getWorkspaceId } from '@/helpers/urls';
 import { getCurrentUserName } from '@/helpers/util';
 import { SETTING_ENABLE_VIEW_NEW_JOURNAL } from '@/pages/DevTools/constants';
@@ -107,10 +107,10 @@ export function* initApp({ api }, { payload }) {
 
       if (configs[WORKSPACES_ENABLED]) {
         const wsId = get(query, 'ws') || getWorkspaceId(configs[DEFAULT_WORKSPACE]);
-        const isViewWorkspace = yield call(api.workspaces.isViewWorkspace, wsId);
+        const workspace = yield call(api.workspaces.getWorkspace, `${SourcesId.WORKSPACE}@${wsId}`);
 
-        if (isBoolean(isViewWorkspace)) {
-          yield put(setBlockedCurrenWorkspace(!isViewWorkspace));
+        if (isBoolean(get(workspace, 'isCurrentUserMember'))) {
+          yield put(setBlockedCurrentWorkspace(workspace));
         }
       }
 
@@ -184,7 +184,7 @@ export function* fetchDashboardEditable({ api }) {
       const workspaces = yield select(state => selectWorkspaces(state));
 
       if (wsId && workspaces && workspaces.length) {
-        const currentWs = workspaces.find(ws => ws && ws.wsId && ws.wsId === wsId);
+        const currentWs = workspaces.find(ws => ws && ws.id && ws.id === wsId);
 
         if (currentWs) {
           yield put(setDashboardEditable(get(currentWs, 'isCurrentUserManager', editable)));
@@ -232,7 +232,7 @@ export function* fetchLeftMenuEditable() {
     let isEditable = isAdmin && menuVersion > 0;
 
     if (workspacesEnabled && wsId) {
-      const currentWs = workspaces?.find(ws => ws?.wsId === wsId);
+      const currentWs = workspaces?.find(ws => ws?.id === wsId);
       const isCurrentUserManager = get(currentWs, 'isCurrentUserManager', false);
       isEditable = (isAdmin || isCurrentUserManager) && menuVersion > 0;
     }

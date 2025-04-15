@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { WorkspaceType } from '@/api/workspaces/types';
 import { Btn } from '@/components/common/btns';
 import Close from '@/components/common/icons/Close';
 import { t } from '@/helpers/util';
@@ -8,7 +9,7 @@ import './styles.scss';
 interface ConfirmProps {
   onConfirm: (e: React.MouseEvent<HTMLDivElement | HTMLLIElement | HTMLButtonElement>) => void;
   onHide: () => void;
-  wsName: string;
+  wsName: WorkspaceType['name'];
   isLoading: boolean;
 }
 

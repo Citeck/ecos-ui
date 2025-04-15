@@ -4,7 +4,7 @@ import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isNil from 'lodash/isNil';
 import uniqueId from 'lodash/uniqueId';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 
 import { execRecordsAction, deselectAllRecords } from '@/actions/journals';
@@ -38,6 +38,7 @@ const GroupActions = React.memo(
     const [recordsActions, setRecordsActions] = useState([]);
     const [queryActions, setQueryActions] = useState([]);
     const [label, setLabel] = useState('');
+    const recordsLength = useRef();
 
     const {
       isMobile,
@@ -57,16 +58,18 @@ const GroupActions = React.memo(
     const selected = selectAllRecordsVisible ? total - excludedRecords.length : selectedLen;
     const labelRecActionsCount = t(Labels.SELECTED_COUNT, { selected, total });
 
-    const labelRecActions = useCallback(
+    const labelRecActions = useMemo(
       () => t(Labels.SELECTED_SHORT, { data: selectedLen === 0 ? grid.total : labelRecActionsCount }),
       [total, selected, selectedLen, grid.total]
     );
 
-    useEffect(() => {
-      setLabel(labelRecActions);
-    }, []);
+    if (total < recordsLength.current && selectedRecords.length) {
+      deselectAllRecords();
+      selectedRecords.length = 0;
+    }
 
     useEffect(() => {
+      recordsLength.current = total;
       setLabel(labelRecActions);
     }, [labelRecActions]);
 

@@ -6,7 +6,7 @@ export const DEFAULT_EIS = Object.freeze({
   LOGOUT_URL: 'LOGOUT_URL'
 });
 
-export const MAX_WORKSPACE_PREVIEW_ITEMS = 5;
+export const MAX_WORKSPACE_PREVIEW_ITEMS = 8;
 export const BASE_URLS_REDIRECT = ['/', '/v2', '/v2/'];
 
 export const URL = {

@@ -1,14 +1,14 @@
 import get from 'lodash/get';
 import isBoolean from 'lodash/isBoolean';
-import { call, put, takeLatest, takeEvery } from 'redux-saga/effects';
+import { call, put, takeLatest, takeEvery, select } from 'redux-saga/effects';
 
+import { getDashboardConfig } from '@/actions/dashboard';
 import { fetchCreateCaseWidgetData } from '@/actions/header';
 import { getMenuConfig } from '@/actions/menu';
 import { fetchSlideMenuItems } from '@/actions/slideMenu';
 import {
   getWorkspaces,
   goToDefaultFromBlockedWs,
-  setBlockedCurrenWorkspace,
   setWorkspaces,
   setWorkspacesError,
   updateUIWorkspace,
@@ -19,20 +19,23 @@ import {
   getSidebarWorkspaces,
   setLoadingJoin,
   setLoading,
-  onSearchWorkspaces
+  onSearchWorkspaces,
+  setIsBlockedCurrentWorkspace
 } from '@/actions/workspaces';
 import { RecordsQueryResponse } from '@/api/types';
-import { WorkspaceFullType } from '@/api/workspaces/types';
+import { WorkspaceType } from '@/api/workspaces/types';
 import { URL } from '@/constants';
 import { getLinkWithWs, getPersonalWorkspaceId, getWsIdOfTabLink } from '@/helpers/urls';
 import { t } from '@/helpers/util';
+import { selectCurrentWorkspaceBlocked, selectCurrentWorkspaceIsBlocked } from '@/selectors/workspaces';
 import PageService from '@/services/PageService';
 import { NotificationManager } from '@/services/notifications';
+import PageTabList from '@/services/pageTabs/PageTabList';
 import { ExtraArgumentsStore } from '@/types/store';
 
 function* sagaGetWorkspacesRequest({ api }: ExtraArgumentsStore) {
   try {
-    const { records }: RecordsQueryResponse<WorkspaceFullType> = yield call(api.workspaces.getWorkspaces);
+    const { records }: RecordsQueryResponse<WorkspaceType> = yield call(api.workspaces.getWorkspaces);
 
     const resolveRecords = (records || []).map(record => {
       const homePageLink = get(record, 'homePageLink');
@@ -85,9 +88,26 @@ function* sagaVisitedActionRequest({ api }: ExtraArgumentsStore, { payload }: Re
 function* sagaJoinToWorkspaceRequest({ api }: ExtraArgumentsStore, { payload }: ReturnType<typeof joinToWorkspace>) {
   try {
     yield put(setLoadingJoin(true));
+
+    const selectIsBlockedWorkspace: boolean = yield select(selectCurrentWorkspaceIsBlocked);
+    const selectBlockedWorkspace: WorkspaceType = yield select(selectCurrentWorkspaceBlocked);
+
     const { wsId, callback } = payload;
     yield call(api.workspaces.joinToWorkspace, wsId);
     yield put(getSidebarWorkspaces());
+
+    if (selectIsBlockedWorkspace && selectBlockedWorkspace.id === wsId) {
+      const newUrl = getLinkWithWs(URL.DASHBOARD, wsId);
+      yield put(setIsBlockedCurrentWorkspace(false));
+
+      PageService.changeUrlLink(newUrl, {
+        openNewTab: true,
+        needUpdateTabs: true
+      });
+
+      yield put(updateUIWorkspace());
+      yield put(getDashboardConfig({ key: PageTabList.activeTabId }));
+    }
 
     if (callback) {
       callback();
@@ -105,7 +125,7 @@ function* sagaGoToDefaultFromBlockedWs() {
   try {
     const newUrl = getLinkWithWs(URL.DASHBOARD, getPersonalWorkspaceId());
 
-    yield put(setBlockedCurrenWorkspace(false));
+    yield put(setIsBlockedCurrentWorkspace(false));
 
     PageService.changeUrlLink(newUrl, { openNewTab: true, needUpdateTabs: true });
   } catch (e) {
@@ -127,8 +147,8 @@ function* sagaUpdateUIWorkspace() {
 
 function* sagaGetSidebarWorkspaces({ api }: ExtraArgumentsStore) {
   try {
-    const { records: myWorkspaces }: RecordsQueryResponse<WorkspaceFullType> = yield call(api.workspaces.getMyWorkspaces);
-    const { records: publicWorkspaces }: RecordsQueryResponse<WorkspaceFullType> = yield call(api.workspaces.getPublicWorkspaces);
+    const { records: myWorkspaces }: RecordsQueryResponse<WorkspaceType> = yield call(api.workspaces.getMyWorkspaces);
+    const { records: publicWorkspaces }: RecordsQueryResponse<WorkspaceType> = yield call(api.workspaces.getPublicWorkspaces);
 
     yield put(setMyWorkspaces(myWorkspaces));
     yield put(setPublicWorkspaces(publicWorkspaces));
@@ -141,11 +161,8 @@ function* sagaGetSidebarWorkspaces({ api }: ExtraArgumentsStore) {
 function* sagaOnSearchWorkspaces({ api }: ExtraArgumentsStore, { payload }: ReturnType<typeof onSearchWorkspaces>) {
   try {
     yield put(setLoading(true));
-    const { records: myWorkspaces }: RecordsQueryResponse<WorkspaceFullType> = yield call(api.workspaces.searchMyWorkspaces, payload);
-    const { records: publicWorkspaces }: RecordsQueryResponse<WorkspaceFullType> = yield call(
-      api.workspaces.searchPublicWorkspaces,
-      payload
-    );
+    const { records: myWorkspaces }: RecordsQueryResponse<WorkspaceType> = yield call(api.workspaces.searchMyWorkspaces, payload);
+    const { records: publicWorkspaces }: RecordsQueryResponse<WorkspaceType> = yield call(api.workspaces.searchPublicWorkspaces, payload);
 
     yield put(setMyWorkspaces(myWorkspaces));
     yield put(setPublicWorkspaces(publicWorkspaces));

@@ -195,7 +195,7 @@ function* sagaRunSearchAutocomplete({ api }, { payload }) {
             workspaces.push({
               ...record,
               ...otherParamsWorkspaces,
-              url: getBaseUrlWorkspace(otherParamsWorkspaces.wsId, otherParamsWorkspaces.homePageLink),
+              url: getBaseUrlWorkspace(otherParamsWorkspaces.id, otherParamsWorkspaces.homePageLink),
               description: getMLValue(otherParamsWorkspaces.description),
               title: get(record, LiveSearchAttributes.DISP),
               isNotAlfresco: true

@@ -11,7 +11,7 @@ import Cube from '../common/icons/Cube';
 import WorkspaceSwitcher from '../common/icons/WorkspacesSwitcher';
 
 import { getWorkspaces, visitedAction } from '@/actions/workspaces';
-import { WorkspaceFullType } from '@/api/workspaces/types';
+import { WorkspaceType } from '@/api/workspaces/types';
 import WorkspaceCard from '@/components/WorkspaceSidebar/Card';
 import WorkspaceSidebar from '@/components/WorkspaceSidebar/WorkspaceSidebar';
 import CreateIcon from '@/components/common/icons/Create';
@@ -31,9 +31,9 @@ export const element = document.getElementById(documentId);
 interface WorkspacesProps {
   isLoading: boolean;
   isError: boolean;
-  workspaces: WorkspaceFullType[];
+  workspaces: WorkspaceType[];
   getWorkspaces: () => void;
-  visitedAction: (id: string) => void;
+  visitedAction: (id: WorkspaceType['id']) => void;
 }
 
 type OpenWsEventType = React.MouseEvent<HTMLDivElement | HTMLLIElement | HTMLButtonElement>;
@@ -85,7 +85,7 @@ const Workspaces = ({ isLoading, isError, workspaces, getWorkspaces, visitedActi
     };
   }, []);
 
-  const openLink = (id: string, homePageLink: string, openNewBrowserTab = false) => {
+  const openLink = (id: WorkspaceType['id'], homePageLink: WorkspaceType['homePageLink'], openNewBrowserTab?: boolean) => {
     PageTabList.setLastActiveTabWs();
 
     visitedAction(id);
@@ -107,7 +107,7 @@ const Workspaces = ({ isLoading, isError, workspaces, getWorkspaces, visitedActi
     }
   };
 
-  const handleClick = (event: OpenWsEventType, wsId: string, homePageLink: string) => {
+  const handleClick = (event: OpenWsEventType, wsId: WorkspaceType['id'], homePageLink: WorkspaceType['homePageLink']) => {
     event.stopPropagation();
     setIsActivePreview(false);
 
@@ -123,7 +123,11 @@ const Workspaces = ({ isLoading, isError, workspaces, getWorkspaces, visitedActi
   );
 
   // Opening in a new tab using the central button on mouse
-  const onMouseDown = (event: React.MouseEvent<HTMLDivElement, MouseEvent>, wsId: string, homePageLink: string) => {
+  const onMouseDown = (
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    wsId: WorkspaceType['id'],
+    homePageLink: WorkspaceType['homePageLink']
+  ) => {
     if (event.button === 1) {
       event.preventDefault();
       openLink(wsId, homePageLink, true);
@@ -150,24 +154,30 @@ const Workspaces = ({ isLoading, isError, workspaces, getWorkspaces, visitedActi
             ) : (
               <div className="workspace-panel__wrapper">
                 {workspaces.map(
-                  ({ wsId, homePageLink, wsDescription, ...rest }, index) =>
+                  ({ homePageLink, id: wsId, ...rest }, index) =>
                     index <= MAX_WORKSPACE_PREVIEW_ITEMS - 1 && (
                       <WorkspaceCard
                         {...rest}
+                        id={wsId}
                         key={index}
                         onMouseDown={e => onMouseDown(e, wsId, homePageLink)}
                         openWorkspace={e => handleClick(e, wsId, homePageLink)}
-                        wsDescription={wsDescription || ''}
+                        homePageLink={homePageLink}
                         isSmallView
                       />
                     )
                 )}
                 <WorkspaceCard
+                  id=""
+                  hasWrite={false}
+                  visibility="PRIVATE"
                   isSmallView
                   isCurrentUserMember
-                  wsDescription=""
-                  wsImage={null}
-                  wsName={t(Labels.SEE_MORE)}
+                  isCurrentUserManager={false}
+                  image={null}
+                  homePageLink={null}
+                  description={null}
+                  name={t(Labels.SEE_MORE)}
                   customImagePreview={ImageOtherWs}
                   openWorkspace={openSideBarWorkspaces}
                 />
@@ -209,14 +219,14 @@ const Workspaces = ({ isLoading, isError, workspaces, getWorkspaces, visitedActi
   );
 };
 
-const mapStateToProps = (store: RootState) => ({
+const mapStateToProps = (store: RootState): Pick<WorkspacesProps, 'workspaces' | 'isLoading' | 'isError'> => ({
   workspaces: selectWorkspaces(store),
   isLoading: selectWorkspaceIsLoading(store),
   isError: selectWorkspaceIsError(store)
 });
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  visitedAction: (id: string) => dispatch(visitedAction(id)),
+const mapDispatchToProps = (dispatch: Dispatch): Pick<WorkspacesProps, 'visitedAction' | 'getWorkspaces'> => ({
+  visitedAction: id => dispatch(visitedAction(id)),
   getWorkspaces: () => dispatch(getWorkspaces())
 });
 

@@ -2,25 +2,29 @@ import { handleActions } from 'redux-actions';
 
 import {
   initWorkspaces,
-  setBlockedCurrenWorkspace,
+  setBlockedCurrentWorkspace,
   setDefaultWorkspace,
   setWorkspaces,
   setWorkspacesError,
   setPublicWorkspaces,
   setMyWorkspaces,
   setLoadingJoin,
-  setLoading
+  setLoading,
+  setIsBlockedCurrentWorkspace
 } from '@/actions/workspaces';
-import { WorkspaceFullType } from '@/api/workspaces/types';
+import { WorkspaceType } from '@/api/workspaces/types';
 
 interface WorkspaceState {
   isLoading: boolean;
   isLoadingJoin: boolean;
   isError: boolean;
-  workspaces: WorkspaceFullType[];
-  myWorkspaces: WorkspaceFullType[];
-  publicWorkspaces: WorkspaceFullType[];
-  blockedCurrentWorkspace: boolean;
+  workspaces: WorkspaceType[];
+  myWorkspaces: WorkspaceType[];
+  publicWorkspaces: WorkspaceType[];
+  blockedCurrentWorkspace: {
+    isBlock: boolean;
+    workspace: WorkspaceType | null;
+  };
   defaultWorkspace: string | null;
 }
 
@@ -32,7 +36,10 @@ const initialState: WorkspaceState = {
   myWorkspaces: [],
   publicWorkspaces: [],
   defaultWorkspace: null,
-  blockedCurrentWorkspace: false
+  blockedCurrentWorkspace: {
+    isBlock: false,
+    workspace: null
+  }
 };
 
 Object.freeze(initialState);
@@ -77,10 +84,22 @@ export default handleActions<WorkspaceState, any>(
         defaultWorkspace: action.payload
       };
     },
-    [setBlockedCurrenWorkspace.toString()]: (state, action: ReturnType<typeof setBlockedCurrenWorkspace>) => {
+    [setBlockedCurrentWorkspace.toString()]: (state, { payload }: ReturnType<typeof setBlockedCurrentWorkspace>) => {
       return {
         ...state,
-        blockedCurrentWorkspace: action.payload
+        blockedCurrentWorkspace: {
+          isBlock: !payload.isCurrentUserMember,
+          workspace: payload
+        }
+      };
+    },
+    [setIsBlockedCurrentWorkspace.toString()]: (state, { payload }: ReturnType<typeof setIsBlockedCurrentWorkspace>) => {
+      return {
+        ...state,
+        blockedCurrentWorkspace: {
+          ...state.blockedCurrentWorkspace,
+          isBlock: payload
+        }
       };
     }
   },

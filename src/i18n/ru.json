@@ -2761,8 +2761,7 @@
 
   "workspaces.create-button": "Добавить пространство",
   "workspaces.see-more": "Посмотреть больше",
-  "workspaces.sidebar.no-data-workspace.head": "Нет доступных рабочих пространств",
-  "workspaces.sidebar.no-data-workspace.description": "Нет элементов в списке",
+  "workspaces.sidebar.no-data-workspace.head": "Нет доступных пространств",
   "workspaces.card.empty-description": "Описание рабочего пространства не добавлено",
   "workspaces.card.go-to-workspace": "Перейти в пространство",
   "workspaces.card.edit-workspace": "Редактировать",
@@ -2772,6 +2771,7 @@
   "workspaces.card.join-workspace.error": "Ошибка при присоедении к рабочему пространству",
   "workspaces.error-blocked.msg": "Рабочее пространство недоступно или не создано",
   "workspaces.error-blocked.action.msg": "Перейти на персональное пространство",
+  "workspaces.join.message": "Присоединиться к рабочему пространству",
   "workspaces.join-confirm.cancel": "Отменить",
   "workspaces.join-confirm.description": "Вы действительно хотите присоединиться к рабочему пространству?",
   "workspaces.join-confirm.workspace": "Присоединиться к пространству «{{wsName}}»?",
