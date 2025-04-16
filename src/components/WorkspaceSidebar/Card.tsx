@@ -16,6 +16,7 @@ import './styles.scss';
 
 interface WorkspaceCardProps extends WorkspaceType {
   isSmallView?: boolean;
+  hasAnimationOnHover?: boolean;
   className?: string;
   openWorkspace?: (e: OpenWsEventType) => void;
   customImagePreview?: ReactNode;
@@ -211,6 +212,7 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
       customImagePreview,
       isCurrentUserMember,
       isLoadingJoin,
+      hasAnimationOnHover,
       openWorkspace,
       onMouseDown
     } = this.props;
@@ -221,7 +223,7 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
     return (
       <div
         ref={this._cardContainerRef}
-        className="citeck-workspace-sidebar__preview-container"
+        className={classNames('citeck-workspace-sidebar__preview-container', { small: isSmallView, animation: hasAnimationOnHover })}
         onMouseEnter={() => this.handleShowBtnSettings(true)}
         onMouseLeave={() => this.handleShowBtnSettings(false)}
       >

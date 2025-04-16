@@ -1,7 +1,16 @@
 @import '../../styles/constants';
 
 .citeck-workspace-sidebar {
-  $width-container: 86%;
+  $sidebar: &;
+
+  $width-container: 48%;
+  $z-index-settings: 10;
+
+  $card-base-width: 300px;
+  $card-base-height: 80px;
+
+  $card-small-width: 200px;
+  $card-small-height: 138px;
 
   position: fixed;
   cursor: initial;
@@ -10,7 +19,7 @@
   left: 0;
 
   &:hover svg > path {
-    fill: $color-white;
+    fill: $text-color-gray;
   }
 
   &__confirm-modal {
@@ -156,17 +165,23 @@
 
   &__content-wrapper {
     width: 100%;
-    max-height: 100%;
+    height: 100%;
     padding: 18px;
-
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
 
     background-color: $color-white;
     border-radius: 12px;
 
     overflow-y: auto;
+
+    &_wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+
+      align-items: flex-start;
+      justify-content: flex-start;
+      align-self: flex-start;
+    }
   }
 
   &__search {
@@ -223,6 +238,14 @@
       flex-direction: column;
       gap: 12px;
 
+      &.mobile {
+        width: 90%;
+
+        #{$sidebar}__content-wrapper_wrap {
+          justify-content: center;
+        }
+      }
+
       &.open {
         transform: translateX(0);
       }
@@ -246,17 +269,45 @@
     top: 18px;
     left: 100%;
 
-    background-color: $color-blue-light;
+    background-color: $color-gray-4;
     border-top-right-radius: 20px;
     border-bottom-right-radius: 20px;
 
     & > svg > path {
-      fill: $color-white;
+      fill: $text-color-gray;
     }
   }
 
   &__preview-container {
     position: relative;
+    max-width: $card-base-width;
+
+    // for small view
+    &.small.animation:hover:not(:has(#{$sidebar}__card-settings-menu:hover)) {
+      width: $card-small-width;
+      height: $card-small-height;
+
+      #{$sidebar}__card {
+        min-height: $card-small-height;
+      }
+    }
+
+    // for base view
+    &.animation:hover:not(:has(#{$sidebar}__card-settings-menu:hover)) {
+      #{$sidebar}__card {
+        position: absolute;
+        height: auto;
+        background-color: $color-white;
+        min-height: $card-base-height;
+        z-index: calc($z-index-settings - 1);
+
+        &-info_description {
+          display: block;
+          overflow: initial;
+          height: 100%;
+        }
+      }
+    }
   }
 
   &__card {
@@ -270,8 +321,7 @@
     position: relative;
     cursor: pointer;
 
-    width: 300px;
-    height: 75px;
+    width: $card-base-width;
 
     gap: 9px;
     padding: 10px;
@@ -291,8 +341,7 @@
       align-items: center;
       flex-direction: column;
 
-      max-width: 200px;
-      height: 100%;
+      width: $card-small-width;
 
       padding: 12px;
       gap: 12px;
@@ -308,7 +357,6 @@
       }
 
       #{$card}-info_description {
-        height: 32px;
         margin-bottom: 7px;
       }
 
@@ -354,7 +402,7 @@
         line-clamp: 2;
         -webkit-box-orient: vertical;
 
-        height: 100%;
+        height: 32px;
 
         font-weight: 400;
         font-size: 12px;
@@ -370,7 +418,7 @@
         top: 1px;
 
         cursor: pointer;
-        z-index: 10;
+        z-index: $z-index-settings;
         left: auto;
         bottom: auto;
       }
