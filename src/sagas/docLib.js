@@ -537,9 +537,6 @@ export function* sagaCreateNode({ api, stateId, w }, action) {
     const newRecord = yield call(DocLibService.loadNode, createChildResult.id);
 
     if (createVariant.nodeType === NODE_TYPES.DIR) {
-      yield put(openFolder(w(newRecord.id)));
-
-      // update sidebar (unfold current folder, add new folder)
       const newChildren = DocLibConverter.prepareFolderTreeItems([newRecord], currentFolderId);
       yield put(addSidebarItems(w([...newChildren, { id: currentFolderId, hasChildren: true }])));
       yield put(unfoldSidebarItem(w(currentFolderId)));
@@ -553,10 +550,8 @@ export function* sagaCreateNode({ api, stateId, w }, action) {
         }
         yield call(api.recordActions.executeAction, { records: recordId, action: actionProps });
       }
-      yield put(loadFilesViewerData(w()));
-      // const localDobLibRecordRef = newRecord.id.substring(newRecord.id.indexOf('$') + 1);
-      // yield call(goToCardDetailsPage, localDobLibRecordRef);
     }
+    yield put(loadFilesViewerData(w()));
   } catch (e) {
     console.error('[docLib sagaCreateNode saga error', e);
   }

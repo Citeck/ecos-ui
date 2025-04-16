@@ -62,18 +62,6 @@ export default handleActions(
           isLoading: !!action.payload
         }
       };
-    },
-    [setInitiatedPreviewList]: (state, action) => {
-      const stateId = action.payload.stateId;
-      action = handleAction(action);
-
-      return {
-        ...state,
-        [stateId]: {
-          ...state[stateId],
-          isInitiated: !!action.payload
-        }
-      };
     }
   },
   initialState

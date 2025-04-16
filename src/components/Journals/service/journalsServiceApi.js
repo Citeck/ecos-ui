@@ -1,7 +1,9 @@
 import get from 'lodash/get';
-import Records from '../../Records/Records';
+import isEmpty from 'lodash/isEmpty';
+
 import { SourcesId } from '../../../constants';
 import { getWorkspaceId } from '../../../helpers/urls';
+import Records from '../../Records/Records';
 
 class JournalsServiceApi {
   async getJournalConfigByType(typeRef, attributes) {
@@ -16,7 +18,28 @@ class JournalsServiceApi {
   }
 
   async getJournalConfig(journalId, force) {
-    return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load('.json', force);
+    const { listViewInfo, json } = await Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load(
+      {
+        json: '.json',
+        listViewInfo: 'typeRef.aspectById.listview.config?json'
+      },
+      force
+    );
+
+    let config = { ...json };
+
+    if (!isEmpty(listViewInfo)) {
+      config = {
+        ...config,
+        listViewInfo: {
+          title: `${listViewInfo['titleAtt']}?disp`,
+          text: `${listViewInfo['textAtt']}?disp`,
+          previewUrl: `${listViewInfo['previewAtt']}.url`
+        }
+      };
+    }
+
+    return config;
   }
 
   async isNotExistsJournal(journalId) {

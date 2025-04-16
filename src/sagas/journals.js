@@ -74,7 +74,7 @@ import {
   toggleViewMode
 } from '../actions/journals';
 import { applyPreset, clearFiltered, reloadBoardData, selectTemplateId, setKanbanSettings } from '../actions/kanban';
-import { initPreviewList } from '../actions/previewList';
+import { setIsEnabledPreviewList, setLoadingPreviewList, setPreviewListConfig } from '../actions/previewList';
 import { ParserPredicate } from '../components/Filters/predicates';
 import {
   DEFAULT_INLINE_TOOL_SETTINGS,
@@ -109,13 +109,11 @@ import { selectKanban } from '../selectors/kanban';
 import { selectIsViewNewJournal } from '../selectors/view';
 import PageService from '../services/PageService';
 
-import { selectPreviewListConfig } from '@/selectors/previewList.js';
 import { NotificationManager } from '@/services/notifications';
 
 const attsForListView = {
   creator: '_creator{id:?id,disp:?disp}',
-  created: '_created',
-  previewUrl: 'listview:preview{url}'
+  created: '_created'
 };
 
 const getDefaultSortBy = config => {
@@ -203,14 +201,14 @@ export function getDefaultJournalSetting(journalConfig) {
 
 export function getGridParams({ journalConfig = {}, journalSetting = {}, pagination = DEFAULT_PAGINATION }) {
   const { createVariants, actions: journalActions, groupActions } = get(journalConfig, 'meta', {});
-  const { sourceId, id: journalId, columns: columnsConfig } = journalConfig;
+  const { sourceId, id: journalId, columns: columnsConfig, listViewInfo = {} } = journalConfig;
   const { sortBy = [], groupBy = [], columns: columnsSetting, predicate: journalSettingPredicate } = journalSetting;
   const predicates = beArray(journalSettingPredicate);
 
   const columns = columnsConfig || columnsSetting || [];
 
   return {
-    attributes: attsForListView,
+    attributes: { ...attsForListView, ...listViewInfo },
     groupActions: groupActions || [],
     journalId,
     journalActions,
@@ -629,26 +627,10 @@ export function* getGridData(api, params, stateId) {
   const w = wrapArgs(stateId);
   yield put(setLoadingGrid(w(true)));
   const { recordRef, journalConfig, journalSetting } = yield select(selectJournalData, stateId);
-  const previewListConfig = yield select(selectPreviewListConfig, stateId);
   const config = yield select(state => selectNewVersionDashletConfig(state, stateId));
   const onlyLinked = get(config, 'onlyLinked');
+
   let attrsToLoad = get(config, 'attrsToLoad');
-
-  // If you remove this, then PreviewListView will not work with redefined columns!
-  if (previewListConfig) {
-    const attrsPreviewList = Object.values(previewListConfig);
-    if (isArray(get(journalConfig, 'configData.attributesToLoad'))) {
-      journalConfig.configData.attributesToLoad = [...journalConfig.configData.attributesToLoad, ...attrsPreviewList];
-    } else {
-      journalConfig.configData.attributesToLoad = [...attrsPreviewList];
-    }
-
-    if (isArray(attrsToLoad)) {
-      attrsToLoad = [...attrsToLoad, ...attrsPreviewList];
-    } else {
-      attrsToLoad = [...attrsPreviewList];
-    }
-  }
 
   const { pagination: _pagination, predicates: _predicates, searchPredicate, fromGroupBy = false, grouping, ...forRequest } = params;
   const predicateRecords = yield call(api.journals.fetchLinkedRefs, recordRef, attrsToLoad);
@@ -891,13 +873,14 @@ function* sagaReloadGrid({ api, stateId, w }, { payload = {} }) {
           yield put(setGrid(w({ predicates: payload.predicates })));
         }
 
-        const { grid, selectAllRecordsVisible, selectedRecords, excludedRecords } = journalData;
+        const { grid, selectAllRecordsVisible, selectedRecords, excludedRecords, journalConfig } = journalData;
         const searchPredicate = get(payload, 'searchPredicate') || (yield getSearchPredicate({ stateId }));
         const params = { ...grid, ...payload, searchPredicate };
 
         params.attributes = {
           ...params.attributes,
-          ...attsForListView
+          ...attsForListView,
+          ...journalConfig.listViewInfo
         };
 
         const gridData = yield getGridData(api, params, stateId);
@@ -995,8 +978,6 @@ function* sagaInitJournal({ api, stateId, w }, { payload }) {
         yield put(setJournalExpandableProp(w(false)));
         yield put(setLoading(w(true)));
 
-        yield put(initPreviewList(w()));
-
         const { journalId, userConfigId, customJournal, customJournalMode, force } = payload;
         const id = !customJournalMode || !customJournal ? journalId : customJournal;
         let { journalSettingId, savePredicate = true } = payload;
@@ -1019,6 +1000,12 @@ function* sagaInitJournal({ api, stateId, w }, { payload }) {
           if (isEmpty(selectedPreset)) {
             journalSettingId = get(settings, '0.id', '');
           }
+        }
+
+        if (!isEmpty(journalConfig.listViewInfo)) {
+          yield put(setIsEnabledPreviewList(w(true)));
+          yield put(setLoadingPreviewList(w(false)));
+          yield put(setPreviewListConfig(w(journalConfig.listViewInfo)));
         }
 
         yield loadGrid(

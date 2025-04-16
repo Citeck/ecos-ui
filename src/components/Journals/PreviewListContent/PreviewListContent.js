@@ -99,17 +99,9 @@ class PreviewListContent extends Component {
   };
 
   render() {
-    const {
-      maxHeight,
-      isViewNewJournal,
-      isLoadingPreviewList,
-      isLoadingJournal,
-      gridData,
-      previewListConfig,
-      isInitiatedPreviewList = false
-    } = this.props;
+    const { maxHeight, isViewNewJournal, isLoadingPreviewList, isLoadingJournal, gridData, previewListConfig } = this.props;
 
-    const isLoading = isLoadingPreviewList || isLoadingJournal || !isInitiatedPreviewList;
+    const isLoading = isLoadingPreviewList || isLoadingJournal;
     const isNoData = !isLoading && (!gridData || !gridData.length || !previewListConfig);
 
     return (
