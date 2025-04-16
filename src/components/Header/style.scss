@@ -333,6 +333,9 @@
     }
 
     div.workspace-panel {
+      $height-card: 91px;
+      $width-card: 150px;
+
       position: absolute;
       z-index: 1001;
       top: 48px;
@@ -354,11 +357,15 @@
       gap: 12px;
 
       & .citeck-workspace-sidebar__card {
-        width: 150px;
-        height: 88px;
-        gap: 6px;
+        width: $width-card;
+        max-height: $height-card;
+        gap: 5px;
 
-        padding: 9px 12px;
+        padding: 12px;
+
+        &.small {
+          min-height: $height-card;
+        }
 
         &-info {
           &_title {
@@ -540,7 +547,7 @@
     align-items: center;
     justify-content: center;
 
-    background-color: $color-blue-morning;
+    background-color: $color-white;
   }
 
   &-panel-list {

@@ -16,6 +16,7 @@ import './styles.scss';
 
 interface WorkspaceCardProps extends WorkspaceType {
   isSmallView?: boolean;
+  hasAnimationOnHover?: boolean;
   className?: string;
   openWorkspace?: (e: OpenWsEventType) => void;
   customImagePreview?: ReactNode;
@@ -44,8 +45,7 @@ type OpenWsEventType = React.MouseEvent<HTMLDivElement | HTMLLIElement | HTMLBut
 const Labels = {
   GO_TO_WORKSPACE: 'workspaces.card.go-to-workspace',
   EDIT_WORKSPACE: 'workspaces.card.edit-workspace',
-  JOIN_TO_WORKSPACE: 'workspaces.card.join-workspace',
-  EMPTY_DESCRIPTION_WORKSPACE: 'workspaces.card.empty-description'
+  JOIN_TO_WORKSPACE: 'workspaces.card.join-workspace'
 };
 
 const MAX_WIDTH_ACTION_MENU = 170;
@@ -212,17 +212,18 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
       customImagePreview,
       isCurrentUserMember,
       isLoadingJoin,
+      hasAnimationOnHover,
       openWorkspace,
       onMouseDown
     } = this.props;
     const { isViewConfirmJoin, showMenuSettings, showBtnSettings } = this.state;
 
-    const description = (isString(wsDescription) && wsDescription.trim()) || t(Labels.EMPTY_DESCRIPTION_WORKSPACE);
+    const description = (isString(wsDescription) && wsDescription.trim()) || '';
 
     return (
       <div
         ref={this._cardContainerRef}
-        className="citeck-workspace-sidebar__preview-container"
+        className={classNames('citeck-workspace-sidebar__preview-container', { small: isSmallView, animation: hasAnimationOnHover })}
         onMouseEnter={() => this.handleShowBtnSettings(true)}
         onMouseLeave={() => this.handleShowBtnSettings(false)}
       >
