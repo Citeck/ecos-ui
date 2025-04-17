@@ -63,7 +63,6 @@ import OnImageUploadPlugin, { type OnImageUpload } from './plugins/OnImageUpload
 import PollPlugin from './plugins/PollPlugin';
 import ShortcutsPlugin from './plugins/ShortcutsPlugin';
 import SpecialTextPlugin from './plugins/SpecialTextPlugin';
-import SpeechToTextPlugin from './plugins/SpeechToTextPlugin';
 import TabFocusPlugin from './plugins/TabFocusPlugin';
 import TableCellActionMenuPlugin from './plugins/TableActionMenuPlugin';
 import TableCellResizer from './plugins/TableCellResizer';
@@ -115,7 +114,8 @@ export default function Editor({
       tableCellBackgroundColor,
       tableHorizontalScroll,
       shouldAllowHighlightingWithBrackets,
-      selectionAlwaysOnDisplay
+      selectionAlwaysOnDisplay,
+      listStrictIndent
     }
   } = useSettings();
 
@@ -199,7 +199,6 @@ export default function Editor({
         <EmojisPlugin />
         <HashtagPlugin />
         <KeywordsPlugin />
-        <SpeechToTextPlugin />
         <AutoLinkPlugin />
         {onChange && (
           <OnChangePlugin
@@ -238,7 +237,7 @@ export default function Editor({
             />
             <MarkdownShortcutPlugin />
             <CodeHighlightPlugin />
-            <ListPlugin />
+            <ListPlugin hasStrictIndent={listStrictIndent} />
             <CheckListPlugin />
             <TablePlugin
               hasCellMerge={tableCellMerge}

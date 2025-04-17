@@ -31,7 +31,6 @@ export default function Settings(): React.JSX.Element {
       // disableBeforeInput,
       showTableOfContents,
       shouldUseLexicalContextMenu,
-      shouldPreserveNewLinesInMarkdown,
       shouldAllowHighlightingWithBrackets,
       // tableHorizontalScroll,
       selectionAlwaysOnDisplay
@@ -124,13 +123,13 @@ export default function Settings(): React.JSX.Element {
             checked={shouldUseLexicalContextMenu}
             text="Use Lexical Context Menu"
           />
-          <Switch
+          {/*<Switch
             onClick={() => {
               setOption('shouldPreserveNewLinesInMarkdown', !shouldPreserveNewLinesInMarkdown);
             }}
             checked={shouldPreserveNewLinesInMarkdown}
             text="Preserve newlines in Markdown"
-          />
+          />*/}
           {/* <Switch
             onClick={() => {
               setOption('tableHorizontalScroll', !tableHorizontalScroll);

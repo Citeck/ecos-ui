@@ -11,7 +11,6 @@ import { INSERT_TABLE_COMMAND, TableCellNode, TableNode, TableRowNode } from '@l
 import { EditorThemeClasses, Klass, LexicalEditor, LexicalNode } from 'lexical';
 import React, { JSX, createContext, useContext, useEffect, useMemo, useState } from 'react';
 
-import invariant from '../shared/invariant';
 import { DialogActions } from '../ui/Dialog';
 import TextInput from '../ui/TextInput';
 
@@ -134,7 +133,7 @@ export function TablePlugin({
   const cellContext = useContext(CellContext);
   useEffect(() => {
     if (!editor.hasNodes([TableNode, TableRowNode, TableCellNode])) {
-      invariant(false, 'TablePlugin: TableNode, TableRowNode, or TableCellNode is not registered on editor');
+      throw new Error('TablePlugin: TableNode, TableRowNode, or TableCellNode is not registered on editor');
     }
   }, [editor]);
   useEffect(() => {
