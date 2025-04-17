@@ -205,17 +205,20 @@ class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebar
     return (
       <div className="citeck-workspace-sidebar__content-wrapper">
         {isLoading && <Loader type="points" />}
-        {!isLoading &&
-          publicWorkspaces.map((workspace, idx) => (
-            <WorkspaceCard
-              {...workspace}
-              key={idx}
-              onMouseDown={e => this.onMouseDown(e, workspace.id, workspace.homePageLink)}
-              openWorkspace={e => this.openWorkspace(e, workspace.id, workspace.homePageLink)}
-              onJoinCallback={toggleIsOpen}
-              hasAnimationOnHover
-            />
-          ))}
+        {!isLoading && (
+          <div className="citeck-workspace-sidebar__content-wrapper_wrap">
+            {publicWorkspaces.map((workspace, idx) => (
+              <WorkspaceCard
+                {...workspace}
+                key={idx}
+                onMouseDown={e => this.onMouseDown(e, workspace.id, workspace.homePageLink)}
+                openWorkspace={e => this.openWorkspace(e, workspace.id, workspace.homePageLink)}
+                onJoinCallback={toggleIsOpen}
+                hasAnimationOnHover
+              />
+            ))}
+          </div>
+        )}
       </div>
     );
   }

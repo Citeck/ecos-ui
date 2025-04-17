@@ -280,7 +280,6 @@
 
   &__preview-container {
     position: relative;
-    max-width: $card-base-width;
 
     // for small view
     &.small.animation:hover:not(:has(#{$sidebar}__card-settings-menu:hover)) {
@@ -294,6 +293,9 @@
 
     // for base view
     &.animation:hover:not(:has(#{$sidebar}__card-settings-menu:hover)) {
+      width: $card-base-width;
+      height: $card-base-height;
+
       #{$sidebar}__card {
         position: absolute;
         height: auto;
@@ -322,6 +324,7 @@
     cursor: pointer;
 
     width: $card-base-width;
+    height: $card-base-height;
 
     gap: 9px;
     padding: 10px;
@@ -342,6 +345,7 @@
       flex-direction: column;
 
       width: $card-small-width;
+      height: $card-small-height;
 
       padding: 12px;
       gap: 12px;
