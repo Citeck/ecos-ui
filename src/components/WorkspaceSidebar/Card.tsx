@@ -23,6 +23,7 @@ interface WorkspaceCardProps extends WorkspaceType {
   customImagePreview?: ReactNode;
   onMouseDown?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
   onJoinCallback?: () => void;
+  actions?: IAction[];
 
   joinToWorkspace: (id: WorkspaceType['id'], cb: () => void) => void;
   isLoadingJoin: boolean;
@@ -66,7 +67,7 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
   };
 
   get actions(): IAction[] {
-    const { id: wsId, hasWrite, isCurrentUserMember, openWorkspace } = this.props;
+    const { id: wsId, hasWrite, isCurrentUserMember, openWorkspace, actions: pActions } = this.props;
     const actions: IAction[] = [];
 
     if (!wsId) {
@@ -83,6 +84,10 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
 
     if (hasWrite) {
       actions.push({ onClick: this.onEditWorkspace, label: t(Labels.EDIT_WORKSPACE) });
+    }
+
+    if (pActions) {
+      pActions.forEach(action => actions.push(action));
     }
 
     return actions;
@@ -235,7 +240,7 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
             focus: showMenuSettings || showBtnSettings
           })}
           onMouseDown={onMouseDown}
-          onClick={e => isCurrentUserMember && openWorkspace && openWorkspace(e)}
+          onClick={e => (isCurrentUserMember ? openWorkspace && openWorkspace(e) : this.toggleViewConfirm())}
         >
           <WorkspacePreview url={image} name={name} customImagePreview={customImagePreview} />
           <div className="citeck-workspace-sidebar__card-info">

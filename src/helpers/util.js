@@ -219,7 +219,6 @@ export const isEqualLexicalValue = (html1, html2) => {
       .trim();
   };
 
-  console.log(cleanHtml(html1), '\n 2:', cleanHtml(html2));
   return cleanHtml(html1) === cleanHtml(html2);
 };
 
