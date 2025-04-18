@@ -3,7 +3,6 @@ import { $isTextNode, DOMConversionMap, TextNode } from 'lexical';
 import React, { JSX } from 'react';
 
 import { LexicalEditorProps, SharedHistoryContext } from '../Lexical';
-import Settings from '../Lexical/Settings';
 import { FlashMessageContext } from '../Lexical/context/FlashMessageContext';
 import { SettingsContext } from '../Lexical/context/SettingsContext';
 import { ToolbarContext } from '../Lexical/context/ToolbarContext';
@@ -96,7 +95,6 @@ function EditorWrapper({ htmlString, onChange, readonly = false, className, hide
               hideToolbar={hideToolbar}
               onEditorReady={onEditorReady}
             />
-            <Settings />
           </ToolbarContext>
         </TableContext>
       </SharedHistoryContext>

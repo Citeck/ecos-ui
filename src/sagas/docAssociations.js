@@ -1,5 +1,5 @@
 import concat from 'lodash/concat';
-import { call, put, select, takeEvery } from 'redux-saga/effects';
+import { call, put, select, takeEvery, all } from 'redux-saga/effects';
 
 import {
   addAssociations,
@@ -81,22 +81,26 @@ function* getAssociation({ api }, { id, direction }, recordRef) {
 function* sagaGetAssociations({ api }, { payload }) {
   try {
     const associations = yield call(api.docAssociations.getAllowedAssociations, payload);
-    const configuredAssociations = yield associations.map(function* (item) {
-      return yield call(api.docAssociations.getColumnConfiguration, item);
-    });
+    const configuredAssociations = yield all(
+      associations.map(function* (item) {
+        return yield call(api.docAssociations.getColumnConfiguration, item);
+      })
+    );
     const allowedAssociations = DocAssociationsConverter.getAllowedAssociations(configuredAssociations);
 
     yield put(setAllowedConnections({ key: payload, allowedAssociations }));
 
-    const response = yield allowedAssociations.map(function* (connection) {
-      const result = yield getAssociation(
-        { api },
-        { id: connection.attribute || connection.name, direction: connection.direction },
-        payload
-      );
+    const response = yield all(
+      allowedAssociations.map(function* (connection) {
+        const result = yield getAssociation(
+          { api },
+          { id: connection.attribute || connection.name, direction: connection.direction },
+          payload
+        );
 
-      return { [connection.name]: result };
-    });
+        return { [connection.name]: result };
+      })
+    );
     const formattedResponse = DocAssociationsConverter.getAssociationsByDirection(response);
 
     yield put(
@@ -138,13 +142,15 @@ function* sagaAddAssociations({ api }, { payload }) {
     const newAssociations = direction === DIRECTIONS.SOURCE ? [record] : associations;
 
     if (direction === DIRECTIONS.SOURCE) {
-      yield associations.map(function* (recordRef) {
-        return yield call(api.docAssociations.addAssociations, {
-          recordRef,
-          associations: [record],
-          associationId: association.attribute || associationId
-        });
-      });
+      yield all(
+        associations.map(function* (recordRef) {
+          return yield call(api.docAssociations.addAssociations, {
+            recordRef,
+            associations: [record],
+            associationId: association.attribute || associationId
+          });
+        })
+      );
     } else {
       yield call(api.docAssociations.addAssociations, {
         recordRef: record,

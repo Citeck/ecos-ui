@@ -207,10 +207,19 @@ export const isEqualLexicalValue = (html1, html2) => {
     return html1 === html2;
   }
 
-  function cleanHtml(html) {
-    return html?.replaceAll('dir="ltr"', '').replaceAll(' >', '>').trim();
-  }
+  const cleanHtml = html => {
+    if (!html) {
+      return html;
+    }
 
+    return html
+      .replaceAll('dir="ltr"', '')
+      .replaceAll('style="--listitem-marker-white-space-collapse: preserve; --listitem-marker-text-wrap-mode: wrap;"', '')
+      .replaceAll(' >', '>')
+      .trim();
+  };
+
+  console.log(cleanHtml(html1), '\n 2:', cleanHtml(html2));
   return cleanHtml(html1) === cleanHtml(html2);
 };
 

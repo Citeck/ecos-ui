@@ -98,10 +98,6 @@ exports[`Comment tests should render Comment component 1`] = `
         </div>
       </div>
     </div>
-    <button
-      class="editor-dev-button "
-      id="options-button"
-    />
   </div>
 </div>
 `;
@@ -204,10 +200,6 @@ exports[`Comment tests should render Comment component with tags 1`] = `
         </div>
       </div>
     </div>
-    <button
-      class="editor-dev-button "
-      id="options-button"
-    />
   </div>
 </div>
 `;

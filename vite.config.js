@@ -62,7 +62,9 @@ const preOptimizeDepsLibs = [
   'ace-builds/src-noconflict/mode-html',
   'ace-builds/src-noconflict/theme-monokai',
   'lodash/uniq',
-  'regenerator-runtime/runtime'
+  'regenerator-runtime/runtime',
+  '@lexical/react/LexicalCollaborationContext',
+  '@lexical/react/LexicalNestedComposer'
 ];
 
 export default defineConfig(({ mode }) => {
