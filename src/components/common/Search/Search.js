@@ -1,10 +1,12 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
+import isFunction from 'lodash/isFunction';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
-import { t, trigger } from '../../../helpers/util';
 import Icon from '../icons/Icon/Icon';
+
+import { t, trigger } from '@/helpers/util';
 
 import './Search.scss';
 
@@ -17,7 +19,8 @@ export default class Search extends Component {
     liveSearch: PropTypes.bool,
     searchWithEmpty: PropTypes.bool,
     delay: PropTypes.number,
-    onSearch: PropTypes.func
+    onSearch: PropTypes.func,
+    onChange: PropTypes.func
   };
 
   static defaultProps = {
@@ -78,10 +81,11 @@ export default class Search extends Component {
   };
 
   onChange = e => {
+    const { onChange } = this.props;
     const text = e.target.value;
 
     if (this.state.text !== text) {
-      this.setState({ text });
+      this.setState({ text }, () => isFunction(onChange) && onChange(text));
     }
   };
 

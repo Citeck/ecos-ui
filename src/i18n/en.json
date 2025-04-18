@@ -2770,6 +2770,7 @@
   "workspaces.card.join-workspace": "Join",
   "workspaces.card.join-workspace.error": "Error when joining the workspace",
   "workspaces.error-blocked.msg": "The workspace is unavailable or has not been created",
+  "workspaces.error-blocked-public.msg": "The workspace {{wsName}} is unavailable",
   "workspaces.error-blocked.action.msg": "Go to the personal workspace",
   "workspaces.join.message": "Join the workspace",
   "workspaces.join-confirm.cancel": "Cancel",

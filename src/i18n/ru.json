@@ -2769,6 +2769,7 @@
   "workspaces.card.join-workspace": "Присоединиться",
   "workspaces.card.join-workspace.error": "Ошибка при присоедении к рабочему пространству",
   "workspaces.error-blocked.msg": "Рабочее пространство недоступно или не создано",
+  "workspaces.error-blocked-public.msg": "Рабочее пространство «{{wsName}}» недоступно",
   "workspaces.error-blocked.action.msg": "Перейти на персональное пространство",
   "workspaces.join.message": "Присоединиться к рабочему пространству",
   "workspaces.join-confirm.cancel": "Отменить",

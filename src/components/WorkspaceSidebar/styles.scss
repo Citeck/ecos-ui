@@ -356,8 +356,6 @@
         line-height: 16px;
         margin: 0;
         padding: 0;
-
-        @extend %ellipsis;
       }
 
       #{$card}-info_description {
@@ -397,6 +395,12 @@
         font-weight: 700;
         font-size: 14px;
         color: $text-color-dark;
+
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        line-clamp: 1;
+        -webkit-box-orient: vertical;
       }
 
       &_description {
@@ -419,26 +423,39 @@
       &_btn {
         position: absolute;
         right: 10px;
-        top: 1px;
+        top: 10px;
+
+        width: 24px;
+        height: 30px;
+
+        display: inline-flex;
+        justify-content: flex-end;
 
         cursor: pointer;
         z-index: $z-index-settings;
         left: auto;
         bottom: auto;
-      }
 
-      &_circles {
-        display: inline-flex;
-        align-items: center;
-        gap: 2px;
+        background-color: $color-white;
 
-        width: 10px;
+        &::before,
+        &::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          width: 12px;
+          height: 100%;
+          z-index: -1;
+        }
 
-        circle {
-          width: 2px;
-          height: 2px;
+        &::before {
+          left: -12px;
+          background: linear-gradient(to right, rgba($color-white, 0), rgba($color-white, 1));
+        }
 
-          background-color: $text-color-dark;
+        &::after {
+          right: -12px;
+          background: linear-gradient(to left, rgba($color-white, 0), rgba($color-white, 1));
         }
       }
 

@@ -144,8 +144,12 @@ class App extends Component {
     const enabledWorkspaces = getEnabledWorkspaces();
 
     const isPublicWorkspace = get(blockedCurrentWorkspace, 'visibility') === 'PUBLIC';
-    const goToDefaultWorkspaceLabel = t('workspaces.error-blocked.action.msg');
-    const joinToWorkspaceLabel = t('workspaces.join.message');
+
+    const warningMessage = isPublicWorkspace && blockedCurrentWorkspace.name ?
+      t('workspaces.error-blocked-public.msg', { wsName: blockedCurrentWorkspace.name }) : t('workspaces.error-blocked.msg');
+
+    const goToDefaultWorkspaceLabelBtn = t('workspaces.error-blocked.action.msg');
+    const joinToWorkspaceLabelBtn = t('workspaces.join.message');
 
     const buttons = isPublicWorkspace ? [
       {
@@ -153,25 +157,25 @@ class App extends Component {
         className: 'ecos-btn_blue',
         key: 'join-action',
         onClick: () => joinToWorkspace({ wsId: get(blockedCurrentWorkspace, 'id') }),
-        label: joinToWorkspaceLabel
+        label: joinToWorkspaceLabelBtn
       },
       {
         key: 'action',
         onClick: () => goToDefaultFromBlockedWs(),
-        label: goToDefaultWorkspaceLabel
+        label: goToDefaultWorkspaceLabelBtn
       }
     ] : [
       {
         className: 'ecos-btn_blue',
         key: 'action',
         onClick: () => goToDefaultFromBlockedWs(),
-        label: goToDefaultWorkspaceLabel
+        label: goToDefaultWorkspaceLabelBtn
       }
     ];
 
     const propsWarning = {
       className: 'ecos-modal__btn_full app-warning-message',
-      warningMessage: enabledWorkspaces && isBlockedCurrentWorkspace && t('workspaces.error-blocked.msg'),
+      warningMessage: enabledWorkspaces && isBlockedCurrentWorkspace && warningMessage,
       onHide: () => showWarningMessage(propsWarning),
       buttons
     }

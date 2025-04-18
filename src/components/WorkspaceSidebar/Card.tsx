@@ -8,6 +8,7 @@ import { WorkspaceType } from '@/api/workspaces/types';
 import FormManager from '@/components/EcosForm/FormManager';
 import WorkspacePreview from '@/components/WorkspacePreview';
 import Confirm from '@/components/WorkspaceSidebar/Confirm';
+import Actions from '@/components/common/icons/Actions';
 import { SourcesId } from '@/constants';
 import { t } from '@/helpers/util';
 import { selectWorkspaceIsLoadingJoin } from '@/selectors/workspaces';
@@ -141,11 +142,7 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
         onClick={this.toggleMenuSettings}
         className="workspace-panel-list_item_btn citeck-workspace-sidebar__card-settings_btn"
       >
-        <div className="citeck-workspace-sidebar__card-settings_circles">
-          <circle />
-          <circle />
-          <circle />
-        </div>
+        <Actions />
       </div>
     );
   };

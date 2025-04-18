@@ -548,6 +548,10 @@
     justify-content: center;
 
     background-color: $color-white;
+
+    & > svg > path {
+      fill: $text-color-gray !important;
+    }
   }
 
   &-panel-list {
