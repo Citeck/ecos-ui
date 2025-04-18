@@ -10,7 +10,7 @@ import { Btn } from '../common/btns';
 import Cube from '../common/icons/Cube';
 import WorkspaceSwitcher from '../common/icons/WorkspacesSwitcher';
 
-import { getWorkspaces, visitedAction } from '@/actions/workspaces';
+import { getSidebarWorkspaces, getWorkspaces, visitedAction } from '@/actions/workspaces';
 import { WorkspaceType } from '@/api/workspaces/types';
 import WorkspaceCard from '@/components/WorkspaceSidebar/Card';
 import WorkspaceSidebar from '@/components/WorkspaceSidebar/WorkspaceSidebar';
@@ -34,6 +34,7 @@ interface WorkspacesProps {
   workspaces: WorkspaceType[];
   getWorkspaces: () => void;
   visitedAction: (id: WorkspaceType['id']) => void;
+  getSidebarWorkspaces: () => void;
 }
 
 type OpenWsEventType = React.MouseEvent<HTMLDivElement | HTMLLIElement | HTMLButtonElement>;
@@ -43,7 +44,7 @@ const Labels = {
   SEE_MORE: 'workspaces.see-more'
 };
 
-const Workspaces = ({ isLoading, isError, workspaces, getWorkspaces, visitedAction }: WorkspacesProps) => {
+const Workspaces = ({ isLoading, isError, workspaces, getWorkspaces, visitedAction, getSidebarWorkspaces }: WorkspacesProps) => {
   const [isActivePreview, setIsActivePreview] = useState(false);
   const [isOpenSidebarWorkspace, setIsOpenSidebarWorkspace] = useState(false);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
@@ -200,6 +201,7 @@ const Workspaces = ({ isLoading, isError, workspaces, getWorkspaces, visitedActi
                         homePageLink: 'homePageLink?str'
                       });
                       openLink(wsId, homePageLink);
+                      getSidebarWorkspaces();
                     },
                     initiator: {
                       type: 'form-component',
@@ -225,7 +227,8 @@ const mapStateToProps = (store: RootState): Pick<WorkspacesProps, 'workspaces' |
   isError: selectWorkspaceIsError(store)
 });
 
-const mapDispatchToProps = (dispatch: Dispatch): Pick<WorkspacesProps, 'visitedAction' | 'getWorkspaces'> => ({
+const mapDispatchToProps = (dispatch: Dispatch): Pick<WorkspacesProps, 'visitedAction' | 'getWorkspaces' | 'getSidebarWorkspaces'> => ({
+  getSidebarWorkspaces: () => dispatch(getSidebarWorkspaces()),
   visitedAction: id => dispatch(visitedAction(id)),
   getWorkspaces: () => dispatch(getWorkspaces())
 });

@@ -17,6 +17,7 @@ export interface IWorkspaceApi {
   joinToWorkspace: (wsId: WorkspaceType['id']) => void;
   searchMyWorkspaces: (text: string) => void;
   searchPublicWorkspaces: (text: string) => void;
+  removeWorkspace: (wsId: string) => void;
 }
 
 const workspaceAttributes: Partial<Record<keyof WorkspaceType, string>> = {
@@ -52,6 +53,11 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
       },
       workspaceAttributes
     );
+  };
+
+  removeWorkspace = (wsId: string) => {
+    // @ts-ignore
+    return Records.remove([`${SourcesId.WORKSPACE}@${wsId}`]);
   };
 
   getPublicWorkspaces = () => {

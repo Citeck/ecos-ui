@@ -17,10 +17,11 @@ import {
   joinToWorkspace,
   setPublicWorkspaces,
   getSidebarWorkspaces,
-  setLoadingJoin,
+  setLoadingAction,
   setLoading,
   onSearchWorkspaces,
-  setIsBlockedCurrentWorkspace
+  setIsBlockedCurrentWorkspace,
+  removeWorkspace
 } from '@/actions/workspaces';
 import { RecordsQueryResponse } from '@/api/types';
 import { WorkspaceType } from '@/api/workspaces/types';
@@ -87,7 +88,7 @@ function* sagaVisitedActionRequest({ api }: ExtraArgumentsStore, { payload }: Re
 
 function* sagaJoinToWorkspaceRequest({ api }: ExtraArgumentsStore, { payload }: ReturnType<typeof joinToWorkspace>) {
   try {
-    yield put(setLoadingJoin(true));
+    yield put(setLoadingAction(true));
 
     const selectIsBlockedWorkspace: boolean = yield select(selectCurrentWorkspaceIsBlocked);
     const selectBlockedWorkspace: WorkspaceType = yield select(selectCurrentWorkspaceBlocked);
@@ -117,7 +118,7 @@ function* sagaJoinToWorkspaceRequest({ api }: ExtraArgumentsStore, { payload }: 
     yield put(setWorkspacesError());
     NotificationManager.error(t('workspaces.card.join-workspace.error'));
   } finally {
-    yield put(setLoadingJoin(false));
+    yield put(setLoadingAction(false));
   }
 }
 
@@ -174,6 +175,25 @@ function* sagaOnSearchWorkspaces({ api }: ExtraArgumentsStore, { payload }: Retu
   }
 }
 
+function* sagaRemoveWorkspace({ api }: ExtraArgumentsStore, { payload }: ReturnType<typeof removeWorkspace>) {
+  try {
+    yield put(setLoadingAction(true));
+
+    const { wsId, callback } = payload;
+    yield call(api.workspaces.removeWorkspace, wsId);
+    yield put(getSidebarWorkspaces());
+
+    if (callback) {
+      callback();
+    }
+  } catch (e) {
+    console.error('[workspaces/ sagaRemoveWorkspace] error', e);
+    yield put(setWorkspacesError());
+  } finally {
+    yield put(setLoadingAction(false));
+  }
+}
+
 function* saga(ea: ExtraArgumentsStore) {
   yield takeLatest(getWorkspaces.toString(), sagaGetWorkspacesRequest, ea);
   yield takeLatest(goToDefaultFromBlockedWs.toString(), sagaGoToDefaultFromBlockedWs, ea);
@@ -181,6 +201,7 @@ function* saga(ea: ExtraArgumentsStore) {
   yield takeLatest(getSidebarWorkspaces.toString(), sagaGetSidebarWorkspaces, ea);
   yield takeLatest(joinToWorkspace.toString(), sagaJoinToWorkspaceRequest, ea);
   yield takeLatest(onSearchWorkspaces.toString(), sagaOnSearchWorkspaces, ea);
+  yield takeLatest(removeWorkspace.toString(), sagaRemoveWorkspace, ea);
   yield takeEvery(visitedAction.toString(), sagaVisitedActionRequest, ea);
 }
 

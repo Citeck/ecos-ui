@@ -8,7 +8,7 @@ import {
   setWorkspacesError,
   setPublicWorkspaces,
   setMyWorkspaces,
-  setLoadingJoin,
+  setLoadingAction,
   setLoading,
   setIsBlockedCurrentWorkspace
 } from '@/actions/workspaces';
@@ -16,7 +16,7 @@ import { WorkspaceType } from '@/api/workspaces/types';
 
 interface WorkspaceState {
   isLoading: boolean;
-  isLoadingJoin: boolean;
+  isLoadingAction: boolean;
   isError: boolean;
   workspaces: WorkspaceType[];
   myWorkspaces: WorkspaceType[];
@@ -31,7 +31,7 @@ interface WorkspaceState {
 const initialState: WorkspaceState = {
   isLoading: true,
   isError: false,
-  isLoadingJoin: false,
+  isLoadingAction: false,
   workspaces: [],
   myWorkspaces: [],
   publicWorkspaces: [],
@@ -50,9 +50,9 @@ export default handleActions<WorkspaceState, any>(
       ...state,
       isLoading: action.payload
     }),
-    [setLoadingJoin.toString()]: (state, action: ReturnType<typeof setLoadingJoin>) => ({
+    [setLoadingAction.toString()]: (state, action: ReturnType<typeof setLoadingAction>) => ({
       ...state,
-      isLoadingJoin: action.payload
+      isLoadingAction: action.payload
     }),
     [setLoading.toString()]: (state, action: ReturnType<typeof setLoading>) => ({
       ...state,

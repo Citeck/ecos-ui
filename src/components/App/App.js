@@ -35,7 +35,7 @@ import {
   selectCurrentWorkspaceBlocked,
   selectCurrentWorkspaceIsBlocked,
   selectWorkspaceById,
-  selectWorkspaceIsLoadingJoin
+  selectWorkspaceIsLoadingAction
 } from '@/selectors/workspaces';
 import { NotificationContainer } from '@/services/notifications';
 import PageTabList from '@/services/pageTabs/PageTabList';
@@ -140,7 +140,7 @@ class App extends Component {
   }
 
   get propsWarningBlockedWorkspace() {
-    const { isBlockedCurrentWorkspace, blockedCurrentWorkspace, goToDefaultFromBlockedWs, joinToWorkspace, isLoadingJoinToWorkspace = false } = this.props;
+    const { isBlockedCurrentWorkspace, blockedCurrentWorkspace, goToDefaultFromBlockedWs, joinToWorkspace, isLoadingActionWorkspace = false } = this.props;
     const enabledWorkspaces = getEnabledWorkspaces();
 
     const isPublicWorkspace = get(blockedCurrentWorkspace, 'visibility') === 'PUBLIC';
@@ -153,7 +153,7 @@ class App extends Component {
 
     const buttons = isPublicWorkspace ? [
       {
-        loading: isLoadingJoinToWorkspace,
+        loading: isLoadingActionWorkspace,
         className: 'ecos-btn_blue',
         key: 'join-action',
         onClick: () => joinToWorkspace({ wsId: get(blockedCurrentWorkspace, 'id') }),
@@ -519,7 +519,7 @@ const mapStateToProps = (state) => {
 
   return {
     isViewNewJournal: get(state, ['view', 'isViewNewJournal']),
-    isLoadingJoinToWorkspace: selectWorkspaceIsLoadingJoin(state),
+    isLoadingActionWorkspace: selectWorkspaceIsLoadingAction(state),
     isBlockedCurrentWorkspace: selectCurrentWorkspaceIsBlocked(state),
     blockedCurrentWorkspace: selectCurrentWorkspaceBlocked(state),
     workspace: selectWorkspaceById(state, workspaceId),

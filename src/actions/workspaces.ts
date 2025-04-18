@@ -10,13 +10,14 @@ export const setWorkspaces = createAction<WorkspaceType[]>(prefix + 'SET_WORKSPA
 export const setMyWorkspaces = createAction<WorkspaceType[]>(prefix + 'SET_MY_WORKSPACES');
 export const setPublicWorkspaces = createAction<WorkspaceType[]>(prefix + 'SET_PUBLIC_WORKSPACES');
 export const setWorkspacesError = createAction<void>(prefix + 'SET_WORKSPACES_ERROR');
-export const setLoadingJoin = createAction<boolean>(prefix + 'SET_LOADING_JOIN');
+export const setLoadingAction = createAction<boolean>(prefix + 'SET_LOADING_ACTION');
 export const setLoading = createAction<boolean>(prefix + 'SET_LOADING');
 
 export const getWorkspaces = createAction<void>(prefix + 'GET_WORKSPACES');
 export const getSidebarWorkspaces = createAction<void>(prefix + 'GET_SIDEBAR_WORKSPACES');
 
 export const onSearchWorkspaces = createAction<string>(prefix + 'ON_SEARCH_WORKSPACES');
+export const removeWorkspace = createAction<{ wsId: WorkspaceType['id']; callback?: () => void }>(prefix + 'REMOVE_WORKSPACE');
 
 export const setDefaultWorkspace = createAction<WorkspaceType['id']>(prefix + 'SET_DEFAULT_WORKSPACE');
 export const setIsBlockedCurrentWorkspace = createAction<boolean>(prefix + 'SET_IS_BLOCKED_CURRENT_WORKSPACE');

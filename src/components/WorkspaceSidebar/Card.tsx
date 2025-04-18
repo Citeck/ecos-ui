@@ -3,7 +3,7 @@ import isString from 'lodash/isString';
 import React, { Component, ReactNode, RefObject } from 'react';
 import { connect } from 'react-redux';
 
-import { getSidebarWorkspaces, getWorkspaces, joinToWorkspace } from '@/actions/workspaces';
+import { getSidebarWorkspaces, getWorkspaces, joinToWorkspace, removeWorkspace } from '@/actions/workspaces';
 import { WorkspaceType } from '@/api/workspaces/types';
 import FormManager from '@/components/EcosForm/FormManager';
 import WorkspacePreview from '@/components/WorkspacePreview';
@@ -11,7 +11,7 @@ import Confirm from '@/components/WorkspaceSidebar/Confirm';
 import Actions from '@/components/common/icons/Actions';
 import { SourcesId } from '@/constants';
 import { t } from '@/helpers/util';
-import { selectWorkspaceIsLoadingJoin } from '@/selectors/workspaces';
+import { selectWorkspaceIsLoadingAction } from '@/selectors/workspaces';
 import { Dispatch, RootState } from '@/types/store';
 import './styles.scss';
 
@@ -25,8 +25,9 @@ interface WorkspaceCardProps extends WorkspaceType {
   onJoinCallback?: () => void;
   actions?: IAction[];
 
-  joinToWorkspace: (id: WorkspaceType['id'], cb: () => void) => void;
-  isLoadingJoin: boolean;
+  joinToWorkspace: (id: WorkspaceType['id'], cb?: () => void) => void;
+  removeWorkspace: (cb?: () => void) => void;
+  isLoadingAction: boolean;
   getWorkspaces: () => void;
   getSidebarWorkspaces: () => void;
 }
@@ -34,7 +35,8 @@ interface WorkspaceCardProps extends WorkspaceType {
 interface WorkspaceCardState {
   showBtnSettings: boolean;
   showMenuSettings: boolean;
-  isViewConfirmJoin: boolean;
+  isViewConfirm: boolean;
+  isRemovingWorkspace: boolean;
 }
 
 interface IAction {
@@ -47,7 +49,13 @@ type OpenWsEventType = React.MouseEvent<HTMLDivElement | HTMLLIElement | HTMLBut
 const Labels = {
   GO_TO_WORKSPACE: 'workspaces.card.go-to-workspace',
   EDIT_WORKSPACE: 'workspaces.card.edit-workspace',
-  JOIN_TO_WORKSPACE: 'workspaces.card.join-workspace'
+  REMOVE_WORKSPACE: 'workspaces.card.remove-workspace',
+  JOIN_TO_WORKSPACE: 'workspaces.card.join-workspace',
+  CONFIRM_JOIN_TO_WORKSPACE_BTN_LABEL: 'workspaces.card.join-workspace',
+  CONFIRM_JOIN_TO_WORKSPACE_TITLE: 'workspaces.join-confirm.join.workspace',
+  CONFIRM_JOIN_TO_WORKSPACE_DESCRIPTION: 'workspaces.join-confirm.join.description',
+  CONFIRM_REMOVE_WORKSPACE_TITLE: 'workspaces.join-confirm.remove.workspace',
+  CONFIRM_REMOVE_WORKSPACE_DESCRIPTION: 'workspaces.join-confirm.remove.description'
 };
 
 const MAX_WIDTH_ACTION_MENU = 170;
@@ -59,7 +67,7 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
 
   constructor(props: WorkspaceCardProps) {
     super(props);
-    this.state = { showBtnSettings: false, showMenuSettings: false, isViewConfirmJoin: false };
+    this.state = { showBtnSettings: false, showMenuSettings: false, isViewConfirm: false, isRemovingWorkspace: false };
   }
 
   static defaultProps = {
@@ -67,14 +75,14 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
   };
 
   get actions(): IAction[] {
-    const { id: wsId, hasWrite, isCurrentUserMember, openWorkspace, actions: pActions } = this.props;
+    const { id: wsId, hasWrite, isCurrentUserMember, isCurrentUserManager, openWorkspace, actions: pActions } = this.props;
     const actions: IAction[] = [];
 
     if (!wsId) {
       return actions;
     }
 
-    if (!isCurrentUserMember && wsId) {
+    if (!isCurrentUserMember) {
       actions.push({ onClick: this.toggleViewConfirm, label: t(Labels.JOIN_TO_WORKSPACE) });
     }
 
@@ -86,6 +94,10 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
       actions.push({ onClick: this.onEditWorkspace, label: t(Labels.EDIT_WORKSPACE) });
     }
 
+    if (isCurrentUserManager) {
+      actions.push({ onClick: this.onRemoveWorkspace, label: t(Labels.REMOVE_WORKSPACE) });
+    }
+
     if (pActions) {
       pActions.forEach(action => actions.push(action));
     }
@@ -94,7 +106,7 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
   }
 
   toggleViewConfirm = () => {
-    this.setState({ isViewConfirmJoin: !this.state.isViewConfirmJoin });
+    this.setState({ isViewConfirm: !this.state.isViewConfirm, isRemovingWorkspace: false });
     this.setState({ showMenuSettings: false, showBtnSettings: false });
   };
 
@@ -106,6 +118,11 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
       onSubmit: () => this.refetchWorkspaces()
     });
     this.toggleMenuSettings();
+  };
+
+  onRemoveWorkspace = () => {
+    this.toggleViewConfirm();
+    this.setState({ isRemovingWorkspace: true });
   };
 
   refetchWorkspaces = () => {
@@ -192,7 +209,7 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
     }
 
     joinToWorkspace(wsId, () => {
-      this.setState({ isViewConfirmJoin: false });
+      this.toggleViewConfirm();
 
       if (openWorkspace) {
         openWorkspace(e);
@@ -204,6 +221,42 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
     });
   };
 
+  onConfirmRemove = () => {
+    this.props.removeWorkspace(() => this.toggleViewConfirm());
+  };
+
+  renderConfirm = () => {
+    const { isLoadingAction, name } = this.props;
+    const { isViewConfirm, isRemovingWorkspace } = this.state;
+
+    if (!isViewConfirm) {
+      return null;
+    }
+
+    if (isRemovingWorkspace) {
+      return (
+        <Confirm
+          title={t(Labels.CONFIRM_REMOVE_WORKSPACE_TITLE, { wsName: name })}
+          description={t(Labels.CONFIRM_REMOVE_WORKSPACE_DESCRIPTION)}
+          isLoading={isLoadingAction}
+          onConfirm={this.onConfirmRemove}
+          onHide={this.toggleViewConfirm}
+        />
+      );
+    }
+
+    return (
+      <Confirm
+        title={t(Labels.CONFIRM_JOIN_TO_WORKSPACE_TITLE, { wsName: name })}
+        description={t(Labels.CONFIRM_JOIN_TO_WORKSPACE_DESCRIPTION)}
+        isLoading={isLoadingAction}
+        onConfirm={this.onConfirmJoin}
+        onHide={this.toggleViewConfirm}
+        confirmBtnLabel={t(Labels.CONFIRM_JOIN_TO_WORKSPACE_BTN_LABEL)}
+      />
+    );
+  };
+
   render() {
     const {
       image,
@@ -213,12 +266,11 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
       description: wsDescription,
       customImagePreview,
       isCurrentUserMember,
-      isLoadingJoin,
       hasAnimationOnHover,
       openWorkspace,
       onMouseDown
     } = this.props;
-    const { isViewConfirmJoin, showMenuSettings, showBtnSettings } = this.state;
+    const { showMenuSettings, showBtnSettings } = this.state;
 
     const description = (isString(wsDescription) && wsDescription.trim()) || '';
 
@@ -229,9 +281,7 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
         onMouseEnter={() => this.handleShowBtnSettings(true)}
         onMouseLeave={() => this.handleShowBtnSettings(false)}
       >
-        {isViewConfirmJoin && (
-          <Confirm isLoading={isLoadingJoin} onConfirm={this.onConfirmJoin} onHide={this.toggleViewConfirm} wsName={name} />
-        )}
+        {this.renderConfirm()}
         {this.renderMenuActions()}
         {this.actions.length > 0 && this.renderBtnSettings()}
         <div
@@ -257,15 +307,17 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
   }
 }
 
-const mapStateToProps = (state: RootState): Pick<WorkspaceCardProps, 'isLoadingJoin'> => ({
-  isLoadingJoin: selectWorkspaceIsLoadingJoin(state)
+const mapStateToProps = (state: RootState): Pick<WorkspaceCardProps, 'isLoadingAction'> => ({
+  isLoadingAction: selectWorkspaceIsLoadingAction(state)
 });
 
 const mapDispatchToProps = (
-  dispatch: Dispatch
-): Pick<WorkspaceCardProps, 'getWorkspaces' | 'getSidebarWorkspaces' | 'joinToWorkspace'> => ({
+  dispatch: Dispatch,
+  props: Omit<WorkspaceCardProps, 'isLoadingAction' | 'getWorkspaces' | 'getSidebarWorkspaces' | 'joinToWorkspace' | 'removeWorkspace'>
+): Pick<WorkspaceCardProps, 'getWorkspaces' | 'getSidebarWorkspaces' | 'joinToWorkspace' | 'removeWorkspace'> => ({
   getWorkspaces: () => dispatch(getWorkspaces()),
   getSidebarWorkspaces: () => dispatch(getSidebarWorkspaces()),
+  removeWorkspace: callback => dispatch(removeWorkspace({ wsId: props.id, callback })),
   joinToWorkspace: (wsId, callback) => dispatch(joinToWorkspace({ wsId, callback }))
 });
 

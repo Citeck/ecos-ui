@@ -45,6 +45,8 @@
       border-radius: 12px;
       background: $color-white;
 
+      max-width: 566px;
+
       display: flex;
       flex-direction: column;
       gap: 40px;
@@ -54,8 +56,6 @@
         justify-content: space-between;
         align-items: center;
         width: 100%;
-
-        max-height: 20px;
       }
 
       &_title {
