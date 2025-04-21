@@ -1,12 +1,12 @@
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
 
-import { OrgstructProvider } from './OrgstructContext';
 import Modal from './Modal';
-import { OrgStructApi } from '../../../api/orgStruct';
+import { OrgstructProvider } from './OrgstructContext';
 import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, DataTypes, GroupTypes, ROOT_GROUP_NAME, TabTypes, ViewModes } from './constants';
 
-import { IS_TEST_ENV } from '../../../helpers/util';
+import { OrgStructApi } from '@/api/orgStruct';
+import { IS_TEST_ENV } from '@/helpers/util';
 
 const orgStructApi = new OrgStructApi();
 

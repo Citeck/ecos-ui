@@ -1,6 +1,6 @@
 import get from 'lodash/get';
 import PropTypes from 'prop-types';
-import React, { Suspense, useState, useCallback } from 'react';
+import React, { Suspense, useState, useCallback, useRef, useEffect } from 'react';
 import { Collapse } from 'reactstrap';
 
 import ListItem, { itemPropType } from '../ListItem';
@@ -10,64 +10,11 @@ import { Loader } from '@/components/common';
 import { useOrgstructContext } from '@/components/common/Orgstruct/OrgstructContext';
 
 import './List.scss';
-
-const List = ({ items, nestingLevel = 0, tabId, toggleToFirstTab, previousParent }) => {
-  const { currentTab, tabItems, openedItems } = useOrgstructContext();
-
-  const [selectedId, setSelectedId] = useState('');
-
-  const getGroups = useCallback(item => get(item, 'attributes.groups', []), [nestingLevel]);
-  const deletePersonItem = useCallback(item => {
-    const record = Records.get(item.id);
-
-    record.att('att_rem_authorityGroups', item.parentId);
-
-    return record.save();
-  });
-
+const List = ({ items, counting, tabId, toggleToFirstTab }) => {
   return (
-    <ul className={'select-orgstruct__list'}>
+    <ul className={`select-orgstruct__list`}>
       {items.map((item, index) => {
-        let nestedList = null;
-
-        if (item.hasChildren && item.isOpen) {
-          const children = tabItems[currentTab].filter(i => i.parentId === item.id || getGroups(i).includes(item.id));
-
-          nestedList = (
-            <Collapse
-              isOpen={
-                previousParent && openedItems[item.id] && openedItems[item.id].length >= 0
-                  ? openedItems[item.id].includes(previousParent)
-                  : item.isOpen
-              }
-            >
-              <Suspense fallback={<Loader type="points" />}>
-                <List
-                  previousParent={item.id}
-                  items={children}
-                  nestingLevel={nestingLevel + 1}
-                  tabId={tabId}
-                  toggleToFirstTab={toggleToFirstTab}
-                />
-              </Suspense>
-            </Collapse>
-          );
-        }
-
-        return (
-          <ListItem
-            previousParent={previousParent}
-            key={`${index}-${nestingLevel}-${item.id}`}
-            item={item}
-            nestingLevel={nestingLevel}
-            nestedList={nestedList}
-            deleteItem={deletePersonItem}
-            selectedId={selectedId}
-            setSelectedId={setSelectedId}
-            tabId={tabId}
-            toggleToFirstTab={toggleToFirstTab}
-          />
-        );
+        return <ListItem key={`${index}-${item.id}`} path={`root`} item={item} tabId={tabId} toggleToFirstTab={toggleToFirstTab} />;
       })}
     </ul>
   );

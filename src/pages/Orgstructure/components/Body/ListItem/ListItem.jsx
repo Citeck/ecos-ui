@@ -3,8 +3,9 @@ import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import noop from 'lodash/noop';
 import PropTypes from 'prop-types';
-import React, { useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import React, { useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
+import { Collapse } from 'reactstrap';
 
 import ModalContent from '../ModalContent';
 
@@ -16,9 +17,10 @@ import { getDashboardConfig, setLoading } from '@/actions/dashboard';
 import { setSelectedPerson } from '@/actions/orgstructure';
 import FormManager from '@/components/EcosForm/FormManager';
 import Records from '@/components/Records';
-import { EcosModal } from '@/components/common';
+import { EcosModal, Loader } from '@/components/common';
 import { OrgstructContext } from '@/components/common/Orgstruct/OrgstructContext';
 import { ROOT_GROUP_NAME } from '@/components/common/Orgstruct/constants';
+import { handleResponse } from '@/components/common/form/SelectOrgstruct/helpers';
 import { SourcesId } from '@/constants';
 import { updateCurrentUrl } from '@/helpers/urls';
 import { t } from '@/helpers/util';
@@ -64,55 +66,66 @@ const FORM_CONFIG = {
   }
 };
 
-const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, selectedPerson, tabId, toggleToFirstTab, previousParent }) => {
-  const { onToggleCollapse, getItemsByParent, setGroupModal, setPersonModal, openedItems } = useContext(OrgstructContext);
+const ListItem = ({ item, tabId, toggleToFirstTab, dispatch, path, onManualRefresh }) => {
+  const {
+    onToggleCollapse,
+    getItemsByParent,
+    setGroupModal,
+    setPersonModal,
+    excludeAuthoritiesByName,
+    excludeAuthoritiesByType,
+    isIncludedAdminGroup,
+    orgStructApi
+  } = useContext(OrgstructContext);
 
-  const [hovered, setHovered] = useState(false);
-  const [scrollLeft, setScrollLeftPosition] = useState(0);
+  const [nestingLevel, setNestingLevel] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState('');
+
   const [isToggle, setToggle] = useState(false);
+  const [expandedId, setExpandedId] = useState(null);
+  const [nestedList, setNestedList] = useState([]);
+  const [groupId, setGroupId] = useState(null);
+  const [listId, setListId] = useState([]);
+  const [loadedData, setLoadedData] = useState({});
+  const [errorItem, setErrorItem] = useState(null);
 
-  const selected = useMemo(() => selectedPerson === item.id, [item.id]);
+  const onClickLabel = useCallback(
+    async groupItem => {
+      if (!groupItem?.hasChildren && !groupItem?.isLoaded) return;
+      setNestingLevel(prev => (expandedId === groupItem.id ? prev - 1 : prev + 1));
+      setExpandedId(expandedId === groupItem.id ? null : groupItem.id);
+      setGroupId(groupItem.id);
+      setToggle(!isToggle);
 
-  const onClickLabel = () => {
-    if (item.hasChildren) {
-      onToggleCollapse(item, null, previousParent);
-      setToggle(!item.isOpen);
-    }
-  };
-  const onScroll = useCallback(
-    e => {
-      const targetScrollLeft = get(e, 'target.scrollLeft', 0);
+      if (loadedData[groupItem.id]?.length && nestingLevel >= 1) return;
+      try {
+        const queryGroups = {
+          query: { groupName: groupItem.attributes.shortName },
+          excludeAuthoritiesByName,
+          excludeAuthoritiesByType,
+          isIncludedAdminGroup
+        };
+        const childrenGroups = await orgStructApi.fetchGroup(queryGroups);
+        const result = await handleResponse(childrenGroups);
+        const configResult = result.map(item => ({
+          ...item,
+          parentId: groupItem.id
+        }));
 
-      if (scrollLeft !== targetScrollLeft) {
-        setScrollLeftPosition(targetScrollLeft);
+        if (!configResult.length) {
+          setNestedList([{ id: 'empty', label: t('empty-groups-or-users'), hasChildren: false }]);
+          setLoadedData(prev => ({ ...prev, [groupItem.id]: configResult }));
+          return;
+        }
+        setNestedList(configResult);
+        setLoadedData(prev => ({ ...prev, [groupItem.id]: configResult }));
+      } catch (e) {
+        console.log('e: ', e);
       }
     },
-    [scrollLeft]
+    [expandedId, excludeAuthoritiesByName, excludeAuthoritiesByType, isIncludedAdminGroup, loadedData, orgStructApi]
   );
-
-  useEffect(() => {
-    window.addEventListener('scroll', onScroll, true);
-
-    return () => {
-      window.removeEventListener('scroll', onScroll, true);
-    };
-  }, []);
-
-  const handleMouseEnter = useCallback(
-    e => {
-      const parent = e.target.closest('.slide-menu-list > div');
-
-      setHovered(true);
-      parent && setScrollLeftPosition(parent.scrollLeft);
-    },
-    [item.id]
-  );
-
-  const handleMouseLeave = useCallback(() => {
-    setHovered(false);
-  }, [item.id]);
 
   const createForm = useCallback(
     formConfig =>
@@ -131,7 +144,21 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
           const newGroups = await Records.get(submitedRecord).load('authorityGroups[]?id');
           const prevGroups = get(item, 'attributes.groups', []);
           const difference = prevGroups.filter(authorityGroup => !newGroups.includes(authorityGroup));
+          const input = difference[0] || newGroups[1];
 
+          const queryGroups = {
+            query: { groupName: ROOT_GROUP_NAME },
+            excludeAuthoritiesByName,
+            excludeAuthoritiesByType,
+            isIncludedAdminGroup
+          };
+
+          const childrenGroups = await orgStructApi.fetchGroup(queryGroups);
+          const result = await handleResponse(childrenGroups);
+          const group = result.find(item => item.id === input);
+          if (group && onManualRefresh) {
+            onManualRefresh(group);
+          }
           getItemsByParent(
             {
               ...item,
@@ -160,11 +187,14 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
   const createPerson = createForm(FORM_CONFIG.PERSON);
   const createGroup = createForm(FORM_CONFIG.AUTHORITY_GROUP);
 
-  const openModal = useCallback(type => e => {
-    e.stopPropagation();
-    setModalType(type);
-    setModalOpen(true);
-  });
+  const openModal = useCallback(
+    type => e => {
+      e.stopPropagation();
+      setModalType(type);
+      setModalOpen(true);
+    },
+    []
+  );
 
   const closeModal = useCallback(e => {
     e.stopPropagation();
@@ -173,7 +203,6 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
 
   const deleteFromGroup = useCallback(async e => {
     closeModal(e);
-
     try {
       await deleteItem({ ...item });
     } catch (e) {
@@ -207,7 +236,7 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
 
   const renderModalContent = () => (modalType === 'person' ? <ModalContent config={personConfig} /> : null);
 
-  const selectPerson = e => {
+  const selectPerson = useCallback(e => {
     e.stopPropagation();
 
     dispatch(setSelectedPerson({ recordRef: item.id, key: tabId }));
@@ -216,31 +245,35 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
 
     updateCurrentUrl({ recordRef: item.id });
     isFunction(toggleToFirstTab) && toggleToFirstTab();
-  };
+  }, []);
 
   const canEdit = useMemo(() => get(item, 'attributes.canEdit', false), []);
-  const isPerson = useMemo(() => item.id.includes(SourcesId.PERSON), [item.id]);
-  const isGroup = useMemo(() => item.id.includes(SourcesId.GROUP), [item.id]);
+  const isPerson = useMemo(() => item.id.includes(SourcesId.PERSON), []);
+  const isGroup = useMemo(() => item.id.includes(SourcesId.GROUP), []);
+
+  const getGroups = useCallback(item => get(item, 'attributes.groups', []), [nestingLevel]);
+  const deletePersonItem = useCallback(item => {
+    const record = Records.get(item.id);
+
+    record.att('att_rem_authorityGroups', item.parentId);
+
+    return record.save();
+  });
 
   return (
-    <li>
+    <div>
       <div
         className={classNames('select-orgstruct__list-item', 'orgstructure-page', {
           'select-orgstruct__list-item_strong': item.isStrong
         })}
-        style={{
-          paddingLeft: 20 * nestingLevel
-        }}
         onClick={isPerson ? selectPerson : noop}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
       >
         <div
           className={classNames('select-orgstruct__list-item-label', 'orgstructure-page', {
             'select-orgstruct__list-item-label_clickable': item.hasChildren,
             'select-orgstruct__list-item-label_margin-left': nestingLevel > 0 && !item.hasChildren
           })}
-          onClick={onClickLabel}
+          onClick={() => onClickLabel(item)}
         >
           <div className="orgstructure-page__list-item-container">
             <div>
@@ -248,23 +281,11 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
               <InternalList infoLabel={item} nestingLevel={nestingLevel} isPerson={isPerson} />
             </div>
 
-            <div
-              className={classNames('orgstructure-page__list-item-icons', {
-                'orgstructure-page__list-item-icons_hidden': !hovered
-              })}
-              style={{ right: 12 - scrollLeft }}
-            >
+            <div className={classNames('orgstructure-page__list-item-icons')}>
               {canEdit && isPerson && item.parentId && (
                 <GroupIcon title={t(Labels.TITLE_PERSON_DELETE)} icon="remove-person" onClick={openModal('person')} />
               )}
-              {canEdit && isPerson && (
-                <GroupIcon
-                  title={t(Labels.TITLE_PERSON_SELECT)}
-                  icon="select-person"
-                  className={classNames([{ 'icon-user__clicked': selected }])}
-                  onClick={selectPerson}
-                />
-              )}
+              {canEdit && isPerson && <GroupIcon title={t(Labels.TITLE_PERSON_SELECT)} icon="select-person" onClick={selectPerson} />}
 
               {canEdit && isGroup && <GroupIcon title={t(Labels.TITLE_GROUP_EDIT)} icon="edit" onClick={e => createGroup(e, true)} />}
               {canEdit && isGroup && (
@@ -304,8 +325,35 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
           </div>
         </div>
       </div>
-      {nestedList}
-    </li>
+      {expandedId === groupId && (
+        <>
+          {nestedList.map((childItem, index, originNestedList) => {
+            return (
+              <div
+                key={`${path}/${childItem.id}`}
+                style={{
+                  paddingLeft: 20 * nestingLevel
+                }}
+              >
+                {childItem.id === 'empty' ? (
+                  <div className="select-orgstruct__list-item__empty" key={childItem.id}>
+                    {childItem.label}
+                  </div>
+                ) : (
+                  <ListItem
+                    item={childItem}
+                    dispatch={dispatch}
+                    tabId={tabId}
+                    toggleToFirstTab={toggleToFirstTab}
+                    onManualRefresh={onClickLabel}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </>
+      )}
+    </div>
   );
 };
 
@@ -328,8 +376,7 @@ ListItem.propTypes = {
   key: PropTypes.string,
   tabId: PropTypes.string,
   item: itemPropType,
-  nestingLevel: PropTypes.number,
-  nestedList: PropTypes.node
+  nestingLevel: PropTypes.number
 };
 
 const mapStateToProps = state => ({

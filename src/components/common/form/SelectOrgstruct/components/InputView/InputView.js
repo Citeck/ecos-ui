@@ -1,16 +1,19 @@
-import React, { useContext } from 'react';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import React, { useContext } from 'react';
 
-import { t } from '../../../../../../helpers/util';
-import { createDocumentUrl, createProfileUrl, isNewVersionPage } from '../../../../../../helpers/urls';
-import { Tooltip } from '../../../../../common';
-import Tags from '../../../../../common/Tags';
-import { Btn } from '../../../../../common/btns';
 import { AssocLink } from '../../../AssocLink';
 import { SelectOrgstructContext } from '../../SelectOrgstructContext';
 import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, ViewModes } from '../../constants';
 import ViewMode from '../ViewMode';
+
+import { Tooltip } from '@/components/common';
+import { ROOT_GROUP_NAME } from '@/components/common/Orgstruct/constants';
+import Tags from '@/components/common/Tags';
+import { Btn } from '@/components/common/btns';
+import { SourcesId } from '@/constants';
+import { createDocumentUrl, createProfileUrl, isNewVersionPage } from '@/helpers/urls';
+import { t } from '@/helpers/util';
 
 import './InputView.scss';
 
@@ -136,7 +139,7 @@ const InputView = () => {
           setSelectedRows(newSelectedRows);
         }}
         onAddTag={toggleSelectModal}
-        exception={['emodel/authority-group@_orgstruct_home_']}
+        exception={[`${SourcesId.GROUP}@${ROOT_GROUP_NAME}`]}
       />
     );
   }
