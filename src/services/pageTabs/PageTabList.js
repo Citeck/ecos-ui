@@ -88,7 +88,7 @@ class PageTabList {
     this.#displayState = !!displayState;
     this.#isDuplicateAllowed = !!isDuplicateAllowed;
 
-    const enabledWorkspace = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+    const enabledWorkspace = getEnabledWorkspaces();
 
     let tabs = this.getFromStorage();
 

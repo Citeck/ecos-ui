@@ -180,7 +180,7 @@ export default class PageService {
     }
   }
 
-  static keyId({ link, type, key, wsId }) {
+  static keyId({ link, type, key, workspace: wsId }) {
     const _type = type || PageService.getType(link);
     const _key = key || PageService.getKey({ link, type });
     const _wsId = wsId || getWorkspaceId();

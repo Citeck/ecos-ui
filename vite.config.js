@@ -64,7 +64,9 @@ const preOptimizeDepsLibs = [
   'lodash/uniq',
   'regenerator-runtime/runtime',
   '@lexical/react/LexicalCollaborationContext',
-  '@lexical/react/LexicalNestedComposer'
+  '@lexical/react/LexicalNestedComposer',
+  'lodash/noop',
+  'bpmn-js/lib/features/modeling/ElementFactory'
 ];
 
 export default defineConfig(({ mode }) => {
