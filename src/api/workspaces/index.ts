@@ -15,6 +15,7 @@ export interface IWorkspaceApi {
   isViewWorkspace: (wsId: WorkspaceType['id']) => PureQueryResponse<boolean>;
   visitedAction: (wsId: WorkspaceType['id']) => void;
   joinToWorkspace: (wsId: WorkspaceType['id']) => void;
+  leaveOfWorkspace: (wsId: WorkspaceType['id']) => void;
   searchMyWorkspaces: (text: string) => void;
   searchPublicWorkspaces: (text: string) => void;
   removeWorkspace: (wsId: string) => void;
@@ -28,6 +29,8 @@ const workspaceAttributes: Partial<Record<keyof WorkspaceType, string>> = {
   image: 'icon.url',
   isCurrentUserMember: 'isCurrentUserMember?bool',
   isCurrentUserManager: 'isCurrentUserManager?bool',
+  isCurrentUserLastManager: 'isCurrentUserLastManager?bool', // cause: https://jira.citeck.ru/browse/ECOSCOM-5763
+  isCurrentUserDirectMember: 'isCurrentUserDirectMember?bool', // cause: https://jira.citeck.ru/browse/ECOSCOM-5763
   visibility: 'visibility.value',
   hasWrite: 'permissions._has.Write?bool'
 };
@@ -49,7 +52,8 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
     return Records.query(
       {
         sourceId: SourcesId.WORKSPACE,
-        language: 'user-workspaces'
+        language: 'user-workspaces',
+        sortBy: [{ attribute: '_created', ascending: false }]
       },
       workspaceAttributes
     );
@@ -80,7 +84,8 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
               v: false
             }
           ]
-        }
+        },
+        sortBy: [{ attribute: '_created', ascending: false }]
       },
       workspaceAttributes
     );
@@ -109,9 +114,18 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
 
   joinToWorkspace = (wsId: WorkspaceType['id']) => {
     // @ts-ignore
-    const record = Records.get(`${SourcesId.WORKSPACE}@${wsId}`);
-    record.att('action', 'JOIN');
-    return record.save();
+    const action = Records.getRecordToEdit(`${SourcesId.WORKSPACE_SERVICE}@`);
+    action.att('type', 'JOIN');
+    action.att('workspace', wsId);
+    return action.save();
+  };
+
+  leaveOfWorkspace = (wsId: WorkspaceType['id']) => {
+    // @ts-ignore
+    const action = Records.getRecordToEdit(`${SourcesId.WORKSPACE_SERVICE}@`);
+    action.att('type', 'LEAVE');
+    action.att('workspace', wsId);
+    return action.save();
   };
 
   searchPublicWorkspaces = (text: string) => {

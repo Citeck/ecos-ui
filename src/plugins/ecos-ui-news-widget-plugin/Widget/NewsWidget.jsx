@@ -1,5 +1,6 @@
 import { isFunction } from 'lodash';
 import get from 'lodash/get';
+import moment from 'moment';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -187,14 +188,7 @@ class NewsWidget extends BaseWidget {
   };
 
   formatDateRu(dateStr) {
-    const date = new Date(dateStr);
-    return new Intl.DateTimeFormat('ru-RU', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    })
-      .format(date)
-      .replace(/\sг\.$/, '');
+    return moment(dateStr).format('D MMMM YYYY');
   }
 
   getTextNews(newsText) {

@@ -21,7 +21,8 @@ import {
   setLoading,
   onSearchWorkspaces,
   setIsBlockedCurrentWorkspace,
-  removeWorkspace
+  removeWorkspace,
+  leaveOfWorkspace
 } from '@/actions/workspaces';
 import { RecordsQueryResponse } from '@/api/types';
 import { WorkspaceType } from '@/api/workspaces/types';
@@ -122,6 +123,19 @@ function* sagaJoinToWorkspaceRequest({ api }: ExtraArgumentsStore, { payload }: 
   }
 }
 
+function* sagaLeaveOfWorkspace({ api }: ExtraArgumentsStore, { payload }: ReturnType<typeof leaveOfWorkspace>) {
+  try {
+    yield put(setLoading(true));
+    yield call(api.workspaces.leaveOfWorkspace, payload);
+    yield put(getSidebarWorkspaces());
+  } catch (e) {
+    console.error('[workspaces/ sagaLeaveOfWorkspace] error', e);
+    yield put(setWorkspacesError());
+  } finally {
+    yield put(setLoading(false));
+  }
+}
+
 function* sagaGoToDefaultFromBlockedWs() {
   try {
     const newUrl = getLinkWithWs(URL.DASHBOARD, getPersonalWorkspaceId());
@@ -200,6 +214,7 @@ function* saga(ea: ExtraArgumentsStore) {
   yield takeLatest(updateUIWorkspace.toString(), sagaUpdateUIWorkspace, ea);
   yield takeLatest(getSidebarWorkspaces.toString(), sagaGetSidebarWorkspaces, ea);
   yield takeLatest(joinToWorkspace.toString(), sagaJoinToWorkspaceRequest, ea);
+  yield takeLatest(leaveOfWorkspace.toString(), sagaLeaveOfWorkspace, ea);
   yield takeLatest(onSearchWorkspaces.toString(), sagaOnSearchWorkspaces, ea);
   yield takeLatest(removeWorkspace.toString(), sagaRemoveWorkspace, ea);
   yield takeEvery(visitedAction.toString(), sagaVisitedActionRequest, ea);

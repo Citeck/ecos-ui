@@ -2766,6 +2766,8 @@
   "workspaces.card.go-to-workspace": "Go to the workspace",
   "workspaces.card.edit-workspace": "Edit",
   "workspaces.card.remove-workspace": "Delete",
+  "workspaces.card.leave-workspace": "Leave of workspace",
+  "workspaces.card.leave-workspace.error": "You are the last manager in the space",
   "workspaces.card.my-workspaces": "My workspaces",
   "workspaces.card.public-workspaces": "Public workspaces",
   "workspaces.card.join-workspace": "Join",

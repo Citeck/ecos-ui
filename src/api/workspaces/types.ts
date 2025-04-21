@@ -6,6 +6,8 @@ export type WorkspaceType = {
   image: string | null;
   isCurrentUserMember: boolean;
   isCurrentUserManager: boolean;
+  isCurrentUserDirectMember: boolean;
+  isCurrentUserLastManager: boolean;
   visibility: VisibilityType;
   hasWrite: boolean;
 };

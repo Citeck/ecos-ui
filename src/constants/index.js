@@ -77,6 +77,7 @@ export const SourcesId = {
   RESOLVED_BOARD: 'uiserv/rboard',
   RESOLVED_TYPE: 'emodel/rtype',
   WORKSPACE: 'emodel/workspace',
+  WORKSPACE_SERVICE: 'emodel/workspace-service',
   TYPE: 'emodel/type',
   FONT_ICON: 'ui/icon',
   MODEL_META: 'emodel/meta',

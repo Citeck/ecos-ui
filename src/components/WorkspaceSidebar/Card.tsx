@@ -3,7 +3,7 @@ import isString from 'lodash/isString';
 import React, { Component, ReactNode, RefObject } from 'react';
 import { connect } from 'react-redux';
 
-import { getSidebarWorkspaces, getWorkspaces, joinToWorkspace, removeWorkspace } from '@/actions/workspaces';
+import { getSidebarWorkspaces, getWorkspaces, joinToWorkspace, leaveOfWorkspace, removeWorkspace } from '@/actions/workspaces';
 import { WorkspaceType } from '@/api/workspaces/types';
 import FormManager from '@/components/EcosForm/FormManager';
 import WorkspacePreview from '@/components/WorkspacePreview';
@@ -12,6 +12,7 @@ import Actions from '@/components/common/icons/Actions';
 import { SourcesId } from '@/constants';
 import { t } from '@/helpers/util';
 import { selectWorkspaceIsLoadingAction } from '@/selectors/workspaces';
+import { NotificationManager } from '@/services/notifications';
 import { Dispatch, RootState } from '@/types/store';
 import './styles.scss';
 
@@ -25,8 +26,9 @@ interface WorkspaceCardProps extends WorkspaceType {
   onJoinCallback?: () => void;
   actions?: IAction[];
 
-  joinToWorkspace: (id: WorkspaceType['id'], cb?: () => void) => void;
+  joinToWorkspace: (cb?: () => void) => void;
   removeWorkspace: (cb?: () => void) => void;
+  leaveOfWorkspace: () => void;
   isLoadingAction: boolean;
   getWorkspaces: () => void;
   getSidebarWorkspaces: () => void;
@@ -50,6 +52,8 @@ const Labels = {
   GO_TO_WORKSPACE: 'workspaces.card.go-to-workspace',
   EDIT_WORKSPACE: 'workspaces.card.edit-workspace',
   REMOVE_WORKSPACE: 'workspaces.card.remove-workspace',
+  LEAVE_WORKSPACE: 'workspaces.card.leave-workspace',
+  LEAVE_WORKSPACE_ERROR: 'workspaces.card.leave-workspace.error',
   JOIN_TO_WORKSPACE: 'workspaces.card.join-workspace',
   CONFIRM_JOIN_TO_WORKSPACE_BTN_LABEL: 'workspaces.card.join-workspace',
   CONFIRM_JOIN_TO_WORKSPACE_TITLE: 'workspaces.join-confirm.join.workspace',
@@ -75,7 +79,15 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
   };
 
   get actions(): IAction[] {
-    const { id: wsId, hasWrite, isCurrentUserMember, isCurrentUserManager, openWorkspace, actions: pActions } = this.props;
+    const {
+      id: wsId,
+      hasWrite,
+      isCurrentUserMember,
+      isCurrentUserManager,
+      isCurrentUserDirectMember,
+      openWorkspace,
+      actions: pActions
+    } = this.props;
     const actions: IAction[] = [];
 
     if (!wsId) {
@@ -92,6 +104,10 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
 
     if (hasWrite) {
       actions.push({ onClick: this.onEditWorkspace, label: t(Labels.EDIT_WORKSPACE) });
+    }
+
+    if (isCurrentUserDirectMember) {
+      actions.push({ onClick: this.onLeaveWorkspace, label: t(Labels.LEAVE_WORKSPACE) });
     }
 
     if (isCurrentUserManager) {
@@ -123,6 +139,18 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
   onRemoveWorkspace = () => {
     this.toggleViewConfirm();
     this.setState({ isRemovingWorkspace: true });
+  };
+
+  onLeaveWorkspace = () => {
+    const { isCurrentUserLastManager, leaveOfWorkspace } = this.props;
+    this.setState({ showMenuSettings: false, showBtnSettings: false });
+
+    if (isCurrentUserLastManager) {
+      NotificationManager.error(t(Labels.LEAVE_WORKSPACE_ERROR), null, 0);
+      return;
+    }
+
+    leaveOfWorkspace();
   };
 
   refetchWorkspaces = () => {
@@ -202,13 +230,9 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
   }
 
   onConfirmJoin = (e: OpenWsEventType) => {
-    const { id: wsId, joinToWorkspace, onJoinCallback, openWorkspace } = this.props;
+    const { joinToWorkspace, onJoinCallback, openWorkspace } = this.props;
 
-    if (!wsId) {
-      return;
-    }
-
-    joinToWorkspace(wsId, () => {
+    joinToWorkspace(() => {
       this.toggleViewConfirm();
 
       if (openWorkspace) {
@@ -311,14 +335,17 @@ const mapStateToProps = (state: RootState): Pick<WorkspaceCardProps, 'isLoadingA
   isLoadingAction: selectWorkspaceIsLoadingAction(state)
 });
 
+type OmitProps = 'getWorkspaces' | 'getSidebarWorkspaces' | 'joinToWorkspace' | 'removeWorkspace' | 'leaveOfWorkspace';
+
 const mapDispatchToProps = (
   dispatch: Dispatch,
-  props: Omit<WorkspaceCardProps, 'isLoadingAction' | 'getWorkspaces' | 'getSidebarWorkspaces' | 'joinToWorkspace' | 'removeWorkspace'>
-): Pick<WorkspaceCardProps, 'getWorkspaces' | 'getSidebarWorkspaces' | 'joinToWorkspace' | 'removeWorkspace'> => ({
+  props: Omit<WorkspaceCardProps, 'isLoadingAction' | OmitProps>
+): Pick<WorkspaceCardProps, OmitProps> => ({
   getWorkspaces: () => dispatch(getWorkspaces()),
   getSidebarWorkspaces: () => dispatch(getSidebarWorkspaces()),
   removeWorkspace: callback => dispatch(removeWorkspace({ wsId: props.id, callback })),
-  joinToWorkspace: (wsId, callback) => dispatch(joinToWorkspace({ wsId, callback }))
+  joinToWorkspace: callback => dispatch(joinToWorkspace({ wsId: props.id, callback })),
+  leaveOfWorkspace: () => dispatch(leaveOfWorkspace(props.id))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(WorkspaceCard);

@@ -2765,6 +2765,8 @@
   "workspaces.card.go-to-workspace": "Перейти в пространство",
   "workspaces.card.edit-workspace": "Редактировать",
   "workspaces.card.remove-workspace": "Удалить",
+  "workspaces.card.leave-workspace": "Выйти из пространства",
+  "workspaces.card.leave-workspace.error": "Вы последний менеджер в пространстве",
   "workspaces.card.my-workspaces": "Мои пространства",
   "workspaces.card.public-workspaces": "Публичные пространства",
   "workspaces.card.join-workspace": "Присоединиться",
