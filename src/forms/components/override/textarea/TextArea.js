@@ -1,7 +1,7 @@
 import { $generateHtmlFromNodes, $generateNodesFromDOM } from '@lexical/html';
 import Formio from 'formiojs/Formio';
 import FormIOTextAreaComponent from 'formiojs/components/textarea/TextArea';
-import { $getRoot } from 'lexical';
+import { $createParagraphNode, $getRoot, $isDecoratorNode, $isElementNode } from 'lexical';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
@@ -111,7 +111,17 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
           if (!this._lexicalInited) {
             const parser = new DOMParser();
             const dom = parser.parseFromString(value ?? '', 'text/html');
-            const nodes = $generateNodesFromDOM(editor, dom);
+            let nodes = $generateNodesFromDOM(editor, dom);
+
+            nodes = nodes.map(node => {
+              if ($isElementNode(node) || $isDecoratorNode(node)) {
+                return node;
+              }
+
+              const paragraph = $createParagraphNode();
+              paragraph.append(node);
+              return paragraph;
+            });
 
             const root = $getRoot();
             root.clear();

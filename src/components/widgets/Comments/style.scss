@@ -361,6 +361,7 @@
 
       &-btn {
         width: 141px;
+        position: static !important;
 
         &:not(:last-child) {
           margin-right: 10px;
