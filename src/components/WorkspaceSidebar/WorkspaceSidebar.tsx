@@ -13,6 +13,7 @@ import NoDataWorkspaces from '@/components/common/icons/NoDataWorkspaces';
 import { getWorkspaceId } from '@/helpers/urls';
 import { t } from '@/helpers/util';
 import { selectMyWorkspaces, selectPublicWorkspaces, selectWorkspaceIsLoading } from '@/selectors/workspaces';
+import WorkspaceService from '@/services/WorkspaceService';
 import { Dispatch, RootState } from '@/types/store';
 import './styles.scss';
 
@@ -104,11 +105,13 @@ class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebar
 
   componentDidMount() {
     document.addEventListener('mousedown', this.handleClickOutside);
+    WorkspaceService.emitter.on(WorkspaceService.Events.UPDATE_LIST, () => this.props.getSidebarWorkspaces());
   }
 
   componentWillUnmount() {
     document.removeEventListener('mousedown', this.handleClickOutside);
     clearTimeout(this.timeoutId);
+    WorkspaceService.emitter.removeListener(WorkspaceService.Events.UPDATE_LIST, () => this.props.getSidebarWorkspaces());
   }
 
   componentDidUpdate(prevProps: WorkspaceSidebarProps) {
