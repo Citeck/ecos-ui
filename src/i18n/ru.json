@@ -3,6 +3,7 @@
   "success": "Успех",
   "warning": "Предупреждение",
   "waiting": "Ожидайте",
+  "empty-groups-or-users": "Нет групп или пользователей",
   "load-data-error": "Ошибка загрузки данных",
   "process-data-error": "Ошибка обработки данных",
   "actions.document.download": "Скачать",

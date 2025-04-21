@@ -1,8 +1,8 @@
 import React from 'react';
 
+import { TableFormContextProvider } from './TableFormContext';
 import TableFormPropTypes from './TableFormPropTypes';
 import TableFormRoot from './components/TableFormRoot';
-import { TableFormContextProvider } from './TableFormContext';
 
 import './TableForm.scss';
 
