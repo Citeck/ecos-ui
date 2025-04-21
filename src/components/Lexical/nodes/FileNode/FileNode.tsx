@@ -39,7 +39,7 @@ export class FileNode extends DecoratorNode<JSX.Element> {
 
   static importDOM(): Record<string, any> {
     return {
-      span: () => ({
+      a: () => ({
         conversion: convertFileElement,
         priority: 4
       })
@@ -56,14 +56,16 @@ export class FileNode extends DecoratorNode<JSX.Element> {
   }
 
   exportDOM(): { element: HTMLElement } {
-    const element = document.createElement('span');
-    const jsonObj = {
-      type: FileNode.getHtmlElementType(),
-      size: this.__size,
-      name: this.__name,
-      fileRecordId: this.__fileRecordId
-    };
-    element.innerText = JSON.stringify(jsonObj);
+    const element = document.createElement('a');
+
+    element.setAttribute('type', FileNode.getHtmlElementType());
+    element.setAttribute('href', this.getDownLoadUrl());
+    element.setAttribute('size', this.__size.toString());
+    element.setAttribute('fileRecordId', this.__fileRecordId);
+    element.setAttribute('name', this.__name);
+    element.setAttribute('style', 'margin: 0 6px;');
+    element.textContent = this.__name;
+
     return { element };
   }
 
@@ -78,7 +80,7 @@ export class FileNode extends DecoratorNode<JSX.Element> {
   }
 
   createDOM(config: any): HTMLElement {
-    return document.createElement('span');
+    return document.createElement('a');
   }
 
   getDownLoadUrl = (): string => {

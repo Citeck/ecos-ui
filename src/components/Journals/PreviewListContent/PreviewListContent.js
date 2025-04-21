@@ -75,7 +75,7 @@ class PreviewListContent extends Component {
             <a href={itemLink} className="citeck-preview-list-content__card-info_title" title={title}>
               {title}
             </a>
-            <p className="citeck-preview-list-content__card-info_description" title={description}>
+            <p className="citeck-preview-list-content__card-info_description" title={stripHTML(description)}>
               {stripHTML(description)}
             </p>
           </div>
