@@ -4,7 +4,6 @@ import isEqual from 'lodash/isEqual';
 import split from 'lodash/split';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { createRoot, Root } from 'react-dom/client';
 
 import UnreadableLabel from '../../UnreadableLabel';
 import BaseComponent from '../base/BaseComponent';
@@ -148,41 +147,50 @@ export default class SelectOrgstructComponent extends BaseComponent {
     const userSearchExtraFields = _array(userSearchExtraFieldsStr, true);
     const excludeAuthoritiesByType = _array(comp.excludeAuthoritiesByType, true);
 
-    const element = comp.unreadable ? (
-      <UnreadableLabel />
-    ) : (
-      <SelectOrgstruct
-        defaultValue={this.dataValue}
-        isCompact={comp.isCompact}
-        multiple={comp.multiple}
-        placeholder={comp.placeholder}
-        disabled={comp.disabled}
-        allowedAuthorityTypes={allowedAuthorityTypes}
-        allowedGroupTypes={allowedGroupTypes}
-        rootGroupName={this._getRootGroup()}
-        allowedGroupSubTypes={allowedGroupSubTypes}
-        excludeAuthoritiesByName={comp.excludeAuthoritiesByName}
-        excludeAuthoritiesByType={excludeAuthoritiesByType}
-        userSearchExtraFields={userSearchExtraFields}
-        viewOnly={this.viewOnly}
-        hideTabSwitcher={comp.hideTabSwitcher}
-        defaultTab={comp.defaultTab}
-        dataType={comp.dataType}
-        modalTitle={comp.modalTitle ? this.t(comp.modalTitle) : null}
-        isSelectedValueAsText={comp.isSelectedValueAsText}
-        isIncludedAdminGroup={comp.isIncludedAdminGroup}
-        onChange={this.onValueChange}
-        onError={console.error}
-        viewModeType={comp.viewModeType}
-      />
-    );
+    let renderControl = () => {
+      if (comp.unreadable) {
+        // TODO: Figure out how to make the changes from createRoot invisible
+        //  (it will first unmount the component completely, then it will mount)
+        // this._root = createRoot(this.reactContainer);
+        // eslint-disable-next-line react/no-deprecated
+        ReactDOM.render(<UnreadableLabel />, this.reactContainer);
+        return;
+      }
 
-    // React 18+: create root only once
-    if (!this._root) {
-      this._root = createRoot(this.reactContainer);
-    }
+      // TODO: Figure out how to make the changes from createRoot invisible
+      //  (it will first unmount the component completely, then it will mount)
+      // this._root = createRoot(this.reactContainer);
+      // eslint-disable-next-line react/no-deprecated
+      ReactDOM.render(
+        <SelectOrgstruct
+          defaultValue={this.dataValue}
+          isCompact={comp.isCompact}
+          multiple={comp.multiple}
+          placeholder={comp.placeholder}
+          disabled={comp.disabled}
+          allowedAuthorityTypes={allowedAuthorityTypes}
+          allowedGroupTypes={allowedGroupTypes}
+          rootGroupName={this._getRootGroup()}
+          allowedGroupSubTypes={allowedGroupSubTypes}
+          excludeAuthoritiesByName={comp.excludeAuthoritiesByName}
+          excludeAuthoritiesByType={excludeAuthoritiesByType}
+          userSearchExtraFields={userSearchExtraFields}
+          viewOnly={this.viewOnly}
+          hideTabSwitcher={comp.hideTabSwitcher}
+          defaultTab={comp.defaultTab}
+          dataType={comp.dataType}
+          modalTitle={comp.modalTitle ? this.t(comp.modalTitle) : null}
+          isSelectedValueAsText={comp.isSelectedValueAsText}
+          isIncludedAdminGroup={comp.isIncludedAdminGroup}
+          onChange={this.onValueChange}
+          onError={console.error}
+          viewModeType={comp.viewModeType}
+        />,
+        this.reactContainer
+      );
+    };
 
-    this._root.render(element);
+    renderControl();
   };
 
   refreshDOM = () => {
