@@ -175,6 +175,8 @@ const Workspaces = ({ isLoading, isError, workspaces, getWorkspaces, visitedActi
                   isSmallView
                   isCurrentUserMember
                   isCurrentUserManager={false}
+                  isCurrentUserDirectMember={false}
+                  isCurrentUserLastManager={false}
                   image={null}
                   homePageLink={null}
                   description={null}
