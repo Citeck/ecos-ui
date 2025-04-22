@@ -240,7 +240,14 @@ export default class BaseReactComponent extends BaseComponent {
     return super.destroy();
   }
 
-  clear() {}
+  clear() {
+    this.labelElement.remove();
+
+    if (this.react.container) {
+      this.react.container._root?.unmount();
+      this.react = {};
+    }
+  }
 
   /**
    * Check if a component is eligible for multiple validation (Cause: https://citeck.atlassian.net/browse/ECOSCOM-2489)

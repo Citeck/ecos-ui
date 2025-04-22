@@ -32,11 +32,13 @@ class BaseMLField extends Component {
     lang: PropTypes.string,
     placeholder: PropTypes.string,
     disabled: PropTypes.bool,
+    required: PropTypes.bool,
     viewOnly: PropTypes.bool,
     onChange: PropTypes.func
   };
 
   static defaultProps = {
+    required: false,
     languages: allowedLanguages
   };
 
