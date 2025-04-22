@@ -1,21 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
+import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import isBoolean from 'lodash/isBoolean';
-import cloneDeep from 'lodash/cloneDeep';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 import isObject from 'lodash/isObject';
+import PropTypes from 'prop-types';
+import React, { useEffect, useState } from 'react';
 
-import WidgetService from '../../../../services/WidgetService';
-import Records from '../../../Records/Records';
-import Record from '../../../Records/Record';
-import { parseAttribute } from '../../../Records/utils/attStrUtils';
-import { FORM_MODE_CLONE, FORM_MODE_CREATE, FORM_MODE_EDIT, FORM_MODE_VIEW } from '../../../EcosForm';
-import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
-import TableFormPropTypes from './TableFormPropTypes';
 import { LOCAL_ID } from '../../../../constants/journal';
 import { getMLValue } from '../../../../helpers/util';
+import WidgetService from '../../../../services/WidgetService';
+import { FORM_MODE_CLONE, FORM_MODE_CREATE, FORM_MODE_EDIT, FORM_MODE_VIEW } from '../../../EcosForm';
+import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
+import Record from '../../../Records/Record';
+import Records from '../../../Records/Records';
+import { parseAttribute } from '../../../Records/utils/attStrUtils';
+
+import TableFormPropTypes from './TableFormPropTypes';
 import { getAllComponents } from './utils';
 
 export const TableFormContext = React.createContext();
@@ -52,135 +53,130 @@ export const TableFormContextProvider = props => {
     isFunction(triggerEventOnTableChange) && triggerEventOnTableChange();
   };
 
-  useEffect(
-    () => {
-      if (isEmpty(defaultValue) || isEmpty(columns)) {
-        return;
-      }
+  useEffect(() => {
+    if (isEmpty(columns)) {
+      return;
+    }
 
-      let initValue;
-      if (!Array.isArray(defaultValue)) {
-        initValue = [defaultValue];
-      } else {
-        initValue = [...defaultValue];
-      }
-      if (initValue) {
-        const atts = [];
-        const attsAsIs = [];
-        const noNeedParseIndices = [];
+    let initValue;
+    if (!Array.isArray(defaultValue)) {
+      initValue = [defaultValue];
+    } else {
+      initValue = [...defaultValue];
+    }
 
-        columns.forEach((item, idx) => {
-          const { attribute = '', multiple = false } = item || {};
-          const isFullName = attribute.startsWith('.att');
-          const hasBracket = attribute.includes('{');
-          const hasQChar = attribute.includes('?');
+    if (typeof initValue[0] === 'string') {
+      const atts = [];
+      const attsAsIs = [];
+      const noNeedParseIndices = [];
 
-          if (isFullName || hasBracket || hasQChar) {
-            atts.push(attribute);
-            noNeedParseIndices.push(idx);
-            return;
+      columns.forEach((item, idx) => {
+        const { attribute = '', multiple = false } = item || {};
+        const isFullName = attribute.startsWith('.att');
+        const hasBracket = attribute.includes('{');
+        const hasQChar = attribute.includes('?');
+
+        if (isFullName || hasBracket || hasQChar) {
+          atts.push(attribute);
+          noNeedParseIndices.push(idx);
+          return;
+        }
+
+        const multiplePostfix = multiple ? 's' : '';
+        const schema = `.att${multiplePostfix}(n:"${attribute}"){disp}`;
+
+        atts.push(schema);
+        attsAsIs.push(attribute);
+      });
+      Promise.all(
+        initValue.map(async rec => {
+          const record = await Records.get(rec);
+          const form = await EcosFormUtils.getForm(rec);
+
+          let allComponents = [];
+
+          if (isFunction(form.load)) {
+            const definition = await form.load('definition?json');
+            allComponents = getAllComponents(definition.components);
           }
 
-          const multiplePostfix = multiple ? 's' : '';
-          const schema = `.att${multiplePostfix}(n:"${attribute}"){disp}`;
+          const fetchedAtts = {};
+          let result = {};
+          let currentAttIndex = 0;
 
-          atts.push(schema);
-          attsAsIs.push(attribute);
-        });
-        Promise.all(
-          initValue.map(async rec => {
-            const record = Records.get(rec);
-            const form = await EcosFormUtils.getForm(rec);
+          if (record.isBaseRecord()) {
+            result = await record.load(atts, forceReload);
+          } else {
+            result = await record.toJsonAsync(true).then(result => get(result, 'attributes') || {});
+            const nonExistAttrs = attsAsIs.filter(item => !Object.keys(result).includes(item));
 
-            let allComponents = [];
+            if (!isEmpty(nonExistAttrs)) {
+              const more = await record.load(nonExistAttrs, forceReload);
+              result = { ...result, ...more };
+            }
+          }
 
-            if (isFunction(form.load)) {
-              const definition = await form.load('definition?json');
-              allComponents = getAllComponents(definition.components);
+          for (let attSchema in result) {
+            if (!result.hasOwnProperty(attSchema)) {
+              continue;
             }
 
-            const fetchedAtts = {};
-            let result = {};
-            let currentAttIndex = 0;
-
-            if (record.isBaseRecord()) {
-              result = await record.load(atts, forceReload);
+            if (noNeedParseIndices.includes(currentAttIndex)) {
+              fetchedAtts[attSchema] = result[attSchema];
             } else {
-              result = await record.toJsonAsync(true).then(result => get(result, 'attributes') || {});
-              const nonExistAttrs = attsAsIs.filter(item => !Object.keys(result).includes(item));
+              const attData = parseAttribute(attSchema);
 
-              if (!isEmpty(nonExistAttrs)) {
-                const more = await record.load(nonExistAttrs, forceReload);
-                result = { ...result, ...more };
-              }
-            }
-
-            for (let attSchema in result) {
-              if (!result.hasOwnProperty(attSchema)) {
+              if (!attData) {
+                currentAttIndex++;
                 continue;
               }
 
-              if (noNeedParseIndices.includes(currentAttIndex)) {
-                fetchedAtts[attSchema] = result[attSchema];
-              } else {
-                const attData = parseAttribute(attSchema);
+              const component = allComponents.find(component => component.key === attData.name && component.type === 'ecosSelect');
 
-                if (!attData) {
-                  currentAttIndex++;
+              if (component) {
+                const option = get(component, 'data.values', []).find(item => item.value === result[attSchema]);
+
+                if (option) {
+                  fetchedAtts[attData.name] = isObject(option.label) ? getMLValue(option.label) : option.label;
                   continue;
                 }
-
-                const component = allComponents.find(component => component.key === attData.name && component.type === 'ecosSelect');
-
-                if (component) {
-                  const option = get(component, 'data.values', []).find(item => item.value === result[attSchema]);
-
-                  if (option) {
-                    fetchedAtts[attData.name] = isObject(option.label) ? getMLValue(option.label) : option.label;
-                    continue;
-                  }
-                }
-
-                fetchedAtts[attData.name] = result[attSchema];
               }
-              currentAttIndex++;
+
+              fetchedAtts[attData.name] = result[attSchema];
             }
+            currentAttIndex++;
+          }
 
-            return { ...fetchedAtts, id: rec, [LOCAL_ID]: rec };
-          })
-        )
-          .then(result => {
-            setGridRows(result);
-            isFunction(triggerEventOnTableChange) && triggerEventOnTableChange();
-          })
-          .catch(e => {
-            console.error(e);
-            setGridRows([]);
-          });
-      }
-    },
-    [defaultValue, columns]
-  );
+          return { ...fetchedAtts, id: rec, [LOCAL_ID]: rec };
+        })
+      )
+        .then(result => {
+          setGridRows(result);
+          isFunction(triggerEventOnTableChange) && triggerEventOnTableChange();
+        })
+        .catch(e => {
+          console.error(e);
+          setGridRows([]);
+        });
+    }
+  }, [defaultValue, columns, forceReload]);
 
-  useEffect(
-    () => {
-      if (clonedRecord) {
-        Records.get(clonedRecord)
-          .load('_formKey?str')
-          .then(formKey => {
-            const createVariant = createVariants.find(item => (item.formKey || `alf_${item.type}`) === formKey);
+  useEffect(() => {
+    if (clonedRecord) {
+      Records.get(clonedRecord)
+        .load('_formKey?str')
+        .then(formKey => {
+          const createVariant = createVariants.find(item => (item.formKey || `alf_${item.type}`) === formKey);
 
-            if (isInstantClone) {
-              return EcosFormUtils.cloneRecord({ clonedRecord, createVariant, saveOnSubmit: false });
-            } else {
-              showCloneForm({ createVariant });
-            }
-          })
-          .then(record => record instanceof Record && onCreateFormSubmit(record));
-      }
-    },
-    [clonedRecord]
-  );
+          if (isInstantClone) {
+            return EcosFormUtils.cloneRecord({ clonedRecord, createVariant, saveOnSubmit: false });
+          } else {
+            showCloneForm({ createVariant });
+          }
+        })
+        .then(record => record instanceof Record && onCreateFormSubmit(record));
+    }
+  }, [clonedRecord]);
 
   const showCloneForm = ({ createVariant }) => {
     setIsViewOnlyForm(false);

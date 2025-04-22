@@ -18,7 +18,7 @@ const InternalList = ({ infoLabel, nestingLevel, isPerson }) => {
         'orgstructure-page__list-item-label-with-extra_fullwidth': nestingLevel === 0
       })}
     >
-      {isPerson && <Avatar person={infoLabel} />}
+      {<Avatar person={infoLabel} />}
       <span className="orgstructure-page__list-item-label">{infoLabel.label}</span>
       <span className="select-orgstruct__list-item-label-extra">({infoLabel.extraLabel})</span>
     </div>

@@ -188,53 +188,57 @@ export default class BaseReactComponent extends BaseComponent {
   renderReactComponent(firstBuild = true) {
     const component = this.component.unreadable ? UnreadableLabel : this.getComponentToRender();
 
-    if (this.react.resolve) {
-      const doRender = (props = {}) => {
-        const updateLoadingState = () => {
-          if (this.react.isMounted && this.react.innerComponent && this.react.innerResolve) {
-            this.react.innerResolve(this.react.innerComponent);
-          }
-        };
+    const propsOrPromise = this.getInitialReactProps();
 
-        const root = this.react.container?._root?._internalRoot ? this.react.container._root : createRoot(this.react.container);
+    const doRender = (props = {}) => {
+      if (!this.react.root) {
+        this.react.root = createRoot(this.react.container);
+      }
 
-        root.render(
-          <RawHtmlWrapper
-            onMounted={() => {
-              this.react.isMounted = true;
-              updateLoadingState();
-            }}
-            onComponentLoaded={comp => {
-              this.react.innerComponent = comp;
-              updateLoadingState();
-            }}
-            component={component}
-            ref={this.react.resolve}
-            props={props}
-          />
-        );
+      const handleMounted = () => {
+        this.react.isMounted = true;
 
-        this.react.container._root = root;
-
-        if (!firstBuild && !isEqual(this.react?.innerComponent?.props, props)) {
-          this.setReactProps(props);
+        if (this.react.innerComponent && this.react.innerResolve) {
+          this.react.innerResolve(this.react.innerComponent);
         }
       };
 
-      let props = this.getInitialReactProps();
+      const handleLoaded = comp => {
+        this.react.innerComponent = comp;
 
-      if (props.then) {
-        props.then(doRender);
-      } else {
-        doRender(props);
+        if (this.react.isMounted && this.react.innerResolve) {
+          this.react.innerResolve(comp);
+        }
+      };
+
+      this.react.root.render(
+        <RawHtmlWrapper
+          onMounted={handleMounted}
+          onComponentLoaded={handleLoaded}
+          component={component}
+          ref={this.react.resolve}
+          props={props}
+        />
+      );
+
+      if (!firstBuild) {
+        this.setReactProps?.(props);
       }
+    };
+
+    if (propsOrPromise instanceof Promise) {
+      propsOrPromise.then(doRender).catch(console.error);
+    } else {
+      doRender(propsOrPromise);
     }
   }
 
   destroy() {
     if (this.react.container) {
-      this.react.container._root?.unmount();
-      this.react.wrapper = null;
+      setTimeout(() => {
+        this.react.container._root?.unmount();
+        this.react.wrapper = null;
+      }, 0);
     }
 
     return super.destroy();

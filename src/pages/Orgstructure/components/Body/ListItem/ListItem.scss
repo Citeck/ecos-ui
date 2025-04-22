@@ -3,6 +3,11 @@
 .select-orgstruct__list-item-label.orgstructure-page {
   width: 100%;
 }
+.select-orgstruct__list-item__empty {
+  opacity: 0.5;
+  height: 38px;
+  align-content: center;
+}
 
 .orgstructure-page__avatar {
   width: 24px;
@@ -42,6 +47,12 @@
         display: flex;
         flex-direction: row;
         justify-content: space-between;
+        &:hover {
+          background: linear-gradient(to right, rgba($color-white, 0), $color-white 15%);
+          .orgstructure-page__list-item-icons {
+            display: flex;
+          }
+        }
       }
 
       &-icons {
@@ -49,7 +60,8 @@
         right: 0;
         font-size: 16px;
         z-index: 10;
-        display: flex;
+        transition: all 0.5s ease-in-out;
+        display: none;
         background: linear-gradient(to right, rgba($color-white, 0), $color-white 15%);
 
         &::before {
