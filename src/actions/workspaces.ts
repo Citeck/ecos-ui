@@ -28,4 +28,4 @@ export const updateUIWorkspace = createAction<void>(prefix + 'UPDATE_UI_WORKSPAC
 
 export const visitedAction = createAction<WorkspaceType['id']>(prefix + 'VISITED_ACTION');
 export const joinToWorkspace = createAction<{ wsId: WorkspaceType['id']; callback?: () => void }>(prefix + 'JOIN_TO_WORKSPACE');
-export const leaveOfWorkspace = createAction<WorkspaceType['id']>(prefix + 'LEAVE_OF_WORKSPACE');
+export const leaveOfWorkspace = createAction<{ wsId: WorkspaceType['id']; wsName: WorkspaceType['name'] }>(prefix + 'LEAVE_OF_WORKSPACE');

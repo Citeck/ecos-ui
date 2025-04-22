@@ -573,6 +573,12 @@
       }
 
       &_btn {
+        width: 25px;
+
+        &::before {
+          content: none;
+        }
+
         & > svg,
         path {
           fill: $color-gray-5 !important;

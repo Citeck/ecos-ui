@@ -27,7 +27,7 @@ import {
 import { RecordsQueryResponse } from '@/api/types';
 import { WorkspaceType } from '@/api/workspaces/types';
 import { URL } from '@/constants';
-import { getLinkWithWs, getPersonalWorkspaceId, getWsIdOfTabLink } from '@/helpers/urls';
+import { getBaseUrlWorkspace, getLinkWithWs, getPersonalWorkspaceId, getWorkspaceId, getWsIdOfTabLink } from '@/helpers/urls';
 import { t } from '@/helpers/util';
 import { selectCurrentWorkspaceBlocked, selectCurrentWorkspaceIsBlocked } from '@/selectors/workspaces';
 import PageService from '@/services/PageService';
@@ -126,13 +126,14 @@ function* sagaJoinToWorkspaceRequest({ api }: ExtraArgumentsStore, { payload }: 
 function* sagaLeaveOfWorkspace({ api }: ExtraArgumentsStore, { payload }: ReturnType<typeof leaveOfWorkspace>) {
   try {
     yield put(setLoading(true));
-    yield call(api.workspaces.leaveOfWorkspace, payload);
+    yield call(api.workspaces.leaveOfWorkspace, payload.wsId);
     yield put(getSidebarWorkspaces());
   } catch (e) {
     console.error('[workspaces/ sagaLeaveOfWorkspace] error', e);
     yield put(setWorkspacesError());
   } finally {
     yield put(setLoading(false));
+    NotificationManager.success(t('workspaces.card.leave-workspace.success', { wsName: payload.wsName }));
   }
 }
 
@@ -194,7 +195,24 @@ function* sagaRemoveWorkspace({ api }: ExtraArgumentsStore, { payload }: ReturnT
     yield put(setLoadingAction(true));
 
     const { wsId, callback } = payload;
+    const currentWorkspaceId = getWorkspaceId();
+
     yield call(api.workspaces.removeWorkspace, wsId);
+
+    if (currentWorkspaceId === wsId) {
+      const params = {
+        openNewTab: true,
+        reopen: true,
+        closeActiveTab: false,
+        needUpdateTabs: true
+      };
+
+      const personalWorkspaceId = getPersonalWorkspaceId();
+      const url = getBaseUrlWorkspace(personalWorkspaceId);
+
+      PageService.changeUrlLink(url, params);
+    }
+
     yield put(getSidebarWorkspaces());
 
     if (callback) {

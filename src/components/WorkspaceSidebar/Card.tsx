@@ -53,7 +53,8 @@ const Labels = {
   EDIT_WORKSPACE: 'workspaces.card.edit-workspace',
   REMOVE_WORKSPACE: 'workspaces.card.remove-workspace',
   LEAVE_WORKSPACE: 'workspaces.card.leave-workspace',
-  LEAVE_WORKSPACE_ERROR: 'workspaces.card.leave-workspace.error',
+  LEAVE_WORKSPACE_ERROR_TITLE: 'workspaces.card.leave-workspace.error.title',
+  LEAVE_WORKSPACE_ERROR_DESCRIPTION: 'workspaces.card.leave-workspace.error.description',
   JOIN_TO_WORKSPACE: 'workspaces.card.join-workspace',
   CONFIRM_JOIN_TO_WORKSPACE_BTN_LABEL: 'workspaces.card.join-workspace',
   CONFIRM_JOIN_TO_WORKSPACE_TITLE: 'workspaces.join-confirm.join.workspace',
@@ -146,7 +147,7 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
     this.setState({ showMenuSettings: false, showBtnSettings: false });
 
     if (isCurrentUserLastManager) {
-      NotificationManager.error(t(Labels.LEAVE_WORKSPACE_ERROR), null, 0);
+      NotificationManager.error(t(Labels.LEAVE_WORKSPACE_ERROR_DESCRIPTION), t(Labels.LEAVE_WORKSPACE_ERROR_TITLE), 0);
       return;
     }
 
@@ -192,7 +193,7 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
         onClick={this.toggleMenuSettings}
         className="workspace-panel-list_item_btn citeck-workspace-sidebar__card-settings_btn"
       >
-        <Actions />
+        <Actions height={10} />
       </div>
     );
   };
@@ -345,7 +346,7 @@ const mapDispatchToProps = (
   getSidebarWorkspaces: () => dispatch(getSidebarWorkspaces()),
   removeWorkspace: callback => dispatch(removeWorkspace({ wsId: props.id, callback })),
   joinToWorkspace: callback => dispatch(joinToWorkspace({ wsId: props.id, callback })),
-  leaveOfWorkspace: () => dispatch(leaveOfWorkspace(props.id))
+  leaveOfWorkspace: () => dispatch(leaveOfWorkspace({ wsId: props.id, wsName: props.name }))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(WorkspaceCard);
