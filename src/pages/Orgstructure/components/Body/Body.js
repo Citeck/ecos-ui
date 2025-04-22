@@ -15,7 +15,6 @@ const Body = ({ currentTab, tabId, toggleToFirstTab, tabItems, isSearching = fal
     () => tabItems[currentTab].filter(item => item.attributes.groups.includes(`${SourcesId.GROUP}@${ROOT_GROUP_NAME}`)),
     [tabItems, currentTab]
   );
-
   const renderView = props => {
     return <div {...props} style={{ ...props.style, marginBottom: '140px' }} />;
   };

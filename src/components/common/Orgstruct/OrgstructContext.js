@@ -87,73 +87,28 @@ export const OrgstructProvider = props => {
   const [authorityGroups, setAuthorityGroups] = useState(null);
 
   const onToggleSelectItem = (targetItem, apply) => {
-    const itemIdx = tabItems[TabTypes.SELECTED].findIndex(item => item.id === targetItem.id);
+    const isSelectedNow = tabItems[TabTypes.SELECTED].some(item => item.id === targetItem.id);
 
-    if (itemIdx === -1) {
-      setTabItems({
-        ...tabItems,
-        [TabTypes.SELECTED]: multiple ? [...tabItems[TabTypes.SELECTED], prepareSelected(targetItem)] : [prepareSelected(targetItem)],
-        [TabTypes.LEVELS]: tabItems[TabTypes.LEVELS].map(item => {
-          if (item.id === targetItem.id) {
-            return {
-              ...item,
-              isSelected: true
-            };
-          }
-
-          if (!multiple) {
-            return {
-              ...item,
-              isSelected: false
-            };
-          }
-
-          return item;
-        }),
-        [TabTypes.USERS]: tabItems[TabTypes.USERS].map(item => {
-          if (item.id === targetItem.id) {
-            return {
-              ...item,
-              isSelected: true
-            };
-          }
-
-          if (!multiple) {
-            return {
-              ...item,
-              isSelected: false
-            };
-          }
-
-          return item;
-        })
+    const updateSelection = items =>
+      items.map(item => {
+        if (item.id !== targetItem.id) {
+          return multiple ? item : { ...item, isSelected: false };
+        }
+        return { ...item, isSelected: isSelectedNow ? !item.isSelected : true };
       });
-    } else {
-      setTabItems({
-        ...tabItems,
-        [TabTypes.SELECTED]: tabItems[TabTypes.SELECTED].slice(0, itemIdx).concat(tabItems[TabTypes.SELECTED].slice(itemIdx + 1)),
-        [TabTypes.LEVELS]: tabItems[TabTypes.LEVELS].map(item => {
-          if (item.id === targetItem.id) {
-            return {
-              ...item,
-              isSelected: !item.isSelected
-            };
-          }
 
-          return item;
-        }),
-        [TabTypes.USERS]: tabItems[TabTypes.USERS].map(item => {
-          if (item.id === targetItem.id) {
-            return {
-              ...item,
-              isSelected: !item.isSelected
-            };
-          }
+    const newSelected = isSelectedNow
+      ? tabItems[TabTypes.SELECTED].filter(item => item.id !== targetItem.id)
+      : multiple
+        ? [...tabItems[TabTypes.SELECTED], prepareSelected(targetItem)]
+        : [prepareSelected(targetItem)];
 
-          return item;
-        })
-      });
-    }
+    setTabItems({
+      ...tabItems,
+      [TabTypes.SELECTED]: newSelected,
+      [TabTypes.LEVELS]: updateSelection(tabItems[TabTypes.LEVELS]),
+      [TabTypes.USERS]: updateSelection(tabItems[TabTypes.USERS])
+    });
 
     if (apply) {
       setApplyAndClose(true);
@@ -198,6 +153,7 @@ export const OrgstructProvider = props => {
               isLoaded: true,
               isOpen: !targetItem.isOpen
             };
+
             currentTabValue[itemIdx] = currentItem;
 
             newItems.forEach(newItem => {
@@ -273,32 +229,23 @@ export const OrgstructProvider = props => {
 
   const onChangeValue = selectedList => {
     const { onChange } = controlProps;
-    let value;
 
-    function getVal(arr = []) {
-      if (isEmpty(arr)) {
-        return null;
-      }
-
+    const normalize = (arr = []) => {
+      if (isEmpty(arr)) return null;
       return multiple ? arr : arr[0] || '';
-    }
+    };
 
-    switch (true) {
-      case getFullData: {
-        value = getVal(selectedList);
-        break;
-      }
-      case dataType === DataTypes.AUTHORITY: {
-        value = getVal(selectedList.map(item => (item.id ? getAuthRef(item.id) : '')));
-        break;
-      }
-      default: {
-        value = getVal(selectedList.map(item => (item.id ? getRecordRef(item.id) : '')));
-        break;
-      }
-    }
+    const mappedList = selectedList.map(item => {
+      if (!item.id) return '';
+      if (getFullData) return item;
+      return dataType === DataTypes.AUTHORITY ? getAuthRef(item.id) : getRecordRef(item.id);
+    });
 
-    isFunction(onChange) && onChange(value, selectedList);
+    const value = normalize(getFullData ? selectedList : mappedList);
+
+    if (isFunction(onChange)) {
+      onChange(value, selectedList);
+    }
   };
 
   const onSelect = () => {
@@ -417,58 +364,52 @@ export const OrgstructProvider = props => {
   }, [isAllUsersGroupsFetched, isSelectModalOpen, currentTab, searchText, userSearchExtraFields]);
 
   // reset isSelectedFetched if new previewValue
-  useEffect(() => {
-    if (isEqual(prevDefaultValue, defaultValue)) {
-      return;
-    }
+  // useEffect(() => {
+  //   if (isEqual(prevDefaultValue, defaultValue)) {
+  //     return;
+  //   }
 
-    setIsSelectedFetched(false);
-  }, [defaultValue]);
+  //   setIsSelectedFetched(false);
+  // }, [defaultValue]);
 
   // set default value
   useEffect(() => {
-    if (isSelectedFetched) {
-      return;
-    }
-
+    if (isSelectedFetched) return;
     setIsSelectedFetched(true);
 
-    let initValue;
-    let livePromise = true;
+    let isActive = true;
 
-    if (multiple && Array.isArray(defaultValue) && defaultValue.length > 0) {
-      initValue = [...defaultValue];
-    } else if (!multiple && Array.isArray(defaultValue)) {
-      initValue = defaultValue.length > 0 ? [defaultValue[0]] : [];
-    } else if (!multiple && !!defaultValue) {
-      initValue = [defaultValue];
-    } else {
-      initValue = [];
-    }
+    const toArray = val => {
+      if (!val) return [];
+      if (Array.isArray(val)) return multiple ? val : [val[0]];
+      return multiple ? [val] : [val];
+    };
 
-    if (Array.isArray(initValue)) {
-      const promises = initValue.map(item => orgStructApi.fetchAuthority(dataType, item));
+    const initValue = toArray(defaultValue);
 
-      Promise.all(promises)
-        .then(handleResponse)
-        .then(items => items.map(prepareSelected))
-        .then(selectedItems => {
-          if (!livePromise) {
-            return;
-          }
+    if (!initValue.length) return;
 
-          setTabItems(prev => ({
-            ...prev,
-            [TabTypes.SELECTED]: [...selectedItems],
-            [TabTypes.LEVELS]: [...prev[TabTypes.LEVELS]].map(item => setSelectedItem(item, selectedItems)),
-            [TabTypes.USERS]: [...prev[TabTypes.USERS]].map(item => setSelectedItem(item, selectedItems))
-          }));
-          setSelectedRows([...selectedItems]);
+    Promise.all(initValue.map(item => orgStructApi.fetchAuthority(dataType, item)))
+      .then(handleResponse)
+      .then(items => items.map(prepareSelected))
+      .then(selectedItems => {
+        if (!isActive) return;
 
-          livePromise = false;
-        })
-        .catch(_ => _);
-    }
+        setTabItems(prev => ({
+          ...prev,
+          [TabTypes.SELECTED]: selectedItems,
+          [TabTypes.LEVELS]: prev[TabTypes.LEVELS].map(item => setSelectedItem(item, selectedItems)),
+          [TabTypes.USERS]: prev[TabTypes.USERS].map(item => setSelectedItem(item, selectedItems))
+        }));
+        setSelectedRows(selectedItems);
+      })
+      .catch(error => {
+        console.error(error);
+      });
+
+    return () => {
+      isActive = false;
+    };
   }, [isSelectedFetched]);
 
   useEffect(() => {
@@ -499,6 +440,9 @@ export const OrgstructProvider = props => {
         pagination,
         parent,
         allowedGroupTypes,
+        excludeAuthoritiesByName,
+        excludeAuthoritiesByType,
+        isIncludedAdminGroup,
 
         authorityGroups,
         setAuthorityGroups,

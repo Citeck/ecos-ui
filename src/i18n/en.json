@@ -3,6 +3,7 @@
   "success": "Success",
   "warning": "Warning",
   "waiting": "Waiting",
+  "empty-groups-or-users": "No group or users",
   "load-data-error": "Failure to load data",
   "process-data-error": "Failure to process data",
   "actions.document.download": "Download",

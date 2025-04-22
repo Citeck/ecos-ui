@@ -1,13 +1,14 @@
-import React, { useContext } from 'react';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import React, { useContext } from 'react';
 
-import { t } from '../../../../../../helpers/util';
-import { createDocumentUrl, createProfileUrl, isNewVersionPage } from '../../../../../../helpers/urls';
 import { AssocLink } from '../../../AssocLink';
 import { SelectOrgstructContext } from '../../SelectOrgstructContext';
-import Tags from '../../../../Tags';
 import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, ViewModes } from '../../constants';
+
+import Tags from '@/components/common/Tags';
+import { createDocumentUrl, createProfileUrl, isNewVersionPage } from '@/helpers/urls';
+import { t } from '@/helpers/util';
 
 import './ViewMode.scss';
 
