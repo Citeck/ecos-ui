@@ -4,6 +4,7 @@ export type WorkspaceType = {
   name: string;
   description: string | null;
   image: string | null;
+  hasDelete: boolean;
   isCurrentUserMember: boolean;
   isCurrentUserManager: boolean;
   isCurrentUserDirectMember: boolean;
