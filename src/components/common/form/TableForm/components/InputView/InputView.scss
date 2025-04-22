@@ -22,7 +22,8 @@
     margin-bottom: 15px;
     overflow-y: auto;
     position: static;
-    height: 295px;
+    height: auto;
+    max-height: 300px;
     &-wrapper {
       position: relative;
     }
