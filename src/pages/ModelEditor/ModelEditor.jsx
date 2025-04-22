@@ -59,10 +59,10 @@ class ModelEditorPage extends React.Component {
 
   designer;
   urlQuery = queryString.parseUrl(window.location.href).query;
-  modelEditorRef = React.createRef();
+  modelEditorRef = React.createRef(null);
   _processDefId = null;
   _tempFormData = {};
-  _formWrapperRef = React.createRef();
+  _formWrapperRef = React.createRef(null);
   _prevValue = {};
   _cachedLabels = {};
   _labelIsEdited = false;
