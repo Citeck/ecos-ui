@@ -6,6 +6,7 @@
  *
  */
 
+// @ts-ignore
 import { createHeadlessEditor } from '@lexical/headless';
 import { $isMarkNode, $unwrapMarkNode } from '@lexical/mark';
 import * as http from 'http';
@@ -25,7 +26,7 @@ global.__DEV__ = true;
 const editor = createHeadlessEditor({
   namespace: 'validation',
   nodes: [...PlaygroundNodes],
-  onError: error => {
+  onError: (error: string) => {
     console.error(error);
   }
 });

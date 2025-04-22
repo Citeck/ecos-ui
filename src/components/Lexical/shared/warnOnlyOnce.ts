@@ -6,18 +6,15 @@
  *
  */
 
-/*@__INLINE__*/
-export default function warnOnlyOnce(message: string): () => void {
-  // @ts-ignore
-  if (__DEV__) {
-    let run = false;
-    return () => {
-      if (!run) {
-        console.warn(message);
-      }
-      run = true;
-    };
-  } else {
-    return () => {};
+export default function warnOnlyOnce(message: string) {
+  if (!__DEV__) {
+    return;
   }
+  let run = false;
+  return () => {
+    if (!run) {
+      console.warn(message);
+    }
+    run = true;
+  };
 }

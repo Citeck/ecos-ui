@@ -235,13 +235,7 @@ export const clearFormatting = (editor: LexicalEditor) => {
           }
           if (textNode.__format !== 0) {
             textNode.setFormat(0);
-          }
-          const nearestBlockElement = $getNearestBlockElementAncestorOrThrow(textNode);
-          if (nearestBlockElement.__format !== 0) {
-            nearestBlockElement.setFormat('');
-          }
-          if (nearestBlockElement.__indent !== 0) {
-            nearestBlockElement.setIndent(0);
+            $getNearestBlockElementAncestorOrThrow(textNode).setFormat('');
           }
           node = textNode;
         } else if ($isHeadingNode(node) || $isQuoteNode(node)) {
