@@ -125,14 +125,12 @@ function* sagaJoinToWorkspaceRequest({ api }: ExtraArgumentsStore, { payload }: 
 
 function* sagaLeaveOfWorkspace({ api }: ExtraArgumentsStore, { payload }: ReturnType<typeof leaveOfWorkspace>) {
   try {
-    yield put(setLoading(true));
     yield call(api.workspaces.leaveOfWorkspace, payload.wsId);
     yield put(getSidebarWorkspaces());
   } catch (e) {
     console.error('[workspaces/ sagaLeaveOfWorkspace] error', e);
     yield put(setWorkspacesError());
   } finally {
-    yield put(setLoading(false));
     NotificationManager.success(t('workspaces.card.leave-workspace.success', { wsName: payload.wsName }));
   }
 }
@@ -163,6 +161,7 @@ function* sagaUpdateUIWorkspace() {
 
 function* sagaGetSidebarWorkspaces({ api }: ExtraArgumentsStore) {
   try {
+    yield put(setLoading(true));
     const { records: myWorkspaces }: RecordsQueryResponse<WorkspaceType> = yield call(api.workspaces.getMyWorkspaces);
     const { records: publicWorkspaces }: RecordsQueryResponse<WorkspaceType> = yield call(api.workspaces.getPublicWorkspaces);
 
@@ -171,6 +170,8 @@ function* sagaGetSidebarWorkspaces({ api }: ExtraArgumentsStore) {
   } catch (e) {
     console.error('[workspaces/ sagaGetSidebarWorkspaces] error', e);
     yield put(setWorkspacesError());
+  } finally {
+    yield put(setLoading(false));
   }
 }
 
@@ -213,16 +214,18 @@ function* sagaRemoveWorkspace({ api }: ExtraArgumentsStore, { payload }: ReturnT
       PageService.changeUrlLink(url, params);
     }
 
+    yield put(getWorkspaces());
     yield put(getSidebarWorkspaces());
 
     if (callback) {
-      callback();
+      yield call(callback);
     }
   } catch (e) {
     console.error('[workspaces/ sagaRemoveWorkspace] error', e);
     yield put(setWorkspacesError());
   } finally {
     yield put(setLoadingAction(false));
+    NotificationManager.success(t('workspaces.card.remove-workspace.success', { wsName: payload.wsName }));
   }
 }
 

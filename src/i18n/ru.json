@@ -2766,6 +2766,7 @@
   "workspaces.card.go-to-workspace": "Перейти в пространство",
   "workspaces.card.edit-workspace": "Редактировать",
   "workspaces.card.remove-workspace": "Удалить",
+  "workspaces.card.remove-workspace.success": "Рабочее пространство «{{wsName}}» удалено",
   "workspaces.card.leave-workspace": "Выйти из пространства",
   "workspaces.card.leave-workspace.success": "Вы успешно вышли из рабочего пространства «{{wsName}}»",
   "workspaces.card.leave-workspace.error.title": "Невозможно покинуть пространство",

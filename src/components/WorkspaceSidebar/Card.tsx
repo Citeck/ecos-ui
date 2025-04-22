@@ -345,7 +345,7 @@ const mapDispatchToProps = (
 ): Pick<WorkspaceCardProps, OmitProps> => ({
   getWorkspaces: () => dispatch(getWorkspaces()),
   getSidebarWorkspaces: () => dispatch(getSidebarWorkspaces()),
-  removeWorkspace: callback => dispatch(removeWorkspace({ wsId: props.id, callback })),
+  removeWorkspace: callback => dispatch(removeWorkspace({ wsId: props.id, wsName: props.name, callback })),
   joinToWorkspace: callback => dispatch(joinToWorkspace({ wsId: props.id, callback })),
   leaveOfWorkspace: () => dispatch(leaveOfWorkspace({ wsId: props.id, wsName: props.name }))
 });
