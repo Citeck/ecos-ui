@@ -13,7 +13,7 @@ export const $isFileNode = (node: any): node is FileNode => node instanceof File
 export const $createFileNode = ({ size, name, fileRecordId, key }: FileNodeProps & { key?: string }): FileNode =>
   $applyNodeReplacement(new FileNode(size, name, fileRecordId, key));
 
-export const convertFileElement = (domNode: HTMLElement | null): { node: FileNode } | null => {
+export const convertFileElement = (domNode: HTMLElement | null): { node: FileNode } | undefined => {
   if (domNode) {
     try {
       const size = Number(domNode.getAttribute('size'));
@@ -25,10 +25,11 @@ export const convertFileElement = (domNode: HTMLElement | null): { node: FileNod
         const node = $createFileNode({ size, name, fileRecordId });
         return { node };
       }
-      return null;
+
+      return undefined;
     } catch (e) {
-      return null;
+      return undefined;
     }
   }
-  return null;
+  return undefined;
 };
