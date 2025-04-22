@@ -1,11 +1,11 @@
-import React from 'react';
-import uuidv4 from 'uuid/v4';
+import classNames from 'classnames';
 import Formio from 'formiojs/Formio';
-import PropTypes from 'prop-types';
+import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
-import isEmpty from 'lodash/isEmpty';
-import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import React from 'react';
+import uuidv4 from 'uuid/v4';
 
 import { getCurrentLocale } from '../../../../helpers/export/util';
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
@@ -19,9 +19,20 @@ class FormWrapper extends React.Component {
     };
 
     this._form = null;
+    this.formRef = React.createRef();
   }
 
   componentDidMount() {
+    const { forwardedRef } = this.props;
+
+    if (forwardedRef) {
+      if (typeof forwardedRef === 'function') {
+        forwardedRef(this);
+      } else if (typeof forwardedRef === 'object') {
+        forwardedRef.current = this;
+      }
+    }
+
     this.initForm();
   }
 
@@ -191,7 +202,14 @@ class FormWrapper extends React.Component {
   }
 
   render() {
-    return <div id={this.state.containerId} className={classNames('formio-form', this.props.className)} onClick={this.props.onClick} />;
+    return (
+      <div
+        ref={this.formRef}
+        id={this.state.containerId}
+        className={classNames('formio-form', this.props.className)}
+        onClick={this.props.onClick}
+      />
+    );
   }
 }
 
