@@ -41,7 +41,7 @@ export class FileNode extends DecoratorNode<JSX.Element> {
     return {
       a: () => ({
         conversion: convertFileElement,
-        priority: 4
+        priority: 1
       })
     };
   }
