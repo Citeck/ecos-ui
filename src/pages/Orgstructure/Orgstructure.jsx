@@ -360,16 +360,10 @@ class Orgstructure extends React.Component {
 
   renderDashboard() {
     const { config = {}, menuType, isMobile, tabId, isLoading, recordRef } = this.props;
-
-    if (!recordRef) {
-      return <div className="orgstructure-page__grid-empty-widgets">{t(Labels.NO_DATA_TEXT)}</div>;
-    }
-
     const { activeTab } = this.state;
     const activeLayout = config[activeTab];
-
-    if (isEmpty(activeLayout)) {
-      return <Loader />;
+    if (!recordRef || !activeLayout) {
+      return <div className="orgstructure-page__grid-empty-widgets">{t(Labels.NO_DATA_TEXT)}</div>;
     }
 
     const { columns, type } = activeLayout ? activeLayout : get(config, '0') || {};

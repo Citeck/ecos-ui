@@ -1,4 +1,4 @@
-import React, { useMemo, memo, useCallback } from 'react';
+import React, { useMemo } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import List from './List';

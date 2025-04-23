@@ -3,7 +3,7 @@ import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import noop from 'lodash/noop';
 import PropTypes from 'prop-types';
-import React, { useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useContext, useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import { connect } from 'react-redux';
 import { Collapse } from 'reactstrap';
 
@@ -127,6 +127,19 @@ const ListItem = ({ item, tabId, toggleToFirstTab, dispatch, path, onManualRefre
     [expandedId, excludeAuthoritiesByName, excludeAuthoritiesByType, isIncludedAdminGroup, loadedData, orgStructApi]
   );
 
+  const refreshCurrentGroup = async groupId => {
+    const queryGroups = {
+      query: { groupName: ROOT_GROUP_NAME },
+      excludeAuthoritiesByName,
+      excludeAuthoritiesByType,
+      isIncludedAdminGroup
+    };
+
+    const childrenGroups = await orgStructApi.fetchGroup(queryGroups);
+    const result = await handleResponse(childrenGroups);
+    return result.find(item => item.id === groupId);
+  };
+
   const createForm = useCallback(
     formConfig =>
       (e, isEditMode = false) => {
@@ -144,21 +157,12 @@ const ListItem = ({ item, tabId, toggleToFirstTab, dispatch, path, onManualRefre
           const newGroups = await Records.get(submitedRecord).load('authorityGroups[]?id');
           const prevGroups = get(item, 'attributes.groups', []);
           const difference = prevGroups.filter(authorityGroup => !newGroups.includes(authorityGroup));
-          const input = difference[0] || newGroups[1];
-
-          const queryGroups = {
-            query: { groupName: ROOT_GROUP_NAME },
-            excludeAuthoritiesByName,
-            excludeAuthoritiesByType,
-            isIncludedAdminGroup
-          };
-
-          const childrenGroups = await orgStructApi.fetchGroup(queryGroups);
-          const result = await handleResponse(childrenGroups);
-          const group = result.find(item => item.id === input);
-          if (group && onManualRefresh) {
-            onManualRefresh(group);
+          const groupId = difference[0] || newGroups[1];
+          const groupForRefresh = await refreshCurrentGroup(groupId);
+          if (groupForRefresh && onManualRefresh) {
+            onManualRefresh(groupForRefresh);
           }
+
           getItemsByParent(
             {
               ...item,
@@ -184,6 +188,17 @@ const ListItem = ({ item, tabId, toggleToFirstTab, dispatch, path, onManualRefre
     []
   );
 
+  const deletePersonItem = useCallback(async item => {
+    const record = Records.get(item.id);
+    record.att('att_rem_authorityGroups', item.parentId);
+
+    const groupForRefresh = await refreshCurrentGroup(item.parentId);
+    if (groupForRefresh && onManualRefresh) {
+      onManualRefresh(groupForRefresh);
+    }
+    return record.save();
+  }, []);
+
   const createPerson = createForm(FORM_CONFIG.PERSON);
   const createGroup = createForm(FORM_CONFIG.AUTHORITY_GROUP);
 
@@ -204,13 +219,13 @@ const ListItem = ({ item, tabId, toggleToFirstTab, dispatch, path, onManualRefre
   const deleteFromGroup = useCallback(async e => {
     closeModal(e);
     try {
-      await deleteItem({ ...item });
+      await deletePersonItem({ ...item });
     } catch (e) {
       NotificationManager.error(t('user-profile-widget.error.delete-profile-data'));
     } finally {
       getItemsByParent(item);
     }
-  });
+  }, []);
 
   const personConfig = {
     text: t(Labels.CONFIRM_PERSON_DELETE),
@@ -252,13 +267,6 @@ const ListItem = ({ item, tabId, toggleToFirstTab, dispatch, path, onManualRefre
   const isGroup = useMemo(() => item.id.includes(SourcesId.GROUP), []);
 
   const getGroups = useCallback(item => get(item, 'attributes.groups', []), [nestingLevel]);
-  const deletePersonItem = useCallback(item => {
-    const record = Records.get(item.id);
-
-    record.att('att_rem_authorityGroups', item.parentId);
-
-    return record.save();
-  });
 
   return (
     <div>
@@ -295,7 +303,7 @@ const ListItem = ({ item, tabId, toggleToFirstTab, dispatch, path, onManualRefre
                   onClick={event => {
                     event.preventDefault();
                     event.stopPropagation();
-                    onToggleCollapse(item, () => setGroupModal(item));
+                    setGroupModal(item);
                   }}
                 />
               )}
@@ -306,7 +314,7 @@ const ListItem = ({ item, tabId, toggleToFirstTab, dispatch, path, onManualRefre
                   onClick={event => {
                     event.preventDefault();
                     event.stopPropagation();
-                    onToggleCollapse(item, () => setPersonModal(item));
+                    setPersonModal(item);
                   }}
                 />
               )}
@@ -340,13 +348,15 @@ const ListItem = ({ item, tabId, toggleToFirstTab, dispatch, path, onManualRefre
                     {childItem.label}
                   </div>
                 ) : (
-                  <ListItem
-                    item={childItem}
-                    dispatch={dispatch}
-                    tabId={tabId}
-                    toggleToFirstTab={toggleToFirstTab}
-                    onManualRefresh={onClickLabel}
-                  />
+                  <Suspense fallback={<Loader type="points" />}>
+                    <ListItem
+                      item={childItem}
+                      dispatch={dispatch}
+                      tabId={tabId}
+                      toggleToFirstTab={toggleToFirstTab}
+                      onManualRefresh={onClickLabel}
+                    />
+                  </Suspense>
                 )}
               </div>
             );
