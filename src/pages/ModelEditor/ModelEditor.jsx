@@ -508,11 +508,17 @@ class ModelEditorPage extends React.Component {
 
       const type = this.getFormType(root);
 
-      this.props.getFormProps(type, selected);
+      if (type) {
+        this.props.getFormProps(type, selected);
+      }
 
       this.setState({ selectedElement: selected, selectedDiagramElement: root });
     } else {
-      this.props.getFormProps(this.getFormType(selectedElement), selectedElement);
+      const type = this.getFormType(selectedElement);
+
+      if (type) {
+        this.props.getFormProps(type, selectedElement);
+      }
 
       this.setState({ selectedElement, selectedDiagramElement: element });
     }
