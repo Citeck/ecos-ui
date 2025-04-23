@@ -1,13 +1,8 @@
 import get from 'lodash/get';
 import PropTypes from 'prop-types';
-import React, { Suspense, useState, useCallback, useRef, useEffect } from 'react';
-import { Collapse } from 'reactstrap';
+import React from 'react';
 
 import ListItem, { itemPropType } from '../ListItem';
-
-import Records from '@/components/Records';
-import { Loader } from '@/components/common';
-import { useOrgstructContext } from '@/components/common/Orgstruct/OrgstructContext';
 
 import './List.scss';
 const List = ({ items, counting, tabId, toggleToFirstTab }) => {
