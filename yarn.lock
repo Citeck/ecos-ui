@@ -1483,9 +1483,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@bpmn-io/properties-panel@npm:^3.26.3":
-  version: 3.26.3
-  resolution: "@bpmn-io/properties-panel@npm:3.26.3"
+"@bpmn-io/properties-panel@npm:3.26.4":
+  version: 3.26.4
+  resolution: "@bpmn-io/properties-panel@npm:3.26.4"
   dependencies:
     "@bpmn-io/feel-editor": ^1.10.0
     "@codemirror/view": ^6.28.1
@@ -1494,7 +1494,7 @@ __metadata:
     focus-trap: ^7.5.2
     min-dash: ^4.1.1
     min-dom: ^4.0.3
-  checksum: 22d5bb6c47e061de7141c4267f4ef0ae1907cacf1620d6b536ba71c4531b7d57b7faef8ba9fda01a500caaf8e7ade48b6e04862c4b1cf6b6f62e590f6fc261be
+  checksum: 10915ce905f43cb419535748c36a2684d6281e739604f17315c09af05bc346f218071711ef488d9ed0d821568d4a9844b9a92ac83f38a57f8bd956ac4070a6ba
   languageName: node
   linkType: hard
 
@@ -4347,10 +4347,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bpmn-font@npm:0.12.0":
-  version: 0.12.0
-  resolution: "bpmn-font@npm:0.12.0"
-  checksum: faa9ca034b367fa387a799a1c394c6c2de3925247f21d744d746be4c36b87e71e3d98b43c585988199e7f5c5bc4a4369589a84d0b02db7be6925cdc491706b03
+"bpmn-font@npm:0.12.1":
+  version: 0.12.1
+  resolution: "bpmn-font@npm:0.12.1"
+  checksum: 7555e5915cc1207adaf773dfeba168c4b269b9d8bd9365e5239a7cab690ad8a1dbf3ae87f59448cd24cecb33b534fb668c85e21f6bb0ec6869148bc4562e8604
   languageName: node
   linkType: hard
 
@@ -4379,12 +4379,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bpmn-js@npm:13.0.5":
-  version: 13.0.5
-  resolution: "bpmn-js@npm:13.0.5"
+"bpmn-js@npm:13.2.2":
+  version: 13.2.2
+  resolution: "bpmn-js@npm:13.2.2"
   dependencies:
     bpmn-moddle: ^8.0.0
-    diagram-js: ^12.1.0
+    diagram-js: ^12.2.0
     diagram-js-direct-editing: ^2.0.0
     ids: ^1.0.0
     inherits-browser: ^0.1.0
@@ -4392,24 +4392,7 @@ __metadata:
     min-dom: ^4.0.3
     object-refs: ^0.3.0
     tiny-svg: ^3.0.0
-  checksum: 57d7c1663c161cc178d17c9ec6c8a8edd2e6da03eb739a30a88d960d7efd628e7842394c400aefbde40e1947e55f1b6064d9d0a339e490d51875af2ce0e171d3
-  languageName: node
-  linkType: hard
-
-"bpmn-js@patch:bpmn-js@npm%3A13.0.5#./.yarn/patches/bpmn-js-npm-13.0.5-e73b0a0d9c.patch::locator=ecos-ui%40workspace%3A.":
-  version: 13.0.5
-  resolution: "bpmn-js@patch:bpmn-js@npm%3A13.0.5#./.yarn/patches/bpmn-js-npm-13.0.5-e73b0a0d9c.patch::version=13.0.5&hash=f37467&locator=ecos-ui%40workspace%3A."
-  dependencies:
-    bpmn-moddle: ^8.0.0
-    diagram-js: ^12.1.0
-    diagram-js-direct-editing: ^2.0.0
-    ids: ^1.0.0
-    inherits-browser: ^0.1.0
-    min-dash: ^4.0.0
-    min-dom: ^4.0.3
-    object-refs: ^0.3.0
-    tiny-svg: ^3.0.0
-  checksum: 690999a3a837745d4a32c235754887b26ec7f17621e488137859f37fa116fd1a58e39528ba9a1340978ae4ed551194dd5b1ce38b0244848c6be3042283b7407b
+  checksum: 592beefe4422a66daad4c15e9e8d8ef56c77cbb37874b83701e6f577ae141589e6d1ceafa15ff8e0c6f8d419c9f5f0f5ac7a25bd7af4ae50a9a832c98737609a
   languageName: node
   linkType: hard
 
@@ -5087,6 +5070,13 @@ __metadata:
   version: 1.2.1
   resolution: "clsx@npm:1.2.1"
   checksum: 30befca8019b2eb7dbad38cff6266cf543091dae2825c856a62a8ccf2c3ab9c2907c4d12b288b73101196767f66812365400a227581484a05f968b0307cfaf12
+  languageName: node
+  linkType: hard
+
+"clsx@npm:^2.0.0":
+  version: 2.1.1
+  resolution: "clsx@npm:2.1.1"
+  checksum: acd3e1ab9d8a433ecb3cc2f6a05ab95fe50b4a3cfc5ba47abb6cbf3754585fcb87b84e90c822a1f256c4198e3b41c7f6c391577ffc8678ad587fc0976b24fd57
   languageName: node
   linkType: hard
 
@@ -6068,6 +6058,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"diagram-js@npm:^12.2.0":
+  version: 12.8.1
+  resolution: "diagram-js@npm:12.8.1"
+  dependencies:
+    "@bpmn-io/diagram-js-ui": ^0.2.2
+    clsx: ^2.0.0
+    didi: ^9.0.2
+    hammerjs: ^2.0.1
+    inherits-browser: ^0.1.0
+    min-dash: ^4.1.0
+    min-dom: ^4.1.0
+    object-refs: ^0.3.0
+    path-intersection: ^2.2.1
+    tiny-svg: ^3.0.1
+  checksum: c37cfb9cd62ed03587562ccffc883b32349900acf21e8d570110e7b9fcb0e2d7c84a702074cf5fed67e0d15d3a0142e6b76dd05c7fe1f19c23e5819b756bc219
+  languageName: node
+  linkType: hard
+
 "diagram-js@patch:diagram-js@npm%3A12.1.0#./.yarn/patches/diagram-js-npm-12.1.0-59059de400.patch::locator=ecos-ui%40workspace%3A.":
   version: 12.1.0
   resolution: "diagram-js@patch:diagram-js@npm%3A12.1.0#./.yarn/patches/diagram-js-npm-12.1.0-59059de400.patch::version=12.1.0&hash=6b2e6e&locator=ecos-ui%40workspace%3A."
@@ -6459,7 +6467,7 @@ __metadata:
     "@babel/preset-react": ^7.26.3
     "@babel/preset-typescript": ^7.26.0
     "@babel/runtime": ^7.26.9
-    "@bpmn-io/properties-panel": ^3.26.3
+    "@bpmn-io/properties-panel": 3.26.4
     "@excalidraw/excalidraw": ^0.17.0
     "@lexical/clipboard": 0.26.0
     "@lexical/code": 0.26.0
@@ -6502,8 +6510,8 @@ __metadata:
     babel-preset-vite: ^1.1.3
     bignumber.js: 9.1.1
     bootstrap: 4.6.2
-    bpmn-font: 0.12.0
-    bpmn-js: 13.0.5
+    bpmn-font: 0.12.1
+    bpmn-js: 13.2.2
     bpmn-js-bpmnlint: 0.20.1
     bpmn-js-color-picker: 0.5.0
     bpmnlint: 8.1.1
