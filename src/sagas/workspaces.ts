@@ -2,6 +2,7 @@ import get from 'lodash/get';
 import isBoolean from 'lodash/isBoolean';
 import { call, put, takeLatest, takeEvery, select } from 'redux-saga/effects';
 
+import { getDashboardEditable } from '@/actions/app';
 import { getDashboardConfig } from '@/actions/dashboard';
 import { fetchCreateCaseWidgetData } from '@/actions/header';
 import { getMenuConfig } from '@/actions/menu';
@@ -150,6 +151,7 @@ function* sagaGoToDefaultFromBlockedWs() {
 
 function* sagaUpdateUIWorkspace() {
   try {
+    yield put(getDashboardEditable());
     yield put(getMenuConfig());
     yield put(fetchSlideMenuItems());
     yield put(fetchCreateCaseWidgetData());
