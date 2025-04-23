@@ -88,6 +88,10 @@ class ModelEditorPage extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
+    if (nextState.xmlViewerIsOpen !== this.state.xmlViewerIsOpen) {
+      return true;
+    }
+
     return !isEqual(this.props, nextProps);
   }
 
