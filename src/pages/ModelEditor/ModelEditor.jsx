@@ -87,6 +87,10 @@ class ModelEditorPage extends React.Component {
     }
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    return !isEqual(this.props, nextProps);
+  }
+
   componentWillUnmount() {
     this._cachedLabels = {};
     this._formsCache = {};

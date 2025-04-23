@@ -66,7 +66,9 @@ const preOptimizeDepsLibs = [
   '@lexical/react/LexicalCollaborationContext',
   '@lexical/react/LexicalNestedComposer',
   'lodash/noop',
-  'bpmn-js/lib/features/modeling/ElementFactory'
+  'bpmn-js/lib/features/modeling/ElementFactory',
+  'react-xml-viewer',
+  'cmmn-js/lib/features/modeling/util/ModelingUtil'
 ];
 
 export default defineConfig(({ mode }) => {
