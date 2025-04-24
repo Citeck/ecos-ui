@@ -16,14 +16,16 @@ import 'bpmn-js-color-picker/colors/color-picker.css';
 
 export default class BPMNModeler extends BaseModeler {
   initModelerInstance = () => {
-    this.modeler = new Modeler({
-      additionalModules: [customModules],
-      moddleExtensions: {
-        ecosTask: ecosTask
-      },
-      keyboard: { bindTo: document },
-      linting
-    });
+    if (!this.modeler) {
+      this.modeler = new Modeler({
+        additionalModules: [customModules],
+        moddleExtensions: {
+          ecosTask: ecosTask
+        },
+        keyboard: { bindTo: document },
+        linting
+      });
+    }
   };
 
   get elementDefinitions() {

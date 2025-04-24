@@ -59,10 +59,10 @@ class ModelEditorPage extends React.Component {
 
   designer;
   urlQuery = queryString.parseUrl(window.location.href).query;
-  modelEditorRef = React.createRef();
+  modelEditorRef = React.createRef(null);
   _processDefId = null;
   _tempFormData = {};
-  _formWrapperRef = React.createRef();
+  _formWrapperRef = React.createRef(null);
   _prevValue = {};
   _cachedLabels = {};
   _labelIsEdited = false;
@@ -85,6 +85,14 @@ class ModelEditorPage extends React.Component {
     if (formDataId && selectedElement && formDataId !== selectedElement.id) {
       this.setState({ selectedElement: undefined });
     }
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if (nextState.xmlViewerIsOpen !== this.state.xmlViewerIsOpen) {
+      return true;
+    }
+
+    return !isEqual(this.props, nextProps);
   }
 
   componentWillUnmount() {
@@ -504,11 +512,17 @@ class ModelEditorPage extends React.Component {
 
       const type = this.getFormType(root);
 
-      this.props.getFormProps(type, selected);
+      if (type) {
+        this.props.getFormProps(type, selected);
+      }
 
       this.setState({ selectedElement: selected, selectedDiagramElement: root });
     } else {
-      this.props.getFormProps(this.getFormType(selectedElement), selectedElement);
+      const type = this.getFormType(selectedElement);
+
+      if (type) {
+        this.props.getFormProps(type, selectedElement);
+      }
 
       this.setState({ selectedElement, selectedDiagramElement: element });
     }

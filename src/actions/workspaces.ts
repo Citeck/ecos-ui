@@ -17,7 +17,9 @@ export const getWorkspaces = createAction<void>(prefix + 'GET_WORKSPACES');
 export const getSidebarWorkspaces = createAction<void>(prefix + 'GET_SIDEBAR_WORKSPACES');
 
 export const onSearchWorkspaces = createAction<string>(prefix + 'ON_SEARCH_WORKSPACES');
-export const removeWorkspace = createAction<{ wsId: WorkspaceType['id']; callback?: () => void }>(prefix + 'REMOVE_WORKSPACE');
+export const removeWorkspace = createAction<{ wsId: WorkspaceType['id']; wsName: WorkspaceType['name']; callback?: () => void }>(
+  prefix + 'REMOVE_WORKSPACE'
+);
 
 export const setDefaultWorkspace = createAction<WorkspaceType['id']>(prefix + 'SET_DEFAULT_WORKSPACE');
 export const setIsBlockedCurrentWorkspace = createAction<boolean>(prefix + 'SET_IS_BLOCKED_CURRENT_WORKSPACE');

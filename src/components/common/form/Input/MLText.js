@@ -1,7 +1,8 @@
 import React from 'react';
 
-import Input from './Input';
 import BaseMLField from '../BaseMLField';
+
+import Input from './Input';
 
 import './Input.scss';
 

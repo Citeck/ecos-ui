@@ -86,6 +86,7 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
       isCurrentUserMember,
       isCurrentUserManager,
       isCurrentUserDirectMember,
+      hasDelete,
       openWorkspace,
       actions: pActions
     } = this.props;
@@ -111,7 +112,7 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
       actions.push({ onClick: this.onLeaveWorkspace, label: t(Labels.LEAVE_WORKSPACE) });
     }
 
-    if (isCurrentUserManager) {
+    if (isCurrentUserManager && hasDelete) {
       actions.push({ onClick: this.onRemoveWorkspace, label: t(Labels.REMOVE_WORKSPACE) });
     }
 
@@ -344,7 +345,7 @@ const mapDispatchToProps = (
 ): Pick<WorkspaceCardProps, OmitProps> => ({
   getWorkspaces: () => dispatch(getWorkspaces()),
   getSidebarWorkspaces: () => dispatch(getSidebarWorkspaces()),
-  removeWorkspace: callback => dispatch(removeWorkspace({ wsId: props.id, callback })),
+  removeWorkspace: callback => dispatch(removeWorkspace({ wsId: props.id, wsName: props.name, callback })),
   joinToWorkspace: callback => dispatch(joinToWorkspace({ wsId: props.id, callback })),
   leaveOfWorkspace: () => dispatch(leaveOfWorkspace({ wsId: props.id, wsName: props.name }))
 });

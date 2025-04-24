@@ -27,6 +27,7 @@ const workspaceAttributes: Partial<Record<keyof WorkspaceType, string>> = {
   name: '?disp!?localId',
   description: 'description?str',
   image: 'icon.url',
+  hasDelete: 'permissions._has.delete?bool',
   isCurrentUserMember: 'isCurrentUserMember?bool',
   isCurrentUserManager: 'isCurrentUserManager?bool',
   isCurrentUserLastManager: 'isCurrentUserLastManager?bool', // cause: https://jira.citeck.ru/browse/ECOSCOM-5763

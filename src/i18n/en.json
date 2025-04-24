@@ -2767,6 +2767,7 @@
   "workspaces.card.go-to-workspace": "Go to the workspace",
   "workspaces.card.edit-workspace": "Edit",
   "workspaces.card.remove-workspace": "Delete",
+  "workspaces.card.remove-workspace.success": "Workspace «{{wsName}}» deleted",
   "workspaces.card.leave-workspace": "Leave of workspace",
   "workspaces.card.leave-workspace.success": "You have successfully logged out of the workspace «{{wsName}}»",
   "workspaces.card.leave-workspace.error.title": "It is impossible to leave the workspace",

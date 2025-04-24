@@ -201,7 +201,11 @@ export default class BaseModeler {
     }
 
     if (data) {
-      modeling.updateProperties(element, data, withClear);
+      try {
+        modeling.updateProperties(element, data, withClear);
+      } catch (e) {
+        console.error('Failed to update BPMN element:', element, e);
+      }
     }
   };
 

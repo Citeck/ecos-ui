@@ -79,7 +79,7 @@
     &-buttons {
       z-index: 1000;
       position: absolute;
-      bottom: 0;
+      bottom: 20px;
       display: flex;
       padding: 10px;
 
@@ -171,8 +171,8 @@
 
   &__designer-zoom {
     position: absolute;
-    bottom: 40px;
-    right: 10px;
+    bottom: 70px;
+    right: 20px;
 
     .ecos-btn {
       margin-bottom: 10px;

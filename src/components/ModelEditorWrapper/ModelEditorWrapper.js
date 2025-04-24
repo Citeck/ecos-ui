@@ -52,7 +52,7 @@ class ModelEditorWrapper extends React.Component {
     rightSidebarOpen: true
   };
 
-  #sidebarRightRef = null;
+  #sidebarRightRef = React.createRef(null);
   #designerId = uniqueId('modelEditorLeftColumn_');
   #editorId = uniqueId('modelEditorRightColumn_');
   #lsKey = generateKey('bpmn-editor', true);

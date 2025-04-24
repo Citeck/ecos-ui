@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
+import React, { Component } from 'react';
 
 export default class RawHtmlWrapper extends Component {
   constructor(props) {

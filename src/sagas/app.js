@@ -33,7 +33,7 @@ import { detectMobileDevice, setViewNewJournal } from '@/actions/view';
 import { getWorkspaces, setBlockedCurrentWorkspace, setDefaultWorkspace } from '@/actions/workspaces';
 import { SourcesId, URL } from '@/constants';
 import { getWorkspaceId } from '@/helpers/urls';
-import { getCurrentUserName } from '@/helpers/util';
+import { getCurrentUserName, getEnabledWorkspaces } from '@/helpers/util';
 import { SETTING_ENABLE_VIEW_NEW_JOURNAL } from '@/pages/DevTools/constants';
 import { selectWorkspaces } from '@/selectors/workspaces';
 import PageService from '@/services/PageService';
@@ -179,7 +179,7 @@ export function* fetchDashboardEditable({ api }) {
     const username = getCurrentUserName();
     const editable = yield call(api.app.isDashboardEditable, { username });
 
-    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+    if (getEnabledWorkspaces()) {
       const wsId = getWorkspaceId();
       const workspaces = yield select(state => selectWorkspaces(state));
 
@@ -187,7 +187,7 @@ export function* fetchDashboardEditable({ api }) {
         const currentWs = workspaces.find(ws => ws && ws.id && ws.id === wsId);
 
         if (currentWs) {
-          yield put(setDashboardEditable(get(currentWs, 'isCurrentUserManager', editable)));
+          yield put(setDashboardEditable(get(currentWs, 'isCurrentUserManager') || editable));
           return;
         }
       }

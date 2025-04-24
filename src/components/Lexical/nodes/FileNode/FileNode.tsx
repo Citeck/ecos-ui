@@ -42,6 +42,10 @@ export class FileNode extends DecoratorNode<JSX.Element> {
       a: () => ({
         conversion: convertFileElement,
         priority: 1
+      }),
+      span: () => ({
+        conversion: convertFileElement,
+        priority: 4
       })
     };
   }
@@ -80,7 +84,7 @@ export class FileNode extends DecoratorNode<JSX.Element> {
   }
 
   createDOM(config: any): HTMLElement {
-    return document.createElement('a');
+    return document.createElement('span');
   }
 
   getDownLoadUrl = (): string => {

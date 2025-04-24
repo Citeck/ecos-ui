@@ -174,6 +174,7 @@ const Workspaces = ({ isLoading, isError, workspaces, getWorkspaces, visitedActi
                   visibility="PRIVATE"
                   isSmallView
                   isCurrentUserMember
+                  hasDelete={false}
                   isCurrentUserManager={false}
                   isCurrentUserDirectMember={false}
                   isCurrentUserLastManager={false}
