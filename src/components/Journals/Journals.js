@@ -21,7 +21,6 @@ import {
   isUnknownView,
   JOURNAL_MIN_HEIGHT,
   JOURNAL_MIN_HEIGHT_MOB,
-  CLASSNAME_JOURNAL_BODY_TOP,
   PADDING_NEW_JOURNAL,
   JOURNAL_VIEW_MODE as JVM,
   Labels,
@@ -262,7 +261,7 @@ class Journals extends React.Component {
 
     // When switching between tabs, the table elements disappear, which is why the maxHeight changes.
     // Therefore, we remember the last correct maxHeight in the state.
-    if (this._journalBodyTopRef) {
+    if (headH) {
       if (maxHeightJournal !== this.state.maxHeightJournal) {
         this.setState({ maxHeightJournal });
       }
