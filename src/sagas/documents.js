@@ -573,9 +573,11 @@ function* sagaUploadFiles({ api }, { payload }) {
     } else {
       fileUploadFunc = uploadFileV2;
     }
-    const files = yield payload.files.map(function* (file) {
-      return yield fileUploadFunc({ api, file, callback: payload.callback });
-    });
+    const files = yield all(
+      payload.files.map(function* (file) {
+        return yield fileUploadFunc({ api, file, callback: payload.callback });
+      })
+    );
 
     const results = yield Promise.allSettled(files);
     results.forEach(result => {
@@ -609,8 +611,8 @@ function* sagaUploadFiles({ api }, { payload }) {
       recordRef = (yield Records.get(payload.type).load('sourceId')) + '@';
     }
 
-    yield files.map(function* (file) {
-      return yield call(
+    for (const file of files) {
+      yield call(
         api.documents.uploadFilesWithNodes,
         DocumentsConverter.getUploadAttributes({
           record: payload.record,
@@ -620,7 +622,7 @@ function* sagaUploadFiles({ api }, { payload }) {
         }),
         recordRef
       );
-    });
+    }
 
     Records.get(payload.record).update();
 
