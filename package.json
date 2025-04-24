@@ -42,7 +42,7 @@
     "bignumber.js": "9.1.1",
     "bootstrap": "4.6.2",
     "bpmn-font": "0.12.1",
-    "bpmn-js": "13.2.2",
+    "bpmn-js": "13.0.5",
     "bpmn-js-bpmnlint": "0.20.1",
     "bpmn-js-color-picker": "0.5.0",
     "camunda-dmn-js": "0.7.0",
