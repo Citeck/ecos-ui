@@ -11,7 +11,9 @@ import 'cmmn-js/dist/assets/cmmn-font/css/cmmn.css';
 
 export default class CMMNModeler extends BaseModeler {
   initModelerInstance = () => {
-    this.modeler = new Modeler({ additionalModules });
+    if (!this.modeler) {
+      this.modeler = new Modeler({ additionalModules });
+    }
   };
 
   get elementDefinitions() {

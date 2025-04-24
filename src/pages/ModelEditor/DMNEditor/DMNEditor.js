@@ -11,7 +11,9 @@ class DMNEditorPage extends ModelEditor {
   static modelType = 'dmn';
 
   initModeler = () => {
-    this.designer = new DMNModeler();
+    if (!this.designer) {
+      this.designer = new DMNModeler();
+    }
   };
 
   get formTitle() {

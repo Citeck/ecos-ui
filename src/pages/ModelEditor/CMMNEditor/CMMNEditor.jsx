@@ -20,7 +20,9 @@ class CMMNEditorPage extends ModelEditor {
   static modelType = 'cmmn';
 
   initModeler = () => {
-    this.designer = new CMMNModeler();
+    if (!this.designer) {
+      this.designer = new CMMNModeler();
+    }
   };
 
   get formType() {

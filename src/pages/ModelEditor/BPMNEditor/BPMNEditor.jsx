@@ -23,7 +23,9 @@ class BPMNEditorPage extends ModelEditor {
   static modelType = 'bpmn';
 
   initModeler = () => {
-    this.designer = new BPMNModeler();
+    if (!this.designer) {
+      this.designer = new BPMNModeler();
+    }
   };
 
   get linter() {

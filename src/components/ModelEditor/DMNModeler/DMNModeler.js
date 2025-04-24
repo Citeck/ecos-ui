@@ -17,9 +17,11 @@ export default class DMNModeler extends BaseModeler {
   __saveSvgFunc;
 
   initModelerInstance = () => {
-    this.modeler = new Modeler({
-      additionalModules: []
-    });
+    if (!this.modeler) {
+      this.modeler = new Modeler({
+        additionalModules: []
+      });
+    }
   };
 
   get elementDefinitions() {
