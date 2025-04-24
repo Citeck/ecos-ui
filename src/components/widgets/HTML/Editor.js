@@ -4,28 +4,28 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import AceEditor from 'react-ace';
 import { connect } from 'react-redux';
+
 import 'ace-builds/src-noconflict/mode-html';
 import 'ace-builds/src-noconflict/theme-monokai';
 
 import { setEditorMode, updateHtmlWidget } from '../../../actions/customWidgetHtml';
-import { t } from '../../../helpers/export/util';
+import { getCurrentLocale, t } from '../../../helpers/export/util';
 import { wrapArgs } from '../../../helpers/redux';
-import { getDOMElementMeasurer, getHtmlIdByUid } from '../../../helpers/util';
+import { getDOMElementMeasurer } from '../../../helpers/util';
 import { selectCustomWidgetData } from '../../../selectors/customWidgetHtml';
 import { Btn } from '../../common/btns';
-import { Caption, Field, MLText } from '../../common/form';
+import { Caption, Field, MLText, MLTextarea } from '../../common/form';
 
 import { Labels } from './util';
+
 import './styles.scss';
 
 class EditorCustomHtmlWidget extends Component {
-  #editorId = getHtmlIdByUid(undefined, 'ml-textarea');
-
   constructor(props) {
     super(props);
 
     this.state = {
-      htmlString: get(props, 'config.htmlString', null),
+      htmlString: get(props, 'config.htmlString', {}),
       title: get(props, 'config.title', ''),
       _ref: null
     };
@@ -94,25 +94,13 @@ class EditorCustomHtmlWidget extends Component {
           labelPosition="top"
           isSmall={this.isSmall}
         >
-          <AceEditor
-            mode="html"
+          <MLTextarea
             value={htmlString}
-            enableSnippets
-            enableBasicAutocompletion
-            enableLiveAutocompletion
-            setOptions={{
-              useWorker: false,
-              enableBasicAutocompletion: true,
-              enableLiveAutocompletion: true,
-              showLineNumbers: true,
-              tabSize: 3
-            }}
-            style={{ width: 'auto' }}
-            editorProps={{
-              $blockScrolling: true
-            }}
-            name={this.#editorId}
             onChange={htmlString => this.onChangeSetting({ htmlString })}
+            style={{ width: '100%', height: '100%' }}
+            lang={getCurrentLocale()}
+            editor
+            editorLang="html"
           />
         </Field>
 

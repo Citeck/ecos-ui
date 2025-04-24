@@ -39,8 +39,8 @@ import { DashboardTypes, DeviceTabs } from '@/constants/dashboard';
 import { DefaultWidgetsByLayout, Layouts, LayoutTypes } from '@/constants/layout';
 import DashboardSettingsConverter from '@/dto/dashboardSettings';
 import { removeItems } from '@/helpers/ls';
-import { decodeLink, getSearchParams, getSortedUrlParams, SearchKeys } from '@/helpers/urls';
-import { t } from '@/helpers/util';
+import { decodeLink, getSearchParams, getSortedUrlParams, getWorkspaceId, SearchKeys } from '@/helpers/urls';
+import { getEnabledWorkspaces, t } from '@/helpers/util';
 import { selectStateByKey } from '@/selectors/dashboardSettings';
 import DashboardService from '@/services/dashboard';
 import PageTabList from '@/services/pageTabs/PageTabList';
@@ -443,12 +443,21 @@ class Settings extends Component {
   }
 
   renderOwnershipBlock() {
+    const enabledWorkspaces = getEnabledWorkspaces();
     const { dashboardKeyItems, userData, resetConfigToDefault, isDefaultConfig, isLoadingKeys } = this.props;
     const { selectedDashboardKey, isForAllUsers } = this.state;
     const { recordRef, dashboardId } = this.getPathInfo();
 
     if (!isEmpty(dashboardId)) {
       return null;
+    }
+
+    if (enabledWorkspaces) {
+      const wsId = getWorkspaceId();
+
+      if (wsId.includes('user$')) {
+        return null;
+      }
     }
 
     const setData = data => {

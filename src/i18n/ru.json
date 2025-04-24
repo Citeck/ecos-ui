@@ -1811,7 +1811,7 @@
   "menu-item.type.journal": "Журнал",
   "menu-item.type.kanban": "Канбан-доску",
   "menu-item.type.dashboard": "Дашборд",
-  "menu-item.type.wiki": "База знаний",
+  "menu-item.type.wiki": "Базу знаний",
   "menu-item.type.doclib": "DocLib",
   "menu-item.type.previewList": "Список",
   "menu-item.type.arbitrary": "Произвольный пункт меню",

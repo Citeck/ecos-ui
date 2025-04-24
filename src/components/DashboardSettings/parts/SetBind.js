@@ -1,11 +1,11 @@
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
 
-import { t } from '../../../helpers/util';
 import { Icon, PointsLoader, Tooltip } from '../../../components/common';
-import { Checkbox, Dropdown } from '../../../components/common/form';
 import { Btn } from '../../../components/common/btns';
 import DialogManager from '../../../components/common/dialogs/Manager';
+import { Checkbox, Dropdown } from '../../../components/common/form';
+import { t } from '../../../helpers/util';
 
 import '../style.scss';
 

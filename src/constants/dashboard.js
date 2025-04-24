@@ -4,6 +4,7 @@ export const DashboardTypes = {
   SITE: 'site-details',
   PROFILE: 'profile-details',
   PROCESS: 'process-dashboard',
+  PUBLICATION: 'publication-details',
   ORGSTRUCTURE: 'orgstructure-person-dashboard',
   CUSTOM: 'custom'
 };

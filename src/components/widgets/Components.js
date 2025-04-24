@@ -298,7 +298,7 @@ export default class Components {
           layout &&
           (!layout.columns || (layout.columns.length !== 1 && !layout.columns.find(column => Array.isArray(column) && column.length === 1)))
       },
-      checkIsAvailable: () => {
+      checkIsAvailable: dashboardType => {
         const workspacesEnabled = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
 
         if (!workspacesEnabled) {
@@ -308,7 +308,7 @@ export default class Components {
         return Boolean(get(window, 'Citeck.Plugins.PublicationWidget'));
       },
       label: 'dashboard-settings.widget.publication',
-      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
+      supportedDashboardTypes: [DashboardTypes.PUBLICATION]
     },
     [ComponentKeys.HIERARCHICAL_TREE]: {
       load: () =>
@@ -327,7 +327,7 @@ export default class Components {
         return Boolean(get(window, 'Citeck.Plugins.HierarchicalTreeWidget'));
       },
       label: 'dashboard-settings.widget.hierarchical-tree',
-      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS, DashboardTypes.CUSTOM]
+      supportedDashboardTypes: [DashboardTypes.PUBLICATION, DashboardTypes.CUSTOM]
     },
     [ComponentKeys.STAGES]: {
       load: () =>
@@ -359,10 +359,8 @@ export default class Components {
     ComponentKeys.NEWS,
     ComponentKeys.JOURNAL,
     ComponentKeys.WEB_PAGE,
-    ComponentKeys.PUBLICATION,
     ComponentKeys.HTML,
-    ComponentKeys.ACTIVITIES,
-    ComponentKeys.HIERARCHICAL_TREE
+    ComponentKeys.ACTIVITIES
   ];
 
   static get allDashboardTypes() {
@@ -407,7 +405,7 @@ export default class Components {
     await Promise.all(
       Object.entries(Components.components).map(async ([name, component]) => {
         if (isFunction(component.checkIsAvailable)) {
-          const isAvaliable = await component.checkIsAvailable();
+          const isAvaliable = await component.checkIsAvailable(dashboardType);
           if (!isAvaliable) {
             return;
           }

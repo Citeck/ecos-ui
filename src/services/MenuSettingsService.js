@@ -7,7 +7,9 @@ import uuidV4 from 'uuid/v4';
 import { ConfigTypes, CreateOptions, MenuSettings as ms, MenuTypes, UserMenu, UserOptions } from '../constants/menu';
 import { treeFindFirstItem, treeGetPathItem, treeRemoveItem } from '../helpers/arrayOfObjects';
 import { getIconObjectWeb } from '../helpers/icon';
-import { isExistValue, packInLabel, t } from '../helpers/util';
+import { getEnabledWorkspaces, isExistValue, packInLabel, t } from '../helpers/util';
+
+import { getWorkspaceId } from '@/helpers/urls';
 
 export default class MenuSettingsService {
   static emitter = new EventEmitter();
@@ -244,6 +246,9 @@ export default class MenuSettingsService {
   }
 
   static getAvailableCreateOptions = (item, params) => {
+    const enabledWorkspaces = getEnabledWorkspaces();
+    const wsId = getWorkspaceId();
+
     const { configType, level } = params || {};
     const array = cloneDeep(MenuSettingsService.getCreateOptionsByType(configType));
 
@@ -259,6 +264,12 @@ export default class MenuSettingsService {
         !isExistValue(level) || ((!isExistValue(maxLevel) || maxLevel >= level) && (!isExistValue(minLevel) || minLevel <= level));
       const goodType = MenuSettingsService.isKnownType(get(item, 'type'));
       const allowedType = !MenuSettingsService.isChildless(item);
+
+      if (enabledWorkspaces) {
+        if (wsId.includes('user$') && type.key === 'WIKI') {
+          return false;
+        }
+      }
 
       return goodLevel && (!isExistValue(item) || (goodType && allowedType));
     });

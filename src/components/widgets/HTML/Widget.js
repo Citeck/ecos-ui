@@ -100,11 +100,11 @@ class CustomWidgetHtmlDashlet extends BaseWidget {
       return null;
     }
 
-    if (!html) {
+    if (!html[getCurrentLocale()]) {
       return <InfoText text={t(Labels.Widget.WARNING_NEED_SETTINGS)} />;
     }
 
-    const parsedHtml = html.replace(/\{([^}]+)\}/g, (_, code) => {
+    const parsedHtml = html[getCurrentLocale()].replace(/\{([^}]+)\}/g, (_, code) => {
       try {
         // eslint-disable-next-line
         return new Function(`return ${code}`)();
