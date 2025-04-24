@@ -236,6 +236,5 @@
   "volta": {
     "node": "18.20.6",
     "yarn": "3.6.2"
-  },
-  "sideEffects": false
+  }
 }
