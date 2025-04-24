@@ -13,6 +13,8 @@ import {
   PAGINATION_SIZES,
   MAX_HEIGHT_TOTAL_AMOUNT,
   HEIGHT_LIST_VIEW_ITEM,
+  PADDING_LIST_VIEW,
+  LIST_VIEW_ITEM_GAP,
   isPreviewList,
   isTable
 } from '../constants';
@@ -83,7 +85,9 @@ class JournalsDashletPagination extends Component {
       this.setState({ maxHeightJournalData });
 
       if (isViewNewJournal && isFunction(setGridPagination)) {
-        const gridMaxHeight = maxHeightJournalData - HEIGHT_GRID_WRAPPER - HEIGHT_THEAD;
+        const gridMaxHeight = isPreviewList(viewMode)
+          ? maxHeightJournalData - PADDING_LIST_VIEW * 2 + LIST_VIEW_ITEM_GAP // LIST_VIEW_ITEM_GAP - there is no "gap" property after the last element.
+          : maxHeightJournalData - HEIGHT_GRID_WRAPPER - HEIGHT_THEAD;
         let maxItems = Math.floor(gridMaxHeight / MAX_HEIGHT_ROW);
 
         if (!isPreviewList(viewMode)) {
