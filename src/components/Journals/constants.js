@@ -14,13 +14,15 @@ export const PAGINATION_SIZES = [
 export const MIN_CARD_DATA_NEW_JOURNAL = 6;
 
 export const PADDING_NEW_JOURNAL = 10;
+export const PADDING_LIST_VIEW = 20;
 export const HEIGHT_GRID_WRAPPER = 15;
 export const HEIGHT_GRID_ROW = 28;
 export const HEIGHT_THEAD = 35;
 export const MAX_HEIGHT_TOTAL_AMOUNT = 40;
 export const ECOS_GRID_PADDING_HORIZONTAL = 14;
 
-export const HEIGHT_LIST_VIEW_ITEM = 134 + 18; // 18px - gap
+export const LIST_VIEW_ITEM_GAP = 18;
+export const HEIGHT_LIST_VIEW_ITEM = 134 + LIST_VIEW_ITEM_GAP;
 
 export const CLASSNAME_JOURNAL_BODY_TOP = 'ecos-journal__body-top';
 
