@@ -35,6 +35,7 @@ import { showModalJson } from '@/helpers/tools';
 import { decodeLink, getLinkWithWs, getSortedUrlParams, isDashboard, pushHistoryLink, replaceHistoryLink } from '@/helpers/urls';
 import { getEnabledWorkspaces, isMobileAppWebView, t } from '@/helpers/util';
 import { selectDashboardByKey, selectDashboardConfig, selectDashboardConfigVersion } from '@/selectors/dashboard';
+import { selectCurrentWorkspaceIsBlocked } from '@/selectors/workspaces';
 import PageService from '@/services/PageService';
 import DashboardService from '@/services/dashboard';
 import PageTabList from '@/services/pageTabs/PageTabList';
@@ -54,6 +55,7 @@ const mapStateToProps = (state, ownProps) => {
   return {
     stateKey,
     enableCache,
+    isBlockedCurrentWorkspace: selectCurrentWorkspaceIsBlocked(state),
     config: selectDashboardConfig(dashboardState, isMobile),
     isLoadingDashboard: get(dashboardState, 'isLoading'),
     saveResultDashboard: get(dashboardState, 'requestResult', {}),
@@ -227,7 +229,11 @@ class Dashboard extends Component {
   }
 
   showWarningMessage = debounce(() => {
-    const { warningMessage, closeWarningMessage } = this.props;
+    const { warningMessage, closeWarningMessage, isBlockedCurrentWorkspace } = this.props;
+
+    if (isBlockedCurrentWorkspace) {
+      return null;
+    }
 
     DialogManager.showCustomDialog({
       isVisible: !!warningMessage,
@@ -244,8 +250,8 @@ class Dashboard extends Component {
           className: 'ecos-btn_blue',
           key: 'home-page',
           onClick: () => {
-            const linkWithWs = getEnabledWorkspaces() ? getLinkWithWs(URL.DASHBOARD) : URL.DASHBOARD;
-            PageService.changeUrlLink(linkWithWs, { openNewTab: true, closeActiveTab: true });
+            const link = getEnabledWorkspaces() ? getLinkWithWs(URL.DASHBOARD) : URL.DASHBOARD;
+            PageService.changeUrlLink(link, { openNewTab: true, closeActiveTab: true });
           },
           label: t('go-to.home-page')
         }
