@@ -61,7 +61,7 @@ function* sagaInitTabs({ api }) {
     yield put(initTabsComplete());
 
     yield all(
-      PageTabList.tabs.map(function*(tab) {
+      PageTabList.tabs.map(function* (tab) {
         if (tab.isActive || tab.isLoading) {
           const updates = yield* getTitle(tab);
           PageTabList.changeOne({ tab, updates });
@@ -364,7 +364,7 @@ function* saga(ea) {
   yield takeEvery(addTab().type, sagaAddOneTab, ea);
   yield takeEvery(deleteTab().type, sagaDeleteTab, ea);
   yield takeEvery(closeTabs().type, sagaCloseTabs, ea);
-  yield takeEvery(changeTab().type, sagaChangeTabData, ea);
+  yield takeLatest(changeTab().type, sagaChangeTabData, ea);
   yield takeEvery(updateTab().type, sagaUpdateTabData, ea);
   yield takeEvery(updateTabsFromStorage().type, sagaUpdateTabs, ea);
 }
