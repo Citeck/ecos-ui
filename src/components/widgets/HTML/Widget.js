@@ -50,7 +50,7 @@ class CustomWidgetHtmlDashlet extends BaseWidget {
 
     const { dashboardId, config } = props;
     const recordRef = dashboardId === DashboardTypes.USER || !this.recordRefFromUrl ? dashboardId : null;
-    const html = config && config[recordRef] ? get(config[recordRef], 'htmlString', null) : {};
+    const html = config && config[recordRef] ? get(config[recordRef], 'htmlString', {}) : {};
 
     this.state = {
       recordRef,
