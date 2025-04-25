@@ -7,17 +7,18 @@ import uniqueId from 'lodash/uniqueId';
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { toggleViewMode } from '../../actions/journals';
-import { JournalUrlParams } from '../../constants';
-import { wrapArgs } from '../../helpers/redux';
-import { updateCurrentUrl } from '../../helpers/urls';
-import { getSearchParams, t } from '../../helpers/util';
-import { selectCommonJournalPageProps } from '../../selectors/journals';
 import { Tooltip } from '../common';
 import { IcoBtn } from '../common/btns';
 import PreviewList from '../common/icons/PreviewList';
 
 import { isDocLib, isKanban, isPreview, isPreviewList, isTable, JOURNAL_VIEW_MODE as JVM, Labels } from './constants';
+
+import { toggleViewMode } from '@/actions/journals';
+import { JournalUrlParams } from '@/constants';
+import { wrapArgs } from '@/helpers/redux';
+import { updateCurrentUrl } from '@/helpers/urls';
+import { getSearchParams, t } from '@/helpers/util';
+import { selectCommonJournalPageProps } from '@/selectors/journals';
 
 const mapStateToProps = (state, props) => {
   const commonProps = selectCommonJournalPageProps(state, props.stateId);
@@ -114,7 +115,13 @@ class ViewTabs extends React.Component {
           </>
         )}
         {!isMobile && isKanbanEnabled && (
-          <Tooltip off={isMobile} target={target(JVM.KANBAN)} text={t(Labels.Views.KANBAN)} uncontrolled modifiers={tooltipModifiers}>
+          <Tooltip
+            off={isMobile || !isKanbanEnabled}
+            target={target(JVM.KANBAN)}
+            text={t(Labels.Views.KANBAN)}
+            uncontrolled
+            modifiers={tooltipModifiers}
+          >
             <IcoBtn
               id={target(JVM.KANBAN)}
               icon="icon-kanban"
@@ -127,7 +134,13 @@ class ViewTabs extends React.Component {
           </Tooltip>
         )}
         {isDocLibEnabled && (
-          <Tooltip off={isMobile} target={target(JVM.DOC_LIB)} text={t(Labels.Views.DOC_LIB)} uncontrolled modifiers={tooltipModifiers}>
+          <Tooltip
+            off={isMobile || !isDocLibEnabled}
+            target={target(JVM.DOC_LIB)}
+            text={t(Labels.Views.DOC_LIB)}
+            uncontrolled
+            modifiers={tooltipModifiers}
+          >
             <IcoBtn
               id={target(JVM.DOC_LIB)}
               icon="icon-folder"
@@ -141,7 +154,7 @@ class ViewTabs extends React.Component {
         )}
         {isPreviewListEnabled && (
           <Tooltip
-            off={isMobile}
+            off={isMobile || !isPreviewListEnabled}
             target={target(JVM.PREVIEW_LIST)}
             text={t(Labels.Views.PREVIEW_LIST)}
             uncontrolled

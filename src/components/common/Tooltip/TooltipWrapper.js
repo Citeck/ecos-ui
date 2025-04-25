@@ -1,7 +1,9 @@
-import React, { Component } from 'react';
+import isEqual from 'lodash/isEqual';
 import PropTypes from 'prop-types';
-import { DOMElement, getTarget, mapToCssModules, omit, PopperPlacements, targetPropType } from 'reactstrap/lib/utils';
+import React, { Component } from 'react';
 import { propTypes } from 'reactstrap/lib/TooltipPopoverWrapper';
+import { DOMElement, getTarget, mapToCssModules, omit, PopperPlacements, targetPropType } from 'reactstrap/lib/utils';
+
 import { TooltipContent } from './TooltipContent';
 
 const DEFAULT_DELAYS = {
@@ -248,7 +250,7 @@ export class TooltipWrapper extends Component {
 
   updateTarget() {
     const newTarget = getTarget(this.props.target, true);
-    if (newTarget !== this._targets) {
+    if (!isEqual(newTarget, this._targets)) {
       this.removeTargetEvents();
       this._targets = newTarget ? Array.from(newTarget) : [];
       this.currentTargetElement = this.currentTargetElement || this._targets[0];
@@ -337,7 +339,7 @@ TooltipWrapper.defaultProps = {
   hideArrow: false,
   autohide: false,
   delay: DEFAULT_DELAYS,
-  toggle: function() {},
+  toggle: function () {},
   trigger: 'click',
   fade: true
 };
