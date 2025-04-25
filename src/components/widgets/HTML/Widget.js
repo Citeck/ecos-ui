@@ -50,7 +50,7 @@ class CustomWidgetHtmlDashlet extends BaseWidget {
 
     const { dashboardId, config } = props;
     const recordRef = dashboardId === DashboardTypes.USER || !this.recordRefFromUrl ? dashboardId : null;
-    const html = config && config[recordRef] ? get(config[recordRef], 'htmlString', null) : null;
+    const html = config && config[recordRef] ? get(config[recordRef], 'htmlString', null) : {};
 
     this.state = {
       recordRef,
@@ -99,7 +99,7 @@ class CustomWidgetHtmlDashlet extends BaseWidget {
     if (isVisibleEditor || this.isCollapsed) {
       return null;
     }
-
+    console.log('hui', html);
     if (!html[getCurrentLocale()]) {
       return <InfoText text={t(Labels.Widget.WARNING_NEED_SETTINGS)} />;
     }
