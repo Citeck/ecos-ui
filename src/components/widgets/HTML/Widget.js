@@ -99,7 +99,7 @@ class CustomWidgetHtmlDashlet extends BaseWidget {
     if (isVisibleEditor || this.isCollapsed) {
       return null;
     }
-    console.log('hui', html);
+
     if (!html[getCurrentLocale()]) {
       return <InfoText text={t(Labels.Widget.WARNING_NEED_SETTINGS)} />;
     }
