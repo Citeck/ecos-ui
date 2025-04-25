@@ -12,6 +12,8 @@ import { getCurrentLocale, t } from '../../helpers/util';
 import ConfigService, { ALFRESCO_ENABLED } from '../../services/config/ConfigService';
 import { FORM_MODE_EDIT, FORM_MODE_VIEW } from '../EcosForm';
 
+import { getWorkspaceId } from '@/helpers/urls';
+
 export const ComponentKeys = {
   NEWS: 'news',
   HTML: 'html',
@@ -355,13 +357,7 @@ export default class Components {
     }
   });
 
-  static allDashboardsComponents = [
-    ComponentKeys.NEWS,
-    ComponentKeys.JOURNAL,
-    ComponentKeys.WEB_PAGE,
-    ComponentKeys.HTML,
-    ComponentKeys.ACTIVITIES
-  ];
+  static allDashboardsComponents = [ComponentKeys.NEWS, ComponentKeys.JOURNAL, ComponentKeys.WEB_PAGE, ComponentKeys.HTML];
 
   static get allDashboardTypes() {
     return Object.values(DashboardTypes);
