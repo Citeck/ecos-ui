@@ -4,6 +4,8 @@ import { Dropdown as Drd, DropdownMenu, DropdownToggle } from 'reactstrap';
 
 import Dropdown from './Dropdown';
 
+import ZIndex from '@/services/ZIndex';
+
 export default class DropdownPreview extends Dropdown {
   render() {
     const { full, className, toggleClassName, direction, disabled, buttonIconClassName, buttonLabel, wrapperMenuClassName } = this.props;
@@ -20,7 +22,7 @@ export default class DropdownPreview extends Dropdown {
           {buttonLabel && <span className="text dropdown-button-text">{buttonLabel}</span>}
           <i className="chevron-down" />
         </DropdownToggle>
-        <div className={menuWrapperClasses}>
+        <div className={menuWrapperClasses} style={{ zIndex: ZIndex.calcZ() + 1 }}>
           <DropdownMenu className={this.cssDropdownMenu}>
             <this.renderMenuItems />
           </DropdownMenu>

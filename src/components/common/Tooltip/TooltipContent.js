@@ -1,13 +1,15 @@
-import React, { Component } from 'react';
 import classNames from 'classnames';
-import { Popper as ReactPopper } from 'react-popper';
-import { DOMElement, getTarget, mapToCssModules, tagPropType, targetPropType } from 'reactstrap/lib/utils';
-import ReactDOM from 'react-dom';
-import Fade from 'reactstrap/lib/Fade';
-import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isNumber from 'lodash/isNumber';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
+import { Popper as ReactPopper } from 'react-popper';
+import Fade from 'reactstrap/lib/Fade';
+import { DOMElement, getTarget, mapToCssModules, tagPropType, targetPropType } from 'reactstrap/lib/utils';
+
+import ZIndex from '@/services/ZIndex.js';
 
 export class TooltipContent extends Component {
   constructor(props) {
@@ -110,7 +112,9 @@ export class TooltipContent extends Component {
               ref={ref}
               style={style}
               className={popperClassName}
+              // eslint-disable-next-line react/no-unknown-property
               x-placement={placement}
+              // eslint-disable-next-line react/no-unknown-property
               x-out-of-boundaries={outOfBoundaries ? 'true' : undefined}
             >
               {typeof children === 'function' ? children({ scheduleUpdate }) : children}
@@ -138,7 +142,7 @@ export class TooltipContent extends Component {
       return this.props.container === 'inline'
         ? this.renderChildren()
         : ReactDOM.createPortal(
-            <div ref={this.getRef} style={{ zIndex: 10002, position: 'relative' }}>
+            <div ref={this.getRef} style={{ zIndex: ZIndex.calcZ() + 1, position: 'relative' }}>
               {this.renderChildren()}
             </div>,
             this.getContainerNode()
