@@ -2,7 +2,6 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isBoolean from 'lodash/isBoolean';
-import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
@@ -17,7 +16,7 @@ import { deselectAllRecords, reloadGrid } from '@/actions/journals';
 import Records from '@/components/Records';
 import { SourcesId } from '@/constants';
 import { wrapArgs } from '@/helpers/redux';
-import { t, getCurrentUserName, getTextByLocale, isMobileDevice } from '@/helpers/util';
+import { t, getCurrentUserName, isMobileDevice } from '@/helpers/util';
 import { selectJournalConfig } from '@/selectors/journals';
 import PageService from '@/services/PageService';
 import LicenseService from '@/services/license/LicenseService';
@@ -38,7 +37,7 @@ const importFormId = 'import-data-form';
 const importFormRecord = 'integrations/import-data@';
 
 const basePathTemplates = '/gateway/integrations/api/import-data/download-template';
-const importEndpointLink = `${process.env.SHARE_PROXY_URL || window.location.origin || ''}` + basePathTemplates;
+const importEndpointLink = `${(process.env.SHARE_PROXY_URL || window.location.origin || '').replace(/\/$/, '')}` + basePathTemplates;
 
 const StatusesUpdate = {
   RUNNING: 'RUNNING',
@@ -181,9 +180,19 @@ class Import extends Component {
 
       const startPolling = () => {
         record.pollingIntervalId = setInterval(() => {
-          record.update().catch(error => {
-            console.error(t('import-component.record.error-update', { record: record.id, error }));
-          });
+          record
+            .update()
+            .then(response => {
+              if (get(record.att(ATT_FULL_STATE), 'state') === StatusesUpdate.ERROR) {
+                new Promise(async resolve => {
+                  await handleError(fileData);
+                  resolve();
+                }).then(() => stopPolling());
+              }
+            })
+            .catch(error => {
+              console.error(t('import-component.record.error-update', { record: record.id, error }));
+            });
         }, pollingInterval);
       };
 
