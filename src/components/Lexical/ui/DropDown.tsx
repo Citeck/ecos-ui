@@ -11,6 +11,8 @@ import * as React from 'react';
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState, JSX } from 'react';
 import { createPortal } from 'react-dom';
 
+import ZIndex from '@/services/ZIndex';
+
 type DropDownContextType = {
   registerItem: (ref: React.RefObject<HTMLButtonElement>) => void;
 };
@@ -117,7 +119,7 @@ function DropDownItems({
 
   return (
     <DropDownContext.Provider value={contextValue}>
-      <div className="citeck-lexical-editor__dropdown" ref={dropDownRef} onKeyDown={handleKeyDown}>
+      <div className="citeck-lexical-editor__dropdown" style={{ zIndex: ZIndex.calcZ() + 1 }} ref={dropDownRef} onKeyDown={handleKeyDown}>
         <div className="dropdown">{children}</div>
       </div>
     </DropDownContext.Provider>
