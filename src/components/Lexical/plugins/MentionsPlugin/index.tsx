@@ -8,10 +8,11 @@ import {
 import React, { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-import { OrgStructApi } from '../../../../api/orgStruct.js';
-import { SourcesId } from '../../../../constants';
 import { Avatar } from '../../../common/index.js';
 import { $createMentionNode } from '../../nodes/MentionNode';
+
+import { OrgStructApi } from '@/api/orgStruct.js';
+import { SourcesId } from '@/constants';
 
 const PUNCTUATION = '\\.,\\+\\*\\?\\$\\@\\|#{}\\(\\)\\^\\-\\[\\]\\\\/!%\'"~=<>_:;';
 const NAME = '\\b[A-Z][^\\s' + PUNCTUATION + ']';
@@ -234,7 +235,6 @@ export default function MentionsPlugin() {
     [checkForSlashTriggerMatch, editor]
   );
 
-  // @ts-ignore
   return (
     <LexicalTypeaheadMenuPlugin<MentionTypeaheadOption>
       onQueryChange={setQueryString}
@@ -244,6 +244,7 @@ export default function MentionsPlugin() {
       onOpen={() => null}
       onClose={() => null}
       anchorClassName=""
+      // @ts-ignore
       menuRenderFn={(anchorElementRef: React.RefObject<HTMLElement>, { selectedIndex, selectOptionAndCleanUp, setHighlightedIndex }) =>
         anchorElementRef.current && results.length
           ? createPortal(
