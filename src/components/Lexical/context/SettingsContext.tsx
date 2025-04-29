@@ -33,7 +33,6 @@ export const SettingsContext = ({ children }: { children: ReactNode }): React.JS
       ...options,
       [setting]: value
     }));
-    setURLParam(setting, value);
   }, []);
 
   const contextValue = useMemo(() => {
