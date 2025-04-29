@@ -1,4 +1,5 @@
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 import isString from 'lodash/isString';
@@ -50,7 +51,12 @@ class CustomWidgetHtmlDashlet extends BaseWidget {
 
     const { dashboardId, config } = props;
     const recordRef = dashboardId === DashboardTypes.USER || !this.recordRefFromUrl ? dashboardId : null;
-    const html = config && config[recordRef] ? get(config[recordRef], 'htmlString', {}) : {};
+
+    let html = get(config, 'htmlString', {});
+
+    if (isEmpty(html)) {
+      html = config && config[recordRef] ? get(config[recordRef], 'htmlString', {}) : {};
+    }
 
     this.state = {
       recordRef,
@@ -59,13 +65,7 @@ class CustomWidgetHtmlDashlet extends BaseWidget {
   }
 
   get config() {
-    const config = get(this.props, 'config');
-
-    if (!this.state.recordRef) {
-      return {};
-    }
-
-    return config[this.state.recordRef] || {};
+    return get(this.props, 'config', {});
   }
 
   get title() {
@@ -117,14 +117,21 @@ class CustomWidgetHtmlDashlet extends BaseWidget {
     return <div dangerouslySetInnerHTML={{ __html: parsedHtml }} />;
   }
 
-  handleSaveSettings = async configToSave => {
+  handleSaveSettings = configToSave => {
     const { id, config, onSave } = this.props;
-
     const configFromRecordRef = config[this.state.recordRef] || {};
 
-    const newConfig = { ...config, [this.state.recordRef]: { ...configFromRecordRef, ...configToSave } };
-
-    isFunction(onSave) && onSave(id, { config: newConfig }, this.onCloseEditor);
+    isFunction(onSave) &&
+      onSave(
+        id,
+        {
+          config: {
+            ...configFromRecordRef,
+            ...configToSave
+          }
+        },
+        this.onCloseEditor
+      );
   };
 
   showEditor = () => this.props.setEditorMode(true);
