@@ -54,7 +54,8 @@ class ModelEditorPage extends React.Component {
     xmlViewerXml: '',
     xmlViewerIsOpen: false,
     errors: 0,
-    warnings: 0
+    warnings: 0,
+    initiated: false
   };
 
   designer;
@@ -72,9 +73,14 @@ class ModelEditorPage extends React.Component {
   #prevMultiInstanceType = null;
 
   componentDidMount() {
+    this.handleInit();
+  }
+
+  handleInit = () => {
     this.initModeler();
     this.props.initData();
-  }
+    this.setState({ initiated: true });
+  };
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     this.setHeight();
@@ -830,7 +836,18 @@ class ModelEditorPage extends React.Component {
 
   render() {
     const { title, formProps, isLoading, isTableView, hasDeployRights } = this.props;
-    const { selectedElement, xmlViewerXml, xmlViewerIsOpen } = this.state;
+    const { selectedElement, xmlViewerXml, xmlViewerIsOpen, initiated } = this.state;
+
+    if (!initiated) {
+      this.handleInit();
+      const type = this.getFormType(selectedElement);
+
+      if (type) {
+        this.props.getFormProps(type, selectedElement);
+      }
+
+      return null;
+    }
 
     return (
       <div className="ecos-model-editor__page" ref={this.modelEditorRef}>
