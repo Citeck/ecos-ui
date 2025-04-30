@@ -36,16 +36,17 @@ export default function getViewer(WrappedComponent, isPdf) {
       onScrollPage: PropTypes.func
     };
 
-    state = {
-      isFullscreenOn: false,
-      isMounted: false,
-      scrollPage: 1
-    };
-
     constructor(props) {
       super(props);
 
       this.refViewer = React.createRef();
+      this.elScrollbar = React.createRef();
+
+      this.state = {
+        isFullscreenOn: false,
+        isMounted: false,
+        scrollPage: 1
+      };
     }
 
     componentDidMount() {
@@ -72,7 +73,7 @@ export default function getViewer(WrappedComponent, isPdf) {
       }
 
       if (isPdf) {
-        if (!isLoading && this.elScrollbar && currentPage !== prevCurrentPage) {
+        if (!isLoading && this.elScrollbar.current && currentPage !== prevCurrentPage) {
           const children = this.childrenScroll;
           const childrenLen = children.length;
 
@@ -95,7 +96,7 @@ export default function getViewer(WrappedComponent, isPdf) {
         if (snapshot.page !== null && snapshot.page !== scrollPage) {
           const children = this.childrenScroll;
           const scrollTo = get(children, [snapshot.page - 1, 'offsetTop'], 0);
-          set(this.elScrollbar, 'view.scrollTop', scrollTo);
+          set(this.elScrollbar.current, 'view.scrollTop', scrollTo);
         }
       }
 
@@ -120,19 +121,13 @@ export default function getViewer(WrappedComponent, isPdf) {
       document.removeEventListener('fullscreenchange', this.handleChangeFullscreen, false);
     }
 
-    get elScrollbar() {
-      const { refScrollbar } = this.refs;
-
-      return refScrollbar;
-    }
-
     get elViewer() {
       return this.refViewer.current || {};
     }
 
     get childrenScroll() {
-      if (this.elScrollbar && this.elScrollbar.view) {
-        return this.elScrollbar.view.querySelectorAll($PAGE);
+      if (this.elScrollbar.current && this.elScrollbar.view) {
+        return this.elScrollbar.current.view.querySelectorAll($PAGE);
       }
 
       return [];
@@ -141,27 +136,27 @@ export default function getViewer(WrappedComponent, isPdf) {
     prevScroll = 0;
 
     setScrollDefaultPosition = debounce(() => {
-      if (!this.elScrollbar) {
+      if (!this.elScrollbar.current) {
         return;
       }
 
-      const { clientWidth, clientHeight, scrollWidth, scrollHeight } = this.elScrollbar.getValues();
-      const transitionElement = this.elScrollbar.view.querySelector('.ecos-doc-preview__viewer-doc-transition');
+      const { clientWidth, clientHeight, scrollWidth, scrollHeight } = this.elScrollbar.current.getValues();
+      const transitionElement = this.elScrollbar.current.view.querySelector('.ecos-doc-preview__viewer-doc-transition');
       let offset = isPdf ? 0 : parseInt(StyleVariables.bottomPad || 0, 10) / 2;
 
       if (transitionElement) {
         offset += transitionElement.offsetHeight;
       }
 
-      this.elScrollbar.scrollLeft((scrollWidth - clientWidth) / 2);
-      this.elScrollbar.scrollTop((scrollHeight - clientHeight) / 2 - offset);
+      this.elScrollbar.current.scrollLeft((scrollWidth - clientWidth) / 2);
+      this.elScrollbar.current.scrollTop((scrollHeight - clientHeight) / 2 - offset);
     }, 250);
 
     handleAboutToReachBottom = debounce(
       () => {
         if (isFunction(this.props.onNextDocument)) {
-          if (this.elScrollbar) {
-            const { scrollTop } = this.elScrollbar.getValues();
+          if (this.elScrollbar.current) {
+            const { scrollTop } = this.elScrollbar.current.getValues();
 
             if (scrollTop === 0) {
               return;
@@ -262,7 +257,7 @@ export default function getViewer(WrappedComponent, isPdf) {
         <Scrollbars
           className={classNames({ 'ecos-doc-preview__viewer_fullscreen': isFullscreenOn })}
           renderView={renderView}
-          ref="refScrollbar"
+          ref={this.elScrollbar}
           onScrollFrame={this.handleScrollFrame}
           autoHide
           {...extraProps}
