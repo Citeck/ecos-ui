@@ -36,7 +36,8 @@ import {
   setOriginKanbanSettings,
   setKanbanSettings,
   applyPreset,
-  cancelGetNextBoardPage
+  cancelGetNextBoardPage,
+  cancelReloadBoardData
 } from '../actions/kanban';
 import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
 import { ParserPredicate } from '../components/Filters/predicates';
@@ -595,16 +596,26 @@ export function* sagaRunSearchCard({ api }, { payload }) {
 export function* sagaReloadBoardData({ api }, { payload }) {
   try {
     const { stateId } = payload;
-    yield put(setLoading({ stateId, isLoading: true }));
 
-    const pagination = DEFAULT_PAGINATION;
-    yield put(setPagination({ stateId, pagination }));
+    const { canceled } = yield race({
+      task: call(function* () {
+        yield put(setLoading({ stateId, isLoading: true }));
 
-    const { boardConfig, formProps } = yield select(selectKanban, stateId);
-    const { journalConfig, journalSetting } = yield select(selectJournalData, stateId);
+        const pagination = DEFAULT_PAGINATION;
+        yield put(setPagination({ stateId, pagination }));
 
-    yield sagaGetData({ api }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
-    yield put(setLoading({ stateId, isLoading: false }));
+        const { boardConfig, formProps } = yield select(selectKanban, stateId);
+        const { journalConfig, journalSetting } = yield select(selectJournalData, stateId);
+
+        yield sagaGetData({ api }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
+        yield put(setLoading({ stateId, isLoading: false }));
+      }),
+      canceled: take(cancelReloadBoardData().type)
+    });
+
+    if (canceled) {
+      yield put(setLoading({ stateId, isLoading: false }));
+    }
   } catch (e) {
     console.error('[kanban/sagaRunSearchCard saga error', e);
   }

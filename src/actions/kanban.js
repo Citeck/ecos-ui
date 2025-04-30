@@ -35,3 +35,4 @@ export const setPagination = createAction(prefix + 'SET_PAGINATION');
 export const setDefaultBoardAndTemplate = createAction(prefix + 'SET_DEFAULT_BOARD_AND_TEMPLATE');
 
 export const cancelGetNextBoardPage = createAction(prefix + 'CANCEL_GET_NEXT_BOARD_PAGE');
+export const cancelReloadBoardData = createAction(prefix + 'CANCEL_RELOAD_BOARD_DATA');
