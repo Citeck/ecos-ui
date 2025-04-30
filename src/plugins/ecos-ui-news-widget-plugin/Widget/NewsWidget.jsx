@@ -146,6 +146,13 @@ class NewsWidget extends BaseWidget {
     this.setState(state => ({
       isOpenSettings: !state.isOpenSettings
     }));
+    if (this.isCollapsed) {
+      this.handleToggleContent();
+
+      this.setState({
+        isOpenSettings: true
+      });
+    }
   };
 
   handleCancelSettings = () => {
@@ -233,7 +240,7 @@ class NewsWidget extends BaseWidget {
         disableCollapse={false}
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={this.isCollapsed}
-        goToButtonName={'Перейти'}
+        goToButtonName={t('dashlet.goto')}
         needGoTo={!!news.length}
         onGoTo={() => this.goToNews()}
       >
