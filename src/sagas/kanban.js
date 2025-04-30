@@ -5,7 +5,7 @@ import isEqual from 'lodash/isEqual';
 import isNil from 'lodash/isNil';
 import set from 'lodash/set';
 import * as queryString from 'query-string';
-import { call, put, select, takeEvery, all, race, take, takeLatest } from 'redux-saga/effects';
+import { call, put, select, takeEvery, all, race, take } from 'redux-saga/effects';
 
 import { applyJournalSetting, execRecordsActionComplete, setJournalSetting, setPredicate } from '../actions/journals';
 import {
@@ -624,7 +624,7 @@ export function* docStatusSaga(ea) {
   yield takeEvery(applyPreset().type, sagaApplyPreset, ea);
   yield takeEvery(resetFilter().type, sagaResetFilter, ea);
   yield takeEvery(runSearchCard().type, sagaRunSearchCard, ea);
-  yield takeLatest(reloadBoardData().type, sagaReloadBoardData, ea);
+  yield takeEvery(reloadBoardData().type, sagaReloadBoardData, ea);
   yield takeEvery(execRecordsActionComplete().type, wrapSaga, { ...ea, saga: sagaRecordActionComplete });
 }
 
