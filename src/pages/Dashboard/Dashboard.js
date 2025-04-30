@@ -18,6 +18,7 @@ import {
   setWarningMessage
 } from '@/actions/dashboard';
 import { saveMenuConfig } from '@/actions/menu';
+import { deleteTab } from '@/actions/pageTabs.js';
 import { DndUtils } from '@/components/Drag-n-Drop';
 import Layout from '@/components/Layout';
 import TopMenu from '@/components/Layout/TopMenu';
@@ -81,6 +82,7 @@ const mapDispatchToProps = (dispatch, state) => ({
   saveMenuConfig: config => dispatch(saveMenuConfig({ config, key: getStateId(state) })),
   setLoading: status => dispatch(setLoading({ status, key: getStateId(state) })),
   resetDashboardConfig: () => dispatch(resetDashboardConfig(getStateId(state))),
+  deleteTab: tab => dispatch(deleteTab(tab)),
   closeWarningMessage: () => dispatch(setWarningMessage({ key: getStateId(state), message: '' }))
 });
 
@@ -228,8 +230,13 @@ class Dashboard extends Component {
     this.recordUpdater.dispose();
   }
 
+  handleCloseWarningMessage = () => {
+    this.props.deleteTab(PageTabList.activeTab);
+    this.props.closeWarningMessage();
+  };
+
   showWarningMessage = debounce(() => {
-    const { warningMessage, closeWarningMessage, isBlockedCurrentWorkspace } = this.props;
+    const { warningMessage, isBlockedCurrentWorkspace } = this.props;
 
     if (isBlockedCurrentWorkspace) {
       return null;
@@ -243,7 +250,7 @@ class Dashboard extends Component {
       buttons: [
         {
           key: 'close',
-          onClick: closeWarningMessage,
+          onClick: this.handleCloseWarningMessage,
           label: t('button.close-modal')
         },
         {
