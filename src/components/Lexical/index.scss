@@ -64,6 +64,12 @@
 .citeck-lexical-editor {
   position: relative;
 
+  h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+    margin: 0;
+    padding: 0;
+    line-height: 40.8px;
+  }
+
   ul {
     display: block;
     list-style-type: disc;
@@ -1109,7 +1115,7 @@
       border: none;
       outline: none;
       position: relative;
-      line-height: 16px;
+      line-height: 25.5px;
       padding-bottom: 16px;
 
       p {
