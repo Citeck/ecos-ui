@@ -230,11 +230,6 @@ class Dashboard extends Component {
     this.recordUpdater.dispose();
   }
 
-  handleCloseWarningMessage = () => {
-    this.props.deleteTab(PageTabList.activeTab);
-    this.props.closeWarningMessage();
-  };
-
   showWarningMessage = debounce(() => {
     const { warningMessage, isBlockedCurrentWorkspace } = this.props;
 
@@ -242,24 +237,22 @@ class Dashboard extends Component {
       return null;
     }
 
+    const openHomeDashboard = () => {
+      const link = getEnabledWorkspaces() ? getLinkWithWs(URL.DASHBOARD) : URL.DASHBOARD;
+      PageService.changeUrlLink(link, { openNewTab: true, closeActiveTab: true, needUpdateTabs: true });
+    };
+
     DialogManager.showCustomDialog({
       isVisible: !!warningMessage,
-      title: t('warning'),
+      title: t('error.access'),
       body: warningMessage,
-      modalClass: 'ecos-modal_width-xs ecos-modal_level-4',
+      modalClass: 'ecos-modal_width-xs ecos-modal_level-4 ecos-dashboard__warning-modal',
+      onHide: () => openHomeDashboard(),
       buttons: [
         {
-          key: 'close',
-          onClick: this.handleCloseWarningMessage,
-          label: t('button.close-modal')
-        },
-        {
-          className: 'ecos-btn_blue',
+          className: 'ecos-btn_blue ecos-dashboard__warning-modal_btn',
           key: 'home-page',
-          onClick: () => {
-            const link = getEnabledWorkspaces() ? getLinkWithWs(URL.DASHBOARD) : URL.DASHBOARD;
-            PageService.changeUrlLink(link, { openNewTab: true, closeActiveTab: true });
-          },
+          onClick: () => openHomeDashboard(),
           label: t('go-to.home-page')
         }
       ]

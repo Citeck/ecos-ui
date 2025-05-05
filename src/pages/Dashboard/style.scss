@@ -10,6 +10,20 @@
     }
   }
 
+  &__warning-modal {
+    button.close {
+      display: none;
+    }
+
+    & .ecos-dialog__buttons {
+      display: block;
+    }
+
+    &_btn {
+      width: 100%;
+    }
+  }
+
   &__header {
     $header: &;
 
