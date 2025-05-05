@@ -18,12 +18,13 @@ import { setDashboardConfig as setDashboardSettingsConfig } from '../actions/das
 import { RequestStatuses } from '../constants';
 import DashboardConverter from '../dto/dashboard';
 import { getRefWithAlfrescoPrefix } from '../helpers/ref';
-import { t } from '../helpers/util';
+import { getEnabledWorkspaces, t } from '../helpers/util';
 import { selectDashboardConfigs, selectIdentificationForView, selectResetStatus } from '../selectors/dashboard';
 import { selectNewVersionConfig, selectSelectedWidgetsById } from '../selectors/dashboardSettings';
-import { selectCurrentWorkspaceIsBlocked } from '../selectors/workspaces';
+import { selectCurrentWorkspaceIsBlocked, selectWorkspaces } from '../selectors/workspaces';
 import DashboardService from '../services/dashboard';
 
+import { getWorkspaceId } from '@/helpers/urls.js';
 import { NotificationManager } from '@/services/notifications';
 
 export function* _parseConfig({ api }, { recordRef, config }) {
@@ -38,13 +39,28 @@ export function* _parseConfig({ api }, { recordRef, config }) {
 
 function* doGetDashboardRequest({ api }, { payload }) {
   const workspaceIsBlocked = yield select(selectCurrentWorkspaceIsBlocked);
+  const enabledWorkspaces = getEnabledWorkspaces();
 
   try {
     const { dashboardId, recordRef } = payload;
     const recordIsExist = yield call(api.app.recordIsExist, recordRef, true);
 
     if (recordRef && !recordIsExist) {
-      yield put(setWarningMessage({ key: payload.key, message: t('record.not-found.message') }));
+      if (enabledWorkspaces) {
+        const wsId = getWorkspaceId();
+        const workspaces = yield select(selectWorkspaces);
+        const currentWorkspace = (workspaces || []).find(workspace => workspace.id === wsId) || '';
+
+        yield put(
+          setWarningMessage({
+            key: payload.key,
+            message: t('record.not-found.message.workspace', { workspaceName: currentWorkspace.name })
+          })
+        );
+      } else {
+        yield put(setWarningMessage({ key: payload.key, message: t('record.not-found.message') }));
+      }
+
       yield put(setLoading({ key: payload.key, status: false }));
 
       return;
@@ -81,7 +97,7 @@ function* doGetDashboardRequest({ api }, { payload }) {
   } catch (e) {
     yield put(setLoading({ key: payload.key, status: false }));
 
-    if (!workspaceIsBlocked || !get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+    if (!workspaceIsBlocked || !enabledWorkspaces) {
       NotificationManager.error(t('dashboard.error.get-config'), t('error'));
     }
 
