@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import isBoolean from 'lodash/isBoolean';
 import React, { useState, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 
@@ -59,8 +60,8 @@ const Workspaces = ({ isLoading, isError, workspaces, getWorkspaces, visitedActi
     setIsActivePreview(false);
   };
 
-  const toggleOpenSideBarWorkspace = () => {
-    setIsOpenSidebarWorkspace(!isOpenSidebarWorkspace);
+  const toggleOpenSideBarWorkspace = (flag?: boolean) => {
+    setIsOpenSidebarWorkspace(isBoolean(flag) ? flag : !isOpenSidebarWorkspace);
   };
 
   const openSideBarWorkspaces = () => {
