@@ -23,7 +23,7 @@ interface WorkspaceSidebarProps {
   isOpen: boolean;
   isLoading: boolean;
   isMobile: boolean;
-  toggleIsOpen: () => void;
+  toggleIsOpen: (flag?: boolean) => void;
   getSidebarWorkspaces: () => void;
   onSearch: (text: string) => void;
   openLink: (id: WorkspaceType['id'], homePageLink: WorkspaceType['homePageLink'], openNewBrowserTab?: boolean) => void;
@@ -99,7 +99,7 @@ class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebar
     const clickedInPanel = clickedElement.closest(`.${PANEL_CLASSNAME}`);
 
     if (!clickedInsideSidebar || !clickedInPanel) {
-      this.props.toggleIsOpen();
+      this.props.toggleIsOpen(false);
     }
   };
 
@@ -237,19 +237,21 @@ class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebar
     return (
       <div className="citeck-workspace-sidebar">
         <div className="citeck-workspace-sidebar__container" ref={this._containerSidebarRef}>
-          <div
-            className={classNames(PANEL_CLASSNAME, {
-              open: shouldAnimateOpen,
-              mobile: isMobile
-            })}
-          >
-            <SearchWorkspaceSidebar onSearch={onSearch} />
-            <Tabs items={this.tabs} narrow />
-            {activeTab === TabsId.MY_WORKSPACE && this.renderMyWorkspaces()}
-            {activeTab === TabsId.PUBLIC_WORKSPACE && this.renderPublicWorkspaces()}
-            <button className="citeck-workspace-sidebar_btn--close" onClick={toggleIsOpen}>
-              <Close />
-            </button>
+          <div className={classNames('citeck-workspace-sidebar__container-panel-wrapper', { mobile: isMobile })}>
+            <div
+              className={classNames(PANEL_CLASSNAME, {
+                open: shouldAnimateOpen,
+                mobile: isMobile
+              })}
+            >
+              <SearchWorkspaceSidebar onSearch={onSearch} />
+              <Tabs items={this.tabs} narrow />
+              {activeTab === TabsId.MY_WORKSPACE && this.renderMyWorkspaces()}
+              {activeTab === TabsId.PUBLIC_WORKSPACE && this.renderPublicWorkspaces()}
+              <button className="citeck-workspace-sidebar_btn--close" onClick={() => toggleIsOpen(false)}>
+                <Close />
+              </button>
+            </div>
           </div>
         </div>
       </div>
