@@ -61,6 +61,7 @@ const TYPE_TITLES = {
 
 export default class PageService {
   static eventIsDispatched = false;
+  static beforeUrlChangeGuards = [];
 
   static getType(link) {
     const _link = link || window.location.href;
@@ -316,12 +317,40 @@ export default class PageService {
     PageService.eventIsDispatched = true;
 
     try {
-      CHANGE_URL.params = { link: decodeLink(link), ...params };
+      const fullParams = { link: decodeLink(link), ...params };
+      CHANGE_URL.params = fullParams;
+
+      if (this.beforeUrlChangeGuards.length) {
+        const guardPromises = this.beforeUrlChangeGuards.map(fn => fn(fullParams));
+
+        Promise.all(guardPromises).then(() => {
+          document.dispatchEvent(CHANGE_URL);
+          this.clearUrlChangeGuards();
+        });
+
+        return;
+      }
+
       document.dispatchEvent(CHANGE_URL);
     } finally {
       PageService.eventIsDispatched = false;
     }
   };
+
+  /** Prevents history changes. Allows controlling when the history should change using a promise-based function
+   * @param guardFn {function(*): Promise<unknown>}
+   **/
+  static registerUrlChangeGuard(guardFn) {
+    // To avoid duplication of promises, it is necessary to give the same link to the function!
+    const exists = PageService.beforeUrlChangeGuards.includes(guardFn);
+    if (!exists) {
+      PageService.beforeUrlChangeGuards.push(guardFn);
+    }
+  }
+
+  static clearUrlChangeGuards() {
+    PageService.beforeUrlChangeGuards = [];
+  }
 
   /**
    * Create link params from event & extra params || make the transition
