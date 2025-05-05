@@ -1,10 +1,11 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { TextLayerBuilder } from 'pdfjs-dist/lib/web/text_layer_builder.js';
+import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
 import isString from 'lodash/isString';
+import { TextLayerBuilder } from 'pdfjs-dist/lib/web/text_layer_builder.js';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
-import { getScale, isMobileDevice } from '../../../helpers/util';
+import { getScale, isMobileDevice } from '@/helpers/util';
 
 import 'pdfjs-dist/web/pdf_viewer.css';
 
@@ -54,7 +55,9 @@ class PdfPage extends Component {
   renderPage() {
     const { pdf, pageNumber } = this.props;
 
-    pdf.getPage(pageNumber).then(this.setPageParams);
+    if (!isEmpty(pdf)) {
+      pdf.getPage(pageNumber).then(this.setPageParams);
+    }
   }
 
   setPageParams = page => {
