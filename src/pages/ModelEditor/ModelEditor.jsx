@@ -41,6 +41,7 @@ import {
 } from '@/constants/cmmn';
 import { DMN_DEFINITIONS } from '@/constants/dmn';
 import { getCurrentLocale, getMLValue, getTextByLocale, t, fileDownload } from '@/helpers/util';
+import PageService from '@/services/PageService.js';
 
 import './ModelEditor.scss';
 
@@ -76,10 +77,33 @@ class ModelEditorPage extends React.Component {
     this.handleInit();
   }
 
+  handleCloseEditor = params => {
+    const initialWsIdParam = this.urlQuery.ws;
+
+    return new Promise((resolve, reject) => {
+      const newUrl = new URL(params.link);
+      const newWsId = newUrl.searchParams.get('ws');
+
+      if (newWsId !== initialWsIdParam) {
+        const confirmed = window.confirm(t('editor.warning.change-workspace'));
+        if (!confirmed) {
+          reject(t('editor.warning.change-workspace.cancel'));
+          return;
+        } else {
+          resolve();
+          return;
+        }
+      }
+
+      resolve();
+    });
+  };
+
   handleInit = () => {
     this.initModeler();
     this.props.initData();
     this.setState({ initiated: true });
+    PageService.registerUrlChangeGuard(this.handleCloseEditor);
   };
 
   componentDidUpdate(prevProps, prevState, snapshot) {
