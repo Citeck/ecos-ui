@@ -2,6 +2,7 @@
   "error": "Ошибка",
   "success": "Успех",
   "warning": "Предупреждение",
+  "error.access": "Ошибка доступа",
   "waiting": "Ожидайте",
   "empty-groups-or-users": "Нет групп или пользователей",
   "load-data-error": "Ошибка загрузки данных",
@@ -40,6 +41,7 @@
 
   "record.permission-denied.message": "У вас недостаточно прав для просмотра данного документа. Обратитесь к администратору.",
   "record.not-found.message": "Документ удален или еще не создан.",
+  "record.not-found.message.workspace": "Нет доступа к документу. Возможно, он был удалён ранее или пока не создан. Перейдите на домашнюю страницу текущего рабочего пространства «{{ workspaceName }}»",
 
   "designer.delete-category-dialog.delete-btn": "Удалить",
   "designer.delete-category-dialog.cancel-btn": "Отмена",
