@@ -1,13 +1,14 @@
-import React, { Component } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
 import ChevronLeft from '../icons/ChevronLeft';
 import ChevronRight from '../icons/ChevronRight';
-import { PAGINATION_SIZES } from '../../Journals/constants';
-import Select from '../../common/form/Select';
-import { IcoBtn } from '../../common/btns';
-import { t } from '../../../helpers/util';
+
+import { PAGINATION_SIZES } from '@/components/Journals/constants';
+import { IcoBtn } from '@/components/common/btns';
+import Select from '@/components/common/form/Select';
+import { t } from '@/helpers/util';
 
 import './Pagination.scss';
 
@@ -66,10 +67,11 @@ export default class Pagination extends Component {
   }
 
   get min() {
-    const { maxItems } = this.props;
+    const { maxItems, total } = this.props;
     const { page } = this.state;
+    const minPage = total <= maxItems ? 1 : page;
 
-    return (page - 1) * maxItems + 1;
+    return (minPage - 1) * maxItems + 1;
   }
 
   handleClickPrev = () => {
