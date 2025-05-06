@@ -1,14 +1,15 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 import isNil from 'lodash/isNil';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
-import { getScale } from '../../../helpers/util';
-import { DocScaleOptions } from '../../../constants';
 import { Loader } from '../../common';
+
+import { DocScaleOptions } from '@/constants';
+import { getScale } from '@/helpers/util';
 
 class ImgViewer extends Component {
   static propTypes = {
@@ -40,11 +41,11 @@ class ImgViewer extends Component {
       refImage: null,
       isRefSet: false
     };
-
-    this.exist = true;
   }
 
   componentDidMount() {
+    this.exist = true;
+
     if (this.elImage.addEventListener) {
       this.elImage.addEventListener('error', this.onError);
     }

@@ -1,16 +1,18 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
 import get from 'lodash/get';
-import isNil from 'lodash/isNil';
 import isFunction from 'lodash/isFunction';
+import isNil from 'lodash/isNil';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
 import { IcoBtn } from '../../common/btns/index';
 import { Dropdown, Input } from '../../common/form/index';
-import { getScaleModes, t } from '../../../helpers/util';
+
 import { Labels } from './util';
-import { DocScaleOptions } from '../../../constants';
+
+import { DocScaleOptions } from '@/constants';
+import { getScaleModes, t } from '@/helpers/util';
 
 export const CUSTOM = 'custom';
 const ZOOM_STEP = 0.15;
@@ -203,7 +205,9 @@ class Toolbar extends Component {
       onFileChange(data);
     }
 
-    this.onChangeZoomOption({ id: DocScaleOptions.AUTO, scale: 1 });
+    setTimeout(() => {
+      this.onChangeZoomOption({ id: DocScaleOptions.AUTO, scale: 1 });
+    }, 0);
   };
 
   renderPager() {

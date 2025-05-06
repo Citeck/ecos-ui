@@ -11,10 +11,6 @@ import * as queryString from 'query-string';
 import React, { Component } from 'react';
 import ReactResizeDetector from 'react-resize-detector';
 
-import { DocPreviewApi } from '../../../api/docPreview';
-import { DocScaleOptions } from '../../../constants';
-import { getOptimalHeight } from '../../../helpers/layout';
-import { isPDFbyStr, t } from '../../../helpers/util';
 import { InfoText, Loader } from '../../common';
 import { Btn } from '../../common/btns';
 
@@ -23,6 +19,11 @@ import PdfViewer from './PdfViewer';
 import Toolbar from './Toolbar';
 import getViewer from './Viewer';
 import { Labels } from './util';
+
+import { DocPreviewApi } from '@/api/docPreview';
+import { DocScaleOptions } from '@/constants';
+import { getOptimalHeight } from '@/helpers/layout';
+import { isPDFbyStr, t } from '@/helpers/util';
 
 import './style.scss';
 
@@ -123,58 +124,61 @@ class DocPreview extends Component {
         this.runGetData();
         this.showFileBootstrap();
       });
+      return;
     }
-  }
 
-  /**
-   * @deprecated
-   * @todo use static getDerivedStateFromProps instead
-   */
-  UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
-    const prevProps = this.props;
-    const { isLoading, byLink, runUpdate, clear } = nextProps;
-    const { recordId, link, fileName } = this.state;
+    const { clear, recordId: propRecordId, isLoading: propLoading, byLink, link: propLink, fileName: propFileName, runUpdate } = this.props;
+    const {
+      clear: prevClear,
+      recordId: prevPropRecordId,
+      isLoading: prevPropLoading,
+      link: prevPropLink,
+      runUpdate: prevRunUpdate
+    } = prevProps;
 
-    let newState = { recordId, fileName, link };
+    let newState = {};
     let isBigUpdate = false;
     let isUpdatePdf = false;
 
-    //clear state by request
-    if (!prevProps.clear && clear) {
+    // Clear state on clear flag
+    if (!prevClear && clear) {
       newState = this.getCleanState();
     }
 
-    if ((!prevProps.clear && clear) || prevProps.recordId !== nextProps.recordId) {
+    // RecordId changed or clear requested => big update
+    if ((!prevClear && clear) || prevPropRecordId !== propRecordId) {
       newState = this.getCleanState();
-      newState.mainRecordId = nextProps.recordId;
+      newState.mainRecordId = propRecordId;
       isBigUpdate = true;
     }
 
-    //additional loader by request
-    if (isLoading !== prevProps.isLoading && !isPDFbyStr(link)) {
-      newState.isLoading = isLoading;
+    // Loader toggle for non-PDFs
+    if (propLoading !== prevPropLoading && !isPDFbyStr(this.state.link)) {
+      newState.isLoading = propLoading;
     }
 
-    //update link if it works by byLink
-    if (byLink && link !== nextProps.link) {
-      newState.link = nextProps.link;
-      isUpdatePdf = isPDFbyStr(link);
+    // Update link when byLink changes
+    if (byLink && prevPropLink !== propLink) {
+      newState.link = propLink;
+      isUpdatePdf = isPDFbyStr(propLink);
     }
 
-    //refresh data
-    if (!prevProps.runUpdate && runUpdate) {
+    // Trigger data refresh
+    if (!prevRunUpdate && runUpdate) {
       isBigUpdate = true;
-      newState.recordId = nextProps.recordId || newState.recordId;
-      newState.fileName = nextProps.fileName;
+      newState.recordId = propRecordId || this.state.recordId;
+      newState.fileName = propFileName;
     }
 
-    this.setState({ ...newState }, () => {
-      //after update of state, run get of remote data
-      isBigUpdate && this.runGetData();
-      isUpdatePdf && this.loadPDF(newState.link); //if link is set self
-      !newState.fileName && this.getFileName(); //if fileName is not set, get by record
-      !get(newState, 'downloadData.link') && this.getDownloadData();
-    });
+    // If any updates detected, apply setState
+    if (Object.keys(newState).length > 0) {
+      this.setState({ ...newState }, () => {
+        isBigUpdate && this.runGetData();
+        isUpdatePdf && this.loadPDF(newState.link);
+        !newState.fileName && this.getFileName();
+        !get(newState, 'downloadData.link') && this.getDownloadData();
+      });
+    }
   }
 
   componentWillUnmount() {
