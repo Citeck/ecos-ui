@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 
 import DMNEditorPage from './DMNEditor';
 
-import { getFormProps, initData, saveModel, setModel, setFormProps, setIsTableView } from '@/actions/dmnEditor';
+import { getFormProps, initData, saveModel, setModel, setFormProps, setIsTableView, getModel } from '@/actions/dmnEditor';
 
 const mapStateToProps = (state, props) => {
   const ownState = state.dmnEditor[props.tabId] || {};
@@ -28,6 +28,7 @@ const mapDispatchToProps = (dispatch, props) => {
     initData: () => dispatch(initData({ stateId, record })),
     saveModel: (xml, img, definitionAction) => dispatch(saveModel({ stateId, record, xml, img, definitionAction })),
     setModel: model => dispatch(setModel({ stateId, model })),
+    getModel: () => dispatch(getModel({ stateId, record })),
     setIsTableView: isHidden => dispatch(setIsTableView({ stateId, isHidden })),
     getFormProps: (formId, element) => dispatch(getFormProps({ stateId, formId, element })),
     clearFormProps: () => dispatch(setFormProps({ stateId, formProps: {} }))

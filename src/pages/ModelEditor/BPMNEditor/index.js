@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 
 import BPMNEditorPage from './BPMNEditor';
 
-import { getFormProps, initData, saveModel, setFormProps, setModel } from '@/actions/bpmnEditor';
+import { getFormProps, getModel, initData, saveModel, setFormProps, setModel } from '@/actions/bpmnEditor';
 
 const mapStateToProps = (store, props) => {
   const ownStore = store.bpmnEditor[props.tabId] || {};
@@ -29,6 +29,7 @@ const mapDispatchToProps = (dispatch, props) => {
     saveModel: (xml, img, definitionAction, processDefId) =>
       dispatch(saveModel({ stateId, record, xml, img, definitionAction, processDefId })),
     setModel: model => dispatch(setModel({ stateId, model })),
+    getModel: () => dispatch(getModel({ stateId, record })),
     getFormProps: (formId, element) => dispatch(getFormProps({ stateId, formId, element })),
     clearFormProps: () => dispatch(setFormProps({ stateId, formProps: {} }))
   };

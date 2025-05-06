@@ -500,6 +500,7 @@ class ModelEditorPage extends React.Component {
     Promise.all([promiseXml, promiseImg])
       .then(([xml, img]) => {
         this.props.saveModel(xml, img, definitionAction, this._processDefId);
+        this.props.getModel && this.props.getModel();
       })
       .catch(error => {
         throw new Error(`Failure to save xml or image: ${error.message}`);
@@ -863,13 +864,6 @@ class ModelEditorPage extends React.Component {
     const { selectedElement, xmlViewerXml, xmlViewerIsOpen, initiated } = this.state;
 
     if (!initiated) {
-      this.handleInit();
-      const type = this.getFormType(selectedElement);
-
-      if (type) {
-        this.props.getFormProps(type, selectedElement);
-      }
-
       return null;
     }
 
