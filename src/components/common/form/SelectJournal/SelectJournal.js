@@ -129,7 +129,7 @@ export default class SelectJournal extends Component {
       initValue.splice(1);
     }
 
-    if (initValue) {
+    if (initValue.length) {
       this.setValue(initValue, false);
     }
 
@@ -157,7 +157,6 @@ export default class SelectJournal extends Component {
       pagination: paginationInitState,
       filterPredicate: []
     });
-    this.liveComponent = false;
   }
 
   updateSelectedValue(value = this.props.defaultValue, shouldTriggerOnChange = false) {
@@ -554,10 +553,6 @@ export default class SelectJournal extends Component {
       .then(this.fillCanEdit)
       .then(this.fetchTableAttributes)
       .then(selected => {
-        if (!this.liveComponent) {
-          return;
-        }
-
         const newValue = multiple ? selected.map(item => item.id) : get(selected, '[0].id', '');
 
         return new Promise(resolve => {
