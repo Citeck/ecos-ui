@@ -161,36 +161,56 @@ export const TableFormContextProvider = props => {
     }
   }, [defaultValue, columns, forceReload]);
 
-  useEffect(() => {
-    if (clonedRecord) {
-      Records.get(clonedRecord)
-        .load('_formKey?str')
-        .then(formKey => {
-          const createVariant = createVariants.find(item => (item.formKey || `alf_${item.type}`) === formKey);
+  useEffect(
+    () => {
+      if (clonedRecord) {
+        Records.get(clonedRecord)
+          .load('_formKey?str')
+          .then(formKey => {
+            const matchingVariant = createVariants.find(item => (item.formKey || `alf_${item.type}`) === formKey);
+            const createVariant = matchingVariant || createVariants[0];
 
-          if (isInstantClone) {
-            return EcosFormUtils.cloneRecord({ clonedRecord, createVariant, saveOnSubmit: false });
-          } else {
-            showCloneForm({ createVariant });
-          }
-        })
-        .then(record => record instanceof Record && onCreateFormSubmit(record));
-    }
-  }, [clonedRecord]);
+            if (isInstantClone) {
+              return EcosFormUtils.cloneRecord({ clonedRecord, createVariant, saveOnSubmit: false });
+            } else {
+              showCloneForm({ createVariant, clonedRecord });
+              return null;
+            }
+          })
+          .then(record => {
+            if (record instanceof Record) {
+              onCreateFormSubmit(record);
+            }
+          })
+          .catch(error => {
+            console.error('Error handling cloned record:', error);
+          });
+      }
+    },
+    [clonedRecord]
+  );
 
-  const showCloneForm = ({ createVariant }) => {
+  const showCloneForm = ({ createVariant, clonedRecord }) => {
     setIsViewOnlyForm(false);
-    setRecord(null);
+
+    const newRecordRef = createVariant.sourceId + '@';
+    setRecord(newRecordRef);
+    setClonedRecord(clonedRecord);
+
     setCreateVariant(createVariant);
     setFormMode(FORM_MODE_CLONE);
     setIsModalFormOpen(true);
+    return Promise.resolve(null);
   };
 
   const onCreateFormSubmit = (record, form) => {
     setIsModalFormOpen(false);
     setClonedRecord(null);
 
-    const allComponents = form.getAllComponents();
+    let allComponents = [];
+    if (form) {
+      allComponents = form.getAllComponents();
+    }
 
     record.toJsonAsync(true).then(async res => {
       const attributes = cloneDeep(res.attributes);

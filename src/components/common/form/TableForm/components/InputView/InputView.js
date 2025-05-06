@@ -3,6 +3,7 @@ import React, { useContext, useRef } from 'react';
 import { TableFormContext } from '../../TableFormContext';
 import CreateVariants from '../CreateVariants';
 import ImportButton from '../ImportButton';
+import SelectButton from '../SelectButton';
 import List from './List';
 
 import './InputView.scss';
@@ -40,6 +41,7 @@ const InputView = () => {
         <div className="ecos-table-form__buttons-wrapper">
           <ImportButton />
           <CreateVariants />
+          <SelectButton />
         </div>
       )}
       {error && <p className="ecos-table-form__error">{error.message}</p>}

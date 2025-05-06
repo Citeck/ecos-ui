@@ -69,6 +69,8 @@ export default class TableFormComponent extends BaseReactComponent {
         },
         triggerEventOnChange: false,
         isInstantClone: false,
+        enableSelectButton: false,
+        selectJournalId: '',
         defaultValue: [],
         customButtonName: {},
         noHorizontalScroll: false
@@ -594,7 +596,9 @@ export default class TableFormComponent extends BaseReactComponent {
           valueFormKey: value => this.getValueFormKey(value)
         },
         customButtonName: component.customButtonName,
-        noHorizontalScroll: component.noHorizontalScroll
+        noHorizontalScroll: component.noHorizontalScroll,
+        enableSelectButton: component.enableSelectButton,
+        selectJournalId: component.selectJournalId
       };
     };
 

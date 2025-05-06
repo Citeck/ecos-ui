@@ -332,49 +332,58 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
   }
 
   static cloneRecord({ clonedRecord, createVariant, saveOnSubmit }) {
-    return new Promise((resolve, reject) => {
-      let { recordRef, formKey } = createVariant || {};
-      const newRecord = Records.getRecordToEdit(recordRef);
-      const formAttributes = { definition: 'definition?json' };
-      const formPromise = EcosFormUtils.getForm(newRecord, formKey, formAttributes);
+    if (!clonedRecord || !createVariant) {
+      return Promise.reject(new Error('clonedRecord and createVariant are required'));
+    }
 
-      formPromise.then(formData => {
+    const newRecord = Records.getRecordToEdit(createVariant.sourceId + '@');
+    newRecord.att('_type', createVariant.typeRef);
+
+    const formAttributes = { definition: 'definition?json' };
+
+    return new Promise(async (resolve, reject) => {
+      try {
+        const formData = await EcosFormUtils.getForm(clonedRecord, null, formAttributes);
+
         if (!formData || !formData.definition) {
           NotificationManager.error(t('ecos-form.error.clone-get-fields'), t('error'));
-          reject(null);
+          return reject(null);
         }
 
         const formDefinition = cloneDeep(formData.definition);
         const inputs = EcosFormUtils.getFormInputs(formDefinition);
-        const recordDataPromise = EcosFormUtils.getClonedData(clonedRecord, inputs);
-        const onSuccess = result => {
-          NotificationManager.success(t('ecos-form.success.clone-record'), t('success'));
-          resolve(result);
-        };
 
-        recordDataPromise
-          .then(data => {
-            for (let att in data) {
-              if (data.hasOwnProperty(att)) {
-                newRecord.att(att, data[att]);
-              }
-            }
+        try {
+          const data = await EcosFormUtils.getClonedData(clonedRecord, inputs);
 
-            if (saveOnSubmit === false) {
-              onSuccess(newRecord);
-            } else {
-              newRecord
-                .save()
-                .then(onSuccess)
-                .catch(e => Promise.reject(e));
-            }
-          })
-          .catch(e => {
-            console.error(e);
-            reject(null);
-            NotificationManager.error(t('ecos-form.error.clone-record'), t('error'));
+          Object.entries(data).forEach(([att, value]) => {
+            newRecord.att(att, value);
           });
-      });
+
+          if (saveOnSubmit === false) {
+            NotificationManager.success(t('ecos-form.success.clone-record'), t('success'));
+            resolve(newRecord);
+          } else {
+            try {
+              const result = await newRecord.save();
+              NotificationManager.success(t('ecos-form.success.clone-record'), t('success'));
+              resolve(result);
+            } catch (saveError) {
+              console.error('Error saving cloned record:', saveError);
+              NotificationManager.error(t('ecos-form.error.clone-record'), t('error'));
+              reject(saveError);
+            }
+          }
+        } catch (dataError) {
+          console.error('Error getting cloned data:', dataError);
+          NotificationManager.error(t('ecos-form.error.clone-record'), t('error'));
+          reject(dataError);
+        }
+      } catch (formError) {
+        console.error('Error getting form definition:', formError);
+        NotificationManager.error(t('ecos-form.error.clone-get-fields'), t('error'));
+        reject(formError);
+      }
     });
   }
 

@@ -67,7 +67,7 @@ export default class MutateAction extends ActionsExecutor {
   async execForRecord(record, action, context) {
     const recordId = get(action, 'config.record.id');
     const attributes = get(action, 'config.record.attributes') || {};
-    const _record = recordId ? Records.get(recordId) : record;
+    const _record = recordId ? Records.getRecordToEdit(recordId) : record;
 
     for (const att in attributes) {
       if (attributes.hasOwnProperty(att)) {

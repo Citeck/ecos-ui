@@ -337,7 +337,55 @@ export default [
     defaultValue: false
   },
   {
+    type: 'panel',
+    title: {
+      ru: 'Настройки копирования значений из журнала',
+      en: 'Settings for copying values from the journal'
+    },
+    collapsible: true,
+    collapsed: true,
+    key: 'copyValuesFromJournal',
     weight: 25,
+    components: [
+      {
+        type: 'checkbox',
+        input: true,
+        key: 'enableSelectButton',
+        label: {
+          ru: 'Кнопка "Выбрать"',
+          en: 'Select Button'
+        },
+        tooltip: {
+          ru: 'Если флаг установлен, будет отображаться кнопка "Выбрать" для копирования существующих объектов',
+          en: 'If the flag is set, the "Select" button will be displayed to copy existing objects'
+        },
+        weight: 1,
+        defaultValue: false
+      },
+      {
+        type: 'textfield',
+        input: true,
+        key: 'selectJournalId',
+        label: {
+          ru: 'ID журнала для выбора',
+          en: 'Journal ID for selection'
+        },
+        tooltip: {
+          ru: 'Идентификатор журнала для выбора объектов. Если не указан, будет использован журнал соответствующий типу первого варианта создания.',
+          en: 'Journal identifier for selecting objects. If not specified, the journal corresponding to the type of the first creation variant will be used.'
+        },
+        weight: 1.5,
+        defaultValue: '',
+        conditional: {
+          json: {
+            and: [{ '==': [{ var: 'data.enableSelectButton' }, true] }]
+          }
+        }
+      }
+    ]
+  },
+  {
+    weight: 26,
     type: 'panel',
     title: {
       ru: 'Пользовательские варианты создания',
@@ -366,7 +414,7 @@ export default [
     ]
   },
   {
-    weight: 28,
+    weight: 27,
     type: 'panel',
     title: {
       ru: 'Ключ формы значения',
@@ -415,7 +463,7 @@ export default [
           if (!data.journalId) {
             return [];
           }
-                    
+
           return window.Citeck.Journals.getJournalConfig(data.journalId).then(config => {
             if (config.columns && Array.isArray(config.columns)) {
               return config.columns.map(function (item) {
@@ -425,7 +473,7 @@ export default [
                 };
               });
             }
-            
+
             return [];
           });
         `
