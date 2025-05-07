@@ -2,17 +2,30 @@
 
 .ecos-welcome {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 360px));
+    grid-template-columns: repeat(auto-fill, minmax(384px, 1fr));
     gap: 10px;
     place-content: center;
-    margin: 20px;
+    margin: 20px 20px 0 20px;
  
     &-card {
         width: 100%;
+        height: 107px;
+
+        .citeck-workspace-sidebar__card-info_description {
+            -webkit-line-clamp: 4;
+            line-clamp: 4;
+            height: auto;
+        }
     }
-    
-    &-card:hover {
-        border: 1px solid $color-blue-light;
+    & > .citeck-workspace-sidebar__preview-container {
+        .citeck-workspace-sidebar__card-settings-menu--left {
+            left: unset;
+        }
+        .citeck-workspace-sidebar__card-settings-menu {
+            left: unset;
+            right: 30px;
+            top: 10px;
+        }
     }
 }
 

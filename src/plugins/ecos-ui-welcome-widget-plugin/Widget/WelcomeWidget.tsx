@@ -8,6 +8,7 @@ import Records from '@/components/Records';
 import Card from '@/components/WorkspaceSidebar/Card';
 import { Loader } from '@/components/common';
 import BaseWidget, { BaseWidgetState } from '@/components/widgets/BaseWidget';
+import { omit } from '@/helpers/omitObject';
 import { getWorkspaceId, openLinkWorkspace } from '@/helpers/urls';
 import { t } from '@/helpers/util';
 
@@ -39,6 +40,7 @@ class WelcomeWidget extends BaseWidget<any, WelcomeState> {
   }
 
   async getWelcomeWorkspaces() {
+    const attributesWs = omit(workspaceAttributes, ['hasDelete', 'hasWrite']);
     try {
       // @ts-ignore
       const workspaces = await Records.get([
@@ -50,7 +52,7 @@ class WelcomeWidget extends BaseWidget<any, WelcomeState> {
         'emodel/workspace@crm-workspace',
         'emodel/workspace@service-desk-workspace',
         'emodel/workspace@admin$workspace'
-      ]).load({ ...workspaceAttributes, notExists: '_notExists?bool!' });
+      ]).load({ ...attributesWs, notExists: '_notExists?bool!' });
 
       this.setState({
         workspaces: workspaces.filter((ws: wsItem) => !ws.notExists)
