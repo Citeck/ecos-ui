@@ -1,26 +1,27 @@
-import React from 'react';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
+import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-import cloneDeep from 'lodash/cloneDeep';
+import React from 'react';
+import { connect } from 'react-redux';
 
 import { saveMenuSettings } from '../../actions/menuSettings';
-import { t } from '../../helpers/util';
-import { goToAdminPage } from '../../helpers/urls';
 import { SystemJournals } from '../../constants';
 import { MenuSettings, MenuTypes } from '../../constants/menu';
+import { getWorkspaceId, goToAdminPage } from '../../helpers/urls';
+import { t } from '../../helpers/util';
 import MenuSettingsService from '../../services/MenuSettingsService';
+import { ErrorBoundary } from '../ErrorBoundary';
 import { EcosModal, Loader, Tabs } from '../common';
 import { Btn, IcoBtn } from '../common/btns';
 import DialogManager from '../common/dialogs/Manager';
-import { ErrorBoundary } from '../ErrorBoundary';
-import { Labels } from './utils';
-import EditorLeftMenu from './editorMenu/EditorLeftMenu';
-import EditorCreateMenu from './editorMenu/EditorCreateMenu';
+
 import EditorGroupPriority from './EditorGroupPriority';
+import EditorCreateMenu from './editorMenu/EditorCreateMenu';
+import EditorLeftMenu from './editorMenu/EditorLeftMenu';
 import EditorOwnership from './editorMenu/EditorOwnership';
 import EditorUserMenu from './editorMenu/EditorUserMenu';
+import { Labels } from './utils';
 
 import './style.scss';
 
@@ -130,6 +131,8 @@ class Settings extends React.Component {
   };
 
   renderMenuConfigTab = key => {
+    const wsId = getWorkspaceId();
+
     return (
       <ErrorBoundary
         key={key}
@@ -144,10 +147,12 @@ class Settings extends React.Component {
             <div className="ecos-menu-settings__title">{t(Labels.TITLE_ITEMS)}</div>
             <EditorLeftMenu />
           </div>
-          <div>
-            <div className="ecos-menu-settings__title">{t(Labels.TITLE_OWNERSHIP)}</div>
-            <EditorOwnership />
-          </div>
+          {!wsId.includes('user$') && (
+            <div>
+              <div className="ecos-menu-settings__title">{t(Labels.TITLE_OWNERSHIP)}</div>
+              <EditorOwnership />
+            </div>
+          )}
         </div>
       </ErrorBoundary>
     );
@@ -284,7 +289,4 @@ const mapDispatchToProps = dispatch => ({
   saveSettings: payload => dispatch(saveMenuSettings(payload))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Settings);
+export default connect(mapStateToProps, mapDispatchToProps)(Settings);
