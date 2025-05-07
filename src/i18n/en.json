@@ -298,6 +298,8 @@
   "activities-widget.confirm.delete.title": "Delete this activity",
   "activities-widget.view-assignment.error.message": "Failed to start viewing the order",
 
+  "welcome.widget.workspaces.error": "Error getting available spaces",
+
   "charts-widget.title": "Graphic statistic",
   "charts-widget.no-source": "No source of type",
   "charts-widget.data-build-error": "Error has occurred:\n {{error}}",
@@ -359,6 +361,7 @@
   "widget-settings.form-condition.view": "View mode",
   "widget-settings.form-condition.label": "Form view mode",
 
+  "dashboard-settings.widget.welcome": "Available spaces",
   "dashboard-settings.config.default": "Default",
   "dashboard-settings.config.custom": "Custom",
   "dashboard-settings.already-exists": "A dashboard for the installed type and / or user already exists",
