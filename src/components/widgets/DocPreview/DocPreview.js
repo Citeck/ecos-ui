@@ -451,7 +451,11 @@ class DocPreview extends Component {
   };
 
   handleChangeSettings = settings => {
-    this.setState({ settings }, () => isFunction(this.props.setUserScale) && this.props.setUserScale(settings.scale));
+    const { currentPage } = settings || {};
+    this.setState(
+      { settings, ...(currentPage && { scrollPage: currentPage }) },
+      () => isFunction(this.props.setUserScale) && this.props.setUserScale(settings.scale)
+    );
   };
 
   handleFullscreen = () => {
