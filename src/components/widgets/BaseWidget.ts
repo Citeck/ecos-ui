@@ -1,13 +1,14 @@
-import React from 'react';
-import get from 'lodash/get';
 import debounce from 'lodash/debounce';
+import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-import isUndefined from 'lodash/isUndefined';
 import isFunction from 'lodash/isFunction';
+import isUndefined from 'lodash/isUndefined';
+import React from 'react';
 
-import { isSmallMode } from '../../helpers/util';
 import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
+import { isSmallMode } from '../../helpers/util';
 import UserLocalSettingsService, { DashletProps } from '../../services/userLocalSettings';
+// @ts-ignore
 import Records from '../Records/Records';
 
 export const EVENTS = {
@@ -18,13 +19,44 @@ export const EVENTS = {
   ASSOC_UPDATE: 'ASSOC_UPDATE'
 };
 
-class BaseWidget extends React.Component {
-  _dashletRef = null;
-  _observableFieldsToUpdate = ['_modified'];
+interface FitHeights {
+  min: number;
+  max: number;
+}
+export interface BaseWidgetProps {
+  id: string;
+  dashboardId: string;
+  record: string;
+  tabId: string;
+  config?: {
+    collapsed?: boolean;
+  };
+  maxHeightByContent?: boolean;
+  fixedHeight?: boolean;
+  onLoad?: (component: BaseWidget) => void;
+  onUpdate?: (component: BaseWidget) => void;
+}
 
-  contentRef = React.createRef();
+export interface BaseWidgetState {
+  lsId?: string;
+  runUpdate?: boolean;
+  fitHeights?: Partial<FitHeights>;
+  contentHeight?: number | null;
+  width?: number;
+  previousHeight?: number;
+  userHeight?: number;
+}
 
-  constructor(props) {
+abstract class BaseWidget<P extends BaseWidgetProps = BaseWidgetProps, S extends BaseWidgetState = BaseWidgetState> extends React.Component<
+  P,
+  S
+> {
+  _dashletRef: HTMLDivElement | null = null;
+  _observableFieldsToUpdate: string[] = ['_modified'];
+  _updateWatcher: any;
+  contentRef = React.createRef<HTMLDivElement>();
+
+  constructor(props: P) {
     super(props);
 
     const lsId = `${props.dashboardId}/${props.id}`;
@@ -39,7 +71,7 @@ class BaseWidget extends React.Component {
       width: MIN_WIDTH_DASHLET_SMALL,
       previousHeight: 0,
       userHeight: UserLocalSettingsService.getDashletHeight(lsId)
-    };
+    } as S;
     this._updateWatcher = this.instanceRecord.watch(this._observableFieldsToUpdate, this.reload);
   }
 
@@ -50,7 +82,7 @@ class BaseWidget extends React.Component {
     this.updateLocalStorageDate();
   }
 
-  componentDidUpdate(prevProps, prevState, snapshot) {
+  componentDidUpdate(prevProps: P, prevState: S) {
     const { onUpdate } = this.props;
 
     isFunction(onUpdate) && onUpdate(this);
@@ -64,24 +96,24 @@ class BaseWidget extends React.Component {
     this.instanceRecord.unwatch(this._updateWatcher);
   }
 
-  get isCollapsed() {
+  get isCollapsed(): boolean {
     const { config } = this.props;
     const lsId = this.state.lsId;
-    const isCollapsedByConfig = get(config, 'collapsed');
+    const isCollapsedByConfig = config?.collapsed;
     const isCollapsedByLS = UserLocalSettingsService.getDashletProperty(lsId, DashletProps.IS_COLLAPSED);
 
-    return isUndefined(isCollapsedByLS) ? isCollapsedByConfig : isCollapsedByLS;
+    return isCollapsedByLS === undefined ? (isCollapsedByConfig ?? false) : isCollapsedByLS;
   }
-
-  get isNarrow() {
+  get isNarrow(): boolean {
     return isSmallMode(this.state.width);
   }
 
   get instanceRecord() {
+    // @ts-ignore
     return Records.get(this.props.record);
   }
 
-  get clientHeight() {
+  get clientHeight(): number | null {
     if (!this.props.maxHeightByContent) {
       return null;
     }
@@ -89,33 +121,29 @@ class BaseWidget extends React.Component {
     return get(this.contentRef, 'current.offsetHeight', 0);
   }
 
-  get contentHeight() {
+  get contentHeight(): number {
     return get(this.contentRef, 'current.offsetHeight', 0);
   }
 
-  get otherHeight() {
+  get otherHeight(): number {
     return this.dashletOtherHeight;
   }
 
-  get fullHeight() {
-    return this.clientHeight + this.otherHeight;
+  get fullHeight(): number {
+    return (this.clientHeight || 0) + this.otherHeight;
   }
 
-  get observableFieldsToUpdate() {
-    return this._observableFieldsToUpdate;
-  }
-
-  get dashletHeight() {
+  get dashletHeight(): number {
     return get(this._dashletRef, 'offsetHeight', 0);
   }
 
-  get dashletOtherHeight() {
+  get dashletOtherHeight(): number {
     if (!this._dashletRef) {
       return 0;
     }
 
-    const body = this._dashletRef.querySelector('.dashlet__body');
-    const header = this._dashletRef.querySelector('.dashlet__header-wrapper');
+    const body = this._dashletRef.querySelector('.dashlet__body') as HTMLElement;
+    const header = this._dashletRef.querySelector('.dashlet__header-wrapper') as HTMLElement;
     const styles = window.getComputedStyle(body, null);
     let paddingBottom = parseInt(styles.getPropertyValue('padding-bottom'), 10) || 0;
     let paddingTop = parseInt(styles.getPropertyValue('padding-top'), 10) || 0;
@@ -131,35 +159,33 @@ class BaseWidget extends React.Component {
     return paddingBottom + paddingTop + get(header, 'offsetHeight', 0);
   }
 
-  /**
-   * props for Scrollbar component
-   *
-   * @returns {Object}
-   */
-  get scrollbarProps() {
+  get scrollbarProps(): Record<string, any> {
     const { maxHeightByContent, fixedHeight } = this.props;
-    const props = {};
 
     if (maxHeightByContent) {
-      props.autoHeight = true;
-      props.autoHeightMax = '100%';
-
-      return props;
+      return {
+        autoHeight: true,
+        autoHeightMax: '100%'
+      };
     }
 
     if (fixedHeight) {
-      props.style = { height: MAX_DEFAULT_HEIGHT_DASHLET - this.otherHeight };
-
-      return props;
+      return {
+        style: {
+          height: MAX_DEFAULT_HEIGHT_DASHLET - this.otherHeight
+        }
+      };
     }
 
-    props.autoHeight = true;
-    props.autoHeightMax = MAX_DEFAULT_HEIGHT_DASHLET - this.otherHeight || '100%';
-
-    return props;
+    return {
+      autoHeight: true,
+      autoHeightMax: MAX_DEFAULT_HEIGHT_DASHLET - this.otherHeight || '100%'
+    };
+  }
+  get observableFieldsToUpdate(): string[] {
+    return this._observableFieldsToUpdate;
   }
 
-  /** @param {Array<String>} fields */
   set observableFieldsToUpdate(fields) {
     this._observableFieldsToUpdate = fields;
 
@@ -174,23 +200,18 @@ class BaseWidget extends React.Component {
   }
 
   /** @param {Array<String>} fields */
-  set observableFieldsToUpdateWithDefault(fields) {
+  set observableFieldsToUpdateWithDefault(fields: string[]) {
     this.observableFieldsToUpdate = [...new Set([...fields, ...this._observableFieldsToUpdate])];
   }
 
-  /**
-   * for Dashlet component; props - setRef
-   *
-   * @param ref
-   */
-  setDashletRef = ref => {
+  setDashletRef = (ref: HTMLDivElement | null) => {
     if (ref) {
       this._dashletRef = ref;
     }
   };
 
-  setContentHeight = contentHeight => {
-    let contentHeightState = this.state.contentHeight;
+  setContentHeight = (contentHeight: number) => {
+    const contentHeightState = this.state.contentHeight;
 
     if (contentHeight < 0) {
       contentHeight = 0;
@@ -205,7 +226,7 @@ class BaseWidget extends React.Component {
     }
   };
 
-  setFitHeights = fitHeights => {
+  setFitHeights = (fitHeights: FitHeights) => {
     const { fixedHeight } = this.props;
     const fitHeightsState = this.state.fitHeights;
 
@@ -242,7 +263,7 @@ class BaseWidget extends React.Component {
     );
   }, 0);
 
-  handleChangeHeight = userHeight => {
+  handleChangeHeight = (userHeight: number) => {
     userHeight = userHeight > 0 ? userHeight : 0;
 
     if (this.state.userHeight === userHeight) {
@@ -263,7 +284,7 @@ class BaseWidget extends React.Component {
     this.forceUpdate();
   };
 
-  handleResize = width => {
+  handleResize = (width: number) => {
     !!width && this.setState({ width });
   };
 

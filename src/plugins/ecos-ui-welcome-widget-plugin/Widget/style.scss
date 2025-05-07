@@ -1,0 +1,22 @@
+@import '../../../styles/constants';
+
+.ecos-welcome {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 360px));
+    gap: 10px;
+    place-content: center;
+    margin: 20px;
+ 
+    &-card {
+        width: 100%;
+    }
+    
+    &-card:hover {
+        border: 1px solid $color-blue-light;
+    }
+}
+
+.ecos-welcome-workspaces-error {
+    font-size: 12px;
+    color: $color-red-1;
+}

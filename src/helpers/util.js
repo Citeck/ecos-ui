@@ -14,9 +14,8 @@ import uuidV4 from 'uuid/v4';
 
 import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE, MOBILE_APP_USER_AGENT } from '../constants';
 
-import { getCurrentLocale, t } from './export/util';
-
 export { getCookie, getCurrentLocale, t } from './export/util';
+import { getCurrentLocale, t } from './export/util';
 
 import { allowedModes } from '@/constants/index.js';
 import ESMRequire from '@/services/ESMRequire';

@@ -51,6 +51,24 @@ export { NEW_VERSION_PREFIX, isNewVersionPage, isNewVersionSharePage } from './e
 
 export const OLD_LINKS = false;
 
+export const openLinkWorkspace = (id, homePageLink, openNewBrowserTab) => {
+  const needUpdateTabsWorkspace = id !== getWorkspaceId();
+  const params = {
+    openNewTab: true,
+    reopen: true,
+    closeActiveTab: false,
+    needUpdateTabs: needUpdateTabsWorkspace
+  };
+
+  const url = getBaseUrlWorkspace(id, homePageLink);
+
+  if (!openNewBrowserTab) {
+    PageService.changeUrlLink(url, params);
+  } else {
+    PageService.changeUrlLink(url, { openNewBrowserTab });
+  }
+};
+
 export const getCustomDasboardUrl = dashboardId => {
   return `${Urls.DASHBOARD}?dashboardId=${dashboardId}`;
 };
