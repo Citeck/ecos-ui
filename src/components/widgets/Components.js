@@ -8,11 +8,12 @@ import { lazy } from 'react';
 import uuidV4 from 'uuid/v4';
 
 import { CONFIG_VERSION, DashboardTypes } from '../../constants/dashboard';
-import { getCurrentLocale, t } from '../../helpers/util';
+import { getCurrentLocale, getEnabledWorkspaces, t } from '../../helpers/util';
 import ConfigService, { ALFRESCO_ENABLED } from '../../services/config/ConfigService';
 import { FORM_MODE_EDIT, FORM_MODE_VIEW } from '../EcosForm';
 
 export const ComponentKeys = {
+  WELCOME: 'welcome',
   NEWS: 'news',
   HTML: 'html',
   PAGINATION: 'pagination',
@@ -68,6 +69,25 @@ export default class Components {
    * @supportedDashboardTypes {Array} - types of dashboards where this widget is available. If empty - available everywhere
    */
   static components = Object.freeze({
+    [ComponentKeys.WELCOME]: {
+      load: () =>
+        lazy(() =>
+          import('../../plugins').then(plugins => ({
+            default: get(plugins, 'default.WelcomeWidget', () => null)
+          }))
+        ),
+      checkIsAvailable: () => {
+        const workspacesEnabled = getEnabledWorkspaces();
+
+        if (!workspacesEnabled) {
+          return false;
+        }
+
+        return Boolean(get(window, 'Citeck.Plugins.WelcomeWidget'));
+      },
+      label: 'dashboard-settings.widget.welcome',
+      supportedDashboardTypes: [DashboardTypes.USER, DashboardTypes.CUSTOM]
+    },
     [ComponentKeys.NEWS]: {
       load: () =>
         lazy(() =>
@@ -76,7 +96,7 @@ export default class Components {
           }))
         ),
       checkIsAvailable: () => {
-        const workspacesEnabled = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+        const workspacesEnabled = getEnabledWorkspaces();
 
         if (!workspacesEnabled) {
           return false;
@@ -246,7 +266,7 @@ export default class Components {
       label: 'dashboard-settings.widget.activities',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS, DashboardTypes.CUSTOM],
       checkIsAvailable: () => {
-        const workspacesEnabled = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+        const workspacesEnabled = getEnabledWorkspaces();
 
         if (!workspacesEnabled) {
           return false;
@@ -299,7 +319,7 @@ export default class Components {
           (!layout.columns || (layout.columns.length !== 1 && !layout.columns.find(column => Array.isArray(column) && column.length === 1)))
       },
       checkIsAvailable: () => {
-        const workspacesEnabled = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+        const workspacesEnabled = getEnabledWorkspaces();
 
         if (!workspacesEnabled) {
           return false;
@@ -318,7 +338,7 @@ export default class Components {
           }))
         ),
       checkIsAvailable: () => {
-        const workspacesEnabled = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+        const workspacesEnabled = getEnabledWorkspaces();
 
         if (!workspacesEnabled) {
           return false;
@@ -356,6 +376,7 @@ export default class Components {
   });
 
   static allDashboardsComponents = [
+    ComponentKeys.WELCOME,
     ComponentKeys.NEWS,
     ComponentKeys.JOURNAL,
     ComponentKeys.WEB_PAGE,

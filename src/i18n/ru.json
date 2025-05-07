@@ -281,6 +281,8 @@
   "activities-widget.confirm.delete.title": "Удалить эту активность",
   "activities-widget.view-assignment.error.message": "Не удалось запустить просмотр поручения",
 
+  "welcome.widget.workspaces.error": "Ошибка при получении доступных пространств",
+
   "widget-settings.title": "Настройки виджета \"{{title}}\"",
   "widget-settings.go-journal-types": "Журнал типов",
   "widget-settings.display-condition": "Условие отображения",
@@ -293,6 +295,7 @@
   "widget-settings.form-condition.view": "Режим просмотра",
   "widget-settings.form-condition.label": "Режим отображения формы",
 
+  "dashboard-settings.widget.welcome": "Доступные пространства",
   "dashboard-settings.config.default": "По умолчанию",
   "dashboard-settings.config.custom": "Пользовательские",
   "dashboard-settings.already-exists": "Дашборд для установленного типа и/или пользователя уже существует",

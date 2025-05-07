@@ -21,7 +21,7 @@ export interface IWorkspaceApi {
   removeWorkspace: (wsId: string) => void;
 }
 
-const workspaceAttributes: Partial<Record<keyof WorkspaceType, string>> = {
+export const workspaceAttributes: Partial<Record<keyof WorkspaceType, string>> = {
   id: '?localId', // this is a shortened version of the ID, there is no 'emodel/' here
   homePageLink: 'homePageLink?str',
   name: '?disp!?localId',
