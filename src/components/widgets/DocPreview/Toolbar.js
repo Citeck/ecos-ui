@@ -225,10 +225,10 @@ class Toolbar extends Component {
           className={classNames('ecos-btn_sq_sm ecos-btn_tight ecos-doc-preview__toolbar-pager-prev', {
             'ecos-btn_disabled': currentPage === 1
           })}
-          onClick={this.handlePrev}
+          onClick={() => this.handlePrev()}
         />
         <div className="ecos-doc-preview__toolbar-pager-text-wrapper">
-          <Input type="text" onChange={this.goToPage} value={currentPage} className="ecos-doc-preview__toolbar-pager-input" />
+          <Input type="text" onChange={e => this.goToPage(e)} value={currentPage} className="ecos-doc-preview__toolbar-pager-input" />
           <span className="ecos-doc-preview__toolbar-pager-text"> {`${t(Labels.OUT_OF)} ${totalPages || '⭯'}`} </span>
         </div>
         <IcoBtn
@@ -236,7 +236,7 @@ class Toolbar extends Component {
           className={classNames('ecos-btn_sq_sm ecos-btn_tight ecos-doc-preview__toolbar-pager-next', {
             'ecos-btn_disabled': currentPage === totalPages
           })}
-          onClick={this.handleNext}
+          onClick={() => this.handleNext()}
         />
       </div>
     );
