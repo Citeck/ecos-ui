@@ -55,6 +55,9 @@ class Toolbar extends Component {
       selectedZoom: '',
       isCustom: false
     };
+
+    this.handlePrev = this.handlePrev.bind(this);
+    this.handleNext = this.handleNext.bind(this);
   }
 
   toolbarWrapperRef = React.createRef();
@@ -116,17 +119,17 @@ class Toolbar extends Component {
     return styles;
   }
 
-  handlePrev = () => {
+  handlePrev() {
     const { currentPage } = this.state;
 
     this.goToPage(null, currentPage - 1);
-  };
+  }
 
-  handleNext = () => {
+  handleNext() {
     const { currentPage } = this.state;
 
     this.goToPage(null, currentPage + 1);
-  };
+  }
 
   goToPage = (event, page = 1) => {
     const { totalPages } = this.props;
