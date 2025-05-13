@@ -57,7 +57,6 @@ import KeywordsPlugin from './plugins/KeywordsPlugin';
 import { LayoutPlugin } from './plugins/LayoutPlugin/LayoutPlugin';
 import LinkPlugin from './plugins/LinkPlugin';
 import MarkdownShortcutPlugin from './plugins/MarkdownShortcutPlugin';
-import { MaxLengthPlugin } from './plugins/MaxLengthPlugin';
 import MentionsPlugin from './plugins/MentionsPlugin';
 import OnImageUploadPlugin, { type OnImageUpload } from './plugins/OnImageUploadPlugin';
 import PollPlugin from './plugins/PollPlugin';
@@ -187,7 +186,6 @@ export default function Editor({
           'plain-text': !isRichText
         })}
       >
-        {isMaxLength && <MaxLengthPlugin maxLength={30} />}
         <DragDropPaste />
         <AutoFocusPlugin />
         {selectionAlwaysOnDisplay && <SelectionAlwaysOnDisplay />}
@@ -292,7 +290,7 @@ export default function Editor({
         {shouldUseLexicalContextMenu && <ContextMenuPlugin />}
         {shouldAllowHighlightingWithBrackets && <SpecialTextPlugin />}
       </div>
-      {isMaxLength && (
+      {isMaxLength && !readonly && (
         <div
           className="alert alert-danger"
           dangerouslySetInnerHTML={{
