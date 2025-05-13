@@ -1,5 +1,4 @@
 import classNames from 'classnames';
-import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
@@ -8,10 +7,11 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import uuidV4 from 'uuid/v4';
 
-import { allowedLanguages, LANGUAGE_EN } from '../../../../constants/lang';
-import { t, getCurrentLocale } from '../../../../helpers/export/util';
-import { prepareTooltipId } from '../../../../helpers/util';
 import Tooltip from '../../Tooltip';
+
+import { allowedLanguages, LANGUAGE_EN } from '@/constants/lang';
+import { t, getCurrentLocale } from '@/helpers/export/util';
+import { prepareTooltipId } from '@/helpers/util';
 
 import './style.scss';
 
@@ -57,7 +57,6 @@ class BaseMLField extends Component {
 
     this.state = {
       selectedLang,
-      isShowTooltip: false,
       isShowButton: false,
       isFocus: false,
       cursorPosition: null,
@@ -98,10 +97,6 @@ class BaseMLField extends Component {
     }
   }
 
-  componentWillUnmount() {
-    this.handleToggleShowButton.cancel();
-  }
-
   get value() {
     const { value } = this.props;
     const { selectedLang } = this.state;
@@ -123,9 +118,7 @@ class BaseMLField extends Component {
       className: classNames('ecos-ml-text__input', inputClassName),
       onFocus: () => this.handleToggleFocus(true),
       onBlur: this.handleBlur,
-      onClick: this.handleClick,
-      onMouseEnter: () => this.handleToggleShowButton(true),
-      onMouseLeave: () => this.handleToggleShowButton(false)
+      onClick: this.handleClick
     };
   }
 
@@ -171,16 +164,6 @@ class BaseMLField extends Component {
     return firstNotEmptyLang || currentLocale;
   }
 
-  handleToggleShowButton = debounce((isShowButton = !this.state.isShowButton) => {
-    const newState = { isShowButton };
-
-    if (!isShowButton) {
-      newState.isShowTooltip = false;
-    }
-
-    this.setState({ ...newState });
-  }, 150);
-
   handleChangeText = event => {
     const { value: oldValue, onChange } = this.props;
     const { selectedLang } = this.state;
@@ -213,16 +196,7 @@ class BaseMLField extends Component {
     this.setState({ selectedLang, cursorPosition: null });
   }
 
-  handleToggleTooltip = (isShowTooltip = !this.state.isShowTooltip) => {
-    if (isShowTooltip) {
-      this.handleToggleShowButton(true);
-    }
-
-    this.setState({ isShowTooltip });
-  };
-
   handleToggleFocus = (isFocus = !this.state.isFocus) => {
-    this.handleToggleShowButton(isFocus);
     this.setState({ isFocus });
   };
 
@@ -257,7 +231,7 @@ class BaseMLField extends Component {
 
   renderLang() {
     const { languages, imgClassName } = this.props;
-    const { selectedLang, isShowTooltip } = this.state;
+    const { selectedLang } = this.state;
     const lang = languages.find(item => item.id === selectedLang);
     const extraImageProps = {};
 
@@ -273,10 +247,8 @@ class BaseMLField extends Component {
 
     return (
       <Tooltip
+        uncontrolled
         target={this._key}
-        isOpen={!!isShowTooltip}
-        trigger="hover"
-        onToggle={this.handleToggleTooltip}
         className="ecos-ml-text__tooltip"
         arrowClassName="ecos-ml-text__tooltip-arrow"
         delay={{ show: 0, hide: 450 }}
