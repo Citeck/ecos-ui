@@ -7,17 +7,18 @@ import uniqueId from 'lodash/uniqueId';
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { toggleViewMode } from '../../actions/journals';
-import { JournalUrlParams } from '../../constants';
-import { wrapArgs } from '../../helpers/redux';
-import { updateCurrentUrl } from '../../helpers/urls';
-import { getSearchParams, t } from '../../helpers/util';
-import { selectCommonJournalPageProps } from '../../selectors/journals';
 import { Tooltip } from '../common';
 import { IcoBtn } from '../common/btns';
 import PreviewList from '../common/icons/PreviewList';
 
 import { isDocLib, isKanban, isPreview, isPreviewList, isTable, JOURNAL_VIEW_MODE as JVM, Labels } from './constants';
+
+import { toggleViewMode } from '@/actions/journals';
+import { JournalUrlParams } from '@/constants';
+import { wrapArgs } from '@/helpers/redux';
+import { updateCurrentUrl } from '@/helpers/urls';
+import { getSearchParams, t } from '@/helpers/util';
+import { selectCommonJournalPageProps } from '@/selectors/journals';
 
 const mapStateToProps = (state, props) => {
   const commonProps = selectCommonJournalPageProps(state, props.stateId);

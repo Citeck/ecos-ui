@@ -1,7 +1,8 @@
-import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { DOMElement, getTarget, mapToCssModules, omit, PopperPlacements, targetPropType } from 'reactstrap/lib/utils';
+import React, { Component } from 'react';
 import { propTypes } from 'reactstrap/lib/TooltipPopoverWrapper';
+import { DOMElement, getTarget, mapToCssModules, omit, PopperPlacements, targetPropType } from 'reactstrap/lib/utils';
+
 import { TooltipContent } from './TooltipContent';
 
 const DEFAULT_DELAYS = {
@@ -33,6 +34,7 @@ export const propsTypes = {
   cssModule: PropTypes.object,
   toggle: PropTypes.func,
   autohide: PropTypes.bool,
+  isHiddenTarget: PropTypes.bool,
   placementPrefix: PropTypes.string,
   delay: PropTypes.oneOfType([PropTypes.shape({ show: PropTypes.number, hide: PropTypes.number }), PropTypes.number]),
   modifiers: PropTypes.arrayOf(PropTypes.object),
@@ -265,7 +267,7 @@ export class TooltipWrapper extends Component {
   }
 
   render() {
-    if (!this.props.isOpen) {
+    if (!this.props.isOpen || this.props.isHiddenTarget) {
       return null;
     }
 
@@ -278,6 +280,7 @@ export class TooltipWrapper extends Component {
       isOpen,
       hideArrow,
       boundariesElement,
+      isHiddenTarget,
       placement,
       placementPrefix,
       arrowClassName,
@@ -299,6 +302,7 @@ export class TooltipWrapper extends Component {
         className={className}
         target={this.currentTargetElement || this._targets[0]}
         isOpen={isOpen}
+        isHiddenTarget={isHiddenTarget}
         hideArrow={hideArrow}
         boundariesElement={boundariesElement}
         placement={placement}
@@ -337,7 +341,7 @@ TooltipWrapper.defaultProps = {
   hideArrow: false,
   autohide: false,
   delay: DEFAULT_DELAYS,
-  toggle: function() {},
+  toggle: function () {},
   trigger: 'click',
   fade: true
 };

@@ -138,7 +138,7 @@ export class TooltipContent extends Component {
   render() {
     this.setTargetNode(this.props.target);
 
-    if (this.props.isOpen) {
+    if (this.props.isOpen && !this.props.isHiddenTarget) {
       return this.props.container === 'inline'
         ? this.renderChildren()
         : ReactDOM.createPortal(
@@ -156,6 +156,7 @@ export class TooltipContent extends Component {
 TooltipContent.propTypes = {
   children: PropTypes.oneOfType([PropTypes.node, PropTypes.func]).isRequired,
   popperClassName: PropTypes.string,
+  isHiddenTarget: PropTypes.bool,
   placement: PropTypes.string,
   placementPrefix: PropTypes.string,
   arrowClassName: PropTypes.string,
