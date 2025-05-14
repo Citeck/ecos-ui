@@ -29,6 +29,7 @@ import classNames from 'classnames';
 import { EditorState, type LexicalEditor } from 'lexical';
 import isFunction from 'lodash/isFunction';
 import isNil from 'lodash/isNil';
+import isString from 'lodash/isString';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 
@@ -203,9 +204,9 @@ export default function Editor({
           <OnChangePlugin
             onChange={(state, editor) => {
               const editorProps = editor.getRootElement();
-              const { textContent = '', innerHTML = '' } = editorProps || {};
+              const { textContent, innerHTML = '' } = editorProps || {};
 
-              if (textContent) {
+              if (isString(textContent)) {
                 setTextLength(textContent.length);
                 setOption('isMaxLength', textContent.length > LENGTH_LIMIT);
               }
