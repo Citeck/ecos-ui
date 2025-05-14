@@ -5,11 +5,10 @@ import isNil from 'lodash/isNil';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 
-import { isClosestHidden } from '../../../helpers/util';
-import ZIndex from '../../../services/ZIndex';
-
 import { TooltipWrapper } from './TooltipWrapper';
 
+import { IS_TEST_ENV, isClosestHidden } from '@/helpers/util';
+import ZIndex from '@/services/ZIndex';
 import './style.scss';
 
 export const baseModifiers = [
@@ -194,11 +193,13 @@ class Tooltip extends Component {
     const styles = {};
     let needTooltip = !showAsNeeded;
 
-    if (isHiddenTarget) {
+    // In normal behavior, an instant "return null" will not unmount the child component.
+    // In the tests, hidden elements are not found through the "getTarget" method.
+    if (IS_TEST_ENV && isHiddenTarget) {
       return null;
     }
 
-    if (showAsNeeded && element && element.clientWidth && element.clientHeight) {
+    if (showAsNeeded && element && element.clientWidth && element.clientHeight && !isHiddenTarget) {
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d');
       const styles = window.getComputedStyle(element, null);
@@ -215,7 +216,7 @@ class Tooltip extends Component {
       getIsNeeded && getIsNeeded(needTooltip);
     }
 
-    if (minWidthByContent) {
+    if (minWidthByContent && !isHiddenTarget) {
       styles.minWidth = parseInt(window.getComputedStyle(element, null).getPropertyValue('width'), 10) || 0;
     }
 
@@ -229,7 +230,7 @@ class Tooltip extends Component {
     propsTooltip.innerClassName = classes;
 
     return (
-      <TooltipWrapper {...propsTooltip} isOpen={needTooltip && isOpen} style={styles}>
+      <TooltipWrapper {...propsTooltip} isOpen={needTooltip && isOpen} isHiddenTarget={isHiddenTarget} style={styles}>
         {contentComponent || text}
       </TooltipWrapper>
     );

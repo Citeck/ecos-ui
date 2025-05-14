@@ -1,15 +1,16 @@
-import React from 'react';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
-import isNil from 'lodash/isNil';
+import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isEqualWith from 'lodash/isEqualWith';
-import get from 'lodash/get';
+import isNil from 'lodash/isNil';
+import React from 'react';
+import { connect } from 'react-redux';
 
-import { applyFilter, getBoardData, reloadBoardData, resetFilter, selectBoardId } from '../../../actions/kanban';
-import { selectViewMode } from '../../../selectors/journals';
-import { selectKanbanPageProps } from '../../../selectors/kanban';
+import { Dropdown } from '../../common/form';
+import Kanban, { Bar } from '../Kanban';
+import { isKanban, Labels } from '../constants';
+
 import {
   applyJournalSetting,
   createJournalSetting,
@@ -25,17 +26,16 @@ import {
   setSelectAllPageRecords,
   setSelectedRecords,
   setUrl
-} from '../../../actions/journals';
-import { JournalUrlParams as JUP, KanbanUrlParams as KUP, SourcesId } from '../../../constants';
-import { t } from '../../../helpers/export/util';
-import { getSearchParams } from '../../../helpers/urls';
-import { Dropdown } from '../../common/form';
-import { isKanban, Labels } from '../constants';
-import { wrapArgs } from '../../../helpers/redux';
-import Kanban, { Bar } from '../Kanban';
-
+} from '@/actions/journals';
+import { applyFilter, getBoardData, reloadBoardData, resetFilter, selectBoardId } from '@/actions/kanban';
+import { JournalUrlParams as JUP, KanbanUrlParams as KUP, SourcesId } from '@/constants';
+import { t } from '@/helpers/export/util';
+import { wrapArgs } from '@/helpers/redux';
+import { getSearchParams } from '@/helpers/urls';
+import { selectViewMode } from '@/selectors/journals';
+import { selectKanbanPageProps } from '@/selectors/kanban';
+import { selectIsViewNewJournal } from '@/selectors/view';
 import '../style.scss';
-import { selectIsViewNewJournal } from '../../../selectors/view';
 
 function mapStateToProps(state, props) {
   const viewMode = selectViewMode(state, props.stateId);
@@ -224,7 +224,4 @@ class KanbanView extends React.Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(KanbanView);
+export default connect(mapStateToProps, mapDispatchToProps)(KanbanView);
