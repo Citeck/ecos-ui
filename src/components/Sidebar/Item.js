@@ -13,7 +13,7 @@ import RemoteBadge from './RemoteBadge';
 import { ItemBtn, ItemLink } from './item-components';
 
 import { setScrollTop, setSelectedId, toggleExpanded, toggleIsOpen } from '@/actions/slideMenu';
-import { SourcesId } from '@/constants';
+import { SourcesId, TMP_ICON_EMPTY } from '@/constants';
 import { MenuSettings } from '@/constants/menu';
 import { ActionTypes } from '@/constants/sidebar';
 import { isNewVersionPage } from '@/helpers/export/urls';
@@ -106,7 +106,8 @@ class Item extends React.Component {
     let iconCode;
     let iconData;
 
-    if (data.type !== 'SECTION' && wsId === 'admin$workspace' && !data.icon && getEnabledWorkspaces()) {
+    const isDefaultIcon = !data?.icon || data?.icon?.includes(TMP_ICON_EMPTY);
+    if (data.type !== 'SECTION' && wsId === 'admin$workspace' && isDefaultIcon && getEnabledWorkspaces()) {
       return (
         <>
           <WorkspacePreview name={label} />
