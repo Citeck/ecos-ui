@@ -4,12 +4,13 @@ import uniqueId from 'lodash/uniqueId';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 
-import { JournalUrlParams as JUP } from '../../../constants';
-import { getSearchParams, goToCardDetailsPage, removeUrlSearchParams } from '../../../helpers/urls';
 import FormManager from '../../EcosForm/FormManager';
 import JournalsSettingsBar from '../JournalsSettingsBar';
 
 import SettingsModal from './SettingsModal';
+
+import { JournalUrlParams as JUP } from '@/constants';
+import { getSearchParams, goToCardDetailsPage, removeUrlSearchParams } from '@/helpers/urls';
 
 class Bar extends Component {
   targetId = uniqueId('ecos-journal-settings-bar-');
@@ -188,6 +189,7 @@ Bar.propTypes = {
   viewMode: PropTypes.string,
   isActivePage: PropTypes.bool,
   isMobile: PropTypes.bool.isRequired,
+  isAdmin: PropTypes.bool.isRequired,
   isDocLibEnabled: PropTypes.bool,
   isLoading: PropTypes.bool,
   isFilterOn: PropTypes.bool,

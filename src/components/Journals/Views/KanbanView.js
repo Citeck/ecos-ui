@@ -7,6 +7,7 @@ import isNil from 'lodash/isNil';
 import React from 'react';
 import { connect } from 'react-redux';
 
+import { JournalUrlParams as JUP, KanbanUrlParams as KUP, SourcesId } from '../../../constants';
 import { Dropdown } from '../../common/form';
 import Kanban, { Bar } from '../Kanban';
 import { isKanban, Labels } from '../constants';
@@ -28,13 +29,14 @@ import {
   setUrl
 } from '@/actions/journals';
 import { applyFilter, getBoardData, reloadBoardData, resetFilter, selectBoardId } from '@/actions/kanban';
-import { JournalUrlParams as JUP, KanbanUrlParams as KUP, SourcesId } from '@/constants';
 import { t } from '@/helpers/export/util';
 import { wrapArgs } from '@/helpers/redux';
 import { getSearchParams } from '@/helpers/urls';
 import { selectViewMode } from '@/selectors/journals';
 import { selectKanbanPageProps } from '@/selectors/kanban';
+import { selectIsAdmin } from '@/selectors/user';
 import { selectIsViewNewJournal } from '@/selectors/view';
+
 import '../style.scss';
 
 function mapStateToProps(state, props) {
@@ -46,6 +48,7 @@ function mapStateToProps(state, props) {
   return {
     predicate: newState.journalSetting?.predicate || {},
     urlParams: getSearchParams(),
+    isAdmin: selectIsAdmin(state),
     isViewNewJournal,
     viewMode,
     ...ownProps

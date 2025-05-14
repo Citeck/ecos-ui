@@ -37,6 +37,7 @@ import { getTextByLocale } from '@/helpers/util';
 import { selectCommonJournalPageProps, selectJournalPageProps } from '@/selectors/journals';
 import { selectKanbanPageProps } from '@/selectors/kanban';
 import { selectPreviewListProps } from '@/selectors/previewList';
+import { selectIsAdmin } from '@/selectors/user';
 import { selectIsViewNewJournal } from '@/selectors/view';
 
 const mapStateToProps = (state, props) => {
@@ -48,6 +49,7 @@ const mapStateToProps = (state, props) => {
 
   return {
     isMobile: get(state, 'view.isMobile'),
+    isAdmin: selectIsAdmin(state),
     urlParams: getSearchParams(),
     isViewNewJournal,
     ...previewListProps,
