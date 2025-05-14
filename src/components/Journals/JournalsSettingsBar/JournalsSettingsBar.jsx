@@ -57,6 +57,7 @@ const JournalsSettingsBar = ({
   viewMode,
 
   isMobile,
+  isAdmin,
   isCreateLoading,
   isShowResetFilter,
   noGroupActions,
@@ -144,7 +145,7 @@ const JournalsSettingsBar = ({
           </Tooltip>
         )}
 
-        {!hideSettingsJournalBtn && isViewNewJournal && !isMobile && hasBtnEdit && (
+        {!hideSettingsJournalBtn && isAdmin && isViewNewJournal && !isMobile && hasBtnEdit && (
           <Tooltip target={`${targetId}-journal-settings`} text={t(Labels.BTN_JOURNAL_SETTINGS)} {...tooltipSettings}>
             <IcoBtn
               id={`${targetId}-journal-settings`}
