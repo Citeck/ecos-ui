@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
+import isString from 'lodash/isString';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -106,7 +107,7 @@ class Item extends React.Component {
     let iconCode;
     let iconData;
 
-    const isDefaultIcon = !data?.icon || data?.icon?.includes(TMP_ICON_EMPTY);
+    const isDefaultIcon = !data?.icon || (isString(get(data, 'icon')) && data.icon.includes(TMP_ICON_EMPTY));
     if (data.type !== 'SECTION' && wsId === 'admin$workspace' && isDefaultIcon && getEnabledWorkspaces()) {
       return (
         <>
