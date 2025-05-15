@@ -1,3 +1,4 @@
+import isEqual from 'lodash/isEqual';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { propTypes } from 'reactstrap/lib/TooltipPopoverWrapper';
@@ -249,8 +250,14 @@ export class TooltipWrapper extends Component {
   }
 
   updateTarget() {
-    const newTarget = getTarget(this.props.target, true);
-    if (newTarget !== this._targets) {
+    let newTarget;
+    try {
+      newTarget = getTarget(this.props.target, true);
+    } catch (_err) {
+      newTarget = [];
+    }
+
+    if (!isEqual(newTarget, this._targets)) {
       this.removeTargetEvents();
       this._targets = newTarget ? Array.from(newTarget) : [];
       this.currentTargetElement = this.currentTargetElement || this._targets[0];

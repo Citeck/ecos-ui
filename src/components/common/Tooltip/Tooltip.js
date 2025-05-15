@@ -7,7 +7,7 @@ import React, { Component } from 'react';
 
 import { TooltipWrapper } from './TooltipWrapper';
 
-import { IS_TEST_ENV, isClosestHidden } from '@/helpers/util';
+import { isClosestHidden } from '@/helpers/util';
 import ZIndex from '@/services/ZIndex';
 import './style.scss';
 
@@ -192,12 +192,6 @@ class Tooltip extends Component {
     const element = document.getElementById(elementId || target);
     const styles = {};
     let needTooltip = !showAsNeeded;
-
-    // In normal behavior, an instant "return null" will not unmount the child component.
-    // In the tests, hidden elements are not found through the "getTarget" method.
-    if (IS_TEST_ENV && isHiddenTarget) {
-      return null;
-    }
 
     if (showAsNeeded && element && element.clientWidth && element.clientHeight && !isHiddenTarget) {
       const canvas = document.createElement('canvas');
