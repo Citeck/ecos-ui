@@ -60,7 +60,7 @@ export const openLinkWorkspace = (id, homePageLink, openNewBrowserTab) => {
     needUpdateTabs: needUpdateTabsWorkspace
   };
 
-  const url = getBaseUrlWorkspace(id, homePageLink);
+  const url = getBaseUrlWorkspace(id, homePageLink, false);
 
   if (!openNewBrowserTab) {
     PageService.changeUrlLink(url, params);
@@ -503,13 +503,17 @@ export const getLinkWithWs = (link = '', workspaceId = getWorkspaceId(), isFullL
   return isFullLink ? url.origin + newUrl : newUrl;
 };
 
-export const getBaseUrlWorkspace = (wsId, homePageLink) => {
+export const getBaseUrlWorkspace = (wsId, homePageLink, withHost = true) => {
   const lastActiveTabWs = PageTabList.getLastActiveTabWs(wsId);
   const url = new URL(get(lastActiveTabWs, 'link') || homePageLink || Urls.DASHBOARD, window.location.origin);
 
   url.searchParams.set('ws', wsId);
 
-  return url.toString();
+  if (withHost) {
+    return url.toString();
+  }
+
+  return url.pathname + url.search;
 };
 
 window.Citeck.Navigator = {
