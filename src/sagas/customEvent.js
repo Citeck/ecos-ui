@@ -1,12 +1,9 @@
-import { replace } from 'connected-react-router';
-import get from 'lodash/get';
 import * as queryString from 'query-string';
 import { eventChannel } from 'redux-saga';
-import { put, select, take, takeLatest } from 'redux-saga/effects';
+import { put, take, takeLatest } from 'redux-saga/effects';
 
 import { handleEventChangeUrl, registerEventListeners } from '../actions/customEvent';
 import { setTab, updateTab } from '../actions/pageTabs';
-import { isOnlyContent } from '../helpers/timesheet/util';
 import { decodeLink, pushHistoryLink, replaceHistoryLink } from '../helpers/urls';
 import PageService, { Events } from '../services/PageService';
 
@@ -35,25 +32,6 @@ function* registerEventListenerChangeUrlLink() {
 }
 
 function* _handleChangeUrl({ api }, { payload: event }) {
-  const isShowTabs = yield select(state => get(state, 'pageTabs.isShow', false));
-  const isMobile = yield select(state => get(state, 'view.isMobile', false));
-
-  const {
-    params: { link = '', rerenderPage, replaceHistory }
-  } = event;
-
-  if (!(isShowTabs && !isOnlyContent() && !isMobile) || (rerenderPage && replaceHistory)) {
-    const { url, query } = queryString.parseUrl(link);
-
-    pushHistoryLink(window, {
-      pathname: url,
-      search: decodeLink(queryString.stringify(query))
-    });
-
-    yield put(replace(link));
-    return;
-  }
-
   const { reopen, closeActiveTab, updates, pushHistory, ...data } = PageService.parseEvent({ event }) || {};
 
   if (updates) {

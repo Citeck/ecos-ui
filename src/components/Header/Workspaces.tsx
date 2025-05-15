@@ -17,10 +17,9 @@ import WorkspaceCard from '@/components/WorkspaceSidebar/Card';
 import WorkspaceSidebar from '@/components/WorkspaceSidebar/WorkspaceSidebar';
 import CreateIcon from '@/components/common/icons/Create';
 import { MAX_WORKSPACE_PREVIEW_ITEMS, SourcesId } from '@/constants';
-import { getBaseUrlWorkspace, getWorkspaceId } from '@/helpers/urls';
+import { getWorkspaceId, openLinkWorkspace } from '@/helpers/urls';
 import { t } from '@/helpers/util';
 import { selectWorkspaces, selectWorkspaceIsLoading, selectWorkspaceIsError } from '@/selectors/workspaces';
-import PageService from '@/services/PageService';
 import WorkspaceService from '@/services/WorkspaceService';
 import PageTabList from '@/services/pageTabs/PageTabList';
 import { RootState, Dispatch } from '@/types/store';
@@ -89,24 +88,8 @@ const Workspaces = ({ isLoading, isError, workspaces, getWorkspaces, visitedActi
 
   const openLink = (id: WorkspaceType['id'], homePageLink: WorkspaceType['homePageLink'], openNewBrowserTab?: boolean) => {
     PageTabList.setLastActiveTabWs();
-
     visitedAction(id);
-
-    const needUpdateTabsWorkspace = id !== getWorkspaceId();
-    const params = {
-      openNewTab: true,
-      reopen: true,
-      closeActiveTab: false,
-      needUpdateTabs: needUpdateTabsWorkspace
-    };
-
-    const url = getBaseUrlWorkspace(id, homePageLink);
-
-    if (!openNewBrowserTab) {
-      PageService.changeUrlLink(url, params);
-    } else {
-      PageService.changeUrlLink(url, { openNewBrowserTab });
-    }
+    openLinkWorkspace(id, homePageLink, openNewBrowserTab);
   };
 
   const handleClick = (event: OpenWsEventType, wsId: WorkspaceType['id'], homePageLink: WorkspaceType['homePageLink']) => {
