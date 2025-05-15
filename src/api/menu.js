@@ -409,10 +409,12 @@ async function fetchExtraItemInfo(data = [], attributes) {
 
       if (iconRef && iconRef.includes(SourcesId.ICON)) {
         target.icon = await Records.get(iconRef).load({
-          url: 'data?str',
-          type: 'type',
+          url: 'url',
+          type: 'ecosType',
           value: 'id'
         });
+
+        console.log('icon:', target.icon);
       }
 
       if (Array.isArray(item.items)) {
