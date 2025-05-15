@@ -413,8 +413,6 @@ async function fetchExtraItemInfo(data = [], attributes) {
           type: 'ecosType',
           value: 'id'
         });
-
-        console.log('icon:', target.icon);
       }
 
       if (Array.isArray(item.items)) {
