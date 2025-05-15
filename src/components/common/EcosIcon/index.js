@@ -34,7 +34,7 @@ function EcosIcon({ code, className, data, title, family, onClick, id, defaultVa
     }
   }, [code, data]);
 
-  if ((type === 'img' || type === 'icon') && !!(value || url)) {
+  if ((type === 'img' || (type === 'icon' && !!url)) && !!(value || url)) {
     const src = url || createContentUrl({ value });
 
     return (
