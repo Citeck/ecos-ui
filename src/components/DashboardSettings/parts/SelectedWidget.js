@@ -1,13 +1,15 @@
-import React from 'react';
-import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
+import isEqual from 'lodash/isEqual';
+import isFunction from 'lodash/isFunction';
+import React from 'react';
 
-import Components from '../../../components/widgets/Components';
 import { DragItem } from '../../../components/Drag-n-Drop';
+import Components from '../../../components/widgets/Components';
+
 import WidgetActions from './WidgetActions';
 
 export default class SelectedWidget extends React.Component {
-  state = { isForceUpdate: false };
+  state = { isForceUpdate: false, isHidden: false };
 
   get label() {
     const { isMobile, widget } = this.props;
@@ -26,6 +28,16 @@ export default class SelectedWidget extends React.Component {
     };
   }
 
+  componentDidMount() {
+    const { widget } = this.props;
+
+    const checkIsAvailable = get(Components.components, [widget.name, 'checkIsAvailable']);
+
+    if (isFunction(checkIsAvailable)) {
+      this.setState({ isHidden: !checkIsAvailable() });
+    }
+  }
+
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (
       !isEqual(get(prevProps.widget, 'props.config.widgetDisplayCondition'), get(this.props.widget, 'props.config.widgetDisplayCondition'))
@@ -36,7 +48,11 @@ export default class SelectedWidget extends React.Component {
 
   render() {
     const { widget, positionAdjustment, indexWidget, modelAttributes, executors } = this.props;
-    const { isForceUpdate } = this.state;
+    const { isForceUpdate, isHidden } = this.state;
+
+    if (isHidden) {
+      return null;
+    }
 
     return (
       !isForceUpdate && (

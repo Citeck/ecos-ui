@@ -1,14 +1,15 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import get from 'lodash/get';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 import { SystemJournals } from '../../../constants';
 import { t } from '../../../helpers/util';
-import { Caption, Checkbox, Field, Select, SelectJournal } from '../../common/form';
-import { Btn } from '../../common/btns';
-import { Labels } from './util';
 import plugins from '../../../plugins';
+import { Btn } from '../../common/btns';
+import { Caption, Checkbox, Field, Select, SelectJournal } from '../../common/form';
+
 import { EXTENDED_MODE, SIMPLIFIED_MODE, KPI_MODE } from './constants';
+import { Labels } from './util';
 
 import './style.scss';
 
@@ -74,15 +75,17 @@ export default class Settings extends React.Component {
         <Caption middle className="ecos-process-statistics-settings__title">
           {t(Labels.SETTINGS_TITLE)}
         </Caption>
-        <Field label={t(Labels.FORM_MODE_SELECT_LABEL)} labelPosition="top">
-          <Select
-            value={propertiesOptions.find(i => i.value === formMode)}
-            options={propertiesOptions}
-            onChange={({ value }) => {
-              this.setState({ formMode: value });
-            }}
-          />
-        </Field>
+        {!!HeatmapWrapper && (
+          <Field label={t(Labels.FORM_MODE_SELECT_LABEL)} labelPosition="top">
+            <Select
+              value={propertiesOptions.find(i => i.value === formMode)}
+              options={propertiesOptions}
+              onChange={({ value }) => {
+                this.setState({ formMode: value });
+              }}
+            />
+          </Field>
+        )}
 
         <Field label={t(Labels.JOURNAL_FIELD)} labelPosition="top">
           <SelectJournal

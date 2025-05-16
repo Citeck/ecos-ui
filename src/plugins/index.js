@@ -3,7 +3,7 @@ import { IS_TEST_ENV } from '@/helpers/util';
 let requireModules = {};
 
 if (!IS_TEST_ENV) {
-  const plugins = import.meta.glob('./**/*-plugin/index.js', { eager: true });
+  const plugins = import.meta.glob('./**/*-plugin/index.[t|j]s', { eager: true });
   const modules = Object.values(plugins);
 
   modules.forEach(module => {

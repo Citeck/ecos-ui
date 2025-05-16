@@ -4,6 +4,7 @@ import isFunction from 'lodash/isFunction';
 import React, { useState, useEffect } from 'react';
 
 import FormManager from '../../../components/EcosForm/FormManager';
+// @ts-ignore
 import Records from '../../../components/Records';
 import { Icon, Tooltip } from '../../../components/common';
 import { Btn } from '../../../components/common/btns';
@@ -19,11 +20,19 @@ const Labels = {
 
 const tooltipId = 'create-tree-node-button';
 
-const TreeNode = ({ node, recordRef, onFetchChildren }) => {
-  const [isOpen, setIsOpen] = useState(get(node, 'children.length', 0));
+const TreeNode = ({
+  node,
+  recordRef,
+  onFetchChildren
+}: {
+  node: { id: string; name: string; children: { id: string; name: string }[] };
+  recordRef: string;
+  onFetchChildren: (parent: string) => Promise<{ records: { id: string; name: string }[] }>;
+}): React.ReactElement => {
+  const [isOpen, setIsOpen] = useState<boolean>(get(node, 'children.length', 0) > 1);
   const [children, setChildren] = useState(node.children || []);
 
-  const create = parent => {
+  const create = (parent: string) => {
     FormManager.openFormModal({
       record: 'emodel/wiki@',
       title: t(Labels.TITLE),
@@ -67,7 +76,7 @@ const TreeNode = ({ node, recordRef, onFetchChildren }) => {
         {node.name}
       </summary>
       <ul style={{ paddingTop: '5px', paddingLeft: '15px' }}>
-        {children.map(child => (
+        {children.map((child: { id: string; name: string }) => (
           <li
             key={child.id}
             className={classNames('child-tree', {
@@ -81,7 +90,8 @@ const TreeNode = ({ node, recordRef, onFetchChildren }) => {
               });
             }}
           >
-            <TreeNode node={child} onFetchChildren={onFetchChildren} />
+            {/* @ts-ignore */}
+            {child && <TreeNode node={child} onFetchChildren={onFetchChildren} />}
             <div className="tree-actions">
               <div className="ecos-hierarchical-tree-widget__structure__bnt-create" onClick={() => create(`emodel/wiki@${child.id}`)}>
                 <Icon className="icon-plus" />
@@ -93,9 +103,9 @@ const TreeNode = ({ node, recordRef, onFetchChildren }) => {
     </details>
   );
 };
-
+// @ts-ignore
 const HierarchicalTreeWidget = ({ record: recordRef }) => {
-  const [records, setRecords] = useState([]);
+  const [records, setRecords] = useState<{ id: string; name: string }[]>([]);
 
   useEffect(() => {
     fetchRecords().then(({ records = [] }) => {
@@ -103,7 +113,8 @@ const HierarchicalTreeWidget = ({ record: recordRef }) => {
     });
   }, []);
 
-  const fetchRecords = parent => {
+  const fetchRecords = (parent?: string) => {
+    // @ts-ignore
     return Records.query(
       {
         language: 'predicate',
@@ -123,7 +134,7 @@ const HierarchicalTreeWidget = ({ record: recordRef }) => {
     );
   };
 
-  const create = async parent => {
+  const create = async (parent?: string) => {
     FormManager.openFormModal({
       record: 'emodel/wiki@',
       title: t(Labels.TITLE),
@@ -142,7 +153,7 @@ const HierarchicalTreeWidget = ({ record: recordRef }) => {
   return (
     <div className="ecos-hierarchical-tree-widget">
       <div className="ecos-hierarchical-tree-widget-header">
-        <h4>База знаний</h4>
+        <h4>{t(Labels.TITLE)}</h4>
         <Tooltip uncontrolled text={t(Labels.ADD_GROUP)} target={tooltipId} off={isMobileDevice()}>
           <div id={tooltipId} className="ecos-hierarchical-tree-widget__structure__bnt-create" onClick={() => create()}>
             <Icon className="icon-plus" />
@@ -247,6 +258,7 @@ const HierarchicalTreeWidget = ({ record: recordRef }) => {
                   });
                 }}
               >
+                {/* @ts-ignore */}
                 <TreeNode key={record.id} recordRef={recordRef} node={record} onFetchChildren={fetchRecords} />
                 <div className="tree-actions">
                   <div className="ecos-hierarchical-tree-widget__structure__bnt-create" onClick={() => create(`emodel/wiki@${record.id}`)}>

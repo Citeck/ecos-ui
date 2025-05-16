@@ -705,7 +705,7 @@ Base.prototype.checkValidity = function (data, dirty, rowData) {
     return true;
   }
 
-  if (!this.component.validate.required && isEmpty(this.dataValue)) {
+  if (!this.component.validate.required && !isBoolean(this.dataValue) && isEmpty(this.dataValue)) {
     return true;
   }
 
