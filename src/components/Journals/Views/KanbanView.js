@@ -7,7 +7,7 @@ import isNil from 'lodash/isNil';
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { JournalUrlParams as JUP, KanbanUrlParams as KUP, SourcesId } from '../../../constants';
+import { JournalUrlParams, JournalUrlParams as JUP, KanbanUrlParams as KUP, SourcesId } from '../../../constants';
 import { Dropdown } from '../../common/form';
 import Kanban, { Bar } from '../Kanban';
 import { isKanban, Labels } from '../constants';
@@ -87,9 +87,9 @@ class KanbanView extends React.Component {
   };
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { isActivePage, viewMode, stateId, urlParams = {}, boardList, journalId, withForceUpdate: force } = this.props;
+    const { isActivePage, stateId, urlParams = {}, boardList, journalId, withForceUpdate: force } = this.props;
 
-    if (!isActivePage || !isKanban(viewMode)) {
+    if (!isActivePage || !isKanban(urlParams[JournalUrlParams.VIEW_MODE])) {
       return;
     }
 
