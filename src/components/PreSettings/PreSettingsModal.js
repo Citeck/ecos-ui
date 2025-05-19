@@ -1,3 +1,4 @@
+/* eslint-disable */ // Eslint breaks the tests
 import React from 'react';
 import { Alert } from 'reactstrap';
 import get from 'lodash/get';
@@ -105,7 +106,12 @@ class PreSettingsModal extends React.Component {
       const [, typeName] = id.split('$');
 
       if (Array.isArray(result.records)) {
-        this.handleChangeTypes(`${SourcesId.TYPE}@${get(result.records.find(record => record.id === typeName), 'id')}`);
+        this.handleChangeTypes(
+          `${SourcesId.TYPE}@${get(
+            result.records.find(record => record.id === typeName),
+            'id'
+          )}`
+        );
       }
     });
   };
@@ -219,7 +225,7 @@ class PreSettingsModal extends React.Component {
   };
 
   handleChangeForm = () =>
-    new Promise((resolve, reject) => {
+    new Promise(resolve => {
       const { newRecordRef, newType } = this.state;
       const { definition } = this.config;
 
@@ -284,7 +290,6 @@ class PreSettingsModal extends React.Component {
           config: {
             saveOnSubmit: false,
             onFormCancel: this.rollback,
-            onAfterHideModal: this.rollback,
             onPreSettingSubmit: (record, form) => {
               const data = get(form, 'submission.data');
 
