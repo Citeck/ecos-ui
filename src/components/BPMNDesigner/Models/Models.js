@@ -1,16 +1,17 @@
 import { connect } from 'react-redux';
 
-import { createModel, getFullModels, getNextModels, initModels, savePagePosition, updateModels } from '../../../actions/bpmn';
-import EcosFormUtils from '../../../components/EcosForm/EcosFormUtils';
-import recordActions from '../../../components/Records/actions/recordActions';
-import RecordActions from '../../../components/Records/actions/recordActions';
-import { EDITOR_PAGE_CONTEXT, LOCAL_STORAGE_KEY_REFERER_PAGE_PATHNAME } from '../../../constants/bpmn';
-import { Labels } from '../../../constants/commonDesigner';
-import { t } from '../../../helpers/export/util';
-import { selectModelsInfoByCategoryId } from '../../../selectors/bpmn';
-import PageService from '../../../services/PageService';
 import Models from '../../designerCommon/Models';
 
+import { createModel, getFullModels, getNextModels, initModels, savePagePosition, updateModels } from '@/actions/bpmn';
+import EcosFormUtils from '@/components/EcosForm/EcosFormUtils';
+import RecordActions from '@/components/Records/actions/recordActions';
+import { EDITOR_PAGE_CONTEXT, LOCAL_STORAGE_KEY_REFERER_PAGE_PATHNAME } from '@/constants/bpmn';
+import { Labels } from '@/constants/commonDesigner';
+import { t } from '@/helpers/export/util';
+import { getLinkWithWs } from '@/helpers/urls.js';
+import { getEnabledWorkspaces } from '@/helpers/util.js';
+import { selectModelsInfoByCategoryId } from '@/selectors/bpmn';
+import PageService from '@/services/PageService';
 import { NotificationManager } from '@/services/notifications';
 
 const OPEN_BPMN_EDITOR_ACTION_REF = 'uiserv/action@open-bpmn-editor';
@@ -60,7 +61,13 @@ const mapDispatchToProps = dispatch => ({
         if (!actions || !actions.length) {
           NotificationManager.error(t(Labels.ACTION_OPEN_PROC_EDITOR_ERROR), t('error'));
         } else {
-          return RecordActions.execForRecord(modelId, actions[0]);
+          let action = actions[0];
+
+          if (action && action.config && action.config.url && getEnabledWorkspaces()) {
+            action.config.url = getLinkWithWs(action.config.url);
+          }
+
+          return RecordActions.execForRecord(modelId, action);
         }
       });
     }
@@ -75,15 +82,13 @@ const mapDispatchToProps = dispatch => ({
   },
   onDeleteModelClick: (e, modelId, model) => {
     e.preventDefault();
-    recordActions
-      .execForRecord(modelId, {
-        type: 'delete'
-      })
-      .then(res => {
-        if (res) {
-          dispatch(updateModels({ modelId, prevCategoryId: model.categoryId, action: 'delete' }));
-        }
-      });
+    RecordActions.execForRecord(modelId, {
+      type: 'delete'
+    }).then(res => {
+      if (res) {
+        dispatch(updateModels({ modelId, prevCategoryId: model.categoryId, action: 'delete' }));
+      }
+    });
   },
   showModelCreationForm: categoryId => dispatch(createModel({ categoryId }))
 });
