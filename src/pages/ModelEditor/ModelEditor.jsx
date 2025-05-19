@@ -81,7 +81,7 @@ class ModelEditorPage extends React.Component {
     const initialWsIdParam = this.urlQuery.ws;
 
     return new Promise((resolve, reject) => {
-      const newUrl = new URL(params.link);
+      const newUrl = new URL(params.link, window.location.origin);
       const newWsId = newUrl.searchParams.get('ws');
 
       if (newWsId !== initialWsIdParam) {
