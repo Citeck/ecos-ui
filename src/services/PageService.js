@@ -325,7 +325,6 @@ export default class PageService {
 
         Promise.all(guardPromises).then(() => {
           document.dispatchEvent(CHANGE_URL);
-          this.clearUrlChangeGuards();
         });
 
         return;

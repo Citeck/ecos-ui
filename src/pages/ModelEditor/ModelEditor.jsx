@@ -129,6 +129,7 @@ class ModelEditorPage extends React.Component {
     this._cachedLabels = {};
     this._formsCache = {};
     this.designer && this.designer.destroy();
+    PageService.clearUrlChangeGuards();
   }
 
   initModeler = () => {};
