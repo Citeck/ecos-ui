@@ -143,7 +143,7 @@ class BPMNEditorPage extends ModelEditor {
       this.designer.setDiagram(bpmnXml, {
         callback: ({ mounted }) => {
           if (mounted) {
-            console.log('BPMN диаграмма успешно загружена в редактор');
+            console.debug('BPMN диаграмма успешно загружена в редактор');
           }
         }
       });

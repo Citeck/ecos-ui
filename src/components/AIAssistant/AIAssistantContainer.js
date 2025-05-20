@@ -27,7 +27,6 @@ const AIAssistantContainer = () => {
     const handleLocationChange = () => {
       const isBpmnEditorPage = BPMN_EDITOR_URL_PATTERN.test(window.location.pathname);
       if (!isBpmnEditorPage && aiAssistantService.isOpen) {
-        console.log('Закрываем чат, так как пользователь покинул страницу BPMN редактора');
         aiAssistantService.closeChat();
       }
     };
