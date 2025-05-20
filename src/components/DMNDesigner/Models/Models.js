@@ -1,17 +1,17 @@
 import { connect } from 'react-redux';
 
-import { createModel, updateModels, savePagePosition } from '../../../actions/dmn';
-import EcosFormUtils from '../../../components/EcosForm/EcosFormUtils';
-import recordActions from '../../../components/Records/actions/recordActions';
-import RecordActions from '../../../components/Records/actions/recordActions';
-import { Labels } from '../../../constants/commonDesigner';
-import { EDITOR_PAGE_CONTEXT, LOCAL_STORAGE_KEY_REFERER_PAGE_PATHNAME } from '../../../constants/dmn';
-import { t } from '../../../helpers/export/util';
-import { selectModelsByCategoryId } from '../../../selectors/dmn';
-import PageService from '../../../services/PageService';
-
 import Models from './ModelComponent';
 
+import { createModel, updateModels, savePagePosition } from '@/actions/dmn';
+import EcosFormUtils from '@/components/EcosForm/EcosFormUtils';
+import RecordActions from '@/components/Records/actions/recordActions';
+import { Labels } from '@/constants/commonDesigner';
+import { EDITOR_PAGE_CONTEXT, LOCAL_STORAGE_KEY_REFERER_PAGE_PATHNAME } from '@/constants/dmn';
+import { t } from '@/helpers/export/util';
+import { getLinkWithWs } from '@/helpers/urls.js';
+import { getEnabledWorkspaces } from '@/helpers/util.js';
+import { selectModelsByCategoryId } from '@/selectors/dmn';
+import PageService from '@/services/PageService';
 import { NotificationManager } from '@/services/notifications';
 
 const OPEN_DMN_EDITOR_ACTION_REF = 'uiserv/action@open-dmn-editor';
@@ -58,7 +58,13 @@ const mapDispatchToProps = dispatch => ({
         if (!actions || !actions.length) {
           NotificationManager.error(t(Labels.ACTION_OPEN_PROC_EDITOR_ERROR), t('error'));
         } else {
-          return RecordActions.execForRecord(modelId, actions[0]);
+          let action = actions[0];
+
+          if (action && action.config && action.config.url && getEnabledWorkspaces()) {
+            action.config.url = getLinkWithWs(action.config.url);
+          }
+
+          return RecordActions.execForRecord(modelId, action);
         }
       });
     }
@@ -72,15 +78,13 @@ const mapDispatchToProps = dispatch => ({
   },
   onDeleteModelClick: (e, modelId) => {
     e.preventDefault();
-    recordActions
-      .execForRecord(modelId, {
-        type: 'delete'
-      })
-      .then(res => {
-        if (res) {
-          dispatch(updateModels());
-        }
-      });
+    RecordActions.execForRecord(modelId, {
+      type: 'delete'
+    }).then(res => {
+      if (res) {
+        dispatch(updateModels());
+      }
+    });
   },
   showModelCreationForm: categoryId => dispatch(createModel({ categoryId }))
 });
