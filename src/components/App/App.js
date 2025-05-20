@@ -18,6 +18,7 @@ import ReduxModal from '../ReduxModal';
 import Menu from '../Sidebar/Sidebar';
 import { PopupContainer } from '../common/Popper';
 import UploadStatus from '../common/UploadStatus';
+import AIAssistantContainer from '../AIAssistant/AIAssistantContainer';
 
 import { initAppSettings } from '@/actions/app';
 import { addTab, setTab, updateTab } from '@/actions/pageTabs';
@@ -507,6 +508,7 @@ class App extends Component {
           <PopupContainer />
           <MenuSettingsController />
           <UploadStatus />
+          <AIAssistantContainer />
         </div>
       </ErrorBoundary>
     );

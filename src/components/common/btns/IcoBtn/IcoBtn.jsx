@@ -10,7 +10,7 @@ export default class IcoBtn extends Component {
     loading: PropTypes.bool,
     className: PropTypes.string,
     colorLoader: PropTypes.string,
-    icon: PropTypes.string,
+    icon: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
     loaderType: PropTypes.string
   };
 
@@ -28,6 +28,12 @@ export default class IcoBtn extends Component {
 
     if (!icon) {
       return null;
+    }
+
+    if (React.isValidElement(icon)) {
+      return React.cloneElement(icon, {
+        className: classNames(icon.props.className, 'ecos-btn__i', { [`ecos-btn__i_${position}`]: children })
+      });
     }
 
     return <i className={classNames('ecos-btn__i', { [`ecos-btn__i_${position}`]: children }, icon)} />;
