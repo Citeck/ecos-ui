@@ -5,6 +5,7 @@ import uuidv4 from 'uuid/v4';
 
 import ModelEditor from '../ModelEditor';
 
+import { aiAssistantContext, CONTEXT_TYPES, aiAssistantService } from '@/components/AIAssistant';
 import BPMNModeler from '@/components/ModelEditor/BPMNModeler';
 import { SourcesId } from '@/constants';
 import {
@@ -21,6 +22,53 @@ import { t } from '@/helpers/export/util';
 
 class BPMNEditorPage extends ModelEditor {
   static modelType = 'bpmn';
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      ...this.state,
+      isAIAssistantOpen: false
+    };
+  }
+
+  componentDidMount() {
+    super.componentDidMount && super.componentDidMount();
+
+    this.updateAIAssistantContext();
+
+    setTimeout(() => {
+      aiAssistantService.checkAvailability();
+    }, 200);
+  }
+
+  componentDidUpdate(prevProps) {
+    super.componentDidUpdate && super.componentDidUpdate(prevProps);
+    this.updateAIAssistantContext();
+  }
+
+  componentWillUnmount() {
+    super.componentWillUnmount && super.componentWillUnmount();
+
+    aiAssistantContext.clearContext();
+  }
+
+  updateAIAssistantContext = () => {
+    const processRef = this.recordRef || '';
+    const ecosType = this.props.formProps?.formData?.ecosType || '';
+
+    aiAssistantContext.setContext(CONTEXT_TYPES.BPMN_EDITOR, {
+      onSubmit: this.handleAIAssistantSubmit
+    }, {
+      processRef,
+      ecosType
+    });
+
+    aiAssistantContext.updateContextData({
+      processRef,
+      ecosType
+    });
+  }
 
   initModeler = () => {
     if (!this.designer) {
@@ -89,6 +137,18 @@ class BPMNEditorPage extends ModelEditor {
 
     return extraButtons;
   }
+
+  handleAIAssistantSubmit = (bpmnXml) => {
+    if (bpmnXml && this.designer) {
+      this.designer.setDiagram(bpmnXml, {
+        callback: ({ mounted }) => {
+          if (mounted) {
+            console.log('BPMN диаграмма успешно загружена в редактор');
+          }
+        }
+      });
+    }
+  };
 
   getFormType(selectedElement) {
     const elementType = this._determineElementType(selectedElement || {});
