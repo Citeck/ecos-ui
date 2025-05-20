@@ -1,5 +1,6 @@
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import debounce from 'lodash/debounce';
 import React, { useEffect, useState } from 'react';
 import uuidv4 from 'uuid/v4';
 
@@ -30,6 +31,8 @@ class BPMNEditorPage extends ModelEditor {
       ...this.state,
       isAIAssistantOpen: false
     };
+
+    this.debouncedUpdateContext = debounce(this._updateAIAssistantContextData, 500);
   }
 
   componentDidMount() {
@@ -57,18 +60,71 @@ class BPMNEditorPage extends ModelEditor {
     const processRef = this.recordRef || '';
     const ecosType = this.props.formProps?.formData?.ecosType || '';
 
-    aiAssistantContext.setContext(CONTEXT_TYPES.BPMN_EDITOR, {
-      onSubmit: this.handleAIAssistantSubmit
-    }, {
-      processRef,
-      ecosType
-    });
+    if (!aiAssistantContext.hasContext()) {
+      aiAssistantContext.setContext(CONTEXT_TYPES.BPMN_EDITOR, {
+        onSubmit: this.handleAIAssistantSubmit,
+        updateContextBeforeRequest: this.updateContextBeforeRequest
+      }, {
+        processRef,
+        ecosType,
+        currentBpmnXml: null
+      });
+    }
 
-    aiAssistantContext.updateContextData({
-      processRef,
-      ecosType
+    this.debouncedUpdateContext();
+  }
+
+  _updateAIAssistantContextData = () => {
+    const processRef = this.recordRef || '';
+    const ecosType = this.props.formProps?.formData?.ecosType || '';
+
+    // Получаем текущий BPMN XML
+    this.getBpmnXml(currentBpmnXml => {
+      if (!currentBpmnXml) return;
+
+      aiAssistantContext.updateContextData({
+        processRef,
+        ecosType,
+        currentBpmnXml
+      });
     });
   }
+
+  updateContextBeforeRequest = (callback) => {
+    const processRef = this.recordRef || '';
+    const ecosType = this.props.formProps?.formData?.ecosType || '';
+
+    this.getBpmnXml(currentBpmnXml => {
+      if (currentBpmnXml) {
+        aiAssistantContext.updateContextData({
+          processRef,
+          ecosType,
+          currentBpmnXml
+        });
+      }
+
+      callback && callback();
+    });
+  }
+
+  getBpmnXml = (callback) => {
+    if (!this.designer) {
+      callback && callback(null);
+      return;
+    }
+
+    this.designer.saveXML({
+      callback: ({ error, xml }) => {
+        if (error) {
+          console.error('Ошибка при получении BPMN XML:', error);
+          callback && callback(null);
+          return;
+        }
+
+        callback && callback(xml);
+      }
+    });
+  };
 
   initModeler = () => {
     if (!this.designer) {

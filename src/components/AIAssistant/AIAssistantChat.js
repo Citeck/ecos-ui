@@ -281,13 +281,19 @@ const AIAssistantChat = () => {
         try {
             // Depending on the context, we process the message
             if (contextType === CONTEXT_TYPES.BPMN_EDITOR) {
+                const contextHandler = aiAssistantContext.getHandler('updateContextBeforeRequest');
+                if (typeof contextHandler === 'function') {
+                    await new Promise(resolve => contextHandler(resolve));
+                }
+
                 const contextData = aiAssistantContext.getContextData();
-                const {processRef, ecosType} = contextData;
+                const {processRef, ecosType, currentBpmnXml} = contextData;
 
                 const requestData = {
                     userInput: message,
                     processRef: processRef || '',
-                    ecosType: ecosType || ''
+                    ecosType: ecosType || '',
+                    currentBpmnXml: currentBpmnXml || ''
                 };
 
                 const response = await fetch('/gateway/ecos-ai/api/assistant/bpmn', {
