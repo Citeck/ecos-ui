@@ -185,8 +185,155 @@
   }
 
   &__message-content {
-    font-size: 14px;
-    line-height: 1.4;
+    word-break: break-word;
+    line-height: 1.5;
+    
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 0.5em;
+      margin-bottom: 0.5em;
+      font-weight: 600;
+    }
+    
+    h1 {
+      font-size: 1.4em;
+    }
+    
+    h2 {
+      font-size: 1.3em;
+    }
+    
+    h3 {
+      font-size: 1.2em;
+    }
+    
+    h4, h5, h6 {
+      font-size: 1.1em;
+    }
+    
+    p {
+      margin-bottom: 0.8em;
+    }
+    
+    ul, ol {
+      margin-left: 1.5em;
+      margin-bottom: 0.8em;
+    }
+    
+    li {
+      margin-bottom: 0.3em;
+    }
+    
+    a {
+      color: #0078d4;
+      text-decoration: underline;
+    }
+    
+    code {
+      background-color: rgba(0, 0, 0, 0.1);
+      padding: 0.2em 0.4em;
+      border-radius: 3px;
+      font-family: monospace;
+    }
+    
+    pre {
+      background-color: rgba(0, 0, 0, 0.1);
+      padding: 0.5em;
+      border-radius: 3px;
+      overflow-x: auto;
+      margin-bottom: 0.8em;
+      
+      code {
+        background-color: transparent;
+        padding: 0;
+        border-radius: 0;
+      }
+    }
+    
+    blockquote {
+      border-left: 4px solid #ccc;
+      padding-left: 1em;
+      margin-left: 0;
+      margin-right: 0;
+      margin-bottom: 0.8em;
+      font-style: italic;
+    }
+    
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+    
+    hr {
+      border: 0;
+      border-top: 1px solid #ccc;
+      margin: 1em 0;
+    }
+    
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-bottom: 0.8em;
+    }
+    
+    th, td {
+      border: 1px solid #ccc;
+      padding: 0.5em;
+    }
+    
+    th {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    // Стили для GitHub Flavored Markdown
+    .contains-task-list {
+      list-style-type: none;
+      padding-left: 0;
+      margin-left: 0;
+    }
+    
+    .task-list-item {
+      position: relative;
+      padding-left: 1.5em;
+      margin-bottom: 0.3em;
+    }
+    
+    .task-list-item input[type="checkbox"] {
+      position: absolute;
+      left: 0;
+      top: 0.15em;
+    }
+    
+    del {
+      text-decoration: line-through;
+      color: #777;
+    }
+    
+    table {
+      border-collapse: collapse;
+      margin: 1em 0;
+      overflow-x: auto;
+      display: block;
+      max-width: 100%;
+    }
+    
+    table th, table td {
+      padding: 6px 13px;
+      border: 1px solid #dfe2e5;
+    }
+    
+    table th {
+      background-color: #f6f8fa;
+      font-weight: 600;
+    }
+    
+    table tr {
+      background-color: #fff;
+      border-top: 1px solid #c6cbd1;
+    }
+    
+    table tr:nth-child(2n) {
+      background-color: #f6f8fa;
+    }
   }
 
   &__message-time {

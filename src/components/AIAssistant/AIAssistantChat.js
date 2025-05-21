@@ -2,11 +2,12 @@ import React, {useState, useEffect, useRef} from 'react';
 import classNames from 'classnames';
 import { ResizableBox } from 'react-resizable';
 import 'react-resizable/css/styles.css';
+import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 import aiAssistantService from './AIAssistantService';
 import aiAssistantContext, {CONTEXT_TYPES} from './AIAssistantContext';
 import { Icon } from '../common';
-import { TMP_ICON_EMPTY } from '../../constants';
 import './style.scss';
 
 const POLLING_INTERVAL = 2000;
@@ -538,7 +539,16 @@ const AIAssistantChat = () => {
                                     )}
                                 >
                                     <div className="ai-assistant-chat__message-content">
-                                        {msg.text}
+                                        <Markdown
+                                            remarkPlugins={[remarkGfm]}
+                                            components={{
+                                                a: ({node, ...props}) => (
+                                                    <a {...props} target="_blank" rel="noopener noreferrer" />
+                                                )
+                                            }}
+                                        >
+                                            {msg.text}
+                                        </Markdown>
                                     </div>
                                     {msg.isProcessing && msg.pollingIsUsed && (
                                         <div className="ai-assistant-chat__cancel-action">
