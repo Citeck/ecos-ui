@@ -2,29 +2,18 @@ import aiAssistantContext, { CONTEXT_TYPES } from './AIAssistantContext';
 import aiAssistantService from './AIAssistantService';
 
 /**
- * Extracts recordRef from URL
- * @returns {string|null} recordRef or null if not found
- */
-const getRecordRefFromUrl = () => {
-  const url = window.location.href;
-  const recordRefMatch = url.match(/recordRef=([^&]+)/);
-  return recordRefMatch ? decodeURIComponent(recordRefMatch[1]) : null;
-};
-
-/**
  * Checks if the current page is a document page and initializes
  * the AI assistant context accordingly
  */
 const initDocumentQAContext = () => {
   if (aiAssistantService.isDocumentWithContent()) {
-    const recordRef = getRecordRefFromUrl();
+    const recordRef = aiAssistantService.getRecordRefFromUrl();
 
-    if (recordRef && recordRef.includes('emodel/workspace-file@')) {
-      // Set the context with the recordRef
+    if (recordRef) {
       aiAssistantContext.setContext(
         CONTEXT_TYPES.DOCUMENT_QA,
         {}, // No special handlers needed for document QA
-        { recordRef } // Store recordRef in context data
+        { recordRef }
       );
 
       return true;
