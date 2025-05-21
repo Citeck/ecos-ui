@@ -263,8 +263,8 @@ abstract class BaseWidget<P extends BaseWidgetProps = BaseWidgetProps, S extends
     );
   }, 0);
 
-  handleChangeHeight = (userHeight: number) => {
-    userHeight = userHeight > 0 ? userHeight : 0;
+  handleChangeHeight = (userHeight?: number) => {
+    userHeight = userHeight && userHeight > 0 ? userHeight : 0;
 
     if (this.state.userHeight === userHeight) {
       return;
@@ -273,7 +273,7 @@ abstract class BaseWidget<P extends BaseWidgetProps = BaseWidgetProps, S extends
     if (this.fullHeight && userHeight > this.fullHeight) {
       userHeight = this.fullHeight;
     }
-
+    // @ts-ignore
     UserLocalSettingsService.setDashletHeight(this.state.lsId, userHeight);
 
     this.setState({ userHeight });

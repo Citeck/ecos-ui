@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import React, { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 
 import FormManager from '../../../components/EcosForm/FormManager';
 // @ts-ignore
@@ -27,6 +28,7 @@ const TreeNode = ({
 }: {
   node: { id: string; name: string; children: { id: string; name: string }[] };
   recordRef: string;
+  tabId: string;
   onFetchChildren: (parent: string) => Promise<{ records: { id: string; name: string }[] }>;
 }): React.ReactElement => {
   const [isOpen, setIsOpen] = useState<boolean>(get(node, 'children.length', 0) > 1);
@@ -69,7 +71,6 @@ const TreeNode = ({
       <summary
         onClick={e => {
           e.preventDefault();
-
           setIsOpen(!isOpen);
         }}
       >
@@ -104,7 +105,7 @@ const TreeNode = ({
   );
 };
 // @ts-ignore
-const HierarchicalTreeWidget = ({ record: recordRef }) => {
+const HierarchicalTreeWidget = ({ record: recordRef, tabId }) => {
   const [records, setRecords] = useState<{ id: string; name: string }[]>([]);
 
   useEffect(() => {
@@ -247,6 +248,7 @@ const HierarchicalTreeWidget = ({ record: recordRef }) => {
           <ul className="tree">
             {records.map(record => (
               <li
+                key={record.id}
                 className={classNames('parent-tree', {
                   'parent-tree__active': recordRef && recordRef.includes(record.id)
                 })}
@@ -259,7 +261,7 @@ const HierarchicalTreeWidget = ({ record: recordRef }) => {
                 }}
               >
                 {/* @ts-ignore */}
-                <TreeNode key={record.id} recordRef={recordRef} node={record} onFetchChildren={fetchRecords} />
+                <TreeNode key={record.id} recordRef={recordRef} node={record} onFetchChildren={fetchRecords} tabId={tabId} />
                 <div className="tree-actions">
                   <div className="ecos-hierarchical-tree-widget__structure__bnt-create" onClick={() => create(`emodel/wiki@${record.id}`)}>
                     <Icon className="icon-plus" />
@@ -274,4 +276,4 @@ const HierarchicalTreeWidget = ({ record: recordRef }) => {
   );
 };
 
-export default HierarchicalTreeWidget;
+export default React.memo(HierarchicalTreeWidget);

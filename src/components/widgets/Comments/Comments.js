@@ -1,19 +1,24 @@
-import React from 'react';
+import debounce from 'lodash/debounce';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
+import React from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
+import { connect } from 'react-redux';
 
 import { getComments, updateComments } from '../../../actions/comments';
-import { MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
 import { BASE_HEIGHT } from '../../../constants/comments';
+import { MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
 import DAction from '../../../services/DashletActionService';
-import { selectStateByRecordRef } from '../../../selectors/comments';
-import { num2str, t } from '../../../helpers/util';
-import { Btn } from '../../common/btns/index';
 import Dashlet from '../../Dashlet';
+import { Btn } from '../../common/btns/index';
 import BaseWidget, { EVENTS } from '../BaseWidget';
-import { CommentInterface, IdInterface } from './propsInterfaces';
+
 import Comment from './Comment';
+import { CommentInterface, IdInterface } from './propsInterfaces';
+
+import { getRecordRef } from '@/helpers/urls';
+import { num2str, t } from '@/helpers/util';
+import { selectStateByRecordRef } from '@/selectors/comments';
+import { Events } from '@/services/PageService';
 
 import './style.scss';
 
@@ -76,6 +81,7 @@ class Comments extends BaseWidget {
       editableComment: null,
       commentForDeletion: null,
       editorHeight: BASE_HEIGHT,
+      recordRef: props.record,
       htmlComment: '',
       rawComment: '',
       isOpenLinkDialog: false,
@@ -86,12 +92,22 @@ class Comments extends BaseWidget {
     this.instanceRecord.events.on(EVENTS.UPDATE_TASKS_WIDGETS, this.fetchData);
     this.instanceRecord.events.on(EVENTS.UPDATE_COMMENTS, this.fetchData);
     this.instanceRecord.events.on(EVENTS.RECORD_ACTION_COMPLETED, this.fetchDataAfterAction);
+    document.addEventListener(Events.CHANGE_URL_LINK_EVENT, this.handleChangeTabLink.bind(this));
   }
 
   componentDidMount() {
     super.componentDidMount();
 
     this.fetchData();
+  }
+
+  componentWillUnmount() {
+    super.componentWillUnmount();
+
+    this.instanceRecord.events.off(EVENTS.UPDATE_TASKS_WIDGETS, this.fetchData);
+    this.instanceRecord.events.off(EVENTS.UPDATE_COMMENTS, this.fetchData);
+    this.instanceRecord.events.off(EVENTS.RECORD_ACTION_COMPLETED, this.fetchDataAfterAction);
+    document.removeEventListener(Events.CHANGE_URL_LINK_EVENT, this.handleChangeTabLink.bind(this));
   }
 
   fetchDataAfterAction = () => {
@@ -102,8 +118,20 @@ class Comments extends BaseWidget {
 
   fetchData = () => {
     const { getComments } = this.props;
+    const newRecordRef = getRecordRef();
 
-    getComments();
+    getComments(newRecordRef);
+  };
+
+  handleChangeTabLink = () => {
+    const { updateComments } = this.props;
+    const newRecordRef = getRecordRef();
+
+    if (newRecordRef) {
+      this.setState({ recordRef: newRecordRef }, () => {
+        updateComments([], newRecordRef);
+      });
+    }
   };
 
   get countComments() {
@@ -145,7 +173,8 @@ class Comments extends BaseWidget {
 
   renderHeader() {
     const { isEdit } = this.state;
-    const { record, saveIsLoading, userName, actionFailed } = this.props;
+    const { saveIsLoading, userName, actionFailed } = this.props;
+    const { recordRef } = this.state;
 
     return (
       <div>
@@ -156,7 +185,7 @@ class Comments extends BaseWidget {
               userName={userName}
               saveIsLoading={saveIsLoading}
               actionFailed={actionFailed}
-              recordRef={record}
+              recordRef={recordRef}
               onClose={this.handleCloseEditor}
             />
           ) : (
@@ -177,7 +206,8 @@ class Comments extends BaseWidget {
   }
 
   renderComments() {
-    const { record, comments, isMobile, saveIsLoading, userName, actionFailed } = this.props;
+    const { comments, isMobile, saveIsLoading, userName, actionFailed } = this.props;
+    const { recordRef } = this.state;
 
     if (!comments.length) {
       return null;
@@ -192,7 +222,7 @@ class Comments extends BaseWidget {
             userName={userName}
             saveIsLoading={saveIsLoading}
             actionFailed={actionFailed}
-            recordRef={record}
+            recordRef={recordRef}
             onClose={this.handleCloseEditor}
           />
         ))}
@@ -244,18 +274,19 @@ class Comments extends BaseWidget {
   }
 }
 
-const mapStateToProps = (state, ownProps) => ({
-  ...selectStateByRecordRef(state, ownProps.record),
-  isMobile: state.view.isMobile,
-  userName: state.user.userName
-});
+const mapStateToProps = (state, ownProps) => {
+  const recordRef = getRecordRef();
+
+  return {
+    ...selectStateByRecordRef(state, recordRef),
+    isMobile: state.view.isMobile,
+    userName: state.user.userName
+  };
+};
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  getComments: () => dispatch(getComments(ownProps.record)),
-  updateComments: prevComments => dispatch(updateComments({ record: ownProps.record, prevComments }))
+  getComments: recordRef => dispatch(getComments(recordRef || ownProps.record)),
+  updateComments: (prevComments, recordRef) => dispatch(updateComments({ record: recordRef || ownProps.record, prevComments }))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Comments);
+export default connect(mapStateToProps, mapDispatchToProps)(Comments);

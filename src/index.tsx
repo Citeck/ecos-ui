@@ -85,15 +85,6 @@ setNotAuthCallback(setAuthStatus);
 
 emitter.on(RESET_AUTH_STATE_EVENT, setAuthStatus);
 
-// window.requirejs.config({
-//   baseUrl: '/share/res', // leave it for now
-//   urlArgs: 'b=' + preval`module.exports = new Date().getTime()`,
-//   paths: {
-//     ecosui: '/js/ecos/ecosui',
-//     css: '/js/lib/require-css'
-//   }
-// });
-
 if (!window.Citeck) {
   window.Citeck = {};
 }
