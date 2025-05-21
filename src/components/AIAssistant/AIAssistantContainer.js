@@ -12,12 +12,6 @@ const AIAssistantContainer = () => {
   useEffect(() => {
     document.body.appendChild(containerRef.current);
 
-    const handleVisibilityChange = () => {
-      if (document.hidden && aiAssistantService.isOpen) {
-        aiAssistantService.closeChat();
-      }
-    };
-
     const handleBeforeUnload = () => {
       if (aiAssistantService.isOpen) {
         aiAssistantService.closeChat();
@@ -31,7 +25,6 @@ const AIAssistantContainer = () => {
       }
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('beforeunload', handleBeforeUnload);
 
     const originalPushState = window.history.pushState;
@@ -53,7 +46,6 @@ const AIAssistantContainer = () => {
 
     return () => {
       document.body.removeChild(containerRef.current);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('beforeunload', handleBeforeUnload);
       window.removeEventListener('popstate', handleLocationChange);
 

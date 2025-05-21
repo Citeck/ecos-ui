@@ -5,6 +5,8 @@ import 'react-resizable/css/styles.css';
 
 import aiAssistantService from './AIAssistantService';
 import aiAssistantContext, {CONTEXT_TYPES} from './AIAssistantContext';
+import { Icon } from '../common';
+import { TMP_ICON_EMPTY } from '../../constants';
 import './style.scss';
 
 const POLLING_INTERVAL = 2000;
@@ -18,6 +20,7 @@ const AIAssistantChat = () => {
     const [messages, setMessages] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(aiAssistantService.isOpen);
+    const [isMinimized, setIsMinimized] = useState(aiAssistantService.isMinimized);
     const [contextType, setContextType] = useState(aiAssistantContext.getContext());
     const [activeRequestId, setActiveRequestId] = useState(null);
     const [pollingTimer, setPollingTimer] = useState(null);
@@ -29,8 +32,9 @@ const AIAssistantChat = () => {
 
     // Sync state with service
     useEffect(() => {
-        const handleStateChange = (newIsOpen) => {
+        const handleStateChange = (newIsOpen, newIsMinimized) => {
             setIsOpen(newIsOpen);
+            setIsMinimized(newIsMinimized);
         };
 
         aiAssistantService.addListener(handleStateChange);
@@ -166,6 +170,11 @@ const AIAssistantChat = () => {
         aiAssistantService.closeChat();
     };
 
+    const handleMinimize = () => {
+        const newState = aiAssistantService.toggleMinimize();
+        setIsMinimized(newState);
+    };
+
     const pollRequestStatus = async (requestId) => {
         if (isPolling) return;
 
@@ -186,14 +195,17 @@ const AIAssistantChat = () => {
                 setActiveRequestId(null);
                 setIsLoading(false);
 
+                if (data.result && contextType === CONTEXT_TYPES.BPMN_EDITOR) {
+                    aiAssistantService.handleSubmit(data.result);
+                }
+
                 setMessages(prevMessages =>
                     prevMessages.map((msg, index) => {
                         if (msg.isProcessing) {
                             return {
-                                text: 'Процесс успешно создан! Нажмите кнопку "Показать в редакторе", чтобы загрузить его в редактор.',
+                                text: 'Процесс успешно создан и загружен в редактор.',
                                 sender: 'ai',
-                                timestamp: new Date(),
-                                bpmnXml: data.result
+                                timestamp: new Date()
                             };
                         }
                         return msg;
@@ -470,17 +482,39 @@ const AIAssistantChat = () => {
         <div className="ai-assistant-resizable">
             <ResizableBox
                 width={chatSize.width}
-                height={chatSize.height}
+                height={isMinimized ? 50 : chatSize.height}
                 minConstraints={[MIN_WIDTH, MIN_HEIGHT]}
                 onResize={handleResize}
                 resizeHandles={['nw']}
+                disableResize={isMinimized}
             >
-                <div className="ai-assistant-chat" ref={chatRef}>
+                <div className={classNames("ai-assistant-chat", { "minimized": isMinimized })} ref={chatRef}>
                     <div className="ai-assistant-chat__header">
                         <h3 className="ai-assistant-chat__title">{getContextTitle()}</h3>
-                        <button className="ai-assistant-chat__close" onClick={handleClose}>
-                            ×
-                        </button>
+                        <div className="ai-assistant-chat__header-actions">
+                            <button
+                                className="ai-assistant-chat__minimize"
+                                onClick={handleMinimize}
+                                title={isMinimized ? "Развернуть" : "Свернуть"}
+                            >
+                                <Icon
+                                    className={classNames(
+                                        "ai-assistant-chat__icon",
+                                        "fa",
+                                        isMinimized ? "fa-window-restore" : "fa-window-minimize"
+                                    )}
+                                />
+                            </button>
+                            <button
+                                className="ai-assistant-chat__close"
+                                onClick={handleClose}
+                                title="Закрыть"
+                            >
+                                <Icon
+                                    className="ai-assistant-chat__icon fa fa-times"
+                                />
+                            </button>
+                        </div>
                     </div>
 
                     <div className="ai-assistant-chat__messages">
@@ -505,16 +539,6 @@ const AIAssistantChat = () => {
                                 >
                                     <div className="ai-assistant-chat__message-content">
                                         {msg.text}
-                                        {msg.bpmnXml && (
-                                            <div className="ai-assistant-chat__message-actions">
-                                                <button
-                                                    className="ai-assistant-chat__action-button"
-                                                    onClick={() => aiAssistantService.handleSubmit(msg.bpmnXml)}
-                                                >
-                                                    Показать в редакторе
-                                                </button>
-                                            </div>
-                                        )}
                                     </div>
                                     {msg.isProcessing && msg.pollingIsUsed && (
                                         <div className="ai-assistant-chat__cancel-action">

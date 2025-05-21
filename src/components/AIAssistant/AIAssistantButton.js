@@ -7,14 +7,17 @@ import { IcoBtn } from '../common/btns';
 import './style.scss';
 
 const AIAssistantButton = () => {
-  const [isAvailable, setIsAvailable] = useState(aiAssistantService.isAvailable());
-  const [isOpen, setIsOpen] = useState(aiAssistantService.isOpen);
+  const [isAvailable, setIsAvailable] = useState(false);
+  const [setIsOpen] = useState(aiAssistantService.isOpen);
+  const [isLoading, setIsLoading] = useState(true);
   const buttonId = 'ai-assistant-btn';
 
-  // Check availability on URL change and context change
   useEffect(() => {
-    const checkAvailability = () => {
-      setIsAvailable(aiAssistantService.isAvailable());
+    const checkAvailability = async () => {
+      setIsLoading(true);
+      const available = await aiAssistantService.isAvailable();
+      setIsAvailable(available);
+      setIsLoading(false);
     };
 
     checkAvailability();
@@ -65,7 +68,7 @@ const AIAssistantButton = () => {
     aiAssistantService.toggleChat();
   };
 
-  if (!isAvailable) {
+  if (isLoading || !isAvailable) {
     return null;
   }
 

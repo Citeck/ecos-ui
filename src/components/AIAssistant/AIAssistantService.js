@@ -1,11 +1,12 @@
 import aiAssistantContext, { CONTEXT_TYPES } from './AIAssistantContext';
+import Records from '../Records';
 
 const BPMN_EDITOR_URL_PATTERN = /\/bpmn-editor/;
-const DOCUMENT_URL_PATTERN = /recordRef=emodel\/workspace-file@/;
 
 class AIAssistantService {
   constructor() {
     this.isOpen = false;
+    this.isMinimized = false;
     this.listeners = [];
     this.availabilityListeners = [];
   }
@@ -14,43 +15,71 @@ class AIAssistantService {
     return BPMN_EDITOR_URL_PATTERN.test(window.location.pathname);
   }
 
-  // TODO: we should check, that document has _content
-  isDocumentWithContent() {
-    return DOCUMENT_URL_PATTERN.test(window.location.href);
+  getRecordRefFromUrl() {
+    const match = window.location.href.match(/recordRef=([\w-/]+@[\w-]+)/);
+    return match ? match[1] : null;
   }
 
-  isAvailable() {
-    return (this.isBpmnEditorPage() || this.isDocumentWithContent()) && aiAssistantContext.hasContext();
-  }
+  async isDocumentWithContent() {
+   try {
+      const recordRef = this.getRecordRefFromUrl();
+      if (!recordRef) {
+        return false;
+      }
 
-  toggleChat() {
-    if (!this.isOpen && !this.isAvailable()) {
+      const hasContent = await Records.get(recordRef).load('_has._content?bool');
+      return !!hasContent;
+    } catch (error) {
+      console.error('Error checking document content:', error);
       return false;
     }
-
-    this.isOpen = !this.isOpen;
-    this.notifyListeners();
-    return this.isOpen;
   }
 
-  openChat() {
-    if (!this.isOpen && !this.isAvailable()) {
-      return false;
+  async isAvailable() {
+    if (this.isBpmnEditorPage()) {
+      return aiAssistantContext.hasContext();
+    }
+
+    const hasContent = await this.isDocumentWithContent();
+    return hasContent && aiAssistantContext.hasContext();
+  }
+
+  async toggleChat() {
+    if (!this.isOpen) {
+      const isAvailable = await this.isAvailable();
+      if (!isAvailable) {
+        return false;
+      }
     }
 
     if (!this.isOpen) {
       this.isOpen = true;
-      this.notifyListeners();
+      this.isMinimized = false;
+    } else if (!this.isMinimized) {
+      this.isMinimized = true;
+    } else {
+      this.isMinimized = false;
     }
-    return true;
+
+    this.notifyListeners();
+    return this.isOpen;
   }
 
   closeChat() {
     if (this.isOpen) {
       this.isOpen = false;
+      this.isMinimized = false;
       this.notifyListeners();
     }
     return false;
+  }
+
+  toggleMinimize() {
+    if (this.isOpen) {
+      this.isMinimized = !this.isMinimized;
+      this.notifyListeners();
+    }
+    return this.isMinimized;
   }
 
   handleSubmit(data) {
@@ -76,7 +105,7 @@ class AIAssistantService {
   notifyListeners() {
     this.listeners.forEach(listener => {
       try {
-        listener(this.isOpen);
+        listener(this.isOpen, this.isMinimized);
       } catch (error) {
         console.error('Error in AIAssistant listener:', error);
       }
@@ -106,10 +135,19 @@ class AIAssistantService {
     });
   }
 
-  checkAvailability() {
-    const isAvailable = this.isAvailable();
-    this.notifyAvailabilityChange(isAvailable);
-    return isAvailable;
+  async checkAvailability() {
+    try {
+      this.notifyAvailabilityChange(false);
+
+      const isAvailable = await this.isAvailable();
+
+      this.notifyAvailabilityChange(isAvailable);
+      return isAvailable;
+    } catch (error) {
+      console.error('Error checking availability:', error);
+      this.notifyAvailabilityChange(false);
+      return false;
+    }
   }
 }
 
