@@ -30,7 +30,7 @@ import {
 } from '@/actions/journals';
 import { getBoardData } from '@/actions/kanban';
 import { initPreviewList } from '@/actions/previewList';
-import { JournalUrlParams as JUP, KanbanUrlParams as KUP, SourcesId } from '@/constants';
+import { JournalUrlParams, JournalUrlParams as JUP, KanbanUrlParams as KUP, SourcesId } from '@/constants';
 import { wrapArgs } from '@/helpers/redux';
 import { getSearchParams } from '@/helpers/urls';
 import { getTextByLocale } from '@/helpers/util';
@@ -89,18 +89,9 @@ class PreviewListView extends React.Component {
   };
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const {
-      isActivePage,
-      viewMode,
-      stateId,
-      journalId,
-      boardList,
-      urlParams = {},
-      withForceUpdate: force,
-      deselectAllRecords
-    } = this.props;
+    const { isActivePage, stateId, journalId, boardList, urlParams = {}, withForceUpdate: force, deselectAllRecords } = this.props;
 
-    if (!journalId || !isActivePage || !isPreviewList(viewMode)) {
+    if (!journalId || !isActivePage || !isPreviewList(urlParams[JournalUrlParams.VIEW_MODE])) {
       if (prevProps.journalId !== journalId) {
         deselectAllRecords(prevProps.stateId);
       }

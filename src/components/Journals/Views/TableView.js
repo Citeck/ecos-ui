@@ -29,7 +29,7 @@ import {
   setUrl
 } from '@/actions/journals';
 import { getBoardData } from '@/actions/kanban';
-import { JournalUrlParams as JUP, KanbanUrlParams as KUP, SourcesId } from '@/constants';
+import { JournalUrlParams, JournalUrlParams as JUP, KanbanUrlParams as KUP, SourcesId } from '@/constants';
 import { wrapArgs } from '@/helpers/redux';
 import { getSearchParams } from '@/helpers/urls';
 import { getTextByLocale } from '@/helpers/util';
@@ -95,7 +95,7 @@ class TableView extends React.Component {
       deselectAllRecords
     } = this.props;
 
-    if (!journalId || !isActivePage || !isTableOrPreview(viewMode)) {
+    if (!journalId || !isActivePage || !isTableOrPreview(urlParams[JournalUrlParams.VIEW_MODE] || viewMode)) {
       if (prevProps.journalId !== journalId) {
         deselectAllRecords(prevProps.stateId);
       }
