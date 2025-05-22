@@ -1,3 +1,5 @@
+@import '../../styles/constants';
+
 .ai-assistant-chat {
   position: fixed;
   width: 350px;
@@ -30,7 +32,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 12px 15px;
-    background-color: #3498db;
+    background-color: $color-blue-light;
     color: white;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
@@ -356,7 +358,7 @@
   }
 
   &__action-button {
-    background-color: #3498db;
+    background-color: $color-blue-dark;
     color: white;
     border: none;
     border-radius: 4px;
@@ -409,8 +411,8 @@
   }
 
   &__submit {
-    background-color: #3498db;
-    color: white;
+    background-color: $color-blue-dark;
+    color: $color-white;
     border: none;
     border-radius: 4px;
     padding: 10px 15px;
@@ -420,11 +422,11 @@
     align-self: flex-end;
 
     &:hover:not(:disabled) {
-      background-color: #2980b9;
+      background-color: $color-blue-dark;
     }
 
     &:disabled {
-      background-color: #95c8ec;
+      background-color: $color-blue-light2;
       cursor: not-allowed;
     }
   }
