@@ -97,15 +97,6 @@ export default class Components {
             default: get(plugins, 'default.NewsWidget', () => null)
           }))
         ),
-      checkIsAvailable: () => {
-        const workspacesEnabled = getEnabledWorkspaces();
-
-        if (!workspacesEnabled) {
-          return false;
-        }
-
-        return Boolean(get(window, 'Citeck.Plugins.NewsWidget'));
-      },
       label: 'dashboard-settings.widget.news',
       supportedDashboardTypes: [DashboardTypes.USER, DashboardTypes.CUSTOM]
     },

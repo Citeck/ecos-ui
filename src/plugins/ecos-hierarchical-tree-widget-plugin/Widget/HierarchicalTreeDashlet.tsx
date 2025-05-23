@@ -8,26 +8,37 @@ import FormManager from '../../../components/EcosForm/FormManager';
 import Records from '../../../components/Records';
 import { Icon, Tooltip } from '../../../components/common';
 import { Btn } from '../../../components/common/btns';
-import { getWorkspaceId, updateCurrentUrl } from '../../../helpers/urls';
+import { getRecordRef, getWorkspaceId, updateCurrentUrl } from '../../../helpers/urls';
 import { isMobileDevice, t } from '../../../helpers/util';
+
+import { Events } from '@/services/PageService';
 
 import './style.scss';
 
 const Labels = {
   TITLE: 'hierarchical-tree-widget.title',
+  MODAL_TITLE: 'hierarchical-tree-widget.modal-title',
   ADD_GROUP: 'hierarchical-tree-widget.create'
 };
 
 const tooltipId = 'create-tree-node-button';
 
+interface TreeNode {
+  id: string;
+  name: string;
+  children: TreeNode[];
+}
+
 const TreeNode = ({
   node,
   recordRef,
-  onFetchChildren
+  onFetchChildren,
+  canEdit
 }: {
-  node: { id: string; name: string; children: { id: string; name: string }[] };
+  node: TreeNode;
   recordRef: string;
-  onFetchChildren: (parent: string) => Promise<{ records: { id: string; name: string }[] }>;
+  onFetchChildren: (parent: string) => Promise<{ records: TreeNode[] }>;
+  canEdit: boolean;
 }): React.ReactElement => {
   const [isOpen, setIsOpen] = useState<boolean>(get(node, 'children.length', 0) > 1);
   const [children, setChildren] = useState(node.children || []);
@@ -35,7 +46,7 @@ const TreeNode = ({
   const create = (parent: string) => {
     FormManager.openFormModal({
       record: 'emodel/wiki@',
-      title: t(Labels.TITLE),
+      title: t(Labels.MODAL_TITLE),
       attributes: {
         _parent: parent || `emodel/wiki@${node.id}`,
         _parentAtt: 'children'
@@ -67,20 +78,28 @@ const TreeNode = ({
   return (
     <details open={isOpen}>
       <summary
+        data-record={node.id}
         onClick={e => {
           e.preventDefault();
-
           setIsOpen(!isOpen);
         }}
       >
         {node.name}
+        {canEdit && (
+          <div className="tree-actions">
+            <div className="ecos-hierarchical-tree-widget__structure__bnt-create" onClick={() => create(`emodel/wiki@${node.id}`)}>
+              <Icon className="icon-plus" />
+            </div>
+          </div>
+        )}
       </summary>
       <ul style={{ paddingTop: '5px', paddingLeft: '15px' }}>
-        {children.map((child: { id: string; name: string }) => (
+        {children.map((child: TreeNode) => (
           <li
             key={child.id}
             className={classNames('child-tree', {
-              'child-tree__active': recordRef && recordRef.includes(child.id)
+              'child-tree__active': recordRef && recordRef.includes(child.id),
+              'child-tree__last': child.children?.length === 0
             })}
             onClick={e => {
               e.stopPropagation();
@@ -90,27 +109,36 @@ const TreeNode = ({
               });
             }}
           >
-            {/* @ts-ignore */}
-            {child && <TreeNode node={child} onFetchChildren={onFetchChildren} />}
-            <div className="tree-actions">
-              <div className="ecos-hierarchical-tree-widget__structure__bnt-create" onClick={() => create(`emodel/wiki@${child.id}`)}>
-                <Icon className="icon-plus" />
-              </div>
-            </div>
+            {child && <TreeNode recordRef={recordRef} node={child} onFetchChildren={onFetchChildren} canEdit={canEdit} />}
           </li>
         ))}
       </ul>
     </details>
   );
 };
-// @ts-ignore
-const HierarchicalTreeWidget = ({ record: recordRef }) => {
-  const [records, setRecords] = useState<{ id: string; name: string }[]>([]);
+
+const HierarchicalTreeWidget = ({ record: initialRecordRef }: { record: string }) => {
+  const [canEdit, setCanEdit] = useState<boolean>(false);
+  const [recordRef, setRecordRef] = useState<string>(initialRecordRef);
+  const [records, setRecords] = useState<TreeNode[]>([]);
 
   useEffect(() => {
     fetchRecords().then(({ records = [] }) => {
       setRecords(records);
     });
+    // @ts-ignore
+    Records.get(`emodel/wiki@${getWorkspaceId()}$ROOT`)
+      .load('permissions._has.Write?bool')
+      .then((value: boolean) => setCanEdit(value));
+
+    document.addEventListener(Events.CHANGE_URL_LINK_EVENT, () => {
+      const newRecordRef = getRecordRef();
+      newRecordRef && setRecordRef(newRecordRef);
+    });
+
+    return () => {
+      document.removeEventListener(Events.CHANGE_URL_LINK_EVENT, () => {});
+    };
   }, []);
 
   const fetchRecords = (parent?: string) => {
@@ -137,7 +165,7 @@ const HierarchicalTreeWidget = ({ record: recordRef }) => {
   const create = async (parent?: string) => {
     FormManager.openFormModal({
       record: 'emodel/wiki@',
-      title: t(Labels.TITLE),
+      title: t(Labels.MODAL_TITLE),
       attributes: {
         _parent: parent || `emodel/wiki@${getWorkspaceId()}$ROOT`,
         _parentAtt: 'children'
@@ -239,14 +267,15 @@ const HierarchicalTreeWidget = ({ record: recordRef }) => {
               strokeWidth="2"
             />
           </svg>
-          <p>Нет элементов</p>
-          <Btn onClick={() => create()}>Добавить элемент</Btn>
+          <p>{t('comp.no-data.indication')}</p>
+          {canEdit && <Btn onClick={() => create()}>{t('add')}</Btn>}
         </div>
       ) : (
         <div className="ecos-hierarchical-tree-widget-body">
           <ul className="tree">
             {records.map(record => (
               <li
+                key={record.id}
                 className={classNames('parent-tree', {
                   'parent-tree__active': recordRef && recordRef.includes(record.id)
                 })}
@@ -258,13 +287,7 @@ const HierarchicalTreeWidget = ({ record: recordRef }) => {
                   });
                 }}
               >
-                {/* @ts-ignore */}
-                <TreeNode key={record.id} recordRef={recordRef} node={record} onFetchChildren={fetchRecords} />
-                <div className="tree-actions">
-                  <div className="ecos-hierarchical-tree-widget__structure__bnt-create" onClick={() => create(`emodel/wiki@${record.id}`)}>
-                    <Icon className="icon-plus" />
-                  </div>
-                </div>
+                <TreeNode recordRef={recordRef} node={record} onFetchChildren={fetchRecords} canEdit={canEdit} />
               </li>
             ))}
           </ul>
@@ -274,4 +297,4 @@ const HierarchicalTreeWidget = ({ record: recordRef }) => {
   );
 };
 
-export default HierarchicalTreeWidget;
+export default React.memo(HierarchicalTreeWidget);

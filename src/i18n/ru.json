@@ -2798,7 +2798,8 @@
   "publication.creator.name": "Создал (а)",
   "publication.modifier.name": ", Обновил (а)",
 
-  "hierarchical-tree-widget.title": "Добавить публикацию",
+  "hierarchical-tree-widget.title": "База знаний",
+  "hierarchical-tree-widget.modal-title": "Добавить публикацию",
   "hierarchical-tree-widget.create": "Добавить публикацию",
 
   "lexical.plugins.auto-embed.embed": "Вставка",

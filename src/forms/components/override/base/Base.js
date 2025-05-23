@@ -477,11 +477,6 @@ Base.prototype.createInlineEditButton = function (container) {
 };
 
 Base.prototype.createViewOnlyValue = function (container) {
-  const value = this.getValue();
-  if (value && container) {
-    container.setAttribute('title', value);
-  }
-
   originalCreateViewOnlyValue.call(this, container);
 
   this.createInlineEditButton(container);

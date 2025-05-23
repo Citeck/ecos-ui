@@ -1,6 +1,6 @@
 import FormIOTextFieldComponent from 'formiojs/components/textfield/TextField';
-import get from 'lodash/get';
 import debounce from 'lodash/debounce';
+import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 
@@ -123,6 +123,13 @@ export default class TextFieldComponent extends FormIOTextFieldComponent {
     });
 
     return this.input;
+  }
+
+  setupValueElement(element) {
+    let value = this.getValue();
+    value = this.isEmpty(value) ? this.defaultViewOnlyValue : this.getView(value);
+    element.innerHTML = value;
+    element.setAttribute('title', value);
   }
 
   async calculateTypeahead(value) {

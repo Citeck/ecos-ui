@@ -1,19 +1,22 @@
-import React from 'react';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import React from 'react';
+import { connect } from 'react-redux';
 
-import { initDocLib } from '../../../actions/docLib';
-import { selectViewMode } from '../../../selectors/journals';
-import { selectDocLibPageProps } from '../../../selectors/docLib';
-import { t } from '../../../helpers/export/util';
-import { wrapArgs } from '../../../helpers/redux';
-import { isDocLib, Labels } from '../constants';
 import DocLibBreadcrumbs from '../DocLib/DocLibBreadcrumbs/DocLibBreadcrumbsContainer';
-import DocLibSettingsBar from '../DocLib/DocLibSettingsBar/DocLibSettingsBarContainer';
 import DocLibGroupActions from '../DocLib/DocLibGroupActions/DocLibGroupActionsContainer';
 import DocLibPagination from '../DocLib/DocLibPagination/DocLibPaginationContainer';
+import DocLibSettingsBar from '../DocLib/DocLibSettingsBar/DocLibSettingsBarContainer';
 import FilesViewer from '../DocLib/FilesViewer/FilesViewerContainer';
+import { isDocLib, Labels } from '../constants';
+
+import { initDocLib } from '@/actions/docLib';
+import { JournalUrlParams } from '@/constants/index.js';
+import { t } from '@/helpers/export/util';
+import { wrapArgs } from '@/helpers/redux';
+import { getSearchParams } from '@/helpers/urls.js';
+import { selectDocLibPageProps } from '@/selectors/docLib';
+import { selectViewMode } from '@/selectors/journals';
 
 const mapStateToProps = (state, props) => {
   const viewMode = selectViewMode(state, props.stateId);
@@ -22,6 +25,7 @@ const mapStateToProps = (state, props) => {
   return {
     isMobile: get(state, 'view.isMobile'),
     pageTabsIsShow: get(state, 'pageTabs.isShow'),
+    urlParams: getSearchParams(),
     viewMode,
     ...ownProps
   };
@@ -41,9 +45,9 @@ class DocLibView extends React.Component {
   };
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { viewMode, typeRef, isActivePage } = this.props;
+    const { urlParams = {}, typeRef, isActivePage } = this.props;
 
-    if (!isActivePage || !isDocLib(viewMode)) {
+    if (!isActivePage || !isDocLib(urlParams[JournalUrlParams.VIEW_MODE])) {
       return;
     }
 
@@ -85,7 +89,4 @@ class DocLibView extends React.Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(DocLibView);
+export default connect(mapStateToProps, mapDispatchToProps)(DocLibView);

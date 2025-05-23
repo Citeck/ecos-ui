@@ -68,7 +68,10 @@ const preOptimizeDepsLibs = [
   'lodash/noop',
   'bpmn-js/lib/features/modeling/ElementFactory',
   'react-xml-viewer',
-  'cmmn-js/lib/features/modeling/util/ModelingUtil'
+  'cmmn-js/lib/features/modeling/util/ModelingUtil',
+  'camunda-dmn-js',
+  'dmn-js-drd/lib/NavigatedViewer',
+  'dmn-js-shared/lib/util/ModelUtil'
 ];
 
 export default defineConfig(({ mode }) => {

@@ -55,7 +55,7 @@ export default class UserLocalSettingsService {
     return `${Prefixes.JOURNAL}${getKey(key || 'all')}`;
   }
 
-  static checkOldData(dashletId, tabId = false) {
+  static checkOldData(dashletId, tabId = '') {
     if (tabId) {
       self.transferData(self.getDashletKey(dashletId), self.getDashletKey(dashletId, tabId));
     } else {

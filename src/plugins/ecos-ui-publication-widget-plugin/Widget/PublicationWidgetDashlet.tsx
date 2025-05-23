@@ -1,49 +1,87 @@
-import get from 'lodash/get';
+/* eslint-disable react/react-in-jsx-scope */
+import isEmpty from 'lodash/isEmpty';
+import isString from 'lodash/isString';
 import moment from 'moment';
-import React from 'react';
 
 import Dashlet from '../../../components/Dashlet/Dashlet';
 import FormManager from '../../../components/EcosForm/FormManager';
+// @ts-ignore
 import Records from '../../../components/Records/Records';
 import { Avatar, Loader } from '../../../components/common';
-import BaseWidget from '../../../components/widgets/BaseWidget';
+import BaseWidget, { BaseWidgetProps, BaseWidgetState } from '../../../components/widgets/BaseWidget';
 import { getStateId } from '../../../helpers/redux';
-import { getCurrentLocale, t } from '../../../helpers/util';
 import DAction from '../../../services/DashletActionService';
+
+import { getRecordRef } from '@/helpers/urls';
+import { t } from '@/helpers/util';
+import { Events } from '@/services/PageService';
 
 import './style.scss';
 
-class PublicationWidgetDashlet extends BaseWidget {
-  constructor(props) {
+type PublicationWidgetDashletProps = BaseWidgetProps;
+
+export interface Publication {
+  title: string;
+  text: string;
+  creator: Creator;
+  modifier: Modifier;
+  modified: string;
+}
+
+interface Creator {
+  id: string;
+  avatarUrl: string;
+  name: string;
+}
+
+type Modifier = Creator;
+
+interface PublicationWidgetDashletState extends BaseWidgetState {
+  isLoading: boolean;
+  publication?: Publication;
+  recordRef: string;
+}
+
+class PublicationWidgetDashlet<P extends PublicationWidgetDashletProps, S extends PublicationWidgetDashletState> extends BaseWidget<P, S> {
+  stateId: string;
+  unlisten: any;
+
+  constructor(props: P) {
     super(props);
 
     this.state = {
       isLoading: true,
+      recordRef: props.record,
       publication: {}
-    };
+    } as S;
 
     this.stateId = getStateId(props);
 
     this.observableFieldsToUpdate = [...new Set([...this.observableFieldsToUpdate, 'title?str', 'text?str'])];
+    document.addEventListener(Events.CHANGE_URL_LINK_EVENT, this.updatePublication.bind(this));
   }
 
   componentDidMount() {
     super.componentDidMount();
-
     this.fetchPublication();
   }
 
-  componentDidUpdate(prevProps) {
-    const { record } = this.props;
+  componentWillUnmount() {
+    super.componentWillUnmount();
+    document.removeEventListener(Events.CHANGE_URL_LINK_EVENT, this.updatePublication.bind(this));
+  }
 
-    if (prevProps.record !== record) {
-      this.fetchPublication();
+  updatePublication() {
+    const newRecordRef = getRecordRef();
+
+    if (newRecordRef) {
+      this.setState({ recordRef: newRecordRef }, () => this.fetchPublication());
     }
   }
 
   fetchPublication() {
-    const { record: recordRef } = this.props;
-
+    const { recordRef } = this.state;
+    // @ts-ignore
     return Records.get(recordRef)
       .load({
         id: 'id',
@@ -54,7 +92,7 @@ class PublicationWidgetDashlet extends BaseWidget {
         created: '_created?str',
         creator: '_creator{id:?localId,avatarUrl,name:?disp}'
       })
-      .then(record =>
+      .then((record: Publication) =>
         this.setState({
           publication: record,
           isLoading: false
@@ -62,16 +100,10 @@ class PublicationWidgetDashlet extends BaseWidget {
       );
   }
 
-  get config() {
-    const config = get(this.props, 'config');
-
-    return config[this.state.typeRef] || {};
-  }
-
   get widgetTitle() {
-    const config = this.config;
+    const { publication } = this.state;
 
-    return get(config, ['title', getCurrentLocale()]);
+    return publication?.title || t('dashboard-settings.widget.publication');
   }
 
   get dashletActions() {
@@ -85,7 +117,7 @@ class PublicationWidgetDashlet extends BaseWidget {
   }
 
   toggleEdit = () => {
-    const { record: recordRef } = this.props;
+    const { recordRef } = this.state;
 
     FormManager.openFormModal({
       record: recordRef,
@@ -103,15 +135,16 @@ class PublicationWidgetDashlet extends BaseWidget {
   render() {
     const { isLoading, publication } = this.state;
 
-    if (!publication) {
+    if (!publication || isEmpty(publication)) {
       return null;
     }
 
-    const { creator = {}, modifier = {} } = publication;
+    const { creator, modifier } = publication;
 
     return (
+      // @ts-ignore
       <Dashlet
-        title={t('dashboard-settings.widget.publication')}
+        title={this.widgetTitle}
         actionConfig={this.dashletActions}
         className="ecos-publication-widget-dashlet"
         disableCollapse={true}
@@ -140,7 +173,7 @@ class PublicationWidgetDashlet extends BaseWidget {
                 <p className="ecos-publication-info__date">{moment(publication.modified).format('dddd, MMMM Do YYYY, h:mm:ss')}</p>
               </div>
             </div>
-            <div dangerouslySetInnerHTML={{ __html: publication.text }} />
+            {isString(publication.text) && <div dangerouslySetInnerHTML={{ __html: publication.text }} />}
           </>
         )}
       </Dashlet>
