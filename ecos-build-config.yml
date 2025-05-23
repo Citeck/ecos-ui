@@ -6,11 +6,11 @@ properties:
   builds:
     - enterprise: true
       plugins:
-        - heatmap:1.11.0-snapshot
-        - charts-widget:1.1.0-snapshot
+        - heatmap:1.11.0
+        - charts-widget:1.2.0
         - stages-widget:1.4.0
         - kanban-widget:1.6.0
-        - activities-widget:1.2.0-snapshot
+        - activities-widget:1.2.0
     - enterprise: false
       plugins:
         - stages-widget:1.4.0
