@@ -32,12 +32,13 @@ interface TreeNode {
 const TreeNode = ({
   node,
   recordRef,
-  onFetchChildren
+  onFetchChildren,
+  canEdit
 }: {
   node: TreeNode;
   recordRef: string;
-  tabId: string;
   onFetchChildren: (parent: string) => Promise<{ records: TreeNode[] }>;
+  canEdit: boolean;
 }): React.ReactElement => {
   const [isOpen, setIsOpen] = useState<boolean>(get(node, 'children.length', 0) > 1);
   const [children, setChildren] = useState(node.children || []);
@@ -77,17 +78,20 @@ const TreeNode = ({
   return (
     <details open={isOpen}>
       <summary
+        data-record={node.id}
         onClick={e => {
           e.preventDefault();
           setIsOpen(!isOpen);
         }}
       >
         {node.name}
-        <div className="tree-actions">
-          <div className="ecos-hierarchical-tree-widget__structure__bnt-create" onClick={() => create(`emodel/wiki@${node.id}`)}>
-            <Icon className="icon-plus" />
+        {canEdit && (
+          <div className="tree-actions">
+            <div className="ecos-hierarchical-tree-widget__structure__bnt-create" onClick={() => create(`emodel/wiki@${node.id}`)}>
+              <Icon className="icon-plus" />
+            </div>
           </div>
-        </div>
+        )}
       </summary>
       <ul style={{ paddingTop: '5px', paddingLeft: '15px' }}>
         {children.map((child: TreeNode) => (
@@ -105,8 +109,7 @@ const TreeNode = ({
               });
             }}
           >
-            {/* @ts-ignore */}
-            {child && <TreeNode node={child} onFetchChildren={onFetchChildren} />}
+            {child && <TreeNode recordRef={recordRef} node={child} onFetchChildren={onFetchChildren} canEdit={canEdit} />}
           </li>
         ))}
       </ul>
@@ -114,11 +117,10 @@ const TreeNode = ({
   );
 };
 
-// @ts-ignore
-const HierarchicalTreeWidget = ({ record: initialRecordRef, tabId }) => {
+const HierarchicalTreeWidget = ({ record: initialRecordRef }: { record: string }) => {
   const [canEdit, setCanEdit] = useState<boolean>(false);
   const [recordRef, setRecordRef] = useState<string>(initialRecordRef);
-  const [records, setRecords] = useState<{ id: string; name: string }[]>([]);
+  const [records, setRecords] = useState<TreeNode[]>([]);
 
   useEffect(() => {
     fetchRecords().then(({ records = [] }) => {
@@ -266,7 +268,7 @@ const HierarchicalTreeWidget = ({ record: initialRecordRef, tabId }) => {
             />
           </svg>
           <p>{t('comp.no-data.indication')}</p>
-          <Btn onClick={() => create()}>{t('add')}</Btn>
+          {canEdit && <Btn onClick={() => create()}>{t('add')}</Btn>}
         </div>
       ) : (
         <div className="ecos-hierarchical-tree-widget-body">
@@ -285,8 +287,7 @@ const HierarchicalTreeWidget = ({ record: initialRecordRef, tabId }) => {
                   });
                 }}
               >
-                {/* @ts-ignore */}
-                <TreeNode key={record.id} recordRef={recordRef} node={record} onFetchChildren={fetchRecords} tabId={tabId} />
+                <TreeNode recordRef={recordRef} node={record} onFetchChildren={fetchRecords} canEdit={canEdit} />
               </li>
             ))}
           </ul>

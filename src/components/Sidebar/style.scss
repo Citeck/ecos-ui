@@ -90,13 +90,15 @@ $transition-duration: 0.3s;
 
     &__link {
       display: block;
-      cursor: pointer;
+      position: relative;
       height: 100%;
+      cursor: pointer;
     }
 
     &__img {
       transition: opacity $transition-duration;
       position: absolute;
+      max-width: 170px;
       max-height: 30px;
     }
 
