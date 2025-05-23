@@ -2799,7 +2799,8 @@
   "publication.creator.name": "Created by",
   "publication.modifier.name": ", Modified by",
 
-  "hierarchical-tree-widget.title": "Add publication",
+  "hierarchical-tree-widget.title": "Wiki",
+  "hierarchical-tree-widget.modal-title": "Add publication",
   "hierarchical-tree-widget.create": "Add publication",
 
   "lexical.plugins.auto-embed.embed": "Embed",

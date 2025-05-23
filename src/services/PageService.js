@@ -187,6 +187,12 @@ export default class PageService {
     const _wsId = wsId || getWorkspaceId();
 
     if (getEnabledWorkspaces()) {
+      const [source, value] = _key.split('@');
+
+      if (source.includes('wiki')) {
+        return `${_type}-wiki-${_wsId}`;
+      }
+
       return `${_type}-${_key}-${_wsId}`;
     }
 
