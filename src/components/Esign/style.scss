@@ -1,6 +1,16 @@
 @import '../../styles/constants.scss';
 
 .esign {
+  &__with-one-actions {
+    & .ecos-dialog__buttons_center {
+      display: block;
+    }
+
+    & .esign-message__btn-full {
+      text-align: center !important;
+    }
+  }
+
   &-message {
     &.ecos-modal {
       max-width: 468px;
