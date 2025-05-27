@@ -155,12 +155,23 @@ class Kanban extends React.Component {
         isDragging={isDragging}
         boardConfig={boardConfig}
         runAction={runAction}
+        hasSum={data.hasSum}
       />
     );
   };
 
   render() {
-    const { columns, dataCards = [], isLoading, isFirstLoading, page, selectedBoard, kanbanSettings, isViewNewJournal } = this.props;
+    const {
+      columns,
+      dataCards = [],
+      isLoading,
+      isFirstLoading,
+      page,
+      selectedBoard,
+      kanbanSettings,
+      isViewNewJournal,
+      boardConfig
+    } = this.props;
     const { isDragging } = this.state;
     const bodyStyle = { minHeight: this.getHeight(-70) };
 
@@ -207,6 +218,7 @@ class Kanban extends React.Component {
                     key={`head_${selectedBoard}-${data.id}`}
                     isReady={!isFirstLoading}
                     data={data}
+                    typeRef={boardConfig.typeRef}
                     totalCount={get(column, 'totalCount', '⭯')}
                     isViewNewJournal={isViewNewJournal}
                   />

@@ -62,6 +62,7 @@ export const Labels = {
   Kanban: {
     BAR_TOTAL: 'kanban.label.big-total',
     NO_COLUMNS: 'kanban.label.no-columns',
+    COLUMNS_SUM: 'kanban.label.columns-sum',
     COL_NO_CARD: 'kanban.label.no-card',
     COL_NO_MORE_CARDS: 'kanban.label.no-more-cards',
     CARD_NO_TITLE: 'kanban.label.no-name',

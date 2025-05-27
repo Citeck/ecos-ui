@@ -184,6 +184,36 @@
       margin-left: 11px;
     }
 
+    &_has-sum {
+      padding-top: 60px !important;
+    }
+
+    &-sum {
+      position: absolute;
+      display: flex;
+      padding: 16px;
+      width: calc(100% - 20px);
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: space-between;
+      border-radius: 6px;
+      border: 1px solid #D4DADD;
+      background: rgba(255, 255, 255, 0.50);
+      box-shadow: 0px 3px 4px 0px rgba(0, 0, 0, 0.15);
+      backdrop-filter: blur(10px);
+      font-size: 11px;
+      font-style: normal;
+      font-weight: 600;
+
+      &-label {
+        color: #444;
+      }
+
+      &-value {
+        color: #767676;
+      }
+    }
+
     &-head {
       counter-increment: column;
       background: $color-white;
@@ -659,8 +689,9 @@
         }
 
         dd a {
-          color: inherit;
+          width: 100%;
           padding: 0;
+          color: inherit;
 
           &:hover {
             color: $color-blue-dark;

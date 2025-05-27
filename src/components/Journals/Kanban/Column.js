@@ -1,16 +1,17 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
+import PropTypes from 'prop-types';
+import React from 'react';
 import { Droppable } from 'react-beautiful-dnd';
+import { connect } from 'react-redux';
 
 import { t } from '../../../helpers/export/util';
 import { selectColumnProps } from '../../../selectors/kanban';
 import { Loader } from '../../common';
 import { Labels } from '../constants';
-import { isDropDisabled } from './utils';
+
 import Card from './Card';
+import { isDropDisabled } from './utils';
 
 class Column extends React.PureComponent {
   static propTypes = {
@@ -20,6 +21,7 @@ class Column extends React.PureComponent {
     error: PropTypes.string,
     actions: PropTypes.object,
     formProps: PropTypes.object,
+    hasSum: PropTypes.bool,
     readOnly: PropTypes.bool,
     isLoading: PropTypes.bool,
     isFiltered: PropTypes.bool,
@@ -115,7 +117,7 @@ class Column extends React.PureComponent {
   };
 
   render() {
-    const { records = [], columnInfo, isLoadingCol } = this.props;
+    const { records = [], columnInfo, isLoadingCol, hasSum = false } = this.props;
     const isDropDisabled = this.getIsColumnDropDisabled();
 
     if (isEmpty(columnInfo)) {
@@ -133,6 +135,7 @@ class Column extends React.PureComponent {
                 'ecos-kanban__column_dragging-over': isDraggingOver,
                 'ecos-kanban__column_loading': isLoadingCol,
                 'ecos-kanban__column_disabled': isDropDisabled,
+                'ecos-kanban__column_has-sum': hasSum,
                 'ecos-kanban__column_owner': isColumnOwner,
                 'ecos-kanban__column_empty': isEmpty(records)
               })}

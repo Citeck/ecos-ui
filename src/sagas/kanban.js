@@ -234,7 +234,7 @@ export function* sagaGetData({ api }, { payload }) {
         const colPredicate = KanbanConverter.preparePredicate(column);
 
         const statusModifiedPredicate =
-          column.hideOldItems === 'true' && !!column.hideItemsOlderThan
+          column.hideOldItems && !!column.hideItemsOlderThan
             ? {
                 t: 'ge',
                 att: '_statusModified',
