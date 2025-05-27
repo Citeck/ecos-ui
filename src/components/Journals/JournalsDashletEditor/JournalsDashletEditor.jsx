@@ -1,17 +1,26 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
+import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
-import omit from 'lodash/omit';
+import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isEqualWith from 'lodash/isEqualWith';
-import isUndefined from 'lodash/isUndefined';
 import isFunction from 'lodash/isFunction';
+import isObject from 'lodash/isObject';
+import isUndefined from 'lodash/isUndefined';
+import omit from 'lodash/omit';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
-import { Caption, Checkbox, Field, Input, Select, SelectJournal } from '../../common/form';
+import { LinkedAttributesSelect } from '../../LinkedAttributesSelect';
+import Records from '../../Records';
 import { Btn } from '../../common/btns';
+import { Caption, Checkbox, Field, Input, Select, SelectJournal } from '../../common/form';
+import { JOURNAL_DASHLET_CONFIG_VERSION } from '../constants';
+
+import GoToButton from './GoToButton';
+
 import {
   checkConfig,
   getDashletEditorData,
@@ -20,16 +29,12 @@ import {
   setDashletConfigByParams,
   setEditorMode,
   setLoading
-} from '../../../actions/journals';
-import { selectJournalDashletEditorProps } from '../../../selectors/dashletJournals';
-import { getSelectedValue, t } from '../../../helpers/util';
-import { wrapArgs } from '../../../helpers/redux';
-import DashboardService from '../../../services/dashboard';
-import { SystemJournals } from '../../../constants';
-import { LinkedAttributesSelect } from '../../LinkedAttributesSelect';
-import Records from '../../Records';
-import { JOURNAL_DASHLET_CONFIG_VERSION } from '../constants';
-import GoToButton from './GoToButton';
+} from '@/actions/journals';
+import { SystemJournals } from '@/constants';
+import { wrapArgs } from '@/helpers/redux';
+import { getSelectedValue, t } from '@/helpers/util';
+import { selectJournalDashletEditorProps } from '@/selectors/dashletJournals';
+import DashboardService from '@/services/dashboard';
 
 import './JournalsDashletEditor.scss';
 
@@ -96,8 +101,8 @@ class JournalsDashletEditor extends Component {
 
     this.state = {
       ...this.#defaultStateConfig,
-      isOnlyLinked: get(props, 'config.onlyLinked') || false,
-      attrsToLoad: get(props, 'config.attrsToLoad') || []
+      isOnlyLinkedJournals: get(props, 'config.onlyLinkedJournals') || {},
+      attrsToLoad: get(props, 'config.attrsToLoad') || {}
     };
   }
 
@@ -146,10 +151,22 @@ class JournalsDashletEditor extends Component {
     this.setState({ ...this.#defaultStateConfig });
   }
 
-  get isDisabled() {
-    const { isCustomJournalMode, isOnlyLinked, attrsToLoad, customJournal, selectedJournals } = this.state;
+  getDispJournalId(journalId) {
+    return journalId?.includes('@') ? journalId.split('@')[1] : journalId;
+  }
 
-    if (isOnlyLinked && attrsToLoad && attrsToLoad.length === 0) {
+  get isDisabled() {
+    const { isCustomJournalMode, isOnlyLinkedJournals, attrsToLoad, customJournal, selectedJournals } = this.state;
+
+    if (
+      isOnlyLinkedJournals &&
+      attrsToLoad &&
+      isObject(attrsToLoad) &&
+      isObject(isOnlyLinkedJournals) &&
+      !Object.entries(isOnlyLinkedJournals).every(
+        ([journalId, flag]) => !flag || (!!flag && get(attrsToLoad, [journalId]) && attrsToLoad[journalId].length > 0)
+      )
+    ) {
       return true;
     }
 
@@ -185,8 +202,8 @@ class JournalsDashletEditor extends Component {
         newState.isCustomJournalMode = config.customJournalMode;
       }
 
-      if (!isUndefined(config.onlyLinked) && !isEqual(config.onlyLinked, this.state.isOnlyLinked)) {
-        newState.isOnlyLinked = config.onlyLinked;
+      if (!isUndefined(config.onlyLinked) && !isEqual(config.onlyLinked, this.state.isOnlyLinkedJournals)) {
+        newState.isOnlyLinkedJournals = config.onlyLinkedJournals;
       }
 
       if (!isUndefined(config.goToButtonName) && !isEqual(config.goToButtonName, this.state.goToButtonName)) {
@@ -222,21 +239,14 @@ class JournalsDashletEditor extends Component {
 
   handleSave = () => {
     const { config, id, recordRef, onSave, saveDashlet, setDashletConfig, checkConfig, setEditorMode } = this.props;
-    const {
-      attrsToLoad,
-      selectedJournals,
-      isCustomJournalMode,
-      customJournal,
-      journalSettingId,
-      isOnlyLinked,
-      goToButtonName
-    } = this.state;
+    const { attrsToLoad, selectedJournals, isCustomJournalMode, customJournal, journalSettingId, isOnlyLinkedJournals, goToButtonName } =
+      this.state;
     const generalConfig = this.props.generalConfig || {};
     const journalId = get(selectedJournals, '0', '');
     let newConfig = omit(config, ['journalsListId', 'journalType']);
 
     if (recordRef) {
-      newConfig.onlyLinked = isOnlyLinked;
+      newConfig.onlyLinkedJournals = isOnlyLinkedJournals;
       newConfig.attrsToLoad = attrsToLoad;
     }
 
@@ -282,7 +292,28 @@ class JournalsDashletEditor extends Component {
     this.setState({ journalSettingId: item.id });
   };
 
-  onChangeLinkedSettings = newSettings => {
+  onChangeLinkedSettings = (settings, id) => {
+    const newSettings = cloneDeep(settings);
+    const { isOnlyLinked: newIsOnlyLinked, attrsToLoad: newAttrsToLoad } = newSettings || {};
+    const { attrsToLoad, isOnlyLinkedJournals } = this.state;
+
+    const journalId = this.getDispJournalId(id);
+
+    if (journalId) {
+      if (!newAttrsToLoad && !get(attrsToLoad, [journalId]) && newIsOnlyLinked) {
+        newSettings.attrsToLoad = { ...attrsToLoad, [journalId]: [] };
+      }
+
+      if (newAttrsToLoad) {
+        newSettings.attrsToLoad = { ...attrsToLoad, [journalId]: newAttrsToLoad };
+      }
+    }
+
+    if (isBoolean(newIsOnlyLinked) && journalId) {
+      newSettings.isOnlyLinkedJournals = { ...isOnlyLinkedJournals, [journalId]: newIsOnlyLinked };
+      delete newSettings.isOnlyLinked;
+    }
+
     this.setState(newSettings);
   };
 
@@ -321,7 +352,7 @@ class JournalsDashletEditor extends Component {
       selectedJournals,
       journalSettingId,
       isCustomJournalMode,
-      isOnlyLinked,
+      isOnlyLinkedJournals,
       goToButtonName
     } = this.state;
 
@@ -365,17 +396,21 @@ class JournalsDashletEditor extends Component {
           <Field label={t(Labels.CUSTOM_MODE_FIELD)} isSmall={this.isSmall}>
             <Checkbox checked={isCustomJournalMode} onClick={this.setCustomJournalMode} />
           </Field>
-          {!!recordRef && (
-            <LinkedAttributesSelect
-              typeRef={typeRef}
-              journalId={selectedJournals[0]}
-              onChange={this.onChangeLinkedSettings}
-              isOnlyLinked={isOnlyLinked}
-              attrsToLoad={attrsToLoad}
-            />
-          )}
 
           <GoToButton isSmall={this.isSmall} value={goToButtonName} onChange={this.handleChangeGoToButtonName} />
+
+          {!!recordRef &&
+            selectedJournals?.length &&
+            selectedJournals.map(journalId => (
+              <LinkedAttributesSelect
+                key={journalId}
+                typeRef={typeRef}
+                journalId={journalId}
+                onChange={settings => this.onChangeLinkedSettings(settings, journalId)}
+                isOnlyLinked={isOnlyLinkedJournals[this.getDispJournalId(journalId)]}
+                attrsToLoad={attrsToLoad[this.getDispJournalId(journalId)]}
+              />
+            ))}
         </div>
 
         <div className={classNames('ecos-journal-dashlet-editor__actions', { 'ecos-journal-dashlet-editor__actions_small': this.isSmall })}>
@@ -391,7 +426,4 @@ class JournalsDashletEditor extends Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(JournalsDashletEditor);
+export default connect(mapStateToProps, mapDispatchToProps)(JournalsDashletEditor);

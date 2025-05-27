@@ -6,6 +6,7 @@ import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
+import isObject from 'lodash/isObject';
 import isString from 'lodash/isString';
 import omit from 'lodash/omit';
 import set from 'lodash/set';
@@ -627,10 +628,19 @@ export function* getGridData(api, params, stateId) {
   const w = wrapArgs(stateId);
   yield put(setLoadingGrid(w(true)));
   const { recordRef, journalConfig, journalSetting } = yield select(selectJournalData, stateId);
-  const config = yield select(state => selectNewVersionDashletConfig(state, stateId));
-  const onlyLinked = get(config, 'onlyLinked');
+  const { id } = journalConfig || {};
 
-  let attrsToLoad = get(config, 'attrsToLoad');
+  const config = yield select(state => selectNewVersionDashletConfig(state, stateId));
+  const journalId = get(config, 'journalId') || id?.includes('@') ? id.split('@')[1] : id;
+
+  const onlyLinked = get(config, ['onlyLinkedJournals', journalId]) ?? get(config, 'onlyLinked');
+
+  let attrsToLoad;
+  if (isObject(get(config, 'attrsToLoad')) && journalId) {
+    attrsToLoad = get(config, ['attrsToLoad', journalId]);
+  } else {
+    attrsToLoad = get(config, 'attrsToLoad');
+  }
 
   const { pagination: _pagination, predicates: _predicates, searchPredicate, fromGroupBy = false, grouping, ...forRequest } = params;
   const predicateRecords = yield call(api.journals.fetchLinkedRefs, recordRef, attrsToLoad);
