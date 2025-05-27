@@ -26,4 +26,4 @@ export const getRefExceptAlfrescoPrefix = recordRef => {
 
 export const parseTypeId = id => id && (id.includes(SourcesId.TYPE) ? id : `${SourcesId.TYPE}@${id}`);
 
-export const parseJournalId = id => id && (id.includes(SourcesId.JOURNAL) ? id : `${SourcesId.JOURNAL}@${id}`);
+export const parseJournalId = id => id && `${SourcesId.RESOLVED_JOURNAL}@${id.includes('@') ? id.split('@')[1] : id}`;

@@ -9,7 +9,7 @@ properties:
         - heatmap:1.11.0
         - charts-widget:1.2.0
         - stages-widget:1.4.0
-        - kanban-widget:1.6.0
+        - kanban-widget:1.7.0-snapshot
         - activities-widget:1.2.0
     - enterprise: false
       plugins:
