@@ -240,16 +240,6 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
     return super.setCheckedState(value);
   }
 
-  setValue(value, flags) {
-    if (this.options.formMode === 'CREATE') {
-      if (!get(this.currentForm, 'hasSetValue', true)) {
-        return;
-      }
-    }
-
-    return super.setValue(value, flags);
-  }
-
   // TODO delete when will fixed in new formiojs version
   updateValue(flags, value) {
     if (this.hasThreeStates) {

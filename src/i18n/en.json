@@ -2484,6 +2484,7 @@
   "form-constructor.tabs-description.allowedGroupType": "Available types: ROLE, BRANCH, GROUP",
   "form-constructor.tabs-description.rootGroupName": "The identifier from which the organizational structure tree starts to be built",
   "form-constructor.tabs-description.rootGroupName.disabled": "A custom root group has been assigned to the \"Custom value of root group\"",
+  "form-constructor.tabs-description.defaultValue.hasThreeStates.disabled": "When the three-state mode is enabled, the initial value is not available",
   "form-constructor.tabs-description.allowedGroupSubType": "Example: company, subdivision, manager, employee, director, department",
   "form-constructor.tabs-description.excludeAuthoritiesByName": "Example: groupName1, groupName2",
   "form-constructor.tabs-description.excludeAuthoritiesByType": "Example: groupType1, groupType2, groupSubType",

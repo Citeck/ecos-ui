@@ -2415,6 +2415,7 @@
   "form-constructor.tabs-description.allowedGroupType": "Доступные типы: ROLE, BRANCH, GROUP",
   "form-constructor.tabs-description.rootGroupName": "Идентификатор от которого начинает строится дерево оргструктуры",
   "form-constructor.tabs-description.rootGroupName.disabled": "Назначена корневая группа в поле \"Пользовательское значение корневой группы\"",
+  "form-constructor.tabs-description.defaultValue.hasThreeStates.disabled": "При включенном режиме трех состояний начальное значение недоступно",
   "form-constructor.tabs-description.allowedGroupSubType": "Например: company, subdivision, manager, employee, director, department",
   "form-constructor.tabs-description.excludeAuthoritiesByName": "Например: groupName1, groupName2",
   "form-constructor.tabs-description.excludeAuthoritiesByType": "Например: groupType1, groupType2, groupSubType",
