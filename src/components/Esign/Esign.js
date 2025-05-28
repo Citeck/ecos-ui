@@ -164,6 +164,8 @@ class EsignComponent extends Component {
         console.error('[EsignComponent] Error in handleSignDocument:', e);
         this.setError({ messageTitle: t(Labels.ERROR), messageDescription: getMLValue(e), errorType: ErrorTypes.HANDLE });
       }
+    } else {
+      Esign.signDocument(this.props.recordRefs, selectedCertificate, this.setSignatures).then(this.documentSigned).catch(this.setError);
     }
   };
 
