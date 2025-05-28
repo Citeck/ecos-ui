@@ -233,14 +233,13 @@ export function* sagaGetData({ api }, { payload }) {
 
         const colPredicate = KanbanConverter.preparePredicate(column);
 
-        const statusModifiedPredicate =
-          column.hideOldItems && !!column.hideItemsOlderThan
-            ? {
-                t: 'ge',
-                att: '_statusModified',
-                val: `-${column.hideItemsOlderThan}`
-              }
-            : undefined;
+        const statusModifiedPredicate = column.hideOldItems
+          ? {
+              t: 'ge',
+              att: '_statusModified',
+              val: `-${column.hideItemsOlderThan}`
+            }
+          : undefined;
 
         const idsPredicate = Boolean(recordRefs)
           ? {
