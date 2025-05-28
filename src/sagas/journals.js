@@ -631,7 +631,7 @@ export function* getGridData(api, params, stateId) {
   const { id } = journalConfig || {};
 
   const config = yield select(state => selectNewVersionDashletConfig(state, stateId));
-  const journalId = get(config, 'journalId') || id?.includes('@') ? id.split('@')[1] : id;
+  const journalId = get(config, 'journalId', id?.includes('@') ? id.split('@')[1] : id);
 
   const onlyLinked = get(config, ['onlyLinkedJournals', journalId]) ?? get(config, 'onlyLinked');
 
