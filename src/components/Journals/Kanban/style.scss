@@ -211,10 +211,12 @@
       }
 
       &-label p {
+        word-break: break-word;
         color: #444;
       }
 
       &-value p {
+        text-wrap-mode: nowrap;
         color: #767676;
       }
     }
