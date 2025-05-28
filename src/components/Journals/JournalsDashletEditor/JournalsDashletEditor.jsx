@@ -407,8 +407,8 @@ class JournalsDashletEditor extends Component {
                 typeRef={typeRef}
                 journalId={journalId}
                 onChange={settings => this.onChangeLinkedSettings(settings, journalId)}
-                isOnlyLinked={isOnlyLinkedJournals[this.getDispJournalId(journalId)]}
-                attrsToLoad={attrsToLoad[this.getDispJournalId(journalId)]}
+                isOnlyLinked={get(isOnlyLinkedJournals, [this.getDispJournalId(journalId)], [])}
+                attrsToLoad={get(attrsToLoad, [this.getDispJournalId(journalId)], [])}
               />
             ))}
         </div>
