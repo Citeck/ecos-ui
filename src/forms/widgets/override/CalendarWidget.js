@@ -1,4 +1,5 @@
 import Flatpickr from 'flatpickr';
+import l10n from 'flatpickr/dist/l10n';
 import { convertFormatToMask, convertFormatToMoment } from 'formiojs/utils/utils';
 import FormIOCalendarWidget from 'formiojs/widgets/CalendarWidget';
 import moment from 'moment';
@@ -6,11 +7,13 @@ import moment from 'moment';
 import { DateFormats } from '@/constants';
 import { getCurrentLocale } from '@/helpers/util';
 
+const CALENDAR_ICON_CLASSNAME = 'glyphicon-calendar';
+
 export default class CalendarWidget extends FormIOCalendarWidget {
   static get defaultSettings() {
     return {
       ...FormIOCalendarWidget.defaultSettings,
-      locale: getCurrentLocale() // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2912
+      locale: l10n[getCurrentLocale()] || l10n.en
     };
   }
 
@@ -93,11 +96,14 @@ export default class CalendarWidget extends FormIOCalendarWidget {
 
       window.addEventListener('scroll', this.onScrollWindow, true);
 
+      const icon = this._input.parentNode.querySelector(`.${CALENDAR_ICON_CLASSNAME}`);
+
       this.handleClickOutside = event => {
         if (
           this.calendar.isOpen &&
           !this.calendar._input.contains(event.target) &&
-          !this.calendar.calendarContainer.contains(event.target)
+          !this.calendar.calendarContainer.contains(event.target) &&
+          (!icon || (icon && !icon.contains(event.target)))
         ) {
           this.calendar.close();
         }
