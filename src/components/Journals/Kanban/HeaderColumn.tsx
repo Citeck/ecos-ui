@@ -49,7 +49,7 @@ const HeaderColumn = ({ data, totalCount, isReady, typeRef, isViewNewJournal }: 
         setColumnSum(resultSum || 0);
       });
     }
-  }, [data.hasSum, data.sumAtt]);
+  }, [data.sumAtt, totalCount]);
 
   if (isEmpty(data)) {
     return null;
