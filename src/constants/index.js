@@ -9,6 +9,8 @@ export const DEFAULT_EIS = Object.freeze({
 export const MAX_WORKSPACE_PREVIEW_ITEMS = 8;
 export const BASE_URLS_REDIRECT = ['/', '/v2', '/v2/'];
 
+export const ADMIN_WORKSPACE_ID = 'admin$workspace';
+
 export const URL = {
   HOME: '/',
   JOURNAL: '/v2/journals',

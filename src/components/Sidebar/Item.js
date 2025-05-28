@@ -14,11 +14,12 @@ import RemoteBadge from './RemoteBadge';
 import { ItemBtn, ItemLink } from './item-components';
 
 import { setScrollTop, setSelectedId, toggleExpanded, toggleIsOpen } from '@/actions/slideMenu';
-import { SourcesId, TMP_ICON_EMPTY } from '@/constants';
+import { ADMIN_WORKSPACE_ID, SourcesId, TMP_ICON_EMPTY } from '@/constants';
 import { MenuSettings } from '@/constants/menu';
 import { ActionTypes } from '@/constants/sidebar';
 import { isNewVersionPage } from '@/helpers/export/urls';
 import { getIconObjectWeb, getIconUpDown } from '@/helpers/icon';
+import { getWorkspaceId } from '@/helpers/urls.js';
 import { extractLabel, getEnabledWorkspaces } from '@/helpers/util';
 import { selectIsNewUIAvailable } from '@/selectors/user';
 import SidebarService from '@/services/sidebar';
@@ -102,13 +103,14 @@ class Item extends React.Component {
 
   renderContent = React.memo(({ isOpen, data, styleProps: { noIcon } }) => {
     const label = extractLabel(data.label);
-    const wsId = get(this.props, 'workspace.id');
+    const workspaceId = getWorkspaceId();
+    const enabledWorkspaces = getEnabledWorkspaces();
 
     let iconCode;
     let iconData;
 
     const isDefaultIcon = !data?.icon || (isString(get(data, 'icon')) && data.icon.includes(TMP_ICON_EMPTY));
-    if (data.type !== 'SECTION' && wsId === 'admin$workspace' && isDefaultIcon && getEnabledWorkspaces()) {
+    if (data.type !== MenuSettings.ItemTypes.SECTION && workspaceId === ADMIN_WORKSPACE_ID && isDefaultIcon && enabledWorkspaces) {
       return (
         <>
           <WorkspacePreview name={label} />
