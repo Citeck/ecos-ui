@@ -25,7 +25,7 @@ const HeaderColumn = ({ data, totalCount, isReady, typeRef, isViewNewJournal }: 
   const [columnSum, setColumnSum] = useState<number | undefined>(undefined);
 
   useEffect(() => {
-    if (data.hasSum) {
+    if (isViewNewJournal && data.hasSum) {
       const journalId = AttributesService.parseId(typeRef);
       // @ts-ignore
       Records.queryOne(
@@ -73,10 +73,14 @@ const HeaderColumn = ({ data, totalCount, isReady, typeRef, isViewNewJournal }: 
           <Badge className="ecos-kanban__column-head-badge" text={`${totalCount}`} light state={'primary'} withPopup />
         </TitlePageLoader>
       </div>
-      {data.hasSum && (
+      {isViewNewJournal && data.hasSum && (
         <div className="ecos-kanban__column-sum">
-          <div className="ecos-kanban__column-sum-label">{t(Labels.Kanban.COLUMNS_SUM)}</div>
-          <div className="ecos-kanban__column-sum-value">{NumberFormatter.formatNumber(columnSum)}</div>
+          <div className="ecos-kanban__column-sum-label">
+            <p>{t(Labels.Kanban.COLUMNS_SUM)}</p>
+          </div>
+          <div className="ecos-kanban__column-sum-value">
+            <p>{NumberFormatter.formatNumber(columnSum)}</p>
+          </div>
         </div>
       )}
     </div>

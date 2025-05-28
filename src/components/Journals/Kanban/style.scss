@@ -189,27 +189,32 @@
     }
 
     &-sum {
+      -webkit-backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.50);
       position: absolute;
       display: flex;
       padding: 16px;
+      top: 45px;
       width: calc(100% - 20px);
+      height: 50px;
       flex-direction: row;
-      align-items: flex-start;
       justify-content: space-between;
       border-radius: 6px;
       border: 1px solid #D4DADD;
-      background: rgba(255, 255, 255, 0.50);
       box-shadow: 0px 3px 4px 0px rgba(0, 0, 0, 0.15);
       backdrop-filter: blur(10px);
-      font-size: 11px;
-      font-style: normal;
-      font-weight: 600;
 
-      &-label {
+      p {
+        font-size: 11px;
+        font-style: normal;
+        font-weight: 600;
+      }
+
+      &-label p {
         color: #444;
       }
 
-      &-value {
+      &-value p {
         color: #767676;
       }
     }
