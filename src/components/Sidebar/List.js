@@ -84,7 +84,6 @@ class List extends React.Component {
           isSelected={isItemSelected || isChildSelected}
           styleProps={styleProps}
           inDropdown={inDropdown}
-          workspace={workspace}
         />
         {hasSubItems && this.renderSubList(item.items, isSubListExpanded, inDropdown, workspace)}
         {!isMobile && level === SidebarService.DROPDOWN_LEVEL && hasSubItems && (
