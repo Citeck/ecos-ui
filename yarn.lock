@@ -3188,6 +3188,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/flatpickr@npm:^3.1.4":
+  version: 3.1.4
+  resolution: "@types/flatpickr@npm:3.1.4"
+  dependencies:
+    flatpickr: "*"
+  checksum: 96d791e798104ca3cd19107cc687c342e9cb1330b5366381ab26e130a2226a2930e634b47f5e16536b314796257028c390f48be28a9bc163e82ce2760890b78c
+  languageName: node
+  linkType: hard
+
 "@types/graceful-fs@npm:^4.1.3":
   version: 4.1.9
   resolution: "@types/graceful-fs@npm:4.1.9"
@@ -6764,6 +6773,7 @@ __metadata:
     "@testing-library/react": ^16.2.0
     "@testing-library/react-hooks": ^8.0.1
     "@testing-library/user-event": ^14.6.1
+    "@types/flatpickr": ^3.1.4
     "@types/history": 4.7.11
     "@types/jest": ^29.5.14
     "@types/katex": ^0.16.7
@@ -6828,6 +6838,7 @@ __metadata:
     express: ^4.21.2
     fake-indexeddb: 4.0.2
     fetch-mock: 7.3.3
+    flatpickr: ^4.6.13
     font-awesome: 4.7.0
     formiojs: 3.30.1
     fscreen: 1.0.2
@@ -8319,7 +8330,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"flatpickr@npm:4.6.13":
+"flatpickr@npm:*, flatpickr@npm:4.6.13, flatpickr@npm:^4.6.13":
   version: 4.6.13
   resolution: "flatpickr@npm:4.6.13"
   checksum: 2cca1b8dc974e7673b51174ee3f0679ae3a6b79525a0c53bf49b87455ef358354e64acfd60b312e44cef208aab9750a1a48df32a0914046a53de6d9403742304
