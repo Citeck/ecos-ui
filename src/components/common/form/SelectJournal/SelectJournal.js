@@ -71,8 +71,6 @@ export default class SelectJournal extends Component {
     isLoading: false
   };
 
-  liveComponent = true;
-
   static getDerivedStateFromProps(props, state) {
     const newState = {};
 
@@ -120,6 +118,7 @@ export default class SelectJournal extends Component {
   }
 
   componentDidMount() {
+    this.liveComponent = true;
     const { defaultValue, multiple, isSelectModalOpen, initCustomPredicate } = this.props;
     const initValue = this.isQuery ? defaultValue : beArray(defaultValue);
 
