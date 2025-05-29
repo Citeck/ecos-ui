@@ -1,9 +1,10 @@
-import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
 import { t } from '../../../../../helpers/util';
 import {
   COLUMN_DATA_TYPE_ASSOC,
+  COLUMN_DATA_TYPE_BOOLEAN,
   COLUMN_DATA_TYPE_MLTEXT,
   COLUMN_DATA_TYPE_OPTIONS,
   COLUMN_DATA_TYPE_TEXT,
@@ -31,9 +32,8 @@ class Search extends Component {
             }
           ];
         } else {
-          const { allFields } = this.context;
-
-          const fieldsPredicates = allFields
+          const { fields } = this.context;
+          const fieldsPredicates = fields
             .filter(item => {
               return (
                 item.default &&
@@ -48,21 +48,22 @@ class Search extends Component {
               return {
                 att: item.attribute,
                 t: PREDICATE_CONTAINS,
-                val: e.target.value
+                val: item.predicateValue ? item.predicateValue : searchValue
               };
             });
 
+          const systemPredicate = fields.find(item => item.attribute === 'system');
+          const customPredicate = {
+            t: 'eq',
+            att: 'system',
+            val: systemPredicate.predicateValue ? systemPredicate.predicateValue : false
+          };
+
           if (fieldsPredicates.length > 0) {
-            predicates = [
-              {
-                t: 'or',
-                val: fieldsPredicates
-              }
-            ];
+            predicates = [customPredicate, { t: 'or', val: fieldsPredicates }];
           }
         }
       }
-
       onApply(predicates);
     }
   };

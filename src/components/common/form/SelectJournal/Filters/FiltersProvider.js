@@ -121,36 +121,14 @@ export default class FiltersProvider extends Component {
             });
           },
           changePredicate: (indexToChange, selectedPredicate) => {
-            this.setState(prevState => {
-              const changedElement = prevState.fields.splice(indexToChange, 1);
-
-              return {
-                fields: [
-                  ...prevState.fields.slice(0, indexToChange),
-                  {
-                    ...changedElement[0],
-                    selectedPredicate
-                  },
-                  ...prevState.fields.slice(indexToChange, prevState.fields.length)
-                ]
-              };
-            });
+            this.setState(prevState => ({
+              fields: prevState.fields.map((field, idx) => (idx === indexToChange ? { ...field, selectedPredicate } : field))
+            }));
           },
           changePredicateValue: (indexToChange, predicateValue) => {
-            this.setState(prevState => {
-              const changedElement = prevState.fields.splice(indexToChange, 1);
-
-              return {
-                fields: [
-                  ...prevState.fields.slice(0, indexToChange),
-                  {
-                    ...changedElement[0],
-                    predicateValue
-                  },
-                  ...prevState.fields.slice(indexToChange, prevState.fields.length)
-                ]
-              };
-            });
+            this.setState(prevState => ({
+              fields: prevState.fields.map((field, idx) => (idx === indexToChange ? { ...field, predicateValue } : field))
+            }));
           }
         }}
       >
