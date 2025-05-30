@@ -2,30 +2,46 @@ import aiAssistantContext, { CONTEXT_TYPES } from './AIAssistantContext';
 import aiAssistantService from './AIAssistantService';
 
 /**
- * Checks if the current page is a document page and initializes
- * the AI assistant context accordingly
+ * Clears document QA context if it's currently active
  */
-const initDocumentQAContext = () => {
-  if (aiAssistantService.isDocumentWithContent()) {
-    const recordRef = aiAssistantService.getRecordRefFromUrl();
-
-    if (recordRef) {
-      aiAssistantContext.setContext(
-        CONTEXT_TYPES.DOCUMENT_QA,
-        {}, // No special handlers needed for document QA
-        { recordRef }
-      );
-
-      return true;
-    }
-  }
-
-  // If this is not a document page or recordRef isn't valid, clear context if it was DOCUMENT_QA
+const clearDocumentQAContext = () => {
   if (aiAssistantContext.hasContextType(CONTEXT_TYPES.DOCUMENT_QA)) {
     aiAssistantContext.clearContext();
   }
+};
 
-  return false;
+/**
+ * Checks if the current page is a document page and initializes
+ * the AI assistant context accordingly
+ */
+const initDocumentQAContext = async () => {
+  try {
+    const hasContent = await aiAssistantService.isDocumentWithContent();
+
+    if (hasContent) {
+      const recordRef = aiAssistantService.getRecordRefFromUrl();
+
+      if (recordRef) {
+        aiAssistantContext.setContext(
+          CONTEXT_TYPES.DOCUMENT_QA,
+          {}, // No special handlers needed for document QA
+          { recordRef }
+        );
+
+        return true;
+      }
+    }
+
+    // If this is not a document page or recordRef isn't valid, clear context
+    clearDocumentQAContext();
+
+    return false;
+  } catch (error) {
+    console.error('Error initializing document QA context:', error);
+
+    clearDocumentQAContext();
+    return false;
+  }
 };
 
 // Check context on load and on URL changes

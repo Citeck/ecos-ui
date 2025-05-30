@@ -21,6 +21,10 @@ class AIAssistantService {
   }
 
   async isDocumentWithContent() {
+    if (this.isBpmnEditorPage()) {
+      return false;
+    }
+
    try {
       const recordRef = this.getRecordRefFromUrl();
       if (!recordRef) {
