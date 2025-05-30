@@ -60,6 +60,8 @@ const InputView = () => {
 
 const List = React.memo(
   props => {
+    const context = useContext(TableFormContext);
+
     const {
       wrapperRef,
       viewOnly,
@@ -88,7 +90,7 @@ const List = React.memo(
             onSelect={onSelectGridItem}
             selected={selectedRows}
             nonSelectable={nonSelectableRows.filter(item => rowsIds.includes(item))}
-            inlineTools={() => <InlineActions />}
+            inlineActions={rowId => <InlineActions rowId={rowId} context={context} />}
             onChangeTrOptions={setInlineToolsOffsets}
             className="ecos-table-form__grid"
             scrollable={false}
