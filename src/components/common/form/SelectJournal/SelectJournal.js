@@ -871,6 +871,7 @@ export default class SelectJournal extends Component {
       isSelectedValueAsText,
       isInlineEditingMode,
       isModalMode,
+      linkFormatter,
       viewMode
     } = this.props;
     const { journalConfig, selectedRows, error, gridData, value, isLoading } = this.state;
@@ -882,6 +883,7 @@ export default class SelectJournal extends Component {
       isCompact,
       multiple,
       placeholder,
+      linkFormatter,
       viewOnly,
       error,
       selectedRows: this.isQuery ? value : selectedRows,

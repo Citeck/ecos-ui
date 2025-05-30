@@ -1,13 +1,14 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import isEmpty from 'lodash/isEmpty';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
-import { t } from '../../../../../helpers/util';
-import { createDocumentUrl, getSelectedValueLink } from '../../../../../helpers/urls';
-import { DisplayModes } from '../../../../../forms/components/custom/selectJournal/constants';
 import { AssocLink } from '../../AssocLink';
-import { Labels } from '../constants';
 import InputView from '../InputView';
+import { Labels } from '../constants';
+
+import { DisplayModes } from '@/forms/components/custom/selectJournal/constants';
+import { createDocumentUrl, getSelectedValueLink, getWorkspaceId } from '@/helpers/urls';
+import { getEnabledWorkspaces, t } from '@/helpers/util';
 
 import './ViewMode.scss';
 
@@ -17,7 +18,18 @@ class ViewMode extends Component {
   }
 
   render() {
-    const { selectedRows, selectedQueryInfo, placeholder, isSelectedValueAsText } = this.props;
+    const { selectedRows, selectedQueryInfo, placeholder, isSelectedValueAsText, linkFormatter } = this.props;
+    const currentWorkspaceId = getWorkspaceId();
+    const enabledWorkspaces = getEnabledWorkspaces();
+
+    let formatterFunc = null;
+    if (linkFormatter && typeof linkFormatter === 'string') {
+      try {
+        formatterFunc = eval(`(${linkFormatter})`);
+      } catch (err) {
+        console.error('[SelectJournal] Error when parsing the link Formatter:', err);
+      }
+    }
 
     if (selectedQueryInfo) {
       return <p>{selectedQueryInfo}</p>;
@@ -34,8 +46,29 @@ class ViewMode extends Component {
             const props = {};
 
             if (!isSelectedValueAsText) {
-              props.link = createDocumentUrl(getSelectedValueLink(item));
+              let link = getSelectedValueLink(item);
+              if (formatterFunc) {
+                try {
+                  link = formatterFunc(link);
+                } catch (err) {
+                  console.error('[SelectJournal] Error in linkFormatter method:', err);
+                }
+              } else {
+                link = createDocumentUrl(link);
+              }
+
+              props.link = link;
               props.paramsLink = { openNewBrowserTab: false };
+
+              const newUrl = new URL(link, window.location.origin);
+              const searchParams = new URLSearchParams(newUrl.search);
+
+              if (enabledWorkspaces && currentWorkspaceId !== searchParams.get('ws')) {
+                props.paramsLink = {
+                  ...props.paramsLink,
+                  workspaceId: searchParams.get('ws')
+                };
+              }
             }
 
             return (
@@ -61,7 +94,8 @@ ViewMode.propTypes = {
   isCompact: PropTypes.bool,
   editValue: PropTypes.func,
   deleteValue: PropTypes.func,
-  openSelectModal: PropTypes.func
+  openSelectModal: PropTypes.func,
+  linkFormatter: PropTypes.string
 };
 
 export default ViewMode;
