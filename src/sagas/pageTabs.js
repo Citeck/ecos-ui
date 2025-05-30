@@ -160,7 +160,7 @@ function* sagaSetOneTab({ api }, { payload }) {
 
     const tab = PageTabList.setTab(dataTab, params);
 
-    if (tab.isActive && tab.link) {
+    if (tab.isActive && tab.link && !dataTab.needUpdateTabs) {
       yield put(push(tab.link));
     }
 
