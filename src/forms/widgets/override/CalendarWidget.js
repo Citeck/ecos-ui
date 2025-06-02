@@ -2,6 +2,7 @@ import Flatpickr from 'flatpickr';
 import l10n from 'flatpickr/dist/l10n';
 import { convertFormatToMask, convertFormatToMoment } from 'formiojs/utils/utils';
 import FormIOCalendarWidget from 'formiojs/widgets/CalendarWidget';
+import get from 'lodash/get';
 import moment from 'moment';
 
 import { DateFormats } from '@/constants';
@@ -38,6 +39,24 @@ export default class CalendarWidget extends FormIOCalendarWidget {
     return value;
   }
 
+  resetStateCalendar = (selected, instance) => {
+    const calendar = instance || this.calendar;
+    const selectedDates = selected || get(calendar, 'selectedDates');
+
+    if (calendar && selectedDates) {
+      if (selectedDates.length === 0) {
+        calendar.jumpToDate(new Date(), true);
+      } else {
+        const selectedDate = selectedDates[0];
+        const currentMonth = calendar.currentMonth;
+        const currentYear = calendar.currentYear;
+        if (selectedDate.getMonth() !== currentMonth || selectedDate.getFullYear() !== currentYear) {
+          calendar.jumpToDate(selectedDate, true);
+        }
+      }
+    }
+  };
+
   attach(input) {
     // Cause: https://citeck.atlassian.net/browse/ECOSUI-795
     this.settings.disableMobile = 'true';
@@ -57,6 +76,10 @@ export default class CalendarWidget extends FormIOCalendarWidget {
       }
 
       moment.locale(currentLocale);
+    };
+
+    this.settings.onClose = (selectedDates, dateStr, instance) => {
+      this.resetStateCalendar(selectedDates, instance);
     };
 
     super.attach(input);
@@ -105,6 +128,7 @@ export default class CalendarWidget extends FormIOCalendarWidget {
           !this.calendar.calendarContainer.contains(event.target) &&
           (!icon || (icon && !icon.contains(event.target)))
         ) {
+          this.resetStateCalendar();
           this.calendar.close();
         }
       };
