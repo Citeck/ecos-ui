@@ -334,6 +334,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
       multiple: comp.multiple,
       placeholder: getTextByLocale(comp.placeholder),
       disabled: comp.disabled,
+      linkFormatter: comp.linkFormatter,
       viewOnly: this.viewOnly,
       viewMode: comp.source.viewMode,
       customValues: SelectJournalComponent.getCustomValues(comp),

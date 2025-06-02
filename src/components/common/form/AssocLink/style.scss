@@ -12,6 +12,8 @@
   text-overflow: ellipsis;
   padding-right: 5px;
   width: calc(100% - 20px);
+  color: $color-blue-dark;
+  cursor: pointer;
 }
 
 .assoc-extra-data {
