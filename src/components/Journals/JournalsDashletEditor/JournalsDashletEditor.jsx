@@ -94,7 +94,7 @@ class JournalsDashletEditor extends Component {
     isCustomJournalMode: false
   });
 
-  #dataInit = false;
+  _dataInit;
 
   constructor(props) {
     super(props);
@@ -107,6 +107,7 @@ class JournalsDashletEditor extends Component {
   }
 
   componentDidMount() {
+    this._dataInit = false;
     const { config, getDashletEditorData } = this.props;
 
     getDashletEditorData(config);
@@ -185,7 +186,7 @@ class JournalsDashletEditor extends Component {
     const newState = {};
     const config = this.props.config;
 
-    if (!isEmpty(config) && !this.#dataInit) {
+    if (!isEmpty(config) && !this._dataInit) {
       if (!isUndefined(config.journalsListIds) && !isEqual(config.journalsListIds, this.state.selectedJournals)) {
         newState.selectedJournals = config.journalsListIds;
       }
@@ -212,7 +213,7 @@ class JournalsDashletEditor extends Component {
     }
 
     if (!isEmpty(newState)) {
-      this.#dataInit = true;
+      this._dataInit = true;
       this.setState(newState);
     }
   }
@@ -400,14 +401,14 @@ class JournalsDashletEditor extends Component {
           <GoToButton isSmall={this.isSmall} value={goToButtonName} onChange={this.handleChangeGoToButtonName} />
 
           {!!recordRef &&
-            selectedJournals?.length &&
+            !!selectedJournals?.length &&
             selectedJournals.map(journalId => (
               <LinkedAttributesSelect
                 key={journalId}
                 typeRef={typeRef}
                 journalId={journalId}
                 onChange={settings => this.onChangeLinkedSettings(settings, journalId)}
-                isOnlyLinked={get(isOnlyLinkedJournals, [this.getDispJournalId(journalId)], [])}
+                isOnlyLinked={get(isOnlyLinkedJournals, [this.getDispJournalId(journalId)], false)}
                 attrsToLoad={get(attrsToLoad, [this.getDispJournalId(journalId)], [])}
               />
             ))}
