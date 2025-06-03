@@ -1,22 +1,24 @@
-import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
+import ReactDOM from 'react-dom';
 
-import { getId, handleCloseMenuOnScroll, t } from '../../../helpers/util';
+import { Filter, FiltersCondition } from '../';
+import { getPredicate, PREDICATE_LIST_WITH_CLEARED_VALUES } from '../../Records/predicates/predicates';
+import Popper from '../../common/Popper';
 import { IcoBtn } from '../../common/btns';
 import { Select, Well } from '../../common/form';
-import { getPredicate, PREDICATE_LIST_WITH_CLEARED_VALUES } from '../../Records/predicates/predicates';
-import ZIndex from '../../../services/ZIndex';
 import { ParserPredicate } from '../predicates';
-import { Filter, FiltersCondition } from '../';
+
 import ListItem from './ListItem';
 
+import { getId, handleCloseMenuOnScroll, t } from '@/helpers/util';
+import ZIndex from '@/services/ZIndex';
+
 import './FiltersGroup.scss';
-import Popper from '../../common/Popper';
 
 export default class FiltersGroup extends Component {
   #filters = new Map();
@@ -176,6 +178,7 @@ export default class FiltersGroup extends Component {
     const { className, columns, first, group, index, droppableIdPrefix = '_', sourceId, metaRecord, textEmpty, needUpdate } = this.props;
     const groupConditions = ParserPredicate.getGroupConditions();
     const droppableId = `${droppableIdPrefix}${index}`;
+    const zIndex = ZIndex.calcZ();
 
     return (
       <Well className={classNames('ecos-filters-group', className)}>
@@ -202,7 +205,7 @@ export default class FiltersGroup extends Component {
               getOptionValue={option => option.attribute}
               onChange={this.handleAddFilter}
               styles={{
-                menuPortal: base => ({ ...base, zIndex: ZIndex.calcZ() + 1 }),
+                menuPortal: base => ({ ...base, zIndex }),
                 placeholder: base => ({ ...base, width: '100%' })
               }}
               menuPortalTarget={document.body}
@@ -220,7 +223,7 @@ export default class FiltersGroup extends Component {
                 getOptionValue={option => option.value}
                 onChange={this.handleAddGroup}
                 styles={{
-                  menuPortal: base => ({ ...base, zIndex: ZIndex.calcZ() + 1 }),
+                  menuPortal: base => ({ ...base, zIndex }),
                   placeholder: base => ({ ...base, width: '100%' })
                 }}
                 menuPortalTarget={document.body}
