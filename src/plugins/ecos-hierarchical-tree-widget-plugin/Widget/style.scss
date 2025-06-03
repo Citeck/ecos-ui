@@ -27,6 +27,11 @@
       font-size: 18px;
       font-weight: 700;
       color: #767676;
+
+      &:hover {
+        color: #7396CD;
+        cursor: pointer;
+      }
     }
   }
 

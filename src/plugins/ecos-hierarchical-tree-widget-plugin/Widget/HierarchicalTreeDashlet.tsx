@@ -181,7 +181,13 @@ const HierarchicalTreeWidget = ({ record: initialRecordRef }: { record: string }
   return (
     <div className="ecos-hierarchical-tree-widget">
       <div className="ecos-hierarchical-tree-widget-header">
-        <h4>{t(Labels.TITLE)}</h4>
+        <h4 onClick={(e) => {
+          e.stopPropagation();
+
+          updateCurrentUrl({
+            recordRef: `emodel/wiki@${getWorkspaceId()}$ROOT`
+          });
+        }}>{t(Labels.TITLE)}</h4>
         <Tooltip uncontrolled text={t(Labels.ADD_GROUP)} target={tooltipId} off={isMobileDevice()}>
           <div id={tooltipId} className="ecos-hierarchical-tree-widget__structure__bnt-create" onClick={() => create()}>
             <Icon className="icon-plus" />
