@@ -88,9 +88,12 @@
         position: relative;
 
         summary {
+          border-radius: 6px;
+
           &:hover {
             div.tree-actions {
               display: block;
+              top: 5px;
 
               i::before {
                 opacity: 1;
@@ -105,12 +108,31 @@
 
         summary {
           display: flex;
-          padding: 8px 0;
+          padding: 8px 10px;
           align-items: center;
+
+          &:hover {
+            background: #EEF0F8;
+          }
         }
 
         &__active {
           color: #7396CD;
+
+          summary::before {
+            color: #7396CD !important;
+          }
+        }
+
+        &__no-children {
+          summary::before {
+            display: flex;
+            align-items: center;
+            background: none !important;
+            font-size: medium;
+            color: #767676;
+            content: ' •';
+          }
         }
       }
 

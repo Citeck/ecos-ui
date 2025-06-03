@@ -277,7 +277,8 @@ const HierarchicalTreeWidget = ({ record: initialRecordRef }: { record: string }
               <li
                 key={record.id}
                 className={classNames('parent-tree', {
-                  'parent-tree__active': recordRef && recordRef.includes(record.id)
+                  'parent-tree__active': recordRef && recordRef.includes(record.id),
+                  'parent-tree__no-children': !record.children || record.children.length === 0,
                 })}
                 onClick={e => {
                   e.stopPropagation();
