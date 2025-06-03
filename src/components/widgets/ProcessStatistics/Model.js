@@ -119,7 +119,9 @@ class Model extends React.Component {
           isHeatmapMounted: false,
         },
         () => {
-          this.designer.heatmap.destroy();
+          if (get(this.designer, 'heatmap')) {
+            this.designer.heatmap.destroy();
+          }
           showHeatmapDefault ? this.renderHeatmap() : this.switchHeatMapOff();
           this.renderBadges();
         },
