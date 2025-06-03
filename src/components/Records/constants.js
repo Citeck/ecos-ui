@@ -10,3 +10,5 @@ export const GATEWAY_URL_MAP = {
   [MUTATE_URL]: '/share/api/records/mutate',
   [DELETE_URL]: '/share/api/records/delete'
 };
+
+export const PERMISSION_WRITE_ATTR = 'permissions._has.Write?bool!true';
