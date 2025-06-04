@@ -1209,7 +1209,13 @@ function* sagaSaveRecords({ api, stateId, w }, action) {
       const record = yield Records.get(id);
       for (const att in attributes) {
         if (attributes.hasOwnProperty(att)) {
-          record.att(att, attributes[att]);
+          const attributeValue = attributes[att];
+
+          if (isObject(attributeValue) && !!get(attributeValue, 'value')) {
+            record.att(att, attributeValue.value);
+          } else {
+            record.att(att, attributeValue);
+          }
         }
       }
       yield record.save();
