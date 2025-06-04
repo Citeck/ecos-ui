@@ -400,7 +400,8 @@
       &_inline {
         & > div dt,
         dd {
-          width: max-content !important;
+          position: relative;
+          width: 100%;
         }
 
         & > div dl {
