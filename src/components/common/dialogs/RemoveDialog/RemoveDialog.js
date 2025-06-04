@@ -1,11 +1,12 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import isFunction from 'lodash/isFunction';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
-import { t } from '../../../../helpers/util';
 import EcosModal from '../../EcosModal/EcosModal';
 import { Btn } from '../../btns';
+
+import { t } from '@/helpers/util';
 
 import './RemoveDialog.scss';
 
@@ -36,7 +37,15 @@ class RemoveDialog extends Component {
     const footerCssClasses = classNames('ecos-remove-dialog__footer', footerClassName);
 
     return (
-      <EcosModal title={title} isOpen={isOpen} isLoading={isLoading} hideModal={this.onClose} className={cssClasses} autoFocus>
+      <EcosModal
+        title={title}
+        isOpen={isOpen}
+        isLoading={isLoading}
+        hideModal={this.onClose}
+        className={cssClasses}
+        autoFocus
+        isPriorityModal
+      >
         <div ref={dialogRef} className={bodyCssClasses}>
           {text}
         </div>

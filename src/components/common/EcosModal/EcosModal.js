@@ -46,7 +46,7 @@ export default class EcosModal extends Component {
 
     newState = {
       ...newState,
-      zIndexCalc: ZIndex.calcZ()
+      zIndexCalc: props.isPriorityModal ? ZIndex.calcZ() + 2 : ZIndex.calcZ()
     };
 
     return newState;
@@ -77,7 +77,7 @@ export default class EcosModal extends Component {
       return;
     }
 
-    const zIndex = ZIndex.calcZ();
+    const zIndex = this.props.isPriorityModal ? ZIndex.calcZ() + 2 : ZIndex.calcZ();
     if (zIndex !== this.state.zIndexCalc) {
       this.setState({ zIndexCalc: zIndex });
     }
@@ -217,6 +217,7 @@ EcosModal.propTypes = {
   classNameHeader: PropTypes.string,
   classNameBody: PropTypes.string,
   isBigHeader: PropTypes.bool,
+  isPriorityModal: PropTypes.bool,
   isTopDivider: PropTypes.bool,
   isOpen: PropTypes.bool,
   isLoading: PropTypes.bool,
