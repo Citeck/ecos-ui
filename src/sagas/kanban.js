@@ -444,15 +444,15 @@ export function* sagaMoveCard({ api }, { payload }) {
       set(dataCards, [toColumnIndex, 'records'], []);
       set(dataCards, [toColumnIndex, 'totalCount'], 0);
     }
-
     const card = get(deleted, [0], {});
     const recordRef = card.id || card.cardId;
 
     dataCards[toColumnIndex].records.unshift(card);
     dataCards[toColumnIndex].totalCount += 1;
 
-    yield put(setDataCards({ stateId, dataCards }));
     const result = yield call(api.kanban.moveRecord, { recordRef, columnId: toColumnRef });
+
+    yield put(setDataCards({ stateId, dataCards }));
 
     if (get(result, 'id') !== recordRef) {
       throw new Error('Incorrect move result');
