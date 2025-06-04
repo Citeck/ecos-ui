@@ -1,20 +1,16 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import List from './List';
 
 import { InfoText, Loader } from '@/components/common';
-import { ROOT_GROUP_NAME } from '@/components/common/Orgstruct/constants';
-import { SourcesId } from '@/constants';
 import { t } from '@/helpers/util';
 
 import './Body.scss';
 
 const Body = ({ currentTab, tabId, toggleToFirstTab, tabItems, isSearching = false }) => {
-  const children = useMemo(
-    () => tabItems[currentTab].filter(item => item.attributes.groups.includes(`${SourcesId.GROUP}@${ROOT_GROUP_NAME}`)),
-    [tabItems, currentTab]
-  );
+  const children = tabItems[currentTab];
+
   const renderView = props => {
     return <div {...props} style={{ ...props.style, marginBottom: '140px' }} />;
   };
