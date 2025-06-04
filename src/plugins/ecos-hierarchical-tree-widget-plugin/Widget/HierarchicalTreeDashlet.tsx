@@ -181,13 +181,17 @@ const HierarchicalTreeWidget = ({ record: initialRecordRef }: { record: string }
   return (
     <div className="ecos-hierarchical-tree-widget">
       <div className="ecos-hierarchical-tree-widget-header">
-        <h4 onClick={(e) => {
-          e.stopPropagation();
+        <h4
+          onClick={e => {
+            e.stopPropagation();
 
-          updateCurrentUrl({
-            recordRef: `emodel/wiki@${getWorkspaceId()}$ROOT`
-          });
-        }}>{t(Labels.TITLE)}</h4>
+            updateCurrentUrl({
+              recordRef: `emodel/wiki@${getWorkspaceId()}$ROOT`
+            });
+          }}
+        >
+          {t(Labels.TITLE)}
+        </h4>
         <Tooltip uncontrolled text={t(Labels.ADD_GROUP)} target={tooltipId} off={isMobileDevice()}>
           <div id={tooltipId} className="ecos-hierarchical-tree-widget__structure__bnt-create" onClick={() => create()}>
             <Icon className="icon-plus" />
@@ -284,7 +288,7 @@ const HierarchicalTreeWidget = ({ record: initialRecordRef }: { record: string }
                 key={record.id}
                 className={classNames('parent-tree', {
                   'parent-tree__active': recordRef && recordRef.includes(record.id),
-                  'parent-tree__no-children': !record.children || record.children.length === 0,
+                  'parent-tree__no-children': !record.children || record.children.length === 0
                 })}
                 onClick={e => {
                   e.stopPropagation();

@@ -512,6 +512,7 @@
   "kanban.label.big-total": "Всего: {{count}}",
   "kanban.label.no-columns": "Колонки не настроены",
   "kanban.label.columns-sum": "Общая сумма",
+  "kanban.label.columns-sum.by": "Сумма по полю",
   "kanban.label.no-card": "Нет карточек",
   "kanban.label.no-name": "Нет названия",
   "kanban.label.board-list": "Список досок",

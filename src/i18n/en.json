@@ -562,6 +562,7 @@
   "kanban.label.big-total": "Total: {{count}}",
   "kanban.label.no-columns": "Columns not configured",
   "kanban.label.columns-sum": "Total",
+  "kanban.label.columns-sum.by": "Total by",
   "kanban.label.no-card": "No Card",
   "kanban.label.no-name": "No Name",
   "kanban.label.board-list": "Board List",
