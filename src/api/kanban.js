@@ -17,6 +17,7 @@ export class KanbanApi {
         journalRef: 'journalRef?id',
         name: 'name',
         disableTitle: 'disableTitle?bool!false',
+        cardTitleTemplate: 'cardTitleTemplate?str!',
         cardFieldsLabelLayout: 'cardFieldsLabelLayout?str!TOP',
         typeRef: 'typeRef?id',
         readOnly: 'readOnly?bool!true'
