@@ -2,9 +2,9 @@ import AIAssistantButton from './AIAssistantButton';
 import AIAssistantChat from './AIAssistantChat';
 import aiAssistantContext, { CONTEXT_TYPES } from './AIAssistantContext';
 import aiAssistantService from './AIAssistantService';
-import { setupDocumentQAContextObserver } from './DocumentQAInitializer';
+import { setupBPMNContextObserver } from './BPMNInitializer';
 
-setupDocumentQAContextObserver();
+setupBPMNContextObserver();
 
 export {
   AIAssistantButton,

@@ -105,9 +105,9 @@ const runApp = () => {
                 createRoot(document.getElementById('root') as HTMLElement).render(
                   <Provider store={store}>
                     <ConnectedRouter history={history}>
-                      <StrictMode>
+                      {/*<StrictMode>*/}
                         <App />
-                      </StrictMode>
+                      {/*</StrictMode>*/}
                     </ConnectedRouter>
                   </Provider>
                 );

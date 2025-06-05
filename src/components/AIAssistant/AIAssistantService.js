@@ -1,5 +1,6 @@
 import aiAssistantContext, { CONTEXT_TYPES } from './AIAssistantContext';
 import Records from '../Records';
+import { getRecordRef } from '@/helpers/urls';
 
 const BPMN_EDITOR_URL_PATTERN = /\/bpmn-editor/;
 
@@ -15,18 +16,13 @@ class AIAssistantService {
     return BPMN_EDITOR_URL_PATTERN.test(window.location.pathname);
   }
 
-  getRecordRefFromUrl() {
-    const match = window.location.href.match(/recordRef=([\w-/]+@[\w-]+)/);
-    return match ? match[1] : null;
-  }
-
   async isDocumentWithContent() {
     if (this.isBpmnEditorPage()) {
       return false;
     }
 
    try {
-      const recordRef = this.getRecordRefFromUrl();
+      const recordRef = getRecordRef()
       if (!recordRef) {
         return false;
       }
@@ -40,22 +36,12 @@ class AIAssistantService {
   }
 
   async isAvailable() {
-    if (this.isBpmnEditorPage()) {
-      return aiAssistantContext.hasContext();
-    }
-
-    const hasContent = await this.isDocumentWithContent();
-    return hasContent && aiAssistantContext.hasContext();
+    // TODO: check enterprise ai feature
+    return true;
   }
 
   async toggleChat() {
-    if (!this.isOpen) {
-      const isAvailable = await this.isAvailable();
-      if (!isAvailable) {
-        return false;
-      }
-    }
-
+    // Always allow opening the chat - universal assistant is always available
     if (!this.isOpen) {
       this.isOpen = true;
       this.isMinimized = false;
