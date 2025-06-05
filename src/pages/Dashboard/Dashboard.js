@@ -183,6 +183,10 @@ class Dashboard extends Component {
       this.toggleTabLayoutFromUrl();
     }
 
+    if (prevState.urlParams !== urlParams) {
+      this.setState({ urlParams });
+    }
+
     if (needGetConfig || (!prevProps.tabId && tabId) || (enableCache && prevProps.stateKey !== stateKey)) {
       if (isMobile) {
         resetDashboardConfig();
@@ -586,7 +590,7 @@ class Dashboard extends Component {
     } = this.props;
     const { recordRef } = this.getPathInfo();
 
-    let title = null;
+    let title;
 
     switch (dashboardType) {
       case DashboardTypes.CASE_DETAILS:

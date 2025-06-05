@@ -6,8 +6,8 @@ import { AssocLink } from '../../AssocLink';
 import InputView from '../InputView';
 import { Labels } from '../constants';
 
+import { getFormattedLink, getFormatter } from '@/components/common/form/SelectJournal/helpers';
 import { DisplayModes } from '@/forms/components/custom/selectJournal/constants';
-import { createDocumentUrl, getSelectedValueLink, getWorkspaceId } from '@/helpers/urls';
 import { getEnabledWorkspaces, t } from '@/helpers/util';
 
 import './ViewMode.scss';
@@ -19,17 +19,9 @@ class ViewMode extends Component {
 
   render() {
     const { selectedRows, selectedQueryInfo, placeholder, isSelectedValueAsText, linkFormatter } = this.props;
-    const currentWorkspaceId = getWorkspaceId();
     const enabledWorkspaces = getEnabledWorkspaces();
 
-    let formatterFunc = null;
-    if (linkFormatter && typeof linkFormatter === 'string') {
-      try {
-        formatterFunc = eval(`(${linkFormatter})`);
-      } catch (err) {
-        console.error('[SelectJournal] Error when parsing the link Formatter:', err);
-      }
-    }
+    const formatterFunc = getFormatter(linkFormatter);
 
     if (selectedQueryInfo) {
       return <p>{selectedQueryInfo}</p>;
@@ -46,16 +38,10 @@ class ViewMode extends Component {
             const props = {};
 
             if (!isSelectedValueAsText) {
-              let link = getSelectedValueLink(item);
-              if (formatterFunc) {
-                try {
-                  link = formatterFunc(link);
-                } catch (err) {
-                  console.error('[SelectJournal] Error in linkFormatter method:', err);
-                }
-              } else {
-                link = createDocumentUrl(link);
-              }
+              const link = getFormattedLink({
+                item,
+                formatterFunc
+              });
 
               props.link = link;
               props.paramsLink = { openNewBrowserTab: false };
@@ -63,7 +49,7 @@ class ViewMode extends Component {
               const newUrl = new URL(link, window.location.origin);
               const searchParams = new URLSearchParams(newUrl.search);
 
-              if (enabledWorkspaces && currentWorkspaceId !== searchParams.get('ws')) {
+              if (enabledWorkspaces) {
                 props.paramsLink = {
                   ...props.paramsLink,
                   workspaceId: searchParams.get('ws')
