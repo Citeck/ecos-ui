@@ -60,6 +60,7 @@ export class OrgStructApi extends CommonApi {
       canEdit: 'permissions._has.Write?bool',
       firstName: 'firstName',
       lastName: 'lastName',
+      middleName: 'middleName',
       nodeRef: '?id',
       authorityType: `authorityType!"${AUTHORITY_TYPE_USER}"`,
       photo: 'avatar.url',
