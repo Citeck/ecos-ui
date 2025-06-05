@@ -1,7 +1,17 @@
 import PropTypes from 'prop-types';
 
+export const CreateVariantPropTypes = {
+  recordRef: PropTypes.string,
+  formKey: PropTypes.string,
+  formRef: PropTypes.string,
+  type: PropTypes.string,
+  sourceId: PropTypes.string,
+  typeRef: PropTypes.string,
+  attributes: PropTypes.object
+};
+
 export default {
-  createVariants: PropTypes.array,
+  createVariants: PropTypes.arrayOf(PropTypes.shape(CreateVariantPropTypes)),
   columns: PropTypes.array,
   error: PropTypes.any,
   defaultValue: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.string]),
@@ -18,11 +28,15 @@ export default {
   viewOnly: PropTypes.bool,
   parentForm: PropTypes.object,
   triggerEventOnTableChange: PropTypes.func,
+  isUsedJournalActions: PropTypes.bool,
+  journalActions: PropTypes.object,
   displayElements: PropTypes.shape({
     create: PropTypes.bool,
     view: PropTypes.bool,
     edit: PropTypes.bool,
-    delete: PropTypes.bool
+    delete: PropTypes.bool,
+    clone: PropTypes.bool,
+    preview: PropTypes.bool
   }),
   nonSelectableRows: PropTypes.array,
   importButton: PropTypes.shape({

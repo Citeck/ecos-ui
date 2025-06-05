@@ -1,10 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
+
 import { TableFormContext } from '../../TableFormContext';
 import EcosForm from '../../../../../EcosForm/EcosForm';
-import { FORM_MODE_CLONE, FORM_MODE_CREATE, FORM_MODE_EDIT, FORM_MODE_VIEW } from '../../../../../EcosForm/constants';
+import { FORM_MODE_CLONE, FORM_MODE_CREATE, FORM_MODE_EDIT, FORM_MODE_VIEW } from '../../../../../EcosForm';
 import EcosModal from '../../../../EcosModal';
 import { t } from '../../../../../../helpers/util';
 import Records from '../../../../../Records';
+import useIsMounted from '../../../../../../hooks/useIsMounted';
 
 const ModalForm = () => {
   const context = useContext(TableFormContext);
@@ -23,7 +25,7 @@ const ModalForm = () => {
     rowPosition
   } = context;
   const { parentForm, isStaticModalTitle, customStringForConcatWithStaticTitle } = controlProps;
-
+  const isMounted = useIsMounted();
   const [displayName, setDisplayName] = useState('');
   useEffect(() => {
     if (isStaticModalTitle) {
@@ -32,12 +34,16 @@ const ModalForm = () => {
       }
       return;
     }
+
     Records.get(record)
       .load('.disp')
-      .then(disp => setDisplayName(disp));
+      .then(disp => {
+        isMounted() && setDisplayName(disp);
+      });
   }, [record, setDisplayName, customStringForConcatWithStaticTitle]);
 
   let title = '';
+
   switch (formMode) {
     case FORM_MODE_VIEW:
       title = t('ecos-table-form.view-modal.title');
@@ -59,7 +65,7 @@ const ModalForm = () => {
     title = `${title}: ${displayName}`;
   }
 
-  let { recordRef, attributes, formKey, type } = createVariant || {};
+  let { recordRef, attributes, formKey, type, sourceId, typeRef, formRef } = createVariant || {};
 
   if (record && computed && computed.valueFormKey) {
     formKey = computed.valueFormKey(record);
@@ -69,6 +75,10 @@ const ModalForm = () => {
     recordRef = 'dict@' + type;
   }
 
+  if (!recordRef && !record && sourceId) {
+    recordRef = `${sourceId}@`;
+  }
+
   let recordForForm = recordRef || record;
 
   const formOptions = {
@@ -76,6 +86,10 @@ const ModalForm = () => {
     formMode: formMode === FORM_MODE_EDIT ? FORM_MODE_EDIT : FORM_MODE_CREATE,
     rowPosition
   };
+
+  if (typeRef) {
+    formOptions.typeRef = typeRef;
+  }
 
   if (isViewOnlyForm) {
     formOptions.readOnly = true;
@@ -109,6 +123,7 @@ const ModalForm = () => {
           hideModal={toggleModal}
         >
           <EcosForm
+            formId={formRef}
             record={recordForForm}
             clonedRecord={clonedRecord}
             formKey={formKey}

@@ -3,10 +3,10 @@ import classNames from 'classnames';
 
 import { TMP_ICON_EMPTY } from '../../../../constants';
 import { IcoBtn } from '../../btns';
-import Tooltip from '../../Tooltip';
+import { Tooltip } from '../../index';
 import { baseModifiers } from '../../Tooltip';
 
-export const renderAction = (action, idx, withTooltip = false, modifiers = []) => {
+export const renderAction = (action, idx, withTooltip = false, modifiers = {}) => {
   if (action.hidden) {
     return null;
   }
@@ -23,7 +23,16 @@ export const renderAction = (action, idx, withTooltip = false, modifiers = []) =
   }
 
   return (
-    <Tooltip key={idx} target={id} uncontrolled text={action.name} modifiers={[...baseModifiers, ...modifiers]}>
+    <Tooltip
+      key={idx}
+      target={id}
+      uncontrolled
+      text={action.name}
+      modifiers={{
+        ...baseModifiers,
+        ...modifiers
+      }}
+    >
       <IcoBtn id={id} icon={icon} onClick={action.onClick} className={classes} />
     </Tooltip>
   );

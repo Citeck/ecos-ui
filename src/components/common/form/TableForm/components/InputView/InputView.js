@@ -1,19 +1,23 @@
 import React, { useContext, useEffect, useRef } from 'react';
-import classNames from 'classnames';
-import isEqual from 'lodash/isEqual';
 
-import { t } from '../../../../../../helpers/util';
-import Grid from '../../../../grid/Grid';
 import { TableFormContext } from '../../TableFormContext';
 import CreateVariants from '../CreateVariants';
 import ImportButton from '../ImportButton';
-import InlineActions from './InlineActions';
+import List from './List';
 
 import './InputView.scss';
 
 const InputView = () => {
   const context = useContext(TableFormContext);
-  const { placeholder, viewOnly, isSelectableRows, nonSelectableRows, selectedRows, noColHeaders } = context.controlProps;
+  const {
+    placeholder,
+    viewOnly,
+    isSelectableRows,
+    nonSelectableRows,
+    selectedRows,
+    noColHeaders,
+    noHorizontalScroll
+  } = context.controlProps;
   const { gridRows, columns, error, setInlineToolsOffsets, onSelectGridItem } = context;
   const wrapperRef = useRef(null);
 
@@ -46,6 +50,7 @@ const InputView = () => {
         nonSelectableRows={nonSelectableRows}
         setInlineToolsOffsets={setInlineToolsOffsets}
         noHeader={noColHeaders}
+        noHorizontalScroll={noHorizontalScroll}
       />
       {!error && (
         <div className="ecos-table-form__buttons-wrapper">
@@ -57,64 +62,5 @@ const InputView = () => {
     </div>
   );
 };
-
-const List = React.memo(
-  props => {
-    const context = useContext(TableFormContext);
-
-    const {
-      wrapperRef,
-      viewOnly,
-      placeholder,
-      gridRows = [],
-      columns,
-      isSelectableRows,
-      onSelectGridItem,
-      selectedRows,
-      nonSelectableRows,
-      setInlineToolsOffsets,
-      noHeader
-    } = props;
-    const placeholderText = placeholder ? placeholder : t('ecos-table-form.placeholder');
-    const rowsIds = gridRows.map(i => i.id);
-
-    return (
-      <>
-        <div ref={wrapperRef} className="ecos-table-form__grid-wrapper" hidden={!gridRows.length}>
-          <Grid
-            data={gridRows}
-            columns={columns}
-            total={gridRows.length}
-            singleSelectable={false}
-            multiSelectable={!viewOnly && isSelectableRows}
-            onSelect={onSelectGridItem}
-            selected={selectedRows}
-            nonSelectable={nonSelectableRows.filter(item => rowsIds.includes(item))}
-            inlineActions={rowId => <InlineActions rowId={rowId} context={context} />}
-            onChangeTrOptions={setInlineToolsOffsets}
-            className="ecos-table-form__grid"
-            scrollable={false}
-            noHeader={noHeader}
-            noTopBorder={noHeader}
-          />
-        </div>
-        {!gridRows.length && (
-          <p className={classNames('ecos-table-form__value-not-selected', { 'ecos-table-form__value-not-selected_view-only': viewOnly })}>
-            {placeholderText}
-          </p>
-        )}
-      </>
-    );
-  },
-  (prevProps, nextProps) => {
-    return (
-      isEqual(nextProps.columns, prevProps.columns) &&
-      isEqual(nextProps.gridRows, prevProps.gridRows) &&
-      isEqual(nextProps.selectedRows, prevProps.selectedRows) &&
-      isEqual(nextProps.nonSelectableRows, prevProps.nonSelectableRows) &&
-      nextProps.isSelectableRows === prevProps.isSelectableRows
-    );
-  }
-);
 
 export default InputView;

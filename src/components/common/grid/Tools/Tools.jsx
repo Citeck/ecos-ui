@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
-import { Btn } from '../../btns';
-import { t, trigger } from '../../../../helpers/util';
 import classNames from 'classnames';
+import isFunction from 'lodash/isFunction';
+
+import { t } from '../../../../helpers/util';
+import { Btn } from '../../btns';
 
 import './Tools.scss';
 
@@ -14,29 +16,32 @@ export default class Tools extends Component {
     ));
   };
 
-  selectAll = () => {
-    trigger.call(this, 'onSelectAll');
-  };
+  selectAll = () => this.props.onSelectAll();
+  resetAll = () => this.props.onResetAll();
 
   render() {
-    const { selectAllVisible, selectAll, total, className, forwardedRef } = this.props;
+    const { selectAllVisible, selectedRecords, total, className, forwardedRef, isMobile } = this.props;
 
     return (
       <div ref={forwardedRef} className={classNames('grid-tools', className)}>
-        {selectAllVisible ? (
-          <div className={'grid-tools__item grid-tools__item_select-all'}>
-            <Btn
-              className={`ecos-btn_extra-narrow ${
-                selectAll ? 'ecos-btn_blue' : 'ecos-btn_grey5'
-              } grid-tools__item_select-all-btn ecos-btn_hover_light-blue2`}
-              title={t('grid.tools.select-all')}
-              onClick={this.selectAll}
-            >
-              {t('grid.tools.select-all')} {total}
-            </Btn>
-          </div>
-        ) : null}
-
+        {!isMobile && !selectAllVisible && (
+          <div className="grid-tools__selected-count">{t('grid.tools.selected', { count: selectedRecords.length })}</div>
+        )}
+        {isFunction(this.props.onResetAll) && !!selectedRecords.length && (
+          <Btn className="ecos-btn_extra-narrow grid-tools__item_select-all-btn ecos-btn_hover_light-blue2" onClick={this.resetAll}>
+            {t('grid.tools.reset-all')}
+          </Btn>
+        )}
+        {isFunction(this.props.onSelectAll) && (
+          <Btn
+            className={classNames('ecos-btn_extra-narrow grid-tools__item_select-all-btn ecos-btn_hover_light-blue2', {
+              'ecos-btn_blue': selectAllVisible
+            })}
+            onClick={this.selectAll}
+          >
+            {t(selectAllVisible ? 'grid.tools.selected-all' : 'grid.tools.select-all')} {total}
+          </Btn>
+        )}
         {this.createToolsActions()}
       </div>
     );

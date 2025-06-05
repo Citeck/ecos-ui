@@ -4,7 +4,7 @@ import get from 'lodash/get';
 import isBoolean from 'lodash/isBoolean';
 import cloneDeep from 'lodash/cloneDeep';
 import isEmpty from 'lodash/isEmpty';
-import isEqual from 'lodash/isEqual';
+import isFunction from 'lodash/isFunction';
 
 import WidgetService from '../../../../services/WidgetService';
 import Records from '../../../Records/Records';
@@ -13,7 +13,7 @@ import { parseAttribute } from '../../../Records/utils/attStrUtils';
 import { FORM_MODE_CLONE, FORM_MODE_CREATE, FORM_MODE_EDIT, FORM_MODE_VIEW } from '../../../EcosForm';
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 import TableFormPropTypes from './TableFormPropTypes';
-import { getRecordRef } from '../../../../helpers/urls';
+import { LOCAL_ID } from '../../../../constants/journal';
 
 export const TableFormContext = React.createContext();
 
@@ -29,8 +29,7 @@ export const TableFormContextProvider = props => {
     computed,
     onSelectRows,
     selectedRows,
-    settingElements,
-    componentKey
+    settingElements
   } = controlProps;
 
   const [formMode, setFormMode] = useState(FORM_MODE_CREATE);
@@ -41,7 +40,6 @@ export const TableFormContextProvider = props => {
   const [clonedRecord, setClonedRecord] = useState(null);
   const [gridRows, setGridRows] = useState([]);
   const [rowPosition, setRowPosition] = useState(0);
-  const [ids, setIds] = useState(defaultValue);
   const [inlineToolsOffsets, setInlineToolsOffsets] = useState({
     height: 0,
     top: 0,
@@ -51,64 +49,47 @@ export const TableFormContextProvider = props => {
   const isInstantClone = isBoolean(get(settingElements, 'isInstantClone')) ? settingElements.isInstantClone : false;
 
   const onChangeHandler = rows => {
-    typeof onChange === 'function' && onChange(rows.map(item => item.id));
-    typeof triggerEventOnTableChange === 'function' && triggerEventOnTableChange();
+    isFunction(onChange) && onChange(rows.map(item => item.id));
+    isFunction(triggerEventOnTableChange) && triggerEventOnTableChange();
   };
 
   useEffect(() => {
-    if (isEmpty(defaultValue)) {
+    if (isEmpty(defaultValue) || isEmpty(columns)) {
       return;
     }
 
+    let initValue;
     if (!Array.isArray(defaultValue)) {
-      setIds([defaultValue]);
+      initValue = [defaultValue];
     } else {
-      setIds([...defaultValue]);
+      initValue = [...defaultValue];
     }
-  }, [defaultValue]);
-
-  useEffect(() => {
-    const recordRef = getRecordRef();
-    if (!recordRef) {
-      return;
-    }
-
-    Records.get(recordRef)
-      .load(`${componentKey.replace('_', ':')}[]?id`, true)
-      .then(res => {
-        if (!isEqual(res, ids) && res.length === ids.length) {
-          setIds([...res]);
-        }
-      });
-  }, [record]);
-
-  useEffect(() => {
-    if (ids) {
+    if (initValue) {
       const atts = [];
       const attsAsIs = [];
       const noNeedParseIndices = [];
 
       columns.forEach((item, idx) => {
-        const isFullName = item.attribute.startsWith('.att');
-        const hasBracket = item.attribute.includes('{');
-        const hasQChar = item.attribute.includes('?');
+        const { attribute = '', multiple = false } = item || {};
+        const isFullName = attribute.startsWith('.att');
+        const hasBracket = attribute.includes('{');
+        const hasQChar = attribute.includes('?');
 
         if (isFullName || hasBracket || hasQChar) {
-          atts.push(item.attribute);
+          atts.push(attribute);
           noNeedParseIndices.push(idx);
           return;
         }
 
-        const multiplePostfix = item.multiple ? 's' : '';
-        const schema = `.att${multiplePostfix}(n:"${item.attribute}"){disp}`;
+        const multiplePostfix = multiple ? 's' : '';
+        const schema = `.att${multiplePostfix}(n:"${attribute}"){disp}`;
 
         atts.push(schema);
-        attsAsIs.push(item.attribute);
+        attsAsIs.push(attribute);
       });
-
       Promise.all(
-        ids.map(async r => {
-          const record = Records.get(r);
+        initValue.map(async rec => {
+          const record = Records.get(rec);
           const fetchedAtts = {};
           let result = {};
           let currentAttIndex = 0;
@@ -116,7 +97,7 @@ export const TableFormContextProvider = props => {
           if (record.isBaseRecord()) {
             result = await record.load(atts);
           } else {
-            result = await record.toJsonAsync(true).then(result => get(result, 'attributes', {}));
+            result = await record.toJsonAsync(true).then(result => get(result, 'attributes') || {});
             const nonExistAttrs = attsAsIs.filter(item => !Object.keys(result).includes(item));
 
             if (!isEmpty(nonExistAttrs)) {
@@ -145,19 +126,19 @@ export const TableFormContextProvider = props => {
             currentAttIndex++;
           }
 
-          return { ...fetchedAtts, id: r };
+          return { ...fetchedAtts, id: rec, [LOCAL_ID]: rec };
         })
       )
         .then(result => {
           setGridRows(result);
-          typeof triggerEventOnTableChange === 'function' && triggerEventOnTableChange();
+          isFunction(triggerEventOnTableChange) && triggerEventOnTableChange();
         })
         .catch(e => {
           console.error(e);
           setGridRows([]);
         });
     }
-  }, [ids, columns]);
+  }, [defaultValue, columns]);
 
   useEffect(() => {
     if (clonedRecord) {
@@ -188,18 +169,21 @@ export const TableFormContextProvider = props => {
     setIsModalFormOpen(false);
     setClonedRecord(null);
 
-    record.toJsonAsync(true).then(res => {
+    record.toJsonAsync(true).then(async res => {
       const attributes = cloneDeep(res.attributes);
       const restAttrs = Object.keys(attributes);
-      const unresolvedCols = columns.filter(item => {
-        if (item.attribute in res.attributes) {
-          const index = restAttrs.findIndex(value => value === item.attribute);
-          restAttrs.splice(index, 1);
-          return false;
-        }
 
-        return true;
-      });
+      for (let column of columns) {
+        if (column.attribute in attributes) {
+          const index = restAttrs.findIndex(value => value === column.attribute);
+          const displayName = await Records.get(res.attributes[column.attribute]).load('.disp');
+          restAttrs.splice(index, 1);
+          if (displayName) {
+            attributes[column.attribute] = displayName;
+          }
+        }
+      }
+      const unresolvedCols = columns.filter(item => !(item.attribute in res.attributes));
 
       unresolvedCols.forEach(col => {
         const similarAttr = restAttrs.find(att => col.attribute.includes(att));
@@ -213,10 +197,10 @@ export const TableFormContextProvider = props => {
         ...gridRows,
         {
           id: record.id,
+          [LOCAL_ID]: record.id,
           ...attributes
         }
       ];
-
       setGridRows(newGridRows);
       onChangeHandler(newGridRows);
     });
@@ -248,6 +232,7 @@ export const TableFormContextProvider = props => {
           setClonedRecord(null);
         },
 
+        //todo: should use action service for inline buttons
         showCreateForm: createVariant => {
           setIsViewOnlyForm(false);
           setRecord(null);
@@ -289,13 +274,28 @@ export const TableFormContextProvider = props => {
 
         onCreateFormSubmit,
 
-        onEditFormSubmit: (record, form) => {
+        onEditFormSubmit: record => {
           let editRecordId = record.id;
           let isAlias = editRecordId.indexOf('-alias') !== -1;
           let newGridRows = [...gridRows];
 
-          record.toJsonAsync(true).then(res => {
-            const newRow = { ...res['attributes'], id: editRecordId };
+          const createNewRow = async (initialRow, originColumn, editedRecord, attributes) => {
+            const attrs = Object.keys(originColumn);
+            const recordWithOriginalColumnKeys = await editedRecord.load(attrs);
+            let newRow = { ...initialRow, ...recordWithOriginalColumnKeys };
+            const attrsWithoutScalar = attrs.filter(att => att.indexOf('?') === -1);
+            for (const att of attrsWithoutScalar) {
+              if (attributes[att]) {
+                const displayName = await Records.get(attributes[att]).load('.disp');
+                newRow = displayName ? { ...newRow, [att]: displayName } : { ...newRow };
+              }
+            }
+
+            return newRow;
+          };
+
+          record.toJsonAsync(true).then(async res => {
+            let newRow = { ...res['attributes'], id: editRecordId, [LOCAL_ID]: editRecordId };
 
             if (isAlias) {
               // replace base record row by newRow in values list
@@ -303,6 +303,8 @@ export const TableFormContextProvider = props => {
               const baseRecordId = baseRecord.id;
               const baseRecordIndex = gridRows.findIndex(item => item.id === baseRecordId);
               if (baseRecordIndex !== -1) {
+                newRow = await createNewRow(newRow, newGridRows[baseRecordIndex], record, res['attributes']);
+                newRow = { ...newRow, id: editRecordId, [LOCAL_ID]: editRecordId };
                 newGridRows = [...newGridRows.slice(0, baseRecordIndex), newRow, ...newGridRows.slice(baseRecordIndex + 1)];
               }
 
@@ -312,6 +314,8 @@ export const TableFormContextProvider = props => {
             // add or update record alias
             const editRecordIndex = newGridRows.findIndex(item => item.id === record.id);
             if (editRecordIndex !== -1) {
+              newRow = await createNewRow(newRow, newGridRows[editRecordIndex], record, res['attributes']);
+              newRow = { ...newRow, id: editRecordId, [LOCAL_ID]: editRecordId };
               newGridRows = [...newGridRows.slice(0, editRecordIndex), newRow, ...newGridRows.slice(editRecordIndex + 1)];
             } else {
               newGridRows.push(newRow);
@@ -348,9 +352,7 @@ export const TableFormContextProvider = props => {
           }
         },
 
-        onSelectGridItem: value => {
-          typeof onSelectRows === 'function' && onSelectRows(value.selected);
-        }
+        onSelectGridItem: value => isFunction(onSelectRows) && onSelectRows(value.selected)
       }}
     >
       {props.children}

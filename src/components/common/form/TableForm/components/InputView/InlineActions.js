@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useContext, useMemo } from 'react';
 import get from 'lodash/get';
 import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
@@ -11,8 +11,10 @@ import { t } from '../../../../../../helpers/export/util';
 import { getFitnesseInlineToolsClassName } from '../../../../../../helpers/tools';
 import { renderAction } from '../../../../grid/InlineTools/helpers';
 import InlineToolsDisconnected from '../../../../grid/InlineTools/InlineToolsDisconnected';
+import { TableFormContext } from '../../TableFormContext';
 
-const InlineActions = ({ context, rowId = null }) => {
+const InlineActions = () => {
+  const context = useContext(TableFormContext);
   const {
     deleteSelectedItem,
     showEditForm,
@@ -20,6 +22,8 @@ const InlineActions = ({ context, rowId = null }) => {
     runCloneRecord,
     showPreview,
     showViewOnlyForm,
+    inlineToolsOffsets,
+    setInlineToolsOffsets,
     createVariants,
     controlProps
   } = context;
@@ -38,7 +42,7 @@ const InlineActions = ({ context, rowId = null }) => {
     let actions = [];
 
     if (isUsedJournalActions) {
-      actions = get(journalActions, ['forRecord', rowId], []);
+      actions = get(journalActions, ['forRecord', inlineToolsOffsets.rowId], []);
       actions = actions.map(act => {
         let recordAction = { ...act };
 
@@ -53,21 +57,22 @@ const InlineActions = ({ context, rowId = null }) => {
           ...act,
           onClick: async () => {
             if (recordAction.type === EditAction.ACTION_ID) {
-              const record = Records.getRecordToEdit(rowId);
+              const record = Records.getRecordToEdit(inlineToolsOffsets.rowId);
               const recordWasChanged = await RecordActions.execForRecord(record, recordAction);
 
               if (recordWasChanged) {
                 onEditFormSubmit(record);
               }
             } else if (recordAction.type === DeleteAction.ACTION_ID) {
-              const record = Records.get(rowId);
+              const record = Records.get(inlineToolsOffsets.rowId);
               const recordWasChanged = await RecordActions.execForRecord(record, recordAction);
 
               if (recordWasChanged) {
-                deleteSelectedItem(rowId);
+                setInlineToolsOffsets({ height: 0, top: 0, row: {} });
+                deleteSelectedItem(inlineToolsOffsets.rowId);
               }
             } else {
-              await RecordActions.execForRecord(rowId, recordAction);
+              await RecordActions.execForRecord(inlineToolsOffsets.rowId, recordAction);
             }
           }
         };
@@ -81,7 +86,7 @@ const InlineActions = ({ context, rowId = null }) => {
           icon: 'icon-eye-show',
           name: t('ecos-table-form.view.btn'),
           className: getFitnesseInlineToolsClassName('view'),
-          onClick: () => showViewOnlyForm(rowId)
+          onClick: () => showViewOnlyForm(inlineToolsOffsets.rowId)
         });
 
       shouldShowPreviewButton &&
@@ -90,7 +95,7 @@ const InlineActions = ({ context, rowId = null }) => {
           icon: 'icon-eye-show',
           name: t('ecos-table-form.preview.btn'),
           className: getFitnesseInlineToolsClassName('preview'),
-          onClick: () => showPreview(rowId)
+          onClick: () => showPreview(inlineToolsOffsets.rowId)
         });
 
       shouldShowEditButton &&
@@ -98,7 +103,7 @@ const InlineActions = ({ context, rowId = null }) => {
           key: 'edit',
           icon: 'icon-edit',
           className: getFitnesseInlineToolsClassName('edit'),
-          onClick: () => showEditForm(rowId)
+          onClick: () => showEditForm(inlineToolsOffsets.rowId)
         });
 
       shouldShowCloneButton &&
@@ -106,7 +111,7 @@ const InlineActions = ({ context, rowId = null }) => {
           key: 'clone',
           icon: 'icon-copy',
           className: getFitnesseInlineToolsClassName('clone'),
-          onClick: () => runCloneRecord(rowId)
+          onClick: () => runCloneRecord(inlineToolsOffsets.rowId)
         });
 
       shouldShowDeleteButton &&
@@ -115,15 +120,16 @@ const InlineActions = ({ context, rowId = null }) => {
           icon: 'icon-delete',
           className: getFitnesseInlineToolsClassName('delete'),
           onClick: () => {
-            deleteSelectedItem(rowId);
+            setInlineToolsOffsets({ height: 0, top: 0, row: {} });
+            deleteSelectedItem(inlineToolsOffsets.rowId);
           }
         });
     }
 
     return actions.map(action => renderAction(action, keyRender(action), !!action.name));
-  }, [displayElements, journalActions, rowId]);
+  }, [displayElements, journalActions, inlineToolsOffsets]);
 
-  return <InlineToolsDisconnected selectedRecords={selectedRows} rowId={rowId} tools={renderButtons} />;
+  return <InlineToolsDisconnected selectedRecords={selectedRows} {...inlineToolsOffsets} tools={renderButtons} />;
 };
 
 export default InlineActions;
