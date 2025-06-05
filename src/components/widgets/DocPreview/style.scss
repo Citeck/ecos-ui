@@ -5,8 +5,8 @@ $background-viewer: $color-gray-15;
 $border-base: $color-gray-5;
 $bottom-pad: 80px;
 
-:export {
-  bottomPad: $bottom-pad;
+:root {
+  --bottom-pad: #{$bottom-pad};
 }
 
 %base-flex {
