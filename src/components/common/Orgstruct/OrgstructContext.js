@@ -2,7 +2,6 @@ import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
-import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 import PropTypes from 'prop-types';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
