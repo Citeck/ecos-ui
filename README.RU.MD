@@ -8,8 +8,6 @@
 
 ## Начало работы
 
-If you are new to Citeck platform and would like to load the software locally, we recommend you download the Dockerized version from [Demo repository](https://github.com/Citeck/citeck-community).
-
 Если вы впервые знакомитесь с платформой Citeck и хотите запустить программное обеспечение локально, мы рекомендуем загрузить Docker-версию из [Demo-репозитория](https://github.com/Citeck/citeck-community).
 
 ## Полезные ссылки
@@ -48,7 +46,7 @@ If you are new to Citeck platform and would like to load the software locally, w
 
 ## Возможности
 
-Citeck `ecos-ui предлагает широкий набор функций для улучшения работы с платформой Citeck. Ключевые возможности включают:
+Citeck `ecos-ui` предлагает широкий набор функций для улучшения работы с платформой Citeck. Ключевые возможности включают:
 
 - **Интуитивный интерфейс**: Удобный и понятный пользовательский интерфейс
 
@@ -68,11 +66,11 @@ Citeck `ecos-ui предлагает широкий набор функций д
 
 ## Участие в разработке
 
-Мы приветствуем вклад сообщества в развитие Citeck. Все участники проекта должны соблюдать [кодекс поведения](https://github.com/rubygems/rubygems/blob/master/CODE_OF_CONDUCT.md).
+Мы приветствуем вклад сообщества в развитие Citeck. Все участники проекта должны соблюдать [нормы поведения](https://github.com/rubygems/rubygems/blob/master/CODE_OF_CONDUCT.md).
 
 ## Поддержка
 
-Если вам нужна помощь или у вас есть вопросы по Citeck ecos-ui, то создайте issue в этом репозитории или обратитесь в нашу [службу поддержки](mailto:support@citeck.ru).
+Если вам нужна помощь или у вас есть вопросы по Citeck `ecos-ui`, то создайте issue в этом репозитории или обратитесь в нашу [службу поддержки](mailto:support@citeck.ru).
 
 ## Лицензия
 
