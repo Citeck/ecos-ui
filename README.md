@@ -10,10 +10,6 @@ Welcome to the Citeck `ecos-ui` repository! This repository contains the user in
 
 If you are new to Citeck platform and would like to load the software locally, we recommend you download the Dockerized version from [Demo repository](https://github.com/Citeck/citeck-community).
 
-## Useful Links
-
-- [Documentation](https://citeck-ecos.readthedocs.io/ru/latest/index.html) provides more in-depth information.
-
 ## Installation
 
 To install and use `ecos-ui`, follow these steps:
