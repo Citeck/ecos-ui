@@ -437,6 +437,23 @@ export default class SelectJournal extends Component {
       });
   };
 
+  fillWorkspaceId = rows => {
+    return Records.get(rows.map(r => r.id))
+      .load('_workspace?localId')
+      .then(workspacesId => {
+        let result = [];
+
+        for (let i = 0; i < rows.length; i++) {
+          result.push({
+            ...rows[i],
+            locatedWorkspaceId: workspacesId[i]
+          });
+        }
+
+        return result;
+      });
+  };
+
   fetchTableAttributes = rows => {
     const { viewMode, forceReload } = this.props;
     const { isJournalConfigFetched, isGridDataReady } = this.state;
@@ -554,6 +571,7 @@ export default class SelectJournal extends Component {
     return this.fetchDisplayNames(selected)
       .then(this.fillCanEdit)
       .then(this.fetchTableAttributes)
+      .then(this.fillWorkspaceId)
       .then(selected => {
         if (!this.liveComponent) {
           return;
