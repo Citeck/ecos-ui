@@ -1,5 +1,5 @@
 /* eslint-disable no-template-curly-in-string */
-import { renderUsernameString, isHTML } from '../helpers';
+import { renderUsernameString } from '../helpers';
 
 describe('SelectOrgstruct helper functions', () => {
   describe('renderUsernameString function', () => {
@@ -45,32 +45,6 @@ describe('SelectOrgstruct helper functions', () => {
           firstName: 'Admin'
         })
       );
-    });
-  });
-
-  describe('isHTML function', () => {
-    it('not HTML, empty string', () => {
-      expect(isHTML('')).toBeFalsy();
-    });
-
-    it('not HTML, plain string', () => {
-      expect(isHTML('hello world!')).toBeFalsy();
-    });
-
-    it('not HTML, masked string', () => {
-      expect(isHTML('Hello, ${firstName} ${lastName}!')).toBeFalsy();
-    });
-
-    it('HTML string test 1', () => {
-      expect(isHTML('Hello <span style="display: block; color:#fff">world!</span>')).toBeTruthy();
-    });
-
-    it('HTML string test 2', () => {
-      expect(isHTML('${firstName} <span style="color:#7396cd;font-size:bold;text-decoration:underline;">${username}</span>')).toBeTruthy();
-    });
-
-    it('HTML string test 3', () => {
-      expect(isHTML('<div>${email} <span style="color:#fff;">(${userName})</span></div>')).toBeTruthy();
     });
   });
 });

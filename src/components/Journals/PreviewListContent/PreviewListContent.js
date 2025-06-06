@@ -12,9 +12,10 @@ import NoData from '../../common/icons/NoData';
 
 import defaultImage from './defaultImage.png';
 
+import { EcosFormBuilderUtils } from '@/components/EcosForm';
 import { URL } from '@/constants';
 import { getLinkWithWs } from '@/helpers/urls';
-import { stripHTML, t } from '@/helpers/util';
+import { t } from '@/helpers/util';
 import { selectPreviewListProps } from '@/selectors/previewList';
 import { selectIsViewNewJournal } from '@/selectors/view';
 
@@ -61,7 +62,10 @@ class PreviewListContent extends Component {
     const itemLink = this.getLinkOfId(itemId);
 
     const title = get(item, ['rawAttributes', get(previewListConfig, 'title')]) || t('preview-list.no-title');
-    const description = get(item, ['rawAttributes', get(previewListConfig, 'text')]) || t('preview-list.no-description');
+
+    let description = get(item, ['rawAttributes', get(previewListConfig, 'text')]) || t('preview-list.no-description');
+
+    description = EcosFormBuilderUtils.stripHTML(description);
 
     return (
       <div className="citeck-preview-list-content__card" key={idx}>
@@ -75,8 +79,8 @@ class PreviewListContent extends Component {
             <a href={itemLink} className="citeck-preview-list-content__card-info_title" title={title}>
               {title}
             </a>
-            <p className="citeck-preview-list-content__card-info_description" title={stripHTML(description)}>
-              {stripHTML(description)}
+            <p className="citeck-preview-list-content__card-info_description" title={description}>
+              {description}
             </p>
           </div>
           <div className="citeck-preview-list-content__card-info-author">

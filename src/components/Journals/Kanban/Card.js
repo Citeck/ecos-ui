@@ -1,16 +1,16 @@
-import React from 'react';
 import classNames from 'classnames';
+import debounce from 'lodash/debounce';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
-import debounce from 'lodash/debounce';
+import React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import ReactResizeDetector from 'react-resize-detector';
 
 import { extractLabel } from '../../../helpers/util';
 import ViewAction from '../../Records/actions/handler/executor/ViewAction';
 import { Icon, Tooltip } from '../../common';
-import { DropdownOuter } from '../../common/form';
 import { FormWrapper } from '../../common/dialogs';
+import { DropdownOuter } from '../../common/form';
 import { Labels } from '../constants';
 
 class Card extends React.PureComponent {
