@@ -75,14 +75,6 @@ export function converterUserList(source) {
   }));
 }
 
-export function isHTML(str) {
-  return EcosFormUtils.isHTML(str);
-}
-
 export function renderUsernameString(str, replacements) {
   return EcosFormUtils.renderByTemplate(str, replacements);
-}
-
-export function stripHTML(html) {
-  return EcosFormUtils.stripHTML(html);
 }

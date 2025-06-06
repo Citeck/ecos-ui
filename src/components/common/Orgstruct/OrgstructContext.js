@@ -18,10 +18,10 @@ import {
   prepareParentId,
   unionWithPrevious,
   renderUsernameString,
-  isHTML,
-  getRecordRef,
-  stripHTML
+  getRecordRef
 } from './helpers';
+
+import { EcosFormBuilderUtils } from '@/components/EcosForm';
 
 export const OrgstructContext = React.createContext();
 
@@ -462,9 +462,9 @@ export const OrgstructProvider = props => {
 
           if (authorityType === 'USER' && userMask) {
             const usernameString = renderUsernameString(userMask, { ...(item.attributes || {}) });
-            const plainText = stripHTML(usernameString);
+            const plainText = EcosFormBuilderUtils.stripHTML(usernameString);
 
-            if (isHTML(userMask)) {
+            if (EcosFormBuilderUtils.isHTML(userMask)) {
               return <div title={plainText} dangerouslySetInnerHTML={{ __html: usernameString }} />;
             }
 
