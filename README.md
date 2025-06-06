@@ -2,11 +2,13 @@
 
 # `ecos-ui`
 
+**Read this in other languages: [Русский](README.RU.MD)**
+
 Welcome to the Citeck `ecos-ui` repository! This repository contains the user interface (UI) components and modules for the Citeck platform. Citeck is a powerful and comprehensive enterprise content and operations system designed to streamline and automate business processes within organizations.
 
 ## Get started
 
-If you are new to Citeck platform and would like to load the software locally, we recommend you download the Dockerized version from [Demo repository](https://github.com/Citeck/ecos-community-demo).
+If you are new to Citeck platform and would like to load the software locally, we recommend you download the Dockerized version from [Demo repository](https://github.com/Citeck/citeck-community).
 
 ## Useful Links
 
