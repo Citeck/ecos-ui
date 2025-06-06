@@ -53,6 +53,7 @@ export class OrgStructApi extends CommonApi {
 
   static get userAttributes() {
     return {
+      employeeId: 'employeeId',
       displayName: '?disp',
       fullName: 'authorityName',
       email: 'email',
