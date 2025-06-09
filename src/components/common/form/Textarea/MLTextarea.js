@@ -79,7 +79,7 @@ class MlTextarea extends BaseMLField {
 
   handleChangeEditor = (value, event) => {
     this.setState({ currentValue: value });
-    this.handleChangeText({ target: { value: this.state.currentValue } });
+    this.handleChangeText({ target: { value } });
   };
 
   handleClickLang(selectedLang) {
