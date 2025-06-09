@@ -99,9 +99,9 @@ class CustomWidgetHtmlDashlet extends BaseWidget<HTMLWidgetProps, HTMLWidgetStat
   }
 
   get title() {
-    const titleFromConfig = this.config.title || Labels.Widget.DEFAULT_TITLE;
+    const titleFromConfig = this.config?.title || Labels.Widget.DEFAULT_TITLE;
 
-    return isString(titleFromConfig) ? titleFromConfig : titleFromConfig[getCurrentLocale()];
+    return isString(titleFromConfig) ? titleFromConfig : titleFromConfig[getCurrentLocale()] || Labels.Widget.DEFAULT_TITLE;
   }
 
   componentDidUpdate(prevProps: HTMLWidgetProps, prevState: HTMLWidgetState) {
