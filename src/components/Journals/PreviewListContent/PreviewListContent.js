@@ -12,7 +12,7 @@ import NoData from '../../common/icons/NoData';
 
 import defaultImage from './defaultImage.png';
 
-import { EcosFormBuilderUtils } from '@/components/EcosForm';
+import EcosFormUtils from '@/components/EcosForm/EcosFormUtils';
 import { URL } from '@/constants';
 import { getLinkWithWs } from '@/helpers/urls';
 import { t } from '@/helpers/util';
@@ -65,7 +65,7 @@ class PreviewListContent extends Component {
 
     let description = get(item, ['rawAttributes', get(previewListConfig, 'text')]) || t('preview-list.no-description');
 
-    description = EcosFormBuilderUtils.stripHTML(description);
+    description = EcosFormUtils.stripHTML(description);
 
     return (
       <div className="citeck-preview-list-content__card" key={idx}>
