@@ -256,7 +256,8 @@
   "custom-widget-html.warning.need-settings": "Configure the content for this widget",
   "custom-widget-html.editor.title": "Widget Settings",
   "custom-widget-html.editor.title-field-widget": "Widget Title",
-  "custom-widget-html.editor.html-field-label": "Custom HTML",
+  "custom-widget-html.editor.html-field-label": "Editor",
+  "custom-widget-html.editor.html-field-wysiwyg-mode": "Enable WYSIWYG mode",
   "custom-widget-html.editor.actions.cancel": "Cancel",
   "custom-widget-html.editor.actions.save": "Save",
 

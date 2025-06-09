@@ -190,7 +190,8 @@
   "custom-widget-html.warning.need-settings": "Настройте контент для данного виджета",
   "custom-widget-html.editor.title": "Настройки виджета",
   "custom-widget-html.editor.title-field-widget": "Название виджета",
-  "custom-widget-html.editor.html-field-label": "Произвольный HTML",
+  "custom-widget-html.editor.html-field-label": "Редактор",
+  "custom-widget-html.editor.html-field-wysiwyg-mode": "Включить режим WYSIWYG",
   "custom-widget-html.editor.actions.cancel": "Отменить",
   "custom-widget-html.editor.actions.save": "Сохранить",
 

@@ -68,7 +68,7 @@ function buildImportMap(): DOMConversionMap {
   return importMap;
 }
 
-function EditorWrapper({ htmlString, onChange, readonly = false, className, hideToolbar, onEditorReady }: LexicalEditorProps): JSX.Element {
+function EditorWrapper({ readonly = false, ...props }: LexicalEditorProps): JSX.Element {
   const initialConfig = {
     editable: !readonly,
     html: {
@@ -87,14 +87,7 @@ function EditorWrapper({ htmlString, onChange, readonly = false, className, hide
       <SharedHistoryContext>
         <TableContext>
           <ToolbarContext>
-            <EditorContent
-              htmlString={htmlString}
-              className={className}
-              readonly={readonly}
-              onChange={onChange}
-              hideToolbar={hideToolbar}
-              onEditorReady={onEditorReady}
-            />
+            <EditorContent {...props} readonly={readonly} />
           </ToolbarContext>
         </TableContext>
       </SharedHistoryContext>
@@ -102,25 +95,11 @@ function EditorWrapper({ htmlString, onChange, readonly = false, className, hide
   );
 }
 
-export default function LexicalEditor({
-  htmlString,
-  onChange,
-  readonly = false,
-  className,
-  hideToolbar,
-  onEditorReady
-}: LexicalEditorProps): JSX.Element {
+export default function LexicalEditor({ readonly = false, ...props }: LexicalEditorProps): JSX.Element {
   return (
     <SettingsContext>
       <FlashMessageContext>
-        <EditorWrapper
-          htmlString={htmlString}
-          className={className}
-          readonly={readonly}
-          onChange={onChange}
-          hideToolbar={hideToolbar}
-          onEditorReady={onEditorReady}
-        />
+        <EditorWrapper {...props} readonly={readonly} />
       </FlashMessageContext>
     </SettingsContext>
   );

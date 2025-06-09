@@ -31,7 +31,7 @@ import isFunction from 'lodash/isFunction';
 import isNil from 'lodash/isNil';
 import isString from 'lodash/isString';
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 
 import { LENGTH_LIMIT } from '../widgets/Comments/Comment';
 
@@ -83,6 +83,8 @@ export type LexicalEditorProps = {
   onChange?: (editorState: EditorState, editor: LexicalEditor, noChange: boolean) => void;
   onEditorReady?: (editor: LexicalEditor) => void;
   onUpload?: OnImageUpload;
+  editorChildren?: ReactNode;
+  withoutTimeout?: boolean;
 };
 
 const skipCollaborationInit =
@@ -95,6 +97,7 @@ export default function Editor({
   hideToolbar = false,
   className,
   onEditorReady,
+  editorChildren,
   onUpload
 }: LexicalEditorProps): React.JSX.Element {
   const { historyState } = useSharedHistoryContext();
@@ -230,6 +233,7 @@ export default function Editor({
                       placeholder={placeholder}
                       className={classNames('ecos-rt-editor__content', readonly ? 'content_readonly' : 'ContentEditable__root')}
                     />
+                    {editorChildren}
                   </div>
                 </div>
               }
