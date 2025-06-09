@@ -20,7 +20,7 @@ import {
   getRecordRef
 } from './helpers';
 
-import { EcosFormBuilderUtils } from '@/components/EcosForm';
+import EcosFormUtils from '@/components/EcosForm/EcosFormUtils';
 
 export const OrgstructContext = React.createContext();
 
@@ -461,9 +461,9 @@ export const OrgstructProvider = props => {
 
           if (authorityType === 'USER' && userMask) {
             const usernameString = renderUsernameString(userMask, { ...(item.attributes || {}) });
-            const plainText = EcosFormBuilderUtils.stripHTML(usernameString);
+            const plainText = EcosFormUtils.stripHTML(usernameString);
 
-            if (EcosFormBuilderUtils.isHTML(userMask)) {
+            if (EcosFormUtils.isHTML(userMask)) {
               return <div title={plainText} dangerouslySetInnerHTML={{ __html: usernameString }} />;
             }
 
