@@ -30,7 +30,9 @@ const useSyncWithInputHtml = (html?: string | null, { timeoutMs = 800 }: Options
         const dom = parser.parseFromString(normHtml ?? '', 'text/html');
         const nodes = $generateNodesFromDOM(editor, dom);
         const selection = $getSelection();
+
         if ($isRangeSelection(selection)) {
+          $getRoot().select();
           selection.insertNodes(nodes);
         }
       }
