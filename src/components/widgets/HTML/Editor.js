@@ -2,7 +2,6 @@ import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import AceEditor from 'react-ace';
 import { connect } from 'react-redux';
 
 import 'ace-builds/src-noconflict/mode-html';
@@ -72,6 +71,7 @@ class EditorCustomHtmlWidget extends Component {
     const { htmlString, title } = this.state;
 
     const isDisableSave = !htmlString || loading;
+    const selectedLang = getCurrentLocale();
 
     return (
       <div className="citeck-html-widget__editor" ref={this.setEditorRef}>
@@ -85,7 +85,7 @@ class EditorCustomHtmlWidget extends Component {
           labelPosition="top"
           isSmall={this.isSmall}
         >
-          <MLText value={title} onChange={title => this.onChangeSetting({ title })} />
+          <MLText lang={selectedLang} value={title} onChange={title => this.onChangeSetting({ title })} />
         </Field>
 
         <Field
@@ -98,7 +98,7 @@ class EditorCustomHtmlWidget extends Component {
             value={htmlString}
             onChange={htmlString => this.onChangeSetting({ htmlString })}
             style={{ width: '100%', height: '100%' }}
-            lang={getCurrentLocale()}
+            lang={selectedLang}
             editor
             editorLang="html"
           />
