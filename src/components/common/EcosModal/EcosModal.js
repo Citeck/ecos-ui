@@ -77,7 +77,11 @@ export default class EcosModal extends Component {
     this._onResizeHandlerThrottled.cancel();
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevState.level !== this.state.level && this.state.level < prevState.level && !this.props.isOpen) {
+      this.setState({ level: prevState.level });
+    }
+
     this.calculateBounds();
   }
 
