@@ -1,23 +1,24 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import get from 'lodash/get';
-import isEqual from 'lodash/isEqual';
-import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 
-import { t } from '../../../helpers/export/util';
-import { Well } from '../../common/form';
 import EcosModal from '../../common/EcosModal';
 import EcosModalHeight from '../../common/EcosModal/EcosModalHeight';
-import JournalsFilters from '../JournalsFilters/JournalsFilters';
+import { Well } from '../../common/form';
 import JournalsColumnsSetup from '../JournalsColumnsSetup/JournalsColumnsSetup';
+import JournalsFilters from '../JournalsFilters/JournalsFilters';
 import JournalsGrouping from '../JournalsGrouping/JournalsGrouping';
 import JournalsSettingsFooter from '../JournalsSettingsFooter/JournalsSettingsFooter';
 import KanbanColumnsSettings from '../KanbanColumnsSettings/KanbanColumnsSettings';
 import { JOURNAL_VIEW_MODE } from '../constants';
-import { initialStateGrouping } from '../../../reducers/journals';
+
+import { t } from '@/helpers/export/util';
+import { initialStateGrouping } from '@/reducers/journals';
 
 class SettingsModal extends Component {
   static propTypes = {
@@ -182,6 +183,7 @@ class SettingsModal extends Component {
         title={t('journals.action.setting-dialog-msg')}
         isOpen={isOpen}
         hideModal={onClose}
+        reactstrapProps={{ searchZIndexModalClassName: 'ecos-modal-container' }}
         isBigHeader
         className={'ecos-modal_width-m ecos-modal_zero-padding ecos-modal_shadow'}
       >
