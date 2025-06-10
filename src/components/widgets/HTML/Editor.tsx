@@ -94,6 +94,7 @@ class EditorCustomHtmlWidget extends Component<EditorProps, EditorState> {
     const { htmlString, title, isWysiwygMode } = this.state;
 
     const isDisableSave = !htmlString || loading;
+    const selectedLang = getCurrentLocale();
 
     return (
       <div className="citeck-html-widget__editor" ref={this.setEditorRef}>
@@ -107,7 +108,7 @@ class EditorCustomHtmlWidget extends Component<EditorProps, EditorState> {
           labelPosition="top"
           isSmall={this.isSmall}
         >
-          <MLText value={title} onChange={(title: IConfigToSave['title']) => this.onChangeSetting({ title })} />
+          <MLText lang={selectedLang} value={title} onChange={(title: IConfigToSave['title']) => this.onChangeSetting({ title })} />
         </Field>
 
         <Field
@@ -132,7 +133,7 @@ class EditorCustomHtmlWidget extends Component<EditorProps, EditorState> {
               value={htmlString}
               onChange={(htmlString: MLHtmlStringType) => this.onChangeSetting({ htmlString })}
               style={{ width: '100%', height: '100%' }}
-              lang={getCurrentLocale()}
+              lang={selectedLang}
               editor
               editorLang="html"
             />
