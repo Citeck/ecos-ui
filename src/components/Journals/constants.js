@@ -98,7 +98,7 @@ export const Labels = {
     //editor
     FIELD_NAME: 'journal.presets.modal.field.name',
     FIELD_AUTH: 'journal.presets.modal.field.authority',
-    FIELD_ALL_AUTH: 'journal.presets.modal.field.authorities',
+    FIELD_WORKSPACES: 'journal.presets.modal.field.workspaces',
     BTN_CLOSE: 'journal.presets.modal.btn.cancel',
     BTN_SAVE: 'journal.presets.modal.btn.save',
     //list

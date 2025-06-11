@@ -1,5 +1,6 @@
 import Records from '../components/Records';
 import { SourcesId } from '../constants';
+import { getWorkspaceId } from "@/helpers/urls.js";
 
 export class KanbanApi {
   getBoardList({ journalId }) {
@@ -34,7 +35,7 @@ export class KanbanApi {
     return Records.query(
       {
         sourceId: SourcesId.PRESETS,
-        query: { journalId }
+        query: { journalId, workspaces: [getWorkspaceId()] }
       },
       {
         name: '.disp',

@@ -1183,6 +1183,7 @@
   "journal.presets.menu.title": "Шаблоны настроек",
   "journal.presets.modal.field.name": "Название",
   "journal.presets.modal.field.authority": "Доступно для",
+  "journal.presets.modal.field.workspaces": "В рабочих пространствах",
   "journal.presets.modal.btn.cancel": "Отмена",
   "journal.presets.modal.btn.save": "Сохранить",
   "journal.presets.modal.save-error.title": "Ошибка сохранения",

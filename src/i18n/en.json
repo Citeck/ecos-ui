@@ -1230,6 +1230,7 @@
   "journal.presets.menu.title": "Template Settings",
   "journal.presets.modal.field.name": "Name",
   "journal.presets.modal.field.authority": "Available for",
+  "journal.presets.modal.field.workspaces": "In workspaces",
   "journal.presets.modal.btn.cancel": "Cancel",
   "journal.presets.modal.btn.save": "Save",
   "journal.presets.modal.save-error.title": "Save error",
