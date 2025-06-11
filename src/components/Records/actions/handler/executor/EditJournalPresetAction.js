@@ -8,6 +8,7 @@ import { getCurrentUserName } from '../../../../../helpers/util';
 import Records from '../../../Records';
 import { notifySuccess, notifyFailure } from '../../util/actionUtils';
 import AuthorityService from '../../../../../services/authrority/AuthorityService';
+import { getWorkspaceId } from "@/helpers/urls.js";
 
 export default class EditJournalPresetAction extends ActionsExecutor {
   static ACTION_ID = 'edit-journal-preset';
@@ -21,24 +22,19 @@ export default class EditJournalPresetAction extends ActionsExecutor {
         ? 'record-action.edit-journal-preset.modal.title.edit'
         : 'record-action.edit-journal-preset.modal.title.create';
 
-      if (!data.authority) {
-        data.authority = getCurrentUserName();
-      }
-      const authorityRef = await AuthorityService.getAuthorityRef(data.authority);
-
       let authoritiesRef;
       if (!data.authorities) {
-        data.authorities = [data.authority];
-        authoritiesRef = [authorityRef];
-      } else {
-        authoritiesRef = await AuthorityService.getAuthorityRef(data.authorities);
+        data.authorities = [data.authority || getCurrentUserName()];
       }
+      authoritiesRef = await AuthorityService.getAuthorityRef(data.authorities);
+      const workspaces = data.workspaces || [getWorkspaceId()];
+      const workspacesRefs = workspaces.map(id => "emodel/workspace@" + id);
 
       const onClose = () => modal.destroy();
       const onSave = async newData => {
-        const authority = await AuthorityService.getAuthorityName(newData.authorityRef);
         const authorities = await AuthorityService.getAuthorityName(newData.authoritiesRef);
-        const preset = await PresetsServiceApi.savePreset({ id: rec.id, ...data, ...newData, authority, authorities });
+        const workspacesRefs = newData.workspacesRefs;
+        const preset = await PresetsServiceApi.savePreset({ id: rec.id, ...data, ...newData, authorities, workspacesRefs });
 
         if (preset && preset.id) {
           notifySuccess('record-action.edit-journal-preset.msg.saved-success');
@@ -57,8 +53,8 @@ export default class EditJournalPresetAction extends ActionsExecutor {
         onClose,
         title,
         isAdmin: isCurrentUserAdmin,
-        authorityRef,
         authoritiesRef,
+        workspacesRefs,
         data
       });
     });
