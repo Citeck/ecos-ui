@@ -404,6 +404,10 @@ class Model extends React.Component {
     const { formMode } = this.props;
     const { isActiveCount, isCompletedCount, isShowCounters } = this.state;
 
+    if (!this.designer?.heatmap) {
+      return null;
+    }
+
     if (!isShowCounters && formMode !== EXTENDED_MODE) {
       return null;
     }
@@ -449,7 +453,7 @@ class Model extends React.Component {
       y: 0,
     };
 
-    const showHeatmap = isTempHeatmapOff || isShowHeatmap;
+    const showHeatmap = this.designer?.heatmap && (isTempHeatmapOff || isShowHeatmap);
 
     return (
       <div
