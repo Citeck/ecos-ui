@@ -11,14 +11,15 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import { Fullpage, Icon, InfoText } from '../../common';
 import { Btn } from '../../common/btns';
 
-import * as StyleVariables from './style.scss';
 import { Labels } from './util';
 
 import { DocScaleOptions } from '@/constants';
 import { camelize, t } from '@/helpers/util';
+import './style.scss';
 
 const $PAGE = '.ecos-doc-preview__viewer-page';
 const fullscreenEnabled = fscreen.fullscreenEnabled;
+const bottomPad = getComputedStyle(document.documentElement).getPropertyValue('--bottom-pad').trim();
 
 export default function getViewer(WrappedComponent, isPdf) {
   return class Viewer extends Component {
@@ -147,7 +148,7 @@ export default function getViewer(WrappedComponent, isPdf) {
 
       const { clientWidth, clientHeight, scrollWidth, scrollHeight } = this.elScrollbar.getValues();
       const transitionElement = this.elScrollbar.view.querySelector('.ecos-doc-preview__viewer-doc-transition');
-      let offset = isPdf ? 0 : parseInt(StyleVariables.bottomPad || 0, 10) / 2;
+      let offset = isPdf ? 0 : parseInt(bottomPad || 0, 10) / 2;
 
       if (transitionElement) {
         offset += transitionElement.offsetHeight;
