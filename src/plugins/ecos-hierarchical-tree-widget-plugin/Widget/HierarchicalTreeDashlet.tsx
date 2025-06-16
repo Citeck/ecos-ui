@@ -53,6 +53,7 @@ const TreeNode = ({
   setRecords: React.Dispatch<React.SetStateAction<TreeNode[]>>;
 }): React.ReactElement => {
   const [isOpen, setIsOpen] = useState<boolean>(get(node, 'children.length', 0) > 1);
+  const [displayName, setDisplayName] = useState<string>(node.name || t('documents-widget.untitled'));
   const [children, setChildren] = useState(node.children || []);
 
   const create = (parent: string) => {
@@ -104,6 +105,16 @@ const TreeNode = ({
   };
 
   useEffect(() => {
+    // @ts-ignore
+    const instanceRecord = Records.get(`emodel/wiki@${node.id}`);
+
+    instanceRecord &&
+      instanceRecord.watch(['_disp'], (newRecord: { _disp: string }) => {
+        setDisplayName(newRecord._disp);
+      });
+  }, []);
+
+  useEffect(() => {
     const hasFirstChildrenName = get(children, '[0].name', '');
 
     if (isOpen && hasFirstChildrenName.length === 0) {
@@ -127,7 +138,7 @@ const TreeNode = ({
           setIsOpen(!isOpen);
         }}
       >
-        {node.name}
+        {displayName}
         {canEdit && (
           <div className="tree-actions">
             <div className="tree-actions__btn-create" onClick={() => create(`emodel/wiki@${node.id}`)}>
@@ -245,11 +256,13 @@ const HierarchicalTreeWidget = ({ record: initialRecordRef }: { record: string }
         >
           {t(Labels.TITLE)}
         </h4>
-        <Tooltip uncontrolled text={t(Labels.ADD_GROUP)} target={tooltipId} off={isMobileDevice()}>
-          <div id={tooltipId} className="ecos-hierarchical-tree-widget__structure__bnt-create" onClick={() => create()}>
-            <Icon className="icon-plus" />
-          </div>
-        </Tooltip>
+        {canEdit && (
+          <Tooltip uncontrolled text={t(Labels.ADD_GROUP)} target={tooltipId} off={isMobileDevice()}>
+            <div id={tooltipId} className="ecos-hierarchical-tree-widget__structure__bnt-create" onClick={() => create()}>
+              <Icon className="icon-plus" />
+            </div>
+          </Tooltip>
+        )}
       </div>
       <hr />
       {records.length === 0 ? (
