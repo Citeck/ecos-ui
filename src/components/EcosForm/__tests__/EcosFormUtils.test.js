@@ -226,6 +226,11 @@ describe('EcosFormUtils', () => {
       const result = EcosFormUtils.getAttrsFromTemplate('');
       expect(result).toEqual([]);
     });
+
+    it('Arguments with special characters - returns the list without deleting the special characters', () => {
+      const result = EcosFormUtils.getAttrsFromTemplate('${ecos:alfresco} ${?disp} ${test:argument?json} ${list:argumentList[]!}');
+      expect(result).toEqual(['ecos:alfresco', '?disp', 'test:argument?json', 'list:argumentList[]!']);
+    });
   });
 
   describe('stripHTML method', () => {
