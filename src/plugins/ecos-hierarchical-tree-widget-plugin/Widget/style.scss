@@ -5,6 +5,12 @@
 
   i.icon {
     color: #b7b7b7;
+    cursor: pointer;
+    transition: opacity 0.2s, visibility 0s ease 0.2s;
+
+    &:hover {
+      opacity: 0.5;
+    }
   }
 
   padding: 0;
@@ -27,6 +33,12 @@
       font-size: 18px;
       font-weight: 700;
       color: #767676;
+      cursor: pointer;
+      transition: color 0.2s;
+
+      &:hover {
+        color: #7396CD;
+      }
     }
   }
 
@@ -88,9 +100,11 @@
         position: relative;
 
         summary {
+          border-radius: 6px;
+
           &:hover {
             div.tree-actions {
-              display: block;
+              display: flex;
 
               i::before {
                 opacity: 1;
@@ -105,12 +119,36 @@
 
         summary {
           display: flex;
-          padding: 8px 0;
+          padding: 8px 10px;
           align-items: center;
+          text-wrap: nowrap;
+          overflow: hidden;
+          transition: background-color 0.2s;
+
+          &:hover {
+            background: #EEF0F8;
+          }
         }
 
         &__active {
-          color: #7396CD;
+          summary:not(.child-tree summary) {
+            color: #7396CD;
+          }
+
+          summary::before {
+            color: #7396CD !important;
+          }
+        }
+
+        &__no-children {
+          summary::before {
+            display: flex;
+            align-items: center;
+            background: none !important;
+            font-size: medium;
+            color: #767676;
+            content: ' •';
+          }
         }
       }
 
@@ -124,20 +162,30 @@
         }
 
         &__active {
-          color: #7396CD;
+          & > details > summary {
+            color: #7396CD;
+          }
         }
       }
 
       div.tree-actions {
         display: none;
         position: absolute;
-        top: 0;
+        top: 6px;
         right: 0;
+        padding-right: 6px;
+        gap: 3px;
+        background: linear-gradient(to right, rgba(238, 240, 248, 0), #EEF0F8 15%);
 
         i {
           font-size: 11pt;
           color: #7396CD;
           cursor: pointer;
+          transition: opacity 0.2s, visibility 0s ease 0.2s;
+
+          &:hover {
+            opacity: 0.5;
+          }
         }
       }
 
