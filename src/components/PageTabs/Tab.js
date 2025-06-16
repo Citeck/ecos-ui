@@ -42,7 +42,7 @@ class Tab extends Component {
 
     if (recordRef) {
       this.instanceRecord = Records.get(isArray(recordRef) ? recordRef.shift() : recordRef);
-      this.watcher = this.instanceRecord && this.instanceRecord.watch(['name'], this.updateTab);
+      this.watcher = this.instanceRecord && this.instanceRecord.watch(['_disp', 'name'], this.updateTab);
     }
   }
 
