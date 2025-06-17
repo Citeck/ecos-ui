@@ -1,9 +1,9 @@
-/* eslint-disable header/header */
 import { $generateHtmlFromNodes, $generateNodesFromDOM } from '@lexical/html';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $createParagraphNode, $createTextNode, $getRoot, $getSelection, $isRangeSelection } from 'lexical';
+import { $createParagraphNode, $createTextNode, $getRoot, $getSelection, $isRangeSelection, $isParagraphNode } from 'lexical';
 import { useDebounce } from 'use-debounce';
 
+import { $isImageNode } from '../nodes/ImageNode';
 import useLayoutEffect from '../shared/useLayoutEffect';
 
 type Options = {
@@ -23,17 +23,29 @@ const useSyncWithInputHtml = (html?: string | null, { timeoutMs = 800 }: Options
         phNode.append($createTextNode(''));
         $getRoot().append(phNode);
 
-        /** Why is this? This select makes auto-transfer when you start typing text **/
-        // $getRoot().select();
-
         const parser = new DOMParser();
         const dom = parser.parseFromString(normHtml ?? '', 'text/html');
         const nodes = $generateNodesFromDOM(editor, dom);
         const selection = $getSelection();
 
         if ($isRangeSelection(selection)) {
-          $getRoot().select();
           selection.insertNodes(nodes);
+
+          const root = $getRoot();
+          const children = root.getChildren();
+
+          if (children.length > 1) {
+            const first = children[0];
+            if ($isParagraphNode(first) && first.getTextContent() === '' && !first.getChildren().some(child => $isImageNode(child))) {
+              first.remove();
+            }
+
+            const updatedChildren = root.getChildren();
+            const last = updatedChildren[updatedChildren.length - 1];
+            if ($isParagraphNode(last) && last.getTextContent() === '' && !last.getChildren().some(child => $isImageNode(child))) {
+              last.remove();
+            }
+          }
         }
       }
     });

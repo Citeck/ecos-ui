@@ -82,7 +82,6 @@ class EditorCustomHtmlWidget extends Component<EditorProps, EditorState> {
   };
 
   onChangeSetting = (newSetting: Partial<EditorState>) => {
-    console.log('newSetting:', newSetting);
     this.setState(prev => ({
       ...prev,
       ...newSetting
@@ -90,8 +89,9 @@ class EditorCustomHtmlWidget extends Component<EditorProps, EditorState> {
   };
 
   render() {
-    const { loading } = this.props;
-    const { htmlString, title, isWysiwygMode } = this.state;
+    const { loading, config } = this.props;
+    const { title, htmlString, isWysiwygMode } = this.state;
+    const { htmlString: pHtmlString = {} } = config || {};
 
     const isDisableSave = !htmlString || loading;
     const selectedLang = getCurrentLocale();
@@ -120,17 +120,12 @@ class EditorCustomHtmlWidget extends Component<EditorProps, EditorState> {
           <Checkbox checked={isWysiwygMode} onClick={(isWysiwygMode: boolean) => this.onChangeSetting({ isWysiwygMode })} />
         </Field>
 
-        <Field
-          label={t(Labels.Editor.HTML_FIELD_LABEL)}
-          className="citeck-html-widget__editor_field"
-          labelPosition="top"
-          isSmall={this.isSmall}
-        >
+        <div className="citeck-html-widget__editor-content">
           {isWysiwygMode ? (
-            <MLLexicalEditor value={htmlString} onChange={htmlString => this.onChangeSetting({ htmlString })} />
+            <MLLexicalEditor lang={selectedLang} value={pHtmlString} onChange={htmlString => this.onChangeSetting({ htmlString })} />
           ) : (
             <MLTextarea
-              value={htmlString}
+              value={pHtmlString}
               onChange={(htmlString: MLHtmlStringType) => this.onChangeSetting({ htmlString })}
               style={{ width: '100%', height: '100%' }}
               lang={selectedLang}
@@ -138,7 +133,7 @@ class EditorCustomHtmlWidget extends Component<EditorProps, EditorState> {
               editorLang="html"
             />
           )}
-        </Field>
+        </div>
 
         <div className="citeck-html-widget__editor-buttons">
           <Btn className="ecos-btn_hover_light-blue" onClick={this.onCloseEditor}>

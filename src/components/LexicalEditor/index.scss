@@ -1,7 +1,7 @@
 @import "@/styles/constants";
 
 .citeck-ml-lexical-editor {
-
+  position: relative;
   border-radius: $border-radius-standard;
   border: 2px solid $color-gray-6;
   height: calc(100% - 10px);
@@ -16,7 +16,7 @@
 
   &__ml-btn {
     position: absolute;
-    top: 10px;
+    bottom: 10px;
     right: 13px;
 
     width: 20px;
