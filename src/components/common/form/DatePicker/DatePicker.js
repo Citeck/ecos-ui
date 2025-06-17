@@ -37,7 +37,8 @@ export default class DatePicker extends Component {
     narrow: PropTypes.bool,
     closeAfterChange: PropTypes.bool,
     wrapperClasses: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
-    onChange: PropTypes.func
+    onChange: PropTypes.func,
+    onSave: PropTypes.func
   };
 
   static defaultProps = {
@@ -176,6 +177,11 @@ export default class DatePicker extends Component {
   };
 
   handleClickOutside = () => {
+    this.closeDatePicker();
+    this.handleSave();
+  };
+
+  closeDatePicker = () => {
     this.setState({ isOpen: false });
   };
 
@@ -190,9 +196,32 @@ export default class DatePicker extends Component {
   onChangeRaw = e => {
     const { onChangeRaw } = this.props;
 
-    this.handleClickOutside();
     if (isFunction(onChangeRaw)) {
       onChangeRaw(e);
+    }
+  };
+
+  handleSave = () => {
+    const { selectedDate } = this.state;
+    const { onSave } = this.props;
+
+    if (isFunction(onSave)) {
+      onSave(selectedDate);
+    }
+  };
+
+  handleKeyDown = e => {
+    switch (true) {
+      case e.key === 'Enter':
+        this.handleSave();
+        break;
+
+      case e.key === 'Escape':
+        this.closeDatePicker();
+        break;
+
+      default:
+        break;
     }
   };
 
@@ -216,6 +245,8 @@ export default class DatePicker extends Component {
           placeholderText={placeholder}
           open={isOpen}
           onChangeRaw={this.onChangeRaw}
+          onKeyDown={this.handleKeyDown}
+          shouldCloseOnSelect
           customInput={<CustomInput forwardedRef={el => (this.datePickerInput = el)} narrow={narrow} />}
           selected={this.selected}
           className={classNames('ecos-input_hover', className)}
