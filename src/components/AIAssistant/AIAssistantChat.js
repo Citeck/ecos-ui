@@ -144,11 +144,46 @@ const AIAssistantChat = () => {
       if (e.key === "Escape" && isOpen) {
         handleClose();
       }
+      
+      // Add hotkey for opening/closing AI assistant: Cmd+I (Mac) or Alt+I (Windows/Linux)
+      if (e.key === "i" && (e.metaKey || e.altKey) && !e.shiftKey && !e.ctrlKey) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        aiAssistantService.toggleChat();
+      }
     };
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen]);
+
+  // Focus on input when chat opens
+  useEffect(() => {
+    if (isOpen && !isMinimized) {
+      // Small delay to ensure the component is fully rendered
+      setTimeout(() => {
+        if (activeTab === TAB_TYPES.UNIVERSAL && universalTextareaRef.current) {
+          universalTextareaRef.current.focus();
+        } else if (activeTab === TAB_TYPES.CONTEXTUAL && contextualTextareaRef.current) {
+          contextualTextareaRef.current.focus();
+        }
+      }, 100);
+    }
+  }, [isOpen, isMinimized, activeTab]);
+
+  // Also focus when switching tabs
+  useEffect(() => {
+    if (isOpen && !isMinimized) {
+      setTimeout(() => {
+        if (activeTab === TAB_TYPES.UNIVERSAL && universalTextareaRef.current) {
+          universalTextareaRef.current.focus();
+        } else if (activeTab === TAB_TYPES.CONTEXTUAL && contextualTextareaRef.current) {
+          contextualTextareaRef.current.focus();
+        }
+      }, 50);
+    }
+  }, [activeTab, isOpen, isMinimized]);
 
   // Cleanup polling when component unmounts
   useEffect(() => {
@@ -288,6 +323,17 @@ const AIAssistantChat = () => {
   const handleMinimize = () => {
     const newState = aiAssistantService.toggleMinimize();
     setIsMinimized(newState);
+    
+    // Focus on input when restoring from minimized state
+    if (!newState && isOpen) {
+      setTimeout(() => {
+        if (activeTab === TAB_TYPES.UNIVERSAL && universalTextareaRef.current) {
+          universalTextareaRef.current.focus();
+        } else if (activeTab === TAB_TYPES.CONTEXTUAL && contextualTextareaRef.current) {
+          contextualTextareaRef.current.focus();
+        }
+      }, 100);
+    }
   };
 
   const handleUniversalSubmit = async (e) => {
