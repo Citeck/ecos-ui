@@ -8,7 +8,7 @@ import './style.scss';
 
 const AIAssistantButton = () => {
   const [isAvailable, setIsAvailable] = useState(false);
-  const [setIsOpen] = useState(aiAssistantService.isOpen);
+  const [isOpen, setIsOpen] = useState(aiAssistantService.isOpen);
   const [isLoading, setIsLoading] = useState(true);
   const buttonId = 'ai-assistant-btn';
 
@@ -22,7 +22,7 @@ const AIAssistantButton = () => {
 
     checkAvailability();
 
-    const handleStateChange = (newIsOpen) => {
+    const handleStateChange = (newIsOpen, newIsMinimized) => {
       setIsOpen(newIsOpen);
     };
 
