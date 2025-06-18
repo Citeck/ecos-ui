@@ -29,6 +29,7 @@ import { selectAllComments } from '../selectors/comments';
 import { uploadFile, uploadFileV2 } from './documents';
 
 import { NotificationManager } from '@/services/notifications';
+import { addUploadedEntityRefs } from '@/services/uploadRefsStore';
 
 const getPureMessage = message => (message || '').replace(/\d/g, '');
 
@@ -163,8 +164,11 @@ function* sagaUploadFilesInComment({ api }, { payload }) {
     }
 
     const files = yield payload.files.map(function* (file) {
-      return yield fileUploadFunc({ api, file, callback: payload.callback });
+      return yield fileUploadFunc({ api, file, callback: payload.callback, isAttachment: true });
     });
+
+    const refs = files.map(f => f.data.entityRef);
+    addUploadedEntityRefs(refs);
 
     const results = yield Promise.allSettled(files);
 
