@@ -305,10 +305,8 @@ export default class SelectJournal extends Component {
   refreshGridData = () => {
     const getData = async resolve => {
       const { sortBy, queryData, customSourceId } = this.props;
-      const { journalConfig, gridData, pagination, filterPredicate, displayedColumns } = this.state;
-
-      const predicates = JournalsConverter.cleanUpPredicate([...(filterPredicate || [])]);
-
+      const { customPredicate, journalConfig, gridData, pagination, filterPredicate, displayedColumns } = this.state;
+      const predicates = JournalsConverter.cleanUpPredicate([customPredicate, ...(filterPredicate || [])]);
       /** @type JournalSettings */
       const settings = JournalsConverter.getSettingsForDataLoaderServer({
         sourceId: customSourceId,

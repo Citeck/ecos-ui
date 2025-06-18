@@ -12,7 +12,6 @@ import { Labels } from '../constants';
 import Filter from '../Filter';
 import FiltersContext from './FiltersContext';
 
-import { COLUMN_DATA_TYPE_BOOLEAN, PREDICATE_CONTAINS } from '@/components/Records/predicates/predicates';
 import './Filters.scss';
 
 class Filters extends React.Component {
@@ -21,29 +20,29 @@ class Filters extends React.Component {
   }
 
   onApply = () => {
-    const { fields, searchText } = this.context;
+    const { fields } = this.context;
     const { onApply } = this.props;
 
     if (isFunction(onApply)) {
-      const systemPredicate = fields.find((item) => item.attribute === 'system');
-      const fieldsPredicates = fields
-        .filter((item) => item.type !== COLUMN_DATA_TYPE_BOOLEAN)
-        .map(({ selectedPredicate, attribute, predicateValue }) => {
+      onApply(
+        fields.map(item => {
+          const { selectedPredicate, attribute, predicateValue } = item;
           const predicate = {
-            t: PREDICATE_CONTAINS,
-            att: attribute,
-            val: predicateValue ? predicateValue : searchText,
+            t: selectedPredicate.value,
+            att: attribute
           };
-          return ParserPredicate.replacePredicateType(predicate);
-        });
 
-      const customPredicate = {
-        t: 'eq',
-        att: 'system',
-        val: systemPredicate.predicateValue ? systemPredicate.predicateValue : false,
-      };
-      const predicates = [customPredicate, { t: 'or', val: fieldsPredicates }];
-      onApply(predicates);
+          if (selectedPredicate.needValue) {
+            predicate.val = predicateValue;
+          }
+
+          if (selectedPredicate.fixedValue) {
+            predicate.val = selectedPredicate.fixedValue;
+          }
+
+          return ParserPredicate.replacePredicateType(predicate);
+        })
+      );
     }
   };
 
@@ -52,7 +51,7 @@ class Filters extends React.Component {
     resetFields();
   };
 
-  onKeydown = debounce((e) => {
+  onKeydown = debounce(e => {
     if (e.key !== 'Enter') {
       return;
     }
@@ -79,8 +78,8 @@ class Filters extends React.Component {
                 selectedPredicate={item.selectedPredicate}
                 predicateValue={item.predicateValue}
                 onRemove={removeField}
-                onChangePredicate={(value) => changePredicate(idx, value)}
-                onChangePredicateValue={(value) => changePredicateValue(idx, value)}
+                onChangePredicate={value => changePredicate(idx, value)}
+                onChangePredicateValue={value => changePredicateValue(idx, value)}
               />
             ))}
           </ul>
@@ -116,10 +115,10 @@ Filters.propTypes = {
   columns: PropTypes.arrayOf(
     PropTypes.shape({
       attribute: PropTypes.string,
-      text: PropTypes.string,
-    }),
+      text: PropTypes.string
+    })
   ),
-  onApply: PropTypes.func,
+  onApply: PropTypes.func
 };
 
 export default Filters;
