@@ -1,6 +1,26 @@
 @import '../../../../styles/constants';
 
 .ecos-select {
+  &__editor {
+    .select__single-value {
+      font-size: 11px;
+      height: auto;
+      padding: 4px !important;
+      line-height: 16.5px;
+      color: $text-color-dark !important;
+    }
+
+    .select__control {
+      background: $color-white !important;
+    }
+
+    .select__control--is-focused {
+      .select__indicator > svg {
+        fill: $color-blue-light;
+      }
+    }
+  }
+
   .select__indicator-separator {
     width: 0;
   }
