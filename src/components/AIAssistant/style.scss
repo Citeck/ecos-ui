@@ -340,10 +340,37 @@
     ul, ol {
       margin-left: 1.5em;
       margin-bottom: 0.8em;
+      padding-left: 0; // Override global reset
+    }
+
+    ul {
+      list-style: disc !important; // Force bullet points
+      padding-left: 1.2em !important; // Add proper indentation
+    }
+
+    ol {
+      list-style: decimal !important; // Force numbers
+      padding-left: 1.2em !important; // Add proper indentation
     }
 
     li {
       margin-bottom: 0.3em;
+      display: list-item !important; // Ensure proper list item display
+
+      // Nested lists
+      ul, ol {
+        margin-top: 0.3em;
+        margin-bottom: 0.3em;
+        margin-left: 1em;
+      }
+
+      ul {
+        list-style: circle !important; // Different bullet for nested
+      }
+
+      ol {
+        list-style: lower-alpha !important; // Letters for nested
+      }
     }
 
     a {
@@ -409,21 +436,24 @@
 
     // Стили для GitHub Flavored Markdown
     .contains-task-list {
-      list-style-type: none;
-      padding-left: 0;
-      margin-left: 0;
+      list-style-type: none !important;
+      padding-left: 0 !important;
+      margin-left: 0 !important;
     }
 
     .task-list-item {
       position: relative;
       padding-left: 1.5em;
       margin-bottom: 0.3em;
+      display: list-item !important;
+      list-style: none !important;
     }
 
     .task-list-item input[type="checkbox"] {
       position: absolute;
       left: 0;
       top: 0.15em;
+      margin: 0;
     }
 
     del {
@@ -671,21 +701,21 @@
     max-height: 200px;
     overflow-y: auto;
     z-index: 105001;
-    
+
     // Custom scrollbar
     &::-webkit-scrollbar {
       width: 6px;
     }
-    
+
     &::-webkit-scrollbar-track {
       background: #f1f1f1;
       border-radius: 3px;
     }
-    
+
     &::-webkit-scrollbar-thumb {
       background: #ccc;
       border-radius: 3px;
-      
+
       &:hover {
         background: #999;
       }
