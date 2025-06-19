@@ -144,12 +144,12 @@ const AIAssistantChat = () => {
       if (e.key === "Escape" && isOpen) {
         handleClose();
       }
-      
+
       // Add hotkey for opening/closing AI assistant: Cmd+I (Mac) or Alt+I (Windows/Linux)
       if (e.key === "i" && (e.metaKey || e.altKey) && !e.shiftKey && !e.ctrlKey) {
         e.preventDefault();
         e.stopPropagation();
-        
+
         aiAssistantService.toggleChat();
       }
     };
@@ -323,7 +323,7 @@ const AIAssistantChat = () => {
   const handleMinimize = () => {
     const newState = aiAssistantService.toggleMinimize();
     setIsMinimized(newState);
-    
+
     // Focus on input when restoring from minimized state
     if (!newState && isOpen) {
       setTimeout(() => {
@@ -829,7 +829,7 @@ const AIAssistantChat = () => {
           <p>Опишите, что вы хотите сделать, и AI поможет вам.</p>
           {activeTab === TAB_TYPES.UNIVERSAL && (
             <p className="ai-assistant-chat__hint">
-              Например: "Создай тип данных для заявки на согласование отпуска"
+              Например: "Создай тип данных для заявки на согласование отпуска", "Какие ключевые пункты содержит документ?"
             </p>
           )}
           {activeTab === TAB_TYPES.CONTEXTUAL && (
