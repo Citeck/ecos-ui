@@ -63,13 +63,17 @@ export class ActivitiesApi {
       .then(response => response);
   };
 
-  create = ({ text, record, isInternal, selectedType, ...rest } = {}) => {
+  create = ({ text, record, isInternal, selectedType, docsRefs = [], ...rest } = {}) => {
     const comment = Records.getRecordToEdit(`${SourcesId.EMODEL_ACTIVITY}@`);
 
     comment.att('text', text);
     comment.att('_type', selectedType.id);
     comment.att('_parent', record || `emodel/workspace@${getWorkspaceId()}`);
     comment.att('_parentAtt', 'has-ecos-activities:ecosActivities');
+
+    if (isArray(docsRefs) && docsRefs.length > 0) {
+      comment.att('att_add_docs:documents', docsRefs);
+    }
 
     switch (selectedType.id) {
       case ActivityTypes.MEETING:
