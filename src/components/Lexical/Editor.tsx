@@ -74,7 +74,7 @@ import { CAN_USE_DOM } from './shared/canUseDOM';
 import ContentEditable from './ui/ContentEditable';
 
 import { t } from '@/helpers/export/util';
-import UploadDocsRefService, { UploadDocsRefServiceInstance } from '@/services/uploadDocsRefsStore';
+import { UploadDocsRefServiceInstance } from '@/services/uploadDocsRefsStore';
 
 export type LexicalEditorProps = {
   htmlString?: string;
@@ -179,7 +179,7 @@ export default function Editor({
     <>
       {isRichText && !hideToolbar && !readonly && (
         <ToolbarPlugin
-          isViewFileUploadBtn={!!UploadDocsRefService}
+          isViewFileUploadBtn={!!UploadDocsService}
           editor={editor}
           activeEditor={activeEditor}
           setActiveEditor={setActiveEditor}
