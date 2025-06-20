@@ -15,6 +15,18 @@ import Formio from './Formio';
 
 import { getCompDoc } from '@/constants/documentation';
 
+export function findUploadDocsService() {
+  let uploadService = null;
+
+  this.root.everyComponent(comp => {
+    if (comp._uploadDocsRefService) {
+      uploadService = comp._uploadDocsRefService;
+    }
+  });
+
+  return uploadService;
+}
+
 export const checkIsEmptyMlField = field => {
   if ((typeof field === 'string' && isEmpty(field)) || isNil(field)) {
     return true;

@@ -16,6 +16,7 @@ import { overrideTriggerChange } from '../misc';
 
 import LexicalEditor from '@/components/LexicalEditor';
 import ESMRequire from '@/services/ESMRequire.js';
+import UploadDocsRefService from '@/services/uploadDocsRefsStore';
 import { getStore } from '@/store';
 
 export default class TextAreaComponent extends FormIOTextAreaComponent {
@@ -39,6 +40,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
     this._lexicalRoot = null;
     this._lexicalInited = false;
+    this._uploadDocsRefService = new UploadDocsRefService();
   }
 
   get defaultSchema() {
@@ -247,6 +249,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
             readonly={settings.readonly}
             onChange={onChange}
             htmlString={this.dataValue || ''}
+            UploadDocsService={this._uploadDocsRefService}
             onEditorReady={editor => {
               this.calculatedValue = this.dataValue;
               this.editor = editor;
@@ -552,6 +555,10 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
   destroyWysiwyg() {
     if (this.isLexicalEditor && this.editor) {
       this.editor = null;
+    }
+
+    if (this._uploadDocsRefService) {
+      this._uploadDocsRefService.clearUploadedEntityRefs();
     }
 
     super.destroyWysiwyg();

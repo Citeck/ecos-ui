@@ -20,6 +20,7 @@ import { createCommentRequest, setError, deleteCommentRequest, getComments, upda
 import { t } from '@/helpers/export/util';
 import { num2str } from '@/helpers/util';
 import { selectStateByRecordRef } from '@/selectors/comments';
+import UploadDocsRefService from '@/services/uploadDocsRefsStore';
 
 export const LENGTH_LIMIT = 5000;
 
@@ -45,6 +46,11 @@ export class Comment extends Component {
     const { isMaxLength } = this.state;
 
     return !isMaxLength && !saveIsLoading;
+  }
+
+  constructor(props) {
+    super(props);
+    this._uploadDocsRefService = new UploadDocsRefService();
   }
 
   componentDidMount() {
@@ -110,6 +116,7 @@ export class Comment extends Component {
     });
 
     isFunction(onClose) && onClose();
+    this._uploadDocsRefService.clearUploadedEntityRefs();
   };
 
   toggleConfirmDialog = () => {
@@ -265,16 +272,18 @@ export class Comment extends Component {
     const { isInternal } = this.state;
 
     const text = this.handleTextBeforeSave();
+    const docsRefs = this._uploadDocsRefService.getUploadDocsRefsOfAttrs({ text });
 
     const callback = () => {
       this.handleCloseEditor();
       this.toggleLoading();
+      this._uploadDocsRefService.clearUploadedEntityRefs();
     };
 
     this.toggleLoading();
 
     comment === null
-      ? createComment(recordRef, text, isInternal, callback)
+      ? createComment({ recordRef, comment: text, isInternal, callback, docsRefs })
       : updateComment(
           recordRef,
           {
@@ -292,7 +301,11 @@ export class Comment extends Component {
     return (
       <div className="ecos-comments__editor">
         {isLoading && <Loader blur />}
-        <LexicalEditor htmlString={comment ? comment.text : null} onChange={this.handleEditorStateChange} />
+        <LexicalEditor
+          htmlString={comment ? comment.text : null}
+          onChange={this.handleEditorStateChange}
+          UploadDocsService={this._uploadDocsRefService}
+        />
         <div className="ecos-comments__editor-footer">
           {this.state.isInternalSupported && (
             <div className="ecos-comments__editor-footer-chbx-wrapper">
@@ -386,9 +399,7 @@ export class Comment extends Component {
             </div>
           )}
         </div>
-        {!isEdit && (
-          <LexicalEditor readonly className="ecos-comments__comment-editor" htmlString={text} onChange={this.handleEditorStateChange} />
-        )}
+        {!isEdit && <LexicalEditor readonly className="ecos-comments__comment-editor" htmlString={text} />}
         {isEdit && this.renderEditor()}
 
         {this.renderConfirmDelete(id)}
@@ -405,7 +416,8 @@ const mapStateToProps = (state, ownProps) => ({
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   getComments: () => dispatch(getComments(ownProps.record)),
-  createComment: (recordRef, comment, isInternal, callback) => dispatch(createCommentRequest({ comment, recordRef, isInternal, callback })),
+  createComment: ({ recordRef, comment, isInternal, callback, docsRefs }) =>
+    dispatch(createCommentRequest({ comment, recordRef, isInternal, callback, docsRefs })),
   updateComment: (recordRef, comment, callback) => dispatch(updateCommentRequest({ comment, recordRef, callback })),
   deleteComment: (recordRef, id, callback) => dispatch(deleteCommentRequest({ id, recordRef, callback })),
   setErrorMessage: message => dispatch(setError({ message, recordRef: ownProps.record }))

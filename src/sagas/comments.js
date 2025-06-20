@@ -78,12 +78,12 @@ function* sagaUpdateComments({ api }, action) {
 function* sagaCreateComment({ api }, action) {
   try {
     const {
-      payload: { recordRef, comment: text, isInternal = false }
+      payload: { recordRef, comment: text, isInternal = false, docsRefs = [] }
     } = action;
 
     yield put(sendingStart(recordRef));
 
-    const record = yield api.comments.create({ text, record: recordRef, isInternal });
+    const record = yield api.comments.create({ text, record: recordRef, isInternal, docsRefs });
     const comment = yield api.comments.getCommentById(record.id);
     const comments = yield select(state => selectAllComments(state, recordRef));
 
@@ -163,7 +163,7 @@ function* sagaUploadFilesInComment({ api }, { payload }) {
     }
 
     const files = yield payload.files.map(function* (file) {
-      return yield fileUploadFunc({ api, file, callback: payload.callback });
+      return yield fileUploadFunc({ api, file, callback: payload.callback, type: 'attachment' });
     });
 
     const results = yield Promise.allSettled(files);

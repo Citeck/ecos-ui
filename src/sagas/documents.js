@@ -470,12 +470,16 @@ export function* uploadFile({ api, file, callback }) {
   }
 }
 
-export function* uploadFileV2({ api, file, callback }) {
+export function* uploadFileV2({ api, file, callback, type }) {
   try {
     const formData = new FormData();
 
     formData.append('file', file);
     formData.append('name', file.name);
+
+    if (!!type) {
+      formData.append('ecosType', type);
+    }
 
     const { entityRef = null } = yield call(api.app.uploadFileV2, formData, callback);
 

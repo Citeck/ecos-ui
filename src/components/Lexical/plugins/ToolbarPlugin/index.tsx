@@ -60,12 +60,14 @@ export default function ToolbarPlugin({
   editor,
   activeEditor,
   setActiveEditor,
-  setIsLinkEditMode
+  setIsLinkEditMode,
+  isViewFileUploadBtn
 }: {
   editor: LexicalEditor;
   activeEditor: LexicalEditor;
   setActiveEditor: Dispatch<LexicalEditor>;
   setIsLinkEditMode: Dispatch<boolean>;
+  isViewFileUploadBtn: boolean;
 }): JSX.Element {
   const [selectedElementKey, setSelectedElementKey] = useState<NodeKey | null>(null);
   const [modal, showModal] = useModal();
@@ -379,20 +381,22 @@ export default function ToolbarPlugin({
         </>
       )}
       <AlignFormatDropdown disabled={!isEditable} value={toolbarState.elementFormat} editor={activeEditor} isRTL={toolbarState.isRTL} />
-      <div className="citeck-lexical-editor__load-node">
-        <IcoBtn
-          title={t('editor.upload-file')}
-          className={classNames('icon-upload', 'ecos-rt-editor-toolbar__button')}
-          onClick={() => {
-            if (isNodeRef(recordRef)) {
-              NotificationManager.error(t('editor.upload-file-alfresco-error'));
-              return;
-            }
+      {isViewFileUploadBtn && (
+        <div className="citeck-lexical-editor__load-node">
+          <IcoBtn
+            title={t('editor.upload-file')}
+            className={classNames('icon-upload', 'ecos-rt-editor-toolbar__button')}
+            onClick={() => {
+              if (isNodeRef(recordRef)) {
+                NotificationManager.error(t('editor.upload-file-alfresco-error'));
+                return;
+              }
 
-            editor.dispatchCommand(OPEN_UPLOAD_MODAL, undefined);
-          }}
-        />
-      </div>
+              editor.dispatchCommand(OPEN_UPLOAD_MODAL, undefined);
+            }}
+          />
+        </div>
+      )}
       {modal}
     </div>
   );
