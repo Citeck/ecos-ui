@@ -218,7 +218,7 @@ class Kanban extends React.Component {
                     key={`head_${selectedBoard}-${data.id}`}
                     isReady={!isFirstLoading}
                     data={data}
-                    typeRef={boardConfig.typeRef}
+                    typeRef={get(boardConfig, 'typeRef')}
                     totalCount={get(column, 'totalCount', '⭯')}
                     isViewNewJournal={isViewNewJournal}
                   />
