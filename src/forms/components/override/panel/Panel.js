@@ -3,8 +3,10 @@ import get from 'lodash/get';
 import throttle from 'lodash/throttle';
 
 import { t } from '../../../../helpers/export/util';
-import { TEMPLATE_REGEX } from '../../custom/selectJournal/constants';
 import { getMLValue } from '../../../../helpers/util';
+import { TEMPLATE_REGEX } from '../../custom/selectJournal/constants';
+
+import EcosFormUtils from '@/components/EcosForm/EcosFormUtils';
 
 export default class PanelComponent extends FormIOPanelComponent {
   #clearOnHideInProcess = false;
@@ -69,7 +71,7 @@ export default class PanelComponent extends FormIOPanelComponent {
           }
 
           this.panelTitle.appendChild(this.text(' '));
-          this.panelTitle.appendChild(this.text(this._renderTemplatedString(templateString, this.data)));
+          this.panelTitle.appendChild(this.text(EcosFormUtils.renderByTemplate(templateString, this.data)));
         }
       }
     }
@@ -100,22 +102,6 @@ export default class PanelComponent extends FormIOPanelComponent {
     if (this.component.scrollableContent) {
       window.removeEventListener('resize', this._calculatePanelContentHeightThrottled);
     }
-  }
-
-  _renderTemplatedString(str, replacements) {
-    function interpolate(template, variables, fallback) {
-      return template.replace(TEMPLATE_REGEX, match => {
-        const path = match.slice(2, -1).trim();
-
-        return getObjPath(path, variables, fallback);
-      });
-    }
-
-    function getObjPath(path, obj, fallback = '') {
-      return path.split('.').reduce((res, key) => res[key] || fallback, obj);
-    }
-
-    return interpolate(str, replacements);
   }
 
   _calculatePanelContentHeight = () => {
