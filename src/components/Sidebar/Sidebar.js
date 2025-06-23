@@ -198,7 +198,7 @@ class Sidebar extends React.Component {
         </Scrollbars>
         {get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false) && (
           <div className="ecos-sidebar-toggle" onClick={() => this.toggleSlideMenu()}>
-            <SidebarToggle color="#b7b7b7" reverse={!isOpen} />
+            <SidebarToggle color="#b7b7b7" />
             {isOpen && <p>{t('admin-section.sidebar.hide-sm')}</p>}
           </div>
         )}

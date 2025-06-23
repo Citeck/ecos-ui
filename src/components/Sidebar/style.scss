@@ -627,6 +627,12 @@ $transition-duration: 0.3s;
 
   &_expanded {
     width: 243px;
+
+    .ecos-sidebar-toggle {
+      svg {
+        transform: rotate(180deg)
+      }
+    }
   }
 
   &_collapsed {
