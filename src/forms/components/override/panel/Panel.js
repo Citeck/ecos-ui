@@ -1,12 +1,17 @@
 import FormIOPanelComponent from 'formiojs/components/panel/Panel';
 import get from 'lodash/get';
 import throttle from 'lodash/throttle';
+import React from 'react';
+import { createRoot } from 'react-dom/client';
 
-import { t } from '../../../../helpers/export/util';
-import { getMLValue } from '../../../../helpers/util';
 import { TEMPLATE_REGEX } from '../../custom/selectJournal/constants';
 
+import ChevronDown from './ChevronDown';
+import ChevronRight from './ChevronRight';
+
 import EcosFormUtils from '@/components/EcosForm/EcosFormUtils';
+import { t } from '@/helpers/export/util';
+import { getMLValue } from '@/helpers/util';
 
 export default class PanelComponent extends FormIOPanelComponent {
   #clearOnHideInProcess = false;
@@ -85,6 +90,12 @@ export default class PanelComponent extends FormIOPanelComponent {
     }
 
     this.addEventListeners();
+  }
+
+  getCollapseIcon() {
+    const container = document.createElement('i');
+    createRoot(container).render(this.collapsed ? <ChevronRight /> : <ChevronDown />);
+    return container;
   }
 
   destroyComponents() {

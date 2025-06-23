@@ -11,9 +11,11 @@ $theme-title-back: (
   'info': $color-blue-light2,
   'success': $success,
   'danger': $danger,
-  'warning': $warning
+  'warning': $warning,
+  'transparent': $transparent,
 );
 $theme-title-dark-color: 'info', 'default';
+$theme-title-gray-color: 'transparent';
 
 .formio-dialog-content .preview-panel,
 .formio-form {
@@ -33,6 +35,12 @@ $theme-title-dark-color: 'info', 'default';
     @each $name in $theme-title-dark-color {
       &.panel-#{$name} {
         --title-color: #{$text-color-gray};
+      }
+    }
+
+    @each $name in $theme-title-gray-color {
+      &.panel-#{$name} {
+        --title-color: #{$text-color-dark};
       }
     }
 
@@ -73,6 +81,10 @@ $theme-title-dark-color: 'info', 'default';
   .formio-form .panel-body.drag-container.panel-body_scrollable {
     padding: 20px;
   }
+}
+
+.card .card-title {
+  padding: 7px 0;
 }
 
 // fix for legacy card-details page

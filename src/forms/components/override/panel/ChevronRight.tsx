@@ -1,0 +1,12 @@
+import React from 'react';
+
+export default ({ width = 20, height = 21, viewBox = '0 0 20 21', fill = 'none' }) => (
+  <svg width={width} height={height} viewBox={viewBox} fill={fill} xmlns="http://www.w3.org/2000/svg">
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M8.29289 14.7598C7.90237 14.3693 7.90237 13.7362 8.29289 13.3456L11.5858 10.0527L8.29289 6.75984C7.90237 6.36932 7.90237 5.73615 8.29289 5.34563C8.68342 4.9551 9.31658 4.9551 9.70711 5.34563L13.7071 9.34563C14.0976 9.73615 14.0976 10.3693 13.7071 10.7598L9.70711 14.7598C9.31658 15.1504 8.68342 15.1504 8.29289 14.7598Z"
+      fill="#B7B7B7"
+    />
+  </svg>
+);
