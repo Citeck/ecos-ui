@@ -653,11 +653,13 @@ export default class SelectJournal extends Component {
     this.setState({ isSelectModalOpen: true });
 
     if (!isJournalConfigFetched) {
-      this.getJournalConfig().then(this.refreshGridData);
+      this.fetchJournalData();
     } else if (!isGridDataReady) {
       this.refreshGridData();
     }
   };
+
+  fetchJournalData = () => this.getJournalConfig().then(this.refreshGridData);
 
   onCreateFormSubmit = (record, form, alias) => {
     const { multiple } = this.props;
@@ -670,6 +672,11 @@ export default class SelectJournal extends Component {
       ? Math.floor(gridData.total / pagination.maxItems) * pagination.maxItems
       : paginationInitState.skipCount;
     const newPageNum = isAscending ? Math.ceil((gridData.total + 1) / pagination.maxItems) : paginationInitState.page;
+
+    if (!alias) {
+      this.fetchJournalData();
+      return;
+    }
 
     alias.toJsonAsync(true).then(res => {
       const newData = cloneDeep(this.state);
@@ -684,7 +691,7 @@ export default class SelectJournal extends Component {
         pagination: { skipCount: newSkipCount, page: newPageNum }
       });
 
-      this.setState(newData, this.refreshGridData);
+      this.setState(newData, this.fetchJournalData);
     });
   };
 
