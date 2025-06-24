@@ -1,10 +1,13 @@
 import { get } from 'lodash';
 
+import { getWorkspaceId } from '@/helpers/urls';
 import { RootState } from '@/types/store';
 
 export const selectWorkspaces = (state: RootState) => get(state, 'workspaces.workspaces', []);
 export const selectMyWorkspaces = (state: RootState) => get(state, 'workspaces.myWorkspaces', []);
 export const selectPublicWorkspaces = (state: RootState) => get(state, 'workspaces.publicWorkspaces', []);
+
+export const selectCurrentWorkspace = (state: RootState) => selectWorkspaceById(state, getWorkspaceId()) || null;
 
 export const selectWorkspaceById = (state: RootState, id: string) => {
   return get(state, 'workspaces.workspaces', []).find(({ id: wsId }) => wsId === id);

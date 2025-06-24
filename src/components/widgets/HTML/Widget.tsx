@@ -14,6 +14,7 @@ import EditorCustomHtmlWidget from './Editor';
 import { Labels } from './constants';
 
 import { setEditorMode, setLoading } from '@/actions/customWidgetHtml';
+import { WorkspaceType } from '@/api/workspaces/types';
 import LexicalEditor from '@/components/LexicalEditor';
 import { DashboardTypes } from '@/constants/dashboard';
 import { t } from '@/helpers/export/util';
@@ -21,6 +22,7 @@ import { getStateId, wrapArgs } from '@/helpers/store';
 import { getRecordRef } from '@/helpers/urls';
 import { getCurrentLocale } from '@/helpers/util';
 import { selectCustomWidgetData } from '@/selectors/customWidgetHtml';
+import { selectCurrentWorkspace } from '@/selectors/workspaces';
 import DAction from '@/services/DashletActionService';
 import { MLTextType } from '@/types/components';
 import { Dispatch, RootState } from '@/types/store';
@@ -39,21 +41,27 @@ export interface HTMLWidgetProps extends BaseWidgetProps, ObjectStateWidgetHtml 
   setLoading: (flag: boolean) => void;
   stateId: string;
   config: Partial<IConfigToSave> & BaseWidgetProps['config'];
+  currentWorkspace: WorkspaceType | null;
 }
 
 interface HTMLWidgetState extends BaseWidgetState {
   recordRef: string;
   html: MLHtmlStringType;
+  canEdit: boolean;
 }
 
 const getKey = ({ tabId = '', stateId, id }: { tabId: string; stateId?: string; id: string }) =>
   (stateId || '').includes(tabId) && stateId === tabId ? stateId : getStateId({ tabId, id: stateId || id });
 
-const mapStateToProps = (state: RootState, ownProps: Omit<HTMLWidgetProps, 'stateId'>) => {
+const mapStateToProps = (
+  state: RootState,
+  ownProps: Omit<HTMLWidgetProps, 'stateId' | 'currentWorkspace'>
+): Pick<HTMLWidgetProps, 'stateId' | 'currentWorkspace'> & ObjectStateWidgetHtml => {
   const stateId = getKey(ownProps);
   const ownState = selectCustomWidgetData(state, stateId);
 
   return {
+    currentWorkspace: selectCurrentWorkspace(state),
     stateId,
     ...ownState
   };
@@ -61,7 +69,7 @@ const mapStateToProps = (state: RootState, ownProps: Omit<HTMLWidgetProps, 'stat
 
 const mapDispatchToProps = (
   dispatch: Dispatch,
-  ownProps: Omit<HTMLWidgetProps, 'setEditorMode' | 'setLoading' | 'stateId'>
+  ownProps: Omit<HTMLWidgetProps, 'setEditorMode' | 'setLoading' | 'stateId' | 'currentWorkspace'>
 ): Pick<HTMLWidgetProps, 'setEditorMode' | 'setLoading'> => {
   const w = wrapArgs<boolean>(getKey(ownProps));
 
@@ -89,8 +97,18 @@ class CustomWidgetHtmlDashlet extends BaseWidget<HTMLWidgetProps, HTMLWidgetStat
 
       this.state = {
         recordRef,
-        html
+        html,
+        canEdit: false
       };
+    }
+  }
+
+  componentDidMount() {
+    const { currentWorkspace } = this.props;
+    super.componentDidMount();
+
+    if (currentWorkspace?.isCurrentUserManager || currentWorkspace?.hasWrite) {
+      this.setState({ canEdit: true });
     }
   }
 
@@ -179,10 +197,11 @@ class CustomWidgetHtmlDashlet extends BaseWidget<HTMLWidgetProps, HTMLWidgetStat
 
   render() {
     const { isVisibleEditor } = this.props;
+    const { canEdit } = this.state;
 
     let actions;
 
-    if (!isVisibleEditor) {
+    if (!isVisibleEditor && canEdit) {
       actions = {
         [DAction.Actions.SETTINGS]: {
           onClick: this.showEditor
