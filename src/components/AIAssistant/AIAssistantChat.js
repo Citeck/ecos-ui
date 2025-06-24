@@ -1252,7 +1252,7 @@ const AIAssistantChat = () => {
                   )}
                   onClick={() => setActiveTab(TAB_TYPES.UNIVERSAL)}
                 >
-                  <span>Базовый помощник</span>
+                  <span>Универсальный помощник</span>
                 </button>
                 {hasContext && (
                   <button
