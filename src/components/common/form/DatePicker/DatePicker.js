@@ -164,6 +164,7 @@ export default class DatePicker extends Component {
 
   handleSelectDate = date => {
     this.setState({ selectedDate: date });
+    this.closeDatePicker();
   };
 
   handleChangeDate = date => {
