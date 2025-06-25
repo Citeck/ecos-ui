@@ -218,7 +218,7 @@ export class OrgStructApi extends CommonApi {
         query: { t: 'and', v: [...queryVal, ...extraQueryVal] },
         language: 'predicate'
       },
-      { ...this.groupAttributes, ...globalSearchConfig, ...personAttributes }
+      { ...this.groupAttributes, ...globalSearchConfig }
     )
       .then(r => get(r, 'records', []))
       .then(filterByType)
