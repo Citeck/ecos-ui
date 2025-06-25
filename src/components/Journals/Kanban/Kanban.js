@@ -17,13 +17,17 @@ import HeaderColumn from './HeaderColumn';
 
 import { cancelGetNextBoardPage, getNextPage, moveCard, runAction } from '@/actions/kanban';
 import { t } from '@/helpers/util';
+import { selectJournalSetting } from '@/selectors/journals';
 import { selectKanbanProps } from '@/selectors/kanban';
 import { selectIsViewNewJournal } from '@/selectors/view';
 import './style.scss';
 
 function mapStateToProps(state, props) {
+  const settings = selectJournalSetting(state, props.stateId);
+
   return {
     ...selectKanbanProps(state, props.stateId),
+    predicate: settings.predicate,
     isViewNewJournal: selectIsViewNewJournal(state)
   };
 }
@@ -170,6 +174,7 @@ class Kanban extends React.Component {
       selectedBoard,
       kanbanSettings,
       isViewNewJournal,
+      predicate,
       boardConfig
     } = this.props;
     const { isDragging } = this.state;
@@ -218,7 +223,8 @@ class Kanban extends React.Component {
                     key={`head_${selectedBoard}-${data.id}`}
                     isReady={!isFirstLoading}
                     data={data}
-                    typeRef={boardConfig.typeRef}
+                    predicate={predicate}
+                    typeRef={get(boardConfig, 'typeRef')}
                     totalCount={get(column, 'totalCount', '⭯')}
                     isViewNewJournal={isViewNewJournal}
                   />

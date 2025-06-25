@@ -1,9 +1,11 @@
+import { AllowedLanguageType } from '@/types/langs';
+
 export const LANGUAGE_RU = 'ru';
 export const LANGUAGE_EN = 'en';
 
 const IMG_V = '2';
 
-export const allowedLanguages = [
+export const allowedLanguages: AllowedLanguageType[] = [
   {
     id: LANGUAGE_EN,
     label: 'Eng',

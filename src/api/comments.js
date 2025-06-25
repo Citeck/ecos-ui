@@ -1,3 +1,5 @@
+import isArray from 'lodash/isArray';
+
 import Records from '../components/Records';
 import { SourcesId } from '../constants';
 
@@ -70,7 +72,7 @@ export class CommentsApi {
       .then(response => response);
   };
 
-  create = ({ text, record, isInternal } = {}) => {
+  create = ({ text, record, isInternal, docsRefs = [] } = {}) => {
     if (isNodeRef(record)) {
       const comment = Records.get('comment@');
 
@@ -83,6 +85,10 @@ export class CommentsApi {
 
       comment.att('text', text);
       comment.att('record', record);
+
+      if (isArray(docsRefs) && docsRefs.length > 0) {
+        comment.att('att_add_docs:documents', docsRefs);
+      }
 
       if (isInternal) {
         comment.att('tags', [{ type: 'INTERNAL', name: {} }]);

@@ -3,7 +3,7 @@ import React, { Suspense, JSX } from 'react';
 
 import { $createFileNode, convertFileElement } from './utils';
 
-import { getDownloadContentUrl } from '@/helpers/urls';
+import { URL as Urls } from '@/constants';
 
 const FileComponent = React.lazy(() => import('./FileComponent'));
 
@@ -88,8 +88,8 @@ export class FileNode extends DecoratorNode<JSX.Element> {
   }
 
   getDownLoadUrl = (): string => {
-    const url = getDownloadContentUrl(this.__fileRecordId);
-    return url.replace('${recordRef}', this.__fileRecordId);
+    const url = `${Urls.DASHBOARD}?recordRef=${this.__fileRecordId}`;
+    return new URL(url, window.location.origin).toString();
   };
 
   updateDOM(): boolean {

@@ -2,7 +2,6 @@ import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
-import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 import PropTypes from 'prop-types';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
@@ -18,10 +17,10 @@ import {
   prepareParentId,
   unionWithPrevious,
   renderUsernameString,
-  isHTML,
-  getRecordRef,
-  stripHTML
+  getRecordRef
 } from './helpers';
+
+import EcosFormUtils from '@/components/EcosForm/EcosFormUtils';
 
 export const OrgstructContext = React.createContext();
 
@@ -462,9 +461,9 @@ export const OrgstructProvider = props => {
 
           if (authorityType === 'USER' && userMask) {
             const usernameString = renderUsernameString(userMask, { ...(item.attributes || {}) });
-            const plainText = stripHTML(usernameString);
+            const plainText = EcosFormUtils.stripHTML(usernameString);
 
-            if (isHTML(userMask)) {
+            if (EcosFormUtils.isHTML(userMask)) {
               return <div title={plainText} dangerouslySetInnerHTML={{ __html: usernameString }} />;
             }
 

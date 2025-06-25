@@ -1425,7 +1425,7 @@ class Grid extends Component {
     ]);
 
     const bootProps = this.getBootstrapTableProps(props, cloneDeep(extraProps));
-    const rulesKey = `table-${isEmpty(this.props.editingRules) ? 'without' : 'with'}-rules`;
+    const rulesKey = `table-${isEmpty(this.props.editingRules) ? 'without' : 'with'}-rules-${JSON.stringify(this.props.editingRules || {})}`;
 
     return (
       <div ref={this.setGridRef}>

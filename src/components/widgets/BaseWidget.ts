@@ -35,6 +35,7 @@ export interface BaseWidgetProps {
   fixedHeight?: boolean;
   onLoad?: (component: BaseWidget) => void;
   onUpdate?: (component: BaseWidget) => void;
+  onSave?: (id: string, config: any, callback: () => void) => void;
 }
 
 export interface BaseWidgetState {

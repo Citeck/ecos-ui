@@ -1,15 +1,15 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import moment from 'moment';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
+import moment from 'moment';
+import React from 'react';
+import ReactDOM from 'react-dom';
 
+import editorRegistry from '../';
 import { PREDICATE_TIME_INTERVAL } from '../../../../../Records/predicates/predicates';
 import { DatePicker, DateIntervalPicker } from '../../../../../common/form';
 import EditorScope from '../../EditorScope';
 import TextEditor from '../TextEditor';
-import editorRegistry from '../';
 
 export default class DateEditorControl extends React.Component {
   constructor(props) {
@@ -135,7 +135,7 @@ export default class DateEditorControl extends React.Component {
         wrapperClasses={classNames({
           'ecos-filter_width_full': !this.isCell
         })}
-        onChange={this.onChange}
+        onSave={this.onChange}
         onKeyDown={this.onKeyDown}
         autoFocus={this.isCell}
         showIcon={!this.isCell}

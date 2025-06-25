@@ -1,0 +1,19 @@
+import React from 'react';
+
+export default ({ width = 20, height = 21, viewBox = '0 0 20 21', fill = 'none' }) => (
+  <svg width={width} height={height} viewBox={viewBox} fill={fill} xmlns="http://www.w3.org/2000/svg">
+    <g clipPath="url(#clip0_6110_72878)">
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M5.29289 8.34563C5.68342 7.9551 6.31658 7.9551 6.70711 8.34563L10 11.6385L13.2929 8.34563C13.6834 7.9551 14.3166 7.9551 14.7071 8.34563C15.0976 8.73615 15.0976 9.36932 14.7071 9.75984L10.7071 13.7598C10.3166 14.1504 9.68342 14.1504 9.29289 13.7598L5.29289 9.75984C4.90237 9.36932 4.90237 8.73615 5.29289 8.34563Z"
+        fill="#B7B7B7"
+      />
+    </g>
+    <defs>
+      <clipPath id="clip0_6110_72878">
+        <rect width="20" height="20" fill="white" transform="translate(0 0.0527344)" />
+      </clipPath>
+    </defs>
+  </svg>
+);

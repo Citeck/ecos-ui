@@ -14,7 +14,7 @@ import { Labels } from '../constants';
 
 import Records from '@/components/Records/Records';
 import RecordActions from '@/components/Records/actions/recordActions';
-import { createDocumentUrl, getSelectedValueLink, getWorkspaceId } from '@/helpers/urls';
+import { getFormattedLink, getFormatter } from '@/components/common/form/SelectJournal/helpers';
 import { getEnabledWorkspaces, getMLValue, t } from '@/helpers/util';
 import { NotificationManager } from '@/services/notifications';
 
@@ -173,30 +173,13 @@ class InputView extends Component {
   renderSelectedValue(item) {
     const { isSelectedValueAsText, isModalMode, linkFormatter } = this.props;
     const enabledWorkspaces = getEnabledWorkspaces();
-    const currentWorkspaceId = getWorkspaceId();
 
-    let formatterFunc = null;
-    if (linkFormatter && typeof linkFormatter === 'string') {
-      try {
-        formatterFunc = eval(`(${linkFormatter})`);
-      } catch (err) {
-        console.error('[SelectJournal] Error when parsing the link Formatter:', err);
-      }
-    }
+    const formatterFunc = getFormatter(linkFormatter);
 
     const props = {};
 
     if (!isSelectedValueAsText) {
-      let link = getSelectedValueLink(item);
-      if (formatterFunc) {
-        try {
-          link = formatterFunc(link);
-        } catch (err) {
-          console.error('[SelectJournal] Error in linkFormatter method:', err);
-        }
-      } else {
-        link = createDocumentUrl(link);
-      }
+      const link = getFormattedLink({ item, formatterFunc });
 
       props.link = link;
       props.paramsLink = { openNewBrowserTab: isModalMode };
@@ -204,7 +187,7 @@ class InputView extends Component {
       const newUrl = new URL(link, window.location.origin);
       const searchParams = new URLSearchParams(newUrl.search);
 
-      if (enabledWorkspaces && currentWorkspaceId !== searchParams.get('ws')) {
+      if (enabledWorkspaces) {
         props.paramsLink = {
           ...props.paramsLink,
           workspaceId: searchParams.get('ws')

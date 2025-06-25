@@ -74,6 +74,7 @@ import { CAN_USE_DOM } from './shared/canUseDOM';
 import ContentEditable from './ui/ContentEditable';
 
 import { t } from '@/helpers/export/util';
+import { UploadDocsRefServiceInstance } from '@/services/uploadDocsRefsStore';
 
 export type LexicalEditorProps = {
   htmlString?: string;
@@ -83,6 +84,8 @@ export type LexicalEditorProps = {
   onChange?: (editorState: EditorState, editor: LexicalEditor, noChange: boolean) => void;
   onEditorReady?: (editor: LexicalEditor) => void;
   onUpload?: OnImageUpload;
+  withoutTimeout?: boolean;
+  UploadDocsService?: UploadDocsRefServiceInstance;
 };
 
 const skipCollaborationInit =
@@ -95,7 +98,8 @@ export default function Editor({
   hideToolbar = false,
   className,
   onEditorReady,
-  onUpload
+  onUpload,
+  UploadDocsService
 }: LexicalEditorProps): React.JSX.Element {
   const { historyState } = useSharedHistoryContext();
 
@@ -175,6 +179,7 @@ export default function Editor({
     <>
       {isRichText && !hideToolbar && !readonly && (
         <ToolbarPlugin
+          isViewFileUploadBtn={!!UploadDocsService}
           editor={editor}
           activeEditor={activeEditor}
           setActiveEditor={setActiveEditor}
@@ -194,7 +199,7 @@ export default function Editor({
         <EmojiPickerPlugin />
         <AutoEmbedPlugin />
         <MentionsPlugin />
-        <FilePlugin />
+        <FilePlugin UploadDocsService={UploadDocsService} />
         <EmojisPlugin />
         <HashtagPlugin />
         <KeywordsPlugin />

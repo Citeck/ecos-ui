@@ -11,6 +11,7 @@ import { Labels } from '../constants';
 // @ts-ignore
 import Records from '@/components/Records';
 import NumberFormatter from '@/components/common/grid/formatters/gql/NumberFormatter';
+import JournalsConverter from '@/dto/journals';
 import { getWorkspaceId } from '@/helpers/urls';
 import AttributesService from '@/services/AttributesService';
 
@@ -19,10 +20,11 @@ interface HeaderColumnProps {
   totalCount: number;
   isReady: boolean;
   isViewNewJournal: boolean;
+  predicate: any;
   typeRef: string;
 }
 
-const HeaderColumn = ({ data, totalCount, isReady, typeRef, isViewNewJournal }: HeaderColumnProps) => {
+const HeaderColumn = ({ data, totalCount, isReady, typeRef, isViewNewJournal, predicate }: HeaderColumnProps) => {
   const [columnSum, setColumnSum] = useState<number | undefined>();
   const [columnSumLabel, setColumnSumLabel] = useState<{ en: string; ru: string } | undefined>();
 
@@ -40,7 +42,8 @@ const HeaderColumn = ({ data, totalCount, isReady, typeRef, isViewNewJournal }: 
                 t: 'eq',
                 a: '_status',
                 v: data.id
-              }
+              },
+              { ...JournalsConverter.cleanUpPredicate([predicate])[0] }
             ]
           },
           language: 'predicate',

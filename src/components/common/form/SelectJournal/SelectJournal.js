@@ -305,10 +305,8 @@ export default class SelectJournal extends Component {
   refreshGridData = () => {
     const getData = async resolve => {
       const { sortBy, queryData, customSourceId } = this.props;
-      const { journalConfig, gridData, pagination, filterPredicate, displayedColumns } = this.state;
-
-      const predicates = JournalsConverter.cleanUpPredicate([...(filterPredicate || [])]);
-
+      const { customPredicate, journalConfig, gridData, pagination, filterPredicate, displayedColumns } = this.state;
+      const predicates = JournalsConverter.cleanUpPredicate([customPredicate, ...(filterPredicate || [])]);
       /** @type JournalSettings */
       const settings = JournalsConverter.getSettingsForDataLoaderServer({
         sourceId: customSourceId,
@@ -437,6 +435,23 @@ export default class SelectJournal extends Component {
       });
   };
 
+  fillWorkspaceId = rows => {
+    return Records.get(rows.map(r => r.id))
+      .load('_workspace?localId')
+      .then(workspacesId => {
+        let result = [];
+
+        for (let i = 0; i < rows.length; i++) {
+          result.push({
+            ...rows[i],
+            locatedWorkspaceId: workspacesId[i]
+          });
+        }
+
+        return result;
+      });
+  };
+
   fetchTableAttributes = rows => {
     const { viewMode, forceReload } = this.props;
     const { isJournalConfigFetched, isGridDataReady } = this.state;
@@ -554,6 +569,7 @@ export default class SelectJournal extends Component {
     return this.fetchDisplayNames(selected)
       .then(this.fillCanEdit)
       .then(this.fetchTableAttributes)
+      .then(this.fillWorkspaceId)
       .then(selected => {
         if (!this.liveComponent) {
           return;
@@ -637,11 +653,13 @@ export default class SelectJournal extends Component {
     this.setState({ isSelectModalOpen: true });
 
     if (!isJournalConfigFetched) {
-      this.getJournalConfig().then(this.refreshGridData);
+      this.fetchJournalData();
     } else if (!isGridDataReady) {
       this.refreshGridData();
     }
   };
+
+  fetchJournalData = () => this.getJournalConfig().then(this.refreshGridData);
 
   onCreateFormSubmit = (record, form, alias) => {
     const { multiple } = this.props;
@@ -654,6 +672,11 @@ export default class SelectJournal extends Component {
       ? Math.floor(gridData.total / pagination.maxItems) * pagination.maxItems
       : paginationInitState.skipCount;
     const newPageNum = isAscending ? Math.ceil((gridData.total + 1) / pagination.maxItems) : paginationInitState.page;
+
+    if (!alias) {
+      this.fetchJournalData();
+      return;
+    }
 
     alias.toJsonAsync(true).then(res => {
       const newData = cloneDeep(this.state);
@@ -668,7 +691,7 @@ export default class SelectJournal extends Component {
         pagination: { skipCount: newSkipCount, page: newPageNum }
       });
 
-      this.setState(newData, this.refreshGridData);
+      this.setState(newData, this.fetchJournalData);
     });
   };
 

@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 import React from 'react';
 
-import { getLinkWithWs } from '@/helpers/urls.js';
+import { getLinkWithWs, getWorkspaceId } from '@/helpers/urls.js';
 import PageService from '@/services/PageService';
 import PageTabList from '@/services/pageTabs/PageTabList.js';
 
@@ -14,6 +14,8 @@ export const AssocLink = ({ className, label, asText, link, extraData, paramsLin
 
   if (isHandleClick) {
     onClickHandler = e => {
+      const workspaceId = get(paramsLink, 'workspaceId');
+
       if (get(paramsLink, 'workspaceId')) {
         const url = getLinkWithWs(link, paramsLink.workspaceId);
 
@@ -22,16 +24,25 @@ export const AssocLink = ({ className, label, asText, link, extraData, paramsLin
           return;
         }
 
-        if (e.type === 'click' && e.button === 0) {
+        if ((e.type === 'click' || e.type === 'mousedown') && e.button === 0) {
+          const needUpdateTabs = !!workspaceId && workspaceId !== getWorkspaceId();
+
           const params = {
             openNewTab: true,
             reopen: true,
             closeActiveTab: false,
-            needUpdateTabs: true
+            needUpdateTabs
           };
 
-          PageTabList.setLastActiveTabWs();
-          PageService.changeUrlLink(url, params);
+          if (needUpdateTabs) {
+            PageTabList.setLastActiveTabWs();
+          }
+
+          if (!paramsLink.openNewBrowserTab) {
+            PageService.changeUrlLink(url, params);
+          } else {
+            PageService.changeUrlLink(url, { openNewBrowserTab: true });
+          }
 
           return;
         }

@@ -1,9 +1,6 @@
 import { EventEmitter } from 'events';
 import _ from 'lodash';
-import get from 'lodash/get';
-
-import { SourcesId } from '../../constants';
-import { getWorkspaceId } from '../../helpers/urls';
+import isString from 'lodash/isString';
 
 import Attribute from './Attribute';
 import RecordWatcher from './RecordWatcher';
@@ -11,6 +8,10 @@ import recordsClientManager from './client';
 import { loadAttribute, recordsMutateFetch } from './recordsApi';
 import { mapValueToScalar, parseAttribute } from './utils/attStrUtils';
 import { prepareAttsToLoad } from './utils/recordUtils';
+
+import { SourcesId } from '@/constants';
+import { getWorkspaceId } from '@/helpers/urls';
+import { getEnabledWorkspaces } from '@/helpers/util';
 
 export const EVENT_CHANGE = 'change';
 
@@ -489,7 +490,7 @@ export default class Record {
       }
     }
 
-    if (attributesToSave && !attributesToSave['_workspace'] && get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+    if (attributesToSave && !attributesToSave['_workspace'] && getEnabledWorkspaces()) {
       attributesToSave['_workspace'] = getWorkspaceId();
     }
 
