@@ -32,3 +32,4 @@ ignore/
 
 .yarn/cache
 .yarn/install-state.gz
+/src/plugins/*
