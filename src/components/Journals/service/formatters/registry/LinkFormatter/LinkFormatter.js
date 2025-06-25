@@ -32,7 +32,7 @@ export default class LinkFormatter extends BaseFormatter {
         return (
           <a
             className="ecos-link"
-            onClick={() => PageService.changeUrlLink(href, { ...config.target, openNewTab: true })}
+            onClick={() => PageService.changeUrlLink(href, { openNewTab: true, ...config.target })}
             {...{ [REMOTE_TITLE_ATTR_NAME]: true }}
           >
             {cell}
