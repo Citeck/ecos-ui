@@ -1,6 +1,7 @@
 import aiAssistantContext, { CONTEXT_TYPES } from './AIAssistantContext';
 import Records from '../Records';
 import { getRecordRef } from '@/helpers/urls';
+import LicenseService from "@/services/license/LicenseService.js";
 
 const BPMN_EDITOR_URL_PATTERN = /\/bpmn-editor/;
 
@@ -10,6 +11,8 @@ class AIAssistantService {
     this.isMinimized = false;
     this.listeners = [];
     this.availabilityListeners = [];
+    this.availabilityCache = null;
+    this.availabilityChecked = false;
   }
 
   isBpmnEditorPage() {
@@ -36,8 +39,22 @@ class AIAssistantService {
   }
 
   async isAvailable() {
-    // TODO: check enterprise ai feature
-    return true;
+    if (this.availabilityChecked) {
+      return this.availabilityCache;
+    }
+
+    const aiMicroserviceIsAvailable = async function () {
+      try {
+        const result = await Records.get('ai/meta@').load('time', true);
+        return result && result.trim() !== '';
+      } catch (error) {
+        return false
+      }
+    }
+
+    this.availabilityCache = await aiMicroserviceIsAvailable() && await LicenseService.hasAiFeature()
+    this.availabilityChecked = true;
+    return this.availabilityCache;
   }
 
   async toggleChat() {

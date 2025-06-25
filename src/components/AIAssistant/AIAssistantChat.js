@@ -1,17 +1,18 @@
-import React, {useState, useEffect, useRef} from "react";
+import React, { useState, useEffect, useRef } from "react";
 import classNames from "classnames";
-import {ResizableBox} from "react-resizable";
+import { ResizableBox } from "react-resizable";
 import "react-resizable/css/styles.css";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import aiAssistantService from "./AIAssistantService";
-import aiAssistantContext, {CONTEXT_TYPES} from "./AIAssistantContext";
-import {Icon} from "../common";
+import aiAssistantContext, { CONTEXT_TYPES } from "./AIAssistantContext";
+import { Icon } from "../common";
 import Records from "../Records";
-import {getRecordRef} from "@/helpers/urls";
+import { getRecordRef } from "@/helpers/urls";
+import { IS_APPLE, useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
 import "./style.scss";
-import {SourcesId} from "@/constants/index.js";
+import { SourcesId } from "@/constants/index.js";
 
 const POLLING_INTERVAL = 2000;
 const DEFAULT_WIDTH = 350;
@@ -31,7 +32,7 @@ const ADDITIONAL_CONTEXT_TYPES = {
 };
 
 const generateUUID = () => {
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
     const r = Math.random() * 16 | 0;
     const v = c === "x" ? r : (r & 0x3 | 0x8);
     return v.toString(16);
@@ -45,7 +46,7 @@ const AIAssistantChat = () => {
   const [contextType, setContextType] = useState(() => {
     return aiAssistantContext.getContext();
   });
-  const [chatSize, setChatSize] = useState({width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT});
+  const [chatSize, setChatSize] = useState({ width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT });
 
   // Universal chat state
   const [universalMessage, setUniversalMessage] = useState("");
@@ -62,7 +63,7 @@ const AIAssistantChat = () => {
 
   // Autocomplete state
   const [showAutocomplete, setShowAutocomplete] = useState(false);
-  const [autocompletePosition, setAutocompletePosition] = useState({top: 0, left: 0});
+  const [autocompletePosition, setAutocompletePosition] = useState({ top: 0, left: 0 });
   const [autocompleteQuery, setAutocompleteQuery] = useState("");
   const [currentRecordForAutocomplete, setCurrentRecordForAutocomplete] = useState(null);
   const [selectedAutocompleteIndex, setSelectedAutocompleteIndex] = useState(0);
@@ -82,6 +83,18 @@ const AIAssistantChat = () => {
   const contextualTextareaRef = useRef(null);
   const chatRef = useRef(null);
   const contextMenuRef = useRef(null);
+
+  const useAIAssistantShortcut = (callback, deps = []) => {
+    const modifiers = IS_APPLE
+      ? { meta: true, alt: false, shift: false, ctrl: false }
+      : { meta: false, alt: true, shift: false, ctrl: false };
+
+    useKeyboardShortcut("i", modifiers, callback, deps);
+  };
+
+  useAIAssistantShortcut(() => {
+    aiAssistantService.toggleChat();
+  });
 
   // Sync state with service
   useEffect(() => {
@@ -144,14 +157,6 @@ const AIAssistantChat = () => {
       if (e.key === "Escape" && isOpen) {
         handleClose();
       }
-
-      // Add hotkey for opening/closing AI assistant: Cmd+I (Mac) or Alt+I (Windows/Linux)
-      if (e.key === "i" && (e.metaKey || e.altKey) && !e.shiftKey && !e.ctrlKey) {
-        e.preventDefault();
-        e.stopPropagation();
-
-        aiAssistantService.toggleChat();
-      }
     };
 
     document.addEventListener("keydown", handleKeyDown);
@@ -195,7 +200,7 @@ const AIAssistantChat = () => {
   }, [pollingTimer]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({behavior: "smooth"});
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
@@ -218,7 +223,7 @@ const AIAssistantChat = () => {
 
   const clearUniversalConversation = async () => {
     try {
-      const response = await fetch(`/gateway/ecos-ai/api/assistant/universal/conversation/${conversationId}`, {
+      const response = await fetch(`/gateway/ai/api/assistant/universal/conversation/${conversationId}`, {
         method: "DELETE"
       });
 
@@ -227,7 +232,7 @@ const AIAssistantChat = () => {
         setConversationId(generateUUID()); // Generate new conversation ID
 
         // Clear additional context
-        setAdditionalContext({records: []});
+        setAdditionalContext({ records: [] });
         setSelectedAdditionalContext([]);
       }
     } catch (error) {
@@ -340,7 +345,7 @@ const AIAssistantChat = () => {
     e.preventDefault();
     if (!universalMessage.trim()) return;
 
-    const userMessage = {text: universalMessage, sender: "user", timestamp: new Date()};
+    const userMessage = { text: universalMessage, sender: "user", timestamp: new Date() };
     setUniversalMessages(prevMessages => [...prevMessages, userMessage]);
 
     setUniversalMessage("");
@@ -367,7 +372,7 @@ const AIAssistantChat = () => {
         context: additionalContext
       };
 
-      const response = await fetch("/gateway/ecos-ai/api/assistant/universal/chat", {
+      const response = await fetch("/gateway/ai/api/assistant/universal/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -422,7 +427,7 @@ const AIAssistantChat = () => {
     if (!activeRequestId) return;
 
     try {
-      const response = await fetch(`/gateway/ecos-ai/api/assistant/bpmn/${activeRequestId}`, {
+      const response = await fetch(`/gateway/ai/api/assistant/bpmn/${activeRequestId}`, {
         method: "DELETE"
       });
 
@@ -465,7 +470,7 @@ const AIAssistantChat = () => {
     try {
       setIsPolling(true);
 
-      const response = await fetch(`/gateway/ecos-ai/api/assistant/bpmn/${requestId}`);
+      const response = await fetch(`/gateway/ai/api/assistant/bpmn/${requestId}`);
 
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
@@ -567,7 +572,7 @@ const AIAssistantChat = () => {
     e.preventDefault();
     if (!contextualMessage.trim()) return;
 
-    const userMessage = {text: contextualMessage, sender: "user", timestamp: new Date()};
+    const userMessage = { text: contextualMessage, sender: "user", timestamp: new Date() };
     setContextualMessages(prevMessages => [...prevMessages, userMessage]);
 
     setContextualMessage("");
@@ -582,7 +587,7 @@ const AIAssistantChat = () => {
         }
 
         const contextData = aiAssistantContext.getContextData();
-        const {processRef, ecosType, currentBpmnXml} = contextData;
+        const { processRef, ecosType, currentBpmnXml } = contextData;
 
         const requestData = {
           userInput: contextualMessage,
@@ -591,7 +596,7 @@ const AIAssistantChat = () => {
           currentBpmnXml: currentBpmnXml || ""
         };
 
-        const response = await fetch("/gateway/ecos-ai/api/assistant/bpmn", {
+        const response = await fetch("/gateway/ai/api/assistant/bpmn", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -680,12 +685,12 @@ const AIAssistantChat = () => {
 
           // Scroll selected item into view
           setTimeout(() => {
-            const autocompleteContainer = document.querySelector('.ai-assistant-chat__autocomplete');
-            const selectedItem = document.querySelector('.ai-assistant-chat__autocomplete-item--selected');
+            const autocompleteContainer = document.querySelector(".ai-assistant-chat__autocomplete");
+            const selectedItem = document.querySelector(".ai-assistant-chat__autocomplete-item--selected");
             if (autocompleteContainer && selectedItem) {
               selectedItem.scrollIntoView({
-                behavior: 'smooth',
-                block: 'nearest'
+                behavior: "smooth",
+                block: "nearest"
               });
             }
           }, 0);
@@ -703,12 +708,12 @@ const AIAssistantChat = () => {
 
           // Scroll selected item into view
           setTimeout(() => {
-            const autocompleteContainer = document.querySelector('.ai-assistant-chat__autocomplete');
-            const selectedItem = document.querySelector('.ai-assistant-chat__autocomplete-item--selected');
+            const autocompleteContainer = document.querySelector(".ai-assistant-chat__autocomplete");
+            const selectedItem = document.querySelector(".ai-assistant-chat__autocomplete-item--selected");
             if (autocompleteContainer && selectedItem) {
               selectedItem.scrollIntoView({
-                behavior: 'smooth',
-                block: 'nearest'
+                behavior: "smooth",
+                block: "nearest"
               });
             }
           }, 0);
@@ -816,10 +821,10 @@ const AIAssistantChat = () => {
     }
   };
 
-  const handleResize = (event, {size}) => {
-    const {width, height} = size;
-    setChatSize({width, height});
-    localStorage.setItem("aiAssistantChatSize", JSON.stringify({width, height}));
+  const handleResize = (event, { size }) => {
+    const { width, height } = size;
+    setChatSize({ width, height });
+    localStorage.setItem("aiAssistantChatSize", JSON.stringify({ width, height }));
   };
 
   const renderMessages = (messages, isLoading) => {
@@ -844,9 +849,9 @@ const AIAssistantChat = () => {
               </div>
 
               <p className="ai-assistant-chat__hint">
-                <strong>Примеры запросов:</strong><br/>
-                • "Создай тип данных для заявки на отпуск"<br/>
-                • "Проанализируй документ @запись"<br/>
+                <strong>Примеры запросов:</strong><br />
+                • "Создай тип данных для заявки на отпуск"<br />
+                • "Проанализируй документ @запись"<br />
                 • "Что ты умеешь делать?"
               </p>
 
@@ -881,8 +886,8 @@ const AIAssistantChat = () => {
           <Markdown
             remarkPlugins={[remarkGfm]}
             components={{
-              a: ({node, ...props}) => (
-                <a {...props} target="_blank" rel="noopener noreferrer"/>
+              a: ({ node, ...props }) => (
+                <a {...props} target="_blank" rel="noopener noreferrer" />
               )
             }}
           >
@@ -900,7 +905,7 @@ const AIAssistantChat = () => {
           </div>
         )}
         <div className="ai-assistant-chat__message-time">
-          {msg.timestamp.toLocaleTimeString([], {hour: "2-digit", minute: "2-digit", hour12: false})}
+          {msg.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false })}
         </div>
       </div>
     ));
@@ -920,7 +925,7 @@ const AIAssistantChat = () => {
                 onClick={() => toggleAdditionalContext(ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD, record)}
                 title="Удалить из контекста"
               >
-                <Icon className="fa fa-times"/>
+                <Icon className="fa fa-times" />
               </button>
             </div>
           ))
@@ -997,7 +1002,7 @@ const AIAssistantChat = () => {
 
           // Calculate cursor position in textarea
           const textBeforeCursor = value.substring(0, cursorPosition);
-          const lines = textBeforeCursor.split('\n');
+          const lines = textBeforeCursor.split("\n");
           const currentLineIndex = lines.length - 1;
           const currentLineText = lines[currentLineIndex];
 
@@ -1104,7 +1109,7 @@ const AIAssistantChat = () => {
       >
         {isSearching && autocompleteQuery.length >= 3 && (
           <div className="ai-assistant-chat__autocomplete-item ai-assistant-chat__autocomplete-item--loading">
-            <Icon className="fa fa-spinner fa-spin ai-assistant-chat__autocomplete-icon"/>
+            <Icon className="fa fa-spinner fa-spin ai-assistant-chat__autocomplete-icon" />
             <div className="ai-assistant-chat__autocomplete-text">
               <div className="ai-assistant-chat__autocomplete-label">Поиск записей...</div>
             </div>
@@ -1122,7 +1127,7 @@ const AIAssistantChat = () => {
             )}
             onClick={() => !option.disabled && insertContextMention(option.type, option.recordData)}
           >
-            <Icon className={`fa ${option.icon} ai-assistant-chat__autocomplete-icon`}/>
+            <Icon className={`fa ${option.icon} ai-assistant-chat__autocomplete-icon`} />
             <div className="ai-assistant-chat__autocomplete-text">
               <div className="ai-assistant-chat__autocomplete-label">@{option.label}</div>
               <div className="ai-assistant-chat__autocomplete-description">{option.description}</div>
@@ -1236,7 +1241,7 @@ const AIAssistantChat = () => {
         resizeHandles={["nw"]}
         disableResize={isMinimized}
       >
-        <div className={classNames("ai-assistant-chat ai-assistant-chat--tabs", {"minimized": isMinimized})}
+        <div className={classNames("ai-assistant-chat ai-assistant-chat--tabs", { "minimized": isMinimized })}
              ref={chatRef}>
           <div className="ai-assistant-chat__header">
             <h3 className="ai-assistant-chat__title">Citeck AI</h3>
@@ -1272,7 +1277,7 @@ const AIAssistantChat = () => {
                 <button
                   className={classNames(
                     "ai-assistant-chat__tab",
-                    {"ai-assistant-chat__tab--active": activeTab === TAB_TYPES.UNIVERSAL}
+                    { "ai-assistant-chat__tab--active": activeTab === TAB_TYPES.UNIVERSAL }
                   )}
                   onClick={() => setActiveTab(TAB_TYPES.UNIVERSAL)}
                 >
@@ -1282,7 +1287,7 @@ const AIAssistantChat = () => {
                   <button
                     className={classNames(
                       "ai-assistant-chat__tab",
-                      {"ai-assistant-chat__tab--active": activeTab === TAB_TYPES.CONTEXTUAL}
+                      { "ai-assistant-chat__tab--active": activeTab === TAB_TYPES.CONTEXTUAL }
                     )}
                     onClick={() => setActiveTab(TAB_TYPES.CONTEXTUAL)}
                     title={`Контекстный помощник - ${getContextTitle()}`}
@@ -1305,7 +1310,7 @@ const AIAssistantChat = () => {
                     </div>
                   </div>
                 )}
-                <div ref={messagesEndRef}/>
+                <div ref={messagesEndRef} />
               </div>
 
               <div className="ai-assistant-chat__input-section">
@@ -1331,7 +1336,7 @@ const AIAssistantChat = () => {
                         onClick={clearUniversalConversation}
                         title="Очистить контекст"
                       >
-                        <Icon className="fa fa-trash-o"/>
+                        <Icon className="fa fa-trash-o" />
                       </button>
                     )}
                   </div>

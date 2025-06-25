@@ -1,5 +1,5 @@
 import { getLicenseInfo } from './licenseApi';
-import { LICENSE_FEATURE_GROUP_ACTIONS, FLAG_DEVELOPER, FEATURES, LICENSE_FEATURE_IMPORT_DATA } from './licenseConstants';
+import {LICENSE_FEATURE_GROUP_ACTIONS, FLAG_DEVELOPER, FEATURES, LICENSE_FEATURE_IMPORT_DATA, LICENSE_FEATURE_AI} from './licenseConstants';
 
 class LicenseService {
   async hasGroupActionsFeature() {
@@ -8,6 +8,10 @@ class LicenseService {
 
   async hasImportDataFeature() {
     return this.hasFeature(LICENSE_FEATURE_IMPORT_DATA);
+  }
+
+  async hasAiFeature() {
+    return this.hasFeature(LICENSE_FEATURE_AI);
   }
 
   async hasFeature(feature) {

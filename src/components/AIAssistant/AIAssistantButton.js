@@ -51,7 +51,7 @@ const AIAssistantButton = () => {
     // Periodically check availability (in case the context has changed)
     const intervalId = setInterval(() => {
       aiAssistantService.checkAvailability();
-    }, 1000);
+    }, 5000);
 
     // Remove listeners when the component is unmounted
     return () => {
