@@ -15,11 +15,7 @@ import './DatePicker.scss';
 const ECOS_DATEPICKER_CALENDAR = 'ecos-datepicker__calendar';
 const REACT_DATEPICKER_TIME_INPUT = 'react-datepicker-time__input';
 
-class CustomInput extends Component {
-  render() {
-    return <Input {...this.props} />;
-  }
-}
+const CustomInput = React.forwardRef((props, ref) => <Input ref={ref} {...props} />);
 
 export default class DatePicker extends Component {
   static propTypes = {
@@ -38,6 +34,7 @@ export default class DatePicker extends Component {
     closeAfterChange: PropTypes.bool,
     wrapperClasses: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
     onChange: PropTypes.func,
+    onCancel: PropTypes.func,
     onSave: PropTypes.func
   };
 
@@ -55,6 +52,8 @@ export default class DatePicker extends Component {
       isOpen: false,
       selectedDate: props.selected || null
     };
+
+    this.wrapperRef = React.createRef();
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -81,6 +80,9 @@ export default class DatePicker extends Component {
     if (scrollEl) {
       scrollEl.addEventListener('scroll', this.handleScroll);
     }
+
+    document.addEventListener('mousedown', this.handleClickOutsideControl);
+    document.addEventListener('keydown', this.handleEnterKeyDown);
   }
 
   componentWillUnmount() {
@@ -89,7 +91,31 @@ export default class DatePicker extends Component {
     if (scrollEl) {
       scrollEl.removeEventListener('scroll', this.handleScroll);
     }
+
+    document.removeEventListener('mousedown', this.handleClickOutsideControl);
+    document.removeEventListener('keydown', this.handleEnterKeyDown);
   }
+
+  handleEnterKeyDown = event => {
+    const { onCancel } = this.props;
+    const { isOpen } = this.state;
+
+    if (event.key === 'Escape') {
+      if (isOpen) {
+        this.closeDatePicker();
+      } else {
+        if (isFunction(onCancel)) {
+          onCancel();
+        }
+      }
+    }
+  };
+
+  handleClickOutsideControl = event => {
+    if (!this.state.isOpen && this.wrapperRef.current && !this.wrapperRef.current.contains(event.target)) {
+      this.handleClickOutside();
+    }
+  };
 
   handleScroll = () => {
     this.setState({ isOpen: false });
@@ -169,7 +195,9 @@ export default class DatePicker extends Component {
 
   handleChangeDate = date => {
     const { closeAfterChange = false } = this.props;
-    this.setState({ selectedDate: date, isOpen: !closeAfterChange });
+    this.setState({ selectedDate: date, isOpen: !closeAfterChange }, () => {
+      this.setInputFocus();
+    });
 
     const { onChange } = this.props;
     if (isFunction(onChange)) {
@@ -217,10 +245,6 @@ export default class DatePicker extends Component {
         this.handleSave();
         break;
 
-      case e.key === 'Escape':
-        this.closeDatePicker();
-        break;
-
       default:
         break;
     }
@@ -233,6 +257,7 @@ export default class DatePicker extends Component {
 
     return (
       <div
+        ref={this.wrapperRef}
         className={classNames(
           'ecos-datepicker',
           { 'ecos-datepicker_show-icon': showIcon, 'ecos-datepicker_narrow': narrow },
