@@ -826,12 +826,36 @@ const AIAssistantChat = () => {
     if (messages.length === 0) {
       return (
         <div className="ai-assistant-chat__empty">
-          <p>Опишите, что вы хотите сделать, и AI поможет вам.</p>
+          <div className="ai-assistant-chat__welcome">
+            <h4>👋 Привет! Я - Citeck AI Assistant</h4>
+            <p>Я помогу вам автоматизировать бизнес-процессы и работать с документами.</p>
+          </div>
+
           {activeTab === TAB_TYPES.UNIVERSAL && (
-            <p className="ai-assistant-chat__hint">
-              Например: "Создай тип данных для заявки на согласование отпуска", "Какие ключевые пункты содержит документ?"
-            </p>
+            <div className="ai-assistant-chat__capabilities">
+              <div className="ai-assistant-chat__capability">
+                <strong>📋 Типы данных:</strong> создание, редактирование и анализ
+              </div>
+              <div className="ai-assistant-chat__capability">
+                <strong>🔄 BPMN:</strong> генерация бизнес-процессов
+              </div>
+              <div className="ai-assistant-chat__capability">
+                <strong>📄 Документы:</strong> анализ, сравнение версий, Q&A
+              </div>
+
+              <p className="ai-assistant-chat__hint">
+                <strong>Примеры запросов:</strong><br/>
+                • "Создай тип данных для заявки на отпуск"<br/>
+                • "Проанализируй документ @запись"<br/>
+                • "Что ты умеешь делать?"
+              </p>
+
+              <p className="ai-assistant-chat__tip">
+                💡 Используйте <code>@</code> для добавления контекста
+              </p>
+            </div>
           )}
+
           {activeTab === TAB_TYPES.CONTEXTUAL && (
             <p className="ai-assistant-chat__hint">{getContextHint()}</p>
           )}

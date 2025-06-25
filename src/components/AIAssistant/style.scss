@@ -920,3 +920,71 @@
     opacity: 0.5;
   }
 }
+
+// Welcome message styles
+.ai-assistant-chat {
+  &__empty {
+    text-align: center;
+    color: #6c757d;
+  }
+
+  &__welcome {
+    margin-bottom: 20px;
+    
+    h4 {
+      color: $color-blue-dark;
+      margin: 0 0 10px 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+  }
+
+  &__capabilities {
+    text-align: left;
+    margin-top: 15px;
+  }
+
+  &__capability {
+    margin-bottom: 8px;
+    font-size: 13px;
+    line-height: 1.4;
+    
+    strong {
+      color: $color-blue-dark;
+    }
+  }
+
+  &__hint {
+    font-size: 12px;
+    line-height: 1.5;
+    margin: 15px 0 10px 0;
+    padding: 12px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    border-left: 3px solid $color-blue-light;
+  }
+
+  &__tip {
+    font-size: 11px;
+    color: #666;
+    margin-top: 10px;
+    padding: 8px 12px;
+    background-color: #fff3cd;
+    border-radius: 4px;
+    border-left: 3px solid #ffc107;
+
+    code {
+      background-color: rgba(0, 0, 0, 0.1);
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 11px;
+    }
+  }
+}
