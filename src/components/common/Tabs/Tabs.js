@@ -24,7 +24,7 @@ const Tab = props => {
 
   return (
     <div className={tabClassNames} title={hasHint ? label : ''} {...extraProps}>
-      {label}
+      <span>{label}</span>
     </div>
   );
 };

@@ -236,6 +236,13 @@
     }
   }
 
+  .ecos-journal-view__doc-lib {
+    margin: 10px 10px 0 10px !important;
+    padding: 12px !important;
+    border-radius: 12px;
+    background-color: $color-gray-25;
+  }
+
   .ecos-grid__row_new {
     &:last-child {
       border-bottom: 1px solid $color-gray-27;
@@ -484,7 +491,7 @@
   }
 
   .ecos-journal__body {
-    padding: 10px 10px 0 10px;
+    padding: 0;
   }
 
   &__not-mobile {

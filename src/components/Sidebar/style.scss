@@ -556,6 +556,7 @@ $transition-duration: 0.3s;
   $menu-list: '.ecos-sidebar-list';
   padding: 0 9px;
   width: 70px;
+  border-right: 1px solid $color-gray-4;
 
   .ecos-sidebar-logo {
     padding-top: 17px;

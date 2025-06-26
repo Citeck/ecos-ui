@@ -104,7 +104,9 @@
 
   &__tabs {
     &-wrapper {
-      padding: 0 19px 13px;
+      padding: 0 18px 0px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid $color-gray-4;
     }
 
     &-item {

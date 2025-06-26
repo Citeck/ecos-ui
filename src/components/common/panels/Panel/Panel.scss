@@ -1,17 +1,9 @@
 @import '../../../../styles/constants';
 
 .ecos-panel {
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 3px 4px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.14);
-  padding-top: 12px;
+  padding-top: 8px;
+  border: 1px solid $color-gray-4;
 }
-
-//.ecos-panel__head {
-//  background-color: $color-blue-dark;
-//  border-radius: $border-radius-standard;
-//  height: 34px;
-//  margin-right: 12px;
-//  margin-left: 12px;
-//}
 
 .ecos-panel__large {
   background-color: $color-white;

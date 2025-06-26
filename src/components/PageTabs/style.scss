@@ -10,22 +10,24 @@
   );
 
   height: 30px;
-  background-color: $color-gray-6;
+  background-color: $color-gray-4;
   display: flex;
   position: relative;
   user-select: none;
   margin-bottom: 0;
+
   &::after {
-    content: ' ';
-    background: $color-gray-6;
     flex: 1;
+    background: $color-gray-4;
     z-index: map-get($z-index, base);
+    content: ' ';
   }
+
   &_gradient {
     &-left {
       &:before {
         content: '';
-        left: 35px;
+        left: 0;
         top: 0;
         position: absolute;
         width: 40px;
@@ -38,7 +40,7 @@
     &-right {
       &:after {
         content: '';
-        right: 60px;
+        right: 0;
         top: 0;
         position: absolute;
         width: 40px;
@@ -49,6 +51,7 @@
       }
     }
   }
+
   &__nav-btn {
     background-color: $color-white;
     border-radius: 50%;
@@ -65,7 +68,7 @@
       width: 40px;
       height: 100%;
       z-index: map-get($z-index, base);
-      background-color: $color-gray-6;
+      background-color: $color-gray-4;
     }
     &:hover {
       background-color: $text-color-gray;
@@ -80,11 +83,11 @@
     }
     &_disable {
       background-color: $color-gray-5;
-      color: $color-gray-6;
+      color: $color-gray-4;
       cursor: not-allowed;
       &:hover {
         background-color: $color-gray-5;
-        color: $color-gray-6;
+        color: $color-gray-4;
       }
     }
   }
@@ -108,7 +111,7 @@
       display: flex;
       align-items: center;
       color: $text-color-gray;
-      background-color: $color-gray-6;
+      background-color: $color-gray-4;
       z-index: map-get($z-index, base);
       &:hover {
         color: $text-color-dark;
@@ -132,7 +135,7 @@
       max-width: 300px;
       padding: 3px 5px 6px 10px;
       border-radius: 6px 6px 0 0;
-      background-color: $color-gray-6;
+      background-color: $color-gray-4;
       z-index: map-get($z-index, tab-item);
       cursor: pointer;
       display: flex;
@@ -186,7 +189,7 @@
         }
       }
       &_active {
-        background-color: $color-gray-4;
+        background-color: $color-white;
         z-index: map-get($z-index, active);
         margin-left: 0;
         padding-left: 14px;
@@ -203,8 +206,8 @@
           left: -14px;
           transform: rotate(0deg);
           border-bottom-right-radius: 12px;
-          border-right: 6px $color-gray-4 solid;
-          border-bottom: 6px $color-gray-4 solid;
+          border-right: 6px $color-white solid;
+          border-bottom: 6px $color-white solid;
           width: 20px;
           height: 20px;
         }
@@ -217,8 +220,8 @@
           right: -14px;
           transform: rotate(0deg);
           border-bottom-left-radius: 12px;
-          border-left: 6px $color-gray-4 solid;
-          border-bottom: 6px $color-gray-4 solid;
+          border-left: 6px $color-white solid;
+          border-bottom: 6px $color-white solid;
           width: 20px;
           height: 20px;
         }
