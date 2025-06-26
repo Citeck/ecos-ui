@@ -10,7 +10,6 @@ import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { CharacterLimitPlugin } from '@lexical/react/LexicalCharacterLimitPlugin';
 import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
 import { ClearEditorPlugin } from '@lexical/react/LexicalClearEditorPlugin';
-import { ClickableLinkPlugin } from '@lexical/react/LexicalClickableLinkPlugin';
 import { CollaborationPlugin } from '@lexical/react/LexicalCollaborationPlugin';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
@@ -28,7 +27,6 @@ import { useLexicalEditable } from '@lexical/react/useLexicalEditable';
 import classNames from 'classnames';
 import { EditorState, type LexicalEditor } from 'lexical';
 import isFunction from 'lodash/isFunction';
-import isNil from 'lodash/isNil';
 import isString from 'lodash/isString';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
@@ -41,6 +39,7 @@ import { useSharedHistoryContext } from './context/SharedHistoryContext';
 import AutoEmbedPlugin from './plugins/AutoEmbedPlugin';
 import AutoLinkPlugin from './plugins/AutoLinkPlugin';
 import AutocompletePlugin from './plugins/AutocompletePlugin';
+import ClickableLinkPlugin from './plugins/ClickableLinkPlugin';
 import CodeActionMenuPlugin from './plugins/CodeActionMenuPlugin';
 import CodeHighlightPlugin from './plugins/CodeHighlightPlugin';
 import CollapsiblePlugin from './plugins/CollapsiblePlugin';
@@ -160,14 +159,6 @@ export default function Editor({
       window.removeEventListener('resize', updateViewPortWidth);
     };
   }, [isSmallWidthViewport]);
-
-  useEffect(() => {
-    const isReadonlyEditor = !editor.isEditable();
-
-    if (!isNil(readonly) && readonly !== isReadonlyEditor) {
-      editor.setEditable(isReadonlyEditor);
-    }
-  }, [readonly, editor]);
 
   useEffect(() => {
     if (isFunction(onEditorReady)) {
