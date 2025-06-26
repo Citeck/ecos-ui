@@ -140,6 +140,7 @@ export default class DateEditorControl extends React.Component {
         autoFocus={this.isCell}
         showIcon={!this.isCell}
         selected={this.selected}
+        onCancel={get(this.props, 'onCancel')}
         dateFormat={this.dateFormat}
         popperPlacement="top"
         popperContainer={({ children }) => ReactDOM.createPortal(children, this.portal)}
