@@ -1,5 +1,7 @@
 import aiAssistantContext, { CONTEXT_TYPES } from './AIAssistantContext';
 import Records from '../Records';
+import { getRecordRef } from '@/helpers/urls';
+import LicenseService from "@/services/license/LicenseService.js";
 
 const BPMN_EDITOR_URL_PATTERN = /\/bpmn-editor/;
 
@@ -9,15 +11,12 @@ class AIAssistantService {
     this.isMinimized = false;
     this.listeners = [];
     this.availabilityListeners = [];
+    this.availabilityCache = null;
+    this.availabilityChecked = false;
   }
 
   isBpmnEditorPage() {
     return BPMN_EDITOR_URL_PATTERN.test(window.location.pathname);
-  }
-
-  getRecordRefFromUrl() {
-    const match = window.location.href.match(/recordRef=([\w-/]+@[\w-]+)/);
-    return match ? match[1] : null;
   }
 
   async isDocumentWithContent() {
@@ -26,7 +25,7 @@ class AIAssistantService {
     }
 
    try {
-      const recordRef = this.getRecordRefFromUrl();
+      const recordRef = getRecordRef()
       if (!recordRef) {
         return false;
       }
@@ -40,22 +39,26 @@ class AIAssistantService {
   }
 
   async isAvailable() {
-    if (this.isBpmnEditorPage()) {
-      return aiAssistantContext.hasContext();
+    if (this.availabilityChecked) {
+      return this.availabilityCache;
     }
 
-    const hasContent = await this.isDocumentWithContent();
-    return hasContent && aiAssistantContext.hasContext();
-  }
-
-  async toggleChat() {
-    if (!this.isOpen) {
-      const isAvailable = await this.isAvailable();
-      if (!isAvailable) {
-        return false;
+    const aiMicroserviceIsAvailable = async function () {
+      try {
+        const result = await Records.get('ai/meta@').load('time', true);
+        return result && result.trim() !== '';
+      } catch (error) {
+        return false
       }
     }
 
+    this.availabilityCache = await aiMicroserviceIsAvailable() && await LicenseService.hasAiFeature()
+    this.availabilityChecked = true;
+    return this.availabilityCache;
+  }
+
+  async toggleChat() {
+    // Always allow opening the chat - universal assistant is always available
     if (!this.isOpen) {
       this.isOpen = true;
       this.isMinimized = false;

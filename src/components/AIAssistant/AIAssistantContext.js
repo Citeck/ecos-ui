@@ -2,7 +2,7 @@ import aiAssistantService from "./AIAssistantService";
 
 export const CONTEXT_TYPES = {
   BPMN_EDITOR: "BPMN_EDITOR",
-  DOCUMENT_QA: "DOCUMENT_QA"
+  UNIVERSAL: "UNIVERSAL"
 };
 
 class AIAssistantContext {
