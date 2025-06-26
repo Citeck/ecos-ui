@@ -48,7 +48,7 @@
 
     .ecos-tab {
       &:not(.ecos-tab_active) {
-        background: $color-gray-4;
+        background: transparent;
       }
     }
   }
