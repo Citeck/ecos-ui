@@ -404,25 +404,33 @@ exports[`DevTools tests <Tabs /> should render Tabs component 1`] = `
         class="ecos-tab"
         title=""
       >
-        dev-tools.tab.build
+        <span>
+          dev-tools.tab.build
+        </span>
       </div>
       <div
         class="ecos-tab"
         title=""
       >
-        dev-tools.tab.dev-modules
+        <span>
+          dev-tools.tab.dev-modules
+        </span>
       </div>
       <div
         class="ecos-tab"
         title=""
       >
-        dev-tools.tab.commits
+        <span>
+          dev-tools.tab.commits
+        </span>
       </div>
       <div
         class="ecos-tab"
         title=""
       >
-        dev-tools.tab.settings
+        <span>
+          dev-tools.tab.settings
+        </span>
       </div>
     </div>
   </div>
