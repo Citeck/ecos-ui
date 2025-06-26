@@ -1,14 +1,17 @@
 import React from 'react';
 
+import PageService from '@/services/PageService';
 import './style.scss';
 
-export const bytesToKBytes = (bytes: number) => (bytes / 1024).toFixed(2);
-
 const FileComponent = ({ size, name = '', downLoadUrl = '' }: { size: number; name: string; downLoadUrl: string }) => {
+  const openLink = () => {
+    PageService.changeUrlLink(downLoadUrl, { openNewTab: true });
+  };
+
   return (
-    <a target="_blank" href={downLoadUrl} rel="noreferrer">
+    <span onClick={openLink} className="file-node__link">
       {name}
-    </a>
+    </span>
   );
 };
 
