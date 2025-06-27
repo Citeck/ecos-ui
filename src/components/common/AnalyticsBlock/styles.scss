@@ -26,7 +26,7 @@
     margin-right: 7px;
     border-radius: 50%;
 
-    background-color: $color-blue-dark;
+    background-color: var(--primary-color);
   }
 
   &__title {

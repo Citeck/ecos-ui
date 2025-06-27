@@ -9,7 +9,7 @@
 
   &_new {
     align-items: center;
-    background-color: $page-background-color;
+    background-color: var(--main-bg-color);
     border-radius: 12px 12px 0 0;
     margin-bottom: 0;
     padding: 2px 6px;
@@ -20,7 +20,7 @@
 
       path,
       ellipse {
-        stroke: $color-blue-dark !important;
+        stroke: var(--primary-color) !important;
       }
     }
 
@@ -245,7 +245,7 @@
   justify-content: center;
 
   &:hover {
-    background-color: $color-blue-dark !important;
+    background-color: var(--primary-color) !important;
   }
 
   i {
@@ -309,7 +309,7 @@
 
     &:focus-within {
       i {
-        color: $color-blue-dark !important;
+        color: var(--primary-color) !important;
       }
     }
 
@@ -341,11 +341,11 @@
   }
 
   &.filter:hover {
-    background-color: $color-blue-dark !important;
+    background-color: var(--primary-color) !important;
 
     path,
     ellipse {
-      fill: $color-blue-dark;
+      fill: var(--primary-color);
       stroke: $color-white !important;
     }
   }
@@ -358,12 +358,12 @@
   &_selected {
     > span,
     > i {
-      color: $color-blue-dark;
+      color: var(--primary-color);
     }
   }
 
   &_focus {
-    background-color: $color-blue-dark !important;
+    background-color: var(--primary-color) !important;
 
     path,
     i,
@@ -380,7 +380,7 @@
 }
 
 .ecos-btn-settings-filter-on:hover i::before {
-  color: $color-blue-dark;
+  color: var(--primary-color);
   background-color: $color-white;
 }
 

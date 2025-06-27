@@ -16,7 +16,7 @@
 
     .select__control--is-focused {
       .select__indicator > svg {
-        fill: $color-blue-light;
+        fill: var(--light-primary-color);
       }
     }
   }
@@ -61,19 +61,19 @@
 
   .select__control:hover,
   .select__input input[type='text']:hover {
-    border-color: $color-blue-light;
+    border-color: var(--light-primary-color);
     box-shadow: none;
 
     .select__clear-indicator,
     .select__dropdown-indicator {
-      color: $color-blue-light;
+      color: var(--light-primary-color);
     }
   }
 
   .select__control.select__control--is-focused,
   .select__input input[type='text']:focus {
-    border-color: $color-blue-dark;
-    background: $color-blue-dark;
+    border-color: var(--primary-color);
+    background: var(--primary-color);
     box-shadow: none;
 
     .select__input,
@@ -158,8 +158,8 @@
 
 .ecos-select_blue {
   .select__control {
-    background: $color-blue-light;
-    border: $border-width-standard solid $color-blue-light;
+    background: var(--light-primary-color);
+    border: $border-width-standard solid var(--light-primary-color);
   }
 
   .select__single-value,
@@ -171,8 +171,8 @@
 
   .select__control:hover,
   .select__input input[type='text']:hover {
-    background: $color-blue-dark;
-    border-color: $color-blue-dark;
+    background: var(--primary-color);
+    border-color: var(--primary-color);
     box-shadow: none;
 
     .select__clear-indicator,

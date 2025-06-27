@@ -13,7 +13,7 @@
 
   &:hover {
     #{$ml}__input {
-      border-color: $color-blue-light;
+      border-color: var(--dark-primary-color);
     }
   }
 
@@ -65,7 +65,7 @@
       cursor: pointer;
 
       &:hover {
-        color: $color-blue-light;
+        color: var(--dark-primary-color);
       }
 
       &-label {

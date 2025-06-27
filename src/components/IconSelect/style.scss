@@ -40,7 +40,7 @@
 
       &_selected,
       &:hover {
-        color: $color-blue-dark;
+        color: var(--primary-color);
       }
     }
   }

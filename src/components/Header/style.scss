@@ -6,7 +6,7 @@
   $search-base-width: 345px;
   $search-focused-width: 440px;
 
-  background: $color-blue-light;
+  background: var(--header-bg-color);
   padding: 10px 16px;
   display: flex;
   justify-content: space-between;
@@ -134,7 +134,7 @@
           }
 
           &-icon {
-            color: $color-blue-light2;
+            color: var(--light-primary-color);
             font-size: 33px;
             padding-right: 12px;
 
@@ -148,13 +148,13 @@
             margin-right: 10px;
 
             .ecos-avatar__icon {
-              color: $color-blue-light2;
+              color: var(--light-primary-color);
               background: $color-white;
             }
           }
 
           &-title {
-            color: $color-blue-dark;
+            color: var(--primary-color);
             font-weight: $font-weight-semi-bold;
             font-size: $font-size-standard;
           }
@@ -311,16 +311,17 @@
     padding: 0 5px;
     align-items: center;
     line-height: normal;
-    background-color: #4b75b7;
-    border-radius: 6px;
+    background-color: var(--header-component-color);
+    border-radius: $border-radius-standard;
     cursor: pointer;
 
     &.active,
     &:hover {
-      background: $color-gray-4;
+      background-color: $color-gray-4;
+      color: var(--primary-color);
 
       & path {
-        fill: $color-blue-dark;
+        fill: var(--primary-color);
       }
     }
 
@@ -419,6 +420,10 @@
         width: 100%;
         padding: 0 24px 24px 24px;
 
+        .ecos-btn {
+          background-color: var(--primary-color);
+        }
+
         & .ecos-btn__content {
           text-align: center;
           width: 100%;
@@ -426,10 +431,19 @@
           font-weight: 600;
           font-size: 12px;
 
+          &:hover {
+            background-color: var(--dark-primary-color);
+          }
+
+          svg path {
+            stroke: $color-white;
+          }
+
           > span {
             margin-left: 9px;
             margin-top: 2px;
             line-height: 1.2;
+            color: $color-white;
           }
         }
 
@@ -449,6 +463,12 @@
   .ecos-btn {
     font-size: $font-size-small;
     height: 32px;
+    background-color: var(--header-component-color);
+
+    &:hover {
+      background-color: $color-white;
+      color: var(--primary-color);
+    }
   }
 
   .ecos-btn__text :not(.ecos-header-lang__btn) :not(.ecos-header-lang__img) {
@@ -466,11 +486,6 @@
       margin-right: 6px;
     }
 
-    & > :not(:last-child) {
-      margin-right: 6px;
-      height: 32px;
-    }
-
     .ecos-header-hamburger {
       margin-left: 8px;
       margin-right: 16px;
@@ -480,7 +495,8 @@
 
   .ecos-header-search {
     width: $search-base-width-new;
-    transition: width 0.3s;
+    transition: width 0.2s;
+
     &_focused {
       width: $search-focused-width;
     }
@@ -501,13 +517,21 @@
   .ecos-header-site {
     &__btn.ecos-btn {
       padding: 8px;
+      background-color: var(--header-component-color);
+
+      &:hover {
+        background-color: $color-white;
+        color: var(--primary-color);
+      }
     }
   }
 
   .ecos-header-lang {
     &__btn {
       padding: 9px;
+      background-color: var(--header-component-color);
     }
+
     &__img {
       width: 16px;
       margin-right: 6px;
@@ -520,10 +544,11 @@
   }
 
   .ecos-btn-with-avatar {
-    justify-content: space-between;
-    gap: 6px;
     max-width: unset;
     padding: 6px 12px;
+    justify-content: space-between;
+    gap: 6px;
+    background-color: var(--header-component-color);
   }
 
   .ecos-header-user__menu-item {
@@ -586,7 +611,7 @@
 
         &:hover > svg,
         &:hover path {
-          fill: $color-blue-dark !important;
+          fill: var(--primary-color) !important;
         }
       }
 

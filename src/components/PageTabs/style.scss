@@ -189,7 +189,7 @@
         }
       }
       &_active {
-        background-color: $page-background-color;
+        background-color: var(--main-bg-color);
         z-index: map-get($z-index, active);
         margin-left: 0;
         padding-left: 14px;
@@ -208,8 +208,8 @@
           left: -14px;
           transform: rotate(0deg);
           border-bottom-right-radius: 12px;
-          border-right: 6px $page-background-color solid;
-          border-bottom: 6px $page-background-color solid;
+          border-right: 6px var(--main-bg-color) solid;
+          border-bottom: 6px var(--main-bg-color) solid;
           width: 20px;
           height: 20px;
         }
@@ -222,8 +222,8 @@
           right: -14px;
           transform: rotate(0deg);
           border-bottom-left-radius: 12px;
-          border-left: 6px $page-background-color solid;
-          border-bottom: 6px $page-background-color solid;
+          border-left: 6px var(--main-bg-color) solid;
+          border-bottom: 6px var(--main-bg-color) solid;
           width: 20px;
           height: 20px;
         }
@@ -268,7 +268,7 @@
         color: $text-color-gray;
         line-height: initial;
         &:hover {
-          color: $color-blue-dark !important;
+          color: var(--primary-color) !important;
         }
       }
     }

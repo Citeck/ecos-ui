@@ -21,7 +21,7 @@
   }
 
   &_primary {
-    background-color: $color-blue-light;
+    background-color: var(--primary-color);
   }
 
   &_outline {
@@ -46,7 +46,7 @@
       color: $text-color-dark;
 
       &_primary {
-        background-color: $color-blue-light2;
+        background-color: var(--light-primary-color);
       }
     }
   }

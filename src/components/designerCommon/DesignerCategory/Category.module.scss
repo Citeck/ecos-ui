@@ -85,7 +85,7 @@
   line-height: 56px;
 
   &:hover {
-    color: $color-blue-light;
+    color: var(--light-primary-color);
   }
 }
 
@@ -94,7 +94,7 @@
 }
 
 .categoryActionIconPressed {
-  color: $color-blue-light;
+  color: var(--light-primary-color);
 }
 
 .categoryActionIcon2 {

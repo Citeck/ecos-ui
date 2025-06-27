@@ -54,7 +54,7 @@
       color: $text-color-dark;
 
       &::after {
-        background-color: $color-blue-light;
+        background-color: var(--primary-color);
       }
     }
   }
@@ -68,21 +68,21 @@
   color: $text-color-gray;
   font-weight: $font-weight-semi-bold;
   border-radius: $border-radius-standard;
-  border-color: $color-gray-4;
+  border-color: var(--primary-color);
   padding: 0 5px;
   line-height: 40px;
-  cursor: pointer;
   margin-right: 2px;
   text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
-  overflow: hidden;
   user-select: none;
+  overflow: hidden;
+  cursor: pointer;
 
   &_active {
     color: $color-white;
     background-color: transparent;
-    border-color: $color-blue-dark;
+    border-color: var(--primary-color);
 
     #{$root}-label_editing {
       color: $color-white;
@@ -92,17 +92,17 @@
       --back-actions: transparent;
 
       &__icon {
-        --color-actions: #{$color-blue-light2};
+        --color-actions: var(--primary-color);
 
         &:hover {
           --color-actions: #{$color-white};
         }
 
         &_paler {
-          --color-actions: #{$color-blue-light};
+          --color-actions: var(--primary-color);
 
           &:hover {
-            --color-actions: #{$color-blue-light2};
+            --color-actions: var(--dark-primary-color);
           }
         }
       }
@@ -114,7 +114,7 @@
     position: relative;
     padding: 0 59px 0 14px;
     min-width: 90px;
-    border: 1px solid $color-blue-dark;
+    border: 1px solid var(--primary-color);
 
     &:hover {
       #{$root}-actions__icon_hidden {
@@ -188,7 +188,7 @@
       cursor: pointer;
 
       &:hover {
-        --color-actions: #{$color-blue-light};
+        --color-actions: var(--dark-primary-color);
       }
 
       &_hidden {
@@ -209,18 +209,18 @@
         font-size: $font-size-extra-large;
 
         &-opened {
-          color: $color-blue-light;
+          color: var(--light-primary-color);
         }
 
         &-active-tab {
-          color: $color-blue-light;
+          color: var(--dark-primary-color);
 
           &#{$menu}-opened {
-            color: $color-blue-light2;
+            color: var(--dark-primary-color);
           }
 
           &:hover {
-            color: $color-blue-light2;
+            color: var(--light-primary-color);
           }
         }
       }

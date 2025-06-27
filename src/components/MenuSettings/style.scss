@@ -402,7 +402,7 @@
       &::after {
         content: '*';
         padding-left: 5px;
-        color: $color-blue-dark;
+        color: var(--primary-color);
       }
     }
 

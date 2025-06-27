@@ -180,8 +180,8 @@
         border-bottom: 1px dashed $color-gray-5;
 
         &:hover {
-          color: $color-blue-dark;
-          border-color: $color-blue-dark;
+          color: var(--dark-primary-color);
+          border-color: var(--dark-primary-color);
         }
       }
     }
@@ -226,7 +226,7 @@
         visibility: hidden;
 
         &:hover {
-          color: $color-blue-light;
+          color: var(--primary-color);
         }
       }
 
@@ -279,7 +279,7 @@
     }
 
     a {
-      border-bottom: 1px $color-blue-dark solid;
+      border-bottom: 1px var(--primary-color) solid;
 
       &:hover {
         border-color: unset;
@@ -322,11 +322,11 @@
 
     &-decorator {
       &-link {
-        color: $color-blue-dark;
-        border-bottom: 1px $color-blue-dark solid;
+        color: var(--primary-color);
+        border-bottom: 1px solid var(--primary-color);
 
         &:hover {
-          color: darken($color-blue-dark, 20%);
+          color: var(--dark-primary-color);
           border-color: unset;
         }
       }

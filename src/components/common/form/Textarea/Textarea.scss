@@ -42,9 +42,9 @@
 }
 
 textarea:not(:disabled).textarea:focus {
-  border-color: $color-blue-dark;
+  border-color: var(--primary-color);
 }
 
 textarea:not(:disabled).textarea:hover {
-  border-color: $color-blue-light;
+  border-color: var(--dark-primary-color);
 }

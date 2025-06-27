@@ -1,7 +1,7 @@
 @import '../../../styles/constants';
 
 %hover {
-  background: $color-blue-light;
+  background: var(--dark-primary-color);
   cursor: pointer;
   border-radius: $border-radius-standard;
   color: $color-white;

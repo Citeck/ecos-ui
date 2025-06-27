@@ -12,7 +12,7 @@
   border-radius: 10px;
 
   &__link {
-    color: $color-blue-dark;
+    color: var(--primary-color);
     cursor: pointer;
     text-decoration: underline;
   }

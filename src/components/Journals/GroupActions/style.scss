@@ -4,7 +4,7 @@
   $root: &;
 
   &__opened-focus #{$root}__control_new {
-    background-color: $color-blue-dark !important;
+    background-color: var(--primary-color) !important;
     border-radius: 6px;
 
     > i,
@@ -74,7 +74,7 @@
     }
 
     &:hover {
-      background-color: $color-blue-dark;
+      background-color: var(--primary-color);
 
       > i,
       > span {

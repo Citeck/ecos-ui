@@ -33,7 +33,7 @@
     margin-left: 10px;
 
     &:hover {
-      color: $color-blue-light;
+      color: var(--dark-primary-color);
     }
 
     &:before {

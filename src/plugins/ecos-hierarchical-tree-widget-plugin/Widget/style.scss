@@ -4,12 +4,12 @@
   $root: &;
 
   i.icon {
-    color: #b7b7b7;
+    color: $color-gray-5;
     cursor: pointer;
-    transition: opacity 0.2s, visibility 0s ease 0.2s;
+    transition: color 0.2s, visibility 0s ease 0.2s;
 
     &:hover {
-      opacity: 0.5;
+      color: var(--dark-primary-color);
     }
   }
 
@@ -32,21 +32,16 @@
     h4 {
       margin: 0;
       font-family: 'Open Sans', sans-serif;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 700;
       color: #767676;
       cursor: pointer;
       transition: color 0.2s;
 
       &:hover {
-        color: #7396CD;
+        color: var(--primary-color);
       }
     }
-  }
-
-  hr {
-    margin-top: 0;
-    border-top: 2px solid #e8edef;
   }
 
   &-empty {
@@ -134,11 +129,11 @@
 
         &__active {
           summary:not(.child-tree summary) {
-            color: #7396CD;
+            color: var(--light-primary-color);
           }
 
           summary::before {
-            color: #7396CD !important;
+            color: var(--light-primary-color) !important;
           }
         }
 
@@ -165,7 +160,7 @@
 
         &__active {
           & > details > summary {
-            color: #7396CD;
+            color: var(--light-primary-color);
           }
         }
       }
@@ -181,7 +176,7 @@
 
         i {
           font-size: 11pt;
-          color: #7396CD;
+          color: var(--light-primary-color);
           cursor: pointer;
           transition: opacity 0.2s, visibility 0s ease 0.2s;
 

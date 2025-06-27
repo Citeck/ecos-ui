@@ -11,7 +11,7 @@
   border: 1px $color-gray-6 solid;
 
   &:hover {
-    border-color: $color-blue-light;
+    border-color: var(--dark-primary-color);
   }
 }
 
@@ -31,10 +31,11 @@
   height: 26px;
   border: 1px solid transparent;
   border-radius: 18px;
-  background-color: $color-blue-dark;
+  background-color: var(--primary-color);
   white-space: nowrap;
   color: $color-white;
   max-width: 200px;
+
   &__name {
     white-space: nowrap;
     overflow: hidden;

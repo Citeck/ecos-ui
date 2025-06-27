@@ -227,7 +227,7 @@
       counter-increment: column;
       background: $color-white;
       border-radius: $border-radius-large $border-radius-large 0 0;
-      border-bottom: 3px $color-blue-light solid;
+      border-bottom: 3px var(--light-primary-color) solid;
       height: 50px;
       box-shadow: none;
       display: flex;
@@ -374,7 +374,7 @@
         }
 
         &:hover {
-          color: $color-blue-dark;
+          color: var(--primary-color);
           cursor: pointer;
         }
       }
@@ -441,7 +441,7 @@
         line-height: 1.5;
 
         &:hover {
-          color: $color-blue-light;
+          color: var(--light-primary-color);
         }
       }
     }
@@ -481,7 +481,7 @@
 
   margin-top: 2px;
   padding: 10px 12px 0px 10px;
-  background-color: $page-background-color;
+  background-color: var(--main-bg-color);
   border-radius: 0 0 12px 12px;
 
   .ecos-kanban__column {
@@ -601,7 +601,7 @@
     padding: 16px;
     border-radius: $border-radius-standard;
     position: relative;
-    border-top: 2px solid $color-blue-dark;
+    border-top: 2px solid var(--primary-color);
     margin-bottom: 12px;
 
     &-head {
@@ -704,7 +704,7 @@
           color: inherit;
 
           &:hover {
-            color: $color-blue-dark;
+            color: var(--primary-color);
           }
         }
       }

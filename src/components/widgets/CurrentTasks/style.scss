@@ -146,7 +146,7 @@
       &_active {
         #{$t}-icon,
         #{$t}-count {
-          color: $color-blue-light;
+          color: var(--light-primary-color);
           cursor: pointer;
         }
       }

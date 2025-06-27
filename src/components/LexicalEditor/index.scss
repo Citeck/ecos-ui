@@ -6,12 +6,12 @@
   border: 2px solid $color-gray-6;
   height: calc(100% - 10px);
 
-  & .ecos-rt-editor, {
+  & .ecos-rt-editor {
     border-radius: $border-radius-standard !important;
   }
 
   &:hover {
-    border: 2px solid $color-blue-light;
+    border: 2px solid var(--light-primary-color);
   }
 
   &__ml-btn {

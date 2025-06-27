@@ -12,8 +12,12 @@
   text-overflow: ellipsis;
   padding-right: 5px;
   width: 100%;
-  color: $color-blue-dark;
+  color: var(--primary-color);
   cursor: pointer;
+
+  &:hover {
+    color: var(--dark-primary-color);
+  }
 }
 
 .assoc-extra-data {

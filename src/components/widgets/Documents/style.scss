@@ -807,7 +807,7 @@
         background: $color-gray-6;
 
         .progress-bar {
-          background: $color-blue-dark;
+          background: var(--primary-color);
           border-radius: 100px;
         }
       }

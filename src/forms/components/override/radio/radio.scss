@@ -43,7 +43,7 @@
           + span {
             &:before {
               content: $citeck-icon-radio-checked;
-              color: $color-blue-dark;
+              color: var(--primary-color);
             }
           }
         }

@@ -18,7 +18,7 @@
         }
 
         a {
-          color: $color-blue-dark;
+          color: var(--primary-color);
           text-decoration: none;
           padding: 3px 0;
         }

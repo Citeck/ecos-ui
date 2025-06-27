@@ -24,7 +24,8 @@
     }
 
     &-icon {
-      color: $color-blue-light2;
+      color: var(--light-primary-color);
+
       &-wrapper {
         width: 50px;
         height: 100%;

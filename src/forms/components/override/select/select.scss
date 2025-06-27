@@ -44,7 +44,7 @@
       .choices__item {
         margin-bottom: 0;
         line-height: 26px;
-        background-color: #4b75b7;
+        background-color: var(--primary-color);
         border: none;
         border-radius: 100px;
         padding: 0 $input-padding;
@@ -73,7 +73,7 @@
     .choices {
       &.is-focused {
         .form-control {
-          border-color: $color-blue-dark;
+          border-color: var(--primary-color);
 
           &:after {
             content: '\54';
@@ -126,18 +126,18 @@
           }
 
           &:focus:after {
-            color: $color-blue-dark;
+            color: var(--primary-color);
           }
 
           &:hover:after {
-            color: $color-blue-light;
+            color: var(--primary-color);
           }
         }
 
         &.is-open {
           .form-control {
-            border-color: $color-blue-dark;
-            background-color: $color-blue-dark;
+            border-color: var(--primary-color);
+            background-color: var(--primary-color);
             color: $color-white;
 
             &:after {

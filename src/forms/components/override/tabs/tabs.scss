@@ -74,7 +74,7 @@ $tabs-height: 26px;
           color: $text-color-dark;
 
           &::after {
-            background-color: $color-blue-light;
+            background-color: var(--primary-color);
           }
         }
       }

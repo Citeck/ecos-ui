@@ -10,7 +10,7 @@
 }
 
 $states: (
-  'checked': $color-blue-dark,
+  'checked': var(--primary-color),
   'focus': $color-blue-light,
   'disabled': $color-gray-4
 );
@@ -183,7 +183,7 @@ $positions: (
               &:after {
                 content: $citeck-icon-checkbox-dark;
                 font-family: $font-family-citeck;
-                color: $color-blue-dark;
+                color: var(--primary-color);
                 font-size: 22px;
                 position: absolute;
                 top: 0;
@@ -329,7 +329,7 @@ $positions: (
         span.form-check-label__span.form-check-label__span_position-top.form-check-text {
           &:after {
             content: $citeck-icon-checkbox-checked;
-            color: $color-blue-dark;
+            color: var(--primary-color);
           }
         }
       }
@@ -354,7 +354,7 @@ $positions: (
 
             &:after {
               @extend %checkbox;
-              color: $color-blue-dark;
+              color: var(--primary-color);
               content: $citeck-icon-checkbox-dark;
               top: 0 !important;
               right: unset !important;
