@@ -39,7 +39,7 @@
       transition: color 0.2s;
 
       &:hover {
-        color: var(--primary-color);
+        color: var(--dark-primary-color);
       }
     }
   }
@@ -129,11 +129,11 @@
 
         &__active {
           summary:not(.child-tree summary) {
-            color: var(--light-primary-color);
+            color: var(--dark-primary-color);
           }
 
           summary::before {
-            color: var(--light-primary-color) !important;
+            color: var(--dark-primary-color) !important;
           }
         }
 
@@ -160,7 +160,7 @@
 
         &__active {
           & > details > summary {
-            color: var(--light-primary-color);
+            color: var(--dark-primary-color);
           }
         }
       }
@@ -172,11 +172,11 @@
         right: 0;
         padding-right: 6px;
         gap: 3px;
-        background: linear-gradient(to right, rgba(238, 240, 248, 0), #EEF0F8 15%);
+        background: linear-gradient(to right, rgba(238, 240, 248, 0), $color-blue-morning 15%);
 
         i {
           font-size: 11pt;
-          color: var(--light-primary-color);
+          color: var(--dark-primary-color);
           cursor: pointer;
           transition: opacity 0.2s, visibility 0s ease 0.2s;
 

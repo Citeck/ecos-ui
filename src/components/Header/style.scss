@@ -422,6 +422,10 @@
 
         .ecos-btn {
           background-color: var(--primary-color);
+
+          &:hover {
+            background-color: var(--dark-primary-color);
+          }
         }
 
         & .ecos-btn__content {

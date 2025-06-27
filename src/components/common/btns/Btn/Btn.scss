@@ -290,7 +290,7 @@ button {
 
   &.ecos-btn_blue2 {
     background-color: $color-white;
-    color: var(--light-primary-color);
+    color: var(--primary-color);
   }
 
   &.ecos-btn_light-blue {
@@ -299,7 +299,7 @@ button {
 
     &:active,
     &:focus {
-      background-color: var(--dark-primary-color);
+      background-color: var(--light-primary-color);
       color: $color-white;
     }
   }
@@ -461,11 +461,11 @@ button {
   }
 
   &.ecos-btn_bgr-inherit {
-    background: inherit;
+    background-color: inherit;
 
     &:active,
     &:focus {
-      background: inherit;
+      background-color: inherit;
     }
   }
 
@@ -475,12 +475,12 @@ button {
 
   &.ecos-btn_no-back {
     color: $color-white;
-    background: transparent;
+    background-color: transparent;
 
     &:active,
     &:focus,
     &:hover {
-      background: transparent;
+      background-color: transparent;
     }
   }
 
@@ -569,7 +569,7 @@ button {
     }
 
     &:active {
-      color: var(---light-primary-color);
+      color: var(--light-primary-color);
       background: inherit;
     }
   }
