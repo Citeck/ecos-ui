@@ -189,14 +189,16 @@
         }
       }
       &_active {
-        background-color: $color-white;
+        background-color: $page-background-color;
         z-index: map-get($z-index, active);
         margin-left: 0;
         padding-left: 14px;
         min-width: calc(#{$tab-min-width} + 4px);
+
         #{$item}-title {
           color: $text-color-dark;
         }
+
         &:before {
           background-color: transparent;
           top: auto;
@@ -206,8 +208,8 @@
           left: -14px;
           transform: rotate(0deg);
           border-bottom-right-radius: 12px;
-          border-right: 6px $color-white solid;
-          border-bottom: 6px $color-white solid;
+          border-right: 6px $page-background-color solid;
+          border-bottom: 6px $page-background-color solid;
           width: 20px;
           height: 20px;
         }
@@ -220,8 +222,8 @@
           right: -14px;
           transform: rotate(0deg);
           border-bottom-left-radius: 12px;
-          border-left: 6px $color-white solid;
-          border-bottom: 6px $color-white solid;
+          border-left: 6px $page-background-color solid;
+          border-bottom: 6px $page-background-color solid;
           width: 20px;
           height: 20px;
         }
