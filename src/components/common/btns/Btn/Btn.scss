@@ -290,7 +290,7 @@ button {
 
   &.ecos-btn_blue2 {
     background-color: $color-white;
-    color: var(--primary-color);
+    color: var(--dark-primary-color);
   }
 
   &.ecos-btn_light-blue {
@@ -501,7 +501,7 @@ button {
   /*hovers*/
   &.ecos-btn_hover_blue2 {
     &:hover {
-      background-color: var(--dark-primary-color);
+      background-color: var(--primary-color);
       color: $color-white;
 
       & .ecos-btn__i {
@@ -557,7 +557,7 @@ button {
 
   &.ecos-btn_hover_light-blue2 {
     &:hover {
-      background-color: var(--dark-primary-color);
+      background-color: var(--light-primary-color);
       color: $color-white;
     }
   }
