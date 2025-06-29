@@ -421,10 +421,10 @@
         padding: 0 24px 24px 24px;
 
         .ecos-btn {
-          background-color: var(--primary-color);
+          background-color: var(--header-bg-color);
 
           &:hover {
-            background-color: var(--dark-primary-color);
+            background-color: var(--primary-color);
           }
         }
 
@@ -436,7 +436,7 @@
           font-size: 12px;
 
           &:hover {
-            background-color: var(--dark-primary-color);
+            background-color: var(--primary-color);
           }
 
           svg path {

@@ -121,19 +121,23 @@ $transition-duration: 0.2s;
     cursor: pointer;
 
     &__menu_btn {
-      display: flex;
       position: absolute;
-      align-items: center;
-      justify-content: center;
       bottom: 12px;
       left: 12px;
+
       width: 46px;
       height: 46px;
+
+      z-index: 21;
+
       border: none;
       outline: none;
       border-radius: 50%;
-      background-color: var(--primary-color);
-      z-index: 21;
+      background-color: var(--light-primary-color);
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
       &:hover,
       &:focus,
@@ -167,21 +171,15 @@ $transition-duration: 0.2s;
 
   &-item {
     display: flex;
-    align-items: center;
     position: relative;
     height: 38px;
     width: 100%;
     padding-right: 15px;
+    align-items: center;
     cursor: pointer;
 
     &:hover {
-      background-color: var(--dark-primary-color);
-
-      a {
-        .ecos-sidebar-item__label, i.ecos-sidebar-item__icon {
-          color: $color-white;
-        }
-      }
+      background-color: $color-gray-25;
 
       #{$menu-item}__point {
         border-color: $color-gray-25;
@@ -232,7 +230,7 @@ $transition-duration: 0.2s;
     }
 
     &#{$menu-item}_selected:not(#{$menu-item}_nested-expanded):not(:hover) {
-      background-color: var(--dark-primary-color);
+      background-color: var(--header-bg-color);
 
       #{$menu-item}__icon,
       #{$menu-item}__label,
@@ -247,7 +245,7 @@ $transition-duration: 0.2s;
 
       #{$menu-item}__point {
         background-color: $color-white;
-        border-color: var(--light-primary-color);
+        border-color: $color-blue-light;
       }
 
       &::before,
@@ -590,12 +588,6 @@ $transition-duration: 0.2s;
         margin-bottom: 6px;
         padding-left: 12px;
         cursor: default;
-
-        &:hover {
-          .ecos-sidebar-item__label {
-            color: $color-gray-5 !important;
-          }
-        }
 
         &::after {
           @extend %menu-item-separator;
