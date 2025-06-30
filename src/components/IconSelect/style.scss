@@ -80,7 +80,7 @@
         line-height: 2;
 
         &:hover {
-          background-color: $color-blue-light;
+          background-color: var(--primary-color);
           color: $color-white;
         }
       }

@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
 import Loader from '../../Loader/Loader';
 
@@ -17,6 +17,7 @@ export default class IcoBtn extends Component {
   static defaultProps = {
     invert: false,
     loading: false,
+    colorLoader: 'currentColor',
     className: '',
     loaderType: 'points',
     icon: ''

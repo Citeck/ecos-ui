@@ -57,7 +57,7 @@
 
   &_dragged {
     border-radius: 10px;
-    border: 2px dashed $color-blue-light;
+    border: 2px dashed var(--primary-color);
     margin: -2px;
   }
 }

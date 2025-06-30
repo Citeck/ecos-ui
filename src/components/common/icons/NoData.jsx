@@ -23,24 +23,25 @@ export default ({ width = 267, height = 209, viewBox = '0 0 267 209', fill = 'no
       <rect x="54.8794" y="129.099" width="39" height="5" rx="2.5" fill="#EEF0F8" />
       <rect x="110.891" y="129.099" width="39" height="5" rx="2.5" fill="#EEF0F8" />
       <rect x="166.902" y="129.099" width="39" height="5" rx="2.5" fill="#EEF0F8" />
-      <rect x="27.8794" y="88.0986" width="10" height="10" rx="1" stroke="#C6D6F0" strokeWidth="2" />
-      <rect x="27.8794" y="127.099" width="10" height="10" rx="1" stroke="#C6D6F0" strokeWidth="2" />
-      <rect x="27.8794" y="158.099" width="10" height="10" rx="1" stroke="#C6D6F0" strokeWidth="2" />
-      <rect x="27.8794" y="47.0986" width="10" height="10" rx="1" stroke="#C6D6F0" strokeWidth="2" />
+      <rect x="27.8794" y="88.0986" width="10" height="10" rx="1" stroke="currentColor" fillOpacity="0.8" strokeWidth="1" />
+      <rect x="27.8794" y="127.099" width="10" height="10" rx="1" stroke="currentColor" fillOpacity="0.8" strokeWidth="1" />
+      <rect x="27.8794" y="158.099" width="10" height="10" rx="1" stroke="currentColor" fillOpacity="0.8" strokeWidth="1" />
+      <rect x="27.8794" y="47.0986" width="10" height="10" rx="1" stroke="currentColor" fillOpacity="0.8" strokeWidth="1" />
       <rect x="54.8794" y="160.099" width="39" height="5" rx="2.5" fill="#EEF0F8" />
       <rect x="110.891" y="160.099" width="39" height="5" rx="2.5" fill="#EEF0F8" />
       <rect x="166.902" y="160.099" width="39" height="5" rx="2.5" fill="#EEF0F8" />
       <rect x="54.8794" y="49.0986" width="39" height="5" rx="2.5" fill="#EEF0F8" />
       <rect x="110.891" y="49.0986" width="39" height="5" rx="2.5" fill="#EEF0F8" />
       <rect x="166.902" y="49.0986" width="39" height="5" rx="2.5" fill="#EEF0F8" />
-      <circle cx="234.5" cy="148.599" r="24.5" fill="#C6D6F0" />
+      <circle cx="234.5" cy="148.599" r="24.5" fill="currentColor" fillOpacity="0.8" />
       <path d="M228.786 142.562L242.034 155.809" stroke="white" strokeWidth="3" strokeLinecap="round" />
       <path d="M241.872 142.723L228.624 155.971" stroke="white" strokeWidth="3" strokeLinecap="round" />
     </g>
     <g filter="url(#filter1_d_3069_258682)">
       <path
         d="M7.87939 19.6152C7.87939 15.3706 11.3203 11.9297 15.5649 11.9297L219.23 11.9297C223.474 11.9297 226.915 15.3706 226.915 19.6152V29.6669L7.87939 29.6669L7.87939 19.6152Z"
-        fill="#C6D6F0"
+        fill="currentColor"
+        fillOpacity="0.8"
       />
     </g>
     <ellipse cx="19.1657" cy="21.2232" rx="3.60079" ry="3.83549" fill="white" />
