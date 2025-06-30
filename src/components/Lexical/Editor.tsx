@@ -77,6 +77,7 @@ import { UploadDocsRefServiceInstance } from '@/services/uploadDocsRefsStore';
 
 export type LexicalEditorProps = {
   htmlString?: string;
+  placeholder?: string;
   readonly?: boolean;
   hideToolbar?: boolean;
   className?: string;
@@ -92,6 +93,7 @@ const skipCollaborationInit =
   window.parent != null && window.parent.frames.right === window;
 
 export default function Editor({
+  placeholder: propsPlaceholder,
   onChange,
   readonly = false,
   hideToolbar = false,
@@ -123,11 +125,13 @@ export default function Editor({
   } = useSettings();
 
   const isEditable = useLexicalEditable();
-  const placeholder = isCollab
-    ? t('lexical.editor.placeholder.colab')
-    : isRichText
-      ? t('lexical.editor.placeholder.rich')
-      : t('lexical.editor.placeholder.plain');
+  const placeholder = propsPlaceholder
+    ? propsPlaceholder
+    : isCollab
+      ? t('lexical.editor.placeholder.colab')
+      : isRichText
+        ? t('lexical.editor.placeholder.rich')
+        : t('lexical.editor.placeholder.plain');
 
   const [floatingAnchorElem, setFloatingAnchorElem] = useState<HTMLDivElement | null>(null);
   const [isSmallWidthViewport, setIsSmallWidthViewport] = useState<boolean>(false);
