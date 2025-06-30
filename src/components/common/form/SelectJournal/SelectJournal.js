@@ -844,7 +844,7 @@ export default class SelectJournal extends Component {
           </div>
         )}
         <div id={getHtmlIdByUid(journalId, 'container')} className="select-journal__grid-container">
-          {!isGridDataReady && <Loader />}
+          {!isGridDataReady && <Loader type="points" />}
 
           <Grid
             {...gridData}
@@ -955,7 +955,7 @@ export default class SelectJournal extends Component {
       >
         {isFunction(renderView) ? renderView(inputViewProps) : DefaultView}
 
-        {isLoading && <Loader blur />}
+        {isLoading && <Loader blur type="points" />}
 
         <FiltersProvider
           columns={journalConfig.columns}

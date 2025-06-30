@@ -129,7 +129,7 @@ class Models extends React.Component {
             )}
           </Row>
         </Scrollbars>
-        {isNextModelsLoading && <PointsLoader className="ecos-designer__loader" color="light-blue" />}
+        {isNextModelsLoading && <PointsLoader className="ecos-designer__loader" />}
       </div>
     );
   }

@@ -1,13 +1,13 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import * as React from 'react';
 
 import './style.scss';
 
 export default class PointsLoader extends React.Component {
   static propTypes = {
     className: PropTypes.string,
-    color: PropTypes.oneOf(['white', 'light-blue']),
+    color: PropTypes.oneOf(['white', 'light-blue', 'currentColor']),
     width: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     style: PropTypes.object
@@ -15,7 +15,7 @@ export default class PointsLoader extends React.Component {
 
   static defaultProps = {
     className: '',
-    color: 'white'
+    color: 'currentColor'
   };
 
   get styles() {

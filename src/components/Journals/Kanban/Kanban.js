@@ -247,7 +247,7 @@ class Kanban extends React.Component {
             </div>
             <div ref={this.refBottom} className="ecos-kanban__footer-border" />
           </Scrollbars>
-          {isLoading && page > 1 && <PointsLoader className="ecos-kanban__loader" color={'light-blue'} />}
+          {isLoading && page > 1 && <PointsLoader className="ecos-kanban__loader" />}
         </div>
       </ReactResizeDetector>
     );

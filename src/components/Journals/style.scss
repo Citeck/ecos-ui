@@ -35,7 +35,7 @@
     &-svg-btn {
       &_blue_selected rect,
       &_blue_hover:hover rect {
-        fill: $color-blue-light;
+        fill: var(--header-bg-color);
       }
     }
 

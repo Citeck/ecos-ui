@@ -93,7 +93,7 @@ class Tab extends Component {
     const { tab } = this.props;
 
     if (tab.isLoading) {
-      return <PointsLoader className="page-tab__tabs-item-title-loader" color="light-blue" />;
+      return <PointsLoader className="page-tab__tabs-item-title-loader" />;
     }
 
     return null;

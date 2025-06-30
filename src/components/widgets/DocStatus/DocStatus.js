@@ -179,7 +179,7 @@ class DocStatus extends BaseWidget {
     const className = classNames('ecos-doc-status__loader', `ecos-doc-status__loader_${loaderType}`);
 
     if (loaderType === LoaderTypes.POINTS) {
-      return <PointsLoader className={className} color={'light-blue'} />;
+      return <PointsLoader className={className} />;
     }
 
     return <Loader className={className} />;

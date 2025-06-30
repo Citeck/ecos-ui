@@ -126,7 +126,7 @@ export default class ServerGroupActionV2 extends ActionsExecutor {
                   ref={progressBar}
                   max={totalCount}
                   value={processedCount}
-                  filledColor="#7396cd"
+                  filledColor="var(--primary-color)"
                   emptyColor="#f3f7f9"
                   height={10}
                   showPercentage
