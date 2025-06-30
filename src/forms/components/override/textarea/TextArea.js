@@ -40,6 +40,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
     this._lexicalRoot = null;
     this._lexicalInited = false;
+    this._lexicalFirstUpdate = true;
     this._uploadDocsRefService = new UploadDocsRefService();
   }
 
@@ -113,6 +114,8 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
           if (!this._lexicalInited) {
             const editorProps = editor.getRootElement();
             const { textContent = '' } = editorProps || {};
+
+            this._lexicalFirstUpdate = false;
 
             if (!!textContent) {
               this._lexicalInited = true;
@@ -428,7 +431,9 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       this.addLexical(this.input, settings, (editorState, editor) => {
         editor.update(() => {
           const html = $generateHtmlFromNodes(editor, null);
-          this.updateEditorValue(html);
+          if (!this._lexicalFirstUpdate) {
+            this.updateEditorValue(html);
+          }
         });
       });
       return this.input;
