@@ -17,7 +17,7 @@ exports[`DevTools tests <Loader /> should render Loader component 1`] = `
     <div>
       <svg
         height="45"
-        stroke="#7396cd"
+        stroke="currentColor"
         viewBox="0 0 38 38"
         width="45"
         xmlns="http://www.w3.org/2000/svg"
@@ -73,7 +73,7 @@ exports[`DevTools tests <TabContent /> should render Build component 1`] = `
       <div>
         <svg
           height="45"
-          stroke="#7396cd"
+          stroke="currentColor"
           viewBox="0 0 38 38"
           width="45"
           xmlns="http://www.w3.org/2000/svg"
@@ -125,7 +125,7 @@ exports[`DevTools tests <TabContent /> should render Commits component 1`] = `
       <div>
         <svg
           height="45"
-          stroke="#7396cd"
+          stroke="currentColor"
           viewBox="0 0 38 38"
           width="45"
           xmlns="http://www.w3.org/2000/svg"
@@ -182,7 +182,7 @@ exports[`DevTools tests <TabContent /> should render DevModules component 1`] = 
       <div>
         <svg
           height="45"
-          stroke="#7396cd"
+          stroke="currentColor"
           viewBox="0 0 38 38"
           width="45"
           xmlns="http://www.w3.org/2000/svg"
@@ -352,7 +352,7 @@ exports[`DevTools tests <TabContent /> should render TabContent component 1`] = 
       <div>
         <svg
           height="45"
-          stroke="#7396cd"
+          stroke="currentColor"
           viewBox="0 0 38 38"
           width="45"
           xmlns="http://www.w3.org/2000/svg"

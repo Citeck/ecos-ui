@@ -39,7 +39,7 @@ exports[`  should render InfoPanel component 1`] = `
             <div>
               <svg
                 height="45"
-                stroke="#7396cd"
+                stroke="currentColor"
                 viewBox="0 0 38 38"
                 width="45"
                 xmlns="http://www.w3.org/2000/svg"
