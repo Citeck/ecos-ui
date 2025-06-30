@@ -21,7 +21,9 @@ const WorkspacePreview = ({ url = '', name = '', hovered = false, customImagePre
     <div className={classNames('workspace-preview', { 'workspace-preview__hovered': hovered })}>
       {url ? (
         <div className="workspace-preview__image-preview">
-          <img src={url} alt={getInitials(name)} className="workspace-preview__image-preview_icon" />
+          <svg className="workspace-preview__image-preview_icon">
+            <use xlinkHref={url}></use>
+          </svg>
         </div>
       ) : customImagePreview ? (
         customImagePreview

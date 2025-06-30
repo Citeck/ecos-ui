@@ -22,7 +22,10 @@
       object-fit: cover;
       color: var(--header-bg-color);
       fill: var(--header-bg-color);
-      stroke: var(--header-bg-color);
+
+      path {
+        fill: var(--header-bg-color);
+      }
     }
   }
 

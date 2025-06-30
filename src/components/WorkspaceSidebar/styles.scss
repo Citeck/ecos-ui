@@ -346,7 +346,7 @@
     &:active,
     &.focus,
     &:focus {
-      border: 1px solid $color-blue-light;
+      border: 1px solid var(--header-bg-color);
     }
 
     &.small {
