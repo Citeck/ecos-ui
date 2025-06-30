@@ -66,7 +66,7 @@
     box-sizing: border-box;
     width: 100%;
     padding: 6px 12px;
-    height: 40px;
+    height: $form-input-height;
     line-height: 24px;
     padding-left: $input-padding;
     padding-right: $input-padding;
@@ -90,6 +90,10 @@
     &:hover {
       border-color: var(--dark-primary-color);
     }
+  }
+
+  textarea.form-control {
+    height: auto !important;
   }
 
   .was-validated .form-control:invalid,
