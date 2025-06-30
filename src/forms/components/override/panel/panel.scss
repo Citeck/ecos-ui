@@ -91,6 +91,24 @@ $theme-title-gray-color: 'transparent';
   padding: 7px 0;
 }
 
+.citeck-panel-icon-chevron {
+  display: inline-block;
+  vertical-align: middle;
+  width: 20px;
+  height: 20px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  transition: transform .2s ease;
+
+  &.down {
+    background-image: url('./chevron-down.svg');
+  }
+
+  &.right {
+    background-image: url('./chevron-right.svg');
+  }
+}
+
 // fix for legacy card-details page
 #bd .yui-gc:not(.grid) > .yui-u .document-details-panel .formio-form .panel-body {
   padding: 13px 0 5px 0;
