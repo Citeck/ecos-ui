@@ -54,6 +54,12 @@
 
     &_left {
       margin-right: 10px;
+
+      #workspace-menu-switcher:hover {
+        & > svg > path {
+          fill: var(--primary-color);
+        }
+      }
     }
 
     &_right {
@@ -318,14 +324,14 @@
     &.active,
     &:hover {
       background-color: $color-gray-4;
-      color: var(--primary-color);
-
-      & path {
-        fill: var(--primary-color);
-      }
+      color: var(--header-bg-color);
     }
 
     &.isActivePreview {
+      & > svg > path {
+        fill: var(--primary-color);
+      }
+
       & .citeck-workspace-sidebar__card {
         &-settings-menu--left--small {
           left: -30%;
@@ -439,7 +445,7 @@
             background-color: var(--primary-color);
           }
 
-          svg path {
+          > path {
             stroke: $color-white;
           }
 
@@ -467,12 +473,6 @@
   .ecos-btn {
     font-size: $font-size-small;
     height: 32px;
-    background-color: var(--header-component-color);
-
-    &:hover {
-      background-color: $color-white;
-      color: var(--primary-color);
-    }
   }
 
   .ecos-btn__text :not(.ecos-header-lang__btn) :not(.ecos-header-lang__img) {
@@ -577,10 +577,6 @@
     justify-content: center;
 
     background-color: $color-white;
-
-    & > svg > path {
-      fill: $text-color-gray !important;
-    }
   }
 
   &-panel-list {
@@ -607,16 +603,6 @@
         &::before {
           content: none;
         }
-
-        & > svg,
-        path {
-          fill: $color-gray-5 !important;
-        }
-
-        &:hover > svg,
-        &:hover path {
-          fill: var(--primary-color) !important;
-        }
       }
 
       &-info {
@@ -642,6 +628,7 @@
       flex-grow: 1;
       position: absolute;
       max-width: 40px;
+      max-height: 32px;
       left: 0;
       top: 0;
 

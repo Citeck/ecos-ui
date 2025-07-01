@@ -62,6 +62,8 @@
       .form-control {
         padding: 4px 12px;
         line-height: 28px;
+        height: auto;
+
         .choices__input {
           font-weight: $font-weight-semi-bold;
           padding: 0;

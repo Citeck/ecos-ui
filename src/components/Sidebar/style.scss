@@ -34,6 +34,10 @@ $transition-duration: 0.2s;
 
     .workspace-preview div {
       margin: 0;
+
+      svg {
+        vertical-align: top;
+      }
     }
   }
 }
@@ -104,6 +108,10 @@ $transition-duration: 0.2s;
 
     &__icon {
       font-size: 25px;
+
+      svg {
+        vertical-align: unset;
+      }
     }
 
     &__img_small_hide {
@@ -659,7 +667,6 @@ $transition-duration: 0.2s;
   .ecos-sidebar {
     width: 0;
     position: absolute;
-    top: 60px;
     z-index: 900;
     height: calc(100% - 60px);
     transition: width $transition-duration;

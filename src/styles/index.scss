@@ -60,21 +60,16 @@ ul.ul-initial {
   font-weight: $font-weight-semi-bold;
 }
 
-svg path[fill="currentColor"], 
-svg path[stroke="currentColor"],
-svg rect[fill="currentColor"], 
-svg rect[stroke="currentColor"],
+svg path[fill="currentColor"],
+svg rect[fill="currentColor"],
 svg circle[fill="currentColor"],
-svg circle[stroke="currentColor"],
 svg ellipse[fill="currentColor"],
-svg ellipse[stroke="currentColor"],
-svg line[stroke="currentColor"],
-svg polyline[stroke="currentColor"],
-svg polygon[fill="currentColor"], 
-svg polygon[stroke="currentColor"],
-svg[fill="currentColor"],
-svg[stroke="currentColor"] {
+svg polygon[fill="currentColor"],
+svg[fill="currentColor"] {
   fill: var(--header-bg-color);
+}
+
+svg[stroke="currentColor"] {
   stroke: var(--header-bg-color);
 }
 

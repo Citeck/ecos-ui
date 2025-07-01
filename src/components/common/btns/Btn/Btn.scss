@@ -24,7 +24,7 @@ button {
     user-select: none;
 
     &:hover {
-      background-color: $color-gray-1;
+      background-color: var(--light-primary-color);
     }
 
     &:active {
@@ -259,7 +259,7 @@ button {
 
   /*Colors*/
   &.ecos-btn_blue-classic {
-    background: var(--primary-color);
+    background: var(--header-component-color);
     color: $color-white;
 
     &:hover,
