@@ -7,7 +7,7 @@
  */
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { type LexicalEditor, $getNodeByKey } from 'lexical';
+import { type LexicalEditor, $getNodeByKey, $createTextNode } from 'lexical';
 import { useEffect } from 'react';
 
 import { $isImageNode, ImageNode } from '../../nodes/ImageNode';
@@ -58,6 +58,11 @@ export default function OnImageUploadPlugin({ onUpload }: DragDropPasteProps): n
                     removeNode(editor, imageNode);
                   }
                 })();
+              } else if (altText) {
+                editor.update(() => {
+                  const textNode = $createTextNode(altText);
+                  imageNode.replace(textNode);
+                });
               }
             }
           });

@@ -47,14 +47,12 @@ import { createWebsocketProvider } from '../collaboration';
 import { useSharedHistoryContext } from '../context/SharedHistoryContext';
 // @ts-ignore
 import brokenImage from '../images/image-broken.svg';
-import EmojisPlugin from '../plugins/EmojisPlugin';
 import KeywordsPlugin from '../plugins/KeywordsPlugin';
 import LinkPlugin from '../plugins/LinkPlugin';
 import MentionsPlugin from '../plugins/MentionsPlugin';
 import ContentEditable from '../ui/ContentEditable';
 import ImageResizer from '../ui/ImageResizer';
 
-import { EmojiNode } from './EmojiNode';
 import { $isImageNode } from './ImageNode';
 import { KeywordNode } from './KeywordNode';
 
@@ -361,12 +359,11 @@ export default function ImageComponent({
           <div className="image-caption-container">
             <LexicalNestedComposer
               initialEditor={caption}
-              initialNodes={[RootNode, TextNode, LineBreakNode, ParagraphNode, LinkNode, EmojiNode, HashtagNode, KeywordNode]}
+              initialNodes={[RootNode, TextNode, LineBreakNode, ParagraphNode, LinkNode, HashtagNode, KeywordNode]}
             >
               <AutoFocusPlugin />
               <MentionsPlugin />
               <LinkPlugin />
-              <EmojisPlugin />
               <HashtagPlugin />
               <KeywordsPlugin />
               {isCollabActive ? (
