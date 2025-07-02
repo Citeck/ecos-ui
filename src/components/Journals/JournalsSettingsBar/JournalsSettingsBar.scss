@@ -156,7 +156,7 @@
 
   &-export-btn.ecos-btn {
     min-width: 70px;
-    background: $color-white;
+    background-color: $color-white;
   }
 
   &-right-side {
@@ -324,6 +324,16 @@
     .search__input {
       font-size: 11px !important;
       background-color: $color-gray-25;
+    }
+  }
+
+  &.shape {
+    svg path {
+      stroke: $color-gray-5 !important;
+    }
+
+    &:hover svg path {
+      stroke: $color-white !important;
     }
   }
 
