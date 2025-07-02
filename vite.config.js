@@ -73,7 +73,8 @@ const preOptimizeDepsLibs = [
   'dmn-js-drd/lib/NavigatedViewer',
   'dmn-js-shared/lib/util/ModelUtil',
   'react-select/async',
-  'async-cadesplugin'
+  'async-cadesplugin',
+  'dompurify'
 ];
 
 export default defineConfig(({ mode }) => {
