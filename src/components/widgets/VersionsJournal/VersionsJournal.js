@@ -1,10 +1,21 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import _ from 'lodash';
+import get from 'lodash/get';
+import PropTypes from 'prop-types';
+import React from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
-import get from 'lodash/get';
-import _ from 'lodash';
+
+import Dashlet from '../../Dashlet/Dashlet';
+import UncontrolledTooltip from '../../common/UncontrolledTooltip';
+import { Btn, IcoBtn } from '../../common/btns/index';
+import { Dropdown, Headline } from '../../common/form/index';
+import { Avatar, Icon, Loader, Tooltip } from '../../common/index';
+import BaseWidget from '../BaseWidget';
+
+import AddModal from './AddModal';
+import ChangeVersionModal from './ChangeVersionModal';
+import ComparisonModal from './ComparisonModal';
 
 import {
   addNewVersion,
@@ -13,23 +24,13 @@ import {
   setActiveVersion,
   toggleModal,
   getWritePermission
-} from '../../../actions/versionsJournal';
-import { selectLabelsVersions, selectStateByKey } from '../../../selectors/versionsJournal';
-import { arrayCompare, t } from '../../../helpers/util';
-import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
-import { BASE_HEIGHT, MODAL, TOOLTIP } from '../../../constants/versionsJournal';
-
-import UncontrolledTooltip from '../../common/UncontrolledTooltip';
-import BaseWidget from '../BaseWidget';
-import { Avatar, Icon, Loader, Tooltip } from '../../common/index';
-import { Btn, IcoBtn } from '../../common/btns/index';
-import { Dropdown, Headline } from '../../common/form/index';
-import Dashlet from '../../Dashlet/Dashlet';
-import AddModal from './AddModal';
-import ChangeVersionModal from './ChangeVersionModal';
-import ComparisonModal from './ComparisonModal';
-import PageService from '../../../services/PageService';
-import { getStateId } from '../../../helpers/redux';
+} from '@/actions/versionsJournal';
+import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '@/constants/index';
+import { BASE_HEIGHT, MODAL, TOOLTIP } from '@/constants/versionsJournal';
+import { getStateId } from '@/helpers/redux';
+import { arrayCompare, t } from '@/helpers/util';
+import { selectLabelsVersions, selectStateByKey } from '@/selectors/versionsJournal';
+import PageService from '@/services/PageService';
 
 import './style.scss';
 
@@ -313,7 +314,7 @@ class VersionsJournal extends BaseWidget {
               <Icon
                 className="icon-edit ecos-vj__version-actions-item"
                 onClick={() =>
-                  PageService.changeUrlLink(version.editLink, {
+                  PageService.changeUrlLink('/v2/' + version.editLink, {
                     openNewTab: true
                   })
                 }
@@ -664,7 +665,4 @@ class VersionsJournal extends BaseWidget {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(VersionsJournal);
+export default connect(mapStateToProps, mapDispatchToProps)(VersionsJournal);
