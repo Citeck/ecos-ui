@@ -428,11 +428,11 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
     if (this.isLexicalEditor) {
       const settings = this.component.wysiwyg || {};
-      this.addLexical(this.input, settings, (editorState, editor) => {
+      this.addLexical(this.input, settings, (editorState, editor, isEmptyContent) => {
         editor.update(() => {
           const html = $generateHtmlFromNodes(editor, null);
           if (!this._lexicalFirstUpdate) {
-            this.updateEditorValue(html);
+            this.updateEditorValue(!isEmptyContent ? html : '');
           }
         });
       });
