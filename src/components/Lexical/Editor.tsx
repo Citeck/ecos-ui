@@ -211,7 +211,8 @@ export default function Editor({
                 setOption('isMaxLength', textContent.length > LENGTH_LIMIT);
               }
 
-              isFunction(onChange) && onChange(state, editor, textContent?.length === 0 && !innerHTML.includes('img'));
+              isFunction(onChange) &&
+                onChange(state, editor, textContent?.length === 0 && !innerHTML.includes('img') && !innerHTML.includes('hr'));
             }}
           />
         )}
