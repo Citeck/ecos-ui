@@ -397,7 +397,7 @@
       border-radius: 8px;
 
       &:hover {
-        background: $color-blue-light;
+        background: var(--dark-primary-color);
       }
     }
   }
