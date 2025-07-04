@@ -112,7 +112,7 @@ export default class SelectEditor extends BaseEditor {
       }
 
       return (
-        <div ref={containerRef} className="ecos-select__editor-wrapper">
+        <div ref={containerRef} className="ecos-select__editor-wrapper select_width_full">
           <Select
             isMulti={multiple}
             autoFocus={scope === EditorScope.CELL}
