@@ -58,7 +58,7 @@ export default function OnImageUploadPlugin({ onUpload }: DragDropPasteProps): n
                     removeNode(editor, imageNode);
                   }
                 })();
-              } else if (altText) {
+              } else if (altText && imageNode.__src.startsWith('data:image/gif;base64,')) {
                 editor.update(() => {
                   const textNode = $createTextNode(altText);
                   imageNode.replace(textNode);
