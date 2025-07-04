@@ -136,7 +136,7 @@ class JournalsDashletGrid extends Component {
     !isNil(excluded) && setExcludedRecords(_allPossible ? excluded : []);
   };
 
-  reloadGrid(options) {
+  reloadGrid = options => {
     options = options || {};
     const { predicate, grid } = this.props;
     const { columns, groupBy, sortBy } = grid || {};
@@ -145,7 +145,7 @@ class JournalsDashletGrid extends Component {
 
     this.hideGridInlineToolSettings();
     this.props.reloadGrid({ ...currentOptions, ...options });
-  }
+  };
 
   onFilterInline = (_predicates, _type) => {
     const [filter] = _predicates;
@@ -196,8 +196,14 @@ class JournalsDashletGrid extends Component {
 
     const currentRow = this.selectedRow.id;
     const recordActions = get(forRecord, currentRow, []);
+    const handlers = {
+      reloadJournalGrid: this.reloadGrid
+    };
 
-    return recordActions.map(action => ({ ...action, onClick: () => execRecordsAction(currentRow, action) }));
+    return recordActions.map(action => ({
+      ...action,
+      onClick: () => execRecordsAction(currentRow, { ...action, config: { handlers, ...(action.config || {}) } })
+    }));
   }
 
   hideGridInlineToolSettings = () => {
