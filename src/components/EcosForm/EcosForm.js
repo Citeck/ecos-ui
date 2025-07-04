@@ -118,7 +118,7 @@ class EcosForm extends React.Component {
 
   initForm(newFormDefinition = this.state.formDefinition, forceReload = false) {
     const constants = get(window, 'Citeck.constants') || {};
-    const { record, formKey, options: propsOptions, formId, getTitle, clonedRecord, initiator } = this.props;
+    const { record, formKey, options: propsOptions, handlers, formId, getTitle, clonedRecord, initiator } = this.props;
     const { recordId, containerId } = this.state;
     const options = { ...propsOptions };
     const attributes = {
@@ -143,6 +143,7 @@ class EcosForm extends React.Component {
     }
 
     options.recordId = recordId;
+    options.handlers = handlers;
     options.isMobileDevice = options.ecosIsMobile || isMobileDevice();
     options.formSubmitDonePromise = new Promise(resolve => (this._formSubmitDoneResolve = resolve));
     options.forceReload = forceReload;

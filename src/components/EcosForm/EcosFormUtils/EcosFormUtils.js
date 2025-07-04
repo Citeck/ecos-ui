@@ -144,6 +144,10 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
         options.formMode = formMode;
         formParams.options = options;
 
+        if (configParams.handlers) {
+          formParams.handlers = configParams.handlers;
+        }
+
         formParams['onSubmit'] = function (record, form, alias) {
           if (modal) {
             modal.close();
@@ -290,6 +294,10 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
 
       if (config.onPreSettingSubmit) {
         params.onPreSettingSubmit = config.onPreSettingSubmit;
+      }
+
+      if (config.handlers) {
+        params.handlers = config.handlers;
       }
 
       const [source] = recordRef.split('@');
