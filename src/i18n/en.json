@@ -1183,6 +1183,7 @@
   "journals.action.only-linked": "Display only linked records for the journal «{{ journalTitle }}»",
   "journals.action.go-to-button-name": "Name of the \"Go to\" button",
   "journals.action.custom-journal": "Custom journal",
+  "journals.toolbar.hide-create-variants": "Hide creation options",
   "journals.action.remove-filter-group-msg": "Remove filter group?",
   "journals.action.remove-filter-msg": "Remove filter?",
   "journals.action.remove-records-msg": "Do you really want to delete records?",

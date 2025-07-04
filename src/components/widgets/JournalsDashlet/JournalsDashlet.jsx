@@ -247,7 +247,7 @@ class JournalsDashlet extends BaseWidget {
   }
 
   renderJournal() {
-    const { editorMode, stateId } = this.props;
+    const { editorMode, stateId, config } = this.props;
     const { width, journalId } = this.state;
 
     if (editorMode || this.isCollapsed) {
@@ -260,6 +260,7 @@ class JournalsDashlet extends BaseWidget {
     return (
       <>
         <JournalsDashletToolbar
+          isHideCreateVariants={get(config, [JOURNAL_DASHLET_CONFIG_VERSION, 'isHideCreateVariants'], false)}
           measurer={getDOMElementMeasurer(this._toolbarRef)}
           lsJournalId={journalId}
           forwardRef={this.setToolbarRef}

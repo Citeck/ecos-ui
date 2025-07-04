@@ -1136,6 +1136,7 @@
   "journals.action.only-linked": "Отображать только связанные записи для журнала «{{ journalTitle }}»",
   "journals.action.go-to-button-name": "Название кнопки \"Перейти\"",
   "journals.action.custom-journal": "Произвольный журнал",
+  "journals.toolbar.hide-create-variants": "Скрывать варианты создания",
   "journals.action.remove-filter-group-msg": "Удалить группу фильтров?",
   "journals.action.remove-filter-msg": "Удалить фильтр?",
   "journals.action.remove-records-msg": "Вы действительно хотите удалить записи?",

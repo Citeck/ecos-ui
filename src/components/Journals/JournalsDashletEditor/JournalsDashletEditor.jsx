@@ -68,6 +68,7 @@ const Labels = {
   SETTING_FIELD: 'journals.settings',
   SETTING_FIELD_PLACEHOLDER: 'journals.default',
   CUSTOM_MODE_FIELD: 'journals.action.custom-journal',
+  HIDE_CREATE_VARIANTS: 'journals.toolbar.hide-create-variants',
   ONLY_LINKED_FIELD: 'journals.action.only-linked',
   GO_TO_BUTTON_NAME_FIELD: 'journals.action.go-to-button-name',
   RESET_BTN: 'journals.action.reset-settings',
@@ -102,7 +103,8 @@ class JournalsDashletEditor extends Component {
     this.state = {
       ...this.#defaultStateConfig,
       isOnlyLinkedJournals: get(props, 'config.onlyLinkedJournals') || {},
-      attrsToLoad: get(props, 'config.attrsToLoad') || {}
+      attrsToLoad: get(props, 'config.attrsToLoad') || {},
+      isHideCreateVariants: get(props, 'config.isHideCreateVariants') || false
     };
   }
 
@@ -240,8 +242,16 @@ class JournalsDashletEditor extends Component {
 
   handleSave = () => {
     const { config, id, recordRef, onSave, saveDashlet, setDashletConfig, checkConfig, setEditorMode } = this.props;
-    const { attrsToLoad, selectedJournals, isCustomJournalMode, customJournal, journalSettingId, isOnlyLinkedJournals, goToButtonName } =
-      this.state;
+    const {
+      attrsToLoad,
+      selectedJournals,
+      isCustomJournalMode,
+      customJournal,
+      journalSettingId,
+      isOnlyLinkedJournals,
+      goToButtonName,
+      isHideCreateVariants
+    } = this.state;
     const generalConfig = this.props.generalConfig || {};
     const journalId = get(selectedJournals, '0', '');
     let newConfig = omit(config, ['journalsListId', 'journalType']);
@@ -251,6 +261,7 @@ class JournalsDashletEditor extends Component {
       newConfig.attrsToLoad = attrsToLoad;
     }
 
+    newConfig.isHideCreateVariants = isHideCreateVariants;
     newConfig.journalsListIds = selectedJournals;
     newConfig.journalSettingId = journalSettingId;
     newConfig.journalId = journalId.substr(journalId.indexOf('@') + 1);
@@ -330,6 +341,10 @@ class JournalsDashletEditor extends Component {
     });
   };
 
+  toggleIsHideCreateVariants = () => {
+    this.setState(state => ({ isHideCreateVariants: !state.isHideCreateVariants }));
+  };
+
   setSelectedJournals = (selectedJournals = []) => {
     this.setState({ selectedJournals });
   };
@@ -353,6 +368,7 @@ class JournalsDashletEditor extends Component {
       selectedJournals,
       journalSettingId,
       isCustomJournalMode,
+      isHideCreateVariants,
       isOnlyLinkedJournals,
       goToButtonName
     } = this.state;
@@ -396,6 +412,9 @@ class JournalsDashletEditor extends Component {
           )}
           <Field label={t(Labels.CUSTOM_MODE_FIELD)} isSmall={this.isSmall}>
             <Checkbox checked={isCustomJournalMode} onClick={this.setCustomJournalMode} />
+          </Field>
+          <Field label={t(Labels.HIDE_CREATE_VARIANTS)} isSmall={this.isSmall}>
+            <Checkbox checked={isHideCreateVariants} onClick={this.toggleIsHideCreateVariants} />
           </Field>
 
           <GoToButton isSmall={this.isSmall} value={goToButtonName} onChange={this.handleChangeGoToButtonName} />
