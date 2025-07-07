@@ -30,9 +30,10 @@ import {
   setEditorMode,
   setLoading
 } from '@/actions/journals';
-import { SystemJournals } from '@/constants';
+import { SystemJournals, SourcesId } from '@/constants';
 import { wrapArgs } from '@/helpers/redux';
-import { getSelectedValue, t } from '@/helpers/util';
+import { getWorkspaceId } from '@/helpers/urls';
+import { getEnabledWorkspaces, getSelectedValue, t } from '@/helpers/util';
 import { selectJournalDashletEditorProps } from '@/selectors/dashletJournals';
 import DashboardService from '@/services/dashboard';
 
@@ -65,6 +66,7 @@ const Labels = {
   SETTING_TITLE: 'journals.action.edit-dashlet',
   CUSTOM_FIELD: 'journals.action.custom-journal',
   NAME_FIELD: 'journals.name',
+  AGGREGATION_WORKSPACES: 'journals.aggregation-workspaces',
   SETTING_FIELD: 'journals.settings',
   SETTING_FIELD_PLACEHOLDER: 'journals.default',
   CUSTOM_MODE_FIELD: 'journals.action.custom-journal',
@@ -100,11 +102,14 @@ class JournalsDashletEditor extends Component {
   constructor(props) {
     super(props);
 
+    const currentWorkspaceRef = `${SourcesId.WORKSPACE}@${getWorkspaceId()}`;
+
     this.state = {
       ...this.#defaultStateConfig,
       isOnlyLinkedJournals: get(props, 'config.onlyLinkedJournals') || {},
       attrsToLoad: get(props, 'config.attrsToLoad') || {},
-      isHideCreateVariants: get(props, 'config.isHideCreateVariants') || false
+      isHideCreateVariants: get(props, 'config.isHideCreateVariants') || false,
+      aggregateWorkspaces: get(props, 'config.aggregateWorkspaces') || [currentWorkspaceRef]
     };
   }
 
@@ -250,6 +255,7 @@ class JournalsDashletEditor extends Component {
       journalSettingId,
       isOnlyLinkedJournals,
       goToButtonName,
+      aggregateWorkspaces,
       isHideCreateVariants
     } = this.state;
     const generalConfig = this.props.generalConfig || {};
@@ -259,6 +265,10 @@ class JournalsDashletEditor extends Component {
     if (recordRef) {
       newConfig.onlyLinkedJournals = isOnlyLinkedJournals;
       newConfig.attrsToLoad = attrsToLoad;
+    }
+
+    if (getEnabledWorkspaces()) {
+      newConfig.aggregateWorkspaces = aggregateWorkspaces;
     }
 
     newConfig.isHideCreateVariants = isHideCreateVariants;
@@ -349,6 +359,10 @@ class JournalsDashletEditor extends Component {
     this.setState({ selectedJournals });
   };
 
+  setSelectedAggregateWorkspaces = (aggregateWorkspaces = []) => {
+    this.setState({ aggregateWorkspaces });
+  };
+
   handleChangeGoToButtonName = goToButtonName => {
     this.setState({ goToButtonName });
   };
@@ -370,6 +384,7 @@ class JournalsDashletEditor extends Component {
       isCustomJournalMode,
       isHideCreateVariants,
       isOnlyLinkedJournals,
+      aggregateWorkspaces,
       goToButtonName
     } = this.state;
 
@@ -396,6 +411,19 @@ class JournalsDashletEditor extends Component {
                   onChange={this.setSelectedJournals}
                 />
               </Field>
+
+              {getEnabledWorkspaces() && (
+                <Field label={t(Labels.AGGREGATION_WORKSPACES)} isSmall={this.isSmall} labelPosition="top">
+                  <SelectJournal
+                    journalId={SystemJournals.WORKSPACES}
+                    defaultValue={aggregateWorkspaces}
+                    multiple
+                    hideCreateButton
+                    isSelectedValueAsText
+                    onChange={this.setSelectedAggregateWorkspaces}
+                  />
+                </Field>
+              )}
 
               <Field label={t(Labels.SETTING_FIELD)} isSmall={this.isSmall}>
                 <Select

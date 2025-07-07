@@ -246,6 +246,7 @@ export const SystemJournals = {
   MENUS: 'ecos-menus',
   FORMS: 'ecos-forms',
   PROCESS: 'bpmn-process-latest',
+  WORKSPACES: 'workspaces-journal',
   PROCESS_ELMS: 'bpmn-process-elements'
 };
 
