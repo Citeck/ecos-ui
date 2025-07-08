@@ -14,7 +14,11 @@ import {
   TRANSACTION
 } from 'bpmn-js/lib/features/replace/ReplaceOptions';
 
-import { ECOS_TASK_TYPE_SET_STATUS, REPLACE_TO_SET_STATUS } from '@/constants/bpmn';
+import {
+  ECOS_TASK_TYPE_SET_STATUS,
+  REPLACE_TO_SET_STATUS,
+  REPLACE_TO_AI_TASK, ECOS_TASK_TYPE_AI_TASK
+} from "@/constants/bpmn";
 
 const TASK = [
   ...BPMN_TASK,
@@ -25,6 +29,15 @@ const TASK = [
     target: {
       type: 'bpmn:Task',
       taskType: ECOS_TASK_TYPE_SET_STATUS
+    }
+  },
+  {
+    label: 'AI Task',
+    actionName: REPLACE_TO_AI_TASK,
+    className: 'bpmn-icon-ai-task',
+    target: {
+      type: 'bpmn:Task',
+      taskType: ECOS_TASK_TYPE_AI_TASK
     }
   }
 ];
