@@ -674,6 +674,11 @@ export function* getGridData(api, params, stateId) {
     settings.groupBy = [];
   }
 
+  const aggregateWorkspaces = get(config, 'aggregateWorkspaces');
+  if (isArray(aggregateWorkspaces)) {
+    settings.workspaces = aggregateWorkspaces.map(wsId => (wsId.includes('@') ? wsId.split('@')[1] : wsId));
+  }
+
   const resultData = yield call([JournalsService, JournalsService.getJournalData], journalConfig, settings);
   const journalData = JournalsConverter.getJournalDataWeb(resultData);
 
