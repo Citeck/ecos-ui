@@ -19,3 +19,5 @@ export const Labels = {
   INPUT_BTN_SELECT: 'select-journal.button.select',
   SELECTED_LABEL: 'select-journal.msg.selected-records'
 };
+
+export const SELECT_JOURNAL_MODAL_CLASSNAME = 'select-journal-select-modal';
