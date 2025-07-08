@@ -28,7 +28,7 @@ import FiltersProvider from './Filters/FiltersProvider';
 import InputView from './InputView';
 import Search from './Search';
 import ViewMode from './ViewMode';
-import { DataTypes, DisplayModes, Labels } from './constants';
+import { DataTypes, DisplayModes, Labels, SELECT_JOURNAL_MODAL_CLASSNAME } from './constants';
 
 import { Attributes, Permissions } from '@/constants';
 import JournalsConverter from '@/dto/journals';
@@ -800,7 +800,7 @@ export default class SelectJournal extends Component {
         title={title || selectModalTitle}
         isOpen={isSelectModalOpen}
         hideModal={this.hideSelectModal}
-        className={classNames('select-journal-select-modal', {
+        className={classNames(SELECT_JOURNAL_MODAL_CLASSNAME, {
           'ecos-modal_width-lg': !isFullScreenWidthModal,
           'ecos-modal_width-full': isFullScreenWidthModal
         })}

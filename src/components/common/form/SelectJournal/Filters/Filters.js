@@ -1,25 +1,63 @@
-import React from 'react';
-import { Col, Row } from 'reactstrap';
-import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 import isFunction from 'lodash/isFunction';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { Col, Row } from 'reactstrap';
 
 import { t } from '../../../../../helpers/util';
+import ParserPredicate from '../../../../Filters/predicates/ParserPredicate';
 import { Btn, IcoBtn } from '../../../../common/btns';
 import Dropdown from '../../../../common/form/Dropdown';
-import ParserPredicate from '../../../../Filters/predicates/ParserPredicate';
-import { Labels } from '../constants';
 import Filter from '../Filter';
+import { Labels, SELECT_JOURNAL_MODAL_CLASSNAME } from '../constants';
+
 import FiltersContext from './FiltersContext';
 
 import './Filters.scss';
 
 class Filters extends React.Component {
+  constructor(props) {
+    super(props);
+    this.wrapperRef = React.createRef();
+  }
+
   componentWillUnmount() {
     this.onKeydown.cancel();
   }
 
+  /**
+   * Checks if this modal is the topmost by data-level
+   * @returns {boolean}
+   */
+  isTopLevelModal() {
+    const wrapper = this.wrapperRef.current;
+    if (!wrapper) {
+      return true;
+    }
+
+    const parentModal = wrapper.closest(`.${SELECT_JOURNAL_MODAL_CLASSNAME}`);
+    if (!parentModal) {
+      return true;
+    }
+
+    const currentLevel = parseInt(parentModal.dataset.level, 10) || 0;
+
+    const modals = document.querySelectorAll(`.${SELECT_JOURNAL_MODAL_CLASSNAME}`);
+    for (let i = 0; i < modals.length; i++) {
+      const lvl = parseInt(modals[i].dataset.level, 10) || 0;
+      if (lvl > currentLevel) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   onApply = () => {
+    if (!this.isTopLevelModal()) {
+      return;
+    }
+
     const { fields } = this.context;
     const { onApply } = this.props;
 
@@ -64,7 +102,7 @@ class Filters extends React.Component {
     const { columns } = this.props;
 
     return (
-      <div className="select-journal-filters" onKeyDown={this.onKeydown}>
+      <div className="select-journal-filters" onKeyDown={this.onKeydown} ref={this.wrapperRef}>
         <div className="select-journal-filters__list-wrapper">
           <ul className="select-journal-filters__list">
             {fields.map((item, idx) => (
