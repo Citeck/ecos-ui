@@ -1,10 +1,11 @@
-import React from 'react';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isString from 'lodash/isString';
+import React from 'react';
 
-import { getCurrentLocale } from '../../../helpers/util';
 import { commonOneTabDefaultProps, commonOneTabPropTypes, commonTabsDefaultProps, commonTabsPropTypes } from './utils';
+
+import { getCurrentLocale } from '@/helpers/util';
 
 import './Tabs.scss';
 
@@ -55,6 +56,10 @@ const Tabs = props => {
       {items.map((item, index) => {
         const labelField = item[valueField];
         const label = isString(labelField) ? labelField : get(labelField, getCurrentLocale(), '');
+
+        if (!!get(item, 'isEmpty', false)) {
+          return null;
+        }
 
         return (
           <Tab
