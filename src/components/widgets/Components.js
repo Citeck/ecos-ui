@@ -7,12 +7,11 @@ import isString from 'lodash/isString';
 import { lazy } from 'react';
 import uuidV4 from 'uuid/v4';
 
-import { CONFIG_VERSION, DashboardTypes } from '../../constants/dashboard';
-import { getCurrentLocale, getEnabledWorkspaces, t } from '../../helpers/util';
-import ConfigService, { ALFRESCO_ENABLED } from '../../services/config/ConfigService';
 import { FORM_MODE_EDIT, FORM_MODE_VIEW } from '../EcosForm';
 
-import { getWorkspaceId } from '@/helpers/urls';
+import { CONFIG_VERSION, DashboardTypes } from '@/constants/dashboard';
+import { getCurrentLocale, getEnabledWorkspaces, t } from '@/helpers/util';
+import ConfigService, { ALFRESCO_ENABLED } from '@/services/config/ConfigService';
 
 export const ComponentKeys = {
   WELCOME: 'welcome',
@@ -386,6 +385,19 @@ export default class Components {
     }
 
     return loadComponent();
+  }
+
+  static getRaw(name) {
+    const descriptor = Components.components[name];
+    if (!descriptor) {
+      return Promise.resolve(null);
+    }
+
+    if (descriptor.checkIsAvailable?.() === false) {
+      return Promise.resolve(null);
+    }
+
+    return descriptor.load();
   }
 
   static settings(component) {
