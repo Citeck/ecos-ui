@@ -1137,6 +1137,7 @@
   "journals.action.go-to-button-name": "Название кнопки \"Перейти\"",
   "journals.action.custom-journal": "Произвольный журнал",
   "journals.aggregation-workspaces": "Пространства для агрегации",
+  "journals.toolbar.hide-goto-button": "Скрывать кнопку \"Перейти\"",
   "journals.toolbar.hide-create-variants": "Скрывать варианты создания",
   "journals.action.remove-filter-group-msg": "Удалить группу фильтров?",
   "journals.action.remove-filter-msg": "Удалить фильтр?",

@@ -70,6 +70,7 @@ const Labels = {
   SETTING_FIELD: 'journals.settings',
   SETTING_FIELD_PLACEHOLDER: 'journals.default',
   CUSTOM_MODE_FIELD: 'journals.action.custom-journal',
+  HIDE_GO_TO_BUTTON: 'journals.toolbar.hide-goto-button',
   HIDE_CREATE_VARIANTS: 'journals.toolbar.hide-create-variants',
   ONLY_LINKED_FIELD: 'journals.action.only-linked',
   GO_TO_BUTTON_NAME_FIELD: 'journals.action.go-to-button-name',
@@ -109,6 +110,7 @@ class JournalsDashletEditor extends Component {
       isOnlyLinkedJournals: get(props, 'config.onlyLinkedJournals') || {},
       attrsToLoad: get(props, 'config.attrsToLoad') || {},
       isHideCreateVariants: get(props, 'config.isHideCreateVariants') || false,
+      isHideGoToButton: get(props, 'config.isHideGoToButton') || false,
       aggregateWorkspaces: get(props, 'config.aggregateWorkspaces') || [currentWorkspaceRef]
     };
   }
@@ -256,7 +258,8 @@ class JournalsDashletEditor extends Component {
       isOnlyLinkedJournals,
       goToButtonName,
       aggregateWorkspaces,
-      isHideCreateVariants
+      isHideCreateVariants,
+      isHideGoToButton
     } = this.state;
     const generalConfig = this.props.generalConfig || {};
     const journalId = get(selectedJournals, '0', '');
@@ -272,6 +275,7 @@ class JournalsDashletEditor extends Component {
     }
 
     newConfig.isHideCreateVariants = isHideCreateVariants;
+    newConfig.isHideGoToButton = isHideGoToButton;
     newConfig.journalsListIds = selectedJournals;
     newConfig.journalSettingId = journalSettingId;
     newConfig.journalId = journalId.substr(journalId.indexOf('@') + 1);
@@ -351,6 +355,10 @@ class JournalsDashletEditor extends Component {
     });
   };
 
+  toggleHideGoToButton = () => {
+    this.setState(state => ({ isHideGoToButton: !state.isHideGoToButton }));
+  };
+
   toggleIsHideCreateVariants = () => {
     this.setState(state => ({ isHideCreateVariants: !state.isHideCreateVariants }));
   };
@@ -382,6 +390,7 @@ class JournalsDashletEditor extends Component {
       selectedJournals,
       journalSettingId,
       isCustomJournalMode,
+      isHideGoToButton,
       isHideCreateVariants,
       isOnlyLinkedJournals,
       aggregateWorkspaces,
@@ -440,6 +449,9 @@ class JournalsDashletEditor extends Component {
           )}
           <Field label={t(Labels.CUSTOM_MODE_FIELD)} isSmall={this.isSmall}>
             <Checkbox checked={isCustomJournalMode} onClick={this.setCustomJournalMode} />
+          </Field>
+          <Field label={t(Labels.HIDE_GO_TO_BUTTON)} isSmall={this.isSmall}>
+            <Checkbox checked={isHideGoToButton} onClick={this.toggleHideGoToButton} />
           </Field>
           <Field label={t(Labels.HIDE_CREATE_VARIANTS)} isSmall={this.isSmall}>
             <Checkbox checked={isHideCreateVariants} onClick={this.toggleIsHideCreateVariants} />

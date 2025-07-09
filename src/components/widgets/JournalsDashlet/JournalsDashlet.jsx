@@ -162,6 +162,17 @@ class JournalsDashlet extends BaseWidget {
     return get(this._footerRef, 'offsetHeight', 0);
   }
 
+  get showGoToButton() {
+    const { editorMode, config } = this.props;
+    const { width } = this.state;
+
+    if (get(config, [JOURNAL_DASHLET_CONFIG_VERSION, 'isHideGoToButton'], false)) {
+      return false;
+    }
+
+    return width >= MIN_WIDTH_DASHLET_LARGE && !isEmpty(config) && !editorMode;
+  }
+
   setToolbarRef = ref => !!ref && (this._toolbarRef = ref);
 
   setFooterRef = ref => !!ref && (this._footerRef = ref);
@@ -312,7 +323,7 @@ class JournalsDashlet extends BaseWidget {
         style={{ minWidth: `${MIN_WIDTH_DASHLET_SMALL}px` }}
         title={journalName || t(Labels.J_TITLE)}
         onGoTo={this.goToJournalsPage}
-        needGoTo={width >= MIN_WIDTH_DASHLET_LARGE && !isEmpty(config) && !editorMode}
+        needGoTo={this.showGoToButton}
         goToButtonName={this.goToButtonName}
         actionConfig={actions}
         onResize={this.handleResize}

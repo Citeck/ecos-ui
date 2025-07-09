@@ -1184,6 +1184,7 @@
   "journals.action.go-to-button-name": "Name of the \"Go to\" button",
   "journals.action.custom-journal": "Custom journal",
   "journals.aggregation-workspaces": "Workspaces for aggregation",
+  "journals.toolbar.hide-goto-button": "Hide \"Go to\" button",
   "journals.toolbar.hide-create-variants": "Hide creation options",
   "journals.action.remove-filter-group-msg": "Remove filter group?",
   "journals.action.remove-filter-msg": "Remove filter?",
