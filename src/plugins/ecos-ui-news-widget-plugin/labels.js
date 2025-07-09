@@ -44,11 +44,6 @@ const Labels = {
     SETTINGS_BTN_CANCEL: 'dashlet.cancel.button',
     SETTINGS_BTN_SAVE: 'dashlet.submit.button'
   },
-  Graphics: {
-    DOUGHNUT: 'charts-widget.doughnut-type',
-    VERTICAL_BAR: 'charts-widget.vertical-bar-type',
-    LINE: 'charts-widget.line'
-  },
   Errors: {
     [ERROR_TYPES.NO_GROUPABLE_COLUMNS]: 'charts-widget.errors.no-groupable-columns'
   }
