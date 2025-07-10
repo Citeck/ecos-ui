@@ -109,21 +109,12 @@ $tabs-height: 26px;
     }
 
     &_scrollable {
-      .nav-item {
-        &.first-visible-tab {
-          border-left: 10px solid transparent;
-        }
-
-        &.last-visible-tab {
-          border-right: 10px solid transparent;
-        }
-      }
-
       .formio-component-tabs-wrapper {
         display: flex;
+        position: relative;
+        margin: 0 16px;
         align-items: center;
         justify-content: space-between;
-        position: relative;
 
         &:before {
           content: '';
@@ -161,7 +152,6 @@ $tabs-height: 26px;
         align-items: center;
         width: $tabs-height;
         height: $tabs-height;
-        background-color: $color-gray-4;
         color: $text-color-gray;
         cursor: pointer;
         border-radius: 50%;

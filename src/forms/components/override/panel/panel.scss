@@ -55,11 +55,11 @@ $theme-title-gray-color: 'transparent';
     }
 
     .card-body {
-      padding: 13px 0 5px 0;
+      padding: 0;
     }
 
     .card-title {
-      margin: 12px 0;
+      margin: 12px 0 !important;
       padding: 5px 12px;
       background-color: var(--title-background-color);
       border-radius: 6px;
@@ -108,9 +108,4 @@ $theme-title-gray-color: 'transparent';
   &.right {
     background-image: url('./chevron-right.svg');
   }
-}
-
-// fix for legacy card-details page
-#bd .yui-gc:not(.grid) > .yui-u .document-details-panel .formio-form .panel-body {
-  padding: 13px 0 5px 0;
 }

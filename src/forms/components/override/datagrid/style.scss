@@ -1,3 +1,38 @@
 .formio-drag-column-header {
   width: 65px;
 }
+
+.formio-component-datagrid {
+  table.table-bordered {
+    border-style: hidden;
+    box-shadow: 0 0 0 1px $color-gray-4;
+    border-radius: $border-radius-standard;
+
+    thead {
+      tr {
+        th {
+          border-bottom: 0;
+          border-color: $color-gray-4;
+        }
+      }
+    }
+
+    td {
+      padding: 0.65rem 0.5rem;
+      border: 1px solid $color-gray-4;
+      height: 40px;
+
+      &.formio-remove-column {
+        button.formio-button-remove-row {
+          height: 40px;
+        }
+      }
+    }
+  }
+}
+
+.formio-form_view-mode {
+  table.table-bordered {
+    box-shadow: none;
+  }
+}
