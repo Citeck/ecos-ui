@@ -1,8 +1,19 @@
-import { TextNode } from 'lexical';
+import { $generateNodesFromDOM } from '@lexical/html';
+import {
+  $createParagraphNode,
+  $createTextNode,
+  $getRoot,
+  $getSelection,
+  $isParagraphNode,
+  $isRangeSelection,
+  LexicalEditor,
+  TextNode
+} from 'lexical';
 // @ts-ignore
 import { LexicalNode } from 'lexical/LexicalNode';
 import isArray from 'lodash/isArray';
 
+import { $isImageNode } from '@/components/Lexical/nodes/ImageNode';
 import { parseAllowedFontSize } from '@/components/Lexical/plugins/ToolbarPlugin/fontSize';
 import { parseAllowedColor } from '@/components/Lexical/ui/ColorPicker';
 import { theme } from '@/components/LexicalEditor';
@@ -116,4 +127,36 @@ export function getStylesOfClasses(styles: string, classList?: DOMTokenList) {
   styles += getCodeStylesOfClasses(classList);
 
   return styles;
+}
+
+export function updateEditorContent(editor: LexicalEditor, value?: string | null) {
+  $getRoot().clear();
+  const phNode = $createParagraphNode();
+  phNode.append($createTextNode(''));
+  $getRoot().append(phNode);
+
+  const parser = new DOMParser();
+  const dom = parser.parseFromString(value ?? '', 'text/html');
+  const nodes = $generateNodesFromDOM(editor, dom);
+  const selection = $getSelection();
+
+  if ($isRangeSelection(selection)) {
+    selection.insertNodes(nodes);
+
+    const root = $getRoot();
+    const children = root.getChildren();
+
+    if (children.length > 1) {
+      const first = children[0];
+      if ($isParagraphNode(first) && first.getTextContent() === '' && !first.getChildren().some(child => $isImageNode(child))) {
+        first.remove();
+      }
+
+      const updatedChildren = root.getChildren();
+      const last = updatedChildren[updatedChildren.length - 1];
+      if ($isParagraphNode(last) && last.getTextContent() === '' && !last.getChildren().some(child => $isImageNode(child))) {
+        last.remove();
+      }
+    }
+  }
 }

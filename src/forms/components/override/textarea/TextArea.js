@@ -15,6 +15,7 @@ import { overrideTriggerChange } from '../misc';
 
 import LexicalEditor from '@/components/LexicalEditor';
 import { t } from '@/helpers/export/util';
+import { updateEditorContent } from '@/helpers/lexical';
 import ESMRequire from '@/services/ESMRequire.js';
 import UploadDocsRefService from '@/services/uploadDocsRefsStore';
 import { getStore } from '@/store';
@@ -109,9 +110,11 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       }
 
       // It should be performed only when initializing data from the backend
-      this.editorReady.then(editor => {
+      this.editorReady?.then(editor => {
         editor.update(() => {
           if (!this._lexicalInited) {
+            updateEditorContent(editor, value);
+
             const editorProps = editor.getRootElement();
             const { textContent = '' } = editorProps || {};
 
