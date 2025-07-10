@@ -43,10 +43,13 @@ export function* _parseConfig({ api }, { recordRef, config }) {
         const journalConfig = get(widget, 'props.config') || {};
         const versionConfigJournal = journalConfig[get(journalConfig, 'version') || 'v2'];
         const journalId = get(versionConfigJournal, 'journalId');
-        const journalData = yield Records.get(journalId.includes('@') ? journalId : `${SourcesId.JOURNAL}@${journalId}`).load('.json');
 
-        if (isObject(journalData) && !isEmpty(journalData)) {
-          isExistJournal = true;
+        if (journalConfig && versionConfigJournal && journalId) {
+          const journalData = yield Records.get(journalId.includes('@') ? journalId : `${SourcesId.JOURNAL}@${journalId}`).load('.json');
+
+          if (isObject(journalData) && !isEmpty(journalData)) {
+            isExistJournal = true;
+          }
         }
 
         return {
