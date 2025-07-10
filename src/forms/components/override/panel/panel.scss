@@ -20,7 +20,7 @@ $theme-title-gray-color: 'transparent';
 .formio-dialog-content .preview-panel,
 .formio-form {
   .tab-content {
-    margin-top: 8px;
+    padding: 10px 16px 0;
   }
 
   .card {
@@ -59,6 +59,8 @@ $theme-title-gray-color: 'transparent';
     }
 
     .card-title {
+      margin: 12px 0;
+      padding: 5px 12px;
       background-color: var(--title-background-color);
       border-radius: 6px;
       font-family: $font-family-open-sans;
@@ -66,7 +68,6 @@ $theme-title-gray-color: 'transparent';
       font-size: $font-size-large;
       color: var(--title-color);
       line-height: 22px;
-      padding: 5px 12px;
     }
   }
 }

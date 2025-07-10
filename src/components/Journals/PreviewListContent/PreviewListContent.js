@@ -6,7 +6,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import { Loader } from '../../common';
-import { Wall } from '../../common/form';
+import { Well } from '../../common/form';
 import Clock from '../../common/icons/Clock';
 import NoData from '../../common/icons/NoData';
 
@@ -107,7 +107,7 @@ class PreviewListContent extends Component {
     const isNoData = !isLoading && (!gridData || !gridData.length || !previewListConfig);
 
     return (
-      <Wall
+      <Well
         isViewNewJournal={isViewNewJournal}
         className={classnames('citeck-preview-list-content__list-well citeck-preview-list-content__grid-well_overflow_hidden')}
         maxHeight={maxHeight}
@@ -123,7 +123,7 @@ class PreviewListContent extends Component {
             </div>
           </div>
         )}
-      </Wall>
+      </Well>
     );
   }
 }

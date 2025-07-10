@@ -88,7 +88,7 @@ const HeaderColumn = ({ data, totalCount, isReady, typeRef, isViewNewJournal, pr
               {extractLabel(data.name) || t(Labels.Kanban.CARD_NO_TITLE)}
             </div>
           </Tooltip>
-          <Badge className="ecos-kanban__column-head-badge" text={`${totalCount}`} light state={'primary'} withPopup />
+          <Badge className="ecos-kanban__column-head-badge" text={`${totalCount}`} state={'primary'} withPopup />
         </TitlePageLoader>
       </div>
       {isViewNewJournal && data.hasSum && (

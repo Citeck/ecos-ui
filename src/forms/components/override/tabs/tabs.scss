@@ -152,8 +152,6 @@ $tabs-height: 26px;
 
       .formio-component-tabs-scroll-wrapper {
         max-width: calc(100% - 56px);
-        height: $tabs-height;
-        overflow: hidden;
       }
 
       .formio-component-tabs-right-button,

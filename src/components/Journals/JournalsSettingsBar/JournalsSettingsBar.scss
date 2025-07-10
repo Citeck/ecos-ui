@@ -134,6 +134,11 @@
   .ecos-btn.ecos-journal__add-record {
     font-size: $font-size-xxl;
     min-width: 40px;
+
+    svg path {
+      fill: $color-gray-5;
+      stroke: $color-gray-5;
+    }
   }
 
   .ecos-journal__icon-small-down i:last-child {
