@@ -14,7 +14,9 @@ export const ViewTypes = {
 };
 
 export const ECOS_TASK_TYPE_SET_STATUS = 'setStatus';
+export const ECOS_TASK_TYPE_AI_TASK = 'aiTask';
 export const REPLACE_TO_SET_STATUS = 'replace-with-set-status-task';
+export const REPLACE_TO_AI_TASK = 'replace-with-ai-task';
 
 export const EVENT_BASED_GATEWAY = 'bpmn:EventBasedGateway';
 
@@ -37,7 +39,11 @@ export const ELEMENT_TYPES_FORM_DETERMINER_BY_DEF_TYPE_MAP = new Map([
   ['bpmn:TerminateEventDefinition', 'bpmn:TerminateEvent'],
   ['bpmn:ErrorEventDefinition', 'bpmn:ErrorEvent']
 ]);
-export const ELEMENT_TYPES_FORM_DETERMINER_BY_ECOS_TASK_TYPE_MAP = new Map([[ECOS_TASK_TYPE_SET_STATUS, 'bpmn:EcosTaskSetStatus']]);
+export const ECOS_TASK_TYPES = [ECOS_TASK_TYPE_SET_STATUS, ECOS_TASK_TYPE_AI_TASK];
+export const ELEMENT_TYPES_FORM_DETERMINER_BY_ECOS_TASK_TYPE_MAP = new Map([
+  [ECOS_TASK_TYPE_SET_STATUS, 'bpmn:EcosTaskSetStatus'],
+  [ECOS_TASK_TYPE_AI_TASK, 'bpmn:EcosTaskAiTask']
+]);
 
 export const LOOP_CHARACTERISTICS = {
   LOOP: 'loop',
@@ -108,6 +114,7 @@ export const PERMISSION_BPMN_SECTION_EDIT_DEF = 'permissions._has.bpmn-section-e
 
 export const STATUS_CHANGE_ICON_PATH =
   'm22 2zm-5 4.67c0 0 0 4.66 0 4.66 0 0 2.39-2.27 2.39-2.27 0 0 .94.94 .94.94 0 0-4 4-4 4 0 0-4-4-4-4 0 0 .95-.94.95-.94 0 0 2.39 2.27 2.39 2.27 0 0 0-4.66 0-4.66 0-.37-.3-.67-.67-.67 0 0-8 0-8 0-.37 0-.67.3-.67.67 0 0 0 7.33 0 7.33 0 0-1.33 0-1.33 0 0 0 0-7.33 0-7.33 0-1.11.9-2 2-2 0 0 8 0 8 0 1.1 0 2 .89 2 2 0 0 0 0 0 0zm-.67 15.33c-1.84 0-3.33-1.49-3.33-3.33 0-1.84 1.49-3.34 3.33-3.34 1.84 0 3.34 1.5 3.34 3.34-.01 1.84-1.5 3.33-3.34 3.33 0 0 0 0 0 0zm0-5.33c-1.1 0-2 .89-2 2 0 1.1.9 2 2 2 1.11 0 2-.9 2-2 0-1.11-.89-2-2-2 0 0 0 0 0 0zm-10.66 5.33c-1.84 0-3.34-1.49-3.34-3.33 0-1.84 1.5-3.34 3.34-3.34 1.84 0 3.33 1.5 3.33 3.34 0 1.84-1.49 3.33-3.33 3.33 0 0 0 0 0 0zm0-5.33c-1.11 0-2 .89-2 2 0 1.1.89 2 2 2 1.1 0 2-.9 2-2 0-1.11-.9-2-2-2 0 0 0 0 0 0z';
+export const AI_ICON_PATH = 'M15.142,1.451L15.142,1.451c0.693,7.098,6.31,12.714,13.408,13.408l0,0c0.171,0.017,0.171,0.267,0,0.283l0,0\tc-7.098,0.693-12.714,6.31-13.408,13.408l0,0c-0.017,0.171-0.267,0.171-0.283,0l0,0c-0.693-7.098-6.31-12.714-13.408-13.408l0,0\tc-0.171-0.017-0.171-0.267,0-0.283l0,0c7.098-0.693,12.714-6.31,13.408-13.408l0,0C14.875,1.279,15.125,1.279,15.142,1.451z'
 
 export const LABEL_STYLE = {
   fontFamily: 'Arial, sans-serif',

@@ -1,4 +1,4 @@
-import aiAssistantContext, { CONTEXT_TYPES } from './AIAssistantContext';
+import aiAssistantContext from './AIAssistantContext';
 import Records from '../Records';
 import { getRecordRef } from '@/helpers/urls';
 import LicenseService from "@/services/license/LicenseService.js";
@@ -17,25 +17,6 @@ class AIAssistantService {
 
   isBpmnEditorPage() {
     return BPMN_EDITOR_URL_PATTERN.test(window.location.pathname);
-  }
-
-  async isDocumentWithContent() {
-    if (this.isBpmnEditorPage()) {
-      return false;
-    }
-
-   try {
-      const recordRef = getRecordRef()
-      if (!recordRef) {
-        return false;
-      }
-
-      const hasContent = await Records.get(recordRef).load('_has._content?bool');
-      return !!hasContent;
-    } catch (error) {
-      console.error('Error checking document content:', error);
-      return false;
-    }
   }
 
   async isAvailable() {
