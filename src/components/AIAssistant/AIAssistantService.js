@@ -1,4 +1,4 @@
-import aiAssistantContext, { CONTEXT_TYPES } from './AIAssistantContext';
+import aiAssistantContext from './AIAssistantContext';
 import Records from '../Records';
 import { getRecordRef } from '@/helpers/urls';
 import LicenseService from "@/services/license/LicenseService.js";
