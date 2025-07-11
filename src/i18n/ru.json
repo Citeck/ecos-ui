@@ -2775,6 +2775,8 @@
   "bpmn-linter.signal-event.no-change-type": "Не определен Тип изменения статуса",
   "bpmn-linter.signal-event.no-manual-status-name": "Не определен Статус",
   "bpmn-linter.participant.no-process-id": "Не определен ID Процесса",
+  "bpmn-linter.ai-task.no-user-input": "Не заполнено Текст запроса для AI",
+  "bpmn-linter.ai-task.unavailable": "AI помощник недоступен",
 
   "workspaces.create-button": "Добавить пространство",
   "workspaces.see-more": "Посмотреть больше",
@@ -2791,7 +2793,7 @@
   "workspaces.card.public-workspaces": "Публичные пространства",
   "workspaces.card.join-workspace": "Присоединиться",
   "workspaces.confirm": "Подтвердить",
-  "workspaces.card.join-workspace.error": "Ошибка при присоедении к рабочему пространству",
+  "workspaces.card.join-workspace.error": "Ошибка при присоединении к рабочему пространству",
   "workspaces.error-blocked.msg": "Рабочее пространство недоступно или не создано",
   "workspaces.error-blocked-public.msg": "Рабочее пространство «{{wsName}}» недоступно",
   "workspaces.error-blocked.action.msg": "Перейти на персональное пространство",

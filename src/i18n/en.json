@@ -2776,6 +2776,8 @@
   "bpmn-linter.signal-event.no-change-type": "Not defined Change type of Status",
   "bpmn-linter.signal-event.no-manual-status-name": "Not defined Status name",
   "bpmn-linter.participant.no-process-id": "Process ID not defined",
+  "bpmn-linter.ai-task.no-user-input": "AI User Input not filled",
+  "bpmn-linter.ai-task.unavailable": "AI assistant is not available",
 
   "workspaces.create-button": "Add a workspace",
   "workspaces.see-more": "See more",
