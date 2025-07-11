@@ -114,9 +114,9 @@ abstract class BaseWidget<P extends BaseWidgetProps = BaseWidgetProps, S extends
     return Records.get(this.props.record);
   }
 
-  get clientHeight(): number | null {
+  get clientHeight(): number {
     if (!this.props.maxHeightByContent) {
-      return null;
+      return MAX_DEFAULT_HEIGHT_DASHLET;
     }
 
     return get(this.contentRef, 'current.offsetHeight', 0);

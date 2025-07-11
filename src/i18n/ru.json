@@ -207,6 +207,8 @@
   "charts-widget-settings.y-min": "Минимальное вертикальное значение",
   "charts-widget-settings.y-max": "Максимальное вертикальное значение",
   "charts-widget-settings.aspect-ratio": "Соотношение сторон x/y",
+  "charts-widget-settings.attribute-not-selected": "Атрибут для аггрегации не выбран",
+  "charts-widget-settings.attribute-not-available-funnel": "Данный атрибут для аггрегации недоступен для воронки. Доступные атрибуты: Этапы, Статусы.",
   "charts-widget-setting.label-field": "Название виджета",
   "charts-widget-setting.graphic-type-field": "Тип графика",
   "charts-widget-setting.journal-field": "Журнал",

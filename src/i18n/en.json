@@ -313,6 +313,8 @@
   "charts-widget-settings.y-min": "Minimum vertical value",
   "charts-widget-settings.y-max": "Maximum vertical value",
   "charts-widget-settings.aspect-ratio": "Aspect ratio x/y",
+  "charts-widget-settings.attribute-not-selected": "No aggregation attribute selected",
+  "charts-widget-settings.attribute-not-available-funnel": "This aggregation attribute is not available for funnels. Available attributes: Stages, Statuses.",
   "charts-widget-setting.label-field": "Widget title",
   "charts-widget-setting.graphic-type-field": "Graphic type",
   "charts-widget-setting.journal-field": "Journal",
