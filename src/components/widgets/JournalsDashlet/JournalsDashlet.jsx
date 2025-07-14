@@ -295,8 +295,7 @@ class JournalsDashlet extends BaseWidget {
   }
 
   render() {
-    const { journalConfig, className, dragHandleProps, editorMode, config, configJournalId } = this.props;
-    const { width } = this.state;
+    const { journalConfig, className, dragHandleProps, editorMode, configJournalId } = this.props;
     const actions = {
       [DAction.Actions.HELP]: {
         onClick: () => null

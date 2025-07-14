@@ -203,8 +203,14 @@ class Dashboard extends Component {
       const isExistLayout = isArray(config) && !isNil(activeTab) && !!config[Number(activeTabIndex)];
       const hasManyTabs = this.tabList && this.tabList.length > 1;
 
-      if (!isNil(activeTab) && !isExistLayout && hasManyTabs) {
-        this.setActiveLink(0);
+      switch (true) {
+        case !isNil(activeTab) && !isExistLayout && hasManyTabs:
+        case !!get(this.tabList, [activeTab, 'isEmpty']):
+          this.setActiveLink(0);
+          break;
+
+        default:
+          break;
       }
 
       if (isNil(activeTabIndex) && !!layoutId) {
