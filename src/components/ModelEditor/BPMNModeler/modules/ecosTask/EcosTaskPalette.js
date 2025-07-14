@@ -1,4 +1,8 @@
-import { ECOS_TASK_TYPE_SET_STATUS, ECOS_TASK_BASE_ELEMENT } from '@/constants/bpmn';
+import {
+  ECOS_TASK_TYPE_SET_STATUS,
+  ECOS_TASK_BASE_ELEMENT,
+  ECOS_TASK_TYPE_AI_TASK
+} from "@/constants/bpmn";
 
 export default class CustomPalette {
   constructor(bpmnFactory, create, elementFactory, palette, translate) {
@@ -35,6 +39,15 @@ export default class CustomPalette {
         action: {
           dragstart: createEcosTask(ECOS_TASK_TYPE_SET_STATUS),
           click: createEcosTask(ECOS_TASK_TYPE_SET_STATUS)
+        }
+      },
+      'create.task-ai': {
+        group: 'activity',
+        className: 'bpmn-icon-ai',
+        title: translate('AI Task'),
+        action: {
+          dragstart: createEcosTask(ECOS_TASK_TYPE_AI_TASK),
+          click: createEcosTask(ECOS_TASK_TYPE_AI_TASK)
         }
       }
     };

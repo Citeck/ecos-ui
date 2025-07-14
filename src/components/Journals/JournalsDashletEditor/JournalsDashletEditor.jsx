@@ -146,7 +146,13 @@ class JournalsDashletEditor extends Component {
       getDashletEditorData(config);
     }
 
-    if (editorMode && isFunction(onSave) && prevResultDashboard.status !== resultDashboard.status && resultDashboard.status) {
+    if (
+      editorMode &&
+      isFunction(onSave) &&
+      prevResultDashboard.status !== resultDashboard.status &&
+      resultDashboard.status &&
+      isObject(config)
+    ) {
       setDashletConfigByParams(id, config);
       setEditorMode(false);
       this.setState({ ...this.#defaultStateConfig });

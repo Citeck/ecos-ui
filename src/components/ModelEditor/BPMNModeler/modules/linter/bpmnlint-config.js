@@ -13,6 +13,7 @@ import { conditionalEventRulesMap, conditionalEventCacheMap } from './conditiona
 import { errorEventRulesMap, errorEventCacheMap } from './errorEvent';
 import { signalEventRulesMap, signalEventCacheMap } from './signalEvent';
 import { participantRulesMap, participantCacheMap } from './participant';
+import { aiTaskRulesMap, aiTaskCacheMap } from './aiTask';
 
 function getAugmentedNamespace(n) {
   var f = n.default;
@@ -1464,6 +1465,7 @@ const rules = {
   ...errorEventRulesMap,
   ...signalEventRulesMap,
   ...participantRulesMap,
+  ...aiTaskRulesMap,
 };
 
 const config = {
@@ -1505,6 +1507,7 @@ cache = {
   ...errorEventCacheMap,
   ...signalEventCacheMap,
   ...participantCacheMap,
+  ...aiTaskCacheMap,
 };
 
 export { config, bundle as default, resolver };
