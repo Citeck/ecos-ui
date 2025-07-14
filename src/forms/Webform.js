@@ -174,6 +174,19 @@ Webform.prototype.submit = function (before, options) {
     const callSubmit = () => {
       form.previSubmitTime = new Date().getTime();
 
+      for (let [key] of Object.entries(originalSubmissionData)) {
+        const component = form.getComponent(key);
+        if (get(component, 'type') === 'datagrid') {
+          form.submission = {
+            ...form.submission,
+            data: {
+              ...get(form.submission, 'data', {}),
+              [key]: component.getNotEmptyValue()
+            }
+          };
+        }
+      }
+
       form.setValue(merge(form.submission, { data: outcomeButtonsAttributes }));
       originalSubmit.call(form, before, options).then(resolve).catch(reject);
     };
