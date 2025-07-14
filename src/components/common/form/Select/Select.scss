@@ -158,8 +158,9 @@
 
 .ecos-select_blue {
   .select__control {
-    background: var(--light-primary-color);
-    border: $border-width-standard solid var(--light-primary-color);
+    background-color: var(--primary-color);
+    border: $border-width-standard solid var(--primary-color);
+    cursor: pointer;
   }
 
   .select__single-value,
