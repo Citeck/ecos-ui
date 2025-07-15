@@ -8,7 +8,7 @@ import styles from './ModelList.module.scss';
 import ActionButtons from '../ActionButtons';
 import { ViewTypes } from '../../../constants/commonDesigner';
 
-const ModelList = ({
+const ModelList = React.memo(({
   label,
   author,
   datetime,
@@ -54,6 +54,8 @@ const ModelList = ({
       </div>
     </Col>
   );
-};
+});
+
+ModelList.displayName = 'ModelList';
 
 export default ModelList;
