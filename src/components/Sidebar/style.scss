@@ -365,7 +365,7 @@ $transition-duration: 0.2s;
       transition: opacity $transition-duration;
 
       &_hide {
-        opacity: 0;
+        display: none;
       }
     }
 
