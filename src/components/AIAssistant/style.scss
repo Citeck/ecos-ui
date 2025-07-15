@@ -869,6 +869,19 @@
 .ecos-model-editor__designer-ai-button {
   display: inline-block;
   margin: 0 5px;
+
+  .ecos-btn {
+    color: var(--surface-color, white);
+
+    &:hover {
+      background-color: var(--background-hover, #e9ecef);
+      color: var(--primary-color);
+
+      svg {
+        fill: var(--primary-color);
+      }
+    }
+  }
 }
 
 .ai-assistant-resizable {
