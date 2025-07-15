@@ -20,7 +20,10 @@ const mapStateToProps = (state, props) => ({
   viewType: state.bpmn.viewType,
   searchText: state.bpmn.searchText,
   modelsInfo: selectModelsInfoByCategoryId(state, props),
-  createModelCardLabel: t('designer.create-model-card.label')
+  createModelCardLabel: t('designer.create-model-card.label'),
+  canEditDef: props.canEditDef,
+  canCreateDef: props.canCreateDef,
+  isCategoryOpen: props.isCategoryOpen
 });
 
 const mapDispatchToProps = dispatch => ({

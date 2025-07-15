@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Col } from 'reactstrap';
 import cn from 'classnames';
 import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../../constants/pageTabs';
@@ -8,7 +8,7 @@ import ActionButtons from '../ActionButtons';
 import { ViewTypes } from '../../../constants/commonDesigner';
 import BPMNViewer from '../../ModelViewer/BPMNViewer/BPMNViewer';
 
-const ModelCard = ({
+const ModelCard = React.memo(({
   label,
   author,
   datetime,
@@ -23,24 +23,31 @@ const ModelCard = ({
   canEditDef
 }) => {
   const dragNDropIconClasses = cn('icon-custom-drag-big', styles.dndActionIcon, styles.hiddenIcon);
+
+  // Memoize BPMNViewer instance to prevent recreation on every render
   const designer = new BPMNViewer();
 
-  const cardTopBgStyle =
+  const cardTopBgStyle = useMemo(() =>
     image && !definition
-      ? {
-          backgroundImage: `url(${image})`
-        }
-      : null;
+      ? { backgroundImage: `url(${image})` }
+      : null,
+    [image, definition]
+  );
+
+  const renderedDiagram = useMemo(() => {
+    if (!designer || !definition) return null;
+
+    return designer.renderSheet({
+      diagram: definition,
+      zoom: 0.5
+    });
+  }, [designer, definition]);
 
   return (
     <Col xl={3} lg={4} md={4} sm={6}>
       <div className={styles.card}>
         <div className={styles.cardTop} style={cardTopBgStyle}>
-          {designer &&
-            designer.renderSheet({
-              diagram: definition,
-              zoom: 0.5
-            })}
+          {renderedDiagram}
           <div className={styles.cardTopHover}>
             {canWrite && (
               <ActionButtons
@@ -53,7 +60,6 @@ const ModelCard = ({
             )}
             {onViewLinkClick && (
               <div className={styles.cardTopButton}>
-                {/*<NavLink to={viewLink}>{t('designer.view-button')}</NavLink>*/}
                 <a href={viewLink} onClick={onViewLinkClick} {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}>
                   {t('designer.view-button')}
                 </a>
@@ -72,6 +78,8 @@ const ModelCard = ({
       </div>
     </Col>
   );
-};
+});
+
+ModelCard.displayName = 'ModelCard';
 
 export default ModelCard;

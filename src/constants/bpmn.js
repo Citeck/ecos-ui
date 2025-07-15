@@ -86,6 +86,8 @@ export const LOCAL_STORAGE_KEY_REFERER_PAGE_PATHNAME = 'BpmnRefererPagePathName'
 
 export const BPMN_MODELS_PAGE_MAX_ITEMS = 8;
 
+export const SEARCH_MIN_LENGTH = 2;
+
 export const BPMN_DELIMITER = ':';
 export const BPMN_PREFIX_UNDERLINE = 'bpmn_';
 export const PREFIX_FORM_ELM = '@bpmn-type-';
