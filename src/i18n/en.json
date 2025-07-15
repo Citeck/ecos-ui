@@ -62,6 +62,7 @@
   "designer.delete-category-dialog.failure-title": "Failure",
   "designer.delete-category-dialog.failure-text": "The category is not empty",
   "designer.delete-category-dialog.close-btn": "Close",
+  "designer.search.min-chars-hint": "Enter at least 2 characters to search",
 
   "bpmn-admin.info-title": "Process information",
   "bpmn-admin.incidents-count": "incident count:",

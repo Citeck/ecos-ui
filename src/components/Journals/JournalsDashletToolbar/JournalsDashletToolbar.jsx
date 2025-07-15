@@ -132,7 +132,7 @@ class JournalsDashletToolbar extends Component {
           {!!selectedJournals && selectedJournals.length > 1 && (
             <Dropdown
               hasEmpty
-              source={selectedJournals}
+              source={selectedJournals.filter(journal => !!journal.title)}
               value={lsJournalId || nodeRef}
               valueField={'id'}
               titleField={'title'}

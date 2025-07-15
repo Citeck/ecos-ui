@@ -62,6 +62,7 @@
   "designer.delete-category-dialog.failure-title": "Ошибка удаления категории",
   "designer.delete-category-dialog.failure-text": "Категория не пуста",
   "designer.delete-category-dialog.close-btn": "Закрыть",
+  "designer.search.min-chars-hint": "Введите минимум 2 символа для поиска",
 
   "bpmn-card.go-back-to-list-button.text": "Назад к списку",
   "bpmn-card.open-editor-button.text": "Визуальный редактор",

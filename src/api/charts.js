@@ -72,7 +72,7 @@ export class ChartsApi {
     return groupByParams.reduce(
       (res, cur) => ({
         ...res,
-        [cur.attribute]: cur.isDateColumn ? `(date_trunc('${cur.dateParam}', ${cur.attribute}))` : cur.attribute
+        [cur.attribute]: cur.isDateColumn ? `(date_trunc('${cur.dateParam}', ${cur.attribute}))` : `${cur.attribute}{value:?id,label:?disp}`
       }),
       {}
     );

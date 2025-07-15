@@ -26,6 +26,8 @@ yarn-error.log*
 .idea/
 ignore/
 
+.github/instructions
+
 .cookies
 .vscode/
 *.code-workspace
