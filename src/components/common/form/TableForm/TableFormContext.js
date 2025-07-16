@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
+import isString from 'lodash/isString';
 import isBoolean from 'lodash/isBoolean';
 import cloneDeep from 'lodash/cloneDeep';
 import isEmpty from 'lodash/isEmpty';
@@ -284,9 +285,15 @@ export const TableFormContextProvider = props => {
             const recordWithOriginalColumnKeys = await editedRecord.load(attrs);
             let newRow = { ...initialRow, ...recordWithOriginalColumnKeys };
             const attrsWithoutScalar = attrs.filter(att => att.indexOf('?') === -1);
+
+            const atPattern = /^.+\/.+@.*$/;
+            const wsPattern = /^.*workspace:\/\/SpacesStore\/[A-Za-z0-9-]+.*$/;
+
             for (const att of attrsWithoutScalar) {
-              if (attributes[att]) {
-                const displayName = await Records.get(attributes[att]).load('.disp');
+              const attr = attributes[att];
+
+              if (isString(attr) && (atPattern.test(attr) || wsPattern.test(attr))) {
+                const displayName = await Records.get(attr).load('.disp');
                 newRow = displayName ? { ...newRow, [att]: displayName } : { ...newRow };
               }
             }
