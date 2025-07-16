@@ -285,9 +285,14 @@ export const TableFormContextProvider = props => {
             const recordWithOriginalColumnKeys = await editedRecord.load(attrs);
             let newRow = { ...initialRow, ...recordWithOriginalColumnKeys };
             const attrsWithoutScalar = attrs.filter(att => att.indexOf('?') === -1);
+
+            const atPattern = /^.+\/.+@.*$/;
+            const wsPattern = /^.*workspace:\/\/SpacesStore\/[A-Za-z0-9-]+.*$/;
+
             for (const att of attrsWithoutScalar) {
               const attr = attributes[att];
-              if (isString(attr) && (attr.includes('@') || attr.includes('workspace://SpacesStore/'))) {
+
+              if (isString(attr) && (atPattern.test(attr) || wsPattern.test(attr))) {
                 const displayName = await Records.get(attr).load('.disp');
                 newRow = displayName ? { ...newRow, [att]: displayName } : { ...newRow };
               }
