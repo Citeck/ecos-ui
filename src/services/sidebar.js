@@ -177,6 +177,8 @@ export default class SidebarService {
     let attributes = {};
     let ignoreTabHandler = true;
 
+    const workspaceEnabled = getEnabledWorkspaces();
+
     /** @deprecated since menu v1 */
     if (item.action) {
       const params = item.action.params || {};
@@ -333,9 +335,15 @@ export default class SidebarService {
 
     const workspaceId = getWorkspaceId();
     const hasRedirects = Object.keys(RELOCATED_URL).some(key => targetUrl && targetUrl.includes(key));
+    const hasWorkspaceInLink = workspaceEnabled && targetUrl && targetUrl.includes('ws=');
+
+    if (hasWorkspaceInLink) {
+      attributes.target = '_self';
+      attributes[IGNORE_TABS_HANDLER_ATTR_NAME] = false;
+    }
 
     return {
-      targetUrl: workspaceId && targetUrl && getEnabledWorkspaces() && !hasRedirects ? getLinkWithWs(targetUrl, workspaceId) : targetUrl,
+      targetUrl: workspaceId && targetUrl && workspaceEnabled && !hasWorkspaceInLink && !hasRedirects ? getLinkWithWs(targetUrl, workspaceId) : targetUrl,
       attributes
     };
   }
