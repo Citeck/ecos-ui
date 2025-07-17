@@ -1,13 +1,14 @@
 @import '../../../styles/constants';
 
 .search {
-  border-radius: $border-radius-standard;
   padding: 9px 12px 8px 10px;
   display: inline-block;
-  background-color: $color-white;
+  position: relative;
   margin-left: 15px;
   vertical-align: top;
-  position: relative;
+  border: 1px solid $color-gray-4;
+  border-radius: $border-radius-standard;
+  background-color: $color-white;
 
   label {
     margin: 0;

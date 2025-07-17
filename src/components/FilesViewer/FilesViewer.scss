@@ -72,8 +72,8 @@
 
     &:hover,
     &_mobile#{$item}_lastclicked {
-      outline: 2px solid $color-brown-2;
-      outline-offset: -2px;
+      outline: 1px solid $color-brown-2;
+      outline-offset: -1px;
 
       #{$item}-actions {
         display: inline-flex;

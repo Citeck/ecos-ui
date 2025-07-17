@@ -1,9 +1,9 @@
 @mixin clamp($lines) {
   display: -webkit-box;
   -webkit-line-clamp: $lines;
-  -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-wrap-style: balance;
 }
 
 .ecos-news {
@@ -70,8 +70,10 @@
       }
 
       &__description {
-        @include clamp(7);
+        @include clamp(5);
         margin: 0;
+        max-height: 110px;
+        white-space: nowrap;
         font-family: 'Montserrat', sans-serif;
         line-height: 1.4;
         font-size: 15px;

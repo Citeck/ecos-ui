@@ -55,15 +55,16 @@
   }
 
   &__control_new.ecos-btn {
-    border-radius: 6px;
-    overflow: hidden;
     width: 100%;
-    text-overflow: ellipsis;
-    font-size: 11px;
     padding: 0 12px;
     height: 28px;
+    border: 1px solid $color-gray-4;
+    border-radius: 6px;
     background-color: $color-gray-25;
+    font-size: 11px;
     line-height: 18.6px;
+    text-overflow: ellipsis;
+    overflow: hidden;
 
     &:focus {
       background-color: $color-gray-25;

@@ -47,6 +47,7 @@
     .ecos-btn_drop-down {
       font-size: 11px;
       line-height: 9px;
+      border: 1px solid $color-gray-4;
 
       .ecos-dropdown__toggle-label {
         padding: 0;
@@ -276,6 +277,7 @@
   &.export {
     width: 48px;
     padding: 0;
+    border: 1px solid $color-gray-4;
 
     > span {
       padding: 0;
@@ -303,8 +305,8 @@
 
   &.search {
     justify-content: flex-start;
-    padding: 14px 9px;
-    border: 0;
+    padding: 12px 8px;
+    border: 1px solid $color-gray-4;
 
     &:hover,
     &:hover i {
@@ -319,14 +321,15 @@
     }
 
     > i {
-      top: 5px;
+      top: 3px;
     }
 
     i:last-child {
-      top: 0;
+      top: -2px;
     }
 
     .search__input {
+      left: 28px;
       font-size: 11px !important;
       background-color: $color-gray-25;
     }
@@ -344,6 +347,7 @@
 
   &.filter,
   &.shape {
+    border: 1px solid $color-gray-4;
     border-radius: $border-radius-standard;
     min-width: 28px !important;
     min-height: 28px !important;
