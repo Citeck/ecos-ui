@@ -1,12 +1,13 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import * as React from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import { isMobileDevice, t } from '../../../helpers/util';
 import Dashlet from '../../Dashlet/Dashlet';
-import DocStatus from './DocStatus';
 import BaseWidget from '../BaseWidget';
+
+import DocStatus from './DocStatus';
 
 import './style.scss';
 
@@ -40,7 +41,7 @@ class DocStatusDashlet extends BaseWidget {
   };
 
   render() {
-    const { config, classNameStatus, classNameDashlet, record } = this.props;
+    const { config, classNameStatus, classNameDashlet, record, ...props } = this.props;
     const { isSmall } = this.state;
     const isMobile = isMobileDevice();
     const title = this.props.title || t('doc-status-widget.title');
@@ -48,6 +49,7 @@ class DocStatusDashlet extends BaseWidget {
 
     return (
       <Dashlet
+        {...props}
         title={title}
         className={classNames('ecos-doc-status-dashlet', classNameDashlet, {
           'ecos-doc-status-dashlet_mobile': isMobile

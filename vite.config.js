@@ -74,7 +74,10 @@ const preOptimizeDepsLibs = [
   'dmn-js-shared/lib/util/ModelUtil',
   'react-select/async',
   'async-cadesplugin',
-  'dompurify'
+  'dompurify',
+  'chart.js',
+  'react-chartjs-2',
+  'chartjs-plugin-datalabels'
 ];
 
 export default defineConfig(({ mode }) => {

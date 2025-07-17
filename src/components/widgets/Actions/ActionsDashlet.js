@@ -1,11 +1,12 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import * as React from 'react';
 
-import { isSmallMode, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
+import { isSmallMode, t } from '../../../helpers/util';
 import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
+
 import Actions from './Actions';
 
 import './style.scss';
@@ -48,11 +49,13 @@ class ActionsDashlet extends BaseWidget {
   };
 
   render() {
-    const { title, config, classNameDashlet, classNameContent, record, dragHandleProps, canDragging, tabId, isActiveLayout } = this.props;
+    const { title, config, classNameDashlet, classNameContent, record, dragHandleProps, canDragging, tabId, isActiveLayout, ...props } =
+      this.props;
     const { isSmallMode, runUpdate } = this.state;
 
     return (
       <Dashlet
+        {...props}
         title={title || t('records-actions.actions')}
         bodyClassName="ecos-actions-dashlet__body"
         className={classNames('ecos-actions-dashlet', classNameDashlet)}

@@ -98,6 +98,7 @@ class WelcomeWidget extends BaseWidget<any, WelcomeState> {
     return (
       // @ts-ignore
       <Dashlet
+        {...this.props}
         title={t('dashboard-settings.widget.welcome')}
         className="ecos-welcome-widget-dashlet"
         disableCollapse={false}

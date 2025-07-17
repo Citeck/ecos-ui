@@ -200,6 +200,7 @@
   "charts-widget.data-build-error": "Произошла ошибка:\n {{error}}",
   "charts-widget.select-graphic-type-and-source": "Выберите тип и источник графика",
   "charts-widget-settings.title": "Настройки виджета",
+  "charts-widget-settings.hide-legends": "Скрыть легенду",
   "charts-widget-settings.journal-settings-title": "Настройки журнала",
   "charts-widget-settings.graphic-settings-title": "Настройки графика",
   "charts-widget-settings.graphic-middle-radius": "Радиус середины",
@@ -381,6 +382,7 @@
   "dashboard-settings.widget.hierarchical-tree": "Иерархия",
   "dashboard-settings.widget.with-config": "У данного виджета есть настройки. При удалении виджета, настройки будут утеряны",
   "dashboard-settings.layout.tooltip.adaptive": "Количество колонок подстраивается под размер окна браузера",
+  "dashboard-settings.layout.tooltip.adaptive-same-widgets": "Количество колонок подстраивается под размер окна браузера, а все виджеты одинаковой высоты",
   "dashboard-settings.layout.empty-layout": "Виджеты не настроены.",
 
   "dashlet.error-boundary.msg": "При работе виджета произошла ошибка. Попробуйте обновить виджет или страницу. Если ошибка повторится, обратитесь к администратору",

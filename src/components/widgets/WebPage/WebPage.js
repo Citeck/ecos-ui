@@ -1,22 +1,22 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { Scrollbars } from 'react-custom-scrollbars';
+import classNames from 'classnames';
 import debounce from 'lodash/debounce';
 import get from 'lodash/get';
-import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { Scrollbars } from 'react-custom-scrollbars';
+import { connect } from 'react-redux';
 
-import { Loader } from '../../common/index';
+import { cancelPageLoading, changePageData, initPage, loadedPage, reloadPageData, setError } from '../../../actions/webPage';
+import { MIN_WIDTH_DASHLET_LARGE, MAX_DEFAULT_HEIGHT_DASHLET } from '../../../constants/index';
+import { t } from '../../../helpers/util';
+import { selectStateById } from '../../../selectors/webPage';
+import DAction from '../../../services/DashletActionService';
+import UserLocalSettingsService from '../../../services/userLocalSettings';
+import Dashlet from '../../Dashlet';
 import { Btn } from '../../common/btns/index';
 import { Caption, Input, Label } from '../../common/form/index';
-import Dashlet from '../../Dashlet';
+import { Loader } from '../../common/index';
 import BaseWidget from '../BaseWidget';
-import UserLocalSettingsService from '../../../services/userLocalSettings';
-import DAction from '../../../services/DashletActionService';
-import { MIN_WIDTH_DASHLET_LARGE, MAX_DEFAULT_HEIGHT_DASHLET } from '../../../constants/index';
-import { cancelPageLoading, changePageData, initPage, loadedPage, reloadPageData, setError } from '../../../actions/webPage';
-import { selectStateById } from '../../../selectors/webPage';
-import { t } from '../../../helpers/util';
 
 import './style.scss';
 
@@ -343,7 +343,7 @@ class WebPage extends BaseWidget {
   }
 
   render() {
-    const { title } = this.props;
+    const { title, ...props } = this.props;
     const { settingsIsShow, pageIsLoaded } = this.state;
     const fixHeight = MAX_DEFAULT_HEIGHT_DASHLET - this.dashletOtherHeight;
     const actions = {};
@@ -367,6 +367,7 @@ class WebPage extends BaseWidget {
 
     return (
       <Dashlet
+        {...props}
         setRef={this.setDashletRef}
         title={title || t('web-page-widget.title')}
         className="ecos-wpage"
@@ -404,7 +405,4 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   changePageData: data => dispatch(changePageData({ stateId: ownProps.id, data }))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(WebPage);
+export default connect(mapStateToProps, mapDispatchToProps)(WebPage);

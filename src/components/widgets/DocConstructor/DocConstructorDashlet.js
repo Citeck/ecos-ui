@@ -1,9 +1,9 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { connect } from 'react-redux';
 import get from 'lodash/get';
+import PropTypes from 'prop-types';
+import React from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
+import { connect } from 'react-redux';
 
 import {
   createDocument,
@@ -15,14 +15,15 @@ import {
   recreateDocument,
   setError
 } from '../../../actions/docConstructor';
-import { isSmallMode, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
+import { isSmallMode, t } from '../../../helpers/util';
 import DAction from '../../../services/DashletActionService';
-import { Icon, Loader } from '../../common';
-import { SelectJournal } from '../../common/form';
-import { Btn, IcoBtn } from '../../common/btns';
 import Dashlet from '../../Dashlet';
+import { Icon, Loader } from '../../common';
+import { Btn, IcoBtn } from '../../common/btns';
+import { SelectJournal } from '../../common/form';
 import BaseWidget from '../BaseWidget';
+
 import Settings from './Settings';
 
 import './style.scss';
@@ -164,11 +165,12 @@ class DocConstructorDashlet extends BaseWidget {
   };
 
   render() {
-    const { title, classNameDashlet, isLoading, error, contractTemplate, config } = this.props;
+    const { title, classNameDashlet, isLoading, error, contractTemplate, config, ...props } = this.props;
     const { isSmallMode, isOpenSettings } = this.state;
 
     return (
       <Dashlet
+        {...props}
         className={classNames('ecos-doc-constructor__dashlet', classNameDashlet)}
         bodyClassName="ecos-doc-constructor__dashlet-body"
         title={t(title || Labels.TITLE)}
@@ -265,7 +267,4 @@ const mapDispatchToProps = (dispatch, context) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(DocConstructorDashlet);
+export default connect(mapStateToProps, mapDispatchToProps)(DocConstructorDashlet);

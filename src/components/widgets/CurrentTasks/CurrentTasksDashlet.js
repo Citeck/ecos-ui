@@ -1,13 +1,14 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import isFunction from 'lodash/isFunction';
+import PropTypes from 'prop-types';
+import * as React from 'react';
 
+import { getStateId } from '../../../helpers/redux';
 import { getAdaptiveNumberStr, isSmallMode, t } from '../../../helpers/util';
 import DAction from '../../../services/DashletActionService';
-import { getStateId } from '../../../helpers/redux';
 import Dashlet from '../../Dashlet';
 import BaseWidget, { EVENTS } from '../BaseWidget';
+
 import CurrentTasks from './CurrentTasks';
 
 import './style.scss';
@@ -88,11 +89,12 @@ class CurrentTasksDashlet extends BaseWidget {
   };
 
   render() {
-    const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
+    const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging, ...props } = this.props;
     const { isSmallMode, runUpdate, totalCount, isLoading, isOpenSettings } = this.state;
 
     return (
       <Dashlet
+        {...props}
         title={title || t('current-tasks-widget.title')}
         bodyClassName="ecos-current-task-list-dashlet__body"
         className={classNames('ecos-current-task-list-dashlet', classNameDashlet)}

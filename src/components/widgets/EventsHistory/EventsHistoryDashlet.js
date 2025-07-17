@@ -1,17 +1,18 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
+import PropTypes from 'prop-types';
+import React from 'react';
 
-import { isSmallMode, t } from '../../../helpers/util';
-import { getStateId } from '../../../helpers/redux';
-import DAction from '../../../services/DashletActionService';
 import { MAX_DEFAULT_HEIGHT_DASHLET } from '../../../constants';
+import { getStateId } from '../../../helpers/redux';
+import { isSmallMode, t } from '../../../helpers/util';
+import DAction from '../../../services/DashletActionService';
 import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
-import JournalHistory from './JournalHistory';
+
 import EventsHistorySettings from './EventsHistorySettings';
+import JournalHistory from './JournalHistory';
 import { Labels } from './util';
 
 import './style.scss';
@@ -114,11 +115,12 @@ class EventsHistoryDashlet extends BaseWidget {
   };
 
   render() {
-    const { title, config, classNameContent, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
+    const { title, config, classNameContent, classNameDashlet, record, dragHandleProps, canDragging, ...props } = this.props;
     const { isSmallMode, isShowSetting, runUpdate, runCleanFilters } = this.state;
 
     return (
       <Dashlet
+        {...props}
         title={title || t(Labels.WIDGET_TITLE)}
         className={classNames('ecos-event-history-dashlet', classNameDashlet)}
         bodyClassName="ecos-event-history-dashlet__body"

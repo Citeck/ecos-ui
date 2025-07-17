@@ -384,11 +384,12 @@ class DocAssociations extends BaseWidget {
   }
 
   render() {
-    const { canDragging, dragHandleProps, associationsTotalCount, isLoading, isMobile } = this.props;
+    const { canDragging, dragHandleProps, associationsTotalCount, isLoading, isMobile, ...props } = this.props;
     const actionRules = { orderedVisible: [DAction.Actions.RELOAD, 'addLink'] };
 
     return (
       <Dashlet
+        {...props}
         className={classNames('ecos-doc-associations', { 'ecos-doc-associations_small': this.isSmallWidget })}
         title={t(LABELS.TITLE)}
         needGoTo={false}

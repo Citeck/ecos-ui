@@ -621,7 +621,7 @@ class VersionsJournal extends BaseWidget {
   }
 
   render() {
-    const { isMobile, hasWritePermission, versionsLabels, record } = this.props;
+    const { isMobile, hasWritePermission, versionsLabels, record, ...props } = this.props;
     const actions = {};
 
     if (hasWritePermission && !isMobile && record) {
@@ -634,6 +634,7 @@ class VersionsJournal extends BaseWidget {
 
     return (
       <Dashlet
+        {...props}
         title={t('versions-journal-widget.title')}
         className="ecos-vj"
         titleClassName="ecos-vj__dashboard-title"

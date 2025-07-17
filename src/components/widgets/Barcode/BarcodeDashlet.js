@@ -1,21 +1,22 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
-import { Scrollbars } from 'react-custom-scrollbars';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { Scrollbars } from 'react-custom-scrollbars';
+import { connect } from 'react-redux';
 
 import { getBase64Barcode, init } from '../../../actions/barcode';
-import { isMobileDevice, t } from '../../../helpers/util';
-import { getStateId } from '../../../helpers/redux';
-import { getBarcodePrintUrl } from '../../../helpers/urls';
 import { defaultSettings } from '../../../constants/barcode';
 import BarcodeConverter from '../../../dto/barcode';
+import { getStateId } from '../../../helpers/redux';
+import { getBarcodePrintUrl } from '../../../helpers/urls';
+import { isMobileDevice, t } from '../../../helpers/util';
 import DAction from '../../../services/DashletActionService';
 import PageTabList from '../../../services/pageTabs/PageTabList';
 import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
+
 import Barcode from './Barcode';
 import Settings from './Settings';
 
@@ -147,7 +148,7 @@ class BarcodeDashlet extends BaseWidget {
   }
 
   render() {
-    const { title, classNameDashlet } = this.props;
+    const { title, classNameDashlet, ...props } = this.props;
     const actions = {
       [DAction.Actions.SETTINGS]: {
         onClick: this.handleToggleSettings
@@ -156,6 +157,7 @@ class BarcodeDashlet extends BaseWidget {
 
     return (
       <Dashlet
+        {...props}
         title={title}
         actionConfig={actions}
         bodyClassName="ecos-barcode-dashlet__body"
@@ -205,7 +207,4 @@ const mapDispatchToProps = (dispatch, { record, config }) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(BarcodeDashlet);
+export default connect(mapStateToProps, mapDispatchToProps)(BarcodeDashlet);

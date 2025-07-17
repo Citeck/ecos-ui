@@ -1,21 +1,21 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { Scrollbars } from 'react-custom-scrollbars';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { Scrollbars } from 'react-custom-scrollbars';
+import { connect } from 'react-redux';
 
-import { selectStateByKey } from '../../../selectors/birthdays';
 import { getBirthdays, resetStore } from '../../../actions/birthdays';
 import { MIN_WIDTH_DASHLET_LARGE } from '../../../constants';
-import { getAdaptiveNumberStr, t } from '../../../helpers/util';
-import { isNewVersionPage } from '../../../helpers/urls';
 import { getStateId } from '../../../helpers/redux';
-import UserLocalSettingsService from '../../../services/userLocalSettings';
+import { isNewVersionPage } from '../../../helpers/urls';
+import { getAdaptiveNumberStr, t } from '../../../helpers/util';
+import { selectStateByKey } from '../../../selectors/birthdays';
 import PageService from '../../../services/PageService';
+import UserLocalSettingsService from '../../../services/userLocalSettings';
+import Dashlet from '../../Dashlet';
 import { Avatar, Loader } from '../../common';
 import { Btn } from '../../common/btns';
-import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
 
 import './style.scss';
@@ -176,10 +176,11 @@ class Birthdays extends BaseWidget {
   }
 
   render() {
-    const { canDragging, dragHandleProps, totalCount } = this.props;
+    const { canDragging, dragHandleProps, totalCount, ...props } = this.props;
 
     return (
       <Dashlet
+        {...props}
         className="ecos-hb2u"
         title={t(Labels.TITLE)}
         needGoTo={false}
@@ -216,7 +217,4 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   getBirthdays: () => dispatch(getBirthdays(getStateId(ownProps)))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Birthdays);
+export default connect(mapStateToProps, mapDispatchToProps)(Birthdays);

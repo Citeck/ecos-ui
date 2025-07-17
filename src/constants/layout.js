@@ -14,7 +14,8 @@ export const LayoutTypes = {
   FRANKENSTEIN: 'frankenstein',
   CLASSIC_SITE: 'classic-site',
   ADAPTIVE: 'adaptive',
-  MOBILE: 'mobile'
+  MOBILE: 'mobile',
+  ADAPTIVE_SAME_WIDGETS: 'adaptive-same-widgets'
 };
 
 export const MinColumnWidths = {
@@ -37,7 +38,8 @@ export const DefaultWidgetsByLayout = {
   [LayoutTypes.FOUR_COLUMNS_FOOTER]: [[], [], [], [], []],
   [LayoutTypes.CLASSIC_SITE]: [[], [], [], [], []],
   [LayoutTypes.ADAPTIVE]: [[]],
-  [LayoutTypes.MOBILE]: [[]]
+  [LayoutTypes.MOBILE]: [[]],
+  [LayoutTypes.ADAPTIVE_SAME_WIDGETS]: [[]]
 };
 
 export const Layouts = [
@@ -131,6 +133,14 @@ export const Layouts = [
     columns: [{}],
     allowedDashboards: [DashboardTypes.PROFILE, DashboardTypes.ORGSTRUCTURE],
     forbiddenDashboards: []
+  },
+  {
+    position: 11,
+    type: LayoutTypes.ADAPTIVE_SAME_WIDGETS,
+    isActive: false,
+    columns: [{}],
+    allowedDashboards: [],
+    forbiddenDashboards: [DashboardTypes.ORGSTRUCTURE]
   },
 
   {

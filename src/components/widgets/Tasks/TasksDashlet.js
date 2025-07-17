@@ -1,13 +1,14 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import isFunction from 'lodash/isFunction';
+import PropTypes from 'prop-types';
+import * as React from 'react';
 
-import { getAdaptiveNumberStr, isSmallMode, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
+import { getAdaptiveNumberStr, isSmallMode, t } from '../../../helpers/util';
 import DAction from '../../../services/DashletActionService';
 import Dashlet from '../../Dashlet';
 import BaseWidget, { EVENTS } from '../BaseWidget';
+
 import Tasks from './Tasks';
 
 import './style.scss';
@@ -78,7 +79,7 @@ class TasksDashlet extends BaseWidget {
   }
 
   render() {
-    const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
+    const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging, ...props } = this.props;
     const { runUpdate, isSmallMode, fitHeights, totalCount, isLoading } = this.state;
     const actions = {
       [DAction.Actions.RELOAD]: {
@@ -91,6 +92,7 @@ class TasksDashlet extends BaseWidget {
 
     return (
       <Dashlet
+        {...props}
         setRef={this.setDashletRef}
         title={title || t('tasks-widget.title')}
         bodyClassName="ecos-task-list-dashlet__body"

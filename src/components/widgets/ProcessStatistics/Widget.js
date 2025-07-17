@@ -1,25 +1,26 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 import isNil from 'lodash/isNil';
+import PropTypes from 'prop-types';
+import * as React from 'react';
 
+import { MAX_DEFAULT_HEIGHT_DASHLET, SourcesId, SystemJournals } from '../../../constants';
+import { PERMISSION_VIEW_REPORTS } from '../../../constants/bpmn';
 import { getStateId } from '../../../helpers/redux';
 import { getCurrentUserName, t } from '../../../helpers/util';
 import DAction from '../../../services/DashletActionService';
 import Dashlet from '../../Dashlet';
+import Records from '../../Records/Records';
+import { Loader } from '../../common';
 import BaseWidget from '../BaseWidget';
-import { Labels } from './util';
+
 import Journal from './Journal';
 import Model from './Model';
 import Settings from './Settings';
-import { Loader } from '../../common';
-import { PERMISSION_VIEW_REPORTS } from '../../../constants/bpmn';
-import Records from '../../Records/Records';
 import { EXTENDED_MODE, SIMPLIFIED_MODE } from './constants';
-import { MAX_DEFAULT_HEIGHT_DASHLET, SourcesId, SystemJournals } from '../../../constants';
+import { Labels } from './util';
 
 export default class Widget extends BaseWidget {
   static propTypes = {
@@ -138,7 +139,7 @@ export default class Widget extends BaseWidget {
   };
 
   render() {
-    const { title, config, classNameContent, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
+    const { title, config, classNameContent, classNameDashlet, record, dragHandleProps, canDragging, ...props } = this.props;
     const { isSmallMode, runUpdate, isShowSetting, width, isAccessible, isSimpledMode, modelConfig } = this.state;
 
     if (isNil(isAccessible)) {
@@ -151,6 +152,7 @@ export default class Widget extends BaseWidget {
 
     return (
       <Dashlet
+        {...props}
         title={title || (!isSimpledMode && isAccessible) ? t(Labels.WG_EXTENDED_TITLE) : t(Labels.WG_SIMPLIFIED_TITLE)}
         className={classNames('ecos-process-statistics-dashlet', classNameDashlet)}
         bodyClassName="ecos-process-statistics-dashlet__body"
