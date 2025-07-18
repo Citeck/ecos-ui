@@ -1,25 +1,24 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { connect } from 'react-redux';
-import { Scrollbars } from 'react-custom-scrollbars';
 import get from 'lodash/get';
-import isFunction from 'lodash/isFunction';
 import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { Scrollbars } from 'react-custom-scrollbars';
+import { connect } from 'react-redux';
 
 import { changePhoto, getUserData, updAppUserData } from '../../../actions/user';
-import { t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
+import { getFitnesseClassName } from '../../../helpers/tools';
+import { t } from '../../../helpers/util';
+import Dashlet from '../../Dashlet';
+import Records from '../../Records';
+import EditPasswordAction from '../../Records/actions/handler/executor/EditPasswordAction';
+import RecordActions from '../../Records/actions/recordActions';
+import { PERMISSION_CHANGE_PASSWORD } from '../../Records/constants';
 import { Avatar, BtnUpload } from '../../common';
 import { Btn } from '../../common/btns';
-import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
-import Records from '../../Records';
-import RecordActions from '../../Records/actions/recordActions';
-import { getFitnesseClassName } from '../../../helpers/tools';
-
-import { PERMISSION_CHANGE_PASSWORD } from '../../Records/constants';
-import EditPasswordAction from '../../Records/actions/handler/executor/EditPasswordAction';
 
 import './style.scss';
 
@@ -140,13 +139,15 @@ class UserProfileDashlet extends BaseWidget {
       isLoadingPhoto,
       isMobile,
       message,
-      isCurrentAdmin
+      isCurrentAdmin,
+      ...props
     } = this.props;
 
     const { hasPermission, changePasswordAction } = this.state;
 
     return (
       <Dashlet
+        {...props}
         className={classNames('ecos-user-profile__dashlet', classNameDashlet)}
         bodyClassName="ecos-user-profile__dashlet-body"
         title={t(title || Labels.TITLE)}
@@ -226,7 +227,4 @@ const mapDispatchToProps = (dispatch, context) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(UserProfileDashlet);
+export default connect(mapStateToProps, mapDispatchToProps)(UserProfileDashlet);

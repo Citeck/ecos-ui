@@ -1,16 +1,17 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
+import PropTypes from 'prop-types';
+import React from 'react';
 
-import { isMobileDevice, t } from '../../../helpers/util';
-import { getStateId } from '../../../helpers/redux';
 import { DocScaleOptions, MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
-import UserLocalSettingsService from '../../../services/userLocalSettings';
+import { getStateId } from '../../../helpers/redux';
+import { isMobileDevice, t } from '../../../helpers/util';
 import DAction from '../../../services/DashletActionService';
+import UserLocalSettingsService from '../../../services/userLocalSettings';
 import Dashlet from '../../Dashlet/Dashlet';
 import BaseWidget from '../BaseWidget';
+
 import DocPreview from './DocPreview';
 import Settings from './Settings';
 import { Labels } from './util';
@@ -122,11 +123,12 @@ class DocPreviewDashlet extends BaseWidget {
   };
 
   render() {
-    const { title, config, classNamePreview, classNameDashlet, dragHandleProps, canDragging, fileName } = this.props;
+    const { title, config, classNamePreview, classNameDashlet, dragHandleProps, canDragging, fileName, ...props } = this.props;
     const { width, scale, runUpdate, isShowSetting } = this.state;
 
     return (
       <Dashlet
+        {...props}
         title={title || t(Labels.WG_TITLE)}
         bodyClassName="ecos-doc-preview-dashlet__body"
         className={classNames('ecos-doc-preview-dashlet', classNameDashlet, {

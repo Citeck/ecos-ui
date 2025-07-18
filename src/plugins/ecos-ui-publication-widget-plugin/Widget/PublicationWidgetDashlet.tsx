@@ -159,6 +159,7 @@ class PublicationWidgetDashlet<P extends PublicationWidgetDashletProps, S extend
     return (
       // @ts-ignore
       <Dashlet
+        {...this.props}
         title={this.widgetTitle}
         actionConfig={this.dashletActions}
         className="ecos-publication-widget-dashlet"

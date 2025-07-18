@@ -1,23 +1,24 @@
-import React from 'react';
-import isEmpty from 'lodash/isEmpty';
-import get from 'lodash/get';
-import set from 'lodash/set';
-import debounce from 'lodash/debounce';
 import cloneDeep from 'lodash/cloneDeep';
+import debounce from 'lodash/debounce';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import set from 'lodash/set';
+import React from 'react';
 import { connect } from 'react-redux';
 
-import Dashlet from '../../Dashlet';
-import { selectFilteredTypes, selectMobileStateByKey } from '../../../selectors/documents';
-import { getStateId } from '../../../helpers/redux';
-import Panel from './parts/Panel';
-import BaseDocuments from './_BaseDocuments';
 import { execRecordsAction, getDocumentsByTypes, getTypeSettings, initStore, saveSettings, uploadFiles } from '../../../actions/documents';
-import TypeItem from './parts/TypeItem';
-import DocumentItem from './parts/DocumentItem';
-import { FileStatuses } from '../../../helpers/ecosXhr';
 import { ActionTypes } from '../../../components/Records/actions/constants';
-import { t } from '../../../helpers/export/util';
 import { documentFields, Labels } from '../../../constants/documents';
+import { FileStatuses } from '../../../helpers/ecosXhr';
+import { t } from '../../../helpers/export/util';
+import { getStateId } from '../../../helpers/redux';
+import { selectFilteredTypes, selectMobileStateByKey } from '../../../selectors/documents';
+import Dashlet from '../../Dashlet';
+
+import BaseDocuments from './_BaseDocuments';
+import DocumentItem from './parts/DocumentItem';
+import Panel from './parts/Panel';
+import TypeItem from './parts/TypeItem';
 
 class MobileDocuments extends BaseDocuments {
   constructor(props) {
@@ -196,10 +197,11 @@ class MobileDocuments extends BaseDocuments {
   }
 
   render() {
-    const { dragHandleProps, canDragging, widgetTitle } = this.props;
+    const { dragHandleProps, canDragging, widgetTitle, ...props } = this.props;
 
     return (
       <Dashlet
+        {...props}
         className="ecos-docs ecos-docs_mobile"
         title={widgetTitle}
         needGoTo={false}
@@ -250,7 +252,4 @@ const mapDispatchToProps = (dispatch, ownProps) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(MobileDocuments);
+export default connect(mapStateToProps, mapDispatchToProps)(MobileDocuments);

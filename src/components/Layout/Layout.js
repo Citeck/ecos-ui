@@ -1,23 +1,24 @@
-import React, { Component, Suspense } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import merge from 'lodash/merge';
+import PropTypes from 'prop-types';
+import React, { Component, Suspense } from 'react';
 import { DragDropContext } from 'react-beautiful-dnd';
 import ReactResizeDetector from 'react-resize-detector';
-import get from 'lodash/get';
-import merge from 'lodash/merge';
-import isEmpty from 'lodash/isEmpty';
 
-import { LayoutTypes } from '../../constants/layout';
-import { getMinWidthColumn } from '../../helpers/layout';
-import { t, getSearchParams } from '../../helpers/util';
-import { getPositionAdjustment } from '../../helpers/menu';
-import Components from '../widgets/Components';
 import { DragItem, Droppable } from '../Drag-n-Drop';
-import { InfoText, Loader } from '../../components/common';
-import DashboardService from '../../services/dashboard';
-import pageTabService from '../../services/pageTabs/PageTabList';
 import { WidgetErrorBoundary } from '../WidgetErrorBoundary';
 import { Btn } from '../common/btns';
+import Components from '../widgets/Components';
+
+import { InfoText, Loader } from '@/components/common';
+import { LayoutTypes } from '@/constants/layout';
+import { getMinWidthColumn } from '@/helpers/layout';
+import { getPositionAdjustment } from '@/helpers/menu';
+import { t, getSearchParams } from '@/helpers/util';
+import DashboardService from '@/services/dashboard';
+import pageTabService from '@/services/pageTabs/PageTabList';
 
 import './style.scss';
 
@@ -114,7 +115,7 @@ class Layout extends Component {
   checkWidgets = () => {
     const { type } = this.props;
 
-    if (type !== LayoutTypes.ADAPTIVE) {
+    if (type !== LayoutTypes.ADAPTIVE && type !== LayoutTypes.ADAPTIVE_SAME_WIDGETS) {
       return;
     }
 
@@ -205,7 +206,7 @@ class Layout extends Component {
   };
 
   renderWidgets(widgets = [], columnName) {
-    const { canDragging, tabId, isActiveLayout, dashboardId } = this.props;
+    const { canDragging, tabId, isActiveLayout, dashboardId, type } = this.props;
     const { recordRef } = getSearchParams();
     const components = [];
 
@@ -235,6 +236,8 @@ class Layout extends Component {
       merge(props, Components.getProps(widget.name));
       merge(props, widget.props);
       merge(props, commonProps);
+
+      props.isSameHeight = type === LayoutTypes.ADAPTIVE_SAME_WIDGETS;
 
       let Widget = this.#loadedWidgets[widget.name];
 

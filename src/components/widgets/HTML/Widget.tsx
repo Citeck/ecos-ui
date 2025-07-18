@@ -196,7 +196,7 @@ class CustomWidgetHtmlDashlet extends BaseWidget<HTMLWidgetProps, HTMLWidgetStat
   };
 
   render() {
-    const { isVisibleEditor } = this.props;
+    const { isVisibleEditor, ...props } = this.props;
     const { canEdit } = this.state;
 
     let actions;
@@ -214,6 +214,7 @@ class CustomWidgetHtmlDashlet extends BaseWidget<HTMLWidgetProps, HTMLWidgetStat
     return (
       // @ts-ignore
       <Dashlet
+        {...props}
         className="citeck-html-widget"
         bodyClassName="citeck-html-widget__body"
         needGoTo={false}

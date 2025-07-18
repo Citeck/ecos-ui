@@ -36,6 +36,7 @@ class Dashlet extends Component {
     needGoTo: PropTypes.bool,
     actionDrag: PropTypes.bool,
     resizable: PropTypes.bool,
+    isSameHeight: PropTypes.bool,
     canDragging: PropTypes.bool,
     isMobile: PropTypes.bool,
     isCollapsed: PropTypes.bool,
@@ -239,11 +240,12 @@ class Dashlet extends Component {
       children,
       isCollapsed,
       customActions,
+      isSameHeight,
       disableCollapse
     } = this.props;
 
     return (
-      <div ref={this.setDashletRef} className="dashlet">
+      <div ref={this.setDashletRef} className={classNames('dashlet', { same: isSameHeight })}>
         <Panel
           {...this.props}
           className={classNames('dashlet', className, { dashlet_mobile: isMobile })}

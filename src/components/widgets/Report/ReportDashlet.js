@@ -1,17 +1,18 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import PropTypes from 'prop-types';
+import * as React from 'react';
 import { connect } from 'react-redux';
 
-import { isSmallMode, t } from '../../../helpers/util';
-import Dashlet from '../../Dashlet';
-import DAction from '../../../services/DashletActionService';
-import BaseWidget from '../BaseWidget';
-import Report from './Report';
-import { getStateId } from '../../../helpers/redux';
 import { getReportData } from '../../../actions/report';
+import { getStateId } from '../../../helpers/redux';
+import { isSmallMode, t } from '../../../helpers/util';
 import { selectStateByKey } from '../../../selectors/birthdays';
+import DAction from '../../../services/DashletActionService';
+import Dashlet from '../../Dashlet';
+import BaseWidget from '../BaseWidget';
+
+import Report from './Report';
 
 import './style.scss';
 
@@ -83,7 +84,8 @@ class ReportDashlet extends BaseWidget {
       reportData,
       isLoading,
       getReportData,
-      isMobile
+      isMobile,
+      ...props
     } = this.props;
     const { isSmallMode, previousHeight, runUpdate } = this.state;
     const actions = {
@@ -93,6 +95,7 @@ class ReportDashlet extends BaseWidget {
     };
     return (
       <Dashlet
+        {...props}
         title={title || t('report-widget.title')}
         bodyClassName="ecos-report-dashlet__body"
         className={classNames('ecos-report-dashlet', classNameDashlet)}
@@ -131,7 +134,4 @@ class ReportDashlet extends BaseWidget {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ReportDashlet);
+export default connect(mapStateToProps, mapDispatchToProps)(ReportDashlet);

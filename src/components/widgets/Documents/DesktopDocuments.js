@@ -1,21 +1,16 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
-import { Scrollbars } from 'react-custom-scrollbars';
-import uniqueId from 'lodash/uniqueId';
+import cloneDeep from 'lodash/cloneDeep';
+import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
-import debounce from 'lodash/debounce';
-import cloneDeep from 'lodash/cloneDeep';
 import last from 'lodash/last';
+import uniqueId from 'lodash/uniqueId';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { Scrollbars } from 'react-custom-scrollbars';
+import { connect } from 'react-redux';
 
-import Dashlet from '../../Dashlet';
-import { Loader, Popper, ResizeBoxes, Tooltip } from '../../common';
-import { Grid, InlineTools } from '../../common/grid';
-import DropZone from './parts/DropZone';
-import DocumentsConverter from '../../../dto/documents';
 import {
   downloadAllDocuments,
   execRecordsAction,
@@ -29,15 +24,21 @@ import {
   setInlineTools,
   uploadFiles
 } from '../../../actions/documents';
-import { selectStateByKey } from '../../../selectors/documents';
 import { documentFields, errorTypes, Labels, statusesKeys, tableFields, typeStatusesByFields } from '../../../constants/documents';
-import { closest, prepareTooltipId, t } from '../../../helpers/util';
+import DocumentsConverter from '../../../dto/documents';
 import { getStateId } from '../../../helpers/redux';
+import { closest, prepareTooltipId, t } from '../../../helpers/util';
+import { selectStateByKey } from '../../../selectors/documents';
+import Dashlet from '../../Dashlet';
+import { Loader, Popper, ResizeBoxes, Tooltip } from '../../common';
+import UncontrolledTooltip from '../../common/UncontrolledTooltip';
+import { Grid, InlineTools } from '../../common/grid';
+
+import BaseDocuments from './_BaseDocuments';
+import DropZone from './parts/DropZone';
 import Panel from './parts/Panel';
 import TypesTable from './parts/TypesTable';
-import BaseDocuments from './_BaseDocuments';
 import { AvailableTypeInterface, DocumentInterface, DynamicTypeInterface, GrouppedTypeInterface } from './propsInterfaces';
-import UncontrolledTooltip from '../../common/UncontrolledTooltip';
 
 class DesktopDocuments extends BaseDocuments {
   scrollPosition = {};
@@ -866,11 +867,12 @@ class DesktopDocuments extends BaseDocuments {
   }
 
   render() {
-    const { dragHandleProps, canDragging } = this.props;
+    const { dragHandleProps, canDragging, ...props } = this.props;
 
     return (
       <div>
         <Dashlet
+          {...props}
           className="ecos-docs"
           title={this.widgetTitle}
           needGoTo={false}
@@ -940,7 +942,4 @@ const mapDispatchToProps = (dispatch, ownProps) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(DesktopDocuments);
+export default connect(mapStateToProps, mapDispatchToProps)(DesktopDocuments);

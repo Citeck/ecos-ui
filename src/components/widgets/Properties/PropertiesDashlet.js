@@ -1,23 +1,24 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
+import PropTypes from 'prop-types';
+import React from 'react';
 
-import { isMobileDevice, isSmallMode, objectCompare, t } from '../../../helpers/util';
+import { PropertiesApi } from '../../../api/properties';
+import { getFitnesseClassName } from '../../../helpers/tools';
 import { isTaskDashboard } from '../../../helpers/urls';
+import { isMobileDevice, isSmallMode, objectCompare, t } from '../../../helpers/util';
 import DAction from '../../../services/DashletActionService';
-import EcosFormUtils from '../../EcosForm/EcosFormUtils';
-import TaskAssignmentPanel from '../../TaskAssignmentPanel';
 import Dashlet from '../../Dashlet';
+import { FORM_MODE_VIEW } from '../../EcosForm';
+import EcosFormUtils from '../../EcosForm/EcosFormUtils';
+import { PERMISSION_WRITE_ATTR } from '../../Records/constants';
+import TaskAssignmentPanel from '../../TaskAssignmentPanel';
 import BaseWidget, { EVENTS } from '../BaseWidget';
+
 import Properties from './Properties';
 import PropertiesEditModal from './PropertiesEditModal';
 import PropertiesSettings from './PropertiesSettings';
-import { PropertiesApi } from '../../../api/properties';
-import { getFitnesseClassName } from '../../../helpers/tools';
-import { FORM_MODE_VIEW } from '../../EcosForm';
-import { PERMISSION_WRITE_ATTR } from '../../Records/constants';
 
 import './style.scss';
 
@@ -322,7 +323,7 @@ class PropertiesDashlet extends BaseWidget {
   };
 
   render() {
-    const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging, config } = this.props;
+    const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging, config, ...props } = this.props;
     const {
       isSmallMode,
       isEditProps,
@@ -338,6 +339,7 @@ class PropertiesDashlet extends BaseWidget {
 
     return (
       <Dashlet
+        {...props}
         setRef={this.setDashletRef}
         title={titleDashlet}
         className={classNames('ecos-properties-dashlet', classNameDashlet)}

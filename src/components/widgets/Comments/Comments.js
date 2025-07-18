@@ -241,7 +241,7 @@ class Comments extends BaseWidget {
   }
 
   render() {
-    const { dragHandleProps, canDragging, fetchIsLoading } = this.props;
+    const { dragHandleProps, canDragging, fetchIsLoading, ...props } = this.props;
     const actions = {
       [DAction.Actions.RELOAD]: {
         onClick: this.fetchData
@@ -251,6 +251,7 @@ class Comments extends BaseWidget {
     return (
       <div className={this.className}>
         <Dashlet
+          {...props}
           setRef={this.setDashletRef}
           title={t('comments-widget.title')}
           actionConfig={actions}

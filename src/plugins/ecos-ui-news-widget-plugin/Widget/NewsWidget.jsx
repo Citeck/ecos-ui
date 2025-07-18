@@ -222,7 +222,7 @@ class NewsWidget extends BaseWidget {
 
   render() {
     const { isLoading, isOpenSettings, news, isTypeIdExist, error, typeId } = this.state;
-    const { config } = this.props;
+    const { config, ...props } = this.props;
 
     const warnings = !isOpenSettings && (
       <>
@@ -234,6 +234,7 @@ class NewsWidget extends BaseWidget {
 
     return (
       <Dashlet
+        {...props}
         title={t('dashboard-settings.widget.news')}
         actionConfig={this.dashletActions}
         className="ecos-news-widget-dashlet"

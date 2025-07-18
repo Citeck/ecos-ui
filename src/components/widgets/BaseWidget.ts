@@ -28,6 +28,7 @@ export interface BaseWidgetProps {
   dashboardId: string;
   record: string;
   tabId: string;
+  isSameHeight: boolean;
   config?: {
     collapsed?: boolean;
   };

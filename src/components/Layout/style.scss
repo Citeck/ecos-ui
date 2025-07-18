@@ -183,6 +183,7 @@ $adaptive-columns-size: 68%;
         }
       }
 
+      &#{$item}_adaptive-same-widgets,
       &#{$item}_adaptive {
         #{$item}-template {
           &-columns:after {
@@ -235,6 +236,7 @@ $adaptive-columns-size: 68%;
       }
     }
 
+    &_adaptive-same-widgets,
     &_adaptive {
       $adaptive: &;
 
@@ -327,6 +329,7 @@ $adaptive-columns-size: 68%;
       margin-left: $indents-of-items;
     }
 
+    &_adaptive-same-widgets,
     &_adaptive {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));

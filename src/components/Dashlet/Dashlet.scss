@@ -2,10 +2,43 @@
 
 .dashlet {
   $root: &;
+  $same-height: calc((100vh - 181px) / 3);
+  $header-wrapper-height: 48px;
+  $content-top-padding: 20px;
 
   min-height: auto !important;
   padding-top: 0 !important;
   position: relative;
+
+  &__same-scrollbar {
+    height: calc($same-height - $header-wrapper-height - $content-top-padding) !important;
+    &_track {
+      position: absolute;
+      width: 6px;
+      right: 2px;
+      bottom: 2px;
+      top: 2px;
+      border-radius: 3px;
+      z-index: 100;
+    }
+  }
+
+  &.same {
+    overflow: hidden;
+
+    & .ecos-panel {
+      height: $same-height;
+    }
+
+    & .ecos-panel__body,
+    & .dashlet__body-content {
+      height: 100%;
+    }
+
+    & .ecos-panel__body {
+      height: calc($same-height - $header-wrapper-height - $content-top-padding);
+    }
+  }
 
   &__header {
     height: 100%;
@@ -15,7 +48,7 @@
     align-items: center;
 
     &-wrapper {
-      height: 48px;
+      height: $header-wrapper-height;
       padding: 0 12px;
       border-bottom: 1px solid $color-gray-4;
       background-color: $color-white;
