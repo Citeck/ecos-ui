@@ -1,9 +1,11 @@
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
-import { SourcesId } from '../../../constants';
-import { getWorkspaceId } from '../../../helpers/urls';
 import Records from '../../Records/Records';
+
+import { SourcesId } from '@/constants';
+import { getWorkspaceId } from '@/helpers/urls';
+import { getEnabledWorkspaces } from '@/helpers/util.js';
 
 class JournalsServiceApi {
   async getJournalConfigByType(typeRef, attributes) {
@@ -59,7 +61,7 @@ class JournalsServiceApi {
   async queryData(query, attributes) {
     let result;
 
-    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+    if (getEnabledWorkspaces() && !get(query, 'workspaces')) {
       query.workspaces = [getWorkspaceId()];
     }
 

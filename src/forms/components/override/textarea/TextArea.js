@@ -1,7 +1,6 @@
-import { $generateHtmlFromNodes, $generateNodesFromDOM } from '@lexical/html';
+import { $generateHtmlFromNodes } from '@lexical/html';
 import Formio from 'formiojs/Formio';
 import FormIOTextAreaComponent from 'formiojs/components/textarea/TextArea';
-import { $createParagraphNode, $getRoot, $isDecoratorNode, $isElementNode } from 'lexical';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
@@ -15,7 +14,10 @@ import { Provider } from 'react-redux';
 import { overrideTriggerChange } from '../misc';
 
 import LexicalEditor from '@/components/LexicalEditor';
+import { t } from '@/helpers/export/util';
+import { updateEditorContent } from '@/helpers/lexical';
 import ESMRequire from '@/services/ESMRequire.js';
+import UploadDocsRefService from '@/services/uploadDocsRefsStore';
 import { getStore } from '@/store';
 
 export default class TextAreaComponent extends FormIOTextAreaComponent {
@@ -39,6 +41,8 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
     this._lexicalRoot = null;
     this._lexicalInited = false;
+    this._lexicalFirstUpdate = true;
+    this._uploadDocsRefService = new UploadDocsRefService();
   }
 
   get defaultSchema() {
@@ -106,30 +110,15 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       }
 
       // It should be performed only when initializing data from the backend
-      this.editorReady.then(editor => {
+      this.editorReady?.then(editor => {
         editor.update(() => {
           if (!this._lexicalInited) {
-            const parser = new DOMParser();
-            const dom = parser.parseFromString(value ?? '', 'text/html');
-            let nodes = $generateNodesFromDOM(editor, dom);
-
-            nodes = nodes.map(node => {
-              if ($isElementNode(node) || $isDecoratorNode(node)) {
-                return node;
-              }
-
-              const paragraph = $createParagraphNode();
-              paragraph.append(node);
-              return paragraph;
-            });
-
-            const root = $getRoot();
-            root.clear();
-            root.append(...nodes);
-            root.select();
+            updateEditorContent(editor, value);
 
             const editorProps = editor.getRootElement();
             const { textContent = '' } = editorProps || {};
+
+            this._lexicalFirstUpdate = false;
 
             if (!!textContent) {
               this._lexicalInited = true;
@@ -164,43 +153,25 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
   createViewOnlyValue(container) {
     super.createViewOnlyValue(container);
 
-    if (!this.isPlain) {
-      const newElement = document.createElement('div');
+    setTimeout(() => {
+      if (!this.isPlain && this.isLexicalEditor) {
+        const old = this.valueElement;
 
-      if (get(this.valueElement, 'attributes')) {
-        Array.from(this.valueElement.attributes).forEach(attr => {
-          newElement.setAttribute(attr.name, attr.value);
-        });
+        const reactContainer = document.createElement('div');
+        reactContainer.id = `${this.id}-lexical-view`;
+        reactContainer.className = 'lexical-readonly-container';
+
+        old.parentNode.replaceChild(reactContainer, old);
+
+        const store = getStore();
+        this._lexicalViewRoot = createRoot(reactContainer);
+        this._lexicalViewRoot.render(
+          <Provider store={store}>
+            <LexicalEditor readonly htmlString={this.dataValue || ''} placeholder="-" />
+          </Provider>
+        );
       }
-
-      newElement.classList.add('dd-html', 'ql-editor');
-      newElement.innerHTML = this.valueElement.innerHTML;
-
-      if (get(this.valueElement, 'parentNode')) {
-        this.valueElement.parentNode.replaceChild(newElement, this.valueElement);
-      }
-
-      if (this.isLexicalEditor) {
-        newElement.classList = 'citeck-lexical-editor_textarea';
-
-        setTimeout(() => {
-          newElement.innerHTML = this.valueElement.innerText;
-
-          const pre = newElement.querySelector('pre');
-          if (pre) {
-            const content = pre.textContent || '';
-            const lineCount = content.includes('\n') ? content.split('\n').length : content.split(/(?:^|\s{4,})/).filter(Boolean).length;
-
-            const gutter = Array.from({ length: lineCount }, (_, i) => i + 1).join('\n');
-            pre.setAttribute('data-gutter', gutter);
-          }
-
-          this.valueElement = newElement;
-        }, 200);
-      } else {
-        this.valueElement = newElement;
-      }
-    }
+    }, 0);
   }
 
   setupValueElement(element) {
@@ -243,10 +214,12 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       return (
         <Provider store={store}>
           <LexicalEditor
+            placeholder={t('lexical.editor.placeholder.rich')}
             hideToolbar={settings.hideToolbar}
             readonly={settings.readonly}
             onChange={onChange}
             htmlString={this.dataValue || ''}
+            UploadDocsService={this._uploadDocsRefService}
             onEditorReady={editor => {
               this.calculatedValue = this.dataValue;
               this.editor = editor;
@@ -262,8 +235,12 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
   addLexical(element, settings, onChange) {
     return new Promise(resolve => {
-      if (this._lexicalRoot) {
+      if (this._lexicalRoot || this.viewOnly) {
         return;
+      }
+
+      if (this._lexicalViewRoot) {
+        this._lexicalViewRoot.unmount();
       }
 
       const container = document.createElement('div');
@@ -454,10 +431,12 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
     if (this.isLexicalEditor) {
       const settings = this.component.wysiwyg || {};
-      this.addLexical(this.input, settings, (editorState, editor) => {
+      this.addLexical(this.input, settings, (editorState, editor, isEmptyContent) => {
         editor.update(() => {
           const html = $generateHtmlFromNodes(editor, null);
-          this.updateEditorValue(html);
+          if (!this._lexicalFirstUpdate) {
+            this.updateEditorValue(!isEmptyContent ? html : '');
+          }
         });
       });
       return this.input;
@@ -552,6 +531,10 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
   destroyWysiwyg() {
     if (this.isLexicalEditor && this.editor) {
       this.editor = null;
+    }
+
+    if (this._uploadDocsRefService) {
+      this._uploadDocsRefService.clearUploadedEntityRefs();
     }
 
     super.destroyWysiwyg();

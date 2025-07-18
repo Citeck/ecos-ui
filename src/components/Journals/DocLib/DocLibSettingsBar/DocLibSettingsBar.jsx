@@ -76,7 +76,7 @@ const DocLibSettingsBar = ({ stateId, searchText, createVariants, createNode, is
 
       <Search
         onSearch={startSearch}
-        className={`ecos-doclib__settings-bar-search search_border-white ${step}`}
+        className={`ecos-doclib__settings-bar-search ${step}`}
         collapsed={isMobile}
         text={searchText}
         cleaner

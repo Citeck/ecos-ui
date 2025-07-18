@@ -5,7 +5,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import { ResizeBoxes } from '../../common';
-import { Wall } from '../../common/form';
+import { Well } from '../../common/form';
 import JournalsDashletGrid from '../JournalsDashletGrid';
 import JournalsPreview from '../JournalsPreview';
 
@@ -26,7 +26,7 @@ const mapStateToProps = (state, props) => {
 };
 
 const Content = React.memo(({ showPreview, isViewNewJournal, maxHeight, isNotGrouping, ...props }) => (
-  <Wall
+  <Well
     isViewNewJournal={isViewNewJournal}
     className={classnames('ecos-journals-content__grid-well ecos-journals-content__grid-well_overflow_hidden', {
       'ecos-journals-content__grid-well_preview': showPreview,
@@ -42,13 +42,13 @@ const Content = React.memo(({ showPreview, isViewNewJournal, maxHeight, isNotGro
       maxHeight={maxHeight}
       {...props}
     />
-  </Wall>
+  </Well>
 ));
 
 const Preview = ({ stateId, recordId, isViewNewJournal }) => (
-  <Wall isViewNewJournal={isViewNewJournal} className="ecos-well_full ecos-journals-content__preview-well">
+  <Well isViewNewJournal={isViewNewJournal} className="ecos-well_full ecos-journals-content__preview-well">
     <JournalsPreview stateId={stateId} recordId={recordId} />
-  </Wall>
+  </Well>
 );
 
 class JournalsContent extends Component {

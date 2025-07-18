@@ -6,7 +6,7 @@
   position: relative;
   transition: 0.15s cubic-bezier(0.5, 0.5, 0.5, 0.5);
 
-  background: $color-blue-dark;
+  background: var(--header-component-color);
   border-radius: $border-radius-standard;
 
   &__icon {

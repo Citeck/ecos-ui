@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import head from 'lodash/head';
 import classNames from 'classnames';
+import head from 'lodash/head';
+import React, { useState } from 'react';
 
-import Create from '../../common/icons/Create';
 import { t } from '../../../helpers/export/util';
 import { IcoBtn, TwoIcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
+import Create from '../../common/icons/Create';
 import { getCreateVariantKeyField } from '../service/util';
 
 const CreateMenu = ({ createVariants, createIsLoading, onAddRecord, className, isViewNewJournal }) => {
@@ -15,7 +15,6 @@ const CreateMenu = ({ createVariants, createIsLoading, onAddRecord, className, i
     return (
       <IcoBtn
         loading={createIsLoading}
-        colorLoader="light-blue"
         icon={!isViewNewJournal ? 'icon-small-plus' : null}
         className={classNames('ecos-journal__add-record ecos-btn_i ecos-btn_white ecos-btn_hover_blue2', className, {
           'ecos-journal__btn_new shape': isViewNewJournal

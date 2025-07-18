@@ -1298,25 +1298,6 @@ export function getMedian(source) {
   return median;
 }
 
-/**
- * Returns text, even if there was html markup originally
- *
- * @param input {String}
- *
- * @returns String
- */
-export function stripHTML(input = '') {
-  const containsHTML = /<\/?[a-z][\s\S]*>/i.test(input);
-
-  if (containsHTML) {
-    const div = document.createElement('div');
-    div.innerHTML = input;
-    return div.textContent || div.innerText || '';
-  }
-
-  return input;
-}
-
 export function normalize(source, byField) {
   if (isEmpty(source)) {
     return [];

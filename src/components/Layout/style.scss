@@ -163,41 +163,41 @@ $adaptive-columns-size: 68%;
 
       #{$item}-template {
         position: relative;
-        background: $color-blue-light2;
-        border-color: $color-blue-dark;
+        background: var(--light-primary-color);
+        border-color: var(--primary-color);
         z-index: 2;
       }
 
       #{$root}__item-template {
         &-column,
         &-row {
-          border-color: $color-blue-dark !important;
-          color: $color-blue-dark;
+          border-color: var(--primary-color) !important;
+          color: var(--dark-primary-color);
         }
       }
 
       #{$root}__menu {
         &-item-template,
         &-left {
-          background: $color-blue-dark !important;
+          background: var(--primary-color) !important;
         }
       }
 
       &#{$item}_adaptive {
         #{$item}-template {
           &-columns:after {
-            border-color: $color-blue-dark;
+            border-color: var(--primary-color);
           }
 
           #{$item}-template-column-element {
-            background: $color-blue-dark;
+            background: var(--primary-color);
           }
 
           &-arrow {
             &,
             &:after,
             &:before {
-              background: $color-blue-dark;
+              background: var(--primary-color);
             }
           }
         }
@@ -213,7 +213,7 @@ $adaptive-columns-size: 68%;
 
         &:before {
           position: absolute;
-          color: $color-blue-dark;
+          color: var(--primary-color);
           top: calc(50% - 1em / 2);
           left: calc(50% - 21px / 2);
           z-index: 2;
@@ -405,7 +405,7 @@ $adaptive-columns-size: 68%;
       &-i {
         &-next {
           position: relative;
-          color: $color-blue-light;
+          color: var(--light-primary-color);
 
           &:before {
             content: '\f0a9';
@@ -437,7 +437,7 @@ $adaptive-columns-size: 68%;
         font-size: $font-size-large;
         line-height: 22px;
         align-items: center;
-        color: $color-blue-light;
+        color: var(--light-primary-color);
         white-space: nowrap;
         overflow: hidden;
         display: block;

@@ -11,12 +11,10 @@ $tabs-height: 26px;
     }
 
     .formio-component-tabs-wrapper {
-      margin-bottom: 16px;
-      margin-top: -4px;
+      margin: 0;
     }
 
     .formio-component-tabs-scroll-wrapper {
-      height: $tabs-height;
       overflow: hidden;
       box-sizing: content-box;
     }
@@ -40,7 +38,6 @@ $tabs-height: 26px;
     }
 
     .nav-item {
-      font-size: $font-size-standard;
       margin-right: 2px;
       margin-bottom: 0;
 
@@ -49,18 +46,36 @@ $tabs-height: 26px;
       }
 
       .nav-link {
-        background: $color-gray-4;
+        padding: 0 16px;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 30px;
+        border: 0;
+        background: transparent;
         color: $text-color-gray;
-        font-weight: $font-weight-bold;
-        border-radius: 0;
-        border-color: $color-gray-4;
-        padding: 0 15px;
-        line-height: 24px;
+        transition: all 0.2s ease-in-out;
+
+        &:hover {
+          color: $text-color-dark;
+        }
+
+        &::after {
+          content: '';
+          display: block;
+          width: 100%;
+          height: 3px;
+          border-top-left-radius: 2px;
+          border-top-right-radius: 2px;
+          background-color: transparent;
+        }
 
         &.active {
-          color: $color-white;
-          background-color: $color-blue-dark;
-          border-color: $color-blue-dark;
+          color: $text-color-dark;
+
+          &::after {
+            background-color: var(--primary-color);
+          }
         }
       }
 
@@ -94,21 +109,12 @@ $tabs-height: 26px;
     }
 
     &_scrollable {
-      .nav-item {
-        &.first-visible-tab {
-          border-left: 10px solid transparent;
-        }
-
-        &.last-visible-tab {
-          border-right: 10px solid transparent;
-        }
-      }
-
       .formio-component-tabs-wrapper {
         display: flex;
+        position: relative;
+        margin: 0 16px;
         align-items: center;
         justify-content: space-between;
-        position: relative;
 
         &:before {
           content: '';
@@ -137,8 +143,6 @@ $tabs-height: 26px;
 
       .formio-component-tabs-scroll-wrapper {
         max-width: calc(100% - 56px);
-        height: $tabs-height;
-        overflow: hidden;
       }
 
       .formio-component-tabs-right-button,
@@ -148,7 +152,6 @@ $tabs-height: 26px;
         align-items: center;
         width: $tabs-height;
         height: $tabs-height;
-        background-color: $color-gray-4;
         color: $text-color-gray;
         cursor: pointer;
         border-radius: 50%;
@@ -202,9 +205,11 @@ $tabs-height: 26px;
   .nav-item {
     font-size: $font-size-standard;
   }
+
   .nav-link {
     padding: 0 15px;
   }
+
   &_scrollable {
     .formio-component-tabs-wrapper {
       &:before {
@@ -227,11 +232,13 @@ $tabs-height: 26px;
     margin: 0 -20px 20px -20px;
     padding: 15px;
   }
-}
 
-.ecos-properties-dashlet {
+  .ecos-properties-dashlet .formio-form .tab-content  {
+    margin-top: 8px;
+  }
+
   .formio-form .tab-content .panel-body.panel-body_scrollable {
-    border: 2px solid $color-gray-4;
+    border: 1px solid $color-gray-4;
     border-right-width: 0;
     border-left-width: 0;
     border-bottom-width: 0;

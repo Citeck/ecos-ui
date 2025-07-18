@@ -16,8 +16,8 @@
 
     &-wrapper {
       height: 48px;
-      padding: 0 20px;
-      border-bottom: 2px solid $color-gray-4;
+      padding: 0 12px;
+      border-bottom: 1px solid $color-gray-4;
       background-color: $color-white;
       border-radius: $border-radius-extra-large $border-radius-extra-large 0 0;
       margin-right: 0;
@@ -64,6 +64,10 @@
         margin-left: 15px;
       }
 
+      button.ecos-btn_i {
+        font-size: 18px;
+      }
+
       &:before {
         $size: 25px;
         content: '';
@@ -92,7 +96,7 @@
 
   &__body {
     min-height: 20px;
-    padding-bottom: 20px;
+    padding-bottom: 5px;
 
     &_relative {
       position: relative;
@@ -157,6 +161,7 @@
   &__error-boundary {
     margin: 0;
     box-shadow: none;
+    border: none;
   }
 
   &_mobile {

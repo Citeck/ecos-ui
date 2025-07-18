@@ -4,10 +4,6 @@ import uniqueId from 'lodash/uniqueId';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 
-import Records from '../../../../../components/Records/Records';
-import RecordActions from '../../../../../components/Records/actions/recordActions';
-import { createDocumentUrl, getSelectedValueLink } from '../../../../../helpers/urls';
-import { getMLValue, t } from '../../../../../helpers/util';
 import { Tooltip } from '../../../../common';
 import { Btn, IcoBtn } from '../../../../common/btns';
 import { Grid } from '../../../../common/grid';
@@ -16,6 +12,10 @@ import { AssocLink } from '../../AssocLink';
 import CreateVariants from '../CreateVariants';
 import { Labels } from '../constants';
 
+import Records from '@/components/Records/Records';
+import RecordActions from '@/components/Records/actions/recordActions';
+import { getFormattedLink, getFormatter } from '@/components/common/form/SelectJournal/helpers';
+import { getEnabledWorkspaces, getMLValue, t } from '@/helpers/util';
 import { NotificationManager } from '@/services/notifications';
 
 import './InputView.scss';
@@ -171,13 +171,28 @@ class InputView extends Component {
   };
 
   renderSelectedValue(item) {
-    const { isSelectedValueAsText, isModalMode } = this.props;
+    const { isSelectedValueAsText, isModalMode, linkFormatter } = this.props;
+    const enabledWorkspaces = getEnabledWorkspaces();
+
+    const formatterFunc = getFormatter(linkFormatter);
 
     const props = {};
 
     if (!isSelectedValueAsText) {
-      props.link = createDocumentUrl(getSelectedValueLink(item));
+      const link = getFormattedLink({ item, formatterFunc });
+
+      props.link = link;
       props.paramsLink = { openNewBrowserTab: isModalMode };
+
+      const newUrl = new URL(link, window.location.origin);
+      const searchParams = new URLSearchParams(newUrl.search);
+
+      if (enabledWorkspaces) {
+        props.paramsLink = {
+          ...props.paramsLink,
+          workspaceId: searchParams.get('ws')
+        };
+      }
     }
 
     return <AssocLink label={item.disp} asText={isSelectedValueAsText} {...props} className="select-journal__values-list-disp" />;

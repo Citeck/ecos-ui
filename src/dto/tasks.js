@@ -1,10 +1,11 @@
-import isEmpty from 'lodash/isEmpty';
-import isArray from 'lodash/isArray';
-import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
+import isArray from 'lodash/isArray';
+import isEmpty from 'lodash/isEmpty';
 
 import TasksService from '../services/tasks';
-import { stripHTML } from '../helpers/util';
+
+import EcosFormUtils from '@/components/EcosForm/EcosFormUtils';
 
 export default class TasksConverter {
   static getTaskForWeb(source = {}) {
@@ -19,7 +20,7 @@ export default class TasksConverter {
     target.title = source.title || '';
     target.actors = TasksService.getActorsDisplayNameStr(source.actors);
     target.sender = (source.sender || {}).displayName || '';
-    target.lastcomment = stripHTML(source.lastcomment || '');
+    target.lastcomment = EcosFormUtils.stripHTML(source.lastcomment || '');
     target.started = source.started;
     target.deadline = source.dueDate;
 

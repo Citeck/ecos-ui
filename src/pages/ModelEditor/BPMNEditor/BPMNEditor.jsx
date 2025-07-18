@@ -1,10 +1,12 @@
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import debounce from 'lodash/debounce';
 import React, { useEffect, useState } from 'react';
 import uuidv4 from 'uuid/v4';
 
 import ModelEditor from '../ModelEditor';
 
+import { aiAssistantContext, CONTEXT_TYPES, aiAssistantService } from '@/components/AIAssistant';
 import BPMNModeler from '@/components/ModelEditor/BPMNModeler';
 import { SourcesId } from '@/constants';
 import {
@@ -21,6 +23,108 @@ import { t } from '@/helpers/export/util';
 
 class BPMNEditorPage extends ModelEditor {
   static modelType = 'bpmn';
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      ...this.state,
+      isAIAssistantOpen: false
+    };
+
+    this.debouncedUpdateContext = debounce(this._updateAIAssistantContextData, 500);
+  }
+
+  componentDidMount() {
+    super.componentDidMount && super.componentDidMount();
+
+    this.updateAIAssistantContext();
+
+    setTimeout(() => {
+      aiAssistantService.checkAvailability();
+    }, 200);
+  }
+
+  componentDidUpdate(prevProps) {
+    super.componentDidUpdate && super.componentDidUpdate(prevProps);
+    this.updateAIAssistantContext();
+  }
+
+  componentWillUnmount() {
+    super.componentWillUnmount && super.componentWillUnmount();
+
+    aiAssistantContext.clearContext();
+  }
+
+  updateAIAssistantContext = () => {
+    const processRef = this.recordRef || '';
+    const ecosType = this.props.formProps?.formData?.ecosType || '';
+
+    if (!aiAssistantContext.hasContext()) {
+      aiAssistantContext.setContext(CONTEXT_TYPES.BPMN_EDITOR, {
+        onSubmit: this.handleAIAssistantSubmit,
+        updateContextBeforeRequest: this.updateContextBeforeRequest
+      }, {
+        processRef,
+        ecosType,
+        currentBpmnXml: null
+      });
+    }
+
+    this.debouncedUpdateContext();
+  }
+
+  _updateAIAssistantContextData = () => {
+    const processRef = this.recordRef || '';
+    const ecosType = this.props.formProps?.formData?.ecosType || '';
+
+    // Получаем текущий BPMN XML
+    this.getBpmnXml(currentBpmnXml => {
+      if (!currentBpmnXml) return;
+
+      aiAssistantContext.updateContextData({
+        processRef,
+        ecosType,
+        currentBpmnXml
+      });
+    });
+  }
+
+  updateContextBeforeRequest = (callback) => {
+    const processRef = this.recordRef || '';
+    const ecosType = this.props.formProps?.formData?.ecosType || '';
+
+    this.getBpmnXml(currentBpmnXml => {
+      if (currentBpmnXml) {
+        aiAssistantContext.updateContextData({
+          processRef,
+          ecosType,
+          currentBpmnXml
+        });
+      }
+
+      callback && callback();
+    });
+  }
+
+  getBpmnXml = (callback) => {
+    if (!this.designer) {
+      callback && callback(null);
+      return;
+    }
+
+    this.designer.saveXML({
+      callback: ({ error, xml }) => {
+        if (error) {
+          console.error('Ошибка при получении BPMN XML:', error);
+          callback && callback(null);
+          return;
+        }
+
+        callback && callback(xml);
+      }
+    });
+  };
 
   initModeler = () => {
     if (!this.designer) {
@@ -89,6 +193,18 @@ class BPMNEditorPage extends ModelEditor {
 
     return extraButtons;
   }
+
+  handleAIAssistantSubmit = (bpmnXml) => {
+    if (bpmnXml && this.designer) {
+      this.designer.setDiagram(bpmnXml, {
+        callback: ({ mounted }) => {
+          if (mounted) {
+            console.debug('BPMN диаграмма успешно загружена в редактор');
+          }
+        }
+      });
+    }
+  };
 
   getFormType(selectedElement) {
     const elementType = this._determineElementType(selectedElement || {});

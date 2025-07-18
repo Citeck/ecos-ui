@@ -22,14 +22,14 @@
 
   &:hover {
     svg {
-      fill: $color-blue-dark;
+      fill: var(--dark-primary-color);
     }
   }
 }
 
 .icon-user__clicked {
   svg {
-    fill: $color-blue-dark;
+    fill: var(--primary-color);
   }
 }
 
@@ -129,7 +129,7 @@
 
         &:hover {
           .orgstructure-page__list-item-label {
-            color: $color-blue-light;
+            color: var(--primary-color);
           }
         }
       }

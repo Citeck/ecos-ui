@@ -46,10 +46,10 @@ $color-yellow-30: #cd842f;
 $color-orange: #ff792d;
 $color-orange-2: #f2994a;
 
-$color-yellow-1: #fff6d9;
+$color-yellow-1: rgba(245, 224, 158, 0.6);
 $color-brown-1: rgba(189, 180, 151, 1);
-$color-brown-2: rgba(228, 217, 184, 1);
-$color-brown-3: rgba(173, 166, 144, 0.4);
+$color-brown-2: rgba(228, 217, 184, 0.2);
+$color-brown-3: rgba(173, 166, 144, 0.1);
 
 $color-pink: #ffbcb3;
 $color-pink-2: #ffe9e9;
@@ -65,9 +65,6 @@ $color-footer: #f8f9fa;
 
 $color-green-10: #00a707;
 
-$text-link: $color-blue-dark;
-$text-link_hover: $color-blue-dark2;
-
 $font-weight-bold: 700;
 $font-weight-semi-bold: 600;
 $font-weight-normal: 400;
@@ -75,7 +72,7 @@ $font-weight-normal: 400;
 $font-size-xxxl: 36px;
 $font-size-xxl: 24px;
 $font-size-extra-large: 20px;
-$font-size-large: 18px;
+$font-size-large: 16px;
 $font-size-15: 15px;
 $font-size-standard: 14px;
 $font-size-small: 12px;
@@ -86,9 +83,9 @@ $min-width-dropdown-menu: 154px;
 
 $font-family-open-sans: 'Open Sans', sans-serif;
 $font-family-citeck: 'citeck';
-$font-family: $font-family-open-sans;
+$font-family: $font-family-open-sans, 'Apple Color Emoji', 'Segoe UI Emoji';
 
-$border-width-standard: 2px;
+$border-width-standard: 1px;
 
 $border-radius-small: 4px;
 $border-radius-standard: 6px;
@@ -113,7 +110,7 @@ $box-shadow-tooltip-arrow-top: -3px 3px 5px rgba(0, 0, 0, 0.2);
 $box-shadow-grid-head: 0 3px 3px -2px rgba(0, 0, 0, 0.7);
 $box-shadow-grid-left: 3px 0 3px -2px rgba(0, 0, 0, 0.7);
 
-$page-background-color: $color-gray-4;
+$page-background-color: #f8f9fa;
 
 $form-input-height: 40px;
 
@@ -121,10 +118,10 @@ $select-option-line-height: 22px;
 
 /* override bootstrap constants */
 $primary: $color-blue-dark;
-$secondary: $color-gray-4;
 $success: $color-green-10;
 $danger: $color-red-2;
 $warning: $color-yellow3;
+$transparent: none;
 
 $citeck-icon-checkbox: '\e82b';
 $citeck-icon-checkbox-checked: '\e82f';
@@ -214,8 +211,4 @@ $z-index: (
 %row-wrapper-8 {
   display: flex;
   gap: 8px;
-}
-:root {
-  --colors-primary: #{$primary};
-  --colors-success: #{$success};
 }

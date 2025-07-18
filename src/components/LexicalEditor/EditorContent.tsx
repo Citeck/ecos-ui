@@ -15,16 +15,9 @@ type EditorContentProps = {
   uploadFilesInComment: (data: UploadFilesInCommentProps) => void;
 } & Omit<LexicalEditorProps, 'onUpload'>;
 
-function EditorContent({
-  onEditorReady,
-  htmlString,
-  onChange,
-  hideToolbar,
-  readonly = false,
-  className,
-  uploadFilesInComment
-}: EditorContentProps): JSX.Element {
-  useSyncWithInputHtml(htmlString);
+function EditorContent({ htmlString, readonly = false, uploadFilesInComment, withoutTimeout, ...props }: EditorContentProps): JSX.Element {
+  const { UploadDocsService } = props;
+  useSyncWithInputHtml(htmlString, { timeoutMs: withoutTimeout ? 0 : 800 });
 
   const docApi = new DocumentsApi();
   const editorWrapperRef = useRef<HTMLDivElement | null>(null);
@@ -37,6 +30,10 @@ function EditorContent({
         callback: undefined,
         uploadCallback: fileRecords => {
           if (fileRecords?.length) {
+            if (UploadDocsService) {
+              UploadDocsService.addUploadedEntityRefs(fileRecords.map(record => record.data.entityRef));
+            }
+
             docApi
               .getImageUrl(fileRecords[0].data.entityRef)
               .then((url: string) => {
@@ -60,14 +57,7 @@ function EditorContent({
   return (
     <div ref={editorWrapperRef} className={classNames('citeck-lexical-editor', { editable: !readonly })}>
       <div className="editor-shell">
-        <Editor
-          className={className}
-          readonly={readonly}
-          onChange={onChange}
-          hideToolbar={hideToolbar}
-          onEditorReady={onEditorReady}
-          onUpload={onImageUpload}
-        />
+        <Editor {...props} readonly={readonly} onUpload={onImageUpload} />
       </div>
     </div>
   );

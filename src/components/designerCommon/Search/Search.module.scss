@@ -1,12 +1,14 @@
 @import '../../../styles/constants';
 
 .search {
-  border-radius: $border-radius-standard;
   padding: 9px 12px 8px 10px;
   display: inline-block;
-  background-color: $color-white;
+  position: relative;
   margin-left: 15px;
   vertical-align: top;
+  border: 1px solid $color-gray-4;
+  border-radius: $border-radius-standard;
+  background-color: $color-white;
 
   label {
     margin: 0;
@@ -42,5 +44,37 @@
 @media (max-width: 992px) {
   .search {
     width: 100%;
+  }
+}
+
+.searchHint {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: $color-white;
+  color: $text-color-dark;
+  box-shadow: $box-shadow-tooltip;
+  border-radius: $border-radius-large;
+  padding: 7px 15px;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 22px;
+  font-family: $font-family;
+  margin-top: 6px;
+  z-index: 9999;
+  white-space: nowrap;
+  min-width: max-content;
+
+  &:before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 12px;
+    width: 12px;
+    height: 12px;
+    background: $color-white;
+    transform: rotate(45deg);
+    box-shadow: -2px -2px 3px 0 rgba(0, 0, 0, 0.1);
+    z-index: -1;
   }
 }

@@ -2,32 +2,46 @@ import { createSelector } from 'reselect';
 import endsWith from 'lodash/endsWith';
 
 import { isCategoryHasChildren } from '../helpers/designer';
+import { SEARCH_MIN_LENGTH } from '../constants/bpmn';
 
-export const selectSearchText = state => state.bpmn.searchText;
+export const selectSearchText = state => state.bpmn.searchText;// For UI hints
 export const selectAllModels = state => state.bpmn.models;
 export const selectAllCategories = state => state.bpmn.categories;
 export const selectModelsMap = state => state.bpmn.modelsMap;
 
 const selectCategoryId = (_, props) => props.categoryId;
 
-export const selectModelsBySearchText = createSelector([selectAllModels, selectSearchText], (allModels, searchText) => {
-  let models = [...allModels];
-
-  if (searchText !== '') {
-    models = models.filter(item => {
-      return item.label.toLowerCase().includes(searchText.toLowerCase().trim());
-    });
+// Optimized search text filtering with trimmed comparison
+const normalizeSearchText = createSelector(
+  [selectSearchText],
+  (searchText) => {
+    const trimmed = searchText ? searchText.toLowerCase().trim() : '';
+    return trimmed.length >= SEARCH_MIN_LENGTH ? trimmed : '';
   }
+);
 
-  return models;
-});
+export const selectModelsBySearchText = createSelector(
+  [selectAllModels, normalizeSearchText],
+  (allModels, normalizedSearchText) => {
+    if (!normalizedSearchText) {
+      return allModels;
+    }
+
+    return allModels.filter(item =>
+      (item.label && item.label.toLowerCase().includes(normalizedSearchText)) ||
+      (item.id && item.id.toLowerCase().includes(normalizedSearchText))
+    );
+  }
+);
 
 export const selectCategoriesByParentId = createSelector(
-  [selectAllCategories, selectCategoryId, selectSearchText, selectModelsBySearchText],
-  (allCategories, parentId, searchText, searchedModels) => {
-    let categories = [...allCategories];
+  [selectAllCategories, selectCategoryId, normalizeSearchText, selectModelsBySearchText],
+  (allCategories, parentId, normalizedSearchText, searchedModels) => {
+    if (!allCategories || !Array.isArray(allCategories)) {
+      return [];
+    }
 
-    return categories.filter(item => {
+    return allCategories.filter(item => {
       if (!parentId) {
         return !item.parentId;
       }
@@ -36,7 +50,7 @@ export const selectCategoriesByParentId = createSelector(
         return false;
       }
 
-      if (searchText) {
+      if (normalizedSearchText) {
         return isCategoryHasChildren(item.id, allCategories, searchedModels);
       }
 
@@ -46,33 +60,46 @@ export const selectCategoriesByParentId = createSelector(
 );
 
 export const selectModelsInfoByCategoryId = createSelector(
-  [selectModelsMap, selectCategoryId, selectSearchText],
-  (modelsMap, categoryId, searchText) => {
-    const modelsInfo = modelsMap.get(categoryId) || {};
-    const modelsInfoCopy = { ...modelsInfo };
-    const models = [...(modelsInfoCopy.models || [])];
+  [selectModelsMap, selectCategoryId, normalizeSearchText],
+  (modelsMap, categoryId, normalizedSearchText) => {
+    const modelsInfo = modelsMap.get(categoryId);
+    if (!modelsInfo || !modelsInfo.models) {
+      return {};
+    }
 
-    modelsInfoCopy.models = [...models.filter(model => model.label.toLowerCase().includes(searchText.toLowerCase().trim()))];
+    if (!normalizedSearchText) {
+      return { ...modelsInfo };
+    }
 
-    return { ...modelsInfoCopy } || {};
+    // Only filter if search text exists
+    const filteredModels = modelsInfo.models.filter(model =>
+      (model.label && model.label.toLowerCase().includes(normalizedSearchText)) ||
+      (model.id && model.id.toLowerCase().includes(normalizedSearchText))
+    );
+
+    return {
+      ...modelsInfo,
+      models: filteredModels
+    };
   }
 );
 
-export const selectIsParentHasNotModels = createSelector([selectModelsBySearchText, selectCategoryId], (allModels, categoryId) => {
-  return allModels.findIndex(item => item.categoryId === categoryId) === -1;
-});
-
-export const selectCaseSensitiveCategories = state => {
-  return state.bpmn.categories.map(item => {
-    let label = item.label;
-    return { value: item.id, label: label };
-  });
-};
-
-export const selectCanCreateDef = createSelector([selectAllCategories], allCategories => {
-  if (!allCategories) {
-    return;
+export const selectIsParentHasNotModels = createSelector(
+  [selectModelsBySearchText, selectCategoryId],
+  (allModels, categoryId) => {
+    if (!allModels || !Array.isArray(allModels)) {
+      return true;
+    }
+    return !allModels.some(item => item.categoryId === categoryId);
   }
+);
 
-  return Boolean(allCategories.filter(category => category.canCreateDef).length);
-});
+export const selectCanCreateDef = createSelector(
+  [selectAllCategories],
+  (allCategories) => {
+    if (!allCategories || !Array.isArray(allCategories)) {
+      return false;
+    }
+    return allCategories.some(category => category.canCreateDef);
+  }
+);

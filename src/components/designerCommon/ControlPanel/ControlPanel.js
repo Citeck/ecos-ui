@@ -1,11 +1,11 @@
+import isFunction from 'lodash/isFunction';
 import React, { useEffect, useState } from 'react';
 import { Col, Row } from 'reactstrap';
-import isFunction from 'lodash/isFunction';
 
-import { t } from '../../../helpers/export/util';
 import { Labels } from '../../../constants/bpmn';
-import { Dropdown } from '../../common/form';
+import { t } from '../../../helpers/export/util';
 import { PointsLoader } from '../../common';
+import { Dropdown } from '../../common/form';
 
 import '../style.scss';
 
@@ -48,7 +48,7 @@ const ControlPanel = ({
               titleField="name"
               onChange={handlerCreateVariant}
               controlIcon="icon-small-plus"
-              controlClassName="ecos-btn_settings-down ecos-btn_white ecos-btn_hover_blue2"
+              controlClassName="ecos-btn_settings-down ecos-btn_white ecos-btn_hover_gray"
             />
           )}
           <SearchComponent />

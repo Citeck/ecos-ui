@@ -74,7 +74,7 @@ i.columns {
   }
 
   &__tableSelected {
-    outline: 2px solid $color-blue-dark3;
+    outline: 2px solid var(--primary-color)3;
   }
 
   &__tableCell {
@@ -119,7 +119,7 @@ i.columns {
   }
 
   &__tableCellPrimarySelected {
-    border: 2px solid $color-blue-dark3;
+    border: 2px solid var(--primary-color)3;
     display: block;
     height: calc(100% - 2px);
     position: absolute;
@@ -209,7 +209,7 @@ i.columns {
     display: block;
     position: absolute;
     width: 1px;
-    background-color: $color-blue-dark3;
+    background-color: var(--primary-color)3;
     height: 100%;
     top: 0;
   }
@@ -291,6 +291,7 @@ i.columns {
 .PlaygroundEditorTheme__paragraph {
   margin: 0;
   position: relative;
+  overflow: hidden;
 }
 .LEd__quote {
   margin: 0 0 10px 20px;
@@ -416,7 +417,7 @@ i.columns {
   border-bottom: 1px solid rgba(88, 144, 255, 0.3);
 }
 .LEd__link {
-  color: $text-link;
+  color: var(--primary-color);
   text-decoration: none;
 }
 .LEd__link:hover {
@@ -548,7 +549,7 @@ i.columns {
   background-color: transparent;
 }
 .LEd__tableSelected {
-  outline: 2px solid $color-blue-dark3;
+  outline: 2px solid var(--primary-color)3;
 }
 .LEd__tableCell {
   border: 1px solid $color-gray-5;
@@ -606,7 +607,7 @@ i.columns {
   display: block;
   position: absolute;
   width: 1px;
-  background-color: $color-blue-dark3;
+  background-color: var(--primary-color)3;
   height: 100%;
   top: 0;
 }
@@ -718,9 +719,9 @@ i.columns {
   border-radius: 2px;
 }
 .LEd__listItemChecked:before {
-  border: 1px solid $color-blue-dark3;
+  border: 1px solid var(--primary-color)3;
   border-radius: 2px;
-  background-color: $color-blue-dark;
+  background-color: var(--primary-color);
   background-repeat: no-repeat;
 }
 .LEd__listItemChecked:after {
@@ -787,7 +788,7 @@ i.columns {
   border-bottom: 2px solid rgba(255, 212, 0, 0.7);
 }
 .LEd__embedBlockFocus {
-  outline: 2px solid $color-blue-dark3;
+  outline: 2px solid var(--primary-color)3;
 }
 .LEd__layoutContainer {
   display: grid;
@@ -817,7 +818,7 @@ i.columns {
   line-height: 2px;
 }
 .LEd__hr.selected {
-  outline: 2px solid $color-blue-dark3;
+  outline: 2px solid var(--primary-color)3;
   user-select: none;
 }
 

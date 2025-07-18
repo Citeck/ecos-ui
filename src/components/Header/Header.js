@@ -12,6 +12,7 @@ import { MenuTypes } from '../../constants/menu';
 
 import UserMenu from './UserMenu';
 import WorkspacesSwitcher from './Workspaces';
+import { AIAssistantButton } from '../AIAssistant';
 
 import { selectIsViewNewJournal } from '../../selectors/view';
 import ConfigService, { ALFRESCO_ENABLED } from '../../services/config/ConfigService';
@@ -133,6 +134,7 @@ class Header extends React.Component {
             <CreateMenu isMobile={widthHeader < 910} />
           </div>
           <div className="ecos-header__side ecos-header__side_right">
+            <AIAssistantButton />
             <Search
               hasAlfresco
               isMobile={isMobile || widthHeader <= 600}

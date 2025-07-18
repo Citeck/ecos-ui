@@ -8,7 +8,7 @@ import Records from '../../../Records';
 import ActionsExecutor from '../ActionsExecutor';
 import { ResultTypes } from '../../util/constants';
 import LicenseService from '../../../../../services/license/LicenseService';
-import ConfigService, { ALFRESCO_ENABLED } from '../../../../../services/config/ConfigService';
+import ConfigService, {ALFRESCO_ENABLED, ALFRESCO_EXPORT_SRC_ID_PATTERN} from '../../../../../services/config/ConfigService';
 
 const ALF_ACTION_ID = `${SourcesId.ACTION}@alf-download-report-group-action-`;
 const ACTION_ID = `${SourcesId.ACTION}@group-action-export-`;
@@ -70,7 +70,8 @@ export default class RecordsExportAction extends ActionsExecutor {
     if (!isGroupActionsLicenseExists) {
       return true;
     }
-    return sourceId.startsWith('alfresco/') || sourceId.startsWith('integrations/');
+    const alfSrcIdPattern = await ConfigService.getValue(ALFRESCO_EXPORT_SRC_ID_PATTERN);
+    return alfSrcIdPattern && !!sourceId.match(alfSrcIdPattern);
   }
 
   async _execImpl(isLegacyGroupAction, actionImpl, action) {

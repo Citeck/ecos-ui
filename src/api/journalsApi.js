@@ -10,6 +10,8 @@ import AttributesService from '../services/AttributesService';
 import { DocPreviewApi } from './docPreview';
 import { RecordService } from './recordService';
 
+import { getWorkspaceId } from '@/helpers/urls';
+
 /**
  * @description Settings, Storage and special functions are actual here, other ↩
  * @see src/components/Journals/service
@@ -151,7 +153,16 @@ export class JournalsApi extends RecordService {
     const attributes = countFields.map(field => `sum(${field})`);
     const sourceId = journalType.replace('type@', '');
 
-    return Records.queryOne({ sourceId, query, language: 'predicate', groupBy: ['*'] }, attributes);
+    return Records.queryOne(
+      {
+        sourceId,
+        query,
+        language: 'predicate',
+        groupBy: ['*'],
+        workspaces: [`${getWorkspaceId()}`]
+      },
+      attributes
+    );
   };
 
   getJournalTypeRef = journalId => {

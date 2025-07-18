@@ -4,6 +4,7 @@ import React from 'react';
 import { Checkbox, Field, Label, Select } from '../common/form';
 
 import { DashboardApi } from '@/api/dashboard.js';
+import Records from '@/components/Records/index.js';
 import { getDOMElementMeasurer, t } from '@/helpers/util.js';
 
 import './style.scss';
@@ -20,7 +21,8 @@ class LinkedAttributesSelect extends React.Component {
     this.state = {
       isOnlyLinked: props.isOnlyLinked || false,
       attrsToLoad: props.attrsToLoad || [],
-      attribuesOptions: []
+      attribuesOptions: [],
+      journalTitle: ''
     };
   }
 
@@ -50,7 +52,9 @@ class LinkedAttributesSelect extends React.Component {
     }
 
     const attribuesOptions = await api.getLinkedAttributesWithJournal(typeRef, journalId);
-    this.setState({ attribuesOptions });
+    const journalTitle = await Records.get(journalId).load('.disp');
+
+    this.setState({ attribuesOptions, journalTitle });
   };
 
   onChange = newParams => {
@@ -62,20 +66,18 @@ class LinkedAttributesSelect extends React.Component {
     }
 
     this.setState(newParams);
-
     isFunction(onChange) && onChange(newParams);
   };
 
   render() {
-    const { isOnlyLinked, attribuesOptions, attrsToLoad } = this.state;
-
+    const { isOnlyLinked, attribuesOptions, attrsToLoad, journalTitle } = this.state;
     const showLinkedAttributesField = Boolean(isOnlyLinked);
 
     return (
       <div className="linked-attributes-select">
         <Field className="linked-attributes-select__checkbox field" isSmall={this.isSmall}>
           <Checkbox checked={isOnlyLinked} onClick={isOnlyLinked => this.onChange({ isOnlyLinked })} />
-          <Label className="field__label">{t(Labels.ONLY_LINKED_FIELD)}</Label>
+          <Label className="field__label">{t(Labels.ONLY_LINKED_FIELD, { journalTitle })}</Label>
         </Field>
         {showLinkedAttributesField && (
           <Field

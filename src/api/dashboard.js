@@ -385,8 +385,8 @@ export class DashboardApi {
   };
 
   getModelAttributes = ref => {
-    return Records.get(parseTypeId(ref))
-      .load('resolvedModel.attributes[]{id,name,type}')
+    return Records.get(parseJournalId(ref))
+      .load('typeRef.model.attributes[]{id,name,type}')
       .catch(e => {
         console.error(e);
         return [];
@@ -394,7 +394,12 @@ export class DashboardApi {
   };
 
   getLinkedAttributesWithJournal = async (typeRef, journalId) => {
-    const modelAttributes = await this.getModelAttributes(typeRef);
+    if (!journalId) {
+      console.error('Property "journalId" is required!');
+      return;
+    }
+
+    const modelAttributes = await this.getModelAttributes(journalId);
 
     const assocAttributes = modelAttributes.filter(att => ASSOC_TYPES.includes(att.type));
     const attrsMap = new Map();
@@ -407,12 +412,9 @@ export class DashboardApi {
     return Records.get(parseTypeId(typeRef))
       .load(attrsToLoad)
       .then((attributesWithJournalIds = {}) => {
-        const attrsWithSameJournal = Object.entries(attributesWithJournalIds).filter(
-          ([, attJournalId]) => parseJournalId(attJournalId) === parseJournalId(journalId)
-        );
+        const attrsWithSameJournal = Object.entries(attributesWithJournalIds);
 
-        const attribuesOptions = attrsWithSameJournal.map(([attId]) => ({ label: attrsMap.get(attId).name, value: attId }));
-        return attribuesOptions;
+        return attrsWithSameJournal.map(([attId]) => ({ label: attrsMap.get(attId).name, value: attId }));
       })
       .catch(e => {
         console.error(e);

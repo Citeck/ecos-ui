@@ -1,6 +1,6 @@
 import cn from 'classnames';
 import PropTypes from 'prop-types';
-import React, { Fragment } from 'react';
+import React, { Fragment, PureComponent } from 'react';
 import { Collapse, Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from 'reactstrap';
 
 import { ViewTypes } from '../../../constants/commonDesigner';
@@ -16,7 +16,7 @@ import './Category.scss';
 
 const EDIT_PERMISSIONS_ACTION_REF = 'uiserv/action@edit-permissions';
 
-class DesignerCategory extends React.Component {
+class DesignerCategory extends PureComponent {
   static propTypes = {
     viewType: PropTypes.oneOf([ViewTypes.CARDS, ViewTypes.LIST, ViewTypes.TABLE]),
     searchText: PropTypes.string,

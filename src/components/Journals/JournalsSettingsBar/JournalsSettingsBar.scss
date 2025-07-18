@@ -9,7 +9,7 @@
 
   &_new {
     align-items: center;
-    background-color: $color-white;
+    background-color: var(--main-bg-color);
     border-radius: 12px 12px 0 0;
     margin-bottom: 0;
     padding: 2px 6px;
@@ -20,7 +20,7 @@
 
       path,
       ellipse {
-        stroke: $color-blue-dark !important;
+        stroke: var(--primary-color) !important;
       }
     }
 
@@ -47,6 +47,7 @@
     .ecos-btn_drop-down {
       font-size: 11px;
       line-height: 9px;
+      border: 1px solid $color-gray-4;
 
       .ecos-dropdown__toggle-label {
         padding: 0;
@@ -134,6 +135,11 @@
   .ecos-btn.ecos-journal__add-record {
     font-size: $font-size-xxl;
     min-width: 40px;
+
+    svg path {
+      fill: $color-gray-5;
+      stroke: $color-gray-5;
+    }
   }
 
   .ecos-journal__icon-small-down i:last-child {
@@ -156,7 +162,7 @@
 
   &-export-btn.ecos-btn {
     min-width: 70px;
-    background: $color-white;
+    background-color: $color-white;
   }
 
   &-right-side {
@@ -245,7 +251,7 @@
   justify-content: center;
 
   &:hover {
-    background-color: $color-blue-dark !important;
+    background-color: var(--primary-color) !important;
   }
 
   i {
@@ -271,6 +277,7 @@
   &.export {
     width: 48px;
     padding: 0;
+    border: 1px solid $color-gray-4;
 
     > span {
       padding: 0;
@@ -298,8 +305,8 @@
 
   &.search {
     justify-content: flex-start;
-    padding: 14px 9px;
-    border: 0;
+    padding: 12px 8px;
+    border: 1px solid $color-gray-4;
 
     &:hover,
     &:hover i {
@@ -309,26 +316,38 @@
 
     &:focus-within {
       i {
-        color: $color-blue-dark !important;
+        color: var(--primary-color) !important;
       }
     }
 
     > i {
-      top: 5px;
+      top: 3px;
     }
 
     i:last-child {
-      top: 0;
+      top: -2px;
     }
 
     .search__input {
+      left: 28px;
       font-size: 11px !important;
       background-color: $color-gray-25;
     }
   }
 
+  &.shape {
+    svg path {
+      stroke: $color-gray-5 !important;
+    }
+
+    &:hover svg path {
+      stroke: $color-white !important;
+    }
+  }
+
   &.filter,
   &.shape {
+    border: 1px solid $color-gray-4;
     border-radius: $border-radius-standard;
     min-width: 28px !important;
     min-height: 28px !important;
@@ -341,11 +360,11 @@
   }
 
   &.filter:hover {
-    background-color: $color-blue-dark !important;
+    background-color: var(--primary-color) !important;
 
     path,
     ellipse {
-      fill: $color-blue-dark;
+      fill: var(--primary-color);
       stroke: $color-white !important;
     }
   }
@@ -358,12 +377,12 @@
   &_selected {
     > span,
     > i {
-      color: $color-blue-dark;
+      color: var(--primary-color);
     }
   }
 
   &_focus {
-    background-color: $color-blue-dark !important;
+    background-color: var(--primary-color) !important;
 
     path,
     i,
@@ -380,7 +399,7 @@
 }
 
 .ecos-btn-settings-filter-on:hover i::before {
-  color: $color-blue-dark;
+  color: var(--primary-color);
   background-color: $color-white;
 }
 

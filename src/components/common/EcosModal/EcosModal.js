@@ -26,6 +26,9 @@ export default class EcosModal extends Component {
   };
 
   static getDerivedStateFromProps(props, state) {
+    const { reactstrapProps } = props;
+    const { searchZIndexModalClassName } = reactstrapProps || {};
+
     let newState = null;
 
     if (props.isOpen !== state.isOpen) {
@@ -46,10 +49,16 @@ export default class EcosModal extends Component {
 
     newState = {
       ...newState,
-      zIndexCalc: ZIndex.calcZ()
+      zIndexCalc: props.isPriorityModal ? ZIndex.calcZ(searchZIndexModalClassName) + 2 : ZIndex.calcZ(searchZIndexModalClassName)
     };
 
     return newState;
+  }
+
+  get searchZIndexModalClassName() {
+    const { reactstrapProps } = this.props;
+    const { searchZIndexModalClassName } = reactstrapProps || {};
+    return searchZIndexModalClassName || '';
   }
 
   componentDidMount() {
@@ -68,7 +77,11 @@ export default class EcosModal extends Component {
     this._onResizeHandlerThrottled.cancel();
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevState.level !== this.state.level && this.state.level < prevState.level && !this.props.isOpen) {
+      this.setState({ level: prevState.level });
+    }
+
     this.calculateBounds();
   }
 
@@ -77,7 +90,10 @@ export default class EcosModal extends Component {
       return;
     }
 
-    const zIndex = ZIndex.calcZ();
+    const zIndex = this.props.isPriorityModal
+      ? ZIndex.calcZ(this.searchZIndexModalClassName) + 2
+      : ZIndex.calcZ(this.searchZIndexModalClassName);
+
     if (zIndex !== this.state.zIndexCalc) {
       this.setState({ zIndexCalc: zIndex });
     }
@@ -138,7 +154,11 @@ export default class EcosModal extends Component {
     const { hideModal, isBigHeader, customButtons, noHeader, classNameHeader, isTopDivider } = this.props;
     const { level } = this.state;
 
-    return noHeader ? null : (
+    if (noHeader) {
+      return null;
+    }
+
+    return (
       <ModalHeader
         toggle={hideModal}
         close={this.renderCloseButton()}
@@ -217,6 +237,7 @@ EcosModal.propTypes = {
   classNameHeader: PropTypes.string,
   classNameBody: PropTypes.string,
   isBigHeader: PropTypes.bool,
+  isPriorityModal: PropTypes.bool,
   isTopDivider: PropTypes.bool,
   isOpen: PropTypes.bool,
   isLoading: PropTypes.bool,

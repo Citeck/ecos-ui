@@ -3,12 +3,12 @@ import 'formiojs/FormBuilder';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 
-import EcosFormUtils from '../EcosFormUtils';
-import { t } from '../../../helpers/export/util';
-import Records from '../../Records';
+import { SourcesId } from '../../../constants';
 import Formio from '../../../forms/Formio';
 import { clearFormFromCache } from '../../../forms/utils';
-import { SourcesId } from '../../../constants';
+import { t } from '../../../helpers/export/util';
+import Records from '../../Records';
+import EcosFormUtils from '../EcosFormUtils';
 
 let formPanelIdx = 0;
 

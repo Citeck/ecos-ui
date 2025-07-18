@@ -5,7 +5,9 @@ import merge from 'lodash/merge';
 
 import { OUTCOME_BUTTONS_PREFIX, SUBMIT_FORM_TIMEOUT } from '../constants/forms';
 import { getCurrentLocale } from '../helpers/export/util';
+
 import Formio from './Formio';
+import { findUploadDocsService } from './utils';
 
 const originalSetElement = Webform.prototype.setElement;
 const originalSubmit = Webform.prototype.submit;
@@ -14,7 +16,7 @@ const originalBuild = Webform.prototype.build;
 const originalPropertyLoading = Object.getOwnPropertyDescriptor(Webform.prototype, 'loading');
 const originalSetLanguage = Object.getOwnPropertyDescriptor(Webform.prototype, 'language');
 
-Webform.prototype.submitForm = function(options) {
+Webform.prototype.submitForm = function (options) {
   this.submitActionDone = true;
   const result = originalSubmitForm.call(this, options);
 
@@ -23,14 +25,14 @@ Webform.prototype.submitForm = function(options) {
   return result;
 };
 
-Webform.prototype.build = function(state) {
+Webform.prototype.build = function (state) {
   Formio.forms[this.id] = this;
 
   return originalBuild.call(this, state);
 };
 
 Object.defineProperty(Webform.prototype, 'parentForm', {
-  get: function() {
+  get: function () {
     const parentId = get(this, 'options.parentId');
     const keys = Object.keys(Formio.forms);
     const prevFormKey = keys.findIndex(i => i === this.id);
@@ -49,7 +51,7 @@ Object.defineProperty(Webform.prototype, 'parentForm', {
 });
 
 Object.defineProperty(Webform.prototype, 'language', {
-  set: function(lang) {
+  set: function (lang) {
     const currentLang = getCurrentLocale();
 
     if (lang !== currentLang) {
@@ -61,26 +63,26 @@ Object.defineProperty(Webform.prototype, 'language', {
 });
 
 Object.defineProperty(Webform.prototype, 'withoutLoader', {
-  set: function(withoutLoader) {
+  set: function (withoutLoader) {
     this.__withoutLoader = withoutLoader;
   },
 
-  get: function() {
+  get: function () {
     return this.__withoutLoader;
   }
 });
 
 Object.defineProperty(Webform.prototype, 'previSubmitTime', {
-  set: function(time = 0) {
+  set: function (time = 0) {
     this.__previSubmitTime = time;
   },
 
-  get: function() {
+  get: function () {
     return this.__previSubmitTime || Date.now();
   }
 });
 
-Webform.prototype.setElement = function(element) {
+Webform.prototype.setElement = function (element) {
   originalSetElement.call(this, element);
 
   const { viewAsHtml, readOnly, viewAsHtmlConfig, theme } = this.options;
@@ -98,7 +100,7 @@ Webform.prototype.setElement = function(element) {
   }
 };
 
-Webform.prototype.onSubmit = function(submission, saved) {
+Webform.prototype.onSubmit = function (submission, saved) {
   this.submitActionDone = true;
   this.submitting = false;
   this.setPristine(true);
@@ -123,6 +125,20 @@ Webform.prototype.onSubmit = function(submission, saved) {
     return submission;
   }
 
+  const DOCS_ATT = 'att_add_docs:documents';
+  const UploadDocsService = findUploadDocsService.call(this);
+
+  if (UploadDocsService && !submission.data?.hasOwnProperty(DOCS_ATT) && UploadDocsService.getUploadedEntityRefs()?.length > 0) {
+    const docsRefs = UploadDocsService.getUploadDocsRefsOfAttrs(submission.data);
+
+    if (docsRefs.length > 0) {
+      submission.data = {
+        ...submission.data,
+        [DOCS_ATT]: docsRefs
+      };
+    }
+  }
+
   return new Promise((resolve, reject) => {
     this.emit('submit', submission, resolve, reject);
 
@@ -135,7 +151,7 @@ Webform.prototype.onSubmit = function(submission, saved) {
   });
 };
 
-Webform.prototype.submit = function(before, options) {
+Webform.prototype.submit = function (before, options) {
   const form = this;
   const originalSubmission = cloneDeep(this.submission || {});
   const originalSubmissionData = originalSubmission.data || {};
@@ -158,11 +174,21 @@ Webform.prototype.submit = function(before, options) {
     const callSubmit = () => {
       form.previSubmitTime = new Date().getTime();
 
+      for (let [key] of Object.entries(originalSubmissionData)) {
+        const component = form.getComponent(key);
+        if (get(component, 'type') === 'datagrid') {
+          form.submission = {
+            ...form.submission,
+            data: {
+              ...get(form.submission, 'data', {}),
+              [key]: component.getNotEmptyValue()
+            }
+          };
+        }
+      }
+
       form.setValue(merge(form.submission, { data: outcomeButtonsAttributes }));
-      originalSubmit
-        .call(form, before, options)
-        .then(resolve)
-        .catch(reject);
+      originalSubmit.call(form, before, options).then(resolve).catch(reject);
     };
 
     let fireSubmit = finishTime => {
@@ -190,7 +216,7 @@ Webform.prototype.submit = function(before, options) {
 };
 
 Object.defineProperty(Webform.prototype, 'loading', {
-  set: function(loading) {
+  set: function (loading) {
     originalPropertyLoading.set.call(this, loading);
 
     if (!loading && this.loader) {

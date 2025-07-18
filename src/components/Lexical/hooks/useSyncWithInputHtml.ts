@@ -1,10 +1,10 @@
-/* eslint-disable header/header */
-import { $generateHtmlFromNodes, $generateNodesFromDOM } from '@lexical/html';
+import { $generateHtmlFromNodes } from '@lexical/html';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $createParagraphNode, $createTextNode, $getRoot, $getSelection, $isRangeSelection } from 'lexical';
 import { useDebounce } from 'use-debounce';
 
 import useLayoutEffect from '../shared/useLayoutEffect';
+
+import { updateEditorContent } from '@/helpers/lexical';
 
 type Options = {
   timeoutMs?: number;
@@ -18,21 +18,7 @@ const useSyncWithInputHtml = (html?: string | null, { timeoutMs = 800 }: Options
   useLayoutEffect(() => {
     editor.update(() => {
       if ($generateHtmlFromNodes(editor, null) !== normHtml) {
-        $getRoot().clear();
-        const phNode = $createParagraphNode();
-        phNode.append($createTextNode(''));
-        $getRoot().append(phNode);
-
-        /** Why is this? This select makes auto-transfer when you start typing text **/
-        // $getRoot().select();
-
-        const parser = new DOMParser();
-        const dom = parser.parseFromString(normHtml ?? '', 'text/html');
-        const nodes = $generateNodesFromDOM(editor, dom);
-        const selection = $getSelection();
-        if ($isRangeSelection(selection)) {
-          selection.insertNodes(nodes);
-        }
+        updateEditorContent(editor, normHtml);
       }
     });
   }, [normHtml]); // eslint-disable-line react-hooks/exhaustive-deps

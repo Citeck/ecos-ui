@@ -78,7 +78,7 @@ class SetBind extends React.Component {
               menuClassName="ecos-dashboard-settings__bindings-dropdown-menu"
               controlClassName="ecos-btn_drop-down ecos-btn_white2"
             />
-            {isLoadingKeys && <PointsLoader className="ecos-dashboard-settings__bindings-types-loader" color={'light-blue'} />}
+            {isLoadingKeys && <PointsLoader className="ecos-dashboard-settings__bindings-types-loader" />}
           </div>
           <Btn className="ecos-btn_blue" onClick={this.onClickReset} disabled={!selectedDashboardKey || isDefaultConfig}>
             {t(Labels.RESET_BTN)}

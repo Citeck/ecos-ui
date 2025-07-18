@@ -63,6 +63,7 @@ export const Labels = {
     BAR_TOTAL: 'kanban.label.big-total',
     NO_COLUMNS: 'kanban.label.no-columns',
     COLUMNS_SUM: 'kanban.label.columns-sum',
+    COLUMNS_SUM_BY: 'kanban.label.columns-sum.by',
     COL_NO_CARD: 'kanban.label.no-card',
     COL_NO_MORE_CARDS: 'kanban.label.no-more-cards',
     CARD_NO_TITLE: 'kanban.label.no-name',
@@ -97,7 +98,7 @@ export const Labels = {
     //editor
     FIELD_NAME: 'journal.presets.modal.field.name',
     FIELD_AUTH: 'journal.presets.modal.field.authority',
-    FIELD_ALL_AUTH: 'journal.presets.modal.field.authorities',
+    FIELD_WORKSPACES: 'journal.presets.modal.field.workspaces',
     BTN_CLOSE: 'journal.presets.modal.btn.cancel',
     BTN_SAVE: 'journal.presets.modal.btn.save',
     //list

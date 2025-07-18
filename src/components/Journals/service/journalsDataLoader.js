@@ -4,10 +4,6 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isObject from 'lodash/isObject';
 
-import { Attributes } from '../../../constants';
-import JournalsConverter from '../../../dto/journals';
-import { t } from '../../../helpers/util';
-import AttributesService from '../../../services/AttributesService';
 import { ParserPredicate } from '../../Filters/predicates';
 import Records from '../../Records';
 import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_AND, PREDICATE_CONTAINS, PREDICATE_EQ, PREDICATE_OR } from '../../Records/predicates/predicates';
@@ -18,6 +14,11 @@ import computedService from './computed/computedService';
 import journalsServiceApi from './journalsServiceApi';
 import { COMPUTED_ATT_PREFIX } from './util';
 
+import { Attributes } from '@/constants';
+import JournalsConverter from '@/dto/journals';
+import { getWorkspaceId } from '@/helpers/urls';
+import { getEnabledWorkspaces, t } from '@/helpers/util';
+import AttributesService from '@/services/AttributesService';
 import { NotificationManager } from '@/services/notifications';
 
 class JournalsDataLoader {
@@ -153,6 +154,21 @@ class JournalsDataLoader {
 
     const sortBy = this._getSortBy(journalConfig, settings);
     const groupBy = this._getGroupBy(journalConfig, settings);
+
+    if (getEnabledWorkspaces()) {
+      const workspaces = !get(settings, 'workspaces') ? [getWorkspaceId()] : settings.workspaces;
+
+      return {
+        sourceId,
+        language,
+        consistency,
+        query,
+        page: settings.page,
+        sortBy,
+        groupBy,
+        workspaces
+      };
+    }
 
     return {
       sourceId,

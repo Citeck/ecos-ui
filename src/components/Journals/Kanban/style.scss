@@ -185,7 +185,7 @@
     }
 
     &_has-sum {
-      padding-top: 60px !important;
+      padding-top: 45px !important;
     }
 
     &-sum {
@@ -193,10 +193,10 @@
       background: rgba(255, 255, 255, 0.50);
       position: absolute;
       display: flex;
-      padding: 16px;
+      padding: 8px 16px;
       top: 45px;
       width: calc(100% - 20px);
-      height: 50px;
+      height: 32px;
       flex-direction: row;
       justify-content: space-between;
       border-radius: 6px;
@@ -208,15 +208,17 @@
         font-size: 11px;
         font-style: normal;
         font-weight: 600;
+        text-align: center;
+        vertical-align: middle;
+        line-height: 14px; 
       }
 
-      &-label p {
-        word-break: break-word;
-        color: #444;
+      &-help {
+        display: flex;
+        align-self: center;
       }
 
       &-value p {
-        text-wrap-mode: nowrap;
         color: #767676;
       }
     }
@@ -225,7 +227,7 @@
       counter-increment: column;
       background: $color-white;
       border-radius: $border-radius-large $border-radius-large 0 0;
-      border-bottom: 3px $color-blue-light solid;
+      border-bottom: 3px var(--light-primary-color) solid;
       height: 50px;
       box-shadow: none;
       display: flex;
@@ -372,7 +374,7 @@
         }
 
         &:hover {
-          color: $color-blue-dark;
+          color: var(--primary-color);
           cursor: pointer;
         }
       }
@@ -398,7 +400,8 @@
       &_inline {
         & > div dt,
         dd {
-          width: max-content !important;
+          position: relative;
+          width: 100%;
         }
 
         & > div dl {
@@ -438,7 +441,7 @@
         line-height: 1.5;
 
         &:hover {
-          color: $color-blue-light;
+          color: var(--light-primary-color);
         }
       }
     }
@@ -478,7 +481,7 @@
 
   margin-top: 2px;
   padding: 10px 12px 0px 10px;
-  background-color: $color-white;
+  background-color: var(--main-bg-color);
   border-radius: 0 0 12px 12px;
 
   .ecos-kanban__column {
@@ -598,7 +601,7 @@
     padding: 16px;
     border-radius: $border-radius-standard;
     position: relative;
-    border-top: 2px solid $color-blue-dark;
+    border-top: 2px solid var(--primary-color);
     margin-bottom: 12px;
 
     &-head {
@@ -701,7 +704,7 @@
           color: inherit;
 
           &:hover {
-            color: $color-blue-dark;
+            color: var(--primary-color);
           }
         }
       }

@@ -1,3 +1,4 @@
+/* eslint-disable react/react-in-jsx-scope */
 import isEmpty from 'lodash/isEmpty';
 import isString from 'lodash/isString';
 import moment from 'moment';
@@ -11,10 +12,10 @@ import BaseWidget, { BaseWidgetProps, BaseWidgetState } from '../../../component
 import { getStateId } from '../../../helpers/redux';
 import DAction from '../../../services/DashletActionService';
 
+import { getFitnesseClassName } from '@/helpers/tools';
 import { getRecordRef } from '@/helpers/urls';
 import { t } from '@/helpers/util';
 import { Events } from '@/services/PageService';
-import { getFitnesseClassName } from '@/helpers/tools';
 
 import './style.scss';
 
@@ -117,7 +118,7 @@ class PublicationWidgetDashlet<P extends PublicationWidgetDashletProps, S extend
   }
 
   get dashletActions() {
-    let actions = {};
+    const actions = {};
 
     if (this.state.hasPermissions) {
       // @ts-ignore

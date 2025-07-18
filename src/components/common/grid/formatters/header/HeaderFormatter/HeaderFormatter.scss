@@ -79,14 +79,14 @@
   cursor: pointer;
 
   &:hover {
-    color: $color-blue-light;
+    color: var(--dark-primary-color);
   }
 
   &_active {
-    color: $color-blue-light;
+    color: var(--light-primary-color);
 
     &:hover {
-      color: $color-blue-dark;
+      color: var(--dark-primary-color);
     }
   }
 
@@ -146,7 +146,7 @@
     color: $color-gray-4;
 
     &:hover {
-      color: $color-blue-dark;
+      color: var(--dark-primary-color);
     }
   }
 

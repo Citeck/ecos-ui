@@ -13,7 +13,7 @@
 
   &:hover {
     #{$root}__checkmark {
-      border-color: $color-blue-light;
+      border-color: var(--dark-primary-color);
     }
   }
 
@@ -40,14 +40,14 @@
   &_checked {
     &:hover {
       #{$root}__checkmark {
-        border-color: $color-blue-dark;
+        border-color: var(--dark-color);
         border-width: 7px;
       }
     }
 
     #{$root} {
       &__checkmark {
-        border-color: $color-blue-dark;
+        border-color: var(--primary-color);
         border-width: 7px;
       }
 

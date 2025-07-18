@@ -1,6 +1,26 @@
 @import '../../../../styles/constants';
 
 .ecos-select {
+  &__editor {
+    .select__single-value {
+      font-size: 11px;
+      height: auto;
+      padding: 4px !important;
+      line-height: 16.5px;
+      color: $text-color-dark !important;
+    }
+
+    .select__control {
+      background: $color-white !important;
+    }
+
+    .select__control--is-focused {
+      .select__indicator > svg {
+        fill: var(--light-primary-color);
+      }
+    }
+  }
+
   .select__indicator-separator {
     width: 0;
   }
@@ -41,19 +61,19 @@
 
   .select__control:hover,
   .select__input input[type='text']:hover {
-    border-color: $color-blue-light;
+    border-color: var(--light-primary-color);
     box-shadow: none;
 
     .select__clear-indicator,
     .select__dropdown-indicator {
-      color: $color-blue-light;
+      color: var(--light-primary-color);
     }
   }
 
   .select__control.select__control--is-focused,
   .select__input input[type='text']:focus {
-    border-color: $color-blue-dark;
-    background: $color-blue-dark;
+    border-color: var(--primary-color);
+    background: var(--primary-color);
     box-shadow: none;
 
     .select__input,
@@ -138,8 +158,9 @@
 
 .ecos-select_blue {
   .select__control {
-    background: $color-blue-light;
-    border: $border-width-standard solid $color-blue-light;
+    background-color: var(--primary-color);
+    border: $border-width-standard solid var(--primary-color);
+    cursor: pointer;
   }
 
   .select__single-value,
@@ -151,8 +172,8 @@
 
   .select__control:hover,
   .select__input input[type='text']:hover {
-    background: $color-blue-dark;
-    border-color: $color-blue-dark;
+    background: var(--primary-color);
+    border-color: var(--primary-color);
     box-shadow: none;
 
     .select__clear-indicator,

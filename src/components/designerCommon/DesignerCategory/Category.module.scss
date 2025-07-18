@@ -3,7 +3,7 @@
 .category {
   background: $color-white;
   border-color: $color-white;
-  border-radius: $border-radius-large;
+  border-radius: $border-radius-extra-large;
 }
 
 .label {
@@ -85,7 +85,7 @@
   line-height: 56px;
 
   &:hover {
-    color: $color-blue-light;
+    color: var(--light-primary-color);
   }
 }
 
@@ -94,7 +94,7 @@
 }
 
 .categoryActionIconPressed {
-  color: $color-blue-light;
+  color: var(--light-primary-color);
 }
 
 .categoryActionIcon2 {
@@ -141,16 +141,15 @@
 
 .categoryLevelRoot {
   background: $color-white;
-  border-width: 0;
-  border-color: $color-white;
-  border-radius: $border-radius-standard;
+  border: 1px solid $color-gray-4;
+  border-radius: $border-radius-extra-large;
 }
 
 .categoryLevelOdd,
 .categoryLevelEven {
   background-color: $color-yellow-1;
-  border: 1px solid $color-brown-3;
-  border-radius: $border-radius-standard;
+  border: 1px solid $color-brown-2;
+  border-radius: $border-radius-extra-large;
 
   .label {
     line-height: 40px;

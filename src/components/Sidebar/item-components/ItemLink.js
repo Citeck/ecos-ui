@@ -5,7 +5,7 @@ import isFunction from 'lodash/isFunction';
 
 import SS from '../../../services/sidebar';
 
-class ItemLink extends React.Component {
+class ItemLink extends React.PureComponent {
   static propTypes = {
     className: PropTypes.string,
     data: PropTypes.object,

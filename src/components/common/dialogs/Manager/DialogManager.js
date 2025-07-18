@@ -443,6 +443,9 @@ export const dialogsById = {
               key={b.key || b.label}
               onClick={() => {
                 isFunction(b.onClick) && b.onClick();
+                if (b.isCloseAfterClick) {
+                  dProps.onClose();
+                }
               }}
             >
               {t(b.label)}

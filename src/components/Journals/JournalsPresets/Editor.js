@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React, { useCallback, useEffect, useState } from 'react';
 
 import { Btn } from '../../common/btns';
-import { MLText, SelectOrgstruct } from '../../common/form';
+import {MLText, SelectJournal, SelectOrgstruct} from '../../common/form';
 import { GroupTypes } from '../../common/form/SelectOrgstruct/constants';
 import { Labels } from '../constants';
 
@@ -13,22 +13,23 @@ import './style.scss';
 
 const Editor = ({ onClose, onSave, data, id, isAdmin, ...params }) => {
   const [name, setName] = useState({});
-  const [authorityRef, setAuthorityRef] = useState('');
   const [authoritiesRef, setAuthoritiesRef] = useState(['']);
+  const [workspacesRefs, setWorkspacesRefs] = useState([]);
   const [isSaving, setSaving] = useState(false);
 
   useEffect(() => {
     setName(data.name);
-    setAuthorityRef(params.authorityRef);
     setAuthoritiesRef(params.authoritiesRef);
-  }, [id, data.name, params.authorityRef, params.authoritiesRef]);
+    setWorkspacesRefs(params.workspacesRefs);
+  }, [id, data.name,  params.authoritiesRef, params.workspacesRefs]);
 
   const handleChangeName = useCallback(name => setName(name), []);
   const handleChangeAuthorities = useCallback(authoritiesRef => setAuthoritiesRef(authoritiesRef), []);
+  const handleChangeWorkspacesRefs = useCallback(authoritiesRef => setWorkspacesRefs(authoritiesRef), []);
   const handleSave = useCallback(() => {
     setSaving(true);
-    onSave({ name, authorityRef, authoritiesRef });
-  }, [name, authorityRef, authoritiesRef]);
+    onSave({ name, authoritiesRef, workspacesRefs });
+  }, [name, authoritiesRef, workspacesRefs]);
 
   const isInvalid = !(isFilledLabelWeak(name) && Array.isArray(authoritiesRef) && authoritiesRef.length > 0);
 
@@ -43,7 +44,7 @@ const Editor = ({ onClose, onSave, data, id, isAdmin, ...params }) => {
 
       <div className="journal-preset-editor__field">
         <div className="journal-preset-editor__label journal-preset-editor__label_required">
-          {t(Labels.Preset.FIELD_AUTH) || t(Labels.Preset.FIELD_ALL_AUTH)}
+          {t(Labels.Preset.FIELD_AUTH)}
         </div>
         <div className="journal-preset-editor__control">
           <SelectOrgstruct
@@ -52,6 +53,20 @@ const Editor = ({ onClose, onSave, data, id, isAdmin, ...params }) => {
             isIncludedAdminGroup={isAdmin}
             allowedGroupTypes={Object.values(GroupTypes)}
             onChange={handleChangeAuthorities}
+            multiple={true}
+          />
+        </div>
+      </div>
+
+      <div className="journal-preset-editor__field">
+        <div className="journal-preset-editor__label">
+          {t(Labels.Preset.FIELD_WORKSPACES)}
+        </div>
+        <div className="journal-preset-editor__control">
+          <SelectJournal
+            defaultValue={workspacesRefs}
+            journalId={"user-workspaces"}
+            onChange={handleChangeWorkspacesRefs}
             multiple={true}
           />
         </div>

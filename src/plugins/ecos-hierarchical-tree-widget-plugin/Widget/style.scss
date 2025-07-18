@@ -4,20 +4,21 @@
   $root: &;
 
   i.icon {
-    color: #b7b7b7;
+    color: $color-gray-5;
     cursor: pointer;
-    transition: opacity 0.2s, visibility 0s ease 0.2s;
+    transition: color 0.2s, visibility 0s ease 0.2s;
 
     &:hover {
-      opacity: 0.5;
+      color: var(--dark-primary-color);
     }
   }
 
   padding: 0;
   margin: 0;
   background-color: white;
+  border: 1px solid $color-gray-4;
   border-radius: 12px;
-  font-family: 'Open Sans', sans-serif;
+  font-family: $font-family-open-sans;
   color: #444444;
 
   &-header {
@@ -26,25 +27,20 @@
     justify-content: space-between;
     align-items: center;
     padding: 12px 20px 11px;
+    border-bottom: 1px solid $color-gray-4;
 
     h4 {
       margin: 0;
-      font-family: 'Open Sans', sans-serif;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 700;
       color: #767676;
       cursor: pointer;
       transition: color 0.2s;
 
       &:hover {
-        color: #7396CD;
+        color: var(--dark-primary-color);
       }
     }
-  }
-
-  hr {
-    margin-top: 0;
-    border-top: 2px solid #e8edef;
   }
 
   &-empty {
@@ -64,7 +60,7 @@
 
   &-body {
     margin: 0;
-    padding: 0 20px;
+    padding: 10px 20px 0;
     list-style-type: none;
 
     ul.tree {
@@ -132,11 +128,11 @@
 
         &__active {
           summary:not(.child-tree summary) {
-            color: #7396CD;
+            color: var(--dark-primary-color);
           }
 
           summary::before {
-            color: #7396CD !important;
+            color: var(--dark-primary-color) !important;
           }
         }
 
@@ -163,7 +159,7 @@
 
         &__active {
           & > details > summary {
-            color: #7396CD;
+            color: var(--dark-primary-color);
           }
         }
       }
@@ -175,11 +171,11 @@
         right: 0;
         padding-right: 6px;
         gap: 3px;
-        background: linear-gradient(to right, rgba(238, 240, 248, 0), #EEF0F8 15%);
+        background: linear-gradient(to right, rgba(238, 240, 248, 0), $color-blue-morning 15%);
 
         i {
           font-size: 11pt;
-          color: #7396CD;
+          color: var(--dark-primary-color);
           cursor: pointer;
           transition: opacity 0.2s, visibility 0s ease 0.2s;
 

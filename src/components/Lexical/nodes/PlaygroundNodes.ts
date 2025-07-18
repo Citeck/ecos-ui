@@ -13,7 +13,6 @@ import { CollapsibleContentNode } from '../plugins/CollapsiblePlugin/Collapsible
 import { CollapsibleTitleNode } from '../plugins/CollapsiblePlugin/CollapsibleTitleNode';
 
 import { AutocompleteNode } from './AutocompleteNode';
-import { EmojiNode } from './EmojiNode';
 import { EquationNode } from './EquationNode';
 import { ExcalidrawNode } from './ExcalidrawNode';
 import { FileNode } from './FileNode';
@@ -46,7 +45,6 @@ const PlaygroundNodes: Array<Klass<LexicalNode>> = [
   PollNode,
   ImageNode,
   MentionNode,
-  EmojiNode,
   ExcalidrawNode,
   EquationNode,
   AutocompleteNode,

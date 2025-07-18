@@ -48,7 +48,7 @@
 
     .ecos-tab {
       &:not(.ecos-tab_active) {
-        background: $color-gray-4;
+        background: transparent;
       }
     }
   }
@@ -402,7 +402,7 @@
       &::after {
         content: '*';
         padding-left: 5px;
-        color: $color-blue-dark;
+        color: var(--primary-color);
       }
     }
 

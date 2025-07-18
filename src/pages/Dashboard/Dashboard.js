@@ -4,6 +4,7 @@ import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
 import isNil from 'lodash/isNil';
 import * as queryString from 'query-string';
 import React, { Component } from 'react';
@@ -28,6 +29,7 @@ import { Loader, ScrollArrow, Tabs } from '@/components/common';
 import TitlePageLoader from '@/components/common/TitlePageLoader';
 import DialogManager from '@/components/common/dialogs/Manager';
 import { Badge } from '@/components/common/form';
+import Components, { ComponentKeys } from '@/components/widgets/Components.js';
 import { DocStatus } from '@/components/widgets/DocStatus';
 import { LoaderTypes, URL } from '@/constants';
 import { DashboardTypes } from '@/constants/dashboard';
@@ -183,6 +185,10 @@ class Dashboard extends Component {
       this.toggleTabLayoutFromUrl();
     }
 
+    if (prevState.urlParams !== urlParams) {
+      this.setState({ urlParams });
+    }
+
     if (needGetConfig || (!prevProps.tabId && tabId) || (enableCache && prevProps.stateKey !== stateKey)) {
       if (isMobile) {
         resetDashboardConfig();
@@ -197,8 +203,14 @@ class Dashboard extends Component {
       const isExistLayout = isArray(config) && !isNil(activeTab) && !!config[Number(activeTabIndex)];
       const hasManyTabs = this.tabList && this.tabList.length > 1;
 
-      if (!isNil(activeTab) && !isExistLayout && hasManyTabs) {
-        this.setActiveLink(0);
+      switch (true) {
+        case !isNil(activeTab) && !isExistLayout && hasManyTabs:
+        case !!get(this.tabList, [activeTab, 'isEmpty']):
+          this.setActiveLink(0);
+          break;
+
+        default:
+          break;
       }
 
       if (isNil(activeTabIndex) && !!layoutId) {
@@ -306,11 +318,50 @@ class Dashboard extends Component {
     return {};
   };
 
+  getIsEmptyTab = (columns = []) => {
+    let isEmpty = true;
+
+    columns.forEach(column => {
+      const widgets = get(column, 'widgets');
+
+      if (widgets && !!isEmpty) {
+        widgets.forEach(widget => {
+          const Widget = Components.getRaw(widget.name);
+
+          if (!!Widget && !!isEmpty) {
+            if (widget.name === ComponentKeys.JOURNAL) {
+              const isExistJournal = get(widget, 'isExistJournal', false);
+              const journalConfig = get(widget, 'props.config') || {};
+              const versionConfigJournal = journalConfig[get(journalConfig, 'version') || 'v2'];
+              const journalId = get(versionConfigJournal, 'journalId');
+
+              if (!versionConfigJournal || !journalId || isExistJournal) {
+                isEmpty = false;
+              }
+            } else {
+              if (isFunction(Widget.then)) {
+                Widget.then(module => {
+                  if (!!module) {
+                    isEmpty = false;
+                  }
+                });
+              } else {
+                isEmpty = false;
+              }
+            }
+          }
+        });
+      }
+    });
+
+    return isEmpty;
+  };
+
   get tabList() {
     const { config } = this.state;
 
     if (!isEmpty(config) && isArray(config)) {
-      return config.map((item, index) => ({ ...item.tab, index }));
+      return config.map((item, index) => ({ ...item.tab, index, isEmpty: this.getIsEmptyTab(get(item, 'columns', [])) }));
     }
 
     return [];
@@ -586,7 +637,7 @@ class Dashboard extends Component {
     } = this.props;
     const { recordRef } = this.getPathInfo();
 
-    let title = null;
+    let title;
 
     switch (dashboardType) {
       case DashboardTypes.CASE_DETAILS:

@@ -35,6 +35,7 @@ export interface BaseWidgetProps {
   fixedHeight?: boolean;
   onLoad?: (component: BaseWidget) => void;
   onUpdate?: (component: BaseWidget) => void;
+  onSave?: (id: string, config: any, callback: () => void) => void;
 }
 
 export interface BaseWidgetState {
@@ -113,9 +114,9 @@ abstract class BaseWidget<P extends BaseWidgetProps = BaseWidgetProps, S extends
     return Records.get(this.props.record);
   }
 
-  get clientHeight(): number | null {
+  get clientHeight(): number {
     if (!this.props.maxHeightByContent) {
-      return null;
+      return MAX_DEFAULT_HEIGHT_DASHLET;
     }
 
     return get(this.contentRef, 'current.offsetHeight', 0);

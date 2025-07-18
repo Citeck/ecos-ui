@@ -31,7 +31,7 @@
       color: $color-gray-4;
 
       &:hover {
-        color: $color-blue-dark;
+        color: var(--dark-primary-color);
       }
     }
   }

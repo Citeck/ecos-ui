@@ -12,6 +12,6 @@
   &__clickable-field {
     cursor: pointer;
 
-    color: $color-blue-dark;
+    color: var(--primary-color);
   }
 }

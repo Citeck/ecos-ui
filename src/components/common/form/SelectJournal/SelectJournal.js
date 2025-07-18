@@ -28,7 +28,7 @@ import FiltersProvider from './Filters/FiltersProvider';
 import InputView from './InputView';
 import Search from './Search';
 import ViewMode from './ViewMode';
-import { DataTypes, DisplayModes, Labels } from './constants';
+import { DataTypes, DisplayModes, Labels, SELECT_JOURNAL_MODAL_CLASSNAME } from './constants';
 
 import { Attributes, Permissions } from '@/constants';
 import JournalsConverter from '@/dto/journals';
@@ -435,6 +435,23 @@ export default class SelectJournal extends Component {
       });
   };
 
+  fillWorkspaceId = rows => {
+    return Records.get(rows.map(r => r.id))
+      .load('_workspace?localId')
+      .then(workspacesId => {
+        let result = [];
+
+        for (let i = 0; i < rows.length; i++) {
+          result.push({
+            ...rows[i],
+            locatedWorkspaceId: workspacesId[i]
+          });
+        }
+
+        return result;
+      });
+  };
+
   fetchTableAttributes = rows => {
     const { viewMode, forceReload } = this.props;
     const { isJournalConfigFetched, isGridDataReady } = this.state;
@@ -552,6 +569,7 @@ export default class SelectJournal extends Component {
     return this.fetchDisplayNames(selected)
       .then(this.fillCanEdit)
       .then(this.fetchTableAttributes)
+      .then(this.fillWorkspaceId)
       .then(selected => {
         if (!this.liveComponent) {
           return;
@@ -635,11 +653,13 @@ export default class SelectJournal extends Component {
     this.setState({ isSelectModalOpen: true });
 
     if (!isJournalConfigFetched) {
-      this.getJournalConfig().then(this.refreshGridData);
+      this.fetchJournalData();
     } else if (!isGridDataReady) {
       this.refreshGridData();
     }
   };
+
+  fetchJournalData = () => this.getJournalConfig().then(this.refreshGridData);
 
   onCreateFormSubmit = (record, form, alias) => {
     const { multiple } = this.props;
@@ -652,6 +672,11 @@ export default class SelectJournal extends Component {
       ? Math.floor(gridData.total / pagination.maxItems) * pagination.maxItems
       : paginationInitState.skipCount;
     const newPageNum = isAscending ? Math.ceil((gridData.total + 1) / pagination.maxItems) : paginationInitState.page;
+
+    if (!alias) {
+      this.fetchJournalData();
+      return;
+    }
 
     alias.toJsonAsync(true).then(res => {
       const newData = cloneDeep(this.state);
@@ -666,7 +691,7 @@ export default class SelectJournal extends Component {
         pagination: { skipCount: newSkipCount, page: newPageNum }
       });
 
-      this.setState(newData, this.refreshGridData);
+      this.setState(newData, this.fetchJournalData);
     });
   };
 
@@ -775,7 +800,7 @@ export default class SelectJournal extends Component {
         title={title || selectModalTitle}
         isOpen={isSelectModalOpen}
         hideModal={this.hideSelectModal}
-        className={classNames('select-journal-select-modal', {
+        className={classNames(SELECT_JOURNAL_MODAL_CLASSNAME, {
           'ecos-modal_width-lg': !isFullScreenWidthModal,
           'ecos-modal_width-full': isFullScreenWidthModal
         })}
@@ -819,7 +844,7 @@ export default class SelectJournal extends Component {
           </div>
         )}
         <div id={getHtmlIdByUid(journalId, 'container')} className="select-journal__grid-container">
-          {!isGridDataReady && <Loader />}
+          {!isGridDataReady && <Loader type="points" />}
 
           <Grid
             {...gridData}
@@ -869,6 +894,7 @@ export default class SelectJournal extends Component {
       isSelectedValueAsText,
       isInlineEditingMode,
       isModalMode,
+      linkFormatter,
       viewMode
     } = this.props;
     const { journalConfig, selectedRows, error, gridData, value, isLoading } = this.state;
@@ -880,6 +906,7 @@ export default class SelectJournal extends Component {
       isCompact,
       multiple,
       placeholder,
+      linkFormatter,
       viewOnly,
       error,
       selectedRows: this.isQuery ? value : selectedRows,
@@ -928,7 +955,7 @@ export default class SelectJournal extends Component {
       >
         {isFunction(renderView) ? renderView(inputViewProps) : DefaultView}
 
-        {isLoading && <Loader blur />}
+        {isLoading && <Loader blur type="points" />}
 
         <FiltersProvider
           columns={journalConfig.columns}

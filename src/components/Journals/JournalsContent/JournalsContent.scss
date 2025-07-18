@@ -9,7 +9,7 @@
       width: 50%;
 
       &:nth-child(even) {
-        margin-left: 10px;
+        border-left: 1px solid $color-gray-4;
       }
     }
 
@@ -24,14 +24,14 @@
 
   &__resizer {
     right: initial;
-    left: -15px;
+    left: -10px;
     top: 45%;
   }
 
   &__preview-well {
     padding: 17px 15px;
-    // Cause: https://citeck.atlassian.net/browse/ECOSUI-337
     min-height: 468px;
+    background-color: var(--main-bg-color);
   }
 
   &__grid-well {

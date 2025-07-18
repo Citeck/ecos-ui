@@ -11,7 +11,7 @@
   flex-direction: column;
   margin: 0;
   min-height: 100%;
-  background-color: $page-background-color;
+  background-color: var(--main-bg-color);
 }
 
 .ecos-sticky-wrapper_background-white {

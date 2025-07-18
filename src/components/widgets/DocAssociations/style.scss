@@ -205,7 +205,7 @@
   }
 
   &__link {
-    color: $color-blue-dark;
+    color: var(--primary-color);
     @extend %ellipsis;
   }
 

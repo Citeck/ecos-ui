@@ -10,7 +10,6 @@ import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { CharacterLimitPlugin } from '@lexical/react/LexicalCharacterLimitPlugin';
 import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
 import { ClearEditorPlugin } from '@lexical/react/LexicalClearEditorPlugin';
-import { ClickableLinkPlugin } from '@lexical/react/LexicalClickableLinkPlugin';
 import { CollaborationPlugin } from '@lexical/react/LexicalCollaborationPlugin';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
@@ -28,7 +27,6 @@ import { useLexicalEditable } from '@lexical/react/useLexicalEditable';
 import classNames from 'classnames';
 import { EditorState, type LexicalEditor } from 'lexical';
 import isFunction from 'lodash/isFunction';
-import isNil from 'lodash/isNil';
 import isString from 'lodash/isString';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
@@ -41,14 +39,13 @@ import { useSharedHistoryContext } from './context/SharedHistoryContext';
 import AutoEmbedPlugin from './plugins/AutoEmbedPlugin';
 import AutoLinkPlugin from './plugins/AutoLinkPlugin';
 import AutocompletePlugin from './plugins/AutocompletePlugin';
+import ClickableLinkPlugin from './plugins/ClickableLinkPlugin';
 import CodeActionMenuPlugin from './plugins/CodeActionMenuPlugin';
 import CodeHighlightPlugin from './plugins/CodeHighlightPlugin';
 import CollapsiblePlugin from './plugins/CollapsiblePlugin';
 import ContextMenuPlugin from './plugins/ContextMenuPlugin';
 import DragDropPaste from './plugins/DragDropPastePlugin';
 import DraggableBlockPlugin from './plugins/DraggableBlockPlugin';
-import EmojiPickerPlugin from './plugins/EmojiPickerPlugin';
-import EmojisPlugin from './plugins/EmojisPlugin';
 import EquationsPlugin from './plugins/EquationsPlugin';
 import FilePlugin from './plugins/FilePlugin';
 import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
@@ -74,15 +71,19 @@ import { CAN_USE_DOM } from './shared/canUseDOM';
 import ContentEditable from './ui/ContentEditable';
 
 import { t } from '@/helpers/export/util';
+import { UploadDocsRefServiceInstance } from '@/services/uploadDocsRefsStore';
 
 export type LexicalEditorProps = {
   htmlString?: string;
+  placeholder?: string;
   readonly?: boolean;
   hideToolbar?: boolean;
   className?: string;
   onChange?: (editorState: EditorState, editor: LexicalEditor, noChange: boolean) => void;
   onEditorReady?: (editor: LexicalEditor) => void;
   onUpload?: OnImageUpload;
+  withoutTimeout?: boolean;
+  UploadDocsService?: UploadDocsRefServiceInstance;
 };
 
 const skipCollaborationInit =
@@ -90,12 +91,14 @@ const skipCollaborationInit =
   window.parent != null && window.parent.frames.right === window;
 
 export default function Editor({
+  placeholder: propsPlaceholder,
   onChange,
   readonly = false,
   hideToolbar = false,
   className,
   onEditorReady,
-  onUpload
+  onUpload,
+  UploadDocsService
 }: LexicalEditorProps): React.JSX.Element {
   const { historyState } = useSharedHistoryContext();
 
@@ -120,11 +123,13 @@ export default function Editor({
   } = useSettings();
 
   const isEditable = useLexicalEditable();
-  const placeholder = isCollab
-    ? t('lexical.editor.placeholder.colab')
-    : isRichText
-      ? t('lexical.editor.placeholder.rich')
-      : t('lexical.editor.placeholder.plain');
+  const placeholder = propsPlaceholder
+    ? propsPlaceholder
+    : isCollab
+      ? t('lexical.editor.placeholder.colab')
+      : isRichText
+        ? t('lexical.editor.placeholder.rich')
+        : t('lexical.editor.placeholder.plain');
 
   const [floatingAnchorElem, setFloatingAnchorElem] = useState<HTMLDivElement | null>(null);
   const [isSmallWidthViewport, setIsSmallWidthViewport] = useState<boolean>(false);
@@ -158,14 +163,6 @@ export default function Editor({
   }, [isSmallWidthViewport]);
 
   useEffect(() => {
-    const isReadonlyEditor = !editor.isEditable();
-
-    if (!isNil(readonly) && readonly !== isReadonlyEditor) {
-      editor.setEditable(isReadonlyEditor);
-    }
-  }, [readonly, editor]);
-
-  useEffect(() => {
     if (isFunction(onEditorReady)) {
       onEditorReady(editor);
     }
@@ -175,6 +172,7 @@ export default function Editor({
     <>
       {isRichText && !hideToolbar && !readonly && (
         <ToolbarPlugin
+          isViewFileUploadBtn={!!UploadDocsService}
           editor={editor}
           activeEditor={activeEditor}
           setActiveEditor={setActiveEditor}
@@ -191,11 +189,9 @@ export default function Editor({
         <AutoFocusPlugin />
         {selectionAlwaysOnDisplay && <SelectionAlwaysOnDisplay />}
         <ClearEditorPlugin />
-        <EmojiPickerPlugin />
         <AutoEmbedPlugin />
         <MentionsPlugin />
-        <FilePlugin />
-        <EmojisPlugin />
+        <FilePlugin UploadDocsService={UploadDocsService} />
         <HashtagPlugin />
         <KeywordsPlugin />
         <SpeechToTextPlugin />
@@ -211,7 +207,8 @@ export default function Editor({
                 setOption('isMaxLength', textContent.length > LENGTH_LIMIT);
               }
 
-              isFunction(onChange) && onChange(state, editor, textContent?.length === 0 && !innerHTML.includes('img'));
+              isFunction(onChange) &&
+                onChange(state, editor, textContent?.length === 0 && !innerHTML.includes('img') && !innerHTML.includes('hr'));
             }}
           />
         )}

@@ -62,6 +62,26 @@ export default class DataGridComponent extends FormIODataGridComponent {
     );
   }
 
+  isEmptyRow(row) {
+    const comps = flattenComponents(this.component.components);
+    return Object.keys(comps).every(key => {
+      const comp = comps[key];
+      const emptyVal = comp.emptyValue ?? comp.defaultValue ?? null;
+
+      if (comp.type === 'mlText') {
+        return Object.keys(row[key]).every(lang => {
+          return isEmpty(row[key][lang]);
+        });
+      }
+
+      return isEqual(row[key], emptyVal);
+    });
+  }
+
+  getNotEmptyValue() {
+    return (super.getValue() || []).filter(row => !this.isEmptyRow(row));
+  }
+
   checkValidity(data, dirty, rowData) {
     if (isEqual(this.dataValue, this.baseEmptyValue)) {
       return true;

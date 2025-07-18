@@ -193,13 +193,13 @@ export function* sagaGetData({ api }, { payload }) {
       isHandlePagination
     } = payload;
 
-    const pagination = _pagination;
+    let pagination = _pagination;
     if (isHandlePagination && get(pagination, 'page') >= 0 && get(pagination, 'maxItems') >= 0) {
       pagination.skipCount = pagination.page * pagination.maxItems;
       pagination.page += 1;
     }
 
-    const params = yield getGridParams({ journalConfig, journalSetting, pagination });
+    let params = yield getGridParams({ journalConfig, journalSetting, pagination });
     const { dataCards: prevDataCards, kanbanSettings } = yield select(selectKanban, stateId);
 
     const urlProps = getSearchParams();
@@ -215,6 +215,11 @@ export function* sagaGetData({ api }, { payload }) {
     const { attributes, inputByKey } = EcosFormUtils.preProcessingAttrs(get(formProps, 'formFields', []));
 
     params.attributes = { ...attributes, ...KanbanConverter.getCardAttributes() };
+
+    if (boardConfig.cardTitleTemplate) {
+      const templateAttrs = EcosFormUtils.getAttrsFromTemplate(boardConfig.cardTitleTemplate);
+      params.attributes = { ...params.attributes, ...Object.fromEntries(templateAttrs.map(key => [key, key])) };
+    }
 
     const predicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(params.predicates));
 
@@ -283,7 +288,16 @@ export function* sagaGetData({ api }, { payload }) {
           status: prevStatus
         });
       } else {
-        const preparedRecords = data.records.map(recordData => EcosFormUtils.postProcessingAttrsData({ recordData, inputByKey }));
+        const preparedRecords = data.records.map(recordData => {
+          let newData = EcosFormUtils.postProcessingAttrsData({ recordData, inputByKey });
+
+          if (boardConfig.cardTitleTemplate) {
+            newData.cardTitle = EcosFormUtils.renderByTemplate(boardConfig.cardTitleTemplate, newData);
+          }
+
+          return newData;
+        });
+
         newRecordRefs.push(preparedRecords.map(rec => rec.cardId));
 
         // only unique records
@@ -444,15 +458,15 @@ export function* sagaMoveCard({ api }, { payload }) {
       set(dataCards, [toColumnIndex, 'records'], []);
       set(dataCards, [toColumnIndex, 'totalCount'], 0);
     }
-
     const card = get(deleted, [0], {});
     const recordRef = card.id || card.cardId;
 
     dataCards[toColumnIndex].records.unshift(card);
     dataCards[toColumnIndex].totalCount += 1;
 
-    yield put(setDataCards({ stateId, dataCards }));
     const result = yield call(api.kanban.moveRecord, { recordRef, columnId: toColumnRef });
+
+    yield put(setDataCards({ stateId, dataCards }));
 
     if (get(result, 'id') !== recordRef) {
       throw new Error('Incorrect move result');

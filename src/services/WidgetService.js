@@ -133,8 +133,8 @@ export default class WidgetService {
     modal.open(
       <JournalsPresetEditor
         isAdmin={params.isAdmin}
-        authorityRef={params.authorityRef}
         authoritiesRef={params.authoritiesRef}
+        workspacesRefs={params.workspacesRefs}
         data={params.data || {}}
         onClose={params.onClose}
         onSave={params.onSave}

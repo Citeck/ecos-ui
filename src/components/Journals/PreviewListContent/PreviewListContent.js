@@ -6,15 +6,16 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import { Loader } from '../../common';
-import { Wall } from '../../common/form';
+import { Well } from '../../common/form';
 import Clock from '../../common/icons/Clock';
 import NoData from '../../common/icons/NoData';
 
 import defaultImage from './defaultImage.png';
 
+import EcosFormUtils from '@/components/EcosForm/EcosFormUtils';
 import { URL } from '@/constants';
 import { getLinkWithWs } from '@/helpers/urls';
-import { stripHTML, t } from '@/helpers/util';
+import { t } from '@/helpers/util';
 import { selectPreviewListProps } from '@/selectors/previewList';
 import { selectIsViewNewJournal } from '@/selectors/view';
 
@@ -61,7 +62,10 @@ class PreviewListContent extends Component {
     const itemLink = this.getLinkOfId(itemId);
 
     const title = get(item, ['rawAttributes', get(previewListConfig, 'title')]) || t('preview-list.no-title');
-    const description = get(item, ['rawAttributes', get(previewListConfig, 'text')]) || t('preview-list.no-description');
+
+    let description = get(item, ['rawAttributes', get(previewListConfig, 'text')]) || t('preview-list.no-description');
+
+    description = EcosFormUtils.stripHTML(description);
 
     return (
       <div className="citeck-preview-list-content__card" key={idx}>
@@ -75,8 +79,8 @@ class PreviewListContent extends Component {
             <a href={itemLink} className="citeck-preview-list-content__card-info_title" title={title}>
               {title}
             </a>
-            <p className="citeck-preview-list-content__card-info_description" title={stripHTML(description)}>
-              {stripHTML(description)}
+            <p className="citeck-preview-list-content__card-info_description" title={description}>
+              {description}
             </p>
           </div>
           <div className="citeck-preview-list-content__card-info-author">
@@ -103,7 +107,7 @@ class PreviewListContent extends Component {
     const isNoData = !isLoading && (!gridData || !gridData.length || !previewListConfig);
 
     return (
-      <Wall
+      <Well
         isViewNewJournal={isViewNewJournal}
         className={classnames('citeck-preview-list-content__list-well citeck-preview-list-content__grid-well_overflow_hidden')}
         maxHeight={maxHeight}
@@ -119,7 +123,7 @@ class PreviewListContent extends Component {
             </div>
           </div>
         )}
-      </Wall>
+      </Well>
     );
   }
 }

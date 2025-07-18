@@ -126,6 +126,10 @@ const CONFIG_PROPS = {
     defaultValue: false,
     type: TYPE_BOOLEAN
   },
+  [ALFRESCO_EXPORT_SRC_ID_PATTERN]: {
+    defaultValue: 'alfresco/.*',
+    type: TYPE_TEXT
+  },
   [SITE_DASHBOARD_ENABLE]: {
     defaultValue: false
   },

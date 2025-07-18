@@ -2,7 +2,7 @@ import PanelEditDisplay from 'formiojs/components/panel/editForm/Panel.edit.disp
 
 import baseEditForm from '../base/Base.form';
 
-export default function(...extend) {
+export default function (...extend) {
   return baseEditForm(
     [
       {
@@ -11,6 +11,46 @@ export default function(...extend) {
           {
             type: 'mlText',
             key: 'title'
+          },
+          {
+            weight: 30,
+            type: 'select',
+            input: true,
+            label: 'Theme',
+            key: 'theme',
+            dataSrc: 'values',
+            data: {
+              values: [
+                {
+                  label: 'Default',
+                  value: 'default'
+                },
+                {
+                  label: 'Primary',
+                  value: 'primary'
+                },
+                {
+                  label: 'Info',
+                  value: 'info'
+                },
+                {
+                  label: 'Success',
+                  value: 'success'
+                },
+                {
+                  label: 'Danger',
+                  value: 'danger'
+                },
+                {
+                  label: 'Warning',
+                  value: 'warning'
+                },
+                {
+                  label: 'Transparent',
+                  value: 'transparent'
+                }
+              ]
+            }
           },
           ...PanelEditDisplay,
           {

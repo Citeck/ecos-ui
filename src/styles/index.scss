@@ -8,6 +8,16 @@
 @import './notifications';
 @import './bpmn';
 
+:root {
+  --header-bg-color: #{$color-blue-light};
+  --header-component-color: #{var(--primary-color)};
+  --main-bg-color: #{$page-background-color};
+
+  --primary-color: #{$primary};
+  --dark-primary-color: #{$color-blue-light};
+  --light-primary-color: #{$color-blue-light2};
+}
+
 html {
   overflow: auto;
 }
@@ -50,6 +60,19 @@ ul.ul-initial {
   font-weight: $font-weight-semi-bold;
 }
 
+svg path[fill="currentColor"],
+svg rect[fill="currentColor"],
+svg circle[fill="currentColor"],
+svg ellipse[fill="currentColor"],
+svg polygon[fill="currentColor"],
+svg[fill="currentColor"] {
+  fill: var(--header-bg-color);
+}
+
+svg[stroke="currentColor"] {
+  stroke: var(--header-bg-color);
+}
+
 // for check scrollbar width in your browser
 .scrollbar-measure {
   width: 100px;
@@ -72,18 +95,49 @@ ul.ul-initial {
 }
 
 .pseudo-link {
-  color: $text-link;
+  color: var(--primary-color);
   font-size: $font-size-standard;
   cursor: pointer;
 
   &:hover {
-    color: $text-link_hover;
     text-decoration: underline;
+    opacity: 0.8;
+    transition: opacity 0.2s ease-in-out;
+  }
+}
+
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--dark-primary-color);
   }
 }
 
 .btn {
   $btn: &;
+
+  &#{$btn}-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+
+    &:hover {
+      border-color: var(--dark-primary-color);
+      background-color: var(--dark-primary-color);
+    }
+  }
+
+  &#{$btn}-secondary {
+    background-color: $color-gray-4;
+    border-color: $color-gray-4;
+    color: $text-color-dark;
+
+    &:hover {
+      background-color: $color-gray-1;
+      border-color: $color-gray-1;
+    }
+  }
 
   &#{$btn}_disabled {
     cursor: not-allowed;

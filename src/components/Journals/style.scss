@@ -35,7 +35,7 @@
     &-svg-btn {
       &_blue_selected rect,
       &_blue_hover:hover rect {
-        fill: $color-blue-light;
+        fill: var(--header-bg-color);
       }
     }
 
@@ -234,6 +234,11 @@
     .ecos-grid__checkbox {
       background: $color-yellow4;
     }
+  }
+
+  .ecos-journal-view__doc-lib {
+    margin: 10px 10px 0 10px !important;
+    padding: 12px !important;
   }
 
   .ecos-grid__row_new {
@@ -484,7 +489,7 @@
   }
 
   .ecos-journal__body {
-    padding: 10px 10px 0 10px;
+    padding: 0;
   }
 
   &__not-mobile {

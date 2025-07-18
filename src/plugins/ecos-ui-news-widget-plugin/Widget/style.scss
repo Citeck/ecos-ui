@@ -1,15 +1,16 @@
 @mixin clamp($lines) {
   display: -webkit-box;
   -webkit-line-clamp: $lines;
-  -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-wrap-style: balance;
 }
 
 .ecos-news {
   $root: &;
   display: flex;
   justify-content: center;
+
   &-widget {
     display: flex;
     flex-wrap: wrap;
@@ -18,19 +19,23 @@
     flex-grow: 1;
     max-width: 1046px;
     gap: 30px;
+
     &-dashlet {
       flex-wrap: wrap;
       padding: 0;
+
       .dashlet__body {
         padding: 20px 20px;
       }
     }
+
     &-article {
       display: flex;
       flex-direction: column;
       gap: 12px;
       flex-grow: 1;
       width: 200px;
+
       &__image {
         border-radius: 8px;
         flex-shrink: 1;
@@ -38,6 +43,7 @@
         height: 250px;
         object-fit: cover;
       }
+
       &__default-img {
         border-radius: 8px;
         flex-shrink: 1;
@@ -45,6 +51,7 @@
         height: 250px;
         object-fit: cover;
       }
+
       &__title {
         @include clamp(2);
         font-size: 16px;
@@ -55,14 +62,18 @@
         color: #323237;
         height: 45px;
       }
+
       &__date {
-        color: #679ad1;
+        color: var(--light-primary-color);
         line-height: 18px;
         font-size: 14px;
       }
+
       &__description {
-        @include clamp(7);
+        @include clamp(5);
         margin: 0;
+        max-height: 110px;
+        white-space: nowrap;
         font-family: 'Montserrat', sans-serif;
         line-height: 1.4;
         font-size: 15px;

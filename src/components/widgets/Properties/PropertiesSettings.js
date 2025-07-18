@@ -1,13 +1,13 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import get from 'lodash/get';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
 
-import { t } from '../../../helpers/util';
 import { getFormList } from '../../../actions/properties';
+import { t } from '../../../helpers/util';
 import { InfoText } from '../../common';
-import { Caption, Checkbox, Dropdown } from '../../common/form';
 import { Btn, IcoBtn } from '../../common/btns';
+import { Caption, Checkbox, Dropdown } from '../../common/form';
 
 import './style.scss';
 
@@ -104,13 +104,7 @@ class PropertiesSettings extends React.Component {
               toggleClassName="ecos-properties-settings__form-list-toggle"
               full
             >
-              <IcoBtn
-                invert
-                icon="icon-small-down"
-                className="ecos-properties-settings__form-list-btn"
-                loading={isLoading}
-                colorLoader="light-blue"
-              />
+              <IcoBtn invert icon="icon-small-down" className="ecos-properties-settings__form-list-btn" loading={isLoading} />
             </Dropdown>
           </div>
           {!isLoading && !isExist && (
@@ -149,7 +143,4 @@ const mapDispatchToProps = dispatch => ({
   getFormList: payload => dispatch(getFormList(payload))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(PropertiesSettings);
+export default connect(mapStateToProps, mapDispatchToProps)(PropertiesSettings);

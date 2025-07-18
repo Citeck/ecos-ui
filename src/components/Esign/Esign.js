@@ -1,13 +1,14 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
-import { Esign } from '../../services/esign';
-import EsignModal from './EsignModal';
-import { t } from '../../helpers/util';
 import { ErrorTypes, Labels, PLUGIN_URL } from '../../constants/esign';
+import { getMLValue, t } from '../../helpers/util';
+import { Esign } from '../../services/esign';
 import DialogManager from '../common/dialogs/Manager';
+
+import EsignModal from './EsignModal';
 
 import './style.scss';
 
@@ -50,9 +51,7 @@ class EsignComponent extends Component {
 
     this.state.isOpen = true;
 
-    Esign.init(props.recordRefs)
-      .then(this.serviceInitialized)
-      .catch(this.setError);
+    Esign.init(props.recordRefs).then(this.serviceInitialized).catch(this.setError);
   }
 
   get hasErrors() {
@@ -63,19 +62,33 @@ class EsignComponent extends Component {
 
   setError = ({ messageTitle, messageDescription, errorType, formattedError }) => {
     let descriptionClassNames = '';
-    let buttons = [];
+    let modalClass = '';
+    let buttons;
 
     switch (errorType) {
       case ErrorTypes.NO_CADESPLUGIN:
         buttons = [
           {
             label: Labels.CANCEL_BTN,
-            onClick: this.handleCloseModal
+            onClick: this.handleCloseModal,
+            isCloseAfterClick: true
           },
           {
             label: Labels.GO_TO_PLUGIN_PAGE_BTN,
             className: 'ecos-btn_blue ecos-btn_hover_light-blue esign-message__btn-full',
             onClick: this.handleGoToPlugin
+          }
+        ];
+        descriptionClassNames = 'esign-message__description';
+        break;
+      case ErrorTypes.HANDLE:
+        modalClass = 'esign__with-one-actions';
+        buttons = [
+          {
+            label: Labels.CANCEL_BTN,
+            onClick: this.handleCloseModal,
+            className: 'esign-message__btn-full',
+            isCloseAfterClick: true
           }
         ];
         descriptionClassNames = 'esign-message__description';
@@ -97,15 +110,13 @@ class EsignComponent extends Component {
       text: messageDescription,
       error: formattedError,
       buttons,
+      modalClass,
       descriptionClassNames
     });
   };
 
   getCertificates(thumbprints) {
-    Esign.getCertificates(thumbprints)
-      .then(this.signDefault)
-      .then(this.setCertificates)
-      .catch(this.setError);
+    Esign.getCertificates(thumbprints).then(this.signDefault).then(this.setCertificates).catch(this.setError);
   }
 
   signDefault = certificates => {
@@ -146,12 +157,16 @@ class EsignComponent extends Component {
     this.setState({ isLoading: true, selectedCertificate });
 
     if (isFunction(onBeforeSigning)) {
-      await onBeforeSigning(recordRefs, selectedCertificate);
+      try {
+        await onBeforeSigning(recordRefs, selectedCertificate);
+        Esign.signDocument(this.props.recordRefs, selectedCertificate, this.setSignatures).then(this.documentSigned).catch(this.setError);
+      } catch (e) {
+        console.error('[EsignComponent] Error in handleSignDocument:', e);
+        this.setError({ messageTitle: t(Labels.ERROR), messageDescription: getMLValue(e), errorType: ErrorTypes.HANDLE });
+      }
+    } else {
+      Esign.signDocument(this.props.recordRefs, selectedCertificate, this.setSignatures).then(this.documentSigned).catch(this.setError);
     }
-
-    Esign.signDocument(this.props.recordRefs, selectedCertificate, this.setSignatures)
-      .then(this.documentSigned)
-      .catch(this.setError);
   };
 
   documentSigned = documentSigned => {

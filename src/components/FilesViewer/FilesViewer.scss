@@ -24,7 +24,8 @@
     }
 
     &-icon {
-      color: $color-blue-light2;
+      color: var(--light-primary-color);
+
       &-wrapper {
         width: 50px;
         height: 100%;
@@ -71,8 +72,8 @@
 
     &:hover,
     &_mobile#{$item}_lastclicked {
-      outline: 2px solid $color-brown-2;
-      outline-offset: -2px;
+      outline: 1px solid $color-brown-2;
+      outline-offset: -1px;
 
       #{$item}-actions {
         display: inline-flex;

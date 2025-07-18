@@ -1,7 +1,10 @@
 import classNames from 'classnames';
 import React, { ReactNode } from 'react';
 
+import SafeSvgLoader from '../common/SafeSvgLoader';
+
 import { WorkspaceType } from '@/api/workspaces/types';
+
 import './styles.scss';
 
 interface WorkspacePreviewProps {
@@ -11,7 +14,7 @@ interface WorkspacePreviewProps {
   customImagePreview?: ReactNode;
 }
 
-const WorkspacePreview = ({ url = '', name = '', hovered = false, customImagePreview }: WorkspacePreviewProps) => {
+const WorkspacePreview = ({ url = '', name = '', hovered = false, customImagePreview }: WorkspacePreviewProps): React.JSX.Element => {
   const getInitials = (name: WorkspacePreviewProps['name']) => {
     const nameParts = name.split(' ');
     return nameParts[0].charAt(0).toUpperCase();
@@ -21,7 +24,7 @@ const WorkspacePreview = ({ url = '', name = '', hovered = false, customImagePre
     <div className={classNames('workspace-preview', { 'workspace-preview__hovered': hovered })}>
       {url ? (
         <div className="workspace-preview__image-preview">
-          <img src={url} alt={url} className="workspace-preview__image-preview_icon" />
+          <SafeSvgLoader className="workspace-preview__image-preview_icon" externalUrl={url} style={{ width: '20px', height: '20px' }} />
         </div>
       ) : customImagePreview ? (
         customImagePreview

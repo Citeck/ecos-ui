@@ -1425,11 +1425,13 @@ class Grid extends Component {
     ]);
 
     const bootProps = this.getBootstrapTableProps(props, cloneDeep(extraProps));
+    const rulesKey = `table-${isEmpty(this.props.editingRules) ? 'without' : 'with'}-rules-${JSON.stringify(this.props.editingRules || {})}`;
 
     return (
       <div ref={this.setGridRef}>
         <ErrorTable>
           <BootstrapTable
+            key={rulesKey}
             {...bootProps}
             classes={classNames('ecos-grid__table', {
               'ecos-grid__table_grouping': this.hasGrouping && isViewNewJournal

@@ -1,4 +1,8 @@
-import { ECOS_TASK_TYPE_SET_STATUS, ECOS_TASK_BASE_ELEMENT, DISABLE_SET_STATUS_ACTION_FOR_ELEMENTS } from '@/constants/bpmn';
+import {
+  ECOS_TASK_TYPE_SET_STATUS,
+  ECOS_TASK_BASE_ELEMENT,
+  DISABLE_SET_STATUS_ACTION_FOR_ELEMENTS, ECOS_TASK_TYPE_AI_TASK
+} from "@/constants/bpmn";
 
 export default class CustomContextPad {
   constructor(bpmnFactory, config, contextPad, create, elementFactory, injector, translate) {
@@ -61,6 +65,15 @@ export default class CustomContextPad {
         action: {
           click: appendEcosTask(ECOS_TASK_TYPE_SET_STATUS),
           dragstart: appendEcosTaskStart(ECOS_TASK_TYPE_SET_STATUS)
+        }
+      },
+      'append.task-ai': {
+        group: 'model',
+        className: 'bpmn-icon-ai',
+        title: translate('Append AI Task'),
+        action: {
+          click: appendEcosTaskStart(ECOS_TASK_TYPE_AI_TASK),
+          dragstart: appendEcosTaskStart(ECOS_TASK_TYPE_AI_TASK)
         }
       }
     };

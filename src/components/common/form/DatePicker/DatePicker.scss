@@ -78,7 +78,7 @@
 
   .react-datepicker__day--selected {
     border-radius: 50%;
-    background: $color-blue-dark;
+    background: var(--primary-color);
     color: $color-white;
 
     &:hover {

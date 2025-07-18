@@ -1,7 +1,7 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import isNil from 'lodash/isNil';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 import Popper from '../../Popper';
 

@@ -33,6 +33,8 @@ import ConfigService, {
 
 import { CommonApi } from './common';
 
+import EcosFormUtils from '@/components/EcosForm/EcosFormUtils/EcosFormUtils.js';
+
 export class OrgStructApi extends CommonApi {
   get groupAttributes() {
     return {
@@ -60,6 +62,7 @@ export class OrgStructApi extends CommonApi {
       canEdit: 'permissions._has.Write?bool',
       firstName: 'firstName',
       lastName: 'lastName',
+      middleName: 'middleName',
       nodeRef: '?id',
       authorityType: `authorityType!"${AUTHORITY_TYPE_USER}"`,
       photo: 'avatar.url',
@@ -139,6 +142,14 @@ export class OrgStructApi extends CommonApi {
 
   fetchGroup = async ({ query, excludeAuthoritiesByType = [], excludeAuthoritiesByName, isIncludedAdminGroup }) => {
     const { groupName, searchText } = query;
+
+    const userMask = await OrgStructApi.fetchUsernameMask();
+    let personAttributes = {};
+
+    if (!!userMask) {
+      personAttributes = EcosFormUtils.getAttrsFromTemplate(userMask).reduce((acc, value) => ({ ...acc, [value]: value }), {});
+    }
+
     const filterByType = items =>
       items.filter(item => {
         if (item.groupType === '') {
@@ -239,7 +250,7 @@ export class OrgStructApi extends CommonApi {
         query: { t: 'and', v: queryValPerson },
         language: 'predicate'
       },
-      { ...OrgStructApi.userAttributes, ...globalSearchConfig }
+      { ...OrgStructApi.userAttributes, ...globalSearchConfig, ...personAttributes }
     ).then(r => get(r, 'records', []));
 
     return Promise.all([groups, users]).then(([groups, users]) => [...groups, ...users]);

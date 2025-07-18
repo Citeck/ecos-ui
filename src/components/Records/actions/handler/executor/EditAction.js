@@ -1,12 +1,12 @@
 import React from 'react';
 
 import { SourcesId } from '../../../../../constants';
-import TaskAssignmentPanel from '../../../../TaskAssignmentPanel';
+import DashboardService from '../../../../../services/dashboard';
 import EcosFormUtils from '../../../../EcosForm/EcosFormUtils';
+import TaskAssignmentPanel from '../../../../TaskAssignmentPanel';
+import Records from '../../../Records';
 import { notifyFailure } from '../../util/actionUtils';
 import ActionsExecutor from '../ActionsExecutor';
-import DashboardService from '../../../../../services/dashboard';
-import Records from '../../../Records';
 
 export default class EditAction extends ActionsExecutor {
   static ACTION_ID = 'edit';
@@ -18,9 +18,7 @@ export default class EditAction extends ActionsExecutor {
     const actionResult = new Promise((resolve, reject) => {
       switch (true) {
         case config.mode === 'task':
-          runEditTask(record, config)
-            .then(resolve)
-            .catch(reject);
+          runEditTask(record, config).then(resolve).catch(reject);
           break;
         case DashboardService.isDashboardRecord(recordId):
           DashboardService.openEditModal({
@@ -42,6 +40,7 @@ export default class EditAction extends ActionsExecutor {
             onFormCancel: config.onFormCancel,
             onAfterHideModal: config.onAfterHideModal,
             onPreSettingSubmit: config.onPreSettingSubmit,
+            handlers: config.handlers,
             onSubmit: () => {
               // temp solution
               submitted = true;

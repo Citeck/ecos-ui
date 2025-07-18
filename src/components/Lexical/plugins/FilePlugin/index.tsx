@@ -12,16 +12,18 @@ import {
 import React, { useCallback, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 
-import { uploadFilesInComment } from '../../../../actions/comments';
-import { SourcesId } from '../../../../constants';
-import { getRecordRef } from '../../../../helpers/urls';
-import { selectStateByRecordRef } from '../../../../selectors/comments';
 import { EcosModal } from '../../../common';
 import DropZone from '../../../widgets/Documents/parts/DropZone';
 import { FileNode } from '../../nodes/FileNode';
 import { $createFileNode } from '../../nodes/FileNode/utils';
 
 import { OPEN_UPLOAD_MODAL, UPLOAD_FILE_COMMAND } from './constants';
+
+import { uploadFilesInComment } from '@/actions/comments';
+import { SourcesId } from '@/constants';
+import { getRecordRef } from '@/helpers/urls';
+import { selectStateByRecordRef } from '@/selectors/comments';
+import { UploadDocsRefServiceInstance } from '@/services/uploadDocsRefsStore';
 
 type FileRecord = {
   data: {
@@ -41,10 +43,12 @@ export type UploadFilesInCommentProps = {
 
 const FilePlugin = ({
   isUploadingFile,
-  uploadFilesInComment
+  uploadFilesInComment,
+  UploadDocsService
 }: {
   isUploadingFile: boolean;
   uploadFilesInComment: (data: UploadFilesInCommentProps) => void;
+  UploadDocsService?: UploadDocsRefServiceInstance;
 }) => {
   const [editor] = useLexicalComposerContext();
   const [activeEditor, setActiveEditor] = useState<LexicalEditor>(editor);
@@ -117,7 +121,10 @@ const FilePlugin = ({
       files,
       type: `${SourcesId.TYPE}@attachment`,
       callback,
-      uploadCallback: (fileRecords: any) => {
+      uploadCallback: fileRecords => {
+        if (fileRecords && fileRecords.length > 0 && UploadDocsService) {
+          UploadDocsService.addUploadedEntityRefs(fileRecords.map(record => record.data.entityRef));
+        }
         hideModal();
         setIsLoadingUploadingModal(false);
         activeEditor.dispatchCommand(UPLOAD_FILE_COMMAND, fileRecords);

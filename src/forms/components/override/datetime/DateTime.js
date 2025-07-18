@@ -23,7 +23,7 @@ export default class DateTimeComponent extends FormIODateTimeComponent {
 
       if (isValid(parsedDate)) {
         value = parsedDate.toISOString().replace('.000Z', 'Z');
-      } else {
+      } else if (!!value.trim()) {
         return;
       }
     } else if (isDate(value)) {

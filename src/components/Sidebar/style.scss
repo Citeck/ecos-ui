@@ -1,7 +1,7 @@
 @import '../../styles/constants';
 
 $expanded-sidebar-width: 300px;
-$transition-duration: 0.3s;
+$transition-duration: 0.2s;
 
 .ecos-base-page {
   display: flex;
@@ -23,7 +23,7 @@ $transition-duration: 0.3s;
       cursor: pointer;
 
       &:hover {
-        transition: opasity 1s;
+        transition: opasity 2s;
         opacity: 0.5;
       }
     }
@@ -34,6 +34,10 @@ $transition-duration: 0.3s;
 
     .workspace-preview div {
       margin: 0;
+
+      svg {
+        vertical-align: top;
+      }
     }
   }
 }
@@ -104,6 +108,10 @@ $transition-duration: 0.3s;
 
     &__icon {
       font-size: 25px;
+
+      svg {
+        vertical-align: unset;
+      }
     }
 
     &__img_small_hide {
@@ -133,7 +141,7 @@ $transition-duration: 0.3s;
       border: none;
       outline: none;
       border-radius: 50%;
-      background-color: $color-blue-light;
+      background-color: var(--light-primary-color);
 
       display: flex;
       align-items: center;
@@ -142,12 +150,12 @@ $transition-duration: 0.3s;
       &:hover,
       &:focus,
       &:active {
-        background-color: $color-blue-dark;
+        background-color: var(--primary-color);
       }
     }
 
     &:hover {
-      background: $color-gray-25;
+      background-color: $color-gray-25;
     }
 
     p {
@@ -171,15 +179,15 @@ $transition-duration: 0.3s;
 
   &-item {
     display: flex;
-    align-items: center;
     position: relative;
     height: 38px;
     width: 100%;
-    cursor: pointer;
     padding-right: 15px;
+    align-items: center;
+    cursor: pointer;
 
     &:hover {
-      background: $color-gray-25;
+      background-color: $color-gray-25;
 
       #{$menu-item}__point {
         border-color: $color-gray-25;
@@ -230,7 +238,7 @@ $transition-duration: 0.3s;
     }
 
     &#{$menu-item}_selected:not(#{$menu-item}_nested-expanded):not(:hover) {
-      background: $color-blue-light;
+      background-color: var(--header-bg-color);
 
       #{$menu-item}__icon,
       #{$menu-item}__label,
@@ -239,12 +247,12 @@ $transition-duration: 0.3s;
       }
 
       #{$menu-item}__badge {
-        background: $color-white;
+        background-color: $color-white;
         color: $text-color-gray;
       }
 
       #{$menu-item}__point {
-        background: $color-white;
+        background-color: $color-white;
         border-color: $color-blue-light;
       }
 
@@ -357,7 +365,7 @@ $transition-duration: 0.3s;
       transition: opacity $transition-duration;
 
       &_hide {
-        opacity: 0;
+        display: none;
       }
     }
 
@@ -556,6 +564,7 @@ $transition-duration: 0.3s;
   $menu-list: '.ecos-sidebar-list';
   padding: 0 9px;
   width: 70px;
+  border-right: 1px solid $color-gray-4;
 
   .ecos-sidebar-logo {
     padding-top: 17px;
@@ -586,6 +595,7 @@ $transition-duration: 0.3s;
       #{$menu-item}_lvl-0 {
         margin-bottom: 6px;
         padding-left: 12px;
+        cursor: default;
 
         &::after {
           @extend %menu-item-separator;
@@ -627,6 +637,12 @@ $transition-duration: 0.3s;
 
   &_expanded {
     width: 243px;
+
+    .ecos-sidebar-toggle {
+      svg {
+        transform: rotate(180deg)
+      }
+    }
   }
 
   &_collapsed {
@@ -651,7 +667,6 @@ $transition-duration: 0.3s;
   .ecos-sidebar {
     width: 0;
     position: absolute;
-    top: 60px;
     z-index: 900;
     height: calc(100% - 60px);
     transition: width $transition-duration;

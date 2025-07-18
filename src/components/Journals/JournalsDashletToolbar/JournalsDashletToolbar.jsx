@@ -118,6 +118,7 @@ class JournalsDashletToolbar extends Component {
       config,
       selectedRecords,
       lsJournalId,
+      isHideCreateVariants,
       recordRef
     } = this.props;
     const nodeRef = get(this.props, 'journalConfig.meta.nodeRef', '');
@@ -126,12 +127,12 @@ class JournalsDashletToolbar extends Component {
     return (
       <>
         <div ref={this.props.forwardRef} className="ecos-journal-dashlet__toolbar">
-          {this.renderCreateMenu()}
+          {!isHideCreateVariants && this.renderCreateMenu()}
 
           {!!selectedJournals && selectedJournals.length > 1 && (
             <Dropdown
               hasEmpty
-              source={selectedJournals}
+              source={selectedJournals.filter(journal => !!journal.title)}
               value={lsJournalId || nodeRef}
               valueField={'id'}
               titleField={'title'}

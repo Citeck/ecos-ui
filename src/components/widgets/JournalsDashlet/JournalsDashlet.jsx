@@ -162,6 +162,17 @@ class JournalsDashlet extends BaseWidget {
     return get(this._footerRef, 'offsetHeight', 0);
   }
 
+  get showGoToButton() {
+    const { editorMode, config } = this.props;
+    const { width } = this.state;
+
+    if (get(config, [JOURNAL_DASHLET_CONFIG_VERSION, 'isHideGoToButton'], false)) {
+      return false;
+    }
+
+    return width >= MIN_WIDTH_DASHLET_LARGE && !isEmpty(config) && !editorMode;
+  }
+
   setToolbarRef = ref => !!ref && (this._toolbarRef = ref);
 
   setFooterRef = ref => !!ref && (this._footerRef = ref);
@@ -247,7 +258,7 @@ class JournalsDashlet extends BaseWidget {
   }
 
   renderJournal() {
-    const { editorMode, stateId } = this.props;
+    const { editorMode, stateId, config } = this.props;
     const { width, journalId } = this.state;
 
     if (editorMode || this.isCollapsed) {
@@ -260,6 +271,7 @@ class JournalsDashlet extends BaseWidget {
     return (
       <>
         <JournalsDashletToolbar
+          isHideCreateVariants={get(config, [JOURNAL_DASHLET_CONFIG_VERSION, 'isHideCreateVariants'], false)}
           measurer={getDOMElementMeasurer(this._toolbarRef)}
           lsJournalId={journalId}
           forwardRef={this.setToolbarRef}
@@ -283,8 +295,7 @@ class JournalsDashlet extends BaseWidget {
   }
 
   render() {
-    const { journalConfig, className, dragHandleProps, editorMode, config, configJournalId } = this.props;
-    const { width } = this.state;
+    const { journalConfig, className, dragHandleProps, editorMode, configJournalId } = this.props;
     const actions = {
       [DAction.Actions.HELP]: {
         onClick: () => null
@@ -311,7 +322,7 @@ class JournalsDashlet extends BaseWidget {
         style={{ minWidth: `${MIN_WIDTH_DASHLET_SMALL}px` }}
         title={journalName || t(Labels.J_TITLE)}
         onGoTo={this.goToJournalsPage}
-        needGoTo={width >= MIN_WIDTH_DASHLET_LARGE && !isEmpty(config) && !editorMode}
+        needGoTo={this.showGoToButton}
         goToButtonName={this.goToButtonName}
         actionConfig={actions}
         onResize={this.handleResize}

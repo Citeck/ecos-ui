@@ -71,7 +71,10 @@ const preOptimizeDepsLibs = [
   'cmmn-js/lib/features/modeling/util/ModelingUtil',
   'camunda-dmn-js',
   'dmn-js-drd/lib/NavigatedViewer',
-  'dmn-js-shared/lib/util/ModelUtil'
+  'dmn-js-shared/lib/util/ModelUtil',
+  'react-select/async',
+  'async-cadesplugin',
+  'dompurify'
 ];
 
 export default defineConfig(({ mode }) => {

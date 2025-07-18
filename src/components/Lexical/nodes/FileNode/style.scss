@@ -11,6 +11,12 @@
   border: 1px solid $color-gray-3;
   border-radius: 10px;
 
+  &__link {
+    color: var(--primary-color);
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
   &__wrapper {
     display: flex;
     position: relative;

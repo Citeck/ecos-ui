@@ -1,6 +1,8 @@
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
-import { call, put, select, takeLatest } from 'redux-saga/effects';
+import isObject from 'lodash/isObject';
+import { all, call, put, select, takeLatest } from 'redux-saga/effects';
 
 import {
   getDashboardConfig,
@@ -15,7 +17,7 @@ import {
   setWarningMessage
 } from '../actions/dashboard';
 import { setDashboardConfig as setDashboardSettingsConfig } from '../actions/dashboardSettings';
-import { RequestStatuses } from '../constants';
+import { RequestStatuses, SourcesId } from '../constants';
 import DashboardConverter from '../dto/dashboard';
 import { getRefWithAlfrescoPrefix } from '../helpers/ref';
 import { getEnabledWorkspaces, t } from '../helpers/util';
@@ -24,6 +26,7 @@ import { selectNewVersionConfig, selectSelectedWidgetsById } from '../selectors/
 import { selectCurrentWorkspaceIsBlocked, selectWorkspaces } from '../selectors/workspaces';
 import DashboardService from '../services/dashboard';
 
+import { ComponentKeys } from '@/components/widgets/Components.js';
 import { getWorkspaceId } from '@/helpers/urls.js';
 import { NotificationManager } from '@/services/notifications';
 
@@ -32,6 +35,33 @@ export function* _parseConfig({ api }, { recordRef, config }) {
   const newConfig = yield select(() => selectNewVersionConfig(migratedConfig));
 
   newConfig.widgets = yield call(api.dashboard.getFilteredWidgets, newConfig.widgets, { recordRef });
+  newConfig.widgets = yield all(
+    (newConfig.widgets || []).map(function* (widget) {
+      if (widget.name === ComponentKeys.JOURNAL) {
+        let isExistJournal = false;
+
+        const journalConfig = get(widget, 'props.config') || {};
+        const versionConfigJournal = journalConfig[get(journalConfig, 'version') || 'v2'];
+        const journalId = get(versionConfigJournal, 'journalId');
+
+        if (journalConfig && versionConfigJournal && journalId) {
+          const journalData = yield Records.get(journalId.includes('@') ? journalId : `${SourcesId.JOURNAL}@${journalId}`).load('.json');
+
+          if (isObject(journalData) && !isEmpty(journalData)) {
+            isExistJournal = true;
+          }
+        }
+
+        return {
+          ...widget,
+          isExistJournal
+        };
+      }
+
+      return widget;
+    })
+  );
+
   const widgetsById = yield select(() => selectSelectedWidgetsById(newConfig));
 
   return DashboardConverter.getNewDashboardForWeb(newConfig, widgetsById, migratedConfig.version);

@@ -209,7 +209,7 @@
 
       &_btn.replace {
         padding: 12px 16px;
-        background-color: $color-blue-dark;
+        background-color: var(--primary-color);
         color: $color-white;
       }
 

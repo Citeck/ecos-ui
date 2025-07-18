@@ -11,7 +11,13 @@
   overflow: hidden;
   text-overflow: ellipsis;
   padding-right: 5px;
-  width: calc(100% - 20px);
+  width: 100%;
+  color: var(--primary-color);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--dark-primary-color);
+  }
 }
 
 .assoc-extra-data {

@@ -38,6 +38,7 @@ import { NotificationManager } from '@/services/notifications';
 const SOURCE_DIVIDER = '@';
 const EDGE_PREFIX = 'edge__';
 const NOT_INPUT_TYPES = ['container', 'datagrid', 'button', 'horizontalLine'];
+const TEMPLATE_PARSER_REGEX = /\${[^{]+}/g;
 
 const getComponentInnerAttSchema = component => {
   let dataType = lodashGet(component, 'ecos.dataType', '');
@@ -142,6 +143,10 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
 
         options.formMode = formMode;
         formParams.options = options;
+
+        if (configParams.handlers) {
+          formParams.handlers = configParams.handlers;
+        }
 
         formParams['onSubmit'] = function (record, form, alias) {
           if (modal) {
@@ -289,6 +294,10 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
 
       if (config.onPreSettingSubmit) {
         params.onPreSettingSubmit = config.onPreSettingSubmit;
+      }
+
+      if (config.handlers) {
+        params.handlers = config.handlers;
       }
 
       const [source] = recordRef.split('@');
@@ -1238,6 +1247,68 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
     }
 
     return true;
+  }
+
+  /**
+   * @param {string} str - The template string from which to extract attributes.
+   * @return {string[]} An array of extracted attribute names (trimmed and without [[ ]]).
+   */
+  static getAttrsFromTemplate(str) {
+    if (!isString(str)) {
+      return [];
+    }
+
+    const matches = str.match(TEMPLATE_PARSER_REGEX);
+
+    if (!matches) {
+      return [];
+    }
+
+    return matches.map(match => match.slice(2, -1).trim());
+  }
+
+  /**
+   * @param {string} str - The template string containing placeholders to be replaced.
+   * @param {Object} replacements - An object containing variable values to interpolate into the template.
+   * @return {string} - The rendered string with placeholders replaced by corresponding values from the replacements object.
+   */
+  static renderByTemplate(str, replacements) {
+    function interpolate(template, variables, fallback) {
+      return template.replace(TEMPLATE_PARSER_REGEX, match => {
+        const path = match.slice(2, -1).trim();
+
+        return getObjPath(path, variables, fallback);
+      });
+    }
+
+    function getObjPath(path, obj, fallback = '') {
+      return path.split('.').reduce((res, key) => res[key] || fallback, obj);
+    }
+
+    return interpolate(str, replacements);
+  }
+
+  /**
+   * @param {string} str - The string to check for HTML content.
+   * @return {boolean} Returns true if the string contains HTML elements; otherwise, false.
+   */
+  static isHTML(str) {
+    const doc = new DOMParser().parseFromString(str, 'text/html');
+    return Array.from(doc.body.childNodes).some(node => node.nodeType === 1);
+  }
+
+  /**
+   * @param {string} html The HTML string to process
+   * @return {string} The text content with all HTML tags removed
+   */
+  static stripHTML(html) {
+    if (!isString(html)) {
+      return '';
+    }
+
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+
+    return doc?.body?.textContent || '';
   }
 }
 
