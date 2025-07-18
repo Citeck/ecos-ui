@@ -4,6 +4,7 @@ import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 import isObject from 'lodash/isObject';
+import isString from 'lodash/isString';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 
@@ -161,34 +162,31 @@ export const TableFormContextProvider = props => {
     }
   }, [defaultValue, columns, forceReload]);
 
-  useEffect(
-    () => {
-      if (clonedRecord) {
-        Records.get(clonedRecord)
-          .load('_formKey?str')
-          .then(formKey => {
-            const matchingVariant = createVariants.find(item => (item.formKey || `alf_${item.type}`) === formKey);
-            const createVariant = matchingVariant || createVariants[0];
+  useEffect(() => {
+    if (clonedRecord) {
+      Records.get(clonedRecord)
+        .load('_formKey?str')
+        .then(formKey => {
+          const matchingVariant = createVariants.find(item => (item.formKey || `alf_${item.type}`) === formKey);
+          const createVariant = matchingVariant || createVariants[0];
 
-            if (isInstantClone) {
-              return EcosFormUtils.cloneRecord({ clonedRecord, createVariant, saveOnSubmit: false });
-            } else {
-              showCloneForm({ createVariant, clonedRecord });
-              return null;
-            }
-          })
-          .then(record => {
-            if (record instanceof Record) {
-              onCreateFormSubmit(record);
-            }
-          })
-          .catch(error => {
-            console.error('Error handling cloned record:', error);
-          });
-      }
-    },
-    [clonedRecord]
-  );
+          if (isInstantClone) {
+            return EcosFormUtils.cloneRecord({ clonedRecord, createVariant, saveOnSubmit: false });
+          } else {
+            showCloneForm({ createVariant, clonedRecord });
+            return null;
+          }
+        })
+        .then(record => {
+          if (record instanceof Record) {
+            onCreateFormSubmit(record);
+          }
+        })
+        .catch(error => {
+          console.error('Error handling cloned record:', error);
+        });
+    }
+  }, [clonedRecord]);
 
   const showCloneForm = ({ createVariant, clonedRecord }) => {
     setIsViewOnlyForm(false);
@@ -344,15 +342,22 @@ export const TableFormContextProvider = props => {
             const recordWithOriginalColumnKeys = await editedRecord.load(attrs);
             let newRow = { ...initialRow, ...recordWithOriginalColumnKeys };
             const attrsWithoutScalar = attrs.filter(att => att.indexOf('?') === -1);
+
+            const atPattern = /^.+\/.+@.*$/;
+
             for (const att of attrsWithoutScalar) {
-              if (attributes[att]) {
+              const attr = attributes[att];
+
+              if (attr) {
                 let displayName = null;
                 const component = allComponents.find(component => component.key === att && component.type === 'ecosSelect');
 
-                displayName = await Records.get(attributes[att]).load('.disp');
+                if (isString(attr) && atPattern.test(attr)) {
+                  displayName = await Records.get(attr).load('.disp');
+                }
 
                 if (component && !displayName) {
-                  const option = get(component, 'currentItems', []).find(item => item.value === attributes[att]);
+                  const option = get(component, 'currentItems', []).find(item => item.value === attr);
                   displayName = isObject(option.label) ? getMLValue(option.label) : option.label;
                 }
 
