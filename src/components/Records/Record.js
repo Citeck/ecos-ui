@@ -490,7 +490,12 @@ export default class Record {
       }
     }
 
-    if (attributesToSave && !attributesToSave['_workspace'] && getEnabledWorkspaces()) {
+    if (
+      attributesToSave &&
+      getEnabledWorkspaces() &&
+      !attributesToSave['_workspace'] &&
+      !attributesToSave['_workspace?str']
+    ) {
       attributesToSave['_workspace'] = getWorkspaceId();
     }
 
