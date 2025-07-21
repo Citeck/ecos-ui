@@ -20,10 +20,11 @@ import { PROCESS_DEF_API_ACTIONS } from '../api/process';
 import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
 import * as BpmnUtils from '../components/ModelEditor/BPMNModeler/utils';
 import { SourcesId } from '../constants';
-import { JSON_VALUE_COMPONENTS } from '../constants/cmmn';
+import { JSON_VALUE_COMPONENTS, KEY_FIELD_NAME, ML_POSTFIX } from '../constants/cmmn';
 import { t } from '../helpers/export/util';
 import { isJsonObjectString } from '../helpers/util';
 
+import { TYPE_BPMN_ANNOTATION } from '@/constants/bpmn';
 import { NotificationManager } from '@/services/notifications';
 
 export function* init({ api }, { payload: { stateId, record } }) {
@@ -108,7 +109,7 @@ export function* fetchHasDeployRights({ api }, { payload: { stateId, record } })
   }
 }
 
-export function* fetchFormProps({ api }, { payload: { stateId, formId, element } }) {
+export function* fetchFormProps({ api }, { payload: { stateId, formId, element, cacheLabels } }) {
   try {
     if (!formId) {
       throw new Error('No form ID ' + formId);
@@ -140,6 +141,10 @@ export function* fetchFormProps({ api }, { payload: { stateId, formId, element }
         let value = BpmnUtils.getValue(element, att);
         if (value != null && value !== '' && (isMultiple === true || JSON_VALUE_COMPONENTS.includes(inputType))) {
           value = isJsonObjectString(value) ? JSON.parse(value) : value;
+        }
+
+        if (cacheLabels && att === KEY_FIELD_NAME + ML_POSTFIX && isUndefined(value) && element.type === TYPE_BPMN_ANNOTATION) {
+          value = get(cacheLabels, [element.id, att]);
         }
 
         if (!isUndefined(value) && !['asyncData'].includes(inputType)) {

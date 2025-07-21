@@ -1,6 +1,6 @@
+import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-import debounce from 'lodash/debounce';
 import React, { useEffect, useState } from 'react';
 import uuidv4 from 'uuid/v4';
 
@@ -61,18 +61,22 @@ class BPMNEditorPage extends ModelEditor {
     const ecosType = this.props.formProps?.formData?.ecosType || '';
 
     if (!aiAssistantContext.hasContext()) {
-      aiAssistantContext.setContext(CONTEXT_TYPES.BPMN_EDITOR, {
-        onSubmit: this.handleAIAssistantSubmit,
-        updateContextBeforeRequest: this.updateContextBeforeRequest
-      }, {
-        processRef,
-        ecosType,
-        currentBpmnXml: null
-      });
+      aiAssistantContext.setContext(
+        CONTEXT_TYPES.BPMN_EDITOR,
+        {
+          onSubmit: this.handleAIAssistantSubmit,
+          updateContextBeforeRequest: this.updateContextBeforeRequest
+        },
+        {
+          processRef,
+          ecosType,
+          currentBpmnXml: null
+        }
+      );
     }
 
     this.debouncedUpdateContext();
-  }
+  };
 
   _updateAIAssistantContextData = () => {
     const processRef = this.recordRef || '';
@@ -88,9 +92,9 @@ class BPMNEditorPage extends ModelEditor {
         currentBpmnXml
       });
     });
-  }
+  };
 
-  updateContextBeforeRequest = (callback) => {
+  updateContextBeforeRequest = callback => {
     const processRef = this.recordRef || '';
     const ecosType = this.props.formProps?.formData?.ecosType || '';
 
@@ -105,9 +109,9 @@ class BPMNEditorPage extends ModelEditor {
 
       callback && callback();
     });
-  }
+  };
 
-  getBpmnXml = (callback) => {
+  getBpmnXml = callback => {
     if (!this.designer) {
       callback && callback(null);
       return;
@@ -194,7 +198,7 @@ class BPMNEditorPage extends ModelEditor {
     return extraButtons;
   }
 
-  handleAIAssistantSubmit = (bpmnXml) => {
+  handleAIAssistantSubmit = bpmnXml => {
     if (bpmnXml && this.designer) {
       this.designer.setDiagram(bpmnXml, {
         callback: ({ mounted }) => {
