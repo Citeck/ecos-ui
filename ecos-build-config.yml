@@ -13,5 +13,5 @@ properties:
         - activities-widget:1.4.0-snapshot
     - enterprise: false
       plugins:
-        - stages-widget:1.5.0
+        - stages-widget:1.6.0-snapshot
         - kanban-widget:1.7.0
