@@ -30,7 +30,7 @@ const mapDispatchToProps = (dispatch, props) => {
       dispatch(saveModel({ stateId, record, xml, img, definitionAction, processDefId })),
     setModel: model => dispatch(setModel({ stateId, model })),
     getModel: () => dispatch(getModel({ stateId, record })),
-    getFormProps: (formId, element) => dispatch(getFormProps({ stateId, formId, element })),
+    getFormProps: (formId, element, cacheLabels) => dispatch(getFormProps({ stateId, formId, element, cacheLabels })),
     clearFormProps: () => dispatch(setFormProps({ stateId, formProps: {} }))
   };
 };

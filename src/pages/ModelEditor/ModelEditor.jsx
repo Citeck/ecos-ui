@@ -545,7 +545,7 @@ class ModelEditorPage extends React.Component {
       const type = this.getFormType(root);
 
       if (type) {
-        this.props.getFormProps(type, selected);
+        this.props.getFormProps(type, selected, this._cachedLabels);
       }
 
       this.setState({ selectedElement: selected, selectedDiagramElement: root });
@@ -553,7 +553,7 @@ class ModelEditorPage extends React.Component {
       const type = this.getFormType(selectedElement);
 
       if (type) {
-        this.props.getFormProps(type, selectedElement);
+        this.props.getFormProps(type, selectedElement, this._cachedLabels);
       }
 
       this.setState({ selectedElement, selectedDiagramElement: element });
