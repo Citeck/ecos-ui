@@ -590,7 +590,7 @@ class RecordActions {
         }));
     }
 
-    return await Records.queryOne(
+    const newConfig = await Records.queryOne(
       {
         sourceId: SourcesId.FILL_TEMPLATE_VALUE,
         query: {
@@ -604,6 +604,12 @@ class RecordActions {
       },
       '?json'
     );
+
+    if (!newConfig) {
+      return actionConfig;
+    }
+
+    return newConfig;
   }
 
   /**
@@ -885,10 +891,7 @@ class RecordActions {
         }
 
         if (context.journalColumns && context.journalName) {
-          const newConfig = await RecordActions._getFillTemplateConfig(action.config, context);
-          if (newConfig) {
-            action.config = newConfig;
-          }
+          action.config = await RecordActions._getFillTemplateConfig(action.config, context);
         }
 
         const filteredRecords = preResult.preProcessedRecords
@@ -1031,10 +1034,7 @@ class RecordActions {
     }
 
     if (context.journalColumns && context.journalName) {
-      const newConfig = await RecordActions._getFillTemplateConfig(action.config, context);
-      if (newConfig) {
-        action.config = newConfig;
-      }
+      action.config = await RecordActions._getFillTemplateConfig(action.config, context);
     }
 
     if (!!get(action, 'execForQueryConfig.execAsForRecords')) {
