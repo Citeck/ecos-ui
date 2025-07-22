@@ -221,7 +221,17 @@ export class MenuApi extends CommonApi {
   };
 
   getJournalTotalCount = journalId => {
-    return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load('totalCount?num!0');
+    return Records.queryOne(
+      {
+        sourceId: SourcesId.JOURNAL_SERVICE,
+        language: 'journals-total-count',
+        query: {
+          journals: [journalId]
+        },
+        workspaces: [getWorkspaceId()]
+      },
+      'totalCount?num!0'
+    );
   };
 
   getMenuConfig = () => {

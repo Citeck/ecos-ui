@@ -75,6 +75,7 @@ export const SourcesId = {
   META: 'uiserv/meta',
   JOURNAL: 'uiserv/journal',
   RESOLVED_JOURNAL: 'uiserv/rjournal',
+  JOURNAL_SERVICE: 'uiserv/journals-service',
   BOARD: 'uiserv/board',
   RESOLVED_BOARD: 'uiserv/rboard',
   RESOLVED_TYPE: 'emodel/rtype',
