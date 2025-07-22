@@ -3,6 +3,10 @@
 }
 
 .formio-component-datagrid {
+  table {
+    table-layout: fixed;
+  }
+
   table.table-bordered {
     border-style: hidden;
     box-shadow: 0 0 0 1px $color-gray-4;
