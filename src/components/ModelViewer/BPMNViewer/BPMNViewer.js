@@ -8,6 +8,8 @@ import { Sheet } from '../Sheet';
 
 import customModules from './modules';
 
+import 'bpmn-js/dist/assets/diagram-js.css';
+import 'bpmn-js/dist/assets/bpmn-font/css/bpmn.css';
 import './style.scss';
 
 export default class BPMNViewer extends ModelViewer {
