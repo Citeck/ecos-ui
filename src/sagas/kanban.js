@@ -230,6 +230,20 @@ export function* sagaGetData({ api }, { payload }) {
         })
       : [];
 
+    if (get(journalSetting, 'kanban.columns') && !get(boardConfig, 'columns', []).every(col => !col.hideOldItems)) {
+      journalSetting.kanban.columns = journalSetting.kanban.columns.map(col => {
+        if (col && col.id) {
+          const foundConfigColumn = (boardConfig.columns || []).find(c => c.id && c.id === col.id);
+          if (foundConfigColumn) {
+            col.hideOldItems = foundConfigColumn.hideOldItems;
+            col.hideItemsOlderThan = foundConfigColumn.hideItemsOlderThan;
+          }
+        }
+
+        return col;
+      });
+    }
+
     const result = yield all(
       (get(journalSetting, 'kanban.columns') || boardConfig.columns || []).map(function* (column, i) {
         if (get(prevDataCards, [i, 'records', 'length'], 0) === get(prevDataCards, [i, 'totalCount'])) {
