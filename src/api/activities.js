@@ -3,7 +3,7 @@ import isArray from 'lodash/isArray';
 
 import Records from '../components/Records';
 import { SourcesId } from '../constants';
-import { ActivityTypes } from '../constants/activity';
+import { ActivityTypes, PLANNED_ACTIVITY_TYPE } from '../constants/activity';
 import { getWorkspaceId } from '../helpers/urls';
 
 const EMODEL_FIELDS = {
@@ -20,7 +20,7 @@ const EMODEL_FIELDS = {
   dueDate: 'dueDate',
   commentActivity: 'comment',
   assignment: 'assignment?id',
-  type: '_type{id,displayName:?disp}',
+  type: '_type{id,displayName:?disp,parentType:_parent.id?str}',
   participants: 'participants[]{authorityName:?localId,userName:?localId,displayName:?disp,firstName,lastName,avatarUrl:avatar.url}',
   performer: 'performer{authorityName:?localId,userName:?localId,displayName:?disp,firstName,lastName,middleName,avatarUrl:avatar.url}',
   initiator: 'initiator{authorityName:?localId,userName:?localId,displayName:?disp,firstName,lastName,avatarUrl:avatar.url}',
@@ -33,8 +33,11 @@ const EMODEL_FIELDS = {
 };
 
 export class ActivitiesApi {
-  getTypes = () => {
-    return Records.query({ sourceId: SourcesId.EMODEL_ACTIVITY });
+  getTypes = recordRef => {
+    return Records.query(
+      { sourceId: SourcesId.EMODEL_ACTIVITY_TYPE, query: { recordRef } },
+      { id: 'id', displayName: '?disp', type: '_parent.id?str' }
+    );
   };
 
   getAll = record => {
@@ -75,29 +78,32 @@ export class ActivitiesApi {
       comment.att('att_add_docs:documents', docsRefs);
     }
 
-    switch (selectedType.id) {
-      case ActivityTypes.MEETING:
-      case ActivityTypes.CALL:
-      case ActivityTypes.EMAIL:
+    if (selectedType.id === ActivityTypes.ASSIGNMENT) {
+      comment.att('title', rest.topic);
+      comment.att('initiator', rest.initiator);
+      comment.att('performer', rest.performer);
+
+      if (get(rest, 'dueDate')) {
+        comment.att('dueDate', rest.dueDate);
+      }
+
+      if (get(rest, 'priority.id')) {
+        comment.att('priority', rest.priority.id);
+      }
+    }
+
+    switch (selectedType.type) {
+      case PLANNED_ACTIVITY_TYPE:
         comment.att('activityDate', rest.activityDate);
         comment.att('responsible', rest.responsible);
         comment.att('topic', rest.topic);
+
         if (get(rest, 'activityDuration.id')) {
           comment.att('activityDuration', rest.activityDuration.id);
         }
+
         if (get(rest, 'participants') && isArray(rest.participants) && rest.participants.length > 0) {
           comment.att('participants', rest.participants || []);
-        }
-        break;
-      case ActivityTypes.ASSIGNMENT:
-        comment.att('title', rest.topic);
-        comment.att('initiator', rest.initiator);
-        comment.att('performer', rest.performer);
-        if (get(rest, 'dueDate')) {
-          comment.att('dueDate', rest.dueDate);
-        }
-        if (get(rest, 'priority.id')) {
-          comment.att('priority', rest.priority.id);
         }
         break;
       default:
@@ -119,18 +125,19 @@ export class ActivitiesApi {
     comment.att('_parent', record);
     comment.att('_parentAtt', 'has-ecos-activities:ecosActivities');
 
-    switch (selectedType.id) {
-      case ActivityTypes.MEETING:
-      case ActivityTypes.CALL:
-      case ActivityTypes.EMAIL:
+    switch (selectedType.type) {
+      case PLANNED_ACTIVITY_TYPE:
         comment.att('topic', rest.topic);
         comment.att('activityDate', rest.activityDate);
+
         if (get(rest, 'activityDuration.id')) {
           comment.att('activityDuration', rest.activityDuration.id);
         }
+
         if (get(rest, 'participants') && isArray(rest.participants)) {
           comment.att('participants', rest.participants || []);
         }
+
         comment.att('responsible', rest.responsible);
         break;
       default:

@@ -6,31 +6,8 @@ export const ActivityTypes = {
   ASSIGNMENT: 'assignment-activity'
 };
 
-export const PLANNED_ACTIVITY = [ActivityTypes.CALL, ActivityTypes.EMAIL, ActivityTypes.MEETING];
-export const IMMEDIATE_ACTIVITY = [ActivityTypes.COMMENT, ActivityTypes.ASSIGNMENT];
-
-export const optionsActivitySelect = [
-  {
-    id: ActivityTypes.COMMENT,
-    displayName: 'activities-widget.type-comment'
-  },
-  {
-    id: ActivityTypes.CALL,
-    displayName: 'activities-widget.type-call'
-  },
-  {
-    id: ActivityTypes.EMAIL,
-    displayName: 'activities-widget.type-email'
-  },
-  {
-    id: ActivityTypes.MEETING,
-    displayName: 'activities-widget.type-meeting'
-  },
-  {
-    id: ActivityTypes.ASSIGNMENT,
-    displayName: 'activities-widget.type-assigment'
-  }
-];
+export const PLANNED_ACTIVITY_TYPE = 'planned-activity';
+export const IMMEDIATE_ACTIVITY_TYPE = 'immediate_activity'; // comment and assignment activities
 
 export const optionsPrioritySelect = [
   {
