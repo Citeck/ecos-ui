@@ -651,6 +651,7 @@ class Dashboard extends Component {
         );
         break;
       case DashboardTypes.PROFILE:
+      case DashboardTypes.WIKI:
         title = null;
         break;
       case DashboardTypes.USER:
