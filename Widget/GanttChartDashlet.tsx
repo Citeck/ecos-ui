@@ -78,7 +78,14 @@ const GanttChartWidget = (): React.ReactElement => {
         <Willow>
           <Toolbar api={apiRef.current} items={items} />
           <div className="gtcell">
-            <Gantt apiRef={apiRef} tasks={tasks} links={links} scales={scales} taskTypes={taskTypes} readonly={false} />
+            <Gantt
+              apiRef={apiRef}
+              tasks={tasks}
+              links={links}
+              scales={scales}
+              taskTypes={taskTypes}
+              readonly={false}
+            />
           </div>
         </Willow>
       </Dashlet>
