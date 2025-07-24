@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import React, { useEffect, useState } from 'react';
 
-import { MenuApi } from '../../api/menu';
 import { Badge } from '../common/form';
-import SidebarService from '../../services/sidebar';
+
+import { MenuApi } from '@/api/menu';
+import SidebarService from '@/services/sidebar';
 
 import './style.scss';
 
@@ -29,12 +30,9 @@ function RemoteBadge({ data, isOpen }) {
     };
   }, []);
 
-  useEffect(
-    () => {
-      getJournalCount();
-    },
-    [journalId]
-  );
+  useEffect(() => {
+    getJournalCount();
+  }, [journalId]);
 
   return (
     <>
