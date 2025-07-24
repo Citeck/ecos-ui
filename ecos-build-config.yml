@@ -10,7 +10,7 @@ properties:
         - charts-widget:1.3.0
         - stages-widget:1.5.0
         - kanban-widget:1.7.0
-        - activities-widget:1.3.1-snapshot
+        - activities-widget:1.3.1
     - enterprise: false
       plugins:
         - stages-widget:1.5.0
