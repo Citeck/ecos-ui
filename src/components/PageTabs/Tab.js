@@ -39,10 +39,15 @@ class Tab extends Component {
   componentDidMount() {
     const link = get(this.props, 'tab.link', null);
     const recordRef = get(queryString.parseUrl(link), 'query.recordRef', null);
+    const attrsLoad = ['_disp', 'name'];
 
     if (recordRef) {
       this.instanceRecord = Records.get(isArray(recordRef) ? recordRef.shift() : recordRef);
-      this.watcher = this.instanceRecord && this.instanceRecord.watch(['_disp', 'name'], this.updateTab);
+    }
+
+    if (this.instanceRecord) {
+      this.watcher = this.instanceRecord.watch(attrsLoad, this.updateTab);
+      this.instanceRecord.load(attrsLoad);
     }
   }
 

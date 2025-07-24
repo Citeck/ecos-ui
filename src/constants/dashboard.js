@@ -6,7 +6,8 @@ export const DashboardTypes = {
   PROCESS: 'process-dashboard',
   PUBLICATION: 'publication-details',
   ORGSTRUCTURE: 'orgstructure-person-dashboard',
-  CUSTOM: 'custom'
+  CUSTOM: 'custom',
+  WIKI: 'wiki'
 };
 
 export const DeviceTabs = [
