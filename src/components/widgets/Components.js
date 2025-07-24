@@ -42,6 +42,7 @@ export const ComponentKeys = {
   CHARTS: 'charts',
   PUBLICATION: 'publication',
   HIERARCHICAL_TREE: 'hierarchical-tree',
+  GANTT_CHART: 'gantt-chart',
   KANBAN_BOARD: 'kanban-board'
 };
 
@@ -122,6 +123,17 @@ export default class Components {
       label: 'HTML',
       supportedDashboardTypes: [],
       props: {}
+    },
+    [ComponentKeys.GANTT_CHART]: {
+      load: () =>
+        lazy(() =>
+          import('../../plugins').then(plugins => ({
+            default: get(plugins, 'default.GanttChartWidget', () => null)
+          }))
+        ),
+      checkIsAvailable: () => Boolean(get(window, 'Citeck.Plugins.GanttChartWidget')),
+      label: 'dashboard-settings.widget.gantt-chart',
+      supportedDashboardTypes: []
     },
     [ComponentKeys.REPORT]: {
       load: () => lazy(() => import('./Report')),
@@ -367,7 +379,13 @@ export default class Components {
     }
   });
 
-  static allDashboardsComponents = [ComponentKeys.NEWS, ComponentKeys.JOURNAL, ComponentKeys.WEB_PAGE, ComponentKeys.HTML];
+  static allDashboardsComponents = [
+    ComponentKeys.NEWS,
+    ComponentKeys.JOURNAL,
+    ComponentKeys.WEB_PAGE,
+    ComponentKeys.HTML,
+    ComponentKeys.GANTT_CHART
+  ];
 
   static get allDashboardTypes() {
     return Object.values(DashboardTypes);

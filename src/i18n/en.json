@@ -446,6 +446,7 @@
   "dashboard-settings.widget.charts": "Graphic statistic",
   "dashboard-settings.widget.publication": "Publication",
   "dashboard-settings.widget.news": "News",
+  "dashboard-settings.widget.gantt-chart": "Gantt Chart",
   "dashboard-settings.widget.hierarchical-tree": "Hierarchical Tree",
   "dashboard-settings.widget.with-config": "This widget has settings. When you delete the widget, the settings will be lost",
   "dashboard-settings.layout.tooltip.adaptive": "The number of columns is adjusted to the size of the browser window",

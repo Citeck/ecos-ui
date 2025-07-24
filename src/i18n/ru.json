@@ -380,6 +380,7 @@
   "dashboard-settings.widget.charts": "Графическая статистика",
   "dashboard-settings.widget.publication": "Публикация",
   "dashboard-settings.widget.news": "Новости",
+  "dashboard-settings.widget.gantt-chart": "Диаграмма Ганта",
   "dashboard-settings.widget.hierarchical-tree": "Иерархия",
   "dashboard-settings.widget.with-config": "У данного виджета есть настройки. При удалении виджета, настройки будут утеряны",
   "dashboard-settings.layout.tooltip.adaptive": "Количество колонок подстраивается под размер окна браузера",
