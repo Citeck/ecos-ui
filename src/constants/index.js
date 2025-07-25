@@ -66,6 +66,7 @@ export const SourcesId = {
   DOCLIB: 'emodel/doclib',
   RESOLVED_FORM: 'uiserv/rform',
   FORM: 'uiserv/form',
+  WIKI: 'emodel/wiki',
   USER_CONF: 'uiserv/user-conf',
   MENU: 'uiserv/menu',
   RESOLVED_MENU: 'uiserv/rmenu',
