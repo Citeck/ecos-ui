@@ -74,6 +74,8 @@ export function* runSaveModel({ api }, { payload: { stateId, record, xml, img, d
 
       yield put(updateModels(updatePayload));
       yield put(setLoading({ stateId, isLoading: false }));
+
+      yield put(getModel({ stateId, record }));
     }
   } catch (e) {
     yield put(setLoading({ stateId, isLoading: false }));
