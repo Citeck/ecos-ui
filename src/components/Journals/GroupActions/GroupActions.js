@@ -8,13 +8,12 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { connect } from 'react-redux';
 
 import { execRecordsAction, deselectAllRecords } from '@/actions/journals';
-import { ActionTypes } from '@/components/Records/actions/constants';
 import { Tooltip } from '@/components/common';
 import { IcoBtn, TwoIcoBtn } from '@/components/common/btns';
 import { DropdownOuter } from '@/components/common/form';
 import { t } from '@/helpers/export/util';
 import { wrapArgs } from '@/helpers/redux';
-import { selectGroupActionsProps } from '@/selectors/journals';
+import { selectCommonJournalPageProps, selectGroupActionsProps } from '@/selectors/journals';
 
 import './style.scss';
 
@@ -50,6 +49,7 @@ const GroupActions = React.memo(
       isFilterOn,
       isSeparateActionListForQuery,
       excludedRecords,
+      journalName,
       isViewNewJournal
     } = props;
 
@@ -91,7 +91,11 @@ const GroupActions = React.memo(
           action.executeCallback = () => {
             deselectAllRecords();
           };
-          execRecordsAction(selectedRecords, action);
+          execRecordsAction(selectedRecords, action, {
+            journalColumns: get(grid, 'columns', []),
+            journalId: get(grid, 'journalId'),
+            journalName
+          });
         }
       },
       [grid, isFilterOn, selectedRecords, selectedLen, excludedRecords]
@@ -188,10 +192,12 @@ const GroupActions = React.memo(
 
 const mapStateToProps = (state, props) => {
   const ownState = selectGroupActionsProps(state, props.stateId);
+  const commonJournalProps = selectCommonJournalPageProps(state, props.stateId);
 
   return {
     isMobile: isNil(props.isMobile) ? get(state, 'view.isMobile') : props.isMobile,
     isSeparateActionListForQuery: get(state, 'app.isSeparateActionListForQuery', false),
+    journalName: commonJournalProps.title,
     ...ownState
   };
 };

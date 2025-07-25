@@ -9,9 +9,6 @@ import isObject from 'lodash/isObject';
 import isString from 'lodash/isString';
 import set from 'lodash/set';
 
-import { SourcesId } from '../../../constants';
-import { getFitnesseInlineToolsClassName } from '../../../helpers/tools';
-import { beArray, extractLabel, getMLValue, getModule, t } from '../../../helpers/util';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import { DialogManager } from '../../common/dialogs';
 import { EVENTS } from '../../widgets/BaseWidget';
@@ -26,6 +23,10 @@ import RecordActionsResolver from './handler/RecordActionsResolver';
 import actionsApi from './recordActionsApi';
 import { DetailActionResult, getActionResultTitle, getRef, notifyFailure, notifySuccess } from './util/actionUtils';
 import { ResultTypes } from './util/constants';
+
+import { SourcesId } from '@/constants';
+import { getFitnesseInlineToolsClassName } from '@/helpers/tools';
+import { beArray, extractLabel, getMLValue, getModule, t } from '@/helpers/util';
 
 const ACTION_CONTEXT_KEY = '__act_ctx__';
 
@@ -570,6 +571,48 @@ class RecordActions {
   _lastExecutionalActionId = '';
 
   /**
+   * @param {Object} actionConfig
+   * @param {Object} context
+   */
+  static async _getFillTemplateConfig(actionConfig, context) {
+    const { journalName, journalId } = context || {};
+    let { journalColumns = [] } = context || {};
+
+    if (journalColumns.every(col => !col.formatter && col.newFormatter)) {
+      journalColumns = journalColumns
+        .filter(c => c.default)
+        .map(({ attribute, text, newType, newFormatter, multiple }) => ({
+          attribute,
+          name: text,
+          type: newType,
+          formatter: newFormatter,
+          multiple: multiple
+        }));
+    }
+
+    const newConfig = await Records.queryOne(
+      {
+        sourceId: SourcesId.FILL_TEMPLATE_VALUE,
+        query: {
+          context: {
+            journalColumns,
+            journalName,
+            journalId
+          },
+          value: actionConfig || {}
+        }
+      },
+      '?json'
+    );
+
+    if (!newConfig) {
+      return actionConfig;
+    }
+
+    return newConfig;
+  }
+
+  /**
    * @param {Array<String>|Array<Record>} records
    * @param {RecActionWithCtx} action
    * @param {Object} context
@@ -847,6 +890,10 @@ class RecordActions {
           action.config = preResult.config;
         }
 
+        if (context.journalColumns && context.journalName) {
+          action.config = await RecordActions._getFillTemplateConfig(action.config, context);
+        }
+
         const filteredRecords = preResult.preProcessedRecords
           ? allowedRecords.filter(rec => !preResult.preProcessedRecords.includes(rec.id))
           : allowedRecords;
@@ -984,6 +1031,10 @@ class RecordActions {
 
     if (preResult.configMerged) {
       action.config = preResult.config;
+    }
+
+    if (context.journalColumns && context.journalName) {
+      action.config = await RecordActions._getFillTemplateConfig(action.config, context);
     }
 
     if (!!get(action, 'execForQueryConfig.execAsForRecords')) {
