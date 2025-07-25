@@ -91,6 +91,7 @@ export const SourcesId = {
   LEGACY_COMMENT: 'comment',
   EMODEL_COMMENT: 'emodel/comment',
   EMODEL_ACTIVITY: 'emodel/activity',
+  EMODEL_ACTIVITY_TYPE: 'emodel/activity-type',
   VERSION: 'emodel/version',
   VERSION_DIFF: 'emodel/version-diff',
   BIRTHDAYS: 'birthdays',

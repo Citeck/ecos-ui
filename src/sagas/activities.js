@@ -42,11 +42,13 @@ function* sagaGetActivities({ api }, action) {
   try {
     yield put(fetchStart(action.payload));
 
+    const { records: activityTypes = [] } = yield api.activities.getTypes(action.payload);
     const { records, ...extraProps } = yield api.activities.getAll(action.payload);
 
     yield put(
       setActivities({
         recordRef: action.payload,
+        activityTypes,
         activities: records.map(record => getCommentForWeb(record)),
         ...extraProps
       })
@@ -76,6 +78,7 @@ function* sagaCreateActivity({ api }, action) {
     yield put(createActivitySuccess({ activities, recordRef }));
 
     const typeId = get(rest, 'selectedType.id');
+
     if (typeId) {
       switch (typeId) {
         case ActivityTypes.ASSIGNMENT:

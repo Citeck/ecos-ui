@@ -1,4 +1,5 @@
 import { handleActions } from 'redux-actions';
+
 import {
   getActivities,
   setError,
@@ -19,6 +20,7 @@ import {
 } from '../actions/activities';
 
 export const initialState = {
+  activityTypes: [],
   activities: [],
   hasMore: false,
   totalCount: 0,
@@ -47,6 +49,7 @@ export default handleActions(
     [setActivities]: (state, action) => ({
       ...state,
       [action.payload.recordRef]: {
+        activityTypes: action.payload.activityTypes,
         activities: action.payload.activities,
         hasMore: action.payload.hasMore,
         totalCount: action.payload.totalCount
