@@ -39,4 +39,4 @@ ignore/
 !/src/plugins/ecos-ui-publication-widget-plugin/
 !/src/plugins/ecos-ui-welcome-widget-plugin/
 !/src/plugins/ecos-ui-news-widget-plugin/
-!/src/plugins/ecos-hierarchical-tree-widget-plugin/
+!/src/plugins/ecos-ui-hierarchical-tree-widget-plugin/
