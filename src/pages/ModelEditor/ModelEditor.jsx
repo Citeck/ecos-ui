@@ -40,6 +40,8 @@ import {
   PREFIX_FIELD
 } from '@/constants/cmmn';
 import { DMN_DEFINITIONS } from '@/constants/dmn';
+import { URL as Urls } from '@/constants/index';
+import { getWorkspaceId } from '@/helpers/urls';
 import { getCurrentLocale, getMLValue, getTextByLocale, t, fileDownload } from '@/helpers/util';
 import PageService from '@/services/PageService.js';
 
@@ -79,13 +81,27 @@ class ModelEditorPage extends React.Component {
 
   handleCloseEditor = params => {
     const initialWsIdParam = this.urlQuery.ws;
+    let nameEditor = '';
+
+    switch (this.props.location.pathname) {
+      case Urls.DMN_EDITOR:
+        nameEditor = 'DMN';
+        break;
+
+      case Urls.BPMN_EDITOR:
+        nameEditor = 'BPMN';
+        break;
+
+      default:
+        break;
+    }
 
     return new Promise((resolve, reject) => {
       const newUrl = new URL(params.link, window.location.origin);
-      const newWsId = newUrl.searchParams.get('ws');
+      const newWsId = newUrl.searchParams.get('ws') || getWorkspaceId(); // If there is no workspace, then we move to the current space
 
       if (newWsId !== initialWsIdParam) {
-        const confirmed = window.confirm(t('editor.warning.change-workspace'));
+        const confirmed = window.confirm(t('editor.warning.change-workspace', { nameEditor }));
         if (!confirmed) {
           reject(t('editor.warning.change-workspace.cancel'));
           return;
@@ -103,7 +119,10 @@ class ModelEditorPage extends React.Component {
     this.initModeler();
     this.props.initData();
     this.setState({ initiated: true });
-    PageService.registerUrlChangeGuard(this.handleCloseEditor);
+
+    if (get(this.props, 'location.pathname') !== Urls.CMMN_EDITOR) {
+      PageService.registerUrlChangeGuard(this.handleCloseEditor);
+    }
   };
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -501,7 +520,6 @@ class ModelEditorPage extends React.Component {
     Promise.all([promiseXml, promiseImg])
       .then(([xml, img]) => {
         this.props.saveModel(xml, img, definitionAction, this._processDefId);
-        this.props.getModel && this.props.getModel();
       })
       .catch(error => {
         throw new Error(`Failure to save xml or image: ${error.message}`);

@@ -1931,7 +1931,7 @@
   "editor.error.can-not-save-deploy-model": "An error occurred while saving and deploying the process",
   "editor.error.no-selected-element": "You should select some element to edit it",
   "editor.error.no-model": "Process's not set",
-  "editor.warning.change-workspace": "Unsaved BPMN data may be lost after switching to another workspace. Do you want to proceed?",
+  "editor.warning.change-workspace": "Unsaved {{ nameEditor }} data may be lost after switching to another workspace. Do you want to proceed?",
   "editor.warning.change-workspace.cancel": "The transition to another workspace has been canceled",
 
   "cmmn-editor.success.scenario-saved": "Scenario is saved",

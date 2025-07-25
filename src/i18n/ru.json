@@ -1884,7 +1884,7 @@
   "editor.error.can-not-save-deploy-model": "Произошла ошибка во время сохранения и публикации процесса",
   "editor.error.no-selected-element": "Выберите элемент для его редактирования",
   "editor.error.no-model": "Процесс не задан",
-  "editor.warning.change-workspace": "После перехода в другое рабочее пространство несохранённые данные BPMN могут быть потеряны. Хотите продолжить?",
+  "editor.warning.change-workspace": "После перехода в другое рабочее пространство несохранённые данные {{ nameEditor }} могут быть потеряны. Хотите продолжить?",
   "editor.warning.change-workspace.cancel": "Переход в другое рабочее пространство отменён",
 
   "cmmn-editor.success.scenario-saved": "Сценарий сохранен",
