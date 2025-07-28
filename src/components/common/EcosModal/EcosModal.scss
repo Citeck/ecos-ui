@@ -108,7 +108,11 @@
 
     &__title,
     &__buttons {
-      display: inline-block;
+      display: flex;
+      align-items: start;
+      flex-direction: row;
+      gap: 5px;
+      margin-left: 5px;
     }
 
     &__title + &__buttons {

@@ -270,15 +270,14 @@
 
     &_major {
       & > #{$item}-element {
-        border: none;
-        box-shadow: $box-shadow-default;
+        border: 1px solid $color-gray-1;
       }
     }
 
     &_major:not(&_locked) {
       & > #{$item}-element {
         &:hover {
-          box-shadow: $box-shadow-hover;
+          border: 1px solid $color-gray-2;
         }
       }
     }
