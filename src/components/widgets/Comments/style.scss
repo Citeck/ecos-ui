@@ -46,8 +46,7 @@
   }
 
   &__header {
-    padding: 15px 20px;
-    border-bottom: 1px solid $color-gray-4;
+    padding: 12px;
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
@@ -83,7 +82,7 @@
   }
 
   &__list {
-    padding: 0 20px;
+    padding: 0 16px;
 
     &-scroll {
       width: 6px;
@@ -358,6 +357,7 @@
       display: flex;
       justify-content: space-between;
       align-content: center;
+      padding: 0 4px;
 
       &-btn {
         width: 141px;
