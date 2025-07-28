@@ -273,6 +273,13 @@
     margin-right: 0 !important;
   }
 
+  &_focus {
+    svg path {
+      color: $color-white !important;
+      stroke: $color-white !important;
+    }
+  }
+
   &.create,
   &.export {
     width: 48px;
