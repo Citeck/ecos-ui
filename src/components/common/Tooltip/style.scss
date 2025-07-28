@@ -75,6 +75,7 @@
 
   & .tooltip {
     background-color: transparent;
+    pointer-events: inherit;
     z-index: 9999;
   }
 
