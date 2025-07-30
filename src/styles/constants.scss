@@ -93,18 +93,12 @@ $border-radius-large: 8px;
 $border-radius-extra-large: 12px;
 $border-radius-biggest: 100px;
 
-$box-shadow-default:
-  0 1px 5px rgba(0, 0, 0, 0.2),
-  0 3px 4px rgba(0, 0, 0, 0.12),
-  0 2px 4px rgba(0, 0, 0, 0.14);
+$box-shadow-default: rgba(0, 0, 0, 0.16) 0px 1px 4px;
 $box-shadow-hover:
   0px 2px 9px rgba(0, 0, 0, 0.15),
   0px 6px 8px rgba(0, 0, 0, 0.1),
   0px 4px 8px rgba(0, 0, 0, 0.1);
-$box-shadow-tooltip:
-  0 1px 5px rgba(0, 0, 0, 0.2),
-  0 3px 4px rgba(0, 0, 0, 0.12),
-  0 2px 4px rgba(0, 0, 0, 0.14);
+$box-shadow-tooltip: rgba(0, 0, 0, 0.16) 0px 1px 4px;
 $box-shadow-tooltip-arrow-top: -3px 3px 5px rgba(0, 0, 0, 0.2);
 
 $box-shadow-grid-head: 0 3px 3px -2px rgba(0, 0, 0, 0.7);
