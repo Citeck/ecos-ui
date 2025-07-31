@@ -139,6 +139,7 @@ export default class DateEditorControl extends React.Component {
         onKeyDown={this.onKeyDown}
         autoFocus={this.isCell}
         showIcon={!this.isCell}
+        hasSaveButton={this.isCell}
         selected={this.selected}
         onCancel={get(this.props, 'onCancel')}
         dateFormat={this.dateFormat}
