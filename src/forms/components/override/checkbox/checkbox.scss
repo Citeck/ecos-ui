@@ -11,7 +11,7 @@
 
 $states: (
   'checked': var(--primary-color),
-  'focus': $color-blue-light,
+  'focus': var(--header-bg-color),
   'disabled': $color-gray-4
 );
 

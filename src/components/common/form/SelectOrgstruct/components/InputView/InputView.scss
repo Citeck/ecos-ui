@@ -5,6 +5,12 @@
   line-height: 26px;
 }
 
+.select-orgstruct__actions {
+  display: flex;
+  flex-direction: row;
+  width: 50%;
+}
+
 .select-orgstruct__value-not-selected {
   line-height: 36px;
   border: solid $color-gray-4;
@@ -47,7 +53,9 @@
   flex-shrink: 0;
 
   &.ecos-btn {
-    height: 22px;
+    flex: auto;
+    width: 6rem;
+    max-width: 7rem;
   }
 }
 

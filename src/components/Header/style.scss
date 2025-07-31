@@ -323,8 +323,8 @@
 
     &.active,
     &:hover {
-      background-color: $color-gray-4;
-      color: var(--header-bg-color);
+      background-color: $color-white;
+      color: var(--primary-color);
     }
 
     &.isActivePreview {

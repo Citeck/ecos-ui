@@ -1,21 +1,22 @@
-import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { UncontrolledPopover, PopoverHeader, PopoverBody } from 'reactstrap';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 import moment from 'moment';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
+import { UncontrolledPopover, PopoverHeader, PopoverBody } from 'reactstrap';
+
+import { DateFormats } from '../../../../constants';
+import { t } from '../../../../helpers/export/util';
+import { num2str, prepareTooltipId } from '../../../../helpers/util';
+import ZIndex from '../../../../services/ZIndex';
+import { datePredicateVariables } from '../../../Records/predicates/predicates';
+import Input from '../Input';
+import Select from '../Select';
 
 import DatePicker from './DatePicker';
-import Select from '../Select';
-import Input from '../Input';
-import { num2str, prepareTooltipId } from '../../../../helpers/util';
-import { t } from '../../../../helpers/export/util';
-import { datePredicateVariables } from '../../../Records/predicates/predicates';
-import { DateFormats } from '../../../../constants';
-import ZIndex from '../../../../services/ZIndex';
 
 import './DateIntervalPicker.scss';
 
@@ -223,9 +224,7 @@ class DateIntervalPicker extends Component {
       const endInMoment = moment(end);
 
       if (showTimeInput && startInMoment.isSame(endInMoment, 'day')) {
-        settings.maxTime = moment(startInMoment)
-          .set({ hours: 23, minutes: 59, seconds: 59 })
-          .toDate();
+        settings.maxTime = moment(startInMoment).set({ hours: 23, minutes: 59, seconds: 59 }).toDate();
         settings.minTime = moment(startInMoment)
           .set({ minutes: startInMoment.minutes() + 1 })
           .toDate();
@@ -242,9 +241,7 @@ class DateIntervalPicker extends Component {
         settings.maxTime = moment(endInMoment)
           .set({ minutes: endInMoment.minutes() - 1 })
           .toDate();
-        settings.minTime = moment(startInMoment)
-          .set({ hours: 0, minutes: 0, seconds: 0 })
-          .toDate();
+        settings.minTime = moment(startInMoment).set({ hours: 0, minutes: 0, seconds: 0 }).toDate();
       }
     }
 
@@ -470,18 +467,12 @@ class DateIntervalPicker extends Component {
 
         if (!showTimeInput) {
           if (selectedPart === DateInputs.START) {
-            result = moment(result)
-              .startOf('day')
-              .utc()
-              .toISOString();
+            result = moment(result).startOf('day').utc().toISOString();
             break;
           }
 
           if (selectedPart === DateInputs.END) {
-            result = moment(result)
-              .endOf('day')
-              .utc()
-              .toISOString();
+            result = moment(result).endOf('day').utc().toISOString();
             break;
           }
         }

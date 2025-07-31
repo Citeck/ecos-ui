@@ -1,22 +1,22 @@
-import React, { Component } from 'react';
 import classNames from 'classnames';
-import PropTypes from 'prop-types';
-import get from 'lodash/get';
 import debounce from 'lodash/debounce';
-import omit from 'lodash/omit';
+import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
+import omit from 'lodash/omit';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
+import { IGNORED_EVENT_ATTRIBUTE } from '../../../constants';
 import { handleCloseMenuOnScroll, t } from '../../../helpers/util';
 import ZIndex from '../../../services/ZIndex';
-import Columns from '../../common/templates/Columns/Columns';
+import EditorScope from '../../Journals/service/editors/EditorScope';
+import EditorService from '../../Journals/service/editors/EditorService';
+import { getPredicates, getPredicateValue, PREDICATE_TODAY } from '../../Records/predicates/predicates';
 import { IcoBtn } from '../../common/btns';
 import { Label, Select } from '../../common/form';
-import { getPredicates, getPredicateValue, PREDICATE_TODAY } from '../../Records/predicates/predicates';
-import EditorService from '../../Journals/service/editors/EditorService';
-import EditorScope from '../../Journals/service/editors/EditorScope';
+import Columns from '../../common/templates/Columns/Columns';
 import { ParserPredicate } from '../predicates';
-import { IGNORED_EVENT_ATTRIBUTE } from '../../../constants';
 
 import './Filter.scss';
 

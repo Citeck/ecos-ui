@@ -151,13 +151,15 @@ const InputView = () => {
       {error ? (
         <p className="select-orgstruct__error">{error.message}</p>
       ) : (
-        <Btn
-          className={classNames('ecos-btn_blue ecos-btn_narrow', { 'select-orgstruct__input-view-button_compact': isCompact })}
-          onClick={toggleSelectModal}
-          disabled={disabled}
-        >
-          {selectedRows.length > 0 ? (multiple ? t(Labels.BUTTON_ADD) : t(Labels.BUTTON_CHANGE)) : t(Labels.BUTTON_SELECT)}
-        </Btn>
+        <div className="select-orgstruct__actions">
+          <Btn
+            className={classNames('ecos-btn_blue ecos-btn_narrow', { 'select-orgstruct__input-view-button_compact': isCompact })}
+            onClick={toggleSelectModal}
+            disabled={disabled}
+          >
+            {selectedRows.length > 0 ? (multiple ? t(Labels.BUTTON_ADD) : t(Labels.BUTTON_CHANGE)) : t(Labels.BUTTON_SELECT)}
+          </Btn>
+        </div>
       )}
 
       {isCompact ? valuesList : null}

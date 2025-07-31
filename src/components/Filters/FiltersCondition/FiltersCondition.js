@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
 import isEqual from 'lodash/isEqual';
+import React, { Component } from 'react';
 
 import './FiltersCondition.scss';
 

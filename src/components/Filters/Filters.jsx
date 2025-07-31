@@ -1,16 +1,18 @@
-import React, { Component } from 'react';
 import classNames from 'classnames';
-import PropTypes from 'prop-types';
-import { DragDropContext } from 'react-beautiful-dnd';
 import cloneDeep from 'lodash/cloneDeep';
-import isFunction from 'lodash/isFunction';
-import isArray from 'lodash/isArray';
 import get from 'lodash/get';
+import isArray from 'lodash/isArray';
+import isFunction from 'lodash/isFunction';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { DragDropContext } from 'react-beautiful-dnd';
 
 import { t } from '../../helpers/util';
-import { RemoveDialog } from '../common/dialogs';
 import { ErrorBoundary } from '../ErrorBoundary';
+import { RemoveDialog } from '../common/dialogs';
+
 import { ParserPredicate } from './predicates';
+
 import { FiltersGroup } from './';
 
 import './Filters.scss';
