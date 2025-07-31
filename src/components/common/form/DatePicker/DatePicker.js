@@ -28,10 +28,10 @@ export default class DatePicker extends Component {
     minTime: PropTypes.instanceOf(Date),
     selected: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)]),
     showIcon: PropTypes.bool,
+    hasSaveButton: PropTypes.bool,
     showTimeInput: PropTypes.bool,
     showTimeSelect: PropTypes.bool,
     narrow: PropTypes.bool,
-    closeAfterChange: PropTypes.bool,
     wrapperClasses: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
     onChange: PropTypes.func,
     onCancel: PropTypes.func,
@@ -42,7 +42,13 @@ export default class DatePicker extends Component {
     className: '',
     selected: null,
     showTimeSelect: false,
-    dateFormat: 'dd.MM.yyyy, HH:mm'
+    dateFormat: 'dd.MM.yyyy, HH:mm',
+    hasSaveButton: false,
+    showIcon: true,
+    wrapperClasses: '',
+    onChange: () => {},
+    onCancel: () => {},
+    onSave: () => {}
   };
 
   constructor(props) {
@@ -194,14 +200,18 @@ export default class DatePicker extends Component {
   };
 
   handleChangeDate = date => {
-    const { closeAfterChange = false } = this.props;
-    this.setState({ selectedDate: date, isOpen: !closeAfterChange }, () => {
+    const { onChange, onSave } = this.props;
+
+    this.setState({ selectedDate: date, isOpen: false }, () => {
       this.setInputFocus();
     });
 
-    const { onChange } = this.props;
     if (isFunction(onChange)) {
       onChange(date);
+    }
+
+    if (isFunction(onSave) && !this.props.hasSaveButton) {
+      onSave(date);
     }
   };
 
