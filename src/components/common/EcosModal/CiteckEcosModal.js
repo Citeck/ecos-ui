@@ -163,7 +163,9 @@ class Modal {
     );
 
     setTimeout(() => {
-      callback();
+      if (isFunction(callback)) {
+        callback();
+      }
     }, 0);
   };
 
