@@ -584,12 +584,6 @@ class DocPreview extends Component {
     return this.imgViewer();
   }
 
-  renderLoader() {
-    const { isLoading } = this.state;
-
-    return isLoading && <Loader className="ecos-doc-preview__loader" blur />;
-  }
-
   renderMessage() {
     const { downloadData } = this.state;
 
@@ -609,24 +603,32 @@ class DocPreview extends Component {
 
   render() {
     const { className, noIndents } = this.props;
-    const Loader = this.renderLoader();
+    const { isLoading } = this.state;
+
+    if (isLoading) {
+      return;
+    }
 
     return (
       <div
         className={classNames('ecos-doc-preview', className, {
           [`ecos-doc-preview_decreasing-step-${this.decreasingStep}`]: this.decreasingStep,
-          'ecos-doc-preview_hidden': !Loader && this.hiddenPreview,
-          'ecos-doc-preview_loading': !!Loader
+          'ecos-doc-preview_hidden': this.hiddenPreview
         })}
         style={{ height: this.height }}
       >
-        {Loader}
-        <div ref={this.setBodyRef} className={classNames('ecos-doc-preview__content', { 'ecos-doc-preview__content_indents': !noIndents })}>
-          {this.renderToolbar()}
-          {this.renderViewer()}
-          {this.renderMessage()}
-        </div>
-
+        {isLoading ? (
+          <Loader className="ecos-doc-preview__loader" blur />
+        ) : (
+          <div
+            ref={this.setBodyRef}
+            className={classNames('ecos-doc-preview__content', { 'ecos-doc-preview__content_indents': !noIndents })}
+          >
+            {this.renderToolbar()}
+            {this.renderViewer()}
+            {this.renderMessage()}
+          </div>
+        )}
         <ReactResizeDetector handleWidth onResize={this.handleResizeWrapper} />
       </div>
     );
