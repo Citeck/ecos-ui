@@ -27,13 +27,13 @@
     }
 
     &__buttons {
-      margin-top: 10px;
       display: flex;
-      margin-top: 10px;
+      margin: 10px 0;
+      flex-wrap: wrap;
       flex-direction: row;
       justify-self: right;
       gap: 8px;
-      flex-wrap: wrap;
+
       & > button {
         flex-grow: 1;
         margin: 0 !important;

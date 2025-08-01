@@ -321,7 +321,7 @@ class Dashboard extends Component {
   getIsEmptyTab = (columns = []) => {
     let isEmpty = true;
 
-    columns.forEach(column => {
+    columns.flat().forEach(column => {
       const widgets = get(column, 'widgets');
 
       if (widgets && !!isEmpty) {
