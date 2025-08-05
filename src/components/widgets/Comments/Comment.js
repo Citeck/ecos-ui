@@ -330,7 +330,7 @@ export class Comment extends Component {
               {t('comments-widget.editor.cancel')}
             </Btn>
             <Btn
-              className="ecos-btn_blue ecos-btn_hover_light-blue ecos-comments__editor-footer-btn"
+              className="ecos-btn_blue ecos-comments__editor-footer-btn"
               onClick={this.handleSaveComment}
               disabled={!this.canSendComment || noChanges}
               loading={saveIsLoading}

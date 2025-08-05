@@ -24,7 +24,8 @@ button {
     user-select: none;
 
     &:hover {
-      background-color: var(--light-primary-color);
+      color: $color-white;
+      background-color: var(--dark-primary-color);
     }
 
     &:active {

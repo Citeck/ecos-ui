@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
 import classNames from 'classnames';
 import isFunction from 'lodash/isFunction';
+import React, { Component } from 'react';
 
 import { t } from '../../../../helpers/util';
 import { Btn } from '../../btns';
@@ -28,13 +28,13 @@ export default class Tools extends Component {
           <div className="grid-tools__selected-count">{t('grid.tools.selected', { count: selectedRecords.length })}</div>
         )}
         {isFunction(this.props.onResetAll) && !!selectedRecords.length && (
-          <Btn className="ecos-btn_extra-narrow grid-tools__item_select-all-btn ecos-btn_hover_light-blue2" onClick={this.resetAll}>
+          <Btn className="ecos-btn_extra-narrow grid-tools__item_select-all-btn" onClick={this.resetAll}>
             {t('grid.tools.reset-all')}
           </Btn>
         )}
         {isFunction(this.props.onSelectAll) && (
           <Btn
-            className={classNames('ecos-btn_extra-narrow grid-tools__item_select-all-btn ecos-btn_hover_light-blue2', {
+            className={classNames('ecos-btn_extra-narrow grid-tools__item_select-all-btn', {
               'ecos-btn_blue': selectAllVisible
             })}
             onClick={this.selectAll}

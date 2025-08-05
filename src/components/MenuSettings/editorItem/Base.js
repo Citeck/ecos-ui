@@ -1,19 +1,19 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 import { TMP_ICON_EMPTY } from '../../../constants';
 import { MenuSettings as MS } from '../../../constants/menu';
 import { t } from '../../../helpers/export/util';
 import { extractLabel, isFilledLabelWeak } from '../../../helpers/util';
 import MenuSettingsService from '../../../services/MenuSettingsService';
-import { EcosModal } from '../../common';
-import { Btn } from '../../common/btns';
-import EcosIcon from '../../common/EcosIcon';
 import IconSelect from '../../IconSelect';
-import { Labels } from '../utils';
+import { EcosModal } from '../../common';
+import EcosIcon from '../../common/EcosIcon';
+import { Btn } from '../../common/btns';
 import { Field } from '../Field';
+import { Labels } from '../utils';
 
 import '../style.scss';
 
@@ -106,11 +106,11 @@ class Base extends React.Component {
               <EcosIcon data={icon} defaultVal={defaultIcon.value} />
               <div className="ecos--flex-space" />
               {!isEqual(icon, defaultIcon) && (
-                <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={() => this.handleApplyIcon(defaultIcon)}>
+                <Btn className="ecos-btn_sq_sm" onClick={() => this.handleApplyIcon(defaultIcon)}>
                   {t(Labels.FIELD_ICON_BTN_CANCEL)}
                 </Btn>
               )}
-              <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={() => this.setState({ isOpenSelectIcon: true })}>
+              <Btn className="ecos-btn_sq_sm" onClick={() => this.setState({ isOpenSelectIcon: true })}>
                 {t(Labels.FIELD_ICON_BTN_SELECT)}
               </Btn>
             </div>
@@ -127,7 +127,7 @@ class Base extends React.Component {
         )}
         <div className="ecos-menu-editor-item__buttons">
           <Btn onClick={this.handleCancel}>{t(Labels.MODAL_BTN_CANCEL)}</Btn>
-          <Btn onClick={this.handleApply} className="ecos-btn_blue ecos-btn_hover_light-blue" disabled={this.isInvalidForm()}>
+          <Btn onClick={this.handleApply} className="ecos-btn_blue" disabled={this.isInvalidForm()}>
             {!!item ? t(Labels.MODAL_BTN_EDIT) : t(Labels.MODAL_BTN_ADD)}
           </Btn>
         </div>

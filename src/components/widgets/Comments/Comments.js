@@ -193,7 +193,7 @@ class Comments extends BaseWidget {
               <div className="ecos-comments__count">
                 <span className="ecos-comments__count-text">{this.countComments}</span>
               </div>
-              <Btn className="ecos-btn_blue ecos-btn_hover_light-blue ecos-comments__add-btn" onClick={this.handleShowEditor}>
+              <Btn className="ecos-btn_blue ecos-comments__add-btn" onClick={this.handleShowEditor}>
                 {t('comments-widget.add')}
               </Btn>
             </>

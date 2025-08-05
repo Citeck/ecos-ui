@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { Btn } from '../btns';
 import { t } from '../../../helpers/util';
+import { Btn } from '../btns';
 
 import './style.scss';
 

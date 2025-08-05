@@ -1,7 +1,7 @@
 @import '../../../styles/constants';
 
 %hover {
-  background: var(--dark-primary-color);
+  background: var(--primary-color);
   cursor: pointer;
   border-radius: $border-radius-standard;
   color: $color-white;
@@ -9,9 +9,6 @@
 
 .ecos-actions {
   $root: &;
-
-  &-dashlet {
-  }
 
   &__v-scroll {
     @extend %v-scroll;
@@ -88,7 +85,7 @@
               border-top-right-radius: $border-radius-standard;
 
               &::after {
-                background: var(--dark-primary-color);
+                background: var(--primary-color);
               }
             }
           }

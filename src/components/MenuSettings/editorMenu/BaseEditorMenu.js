@@ -348,7 +348,7 @@ export default class BaseEditorMenu extends React.Component {
     const { openAllMenuItems } = this.state;
 
     return (
-      <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={this.toggleOpenAll}>
+      <Btn className="ecos-btn_sq_sm" onClick={this.toggleOpenAll}>
         {t(openAllMenuItems ? Labels.BTN_COLLAPSE_ALL : Labels.BTN_EXPAND_ALL)}
       </Btn>
     );

@@ -523,6 +523,8 @@
       padding: 8px;
       background-color: var(--header-component-color);
 
+      &:active,
+      &:focus,
       &:hover {
         background-color: $color-white;
         color: var(--primary-color);

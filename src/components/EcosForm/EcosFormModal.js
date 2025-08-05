@@ -204,7 +204,7 @@ export default class EcosFormModal extends React.Component {
         <IcoBtn
           id="ecos-form-modal-constructor-btn"
           icon="icon-settings"
-          className={classNames('ecos-btn_grey ecos-btn_sq_sm2 ecos-btn_hover_color-grey ml-2 ecos-form-modal__btn-settings')}
+          className={classNames('ecos-btn_grey ecos-btn_sq_sm2 ml-2 ecos-form-modal__btn-settings')}
           onClick={this.onClickShowFormBuilder}
         />
         <UncontrolledTooltip

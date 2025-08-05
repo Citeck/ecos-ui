@@ -1,15 +1,16 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import uniqueId from 'lodash/uniqueId';
-import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import uniqueId from 'lodash/uniqueId';
+import PropTypes from 'prop-types';
+import * as React from 'react';
 
 import { getOutputFormat, prepareTooltipId } from '../../../helpers/util';
 import { Icon, Tooltip } from '../../common';
 import { DropdownOuter, Headline } from '../../common/form';
-import { cleanTaskId, CurrentTaskPropTypes, DisplayedColumns as DC, noData } from './utils';
+
 import BtnTooltipInfo from './BtnTooltipInfo';
+import { cleanTaskId, CurrentTaskPropTypes, DisplayedColumns as DC, noData } from './utils';
 
 class CurrentTaskInfo extends React.Component {
   static propTypes = {

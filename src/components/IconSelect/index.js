@@ -128,7 +128,7 @@ class IconSelect extends React.Component {
         <div className="ecos-icon-select__custom-tip">{t(Labels.ICON_CUSTOM_TIP)}</div>
         <div className="ecos-menu-editor-item__buttons">
           <Btn onClick={this.onCancel}>{t(Labels.BTN_CANCEL)}</Btn>
-          <Btn onClick={this.onApply} disabled={this.disabledApply} className="ecos-btn_blue ecos-btn_hover_light-blue">
+          <Btn onClick={this.onApply} disabled={this.disabledApply} className="ecos-btn_blue">
             {t(Labels.BTN_DONE)}
           </Btn>
         </div>
