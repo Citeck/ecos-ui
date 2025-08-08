@@ -13,6 +13,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
+import JournalsService from '../../../components/Journals/service';
 import { LinkedAttributesSelect } from '../../LinkedAttributesSelect';
 import Records from '../../Records';
 import { Btn } from '../../common/btns';
@@ -31,6 +32,7 @@ import {
   setLoading
 } from '@/actions/journals';
 import { SystemJournals, SourcesId } from '@/constants';
+import { SearchInWorkspacePolicy, SearchWorkspacePolicyOptions } from '@/forms/components/custom/selectJournal/constants';
 import { wrapArgs } from '@/helpers/redux';
 import { getWorkspaceId } from '@/helpers/urls';
 import { getEnabledWorkspaces, getSelectedValue, t } from '@/helpers/util';
@@ -105,6 +107,7 @@ class JournalsDashletEditor extends Component {
     super(props);
 
     const currentWorkspaceRef = `${SourcesId.WORKSPACE}@${getWorkspaceId()}`;
+    const defaultPolicy = SearchWorkspacePolicyOptions.find(item => item.value === SearchInWorkspacePolicy.CURRENT);
 
     this.state = {
       ...this.#defaultStateConfig,
@@ -112,7 +115,9 @@ class JournalsDashletEditor extends Component {
       attrsToLoad: get(props, 'config.attrsToLoad') || {},
       isHideCreateVariants: get(props, 'config.isHideCreateVariants') || false,
       isHideGoToButton: get(props, 'config.isHideGoToButton') || false,
-      aggregateWorkspaces: get(props, 'config.aggregateWorkspaces') || [currentWorkspaceRef]
+      searchInWorkspacePolicy: get(props, 'config.searchInWorkspacePolicy', { value: defaultPolicy.value, label: t(defaultPolicy.label) }),
+      searchInAdditionalWorkspaces: get(props, 'config.searchInAdditionalWorkspaces') ||
+        get(props, 'config.aggregateWorkspaces') || [currentWorkspaceRef]
     };
   }
 
@@ -266,13 +271,15 @@ class JournalsDashletEditor extends Component {
       customJournal,
       journalSettingId,
       isOnlyLinkedJournals,
+      searchInWorkspacePolicy,
+      searchInAdditionalWorkspaces,
       goToButtonName,
-      aggregateWorkspaces,
       isHideCreateVariants,
       isHideGoToButton
     } = this.state;
     const generalConfig = this.props.generalConfig || {};
     const journalId = get(selectedJournals, '0', '');
+
     let newConfig = omit(config, ['journalsListId', 'journalType']);
 
     if (recordRef) {
@@ -281,7 +288,8 @@ class JournalsDashletEditor extends Component {
     }
 
     if (getEnabledWorkspaces()) {
-      newConfig.aggregateWorkspaces = aggregateWorkspaces;
+      newConfig.searchInWorkspacePolicy = searchInWorkspacePolicy;
+      newConfig.aggregateWorkspaces = JournalsService.getWorkspaceByPolicy(searchInWorkspacePolicy.value, searchInAdditionalWorkspaces);
     }
 
     newConfig.isHideCreateVariants = isHideCreateVariants;
@@ -377,8 +385,12 @@ class JournalsDashletEditor extends Component {
     this.setState({ selectedJournals });
   };
 
-  setSelectedAggregateWorkspaces = (aggregateWorkspaces = []) => {
-    this.setState({ aggregateWorkspaces });
+  setSelectedWorkspacePolicy = policy => {
+    this.setState({ searchInWorkspacePolicy: policy });
+  };
+
+  setSelectedAdditionsWorkspaces = (searchInAdditionalWorkspaces = []) => {
+    this.setState({ searchInAdditionalWorkspaces });
   };
 
   handleChangeGoToButtonName = goToButtonName => {
@@ -403,7 +415,8 @@ class JournalsDashletEditor extends Component {
       isHideGoToButton,
       isHideCreateVariants,
       isOnlyLinkedJournals,
-      aggregateWorkspaces,
+      searchInWorkspacePolicy,
+      searchInAdditionalWorkspaces,
       goToButtonName
     } = this.state;
 
@@ -432,16 +445,34 @@ class JournalsDashletEditor extends Component {
               </Field>
 
               {getEnabledWorkspaces() && (
-                <Field label={t(Labels.AGGREGATION_WORKSPACES)} isSmall={this.isSmall} labelPosition="top">
-                  <SelectJournal
-                    journalId={SystemJournals.WORKSPACES}
-                    defaultValue={aggregateWorkspaces}
-                    multiple
-                    hideCreateButton
-                    isSelectedValueAsText
-                    onChange={this.setSelectedAggregateWorkspaces}
-                  />
-                </Field>
+                <>
+                  <Field label={t('workspace-polices.title')} isSmall={this.isSmall} labelPosition="top">
+                    <Select
+                      onChange={this.setSelectedWorkspacePolicy}
+                      value={this.state.searchInWorkspacePolicy}
+                      options={SearchWorkspacePolicyOptions.map(item => ({
+                        value: item.value,
+                        label: t(item.label)
+                      }))}
+                    />
+                  </Field>
+                  {[SearchInWorkspacePolicy.CURRENT_AND_ADDITIONAL, SearchInWorkspacePolicy.ONLY_ADDITIONAL].includes(
+                    searchInWorkspacePolicy.value
+                  ) && (
+                    <Field label={t('workspace-polices.additional-title')} isSmall={this.isSmall} labelPosition="top">
+                      <SelectJournal
+                        journalId={SystemJournals.WORKSPACES}
+                        defaultValue={searchInAdditionalWorkspaces}
+                        multiple
+                        hideCreateButton
+                        isSelectedValueAsText
+                        onChange={this.setSelectedAdditionsWorkspaces}
+                        isCompact
+                        isRequired
+                      />
+                    </Field>
+                  )}
+                </>
               )}
 
               <Field label={t(Labels.SETTING_FIELD)} isSmall={this.isSmall}>

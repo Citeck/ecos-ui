@@ -696,18 +696,26 @@ export default class SelectComponent extends BaseComponent {
     return headers;
   }
 
-  getCustomItems() {
-    return this.evaluate(
+  async getCustomItems() {
+    const evaluated = this.evaluate(
       this.component.data.custom,
       {
         values: []
       },
       'values'
     );
+
+    if (_.isFunction(_.get(evaluated, 'then'))) {
+      return await evaluated;
+    }
+
+    return evaluated;
   }
 
-  updateCustomItems() {
-    this.setItems(this.getCustomItems() || []);
+  async updateCustomItems() {
+    const items = await this.getCustomItems();
+
+    this.setItems(items || []);
   }
 
   /* eslint-disable max-statements */
@@ -1042,9 +1050,9 @@ export default class SelectComponent extends BaseComponent {
 
   /* eslint-enable max-statements */
 
-  update() {
+  async update() {
     if (this.component.dataSrc === 'custom') {
-      this.updateCustomItems();
+      await this.updateCustomItems();
     }
 
     // Activate the control.

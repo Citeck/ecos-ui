@@ -2812,6 +2812,13 @@
   "workspaces.join-confirm.remove.workspace": "Delete the workspace «{{wsName}}»?",
   "workspaces.join-confirm.remove.description": "Do you really want to delete the workspace?",
 
+  "workspace-polices.title": "Workspace searching policy",
+  "workspace-polices.additional-title": "Additional polices",
+  "workspace-polices.all": "All workspaces",
+  "workspace-polices.current": "Only current workspace (by default)",
+  "workspace-polices.current-and-additional": "Current and additional workspaces",
+  "workspace-polices.only-additional": "Only additional workspaces",
+
   "publication.creator.name": "Created by",
   "publication.modifier.name": ", Modified by",
 

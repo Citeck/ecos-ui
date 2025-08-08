@@ -1,16 +1,19 @@
 import _ from 'lodash';
 
 import { ActionModes } from '../../../constants';
-import { getTextByLocale } from '../../../helpers/util';
+import { pagesStore } from '../../../helpers/indexedDB';
+import { getTextByLocale, getCurrentUserName } from '../../../helpers/util';
 import RecordActions from '../../Records/actions';
-import journalsApi from './journalsServiceApi';
+
+import computedService from './computed/computedService';
+import { DEFAULT_TYPE } from './constants';
 import journalColumnsResolver from './journalColumnsResolver';
 import journalDataLoader from './journalsDataLoader';
-import computedService from './computed/computedService';
+import journalsApi from './journalsServiceApi';
 import { COLUMN_TYPE_NEW_TO_LEGACY_MAPPING, replacePlaceholders, fillTemplateAttsAndMapComputedScope } from './util';
-import { DEFAULT_TYPE } from './constants';
-import { pagesStore } from '../../../helpers/indexedDB';
-import { getCurrentUserName } from '../../../helpers/util';
+
+import { SearchInWorkspacePolicy } from '@/forms/components/custom/selectJournal/constants';
+import { getWorkspaceId } from '@/helpers/urls';
 
 const COLUMN_COMPUTED_PREFIX = 'column_';
 
@@ -333,6 +336,28 @@ class JournalsService {
    */
   getPredicates = async (journalConfig, settings) => {
     return journalDataLoader.getPredicates(journalConfig, settings);
+  };
+
+  /**
+   * Returns workspace IDs based on the specified search policy.
+   * @param {SearchInWorkspacePolicy} policy - The policy determining which workspaces to include.
+   * @param {Array<string>} [additional=[]] - Additional workspace IDs to include, if applicable.
+   * @returns {Array<string>|Set<string>} An array or set of workspace IDs based on the policy.
+   */
+  getWorkspaceByPolicy = (policy, additional = []) => {
+    if (policy === SearchInWorkspacePolicy.ALL) {
+      return [];
+    }
+
+    if (policy === SearchInWorkspacePolicy.CURRENT_AND_ADDITIONAL) {
+      return [...new Set([getWorkspaceId(), ...additional])];
+    }
+
+    if (policy === SearchInWorkspacePolicy.ONLY_ADDITIONAL) {
+      return additional;
+    }
+
+    return [getWorkspaceId()];
   };
 }
 

@@ -1,5 +1,5 @@
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
 
 import { t } from '../../../helpers/export/util';
 import { Field, MLText } from '../../common/form';
