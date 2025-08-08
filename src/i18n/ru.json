@@ -2813,6 +2813,13 @@
   "workspaces.join-confirm.remove.workspace": "Удалить рабочее пространство «{{wsName}}»?",
   "workspaces.join-confirm.remove.description": "Вы действительно хотите удалить рабочее пространство?",
 
+  "workspace-polices.title": "Рабочие пространства для поиска",
+  "workspace-polices.additional-title": "Дополнительные рабочие пространства для поиска",
+  "workspace-polices.all": "Все пространства",
+  "workspace-polices.current": "Только текущее пространство (по умолчанию)",
+  "workspace-polices.current-and-additional": "Текущее и дополнительные пространства",
+  "workspace-polices.only-additional": "Только дополнительные пространства",
+
   "publication.creator.name": "Создал (а)",
   "publication.modifier.name": ", Обновил (а)",
 

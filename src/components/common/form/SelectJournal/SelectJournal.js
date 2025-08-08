@@ -204,7 +204,7 @@ export default class SelectJournal extends Component {
 
   shouldResetValue = () => {
     return new Promise(async resolve => {
-      const { sortBy, disableResetOnApplyCustomPredicate } = this.props;
+      const { sortBy, disableResetOnApplyCustomPredicate, searchInWorkspacePolicy, searchInAdditionalWorkspaces } = this.props;
       const { selectedRows, customPredicate, pagination, filterPredicate } = this.state;
       let { journalConfig } = this.state;
 
@@ -247,7 +247,11 @@ export default class SelectJournal extends Component {
         ({ journalConfig } = this.state);
       }
 
-      const result = await JournalsService.getJournalData(journalConfig, settings);
+      const result = await JournalsService.getJournalData(journalConfig, {
+        ...settings,
+        workspaces: JournalsService.getWorkspaceByPolicy(searchInWorkspacePolicy, searchInAdditionalWorkspaces)
+      });
+
       const gridData = JournalsConverter.getJournalDataWeb(result);
 
       if (gridData.total && gridData.total === selectedRows.length) {
@@ -304,7 +308,7 @@ export default class SelectJournal extends Component {
 
   refreshGridData = () => {
     const getData = async resolve => {
-      const { sortBy, queryData, customSourceId } = this.props;
+      const { sortBy, queryData, customSourceId, searchInAdditionalWorkspaces, searchInWorkspacePolicy } = this.props;
       const { customPredicate, journalConfig, gridData, pagination, filterPredicate, displayedColumns } = this.state;
       const predicates = JournalsConverter.cleanUpPredicate([customPredicate, ...(filterPredicate || [])]);
       /** @type JournalSettings */
@@ -317,7 +321,10 @@ export default class SelectJournal extends Component {
       });
       settings.queryData = queryData;
 
-      const result = await JournalsService.getJournalData(journalConfig, settings);
+      const result = await JournalsService.getJournalData(journalConfig, {
+        ...settings,
+        workspaces: JournalsService.getWorkspaceByPolicy(searchInWorkspacePolicy, searchInAdditionalWorkspaces)
+      });
       const fetchedGridData = JournalsConverter.getJournalDataWeb(result);
 
       fetchedGridData.columns = displayedColumns;

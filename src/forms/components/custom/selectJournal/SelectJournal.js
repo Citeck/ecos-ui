@@ -3,7 +3,7 @@ import _ from 'lodash';
 
 import BaseReactComponent from '../base/BaseReactComponent';
 
-import { DataTypes, DisplayModes, SortOrderOptions, TableTypes, TEMPLATE_REGEX } from './constants';
+import { DataTypes, DisplayModes, SearchInWorkspacePolicy, SortOrderOptions, TableTypes, TEMPLATE_REGEX } from './constants';
 
 import EcosFormUtils from '@/components/EcosForm/EcosFormUtils';
 import Records from '@/components/Records';
@@ -45,6 +45,8 @@ export default class SelectJournalComponent extends BaseReactComponent {
           valueDisplayName: ''
         },
         searchField: '',
+        searchInWorkspacePolicy: SearchInWorkspacePolicy.CURRENT,
+        searchInAdditionalWorkspaces: [],
         ecos: {
           dataType: DataTypes.ASSOC
         }
@@ -337,6 +339,8 @@ export default class SelectJournalComponent extends BaseReactComponent {
       linkFormatter: comp.linkFormatter,
       viewOnly: this.viewOnly,
       viewMode: comp.source.viewMode,
+      searchInWorkspacePolicy: comp.searchInWorkspacePolicy,
+      searchInAdditionalWorkspaces: comp.searchInAdditionalWorkspaces,
       customValues: SelectJournalComponent.getCustomValues(comp),
       displayColumns: comp.displayColumns,
       isSelectedValueAsText: comp.isSelectedValueAsText,

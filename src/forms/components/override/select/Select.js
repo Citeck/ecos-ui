@@ -3,9 +3,9 @@
 import FormIOSelectComponent from 'formiojs/components/select/Select';
 import _ from 'lodash';
 
+import { t } from '../../../../helpers/util';
 import Choices from '../../../choices';
 import Base from '../../override/base/Base';
-import { t } from '../../../../helpers/util';
 
 const baseAddInput = Base.prototype.addInput;
 
@@ -236,7 +236,7 @@ export default class SelectComponent extends FormIOSelectComponent {
 
     if (this.isInfiniteScrollProvided) {
       this.scrollList = this.choices.choiceList.element;
-      this.onScroll = function() {
+      this.onScroll = function () {
         const isLoadingAvailable =
           !this.isScrollLoading &&
           this.additionalResourcesAvailable &&
@@ -315,5 +315,36 @@ export default class SelectComponent extends FormIOSelectComponent {
     // eslint-disable-next-line no-self-assign
     this.disabled = this.disabled;
     this.triggerUpdate();
+  }
+
+  async getCustomItems() {
+    const evaluated = this.evaluate(
+      this.component.data.custom,
+      {
+        values: []
+      },
+      'values'
+    );
+
+    if (_.isFunction(_.get(evaluated, 'then'))) {
+      return await evaluated;
+    }
+
+    return evaluated;
+  }
+
+  async updateCustomItems() {
+    const items = await this.getCustomItems();
+
+    this.setItems(items || []);
+  }
+
+  async update() {
+    if (this.component.dataSrc === 'custom') {
+      await this.updateCustomItems();
+    }
+
+    // Activate the control.
+    this.activate();
   }
 }
