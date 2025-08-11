@@ -33,5 +33,15 @@ declare module 'wx-react-gantt' {
     [key: string]: any;
   }
 
+  export interface ButtonProps {
+    comp?: string;
+    icon?: string;
+    id?: string;
+    menuText?: string;
+    type?: string;
+    text?: string;
+    check?: (t: any, n?: any) => boolean;
+  }
+
   export const Gantt: React.FC<GanttProps>;
 }
