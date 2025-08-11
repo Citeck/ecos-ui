@@ -9,14 +9,14 @@ import './Panel.scss';
 
 class Panel extends Component {
   render() {
-    const { className, headClassName, bodyClassName, header, children, style, noHeader, noChild, isSameHeight } = this.props;
+    const { className, headClassName, bodyClassName, header, children, style, noHeader, noChild, isSameHeight, isCollapsed } = this.props;
 
     return (
       <Well className={classNames('ecos-panel', className)} style={style}>
         {!noHeader && <div className={classNames('ecos-panel__head', headClassName)}>{header}</div>}
         {!noChild && (
           <>
-            {isSameHeight ? (
+            {isSameHeight && !isCollapsed ? (
               <Scrollbars
                 className="dashlet__same-scrollbar"
                 renderTrackVertical={props => <div {...props} className="dashlet__same-scrollbar_track" />}

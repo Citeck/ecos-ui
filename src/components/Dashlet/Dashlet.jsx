@@ -245,7 +245,7 @@ class Dashlet extends Component {
     } = this.props;
 
     return (
-      <div ref={this.setDashletRef} className={classNames('dashlet', { same: isSameHeight })}>
+      <div ref={this.setDashletRef} className={classNames('dashlet', { same: isSameHeight && !isCollapsed })}>
         <Panel
           {...this.props}
           className={classNames('dashlet', className, { dashlet_mobile: isMobile })}

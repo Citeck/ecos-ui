@@ -7,7 +7,7 @@ import Dashlet from '@/components/Dashlet';
 import Records from '@/components/Records';
 import Card from '@/components/WorkspaceSidebar/Card';
 import { Loader } from '@/components/common';
-import BaseWidget, { BaseWidgetState } from '@/components/widgets/BaseWidget';
+import BaseWidget, { BaseWidgetProps, BaseWidgetState } from '@/components/widgets/BaseWidget';
 import { omit } from '@/helpers/omitObject';
 import { getWorkspaceId, openLinkWorkspace } from '@/helpers/urls';
 import { t } from '@/helpers/util';
@@ -24,8 +24,8 @@ interface WelcomeState extends BaseWidgetState {
   workspaces: wsItem[];
 }
 
-class WelcomeWidget extends BaseWidget<any, WelcomeState> {
-  constructor(props: any) {
+class WelcomeWidget<P extends BaseWidgetProps> extends BaseWidget<P, WelcomeState> {
+  constructor(props: P) {
     super(props);
     this.state = {
       isLoading: false,
