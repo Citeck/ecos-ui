@@ -3,6 +3,10 @@
 .ecos-hierarchical-tree-widget {
   $root: &;
 
+  &.fullHeight {
+    height: 100%;
+  }
+
   i.icon {
     color: $color-gray-5;
     cursor: pointer;

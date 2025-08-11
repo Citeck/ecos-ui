@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import React, { useState, useEffect } from 'react';
+import { Scrollbars } from 'react-custom-scrollbars';
 
 import ChevronDown from './icons/ChevronDown';
 import ChevronRight from './icons/ChevronRight';
@@ -13,11 +14,13 @@ import Records from '@/components/Records';
 import { Icon, Tooltip } from '@/components/common';
 import { Btn } from '@/components/common/btns';
 import { DialogManager } from '@/components/common/dialogs';
+import { BaseWidgetProps } from '@/components/widgets/BaseWidget';
 import { SourcesId } from '@/constants';
 import { getRecordRef, getWorkspaceId, updateCurrentUrl } from '@/helpers/urls';
 import { isMobileDevice, t } from '@/helpers/util';
 import { Events } from '@/services/PageService';
 
+import '@/components/Dashlet/Dashlet.scss';
 import './style.scss';
 
 const Labels = {
@@ -206,7 +209,7 @@ const TreeNode = ({
   );
 };
 
-const HierarchicalTreeWidget = ({ record: initialRecordRef }: { record: string }) => {
+const HierarchicalTreeWidget = ({ record: initialRecordRef, isSameHeight }: BaseWidgetProps) => {
   const rootRecord = `${SourcesId.WIKI}@${getWorkspaceId()}$ROOT`;
 
   const [canEdit, setCanEdit] = useState<boolean>(false);
@@ -269,8 +272,53 @@ const HierarchicalTreeWidget = ({ record: initialRecordRef }: { record: string }
     });
   };
 
+  const renderContent = () =>
+    records.length === 0 ? (
+      <div className="ecos-hierarchical-tree-widget-empty">
+        <EmptySvg />
+        <p>{t(Labels.NO_DATA)}</p>
+        {canEdit && <Btn onClick={() => create()}>{t(Labels.ADD)}</Btn>}
+      </div>
+    ) : (
+      <div className="ecos-hierarchical-tree-widget-body">
+        <ul className="tree">
+          {records.map(record => (
+            <li
+              key={record.id}
+              className={classNames('parent-tree', {
+                'parent-tree__active': recordRef && recordRef.includes(record.id),
+                'parent-tree__no-children': record.children.length === 0
+              })}
+              onClick={(event: React.MouseEvent<HTMLElement>) => {
+                event.preventDefault();
+                if (record.children.length === 0) {
+                  updateCurrentUrl({ recordRef: `${SourcesId.WIKI}@${record.id}` });
+                }
+              }}
+            >
+              <TreeNode
+                toggleOpen={() => updateCurrentUrl({ recordRef: `${SourcesId.WIKI}@${record.id}` })}
+                updateRootChilds={childs => setRecords(childs)}
+                rootRecord={rootRecord}
+                recordRef={recordRef}
+                node={record}
+                onFetchChildren={fetchRecords}
+                canEdit={canEdit}
+                records={records}
+                setRecords={setRecords}
+              />
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+
   return (
-    <div className="ecos-hierarchical-tree-widget">
+    <div
+      className={classNames('ecos-hierarchical-tree-widget', {
+        fullHeight: isSameHeight
+      })}
+    >
       <div className="ecos-hierarchical-tree-widget-header">
         <h4
           onClick={(event: React.MouseEvent<HTMLElement>) => {
@@ -288,44 +336,17 @@ const HierarchicalTreeWidget = ({ record: initialRecordRef }: { record: string }
           </Tooltip>
         )}
       </div>
-      {records.length === 0 ? (
-        <div className="ecos-hierarchical-tree-widget-empty">
-          <EmptySvg />
-          <p>{t(Labels.NO_DATA)}</p>
-          {canEdit && <Btn onClick={() => create()}>{t(Labels.ADD)}</Btn>}
-        </div>
+      {isSameHeight ? (
+        <Scrollbars
+          className="dashlet__same-scrollbar"
+          renderTrackVertical={(props: React.HTMLAttributes<HTMLDivElement>) => (
+            <div {...props} className="dashlet__same-scrollbar_track" />
+          )}
+        >
+          {renderContent()}
+        </Scrollbars>
       ) : (
-        <div className="ecos-hierarchical-tree-widget-body">
-          <ul className="tree">
-            {records.map(record => (
-              <li
-                key={record.id}
-                className={classNames('parent-tree', {
-                  'parent-tree__active': recordRef && recordRef.includes(record.id),
-                  'parent-tree__no-children': record.children.length === 0
-                })}
-                onClick={(event: React.MouseEvent<HTMLElement>) => {
-                  event.preventDefault();
-                  if (record.children.length === 0) {
-                    updateCurrentUrl({ recordRef: `${SourcesId.WIKI}@${record.id}` });
-                  }
-                }}
-              >
-                <TreeNode
-                  toggleOpen={() => updateCurrentUrl({ recordRef: `${SourcesId.WIKI}@${record.id}` })}
-                  updateRootChilds={childs => setRecords(childs)}
-                  rootRecord={rootRecord}
-                  recordRef={recordRef}
-                  node={record}
-                  onFetchChildren={fetchRecords}
-                  canEdit={canEdit}
-                  records={records}
-                  setRecords={setRecords}
-                />
-              </li>
-            ))}
-          </ul>
-        </div>
+        renderContent()
       )}
     </div>
   );

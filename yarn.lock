@@ -3365,6 +3365,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/react-custom-scrollbars@npm:^4.0.13":
+  version: 4.0.13
+  resolution: "@types/react-custom-scrollbars@npm:4.0.13"
+  dependencies:
+    "@types/react": "*"
+  checksum: 8a92c385108cab2b4155337c66e6321fddec10542d21fc03acd2f714e7d5e9e3a859ba1024939eeb553076e946d5b700f251dff73b9c77995db3d8747f38778f
+  languageName: node
+  linkType: hard
+
 "@types/react-datepicker@npm:2.3.0":
   version: 2.3.0
   resolution: "@types/react-datepicker@npm:2.3.0"
@@ -6818,6 +6827,7 @@ __metadata:
     "@types/lodash": ^4.17.15
     "@types/react": ^19.0.10
     "@types/react-beautiful-dnd": ^13.1.8
+    "@types/react-custom-scrollbars": ^4.0.13
     "@types/react-datepicker": 2.3.0
     "@types/react-dom": ^19.0.4
     "@types/react-redux": ^7.1.34
