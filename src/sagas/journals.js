@@ -662,6 +662,7 @@ export function* getGridData(api, params, stateId) {
     predicates,
     onlyLinked: predicateRecords.length ? false : onlyLinked,
     searchPredicate,
+    attrsToLoad,
     journalSetting
   });
 
