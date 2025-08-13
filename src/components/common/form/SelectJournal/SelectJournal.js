@@ -323,13 +323,14 @@ export default class SelectJournal extends Component {
       fetchedGridData.columns = displayedColumns;
 
       const mergedData = await this.mergeFetchedDataWithInMemoryData(fetchedGridData);
+      const dataGridMerged = { ...gridData, ...mergedData };
 
       this.setState({
-        gridData: { ...gridData, ...mergedData },
+        gridData: dataGridMerged,
         isGridDataReady: true
       });
 
-      resolve(gridData);
+      resolve(dataGridMerged);
     };
 
     return new Promise(resolve => {
@@ -468,10 +469,10 @@ export default class SelectJournal extends Component {
       readyPromise = this.refreshGridData();
     }
 
-    return readyPromise.then(() => {
+    return readyPromise.then(dataGrid => {
       const atts = [];
       const noNeedParseIndices = [];
-      const tableColumns = this.getColumns();
+      const tableColumns = isEmpty(this.getColumns()) && !isEmpty(get(dataGrid, 'columns')) ? dataGrid.columns : this.getColumns();
 
       tableColumns.forEach((item, idx) => {
         const isFullName = item.attribute.startsWith('.att');
