@@ -39,6 +39,8 @@ const generateUUID = () => {
   });
 };
 
+
+
 const AIAssistantChat = () => {
   const [activeTab, setActiveTab] = useState(TAB_TYPES.UNIVERSAL);
   const [isOpen, setIsOpen] = useState(aiAssistantService.isOpen);
@@ -69,6 +71,14 @@ const AIAssistantChat = () => {
   const [selectedAutocompleteIndex, setSelectedAutocompleteIndex] = useState(0);
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+
+  // Email modal state
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [emailFormData, setEmailFormData] = useState({
+    to: "",
+    subject: "",
+    body: ""
+  });
 
   // Contextual chat state (existing functionality)
   const [contextualMessage, setContextualMessage] = useState("");
@@ -389,17 +399,17 @@ const AIAssistantChat = () => {
       // Remove processing message and add actual response
       setUniversalMessages(prevMessages => {
         const filteredMessages = prevMessages.filter(msg => !msg.isProcessing);
+
+        // Check if message is an object (email) or string (regular message)
+        const isEmailMessage = typeof data.message === 'object' && data.message?.type === 'email';
+        const messageText = isEmailMessage ? data.message.body : (data.message || "Не удалось получить ответ.");
+
         const aiMessage = {
-          text: data.message || "Не удалось получить ответ.",
+          text: messageText,
           sender: "ai",
           timestamp: new Date(),
-          hasDataTypeContent: data.message && (
-            data.message.includes("getDataTypeSchema") ||
-            data.message.includes("validateDataType") ||
-            data.message.includes("deployDataType") ||
-            data.message.includes("\"id\":") ||
-            data.message.includes("JSON схема")
-          )
+          isEmailContent: isEmailMessage,
+          messageData: isEmailMessage ? data.message : null
         };
         return [...filteredMessages, aiMessage];
       });
@@ -878,21 +888,46 @@ const AIAssistantChat = () => {
             "ai-assistant-chat__message--error": msg.isError,
             "ai-assistant-chat__message--processing": msg.isProcessing,
             "ai-assistant-chat__message--cancelled": msg.isCancelled,
-            "ai-assistant-chat__message--datatype": msg.hasDataTypeContent
+            "ai-assistant-chat__message--email": msg.isEmailContent
           }
         )}
       >
         <div className="ai-assistant-chat__message-content">
-          <Markdown
-            remarkPlugins={[remarkGfm]}
-            components={{
-              a: ({ node, ...props }) => (
-                <a {...props} target="_blank" rel="noopener noreferrer" />
-              )
-            }}
-          >
-            {msg.text}
-          </Markdown>
+          {msg.isEmailContent && msg.messageData ? (
+            <div className="ai-assistant-chat__email-preview">
+              <div className="ai-assistant-chat__email-subject">
+                <strong>Тема:</strong> {msg.messageData.subject}
+              </div>
+              <div className="ai-assistant-chat__email-body">
+                <Markdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    a: ({ node, ...props }) => (
+                      <a {...props} target="_blank" rel="noopener noreferrer" />
+                    )
+                  }}
+                >
+                  {msg.messageData.body.replace(/\n/g, '  \n')}
+                </Markdown>
+              </div>
+              {msg.messageData.to && (
+                <div className="ai-assistant-chat__email-recipient">
+                  <strong>Получатель:</strong> {msg.messageData.to}
+                </div>
+              )}
+            </div>
+          ) : (
+            <Markdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                a: ({ node, ...props }) => (
+                  <a {...props} target="_blank" rel="noopener noreferrer" />
+                )
+              }}
+            >
+              {msg.text}
+            </Markdown>
+          )}
         </div>
         {msg.isProcessing && msg.pollingIsUsed && (
           <div className="ai-assistant-chat__cancel-action">
@@ -901,6 +936,26 @@ const AIAssistantChat = () => {
               onClick={cancelActiveRequest}
             >
               Отменить
+            </button>
+          </div>
+        )}
+        {msg.isEmailContent && msg.messageData && (
+          <div className="ai-assistant-chat__email-actions">
+            <button
+              className="ai-assistant-chat__action-button ai-assistant-chat__action-button--copy"
+              onClick={() => handleCopyEmail(msg.messageData)}
+              title="Скопировать письмо"
+            >
+              <Icon className="fa fa-copy" />
+              Скопировать письмо
+            </button>
+            <button
+              className="ai-assistant-chat__action-button ai-assistant-chat__action-button--send"
+              onClick={() => handleSendEmail(msg.messageData)}
+              title="Отправить письмо"
+            >
+              <Icon className="fa fa-send" />
+              Отправить
             </button>
           </div>
         )}
@@ -1159,6 +1214,69 @@ const AIAssistantChat = () => {
     }
   }, [isOpen, isMinimized]);
 
+  // Email handlers
+  const handleCopyEmail = (emailData) => {
+    if (emailData && emailData.body) {
+      navigator.clipboard.writeText(emailData.body).then(() => {
+        console.log("Email copied to clipboard");
+      }).catch(err => {
+        console.error("Failed to copy email: ", err);
+      });
+    }
+  };
+
+  const handleSendEmail = (emailData) => {
+    if (emailData) {
+      setEmailFormData({
+        to: emailData.to || "",
+        subject: emailData.subject || "",
+        body: emailData.body || ""
+      });
+      setShowEmailModal(true);
+    }
+  };
+
+  const handleEmailModalClose = () => {
+    setShowEmailModal(false);
+    setEmailFormData({
+      to: "",
+      subject: "",
+      body: ""
+    });
+  };
+
+  const handleEmailSend = async () => {
+    try {
+      // Call records API to send email
+      const response = await fetch("/gateway/api/records/mutate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          records: [{
+            id: "",
+            attributes: {
+              _type: "emodel/type@email-template",
+              to: emailFormData.to,
+              subject: emailFormData.subject,
+              body: emailFormData.body
+            }
+          }]
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error sending email: ${response.status}`);
+      }
+
+      console.log("Email sent successfully");
+      handleEmailModalClose();
+    } catch (error) {
+      console.error("Error sending email:", error);
+    }
+  };
+
   // Search records by _disp attribute
   const searchRecordsByDisp = async (query, recordType) => {
     if (!query || query.length < AUTOCOMPLETE_QUERY_THRESHOLD) {
@@ -1346,6 +1464,68 @@ const AIAssistantChat = () => {
           )}
         </div>
       </ResizableBox>
+
+      {/* Email Modal */}
+      {showEmailModal && (
+        <div className="ai-assistant-email-modal-overlay">
+          <div className="ai-assistant-email-modal">
+            <div className="ai-assistant-email-modal__header">
+              <h3>Отправить письмо</h3>
+              <button
+                className="ai-assistant-email-modal__close"
+                onClick={handleEmailModalClose}
+              >
+                <Icon className="fa fa-times" />
+              </button>
+            </div>
+            <div className="ai-assistant-email-modal__content">
+              <div className="ai-assistant-email-modal__field">
+                <label>Получатель:</label>
+                <input
+                  type="email"
+                  value={emailFormData.to}
+                  onChange={(e) => setEmailFormData(prev => ({ ...prev, to: e.target.value }))}
+                  placeholder="email@example.com"
+                />
+              </div>
+              <div className="ai-assistant-email-modal__field">
+                <label>Тема:</label>
+                <input
+                  type="text"
+                  value={emailFormData.subject}
+                  onChange={(e) => setEmailFormData(prev => ({ ...prev, subject: e.target.value }))}
+                  placeholder="Тема письма"
+                />
+              </div>
+              <div className="ai-assistant-email-modal__field">
+                <label>Сообщение:</label>
+                <textarea
+                  value={emailFormData.body}
+                  onChange={(e) => setEmailFormData(prev => ({ ...prev, body: e.target.value }))}
+                  rows="10"
+                  placeholder="Текст письма"
+                />
+              </div>
+            </div>
+            <div className="ai-assistant-email-modal__actions">
+              <button
+                className="ai-assistant-email-modal__button ai-assistant-email-modal__button--cancel"
+                onClick={handleEmailModalClose}
+              >
+                Отмена
+              </button>
+              <button
+                className="ai-assistant-email-modal__button ai-assistant-email-modal__button--send"
+                onClick={handleEmailSend}
+                disabled={!emailFormData.to || !emailFormData.subject || !emailFormData.body}
+              >
+                <Icon className="fa fa-send" />
+                Отправить
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

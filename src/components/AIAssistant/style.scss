@@ -274,33 +274,6 @@
       color: var(--text-secondary, #666);
     }
 
-    &--datatype {
-      background-color: var(--success-bg-light, rgba(76, 175, 80, 0.1));
-      border-left: 3px solid var(--success-color, #4caf50);
-
-      pre {
-        background-color: var(--success-bg-light, rgba(76, 175, 80, 0.05));
-        border: 1px solid var(--success-color, #4caf50);
-
-        code {
-          color: var(--success-dark, #2e7d32);
-        }
-      }
-
-      &::before {
-        content: "🔧 Data Type";
-        position: absolute;
-        top: -8px;
-        left: 8px;
-        background-color: var(--success-color, #4caf50);
-        color: var(--surface-color, white);
-        font-size: 10px;
-        padding: 2px 6px;
-        border-radius: 8px;
-        font-weight: 500;
-      }
-    }
-
     &--loading {
       background-color: transparent;
       padding: 5px;
@@ -1003,6 +976,240 @@
       border-radius: 3px;
       font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
       font-size: 11px;
+    }
+  }
+
+  // Email message styles
+  &__message--email {
+    border-left: 3px solid #4CAF50;
+    background-color: rgba(76, 175, 80, 0.1);
+  }
+
+  &__email-preview {
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 12px;
+    background-color: rgba(255, 255, 255, 0.8);
+  }
+
+  &__email-subject {
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 14px;
+
+    strong {
+      color: #333;
+      margin-right: 8px;
+    }
+  }
+
+  &__email-body {
+    margin: 10px 0;
+    line-height: 1.5;
+
+    p {
+      margin: 8px 0;
+    }
+  }
+
+  &__email-recipient {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid #f0f0f0;
+    font-size: 13px;
+    color: #666;
+
+    strong {
+      color: #333;
+      margin-right: 8px;
+    }
+  }
+
+  &__email-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+
+  &__action-button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &--copy {
+      background-color: #2196F3;
+      color: white;
+
+      &:hover {
+        background-color: #1976D2;
+      }
+    }
+
+    &--send {
+      background-color: #4CAF50;
+      color: white;
+
+      &:hover {
+        background-color: #45a049;
+      }
+    }
+
+    &--cancel {
+      background-color: #f44336;
+      color: white;
+
+      &:hover {
+        background-color: #da190b;
+      }
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// Email Modal Styles
+.ai-assistant-email-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 110000;
+}
+
+.ai-assistant-email-modal {
+  background-color: var(--surface-color, #fff);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 20px;
+    background-color: var(--header-bg-color);
+    color: var(--surface-color, white);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+
+    h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 500;
+    }
+  }
+
+  &__close {
+    background: none;
+    border: none;
+    color: var(--surface-color, white);
+    cursor: pointer;
+    padding: 4px;
+    font-size: 16px;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  &__content {
+    padding: 20px;
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  &__field {
+    margin-bottom: 15px;
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      font-size: 14px;
+      color: var(--text-color, #333);
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+
+      &:focus {
+        outline: none;
+        border-color: var(--header-bg-color, #4CAF50);
+        box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+      }
+    }
+
+    textarea {
+      min-height: 120px;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    padding: 15px 20px;
+    border-top: 1px solid #eee;
+  }
+
+  &__button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &--cancel {
+      background-color: #757575;
+      color: white;
+
+      &:hover {
+        background-color: #616161;
+      }
+    }
+
+    &--send {
+      background-color: #4CAF50;
+      color: white;
+
+      &:hover:not(:disabled) {
+        background-color: #45a049;
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
     }
   }
 }
