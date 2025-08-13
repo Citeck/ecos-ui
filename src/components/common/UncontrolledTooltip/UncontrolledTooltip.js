@@ -21,11 +21,33 @@ export default class UncontrolledTooltip extends Component {
     this.toggle = this.toggle.bind(this);
   }
 
+  componentDidMount() {
+    this.checkTarget();
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevProps.target !== this.props.target) {
+      this.checkTarget();
+    }
+  }
+
+  checkTarget() {
+    const target = this.props.target;
+    const el = document.getElementById(target);
+    if (el) {
+      this.setState({ hasTarget: true });
+    }
+  }
+
   toggle() {
     this.setState({ isOpen: !this.state.isOpen });
   }
 
   render() {
+    if (!this.state.hasTarget) {
+      return null;
+    }
+
     return <Tooltip isOpen={this.state.isOpen} toggle={this.toggle} {...omit(this.props, omitKeys)} />;
   }
 }
