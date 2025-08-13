@@ -23,8 +23,6 @@ import './InputView.scss';
 class InputView extends Component {
   #toolsRef = React.createRef();
 
-  #scrollPosition = {};
-
   state = {
     aditionalButtons: [],
     createVariants: [],
@@ -57,8 +55,6 @@ class InputView extends Component {
     if (this.gridWrapperRef) {
       this.gridWrapperRef.removeEventListener('mouseleave', this.resetInlineToolsOffsets);
     }
-
-    this.#scrollPosition = {};
   }
 
   setRef = ref => {
@@ -70,14 +66,6 @@ class InputView extends Component {
 
   resetInlineToolsOffsets = () => {
     this.setState({ inlineToolsOffsets: { row: {} } });
-  };
-
-  onScrollingTable = event => {
-    this.#scrollPosition = event;
-
-    if (this.#toolsRef.current) {
-      this.#toolsRef.current.style.left = `${event.scrollLeft}px`;
-    }
   };
 
   onBlur = () => {
@@ -248,13 +236,7 @@ class InputView extends Component {
     }
 
     return (
-      <InlineToolsDisconnected
-        forwardedRef={this.#toolsRef}
-        selectedRecords={selectedRows}
-        {...inlineToolsOffsets}
-        tools={iconButtons}
-        left={this.#scrollPosition.scrollLeft}
-      />
+      <InlineToolsDisconnected forwardedRef={this.#toolsRef} selectedRecords={selectedRows} {...inlineToolsOffsets} tools={iconButtons} />
     );
   };
 
@@ -318,10 +300,8 @@ class InputView extends Component {
             autoHeight
             byContentHeight
             scrollable
-            scrollPosition={this.#scrollPosition}
             inlineTools={this.renderInlineTools}
             onChangeTrOptions={this.setInlineToolsOffsets}
-            onScrolling={this.onScrollingTable}
           />
         </div>
       );
