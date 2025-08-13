@@ -1,4 +1,3 @@
-import get from 'lodash/get';
 import omit from 'lodash/omit';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
@@ -22,15 +21,30 @@ export default class UncontrolledTooltip extends Component {
     this.toggle = this.toggle.bind(this);
   }
 
+  componentDidMount() {
+    this.checkTarget();
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevProps.target !== this.props.target) {
+      this.checkTarget();
+    }
+  }
+
+  checkTarget() {
+    const target = this.props.target;
+    const el = document.getElementById(target);
+    if (el) {
+      this.setState({ hasTarget: true });
+    }
+  }
+
   toggle() {
     this.setState({ isOpen: !this.state.isOpen });
   }
 
   render() {
-    const target = get(this.props, 'target');
-    const foundElement = document.querySelector(`#${target}`);
-
-    if (!foundElement) {
+    if (!this.state.hasTarget) {
       return null;
     }
 
