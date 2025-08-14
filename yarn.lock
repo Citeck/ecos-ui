@@ -4271,11 +4271,6 @@ astral-regex@^1.0.0:
   resolved "https://registry.yarnpkg.com/astral-regex/-/astral-regex-1.0.0.tgz#6c8c3fb827dd43ee3918f27b82782ab7658a6fd9"
   integrity sha512-+Ryf6g3BKoRc7jfp7ad8tM4TtMiaWvbF/1/sQcZPkkS7ag3D5nMBCe2UfOTONtAkaG0tO0ij3C5Lwmf1EiyjHg==
 
-async-cadesplugin@^0.9.9:
-  version "0.9.9"
-  resolved "https://registry.yarnpkg.com/async-cadesplugin/-/async-cadesplugin-0.9.9.tgz#97a4175cdbbb2eb99b895e59f547dfd76497aa07"
-  integrity sha512-f1OsbegL8bGDmdtqBiiEQjGyNWyHJWFAX3Vz9KXgmbXpiEVBMt5KOpPtBxl7bOLqhiOq8/pVgNIy3KnDqbI5TA==
-
 async-each@^1.0.1:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/async-each/-/async-each-1.0.3.tgz#b727dbf87d7651602f06f4d4ac387f47d91b0cbf"
