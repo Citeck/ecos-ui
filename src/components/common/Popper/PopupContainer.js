@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { usePopper } from 'react-popper';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import React, { useState, useEffect } from 'react';
+import { usePopper } from 'react-popper';
+
+import ZIndex from '../../../services/ZIndex';
 
 import { popupEmitter, Events } from './emitter';
-import ZIndex from '../../../services/ZIndex';
 
 export const PopupContainer = () => {
   const [referenceElement, setReferenceElement] = useState(null);

@@ -135,7 +135,7 @@ export class TooltipWrapper extends Component {
   }
 
   show(e) {
-    if (!this.props.isOpen) {
+    if (!this.props.isOpen && this.props.needTooltip) {
       this.clearShowTimeout();
       this.currentTargetElement = e ? e.currentTarget || e.target : null;
       if (e && e.composedPath && typeof e.composedPath === 'function') {
