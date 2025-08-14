@@ -2,7 +2,7 @@
 
 .dashlet {
   $root: &;
-  $same-height: calc((100vh - 181px) / 3);
+  $same-height: calc((100vh - 181px) / 2.5);
   $header-wrapper-height: 48px;
   $content-top-padding: 20px;
 
@@ -12,6 +12,7 @@
 
   &__same-scrollbar {
     height: calc($same-height - $header-wrapper-height - $content-top-padding) !important;
+
     &_track {
       position: absolute;
       width: 6px;
