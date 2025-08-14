@@ -1,7 +1,3 @@
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// NOTE Imports
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 import * as constants from './constants';
 
 const {
@@ -11,14 +7,10 @@ const {
     XmlDsigGost2012Url512,
     XmlDsigGost2012Url512Digest,
     XmlDsigGost3410Url,
-    XmlDsigGost3411Url,
+    XmlDsigGost3411Url
   },
-  CADESCOM: { CADESCOM_XML_SIGNATURE_TYPE_ENVELOPED, CADESCOM_XML_SIGNATURE_TYPE_ENVELOPING, CADESCOM_XML_SIGNATURE_TYPE_TEMPLATE },
+  CADESCOM: { CADESCOM_XML_SIGNATURE_TYPE_ENVELOPED, CADESCOM_XML_SIGNATURE_TYPE_ENVELOPING, CADESCOM_XML_SIGNATURE_TYPE_TEMPLATE }
 } = constants;
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// NOTE Functions
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
  * @function template
@@ -32,7 +24,7 @@ function template(signAlgorithm) {
   return function doHashAlgorithm(hashAlgorithm) {
     return {
       signAlgorithm,
-      hashAlgorithm,
+      hashAlgorithm
     };
   };
 }
@@ -92,9 +84,5 @@ const doXmlSitnatureAlgorithm = function doXmlSitnatureAlgorithm(value) {
       throw new Error('Сертификат не соответствует ГОСТ Р 34.10-2012 (256 или 512 бит) или ГОСТ Р 34.10-2001');
   }
 };
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// NOTE Exports
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export { doXmlSitnatureType, doXmlSitnatureAlgorithm };
