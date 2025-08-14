@@ -1,4 +1,5 @@
-(function() {
+/* global cpcsp_chrome_nmcades */
+;(function() {
   //already loaded
   if (window.cadesplugin && window.cadesplugin.LOG_LEVEL_DEBUG) {
     return;
@@ -15,7 +16,6 @@
   var cadesplugin_loaded_event_recieved = false;
   var isFireFoxExtensionLoaded = false;
   var cadesplugin = {};
-  var cpcsp_chrome_nmcades = window.cpcsp_chrome_nmcades || {};
 
   if (canPromise) {
     cadesplugin = new window.Promise(function(resolve, reject) {
