@@ -224,7 +224,7 @@ class Tooltip extends Component {
     propsTooltip.innerClassName = classes;
 
     return (
-      <TooltipWrapper {...propsTooltip} isOpen={needTooltip && isOpen} isHiddenTarget={isHiddenTarget} style={styles}>
+      <TooltipWrapper {...propsTooltip} isOpen={isOpen} isHiddenTarget={isHiddenTarget} style={styles} needTooltip={needTooltip}>
         {contentComponent || text}
       </TooltipWrapper>
     );
