@@ -508,9 +508,7 @@
             var objCertEnrollClassFactory = document.getElementById('certEnrollClassFactory');
             return objCertEnrollClassFactory.CreateObject(name);
           } catch (err) {
-            throw new Error(
-              'Для создания обьектов X509Enrollment следует настроить веб-узел на использование проверки подлинности по протоколу HTTPS',
-            );
+            throw 'Для создания обьектов X509Enrollment следует настроить веб-узел на использование проверки подлинности по протоколу HTTPS';
           }
         }
       }
