@@ -1,4 +1,4 @@
-(function () {
+(function() {
   //already loaded
   if (window.cadesplugin && window.cadesplugin.LOG_LEVEL_DEBUG) {
     return;
@@ -15,9 +15,10 @@
   var cadesplugin_loaded_event_recieved = false;
   var isFireFoxExtensionLoaded = false;
   var cadesplugin = {};
+  var cpcsp_chrome_nmcades = window.cpcsp_chrome_nmcades || {};
 
   if (canPromise) {
-    cadesplugin = new window.Promise(function (resolve, reject) {
+    cadesplugin = new window.Promise(function(resolve, reject) {
       plugin_resolve = resolve;
       plugin_reject = reject;
     });
@@ -68,7 +69,7 @@
     window.postMessage('cadesplugin_extension_version_request', '*');
     window.addEventListener(
       'message',
-      function (event) {
+      function(event) {
         var resp_prefix = 'cadesplugin_extension_version_response:';
         if (typeof event.data !== 'string' || event.data.indexOf(resp_prefix) !== 0) {
           return;
@@ -76,7 +77,7 @@
         var ext_version = event.data.substring(resp_prefix.length);
         callback(ext_version);
       },
-      false,
+      false
     );
   }
 
@@ -84,7 +85,7 @@
     window.postMessage('cadesplugin_extension_id_request', '*');
     window.addEventListener(
       'message',
-      function (event) {
+      function(event) {
         var resp_prefix = 'cadesplugin_extension_id_response:';
         if (typeof event.data !== 'string' || event.data.indexOf(resp_prefix) !== 0) {
           return;
@@ -92,7 +93,7 @@
         var ext_id = event.data.substring(resp_prefix.length);
         callback(ext_id);
       },
-      false,
+      false
     );
   }
 
@@ -507,7 +508,9 @@
             var objCertEnrollClassFactory = document.getElementById('certEnrollClassFactory');
             return objCertEnrollClassFactory.CreateObject(name);
           } catch (err) {
-            throw 'Для создания обьектов X509Enrollment следует настроить веб-узел на использование проверки подлинности по протоколу HTTPS';
+            throw new Error(
+              'Для создания обьектов X509Enrollment следует настроить веб-узел на использование проверки подлинности по протоколу HTTPS'
+            );
           }
         }
       }
@@ -597,7 +600,7 @@
       try {
         iframe.setAttribute(
           'src',
-          'cpnp-js-call:' + functionName + ':' + callbackId + ':' + encodeURIComponent(window.JSON.stringify(args, arrObjs)),
+          'cpnp-js-call:' + functionName + ':' + callbackId + ':' + encodeURIComponent(window.JSON.stringify(args, arrObjs))
         );
       } catch (e) {
         window.alert(e);
@@ -605,13 +608,13 @@
       document.documentElement.appendChild(iframe);
       iframe.parentNode.removeChild(iframe);
       iframe = null;
-    },
+    }
   };
 
   function call_ru_cryptopro_npcades_10_native_bridge(functionName, array) {
     var tmpobj;
     var ex;
-    ru_cryptopro_npcades_10_native_bridge.call(functionName, array, function (e, response) {
+    ru_cryptopro_npcades_10_native_bridge.call(functionName, array, function(e, response) {
       ex = e;
       var tmpobj = '';
       try {
@@ -642,12 +645,12 @@
         "<p><a href='https://www.cryptopro.ru/sites/default/files/products/cades/extensions/firefox_cryptopro_extension_latest.xpi'>Скачать расширение</a></p>" +
         '</div>';
       document.getElementsByTagName('Body')[0].appendChild(ovr);
-      document.getElementById('cadesplugin_close_install').addEventListener('click', function () {
+      document.getElementById('cadesplugin_close_install').addEventListener('click', function() {
         plugin_loaded_error('Плагин недоступен');
         document.getElementById('cadesplugin_ovr').style.visibility = 'hidden';
       });
 
-      ovr.addEventListener('click', function () {
+      ovr.addEventListener('click', function() {
         plugin_loaded_error('Плагин недоступен');
         document.getElementById('cadesplugin_ovr').style.visibility = 'hidden';
       });
@@ -684,7 +687,7 @@
     window.postMessage('cadesplugin_echo_request', '*');
     window.addEventListener(
       'message',
-      function (event) {
+      function(event) {
         if (typeof event.data !== 'string' || !event.data.match('cadesplugin_loaded')) {
           return;
         }
@@ -706,7 +709,7 @@
         }
         cadesplugin_loaded_event_recieved = true;
       },
-      false,
+      false
     );
   }
 
@@ -722,15 +725,15 @@
     var manifestv3Url = 'chrome-extension://pfhgbfnnjiafkhfdkmpiflachepdcjod/nmcades_plugin_api.js';
     if (isYandex || isOpera) {
       // в асинхронном варианте для Yandex пробуем подключить расширения по очереди
-      load_js_script(operaUrl, nmcades_api_onload, function () {
-        load_js_script(manifestv2Url, nmcades_api_onload, function () {
+      load_js_script(operaUrl, nmcades_api_onload, function() {
+        load_js_script(manifestv2Url, nmcades_api_onload, function() {
           load_js_script(manifestv3Url, nmcades_api_onload, plugin_loaded_error);
         });
       });
       return;
     }
     // для Chrome, Chromium, Chromium Edge расширение из Chrome store
-    load_js_script(manifestv2Url, nmcades_api_onload, function () {
+    load_js_script(manifestv2Url, nmcades_api_onload, function() {
       load_js_script(manifestv3Url, nmcades_api_onload, plugin_loaded_error);
     });
   }
@@ -835,14 +838,14 @@
     } else if (!canPromise) {
       window.addEventListener(
         'message',
-        function (event) {
+        function(event) {
           if (event.data !== 'cadesplugin_echo_request') {
             return;
           }
           load_npapi_plugin();
           check_npapi_plugin();
         },
-        false,
+        false
       );
     } else {
       if (document.readyState === 'complete') {
@@ -851,11 +854,11 @@
       } else {
         window.addEventListener(
           'load',
-          function (event) {
+          function(event) {
             load_npapi_plugin();
             check_npapi_plugin();
           },
-          false,
+          false
         );
       }
     }
@@ -880,7 +883,7 @@
   }
 
   // noinspection JSUnusedLocalSymbols
-  var onVisibilityChange = function (event) {
+  var onVisibilityChange = function(event) {
     if (document.hidden === false) {
       document.removeEventListener('visibilitychange', onVisibilityChange);
       set_load_timeout();
