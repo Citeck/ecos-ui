@@ -11,6 +11,7 @@ import { Icon } from "../common";
 import Records from "../Records";
 import { getRecordRef } from "@/helpers/urls";
 import { IS_APPLE, useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
+import { NotificationManager } from "@/services/notifications";
 import "./style.scss";
 import { SourcesId } from "@/constants/index.js";
 
@@ -74,10 +75,12 @@ const AIAssistantChat = () => {
 
   // Email modal state
   const [showEmailModal, setShowEmailModal] = useState(false);
+  const [isEmailSending, setIsEmailSending] = useState(false);
   const [emailFormData, setEmailFormData] = useState({
     to: "",
     subject: "",
-    body: ""
+    body: "",
+    addToActivities: true
   });
 
   // Contextual chat state (existing functionality)
@@ -944,15 +947,15 @@ const AIAssistantChat = () => {
             <button
               className="ai-assistant-chat__action-button ai-assistant-chat__action-button--copy"
               onClick={() => handleCopyEmail(msg.messageData)}
-              title="Скопировать письмо"
+              title="Скопировать"
             >
               <Icon className="fa fa-copy" />
-              Скопировать письмо
+              Скопировать
             </button>
             <button
               className="ai-assistant-chat__action-button ai-assistant-chat__action-button--send"
               onClick={() => handleSendEmail(msg.messageData)}
-              title="Отправить письмо"
+              title="Отправить"
             >
               <Icon className="fa fa-send" />
               Отправить
@@ -1230,7 +1233,8 @@ const AIAssistantChat = () => {
       setEmailFormData({
         to: emailData.to || "",
         subject: emailData.subject || "",
-        body: emailData.body || ""
+        body: emailData.body || "",
+        addToActivities: true
       });
       setShowEmailModal(true);
     }
@@ -1238,42 +1242,73 @@ const AIAssistantChat = () => {
 
   const handleEmailModalClose = () => {
     setShowEmailModal(false);
+    setIsEmailSending(false);
     setEmailFormData({
       to: "",
       subject: "",
-      body: ""
+      body: "",
+      addToActivities: true
     });
   };
 
   const handleEmailSend = async () => {
+    if (isEmailSending) {
+      return;
+    }
+
+    setIsEmailSending(true);
+
     try {
-      // Call records API to send email
-      const response = await fetch("/gateway/api/records/mutate", {
+      const response = await fetch("/gateway/ai/api/assistant/send-mail", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          records: [{
-            id: "",
-            attributes: {
-              _type: "emodel/type@email-template",
-              to: emailFormData.to,
-              subject: emailFormData.subject,
-              body: emailFormData.body
-            }
-          }]
+          to: emailFormData.to,
+          subject: emailFormData.subject,
+          body: emailFormData.body,
+          addToActivities: emailFormData.addToActivities,
+          recordRef: getRecordRef() || null
         })
       });
 
       if (!response.ok) {
-        throw new Error(`Error sending email: ${response.status}`);
+        let errorMessage = `Ошибка отправки письма (${response.status})`;
+
+        try {
+          const errorData = await response.json();
+          if (errorData.message) {
+            errorMessage = errorData.message;
+          }
+        } catch (e) {
+          // Ignore JSON parsing errors, use default message
+        }
+
+        console.error("Error sending email:", errorMessage);
+        NotificationManager.error(errorMessage, "Ошибка отправки");
+        return;
       }
 
-      console.log("Email sent successfully");
+      // Parse response to check for backend errors
+      const result = await response.json();
+      if (!result.success) {
+        const errorMessage = result.message || "Неизвестная ошибка при отправке письма";
+        console.error("Error sending email:", errorMessage);
+        NotificationManager.error(errorMessage, "Ошибка отправки");
+        return;
+      }
+
+      NotificationManager.success("Письмо успешно отправлено", "Отправка письма");
       handleEmailModalClose();
     } catch (error) {
       console.error("Error sending email:", error);
+      NotificationManager.error(
+        error.message || "Произошла ошибка при отправке письма. Попробуйте еще раз.",
+        "Ошибка отправки"
+      );
+    } finally {
+      setIsEmailSending(false);
     }
   };
 
@@ -1470,7 +1505,7 @@ const AIAssistantChat = () => {
         <div className="ai-assistant-email-modal-overlay">
           <div className="ai-assistant-email-modal">
             <div className="ai-assistant-email-modal__header">
-              <h3>Отправить письмо</h3>
+              <h3>Отправить</h3>
               <button
                 className="ai-assistant-email-modal__close"
                 onClick={handleEmailModalClose}
@@ -1506,6 +1541,16 @@ const AIAssistantChat = () => {
                   placeholder="Текст письма"
                 />
               </div>
+              <div className="ai-assistant-email-modal__field ai-assistant-email-modal__field--checkbox">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={emailFormData.addToActivities}
+                    onChange={(e) => setEmailFormData(prev => ({ ...prev, addToActivities: e.target.checked }))}
+                  />
+                  <span>Добавить письмо в активности</span>
+                </label>
+              </div>
             </div>
             <div className="ai-assistant-email-modal__actions">
               <button
@@ -1517,10 +1562,19 @@ const AIAssistantChat = () => {
               <button
                 className="ai-assistant-email-modal__button ai-assistant-email-modal__button--send"
                 onClick={handleEmailSend}
-                disabled={!emailFormData.to || !emailFormData.subject || !emailFormData.body}
+                disabled={!emailFormData.to || !emailFormData.subject || !emailFormData.body || isEmailSending}
               >
-                <Icon className="fa fa-send" />
-                Отправить
+                {isEmailSending ? (
+                  <>
+                    <Icon className="fa fa-spinner fa-spin" />
+                    Отправка...
+                  </>
+                ) : (
+                  <>
+                    <Icon className="fa fa-send" />
+                    Отправить
+                  </>
+                )}
               </button>
             </div>
           </div>

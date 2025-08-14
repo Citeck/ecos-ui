@@ -1168,6 +1168,33 @@
     textarea {
       min-height: 120px;
     }
+
+    &--checkbox {
+      margin-top: 20px;
+      margin-bottom: 20px;
+
+      label {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0;
+        cursor: pointer;
+        font-weight: 400;
+        user-select: none;
+        gap: 10px;
+
+        input[type="checkbox"] {
+          width: auto;
+          margin: 0;
+          cursor: pointer;
+        }
+
+        span {
+          flex: 1;
+          font-size: 14px;
+          line-height: 1.4;
+        }
+      }
+    }
   }
 
   &__actions {
