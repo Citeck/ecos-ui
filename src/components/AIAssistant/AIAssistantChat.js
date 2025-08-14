@@ -1221,7 +1221,6 @@ const AIAssistantChat = () => {
   const handleCopyEmail = (emailData) => {
     if (emailData && emailData.body) {
       navigator.clipboard.writeText(emailData.body).then(() => {
-        console.log("Email copied to clipboard");
       }).catch(err => {
         console.error("Failed to copy email: ", err);
       });
@@ -1333,7 +1332,7 @@ const AIAssistantChat = () => {
       try {
         sourceId = await Records.get(rType).load("sourceId");
       } catch (e) {
-        console.log("Error loading sourceId for type:", rType, e);
+        console.error("Error loading sourceId for type:", rType, e);
       }
 
       const searchQuery = {
