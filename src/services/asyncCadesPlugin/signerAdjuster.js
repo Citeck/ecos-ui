@@ -1,12 +1,4 @@
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// NOTE Imports
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-import {
-  COMMON_FIELDS,
-  ISSUER_FIELDS,
-  SUBJECT_FIELDS
-} from './constants/signFields';
+import { COMMON_FIELDS, ISSUER_FIELDS, SUBJECT_FIELDS } from './constants/signFields';
 
 /**
  * @description объект, в котором собираются данные о подписчике в подписи и методы по работе с этими данными
@@ -34,7 +26,7 @@ class SignerAdjuster {
     const subjectIssuerArr = this.subjectName.split(', ');
     const fields = {
       ...COMMON_FIELDS,
-      ...SUBJECT_FIELDS,
+      ...SUBJECT_FIELDS
     };
     const formedSubjectIssuerInfo = subjectIssuerArr.map(tag => {
       const tagArr = tag.split('=');
@@ -43,7 +35,7 @@ class SignerAdjuster {
       return {
         code: tagArr[0],
         text: tagArr[1],
-        value: fields[index] ? fields[index] : '',
+        value: fields[index] ? fields[index] : ''
       };
     });
 
@@ -54,7 +46,7 @@ class SignerAdjuster {
     const subjectIssuerArr = this.issuerName.split(', ');
     const fields = {
       ...COMMON_FIELDS,
-      ...ISSUER_FIELDS,
+      ...ISSUER_FIELDS
     };
     const formedSubjectIssuerInfo = subjectIssuerArr.map(tag => {
       const tagArr = tag.split('=');
@@ -63,16 +55,12 @@ class SignerAdjuster {
       return {
         code: tagArr[0],
         text: tagArr[1],
-        value: fields[index] ? fields[index] : '',
+        value: fields[index] ? fields[index] : ''
       };
     });
 
     return formedSubjectIssuerInfo;
   }
 }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// NOTE Exports
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export default SignerAdjuster;

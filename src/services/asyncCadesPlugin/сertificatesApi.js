@@ -1,7 +1,3 @@
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// NOTE Imports
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 import SignerAdjuster from './signerAdjuster';
 import CertificateAdjuster from './сertificateAdjuster';
 import cadescomMethods from './cadescomMethods';
@@ -22,19 +18,15 @@ const {
     CAPICOM_PROPID_KEY_PROV_INFO,
     CAPICOM_AUTHENTICATED_ATTRIBUTE_SIGNING_TIME,
     CAPICOM_CERTIFICATE_INCLUDE_END_ENTITY_ONLY,
-    CAPICOM_CERTIFICATE_INCLUDE_WHOLE_CHAIN,
+    CAPICOM_CERTIFICATE_INCLUDE_WHOLE_CHAIN
   },
   CADESCOM: {
     CADESCOM_BASE64_TO_BINARY,
     CADESCOM_HASH_ALGORITHM_CP_GOST_3411_2012_512,
     CADESCOM_CADES_BES,
-    CADESCOM_XML_SIGNATURE_TYPE_ENVELOPED,
-  },
+    CADESCOM_XML_SIGNATURE_TYPE_ENVELOPED
+  }
 } = constants;
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// NOTE Functions
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
  * @async
@@ -103,8 +95,8 @@ async function getCertsList() {
             thumbprint: await certApi.Thumbprint,
             validPeriod: {
               from: await certApi.ValidFromDate,
-              to: await certApi.ValidToDate,
-            },
+              to: await certApi.ValidToDate
+            }
           });
 
           return сertificateAdjuster;
@@ -438,7 +430,7 @@ async function getSignatureInfo(signedMessage, hash) {
             issuerName: await certificate.IssuerName,
             subjectName: await certificate.SubjectName,
             signingTime: await signersApi.SigningTime,
-            signatureIsValid: await signatureStatus.IsValid,
+            signatureIsValid: await signatureStatus.IsValid
           });
         } catch (error) {
           throw new Error(`При переборе подписавших сертификат произошла ошибка: ${error.message}`);
@@ -511,10 +503,6 @@ async function signXml(thumbprint, xml, cadescomXmlSignatureType = CADESCOM_XML_
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// NOTE Exports
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 export {
   about,
   getCertsList,
@@ -528,5 +516,5 @@ export {
   verifyBase64,
   getSignatureInfo,
   getHash,
-  signHash,
+  signHash
 };
