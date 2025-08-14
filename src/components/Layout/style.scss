@@ -343,6 +343,10 @@ $adaptive-columns-size: 68%;
         }
       }
     }
+
+    &_adaptive-same-widgets {
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    }
   }
 
   &__wrapper {
