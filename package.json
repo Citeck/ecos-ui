@@ -1,6 +1,6 @@
 {
   "name": "ecos-ui",
-  "version": "2.11.15",
+  "version": "2.11.16-snapshot",
   "private": true,
   "dependencies": {
     "@popperjs/core": "^2.4.4",
@@ -148,5 +148,9 @@
     "rimraf": "^3.0.0",
     "sinon": "^9.0.3",
     "webpack-cli": "^3.2.1"
+  },
+  "volta": {
+    "node": "18.20.6",
+    "yarn": "3.6.2"
   }
 }
