@@ -73,7 +73,6 @@ const preOptimizeDepsLibs = [
   'dmn-js-drd/lib/NavigatedViewer',
   'dmn-js-shared/lib/util/ModelUtil',
   'react-select/async',
-  'async-cadesplugin',
   'dompurify',
   'chart.js',
   'react-chartjs-2',
