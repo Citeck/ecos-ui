@@ -4223,13 +4223,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"async-cadesplugin@npm:0.9.9":
-  version: 0.9.9
-  resolution: "async-cadesplugin@npm:0.9.9"
-  checksum: b18e58315989a934c8fe0ce8921075b9a1f81399234f8ceb5d227b348a94808f31a31f0f5130faf8ca489ccf47672c664733ea6c95a44d798d02e2720e7debd8
-  languageName: node
-  linkType: hard
-
 "async-function@npm:^1.0.0":
   version: 1.0.0
   resolution: "async-function@npm:1.0.0"
@@ -6839,7 +6832,6 @@ __metadata:
     "@types/uuid": ^10.0.0
     "@typescript-eslint/eslint-plugin": ^5.32.0
     "@typescript-eslint/parser": ^5.32.0
-    async-cadesplugin: 0.9.9
     babel-jest: ^29.7.0
     babel-preset-vite: ^1.1.3
     bignumber.js: 9.1.1

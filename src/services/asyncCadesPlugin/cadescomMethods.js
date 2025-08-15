@@ -1,0 +1,17 @@
+import CadesBaseMethods from './cadesBaseMethods';
+
+/**
+ * @inheritdoc
+ */
+const cadescomMethods = new CadesBaseMethods({
+  O_STORE: 'CAdESCOM.Store',
+  O_ATTS: 'CADESCOM.CPAttribute',
+  O_SIGNED_DATA: 'CAdESCOM.CadesSignedData',
+  O_SIGNER: 'CAdESCOM.CPSigner',
+  O_SIGNED_XML: 'CAdESCOM.SignedXML',
+  O_ABOUT: 'CAdESCOM.About',
+  O_RAW_SIGNATURE: 'CAdESCOM.RawSignature',
+  O_HASHED_DATA: 'CAdESCOM.HashedData'
+});
+
+export default cadescomMethods;
