@@ -58,6 +58,7 @@ export default class Popper extends Component {
 
   componentWillUnmount() {
     this.handleResize.cancel();
+    popupEmitter.emit(Events.HIDE);
   }
 
   get needPopper() {
