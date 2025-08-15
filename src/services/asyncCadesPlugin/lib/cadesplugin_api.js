@@ -508,6 +508,7 @@
             var objCertEnrollClassFactory = document.getElementById('certEnrollClassFactory');
             return objCertEnrollClassFactory.CreateObject(name);
           } catch (err) {
+            // eslint-disable-next-line no-throw-literal
             throw 'Для создания обьектов X509Enrollment следует настроить веб-узел на использование проверки подлинности по протоколу HTTPS';
           }
         }
