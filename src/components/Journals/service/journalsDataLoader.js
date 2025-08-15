@@ -1,6 +1,7 @@
 import cloneDeep from 'lodash/cloneDeep';
 import filter from 'lodash/filter';
 import get from 'lodash/get';
+import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import isObject from 'lodash/isObject';
 
@@ -268,11 +269,13 @@ class JournalsDataLoader {
 
     let predicates = [journalConfig.predicate, settings.predicate, ...predicateFilter].filter(p => !!p);
 
-    if (settings.onlyLinked && settings.recordRef) {
+    if (settings.onlyLinked && settings.recordRef && isArray(settings.attrsToLoad)) {
+      const attrsToLoad = settings.attrsToLoad.map(attr => attr.value);
+
       predicates.push({
         t: PREDICATE_OR,
         val: columns
-          .filter(c => c.type === COLUMN_DATA_TYPE_ASSOC && c.searchable)
+          .filter(c => c.type === COLUMN_DATA_TYPE_ASSOC && c.searchable && attrsToLoad.includes(c.attribute))
           .map(a => ({
             t: PREDICATE_CONTAINS,
             val: settings.recordRef,
