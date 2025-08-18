@@ -1,6 +1,9 @@
 import lodashGet from 'lodash/get';
 import head from 'lodash/head';
+import isArray from 'lodash/isArray';
 import isFunction from 'lodash/isFunction';
+import isNil from 'lodash/isNil';
+import isNumber from 'lodash/isNumber';
 import last from 'lodash/last';
 import Omit from 'lodash/omit';
 import lodashSet from 'lodash/set';
@@ -219,6 +222,113 @@ export class MenuApi extends CommonApi {
       onError: () => null
     });
   };
+
+  createJournalTotalCountLoader({ batchDelay = 10, maxBatchSize = 500 } = {}) {
+    const contextBatches = new Map(); // { batch: Map<journalId, {resolve, reject}>, timer }
+
+    function makeContextKey() {
+      return `${getWorkspaceId()}::journals-total-count::${SourcesId.JOURNAL_SERVICE}`;
+    }
+
+    async function flushContext(key) {
+      const ctx = contextBatches.get(key);
+      if (!ctx) {
+        return;
+      }
+
+      contextBatches.delete(key);
+
+      const entries = Array.from(ctx.batch.entries()); // [ [journalId, {resolve,reject}], ... ]
+      if (entries.length === 0) {
+        return;
+      }
+
+      const ids = entries.map(([id]) => id);
+
+      const chunks = [];
+      for (let i = 0; i < ids.length; i += maxBatchSize) {
+        chunks.push(ids.slice(i, i + maxBatchSize));
+      }
+
+      try {
+        const responses = await Promise.all(
+          chunks.map(chunkIds =>
+            Records.queryOne(
+              {
+                sourceId: SourcesId.JOURNAL_SERVICE,
+                language: 'journals-total-count',
+                query: { journals: chunkIds },
+                workspaces: [getWorkspaceId()]
+              },
+              'totalCount[]?num'
+            )
+          )
+        );
+
+        const combinedMap = new Map();
+
+        responses.forEach((resp, respIndex) => {
+          const chunkIds = chunks[respIndex];
+
+          if (isArray(resp) && resp.every(count => isNumber(count)) && resp.length === chunkIds.length) {
+            resp.forEach((num, idx) => {
+              combinedMap.set(String(chunkIds[idx]), num);
+            });
+          }
+        });
+
+        for (const [id, { resolve }] of entries) {
+          const value = combinedMap.has(String(id))
+            ? combinedMap.get(String(id))
+            : combinedMap.has(Number(id))
+              ? combinedMap.get(Number(id))
+              : undefined;
+          if (isNil(value)) {
+            console.warn(`No totalCount for journalId=${id} in batched response`);
+            resolve(undefined);
+          } else {
+            resolve(Number(value));
+          }
+        }
+      } catch (err) {
+        for (const [, { reject }] of entries) {
+          reject(err);
+        }
+      }
+    }
+
+    return function getJournalTotalCount(journalId) {
+      if (!journalId) {
+        return Promise.reject(new Error('journalId is required'));
+      }
+
+      const key = makeContextKey();
+      let ctx = contextBatches.get(key);
+      if (!ctx) {
+        ctx = { batch: new Map(), timer: null };
+        contextBatches.set(key, ctx);
+      }
+
+      const existing = ctx.batch.get(journalId);
+      if (existing) {
+        return existing.promise;
+      }
+
+      let resolve, reject;
+      const promise = new Promise((res, rej) => {
+        resolve = res;
+        reject = rej;
+      });
+
+      ctx.batch.set(journalId, { resolve, reject, promise });
+
+      if (!ctx.timer) {
+        ctx.timer = setTimeout(() => flushContext(key), batchDelay);
+      }
+
+      return promise;
+    };
+  }
 
   getJournalTotalCount = journalId => {
     return Records.queryOne(

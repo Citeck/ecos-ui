@@ -26,6 +26,7 @@ import SidebarService from '@/services/sidebar';
 
 class Item extends React.Component {
   static propTypes = {
+    getJournalTotalCount: PropTypes.func.isRequired,
     domId: PropTypes.string.isRequired,
     data: PropTypes.object,
     styleProps: PropTypes.object,
@@ -168,9 +169,9 @@ class Item extends React.Component {
   }
 
   renderBadge() {
-    const { isOpen, data } = this.props;
+    const { isOpen, data, getJournalTotalCount } = this.props;
 
-    return this.hasBadge ? <RemoteBadge data={data} isOpen={isOpen} /> : null;
+    return this.hasBadge ? <RemoteBadge getJournalTotalCount={getJournalTotalCount} data={data} isOpen={isOpen} /> : null;
   }
 
   renderToggle() {

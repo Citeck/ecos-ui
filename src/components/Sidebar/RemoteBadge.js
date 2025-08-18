@@ -1,22 +1,20 @@
 import classNames from 'classnames';
 import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 import React, { useEffect, useState } from 'react';
 
 import { Badge } from '../common/form';
 
-import { MenuApi } from '@/api/menu';
 import SidebarService from '@/services/sidebar';
 
 import './style.scss';
 
-const menuApi = new MenuApi();
-
-function RemoteBadge({ data, isOpen }) {
+function RemoteBadge({ data, isOpen, getJournalTotalCount }) {
   const journalId = get(data, 'params.journalId');
   const [journalTotalCount, setJournalTotalCount] = useState('');
   const getJournalCount = () => {
-    if (journalId) {
-      menuApi.getJournalTotalCount(journalId).then(count => {
+    if (journalId && isFunction(getJournalTotalCount)) {
+      getJournalTotalCount(journalId).then(count => {
         setJournalTotalCount(String(count));
       });
     }
