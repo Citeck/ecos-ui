@@ -1,10 +1,11 @@
 import React, { useContext } from 'react';
 
-import { MigrationContext } from './MigrationContext';
+import { t } from '../../helpers/util';
+
 import BpmnSchema from './BpmnSchema';
+import { MigrationContext } from './MigrationContext';
 import MigrationInfo from './MigrationInfo';
 import { MIGRATION_VERSION_BLOCK_CLASS } from './constants';
-import { t } from '../../helpers/util';
 
 const BPMNVersionsMigrationDashboard = () => {
   const { processId } = useContext(MigrationContext);
