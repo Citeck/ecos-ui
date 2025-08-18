@@ -60,7 +60,7 @@ const BpmnSchema = ({ processId, metaInfo, versionsInfo, getMetaInfo, getAllVers
     if (typeSchema === URL.BPMN_MIGRATION) {
       setDesigner(new ModelViewer());
     }
-  }, [typeSchema]);
+  }, [typeSchema, processId]);
 
   const Sheet = designer && designer.renderSheet;
   const zoomCenter = {
