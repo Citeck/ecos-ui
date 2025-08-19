@@ -8,10 +8,14 @@ import { TooltipContainer as Tooltip } from '../common/Tooltip/TooltipContainer'
 import Item from './Item';
 
 import { toggleExpanded } from '@/actions/slideMenu';
+import { MenuApi } from '@/api/menu';
 import { HiddenItemsMobile } from '@/constants/sidebar';
 import { getWorkspaceId } from '@/helpers/urls.js';
 import { getMLValue } from '@/helpers/util';
 import SidebarService from '@/services/sidebar';
+
+const menuApi = new MenuApi();
+const getJournalTotalCount = menuApi.createJournalTotalCountLoader({ batchDelay: 200 });
 
 class List extends React.Component {
   static propTypes = {
@@ -84,6 +88,7 @@ class List extends React.Component {
           isSelected={isItemSelected || isChildSelected}
           styleProps={styleProps}
           inDropdown={inDropdown}
+          getJournalTotalCount={getJournalTotalCount}
         />
         {hasSubItems && this.renderSubList(item.items, isSubListExpanded, inDropdown, workspace)}
         {!isMobile && level === SidebarService.DROPDOWN_LEVEL && hasSubItems && (
