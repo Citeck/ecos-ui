@@ -1,7 +1,4 @@
-import aiAssistantContext from './AIAssistantContext';
-import Records from '../Records';
-import { getRecordRef } from '@/helpers/urls';
-import LicenseService from "@/services/license/LicenseService.js";
+import aiAssistantContext from "./AIAssistantContext";
 
 const BPMN_EDITOR_URL_PATTERN = /\/bpmn-editor/;
 
@@ -19,21 +16,24 @@ class AIAssistantService {
     return BPMN_EDITOR_URL_PATTERN.test(window.location.pathname);
   }
 
+  checkAssistantAvailability = () => {
+    return fetch("/gateway/ai/api/assistant/availability")
+      .then(res => res.ok ? res.json() : false)
+      .catch(() => false)
+  };
+
   async isAvailable() {
     if (this.availabilityChecked) {
       return this.availabilityCache;
     }
 
-    const aiMicroserviceIsAvailable = async function () {
-      try {
-        const result = await Records.get('ai/meta@').load('time', true);
-        return result && result.trim() !== '';
-      } catch (error) {
-        return false
-      }
+    try {
+      this.availabilityCache = await this.checkAssistantAvailability();
+    } catch (error) {
+      console.error("Error checking assistant availability:", error);
+      this.availabilityCache = false;
     }
 
-    this.availabilityCache = await aiMicroserviceIsAvailable() && await LicenseService.hasAiFeature()
     this.availabilityChecked = true;
     return this.availabilityCache;
   }
@@ -72,13 +72,13 @@ class AIAssistantService {
 
   handleSubmit(data) {
     if (aiAssistantContext.hasContext()) {
-      return aiAssistantContext.callHandler('onSubmit', data);
+      return aiAssistantContext.callHandler("onSubmit", data);
     }
     return null;
   }
 
   addListener(listener) {
-    if (typeof listener === 'function' && !this.listeners.includes(listener)) {
+    if (typeof listener === "function" && !this.listeners.includes(listener)) {
       this.listeners.push(listener);
     }
   }
@@ -95,13 +95,13 @@ class AIAssistantService {
       try {
         listener(this.isOpen, this.isMinimized);
       } catch (error) {
-        console.error('Error in AIAssistant listener:', error);
+        console.error("Error in AIAssistant listener:", error);
       }
     });
   }
 
   addAvailabilityListener(listener) {
-    if (typeof listener === 'function' && !this.availabilityListeners.includes(listener)) {
+    if (typeof listener === "function" && !this.availabilityListeners.includes(listener)) {
       this.availabilityListeners.push(listener);
     }
   }
@@ -118,7 +118,7 @@ class AIAssistantService {
       try {
         listener(isAvailable);
       } catch (error) {
-        console.error('Error in AIAssistant availability listener:', error);
+        console.error("Error in AIAssistant availability listener:", error);
       }
     });
   }
@@ -132,7 +132,7 @@ class AIAssistantService {
       this.notifyAvailabilityChange(isAvailable);
       return isAvailable;
     } catch (error) {
-      console.error('Error checking availability:', error);
+      console.error("Error checking availability:", error);
       this.notifyAvailabilityChange(false);
       return false;
     }
