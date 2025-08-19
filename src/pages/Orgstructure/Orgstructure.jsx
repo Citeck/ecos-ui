@@ -6,16 +6,21 @@ import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isNil from 'lodash/isNil';
 import * as queryString from 'query-string';
-import React, { Suspense } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 
-import { getDashboardConfig, getDashboardTitle, setLoading } from '../../actions/dashboard';
-import { setSelectedPerson } from '../../actions/orgstructure';
-import { OrgStructApi } from '../../api/orgStruct';
-import { DndUtils } from '../../components/Drag-n-Drop';
-import Layout from '../../components/Layout';
-import { Loader, ScrollArrow, Tabs } from '../../components/common';
-import { OrgstructProvider } from '../../components/common/Orgstruct/OrgstructContext';
+import { URL, SourcesId } from '../../constants';
+import Dashboard from '../Dashboard/Dashboard';
+
+import Structure from './components/Structure';
+
+import { getDashboardConfig, getDashboardTitle, setLoading } from '@/actions/dashboard';
+import { setSelectedPerson } from '@/actions/orgstructure';
+import { OrgStructApi } from '@/api/orgStruct';
+import { DndUtils } from '@/components/Drag-n-Drop';
+import Layout from '@/components/Layout';
+import { ScrollArrow, Tabs } from '@/components/common';
+import { OrgstructProvider } from '@/components/common/Orgstruct/OrgstructContext';
 import {
   AUTHORITY_TYPE_GROUP,
   AUTHORITY_TYPE_USER,
@@ -23,15 +28,11 @@ import {
   GroupTypes,
   ROOT_GROUP_NAME,
   TabTypes
-} from '../../components/common/Orgstruct/constants';
-import { URL, SourcesId } from '../../constants';
-import { decodeLink, getSearchParams, getSortedUrlParams, pushHistoryLink, replaceHistoryLink } from '../../helpers/urls';
-import { t } from '../../helpers/util';
-import DashboardService from '../../services/dashboard';
-import PageTabList from '../../services/pageTabs/PageTabList';
-import Dashboard from '../Dashboard/Dashboard';
-
-import Structure from './components/Structure';
+} from '@/components/common/Orgstruct/constants';
+import { decodeLink, getSearchParams, getSortedUrlParams, pushHistoryLink, replaceHistoryLink } from '@/helpers/urls';
+import { t } from '@/helpers/util';
+import DashboardService from '@/services/dashboard';
+import PageTabList from '@/services/pageTabs/PageTabList';
 
 import './style.scss';
 
@@ -155,7 +156,12 @@ class Orgstructure extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { config } = this.props;
+    const { config, recordRef, onSelectPerson } = this.props;
+
+    const searchParams = new URLSearchParams(window.location.search);
+    if (!searchParams.get('recordRef') && !!recordRef) {
+      onSelectPerson('');
+    }
 
     if (!isEmpty(config)) {
       const activeTabIndex = get(queryString.parse(decodeLink(window.location.search)), 'activeTab');
