@@ -358,6 +358,10 @@ export default class BaseEditorMenu extends React.Component {
     return null;
   }
 
+  renderExtraSettings() {
+    return null;
+  }
+
   render() {
     const { openAllMenuItems } = this.state;
     const { items, disabledEdit } = this.props;
@@ -388,6 +392,9 @@ export default class BaseEditorMenu extends React.Component {
             renderExtraComponents={this.renderExtraComponents}
           />
         </div>
+
+        {this.renderExtraSettings()}
+
         {this.renderEditorItem()}
         {this.renderEditorIcon()}
       </div>

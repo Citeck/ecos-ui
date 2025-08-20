@@ -18,7 +18,9 @@ export const setLeftMenuItems = createAction(prefix + 'SET_LEFT_MENU_ITEMS');
 export const setLastAddedLeftItems = createAction(prefix + 'SET_LAST_ADDED_LEFT_ITEMS');
 
 export const setCreateMenuItems = createAction(prefix + 'SET_CREATE_MENU_ITEMS');
-export const setLastAddedCreateItems = createAction(prefix + 'SET_LAST_ADDED_Create_ITEMS');
+export const setLastAddedCreateItems = createAction(prefix + 'SET_LAST_ADDED_CREATE_ITEMS');
+export const setIsForAllCreateMenu = createAction(prefix + 'SET_IS_FOR_ALL_CREATE_MENU');
+export const setAuthoritiesCreateMenu = createAction(prefix + 'SET_AUTHORITIES_CREATE_MENU');
 
 export const setAuthorities = createAction(prefix + 'SET_AUTHORITIES');
 export const getAuthorityInfoByRefs = createAction(prefix + 'GET_AUTHORITY_INFO_BY_REFS');

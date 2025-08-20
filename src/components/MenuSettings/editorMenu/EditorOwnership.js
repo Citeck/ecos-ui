@@ -61,7 +61,7 @@ class EditorOwnership extends React.Component {
           onChange={this.handleSelectOrg}
           isSelectedValueAsText
           viewOnly={disabledEdit}
-          viewModeType={ViewModes.LINE_SEPARATED}
+          viewModeType={ViewModes.TAGS}
           allowedGroupTypes={Object.values(GroupTypes)}
           isIncludedAdminGroup
           disabled={isForAll}
