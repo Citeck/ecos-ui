@@ -1,13 +1,14 @@
-import React, { Component } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
+import { PAGINATION_SIZES } from '../../Journals/constants';
+import { IcoBtn } from '../../common/btns';
+import Select from '../../common/form/Select';
 import ChevronLeft from '../icons/ChevronLeft';
 import ChevronRight from '../icons/ChevronRight';
-import { PAGINATION_SIZES } from '../../Journals/constants';
-import Select from '../../common/form/Select';
-import { IcoBtn } from '../../common/btns';
-import { t } from '../../../helpers/util';
+
+import { t } from '@/helpers/util';
 
 import './Pagination.scss';
 
@@ -39,8 +40,13 @@ export default class Pagination extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if (!this.state.page && this.props.page) {
-      this.setState({ page: this.props.page });
+    const { page: PPage } = this.props;
+    const { page: SPage } = this.state;
+
+    const searchParams = new URLSearchParams(window.location.search);
+
+    if ((!SPage && PPage) || (!!searchParams.get('search')?.trim() && prevProps.page !== PPage && PPage === 1)) {
+      this.setState({ page: PPage });
     }
   }
 
