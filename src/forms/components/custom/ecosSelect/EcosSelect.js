@@ -5,8 +5,8 @@ import Choices from '../../../choices';
 import { requestAnimationFrame } from '../../override/misc';
 import BaseComponent from '../base/BaseComponent';
 
-import { createDocumentUrl } from '@/helpers/urls.js';
-import { getMLValue, isNodeRef } from '@/helpers/util.js';
+import { createDocumentUrl } from '@/helpers/urls';
+import { getMLValue, isNodeRef } from '@/helpers/util';
 
 export default class SelectComponent extends BaseComponent {
   static schema(...extend) {

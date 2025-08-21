@@ -624,7 +624,7 @@ function* sagaResetJournalSettingData({ api, stateId, w }, action) {
   }
 }
 
-export function* getGridData(api, params, stateId) {
+export function* getGridData(api, params, stateId, isGetOnlyData = false) {
   const w = wrapArgs(stateId);
   yield put(setLoadingGrid(w(true)));
   const { recordRef, journalConfig, journalSetting } = yield select(selectJournalData, stateId);
@@ -683,7 +683,7 @@ export function* getGridData(api, params, stateId) {
   const resultData = yield call([JournalsService, JournalsService.getJournalData], journalConfig, settings);
   const journalData = JournalsConverter.getJournalDataWeb(resultData);
 
-  if (!get(grouping, 'groupBy', []).length) {
+  if (!get(grouping, 'groupBy', []).length && !isGetOnlyData) {
     const gridParams = { ...params, ...journalData };
     delete gridParams.fromGroupBy;
 
@@ -768,7 +768,7 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
       const search = url.search || journalSetting.search;
 
       yield put(setLoading(w(true)));
-      let gridData = yield getGridData(api, { ...params }, stateId);
+      let gridData = yield getGridData(api, { ...params }, stateId, !!search);
       let searchData = {};
 
       const headerSearchEnabled = get(journalConfig, 'searchConfig.headerSearchEnabled', true);
@@ -999,7 +999,6 @@ function* sagaInitJournal({ api, stateId, w }, { payload }) {
         let { journalSettingId, savePredicate = true } = payload;
         let { journalConfig } = yield select(selectJournalData, stateId);
 
-        const journalType = yield call(api.journals.getJournalTypeRef, journalId);
         const isEmptyConfig = isEqual(journalConfig, emptyJournalConfig);
         const isNotExistsJournal = yield call([JournalsService, JournalsService.isNotExistsJournal], id);
 
