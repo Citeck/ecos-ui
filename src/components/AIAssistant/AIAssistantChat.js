@@ -56,6 +56,8 @@ const AIAssistantChat = () => {
   const [universalMessages, setUniversalMessages] = useState([]);
   const [universalIsLoading, setUniversalIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState(() => generateUUID());
+  const [universalActiveRequestId, setUniversalActiveRequestId] = useState(null);
+  const [universalPollingTimer, setUniversalPollingTimer] = useState(null);
 
   // Additional context state
   const [selectedAdditionalContext, setSelectedAdditionalContext] = useState([]);
@@ -209,8 +211,11 @@ const AIAssistantChat = () => {
       if (pollingTimer) {
         clearInterval(pollingTimer);
       }
+      if (universalPollingTimer) {
+        clearInterval(universalPollingTimer);
+      }
     };
-  }, [pollingTimer]);
+  }, [pollingTimer, universalPollingTimer]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -326,12 +331,22 @@ const AIAssistantChat = () => {
       cancelActiveRequest();
     }
 
+    if (universalActiveRequestId) {
+      cancelUniversalActiveRequest();
+    }
+
     if (pollingTimer) {
       clearInterval(pollingTimer);
       setPollingTimer(null);
     }
 
+    if (universalPollingTimer) {
+      clearInterval(universalPollingTimer);
+      setUniversalPollingTimer(null);
+    }
+
     setActiveRequestId(null);
+    setUniversalActiveRequestId(null);
     setContextualIsLoading(false);
     setUniversalIsLoading(false);
     setIsPolling(false);
@@ -361,31 +376,18 @@ const AIAssistantChat = () => {
     const userMessage = { text: universalMessage, sender: "user", timestamp: new Date() };
     setUniversalMessages(prevMessages => [...prevMessages, userMessage]);
 
+    const messageToProcess = universalMessage;
     setUniversalMessage("");
     setUniversalIsLoading(true);
 
-    // Add processing message for data type generation
-    const isDataTypeRequest = universalMessage.toLowerCase().includes("тип данных") ||
-      universalMessage.toLowerCase().includes("data type");
-
-    if (isDataTypeRequest) {
-      const processingMessage = {
-        text: "Анализирую запрос и готовлю ответ по типу данных...",
-        sender: "ai",
-        timestamp: new Date(),
-        isProcessing: true
-      };
-      setUniversalMessages(prevMessages => [...prevMessages, processingMessage]);
-    }
-
     try {
       const requestData = {
-        message: universalMessage,
+        message: messageToProcess,
         conversationId: conversationId,
         context: additionalContext
       };
 
-      const response = await fetch("/gateway/ai/api/assistant/universal/chat", {
+      const response = await fetch("/gateway/ai/api/assistant/universal/async", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -398,41 +400,46 @@ const AIAssistantChat = () => {
       }
 
       const data = await response.json();
+      const requestId = data.requestId;
 
-      // Remove processing message and add actual response
-      setUniversalMessages(prevMessages => {
-        const filteredMessages = prevMessages.filter(msg => !msg.isProcessing);
+      if (!requestId) {
+        throw new Error("Не удалось получить ID запроса");
+      }
 
-        // Check if message is an object (email) or string (regular message)
-        const isEmailMessage = typeof data.message === 'object' && data.message?.type === 'email';
-        const messageText = isEmailMessage ? data.message.body : (data.message || "Не удалось получить ответ.");
+      setUniversalActiveRequestId(requestId);
 
-        const aiMessage = {
-          text: messageText,
-          sender: "ai",
-          timestamp: new Date(),
-          isEmailContent: isEmailMessage,
-          messageData: isEmailMessage ? data.message : null
-        };
-        return [...filteredMessages, aiMessage];
-      });
+      const timer = setInterval(() => pollUniversalRequestStatus(requestId), POLLING_INTERVAL);
+      setUniversalPollingTimer(timer);
+
+      const processingMessage = {
+        text: "Запрос обрабатывается. Это может занять некоторое время...",
+        sender: "ai",
+        timestamp: new Date(),
+        isProcessing: true,
+        pollingIsUsed: true
+      };
+
+      setUniversalMessages(prevMessages => [...prevMessages, processingMessage]);
 
     } catch (error) {
       console.error("Error in universal chat:", error);
 
-      setUniversalMessages(prevMessages => {
-        const filteredMessages = prevMessages.filter(msg => !msg.isProcessing);
-        const errorMessage = {
-          text: "Произошла ошибка при обработке запроса. Пожалуйста, попробуйте снова.",
-          sender: "ai",
-          timestamp: new Date(),
-          isError: true
-        };
-        return [...filteredMessages, errorMessage];
-      });
+      const errorMessage = {
+        text: "Произошла ошибка при обработке запроса. Пожалуйста, попробуйте снова.",
+        sender: "ai",
+        timestamp: new Date(),
+        isError: true
+      };
 
-    } finally {
+      setUniversalMessages(prevMessages => [...prevMessages, errorMessage]);
       setUniversalIsLoading(false);
+
+      if (universalPollingTimer) {
+        clearInterval(universalPollingTimer);
+        setUniversalPollingTimer(null);
+      }
+
+      setUniversalActiveRequestId(null);
     }
   };
 
@@ -474,6 +481,46 @@ const AIAssistantChat = () => {
 
     } catch (error) {
       console.error("Error cancelling request:", error);
+    }
+  };
+
+  const cancelUniversalActiveRequest = async () => {
+    if (!universalActiveRequestId) return;
+
+    try {
+      const response = await fetch(`/gateway/ai/api/assistant/universal/${universalActiveRequestId}`, {
+        method: "DELETE"
+      });
+
+      if (!response.ok) {
+        console.error(`Error cancelling universal request: ${response.status}`);
+        return;
+      }
+
+      if (universalPollingTimer) {
+        clearInterval(universalPollingTimer);
+        setUniversalPollingTimer(null);
+      }
+
+      setUniversalMessages(prevMessages =>
+        prevMessages.map(msg => {
+          if (msg.isProcessing) {
+            return {
+              ...msg,
+              text: "Запрос был отменен.",
+              isProcessing: false,
+              isCancelled: true
+            };
+          }
+          return msg;
+        })
+      );
+
+      setUniversalActiveRequestId(null);
+      setUniversalIsLoading(false);
+
+    } catch (error) {
+      console.error("Error cancelling universal request:", error);
     }
   };
 
@@ -578,6 +625,105 @@ const AIAssistantChat = () => {
       );
     } finally {
       setIsPolling(false);
+    }
+  };
+
+  const pollUniversalRequestStatus = async (requestId) => {
+    try {
+      const response = await fetch(`/gateway/ai/api/assistant/universal/${requestId}`);
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.result) {
+        clearInterval(universalPollingTimer);
+        setUniversalPollingTimer(null);
+        setUniversalActiveRequestId(null);
+        setUniversalIsLoading(false);
+
+        setUniversalMessages(prevMessages => {
+          const filteredMessages = prevMessages.filter(msg => !msg.isProcessing);
+
+          const responseData = data.result;
+          const isEmailMessage = typeof responseData.message === 'object' && responseData.message?.type === 'email';
+          const messageText = isEmailMessage ? responseData.message.body : (responseData.message || "Не удалось получить ответ.");
+
+          const aiMessage = {
+            text: messageText,
+            sender: "ai",
+            timestamp: new Date(),
+            isEmailContent: isEmailMessage,
+            messageData: isEmailMessage ? responseData.message : null
+          };
+
+          return [...filteredMessages, aiMessage];
+        });
+
+      } else if (data.error) {
+        clearInterval(universalPollingTimer);
+        setUniversalPollingTimer(null);
+        setUniversalActiveRequestId(null);
+        setUniversalIsLoading(false);
+
+        setUniversalMessages(prevMessages =>
+          prevMessages.map(msg => {
+            if (msg.isProcessing) {
+              return {
+                ...msg,
+                text: `Ошибка: ${data.error || "Произошла неизвестная ошибка"}`,
+                isProcessing: false,
+                isError: true
+              };
+            }
+            return msg;
+          })
+        );
+
+      } else if (data.status === "cancelled") {
+        clearInterval(universalPollingTimer);
+        setUniversalPollingTimer(null);
+        setUniversalActiveRequestId(null);
+        setUniversalIsLoading(false);
+
+        setUniversalMessages(prevMessages =>
+          prevMessages.map(msg => {
+            if (msg.isProcessing) {
+              return {
+                ...msg,
+                text: "Запрос был отменен.",
+                isProcessing: false,
+                isCancelled: true
+              };
+            }
+            return msg;
+          })
+        );
+      }
+
+    } catch (error) {
+      console.error("Error polling universal request status:", error);
+
+      clearInterval(universalPollingTimer);
+      setUniversalPollingTimer(null);
+      setUniversalActiveRequestId(null);
+      setUniversalIsLoading(false);
+
+      setUniversalMessages(prevMessages =>
+        prevMessages.map(msg => {
+          if (msg.isProcessing) {
+            return {
+              ...msg,
+              text: "Произошла ошибка при получении результата. Пожалуйста, попробуйте снова.",
+              isProcessing: false,
+              isError: true
+            };
+          }
+          return msg;
+        })
+      );
     }
   };
 
@@ -943,7 +1089,7 @@ const AIAssistantChat = () => {
           <div className="ai-assistant-chat__cancel-action">
             <button
               className="ai-assistant-chat__action-button ai-assistant-chat__action-button--cancel"
-              onClick={cancelActiveRequest}
+              onClick={activeTab === TAB_TYPES.UNIVERSAL ? cancelUniversalActiveRequest : cancelActiveRequest}
             >
               Отменить
             </button>
@@ -1459,7 +1605,7 @@ const AIAssistantChat = () => {
               <div className="ai-assistant-chat__messages">
                 {renderMessages(currentMessages, currentIsLoading)}
 
-                {currentIsLoading && !activeRequestId && (
+                {currentIsLoading && !activeRequestId && !universalActiveRequestId && (
                   <div
                     className="ai-assistant-chat__message ai-assistant-chat__message--ai ai-assistant-chat__message--loading">
                     <div className="ai-assistant-chat__loading-indicator">
