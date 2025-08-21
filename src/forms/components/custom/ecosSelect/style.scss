@@ -1,4 +1,19 @@
+@import "@/styles/constants";
+
 .choices {
-  &__item {
+  $root: &;
+
+  &__list--single {
+    #{$root}__item {
+      &--selectable {
+        display: inline-flex;
+        overflow: hidden;
+
+        & > span {
+          @extend %ellipsis;
+          width: calc(100% - 36px);
+        }
+      }
+    }
   }
 }
