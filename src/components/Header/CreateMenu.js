@@ -1,6 +1,7 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import isEmpty from 'lodash/isEmpty';
+import PropTypes from 'prop-types';
+import React from 'react';
 import { connect } from 'react-redux';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 
@@ -42,6 +43,10 @@ class CreateMenu extends React.Component {
     const { items, isLoading, isCascade, isMobile, theme } = this.props;
     const mode = isCascade && !isMobile ? 'cascade' : 'group';
 
+    if (isEmpty(items)) {
+      return null;
+    }
+
     return (
       <Dropdown className="ecos-header-create ecos-header-dropdown" isOpen={dropdownOpen} toggle={this.toggle}>
         <DropdownToggle tag="div">
@@ -82,7 +87,4 @@ const mapStateToProps = state => ({
   theme: state.view.theme
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(CreateMenu);
+export default connect(mapStateToProps, mapDispatchToProps)(CreateMenu);

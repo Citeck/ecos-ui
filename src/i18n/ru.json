@@ -1758,7 +1758,7 @@
   "menu-settings.tabs.menu-create-config": "Меню \"Создать\"",
   "menu-settings.tabs.menu-user-config": "Пользовательское меню",
   "menu-settings.text.default": "По умолчанию",
-  "menu-settings.label.for-all": "Для всех пользователей",
+  "menu-settings.label.for-all": "Доступно для всех пользователей",
   "menu-settings.dialog.for-all.title": "Установить для всех",
   "menu-settings.dialog.for-all.text": "При установке произойдет сброс пользователей/групп",
   "menu-settings.dialog.org-struct.text": "Поле выбора принадлежности пользователей и/или групп осталось пустым. Вы уверены, что хотите установить принадлежность для всех пользователей системы?",

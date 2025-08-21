@@ -1,6 +1,5 @@
 import { handleActions } from 'redux-actions';
 
-import { treeSetDndIndex } from '../helpers/arrayOfObjects';
 import {
   addJournalMenuItems,
   getGroupPriority,
@@ -11,7 +10,9 @@ import {
   setCreateMenuItems,
   setGroupPriority,
   setIsForAll,
+  setIsForAllCreateMenu,
   setLastAddedLeftItems,
+  setAuthoritiesCreateMenu,
   setLeftMenuItems,
   setLoading,
   setMenuIcons,
@@ -20,13 +21,19 @@ import {
   setUserMenuItems
 } from '../actions/menuSettings';
 import MenuConverter from '../dto/menu';
+import { treeSetDndIndex } from '../helpers/arrayOfObjects';
 
 const initialState = {
   editedId: undefined,
   originalConfig: {},
   leftItems: [],
   availableSections: [],
-  createItems: [],
+  createMenu: {
+    isForAll: true,
+    lastAddedCreateItems: [],
+    authorities: [],
+    items: []
+  },
   userMenuItems: [],
   authorities: [],
   groupPriority: [],
@@ -34,7 +41,6 @@ const initialState = {
   isLoadingPriority: false,
   isOpenMenuSettings: false,
   lastAddedLeftItems: [],
-  lastAddedCreateItems: [],
   fontIcons: [],
   isForAll: false
 };
@@ -74,7 +80,10 @@ export default handleActions(
     },
     [setCreateMenuItems]: (state, { payload }) => ({
       ...state,
-      createItems: treeSetDndIndex(payload),
+      createMenu: {
+        ...state.createMenu,
+        items: treeSetDndIndex(payload)
+      },
       isLoading: false
     }),
     [setLastAddedLeftItems]: (state, { payload }) => ({
@@ -97,6 +106,20 @@ export default handleActions(
     [setIsForAll]: (state, { payload }) => ({
       ...state,
       isForAll: payload
+    }),
+    [setIsForAllCreateMenu]: (state, { payload }) => ({
+      ...state,
+      createMenu: {
+        ...state.createMenu,
+        isForAll: payload
+      }
+    }),
+    [setAuthoritiesCreateMenu]: (state, { payload }) => ({
+      ...state,
+      createMenu: {
+        ...state.createMenu,
+        authorities: payload
+      }
     }),
     [setMenuIcons]: (state, { payload }) => ({
       ...state,
