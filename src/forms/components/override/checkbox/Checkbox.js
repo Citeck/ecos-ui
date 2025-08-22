@@ -346,6 +346,9 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
   }
 
   createLabel(...params) {
+    this.checkConditions(); // checks whether to hide the element after executing the JS logic
+    this._visible = !!this.component.hidden;
+
     if (['right', 'left'].some(p => p === this.component.labelPosition)) {
       this.component.labelPosition = this.defaultSchema.labelPosition;
     }
