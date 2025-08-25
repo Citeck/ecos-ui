@@ -14,16 +14,22 @@ import { JSX } from 'react';
 
 type Props = {
   className?: string;
+  autoFocus?: boolean;
   placeholderClassName?: string;
   placeholder: string;
 };
 
-export default function LexicalContentEditable({ className, placeholder, placeholderClassName }: Props): JSX.Element {
+export default function LexicalContentEditable({ className, placeholder, placeholderClassName, autoFocus = false }: Props): JSX.Element {
   return (
     <ContentEditable
       className={className ?? 'ContentEditable__root'}
       aria-placeholder={placeholder}
       placeholder={<div className={placeholderClassName ?? 'ContentEditable__placeholder'}>{placeholder}</div>}
+      {...(!autoFocus && {
+        onFocus: e => {
+          (e.currentTarget as HTMLElement).blur();
+        }
+      })}
     />
   );
 }

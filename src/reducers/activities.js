@@ -73,7 +73,7 @@ export default handleActions(
     [deleteActivitySuccess]: (state, action) => ({
       ...state,
       [action.payload.recordRef]: {
-        ...state[action.payload.nodeRef],
+        ...state[action.payload.recordRef],
         activities: [...action.payload.activities],
         totalCount: state[action.payload.recordRef].totalCount - 1,
         errorMessage: ''
