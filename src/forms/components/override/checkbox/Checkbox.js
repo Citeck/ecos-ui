@@ -240,8 +240,36 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
     return super.setCheckedState(value);
   }
 
+  updateVisible = () => {
+    if (this.options.builder) {
+      return;
+    }
+
+    if (get(this.component, 'hidden') !== get(this.element, 'hidden') && this.element) {
+      if (!!this.component.hidden) {
+        this.element.setAttribute('hidden', true);
+        this.element.style.visibility = 'hidden';
+        this.element.style.position = 'absolute';
+      } else if (
+        this.parent &&
+        this.parent.parent &&
+        this.parent.parent.component.type === 'columns' &&
+        this.parent.parent.component.autoAdjust
+      ) {
+        this.element.style.visibility = 'hidden';
+        this.element.style.position = 'relative';
+      } else {
+        this.element.removeAttribute('hidden');
+        this.element.style.visibility = 'visible';
+        this.element.style.position = 'relative';
+      }
+    }
+  };
+
   // TODO delete when will fixed in new formiojs version
   updateValue(flags, value) {
+    this.updateVisible();
+
     if (this.hasThreeStates) {
       if (!flags.modified && value === undefined) {
         return;
@@ -346,9 +374,6 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
   }
 
   createLabel(...params) {
-    this.checkConditions(); // checks whether to hide the element after executing the JS logic
-    this._visible = !!this.component.hidden;
-
     if (['right', 'left'].some(p => p === this.component.labelPosition)) {
       this.component.labelPosition = this.defaultSchema.labelPosition;
     }
