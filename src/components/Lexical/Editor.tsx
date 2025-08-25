@@ -77,6 +77,7 @@ export type LexicalEditorProps = {
   htmlString?: string;
   placeholder?: string;
   readonly?: boolean;
+  autoFocus?: boolean;
   hideToolbar?: boolean;
   className?: string;
   onChange?: (editorState: EditorState, editor: LexicalEditor, noChange: boolean) => void;
@@ -94,6 +95,7 @@ export default function Editor({
   placeholder: propsPlaceholder,
   onChange,
   readonly = false,
+  autoFocus = false,
   hideToolbar = false,
   className,
   onEditorReady,
@@ -186,7 +188,7 @@ export default function Editor({
         })}
       >
         <DragDropPaste />
-        <AutoFocusPlugin />
+        {autoFocus && <AutoFocusPlugin />}
         {selectionAlwaysOnDisplay && <SelectionAlwaysOnDisplay />}
         <ClearEditorPlugin />
         <AutoEmbedPlugin />
@@ -224,6 +226,7 @@ export default function Editor({
                 <div className="editor-scroller">
                   <div className="editor" ref={onRef}>
                     <ContentEditable
+                      autoFocus={autoFocus}
                       placeholder={placeholder}
                       className={classNames('ecos-rt-editor__content', readonly ? 'content_readonly' : 'ContentEditable__root')}
                     />
@@ -273,6 +276,7 @@ export default function Editor({
             <PlainTextPlugin
               contentEditable={
                 <ContentEditable
+                  autoFocus={autoFocus}
                   className={classNames('ecos-rt-editor__content', readonly ? 'content_readonly' : 'ContentEditable__root')}
                   placeholder={placeholder}
                 />
