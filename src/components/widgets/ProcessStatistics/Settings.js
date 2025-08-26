@@ -2,11 +2,10 @@ import get from 'lodash/get';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import { SystemJournals } from '../../../constants';
 import { t } from '../../../helpers/util';
 import plugins from '../../../plugins';
 import { Btn } from '../../common/btns';
-import { Caption, Checkbox, Field, Select, SelectJournal } from '../../common/form';
+import { Caption, Checkbox, Field, Select } from '../../common/form';
 
 import { EXTENDED_MODE, SIMPLIFIED_MODE, KPI_MODE } from './constants';
 import { Labels } from './util';
@@ -60,7 +59,7 @@ export default class Settings extends React.Component {
   };
 
   render() {
-    const { selectedJournal, isLoading, formMode } = this.state;
+    const { isLoading, formMode } = this.state;
 
     const { HeatmapWrapper } = plugins;
 
@@ -87,15 +86,6 @@ export default class Settings extends React.Component {
           </Field>
         )}
 
-        <Field label={t(Labels.JOURNAL_FIELD)} labelPosition="top">
-          <SelectJournal
-            journalId={SystemJournals.JOURNALS}
-            defaultValue={selectedJournal}
-            viewOnly
-            hideCreateButton
-            onChange={selectedJournal => this.setState({ selectedJournal })}
-          />
-        </Field>
         {!!HeatmapWrapper && formMode === EXTENDED_MODE && (
           <>
             <Caption small className="ecos-process-statistics-settings__title">
