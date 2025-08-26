@@ -20,14 +20,19 @@ type Props = {
 };
 
 export default function LexicalContentEditable({ className, placeholder, placeholderClassName, autoFocus = false }: Props): JSX.Element {
+  const blurredOnceRef = React.useRef(false);
+
   return (
     <ContentEditable
       className={className ?? 'ContentEditable__root'}
       aria-placeholder={placeholder}
       placeholder={<div className={placeholderClassName ?? 'ContentEditable__placeholder'}>{placeholder}</div>}
       {...(!autoFocus && {
-        onFocus: e => {
-          (e.currentTarget as HTMLElement).blur();
+        onFocus: (e: React.FocusEvent<HTMLElement>) => {
+          if (!blurredOnceRef.current) {
+            blurredOnceRef.current = true;
+            (e.currentTarget as HTMLElement).blur();
+          }
         }
       })}
     />
