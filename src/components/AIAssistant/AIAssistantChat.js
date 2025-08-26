@@ -28,7 +28,8 @@ const TAB_TYPES = {
 };
 
 const ADDITIONAL_CONTEXT_TYPES = {
-  CURRENT_RECORD: "current_record"
+  CURRENT_RECORD: "current_record",
+  DOCUMENTS: "documents"
 };
 
 const generateUUID = () => {
@@ -58,7 +59,8 @@ const AIAssistantChat = () => {
   const [selectedAdditionalContext, setSelectedAdditionalContext] = useState([]);
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
   const [additionalContext, setAdditionalContext] = useState({
-    records: []
+    records: [],
+    documents: []
   });
 
   // Autocomplete state
@@ -69,6 +71,7 @@ const AIAssistantChat = () => {
   const [selectedAutocompleteIndex, setSelectedAutocompleteIndex] = useState(0);
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [availableDocuments, setAvailableDocuments] = useState([]);
 
   // Contextual chat state (existing functionality)
   const [contextualMessage, setContextualMessage] = useState("");
@@ -232,7 +235,7 @@ const AIAssistantChat = () => {
         setConversationId(generateUUID()); // Generate new conversation ID
 
         // Clear additional context
-        setAdditionalContext({ records: [] });
+        setAdditionalContext({ records: [], documents: [] });
         setSelectedAdditionalContext([]);
       }
     } catch (error) {
@@ -258,6 +261,21 @@ const AIAssistantChat = () => {
             };
           }
           return null;
+
+        case ADDITIONAL_CONTEXT_TYPES.DOCUMENTS:
+          const currentRecordRef = getRecordRef();
+          if (currentRecordRef) {
+            const documentsData = await Records.get(currentRecordRef).load('docs:documents[]{.id, _type{.id, .disp}, .disp, _parent?id}');
+
+            return documentsData.map(doc => ({
+              recordRef: doc[".id"],
+              displayName: doc[".disp"],
+              type: doc["_type{.id, .disp}"][".id"],
+              typeDisp: doc["_type{.id, .disp}"][".disp"],
+              parentRef: doc["_parent"]
+            }));
+          }
+          return [];
 
         default:
           return null;
@@ -298,6 +316,43 @@ const AIAssistantChat = () => {
         setAdditionalContext(prev => ({
           ...prev,
           records: [...prev.records, recordData]
+        }));
+
+        // Add context type if not already selected
+        if (!selectedAdditionalContext.includes(contextType)) {
+          setSelectedAdditionalContext(prev => [...prev, contextType]);
+        }
+      }
+    } else if (contextType === ADDITIONAL_CONTEXT_TYPES.DOCUMENTS) {
+
+      let documentData = specificRecord;
+      if (!documentData && !specificRecord) {
+        // This case shouldn't happen for documents as they need to be specific
+        return;
+      }
+
+      if (!documentData) return;
+
+      const existingDocumentIndex = additionalContext.documents.findIndex(
+        doc => doc.recordRef === documentData.recordRef
+      );
+
+      if (existingDocumentIndex !== -1) {
+        // Remove from context
+        setAdditionalContext(prev => ({
+          ...prev,
+          documents: prev.documents.filter((_, index) => index !== existingDocumentIndex)
+        }));
+
+        // If there are no more documents, remove the context type
+        if (additionalContext.documents.length === 1) {
+          setSelectedAdditionalContext(prev => prev.filter(c => c !== contextType));
+        }
+      } else {
+        // Add document to context
+        setAdditionalContext(prev => ({
+          ...prev,
+          documents: [...prev.documents, documentData]
         }));
 
         // Add context type if not already selected
@@ -366,10 +421,45 @@ const AIAssistantChat = () => {
     }
 
     try {
+      // Prepare context with automatic parentRef inclusion
+      const contextToSend = {
+        records: [...additionalContext.records],
+        documents: [...additionalContext.documents]
+      };
+
+      // If documents are selected but no records explicitly added,
+      // automatically include parent records from documents
+      if (contextToSend.documents.length > 0 && contextToSend.records.length === 0) {
+        const parentRefs = contextToSend.documents
+          .map(doc => doc.parentRef)
+          .filter(parentRef => parentRef); // Remove null/undefined values
+
+        // Get unique parent references
+        const uniqueParentRefs = [...new Set(parentRefs)];
+
+        // Load parent record data for each unique parentRef
+        for (const parentRef of uniqueParentRefs) {
+          try {
+            const parentRecordData = await Records.get(parentRef).load({
+              displayName: "?disp",
+              type: "_type?id"
+            });
+
+            contextToSend.records.push({
+              recordRef: parentRef,
+              displayName: parentRecordData.displayName,
+              type: parentRecordData.type
+            });
+          } catch (error) {
+            console.error("Error loading parent record:", parentRef, error);
+          }
+        }
+      }
+
       const requestData = {
         message: universalMessage,
         conversationId: conversationId,
-        context: additionalContext
+        context: contextToSend
       };
 
       const response = await fetch("/gateway/ai/api/assistant/universal/chat", {
@@ -774,6 +864,32 @@ const AIAssistantChat = () => {
       }
     ];
 
+    // Add available documents
+    if (availableDocuments.length > 0) {
+      const filteredDocuments = availableDocuments.filter(doc =>
+        autocompleteQuery.length === 0 ||
+        doc.displayName.toLowerCase().includes(autocompleteQuery.toLowerCase())
+      );
+
+      const documentOptions = filteredDocuments.map(doc => {
+        const isInContext = additionalContext.documents.some(
+          contextDoc => contextDoc.recordRef === doc.recordRef
+        );
+
+        return {
+          type: ADDITIONAL_CONTEXT_TYPES.DOCUMENTS,
+          label: doc.displayName,
+          icon: "fa-file-o",
+          description: `Добавить документ "${doc.displayName}"${isInContext ? " (уже добавлен)" : ""}`,
+          disabled: isInContext,
+          recordData: doc,
+          isDocument: true
+        };
+      });
+
+      contextOptions.push(...documentOptions);
+    }
+
     // Add search results if query is long enough
     if (autocompleteQuery.length >= AUTOCOMPLETE_QUERY_THRESHOLD && searchResults.length > 0) {
       const searchOptions = searchResults.map(record => {
@@ -796,6 +912,7 @@ const AIAssistantChat = () => {
 
     return contextOptions.filter(option =>
       option.isCurrentRecord ||
+      option.isDocument ||
       autocompleteQuery.length >= AUTOCOMPLETE_QUERY_THRESHOLD ||
       option.label.toLowerCase().includes(autocompleteQuery.toLowerCase())
     );
@@ -851,12 +968,12 @@ const AIAssistantChat = () => {
               <p className="ai-assistant-chat__hint">
                 <strong>Примеры запросов:</strong><br />
                 • "Создай тип данных для заявки на отпуск"<br />
-                • "Проанализируй документ @запись"<br />
+                • "Проанализируй документ @название_документа"<br />
                 • "Что ты умеешь делать?"
               </p>
 
               <p className="ai-assistant-chat__tip">
-                💡 Используйте <code>@</code> для добавления контекста
+                💡 Используйте <code>@</code> для добавления записей и документов в контекст
               </p>
             </div>
           )}
@@ -930,6 +1047,20 @@ const AIAssistantChat = () => {
             </div>
           ))
         }
+        {selectedAdditionalContext.includes(ADDITIONAL_CONTEXT_TYPES.DOCUMENTS) &&
+          additionalContext.documents.map((document, index) => (
+            <div key={`${ADDITIONAL_CONTEXT_TYPES.DOCUMENTS}-${index}`} className="ai-assistant-chat__context-tag ai-assistant-chat__context-tag--document">
+              <span>{document.displayName || document.recordRef || "Документ"}</span>
+              <button
+                className="ai-assistant-chat__context-tag-remove"
+                onClick={() => toggleAdditionalContext(ADDITIONAL_CONTEXT_TYPES.DOCUMENTS, document)}
+                title="Удалить документ из контекста"
+              >
+                <Icon className="fa fa-times" />
+              </button>
+            </div>
+          ))
+        }
       </div>
     );
   };
@@ -996,6 +1127,12 @@ const AIAssistantChat = () => {
               }
             });
 
+          // Load available documents for autocomplete
+          getAdditionalContext(ADDITIONAL_CONTEXT_TYPES.DOCUMENTS)
+            .then(docs => {
+              setAvailableDocuments(docs || []);
+            });
+
           // Calculate position for autocomplete dropdown
           const textarea = e.target;
           const rect = textarea.getBoundingClientRect();
@@ -1022,11 +1159,13 @@ const AIAssistantChat = () => {
           setShowAutocomplete(false);
           setSelectedAutocompleteIndex(0);
           setSearchResults([]);
+          setAvailableDocuments([]);
         }
       } else {
         setShowAutocomplete(false);
         setSelectedAutocompleteIndex(0);
         setSearchResults([]);
+        setAvailableDocuments([]);
       }
     }
   };
@@ -1046,6 +1185,10 @@ const AIAssistantChat = () => {
         contextLabel = contextData.displayName || contextData.recordRef || "запись";
         contextDataToAdd = contextData;
       }
+    } else if (contextType === ADDITIONAL_CONTEXT_TYPES.DOCUMENTS && recordData) {
+      // Handle document
+      contextLabel = recordData.displayName || recordData.recordRef;
+      contextDataToAdd = recordData;
     }
 
     const currentMessage = universalMessage;
@@ -1062,6 +1205,7 @@ const AIAssistantChat = () => {
     setShowAutocomplete(false);
     setSelectedAutocompleteIndex(0);
     setSearchResults([]);
+    setAvailableDocuments([]);
 
     // Focus textarea and set cursor position
     setTimeout(() => {
@@ -1084,6 +1228,9 @@ const AIAssistantChat = () => {
         if (!selectedAdditionalContext.includes(ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD)) {
           setSelectedAdditionalContext(prev => [...prev, ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD]);
         }
+      } else if (contextType === ADDITIONAL_CONTEXT_TYPES.DOCUMENTS) {
+        // Add specific document to context
+        toggleAdditionalContext(contextType, contextDataToAdd);
       } else {
         toggleAdditionalContext(contextType);
       }
@@ -1155,6 +1302,7 @@ const AIAssistantChat = () => {
       setShowAutocomplete(false);
       setSelectedAutocompleteIndex(0);
       setSearchResults([]);
+      setAvailableDocuments([]);
       setIsSearching(false);
     }
   }, [isOpen, isMinimized]);
