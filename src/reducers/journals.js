@@ -41,7 +41,7 @@ import {
   openSelectedJournal,
   setSearchText,
   saveColumn,
-  setImportDataConfig
+  setSearching
 } from '../actions/journals';
 import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_PAGINATION, relatedViews } from '../components/Journals/constants';
 import { t } from '../helpers/export/util';
@@ -60,6 +60,7 @@ export const emptyJournalConfig = Object.freeze({
 export const defaultState = {
   loading: true,
   loadingGrid: true,
+  searching: false,
   editorMode: false,
   viewMode: undefined,
   wasChangedSettingsOn: [],
@@ -375,6 +376,12 @@ export default handleActions(
       action = handleAction(action);
 
       return handleState(state, stateId, { loading: action.payload });
+    },
+    [setSearching]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, { searching: action.payload });
     },
     [setLoadingGrid]: (state, action) => {
       const stateId = action.payload.stateId;

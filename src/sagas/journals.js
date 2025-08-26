@@ -67,6 +67,7 @@ import {
   setPredicate,
   setPreviewFileName,
   setPreviewUrl,
+  setSearching,
   setSelectAllPageRecords,
   setSelectAllRecordsVisible,
   setSelectedJournals,
@@ -624,7 +625,7 @@ function* sagaResetJournalSettingData({ api, stateId, w }, action) {
   }
 }
 
-export function* getGridData(api, params, stateId, isGetOnlyData = false) {
+export function* getGridData(api, params, stateId) {
   const w = wrapArgs(stateId);
   yield put(setLoadingGrid(w(true)));
   const { recordRef, journalConfig, journalSetting } = yield select(selectJournalData, stateId);
@@ -683,7 +684,7 @@ export function* getGridData(api, params, stateId, isGetOnlyData = false) {
   const resultData = yield call([JournalsService, JournalsService.getJournalData], journalConfig, settings);
   const journalData = JournalsConverter.getJournalDataWeb(resultData);
 
-  if (!get(grouping, 'groupBy', []).length && !isGetOnlyData) {
+  if (!get(grouping, 'groupBy', []).length) {
     const gridParams = { ...params, ...journalData };
     delete gridParams.fromGroupBy;
 
@@ -766,9 +767,10 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
       const pagination = !isResetPagination ? dataPagination : { ...dataPagination, page: 1, skipCount: 0 };
       const params = getGridParams({ journalConfig, journalSetting: get(preset, 'settings', journalSetting), pagination });
       const search = url.search || journalSetting.search;
+      const isSearching = get(journalData, 'searching', false);
 
       yield put(setLoading(w(true)));
-      let gridData = yield getGridData(api, { ...params }, stateId, !!search);
+      let gridData = isSearching && search ? {} : yield getGridData(api, { ...params }, stateId);
       let searchData = {};
 
       const headerSearchEnabled = get(journalConfig, 'searchConfig.headerSearchEnabled', true);
@@ -787,6 +789,10 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
       if (headerSearchEnabled && !isEmpty(searchPredicate)) {
         params.searchPredicate = searchPredicate;
         gridData = yield getGridData(api, params, stateId);
+
+        if (isSearching) {
+          yield put(setSearching(w(false)));
+        }
       }
 
       const editingRules = yield getGridEditingRules(api, gridData);
@@ -1587,6 +1593,7 @@ function* sagaSearch({ w, stateId }, { payload }) {
     }
 
     if (!isEqual(getSearchParams(), urlData.query)) {
+      yield put(setSearching(w(true)));
       yield put(setLoading(w(true)));
       yield call(PageService.changeUrlLink, decodeLink(queryString.stringifyUrl(urlData)), { updateUrl: true });
     }
