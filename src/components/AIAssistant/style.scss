@@ -586,6 +586,16 @@
     span {
       font-weight: 500;
     }
+
+    &--document {
+      background: var(--success-bg-light, #e8f5e8);
+      color: var(--success-color, #4caf50);
+      border: 1px solid var(--success-border-light, #c8e6c9);
+
+      .ai-assistant-chat__context-tag-remove {
+        color: var(--success-color, #4caf50);
+      }
+    }
   }
 
   &__context-tag-remove {
