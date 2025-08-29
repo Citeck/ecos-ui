@@ -1,21 +1,21 @@
-import React from 'react';
-import { connect } from 'react-redux';
-
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import moment from 'moment';
+import React from 'react';
+import { connect } from 'react-redux';
 
-import PanelTitle, { COLOR_GRAY } from '../../../components/common/PanelTitle/PanelTitle';
-import { Loader } from '../../../components/common';
-import Dashlet from '../../../components/Dashlet';
-import BaseWidget from '../../../components/widgets/BaseWidget';
-import { selectProcessMetaInfo, selectProcessVersions } from '../../../selectors/processAdmin';
 import { getMetaInfo } from '../../../actions/processAdmin';
-import { createDocumentUrl } from '../../../helpers/urls';
+import Dashlet from '../../../components/Dashlet';
+import { Loader } from '../../../components/common';
+import PanelTitle, { COLOR_GRAY } from '../../../components/common/PanelTitle/PanelTitle';
 import { Btn } from '../../../components/common/btns';
-import PageService from '../../../services/PageService';
+import BaseWidget from '../../../components/widgets/BaseWidget';
+import { createDocumentUrl } from '../../../helpers/urls';
 import { t } from '../../../helpers/util';
+import { selectProcessMetaInfo, selectProcessVersions } from '../../../selectors/processAdmin';
+import PageService from '../../../services/PageService';
 import VersionSelect from '../VersionSelect';
+
 import ActionsButton from './components/ActionsButton';
 import { Labels } from './constants';
 
@@ -53,7 +53,7 @@ class InfoPanel extends BaseWidget {
 
     const showLoader = !metaInfo || metaInfo.loading;
     const showVersionsLoading = get(versions, 'loading');
-
+    console.log(processId, versions);
     return (
       <Dashlet title={t(Labels.INFO_TITLE)} className="info-panel" setRef={this.setDashletRef} needGoTo={false} disableCollapse>
         {showLoader && <Loader />}
@@ -87,8 +87,9 @@ class InfoPanel extends BaseWidget {
             </div>
 
             <div className="info-panel__secondary">
-              <span className="info-panel__main-item info-panel__main-item_full_width">{`${t(Labels.MODIFIER)}: ${metaInfo.modifier ||
-                t(Labels.NOT_DEFINED)}`}</span>
+              <span className="info-panel__main-item info-panel__main-item_full_width">{`${t(Labels.MODIFIER)}: ${
+                metaInfo.modifier || t(Labels.NOT_DEFINED)
+              }`}</span>
               <span className="info-panel__main-item info-panel__main-item_full_width">{`${t(Labels.MODIFIED)}: ${
                 metaInfo.modified ? moment(metaInfo.modified).format('LLL') : t(Labels.NOT_DEFINED)
               }`}</span>
@@ -133,7 +134,4 @@ const mapDispatchToProps = dispatch => ({
   getMetaInfo: processId => dispatch(getMetaInfo({ processId }))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(InfoPanel);
+export default connect(mapStateToProps, mapDispatchToProps)(InfoPanel);

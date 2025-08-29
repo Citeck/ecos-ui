@@ -1,14 +1,13 @@
+import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 import React, { useEffect, useContext } from 'react';
 import { connect } from 'react-redux';
 
-import get from 'lodash/get';
-import isFunction from 'lodash/isFunction';
-
-import { Select } from '../../../components/common/form';
-import { Loader } from '../../../components/common';
-import { selectProcessMetaInfo, selectProcessVersions } from '../../../selectors/processAdmin';
 import { getAllVersions } from '../../../actions/processAdmin';
+import { Loader } from '../../../components/common';
+import { Select } from '../../../components/common/form';
 import { t } from '../../../helpers/util';
+import { selectProcessMetaInfo, selectProcessVersions } from '../../../selectors/processAdmin';
 import { ProcessContext } from '../ProcessContext';
 import { getValue } from '../utils';
 
@@ -17,25 +16,19 @@ import './style.scss';
 const ProcessHeader = ({ processId, metaInfo, versions, getAllVersions }) => {
   const { selectedVersion, setSelectedVersion } = useContext(ProcessContext);
 
-  useEffect(
-    () => {
-      if (metaInfo && metaInfo.key && !versions.loading && !versions.data) {
-        isFunction(getAllVersions) && getAllVersions(processId, metaInfo.key);
-      }
-    },
-    [metaInfo, versions]
-  );
+  useEffect(() => {
+    if (metaInfo && metaInfo.key && !versions.loading && !versions.data) {
+      isFunction(getAllVersions) && getAllVersions(processId, metaInfo.key);
+    }
+  }, [metaInfo, versions]);
 
-  useEffect(
-    () => {
-      if (metaInfo && selectedVersion === null) {
-        if (metaInfo.version || metaInfo.innerVersion) {
-          setSelectedVersion(metaInfo);
-        }
+  useEffect(() => {
+    if (metaInfo && selectedVersion === null) {
+      if (metaInfo.version || metaInfo.innerVersion) {
+        setSelectedVersion(metaInfo);
       }
-    },
-    [metaInfo, selectedVersion]
-  );
+    }
+  }, [metaInfo, selectedVersion]);
 
   const showLoader = !versions || (versions && versions.loading) || (versions && !versions.data);
 
@@ -78,7 +71,4 @@ const mapDispatchToProps = dispatch => ({
   getAllVersions: (processId, processKey) => dispatch(getAllVersions({ processId, processKey }))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ProcessHeader);
+export default connect(mapStateToProps, mapDispatchToProps)(ProcessHeader);
