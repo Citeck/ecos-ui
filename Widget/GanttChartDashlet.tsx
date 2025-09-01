@@ -75,6 +75,19 @@ class GanttChartWidget<P extends BaseWidgetProps, S extends BaseWidgetState> ext
     ];
   }
 
+  componentDidMount(): void {
+    super.componentDidMount();
+
+    if (this.apiRef.current) {
+      this.apiRef.current.on('render-data', ev => {
+        console.log('The ID of the last visible row', ev);
+      });
+      this.apiRef.current.on('request-data', data => {
+        console.log('Data request for: ', data);
+      });
+    }
+  }
+
   render() {
     const items = defaultToolbarButtons.filter((b: ButtonProps) => {
       return b.id?.indexOf('indent') === -1;
