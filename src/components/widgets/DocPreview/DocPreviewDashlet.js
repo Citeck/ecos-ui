@@ -4,17 +4,18 @@ import isFunction from 'lodash/isFunction';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import { DocScaleOptions, MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
-import { getStateId } from '../../../helpers/redux';
-import { isMobileDevice, t } from '../../../helpers/util';
-import DAction from '../../../services/DashletActionService';
-import UserLocalSettingsService from '../../../services/userLocalSettings';
 import Dashlet from '../../Dashlet/Dashlet';
 import BaseWidget from '../BaseWidget';
 
 import DocPreview from './DocPreview';
 import Settings from './Settings';
 import { Labels } from './util';
+
+import { DocScaleOptions, MIN_WIDTH_DASHLET_LARGE } from '@/constants/index';
+import { getStateId } from '@/helpers/redux';
+import { isMobileDevice, t } from '@/helpers/util';
+import DAction from '@/services/DashletActionService';
+import UserLocalSettingsService from '@/services/userLocalSettings';
 
 import './style.scss';
 
@@ -123,7 +124,7 @@ class DocPreviewDashlet extends BaseWidget {
   };
 
   render() {
-    const { title, config, classNamePreview, classNameDashlet, dragHandleProps, canDragging, fileName, ...props } = this.props;
+    const { title, config, record, classNamePreview, classNameDashlet, dragHandleProps, canDragging, fileName, ...props } = this.props;
     const { width, scale, runUpdate, isShowSetting } = this.state;
 
     return (
@@ -152,7 +153,7 @@ class DocPreviewDashlet extends BaseWidget {
         {isShowSetting && <Settings config={config} onCancel={this.handleToggleSettings} onSave={this.handleSaveConfig} />}
         <DocPreview
           forwardedRef={this.contentRef}
-          link={config.link || ''}
+          link={get(config, 'link') || ''}
           className={classNames(classNamePreview, { 'd-none': isShowSetting })}
           scale={scale}
           fileName={fileName}
@@ -164,6 +165,7 @@ class DocPreviewDashlet extends BaseWidget {
           scrollbarProps={this.scrollbarProps}
           setToolbarRef={this.setToolbarRef}
           toolbarConfig={this.toolbarConfig}
+          recordId={record}
         />
       </Dashlet>
     );

@@ -42,7 +42,24 @@ export const DefaultWidgetsByLayout = {
   [LayoutTypes.ADAPTIVE_SAME_WIDGETS]: [[]]
 };
 
-export const Layouts = [
+export type LayoutTypeKey = (typeof LayoutTypes)[keyof typeof LayoutTypes];
+export type DashboardTypeVal = (typeof DashboardTypes)[keyof typeof DashboardTypes];
+
+export type Column = {
+  width?: string;
+  height?: string;
+};
+export type LayoutType = {
+  position: number;
+  type: LayoutTypeKey;
+  isActive: boolean;
+  excluded?: boolean;
+  columns: Column[] | Array<Column[]>;
+  allowedDashboards: DashboardTypeVal[];
+  forbiddenDashboards: DashboardTypeVal[];
+};
+
+export const Layouts: LayoutType[] = [
   {
     position: 0,
     type: LayoutTypes.TWO_COLUMNS_BS,

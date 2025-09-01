@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 import Bar from '../CommonBar';
 import JournalsContent from '../JournalsContent';
 import JournalsDashletPagination from '../JournalsDashletPagination';
-import { CLASSNAME_JOURNAL_BODY_TOP, isPreview, isTableOrPreview } from '../constants';
+import { CLASSNAME_JOURNAL_BODY_TOP, isTableOrPreview } from '../constants';
 
 import {
   applyJournalSetting,
@@ -169,6 +169,8 @@ class TableView extends React.Component {
       bodyTopForwardedRef,
       footerForwardedRef,
       bodyClassName,
+      showWidgets,
+      onRowClick,
       minHeight,
       getMaxHeight,
       isActivePage,
@@ -214,8 +216,9 @@ class TableView extends React.Component {
         </div>
 
         <JournalsContent
+          showWidgets={showWidgets}
+          onRowClick={onRowClick}
           stateId={stateId}
-          showPreview={isPreview(viewMode) && !isMobile}
           maxHeight={maxHeight}
           minHeight={minHeight}
           isActivePage={isActivePage}

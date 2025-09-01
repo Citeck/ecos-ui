@@ -3,6 +3,7 @@
 .ecos-journals-content {
   &__sides {
     display: flex;
+    width: 100%;
 
     & > :nth-child(n) {
       position: relative;
@@ -13,19 +14,17 @@
       }
     }
 
-    &-left {
-      min-width: 280px;
+    &-small {
+      min-width: 300px;
     }
 
-    &-right {
-      min-width: 440px;
+    &-large {
+      min-width: 550px;
     }
   }
 
   &__resizer {
-    right: initial;
-    left: -10px;
-    top: 45%;
+    right: 0;
   }
 
   &__preview-well {

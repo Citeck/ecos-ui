@@ -1,8 +1,6 @@
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-import isNil from 'lodash/isNil';
-import merge from 'lodash/merge';
 import uniqueId from 'lodash/uniqueId';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -11,21 +9,24 @@ import { Tooltip } from '../common';
 import { IcoBtn } from '../common/btns';
 import PreviewList from '../common/icons/PreviewList';
 
-import { isDocLib, isKanban, isPreview, isPreviewList, isTable, JOURNAL_VIEW_MODE as JVM, Labels } from './constants';
+import { isDocLib, isKanban, isKanbanOrDocLib, isPreviewList, isTable, JOURNAL_VIEW_MODE as JVM, Labels } from './constants';
 
 import { toggleViewMode } from '@/actions/journals';
+import WidgetsPreview from '@/components/common/icons/WidgetsPreview';
 import { JournalUrlParams } from '@/constants';
 import { wrapArgs } from '@/helpers/redux';
 import { updateCurrentUrl } from '@/helpers/urls';
-import { getSearchParams, t } from '@/helpers/util';
-import { selectCommonJournalPageProps } from '@/selectors/journals';
+import { getBool, getSearchParams, t } from '@/helpers/util';
+import { selectCommonJournalPageProps, selectWidgetsConfig } from '@/selectors/journals';
 
 const mapStateToProps = (state, props) => {
   const commonProps = selectCommonJournalPageProps(state, props.stateId);
+  const widgetsConfig = selectWidgetsConfig(state, props.stateId);
 
   return {
     isMobile: get(state, 'view.isMobile'),
     _url: window.location.href,
+    widgetsConfig,
     ...commonProps
   };
 };
@@ -50,18 +51,16 @@ const tooltipModifiers = [
 
 class ViewTabs extends React.Component {
   targetId = uniqueId('ecos-journal-view-');
+  state = {
+    isViewWidgetsPreview: getBool(get(getSearchParams(), JournalUrlParams.VIEW_WIDGET_PREVIEW, false))
+  };
 
   onToggleViewMode = viewMode => {
     const urlViewMode = get(getSearchParams(), JournalUrlParams.VIEW_MODE);
-    const urlShowPreview = get(getSearchParams(), JournalUrlParams.SHOW_PREVIEW);
-    let newUrl;
+    let newUrl = {};
 
     if (urlViewMode !== viewMode) {
-      newUrl = merge(newUrl, { viewMode });
-    }
-
-    if (!isNil(urlShowPreview) && urlShowPreview !== isPreview(viewMode)) {
-      newUrl = merge(newUrl, { showPreview: isPreview(viewMode) });
+      newUrl = { viewMode };
     }
 
     if (!isEmpty(newUrl)) {
@@ -71,15 +70,21 @@ class ViewTabs extends React.Component {
     this.props.toggleViewMode(viewMode);
   };
 
+  onToggleViewWidgets = viewWidgets => {
+    this.setState({ isViewWidgetsPreview: viewWidgets }, () => updateCurrentUrl({ viewWidgets }));
+  };
+
   render() {
-    const { isMobile, isDocLibEnabled, isKanbanEnabled, isPreviewListEnabled, viewMode } = this.props;
+    const { isMobile, isDocLibEnabled, isKanbanEnabled, isPreviewListEnabled, viewMode, widgetsConfig } = this.props;
+    const { isLeftPositionWidgets } = widgetsConfig || {};
+
+    const { isViewWidgetsPreview } = this.state;
     const common = classNames(
       'ecos-journal__view-tabs-btn ecos-journal__view-svg-btn_blue_hover ecos-btn_i ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue',
       { 'ecos-journal__view-tabs_mobile': isMobile }
     );
     const available = 'ecos-btn_blue2 ecos-journal__view-svg-btn_blue_selected ecos-journal__view-tabs-btn_disabled';
     const disable = 'ecos-btn_grey';
-    const isPreviewMode = isPreview(viewMode);
     const isTableMode = isTable(viewMode);
     const isDocLibMode = isDocLib(viewMode);
     const isKanbanMode = isKanban(viewMode);
@@ -89,30 +94,17 @@ class ViewTabs extends React.Component {
     return (
       <div className="ecos-journal__view-tabs">
         {!isMobile && (
-          <>
-            <Tooltip off={isMobile} target={target(JVM.TABLE)} text={t(Labels.Views.JOURNAL)} uncontrolled modifiers={tooltipModifiers}>
-              <IcoBtn
-                id={target(JVM.TABLE)}
-                icon="icon-list"
-                className={classNames(common, {
-                  [available]: isTableMode,
-                  [disable]: !isTableMode
-                })}
-                onClick={() => this.onToggleViewMode(JVM.TABLE)}
-              />
-            </Tooltip>
-            <Tooltip off={isMobile} target={target(JVM.PREVIEW)} text={t(Labels.Views.PREVIEW)} uncontrolled modifiers={tooltipModifiers}>
-              <IcoBtn
-                id={target(JVM.PREVIEW)}
-                icon="icon-columns"
-                className={classNames(common, {
-                  [available]: isPreviewMode,
-                  [disable]: !isPreviewMode
-                })}
-                onClick={() => this.onToggleViewMode(JVM.PREVIEW)}
-              />
-            </Tooltip>
-          </>
+          <Tooltip off={isMobile} target={target(JVM.TABLE)} text={t(Labels.Views.JOURNAL)} uncontrolled modifiers={tooltipModifiers}>
+            <IcoBtn
+              id={target(JVM.TABLE)}
+              icon="icon-list"
+              className={classNames(common, {
+                [available]: isTableMode,
+                [disable]: !isTableMode
+              })}
+              onClick={() => this.onToggleViewMode(JVM.TABLE)}
+            />
+          </Tooltip>
         )}
         {!isMobile && isKanbanEnabled && (
           <Tooltip off={isMobile} target={target(JVM.KANBAN)} text={t(Labels.Views.KANBAN)} uncontrolled modifiers={tooltipModifiers}>
@@ -157,6 +149,25 @@ class ViewTabs extends React.Component {
               onClick={() => this.onToggleViewMode(JVM.PREVIEW_LIST)}
             >
               <PreviewList />
+            </IcoBtn>
+          </Tooltip>
+        )}
+        {!isKanbanOrDocLib(viewMode) && !isMobile && (
+          <Tooltip
+            off={isMobile}
+            target={target(JVM.WIDGETS)}
+            text={t(Labels.Views.WIDGETS_SETTINGS)}
+            uncontrolled
+            modifiers={tooltipModifiers}
+          >
+            <IcoBtn
+              id={target(JVM.WIDGETS)}
+              className={classNames(common, 'with-vertical-line', {
+                'ecos-btn_blue2 ecos-journal__view-svg-btn_blue_selected': isViewWidgetsPreview
+              })}
+              onClick={() => this.onToggleViewWidgets(!isViewWidgetsPreview)}
+            >
+              <WidgetsPreview width={26} height={26} isLeft={isLeftPositionWidgets} />
             </IcoBtn>
           </Tooltip>
         )}

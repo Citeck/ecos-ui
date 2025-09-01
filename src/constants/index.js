@@ -227,7 +227,8 @@ export const JournalUrlParams = {
   USER_CONFIG_ID: 'userConfigId',
   SHOW_PREVIEW: 'showPreview',
   SEARCH: 'search',
-  VIEW_MODE: 'viewMode'
+  VIEW_MODE: 'viewMode',
+  VIEW_WIDGET_PREVIEW: 'viewWidgets'
 };
 
 export const DocLibUrlParams = {

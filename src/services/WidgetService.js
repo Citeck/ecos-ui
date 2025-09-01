@@ -1,5 +1,7 @@
-import React from 'react';
+import get from 'lodash/get';
+import React, { lazy, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
+import { Provider } from 'react-redux';
 
 import BusinessProcessViewer from '../components/BusinessProcessViewer';
 import { isFlowableProcess } from '../components/BusinessProcessViewer/util';
@@ -7,11 +9,15 @@ import FormManager from '../components/EcosForm/FormManager';
 import { JournalsPresetEditor } from '../components/Journals/JournalsPresets';
 import { notifyFailure, notifySuccess } from '../components/Records/actions/util/actionUtils';
 import Modal from '../components/common/EcosModal/CiteckEcosModal';
+import DialogManager from '../components/common/dialogs/Manager/index';
 import { SelectOrgstruct } from '../components/common/form';
 import { AUTHORITY_TYPE_USER, TabTypes } from '../components/common/form/SelectOrgstruct/constants';
 import { UploadNewVersion } from '../components/formAction';
 import { DocPreview } from '../components/widgets/DocPreview';
 import { t } from '../helpers/util';
+
+import { Loader } from '@/components/common/index';
+import { getStore } from '@/store';
 
 export default class WidgetService {
   _root = null;
@@ -43,6 +49,44 @@ export default class WidgetService {
       title: t(title),
       class: 'ecos-modal-preview-doc',
       classBody: 'ecos-modal-preview-doc__body'
+    });
+  }
+
+  static openEditJournalWidgets(props = {}) {
+    const Settings = lazy(() => import('../components/Journals/JournalsPreviewWidgets/WidgetSettings'));
+    const store = getStore();
+    const modalRef = React.createRef();
+
+    let { onSave = () => {}, onClose = () => {}, ...otherProps } = props;
+
+    const dialog = DialogManager.showCustomDialog({
+      isVisible: true,
+      title: t('widgets-settings.modal.title'),
+      className: 'ecos-dashboard-settings-modal-wrapper ecos-modal_width-lg',
+      isTopDivider: true,
+      isBigHeader: true,
+      reactstrapProps: { ref: modalRef, backdrop: 'static' },
+      onHide: () => dialog.setVisible(false),
+      body: (
+        <Provider store={store}>
+          <Suspense fallback={<Loader type="points" />}>
+            <Settings
+              modalRef={modalRef}
+              onSetDialogProps={props => dialog.updateProps(props)}
+              getDialogTitle={() => get(dialog, 'props.dialogProps.title')}
+              onSave={() => {
+                dialog.setVisible(false);
+                onSave();
+              }}
+              onClose={() => {
+                dialog.setVisible(false);
+                onClose();
+              }}
+              {...otherProps}
+            />
+          </Suspense>
+        </Provider>
+      )
     });
   }
 

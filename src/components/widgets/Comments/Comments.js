@@ -1,13 +1,8 @@
-import debounce from 'lodash/debounce';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
 
-import { getComments, updateComments } from '../../../actions/comments';
-import { BASE_HEIGHT } from '../../../constants/comments';
-import { MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
-import DAction from '../../../services/DashletActionService';
 import Dashlet from '../../Dashlet';
 import { Btn } from '../../common/btns/index';
 import BaseWidget, { EVENTS } from '../BaseWidget';
@@ -15,9 +10,13 @@ import BaseWidget, { EVENTS } from '../BaseWidget';
 import Comment from './Comment';
 import { CommentInterface, IdInterface } from './propsInterfaces';
 
+import { getComments, updateComments } from '@/actions/comments';
+import { BASE_HEIGHT } from '@/constants/comments';
+import { MIN_WIDTH_DASHLET_LARGE } from '@/constants/index';
 import { getRecordRef } from '@/helpers/urls';
 import { num2str, t } from '@/helpers/util';
 import { selectStateByRecordRef } from '@/selectors/comments';
+import DAction from '@/services/DashletActionService';
 import { Events } from '@/services/PageService';
 
 import './style.scss';
@@ -30,6 +29,7 @@ class Comments extends BaseWidget {
     maxLength: PropTypes.number,
     totalCount: PropTypes.number,
     errorMessage: PropTypes.string,
+    record: PropTypes.string,
     saveIsLoading: PropTypes.bool,
     fetchIsLoading: PropTypes.bool,
     hasMore: PropTypes.bool,
@@ -117,15 +117,15 @@ class Comments extends BaseWidget {
   };
 
   fetchData = () => {
-    const { getComments } = this.props;
-    const newRecordRef = getRecordRef();
+    const { getComments, record } = this.props;
+    const newRecordRef = getRecordRef() || record;
 
     getComments(newRecordRef);
   };
 
   handleChangeTabLink = () => {
-    const { updateComments } = this.props;
-    const newRecordRef = getRecordRef();
+    const { updateComments, record } = this.props;
+    const newRecordRef = getRecordRef() || record;
 
     if (newRecordRef) {
       this.setState({ recordRef: newRecordRef }, () => {
@@ -276,7 +276,7 @@ class Comments extends BaseWidget {
 }
 
 const mapStateToProps = (state, ownProps) => {
-  const recordRef = getRecordRef();
+  const recordRef = getRecordRef() || ownProps.record;
 
   return {
     ...selectStateByRecordRef(state, recordRef),

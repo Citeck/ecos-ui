@@ -25,19 +25,23 @@ import {
   JOURNAL_VIEW_MODE as JVM,
   Labels,
   isTable,
-  isKanban
+  isKanban,
+  isKanbanOrDocLib
 } from './constants';
 
 import { getTypeRef } from '@/actions/docLib';
 import { execJournalAction, setUrl, toggleViewMode } from '@/actions/journals';
 import { getBoardList } from '@/actions/kanban';
 import { updateTab } from '@/actions/pageTabs';
+import JournalsPreviewWidgets from '@/components/Journals/JournalsPreviewWidgets/JournalsPreviewWidgets';
+import { ResizeBoxes } from '@/components/common';
+import { Well } from '@/components/common/form';
 import { DocLibUrlParams as DLUP, JournalUrlParams as JUP, SourcesId } from '@/constants';
 import { wrapArgs } from '@/helpers/redux';
 import { showModalJson } from '@/helpers/tools';
 import { equalsQueryUrls, getSearchParams } from '@/helpers/urls';
 import { animateScrollTo, getBool, t } from '@/helpers/util';
-import { selectCommonJournalPageProps } from '@/selectors/journals';
+import { selectCommonJournalPageProps, selectWidgetsConfig } from '@/selectors/journals';
 import { selectIsViewNewJournal } from '@/selectors/view';
 import PageService, { PageTypes } from '@/services/PageService';
 import pageTabList from '@/services/pageTabs/PageTabList';
@@ -46,6 +50,7 @@ import './style.scss';
 
 const mapStateToProps = (state, props) => {
   const commonProps = selectCommonJournalPageProps(state, props.stateId);
+  const widgetsConfig = selectWidgetsConfig(state, props.stateId);
   const isViewNewJournal = selectIsViewNewJournal(state);
 
   return {
@@ -54,6 +59,7 @@ const mapStateToProps = (state, props) => {
     pageTabsIsShow: get(state, 'pageTabs.isShow'),
     _url: window.location.href,
     isViewNewJournal,
+    widgetsConfig,
     ...commonProps
   };
 };
@@ -81,7 +87,6 @@ const defaultDisplayElements = {
 };
 
 const ViewLabels = {
-  [JVM.PREVIEW]: Labels.Views.PREVIEW,
   [JVM.TABLE]: Labels.Views.JOURNAL,
   [JVM.DOC_LIB]: Labels.Views.DOC_LIB,
   [JVM.KANBAN]: Labels.Views.KANBAN
@@ -98,7 +103,8 @@ class Journals extends React.Component {
     menuOpen: isDocLib(get(getSearchParams(), JUP.VIEW_MODE)),
     menuOpenAnimate: isDocLib(get(getSearchParams(), JUP.VIEW_MODE)),
     journalId: undefined,
-    maxHeightJournal: 0
+    maxHeightJournal: 0,
+    recordId: null
   };
 
   static getDerivedStateFromProps(props, state) {
@@ -121,13 +127,8 @@ class Journals extends React.Component {
   }
 
   componentDidMount() {
-    const showPreview = getBool(get(getSearchParams(), JUP.SHOW_PREVIEW));
     const searchParams = getSearchParams();
     let viewMode = getBool(get(getSearchParams(), JUP.VIEW_MODE));
-
-    if (showPreview && !viewMode) {
-      viewMode = JVM.PREVIEW;
-    }
 
     if (isUnknownView(viewMode)) {
       viewMode = JVM.TABLE;
@@ -141,8 +142,15 @@ class Journals extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { _url, isActivePage, stateId, viewMode, tabId, isViewNewJournal } = this.props;
+    const { _url, isActivePage, stateId, viewMode, tabId, isViewNewJournal, widgetsConfig } = this.props;
     const { journalId } = this.state;
+
+    if (
+      get(prevProps, ['urlParams', JUP.VIEW_WIDGET_PREVIEW]) !== get(this.props, ['urlParams', JUP.VIEW_WIDGET_PREVIEW]) ||
+      !isEqual(prevProps.widgetsConfig, widgetsConfig)
+    ) {
+      this.setState({ recordId: null });
+    }
 
     if (isViewNewJournal && prevProps.viewMode !== viewMode && (isTable(viewMode) || isKanban(viewMode))) {
       this.setState({ menuOpen: false });
@@ -226,12 +234,15 @@ class Journals extends React.Component {
     const { bodyClassName, stateId, isActivePage, pageTabsIsShow, isMobile, withForceUpdate } = this.props;
     const { journalId } = this.state;
     const displayElements = this.getDisplayElements();
+    const showWidgets = getBool(get(getSearchParams(), JUP.VIEW_WIDGET_PREVIEW));
 
     return {
       stateId,
       journalId,
       isActivePage,
       withForceUpdate,
+      showWidgets,
+      onRowClick: this.onRowClick,
       onEditJournal: configRec => this.handleEditJournal(configRec),
       hasBtnEdit: configRec => displayElements.editJournal && !!configRec,
       hasBtnMenu: displayElements.menu,
@@ -419,10 +430,72 @@ class Journals extends React.Component {
     );
   };
 
+  onRowClick = row => {
+    this.setState({ recordId: row.id });
+  };
+
+  renderViews = () => {
+    const commonProps = this.getCommonProps();
+    return (
+      <>
+        <TableView {...commonProps} />
+        <DocLibView {...commonProps} />
+        <KanbanView {...commonProps} />
+        <PreviewListView {...commonProps} />
+        <this.RightMenu />
+      </>
+    );
+  };
+
+  renderWithWidgets = () => {
+    const { isViewNewJournal, widgetsConfig, stateId } = this.props;
+    const { isLeftPositionWidgets } = widgetsConfig || {};
+    const { recordId } = this.state;
+
+    const wellClassNames = 'ecos-well_full ecos-journals-content__preview-well';
+
+    if (isLeftPositionWidgets) {
+      const leftId = `_${stateId}-preview`;
+      const rightId = `_${stateId}-grid`;
+
+      return (
+        <div className="ecos-journals-content__sides">
+          <div id={leftId} className="ecos-journals-content__sides-small">
+            <Well isViewNewJournal={isViewNewJournal} className={wellClassNames}>
+              <JournalsPreviewWidgets stateId={stateId} recordId={recordId} />
+            </Well>
+            <ResizeBoxes leftId={leftId} rightId={rightId} isSimpleVertical />
+          </div>
+          <div id={rightId} className="ecos-journals-content__sides-large">
+            {this.renderViews()}
+          </div>
+        </div>
+      );
+    }
+
+    const leftId = `_${stateId}-grid`;
+    const rightId = `_${stateId}-preview`;
+
+    return (
+      <div className="ecos-journals-content__sides">
+        <div id={leftId} className="ecos-journals-content__sides-large">
+          {this.renderViews()}
+        </div>
+        <div id={rightId} className="ecos-journals-content__sides-small">
+          <ResizeBoxes leftId={leftId} rightId={rightId} autoRightSide isSimpleVertical />
+          <Well isViewNewJournal={isViewNewJournal} className={wellClassNames}>
+            <JournalsPreviewWidgets stateId={stateId} recordId={recordId} />
+          </Well>
+        </div>
+      </div>
+    );
+  };
+
   render() {
-    const { isMobile, className, isViewNewJournal } = this.props;
+    const { isMobile, className, isViewNewJournal, viewMode } = this.props;
     const { height } = this.state;
     const commonProps = this.getCommonProps();
+    const { showWidgets } = commonProps || {};
 
     return (
       <ReactResizeDetector handleHeight={!isViewNewJournal} onResize={this.handleResize}>
@@ -435,11 +508,7 @@ class Journals extends React.Component {
             'ecos-journal_scroll': height <= commonProps.minHeight
           })}
         >
-          <TableView {...commonProps} />
-          <DocLibView {...commonProps} />
-          <KanbanView {...commonProps} />
-          <PreviewListView {...commonProps} />
-          <this.RightMenu />
+          {showWidgets && !isKanbanOrDocLib(viewMode) && !isMobile ? this.renderWithWidgets() : this.renderViews()}
         </div>
       </ReactResizeDetector>
     );
@@ -453,6 +522,10 @@ Journals.propTypes = {
   title: PropTypes.string,
   additionalHeights: PropTypes.number,
   isViewNewJournal: PropTypes.bool,
+  widgetsConfig: PropTypes.shape({
+    isLeftPositionWidgets: PropTypes.bool,
+    widgets: PropTypes.array
+  }),
   isActivePage: PropTypes.bool,
   displayElements: PropTypes.shape({
     menu: PropTypes.bool,

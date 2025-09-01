@@ -20,16 +20,18 @@ import Shape from '../../common/icons/Shape';
 import GroupActions from '../GroupActions';
 import { JournalsPresetListDropdown } from '../JournalsPresets';
 import ViewTabs from '../ViewTabs';
-import { isKanban } from '../constants';
+import { isKanban, isPreviewList } from '../constants';
 
 import CreateMenu from './CreateMenu';
 
 import './JournalsSettingsBar.scss';
+import WidgetService from '@/services/WidgetService.js';
 
 const Labels = {
   BTN_CREATE: 'journals.bar.btn.create',
   BTN_TABLE_SETTINGS: 'journals.bar.btn.settings-table',
   BTN_JOURNAL_SETTINGS: 'journals.bar.btn.settings-journal',
+  BTN_WIDGET_SETTINGS: 'widgets-settings.modal.title',
   BTN_EXPORT: 'journals.bar.btn.export',
   BTN_IMPORT: 'journals.bar.btn.import',
   BTN_UPDATE: 'journals.bar.btn.update',
@@ -158,6 +160,24 @@ const JournalsSettingsBar = ({
               )}
               onClick={onEditJournal}
               // loading={isLoading}
+            >
+              {isViewNewJournal && <Shape />}
+            </IcoBtn>
+          </Tooltip>
+        )}
+
+        {isPreviewList(viewMode) && isAdmin && isViewNewJournal && !isMobile && hasBtnEdit && (
+          <Tooltip target={`${targetId}-journal-settings`} text={t(Labels.BTN_WIDGET_SETTINGS)} {...tooltipSettings}>
+            <IcoBtn
+              id={`${targetId}-journal-settings`}
+              icon={!isViewNewJournal ? 'icon-settings' : null}
+              className={classNames(
+                'journals-head__settings-btn ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue',
+                {
+                  'ecos-journal__btn_new shape': isViewNewJournal
+                }
+              )}
+              onClick={() => WidgetService.openEditJournalWidgets()}
             >
               {isViewNewJournal && <Shape />}
             </IcoBtn>

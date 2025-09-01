@@ -4,12 +4,13 @@ import TreeDataSource from '../components/common/grid/dataSource/TreeDataSource'
 import { SourcesId } from '../constants';
 import { CITECK_URI, PROXY_URI } from '../constants/alfresco';
 import * as ls from '../helpers/ls';
-import { debounce } from '../helpers/util';
+import { debounce, getEnabledWorkspaces } from '../helpers/util';
 import AttributesService from '../services/AttributesService';
 
 import { DocPreviewApi } from './docPreview';
 import { RecordService } from './recordService';
 
+import { ROOT_GROUP_NAME } from '@/components/common/Orgstruct/constants';
 import { getWorkspaceId } from '@/helpers/urls';
 
 /**
@@ -167,5 +168,50 @@ export class JournalsApi extends RecordService {
 
   getJournalTypeRef = journalId => {
     return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load('typeRef?str');
+  };
+
+  saveConfigWidgets = ({ config, journalId = '' }) => {
+    const record = Records.get(`${SourcesId.DASHBOARD}@`);
+    const recordRef = journalId.includes('@') ? journalId : `${SourcesId.JOURNAL}@${journalId}`;
+
+    if (config) {
+      record.att('config?json', config);
+    }
+
+    record.att('authority?str', ROOT_GROUP_NAME);
+
+    if (recordRef) {
+      record.att('appliedToRef?str', recordRef);
+    }
+
+    record.att('scope', 'journal');
+
+    if (getEnabledWorkspaces()) {
+      record.att('workspace', getWorkspaceId());
+    }
+
+    return record.save();
+  };
+
+  getConfigWidgets = (journalId = '') => {
+    const recordRef = journalId.includes('@') ? journalId : `${SourcesId.JOURNAL}@${journalId}`;
+
+    const query = {
+      scope: 'journal',
+      authority: ROOT_GROUP_NAME,
+      recordRef
+    };
+
+    if (getEnabledWorkspaces()) {
+      query.workspace = getWorkspaceId();
+    }
+
+    return Records.queryOne(
+      {
+        sourceId: SourcesId.DASHBOARD,
+        query
+      },
+      'config?json'
+    );
   };
 }

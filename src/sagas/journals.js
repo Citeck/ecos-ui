@@ -29,6 +29,7 @@ import {
   getDashletConfig,
   getDashletEditorData,
   getJournalsData,
+  getJournalWidgetsConfig,
   goToJournalsPage,
   initJournal,
   initJournalSettingData,
@@ -61,6 +62,7 @@ import {
   setJournalExpandableProp,
   setJournalSetting,
   setJournalSettings,
+  setJournalWidgetsConfig,
   setLoading,
   setLoadingGrid,
   setOriginGridSettings,
@@ -1669,6 +1671,17 @@ export function* sagaToggleViewMode({ w }, { payload }) {
   }
 }
 
+export function* sagaGetJournalWidgetsConfig({ w, api }, { payload }) {
+  try {
+    const widgetsConfig = yield call(api.journals.getConfigWidgets, payload);
+    if (widgetsConfig) {
+      yield put(setJournalWidgetsConfig(w(widgetsConfig)));
+    }
+  } catch (e) {
+    console.error('[journals sagaGetJournalWidgetsConfig saga error', e);
+  }
+}
+
 function* saga(ea) {
   yield takeEvery(getDashletConfig().type, wrapSaga, { ...ea, saga: sagaGetDashletConfig });
   yield takeEvery(setDashletConfigByParams().type, wrapSaga, { ...ea, saga: sagaSetDashletConfigFromParams });
@@ -1703,6 +1716,7 @@ function* saga(ea) {
 
   yield takeEvery(initPreview().type, wrapSaga, { ...ea, saga: sagaInitPreview });
   yield takeEvery(goToJournalsPage().type, wrapSaga, { ...ea, saga: sagaGoToJournalsPage });
+  yield takeEvery(getJournalWidgetsConfig().type, wrapSaga, { ...ea, saga: sagaGetJournalWidgetsConfig });
   yield takeEvery(runSearch().type, wrapSaga, { ...ea, saga: sagaSearch });
   yield takeEvery(checkConfig().type, wrapSaga, { ...ea, saga: sagaCheckConfig });
 

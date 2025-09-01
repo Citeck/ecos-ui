@@ -1,6 +1,7 @@
 import classnames from 'classnames';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
+import isFunction from 'lodash/isFunction';
 import moment from 'moment';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
@@ -51,6 +52,11 @@ class PreviewListContent extends Component {
     return getLinkWithWs(URL.DASHBOARD + '?recordRef=' + id);
   };
 
+  onItemClick = item => {
+    const { onRowClick } = this.props;
+    isFunction(onRowClick) && onRowClick(item);
+  };
+
   renderItemData = (item, idx) => {
     const { previewListConfig } = this.props;
     const { creator, created, id: itemId, previewUrl } = item || {};
@@ -68,7 +74,7 @@ class PreviewListContent extends Component {
     description = EcosFormUtils.stripHTML(description);
 
     return (
-      <div className="citeck-preview-list-content__card" key={idx}>
+      <div className="citeck-preview-list-content__card" key={idx} onClick={() => this.onItemClick(item)}>
         <div className="citeck-preview-list-content__card_img">
           <a href={itemLink} className="citeck-preview-list-content__card-info_title">
             <img className="citeck-preview-list-content__card_img" src={previewUrl || defaultImage} alt={title} />

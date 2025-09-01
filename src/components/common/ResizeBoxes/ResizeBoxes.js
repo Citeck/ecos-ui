@@ -1,8 +1,8 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 import Icon from '../icons/Icon/Icon';
 
@@ -13,6 +13,7 @@ class ResizeBoxes extends React.Component {
     className: PropTypes.string,
     leftId: PropTypes.string,
     rightId: PropTypes.string,
+    isSimpleVertical: PropTypes.bool,
     notCountAtLeft: PropTypes.bool,
     notCountAtRight: PropTypes.bool,
     autoRightSide: PropTypes.bool,
@@ -90,12 +91,15 @@ class ResizeBoxes extends React.Component {
   };
 
   render() {
-    const { className } = this.props;
-    const classes = classNames('ecos-resizer-x', className);
+    const { className, isSimpleVertical, autoRightSide } = this.props;
+    const classes = classNames('ecos-resizer-x', className, {
+      'ecos-resizer-x__simple-vertical': isSimpleVertical,
+      'ecos-resizer-x__simple-vertical_left': isSimpleVertical && !autoRightSide
+    });
 
     return (
       <div className={classes} onMouseDown={this.startResize}>
-        <Icon className="ecos-resizer-x__icon icon-custom-resize-vertical" />
+        {!isSimpleVertical && <Icon className="ecos-resizer-x__icon icon-custom-resize-vertical" />}
       </div>
     );
   }

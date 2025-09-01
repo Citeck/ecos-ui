@@ -4,11 +4,6 @@ import isFunction from 'lodash/isFunction';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import { PropertiesApi } from '../../../api/properties';
-import { getFitnesseClassName } from '../../../helpers/tools';
-import { isTaskDashboard } from '../../../helpers/urls';
-import { isMobileDevice, isSmallMode, objectCompare, t } from '../../../helpers/util';
-import DAction from '../../../services/DashletActionService';
 import Dashlet from '../../Dashlet';
 import { FORM_MODE_VIEW } from '../../EcosForm';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
@@ -19,6 +14,12 @@ import BaseWidget, { EVENTS } from '../BaseWidget';
 import Properties from './Properties';
 import PropertiesEditModal from './PropertiesEditModal';
 import PropertiesSettings from './PropertiesSettings';
+
+import { PropertiesApi } from '@/api/properties';
+import { getFitnesseClassName } from '@/helpers/tools';
+import { isTaskDashboard } from '@/helpers/urls';
+import { isMobileDevice, isSmallMode, objectCompare, t } from '@/helpers/util';
+import DAction from '@/services/DashletActionService';
 
 import './style.scss';
 
@@ -92,7 +93,7 @@ class PropertiesDashlet extends BaseWidget {
   componentDidUpdate(prevProps, prevState) {
     super.componentDidUpdate(prevProps, prevState);
 
-    if (!objectCompare(prevProps.config, this.props.config)) {
+    if ((prevProps.config || this.props.config) && !objectCompare(prevProps.config, this.props.config)) {
       this.reload();
     }
 
