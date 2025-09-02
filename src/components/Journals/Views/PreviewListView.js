@@ -168,6 +168,7 @@ class PreviewListView extends React.Component {
       isMobile,
       bodyTopForwardedRef,
       footerForwardedRef,
+      onRowClick,
       bodyClassName,
       minHeight,
       getMaxHeight,
@@ -215,7 +216,13 @@ class PreviewListView extends React.Component {
           />
         </div>
 
-        <PreviewListContent stateId={stateId} maxHeight={maxHeight} minHeight={minHeight} isActivePage={isActivePage} />
+        <PreviewListContent
+          onRowClick={onRowClick}
+          stateId={stateId}
+          maxHeight={maxHeight}
+          minHeight={minHeight}
+          isActivePage={isActivePage}
+        />
 
         {!isViewNewJournal && (
           <div className="ecos-journal__footer" ref={footerForwardedRef}>

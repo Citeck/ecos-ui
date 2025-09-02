@@ -18,6 +18,7 @@ import Widgets from '../../../widgets';
 import { FORM_MODE_CREATE } from '@/components/EcosForm/constants';
 import { t } from '@/helpers/export/util';
 import { getCurrentLocale, getMLValue, getTextByLocale, isEqualLexicalValue } from '@/helpers/util';
+import WidgetService from '@/services/WidgetService';
 import ZIndex from '@/services/ZIndex';
 
 // >>> Methods
@@ -963,7 +964,8 @@ Base.prototype.evalContext = function (additional) {
   const utils = {
     ...context.utils,
     getTextByLocale,
-    getCurrentLocale
+    getCurrentLocale,
+    openSettingsWidgets: WidgetService.openEditJournalWidgets
   };
 
   return {

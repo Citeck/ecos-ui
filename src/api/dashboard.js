@@ -115,7 +115,7 @@ export class DashboardApi {
       record.att('scope', 'orgstructure');
     }
 
-    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+    if (getEnabledWorkspaces()) {
       record.att('workspace', getWorkspaceId());
     }
 
@@ -132,7 +132,7 @@ export class DashboardApi {
     record.att('name?json', name);
     record.att('config?json', DashboardService.getEmptyDashboardConfig());
 
-    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+    if (getEnabledWorkspaces()) {
       record.att('workspace', getWorkspaceId());
     }
 

@@ -5,16 +5,16 @@ import moment from 'moment';
 
 import Dashlet from '../../../components/Dashlet/Dashlet';
 import FormManager from '../../../components/EcosForm/FormManager';
-// @ts-ignore
-import Records from '../../../components/Records/Records';
-import { Avatar, Loader } from '../../../components/common';
-import BaseWidget, { BaseWidgetProps, BaseWidgetState } from '../../../components/widgets/BaseWidget';
-import { getStateId } from '../../../helpers/redux';
-import DAction from '../../../services/DashletActionService';
 
+// @ts-ignore
+import Records from '@/components/Records/Records';
+import { Avatar, Loader } from '@/components/common';
+import BaseWidget, { BaseWidgetProps, BaseWidgetState } from '@/components/widgets/BaseWidget';
+import { getStateId } from '@/helpers/redux';
 import { getFitnesseClassName } from '@/helpers/tools';
 import { getRecordRef } from '@/helpers/urls';
 import { t } from '@/helpers/util';
+import DAction from '@/services/DashletActionService';
 import { Events } from '@/services/PageService';
 
 import './style.scss';
@@ -76,7 +76,7 @@ class PublicationWidgetDashlet<P extends PublicationWidgetDashletProps, S extend
   }
 
   updatePublication() {
-    const newRecordRef = getRecordRef();
+    const newRecordRef = getRecordRef() || this.props.record;
 
     if (newRecordRef) {
       this.setState({ recordRef: newRecordRef }, () => this.fetchPublication());

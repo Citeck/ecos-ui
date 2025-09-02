@@ -292,7 +292,7 @@
     }
     .ecos-inline-tools-actions {
       margin-top: 1px !important;
-      height: calc(100% - 2px) !important;
+      height: calc(100% - 3px) !important;
       background: linear-gradient(to right, rgba($color-white, 0), $color-white 15%);
     }
   }
@@ -509,6 +509,22 @@
 
   .ecos-pagination__arrow + .ecos-pagination__arrow {
     margin-left: 3px;
+  }
+}
+
+.with-vertical-line {
+  position: relative;
+  padding-left: 7px !important;
+
+  &::before{
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 24px;
+    background: $color-gray-4;
   }
 }
 

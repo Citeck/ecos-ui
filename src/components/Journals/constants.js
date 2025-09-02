@@ -39,10 +39,10 @@ export const JOURNAL_MIN_HEIGHT_MOB = 450;
 
 export const JOURNAL_VIEW_MODE = {
   TABLE: 'table',
-  PREVIEW: 'table-preview',
   DOC_LIB: 'document-library',
   PREVIEW_LIST: 'preview-list',
-  KANBAN: 'kanban'
+  KANBAN: 'kanban',
+  WIDGETS: 'widgets-preview'
 };
 
 export const KANBAN_SELECTOR_MODE = {
@@ -76,10 +76,10 @@ export const Labels = {
   },
   Views: {
     JOURNAL: 'journals.view.label.journal',
-    PREVIEW: 'journals.view.label.journal-preview',
     PREVIEW_LIST: 'journals.view.label.preview-list',
     DOC_LIB: 'journals.view.label.document-library',
-    KANBAN: 'journals.view.label.kanban'
+    KANBAN: 'journals.view.label.kanban',
+    WIDGETS_SETTINGS: 'journals.view.label.widgets-settings'
   },
   Menu: {
     HIDE_MENU: 'journals.action.hide-menu',
@@ -111,11 +111,12 @@ export const Labels = {
 };
 
 export const isTable = vm => vm === JOURNAL_VIEW_MODE.TABLE;
-export const isPreview = vm => vm === JOURNAL_VIEW_MODE.PREVIEW;
 export const isDocLib = vm => vm === JOURNAL_VIEW_MODE.DOC_LIB;
 export const isKanban = vm => vm === JOURNAL_VIEW_MODE.KANBAN;
+export const isKanbanOrDocLib = vm => isKanban(vm) || isDocLib(vm);
 export const isPreviewList = vm => vm === JOURNAL_VIEW_MODE.PREVIEW_LIST;
-export const isTableOrPreview = vm => isTable(vm) || isPreview(vm);
+export const isWidgetsPreview = vm => vm === JOURNAL_VIEW_MODE.WIDGETS;
+export const isTableOrPreview = vm => isTable(vm) || isWidgetsPreview(vm);
 export const isUnknownView = vm => !Object.values(JOURNAL_VIEW_MODE).includes(vm);
 
 export const relatedViews = [JOURNAL_VIEW_MODE.TABLE, JOURNAL_VIEW_MODE.KANBAN];

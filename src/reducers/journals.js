@@ -41,7 +41,8 @@ import {
   openSelectedJournal,
   setSearchText,
   saveColumn,
-  setSearching
+  setSearching,
+  setJournalWidgetsConfig
 } from '../actions/journals';
 import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_PAGINATION, relatedViews } from '../components/Journals/constants';
 import { t } from '../helpers/export/util';
@@ -66,6 +67,11 @@ export const defaultState = {
   wasChangedSettingsOn: [],
 
   url: {},
+
+  widgetsConfig: {
+    widgets: null,
+    isLeftPositionWidgets: false
+  },
 
   grid: {
     data: [],
@@ -400,6 +406,17 @@ export default handleActions(
       action = handleAction(action);
 
       return handleState(state, stateId, { recordRef: action.payload });
+    },
+    [setJournalWidgetsConfig]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, {
+        widgetsConfig: {
+          ...state[stateId].widgetsConfig,
+          ...action.payload
+        }
+      });
     },
     [openSelectedJournal]: (state, action) => {
       const stateId = action.payload.stateId;

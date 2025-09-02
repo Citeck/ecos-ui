@@ -32,6 +32,7 @@ export const selectNewVersionDashletConfig = createSelector(selectState, ownProp
 );
 
 export const selectDashletConfig = createSelector(selectState, ownProps => get(ownProps, 'config', null));
+export const selectWidgetsConfig = createSelector(selectState, ownProps => get(ownProps, 'widgetsConfig'));
 
 export const selectJournalConfig = createSelector(selectState, ownProps => get(ownProps, 'journalConfig', null));
 
