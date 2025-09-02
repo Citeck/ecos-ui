@@ -6,6 +6,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Container } from 'reactstrap';
 
+import { ALLOW_WIDGETS_PREVIEW, DEFAULT_TABLE_WIDGETS } from '../constants';
+
 import { WidgetsConfigType } from './JournalsPreviewWidgets';
 import LeftPositionWidgetsIcon from './icons/LeftPositionWidgetsIcon';
 import RightPositionWidgetsIcon from './icons/RightPositionWidgetsIcon';
@@ -17,7 +19,6 @@ import { DndUtils } from '@/components/Drag-n-Drop';
 import { Loader, Tooltip } from '@/components/common';
 import { Btn } from '@/components/common/btns';
 import Components from '@/components/widgets/Components';
-import { ALLOW_WIDGETS_PREVIEW, DEFAULT_TABLE_WIDGETS } from '@/constants/journal';
 import { Layouts, LayoutType, LayoutTypes } from '@/constants/layout';
 import { t } from '@/helpers/export/util';
 import { wrapArgs } from '@/helpers/redux';
@@ -190,11 +191,11 @@ class WidgetSettings<P extends WidgetSettingsProps, S extends WidgetSettingsStat
         <SetWidgets
           availableWidgets={this.availableWidgets}
           activeWidgets={selectedWidgets}
-          isMobile={false}
           activeLayout={this.selectedLayout || {}}
           columns={this.selectedLayout?.columns || []}
           setData={setData}
           positionAdjustment={this.getPositionOffset}
+          isMobile
         />
       </div>
     );

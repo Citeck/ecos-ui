@@ -6,7 +6,7 @@
   "scripts": {
     "start": "NODE_ENV=development node -r dotenv/config server/index.js",
     "start:stage": "NODE_ENV=dev-stage node -r dotenv/config server/index.js",
-    "build:stage": "NODE_ENV=dev-stage NODE_OPTIONS=--max-old-space-size=6144 vite build --mode dev-stage",
+    "build:stage": "NODE_ENV=dev-stage NODE_OPTIONS=--max-old-space-size=7168 vite build --mode dev-stage",
     "build:win": "NODE_OPTIONS=--max-old-space-size=6144 vite build --mode production",
     "build:ci": "cross-env REACT_APP_BUILD_TIME=$(date +%s) npm-run-all build:src",
     "build:src": "node --max_old_space_size=6144 node_modules/.bin/vite build --mode production",

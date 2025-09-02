@@ -3,6 +3,8 @@ import get from 'lodash/get';
 import React, { Component, Suspense } from 'react';
 import { connect } from 'react-redux';
 
+import { DEFAULT_TABLE_WIDGETS } from '../constants';
+
 import EmptyWidgetsIcon from './icons/EmptyWidgetsIcon';
 import WidgetsNotSettingsIcon from './icons/WidgetsNotSettingsIcon';
 
@@ -11,7 +13,6 @@ import { WidgetErrorBoundary } from '@/components/WidgetErrorBoundary';
 import { Loader } from '@/components/common';
 import { Btn } from '@/components/common/btns';
 import Components from '@/components/widgets/Components';
-import { DEFAULT_TABLE_WIDGETS } from '@/constants/journal';
 import { t } from '@/helpers/export/util';
 import { wrapArgs } from '@/helpers/redux';
 import WidgetService from '@/services/WidgetService';

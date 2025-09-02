@@ -17,8 +17,7 @@ import Widgets from '../../../widgets';
 
 import { FORM_MODE_CREATE } from '@/components/EcosForm/constants';
 import { t } from '@/helpers/export/util';
-import { getCurrentLocale, getMLValue, getTextByLocale, isEqualLexicalValue } from '@/helpers/util';
-import WidgetService from '@/services/WidgetService';
+import { getCurrentLocale, getMLValue, getTextByLocale, IS_TEST_ENV, isEqualLexicalValue } from '@/helpers/util';
 import ZIndex from '@/services/ZIndex';
 
 // >>> Methods
@@ -959,13 +958,21 @@ Object.defineProperty(Base.prototype, 'component', {
   }
 });
 
+let WidgetService = {};
+
+if (!IS_TEST_ENV) {
+  import('@/services/WidgetService').then(({ default: WidgetServiceDefault }) => {
+    WidgetService = WidgetServiceDefault;
+  });
+}
+
 Base.prototype.evalContext = function (additional) {
   const context = originalEvalContext.call(this, additional);
   const utils = {
     ...context.utils,
     getTextByLocale,
     getCurrentLocale,
-    openSettingsWidgets: WidgetService.openEditJournalWidgets
+    openSettingsWidgets: IS_TEST_ENV ? () => null : WidgetService.openEditJournalWidgets
   };
 
   return {
