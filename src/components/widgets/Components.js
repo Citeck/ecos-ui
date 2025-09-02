@@ -10,41 +10,11 @@ import uuidV4 from 'uuid/v4';
 import { FORM_MODE_EDIT, FORM_MODE_VIEW } from '../EcosForm';
 
 import { CONFIG_VERSION, DashboardTypes } from '@/constants/dashboard';
+import { WidgetsKeys } from '@/constants/widgets';
 import { getCurrentLocale, getEnabledWorkspaces, t } from '@/helpers/util';
 import ConfigService, { ALFRESCO_ENABLED } from '@/services/config/ConfigService';
 
-export const ComponentKeys = {
-  WELCOME: 'welcome',
-  NEWS: 'news',
-  HTML: 'html',
-  PAGINATION: 'pagination',
-  DOC_PREVIEW: 'doc-preview',
-  JOURNAL: 'journal',
-  REPORT: 'report',
-  COMMENTS: 'comments',
-  ACTIVITIES: 'activities',
-  PROPERTIES: 'properties',
-  TASKS: 'tasks',
-  CURRENT_TASKS: 'current-tasks',
-  DOC_STATUS: 'doc-status',
-  EVENTS_HISTORY: 'events-history',
-  VERSIONS_JOURNAL: 'versions-journal',
-  DOC_ASSOCIATIONS: 'doc-associations',
-  RECORD_ACTIONS: 'record-actions',
-  WEB_PAGE: 'web-page',
-  BARCODE: 'barcode',
-  BIRTHDAYS: 'birthdays',
-  DOCUMENTS: 'documents',
-  USER_PROFILE: 'user-profile',
-  DOC_CONSTRUCTOR: 'doc-constructor',
-  PROCESS_STATISTICS: 'process-statistics',
-  STAGES: 'stages',
-  CHARTS: 'charts',
-  PUBLICATION: 'publication',
-  HIERARCHICAL_TREE: 'hierarchical-tree',
-  GANTT_CHART: 'gantt-chart',
-  KANBAN_BOARD: 'kanban-board'
-};
+export const ComponentKeys = WidgetsKeys;
 
 /**
  * При добавлении нового виджета, необходимо его зарегистрировать

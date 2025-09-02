@@ -1,3 +1,16 @@
+import { WidgetsKeys } from '@/constants/widgets';
+
+export const DEFAULT_TABLE_WIDGETS = [WidgetsKeys.DOC_PREVIEW];
+export const ALLOW_WIDGETS_PREVIEW = [
+  WidgetsKeys.TASKS,
+  WidgetsKeys.PROPERTIES,
+  WidgetsKeys.DOC_ASSOCIATIONS,
+  WidgetsKeys.PUBLICATION,
+  WidgetsKeys.COMMENTS,
+  WidgetsKeys.HIERARCHICAL_TREE,
+  WidgetsKeys.DOC_PREVIEW
+];
+
 export const DEFAULT_PAGINATION = {
   skipCount: 0,
   maxItems: 10,
