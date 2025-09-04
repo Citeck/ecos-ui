@@ -98,6 +98,7 @@ class WidgetSettings<P extends WidgetSettingsProps, S extends WidgetSettingsStat
       const widget = Components.components[name];
       return {
         name,
+        id: name,
         label: widget.label
       };
     });
