@@ -1015,7 +1015,7 @@ const AIAssistantChat = () => {
     const contextOptions = [
       {
         type: ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD,
-        label: "запись",
+        label: "карточка",
         icon: "fa-database",
         description: recordDescription,
         disabled: isCurrentRecordInContext,
@@ -1133,8 +1133,8 @@ const AIAssistantChat = () => {
               <p className="ai-assistant-chat__hint">
                 <strong>Примеры запросов:</strong><br />
                 • "Создай тип данных для заявки на отпуск"<br />
-                • "Проанализируй документ @запись"<br />
-                • "Расскажи о клиенте @запись"<br />
+                • "Проанализируй документ @карточка"<br />
+                • "Расскажи о клиенте @карточка"<br />
                 • "Проанализируй документ @название_документа"<br />
                 • "Что ты умеешь делать?"
               </p>
@@ -1248,7 +1248,7 @@ const AIAssistantChat = () => {
         {selectedAdditionalContext.includes(ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD) &&
           additionalContext.records.map((record, index) => (
             <div key={`${ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD}-${index}`} className="ai-assistant-chat__context-tag">
-              <span>{record.displayName || record.recordRef || "Запись"}</span>
+              <span>{record.displayName || record.recordRef || "Карточка"}</span>
               <button
                 className="ai-assistant-chat__context-tag-remove"
                 onClick={() => toggleAdditionalContext(ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD, record)}
@@ -1383,7 +1383,7 @@ const AIAssistantChat = () => {
   };
 
   const insertContextMention = async (contextType, recordData = null) => {
-    let contextLabel = "запись"; // fallback
+    let contextLabel = "карточка"; // fallback
     let contextDataToAdd = null;
 
     if (contextType === "search_result" && recordData) {
@@ -1394,7 +1394,7 @@ const AIAssistantChat = () => {
       // Handle current record
       const contextData = await getAdditionalContext(contextType);
       if (contextData) {
-        contextLabel = contextData.displayName || contextData.recordRef || "запись";
+        contextLabel = contextData.displayName || contextData.recordRef || "карточка";
         contextDataToAdd = contextData;
       }
     } else if (contextType === ADDITIONAL_CONTEXT_TYPES.DOCUMENTS && recordData) {
