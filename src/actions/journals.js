@@ -85,6 +85,8 @@ export const setFooterValue = createAction(prefix + 'SET_FOOTER_VALUE');
 export const getJournalWidgetsConfig = createAction(prefix + 'GET_JOURNAL_CONFIG_WIDGETS');
 export const setJournalWidgetsConfig = createAction(prefix + 'SET_JOURNAL_CONFIG_WIDGETS');
 
+export const getNextPage = createAction(prefix + 'GET_NEXT_PAGE');
+
 export const cancelReloadGrid = createAction(prefix + 'CANCEL_RELOAD_GRID');
 export const cancelLoadGrid = createAction(prefix + 'CANCEL_LOAD_GRID');
 export const cancelInitJournal = createAction(prefix + 'CANCEL_INIT_JOURNAL');

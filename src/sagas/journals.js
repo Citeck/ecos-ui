@@ -30,6 +30,7 @@ import {
   getDashletEditorData,
   getJournalsData,
   getJournalWidgetsConfig,
+  getNextPage,
   goToJournalsPage,
   initJournal,
   initJournalSettingData,
@@ -103,8 +104,10 @@ import {
   selectGridPaginationMaxItems,
   selectJournalConfig,
   selectJournalData,
+  selectJournalPagination,
   selectJournalSetting,
   selectJournalSettings,
+  selectJournalTotalCount,
   selectNewVersionDashletConfig,
   selectUrl,
   selectViewMode
@@ -350,7 +353,7 @@ function* sagaGetJournalsData({ api, stateId, w }, { payload }) {
       yield put(setGrid(w({ pagination: DEFAULT_PAGINATION })));
     }
 
-    yield put(initJournal(w({ journalId, journalSettingId, userConfigId, force: payload.force, savePredicate: payload.savePredicate })));
+    yield put(initJournal(w({ journalId, journalSettingId, userConfigId, ...payload })));
   } catch (e) {
     console.error('[journals sagaGetJournalsData saga error', e);
   }
@@ -627,9 +630,13 @@ function* sagaResetJournalSettingData({ api, stateId, w }, action) {
   }
 }
 
-export function* getGridData(api, params, stateId) {
+export function* getGridData(api, params, stateId, isOnlyData = false) {
   const w = wrapArgs(stateId);
-  yield put(setLoadingGrid(w(true)));
+
+  if (!isOnlyData) {
+    yield put(setLoadingGrid(w(true)));
+  }
+
   const { recordRef, journalConfig, journalSetting } = yield select(selectJournalData, stateId);
   const { id } = journalConfig || {};
 
@@ -645,7 +652,7 @@ export function* getGridData(api, params, stateId) {
     attrsToLoad = get(config, 'attrsToLoad');
   }
 
-  const { pagination: _pagination, predicates: _predicates, searchPredicate, fromGroupBy = false, grouping, ...forRequest } = params;
+  const { pagination: _pagination, predicates: _predicates = [], searchPredicate, fromGroupBy = false, grouping, ...forRequest } = params;
   const predicateRecords = yield call(api.journals.fetchLinkedRefs, recordRef, attrsToLoad);
 
   if (predicateRecords) {
@@ -686,7 +693,7 @@ export function* getGridData(api, params, stateId) {
   const resultData = yield call([JournalsService, JournalsService.getJournalData], journalConfig, settings);
   const journalData = JournalsConverter.getJournalDataWeb(resultData);
 
-  if (!get(grouping, 'groupBy', []).length) {
+  if (!get(grouping, 'groupBy', []).length && !isOnlyData) {
     const gridParams = { ...params, ...journalData };
     delete gridParams.fromGroupBy;
 
@@ -1682,6 +1689,42 @@ export function* sagaGetJournalWidgetsConfig({ w, api }, { payload }) {
   }
 }
 
+export function* sagaGetNextPage({ w, api }, { payload }) {
+  try {
+    const { stateId } = payload;
+    yield put(setLoadingGrid(w(true)));
+
+    const journalData = yield select(selectJournalData, stateId);
+    const { grid, journalConfig } = journalData;
+
+    const searchPredicate = get(payload, 'searchPredicate') || (yield getSearchPredicate({ stateId }));
+    const params = { ...grid, ...payload, searchPredicate };
+    params.attributes = {
+      ...params.attributes,
+      ...attsForListView,
+      ...journalConfig.listViewInfo
+    };
+
+    const pagination = yield select(selectJournalPagination, stateId);
+    const totalCount = yield select(selectJournalTotalCount, stateId);
+
+    const nextSkipCount = pagination.page * pagination.maxItems;
+    pagination.skipCount = nextSkipCount;
+    pagination.page += 1;
+
+    params.pagination = pagination;
+
+    if (totalCount > nextSkipCount) {
+      const newGridData = yield getGridData(api, params, stateId, true);
+      yield put(setGrid(w({ ...newGridData, data: [...grid.data, ...newGridData.data] })));
+    }
+  } catch (e) {
+    console.error('[journals sagaGetNextPage saga error', e);
+  } finally {
+    yield put(setLoadingGrid(w(false)));
+  }
+}
+
 function* saga(ea) {
   yield takeEvery(getDashletConfig().type, wrapSaga, { ...ea, saga: sagaGetDashletConfig });
   yield takeEvery(setDashletConfigByParams().type, wrapSaga, { ...ea, saga: sagaSetDashletConfigFromParams });
@@ -1721,6 +1764,7 @@ function* saga(ea) {
   yield takeEvery(checkConfig().type, wrapSaga, { ...ea, saga: sagaCheckConfig });
 
   yield takeEvery(toggleViewMode().type, wrapSaga, { ...ea, saga: sagaToggleViewMode });
+  yield takeEvery(getNextPage().type, wrapSaga, { ...ea, saga: sagaGetNextPage });
 }
 
 export default saga;

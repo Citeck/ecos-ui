@@ -474,6 +474,7 @@
   "preview-list.no-title": "Текст не указан",
   "preview-list.no-description": "Описание не указано",
   "preview-list.created-by": "Создал (а)",
+  "preview-list.bar.total": "Всего записей: {{ total }}",
 
   "document-library.title": "Библиотека документов",
   "document-library.file": "Файл",

@@ -36,7 +36,8 @@ class JournalsServiceApi {
         listViewInfo: {
           title: `${listViewInfo['titleAtt']}?disp`,
           text: `${listViewInfo['textAtt']}?disp`,
-          previewUrl: `${listViewInfo['previewAtt']}.url`
+          previewUrl: `${listViewInfo['previewAtt']}.url`,
+          isTilesContent: `${get(listViewInfo, 'isTilesContent', false)}`
         }
       };
     }

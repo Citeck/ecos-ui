@@ -232,7 +232,7 @@ class Journals extends React.Component {
 
   getCommonProps = () => {
     const { bodyClassName, stateId, isActivePage, pageTabsIsShow, isMobile, withForceUpdate } = this.props;
-    const { journalId } = this.state;
+    const { journalId, recordId } = this.state;
     const displayElements = this.getDisplayElements();
     const showWidgets = getBool(get(getSearchParams(), JUP.VIEW_WIDGET_PREVIEW));
 
@@ -242,6 +242,7 @@ class Journals extends React.Component {
       isActivePage,
       withForceUpdate,
       showWidgets,
+      selectedRecordId: recordId,
       onRowClick: this.onRowClick,
       onEditJournal: configRec => this.handleEditJournal(configRec),
       hasBtnEdit: configRec => displayElements.editJournal && !!configRec,

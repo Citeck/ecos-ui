@@ -4,19 +4,30 @@ import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 import moment from 'moment';
 import React, { Component } from 'react';
+import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
 
-import { Loader } from '../../common';
+import { Loader, PointsLoader } from '../../common';
 import { Well } from '../../common/form';
 import Clock from '../../common/icons/Clock';
 import NoData from '../../common/icons/NoData';
+import {
+  CLASSNAME_PREVIEW_LIST_CARD,
+  HEIGHT_HEADER_TILES_PREVIEW_LIST,
+  isPreviewList,
+  isTable,
+  PADDING_WELL_TILES_PREVIEW_LIST,
+  SIZE_LISTVIEW_ITEM_TILES
+} from '../constants';
 
 import defaultImage from './defaultImage.png';
 
+import { cancelReloadGrid, getNextPage, reloadGrid } from '@/actions/journals';
 import EcosFormUtils from '@/components/EcosForm/EcosFormUtils';
-import { URL } from '@/constants';
-import { getLinkWithWs } from '@/helpers/urls';
-import { t } from '@/helpers/util';
+import { JournalUrlParams as JUP, URL } from '@/constants';
+import { wrapArgs } from '@/helpers/redux';
+import { getLinkWithWs, getSearchParams } from '@/helpers/urls';
+import { getBool, getMLValue, t } from '@/helpers/util';
 import { selectPreviewListProps } from '@/selectors/previewList';
 import { selectIsViewNewJournal } from '@/selectors/view';
 
@@ -27,22 +38,125 @@ const mapStateToProps = (state, props) => {
 
   const isViewNewJournal = selectIsViewNewJournal(state);
   const previewListProps = selectPreviewListProps(state, props.stateId);
+  const isTilesContent = getBool(get(previewListProps, 'previewListConfig.isTilesContent', 'false'));
+  const showWidgets = getBool(get(getSearchParams(), JUP.VIEW_WIDGET_PREVIEW));
 
   return {
     journalId: get(newState, 'journalConfig.id', ''),
     gridData: get(newState, 'grid.data', []),
+    journalName: get(newState, 'journalConfig.name', ''),
+    viewMode: get(newState, 'viewMode'),
+    totalCount: get(newState, 'grid.total', 0),
+    grid: get(newState, 'grid', {}),
+    page: get(newState, 'grid.pagination.page', 1),
+    isLoadingGrid: get(newState, 'loadingGrid', false),
     isLoadingJournal: get(newState, 'loading', []),
     isViewNewJournal,
+    showWidgets,
+    isTilesContent,
     ...previewListProps
   };
 };
 
+const mapDispatchToProps = (dispatch, props) => {
+  const stateId = props.stateId;
+  const w = wrapArgs(stateId);
+
+  return {
+    reloadGrid: options => dispatch(reloadGrid(w(options))),
+    cancelReloadGrid: () => dispatch(cancelReloadGrid(w())),
+    getNextPage: () => dispatch(getNextPage(w()))
+  };
+};
+
 class PreviewListContent extends Component {
+  refScroll = React.createRef();
+  refWell = React.createRef();
+
+  state = {
+    isInitiatedPagination: false
+  };
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const { isTilesContent, isLoadingJournal, viewMode, grid } = this.props;
+    const { isInitiatedPagination } = this.state;
+    const { pagination } = grid || {};
+
+    if (
+      get(pagination, 'page') &&
+      get(prevProps, 'grid.pagination.page') &&
+      pagination.page === 1 &&
+      pagination.page !== prevProps.grid.pagination.page &&
+      this.refScroll &&
+      this.refScroll.current
+    ) {
+      this.refScroll.current.scrollTop();
+    }
+
+    const isSwapPreviewAndTable =
+      (isTable(prevProps.viewMode) || isPreviewList(prevProps.viewMode)) &&
+      (isTable(viewMode) || isPreviewList(viewMode)) &&
+      prevProps.viewMode !== viewMode;
+
+    if ((!isInitiatedPagination || isSwapPreviewAndTable) && isTilesContent && !isLoadingJournal) {
+      const wellInstance = this.refWell && this.refWell.current;
+      const domNode = wellInstance && wellInstance.getNode();
+
+      if (domNode) {
+        const containerWidth = domNode.clientWidth - PADDING_WELL_TILES_PREVIEW_LIST * 2;
+        const containerHeight = domNode.clientHeight - PADDING_WELL_TILES_PREVIEW_LIST * 2 - HEIGHT_HEADER_TILES_PREVIEW_LIST;
+
+        const horizontalMaxCardsCount = Math.floor(containerWidth / SIZE_LISTVIEW_ITEM_TILES.SIMPLE.width);
+        const verticalMaxCardsCount = Math.floor(containerHeight / SIZE_LISTVIEW_ITEM_TILES.SIMPLE.height);
+
+        const maxItems = horizontalMaxCardsCount * verticalMaxCardsCount + horizontalMaxCardsCount;
+        const newPagination = {
+          skipCount: 0,
+          maxItems,
+          page: 1
+        };
+
+        if (!isInitiatedPagination) {
+          this.setState({ isInitiatedPagination: true });
+        }
+
+        this.changePage(newPagination);
+      }
+    }
+  }
+
+  changePage = pagination => {
+    this.props.reloadGrid({ pagination });
+  };
+
   shouldComponentUpdate(nextProps, nextState, nextContext) {
     return (
       nextProps.isActivePage || !isEqual(nextProps.gridData, this.props.gridData) || !isEqual(nextProps.isLoading, this.props.isLoading)
     );
   }
+
+  getHeight(changes = 0) {
+    return this.props.maxHeight + changes;
+  }
+
+  isNoMore = () => {
+    const { totalCount, gridData } = this.props;
+    return totalCount === 0 || totalCount === gridData.length;
+  };
+
+  handleScrollFrame = (scroll = {}) => {
+    const { isLoadingJournal, isLoadingGrid } = this.props;
+
+    if (
+      !isLoadingJournal &&
+      !isLoadingGrid &&
+      !this.isNoMore() &&
+      scroll.scrollTop &&
+      Math.round(scroll.scrollTop + scroll.clientHeight) === scroll.scrollHeight
+    ) {
+      this.props.getNextPage();
+    }
+  };
 
   getLinkOfId = id => {
     if (!id) {
@@ -58,7 +172,7 @@ class PreviewListContent extends Component {
   };
 
   renderItemData = (item, idx) => {
-    const { previewListConfig } = this.props;
+    const { previewListConfig, selectedRecordId, showWidgets } = this.props;
     const { creator, created, id: itemId, previewUrl } = item || {};
 
     const { id: creatorId, disp: creatorName } = creator || {};
@@ -74,11 +188,15 @@ class PreviewListContent extends Component {
     description = EcosFormUtils.stripHTML(description);
 
     return (
-      <div className="citeck-preview-list-content__card" key={idx} onClick={() => this.onItemClick(item)}>
+      <div
+        onClick={() => this.onItemClick(item)}
+        className={classnames(CLASSNAME_PREVIEW_LIST_CARD, {
+          selected: selectedRecordId === itemId && showWidgets
+        })}
+        key={itemId || `card-item-${idx}`}
+      >
         <div className="citeck-preview-list-content__card_img">
-          <a href={itemLink} className="citeck-preview-list-content__card-info_title">
-            <img className="citeck-preview-list-content__card_img" src={previewUrl || defaultImage} alt={title} />
-          </a>
+          <img className="citeck-preview-list-content__card_img" src={previewUrl || defaultImage} alt={title} />
         </div>
         <div className="citeck-preview-list-content__card-info">
           <div className="citeck-preview-list-content__card-info-container">
@@ -106,20 +224,69 @@ class PreviewListContent extends Component {
     );
   };
 
-  render() {
-    const { maxHeight, isViewNewJournal, isLoadingPreviewList, isLoadingJournal, gridData, previewListConfig } = this.props;
+  renderItems = () => {
+    const { gridData, isTilesContent } = this.props;
 
-    const isLoading = isLoadingPreviewList || isLoadingJournal;
+    const items = (gridData || []).map(this.renderItemData);
+
+    if (isTilesContent) {
+      return (
+        <Scrollbars
+          autoHeight
+          autoHeightMin={this.getHeight(-10)}
+          autoHeightMax={this.getHeight(-10)}
+          renderThumbVertical={props => <div {...props} className="citeck-preview-list-content__scroll_v" />}
+          renderTrackHorizontal={props => <div {...props} className="citeck-preview-list-content__scroll_h" />}
+          onScrollFrame={this.handleScrollFrame}
+          ref={this.refScroll}
+        >
+          <div className="citeck-preview-list-content__list-well_wrap-list">{items}</div>
+        </Scrollbars>
+      );
+    }
+
+    return items;
+  };
+
+  render() {
+    const {
+      maxHeight,
+      isViewNewJournal,
+      isLoadingPreviewList,
+      isLoadingJournal,
+      gridData,
+      previewListConfig,
+      journalName,
+      isTilesContent,
+      isLoadingGrid,
+      page
+    } = this.props;
+    const { isInitiatedPagination } = this.state;
+
+    const isLoading = isLoadingPreviewList || isLoadingJournal || (isTilesContent && !isInitiatedPagination);
     const isNoData = !isLoading && (!gridData || !gridData.length || !previewListConfig);
 
     return (
       <Well
+        ref={this.refWell}
         isViewNewJournal={isViewNewJournal}
-        className={classnames('citeck-preview-list-content__list-well citeck-preview-list-content__grid-well_overflow_hidden')}
+        className={classnames('citeck-preview-list-content__list-well citeck-preview-list-content__grid-well_overflow_hidden', {
+          'citeck-preview-list-content__list-well_wrap': isTilesContent
+        })}
         maxHeight={maxHeight}
       >
         {isLoading && <Loader />}
-        {!isNoData && (gridData || []).map((item, idx) => this.renderItemData(item, idx))}
+
+        {isTilesContent && (
+          <div className="citeck-preview-list-content__header">
+            <h5 className="citeck-preview-list-content__header_title">{getMLValue(journalName)}</h5>
+          </div>
+        )}
+
+        {!isNoData && this.renderItems()}
+
+        {isTilesContent && isLoadingGrid && !isLoading && page > 1 && <PointsLoader className="citeck-preview-list-content__loader" />}
+
         {isNoData && (
           <div className="citeck-preview-list-content__no-data">
             <NoData />
@@ -134,4 +301,4 @@ class PreviewListContent extends Component {
   }
 }
 
-export default connect(mapStateToProps)(PreviewListContent);
+export default connect(mapStateToProps, mapDispatchToProps)(PreviewListContent);
