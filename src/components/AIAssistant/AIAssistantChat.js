@@ -9,7 +9,7 @@ import aiAssistantService from "./AIAssistantService";
 import aiAssistantContext, { CONTEXT_TYPES } from "./AIAssistantContext";
 import { Icon } from "../common";
 import Records from "../Records";
-import { getRecordRef } from "@/helpers/urls";
+import { getRecordRef, getWorkspaceId } from "@/helpers/urls";
 import { IS_APPLE, useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
 import { NotificationManager } from "@/services/notifications";
 import "./style.scss";
@@ -474,7 +474,10 @@ const AIAssistantChat = () => {
       const requestData = {
         message: messageToProcess,
         conversationId: conversationId,
-        context: contextToSend
+        context: {
+          ...contextToSend,
+          workspace: getWorkspaceId()
+        }
       };
 
       const response = await fetch("/gateway/ai/api/assistant/universal/async", {
