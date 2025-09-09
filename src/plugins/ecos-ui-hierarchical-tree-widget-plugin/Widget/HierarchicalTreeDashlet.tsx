@@ -4,9 +4,9 @@ import isFunction from 'lodash/isFunction';
 import React, { useState, useEffect } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 
-import ChevronDown from './icons/ChevronDown';
-import ChevronRight from './icons/ChevronRight';
-import EmptySvg from './icons/EmptySvg';
+import ChevronDownIcon from './icons/ChevronDownIcon';
+import ChevronRightIcon from './icons/ChevronRightIcon';
+import EmptyIcon from './icons/EmptyIcon';
 
 import FormManager from '@/components/EcosForm/FormManager';
 // @ts-ignore
@@ -15,8 +15,8 @@ import { Icon, Tooltip } from '@/components/common';
 import { Btn } from '@/components/common/btns';
 import { DialogManager } from '@/components/common/dialogs';
 import { BaseWidgetProps } from '@/components/widgets/BaseWidget';
-import { SourcesId } from '@/constants';
-import { getRecordRef, getWorkspaceId, updateCurrentUrl } from '@/helpers/urls';
+import { JournalUrlParams as JUP, SourcesId } from '@/constants';
+import { getRecordRef, getSearchParams, getWorkspaceId, updateCurrentUrl } from '@/helpers/urls';
 import { isMobileDevice, t } from '@/helpers/util';
 import { Events } from '@/services/PageService';
 
@@ -54,7 +54,7 @@ const TreeNode = ({
   setRecords
 }: {
   node: TreeNode;
-  recordRef: string;
+  recordRef: string | null;
   rootRecord: string;
   records: TreeNode[];
   onFetchChildren: (parent: string) => Promise<{ records: TreeNode[] }>;
@@ -157,7 +157,7 @@ const TreeNode = ({
       >
         {children.length > 0 && (
           <div className="tree-summary_btn" onClick={onClickChevron}>
-            {isOpen ? <ChevronDown width={20} height={20} /> : <ChevronRight width={20} height={20} />}
+            {isOpen ? <ChevronDownIcon width={20} height={20} /> : <ChevronRightIcon width={20} height={20} />}
           </div>
         )}
         <label className="tree-summary_label" onClick={onClickLabel}>
@@ -213,7 +213,7 @@ const HierarchicalTreeWidget = ({ record: initialRecordRef, isSameHeight }: Base
   const rootRecord = `${SourcesId.WIKI}@${getWorkspaceId()}$ROOT`;
 
   const [canEdit, setCanEdit] = useState<boolean>(false);
-  const [recordRef, setRecordRef] = useState<string>(initialRecordRef);
+  const [recordRef, setRecordRef] = useState<string | null>(initialRecordRef || String(get(getSearchParams(), JUP.RECORD_REF, '')));
   const [records, setRecords] = useState<TreeNode[]>([]);
 
   useEffect(() => {
@@ -275,7 +275,7 @@ const HierarchicalTreeWidget = ({ record: initialRecordRef, isSameHeight }: Base
   const renderContent = () =>
     records.length === 0 ? (
       <div className="ecos-hierarchical-tree-widget-empty">
-        <EmptySvg />
+        <EmptyIcon />
         <p>{t(Labels.NO_DATA)}</p>
         {canEdit && <Btn onClick={() => create()}>{t(Labels.ADD)}</Btn>}
       </div>

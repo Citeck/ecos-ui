@@ -1,7 +1,31 @@
 @import '../../../styles/constants';
 
 .citeck-preview-list-content {
+  $root: &;
   $padding-card: 18px;
+
+  &__loader {
+    width: 10%;
+    position: absolute;
+    bottom: 20px;
+    height: auto;
+    left: 45%;
+  }
+
+  &__header {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+
+    &_title {
+      font-size: 12px;
+      font-weight: 600;
+      margin: 0;
+      color: $text-color-gray;
+      padding: 6px;
+    }
+  }
 
   &__list-well {
     min-height: 50px;
@@ -14,6 +38,106 @@
 
     &_overflow_hidden {
       overflow: hidden;
+    }
+
+    &_wrap {
+      padding: 12px;
+      gap: 0;
+
+      &-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+
+        margin-bottom: 60px;
+      }
+
+      #{$root}__card {
+        position: relative;
+
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+
+        height: auto;
+        max-height: 264px;
+        width: 100%;
+        max-width: 218px;
+
+        box-sizing: border-box;
+        border-radius: 12px;
+        padding: 6px !important;
+
+        border: 1px solid transparent !important;
+        transition: border-color .15s;
+
+        &.selected,
+        &:hover {
+          border-color: $color-blue-light !important;
+        }
+
+        &_img {
+          width: 206px;
+          height: 180px;
+        }
+
+        &.extended {
+          max-width: 444px;
+          max-height: 228px;
+          padding: 10.67px !important;
+          flex-direction: row;
+          gap: 16px;
+
+          #{$root}__card_img {
+            width: 194px;
+            height: 206px;
+          }
+
+          #{$root}__card-info {
+            &-container {
+              gap: 9.52px;
+            }
+          }
+        }
+
+        &-info {
+          height: auto;
+
+          &-container {
+            gap: 6px;
+          }
+
+          &-author {
+            display: none;
+          }
+
+          &_title {
+            font-size: 12px;
+            line-height: 16px;
+            color: $color-blue-dark;
+          }
+
+          &_description {
+            font-size: 12px;
+            font-weight: 600;
+            color: $text-color-dark;
+            max-width: 265px;
+            line-height: 16px;
+          }
+        }
+      }
+    }
+  }
+
+  &__scroll {
+    &_v {
+      @extend %v-scroll;
+    }
+
+    &_h {
+      @extend %h-scroll;
+      bottom: 4px;
     }
   }
 
@@ -157,3 +281,4 @@
     }
   }
 }
+

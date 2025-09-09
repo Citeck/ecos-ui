@@ -7,7 +7,7 @@ export const ALLOW_WIDGETS_PREVIEW = [
   WidgetsKeys.DOC_ASSOCIATIONS,
   WidgetsKeys.PUBLICATION,
   WidgetsKeys.COMMENTS,
-  WidgetsKeys.HIERARCHICAL_TREE,
+  // WidgetsKeys.HIERARCHICAL_TREE, TODO: Uncomment after the backup is ready (ECOSENT-3379)
   WidgetsKeys.DOC_PREVIEW
 ];
 
@@ -37,6 +37,17 @@ export const ECOS_GRID_PADDING_HORIZONTAL = 14;
 export const LIST_VIEW_ITEM_GAP = 18;
 export const HEIGHT_LIST_VIEW_ITEM = 134 + LIST_VIEW_ITEM_GAP;
 
+// sizes with tiles content
+export const PADDING_WELL_TILES_PREVIEW_LIST = 12;
+export const HEIGHT_HEADER_TILES_PREVIEW_LIST = 27;
+export const SIZE_LISTVIEW_ITEM_TILES = {
+  SIMPLE: {
+    height: 256 + 12 / 2, // max-height + gap
+    width: 218 + 12 / 2 // max-width + gap
+  }
+};
+
+export const CLASSNAME_PREVIEW_LIST_CARD = 'citeck-preview-list-content__card';
 export const CLASSNAME_JOURNAL_BODY_TOP = 'ecos-journal__body-top';
 
 export const DEFAULT_INLINE_TOOL_SETTINGS = {

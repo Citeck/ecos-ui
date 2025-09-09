@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
@@ -21,14 +22,24 @@ import {
 
 import { cancelReloadGrid, reloadGrid, setGrid } from '@/actions/journals';
 import { wrapArgs } from '@/helpers/redux';
+import { getSearchParams } from '@/helpers/urls';
+import { getBool } from '@/helpers/util';
+import { selectPreviewListProps } from '@/selectors/previewList';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
 
+  const previewListProps = selectPreviewListProps(state, props.stateId);
+  const isTilesContent = getBool(get(previewListProps, 'previewListConfig.isTilesContent', 'false'));
+
   return {
-    viewMode: newState.viewMode,
+    viewMode: getSearchParams().viewMode || newState.viewMode,
     grid: newState.grid,
-    loading: newState.loading
+    loading: newState.loading,
+    previewListProps: {
+      ...previewListProps,
+      isTilesContent
+    }
   };
 };
 
@@ -65,9 +76,15 @@ class JournalsDashletPagination extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { maxHeightJournalData, isViewNewJournal, setGridPagination, isDecrementLastRow, grid, viewMode } = this.props;
+    const { previewListProps, maxHeightJournalData, isViewNewJournal, setGridPagination, isDecrementLastRow, grid, viewMode, loading } =
+      this.props;
+    const { isTilesContent } = previewListProps || {};
     const { maxItems: gridMaxItems } = grid || {};
     const { maxItems: stateMaxItems } = this.state;
+
+    if ((isTilesContent && isPreviewList(viewMode)) || (isPreviewList(viewMode) && loading)) {
+      return;
+    }
 
     const MAX_HEIGHT_ROW = isPreviewList(viewMode) ? HEIGHT_LIST_VIEW_ITEM : HEIGHT_GRID_ROW;
 

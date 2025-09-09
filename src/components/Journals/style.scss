@@ -2,11 +2,25 @@
 
 .ecos-journal {
   position: relative;
-  height: 100%;
+  height: calc(100% - 34px); // because it takes more than 100%
   width: 100%;
   overflow-y: hidden;
   overflow-x: auto;
   display: flex;
+
+  &-view {
+    &__total {
+      font-size: 12px;
+      line-height: 16px;
+      font-weight: 600;
+      text-align: center;
+      color: $text-color-gray;
+
+      margin: auto 0;
+      min-width: 142px;
+      height: 100%;
+    }
+  }
 
   &__small-btn_new {
     width: auto !important;

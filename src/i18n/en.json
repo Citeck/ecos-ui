@@ -540,6 +540,7 @@
   "preview-list.no-title": "Text not specified",
   "preview-list.no-description": "Description not specified",
   "preview-list.created-by": "Created by",
+  "preview-list.bar.total": "Total entries: {{ total }}",
 
   "document-library.title": "Document library",
   "document-library.file": "File",

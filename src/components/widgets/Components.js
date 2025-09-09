@@ -321,7 +321,10 @@ export default class Components {
         return Boolean(get(window, 'Citeck.Plugins.HierarchicalTreeWidget'));
       },
       label: 'dashboard-settings.widget.hierarchical-tree',
-      supportedDashboardTypes: [DashboardTypes.PUBLICATION, DashboardTypes.CUSTOM]
+      supportedDashboardTypes: [DashboardTypes.PUBLICATION, DashboardTypes.CUSTOM],
+      props: {
+        isStaticPreviewWidget: true
+      }
     },
     [ComponentKeys.STAGES]: {
       load: () =>
