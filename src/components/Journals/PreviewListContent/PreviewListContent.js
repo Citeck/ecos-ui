@@ -275,7 +275,7 @@ class PreviewListContent extends Component {
         })}
         maxHeight={maxHeight}
       >
-        {isLoading && <Loader />}
+        {isLoading && <Loader blur />}
 
         {isTilesContent && (
           <div className="citeck-preview-list-content__header">

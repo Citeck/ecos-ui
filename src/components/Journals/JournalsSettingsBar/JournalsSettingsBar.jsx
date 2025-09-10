@@ -4,7 +4,6 @@ import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import React, { useMemo, useState } from 'react';
 
-import { t } from '../../../helpers/util';
 import Export from '../../Export/Export';
 import { ParserPredicate } from '../../Filters/predicates';
 import Import from '../../Import';
@@ -24,8 +23,11 @@ import { isKanban, isPreviewList } from '../constants';
 
 import CreateMenu from './CreateMenu';
 
+import { JournalUrlParams as JUP } from '@/constants/index';
+import { getSearchParams } from '@/helpers/urls';
+import { getBool, t } from '@/helpers/util';
+import WidgetService from '@/services/WidgetService';
 import './JournalsSettingsBar.scss';
-import WidgetService from '@/services/WidgetService.js';
 
 const Labels = {
   BTN_CREATE: 'journals.bar.btn.create',
@@ -88,6 +90,7 @@ const JournalsSettingsBar = ({
   hideImportBtn = false,
   hideExportBtn = false
 }) => {
+  const showWidgets = getBool(get(getSearchParams(), JUP.VIEW_WIDGET_PREVIEW));
   const [isOpenDropdownExport, setIsOpenDropdownExport] = useState(false);
   const [isOpenDropdownImport, setIsOpenDropdownImport] = useState(false);
   const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
@@ -166,7 +169,7 @@ const JournalsSettingsBar = ({
           </Tooltip>
         )}
 
-        {isPreviewList(viewMode) && isAdmin && isViewNewJournal && !isMobile && hasBtnEdit && (
+        {isPreviewList(viewMode) && isAdmin && isViewNewJournal && !isMobile && hasBtnEdit && showWidgets && (
           <Tooltip target={`${targetId}-journal-settings`} text={t(Labels.BTN_WIDGET_SETTINGS)} {...tooltipSettings}>
             <IcoBtn
               id={`${targetId}-journal-settings`}
