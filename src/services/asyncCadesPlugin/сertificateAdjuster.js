@@ -1,23 +1,11 @@
-import {
-  COMMON_FIELDS,
-  ISSUER_FIELDS,
-  SUBJECT_FIELDS
-} from './constants/signFields';
+import { COMMON_FIELDS, ISSUER_FIELDS, SUBJECT_FIELDS } from './constants/signFields';
 
 /**
  * @description объект, в котором собираются данные о сертификате и методы по работе с этими данными
  */
 class CertificateAdjuster {
   constructor(data) {
-    const {
-      certApi,
-      issuerInfo,
-      privateKey,
-      serialNumber,
-      thumbprint,
-      subjectInfo,
-      validPeriod
-    } = data;
+    const { certApi, issuerInfo, privateKey, serialNumber, thumbprint, subjectInfo, validPeriod } = data;
 
     this.certApi = certApi;
     this.issuerInfo = issuerInfo;
@@ -48,14 +36,17 @@ class CertificateAdjuster {
       case 'subjectInfo':
         fields = {
           ...COMMON_FIELDS,
-          ...SUBJECT_FIELDS,
+          ...SUBJECT_FIELDS
         };
+        break;
       case 'issuerInfo':
         fields = {
           ...COMMON_FIELDS,
-          ...ISSUER_FIELDS,
+          ...ISSUER_FIELDS
         };
-        break
+        break;
+      default:
+        throw new Error('Не верно указан аттрибут');
     }
 
     const formedSubjectIssuerInfo = subjectIssuerArr.map(tag => {
@@ -65,7 +56,7 @@ class CertificateAdjuster {
       return {
         code: tagArr[0],
         text: tagArr[1],
-        value: fields[index] ? fields[index] : '',
+        value: fields[index] ? fields[index] : ''
       };
     });
 
@@ -96,14 +87,11 @@ class CertificateAdjuster {
    * @description возвращает распаршенную информацию об объекте validPeriod
    */
   friendlyValidPeriod() {
-    const {
-      from,
-      to
-    } = this.validPeriod;
+    const { from, to } = this.validPeriod;
 
     return {
       from: this.friendlyDate(from),
-      to: this.friendlyDate(to),
+      to: this.friendlyDate(to)
     };
   }
 
@@ -121,7 +109,7 @@ class CertificateAdjuster {
 
     return {
       ddmmyy: `${day}/${month}/${year}`,
-      hhmmss: `${hours}:${minutes}:${seconds}`,
+      hhmmss: `${hours}:${minutes}:${seconds}`
     };
   }
 
@@ -142,9 +130,5 @@ class CertificateAdjuster {
     }
   }
 }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// NOTE Exports
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export default CertificateAdjuster;
