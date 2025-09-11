@@ -12,6 +12,7 @@ import Records from "../Records";
 import { getRecordRef, getWorkspaceId } from "@/helpers/urls";
 import { IS_APPLE, useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
 import { NotificationManager } from "@/services/notifications";
+import DiffViewer from "./DiffViewer";
 import "./style.scss";
 import { SourcesId } from "@/constants/index.js";
 
@@ -87,6 +88,9 @@ const AIAssistantChat = () => {
     body: "",
     addToActivities: true
   });
+
+  // Text diff state
+  const [isApplyingTextChanges, setIsApplyingTextChanges] = useState(false);
 
   // Contextual chat state (existing functionality)
   const [contextualMessage, setContextualMessage] = useState("");
@@ -742,15 +746,37 @@ const AIAssistantChat = () => {
 
           const responseData = data.result;
           const isEmailMessage = typeof responseData.message === 'object' && responseData.message?.type === 'email';
-          const messageText = isEmailMessage ? responseData.message.body : (responseData.message || "Не удалось получить ответ.");
+          const isTextDiffMessage = typeof responseData.message === 'object' && responseData.message?.type === 'text_diff';
+          
+          let messageText;
+          let aiMessage;
 
-          const aiMessage = {
-            text: messageText,
-            sender: "ai",
-            timestamp: new Date(),
-            isEmailContent: isEmailMessage,
-            messageData: isEmailMessage ? responseData.message : null
-          };
+          if (isEmailMessage) {
+            messageText = responseData.message.body;
+            aiMessage = {
+              text: messageText,
+              sender: "ai",
+              timestamp: new Date(),
+              isEmailContent: true,
+              messageData: responseData.message
+            };
+          } else if (isTextDiffMessage) {
+            messageText = responseData.message.description || "Предлагаемые изменения:";
+            aiMessage = {
+              text: messageText,
+              sender: "ai",
+              timestamp: new Date(),
+              isTextDiffContent: true,
+              messageData: responseData.message
+            };
+          } else {
+            messageText = responseData.message || "Не удалось получить ответ.";
+            aiMessage = {
+              text: messageText,
+              sender: "ai",
+              timestamp: new Date()
+            };
+          }
 
           return [...filteredMessages, aiMessage];
         });
@@ -1165,7 +1191,8 @@ const AIAssistantChat = () => {
             "ai-assistant-chat__message--error": msg.isError,
             "ai-assistant-chat__message--processing": msg.isProcessing,
             "ai-assistant-chat__message--cancelled": msg.isCancelled,
-            "ai-assistant-chat__message--email": msg.isEmailContent
+            "ai-assistant-chat__message--email": msg.isEmailContent,
+            "ai-assistant-chat__message--text-diff": msg.isTextDiffContent
           }
         )}
       >
@@ -1192,6 +1219,29 @@ const AIAssistantChat = () => {
                   <strong>Получатель:</strong> {msg.messageData.to}
                 </div>
               )}
+            </div>
+          ) : msg.isTextDiffContent && msg.messageData ? (
+            <div className="ai-assistant-chat__text-diff-preview">
+              <div className="ai-assistant-chat__text-diff-description">
+                <Markdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    a: ({ node, ...props }) => (
+                      <a {...props} target="_blank" rel="noopener noreferrer" />
+                    )
+                  }}
+                >
+                  {msg.text}
+                </Markdown>
+              </div>
+              <DiffViewer
+                original={msg.messageData.originalText || ""}
+                modified={msg.messageData.modifiedText || ""}
+                originalLabel={msg.messageData.documentName ? `${msg.messageData.documentName} (исходный)` : "Исходный текст"}
+                modifiedLabel={msg.messageData.documentName ? `${msg.messageData.documentName} (отредактированный)` : "Отредактированный текст"}
+                onApplyChanges={() => handleApplyTextChanges(msg.messageData)}
+                isApplying={isApplyingTextChanges}
+              />
             </div>
           ) : (
             <Markdown
@@ -1613,6 +1663,50 @@ const AIAssistantChat = () => {
       );
     } finally {
       setIsEmailSending(false);
+    }
+  };
+
+  // Apply text changes to document
+  const handleApplyTextChanges = async (diffData) => {
+    if (!diffData || !diffData.recordRef || !diffData.attribute) {
+      console.error("Invalid diff data for applying changes");
+      return;
+    }
+
+    setIsApplyingTextChanges(true);
+
+    try {
+      const recordRef = diffData.recordRef;
+      const attributeName = diffData.attribute;
+      const newText = diffData.modifiedText;
+
+      // Use Records API to update the document attribute
+      await Records.get(recordRef).att(attributeName, newText).save();
+
+      NotificationManager.success("Изменения успешно применены", "Редактирование текста");
+      
+      // Optionally refresh the document in context if it's currently loaded
+      const contextDocuments = additionalContext.documents;
+      const updatedDocuments = contextDocuments.map(doc => {
+        if (doc.recordRef === recordRef) {
+          return { ...doc, [attributeName]: newText };
+        }
+        return doc;
+      });
+      
+      setAdditionalContext(prev => ({
+        ...prev,
+        documents: updatedDocuments
+      }));
+
+    } catch (error) {
+      console.error("Error applying text changes:", error);
+      NotificationManager.error(
+        error.message || "Произошла ошибка при применении изменений. Попробуйте еще раз.",
+        "Ошибка применения изменений"
+      );
+    } finally {
+      setIsApplyingTextChanges(false);
     }
   };
 

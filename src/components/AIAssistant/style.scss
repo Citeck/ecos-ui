@@ -96,6 +96,233 @@
     align-items: center;
   }
 
+  // Современный Diff Viewer
+  &-diff-viewer {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #ffffff;
+    margin: 16px 0;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: all 0.2s ease;
+
+    &:hover {
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    &__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    &__labels {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    &__label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #475569;
+      padding: 6px 12px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(8px);
+
+      &--original {
+        color: #dc2626;
+        background: rgba(254, 226, 226, 0.8);
+        
+        .fa {
+          color: #dc2626;
+        }
+      }
+
+      &--modified {
+        color: #059669;
+        background: rgba(220, 252, 231, 0.8);
+        
+        .fa {
+          color: #059669;
+        }
+      }
+    }
+
+    &__apply-btn {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .fa-spinner {
+        animation: spin 1s linear infinite;
+      }
+    }
+
+    &__content {
+      background: #ffffff;
+      
+      // Современные стили для react-diff-viewer
+      .react-diff-viewer {
+        font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', 'Courier New', monospace !important;
+        font-size: 13px !important;
+        line-height: 1.5 !important;
+      }
+
+      // Таблица без границ
+      .react-diff-viewer table {
+        border-collapse: collapse;
+        width: 100%;
+        border: none;
+      }
+
+      .react-diff-viewer tbody {
+        display: table-row-group;
+      }
+
+      .react-diff-viewer tr {
+        border: none;
+      }
+
+      .react-diff-viewer td {
+        padding: 0;
+        border: none;
+        vertical-align: top;
+      }
+
+      // Современные номера строк
+      .react-diff-viewer .diff-gutter {
+        background: #f8fafc !important;
+        color: #94a3b8 !important;
+        border-right: 1px solid #e2e8f0 !important;
+        width: 60px !important;
+        min-width: 60px !important;
+        padding: 4px 12px !important;
+        text-align: right !important;
+        user-select: none !important;
+        font-size: 12px !important;
+        font-weight: 500 !important;
+      }
+
+      // Содержимое строк
+      .react-diff-viewer .diff-line {
+        padding: 4px 16px !important;
+        line-height: 1.5 !important;
+        white-space: pre-wrap !important;
+        word-break: break-word !important;
+        min-height: 24px !important;
+        display: flex !important;
+        align-items: flex-start !important;
+      }
+
+      // Добавленные строки
+      .react-diff-viewer .diff-gutter-insert {
+        background: #f0fdf4 !important;
+        color: #059669 !important;
+        border-right-color: #bbf7d0 !important;
+      }
+
+      .react-diff-viewer .diff-line-insert {
+        background: #f0fdf4 !important;
+        border-left: 3px solid #22c55e !important;
+      }
+
+      // Удаленные строки
+      .react-diff-viewer .diff-gutter-delete {
+        background: #fef2f2 !important;
+        color: #dc2626 !important;
+        border-right-color: #fecaca !important;
+      }
+
+      .react-diff-viewer .diff-line-delete {
+        background: #fef2f2 !important;
+        border-left: 3px solid #ef4444 !important;
+      }
+
+      // Обычные строки
+      .react-diff-viewer .diff-line-normal {
+        background: #ffffff !important;
+        border-left: 3px solid transparent !important;
+      }
+
+      // Выделение слов
+      .react-diff-viewer .diff-word-insert {
+        background: #22c55e !important;
+        color: #ffffff !important;
+        padding: 2px 4px !important;
+        border-radius: 3px !important;
+        font-weight: 600 !important;
+      }
+
+      .react-diff-viewer .diff-word-delete {
+        background: #ef4444 !important;
+        color: #ffffff !important;
+        padding: 2px 4px !important;
+        border-radius: 3px !important;
+        font-weight: 600 !important;
+      }
+
+      // Контейнер без границ
+      .react-diff-viewer .diff-container {
+        border: none !important;
+      }
+
+      // Разделитель между панелями
+      .react-diff-viewer .diff-left-content,
+      .react-diff-viewer .diff-right-content {
+        border-right: 1px solid #e2e8f0;
+      }
+
+      .react-diff-viewer .diff-right-content {
+        border-right: none;
+      }
+
+      // Hover эффекты
+      .react-diff-viewer tr:hover {
+        .diff-gutter {
+          background: #f1f5f9 !important;
+        }
+        
+        .diff-line-normal {
+          background: #f8fafc !important;
+        }
+      }
+    }
+  }
+
   // Tabs styles
   &__tabs {
     display: flex;
@@ -995,6 +1222,12 @@
     background-color: rgba(76, 175, 80, 0.1);
   }
 
+  // Text diff message styles
+  &__message--text-diff {
+    border-left: 3px solid #2196F3;
+    background-color: rgba(33, 150, 243, 0.1);
+  }
+
   &__email-preview {
     border: 1px solid #e0e0e0;
     border-radius: 6px;
@@ -1085,6 +1318,19 @@
       opacity: 0.6;
       cursor: not-allowed;
     }
+  }
+
+  &__text-diff-preview {
+    background: var(--surface-color, #fff);
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border-color, #e0e0e0);
+  }
+
+  &__text-diff-description {
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--border-color, #e0e0e0);
+    background: var(--background-color-light, #f8f9fa);
   }
 }
 

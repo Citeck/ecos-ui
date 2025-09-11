@@ -88,6 +88,7 @@
     "react-css-collapse": "3.6.1",
     "react-custom-scrollbars": "4.2.1",
     "react-datepicker": "2.4.0",
+    "react-diff-viewer-continued": "^3.4.0",
     "react-dom": "18.2.0",
     "react-draggable": "3.3.2",
     "react-dropzone": "8.2.0",
