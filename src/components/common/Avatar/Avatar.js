@@ -1,8 +1,9 @@
-import * as React from 'react';
+import classNames from 'classnames';
 import { isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import Icon from '../icons/Icon/Icon';
+import * as React from 'react';
+
+import Icon from '../icons/Icon';
 
 import './style.scss';
 

@@ -1,7 +1,8 @@
 import React from 'react';
 
-import Icon from '../icons/Icon/Icon';
 import { SortableHandle } from '../../Drag-n-Drop';
+import Icon from '../icons/Icon';
+
 import { Menu } from './Menu';
 
 export const Actions = ({

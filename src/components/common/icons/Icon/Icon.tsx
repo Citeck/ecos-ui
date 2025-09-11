@@ -1,15 +1,14 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import isFunction from 'lodash/isFunction';
+import React, { Component } from 'react';
 
 import './Icon.scss';
 
-export default class Icon extends Component {
-  static propTypes = {
-    className: PropTypes.string
-  };
+interface IconProps extends React.HTMLProps<HTMLElement> {
+  className?: string;
+}
 
+export default class Icon extends Component<IconProps> {
   static defaultProps = {
     className: ''
   };

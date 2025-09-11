@@ -1,17 +1,19 @@
-import * as React from 'react';
-import { debounce, isEmpty } from 'lodash';
 import classNames from 'classnames';
+import { debounce, isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
+import * as React from 'react';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
-import { isLastItem, t } from '../../../helpers/util';
+
 import ClickOutside from '../../ClickOutside';
+import Loader from '../Loader/Loader';
 import { Btn } from '../btns';
 import { Input } from '../form';
-import Icon from '../icons/Icon/Icon';
-import Loader from '../Loader/Loader';
+import Icon from '../icons/Icon';
+
+import { getFitnesseClassName } from '@/helpers/tools';
+import { isLastItem, t } from '@/helpers/util';
 
 import './style.scss';
-import { getFitnesseClassName } from '../../../helpers/tools';
 
 export default class SearchSelect extends React.Component {
   static propTypes = {

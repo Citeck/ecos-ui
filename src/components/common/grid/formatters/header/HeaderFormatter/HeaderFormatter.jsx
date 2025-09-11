@@ -1,24 +1,25 @@
-import React, { Component } from 'react';
 import classNames from 'classnames';
-import PropTypes from 'prop-types';
-import { Tooltip } from 'reactstrap';
 import debounce from 'lodash/debounce';
-import replace from 'lodash/replace';
 import get from 'lodash/get';
+import isElement from 'lodash/isElement';
 import isFunction from 'lodash/isFunction';
 import isNil from 'lodash/isNil';
 import isUndefined from 'lodash/isUndefined';
-import isElement from 'lodash/isElement';
+import replace from 'lodash/replace';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import ReactResizeDetector from 'react-resize-detector';
-import EcosTooltip from '../../../../Tooltip';
+import { Tooltip } from 'reactstrap';
 
-import { closest, getId } from '../../../../../../helpers/util';
-import { getIconUpDown } from '../../../../../../helpers/icon';
-import { t } from '../../../../../../helpers/export/util';
 import ClickOutside from '../../../../../ClickOutside';
-import Icon from '../../../../icons/Icon/Icon';
-import InlineFilter from '../../../../../../components/Filters/Filter/InlineFilter';
 import { ParserPredicate } from '../../../../../Filters/predicates';
+import EcosTooltip from '../../../../Tooltip';
+import Icon from '../../../../icons/Icon';
+
+import InlineFilter from '@/components/Filters/Filter/InlineFilter';
+import { t } from '@/helpers/export/util';
+import { getIconUpDown } from '@/helpers/icon';
+import { closest, getId } from '@/helpers/util';
 
 import './HeaderFormatter.scss';
 

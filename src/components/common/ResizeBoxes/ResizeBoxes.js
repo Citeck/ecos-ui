@@ -5,7 +5,7 @@ import isFunction from 'lodash/isFunction';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import Icon from '../icons/Icon/Icon';
+import Icon from '../icons/Icon';
 
 import './style.scss';
 

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 
-import AiAssistant from '../common/icons/AiAssistant';
-import aiAssistantService from './AIAssistantService';
 import { IcoBtn } from '../common/btns';
+import AiAssistant from '../common/icons/AiAssistant';
+
+import aiAssistantService from './AIAssistantService';
 
 import './style.scss';
 
@@ -26,19 +27,19 @@ const AIAssistantButton = () => {
       setIsOpen(newIsOpen);
     };
 
-    const handleAvailabilityChange = (newIsAvailable) => {
+    const handleAvailabilityChange = newIsAvailable => {
       setIsAvailable(newIsAvailable);
     };
 
     const originalPushState = window.history.pushState;
     const originalReplaceState = window.history.replaceState;
 
-    window.history.pushState = function() {
+    window.history.pushState = function () {
       originalPushState.apply(this, arguments);
       checkAvailability();
     };
 
-    window.history.replaceState = function() {
+    window.history.replaceState = function () {
       originalReplaceState.apply(this, arguments);
       checkAvailability();
     };
@@ -74,12 +75,7 @@ const AIAssistantButton = () => {
 
   return (
     <div className="ecos-model-editor__designer-ai-button">
-      <IcoBtn
-          id={buttonId}
-          icon={<AiAssistant />}
-          onClick={handleClick}
-          className= 'ecos-btn_blue-classic'
-        />
+      <IcoBtn id={buttonId} icon={<AiAssistant />} onClick={handleClick} className="ecos-btn_blue-classic" />
     </div>
   );
 };
