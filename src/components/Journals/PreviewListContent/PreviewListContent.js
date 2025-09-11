@@ -190,8 +190,8 @@ class PreviewListContent extends Component {
       <div
         onClick={() => this.onItemClick(item)}
         className={classnames(CLASSNAME_PREVIEW_LIST_CARD, {
-          selected: selectedRecordId === itemId && showWidgets,
-          cursored: showWidgets
+          cursored: showWidgets,
+          selected: selectedRecordId === itemId && showWidgets
         })}
         key={itemId || `card-item-${idx}`}
       >

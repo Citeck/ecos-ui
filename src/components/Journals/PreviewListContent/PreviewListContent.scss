@@ -17,14 +17,13 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    margin-bottom: 12px;
 
     &_title {
       font-size: 12px;
       font-weight: 600;
       margin: 0;
       color: $text-color-gray;
-      padding: 0 8px;
+      padding: 6px;
     }
   }
 
@@ -43,7 +42,7 @@
     }
 
     &_wrap {
-      padding: 12px 4px;
+      padding: 12px;
       gap: 0;
 
       &-list {
@@ -73,10 +72,6 @@
 
         border: 1px solid transparent !important;
         transition: border-color .15s;
-
-        &.cursored {
-          cursor: pointer;
-        }
 
         &.selected,
         &:hover {
@@ -174,6 +169,10 @@
     &:not(:last-child) {
       padding-bottom: $padding-card;
       border-bottom: 1px solid $color-gray-4;
+    }
+
+    &.cursored {
+      cursor: pointer;
     }
 
     &_img {
