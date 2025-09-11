@@ -10,7 +10,7 @@ import Import from '../../Import';
 import { Search, Tooltip } from '../../common';
 import { IcoBtn } from '../../common/btns';
 import ExportIcon from '../../common/icons/Export';
-import Filter from '../../common/icons/Icon/Filter';
+import Filter from '../../common/icons/Filter';
 import ImportIcon from '../../common/icons/Import';
 import Menu from '../../common/icons/Menu';
 import Repeat from '../../common/icons/Repeat';

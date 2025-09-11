@@ -38,8 +38,8 @@ export const LIST_VIEW_ITEM_GAP = 18;
 export const HEIGHT_LIST_VIEW_ITEM = 134 + LIST_VIEW_ITEM_GAP;
 
 // sizes with tiles content
-export const PADDING_WELL_TILES_PREVIEW_LIST = 12;
-export const HEIGHT_HEADER_TILES_PREVIEW_LIST = 27;
+export const PADDING_WELL_TILES_PREVIEW_LIST = 4;
+export const HEIGHT_HEADER_TILES_PREVIEW_LIST = 43;
 export const SIZE_LISTVIEW_ITEM_TILES = {
   SIMPLE: {
     height: 256 + 12 / 2, // max-height + gap
