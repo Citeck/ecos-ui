@@ -8,6 +8,7 @@ import isNil from 'lodash/isNil';
 
 import { getStateId } from '../../../helpers/redux';
 import { getCurrentUserName, t } from '../../../helpers/util';
+import plugins from '../../../plugins/index';
 import DAction from '../../../services/DashletActionService';
 import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
@@ -87,7 +88,9 @@ export default class Widget extends BaseWidget {
   getIsExtendedMode() {
     const { config = {} } = this.props;
     const { isAccessible } = this.state;
-    const isSimpledMode = config.formMode === SIMPLIFIED_MODE;
+    const { HeatmapWrapper } = plugins;
+
+    const isSimpledMode = config.formMode === SIMPLIFIED_MODE || !HeatmapWrapper;
     const extendedConfig = !isSimpledMode ? { ...config } : {};
     const modelConfig = isAccessible
       ? { ...extendedConfig }
@@ -104,12 +107,13 @@ export default class Widget extends BaseWidget {
 
   get dashletActions() {
     const { isShowSetting, isAdmin } = this.state;
+    const { HeatmapWrapper } = plugins;
 
     if (isShowSetting || !this.props.config) {
       return {};
     }
 
-    if (!isAdmin) {
+    if (!isAdmin || !HeatmapWrapper) {
       return {
         [DAction.Actions.RELOAD]: {
           onClick: this.reload.bind(this)
