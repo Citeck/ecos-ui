@@ -8,7 +8,7 @@ import { Tooltip } from 'reactstrap';
 import { t } from '../../../../helpers/util';
 import ZIndex from '../../../../services/ZIndex';
 import { Checkbox } from '../../form';
-import Icon from '../../icons/Icon/Icon';
+import Icon from '../../icons/Icon';
 import { SELECTOR_MENU } from '../util';
 
 import '../../Tooltip/style.scss';

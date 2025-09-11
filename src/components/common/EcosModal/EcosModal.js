@@ -7,7 +7,7 @@ import ReactResizeDetector from 'react-resize-detector';
 import { ModalBody, ModalHeader } from 'reactstrap';
 
 import Popper from '../Popper';
-import Icon from '../icons/Icon/Icon';
+import Icon from '../icons/Icon';
 
 import Modal from './ModalDraggable';
 

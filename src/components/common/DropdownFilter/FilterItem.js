@@ -1,8 +1,9 @@
-import React from 'react';
 import classNames from 'classnames';
-import { Checkbox, Input } from '../form';
-import Icon from '../icons/Icon/Icon';
+import React from 'react';
+
 import { t } from '../../../helpers/util';
+import { Checkbox, Input } from '../form';
+import Icon from '../icons/Icon';
 
 export default class FilterItem extends React.PureComponent {
   state = {

@@ -4,7 +4,7 @@ import isFunction from 'lodash/isFunction';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 
-import Icon from '../icons/Icon/Icon';
+import Icon from '../icons/Icon';
 
 import { t, trigger } from '@/helpers/util';
 

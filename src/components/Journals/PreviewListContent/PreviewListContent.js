@@ -11,6 +11,7 @@ import { Loader, PointsLoader } from '../../common';
 import { Well } from '../../common/form';
 import Clock from '../../common/icons/Clock';
 import NoData from '../../common/icons/NoData';
+import DefaultIcon from '../PreviewListContent/DefaultIcon';
 import {
   CLASSNAME_PREVIEW_LIST_CARD,
   HEIGHT_HEADER_TILES_PREVIEW_LIST,
@@ -19,8 +20,6 @@ import {
   PADDING_WELL_TILES_PREVIEW_LIST,
   SIZE_LISTVIEW_ITEM_TILES
 } from '../constants';
-
-import defaultImage from './defaultImage.png';
 
 import { cancelReloadGrid, getNextPage, reloadGrid } from '@/actions/journals';
 import EcosFormUtils from '@/components/EcosForm/EcosFormUtils';
@@ -191,12 +190,13 @@ class PreviewListContent extends Component {
       <div
         onClick={() => this.onItemClick(item)}
         className={classnames(CLASSNAME_PREVIEW_LIST_CARD, {
-          selected: selectedRecordId === itemId && showWidgets
+          selected: selectedRecordId === itemId && showWidgets,
+          cursored: showWidgets
         })}
         key={itemId || `card-item-${idx}`}
       >
         <div className="citeck-preview-list-content__card_img">
-          <img className="citeck-preview-list-content__card_img" src={previewUrl || defaultImage} alt={title} />
+          {previewUrl ? <img className="citeck-preview-list-content__card_img" src={previewUrl} alt={title} /> : <DefaultIcon />}
         </div>
         <div className="citeck-preview-list-content__card-info">
           <div className="citeck-preview-list-content__card-info-container">

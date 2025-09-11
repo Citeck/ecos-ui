@@ -1,9 +1,10 @@
-import React from 'react';
 import classNames from 'classnames';
+import React from 'react';
 import { Tooltip } from 'reactstrap';
 
-import Icon from '../icons/Icon/Icon';
 import { t } from '../../../helpers/util';
+import Icon from '../icons/Icon';
+
 import { Labels } from './constants';
 
 export const Menu = ({ disabled, id, isActive, isEditable, isOpenMenu, classNameTooltip, startEdit, onDelete, onToggleMenu }) => {

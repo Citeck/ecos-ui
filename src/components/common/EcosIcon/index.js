@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 
-import Icon from '../icons/Icon/Icon';
+import Icon from '../icons/Icon';
 
 import { MenuApi } from '@/api/menu';
 import { TMP_ICON_EMPTY } from '@/constants';
