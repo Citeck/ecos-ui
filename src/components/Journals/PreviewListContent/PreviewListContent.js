@@ -180,9 +180,9 @@ class PreviewListContent extends Component {
     const creatorLink = this.getLinkOfId(creatorId);
     const itemLink = this.getLinkOfId(itemId);
 
-    const title = get(item, ['rawAttributes', get(previewListConfig, 'title')]) || t('preview-list.no-title');
+    const title = get(item, ['rawAttributes', get(previewListConfig, 'titleListView')]) || t('preview-list.no-title');
 
-    let description = get(item, ['rawAttributes', get(previewListConfig, 'text')]) || t('preview-list.no-description');
+    let description = get(item, ['rawAttributes', get(previewListConfig, 'textListView')]) || t('-list.no-description');
 
     description = EcosFormUtils.stripHTML(description);
 

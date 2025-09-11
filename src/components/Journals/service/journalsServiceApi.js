@@ -34,8 +34,8 @@ class JournalsServiceApi {
       config = {
         ...config,
         listViewInfo: {
-          title: `${listViewInfo['titleAtt']}?disp`,
-          text: `${listViewInfo['textAtt']}?disp`,
+          titleListView: `${listViewInfo['titleAtt']}?disp`,
+          textListView: `${listViewInfo['textAtt']}?disp`,
           previewUrl: `${listViewInfo['previewAtt']}.url`,
           isTilesContent: `${get(listViewInfo, 'isTilesContent', false)}`
         }
