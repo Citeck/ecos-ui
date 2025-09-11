@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import get from 'lodash/get';
+import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -39,6 +40,36 @@ class ResizeBoxes extends React.Component {
   getElm(id) {
     return document.getElementById(id) || {};
   }
+
+  componentDidMount() {
+    this.updateBoxesPositionOfProps();
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (!isEqual(prevProps.sizes, this.props.sizes)) {
+      this.updateBoxesPositionOfProps();
+    }
+  }
+
+  updateBoxesPositionOfProps = () => {
+    const { sizes } = this.props;
+    const { left, right } = sizes || {};
+
+    if (left || right) {
+      this.setState(
+        {
+          resizing: true,
+          startX: 0,
+          startLeftWidth: left || 0,
+          startRightWidth: right || 0
+        },
+        () => {
+          this.doResize({ pageX: 0 });
+          this.stopResize();
+        }
+      );
+    }
+  };
 
   startResize = event => {
     event.preventDefault();

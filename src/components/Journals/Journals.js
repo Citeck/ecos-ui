@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
 import get from 'lodash/get';
+import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import merge from 'lodash/merge';
@@ -26,7 +27,8 @@ import {
   Labels,
   isTable,
   isKanban,
-  isKanbanOrDocLib
+  isKanbanOrDocLib,
+  isPreview
 } from './constants';
 
 import { getTypeRef } from '@/actions/docLib';
@@ -37,10 +39,11 @@ import JournalsPreviewWidgets from '@/components/Journals/JournalsPreviewWidgets
 import { ResizeBoxes } from '@/components/common';
 import { Well } from '@/components/common/form';
 import { DocLibUrlParams as DLUP, JournalUrlParams as JUP, SourcesId } from '@/constants';
+import { pagesStore } from '@/helpers/indexedDB';
 import { wrapArgs } from '@/helpers/redux';
 import { showModalJson } from '@/helpers/tools';
-import { equalsQueryUrls, getSearchParams } from '@/helpers/urls';
-import { animateScrollTo, getBool, t } from '@/helpers/util';
+import { equalsQueryUrls, getSearchParams, updateCurrentUrl } from '@/helpers/urls';
+import { animateScrollTo, getBool, getCurrentUserName, t } from '@/helpers/util';
 import { selectCommonJournalPageProps, selectWidgetsConfig } from '@/selectors/journals';
 import { selectIsViewNewJournal } from '@/selectors/view';
 import PageService, { PageTypes } from '@/services/PageService';
@@ -99,13 +102,30 @@ class Journals extends React.Component {
   _journalMenuRef = null;
   _toggleMenuTimerId = null;
 
-  state = {
-    menuOpen: isDocLib(get(getSearchParams(), JUP.VIEW_MODE)),
-    menuOpenAnimate: isDocLib(get(getSearchParams(), JUP.VIEW_MODE)),
-    journalId: undefined,
-    maxHeightJournal: 0,
-    recordId: null
-  };
+  constructor(props) {
+    super(props);
+
+    this.userName = getCurrentUserName();
+
+    this.state = {
+      menuOpen: isDocLib(get(getSearchParams(), JUP.VIEW_MODE)),
+      menuOpenAnimate: isDocLib(get(getSearchParams(), JUP.VIEW_MODE)),
+      journalId: undefined,
+      maxHeightJournal: 0,
+      recordId: null,
+      initiatedWidgetsConfig: false
+    };
+
+    pagesStore
+      .get(getSearchParams().journalId)
+      .then(indexedDBConfig => {
+        this.state.indexedDBConfig = get(indexedDBConfig, this.userName, {});
+      })
+      .catch(e => {
+        console.error(e);
+      })
+      .finally(() => (this.state.initiatedWidgetsConfig = true));
+  }
 
   static getDerivedStateFromProps(props, state) {
     const journalId = get(props, ['urlParams', JUP.JOURNAL_ID]);
@@ -130,6 +150,13 @@ class Journals extends React.Component {
     const searchParams = getSearchParams();
     let viewMode = getBool(get(getSearchParams(), JUP.VIEW_MODE));
 
+    if (isPreview(viewMode)) {
+      viewMode = JVM.TABLE;
+      searchParams.viewWidgets = 'true';
+      searchParams.viewMode = viewMode;
+      updateCurrentUrl({ viewMode, viewWidgets: true });
+    }
+
     if (isUnknownView(viewMode)) {
       viewMode = JVM.TABLE;
     }
@@ -143,7 +170,19 @@ class Journals extends React.Component {
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { _url, isActivePage, stateId, viewMode, tabId, isViewNewJournal, widgetsConfig } = this.props;
-    const { journalId } = this.state;
+    const { journalId, initiatedWidgetsConfig } = this.state;
+
+    const { isLeftPositionWidgets } = widgetsConfig || {};
+    const prevIsLeftPositionWidgets = get(prevProps, 'widgetsConfig.isLeftPositionWidgets');
+
+    if (
+      initiatedWidgetsConfig &&
+      isBoolean(isLeftPositionWidgets) &&
+      isBoolean(prevIsLeftPositionWidgets) &&
+      prevIsLeftPositionWidgets !== isLeftPositionWidgets
+    ) {
+      this.swapContentSizesBox();
+    }
 
     if (
       get(prevProps, ['urlParams', JUP.VIEW_WIDGET_PREVIEW]) !== get(this.props, ['urlParams', JUP.VIEW_WIDGET_PREVIEW]) ||
@@ -205,6 +244,32 @@ class Journals extends React.Component {
 
     this.unmountJournalUpdateWatcher();
   }
+
+  swapContentSizesBox = () => {
+    const { indexedDBConfig } = this.state;
+
+    const { widgetsConfig: { boxSizes } = {} } = indexedDBConfig || {};
+    const { left: right, right: left } = boxSizes || {};
+
+    if (!right || !left) {
+      return;
+    }
+
+    this.onResizeWidgets({ left, right }).then(() =>
+      this.setState({
+        indexedDBConfig: {
+          ...indexedDBConfig,
+          widgetsConfig: {
+            ...get(indexedDBConfig, 'widgetsConfig', {}),
+            boxSizes: {
+              left,
+              right
+            }
+          }
+        }
+      })
+    );
+  };
 
   mountJournalUpdateWatcher() {
     this.journalRecord.watch(['_modified'], this.handleUpdateJournal);
@@ -448,16 +513,50 @@ class Journals extends React.Component {
     );
   };
 
+  onResizeWidgets = async ({ left, right }) => {
+    const { journalId } = this.state;
+
+    if (!journalId) {
+      return;
+    }
+
+    try {
+      let dbValue = (await pagesStore.get(journalId)) || {
+        pageId: journalId,
+        [this.userName]: {
+          widgetsConfig: {},
+          settings: {},
+          columns: {}
+        }
+      };
+
+      dbValue[this.userName] = {
+        ...dbValue[this.userName],
+        widgetsConfig: {
+          boxSizes: {
+            left,
+            right
+          }
+        }
+      };
+
+      await pagesStore.put(dbValue);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   renderWithWidgets = () => {
     const { isViewNewJournal, widgetsConfig, stateId } = this.props;
     const { isLeftPositionWidgets } = widgetsConfig || {};
-    const { recordId } = this.state;
+    const { recordId, indexedDBConfig } = this.state;
+    const { widgetsConfig: { boxSizes = {} } = {} } = indexedDBConfig || {};
 
     const wellClassNames = 'ecos-well_full ecos-journals-content__preview-well';
 
     if (isLeftPositionWidgets) {
-      const leftId = `_${stateId}-preview`;
-      const rightId = `_${stateId}-grid`;
+      const leftId = `_${stateId}-preview-left`;
+      const rightId = `_${stateId}-grid-right`;
 
       return (
         <div className="ecos-journals-content__sides">
@@ -465,7 +564,7 @@ class Journals extends React.Component {
             <Well isViewNewJournal={isViewNewJournal} className={wellClassNames}>
               <JournalsPreviewWidgets stateId={stateId} recordId={recordId} />
             </Well>
-            <ResizeBoxes leftId={leftId} rightId={rightId} isSimpleVertical />
+            <ResizeBoxes sizes={boxSizes} onResizeComplete={this.onResizeWidgets} leftId={leftId} rightId={rightId} isSimpleVertical />
           </div>
           <div id={rightId} className="ecos-journals-content__sides-large">
             {this.renderViews()}
@@ -474,8 +573,8 @@ class Journals extends React.Component {
       );
     }
 
-    const leftId = `_${stateId}-grid`;
-    const rightId = `_${stateId}-preview`;
+    const leftId = `_${stateId}-grid-left`;
+    const rightId = `_${stateId}-preview-right`;
 
     return (
       <div className="ecos-journals-content__sides">
@@ -483,7 +582,14 @@ class Journals extends React.Component {
           {this.renderViews()}
         </div>
         <div id={rightId} className="ecos-journals-content__sides-small">
-          <ResizeBoxes leftId={leftId} rightId={rightId} autoRightSide isSimpleVertical />
+          <ResizeBoxes
+            sizes={boxSizes}
+            onResizeComplete={this.onResizeWidgets}
+            leftId={leftId}
+            rightId={rightId}
+            autoRightSide
+            isSimpleVertical
+          />
           <Well isViewNewJournal={isViewNewJournal} className={wellClassNames}>
             <JournalsPreviewWidgets stateId={stateId} recordId={recordId} />
           </Well>
@@ -494,7 +600,7 @@ class Journals extends React.Component {
 
   render() {
     const { isMobile, className, isViewNewJournal, viewMode } = this.props;
-    const { height } = this.state;
+    const { height, initiatedWidgetsConfig } = this.state;
     const commonProps = this.getCommonProps();
     const { showWidgets } = commonProps || {};
 
@@ -509,7 +615,9 @@ class Journals extends React.Component {
             'ecos-journal_scroll': height <= commonProps.minHeight
           })}
         >
-          {showWidgets && !isKanbanOrDocLib(viewMode) && !isMobile ? this.renderWithWidgets() : this.renderViews()}
+          {showWidgets && !isKanbanOrDocLib(viewMode) && !isMobile && initiatedWidgetsConfig
+            ? this.renderWithWidgets()
+            : this.renderViews()}
         </div>
       </ReactResizeDetector>
     );

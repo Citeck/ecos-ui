@@ -1,5 +1,11 @@
 @import '../../../styles/constants';
 
+.ecos-publications {
+  &__publication-image-stack_img {
+    min-width: 40px;
+  }
+}
+
 .ecos-publication-widget {
   $root: &;
 
