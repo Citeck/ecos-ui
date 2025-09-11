@@ -214,8 +214,16 @@ export function getGridParams({ journalConfig = {}, journalSetting = {}, paginat
 
   const columns = columnsConfig || columnsSetting || [];
 
+  const listViewAttrs = Object.keys(listViewInfo).reduce((result, key) => {
+    if (listViewInfo[key] && !listViewInfo[key].includes('undefined')) {
+      return { ...result, [key]: listViewInfo[key] };
+    }
+
+    return result;
+  }, {});
+
   return {
-    attributes: { ...attsForListView, ...listViewInfo },
+    attributes: { ...attsForListView, ...listViewAttrs },
     groupActions: groupActions || [],
     journalId,
     journalActions,
@@ -665,6 +673,7 @@ export function* getGridData(api, params, stateId, isOnlyData = false) {
 
   const predicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(_predicates));
   const pagination = get(forRequest, 'groupBy.length') ? { ..._pagination, maxItems: undefined } : _pagination;
+  // debugger;
   const settings = JournalsConverter.getSettingsForDataLoaderServer({
     ...forRequest,
     recordRef,
