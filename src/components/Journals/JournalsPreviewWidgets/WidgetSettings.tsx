@@ -22,6 +22,8 @@ import Components from '@/components/widgets/Components';
 import { Layouts, LayoutType, LayoutTypes } from '@/constants/layout';
 import { t } from '@/helpers/export/util';
 import { wrapArgs } from '@/helpers/redux';
+import { getWorkspaceId } from '@/helpers/urls';
+import { getEnabledWorkspaces } from '@/helpers/util';
 import PageTabList from '@/services/pageTabs/PageTabList';
 import { Dispatch, RootState } from '@/types/store';
 
@@ -61,7 +63,14 @@ function getStateId(state: RootState) {
 
   const journals = get(state, 'journals', {});
   const activeTabId = PageTabList.activeTabId;
-  const keys = Object.keys(journals).filter(key => key.includes(activeTabId));
+
+  const keys = Object.keys(journals).filter(
+    key =>
+      key.includes(activeTabId) &&
+      (journalId ? key.includes(journalId) : true) &&
+      (getEnabledWorkspaces() ? key.includes(getWorkspaceId()) : true)
+  );
+
   return keys.find(key => get(journals, [key, 'journalConfig', 'id']) === journalId) || '';
 }
 

@@ -115,16 +115,6 @@ class Journals extends React.Component {
       recordId: null,
       initiatedWidgetsConfig: false
     };
-
-    pagesStore
-      .get(getSearchParams().journalId)
-      .then(indexedDBConfig => {
-        this.state.indexedDBConfig = get(indexedDBConfig, this.userName, {});
-      })
-      .catch(e => {
-        console.error(e);
-      })
-      .finally(() => (this.state.initiatedWidgetsConfig = true));
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -165,6 +155,18 @@ class Journals extends React.Component {
 
     if (!isEqual(searchParams, this.props.urlParams)) {
       this.props.setUrl(searchParams);
+    }
+
+    if (!this.state.initiatedWidgetsConfig) {
+      pagesStore
+        .get(getSearchParams().journalId)
+        .then(indexedDBConfig => {
+          this.setState({ indexedDBConfig: get(indexedDBConfig, this.userName, {}) });
+        })
+        .catch(e => {
+          console.error(e);
+        })
+        .finally(() => this.setState({ initiatedWidgetsConfig: true }));
     }
   }
 
