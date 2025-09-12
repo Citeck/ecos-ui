@@ -7,7 +7,7 @@ import unset from 'lodash/unset';
 import Base from '../base/Base';
 
 import { DEFAULT_LABEL_POSITION } from '@/constants/forms';
-import { getBool, t } from '@/helpers/util';
+import { getBool, getMLValue, t } from '@/helpers/util';
 
 export default class CheckBoxComponent extends FormIOCheckBoxComponent {
   static schema(...extend) {
@@ -111,6 +111,14 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
 
   get hasThreeStates() {
     return this.component.hasThreeStates;
+  }
+
+  errorMessage(type) {
+    if (type === 'required') {
+      return t('ecos.forms.checkbox.required', { field: getMLValue(this.component.label) });
+    }
+
+    return super.errorMessage(type);
   }
 
   isEmpty(value) {
