@@ -5,7 +5,6 @@ import React from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
 
-import Records from '../Records';
 import WorkspacePreview from '../WorkspacePreview';
 import { Tooltip } from '../common';
 import SidebarToggle from '../common/icons/SidebarToggle';
@@ -22,7 +21,7 @@ import {
   setInitialSelectedId,
   toggleIsOpen
 } from '@/actions/slideMenu';
-import { SourcesId, URL as Urls } from '@/constants';
+import { URL as Urls } from '@/constants';
 import { DefaultImages } from '@/constants/theme';
 import { getWorkspaceId } from '@/helpers/urls';
 import { getEnabledWorkspaces, isExistValue, t } from '@/helpers/util';
@@ -70,12 +69,11 @@ class Sidebar extends React.Component {
     }
 
     if (prevProps.idMenu !== idMenu) {
-      this.reInit();
+      this.init(true);
     }
   }
 
   componentWillUnmount() {
-    this.cleanUp();
     document.removeEventListener(Events.CHANGE_URL_LINK_EVENT, this.props.setInitialSelectedId);
   }
 
@@ -87,40 +85,21 @@ class Sidebar extends React.Component {
       });
   };
 
-  init(forceFetching = false) {
+  init(forceState = false) {
     this.slideMenuToggle = document.getElementById('slide-menu-toggle');
 
-    const { getSiteDashboardEnable, idMenu, setInitialSelectedId } = this.props;
-    let record = idMenu.replace(SourcesId.RESOLVED_MENU, SourcesId.MENU);
-
-    if (record.indexOf(SourcesId.MENU) !== 0) {
-      record = `${SourcesId.MENU}@${record}`;
-    }
+    const { getSiteDashboardEnable, setInitialSelectedId } = this.props;
 
     getSiteDashboardEnable();
-    this.fetchItems(forceFetching);
-
-    this.recordMenu = Records.get(record);
-    this.updateWatcher = this.recordMenu.watch('subMenu.left?json', () => {
-      this.fetchItems(true);
-    });
+    this.fetchItems(forceState);
 
     setInitialSelectedId();
   }
 
-  reInit() {
-    this.cleanUp();
-    this.init(true);
-  }
-
-  cleanUp() {
-    this.recordMenu && this.updateWatcher && this.recordMenu.unwatch(this.updateWatcher);
-  }
-
-  fetchItems(force) {
-    if ((isExistValue(this.props.versionMenu) && !this.state.fetchItems) || force) {
+  fetchItems(forceState, forceFetching) {
+    if ((isExistValue(this.props.versionMenu) && !this.state.fetchItems) || forceState) {
       this.setState({ fetchItems: true }, () => {
-        this.props.fetchSlideMenuItems();
+        this.props.fetchSlideMenuItems(forceFetching);
       });
     }
   }
@@ -229,7 +208,7 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
-  fetchSlideMenuItems: () => dispatch(fetchSlideMenuItems()),
+  fetchSlideMenuItems: forceFetch => dispatch(fetchSlideMenuItems({ forceFetch })),
   toggleIsOpen: isOpen => dispatch(toggleIsOpen(isOpen)),
   getSiteDashboardEnable: () => dispatch(getSiteDashboardEnable()),
   setExpandableItems: force => dispatch(setExpandableItems({ force })),

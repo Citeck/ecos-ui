@@ -4,9 +4,7 @@ import { call, put, takeLatest, takeEvery, select } from 'redux-saga/effects';
 
 import { getDashboardEditable } from '@/actions/app';
 import { getDashboardConfig } from '@/actions/dashboard';
-import { fetchCreateCaseWidgetData } from '@/actions/header';
 import { getMenuConfig } from '@/actions/menu';
-import { fetchSlideMenuItems } from '@/actions/slideMenu';
 import {
   getWorkspaces,
   goToDefaultFromBlockedWs,
@@ -153,8 +151,6 @@ function* sagaUpdateUIWorkspace() {
   try {
     yield put(getDashboardEditable());
     yield put(getMenuConfig());
-    yield put(fetchSlideMenuItems());
-    yield put(fetchCreateCaseWidgetData());
   } catch (e) {
     console.error('[workspaces/ sagaUpdateUIWorkspace] error', e);
     yield put(setWorkspacesError());

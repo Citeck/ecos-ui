@@ -131,7 +131,7 @@ class App extends Component {
     const prevWsId = prevSearchParams.get('ws');
     const nextWsId = searchParams.get('ws') || workspaceId;
 
-    if (enabledWorkspaces && prevWsId !== nextWsId && !isBlockedCurrentWorkspace) {
+    if (enabledWorkspaces && prevWsId && prevWsId !== nextWsId && !isBlockedCurrentWorkspace) {
       updateUIWorkspace();
     }
 
