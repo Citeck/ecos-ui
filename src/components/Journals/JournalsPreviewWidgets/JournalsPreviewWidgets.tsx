@@ -90,7 +90,7 @@ class JournalsPreviewWidgets<P extends JournalsPreviewWidgetsProps, S extends Jo
     }
   }
 
-  renderWidgets = () => {
+  getWidgets = (): React.ReactNode[] => {
     const { recordId, config } = this.props;
     const { widgets: configWidgets } = config || {};
     const components: React.ReactNode[] = [];
@@ -101,51 +101,65 @@ class JournalsPreviewWidgets<P extends JournalsPreviewWidgetsProps, S extends Jo
       let Widget = this.loadedWidgets[name];
       const props = Components.getProps(name);
       const key = `${name}-${recordId}`;
+      const isStaticPreviewWidget = get(props, 'isStaticPreviewWidget');
+      const record = isStaticPreviewWidget ? null : recordId;
 
       if (!Widget) {
         Widget = Components.get(name);
         this.loadedWidgets[name] = Widget;
       }
 
-      components.push(
-        <WidgetErrorBoundary key={key} title={t(Labels.WIDGET_ERROR_TITLE)} message={t(Labels.WIDGET_ERROR_MSG)}>
-          <Suspense fallback={<Loader type="points" />}>
-            <Widget {...props} record={recordId} />
-          </Suspense>
-        </WidgetErrorBoundary>
-      );
+      if (isStaticPreviewWidget || recordId) {
+        if (isStaticPreviewWidget) {
+          components.unshift(
+            <WidgetErrorBoundary key={key} title={t(Labels.WIDGET_ERROR_TITLE)} message={t(Labels.WIDGET_ERROR_MSG)}>
+              <Suspense fallback={<Loader type="points" />}>
+                <Widget {...props} record={record} />
+              </Suspense>
+            </WidgetErrorBoundary>
+          );
+        } else {
+          components.push(
+            <WidgetErrorBoundary key={key} title={t(Labels.WIDGET_ERROR_TITLE)} message={t(Labels.WIDGET_ERROR_MSG)}>
+              <Suspense fallback={<Loader type="points" />}>
+                <Widget {...props} record={record} />
+              </Suspense>
+            </WidgetErrorBoundary>
+          );
+        }
+      }
     });
-
-    if (!components.length) {
-      return (
-        <div className="ecos-journals-preview__empty-widgets">
-          <div className="ecos-journals-preview__empty-widgets-preview">
-            <WidgetsNotSettingsIcon />
-            <span className="ecos-journals-preview__empty-widgets_text">{t(Labels.EMPTY_WIDGETS)}</span>
-          </div>
-          <Btn className="ecos-journals-preview__empty-widgets_btn" onClick={() => WidgetService.openEditJournalWidgets()}>
-            {t(Labels.SETTING)}
-          </Btn>
-        </div>
-      );
-    }
 
     return components;
   };
 
   render() {
     const { className, recordId } = this.props;
+    const components = this.getWidgets();
 
     return (
       <div className={classNames('ecos-journals-preview', className)}>
         <div className="ecos-journals-preview__container">
-          {!recordId && (
+          {!components.length && !recordId && (
             <div className="ecos-journals-preview__empty-record">
               <EmptyWidgetsIcon />
               <span className="ecos-journals-preview__empty-record_text">{t(Labels.WIDGETS_NO_DATA)}</span>
             </div>
           )}
-          {recordId && <div className="ecos-journals-preview__widgets">{this.renderWidgets()}</div>}
+
+          {!components.length && recordId && (
+            <div className="ecos-journals-preview__empty-widgets">
+              <div className="ecos-journals-preview__empty-widgets-preview">
+                <WidgetsNotSettingsIcon />
+                <span className="ecos-journals-preview__empty-widgets_text">{t(Labels.EMPTY_WIDGETS)}</span>
+              </div>
+              <Btn className="ecos-journals-preview__empty-widgets_btn" onClick={() => WidgetService.openEditJournalWidgets()}>
+                {t(Labels.SETTING)}
+              </Btn>
+            </div>
+          )}
+
+          {components.length > 0 && <div className="ecos-journals-preview__widgets">{components}</div>}
         </div>
       </div>
     );

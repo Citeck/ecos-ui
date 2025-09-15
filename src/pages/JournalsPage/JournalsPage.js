@@ -5,12 +5,16 @@ import { initState } from '@/actions/journals';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Journals } from '@/components/Journals';
 import { getStateId } from '@/helpers/redux';
+import { getSearchParams } from '@/helpers/urls';
 import { getId, t } from '@/helpers/util';
 import pageTabList from '@/services/pageTabs/PageTabList';
 
 import './style.scss';
 
-const getKeys = ({ id, tabId, stateId }) => stateId || getStateId({ tabId, id: id || getId() });
+const getKeys = ({ id, tabId, stateId }) => {
+  const { journalId } = getSearchParams();
+  return stateId || getStateId({ tabId, id: id || journalId || getId() });
+};
 
 const Labels = {
   ERROR_BOUNDARY_TITLE: 'journal.page.error-boundary.title',

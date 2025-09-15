@@ -1,14 +1,14 @@
-import React, { useContext, useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
+import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 import uniqueId from 'lodash/uniqueId';
-import isEqual from 'lodash/isEqual';
-import isEmpty from 'lodash/isEmpty';
+import PropTypes from 'prop-types';
+import React, { useContext, useEffect, useState } from 'react';
+
 import { usePrevious } from '../../../../hooks';
 
-import { handleResponse, prepareSelected, getAuthRef, getRecordRef } from './helpers';
-
 import { TabTypes, DataTypes } from './constants';
+import { handleResponse, prepareSelected, getAuthRef, getRecordRef } from './helpers';
 
 export const SelectOrgstructContext = React.createContext();
 
@@ -47,64 +47,55 @@ export const SelectOrgstructProvider = props => {
     [TabTypes.SELECTED]: []
   });
 
-  useEffect(
-    () => {
-      !targetId && setTargetId(uniqueId('SelectOrgstruct_'));
-    },
-    [targetId]
-  );
+  useEffect(() => {
+    !targetId && setTargetId(uniqueId('SelectOrgstruct_'));
+  }, [targetId]);
 
   const [isSelectedFetched, setIsSelectedFetched] = useState(false);
 
   const prevDefaultValue = usePrevious(defaultValue);
 
   // reset isSelectedFetched if new previewValue
-  useEffect(
-    () => {
-      if (isEqual(prevDefaultValue, defaultValue)) {
-        return;
-      }
+  useEffect(() => {
+    if (isEqual(prevDefaultValue, defaultValue)) {
+      return;
+    }
 
-      setIsSelectedFetched(false);
-    },
-    [defaultValue]
-  );
+    setIsSelectedFetched(false);
+  }, [defaultValue]);
 
   // set default value
-  useEffect(
-    () => {
-      if (isSelectedFetched) {
-        return;
-      }
+  useEffect(() => {
+    if (isSelectedFetched) {
+      return;
+    }
 
-      setIsSelectedFetched(true);
+    setIsSelectedFetched(true);
 
-      let initValue;
+    let initValue;
 
-      if (multiple && Array.isArray(defaultValue) && defaultValue.length > 0) {
-        initValue = [...defaultValue];
-      } else if (!multiple && Array.isArray(defaultValue)) {
-        initValue = defaultValue.length > 0 ? [defaultValue[0]] : [];
-      } else if (!multiple && !!defaultValue) {
-        initValue = [defaultValue];
-      } else {
-        initValue = [];
-      }
+    if (multiple && Array.isArray(defaultValue) && defaultValue.length > 0) {
+      initValue = [...defaultValue];
+    } else if (!multiple && Array.isArray(defaultValue)) {
+      initValue = defaultValue.length > 0 ? [defaultValue[0]] : [];
+    } else if (!multiple && !!defaultValue) {
+      initValue = [defaultValue];
+    } else {
+      initValue = [];
+    }
 
-      if (Array.isArray(initValue)) {
-        const promises = initValue.map(item => orgStructApi.fetchAuthority(dataType, item));
+    if (Array.isArray(initValue)) {
+      const promises = initValue.map(item => orgStructApi.fetchAuthority(dataType, item));
 
-        Promise.all(promises)
-          .then(handleResponse)
-          .then(items => items.map(prepareSelected))
-          .then(selectedItems => {
-            setSelectedRows([...selectedItems]);
-          })
-          .catch(_ => _);
-      }
-    },
-    [isSelectedFetched]
-  );
+      Promise.all(promises)
+        .then(handleResponse)
+        .then(items => items.map(prepareSelected))
+        .then(selectedItems => {
+          setSelectedRows([...selectedItems]);
+        })
+        .catch(_ => _);
+    }
+  }, [isSelectedFetched, defaultValue]);
 
   const onChangeValue = selectedList => {
     const { onChange } = controlProps;

@@ -34,6 +34,7 @@ export default class Dropdown extends Component {
     right: PropTypes.bool,
     full: PropTypes.bool,
     isButton: PropTypes.bool,
+    source: PropTypes.array,
     isStatic: PropTypes.bool,
     isLinks: PropTypes.bool,
     cascade: PropTypes.bool,

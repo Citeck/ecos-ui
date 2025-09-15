@@ -8,6 +8,20 @@
   overflow-x: auto;
   display: flex;
 
+  &-view {
+    &__total {
+      font-size: 12px;
+      line-height: 16px;
+      font-weight: 600;
+      text-align: center;
+      color: $text-color-gray;
+
+      margin: auto 0;
+      min-width: 142px;
+      height: 100%;
+    }
+  }
+
   &__small-btn_new {
     width: auto !important;
     height: auto !important;

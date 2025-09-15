@@ -540,6 +540,7 @@
   "preview-list.no-title": "Text not specified",
   "preview-list.no-description": "Description not specified",
   "preview-list.created-by": "Created by",
+  "preview-list.bar.total": "Total entries: {{ total }}",
 
   "document-library.title": "Document library",
   "document-library.file": "File",
@@ -708,7 +709,8 @@
   "ecos.forms.or": "or",
   "ecos.forms.pattern": "{{field}} does not match the pattern {{pattern}}",
   "ecos.forms.previous": "Previous",
-  "ecos.forms.required": "{{field}} is required",
+  "ecos.forms.required": "\"{{field}}\" is required",
+  "ecos.forms.checkbox.required": "\"{{field}}\" requires confirmation",
   "ecos.forms.btn.add-another": "Add another",
   "ecos.forms.label": "label",
   "ecos.forms.Copy": "Copy",

@@ -69,8 +69,7 @@ export const defaultState = {
   url: {},
 
   widgetsConfig: {
-    widgets: null,
-    isLeftPositionWidgets: false
+    widgets: null
   },
 
   grid: {

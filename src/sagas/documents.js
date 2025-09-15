@@ -213,7 +213,7 @@ function* sagaDownloadAllDocuments({ api }, { payload }) {
             valuesParams: {
               type: 'records-list',
               config: {
-                records
+                records: allDocuments
               }
             },
             executionParams: {

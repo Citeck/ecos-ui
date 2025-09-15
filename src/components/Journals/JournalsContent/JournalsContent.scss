@@ -20,6 +20,7 @@
 
     &-large {
       min-width: 550px;
+      height: calc(100% - 34px);
     }
   }
 
@@ -28,7 +29,7 @@
   }
 
   &__preview-well {
-    padding: 17px 15px;
+    padding: 12px 18px;
     min-height: 468px;
     background-color: var(--main-bg-color);
   }

@@ -474,6 +474,7 @@
   "preview-list.no-title": "Текст не указан",
   "preview-list.no-description": "Описание не указано",
   "preview-list.created-by": "Создал (а)",
+  "preview-list.bar.total": "Всего записей: {{ total }}",
 
   "document-library.title": "Библиотека документов",
   "document-library.file": "Файл",
@@ -663,7 +664,8 @@
   "ecos.forms.or": "или",
   "ecos.forms.pattern": "{{field}} не совпадает с паттерном {{pattern}}",
   "ecos.forms.previous": "Назад",
-  "ecos.forms.required": "Поле {{field}} не может быть пустым",
+  "ecos.forms.required": "Поле «{{field}}» не может быть пустым",
+  "ecos.forms.checkbox.required": "Поле «{{field}}» требует подтверждения",
   "ecos.forms.btn.add-another": "Добавить ещё",
   "ecos.forms.label": "Название поля",
   "ecos.forms.Copy": "Копировать",

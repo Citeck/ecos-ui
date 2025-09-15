@@ -1,11 +1,13 @@
 import FormIOCheckBoxComponent from 'formiojs/components/checkbox/Checkbox';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import set from 'lodash/set';
 import unset from 'lodash/unset';
 
-import { DEFAULT_LABEL_POSITION } from '../../../../constants/forms';
-import { getBool, t } from '../../../../helpers/util';
 import Base from '../base/Base';
+
+import { DEFAULT_LABEL_POSITION } from '@/constants/forms';
+import { getBool, getMLValue, t } from '@/helpers/util';
 
 export default class CheckBoxComponent extends FormIOCheckBoxComponent {
   static schema(...extend) {
@@ -109,6 +111,14 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
 
   get hasThreeStates() {
     return this.component.hasThreeStates;
+  }
+
+  errorMessage(type) {
+    if (type === 'required') {
+      return t('ecos.forms.checkbox.required', { field: getMLValue(this.component.label) });
+    }
+
+    return super.errorMessage(type);
   }
 
   isEmpty(value) {
@@ -241,7 +251,7 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
   }
 
   updateVisible = () => {
-    if (this.options.builder) {
+    if (this.options.builder || isEmpty(get(this.component, 'logic'))) {
       return;
     }
 

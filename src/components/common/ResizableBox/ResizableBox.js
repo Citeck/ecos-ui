@@ -1,11 +1,11 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
+import PropTypes from 'prop-types';
+import * as React from 'react';
 
 import { t } from '../../../helpers/util';
-import Icon from '../icons/Icon/Icon';
+import Icon from '../icons/Icon';
 
 import './style.scss';
 

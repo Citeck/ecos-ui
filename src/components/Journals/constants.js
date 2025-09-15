@@ -7,7 +7,7 @@ export const ALLOW_WIDGETS_PREVIEW = [
   WidgetsKeys.DOC_ASSOCIATIONS,
   WidgetsKeys.PUBLICATION,
   WidgetsKeys.COMMENTS,
-  WidgetsKeys.HIERARCHICAL_TREE,
+  // WidgetsKeys.HIERARCHICAL_TREE, TODO: Uncomment after the backend is ready (ECOSENT-3379)
   WidgetsKeys.DOC_PREVIEW
 ];
 
@@ -37,6 +37,17 @@ export const ECOS_GRID_PADDING_HORIZONTAL = 14;
 export const LIST_VIEW_ITEM_GAP = 18;
 export const HEIGHT_LIST_VIEW_ITEM = 134 + LIST_VIEW_ITEM_GAP;
 
+// sizes with tiles content
+export const PADDING_WELL_TILES_PREVIEW_LIST = 4;
+export const HEIGHT_HEADER_TILES_PREVIEW_LIST = 43;
+export const SIZE_LISTVIEW_ITEM_TILES = {
+  SIMPLE: {
+    height: 256 + 12 / 2, // max-height + gap
+    width: 218 + 12 / 2 // max-width + gap
+  }
+};
+
+export const CLASSNAME_PREVIEW_LIST_CARD = 'citeck-preview-list-content__card';
 export const CLASSNAME_JOURNAL_BODY_TOP = 'ecos-journal__body-top';
 
 export const DEFAULT_INLINE_TOOL_SETTINGS = {
@@ -52,6 +63,7 @@ export const JOURNAL_MIN_HEIGHT_MOB = 450;
 
 export const JOURNAL_VIEW_MODE = {
   TABLE: 'table',
+  PREVIEW: 'table-preview',
   DOC_LIB: 'document-library',
   PREVIEW_LIST: 'preview-list',
   KANBAN: 'kanban',
@@ -125,6 +137,7 @@ export const Labels = {
 
 export const isTable = vm => vm === JOURNAL_VIEW_MODE.TABLE;
 export const isDocLib = vm => vm === JOURNAL_VIEW_MODE.DOC_LIB;
+export const isPreview = vm => vm === JOURNAL_VIEW_MODE.PREVIEW;
 export const isKanban = vm => vm === JOURNAL_VIEW_MODE.KANBAN;
 export const isKanbanOrDocLib = vm => isKanban(vm) || isDocLib(vm);
 export const isPreviewList = vm => vm === JOURNAL_VIEW_MODE.PREVIEW_LIST;

@@ -33,7 +33,7 @@ import { initPreviewList } from '@/actions/previewList';
 import { JournalUrlParams, JournalUrlParams as JUP, KanbanUrlParams as KUP, SourcesId } from '@/constants';
 import { wrapArgs } from '@/helpers/redux';
 import { getSearchParams } from '@/helpers/urls';
-import { getTextByLocale } from '@/helpers/util';
+import { getBool, getTextByLocale, t } from '@/helpers/util';
 import { selectCommonJournalPageProps, selectJournalPageProps } from '@/selectors/journals';
 import { selectKanbanPageProps } from '@/selectors/kanban';
 import { selectPreviewListProps } from '@/selectors/previewList';
@@ -46,12 +46,14 @@ const mapStateToProps = (state, props) => {
   const journalProps = selectJournalPageProps(state, props.stateId);
   const previewListProps = selectPreviewListProps(state, props.stateId);
   const isViewNewJournal = selectIsViewNewJournal(state);
+  const isTilesContent = getBool(get(previewListProps, 'previewListConfig.isTilesContent', 'false'));
 
   return {
     isMobile: get(state, 'view.isMobile'),
     isAdmin: selectIsAdmin(state),
     urlParams: getSearchParams(),
     isViewNewJournal,
+    isTilesContent,
     ...previewListProps,
     ...ownProps,
     ...commonProps,
@@ -71,7 +73,7 @@ function mapDispatchToProps(dispatch, props) {
     execRecordsAction: (records, action, context) => dispatch(execRecordsAction(w({ records, action, context }))),
     getJournalsData: options => dispatch(getJournalsData(w(options))),
     reloadJournalConfig: (journalId, force, callback) => dispatch(reloadJournalConfig(w({ journalId, w, force, callback }))),
-    reloadGrid: () => dispatch(reloadGrid(w({}))),
+    reloadGrid: options => dispatch(reloadGrid(w(options))),
     runSearch: text => dispatch(runSearch({ text, stateId: props.stateId })),
     saveJournalSetting: (id, settings, callback) => dispatch(saveJournalSetting(w({ id, settings, callback }))),
     setSelectedRecords: records => dispatch(setSelectedRecords(w(records))),
@@ -135,7 +137,12 @@ class PreviewListView extends React.Component {
   }
 
   RightBarChild = ({ hasPageSize, noData, maxHeight, hasTotalSumField }) => {
-    const { stateId, isMobile, isViewNewJournal } = this.props;
+    const { stateId, isMobile, isViewNewJournal, isTilesContent, urlParams, viewMode, grid } = this.props;
+    const { total } = grid || {};
+
+    if (isTilesContent && isPreviewList(urlParams.viewMode || viewMode)) {
+      return <h5 className="ecos-journal-view__total">{t('preview-list.bar.total', { total })}</h5>;
+    }
 
     return (
       <JournalsDashletPagination
@@ -151,6 +158,21 @@ class PreviewListView extends React.Component {
         })}
       />
     );
+  };
+
+  reloadGrid = () => {
+    const { urlParams, isTilesContent, viewMode, reloadGrid, grid } = this.props;
+    const { pagination } = grid || {};
+    const { maxItems } = pagination || {};
+    const isTilesPreviewListMode = isTilesContent && isPreviewList(urlParams.viewMode || viewMode);
+
+    if (isTilesPreviewListMode && maxItems) {
+      reloadGrid({ pagination: { page: 1, maxItems, skipCount: 0 } });
+
+      return;
+    }
+
+    reloadGrid();
   };
 
   render() {
@@ -178,6 +200,7 @@ class PreviewListView extends React.Component {
       onEditJournal,
       hasBtnEdit,
 
+      selectedRecordId,
       onClickOpenMenu,
       journalConfig
     } = this.props;
@@ -204,6 +227,7 @@ class PreviewListView extends React.Component {
             {...this.props}
             hideActionsBtn
             hideSettingsJournalBtn
+            reloadGrid={this.reloadGrid}
             hasBtnEdit={() => hasBtnEdit(configRec)}
             onEditJournal={() => onEditJournal(configRec)}
             onClickOpenMenu={e => onClickOpenMenu(e, journalConfig)}
@@ -222,6 +246,7 @@ class PreviewListView extends React.Component {
           maxHeight={maxHeight}
           minHeight={minHeight}
           isActivePage={isActivePage}
+          selectedRecordId={selectedRecordId}
         />
 
         {!isViewNewJournal && (
