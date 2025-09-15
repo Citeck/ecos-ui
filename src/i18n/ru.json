@@ -2929,6 +2929,8 @@
   "lexical.plugins.toolbar.color-label": "Форматирование цвета текста",
   "lexical.plugins.toolbar.insert-link": "Вставить ссылку",
   "lexical.plugins.toolbar.insert-code": "Вставить блок кода",
+  "lexical.plugins.toolbar.ai-assistant": "AI Ассистент",
+  "lexical.plugins.toolbar.ai-assistant-label": "Открыть AI ассистента для редактирования текста",
   "lexical.plugins.toolbar.format.bold": "Жирный",
   "lexical.plugins.toolbar.format.bold-label": "Форматирование текста как жирного. Быстрая клавиша",
   "lexical.plugins.toolbar.format.italic": "Курсив",

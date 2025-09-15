@@ -6,7 +6,7 @@ import uuidv4 from 'uuid/v4';
 
 import ModelEditor from '../ModelEditor';
 
-import { aiAssistantContext, CONTEXT_TYPES, aiAssistantService } from '@/components/AIAssistant';
+import { editorContextService, CONTEXT_TYPES, aiAssistantService } from '@/components/AIAssistant';
 import BPMNModeler from '@/components/ModelEditor/BPMNModeler';
 import { SourcesId } from '@/constants';
 import {
@@ -53,15 +53,15 @@ class BPMNEditorPage extends ModelEditor {
   componentWillUnmount() {
     super.componentWillUnmount && super.componentWillUnmount();
 
-    aiAssistantContext.clearContext();
+    editorContextService.clearContext();
   }
 
   updateAIAssistantContext = () => {
     const processRef = this.recordRef || '';
     const ecosType = this.props.formProps?.formData?.ecosType || '';
 
-    if (!aiAssistantContext.hasContext()) {
-      aiAssistantContext.setContext(
+    if (!editorContextService.hasContext()) {
+      editorContextService.setContext(
         CONTEXT_TYPES.BPMN_EDITOR,
         {
           onSubmit: this.handleAIAssistantSubmit,
@@ -86,7 +86,7 @@ class BPMNEditorPage extends ModelEditor {
     this.getBpmnXml(currentBpmnXml => {
       if (!currentBpmnXml) return;
 
-      aiAssistantContext.updateContextData({
+      editorContextService.updateContextData({
         processRef,
         ecosType,
         currentBpmnXml
@@ -100,7 +100,7 @@ class BPMNEditorPage extends ModelEditor {
 
     this.getBpmnXml(currentBpmnXml => {
       if (currentBpmnXml) {
-        aiAssistantContext.updateContextData({
+        editorContextService.updateContextData({
           processRef,
           ecosType,
           currentBpmnXml

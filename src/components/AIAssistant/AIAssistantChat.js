@@ -6,7 +6,9 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import aiAssistantService from "./AIAssistantService";
-import aiAssistantContext, { CONTEXT_TYPES } from "./AIAssistantContext";
+import editorContextService, { CONTEXT_TYPES } from "./EditorContextService";
+import additionalContextService from "./AdditionalContextService";
+import { AI_ASSISTANT_EVENTS, ADDITIONAL_CONTEXT_TYPES, AI_INTENTS } from "./constants";
 import { Icon } from "../common";
 import Records from "../Records";
 import { getRecordRef, getWorkspaceId } from "@/helpers/urls";
@@ -15,8 +17,9 @@ import { NotificationManager } from "@/services/notifications";
 import DiffViewer from "./DiffViewer";
 import "./style.scss";
 import { SourcesId } from "@/constants/index.js";
+import { EVENTS } from "@/components/widgets/BaseWidget";
 
-const POLLING_INTERVAL = 2000;
+const POLLING_INTERVAL = 3000;
 const DEFAULT_WIDTH = 350;
 const DEFAULT_HEIGHT = 500;
 const MIN_WIDTH = 300;
@@ -29,9 +32,10 @@ const TAB_TYPES = {
   CONTEXTUAL: "contextual"
 };
 
-const ADDITIONAL_CONTEXT_TYPES = {
-  CURRENT_RECORD: "current_record",
-  DOCUMENTS: "documents"
+const EDITOR_CONTEXT_HANDLERS = {
+  GET_CURRENT_TEXT: "getCurrentText",
+  UPDATE_CONTEXT_BEFORE_REQUEST: "updateContextBeforeRequest",
+  UPDATE_LEXICAL_CONTENT: "updateLexicalContent"
 };
 
 const generateUUID = () => {
@@ -42,14 +46,12 @@ const generateUUID = () => {
   });
 };
 
-
-
 const AIAssistantChat = () => {
   const [activeTab, setActiveTab] = useState(TAB_TYPES.UNIVERSAL);
   const [isOpen, setIsOpen] = useState(aiAssistantService.isOpen);
   const [isMinimized, setIsMinimized] = useState(aiAssistantService.isMinimized);
   const [contextType, setContextType] = useState(() => {
-    return aiAssistantContext.getContext();
+    return editorContextService.getContext();
   });
   const [chatSize, setChatSize] = useState({ width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT });
 
@@ -63,10 +65,12 @@ const AIAssistantChat = () => {
 
   // Additional context state
   const [selectedAdditionalContext, setSelectedAdditionalContext] = useState([]);
+  const [selectedTextContext, setSelectedTextContext] = useState(null);
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
   const [additionalContext, setAdditionalContext] = useState({
     records: [],
-    documents: []
+    documents: [],
+    attributes: []
   });
 
   // Autocomplete state
@@ -145,7 +149,7 @@ const AIAssistantChat = () => {
   // Update context when it changes
   useEffect(() => {
     const checkContext = () => {
-      const currentContext = aiAssistantContext.getContext();
+      const currentContext = editorContextService.getContext();
       if (currentContext !== contextType) {
         setContextType(currentContext);
         setContextualMessages([]);
@@ -164,12 +168,12 @@ const AIAssistantChat = () => {
   // Set active tab based on context when chat is opened
   useEffect(() => {
     if (isOpen && !isMinimized) {
-      const currentContext = aiAssistantContext.getContext();
+      const currentContext = editorContextService.getContext();
 
-      if (currentContext) {
-        setActiveTab(TAB_TYPES.CONTEXTUAL);
-      } else {
+      if (!currentContext || (currentContext == CONTEXT_TYPES.UNIVERSAL)) {
         setActiveTab(TAB_TYPES.UNIVERSAL);
+      } else {
+        setActiveTab(TAB_TYPES.CONTEXTUAL);
       }
     }
   }, [isOpen, isMinimized]);
@@ -246,6 +250,105 @@ const AIAssistantChat = () => {
     }
   }, [contextualMessage]);
 
+  // Handle adding context from external components (like Lexical editor)
+  useEffect(() => {
+    const handleAddContext = async (event) => {
+      const { contextType, attribute } = event.detail;
+      const recordRef = event.detail.recordRef ? event.detail.recordRef.split("-alias-")[0] : null;
+
+      // Switch to universal tab
+      setActiveTab(TAB_TYPES.UNIVERSAL);
+
+      if (contextType === ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD && recordRef) {
+        await additionalContextService.handleAddRecordContext(
+          recordRef,
+          additionalContext,
+          setAdditionalContext,
+          selectedAdditionalContext,
+          setSelectedAdditionalContext,
+          setUniversalMessage
+        );
+
+      } else if (contextType === ADDITIONAL_CONTEXT_TYPES.ATTRIBUTES && attribute) {
+        additionalContextService.handleAddAttributeContext(
+          recordRef,
+          attribute,
+          additionalContext,
+          setAdditionalContext,
+          selectedAdditionalContext,
+          setSelectedAdditionalContext,
+          setUniversalMessage
+        );
+      }
+
+      // Focus on textarea
+      setTimeout(() => {
+        if (universalTextareaRef.current) {
+          universalTextareaRef.current.focus();
+          universalTextareaRef.current.setSelectionRange(
+            universalTextareaRef.current.value.length,
+            universalTextareaRef.current.value.length
+          );
+        }
+      }, 50);
+    };
+
+    window.addEventListener(AI_ASSISTANT_EVENTS.ADD_CONTEXT, handleAddContext);
+
+    return () => {
+      window.removeEventListener(AI_ASSISTANT_EVENTS.ADD_CONTEXT, handleAddContext);
+    };
+  }, [isOpen, additionalContext, selectedAdditionalContext]);
+
+  useEffect(() => {
+    const handleAddTextReference = (event) => {
+      const { reference, selectedText } = event.detail;
+
+      setUniversalMessage(prev => {
+        const newRef = `@${reference}`;
+
+        // Check if this reference already exists in the message
+        if (prev.includes(newRef)) {
+          return prev;
+        }
+
+        // If there's already a selected text reference, replace it
+        if (selectedTextContext && selectedTextContext.reference) {
+          const existingRef = `@${selectedTextContext.reference}`;
+          if (prev.includes(existingRef)) {
+            return prev.replace(existingRef, newRef);
+          }
+        }
+
+        // Otherwise, add new reference
+        const newText = prev.trim() + (prev.trim() ? " " : "") + `${newRef} `;
+        return newText;
+      });
+
+      setSelectedTextContext({
+        text: selectedText,
+        reference: reference
+      });
+
+      // Focus on textarea
+      setTimeout(() => {
+        if (universalTextareaRef.current) {
+          universalTextareaRef.current.focus();
+          universalTextareaRef.current.setSelectionRange(
+            universalTextareaRef.current.value.length,
+            universalTextareaRef.current.value.length
+          );
+        }
+      }, 50);
+    };
+
+    window.addEventListener(AI_ASSISTANT_EVENTS.ADD_TEXT_REFERENCE, handleAddTextReference);
+
+    return () => {
+      window.removeEventListener(AI_ASSISTANT_EVENTS.ADD_TEXT_REFERENCE, handleAddTextReference);
+    };
+  }, []);
+
   const clearUniversalConversation = async () => {
     try {
       const response = await fetch(`/gateway/ai/api/assistant/universal/conversation/${conversationId}`, {
@@ -257,8 +360,10 @@ const AIAssistantChat = () => {
         setConversationId(generateUUID()); // Generate new conversation ID
 
         // Clear additional context
-        setAdditionalContext({ records: [], documents: [] });
+        setAdditionalContext({ records: [], documents: [], attributes: [] });
         setSelectedAdditionalContext([]);
+        setSelectedTextContext(null);
+        editorContextService.clearContext();
       }
     } catch (error) {
       console.error("Error clearing conversation:", error);
@@ -270,34 +375,10 @@ const AIAssistantChat = () => {
     try {
       switch (contextType) {
         case ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD:
-          const recordRef = getRecordRef();
-          if (recordRef) {
-            const recordData = await Records.get(recordRef).load({
-              displayName: "?disp",
-              type: "_type?id"
-            });
-
-            return {
-              recordRef,
-              ...recordData
-            };
-          }
-          return null;
+          return await additionalContextService.loadCurrentRecordData();
 
         case ADDITIONAL_CONTEXT_TYPES.DOCUMENTS:
-          const currentRecordRef = getRecordRef();
-          if (currentRecordRef) {
-            const documentsData = await Records.get(currentRecordRef).load('docs:documents[]{.id, _type{.id, .disp}, .disp, _parent?id}');
-
-            return documentsData.map(doc => ({
-              recordRef: doc[".id"],
-              displayName: doc[".disp"],
-              type: doc["_type{.id, .disp}"][".id"],
-              typeDisp: doc["_type{.id, .disp}"][".disp"],
-              parentRef: doc["_parent"]
-            }));
-          }
-          return [];
+          return await additionalContextService.loadDocumentsData();
 
         default:
           return null;
@@ -310,7 +391,6 @@ const AIAssistantChat = () => {
 
   const toggleAdditionalContext = async (contextType, specificRecord = null) => {
     if (contextType === ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD) {
-
       let recordData = specificRecord;
       if (!recordData) {
         recordData = await getAdditionalContext(contextType);
@@ -318,35 +398,14 @@ const AIAssistantChat = () => {
 
       if (!recordData) return;
 
-      const existingRecordIndex = additionalContext.records.findIndex(
-        record => record.recordRef === recordData.recordRef
+      additionalContextService.toggleRecordContext(
+        recordData,
+        additionalContext,
+        setAdditionalContext,
+        selectedAdditionalContext,
+        setSelectedAdditionalContext
       );
-
-      if (existingRecordIndex !== -1) {
-        // Remove from context
-        setAdditionalContext(prev => ({
-          ...prev,
-          records: prev.records.filter((_, index) => index !== existingRecordIndex)
-        }));
-
-        // If there are no more records, remove the context type
-        if (additionalContext.records.length === 1) {
-          setSelectedAdditionalContext(prev => prev.filter(c => c !== contextType));
-        }
-      } else {
-        // Add record to context
-        setAdditionalContext(prev => ({
-          ...prev,
-          records: [...prev.records, recordData]
-        }));
-
-        // Add context type if not already selected
-        if (!selectedAdditionalContext.includes(contextType)) {
-          setSelectedAdditionalContext(prev => [...prev, contextType]);
-        }
-      }
     } else if (contextType === ADDITIONAL_CONTEXT_TYPES.DOCUMENTS) {
-
       let documentData = specificRecord;
       if (!documentData && !specificRecord) {
         // This case shouldn't happen for documents as they need to be specific
@@ -355,34 +414,25 @@ const AIAssistantChat = () => {
 
       if (!documentData) return;
 
-      const existingDocumentIndex = additionalContext.documents.findIndex(
-        doc => doc.recordRef === documentData.recordRef
+      additionalContextService.toggleDocumentContext(
+        documentData,
+        additionalContext,
+        setAdditionalContext,
+        selectedAdditionalContext,
+        setSelectedAdditionalContext
       );
-
-      if (existingDocumentIndex !== -1) {
-        // Remove from context
-        setAdditionalContext(prev => ({
-          ...prev,
-          documents: prev.documents.filter((_, index) => index !== existingDocumentIndex)
-        }));
-
-        // If there are no more documents, remove the context type
-        if (additionalContext.documents.length === 1) {
-          setSelectedAdditionalContext(prev => prev.filter(c => c !== contextType));
-        }
-      } else {
-        // Add document to context
-        setAdditionalContext(prev => ({
-          ...prev,
-          documents: [...prev.documents, documentData]
-        }));
-
-        // Add context type if not already selected
-        if (!selectedAdditionalContext.includes(contextType)) {
-          setSelectedAdditionalContext(prev => [...prev, contextType]);
-        }
-      }
     }
+  };
+
+  const removeSelectedTextContext = () => {
+    setSelectedTextContext(null);
+    // Also remove the reference from the message
+    setUniversalMessage(prev => {
+      if (selectedTextContext && selectedTextContext.reference) {
+        return prev.replace(`@${selectedTextContext.reference} `, '').trim();
+      }
+      return prev;
+    });
   };
 
   const handleClose = () => {
@@ -409,6 +459,7 @@ const AIAssistantChat = () => {
     setContextualIsLoading(false);
     setUniversalIsLoading(false);
     setIsPolling(false);
+    setSelectedTextContext(null);
     aiAssistantService.closeChat();
   };
 
@@ -442,8 +493,10 @@ const AIAssistantChat = () => {
     try {
       // Prepare context with automatic parentRef inclusion
       const contextToSend = {
-        records: [...additionalContext.records],
-        documents: [...additionalContext.documents]
+        records: additionalContext.records ? Object.values(additionalContext.records) : [],
+        documents: additionalContext.documents ? Object.values(additionalContext.documents) : [],
+        attributes: additionalContext.attributes ? Object.values(additionalContext.attributes) : [],
+        selectedTexts: additionalContext.selectedTexts || []
       };
 
       // If documents are selected but no records explicitly added,
@@ -475,12 +528,41 @@ const AIAssistantChat = () => {
         }
       }
 
+      const contextData = editorContextService.getContextData();
+      const forceIntent = contextData.forceIntent || null;
+
+      const selectionData = { // exists data
+        records: contextToSend.records || [],
+        attributes: contextToSend.attributes || [],
+        documents: contextToSend.documents || []
+      };
+      const contentData = {}; // real-time data
+
+      // Add currentText for text editing context
+      if (forceIntent === AI_INTENTS.TEXT_EDITING) {
+        const getCurrentTextHandler = editorContextService.getHandler(EDITOR_CONTEXT_HANDLERS.GET_CURRENT_TEXT);
+        if (typeof getCurrentTextHandler === "function") {
+          const currentText = getCurrentTextHandler();
+          if (currentText) {
+            contentData.currentText = currentText;
+          }
+        }
+
+        // Add selected text to content data
+        const contextData = editorContextService.getContextData();
+        if (contextData.selectionContext) {
+          contentData.selectedText = contextData.selectionContext.html;
+        }
+      }
+
       const requestData = {
         message: messageToProcess,
         conversationId: conversationId,
         context: {
-          ...contextToSend,
-          workspace: getWorkspaceId()
+          workspace: getWorkspaceId(),
+          selection: selectionData,
+          content: contentData,
+          forceIntent: forceIntent
         }
       };
 
@@ -745,9 +827,9 @@ const AIAssistantChat = () => {
           const filteredMessages = prevMessages.filter(msg => !msg.isProcessing);
 
           const responseData = data.result;
-          const isEmailMessage = typeof responseData.message === 'object' && responseData.message?.type === 'email';
-          const isTextDiffMessage = typeof responseData.message === 'object' && responseData.message?.type === 'text_diff';
-          
+          const isEmailMessage = typeof responseData.message === "object" && responseData.message?.type === "email";
+          const isTextDiffMessage = typeof responseData.message === "object" && responseData.message?.type === "text_editing";
+
           let messageText;
           let aiMessage;
 
@@ -762,6 +844,7 @@ const AIAssistantChat = () => {
             };
           } else if (isTextDiffMessage) {
             messageText = responseData.message.description || "Предлагаемые изменения:";
+
             aiMessage = {
               text: messageText,
               sender: "ai",
@@ -859,12 +942,12 @@ const AIAssistantChat = () => {
     try {
       // Existing contextual logic
       if (contextType === CONTEXT_TYPES.BPMN_EDITOR) {
-        const contextHandler = aiAssistantContext.getHandler("updateContextBeforeRequest");
+        const contextHandler = editorContextService.getHandler(EDITOR_CONTEXT_HANDLERS.UPDATE_CONTEXT_BEFORE_REQUEST);
         if (typeof contextHandler === "function") {
           await new Promise(resolve => contextHandler(resolve));
         }
 
-        const contextData = aiAssistantContext.getContextData();
+        const contextData = editorContextService.getContextData();
         const { processRef, ecosType, currentBpmnXml } = contextData;
 
         const requestData = {
@@ -1107,7 +1190,7 @@ const AIAssistantChat = () => {
   };
 
   const getContextTitle = () => {
-    const context = aiAssistantContext.getContext(); // Use real-time context
+    const context = editorContextService.getContext(); // Use real-time context
     switch (context) {
       case CONTEXT_TYPES.BPMN_EDITOR:
         return "BPMN Редактор";
@@ -1117,7 +1200,7 @@ const AIAssistantChat = () => {
   };
 
   const getContextHint = () => {
-    const context = aiAssistantContext.getContext(); // Use real-time context
+    const context = editorContextService.getContext(); // Use real-time context
     switch (context) {
       case CONTEXT_TYPES.BPMN_EDITOR:
         return "Например: \"Создай процесс обработки заявки на отпуск, который включает этапы согласования с руководителем и отделом кадров\". Чем детальнее описание, тем точнее будет результат.";
@@ -1211,7 +1294,7 @@ const AIAssistantChat = () => {
                     )
                   }}
                 >
-                  {msg.messageData.body.replace(/\n/g, '  \n')}
+                  {msg.messageData.body.replace(/\n/g, "  \n")}
                 </Markdown>
               </div>
               {msg.messageData.to && (
@@ -1235,10 +1318,9 @@ const AIAssistantChat = () => {
                 </Markdown>
               </div>
               <DiffViewer
-                original={msg.messageData.originalText || ""}
-                modified={msg.messageData.modifiedText || ""}
-                originalLabel={msg.messageData.documentName ? `${msg.messageData.documentName} (исходный)` : "Исходный текст"}
-                modifiedLabel={msg.messageData.documentName ? `${msg.messageData.documentName} (отредактированный)` : "Отредактированный текст"}
+                original={msg.messageData.originalPlainText || ""}
+                modified={msg.messageData.modifiedPlainText || ""}
+                attributeName={msg.messageData.attributeName}
                 onApplyChanges={() => handleApplyTextChanges(msg.messageData)}
                 isApplying={isApplyingTextChanges}
               />
@@ -1294,10 +1376,26 @@ const AIAssistantChat = () => {
   };
 
   const renderContextTags = () => {
-    if (selectedAdditionalContext.length === 0) return null;
+    if (selectedAdditionalContext.length === 0 && !selectedTextContext) return null;
 
     return (
       <div className="ai-assistant-chat__context-tags">
+        {selectedTextContext && (
+          <div className="ai-assistant-chat__context-tag ai-assistant-chat__context-tag--selected-text">
+            <span>
+              Текст: "{selectedTextContext.text.length > 50
+                ? selectedTextContext.text.substring(0, 50) + '...'
+                : selectedTextContext.text}"
+            </span>
+            <button
+              className="ai-assistant-chat__context-tag-remove"
+              onClick={removeSelectedTextContext}
+              title="Удалить текст из контекста"
+            >
+              <Icon className="fa fa-times" />
+            </button>
+          </div>
+        )}
         {selectedAdditionalContext.includes(ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD) &&
           additionalContext.records.map((record, index) => (
             <div key={`${ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD}-${index}`} className="ai-assistant-chat__context-tag">
@@ -1314,12 +1412,28 @@ const AIAssistantChat = () => {
         }
         {selectedAdditionalContext.includes(ADDITIONAL_CONTEXT_TYPES.DOCUMENTS) &&
           additionalContext.documents.map((document, index) => (
-            <div key={`${ADDITIONAL_CONTEXT_TYPES.DOCUMENTS}-${index}`} className="ai-assistant-chat__context-tag ai-assistant-chat__context-tag--document">
+            <div key={`${ADDITIONAL_CONTEXT_TYPES.DOCUMENTS}-${index}`}
+                 className="ai-assistant-chat__context-tag ai-assistant-chat__context-tag--document">
               <span>{document.displayName || document.recordRef || "Документ"}</span>
               <button
                 className="ai-assistant-chat__context-tag-remove"
                 onClick={() => toggleAdditionalContext(ADDITIONAL_CONTEXT_TYPES.DOCUMENTS, document)}
                 title="Удалить документ из контекста"
+              >
+                <Icon className="fa fa-times" />
+              </button>
+            </div>
+          ))
+        }
+        {selectedAdditionalContext.includes(ADDITIONAL_CONTEXT_TYPES.ATTRIBUTES) &&
+          additionalContext.attributes.map((attribute, index) => (
+            <div key={`${ADDITIONAL_CONTEXT_TYPES.ATTRIBUTES}-${index}`}
+                 className="ai-assistant-chat__context-tag ai-assistant-chat__context-tag--attribute">
+              <span>{"Атрибут: " + attribute.displayName || attribute.attribute}</span>
+              <button
+                className="ai-assistant-chat__context-tag-remove"
+                onClick={() => toggleAdditionalContext(ADDITIONAL_CONTEXT_TYPES.ATTRIBUTES, attribute)}
+                title="Удалить атрибут из контекста"
               >
                 <Icon className="fa fa-times" />
               </button>
@@ -1454,6 +1568,10 @@ const AIAssistantChat = () => {
       // Handle document
       contextLabel = recordData.displayName || recordData.recordRef;
       contextDataToAdd = recordData;
+    } else if (contextType === ADDITIONAL_CONTEXT_TYPES.ATTRIBUTES && recordData) {
+      // Handle attribute
+      contextLabel = recordData.displayName || recordData.attribute;
+      contextDataToAdd = recordData;
     }
 
     const currentMessage = universalMessage;
@@ -1496,6 +1614,12 @@ const AIAssistantChat = () => {
       } else if (contextType === ADDITIONAL_CONTEXT_TYPES.DOCUMENTS) {
         // Add specific document to context
         toggleAdditionalContext(contextType, contextDataToAdd);
+      } else if (contextType === ADDITIONAL_CONTEXT_TYPES.ATTRIBUTES) {
+        // Add attribute to context
+        setAdditionalContext(prev => ({
+          ...prev,
+          attributes: [...prev.attributes, contextDataToAdd]
+        }));
       } else {
         toggleAdditionalContext(contextType);
       }
@@ -1677,28 +1801,31 @@ const AIAssistantChat = () => {
 
     try {
       const recordRef = diffData.recordRef;
-      const attributeName = diffData.attribute;
+      const attribute = diffData.attribute;
       const newText = diffData.modifiedText;
 
-      // Use Records API to update the document attribute
-      await Records.get(recordRef).att(attributeName, newText).save();
+      if (!newText) {
+        throw new Error("Нет данных для применения изменений");
+      }
 
-      NotificationManager.success("Изменения успешно применены", "Редактирование текста");
-      
-      // Optionally refresh the document in context if it's currently loaded
-      const contextDocuments = additionalContext.documents;
-      const updatedDocuments = contextDocuments.map(doc => {
-        if (doc.recordRef === recordRef) {
-          return { ...doc, [attributeName]: newText };
+      // Check if we are in text editor context (Lexical)
+      const contextData = editorContextService.getContextData();
+      if (contextData.forceIntent === AI_INTENTS.TEXT_EDITING) {
+        const updateLexicalContentHandler = editorContextService.getHandler(EDITOR_CONTEXT_HANDLERS.UPDATE_LEXICAL_CONTENT);
+
+        // Verify that this is the same record and attribute
+        if (contextData.recordRef === recordRef && contextData.attribute === attribute && updateLexicalContentHandler) {
+          // Update Lexical editor directly
+          updateLexicalContentHandler(newText);
+          NotificationManager.success("Изменения успешно применены в редакторе", "Редактирование текста");
+        } else {
+          // Fallback to Records API if context doesn't match
+          await applyChangesViaRecordsAPI(recordRef, attribute, newText);
         }
-        return doc;
-      });
-      
-      setAdditionalContext(prev => ({
-        ...prev,
-        documents: updatedDocuments
-      }));
-
+      } else {
+        // Use Records API for non-Lexical contexts
+        await applyChangesViaRecordsAPI(recordRef, attribute, newText);
+      }
     } catch (error) {
       console.error("Error applying text changes:", error);
       NotificationManager.error(
@@ -1708,6 +1835,24 @@ const AIAssistantChat = () => {
     } finally {
       setIsApplyingTextChanges(false);
     }
+  };
+
+  // Helper function to apply changes via Records API
+  const applyChangesViaRecordsAPI = async (recordRef, attribute, newText) => {
+    const recordId = recordRef.substring(recordRef.indexOf("@") + 1);
+    if (!recordId) {
+      // mutate only existing records
+      NotificationManager.error("Редактор не найден или документ не сохранен", "Ошибка применения изменений");
+      return;
+    }
+
+    const recordToSave = Records.get(recordRef);
+    recordToSave.att(attribute, newText);
+    await recordToSave.save();
+
+    recordToSave.events.emit(EVENTS.ATTS_UPDATED);
+
+    NotificationManager.success("Изменения успешно применены", "Редактирование текста");
   };
 
   // Search records by _disp attribute
@@ -1774,8 +1919,8 @@ const AIAssistantChat = () => {
 
   if (!isOpen) return null;
 
-  const currentRealTimeContext = aiAssistantContext.getContext();
-  const hasContext = !!currentRealTimeContext;
+  const currentRealTimeContext = editorContextService.getContext();
+  const hasContext = !!currentRealTimeContext && currentRealTimeContext !== CONTEXT_TYPES.UNIVERSAL;
   const currentMessages = activeTab === TAB_TYPES.UNIVERSAL ? universalMessages : contextualMessages;
   const currentMessage = activeTab === TAB_TYPES.UNIVERSAL ? universalMessage : contextualMessage;
   const currentIsLoading = activeTab === TAB_TYPES.UNIVERSAL ? universalIsLoading : contextualIsLoading;

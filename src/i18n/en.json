@@ -2930,6 +2930,8 @@
   "lexical.plugins.toolbar.color-label": "Formatting text color",
   "lexical.plugins.toolbar.insert-link": "Insert link",
   "lexical.plugins.toolbar.insert-code": "Insert code block",
+  "lexical.plugins.toolbar.ai-assistant": "AI Assistant",
+  "lexical.plugins.toolbar.ai-assistant-label": "Open AI assistant for text editing",
   "lexical.plugins.toolbar.format.bold": "Bold",
   "lexical.plugins.toolbar.format.bold-label": "Format text as bold. Shortcut",
   "lexical.plugins.toolbar.format.italic": "Italic",

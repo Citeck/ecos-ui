@@ -15,7 +15,7 @@ type EditorContentProps = {
   uploadFilesInComment: (data: UploadFilesInCommentProps) => void;
 } & Omit<LexicalEditorProps, 'onUpload'>;
 
-function EditorContent({ htmlString, readonly = false, uploadFilesInComment, withoutTimeout, ...props }: EditorContentProps): JSX.Element {
+function EditorContent({ htmlString, readonly = false, uploadFilesInComment, withoutTimeout, attribute, recordRef, ...props }: EditorContentProps): JSX.Element {
   const { UploadDocsService } = props;
   useSyncWithInputHtml(htmlString, { timeoutMs: withoutTimeout ? 0 : 800 });
 
@@ -57,7 +57,7 @@ function EditorContent({ htmlString, readonly = false, uploadFilesInComment, wit
   return (
     <div ref={editorWrapperRef} className={classNames('citeck-lexical-editor', { editable: !readonly })}>
       <div className="editor-shell">
-        <Editor {...props} readonly={readonly} onUpload={onImageUpload} />
+        <Editor {...props} readonly={readonly} onUpload={onImageUpload} attribute={attribute} recordRef={recordRef} />
       </div>
     </div>
   );

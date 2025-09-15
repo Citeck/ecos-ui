@@ -1,4 +1,4 @@
-import aiAssistantContext from "./AIAssistantContext";
+import editorContextService from "./EditorContextService";
 
 const BPMN_EDITOR_URL_PATTERN = /\/bpmn-editor/;
 
@@ -53,6 +53,19 @@ class AIAssistantService {
     return this.isOpen;
   }
 
+  openChat() {
+    // Only opens the chat, doesn't toggle
+    if (!this.isOpen) {
+      this.isOpen = true;
+      this.isMinimized = false;
+      this.notifyListeners();
+    } else if (this.isMinimized) {
+      this.isMinimized = false;
+      this.notifyListeners();
+    }
+    return this.isOpen;
+  }
+
   closeChat() {
     if (this.isOpen) {
       this.isOpen = false;
@@ -71,8 +84,8 @@ class AIAssistantService {
   }
 
   handleSubmit(data) {
-    if (aiAssistantContext.hasContext()) {
-      return aiAssistantContext.callHandler("onSubmit", data);
+    if (editorContextService.hasContext()) {
+      return editorContextService.callHandler("onSubmit", data);
     }
     return null;
   }

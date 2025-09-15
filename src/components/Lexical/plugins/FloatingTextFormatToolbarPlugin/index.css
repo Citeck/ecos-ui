@@ -134,8 +134,38 @@
   margin: 0 4px;
 }
 
+/* AI Assistant Selection Button */
+.floating-text-format-popup button.ai-assistant-selection {
+  border: 0;
+  display: flex;
+  background: none;
+  border-radius: 10px;
+  padding: 8px;
+  cursor: pointer;
+  vertical-align: middle;
+  margin-left: 4px;
+}
+
+.floating-text-format-popup button.ai-assistant-selection:hover {
+  background-color: #e3f2fd;
+}
+
+.floating-text-format-popup button.ai-assistant-selection svg {
+  width: 18px;
+  height: 18px;
+  opacity: 0.7;
+}
+
+.floating-text-format-popup button.ai-assistant-selection:hover svg {
+  opacity: 1;
+}
+
 @media (max-width: 1024px) {
   .floating-text-format-popup button.insert-comment {
+    display: none;
+  }
+
+  .floating-text-format-popup button.ai-assistant-selection {
     display: none;
   }
 }
