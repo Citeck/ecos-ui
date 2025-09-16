@@ -11,8 +11,11 @@ import UserLocalSettingsService, { DashletProps } from '../../services/userLocal
 import Records from '../Records/Records';
 
 export const EVENTS = {
+  RECORD_ACTION_COMPLETED: 'RECORD_ACTION_COMPLETED',
+  UPDATE_COMMENTS: 'UPDATE_COMMENTS',
+  UPDATE_ASSOCIATIONS: 'UPDATE_ASSOCIATIONS',
   UPDATE_TASKS_WIDGETS: 'UPDATE_TASKS_WIDGETS',
-  ASSOC_UPDATE: 'ASSOC_UPDATE'
+  ASSOC_UPDATE: 'ASSOC_UPDATE',
 };
 
 class BaseWidget extends React.Component {
@@ -35,7 +38,7 @@ class BaseWidget extends React.Component {
       contentHeight: null,
       width: MIN_WIDTH_DASHLET_SMALL,
       previousHeight: 0,
-      userHeight: UserLocalSettingsService.getDashletHeight(lsId)
+      userHeight: UserLocalSettingsService.getDashletHeight(lsId),
     };
     this._updateWatcher = this.instanceRecord.watch(this._observableFieldsToUpdate, this.reload);
   }
@@ -180,13 +183,13 @@ class BaseWidget extends React.Component {
    *
    * @param ref
    */
-  setDashletRef = ref => {
+  setDashletRef = (ref) => {
     if (ref) {
       this._dashletRef = ref;
     }
   };
 
-  setContentHeight = contentHeight => {
+  setContentHeight = (contentHeight) => {
     let contentHeightState = this.state.contentHeight;
 
     if (contentHeight < 0) {
@@ -202,7 +205,7 @@ class BaseWidget extends React.Component {
     }
   };
 
-  setFitHeights = fitHeights => {
+  setFitHeights = (fitHeights) => {
     const { fixedHeight } = this.props;
     const fitHeightsState = this.state.fitHeights;
 
@@ -233,13 +236,13 @@ class BaseWidget extends React.Component {
     this.setState(
       {
         runUpdate: true,
-        previousHeight: this.dashletHeight - this.otherHeight
+        previousHeight: this.dashletHeight - this.otherHeight,
       },
-      () => this.setState({ runUpdate: false })
+      () => this.setState({ runUpdate: false }),
     );
   }, 0);
 
-  handleChangeHeight = userHeight => {
+  handleChangeHeight = (userHeight) => {
     userHeight = userHeight > 0 ? userHeight : 0;
 
     if (this.state.userHeight === userHeight) {
@@ -260,7 +263,7 @@ class BaseWidget extends React.Component {
     this.forceUpdate();
   };
 
-  handleResize = width => {
+  handleResize = (width) => {
     !!width && this.setState({ width });
   };
 

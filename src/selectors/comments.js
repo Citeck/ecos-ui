@@ -1,12 +1,12 @@
 import get from 'lodash/get';
 import { initialState } from '../reducers/comments';
 
-export const selectAllComments = (state, nodeRef) => {
-  return get(state, ['comments', nodeRef, 'comments']) || [];
+export const selectAllComments = (state, recordRef) => {
+  return get(state, ['comments', recordRef, 'comments']) || [];
 };
 
-export const selectStateByRecordRef = (state, nodeRef) => {
-  const ownState = state.comments[nodeRef] || { ...initialState };
+export const selectStateByRecordRef = (state, recordRef) => {
+  const ownState = state.comments[recordRef] || { ...initialState };
 
   return {
     fetchIsLoading: ownState.fetchIsLoading,
@@ -16,6 +16,6 @@ export const selectStateByRecordRef = (state, nodeRef) => {
     errorMessage: ownState.errorMessage,
     comments: ownState.comments,
     actionFailed: ownState.actionFailed,
-    isUploadingFile: ownState.isUploadingFile
+    isUploadingFile: ownState.isUploadingFile,
   };
 };
