@@ -16,6 +16,12 @@ export const AssocLink = ({ className, label, asText, link, extraData, paramsLin
     onClickHandler = e => {
       const workspaceId = get(paramsLink, 'workspaceId');
 
+      const baseParamsLink = {
+        openNewTab: true,
+        reopen: true,
+        closeActiveTab: false
+      };
+
       if (get(paramsLink, 'workspaceId')) {
         const url = getLinkWithWs(link, paramsLink.workspaceId);
 
@@ -28,9 +34,7 @@ export const AssocLink = ({ className, label, asText, link, extraData, paramsLin
           const needUpdateTabs = !!workspaceId && workspaceId !== getWorkspaceId();
 
           const params = {
-            openNewTab: true,
-            reopen: true,
-            closeActiveTab: false,
+            ...baseParamsLink,
             needUpdateTabs
           };
 
@@ -49,7 +53,7 @@ export const AssocLink = ({ className, label, asText, link, extraData, paramsLin
       }
 
       e.preventDefault();
-      PageService.changeUrlLink(link, { openInBackground: !paramsLink.openNewBrowserTab, ...paramsLink });
+      PageService.changeUrlLink(link, { ...baseParamsLink, ...paramsLink });
     };
   }
 
