@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 
-import { getComments } from '../../../actions/comments';
+import { getComments, updateComments } from '../../../actions/comments';
 import { MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
 import { BASE_HEIGHT } from '../../../constants/comments';
 import DAction from '../../../services/DashletActionService';
@@ -36,10 +36,11 @@ class Comments extends BaseWidget {
     onSave: PropTypes.func,
     onDelete: PropTypes.func,
     getComments: PropTypes.func,
+    updateComments: PropTypes.func,
     createComment: PropTypes.func,
     updateComment: PropTypes.func,
     deleteComment: PropTypes.func,
-    setErrorMessage: PropTypes.func
+    setErrorMessage: PropTypes.func,
   };
 
   static defaultProps = {
@@ -55,10 +56,11 @@ class Comments extends BaseWidget {
     onSave: () => {},
     onDelete: () => {},
     getComments: () => {},
+    updateComments: () => {},
     createComment: () => {},
     updateComment: () => {},
     deleteComment: () => {},
-    setErrorMessage: () => {}
+    setErrorMessage: () => {},
   };
 
   constructor(props) {
@@ -78,19 +80,31 @@ class Comments extends BaseWidget {
       rawComment: '',
       isOpenLinkDialog: false,
       linkUrl: '',
-      linkText: ''
+      linkText: '',
     };
 
-    this.instanceRecord.events.on(EVENTS.UPDATE_TASKS_WIDGETS, this.handleReloadData);
+    this.instanceRecord.events.on(EVENTS.UPDATE_TASKS_WIDGETS, this.fetchData);
+    this.instanceRecord.events.on(EVENTS.UPDATE_COMMENTS, this.fetchData);
+    this.instanceRecord.events.on(EVENTS.RECORD_ACTION_COMPLETED, this.fetchDataAfterAction);
   }
 
   componentDidMount() {
     super.componentDidMount();
 
+    this.fetchData();
+  }
+
+  fetchDataAfterAction = () => {
+    const { updateComments } = this.props;
+
+    updateComments(this.props.comments || []);
+  };
+
+  fetchData = () => {
     const { getComments } = this.props;
 
     getComments();
-  }
+  };
 
   get countComments() {
     const { totalCount } = this.props;
@@ -101,8 +115,8 @@ class Comments extends BaseWidget {
 
     return t(
       `${totalCount} ${t(
-        num2str(totalCount, ['comments-widget.comment-form1', 'comments-widget.comment-form2', 'comments-widget.comment-form3'])
-      )}`
+        num2str(totalCount, ['comments-widget.comment-form1', 'comments-widget.comment-form2', 'comments-widget.comment-form3']),
+      )}`,
     );
   }
 
@@ -125,13 +139,13 @@ class Comments extends BaseWidget {
 
   handleShowEditor = () => {
     this.setState({
-      isEdit: true
+      isEdit: true,
     });
   };
 
   handleCloseEditor = () => {
     this.setState({
-      isEdit: false
+      isEdit: false,
     });
   };
 
@@ -177,7 +191,7 @@ class Comments extends BaseWidget {
 
     const renderCommentList = () => (
       <div className="ecos-comments__list" ref={this.contentRef}>
-        {comments.map(comment => (
+        {comments.map((comment) => (
           <Comment
             key={comment.id}
             comment={comment}
@@ -206,8 +220,8 @@ class Comments extends BaseWidget {
     const { dragHandleProps, canDragging, fetchIsLoading } = this.props;
     const actions = {
       [DAction.Actions.RELOAD]: {
-        onClick: this.handleReloadData
-      }
+        onClick: this.handleReloadData,
+      },
     };
 
     return (
@@ -239,14 +253,12 @@ class Comments extends BaseWidget {
 const mapStateToProps = (state, ownProps) => ({
   ...selectStateByRecordRef(state, ownProps.record),
   isMobile: state.view.isMobile,
-  userName: state.user.userName
+  userName: state.user.userName,
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  getComments: () => dispatch(getComments(ownProps.record))
+  getComments: () => dispatch(getComments(ownProps.record)),
+  updateComments: (prevComments) => dispatch(updateComments({ record: ownProps.record, prevComments })),
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Comments);
+export default connect(mapStateToProps, mapDispatchToProps)(Comments);

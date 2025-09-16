@@ -3,6 +3,7 @@ import { createAction } from 'redux-actions';
 const prefix = 'comments/';
 
 export const getComments = createAction(prefix + 'GET_COMMENTS');
+export const updateComments = createAction(prefix + 'UPDATE_COMMENTS');
 export const setComments = createAction(prefix + 'SET_COMMENTS');
 
 export const createCommentRequest = createAction(prefix + 'CREATE_COMMENT_REQUEST');

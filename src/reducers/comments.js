@@ -15,7 +15,7 @@ import {
   createCommentRequest,
   deleteCommentRequest,
   deleteCommentSuccess,
-  setActionFailedStatus
+  setActionFailedStatus,
 } from '../actions/comments';
 
 export const initialState = {
@@ -25,7 +25,7 @@ export const initialState = {
   fetchIsLoading: false,
   sendingInProcess: false,
   actionFailed: false,
-  errorMessage: ''
+  errorMessage: '',
 };
 
 Object.freeze(initialState);
@@ -41,111 +41,111 @@ export default handleActions(
 
       return {
         ...state,
-        [action.payload]: { ...ownState }
+        [action.payload]: { ...ownState },
       };
     },
     [setComments]: (state, action) => ({
       ...state,
-      [action.payload.nodeRef]: {
+      [action.payload.recordRef]: {
         comments: action.payload.comments,
         hasMore: action.payload.hasMore,
-        totalCount: action.payload.totalCount
-      }
+        totalCount: action.payload.totalCount,
+      },
     }),
-    [createCommentRequest]: state => ({
-      ...state
+    [createCommentRequest]: (state) => ({
+      ...state,
     }),
     [createCommentSuccess]: (state, action) => ({
       ...state,
-      [action.payload.nodeRef]: {
-        ...state[action.payload.nodeRef],
+      [action.payload.recordRef]: {
+        ...state[action.payload.recordRef],
         comments: [...action.payload.comments],
-        totalCount: state[action.payload.nodeRef].totalCount + 1,
-        errorMessage: ''
-      }
+        totalCount: state[action.payload.recordRef].totalCount + 1,
+        errorMessage: '',
+      },
     }),
-    [deleteCommentRequest]: state => ({
-      ...state
+    [deleteCommentRequest]: (state) => ({
+      ...state,
     }),
     [deleteCommentSuccess]: (state, action) => ({
       ...state,
-      [action.payload.nodeRef]: {
-        ...state[action.payload.nodeRef],
+      [action.payload.recordRef]: {
+        ...state[action.payload.recordRef],
         comments: [...action.payload.comments],
-        totalCount: state[action.payload.nodeRef].totalCount - 1,
-        errorMessage: ''
-      }
+        totalCount: state[action.payload.recordRef].totalCount - 1,
+        errorMessage: '',
+      },
     }),
     [setError]: (state, action) => ({
       ...state,
-      [action.payload.nodeRef]: {
-        ...state[action.payload.nodeRef],
+      [action.payload.recordRef]: {
+        ...state[action.payload.recordRef],
         errorMessage: action.payload.message,
-        sendingInProcess: false
-      }
+        sendingInProcess: false,
+      },
     }),
     [uploadFilesInComment]: (state, action) => ({
       ...state,
       [action.payload.record]: {
         ...state[action.payload.record],
-        isUploadingFile: true
-      }
+        isUploadingFile: true,
+      },
     }),
     [uploadFilesFinally]: (state, { payload }) => ({
       ...state,
       [payload]: {
         ...state[payload],
-        isUploadingFile: false
-      }
+        isUploadingFile: false,
+      },
     }),
-    [updateCommentRequest]: state => ({
-      ...state
+    [updateCommentRequest]: (state) => ({
+      ...state,
     }),
     [updateCommentSuccess]: (state, action) => ({
       ...state,
-      [action.payload.nodeRef]: {
-        ...state[action.payload.nodeRef],
+      [action.payload.recordRef]: {
+        ...state[action.payload.recordRef],
         comments: [...action.payload.comments],
-        errorMessage: ''
-      }
+        errorMessage: '',
+      },
     }),
     [fetchStart]: (state, action) => ({
       ...state,
       [action.payload]: {
         ...state[action.payload],
         actionFailed: false,
-        fetchIsLoading: true
-      }
+        fetchIsLoading: true,
+      },
     }),
     [fetchEnd]: (state, action) => ({
       ...state,
       [action.payload]: {
         ...state[action.payload],
-        fetchIsLoading: false
-      }
+        fetchIsLoading: false,
+      },
     }),
     [sendingStart]: (state, action) => ({
       ...state,
       [action.payload]: {
         ...state[action.payload],
         actionFailed: false,
-        sendingInProcess: true
-      }
+        sendingInProcess: true,
+      },
     }),
     [sendingEnd]: (state, action) => ({
       ...state,
       [action.payload]: {
         ...state[action.payload],
-        sendingInProcess: false
-      }
+        sendingInProcess: false,
+      },
     }),
     [setActionFailedStatus]: (state, { payload }) => ({
       ...state,
-      [payload.nodeRef]: {
-        ...state[payload.nodeRef],
-        actionFailed: payload.status
-      }
-    })
+      [payload.recordRef]: {
+        ...state[payload.recordRef],
+        actionFailed: payload.status,
+      },
+    }),
   },
-  {}
+  {},
 );
