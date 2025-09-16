@@ -675,6 +675,7 @@ class Settings extends Component {
 
     checkUpdatedSettings({
       isForAllUsers: isEmpty(dashboardId) ? isForAllUsers : true,
+      isCustomDashboard: this.isCustomDashboard,
       dashboardKey
     });
   };
@@ -693,7 +694,11 @@ class Settings extends Component {
       mobileTabs
     } = this.state;
     const userName = isForAllUsers ? null : identification.user || userData.userName;
-    const newIdentification = { user: userName, key: dashboardKey, id: checkResultId };
+    const newIdentification = { key: dashboardKey, id: checkResultId };
+
+    if (!this.isCustomDashboard) {
+      newIdentification.user = userName;
+    }
 
     saveSettings({
       newIdentification,
