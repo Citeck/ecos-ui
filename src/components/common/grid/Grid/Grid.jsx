@@ -1482,9 +1482,10 @@ class Grid extends Component {
 
         {scrollable ? this.renderScrollableGrid() : this.renderGrid()}
 
-        {isViewNewJournal && !hasFooter && !!data && !!data.length && (
+        {/* Cause: overrides checkboxes in Safari (ECOSUI-3299) */}
+        {/*{isViewNewJournal && !hasFooter && !!data && !!data.length && (
           <div style={{ height: cssNum(maxHeight) }} className="ecos-grid__border" />
-        )}
+        )}*/}
 
         {updatedColumn && (
           <Tooltip
