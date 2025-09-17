@@ -119,7 +119,7 @@ class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebar
       if (this.props.isOpen) {
         clearTimeout(this.timeoutId);
 
-        this.setState({ visible: true, shouldAnimateOpen: false }, () => {
+        this.setState({ visible: true, shouldAnimateOpen: false, activeTab: TabsId.MY_WORKSPACE }, () => {
           requestAnimationFrame(() => {
             this.setState({ shouldAnimateOpen: true });
           });
