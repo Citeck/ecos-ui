@@ -1,6 +1,5 @@
 import { EventEmitter } from 'events';
 import _ from 'lodash';
-import isString from 'lodash/isString';
 
 import Attribute from './Attribute';
 import RecordWatcher from './RecordWatcher';
@@ -490,12 +489,7 @@ export default class Record {
       }
     }
 
-    if (
-      attributesToSave &&
-      getEnabledWorkspaces() &&
-      !attributesToSave['_workspace'] &&
-      !attributesToSave['_workspace?str']
-    ) {
+    if (attributesToSave && getEnabledWorkspaces() && !attributesToSave['_workspace'] && !attributesToSave['_workspace?str']) {
       attributesToSave['_workspace'] = getWorkspaceId();
     }
 

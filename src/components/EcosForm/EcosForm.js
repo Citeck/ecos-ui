@@ -664,10 +664,10 @@ class EcosForm extends React.Component {
         self.toggleLoader(false);
       }
     },
-    SUBMIT_FORM_TIMEOUT,
+    SUBMIT_FORM_TIMEOUT / 3,
     {
-      leading: true,
-      trailing: false
+      leading: false,
+      trailing: true
     }
   );
 

@@ -108,6 +108,13 @@ Webform.prototype.setAlert = function (type, message) {
     return;
   }
 
+  const alertElements = this.element.querySelectorAll('div.alert.alert-danger');
+  const foundAlertElement = Array.from(alertElements).find(el => el.innerHTML === message);
+
+  if (message && foundAlertElement) {
+    return;
+  }
+
   if (this.alert) {
     try {
       this.removeChild(this.alert);
@@ -115,8 +122,6 @@ Webform.prototype.setAlert = function (type, message) {
     } catch (err) {
       // ignore
     }
-  } else if (message && Array.from(this.element.querySelectorAll('div.alert.alert-danger')).find(el => el.innerHTML === message)) {
-    return;
   }
 
   if (message) {
