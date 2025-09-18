@@ -6,6 +6,8 @@ import { connect } from 'react-redux';
 import { getSidebarWorkspaces, getWorkspaces, joinToWorkspace, leaveOfWorkspace, removeWorkspace } from '@/actions/workspaces';
 import { WorkspaceType } from '@/api/workspaces/types';
 import FormManager from '@/components/EcosForm/FormManager';
+// @ts-ignore
+import Records from '@/components/Records';
 import WorkspacePreview from '@/components/WorkspacePreview';
 import Confirm from '@/components/WorkspaceSidebar/Confirm';
 import Actions from '@/components/common/icons/Actions';
@@ -20,7 +22,7 @@ interface WorkspaceCardProps extends WorkspaceType {
   isSmallView?: boolean;
   hasAnimationOnHover?: boolean;
   className?: string;
-  openWorkspace?: (e: OpenWsEventType) => void;
+  openWorkspace?: (e: OpenWsEventType, wsId?: string, homePageLink?: string) => void;
   customImagePreview?: ReactNode;
   onMouseDown?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
   onJoinCallback?: () => void;
@@ -129,11 +131,25 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
   };
 
   onEditWorkspace = (event: OpenWsEventType) => {
+    const { openWorkspace } = this.props;
+
     event.stopPropagation();
     FormManager.openFormModal({
       record: `${SourcesId.WORKSPACE}@${this.props.id}`,
       saveOnSubmit: true,
-      onSubmit: () => this.refetchWorkspaces()
+      onSubmit: async (record: any) => {
+        if (openWorkspace) {
+          // @ts-ignore
+          const { id: wsId, homePageLink } = await Records.get(record).load({
+            id: 'id',
+            homePageLink: 'homePageLink?str'
+          });
+
+          openWorkspace(event, wsId, homePageLink);
+        }
+
+        this.refetchWorkspaces();
+      }
     });
     this.toggleMenuSettings();
   };
