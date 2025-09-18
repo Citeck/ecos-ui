@@ -215,7 +215,7 @@ class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebar
                 {...workspace}
                 key={idx}
                 onMouseDown={e => this.onMouseDown(e, workspace.id, workspace.homePageLink)}
-                openWorkspace={e => this.openWorkspace(e, workspace.id, workspace.homePageLink)}
+                openWorkspace={(e, id, homeLink) => this.openWorkspace(e, id || workspace.id, homeLink || workspace.homePageLink)}
                 onJoinCallback={toggleIsOpen}
                 hasAnimationOnHover
               />
