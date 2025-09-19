@@ -6,33 +6,24 @@ import React, { lazy, Suspense } from 'react';
 import { connect } from 'react-redux';
 import ReactResizeDetector from 'react-resize-detector';
 
-import { fetchCreateCaseWidgetData, fetchSiteMenuData, fetchUserMenuData } from '../../actions/header';
-import { JournalUrlParams, SourcesId, URL } from '../../constants';
-import { MenuTypes } from '../../constants/menu';
-
-import UserMenu from './UserMenu';
-import WorkspacesSwitcher from './Workspaces';
 import { AIAssistantButton } from '../AIAssistant';
-
-import { selectIsViewNewJournal } from '../../selectors/view';
-import ConfigService, { ALFRESCO_ENABLED } from '../../services/config/ConfigService';
-import Records from '../Records';
 
 import CreateMenu from './CreateMenu';
 import LanguageSwitcher from './LanguageSwitcher';
 import Search from './Search';
 import SiteMenu from './SiteMenu';
+import SlideMenuButton from './SlideMenuButton';
+import UserMenu from './UserMenu';
+import WorkspacesSwitcher from './Workspaces';
+
+import { JournalUrlParams, URL } from '@/constants';
+import { MenuTypes } from '@/constants/menu';
+import { selectIsViewNewJournal } from '@/selectors/view';
+import ConfigService, { ALFRESCO_ENABLED } from '@/services/config/ConfigService';
 
 import './style.scss';
-import SlideMenuButton from './SlideMenuButton';
 
 const MenuSettings = lazy(() => import('../MenuSettings'));
-
-const mapDispatchToProps = dispatch => ({
-  fetchCreateCaseWidgetData: () => dispatch(fetchCreateCaseWidgetData()),
-  fetchUserMenuData: () => dispatch(fetchUserMenuData()),
-  fetchSiteMenuData: () => dispatch(fetchSiteMenuData())
-});
 
 const mapStateToProps = state => ({
   menuId: get(state, 'menu.id'),
@@ -44,51 +35,17 @@ const mapStateToProps = state => ({
 });
 
 class Header extends React.Component {
-  #userMenuUpdateWatcher;
-  #createMenuUpdateWatcher;
-
   state = {
     hasAlfresco: false,
     widthHeader: 0
   };
 
   componentDidMount() {
-    this.props.fetchCreateCaseWidgetData();
-    this.props.fetchUserMenuData();
-    this.props.fetchSiteMenuData();
-
     ConfigService.getValue(ALFRESCO_ENABLED).then(value => {
       this.setState({
         hasAlfresco: value
       });
     });
-  }
-
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    const { menuId } = this.props;
-
-    if (prevProps.menuId && menuId) {
-      let record = menuId.replace(SourcesId.MENU, SourcesId.RESOLVED_MENU);
-
-      if (record.indexOf(SourcesId.RESOLVED_MENU) !== 0) {
-        record = `${SourcesId.RESOLVED_MENU}@${record}`;
-      }
-
-      this.recordMenu = Records.get(record);
-
-      this.#createMenuUpdateWatcher = this.recordMenu.watch('subMenu.create?json', () => {
-        this.props.fetchCreateCaseWidgetData();
-      });
-
-      this.#userMenuUpdateWatcher = this.recordMenu.watch('subMenu.user?json', () => {
-        this.props.fetchUserMenuData();
-      });
-    }
-  }
-
-  componentWillUnmount() {
-    this.recordMenu && this.#createMenuUpdateWatcher && this.recordMenu.unwatch(this.#createMenuUpdateWatcher);
-    this.recordMenu && this.#userMenuUpdateWatcher && this.recordMenu.unwatch(this.#userMenuUpdateWatcher);
   }
 
   get menuWidth() {
@@ -155,4 +112,4 @@ Header.propTypes = {
   legacySiteMenuItems: PropTypes.array
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Header);
+export default connect(mapStateToProps)(Header);

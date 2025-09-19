@@ -24,7 +24,6 @@ import {
   setOriginalConfig,
   setUserMenuItems
 } from '@/actions/menuSettings';
-import { fetchSlideMenuItems } from '@/actions/slideMenu.js';
 import { ConfigTypes, GROUP_EVERYONE, MenuSettings as ms } from '@/constants/menu';
 import MenuConverter from '@/dto/menu';
 import { t } from '@/helpers/util';
@@ -73,14 +72,7 @@ function* runSaveMenuSettings(props, action) {
   const resultGlobal = yield runSaveGlobalSettings(props, action);
 
   if (![resultMenu, resultGlobal].includes(false)) {
-    const id = yield resultMenu.load('id');
-    const prevId = yield select(state => state.menuSettings.editedId);
-
-    if (id !== prevId) {
-      yield put(getMenuConfig());
-      yield put(fetchSlideMenuItems());
-    }
-
+    yield put(getMenuConfig());
     MenuSettingsService.emitter.emit(MenuSettingsService.Events.HIDE);
     NotificationManager.success(t('menu-settings.success.save-all-menu-settings'), t('success'));
   }

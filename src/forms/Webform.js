@@ -100,6 +100,43 @@ Webform.prototype.setElement = function (element) {
   }
 };
 
+Webform.prototype.setAlert = function (type, message) {
+  if (this.options.noAlerts) {
+    if (!message) {
+      this.emit('error', false);
+    }
+    return;
+  }
+
+  const alertElements = this.element.querySelectorAll('div.alert.alert-danger');
+  const foundAlertElement = Array.from(alertElements).find(el => el.innerHTML === message);
+
+  if (message && foundAlertElement) {
+    return;
+  }
+
+  if (this.alert) {
+    try {
+      this.removeChild(this.alert);
+      this.alert = null;
+    } catch (err) {
+      // ignore
+    }
+  }
+
+  if (message) {
+    this.alert = this.ce('div', {
+      class: `alert alert-${type}`,
+      role: 'alert'
+    });
+    this.alert.innerHTML = message;
+  }
+  if (!this.alert) {
+    return;
+  }
+  this.prepend(this.alert);
+};
+
 Webform.prototype.onSubmit = function (submission, saved) {
   this.submitActionDone = true;
   this.submitting = false;

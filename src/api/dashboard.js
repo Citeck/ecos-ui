@@ -6,7 +6,7 @@ import isString from 'lodash/isString';
 import { ASSOC_TYPES } from '../components/Journals/service/journalColumnsResolver';
 import Records from '../components/Records';
 import Components from '../components/widgets/Components';
-import { EmodelTypes, SourcesId } from '../constants';
+import { ADMIN_WORKSPACE_ID, EmodelTypes, SourcesId } from '../constants';
 import { DashboardTypes } from '../constants/dashboard';
 import { TITLE } from '../constants/pageTabs';
 import Cache from '../helpers/cache';
@@ -116,7 +116,10 @@ export class DashboardApi {
     }
 
     if (getEnabledWorkspaces()) {
-      record.att('workspace', getWorkspaceId());
+      const workspaceId = getWorkspaceId();
+      if (workspaceId !== ADMIN_WORKSPACE_ID) {
+        record.att('workspace', getWorkspaceId());
+      }
     }
 
     return record.save().then(response => {
@@ -321,14 +324,14 @@ export class DashboardApi {
     }
   };
 
-  checkExistDashboard = function* ({ key, type, user }) {
+  checkExistDashboard = function* ({ key, type, user, isCustomDashboard }) {
     return yield Records.queryOne({
       sourceId: SourcesId.DASHBOARD,
       query: {
         typeRef: key,
-        authority: user,
         includeForAll: false,
-        expandType: false
+        expandType: false,
+        ...(!isCustomDashboard && { authority: user })
       }
     }).then(response => {
       return {

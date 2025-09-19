@@ -146,7 +146,7 @@ const Workspaces = ({ isLoading, isError, workspaces, getWorkspaces, visitedActi
                         id={wsId}
                         key={index}
                         onMouseDown={e => onMouseDown(e, wsId, homePageLink)}
-                        openWorkspace={e => handleClick(e, wsId, homePageLink)}
+                        openWorkspace={(e, id, homeLink) => handleClick(e, id || wsId, homeLink || homePageLink)}
                         homePageLink={homePageLink}
                         isSmallView
                       />
