@@ -4,8 +4,8 @@ export interface RecordsActivity {
     title?: string;
     description?: string;
     type?: string;
-    startDate?: string;
-    endDate?: string;
+    start?: string;
+    end?: string;
     duration?: number;
     progress?: number;
     parent?: string;
@@ -48,13 +48,13 @@ class GanttDataTransformer {
    */
   transformActivityToTask(record: RecordsActivity): GanttTask {
     const { id, attributes } = record;
-    const { title, description, type, startDate, endDate, duration, progress, parent } = attributes;
+    const { title, description, type, start, end, duration, progress, parent } = attributes;
 
     return {
       id,
       text: title || 'Untitled Task',
-      start: startDate ? new Date(startDate) : new Date(),
-      end: endDate ? new Date(endDate) : new Date(),
+      start: start ? new Date(start) : new Date(),
+      end: end ? new Date(end) : new Date(),
       duration,
       progress,
       parent,
@@ -80,12 +80,9 @@ class GanttDataTransformer {
     };
   }
 
-  /**
-   * Transform wx-react-gantt task to Records API activity format
-   * @param task - wx-react-gantt task object
-   * @returns Records API activity attributes
-   */
-  transformTaskToActivity(task: GanttTask): any {
+  transformTaskToActivity(data: { task: GanttTask }): any {
+    const { task } = data;
+
     return {
       title: task.text,
       description: task.description,

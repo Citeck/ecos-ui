@@ -11,6 +11,41 @@ const GANTT_SOURCES = {
   GANTT_DEPENDENCY: 'emodel/gantt-dependency'
 };
 
+const GANTT_ATTRIBUTES = {
+  GANTT_SETTINGS: {
+    DATA_TYPE: 'dataType',
+    DATA_SOURCE_ID: 'dataSourceId',
+    MANUAL_DATA_SOURCE_ID: 'manualDataSourceId',
+    LINKED_WITH_TYPE: 'linkedWithType',
+    LINKED_WITH_REF: 'linkedWithRef',
+    DATA: 'data'
+  },
+  GANTT_DATA: {
+    TITLE: 'title',
+    DESCRIPTION: 'description',
+    START: 'start',
+    END: 'end',
+    DURATION: 'duration',
+    PROGRESS: 'progress',
+    PARENT: 'parent'
+  },
+  GANTT_ACTIVITY: {
+    id: 'id',
+    title: 'activity:title?str',
+    description: 'activity:description:?str',
+    type: 'activity:type?str',
+    start: 'activity:start',
+    end: 'activity:end',
+    duration: 'activity:duration?num',
+    progress: 'activity:progress?num',
+    parent: 'activity:parent?id'
+  },
+  GANTT_DEPENDENCY: {
+    SOURCE: 'source',
+    DESTINATION: 'destination'
+  }
+};
+
 class GanttDataLoader {
   /**
    * Load gantt settings by record reference
@@ -48,17 +83,7 @@ class GanttDataLoader {
 
     const activitiesResponse = await recordsQueryFetch({
       query: activitiesQuery,
-      attributes: [
-        'id',
-        'title?str',
-        'description?str',
-        'type?str',
-        'startDate?date',
-        'endDate?date',
-        'duration?num',
-        'progress?num',
-        'parent?id'
-      ]
+      attributes: GANTT_ATTRIBUTES.GANTT_ACTIVITY
     });
 
     const dependenciesQuery = {
@@ -120,17 +145,7 @@ class GanttDataLoader {
 
     const response = await recordsQueryFetch({
       query,
-      attributes: [
-        'id',
-        'title?str',
-        'description?str',
-        'type?str',
-        'startDate?date',
-        'endDate?date',
-        'duration?num',
-        'progress?num',
-        'parent?id'
-      ]
+      attributes: GANTT_ATTRIBUTES.GANTT_ACTIVITY
     });
 
     const tasks = GanttDataTransformer.transformActivitiesToTasks(response.records as RecordsActivity[]);
@@ -150,27 +165,28 @@ class GanttDataLoader {
   async createActivity(parentRef: string, activityData: any) {
     // @ts-ignore
     const activityRecord = Records.get(`${GANTT_SOURCES.GANTT_ACTIVITY}@`);
+    const attrs = GanttDataTransformer.transformTaskToActivity(activityData);
 
-    const activityAttributes = GanttDataTransformer.transformTaskToActivity(activityData);
-    activityRecord.att('title', activityAttributes.title);
-    activityRecord.att('type', activityAttributes.type);
-    activityRecord.att('startDate', activityAttributes.startDate);
-    activityRecord.att('endDate', activityAttributes.endDate);
+    activityRecord.att('activity:title', attrs.title);
+    activityRecord.att('activity:description', attrs.description);
+    activityRecord.att('activity:type', attrs.type);
+    activityRecord.att('activity:start', attrs.startDate);
+    activityRecord.att('activity:end', attrs.endDate);
 
-    if (activityAttributes.duration !== undefined) {
-      activityRecord.att('duration', activityAttributes.duration);
+    if (attrs.duration !== undefined) {
+      activityRecord.att('activity:duration', attrs.duration);
     }
 
-    if (activityAttributes.progress !== undefined) {
-      activityRecord.att('progress', activityAttributes.progress);
+    if (attrs.progress !== undefined) {
+      activityRecord.att('activity:progress', attrs.progress);
     }
 
-    if (activityAttributes.description !== undefined) {
-      activityRecord.att('description', activityAttributes.description);
+    if (attrs.description !== undefined) {
+      activityRecord.att('activity:description', attrs.description);
     }
 
-    if (activityAttributes.parent !== undefined) {
-      activityRecord.att('parent', activityAttributes.parent);
+    if (attrs.parent !== undefined) {
+      activityRecord.att('activity:parent', attrs.parent);
     }
 
     const mutateBody = {
@@ -205,27 +221,28 @@ class GanttDataLoader {
   async updateActivity(activityRef: string, activityData: any) {
     // @ts-ignore
     const activityRecord = Records.getRecordToEdit(activityRef);
+    const attrs = GanttDataTransformer.transformTaskToActivity(activityData);
 
-    const activityAttributes = GanttDataTransformer.transformTaskToActivity(activityData);
-    activityRecord.att('title', activityAttributes.title);
-    activityRecord.att('type', activityAttributes.type);
-    activityRecord.att('startDate', activityAttributes.startDate);
-    activityRecord.att('endDate', activityAttributes.endDate);
+    activityRecord.att('activity:title', attrs.title);
+    activityRecord.att('activity:description', attrs.description);
+    activityRecord.att('activity:type', attrs.type);
+    activityRecord.att('activity:start', attrs.start);
+    activityRecord.att('activity:end', attrs.end);
 
-    if (activityAttributes.duration !== undefined) {
-      activityRecord.att('duration', activityAttributes.duration);
+    if (attrs.duration !== undefined) {
+      activityRecord.att('activity:duration', attrs.duration);
     }
 
-    if (activityAttributes.progress !== undefined) {
-      activityRecord.att('progress', activityAttributes.progress);
+    if (attrs.progress !== undefined) {
+      activityRecord.att('activity:progress', attrs.progress);
     }
 
-    if (activityAttributes.description !== undefined) {
-      activityRecord.att('description', activityAttributes.description);
+    if (attrs.description !== undefined) {
+      activityRecord.att('description', attrs.description);
     }
 
-    if (activityAttributes.parent !== undefined) {
-      activityRecord.att('parent', activityAttributes.parent);
+    if (attrs.parent !== undefined) {
+      activityRecord.att('activity:parent', attrs.parent || null);
     }
 
     return await activityRecord.save();
@@ -305,6 +322,15 @@ class GanttDataLoader {
   async deleteDependency(dependencyRef: string) {
     // @ts-ignore
     return await Records.remove([dependencyRef]);
+  }
+
+  /**
+   * Create initial gantt data for STANDALONE type
+   */
+  async createInitialGanttData() {
+    // @ts-ignore
+    const dataRecord = Records.get(`${GANTT_SOURCES.GANTT_DATA}@`);
+    return await dataRecord.save();
   }
 }
 

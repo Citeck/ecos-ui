@@ -1,8 +1,10 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Gantt } from 'wx-react-gantt';
 
 import GanttDataLoader from '../services/GanttDataLoader';
-import GanttDataTransformer from '../services/GanttDataTransformer';
+
+// @ts-ignore
+import Records from '@/components/Records/Records';
 
 interface GanttTask {
   id: string;
@@ -38,7 +40,6 @@ interface GanttState {
   error?: string;
 }
 
-// Props that might be passed to the component
 interface GanttProps {
   ganttSettingsRef?: string;
   ganttDataRef?: string;
@@ -46,7 +47,7 @@ interface GanttProps {
   workspace?: string;
 }
 
-export default class GanttWithStore extends Component<GanttProps, GanttState> {
+export default class GanttWithStore extends React.PureComponent<GanttProps, GanttState> {
   constructor(props: GanttProps) {
     super(props);
 
@@ -66,21 +67,32 @@ export default class GanttWithStore extends Component<GanttProps, GanttState> {
     this.loadGanttData();
   }
 
-  /**
-   * Load Gantt data from Records API
-   */
   async loadGanttData() {
     const { ganttSettingsRef } = this.props;
 
     if (!ganttSettingsRef) {
-      this.setState({
-        isLoading: false,
-        tasks: [],
-        links: [] 
-      });
+      try {
+        // @ts-ignore
+        const newSettingsRecord = Records.get('emodel/gantt-settings@');
+        newSettingsRecord.att('dataType', 'STANDALONE');
+
+        const result = await newSettingsRecord.save();
+
+        await this.loadGanttDataWithSettings(result.id);
+      } catch (error: any) {
+        console.error('Failed to create default Gantt settings:', error);
+        this.setState({
+          isLoading: false,
+          error: error.message || 'Failed to create default Gantt settings'
+        });
+      }
       return;
     }
 
+    await this.loadGanttDataWithSettings(ganttSettingsRef);
+  }
+
+  async loadGanttDataWithSettings(ganttSettingsRef: string) {
     try {
       this.setState({ isLoading: true, error: undefined });
 
@@ -94,6 +106,18 @@ export default class GanttWithStore extends Component<GanttProps, GanttState> {
           const result = await GanttDataLoader.loadGanttData(ganttSettings.data);
           tasks = result.tasks;
           links = result.links;
+        } else {
+          // @ts-ignore
+          const newDataRecord = Records.get('emodel/gantt-data@');
+          const newDataResult = await newDataRecord.save();
+
+          // @ts-ignore
+          const settingsRecord = Records.getRecordToEdit(ganttSettingsRef);
+          settingsRecord.att('data', newDataResult.id);
+          await settingsRecord.save();
+
+          tasks = [];
+          links = [];
         }
       } else if (ganttSettings.dataType === 'LINKED') {
         const result = await GanttDataLoader.loadLinkedGanttData(
@@ -136,9 +160,6 @@ export default class GanttWithStore extends Component<GanttProps, GanttState> {
     ];
   }
 
-  /**
-   * Initialize Gantt API event handlers
-   */
   init = (api: any) => {
     api.getState().tasks.forEach((task: any) => {
       console.log('Gantt task loaded', task);
@@ -148,13 +169,14 @@ export default class GanttWithStore extends Component<GanttProps, GanttState> {
       console.log('gantt add-task', task);
       try {
         const { ganttSettingsRef } = this.props;
+
         if (!ganttSettingsRef) {
           console.log('No gantt settings reference provided, task not saved');
           return;
         }
 
-        // First, we need to get the gantt data reference from settings
         const ganttSettings = await GanttDataLoader.loadGanttSettings(ganttSettingsRef);
+
         if (!ganttSettings.data) {
           throw new Error('No gantt data reference found in settings');
         }
@@ -174,13 +196,13 @@ export default class GanttWithStore extends Component<GanttProps, GanttState> {
       console.log('gantt update-task', task);
       try {
         const { ganttSettingsRef } = this.props;
+
         if (!ganttSettingsRef) {
-          console.log('No gantt settings reference provided, task not updated');
+          console.error('No gantt settings reference provided, task not updated');
           return;
         }
 
         await GanttDataLoader.updateActivity(task.id, task);
-        await this.loadGanttData();
       } catch (error: any) {
         console.error('Failed to update task:', error);
         this.setState({
@@ -217,7 +239,6 @@ export default class GanttWithStore extends Component<GanttProps, GanttState> {
           return;
         }
 
-        // First, we need to get the gantt data reference from settings
         const ganttSettings = await GanttDataLoader.loadGanttSettings(ganttSettingsRef);
         if (!ganttSettings.data) {
           throw new Error('No gantt data reference found in settings');
@@ -237,6 +258,7 @@ export default class GanttWithStore extends Component<GanttProps, GanttState> {
       console.log('gantt update-link', link);
       try {
         const { ganttSettingsRef } = this.props;
+
         if (!ganttSettingsRef) {
           console.log('No gantt settings reference provided, link not updated');
           return;
@@ -276,30 +298,6 @@ export default class GanttWithStore extends Component<GanttProps, GanttState> {
     const { isLoading, error, tasks, links, scales } = this.state;
     const { ganttSettingsRef } = this.props;
 
-    // If no ganttSettingsRef is provided, show a friendly message
-    if (!ganttSettingsRef) {
-      return (
-        <div
-          className="gantt-placeholder"
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100%',
-            fontSize: '16px',
-            color: '#666',
-            textAlign: 'center',
-            padding: '20px'
-          }}
-        >
-          <div>
-            <p>Gantt chart not configured yet.</p>
-            <p>Please select or create gantt settings in the widget configuration.</p>
-          </div>
-        </div>
-      );
-    }
-
     if (isLoading) {
       return (
         <div
@@ -317,39 +315,7 @@ export default class GanttWithStore extends Component<GanttProps, GanttState> {
       );
     }
 
-    if (error) {
-      return (
-        <div
-          className="gantt-error"
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100%',
-            color: 'red',
-            padding: '20px',
-            textAlign: 'center'
-          }}
-        >
-          Error: {error}
-          <button
-            onClick={() => this.loadGanttData()}
-            style={{
-              marginLeft: '10px',
-              padding: '5px 10px',
-              backgroundColor: '#007bff',
-              color: 'white',
-              border: 'none',
-              borderRadius: '3px',
-              cursor: 'pointer'
-            }}
-          >
-            Retry
-          </button>
-        </div>
-      );
-    }
-
+    // eslint-disable-next-line react/react-in-jsx-scope
     return <Gantt init={this.init} tasks={tasks} taskTypes={this.taskTypes} links={links} scales={scales} />;
   }
 }
