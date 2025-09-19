@@ -1,19 +1,30 @@
-import React from 'react';
+import * as React from 'react';
 // @ts-ignore
-import { Willow, defaultToolbarButtons, ButtonProps } from 'wx-react-gantt';
+import { Willow } from 'wx-react-gantt';
 
 import GanttWithStore from './GanttWithStore';
 
 import Dashlet from '@/components/Dashlet';
 import BaseWidget, { BaseWidgetProps, BaseWidgetState } from '@/components/widgets/BaseWidget';
+import { getRecordRef, getWorkspaceId } from '@/helpers/urls';
 
 import 'wx-react-gantt/dist/gantt.css';
 import './style.scss';
 
-class GanttChartWidget<P extends BaseWidgetProps, S extends BaseWidgetState> extends BaseWidget<P, S> {
+interface GanttChartWidgetProps extends BaseWidgetProps {
+  config?: {
+    ganttSettingsRef?: string;
+    collapsed?: boolean;
+  };
+}
+
+class GanttChartWidget<P extends GanttChartWidgetProps, S extends BaseWidgetState> extends BaseWidget<P, S> {
   static TYPE = 'gantt_chart';
 
   render() {
+    const { config, record } = this.props;
+    const ganttSettingsRef = config?.ganttSettingsRef || record;
+
     return (
       <div className="ecos-gantt-chart-widget">
         {/* @ts-ignore */}
@@ -27,7 +38,7 @@ class GanttChartWidget<P extends BaseWidgetProps, S extends BaseWidgetState> ext
         >
           <Willow>
             <div className="gtcell">
-              <GanttWithStore />
+              <GanttWithStore ganttSettingsRef={ganttSettingsRef} currentRef={getRecordRef() || record} workspace={getWorkspaceId()} />
             </div>
           </Willow>
         </Dashlet>
