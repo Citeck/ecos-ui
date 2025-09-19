@@ -161,17 +161,17 @@ export default class GanttWithStore extends React.PureComponent<GanttProps, Gant
   }
 
   init = (api: any) => {
-    api.getState().tasks.forEach((task: any) => {
-      console.log('Gantt task loaded', task);
-    });
+    // api.getState().tasks.forEach((task: any) => {
+    //   console.log('Gantt task loaded', task);
+    // });
 
     api.on('add-task', async (task: any) => {
-      console.log('gantt add-task', task);
+      console.log('Gantt add-task', task);
       try {
         const { ganttSettingsRef } = this.props;
 
         if (!ganttSettingsRef) {
-          console.log('No gantt settings reference provided, task not saved');
+          console.error('No gantt settings reference provided, task not saved');
           return;
         }
 
@@ -182,10 +182,7 @@ export default class GanttWithStore extends React.PureComponent<GanttProps, Gant
         }
 
         await GanttDataLoader.createActivity(ganttSettings.data, task);
-
-        await this.loadGanttData();
       } catch (error: any) {
-        console.error('Failed to create task:', error);
         this.setState({
           error: error.message || 'Failed to create task'
         });
@@ -193,15 +190,14 @@ export default class GanttWithStore extends React.PureComponent<GanttProps, Gant
     });
 
     api.on('update-task', async (task: any) => {
-      console.log('gantt update-task', task);
+      console.log('Gantt update-task', task);
+      const { ganttSettingsRef } = this.props;
+
+      if (!ganttSettingsRef) {
+        return;
+      }
+
       try {
-        const { ganttSettingsRef } = this.props;
-
-        if (!ganttSettingsRef) {
-          console.error('No gantt settings reference provided, task not updated');
-          return;
-        }
-
         await GanttDataLoader.updateActivity(task.id, task);
       } catch (error: any) {
         console.error('Failed to update task:', error);
@@ -212,16 +208,9 @@ export default class GanttWithStore extends React.PureComponent<GanttProps, Gant
     });
 
     api.on('delete-task', async (task: any) => {
-      console.log('gantt delete-task', task);
+      console.log('Gantt delete-task', task);
       try {
-        const { ganttSettingsRef } = this.props;
-        if (!ganttSettingsRef) {
-          console.log('No gantt settings reference provided, task not deleted');
-          return;
-        }
-
         await GanttDataLoader.deleteActivity(task.id);
-        await this.loadGanttData();
       } catch (error: any) {
         console.error('Failed to delete task:', error);
         this.setState({
@@ -230,22 +219,42 @@ export default class GanttWithStore extends React.PureComponent<GanttProps, Gant
       }
     });
 
+    api.on('move-task', async (task: any) => {
+      console.log('Gantt move-task', task);
+      // try {
+      //   const { ganttSettingsRef } = this.props;
+      //   if (!ganttSettingsRef) {
+      //     console.log('No gantt settings reference provided, task not dragged');
+      //     return;
+      //   }
+
+      //   await GanttDataLoader.updateActivity(task.id, task);
+      //   await this.loadGanttData();
+      // } catch (error: any) {
+      //   console.error('Failed to drag task:', error);
+      //   this.setState({
+      //     error: error.message || 'Failed to drag task'
+      //   });
+      // }
+    });
+
     api.on('add-link', async (link: any) => {
-      console.log('gantt add-link', link);
+      console.log('Gantt add-link', link);
       try {
         const { ganttSettingsRef } = this.props;
+
         if (!ganttSettingsRef) {
-          console.log('No gantt settings reference provided, link not saved');
+          console.error('No gantt settings reference provided, link not saved');
           return;
         }
 
         const ganttSettings = await GanttDataLoader.loadGanttSettings(ganttSettingsRef);
+
         if (!ganttSettings.data) {
           throw new Error('No gantt data reference found in settings');
         }
 
         await GanttDataLoader.createDependency(ganttSettings.data, link);
-        await this.loadGanttData();
       } catch (error: any) {
         console.error('Failed to create link:', error);
         this.setState({
@@ -257,15 +266,7 @@ export default class GanttWithStore extends React.PureComponent<GanttProps, Gant
     api.on('update-link', async (link: any) => {
       console.log('gantt update-link', link);
       try {
-        const { ganttSettingsRef } = this.props;
-
-        if (!ganttSettingsRef) {
-          console.log('No gantt settings reference provided, link not updated');
-          return;
-        }
-
         await GanttDataLoader.updateDependency(link.id, link);
-        await this.loadGanttData();
       } catch (error: any) {
         console.error('Failed to update link:', error);
         this.setState({
@@ -277,14 +278,7 @@ export default class GanttWithStore extends React.PureComponent<GanttProps, Gant
     api.on('delete-link', async (link: any) => {
       console.log('gantt delete-link', link);
       try {
-        const { ganttSettingsRef } = this.props;
-        if (!ganttSettingsRef) {
-          console.log('No gantt settings reference provided, link not deleted');
-          return;
-        }
-
         await GanttDataLoader.deleteDependency(link.id);
-        await this.loadGanttData();
       } catch (error: any) {
         console.error('Failed to delete link:', error);
         this.setState({
@@ -313,6 +307,10 @@ export default class GanttWithStore extends React.PureComponent<GanttProps, Gant
           Loading Gantt chart...
         </div>
       );
+    }
+
+    if (!ganttSettingsRef) {
+      return <div>No Gantt settings reference provided</div>;
     }
 
     // eslint-disable-next-line react/react-in-jsx-scope

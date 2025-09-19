@@ -186,31 +186,10 @@ class GanttDataLoader {
     }
 
     if (attrs.parent !== undefined) {
-      activityRecord.att('activity:parent', attrs.parent);
+      activityRecord.att('activity:parent', attrs.parent || null);
     }
 
-    const mutateBody = {
-      records: [
-        {
-          id: activityRecord.id,
-          attributes: activityRecord.toJson().attributes
-        }
-      ],
-      transactions: [
-        {
-          record: activityRecord.id,
-          operations: [
-            {
-              op: 'addToContainer',
-              parent: parentRef,
-              assoc: 'timeline:activities'
-            }
-          ]
-        }
-      ]
-    };
-
-    return await recordsMutateFetch(mutateBody);
+    return await activityRecord.save();
   }
 
   /**
