@@ -135,6 +135,7 @@ function* doCheckUpdatedSettings({ api }, { payload }) {
       const checkResult = yield call(api.dashboard.checkExistDashboard, {
         key: payload.dashboardKey,
         type: identification.type,
+        isCustomDashboard: payload.isCustomDashboard,
         user
       });
 
