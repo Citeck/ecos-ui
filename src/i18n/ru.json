@@ -3008,5 +3008,19 @@
   "confirm": "Подтвердить",
   "insert": "Вставить",
   "add": "Добавить",
-  "remove": "Удалить"
+  "remove": "Удалить",
+  "gantt.settings.title": "Настройки диаграммы Ганта",
+  "gantt.settings.data-type.label": "Тип данных",
+  "gantt.settings.data-type.standalone": "Автономная - Ручной ввод данных",
+  "gantt.settings.data-type.linked": "Связанная - Подключение к бизнес-объекту",
+  "gantt.settings.data-source.label": "Источник данных",
+  "gantt.settings.data-source.placeholder": "Выберите источник данных",
+  "gantt.settings.data-source.description": "Выберите источник данных для получения и сохранения данных диаграммы Ганта",
+  "gantt.settings.manual-data-source.label": "Ручной источник данных",
+  "gantt.settings.manual-data-source.placeholder": "Введите ID источника данных",
+  "gantt.settings.manual-data-source.description": "Введите ID источника данных вручную",
+  "gantt.settings.linked-with-type.label": "Тип связанного объекта",
+  "gantt.settings.linked-with-type.placeholder": "Введите тип связанных данных",
+  "gantt.settings.linked-with-ref.label": "Ссылка на связанный объект",
+  "gantt.settings.linked-with-ref.placeholder": "Введите ссылку на связанный документ"
 }

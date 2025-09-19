@@ -3009,5 +3009,19 @@
   "confirm": "Confirm",
   "insert": "Insert",
   "add": "Add",
-  "remove": "Remove"
+  "remove": "Remove",
+  "gantt.settings.title": "Gantt Chart Settings",
+  "gantt.settings.data-type.label": "Data Type",
+  "gantt.settings.data-type.standalone": "Standalone - Manual data entry",
+  "gantt.settings.data-type.linked": "Linked - Connected to business object",
+  "gantt.settings.data-source.label": "Data Source",
+  "gantt.settings.data-source.placeholder": "Select data source",
+  "gantt.settings.data-source.description": "Select the data source to fetch and store Gantt chart data",
+  "gantt.settings.manual-data-source.label": "Manual Data Source",
+  "gantt.settings.manual-data-source.placeholder": "Enter data source ID",
+  "gantt.settings.manual-data-source.description": "Enter the data source ID manually",
+  "gantt.settings.linked-with-type.label": "Linked With Type",
+  "gantt.settings.linked-with-type.placeholder": "Enter type of linked data",
+  "gantt.settings.linked-with-ref.label": "Linked With Reference",
+  "gantt.settings.linked-with-ref.placeholder": "Enter reference to linked document"
 }
