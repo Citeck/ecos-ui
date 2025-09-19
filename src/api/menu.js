@@ -104,10 +104,38 @@ export class MenuApi extends CommonApi {
     return `${URL.JOURNAL}?journalId=${journalRef}&journalSettingId=&journalsListId=${listId}`;
   };
 
+  getMenuData = async (user = getCurrentUserName()) => {
+    const workspaceId = getWorkspaceId();
+    const enabledWorkspaces = getEnabledWorkspaces();
+
+    const configVersion = await ConfigService.getValue(MAIN_MENU_TYPE);
+    const version = configVersion && configVersion.includes('left-v') ? +configVersion.replace('left-v', '') : MENU_VERSION;
+
+    const config = await Records.queryOne(
+      {
+        sourceId: SourcesId.RESOLVED_MENU,
+        query: {
+          user,
+          version,
+          ...(enabledWorkspaces && { workspace: workspaceId })
+        }
+      },
+      { menu: 'subMenu?json', id: 'id?str' }
+    );
+
+    return {
+      ...lodashGet(config, 'menu', {}),
+      id: config.id,
+      version,
+      configVersion,
+      ...(enabledWorkspaces && { workspace: workspaceId })
+    };
+  };
+
   getMainMenuCreateVariants = (version = MENU_VERSION) => {
     const user = getCurrentUserName();
     const workspaceId = getWorkspaceId();
-    const enabledWorkspaces = lodashGet(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+    const enabledWorkspaces = getEnabledWorkspaces();
 
     return Records.queryOne(
       {
@@ -192,7 +220,7 @@ export class MenuApi extends CommonApi {
   };
 
   getMenuItems = async ({ version, id, resolved }) => {
-    const enabledWorkspaces = lodashGet(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+    const enabledWorkspaces = getEnabledWorkspaces();
     const user = getCurrentUserName();
     let config;
 
@@ -356,7 +384,7 @@ export class MenuApi extends CommonApi {
    * @returns {*|RecordsComponent}
    */
   getUserCustomMenuConfig = (user = getCurrentUserName(), version = 1) => {
-    const enabledWorkspaces = lodashGet(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+    const enabledWorkspaces = getEnabledWorkspaces();
     const workspaceId = getWorkspaceId();
 
     return Records.queryOne(
@@ -383,20 +411,22 @@ export class MenuApi extends CommonApi {
     return ConfigService.getValue(SITE_DASHBOARD_ENABLE);
   };
 
-  getUserMenuConfig = async () => {
+  getUserMenuConfig = async configId => {
     const user = getCurrentUserName();
     const workspace = getWorkspaceId();
-    const enabledWorkspaces = lodashGet(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+    const enabledWorkspaces = getEnabledWorkspaces();
 
     const configVersion = await ConfigService.getValue(MAIN_MENU_TYPE);
     const version = configVersion && configVersion.includes('left-v') ? +configVersion.replace('left-v', '') : 0;
-    const id = await Records.queryOne(
-      {
-        sourceId: SourcesId.MENU,
-        query: { user, version, workspace }
-      },
-      'id'
-    ).catch(e => console.error(e));
+    const id = configId
+      ? configId
+      : await Records.queryOne(
+          {
+            sourceId: SourcesId.MENU,
+            query: { user, version, workspace }
+          },
+          'id'
+        ).catch(e => console.error(e));
 
     return { version, configVersion, id, ...(enabledWorkspaces && { workspace }) };
   };
@@ -475,7 +505,7 @@ export class MenuApi extends CommonApi {
     rec.att('authorities[]?str', authorities);
     rec.att('version', version);
 
-    if (lodashGet(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+    if (getEnabledWorkspaces()) {
       rec.att('workspace', getWorkspaceId());
     }
 
@@ -495,7 +525,7 @@ export class MenuApi extends CommonApi {
   };
 }
 
-async function fetchExtraItemInfo(data = [], attributes) {
+export async function fetchExtraItemInfo(data = [], attributes) {
   const { JOURNAL, KANBAN, DOCLIB, LINK_CREATE_CASE, EDIT_RECORD, START_WORKFLOW, PREVIEW_LIST } = ms.ItemTypes;
 
   return Promise.all(
