@@ -167,7 +167,13 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         this._lexicalViewRoot = createRoot(reactContainer);
         this._lexicalViewRoot.render(
           <Provider store={store}>
-            <LexicalEditor readonly htmlString={this.dataValue || ''} placeholder="-" />
+            <LexicalEditor
+              readonly
+              htmlString={this.dataValue || ''}
+              placeholder="-"
+              recordRef={this.root.options.recordId}
+              attribute={this.component.key}
+            />
           </Provider>
         );
       }
@@ -220,6 +226,8 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
             onChange={onChange}
             htmlString={this.dataValue || ''}
             UploadDocsService={this._uploadDocsRefService}
+            recordRef={this.root.options.recordId}
+            attribute={this.component.key}
             onEditorReady={editor => {
               this.calculatedValue = this.dataValue;
               this.editor = editor;
@@ -526,11 +534,23 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       this.wysiwygRendered = false;
       this.editorReady = null;
     }
+
+    // Additional cleanup for Lexical React root if it wasn't destroyed yet
+    if (this._lexicalRoot) {
+      this._lexicalRoot.unmount();
+      this._lexicalRoot = null;
+    }
   }
 
   destroyWysiwyg() {
     if (this.isLexicalEditor && this.editor) {
       this.editor = null;
+    }
+
+    // Unmount Lexical React root
+    if (this._lexicalRoot) {
+      this._lexicalRoot.unmount();
+      this._lexicalRoot = null;
     }
 
     if (this._uploadDocsRefService) {
@@ -562,5 +582,20 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     }
 
     super.redraw(...r);
+  }
+
+  destroy() {
+    // Cleanup Lexical React root before destroying
+    if (this._lexicalRoot) {
+      this._lexicalRoot.unmount();
+      this._lexicalRoot = null;
+    }
+
+    if (this._lexicalViewRoot) {
+      this._lexicalViewRoot.unmount();
+      this._lexicalViewRoot = null;
+    }
+
+    return super.destroy();
   }
 }

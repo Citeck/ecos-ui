@@ -78,6 +78,7 @@ class PropertiesDashlet extends BaseWidget {
     };
 
     this.instanceRecord.events.on(EVENTS.ASSOC_UPDATE, this.reload);
+    this.instanceRecord.events.on(EVENTS.ATTS_UPDATED, this.reload);
   }
 
   componentDidMount() {

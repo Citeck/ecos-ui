@@ -9,7 +9,7 @@ import FormManager from '../../../components/EcosForm/FormManager';
 // @ts-ignore
 import Records from '@/components/Records/Records';
 import { Avatar, Loader } from '@/components/common';
-import BaseWidget, { BaseWidgetProps, BaseWidgetState } from '@/components/widgets/BaseWidget';
+import BaseWidget, { BaseWidgetProps, BaseWidgetState, EVENTS } from '@/components/widgets/BaseWidget';
 import { getStateId } from '@/helpers/redux';
 import { getFitnesseClassName } from '@/helpers/tools';
 import { getRecordRef } from '@/helpers/urls';
@@ -47,44 +47,66 @@ interface PublicationWidgetDashletState extends BaseWidgetState {
 
 class PublicationWidgetDashlet<P extends PublicationWidgetDashletProps, S extends PublicationWidgetDashletState> extends BaseWidget<P, S> {
   stateId: string;
-  unlisten: any;
+
+  private isMountedFlag = false;
+  private onUrlChange: () => void;
 
   constructor(props: P) {
     super(props);
 
+    const initialRef = getRecordRef() || props.record;
+
     this.state = {
       isLoading: true,
-      recordRef: props.record,
-      publication: {},
+      recordRef: initialRef,
+      publication: {} as any,
       hasPermissions: false
     } as S;
 
     this.stateId = getStateId(props);
 
+    this.fetchPublication = this.fetchPublication.bind(this);
+    this.updatePublication = this.updatePublication.bind(this);
+    this.onUrlChange = this.updatePublication;
+
     this.observableFieldsToUpdate = [...new Set([...this.observableFieldsToUpdate, 'title?str', 'text?str'])];
-    document.addEventListener(Events.CHANGE_URL_LINK_EVENT, this.updatePublication.bind(this));
   }
 
   componentDidMount() {
     super.componentDidMount();
+    this.isMountedFlag = true;
+
+    this.instanceRecord.events.on(EVENTS.ATTS_UPDATED, this.fetchPublication);
+    document.addEventListener(Events.CHANGE_URL_LINK_EVENT, this.onUrlChange);
+
     this.fetchPublication();
   }
 
   componentWillUnmount() {
     super.componentWillUnmount();
-    document.removeEventListener(Events.CHANGE_URL_LINK_EVENT, this.updatePublication.bind(this));
+    this.isMountedFlag = false;
+
+    this.instanceRecord.events.off(EVENTS.ATTS_UPDATED, this.fetchPublication);
+    document.removeEventListener(Events.CHANGE_URL_LINK_EVENT, this.onUrlChange);
   }
 
   updatePublication() {
     const newRecordRef = getRecordRef() || this.props.record;
+    if (!newRecordRef) return;
 
-    if (newRecordRef) {
-      this.setState({ recordRef: newRecordRef }, () => this.fetchPublication());
+    if (!this.isMountedFlag) {
+      return;
     }
+
+    this.setState({ recordRef: newRecordRef }, this.fetchPublication);
   }
 
   fetchPublication() {
     const { recordRef } = this.state;
+    if (!recordRef) return;
+
+    if (this.isMountedFlag) this.setState({ isLoading: true });
+
     // @ts-ignore
     return Records.get(recordRef)
       .load({

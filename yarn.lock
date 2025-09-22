@@ -1688,7 +1688,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emotion/cache@npm:^11.14.0, @emotion/cache@npm:^11.4.0":
+"@emotion/cache@npm:^11.13.5, @emotion/cache@npm:^11.14.0, @emotion/cache@npm:^11.4.0":
   version: 11.14.0
   resolution: "@emotion/cache@npm:11.14.0"
   dependencies:
@@ -1698,6 +1698,19 @@ __metadata:
     "@emotion/weak-memoize": ^0.4.0
     stylis: 4.2.0
   checksum: 0a81591541ea43bc7851742e6444b7800d72e98006f94e775ae6ea0806662d14e0a86ff940f5f19d33b4bb2c427c882aa65d417e7322a6e0d5f20fe65ed920c9
+  languageName: node
+  linkType: hard
+
+"@emotion/css@npm:^11.11.2":
+  version: 11.13.5
+  resolution: "@emotion/css@npm:11.13.5"
+  dependencies:
+    "@emotion/babel-plugin": ^11.13.5
+    "@emotion/cache": ^11.13.5
+    "@emotion/serialize": ^1.3.3
+    "@emotion/sheet": ^1.4.0
+    "@emotion/utils": ^1.4.2
+  checksum: 1f96c612603f2a6ad3e288c6ec90ac457e75e09b8a0bd4fb6e9bc1cd552ed9edd4a1e40880060ed30a285e1141e354a3b41a815f22871d2178a882e3c1f79426
   languageName: node
   linkType: hard
 
@@ -5359,7 +5372,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"classnames@npm:^2.2.3, classnames@npm:^2.2.5, classnames@npm:^2.2.6, classnames@npm:^2.3.1":
+"classnames@npm:^2.2.3, classnames@npm:^2.2.5, classnames@npm:^2.2.6, classnames@npm:^2.3.1, classnames@npm:^2.3.2":
   version: 2.5.1
   resolution: "classnames@npm:2.5.1"
   checksum: da424a8a6f3a96a2e87d01a432ba19315503294ac7e025f9fece656db6b6a0f7b5003bb1fbb51cbb0d9624d964f1b9bb35a51c73af9b2434c7b292c42231c1e5
@@ -6484,6 +6497,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"diff@npm:^5.1.0":
+  version: 5.2.0
+  resolution: "diff@npm:5.2.0"
+  checksum: 12b63ca9c36c72bafa3effa77121f0581b4015df18bc16bac1f8e263597735649f1a173c26f7eba17fb4162b073fee61788abe49610e6c70a2641fe1895443fd
+  languageName: node
+  linkType: hard
+
 "diffie-hellman@npm:^5.0.3":
   version: 5.0.3
   resolution: "diffie-hellman@npm:5.0.3"
@@ -6958,6 +6978,7 @@ __metadata:
     react-css-collapse: 3.6.1
     react-custom-scrollbars: 4.2.1
     react-datepicker: 2.4.0
+    react-diff-viewer-continued: ^3.4.0
     react-dom: 18.2.0
     react-draggable: 3.3.2
     react-dropzone: 8.2.0
@@ -11911,6 +11932,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"memoize-one@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "memoize-one@npm:6.0.0"
+  checksum: f185ea69f7cceae5d1cb596266dcffccf545e8e7b4106ec6aa93b71ab9d16460dd118ac8b12982c55f6d6322fcc1485de139df07eacffaae94888b9b3ad7675f
+  languageName: node
+  linkType: hard
+
 "memorystream@npm:^0.3.1":
   version: 0.3.1
   resolution: "memorystream@npm:0.3.1"
@@ -14329,6 +14357,22 @@ __metadata:
     react: ^16.0.0
     react-dom: ^16.0.0
   checksum: b635546df756e9a7cd4560aa0264e1241e4fcbdf37dc8995d4e016255533b97f085ae9ae1638abf25a87d5ba993929713aa8395bd384109c225966f37e7400de
+  languageName: node
+  linkType: hard
+
+"react-diff-viewer-continued@npm:^3.4.0":
+  version: 3.4.0
+  resolution: "react-diff-viewer-continued@npm:3.4.0"
+  dependencies:
+    "@emotion/css": ^11.11.2
+    classnames: ^2.3.2
+    diff: ^5.1.0
+    memoize-one: ^6.0.0
+    prop-types: ^15.8.1
+  peerDependencies:
+    react: ^15.3.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+    react-dom: ^15.3.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+  checksum: deb518c781b58af757a365c4c91a3b33fe3eb7a354286e1fb4223603a3083a882456207942a650a242f493dac54e1535e8a2482854ce37d80ad6d521ad476280
   languageName: node
   linkType: hard
 

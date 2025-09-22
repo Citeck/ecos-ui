@@ -85,6 +85,8 @@ export type LexicalEditorProps = {
   onUpload?: OnImageUpload;
   withoutTimeout?: boolean;
   UploadDocsService?: UploadDocsRefServiceInstance;
+  attribute?: string;
+  recordRef?: string;
 };
 
 const skipCollaborationInit =
@@ -100,7 +102,9 @@ export default function Editor({
   className,
   onEditorReady,
   onUpload,
-  UploadDocsService
+  UploadDocsService,
+  attribute,
+  recordRef
 }: LexicalEditorProps): React.JSX.Element {
   const { historyState } = useSharedHistoryContext();
 
@@ -179,6 +183,8 @@ export default function Editor({
           activeEditor={activeEditor}
           setActiveEditor={setActiveEditor}
           setIsLinkEditMode={setIsLinkEditMode}
+          attribute={attribute}
+          recordRef={recordRef}
         />
       )}
       {isRichText && <ShortcutsPlugin editor={activeEditor} setIsLinkEditMode={setIsLinkEditMode} />}
@@ -267,7 +273,12 @@ export default function Editor({
                 />
                 <TableCellActionMenuPlugin anchorElem={floatingAnchorElem} cellMerge={true} />
                 <TableHoverActionsPlugin anchorElem={floatingAnchorElem} />
-                <FloatingTextFormatToolbarPlugin anchorElem={floatingAnchorElem} setIsLinkEditMode={setIsLinkEditMode} />
+                <FloatingTextFormatToolbarPlugin
+                  anchorElem={floatingAnchorElem}
+                  setIsLinkEditMode={setIsLinkEditMode}
+                  recordRef={recordRef}
+                  attribute={attribute}
+                />
               </>
             )}
           </>

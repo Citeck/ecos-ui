@@ -96,6 +96,18 @@
     align-items: center;
   }
 
+  // Diff Viewer
+  &-diff-viewer {
+
+    &__actions {
+      display: flex;
+      gap: 8px;
+      margin: 12px 0 8px 0;
+      padding: 0 12px;
+      flex-wrap: wrap;
+    }
+  }
+
   // Tabs styles
   &__tabs {
     display: flex;
@@ -596,6 +608,34 @@
         color: var(--success-color, #4caf50);
       }
     }
+
+    &--attribute {
+      background: var(--warning-bg-light, #fff3cd);
+      color: var(--warning-color, #856404);
+      border: 1px solid var(--warning-border-light, #ffeaa7);
+
+      .ai-assistant-chat__context-tag-remove {
+        color: var(--warning-color, #856404);
+      }
+    }
+
+    &--selected-text {
+      background: var(--info-bg-light, #d1ecf1);
+      color: var(--info-color, #0c5460);
+      border: 1px solid var(--info-border-light, #bee5eb);
+      max-width: 300px;
+
+      .ai-assistant-chat__context-tag-remove {
+        color: var(--info-color, #0c5460);
+      }
+
+      span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 250px;
+      }
+    }
   }
 
   &__context-tag-remove {
@@ -995,6 +1035,12 @@
     background-color: rgba(76, 175, 80, 0.1);
   }
 
+  // Text diff message styles
+  &__message--text-diff {
+    border-left: 3px solid #2196F3;
+    background-color: rgba(33, 150, 243, 0.1);
+  }
+
   &__email-preview {
     border: 1px solid #e0e0e0;
     border-radius: 6px;
@@ -1081,10 +1127,32 @@
       }
     }
 
+    &--apply {
+      background-color: #4CAF50;
+      color: white;
+
+      &:hover {
+        background-color: #45a049;
+      }
+    }
+
     &:disabled {
       opacity: 0.6;
       cursor: not-allowed;
     }
+  }
+
+  &__text-diff-preview {
+    background: var(--surface-color, #fff);
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border-color, #e0e0e0);
+  }
+
+  &__text-diff-description {
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--border-color, #e0e0e0);
+    background: var(--background-color-light, #f8f9fa);
   }
 }
 
