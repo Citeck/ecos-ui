@@ -3019,6 +3019,43 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@svar-ui/core-locales@npm:2.2.1":
+  version: 2.2.1
+  resolution: "@svar-ui/core-locales@npm:2.2.1"
+  checksum: ffee60b5b70a65fad6eb44af97cdefaf7b1b92fc4cb61ea049ccc4367d71cfb5594687e5e59d9b73f128aed6afc82200a161bde485ca83b426c178ba0327d469
+  languageName: node
+  linkType: hard
+
+"@svar-ui/lib-dom@npm:0.9.2, @svar-ui/lib-dom@npm:^0.9.2":
+  version: 0.9.2
+  resolution: "@svar-ui/lib-dom@npm:0.9.2"
+  checksum: 40570b84f2b2cfa9d0caa7921ef7cb9852c852af12988aafe12edbecac870815129fae52742ca509361399b746a933309dd295c7fbc539dfb6a50eebdc14ed1d
+  languageName: node
+  linkType: hard
+
+"@svar-ui/lib-react@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@svar-ui/lib-react@npm:1.1.1"
+  dependencies:
+    "@svar-ui/lib-dom": ^0.9.2
+  checksum: 981b99e8ea2a2a65250e18386ceeca9e5678af23dd21f88d31a8316d2c28cf834f1b498abd362179b6e3f61242dfc4511f9cda60ce0a227ca7d35e6504e5300c
+  languageName: node
+  linkType: hard
+
+"@svar-ui/react-core@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "@svar-ui/react-core@npm:2.2.0"
+  dependencies:
+    "@svar-ui/core-locales": 2.2.1
+    "@svar-ui/lib-dom": 0.9.2
+    "@svar-ui/lib-react": 1.1.1
+  peerDependencies:
+    react: ">=18"
+    react-dom: ">=18"
+  checksum: 3a94fa168cbc68ca978c81dafe35694f25e3e09fda2eddbc8e3dff297bcb5a4382dab3fb02cb111d8805af8c0e5871679951d892a59a38a7e1419dc678886460
+  languageName: node
+  linkType: hard
+
 "@testing-library/dom@npm:^10.4.0":
   version: 10.4.0
   resolution: "@testing-library/dom@npm:10.4.0"
@@ -6807,6 +6844,7 @@ __metadata:
     "@lexical/utils": 0.26.0
     "@popperjs/core": ^2.4.4
     "@rollup/plugin-babel": 6.0.4
+    "@svar-ui/react-core": ^2.2.0
     "@testing-library/dom": ^10.4.0
     "@testing-library/jest-dom": ^6.6.3
     "@testing-library/react": ^16.2.0

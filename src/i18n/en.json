@@ -3023,5 +3023,10 @@
   "gantt.settings.linked-with-type.label": "Linked With Type",
   "gantt.settings.linked-with-type.placeholder": "Enter type of linked data",
   "gantt.settings.linked-with-ref.label": "Linked With Reference",
-  "gantt.settings.linked-with-ref.placeholder": "Enter reference to linked document"
+  "gantt.settings.linked-with-ref.placeholder": "Enter reference to linked document",
+  "gantt.chart.settings": "Gantt Settings",
+  "gantt.chart.title": "Gantt Chart",
+  "gantt.chart.error.load-failed": "Failed to load Gantt settings",
+  "gantt.chart.error.save-failed": "Failed to save Gantt settings",
+  "gantt.chart.retry": "Retry"
 }

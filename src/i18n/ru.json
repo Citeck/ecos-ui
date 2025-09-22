@@ -3022,5 +3022,10 @@
   "gantt.settings.linked-with-type.label": "Тип связанного объекта",
   "gantt.settings.linked-with-type.placeholder": "Введите тип связанных данных",
   "gantt.settings.linked-with-ref.label": "Ссылка на связанный объект",
-  "gantt.settings.linked-with-ref.placeholder": "Введите ссылку на связанный документ"
+  "gantt.settings.linked-with-ref.placeholder": "Введите ссылку на связанный документ",
+  "gantt.chart.settings": "Настройки диаграммы Ганта",
+  "gantt.chart.title": "Диаграмма Ганта",
+  "gantt.chart.error.load-failed": "Не удалось загрузить настройки диаграммы Ганта",
+  "gantt.chart.error.save-failed": "Не удалось сохранить настройки диаграммы Ганта",
+  "gantt.chart.retry": "Повторить"
 }
