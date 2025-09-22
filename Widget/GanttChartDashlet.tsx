@@ -1,7 +1,11 @@
+// @ts-ignore
+import { Locale } from '@svar-ui/react-core';
 import isFunction from 'lodash/isFunction';
 import * as React from 'react';
 // @ts-ignore
 import { Willow } from 'wx-react-gantt';
+
+import { ru } from '../i18n';
 
 import GanttSettings from './GanttSettings';
 import GanttWithStore from './GanttWithStore';
@@ -10,6 +14,7 @@ import Dashlet from '@/components/Dashlet';
 // @ts-ignore
 import Records from '@/components/Records/Records';
 import BaseWidget, { BaseWidgetProps, BaseWidgetState } from '@/components/widgets/BaseWidget';
+import { t } from '@/helpers/export/util';
 import { getRecordRef, getWorkspaceId } from '@/helpers/urls';
 import DAction from '@/services/DashletActionService';
 
@@ -79,7 +84,7 @@ class GanttChartWidget<P extends GanttChartWidgetProps, S extends GanttChartWidg
       console.error('Failed to load Gantt settings:', error);
       this.setState({
         isLoading: false,
-        error: error.message || 'Failed to load Gantt settings'
+        error: error.message || t('gantt.chart.error.load-failed')
       });
     }
   };
@@ -157,7 +162,7 @@ class GanttChartWidget<P extends GanttChartWidgetProps, S extends GanttChartWidg
     } catch (error: any) {
       console.error('Failed to save Gantt settings:', error);
       this.setState({
-        error: error.message || 'Failed to save Gantt settings'
+        error: error.message || t('gantt.chart.error.save-failed')
       });
     }
   };
@@ -167,7 +172,7 @@ class GanttChartWidget<P extends GanttChartWidgetProps, S extends GanttChartWidg
 
     actions[DAction.Actions.SETTINGS] = {
       onClick: this.handleSettings,
-      text: 'Gantt Settings'
+      text: t('gantt.chart.settings')
     };
 
     return actions;
@@ -183,7 +188,7 @@ class GanttChartWidget<P extends GanttChartWidgetProps, S extends GanttChartWidg
         <Dashlet
           {...this.props}
           needsUpdate={false}
-          title="Gantt Chart"
+          title={t('gantt.chart.title')}
           needGoTo={false}
           onToggleCollapse={this.handleToggleContent}
           isCollapsed={this.isCollapsed}
@@ -227,11 +232,19 @@ class GanttChartWidget<P extends GanttChartWidgetProps, S extends GanttChartWidg
                         cursor: 'pointer'
                       }}
                     >
-                      Retry
+                      {t('gantt.chart.retry')}
                     </button>
                   </div>
                 ) : (
-                  <GanttWithStore ganttSettingsRef={ganttSettingsRef} currentRef={getRecordRef() || record} workspace={getWorkspaceId()} />
+                  <>
+                    <Locale words={ru}>
+                      <GanttWithStore
+                        ganttSettingsRef={ganttSettingsRef}
+                        currentRef={getRecordRef() || record}
+                        workspace={getWorkspaceId()}
+                      />
+                    </Locale>
+                  </>
                 )}
               </div>
             </Willow>
