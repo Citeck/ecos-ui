@@ -47,6 +47,7 @@ import { documentActions, documentFields } from '../constants/documents';
 import DocumentsConverter from '../dto/documents';
 import { getFirstNonEmpty, isNodeRef, t } from '../helpers/util';
 import {
+  selectActions,
   selectActionsByTypes,
   selectActionsDynamicType,
   selectAvailableType,
@@ -730,6 +731,8 @@ function* sagaGetDocumentsByTypes({ api }, { payload }) {
       })
     );
 
+    const existActions = yield select(state => selectActions(state, payload.key));
+
     if (documentsIds.length) {
       const typeActions = yield select(state =>
         selectActionsByTypes(
@@ -745,7 +748,8 @@ function* sagaGetDocumentsByTypes({ api }, { payload }) {
           key: payload.key,
           actions: {
             ...actions.forRecord,
-            ...actionsByRecordsFromTypes
+            ...actionsByRecordsFromTypes,
+            ...existActions
           }
         })
       );
