@@ -15,7 +15,7 @@ export default class EsignConverter {
     const issuerInfo = source.friendlyIssuerInfo();
     const subjectCN = subjectInfo.find(item => item.code === 'CN');
     const issuerCN = issuerInfo.find(item => item.code === 'CN');
-    const subjectINN = subjectInfo.find(item => item.code === 'INN');
+    const subjectINN = subjectInfo.find(item => item.value === 'ИНН');
 
     target.id = source.serialNumber;
     target.thumbprint = source.thumbprint;
