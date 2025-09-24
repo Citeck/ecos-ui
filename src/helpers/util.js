@@ -10,7 +10,7 @@ import isString from 'lodash/isString';
 import lodashSet from 'lodash/set';
 import moment from 'moment';
 import * as queryString from 'query-string';
-import uuidV4 from 'uuid/v4';
+import uuidV4 from 'uuidv4';
 
 import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE, MOBILE_APP_USER_AGENT } from '../constants';
 

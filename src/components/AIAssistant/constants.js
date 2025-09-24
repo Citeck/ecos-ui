@@ -15,5 +15,13 @@ export const ADDITIONAL_CONTEXT_TYPES = {
 };
 
 export const AI_INTENTS = {
-  TEXT_EDITING: 'text_editing'
+  TEXT_EDITING: 'text_editing',
+  BUSINESS_APP_GENERATION: 'business_app_generation'
+}
+
+export const MESSAGE_TYPES = {
+  TEXT: "text",
+  EMAIL: "email",
+  TEXT_EDITING: "text_editing",
+  BUSINESS_APP_GENERATION: "business_app_generation"
 }

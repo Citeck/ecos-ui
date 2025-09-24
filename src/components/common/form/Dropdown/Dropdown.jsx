@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { Dropdown as Drd, DropdownMenu, DropdownToggle } from 'reactstrap';
-import uuidV4 from 'uuid/v4';
+import uuidV4 from 'uuidv4';
 
 import { getIconUpDown } from '../../../../helpers/icon';
 import { getPropByStringKey, getTextByLocale, isMobileDevice } from '../../../../helpers/util';

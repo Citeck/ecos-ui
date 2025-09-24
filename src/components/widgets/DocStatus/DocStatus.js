@@ -3,7 +3,7 @@ import isEmpty from 'lodash/isEmpty';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 import { connect } from 'react-redux';
-import uuid from 'uuid/v4';
+import uuid from 'uuidv4';
 
 import { changeDocStatus, getDocStatus, initDocStatus, resetDocStatus } from '../../../actions/docStatus';
 import { LoaderTypes } from '../../../constants/index';

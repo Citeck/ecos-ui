@@ -7,4 +7,4 @@ enableFetchMocks();
 
 jest.mock('./services/license/licenseApi');
 
-jest.mock('uuid/v4', () => () => '00000000-0000-0000-0000-000000000000');
+jest.mock('uuidv4', () => () => '00000000-0000-0000-0000-000000000000');

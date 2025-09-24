@@ -2,7 +2,7 @@ import { getBusinessObject } from 'cmmn-js/lib/util/ModelUtil';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isString from 'lodash/isString';
-import uuidV4 from 'uuid/v4';
+import uuidV4 from 'uuidv4';
 
 import { getName } from '../CMMNModeler/utils';
 

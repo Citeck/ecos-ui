@@ -14,7 +14,7 @@ import omitBy from 'lodash/omitBy';
 import lodashSet from 'lodash/set';
 import moment from 'moment';
 import React from 'react';
-import uuidV4 from 'uuid/v4';
+import uuidV4 from 'uuidv4';
 
 import { AppApi } from '../../../api/app';
 import { UserApi } from '../../../api/user';
