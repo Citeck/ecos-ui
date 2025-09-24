@@ -15,6 +15,7 @@ export default class EsignConverter {
     const issuerInfo = source.friendlyIssuerInfo();
     const subjectCN = subjectInfo.find(item => item.code === 'CN');
     const issuerCN = issuerInfo.find(item => item.code === 'CN');
+    const subjectINN = subjectInfo.find(item => item.code === 'INN');
 
     target.id = source.serialNumber;
     target.thumbprint = source.thumbprint;
@@ -26,7 +27,7 @@ export default class EsignConverter {
     target.name = `${get(subjectCN, 'text', '')} ${t('от')} ${target.dateFrom}`;
     target.friendlySubjectInfo = source.friendlySubjectInfo();
     target.friendlyIssuerInfo = source.friendlyIssuerInfo();
-    target.subjectInn = source.friendlySubjectInfo().find(item => item.code === 'INN').text;
+    target.subjectInn = get(subjectINN, 'text', '');
 
     return target;
   }
