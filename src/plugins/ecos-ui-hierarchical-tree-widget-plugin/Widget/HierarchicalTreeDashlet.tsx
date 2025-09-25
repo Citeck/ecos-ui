@@ -135,9 +135,13 @@ const HierarchicalTreeWidget = ({
         _parent: isJournalMode ? `${SourcesId.JOURNAL}@${journalId}` : parent || rootRecord,
         _parentAtt: 'children'
       },
-      onSubmit: () => {
+      onSubmit: (record: any) => {
         fetchRecords().then(({ records = [] }) => {
           setRecords(records);
+
+          if (!isJournalMode && record.id) {
+            updateCurrentUrl({ recordRef: record.id });
+          }
         });
       }
     });
