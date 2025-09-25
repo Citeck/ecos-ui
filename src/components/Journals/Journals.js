@@ -171,7 +171,7 @@ class Journals extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { _url, isActivePage, stateId, viewMode, tabId, isViewNewJournal, widgetsConfig } = this.props;
+    const { _url, isActivePage, stateId, viewMode, tabId, isViewNewJournal, widgetsConfig, isLoadingGrid } = this.props;
     const { journalId, initiatedWidgetsConfig } = this.state;
 
     const { isLeftPositionWidgets } = widgetsConfig || {};
@@ -184,6 +184,10 @@ class Journals extends React.Component {
       prevIsLeftPositionWidgets !== isLeftPositionWidgets
     ) {
       this.swapContentSizesBox();
+    }
+
+    if (isLoadingGrid && !prevProps.isLoadingGrid) {
+      this.setState({ recordId: null });
     }
 
     if (
@@ -499,7 +503,12 @@ class Journals extends React.Component {
   };
 
   onRowClick = row => {
-    this.setState({ recordId: row.id });
+    if (get(row, 'id') === this.state.recordId) {
+      this.setState({ recordId: null });
+      return;
+    }
+
+    this.setState({ recordId: get(row, 'id', null) });
   };
 
   renderViews = () => {

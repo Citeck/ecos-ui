@@ -3,227 +3,87 @@ import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import React, { useState, useEffect } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
+import { connect } from 'react-redux';
 
-import ChevronDownIcon from './icons/ChevronDownIcon';
-import ChevronRightIcon from './icons/ChevronRightIcon';
+import SettingsWidget from './Settings';
+import TreeNode, { type TreeNode as TreeNodeType } from './TreeNode';
+import { createCategoryFormId, Labels, tooltipIdCreate, tooltipIdSettings } from './constants';
 import EmptyIcon from './icons/EmptyIcon';
 
+import { fetchBreadcrumbs, reloadGrid } from '@/actions/journals';
 import FormManager from '@/components/EcosForm/FormManager';
 // @ts-ignore
 import Records from '@/components/Records';
 import { Icon, Tooltip } from '@/components/common';
 import { Btn } from '@/components/common/btns';
-import { DialogManager } from '@/components/common/dialogs';
 import { BaseWidgetProps } from '@/components/widgets/BaseWidget';
 import { JournalUrlParams as JUP, SourcesId } from '@/constants';
+import { getStateId, wrapArgs } from '@/helpers/store';
 import { getRecordRef, getSearchParams, getWorkspaceId, updateCurrentUrl } from '@/helpers/urls';
-import { isMobileDevice, t } from '@/helpers/util';
+import { isMobileDevice, t, getCurrentUserName, getMLValue } from '@/helpers/util';
 import { Events } from '@/services/PageService';
+import { MLTextType } from '@/types/components';
+import { Dispatch, RootState } from '@/types/store';
 
 import '@/components/Dashlet/Dashlet.scss';
 import './style.scss';
 
-const Labels = {
-  ADD: 'add',
-  NO_DATA: 'comp.no-data.indication',
-  TITLE: 'hierarchical-tree-widget.title',
-  MODAL_TITLE: 'hierarchical-tree-widget.modal-title',
-  ADD_GROUP: 'hierarchical-tree-widget.create',
-  CONFIRM_MODAL_DELETE_TITLE: 'record-action.delete.dialog.title.remove-one',
-  CONFIRM_MODAL_DELETE_TEXT: 'record-action.delete.dialog.msg.remove-one'
-};
-
-const tooltipId = 'create-tree-node-button';
-
-interface TreeNode {
-  parent: string;
-  id: string;
-  name: string;
-  children: TreeNode[];
+interface HierarchicalTreeWidget extends BaseWidgetProps {
+  stateId: string;
+  journalId?: string;
+  label?: MLTextType | string;
+  reloadGrid: () => void;
+  fetchBreadcrumbs: () => void;
+  config?: BaseWidgetProps['config'] & { label: HierarchicalTreeWidget['label'] };
 }
 
-const TreeNode = ({
-  node,
-  recordRef,
-  rootRecord,
-  records,
-  onFetchChildren,
-  updateRootChilds,
-  canEdit,
-  toggleOpen,
-  setRecords
-}: {
-  node: TreeNode;
-  recordRef: string | null;
-  rootRecord: string;
-  records: TreeNode[];
-  onFetchChildren: (parent: string) => Promise<{ records: TreeNode[] }>;
-  updateRootChilds: (childs: TreeNode[]) => void;
-  canEdit: boolean;
-  setRecords: React.Dispatch<React.SetStateAction<TreeNode[]>>;
-  toggleOpen?: () => void;
-}): React.ReactElement => {
-  const [isOpen, setIsOpen] = useState<boolean>(get(node, 'children.length', 0) > 1);
-  const [displayName, setDisplayName] = useState<string>(node.name || t('documents-widget.untitled'));
-  const [children, setChildren] = useState<TreeNode[]>(node.children || []);
-
-  const create = (parent: string) => {
-    FormManager.openFormModal({
-      record: `${SourcesId.WIKI}@`,
-      title: t(Labels.MODAL_TITLE),
-      attributes: {
-        _parent: parent || `${SourcesId.WIKI}@${node.id}`,
-        _parentAtt: 'children'
-      },
-      onSubmit: () => {
-        isFunction(onFetchChildren) &&
-          onFetchChildren(node.parent).then(({ records: parentRecords = [] }) => {
-            updateRootChilds(parentRecords);
-
-            const currentNode = parentRecords.find(record => record.id === node.id);
-
-            setChildren(currentNode?.children || []);
-            setIsOpen(true);
-          });
-      }
-    });
-  };
-
-  const deleteRecord = (event: React.MouseEvent<HTMLElement>) => {
-    event.stopPropagation();
-    // @ts-ignore
-    DialogManager.confirmDialog({
-      title: t(Labels.CONFIRM_MODAL_DELETE_TITLE),
-      text: t(Labels.CONFIRM_MODAL_DELETE_TEXT),
-      onYes: () => {
-        const currentId = `${SourcesId.WIKI}@${node.id}`;
-
-        // @ts-ignore
-        return Records.remove([currentId]).then(() => {
-          if (currentId === recordRef) {
-            updateCurrentUrl({ recordRef: rootRecord });
-          }
-          onFetchChildren(node.parent).then(({ records: parentRecords = [] }) => {
-            updateRootChilds(parentRecords);
-          });
-        });
-      }
-    });
-  };
-
-  const updateChilds = (childs: TreeNode[]) => {
-    setChildren(childs);
-  };
-
-  useEffect(() => {
-    // @ts-ignore
-    const instanceRecord = Records.get(`${SourcesId.WIKI}@${node.id}`);
-
-    instanceRecord &&
-      instanceRecord.watch(['_disp'], (newRecord: { _disp: string }) => {
-        setDisplayName(newRecord._disp);
-      });
-  }, []);
-
-  useEffect(() => {
-    const hasFirstChildrenName = get(children, '[0].name', '');
-
-    if (isOpen && hasFirstChildrenName.length === 0) {
-      isFunction(onFetchChildren) &&
-        onFetchChildren(`${SourcesId.WIKI}@${node.id}`).then(({ records = [] }) => {
-          setChildren(records);
-
-          if (records.length > 0) {
-            setIsOpen(true);
-          }
-        });
-    }
-  }, [isOpen]);
-
-  const onClickChevron = () => {
-    setIsOpen(!isOpen);
-  };
-
-  const onClickLabel = () => {
-    toggleOpen && toggleOpen();
-  };
-
-  return (
-    <details open={isOpen}>
-      <summary
-        onClick={e => e.preventDefault()}
-        className={classNames('tree-summary', { nochild: !children.length })}
-        data-record={node.id}
-      >
-        {children.length > 0 && (
-          <div className="tree-summary_btn" onClick={onClickChevron}>
-            {isOpen ? <ChevronDownIcon width={20} height={20} /> : <ChevronRightIcon width={20} height={20} />}
-          </div>
-        )}
-        <label className="tree-summary_label" onClick={onClickLabel}>
-          {displayName}
-        </label>
-        {canEdit && (
-          <div className="tree-actions">
-            <div className="tree-actions__btn-create" onClick={() => create(`${SourcesId.WIKI}@${node.id}`)}>
-              <Icon className="icon-plus" />
-            </div>
-            <div className="tree-actions__btn-delete" onClick={deleteRecord}>
-              <Icon className="icon-delete" />
-            </div>
-          </div>
-        )}
-      </summary>
-      <ul style={{ paddingTop: '5px', paddingLeft: '15px' }}>
-        {children.map((child: TreeNode) => (
-          <li
-            key={child.id}
-            className={classNames('child-tree', {
-              'child-tree__active': recordRef && recordRef.includes(child.id),
-              'child-tree__last': child.children?.length === 0
-            })}
-            onClick={(event: React.MouseEvent<HTMLElement>) => {
-              event.stopPropagation();
-              if (child.children.length === 0) {
-                updateCurrentUrl({ recordRef: `${SourcesId.WIKI}@${child.id}` });
-              }
-            }}
-          >
-            {child && (
-              <TreeNode
-                toggleOpen={() => updateCurrentUrl({ recordRef: `${SourcesId.WIKI}@${child.id}` })}
-                rootRecord={rootRecord}
-                recordRef={recordRef}
-                records={records}
-                setRecords={setRecords}
-                node={child}
-                onFetchChildren={onFetchChildren}
-                updateRootChilds={updateChilds}
-                canEdit={canEdit}
-              />
-            )}
-          </li>
-        ))}
-      </ul>
-    </details>
-  );
-};
-
-const HierarchicalTreeWidget = ({ record: initialRecordRef, isSameHeight }: BaseWidgetProps) => {
-  const rootRecord = `${SourcesId.WIKI}@${getWorkspaceId()}$ROOT`;
+const HierarchicalTreeWidget = ({
+  record: initialRecordRef,
+  isSameHeight,
+  reloadGrid,
+  label,
+  stateId,
+  id,
+  onSave,
+  fetchBreadcrumbs,
+  config
+}: HierarchicalTreeWidget) => {
+  const journalId = String(get(getSearchParams(), JUP.JOURNAL_ID, ''));
+  const isJournalMode = !!journalId;
+  const sourceId = isJournalMode ? SourcesId.CATEGORY : SourcesId.WIKI;
+  const rootRecord = isJournalMode ? 'null' : `${SourcesId.WIKI}@${getWorkspaceId()}$ROOT`;
 
   const [canEdit, setCanEdit] = useState<boolean>(false);
-  const [recordRef, setRecordRef] = useState<string | null>(initialRecordRef || String(get(getSearchParams(), JUP.RECORD_REF, '')));
-  const [records, setRecords] = useState<TreeNode[]>([]);
+  const [isOpenSettings, setIsOpenSettings] = useState<boolean>(false);
+  const [recordRef, setRecordRef] = useState<string | null>(
+    isJournalMode ? String(get(getSearchParams(), JUP.RECORD_REF, '')) : initialRecordRef
+  );
+  const [records, setRecords] = useState<TreeNodeType[]>([]);
+
+  useEffect(() => {
+    if (isJournalMode && stateId && isFunction(reloadGrid)) {
+      reloadGrid();
+    }
+  }, [recordRef]);
 
   useEffect(() => {
     fetchRecords().then(({ records = [] }) => {
       setRecords(records);
     });
+
     // @ts-ignore
-    Records.get(`${SourcesId.WIKI}@${getWorkspaceId()}$ROOT`)
-      .load('permissions._has.Write?bool')
-      .then((value: boolean) => setCanEdit(value));
+    Records.get(`${SourcesId.PERSON}@${getCurrentUserName()}`)
+      .load('isAdmin?bool')
+      .then((value: boolean) => {
+        if (!value) {
+          // @ts-ignore
+          Records.get(`${sourceId}@${getWorkspaceId()}$ROOT`)
+            .load('permissions._has.Write?bool')
+            .then((value: boolean) => setCanEdit(value));
+        } else {
+          setCanEdit(value);
+        }
+      });
 
     document.addEventListener(Events.CHANGE_URL_LINK_EVENT, () => {
       const newRecordRef = getRecordRef();
@@ -236,17 +96,27 @@ const HierarchicalTreeWidget = ({ record: initialRecordRef, isSameHeight }: Base
   }, []);
 
   const fetchRecords = (parent?: string) => {
+    const dashboardQuery = {
+      ecosType: 'wiki',
+      query: {
+        t: 'eq',
+        a: '_parent',
+        val: parent || rootRecord
+      }
+    };
+
+    const journalQuery = {
+      sourceId: SourcesId.CATEGORY,
+      query: {
+        t: 'eq',
+        a: '_parent',
+        v: parent || `${SourcesId.JOURNAL}@${journalId}`
+      }
+    };
+
     // @ts-ignore
     return Records.query(
-      {
-        language: 'predicate',
-        ecosType: 'wiki',
-        query: {
-          t: 'eq',
-          a: '_parent',
-          val: parent || rootRecord
-        }
-      },
+      { ...(isJournalMode ? journalQuery : dashboardQuery), language: 'predicate' },
       {
         name: '_disp',
         parent: '_parent?id',
@@ -258,10 +128,11 @@ const HierarchicalTreeWidget = ({ record: initialRecordRef, isSameHeight }: Base
 
   const create = async (parent?: string) => {
     FormManager.openFormModal({
-      record: `${SourcesId.WIKI}@`,
-      title: t(Labels.MODAL_TITLE),
+      ...(isJournalMode && { formId: createCategoryFormId }),
+      record: `${sourceId}@`,
+      title: t(isJournalMode ? Labels.MODAL_TITLE_JOURNAL_CREATE : Labels.MODAL_TITLE_DASHBOARD_CREATE),
       attributes: {
-        _parent: parent || rootRecord,
+        _parent: isJournalMode ? `${SourcesId.JOURNAL}@${journalId}` : parent || rootRecord,
         _parentAtt: 'children'
       },
       onSubmit: () => {
@@ -272,7 +143,7 @@ const HierarchicalTreeWidget = ({ record: initialRecordRef, isSameHeight }: Base
     });
   };
 
-  const renderContent = () =>
+  const renderTreeContent = () =>
     records.length === 0 ? (
       <div className="ecos-hierarchical-tree-widget-empty">
         <EmptyIcon />
@@ -292,12 +163,12 @@ const HierarchicalTreeWidget = ({ record: initialRecordRef, isSameHeight }: Base
               onClick={(event: React.MouseEvent<HTMLElement>) => {
                 event.preventDefault();
                 if (record.children.length === 0) {
-                  updateCurrentUrl({ recordRef: `${SourcesId.WIKI}@${record.id}` });
+                  updateCurrentUrl({ recordRef: `${sourceId}@${record.id}` });
                 }
               }}
             >
               <TreeNode
-                toggleOpen={() => updateCurrentUrl({ recordRef: `${SourcesId.WIKI}@${record.id}` })}
+                toggleOpen={() => updateCurrentUrl({ recordRef: `${sourceId}@${record.id}` })}
                 updateRootChilds={childs => setRecords(childs)}
                 rootRecord={rootRecord}
                 recordRef={recordRef}
@@ -306,12 +177,51 @@ const HierarchicalTreeWidget = ({ record: initialRecordRef, isSameHeight }: Base
                 canEdit={canEdit}
                 records={records}
                 setRecords={setRecords}
+                initialRecordRef={initialRecordRef}
+                reloadGrid={reloadGrid}
+                callbackSubmitForm={isJournalMode ? fetchBreadcrumbs : () => null}
               />
             </li>
           ))}
         </ul>
       </div>
     );
+
+  const renderContent = () =>
+    isOpenSettings ? (
+      <SettingsWidget
+        stateId={stateId}
+        onClose={() => setIsOpenSettings(false)}
+        label={label || config?.label}
+        id={id}
+        isJournalMode={isJournalMode}
+        onSave={onSave}
+        config={config}
+      />
+    ) : (
+      renderTreeContent()
+    );
+
+  const renderActions = () => (
+    <div className="ecos-hierarchical-tree-widget__structure-actions">
+      {!isOpenSettings && (
+        <Tooltip uncontrolled text={t(Labels.ADD_GROUP)} target={tooltipIdCreate} off={isMobileDevice()}>
+          <div id={tooltipIdCreate} className="ecos-hierarchical-tree-widget__structure-actions_btn" onClick={() => create()}>
+            <Icon className="icon-plus" />
+          </div>
+        </Tooltip>
+      )}
+      <Tooltip uncontrolled text={t(Labels.SETTINGS)} target={tooltipIdSettings} off={isMobileDevice()}>
+        <div
+          id={tooltipIdSettings}
+          className={classNames('ecos-hierarchical-tree-widget__structure-actions_btn', { active: isOpenSettings })}
+          onClick={() => setIsOpenSettings(!isOpenSettings)}
+        >
+          <Icon className="icon-settings" />
+        </div>
+      </Tooltip>
+    </div>
+  );
 
   return (
     <div
@@ -326,15 +236,9 @@ const HierarchicalTreeWidget = ({ record: initialRecordRef, isSameHeight }: Base
             updateCurrentUrl({ recordRef: rootRecord });
           }}
         >
-          {t(Labels.TITLE)}
+          {isOpenSettings ? t(Labels.SETTINGS) : t(getMLValue(label || config?.label)) || t(Labels.TITLE_JOURNAL)}
         </h4>
-        {canEdit && (
-          <Tooltip uncontrolled text={t(Labels.ADD_GROUP)} target={tooltipId} off={isMobileDevice()}>
-            <div id={tooltipId} className="ecos-hierarchical-tree-widget__structure__bnt-create" onClick={() => create()}>
-              <Icon className="icon-plus" />
-            </div>
-          </Tooltip>
-        )}
+        {canEdit && renderActions()}
       </div>
       {isSameHeight ? (
         <Scrollbars
@@ -352,4 +256,20 @@ const HierarchicalTreeWidget = ({ record: initialRecordRef, isSameHeight }: Base
   );
 };
 
-export default HierarchicalTreeWidget;
+const mapStateToProps = (_: RootState, props: BaseWidgetProps) => ({
+  stateId: props.stateId || getStateId(props)
+});
+
+const mapDispatchToProps = (
+  dispatch: Dispatch,
+  props: BaseWidgetProps & { journalId: HierarchicalTreeWidget['journalId'] }
+): Pick<HierarchicalTreeWidget, 'reloadGrid' | 'fetchBreadcrumbs'> => {
+  const w = wrapArgs<void>(props.stateId || getStateId({ ...props, id: props.journalId }));
+
+  return {
+    reloadGrid: () => dispatch(reloadGrid(w())),
+    fetchBreadcrumbs: () => dispatch(fetchBreadcrumbs(w()))
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(HierarchicalTreeWidget);

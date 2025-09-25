@@ -16,6 +16,8 @@ import Components from '@/components/widgets/Components';
 import { t } from '@/helpers/export/util';
 import { wrapArgs } from '@/helpers/redux';
 import WidgetService from '@/services/WidgetService';
+import PageTabList from '@/services/pageTabs/PageTabList';
+import { MLTextType } from '@/types/components';
 import { Dispatch, RootState } from '@/types/store';
 
 import './style.scss';
@@ -45,7 +47,8 @@ type WidgetsLoadType = {
 type WidgetOfConfigType = {
   dndId: string;
   name: string;
-  label: string;
+  label: MLTextType | string;
+  id?: string;
 };
 
 export type WidgetsConfigType = {
@@ -91,18 +94,29 @@ class JournalsPreviewWidgets<P extends JournalsPreviewWidgetsProps, S extends Jo
   }
 
   getWidgets = (): React.ReactNode[] => {
-    const { recordId, config } = this.props;
+    const { recordId, config, stateId, journalId } = this.props;
     const { widgets: configWidgets } = config || {};
     const components: React.ReactNode[] = [];
 
-    const widgets = configWidgets && get(configWidgets, [0]) ? configWidgets[0].map(widget => widget.name) : DEFAULT_TABLE_WIDGETS || [];
+    const widgets =
+      (configWidgets && get(configWidgets, [0]) ? configWidgets[0] : DEFAULT_TABLE_WIDGETS.map(widgetName => ({ name: widgetName }))) || [];
 
-    widgets.forEach((name: string) => {
+    widgets.forEach(({ name, ...widgetProps }) => {
       let Widget = this.loadedWidgets[name];
-      const props = Components.getProps(name);
-      const key = `${name}-${recordId}`;
+
+      const props = {
+        stateId,
+        journalId,
+        record: recordId,
+        dashboardId: null,
+        tabId: PageTabList.activeTabId,
+        isSameHeight: false,
+        ...Components.getProps(name),
+        ...widgetProps
+      };
+
       const isStaticPreviewWidget = get(props, 'isStaticPreviewWidget');
-      const record = isStaticPreviewWidget ? null : recordId;
+      const key = isStaticPreviewWidget ? `${name}-static-widget` : `${name}-${recordId}`;
 
       if (!Widget) {
         Widget = Components.get(name);
@@ -114,7 +128,7 @@ class JournalsPreviewWidgets<P extends JournalsPreviewWidgetsProps, S extends Jo
           components.unshift(
             <WidgetErrorBoundary key={key} title={t(Labels.WIDGET_ERROR_TITLE)} message={t(Labels.WIDGET_ERROR_MSG)}>
               <Suspense fallback={<Loader type="points" />}>
-                <Widget {...props} record={record} />
+                <Widget {...props} />
               </Suspense>
             </WidgetErrorBoundary>
           );
@@ -122,7 +136,7 @@ class JournalsPreviewWidgets<P extends JournalsPreviewWidgetsProps, S extends Jo
           components.push(
             <WidgetErrorBoundary key={key} title={t(Labels.WIDGET_ERROR_TITLE)} message={t(Labels.WIDGET_ERROR_MSG)}>
               <Suspense fallback={<Loader type="points" />}>
-                <Widget {...props} record={record} />
+                <Widget {...props} />
               </Suspense>
             </WidgetErrorBoundary>
           );

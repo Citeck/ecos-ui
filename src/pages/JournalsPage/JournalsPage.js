@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { initState } from '@/actions/journals';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Journals } from '@/components/Journals';
-import { getStateId } from '@/helpers/redux';
+import { getStateId } from '@/helpers/store';
 import { getSearchParams } from '@/helpers/urls';
 import { getId, t } from '@/helpers/util';
 import pageTabList from '@/services/pageTabs/PageTabList';

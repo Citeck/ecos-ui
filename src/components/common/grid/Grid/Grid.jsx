@@ -99,6 +99,7 @@ class Grid extends Component {
       isScrolling: false,
       maxHeight: props.maxHeight,
       selected: props.selected || [],
+      selectedRowId: null,
       updatedColumn: null,
       updatedColumnBlocked: null,
       ecosGridWidth: 0
@@ -495,7 +496,10 @@ class Grid extends Component {
           const settingInlineTools = this.getTrOptions(currentTarget);
 
           this.removeInlineToolsElement();
-          this.appendInlineToolsElement(currentTarget, settingInlineTools);
+
+          if (get(this.props.data[currentTarget.rowIndex - 1], 'id') !== this.state.selectedRowId) {
+            this.appendInlineToolsElement(currentTarget, settingInlineTools);
+          }
         }
 
         this.onRowClick(currentTarget);
@@ -1157,6 +1161,14 @@ class Grid extends Component {
     this.setHover(tr, ECOS_GRID_HOVERED_CLASS, true);
 
     const { onRowClick } = this.props;
+
+    const selectedRowId = get(this.props.data[tr.rowIndex - 1], 'id', null);
+    if (selectedRowId !== this.state.selectedRowId) {
+      this.setState({ selectedRowId });
+    } else {
+      this.setState({ selectedRowId: null });
+    }
+
     isFunction(onRowClick) && onRowClick(this.props.data[tr.rowIndex - 1]);
   };
 

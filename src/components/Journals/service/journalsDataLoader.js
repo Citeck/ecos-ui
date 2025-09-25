@@ -267,7 +267,7 @@ class JournalsDataLoader {
       columns
     );
 
-    let predicates = [journalConfig.predicate, settings.predicate, ...predicateFilter].filter(p => !!p);
+    let predicates = [journalConfig.predicate, settings.predicate, ...(settings.predicates || []), ...predicateFilter].filter(p => !!p);
 
     if (settings.onlyLinked && settings.recordRef && isArray(settings.attrsToLoad)) {
       const attrsToLoad = settings.attrsToLoad.map(attr => attr.value);

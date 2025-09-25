@@ -12,7 +12,7 @@ import Settings from './Settings';
 import { Labels } from './util';
 
 import { DocScaleOptions, MIN_WIDTH_DASHLET_LARGE } from '@/constants/index';
-import { getStateId } from '@/helpers/redux';
+import { getStateId } from '@/helpers/store';
 import { isMobileDevice, t } from '@/helpers/util';
 import DAction from '@/services/DashletActionService';
 import UserLocalSettingsService from '@/services/userLocalSettings';

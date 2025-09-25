@@ -5,7 +5,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 
 import { getReportData } from '../../../actions/report';
-import { getStateId } from '../../../helpers/redux';
+import { getStateId } from '../../../helpers/store';
 import { isSmallMode, t } from '../../../helpers/util';
 import { selectStateByKey } from '../../../selectors/birthdays';
 import DAction from '../../../services/DashletActionService';

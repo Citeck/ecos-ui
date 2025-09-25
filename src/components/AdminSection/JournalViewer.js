@@ -5,7 +5,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 
 import { initState, setSearchText } from '../../actions/journals';
-import { getStateId } from '../../helpers/redux';
+import { getStateId } from '../../helpers/store';
 import { getSearchParams } from '../../helpers/urls';
 import { getEnabledWorkspaces, getId } from '../../helpers/util';
 import pageTabList from '../../services/pageTabs/PageTabList';

@@ -234,6 +234,7 @@ export const selectKanbanJournalProps = createSelector(
 export const selectCommonJournalPageProps = createSelector(
   [selectState, selectUrl, selectIsDocLibEnabled, selectIsKanbanEnabled, selectIsEnabledPreviewList],
   (ownState, urlParams, isDocLibEnabled, isKanbanEnabled, isPreviewListEnabled) => ({
+    isLoadingGrid: ownState.loadingGrid,
     viewMode: ownState.viewMode,
     title: getTextByLocale(get(ownState, 'journalConfig.name')),
     urlParams,

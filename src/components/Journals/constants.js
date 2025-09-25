@@ -7,7 +7,7 @@ export const ALLOW_WIDGETS_PREVIEW = [
   WidgetsKeys.DOC_ASSOCIATIONS,
   WidgetsKeys.PUBLICATION,
   WidgetsKeys.COMMENTS,
-  // WidgetsKeys.HIERARCHICAL_TREE, TODO: Uncomment after the backend is ready (ECOSENT-3379)
+  WidgetsKeys.HIERARCHICAL_TREE,
   WidgetsKeys.DOC_PREVIEW
 ];
 

@@ -3,7 +3,7 @@ import isFunction from 'lodash/isFunction';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 
-import { getStateId } from '../../../helpers/redux';
+import { getStateId } from '../../../helpers/store';
 import { getAdaptiveNumberStr, isSmallMode, t } from '../../../helpers/util';
 import DAction from '../../../services/DashletActionService';
 import Dashlet from '../../Dashlet';
