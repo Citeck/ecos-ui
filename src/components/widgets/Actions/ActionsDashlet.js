@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 
-import { getStateId } from '../../../helpers/redux';
+import { getStateId } from '../../../helpers/store';
 import { isSmallMode, t } from '../../../helpers/util';
 import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';

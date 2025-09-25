@@ -10,7 +10,7 @@ import FormManager from '../../../components/EcosForm/FormManager';
 import Records from '@/components/Records/Records';
 import { Avatar, Loader } from '@/components/common';
 import BaseWidget, { BaseWidgetProps, BaseWidgetState, EVENTS } from '@/components/widgets/BaseWidget';
-import { getStateId } from '@/helpers/redux';
+import { getStateId } from '@/helpers/store';
 import { getFitnesseClassName } from '@/helpers/tools';
 import { getRecordRef } from '@/helpers/urls';
 import { t } from '@/helpers/util';

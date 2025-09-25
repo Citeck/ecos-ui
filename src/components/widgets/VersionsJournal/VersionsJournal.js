@@ -27,7 +27,7 @@ import {
 } from '@/actions/versionsJournal';
 import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '@/constants/index';
 import { BASE_HEIGHT, MODAL, TOOLTIP } from '@/constants/versionsJournal';
-import { getStateId } from '@/helpers/redux';
+import { getStateId } from '@/helpers/store';
 import { arrayCompare, t } from '@/helpers/util';
 import { selectLabelsVersions, selectStateByKey } from '@/selectors/versionsJournal';
 import PageService from '@/services/PageService';

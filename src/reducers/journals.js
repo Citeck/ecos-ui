@@ -42,7 +42,8 @@ import {
   setSearchText,
   saveColumn,
   setSearching,
-  setJournalWidgetsConfig
+  setJournalWidgetsConfig,
+  setBreadcrumbs
 } from '../actions/journals';
 import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_PAGINATION, relatedViews } from '../components/Journals/constants';
 import { t } from '../helpers/export/util';
@@ -90,6 +91,7 @@ export const defaultState = {
   journalsList: [],
   journals: [],
   journalSettings: [],
+  breadcrumbs: [],
 
   config: null,
   initConfig: null,
@@ -242,6 +244,11 @@ export default handleActions(
       const journalSettings = [{ id: '', displayName: t('journal.presets.default') }];
       Array.isArray(action.payload) && journalSettings.push(...action.payload);
       return handleState(state, stateId, { journalSettings });
+    },
+    [setBreadcrumbs]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+      return handleState(state, stateId, { breadcrumbs: action.payload });
     },
     [setJournalExpandableProp]: (state, action) => {
       const stateId = action.payload.stateId;

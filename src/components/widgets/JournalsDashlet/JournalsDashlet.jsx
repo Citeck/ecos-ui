@@ -30,7 +30,7 @@ import {
   setSelectedRecords
 } from '@/actions/journals';
 import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '@/constants';
-import { getStateId, wrapArgs } from '@/helpers/redux';
+import { getStateId, wrapArgs } from '@/helpers/store';
 import { goToJournalsPage } from '@/helpers/urls';
 import { extractLabel, getDOMElementMeasurer, getTextByLocale, t } from '@/helpers/util';
 import { selectJournalDashletProps } from '@/selectors/dashletJournals';

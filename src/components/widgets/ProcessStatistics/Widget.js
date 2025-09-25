@@ -8,7 +8,7 @@ import * as React from 'react';
 
 import { MAX_DEFAULT_HEIGHT_DASHLET, SourcesId, SystemJournals } from '../../../constants';
 import { PERMISSION_VIEW_REPORTS } from '../../../constants/bpmn';
-import { getStateId } from '../../../helpers/redux';
+import { getStateId } from '../../../helpers/store';
 import { getCurrentUserName, t } from '../../../helpers/util';
 import plugins from '../../../plugins/index';
 import DAction from '../../../services/DashletActionService';

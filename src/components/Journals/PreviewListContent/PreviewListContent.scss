@@ -15,15 +15,29 @@
   &__header {
     display: inline-flex;
     align-items: center;
-    justify-content: space-between;
+    padding: 6px;
+    gap: 5px;
     width: 100%;
 
+    &-breadcrumb {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+
+      &_text {
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+        color: $color-gray-5;
+      }
+    }
+
     &_title {
+      cursor: pointer;
       font-size: 12px;
       font-weight: 600;
       margin: 0;
       color: $text-color-gray;
-      padding: 6px;
     }
   }
 

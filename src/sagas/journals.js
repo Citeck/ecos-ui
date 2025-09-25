@@ -26,6 +26,7 @@ import {
   execJournalAction,
   execRecordsAction,
   execRecordsActionComplete,
+  fetchBreadcrumbs,
   getDashletConfig,
   getDashletEditorData,
   getJournalsData,
@@ -48,6 +49,7 @@ import {
   saveRecords,
   selectJournal,
   selectPreset,
+  setBreadcrumbs,
   setCheckLoading,
   setColumnsSetup,
   setDashletConfig,
@@ -76,7 +78,8 @@ import {
   setSelectedJournals,
   setSelectedRecords,
   setUrl,
-  toggleViewMode
+  toggleViewMode,
+  updateJournalWidgetsConfig
 } from '../actions/journals';
 import { applyPreset, clearFiltered, reloadBoardData, selectTemplateId, setKanbanSettings } from '../actions/kanban';
 import { setIsEnabledPreviewList, setLoadingPreviewList, setPreviewListConfig } from '../actions/previewList';
@@ -91,7 +94,7 @@ import JournalsService, { EditorService, PresetsServiceApi } from '../components
 import Records from '../components/Records';
 import ActionsRegistry from '../components/Records/actions/actionsRegistry';
 import { ActionTypes } from '../components/Records/actions/constants';
-import { PREDICATE_EQ } from '../components/Records/predicates/predicates';
+import { PREDICATE_EMPTY, PREDICATE_EQ } from '../components/Records/predicates/predicates';
 import { convertAttributeValues } from '../components/Records/predicates/util';
 import { JournalUrlParams, SourcesId } from '../constants';
 import { GROUPING_COUNT_ALL } from '../constants/journal';
@@ -110,12 +113,14 @@ import {
   selectJournalTotalCount,
   selectNewVersionDashletConfig,
   selectUrl,
-  selectViewMode
+  selectViewMode,
+  selectWidgetsConfig
 } from '../selectors/journals';
 import { selectKanban } from '../selectors/kanban';
 import { selectIsViewNewJournal } from '../selectors/view';
 import PageService from '../services/PageService';
 
+import { JournalsApi } from '@/api/journalsApi';
 import { NotificationManager } from '@/services/notifications';
 
 const attsForListView = {
@@ -646,7 +651,7 @@ export function* getGridData(api, params, stateId, isOnlyData = false) {
   }
 
   const { recordRef, journalConfig, journalSetting } = yield select(selectJournalData, stateId);
-  const { id } = journalConfig || {};
+  const { id, typeRef } = journalConfig || {};
 
   const config = yield select(state => selectNewVersionDashletConfig(state, stateId));
   const journalId = get(config, 'journalId', id?.includes('@') ? id.split('@')[1] : id);
@@ -671,9 +676,29 @@ export function* getGridData(api, params, stateId, isOnlyData = false) {
     });
   }
 
+  const categoryPredicates = [];
+  const query = getSearchParams();
+  const { journalId: qJournalId, recordRef: qRecordRef } = query || {};
+  const aspects = yield call(api.journals.getAspects, typeRef);
+  const foundCategoryAspect = (aspects || []).find(aspect => get(aspect, 'ref', '').includes('has-category'));
+  if (foundCategoryAspect && qJournalId) {
+    if (qRecordRef && qRecordRef !== 'null') {
+      categoryPredicates.push({
+        att: 'has-category:category',
+        t: PREDICATE_EQ,
+        val: qRecordRef
+      });
+    } else {
+      categoryPredicates.push({
+        att: 'has-category:category',
+        t: PREDICATE_EMPTY
+      });
+    }
+  }
+
   const predicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(_predicates));
   const pagination = get(forRequest, 'groupBy.length') ? { ..._pagination, maxItems: undefined } : _pagination;
-  // debugger;
+
   const settings = JournalsConverter.getSettingsForDataLoaderServer({
     ...forRequest,
     recordRef,
@@ -699,7 +724,10 @@ export function* getGridData(api, params, stateId, isOnlyData = false) {
     settings.workspaces = aggregateWorkspaces.map(wsId => (wsId.includes('@') ? wsId.split('@')[1] : wsId));
   }
 
-  const resultData = yield call([JournalsService, JournalsService.getJournalData], journalConfig, settings);
+  const resultData = yield call([JournalsService, JournalsService.getJournalData], journalConfig, {
+    ...settings,
+    predicates: [...categoryPredicates]
+  });
   const journalData = JournalsConverter.getJournalDataWeb(resultData);
 
   if (!get(grouping, 'groupBy', []).length && !isOnlyData) {
@@ -1698,6 +1726,20 @@ export function* sagaGetJournalWidgetsConfig({ w, api }, { payload }) {
   }
 }
 
+export function* sagaUpdateJournalWidgetsConfig({ w, api, stateId }, { payload }) {
+  try {
+    const { id: journalId } = yield select(selectJournalConfig, stateId);
+    const widgetsConfig = yield select(selectWidgetsConfig, stateId);
+
+    const config = { ...widgetsConfig, ...payload };
+    yield call(JournalsApi.saveConfigWidgets, { config, journalId });
+
+    yield put(setJournalWidgetsConfig(w(config)));
+  } catch (e) {
+    console.error('[journals sagaUpdateJournalWidgetsConfig saga error', e);
+  }
+}
+
 export function* sagaGetNextPage({ w, api }, { payload }) {
   try {
     const { stateId } = payload;
@@ -1731,6 +1773,15 @@ export function* sagaGetNextPage({ w, api }, { payload }) {
     console.error('[journals sagaGetNextPage saga error', e);
   } finally {
     yield put(setLoadingGrid(w(false)));
+  }
+}
+
+export function* sagaFetchBreadcrumbs({ w, api }) {
+  try {
+    const breadcrumbs = yield call(api.journals.fetchBreadcrumbs);
+    yield put(setBreadcrumbs(w(breadcrumbs)));
+  } catch (e) {
+    console.error('[journals sagaFetchBreadcrumbs saga error', e);
   }
 }
 
@@ -1769,11 +1820,13 @@ function* saga(ea) {
   yield takeEvery(initPreview().type, wrapSaga, { ...ea, saga: sagaInitPreview });
   yield takeEvery(goToJournalsPage().type, wrapSaga, { ...ea, saga: sagaGoToJournalsPage });
   yield takeEvery(getJournalWidgetsConfig().type, wrapSaga, { ...ea, saga: sagaGetJournalWidgetsConfig });
+  yield takeEvery(updateJournalWidgetsConfig().type, wrapSaga, { ...ea, saga: sagaUpdateJournalWidgetsConfig });
   yield takeEvery(runSearch().type, wrapSaga, { ...ea, saga: sagaSearch });
   yield takeEvery(checkConfig().type, wrapSaga, { ...ea, saga: sagaCheckConfig });
 
   yield takeEvery(toggleViewMode().type, wrapSaga, { ...ea, saga: sagaToggleViewMode });
   yield takeEvery(getNextPage().type, wrapSaga, { ...ea, saga: sagaGetNextPage });
+  yield takeEvery(fetchBreadcrumbs().type, wrapSaga, { ...ea, saga: sagaFetchBreadcrumbs });
 }
 
 export default saga;

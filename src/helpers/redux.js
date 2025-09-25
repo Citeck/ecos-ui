@@ -1,8 +1,5 @@
 import get from 'lodash/get';
 
-import { getWorkspaceId } from './urls';
-import { getEnabledWorkspaces } from './util';
-
 export const getTitleFormatter = module => {
   return (action, time, took) => `${module} >>> action @ ${action.type}`;
 };
@@ -42,16 +39,6 @@ export function* wrapSaga({ api, saga }, action) {
   action = handleAction(action);
 
   yield saga({ api, stateId, w }, action);
-}
-
-export function getStateId({ tabId = '', id = '' }) {
-  const baseId = `[${tabId}]-[${id}]`;
-
-  if (getEnabledWorkspaces()) {
-    return baseId + `-[${getWorkspaceId()}]`;
-  }
-
-  return baseId;
 }
 
 export function getCurrentStateById(state, stateId, initialState = {}) {

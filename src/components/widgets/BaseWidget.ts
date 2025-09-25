@@ -30,6 +30,7 @@ export interface BaseWidgetProps {
   record: string;
   tabId: string;
   isSameHeight: boolean;
+  stateId?: string;
   config?: {
     collapsed?: boolean;
   };
