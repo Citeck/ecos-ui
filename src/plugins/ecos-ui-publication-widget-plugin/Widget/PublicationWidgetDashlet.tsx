@@ -6,6 +6,7 @@ import moment from 'moment';
 import Dashlet from '../../../components/Dashlet/Dashlet';
 import FormManager from '../../../components/EcosForm/FormManager';
 
+import LexicalEditor from '@/components/LexicalEditor';
 // @ts-ignore
 import Records from '@/components/Records/Records';
 import { Avatar, Loader } from '@/components/common';
@@ -211,7 +212,7 @@ class PublicationWidgetDashlet<P extends PublicationWidgetDashletProps, S extend
                 <p className="ecos-publication-info__date">{moment(publication.modified).format('dddd, MMMM Do YYYY, h:mm:ss')}</p>
               </div>
             </div>
-            {isString(publication.text) && <div dangerouslySetInnerHTML={{ __html: publication.text }} />}
+            {isString(publication.text) && <LexicalEditor readonly htmlString={publication.text} />}
           </>
         )}
       </Dashlet>
