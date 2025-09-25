@@ -398,7 +398,7 @@ class JournalsDashletEditor extends Component {
   };
 
   setSelectedWorkspacePolicy = policy => {
-    this.setState({ searchInWorkspacePolicy: policy });
+    this.setState({ searchInWorkspacePolicy: policy.value });
   };
 
   setSelectedAdditionsWorkspaces = (searchInAdditionalWorkspaces = []) => {
@@ -432,6 +432,8 @@ class JournalsDashletEditor extends Component {
       goToButtonName
     } = this.state;
 
+    const workspacePolicy = SearchWorkspacePolicyOptions.find(({ value }) => value === searchInWorkspacePolicy);
+
     return (
       <div className={classNames('ecos-journal-dashlet-editor', className)} ref={forwardRef}>
         <div className={classNames('ecos-journal-dashlet-editor__body', { 'ecos-journal-dashlet-editor__body_small': this.isSmall })}>
@@ -461,7 +463,7 @@ class JournalsDashletEditor extends Component {
                   <Field label={t('workspace-polices.title')} isSmall={this.isSmall} labelPosition="top">
                     <Select
                       onChange={this.setSelectedWorkspacePolicy}
-                      value={this.state.searchInWorkspacePolicy}
+                      value={workspacePolicy ? { value: workspacePolicy.value, label: t(workspacePolicy.label) } : null}
                       options={SearchWorkspacePolicyOptions.map(item => ({
                         value: item.value,
                         label: t(item.label)
