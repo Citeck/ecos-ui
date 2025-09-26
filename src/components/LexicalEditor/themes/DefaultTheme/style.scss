@@ -23,39 +23,39 @@ i.columns {
 
   &__text {
     &_bold {
-      font-weight: bold !important;
+      font-weight: bold;
     }
 
     &_italic {
-      font-style: italic !important;
+      font-style: italic;
     }
 
     &_underline {
-      text-decoration: underline !important;
+      text-decoration: underline;
     }
 
     &_strike-through {
-      text-decoration: line-through !important;
+      text-decoration: line-through;
     }
 
     &_underline-strike-through {
-      text-decoration: underline line-through !important;
+      text-decoration: underline line-through;
     }
 
     &_subscript {
-      font-size: 0.8em !important;
+      font-size: 0.8em;
       vertical-align: sub !important;
     }
 
     &_superscript {
-      font-size: 0.8em !important;
-      vertical-align: super !important;
+      font-size: 0.8em;
+      vertical-align: super;
     }
 
     &_code {
       background-color: rgb(240, 242, 245);
-      padding: 1px 0.25rem !important;
-      font-family: monospace !important;
+      padding: 1px 0.25rem;
+      font-family: monospace;
     }
   }
 
