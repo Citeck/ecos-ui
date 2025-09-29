@@ -129,7 +129,7 @@ export default class BaseEditorMenu extends React.Component {
           presetFilterPredicates: [
             {
               t: PREDICATE_NOT_EMPTY,
-              att: 'typeRef._as.ref.aspectById.doclib.ref?raw'
+              att: 'typeRef.aspectById.doclib.ref?localId'
             }
           ],
           journalId: SystemJournals.JOURNALS
