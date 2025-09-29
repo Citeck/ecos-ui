@@ -1,10 +1,12 @@
 import _ from 'lodash';
 
+import { ParseAttributeType, Scalar } from '../types';
+
 const ATT_NAME_REGEXP = /\.atts?\((n:)?['"](.+?)['"]\)\s*{(.+)}/;
 
 export const SCALAR_FIELDS = ['disp', 'json', 'str', 'num', 'bool', 'id', 'assoc'];
 
-export const parseAttribute = (path, defaultScalar = 'disp') => {
+export const parseAttribute = (path: string, defaultScalar = 'disp'): ParseAttributeType => {
   if (path[0] === '#') {
     return null;
   }
@@ -18,7 +20,7 @@ export const parseAttribute = (path, defaultScalar = 'disp') => {
   }
 
   if (path[0] === '.') {
-    let attMatch = path.match(ATT_NAME_REGEXP);
+    const attMatch = path.match(ATT_NAME_REGEXP);
     if (!attMatch) {
       return null;
     }
@@ -37,7 +39,7 @@ export const parseAttribute = (path, defaultScalar = 'disp') => {
 
     let name = path;
     let scalar = defaultScalar;
-    let qIdx = path.indexOf('?');
+    const qIdx = path.indexOf('?');
     if (qIdx !== -1) {
       name = path.substring(0, qIdx);
       scalar = path.substring(qIdx + 1);
@@ -58,7 +60,7 @@ export const parseAttribute = (path, defaultScalar = 'disp') => {
   }
 };
 
-export const mapValueToScalar = value => {
+export const mapValueToScalar = (value: Scalar): string => {
   if (value === null || value === undefined || _.isString(value) || _.isDate(value)) {
     return 'str';
   } else if (_.isNumber(value)) {
@@ -74,11 +76,11 @@ export const mapValueToScalar = value => {
   }
 };
 
-export const split = (str, delim) => {
+export const split = (str: string, delim: string): string[] => {
   let prevIdx = 0;
   let idx = indexOf(str, delim, prevIdx);
 
-  let result = [];
+  const result = [];
   while (idx !== -1) {
     result.push(str.substring(prevIdx, idx));
     prevIdx = idx + delim.length;
@@ -89,14 +91,14 @@ export const split = (str, delim) => {
   return result;
 };
 
-export const indexOf = (str, subString, fromIdx = 0) => {
+export const indexOf = (str: string, subString: string, fromIdx = 0): number => {
   if (hasOpenContextChar(subString)) {
     return -1;
   }
 
   let openContextChar = ' ';
   for (let idx = fromIdx; idx <= str.length - subString.length; idx++) {
-    let currentChar = str.charAt(idx);
+    const currentChar = str.charAt(idx);
     if (openContextChar !== ' ') {
       if (isCloseContextChar(openContextChar, currentChar)) {
         openContextChar = ' ';
@@ -112,7 +114,7 @@ export const indexOf = (str, subString, fromIdx = 0) => {
   return -1;
 };
 
-const containsAt = (str, idx, subString) => {
+const containsAt = (str: string, idx: number, subString: string): boolean => {
   if (str.length < idx + subString.length) {
     return false;
   }
@@ -127,7 +129,7 @@ const containsAt = (str, idx, subString) => {
   return true;
 };
 
-const hasOpenContextChar = str => {
+const hasOpenContextChar = (str: string): boolean => {
   for (let i = 0; i < str.length; i++) {
     if (isOpenContextChar(str[i])) {
       return true;
@@ -136,11 +138,11 @@ const hasOpenContextChar = str => {
   return false;
 };
 
-const isOpenContextChar = ch => {
+const isOpenContextChar = (ch: string): boolean => {
   return ch === "'" || ch === '"' || ch === '(' || ch === '{';
 };
 
-const isCloseContextChar = (openChar, ch) => {
+const isCloseContextChar = (openChar: string, ch: string): boolean => {
   if (openChar === "'" || openChar === '"') {
     return ch === openChar;
   }

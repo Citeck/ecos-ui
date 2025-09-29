@@ -14,6 +14,7 @@ import { fetchBreadcrumbs, reloadGrid } from '@/actions/journals';
 import FormManager from '@/components/EcosForm/FormManager';
 // @ts-ignore
 import Records from '@/components/Records';
+import RecordImpl from '@/components/Records/Record';
 import { Icon, Tooltip } from '@/components/common';
 import { Btn } from '@/components/common/btns';
 import { BaseWidgetProps } from '@/components/widgets/BaseWidget';
@@ -135,7 +136,7 @@ const HierarchicalTreeWidget = ({
         _parent: isJournalMode ? `${SourcesId.JOURNAL}@${journalId}` : parent || rootRecord,
         _parentAtt: 'children'
       },
-      onSubmit: (record: any) => {
+      onSubmit: (record: RecordImpl) => {
         fetchRecords().then(({ records = [] }) => {
           setRecords(records);
 

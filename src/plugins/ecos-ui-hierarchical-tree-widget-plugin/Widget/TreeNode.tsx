@@ -12,6 +12,7 @@ import ChevronRightIcon from './icons/ChevronRightIcon';
 import FormManager from '@/components/EcosForm/FormManager';
 //@ts-ignore
 import Records from '@/components/Records';
+import RecordImpl from '@/components/Records/Record';
 import { Icon, Tooltip } from '@/components/common';
 import { DialogManager } from '@/components/common/dialogs';
 import { JournalUrlParams as JUP, SourcesId } from '@/constants';
@@ -96,7 +97,7 @@ const TreeNode = ({
     });
   };
 
-  const onSubmitForm = () => {
+  const onSubmitForm = (record: RecordImpl) => {
     isFunction(onFetchChildren) &&
       onFetchChildren(node.parent).then(({ records: parentRecords = [] }) => {
         updateRootChilds(parentRecords);
@@ -107,6 +108,10 @@ const TreeNode = ({
         setIsOpen(true);
 
         callbackSubmitForm && callbackSubmitForm();
+
+        if (!isJournalMode && record.id) {
+          updateCurrentUrl({ recordRef: record.id });
+        }
       });
   };
 
