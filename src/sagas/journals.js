@@ -94,7 +94,7 @@ import JournalsService, { EditorService, PresetsServiceApi } from '../components
 import Records from '../components/Records';
 import ActionsRegistry from '../components/Records/actions/actionsRegistry';
 import { ActionTypes } from '../components/Records/actions/constants';
-import { PREDICATE_EMPTY, PREDICATE_EQ } from '../components/Records/predicates/predicates';
+import { PREDICATE_EQ } from '../components/Records/predicates/predicates';
 import { convertAttributeValues } from '../components/Records/predicates/util';
 import { JournalUrlParams, SourcesId } from '../constants';
 import { GROUPING_COUNT_ALL } from '../constants/journal';
@@ -688,11 +688,6 @@ export function* getGridData(api, params, stateId, isOnlyData = false) {
         t: PREDICATE_EQ,
         val: qRecordRef
       });
-    } else {
-      categoryPredicates.push({
-        att: 'has-category:category',
-        t: PREDICATE_EMPTY
-      });
     }
   }
 
@@ -963,7 +958,7 @@ function* sagaReloadGrid({ api, stateId, w }, { payload = {} }) {
           _selectedRecords = pageRecords.filter(rec => !excludedRecords.includes(rec));
         }
 
-        if (pageRecords.every(rec => _selectedRecords.includes(rec))) {
+        if (pageRecords.length > 0 && pageRecords.every(rec => _selectedRecords.includes(rec))) {
           _selectAllPageRecords = true;
         }
 

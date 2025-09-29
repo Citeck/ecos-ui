@@ -32,7 +32,7 @@ import {
 } from './constants';
 
 import { getTypeRef } from '@/actions/docLib';
-import { execJournalAction, setUrl, toggleViewMode } from '@/actions/journals';
+import { execJournalAction, fetchBreadcrumbs, setUrl, toggleViewMode } from '@/actions/journals';
 import { getBoardList } from '@/actions/kanban';
 import { updateTab } from '@/actions/pageTabs';
 import JournalsPreviewWidgets from '@/components/Journals/JournalsPreviewWidgets/JournalsPreviewWidgets';
@@ -60,6 +60,7 @@ const mapStateToProps = (state, props) => {
     isAdmin: get(state, 'user.isAdmin'),
     isMobile: get(state, 'view.isMobile'),
     pageTabsIsShow: get(state, 'pageTabs.isShow'),
+    searchParams: getSearchParams(),
     _url: window.location.href,
     isViewNewJournal,
     widgetsConfig,
@@ -76,6 +77,7 @@ const mapDispatchToProps = (dispatch, props) => {
     execJournalAction: (records, action, context) => dispatch(execJournalAction(w({ records, action, context }))),
     getTypeRef: journalId => dispatch(getTypeRef(w({ journalId }))),
     getBoardList: journalId => dispatch(getBoardList({ journalId, stateId: props.stateId })),
+    fetchBreadcrumbs: () => dispatch(fetchBreadcrumbs(w())),
     updateTab: tab => dispatch(updateTab({ tab }))
   };
 };
@@ -147,6 +149,8 @@ class Journals extends React.Component {
       updateCurrentUrl({ viewMode, viewWidgets: true });
     }
 
+    this.props.fetchBreadcrumbs();
+
     if (isUnknownView(viewMode)) {
       viewMode = JVM.TABLE;
     }
@@ -171,11 +175,16 @@ class Journals extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { _url, isActivePage, stateId, viewMode, tabId, isViewNewJournal, widgetsConfig, isLoadingGrid } = this.props;
+    const { _url, isActivePage, stateId, viewMode, tabId, isViewNewJournal, widgetsConfig, isLoadingGrid, searchParams } = this.props;
     const { journalId, initiatedWidgetsConfig } = this.state;
+    const prevSearchParams = prevProps.searchParams;
 
     const { isLeftPositionWidgets } = widgetsConfig || {};
     const prevIsLeftPositionWidgets = get(prevProps, 'widgetsConfig.isLeftPositionWidgets');
+
+    if (journalId && !isEqual(get(searchParams, 'recordRef'), get(prevSearchParams, 'recordRef'))) {
+      this.props.fetchBreadcrumbs();
+    }
 
     if (
       initiatedWidgetsConfig &&

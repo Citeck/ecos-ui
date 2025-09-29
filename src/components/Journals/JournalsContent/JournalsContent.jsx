@@ -6,6 +6,8 @@ import { connect } from 'react-redux';
 import { Well } from '../../common/form';
 import JournalsDashletGrid from '../JournalsDashletGrid';
 
+import Breadcrumbs from '@/components/Journals/Breadcrumbs';
+import { getSearchParams } from '@/helpers/urls';
 import { selectIsViewNewJournal } from '@/selectors/view';
 
 import './JournalsContent.scss';
@@ -18,11 +20,12 @@ const mapStateToProps = (state, props) => {
     journalId: get(newState, 'journalConfig.id', ''),
     grid: get(newState, 'grid', {}),
     gridData: get(newState, 'grid.data', []),
+    searchParams: getSearchParams(),
     isViewNewJournal
   };
 };
 
-const Content = React.memo(({ showWidgets, isViewNewJournal, maxHeight, isNotGrouping, ...props }) => (
+const Content = React.memo(({ showWidgets, isViewNewJournal, maxHeight, isNotGrouping, recordRef, ...props }) => (
   <Well
     isViewNewJournal={isViewNewJournal}
     className={classnames('ecos-journals-content__grid-well ecos-journals-content__grid-well_overflow_hidden', {
@@ -31,6 +34,7 @@ const Content = React.memo(({ showWidgets, isViewNewJournal, maxHeight, isNotGro
     })}
     maxHeight={maxHeight}
   >
+    {props.journalId && recordRef && <Breadcrumbs className="ecos-journals-content__breadcrumbs" stateId={props.stateId} />}
     <JournalsDashletGrid
       noTopBorder
       doInlineToolsOnRowClick={showWidgets}
@@ -54,12 +58,15 @@ class JournalsContent extends Component {
       onOpenSettings,
       isResetGridSettings,
       journalId,
+      searchParams,
       grid: _grid
     } = this.props;
     const { groupBy } = _grid || {};
+    const recordRef = get(searchParams, 'recordRef');
 
     return (
       <Content
+        recordRef={recordRef}
         isNotGrouping={!groupBy || (groupBy && !groupBy.length)}
         stateId={stateId}
         showWidgets={showWidgets}
