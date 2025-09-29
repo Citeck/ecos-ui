@@ -209,7 +209,12 @@ const HierarchicalTreeWidget = ({
   const renderActions = () => (
     <div className="ecos-hierarchical-tree-widget__structure-actions">
       {!isOpenSettings && (
-        <Tooltip uncontrolled text={t(Labels.ADD_GROUP)} target={tooltipIdCreate} off={isMobileDevice()}>
+        <Tooltip
+          uncontrolled
+          text={t(isJournalMode ? Labels.ADD_CATEGORY : Labels.ADD_GROUP)}
+          target={tooltipIdCreate}
+          off={isMobileDevice()}
+        >
           <div id={tooltipIdCreate} className="ecos-hierarchical-tree-widget__structure-actions_btn" onClick={() => create()}>
             <Icon className="icon-plus" />
           </div>
@@ -234,14 +239,16 @@ const HierarchicalTreeWidget = ({
       })}
     >
       <div className="ecos-hierarchical-tree-widget-header">
-        <h4
-          onClick={(event: React.MouseEvent<HTMLElement>) => {
-            event.preventDefault();
-            updateCurrentUrl({ recordRef: rootRecord });
-          }}
-        >
-          {isOpenSettings ? t(Labels.SETTINGS) : t(getMLValue(label || config?.label)) || t(Labels.TITLE_JOURNAL)}
-        </h4>
+        <div className="ecos-hierarchical-tree-widget-header-info">
+          <h4
+            onClick={(event: React.MouseEvent<HTMLElement>) => {
+              event.preventDefault();
+              updateCurrentUrl({ recordRef: rootRecord });
+            }}
+          >
+            {isOpenSettings ? t(Labels.SETTINGS) : t(getMLValue(label || config?.label)) || t(Labels.TITLE_JOURNAL)}
+          </h4>
+        </div>
         {canEdit && renderActions()}
       </div>
       {isSameHeight ? (

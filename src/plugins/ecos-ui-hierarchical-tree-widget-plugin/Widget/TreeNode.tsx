@@ -64,20 +64,24 @@ const TreeNode = ({
   const isJournalMode = !!journalId;
   const sourceId = isJournalMode ? SourcesId.CATEGORY : SourcesId.WIKI;
 
-  const create = (parent: string) => {
+  const create = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+
     FormManager.openFormModal({
       ...(isJournalMode && { formId: createCategoryFormId }),
       record: `${sourceId}@`,
       title: t(isJournalMode ? Labels.MODAL_TITLE_JOURNAL_CREATE : Labels.MODAL_TITLE_DASHBOARD_CREATE),
       attributes: {
-        _parent: parent || `${sourceId}@${node.id}`,
+        _parent: `${sourceId}@${node.id}`,
         _parentAtt: 'children'
       },
       onSubmit: onSubmitForm
     });
   };
 
-  const edit = () => {
+  const edit = (e: React.MouseEvent<HTMLDivElement>) => {
+    e && e.stopPropagation();
+
     const record = `${sourceId}@${node.id}`;
 
     FormManager.openFormModal({
@@ -157,11 +161,13 @@ const TreeNode = ({
     }
   }, [isOpen]);
 
-  const onClickChevron = () => {
+  const onClickChevron = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
     setIsOpen(!isOpen);
   };
 
-  const onClickLabel = () => {
+  const onClickPoint = (e: React.MouseEvent<HTMLElement>) => {
+    e.preventDefault();
     toggleOpen && toggleOpen();
   };
 
@@ -196,29 +202,26 @@ const TreeNode = ({
 
     return (
       <div className="tree-actions">
-        {isViewSwapCategoryIcon ? (
+        <div className="tree-actions_btn" onClick={edit}>
+          <Icon className="icon-edit" />
+        </div>
+        <div className="tree-actions_btn" onClick={create}>
+          <Icon className="icon-plus" />
+        </div>
+        <div className="tree-actions_btn" onClick={deleteRecord}>
+          <Icon className="icon-delete" />
+        </div>
+        {isViewSwapCategoryIcon && (
           <Tooltip
             uncontrolled
             target={swapCategoryTargetId}
             text={t(Labels.CARD_TO_CATEGORY_TOOLTIP, { categoryName: node.name })}
             off={isMobileDevice()}
           >
-            <div id={swapCategoryTargetId} className="tree-actions__btn-create" onClick={addRecordToCategory}>
+            <div id={swapCategoryTargetId} className="tree-actions__btn" onClick={addRecordToCategory}>
               <Icon className="icon-arrow" />
             </div>
           </Tooltip>
-        ) : (
-          <>
-            <div className="tree-actions_btn" onClick={edit}>
-              <Icon className="icon-edit" />
-            </div>
-            <div className="tree-actions_btn" onClick={() => create(`${sourceId}@${node.id}`)}>
-              <Icon className="icon-plus" />
-            </div>
-            <div className="tree-actions_btn" onClick={deleteRecord}>
-              <Icon className="icon-delete" />
-            </div>
-          </>
         )}
       </div>
     );
@@ -227,7 +230,8 @@ const TreeNode = ({
   return (
     <details open={isOpen}>
       <summary
-        onClick={e => e.preventDefault()}
+        onClick={onClickPoint}
+        onClickCapture={e => e.preventDefault()}
         className={classNames('tree-summary', { active: recordRef?.includes(node.id) })}
         data-record={node.id}
       >
@@ -236,9 +240,7 @@ const TreeNode = ({
             {isOpen ? <ChevronDownIcon width={14} height={14} /> : <ChevronRightIcon width={14} height={14} />}
           </div>
         )}
-        <label className="tree-summary_label" onClick={onClickLabel}>
-          {displayName}
-        </label>
+        <label className="tree-summary_label">{displayName}</label>
         {renderActions()}
       </summary>
       <ul className="tree-summary_ul">

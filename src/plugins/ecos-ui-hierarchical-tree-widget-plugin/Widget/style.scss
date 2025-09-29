@@ -57,6 +57,12 @@
     padding: 12px 20px 11px;
     border-bottom: 1px solid $color-gray-4;
 
+    &-info {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+    }
+
     h4 {
       margin: 0;
       font-size: 16px;
