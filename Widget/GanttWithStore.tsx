@@ -1,6 +1,6 @@
 import React from 'react';
-import { Gantt } from 'wx-react-gantt';
 
+import Gantt from '../libs/svelte-gantt';
 import GanttDataLoader from '../services/GanttDataLoader';
 
 // @ts-ignore
