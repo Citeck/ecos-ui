@@ -154,7 +154,8 @@ class PreviewListContent extends Component {
       !isLoadingGrid &&
       !this.isNoMore() &&
       scroll.scrollTop &&
-      Math.round(scroll.scrollTop + scroll.clientHeight) === scroll.scrollHeight
+      (Math.ceil(scroll.scrollTop + scroll.clientHeight) === scroll.scrollHeight ||
+        Math.floor(scroll.scrollTop + scroll.clientHeight) === scroll.scrollHeight)
     ) {
       this.props.getNextPage();
     }
