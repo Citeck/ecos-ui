@@ -7,7 +7,6 @@ import Dashlet from '../../../components/Dashlet/Dashlet';
 import FormManager from '../../../components/EcosForm/FormManager';
 
 import LexicalEditor from '@/components/LexicalEditor';
-// @ts-ignore
 import Records from '@/components/Records/Records';
 import { Avatar, Loader } from '@/components/common';
 import BaseWidget, { BaseWidgetProps, BaseWidgetState, EVENTS } from '@/components/widgets/BaseWidget';
@@ -108,7 +107,6 @@ class PublicationWidgetDashlet<P extends PublicationWidgetDashletProps, S extend
 
     if (this.isMountedFlag) this.setState({ isLoading: true });
 
-    // @ts-ignore
     return Records.get(recordRef)
       .load({
         id: 'id',

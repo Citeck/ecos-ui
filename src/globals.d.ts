@@ -1,6 +1,7 @@
 /// <reference types="vite/client" />
 import { Base64 } from 'js-base64';
 
+import { RecordsContainerType } from '@/components/Records/Records';
 import { NotificationManager } from '@/services/notifications';
 
 export {};
@@ -21,11 +22,13 @@ declare global {
   }
 
   interface Window {
+    Records: RecordsContainerType;
+
     Citeck?: {
       Plugins?: any;
       NotificationManager?: typeof NotificationManager;
       Base64?: typeof Base64;
-      Records?: any;
+      Records?: RecordsContainerType;
       [key: string]: any;
     };
 

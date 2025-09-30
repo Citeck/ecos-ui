@@ -6,7 +6,6 @@ import { connect } from 'react-redux';
 import { getSidebarWorkspaces, getWorkspaces, joinToWorkspace, leaveOfWorkspace, removeWorkspace } from '@/actions/workspaces';
 import { WorkspaceType } from '@/api/workspaces/types';
 import FormManager from '@/components/EcosForm/FormManager';
-// @ts-ignore
 import Records from '@/components/Records';
 import WorkspacePreview from '@/components/WorkspacePreview';
 import Confirm from '@/components/WorkspaceSidebar/Confirm';
@@ -139,7 +138,6 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
       saveOnSubmit: true,
       onSubmit: async (record: any) => {
         if (openWorkspace) {
-          // @ts-ignore
           const { id: wsId, homePageLink } = await Records.get(record).load({
             id: 'id',
             homePageLink: 'homePageLink?str'

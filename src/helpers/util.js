@@ -17,7 +17,7 @@ import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE, MOBILE_APP_U
 export { getCookie, getCurrentLocale, t } from './export/util';
 import { getCurrentLocale, t } from './export/util';
 
-import { allowedModes } from '@/constants/index.js';
+import { allowedModes } from '@/constants';
 import ESMRequire from '@/services/ESMRequire';
 
 const UTC_AS_LOCAL_FORMAT = 'YYYY-MM-DDTHH:mm:ss';

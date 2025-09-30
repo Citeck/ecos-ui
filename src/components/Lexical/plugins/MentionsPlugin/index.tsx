@@ -8,7 +8,7 @@ import {
 import React, { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-import { Avatar } from '../../../common/index.js';
+import { Avatar } from '../../../common';
 import { $createMentionNode } from '../../nodes/MentionNode';
 
 import { OrgStructApi } from '@/api/orgStruct.js';

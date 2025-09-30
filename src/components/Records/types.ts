@@ -20,13 +20,14 @@ export type RecordWatcherLike = {
 
 export type AttributesType = string | string[] | Record<string, string>;
 
-export type PreProcessAttsType = {
+export type PreProcessAttsType = PreProcessAttsTypeNotNil | null;
+export type PreProcessAttsTypeNotNil = {
   clientAtts: Record<string, string>;
   config: {
     attsToEncryptIndexes: number[];
     attsToEncryptNames: string[];
   };
-} | null;
+};
 
 export type PreProcessAttsToLoadWithClientType = {
   attsAliases: string[];
