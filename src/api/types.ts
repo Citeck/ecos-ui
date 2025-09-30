@@ -51,12 +51,14 @@ export type ApiType = {
   previewList: any;
 };
 
-export type RecordsQueryResponse<T> = {
+export type RecordsQueryResponse<R, A = any> = {
   hasMore: boolean;
   messages: string[];
-  records: T[];
+  records: R[];
   totalCount: number;
-  version: number;
+  version?: number;
+  attributes: A;
+  errors: string[];
 };
 
 export type PureQueryResponse<T = unknown> = Promise<RecordsQueryResponse<T>>;

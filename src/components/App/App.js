@@ -24,7 +24,7 @@ import { initAppSettings } from '@/actions/app';
 import { addTab, setTab, updateTab } from '@/actions/pageTabs';
 import {goToDefaultFromBlockedWs, joinToWorkspace, updateUIWorkspace} from '@/actions/workspaces';
 import { BASE_URLS_REDIRECT, Pages, pagesWithOnlyContent, RELOCATED_URL, URL as Urls } from '@/constants';
-import { allowedModes } from '@/constants/index.js';
+import { allowedModes } from '@/constants';
 import { BASE_LEFT_MENU_ID, MenuTypes } from '@/constants/menu';
 import { PANEL_CLASS_NAME } from '@/constants/pageTabs';
 import { showWarningMessage } from '@/helpers/tools';

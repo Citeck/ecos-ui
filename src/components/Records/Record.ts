@@ -5,6 +5,7 @@ import isFunction from 'lodash/isFunction';
 
 import Attribute from './Attribute';
 import RecordWatcher from './RecordWatcher';
+import { RecordsContainerType } from './Records';
 import recordsClientManager from './client';
 import { loadAttribute, recordsMutateFetch } from './recordsApi';
 import {
@@ -30,27 +31,23 @@ export type RecordType = RecordImpl;
 type AttributeGetter = (this: AttributeLike, ...args: any[]) => any;
 type AttributeSetter = (this: AttributeLike, ...args: any[]) => any;
 
-export interface RecordsContainer {
-  get(id: string): RecordType;
-}
-
 export default class RecordImpl {
   protected _id: string;
   protected _attributes: Record<string, AttributeLike>;
   protected _recordFields: Record<string, any>;
   protected _recordFieldsToSave: Record<string, any>;
-  protected _records: RecordsContainer;
-  protected _baseRecord: RecordImpl | null;
+  protected _records: RecordsContainerType;
+  protected _baseRecord: RecordType | null;
   protected _emitter: EventEmitter;
   protected _modified: string | null;
   protected _pendingUpdate: boolean;
   protected _updatePromise: Promise<any>;
   protected _watchers: RecordWatcherLike[];
-  protected _owners: Record<string, any>;
-  protected _virtual: boolean;
   protected _mutClientData?: any;
+  public _owners: Record<string, any>;
+  public _virtual: boolean;
 
-  constructor(id: string, records: RecordsContainer, baseRecord?: RecordImpl | null) {
+  constructor(id: string, records: RecordsContainerType, baseRecord?: RecordType | null) {
     this._id = id;
     this._attributes = {};
     this._recordFields = {};
@@ -562,9 +559,9 @@ export default class RecordImpl {
     return attributes;
   }
 
-  async _getLinkedRecordsToSave(): Promise<RecordImpl[]> {
+  async _getLinkedRecordsToSave(): Promise<RecordType[]> {
     const assocAtts = await this._getChildAssocAttributes();
-    const result = assocAtts.reduce<Promise<RecordImpl>[]>((acc, att) => {
+    const result = assocAtts.reduce<Promise<RecordType>[]>((acc, att) => {
       let value = this.att(att);
       if (!value) {
         return acc;
@@ -573,7 +570,7 @@ export default class RecordImpl {
       return acc.concat(value.map(id => this._records.get(id)).map(rec => rec._getWhenReadyToSave()));
     }, []);
 
-    const linkedRecords: RecordImpl[] = await Promise.all(result).then(records => records.filter(r => !r.isPersisted()));
+    const linkedRecords: RecordType[] = await Promise.all(result).then(records => records.filter(r => !r.isPersisted()));
     const nestedLinkedRecords = await Promise.all(linkedRecords.map(async r => await r._getLinkedRecordsToSave()));
     const nestedLinkedRecordsFlatten = nestedLinkedRecords.reduce((acc, val) => acc.concat(val), []);
     return [...linkedRecords, ...nestedLinkedRecordsFlatten];
@@ -653,7 +650,7 @@ export default class RecordImpl {
    * @param attsToLoad attributes to load from result after mutation.
    * @returns {Promise<*|{}|*[]>}
    */
-  async save(attsToLoad: AttributesType) {
+  async save(attsToLoad?: AttributesType) {
     if (attsToLoad) {
       return this._saveWithAtts(attsToLoad);
     }
@@ -737,7 +734,7 @@ export default class RecordImpl {
     });
   }
 
-  _getWhenReadyToSave(): Promise<RecordImpl> {
+  _getWhenReadyToSave(): Promise<RecordType> {
     return new Promise((resolve, reject) => {
       const resolveWithNode = () => resolve(this);
       this._waitUntilReadyToSave(0, resolveWithNode, reject);

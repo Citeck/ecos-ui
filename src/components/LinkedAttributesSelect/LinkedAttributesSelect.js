@@ -4,7 +4,7 @@ import React from 'react';
 import { Checkbox, Field, Label, Select } from '../common/form';
 
 import { DashboardApi } from '@/api/dashboard.js';
-import Records from '@/components/Records/index.js';
+import Records from '@/components/Records';
 import { getDOMElementMeasurer, t } from '@/helpers/util.js';
 
 import './style.scss';

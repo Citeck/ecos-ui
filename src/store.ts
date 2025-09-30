@@ -8,7 +8,7 @@ import thunk from 'redux-thunk';
 import createRootReducer, { createReducer } from './reducers';
 import sagas from './sagas';
 
-import { allowedModes } from '@/constants/index.js';
+import { allowedModes } from '@/constants';
 import { SETTING_ENABLE_SAGA_LOGGER } from '@/pages/DevTools/constants.js';
 import { ExtraArgumentsStore, RootState } from '@/types/store';
 

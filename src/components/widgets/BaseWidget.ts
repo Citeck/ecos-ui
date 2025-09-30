@@ -8,7 +8,6 @@ import React from 'react';
 import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
 import { isSmallMode } from '../../helpers/util';
 import UserLocalSettingsService, { DashletProps } from '../../services/userLocalSettings';
-// @ts-ignore
 import Records from '../Records/Records';
 
 export const EVENTS = {
@@ -113,7 +112,6 @@ abstract class BaseWidget<P extends BaseWidgetProps = BaseWidgetProps, S extends
   }
 
   get instanceRecord() {
-    // @ts-ignore
     return Records.get(this.props.record);
   }
 

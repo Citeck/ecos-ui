@@ -11,7 +11,7 @@ import FilesViewer from '../DocLib/FilesViewer/FilesViewerContainer';
 import { isDocLib, Labels } from '../constants';
 
 import { initDocLib } from '@/actions/docLib';
-import { JournalUrlParams } from '@/constants/index.js';
+import { JournalUrlParams } from '@/constants';
 import { t } from '@/helpers/export/util';
 import { wrapArgs } from '@/helpers/redux';
 import { getSearchParams } from '@/helpers/urls.js';

@@ -9,7 +9,7 @@ import { Popper as ReactPopper } from 'react-popper';
 import Fade from 'reactstrap/lib/Fade';
 import { DOMElement, getTarget, mapToCssModules, tagPropType, targetPropType } from 'reactstrap/lib/utils';
 
-import ZIndex from '@/services/ZIndex.js';
+import ZIndex from '@/services/ZIndex';
 
 export class TooltipContent extends Component {
   constructor(props) {

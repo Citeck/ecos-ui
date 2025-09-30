@@ -3,7 +3,6 @@ import React from 'react';
 import { workspaceAttributes } from '@/api/workspaces';
 import { WorkspaceType } from '@/api/workspaces/types';
 import Dashlet from '@/components/Dashlet';
-// @ts-ignore
 import Records from '@/components/Records';
 import Card from '@/components/WorkspaceSidebar/Card';
 import { Loader } from '@/components/common';
@@ -42,7 +41,6 @@ class WelcomeWidget<P extends BaseWidgetProps> extends BaseWidget<P, WelcomeStat
   async getWelcomeWorkspaces() {
     const attributesWs = omit(workspaceAttributes, ['hasDelete', 'hasWrite']);
     try {
-      // @ts-ignore
       const workspaces = await Records.get([
         'emodel/workspace@corpport-workspace',
         'emodel/workspace@data-lists-workspace',
