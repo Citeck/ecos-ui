@@ -200,7 +200,7 @@ export default defineConfig(({ mode }) => {
         scss: {
           api: 'modern-compiler',
           quietDeps: true,
-          silenceDeprecations: ['global-builtin', 'color-functions', 'import']
+          silenceDeprecations: ['global-builtin', 'color-functions', 'import'] // TODO: transfer all @import to @use
         }
       }
     }
