@@ -1,4 +1,5 @@
 import babel from '@rollup/plugin-babel';
+import { svelte } from '@sveltejs/vite-plugin-svelte';
 import path from 'path';
 import { defineConfig, transformWithEsbuild, loadEnv } from 'vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
@@ -144,10 +145,23 @@ export default defineConfig(({ mode }) => {
         {
           find: '@',
           replacement: path.resolve(__dirname, 'src')
+        },
+        {
+          find: '@svar-ui/svelte-core',
+          replacement: path.resolve(__dirname, 'node_modules/@svar-ui/svelte-core/src/index.js')
+        },
+        {
+          find: '@svar-ui/svelte-grid',
+          replacement: path.resolve(__dirname, 'node_modules/@svar-ui/svelte-grid/src/index.js')
+        },
+        {
+          find: '@svar-ui/svelte-menu',
+          replacement: path.resolve(__dirname, 'node_modules/@svar-ui/svelte-menu/src/index.js')
         }
       ]
     },
     plugins: [
+      svelte(),
       nodePolyfills({
         include: ['crypto', 'events']
       }),
@@ -178,6 +192,13 @@ export default defineConfig(({ mode }) => {
         target: 'es2020',
         loader: {
           '.js': 'jsx'
+        }
+      }
+    },
+    css: {
+      preprocessorOptions: {
+        scss: {
+          api: 'modern-compiler'
         }
       }
     }
