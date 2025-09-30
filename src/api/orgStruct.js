@@ -21,7 +21,7 @@ import {
   getRecordRef
 } from '../components/common/form/SelectOrgstruct/helpers';
 import { SourcesId, DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS } from '../constants';
-import { permute } from '../helpers/util';
+import { getEnabledWorkspaces, permute } from '../helpers/util';
 import ConfigService, {
   ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS,
   ORGSTRUCT_HIDE_DISABLED_USERS,
@@ -33,7 +33,9 @@ import ConfigService, {
 
 import { CommonApi } from './common';
 
-import EcosFormUtils from '@/components/EcosForm/EcosFormUtils/EcosFormUtils.js';
+import EcosFormUtils from '@/components/EcosForm/EcosFormUtils/EcosFormUtils';
+import { PREDICATE_NOT_EQ, PREDICATE_EQ, PREDICATE_AND } from '@/components/Records/predicates/predicates';
+import { getWorkspaceId } from '@/helpers/urls';
 
 export class OrgStructApi extends CommonApi {
   get groupAttributes() {
@@ -533,9 +535,17 @@ export class OrgStructApi extends CommonApi {
     const excludedUsers = await OrgStructApi.fetchGlobalHideInOrgstruct();
     (excludedUsers || []).forEach(item => {
       if (item) {
-        queryVal.push({ t: 'not-eq', att: 'id', val: item.replace('GROUP_', '') });
+        queryVal.push({ t: PREDICATE_NOT_EQ, att: 'id', val: item.replace('GROUP_', '') });
       }
     });
+
+    if (getEnabledWorkspaces()) {
+      queryVal.push({
+        t: PREDICATE_EQ,
+        att: '_workspace',
+        val: getWorkspaceId()
+      });
+    }
 
     const searchFields = await OrgStructApi.getSearchFields(searchText, extraFields);
 
@@ -544,7 +554,7 @@ export class OrgStructApi extends CommonApi {
     return Records.query(
       {
         sourceId: SourcesId.PERSON,
-        query: { t: 'and', v: queryVal },
+        query: { t: PREDICATE_AND, v: queryVal },
         page: {
           maxItems: params.maxItems,
           skipCount: params.page * params.maxItems
