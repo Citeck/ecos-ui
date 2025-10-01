@@ -1,13 +1,17 @@
 <script>
   import { onMount } from 'svelte';
+  import { Locale } from "@svar-ui/svelte-core";
   import { Gantt, Editor, Willow } from "@svar-ui/svelte-gantt";
 
   import { ganttStore } from '../services/ganttStore';
-  import api from '@/pages/DevTools/api';
+  import { ru, en } from '../i18n';
+  import { getCurrentLocale } from '@/helpers/export/util';
 
   let { ganttSettingsRef = $bindable(), currentRef = $bindable(), workspace = $bindable() } = $props();
 
   let widgetApi = $state();
+  let locale = getCurrentLocale();
+  let words = locale === 'ru' ? ru : en;
 
   ganttStore.setRefs(ganttSettingsRef, currentRef, workspace);
 
@@ -65,6 +69,7 @@
 {:else if !$ganttStore.tasks && !ganttSettingsRef}
   <div>No Gantt settings reference provided</div>
 {:else}
+<Locale words={words}>
   <Gantt
     tasks={$ganttStore.tasks}
     links={$ganttStore.links}
@@ -74,4 +79,5 @@
   <Willow>
     <Editor api={widgetApi} placement="sidebar" />
   </Willow>
+</Locale>
 {/if}
