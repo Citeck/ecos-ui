@@ -157,6 +157,10 @@ export default defineConfig(({ mode }) => {
         {
           find: '@svar-ui/svelte-menu',
           replacement: path.resolve(__dirname, 'node_modules/@svar-ui/svelte-menu/src/index.js')
+        },
+        {
+          find: '@svar-ui/lib-state',
+          replacement: path.resolve(__dirname, 'node_modules/@svar-ui/lib-state/src/index.js')
         }
       ]
     },
