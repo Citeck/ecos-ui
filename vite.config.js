@@ -145,22 +145,6 @@ export default defineConfig(({ mode }) => {
         {
           find: '@',
           replacement: path.resolve(__dirname, 'src')
-        },
-        {
-          find: '@svar-ui/svelte-core',
-          replacement: path.resolve(__dirname, 'node_modules/@svar-ui/svelte-core/src/index.js')
-        },
-        {
-          find: '@svar-ui/svelte-grid',
-          replacement: path.resolve(__dirname, 'node_modules/@svar-ui/svelte-grid/src/index.js')
-        },
-        {
-          find: '@svar-ui/svelte-menu',
-          replacement: path.resolve(__dirname, 'node_modules/@svar-ui/svelte-menu/src/index.js')
-        },
-        {
-          find: '@svar-ui/lib-state',
-          replacement: path.resolve(__dirname, 'node_modules/@svar-ui/lib-state/src/index.js')
         }
       ]
     },

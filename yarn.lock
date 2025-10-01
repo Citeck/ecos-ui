@@ -3235,10 +3235,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@svar-ui/core-locales@npm:2.2.1":
-  version: 2.2.1
-  resolution: "@svar-ui/core-locales@npm:2.2.1"
-  checksum: ffee60b5b70a65fad6eb44af97cdefaf7b1b92fc4cb61ea049ccc4367d71cfb5594687e5e59d9b73f128aed6afc82200a161bde485ca83b426c178ba0327d469
+"@svar-ui/comments-locales@npm:2.3.0":
+  version: 2.3.0
+  resolution: "@svar-ui/comments-locales@npm:2.3.0"
+  checksum: b6f01ed054b4139004245aaa7f229d2f3d73a726a6fb287af066d250008fc00c6b1bdf49a0c62ba2a328678d7c75eaf8b2b6eeb84e24ff185dc231b70dde6a3e
   languageName: node
   linkType: hard
 
@@ -3249,14 +3249,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@svar-ui/gantt-locales@npm:^2.3.0":
+"@svar-ui/editor-locales@npm:2.3.0":
+  version: 2.3.0
+  resolution: "@svar-ui/editor-locales@npm:2.3.0"
+  checksum: e4028c3511573faa7883379ea47bfbd22a56aa987e79ae2f50940288b078c1e40d6fc670e66a69f365fd873a8e2972db39687330fdc77472999a90ba8f8a6919
+  languageName: node
+  linkType: hard
+
+"@svar-ui/gantt-data-provider@npm:2.3.0":
+  version: 2.3.0
+  resolution: "@svar-ui/gantt-data-provider@npm:2.3.0"
+  dependencies:
+    "@svar-ui/lib-data-provider": 1.7.1
+  checksum: 68bb4565bf433ebafba357dffc2baef806c4765023e4c74fbffac18b7c307dfecf45b20835dbb9cd53220da4b95e01b3ce26c316dc296f224615d16fc69f09b0
+  languageName: node
+  linkType: hard
+
+"@svar-ui/gantt-locales@npm:2.3.0":
   version: 2.3.0
   resolution: "@svar-ui/gantt-locales@npm:2.3.0"
   checksum: 559076c237ddeff39003dc25262ef6f267ad9e00586a863b2168565805da2e6b550d13efe9061c5c1fc798f2472fc653e20757ef836e9eb6ccf2496342d8eb66
   languageName: node
   linkType: hard
 
-"@svar-ui/gantt-store@npm:^2.3.0":
+"@svar-ui/gantt-store@npm:2.3.0":
   version: 2.3.0
   resolution: "@svar-ui/gantt-store@npm:2.3.0"
   dependencies:
@@ -3300,19 +3316,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@svar-ui/lib-dom@npm:0.9.2, @svar-ui/lib-dom@npm:^0.9.2":
+"@svar-ui/lib-dom@npm:0.9.2":
   version: 0.9.2
   resolution: "@svar-ui/lib-dom@npm:0.9.2"
   checksum: 40570b84f2b2cfa9d0caa7921ef7cb9852c852af12988aafe12edbecac870815129fae52742ca509361399b746a933309dd295c7fbc539dfb6a50eebdc14ed1d
-  languageName: node
-  linkType: hard
-
-"@svar-ui/lib-react@npm:1.1.1":
-  version: 1.1.1
-  resolution: "@svar-ui/lib-react@npm:1.1.1"
-  dependencies:
-    "@svar-ui/lib-dom": ^0.9.2
-  checksum: 981b99e8ea2a2a65250e18386ceeca9e5678af23dd21f88d31a8316d2c28cf834f1b498abd362179b6e3f61242dfc4511f9cda60ce0a227ca7d35e6504e5300c
   languageName: node
   linkType: hard
 
@@ -3332,21 +3339,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@svar-ui/react-core@npm:^2.2.0":
-  version: 2.2.0
-  resolution: "@svar-ui/react-core@npm:2.2.0"
+"@svar-ui/svelte-comments@npm:2.3.0":
+  version: 2.3.0
+  resolution: "@svar-ui/svelte-comments@npm:2.3.0"
   dependencies:
-    "@svar-ui/core-locales": 2.2.1
+    "@svar-ui/comments-locales": 2.3.0
+    "@svar-ui/core-locales": 2.3.1
+    "@svar-ui/lib-data-provider": 1.7.1
     "@svar-ui/lib-dom": 0.9.2
-    "@svar-ui/lib-react": 1.1.1
-  peerDependencies:
-    react: ">=18"
-    react-dom: ">=18"
-  checksum: 3a94fa168cbc68ca978c81dafe35694f25e3e09fda2eddbc8e3dff297bcb5a4382dab3fb02cb111d8805af8c0e5871679951d892a59a38a7e1419dc678886460
+    "@svar-ui/lib-state": 1.9.6
+    "@svar-ui/svelte-core": 2.3.1
+    "@svar-ui/svelte-menu": 2.3.0
+  checksum: 3928a7548cb90c3f95e4c87b55ad58222f7efe5a8823d8d2e39243f951559c98fb117743e6dc074d002fd7eb3027b3750ad503be34547b7ee5b88a987100f548
   languageName: node
   linkType: hard
 
-"@svar-ui/svelte-core@npm:2.3.1, @svar-ui/svelte-core@npm:^2.3.1":
+"@svar-ui/svelte-core@npm:2.3.1":
   version: 2.3.1
   resolution: "@svar-ui/svelte-core@npm:2.3.1"
   dependencies:
@@ -3354,6 +3362,41 @@ __metadata:
     "@svar-ui/lib-dom": 0.9.2
     "@svar-ui/lib-svelte": 0.5.2
   checksum: 050dd97bef684a2ce177aadaf71d1a2cc06433808a6462528a798c20619c6f58cdd38cbc7e359f975bf2018c193f1bde37f27a1c2ee4ee474378c77904df59a6
+  languageName: node
+  linkType: hard
+
+"@svar-ui/svelte-editor@npm:2.3.0":
+  version: 2.3.0
+  resolution: "@svar-ui/svelte-editor@npm:2.3.0"
+  dependencies:
+    "@svar-ui/editor-locales": 2.3.0
+    "@svar-ui/lib-dom": 0.9.2
+    "@svar-ui/lib-state": 1.9.6
+    "@svar-ui/lib-svelte": 0.5.2
+    "@svar-ui/svelte-comments": 2.3.0
+    "@svar-ui/svelte-core": 2.3.1
+    "@svar-ui/svelte-tasklist": 2.3.0
+    "@svar-ui/svelte-toolbar": 2.3.0
+  checksum: 2128d23535f8dc3613da35ed00df93ba3296e4f919f48bae3a37ccd22387293f3dfae9df142883c961cd89791281bd170cb00b63c02df7ccb411db77cbeee016
+  languageName: node
+  linkType: hard
+
+"@svar-ui/svelte-gantt@npm:^2.3.0":
+  version: 2.3.0
+  resolution: "@svar-ui/svelte-gantt@npm:2.3.0"
+  dependencies:
+    "@svar-ui/gantt-data-provider": 2.3.0
+    "@svar-ui/gantt-locales": 2.3.0
+    "@svar-ui/gantt-store": 2.3.0
+    "@svar-ui/lib-dom": 0.9.2
+    "@svar-ui/lib-state": 1.9.6
+    "@svar-ui/lib-svelte": 0.5.2
+    "@svar-ui/svelte-core": 2.3.1
+    "@svar-ui/svelte-editor": 2.3.0
+    "@svar-ui/svelte-grid": 2.3.0
+    "@svar-ui/svelte-menu": 2.3.0
+    "@svar-ui/svelte-toolbar": 2.3.0
+  checksum: 7b2e2b0d85f621e648d55c587b7552feb1518100b9ecf58bc0644133fcd54d85f162a3abb7bb6a7e5896eca7c01227b724e3d38361786adc9739eb963b1e8d5f
   languageName: node
   linkType: hard
 
@@ -3380,6 +3423,36 @@ __metadata:
     "@svar-ui/lib-dom": 0.9.2
     "@svar-ui/svelte-core": 2.3.1
   checksum: 64f746b78f7505d896b0b700a41d106d1c655dbeb84597aa57565ec404590d545e40476d33cef48c0911a53d18268a9907d7efb33b7a27bf533de35ca2d25a55
+  languageName: node
+  linkType: hard
+
+"@svar-ui/svelte-tasklist@npm:2.3.0":
+  version: 2.3.0
+  resolution: "@svar-ui/svelte-tasklist@npm:2.3.0"
+  dependencies:
+    "@svar-ui/lib-data-provider": 1.7.1
+    "@svar-ui/lib-dom": 0.9.2
+    "@svar-ui/lib-state": 1.9.6
+    "@svar-ui/svelte-core": 2.3.1
+    "@svar-ui/tasklist-locales": 2.3.0
+  checksum: 9ea0b556d28067a16de511048648c6fe239b24af643ce6ae185a934bdd94c725aeaa59c0a50a658ccd0856328e734efe84a0aee654760f6e7104d478b14b2c06
+  languageName: node
+  linkType: hard
+
+"@svar-ui/svelte-toolbar@npm:2.3.0":
+  version: 2.3.0
+  resolution: "@svar-ui/svelte-toolbar@npm:2.3.0"
+  dependencies:
+    "@svar-ui/lib-dom": 0.9.2
+    "@svar-ui/svelte-core": 2.3.1
+  checksum: f8ee2fb2a18da0b62f300b234680a215def3969161bfab649e00f37f8f1efefb43b31d7705eeb38d9d45efd0b0e998b0037350096de7bb030c31b4feee2b3b74
+  languageName: node
+  linkType: hard
+
+"@svar-ui/tasklist-locales@npm:2.3.0":
+  version: 2.3.0
+  resolution: "@svar-ui/tasklist-locales@npm:2.3.0"
+  checksum: fc2d7db86145344772034548cff3ca077d9ab035df00ebf8bb9971af3064a0277f1b2514d2c3277c040d28fa21dc8f797cb66284b25cc4f50f603177d31b3af3
   languageName: node
   linkType: hard
 
@@ -7257,13 +7330,7 @@ __metadata:
     "@lexical/utils": 0.26.0
     "@popperjs/core": ^2.4.4
     "@rollup/plugin-babel": 6.0.4
-    "@svar-ui/gantt-locales": ^2.3.0
-    "@svar-ui/gantt-store": ^2.3.0
-    "@svar-ui/grid-store": 2.3.0
-    "@svar-ui/lib-state": ^1.9.6
-    "@svar-ui/react-core": ^2.2.0
-    "@svar-ui/svelte-core": ^2.3.1
-    "@svar-ui/svelte-grid": 2.3.0
+    "@svar-ui/svelte-gantt": ^2.3.0
     "@sveltejs/vite-plugin-svelte": ^6.2.1
     "@testing-library/dom": ^10.4.0
     "@testing-library/jest-dom": ^6.6.3
@@ -7397,6 +7464,7 @@ __metadata:
     react-select: 4.3.1
     react-transition-group: ^4.4.5
     react-xml-viewer: ^2.0.4
+    reactify-svelte: ^1.1.0
     reactstrap: 8.5.1
     redux: 4.2.1
     redux-actions: 2.6.5
@@ -7410,7 +7478,7 @@ __metadata:
     rimraf: 3.0.0
     sass: 1.93.2
     sinon: 9.0.3
-    svelte: ^5.39.6
+    svelte: ^5.39.7
     terser: ^5.39.0
     text-mask-addons: 3.8.0
     tiny-svg: 2.2.4
@@ -7425,7 +7493,6 @@ __metadata:
     vite-express: ^0.20.0
     vite-plugin-node-polyfills: ^0.23.0
     vite-tsconfig-paths: ^5.1.4
-    wx-react-gantt: 1.3.1
     y-websocket: ^1.5.4
     yjs: ">=13.5.42"
   languageName: unknown
@@ -15244,6 +15311,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"reactify-svelte@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "reactify-svelte@npm:1.1.0"
+  peerDependencies:
+    react: ">=16.8.0"
+    react-dom: "*"
+  peerDependenciesMeta:
+    react-dom:
+      optional: true
+  checksum: 74a8f3cda1a78597bc663fd6421b93dadcaf42a6296253cdc618159efe68df16cc84050d627aebd064a50a849dee17c96ad0a1ab0151316fa6832d2c35750a97
+  languageName: node
+  linkType: hard
+
 "reactstrap@npm:8.5.1":
   version: 8.5.1
   resolution: "reactstrap@npm:8.5.1"
@@ -17064,9 +17144,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"svelte@npm:^5.39.6":
-  version: 5.39.6
-  resolution: "svelte@npm:5.39.6"
+"svelte@npm:^5.39.7":
+  version: 5.39.7
+  resolution: "svelte@npm:5.39.7"
   dependencies:
     "@jridgewell/remapping": ^2.3.4
     "@jridgewell/sourcemap-codec": ^1.5.0
@@ -17082,7 +17162,7 @@ __metadata:
     locate-character: ^3.0.0
     magic-string: ^0.30.11
     zimmerframe: ^1.1.2
-  checksum: 9ee6794fc9c34b9b4830c1cbe3c916ddda01304990daa69896b68ccc5ff359af82f0880cac28b557446895f363f93c3ec7825add2dba2b8df71dc64e3263c13b
+  checksum: dbe5e3a229cbf31bbe4f9a26ab08eaed294af01e9d0e6fb145212f9cabe39a262f1a658b55b6f70a8b6491274448c076f76b708aa38d79744064147f1e616aa4
   languageName: node
   linkType: hard
 
@@ -18543,16 +18623,6 @@ __metadata:
     utf-8-validate:
       optional: true
   checksum: 4658357185d891bc45cc2d42a84f9e192d047e8476fb5cba25b604f7d75ca87ca0dd54cd0b2cc49aeee57c79045a741cb7d0b14501953ac60c790cd105c42f23
-  languageName: node
-  linkType: hard
-
-"wx-react-gantt@npm:1.3.1":
-  version: 1.3.1
-  resolution: "wx-react-gantt@npm:1.3.1"
-  peerDependencies:
-    react: ^18.3.1
-    react-dom: ^18.3.1
-  checksum: 8514d4ed6ed0cd26d94fc4e2362f675aa5019605e08d0acba3ec1098fabb0701380a1ba19833aabb4c248c9cd2393583baaff6bd51f9d336630053b1ac114639
   languageName: node
   linkType: hard
 
