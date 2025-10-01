@@ -38,7 +38,7 @@
     "@lexical/table": "0.26.0",
     "@lexical/utils": "0.26.0",
     "@popperjs/core": "^2.4.4",
-    "@svar-ui/react-core": "^2.2.0",
+    "@svar-ui/svelte-gantt": "^2.3.0",
     "bignumber.js": "9.1.1",
     "bootstrap": "4.6.2",
     "bpmn-font": "0.12.1",
@@ -107,6 +107,7 @@
     "react-select": "4.3.1",
     "react-transition-group": "^4.4.5",
     "react-xml-viewer": "^2.0.4",
+    "reactify-svelte": "^1.1.0",
     "reactstrap": "8.5.1",
     "redux": "4.2.1",
     "redux-actions": "2.6.5",
@@ -116,7 +117,7 @@
     "regenerator-runtime": "0.13.11",
     "remark-gfm": "^4.0.1",
     "reselect": "4.0.0",
-    "sass": "1.59.3",
+    "sass": "1.93.2",
     "text-mask-addons": "3.8.0",
     "tiny-svg": "2.2.4",
     "tippy.js": "6.3.7",
@@ -124,7 +125,6 @@
     "use-debounce": "^10.0.4",
     "uuidv4": "4.0.0",
     "vanilla-text-mask": "5.1.1",
-    "wx-react-gantt": "1.3.1",
     "y-websocket": "^1.5.4",
     "yjs": ">=13.5.42"
   },
@@ -157,11 +157,13 @@
     "@babel/preset-react": "^7.26.3",
     "@babel/preset-typescript": "^7.26.0",
     "@rollup/plugin-babel": "6.0.4",
+    "@sveltejs/vite-plugin-svelte": "^6.2.1",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
     "@testing-library/react-hooks": "^8.0.1",
     "@testing-library/user-event": "^14.6.1",
+    "@tsconfig/svelte": "^5.0.5",
     "@types/dompurify": "^3.2.0",
     "@types/flatpickr": "^3.1.4",
     "@types/history": "4.7.11",
@@ -223,10 +225,11 @@
     "redux-mock-store": "^1.5.5",
     "rimraf": "3.0.0",
     "sinon": "9.0.3",
+    "svelte": "^5.39.7",
     "terser": "^5.39.0",
     "ts-jest": "^29.2.5",
     "typescript": "^5.8.2",
-    "vite": "5.2.11",
+    "vite": "7.1.7",
     "vite-express": "^0.20.0",
     "vite-plugin-node-polyfills": "^0.23.0",
     "vite-tsconfig-paths": "^5.1.4"
@@ -246,7 +249,7 @@
     "connected-react-router@6.0.0": "patch:connected-react-router@npm%3A6.0.0#./.yarn/patches/connected-react-router-npm-6.0.0-4d298ac2d7.patch"
   },
   "volta": {
-    "node": "18.20.6",
+    "node": "20.19.5",
     "yarn": "3.6.2"
   }
 }
