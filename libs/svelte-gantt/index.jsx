@@ -1,9 +1,27 @@
-import { EventBusRouter } from '@svar-ui/lib-state';
 import isFunction from 'lodash/isFunction';
 import React, { useRef, useEffect, useImperativeHandle, useState } from 'react';
-import { mount } from 'svelte';
 
 import Gantt from './svelte/components/Gantt.svelte';
+
+class EventBusRouter {
+  constructor(dispatch) {
+    this._nextHandler = null;
+    this._dispatch = dispatch;
+    this.exec = this.exec.bind(this);
+  }
+
+  async exec(name, event) {
+    const res = await this._dispatch(name, event);
+
+    if (res && this._nextHandler) await this._nextHandler.exec(name, event);
+
+    return event;
+  }
+
+  setNext(next) {
+    return (this._nextHandler = next);
+  }
+}
 
 function template(template, host) {
   return new Proxy(host, {
@@ -21,6 +39,7 @@ function template(template, host) {
 
 function toStringExpensive(r) {
   let content = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
+
   if (typeof r === 'string') return r;
   else if (typeof r.type === 'function') r = r.type(r.props);
   else if (typeof r.type === 'string') {
@@ -44,6 +63,7 @@ function toStringExpensive(r) {
       content += toStringExpensive(r.props.children);
     }
   }
+
   return content;
 }
 
@@ -90,11 +110,11 @@ export default function GanttWrapper(props) {
   }));
 
   useEffect(() => {
-    const evs = new EventBusRouter((name, ev) => {
+    const events = new EventBusRouter((name, event) => {
       const camelCase = name.replace(/-([a-z])/g, (match, letter) => letter.toUpperCase());
       const eventName = 'on' + camelCase[0].toUpperCase() + camelCase.slice(1);
 
-      if (props[eventName]) return props[eventName](ev);
+      if (props[eventName]) return props[eventName](event);
 
       return true;
     });
@@ -110,6 +130,7 @@ export default function GanttWrapper(props) {
     }
 
     const externalContext = new Map([['wx-theme', 'willow']]);
+
     obj = new Gantt({
       target: ganttContainerRef.current,
       context: externalContext,
@@ -122,7 +143,9 @@ export default function GanttWrapper(props) {
         }
       }
     });
+
     setWidget(obj);
+
     return () => {
       if (obj)
         try {
@@ -166,6 +189,7 @@ export default function GanttWrapper(props) {
 
     if (ws.api && widget) {
       const { init, ...updateProps } = props;
+
       if (updateProps.taskTemplate && typeof updateProps.taskTemplate !== 'string')
         updateProps.taskTemplate = template(updateProps.taskTemplate, vg);
       if (isFunction(widget.$$set)) {
