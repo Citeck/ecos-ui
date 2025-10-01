@@ -38,6 +38,7 @@
     "@lexical/table": "0.26.0",
     "@lexical/utils": "0.26.0",
     "@popperjs/core": "^2.4.4",
+    "@svar-ui/svelte-core": "^2.3.1",
     "@svar-ui/svelte-gantt": "^2.3.0",
     "bignumber.js": "9.1.1",
     "bootstrap": "4.6.2",
