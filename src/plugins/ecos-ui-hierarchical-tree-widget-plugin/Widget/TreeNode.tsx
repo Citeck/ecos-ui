@@ -142,11 +142,10 @@ const TreeNode = ({
   };
 
   useEffect(() => {
-    // @ts-ignore
     const instanceRecord = Records.get(`${sourceId}@${node.id}`);
 
     instanceRecord &&
-      instanceRecord.watch(['_disp'], (newRecord: { _disp: string }) => {
+      instanceRecord.watch<{ _disp: string }>(['_disp'], newRecord => {
         setDisplayName(newRecord._disp);
       });
   }, []);
@@ -179,19 +178,20 @@ const TreeNode = ({
   const addRecordToCategory = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
 
-    //@ts-ignore
-    const rec = Records.getRecordToEdit(initialRecordRef);
-    rec.att('has-category:category', `${sourceId}@${node.id}`);
-    rec
-      .save()
-      .then(() => {
-        isFunction(reloadGrid) && reloadGrid();
-        NotificationManager.success(t(Labels.CARD_TO_CATEGORY_SUCCESS, { categoryName: node.name }));
-      })
-      .catch((error: string) => {
-        NotificationManager.error(t(Labels.CARD_TO_CATEGORY_ERROR, { categoryName: node.name }));
-        console.error(error);
-      });
+    if (initialRecordRef) {
+      const rec = Records.getRecordToEdit(initialRecordRef);
+      rec.att('has-category:category', `${sourceId}@${node.id}`);
+      rec
+        .save()
+        .then(() => {
+          isFunction(reloadGrid) && reloadGrid();
+          NotificationManager.success(t(Labels.CARD_TO_CATEGORY_SUCCESS, { categoryName: node.name }));
+        })
+        .catch((error: string) => {
+          NotificationManager.error(t(Labels.CARD_TO_CATEGORY_ERROR, { categoryName: node.name }));
+          console.error(error);
+        });
+    }
   };
 
   const filteredChildren = children.filter(child => (isString(child) ? child.includes(sourceId) : !!child.id && !isUndefined(child.name)));
@@ -242,7 +242,7 @@ const TreeNode = ({
       >
         {filteredChildren.length > 0 && (
           <div className="tree-summary_btn" onClick={onClickChevron}>
-            {isOpen ? <ChevronDownIcon width={14} height={14} /> : <ChevronRightIcon width={14} height={14} />}
+            {isOpen ? <ChevronDownIcon width={16} height={16} /> : <ChevronRightIcon width={16} height={16} />}
           </div>
         )}
         <label className="tree-summary_label">{displayName}</label>

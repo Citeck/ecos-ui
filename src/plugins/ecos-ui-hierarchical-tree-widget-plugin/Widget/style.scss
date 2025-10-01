@@ -98,7 +98,7 @@
     list-style-type: none;
 
     ul.tree {
-      $spacing: 0.4rem;
+      $spacing: 0.1rem;
       $radius: 2px;
 
       margin-bottom: 1rem;
@@ -137,7 +137,6 @@
 
         summary {
           display: flex;
-          padding: 9px 8px;
           align-items: center;
           text-wrap: nowrap;
           overflow: hidden;
@@ -214,7 +213,8 @@
   }
 
   &_btn {
-    margin-right: 5px;
+    padding: 9px 0 9px 8px;
+    height: 100%;
 
     display: inline-flex;
     align-self: center;
@@ -225,6 +225,7 @@
   }
 
   &_label {
+    padding: 9px 6px;
     margin: 0;
     cursor: pointer;
     font-weight: 400;

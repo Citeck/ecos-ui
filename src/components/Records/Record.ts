@@ -321,7 +321,7 @@ export default class RecordImpl {
     }
   }
 
-  watch(attributes: AttributesType, callback?: (atts: string[]) => void): RecordWatcherLike | undefined {
+  watch<T>(attributes: AttributesType, callback?: (atts: T) => void): RecordWatcherLike | undefined {
     if (this.isVirtual()) {
       return;
     }
