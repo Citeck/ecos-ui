@@ -1,5 +1,49 @@
 # Gantt Chart Widget Plugin
 
+This plugin provides a Gantt chart widget for visualizing project timelines and task dependencies.
+
+## Features
+
+- Interactive Gantt chart visualization
+- Task dependency management
+- Multiple time scale views (day, week, month)
+- Customizable task styling
+- Responsive design
+
+## Configuration
+
+The widget can be configured with the following options:
+
+- **Data Type**: 
+  - Standalone: Manual data entry
+  - Linked: Connected to business object
+  
+- **Data Source**: Select the data source for fetching and storing Gantt chart data
+
+- **Manual Data Source**: Enter data source ID manually (for standalone mode)
+
+- **Linked With Type**: Enter type of linked data (for linked mode)
+
+- **Linked With Reference**: Enter reference to linked document (for linked mode)
+
+## Usage
+
+1. Add the Gantt Chart widget to your dashboard
+2. Configure the data source in the widget settings
+3. View and interact with the Gantt chart in the widget
+
+## Technical Details
+
+This widget uses the `wx-svelte-gantt` component for rendering the Gantt chart, which provides:
+
+- Smooth scrolling and zooming
+- Drag and drop task manipulation
+- Dependency line visualization
+- Customizable time scales
+- Responsive design for different screen sizes
+
+The widget is built with Svelte for optimal performance and small bundle size.
+
 ## Overview
 
 This plugin implements integration with the Records API for the Gantt Chart widget. It enables loading and saving Gantt chart data using the Citeck Records API.

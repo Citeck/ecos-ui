@@ -1,4 +1,4 @@
-import GanttDataTransformer, { RecordsActivity, RecordsDependency } from './GanttDataTransformer';
+import GanttDataTransformer, { RecordsActivity, RecordsDependency } from './ganttDataTransformer';
 
 // @ts-ignore
 import Records from '@/components/Records/Records';

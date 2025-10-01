@@ -1,14 +1,9 @@
-// @ts-ignore
-import { Locale } from '@svar-ui/react-core';
 import isFunction from 'lodash/isFunction';
 import * as React from 'react';
-// @ts-ignore
-import { Willow } from 'wx-react-gantt';
-
-import { ru } from '../i18n';
+import { SvelteWrapper } from 'reactify-svelte';
 
 import GanttSettings from './GanttSettings';
-import GanttWithStore from './GanttWithStore';
+import __SvelteComponent__ from './Widget.svelte';
 
 import Dashlet from '@/components/Dashlet';
 // @ts-ignore
@@ -18,7 +13,6 @@ import { t } from '@/helpers/export/util';
 import { getRecordRef, getWorkspaceId } from '@/helpers/urls';
 import DAction from '@/services/DashletActionService';
 
-import 'wx-react-gantt/dist/gantt.css';
 import './style.scss';
 
 interface GanttChartWidgetProps extends BaseWidgetProps {
@@ -31,6 +25,15 @@ interface GanttChartWidgetState extends BaseWidgetState {
   isLoading: boolean;
   error?: string;
 }
+
+interface GanttWidgetProps {
+  ganttSettingsRef?: string;
+  ganttDataRef?: string;
+  currentRef?: string;
+  workspace?: string;
+}
+// @ts-ignore
+const GanttSvelteComponent = SvelteWrapper<GanttWidgetProps>(__SvelteComponent__);
 
 class GanttChartWidget<P extends GanttChartWidgetProps, S extends GanttChartWidgetState> extends BaseWidget<P, S> {
   static TYPE = 'gantt_chart';
@@ -184,7 +187,6 @@ class GanttChartWidget<P extends GanttChartWidgetProps, S extends GanttChartWidg
 
     return (
       <div className="ecos-gantt-chart-widget">
-        {/* @ts-ignore */}
         <Dashlet
           {...this.props}
           needsUpdate={false}
@@ -194,7 +196,7 @@ class GanttChartWidget<P extends GanttChartWidgetProps, S extends GanttChartWidg
           isCollapsed={this.isCollapsed}
           actionConfig={this.dashletActions}
         >
-          {isOpenSettings ? (
+          {isOpenSettings && (
             <div style={{ padding: '20px' }}>
               <GanttSettings
                 isOpen={isOpenSettings}
@@ -203,52 +205,10 @@ class GanttChartWidget<P extends GanttChartWidgetProps, S extends GanttChartWidg
                 onSave={this.handleSaveSettings}
               />
             </div>
-          ) : (
-            <Willow>
-              <div className="gtcell pb-4">
-                {error ? (
-                  <div
-                    className="gantt-error"
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      height: '300px',
-                      color: 'red',
-                      padding: '20px',
-                      textAlign: 'center'
-                    }}
-                  >
-                    Error: {error}
-                    <button
-                      onClick={this.loadGanttSettings}
-                      style={{
-                        marginLeft: '10px',
-                        padding: '5px 10px',
-                        backgroundColor: '#007bff',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '3px',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      {t('gantt.chart.retry')}
-                    </button>
-                  </div>
-                ) : (
-                  <>
-                    <Locale words={ru}>
-                      <GanttWithStore
-                        ganttSettingsRef={ganttSettingsRef}
-                        currentRef={getRecordRef() || record}
-                        workspace={getWorkspaceId()}
-                      />
-                    </Locale>
-                  </>
-                )}
-              </div>
-            </Willow>
           )}
+          <div style={{ display: isOpenSettings ? 'none' : 'block', height: '100%' }}>
+            <GanttSvelteComponent ganttSettingsRef={ganttSettingsRef} currentRef={getRecordRef() || record} workspace={getWorkspaceId()} />
+          </div>
         </Dashlet>
       </div>
     );

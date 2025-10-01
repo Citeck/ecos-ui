@@ -24,6 +24,8 @@
   --wx-gantt-project-border-color: #099f81;
   --wx-gantt-project-border: 1px solid transparent;
 
+  --wx-gantt-summary-color: #eef0f8;
+  --wx-gantt-summary-border: 1px solid var(--primary-color);
   --wx-gantt-milestone-color: #ad44ab;
 
   --wx-gantt-select-color: #eaedf5;
@@ -68,9 +70,7 @@
 
   --wx-sidebar-close-icon: #c0c3ce;
 
-  .gtcell {
-    height: calc(100% - 50px);
-  }
+  --wx-gantt-border-color: #1d1e261a;
 }
 
 .gantt-settings-modal {

@@ -144,6 +144,11 @@ class GanttSettings extends Component<GanttSettingsProps, GanttSettingsState> {
 
   render() {
     const { onHide } = this.props;
+
+    if (!this.props.isOpen) {
+      return null;
+    }
+
     const { dataType, dataSourceId, manualDataSourceId, linkedWithType, linkedWithRef, dataSources, isLoadingDataSources } = this.state;
 
     return (
