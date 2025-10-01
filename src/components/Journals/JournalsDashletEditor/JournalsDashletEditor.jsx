@@ -117,7 +117,7 @@ class JournalsDashletEditor extends Component {
       searchInWorkspacePolicy:
         (isObject(get(props, 'config.searchInWorkspacePolicy'))
           ? props.config.searchInWorkspacePolicy.value
-          : props.config.searchInWorkspacePolicy) || defaultPolicy.value,
+          : get(props.config, 'searchInWorkspacePolicy')) || defaultPolicy.value,
       searchInAdditionalWorkspaces: get(props, 'config.searchInAdditionalWorkspaces') ||
         get(props, 'config.aggregateWorkspaces') || [currentWorkspaceRef]
     };
