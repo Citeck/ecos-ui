@@ -43,9 +43,7 @@ class GanttChartWidget<P extends GanttChartWidgetProps, S extends GanttChartWidg
 
     this.state = {
       isOpenSettings: false,
-      ganttSettings: null,
-      isLoading: true,
-      error: undefined
+      ganttSettings: null
     } as S;
   }
 
@@ -57,16 +55,14 @@ class GanttChartWidget<P extends GanttChartWidgetProps, S extends GanttChartWidg
     const { config, ganttSettingsRef } = this.props;
 
     if (!ganttSettingsRef) {
-      this.setState({
-        ganttSettings: { dataType: 'STANDALONE' },
-        isLoading: false
-      });
+      await this.handleSaveSettings({ dataType: 'STANDALONE' });
+
+      this.loadGanttSettings();
+
       return;
     }
 
     try {
-      this.setState({ isLoading: true, error: undefined });
-
       // @ts-ignore
       const settingsRecord = Records.get(ganttSettingsRef);
       const settings = await settingsRecord.load({
@@ -79,16 +75,9 @@ class GanttChartWidget<P extends GanttChartWidgetProps, S extends GanttChartWidg
         data: 'data?id'
       });
 
-      this.setState({
-        ganttSettings: settings,
-        isLoading: false
-      });
+      this.setState({ ganttSettings: settings });
     } catch (error: any) {
       console.error('Failed to load Gantt settings:', error);
-      this.setState({
-        isLoading: false,
-        error: error.message || t('gantt.chart.error.load-failed')
-      });
     }
   };
 
@@ -164,9 +153,6 @@ class GanttChartWidget<P extends GanttChartWidgetProps, S extends GanttChartWidg
       }
     } catch (error: any) {
       console.error('Failed to save Gantt settings:', error);
-      this.setState({
-        error: error.message || t('gantt.chart.error.save-failed')
-      });
     }
   };
 
@@ -183,7 +169,7 @@ class GanttChartWidget<P extends GanttChartWidgetProps, S extends GanttChartWidg
 
   render() {
     const { ganttSettingsRef, record } = this.props;
-    const { isOpenSettings, ganttSettings, error } = this.state;
+    const { isOpenSettings, ganttSettings } = this.state;
 
     return (
       <div className="ecos-gantt-chart-widget">

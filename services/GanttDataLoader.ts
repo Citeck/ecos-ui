@@ -1,4 +1,4 @@
-import GanttDataTransformer, { RecordsActivity, RecordsDependency } from './GanttDataTransformer';
+import GanttDataTransformer, { RecordsActivity, RecordsDependency } from './ganttDataTransformer';
 
 import Records from '@/components/Records/Records';
 import { recordsQueryFetch, recordsMutateFetch } from '@/components/Records/recordsApi';
@@ -37,7 +37,8 @@ const GANTT_ATTRIBUTES = {
     end: 'activity:end',
     duration: 'activity:duration?num',
     progress: 'activity:progress?num',
-    parent: 'activity:parent?id'
+    parent: 'activity:parent?id',
+    position: 'activity:position?num'
   },
   GANTT_DEPENDENCY: {
     SOURCE: 'source',
@@ -169,6 +170,7 @@ class GanttDataLoader {
     activityRecord.att('activity:type', attrs.type);
     activityRecord.att('activity:start', attrs.startDate);
     activityRecord.att('activity:end', attrs.endDate);
+    activityRecord.att('activity:position', activityData.position);
 
     if (attrs.duration !== undefined) {
       activityRecord.att('activity:duration', attrs.duration);
@@ -201,8 +203,14 @@ class GanttDataLoader {
     activityRecord.att('activity:title', attrs.title);
     activityRecord.att('activity:description', attrs.description);
     activityRecord.att('activity:type', attrs.type);
-    activityRecord.att('activity:start', attrs.start);
-    activityRecord.att('activity:end', attrs.end);
+
+    if (attrs.startDate !== undefined) {
+      activityRecord.att('activity:start', attrs.startDate);
+    }
+
+    if (attrs.endDate !== undefined) {
+      activityRecord.att('activity:end', attrs.endDate);
+    }
 
     if (attrs.duration !== undefined) {
       activityRecord.att('activity:duration', attrs.duration);
@@ -218,6 +226,10 @@ class GanttDataLoader {
 
     if (attrs.parent !== undefined) {
       activityRecord.att('activity:parent', attrs.parent || null);
+    }
+
+    if (typeof activityData.position === 'number') {
+      activityRecord.att('activity:position', activityData.position);
     }
 
     return await activityRecord.save();
@@ -300,6 +312,7 @@ class GanttDataLoader {
    */
   async createInitialGanttData() {
     const dataRecord = Records.get(`${GANTT_SOURCES.GANTT_DATA}@`);
+
     return await dataRecord.save();
   }
 }

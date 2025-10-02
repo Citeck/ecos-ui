@@ -1,8 +1,8 @@
 import { writable } from 'svelte/store';
 
-import GanttDataLoader from './GanttDataLoader';
+import ganttDataLoader from './ganttDataLoader';
 
-import type { GanttTask, GanttLink } from './GanttDataTransformer';
+import type { GanttTask, GanttLink } from './ganttDataTransformer';
 
 interface GanttScale {
   unit: string;
@@ -49,14 +49,14 @@ function createGanttStore() {
     try {
       update(state => ({ ...state, isLoading: true, error: undefined }));
 
-      const ganttSettings = await GanttDataLoader.loadGanttSettings(settingsRef);
+      const ganttSettings = await ganttDataLoader.loadGanttSettings(settingsRef);
 
       let tasks: GanttTask[] = [];
       let links: GanttLink[] = [];
 
       if (ganttSettings.dataType === 'STANDALONE') {
         if (ganttSettings.data) {
-          const result = await GanttDataLoader.loadGanttData(ganttSettings.data);
+          const result = await ganttDataLoader.loadGanttData(ganttSettings.data);
           tasks = result.tasks;
           links = result.links;
         } else {
@@ -73,7 +73,7 @@ function createGanttStore() {
           links = [];
         }
       } else if (ganttSettings.dataType === 'LINKED') {
-        const result = await GanttDataLoader.loadLinkedGanttData(
+        const result = await ganttDataLoader.loadLinkedGanttData(
           ganttSettings.dataSourceId,
           ganttSettings.manualDataSourceId,
           ganttSettings.linkedWithType,
@@ -162,20 +162,20 @@ function createGanttStore() {
 
     loadGanttDataWithSettings,
 
-    createTask: async (task: any) => {
+    createTask: async (task: any, position: number) => {
       try {
         if (!ganttSettingsRef) {
           console.error('No gantt settings reference provided, task not saved');
           return;
         }
 
-        const ganttSettings = await GanttDataLoader.loadGanttSettings(ganttSettingsRef);
+        const ganttSettings = await ganttDataLoader.loadGanttSettings(ganttSettingsRef);
 
         if (!ganttSettings.data) {
           throw new Error('No gantt data reference found in settings');
         }
 
-        await GanttDataLoader.createActivity(ganttSettings.data, task);
+        return await ganttDataLoader.createActivity(ganttSettings.data, { ...task, position });
       } catch (error: any) {
         update(state => ({ ...state, error: error.message || 'Failed to create task' }));
       }
@@ -183,11 +183,11 @@ function createGanttStore() {
 
     updateTask: async (task: any) => {
       try {
-        if (!ganttSettingsRef) {
+        if (!ganttSettingsRef || task.id.startsWith('temp://')) {
           return;
         }
 
-        await GanttDataLoader.updateActivity(task.id, task);
+        await ganttDataLoader.updateActivity(task.id, task);
       } catch (error: any) {
         console.error('Failed to update task:', error);
         update(state => ({ ...state, error: error.message || 'Failed to update task' }));
@@ -196,7 +196,7 @@ function createGanttStore() {
 
     deleteTask: async (task: any) => {
       try {
-        await GanttDataLoader.deleteActivity(task.id);
+        await ganttDataLoader.deleteActivity(task.id);
       } catch (error: any) {
         console.error('Failed to delete task:', error);
         update(state => ({ ...state, error: error.message || 'Failed to delete task' }));
@@ -210,13 +210,13 @@ function createGanttStore() {
           return;
         }
 
-        const ganttSettings = await GanttDataLoader.loadGanttSettings(ganttSettingsRef);
+        const ganttSettings = await ganttDataLoader.loadGanttSettings(ganttSettingsRef);
 
         if (!ganttSettings.data) {
           throw new Error('No gantt data reference found in settings');
         }
 
-        await GanttDataLoader.createDependency(ganttSettings.data, link);
+        await ganttDataLoader.createDependency(ganttSettings.data, link);
       } catch (error: any) {
         console.error('Failed to create link:', error);
         update(state => ({ ...state, error: error.message || 'Failed to create link' }));
@@ -225,7 +225,7 @@ function createGanttStore() {
 
     updateLink: async (link: any) => {
       try {
-        await GanttDataLoader.updateDependency(link.id, link);
+        await ganttDataLoader.updateDependency(link.id, link);
       } catch (error: any) {
         console.error('Failed to update link:', error);
         update(state => ({ ...state, error: error.message || 'Failed to update link' }));
@@ -234,7 +234,7 @@ function createGanttStore() {
 
     deleteLink: async (link: any) => {
       try {
-        await GanttDataLoader.deleteDependency(link.id);
+        await ganttDataLoader.deleteDependency(link.id);
       } catch (error: any) {
         console.error('Failed to delete link:', error);
         update(state => ({ ...state, error: error.message || 'Failed to delete link' }));

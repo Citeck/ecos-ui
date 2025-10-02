@@ -26,29 +26,40 @@
   function init(api) {
     widgetApi = api;
 
-    api.on('add-task', async (task) => {
-      await ganttStore.createTask(task);
+    widgetApi.on('add-task', async (task) => {
+      const state = widgetApi.getState();
+      const newTask = await ganttStore.createTask(task, state._tasks.length + 1);
+      widgetApi.exec("delete-task", { id: task.id, });
+      widgetApi.exec("update-task", { id: task.id, task: { id: newTask.id } });
     });
 
-    api.on('update-task', async (task) => {
+    widgetApi.on('update-task', async (task) => {
       await ganttStore.updateTask(task);
     });
 
-    api.on('delete-task', async (task) => {
+    widgetApi.on('delete-task', async (task) => {
       await ganttStore.deleteTask(task);
     });
 
-    api.on('add-link', async (link) => {
+    widgetApi.intercept("sort-tasks", (config) => {
+      return config.key == "start";
+    });
+
+    widgetApi.on('move-task', async (action) => {
+      if (action.inProgress) return;
+
+      const state = widgetApi.getState();
+    });
+
+    widgetApi.on('add-link', async (link) => {
       await ganttStore.createLink(link);
     });
 
-
-    api.on('update-link', async (link) => {
+    widgetApi.on('update-link', async (link) => {
       await ganttStore.updateLink(link);
     });
 
-    api.on('delete-link', async (link) => {
-      // console.log('hui Gantt delete-link', link);
+    widgetApi.on('delete-link', async (link) => {
       await ganttStore.deleteLink(link);
     });
   }
