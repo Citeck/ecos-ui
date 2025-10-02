@@ -27,28 +27,23 @@
     widgetApi = api;
 
     api.on('add-task', async (task) => {
-      console.log('hui Gantt add-task', task);
       await ganttStore.createTask(task);
     });
 
     api.on('update-task', async (task) => {
-      console.log('hui Gantt update-task', task);
       await ganttStore.updateTask(task);
     });
 
     api.on('delete-task', async (task) => {
-      console.log('hui Gantt delete-task', task);
       await ganttStore.deleteTask(task);
     });
 
     api.on('add-link', async (link) => {
-      console.log('hui Gantt add-link', link);
       await ganttStore.createLink(link);
     });
 
 
     api.on('update-link', async (link) => {
-      console.log('hui Gantt update-link', link);
       await ganttStore.updateLink(link);
     });
 
