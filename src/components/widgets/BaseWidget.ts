@@ -107,6 +107,11 @@ abstract class BaseWidget<P extends BaseWidgetProps = BaseWidgetProps, S extends
 
     return isCollapsedByLS === undefined ? (isCollapsedByConfig ?? false) : isCollapsedByLS;
   }
+
+  get widgetType(): string {
+    return get(this.constructor, 'name', 'UnknownWidget');
+  }
+
   get isNarrow(): boolean {
     return isSmallMode(this.state.width);
   }
