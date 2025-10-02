@@ -75,6 +75,7 @@ const Labels = {
   HIDE_GO_TO_BUTTON: 'journals.toolbar.hide-goto-button',
   HIDE_CREATE_VARIANTS: 'journals.toolbar.hide-create-variants',
   ONLY_LINKED_FIELD: 'journals.action.only-linked',
+  ONLY_LINKED_FIELD_ALL_ATTRIBUTES: 'journals.action.only-linked.all-attributes',
   GO_TO_BUTTON_NAME_FIELD: 'journals.action.go-to-button-name',
   RESET_BTN: 'journals.action.reset-settings',
   CANCEL_BTN: 'journals.action.cancel',
@@ -183,6 +184,7 @@ class JournalsDashletEditor extends Component {
     const { isCustomJournalMode, isOnlyLinkedJournals, attrsToLoad, customJournal, selectedJournals } = this.state;
 
     if (
+      !isCustomJournalMode &&
       isOnlyLinkedJournals &&
       attrsToLoad &&
       isObject(attrsToLoad) &&
@@ -501,7 +503,17 @@ class JournalsDashletEditor extends Component {
 
           <GoToButton isSmall={this.isSmall} value={goToButtonName} onChange={this.handleChangeGoToButtonName} />
 
+          {!!recordRef && isCustomJournalMode && (
+            <Field label={t(Labels.ONLY_LINKED_FIELD_ALL_ATTRIBUTES)} isSmall={this.isSmall}>
+              <Checkbox
+                checked={get(isOnlyLinkedJournals, [this.getDispJournalId(customJournal)], false)}
+                onClick={isOnlyLinked => this.onChangeLinkedSettings({ isOnlyLinked }, customJournal)}
+              />
+            </Field>
+          )}
+
           {!!recordRef &&
+            !isCustomJournalMode &&
             !!selectedJournals?.length &&
             selectedJournals.map(journalId => (
               <LinkedAttributesSelect
