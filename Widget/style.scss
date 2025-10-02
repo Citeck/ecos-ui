@@ -39,7 +39,8 @@
   --wx-gantt-progress-marker-height: 26px;
   --wx-gantt-progress-border-color: #c0c3ce;
 
-  --wx-gantt-baseline-border-radius: 2px;
+  --wx-gantt-border-color: #1d1e261a;
+  --wx-gantt-baseline-border-radius: 12px;
 
   --wx-grid-header-font: var(--wx-font-weight-md) var(--wx-font-size) $font-family;
   --wx-grid-header-font-color: var(--wx-color-font);
@@ -69,6 +70,20 @@
   --wx-tooltip-background: #4f525a;
 
   --wx-sidebar-close-icon: #c0c3ce;
+
+  .ecos-panel {
+    overflow: hidden;
+  }
+
+  .dashlet__body {
+    position: relative;
+    padding-bottom: 0;
+    overflow: hidden;
+  }
+
+  .wx-resizer {
+    width: 1px !important;
+  }
 
   .wx-sidearea {
     position: fixed !important;
