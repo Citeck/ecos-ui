@@ -7,9 +7,6 @@ import omit from 'lodash/omit';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 
-import { IGNORED_EVENT_ATTRIBUTE } from '../../../constants';
-import { handleCloseMenuOnScroll, t } from '../../../helpers/util';
-import ZIndex from '../../../services/ZIndex';
 import EditorScope from '../../Journals/service/editors/EditorScope';
 import EditorService from '../../Journals/service/editors/EditorService';
 import { getPredicates, getPredicateValue, PREDICATE_TODAY } from '../../Records/predicates/predicates';
@@ -17,6 +14,10 @@ import { IcoBtn } from '../../common/btns';
 import { Label, Select } from '../../common/form';
 import Columns from '../../common/templates/Columns/Columns';
 import { ParserPredicate } from '../predicates';
+
+import { IGNORED_EVENT_ATTRIBUTE } from '@/constants';
+import { handleCloseMenuOnScroll, t } from '@/helpers/util';
+import ZIndex from '@/services/ZIndex';
 
 import './Filter.scss';
 
@@ -209,10 +210,6 @@ export default class Filter extends Component {
         controlProps: { predicate: omit(predicate, 'val') },
         isRelativeToParent
       });
-
-      if (this.type === 'base') {
-        return control;
-      }
 
       const key = JSON.stringify({
         column,
