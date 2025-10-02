@@ -28,7 +28,8 @@ import {
   isTable,
   isKanban,
   isKanbanOrDocLib,
-  isPreview
+  isPreview,
+  isPreviewList
 } from './constants';
 
 import { getTypeRef } from '@/actions/docLib';
@@ -64,7 +65,8 @@ const mapStateToProps = (state, props) => {
     _url: window.location.href,
     isViewNewJournal,
     widgetsConfig,
-    ...commonProps
+    ...commonProps,
+    viewMode: get(getSearchParams(), JUP.VIEW_MODE)
   };
 };
 
@@ -140,7 +142,7 @@ class Journals extends React.Component {
 
   componentDidMount() {
     const searchParams = getSearchParams();
-    let viewMode = getBool(get(getSearchParams(), JUP.VIEW_MODE));
+    let viewMode = get(getSearchParams(), JUP.VIEW_MODE);
 
     if (isPreview(viewMode)) {
       viewMode = JVM.TABLE;
@@ -206,7 +208,7 @@ class Journals extends React.Component {
       this.setState({ recordId: null });
     }
 
-    if (isViewNewJournal && prevProps.viewMode !== viewMode && (isTable(viewMode) || isKanban(viewMode))) {
+    if (isViewNewJournal && prevProps.viewMode !== viewMode && (isTable(viewMode) || isKanban(viewMode) || isPreviewList(viewMode))) {
       this.setState({ menuOpen: false });
     }
 

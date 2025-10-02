@@ -52,6 +52,7 @@ const mapStateToProps = (state, props) => {
     isLoadingGrid: get(newState, 'loadingGrid', false),
     breadcrumbs: get(newState, 'breadcrumbs', []),
     isLoadingJournal: get(newState, 'loading', []),
+    searchParams: getSearchParams(),
     isViewNewJournal,
     showWidgets,
     isTilesContent,
@@ -263,11 +264,11 @@ class PreviewListContent extends Component {
       isTilesContent,
       isLoadingGrid,
       stateId,
+      searchParams,
       page
     } = this.props;
     const { isInitiatedPagination } = this.state;
 
-    const searchParams = getSearchParams();
     const journalId = get(searchParams, 'journalId');
     const recordRef = get(searchParams, 'recordRef');
 

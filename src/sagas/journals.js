@@ -937,8 +937,13 @@ function* sagaReloadGrid({ api, stateId, w }, { payload = {} }) {
         }
 
         const { grid, selectAllRecordsVisible, selectedRecords, excludedRecords, journalConfig } = journalData;
+
+        const { pagination: gridPagination } = grid || {};
+        const { pagination: payloadPagination } = payload;
+        let pagination = { ...gridPagination, ...payloadPagination };
+
         const searchPredicate = get(payload, 'searchPredicate') || (yield getSearchPredicate({ stateId }));
-        const params = { ...grid, ...payload, searchPredicate };
+        const params = { ...grid, ...payload, pagination, searchPredicate };
 
         params.attributes = {
           ...params.attributes,
