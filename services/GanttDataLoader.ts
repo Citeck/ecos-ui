@@ -1,6 +1,5 @@
-import GanttDataTransformer, { RecordsActivity, RecordsDependency } from './ganttDataTransformer';
+import GanttDataTransformer, { RecordsActivity, RecordsDependency } from './GanttDataTransformer';
 
-// @ts-ignore
 import Records from '@/components/Records/Records';
 import { recordsQueryFetch, recordsMutateFetch } from '@/components/Records/recordsApi';
 
@@ -52,7 +51,6 @@ class GanttDataLoader {
    * @param recordRef - Reference to the gantt-settings record
    */
   async loadGanttSettings(recordRef: string) {
-    // @ts-ignore
     const record = Records.get(recordRef);
 
     return await record.load({
@@ -163,7 +161,6 @@ class GanttDataLoader {
    * @param activityData - Activity data to create
    */
   async createActivity(parentRef: string, activityData: any) {
-    // @ts-ignore
     const activityRecord = Records.get(`${GANTT_SOURCES.GANTT_ACTIVITY}@`);
     const attrs = GanttDataTransformer.transformTaskToActivity(activityData);
 
@@ -198,7 +195,6 @@ class GanttDataLoader {
    * @param activityData - Activity data to update
    */
   async updateActivity(activityRef: string, activityData: any) {
-    // @ts-ignore
     const activityRecord = Records.getRecordToEdit(activityRef);
     const attrs = GanttDataTransformer.transformTaskToActivity(activityData);
 
@@ -232,7 +228,6 @@ class GanttDataLoader {
    * @param activityRef - Reference to the activity record
    */
   async deleteActivity(activityRef: string) {
-    // @ts-ignore
     return await Records.remove([activityRef]);
   }
 
@@ -242,7 +237,6 @@ class GanttDataLoader {
    * @param dependencyData - Dependency data to create
    */
   async createDependency(parentRef: string, dependencyData: any) {
-    // @ts-ignore
     const dependencyRecord = Records.get(`${GANTT_SOURCES.GANTT_DEPENDENCY}@`);
 
     const dependencyAttributes = GanttDataTransformer.transformLinkToDependency(dependencyData);
@@ -280,7 +274,6 @@ class GanttDataLoader {
    * @param dependencyData - Dependency data to update
    */
   async updateDependency(dependencyRef: string, dependencyData: any) {
-    // @ts-ignore
     const dependencyRecord = Records.getRecordToEdit(dependencyRef);
 
     const dependencyAttributes = GanttDataTransformer.transformLinkToDependency(dependencyData);
@@ -299,7 +292,6 @@ class GanttDataLoader {
    * @param dependencyRef - Reference to the dependency record
    */
   async deleteDependency(dependencyRef: string) {
-    // @ts-ignore
     return await Records.remove([dependencyRef]);
   }
 
@@ -307,7 +299,6 @@ class GanttDataLoader {
    * Create initial gantt data for STANDALONE type
    */
   async createInitialGanttData() {
-    // @ts-ignore
     const dataRecord = Records.get(`${GANTT_SOURCES.GANTT_DATA}@`);
     return await dataRecord.save();
   }
