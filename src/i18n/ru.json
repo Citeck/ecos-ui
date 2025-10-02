@@ -1150,6 +1150,7 @@
   "journals.action.hide-menu": "Скрыть меню",
   "journals.action.hide-menu_sm": "Скрыть",
   "journals.action.only-linked": "Отображать только связанные записи для журнала «{{ journalTitle }}»",
+  "journals.action.only-linked.all-attributes": "Отображать только связанные записи",
   "journals.action.go-to-button-name": "Название кнопки \"Перейти\"",
   "journals.action.custom-journal": "Произвольный журнал",
   "journals.aggregation-workspaces": "Пространства для агрегации",

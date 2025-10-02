@@ -240,6 +240,7 @@ export default class JournalsConverter {
     target.customSourceId = _source.sourceId;
     target.predicate = _source.predicate;
     target.onlyLinked = !!_source.onlyLinked;
+    target.isCustomJournalMode = !!_source.customJournalMode;
     target.recordRef = _source.recordRef;
     target.page = _source.pagination;
     target.filter = concat(_source.predicates, _source.searchPredicate);

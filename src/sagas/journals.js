@@ -654,7 +654,8 @@ export function* getGridData(api, params, stateId, isOnlyData = false) {
   const { id, typeRef } = journalConfig || {};
 
   const config = yield select(state => selectNewVersionDashletConfig(state, stateId));
-  const journalId = get(config, 'journalId', id?.includes('@') ? id.split('@')[1] : id);
+  const { customJournalMode, customJournal } = config || {};
+  const journalId = customJournalMode ? customJournal : get(config, 'journalId', id?.includes('@') ? id.split('@')[1] : id);
 
   const onlyLinked = get(config, ['onlyLinkedJournals', journalId]) ?? get(config, 'onlyLinked');
 
@@ -700,6 +701,7 @@ export function* getGridData(api, params, stateId, isOnlyData = false) {
     pagination,
     predicates,
     onlyLinked: predicateRecords.length ? false : onlyLinked,
+    customJournalMode,
     searchPredicate,
     attrsToLoad,
     journalSetting
