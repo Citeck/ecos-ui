@@ -60,7 +60,7 @@
   --wx-gantt-holiday-background: #f0f6fa;
   --wx-gantt-holiday-color: #9fa1ae;
 
-  --wx-gantt-marker-font: var(--wx-font-weight-md) var(--wx-font-size-sm) $font-family;
+  --wx-gantt-marker-font: 500 12px Open Sans;
   --wx-gantt-marker-font-color: #fff;
   --wx-gantt-marker-color: rgba(6, 189, 248, 0.77);
 
@@ -70,7 +70,13 @@
 
   --wx-sidebar-close-icon: #c0c3ce;
 
-  --wx-gantt-border-color: #1d1e261a;
+  .wx-sidearea {
+    position: fixed !important;
+
+    .wx-panel {
+      padding: 56px 0 0 !important;
+    }
+  }
 }
 
 .gantt-settings-modal {

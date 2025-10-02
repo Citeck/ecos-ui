@@ -14,7 +14,7 @@ clean.doFirst {
 
 task assembleArtifact(type: Zip) {
   from '.'
-  include(['js','css','json','scss','jsx','ts','tsx'].collect { "**/*.${it}" })
+  include(['js','css','json','scss','jsx','ts','tsx', 'svelte'].collect { "**/*.${it}" })
   archiveName "${packageId}-${packageVersion}.zip"
   destinationDir(file('build'))
   includeEmptyDirs false

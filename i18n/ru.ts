@@ -38,7 +38,7 @@ const ru = {
     Duration: 'Продолжительность',
     Task: 'Задача',
     Milestone: 'Веха',
-    'Summary task': 'Сводная задача',
+    'Summary task': 'Этап',
 
     // Sidebar
     Save: 'Сохранить',

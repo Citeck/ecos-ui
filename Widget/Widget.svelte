@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { Locale } from "@svar-ui/svelte-core";
-  import { Gantt, Editor, Willow } from "@svar-ui/svelte-gantt";
+  import { Gantt, Editor, Material } from "@svar-ui/svelte-gantt";
 
   import { ganttStore } from '../services/ganttStore';
   import { ru, en } from '../i18n';
@@ -76,8 +76,8 @@
     scales={$ganttStore.scales}
     init={init}
   />
-  <Willow>
+  <Material>
     <Editor api={widgetApi} placement="sidebar" />
-  </Willow>
+  </Material>
 </Locale>
 {/if}
