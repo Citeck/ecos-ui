@@ -1185,6 +1185,7 @@
   "journals.action.edit-dashlet": "Setting widget",
   "journals.action.hide-menu": "Hide menu",
   "journals.action.hide-menu_sm": "Hide menu",
+  "journals.action.only-linked.all-attributes": "Display only linked records",
   "journals.action.only-linked": "Display only linked records for the journal «{{ journalTitle }}»",
   "journals.action.go-to-button-name": "Name of the \"Go to\" button",
   "journals.action.custom-journal": "Custom journal",
