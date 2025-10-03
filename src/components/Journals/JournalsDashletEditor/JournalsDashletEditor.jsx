@@ -181,9 +181,11 @@ class JournalsDashletEditor extends Component {
       attrsToLoad &&
       isObject(attrsToLoad) &&
       isObject(isOnlyLinkedJournals) &&
-      !Object.entries(isOnlyLinkedJournals).every(
-        ([journalId, flag]) => !flag || (!!flag && get(attrsToLoad, [journalId]) && attrsToLoad[journalId].length > 0)
-      )
+      !Object.entries(isOnlyLinkedJournals)
+        .filter(([journalId]) =>
+          selectedJournals.map(journalId => this.getDispJournalId(journalId)).includes(this.getDispJournalId(journalId))
+        )
+        .every(([journalId, flag]) => !flag || (!!flag && get(attrsToLoad, [journalId]) && attrsToLoad[journalId].length > 0))
     ) {
       return true;
     }
