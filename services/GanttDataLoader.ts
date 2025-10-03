@@ -1,4 +1,4 @@
-import GanttDataTransformer, { RecordsActivity, RecordsDependency } from './ganttDataTransformer';
+import GanttDataTransformer, { RecordsActivity, RecordsDependency } from './GanttDataTransformer';
 
 import Records from '@/components/Records/Records';
 import { recordsQueryFetch, recordsMutateFetch } from '@/components/Records/recordsApi';

@@ -1,8 +1,8 @@
 import { writable } from 'svelte/store';
 
-import ganttDataLoader from './ganttDataLoader';
+import ganttDataLoader from './GanttDataLoader';
 
-import type { GanttTask, GanttLink } from './ganttDataTransformer';
+import type { GanttTask, GanttLink } from './GanttDataTransformer';
 
 interface GanttScale {
   unit: string;
