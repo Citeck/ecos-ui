@@ -1,16 +1,17 @@
+import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
+import moment from 'moment';
 import React from 'react';
 import Scrollbars from 'react-custom-scrollbars';
 import { Row } from 'reactstrap';
-import moment from 'moment';
-import get from 'lodash/get';
-import isFunction from 'lodash/isFunction';
 
-import ModelList from '../ModelList';
-import ModelCard from '../ModelCard';
-import CreateModelCard from '../CreateModelCard';
-import { BPMN_MODELS_PAGE_MAX_ITEMS } from '../../../constants/bpmn';
-import { ViewTypes } from '../../../constants/commonDesigner';
 import { Loader, PointsLoader } from '../../common';
+import CreateModelCard from '../CreateModelCard';
+import ModelCard from '../ModelCard';
+import ModelList from '../ModelList';
+
+import { BPMN_MODELS_PAGE_MAX_ITEMS } from '@/constants/bpmn';
+import { ViewTypes } from '@/constants/commonDesigner';
 
 const INITIAL_VISIBLE_MODELS = 10;
 const MODELS_BATCH_SIZE = 10;
@@ -27,7 +28,7 @@ class Models extends React.Component {
       isLoadingMoreModels: false
     };
 
-    this.debouncedLoadFullModels = this.debounce((categoryId) => {
+    this.debouncedLoadFullModels = this.debounce(categoryId => {
       const { getFullModels } = this.props;
       if (isFunction(getFullModels)) {
         getFullModels(categoryId);
@@ -49,7 +50,7 @@ class Models extends React.Component {
   }
 
   componentDidMount() {
-    const { modelsInfo, categoryId, initModels, isCategoryOpen } = this.props;
+    const { categoryId, initModels, isCategoryOpen } = this.props;
     const { initialized } = this.state;
 
     if (isCategoryOpen && !initialized) {
@@ -61,7 +62,7 @@ class Models extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { categoryId, initModels, modelsInfo, isCategoryOpen } = this.props;
+    const { categoryId, initModels, isCategoryOpen } = this.props;
     const { initialized } = this.state;
 
     if (prevProps.isCategoryOpen !== isCategoryOpen && isCategoryOpen && !initialized) {
@@ -98,8 +99,8 @@ class Models extends React.Component {
     const { isLoading, isNextModelsLoading, models = [] } = modelsInfo || {};
     const { visibleModelsCount, isLoadingMoreModels } = this.state;
 
-    const isNearBottom = scroll.scrollTop &&
-      Math.abs(Number(scroll.scrollTop + scroll.clientHeight).toFixed(2) - Number(scroll.scrollHeight).toFixed(2)) < 10;
+    const isNearBottom =
+      scroll.scrollTop && Math.abs(Number(scroll.scrollTop + scroll.clientHeight).toFixed(2) - Number(scroll.scrollHeight).toFixed(2)) < 10;
 
     if (isNearBottom && !isLoading && !isNextModelsLoading && !isLoadingMoreModels) {
       // First check if we need to load more visible models from current data
@@ -119,7 +120,7 @@ class Models extends React.Component {
     const { models = [] } = modelsInfo || {};
     const { visibleModelsCount } = this.state;
 
-    return `${models.length}-${viewType}-${canEditDef}-${visibleModelsCount}-${models.map(m => m.id).join(',')}`;
+    return `${JSON.stringify(models)}-${viewType}-${canEditDef}-${visibleModelsCount}-${models.map(m => m.id).join(',')}`;
   };
 
   loadMoreModels = () => {
@@ -138,15 +139,7 @@ class Models extends React.Component {
   };
 
   renderModels = () => {
-    const {
-      modelsInfo,
-      viewType,
-      onViewLinkClick,
-      onEditLinkClick,
-      onDeleteModelClick,
-      onEditMetaClick,
-      canEditDef
-    } = this.props;
+    const { modelsInfo, viewType, onViewLinkClick, onEditLinkClick, onDeleteModelClick, onEditMetaClick, canEditDef } = this.props;
     const { models = [] } = modelsInfo || {};
     const { visibleModelsCount } = this.state;
 
@@ -192,15 +185,7 @@ class Models extends React.Component {
   };
 
   render() {
-    const {
-      categoryId,
-      modelsInfo,
-      searchText,
-      viewType,
-      showModelCreationForm,
-      createModelCardLabel,
-      canCreateDef
-    } = this.props;
+    const { categoryId, modelsInfo, searchText, viewType, showModelCreationForm, createModelCardLabel, canCreateDef } = this.props;
 
     const { isLoading, isNextModelsLoading, models = [] } = modelsInfo || {};
     const { isLoadingMoreModels } = this.state;
@@ -219,12 +204,11 @@ class Models extends React.Component {
           <Row noGutters>
             {renderedModels}
             {viewType === ViewTypes.CARDS && !isLoading && !models.length && !searchText && canCreateDef && (
-              <CreateModelCard showModelCreationForm={showModelCreationForm} label={createModelCardLabel}
-                               categoryId={categoryId} />
+              <CreateModelCard showModelCreationForm={showModelCreationForm} label={createModelCardLabel} categoryId={categoryId} />
             )}
           </Row>
         </Scrollbars>
-        {(isNextModelsLoading || isLoadingMoreModels) && <PointsLoader className='ecos-designer__loader' />}
+        {(isNextModelsLoading || isLoadingMoreModels) && <PointsLoader className="ecos-designer__loader" />}
       </div>
     );
   }
