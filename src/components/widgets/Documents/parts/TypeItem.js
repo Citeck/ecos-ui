@@ -3,7 +3,7 @@ import { Collapse, Progress } from 'reactstrap';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-import uuidV4 from 'uuid/v4';
+import uuidV4 from 'uuidv4';
 
 import { Icon, Popper } from '../../../common';
 import { Btn } from '../../../common/btns';

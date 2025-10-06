@@ -1,5 +1,5 @@
 import { cloneDeep } from 'lodash';
-import uuidV4 from 'uuid/v4';
+import uuidV4 from 'uuidv4';
 
 import { deepClone } from '../../helpers/util';
 

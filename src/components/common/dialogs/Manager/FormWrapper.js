@@ -5,7 +5,7 @@ import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 import PropTypes from 'prop-types';
 import React from 'react';
-import uuidv4 from 'uuid/v4';
+import uuidv4 from 'uuidv4';
 
 import { getCurrentLocale } from '../../../../helpers/export/util';
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';

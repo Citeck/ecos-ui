@@ -1,7 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import MyCollapse from 'react-css-collapse';
-import uuid from 'uuid/v4';
+import uuid from 'uuidv4';
 
 import { t } from '../../helpers/util';
 import { CommonLabels } from '../../helpers/timesheet/dictionary';

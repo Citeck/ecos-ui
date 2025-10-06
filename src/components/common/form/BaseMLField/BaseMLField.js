@@ -5,7 +5,7 @@ import isEqual from 'lodash/isEqual';
 import omit from 'lodash/omit';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import uuidV4 from 'uuid/v4';
+import uuidV4 from 'uuidv4';
 
 import Tooltip from '../../Tooltip';
 

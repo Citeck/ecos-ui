@@ -2,7 +2,7 @@ import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import React, { useEffect, useState } from 'react';
-import uuidv4 from 'uuid/v4';
+import uuidv4 from 'uuidv4';
 
 import ModelEditor from '../ModelEditor';
 
