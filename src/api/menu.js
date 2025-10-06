@@ -11,7 +11,7 @@ import lodashSet from 'lodash/set';
 import Records from '../components/Records';
 import { PERMISSION_CHANGE_PASSWORD } from '../components/Records/constants';
 import { AUTHORITY_TYPE_GROUP } from '../components/common/form/SelectOrgstruct/constants';
-import { SourcesId, URL } from '../constants';
+import { ADMIN_WORKSPACE_ID, SourcesId, URL } from '../constants';
 import { CITECK_URI, PROXY_URI, UISERV_API } from '../constants/alfresco';
 import { GROUP_EVERYONE, MENU_VERSION, MenuSettings as ms } from '../constants/menu';
 import { ActionTypes } from '../constants/sidebar';
@@ -506,7 +506,10 @@ export class MenuApi extends CommonApi {
     rec.att('version', version);
 
     if (getEnabledWorkspaces()) {
-      rec.att('workspace', getWorkspaceId());
+      const workspaceId = getWorkspaceId();
+      if (workspaceId !== ADMIN_WORKSPACE_ID) {
+        rec.att('workspace', workspaceId);
+      }
     }
 
     return rec.save().then(res => {

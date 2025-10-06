@@ -6,9 +6,6 @@ import isFunction from 'lodash/isFunction';
 import PropTypes from 'prop-types';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 
-import { OrgStructApi } from '../../../api/orgStruct';
-import { usePrevious } from '../../../hooks';
-
 import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, DataTypes, ITEMS_PER_PAGE, TabTypes } from './constants';
 import {
   handleResponse,
@@ -20,7 +17,9 @@ import {
   getRecordRef
 } from './helpers';
 
+import { OrgStructApi } from '@/api/orgStruct';
 import EcosFormUtils from '@/components/EcosForm/EcosFormUtils';
+import { usePrevious } from '@/hooks';
 
 export const OrgstructContext = React.createContext();
 
@@ -71,6 +70,7 @@ export const OrgstructProvider = props => {
   const [tabItems, setTabItems] = useState({
     [TabTypes.LEVELS]: [],
     [TabTypes.USERS]: [],
+    [TabTypes.ROLE]: [],
     [TabTypes.SELECTED]: initSelectedRows ? initSelectedRows : []
   });
 
@@ -106,7 +106,8 @@ export const OrgstructProvider = props => {
       ...tabItems,
       [TabTypes.SELECTED]: newSelected,
       [TabTypes.LEVELS]: updateSelection(tabItems[TabTypes.LEVELS]),
-      [TabTypes.USERS]: updateSelection(tabItems[TabTypes.USERS])
+      [TabTypes.USERS]: updateSelection(tabItems[TabTypes.USERS]),
+      [TabTypes.ROLE]: updateSelection(tabItems[TabTypes.ROLE])
     });
 
     if (apply) {
@@ -361,6 +362,28 @@ export const OrgstructProvider = props => {
 
     return () => (livePromise = false);
   }, [isAllUsersGroupsFetched, isSelectModalOpen, currentTab, searchText, userSearchExtraFields]);
+
+  // fetch role list (all roles)
+  useEffect(() => {
+    let livePromise = true;
+
+    if (!isAllUsersGroupsFetched && isSelectModalOpen && currentTab === TabTypes.ROLE) {
+      setIsSearching(true);
+      OrgStructApi.getRoleList(searchText).then(({ records: items = [] }) => {
+        if (!livePromise) {
+          return;
+        }
+
+        setTabItems({
+          ...tabItems,
+          [TabTypes.ROLE]: items.map(item => setSelectedItem({ ...item, attributes: item }))
+        });
+        setIsSearching(false);
+      });
+    }
+
+    return () => (livePromise = false);
+  }, [isAllUsersGroupsFetched, isSelectModalOpen, currentTab, searchText]);
 
   // reset isSelectedFetched if new previewValue
   // useEffect(() => {

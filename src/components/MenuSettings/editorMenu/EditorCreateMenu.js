@@ -1,23 +1,24 @@
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import React from 'react';
 import { connect } from 'react-redux';
 
-import {
-  addJournalMenuItems,
-  setCreateMenuItems,
-  setLastAddedCreateItems,
-  setIsForAllCreateMenu,
-  getAuthorityInfoByRefs,
-  setAuthoritiesCreateMenu
-} from '../../../actions/menuSettings';
-import { ConfigTypes } from '../../../constants/menu';
-import { t } from '../../../helpers/util';
 import DialogManager from '../../common/dialogs/Manager';
 import { ControlledCheckbox, SelectOrgstruct } from '../../common/form';
 import { GroupTypes, ViewModes, DataTypes } from '../../common/form/SelectOrgstruct/constants';
 import { Labels } from '../utils';
 
 import BaseEditorMenu from './BaseEditorMenu';
+
+import {
+  addJournalMenuItems,
+  setCreateMenuItems,
+  setLastAddedCreateItems,
+  setIsForAllCreateMenu,
+  setAuthoritiesCreateMenu
+} from '@/actions/menuSettings';
+import { ConfigTypes } from '@/constants/menu';
+import { t } from '@/helpers/util';
 
 class EditorCreateMenu extends BaseEditorMenu {
   configType = ConfigTypes.CREATE;

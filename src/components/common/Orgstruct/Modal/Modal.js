@@ -1,16 +1,17 @@
 import React, { useContext } from 'react';
 
 import { t } from '../../../../helpers/util';
-import { Btn } from '../../btns';
 import EcosModal from '../../EcosModal';
+import Pagination from '../../Pagination';
+import { Btn } from '../../btns';
 import { OrgstructContext } from '../OrgstructContext';
+import { PAGINATION_SIZES, TabTypes } from '../constants';
+
+import Body from './Body';
 import Search from './Search';
 import Tabs from './Tabs';
-import Body from './Body';
 
 import './Modal.scss';
-import Pagination from '../../Pagination';
-import { PAGINATION_SIZES, TabTypes } from '../constants';
 
 const Labels = {
   TITLE: 'select-orgstruct.select-modal.title',
