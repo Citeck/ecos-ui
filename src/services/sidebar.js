@@ -17,7 +17,7 @@ import { arrayFlat, getEnabledWorkspaces, hasChildWithId } from '../helpers/util
 import ULS from './userLocalSettings';
 
 export default class SidebarService {
-  static DROPDOWN_LEVEL = 1;
+  static DROPDOWN_LEVEL = 0;
   static SELECTED_MENU_ITEM_ID_KEY = 'selectedMenuItemId';
   static UPDATE_EVENT = 'menu-update-event';
 
@@ -343,7 +343,10 @@ export default class SidebarService {
     }
 
     return {
-      targetUrl: workspaceId && targetUrl && workspaceEnabled && !hasWorkspaceInLink && !hasRedirects ? getLinkWithWs(targetUrl, workspaceId) : targetUrl,
+      targetUrl:
+        workspaceId && targetUrl && workspaceEnabled && !hasWorkspaceInLink && !hasRedirects
+          ? getLinkWithWs(targetUrl, workspaceId)
+          : targetUrl,
       attributes
     };
   }
