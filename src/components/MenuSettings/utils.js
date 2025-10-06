@@ -36,7 +36,6 @@ export const Labels = {
   //fields
   FIELD_NAME_LABEL: 'menu-settings.editor-item.field.name.label',
   FIELD_HIDE_NAME_LABEL: 'menu-settings.editor-item.field.checkbox.hide-name',
-  FIELD_COLLAPSED: 'menu-settings.editor-item.field.checkbox.is-collapsed',
   FIELD_URL_LABEL: 'menu-settings.editor-item.field.url.label',
   FIELD_URL_DESC: 'menu-settings.editor-item.field.url.desc',
   FIELD_URL_RESULT_ABSOLUTE: 'menu-settings.editor-item.field.url.result-absolute',

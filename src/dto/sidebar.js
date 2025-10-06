@@ -18,10 +18,10 @@ export default class SidebarConverter {
       if (!item.hidden) {
         let targetItem = cloneDeep(item);
         const collapsible = get(targetItem, 'params.collapsible');
-        const collapsed = get(targetItem, 'collapsed');
+        const collapsed = get(targetItem, 'params.collapsed');
 
-        set(targetItem, 'params.collapsible', collapsible === undefined ? true : collapsible !== false);
-        set(targetItem, 'params.collapsed', collapsed);
+        set(targetItem, 'params.collapsible', collapsible === undefined ? lvl > 0 : collapsible !== false);
+        set(targetItem, 'params.collapsed', collapsed === undefined ? lvl > 0 : collapsed !== false);
 
         targetItem.label = MenuConverter.getSpecialLabel(item);
         if (ms.ItemTypes.KANBAN === item.type) {
