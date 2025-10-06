@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 
 import FormManager from '../EcosForm/FormManager';
-// @ts-ignore
 import Records from '../Records';
 import { Loader } from '../common';
 import { Btn } from '../common/btns';
@@ -176,13 +175,11 @@ const Workspaces = ({ isLoading, isError, workspaces, getWorkspaces, visitedActi
                 onClick={async () => {
                   setIsActivePreview(false);
 
-                  // @ts-ignore // TODO: It is necessary to type 'Records' and 'Record'
                   const variant = await Records.get(`${SourcesId.TYPE}@workspace`).load('createVariants?json');
 
                   FormManager.createRecordByVariant(variant, {
                     onHideModal: () => getWorkspaces(),
                     onSubmit: async (record: any) => {
-                      // @ts-ignore
                       const { id: wsId, homePageLink } = await Records.get(record).load({
                         id: 'id',
                         homePageLink: 'homePageLink?str'

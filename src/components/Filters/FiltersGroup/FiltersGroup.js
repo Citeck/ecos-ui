@@ -41,7 +41,7 @@ export default class FiltersGroup extends Component {
       if (!cachedFilter) {
         cachedFilter = (
           <Filter
-            key={getId()}
+            key={key || getId()}
             index={idx}
             filter={filter}
             sourceId={sourceId}
@@ -151,7 +151,7 @@ export default class FiltersGroup extends Component {
 
     return (
       <Filter
-        key={filter.id || idx}
+        key={get(filter, 'predicate.att') || filter.id || idx}
         index={idx}
         filter={filter}
         sourceId={sourceId}

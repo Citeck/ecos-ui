@@ -63,6 +63,7 @@ export const SourcesId = {
   FILL_TEMPLATE_VALUE: 'uiserv/fill-template-value',
   ADMIN_PAGE_SECTION: 'uiserv/admin-page-section',
   EAPPS_BUILD_INFO: 'eapps/build-info',
+  CATEGORY: 'emodel/category',
   DASHBOARD: 'uiserv/dashboard',
   DOCLIB: 'emodel/doclib',
   RESOLVED_FORM: 'uiserv/rform',

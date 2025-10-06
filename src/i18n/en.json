@@ -447,7 +447,7 @@
   "dashboard-settings.widget.publication": "Publication",
   "dashboard-settings.widget.news": "News",
   "dashboard-settings.widget.gantt-chart": "Gantt Chart",
-  "dashboard-settings.widget.hierarchical-tree": "Hierarchical Tree",
+  "dashboard-settings.widget.hierarchical-tree": "Menu",
   "dashboard-settings.widget.with-config": "This widget has settings. When you delete the widget, the settings will be lost",
   "dashboard-settings.layout.tooltip.adaptive": "The number of columns is adjusted to the size of the browser window",
   "dashboard-settings.layout.tooltip.adaptive-same-widgets": "The number of columns adjusts to the size of the browser window, and all widgets are the same height",
@@ -1196,6 +1196,7 @@
   "journals.action.edit-dashlet": "Setting widget",
   "journals.action.hide-menu": "Hide menu",
   "journals.action.hide-menu_sm": "Hide menu",
+  "journals.action.only-linked.all-attributes": "Display only linked records",
   "journals.action.only-linked": "Display only linked records for the journal «{{ journalTitle }}»",
   "journals.action.go-to-button-name": "Name of the \"Go to\" button",
   "journals.action.custom-journal": "Custom journal",
@@ -2833,9 +2834,19 @@
   "publication.creator.name": "Created by",
   "publication.modifier.name": ", Modified by",
 
-  "hierarchical-tree-widget.title": "Wiki",
-  "hierarchical-tree-widget.modal-title": "Add publication",
-  "hierarchical-tree-widget.create": "Add publication",
+  "hierarchical-tree-widget.settings": "Settings",
+  "hierarchical-tree-widget.settings.label": "Widget Name",
+  "hierarchical-tree-widget.title.dashboard": "Menu",
+  "hierarchical-tree-widget.title.journal": "Menu",
+  "hierarchical-tree-widget.modal-title.dashboard": "Add publication",
+  "hierarchical-tree-widget.modal-title.dashboard.edit": "Change publication",
+  "hierarchical-tree-widget.modal-title.journal": "Create category",
+  "hierarchical-tree-widget.modal-title.journal.edit": "Change category",
+  "hierarchical-tree-widget.create.group": "Add publication",
+  "hierarchical-tree-widget.create.category": "Add category",
+  "hierarchical-tree-widget.card.to-category.success": "The card has been successfully moved to the category \"{{ categoryName }}\"",
+  "hierarchical-tree-widget.card.to-category.error": "Error while moving the card to the category \"{{ categoryName }}\"",
+  "hierarchical-tree-widget.card.to-category.tooltip": "Move the card to a category \"{{ categoryName }}\"",
 
   "lexical.plugins.auto-embed.embed": "Embed",
 
@@ -3025,5 +3036,10 @@
   "gantt.settings.linked-with-type.label": "Linked With Type",
   "gantt.settings.linked-with-type.placeholder": "Enter type of linked data",
   "gantt.settings.linked-with-ref.label": "Linked With Reference",
-  "gantt.settings.linked-with-ref.placeholder": "Enter reference to linked document"
+  "gantt.settings.linked-with-ref.placeholder": "Enter reference to linked document",
+  "gantt.chart.settings": "Gantt Settings",
+  "gantt.chart.title": "Gantt Chart",
+  "gantt.chart.error.load-failed": "Failed to load Gantt settings",
+  "gantt.chart.error.save-failed": "Failed to save Gantt settings",
+  "gantt.chart.retry": "Retry"
 }

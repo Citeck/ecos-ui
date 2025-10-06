@@ -267,21 +267,32 @@ class JournalsDataLoader {
       columns
     );
 
-    let predicates = [journalConfig.predicate, settings.predicate, ...predicateFilter].filter(p => !!p);
+    let predicates = [journalConfig.predicate, settings.predicate, ...(settings.predicates || []), ...predicateFilter].filter(p => !!p);
 
-    if (settings.onlyLinked && settings.recordRef && isArray(settings.attrsToLoad)) {
-      const attrsToLoad = settings.attrsToLoad.map(attr => attr.value);
+    const isCustomJournalMode = get(settings, 'isCustomJournalMode', false);
 
-      predicates.push({
-        t: PREDICATE_OR,
-        val: columns
-          .filter(c => c.type === COLUMN_DATA_TYPE_ASSOC && c.searchable && attrsToLoad.includes(c.attribute))
-          .map(a => ({
-            t: PREDICATE_CONTAINS,
-            val: settings.recordRef,
-            att: a.attribute
-          }))
+    if (settings.onlyLinked && settings.recordRef) {
+      const mapToPredicates = a => ({
+        t: PREDICATE_CONTAINS,
+        val: settings.recordRef,
+        att: a.attribute
       });
+
+      if (!isCustomJournalMode && isArray(settings.attrsToLoad)) {
+        const attrsToLoad = settings.attrsToLoad.map(attr => attr.value);
+
+        predicates.push({
+          t: PREDICATE_OR,
+          val: columns
+            .filter(c => c.type === COLUMN_DATA_TYPE_ASSOC && c.searchable && attrsToLoad.includes(c.attribute))
+            .map(mapToPredicates)
+        });
+      } else if (isCustomJournalMode) {
+        predicates.push({
+          t: PREDICATE_OR,
+          val: columns.filter(c => c.type === COLUMN_DATA_TYPE_ASSOC && c.searchable).map(mapToPredicates)
+        });
+      }
 
       predicates = await RecordUtils.replaceAttrValuesForRecord(predicates, settings.recordRef);
     }

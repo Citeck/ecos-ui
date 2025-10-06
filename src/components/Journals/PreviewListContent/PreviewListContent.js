@@ -21,12 +21,13 @@ import {
   SIZE_LISTVIEW_ITEM_TILES
 } from '../constants';
 
-import { cancelReloadGrid, getNextPage, reloadGrid } from '@/actions/journals';
+import { cancelReloadGrid, fetchBreadcrumbs, getNextPage, reloadGrid } from '@/actions/journals';
 import EcosFormUtils from '@/components/EcosForm/EcosFormUtils';
+import Breadcrumbs from '@/components/Journals/Breadcrumbs';
 import { JournalUrlParams as JUP, URL } from '@/constants';
 import { wrapArgs } from '@/helpers/redux';
 import { getLinkWithWs, getSearchParams } from '@/helpers/urls';
-import { getBool, getMLValue, t } from '@/helpers/util';
+import { getBool, t } from '@/helpers/util';
 import { selectPreviewListProps } from '@/selectors/previewList';
 import { selectIsViewNewJournal } from '@/selectors/view';
 
@@ -49,7 +50,9 @@ const mapStateToProps = (state, props) => {
     grid: get(newState, 'grid', {}),
     page: get(newState, 'grid.pagination.page', 1),
     isLoadingGrid: get(newState, 'loadingGrid', false),
+    breadcrumbs: get(newState, 'breadcrumbs', []),
     isLoadingJournal: get(newState, 'loading', []),
+    searchParams: getSearchParams(),
     isViewNewJournal,
     showWidgets,
     isTilesContent,
@@ -64,7 +67,8 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     reloadGrid: options => dispatch(reloadGrid(w(options))),
     cancelReloadGrid: () => dispatch(cancelReloadGrid(w())),
-    getNextPage: () => dispatch(getNextPage(w()))
+    getNextPage: () => dispatch(getNextPage(w())),
+    fetchBreadcrumbs: () => dispatch(fetchBreadcrumbs(w()))
   };
 };
 
@@ -151,7 +155,8 @@ class PreviewListContent extends Component {
       !isLoadingGrid &&
       !this.isNoMore() &&
       scroll.scrollTop &&
-      Math.round(scroll.scrollTop + scroll.clientHeight) === scroll.scrollHeight
+      (Math.ceil(scroll.scrollTop + scroll.clientHeight) === scroll.scrollHeight ||
+        Math.floor(scroll.scrollTop + scroll.clientHeight) === scroll.scrollHeight)
     ) {
       this.props.getNextPage();
     }
@@ -256,12 +261,16 @@ class PreviewListContent extends Component {
       isLoadingJournal,
       gridData,
       previewListConfig,
-      journalName,
       isTilesContent,
       isLoadingGrid,
+      stateId,
+      searchParams,
       page
     } = this.props;
     const { isInitiatedPagination } = this.state;
+
+    const journalId = get(searchParams, 'journalId');
+    const recordRef = get(searchParams, 'recordRef');
 
     const isLoading = isLoadingPreviewList || isLoadingJournal || (isTilesContent && !isInitiatedPagination);
     const isNoData = !isLoading && (!gridData || !gridData.length || !previewListConfig);
@@ -276,13 +285,7 @@ class PreviewListContent extends Component {
         maxHeight={maxHeight}
       >
         {isLoading && <Loader blur />}
-
-        {isTilesContent && (
-          <div className="citeck-preview-list-content__header">
-            <h5 className="citeck-preview-list-content__header_title">{getMLValue(journalName)}</h5>
-          </div>
-        )}
-
+        {journalId && recordRef && <Breadcrumbs stateId={stateId} />}
         {!isNoData && this.renderItems()}
 
         {isTilesContent && isLoadingGrid && !isLoading && page > 1 && <PointsLoader className="citeck-preview-list-content__loader" />}

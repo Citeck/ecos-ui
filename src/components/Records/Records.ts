@@ -1,18 +1,24 @@
 import cloneDeep from 'lodash/cloneDeep';
 import isArray from 'lodash/isArray';
+import isObject from 'lodash/isObject';
 import isString from 'lodash/isString';
 import uuidV4 from 'uuidv4';
 
-import Record from './Record';
+import RecordImpl, { RecordType } from './Record';
 import recordsClientManager from './client';
 import { recordsDeleteFetch, recordsQueryFetch } from './recordsApi';
+import { AttributesType, PreProcessAttsType, PreProcessAttsTypeNotNil } from './types';
 import { prepareAttsToLoad } from './utils/recordUtils';
 
-let Records;
+import { RecordsQueryResponse } from '@/api/types';
 
 let tmpRecordsCounter = 0;
 
+export type RecordsContainerType = RecordsComponent;
+
 class RecordsComponent {
+  protected _records: Record<string, RecordImpl>;
+
   constructor() {
     this._records = {};
   }
@@ -20,32 +26,30 @@ class RecordsComponent {
   /**
    * @param {Array<string>|Array<Record>|string|Record} id
    * @param {?string} owner - Key to allow clean all cache by owner in internal store when all owners will be destroyed.
-   *
-   * @see release
-   *
-   * @return {Record|Array<Record>}
-   */
-  get(id, owner = null) {
-    let record;
+   **/
+  get(id?: string | RecordImpl, owner?: string | null): RecordImpl;
+  get(id: Array<string | RecordImpl>, owner?: string | null): RecordImpl[] & { load: RecordType['load'] };
+  get(id?: string | RecordType | Array<string | RecordType>, owner: string | null = null) {
+    let record: RecordType;
 
     if (!id) {
-      record = new Record('', this);
-    } else if (id instanceof Record) {
+      record = new RecordImpl('', this);
+    } else if (id instanceof RecordImpl) {
       record = id;
     } else if (isArray(id)) {
-      let result = id.map(i => this.get(i));
-      result.load = function () {
-        return Promise.all(this.map(r => r.load.apply(r, arguments)));
+      const result = id.map(i => this.get(i));
+      (result as any).load = (attributes: AttributesType, force?: boolean) => {
+        return Promise.all(result.map(r => r.load(attributes, force)));
       };
       return result;
     } else if (isString(id)) {
       record = this._records[id];
       if (!record) {
-        record = new Record(id, this);
+        record = new RecordImpl(id, this);
         this._records[id] = record;
       }
     } else {
-      record = new Record('', this);
+      record = new RecordImpl('', this);
     }
 
     if (owner) {
@@ -58,30 +62,33 @@ class RecordsComponent {
     return record;
   }
 
-  create(data, owner) {
+  /**
+   * Creates a virtual record. data can be an object or an array of objects.
+   */
+  create(data: any | any[], owner?: string): RecordType | RecordImpl[] {
     if (!owner) {
       throw new Error('Owner is mandatory for virtual records');
     }
 
     if (Array.isArray(data)) {
-      let result = [];
-      for (let v of data) {
-        let record = this.create(v, owner);
+      const result: RecordImpl[] = [];
+      for (const v of data) {
+        const record = this.create(v, owner);
         if (record) {
-          result.push(record);
+          result.push(record as RecordImpl);
         }
       }
       return result;
     }
 
-    let id = uuidV4();
-    let record = new Record(id, this);
+    const id = uuidV4();
+    const record = new RecordImpl(id, this);
     record._virtual = true;
     record._owners[owner] = true;
 
-    for (let att in data) {
+    for (const att in data) {
       if (data.hasOwnProperty(att)) {
-        let attKey = att === 'id' ? '_att_id' : att;
+        const attKey = att === 'id' ? '_att_id' : att;
         record.persistedAtt(attKey, data[att]);
       }
     }
@@ -91,13 +98,13 @@ class RecordsComponent {
     return record;
   }
 
-  releaseAll(owner) {
+  releaseAll(owner?: string): void {
     if (!owner) {
       return;
     }
-    for (let recId in this._records) {
+    for (const recId in this._records) {
       if (this._records.hasOwnProperty(recId)) {
-        let record = this._records[recId];
+        const record = this._records[recId];
         if (record._owners && record._owners[owner] !== undefined) {
           this.release(recId, owner);
         }
@@ -105,16 +112,16 @@ class RecordsComponent {
     }
   }
 
-  release(id, owner) {
+  release(id?: string | RecordImpl | Array<string | RecordImpl>, owner?: string): void {
     if (!id || !owner) {
       return;
     }
 
-    let record;
-    if (id instanceof Record) {
+    let record: RecordType;
+    if (id instanceof RecordImpl) {
       record = id;
     } else if (isArray(id)) {
-      for (let rec of id) {
+      for (const rec of id) {
         this.release(rec, owner);
       }
       return;
@@ -133,91 +140,89 @@ class RecordsComponent {
     }
   }
 
-  forget(id) {
+  forget(id?: string | RecordType | Array<string | RecordType>): void {
     if (isArray(id)) {
-      for (let idElem of id) {
+      for (const idElem of id) {
         this.forget(idElem);
       }
     } else {
-      if (!isString(id) && id.id) {
+      if (!isString(id) && isObject(id) && id.id) {
         id = id.id;
       }
-      delete this._records[id];
+      delete this._records[id as string];
     }
   }
 
-  getRecordToEdit(id) {
-    let record = this.get(id);
+  getRecordToEdit(id: string | RecordType): RecordType {
+    const record = this.get(id);
     if (!record.isBaseRecord()) {
       return record;
     }
-    let tmpId = id + '-alias-' + tmpRecordsCounter++;
-    let result = new Record(tmpId, this, record);
+    const tmpId = id + '-alias-' + tmpRecordsCounter++;
+    const result = new RecordImpl(tmpId, this, record);
     this._records[tmpId] = result;
     return result;
   }
 
-  remove(records) {
+  remove(records: string | RecordImpl | Array<string | RecordImpl>): Promise<void> {
     if (!Array.isArray(records)) {
       records = [records];
     }
 
-    records = records.map(r => (r.id ? r.id : r));
-    return recordsDeleteFetch({ records }).then(() => this.forget(records));
+    const ids = records.map(r => (r && isObject(r) ? r.id : r));
+    return recordsDeleteFetch({ records: ids }).then(() => this.forget(ids));
   }
 
-  queryOne(query, attributes, defaultResult = null) {
+  queryOne(query: any, attributes?: AttributesType | null, defaultResult: any = null): Promise<any> {
     query = cloneDeep(query);
 
-    let page = query.page || {};
+    const page = (query.page || {}) as any;
     page.maxItems = 1;
 
     query.page = page;
 
-    return this.query(query, attributes).then(resp => {
+    return this.query(query, attributes as any).then((resp: any) => {
       if (resp.records.length === 0) {
         return defaultResult;
       }
-      if (attributes && isString(attributes)) {
-        return resp.records[0][attributes];
+      if (attributes && isString(attributes as any)) {
+        return resp.records[0][attributes as any];
       }
       return resp.records[0];
     });
   }
 
-  async query(query, attributes, options) {
-    if (query.attributes && arguments.length === 1) {
+  async query<T = any>(query: any, attributes?: AttributesType | null, options?: { debug?: boolean }): Promise<RecordsQueryResponse<T>> {
+    if (query && query.attributes && arguments.length === 1) {
       attributes = query.attributes;
       query = query.query;
     }
 
-    let self = this;
-
-    let attsToLoad = [];
-    let attsAliases = [];
+    const attsToLoad: string[] = [];
+    const attsAliases: string[] = [];
 
     prepareAttsToLoad(attributes, attsToLoad, attsAliases);
 
     const attsToLoadLengthWithoutClient = attsToLoad.length;
 
-    let clientData = null;
+    let clientData: PreProcessAttsType = null;
 
-    if (query.sourceId) {
+    if (query && query.sourceId) {
       clientData = await recordsClientManager.preProcessAtts(query.sourceId, attsToLoad);
-      if (clientData && clientData.clientAtts) {
-        prepareAttsToLoad(clientData.clientAtts, attsToLoad, attsAliases);
+      if (clientData && (clientData as PreProcessAttsTypeNotNil).clientAtts) {
+        prepareAttsToLoad((clientData as PreProcessAttsTypeNotNil).clientAtts, attsToLoad, attsAliases);
       }
     }
 
-    const processRespRecords = async respRecords => {
-      let records = [];
-      for (let idx in respRecords) {
-        if (!respRecords.hasOwnProperty(idx)) {
+    const processRespRecords = async (respRecords: Array<any>): Promise<any[]> => {
+      const records: any[] = [];
+      for (const idx in respRecords) {
+        if (!Object.prototype.hasOwnProperty.call(respRecords, idx)) {
           continue;
         }
 
-        let recordAtts = respRecords[idx];
-        let loadedAtts = [];
+        const recordAtts = respRecords[idx] as any;
+        const loadedAtts: any[] = [];
         for (let idx = 0; idx < attsToLoad.length; idx++) {
           if (recordAtts.attributes) {
             loadedAtts.push(recordAtts.attributes[idx]);
@@ -225,21 +230,21 @@ class RecordsComponent {
         }
 
         if (recordAtts.id) {
-          let record = self.get(recordAtts.id);
+          const record = this.get(recordAtts.id) as any;
           for (let idx = 0; idx < attsToLoad.length; idx++) {
             record.persistedAtt(attsToLoad[idx], loadedAtts[idx]);
           }
         }
 
         if (clientData && attsToLoad.length) {
-          const clientAtts = {};
+          const clientAtts: Record<string, any> = {};
           for (let i = attsToLoadLengthWithoutClient; i < attsToLoad.length; i++) {
             clientAtts[attsAliases[i]] = loadedAtts[i];
           }
           await recordsClientManager.postProcessAtts(loadedAtts, clientAtts, clientData);
         }
 
-        let recordLoadedAtts = {};
+        const recordLoadedAtts: Record<string, any> = {};
         for (let idx = 0; idx < attsToLoadLengthWithoutClient; idx++) {
           recordLoadedAtts[attsAliases[idx]] = loadedAtts[idx];
         }
@@ -257,12 +262,12 @@ class RecordsComponent {
       return records;
     };
 
-    let queryAttributes = {};
+    const queryAttributes: Record<string, string> = {};
     for (let idx = 0; idx < attsToLoad.length; idx++) {
       queryAttributes[idx] = attsToLoad[idx];
     }
 
-    let queryBody = {
+    const queryBody: any = {
       query: query,
       attributes: queryAttributes
     };
@@ -281,7 +286,7 @@ class RecordsComponent {
       hasMore,
       totalCount,
       attributes: queryBody.attributes,
-      errors: messages && messages.filter(msg => msg && msg.level === 'ERROR')
+      errors: messages && messages.filter((msg: { level: string }) => msg && msg.level === 'ERROR')
     };
   }
 }
@@ -291,7 +296,7 @@ if (!window.Citeck) {
 }
 
 window.Citeck = window.Citeck || {};
-Records = window.Citeck.Records || new RecordsComponent();
+const Records: RecordsContainerType = window.Citeck.Records || new RecordsComponent();
 window.Citeck.Records = Records;
 window.Records = Records;
 

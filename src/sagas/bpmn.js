@@ -371,7 +371,14 @@ function* doUpdateModels({ api }, { payload }) {
       if (prevCategoryId === categoryId) {
         copyModels.splice(editedIndex, 1, editedModel);
       } else {
-        copyModels.unshift(editedModel);
+        const idEditedModel = get(editedModel, 'id');
+        const foundIndex = idEditedModel ? copyModels.findIndex(model => model.id === idEditedModel) : -1;
+
+        if (foundIndex !== -1) {
+          copyModels.splice(foundIndex, 1, editedModel);
+        } else {
+          copyModels.unshift(editedModel);
+        }
       }
 
       yield put(

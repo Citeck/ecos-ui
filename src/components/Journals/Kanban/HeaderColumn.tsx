@@ -2,17 +2,16 @@ import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import React, { useState, useEffect } from 'react';
 
-import { extractLabel, t } from '../../../helpers/util';
 import { Tooltip } from '../../common';
 import TitlePageLoader from '../../common/TitlePageLoader';
 import { Badge } from '../../common/form';
 import { Labels } from '../constants';
 
-// @ts-ignore
 import Records from '@/components/Records';
 import NumberFormatter from '@/components/common/grid/formatters/gql/NumberFormatter';
 import JournalsConverter from '@/dto/journals';
 import { getWorkspaceId } from '@/helpers/urls';
+import { extractLabel, t } from '@/helpers/util';
 import AttributesService from '@/services/AttributesService';
 
 interface HeaderColumnProps {
@@ -31,7 +30,6 @@ const HeaderColumn = ({ data, totalCount, isReady, typeRef, isViewNewJournal, pr
   useEffect(() => {
     if (isViewNewJournal && data.hasSum) {
       const journalId = AttributesService.parseId(typeRef);
-      // @ts-ignore
       Records.queryOne(
         {
           sourceId: `emodel/${journalId}`,
@@ -59,7 +57,6 @@ const HeaderColumn = ({ data, totalCount, isReady, typeRef, isViewNewJournal, pr
 
   useEffect(() => {
     if (isViewNewJournal && data.hasSum) {
-      // @ts-ignore
       Records.get(typeRef)
         .load(`attributeById.${data.sumAtt}.name{ru,en}`)
         .then((label: { en: string; ru: string }) => {

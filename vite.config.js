@@ -1,4 +1,5 @@
 import babel from '@rollup/plugin-babel';
+import { svelte } from '@sveltejs/vite-plugin-svelte';
 import path from 'path';
 import { defineConfig, transformWithEsbuild, loadEnv } from 'vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
@@ -148,6 +149,7 @@ export default defineConfig(({ mode }) => {
       ]
     },
     plugins: [
+      svelte(),
       nodePolyfills({
         include: ['crypto', 'events']
       }),
@@ -178,6 +180,15 @@ export default defineConfig(({ mode }) => {
         target: 'es2020',
         loader: {
           '.js': 'jsx'
+        }
+      }
+    },
+    css: {
+      preprocessorOptions: {
+        scss: {
+          api: 'modern-compiler',
+          quietDeps: true,
+          silenceDeprecations: ['global-builtin', 'color-functions', 'import'] // TODO: transfer all @import to @use
         }
       }
     }

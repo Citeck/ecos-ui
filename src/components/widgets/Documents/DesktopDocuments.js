@@ -26,7 +26,7 @@ import {
 } from '../../../actions/documents';
 import { documentFields, errorTypes, Labels, statusesKeys, tableFields, typeStatusesByFields } from '../../../constants/documents';
 import DocumentsConverter from '../../../dto/documents';
-import { getStateId } from '../../../helpers/redux';
+import { getStateId } from '../../../helpers/store';
 import { closest, prepareTooltipId, t } from '../../../helpers/util';
 import { selectStateByKey } from '../../../selectors/documents';
 import Dashlet from '../../Dashlet';

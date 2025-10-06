@@ -1,10 +1,23 @@
 import { EventEmitter } from 'events';
 import _ from 'lodash';
+import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 
 import Attribute from './Attribute';
 import RecordWatcher from './RecordWatcher';
+import { RecordsContainerType } from './Records';
 import recordsClientManager from './client';
 import { loadAttribute, recordsMutateFetch } from './recordsApi';
+import {
+  AttributeLike,
+  AttributesType,
+  ParseAttributeType,
+  PreProcessAttsToLoadWithClientType,
+  PreProcessAttsType,
+  RecordWatcherLike,
+  RequestRecordType,
+  Scalar
+} from './types';
 import { mapValueToScalar, parseAttribute } from './utils/attStrUtils';
 import { prepareAttsToLoad } from './utils/recordUtils';
 
@@ -14,8 +27,27 @@ import { getEnabledWorkspaces } from '@/helpers/util';
 
 export const EVENT_CHANGE = 'change';
 
-export default class Record {
-  constructor(id, records, baseRecord) {
+export type RecordType = RecordImpl;
+type AttributeGetter = (this: AttributeLike, ...args: any[]) => any;
+type AttributeSetter = (this: AttributeLike, ...args: any[]) => any;
+
+export default class RecordImpl {
+  protected _id: string;
+  protected _attributes: Record<string, AttributeLike>;
+  protected _recordFields: Record<string, any>;
+  protected _recordFieldsToSave: Record<string, any>;
+  protected _records: RecordsContainerType;
+  protected _baseRecord: RecordType | null;
+  protected _emitter: EventEmitter;
+  protected _modified: string | null;
+  protected _pendingUpdate: boolean;
+  protected _updatePromise: Promise<any>;
+  protected _watchers: RecordWatcherLike[];
+  protected _mutClientData?: any;
+  public _owners: Record<string, any>;
+  public _virtual: boolean;
+
+  constructor(id: string, records: RecordsContainerType, baseRecord?: RecordType | null) {
     this._id = id;
     this._attributes = {};
     this._recordFields = {};
@@ -36,48 +68,48 @@ export default class Record {
     this._virtual = false;
   }
 
-  get id() {
+  get id(): string {
     return this._id;
   }
 
-  get events() {
+  get events(): EventEmitter {
     return this._emitter;
   }
 
-  isBaseRecord() {
+  isBaseRecord(): boolean {
     return !this._baseRecord;
   }
 
-  isPendingUpdate() {
+  isPendingUpdate(): boolean {
     return this._pendingUpdate;
   }
 
-  getUpdatePromise() {
+  getUpdatePromise(): Promise<any> {
     return this._updatePromise;
   }
 
-  getBaseRecord() {
+  getBaseRecord(): RecordType {
     return this._baseRecord || this;
   }
 
-  toJson(withDisplayNames) {
-    let attributes = {};
+  toJson(withDisplayNames?: boolean): { id: string; attributes: Record<string, any> } {
+    const attributes: Record<string, any> = {};
 
     if (this._baseRecord) {
-      let baseAtts = this._baseRecord._attributes;
-      for (let att in baseAtts) {
+      const baseAtts = this._baseRecord._attributes;
+      for (const att in baseAtts) {
         if (baseAtts.hasOwnProperty(att)) {
           attributes[att] = baseAtts[att].getValue();
         }
       }
     }
 
-    const isPersistedAssocValue = value => {
+    const isPersistedAssocValue = (value: Scalar): boolean => {
       return _.isString(value) && value.includes('workspace://') && !value.includes('alias');
     };
 
     let recId = this.id;
-    for (let att in this._attributes) {
+    for (const att in this._attributes) {
       if (this._attributes.hasOwnProperty(att)) {
         if (att === '_att_id') {
           recId = this._attributes[att].getValue();
@@ -86,7 +118,7 @@ export default class Record {
           if (value && withDisplayNames) {
             if (Array.isArray(value)) {
               let hasPromises = false;
-              let mappedValues = value.map(it => {
+              const mappedValues = value.map(it => {
                 if (isPersistedAssocValue(it)) {
                   hasPromises = true;
                   return this._records.get(it).load('.disp');
@@ -108,7 +140,7 @@ export default class Record {
       }
     }
 
-    for (let complexAtt in this._recordFieldsToSave) {
+    for (const complexAtt in this._recordFieldsToSave) {
       if (!this._recordFieldsToSave.hasOwnProperty(complexAtt)) {
         continue;
       }
@@ -123,18 +155,18 @@ export default class Record {
     return { id: recId, attributes };
   }
 
-  async toJsonAsync(withDisplayNames) {
+  async toJsonAsync(withDisplayNames?: boolean): Promise<{ id: string; attributes: Record<string, any> }> {
     await this._getWhenReadyToSave();
 
     const json = this.toJson(withDisplayNames);
     const keys = Object.keys(json.attributes);
     const promises = [];
 
-    for (let key of keys) {
+    for (const key of keys) {
       const att = json.attributes[key];
 
       if (att && att.then) {
-        const promise = att.then(res => (json.attributes[key] = res)).catch(() => (json.attributes[key] = null));
+        const promise = att.then((res: Scalar) => (json.attributes[key] = res)).catch(() => (json.attributes[key] = null));
 
         promises.push(promise);
       }
@@ -149,14 +181,14 @@ export default class Record {
     }
   }
 
-  isPersisted() {
+  isPersisted(): boolean {
     const atts = this._attributes;
 
     if (this._mutClientData && !recordsClientManager.isPersisted(this._mutClientData)) {
       return false;
     }
 
-    for (let att in atts) {
+    for (const att in atts) {
       if (!atts.hasOwnProperty(att)) {
         continue;
       }
@@ -167,7 +199,7 @@ export default class Record {
     return true;
   }
 
-  _innerUpdate(resolve, reject) {
+  _innerUpdate(resolve: (value?: unknown) => void, reject: () => void) {
     if (this.isVirtual()) {
       resolve();
       return Promise.resolve();
@@ -205,7 +237,7 @@ export default class Record {
                 });
             })
           ).then(watchersData => {
-            for (let data of watchersData) {
+            for (const data of watchersData) {
               try {
                 data.watcher.setAttributes(data.loadedAtts);
               } catch (e) {
@@ -235,7 +267,7 @@ export default class Record {
       return false;
     }
 
-    const checkConditions = attr => attr.includes('.') || attr.includes('assoc_src_');
+    const checkConditions = (attr: string) => attr.includes('.') || attr.includes('assoc_src_');
 
     return this._watchers.some(watcher => {
       const attrs = watcher.getWatchedAttributes();
@@ -252,14 +284,14 @@ export default class Record {
     });
   }
 
-  update() {
+  update(): Promise<void> {
     if (this.isVirtual()) {
       return Promise.resolve();
     }
 
     this._pendingUpdate = true;
 
-    let promise = null;
+    let promise: Promise<void> | null = null;
     const cleanUpdateStatus = () => {
       if (this._updatePromise === promise) {
         this._pendingUpdate = false;
@@ -280,7 +312,7 @@ export default class Record {
 
   debounceUpdate = _.debounce(() => this.update(), 400);
 
-  unwatch(watcher) {
+  unwatch(watcher: RecordWatcherLike): void {
     for (let i = 0; i < this._watchers.length; i++) {
       if (this._watchers[i] === watcher) {
         this._watchers.splice(i, 1);
@@ -289,7 +321,7 @@ export default class Record {
     }
   }
 
-  watch(attributes, callback) {
+  watch<T>(attributes: AttributesType, callback?: (atts: T) => void): RecordWatcherLike | undefined {
     if (this.isVirtual()) {
       return;
     }
@@ -316,16 +348,16 @@ export default class Record {
     return watcher;
   }
 
-  async _preProcessAttsToLoadWithClient(attributes) {
-    const attsAliases = [];
-    const attsToLoad = [];
+  async _preProcessAttsToLoadWithClient(attributes: AttributesType): Promise<PreProcessAttsToLoadWithClientType> {
+    const attsAliases: string[] = [];
+    const attsToLoad: string[] = [];
 
     const isSingleAttribute = _.isString(attributes);
     prepareAttsToLoad(attributes, attsToLoad, attsAliases);
 
     const attsToLoadLengthWithoutClient = attsToLoad.length;
 
-    let clientData = null;
+    let clientData: PreProcessAttsType = null;
 
     if (!this.isVirtual() && !this.isPendingCreate()) {
       const sourceIdDelimIdx = this.id.indexOf('@');
@@ -334,7 +366,9 @@ export default class Record {
         clientSourceId = this.id.substring(0, sourceIdDelimIdx);
       }
       clientData = await recordsClientManager.preProcessAtts(clientSourceId, attsToLoad);
+      //@ts-ignore
       if (clientData && clientData.clientAtts) {
+        //@ts-ignore
         prepareAttsToLoad(clientData.clientAtts, attsToLoad, attsAliases);
       }
     }
@@ -348,11 +382,11 @@ export default class Record {
     };
   }
 
-  async _postProcessLoadedAttsWithClient(loadedAttsArr, attsLoadingCtx) {
+  async _postProcessLoadedAttsWithClient(loadedAttsArr: Record<number, any>, attsLoadingCtx: PreProcessAttsToLoadWithClientType) {
     const { attsAliases, attsToLoad, attsToLoadLengthWithoutClient, isSingleAttribute, clientData } = attsLoadingCtx;
 
     if (clientData) {
-      const clientAtts = {};
+      const clientAtts: Record<string, any> = {};
       for (let i = attsToLoadLengthWithoutClient; i < attsToLoad.length; i++) {
         clientAtts[attsAliases[i]] = loadedAttsArr[i];
       }
@@ -366,7 +400,7 @@ export default class Record {
       return loadedAttsArr[0];
     }
 
-    let attsResultMap = {};
+    const attsResultMap: Record<string, any> = {};
     for (let i = 0; i < attsToLoadLengthWithoutClient; i++) {
       attsResultMap[attsAliases[i]] = loadedAttsArr[i];
     }
@@ -374,14 +408,14 @@ export default class Record {
     return attsResultMap;
   }
 
-  async load(attributes, force) {
+  async load(attributes: AttributesType, force?: boolean): Promise<any> {
     const attsLoadingCtx = await this._preProcessAttsToLoadWithClient(attributes);
-    let loadedAtts = await Promise.all(attsLoadingCtx.attsToLoad.map(att => this._loadAttWithCacheImpl(att, force)));
+    const loadedAtts = await Promise.all(attsLoadingCtx.attsToLoad.map(att => this._loadAttWithCacheImpl(att, force)));
     return this._postProcessLoadedAttsWithClient(loadedAtts, attsLoadingCtx);
   }
 
-  async _loadAttWithCacheImpl(att, force) {
-    let parsedAtt = parseAttribute(att);
+  async _loadAttWithCacheImpl(att: string, force?: boolean) {
+    const parsedAtt: ParseAttributeType = parseAttribute(att);
     if (parsedAtt != null) {
       let attribute = this._attributes[parsedAtt.name];
       if (!attribute) {
@@ -401,11 +435,11 @@ export default class Record {
       value = this._loadRecordAttImpl(att, force);
       if (value && value.then) {
         this._recordFields[att] = value
-          .then(loaded => {
+          .then((loaded: Scalar) => {
             this._recordFields[att] = loaded;
             return loaded;
           })
-          .catch(e => {
+          .catch((e: string) => {
             console.error(e);
             this._recordFields[att] = null;
             return null;
@@ -417,7 +451,7 @@ export default class Record {
     }
   }
 
-  _loadRecordAttImpl(attribute, force) {
+  _loadRecordAttImpl(attribute: string, force?: boolean) {
     if (this._baseRecord) {
       return this._baseRecord._loadAttWithCacheImpl(attribute, force);
     } else {
@@ -425,18 +459,18 @@ export default class Record {
     }
   }
 
-  loadAttribute(attribute) {
+  loadAttribute(attribute: string) {
     return this.load(attribute);
   }
 
-  loadEditorKey(attribute) {
+  loadEditorKey(attribute?: string) {
     if (!attribute) {
       return Promise.resolve(null);
     }
     return this.loadAttribute('#' + attribute + '?editorKey');
   }
 
-  loadOptions(attribute) {
+  loadOptions(attribute?: string) {
     if (!attribute) {
       return Promise.resolve(null);
     }
@@ -455,34 +489,34 @@ export default class Record {
   }
 
   getRawAttributes() {
-    let attributes = {};
+    const attributes: Record<string, AttributeLike> = {};
 
-    for (let attName in this._attributes) {
+    for (const attName in this._attributes) {
       if (!this._attributes.hasOwnProperty(attName)) {
         continue;
       }
-      let attribute = this._attributes[attName];
+      const attribute = this._attributes[attName];
       attributes[attName] = attribute.getValue();
     }
 
     return attributes;
   }
 
-  getAttributesToSave() {
-    let attributesToSave = {};
+  getAttributesToSave(): Record<string, AttributeLike> {
+    const attributesToSave: Record<string, AttributeLike> = {};
 
-    for (let att in this._recordFieldsToSave) {
+    for (const att in this._recordFieldsToSave) {
       if (this._recordFieldsToSave.hasOwnProperty(att)) {
         attributesToSave[att] = this._recordFieldsToSave[att];
       }
     }
 
-    for (let attName in this._attributes) {
+    for (const attName in this._attributes) {
       if (!this._attributes.hasOwnProperty(attName)) {
         continue;
       }
 
-      let attribute = this._attributes[attName];
+      const attribute = this._attributes[attName];
 
       if (!attribute.isPersisted()) {
         attributesToSave[attribute.getNewValueAttName()] = attribute.getValue();
@@ -496,14 +530,14 @@ export default class Record {
     return attributesToSave;
   }
 
-  async _getChildAssocAttributes() {
-    let attributes = [];
-    for (let attName in this._attributes) {
+  async _getChildAssocAttributes(): Promise<string[]> {
+    const attributes = [];
+    for (const attName in this._attributes) {
       // _ECM_ - prefix for attributes mirrored from document to task
       if (!this._attributes.hasOwnProperty(attName) || !attName || (attName[0] === '_' && !attName.startsWith('_ECM_'))) {
         continue;
       }
-      let attribute = this._attributes[attName];
+      const attribute = this._attributes[attName];
       if (attribute.getNewValueInnerAtt() === 'assoc') {
         attributes.push(attName);
       }
@@ -516,7 +550,7 @@ export default class Record {
       .get(SourcesId.RESOLVED_TYPE + '@' + typeId)
       .load('model.attributes[]{id,type,isChild:config.child?bool}');
     if (modelAtts) {
-      for (let attDef of modelAtts) {
+      for (const attDef of modelAtts) {
         if (attDef.type === 'ASSOC' && attDef.isChild === true && attributes.indexOf(attDef.id) === -1) {
           attributes.push(attDef.id);
         }
@@ -525,12 +559,10 @@ export default class Record {
     return attributes;
   }
 
-  async _getLinkedRecordsToSave() {
-    let self = this;
-
-    let assocAtts = await this._getChildAssocAttributes();
-    let result = assocAtts.reduce((acc, att) => {
-      let value = self.att(att);
+  async _getLinkedRecordsToSave(): Promise<RecordType[]> {
+    const assocAtts = await this._getChildAssocAttributes();
+    const result = assocAtts.reduce<Promise<RecordType>[]>((acc, att) => {
+      let value = this.att(att);
       if (!value) {
         return acc;
       }
@@ -538,13 +570,13 @@ export default class Record {
       return acc.concat(value.map(id => this._records.get(id)).map(rec => rec._getWhenReadyToSave()));
     }, []);
 
-    const linkedRecords = await Promise.all(result).then(records => records.filter(r => !r.isPersisted()));
+    const linkedRecords: RecordType[] = await Promise.all(result).then(records => records.filter(r => !r.isPersisted()));
     const nestedLinkedRecords = await Promise.all(linkedRecords.map(async r => await r._getLinkedRecordsToSave()));
     const nestedLinkedRecordsFlatten = nestedLinkedRecords.reduce((acc, val) => acc.concat(val), []);
     return [...linkedRecords, ...nestedLinkedRecordsFlatten];
   }
 
-  async _saveWithAtts(attributes) {
+  async _saveWithAtts(attributes: AttributesType) {
     const loadAttsCtx = await this._preProcessAttsToLoadWithClient(attributes);
     if (this.isVirtual()) {
       return this._postProcessLoadedAttsWithClient(
@@ -556,17 +588,17 @@ export default class Record {
     const recordsToSave = await this._getWhenReadyToSave().then(baseRecordToSave => {
       return this._getLinkedRecordsToSave().then(linkedRecords => [baseRecordToSave, ...linkedRecords]);
     });
-    let requestRecords = [];
+    const requestRecords = [];
 
-    for (let record of recordsToSave) {
-      let attributesToSave = record.getAttributesToSave();
+    for (const record of recordsToSave) {
+      const attributesToSave = record.getAttributesToSave();
 
       if (record._mutClientData) {
         await recordsClientManager.prepareMutation(attributesToSave, record._mutClientData);
       }
 
       if (!_.isEmpty(attributesToSave)) {
-        let baseId = record.getBaseRecord().id;
+        const baseId = record.getBaseRecord().id;
         requestRecords.push({
           id: baseId,
           attributes: attributesToSave
@@ -574,7 +606,7 @@ export default class Record {
       }
     }
 
-    let requestAttributes = {};
+    const requestAttributes: Record<number, string> = {};
     for (let idx = 0; idx < loadAttsCtx.attsToLoad.length; idx++) {
       requestAttributes[idx] = loadAttsCtx.attsToLoad[idx];
     }
@@ -584,17 +616,17 @@ export default class Record {
       attributes: requestAttributes
     });
 
-    for (let record of requestRecords) {
+    for (const record of requestRecords) {
       this._records.get(record.id).reset();
     }
-    const loadedAtts = [];
+    const loadedAtts: Record<string, any> = [];
     const respMainRecordData = _.get(mutResponse, 'records[0]', {});
     if (respMainRecordData.id && respMainRecordData.attributes) {
       const respMainRecord = this._records.get(respMainRecordData.id);
-      for (let attIdx in respMainRecordData.attributes) {
+      for (const attIdx in respMainRecordData.attributes) {
         const loadedValue = respMainRecordData.attributes[attIdx];
         loadedAtts[attIdx] = loadedValue;
-        const att = loadAttsCtx.attsToLoad[attIdx];
+        const att = get(loadAttsCtx.attsToLoad, [attIdx]);
         if (att) {
           respMainRecord.persistedAtt(att, loadedValue);
         }
@@ -618,33 +650,32 @@ export default class Record {
    * @param attsToLoad attributes to load from result after mutation.
    * @returns {Promise<*|{}|*[]>}
    */
-  async save(attsToLoad) {
+  async save(attsToLoad?: AttributesType) {
     if (attsToLoad) {
       return this._saveWithAtts(attsToLoad);
     }
     if (this.isVirtual()) {
       return;
     }
-    let self = this;
 
-    let requestRecords = [];
+    const requestRecords: RequestRecordType[] = [];
 
-    let recordsToSavePromises = this._getWhenReadyToSave().then(baseRecordToSave => {
+    const recordsToSavePromises = this._getWhenReadyToSave().then(baseRecordToSave => {
       return this._getLinkedRecordsToSave().then(linkedRecords => [baseRecordToSave, ...linkedRecords]);
     });
 
-    const nonBaseRecordsToReset = [];
+    const nonBaseRecordsToReset: string[] = [];
 
     return recordsToSavePromises.then(async recordsToSave => {
-      for (let record of recordsToSave) {
-        let attributesToSave = record.getAttributesToSave();
+      for (const record of recordsToSave) {
+        const attributesToSave = record.getAttributesToSave();
 
         if (record._mutClientData) {
           await recordsClientManager.prepareMutation(attributesToSave, record._mutClientData);
         }
 
         if (!_.isEmpty(attributesToSave)) {
-          let baseId = record.getBaseRecord().id;
+          const baseId = record.getBaseRecord().id;
           if (baseId !== record.id) {
             nonBaseRecordsToReset.push(record.id);
           }
@@ -660,12 +691,12 @@ export default class Record {
       }
 
       return recordsMutateFetch({ records: requestRecords }).then(response => {
-        let attributesToLoad = {};
+        const attributesToLoad: Record<string, any> = {};
 
-        for (let record of requestRecords) {
-          let recAtts = attributesToLoad[record.id] || {};
+        for (const record of requestRecords) {
+          const recAtts: Record<string, any> = attributesToLoad[record.id] || {};
 
-          for (let att in record.attributes) {
+          for (const att in record.attributes) {
             if (record.attributes.hasOwnProperty(att)) {
               recAtts[att] = att;
             }
@@ -674,58 +705,58 @@ export default class Record {
           attributesToLoad[record.id] = recAtts;
         }
 
-        let loadPromises = [];
-        for (let recordId in attributesToLoad) {
+        const loadPromises = [];
+        for (const recordId in attributesToLoad) {
           if (attributesToLoad.hasOwnProperty(recordId)) {
-            let record = this._records.get(recordId);
+            const record = this._records.get(recordId);
             record.reset();
-            let promise = record.load(attributesToLoad[recordId], true);
-            if (promise && promise.then) {
+            const promise = record.load(attributesToLoad[recordId], true);
+            if (promise && isFunction(promise.then)) {
               loadPromises.push(promise);
             }
           }
         }
 
-        for (let nonBaseRecordId of nonBaseRecordsToReset) {
+        for (const nonBaseRecordId of nonBaseRecordsToReset) {
           this._records.get(nonBaseRecordId).reset();
         }
 
         return Promise.all(loadPromises).then(() => {
-          for (let recordId of Object.keys(attributesToLoad)) {
-            let record = this._records.get(recordId);
+          for (const recordId of Object.keys(attributesToLoad)) {
+            const record = this._records.get(recordId);
             record.events.emit(EVENT_CHANGE);
             record.update();
           }
-          let resultId = ((response.records || [])[0] || {}).id;
-          return resultId ? this._records.get(resultId) : self;
+          const resultId = ((response.records || [])[0] || {}).id;
+          return resultId ? this._records.get(resultId) : this;
         });
       });
     });
   }
 
-  _getWhenReadyToSave() {
+  _getWhenReadyToSave(): Promise<RecordType> {
     return new Promise((resolve, reject) => {
       const resolveWithNode = () => resolve(this);
       this._waitUntilReadyToSave(0, resolveWithNode, reject);
     });
   }
 
-  _waitUntilReadyToSave(tryCounter, resolve, reject) {
-    let notReadyAtts = [];
-    for (let attName in this._attributes) {
+  _waitUntilReadyToSave(tryCounter: number, resolve: (value?: unknown) => void, reject: (err?: string) => void) {
+    const notReadyAtts = [];
+    for (const attName in this._attributes) {
       if (!this._attributes.hasOwnProperty(attName)) {
         continue;
       }
-      let att = this._attributes[attName];
+      const att = this._attributes[attName];
       if (!att.isReadyToSave()) {
         notReadyAtts.push(attName);
       }
     }
-    for (let attName in this._recordFieldsToSave) {
+    for (const attName in this._recordFieldsToSave) {
       if (!this._recordFieldsToSave.hasOwnProperty(attName)) {
         continue;
       }
-      let value = this._recordFieldsToSave[attName];
+      const value = this._recordFieldsToSave[attName];
       if (value && value.then) {
         notReadyAtts.push(attName);
       }
@@ -743,7 +774,7 @@ export default class Record {
     }
   }
 
-  persistedAtt(name, value) {
+  persistedAtt(name: string, value: Scalar) {
     return this._processAttField(
       name,
       value,
@@ -754,26 +785,26 @@ export default class Record {
     );
   }
 
-  att(name, value) {
+  att(name: string, value?: Scalar): string | string[] {
     return this._processAttField(name, value, arguments.length === 1, Attribute.prototype.getValue, Attribute.prototype.setValue, true);
   }
 
-  removeAtt(name) {
-    let parsedAtt = parseAttribute(name);
-    let key = (parsedAtt ? parsedAtt.name : null) || name;
+  removeAtt(name: string) {
+    const parsedAtt = parseAttribute(name);
+    const key = (parsedAtt ? parsedAtt.name : null) || name;
     delete this._attributes[key];
   }
 
-  isVirtual() {
+  isVirtual(): boolean {
     if (this._virtual) {
       return true;
     }
-    let baseRecord = this.getBaseRecord();
+    const baseRecord = this.getBaseRecord();
     return baseRecord.id !== this.id && baseRecord.isVirtual();
   }
 
   isPendingCreate() {
-    let baseRecordId = this.getBaseRecord().id;
+    const baseRecordId = this.getBaseRecord().id;
 
     if (baseRecordId.startsWith('dict@')) {
       return true;
@@ -783,12 +814,12 @@ export default class Record {
     return baseRecordId.indexOf('@') === baseRecordId.length - 1;
   }
 
-  _processAttField(name, value, isRead, getter, setter, toSave) {
+  _processAttField(name: string, value: Scalar, isRead: boolean, getter: AttributeGetter, setter: AttributeSetter, toSave: boolean) {
     if (!name) {
       return null;
     }
 
-    let parsedAtt = parseAttribute(name, mapValueToScalar(value));
+    const parsedAtt = parseAttribute(name, mapValueToScalar(value));
     if (parsedAtt === null) {
       if (isRead) {
         let attValue = this._recordFieldsToSave[name];
@@ -800,7 +831,7 @@ export default class Record {
         }
       } else {
         if (toSave) {
-          let currentValue = this._recordFields[name];
+          const currentValue = this._recordFields[name];
           if (currentValue === undefined) {
             this._recordFieldsToSave[name] = this.load(name, true)
               .then(loadedValue => {
@@ -873,7 +904,7 @@ export default class Record {
     return this.__getTypeIdFromRef(await typeAtt.getValue('id', false, true, false));
   }
 
-  __getTypeIdFromRef(ref) {
+  __getTypeIdFromRef(ref: string) {
     if (!_.isString(ref) || ref === '') {
       return '';
     }

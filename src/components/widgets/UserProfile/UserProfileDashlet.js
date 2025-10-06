@@ -8,7 +8,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
 
 import { changePhoto, getUserData, updAppUserData } from '../../../actions/user';
-import { getStateId } from '../../../helpers/redux';
+import { getStateId } from '../../../helpers/store';
 import { getFitnesseClassName } from '../../../helpers/tools';
 import { t } from '../../../helpers/util';
 import Dashlet from '../../Dashlet';

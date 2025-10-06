@@ -28,7 +28,7 @@ import authService from './services/auth';
 import configureStore, { getHistory } from './store';
 
 import { registerAllActions } from '@/components/Records/actions/actions';
-import { allowedModes } from '@/constants/index.js';
+import { allowedModes } from '@/constants';
 import { NotificationManager } from '@/services/notifications';
 
 // Files are included in the build only if imported from here

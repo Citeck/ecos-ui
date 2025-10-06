@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-// @ts-ignore
 import { Row, Col } from 'reactstrap';
 
 import { t } from '../../../helpers/util';

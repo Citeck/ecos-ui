@@ -15,9 +15,10 @@ import {
   recreateDocument,
   setError
 } from '../../../actions/docConstructor';
-import { getStateId } from '../../../helpers/redux';
+import { getStateId } from '../../../helpers/store';
 import { isSmallMode, t } from '../../../helpers/util';
 import DAction from '../../../services/DashletActionService';
+import UserLocalSettingsService from '../../../services/userLocalSettings';
 import Dashlet from '../../Dashlet';
 import { Icon, Loader } from '../../common';
 import { Btn, IcoBtn } from '../../common/btns';
@@ -27,7 +28,6 @@ import BaseWidget from '../BaseWidget';
 import Settings from './Settings';
 
 import './style.scss';
-import UserLocalSettingsService from '../../../services/userLocalSettings';
 
 const DocumentTypes = {
   CONTRACT: 'contract',

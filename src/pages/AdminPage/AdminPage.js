@@ -8,7 +8,7 @@ import AdminSection from '../../components/AdminSection';
 import { Loader } from '../../components/common';
 import { Well } from '../../components/common/form';
 import { SectionTypes } from '../../constants/adminSection';
-import { getStateId } from '../../helpers/redux';
+import { getStateId } from '../../helpers/store';
 import { getEnabledWorkspaces, getId, getSearchParams, t } from '../../helpers/util';
 
 import './style.scss';

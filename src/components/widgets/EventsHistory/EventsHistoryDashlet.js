@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 import { MAX_DEFAULT_HEIGHT_DASHLET } from '../../../constants';
-import { getStateId } from '../../../helpers/redux';
+import { getStateId } from '../../../helpers/store';
 import { isSmallMode, t } from '../../../helpers/util';
 import DAction from '../../../services/DashletActionService';
 import Dashlet from '../../Dashlet';

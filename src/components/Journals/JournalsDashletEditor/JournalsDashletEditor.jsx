@@ -75,6 +75,7 @@ const Labels = {
   HIDE_GO_TO_BUTTON: 'journals.toolbar.hide-goto-button',
   HIDE_CREATE_VARIANTS: 'journals.toolbar.hide-create-variants',
   ONLY_LINKED_FIELD: 'journals.action.only-linked',
+  ONLY_LINKED_FIELD_ALL_ATTRIBUTES: 'journals.action.only-linked.all-attributes',
   GO_TO_BUTTON_NAME_FIELD: 'journals.action.go-to-button-name',
   RESET_BTN: 'journals.action.reset-settings',
   CANCEL_BTN: 'journals.action.cancel',
@@ -114,7 +115,10 @@ class JournalsDashletEditor extends Component {
       attrsToLoad: get(props, 'config.attrsToLoad') || {},
       isHideCreateVariants: get(props, 'config.isHideCreateVariants') || false,
       isHideGoToButton: get(props, 'config.isHideGoToButton') || false,
-      searchInWorkspacePolicy: get(props, 'config.searchInWorkspacePolicy', { value: defaultPolicy.value, label: t(defaultPolicy.label) }),
+      searchInWorkspacePolicy:
+        (isObject(get(props, 'config.searchInWorkspacePolicy'))
+          ? props.config.searchInWorkspacePolicy.value
+          : get(props.config, 'searchInWorkspacePolicy')) || defaultPolicy.value,
       searchInAdditionalWorkspaces: get(props, 'config.searchInAdditionalWorkspaces') ||
         get(props, 'config.aggregateWorkspaces') || [currentWorkspaceRef]
     };
@@ -180,13 +184,16 @@ class JournalsDashletEditor extends Component {
     const { isCustomJournalMode, isOnlyLinkedJournals, attrsToLoad, customJournal, selectedJournals } = this.state;
 
     if (
+      !isCustomJournalMode &&
       isOnlyLinkedJournals &&
       attrsToLoad &&
       isObject(attrsToLoad) &&
       isObject(isOnlyLinkedJournals) &&
-      !Object.entries(isOnlyLinkedJournals).every(
-        ([journalId, flag]) => !flag || (!!flag && get(attrsToLoad, [journalId]) && attrsToLoad[journalId].length > 0)
-      )
+      !Object.entries(isOnlyLinkedJournals)
+        .filter(([journalId]) =>
+          selectedJournals.map(journalId => this.getDispJournalId(journalId)).includes(this.getDispJournalId(journalId))
+        )
+        .every(([journalId, flag]) => !flag || (!!flag && get(attrsToLoad, [journalId]) && attrsToLoad[journalId].length > 0))
     ) {
       return true;
     }
@@ -382,7 +389,7 @@ class JournalsDashletEditor extends Component {
   };
 
   setSelectedWorkspacePolicy = policy => {
-    this.setState({ searchInWorkspacePolicy: policy });
+    this.setState({ searchInWorkspacePolicy: policy.value });
   };
 
   setSelectedAdditionsWorkspaces = (searchInAdditionalWorkspaces = []) => {
@@ -416,6 +423,8 @@ class JournalsDashletEditor extends Component {
       goToButtonName
     } = this.state;
 
+    const workspacePolicy = SearchWorkspacePolicyOptions.find(({ value }) => value === searchInWorkspacePolicy);
+
     return (
       <div className={classNames('ecos-journal-dashlet-editor', className)} ref={forwardRef}>
         <div className={classNames('ecos-journal-dashlet-editor__body', { 'ecos-journal-dashlet-editor__body_small': this.isSmall })}>
@@ -445,7 +454,7 @@ class JournalsDashletEditor extends Component {
                   <Field label={t('workspace-polices.title')} isSmall={this.isSmall} labelPosition="top">
                     <Select
                       onChange={this.setSelectedWorkspacePolicy}
-                      value={this.state.searchInWorkspacePolicy}
+                      value={workspacePolicy ? { value: workspacePolicy.value, label: t(workspacePolicy.label) } : null}
                       options={SearchWorkspacePolicyOptions.map(item => ({
                         value: item.value,
                         label: t(item.label)
@@ -496,7 +505,17 @@ class JournalsDashletEditor extends Component {
 
           <GoToButton isSmall={this.isSmall} value={goToButtonName} onChange={this.handleChangeGoToButtonName} />
 
+          {!!recordRef && isCustomJournalMode && (
+            <Field label={t(Labels.ONLY_LINKED_FIELD_ALL_ATTRIBUTES)} isSmall={this.isSmall}>
+              <Checkbox
+                checked={get(isOnlyLinkedJournals, [this.getDispJournalId(customJournal)], false)}
+                onClick={isOnlyLinked => this.onChangeLinkedSettings({ isOnlyLinked }, customJournal)}
+              />
+            </Field>
+          )}
+
           {!!recordRef &&
+            !isCustomJournalMode &&
             !!selectedJournals?.length &&
             selectedJournals.map(journalId => (
               <LinkedAttributesSelect

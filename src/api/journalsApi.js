@@ -1,3 +1,5 @@
+import get from 'lodash/get';
+
 import Records from '../components/Records';
 import { PERMISSION_WRITE_ATTR } from '../components/Records/constants';
 import TreeDataSource from '../components/common/grid/dataSource/TreeDataSource';
@@ -11,7 +13,7 @@ import { DocPreviewApi } from './docPreview';
 import { RecordService } from './recordService';
 
 import { ROOT_GROUP_NAME } from '@/components/common/Orgstruct/constants';
-import { getWorkspaceId } from '@/helpers/urls';
+import { getSearchParams, getWorkspaceId } from '@/helpers/urls';
 
 /**
  * @description Settings, Storage and special functions are actual here, other ↩
@@ -74,6 +76,10 @@ export class JournalsApi extends RecordService {
   /** @todo replace to using Records.js */
   saveRecords = ({ id, attributes }) => {
     return this.mutate({ record: { id, attributes } }).catch(() => null);
+  };
+
+  getAspects = typeRef => {
+    return Records.get(typeRef).load('aspects[]?json');
   };
 
   getDashletConfig = id => {
@@ -170,7 +176,7 @@ export class JournalsApi extends RecordService {
     return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load('typeRef?str');
   };
 
-  saveConfigWidgets = ({ config, journalId = '' }) => {
+  static saveConfigWidgets = ({ config, journalId = '' }) => {
     const record = Records.get(`${SourcesId.DASHBOARD}@`);
     const recordRef = journalId.includes('@') ? journalId : `${SourcesId.JOURNAL}@${journalId}`;
 
@@ -213,5 +219,16 @@ export class JournalsApi extends RecordService {
       },
       'config?json'
     );
+  };
+
+  fetchBreadcrumbs = () => {
+    const searchParams = getSearchParams();
+    const categoryRef = get(searchParams, 'recordRef');
+
+    if (categoryRef && categoryRef !== 'null') {
+      return Records.get(categoryRef).load('_pathByAssoc._parent[]{id:?id,disp:?disp}');
+    }
+
+    return [];
   };
 }

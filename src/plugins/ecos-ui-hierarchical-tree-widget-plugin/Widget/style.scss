@@ -1,10 +1,34 @@
-@import '../../../styles/constants';
+@import '@/styles/constants';
 
 .ecos-hierarchical-tree-widget {
   $root: &;
 
   &.fullHeight {
     height: 100%;
+  }
+
+  &__editor {
+    padding: 10px 20px;
+
+    &-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+
+  &__structure {
+    &-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+
+      &_btn {
+        &.active i {
+          color: var(--header-bg-color) !important;
+        }
+      }
+    }
   }
 
   i.icon {
@@ -23,7 +47,7 @@
   border: 1px solid $color-gray-4;
   border-radius: 12px;
   font-family: $font-family-open-sans;
-  color: #444444;
+  color: $text-color-dark;
 
   &-header {
     display: flex;
@@ -33,11 +57,17 @@
     padding: 12px 20px 11px;
     border-bottom: 1px solid $color-gray-4;
 
+    &-info {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+    }
+
     h4 {
       margin: 0;
       font-size: 16px;
       font-weight: 700;
-      color: #767676;
+      color: $text-color-gray;
       cursor: pointer;
       transition: color 0.2s;
 
@@ -58,17 +88,17 @@
     p {
       font-size: 14px;
       opacity: 0.4;
-      color: #767676;
+      color: $text-color-gray;
     }
   }
 
   &-body {
     margin: 0;
-    padding: 10px 20px 0;
+    padding: 12px 12px 0;
     list-style-type: none;
 
     ul.tree {
-      $spacing: 0.4rem;
+      $spacing: 0.1rem;
       $radius: 2px;
 
       margin-bottom: 1rem;
@@ -77,22 +107,6 @@
 
       details > summary {
         list-style-type: none;
-      }
-
-      details > summary::before {
-        padding-right: 20px;
-        background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNiIgaGVpZ2h0PSIxMCIgdmlld0JveD0iMCAwIDYgMTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNMC4yOTI4OTMgOS43MDcyM0MtMC4wOTc2MzExIDkuMzE2NyAtMC4wOTc2MzEyIDguNjgzNTQgMC4yOTI4OTMgOC4yOTMwMkwzLjU4NTc5IDUuMDAwMTJMMC4yOTI4OTMgMS43MDcyM0MtMC4wOTc2MzE1IDEuMzE2NyAtMC4wOTc2MzE1IDAuNjgzNTM5IDAuMjkyODkzIDAuMjkzMDE1QzAuNjgzNDE3IC0wLjA5NzUwOTQgMS4zMTY1OCAtMC4wOTc1MDk0IDEuNzA3MTEgMC4yOTMwMTVMNS43MDcxMSA0LjI5MzAyQzYuMDk3NjMgNC42ODM1NCA2LjA5NzYzIDUuMzE2NyA1LjcwNzExIDUuNzA3MjNMMS43MDcxMSA5LjcwNzIzQzEuMzE2NTggMTAuMDk3OCAwLjY4MzQxOCAxMC4wOTc4IDAuMjkyODkzIDkuNzA3MjNaIiBmaWxsPSIjNzY3Njc2Ii8+Cjwvc3ZnPgo=');
-        background-size: 12px 12px;
-        background-position: left center;
-        background-repeat: no-repeat;
-        display: inline-block;
-        width: 12px;
-        height: 12px;
-        content: '';
-      }
-
-      details[open] > summary::before {
-        background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAiIGhlaWdodD0iNiIgdmlld0JveD0iMCAwIDEwIDYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNMC4yOTI4OTMgMC4yOTMwMTVDMC42ODM0MTcgLTAuMDk3NTA5IDEuMzE2NTggLTAuMDk3NTA5IDEuNzA3MTEgMC4yOTMwMTVMNSAzLjU4NTkxTDguMjkyODkgMC4yOTMwMTVDOC42ODM0MiAtMC4wOTc1MDkgOS4zMTY1OCAtMC4wOTc1MDkgOS43MDcxMSAwLjI5MzAxNUMxMC4wOTc2IDAuNjgzNTQgMTAuMDk3NiAxLjMxNjcgOS43MDcxMSAxLjcwNzIzTDUuNzA3MTEgNS43MDcyM0M1LjMxNjU4IDYuMDk3NzUgNC42ODM0MiA2LjA5Nzc1IDQuMjkyODkgNS43MDcyM0wwLjI5Mjg5MyAxLjcwNzIzQy0wLjA5NzYzMTEgMS4zMTY3IC0wLjA5NzYzMTEgMC42ODM1NCAwLjI5Mjg5MyAwLjI5MzAxNVoiIGZpbGw9IiM3Njc2NzYiLz4KPC9zdmc+Cg==');
       }
 
       li {
@@ -117,16 +131,19 @@
       .parent-tree {
         font-weight: 600;
 
+        & > details > summary > label {
+          font-weight: 600 !important;
+        }
+
         summary {
           display: flex;
-          padding: 8px 10px;
           align-items: center;
           text-wrap: nowrap;
           overflow: hidden;
           transition: background-color 0.2s;
 
           &:hover {
-            background: #EEF0F8;
+            background: $color-blue-morning;
           }
         }
 
@@ -137,17 +154,6 @@
 
           summary::before {
             color: var(--dark-primary-color) !important;
-          }
-        }
-
-        &__no-children {
-          summary::before {
-            display: flex;
-            align-items: center;
-            background: none !important;
-            font-size: medium;
-            color: #767676;
-            content: ' •';
           }
         }
       }
@@ -198,20 +204,35 @@
 }
 
 .tree-summary {
-  &.nochild::before {
-    content: '•' !important;
-  }
-
   &::before {
     content: none !important;
   }
 
+  &.active &_btn > svg > path {
+    stroke: var(--dark-primary-color);
+  }
+
   &_btn {
-    margin-right: 4px;
+    padding: 9px 0 9px 8px;
+    height: 100%;
+
+    display: inline-flex;
+    align-self: center;
+
+    & > svg > path {
+      stroke: $text-color-gray;
+    }
   }
 
   &_label {
+    padding: 9px 6px;
     margin: 0;
     cursor: pointer;
+    font-weight: 400;
+  }
+
+  &_ul {
+    padding-top: 5px;
+    padding-left: 24px;
   }
 }

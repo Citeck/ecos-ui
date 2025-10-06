@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 import { getBase64Barcode, init } from '../../../actions/barcode';
 import { defaultSettings } from '../../../constants/barcode';
 import BarcodeConverter from '../../../dto/barcode';
-import { getStateId } from '../../../helpers/redux';
+import { getStateId } from '../../../helpers/store';
 import { getBarcodePrintUrl } from '../../../helpers/urls';
 import { isMobileDevice, t } from '../../../helpers/util';
 import DAction from '../../../services/DashletActionService';

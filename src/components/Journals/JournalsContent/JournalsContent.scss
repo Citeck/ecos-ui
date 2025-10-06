@@ -1,6 +1,10 @@
 @import '../../../styles/constants';
 
 .ecos-journals-content {
+  &__breadcrumbs {
+    padding: 18px 6px 12px 18px;
+  }
+
   &__sides {
     display: flex;
     width: 100%;

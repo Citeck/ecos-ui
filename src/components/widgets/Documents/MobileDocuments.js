@@ -11,7 +11,7 @@ import { ActionTypes } from '../../../components/Records/actions/constants';
 import { documentFields, Labels } from '../../../constants/documents';
 import { FileStatuses } from '../../../helpers/ecosXhr';
 import { t } from '../../../helpers/export/util';
-import { getStateId } from '../../../helpers/redux';
+import { getStateId } from '../../../helpers/store';
 import { selectFilteredTypes, selectMobileStateByKey } from '../../../selectors/documents';
 import Dashlet from '../../Dashlet';
 

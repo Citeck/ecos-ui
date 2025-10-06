@@ -5,11 +5,6 @@ import isFunction from 'lodash/isFunction';
 import uniqueId from 'lodash/uniqueId';
 import React from 'react';
 
-import { SystemJournals } from '../../../constants';
-import { MenuSettings as ms } from '../../../constants/menu';
-import { treeMoveItem } from '../../../helpers/arrayOfObjects';
-import { extractLabel, t } from '../../../helpers/util';
-import MenuSettingsService from '../../../services/MenuSettingsService';
 import IconSelect from '../../IconSelect';
 import { PREDICATE_NOT_EMPTY } from '../../Records/predicates/predicates';
 import { Tree } from '../../common';
@@ -18,6 +13,12 @@ import DialogManager from '../../common/dialogs/Manager';
 import { Badge, DropdownOuter } from '../../common/form';
 import EditorItem from '../editorItem/EditorItem';
 import { Labels } from '../utils';
+
+import { SystemJournals } from '@/constants';
+import { MenuSettings as ms } from '@/constants/menu';
+import { treeMoveItem } from '@/helpers/arrayOfObjects';
+import { extractLabel, t } from '@/helpers/util';
+import MenuSettingsService from '@/services/MenuSettingsService';
 
 import '../style.scss';
 
@@ -75,12 +76,29 @@ export default class BaseEditorMenu extends React.Component {
   handleChooseOption(editItemInfo = {}) {
     const itemInfoType = get(editItemInfo, 'type.key');
 
-    if (itemInfoType === ms.ItemTypes.JOURNAL || itemInfoType === ms.ItemTypes.PREVIEW_LIST) {
+    if (itemInfoType === ms.ItemTypes.JOURNAL) {
       this.setState({
         editItemInfo: {
           ...editItemInfo,
           several: true,
           journalId: SystemJournals.JOURNALS
+        }
+      });
+      return;
+    }
+
+    if (itemInfoType === ms.ItemTypes.PREVIEW_LIST) {
+      this.setState({
+        editItemInfo: {
+          ...editItemInfo,
+          several: true,
+          journalId: SystemJournals.JOURNALS,
+          presetFilterPredicates: [
+            {
+              t: PREDICATE_NOT_EMPTY,
+              att: 'typeRef.aspectById.listview.ref?localId'
+            }
+          ]
         }
       });
       return;
@@ -111,7 +129,7 @@ export default class BaseEditorMenu extends React.Component {
           presetFilterPredicates: [
             {
               t: PREDICATE_NOT_EMPTY,
-              att: 'typeRef._as.ref.aspectById.doclib.ref?raw'
+              att: 'typeRef.aspectById.doclib.ref?localId'
             }
           ],
           journalId: SystemJournals.JOURNALS

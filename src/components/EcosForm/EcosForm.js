@@ -17,14 +17,15 @@ import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
 import { FORM_MODE_EDIT } from './constants';
 
+import { SourcesId } from '@/constants';
 import { PROXY_URI } from '@/constants/alfresco';
 import { SUBMIT_FORM_TIMEOUT } from '@/constants/forms';
 import { LANGUAGE_EN } from '@/constants/lang';
 import { PANEL_CLASS_NAME } from '@/constants/pageTabs';
 import CustomEventEmitter from '@/forms/EventEmitter';
+import { getSearchParams } from '@/helpers/urls';
 import { getCurrentLocale, getMLValue, isMobileDevice, strSplice, t } from '@/helpers/util';
 import ESMRequire from '@/services/ESMRequire';
-
 import './formio.full.min.css';
 import './glyphicon-to-fa.scss';
 import '../../forms/style.scss';
@@ -537,6 +538,15 @@ class EcosForm extends React.Component {
       const keysMapping = EcosFormUtils.getKeysMapping(inputs);
       const inputByKey = EcosFormUtils.getInputByKey(inputs);
       const sRecord = Records.get(recordId);
+      const searchParams = getSearchParams();
+
+      if (
+        get(searchParams, 'recordRef', '').includes(SourcesId.CATEGORY) &&
+        get(searchParams, 'journalId') &&
+        get(searchParams, 'viewMode')
+      ) {
+        sRecord.att('has-category:category', searchParams.recordRef);
+      }
 
       if (submission.state) {
         sRecord.att('_state', submission.state);

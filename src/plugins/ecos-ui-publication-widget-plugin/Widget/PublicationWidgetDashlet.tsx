@@ -6,11 +6,11 @@ import moment from 'moment';
 import Dashlet from '../../../components/Dashlet/Dashlet';
 import FormManager from '../../../components/EcosForm/FormManager';
 
-// @ts-ignore
+import LexicalEditor from '@/components/LexicalEditor';
 import Records from '@/components/Records/Records';
 import { Avatar, Loader } from '@/components/common';
 import BaseWidget, { BaseWidgetProps, BaseWidgetState, EVENTS } from '@/components/widgets/BaseWidget';
-import { getStateId } from '@/helpers/redux';
+import { getStateId } from '@/helpers/store';
 import { getFitnesseClassName } from '@/helpers/tools';
 import { getRecordRef } from '@/helpers/urls';
 import { t } from '@/helpers/util';
@@ -107,7 +107,6 @@ class PublicationWidgetDashlet<P extends PublicationWidgetDashletProps, S extend
 
     if (this.isMountedFlag) this.setState({ isLoading: true });
 
-    // @ts-ignore
     return Records.get(recordRef)
       .load({
         id: 'id',
@@ -211,7 +210,7 @@ class PublicationWidgetDashlet<P extends PublicationWidgetDashletProps, S extend
                 <p className="ecos-publication-info__date">{moment(publication.modified).format('dddd, MMMM Do YYYY, h:mm:ss')}</p>
               </div>
             </div>
-            {isString(publication.text) && <div dangerouslySetInnerHTML={{ __html: publication.text }} />}
+            {isString(publication.text) && <LexicalEditor readonly htmlString={publication.text} />}
           </>
         )}
       </Dashlet>

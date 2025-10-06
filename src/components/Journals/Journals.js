@@ -28,11 +28,12 @@ import {
   isTable,
   isKanban,
   isKanbanOrDocLib,
-  isPreview
+  isPreview,
+  isPreviewList
 } from './constants';
 
 import { getTypeRef } from '@/actions/docLib';
-import { execJournalAction, setUrl, toggleViewMode } from '@/actions/journals';
+import { execJournalAction, fetchBreadcrumbs, setUrl, toggleViewMode } from '@/actions/journals';
 import { getBoardList } from '@/actions/kanban';
 import { updateTab } from '@/actions/pageTabs';
 import JournalsPreviewWidgets from '@/components/Journals/JournalsPreviewWidgets/JournalsPreviewWidgets';
@@ -60,10 +61,12 @@ const mapStateToProps = (state, props) => {
     isAdmin: get(state, 'user.isAdmin'),
     isMobile: get(state, 'view.isMobile'),
     pageTabsIsShow: get(state, 'pageTabs.isShow'),
+    searchParams: getSearchParams(),
     _url: window.location.href,
     isViewNewJournal,
     widgetsConfig,
-    ...commonProps
+    ...commonProps,
+    viewMode: get(getSearchParams(), JUP.VIEW_MODE)
   };
 };
 
@@ -76,6 +79,7 @@ const mapDispatchToProps = (dispatch, props) => {
     execJournalAction: (records, action, context) => dispatch(execJournalAction(w({ records, action, context }))),
     getTypeRef: journalId => dispatch(getTypeRef(w({ journalId }))),
     getBoardList: journalId => dispatch(getBoardList({ journalId, stateId: props.stateId })),
+    fetchBreadcrumbs: () => dispatch(fetchBreadcrumbs(w())),
     updateTab: tab => dispatch(updateTab({ tab }))
   };
 };
@@ -138,7 +142,7 @@ class Journals extends React.Component {
 
   componentDidMount() {
     const searchParams = getSearchParams();
-    let viewMode = getBool(get(getSearchParams(), JUP.VIEW_MODE));
+    let viewMode = get(getSearchParams(), JUP.VIEW_MODE);
 
     if (isPreview(viewMode)) {
       viewMode = JVM.TABLE;
@@ -146,6 +150,8 @@ class Journals extends React.Component {
       searchParams.viewMode = viewMode;
       updateCurrentUrl({ viewMode, viewWidgets: true });
     }
+
+    this.props.fetchBreadcrumbs();
 
     if (isUnknownView(viewMode)) {
       viewMode = JVM.TABLE;
@@ -171,11 +177,16 @@ class Journals extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { _url, isActivePage, stateId, viewMode, tabId, isViewNewJournal, widgetsConfig } = this.props;
+    const { _url, isActivePage, stateId, viewMode, tabId, isViewNewJournal, widgetsConfig, isLoadingGrid, searchParams } = this.props;
     const { journalId, initiatedWidgetsConfig } = this.state;
+    const prevSearchParams = prevProps.searchParams;
 
     const { isLeftPositionWidgets } = widgetsConfig || {};
     const prevIsLeftPositionWidgets = get(prevProps, 'widgetsConfig.isLeftPositionWidgets');
+
+    if (journalId && !isEqual(get(searchParams, 'recordRef'), get(prevSearchParams, 'recordRef'))) {
+      this.props.fetchBreadcrumbs();
+    }
 
     if (
       initiatedWidgetsConfig &&
@@ -186,6 +197,10 @@ class Journals extends React.Component {
       this.swapContentSizesBox();
     }
 
+    if (isLoadingGrid && !prevProps.isLoadingGrid) {
+      this.setState({ recordId: null });
+    }
+
     if (
       get(prevProps, ['urlParams', JUP.VIEW_WIDGET_PREVIEW]) !== get(this.props, ['urlParams', JUP.VIEW_WIDGET_PREVIEW]) ||
       !isEqual(prevProps.widgetsConfig, widgetsConfig)
@@ -193,7 +208,7 @@ class Journals extends React.Component {
       this.setState({ recordId: null });
     }
 
-    if (isViewNewJournal && prevProps.viewMode !== viewMode && (isTable(viewMode) || isKanban(viewMode))) {
+    if (isViewNewJournal && prevProps.viewMode !== viewMode && (isTable(viewMode) || isKanban(viewMode) || isPreviewList(viewMode))) {
       this.setState({ menuOpen: false });
     }
 
@@ -499,7 +514,12 @@ class Journals extends React.Component {
   };
 
   onRowClick = row => {
-    this.setState({ recordId: row.id });
+    if (get(row, 'id') === this.state.recordId) {
+      this.setState({ recordId: null });
+      return;
+    }
+
+    this.setState({ recordId: get(row, 'id', null) });
   };
 
   renderViews = () => {

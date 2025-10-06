@@ -168,10 +168,9 @@ class WidgetSettings<P extends WidgetSettingsProps, S extends WidgetSettingsStat
     const { stateId } = this.props;
     const { journalId, selectedWidgets, isLeftPositionWidgets } = this.state;
 
-    const JournalApi = new JournalsApi();
     this.setState({ isLoading: true });
 
-    JournalApi.saveConfigWidgets({
+    JournalsApi.saveConfigWidgets({
       journalId: journalId || '',
       config: {
         widgets: selectedWidgets,

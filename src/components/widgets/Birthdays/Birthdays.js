@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 
 import { getBirthdays, resetStore } from '../../../actions/birthdays';
 import { MIN_WIDTH_DASHLET_LARGE } from '../../../constants';
-import { getStateId } from '../../../helpers/redux';
+import { getStateId } from '../../../helpers/store';
 import { isNewVersionPage } from '../../../helpers/urls';
 import { getAdaptiveNumberStr, t } from '../../../helpers/util';
 import { selectStateByKey } from '../../../selectors/birthdays';
