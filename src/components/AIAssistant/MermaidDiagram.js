@@ -1,10 +1,14 @@
 import React, { useEffect, useRef, useState, memo, useCallback } from 'react';
-import mermaid from 'mermaid';
 import { Icon } from '../common';
 import { NotificationManager } from '../../services/notifications';
+import ESMRequire from '../../services/ESMRequire';
+
+// Mermaid library version
+const MERMAID_VERSION = '11.12.0';
 
 // Use a more persistent way to track initialization
 const MERMAID_INIT_KEY = 'mermaid-initialized-flag';
+const MERMAID_INSTANCE_KEY = 'mermaid-instance';
 
 const isMermaidInitialized = () => {
   return window[MERMAID_INIT_KEY] === true;
@@ -12,6 +16,14 @@ const isMermaidInitialized = () => {
 
 const setMermaidInitialized = () => {
   window[MERMAID_INIT_KEY] = true;
+};
+
+const getMermaidInstance = () => {
+  return window[MERMAID_INSTANCE_KEY];
+};
+
+const setMermaidInstance = (instance) => {
+  window[MERMAID_INSTANCE_KEY] = instance;
 };
 
 const MermaidDiagram = ({ chart, className = '' }) => {
@@ -23,48 +35,79 @@ const MermaidDiagram = ({ chart, className = '' }) => {
   const [isRendering, setIsRendering] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [zoom, setZoom] = useState(1);
+  const [mermaidLoaded, setMermaidLoaded] = useState(false);
 
+  // Lazy load mermaid library
   useEffect(() => {
-    if (!isMermaidInitialized()) {
-      mermaid.initialize({
-        startOnLoad: false,
-        theme: 'default',
-        securityLevel: 'loose',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-        fontSize: 12,
-        flowchart: {
-          useMaxWidth: true,
-          htmlLabels: true,
-          curve: 'cardinal',
-          padding: 30,
-          nodeSpacing: 80,
-          rankSpacing: 60,
-          wrappingWidth: 200
-        },
-        sequence: {
-          useMaxWidth: true,
-          wrap: true,
-          diagramMarginX: 20,
-          diagramMarginY: 20,
-          boxMargin: 12,
-          boxTextMargin: 8,
-          noteMargin: 12
-        },
-        gantt: {
-          useMaxWidth: true,
-          fontSize: 14,
-          fontFamily: 'inherit'
-        },
-        er: {
-          useMaxWidth: true,
-          fontSize: 14
-        },
-        gitGraph: {
-          useMaxWidth: true
+    const loadMermaid = async () => {
+      try {
+        // Check if already loaded
+        if (getMermaidInstance()) {
+          setMermaidLoaded(true);
+          return;
         }
-      });
-      setMermaidInitialized();
-    }
+
+        // Load mermaid from local library using ESMRequire
+        ESMRequire.require([`/js/lib/mermaid/${MERMAID_VERSION}/mermaid.min.js`], (mermaid) => {
+          if (!mermaid || typeof mermaid.initialize !== 'function') {
+            throw new Error('Mermaid library not loaded correctly');
+          }
+
+          // Initialize mermaid
+          if (!isMermaidInitialized()) {
+            mermaid.initialize({
+              startOnLoad: false,
+              theme: 'default',
+              securityLevel: 'loose',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+              fontSize: 12,
+              flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'cardinal',
+                padding: 30,
+                nodeSpacing: 80,
+                rankSpacing: 60,
+                wrappingWidth: 200
+              },
+              sequence: {
+                useMaxWidth: true,
+                wrap: true,
+                diagramMarginX: 20,
+                diagramMarginY: 20,
+                boxMargin: 12,
+                boxTextMargin: 8,
+                noteMargin: 12
+              },
+              gantt: {
+                useMaxWidth: true,
+                fontSize: 14,
+                fontFamily: 'inherit'
+              },
+              er: {
+                useMaxWidth: true,
+                fontSize: 14
+              },
+              gitGraph: {
+                useMaxWidth: true
+              }
+            });
+            setMermaidInitialized();
+          }
+
+          // Store instance globally
+          setMermaidInstance(mermaid);
+          setMermaidLoaded(true);
+        });
+      } catch (error) {
+        console.error('Failed to load Mermaid library:', error);
+        console.error('Error details:', error.message, error.stack);
+        setErrorMessage('Failed to load diagram library: ' + error.message);
+        setIsRendering(false);
+      }
+    };
+
+    loadMermaid();
   }, []);
 
   const renderDiagram = useCallback(async () => {
@@ -72,6 +115,12 @@ const MermaidDiagram = ({ chart, className = '' }) => {
       setIsRendering(false);
       setSvgContent('');
       setErrorMessage('');
+      return;
+    }
+
+    // Wait for mermaid to be loaded
+    const mermaid = getMermaidInstance();
+    if (!mermaid) {
       return;
     }
 
@@ -100,6 +149,12 @@ const MermaidDiagram = ({ chart, className = '' }) => {
   // Render diagram optimized for fullscreen
   const renderFullscreenDiagram = useCallback(async () => {
     if (!chart) return null;
+
+    // Wait for mermaid to be loaded
+    const mermaid = getMermaidInstance();
+    if (!mermaid) {
+      return null;
+    }
 
     try {
       // Get viewport dimensions for fullscreen rendering
@@ -162,8 +217,11 @@ const MermaidDiagram = ({ chart, className = '' }) => {
   }, [chart]);
 
   useEffect(() => {
-    renderDiagram();
-  }, [renderDiagram]);
+    // Only render when mermaid is loaded
+    if (mermaidLoaded) {
+      renderDiagram();
+    }
+  }, [renderDiagram, mermaidLoaded]);
 
 
   // Handle fullscreen toggle
@@ -321,27 +379,32 @@ const MermaidDiagram = ({ chart, className = '' }) => {
     <div
       className={`mermaid-diagram-content ${isFullscreenMode ? 'mermaid-diagram-content--fullscreen' : ''}`}
       style={{
-        minHeight: isRendering ? '50px' : 'auto',
+        minHeight: (isRendering || !mermaidLoaded) ? '50px' : 'auto',
         display: 'flex',
-        alignItems: isRendering ? 'center' : 'stretch',
-        justifyContent: isRendering ? 'center' : 'stretch',
+        alignItems: (isRendering || !mermaidLoaded) ? 'center' : 'stretch',
+        justifyContent: (isRendering || !mermaidLoaded) ? 'center' : 'stretch',
         transform: isFullscreenMode ? `scale(${zoom})` : 'none',
         transformOrigin: 'center center',
         transition: 'transform 0.2s ease-in-out'
       }}
     >
-      {isRendering && (
+      {!mermaidLoaded && (
+        <div style={{ color: '#666', fontSize: '14px' }}>
+          Loading diagram library...
+        </div>
+      )}
+      {mermaidLoaded && isRendering && (
         <div style={{ color: '#666', fontSize: '14px' }}>
           Rendering diagram...
         </div>
       )}
-      {!isRendering && errorMessage && (
+      {mermaidLoaded && !isRendering && errorMessage && (
         <div className="mermaid-error">
           <strong>Mermaid Diagram Error:</strong>
           <pre>{errorMessage}</pre>
         </div>
       )}
-      {!isRendering && svgContent && !errorMessage && (
+      {mermaidLoaded && !isRendering && svgContent && !errorMessage && (
         <div
           ref={ref}
           dangerouslySetInnerHTML={{
@@ -356,7 +419,7 @@ const MermaidDiagram = ({ chart, className = '' }) => {
     <>
       <div className={`mermaid-diagram ${className}`}>
         {/* Control buttons */}
-        {!isRendering && svgContent && !errorMessage && (
+        {mermaidLoaded && !isRendering && svgContent && !errorMessage && (
           <div className="mermaid-diagram__controls">
             <button
               className="mermaid-diagram__control-btn"

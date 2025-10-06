@@ -53,6 +53,7 @@ class ESMRequire {
     if (src.includes('quill')) return 'Quill'; // as default
     if (src.includes('ckeditor')) return 'ClassicEditor';
     if (src.includes('ace')) return 'ace';
+    if (src.includes('mermaid')) return 'mermaid';
     return null;
   }
 }
