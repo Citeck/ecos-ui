@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import uuidV4 from 'uuid/v4';
+import uuidV4 from 'uuidv4';
 
 import { NODE_TYPES } from '../../constants/docLib';
 import FilesViewerItem, { FilesViewerItemPropTypes } from './FilesViewerItem';

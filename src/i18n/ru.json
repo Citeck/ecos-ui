@@ -1414,6 +1414,7 @@
   "select-orgstruct.tab.all-users": "Все пользователи",
   "select-orgstruct.tab.by-levels": "По уровням",
   "select-orgstruct.tab.only-selected": "Только выбранные",
+  "select-orgstruct.tab.role": "Роли",
   "select-orgstruct.modal.title.edit-task-assignee": "Изменить исполнителя",
 
   "size.bytes": "б",

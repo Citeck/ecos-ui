@@ -1,10 +1,13 @@
 import React, { useContext, useMemo } from 'react';
+
 import { default as EcosTabs } from '../../../Tabs';
 import { OrgstructContext } from '../../OrgstructContext';
-import { t } from '../../../../../helpers/util';
 import { TabTypes } from '../../constants';
 
-function getTabItems(isAllUsersGroupsExists) {
+import { AUTHORITY_TYPE_ROLE } from '@/components/common/form/SelectOrgstruct/constants';
+import { t } from '@/helpers/util';
+
+function getTabItems(isAllUsersGroupsExists, hasAuthorityTypeRoles = false) {
   const tabs = [
     {
       id: TabTypes.LEVELS,
@@ -23,14 +26,25 @@ function getTabItems(isAllUsersGroupsExists) {
     });
   }
 
+  if (hasAuthorityTypeRoles) {
+    tabs.push({
+      id: TabTypes.ROLE,
+      label: t('select-orgstruct.tab.role')
+    });
+  }
+
   return tabs;
 }
 
 const Tabs = () => {
   const context = useContext(OrgstructContext);
-  const { currentTab, setCurrentTab, isAllUsersGroupsExists } = context;
+  const { currentTab, setCurrentTab, isAllUsersGroupsExists, controlProps } = context;
+  const { allowedAuthorityTypes = [] } = controlProps || {};
 
-  const tabs = useMemo(() => getTabItems(isAllUsersGroupsExists), [isAllUsersGroupsExists]);
+  const tabs = useMemo(
+    () => getTabItems(isAllUsersGroupsExists, allowedAuthorityTypes.includes(AUTHORITY_TYPE_ROLE)),
+    [isAllUsersGroupsExists]
+  );
 
   return (
     <EcosTabs

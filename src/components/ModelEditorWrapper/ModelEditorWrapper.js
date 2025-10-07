@@ -6,7 +6,7 @@ import isNil from 'lodash/isNil';
 import uniqueId from 'lodash/uniqueId';
 import PropTypes from 'prop-types';
 import React from 'react';
-import uuidv4 from 'uuid/v4';
+import uuidv4 from 'uuidv4';
 
 import { Icon, InfoText, ResizeBoxes } from '../common';
 import TitlePageLoader from '../common/TitlePageLoader';

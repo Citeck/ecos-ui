@@ -4,7 +4,7 @@ import isEmpty from 'lodash/isEmpty';
 import isString from 'lodash/isString';
 import React, { lazy, Suspense } from 'react';
 import { Provider } from 'react-redux';
-import uuid from 'uuid/v4';
+import uuid from 'uuidv4';
 
 import PageTabList from './pageTabs/PageTabList';
 

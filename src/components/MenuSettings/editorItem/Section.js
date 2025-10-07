@@ -4,15 +4,16 @@ import isEqual from 'lodash/isEqual';
 import set from 'lodash/set';
 import React from 'react';
 
-import { MenuApi } from '../../../api/menu';
-import { MenuSettings } from '../../../constants/menu';
-import { t } from '../../../helpers/util';
 import { Checkbox, MLText, SelectOrgstruct } from '../../common/form';
-import { GroupTypes } from '../../common/form/SelectOrgstruct/constants';
+import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_ROLE, AUTHORITY_TYPE_USER, GroupTypes } from '../../common/form/SelectOrgstruct/constants';
 import { Field } from '../Field';
 import { Labels } from '../utils';
 
 import Base from './Base';
+
+import { MenuApi } from '@/api/menu';
+import { MenuSettings } from '@/constants/menu';
+import { t } from '@/helpers/util';
 
 export default class Section extends Base {
   #unmounted = false;
@@ -125,6 +126,7 @@ export default class Section extends Base {
         )}
         <Field label={t(Labels.FIELD_ALLOWED_FOR_LABEL)}>
           <SelectOrgstruct
+            allowedAuthorityTypes={[AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, AUTHORITY_TYPE_ROLE]}
             isLoading={isFetching}
             defaultValue={allowedRefs}
             multiple

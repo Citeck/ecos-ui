@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import isString from 'lodash/isString';
 import PropTypes from 'prop-types';
 import React from 'react';
-import uuidV4 from 'uuid/v4';
+import uuidV4 from 'uuidv4';
 
 import { getCurrentLocale, getMLValue, t } from '../../../helpers/util';
 

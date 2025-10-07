@@ -2,7 +2,7 @@ import { EventEmitter } from 'events';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import set from 'lodash/set';
-import uuidV4 from 'uuid/v4';
+import uuidV4 from 'uuidv4';
 
 import { ConfigTypes, CreateOptions, MenuSettings as ms, MenuTypes, UserMenu, UserOptions } from '../constants/menu';
 import { treeFindFirstItem, treeGetPathItem, treeRemoveItem } from '../helpers/arrayOfObjects';

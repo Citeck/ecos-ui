@@ -60,6 +60,7 @@ export const pagesWithOnlyContent = [
 ];
 
 export const SourcesId = {
+  AUTHORITY: 'emodel/authority',
   FILL_TEMPLATE_VALUE: 'uiserv/fill-template-value',
   ADMIN_PAGE_SECTION: 'uiserv/admin-page-section',
   EAPPS_BUILD_INFO: 'eapps/build-info',

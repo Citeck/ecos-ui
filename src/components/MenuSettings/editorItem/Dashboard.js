@@ -1,5 +1,5 @@
 import React from 'react';
-import uuidV4 from 'uuid/v4';
+import uuidV4 from 'uuidv4';
 
 import { t } from '../../../helpers/util';
 import { MenuSettings } from '../../../constants/menu';

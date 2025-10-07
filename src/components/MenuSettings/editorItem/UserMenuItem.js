@@ -1,17 +1,19 @@
-import React from 'react';
+import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import merge from 'lodash/merge';
-import cloneDeep from 'lodash/cloneDeep';
+import React from 'react';
 
-import { MenuApi } from '../../../api/menu';
-import { t } from '../../../helpers/export/util';
-import { MenuSettings } from '../../../constants/menu';
 import { MLText, SelectOrgstruct } from '../../common/form';
 import { GroupTypes } from '../../common/form/SelectOrgstruct/constants';
-import { Labels } from '../utils';
 import { Field } from '../Field';
+import { Labels } from '../utils';
+
 import Base from './Base';
+
+import { MenuApi } from '@/api/menu';
+import { MenuSettings } from '@/constants/menu';
+import { t } from '@/helpers/util';
 
 class UserMenuItem extends Base {
   #unmounted = false;

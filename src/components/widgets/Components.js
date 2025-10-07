@@ -5,7 +5,7 @@ import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 import isString from 'lodash/isString';
 import { lazy } from 'react';
-import uuidV4 from 'uuid/v4';
+import uuidV4 from 'uuidv4';
 
 import { FORM_MODE_EDIT, FORM_MODE_VIEW } from '../EcosForm';
 

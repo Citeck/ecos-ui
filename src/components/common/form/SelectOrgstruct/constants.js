@@ -1,7 +1,8 @@
 export const TabTypes = {
   LEVELS: 'TAB_BY_LEVELS',
   USERS: 'TAB_ALL_USERS',
-  SELECTED: 'TAB_ONLY_SELECTED'
+  SELECTED: 'TAB_ONLY_SELECTED',
+  ROLE: 'TAB_BY_ROLE'
 };
 
 export const ROOT_GROUP_NAME = '_orgstruct_home_';
@@ -11,6 +12,7 @@ export const ALL_USERS_GROUP_SHORT_NAME = 'all';
 
 export const AUTHORITY_TYPE_GROUP = 'GROUP';
 export const AUTHORITY_TYPE_USER = 'USER';
+export const AUTHORITY_TYPE_ROLE = 'ROLE';
 
 export const GroupTypes = {
   ROLE: 'ROLE',

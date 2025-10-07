@@ -146,3 +146,10 @@ idleTimer
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: http://bit.ly/CRA-PWA
 registerServiceWorker();
+
+// Initialize Mermaid debug utilities (only in development/debug mode)
+if (allowedModes.includes(process.env.NODE_ENV)) {
+  import('./components/AIAssistant/MermaidDebug').then(({ initMermaidDebug }) => {
+    initMermaidDebug();
+  });
+}

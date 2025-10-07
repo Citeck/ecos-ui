@@ -2,7 +2,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import isArray from 'lodash/isArray';
 import isObject from 'lodash/isObject';
 import isString from 'lodash/isString';
-import { v4 as uuidV4 } from 'uuid';
+import uuidV4 from 'uuidv4';
 
 import RecordImpl, { RecordType } from './Record';
 import recordsClientManager from './client';

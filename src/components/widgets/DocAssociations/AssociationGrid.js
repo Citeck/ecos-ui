@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import uuid from 'uuid/v4';
+import uuid from 'uuidv4';
 
 import { t } from '../../../helpers/export/util';
 import { Icon } from '../../common';

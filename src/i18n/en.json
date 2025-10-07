@@ -1461,6 +1461,7 @@
   "select-orgstruct.tab.all-users": "All users",
   "select-orgstruct.tab.by-levels": "By levels",
   "select-orgstruct.tab.only-selected": "Only selected",
+  "select-orgstruct.tab.role": "Roles",
   "select-orgstruct.modal.title.edit-task-assignee": "Edit assignee",
 
   "size.bytes": "bytes",
