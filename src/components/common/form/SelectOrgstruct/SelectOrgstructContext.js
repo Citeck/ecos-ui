@@ -5,10 +5,10 @@ import uniqueId from 'lodash/uniqueId';
 import PropTypes from 'prop-types';
 import React, { useContext, useEffect, useState } from 'react';
 
-import { usePrevious } from '../../../../hooks';
-
 import { TabTypes, DataTypes } from './constants';
 import { handleResponse, prepareSelected, getAuthRef, getRecordRef } from './helpers';
+
+import { usePrevious } from '@/hooks';
 
 export const SelectOrgstructContext = React.createContext();
 

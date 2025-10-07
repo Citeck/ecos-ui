@@ -1,9 +1,10 @@
-import React, { useContext } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import PropTypes from 'prop-types';
+import React, { useContext } from 'react';
+
 import { OrgstructContext } from '../../../OrgstructContext';
-import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, TabTypes } from '../../../constants';
+import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, AUTHORITY_TYPE_ROLE, TabTypes } from '../../../constants';
 
 import './ListItem.scss';
 
@@ -29,7 +30,7 @@ const ListItem = ({ item, nestingLevel, nestedList, previousParent }) => {
       isAllowedSelect = true;
     }
 
-    if (itemAuthorityType === AUTHORITY_TYPE_USER) {
+    if (itemAuthorityType === AUTHORITY_TYPE_USER || itemAuthorityType === AUTHORITY_TYPE_ROLE) {
       isAllowedSelect = true;
     }
   }

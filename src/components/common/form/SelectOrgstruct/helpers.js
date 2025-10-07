@@ -2,12 +2,13 @@ import get from 'lodash/get';
 import isNil from 'lodash/isNil';
 import isUndefined from 'lodash/isUndefined';
 
-import { SourcesId } from '../../../../constants';
-
 import { AUTHORITY_TYPE_USER, AUTHORITY_TYPE_GROUP } from './constants';
+
+import { SourcesId } from '@/constants';
 
 export const getGroupName = str => str.replace(`${AUTHORITY_TYPE_GROUP}_`, '');
 export const getGroupRef = str => `${SourcesId.GROUP}@${str}`;
+export const getRoleRef = str => `${SourcesId.AUTHORITY}@${str}`;
 export const getPersonRef = str => `${SourcesId.PERSON}@${str}`;
 export const getRecordRef = str => str.replace('emodel/@', '');
 export const getAuthRef = str =>

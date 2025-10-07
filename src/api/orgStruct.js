@@ -7,6 +7,7 @@ import Records from '../components/Records';
 import {
   ALFRESCO_ADMINISTRATORS_GROUP,
   AUTHORITY_TYPE_GROUP,
+  AUTHORITY_TYPE_ROLE,
   AUTHORITY_TYPE_USER,
   DataTypes,
   ITEMS_PER_PAGE,
@@ -18,7 +19,8 @@ import {
   getGroupRef,
   getPersonRef,
   getAuthRef,
-  getRecordRef
+  getRecordRef,
+  getRoleRef
 } from '../components/common/form/SelectOrgstruct/helpers';
 import { SourcesId, DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS } from '../constants';
 import { getEnabledWorkspaces, permute } from '../helpers/util';
@@ -69,6 +71,18 @@ export class OrgStructApi extends CommonApi {
       authorityType: `authorityType!"${AUTHORITY_TYPE_USER}"`,
       photo: 'avatar.url',
       groups: 'authorityGroups[]?id'
+    };
+  }
+
+  static get roleAttributes() {
+    return {
+      id: '?id',
+      nodeRef: '?id',
+      label: '?disp',
+      fullName: '?localId',
+      displayName: '?disp',
+      canEdit: 'permissions._has.Write?bool',
+      authorityType: `authorityType!"${AUTHORITY_TYPE_ROLE}"`
     };
   }
 
@@ -273,9 +287,23 @@ export class OrgStructApi extends CommonApi {
   };
 
   static prepareRecordRef = async recordRef => {
-    const authorityType = recordRef.includes(SourcesId.GROUP) ? AUTHORITY_TYPE_GROUP : AUTHORITY_TYPE_USER;
+    let authorityType;
 
-    if (recordRef.includes(SourcesId.GROUP) || recordRef.includes(SourcesId.PERSON)) {
+    switch (true) {
+      case recordRef.includes(SourcesId.GROUP):
+        authorityType = AUTHORITY_TYPE_GROUP;
+        break;
+
+      case recordRef.includes(SourcesId.AUTHORITY):
+        authorityType = AUTHORITY_TYPE_ROLE;
+        break;
+
+      default:
+        authorityType = AUTHORITY_TYPE_USER;
+        break;
+    }
+
+    if (recordRef.includes(SourcesId.GROUP) || recordRef.includes(SourcesId.PERSON) || recordRef.includes(SourcesId.AUTHORITY)) {
       return {
         recordRef,
         authorityType
@@ -317,6 +345,13 @@ export class OrgStructApi extends CommonApi {
       };
     }
 
+    if (recordRef.includes(`${AUTHORITY_TYPE_ROLE}_`)) {
+      return {
+        recordRef: getRoleRef(getGroupName(recordRef)),
+        authorityType: AUTHORITY_TYPE_ROLE
+      };
+    }
+
     return {
       recordRef: getPersonRef(recordRef),
       authorityType
@@ -328,6 +363,10 @@ export class OrgStructApi extends CommonApi {
 
     if (authorityType === AUTHORITY_TYPE_USER) {
       return Records.get(recordRef).load(OrgStructApi.userAttributes);
+    }
+
+    if (authorityType === AUTHORITY_TYPE_ROLE) {
+      return Records.get(recordRef).load(OrgStructApi.roleAttributes);
     }
 
     return Records.get(recordRef).load(this.groupAttributes).then(this._prepareGroups);
@@ -523,6 +562,16 @@ export class OrgStructApi extends CommonApi {
 
     return queryVal;
   };
+
+  static async getRoleList(searchText, extraFields = []) {
+    return Records.query(
+      {
+        sourceId: SourcesId.AUTHORITY,
+        query: { types: ['ROLE'] }
+      },
+      { ...OrgStructApi.roleAttributes, ...extraFields }
+    );
+  }
 
   static async getUserList(searchText, extraFields = [], params = { page: 0, maxItems: ITEMS_PER_PAGE }) {
     let queryVal = [];
