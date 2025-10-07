@@ -3,14 +3,13 @@ import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import isString from 'lodash/isString';
 import isUndefined from 'lodash/isUndefined';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { Labels, createCategoryFormId } from './constants';
 import ChevronDownIcon from './icons/ChevronDownIcon';
 import ChevronRightIcon from './icons/ChevronRightIcon';
 
 import FormManager from '@/components/EcosForm/FormManager';
-//@ts-ignore
 import Records from '@/components/Records';
 import RecordImpl from '@/components/Records/Record';
 import { Icon, Tooltip } from '@/components/common';
@@ -39,6 +38,7 @@ const TreeNode = ({
   updateRootChilds,
   initialRecordRef,
   canEdit,
+  isDraggingRow,
   toggleOpen,
   setRecords,
   callbackSubmitForm,
@@ -47,6 +47,7 @@ const TreeNode = ({
   node: TreeNode;
   recordRef: string | null;
   rootRecord: string;
+  isDraggingRow?: boolean;
   initialRecordRef?: string;
   records: TreeNode[];
   onFetchChildren: (parent: string) => Promise<{ records: TreeNode[] }>;
@@ -60,6 +61,9 @@ const TreeNode = ({
   const [isOpen, setIsOpen] = useState<boolean>(get(node, 'children.length', 0) > 1);
   const [displayName, setDisplayName] = useState<string>(node.name || t('documents-widget.untitled'));
   const [children, setChildren] = useState<TreeNode['children']>(node.children || []);
+
+  const [isHoverDragging, setIsHoverDragging] = useState<boolean>(false);
+  const dragCounter = useRef(0);
 
   const journalId = String(get(getSearchParams(), JUP.JOURNAL_ID, ''));
   const isJournalMode = !!journalId;
@@ -165,6 +169,69 @@ const TreeNode = ({
     }
   }, [isOpen]);
 
+  const handleDragEnter = () => {
+    if (!isDraggingRow) {
+      return;
+    }
+
+    dragCounter.current += 1;
+    if (dragCounter.current > 0) {
+      setIsHoverDragging(true);
+    }
+  };
+
+  const handleDragLeave = () => {
+    if (!isDraggingRow) {
+      return;
+    }
+
+    dragCounter.current -= 1;
+    if (dragCounter.current <= 0) {
+      dragCounter.current = 0;
+      setIsHoverDragging(false);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    if (!isDraggingRow) {
+      return;
+    }
+
+    e.preventDefault();
+
+    try {
+      e.dataTransfer!.dropEffect = 'move';
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    dragCounter.current = 0;
+    setIsHoverDragging(false);
+
+    const recordRef = e.dataTransfer && e.dataTransfer.getData && e.dataTransfer.getData('text/plain');
+
+    if (recordRef) {
+      addRecordToCategory(undefined, recordRef);
+    }
+  };
+
+  useEffect(() => {
+    const onGlobalDragEnd = () => {
+      dragCounter.current = 0;
+      setIsHoverDragging(false);
+    };
+
+    window.addEventListener('dragend', onGlobalDragEnd);
+    return () => {
+      window.removeEventListener('dragend', onGlobalDragEnd);
+    };
+  }, []);
+
   const onClickChevron = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
     setIsOpen(!isOpen);
@@ -175,11 +242,11 @@ const TreeNode = ({
     toggleOpen && toggleOpen();
   };
 
-  const addRecordToCategory = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.stopPropagation();
+  const addRecordToCategory = (e?: React.MouseEvent<HTMLDivElement>, recordRef?: string) => {
+    e?.stopPropagation();
 
-    if (initialRecordRef) {
-      const rec = Records.getRecordToEdit(initialRecordRef);
+    if (recordRef) {
+      const rec = Records.getRecordToEdit(recordRef);
       rec.att('has-category:category', `${sourceId}@${node.id}`);
       rec
         .save()
@@ -223,7 +290,7 @@ const TreeNode = ({
             text={t(Labels.CARD_TO_CATEGORY_TOOLTIP, { categoryName: node.name })}
             off={isMobileDevice()}
           >
-            <div id={swapCategoryTargetId} className="tree-actions__btn" onClick={addRecordToCategory}>
+            <div id={swapCategoryTargetId} className="tree-actions__btn" onClick={e => addRecordToCategory(e, initialRecordRef)}>
               <Icon className="icon-arrow" />
             </div>
           </Tooltip>
@@ -237,7 +304,11 @@ const TreeNode = ({
       <summary
         onClick={onClickPoint}
         onClickCapture={e => e.preventDefault()}
-        className={classNames('tree-summary', { active: recordRef?.includes(node.id) })}
+        onDragEnter={handleDragEnter}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        className={classNames('tree-summary', { active: recordRef?.includes(node.id), hoverDragging: isHoverDragging })}
         data-record={node.id}
       >
         {filteredChildren.length > 0 && (
@@ -267,6 +338,7 @@ const TreeNode = ({
               >
                 {child && (
                   <TreeNode
+                    isDraggingRow={isDraggingRow}
                     toggleOpen={() => updateCurrentUrl({ recordRef: `${sourceId}@${child.id}` })}
                     rootRecord={rootRecord}
                     recordRef={recordRef}

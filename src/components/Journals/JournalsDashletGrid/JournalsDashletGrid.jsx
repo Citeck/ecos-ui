@@ -273,6 +273,7 @@ class JournalsDashletGrid extends Component {
       footerValue,
       journalSetting,
       journalSettings,
+      draggableEvents,
       isViewNewJournal
     } = this.props;
 
@@ -342,6 +343,7 @@ class JournalsDashletGrid extends Component {
               journalSetting={journalSetting}
               journalSettings={journalSettings}
               isViewNewJournal={isViewNewJournal}
+              {...draggableEvents}
             />
           </HeightCalculation>
         </div>
@@ -354,6 +356,7 @@ JournalsDashletGrid.propTypes = {
   stateId: PropTypes.string,
   journalId: PropTypes.string,
   className: PropTypes.string,
+  draggableEvents: PropTypes.object,
   toolsClassName: PropTypes.string,
   selectorContainer: PropTypes.string,
   originPredicates: PropTypes.array,

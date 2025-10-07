@@ -10,6 +10,7 @@ import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 import isNil from 'lodash/isNil';
+import isNumber from 'lodash/isNumber';
 import isObject from 'lodash/isObject';
 import isString from 'lodash/isString';
 import isUndefined from 'lodash/isUndefined';
@@ -504,8 +505,11 @@ class Grid extends Component {
 
         this.onRowClick(currentTarget);
       },
+      draggable: !!props.draggable,
       onDoubleClick: this.onDoubleClick,
       onDragOver: this.onDragOver,
+      onDragStart: this.onDragStart,
+      onDragEnd: this.onDragEnd,
       onDrop: this.onDrop,
       ...extra.rowEvents
     };
@@ -1229,6 +1233,27 @@ class Grid extends Component {
 
     this.setState({ isScrolling: false });
     isFunction(onScrollStop) && onScrollStop(e || this._scrollRef.getValues());
+  };
+
+  onDragStart = e => {
+    const { onDragStart } = this.props;
+
+    if (!onDragStart) {
+      return false;
+    }
+
+    const rowIndex = get(e, 'target.rowIndex');
+    isFunction(onDragStart) && onDragStart(e, isNumber(rowIndex) ? get(this.props.data, [rowIndex - 1, 'id'], null) : null);
+  };
+
+  onDragEnd = e => {
+    const { onDragEnd } = this.props;
+
+    if (!onDragEnd) {
+      return false;
+    }
+
+    isFunction(onDragEnd) && onDragEnd(e);
   };
 
   onDragOver = e => {

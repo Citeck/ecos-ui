@@ -26,6 +26,7 @@ interface ComponentProps {
   stateId: string;
   recordId?: string;
   className?: string;
+  isDraggingRow: boolean;
 }
 
 interface SagaProps {
@@ -94,7 +95,7 @@ class JournalsPreviewWidgets<P extends JournalsPreviewWidgetsProps, S extends Jo
   }
 
   getWidgets = (): React.ReactNode[] => {
-    const { recordId, config, stateId, journalId } = this.props;
+    const { recordId, config, stateId, journalId, isDraggingRow } = this.props;
     const { widgets: configWidgets } = config || {};
     const components: React.ReactNode[] = [];
 
@@ -111,6 +112,7 @@ class JournalsPreviewWidgets<P extends JournalsPreviewWidgetsProps, S extends Jo
         dashboardId: null,
         tabId: PageTabList.activeTabId,
         isSameHeight: false,
+        isDraggingRow,
         ...Components.getProps(name),
         ...widgetProps
       };

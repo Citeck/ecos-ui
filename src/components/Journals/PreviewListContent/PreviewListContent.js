@@ -176,8 +176,9 @@ class PreviewListContent extends Component {
   };
 
   renderItemData = (item, idx) => {
-    const { previewListConfig, selectedRecordId, showWidgets } = this.props;
+    const { previewListConfig, selectedRecordId, showWidgets, draggableEvents } = this.props;
     const { creator, created, id: itemId, previewUrl } = item || {};
+    const { isDragging, ...dragEvents } = draggableEvents || {};
 
     const { id: creatorId, disp: creatorName } = creator || {};
     const formattedDate = moment(created).format('dddd, D MMMM YYYY, H:mm');
@@ -193,6 +194,8 @@ class PreviewListContent extends Component {
 
     return (
       <div
+        {...dragEvents}
+        onDragStart={e => dragEvents.onDragStart && dragEvents.onDragStart(e, get(item, 'id', null))}
         onClick={() => this.onItemClick(item)}
         className={classnames(CLASSNAME_PREVIEW_LIST_CARD, {
           cursored: showWidgets,

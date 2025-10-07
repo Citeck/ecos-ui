@@ -12,7 +12,6 @@ import EmptyIcon from './icons/EmptyIcon';
 
 import { fetchBreadcrumbs, reloadGrid } from '@/actions/journals';
 import FormManager from '@/components/EcosForm/FormManager';
-// @ts-ignore
 import Records from '@/components/Records';
 import RecordImpl from '@/components/Records/Record';
 import { Icon, Tooltip } from '@/components/common';
@@ -33,6 +32,7 @@ import './style.scss';
 interface HierarchicalTreeWidget extends BaseWidgetProps {
   stateId: string;
   journalId?: string;
+  isDraggingRow?: boolean;
   label?: MLTextType | string;
   reloadGrid: (pagination?: Partial<PaginationType>) => void;
   fetchBreadcrumbs: () => void;
@@ -48,6 +48,7 @@ const HierarchicalTreeWidget = ({
   id,
   onSave,
   fetchBreadcrumbs,
+  isDraggingRow,
   config
 }: HierarchicalTreeWidget) => {
   const journalId = String(get(getSearchParams(), JUP.JOURNAL_ID, ''));
@@ -73,12 +74,10 @@ const HierarchicalTreeWidget = ({
       setRecords(records);
     });
 
-    // @ts-ignore
     Records.get(`${SourcesId.PERSON}@${getCurrentUserName()}`)
       .load('isAdmin?bool')
       .then((value: boolean) => {
         if (!value) {
-          // @ts-ignore
           Records.get(`${sourceId}@${getWorkspaceId()}$ROOT`)
             .load('permissions._has.Write?bool')
             .then((value: boolean) => setCanEdit(value));
@@ -116,7 +115,6 @@ const HierarchicalTreeWidget = ({
       }
     };
 
-    // @ts-ignore
     return Records.query(
       { ...(isJournalMode ? journalQuery : dashboardQuery), language: 'predicate' },
       {
@@ -157,7 +155,11 @@ const HierarchicalTreeWidget = ({
         {canEdit && <Btn onClick={() => create()}>{t(Labels.ADD)}</Btn>}
       </div>
     ) : (
-      <div className="ecos-hierarchical-tree-widget-body">
+      <div
+        className={classNames('ecos-hierarchical-tree-widget-body', {
+          draggable: isDraggingRow
+        })}
+      >
         <ul className="tree">
           {records.map(record => (
             <li
@@ -174,6 +176,7 @@ const HierarchicalTreeWidget = ({
               }}
             >
               <TreeNode
+                isDraggingRow={isDraggingRow}
                 toggleOpen={() => updateCurrentUrl({ recordRef: `${sourceId}@${record.id}` })}
                 updateRootChilds={childs => setRecords(childs)}
                 rootRecord={rootRecord}
