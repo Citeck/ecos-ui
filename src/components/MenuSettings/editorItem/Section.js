@@ -1,17 +1,18 @@
-import React from 'react';
-import set from 'lodash/set';
 import get from 'lodash/get';
-import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
+import set from 'lodash/set';
+import React from 'react';
 
-import { t } from '../../../helpers/util';
-import { MenuSettings } from '../../../constants/menu';
-import { Checkbox, MLText, SelectOrgstruct } from '../../common/form';
-import { Labels } from '../utils';
-import { Field } from '../Field';
-import Base from './Base';
-import { GroupTypes } from '../../common/form/SelectOrgstruct/constants';
 import { MenuApi } from '../../../api/menu';
+import { MenuSettings } from '../../../constants/menu';
+import { t } from '../../../helpers/util';
+import { Checkbox, MLText, SelectOrgstruct } from '../../common/form';
+import { GroupTypes } from '../../common/form/SelectOrgstruct/constants';
+import { Field } from '../Field';
+import { Labels } from '../utils';
+
+import Base from './Base';
 
 export default class Section extends Base {
   #unmounted = false;
@@ -30,10 +31,10 @@ export default class Section extends Base {
 
     this.#unmounted = false;
 
-    const { label, allowedFor: allowedNames, config } = this.props.item || {};
+    const { label, allowedFor: allowedNames, config, collapsed } = this.props.item || {};
     const hiddenLabel = get(config, 'hiddenLabel');
 
-    this.setState({ label, hiddenLabel, allowedNames });
+    this.setState({ label, hiddenLabel, collapsed, allowedNames });
     this.getAuthoritiesInfoByName();
   }
 
@@ -63,11 +64,12 @@ export default class Section extends Base {
     super.handleApply();
 
     const { onSave } = this.props;
-    const { label, hiddenLabel, allowedNames } = this.state;
+    const { label, hiddenLabel, allowedNames, collapsed } = this.state;
     const { hideableLabel } = this.permissions;
 
     this.data.label = label;
     this.data.allowedFor = allowedNames;
+    this.data.collapsed = collapsed;
     hideableLabel && set(this.data, 'config.hiddenLabel', hiddenLabel);
 
     onSave(this.data);
@@ -94,9 +96,13 @@ export default class Section extends Base {
     this.setState({ hiddenLabel: elm.checked });
   };
 
+  setCollapsed = elm => {
+    this.setState({ collapsed: elm.checked });
+  };
+
   render() {
-    const { hideableLabel } = this.permissions;
-    const { label, hiddenLabel, allowedRefs, isFetching } = this.state;
+    const { collapsable, hideableLabel } = this.permissions;
+    const { label, hiddenLabel, collapsed, allowedRefs, isFetching } = this.state;
 
     return (
       <this.wrapperModal>
@@ -107,6 +113,13 @@ export default class Section extends Base {
           <Field>
             <Checkbox checked={hiddenLabel} onChange={this.setHiddenLabel} className="ecos-checkbox_flex">
               {t(Labels.FIELD_HIDE_NAME_LABEL)}
+            </Checkbox>
+          </Field>
+        )}
+        {collapsable && (
+          <Field>
+            <Checkbox checked={collapsed} onChange={this.setCollapsed} className="ecos-checkbox_flex">
+              {t(Labels.FIELD_COLLAPSED)}
             </Checkbox>
           </Field>
         )}

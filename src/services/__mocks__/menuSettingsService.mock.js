@@ -100,7 +100,8 @@ export const ITEM_PARAMS_OUTPUT = [
     items: [],
     locked: !!ITEMS_INPUT[0].hidden,
     draggable: false,
-    allowedFor: []
+    allowedFor: [],
+    collapsed: false
   },
   {
     id: ITEMS_INPUT[1].id,
@@ -115,7 +116,8 @@ export const ITEM_PARAMS_OUTPUT = [
     items: [],
     locked: !!ITEMS_INPUT[1].hidden,
     draggable: false,
-    allowedFor: []
+    allowedFor: [],
+    collapsed: false
   },
   {
     id: ITEMS_INPUT[2].id,
@@ -127,7 +129,8 @@ export const ITEM_PARAMS_OUTPUT = [
     items: [],
     locked: !!ITEMS_INPUT[2].hidden,
     draggable: true,
-    allowedFor: []
+    allowedFor: [],
+    collapsed: false
   },
   {
     id: ITEMS_INPUT[3].id,
@@ -139,7 +142,8 @@ export const ITEM_PARAMS_OUTPUT = [
     items: [],
     locked: !!ITEMS_INPUT[3].hidden,
     draggable: false,
-    allowedFor: []
+    allowedFor: [],
+    collapsed: false
   },
   {
     config: {},
@@ -151,7 +155,8 @@ export const ITEM_PARAMS_OUTPUT = [
     label: 'menu.header.tasks',
     locked: false,
     type: 'SECTION',
-    allowedFor: []
+    allowedFor: [],
+    collapsed: false
   },
   {
     config: {},
@@ -163,7 +168,8 @@ export const ITEM_PARAMS_OUTPUT = [
     label: 'menu.header.tasks',
     locked: false,
     type: 'SECTION',
-    allowedFor: []
+    allowedFor: [],
+    collapsed: false
   }
 ];
 
@@ -212,7 +218,8 @@ export const PERMISSIONS_BY_TYPE = {
     hasUrl: false,
     hideable: true,
     removable: true,
-    hideableLabel: false
+    hideableLabel: false,
+    collapsable: true
   },
   [MenuSettings.ItemTypes.JOURNAL]: {
     draggable: true,
@@ -221,7 +228,8 @@ export const PERMISSIONS_BY_TYPE = {
     hasUrl: false,
     hideable: true,
     removable: true,
-    hideableLabel: false
+    hideableLabel: false,
+    collapsable: true
   },
   [MenuSettings.ItemTypes.ARBITRARY]: {
     draggable: true,
@@ -230,7 +238,8 @@ export const PERMISSIONS_BY_TYPE = {
     hasUrl: true,
     hideable: true,
     removable: true,
-    hideableLabel: false
+    hideableLabel: false,
+    collapsable: true
   },
   [MenuSettings.ItemTypes.LINK_CREATE_CASE]: {
     draggable: true,
@@ -239,7 +248,8 @@ export const PERMISSIONS_BY_TYPE = {
     hasUrl: false,
     hideable: true,
     removable: true,
-    hideableLabel: false
+    hideableLabel: false,
+    collapsable: true
   },
   [MenuSettings.ItemTypes.HEADER_DIVIDER]: {
     draggable: true,
@@ -248,7 +258,8 @@ export const PERMISSIONS_BY_TYPE = {
     hasUrl: false,
     hideable: true,
     removable: true,
-    hideableLabel: false
+    hideableLabel: false,
+    collapsable: true
   },
   [MenuSettings.ItemTypes.CREATE_IN_SECTION]: {
     draggable: true,
@@ -257,7 +268,8 @@ export const PERMISSIONS_BY_TYPE = {
     hasUrl: false,
     hideable: true,
     removable: true,
-    hideableLabel: false
+    hideableLabel: false,
+    collapsable: true
   },
   [MenuSettings.ItemTypes.EDIT_RECORD]: {
     draggable: true,
@@ -266,7 +278,8 @@ export const PERMISSIONS_BY_TYPE = {
     hasUrl: false,
     hideable: true,
     removable: true,
-    hideableLabel: false
+    hideableLabel: false,
+    collapsable: true
   }
 };
 
@@ -1334,6 +1347,7 @@ export const ACTIONS_ON_MENU_ITEMS = {
           icon: { value: 'icon-empty' },
           config: { recordRef: 'uiserv/journal@Test' },
           items: [],
+          collapsed: false,
           locked: false,
           draggable: true,
           allowedFor: []
@@ -1348,6 +1362,7 @@ export const ACTIONS_ON_MENU_ITEMS = {
           icon: { value: 'icon-empty' },
           config: { recordRef: 'uiserv/journal@Test' },
           items: [],
+          collapsed: false,
           locked: false,
           draggable: true,
           allowedFor: []

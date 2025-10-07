@@ -1,3 +1,4 @@
+import { tr } from 'date-fns/locale';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import set from 'lodash/set';
@@ -10,6 +11,7 @@ import MenuConverter from './menu';
 export default class SidebarConverter {
   static getMenuListWeb(source = [], lvl = 0) {
     const target = [];
+
     if (!source) {
       return target;
     }
@@ -17,13 +19,20 @@ export default class SidebarConverter {
     source.forEach(item => {
       if (!item.hidden) {
         let targetItem = cloneDeep(item);
-        const collapsible = get(targetItem, 'params.collapsible');
-        const collapsed = get(targetItem, 'params.collapsed');
 
-        set(targetItem, 'params.collapsible', collapsible === undefined ? lvl > 0 : collapsible !== false);
-        set(targetItem, 'params.collapsed', collapsed === undefined ? lvl > 0 : collapsed !== false);
+        const collapsible = get(targetItem, 'params.collapsible');
+        const collapsed = get(targetItem, 'collapsed', false);
+
+        if (lvl === 0) {
+          set(targetItem, 'params.collapsible', collapsible === undefined ? collapsed : collapsible !== false);
+        } else {
+          set(targetItem, 'params.collapsible', true);
+        }
+
+        set(targetItem, 'params.collapsed', collapsed);
 
         targetItem.label = MenuConverter.getSpecialLabel(item);
+
         if (ms.ItemTypes.KANBAN === item.type) {
           const journalRef = get(item, '_remoteData_.journalRef') || '';
           const [, journalId] = journalRef.split('@');
@@ -37,6 +46,7 @@ export default class SidebarConverter {
         }
 
         delete targetItem._remoteData_;
+
         target.push(targetItem);
       }
     });

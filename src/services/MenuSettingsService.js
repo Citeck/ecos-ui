@@ -43,6 +43,7 @@ export default class MenuSettingsService {
       config: { ...data.config },
       items: [],
       allowedFor: get(data, 'allowedFor', []),
+      collapsed: !!data.collapsed,
       //only for ui, tree
       locked: !!data.hidden,
       draggable: permissions.draggable
@@ -102,6 +103,7 @@ export default class MenuSettingsService {
       draggable: knownType && ![].includes(item.type),
       removable: ![].includes(item.type),
       hideable: ![].includes(item.type),
+      collapsable: true,
       hasIcon:
         (configType === ConfigTypes.USER && ![ms.ItemTypes.USER_STATUS].includes(item.type)) ||
         ([ConfigTypes.LEFT].includes(configType) && ![ms.ItemTypes.HEADER_DIVIDER].includes(item.type) && [1].includes(level)),

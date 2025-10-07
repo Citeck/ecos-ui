@@ -1,5 +1,5 @@
-import SC from '../sidebar';
 import { raw, formatted } from '../__mocks__/sidebar.mock';
+import SC from '../sidebar';
 
 describe('SidebarConverter', () => {
   describe('getMenuListWeb', () => {

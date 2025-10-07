@@ -95,11 +95,6 @@ class Item extends React.Component {
     } else if (isMobile) {
       toggleIsOpen(false);
     }
-
-    // Cause: https://citeck.atlassian.net/browse/ECOSUI-354
-    if (!this.collapsible && !isNewVersionPage() && isOpen) {
-      toggleIsOpen(false);
-    }
   };
 
   renderContent = React.memo(({ isOpen, data, styleProps: { noIcon } }) => {
@@ -176,6 +171,7 @@ class Item extends React.Component {
 
   renderToggle() {
     const { isOpen, isExpanded, inDropdown } = this.props;
+
     return this.collapsible ? (
       <Icon
         className={classNames('ecos-sidebar-item__toggle', getIconUpDown(isExpanded && (isOpen || inDropdown)), {

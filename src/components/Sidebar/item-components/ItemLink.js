@@ -1,7 +1,7 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 import SS from '../../../services/sidebar';
 

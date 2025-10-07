@@ -548,7 +548,7 @@ export const formatted = {
           allowedFor: [],
           params: {
             collapsible: true,
-            collapsed: true,
+            collapsed: false,
             journalId: 'type$spk-type-3'
           }
         },
@@ -706,7 +706,7 @@ export const formatted = {
           allowedFor: [],
           params: {
             collapsible: true,
-            collapsed: true,
+            collapsed: false,
             journalId: 'type$spk-type-3'
           }
         },
