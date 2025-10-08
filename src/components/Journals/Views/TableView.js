@@ -178,6 +178,7 @@ class TableView extends React.Component {
       isViewNewJournal,
       onEditJournal,
       hasBtnEdit,
+      draggableEvents,
 
       onClickOpenMenu,
       journalConfig
@@ -216,6 +217,7 @@ class TableView extends React.Component {
         </div>
 
         <JournalsContent
+          draggableEvents={draggableEvents}
           showWidgets={showWidgets}
           onRowClick={onRowClick}
           stateId={stateId}

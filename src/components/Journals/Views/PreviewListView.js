@@ -199,6 +199,7 @@ class PreviewListView extends React.Component {
       isViewNewJournal,
       onEditJournal,
       hasBtnEdit,
+      draggableEvents,
 
       selectedRecordId,
       onClickOpenMenu,
@@ -241,6 +242,7 @@ class PreviewListView extends React.Component {
         </div>
 
         <PreviewListContent
+          draggableEvents={draggableEvents}
           onRowClick={onRowClick}
           stateId={stateId}
           maxHeight={maxHeight}

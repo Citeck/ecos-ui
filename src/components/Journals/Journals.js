@@ -40,6 +40,7 @@ import JournalsPreviewWidgets from '@/components/Journals/JournalsPreviewWidgets
 import { ResizeBoxes } from '@/components/common';
 import { Well } from '@/components/common/form';
 import { DocLibUrlParams as DLUP, JournalUrlParams as JUP, SourcesId } from '@/constants';
+import { WidgetsKeys } from '@/constants/widgets';
 import { pagesStore } from '@/helpers/indexedDB';
 import { wrapArgs } from '@/helpers/redux';
 import { showModalJson } from '@/helpers/tools';
@@ -117,7 +118,8 @@ class Journals extends React.Component {
       journalId: undefined,
       maxHeightJournal: 0,
       recordId: null,
-      initiatedWidgetsConfig: false
+      initiatedWidgetsConfig: false,
+      isDragging: false
     };
   }
 
@@ -304,6 +306,21 @@ class Journals extends React.Component {
     return this.props.isMobile ? JOURNAL_MIN_HEIGHT_MOB : JOURNAL_MIN_HEIGHT;
   }
 
+  get draggableEventsProps() {
+    const { widgetsConfig } = this.props;
+    const { isDragging } = this.state;
+
+    const { widgets } = widgetsConfig || {};
+    const isDraggable = !!get(widgets, 0, []).find(widget => widget.name === WidgetsKeys.HIERARCHICAL_TREE);
+
+    return {
+      isDragging,
+      draggable: isDraggable,
+      onDragStart: this.onDragStartRowElement,
+      onDragEnd: this.onDragEndRowElement
+    };
+  }
+
   getDisplayElements = () => {
     return {
       ...defaultDisplayElements,
@@ -337,11 +354,20 @@ class Journals extends React.Component {
       getMaxHeight: this.getJournalContentMaxHeight,
       bodyTopForwardedRef: this.setJournalBodyTopRef,
       footerForwardedRef: this.setJournalFooterRef,
+      draggableEvents: this.draggableEventsProps,
       bodyClassName: classNames('ecos-journal__body', bodyClassName, {
         'ecos-journal__body_with-tabs': pageTabsIsShow,
         'ecos-journal__body_mobile': isMobile
       })
     };
+  };
+
+  onDragStartRowElement = (e, recordRef) => {
+    this.setState({ isDragging: true }, () => recordRef && e.dataTransfer.setData('text/plain', recordRef));
+  };
+
+  onDragEndRowElement = () => {
+    this.setState({ isDragging: false });
   };
 
   getJournalContentMaxHeight = () => {
@@ -575,6 +601,7 @@ class Journals extends React.Component {
     const { widgetsConfig: { boxSizes = {} } = {} } = indexedDBConfig || {};
 
     const wellClassNames = 'ecos-well_full ecos-journals-content__preview-well';
+    const draggableEvents = this.draggableEventsProps;
 
     if (isLeftPositionWidgets) {
       const leftId = `_${stateId}-preview-left`;
@@ -584,7 +611,7 @@ class Journals extends React.Component {
         <div className="ecos-journals-content__sides">
           <div id={leftId} className="ecos-journals-content__sides-small">
             <Well isViewNewJournal={isViewNewJournal} className={wellClassNames}>
-              <JournalsPreviewWidgets stateId={stateId} recordId={recordId} />
+              <JournalsPreviewWidgets stateId={stateId} recordId={recordId} isDraggingRow={draggableEvents.isDragging} />
             </Well>
             <ResizeBoxes sizes={boxSizes} onResizeComplete={this.onResizeWidgets} leftId={leftId} rightId={rightId} isSimpleVertical />
           </div>
@@ -613,7 +640,7 @@ class Journals extends React.Component {
             isSimpleVertical
           />
           <Well isViewNewJournal={isViewNewJournal} className={wellClassNames}>
-            <JournalsPreviewWidgets stateId={stateId} recordId={recordId} />
+            <JournalsPreviewWidgets stateId={stateId} recordId={recordId} isDraggingRow={draggableEvents.isDragging} />
           </Well>
         </div>
       </div>

@@ -59,6 +59,7 @@ class JournalsContent extends Component {
       isResetGridSettings,
       journalId,
       searchParams,
+      draggableEvents,
       grid: _grid
     } = this.props;
     const { groupBy } = _grid || {};
@@ -66,6 +67,7 @@ class JournalsContent extends Component {
 
     return (
       <Content
+        draggableEvents={draggableEvents}
         recordRef={recordRef}
         isNotGrouping={!groupBy || (groupBy && !groupBy.length)}
         stateId={stateId}
