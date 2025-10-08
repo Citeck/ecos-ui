@@ -394,6 +394,7 @@ $adaptive-columns-size: 68%;
       position: relative;
       margin-bottom: $indents-of-items;
       margin-right: $indents-of-items;
+      text-decoration: none;
 
       &:nth-child(3n) {
         margin-right: 0;

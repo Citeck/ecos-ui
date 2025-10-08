@@ -2,7 +2,6 @@ import { isFunction } from 'lodash';
 import get from 'lodash/get';
 import moment from 'moment';
 import React from 'react';
-import { Link } from 'react-router-dom';
 
 import Labels from '../labels';
 
@@ -263,12 +262,12 @@ class NewsWidget extends BaseWidget {
                       <DefaultImgNews />
                     )}
 
-                    <Link
+                    <a
                       className="ecos-news-widget-article__title"
-                      to={`${URL.DASHBOARD}?recordRef=emodel/${typeId || this.config.currentType}@${item.id}&ws=${this.currentWS}`}
+                      href={`${URL.DASHBOARD}?recordRef=emodel/${typeId || this.config.currentType}@${item.id}&ws=${this.currentWS}`}
                     >
                       {item.title}
-                    </Link>
+                    </a>
                     <span className="ecos-news-widget-article__date">{date}</span>
                     <p className="ecos-news-widget-article__description" dangerouslySetInnerHTML={{ __html: cleanedHtml }}></p>
                   </article>

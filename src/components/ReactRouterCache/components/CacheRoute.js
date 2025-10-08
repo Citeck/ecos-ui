@@ -1,6 +1,6 @@
-import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { Route } from 'react-router-dom';
+import React, { Component, Fragment } from 'react';
+import { Route } from 'react-router';
 
 import CacheComponent, { isMatch } from '../core/CacheComponent';
 import Updatable from '../core/Updatable';

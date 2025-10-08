@@ -1,7 +1,6 @@
 import { cloneDeep } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 
 import { t } from '../../helpers/util';
 import { SortableContainer, SortableElement, SortableHandle } from '../Drag-n-Drop';
@@ -76,14 +75,14 @@ class TopMenu extends Component {
 
   renderMenuItem = link => (
     <SortableElement key={link.position} index={link.position}>
-      <Link className="ecos-layout__menu-item" to={link.link} title={t(link.label)}>
+      <a className="ecos-layout__menu-item" href={link.link} title={t(link.label)}>
         <div className="ecos-layout__menu-item-title">{t(link.label)}</div>
         <i className="ecos-btn__i ecos-layout__menu-item-i-next" />
 
         <SortableHandle>
           <i className="ecos-btn__i icon-custom-drag-big ecos-layout__menu-item-i-drag" />
         </SortableHandle>
-      </Link>
+      </a>
     </SortableElement>
   );
 

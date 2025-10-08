@@ -1,12 +1,13 @@
-import React from 'react';
 import PropTypes from 'prop-types';
-import { Switch, matchPath, withRouter, __RouterContext } from 'react-router-dom';
+import React from 'react';
+import { Switch, matchPath, withRouter, __RouterContext } from 'react-router';
 
 import { COMPUTED_UNMATCH_KEY, isMatch } from '../core/CacheComponent';
 import Updatable from '../core/Updatable';
-import SwitchFragment from './SwitchFragment';
 import { get, isNull, isExist } from '../helpers';
+
 import CacheRoute from './CacheRoute';
+import SwitchFragment from './SwitchFragment';
 
 const isUsingNewContext = isExist(__RouterContext);
 
@@ -46,15 +47,15 @@ class CacheSwitch extends Switch {
               const match = __matchedAlready
                 ? null
                 : path
-                ? matchPath(
-                    location.pathname,
-                    {
-                      ...element.props,
-                      path
-                    },
-                    contextMatch
-                  )
-                : contextMatch;
+                  ? matchPath(
+                      location.pathname,
+                      {
+                        ...element.props,
+                        path
+                      },
+                      contextMatch
+                    )
+                  : contextMatch;
 
               let child;
 

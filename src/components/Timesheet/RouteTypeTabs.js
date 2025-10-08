@@ -1,15 +1,16 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import omit from 'lodash/omit';
-import { withRouter } from 'react-router-dom';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router';
 
-import CommonTimesheetService from '../../services/timesheet/common';
-import PageService from '../../services/PageService';
 import { getTotalCounts } from '../../actions/timesheet/common';
+import PageService from '../../services/PageService';
+import CommonTimesheetService from '../../services/timesheet/common';
+
 import { Tabs } from './';
 
 import './style.scss';
@@ -80,9 +81,4 @@ const mapDispatchToProps = dispatch => ({
   getTotalCounts: payload => dispatch(getTotalCounts(payload))
 });
 
-export default withRouter(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )(RouteTypeTabs)
-);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(RouteTypeTabs));

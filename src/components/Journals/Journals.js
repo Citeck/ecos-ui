@@ -57,17 +57,18 @@ const mapStateToProps = (state, props) => {
   const commonProps = selectCommonJournalPageProps(state, props.stateId);
   const widgetsConfig = selectWidgetsConfig(state, props.stateId);
   const isViewNewJournal = selectIsViewNewJournal(state);
+  const searchParams = getSearchParams();
 
   return {
     isAdmin: get(state, 'user.isAdmin'),
     isMobile: get(state, 'view.isMobile'),
     pageTabsIsShow: get(state, 'pageTabs.isShow'),
-    searchParams: getSearchParams(),
     _url: window.location.href,
     isViewNewJournal,
+    searchParams,
     widgetsConfig,
     ...commonProps,
-    viewMode: get(getSearchParams(), JUP.VIEW_MODE)
+    viewMode: get(searchParams, JUP.VIEW_MODE)
   };
 };
 
@@ -113,8 +114,8 @@ class Journals extends React.Component {
     this.userName = getCurrentUserName();
 
     this.state = {
-      menuOpen: isDocLib(get(getSearchParams(), JUP.VIEW_MODE)),
-      menuOpenAnimate: isDocLib(get(getSearchParams(), JUP.VIEW_MODE)),
+      menuOpen: isDocLib(get(props.searchParams, JUP.VIEW_MODE)),
+      menuOpenAnimate: isDocLib(get(props.searchParams, JUP.VIEW_MODE)),
       journalId: undefined,
       maxHeightJournal: 0,
       recordId: null,
@@ -142,15 +143,19 @@ class Journals extends React.Component {
     return newState;
   }
 
+  updateViewMode = viewMode => {
+    this.props.toggleViewMode(viewMode);
+    updateCurrentUrl({ viewMode });
+  };
+
   componentDidMount() {
-    const searchParams = getSearchParams();
-    let viewMode = get(getSearchParams(), JUP.VIEW_MODE);
+    let { viewMode, searchParams } = this.props;
 
     if (isPreview(viewMode)) {
       viewMode = JVM.TABLE;
       searchParams.viewWidgets = 'true';
       searchParams.viewMode = viewMode;
-      updateCurrentUrl({ viewMode, viewWidgets: true });
+      updateCurrentUrl({ viewWidgets: true });
     }
 
     this.props.fetchBreadcrumbs();
@@ -159,7 +164,7 @@ class Journals extends React.Component {
       viewMode = JVM.TABLE;
     }
 
-    this.props.toggleViewMode(viewMode);
+    this.updateViewMode(viewMode);
 
     if (!isEqual(searchParams, this.props.urlParams)) {
       this.props.setUrl(searchParams);
@@ -167,7 +172,7 @@ class Journals extends React.Component {
 
     if (!this.state.initiatedWidgetsConfig) {
       pagesStore
-        .get(getSearchParams().journalId)
+        .get(searchParams.journalId)
         .then(indexedDBConfig => {
           this.setState({ indexedDBConfig: get(indexedDBConfig, this.userName, {}) });
         })
@@ -182,6 +187,10 @@ class Journals extends React.Component {
     const { _url, isActivePage, stateId, viewMode, tabId, isViewNewJournal, widgetsConfig, isLoadingGrid, searchParams } = this.props;
     const { journalId, initiatedWidgetsConfig } = this.state;
     const prevSearchParams = prevProps.searchParams;
+
+    if (isUnknownView(viewMode)) {
+      this.updateViewMode(JVM.TABLE);
+    }
 
     const { isLeftPositionWidgets } = widgetsConfig || {};
     const prevIsLeftPositionWidgets = get(prevProps, 'widgetsConfig.isLeftPositionWidgets');
@@ -244,7 +253,7 @@ class Journals extends React.Component {
     const isActiveChanged = journalId && isActivePage && prevProps.isActivePage && !isEqualQuery;
 
     if (isActiveChanged || prevProps.stateId !== stateId) {
-      this.props.setUrl(getSearchParams());
+      this.props.setUrl(searchParams);
     }
 
     if (tabId && journalId && journalId !== prevState.journalId) {
@@ -330,10 +339,10 @@ class Journals extends React.Component {
   };
 
   getCommonProps = () => {
-    const { bodyClassName, stateId, isActivePage, pageTabsIsShow, isMobile, withForceUpdate } = this.props;
+    const { bodyClassName, stateId, isActivePage, pageTabsIsShow, isMobile, withForceUpdate, searchParams } = this.props;
     const { journalId, recordId } = this.state;
     const displayElements = this.getDisplayElements();
-    const showWidgets = getBool(get(getSearchParams(), JUP.VIEW_WIDGET_PREVIEW));
+    const showWidgets = getBool(get(searchParams, JUP.VIEW_WIDGET_PREVIEW));
 
     return {
       stateId,
