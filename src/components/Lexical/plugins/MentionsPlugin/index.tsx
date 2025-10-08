@@ -13,6 +13,7 @@ import { $createMentionNode } from '../../nodes/MentionNode';
 
 import { OrgStructApi } from '@/api/orgStruct.js';
 import { SourcesId } from '@/constants';
+import ZIndex from '@/services/ZIndex';
 
 const PUNCTUATION = '\\.,\\+\\*\\?\\$\\@\\|#{}\\(\\)\\^\\-\\[\\]\\\\/!%\'"~=<>_:;';
 const NAME = '\\b[A-Z][^\\s' + PUNCTUATION + ']';
@@ -248,7 +249,7 @@ export default function MentionsPlugin() {
       menuRenderFn={(anchorElementRef: React.RefObject<HTMLElement>, { selectedIndex, selectOptionAndCleanUp, setHighlightedIndex }) =>
         anchorElementRef.current && results.length
           ? createPortal(
-              <div className="typeahead-popover mentions-menu">
+              <div className="typeahead-popover mentions-menu" style={{ zIndex: ZIndex.calcZ() + 1 }}>
                 <ul>
                   {options.map((option, i) => (
                     <MentionsTypeaheadMenuItem
