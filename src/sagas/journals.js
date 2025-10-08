@@ -121,6 +121,7 @@ import { selectIsViewNewJournal } from '../selectors/view';
 import PageService from '../services/PageService';
 
 import { JournalsApi } from '@/api/journalsApi';
+import { SearchInWorkspacePolicy } from '@/forms/components/custom/selectJournal/constants';
 import { NotificationManager } from '@/services/notifications';
 
 const attsForListView = {
@@ -717,8 +718,15 @@ export function* getGridData(api, params, stateId, isOnlyData = false) {
   }
 
   const aggregateWorkspaces = get(config, 'aggregateWorkspaces');
+  const searchInWorkspacePolicy = get(config, 'searchInWorkspacePolicy');
   if (isArray(aggregateWorkspaces)) {
-    settings.workspaces = aggregateWorkspaces.map(wsId => (wsId.includes('@') ? wsId.split('@')[1] : wsId));
+    const additionalWorkspaces = aggregateWorkspaces.map(wsId => (wsId.includes('@') ? wsId.split('@')[1] : wsId));
+
+    if (searchInWorkspacePolicy && Object.values(SearchInWorkspacePolicy).includes(searchInWorkspacePolicy)) {
+      settings.workspaces = JournalsService.getWorkspaceByPolicy(searchInWorkspacePolicy, additionalWorkspaces);
+    } else {
+      settings.workspaces = additionalWorkspaces;
+    }
   }
 
   const resultData = yield call([JournalsService, JournalsService.getJournalData], journalConfig, {

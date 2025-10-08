@@ -106,7 +106,6 @@ class JournalsDashletEditor extends Component {
   constructor(props) {
     super(props);
 
-    const currentWorkspaceRef = `${SourcesId.WORKSPACE}@${getWorkspaceId()}`;
     const defaultPolicy = SearchWorkspacePolicyOptions.find(item => item.value === SearchInWorkspacePolicy.CURRENT);
 
     this.state = {
@@ -119,8 +118,11 @@ class JournalsDashletEditor extends Component {
         (isObject(get(props, 'config.searchInWorkspacePolicy'))
           ? props.config.searchInWorkspacePolicy.value
           : get(props.config, 'searchInWorkspacePolicy')) || defaultPolicy.value,
-      searchInAdditionalWorkspaces: get(props, 'config.searchInAdditionalWorkspaces') ||
-        get(props, 'config.aggregateWorkspaces') || [currentWorkspaceRef]
+      searchInAdditionalWorkspaces: (
+        get(props, 'config.searchInAdditionalWorkspaces') ||
+        get(props, 'config.aggregateWorkspaces') ||
+        []
+      ).filter(ws => ws !== getWorkspaceId() && ws !== `${SourcesId.WORKSPACE}@${getWorkspaceId()}`)
     };
   }
 
@@ -292,7 +294,14 @@ class JournalsDashletEditor extends Component {
 
     if (getEnabledWorkspaces()) {
       newConfig.searchInWorkspacePolicy = searchInWorkspacePolicy;
-      newConfig.aggregateWorkspaces = JournalsService.getWorkspaceByPolicy(searchInWorkspacePolicy.value, searchInAdditionalWorkspaces);
+      newConfig.aggregateWorkspaces = JournalsService.getWorkspaceByPolicy(searchInWorkspacePolicy, searchInAdditionalWorkspaces);
+
+      if (
+        searchInWorkspacePolicy === SearchInWorkspacePolicy.CURRENT ||
+        searchInWorkspacePolicy === SearchInWorkspacePolicy.CURRENT_AND_ADDITIONAL
+      ) {
+        newConfig.aggregateWorkspaces = newConfig.aggregateWorkspaces.filter(ws => ws !== getWorkspaceId());
+      }
     }
 
     newConfig.isHideCreateVariants = isHideCreateVariants;
@@ -462,7 +471,7 @@ class JournalsDashletEditor extends Component {
                     />
                   </Field>
                   {[SearchInWorkspacePolicy.CURRENT_AND_ADDITIONAL, SearchInWorkspacePolicy.ONLY_ADDITIONAL].includes(
-                    searchInWorkspacePolicy.value
+                    searchInWorkspacePolicy
                   ) && (
                     <Field label={t('workspace-polices.additional-title')} isSmall={this.isSmall} labelPosition="top">
                       <SelectJournal
