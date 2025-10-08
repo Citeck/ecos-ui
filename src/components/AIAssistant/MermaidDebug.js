@@ -178,6 +178,7 @@ const closeMermaidDebug = () => {
 };
 
 // Initialize global debug functions
+// Call this function once to set up the debug utilities
 export const initMermaidDebug = () => {
   window.showMermaid = showMermaidDebug;
   window.closeMermaid = closeMermaidDebug;
