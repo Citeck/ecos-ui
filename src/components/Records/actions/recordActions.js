@@ -891,7 +891,13 @@ class RecordActions {
         }
 
         if (context.journalColumns && context.journalName) {
-          action.config = await RecordActions._getFillTemplateConfig(action.config, context);
+          const newConfig = await RecordActions._getFillTemplateConfig(action.config, context);
+
+          if (!get(newConfig, 'record.id') && get(action.config, 'record.id')) {
+            action.config = { ...newConfig, record: { ...get(action.config, 'record', {}), id: action.config.record.id } };
+          } else {
+            action.config = newConfig;
+          }
         }
 
         const filteredRecords = preResult.preProcessedRecords
