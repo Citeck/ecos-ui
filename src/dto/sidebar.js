@@ -21,15 +21,15 @@ export default class SidebarConverter {
         let targetItem = cloneDeep(item);
 
         const collapsible = get(targetItem, 'params.collapsible');
-        const collapsed = get(targetItem, 'collapsed', false);
+        const collapsed = get(targetItem, 'collapsed', null);
 
         if (lvl === 0) {
-          set(targetItem, 'params.collapsible', collapsible === undefined ? collapsed : collapsible !== false);
+          set(targetItem, 'params.collapsible', collapsible === undefined ? Boolean(collapsed) : collapsible !== false);
         } else {
           set(targetItem, 'params.collapsible', true);
         }
 
-        set(targetItem, 'params.collapsed', collapsed);
+        set(targetItem, 'params.collapsed', collapsed === null ? true : collapsed);
 
         targetItem.label = MenuConverter.getSpecialLabel(item);
 
