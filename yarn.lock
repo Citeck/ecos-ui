@@ -7461,7 +7461,6 @@ __metadata:
     react-resizable: ^3.0.5
     react-resize-detector: 4.2.3
     react-router: 5.1.2
-    react-router-dom: 5.1.2
     react-select: 4.3.1
     react-transition-group: ^4.4.5
     react-xml-viewer: ^2.0.4
@@ -15202,23 +15201,6 @@ __metadata:
     react: ^16.0.0
     react-dom: ^16.0.0
   checksum: a1b6c3f7ba84c2ba8823a67a67d96698e43bae968f34f67a1100edb83396cd9300c3c0ad175d41a2659c7dccbea073b9201b89770b947237d89c86b4b28fb5c7
-  languageName: node
-  linkType: hard
-
-"react-router-dom@npm:5.1.2":
-  version: 5.1.2
-  resolution: "react-router-dom@npm:5.1.2"
-  dependencies:
-    "@babel/runtime": ^7.1.2
-    history: ^4.9.0
-    loose-envify: ^1.3.1
-    prop-types: ^15.6.2
-    react-router: 5.1.2
-    tiny-invariant: ^1.0.2
-    tiny-warning: ^1.0.0
-  peerDependencies:
-    react: ">=15"
-  checksum: a42ff84bd8e442ce7d2abe472aadbad39eb7196cdffb29003213da691efbfaf849f4a7758d1f961b216cfd596c09099d673e747dfd4d26d744dc147767df5d7b
   languageName: node
   linkType: hard
 

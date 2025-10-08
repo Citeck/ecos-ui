@@ -123,7 +123,9 @@ class PreviewListContent extends Component {
           this.setState({ isInitiatedPagination: true });
         }
 
-        this.changePage(newPagination);
+        if (maxItems) {
+          this.changePage(newPagination);
+        }
       }
     }
   }

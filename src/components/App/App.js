@@ -4,8 +4,7 @@ import { replace } from 'connected-react-router';
 import get from 'lodash/get';
 import React, { Component, Suspense } from 'react';
 import { connect } from 'react-redux';
-import { Redirect, Route, Switch } from 'react-router';
-import { withRouter } from 'react-router-dom';
+import { Redirect, Route, Switch, withRouter } from 'react-router';
 
 import EcosFormModal from '../EcosForm/EcosFormModal';
 import { ErrorBoundary } from '../ErrorBoundary';

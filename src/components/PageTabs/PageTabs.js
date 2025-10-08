@@ -9,7 +9,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import ReactResizeDetector from 'react-resize-detector';
-import { withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router';
 
 import ClickOutside from '../ClickOutside';
 import { SortableContainer } from '../Drag-n-Drop';
