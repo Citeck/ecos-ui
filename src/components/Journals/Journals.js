@@ -371,7 +371,9 @@ class Journals extends React.Component {
     };
   };
 
-  onDragStartRowElement = (e, recordRef) => {
+  onDragStartRowElement = (e, id = '') => {
+    const searchParams = new URLSearchParams('?' + id.includes('http') && id.includes('recordRef=') ? id.split('?')[1] : `recordRef=${id}`);
+    const recordRef = searchParams.get('recordRef');
     this.setState({ isDragging: true }, () => recordRef && e.dataTransfer.setData('text/plain', recordRef));
   };
 
