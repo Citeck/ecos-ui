@@ -30,6 +30,7 @@ import Search from './Search';
 import ViewMode from './ViewMode';
 import { DataTypes, DisplayModes, Labels, SELECT_JOURNAL_MODAL_CLASSNAME } from './constants';
 
+import { Checkbox } from '@/components/common/form';
 import { Attributes, Permissions } from '@/constants';
 import JournalsConverter from '@/dto/journals';
 import { TEMPLATE_REGEX } from '@/forms/components/custom/selectJournal/constants';
@@ -68,7 +69,8 @@ export default class SelectJournal extends Component {
     error: null,
     customPredicate: null,
     value: undefined,
-    isLoading: false
+    isLoading: false,
+    isLocaleData: false
   };
 
   static getDerivedStateFromProps(props, state) {
@@ -309,7 +311,7 @@ export default class SelectJournal extends Component {
   refreshGridData = () => {
     const getData = async resolve => {
       const { sortBy, queryData, customSourceId, searchInAdditionalWorkspaces, searchInWorkspacePolicy } = this.props;
-      const { customPredicate, journalConfig, gridData, pagination, filterPredicate, displayedColumns } = this.state;
+      const { customPredicate, journalConfig, gridData, pagination, filterPredicate, displayedColumns, isLocaleData } = this.state;
       const predicates = JournalsConverter.cleanUpPredicate([customPredicate, ...(filterPredicate || [])]);
       /** @type JournalSettings */
       const settings = JournalsConverter.getSettingsForDataLoaderServer({
@@ -321,9 +323,14 @@ export default class SelectJournal extends Component {
       });
       settings.queryData = queryData;
 
+      const workspaces = JournalsService.getWorkspaceByPolicy(searchInWorkspacePolicy, searchInAdditionalWorkspaces);
+      if (!isLocaleData) {
+        workspaces.push('default'); // has default wsId - all workspaces
+      }
+
       const result = await JournalsService.getJournalData(journalConfig, {
         ...settings,
-        workspaces: JournalsService.getWorkspaceByPolicy(searchInWorkspacePolicy, searchInAdditionalWorkspaces)
+        workspaces
       });
       const fetchedGridData = JournalsConverter.getJournalDataWeb(result);
 
@@ -749,6 +756,14 @@ export default class SelectJournal extends Component {
     this.setValue(record.id);
   };
 
+  onChangeIsLocaleData = ({ checked }) => {
+    const { isLocaleData } = this.state;
+
+    if (isLocaleData !== checked) {
+      this.setState({ isLocaleData: checked }, this.refreshGridData);
+    }
+  };
+
   getColumns = () => {
     const { columns } = this.props;
     const baseColumns = get(this.state, 'gridData.columns', []);
@@ -776,7 +791,16 @@ export default class SelectJournal extends Component {
 
   renderSelectModal() {
     const { multiple, hideCreateButton, searchField, isFullScreenWidthModal, title, journalId, customValues, viewMode } = this.props;
-    const { isGridDataReady, isSelectModalOpen, isCollapsePanelOpen, gridData, journalConfig, pagination, isCreateModalOpen } = this.state;
+    const {
+      isGridDataReady,
+      isSelectModalOpen,
+      isCollapsePanelOpen,
+      gridData,
+      journalConfig,
+      pagination,
+      isCreateModalOpen,
+      isLocaleData
+    } = this.state;
     const extraProps = {};
 
     let selectModalTitle = t(Labels.DEFAULT_TITLE);
@@ -833,6 +857,15 @@ export default class SelectJournal extends Component {
                 >
                   {t(Labels.FILTER_BUTTON)}
                 </IcoBtn>
+                {!!journalConfig.system && (
+                  <Checkbox
+                    className="select-journal-collapse-panel__controls-left_checkbox"
+                    checked={isLocaleData}
+                    onChange={this.onChangeIsLocaleData}
+                  >
+                    {t(Labels.LOCAL_DATA)}
+                  </Checkbox>
+                )}
               </div>
               <div className="select-journal-collapse-panel__controls-right">
                 {!this.isQuery && <Search searchField={searchField} onApply={this.onApplyFilters} />}
