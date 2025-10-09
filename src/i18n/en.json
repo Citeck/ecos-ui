@@ -1246,7 +1246,7 @@
   "journals.view.label.document-library": "Document library",
   "journals.view.label.preview-list": "List",
   "journals.view.label.kanban": "Kanban",
-  "journals.view.label.widgets-settings": "Data preview",
+  "journals.view.label.widgets-settings": "Widgets panel",
 
   "journal.presets.menu.title": "Template Settings",
   "journal.presets.modal.field.name": "Name",

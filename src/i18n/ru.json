@@ -1199,7 +1199,7 @@
   "journals.view.label.document-library": "Библиотека документов",
   "journals.view.label.preview-list": "Список",
   "journals.view.label.kanban": "Канбан",
-  "journals.view.label.widgets-settings": "Предпросмотр данных",
+  "journals.view.label.widgets-settings": "Панель виджетов",
 
   "journal.presets.menu.title": "Шаблоны настроек",
   "journal.presets.modal.field.name": "Название",
