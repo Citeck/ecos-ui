@@ -89,6 +89,13 @@
   button {
     margin-right: 15px;
   }
+
+  &_checkbox {
+    display: inline-flex;
+    align-items: center;
+    text-wrap: nowrap;
+    height: 100%;
+  }
 }
 
 .select-journal__grid-container {
