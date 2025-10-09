@@ -79,7 +79,7 @@ export default class Section extends Base {
   handleSelectAllowed = (allowedRefs, items) => {
     this.setState({
       allowedRefs,
-      allowedNames: (items || []).map(item => get(item, 'attributes.fullName'))
+      allowedNames: (items || []).map(item => get(item, 'attributes.authorityName'))
     });
   };
 

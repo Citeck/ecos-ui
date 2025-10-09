@@ -45,6 +45,7 @@ export class OrgStructApi extends CommonApi {
       displayName: '?disp',
       firstName: 'firstName',
       lastName: 'lastName',
+      authorityName: 'authorityName',
       fullName: 'authorityName',
       groupSubType: 'groupSubType!""',
       isPersonDisabled: 'personDisabled?bool',
@@ -61,6 +62,7 @@ export class OrgStructApi extends CommonApi {
     return {
       displayName: '?disp',
       fullName: 'authorityName',
+      authorityName: 'authorityName',
       email: 'email',
       isPersonDisabled: 'personDisabled?bool',
       canEdit: 'permissions._has.Write?bool',
@@ -79,7 +81,7 @@ export class OrgStructApi extends CommonApi {
       id: '?id',
       nodeRef: '?id',
       label: '?disp',
-      fullName: '?localId',
+      authorityName: '?localId',
       displayName: '?disp',
       canEdit: 'permissions._has.Write?bool',
       authorityType: `authorityType!"${AUTHORITY_TYPE_ROLE}"`
