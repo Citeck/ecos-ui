@@ -41,6 +41,16 @@ export default class KanbanConverter {
     return column.id === 'EMPTY' ? { t: 'empty', att } : { t: 'eq', att, val: [column.id] };
   }
 
+  static getStatusModifiedPredicate(column) {
+    return column.hideOldItems
+      ? {
+          t: 'ge',
+          att: '_statusModified',
+          val: `-${column.hideItemsOlderThan}`
+        }
+      : undefined;
+  }
+
   static getCardAttributes() {
     return {
       cardId: '.id',
