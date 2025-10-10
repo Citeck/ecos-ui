@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import React, { useState, useEffect } from 'react';
 
@@ -8,8 +9,10 @@ import { Badge } from '../../common/form';
 import { Labels } from '../constants';
 
 import Records from '@/components/Records';
+import { PREDICATE_AND, PREDICATE_EQ } from '@/components/Records/predicates/predicates';
 import NumberFormatter from '@/components/common/grid/formatters/gql/NumberFormatter';
 import JournalsConverter from '@/dto/journals';
+import KanbanConverter from '@/dto/kanban';
 import { getWorkspaceId } from '@/helpers/urls';
 import { extractLabel, t } from '@/helpers/util';
 import AttributesService from '@/services/AttributesService';
@@ -34,15 +37,16 @@ const HeaderColumn = ({ data, totalCount, isReady, typeRef, isViewNewJournal, pr
         {
           sourceId: `emodel/${journalId}`,
           query: {
-            t: 'and',
+            t: PREDICATE_AND,
             v: [
               {
-                t: 'eq',
+                t: PREDICATE_EQ,
                 a: '_status',
                 v: data.id
               },
-              { ...JournalsConverter.cleanUpPredicate([predicate])[0] }
-            ]
+              ...JournalsConverter.cleanUpPredicate(isArray(predicate) ? predicate : [predicate]),
+              KanbanConverter.getStatusModifiedPredicate(data)
+            ].filter(Boolean)
           },
           language: 'predicate',
           workspaces: [`${getWorkspaceId()}`],
