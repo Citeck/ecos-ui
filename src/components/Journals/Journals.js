@@ -67,8 +67,7 @@ const mapStateToProps = (state, props) => {
     isViewNewJournal,
     searchParams,
     widgetsConfig,
-    ...commonProps,
-    viewMode: get(searchParams, JUP.VIEW_MODE)
+    ...commonProps
   };
 };
 
