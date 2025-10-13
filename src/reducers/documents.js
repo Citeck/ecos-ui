@@ -150,7 +150,6 @@ export default handleActions(
       [payload.key]: {
         ...state[payload.key],
         documents: payload.documents,
-        isLoadingTableData: false,
         uploadError: '',
         countFilesError: ''
       }

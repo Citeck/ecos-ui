@@ -2,6 +2,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 import isNil from 'lodash/isNil';
 import set from 'lodash/set';
@@ -90,6 +91,9 @@ function* fillTypeInfo(api, types = []) {
 
       if (!isEmpty(item.journalId)) {
         journalConfig = yield journalsService.getJournalConfig(item.journalId);
+        if (isArray(get(journalConfig, 'actions'))) {
+          item.actions = journalConfig.actions;
+        }
       } else {
         journalConfig = yield call(api.documents.getColumnsConfigByType, item.type) || {};
       }
@@ -713,22 +717,28 @@ function* sagaGetDocumentsByTypes({ api }, { payload }) {
       throw new Error(errors.join(' '));
     }
 
-    yield Promise.all(
-      types.map(async (item, index) => {
-        const documents = get(records, `[${index}].documents`, []);
+    const docsActionsMap = new Map();
+    yield all(
+      Promise.all(
+        types.map(async (item, index) => {
+          const documents = get(records, `[${index}].documents`, []);
 
-        documentsByTypes[item.type] = documents;
-        documentsIds.push(...documents.map(doc => doc[documentFields.id]));
+          documentsByTypes[item.type] = documents;
+          documentsIds.push(...documents.map(doc => doc[documentFields.id]));
 
-        if (!isEmpty(item.actions)) {
-          const actions = await recordActions.getActionsForRecords(documentsIds, item.actions);
+          const docsActions = docsActionsMap.get(JSON.stringify(documentsIds));
 
-          actionsByRecordsFromTypes = {
-            ...actionsByRecordsFromTypes,
-            ...get(actions, 'forRecord', {})
-          };
-        }
-      })
+          if (!isEmpty(item.actions) && !isEqual(docsActions ? JSON.parse(docsActions) : null, item.actions)) {
+            docsActionsMap.set(JSON.stringify(documentsIds), JSON.stringify(item.actions));
+            const actions = await recordActions.getActionsForRecords(documentsIds, item.actions);
+
+            actionsByRecordsFromTypes = {
+              ...actionsByRecordsFromTypes,
+              ...get(actions, 'forRecord', {})
+            };
+          }
+        })
+      )
     );
 
     const existActions = yield select(state => selectActions(state, payload.key));

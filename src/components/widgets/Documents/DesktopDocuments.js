@@ -3,6 +3,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 import last from 'lodash/last';
 import uniqueId from 'lodash/uniqueId';
@@ -10,6 +11,17 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
+
+import Dashlet from '../../Dashlet';
+import { Loader, Popper, ResizeBoxes, Tooltip } from '../../common';
+import UncontrolledTooltip from '../../common/UncontrolledTooltip';
+import { Grid, InlineTools } from '../../common/grid';
+
+import BaseDocuments from './_BaseDocuments';
+import DropZone from './parts/DropZone';
+import Panel from './parts/Panel';
+import TypesTable from './parts/TypesTable';
+import { AvailableTypeInterface, DocumentInterface, DynamicTypeInterface, GrouppedTypeInterface } from './propsInterfaces';
 
 import {
   downloadAllDocuments,
@@ -23,22 +35,12 @@ import {
   setError,
   setInlineTools,
   uploadFiles
-} from '../../../actions/documents';
-import { documentFields, errorTypes, Labels, statusesKeys, tableFields, typeStatusesByFields } from '../../../constants/documents';
-import DocumentsConverter from '../../../dto/documents';
-import { getStateId } from '../../../helpers/store';
-import { closest, prepareTooltipId, t } from '../../../helpers/util';
-import { selectStateByKey } from '../../../selectors/documents';
-import Dashlet from '../../Dashlet';
-import { Loader, Popper, ResizeBoxes, Tooltip } from '../../common';
-import UncontrolledTooltip from '../../common/UncontrolledTooltip';
-import { Grid, InlineTools } from '../../common/grid';
-
-import BaseDocuments from './_BaseDocuments';
-import DropZone from './parts/DropZone';
-import Panel from './parts/Panel';
-import TypesTable from './parts/TypesTable';
-import { AvailableTypeInterface, DocumentInterface, DynamicTypeInterface, GrouppedTypeInterface } from './propsInterfaces';
+} from '@/actions/documents';
+import { documentFields, errorTypes, Labels, statusesKeys, tableFields, typeStatusesByFields } from '@/constants/documents';
+import DocumentsConverter from '@/dto/documents';
+import { getStateId } from '@/helpers/store';
+import { closest, prepareTooltipId, t } from '@/helpers/util';
+import { selectStateByKey } from '@/selectors/documents';
 
 class DesktopDocuments extends BaseDocuments {
   scrollPosition = {};
@@ -136,7 +138,14 @@ class DesktopDocuments extends BaseDocuments {
       this.refreshGrid();
     }
 
-    if ((prevState.selectedType && !this.state.selectedType) || prevProps.dynamicTypes !== this.props.dynamicTypes) {
+    const dynamicTypes = this.props.dynamicTypes || [];
+    if (
+      (prevState.selectedType && !this.state.selectedType) ||
+      dynamicTypes.length !== prevProps.dynamicTypes.length ||
+      !dynamicTypes.every(
+        obj => !!prevProps.dynamicTypes.find(prevObj => prevObj.type === obj.type && isEqual(prevObj.actions, obj.actions))
+      )
+    ) {
       isFunction(getAllDocuments) && getAllDocuments();
     }
 
