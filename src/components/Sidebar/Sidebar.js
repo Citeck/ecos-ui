@@ -13,6 +13,7 @@ import List from './List';
 import Logo from './Logo';
 import MobileMenuBtn from './MobileMenuBtn';
 
+import { getMenuConfig } from '@/actions/menu';
 import {
   collapseAllItems,
   fetchSlideMenuItems,
@@ -27,6 +28,7 @@ import { getWorkspaceId } from '@/helpers/urls';
 import { getEnabledWorkspaces, isExistValue, t } from '@/helpers/util';
 import { selectActiveThemeImage, selectIsViewNewJournal } from '@/selectors/view';
 import { selectWorkspaceById } from '@/selectors/workspaces';
+import MenuService from '@/services/MenuService';
 import PageService, { Events } from '@/services/PageService';
 
 import './style.scss';
@@ -58,6 +60,7 @@ class Sidebar extends React.Component {
   componentDidMount() {
     this.init();
     document.addEventListener(Events.CHANGE_URL_LINK_EVENT, this.props.setInitialSelectedId);
+    MenuService.emitter.on(MenuService.Events.UPDATE_MENU, () => this.props.getMenuConfig());
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -75,6 +78,7 @@ class Sidebar extends React.Component {
 
   componentWillUnmount() {
     document.removeEventListener(Events.CHANGE_URL_LINK_EVENT, this.props.setInitialSelectedId);
+    MenuService.emitter.removeListener(MenuService.Events.UPDATE_MENU, () => this.props.getMenuConfig());
   }
 
   scrollToActiveItem = () => {
@@ -209,6 +213,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => ({
   fetchSlideMenuItems: forceFetch => dispatch(fetchSlideMenuItems({ forceFetch })),
+  getMenuConfig: () => dispatch(getMenuConfig()),
   toggleIsOpen: isOpen => dispatch(toggleIsOpen(isOpen)),
   getSiteDashboardEnable: () => dispatch(getSiteDashboardEnable()),
   setExpandableItems: force => dispatch(setExpandableItems({ force })),
