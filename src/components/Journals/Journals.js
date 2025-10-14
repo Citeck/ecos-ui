@@ -144,11 +144,14 @@ class Journals extends React.Component {
 
   updateViewMode = viewMode => {
     this.props.toggleViewMode(viewMode);
-    updateCurrentUrl({ viewMode });
+    if (get(this.props, 'searchParams.journalId')) {
+      updateCurrentUrl({ viewMode });
+    }
   };
 
   componentDidMount() {
-    let { viewMode, searchParams } = this.props;
+    let { searchParams } = this.props;
+    let viewMode = searchParams.viewMode;
 
     if (isPreview(viewMode)) {
       viewMode = JVM.TABLE;
@@ -161,6 +164,7 @@ class Journals extends React.Component {
 
     if (isUnknownView(viewMode)) {
       viewMode = JVM.TABLE;
+      searchParams.viewMode = viewMode;
     }
 
     this.updateViewMode(viewMode);
@@ -186,10 +190,6 @@ class Journals extends React.Component {
     const { _url, isActivePage, stateId, viewMode, tabId, isViewNewJournal, widgetsConfig, isLoadingGrid, searchParams } = this.props;
     const { journalId, initiatedWidgetsConfig } = this.state;
     const prevSearchParams = prevProps.searchParams;
-
-    if (isUnknownView(viewMode)) {
-      this.updateViewMode(JVM.TABLE);
-    }
 
     const { isLeftPositionWidgets } = widgetsConfig || {};
     const prevIsLeftPositionWidgets = get(prevProps, 'widgetsConfig.isLeftPositionWidgets');
