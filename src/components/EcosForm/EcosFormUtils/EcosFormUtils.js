@@ -1171,8 +1171,8 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
     return component && component.type === 'button' && component.key.startsWith(OUTCOME_BUTTONS_PREFIX);
   }
 
-  static isConfigurableForm() {
-    return EcosFormUtils._apiUser.isUserAdmin();
+  static isConfigurableForm(recordId) {
+    return this.hasWritePermission(recordId);
   }
 
   static isComponentsReady(components, options = {}) {

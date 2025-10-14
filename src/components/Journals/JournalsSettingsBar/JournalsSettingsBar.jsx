@@ -150,7 +150,7 @@ const JournalsSettingsBar = ({
           </Tooltip>
         )}
 
-        {!hideSettingsJournalBtn && isAdmin && isViewNewJournal && !isMobile && hasBtnEdit && (
+        {!hideSettingsJournalBtn && isViewNewJournal && !isMobile && hasBtnEdit && (
           <Tooltip target={`${targetId}-journal-settings`} text={t(Labels.BTN_JOURNAL_SETTINGS)} {...tooltipSettings}>
             <IcoBtn
               id={`${targetId}-journal-settings`}
@@ -169,7 +169,7 @@ const JournalsSettingsBar = ({
           </Tooltip>
         )}
 
-        {isPreviewList(viewMode) && isAdmin && isViewNewJournal && !isMobile && hasBtnEdit && showWidgets && (
+        {isPreviewList(viewMode) && isViewNewJournal && !isMobile && hasBtnEdit && showWidgets && (
           <Tooltip target={`${targetId}-journal-settings`} text={t(Labels.BTN_WIDGET_SETTINGS)} {...tooltipSettings}>
             <IcoBtn
               id={`${targetId}-journal-settings`}

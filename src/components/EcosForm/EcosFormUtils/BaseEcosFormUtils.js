@@ -156,7 +156,7 @@ export default class BaseEcosFormUtils {
     return null;
   }
 
-  static isConfigurableForm() {
+  static isConfigurableForm(recordId) {
     return null;
   }
 
