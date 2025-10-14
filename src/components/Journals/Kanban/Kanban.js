@@ -16,18 +16,22 @@ import Column from './Column';
 import HeaderColumn from './HeaderColumn';
 
 import { cancelGetNextBoardPage, getNextPage, moveCard, runAction } from '@/actions/kanban';
+import { ParserPredicate } from '@/components/Filters/predicates';
 import { t } from '@/helpers/util';
-import { selectJournalSetting } from '@/selectors/journals';
+import { selectJournalPageProps, selectJournalSetting } from '@/selectors/journals';
 import { selectKanbanProps } from '@/selectors/kanban';
 import { selectIsViewNewJournal } from '@/selectors/view';
 import './style.scss';
 
 function mapStateToProps(state, props) {
   const settings = selectJournalSetting(state, props.stateId);
+  const journalPageProps = selectJournalPageProps(state, props.stateId);
 
   return {
     ...selectKanbanProps(state, props.stateId),
     predicate: settings.predicate,
+    searchText: get(journalPageProps, 'grid.search'),
+    journalSetting: journalPageProps.journalSetting,
     isViewNewJournal: selectIsViewNewJournal(state)
   };
 }
@@ -57,6 +61,17 @@ class Kanban extends React.Component {
   state = {
     isDragging: false
   };
+
+  get searchPredicate() {
+    const { searchText, journalSetting } = this.props;
+
+    return !isEmpty(searchText)
+      ? ParserPredicate.getSearchPredicates({
+          text: searchText,
+          columns: ParserPredicate.getAvailableSearchColumns(journalSetting.columns)
+        })
+      : null;
+  }
 
   componentDidMount() {
     this.observer = new IntersectionObserver(([entry]) => {
@@ -224,6 +239,7 @@ class Kanban extends React.Component {
                     isReady={!isFirstLoading}
                     data={data}
                     predicate={predicate}
+                    searchPredicate={this.searchPredicate}
                     typeRef={get(boardConfig, 'typeRef')}
                     totalCount={get(column, 'totalCount', '⭯')}
                     isViewNewJournal={isViewNewJournal}

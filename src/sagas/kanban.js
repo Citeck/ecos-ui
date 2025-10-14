@@ -7,7 +7,7 @@ import set from 'lodash/set';
 import * as queryString from 'query-string';
 import { call, put, select, takeEvery, all, race, take } from 'redux-saga/effects';
 
-import { applyJournalSetting, execRecordsActionComplete, setJournalSetting, setPredicate } from '../actions/journals';
+import { applyJournalSetting, execRecordsActionComplete, runSearch, setJournalSetting, setPredicate } from '../actions/journals';
 import {
   applyFilter,
   getBoardConfig,
@@ -598,8 +598,10 @@ export function* sagaResetFilter({ api }, { payload }) {
 export function* sagaRunSearchCard({ api }, { payload }) {
   try {
     const urlData = queryString.parseUrl(getUrlWithoutOrigin());
-    const { text } = payload;
+    const { text, stateId } = payload;
     const searchText = text || undefined;
+
+    yield put(runSearch({ stateId, text: searchText }));
 
     if (get(urlData, ['query', JournalUrlParams.SEARCH]) !== searchText) {
       set(urlData, ['query', JournalUrlParams.SEARCH], searchText);
