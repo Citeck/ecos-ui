@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
+import isObject from 'lodash/isObject';
 import React, { useState, useEffect } from 'react';
 
 import { Tooltip } from '../../common';
@@ -23,14 +24,26 @@ interface HeaderColumnProps {
   isReady: boolean;
   isViewNewJournal: boolean;
   predicate: any;
+  searchPredicate: any;
   typeRef: string;
 }
 
-const HeaderColumn = ({ data, totalCount, isReady, typeRef, isViewNewJournal, predicate }: HeaderColumnProps) => {
+const HeaderColumn = ({ data, totalCount, isReady, typeRef, isViewNewJournal, predicate, searchPredicate }: HeaderColumnProps) => {
   const [columnSum, setColumnSum] = useState<number | undefined>();
   const [columnSumLabel, setColumnSumLabel] = useState<{ en: string; ru: string } | undefined>();
 
   useEffect(() => {
+    const toConvertPredicates = isArray(predicate) ? predicate : [predicate];
+    const statusModifiedPredicate = KanbanConverter.getStatusModifiedPredicate(data);
+
+    if (!isEmpty(searchPredicate) && isObject(searchPredicate)) {
+      toConvertPredicates.push(searchPredicate);
+    }
+
+    if (!isEmpty(statusModifiedPredicate) && isObject(statusModifiedPredicate)) {
+      toConvertPredicates.push(statusModifiedPredicate);
+    }
+
     if (isViewNewJournal && data.hasSum) {
       const journalId = AttributesService.parseId(typeRef);
       Records.queryOne(
@@ -44,8 +57,7 @@ const HeaderColumn = ({ data, totalCount, isReady, typeRef, isViewNewJournal, pr
                 a: '_status',
                 v: data.id
               },
-              ...JournalsConverter.cleanUpPredicate(isArray(predicate) ? predicate : [predicate]),
-              KanbanConverter.getStatusModifiedPredicate(data)
+              ...JournalsConverter.cleanUpPredicate(toConvertPredicates)
             ].filter(Boolean)
           },
           language: 'predicate',
@@ -55,11 +67,16 @@ const HeaderColumn = ({ data, totalCount, isReady, typeRef, isViewNewJournal, pr
         { value: `sum(${data.sumAtt})?num` }
       ).then(({ value }: { value: number }) => {
         setColumnSum(value || 0);
+        updateColumnSumLabel();
       });
     }
   }, [totalCount]);
 
   useEffect(() => {
+    updateColumnSumLabel();
+  }, []);
+
+  const updateColumnSumLabel = () => {
     if (isViewNewJournal && data.hasSum) {
       Records.get(typeRef)
         .load(`attributeById.${data.sumAtt}.name{ru,en}`)
@@ -67,7 +84,7 @@ const HeaderColumn = ({ data, totalCount, isReady, typeRef, isViewNewJournal, pr
           setColumnSumLabel(label || { en: '', ru: '' });
         });
     }
-  }, []);
+  };
 
   if (isEmpty(data)) {
     return null;
