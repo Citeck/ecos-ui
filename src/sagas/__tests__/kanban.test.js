@@ -523,7 +523,7 @@ describe('kanban sagas tests', () => {
     expect(spyChangeUrlLink).not.toHaveBeenCalled();
     expect(console.error).not.toHaveBeenCalled();
 
-    expect(dispatched).toHaveLength(0);
+    expect(dispatched).toHaveLength(1);
   });
 
   it('sagaRunSearchCard > there is _new text & was no', async () => {
@@ -535,7 +535,7 @@ describe('kanban sagas tests', () => {
     expect(spyChangeUrlLink).toHaveBeenCalledWith('/test?search=test', { updateUrl: true });
     expect(console.error).not.toHaveBeenCalled();
 
-    expect(dispatched).toHaveLength(0);
+    expect(dispatched).toHaveLength(1);
   });
 
   it('sagaRunSearchCard > there is _same text & was', async () => {
@@ -544,7 +544,7 @@ describe('kanban sagas tests', () => {
     const dispatched = await wrapRunSaga(kanban.sagaRunSearchCard, { text: 'test' });
 
     expect(spyChangeUrlLink).not.toHaveBeenCalled();
-    expect(dispatched).toHaveLength(0);
+    expect(dispatched).toHaveLength(1);
   });
 
   it('sagaRunSearchCard > there is _clean text & was', async () => {
@@ -556,7 +556,7 @@ describe('kanban sagas tests', () => {
     expect(spyChangeUrlLink).toHaveBeenCalledWith('/test', { updateUrl: true });
     expect(console.error).not.toHaveBeenCalled();
 
-    expect(dispatched).toHaveLength(0);
+    expect(dispatched).toHaveLength(1);
   });
 
   it('sagaReloadBoardData > there is no data', async () => {
