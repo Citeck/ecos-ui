@@ -20,15 +20,16 @@ class JournalsServiceApi {
   }
 
   async getJournalConfig(journalId, force) {
-    const { listViewInfo, json } = await Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load(
+    const { listViewInfo, json, hasWritePermission } = await Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load(
       {
         json: '.json',
-        listViewInfo: 'typeRef.aspectById.listview.config?json'
+        listViewInfo: 'typeRef.aspectById.listview.config?json',
+        hasWritePermission: 'permissions._has.Write?bool'
       },
       force
     );
 
-    let config = { ...json };
+    let config = { ...json, hasWritePermission };
 
     if (!isEmpty(listViewInfo)) {
       config = {

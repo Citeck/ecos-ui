@@ -204,6 +204,7 @@ class TableView extends React.Component {
           )}
           <Bar
             {...this.props}
+            hasWritePermission={get(journalConfig, 'hasWritePermission', false)}
             hasBtnEdit={() => hasBtnEdit(configRec)}
             onEditJournal={() => onEditJournal(configRec)}
             onClickOpenMenu={e => onClickOpenMenu(e, journalConfig)}

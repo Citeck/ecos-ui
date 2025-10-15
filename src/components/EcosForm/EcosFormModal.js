@@ -145,7 +145,7 @@ export default class EcosFormModal extends React.Component {
   }
 
   checkEditRights() {
-    EcosFormUtils.isConfigurableForm(this.props.record).then(isConfigurableForm => {
+    EcosFormUtils.isConfigurableForm(this.props.formId).then(isConfigurableForm => {
       !!isConfigurableForm && this.setState({ isConfigurableForm });
     });
   }

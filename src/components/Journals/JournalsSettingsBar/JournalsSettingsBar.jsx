@@ -82,6 +82,7 @@ const JournalsSettingsBar = ({
   hasBtnMenu,
   onEditJournal,
   hasBtnEdit,
+  hasWritePermission,
   rightBarChild,
 
   hideActionsBtn = false,
@@ -150,7 +151,7 @@ const JournalsSettingsBar = ({
           </Tooltip>
         )}
 
-        {!hideSettingsJournalBtn && isViewNewJournal && !isMobile && hasBtnEdit && (
+        {!hideSettingsJournalBtn && hasWritePermission && isViewNewJournal && !isMobile && hasBtnEdit && (
           <Tooltip target={`${targetId}-journal-settings`} text={t(Labels.BTN_JOURNAL_SETTINGS)} {...tooltipSettings}>
             <IcoBtn
               id={`${targetId}-journal-settings`}
@@ -169,7 +170,7 @@ const JournalsSettingsBar = ({
           </Tooltip>
         )}
 
-        {isPreviewList(viewMode) && isViewNewJournal && !isMobile && hasBtnEdit && showWidgets && (
+        {isPreviewList(viewMode) && hasWritePermission && isViewNewJournal && !isMobile && hasBtnEdit && showWidgets && (
           <Tooltip target={`${targetId}-journal-settings`} text={t(Labels.BTN_WIDGET_SETTINGS)} {...tooltipSettings}>
             <IcoBtn
               id={`${targetId}-journal-settings`}
