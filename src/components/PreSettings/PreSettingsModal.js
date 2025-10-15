@@ -61,6 +61,7 @@ class PreSettingsModal extends React.Component {
   }
 
   componentDidMount() {
+    this.fetchWorkspaceSysIdPrefix();
     this.fetchRollbackAttributes();
     this.fetchTypes();
   }
@@ -135,6 +136,19 @@ class PreSettingsModal extends React.Component {
       });
   };
 
+  fetchWorkspaceSysIdPrefix = async () => {
+    const workspaceId = Citeck.Navigator.getWorkspaceId() || '';
+    let workspaceSystemId = '';
+    if (workspaceId && workspaceId !== 'default' && workspaceId.indexOf('admin$') !== 0) {
+      workspaceSystemId = await Records.get(SourcesId.WORKSPACE + '@' + workspaceId).load('systemId');
+    }
+    let workspaceSysIdPrefix = '';
+    if (workspaceSystemId) {
+      workspaceSysIdPrefix = workspaceSystemId + ":";
+    }
+    this.setState({ workspaceSysIdPrefix })
+  }
+
   rollback = () => {
     const { rollbackAttributes } = this.state;
 
@@ -167,8 +181,10 @@ class PreSettingsModal extends React.Component {
   };
 
   handleSave = () => {
-    const { newRecordRef, rollbackAttributes } = this.state;
-    const newRef = this.type === PRE_SETTINGS_TYPES.FORM ? `${SourcesId.FORM}@${newRecordRef}` : `${SourcesId.JOURNAL}@${newRecordRef}`;
+    const { newRecordRef, rollbackAttributes, workspaceSysIdPrefix } = this.state;
+    const newRef = this.type === PRE_SETTINGS_TYPES.FORM ?
+      `${SourcesId.FORM}@${workspaceSysIdPrefix}${newRecordRef}` :
+      `${SourcesId.JOURNAL}@${workspaceSysIdPrefix}${newRecordRef}`;
 
     this.toggleLoading(true);
 
@@ -197,7 +213,7 @@ class PreSettingsModal extends React.Component {
   changeAttributes = (attributes = {}) => {
     this.toggleLoading();
     const { onHide } = this.props;
-    const { newRecordRef, newType } = this.state;
+    const { newRecordRef, newType, workspaceSysIdPrefix } = this.state;
 
     this.instanceRecordToSave = Records.get(this.recordRef);
 
@@ -208,7 +224,9 @@ class PreSettingsModal extends React.Component {
     });
 
     const att = this.type === PRE_SETTINGS_TYPES.FORM ? 'formRef?id' : 'journalRef?id';
-    const newRef = this.type === PRE_SETTINGS_TYPES.FORM ? `${SourcesId.FORM}@${newRecordRef}` : `${SourcesId.JOURNAL}@${newRecordRef}`;
+    const newRef = this.type === PRE_SETTINGS_TYPES.FORM ?
+      `${SourcesId.FORM}@${workspaceSysIdPrefix}${newRecordRef}`
+      : `${SourcesId.JOURNAL}@${workspaceSysIdPrefix}${newRecordRef}`;
 
     if (newType) {
       const newTypeRecord = Records.get(newType.replace(SourcesId.TYPE, 'emodel/types-repo'));
@@ -226,7 +244,7 @@ class PreSettingsModal extends React.Component {
 
   handleChangeForm = () =>
     new Promise(resolve => {
-      const { newRecordRef, newType } = this.state;
+      const { newRecordRef, newType, workspaceSysIdPrefix } = this.state;
       const { definition } = this.config;
 
       const builderDefinition = {
@@ -246,7 +264,7 @@ class PreSettingsModal extends React.Component {
           if (this.instanceRecordToSave) {
             this.instanceRecordToSave.save().then(() => {
               if (this.isFormType) {
-                this.recordRef = `uiserv/form@${newRecordRef}`;
+                this.recordRef = `uiserv/form@${workspaceSysIdPrefix}${newRecordRef}`;
               }
 
               if (!this.typeToSave) {
@@ -273,7 +291,7 @@ class PreSettingsModal extends React.Component {
     });
 
   handleChangeJournal = () => {
-    const { newRecordRef, newType } = this.state;
+    const { newRecordRef, newType, workspaceSysIdPrefix } = this.state;
 
     const cb = this.callback;
 
@@ -295,18 +313,22 @@ class PreSettingsModal extends React.Component {
 
               if (this.instanceRecordToSave) {
                 for (const [newAtt, attValue] of Object.entries(data)) {
-                  this.instanceRecordToSave.att(newAtt, attValue);
+                  if (newAtt === 'id' && attValue && attValue.includes('type$')) {
+                    this.instanceRecordToSave.att(newAtt, attValue.replace('type$', ''));
+                  } else {
+                    this.instanceRecordToSave.att(newAtt, attValue);
+                  }
                 }
 
                 this.instanceRecordToSave.save().then(() => {
                   if (!this.typeToSave) {
-                    goToJournalsPage({ journalId: newRecordRef });
+                    goToJournalsPage({ journalId: workspaceSysIdPrefix + newRecordRef });
                   }
 
                   this.typeToSave &&
                     this.typeToSave.save().then(() => {
                       if (!this.isFormType) {
-                        goToJournalsPage({ journalId: newRecordRef, replaceJournal: true });
+                        goToJournalsPage({ journalId: workspaceSysIdPrefix + newRecordRef, replaceJournal: true });
                       }
                     });
 
