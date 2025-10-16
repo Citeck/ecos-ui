@@ -188,7 +188,11 @@ Webform.prototype.onSubmit = function (submission, saved) {
   });
 };
 
-Webform.prototype.submit = function (before, options) {
+Webform.prototype.ecosButtonSubmit = function () {
+  return this.submit(false, { state: get(this, 'component.state') || 'submitted' }, true);
+};
+
+Webform.prototype.submit = function (before, options, forceChanging) {
   const form = this;
   const originalSubmission = cloneDeep(this.submission || {});
   const originalSubmissionData = originalSubmission.data || {};
@@ -229,7 +233,7 @@ Webform.prototype.submit = function (before, options) {
     };
 
     let fireSubmit = finishTime => {
-      if (form.changing) {
+      if (form.changing && !forceChanging) {
         if (new Date().getTime() < finishTime) {
           setTimeout(() => {
             fireSubmit(finishTime);
