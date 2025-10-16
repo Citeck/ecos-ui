@@ -21,7 +21,7 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
     );
   }
 
-  #beforeState;
+  _beforeState;
 
   get defaultValue() {
     if (this.isRadioCheckbox) {
@@ -198,11 +198,11 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
 
     const value = this.setElementState(state);
 
-    if (needUpdate && this.#beforeState === undefined && this.#beforeState !== state) {
+    if (needUpdate && this._beforeState === undefined && this._beforeState !== state) {
       this.dataValue = state;
     }
 
-    this.#beforeState = value;
+    this._beforeState = value;
 
     if (this.input) {
       this.input.checked = value;
@@ -294,7 +294,7 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
          * value change logic:
          * true => false => null => etc by circle
          */
-        switch (this.#beforeState) {
+        switch (this._beforeState) {
           case null:
             newValue = true;
             break;
@@ -311,7 +311,7 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
 
       const changed = newValue !== undefined ? this.hasChanged(newValue, this.dataValue) : false;
 
-      this.#beforeState = newValue;
+      this._beforeState = newValue;
       this.dataValue = newValue;
       this.updateOnChange(flags, changed);
 

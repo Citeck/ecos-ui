@@ -1335,9 +1335,15 @@ export default class SelectComponent extends BaseComponent {
   }
 
   destroy() {
-    if (this.choices) {
+    if (this.choices && !this.choices.destroyed && this.choices.initialised) {
       this.choices.destroyed = true;
-      this.choices.destroy();
+
+      try {
+        this.choices.destroy();
+      } catch (e) {
+        console.error('Error of EcosSelect component:', e);
+      }
+
       this.choices = null;
     }
 
