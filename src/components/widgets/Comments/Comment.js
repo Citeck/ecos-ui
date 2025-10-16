@@ -35,15 +35,16 @@ class Comment extends Component {
 
   get convertedComment() {
     const { comment } = this.props;
+
     let convertedComment;
 
     try {
       convertedComment = stateToHTML(convertFromRaw(JSON.parse(comment.text)));
     } catch (e) {
-      convertedComment = comment.text;
+      convertedComment = `${comment.text}`;
     }
 
-    return convertedComment;
+    return convertedComment.replace(/<(\w+)[^>]*>/g, '<$1>');
   }
 
   formatDate(date = new Date()) {
@@ -227,7 +228,6 @@ class Comment extends Component {
           </div>
         </div>
         <div className="ecos-comments__comment-text" dangerouslySetInnerHTML={{ __html: this.convertedComment }} />
-
         {this.renderConfirmDelete(id)}
       </div>
     );
