@@ -62,6 +62,7 @@ export class DmnApi {
       {
         sourceId: 'eproc/dmn-def',
         language: 'predicate',
+        workspaces: ['default'],
         query: {},
         page: { maxItems: 10000 }
       },
