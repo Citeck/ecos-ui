@@ -1,6 +1,8 @@
 import get from 'lodash/get';
+import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
+import isNil from 'lodash/isNil';
 import isPlainObject from 'lodash/isPlainObject';
 import isString from 'lodash/isString';
 import React from 'react';
@@ -8,6 +10,8 @@ import React from 'react';
 import Records from '../../../../../Records';
 import BaseFormatter from '../../BaseFormatter';
 import CellType from '../../CellType';
+
+import { t } from '@/helpers/util';
 
 import './ColoredFormatter.scss';
 
@@ -35,8 +39,8 @@ export default class ColoredFormatter extends BaseFormatter {
     let key, displayText;
 
     if (isPlainObject(cell)) {
-      key = cell.value || '';
-      displayText = cell.disp || key;
+      key = !isNil(cell.value) ? cell.value : '';
+      displayText = !isNil(cell.disp) ? cell.disp : key;
     } else {
       key = cell;
       displayText = cell;
@@ -64,8 +68,12 @@ export default class ColoredFormatter extends BaseFormatter {
     // If there is no color and defaultColor is not HEX, use defaultColor class
     const finalColorClass = colorClass || (!isHexFinalColor && !finalColor ? defaultColorClass : '');
 
-    if (!displayText) {
+    if (isNil(displayText)) {
       return <React.Fragment>{this.value(cell)}</React.Fragment>;
+    }
+
+    if (isBoolean(displayText)) {
+      displayText = t(`boolean.${displayText ? 'yes' : 'no'}`);
     }
 
     return enabledNewJournal ? (
