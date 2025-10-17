@@ -696,6 +696,16 @@ export default class SelectComponent extends BaseComponent {
     return headers;
   }
 
+  getCustomItemsSync() {
+    return this.evaluate(
+      this.component.data.custom,
+      {
+        values: []
+      },
+      'values'
+    );
+  }
+
   async getCustomItems() {
     const evaluated = this.evaluate(
       this.component.data.custom,
@@ -1294,7 +1304,7 @@ export default class SelectComponent extends BaseComponent {
           valueProperty = 'value';
           break;
         case 'custom':
-          items = this.getCustomItems();
+          items = this.getCustomItemsSync();
           valueProperty = this.component.valueProperty;
           break;
         case 'url':
