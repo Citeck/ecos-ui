@@ -1,15 +1,17 @@
-import React from 'react';
 import cloneDeep from 'lodash/cloneDeep';
-import size from 'lodash/size';
-import isPlainObject from 'lodash/isPlainObject';
 import isFunction from 'lodash/isFunction';
+import isPlainObject from 'lodash/isPlainObject';
 import isString from 'lodash/isString';
+import size from 'lodash/size';
+import React from 'react';
 
-import { t } from '../../../../helpers/export/util';
-import { replacePlaceholders, valueOrNull } from '../util';
-import formatterRegistry from './registry';
-import CellType from './CellType';
 import Popper from '../../../common/Popper';
+import { replacePlaceholders, valueOrNull } from '../util';
+
+import CellType from './CellType';
+import formatterRegistry from './registry';
+
+import { t } from '@/helpers/util';
 
 /**
  * @typedef {Object} FormatterConfig
