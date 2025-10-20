@@ -1,6 +1,6 @@
 {
   "name": "ecos-ui",
-  "version": "2.20.2",
+  "version": "2.20.3-snapshot",
   "private": true,
   "dependencies": {
     "@bpmn-io/properties-panel": "0.12.0",
