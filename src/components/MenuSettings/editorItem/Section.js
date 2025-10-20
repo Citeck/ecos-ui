@@ -70,7 +70,7 @@ export default class Section extends Base {
 
     this.data.label = label;
     this.data.allowedFor = allowedNames;
-    this.data.collapsed = collapsed;
+    this.data.collapsed = !!collapsed;
     hideableLabel && set(this.data, 'config.hiddenLabel', hiddenLabel);
 
     onSave(this.data);
