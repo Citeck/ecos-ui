@@ -32,7 +32,7 @@ export default class Section extends Base {
 
     this.#unmounted = false;
 
-    const { label, allowedFor: allowedNames, config, collapsed } = this.props.item || {};
+    const { label, allowedFor: allowedNames, config, collapsed = false } = this.props.item || {};
     const hiddenLabel = get(config, 'hiddenLabel');
 
     this.setState({ label, hiddenLabel, collapsed, allowedNames });
