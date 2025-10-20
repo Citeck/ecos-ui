@@ -43,7 +43,7 @@ export default class MenuSettingsService {
       config: { ...data.config },
       items: [],
       allowedFor: get(data, 'allowedFor', []),
-      collapsed: !!data.collapsed,
+      collapsed: get(data, 'collapsed', null),
       //only for ui, tree
       locked: !!data.hidden,
       draggable: permissions.draggable
