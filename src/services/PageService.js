@@ -327,11 +327,26 @@ export default class PageService {
       CHANGE_URL.params = fullParams;
 
       if (this.beforeUrlChangeGuards.length) {
-        const guardPromises = this.beforeUrlChangeGuards.map(fn => fn(fullParams));
-
-        Promise.all(guardPromises).then(() => {
-          document.dispatchEvent(CHANGE_URL);
-        });
+        this.beforeUrlChangeGuards
+          .reduce((prevP, guard) => {
+            return prevP.then(() =>
+              Promise.resolve(guard.fn(fullParams, guard.tabId || null)).then(result => {
+                if (result === false) {
+                  throw new Error('__GUARD_CANCEL__');
+                }
+                return;
+              })
+            );
+          }, Promise.resolve())
+          .then(() => {
+            document.dispatchEvent(CHANGE_URL);
+          })
+          .catch(err => {
+            if (err && err.message === '__GUARD_CANCEL__') {
+              return;
+            }
+            console.error('guard chain error:', err);
+          });
 
         return;
       }
@@ -344,12 +359,13 @@ export default class PageService {
 
   /** Prevents history changes. Allows controlling when the history should change using a promise-based function
    * @param guardFn {function(*): Promise<unknown>}
+   * @param tabId {string}
    **/
-  static registerUrlChangeGuard(guardFn) {
+  static registerUrlChangeGuard(guardFn, tabId) {
     // To avoid duplication of promises, it is necessary to give the same link to the function!
-    const exists = PageService.beforeUrlChangeGuards.includes(guardFn);
+    const exists = !!PageService.beforeUrlChangeGuards.find(guard => guard.fn === guardFn || (tabId && guard.tabId === tabId));
     if (!exists) {
-      PageService.beforeUrlChangeGuards.push(guardFn);
+      PageService.beforeUrlChangeGuards.push({ fn: guardFn, tabId });
     }
   }
 

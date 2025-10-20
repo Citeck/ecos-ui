@@ -43,7 +43,8 @@ import { DMN_DEFINITIONS } from '@/constants/dmn';
 import { URL as Urls } from '@/constants/index';
 import { getWorkspaceId } from '@/helpers/urls';
 import { getCurrentLocale, getMLValue, getTextByLocale, t, fileDownload } from '@/helpers/util';
-import PageService from '@/services/PageService.js';
+import PageService from '@/services/PageService';
+import PageTabList from '@/services/pageTabs/PageTabList';
 
 import './ModelEditor.scss';
 
@@ -79,7 +80,7 @@ class ModelEditorPage extends React.Component {
     this.handleInit();
   }
 
-  handleCloseEditor = params => {
+  handleCloseEditor = (params, tabId) => {
     const initialWsIdParam = this.urlQuery.ws;
     let nameEditor = '';
 
@@ -101,17 +102,27 @@ class ModelEditorPage extends React.Component {
       const newWsId = newUrl.searchParams.get('ws') || getWorkspaceId(); // If there is no workspace, then we move to the current space
 
       if (newWsId !== initialWsIdParam) {
-        const confirmed = window.confirm(t('editor.warning.change-workspace', { nameEditor }));
-        if (!confirmed) {
-          reject(t('editor.warning.change-workspace.cancel'));
-          return;
-        } else {
-          resolve();
-          return;
-        }
-      }
+        const callback = () => {
+          const confirmed = window.confirm(t('editor.warning.change-workspace', { nameEditor }));
+          if (!confirmed) {
+            reject(t('editor.warning.change-workspace.cancel'));
+          } else {
+            resolve();
+          }
+        };
 
-      resolve();
+        const tab = PageTabList.tabs.find(tab => tabId && tab.id === tabId);
+        if (tab && tab.id && tab.link && tabId) {
+          this.props.changeTab({
+            data: { isActive: true },
+            filter: { id: tab.id },
+            url: tab.link,
+            callback
+          });
+        }
+      } else {
+        resolve();
+      }
     });
   };
 
@@ -121,7 +132,7 @@ class ModelEditorPage extends React.Component {
     this.setState({ initiated: true });
 
     if (get(this.props, 'location.pathname') !== Urls.CMMN_EDITOR) {
-      PageService.registerUrlChangeGuard(this.handleCloseEditor);
+      PageService.registerUrlChangeGuard(this.handleCloseEditor, PageTabList.activeTabId);
     }
   };
 
