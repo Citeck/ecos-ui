@@ -52,7 +52,8 @@ export const OrgstructProvider = props => {
     rootGroupName,
     parent,
     initSelectedRows,
-    allowedGroupTypes
+    allowedGroupTypes,
+    isSkipSearchInWorkspace
   } = controlProps;
 
   const [isSelectModalOpen, toggleSelectModal] = useState(openByDefault);
@@ -342,22 +343,25 @@ export const OrgstructProvider = props => {
 
     if (!isAllUsersGroupsFetched && isSelectModalOpen && currentTab === TabTypes.USERS) {
       setIsSearching(true);
-      OrgStructApi.getUserList(searchText, userSearchExtraFields, { page: pagination.page - 1, maxItems: pagination.count }).then(
-        ({ items, totalCount }) => {
-          if (!livePromise) {
-            return;
-          }
-
-          setTabItems({
-            ...tabItems,
-            [TabTypes.USERS]: items.map(item => setSelectedItem(item))
-          });
-          checkIsAllUsersGroupExists();
-          setIsAllUsersGroupFetched(true);
-          setPagination({ ...pagination, maxCount: totalCount });
-          setIsSearching(false);
+      OrgStructApi.getUserList(
+        searchText,
+        userSearchExtraFields,
+        { page: pagination.page - 1, maxItems: pagination.count },
+        isSkipSearchInWorkspace
+      ).then(({ items, totalCount }) => {
+        if (!livePromise) {
+          return;
         }
-      );
+
+        setTabItems({
+          ...tabItems,
+          [TabTypes.USERS]: items.map(item => setSelectedItem(item))
+        });
+        checkIsAllUsersGroupExists();
+        setIsAllUsersGroupFetched(true);
+        setPagination({ ...pagination, maxCount: totalCount });
+        setIsSearching(false);
+      });
     }
 
     return () => (livePromise = false);

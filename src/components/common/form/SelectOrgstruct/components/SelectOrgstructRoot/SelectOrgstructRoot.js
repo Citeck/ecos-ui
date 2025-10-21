@@ -1,15 +1,16 @@
-import React, { useContext } from 'react';
 import classNames from 'classnames';
+import React, { useContext } from 'react';
+
+import Loader from '../../../../Loader/Loader';
+import Orgstruct from '../../../../Orgstruct';
+import { SelectOrgstructContext } from '../../SelectOrgstructContext';
 import InputView from '../InputView';
 // import SelectModal from '../SelectModal';
-import { SelectOrgstructContext } from '../../SelectOrgstructContext';
-import Orgstruct from '../../../../Orgstruct';
-import Loader from '../../../../Loader/Loader';
 
 const SelectOrgstructRoot = () => {
   const context = useContext(SelectOrgstructContext);
   const { controlProps, selectedRows, setSelectedRows, isSelectModalOpen, toggleSelectModal, onChangeValue, ...orgstructProps } = context;
-  const { isCompact, viewOnly, className, isLoading } = controlProps;
+  const { isCompact, viewOnly, className, isLoading, isSkipSearchInWorkspace } = controlProps;
 
   const wrapperClasses = classNames('select-orgstruct', className, {
     'select-orgstruct_compact': isCompact,
@@ -32,6 +33,7 @@ const SelectOrgstructRoot = () => {
           }}
           initSelectedRows={selectedRows}
           openByDefault
+          isSkipSearchInWorkspace={isSkipSearchInWorkspace}
           {...orgstructProps}
         />
       )}
