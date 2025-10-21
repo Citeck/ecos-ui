@@ -1,5 +1,6 @@
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
+import isArray from 'lodash/isArray';
 import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
@@ -8,9 +9,6 @@ import isString from 'lodash/isString';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 
-import { LOCAL_ID } from '../../../../constants/journal';
-import { getMLValue } from '../../../../helpers/util';
-import WidgetService from '../../../../services/WidgetService';
 import { FORM_MODE_CLONE, FORM_MODE_CREATE, FORM_MODE_EDIT, FORM_MODE_VIEW } from '../../../EcosForm';
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 import Record from '../../../Records/Record';
@@ -19,6 +17,10 @@ import { parseAttribute } from '../../../Records/utils/attStrUtils';
 
 import TableFormPropTypes from './TableFormPropTypes';
 import { getAllComponents } from './utils';
+
+import { LOCAL_ID } from '@/constants/journal';
+import { getMLValue } from '@/helpers/util';
+import WidgetService from '@/services/WidgetService';
 
 export const TableFormContext = React.createContext();
 
@@ -354,6 +356,9 @@ export const TableFormContextProvider = props => {
 
                 if (isString(attr) && atPattern.test(attr)) {
                   displayName = await Records.get(attr).load('.disp');
+                } else if (isArray(attr)) {
+                  const attributesForLoad = (attr || []).filter(att => isString(att) && atPattern.test(att));
+                  displayName = await Promise.all(attributesForLoad.map(att => Records.get(att).load('.disp')));
                 }
 
                 if (component && !displayName) {

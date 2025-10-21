@@ -1,12 +1,14 @@
-import React, { useContext } from 'react';
 import classNames from 'classnames';
-import isEqualWith from 'lodash/isEqualWith';
 import isEqual from 'lodash/isEqual';
+import isEqualWith from 'lodash/isEqualWith';
+import React, { useContext } from 'react';
 
-import { TableFormContext } from '../../TableFormContext';
-import { t } from '../../../../../../helpers/export/util';
 import Grid from '../../../../grid/Grid';
+import { TableFormContext } from '../../TableFormContext';
+
 import InlineActions from './InlineActions';
+
+import { t } from '@/helpers/util';
 
 const List = React.memo(
   props => {
