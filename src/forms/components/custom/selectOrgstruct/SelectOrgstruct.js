@@ -48,6 +48,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
         excludeAuthoritiesByType: '',
         modalTitle: '',
         isSelectedValueAsText: false,
+        isSkipSearchInWorkspace: false,
         hideTabSwitcher: false,
         defaultTab: TabTypes.LEVELS,
         dataType: DataTypes.NODE_REF,
@@ -182,6 +183,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
           modalTitle={comp.modalTitle ? this.t(comp.modalTitle) : null}
           isSelectedValueAsText={comp.isSelectedValueAsText}
           isIncludedAdminGroup={comp.isIncludedAdminGroup}
+          isSkipSearchInWorkspace={comp.isSkipSearchInWorkspace}
           onChange={this.onValueChange}
           onError={console.error}
           viewModeType={comp.viewModeType}

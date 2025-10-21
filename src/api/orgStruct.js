@@ -575,7 +575,7 @@ export class OrgStructApi extends CommonApi {
     );
   }
 
-  static async getUserList(searchText, extraFields = [], params = { page: 0, maxItems: ITEMS_PER_PAGE }) {
+  static async getUserList(searchText, extraFields = [], params = { page: 0, maxItems: ITEMS_PER_PAGE }, isSkipSearchInWorkspace) {
     let queryVal = [];
 
     const notDisabledPredicate = await OrgStructApi.getNotDisabledPredicate();
@@ -590,7 +590,7 @@ export class OrgStructApi extends CommonApi {
       }
     });
 
-    if (getEnabledWorkspaces()) {
+    if (getEnabledWorkspaces() && !isSkipSearchInWorkspace) {
       queryVal.push({
         t: PREDICATE_EQ,
         att: '_workspace',

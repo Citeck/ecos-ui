@@ -2064,6 +2064,7 @@
   "form-constructor.tabs-content.excludeAuthoritiesByType": "Исключить группы по типу или подтипу",
   "form-constructor.tabs-content.userSearchExtraFields": "Поиск пользователя: дополнительное поле",
   "form-constructor.tabs-content.isIncludedAdminGroup": "Включить группу администраторов",
+  "form-constructor.tabs-content.isSkipSearchInWorkspace": "Отображать всех пользователей системы",
   "form-constructor.tabs-content.currentUserByDefault": "Текущий пользователь по умолчанию",
   "form-constructor.tabs-content.dataType": "Тип данных",
   "form-constructor.tabs-content.fields.day.placeholder": "День",

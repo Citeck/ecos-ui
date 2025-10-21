@@ -2128,6 +2128,7 @@
   "form-constructor.tabs-content.excludeAuthoritiesByType": "Exclude authorities by group type or subtype",
   "form-constructor.tabs-content.userSearchExtraFields": "User search: extra field",
   "form-constructor.tabs-content.isIncludedAdminGroup": "Include Admin group",
+  "form-constructor.tabs-content.isSkipSearchInWorkspace": "Display all users of the system",
   "form-constructor.tabs-content.currentUserByDefault": "Current user by default",
   "form-constructor.tabs-content.dataType": "Data type",
   "form-constructor.tabs-content.fields.day.placeholder": "Day Placeholder",
