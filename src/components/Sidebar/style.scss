@@ -588,6 +588,18 @@ $transition-duration: 0.2s;
     &__badge {
       line-height: 20px;
     }
+
+    &_collapsible {
+      cursor: pointer !important;
+    }
+
+    &_hidden {
+      display: flex;
+
+      .ecos-sidebar-item__label {
+        display: none;
+      }
+    }
   }
 
   .ecos-sidebar-list {
