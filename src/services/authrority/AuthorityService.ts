@@ -60,7 +60,7 @@ class AuthorityService {
     if (!isString(authority)) {
       return '';
     }
-    if (authority.indexOf(GROUP_PREFIX) === 0) {
+    if (isString(authority) && authority.indexOf(GROUP_PREFIX) === 0) {
       return GROUPS_SOURCE_ID + '@' + authority.substring(GROUP_PREFIX.length);
     }
     if (authority.indexOf(ALFRESCO_WORKSPACE_SPACES_STORE) !== -1) {
@@ -68,7 +68,7 @@ class AuthorityService {
         authority = ALFRESCO_PREFIX + authority;
       }
       const authName = await authorityApi.getAuthorityNameFromAlfresco(authority);
-      if (authName.indexOf(GROUP_PREFIX) !== -1) {
+      if (isString(authName) && authName.indexOf(GROUP_PREFIX) !== -1) {
         return GROUPS_SOURCE_ID + '@' + authName.substring(GROUP_PREFIX.length);
       } else {
         return PERSON_SOURCE_ID + '@' + authName;
