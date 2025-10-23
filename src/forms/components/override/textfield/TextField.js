@@ -2,6 +2,7 @@ import FormIOTextFieldComponent from 'formiojs/components/textfield/TextField';
 import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 
 import { overrideTriggerChange } from '../misc';
@@ -191,5 +192,67 @@ export default class TextFieldComponent extends FormIOTextFieldComponent {
     }
 
     super.onChange.call(this, ...data);
+  }
+
+  isElementOrParentsHidden() {
+    let current = this;
+
+    while (!!current) {
+      if (get(current, 'element.hidden') === true) {
+        return true;
+      }
+      current = get(current, 'parent', null);
+    }
+
+    return false;
+  }
+
+  attachRefreshEvent(refreshData) {
+    this.on(
+      'change',
+      () => {
+        if (this.component.allowCalculateOverride && this.calculatedValue !== this.dataValue) {
+          return;
+        }
+
+        if (!this.hasOwnProperty('refreshOnValue')) {
+          return;
+        }
+
+        this.refresh(refreshData === 'data' ? this.data : this.data[refreshData], refreshData);
+      },
+      true
+    );
+
+    this.on(
+      'componentChange',
+      event => {
+        if (refreshData !== 'data' && event && event.component && event.component.key === refreshData && this.inContext(event.instance)) {
+          this.refresh(event.value, refreshData); // Cause https://citeck.atlassian.net/browse/ECOSCOM-2465
+        }
+      },
+      true
+    );
+  }
+
+  refresh(value, refreshOnKey) {
+    // Cause https://citeck.atlassian.net/browse/ECOSCOM-2465
+    if (this.hasOwnProperty('refreshOnValue')) {
+      this.refreshOnChanged = !isEqual(value, this.refreshOnValue[refreshOnKey]);
+      this.refreshOnValue[refreshOnKey] = value;
+    } else {
+      this.refreshOnChanged = true;
+      this.refreshOnValue = {
+        [refreshOnKey]: value
+      };
+    }
+
+    if (this.refreshOnChanged && !this.isElementOrParentsHidden()) {
+      if (this.component.clearOnRefresh) {
+        this.setValue(null);
+      }
+
+      this.triggerRedraw();
+    }
   }
 }
