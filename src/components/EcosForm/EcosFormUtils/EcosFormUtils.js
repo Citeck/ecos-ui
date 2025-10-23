@@ -33,6 +33,7 @@ import { FORM_MODE_CREATE, FORM_MODE_EDIT } from '../constants';
 
 import BaseEcosFormUtils from './BaseEcosFormUtils';
 
+import AuthorityService from '@/services/authrority/AuthorityService';
 import { NotificationManager } from '@/services/notifications';
 
 const SOURCE_DIVIDER = '@';
@@ -1172,7 +1173,7 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
   }
 
   static isConfigurableForm(recordId) {
-    return this.hasWritePermission(recordId);
+    return AuthorityService.hasConfigWritePermission(recordId);
   }
 
   static isComponentsReady(components, options = {}) {
