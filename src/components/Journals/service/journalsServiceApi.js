@@ -6,6 +6,7 @@ import Records from '../../Records/Records';
 import { SourcesId } from '@/constants';
 import { getWorkspaceId } from '@/helpers/urls';
 import { getEnabledWorkspaces } from '@/helpers/util.js';
+import AuthorityService from '@/services/authrority/AuthorityService';
 
 class JournalsServiceApi {
   async getJournalConfigByType(typeRef, attributes) {
@@ -20,14 +21,15 @@ class JournalsServiceApi {
   }
 
   async getJournalConfig(journalId, force) {
-    const { listViewInfo, json, hasWritePermission } = await Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load(
+    const { listViewInfo, json } = await Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load(
       {
         json: '.json',
-        listViewInfo: 'typeRef.aspectById.listview.config?json',
-        hasWritePermission: 'permissions._has.Write?bool'
+        listViewInfo: 'typeRef.aspectById.listview.config?json'
       },
       force
     );
+
+    const hasWritePermission = await AuthorityService.hasConfigWritePermission(journalId);
 
     let config = { ...json, hasWritePermission };
 
