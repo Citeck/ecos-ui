@@ -1,19 +1,20 @@
+import FormIOFileComponent from 'formiojs/components/file/File';
 import cloneDeep from 'lodash/cloneDeep';
+import debounce from 'lodash/debounce';
+import get from 'lodash/get';
+import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
-import isBoolean from 'lodash/isBoolean';
-import get from 'lodash/get';
-import debounce from 'lodash/debounce';
 import queryString from 'query-string';
-import FormIOFileComponent from 'formiojs/components/file/File';
 
-import recordActions from '../../../../components/Records/actions';
-import { ActionTypes } from '../../../../components/Records/actions/constants';
-import Records from '../../../../components/Records';
-import { createDocumentUrl, getDownloadContentUrl, isNewVersionPage } from '../../../../helpers/urls';
-import { t } from '../../../../helpers/util';
-import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../../../constants/pageTabs';
 import { FILE_CLICK_ACTION_DOWNLOAD, FILE_CLICK_ACTION_NOOP, FILE_CLICK_ACTION_OPEN_DASHBOARD } from './editForm/File.edit.file';
+
+import Records from '@/components/Records';
+import recordActions from '@/components/Records/actions';
+import { ActionTypes } from '@/components/Records/actions/constants';
+import { IGNORE_TABS_HANDLER_ATTR_NAME } from '@/constants/pageTabs';
+import { createDocumentUrl, getDownloadContentUrl, isNewVersionPage } from '@/helpers/urls';
+import { t } from '@/helpers/util';
 
 export default class FileComponent extends FormIOFileComponent {
   static schema(...extend) {
@@ -157,9 +158,8 @@ export default class FileComponent extends FormIOFileComponent {
   getFileUrl(file) {
     const containerType = get(this.root, 'options.typeRef', '');
     // eslint-disable-next-line
-    const [_, type] = containerType.split('@');
-    const url = file.url || `/gateway/emodel/api/ecos/webapp/content?containerTypeId=${type}`;
-    return url;
+    const [_, type] = containerType.split("@");
+    return file.url || `/gateway/emodel/api/ecos/webapp/content?containerTypeId=${type}`;
   }
 
   buildFileProcessingLoader() {
@@ -455,7 +455,9 @@ export default class FileComponent extends FormIOFileComponent {
 
   build() {
     if (this.viewOnly) {
-      return this.viewOnlyBuild();
+      this.viewOnlyBuild();
+      this.attachLogic();
+      return;
     }
 
     this.disabled = this.shouldDisable;
@@ -540,6 +542,10 @@ export default class FileComponent extends FormIOFileComponent {
       (this.valueChangedByUser && this.component.validate.required && isEmpty(this.dataValue))
     ) {
       this.checkValidity(null, true);
+    }
+
+    if (this.viewOnly) {
+      this.setupValueElement(this.valueElement);
     }
   };
 
