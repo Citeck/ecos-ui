@@ -219,7 +219,8 @@ export default class FileComponent extends FormIOFileComponent {
               this.ce(
                 'div',
                 {
-                  class: 'col-md-2'
+                  class: 'col-md-2',
+                  title: t('ecos.forms.Size')
                 },
                 this.ce('strong', {}, this.text('Size'))
               ),
@@ -227,7 +228,8 @@ export default class FileComponent extends FormIOFileComponent {
                 ? this.ce(
                     'div',
                     {
-                      class: 'col-md-2'
+                      class: 'col-md-2',
+                      title: t('ecos.forms.Type')
                     },
                     this.ce('strong', {}, this.text('Type'))
                   )

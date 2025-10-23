@@ -821,7 +821,7 @@ Base.prototype.createViewOnlyLabel = function (container) {
     return;
   }
 
-  const labelElement = this.ce('dt');
+  const labelElement = this.ce('dt', { title: t(this.label) });
 
   labelElement.appendChild(this.text(this.label));
   this.createTooltip(labelElement);

@@ -50,7 +50,6 @@
     }
 
     &.inline-editing {
-      z-index: 5;
       background: $color-white;
 
       flex-direction: column;
@@ -58,13 +57,14 @@
       border: 2px solid var(--light-primary-color);
       border-radius: $border-radius-standard;
 
-      margin: 13px -10px -2px -10px;
-      padding-left: 14px;
-      padding-right: 14px;
-      padding-bottom: 54px;
+      margin: 5px 0;
+      padding-left: 10px;
+      padding-right: 10px;
+      padding-bottom: 50px;
 
       position: relative;
-      top: -2px;
+      overflow: hidden;
+      z-index: 5;
 
       &.alert-danger {
         background-color: $color-white;
@@ -169,6 +169,9 @@
     display: inline-block;
     width: 40%;
     flex-shrink: 0;
+    text-overflow: ellipsis;
+    overflow-wrap: normal;
+    overflow: hidden;
   }
 
   dd {

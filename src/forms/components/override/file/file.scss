@@ -11,10 +11,10 @@
       .list-group-item {
         padding: 0 5px;
         border: 0;
-        border-top: 2px solid $color-gray-4;
+        border-top: 1px solid $color-gray-4;
 
         &:last-child {
-          border-bottom: 2px solid $color-gray-4;
+          border-bottom: 1px solid $color-gray-4;
         }
 
         a {
@@ -27,17 +27,15 @@
           color: $text-color-dark;
           font-size: $font-size-small;
           font-weight: $font-weight-normal;
-          line-height: 38px;
+          line-height: 32px;
 
           &.col-md-9 {
-            //line-height: 1em;
-            //align-self: center;
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
           }
 
-          padding: 3px 10px;
+          padding: 2px 10px;
 
           .glyphicon {
             margin-left: 50%;
@@ -51,10 +49,8 @@
 
       .list-group-item.list-group-header {
         border: 0;
-        border-top: 2px solid $color-gray-4;
-        border-bottom: 2px solid $color-gray-4;
-        padding: 8px 0;
-        margin-bottom: -2px;
+        border-top: 1px solid $color-gray-4;
+        border-bottom: 1px solid $color-gray-4;
         border-radius: 0;
 
         .row div {
@@ -62,21 +58,24 @@
         }
 
         strong {
-          color: $text-color-dark;
-          font-size: $font-size-standard;
-          font-weight: $font-weight-semi-bold;
-          border-left: 2px solid $color-gray-4;
-          line-height: 1;
-          padding: 9px 10px;
           display: inline-block;
           width: 100%;
+          padding: 0 8px;
+          color: $text-color-dark;
+          font-size: $font-size-small;
+          font-weight: $font-weight-semi-bold;
+          border-left: 1px solid $color-gray-4;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: clip;
         }
       }
     }
 
     .fileSelector {
+      padding: 10px;
       border: 0;
-      border-bottom: 2px solid $color-gray-4;
+      border-bottom: 1px solid $color-gray-4;
     }
 
     .alert.alert-warning {
