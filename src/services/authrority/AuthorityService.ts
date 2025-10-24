@@ -36,9 +36,6 @@ class AuthorityService {
       return authority;
     }
     const ref = (await this.getAuthorityRef(authority)) || '';
-    if (Array.isArray(ref)) {
-      return ''; // This case shouldn't happen, but we need to handle it for type safety
-    }
     localIdDelim = ref.indexOf('@');
     if (localIdDelim > 0) {
       if (ref.indexOf(PERSON_SOURCE_ID) === 0) {
@@ -50,7 +47,7 @@ class AuthorityService {
     return authority;
   }
 
-  async getAuthorityRef(authority: string | string[]): Promise<string | string[]> {
+  async getAuthorityRef(authority: string | string[]): Promise<any> {
     if (!authority) {
       return '';
     }
@@ -60,7 +57,7 @@ class AuthorityService {
     if (!isString(authority)) {
       return '';
     }
-    if (isString(authority) && authority.indexOf(GROUP_PREFIX) === 0) {
+    if (authority.indexOf(GROUP_PREFIX) === 0) {
       return GROUPS_SOURCE_ID + '@' + authority.substring(GROUP_PREFIX.length);
     }
     if (authority.indexOf(ALFRESCO_WORKSPACE_SPACES_STORE) !== -1) {
@@ -68,7 +65,7 @@ class AuthorityService {
         authority = ALFRESCO_PREFIX + authority;
       }
       const authName = await authorityApi.getAuthorityNameFromAlfresco(authority);
-      if (isString(authName) && authName.indexOf(GROUP_PREFIX) !== -1) {
+      if (authName.indexOf(GROUP_PREFIX) !== -1) {
         return GROUPS_SOURCE_ID + '@' + authName.substring(GROUP_PREFIX.length);
       } else {
         return PERSON_SOURCE_ID + '@' + authName;
@@ -94,14 +91,10 @@ class AuthorityService {
     if (!authority) {
       return null;
     }
-
-    const authorityRef = await this.getAuthorityRef(authority);
-
-    if (Array.isArray(authorityRef)) {
+    if (Array.isArray(authority) && authority.length === 0) {
       return [];
     }
-
-    return Records.get(authorityRef).load(attributes);
+    return Records.get(await this.getAuthorityRef(authority)).load(attributes);
   }
 
   async hasConfigWritePermission(recordId: string) {
@@ -124,6 +117,7 @@ class AuthorityService {
     return permission;
   }
 }
+
 window.Citeck = window.Citeck || {};
 window.Citeck.AuthorityService = new AuthorityService();
 

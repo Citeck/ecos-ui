@@ -140,6 +140,7 @@ const InputView = () => {
         }}
         onAddTag={toggleSelectModal}
         exception={[`${SourcesId.GROUP}@${ROOT_GROUP_NAME}`]}
+        disabled={disabled}
       />
     );
   }

@@ -1,9 +1,10 @@
 import React from 'react';
 
-import './Tags.scss';
 import Icon from '../icons/Icon';
 
-const Tags = ({ tags = [], onTagsChange, onAddTag, className, exception = [] }) => {
+import './Tags.scss';
+
+const Tags = ({ tags = [], onTagsChange, onAddTag, className = '', exception = [], disabled = false }) => {
   const handleRemoveTag = tagToRemove => {
     const filtered = tags.filter(tag => tag.name !== tagToRemove.name);
     onTagsChange && onTagsChange(filtered);
@@ -17,11 +18,11 @@ const Tags = ({ tags = [], onTagsChange, onAddTag, className, exception = [] }) 
             <span title={tag.name} className="ecos-tag__name">
               {tag.name}
             </span>
-            <Icon className="icon_small icon-small-close ecos-tag-remove" onClick={() => handleRemoveTag(tag)} />
+            {!disabled && <Icon className="icon_small icon-small-close ecos-tag-remove" onClick={() => handleRemoveTag(tag)} />}
           </div>
         ))}
 
-        {onAddTag && (
+        {!disabled && onAddTag && (
           <div className="ecos-add" onClick={() => onAddTag()}>
             <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="#D0D0D0">
               <path
