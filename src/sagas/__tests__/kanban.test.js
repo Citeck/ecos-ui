@@ -207,7 +207,7 @@ describe('kanban sagas tests', () => {
     expect(_loading.type).toEqual(setLoading().type);
     expect(_loading.payload.isLoading).toBeFalsy();
 
-    expect(spyRecordsGet).toHaveBeenCalledTimes(1);
+    expect(spyRecordsGet).toHaveBeenCalledTimes(2);
     expect(spyGetFormInputs).toHaveBeenCalledTimes(1);
     expect(spyGetJournalConfig).toHaveBeenCalledTimes(2);
     expect(spyGetJournalData).toHaveBeenCalledTimes(colsLen);
