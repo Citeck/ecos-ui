@@ -98,7 +98,7 @@ class AuthorityService {
     const authorityRef = await this.getAuthorityRef(authority);
 
     if (Array.isArray(authorityRef)) {
-      return null; // This shouldn't happen for a single authority, but we need to handle it for type safety
+      return [];
     }
 
     return Records.get(authorityRef).load(attributes);
