@@ -1,14 +1,15 @@
-import { connect } from 'react-redux';
 import debounce from 'lodash/debounce';
 import get from 'lodash/get';
+import { connect } from 'react-redux';
 
-import CommonBar from '../CommonBar';
-import { applyFilter, reloadBoardData, resetFilter, runSearchCard } from '../../../actions/kanban';
-import { selectKanbanJournalProps } from '../../../selectors/journals';
-import { selectKanban } from '../../../selectors/kanban';
-import { getSearchParams } from '../../../helpers/urls';
 import { JournalUrlParams } from '../../../constants';
+import CommonBar from '../CommonBar';
 import { Labels } from '../constants';
+
+import { applyFilter, reloadBoardData, resetFilter, runSearchCard } from '@/actions/kanban';
+import { getSearchParams } from '@/helpers/urls';
+import { selectKanbanJournalProps } from '@/selectors/journals';
+import { selectKanban } from '@/selectors/kanban';
 
 function mapStateToProps(state, props) {
   const journalProps = selectKanbanJournalProps(state, props.stateId);
@@ -20,6 +21,7 @@ function mapStateToProps(state, props) {
     grid: { ...journalProps.grid, search },
     isFilterOn: kanbanProps.isFiltered || journalProps.isFilterOn,
     isLoading: kanbanProps.isLoading,
+    hasWritePermission: kanbanProps.hasWritePermission,
     noGroupActions: true,
     settingsColumnsData: null,
     settingsGroupingData: null,
@@ -40,7 +42,4 @@ function mapDispatchToProps(dispatch, props) {
   };
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(CommonBar);
+export default connect(mapStateToProps, mapDispatchToProps)(CommonBar);

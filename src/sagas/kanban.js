@@ -58,6 +58,7 @@ import PageService from '../services/PageService';
 
 import { getGridParams, getJournalConfig, getJournalSettingFully } from './journals';
 
+import AuthorityService from '@/services/authrority/AuthorityService';
 import { NotificationManager } from '@/services/notifications';
 
 export function* sagaGetBoardList({ api }, { payload }) {
@@ -324,7 +325,8 @@ export function* sagaGetData({ api }, { payload }) {
     yield put(setDataCards({ stateId, dataCards }));
     yield put(setTotalCount({ stateId, totalCount }));
     if (isEmpty(kanbanSettings)) {
-      yield put(setKanbanSettings({ stateId, kanbanSettings: journalSetting.kanban || {} }));
+      const hasWritePermission = yield call([AuthorityService, AuthorityService.hasConfigWritePermission], urlProps.boardId);
+      yield put(setKanbanSettings({ stateId, kanbanSettings: journalSetting.kanban || {}, hasWritePermission }));
     }
     yield sagaGetActions({ api }, { payload: { boardConfig, newRecordRefs, stateId } });
   } catch (e) {
