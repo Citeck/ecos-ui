@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { FormGroup, Label, Input, FormText, Row, Col } from 'reactstrap';
 
-// @ts-ignore
 import Records from '@/components/Records/Records';
 import { Btn } from '@/components/common/btns';
 import Select from '@/components/common/form/Select';
@@ -75,7 +74,6 @@ class GanttSettings extends Component<GanttSettingsProps, GanttSettingsState> {
     this.setState({ isLoadingDataSources: true });
 
     try {
-      // @ts-ignore
       const sources = await Records.query(
         {
           sourceId: 'emodel/data-source',

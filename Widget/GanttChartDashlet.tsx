@@ -6,11 +6,10 @@ import GanttSettings from './GanttSettings';
 import __SvelteComponent__ from './Widget.svelte';
 
 import Dashlet from '@/components/Dashlet';
-// @ts-ignore
 import Records from '@/components/Records/Records';
 import BaseWidget, { BaseWidgetProps, BaseWidgetState } from '@/components/widgets/BaseWidget';
-import { t } from '@/helpers/export/util';
 import { getRecordRef, getWorkspaceId } from '@/helpers/urls';
+import { t } from '@/helpers/util';
 import DAction from '@/services/DashletActionService';
 
 import './style.scss';
@@ -63,7 +62,6 @@ class GanttChartWidget<P extends GanttChartWidgetProps, S extends GanttChartWidg
     }
 
     try {
-      // @ts-ignore
       const settingsRecord = Records.get(ganttSettingsRef);
       const settings = await settingsRecord.load({
         id: 'id',
@@ -127,7 +125,6 @@ class GanttChartWidget<P extends GanttChartWidgetProps, S extends GanttChartWidg
           );
         }
       } else {
-        // @ts-ignore
         const settingsRecord = Records.getRecordToEdit(ganttSettingsRef);
 
         settingsRecord.att('dataType', settings.dataType);
