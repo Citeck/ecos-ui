@@ -154,7 +154,7 @@ const mapDispatchToProps = (
   props: Omit<EditorProps, 'setEditorMode' | 'updateHtmlWidget'>
 ): Pick<EditorProps, 'setEditorMode' | 'updateHtmlWidget'> => {
   const stateId = props.stateId;
-  const w = wrapArgs<boolean>(stateId);
+  const w = wrapArgs(stateId);
 
   return {
     setEditorMode: isVisible => dispatch(setEditorMode(w(isVisible))),

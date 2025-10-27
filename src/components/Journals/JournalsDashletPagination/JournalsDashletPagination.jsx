@@ -49,7 +49,7 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     reloadGrid: options => dispatch(reloadGrid(w(options))),
     setGridPagination: pagination => dispatch(setGrid(w({ pagination }))),
-    cancelReloadGrid: () => dispatch(cancelReloadGrid(w()))
+    cancelReloadGrid: () => dispatch(cancelReloadGrid())
   };
 };
 

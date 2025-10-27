@@ -132,7 +132,9 @@ class JournalsDashlet extends BaseWidget {
     const { setRecordRef, getDashletConfig, setDashletConfigByParams, id, config, onSave } = this.props;
     const { journalId } = this.state;
 
-    setRecordRef(this.recordRef);
+    if (this.recordRef) {
+      setRecordRef(this.recordRef);
+    }
 
     if (isFunction(onSave)) {
       setDashletConfigByParams(id, config, this.recordRef, journalId);
@@ -149,7 +151,9 @@ class JournalsDashlet extends BaseWidget {
     const { journalId } = this.state;
 
     if (!isEqual(config, prevConfig) && isFunction(onSave)) {
-      setRecordRef(this.recordRef);
+      if (this.recordRef) {
+        setRecordRef(this.recordRef);
+      }
       setDashletConfigByParams(id, config, this.recordRef, journalId);
     }
   }

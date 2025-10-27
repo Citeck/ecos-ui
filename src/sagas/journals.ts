@@ -11,7 +11,10 @@ import isString from 'lodash/isString';
 import omit from 'lodash/omit';
 import set from 'lodash/set';
 import * as queryString from 'query-string';
+import { ParsedUrl } from 'query-string';
 import { call, put, all, race, select, take, takeEvery, takeLatest } from 'redux-saga/effects';
+
+import JournalsConverter from '../dto/journals'; // the shortened path is '@/...' breaks the tests
 
 import {
   applyJournalSetting,
@@ -35,14 +38,10 @@ import {
   goToJournalsPage,
   initJournal,
   initJournalSettingData,
-  initPreview,
-  openSelectedJournal,
   openSelectedPreset,
   reloadGrid,
   reloadJournalConfig,
-  reloadTreeGrid,
   resetFiltering,
-  resetJournalSettingData,
   runSearch,
   saveDashlet,
   saveJournalSetting,
@@ -58,7 +57,6 @@ import {
   setFooterValue,
   setForceUpdate,
   setGrid,
-  setGridInlineToolSettings,
   setGrouping,
   setJournalConfig,
   setJournalExistStatus,
@@ -70,8 +68,6 @@ import {
   setLoadingGrid,
   setOriginGridSettings,
   setPredicate,
-  setPreviewFileName,
-  setPreviewUrl,
   setSearching,
   setSelectAllPageRecords,
   setSelectAllRecordsVisible,
@@ -80,29 +76,30 @@ import {
   setUrl,
   toggleViewMode,
   updateJournalWidgetsConfig
-} from '../actions/journals';
-import { applyPreset, clearFiltered, reloadBoardData, selectTemplateId, setKanbanSettings } from '../actions/kanban';
-import { setIsEnabledPreviewList, setLoadingPreviewList, setPreviewListConfig } from '../actions/previewList';
-import { ParserPredicate } from '../components/Filters/predicates';
-import {
-  DEFAULT_INLINE_TOOL_SETTINGS,
-  DEFAULT_PAGINATION,
-  isKanban,
-  JOURNAL_DASHLET_CONFIG_VERSION
-} from '../components/Journals/constants';
-import JournalsService, { EditorService, PresetsServiceApi } from '../components/Journals/service';
-import Records from '../components/Records';
-import ActionsRegistry from '../components/Records/actions/actionsRegistry';
-import { ActionTypes } from '../components/Records/actions/constants';
-import { PREDICATE_EQ } from '../components/Records/predicates/predicates';
-import { convertAttributeValues } from '../components/Records/predicates/util';
-import { JournalUrlParams, SourcesId } from '../constants';
-import { GROUPING_COUNT_ALL } from '../constants/journal';
-import JournalsConverter from '../dto/journals';
-import { wrapArgs, wrapSaga } from '../helpers/redux';
-import { decodeLink, getFilterParam, getSearchParams, getUrlWithoutOrigin, removeUrlSearchParams } from '../helpers/urls';
-import { beArray, hasInString, isNodeRef, t } from '../helpers/util';
-import { emptyJournalConfig, initialStateGrouping } from '../reducers/journals';
+} from '@/actions/journals';
+import { applyPreset, clearFiltered, reloadBoardData, selectTemplateId, setKanbanSettings } from '@/actions/kanban';
+import { setIsEnabledPreviewList, setLoadingPreviewList, setPreviewListConfig } from '@/actions/previewList';
+import { IJournalsApi, JournalsApi } from '@/api/journals';
+import { ApiJournalConfigJsonType, JournalColumnType, JournalCreateVariantType } from '@/api/journals/types';
+import { ApiType } from '@/api/types';
+import { ParserPredicate } from '@/components/Filters/predicates';
+import { WidgetsConfigType } from '@/components/Journals/JournalsPreviewWidgets/JournalsPreviewWidgets';
+import { DEFAULT_PAGINATION, isKanban, JOURNAL_DASHLET_CONFIG_VERSION } from '@/components/Journals/constants';
+import JournalsService, { EditorService, PresetsServiceApi } from '@/components/Journals/service';
+import Records from '@/components/Records';
+import RecordImpl from '@/components/Records/Record';
+import ActionsRegistry from '@/components/Records/actions/actionsRegistry';
+import { ActionTypes } from '@/components/Records/actions/constants';
+import { PREDICATE_EQ } from '@/components/Records/predicates/predicates';
+import { convertAttributeValues } from '@/components/Records/predicates/util';
+import { JournalUrlParams, SourcesId } from '@/constants';
+import { GROUPING_COUNT_ALL } from '@/constants/journal';
+import { SearchInWorkspacePolicy } from '@/forms/components/custom/selectJournal/constants';
+import { wrapSaga } from '@/helpers/redux';
+import { wrapArgs } from '@/helpers/store';
+import { decodeLink, getFilterParam, getSearchParams, getUrlWithoutOrigin, removeUrlSearchParams } from '@/helpers/urls';
+import { beArray, hasInString, isNodeRef, t } from '@/helpers/util';
+import { emptyJournalConfig, initialStateGrouping } from '@/reducers/journals';
 import {
   selectGridPaginationMaxItems,
   selectJournalConfig,
@@ -115,38 +112,54 @@ import {
   selectUrl,
   selectViewMode,
   selectWidgetsConfig
-} from '../selectors/journals';
-import { selectKanban } from '../selectors/kanban';
-import { selectIsViewNewJournal } from '../selectors/view';
-import PageService from '../services/PageService';
-
-import { JournalsApi } from '@/api/journalsApi';
-import { SearchInWorkspacePolicy } from '@/forms/components/custom/selectJournal/constants';
+} from '@/selectors/journals';
+import { selectKanban } from '@/selectors/kanban';
+import { selectIsViewNewJournal } from '@/selectors/view';
+import PageService from '@/services/PageService';
 import { NotificationManager } from '@/services/notifications';
+import { PredicateType, PredicateValueType } from '@/types/predicates';
+import { RootState, UnwrapArgsType } from '@/types/store';
+import {
+  ColumnsSetupType,
+  DataGridType,
+  GroupingJournalType,
+  IJournalsExtraArgumentsStore,
+  IJournalState,
+  JournalConfigType,
+  JournalDashletConfigVersionType,
+  JournalSettingsItemType,
+  PaginationType
+} from '@/types/store/journals';
 
 const attsForListView = {
   creator: '_creator{id:?id,disp:?disp}',
   created: '_created'
 };
 
-const getDefaultSortBy = config => {
-  const params = config.params || {};
+const getDefaultSortBy = (config: IJournalState['journalConfig']): Array<{ attribute: string; ascending: boolean }> => {
+  const params = config.params;
   // eslint-disable-next-line
-  const defaultSortBy = params.defaultSortBy ? eval('(' + params.defaultSortBy + ')') : [];
+  const defaultSortBy = params && params.defaultSortBy ? eval('(' + params.defaultSortBy + ')') : [];
 
-  return defaultSortBy.map(item => ({
+  return defaultSortBy.map((item: Record<string, string>) => ({
     attribute: item.id,
     ascending: item.order !== 'desc'
   }));
 };
 
-function* getColumnsSum(api, w, columns, journalId, predicates) {
+function* getColumnsSum(
+  api: ApiType,
+  w: IJournalsExtraArgumentsStore['w'],
+  columns: JournalColumnType[],
+  journalId: string,
+  predicates: PredicateType[]
+) {
   try {
     if (!columns || !columns.length || !journalId) {
       return;
     }
 
-    const countFields = [];
+    const countFields: string[] = [];
 
     columns.forEach(column => {
       if (column.hasTotalSumField) {
@@ -155,7 +168,7 @@ function* getColumnsSum(api, w, columns, journalId, predicates) {
     });
 
     if (countFields.length) {
-      const sumFieldsLoading = {};
+      const sumFieldsLoading: Record<string, string> = {};
 
       countFields.forEach(countField => {
         sumFieldsLoading[countField] = 'loading';
@@ -171,9 +184,14 @@ function* getColumnsSum(api, w, columns, journalId, predicates) {
         query = JournalsConverter.optimizePredicate({ t: 'and', val: query });
       }
 
-      const journalType = yield Records.get(`uiserv/rjournal@${journalId}`).load('typeRef?str');
-      const result = yield call(api.journals.getTotalSum, journalType, countFields, query);
-      const sumFields = {};
+      const journalType: string = yield Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load('typeRef?str');
+      const result: Awaited<ReturnType<IJournalsApi['getTotalSum']>> = yield call(
+        api.journals.getTotalSum,
+        journalType,
+        countFields,
+        query
+      );
+      const sumFields: Record<string, number> = {};
 
       if (result) {
         Object.keys(result).forEach(key => {
@@ -194,8 +212,8 @@ function* getColumnsSum(api, w, columns, journalId, predicates) {
   }
 }
 
-export function getDefaultJournalSetting(journalConfig) {
-  const { groupBy } = get(journalConfig, 'meta', {});
+export function getDefaultJournalSetting(journalConfig: IJournalState['journalConfig']) {
+  const { groupBy } = get(journalConfig, 'meta') || {};
   const columns = get(journalConfig, 'columns', []);
 
   return {
@@ -212,21 +230,31 @@ export function getDefaultJournalSetting(journalConfig) {
   };
 }
 
-export function getGridParams({ journalConfig = {}, journalSetting = {}, pagination = DEFAULT_PAGINATION }) {
-  const { createVariants, actions: journalActions, groupActions } = get(journalConfig, 'meta', {});
-  const { sourceId, id: journalId, columns: columnsConfig, listViewInfo = {} } = journalConfig;
+export function getGridParams({
+  journalConfig,
+  journalSetting,
+  pagination = DEFAULT_PAGINATION
+}: {
+  journalConfig: Partial<IJournalState['journalConfig']>;
+  journalSetting: Partial<IJournalState['journalSetting']>;
+  pagination: IJournalState['grid']['pagination'];
+}) {
+  const { createVariants, actions: journalActions, groupActions } = get(journalConfig, 'meta') || {};
+  const { sourceId, id: journalId, columns: columnsConfig, listViewInfo } = journalConfig;
   const { sortBy = [], groupBy = [], columns: columnsSetting, predicate: journalSettingPredicate } = journalSetting;
   const predicates = beArray(journalSettingPredicate);
 
   const columns = columnsConfig || columnsSetting || [];
 
-  const listViewAttrs = Object.keys(listViewInfo).reduce((result, key) => {
-    if (listViewInfo[key] && !listViewInfo[key].includes('undefined')) {
-      return { ...result, [key]: listViewInfo[key] };
-    }
+  const listViewAttrs = listViewInfo
+    ? Object.keys(listViewInfo).reduce((result, key) => {
+        if (listViewInfo[key] && !String(listViewInfo[key]).includes('undefined')) {
+          return { ...result, [key]: listViewInfo[key] };
+        }
 
-    return result;
-  }, {});
+        return result;
+      }, {})
+    : {};
 
   return {
     attributes: { ...attsForListView, ...listViewAttrs },
@@ -245,7 +273,10 @@ export function getGridParams({ journalConfig = {}, journalSetting = {}, paginat
   };
 }
 
-function* sagaGetDashletEditorData({ api, stateId, w }, action) {
+function* sagaGetDashletEditorData(
+  { api, stateId, w }: IJournalsExtraArgumentsStore,
+  action: UnwrapArgsType<ReturnType<typeof getDashletEditorData>>
+) {
   try {
     const config = action.payload || {};
     yield getJournalSettings(api, config.journalId, w, stateId);
@@ -254,16 +285,24 @@ function* sagaGetDashletEditorData({ api, stateId, w }, action) {
   }
 }
 
-function* sagaGetDashletConfig({ api, stateId, w }, action) {
+function* sagaGetDashletConfig({ api, w }: IJournalsExtraArgumentsStore, action: UnwrapArgsType<ReturnType<typeof getDashletConfig>>) {
   try {
-    const config = yield call(api.journals.getDashletConfig, action.payload);
+    const config: IJournalState['config'] = yield call(api.journals.getDashletConfig, action.payload);
 
     if (config) {
-      const { journalId, journalSettingId = '', customJournal, customJournalMode, journalsListIds } = config;
+      const {
+        journalId,
+        journalSettingId = '',
+        customJournal,
+        customJournalMode,
+        journalsListIds
+      } = config as unknown as JournalDashletConfigVersionType;
 
       yield put(setEditorMode(w(isEmpty(journalsListIds))));
-      yield put(setDashletConfig(w(config)));
-      yield put(initJournal(w({ journalId, journalSettingId, customJournal, customJournalMode })));
+      yield put(setDashletConfig(w<JournalConfigType>(config)));
+      if (journalId) {
+        yield put(initJournal(w({ journalId, journalSettingId, customJournal, customJournalMode })));
+      }
     } else {
       yield put(setEditorMode(w(true)));
     }
@@ -272,22 +311,26 @@ function* sagaGetDashletConfig({ api, stateId, w }, action) {
   }
 }
 
-function* sagaSetDashletConfigFromParams({ api, stateId, w }, action) {
+function* sagaSetDashletConfigFromParams(
+  { api, w }: IJournalsExtraArgumentsStore,
+  action: UnwrapArgsType<ReturnType<typeof setDashletConfigByParams>>
+) {
   try {
-    const { config = {}, lsJournalId, recordRef } = action.payload;
+    const { config, lsJournalId, recordRef } = action.payload;
     const configByVersion = config[JOURNAL_DASHLET_CONFIG_VERSION];
 
     if (isEmpty(config) || (config.version !== JOURNAL_DASHLET_CONFIG_VERSION && isEmpty(configByVersion))) {
-      yield put(setEditorMode(w(true)));
+      yield put(setEditorMode(w<boolean>(true)));
       yield put(setLoading(w(false)));
       return;
     }
 
     const { journalId: configJournalId, journalSettingId = '', customJournal, customJournalMode, journalsListIds } = configByVersion;
+
     const headJournalsListId = getFirst(journalsListIds);
 
     let editorMode = false;
-    let journalId = configJournalId || lsJournalId;
+    let journalId: string | undefined = configJournalId || lsJournalId;
     let dataInitJournal;
 
     switch (true) {
@@ -296,7 +339,10 @@ function* sagaSetDashletConfigFromParams({ api, stateId, w }, action) {
         dataInitJournal = { journalId };
         break;
       case !!headJournalsListId:
-        let selectedJournals = yield call(api.journals.getJournalsByIds, journalsListIds, { id: 'id', title: '.disp' });
+        const selectedJournals: IJournalState['selectedJournals'] = yield call(api.journals.getJournalsByIds, journalsListIds || [], {
+          id: 'id',
+          title: '.disp'
+        });
         yield put(setSelectedJournals(w(selectedJournals)));
         journalId = headJournalsListId;
         dataInitJournal = { journalId, journalSettingId };
@@ -311,20 +357,22 @@ function* sagaSetDashletConfigFromParams({ api, stateId, w }, action) {
     }
 
     yield put(setDashletConfig(w(config)));
-    dataInitJournal && (yield put(initJournal(w(dataInitJournal))));
+    if (dataInitJournal) {
+      yield put(initJournal(w({ ...dataInitJournal, journalId: dataInitJournal.journalId as string })));
+    }
     yield put(setEditorMode(w(editorMode)));
   } catch (e) {
     console.error('[journals sagaSetDashletConfigFromParams saga error', e);
   }
 }
 
-function* _resolveTemplate(recordRef, template) {
+function* _resolveTemplate(recordRef: string | null | undefined, template: string) {
   if (!recordRef || template.indexOf('$') === -1) {
     return template;
   }
 
-  let keyExp = /\${(.+?)}/g;
-  let attributesMap = {};
+  const keyExp = /\${(.+?)}/g;
+  const attributesMap: Record<string, boolean> = {};
   let it = keyExp.exec(template);
 
   while (it) {
@@ -332,17 +380,17 @@ function* _resolveTemplate(recordRef, template) {
     it = keyExp.exec(template);
   }
 
-  let attributes = Object.keys(attributesMap);
+  const attributes = Object.keys(attributesMap);
 
   if (!attributes.length) {
     return template;
   }
 
-  let attsValues = yield Records.get(recordRef).load(attributes);
+  const attsValues: Record<string, string> = yield Records.get(recordRef).load(attributes);
 
-  for (let att in attsValues) {
+  for (const att in attsValues) {
     if (attsValues.hasOwnProperty(att)) {
-      let value = attsValues[att] || '';
+      const value: string = attsValues[att] || '';
       template = template.split('${' + att + '}').join(value);
     }
   }
@@ -350,15 +398,18 @@ function* _resolveTemplate(recordRef, template) {
   return template;
 }
 
-function* sagaGetJournalsData({ api, stateId, w }, { payload }) {
+function* sagaGetJournalsData(
+  { stateId, w }: IJournalsExtraArgumentsStore,
+  { payload }: UnwrapArgsType<ReturnType<typeof getJournalsData>>
+) {
   try {
     if (get(payload, 'force')) {
       yield put(cancelGoToPageJournal());
       yield put(cancelReloadGrid());
     }
 
-    const url = yield select(selectUrl, stateId);
-    const isViewNewJournal = yield select(selectIsViewNewJournal);
+    const url: IJournalState['url'] = yield select(selectUrl, stateId);
+    const isViewNewJournal: boolean = yield select(selectIsViewNewJournal);
     const { journalId, journalSettingId = '', userConfigId } = url;
 
     yield put(setJournalExpandableProp(w(false)));
@@ -373,9 +424,9 @@ function* sagaGetJournalsData({ api, stateId, w }, { payload }) {
   }
 }
 
-function* getJournalSettings(api, journalId, w, stateId) {
-  const settings = yield call([PresetsServiceApi, PresetsServiceApi.getJournalPresets], { journalId });
-  const journalConfig = yield select(selectJournalConfig, stateId);
+function* getJournalSettings(api: ApiType, journalId: string, w: IJournalsExtraArgumentsStore['w'], stateId: string) {
+  const settings: IJournalState['journalSettings'] = yield call([PresetsServiceApi, PresetsServiceApi.getJournalPresets], { journalId });
+  const journalConfig: IJournalState['journalConfig'] = yield select(selectJournalConfig, stateId);
   if (isArray(settings)) {
     settings.forEach(preset => {
       set(preset, 'settings.columns', JournalsConverter.filterColumnsByConfig(get(preset, 'columns'), journalConfig.columns));
@@ -386,15 +437,28 @@ function* getJournalSettings(api, journalId, w, stateId) {
   return settings;
 }
 
-export function* getJournalConfig({ api, w, force, callback, stateId }, action) {
-  const url = yield select(selectUrl, stateId);
+export function* getJournalConfig(
+  {
+    w,
+    force,
+    callback,
+    stateId
+  }: IJournalsExtraArgumentsStore & { force?: boolean; callback?: (createVariants?: JournalCreateVariantType[]) => void },
+  action: UnwrapArgsType<ReturnType<typeof reloadJournalConfig>>
+) {
+  const url: IJournalState['url'] = yield select(selectUrl, stateId);
   const { journalSettingId = '' } = url;
 
   const journalId = isString(action) ? action : get(action, 'payload.journalId');
   w = w || get(action, 'payload.w');
   force = get(action, 'payload.force') || force;
   callback = get(action, 'payload.callback') || callback;
-  const journalConfig = yield call([JournalsService, JournalsService.getJournalConfig], journalId, force, journalSettingId);
+  const journalConfig: IJournalState['journalConfig'] = yield call(
+    [JournalsService, JournalsService.getJournalConfig],
+    journalId,
+    force,
+    journalSettingId
+  );
 
   yield put(setJournalConfig(w(journalConfig)));
   if (isFunction(callback)) {
@@ -404,10 +468,12 @@ export function* getJournalConfig({ api, w, force, callback, stateId }, action) 
   return journalConfig;
 }
 
-function* getColumns({ stateId, force = false }) {
-  const { grid = {}, journalConfig = {}, journalSetting = {}, grouping = {} } = yield select(selectJournalData, stateId);
+function* getColumns({ stateId, force = false }: { stateId: string; force?: boolean }) {
+  const { grid, journalConfig = {}, journalSetting, grouping }: IJournalState = yield select(selectJournalData, stateId);
   const groupingColumns = get(grouping, 'columns');
-  const columns = yield JournalsService.resolveColumns(isEmpty(groupingColumns) || force ? journalConfig.columns : groupingColumns);
+  const columns: JournalColumnType[] = yield JournalsService.resolveColumns(
+    isEmpty(groupingColumns) || force ? journalConfig.columns : groupingColumns
+  );
 
   if (grid.isExpandedFromGrouped) {
     return grid.columns;
@@ -419,16 +485,16 @@ function* getColumns({ stateId, force = false }) {
       return config ? { ...column, ...config } : column;
     });
 
-    if (isArray(get(journalSetting, 'columns')) && journalSetting.columns !== 0) {
-      const journalColAttributes = journalSetting.columns.map(journalCol => journalCol.attribute);
+    if (isArray(get(journalSetting, 'columns')) && journalSetting.columns?.length !== 0) {
+      const journalColAttributes = journalSetting.columns?.map(journalCol => journalCol.attribute);
 
       const orderedCols = journalSetting.columns
-        .map(journalCol => finalCols.find(finalCol => finalCol.attribute === journalCol.attribute))
+        ?.map(journalCol => finalCols.find(finalCol => finalCol.attribute === journalCol.attribute))
         .filter(Boolean);
 
-      const remainingCols = finalCols.filter(finalCol => !journalColAttributes.includes(finalCol.attribute));
+      const remainingCols = finalCols.filter(finalCol => !journalColAttributes?.includes(finalCol.attribute));
 
-      return [...orderedCols, ...remainingCols];
+      return [...(orderedCols || []), ...remainingCols];
     }
 
     return finalCols;
@@ -437,23 +503,49 @@ function* getColumns({ stateId, force = false }) {
   return columns;
 }
 
-export function* getJournalSettingFully(api, { journalConfig, stateId }, w) {
-  const url = yield select(selectUrl, stateId);
+export function* getJournalSettingFully(
+  api: ApiType,
+  { journalConfig, stateId }: { journalConfig: JournalDashletConfigVersionType; stateId: string },
+  w: IJournalsExtraArgumentsStore['w']
+) {
+  const url: IJournalState['url'] = yield select(selectUrl, stateId);
   const { journalSettingId = '', userConfigId } = url;
 
-  const sharedSettings = yield getJournalSharedSettings(api, userConfigId) || {};
+  const sharedSettings: Partial<IJournalState['journalSetting']> = yield getJournalSharedSettings(api, userConfigId) || {};
 
   if (!isEmpty(sharedSettings) && !isEmpty(sharedSettings.columns)) {
     sharedSettings.columns = yield JournalsService.resolveColumns(sharedSettings.columns);
   }
 
-  return yield getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId }, w);
+  const journalSetting: IJournalState['journalSetting'] = yield getJournalSetting(
+    api,
+    { journalSettingId, journalConfig, sharedSettings, stateId },
+    w
+  );
+
+  return journalSetting;
 }
 
-function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId, initPredicate }, w) {
+function* getJournalSetting(
+  api: ApiType,
+  {
+    journalSettingId,
+    journalConfig,
+    sharedSettings,
+    stateId,
+    initPredicate
+  }: {
+    journalSettingId?: string | null;
+    journalConfig: IJournalState['journalConfig'];
+    sharedSettings: Partial<IJournalState['journalSetting']>;
+    stateId: string;
+    initPredicate?: boolean;
+  },
+  w: IJournalsExtraArgumentsStore['w']
+) {
   try {
     const { journalSetting: _journalSetting = {} } = yield select(selectJournalData, stateId);
-    let journalSetting = null;
+    let journalSetting: Partial<IJournalState['journalSetting']> | null = null;
 
     if (sharedSettings) {
       journalSetting = sharedSettings;
@@ -465,8 +557,8 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettin
       }
 
       if (journalSettingId) {
-        const preset = yield call([PresetsServiceApi, PresetsServiceApi.getPreset], { id: journalSettingId });
-        const _journalConfig = yield call(
+        const preset: JournalSettingsItemType = yield call([PresetsServiceApi, PresetsServiceApi.getPreset], { id: journalSettingId });
+        const _journalConfig: IJournalState['journalConfig'] = yield call(
           [JournalsService, JournalsService.getJournalConfig],
           get(preset, 'journalId'),
           false,
@@ -503,13 +595,13 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettin
         }
 
         if (!journalSetting) {
-          yield call(api.journals.setLsJournalSettingId, journalConfig.id, '');
+          yield call(api.journals.setLsJournalSettingId, journalConfig.id || '', '');
         }
 
         if (journalSetting && _journalConfig && journalSetting.columns && _journalConfig.columns) {
           journalSetting.columns.forEach(column => {
             if (column) {
-              const columnConfig = _journalConfig.columns.find(c => c.name === column.name);
+              const columnConfig = _journalConfig.columns?.find(c => c.name === column.name);
 
               if (columnConfig && columnConfig.width) {
                 column.width = columnConfig.width;
@@ -534,19 +626,23 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettin
     journalSetting = { ..._journalSetting, ...journalSetting, id: journalSettingId };
 
     /* It is necessary to synchronize the filter when switching from kanban to log initialization */
-    if (initPredicate && _journalSetting.predicate && !isEqual(_journalSetting.predicate, journalSetting.predicate)) {
+    if (journalSetting && initPredicate && _journalSetting.predicate && !isEqual(_journalSetting.predicate, journalSetting.predicate)) {
       journalSetting.predicate = _journalSetting.predicate;
     }
 
-    journalSetting.columns = yield JournalsService.resolveColumns(journalSetting.columns);
-    journalSetting.columns = JournalsConverter.filterColumnsByConfig(journalSetting.columns, journalConfig.columns);
+    if (journalSetting) {
+      journalSetting.columns = yield JournalsService.resolveColumns(journalSetting.columns);
+      journalSetting.columns = JournalsConverter.filterColumnsByConfig(journalSetting.columns, journalConfig.columns);
 
-    if (!isEmpty(journalSetting.predicate)) {
-      JournalsConverter.filterPredicatesByConfigColumns(journalSetting.predicate, journalSetting.columns);
+      if (!isEmpty(journalSetting.predicate) && journalSetting.columns) {
+        JournalsConverter.filterPredicatesByConfigColumns(journalSetting.predicate, journalSetting.columns);
+      }
     }
 
     yield put(setJournalSetting(w(journalSetting)));
-    yield put(initJournalSettingData(w({ journalSetting })));
+    if (journalSetting) {
+      yield put(initJournalSettingData(w({ journalSetting })));
+    }
 
     return journalSetting;
   } catch (e) {
@@ -554,47 +650,72 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettin
   }
 }
 
-function* getJournalSharedSettings(api, id) {
-  return id ? yield call(api.userConfig.getConfig, { id }) : null;
+function* getJournalSharedSettings(api: ApiType, id?: string | null) {
+  const config: ({ id: string } & Record<string, string>) | null = id ? yield call(api.userConfig.getConfig, { id }) : null;
+  return config;
 }
 
-function* sagaInitJournalSettingData({ api, stateId, w }, action) {
+function* sagaInitJournalSettingData(
+  { stateId, w }: IJournalsExtraArgumentsStore,
+  action: UnwrapArgsType<ReturnType<typeof initJournalSettingData>>
+) {
   try {
-    const { journalSetting = {}, predicate: _predicate } = action.payload;
-    const journalConfig = yield select(selectJournalConfig, stateId);
+    const { journalSetting, predicate: _predicate } = action.payload;
+    const journalConfig: IJournalState['journalConfig'] = yield select(selectJournalConfig, stateId);
 
     const { predicate: defaultPredicate } = getDefaultJournalSetting(journalConfig);
-    let predicate = _predicate || journalSetting.predicate;
+    const predicate = _predicate || journalSetting.predicate;
 
-    const columns = yield getColumns({ stateId, force: true });
+    const columns: JournalColumnType[] = yield getColumns({ stateId, force: true });
 
-    const handleVal = p =>
-      isArray(get(p, 'val')) &&
-      get(p, 'val').length === 1 &&
-      isArray(get(p, 'val[0].val')) &&
-      get(p, 'val[0].val').length === 1 &&
-      get(p, 'val[0].val[0].val');
+    const handleVal = (p?: PredicateType | null): PredicateValueType | undefined =>
+      p &&
+      p.val &&
+      isArray(p.val) &&
+      p.val.length === 1 &&
+      isObject(p.val[0]) &&
+      p.val[0].val &&
+      isArray(p.val[0].val) &&
+      p.val[0].val.length === 1 &&
+      isObject(p.val[0].val[0]) &&
+      p.val[0].val[0].val;
 
     const predicateVal = handleVal(predicate);
     const defaultPredicateVal = handleVal(defaultPredicate);
 
+    const isPredicateArray = (x: PredicateValueType | undefined): x is PredicateType[] => {
+      return Array.isArray(x) && x.every(item => item && typeof item === 'object');
+    };
+
     if (isArray(predicateVal) && isArray(defaultPredicateVal) && predicateVal.length < defaultPredicateVal.length) {
       defaultPredicateVal
-        .filter(predicate => get(predicate, 'att') && !predicateVal.find(p => p.att === predicate.att))
+        .filter(
+          predicate => isObject(predicate) && get(predicate, 'att') && !predicateVal.find(p => isObject(p) && p.att === predicate.att)
+        )
         .forEach(diffPredicate => {
-          predicate.val[0].val[0].val.push(diffPredicate);
+          if (
+            isObject(diffPredicate) &&
+            predicate &&
+            isArray(predicate.val) &&
+            isObject(predicate.val[0]) &&
+            isArray(predicate.val[0].val) &&
+            isObject(predicate.val[0].val[0]) &&
+            isPredicateArray(predicate.val[0].val[0].val)
+          ) {
+            predicate.val[0].val[0].val.push(diffPredicate as PredicateType);
+          }
         });
     }
 
-    const columnsSetup = {
+    const columnsSetup: ColumnsSetupType = {
       isExpandedFromGrouped: false,
       columns: JournalsConverter.injectId(columns),
-      sortBy: cloneDeep(journalSetting.sortBy)
+      sortBy: cloneDeep(journalSetting.sortBy || [])
     };
-    const grouping = {
+    const grouping: GroupingJournalType = {
       needCount: get(journalSetting, 'grouping.needCount', false),
-      columns: cloneDeep(journalSetting.groupBy.length ? journalSetting.grouping.columns : []),
-      groupBy: cloneDeep(journalSetting.groupBy)
+      columns: cloneDeep(journalSetting.groupBy?.length ? journalSetting.grouping?.columns || [] : []),
+      groupBy: cloneDeep(journalSetting.groupBy || [])
     };
 
     const filteredPredicate = JournalsConverter.filterPredicatesByConfigColumns(cloneDeep(predicate), columns);
@@ -618,49 +739,28 @@ function* sagaInitJournalSettingData({ api, stateId, w }, action) {
   }
 }
 
-function* sagaResetJournalSettingData({ api, stateId, w }, action) {
-  try {
-    const { journalConfig, originGridSettings, predicate, columnsSetup, grouping } = yield select(selectJournalData, stateId);
-
-    if (!isEqual(originGridSettings, { predicate, columnsSetup, grouping })) {
-      const journalConfig = yield select(selectJournalConfig, stateId);
-      const filteredPredicate = JournalsConverter.filterPredicatesByConfigColumns(
-        cloneDeep(originGridSettings.predicate),
-        journalConfig.columns
-      );
-
-      yield put(setPredicate(w(filteredPredicate)));
-      yield put(setColumnsSetup(w(originGridSettings.columnsSetup)));
-      yield put(setGrouping(w(originGridSettings.grouping)));
-
-      return;
-    }
-
-    const journalSettingId = action.payload;
-
-    yield getJournalSetting(api, { journalSettingId, journalConfig, stateId }, w);
-  } catch (e) {
-    console.error('[journals sagaResetJournalSettingData saga error', e);
-  }
-}
-
-export function* getGridData(api, params, stateId, isOnlyData = false) {
+export function* getGridData(
+  api: ApiType,
+  params: Partial<IJournalState['grid']> & Required<Pick<IJournalState['grid'], 'columns'>>,
+  stateId: string,
+  isOnlyData?: boolean
+) {
   const w = wrapArgs(stateId);
 
   if (!isOnlyData) {
     yield put(setLoadingGrid(w(true)));
   }
 
-  const { recordRef, journalConfig, journalSetting } = yield select(selectJournalData, stateId);
+  const { recordRef, journalConfig, journalSetting }: IJournalState = yield select(selectJournalData, stateId);
   const { id, typeRef } = journalConfig || {};
 
-  const config = yield select(state => selectNewVersionDashletConfig(state, stateId));
+  const config: JournalDashletConfigVersionType = yield select((state: RootState) => selectNewVersionDashletConfig(state, stateId));
   const { customJournalMode, customJournal } = config || {};
-  const journalId = customJournalMode ? customJournal : get(config, 'journalId', id?.includes('@') ? id.split('@')[1] : id);
+  const journalId = (customJournalMode ? customJournal : get(config, 'journalId', id?.includes('@') ? id.split('@')[1] : id)) as string;
 
   const onlyLinked = get(config, ['onlyLinkedJournals', journalId]) ?? get(config, 'onlyLinked');
 
-  let attrsToLoad;
+  let attrsToLoad: Array<{ value: string }> | undefined;
   if (isObject(get(config, 'attrsToLoad')) && journalId) {
     attrsToLoad = get(config, ['attrsToLoad', journalId]);
   } else {
@@ -668,7 +768,11 @@ export function* getGridData(api, params, stateId, isOnlyData = false) {
   }
 
   const { pagination: _pagination, predicates: _predicates = [], searchPredicate, fromGroupBy = false, grouping, ...forRequest } = params;
-  const predicateRecords = yield call(api.journals.fetchLinkedRefs, recordRef, attrsToLoad);
+  const predicateRecords: Awaited<ReturnType<IJournalsApi['fetchLinkedRefs']>> = yield call(
+    api.journals.fetchLinkedRefs,
+    recordRef,
+    attrsToLoad
+  );
 
   if (predicateRecords) {
     _predicates.push({
@@ -681,7 +785,7 @@ export function* getGridData(api, params, stateId, isOnlyData = false) {
   const categoryPredicates = [];
   const query = getSearchParams();
   const { journalId: qJournalId, recordRef: qRecordRef } = query || {};
-  const aspects = yield call(api.journals.getAspects, typeRef);
+  const aspects: Awaited<ReturnType<IJournalsApi['getAspects']>> = yield call(api.journals.getAspects, typeRef);
   const foundCategoryAspect = (aspects || []).find(aspect => get(aspect, 'ref', '').includes('has-category'));
   if (foundCategoryAspect && qJournalId) {
     if (qRecordRef && qRecordRef !== 'null') {
@@ -708,7 +812,7 @@ export function* getGridData(api, params, stateId, isOnlyData = false) {
     journalSetting
   });
 
-  if (get(grouping, 'groupBy', []).length) {
+  if (grouping && get(grouping, 'groupBy', []).length) {
     settings.columns = grouping.columns;
   }
 
@@ -729,11 +833,12 @@ export function* getGridData(api, params, stateId, isOnlyData = false) {
     }
   }
 
-  const resultData = yield call([JournalsService, JournalsService.getJournalData], journalConfig, {
+  const resultData: Partial<IJournalState['grid']> = yield call([JournalsService, JournalsService.getJournalData], journalConfig, {
     ...settings,
     predicates: [...categoryPredicates]
   });
-  const journalData = JournalsConverter.getJournalDataWeb(resultData);
+  const journalData: Pick<IJournalState['grid'], 'data' | 'query' | 'total' | 'attributes'> =
+    JournalsConverter.getJournalDataWeb(resultData);
 
   if (!get(grouping, 'groupBy', []).length && !isOnlyData) {
     const gridParams = { ...params, ...journalData };
@@ -743,11 +848,11 @@ export function* getGridData(api, params, stateId, isOnlyData = false) {
     yield put(setLoadingGrid(w(false)));
   }
 
-  const recordRefs = journalData.data.map(d => d.id);
-  const resultActions = yield call([JournalsService, JournalsService.getRecordActions], journalConfig, recordRefs);
+  const recordRefs: string[] = journalData.data.map(d => d.id);
+  const resultActions: RecordsActionsRes = yield call([JournalsService, JournalsService.getRecordActions], journalConfig, recordRefs);
   const actions = JournalsConverter.getJournalActions(resultActions);
 
-  let columns = yield getColumns({ stateId });
+  let columns: IJournalState['grid']['columns'] = yield getColumns({ stateId });
 
   if (fromGroupBy) {
     columns = params.columns;
@@ -756,28 +861,34 @@ export function* getGridData(api, params, stateId, isOnlyData = false) {
   for (const column of columns) {
     if (isString(column.attribute) && column.attribute.startsWith('_custom_')) {
       const predicate = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate([column.customPredicate]));
-      const customData = yield call([JournalsService, JournalsService.getJournalData], journalConfig, {
-        ...settings,
-        predicate: getFirst(predicate) || {},
-        attributes: [column.originSchema]
-      });
+      const customData: Omit<Partial<IJournalState['grid']>, 'data'> & { records: IJournalState['grid']['data'] } = yield call(
+        [JournalsService, JournalsService.getJournalData],
+        journalConfig,
+        {
+          ...settings,
+          predicate: getFirst(predicate) || {},
+          attributes: [column.originSchema]
+        }
+      );
 
-      const originColumn = journalConfig.columns.find(i => column.originAttribute === i.attribute);
+      const originColumn = journalConfig.columns?.find(i => column.originAttribute === i.attribute);
 
-      set(column, 'newFormatter', originColumn.newFormatter);
-      set(column, 'newEditor', originColumn.newEditor);
+      if (originColumn) {
+        set(column, 'newFormatter', originColumn.newFormatter);
+        set(column, 'newEditor', originColumn.newEditor);
+      }
 
       const _groupBy = get(grouping, 'groupBy[0]', '').split('&');
 
       get(journalData, 'data', []).map((record, _index) => {
-        const originRecord = {};
+        const originRecord: Omit<DataGridType, 'id'> = {};
 
         _groupBy.forEach(att => {
           originRecord[att] = record[att];
         });
 
         const additionalRecord = get(customData, 'records', []).find(customRecord => {
-          const originCustomRecord = {};
+          const originCustomRecord: Omit<DataGridType, 'id'> = {};
 
           _groupBy.forEach(att => {
             originCustomRecord[att] = customRecord[att];
@@ -786,7 +897,9 @@ export function* getGridData(api, params, stateId, isOnlyData = false) {
           return isEqual(originRecord, originCustomRecord);
         });
 
-        record[column.column] = additionalRecord ? additionalRecord['0'] : '0';
+        if (column.column) {
+          record[column.column] = additionalRecord ? additionalRecord['0'] : '0';
+        }
 
         return record;
       });
@@ -796,32 +909,57 @@ export function* getGridData(api, params, stateId, isOnlyData = false) {
   return { ...journalData, columns, actions };
 }
 
-function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId, savePredicate, forcePagination }, w) {
+function* loadGrid(
+  api: ApiType,
+  {
+    journalSettingId,
+    journalConfig,
+    userConfigId,
+    stateId,
+    savePredicate,
+    forcePagination
+  }: {
+    journalSettingId?: string;
+    journalConfig: Partial<IJournalState['journalConfig']>;
+    userConfigId?: string;
+    stateId: string;
+    savePredicate?: boolean;
+    forcePagination?: boolean;
+  },
+  w: IJournalsExtraArgumentsStore['w']
+) {
   const { canceled } = yield race({
     task: call(function* () {
       const initPredicate = savePredicate || false;
       const isResetPagination = forcePagination || false;
-      const sharedSettings = yield getJournalSharedSettings(api, userConfigId) || {};
+      const sharedSettings: Partial<IJournalState['journalSetting']> = yield getJournalSharedSettings(api, userConfigId) || {};
 
       if (!isEmpty(sharedSettings) && !isEmpty(sharedSettings.columns)) {
         sharedSettings.columns = yield JournalsService.resolveColumns(sharedSettings.columns);
       }
 
-      const journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId, initPredicate }, w);
-      const settings = yield select(selectJournalSettings, stateId);
+      const journalSetting: IJournalState['journalSetting'] = yield getJournalSetting(
+        api,
+        { journalSettingId, journalConfig, sharedSettings, stateId, initPredicate },
+        w
+      );
+      const settings: IJournalState['journalSettings'] = yield select(selectJournalSettings, stateId);
       const preset = settings.find(preset => preset.id === journalSettingId);
-      const url = yield select(selectUrl, stateId);
-      const journalData = yield select(selectJournalData, stateId);
+      const url: IJournalState['url'] = yield select(selectUrl, stateId);
+      const journalData: IJournalState = yield select(selectJournalData, stateId);
 
       const dataPagination = get(sharedSettings, 'pagination') || get(journalData, 'grid.pagination') || DEFAULT_PAGINATION;
 
       const pagination = !isResetPagination ? dataPagination : { ...dataPagination, page: 1, skipCount: 0 };
-      const params = getGridParams({ journalConfig, journalSetting: get(preset, 'settings', journalSetting), pagination });
+      const originParams = getGridParams({ journalConfig, journalSetting: get(preset, 'settings', journalSetting), pagination });
       const search = url.search || journalSetting.search;
       const isSearching = get(journalData, 'searching', false);
+      const params: Partial<IJournalState['grid']> = {
+        ...originParams
+      };
 
       yield put(setLoading(w(true)));
-      let gridData = isSearching && search ? {} : yield getGridData(api, { ...params }, stateId);
+      let gridData: IJournalState['grid'] = isSearching && search ? {} : yield getGridData(api, { ...originParams }, stateId);
       let searchData = {};
 
       const headerSearchEnabled = get(journalConfig, 'searchConfig.headerSearchEnabled', true);
@@ -832,28 +970,29 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
       }
 
       if (search && !url.search) {
-        yield put(setUrl({ stateId, ...url, search }));
+        const w = wrapArgs(stateId);
+        yield put(setUrl(w({ ...url, search })));
       }
 
-      const searchPredicate = yield getSearchPredicate({ ...w({ stateId }), grid: { ...gridData, ...searchData } });
+      const searchPredicate: PredicateType = yield getSearchPredicate({ ...w({ stateId }), grid: { ...gridData, ...searchData } });
 
       if (headerSearchEnabled && !isEmpty(searchPredicate)) {
         params.searchPredicate = searchPredicate;
-        gridData = yield getGridData(api, params, stateId);
+        gridData = yield getGridData(api, originParams, stateId);
 
         if (isSearching) {
           yield put(setSearching(w(false)));
         }
       }
 
-      const editingRules = yield getGridEditingRules(api, gridData);
-      let selectedRecords = [];
+      const editingRules: IJournalState['grid']['editingRules'] = yield getGridEditingRules(api, gridData);
+      let selectedRecords: string[] = [];
 
       if (!!userConfigId) {
-        if (isEmpty(get(sharedSettings, 'selectedItems'))) {
+        if (isEmpty(sharedSettings.selectedItems)) {
           selectedRecords = get(gridData, 'data', []).map(item => item.id);
         } else {
-          selectedRecords = sharedSettings.selectedItems;
+          selectedRecords = sharedSettings.selectedItems || [];
         }
       }
 
@@ -861,11 +1000,11 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
         gridData.columns = JournalsConverter.filterColumnsByConfig(gridData.columns, journalConfig.columns);
       }
 
-      if (!isEmpty(gridData.predicate)) {
+      if (!isEmpty(gridData.predicate) && journalConfig.columns) {
         JournalsConverter.filterPredicatesByConfigColumns(gridData.predicates, journalConfig.columns);
       }
 
-      if (!isEmpty(params.predicate)) {
+      if (!isEmpty(params.predicate) && journalConfig.columns) {
         JournalsConverter.filterPredicatesByConfigColumns(params.predicates, journalConfig.columns);
       }
 
@@ -877,9 +1016,6 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
 
       yield put(setSelectedRecords(w(selectedRecords)));
       yield put(setSelectAllRecordsVisible(w(false)));
-      yield put(setGridInlineToolSettings(w(DEFAULT_INLINE_TOOL_SETTINGS)));
-      yield put(setPreviewUrl(w('')));
-      yield put(setPreviewFileName(w('')));
     }),
     canceled: take(cancelLoadGrid().type)
   });
@@ -889,17 +1025,21 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
   }
 }
 
-function* getGridEditingRules(api, gridData) {
+function* getGridEditingRules(api: ApiType, gridData: Partial<IJournalState['grid']>) {
   const { data = [], columns = [] } = gridData;
-  let editingRules = yield all(
+  const editingRules: Array<IJournalState['grid']['editingRules']> = yield all(
     data.map(function* (row) {
       const canEditing = yield call(api.journals.checkRowEditRules, row.id);
-      let byColumns = false;
+      let byColumnsResolve;
 
       if (canEditing) {
-        byColumns = yield all(
+        const byColumns: Array<Record<string, boolean>> = yield all(
           columns.map(function* (column) {
-            const isProtected = yield call(api.journals.checkCellProtectedFromEditing, row.id, column.dataField);
+            const isProtected: Awaited<ReturnType<IJournalsApi['checkCellProtectedFromEditing']>> = yield call(
+              api.journals.checkCellProtectedFromEditing,
+              row.id,
+              column.dataField
+            );
 
             return {
               [column.dataField]: !isProtected
@@ -907,7 +1047,7 @@ function* getGridEditingRules(api, gridData) {
           })
         );
 
-        byColumns = byColumns.reduce(
+        byColumnsResolve = byColumns.reduce(
           (current, result) => ({
             ...result,
             ...current
@@ -917,30 +1057,31 @@ function* getGridEditingRules(api, gridData) {
       }
 
       return {
-        [row.id]: byColumns
+        [row.id]: byColumnsResolve
       };
     })
   );
 
-  editingRules = editingRules.reduce(
+  return editingRules.reduce(
     (current, result) => ({
       ...result,
       ...current
     }),
     {}
   );
-
-  return editingRules;
 }
 
-function* sagaReloadGrid({ api, stateId, w }, { payload = {} }) {
+function* sagaReloadGrid(
+  { api, stateId, w }: IJournalsExtraArgumentsStore,
+  { payload = {} }: UnwrapArgsType<ReturnType<typeof reloadGrid>>
+) {
   try {
     const { canceled } = yield race({
       task: call(function* () {
         yield put(setLoading(w(true)));
         yield put(setLoadingGrid(w(true)));
 
-        const journalData = yield select(selectJournalData, stateId);
+        const journalData: IJournalState = yield select(selectJournalData, stateId);
 
         if (get(payload, 'predicates')) {
           yield put(setGrid(w({ predicates: payload.predicates })));
@@ -950,7 +1091,7 @@ function* sagaReloadGrid({ api, stateId, w }, { payload = {} }) {
 
         const { pagination: gridPagination } = grid || {};
         const { pagination: payloadPagination } = payload;
-        let pagination = { ...gridPagination, ...payloadPagination };
+        const pagination = { ...gridPagination, ...payloadPagination };
 
         const searchPredicate = get(payload, 'searchPredicate') || (yield getSearchPredicate({ stateId }));
         const params = { ...grid, ...payload, pagination, searchPredicate };
@@ -961,11 +1102,11 @@ function* sagaReloadGrid({ api, stateId, w }, { payload = {} }) {
           ...journalConfig.listViewInfo
         };
 
-        const gridData = yield getGridData(api, params, stateId);
-        const editingRules = yield getGridEditingRules(api, gridData);
+        const gridData: IJournalState['grid'] = yield getGridData(api, params, stateId);
+        const editingRules: IJournalState['grid']['editingRules'] = yield getGridEditingRules(api, gridData);
         const pageRecords = get(gridData, 'data', []).map(item => item.id);
 
-        let columns = get(params, 'columns');
+        let columns: IJournalState['grid']['columns'] = get(params, 'columns');
         let _selectedRecords = isArray(selectedRecords) ? selectedRecords : [];
         let _selectAllPageRecords = false;
 
@@ -982,8 +1123,8 @@ function* sagaReloadGrid({ api, stateId, w }, { payload = {} }) {
           columns = get(gridData, 'columns', []);
         } else {
           columns = columns.map(column => {
-            const isSameName = col => col.name === column.name;
-            const isGroupingCountAll = col => column.column === GROUPING_COUNT_ALL && column.column === col.column;
+            const isSameName = (col: JournalColumnType) => col.name === column.name;
+            const isGroupingCountAll = (col: JournalColumnType) => column.column === GROUPING_COUNT_ALL && column.column === col.column;
 
             const findCol = get(gridData, 'columns', []).find(col => isSameName(col) || (column.column && isGroupingCountAll(col)));
 
@@ -999,10 +1140,16 @@ function* sagaReloadGrid({ api, stateId, w }, { payload = {} }) {
         yield put(setSelectedRecords(w(_selectedRecords)));
         yield put(setGrid(w({ ...params, ...gridData, editingRules, columns })));
 
-        const predicates = [journalData?.predicate, journalData?.journalConfig.predicate];
+        const predicates = [];
+        if (journalData?.predicate) {
+          predicates.push(journalData.predicate);
+        }
+        if (journalData?.journalConfig.predicate) {
+          predicates.push(journalData.journalConfig.predicate);
+        }
 
-        if (isEmpty(payload.groupBy)) {
-          yield getColumnsSum(api, w, journalData?.journalConfig?.columns, journalData?.journalConfig?.id, predicates);
+        if (isEmpty(payload.groupBy) && journalData?.journalConfig?.columns && journalData?.journalConfig?.id) {
+          yield getColumnsSum(api, w, journalData.journalConfig.columns, journalData.journalConfig.id, predicates);
         } else {
           yield put(setFooterValue(w(null)));
         }
@@ -1023,22 +1170,7 @@ function* sagaReloadGrid({ api, stateId, w }, { payload = {} }) {
   }
 }
 
-function* sagaReloadTreeGrid({ api, stateId, w }) {
-  try {
-    yield put(setLoading(w(true)));
-
-    const gridData = yield call(api.journals.getTreeGridData);
-    const editingRules = yield getGridEditingRules(api, gridData);
-
-    yield put(setGrid(w({ ...gridData, editingRules })));
-
-    yield put(setLoading(w(false)));
-  } catch (e) {
-    console.error('[journals sagaReloadTreeGrid saga error', e);
-  }
-}
-
-function* sagaSaveDashlet({ api, stateId, w }, action) {
+function* sagaSaveDashlet({ api, w }: IJournalsExtraArgumentsStore, action: UnwrapArgsType<ReturnType<typeof saveDashlet>>) {
   try {
     const { id, config } = action.payload;
 
@@ -1049,7 +1181,7 @@ function* sagaSaveDashlet({ api, stateId, w }, action) {
   }
 }
 
-function* sagaInitJournal({ api, stateId, w }, { payload }) {
+function* sagaInitJournal({ api, stateId, w }: IJournalsExtraArgumentsStore, { payload }: UnwrapArgsType<ReturnType<typeof initJournal>>) {
   try {
     yield race({
       task: call(function* () {
@@ -1058,20 +1190,30 @@ function* sagaInitJournal({ api, stateId, w }, { payload }) {
 
         const { journalId, userConfigId, customJournal, customJournalMode, force } = payload;
         const id = !customJournalMode || !customJournal ? journalId : customJournal;
-        let { journalSettingId, savePredicate = true } = payload;
-        let { journalConfig } = yield select(selectJournalData, stateId);
+        const { savePredicate = true } = payload;
+        let { journalSettingId } = payload;
+        let { journalConfig }: IJournalState = yield select(selectJournalData, stateId);
 
         const isEmptyConfig = isEqual(journalConfig, emptyJournalConfig);
-        const isNotExistsJournal = yield call([JournalsService, JournalsService.isNotExistsJournal], id);
+        const isNotExistsJournal: boolean = yield call([JournalsService, JournalsService.isNotExistsJournal], id);
 
-        yield put(setJournalExistStatus(w(isNotExistsJournal !== true)));
+        yield put(setJournalExistStatus(w(!isNotExistsJournal)));
 
         if (isEmpty(journalConfig) || isEmptyConfig || force) {
-          journalConfig = yield getJournalConfig({ api, w, force, stateId }, id);
+          journalConfig = yield getJournalConfig(
+            { api, w, force, stateId },
+            {
+              payload: {
+                journalId: id
+              }
+            }
+          );
 
-          yield getJournalSettings(api, journalConfig.id, w, stateId);
+          if (journalConfig.id) {
+            yield getJournalSettings(api, journalConfig.id, w, stateId);
+          }
 
-          const settings = yield select(selectJournalSettings, stateId);
+          const settings: IJournalState['journalSettings'] = yield select(selectJournalSettings, stateId);
           const selectedPreset = settings.find(setting => setting.id === journalSettingId);
 
           if (isEmpty(selectedPreset)) {
@@ -1100,7 +1242,9 @@ function* sagaInitJournal({ api, stateId, w }, { payload }) {
         const { predicate } = yield select(selectJournalData, stateId);
         const predicates = [predicate, journalConfig.predicate];
 
-        yield getColumnsSum(api, w, journalConfig?.columns, journalId, predicates);
+        if (journalConfig?.columns) {
+          yield getColumnsSum(api, w, journalConfig.columns, journalId, predicates);
+        }
         yield put(setLoading(w(false)));
       }),
       canceled: take(cancelInitJournal().type)
@@ -1111,11 +1255,14 @@ function* sagaInitJournal({ api, stateId, w }, { payload }) {
   }
 }
 
-function* sagaOpenSelectedPreset({ api, stateId, w }, action) {
+function* sagaOpenSelectedPreset(
+  { api, stateId, w }: IJournalsExtraArgumentsStore,
+  action: UnwrapArgsType<ReturnType<typeof openSelectedPreset>>
+) {
   try {
     const selectedId = action.payload;
     const query = getSearchParams();
-    const viewMode = yield select(selectViewMode, stateId);
+    const viewMode: IJournalState['viewMode'] = yield select(selectViewMode, stateId);
 
     if (query[JournalUrlParams.JOURNAL_SETTING_ID] === undefined && selectedId === undefined) {
       return;
@@ -1130,9 +1277,9 @@ function* sagaOpenSelectedPreset({ api, stateId, w }, action) {
     query[JournalUrlParams.JOURNAL_SETTING_ID] = selectedId || undefined;
     query[JournalUrlParams.USER_CONFIG_ID] = undefined;
 
-    const settings = yield select(selectJournalSettings, stateId);
+    const settings: IJournalState['journalSettings'] = yield select(selectJournalSettings, stateId);
     const preset = settings.find(preset => preset.id === selectedId);
-    const url = queryString.stringifyUrl({ url: getUrlWithoutOrigin(), query });
+    const url = queryString.stringifyUrl(<ParsedUrl>{ url: getUrlWithoutOrigin(), query });
     yield call([PageService, PageService.changeUrlLink], url, { updateUrl: true });
 
     yield put(selectPreset(w(selectedId)));
@@ -1144,7 +1291,7 @@ function* sagaOpenSelectedPreset({ api, stateId, w }, action) {
     const { originKanbanSettings } = yield select(selectKanban, stateId);
     const kanbanSettings = get(preset, 'settings.kanban', { columns: originKanbanSettings.statuses });
 
-    let predicates;
+    let predicates: PredicateType[];
     switch (true) {
       case !!journalConfig?.predicate && !!preset?.settings?.predicate:
         predicates = [journalConfig.predicate, preset.settings.predicate];
@@ -1168,11 +1315,11 @@ function* sagaOpenSelectedPreset({ api, stateId, w }, action) {
       yield put(clearFiltered(w()));
     }
   } catch (e) {
-    console.error('[journals sagaOpenSelectedJournal saga error', e);
+    console.error('[journals sagaOpenSelectedPreset saga error', e);
   }
 }
 
-function* sagaSelectPreset({ api, stateId, w }, action) {
+function* sagaSelectPreset({ api, stateId, w }: IJournalsExtraArgumentsStore, action: UnwrapArgsType<ReturnType<typeof selectPreset>>) {
   try {
     const journalSettingId = action.payload;
     const { journalConfig } = yield select(selectJournalData, stateId);
@@ -1190,54 +1337,30 @@ function* sagaSelectPreset({ api, stateId, w }, action) {
   }
 }
 
-function* sagaOpenSelectedJournal({ api, stateId, w }, action) {
-  try {
-    const query = getSearchParams();
-
-    if (query[JournalUrlParams.JOURNAL_ID] === (action.payload || undefined)) {
-      return;
-    }
-
-    yield put(setLoading(w(true)));
-
-    const exceptionalParams = [JournalUrlParams.JOURNALS_LIST_ID];
-
-    for (let key in query) {
-      if (!exceptionalParams.includes(key)) {
-        query[key] = undefined;
-      }
-    }
-
-    query[JournalUrlParams.JOURNAL_ID] = action.payload;
-
-    const url = queryString.stringifyUrl({ url: getUrlWithoutOrigin(), query });
-
-    yield call(PageService.changeUrlLink, url, { openNewTab: true, pushHistory: true });
-  } catch (e) {
-    console.error('[journals sagaOpenSelectedJournal saga error', e);
-  }
-}
-
-function* sagaSelectJournal({ api, stateId, w }, action) {
+function* sagaSelectJournal({ api, stateId, w }: IJournalsExtraArgumentsStore, action: UnwrapArgsType<ReturnType<typeof selectJournal>>) {
   try {
     const journalId = action.payload;
 
     yield put(setLoading(w(true)));
 
-    const journalConfig = yield getJournalConfig({ api, w, stateId }, journalId);
+    const journalConfig: IJournalState['journalConfig'] = yield getJournalConfig({ api, w, stateId }, { payload: { journalId } });
 
-    yield getJournalSettings(api, journalConfig.id, w, stateId);
-    yield loadGrid(api, { journalConfig, stateId }, w);
+    if (journalConfig) {
+      if (journalConfig.id) {
+        yield getJournalSettings(api, journalConfig.id, w, stateId);
+      }
+      yield loadGrid(api, { journalConfig, stateId }, w);
+    }
     yield put(setLoading(w(false)));
   } catch (e) {
     console.error('[journals sagaSelectJournal saga error', e);
   }
 }
 
-function* sagaExecRecordsAction({ api, w }, action) {
+function* sagaExecRecordsAction({ api, w }: IJournalsExtraArgumentsStore, action: UnwrapArgsType<ReturnType<typeof execRecordsAction>>) {
   try {
-    const actionResult = yield call(api.recordActions.executeAction, action.payload);
-    const check = isArray(actionResult) ? actionResult.some(res => res !== false) : actionResult !== false;
+    const actionResult: boolean | boolean[] = yield call(api.recordActions.executeAction, action.payload);
+    const check = isArray(actionResult) ? actionResult.some(res => res) : actionResult;
 
     if (check) {
       if (get(action, 'payload.action.type', '') !== ActionTypes.BACKGROUND_VIEW) {
@@ -1252,18 +1375,22 @@ function* sagaExecRecordsAction({ api, w }, action) {
   }
 }
 
-function* sagaSaveRecords({ api, stateId, w }, action) {
+function* sagaSaveRecords({ api, stateId, w }: IJournalsExtraArgumentsStore, action: UnwrapArgsType<ReturnType<typeof saveRecords>>) {
   try {
-    const { grid } = yield select(selectJournalData, stateId);
-    const editingRules = yield getGridEditingRules(api, grid);
+    const { grid }: IJournalState = yield select(selectJournalData, stateId);
+    const editingRules: IJournalState['grid']['editingRules'] = yield getGridEditingRules(api, grid);
     const { id, attributes } = action.payload;
     const attribute = getFirst(Object.keys(attributes));
+    if (!isString(attribute)) {
+      return;
+    }
+
     const value = attributes[attribute];
-    const tempAttributes = {};
+    const tempAttributes: Record<string, string> = {};
 
     const currentColumn = grid.columns.find(item => item.attribute === attribute);
 
-    const valueToSave = EditorService.getValueToSave(value, currentColumn.multiple);
+    const valueToSave = EditorService.getValueToSave(value, currentColumn?.multiple);
 
     if (isNodeRef(id)) {
       yield call(api.journals.saveRecords, {
@@ -1273,7 +1400,7 @@ function* sagaSaveRecords({ api, stateId, w }, action) {
         }
       });
     } else {
-      const record = yield Records.get(id);
+      const record: RecordImpl = yield Records.get(id);
       for (const att in attributes) {
         if (attributes.hasOwnProperty(att)) {
           const attributeValue = attributes[att];
@@ -1292,11 +1419,11 @@ function* sagaSaveRecords({ api, stateId, w }, action) {
       tempAttributes[c.attribute] = c.attSchema;
     });
 
-    const savedRecord = yield call(api.journals.getRecord, { id, attributes: tempAttributes, noCache: true });
+    const savedRecord: Record<string, string> = yield call(api.journals.getRecord, { id, attributes: tempAttributes, noCache: true });
 
     grid.data = grid.data.map(record => {
       if (record.id === id) {
-        const savedValue = EditorService.getValueToSave(savedRecord[attribute], currentColumn.multiple);
+        const savedValue = EditorService.getValueToSave(savedRecord[attribute], currentColumn?.multiple);
 
         if (!isEqual(savedValue, valueToSave)) {
           savedRecord.error = attribute;
@@ -1314,20 +1441,25 @@ function* sagaSaveRecords({ api, stateId, w }, action) {
   }
 }
 
-function* sagaSaveJournalSetting({ api, stateId, w }, action) {
+function* sagaSaveJournalSetting(
+  { api, stateId, w }: IJournalsExtraArgumentsStore,
+  action: UnwrapArgsType<ReturnType<typeof saveJournalSetting>>
+) {
   try {
     const { callback, settings } = action.payload;
 
-    const { id } = yield select(selectJournalSetting, stateId);
-    const { journalConfig } = yield select(selectJournalData, stateId);
+    const { id }: IJournalState['journalSetting'] = yield select(selectJournalSetting, stateId);
+    const { journalConfig }: IJournalState = yield select(selectJournalData, stateId);
 
     if (settings.kanban) {
-      yield put(setJournalSetting({ stateId, kanban: settings.kanban }));
+      yield put(setJournalSetting(w({ kanban: settings.kanban })));
       yield put(setKanbanSettings({ stateId, kanbanSettings: settings.kanban }));
     }
     yield call([PresetsServiceApi, PresetsServiceApi.saveSettings], { id, settings });
 
-    yield getJournalSettings(api, journalConfig.id, w, stateId);
+    if (journalConfig.id) {
+      yield getJournalSettings(api, journalConfig.id, w, stateId);
+    }
     isFunction(callback) && callback();
   } catch (e) {
     const { callback } = action.payload;
@@ -1338,16 +1470,21 @@ function* sagaSaveJournalSetting({ api, stateId, w }, action) {
   }
 }
 
-function* sagaCreateJournalSetting({ api, stateId, w }, action) {
+function* sagaCreateJournalSetting(
+  { api, stateId, w }: IJournalsExtraArgumentsStore,
+  action: UnwrapArgsType<ReturnType<typeof createJournalSetting>>
+) {
   try {
     const { callback, ...data } = action.payload;
     const { journalConfig } = yield select(selectJournalData, stateId);
 
     const executor = ActionsRegistry.getHandler(ActionTypes.EDIT_JOURNAL_PRESET);
-    const actionResult = yield call([executor, executor.execForRecord], `${SourcesId.PRESETS}@`, { config: { data } });
+    const actionResult: { id: string } | boolean = yield call([executor, executor.execForRecord], `${SourcesId.PRESETS}@`, {
+      config: { data }
+    });
 
     yield getJournalSettings(api, journalConfig.id, w, stateId);
-    if (actionResult && actionResult.id) {
+    if (isObject(actionResult) && actionResult.id) {
       yield put(openSelectedPreset(w(actionResult.id)));
     }
 
@@ -1357,17 +1494,22 @@ function* sagaCreateJournalSetting({ api, stateId, w }, action) {
   }
 }
 
-function* sagaDeleteJournalSetting({ api, stateId, w }, { payload }) {
+function* sagaDeleteJournalSetting(
+  { api, stateId, w }: IJournalsExtraArgumentsStore,
+  { payload }: UnwrapArgsType<ReturnType<typeof deleteJournalSetting>>
+) {
   try {
     const { journalConfig } = yield select(selectJournalData, stateId);
     const executor = ActionsRegistry.getHandler(ActionTypes.DELETE);
-    const actionResult = yield call([executor, executor.execForRecord], payload, { config: { withoutConfirm: true } });
+    const actionResult: { id: string } | boolean = yield call([executor, executor.execForRecord], payload, {
+      config: { withoutConfirm: true }
+    });
 
     if (actionResult) {
       NotificationManager.success(t('record-action.edit-journal-preset.msg.deleted-success'));
     }
 
-    const settings = yield select(selectJournalSettings, stateId);
+    const settings: IJournalState['journalSettings'] = yield select(selectJournalSettings, stateId);
     const selectedPreset = settings.find(setting => setting.id === stateId);
     let presetId = stateId;
 
@@ -1382,11 +1524,14 @@ function* sagaDeleteJournalSetting({ api, stateId, w }, { payload }) {
   }
 }
 
-function* sagaEditJournalSetting({ api, stateId, w }, action) {
+function* sagaEditJournalSetting(
+  { api, stateId, w }: IJournalsExtraArgumentsStore,
+  action: UnwrapArgsType<ReturnType<typeof editJournalSetting>>
+) {
   try {
     const recordId = action.payload;
     const { journalConfig } = yield select(selectJournalData, stateId);
-    const data = yield call([PresetsServiceApi, PresetsServiceApi.getPreset], { id: recordId });
+    const data: JournalSettingsItemType[] = yield call([PresetsServiceApi, PresetsServiceApi.getPreset], { id: recordId });
 
     if (!data) {
       throw Error(data);
@@ -1402,18 +1547,21 @@ function* sagaEditJournalSetting({ api, stateId, w }, action) {
   }
 }
 
-function* sagaApplyJournalSetting({ api, stateId, w }, action) {
+function* sagaApplyJournalSetting(
+  { stateId, w }: IJournalsExtraArgumentsStore,
+  action: UnwrapArgsType<ReturnType<typeof applyJournalSetting>>
+) {
   try {
     yield put(cancelReloadGrid());
 
     const { settings } = action.payload;
     const { columns, groupBy = [], sortBy, predicate, grouping } = settings;
     const predicates = beArray(predicate);
-    const maxItems = yield select(selectGridPaginationMaxItems, stateId);
+    const maxItems: number = yield select(selectGridPaginationMaxItems, stateId);
     const pagination = { ...DEFAULT_PAGINATION, maxItems };
-    const url = yield select(selectUrl, stateId);
+    const url: IJournalState['url'] = yield select(selectUrl, stateId);
     if (!isEmpty(groupBy)) {
-      settings.sortBy = settings.sortBy.filter(predicate => groupBy.includes(predicate.attribute));
+      settings.sortBy = settings.sortBy?.filter(predicate => groupBy.includes(predicate.attribute));
     }
     yield put(setJournalSetting(w(settings)));
     if (settings.kanban) {
@@ -1453,39 +1601,31 @@ function* sagaApplyJournalSetting({ api, stateId, w }, action) {
   }
 }
 
-function* sagaInitPreview({ api, stateId, w }, action) {
-  try {
-    const nodeRef = action.payload;
-    const previewUrl = yield call(api.journals.getPreviewUrl, nodeRef);
-
-    yield put(setPreviewUrl(w(previewUrl)));
-  } catch (e) {
-    console.error('[journals sagaInitPreview saga error', e);
-  }
-}
-
-function* sagaGoToJournalsPage({ api, stateId, w }, action) {
+function* sagaGoToJournalsPage(
+  { api, stateId, w }: IJournalsExtraArgumentsStore,
+  action: UnwrapArgsType<ReturnType<typeof goToJournalsPage>>
+) {
   try {
     const { canceled } = yield race({
       task: call(function* () {
         yield put(setLoading(w(true)));
 
-        const journalData = yield select(selectJournalData, stateId);
-        const isViewNewJournal = yield select(selectIsViewNewJournal);
-        const { journalConfig = {}, grid = {} } = journalData || {};
+        const journalData: IJournalState = yield select(selectJournalData, stateId);
+        const isViewNewJournal: boolean = yield select(selectIsViewNewJournal);
+        const { journalConfig, grid } = journalData || {};
         const { columns, groupBy = [] } = grid;
         const { criteria = [], predicate = {} } = journalConfig.meta || {};
 
-        let settingColumns = get(journalData, 'journalSetting.columns', columns);
+        const settingColumns = get(journalData, 'journalSetting.columns', columns);
         let row = cloneDeep(action.payload);
         let id = journalConfig.id || '';
-        let filter = '';
+        let filter: PredicateType[] | null = null;
 
         if (id === 'event-lines-stat') {
           //todo: move to journal config
           let eventTypeId = row['groupBy__type'];
 
-          if (eventTypeId) {
+          if (eventTypeId && isString(eventTypeId)) {
             eventTypeId = eventTypeId.replace(`${SourcesId.TYPE}@line-`, '');
             id = 'event-lines-' + eventTypeId;
             NotificationManager.info('', t('notification.journal-will-be-opened-soon'), 1000);
@@ -1496,27 +1636,27 @@ function* sagaGoToJournalsPage({ api, stateId, w }, action) {
             console.error("[journals sagaGoToJournalsPage] Target journal can't be resolved", row);
           }
         } else {
-          const journalType = (getFirst(criteria) || {}).value || predicate.val;
+          const journalType = (getFirst(criteria) || {}).value || (predicate.val as string);
 
           if (journalType && journalConfig.groupBy && journalConfig.groupBy.length) {
-            const config = yield call(JournalsService.getJournalConfig, `alf_${encodeURI(journalType)}`);
+            const config: ApiJournalConfigJsonType = yield call(JournalsService.getJournalConfig, `alf_${encodeURI(journalType)}`);
             id = config.id;
           }
 
           if (groupBy.length) {
-            for (let key in row) {
+            for (const key in row) {
               if (!row.hasOwnProperty(key)) {
                 continue;
               }
 
               const value = row[key];
 
-              if (value && value.str) {
+              if (value && !isString(value) && value.str) {
                 //row[key] = value.str;
               }
             }
           } else {
-            let attributes = {};
+            const attributes: Record<string, string> = {};
 
             columns.forEach(c => (attributes[c.attribute] = `${c.attribute}?str`));
             row = yield call(api.journals.getRecord, { id: row.id, attributes: attributes }) || row;
@@ -1557,22 +1697,23 @@ function* sagaGoToJournalsPage({ api, stateId, w }, action) {
           journalSetting: {
             ...journalData.journalSetting,
             groupBy: [],
-            grouping: {}
+            grouping: {
+              columns: [],
+              groupBy: [],
+              needCount: false
+            }
           },
           pagination
         });
         const predicateValue = ParserPredicate.setPredicateValue(get(params, 'predicates[0]') || [], filter);
         set(params, 'predicates', [predicateValue]);
         set(params, 'columns', gridColumns);
-        const gridData = yield getGridData(api, { ...params, fromGroupBy: true }, stateId);
-        const editingRules = yield getGridEditingRules(api, gridData);
+        const gridData: Partial<IJournalState['grid']> = yield getGridData(api, { ...params, fromGroupBy: true }, stateId);
+        const editingRules: IJournalState['grid']['editingRules'] = yield getGridEditingRules(api, gridData);
         yield put(setPredicate(w(predicateValue)));
         yield put(setJournalSetting(w({ ...journalData.journalSetting, predicate: predicateValue })));
         yield put(setSelectedRecords(w([])));
         yield put(setSelectAllRecordsVisible(w(false)));
-        yield put(setGridInlineToolSettings(w(DEFAULT_INLINE_TOOL_SETTINGS)));
-        yield put(setPreviewUrl(w('')));
-        yield put(setPreviewFileName(w('')));
         yield put(
           setGrid(
             w({
@@ -1587,7 +1728,9 @@ function* sagaGoToJournalsPage({ api, stateId, w }, action) {
 
         const predicates = [journalData.predicate, journalData.journalConfig.predicate, ...params.predicates];
 
-        yield getColumnsSum(api, w, journalConfig.columns, journalData.journalConfig?.id, predicates);
+        if (journalConfig.columns && journalData.journalConfig?.id) {
+          yield getColumnsSum(api, w, journalConfig.columns, journalData.journalConfig.id, predicates);
+        }
       }),
       canceled: take(cancelGoToPageJournal().type)
     });
@@ -1602,10 +1745,11 @@ function* sagaGoToJournalsPage({ api, stateId, w }, action) {
   }
 }
 
-function* getSearchPredicate({ stateId, grid }) {
+function* getSearchPredicate({ stateId, grid }: { stateId: string; grid?: IJournalState['grid'] }) {
   try {
-    const journalData = yield select(selectJournalData, stateId);
-    let { journalConfig, grid: gridData = {} } = journalData;
+    const journalData: IJournalState = yield select(selectJournalData, stateId);
+    const { journalConfig } = journalData;
+    let { grid: gridData } = journalData;
     const fullSearch = get(journalConfig, ['params', 'full-search-predicate']);
     let predicate;
 
@@ -1639,7 +1783,7 @@ function* getSearchPredicate({ stateId, grid }) {
   }
 }
 
-function* sagaSearch({ w, stateId }, { payload }) {
+function* sagaSearch({ w }: IJournalsExtraArgumentsStore, { payload }: UnwrapArgsType<ReturnType<typeof runSearch>>) {
   try {
     const urlData = queryString.parseUrl(getUrlWithoutOrigin());
     const searchText = get(payload, 'text') || undefined;
@@ -1658,14 +1802,14 @@ function* sagaSearch({ w, stateId }, { payload }) {
   }
 }
 
-function* sagaCheckConfig({ w, stateId }, { payload }) {
+function* sagaCheckConfig({ w }: IJournalsExtraArgumentsStore, { payload }: UnwrapArgsType<ReturnType<typeof checkConfig>>) {
   try {
     yield put(setCheckLoading(w(true)));
 
-    const config = get(payload, get(payload, 'version'));
+    const config = get(payload, get(payload, 'version', JOURNAL_DASHLET_CONFIG_VERSION));
     const customJournalMode = get(config, 'customJournalMode');
     const id = get(config, customJournalMode ? 'customJournal' : 'journalId', '');
-    const isNotExistsJournal = !!id && (yield call([JournalsService, JournalsService.isNotExistsJournal], id));
+    const isNotExistsJournal: boolean = !!id && (yield call([JournalsService, JournalsService.isNotExistsJournal], id));
 
     yield put(setJournalExistStatus(w(!isNotExistsJournal)));
     yield put(setCheckLoading(w(false)));
@@ -1675,9 +1819,12 @@ function* sagaCheckConfig({ w, stateId }, { payload }) {
   }
 }
 
-function* sagaExecJournalAction({ api, w }, { payload }) {
+function* sagaExecJournalAction(
+  { api, w }: IJournalsExtraArgumentsStore,
+  { payload }: UnwrapArgsType<ReturnType<typeof execJournalAction>>
+) {
   try {
-    const actionResult = yield call(api.recordActions.executeAction, payload);
+    const actionResult: boolean = yield call(api.recordActions.executeAction, payload);
 
     if (actionResult) {
       yield put(getJournalsData(w({ force: true })));
@@ -1688,12 +1835,12 @@ function* sagaExecJournalAction({ api, w }, { payload }) {
   }
 }
 
-function* sagaResetFiltering({ w, stateId }) {
+function* sagaResetFiltering({ w, stateId }: IJournalsExtraArgumentsStore) {
   try {
-    const url = yield select(selectUrl, stateId);
-    const isViewNewJournal = yield select(selectIsViewNewJournal);
-    const journalData = yield select(selectJournalData, stateId);
-    const { grid = {} } = journalData || {};
+    const url: IJournalState['url'] = yield select(selectUrl, stateId);
+    const isViewNewJournal: boolean = yield select(selectIsViewNewJournal);
+    const journalData: IJournalState = yield select(selectJournalData, stateId);
+    const { grid } = journalData || {};
     const { pagination = {} } = grid;
     const { journalId, journalSettingId = '', userConfigId } = url;
 
@@ -1711,10 +1858,10 @@ function* sagaResetFiltering({ w, stateId }) {
   }
 }
 
-export function* sagaToggleViewMode({ w }, { payload }) {
+export function* sagaToggleViewMode({ w }: IJournalsExtraArgumentsStore, { payload }: UnwrapArgsType<ReturnType<typeof toggleViewMode>>) {
   try {
     const { stateId } = payload;
-    const journalData = yield select(selectJournalData, stateId);
+    const journalData: IJournalState = yield select(selectJournalData, stateId);
 
     if (isKanban(journalData.viewMode)) {
       yield put(reloadBoardData({ stateId }));
@@ -1725,21 +1872,27 @@ export function* sagaToggleViewMode({ w }, { payload }) {
   }
 }
 
-export function* sagaGetJournalWidgetsConfig({ w, api }, { payload }) {
+export function* sagaGetJournalWidgetsConfig(
+  { w, api }: IJournalsExtraArgumentsStore,
+  { payload }: UnwrapArgsType<ReturnType<typeof getJournalWidgetsConfig>>
+) {
   try {
-    const widgetsConfig = yield call(api.journals.getConfigWidgets, payload);
+    const widgetsConfig: Awaited<ReturnType<IJournalsApi['getConfigWidgets']>> = yield call(api.journals.getConfigWidgets, payload);
     if (widgetsConfig) {
-      yield put(setJournalWidgetsConfig(w(widgetsConfig)));
+      yield put(setJournalWidgetsConfig(w<WidgetsConfigType>(widgetsConfig)));
     }
   } catch (e) {
     console.error('[journals sagaGetJournalWidgetsConfig saga error', e);
   }
 }
 
-export function* sagaUpdateJournalWidgetsConfig({ w, api, stateId }, { payload }) {
+export function* sagaUpdateJournalWidgetsConfig(
+  { w, stateId }: IJournalsExtraArgumentsStore,
+  { payload }: UnwrapArgsType<ReturnType<typeof updateJournalWidgetsConfig>>
+) {
   try {
     const { id: journalId } = yield select(selectJournalConfig, stateId);
-    const widgetsConfig = yield select(selectWidgetsConfig, stateId);
+    const widgetsConfig: IJournalState['widgetsConfig'] = yield select(selectWidgetsConfig, stateId);
 
     const config = { ...widgetsConfig, ...payload };
     yield call(JournalsApi.saveConfigWidgets, { config, journalId });
@@ -1750,12 +1903,14 @@ export function* sagaUpdateJournalWidgetsConfig({ w, api, stateId }, { payload }
   }
 }
 
-export function* sagaGetNextPage({ w, api }, { payload }) {
+export function* sagaGetNextPage(
+  { w, api, stateId }: IJournalsExtraArgumentsStore,
+  { payload }: UnwrapArgsType<ReturnType<typeof getNextPage>>
+) {
   try {
-    const { stateId } = payload;
     yield put(setLoadingGrid(w(true)));
 
-    const journalData = yield select(selectJournalData, stateId);
+    const journalData: IJournalState = yield select(selectJournalData, stateId);
     const { grid, journalConfig } = journalData;
 
     const searchPredicate = get(payload, 'searchPredicate') || (yield getSearchPredicate({ stateId }));
@@ -1766,8 +1921,8 @@ export function* sagaGetNextPage({ w, api }, { payload }) {
       ...journalConfig.listViewInfo
     };
 
-    const pagination = yield select(selectJournalPagination, stateId);
-    const totalCount = yield select(selectJournalTotalCount, stateId);
+    const pagination: PaginationType = yield select(selectJournalPagination, stateId);
+    const totalCount: number = yield select(selectJournalTotalCount, stateId);
 
     const nextSkipCount = pagination.page * pagination.maxItems;
     pagination.skipCount = nextSkipCount;
@@ -1776,7 +1931,7 @@ export function* sagaGetNextPage({ w, api }, { payload }) {
     params.pagination = pagination;
 
     if (totalCount > nextSkipCount) {
-      const newGridData = yield getGridData(api, params, stateId, true);
+      const newGridData: IJournalState['grid'] = yield getGridData(api, params, stateId, true);
       yield put(setGrid(w({ ...newGridData, data: [...grid.data, ...newGridData.data] })));
     }
   } catch (e) {
@@ -1786,57 +1941,53 @@ export function* sagaGetNextPage({ w, api }, { payload }) {
   }
 }
 
-export function* sagaFetchBreadcrumbs({ w, api }) {
+export function* sagaFetchBreadcrumbs({ w, api }: IJournalsExtraArgumentsStore) {
   try {
-    const breadcrumbs = yield call(api.journals.fetchBreadcrumbs);
+    const breadcrumbs: Awaited<ReturnType<IJournalsApi['fetchBreadcrumbs']>> = yield call(api.journals.fetchBreadcrumbs);
     yield put(setBreadcrumbs(w(breadcrumbs)));
   } catch (e) {
     console.error('[journals sagaFetchBreadcrumbs saga error', e);
   }
 }
 
-function* saga(ea) {
-  yield takeEvery(getDashletConfig().type, wrapSaga, { ...ea, saga: sagaGetDashletConfig });
-  yield takeEvery(setDashletConfigByParams().type, wrapSaga, { ...ea, saga: sagaSetDashletConfigFromParams });
-  yield takeEvery(getDashletEditorData().type, wrapSaga, { ...ea, saga: sagaGetDashletEditorData });
-  yield takeLatest(getJournalsData().type, wrapSaga, { ...ea, saga: sagaGetJournalsData });
-  yield takeEvery(saveDashlet().type, wrapSaga, { ...ea, saga: sagaSaveDashlet });
-  yield takeEvery(initJournal().type, wrapSaga, { ...ea, saga: sagaInitJournal });
+function* saga(ea: IJournalsExtraArgumentsStore) {
+  yield takeEvery(getDashletConfig.toString(), wrapSaga, { ...ea, saga: sagaGetDashletConfig });
+  yield takeEvery(setDashletConfigByParams.toString(), wrapSaga, { ...ea, saga: sagaSetDashletConfigFromParams });
+  yield takeEvery(getDashletEditorData.toString(), wrapSaga, { ...ea, saga: sagaGetDashletEditorData });
+  yield takeLatest(getJournalsData.toString(), wrapSaga, { ...ea, saga: sagaGetJournalsData });
+  yield takeEvery(saveDashlet.toString(), wrapSaga, { ...ea, saga: sagaSaveDashlet });
+  yield takeEvery(initJournal.toString(), wrapSaga, { ...ea, saga: sagaInitJournal });
 
-  yield takeEvery(reloadGrid().type, wrapSaga, { ...ea, saga: sagaReloadGrid });
-  yield takeEvery(reloadTreeGrid().type, wrapSaga, { ...ea, saga: sagaReloadTreeGrid });
+  yield takeEvery(reloadGrid.toString(), wrapSaga, { ...ea, saga: sagaReloadGrid });
 
-  yield takeEvery(execRecordsAction().type, wrapSaga, { ...ea, saga: sagaExecRecordsAction });
-  yield takeEvery(saveRecords().type, wrapSaga, { ...ea, saga: sagaSaveRecords });
+  yield takeEvery(execRecordsAction.toString(), wrapSaga, { ...ea, saga: sagaExecRecordsAction });
+  yield takeEvery(saveRecords.toString(), wrapSaga, { ...ea, saga: sagaSaveRecords });
 
-  yield takeEvery(reloadJournalConfig().type, wrapSaga, { ...ea, saga: getJournalConfig });
+  yield takeEvery(reloadJournalConfig.toString(), wrapSaga, { ...ea, saga: getJournalConfig });
 
-  yield takeEvery(saveJournalSetting().type, wrapSaga, { ...ea, saga: sagaSaveJournalSetting });
-  yield takeEvery(createJournalSetting().type, wrapSaga, { ...ea, saga: sagaCreateJournalSetting });
-  yield takeEvery(deleteJournalSetting().type, wrapSaga, { ...ea, saga: sagaDeleteJournalSetting });
-  yield takeEvery(editJournalSetting().type, wrapSaga, { ...ea, saga: sagaEditJournalSetting });
-  yield takeEvery(applyJournalSetting().type, wrapSaga, { ...ea, saga: sagaApplyJournalSetting });
-  yield takeEvery(resetFiltering().type, wrapSaga, { ...ea, saga: sagaResetFiltering });
-  yield takeEvery(execJournalAction().type, wrapSaga, { ...ea, saga: sagaExecJournalAction });
+  yield takeEvery(saveJournalSetting.toString(), wrapSaga, { ...ea, saga: sagaSaveJournalSetting });
+  yield takeEvery(createJournalSetting.toString(), wrapSaga, { ...ea, saga: sagaCreateJournalSetting });
+  yield takeEvery(deleteJournalSetting.toString(), wrapSaga, { ...ea, saga: sagaDeleteJournalSetting });
+  yield takeEvery(editJournalSetting.toString(), wrapSaga, { ...ea, saga: sagaEditJournalSetting });
+  yield takeEvery(applyJournalSetting.toString(), wrapSaga, { ...ea, saga: sagaApplyJournalSetting });
+  yield takeEvery(resetFiltering.toString(), wrapSaga, { ...ea, saga: sagaResetFiltering });
+  yield takeEvery(execJournalAction.toString(), wrapSaga, { ...ea, saga: sagaExecJournalAction });
 
-  yield takeEvery(selectJournal().type, wrapSaga, { ...ea, saga: sagaSelectJournal });
-  yield takeEvery(openSelectedJournal().type, wrapSaga, { ...ea, saga: sagaOpenSelectedJournal });
-  yield takeEvery(selectPreset().type, wrapSaga, { ...ea, saga: sagaSelectPreset });
-  yield takeEvery(openSelectedPreset().type, wrapSaga, { ...ea, saga: sagaOpenSelectedPreset });
+  yield takeEvery(selectJournal.toString(), wrapSaga, { ...ea, saga: sagaSelectJournal });
+  yield takeEvery(selectPreset.toString(), wrapSaga, { ...ea, saga: sagaSelectPreset });
+  yield takeEvery(openSelectedPreset.toString(), wrapSaga, { ...ea, saga: sagaOpenSelectedPreset });
 
-  yield takeEvery(initJournalSettingData().type, wrapSaga, { ...ea, saga: sagaInitJournalSettingData });
-  yield takeEvery(resetJournalSettingData().type, wrapSaga, { ...ea, saga: sagaResetJournalSettingData });
+  yield takeEvery(initJournalSettingData.toString(), wrapSaga, { ...ea, saga: sagaInitJournalSettingData });
 
-  yield takeEvery(initPreview().type, wrapSaga, { ...ea, saga: sagaInitPreview });
-  yield takeEvery(goToJournalsPage().type, wrapSaga, { ...ea, saga: sagaGoToJournalsPage });
-  yield takeEvery(getJournalWidgetsConfig().type, wrapSaga, { ...ea, saga: sagaGetJournalWidgetsConfig });
-  yield takeEvery(updateJournalWidgetsConfig().type, wrapSaga, { ...ea, saga: sagaUpdateJournalWidgetsConfig });
-  yield takeEvery(runSearch().type, wrapSaga, { ...ea, saga: sagaSearch });
-  yield takeEvery(checkConfig().type, wrapSaga, { ...ea, saga: sagaCheckConfig });
+  yield takeEvery(goToJournalsPage.toString(), wrapSaga, { ...ea, saga: sagaGoToJournalsPage });
+  yield takeEvery(getJournalWidgetsConfig.toString(), wrapSaga, { ...ea, saga: sagaGetJournalWidgetsConfig });
+  yield takeEvery(updateJournalWidgetsConfig.toString(), wrapSaga, { ...ea, saga: sagaUpdateJournalWidgetsConfig });
+  yield takeEvery(runSearch.toString(), wrapSaga, { ...ea, saga: sagaSearch });
+  yield takeEvery(checkConfig.toString(), wrapSaga, { ...ea, saga: sagaCheckConfig });
 
-  yield takeEvery(toggleViewMode().type, wrapSaga, { ...ea, saga: sagaToggleViewMode });
-  yield takeEvery(getNextPage().type, wrapSaga, { ...ea, saga: sagaGetNextPage });
-  yield takeEvery(fetchBreadcrumbs().type, wrapSaga, { ...ea, saga: sagaFetchBreadcrumbs });
+  yield takeEvery(toggleViewMode.toString(), wrapSaga, { ...ea, saga: sagaToggleViewMode });
+  yield takeEvery(getNextPage.toString(), wrapSaga, { ...ea, saga: sagaGetNextPage });
+  yield takeEvery(fetchBreadcrumbs.toString(), wrapSaga, { ...ea, saga: sagaFetchBreadcrumbs });
 }
 
 export default saga;

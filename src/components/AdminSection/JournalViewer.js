@@ -4,13 +4,14 @@ import isEqual from 'lodash/isEqual';
 import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 
-import { initState, setSearchText } from '../../actions/journals';
-import { getStateId } from '../../helpers/store';
-import { getSearchParams } from '../../helpers/urls';
-import { getEnabledWorkspaces, getId } from '../../helpers/util';
-import pageTabList from '../../services/pageTabs/PageTabList';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Journals } from '../Journals';
+
+import { initState, setSearchText } from '@/actions/journals';
+import { getStateId } from '@/helpers/store';
+import { getSearchParams } from '@/helpers/urls';
+import { getEnabledWorkspaces, getId } from '@/helpers/util';
+import pageTabList from '@/services/pageTabs/PageTabList';
 
 const JournalViewer = React.memo(
   ({ hidden, isActivePage, initStateJournal, upStateId, stateId, setJournalSearch, activeSection, isViewNewJournal, ...props }) => {
@@ -89,7 +90,7 @@ const mapStateToProps = (store, props) => {
 };
 
 const mapDispatchToProps = dispatch => ({
-  initStateJournal: stateId => dispatch(initState(stateId)),
+  initStateJournal: stateId => dispatch(initState({ stateId })),
   setJournalSearch: data => dispatch(setSearchText(data))
 });
 

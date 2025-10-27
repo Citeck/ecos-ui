@@ -1,15 +1,17 @@
 import * as projectInfo from '../../package.json';
 
+export type LSDataType = Array<{ key: string; value: string }>;
+
 export function isExistLocalStorage() {
   return 'localStorage' in window && window.localStorage !== null;
 }
 
-export function getData(key = '') {
+export function getData(key: string): LSDataType | null {
   if (!key) {
     return null;
   }
 
-  return JSON.parse(window.localStorage.getItem(key));
+  return JSON.parse(<string>window.localStorage.getItem(key));
 }
 
 export function transferData(fromKey = '', toKey = '', removeOldKey = false) {
@@ -22,7 +24,7 @@ export function transferData(fromKey = '', toKey = '', removeOldKey = false) {
   }
 }
 
-export function setData(key = '', data = null) {
+export function setData(key = '', data: LSDataType | null = null) {
   if (!key) {
     return null;
   }
@@ -38,7 +40,7 @@ export function removeItem(key = '') {
   window.localStorage.removeItem(key);
 }
 
-export function removeItems(keys = []) {
+export function removeItems(keys: string[] = []) {
   if (!keys || !keys.length) {
     return null;
   }
@@ -57,7 +59,7 @@ export function clearLS() {
  * @param type - type of content data (string, array, object, number, boolean)
  * @returns {*}
  */
-export function hasData(key = '', type = '') {
+export function hasData(key = '', type: any = '') {
   if (!key) {
     return false;
   }
@@ -91,18 +93,13 @@ export function generateKey(extName = 'app', complicate = false) {
 
   const complicatingPart = name
     .split('-')
-    .map(item =>
-      item
-        .split('')
-        .reverse()
-        .join('')
-    )
+    .map(item => item.split('').reverse().join(''))
     .join('')
     .split('')
     .map(letter => String.fromCharCode(letter.charCodeAt(0) + 3))
     .join('')
     .match(/.{1,5}/g)
-    .join('-');
+    ?.join('-');
 
   return `${name}-${complicatingPart}`;
 }
@@ -116,7 +113,7 @@ export function getSessionData(key = '') {
     return null;
   }
 
-  return JSON.parse(window.sessionStorage.getItem(key));
+  return JSON.parse(<string>window.sessionStorage.getItem(key));
 }
 
 export function setSessionData(key = '', data = null) {

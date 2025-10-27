@@ -128,7 +128,6 @@ const TreeNode = ({
       onYes: () => {
         const currentId = `${sourceId}@${node.id}`;
 
-        // @ts-ignore
         return Records.remove([currentId]).then(() => {
           if (currentId === recordRef) {
             updateCurrentUrl({ recordRef: rootRecord });

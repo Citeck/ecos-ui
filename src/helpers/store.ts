@@ -1,8 +1,23 @@
+import get from 'lodash/get';
+
 import { getWorkspaceId } from './urls';
 import { getEnabledWorkspaces } from './util';
 
-export function wrapArgs<T>(stateId: string) {
-  return (args: T): { _args: T; stateId: string } => ({ _args: args, stateId });
+export function wrapArgs(stateId?: string): {
+  (): { _args: void; stateId: string };
+  <T>(args: T): { _args: T; stateId: string };
+} {
+  function _fn(): { _args: undefined; stateId: string };
+  function _fn<T>(args: T): { _args: T; stateId: string };
+
+  function _fn<T>(args?: T) {
+    if (arguments.length === 0) {
+      return { _args: undefined as void, stateId };
+    }
+    return { _args: args as T, stateId };
+  }
+
+  return _fn;
 }
 
 export function getStateId({ tabId = '', id = '' }) {
@@ -13,4 +28,8 @@ export function getStateId({ tabId = '', id = '' }) {
   }
 
   return baseId;
+}
+
+export function handleAction<T>(action: T) {
+  return { payload: get(action, 'payload._args') };
 }

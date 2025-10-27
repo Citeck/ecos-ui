@@ -71,7 +71,7 @@ const mapDispatchToProps = (
   dispatch: Dispatch,
   ownProps: Omit<HTMLWidgetProps, 'setEditorMode' | 'setLoading' | 'stateId' | 'currentWorkspace'>
 ): Pick<HTMLWidgetProps, 'setEditorMode' | 'setLoading'> => {
-  const w = wrapArgs<boolean>(getKey(ownProps));
+  const w = wrapArgs(getKey(ownProps));
 
   return {
     setEditorMode: isVisible => dispatch(setEditorMode(w(isVisible))),

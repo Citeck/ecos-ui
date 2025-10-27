@@ -139,10 +139,9 @@ class PublicationWidgetDashlet<P extends PublicationWidgetDashletProps, S extend
   }
 
   get dashletActions() {
-    const actions = {};
+    const actions: Record<string, { className: string; onClick: () => void }> = {};
 
     if (this.state.hasPermissions) {
-      // @ts-ignore
       actions[DAction.Actions.EDIT] = {
         className: getFitnesseClassName('publication-widget', DAction.Actions.EDIT),
         onClick: this.toggleEdit

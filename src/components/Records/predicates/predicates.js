@@ -1,4 +1,4 @@
-import { t } from '../../../helpers/export/util';
+import { t } from '@/helpers/util';
 
 export const COLUMN_DATA_TYPE_TEXT = 'text';
 export const COLUMN_DATA_TYPE_MLTEXT = 'mltext';
@@ -128,7 +128,7 @@ export const PREDICATE_LIST_WITH_CLEARED_VALUES = [PREDICATE_TODAY, PREDICATE_TI
 let allPredicates = [];
 
 // Hack: Currently t('') works correctly only after execution loadMessagesAndAlfrescoScript function in share.js, so we should use function instead of array:
-const getAllPredicates = function() {
+const getAllPredicates = function () {
   return [
     { value: PREDICATE_ALL, label: t('predicate.all'), needValue: false },
     { value: PREDICATE_CONTAINS, label: t('predicate.contains'), needValue: true },

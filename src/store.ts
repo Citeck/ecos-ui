@@ -9,7 +9,7 @@ import createRootReducer, { createReducer } from './reducers';
 import sagas from './sagas';
 
 import { allowedModes } from '@/constants';
-import { SETTING_ENABLE_SAGA_LOGGER } from '@/pages/DevTools/constants.js';
+import { SETTING_ENABLE_SAGA_LOGGER } from '@/pages/DevTools/constants';
 import { ExtraArgumentsStore, RootState } from '@/types/store';
 
 interface ExtendedStore extends Store<RootState> {
@@ -33,8 +33,8 @@ if (allowedModes.includes(process.env.NODE_ENV) || !!localStorage.getItem(SETTIN
 }
 
 let composeEnhancers = compose;
-if (typeof window === 'object' && (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) {
-  composeEnhancers = (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__;
+if (typeof window === 'object' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) {
+  composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__;
 }
 
 export default function configureStore(ea: ExtraArgumentsStore, defaultState = {}): ExtendedStore {

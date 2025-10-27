@@ -50,7 +50,7 @@ export default class JournalsConverter {
   }
 
   /**
-   * @param {Column} column
+   * @param {JournalColumnType} column
    * @returns {?string}
    */
   static getColumnId(column) {
@@ -356,9 +356,9 @@ export default class JournalsConverter {
 
   /**
    *
-   * @param {Predicate|Array<Predicate>} predicate
+   * @param {PredicateType|Array<PredicateType>} predicate
    * @param {Array} configColumns
-   * @returns {Predicate|Array<Predicate>}
+   * @returns {PredicateType|Array<PredicateType>}
    */
   static filterPredicatesByConfigColumns(predicate, configColumns) {
     if (Array.isArray(predicate)) {
