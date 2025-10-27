@@ -2,6 +2,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import isArray from 'lodash/isArray';
 import isObject from 'lodash/isObject';
 import isString from 'lodash/isString';
+//@ts-ignore
 import uuidV4 from 'uuidv4';
 
 import RecordImpl, { RecordType } from './Record';

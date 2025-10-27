@@ -13,7 +13,7 @@ import LeftPositionWidgetsIcon from './icons/LeftPositionWidgetsIcon';
 import RightPositionWidgetsIcon from './icons/RightPositionWidgetsIcon';
 
 import { getJournalWidgetsConfig } from '@/actions/journals';
-import { JournalsApi } from '@/api/journalsApi';
+import { JournalsApi } from '@/api/journals';
 import SetWidgets from '@/components/DashboardSettings/parts/SetWidgets';
 import { DndUtils } from '@/components/Drag-n-Drop';
 import { Loader, Tooltip } from '@/components/common';

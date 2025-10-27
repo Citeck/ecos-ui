@@ -50,14 +50,6 @@ export const SIZE_LISTVIEW_ITEM_TILES = {
 export const CLASSNAME_PREVIEW_LIST_CARD = 'citeck-preview-list-content__card';
 export const CLASSNAME_JOURNAL_BODY_TOP = 'ecos-journal__body-top';
 
-export const DEFAULT_INLINE_TOOL_SETTINGS = {
-  height: 0,
-  top: 0,
-  left: 0,
-  row: {},
-  actions: []
-};
-
 export const JOURNAL_MIN_HEIGHT = 300;
 export const JOURNAL_MIN_HEIGHT_MOB = 450;
 

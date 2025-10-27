@@ -24,7 +24,7 @@ import { isMobileDevice, t, getCurrentUserName, getMLValue } from '@/helpers/uti
 import { Events } from '@/services/PageService';
 import { MLTextType } from '@/types/components';
 import { Dispatch, RootState } from '@/types/store';
-import { PaginationType } from '@/types/store/journal';
+import { IJournalState, PaginationType } from '@/types/store/journals';
 
 import '@/components/Dashlet/Dashlet.scss';
 import './style.scss';
@@ -280,10 +280,11 @@ const mapDispatchToProps = (
   dispatch: Dispatch,
   props: BaseWidgetProps & { journalId: HierarchicalTreeWidget['journalId'] }
 ): Pick<HierarchicalTreeWidget, 'reloadGrid' | 'fetchBreadcrumbs'> => {
-  const w = wrapArgs<void | { pagination?: Partial<PaginationType> }>(props.stateId || getStateId({ ...props, id: props.journalId }));
+  const stateId = props.stateId || getStateId({ ...props, id: props.journalId });
+  const w = wrapArgs(stateId);
 
   return {
-    reloadGrid: pagination => dispatch(reloadGrid(w({ pagination }))),
+    reloadGrid: pagination => dispatch(reloadGrid(w<Partial<IJournalState['grid']>>({ pagination }))),
     fetchBreadcrumbs: () => dispatch(fetchBreadcrumbs(w()))
   };
 };

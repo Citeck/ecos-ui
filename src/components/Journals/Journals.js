@@ -76,7 +76,7 @@ const mapDispatchToProps = (dispatch, props) => {
 
   return {
     setUrl: urlParams => dispatch(setUrl(w(urlParams))),
-    toggleViewMode: viewMode => dispatch(toggleViewMode({ viewMode, stateId: props.stateId })),
+    toggleViewMode: viewMode => dispatch(toggleViewMode(w({ viewMode, stateId: props.stateId }))),
     execJournalAction: (records, action, context) => dispatch(execJournalAction(w({ records, action, context }))),
     getTypeRef: journalId => dispatch(getTypeRef(w({ journalId }))),
     getBoardList: journalId => dispatch(getBoardList({ journalId, stateId: props.stateId })),

@@ -66,7 +66,7 @@ const mapDispatchToProps = (dispatch, props) => {
 
   return {
     reloadGrid: options => dispatch(reloadGrid(w(options))),
-    cancelReloadGrid: () => dispatch(cancelReloadGrid(w())),
+    cancelReloadGrid: () => dispatch(cancelReloadGrid()),
     getNextPage: () => dispatch(getNextPage(w())),
     fetchBreadcrumbs: () => dispatch(fetchBreadcrumbs(w()))
   };

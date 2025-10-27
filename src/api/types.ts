@@ -1,3 +1,4 @@
+import { IJournalsApi } from '@/api/journals';
 import { IWorkspaceApi } from '@/api/workspaces';
 
 export type ConfigureAPIType = {
@@ -14,7 +15,7 @@ export type ApiType = {
   menu: any;
   orgStruct: any;
   user: any;
-  journals: any;
+  journals: IJournalsApi;
   tasks: any;
   comments: any;
   activities: any;

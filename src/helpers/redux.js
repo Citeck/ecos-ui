@@ -33,7 +33,7 @@ export function wrapArgs(stateId) {
 }
 
 export function* wrapSaga({ api, saga }, action) {
-  const stateId = get(action, 'payload.stateId');
+  const stateId = get(action, 'payload.stateId', '');
   const w = wrapArgs(stateId);
 
   action = handleAction(action);

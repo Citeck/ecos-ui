@@ -90,10 +90,10 @@ const mapDispatchToProps = (
   dispatch: Dispatch,
   props: Omit<Props, 'updateJournalWidgetsConfig'>
 ): Pick<Props, 'updateJournalWidgetsConfig'> => {
-  const w = wrapArgs<Partial<WidgetsConfigType> | void>(props.stateId);
+  const w = wrapArgs(props.stateId);
 
   return {
-    updateJournalWidgetsConfig: config => dispatch(updateJournalWidgetsConfig(w(config)))
+    updateJournalWidgetsConfig: config => dispatch(updateJournalWidgetsConfig(w<Partial<WidgetsConfigType> | undefined>(config)))
   };
 };
 

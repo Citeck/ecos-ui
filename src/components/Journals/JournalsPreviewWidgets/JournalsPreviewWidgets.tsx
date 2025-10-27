@@ -54,7 +54,7 @@ type WidgetOfConfigType = {
 
 export type WidgetsConfigType = {
   widgets: Array<WidgetOfConfigType[]> | null;
-  isLeftPositionWidgets: boolean;
+  isLeftPositionWidgets?: boolean;
 };
 
 const Labels = {
@@ -70,7 +70,7 @@ const mapStateToProps = (state: RootState, props: ComponentProps): Omit<SagaProp
 
   return {
     journalId: get(newState, 'journalConfig.id', ''),
-    config: get(newState, 'widgetsConfig')
+    config: get(newState, 'widgetsConfig') as WidgetsConfigType
   };
 };
 

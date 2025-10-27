@@ -18,7 +18,7 @@ import { DocStatusApi } from './docStatus';
 import { DocumentsApi } from './documents';
 import { EventsHistoryApi } from './eventsHistory';
 import { InstanceAdminApi } from './instanceAdmin';
-import { JournalsApi } from './journalsApi';
+import { JournalsApi } from './journals';
 import { KanbanApi } from './kanban';
 import { MenuApi } from './menu';
 import { OrgStructApi } from './orgStruct';
