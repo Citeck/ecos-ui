@@ -954,7 +954,23 @@ function* loadGrid(
       const originParams = getGridParams({ journalConfig, journalSetting: get(preset, 'settings', journalSetting), pagination });
       const search = url.search || journalSetting.search;
       const isSearching = get(journalData, 'searching', false);
-      const params: Partial<IJournalState['grid']> = {
+      const params: Pick<
+        IJournalState['grid'],
+        | 'attributes'
+        | 'groupActions'
+        | 'journalId'
+        | 'journalActions'
+        | 'sourceId'
+        | 'sortBy'
+        | 'columns'
+        | 'groupBy'
+        | 'isExpandedFromGrouped'
+        | 'predicates'
+        | 'pagination'
+        | 'grouping'
+        | 'searchPredicate'
+      > &
+        Partial<Pick<IJournalState['grid'], 'predicate' | 'createVariants'>> = {
         ...originParams
       };
 
@@ -978,7 +994,7 @@ function* loadGrid(
 
       if (headerSearchEnabled && !isEmpty(searchPredicate)) {
         params.searchPredicate = searchPredicate;
-        gridData = yield getGridData(api, originParams, stateId);
+        gridData = yield getGridData(api, params, stateId);
 
         if (isSearching) {
           yield put(setSearching(w(false)));
