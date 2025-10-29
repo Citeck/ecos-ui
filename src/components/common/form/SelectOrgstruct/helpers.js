@@ -24,6 +24,7 @@ export function handleResponse(result) {
     label: item.displayName,
     isPersonDisabled: get(item, 'isPersonDisabled', false),
     canEdit: get(item, 'canEdit', false),
+    isSkipUserMask: get(item, 'isSkipUserMask', false),
     extraLabel: item.authorityType === AUTHORITY_TYPE_USER ? item.fullName : null,
     hasChildren: !isNil(item.groupType),
     isLoaded: isUndefined(item.isLoaded) ? false : item.isLoaded,

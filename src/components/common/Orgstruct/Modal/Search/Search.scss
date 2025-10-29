@@ -1,24 +1,144 @@
-@import '../../../../../styles/constants';
+@import '@/styles/constants';
 
 .select-orgstruct {
   &__search {
     position: relative;
     display: flex;
 
+    &-selected {
+      display: inline-flex;
+      align-items: center;
+
+      &-items {
+        $root-items: &;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 0 10px 4px;
+        width: 100%;
+
+        &-user-list {
+          position: absolute;
+          top: calc(100% + 4px);
+          left: 0;
+          z-index: 10;
+
+          box-shadow: rgba(0, 0, 0, 0.14) 0 1px 4px;
+          background-color: $color-white;
+          border-radius: 6px;
+
+          &_item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 9px;
+            width: 100%;
+            justify-content: space-between;
+            cursor: initial;
+
+            &_info-container {
+              display: inline-flex;
+              align-items: center;
+              gap: 6px;
+            }
+
+            #{$root-items}_item_text {
+              color: $text-color-dark !important;
+            }
+
+            &_photo {
+              width: 16px !important;
+              height: 16px !important;
+            }
+          }
+        }
+
+        &_item {
+          $selected-item: &;
+
+          background-color: $color-gray-4;
+          border-radius: 5px;
+          padding: 4px 9px;
+
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+
+          max-width: 159px;
+          max-height: 26px;
+          box-sizing: border-box;
+
+          overflow: hidden;
+
+          &.other-users {
+            position: relative;
+            gap: 0;
+            cursor: pointer;
+            overflow: initial;
+
+            & > svg > path {
+              fill: $color-gray-5;
+            }
+
+            &:hover, &.opened {
+              background-color: var(--dark-primary-color);
+
+              & > svg > path {
+                fill: $color-white;
+              }
+
+              #{$selected-item}_text {
+                color: $color-white;
+              }
+            }
+          }
+
+          &_text {
+            @extend %ellipsis;
+            color: $text-color-gray;
+            font-weight: 600;
+            font-size: 12px;
+          }
+        }
+      }
+    }
+
     &-wrapper {
       position: relative;
       width: 100%;
-      margin-right: 10px;
+
+      & .position-relative {
+        border: $border-width-standard solid $color-gray-6;
+        border-radius: $border-radius-standard;
+      }
+
+      &.noMoreSelect .position-relative {
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+
+        & .select-orgstruct__search-selected-items {
+          padding: 0 10px 0 0;
+        }
+      }
+      &.moreSelect .position-relative {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+      }
     }
 
     &-input.ecos-input {
-      padding-left: 40px;
+      padding-left: 30px;
+      border: none;
     }
 
     &-icon.icon {
       position: absolute;
       line-height: 40px;
-      left: 12px;
+      left: 10px;
+      font-size: 15px;
       color: $color-gray-5;
       z-index: 1;
     }
@@ -26,14 +146,27 @@
     &-cleaner {
       color: $color-gray-5;
       cursor: pointer;
-      position: absolute;
+
+      display: none;
+      &.moreSelected {
+        position: absolute;
+      }
+
+      &.small {
+        font-size: 10px;
+        display: block;
+        opacity: 1;
+        padding: 0;
+        pointer-events: auto;
+      }
+
       font-size: 14px;
       opacity: 0;
       transition: opacity 0s;
       transition-delay: 0s;
 
       padding: 5px 7px;
-      top: calc(50% - 15px);
+      top: 6px;
       right: 5px;
       pointer-events: none;
 
@@ -41,6 +174,7 @@
         pointer-events: auto;
         opacity: 1;
         transition-delay: 0.5s;
+        display: block;
       }
     }
   }

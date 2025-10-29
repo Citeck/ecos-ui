@@ -4,17 +4,24 @@ import uniqueId from 'lodash/uniqueId';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 
-import { Tooltip } from '../../../../common';
 import { Btn, IcoBtn } from '../../../../common/btns';
 import { Grid } from '../../../../common/grid';
 import InlineToolsDisconnected from '../../../grid/InlineTools/InlineToolsDisconnected';
 import { AssocLink } from '../../AssocLink';
 import CreateVariants from '../CreateVariants';
+import MenuCreateVariants from '../CreateVariants/MenuCreateVariants';
 import { Labels } from '../constants';
 
 import Records from '@/components/Records/Records';
+import DebugFormAction from '@/components/Records/actions/handler/executor/DebugFormAction';
 import RecordActions from '@/components/Records/actions/recordActions';
 import { getFormattedLink, getFormatter } from '@/components/common/form/SelectJournal/helpers';
+import ChevronRight from '@/components/common/icons/ChevronRight';
+import Close from '@/components/common/icons/Close';
+import Debug from '@/components/common/icons/Debug';
+import Edit from '@/components/common/icons/Edit';
+import Subtract from '@/components/common/icons/Subtract';
+import VerticalActions from '@/components/common/icons/VerticalActions';
 import { getEnabledWorkspaces, getMLValue, t } from '@/helpers/util';
 import { NotificationManager } from '@/services/notifications';
 
@@ -27,7 +34,8 @@ class InputView extends Component {
     aditionalButtons: [],
     createVariants: [],
     inlineToolsOffsets: { row: {} },
-    targetId: uniqueId('SelectJournal')
+    targetId: uniqueId('SelectJournal'),
+    isOpenMenuActions: false
   };
 
   gridWrapperRef = null;
@@ -40,6 +48,10 @@ class InputView extends Component {
       this.fetchCreateVariants().then(variants => {
         this.setState({ createVariants: variants });
       });
+    }
+
+    if (!this.props.multiple) {
+      document.addEventListener('click', this.closeMenuActions);
     }
   }
 
@@ -55,6 +67,15 @@ class InputView extends Component {
     if (this.gridWrapperRef) {
       this.gridWrapperRef.removeEventListener('mouseleave', this.resetInlineToolsOffsets);
     }
+
+    if (!this.props.multiple) {
+      document.removeEventListener('click', this.closeMenuActions);
+    }
+  }
+
+  get textForModal() {
+    const { selectedRows, multiple } = this.props;
+    return isEmpty(selectedRows) ? t(Labels.INPUT_BTN_SELECT) : multiple ? t(Labels.INPUT_BTN_ADD) : t(Labels.INPUT_BTN_CHANGE);
   }
 
   setRef = ref => {
@@ -83,6 +104,18 @@ class InputView extends Component {
       this.stopBlur = true;
       openSelectModal.call(this);
     }
+  };
+
+  closeMenuActions = () => {
+    this.setState({ isOpenMenuActions: false });
+  };
+
+  toggleIsOpenMenuActions = e => {
+    if (e) {
+      e.stopPropagation();
+    }
+
+    this.setState(state => ({ isOpenMenuActions: !state.isOpenMenuActions }));
   };
 
   onCustomActionClick = async (recordRef, action) => {
@@ -186,25 +219,6 @@ class InputView extends Component {
     return <AssocLink label={item.disp} asText={isSelectedValueAsText} {...props} className="select-journal__values-list-disp" />;
   }
 
-  renderCompactList = () => {
-    const { selectedRows, isCompact } = this.props;
-    const { targetId } = this.state;
-
-    if (!isCompact || isEmpty(selectedRows)) {
-      return null;
-    }
-
-    const compactValue = selectedRows.map(item => item.disp).join(', ');
-
-    return (
-      <Tooltip showAsNeeded target={targetId} uncontrolled text={compactValue} className="select-journal__values-list-tooltip">
-        <div id={targetId} className="select-journal__values-list_compact">
-          {compactValue}
-        </div>
-      </Tooltip>
-    );
-  };
-
   renderInlineTools = () => {
     const { editValue, deleteValue, selectedRows, hideEditRowButton, hideDeleteRowButton } = this.props;
     const { inlineToolsOffsets } = this.state;
@@ -244,10 +258,10 @@ class InputView extends Component {
     const {
       viewMode,
       disabled,
-      isCompact,
+      multiple,
+      onCreate,
       editValue,
       placeholder,
-      viewOnly,
       deleteValue,
       selectedRows,
       hideEditRowButton,
@@ -256,11 +270,7 @@ class InputView extends Component {
       selectedQueryInfo
     } = this.props;
 
-    const { aditionalButtons } = this.state;
-
-    if (isCompact) {
-      return null;
-    }
+    const { aditionalButtons, isOpenMenuActions, createVariants } = this.state;
 
     if (selectedQueryInfo) {
       return (
@@ -284,11 +294,16 @@ class InputView extends Component {
       );
     }
 
-    if (isEmpty(selectedRows)) {
+    if (isEmpty(selectedRows) && !multiple) {
       return (
-        <p className={classNames('select-journal__value-not-selected', { 'select-journal__value-not-selected_view-only': viewOnly })}>
-          {placeholder || t(Labels.PLACEHOLDER)}
-        </p>
+        <div className={classNames('select-journal__values-list', { multiple })}>
+          <div className="select-journal__values-list_text-content">
+            <span>{placeholder || t(Labels.PLACEHOLDER)}</span>
+            <span className="select-journal__values-list-actions_item" onClick={this.onClick}>
+              <ChevronRight width={14} height={14} />
+            </span>
+          </div>
+        </div>
       );
     }
 
@@ -308,36 +323,66 @@ class InputView extends Component {
     }
 
     return (
-      <ul className="select-journal__values-list">
+      <ul className={classNames('select-journal__values-list', { multiple, disabled })}>
         {selectedRows.map(item => (
-          <li key={item.id}>
+          <li className="select-journal__values-list_text-content" key={item.id}>
             {this.renderSelectedValue(item)}
 
             {!disabled && (
               <div className="select-journal__values-list-actions">
-                {!isEmpty(aditionalButtons[item.id]) &&
-                  aditionalButtons[item.id].map(button => (
-                    <span
-                      key={button.id}
-                      data-id={button.id}
-                      className={`icon ${button.icon}`}
-                      onClick={() => this.onCustomActionClick(item.id, button)}
-                    />
-                  ))}
-                {!(!item.canEdit || hideEditRowButton) && (
-                  <span data-id={item.id} className="icon icon-edit" onClick={() => editValue(item.id)} />
+                {!(!item.canEdit || hideEditRowButton) && multiple && (
+                  <span className="select-journal__values-list-actions_item" data-id={item.id} onClick={() => editValue(item.id)}>
+                    <Edit width={14} height={14} />
+                  </span>
                 )}
-                {!hideDeleteRowButton && <span data-id={item.id} className="icon icon-delete" onClick={() => deleteValue(item.id)} />}
+                {!hideDeleteRowButton && (
+                  <span className="select-journal__values-list-actions_item" data-id={item.id} onClick={() => deleteValue(item.id)}>
+                    <Close width={14} height={14} />
+                  </span>
+                )}
+                {!multiple && (
+                  <>
+                    <span className="select-journal__values-list-actions_item" onClick={this.onClick}>
+                      <ChevronRight width={14} height={14} />
+                    </span>
+                    {(!isEmpty(aditionalButtons[item.id]) || createVariants.length > 0) && (
+                      <span
+                        className={classNames('select-journal__values-list-actions_item', { active: isOpenMenuActions })}
+                        data-id={item.id}
+                        onClick={this.toggleIsOpenMenuActions}
+                      >
+                        <VerticalActions width={14} height={14} />
+                        {isOpenMenuActions && (
+                          <ul className="select-journal__values-list-actions-menu">
+                            {createVariants.length > 0 && <MenuCreateVariants items={createVariants} onCreateFormSubmit={onCreate} />}
+
+                            {aditionalButtons[item.id].map(button => (
+                              <li key={button.id} data-id={button.id} onClick={() => this.onCustomActionClick(item.id, button)}>
+                                {button.type === DebugFormAction.ACTION_ID ? <Debug /> : <span className={`icon ${button.icon}`} />}
+                                <p>{button.name}</p>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </span>
+                    )}
+                  </>
+                )}
               </div>
             )}
           </li>
         ))}
+        {!!multiple && !disabled && (
+          <li onClick={this.onClick} style={{ cursor: 'pointer' }}>
+            <Subtract />
+          </li>
+        )}
       </ul>
     );
   };
 
   renderActionButton() {
-    const { selectedRows, error, disabled, multiple, isCompact, autoFocus, hideActionButton } = this.props;
+    const { error, disabled, autoFocus, hideActionButton } = this.props;
 
     if (error || hideActionButton) {
       return null;
@@ -345,15 +390,13 @@ class InputView extends Component {
 
     return (
       <Btn
-        className={classNames('ecos-btn_blue ecos-btn_narrow', {
-          'select-journal__input-view-button_compact': isCompact
-        })}
+        className={classNames('ecos-btn_blue ecos-btn_narrow')}
         onClick={this.onClick}
         disabled={disabled}
         autoFocus={autoFocus}
         onBlur={this.onBlur}
       >
-        {isEmpty(selectedRows) ? t(Labels.INPUT_BTN_SELECT) : multiple ? t(Labels.INPUT_BTN_ADD) : t(Labels.INPUT_BTN_CHANGE)}
+        {this.textForModal}
       </Btn>
     );
   }
@@ -370,21 +413,13 @@ class InputView extends Component {
   }
 
   render() {
-    const { error, isCompact, className } = this.props;
-    const wrapperClasses = classNames('select-journal__input-view', { 'select-journal__input-view_compact': isCompact }, className);
+    const { error, className } = this.props;
+    const wrapperClasses = classNames('select-journal__input-view', className);
 
     return (
       <div className={wrapperClasses}>
         {this.renderList()}
-
         {error && <p className="select-journal__error">{error.message}</p>}
-
-        <div className="select-journal__actions">
-          {this.renderActionButton()}
-          {this.renderCustomButtons()}
-        </div>
-
-        {this.renderCompactList()}
       </div>
     );
   }

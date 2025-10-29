@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import React, { useContext } from 'react';
 
 import { AssocLink } from '../../../AssocLink';
@@ -7,10 +8,11 @@ import { SelectOrgstructContext } from '../../SelectOrgstructContext';
 import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, ViewModes } from '../../constants';
 import ViewMode from '../ViewMode';
 
-import { Tooltip } from '@/components/common';
 import { ROOT_GROUP_NAME } from '@/components/common/Orgstruct/constants';
 import Tags from '@/components/common/Tags';
-import { Btn } from '@/components/common/btns';
+import ChevronRight from '@/components/common/icons/ChevronRight';
+import Close from '@/components/common/icons/Close';
+import Subtract from '@/components/common/icons/Subtract';
 import { SourcesId } from '@/constants';
 import { createDocumentUrl, createProfileUrl, isNewVersionPage } from '@/helpers/urls';
 import { t } from '@/helpers/util';
@@ -27,19 +29,9 @@ const Labels = {
 
 const InputView = () => {
   const context = useContext(SelectOrgstructContext);
-  const { selectedRows, setSelectedRows, onChangeValue, error, toggleSelectModal, deleteSelectedItem, controlProps, targetId } = context;
-  const {
-    isCompact,
-    disabled,
-    multiple,
-    placeholder,
-    viewOnly,
-    renderView,
-    hideInputView,
-    isSelectedValueAsText,
-    isInlineEditingMode,
-    viewModeType
-  } = controlProps;
+  const { selectedRows, setSelectedRows, onChangeValue, error, toggleSelectModal, deleteSelectedItem, controlProps } = context;
+  const { disabled, multiple, placeholder, viewOnly, renderView, hideInputView, isSelectedValueAsText, isInlineEditingMode, viewModeType } =
+    controlProps;
 
   if (hideInputView) {
     return null;
@@ -53,10 +45,8 @@ const InputView = () => {
     return <ViewMode />;
   }
 
-  const placeholderText = placeholder ? placeholder : t(Labels.PLACEHOLDER);
-
-  const onClickDelete = e => {
-    deleteSelectedItem(e.target.dataset.id);
+  const onClickDelete = id => {
+    deleteSelectedItem(id);
   };
 
   const renderSelectedValue = item => {
@@ -86,41 +76,18 @@ const InputView = () => {
     );
   };
 
-  const renderCompactList = () => {
-    const compactValue = !!selectedRows && selectedRows.map(item => item.label).join(', ');
-
-    return compactValue ? (
-      <Tooltip showAsNeeded target={targetId} uncontrolled text={compactValue} className="select-orgstruct__values-list-tooltip">
-        <div id={targetId} className="select-orgstruct__values-list_compact">
-          {compactValue}
+  if (isEmpty(selectedRows) && !multiple) {
+    return (
+      <div className={classNames('select-orgstruct__values-list', { multiple })}>
+        <div className="select-orgstruct__values-list_text-content">
+          <span>{placeholder || t(Labels.PLACEHOLDER)}</span>
+          <span className="select-orgstruct__values-list-actions_item" onClick={toggleSelectModal}>
+            <ChevronRight width={14} height={14} />
+          </span>
         </div>
-      </Tooltip>
-    ) : null;
-  };
-
-  const valuesList = isCompact ? (
-    renderCompactList()
-  ) : (
-    <>
-      {selectedRows.length > 0 ? (
-        <ul className="select-orgstruct__values-list">
-          {selectedRows.map((item, idx) => (
-            <li key={item.id || idx}>
-              {renderSelectedValue(item)}
-              {disabled ? null : (
-                <div className="select-orgstruct__values-list-actions">
-                  {/*<span data-id={item.id} className={'icon icon-edit'} onClick={() => {}} />*/}
-                  <span data-id={item.id} className="icon icon-delete" onClick={onClickDelete} />
-                </div>
-              )}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="select-orgstruct__value-not-selected">{placeholderText}</p>
-      )}
-    </>
-  );
+      </div>
+    );
+  }
 
   if (viewModeType === ViewModes.TAGS) {
     return (
@@ -146,24 +113,33 @@ const InputView = () => {
   }
 
   return (
-    <div className={classNames('select-orgstruct__input-view', { 'select-orgstruct__input-view_compact': isCompact })}>
-      {isCompact ? null : valuesList}
+    <div className={classNames('select-orgstruct__input-view')}>
+      <ul className={classNames('select-orgstruct__values-list', { multiple, disabled })}>
+        {selectedRows.map((item, idx) => (
+          <li className="select-orgstruct__values-list_text-content" key={item.id || idx}>
+            {renderSelectedValue(item)}
+            {disabled ? null : (
+              <div className="select-orgstruct__values-list-actions">
+                <span className="select-orgstruct__values-list-actions_item" data-id={item.id} onClick={() => onClickDelete(item.id)}>
+                  <Close width={14} height={14} />
+                </span>
+                {!multiple && (
+                  <span className="select-orgstruct__values-list-actions_item" onClick={toggleSelectModal}>
+                    <ChevronRight width={14} height={14} />
+                  </span>
+                )}
+              </div>
+            )}
+          </li>
+        ))}
+        {!!multiple && !disabled && (
+          <li onClick={toggleSelectModal} style={{ cursor: 'pointer' }}>
+            <Subtract />
+          </li>
+        )}
+      </ul>
 
-      {error ? (
-        <p className="select-orgstruct__error">{error.message}</p>
-      ) : (
-        <div className="select-orgstruct__actions">
-          <Btn
-            className={classNames('ecos-btn_blue ecos-btn_narrow', { 'select-orgstruct__input-view-button_compact': isCompact })}
-            onClick={toggleSelectModal}
-            disabled={disabled}
-          >
-            {selectedRows.length > 0 ? (multiple ? t(Labels.BUTTON_ADD) : t(Labels.BUTTON_CHANGE)) : t(Labels.BUTTON_SELECT)}
-          </Btn>
-        </div>
-      )}
-
-      {isCompact ? valuesList : null}
+      {error && <p className="select-orgstruct__error">{error.message}</p>}
     </div>
   );
 };

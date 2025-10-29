@@ -5,8 +5,8 @@ import React, { Component } from 'react';
 import { PAGINATION_SIZES } from '../../Journals/constants';
 import { IcoBtn } from '../../common/btns';
 import Select from '../../common/form/Select';
-import ChevronLeft from '../icons/ChevronLeft';
-import ChevronRight from '../icons/ChevronRight';
+import ChevronLeft from '../icons/FillChevronLeft';
+import ChevronRight from '../icons/FillChevronRight';
 
 import { t } from '@/helpers/util';
 

@@ -503,6 +503,10 @@ export function getCurrentUserName() {
   return lodashGet(window, 'Citeck.constants.USERNAME', '');
 }
 
+export function getCurrentUser() {
+  return lodashGet(window, 'Citeck.constants.CURRENT_USER', '');
+}
+
 export function getEnabledWorkspaces() {
   return lodashGet(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
 }

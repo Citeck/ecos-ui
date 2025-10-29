@@ -1,8 +1,9 @@
 import isEmpty from 'lodash/isEmpty';
 
-import { SourcesId } from '../constants';
 import Records from '../components/Records';
+import { SourcesId } from '../constants';
 import { t } from '../helpers/util';
+
 import { CommonApi } from './common';
 
 export class UserApi extends CommonApi {
@@ -29,9 +30,9 @@ export class UserApi extends CommonApi {
     return Records.get(recordRef).load(this.attributes.thumbnail, true);
   };
 
-  getUserData = () => {
+  getUserData = (attrs = {}) => {
     return Records.get(SourcesId.CURRENT_USER)
-      .load({ ...this.attributes })
+      .load({ ...this.attributes, ...attrs })
       .then(result => {
         if (isEmpty(result)) {
           return {

@@ -9,7 +9,7 @@ import FormManager from '@/components/EcosForm/FormManager';
 import Records from '@/components/Records';
 import WorkspacePreview from '@/components/WorkspacePreview';
 import Confirm from '@/components/WorkspaceSidebar/Confirm';
-import Actions from '@/components/common/icons/Actions';
+import Actions from '@/components/common/icons/HorizontalActions';
 import { SourcesId } from '@/constants';
 import { t } from '@/helpers/util';
 import { selectWorkspaceIsLoadingAction } from '@/selectors/workspaces';

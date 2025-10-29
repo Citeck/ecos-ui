@@ -107,7 +107,8 @@ export default class Input extends Component {
   }
 
   render() {
-    const { getInputRef, className, autoSelect, forwardedRef, align, clear, narrow, needValidCheck, isValid, ...props } = this.props;
+    const { getInputRef, className, autoSelect, forwardedRef, align, clear, narrow, needValidCheck, isValid, children, ...props } =
+      this.props;
     const isValidClass = needValidCheck ? this.isValidClass() : '';
 
     return (
@@ -120,6 +121,7 @@ export default class Input extends Component {
           })}
         />
         {this.renderClearButton()}
+        {children}
       </div>
     );
   }
