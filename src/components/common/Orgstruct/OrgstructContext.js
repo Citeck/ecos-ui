@@ -19,6 +19,7 @@ import {
 
 import { OrgStructApi } from '@/api/orgStruct';
 import EcosFormUtils from '@/components/EcosForm/EcosFormUtils';
+import { Avatar } from '@/components/common/index';
 import { usePrevious } from '@/hooks';
 
 export const OrgstructContext = React.createContext();
@@ -486,7 +487,7 @@ export const OrgstructProvider = props => {
         renderListItem: item => {
           const authorityType = get(item, 'attributes.authorityType') || '';
 
-          if (authorityType === 'USER' && userMask) {
+          if (authorityType === 'USER' && userMask && !item.isSkipUserMask) {
             const usernameString = renderUsernameString(userMask, { ...(item.attributes || {}) });
             const plainText = EcosFormUtils.stripHTML(usernameString);
 
@@ -494,7 +495,20 @@ export const OrgstructProvider = props => {
               return <div title={plainText} dangerouslySetInnerHTML={{ __html: usernameString }} />;
             }
 
-            return <span title={usernameString}>{usernameString}</span>;
+            return (
+              <div className="select-orgstruct__list-item-container">
+                <Avatar
+                  className="select-orgstruct__list-item-photo"
+                  userName={usernameString}
+                  url={get(item, 'attributes.photo')}
+                  noBorder
+                  countSymbols={1}
+                />
+                <span className="select-orgstruct__list-item-label-person" title={usernameString}>
+                  {usernameString}
+                </span>
+              </div>
+            );
           }
 
           if (typeof renderListItem === 'function') {
@@ -503,14 +517,39 @@ export const OrgstructProvider = props => {
 
           if (item.extraLabel) {
             return (
-              <div title={authorityType === 'USER' ? item.label + ` (${item.extraLabel})` : ''}>
-                {item.label}
+              <div
+                className="select-orgstruct__list-item-container"
+                title={authorityType === 'USER' ? item.label + ` (${item.extraLabel})` : ''}
+              >
+                {authorityType === 'USER' && (
+                  <Avatar
+                    className="select-orgstruct__list-item-photo"
+                    userName={item.label}
+                    url={item.attributes.photo}
+                    noBorder
+                    countSymbols={1}
+                  />
+                )}
+                <span className="select-orgstruct__list-item-label-person">{item.label}</span>
                 <span className="select-orgstruct__list-item-label-extra">({item.extraLabel})</span>
               </div>
             );
           }
 
-          return <span title={authorityType === 'USER' ? item.label : ''}>{item.label}</span>;
+          return (
+            <div className="select-orgstruct__list-item-container" title={authorityType === 'USER' ? item.label : ''}>
+              {authorityType === 'USER' && (
+                <Avatar
+                  className="select-orgstruct__list-item-photo"
+                  userName={item.label}
+                  url={item.attributes.photo}
+                  noBorder
+                  countSymbols={1}
+                />
+              )}
+              <span className="select-orgstruct__list-item-label-person">{item.label}</span>
+            </div>
+          );
         },
 
         toggleSelectModal: () => {

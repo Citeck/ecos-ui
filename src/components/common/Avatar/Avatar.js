@@ -14,14 +14,16 @@ export default class Avatar extends React.Component {
     className: PropTypes.string,
     classNameEmpty: PropTypes.string,
     userName: PropTypes.string,
-    noBorder: PropTypes.bool
+    noBorder: PropTypes.bool,
+    countSymbols: PropTypes.number
   };
 
   static defaultProps = {
     url: '',
     className: '',
     classNameEmpty: '',
-    userName: ''
+    userName: '',
+    countSymbols: 2
   };
 
   state = { error: false };
@@ -58,7 +60,7 @@ export default class Avatar extends React.Component {
   };
 
   renderContent() {
-    const { url, userName, id } = this.props;
+    const { url, userName, id, countSymbols } = this.props;
 
     if (!this.empty) {
       return <img alt="avatar" id={id} src={url} className="ecos-avatar__image" ref={this.refImg} onError={this.onError} />;
@@ -67,7 +69,7 @@ export default class Avatar extends React.Component {
         <div id={id} className="ecos-avatar__name">
           {userName
             .split(' ')
-            .slice(0, 2)
+            .slice(0, countSymbols)
             .map(word => word[0])
             .join(' ')
             .toUpperCase()}

@@ -47,12 +47,18 @@ const Modal = () => {
       hideModal={toggleSelectModal}
       className="select-orgstruct-select-modal ecos-modal_width-sm"
     >
-      <div className="select-orgstruct-control-panel">
-        <Search />
-        {!hideTabSwitcher && <Tabs />}
-      </div>
+      {!hideTabSwitcher && (
+        <div className="select-orgstruct__tabs">
+          <Tabs />
+        </div>
+      )}
 
-      <Body />
+      <div className="select-orgstruct__content">
+        <div className="select-orgstruct-control-panel">
+          <Search />
+        </div>
+        <Body />
+      </div>
 
       {currentTab === TabTypes.USERS && (
         <Pagination

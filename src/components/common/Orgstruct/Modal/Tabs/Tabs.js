@@ -12,10 +12,6 @@ function getTabItems(isAllUsersGroupsExists, hasAuthorityTypeRoles = false) {
     {
       id: TabTypes.LEVELS,
       label: t('select-orgstruct.tab.by-levels')
-    },
-    {
-      id: TabTypes.SELECTED,
-      label: t('select-orgstruct.tab.only-selected')
     }
   ];
 

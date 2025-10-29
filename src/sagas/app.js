@@ -31,6 +31,7 @@ import { getMenuConfig, setMenuConfig } from '@/actions/menu';
 import { setNewUIAvailableStatus, validateUserFailure, validateUserSuccess } from '@/actions/user';
 import { detectMobileDevice, setViewNewJournal } from '@/actions/view';
 import { getWorkspaces, setBlockedCurrentWorkspace, setDefaultWorkspace } from '@/actions/workspaces';
+import { OrgStructApi } from '@/api/orgStruct';
 import { SourcesId, URL } from '@/constants';
 import { getWorkspaceId } from '@/helpers/urls';
 import { getCurrentUserName, getEnabledWorkspaces } from '@/helpers/util';
@@ -53,7 +54,7 @@ export function* initApp({ api }, { payload }) {
     try {
       const { query } = queryString.parseUrl(window.location.href);
 
-      const resp = yield call(api.user.getUserData);
+      const resp = yield call(api.user.getUserData, OrgStructApi.userAttributes);
       const configs = yield loadConfigs({
         [NEW_JOURNAL_ENABLED]: 'value?bool',
         [DEFAULT_WORKSPACE]: 'value?str',
@@ -96,6 +97,7 @@ export function* initApp({ api }, { payload }) {
         // TODO remove in future: see src/helpers/util.js getCurrentUserName()
         lodashSet(window, 'Citeck.constants.USERNAME', get(resp.payload, 'userName'));
         lodashSet(window, 'Citeck.constants.FIRSTNAME', get(resp.payload, 'firstName'));
+        lodashSet(window, 'Citeck.constants.CURRENT_USER', resp.payload);
         lodashSet(window, 'Citeck.navigator.WORKSPACES_ENABLED', configs[WORKSPACES_ENABLED]);
         lodashSet(window, 'Citeck.navigator.DEFAULT_WORKSPACE', configs[DEFAULT_WORKSPACE]);
         lodashSet(window, 'Citeck.constants.NEW_JOURNAL_ENABLED', isViewNewJournal);

@@ -28,7 +28,7 @@ export const SelectOrgstructProvider = props => {
     modalTitle,
     getFullData,
     defaultTab,
-    liveSearch,
+    liveSearch = true,
     hideTabSwitcher,
     renderListItem,
     userSearchExtraFields,

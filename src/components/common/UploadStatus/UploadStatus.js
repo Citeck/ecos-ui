@@ -10,10 +10,10 @@ import { t } from '../../../helpers/util';
 import { sendToWorker } from '../../../workers/docLib';
 import Btn from '../btns/Btn';
 import { Input, Radio } from '../form';
-import ChevronDown from '../icons/ChevronDown';
 import Close from '../icons/Close';
 import Error from '../icons/Error';
 import File from '../icons/File';
+import ChevronDown from '../icons/FillChevronDown';
 import Success from '../icons/Success';
 import { Loader } from '../index';
 

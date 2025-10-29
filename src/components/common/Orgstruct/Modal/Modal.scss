@@ -1,19 +1,49 @@
 @import '../../../../styles/constants';
 
-.select-orgstruct-select-modal__buttons {
-  margin-top: 15px;
-  display: flex;
-  justify-content: flex-end;
-
-  button {
-    margin-left: 15px;
+.select-orgstruct {
+  &-select-modal .modal-body {
+    padding: 0;
   }
-}
 
-.select-orgstruct-control-panel {
-  padding: 15px;
-  background: $color-gray-4;
-  border-radius: $border-radius-large;
+  &__content {
+    padding: 16px 24px 16px;
+  }
+
+  &__tabs {
+    border-top: 1px solid $color-gray-4;
+    border-bottom: 1px solid $color-gray-4;
+    padding: 0 24px;
+
+    & .ecos-tabs {
+      margin: 0;
+      padding-top: 12px;
+
+      & .ecos-tab {
+        margin: 0;
+        padding: 0 6px;
+        flex: initial;
+        line-height: 25px;
+
+        span {
+          padding: 0 12px;
+        }
+      }
+
+      & .ecos-tab_active::after {
+        background-color: var(--dark-primary-color);
+      }
+    }
+  }
+
+  &-select-modal__buttons {
+    padding: 0 24px 12px;
+    display: flex;
+    justify-content: flex-end;
+
+    button {
+      margin-left: 15px;
+    }
+  }
 }
 
 .authority-groups {

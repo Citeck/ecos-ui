@@ -1,20 +1,43 @@
 import React, { useContext } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 
-import { t } from '../../../../../helpers/util';
 import InfoText from '../../../InfoText';
 import Loader from '../../../Loader';
 import { OrgstructContext } from '../../OrgstructContext';
 
 import List from './List';
 
+import { TabTypes } from '@/components/common/Orgstruct/constants';
+import { handleResponse } from '@/components/common/form/SelectOrgstruct/helpers';
+import { SourcesId } from '@/constants';
+import { getCurrentUser, getCurrentUserName, t } from '@/helpers/util';
+
 import './Body.scss';
 
 const Body = () => {
   const context = useContext(OrgstructContext);
-  const { currentTab, tabItems, isSearching } = context;
+  const {
+    currentTab,
+    tabItems,
+    isSearching,
+    tabItems: { [TabTypes.SELECTED]: selectedItems = [] }
+  } = context;
+
+  const currentUserNodeRef = `${SourcesId.PERSON}@${getCurrentUserName()}`;
+  const selectedItemsId = selectedItems.map(item => item.id);
+  const orgstructCurrentUser = handleResponse({
+    ...getCurrentUser(),
+    nodeRef: currentUserNodeRef,
+    isSkipUserMask: true,
+    fullName: t('me')
+  })[0];
+
+  if (selectedItemsId.includes(currentUserNodeRef)) {
+    orgstructCurrentUser.isSelected = true;
+  }
 
   const children = tabItems[currentTab].filter(i => !i.parentId);
+  const foundCurrentUser = children.find(item => item.id === orgstructCurrentUser.id);
 
   return (
     <div className="select-orgstruct__body">
@@ -22,7 +45,7 @@ const Body = () => {
         <div className="select-orgstruct__list-wrapper">
           {isSearching && <Loader blur />}
           {!children.length && !isSearching && <InfoText text={t('select-orgstruct.empty-list')} />}
-          <List items={children} />
+          <List items={foundCurrentUser ? children : [orgstructCurrentUser, ...children]} />
         </div>
       </Scrollbars>
     </div>
