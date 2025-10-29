@@ -2,10 +2,11 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import { goToCardDetailsPage } from '../../../helpers/urls';
+import { PRE_SETTINGS_TYPES, PreSettings } from '../../PreSettings';
 import Records from '../../Records/Records';
 import { PERMISSION_WRITE_ATTR } from '../../Records/constants';
-import { PRE_SETTINGS_TYPES, PreSettings } from '../../PreSettings';
 import EcosFormLocaleEditor from '../locale/FormLocaleEditorModal';
+
 import EcosFormBuilder from './EcosFormBuilderModal';
 
 let formPanelIdx = 0;
@@ -133,6 +134,7 @@ export class EcosFormBuilderUtils {
       document.body.appendChild(container);
 
       const componentInstance = React.createElement(component, reactProps);
+      // eslint-disable-next-line react/no-deprecated
       const editor = ReactDOM.render(componentInstance, container);
 
       builders[componentKey] = editor;
