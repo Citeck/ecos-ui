@@ -68,6 +68,7 @@ const Modal = () => {
           hasPageSize
           sizes={PAGINATION_SIZES}
           onChange={onChangePage}
+          className="select-orgstruct-select-modal__paginations"
         />
       )}
 
