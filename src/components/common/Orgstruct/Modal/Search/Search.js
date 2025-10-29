@@ -35,6 +35,10 @@ const Search = () => {
   const isMoreSelectedItems = selectedItems.length > 1;
 
   useEffect(() => {
+    if (inputRef.current && typeof inputRef.current.focus === 'function') {
+      inputRef.current.focus();
+    }
+
     document.addEventListener('click', closeIsOpenOtherUsersMenu);
     return () => document.removeEventListener('click', closeIsOpenOtherUsersMenu);
   }, []);
@@ -141,7 +145,9 @@ const Search = () => {
       >
         <Icon className="icon icon-search select-orgstruct__search-icon" onClick={onSearchIconClick} />
         <Input
-          getInputRef={el => (inputRef.current = el.current)}
+          getInputRef={el => {
+            inputRef.current = el?.current ?? el;
+          }}
           placeholder={t(Labels.PLACEHOLDER)}
           onKeyDown={onKeyDown}
           className="select-orgstruct__search-input"
