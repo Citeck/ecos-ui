@@ -21,6 +21,36 @@
   margin-bottom: 0;
   overflow: hidden;
   width: 100%;
+
+  & .select-journal__values-list {
+    padding: 1px 8px;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    min-height: auto;
+
+    &-actions {
+      right: 2% !important;
+      top: calc(50% - 8px) !important;
+
+      &_item {
+        & > svg {
+          width: 12px !important;
+        }
+      }
+    }
+
+    &_text-content {
+      padding: 2px 4px !important;
+      overflow: hidden;
+      min-width: 31px;
+    }
+
+    svg {
+      width: 16px;
+      height: 100%;
+      margin-bottom: 2px;
+    }
+  }
 }
 
 .select-journal_view-only {

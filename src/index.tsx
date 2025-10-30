@@ -77,8 +77,10 @@ setDefaultLocale(currentLocale);
 const { api, setNotAuthCallback } = configureAPI();
 export const store = configureStore({ api });
 const history: History = getHistory();
-const setAuthStatus = () => {
-  store.dispatch(setIsAuthenticated(false));
+const setAuthStatus = (status?: boolean) => {
+  if (!status) {
+    store.dispatch(setIsAuthenticated(false));
+  }
 };
 
 setNotAuthCallback(setAuthStatus);
@@ -97,6 +99,10 @@ const runApp = () => {
   store.dispatch(
     initAppRequest({
       onSuccess: (isAuthenticated: boolean) => {
+        if (isAuthenticated && allowedModes.includes(process.env.NODE_ENV)) {
+          emitter.emit(RESET_AUTH_STATE_EVENT, true);
+        }
+
         store.dispatch(
           loadThemeRequest({
             isAuthenticated,

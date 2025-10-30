@@ -77,7 +77,11 @@ const preOptimizeDepsLibs = [
   'dompurify',
   'chart.js',
   'react-chartjs-2',
-  'chartjs-plugin-datalabels'
+  'chartjs-plugin-datalabels',
+  'vite-plugin-node-polyfills/shims/buffer',
+  'vite-plugin-node-polyfills/shims/global',
+  'vite-plugin-node-polyfills/shims/process',
+  'events'
 ];
 
 export default defineConfig(({ mode }) => {

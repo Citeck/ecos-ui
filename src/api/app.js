@@ -36,8 +36,8 @@ export class AppApi extends CommonApi {
   constructor() {
     super();
 
-    emitter.on(RESET_AUTH_STATE_EVENT, () => {
-      this.#isAuthenticated = false;
+    emitter.on(RESET_AUTH_STATE_EVENT, status => {
+      this.#isAuthenticated = status;
     });
   }
 

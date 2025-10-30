@@ -4,6 +4,7 @@ import uniqueId from 'lodash/uniqueId';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 
+import { Tooltip } from '../../../../common';
 import { Btn, IcoBtn } from '../../../../common/btns';
 import { Grid } from '../../../../common/grid';
 import InlineToolsDisconnected from '../../../grid/InlineTools/InlineToolsDisconnected';
@@ -29,13 +30,15 @@ import './InputView.scss';
 
 class InputView extends Component {
   #toolsRef = React.createRef();
+  menuRef = React.createRef();
 
   state = {
     aditionalButtons: [],
     createVariants: [],
     inlineToolsOffsets: { row: {} },
     targetId: uniqueId('SelectJournal'),
-    isOpenMenuActions: false
+    isOpenMenuActions: false,
+    isFlipped: false
   };
 
   gridWrapperRef = null;
@@ -55,11 +58,30 @@ class InputView extends Component {
     }
   }
 
+  checkFlip() {
+    const el = this.menuRef.current;
+    if (!el) {
+      return;
+    }
+
+    const rect = el.getBoundingClientRect();
+    const spaceRight = window.innerWidth - rect.right;
+    const required = 200;
+    const shouldFlip = spaceRight < required;
+    if (shouldFlip !== this.state.isFlipped && !this.state.isFlipped) {
+      this.setState({ isFlipped: shouldFlip });
+    }
+  }
+
   componentDidUpdate(prevProps, _prevState) {
     const { customActionRefs, selectedRows } = this.props;
 
     if (!isEmpty(customActionRefs) && prevProps.selectedRows !== selectedRows) {
       this.fetchActionButtons(selectedRows.map(row => row.id));
+    }
+
+    if (this.state.isOpenMenuActions && !_prevState.isOpenMenuActions) {
+      this.checkFlip();
     }
   }
 
@@ -219,6 +241,25 @@ class InputView extends Component {
     return <AssocLink label={item.disp} asText={isSelectedValueAsText} {...props} className="select-journal__values-list-disp" />;
   }
 
+  renderCompactList = () => {
+    const { selectedRows, isCompact } = this.props;
+    const { targetId } = this.state;
+
+    if (!isCompact || isEmpty(selectedRows)) {
+      return null;
+    }
+
+    const compactValue = selectedRows.map(item => item.disp).join(', ');
+
+    return (
+      <Tooltip showAsNeeded target={targetId} uncontrolled text={compactValue} className="select-journal__values-list-tooltip">
+        <div id={targetId} className="select-journal__values-list_compact">
+          {compactValue}
+        </div>
+      </Tooltip>
+    );
+  };
+
   renderInlineTools = () => {
     const { editValue, deleteValue, selectedRows, hideEditRowButton, hideDeleteRowButton } = this.props;
     const { inlineToolsOffsets } = this.state;
@@ -267,10 +308,15 @@ class InputView extends Component {
       hideEditRowButton,
       hideDeleteRowButton,
       gridData,
+      isCompact,
       selectedQueryInfo
     } = this.props;
 
-    const { aditionalButtons, isOpenMenuActions, createVariants } = this.state;
+    const { aditionalButtons, isOpenMenuActions, createVariants, isFlipped } = this.state;
+
+    if (isCompact) {
+      return null;
+    }
 
     if (selectedQueryInfo) {
       return (
@@ -323,7 +369,7 @@ class InputView extends Component {
     }
 
     return (
-      <ul className={classNames('select-journal__values-list', { multiple, disabled })}>
+      <ul className={classNames('select-journal__values-list', { multiple, disabled })} onClick={this.onClick}>
         {selectedRows.map(item => (
           <li className="select-journal__values-list_text-content" key={item.id}>
             {this.renderSelectedValue(item)}
@@ -342,7 +388,7 @@ class InputView extends Component {
                 )}
                 {!multiple && (
                   <>
-                    <span className="select-journal__values-list-actions_item" onClick={this.onClick}>
+                    <span className="select-journal__values-list-actions_item select-journal_action_open-modal" onClick={this.onClick}>
                       <ChevronRight width={14} height={14} />
                     </span>
                     {(!isEmpty(aditionalButtons[item.id]) || createVariants.length > 0) && (
@@ -353,7 +399,7 @@ class InputView extends Component {
                       >
                         <VerticalActions width={14} height={14} />
                         {isOpenMenuActions && (
-                          <ul className="select-journal__values-list-actions-menu">
+                          <ul ref={this.menuRef} className={classNames('select-journal__values-list-actions-menu', { flip: isFlipped })}>
                             {createVariants.length > 0 && <MenuCreateVariants items={createVariants} onCreateFormSubmit={onCreate} />}
 
                             {aditionalButtons[item.id].map(button => (
@@ -413,13 +459,23 @@ class InputView extends Component {
   }
 
   render() {
-    const { error, className } = this.props;
+    const { error, className, isCompact } = this.props;
     const wrapperClasses = classNames('select-journal__input-view', className);
 
     return (
       <div className={wrapperClasses}>
         {this.renderList()}
+
         {error && <p className="select-journal__error">{error.message}</p>}
+
+        {isCompact && (
+          <div className="select-journal__actions">
+            {this.renderActionButton()}
+            {this.renderCustomButtons()}
+          </div>
+        )}
+
+        {this.renderCompactList()}
       </div>
     );
   }
