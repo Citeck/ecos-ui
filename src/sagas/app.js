@@ -141,7 +141,7 @@ export function* initApp({ api }, { payload }) {
     yield put(detectMobileDevice());
     yield put(initAppSuccess());
 
-    if (isError) {
+    if (hasError) {
       yield put(initAppFailure());
     }
 
