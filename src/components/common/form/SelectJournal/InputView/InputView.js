@@ -460,7 +460,7 @@ class InputView extends Component {
 
   render() {
     const { error, className, isCompact } = this.props;
-    const wrapperClasses = classNames('select-journal__input-view', className);
+    const wrapperClasses = classNames('select-journal__input-view', { 'select-journal__input-view_compact': isCompact }, className);
 
     return (
       <div className={wrapperClasses}>

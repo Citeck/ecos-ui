@@ -199,7 +199,6 @@
 .select-journal__actions {
   display: flex;
   flex-direction: row;
-  width: 50%;
 
   .ecos-btn_blue {
     flex: auto;
@@ -252,3 +251,10 @@
 .select-journal__input-view-button_compact {
   flex-shrink: 0;
 }
+
+.select-journal__input-view_compact {
+  display: flex;
+  line-height: 26px;
+  max-width: 350px;
+}
+
