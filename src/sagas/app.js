@@ -91,7 +91,7 @@ export function* initApp({ api }, { payload }) {
       }
 
       if (!resp.success) {
-        isError = true;
+        hasError = true;
         yield put(validateUserFailure());
       } else {
         isAuthenticated = true;
@@ -119,17 +119,17 @@ export function* initApp({ api }, { payload }) {
         }
       }
 
-      const isNewUIAvailable = true;
-
-      yield put(setNewUIAvailableStatus(isNewUIAvailable));
+      yield put(setNewUIAvailableStatus(true));
 
       const isForceOldUserDashboardEnabled = yield call(api.app.isForceOldUserDashboardEnabled);
 
-      yield put(setRedirectToNewUi(!isForceOldUserDashboardEnabled));
+      if (!hasError) {
+        yield put(setRedirectToNewUi(!isForceOldUserDashboardEnabled));
 
-      const homeLink = yield ConfigService.getValue(HOME_LINK_URL);
+        const homeLink = yield ConfigService.getValue(HOME_LINK_URL);
 
-      yield put(setHomeLink(homeLink));
+        yield put(setHomeLink(homeLink));
+      }
     } catch (e) {
       if (e.message === 'User is disabled') {
         alert('User is disabled');
@@ -139,10 +139,11 @@ export function* initApp({ api }, { payload }) {
     }
 
     yield put(detectMobileDevice());
-    yield put(initAppSuccess());
 
     if (hasError) {
       yield put(initAppFailure());
+    } else {
+      yield put(initAppSuccess());
     }
 
     payload && isFunction(payload.onRender) && payload.onRender(isAuthenticated);
@@ -176,10 +177,34 @@ export function* sagaRedirectToLoginPage({ api }) {
     }
 
     if (!url) {
-      window.location.reload();
+      const reloadCount = parseInt(sessionStorage.getItem('loginRedirectReloadCount') || '0', 10);
+      const maxReloadAttempts = 3;
+
+      if (reloadCount < maxReloadAttempts) {
+        sessionStorage.setItem('loginRedirectReloadCount', (reloadCount + 1).toString());
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      } else {
+        sessionStorage.removeItem('loginRedirectReloadCount');
+        console.error('[app saga] Maximum reload attempts reached. Unable to redirect to login page.');
+      }
     }
   } catch (e) {
     console.error('[app saga] sagaRedirectToLoginPage error', e);
+
+    const reloadCount = parseInt(sessionStorage.getItem('loginRedirectReloadCount') || '0', 10);
+    const maxReloadAttempts = 3;
+
+    if (reloadCount < maxReloadAttempts) {
+      sessionStorage.setItem('loginRedirectReloadCount', (reloadCount + 1).toString());
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    } else {
+      sessionStorage.removeItem('loginRedirectReloadCount');
+    }
   }
 }
 

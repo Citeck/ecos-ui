@@ -34,7 +34,7 @@ export class UserApi extends CommonApi {
     return Records.get(SourcesId.CURRENT_USER)
       .load({ ...this.attributes, ...attrs })
       .then(result => {
-        if (isEmpty(result)) {
+        if (isEmpty(result.authorityName)) {
           return {
             success: false
           };
@@ -48,7 +48,10 @@ export class UserApi extends CommonApi {
             recordRef: `${SourcesId.PERSON}@${result.authorityName}`
           }
         };
-      });
+      })
+      .catch(_error => ({
+        success: false
+      }));
   };
 
   isUserAdmin = () => {
