@@ -147,7 +147,7 @@ const CONFIG_PROPS = {
   [TOUCH_CONFIG]: {
     defaultValue: {
       enabled: true,
-      uri: `${CITECK_URI}ecos/touch`
+      uri: `/gateway/api/gateway/touch`
     }
   }
 };
