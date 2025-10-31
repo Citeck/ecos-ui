@@ -98,7 +98,7 @@ window.Citeck.Base64 = Base64;
 const runApp = () => {
   store.dispatch(
     initAppRequest({
-      onSuccess: (isAuthenticated: boolean) => {
+      onRender: (isAuthenticated: boolean) => {
         if (isAuthenticated && allowedModes.includes(process.env.NODE_ENV)) {
           emitter.emit(RESET_AUTH_STATE_EVENT, true);
         }
@@ -106,7 +106,7 @@ const runApp = () => {
         store.dispatch(
           loadThemeRequest({
             isAuthenticated,
-            onSuccess: () => {
+            onRender: () => {
               i18nInit({ debug: allowedModes.includes(process.env.NODE_ENV) }).then(() => {
                 createRoot(document.getElementById('root') as HTMLElement).render(
                   <Provider store={store}>

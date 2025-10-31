@@ -1,3 +1,4 @@
+import { isError } from 'lodash';
 import get from 'lodash/get';
 import isBoolean from 'lodash/isBoolean';
 import isFunction from 'lodash/isFunction';
@@ -50,6 +51,7 @@ import { loadConfigs } from '@/services/config/configApi';
 export function* initApp({ api }, { payload }) {
   try {
     let isAuthenticated = false;
+    let hasError = false;
 
     try {
       const { query } = queryString.parseUrl(window.location.href);
@@ -89,6 +91,7 @@ export function* initApp({ api }, { payload }) {
       }
 
       if (!resp.success) {
+        isError = true;
         yield put(validateUserFailure());
       } else {
         isAuthenticated = true;
@@ -138,7 +141,11 @@ export function* initApp({ api }, { payload }) {
     yield put(detectMobileDevice());
     yield put(initAppSuccess());
 
-    payload && isFunction(payload.onSuccess) && payload.onSuccess(isAuthenticated);
+    if (isError) {
+      yield put(initAppFailure());
+    }
+
+    payload && isFunction(payload.onRender) && payload.onRender(isAuthenticated);
   } catch (e) {
     console.error('[app saga] initApp error', e);
     yield put(initAppFailure());

@@ -42,6 +42,7 @@ import PageTabList from '@/services/pageTabs/PageTabList';
 import UserLocalSettingsService from '@/services/userLocalSettings';
 
 import './App.scss';
+import Server from '../common/icons/Server';
 
 const allowedLinks = [
   Urls.DASHBOARD,
@@ -479,16 +480,27 @@ class App extends Component {
       return null;
     }
 
-    if (isInitFailure) {
-      // TODO: Crash app component
-      return null;
-    }
-
     const appClassNames = classNames('app-container', { mobile: isMobile, new: isViewNewJournal });
     const basePageClassNames = classNames('app-content ecos-base-page', {
       'ecos-base-page_headless': this.isOnlyContent,
       'ecos-base-page__new': isViewNewJournal,
     });
+
+    if (isInitFailure) {
+      return (
+        <div className={appClassNames}>
+          {this.renderReduxModal()}
+
+          <div className="ecos-sticky-wrapper app-error">
+            <Server width={400} height={250}/>
+
+            <h2>{t('server.connection.error.title')}</h2>
+            <p>{t('server.connection.error.message')}</p>
+          </div>
+          <NotificationContainer />
+        </div>
+      );
+    }
 
     return (
       <ErrorBoundary title={t('page.error-loading.title')} message={t('page.error-loading.message')}>

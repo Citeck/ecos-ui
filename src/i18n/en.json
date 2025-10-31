@@ -32,6 +32,8 @@
   "variable-not-found": "Variable \"{{var}}\" not found",
 
   "server-error-occurred-with-code": "Server error occurred. Error code: {{code}}",
+  "server.connection.error.title": "Server connection error",
+  "server.connection.error.message": "Failed to connect to the server. Please check your internet connection and try again.",
 
   "page.error-loading.title": "The error occurred while loading the page",
   "page.error-loading.message": "Try reloading the page. If the error persists, contact your administrator",

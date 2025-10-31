@@ -15,7 +15,7 @@ export function* doDetectMobileDevice() {
 
 export function* loadTheme({ api }, { payload }) {
   try {
-    const { isAuthenticated, onSuccess } = payload;
+    const { isAuthenticated, onRender } = payload;
     const id = yield call(api.view.getActiveThemeId);
     const cacheKeys = yield call(api.view.getThemeCacheKeys);
     const themeConfig = { id, cacheKeys };
@@ -27,12 +27,13 @@ export function* loadTheme({ api }, { payload }) {
     }
 
     yield put(setThemeConfig(themeConfig));
-
     yield put(setTheme(id));
+
     yield call(applyTheme, id);
 
     const stylesheetUrl = yield select(selectActiveThemeStylesheet);
-    yield call(loadStylesheet, stylesheetUrl, onSuccess, onSuccess);
+
+    yield call(loadStylesheet, stylesheetUrl, onRender, onRender);
   } catch (e) {
     console.error('[loadTheme saga] error', e);
   }
