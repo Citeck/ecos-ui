@@ -794,6 +794,7 @@ export default function sortableContainer(WrappedComponent, config = { withRef: 
       const { getContainer } = this.props;
 
       if (typeof getContainer !== 'function') {
+        // eslint-disable-next-line react/no-find-dom-node
         return findDOMNode(this);
       }
 

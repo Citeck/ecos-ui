@@ -5,7 +5,7 @@ import Records from '../../Records/Records';
 
 import { SourcesId } from '@/constants';
 import { getWorkspaceId } from '@/helpers/urls';
-import { getEnabledWorkspaces } from '@/helpers/util.js';
+import { getEnabledWorkspaces } from '@/helpers/util';
 import AuthorityService from '@/services/authrority/AuthorityService';
 
 class JournalsServiceApi {

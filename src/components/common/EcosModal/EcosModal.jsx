@@ -11,7 +11,7 @@ import Icon from '../icons/Icon';
 
 import Modal from './ModalDraggable';
 
-import { getMLValue, isMobileDevice, t, trigger } from '@/helpers/util.js';
+import { getMLValue, isMobileDevice, t, trigger } from '@/helpers/util';
 import ZIndex from '@/services/ZIndex';
 
 import './EcosModal.scss';

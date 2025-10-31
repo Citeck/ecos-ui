@@ -16,7 +16,7 @@ import { overrideTriggerChange } from '../misc';
 import LexicalEditor from '@/components/LexicalEditor';
 import { t } from '@/helpers/export/util';
 import { updateEditorContent } from '@/helpers/lexical';
-import ESMRequire from '@/services/ESMRequire.js';
+import ESMRequire from '@/services/ESMRequire';
 import UploadDocsRefService from '@/services/uploadDocsRefsStore';
 import { getStore } from '@/store';
 

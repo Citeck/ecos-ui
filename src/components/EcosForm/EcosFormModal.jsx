@@ -15,7 +15,7 @@ import EcosForm from './EcosForm';
 import EcosFormUtils from './EcosFormUtils';
 import { FORM_MODE_EDIT } from './constants';
 
-import { emitter, RESET_AUTH_STATE_EVENT } from '@/helpers/ecosFetch.js';
+import { emitter, RESET_AUTH_STATE_EVENT } from '@/helpers/ecosFetch';
 
 import './EcosFormModal.scss';
 

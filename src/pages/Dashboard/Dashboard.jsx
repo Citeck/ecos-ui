@@ -19,7 +19,7 @@ import {
   setWarningMessage
 } from '@/actions/dashboard';
 import { saveMenuConfig } from '@/actions/menu';
-import { deleteTab } from '@/actions/pageTabs.js';
+import { deleteTab } from '@/actions/pageTabs';
 import { DndUtils } from '@/components/Drag-n-Drop';
 import Layout from '@/components/Layout';
 import TopMenu from '@/components/Layout/TopMenu';
@@ -29,7 +29,7 @@ import { Loader, ScrollArrow, Tabs } from '@/components/common';
 import TitlePageLoader from '@/components/common/TitlePageLoader';
 import DialogManager from '@/components/common/dialogs/Manager';
 import { Badge } from '@/components/common/form';
-import Components, { ComponentKeys } from '@/components/widgets/Components.js';
+import Components, { ComponentKeys } from '@/components/widgets/Components';
 import { DocStatus } from '@/components/widgets/DocStatus';
 import { LoaderTypes, URL } from '@/constants';
 import { DashboardTypes } from '@/constants/dashboard';

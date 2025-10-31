@@ -6,9 +6,9 @@ import Input from '../../../form/Input';
 import Icon from '../../../icons/Icon';
 import { OrgstructContext } from '../../OrgstructContext';
 
+import { Avatar } from '@/components/common';
 import { TabTypes } from '@/components/common/Orgstruct/constants';
 import ChevronDown from '@/components/common/icons/ChevronDown';
-import { Avatar } from '@/components/common/index.js';
 import { t } from '@/helpers/util';
 
 import './Search.scss';

@@ -4,7 +4,7 @@ import FormatterRegistry from './FormatterRegistry';
 import { getAllFormattersModules } from './utils';
 const formatterRegistry = new FormatterRegistry();
 
-const modules = import.meta.glob('./**/*Formatter.js', { eager: true });
+const modules = import.meta.glob('./**/*Formatter.{ts,tsx,js,jsx}', { eager: true });
 const formatterModules = getAllFormattersModules(modules);
 
 for (const FormatterModule of formatterModules) {

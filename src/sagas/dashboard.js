@@ -26,8 +26,8 @@ import { selectNewVersionConfig, selectSelectedWidgetsById } from '../selectors/
 import { selectCurrentWorkspaceIsBlocked, selectWorkspaces } from '../selectors/workspaces';
 import DashboardService from '../services/dashboard';
 
-import { ComponentKeys } from '@/components/widgets/Components.js';
-import { getWorkspaceId } from '@/helpers/urls.js';
+import { ComponentKeys } from '@/components/widgets/Components';
+import { getWorkspaceId } from '@/helpers/urls';
 import { NotificationManager } from '@/services/notifications';
 
 export function* _parseConfig({ api }, { recordRef, config }) {

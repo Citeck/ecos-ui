@@ -1,7 +1,8 @@
 import babel from '@rollup/plugin-babel';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
+import react from '@vitejs/plugin-react';
 import path from 'path';
-import { defineConfig, transformWithEsbuild, loadEnv } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
@@ -81,7 +82,8 @@ const preOptimizeDepsLibs = [
   'vite-plugin-node-polyfills/shims/buffer',
   'vite-plugin-node-polyfills/shims/global',
   'vite-plugin-node-polyfills/shims/process',
-  'events'
+  'events',
+  'tooltip.js'
 ];
 
 export default defineConfig(({ mode }) => {
@@ -153,6 +155,7 @@ export default defineConfig(({ mode }) => {
       ]
     },
     plugins: [
+      react(),
       svelte(),
       nodePolyfills({
         include: ['crypto', 'events']
@@ -166,25 +169,12 @@ export default defineConfig(({ mode }) => {
         plugins: ['@babel/plugin-transform-flow-strip-types'],
         presets: [['@babel/preset-react', { runtime: 'automatic' }]]
       }),
-      {
-        name: 'treat-js-files-as-jsx',
-        async transform(code, id) {
-          if (!id.match(/src\/.*\.js$/)) return null;
-          return transformWithEsbuild(code, id, {
-            loader: 'jsx',
-            jsx: 'automatic'
-          });
-        }
-      },
       tsconfigPaths()
     ],
     optimizeDeps: {
       include: preOptimizeDepsLibs,
       esbuildOptions: {
-        target: 'es2020',
-        loader: {
-          '.js': 'jsx'
-        }
+        target: 'es2020'
       }
     },
     css: {

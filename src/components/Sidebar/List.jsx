@@ -10,7 +10,7 @@ import Item from './Item';
 import { toggleExpanded } from '@/actions/slideMenu';
 import { MenuApi } from '@/api/menu';
 import { HiddenItemsMobile } from '@/constants/sidebar';
-import { getWorkspaceId } from '@/helpers/urls.js';
+import { getWorkspaceId } from '@/helpers/urls';
 import { getMLValue } from '@/helpers/util';
 import SidebarService from '@/services/sidebar';
 

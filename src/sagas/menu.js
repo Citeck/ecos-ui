@@ -1,7 +1,7 @@
-import get from 'lodash/get.js';
+import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-import isString from 'lodash/isString.js';
-import set from 'lodash/set.js';
+import isString from 'lodash/isString';
+import set from 'lodash/set';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 
 import { getMenuConfig, saveMenuConfig, setMenuConfig, setRequestResultMenuConfig } from '../actions/menu';

@@ -2,9 +2,9 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 import React from 'react';
 
-import { getLinkWithWs, getWorkspaceId } from '@/helpers/urls.js';
+import { getLinkWithWs, getWorkspaceId } from '@/helpers/urls';
 import PageService from '@/services/PageService';
-import PageTabList from '@/services/pageTabs/PageTabList.js';
+import PageTabList from '@/services/pageTabs/PageTabList';
 
 import './style.scss';
 
