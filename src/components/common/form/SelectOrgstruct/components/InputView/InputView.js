@@ -8,8 +8,10 @@ import { SelectOrgstructContext } from '../../SelectOrgstructContext';
 import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, ViewModes } from '../../constants';
 import ViewMode from '../ViewMode';
 
+import { Tooltip } from '@/components/common';
 import { ROOT_GROUP_NAME } from '@/components/common/Orgstruct/constants';
 import Tags from '@/components/common/Tags';
+import { Btn } from '@/components/common/btns';
 import ChevronRight from '@/components/common/icons/ChevronRight';
 import Close from '@/components/common/icons/Close';
 import Subtract from '@/components/common/icons/Subtract';
@@ -29,9 +31,19 @@ const Labels = {
 
 const InputView = () => {
   const context = useContext(SelectOrgstructContext);
-  const { selectedRows, setSelectedRows, onChangeValue, error, toggleSelectModal, deleteSelectedItem, controlProps } = context;
-  const { disabled, multiple, placeholder, viewOnly, renderView, hideInputView, isSelectedValueAsText, isInlineEditingMode, viewModeType } =
-    controlProps;
+  const { selectedRows, setSelectedRows, onChangeValue, error, toggleSelectModal, deleteSelectedItem, controlProps, targetId } = context;
+  const {
+    isCompact,
+    disabled,
+    multiple,
+    placeholder,
+    viewOnly,
+    renderView,
+    hideInputView,
+    isSelectedValueAsText,
+    isInlineEditingMode,
+    viewModeType
+  } = controlProps;
 
   if (hideInputView) {
     return null;
@@ -109,6 +121,40 @@ const InputView = () => {
         exception={[`${SourcesId.GROUP}@${ROOT_GROUP_NAME}`]}
         disabled={disabled}
       />
+    );
+  }
+
+  const renderCompactList = () => {
+    const compactValue = !!selectedRows && selectedRows.map(item => item.label).join(', ');
+
+    return compactValue ? (
+      <Tooltip showAsNeeded target={targetId} uncontrolled text={compactValue} className="select-orgstruct__values-list-tooltip">
+        <div id={targetId} className="select-orgstruct__values-list_compact">
+          {compactValue}
+        </div>
+      </Tooltip>
+    ) : null;
+  };
+
+  if (isCompact) {
+    return (
+      <div className="select-orgstruct__input-view select-orgstruct__input-view_compact">
+        {error ? (
+          <p className="select-orgstruct__error">{error.message}</p>
+        ) : (
+          <div className="select-orgstruct__actions">
+            <Btn
+              className="ecos-btn_blue ecos-btn_narrow select-orgstruct__input-view-button_compact"
+              onClick={toggleSelectModal}
+              disabled={disabled}
+            >
+              {selectedRows.length > 0 ? (multiple ? t(Labels.BUTTON_ADD) : t(Labels.BUTTON_CHANGE)) : t(Labels.BUTTON_SELECT)}
+            </Btn>
+          </div>
+        )}
+
+        {renderCompactList()}
+      </div>
     );
   }
 

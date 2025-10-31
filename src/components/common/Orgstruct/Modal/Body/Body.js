@@ -20,6 +20,7 @@ const Body = () => {
     currentTab,
     tabItems,
     isSearching,
+    searchText,
     tabItems: { [TabTypes.SELECTED]: selectedItems = [] }
   } = context;
 
@@ -37,7 +38,6 @@ const Body = () => {
   }
 
   const children = tabItems[currentTab].filter(i => !i.parentId);
-  const foundCurrentUser = children.find(item => item.id === orgstructCurrentUser.id);
 
   return (
     <div className="select-orgstruct__body">
@@ -45,7 +45,7 @@ const Body = () => {
         <div className="select-orgstruct__list-wrapper">
           {isSearching && <Loader blur />}
           {!children.length && !isSearching && <InfoText text={t('select-orgstruct.empty-list')} />}
-          <List items={foundCurrentUser ? children : [orgstructCurrentUser, ...children]} />
+          <List items={!!searchText || !children.length ? children : [orgstructCurrentUser, ...children]} />
         </div>
       </Scrollbars>
     </div>

@@ -3,7 +3,7 @@ import { IWorkspaceApi } from '@/api/workspaces';
 
 export type ConfigureAPIType = {
   api: ApiType;
-  setNotAuthCallback: (callback: () => void) => void;
+  setNotAuthCallback: (callback: (status?: boolean) => void) => void;
 };
 
 export type ApiType = {

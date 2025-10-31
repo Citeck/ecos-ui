@@ -202,7 +202,7 @@ export const OrgstructProvider = props => {
     setPagination({ ...pagination, page: 1, maxCount: 0 });
   };
 
-  const liveSearchDebounce = debounce(onUpdateTree, 500);
+  const liveSearchDebounce = debounce(onUpdateTree, 1500);
 
   const handleOpenedItems = (prev, id, parentId) => {
     return isArray(prev[id]) && !isEmpty(prev[id])

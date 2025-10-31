@@ -96,3 +96,26 @@
     max-height: 40px;
   }
 }
+
+.select-orgstruct__input-view_compact {
+  display: flex;
+  line-height: 26px;
+}
+
+.select-orgstruct__values-list_compact {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-left: 10px;
+  flex: 1;
+}
+
+.select-orgstruct__input-view-button_compact {
+  flex-shrink: 0;
+
+  &.ecos-btn {
+    flex: auto;
+    width: 6rem;
+    max-width: 7rem;
+  }
+}
