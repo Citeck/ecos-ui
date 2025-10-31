@@ -1,7 +1,7 @@
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import isString from 'lodash/isString';
-import isUndefined from 'lodash/isUndefined.js';
+import isUndefined from 'lodash/isUndefined';
 import React, { useContext, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 

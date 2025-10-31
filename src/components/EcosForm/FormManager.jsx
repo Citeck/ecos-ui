@@ -9,7 +9,7 @@ import EcosFormModal from './EcosFormModal';
 import EcosFormUtils from './EcosFormUtils';
 
 import recordActions from '@/components/Records/actions';
-import { getId } from '@/helpers/util.js';
+import { getId } from '@/helpers/util';
 
 class FormManager {
   #root = null;

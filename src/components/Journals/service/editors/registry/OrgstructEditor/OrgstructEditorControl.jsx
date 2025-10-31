@@ -2,7 +2,7 @@ import get from 'lodash/get';
 import React from 'react';
 
 import SelectOrgstruct from '../../../../../common/form/SelectOrgstruct';
-import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER } from '../../../../../common/form/SelectOrgstruct/constants.js';
+import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER } from '../../../../../common/form/SelectOrgstruct/constants';
 import { getCellValue } from '../../util';
 
 import { GroupTypes } from '@/components/common/Orgstruct/constants';

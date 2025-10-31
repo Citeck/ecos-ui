@@ -11,7 +11,7 @@ import { createPortal } from 'react-dom';
 import { Avatar } from '../../../common';
 import { $createMentionNode } from '../../nodes/MentionNode';
 
-import { OrgStructApi } from '@/api/orgStruct.js';
+import { OrgStructApi } from '@/api/orgStruct';
 import { SourcesId } from '@/constants';
 import ZIndex from '@/services/ZIndex';
 

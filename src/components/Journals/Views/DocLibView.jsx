@@ -14,7 +14,7 @@ import { initDocLib } from '@/actions/docLib';
 import { JournalUrlParams } from '@/constants';
 import { t } from '@/helpers/export/util';
 import { wrapArgs } from '@/helpers/redux';
-import { getSearchParams } from '@/helpers/urls.js';
+import { getSearchParams } from '@/helpers/urls';
 import { selectDocLibPageProps } from '@/selectors/docLib';
 import { selectViewMode } from '@/selectors/journals';
 

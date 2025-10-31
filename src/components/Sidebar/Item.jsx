@@ -17,9 +17,8 @@ import { setScrollTop, setSelectedId, toggleExpanded, toggleIsOpen } from '@/act
 import { ADMIN_WORKSPACE_ID, SourcesId, TMP_ICON_EMPTY } from '@/constants';
 import { MenuSettings } from '@/constants/menu';
 import { ActionTypes } from '@/constants/sidebar';
-import { isNewVersionPage } from '@/helpers/export/urls';
 import { getIconObjectWeb, getIconUpDown } from '@/helpers/icon';
-import { getWorkspaceId } from '@/helpers/urls.js';
+import { getWorkspaceId } from '@/helpers/urls';
 import { extractLabel, getEnabledWorkspaces } from '@/helpers/util';
 import { selectIsNewUIAvailable } from '@/selectors/user';
 import SidebarService from '@/services/sidebar';
