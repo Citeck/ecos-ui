@@ -224,6 +224,13 @@ export class AppApi extends CommonApi {
       .catch(() => AppEditions.COMMUNITY);
   };
 
+  getWorkspacesAllowCreateConfig = () => {
+    return Records.get('emodel/cfg@workspaces-allow-create-for-all-users')
+      .load('value?bool')
+      .then(result => Boolean(result))
+      .catch(() => false);
+  };
+
   getIsExternalIDP = () => {
     return ecosFetch('/eis.json')
       .then(r => r.json())

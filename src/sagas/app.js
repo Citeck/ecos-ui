@@ -25,7 +25,8 @@ import {
   setHomeLink,
   setLeftMenuEditable,
   setRedirectToNewUi,
-  setSeparateActionListForQuery
+  setSeparateActionListForQuery,
+  setAllowToCreateWorkspace
 } from '@/actions/app';
 import { registerEventListeners } from '@/actions/customEvent';
 import { getMenuConfig, setMenuConfig } from '@/actions/menu';
@@ -44,7 +45,8 @@ import ConfigService, {
   WORKSPACES_ENABLED,
   FOOTER_CONTENT,
   HOME_LINK_URL,
-  NEW_JOURNAL_ENABLED
+  NEW_JOURNAL_ENABLED,
+  WORKSPACES_ALLOW_CREATE
 } from '@/services/config/ConfigService';
 import { loadConfigs } from '@/services/config/configApi';
 
@@ -56,7 +58,8 @@ export function* initApp({ api }, { payload }) {
     try {
       const { query } = queryString.parseUrl(window.location.href);
 
-      const resp = yield call(api.user.getUserData, OrgStructApi.userAttributes);
+      const userResponse = yield call(api.user.getUserData, OrgStructApi.userAttributes);
+      const isAllowToCreateWorkspace = yield call(api.app.getWorkspacesAllowCreateConfig);
       const configs = yield loadConfigs({
         [NEW_JOURNAL_ENABLED]: 'value?bool',
         [DEFAULT_WORKSPACE]: 'value?str',
@@ -78,6 +81,10 @@ export function* initApp({ api }, { payload }) {
           break;
       }
 
+      if (isBoolean(isAllowToCreateWorkspace)) {
+        yield put(setAllowToCreateWorkspace(isAllowToCreateWorkspace));
+      }
+
       if (isBoolean(isViewNewJournal)) {
         yield put(setViewNewJournal(isViewNewJournal));
       }
@@ -90,17 +97,17 @@ export function* initApp({ api }, { payload }) {
         yield put(getWorkspaces());
       }
 
-      if (!resp.success) {
+      if (!userResponse.success) {
         hasError = true;
         yield put(validateUserFailure());
       } else {
         isAuthenticated = true;
-        yield put(validateUserSuccess(resp.payload));
+        yield put(validateUserSuccess(userResponse.payload));
 
         // TODO remove in future: see src/helpers/util.js getCurrentUserName()
-        lodashSet(window, 'Citeck.constants.USERNAME', get(resp.payload, 'userName'));
-        lodashSet(window, 'Citeck.constants.FIRSTNAME', get(resp.payload, 'firstName'));
-        lodashSet(window, 'Citeck.constants.CURRENT_USER', resp.payload);
+        lodashSet(window, 'Citeck.constants.USERNAME', get(userResponse.payload, 'userName'));
+        lodashSet(window, 'Citeck.constants.FIRSTNAME', get(userResponse.payload, 'firstName'));
+        lodashSet(window, 'Citeck.constants.CURRENT_USER', userResponse.payload);
         lodashSet(window, 'Citeck.navigator.WORKSPACES_ENABLED', configs[WORKSPACES_ENABLED]);
         lodashSet(window, 'Citeck.navigator.DEFAULT_WORKSPACE', configs[DEFAULT_WORKSPACE]);
         lodashSet(window, 'Citeck.constants.NEW_JOURNAL_ENABLED', isViewNewJournal);

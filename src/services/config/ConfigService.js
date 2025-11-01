@@ -30,6 +30,7 @@ export const TABS_ENABLED = 'tabs-enabled';
 export const NEW_JOURNAL_ENABLED = 'new-journal-enabled';
 export const DEFAULT_WORKSPACE = 'default-workspace';
 export const WORKSPACES_ENABLED = 'workspaces-enabled';
+export const WORKSPACES_ALLOW_CREATE = 'workspaces-allow-create-for-all-users';
 export const ALFRESCO_ENABLED = 'app/alfresco$alfresco-enabled';
 export const ALFRESCO_EXPORT_SRC_ID_PATTERN = 'app/alfresco$alfresco-export-src-id-pattern';
 

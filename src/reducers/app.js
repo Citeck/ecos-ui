@@ -1,6 +1,5 @@
 import { handleActions } from 'redux-actions';
 
-import { URL } from '../constants';
 import {
   initAppFailure,
   initAppSuccess,
@@ -11,14 +10,17 @@ import {
   setHomeLink,
   setLeftMenuEditable,
   setRedirectToNewUi,
-  setSeparateActionListForQuery
+  setSeparateActionListForQuery,
+  setAllowToCreateWorkspace
 } from '../actions/app';
+import { URL } from '../constants';
 
 const initialState = {
   isInit: false,
   isInitFailure: false,
   enableCache: true,
   dashboardEditable: false,
+  isAllowToCreateWorkspace: false,
   widgetEditable: false,
   leftMenuEditable: false,
   footer: null,
@@ -41,6 +43,12 @@ export default handleActions(
         ...state,
         isInit: true,
         isInitFailure: true
+      };
+    },
+    [setAllowToCreateWorkspace]: (state, action) => {
+      return {
+        ...state,
+        isAllowToCreateWorkspace: action.payload
       };
     },
     [setDashboardEditable]: (state, action) => {

@@ -18,7 +18,12 @@ import CreateIcon from '@/components/common/icons/Create';
 import { MAX_WORKSPACE_PREVIEW_ITEMS, SourcesId } from '@/constants';
 import { getWorkspaceId, openLinkWorkspace } from '@/helpers/urls';
 import { t } from '@/helpers/util';
-import { selectWorkspaces, selectWorkspaceIsLoading, selectWorkspaceIsError } from '@/selectors/workspaces';
+import {
+  selectWorkspaces,
+  selectWorkspaceIsLoading,
+  selectWorkspaceIsError,
+  selectWorkspaceIsAllowToCreateWorkspace
+} from '@/selectors/workspaces';
 import WorkspaceService from '@/services/WorkspaceService';
 import PageTabList from '@/services/pageTabs/PageTabList';
 import { RootState, Dispatch } from '@/types/store';
@@ -30,6 +35,7 @@ export const element = document.getElementById(documentId);
 interface WorkspacesProps {
   isLoading: boolean;
   isError: boolean;
+  isAllowToCreateWorkspace: boolean;
   workspaces: WorkspaceType[];
   getWorkspaces: () => void;
   visitedAction: (id: WorkspaceType['id']) => void;
@@ -43,7 +49,15 @@ const Labels = {
   SEE_MORE: 'workspaces.see-more'
 };
 
-const Workspaces = ({ isLoading, isError, workspaces, getWorkspaces, visitedAction, getSidebarWorkspaces }: WorkspacesProps) => {
+const Workspaces = ({
+  isLoading,
+  isError,
+  isAllowToCreateWorkspace,
+  workspaces,
+  getWorkspaces,
+  visitedAction,
+  getSidebarWorkspaces
+}: WorkspacesProps) => {
   const [isActivePreview, setIsActivePreview] = useState(false);
   const [isOpenSidebarWorkspace, setIsOpenSidebarWorkspace] = useState(false);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
@@ -170,34 +184,36 @@ const Workspaces = ({ isLoading, isError, workspaces, getWorkspaces, visitedActi
                 />
               </div>
             )}
-            <div className="workspace-panel__create-button">
-              <Btn
-                onClick={async () => {
-                  setIsActivePreview(false);
+            {isAllowToCreateWorkspace && (
+              <div className="workspace-panel__create-button">
+                <Btn
+                  onClick={async () => {
+                    setIsActivePreview(false);
 
-                  const variant = await Records.get(`${SourcesId.TYPE}@workspace`).load('createVariants?json');
+                    const variant = await Records.get(`${SourcesId.TYPE}@workspace`).load('createVariants?json');
 
-                  FormManager.createRecordByVariant(variant, {
-                    onHideModal: () => getWorkspaces(),
-                    onSubmit: async (record: any) => {
-                      const { id: wsId, homePageLink } = await Records.get(record).load({
-                        id: 'id',
-                        homePageLink: 'homePageLink?str'
-                      });
-                      openLink(wsId, homePageLink);
-                      getSidebarWorkspaces();
-                    },
-                    initiator: {
-                      type: 'form-component',
-                      name: 'CreateVariants'
-                    }
-                  });
-                }}
-              >
-                <CreateIcon width={13} height={13} />
-                <span>{t(Labels.CREATE_BUTTON)}</span>
-              </Btn>
-            </div>
+                    FormManager.createRecordByVariant(variant, {
+                      onHideModal: () => getWorkspaces(),
+                      onSubmit: async (record: any) => {
+                        const { id: wsId, homePageLink } = await Records.get(record).load({
+                          id: 'id',
+                          homePageLink: 'homePageLink?str'
+                        });
+                        openLink(wsId, homePageLink);
+                        getSidebarWorkspaces();
+                      },
+                      initiator: {
+                        type: 'form-component',
+                        name: 'CreateVariants'
+                      }
+                    });
+                  }}
+                >
+                  <CreateIcon width={13} height={13} />
+                  <span>{t(Labels.CREATE_BUTTON)}</span>
+                </Btn>
+              </div>
+            )}
           </div>
         )}
       </span>
@@ -205,9 +221,10 @@ const Workspaces = ({ isLoading, isError, workspaces, getWorkspaces, visitedActi
   );
 };
 
-const mapStateToProps = (store: RootState): Pick<WorkspacesProps, 'workspaces' | 'isLoading' | 'isError'> => ({
+const mapStateToProps = (store: RootState): Pick<WorkspacesProps, 'workspaces' | 'isAllowToCreateWorkspace' | 'isLoading' | 'isError'> => ({
   workspaces: selectWorkspaces(store),
   isLoading: selectWorkspaceIsLoading(store),
+  isAllowToCreateWorkspace: selectWorkspaceIsAllowToCreateWorkspace(store),
   isError: selectWorkspaceIsError(store)
 });
 

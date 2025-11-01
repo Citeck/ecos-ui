@@ -25,6 +25,7 @@ export const setFooter = createAction(prefix + 'SET_FOOTER');
 export const getSeparateActionListForQuery = createAction(prefix + 'GET_SEPARATE_ACTION_LIST_FOR_QUERY');
 export const setSeparateActionListForQuery = createAction(prefix + 'SET_SEPARATE_ACTION_LIST_FOR_QUERY');
 
+export const setAllowToCreateWorkspace = createAction(prefix + 'SET_ALLOW_TO_CREATE_WORKSPACE');
 export const setRedirectToNewUi = createAction(prefix + 'SET_REDIRECT_TO_NEW_UI');
 export const setHomeLink = createAction(prefix + 'SET_HOME_LINK');
 
