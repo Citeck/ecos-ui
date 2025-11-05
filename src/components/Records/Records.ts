@@ -193,7 +193,11 @@ class RecordsComponent {
     });
   }
 
-  async query<T = any>(query: any, attributes?: AttributesType | null, options?: { debug?: boolean }): Promise<RecordsQueryResponse<T>> {
+  async query<T = any>(
+    query: any,
+    attributes?: AttributesType | null,
+    options?: { debug?: boolean; signal?: AbortController }
+  ): Promise<RecordsQueryResponse<T>> {
     if (query && query.attributes && arguments.length === 1) {
       attributes = query.attributes;
       query = query.query;
@@ -277,7 +281,7 @@ class RecordsComponent {
       queryBody.msgLevel = 'DEBUG';
     }
 
-    const response = await recordsQueryFetch(queryBody);
+    const response = await recordsQueryFetch(queryBody, options?.signal);
     const { messages, hasMore, totalCount, records: _records } = response;
     const records = await processRespRecords(_records);
 

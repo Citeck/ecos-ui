@@ -14,7 +14,7 @@ import { getCurrentUser, getCurrentUserName, t } from '@/helpers/util';
 
 import './Body.scss';
 
-const Body = () => {
+const Body = ({ isModal }) => {
   const context = useContext(OrgstructContext);
   const {
     currentTab,
@@ -41,11 +41,22 @@ const Body = () => {
 
   return (
     <div className="select-orgstruct__body">
-      <Scrollbars className="slide-menu-list" autoHide autoHeight autoHeightMin={0} autoHeightMax={400} style={{ position: 'initial' }}>
+      <Scrollbars
+        className="slide-menu-list"
+        autoHide
+        autoHeight
+        autoHeightMin={0}
+        autoHeightMax={400}
+        style={{ ...(isModal && { position: 'initial' }) }}
+      >
         <div className="select-orgstruct__list-wrapper">
           {isSearching && <Loader blur />}
           {!children.length && !isSearching && <InfoText text={t('select-orgstruct.empty-list')} />}
-          <List items={!!searchText || !children.length ? children : [orgstructCurrentUser, ...children]} />
+          <List
+            items={
+              !!searchText || !children.length ? children : [orgstructCurrentUser, ...children.filter(i => i.id !== currentUserNodeRef)]
+            }
+          />
         </div>
       </Scrollbars>
     </div>

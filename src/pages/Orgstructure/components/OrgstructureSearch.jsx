@@ -1,9 +1,10 @@
-import React, { useContext, useRef } from 'react';
 import classNames from 'classnames';
+import React, { useContext, useRef } from 'react';
 
-import { Input } from '../../../components/common/form';
-import { OrgstructContext } from '../../../components/common/Orgstruct/OrgstructContext';
-import { t } from '../../../helpers/util';
+import { OrgstructContext } from '@/components/common/Orgstruct/OrgstructContext';
+import { Input } from '@/components/common/form';
+import Icon from '@/components/common/icons/Icon';
+import { t } from '@/helpers/util';
 
 import './style.scss';
 
@@ -28,8 +29,8 @@ const OrgstructureSearch = () => {
 
   return (
     <div className="orgstructure-page__search__container">
-      <div className="select-journal__search">
-        <span className="icon icon-search select-journal__search-icon" onClick={onSearchIconClick} />
+      <div className="select-orgstruct__search-wrapper noMoreSelect">
+        <Icon className="icon icon-search select-orgstruct__search-icon" onClick={onSearchIconClick} />
         <Input
           getInputRef={el => (inputRef.current = el.current)}
           placeholder={t(Labels.PLACEHOLDER)}
@@ -37,13 +38,14 @@ const OrgstructureSearch = () => {
           className="select-orgstruct__search-input"
           value={searchText}
           onChange={updateSearchText}
-        />
-        <span
-          className={classNames('icon-small-close select-orgstruct__search-cleaner', {
-            'select-orgstruct__search-cleaner_show': !!searchText
-          })}
-          onClick={resetSearchText}
-        />
+        >
+          <span
+            className={classNames('icon-small-close select-orgstruct__search-cleaner', {
+              'select-orgstruct__search-cleaner_show': !!searchText
+            })}
+            onClick={resetSearchText}
+          />
+        </Input>
       </div>
     </div>
   );
