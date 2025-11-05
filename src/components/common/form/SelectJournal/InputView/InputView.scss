@@ -7,6 +7,7 @@
     border-radius: 6px;
     padding: 10px 12px;
     max-height: 40px;
+    min-height: 40px;
     cursor: pointer;
 
     &:has(.select-journal__values-list-disp:hover) {
@@ -25,6 +26,17 @@
       }
     }
 
+    &__action_add {
+      cursor: pointer;
+      max-height: 22px;
+      display: flex;
+
+      svg {
+        margin-top: 2px;
+        vertical-align: initial;
+      }
+    }
+
     &-disp {
       width: auto;
     }
@@ -39,7 +51,6 @@
       gap: 6px;
       padding: 8px 9px;
       max-height: none;
-      min-height: 40px;
     }
 
     &.multiple &_text-content {

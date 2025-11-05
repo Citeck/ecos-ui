@@ -194,7 +194,7 @@ const InputView = () => {
           </li>
         ))}
         {!!multiple && !disabled && (
-          <li onClick={e => handleAction(e, toggleSelectModal)} role="choice-control" style={{ cursor: 'pointer' }}>
+          <li onClick={e => handleAction(e, toggleSelectModal)} role="choice-control" className="select-orgstruct__values-list__action_add">
             <Subtract />
           </li>
         )}
