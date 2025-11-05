@@ -452,7 +452,7 @@ class InputView extends Component {
           </li>
         ))}
         {!!multiple && !disabled && (
-          <li onClick={e => this.handleAction(e, this.onClick)} role="choice-control" style={{ cursor: 'pointer' }}>
+          <li onClick={e => this.handleAction(e, this.onClick)} role="choice-control" className="select-journal__values-list__action_add">
             <Subtract />
           </li>
         )}

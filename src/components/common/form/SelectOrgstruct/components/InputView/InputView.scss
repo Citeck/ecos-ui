@@ -10,6 +10,8 @@
     border-radius: 6px;
     padding: 10px 12px;
     cursor: pointer;
+    max-height: 40px;
+    min-height: 40px;
 
     &:has(.select-orgstruct__values-list-disp:hover) {
       .select-orgstruct_action_open-modal svg path {
@@ -27,6 +29,17 @@
       }
     }
 
+    &__action_add {
+      display: flex;
+      cursor: pointer;
+      max-height: 22px;
+
+      svg {
+        vertical-align: initial;
+        margin-top: 2px;
+      }
+    }
+
     &-disp {
       width: auto;
     }
@@ -41,7 +54,6 @@
       gap: 6px;
       padding: 8px 9px;
       max-height: none;
-      min-height: 40px;
     }
 
     &.multiple &_text-content {
