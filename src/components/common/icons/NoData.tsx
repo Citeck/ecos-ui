@@ -23,10 +23,10 @@ export default ({ width = 267, height = 209, viewBox = '0 0 267 209', fill = 'no
       <rect x="54.8794" y="129.099" width="39" height="5" rx="2.5" fill="#EEF0F8" />
       <rect x="110.891" y="129.099" width="39" height="5" rx="2.5" fill="#EEF0F8" />
       <rect x="166.902" y="129.099" width="39" height="5" rx="2.5" fill="#EEF0F8" />
-      <rect x="27.8794" y="88.0986" width="10" height="10" rx="1" stroke="currentColor" fillOpacity="0.8" strokeWidth="1" />
-      <rect x="27.8794" y="127.099" width="10" height="10" rx="1" stroke="currentColor" fillOpacity="0.8" strokeWidth="1" />
-      <rect x="27.8794" y="158.099" width="10" height="10" rx="1" stroke="currentColor" fillOpacity="0.8" strokeWidth="1" />
-      <rect x="27.8794" y="47.0986" width="10" height="10" rx="1" stroke="currentColor" fillOpacity="0.8" strokeWidth="1" />
+      <rect x="27.8794" y="88.0986" width="10" height="10" rx="1" stroke="#EEF0F8" strokeWidth="1.5" />
+      <rect x="27.8794" y="127.099" width="10" height="10" rx="1" stroke="#EEF0F8" strokeWidth="1.5" />
+      <rect x="27.8794" y="158.099" width="10" height="10" rx="1" stroke="#EEF0F8" strokeWidth="1.5" />
+      <rect x="27.8794" y="47.0986" width="10" height="10" rx="1" stroke="#EEF0F8" strokeWidth="1.5" />
       <rect x="54.8794" y="160.099" width="39" height="5" rx="2.5" fill="#EEF0F8" />
       <rect x="110.891" y="160.099" width="39" height="5" rx="2.5" fill="#EEF0F8" />
       <rect x="166.902" y="160.099" width="39" height="5" rx="2.5" fill="#EEF0F8" />
