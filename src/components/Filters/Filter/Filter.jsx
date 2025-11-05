@@ -46,6 +46,7 @@ export default class Filter extends Component {
 
     this.state = {
       value: get(props, 'filter.predicate.val', ''),
+      initialValue: get(props, 'filter.predicate.val', ''),
       hasDataEntry: false,
       zIndex: ZIndex.calcZ()
     };
@@ -156,13 +157,14 @@ export default class Filter extends Component {
         predicate = {}
       }
     } = this.props;
-    const { value } = this.state;
+    const { value, initialValue } = this.state;
 
     return {
       ...this.props,
       column,
       predicate,
       value,
+      initialValue,
       forwardedRef: this.setControlRef
     };
   }
@@ -189,7 +191,7 @@ export default class Filter extends Component {
   };
 
   ValueControl = React.memo((props, context) => {
-    const { value, predicate, column, metaRecord, forwardedRef, onKeyDown, isRelativeToParent } = props;
+    const { value, predicate, initialValue, column, metaRecord, forwardedRef, onKeyDown, isRelativeToParent } = props;
     const predicates = column.predicates || getPredicates(column);
     const selectedPredicate = this.getSelectedPredicate(predicates, predicate);
     const isShow =
@@ -207,7 +209,7 @@ export default class Filter extends Component {
         scope: EditorScope.FILTER,
         onUpdate: this.onChangeValue,
         onKeyDown,
-        controlProps: { predicate: omit(predicate, 'val') },
+        controlProps: { predicate: omit(predicate, 'val'), initialValue: get(predicate, 'val', '') },
         isRelativeToParent
       });
 
@@ -218,7 +220,7 @@ export default class Filter extends Component {
       });
       const ControlComponent = this._controls.get(key);
 
-      if (ControlComponent) {
+      if (React.isValidElement(ControlComponent) && get(ControlComponent, 'props.deps.initialValue', '') === initialValue) {
         return ControlComponent;
       }
 

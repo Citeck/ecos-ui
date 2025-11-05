@@ -3,7 +3,7 @@
 const activeRequests = {};
 const cancelledRequests = [];
 
-self.addEventListener('message', (e) => {
+self.addEventListener('message', e => {
   const { type, requestId } = e.data;
   if (type === 'CANCEL_REQUEST' && activeRequests[requestId]) {
     activeRequests[requestId].abort();
@@ -12,7 +12,7 @@ self.addEventListener('message', (e) => {
   }
 });
 
-self.onmessage = async (event) => {
+self.onmessage = async event => {
   const { items: _items, rootId, folderId, totalCount: _totalCount, destinations = {}, ws } = event.data;
   const { file: destinationFile, dir: destinationDir } = destinations;
 
@@ -28,7 +28,7 @@ self.onmessage = async (event) => {
     children.attributes.nodeType &&
     children.attributes.name &&
     children.attributes.name === item.name &&
-    children.attributes.nodeType === item.nodeType
+    children.attributes.nodeType === item.nodeType;
 
   try {
     for (const item of _items) {
@@ -66,8 +66,8 @@ self.onmessage = async (event) => {
             const pathFile = file.path.substring(0, file.path.lastIndexOf('/'));
 
             if (pathFile && foldersWithChildren[pathFile] && foldersWithChildren[pathFile].length) {
-              const foundDuplicateFile = foldersWithChildren[pathFile].find(child =>
-                child && child.id && child.attributes && child.attributes.name && child.attributes.name === file.name
+              const foundDuplicateFile = foldersWithChildren[pathFile].find(
+                child => child && child.id && child.attributes && child.attributes.name && child.attributes.name === file.name
               );
 
               if (foundDuplicateFile && foundDuplicateFile.id) {
@@ -89,11 +89,9 @@ self.onmessage = async (event) => {
                 } else {
                   totalCount--;
                 }
-
               } else {
                 dirFiles.push(file);
               }
-
             } else {
               dirFiles.push(file);
             }
@@ -129,7 +127,7 @@ async function getAllFolders(files, childrenRootDir, rootFolderTitle, ws) {
     children.attributes &&
     children.attributes.name &&
     children.attributes.nodeType === NODE_TYPES.DIR &&
-    children.attributes.name === path
+    children.attributes.name === path;
 
   for (const file of files) {
     const foundPath = file.path.substring(0, file.path.lastIndexOf('/'));
@@ -139,9 +137,7 @@ async function getAllFolders(files, childrenRootDir, rootFolderTitle, ws) {
   for (let folder of uniqueFolders) {
     if (folder === rootFolderTitle) {
       foldersWithChildren[rootFolderTitle] = childrenRootDir;
-    }
-
-    else if (folder.includes('/')) {
+    } else if (folder.includes('/')) {
       folder = folder.replace(`${rootFolderTitle}/`, '');
       let lastPathFolder = rootFolderTitle;
       let lastIdFolder = null;
@@ -152,7 +148,7 @@ async function getAllFolders(files, childrenRootDir, rootFolderTitle, ws) {
 
         if (index === 0) {
           const foundFolder = childrenRootDir.find(children => isFoundDir(path, children));
-          lastPathFolder += "/" + path;
+          lastPathFolder += '/' + path;
 
           if (foundFolder && foundFolder.id) {
             if (!foldersWithChildren[lastPathFolder]) {
@@ -164,14 +160,13 @@ async function getAllFolders(files, childrenRootDir, rootFolderTitle, ws) {
             } else {
               lastIdFolder = null;
             }
-
           } else {
             lastIdFolder = null;
             break;
           }
         } else if (lastIdFolder && lastPathFolder) {
           const foundFolder = foldersWithChildren[lastPathFolder].find(children => isFoundDir(path, children));
-          lastPathFolder += "/" + path;
+          lastPathFolder += '/' + path;
 
           if (foundFolder && foundFolder.id) {
             if (!foldersWithChildren[lastPathFolder]) {
@@ -183,7 +178,6 @@ async function getAllFolders(files, childrenRootDir, rootFolderTitle, ws) {
             } else {
               lastIdFolder = null;
             }
-
           } else {
             lastIdFolder = null;
             break;
@@ -221,9 +215,11 @@ async function handleUploads({ items, folderId, rootId, destinationFile, destina
           successFileCount++;
           result.push(uploadFileResult);
         }
-
       } else if (item.nodeType === NODE_TYPES.DIR && item.files) {
-        const createDirResult = item.alreadyExits && item.id ? { id: item.id } : await handleUploadDirectory({ dirName: item.name, parentId: folderId, rootId, destinationDir, ws });
+        const createDirResult =
+          item.alreadyExits && item.id
+            ? { id: item.id }
+            : await handleUploadDirectory({ dirName: item.name, parentId: folderId, rootId, destinationDir, ws });
 
         if (createDirResult && createDirResult.id && item.files && item.files.length) {
           createdDirectories[item.name] = { id: createDirResult.id };
@@ -237,9 +233,9 @@ async function handleUploads({ items, folderId, rootId, destinationFile, destina
 
               for (const folder of folders) {
                 const index = folders.indexOf(folder);
-                const newIndexFolder = indexFolder + "/" + folder;
+                const newIndexFolder = indexFolder + '/' + folder;
 
-                if(!createdDirectories[newIndexFolder] || !createdDirectories[newIndexFolder].id) {
+                if (!createdDirectories[newIndexFolder] || !createdDirectories[newIndexFolder].id) {
                   if (index > 0 && createdDirectories[indexFolder] && createdDirectories[indexFolder].id) {
                     const createFolderResult = await handleUploadDirectory({
                       dirName: folder,
@@ -308,10 +304,10 @@ async function handleUploads({ items, folderId, rootId, destinationFile, destina
 }
 
 function getConfirmationFromMainThread(file) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     self.postMessage({ status: 'confirm-file-replacement', file: { file, isLoading: true, isError: false } });
 
-    self.onmessage = (event) => {
+    self.onmessage = event => {
       if (event.data.status === 'confirmation-file-response') {
         resolve({ confirmed: event.data.confirmed, isReplaceAllFiles: event.data.isReplaceAllFiles });
       }
@@ -326,20 +322,23 @@ async function getFolderItems(parentRef, ws) {
     sourceId: SourcesId.DOCLIB,
     query,
     language: 'children',
-    sortBy: [{ attribute: 'nodeType', ascending: true }, { attribute: '?disp', ascending: true }]
+    sortBy: [
+      { attribute: 'nodeType', ascending: true },
+      { attribute: '?disp', ascending: true }
+    ]
   };
 
   if (!!ws) {
     querySettings.workspaces = [ws];
   }
 
-  const response = await citeckFetch("/gateway/api/records/query", {
+  const response = await citeckFetch('/gateway/api/records/query', {
     body: {
       attributes: defaultAttributesDocLib,
       query: querySettings,
       version: 1
     },
-    method: 'POST',
+    method: 'POST'
   });
 
   const responseData = await response.json();
@@ -352,12 +351,12 @@ async function getFolderItems(parentRef, ws) {
 }
 
 async function deleteChild(record) {
-  const response = await citeckFetch("/gateway/api/records/delete", {
+  const response = await citeckFetch('/gateway/api/records/delete', {
     body: {
       records: [record],
       version: 1
     },
-    method: 'POST',
+    method: 'POST'
   });
 
   return response.ok;
@@ -370,14 +369,13 @@ async function handleUploadDirectory({ dirName, parentId, destinationDir, rootId
     return Promise.reject('Error: Error when converting a dir');
   }
 
-  const result = await createChild(rootId, parentId, destinationDir, convertDir, ws)
-    .then(async res => await res.json());
+  const result = await createChild(rootId, parentId, destinationDir, convertDir, ws).then(async res => await res.json());
 
   if (result && result.records && result.records.length) {
     return result.records[0];
   }
 
-  return result
+  return result;
 }
 
 async function handleUploadFile({ file, dirId, rootId, destinationFile, totalCount, successFileCount, ws }) {
@@ -446,7 +444,7 @@ async function handleUploadFile({ file, dirId, rootId, destinationFile, totalCou
     size: file.size,
     name: file.name,
     data: { entityRef }
-  }
+  };
 
   const convertFile = prepareUploadedFileDataForSaving(file, uploadedFile);
   if (!convertFile) {
@@ -462,7 +460,7 @@ async function handleUploadFile({ file, dirId, rootId, destinationFile, totalCou
         file: { file, isLoading: false, isError: false },
         requestId
       });
-      return await res.json()
+      return await res.json();
     })
     .catch(() => {
       self.postMessage({
@@ -529,9 +527,9 @@ async function createChild(rootId, parentId, typeRef, attributes = {}, ws = '', 
   const record = {
     attributes: atts,
     id: rootId
-  }
+  };
 
-  return citeckFetch("/gateway/api/records/mutate", {
+  return citeckFetch('/gateway/api/records/mutate', {
     body: { records: [record] },
     method: 'POST',
     signal
@@ -549,7 +547,7 @@ async function citeckFetch(path = '', options = {}) {
     credentials: 'include',
     headers: {
       ...headers,
-      'X-ECOS-Timezone': timezoneOffset,
+      'X-ECOS-Timezone': timezoneOffset
     }
   };
 
@@ -582,7 +580,7 @@ const NODE_TYPES = {
 
 const SourcesId = {
   DOCLIB: 'emodel/doclib'
-}
+};
 
 const defaultAttributesDocLib = {
   id: '?id',
