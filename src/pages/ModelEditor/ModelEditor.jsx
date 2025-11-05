@@ -66,6 +66,7 @@ class ModelEditorPage extends React.Component {
   urlQuery = queryString.parseUrl(window.location.href).query;
   modelEditorRef = React.createRef(null);
   _processDefId = null;
+  _tabId = null;
   _tempFormData = {};
   _formWrapperRef = React.createRef(null);
   _prevValue = {};
@@ -77,6 +78,7 @@ class ModelEditorPage extends React.Component {
   #prevMultiInstanceType = null;
 
   componentDidMount() {
+    this._tabId = PageTabList.activeTabId;
     this.handleInit();
   }
 
@@ -119,6 +121,9 @@ class ModelEditorPage extends React.Component {
             url: tab.link,
             callback
           });
+        } else {
+          // if there is no tab, then the tab is already closed
+          resolve();
         }
       } else {
         resolve();
@@ -132,7 +137,7 @@ class ModelEditorPage extends React.Component {
     this.setState({ initiated: true });
 
     if (get(this.props, 'location.pathname') !== Urls.CMMN_EDITOR) {
-      PageService.registerUrlChangeGuard(this.handleCloseEditor, PageTabList.activeTabId);
+      PageService.registerUrlChangeGuard(this.handleCloseEditor, this._tabId || PageTabList.activeTabId);
     }
   };
 
@@ -159,7 +164,8 @@ class ModelEditorPage extends React.Component {
     this._cachedLabels = {};
     this._formsCache = {};
     this.designer && this.designer.destroy();
-    PageService.clearUrlChangeGuards();
+    PageService.clearUrlChangeGuard(this._tabId);
+    this._tabId = null;
   }
 
   initModeler = () => {};
