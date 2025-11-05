@@ -1,5 +1,6 @@
-import DataGrid from './DataGrid';
 import DataGridEditor from 'formiojs/components/datagrid/DataGrid.form';
+
+import DataGrid from './DataGrid';
 
 DataGrid.editForm = DataGridEditor;
 

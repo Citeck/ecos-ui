@@ -1,7 +1,7 @@
-import isEqual from 'lodash/isEqual';
-import omitBy from 'lodash/omitBy';
 import Components from 'formiojs/components/Components';
 import FormIODataMapComponent from 'formiojs/components/datamap/DataMap';
+import isEqual from 'lodash/isEqual';
+import omitBy from 'lodash/omitBy';
 
 import { t } from '../../../../helpers/export/util';
 

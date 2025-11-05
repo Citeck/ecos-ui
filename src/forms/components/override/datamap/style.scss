@@ -1,8 +1,6 @@
-.formio-drag-column-header {
-  width: 65px;
-}
+@import '../../../constants';
 
-.formio-component-datagrid {
+.formio-component-datamap {
   table {
     table-layout: fixed;
     border-radius: $border-radius-standard;
@@ -38,11 +36,5 @@
         }
       }
     }
-  }
-}
-
-.formio-form_view-mode {
-  table.table-bordered {
-    box-shadow: none;
   }
 }
