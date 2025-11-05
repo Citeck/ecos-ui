@@ -59,41 +59,32 @@ export function* initApp({ api }, { payload }) {
       const { query } = queryString.parseUrl(window.location.href);
 
       const userResponse = yield call(api.user.getUserData, OrgStructApi.userAttributes);
-      const isAllowToCreateWorkspace = yield call(api.app.getWorkspacesAllowCreateConfig);
-      const configs = yield loadConfigs({
-        [NEW_JOURNAL_ENABLED]: 'value?bool',
-        [DEFAULT_WORKSPACE]: 'value?str',
-        [WORKSPACES_ENABLED]: 'value?bool'
-      });
+      const isAllowToCreateWorkspace = yield ConfigService.getValue(WORKSPACES_ALLOW_CREATE);
 
-      const _isViewNewJournal = configs[NEW_JOURNAL_ENABLED];
+      let isViewNewJournal = yield ConfigService.getValue(NEW_JOURNAL_ENABLED);
 
-      let isViewNewJournal;
+      const defaultWorkspace = yield ConfigService.getValue(DEFAULT_WORKSPACE);
+      const isWorkspacesEnabled = yield ConfigService.getValue(WORKSPACES_ENABLED);
+
       const isViewNewJournalStorage = Boolean(localStorage.getItem(SETTING_ENABLE_VIEW_NEW_JOURNAL));
 
-      switch (true) {
-        case isViewNewJournalStorage:
-          isViewNewJournal = true;
-          break;
-
-        default:
-          isViewNewJournal = _isViewNewJournal;
-          break;
+      if (isViewNewJournalStorage) {
+        isViewNewJournal = true;
       }
 
-      if (isBoolean(isAllowToCreateWorkspace)) {
-        yield put(setAllowToCreateWorkspace(isAllowToCreateWorkspace));
+      if (isAllowToCreateWorkspace || get(userResponse, 'payload.isAdmin', false)) {
+        yield put(setAllowToCreateWorkspace(true));
       }
 
       if (isBoolean(isViewNewJournal)) {
         yield put(setViewNewJournal(isViewNewJournal));
       }
 
-      if (isString(configs[DEFAULT_WORKSPACE])) {
-        yield put(setDefaultWorkspace(configs[DEFAULT_WORKSPACE]));
+      if (isString(defaultWorkspace)) {
+        yield put(setDefaultWorkspace(defaultWorkspace));
       }
 
-      if (configs[WORKSPACES_ENABLED]) {
+      if (isWorkspacesEnabled) {
         yield put(getWorkspaces());
       }
 
@@ -108,8 +99,8 @@ export function* initApp({ api }, { payload }) {
         lodashSet(window, 'Citeck.constants.USERNAME', get(userResponse.payload, 'userName'));
         lodashSet(window, 'Citeck.constants.FIRSTNAME', get(userResponse.payload, 'firstName'));
         lodashSet(window, 'Citeck.constants.CURRENT_USER', userResponse.payload);
-        lodashSet(window, 'Citeck.navigator.WORKSPACES_ENABLED', configs[WORKSPACES_ENABLED]);
-        lodashSet(window, 'Citeck.navigator.DEFAULT_WORKSPACE', configs[DEFAULT_WORKSPACE]);
+        lodashSet(window, 'Citeck.navigator.WORKSPACES_ENABLED', isWorkspacesEnabled);
+        lodashSet(window, 'Citeck.navigator.DEFAULT_WORKSPACE', defaultWorkspace || `user$${getCurrentUserName()}`);
         lodashSet(window, 'Citeck.constants.NEW_JOURNAL_ENABLED', isViewNewJournal);
 
         if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
@@ -117,8 +108,8 @@ export function* initApp({ api }, { payload }) {
         }
       }
 
-      if (configs[WORKSPACES_ENABLED]) {
-        const wsId = get(query, 'ws') || getWorkspaceId(configs[DEFAULT_WORKSPACE]);
+      if (isWorkspacesEnabled) {
+        const wsId = get(query, 'ws') || getWorkspaceId(defaultWorkspace || `user$${getCurrentUserName()}`);
         const workspace = yield call(api.workspaces.getWorkspace, `${SourcesId.WORKSPACE}@${wsId}`);
 
         if (isBoolean(get(workspace, 'isCurrentUserMember'))) {
