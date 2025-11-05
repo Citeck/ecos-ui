@@ -1,0 +1,203 @@
+#bd #card-mode-legacy-cmmn-editor .card-details-mode-body > .yui-gc:not(.grid) > .yui-u.first {
+  width: 100%;
+  #border: none;
+}
+
+#card-mode-legacy-cmmn-editor {
+  width: 80%;
+}
+
+#legacy-cmmn-editor-buttons {
+  float: right;
+  margin-top: 5pt;
+}
+
+.case-activities .right .action {
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  padding: 0px;
+  background-position: center;
+  background-repeat: no-repeat;
+  visibility: hidden;
+}
+
+.case-activities .yui-button.yui-menu-button .first-child,
+.case-activities .yui-button.yui-menu-button button {
+  padding: 0;
+  margin: 0;
+  width: 20px;
+  height: 20px;
+}
+
+.case-activities .activity-info:hover .right .action {
+  visibility: visible;
+}
+
+.case-activities .right a.action.start {
+  background-image: url(images/start.png);
+}
+
+.case-activities .right a.action.stop {
+  background-image: url(images/stop.png);
+}
+
+.case-activities .yui-menu-button .first-child.action.create {
+  background-image: url(/share/res/themes/citeckTheme/images/create.png);
+}
+
+.case-activities .right a.action.edit {
+  background-image: url(/share/res/themes/citeckTheme/images/edit.png);
+}
+
+.case-activities .right a.action.remove {
+  background-image: url(/share/res/themes/citeckTheme/images/remove.png);
+}
+
+.case-activities .right a.action.start:hover {
+  background-image: url(images/start-active.png);
+}
+
+.case-activities .right a.action.stop:hover {
+  background-image: url(images/stop-active.png);
+}
+
+.case-activities .yui-button.yui-menu-button.yui-menu-button-active .first-child.action.create,
+.case-activities .yui-button.yui-menu-button.yui-menu-button-hover .first-child.action.create {
+  background-image: url(/share/res/themes/citeckTheme/images/create-active.png);
+}
+
+.case-activities .right a.action.edit:hover {
+  background-image: url(/share/res/themes/citeckTheme/images/edit-active.png);
+}
+
+.case-activities .right a.action.remove:hover {
+  background-image: url(/share/res/themes/citeckTheme/images/remove-active.png);
+}
+
+.case-activities .activity {
+  padding-left: 24px;
+}
+
+.case-activities .activity.opened {
+  padding-bottom: 1em;
+}
+
+.case-activities li.activity > ul {
+  display: none;
+}
+
+.case-activities li.activity.opened > ul {
+  display: block;
+}
+
+.case-activities .message {
+  color: gray;
+  display: inline-block;
+  padding-left: 18px;
+}
+
+.case-activities .header {
+  line-height: 24px;
+  margin-top: -24px;
+}
+
+.case-activities .activity > .activity-info > .left {
+  float: left;
+  max-width: 40%;
+}
+
+.case-activities .activity > .activity-info:after {
+  content: "";
+  display: block;
+  clear: both;
+}
+
+.case-activities .header.right,
+.case-activities .activity > .activity-info > .right {
+  display: inline-block;
+  float: right;
+  padding: 0 5px;
+  width: 36em;
+  background-color: transparent;
+}
+
+.case-activities .right > span.type,
+.case-activities .right > span.start,
+.case-activities .right > span.end,
+.case-activities .right > span.sla {
+  line-height: 24px;
+  vertical-align: bottom;
+  display: inline-block;
+  width: 5em;
+  color: gray;
+  margin-right: 7px;
+  max-width: 15%;
+}
+
+.case-activities .right > span.end {
+  width: 6em;
+  max-width: 18%;
+}
+
+.case-activities .right > span.sla {
+  width: 4em;
+  max-width: 13%;
+}
+
+.case-activities .right > span.type {
+  width: 140px;
+  max-width: 140px;
+}
+
+.case-activities .activity-info > .right > span.type {
+  font-size: 90%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.case-activities .started > .activity-info > .right > span.start,
+.case-activities .stopped > .activity-info > .right > span.end {
+  color: black;
+  font-weight: bold;
+}
+
+.case-activities .activity > .activity-info span.title {
+  line-height: 24px;
+  display: inline-block;
+  overflow: hidden;
+}
+
+.case-activities .activity > .activity-info span.type::before {
+  content: "(";
+}
+
+.case-activities .activity > .activity-info span.type::after {
+  content: ")";
+}
+
+.case-activities .activity > .activity-info span.twister {
+  background-image: url(images/twister-none.png);
+  background-repeat: no-repeat;
+  background-position: center left;
+  display: inline-block;
+  width: 15px;
+  height: 24px;
+}
+
+.case-activities .activity > .activity-info span.twister:hover {
+  cursor: pointer;
+}
+
+.case-activities .activity.composite > .activity-info span.twister {
+  background-image: url(images/twister-closed.png);
+}
+
+.case-activities .activity.composite.opened > .activity-info span.twister {
+  background-image: url(images/twister-opened.png);
+}
+
+.case-activities .activity > .activity-info .title:empty::before {
+  content: "(none)"
+}
