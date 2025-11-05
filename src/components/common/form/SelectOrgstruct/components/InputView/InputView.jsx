@@ -61,6 +61,11 @@ const InputView = () => {
     deleteSelectedItem(id);
   };
 
+  const handleAction = (e, callback) => {
+    e.stopPropagation();
+    callback && callback(e);
+  };
+
   const renderSelectedValue = item => {
     const props = {};
 
@@ -88,14 +93,34 @@ const InputView = () => {
     );
   };
 
+  const renderActionChoice = () => (
+    <span
+      className="select-orgstruct__values-list-actions_item select-orgstruct_action_open-modal"
+      role="choice-control"
+      onClick={e => handleAction(e, toggleSelectModal)}
+    >
+      <ChevronRight width={14} height={14} />
+    </span>
+  );
+
+  const renderCompactList = () => {
+    const compactValue = !!selectedRows && selectedRows.map(item => item.label).join(', ');
+
+    return compactValue ? (
+      <Tooltip showAsNeeded target={targetId} uncontrolled text={compactValue} className="select-orgstruct__values-list-tooltip">
+        <div id={targetId} className="select-orgstruct__values-list_compact">
+          {compactValue}
+        </div>
+      </Tooltip>
+    ) : null;
+  };
+
   if (isEmpty(selectedRows) && !multiple) {
     return (
-      <div className={classNames('select-orgstruct__values-list', { multiple })}>
+      <div className={classNames('select-orgstruct__values-list', { multiple })} onClick={toggleSelectModal}>
         <div className="select-orgstruct__values-list_text-content">
           <span>{placeholder || t(Labels.PLACEHOLDER)}</span>
-          <span className="select-orgstruct__values-list-actions_item" onClick={toggleSelectModal}>
-            <ChevronRight width={14} height={14} />
-          </span>
+          {renderActionChoice()}
         </div>
       </div>
     );
@@ -124,18 +149,6 @@ const InputView = () => {
     );
   }
 
-  const renderCompactList = () => {
-    const compactValue = !!selectedRows && selectedRows.map(item => item.label).join(', ');
-
-    return compactValue ? (
-      <Tooltip showAsNeeded target={targetId} uncontrolled text={compactValue} className="select-orgstruct__values-list-tooltip">
-        <div id={targetId} className="select-orgstruct__values-list_compact">
-          {compactValue}
-        </div>
-      </Tooltip>
-    ) : null;
-  };
-
   if (isCompact) {
     return (
       <div className="select-orgstruct__input-view select-orgstruct__input-view_compact">
@@ -145,8 +158,9 @@ const InputView = () => {
           <div className="select-orgstruct__actions">
             <Btn
               className="ecos-btn_blue ecos-btn_narrow select-orgstruct__input-view-button_compact"
-              onClick={toggleSelectModal}
+              onClick={e => handleAction(e, toggleSelectModal)}
               disabled={disabled}
+              role="choice-control"
             >
               {selectedRows.length > 0 ? (multiple ? t(Labels.BUTTON_ADD) : t(Labels.BUTTON_CHANGE)) : t(Labels.BUTTON_SELECT)}
             </Btn>
@@ -159,27 +173,28 @@ const InputView = () => {
   }
 
   return (
-    <div className={classNames('select-orgstruct__input-view')}>
+    <div className={classNames('select-orgstruct__input-view')} onClick={toggleSelectModal}>
       <ul className={classNames('select-orgstruct__values-list', { multiple, disabled })}>
         {selectedRows.map((item, idx) => (
           <li className="select-orgstruct__values-list_text-content" key={item.id || idx}>
             {renderSelectedValue(item)}
-            {disabled ? null : (
+            {!disabled && (
               <div className="select-orgstruct__values-list-actions">
-                <span className="select-orgstruct__values-list-actions_item" data-id={item.id} onClick={() => onClickDelete(item.id)}>
+                <span
+                  className="select-orgstruct__values-list-actions_item"
+                  data-id={item.id}
+                  onClick={e => handleAction(e, () => onClickDelete(item.id))}
+                  role="cancel-control"
+                >
                   <Close width={14} height={14} />
                 </span>
-                {!multiple && (
-                  <span className="select-orgstruct__values-list-actions_item" onClick={toggleSelectModal}>
-                    <ChevronRight width={14} height={14} />
-                  </span>
-                )}
+                {!multiple && renderActionChoice()}
               </div>
             )}
           </li>
         ))}
         {!!multiple && !disabled && (
-          <li onClick={toggleSelectModal} style={{ cursor: 'pointer' }}>
+          <li onClick={e => handleAction(e, toggleSelectModal)} role="choice-control" style={{ cursor: 'pointer' }}>
             <Subtract />
           </li>
         )}
