@@ -28,9 +28,10 @@
     td {
       padding: 0.65rem 0.5rem;
       border: 1px solid $color-gray-4;
-      height: 40px;
 
       &.formio-remove-column {
+        padding: 0.65rem 0.2rem;
+
         button.formio-button-remove-row {
           position: relative;
           padding: 0;

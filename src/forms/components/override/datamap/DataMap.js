@@ -57,14 +57,13 @@ export default class DataMapComponent extends FormIODataMapComponent {
       lastColumn = this.ce(
         'td',
         {
-          class: 'col-1 col-sm-1'
+          class: 'formio-remove-column col-1 col-sm-1'
         },
         row.remove
       );
     }
 
     row.element = this.ce('tr', {
-      class: 'd-flex',
       id: ''.concat(this.component.id, '-row-').concat(key)
     });
 
@@ -99,7 +98,7 @@ export default class DataMapComponent extends FormIODataMapComponent {
     const lastChild = row.element.lastChild;
 
     if (this.hasRemoveButtons()) {
-      const flexBoxCentering = ' d-flex justify-content-center align-items-center';
+      const flexBoxCentering = ' justify-content-center align-items-center';
       lastChild.className += flexBoxCentering;
       lastChild.firstChild.className += `${flexBoxCentering} mw-100`;
     }
