@@ -156,7 +156,9 @@
     &:hover {
       .ecos-form__inline-edit-button {
         display: block;
-        background: none;
+        padding: 0;
+        padding-left: 10px;
+        background: linear-gradient(to right, rgba($color-white, 0), $color-white 15%);
       }
     }
   }
