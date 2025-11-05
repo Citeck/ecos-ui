@@ -2,14 +2,12 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
-import isNil from 'lodash/isNil';
 import uniqueId from 'lodash/uniqueId';
 import PropTypes from 'prop-types';
 import React from 'react';
 import uuidv4 from 'uuidv4';
 
 import { Icon, InfoText, ResizeBoxes } from '../common';
-import TitlePageLoader from '../common/TitlePageLoader';
 import { Caption } from '../common/form';
 
 import Tools from './Tools';
@@ -235,18 +233,13 @@ class ModelEditorWrapper extends React.Component {
   };
 
   renderEditor = () => {
-    const { editor, title, isTableView } = this.props;
+    const { editor, isTableView } = this.props;
     const { rightSidebarOpen, sizes } = this.state;
 
     const sideBarVisible = rightSidebarOpen && !isTableView;
 
     return (
       <div id={this.#designerId} className="ecos-model-editor__designer" style={{ width: sideBarVisible ? get(sizes, 'left') : '' }}>
-        <TitlePageLoader isReady={!isNil(title)}>
-          <Caption normal className="ecos-model-editor__designer-title">
-            {title}
-          </Caption>
-        </TitlePageLoader>
         {!editor && <InfoText className="ecos-model-editor__info" text={t(Labels.NO_EDITOR)} />}
         {editor && (
           <div className="ecos-model-editor__designer-work-zone">
