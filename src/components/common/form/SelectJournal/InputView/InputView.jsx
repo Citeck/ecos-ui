@@ -285,7 +285,7 @@ class InputView extends Component {
           key={'delete'}
           icon={'icon-delete'}
           className={classNames(inlineToolsActionClassName, 'fitnesse-inline-tools-actions-btn__delete')}
-          onClick={() => deleteValue(row.id)}
+          onClick={e => this.handleAction(e, () => deleteValue(row.id))}
         />
       );
     }
@@ -295,12 +295,63 @@ class InputView extends Component {
     );
   };
 
+  handleAction = (e, callback) => {
+    e.stopPropagation();
+    callback && callback(e);
+  };
+
+  renderActionChoice = () => (
+    <span
+      className="select-journal__values-list-actions_item select-journal_action_open-modal"
+      onClick={e => this.handleAction(e, this.onClick)}
+      role="choice-control"
+    >
+      <ChevronRight width={14} height={14} />
+    </span>
+  );
+
+  renderSimpleMenu = item => {
+    const { onCreate } = this.props;
+    const { aditionalButtons, isOpenMenuActions, createVariants, isFlipped } = this.state;
+
+    return (
+      <>
+        {this.renderActionChoice()}
+        {(!isEmpty(aditionalButtons[item.id]) || createVariants.length > 0) && (
+          <span
+            className={classNames('select-journal__values-list-actions_item', { active: isOpenMenuActions })}
+            data-id={item.id}
+            onClick={this.toggleIsOpenMenuActions}
+            role="actions-control"
+          >
+            <VerticalActions width={14} height={14} />
+            {isOpenMenuActions && (
+              <ul ref={this.menuRef} className={classNames('select-journal__values-list-actions-menu', { flip: isFlipped })}>
+                {createVariants.length > 0 && <MenuCreateVariants items={createVariants} onCreateFormSubmit={onCreate} />}
+
+                {aditionalButtons[item.id].map(button => (
+                  <li
+                    key={button.id}
+                    data-id={button.id}
+                    onClick={e => this.handleAction(e, () => this.onCustomActionClick(item.id, button))}
+                  >
+                    {button.type === DebugFormAction.ACTION_ID ? <Debug /> : <span className={`icon ${button.icon}`} />}
+                    <p>{button.name}</p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </span>
+        )}
+      </>
+    );
+  };
+
   renderList = () => {
     const {
       viewMode,
       disabled,
       multiple,
-      onCreate,
       editValue,
       placeholder,
       deleteValue,
@@ -312,7 +363,7 @@ class InputView extends Component {
       selectedQueryInfo
     } = this.props;
 
-    const { aditionalButtons, isOpenMenuActions, createVariants, isFlipped } = this.state;
+    const { aditionalButtons } = this.state;
 
     if (isCompact) {
       return null;
@@ -333,7 +384,9 @@ class InputView extends Component {
                     onClick={() => this.onCustomActionClick(selectedQueryInfo.id, button)}
                   />
                 ))}
-              {!hideDeleteRowButton && <span className="icon icon-delete" onClick={deleteValue} />}
+              {!hideDeleteRowButton && (
+                <span className="icon icon-delete" role="cancel-control" onClick={e => this.handleAction(e, deleteValue)} />
+              )}
             </div>
           )}
         </div>
@@ -342,12 +395,10 @@ class InputView extends Component {
 
     if (isEmpty(selectedRows) && !multiple) {
       return (
-        <div className={classNames('select-journal__values-list', { multiple })}>
+        <div className={classNames('select-journal__values-list', { multiple })} onClick={this.onClick}>
           <div className="select-journal__values-list_text-content">
             <span>{placeholder || t(Labels.PLACEHOLDER)}</span>
-            <span className="select-journal__values-list-actions_item" onClick={this.onClick}>
-              <ChevronRight width={14} height={14} />
-            </span>
+            {this.renderActionChoice()}
           </div>
         </div>
       );
@@ -377,49 +428,31 @@ class InputView extends Component {
             {!disabled && (
               <div className="select-journal__values-list-actions">
                 {!(!item.canEdit || hideEditRowButton) && multiple && (
-                  <span className="select-journal__values-list-actions_item" data-id={item.id} onClick={() => editValue(item.id)}>
+                  <span
+                    className="select-journal__values-list-actions_item"
+                    data-id={item.id}
+                    onClick={e => this.handleAction(e, () => editValue(item.id))}
+                  >
                     <Edit width={14} height={14} />
                   </span>
                 )}
                 {!hideDeleteRowButton && (
-                  <span className="select-journal__values-list-actions_item" data-id={item.id} onClick={() => deleteValue(item.id)}>
+                  <span
+                    className="select-journal__values-list-actions_item"
+                    data-id={item.id}
+                    onClick={e => this.handleAction(e, () => deleteValue(item.id))}
+                    role="cancel-control"
+                  >
                     <Close width={14} height={14} />
                   </span>
                 )}
-                {!multiple && (
-                  <>
-                    <span className="select-journal__values-list-actions_item select-journal_action_open-modal" onClick={this.onClick}>
-                      <ChevronRight width={14} height={14} />
-                    </span>
-                    {(!isEmpty(aditionalButtons[item.id]) || createVariants.length > 0) && (
-                      <span
-                        className={classNames('select-journal__values-list-actions_item', { active: isOpenMenuActions })}
-                        data-id={item.id}
-                        onClick={this.toggleIsOpenMenuActions}
-                      >
-                        <VerticalActions width={14} height={14} />
-                        {isOpenMenuActions && (
-                          <ul ref={this.menuRef} className={classNames('select-journal__values-list-actions-menu', { flip: isFlipped })}>
-                            {createVariants.length > 0 && <MenuCreateVariants items={createVariants} onCreateFormSubmit={onCreate} />}
-
-                            {aditionalButtons[item.id].map(button => (
-                              <li key={button.id} data-id={button.id} onClick={() => this.onCustomActionClick(item.id, button)}>
-                                {button.type === DebugFormAction.ACTION_ID ? <Debug /> : <span className={`icon ${button.icon}`} />}
-                                <p>{button.name}</p>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </span>
-                    )}
-                  </>
-                )}
+                {!multiple && this.renderSimpleMenu(item)}
               </div>
             )}
           </li>
         ))}
         {!!multiple && !disabled && (
-          <li onClick={this.onClick} style={{ cursor: 'pointer' }}>
+          <li onClick={e => this.handleAction(e, this.onClick)} role="choice-control" style={{ cursor: 'pointer' }}>
             <Subtract />
           </li>
         )}
@@ -441,6 +474,7 @@ class InputView extends Component {
         disabled={disabled}
         autoFocus={autoFocus}
         onBlur={this.onBlur}
+        role="choice-control"
       >
         {this.textForModal}
       </Btn>

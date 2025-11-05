@@ -9,6 +9,23 @@
     border: 1px solid $color-gray-6;
     border-radius: 6px;
     padding: 10px 12px;
+    cursor: pointer;
+
+    &:has(.select-orgstruct__values-list-disp:hover) {
+      .select-orgstruct_action_open-modal svg path {
+        fill: $color-gray-5 !important;
+      }
+    }
+
+    &:hover {
+      border: 1px solid var(--primary-color);
+
+      &:not(:has(.select-orgstruct__values-list-actions_item:hover)) {
+        .select-orgstruct_action_open-modal svg path {
+          fill: var(--primary-color);
+        }
+      }
+    }
 
     &-disp {
       width: auto;
