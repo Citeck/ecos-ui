@@ -158,7 +158,7 @@ export class OrgStructApi extends CommonApi {
     return searchFields;
   };
 
-  fetchGroup = async ({ query, excludeAuthoritiesByType = [], excludeAuthoritiesByName, isIncludedAdminGroup }) => {
+  fetchGroup = async ({ query, excludeAuthoritiesByType = [], excludeAuthoritiesByName, isIncludedAdminGroup }, signal) => {
     const { groupName, searchText } = query;
 
     const userMask = await OrgStructApi.fetchUsernameMask();
@@ -236,7 +236,8 @@ export class OrgStructApi extends CommonApi {
         query: { t: 'and', v: [...queryVal, ...extraQueryVal] },
         language: 'predicate'
       },
-      { ...this.groupAttributes, ...globalSearchConfig }
+      { ...this.groupAttributes, ...globalSearchConfig },
+      { signal }
     )
       .then(r => get(r, 'records', []))
       .then(filterByType)
@@ -268,7 +269,8 @@ export class OrgStructApi extends CommonApi {
         query: { t: 'and', v: queryValPerson },
         language: 'predicate'
       },
-      { ...OrgStructApi.userAttributes, ...globalSearchConfig, ...personAttributes }
+      { ...OrgStructApi.userAttributes, ...globalSearchConfig, ...personAttributes },
+      { signal }
     ).then(r => get(r, 'records', []));
 
     return Promise.all([groups, users]).then(([groups, users]) => [...groups, ...users]);

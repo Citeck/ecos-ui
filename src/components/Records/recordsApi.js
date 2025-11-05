@@ -1,13 +1,13 @@
 import lodashGet from 'lodash/get';
-import isString from 'lodash/isString';
 import isEqual from 'lodash/isEqual';
+import isString from 'lodash/isString';
 
 import ecosFetch from '../../helpers/ecosFetch';
-
-import { getSourceId } from './utils/recordUtils';
-import { DELETE_URL, MUTATE_URL, QUERY_URL } from './constants';
 import { t } from '../../helpers/util';
 import { SETTING_ENABLE_RECORDS_API_DEBUG } from '../../pages/DevTools/constants';
+
+import { DELETE_URL, MUTATE_URL, QUERY_URL } from './constants';
+import { getSourceId } from './utils/recordUtils';
 
 /**
  * Request identification
@@ -19,13 +19,13 @@ function getRecognizableUrl(url, body) {
   let urlKey = '';
 
   if (body.query) {
-    urlKey = 'q_'
+    urlKey = 'q_';
     if (body.query.sourceId) {
       urlKey += body.query.sourceId;
     } else if (body.query.ecosType) {
       urlKey += 't_' + body.query.ecosType;
     } else {
-      urlKey += (JSON.stringify(body.query.query) || '').substring(0, 15)
+      urlKey += (JSON.stringify(body.query.query) || '').substring(0, 15);
     }
   } else if (body.record) {
     urlKey = `rec_${body.record}`;
@@ -34,12 +34,12 @@ function getRecognizableUrl(url, body) {
     urlKey = `recs_count_${(body.records || []).length}_${sourceId}`;
   }
 
-  url += '?k=' + urlKey.replace(/[^A-Z0-9]+/ig, "_");
+  url += '?k=' + urlKey.replace(/[^A-Z0-9]+/gi, '_');
 
   return url;
 }
 
-function recordsFetch(url, body) {
+function recordsFetch(url, body, signal) {
   if (!body.msgLevel && localStorage.getItem(SETTING_ENABLE_RECORDS_API_DEBUG) === 'true') {
     body.msgLevel = 'DEBUG';
   }
@@ -48,7 +48,7 @@ function recordsFetch(url, body) {
 
   url = getRecognizableUrl(url, body);
 
-  return ecosFetch(url, { method: 'POST', body }).then(response => {
+  return ecosFetch(url, { method: 'POST', body, signal }).then(response => {
     return response.json().then(body => {
       if (response.ok) {
         checkRespMessages(body.messages);
@@ -89,16 +89,16 @@ function checkRespMessages(messages) {
   }
 }
 
-export function recordsDeleteFetch(body) {
-  return recordsFetch(DELETE_URL, body);
+export function recordsDeleteFetch(body, signal) {
+  return recordsFetch(DELETE_URL, body, signal);
 }
 
-export function recordsQueryFetch(body) {
-  return recordsFetch(QUERY_URL, body);
+export function recordsQueryFetch(body, signal) {
+  return recordsFetch(QUERY_URL, body, signal);
 }
 
-export function recordsMutateFetch(body) {
-  return recordsFetch(MUTATE_URL, body);
+export function recordsMutateFetch(body, signal) {
+  return recordsFetch(MUTATE_URL, body, signal);
 }
 
 const attributesQueryBatch = {};
