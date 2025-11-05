@@ -59,7 +59,8 @@ const controlProps = {
   isIncludedAdminGroup: false,
   onError: console.error,
   onChange: () => {},
-  multiple: false
+  multiple: false,
+  liveSearch: true
 };
 
 const Labels = {

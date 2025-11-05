@@ -27,6 +27,9 @@ export const OrgstructContext = React.createContext();
 export const useOrgstructContext = () => useContext(OrgstructContext);
 
 export const OrgstructProvider = props => {
+  const controller = new AbortController();
+  const signal = controller.signal;
+
   const { orgStructApi, controlProps: controlProps2 } = props;
   const controlProps = {
     ...controlProps2
@@ -202,7 +205,10 @@ export const OrgstructProvider = props => {
     setPagination({ ...pagination, page: 1, maxCount: 0 });
   };
 
-  const liveSearchDebounce = debounce(onUpdateTree, 1500);
+  const liveSearchDebounce = () => {
+    controller.abort();
+    onUpdateTree();
+  };
 
   const handleOpenedItems = (prev, id, parentId) => {
     return isArray(prev[id]) && !isEmpty(prev[id])
@@ -308,15 +314,18 @@ export const OrgstructProvider = props => {
     if (!isRootGroupsFetched && isSelectModalOpen && currentTab === TabTypes.LEVELS) {
       setIsSearching(true);
       orgStructApi
-        .fetchGroup({
-          query: {
-            groupName: rootGroupName,
-            searchText: trimSearchText
+        .fetchGroup(
+          {
+            query: {
+              groupName: rootGroupName,
+              searchText: trimSearchText
+            },
+            excludeAuthoritiesByName: excludeAuthoritiesByName2,
+            excludeAuthoritiesByType,
+            isIncludedAdminGroup
           },
-          excludeAuthoritiesByName: excludeAuthoritiesByName2,
-          excludeAuthoritiesByType,
-          isIncludedAdminGroup
-        })
+          signal
+        )
         .then(handleResponse)
         .then(items => {
           if (!livePromise) {

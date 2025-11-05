@@ -79,10 +79,6 @@
   cursor: pointer;
 }
 
-.select-orgstruct__list-item-label_margin-left {
-  margin-left: 10px;
-}
-
 .select-orgstruct__list-item-label_disabled {
   opacity: 0.5;
 }
@@ -98,15 +94,18 @@
   align-items: center;
   margin: 0 5px;
   flex-shrink: 0;
-  background: $color-green1;
+  background: $color-gray-5;
 
   &:before {
+    width: 13px !important;
     font-size: 14px;
     line-height: inherit;
   }
 }
 
 .select-orgstruct__select-handler_selected {
+  background: $color-green1 !important;
+
   &.icon:before {
     font-weight: bold;
     font-size: 15px;
@@ -116,5 +115,5 @@
 .select-orgstruct__collapse-handler {
   color: $color-gray-5;
   font-size: 14px;
-  margin-right: 3px;
+  margin: 0 3px;
 }

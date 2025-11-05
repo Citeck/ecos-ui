@@ -59,7 +59,7 @@ const Modal = () => {
         <div className="select-orgstruct-control-panel">
           <Search />
         </div>
-        <Body />
+        <Body isModal />
       </div>
 
       {currentTab === TabTypes.USERS && (
