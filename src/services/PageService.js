@@ -1,5 +1,6 @@
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
+import isNil from 'lodash/isNil';
 import isString from 'lodash/isString';
 import queryString from 'query-string';
 
@@ -371,6 +372,12 @@ export default class PageService {
 
   static clearUrlChangeGuards() {
     PageService.beforeUrlChangeGuards = [];
+  }
+
+  static clearUrlChangeGuard(tabId) {
+    if (!isNil(tabId)) {
+      PageService.beforeUrlChangeGuards = PageService.beforeUrlChangeGuards.filter(value => value.tabId !== tabId);
+    }
   }
 
   /**
