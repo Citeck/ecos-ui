@@ -6,6 +6,9 @@ import React, { useContext } from 'react';
 import { OrgstructContext } from '../../../OrgstructContext';
 import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, AUTHORITY_TYPE_ROLE, TabTypes } from '../../../constants';
 
+import SelectedIcon from './SelectedIcon';
+import ToSelectIcon from './ToSelectIcon';
+
 import './ListItem.scss';
 
 const ListItem = ({ item, nestingLevel, nestedList, previousParent }) => {
@@ -66,17 +69,15 @@ const ListItem = ({ item, nestingLevel, nestedList, previousParent }) => {
 
   const renderSelectHandler = () => {
     if (isAllUsers || isAllowedSelect) {
-      const selectHandlerClassNames = classNames('icon select-orgstruct__select-handler', {
-        'icon-small-plus': !item.isSelected,
-        'select-orgstruct__select-handler_selected icon-custom-checkbox-check': item.isSelected
-      });
-
       return (
         <span
-          className={selectHandlerClassNames}
+          role="select-handler"
+          className="select-orgstruct__select-handler"
           onClick={() => context.onToggleSelectItem(item)}
           onDoubleClick={e => e.stopPropagation()}
-        />
+        >
+          {item.isSelected ? <SelectedIcon /> : <ToSelectIcon />}
+        </span>
       );
     }
   };
