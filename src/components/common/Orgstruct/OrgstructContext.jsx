@@ -1,4 +1,3 @@
-import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
@@ -206,7 +205,7 @@ export const OrgstructProvider = props => {
   };
 
   const liveSearchDebounce = () => {
-    controller.abort();
+    controller.abort('[OrgstructContext] Previous organizational structure search canceled');
     onUpdateTree();
   };
 

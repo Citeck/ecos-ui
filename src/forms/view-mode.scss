@@ -60,7 +60,6 @@
       margin: 5px 0;
       padding-left: 10px;
       padding-right: 10px;
-      padding-bottom: 50px;
 
       position: relative;
       overflow: hidden;
@@ -87,10 +86,8 @@
 
     .inline-editing {
       &__buttons {
-        position: absolute;
+        margin: 0.5rem 0 0 auto;
         width: auto;
-        right: 14px;
-        bottom: 14px;
       }
 
       &__button {
