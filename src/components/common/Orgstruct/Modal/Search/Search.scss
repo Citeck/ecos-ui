@@ -36,6 +36,19 @@
             justify-content: space-between;
             cursor: initial;
 
+            &:first-child {
+              border-top-right-radius: 6px;
+              border-top-left-radius: 6px;
+            }
+            &:last-child {
+              border-bottom-right-radius: 6px;
+              border-bottom-left-radius: 6px;
+            }
+
+            &:hover {
+              background-color: $color-gray-4;
+            }
+
             &_info-container {
               display: inline-flex;
               align-items: center;
@@ -49,6 +62,10 @@
             &_photo {
               width: 16px !important;
               height: 16px !important;
+
+              .ecos-avatar__name {
+                font-size: 12px;
+              }
             }
           }
         }
