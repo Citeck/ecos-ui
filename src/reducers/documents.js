@@ -26,7 +26,7 @@ import {
   setUploadError,
   updateVersion,
   uploadFiles,
-  uploadFilesFinally
+  uploadFilesFinally,
 } from '../actions/documents';
 
 const emptyTools = Object.freeze({
@@ -34,11 +34,11 @@ const emptyTools = Object.freeze({
   top: 0,
   left: 0,
   row: {},
-  actions: []
+  actions: [],
 });
 const emptyTypeSettings = Object.freeze({
   multiple: false,
-  columns: []
+  columns: [],
 });
 
 /**
@@ -70,7 +70,7 @@ export const initialState = {
   isLoadingAvailableTypes: false,
   countFilesError: '',
   uploadError: '',
-  tools: { ...emptyTools }
+  tools: { ...emptyTools },
 };
 
 Object.freeze(initialState);
@@ -91,8 +91,8 @@ export default handleActions(
           isLoading: true,
           isLoadingSettings: false,
           uploadError: '',
-          countFilesError: ''
-        }
+          countFilesError: '',
+        },
       };
     },
     [initSuccess]: (state, { payload }) => ({
@@ -100,31 +100,31 @@ export default handleActions(
       [payload]: {
         ...state[payload],
         stateId: payload,
-        isLoading: false
-      }
+        isLoading: false,
+      },
     }),
     [initFinally]: (state, { payload }) => ({
       ...state,
       [payload]: {
         ...state[payload],
-        isLoading: false
-      }
+        isLoading: false,
+      },
     }),
 
     [getAvailableTypes]: (state, { payload }) => ({
       ...state,
       [payload]: {
         ...state[payload],
-        isLoadingAvailableTypes: true
-      }
+        isLoadingAvailableTypes: true,
+      },
     }),
     [setAvailableTypes]: (state, { payload }) => ({
       ...state,
       [payload.key]: {
         ...state[payload.key],
         availableTypes: payload.types,
-        isLoadingAvailableTypes: false
-      }
+        isLoadingAvailableTypes: false,
+      },
     }),
 
     [setDynamicTypes]: (state, { payload }) => ({
@@ -133,8 +133,8 @@ export default handleActions(
         ...state[payload.key],
         dynamicTypes: payload.dynamicTypes,
         uploadError: '',
-        countFilesError: ''
-      }
+        countFilesError: '',
+      },
     }),
 
     [getDocumentsByType]: (state, { payload }) => ({
@@ -142,26 +142,25 @@ export default handleActions(
       [payload.key]: {
         ...state[payload.key],
         isLoadingTableData: true,
-        tools: { ...emptyTools }
-      }
+        tools: { ...emptyTools },
+      },
     }),
     [setDocuments]: (state, { payload }) => ({
       ...state,
       [payload.key]: {
         ...state[payload.key],
         documents: payload.documents,
-        isLoadingTableData: false,
         uploadError: '',
-        countFilesError: ''
-      }
+        countFilesError: '',
+      },
     }),
     [getDocumentsFinally]: (state, { payload }) => ({
       ...state,
       [payload.key]: {
         ...state[payload.key],
         isLoading: false,
-        isLoadingTableData: false
-      }
+        isLoadingTableData: false,
+      },
     }),
 
     [saveSettings]: (state, { payload }) => ({
@@ -170,44 +169,44 @@ export default handleActions(
         ...state[payload.key],
         isLoadingSettings: true,
         uploadError: '',
-        countFilesError: ''
-      }
+        countFilesError: '',
+      },
     }),
     [saveSettingsFinally]: (state, { payload }) => ({
       ...state,
       [payload]: {
         ...state[payload],
-        isLoadingSettings: false
-      }
+        isLoadingSettings: false,
+      },
     }),
     [setDownloadLoading]: (state, { payload }) => ({
       [payload.key]: {
         ...state[payload.key],
-        isLoadingDownload: payload.loading
-      }
+        isLoadingDownload: payload.loading,
+      },
     }),
 
     [getTypeSettings]: (state, { payload }) => ({
       ...state,
       [payload.key]: {
         ...state[payload.key],
-        isLoadingTypeSettings: true
-      }
+        isLoadingTypeSettings: true,
+      },
     }),
     [setTypeSettings]: (state, { payload }) => ({
       ...state,
       [payload.key]: {
         ...state[payload.key],
         isLoadingTypeSettings: false,
-        typeSettings: payload.settings
-      }
+        typeSettings: payload.settings,
+      },
     }),
     [setTypeSettingsFinally]: (state, { payload }) => ({
       ...state,
       [payload]: {
         ...state[payload],
-        isLoadingTypeSettings: false
-      }
+        isLoadingTypeSettings: false,
+      },
     }),
 
     [uploadFiles]: (state, { payload }) => ({
@@ -216,86 +215,86 @@ export default handleActions(
         ...state[payload.key],
         isUploadingFile: true,
         uploadError: '',
-        countFilesError: ''
-      }
+        countFilesError: '',
+      },
     }),
     [setUploadError]: (state, { payload }) => ({
       ...state,
       [payload.key]: {
         ...state[payload.key],
         uploadError: payload.message,
-        countFilesError: ''
-      }
+        countFilesError: '',
+      },
     }),
     [updateVersion]: (state, { payload }) => ({
       ...state,
       [payload.key]: {
         ...state[payload.key],
-        isUploadingFile: true
-      }
+        isUploadingFile: true,
+      },
     }),
     [uploadFilesFinally]: (state, { payload }) => ({
       ...state,
       [payload]: {
         ...state[payload],
-        isUploadingFile: false
-      }
+        isUploadingFile: false,
+      },
     }),
 
     [setConfig]: (state, { payload }) => ({
       ...state,
       [payload.key]: {
         ...state[payload.key],
-        config: payload.config
-      }
+        config: payload.config,
+      },
     }),
 
     [setError]: (state, { payload }) => ({
       ...state,
       [payload.key]: {
         ...state[payload.key],
-        [payload.type]: payload.message
-      }
+        [payload.type]: payload.message,
+      },
     }),
 
     [setActions]: (state, { payload }) => ({
       ...state,
       [payload.key]: {
         ...state[payload.key],
-        actions: payload.actions
-      }
+        actions: payload.actions,
+      },
     }),
 
     [setInlineTools]: (state, { payload }) => ({
       ...state,
       [payload.key]: {
         ...state[payload.key],
-        tools: payload.tools || { ...emptyTools }
-      }
+        tools: payload.tools || { ...emptyTools },
+      },
     }),
 
     [getDocumentsByTypes]: (state, { payload }) => ({
       ...state,
       [payload.key]: {
         ...state[payload.key],
-        isLoading: true
-      }
+        isLoading: true,
+      },
     }),
     [setDocumentsByTypes]: (state, { payload }) => ({
       ...state,
       [payload.key]: {
         ...state[payload.key],
         documentsByTypes: payload.documentsByTypes,
-        isLoading: false
-      }
+        isLoading: false,
+      },
     }),
     [setLoadingStatus]: (state, { payload }) => ({
       ...state,
       [payload.key]: {
         ...state[payload.key],
-        [payload.loadindField || 'isLoading']: payload.status
-      }
-    })
+        [payload.loadindField || 'isLoading']: payload.status,
+      },
+    }),
   },
-  {}
+  {},
 );

@@ -28,7 +28,7 @@ import {
   saveSettings,
   setError,
   setInlineTools,
-  uploadFiles
+  uploadFiles,
 } from '../../../actions/documents';
 import { selectStateByKey } from '../../../selectors/documents';
 import { documentFields, errorTypes, Labels, statusesKeys, tableFields, typeStatusesByFields } from '../../../constants/documents';
@@ -73,13 +73,13 @@ class DesktopDocuments extends BaseDocuments {
     onUploadFiles: PropTypes.func,
     setError: PropTypes.func,
     execRecordsAction: PropTypes.func,
-    setInlineTools: PropTypes.func
+    setInlineTools: PropTypes.func,
   };
 
   static defaultProps = {
     canDragging: false,
     maxHeightByContent: false,
-    dragHandleProps: {}
+    dragHandleProps: {},
   };
 
   constructor(props) {
@@ -99,13 +99,13 @@ class DesktopDocuments extends BaseDocuments {
       typesFilter: '',
       tableFilter: '',
       statusFilter: statusesKeys.ALL,
-      typesStatuses: typeStatusesByFields.map(type => ({
+      typesStatuses: typeStatusesByFields.map((type) => ({
         ...type,
-        value: t(type.value)
+        value: t(type.value),
       })),
       isLoadingUploadingModal: true,
       isHoverLastRow: false,
-      needRefreshGrid: false
+      needRefreshGrid: false,
     };
 
     this._tablePanel = React.createRef();
@@ -135,7 +135,14 @@ class DesktopDocuments extends BaseDocuments {
       this.refreshGrid();
     }
 
-    if ((prevState.selectedType && !this.state.selectedType) || prevProps.dynamicTypes !== this.props.dynamicTypes) {
+    const dynamicTypes = this.props.dynamicTypes || [];
+    if (
+      (prevState.selectedType && !this.state.selectedType) ||
+      dynamicTypes.length !== prevProps.dynamicTypes.length ||
+      !dynamicTypes.every(
+        (obj) => !!prevProps.dynamicTypes.find((prevObj) => prevObj.type === obj.type && isEqual(prevObj.actions, obj.actions)),
+      )
+    ) {
       isFunction(getAllDocuments) && getAllDocuments();
     }
 
@@ -222,9 +229,9 @@ class DesktopDocuments extends BaseDocuments {
 
       const fields = tableFields[selectedType ? 'DEFAULT' : 'ALL'];
 
-      return data.filter(item => {
+      return data.filter((item) => {
         const byStatus = statusFilter === statusesKeys.ALL ? true : this.getTypeStatus(item) === statusFilter;
-        const byText = fields.some(field => {
+        const byText = fields.some((field) => {
           const name = get(item, [field.name], '');
 
           if (typeof name !== 'string') {
@@ -249,13 +256,13 @@ class DesktopDocuments extends BaseDocuments {
       return dynamicTypes;
     }
 
-    return dynamicTypes.filter(type => this.getTypeStatus(type) === statusFilter);
+    return dynamicTypes.filter((type) => this.getTypeStatus(type) === statusFilter);
   }
 
   get documentTableColumns() {
     const { dynamicTypes } = this.props;
     const { selectedType } = this.state;
-    const type = dynamicTypes.find(item => item.type === selectedType);
+    const type = dynamicTypes.find((item) => item.type === selectedType);
     const columns = get(type, 'columns', []);
 
     if (isEmpty(columns)) {
@@ -272,10 +279,10 @@ class DesktopDocuments extends BaseDocuments {
       return null;
     }
 
-    let type = dynamicTypes.find(type => type.type === id);
+    let type = dynamicTypes.find((type) => type.type === id);
 
     if (!type) {
-      type = availableTypes.find(type => type.id === id);
+      type = availableTypes.find((type) => type.id === id);
 
       if (!type) {
         return null;
@@ -292,14 +299,14 @@ class DesktopDocuments extends BaseDocuments {
     const { selectedType } = this.state;
 
     if (selectedType) {
-      this.setState({ downloadIds: this.tableData.map(item => item.recordRef) });
+      this.setState({ downloadIds: this.tableData.map((item) => item.recordRef) });
       return;
     }
 
     if (documentsByTypes) {
       const documents = Object.values(documentsByTypes).reduce((result, current) => result.concat(current), []);
 
-      this.setState({ downloadIds: documents.map(document => document.recordRef) });
+      this.setState({ downloadIds: documents.map((document) => document.recordRef) });
       return;
     }
 
@@ -307,7 +314,7 @@ class DesktopDocuments extends BaseDocuments {
     return;
   };
 
-  setTableRef = ref => {
+  setTableRef = (ref) => {
     if (ref) {
       this._tableRef = ref;
     }
@@ -334,24 +341,24 @@ class DesktopDocuments extends BaseDocuments {
     }
 
     this.getDocumentsByType(type);
-    this.setState(state => ({
+    this.setState((state) => ({
       isDragFiles: false,
       selectedType: type,
       statusFilter: statusesKeys.ALL,
-      selectedTypeForLoading: selectedType
+      selectedTypeForLoading: selectedType,
     }));
     this.scrollPosition = {};
   };
 
   getDocumentsByType = debounce(
-    type => {
+    (type) => {
       this.props.getDocuments(type);
     },
     350,
-    { leading: true, trailing: true }
+    { leading: true, trailing: true },
   );
 
-  handleClickTableRow = row => {
+  handleClickTableRow = (row) => {
     if (this.state.selectedType) {
       return;
     }
@@ -363,7 +370,7 @@ class DesktopDocuments extends BaseDocuments {
     this.setState({ isDragFiles: false });
   };
 
-  handleDragIn = event => {
+  handleDragIn = (event) => {
     event.preventDefault();
     event.stopPropagation();
 
@@ -372,7 +379,7 @@ class DesktopDocuments extends BaseDocuments {
     this.debounceDragIn(dataTypes);
   };
 
-  debounceDragIn = debounce(dataTypes => {
+  debounceDragIn = debounce((dataTypes) => {
     this.debounceDragOut.cancel();
 
     if (!dataTypes.includes('Files')) {
@@ -384,7 +391,7 @@ class DesktopDocuments extends BaseDocuments {
     }
   }, 0);
 
-  handleDragOut = event => {
+  handleDragOut = (event) => {
     event.preventDefault();
     event.stopPropagation();
 
@@ -399,7 +406,7 @@ class DesktopDocuments extends BaseDocuments {
     }
   }, 0);
 
-  handleRowDrop = data => {
+  handleRowDrop = (data) => {
     const { files = [], type = {} } = data;
 
     if (!files.length) {
@@ -427,7 +434,7 @@ class DesktopDocuments extends BaseDocuments {
     this.setState({ selectedTypeForLoading: type });
   };
 
-  handleRowDragEnter = event => {
+  handleRowDragEnter = (event) => {
     if (this.props.uploadError) {
       this.props.setError(errorTypes.UPLOAD, '');
     }
@@ -443,7 +450,7 @@ class DesktopDocuments extends BaseDocuments {
     this.setState({ isHoverLastRow: false });
   };
 
-  handleToolSettings = data => {
+  handleToolSettings = (data) => {
     const options = cloneDeep(data);
     let actions = cloneDeep(this.props.actions);
     const id = options.row[documentFields.id];
@@ -451,27 +458,27 @@ class DesktopDocuments extends BaseDocuments {
     delete options.row;
 
     if (actions[id]) {
-      actions[id].forEach(action => {
+      actions[id].forEach((action) => {
         action.onClick = () => {
           this.props.execRecordsAction({
             records: id,
             action,
             callback: this.handleSuccessRecordsAction,
-            type: this.state.selectedType
+            type: this.state.selectedType,
           });
         };
       });
 
       return {
         ...data,
-        actions: actions[id]
+        actions: actions[id],
       };
     }
 
     return {};
   };
 
-  handleScrollingTable = event => {
+  handleScrollingTable = (event) => {
     this.scrollPosition = event;
   };
 
@@ -479,7 +486,7 @@ class DesktopDocuments extends BaseDocuments {
     this.handleRowMouseLeave.cancel();
   };
 
-  handleRowMouseEnter = event => {
+  handleRowMouseEnter = (event) => {
     this.setState({ isHoverLastRow: false });
     this.handleTypeRowMouseEnter(event, 'ecos-grid__row');
     this.handleRowMouseLeave.cancel();
@@ -504,14 +511,14 @@ class DesktopDocuments extends BaseDocuments {
       return;
     }
 
-    const index = [...table.rows].findIndex(item => item === row);
+    const index = [...table.rows].findIndex((item) => item === row);
 
     this.setState({ isHoverLastRow: index === table.rows.length - 1 });
   };
 
   handleTypeRowMouseLeave = () => this.setState({ isHoverLastRow: false });
 
-  handleCheckDropPermissions = type => get(type, 'canDropUpload', false);
+  handleCheckDropPermissions = (type) => get(type, 'canDropUpload', false);
 
   countFormatter = (...params) => {
     const { uploadError, countFilesError, id } = this.props;
@@ -549,7 +556,7 @@ class DesktopDocuments extends BaseDocuments {
         <div
           id={target}
           className={classNames('ecos-docs__table-upload-label', {
-            'ecos-docs__table-upload-label_error': hasError
+            'ecos-docs__table-upload-label_error': hasError,
           })}
           style={style}
         >
@@ -590,14 +597,14 @@ class DesktopDocuments extends BaseDocuments {
       <div id={leftColumnId} className="ecos-docs__column ecos-docs__column_types">
         <Scrollbars
           className="ecos-docs__scroll ecos-docs__scroll_only-v"
-          renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
+          renderTrackVertical={(props) => <div {...props} className="ecos-grid__v-scroll" />}
           {...this.scrollbarProps}
         >
           <div className="ecos-docs__types" ref={this._typesList}>
             <div
               onClick={this.handleClearSelectedType}
               className={classNames('ecos-docs__types-item', {
-                'ecos-docs__types-item_selected': !selectedType
+                'ecos-docs__types-item_selected': !selectedType,
               })}
             >
               <div className="ecos-docs__types-item-label">{t(Labels.ALL_TYPES)}</div>
@@ -618,7 +625,7 @@ class DesktopDocuments extends BaseDocuments {
     );
   }
 
-  renderTypeInfo = type => {
+  renderTypeInfo = (type) => {
     if (isEmpty(type.breadcrumbs) || !Array.isArray(type.breadcrumbs)) {
       return null;
     }
@@ -644,7 +651,7 @@ class DesktopDocuments extends BaseDocuments {
     );
   };
 
-  renderType = item => {
+  renderType = (item) => {
     const { selectedType } = this.state;
     const id = prepareTooltipId(`type-${this.props.stateId}-${item.type}`);
     let name = t(item.name);
@@ -660,7 +667,7 @@ class DesktopDocuments extends BaseDocuments {
         key={item.type}
         onClick={() => this.handleSelectType(item)}
         className={classNames('ecos-docs__types-item', {
-          'ecos-docs__types-item_selected': selectedType === item.type
+          'ecos-docs__types-item_selected': selectedType === item.type,
         })}
       >
         <Tooltip target={id} text={name} uncontrolled showAsNeeded autohide>
@@ -689,7 +696,7 @@ class DesktopDocuments extends BaseDocuments {
         <Scrollbars
           style={{ height: this.calculatedTablePanelHeight || '100%' }}
           hideTracksWhenNotNeeded
-          renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
+          renderTrackVertical={(props) => <div {...props} className="ecos-grid__v-scroll" />}
         >
           <Panel
             dynamicTypes={dynamicTypes}
@@ -730,13 +737,13 @@ class DesktopDocuments extends BaseDocuments {
     );
   }
 
-  renderInlineTools = settings => {
+  renderInlineTools = (settings) => {
     const { settingsInlineTools } = this.props;
 
     const inlineToolSettings = this.handleToolSettings(settings);
 
     const actionsProps = {
-      onMouseEnter: this.handleMouseEnterInlineTools
+      onMouseEnter: this.handleMouseEnterInlineTools,
     };
 
     return (
@@ -784,7 +791,7 @@ class DesktopDocuments extends BaseDocuments {
           keyField={documentFields.id}
           className={classNames('ecos-docs__table ecos-docs__table_documents', {
             'ecos-docs__table_hidden': needDropZone && (isShowDropZone || isUploadingFile),
-            'ecos-docs__table_without-after-element': isHoverLastRow
+            'ecos-docs__table_without-after-element': isHoverLastRow,
           })}
           data={this.tableData}
           columns={this.documentTableColumns}
@@ -801,11 +808,11 @@ class DesktopDocuments extends BaseDocuments {
           <DropZone
             withoutButton
             style={{
-              height: `${this.calculatedTableMinHeight - 2 * 19}px`
+              height: `${this.calculatedTableMinHeight - 2 * 19}px`,
             }}
             label={t(Labels.UPLOAD_DROPZONE)}
             className={classNames('ecos-docs__table-dropzone', {
-              'ecos-docs__table-dropzone_hidden': !isShowDropZone
+              'ecos-docs__table-dropzone_hidden': !isShowDropZone,
             })}
             onSelect={this.handleSelectUploadFiles}
             onDropRejected={this.handleDropRejected}
@@ -915,32 +922,29 @@ const mapStateToProps = (state, ownProps) => {
     isAdmin: get(state, 'user.isAdmin'),
     settingsInlineTools: {
       selectedRecords: newState.selectedRecords || [],
-      selectAllPageRecords: newState.selectAllPageRecords
-    }
+      selectAllPageRecords: newState.selectAllPageRecords,
+    },
   };
 };
 const mapDispatchToProps = (dispatch, ownProps) => {
   const baseParams = {
     record: ownProps.record,
-    key: getStateId(ownProps)
+    key: getStateId(ownProps),
   };
 
   return {
     initStore: () => dispatch(initStore({ ...baseParams, config: ownProps.config })),
-    downloadAllDocuments: allDocuments => dispatch(downloadAllDocuments({ ...baseParams, allDocuments })),
+    downloadAllDocuments: (allDocuments) => dispatch(downloadAllDocuments({ ...baseParams, allDocuments })),
     getDocuments: (type = '') => dispatch(getDocumentsByType({ ...baseParams, type })),
     getAllDocuments: () => dispatch(getDocumentsByTypes({ ...baseParams })),
     onSaveSettings: (types, config, selectedType) => dispatch(saveSettings({ ...baseParams, types, config, selectedType })),
-    onUploadFiles: data => dispatch(uploadFiles({ ...baseParams, ...data })),
+    onUploadFiles: (data) => dispatch(uploadFiles({ ...baseParams, ...data })),
     setError: (type, message = '') => dispatch(setError({ ...baseParams, type, message })),
-    execRecordsAction: data => dispatch(execRecordsAction({ ...baseParams, ...data })),
-    setInlineTools: tools => dispatch(setInlineTools({ ...baseParams, tools })),
-    getTypeSettings: type => dispatch(getTypeSettings({ ...baseParams, type })),
-    getAvailableTypes: () => dispatch(getAvailableTypes(baseParams.key))
+    execRecordsAction: (data) => dispatch(execRecordsAction({ ...baseParams, ...data })),
+    setInlineTools: (tools) => dispatch(setInlineTools({ ...baseParams, tools })),
+    getTypeSettings: (type) => dispatch(getTypeSettings({ ...baseParams, type })),
+    getAvailableTypes: () => dispatch(getAvailableTypes(baseParams.key)),
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(DesktopDocuments);
+export default connect(mapStateToProps, mapDispatchToProps)(DesktopDocuments);
