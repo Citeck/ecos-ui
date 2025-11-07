@@ -63,7 +63,7 @@ const InputView = () => {
 
   const handleAction = (e, callback) => {
     e.stopPropagation();
-    callback && callback(e);
+    callback && !disabled && callback(e);
   };
 
   const renderSelectedValue = item => {
@@ -93,15 +93,16 @@ const InputView = () => {
     );
   };
 
-  const renderActionChoice = () => (
-    <span
-      className="select-orgstruct__values-list-actions_item select-orgstruct_action_open-modal"
-      role="choice-control"
-      onClick={e => handleAction(e, toggleSelectModal)}
-    >
-      <ChevronRight width={14} height={14} />
-    </span>
-  );
+  const renderActionChoice = () =>
+    !disabled && (
+      <span
+        className="select-orgstruct__values-list-actions_item select-orgstruct_action_open-modal"
+        role="choice-control"
+        onClick={e => handleAction(e, toggleSelectModal)}
+      >
+        <ChevronRight width={14} height={14} />
+      </span>
+    );
 
   const renderCompactList = () => {
     const compactValue = !!selectedRows && selectedRows.map(item => item.label).join(', ');
@@ -117,7 +118,10 @@ const InputView = () => {
 
   if (isEmpty(selectedRows) && !multiple) {
     return (
-      <div className={classNames('select-orgstruct__values-list', { multiple })} onClick={toggleSelectModal}>
+      <div
+        className={classNames('select-orgstruct__values-list', { multiple, disabled })}
+        onClick={e => handleAction(e, toggleSelectModal)}
+      >
         <div className="select-orgstruct__values-list_text-content">
           <span>{placeholder || t(Labels.PLACEHOLDER)}</span>
           {renderActionChoice()}
@@ -173,7 +177,7 @@ const InputView = () => {
   }
 
   return (
-    <div className={classNames('select-orgstruct__input-view')} onClick={toggleSelectModal}>
+    <div className={classNames('select-orgstruct__input-view')} onClick={e => handleAction(e, toggleSelectModal)}>
       <ul className={classNames('select-orgstruct__values-list', { multiple, disabled })}>
         {selectedRows.map((item, idx) => (
           <li className="select-orgstruct__values-list_text-content" key={item.id || idx}>

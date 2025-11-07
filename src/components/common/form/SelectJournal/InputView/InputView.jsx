@@ -297,48 +297,51 @@ class InputView extends Component {
 
   handleAction = (e, callback) => {
     e.stopPropagation();
-    callback && callback(e);
+    callback && !this.props.disabled && callback(e);
   };
 
-  renderActionChoice = () => (
-    <span
-      className="select-journal__values-list-actions_item select-journal_action_open-modal"
-      onClick={e => this.handleAction(e, this.onClick)}
-      role="choice-control"
-    >
-      <ChevronRight width={14} height={14} />
-    </span>
-  );
+  renderActionChoice = () =>
+    !this.props.disabled && (
+      <span
+        className="select-journal__values-list-actions_item select-journal_action_open-modal"
+        onClick={e => this.handleAction(e, this.onClick)}
+        role="choice-control"
+      >
+        <ChevronRight width={14} height={14} />
+      </span>
+    );
 
-  renderSimpleMenu = item => {
+  renderActionsMenu = item => {
     const { onCreate } = this.props;
     const { aditionalButtons, isOpenMenuActions, createVariants, isFlipped } = this.state;
 
     return (
       <>
         {this.renderActionChoice()}
-        {(!isEmpty(aditionalButtons[item.id]) || createVariants.length > 0) && (
+        {((item && !isEmpty(aditionalButtons[item.id])) || createVariants.length > 0) && (
           <span
             className={classNames('select-journal__values-list-actions_item', { active: isOpenMenuActions })}
-            data-id={item.id}
             onClick={this.toggleIsOpenMenuActions}
             role="actions-control"
+            {...(item && item.id && { ['data-id']: item.id })}
           >
             <VerticalActions width={14} height={14} />
             {isOpenMenuActions && (
               <ul ref={this.menuRef} className={classNames('select-journal__values-list-actions-menu', { flip: isFlipped })}>
                 {createVariants.length > 0 && <MenuCreateVariants items={createVariants} onCreateFormSubmit={onCreate} />}
 
-                {aditionalButtons[item.id].map(button => (
-                  <li
-                    key={button.id}
-                    data-id={button.id}
-                    onClick={e => this.handleAction(e, () => this.onCustomActionClick(item.id, button))}
-                  >
-                    {button.type === DebugFormAction.ACTION_ID ? <Debug /> : <span className={`icon ${button.icon}`} />}
-                    <p>{button.name}</p>
-                  </li>
-                ))}
+                {item &&
+                  !isEmpty(aditionalButtons[item.id]) &&
+                  aditionalButtons[item.id].map(button => (
+                    <li
+                      key={button.id}
+                      data-id={button.id}
+                      onClick={e => this.handleAction(e, () => this.onCustomActionClick(item.id, button))}
+                    >
+                      {button.type === DebugFormAction.ACTION_ID ? <Debug /> : <span className={`icon ${button.icon}`} />}
+                      <p>{button.name}</p>
+                    </li>
+                  ))}
               </ul>
             )}
           </span>
@@ -395,10 +398,13 @@ class InputView extends Component {
 
     if (isEmpty(selectedRows) && !multiple) {
       return (
-        <div className={classNames('select-journal__values-list', { multiple })} onClick={this.onClick}>
+        <div
+          className={classNames('select-journal__values-list', { multiple, disabled })}
+          onClick={e => this.handleAction(e, this.onClick)}
+        >
           <div className="select-journal__values-list_text-content">
             <span>{placeholder || t(Labels.PLACEHOLDER)}</span>
-            {this.renderActionChoice()}
+            <div className="select-journal__values-list-actions">{this.renderActionsMenu()}</div>
           </div>
         </div>
       );
@@ -420,7 +426,7 @@ class InputView extends Component {
     }
 
     return (
-      <ul className={classNames('select-journal__values-list', { multiple, disabled })} onClick={this.onClick}>
+      <ul className={classNames('select-journal__values-list', { multiple, disabled })} onClick={e => this.handleAction(e, this.onClick)}>
         {selectedRows.map(item => (
           <li className="select-journal__values-list_text-content" key={item.id}>
             {this.renderSelectedValue(item)}
@@ -446,7 +452,7 @@ class InputView extends Component {
                     <Close width={14} height={14} />
                   </span>
                 )}
-                {!multiple && this.renderSimpleMenu(item)}
+                {!multiple && this.renderActionsMenu(item)}
               </div>
             )}
           </li>
