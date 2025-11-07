@@ -193,6 +193,20 @@ export class AppApi extends CommonApi {
       });
   }
 
+  hasWorkspaceReadPermission(workspaceId, showNotification = false) {
+    return Records.get(`${SourcesId.WORKSPACE}@${workspaceId}`)
+      .load('isCurrentUserMember?bool!')
+      .then(status => status)
+      .catch(e => {
+        if (showNotification) {
+          NotificationManager.error(t('page.error-loading.message'), t('page.error-loading.title'));
+        }
+
+        console.error(e);
+        return false;
+      });
+  }
+
   hasRecordReadPermission(recordRef, showNotification = false) {
     return Records.get(recordRef)
       .load('.att(n:"permissions"){has(n:"Read")}')
@@ -222,13 +236,6 @@ export class AppApi extends CommonApi {
       .load('$license.enterprise?bool')
       .then(result => (result ? AppEditions.ENTERPRISE : AppEditions.COMMUNITY))
       .catch(() => AppEditions.COMMUNITY);
-  };
-
-  getWorkspacesAllowCreateConfig = () => {
-    return Records.get('emodel/cfg@workspaces-allow-create-for-all-users')
-      .load('value?bool')
-      .then(result => Boolean(result))
-      .catch(() => false);
   };
 
   getIsExternalIDP = () => {

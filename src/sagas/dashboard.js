@@ -73,11 +73,12 @@ function* doGetDashboardRequest({ api }, { payload }) {
 
   try {
     const { dashboardId, recordRef } = payload;
+    const wsId = getWorkspaceId();
+
     const recordIsExist = yield call(api.app.recordIsExist, recordRef, true);
 
     if (recordRef && !recordIsExist) {
       if (enabledWorkspaces) {
-        const wsId = getWorkspaceId();
         const workspaces = yield select(selectWorkspaces);
         const currentWorkspace = (workspaces || []).find(workspace => workspace.id === wsId) || '';
 
@@ -96,29 +97,37 @@ function* doGetDashboardRequest({ api }, { payload }) {
       return;
     }
 
+    let hasWorkspaceReadPermission = true;
+
+    if (enabledWorkspaces) {
+      hasWorkspaceReadPermission = yield call(api.app.hasWorkspaceReadPermission, wsId, true);
+    }
+
     const hasRecordReadPermission = yield call(api.app.hasRecordReadPermission, recordRef, true);
 
-    if (recordRef && !hasRecordReadPermission) {
+    if (recordRef && (!hasRecordReadPermission || !hasWorkspaceReadPermission)) {
       yield put(setWarningMessage({ key: payload.key, message: t('record.permission-denied.message') }));
       yield put(setLoading({ key: payload.key, status: false }));
 
       return;
     }
+
     const result = yield call(api.dashboard.getDashboardByOneOf, { dashboardId, recordRef: getRefWithAlfrescoPrefix(recordRef) });
 
-    const modelAttributes = yield call(api.dashboard.getModelAttributes, result.key);
+    const modelAttributes = yield call(api.dashboard.getModelAttributes, get(result, 'key'));
     const webKeyInfo = DashboardConverter.getKeyInfoDashboardForWeb(result);
-    const webConfigs = yield _parseConfig({ api }, { config: result.config, recordRef });
+    const webConfigs = yield _parseConfig({ api }, { config: get(result, 'config'), recordRef });
     const isReset = yield select(selectResetStatus);
 
     if (isReset) {
       throw new Error('info: Dashboard is unmounted');
     }
+
     yield put(setDashboardIdentification({ ...webKeyInfo, key: payload.key, url: window.location.pathname }));
     yield put(
       setDashboardConfig({
         config: get(webConfigs, 'config.layouts', []),
-        originalConfig: result.config,
+        originalConfig: get(result, 'config'),
         modelAttributes,
         key: payload.key
       })

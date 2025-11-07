@@ -20,6 +20,7 @@ import {
 } from '@/actions/dashboard';
 import { saveMenuConfig } from '@/actions/menu';
 import { deleteTab } from '@/actions/pageTabs';
+import { AppApi } from '@/api/app';
 import { DndUtils } from '@/components/Drag-n-Drop';
 import Layout from '@/components/Layout';
 import TopMenu from '@/components/Layout/TopMenu';
@@ -35,7 +36,15 @@ import { LoaderTypes, URL } from '@/constants';
 import { DashboardTypes } from '@/constants/dashboard';
 import { MenuTypes } from '@/constants/menu';
 import { showModalJson } from '@/helpers/tools';
-import { decodeLink, getLinkWithWs, getSortedUrlParams, isDashboard, pushHistoryLink, replaceHistoryLink } from '@/helpers/urls';
+import {
+  decodeLink,
+  getLinkWithWs,
+  getSortedUrlParams,
+  isDashboard,
+  pushHistoryLink,
+  replaceHistoryLink,
+  getWorkspaceId
+} from '@/helpers/urls';
 import { getEnabledWorkspaces, isMobileAppWebView, t } from '@/helpers/util';
 import { selectDashboardByKey, selectDashboardConfig, selectDashboardConfigVersion } from '@/selectors/dashboard';
 import { selectCurrentWorkspaceIsBlocked } from '@/selectors/workspaces';
@@ -249,8 +258,21 @@ class Dashboard extends Component {
       return null;
     }
 
-    const openHomeDashboard = () => {
-      const link = getEnabledWorkspaces() ? getLinkWithWs(URL.DASHBOARD) : URL.DASHBOARD;
+    const openHomeDashboard = async () => {
+      const hasEnabledWorkspaces = getEnabledWorkspaces();
+      const link = hasEnabledWorkspaces ? getLinkWithWs(URL.DASHBOARD) : URL.DASHBOARD;
+
+      if (hasEnabledWorkspaces) {
+        const appApi = new AppApi();
+        const wsId = getWorkspaceId();
+        const hasPermission = await appApi.hasWorkspaceReadPermission(wsId);
+
+        if (!hasPermission) {
+          PageService.changeUrlLink('/v2/', { openNewTab: true, closeActiveTab: true, needUpdateTabs: true });
+          return;
+        }
+      }
+
       PageService.changeUrlLink(link, { openNewTab: true, closeActiveTab: true, needUpdateTabs: true });
     };
 

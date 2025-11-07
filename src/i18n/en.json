@@ -42,7 +42,7 @@
 
   "page-error-widget-loading.title": "The error occurred while loading the widget",
 
-  "record.permission-denied.message": "You do not have sufficient rights to view this document. Contact your administrator.",
+  "record.permission-denied.message": "You do not have sufficient rights to view this page. Contact your administrator.",
   "record.not-found.message": "The document was deleted or not yet created.",
   "record.not-found.message.workspace": "No access to the document. It may have been deleted earlier or hasn't been created yet. Go to the home page of the current workspace «{{ workspaceName }}»",
 
