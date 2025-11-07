@@ -74,6 +74,9 @@ class ModelEditorPage extends React.Component {
   _labelIsEdited = false;
   _formReady = false;
   _formsCache = {};
+  _cachedEditor = null;
+  _lastSavedModel = null;
+  _lastSectionPath = null;
 
   #prevMultiInstanceType = null;
 
@@ -238,7 +241,7 @@ class ModelEditorPage extends React.Component {
       [EventListeners.ELEMENT_UPDATE_ID]: this.handleElementUpdateId,
       [EventListeners.CS_ELEMENT_DELETE_POST]: this.handleElementDelete,
       [EventListeners.DRAG_START]: this.handleDragStart,
-      [EventListeners.ROOT_SET]: this.handleSetRoot,
+      // [EventListeners.ROOT_SET]: this.handleSetRoot, // This causes cyclical updates. At first glance, it works well without it
       [EventListeners.CS_CONNECTION_CREATE_PRE_EXECUTE]: this.handleCreateConnection
     };
   }
@@ -880,8 +883,12 @@ class ModelEditorPage extends React.Component {
   renderEditor = () => {
     const { savedModel, sectionPath } = this.props;
 
-    if (savedModel) {
-      return this.designer.renderSheet({
+    if (!savedModel) {
+      return <InfoText text={t('editor.error.no-model')} />;
+    }
+
+    if (this._cachedEditor == null || this._lastSavedModel !== savedModel || this._lastSectionPath !== sectionPath) {
+      this._cachedEditor = this.designer.renderSheet({
         diagram: savedModel,
         onClickElement: this.handleSelectItem,
         onMounted: this.handleReadySheet,
@@ -890,9 +897,12 @@ class ModelEditorPage extends React.Component {
         extraEvents: this.extraEvents,
         sectionPath
       });
-    } else {
-      return <InfoText text={t(`editor.error.no-model`)} />;
+
+      this._lastSavedModel = savedModel;
+      this._lastSectionPath = sectionPath;
     }
+
+    return this._cachedEditor;
   };
 
   render() {
