@@ -320,7 +320,10 @@ export function* sagaGetData({ api }, { payload }) {
       }
     });
 
-    const totalCount = dataCards.reduce((count, col) => count + get(col, 'totalCount', 0), 0);
+    const kanbanColumnsIds = get(boardConfig, 'columns', []).length > 0 ? boardConfig.columns.map(col => col.id) : null;
+    const totalCount = dataCards
+      .filter(column => (kanbanColumnsIds ? kanbanColumnsIds.includes(column.status) : true))
+      .reduce((count, col) => count + get(col, 'totalCount', 0), 0);
 
     yield put(setDataCards({ stateId, dataCards }));
     yield put(setTotalCount({ stateId, totalCount }));
