@@ -7,6 +7,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import uniqueId from 'lodash/uniqueId';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 import debounce from 'lodash/debounce';
 import cloneDeep from 'lodash/cloneDeep';

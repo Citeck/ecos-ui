@@ -8,6 +8,7 @@ import isEmpty from 'lodash/isEmpty';
 import isArray from 'lodash/isArray';
 import isNil from 'lodash/isNil';
 import isFunction from 'lodash/isFunction';
+import isEqual from 'lodash/isEqual';
 
 import { getFirstNonEmpty, isNodeRef, t } from '../helpers/util';
 import { documentActions, documentFields } from '../constants/documents';
