@@ -46,6 +46,10 @@
 
     &.disabled {
       background-color: $color-gray-4;
+      cursor: not-allowed;
+      &:hover {
+        border: 1px solid $color-gray-6;
+      }
     }
 
     &.multiple {
