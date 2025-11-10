@@ -229,6 +229,11 @@ export function getPredicates(field) {
 }
 
 export const datePredicateVariables = {
+  CURRENT_QUARTER: '$CURRENT_QUARTER',
+  CURRENT_MONTH: '$CURRENT_MONTH',
+  CURRENT_WEEK: '$CURRENT_WEEK',
+  CURRENT_YEAR: '$CURRENT_YEAR',
+  QUARTER: 'Q',
   TODAY: '$TODAY',
   NOW: '$NOW',
   PERIOD: 'P',

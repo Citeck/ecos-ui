@@ -8,15 +8,15 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { UncontrolledPopover, PopoverHeader, PopoverBody } from 'reactstrap';
 
-import { DateFormats } from '../../../../constants';
-import { t } from '../../../../helpers/export/util';
-import { num2str, prepareTooltipId } from '../../../../helpers/util';
-import ZIndex from '../../../../services/ZIndex';
 import { datePredicateVariables } from '../../../Records/predicates/predicates';
 import Input from '../Input';
 import Select from '../Select';
 
 import DatePicker from './DatePicker';
+
+import { DateFormats } from '@/constants';
+import { num2str, prepareTooltipId, t } from '@/helpers/util';
+import ZIndex from '@/services/ZIndex';
 
 import './DateIntervalPicker.scss';
 
@@ -33,6 +33,18 @@ const DateTypes = {
   },
   get NOW() {
     return datePredicateVariables.NOW;
+  },
+  get CURRENT_QUARTER() {
+    return datePredicateVariables.CURRENT_QUARTER;
+  },
+  get CURRENT_MONTH() {
+    return datePredicateVariables.CURRENT_MONTH;
+  },
+  get CURRENT_YEAR() {
+    return datePredicateVariables.CURRENT_YEAR;
+  },
+  get CURRENT_WEEK() {
+    return datePredicateVariables.CURRENT_WEEK;
   }
 };
 const Labels = {
@@ -43,12 +55,20 @@ const Labels = {
   DATE_TYPE_CUSTOM: 'interval-picker.date-type.custom',
   DATE_TYPE_TODAY: 'interval-picker.date-type.today',
   DATE_TYPE_NOW: 'interval-picker.date-type.now',
+  DATE_TYPE_CURRENT_QUARTER: 'interval-picker.date-type.current-quarter',
+  DATE_TYPE_CURRENT_YEAR: 'interval-picker.date-type.current-year',
+  DATE_TYPE_CURRENT_WEEK: 'interval-picker.date-type.current-week',
+  DATE_TYPE_CURRENT_MONTH: 'interval-picker.date-type.current-month',
 
   DATE_INPUTS_START: 'interval-picker.date-inputs.start',
   DATE_INPUTS_END: 'interval-picker.date-inputs.end',
 
   TIME_AGO_DAYS: 'interval-picker.time-ago.days',
   TIME_AGO_HOURS: 'interval-picker.time-ago.hours',
+  TIME_AGO_YEARS: 'interval-picker.time-ago.years',
+  TIME_AGO_QUARTERS: 'interval-picker.time-ago.quarters',
+  TIME_AGO_MONTHS: 'interval-picker.time-ago.months',
+  TIME_AGO_WEEKS: 'interval-picker.time-ago.weeks',
 
   HOUR_F1: 'hour-form1',
   HOUR_F2: 'hour-form2',
@@ -145,6 +165,22 @@ class DateIntervalPicker extends Component {
       {
         label: t(Labels.TIME_AGO_HOURS),
         value: datePredicateVariables.HOUR
+      },
+      {
+        label: t(Labels.TIME_AGO_YEARS),
+        value: datePredicateVariables.YEAR
+      },
+      {
+        label: t(Labels.TIME_AGO_QUARTERS),
+        value: datePredicateVariables.QUARTER
+      },
+      {
+        label: t(Labels.TIME_AGO_MONTHS),
+        value: datePredicateVariables.MONTH
+      },
+      {
+        label: t(Labels.TIME_AGO_WEEKS),
+        value: datePredicateVariables.WEEK
       }
     ];
   }
@@ -166,6 +202,22 @@ class DateIntervalPicker extends Component {
       {
         label: t(Labels.DATE_TYPE_NOW),
         value: DateTypes.NOW
+      },
+      {
+        label: t(Labels.DATE_TYPE_CURRENT_QUARTER),
+        value: DateTypes.CURRENT_QUARTER
+      },
+      {
+        label: t(Labels.DATE_TYPE_CURRENT_MONTH),
+        value: DateTypes.CURRENT_MONTH
+      },
+      {
+        label: t(Labels.DATE_TYPE_CURRENT_YEAR),
+        value: DateTypes.CURRENT_YEAR
+      },
+      {
+        label: t(Labels.DATE_TYPE_CURRENT_WEEK),
+        value: DateTypes.CURRENT_WEEK
       }
     ];
   }
@@ -309,6 +361,22 @@ class DateIntervalPicker extends Component {
       return t(Labels.DATE_TYPE_NOW);
     }
 
+    if (date === DateTypes.CURRENT_WEEK) {
+      return t(Labels.DATE_TYPE_CURRENT_WEEK);
+    }
+
+    if (date === DateTypes.CURRENT_YEAR) {
+      return t(Labels.DATE_TYPE_CURRENT_YEAR);
+    }
+
+    if (date === DateTypes.CURRENT_QUARTER) {
+      return t(Labels.DATE_TYPE_CURRENT_QUARTER);
+    }
+
+    if (date === DateTypes.CURRENT_MONTH) {
+      return t(Labels.DATE_TYPE_CURRENT_MONTH);
+    }
+
     return date;
   }
 
@@ -365,6 +433,34 @@ class DateIntervalPicker extends Component {
       return;
     }
 
+    if (date === DateTypes.CURRENT_YEAR) {
+      this.setState({
+        selectedType: this.dateTypeOptions.find(item => item.value === DateTypes.CURRENT_YEAR)
+      });
+      return;
+    }
+
+    if (date === DateTypes.CURRENT_QUARTER) {
+      this.setState({
+        selectedType: this.dateTypeOptions.find(item => item.value === DateTypes.CURRENT_QUARTER)
+      });
+      return;
+    }
+
+    if (date === DateTypes.CURRENT_MONTH) {
+      this.setState({
+        selectedType: this.dateTypeOptions.find(item => item.value === DateTypes.CURRENT_MONTH)
+      });
+      return;
+    }
+
+    if (date === DateTypes.CURRENT_WEEK) {
+      this.setState({
+        selectedType: this.dateTypeOptions.find(item => item.value === DateTypes.CURRENT_WEEK)
+      });
+      return;
+    }
+
     this.setState({
       selectedType: this.dateTypeOptions.find(item => item.value === DateTypes.CUSTOM)
     });
@@ -396,7 +492,16 @@ class DateIntervalPicker extends Component {
   handleChangeDateType = selectedType => {
     let selectedPartValue = '';
 
-    if ([DateTypes.TODAY, DateTypes.NOW].includes(selectedType.value)) {
+    if (
+      [
+        DateTypes.TODAY,
+        DateTypes.NOW,
+        DateTypes.CURRENT_WEEK,
+        DateTypes.CURRENT_QUARTER,
+        DateTypes.CURRENT_MONTH,
+        DateTypes.CURRENT_YEAR
+      ].includes(selectedType.value)
+    ) {
       selectedPartValue = selectedType.value;
     }
 
@@ -423,12 +528,13 @@ class DateIntervalPicker extends Component {
 
     switch (this.selectedType) {
       case DateTypes.RELATIVE: {
-        if (this.selectedTimeAgo === datePredicateVariables.DAY) {
-          result = `-P${value}D`;
-        }
-
         if (this.selectedTimeAgo === datePredicateVariables.HOUR) {
           result = `-PT${value}H`;
+        } else if (this.selectedTimeAgo === datePredicateVariables.QUARTER) {
+          const months = value * 3;
+          result = `-P${months}M`;
+        } else {
+          result = `-P${value}${this.selectedTimeAgo}`;
         }
 
         break;
@@ -521,6 +627,15 @@ class DateIntervalPicker extends Component {
         return <Input readOnly narrow disabled value={moment().format(DateFormats.DATETIME)} />;
       case DateTypes.TODAY:
         return <Input readOnly narrow disabled value={moment().format(DateFormats.DATE)} />;
+      case DateTypes.CURRENT_YEAR:
+        return <Input readOnly narrow disabled value={moment().startOf('year').format(DateFormats.DATE)} />;
+      case DateTypes.CURRENT_WEEK:
+        return <Input readOnly narrow disabled value={moment().startOf('isoWeek').format(DateFormats.DATE)} />;
+      case DateTypes.CURRENT_QUARTER:
+        return <Input readOnly narrow disabled value={moment().startOf('quarter').format(DateFormats.DATE)} />;
+      case DateTypes.CURRENT_MONTH:
+        return <Input readOnly narrow disabled value={moment().startOf('month').format(DateFormats.DATE)} />;
+
       case DateTypes.CUSTOM:
         return <Input narrow value={this.date} onChange={event => this.handleSelectDate(event.target.value)} />;
       default:
