@@ -2813,6 +2813,7 @@
   "bpmn-linter.ai-task.unavailable": "AI помощник недоступен",
 
   "workspaces.create-button": "Добавить пространство",
+  "workspaces.edit-workspace-modal.title": "Настроить",
   "workspaces.see-more": "Посмотреть больше",
   "workspaces.sidebar.no-data-workspace.head": "Нет доступных пространств",
   "workspaces.card.go-to-workspace": "Перейти в пространство",

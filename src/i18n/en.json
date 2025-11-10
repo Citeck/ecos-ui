@@ -2814,6 +2814,7 @@
   "bpmn-linter.ai-task.unavailable": "AI assistant is not available",
 
   "workspaces.create-button": "Add a workspace",
+  "workspaces.edit-workspace-modal.title": "Edit",
   "workspaces.see-more": "See more",
   "workspaces.sidebar.no-data-workspace.head": "There are no available workspaces",
   "workspaces.card.go-to-workspace": "Go to the workspace",
