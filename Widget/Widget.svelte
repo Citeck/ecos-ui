@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { Locale } from "@svar-ui/svelte-core";
-  import { Gantt, Editor, Material } from "@svar-ui/svelte-gantt";
+  import { Gantt, Editor, Material, Tooltip } from "@svar-ui/svelte-gantt";
 
   import { ganttStore } from '../services/ganttStore';
   import { ru, en } from '../i18n';
@@ -26,15 +26,63 @@
   function init(api) {
     widgetApi = api;
 
+    // Per-task update queues: Map<taskId, { inProgress: boolean, pending: any|null }>
+    const taskUpdateQueues = new Map();
+
     widgetApi.on('add-task', async (task) => {
       const state = widgetApi.getState();
       const newTask = await ganttStore.createTask(task, state._tasks.length + 1);
-      widgetApi.exec("delete-task", { id: task.id, });
-      widgetApi.exec("update-task", { id: task.id, task: { id: newTask.id } });
+      await widgetApi.exec("update-task", { id: task.id, task: { id: newTask.id } });
+      await widgetApi.exec("delete-task", { id: task.id, });
+      widgetApi.exec("show-editor", { id: newTask.id});
     });
 
     widgetApi.on('update-task', async (task) => {
-      await ganttStore.updateTask(task);
+      const taskId = task && (task.id ?? task.task?.id);
+
+      if (!taskId) {
+        await ganttStore.updateTask(task);
+        return;
+      }
+
+      let queue = taskUpdateQueues.get(taskId);
+
+      if (!queue) {
+        queue = { inProgress: false, pending: null };
+        taskUpdateQueues.set(taskId, queue);
+      }
+
+      if (queue.inProgress) {
+        queue.pending = task;
+        return;
+      }
+
+      queue.inProgress = true;
+
+      try {
+        let current = task;
+
+        while (current) {
+          try {
+            await ganttStore.updateTask(current);
+          } catch (err) {
+            throw err;
+          }
+
+          if (queue.pending) {
+            current = queue.pending;
+            queue.pending = null;
+          } else {
+            current = null;
+          }
+        }
+      } finally {
+        queue.inProgress = false;
+
+        if (!queue.pending) {
+          taskUpdateQueues.delete(taskId);
+        }
+      }
     });
 
     widgetApi.on('delete-task', async (task) => {
@@ -76,14 +124,16 @@
   <div>No Gantt settings reference provided</div>
 {:else}
 <Locale words={words}>
-  <Gantt
-    tasks={$ganttStore.tasks}
-    links={$ganttStore.links}
-    scales={$ganttStore.scales}
-    init={init}
-  />
-  <Material>
-    <Editor api={widgetApi} placement="sidebar" />
-  </Material>
+  <Tooltip api={widgetApi}>
+    <Gantt
+      tasks={$ganttStore.tasks}
+      links={$ganttStore.links}
+      scales={$ganttStore.scales}
+      init={init}
+    />
+    <Material>
+      <Editor api={widgetApi} placement="sidebar" />
+    </Material>
+  </Tooltip>
 </Locale>
 {/if}

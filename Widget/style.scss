@@ -1,4 +1,4 @@
-@import '../../../styles/constants';
+@import '@/styles/constants';
 
 .ecos-gantt-chart-widget {
   --wx-gantt-border: 1px solid #1d1e261a;
@@ -6,7 +6,7 @@
   --wx-gantt-icon-color: #9fa1ae;
 
   --wx-color-primary: var(--primary-color);
-  --wx-button-border-radius: 6px;
+  --wx-button-border-radius: $border-radius-extra-large;
 
   --wx-gantt-bar-font: var(--wx-font-weight) var(--wx-font-size) $font-family;
   --wx-gantt-bar-border-radius: 6px;
