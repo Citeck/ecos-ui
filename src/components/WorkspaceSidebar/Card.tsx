@@ -51,7 +51,7 @@ type OpenWsEventType = React.MouseEvent<HTMLDivElement | HTMLLIElement | HTMLBut
 
 const Labels = {
   GO_TO_WORKSPACE: 'workspaces.card.go-to-workspace',
-  EDIT_WORKSPACE: 'workspaces.card.edit-workspace',
+  EDIT_WORKSPACE: 'workspaces.edit-workspace-modal.title',
   REMOVE_WORKSPACE: 'workspaces.card.remove-workspace',
   LEAVE_WORKSPACE: 'workspaces.card.leave-workspace',
   LEAVE_WORKSPACE_ERROR_TITLE: 'workspaces.card.leave-workspace.error.title',
