@@ -37,6 +37,8 @@ const GanttSvelteComponent = SvelteWrapper<GanttWidgetProps>(__SvelteComponent__
 class GanttChartWidget<P extends GanttChartWidgetProps, S extends GanttChartWidgetState> extends BaseWidget<P, S> {
   static TYPE = 'gantt_chart';
 
+  private _isSavingSettings = false;
+
   constructor(props: P) {
     super(props);
 
@@ -44,6 +46,8 @@ class GanttChartWidget<P extends GanttChartWidgetProps, S extends GanttChartWidg
       isOpenSettings: false,
       ganttSettings: null
     } as S;
+
+    this._isSavingSettings = false;
   }
 
   componentDidMount() {
@@ -51,12 +55,22 @@ class GanttChartWidget<P extends GanttChartWidgetProps, S extends GanttChartWidg
   }
 
   loadGanttSettings = async () => {
-    const { config, ganttSettingsRef } = this.props;
+    const { ganttSettingsRef } = this.props;
 
     if (!ganttSettingsRef) {
-      await this.handleSaveSettings({ dataType: 'STANDALONE' });
+      if (this._isSavingSettings) return;
 
-      this.loadGanttSettings();
+      this._isSavingSettings = true;
+
+      try {
+        const resultId = await this.handleSaveSettings({ dataType: 'STANDALONE' });
+
+        if (resultId) {
+          await this.loadGanttSettings();
+        }
+      } finally {
+        this._isSavingSettings = false;
+      }
 
       return;
     }
@@ -124,6 +138,8 @@ class GanttChartWidget<P extends GanttChartWidgetProps, S extends GanttChartWidg
               })
           );
         }
+
+        return result.id;
       } else {
         const settingsRecord = Records.getRecordToEdit(ganttSettingsRef);
 
@@ -141,12 +157,14 @@ class GanttChartWidget<P extends GanttChartWidgetProps, S extends GanttChartWidg
           settingsRecord.att('linkedWithRef', null);
         }
 
-        await settingsRecord.save();
+        const result = await settingsRecord.save();
 
         this.setState({
           ganttSettings: settings,
           isOpenSettings: false
         });
+
+        return result?.id || ganttSettingsRef;
       }
     } catch (error: any) {
       console.error('Failed to save Gantt settings:', error);
