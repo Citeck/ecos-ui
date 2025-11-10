@@ -15,4 +15,4 @@ properties:
     - enterprise: false
       plugins:
         - stages-widget:1.6.0
-        - kanban-widget:1.7.0
+        - kanban-widget:1.8.0
