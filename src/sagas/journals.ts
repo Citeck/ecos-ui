@@ -728,7 +728,7 @@ function* sagaInitJournalSettingData(
     yield put(
       setOriginGridSettings(
         w({
-          predicate: filteredPredicate,
+          predicate: defaultPredicate,
           columnsSetup,
           grouping
         })
