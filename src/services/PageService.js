@@ -5,8 +5,9 @@ import isString from 'lodash/isString';
 import queryString from 'query-string';
 
 import { PageApi } from '@/api/page';
+import { JOURNAL_VIEW_MODE as JVM } from '@/components/Journals/constants';
 import Records from '@/components/Records';
-import { SourcesId, URL } from '@/constants';
+import { JournalUrlParams as JUP, SourcesId, URL } from '@/constants';
 import { SectionTypes } from '@/constants/adminSection';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, LINK_HREF, LINK_TAG, OPEN_IN_BACKGROUND, TITLE } from '@/constants/pageTabs';
 import { getData, isExistLocalStorage, setData } from '@/helpers/ls';
@@ -245,7 +246,26 @@ export default class PageService {
           journalId = PageService.getRef(link);
         }
 
-        return pageApi.getJournalTitle(journalId, force).then(title => `${t(TITLE.JOURNAL)} "${convertTitle(title)}"`);
+        const separator = '?';
+        const searchParams = new URLSearchParams(link && link.includes(separator) ? separator + link.split(separator)[1] : '');
+        const viewMode = searchParams.get(JUP.VIEW_MODE);
+
+        let previewTextKey;
+        switch (viewMode) {
+          case JVM.PREVIEW_LIST:
+            previewTextKey = TITLE.PREVIEW_LIST;
+            break;
+          case JVM.DOC_LIB:
+            previewTextKey = TITLE.DOC_LIB;
+            break;
+          case JVM.KANBAN:
+            previewTextKey = TITLE.KANBAN;
+            break;
+          default:
+            previewTextKey = TITLE.JOURNAL;
+        }
+
+        return pageApi.getJournalTitle(journalId, force).then(title => `${t(previewTextKey)} "${convertTitle(title)}"`);
       }
     },
     [PageTypes.TIMESHEET]: {

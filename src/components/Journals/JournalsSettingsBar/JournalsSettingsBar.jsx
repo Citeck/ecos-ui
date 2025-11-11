@@ -33,6 +33,7 @@ const Labels = {
   BTN_CREATE: 'journals.bar.btn.create',
   BTN_TABLE_SETTINGS: 'journals.bar.btn.settings-table',
   BTN_JOURNAL_SETTINGS: 'journals.bar.btn.settings-journal',
+  BTN_KANBAN_SETTINGS: 'journals.bar.btn.settings-kanban',
   BTN_WIDGET_SETTINGS: 'widgets-settings.modal.title',
   BTN_EXPORT: 'journals.bar.btn.export',
   BTN_IMPORT: 'journals.bar.btn.import',
@@ -61,7 +62,6 @@ const JournalsSettingsBar = ({
   viewMode,
 
   isMobile,
-  isAdmin,
   isCreateLoading,
   isShowResetFilter,
   noGroupActions,
@@ -152,7 +152,11 @@ const JournalsSettingsBar = ({
         )}
 
         {!hideSettingsJournalBtn && hasWritePermission && isViewNewJournal && !isMobile && hasBtnEdit && (
-          <Tooltip target={`${targetId}-journal-settings`} text={t(Labels.BTN_JOURNAL_SETTINGS)} {...tooltipSettings}>
+          <Tooltip
+            target={`${targetId}-journal-settings`}
+            text={t(isKanban(viewMode) ? Labels.BTN_KANBAN_SETTINGS : Labels.BTN_JOURNAL_SETTINGS)}
+            {...tooltipSettings}
+          >
             <IcoBtn
               id={`${targetId}-journal-settings`}
               icon={!isViewNewJournal ? 'icon-settings' : null}
