@@ -61,6 +61,7 @@ const JournalsSettingsBar = ({
   selectedRecords,
   viewMode,
 
+  isLoading,
   isMobile,
   isCreateLoading,
   isShowResetFilter,
@@ -300,7 +301,7 @@ const JournalsSettingsBar = ({
           </IcoBtn>
         </Tooltip>
 
-        {isShowResetFilter && (
+        {isShowResetFilter && !isLoading && (
           <Tooltip target={`${targetId}-reset-filter`} text={t(Labels.BTN_FILTER_DEL)} {...tooltipSettings}>
             <IcoBtn
               id={`${targetId}-reset-filter`}
