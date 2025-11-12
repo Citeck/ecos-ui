@@ -1,10 +1,11 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import isEmpty from 'lodash/isEmpty';
 import classNames from 'classnames';
+import isEmpty from 'lodash/isEmpty';
+import PropTypes from 'prop-types';
+import * as React from 'react';
 
 import { t } from '../../../helpers/util';
 import { InfoText, Loader } from '../../common/index';
+
 import TaskDetails from './TaskDetails';
 import { TaskPropTypes } from './utils';
 
@@ -12,6 +13,7 @@ class TaskList extends React.Component {
   static propTypes = {
     tasks: PropTypes.arrayOf(PropTypes.shape(TaskPropTypes)).isRequired,
     className: PropTypes.string,
+    taskId: PropTypes.string,
     isLoading: PropTypes.bool,
     isSmallMode: PropTypes.bool,
     onAssignClick: PropTypes.func,
@@ -51,25 +53,28 @@ class TaskList extends React.Component {
   }
 
   renderTaskDetailsList() {
-    const { tasks, onAssignClick, onSubmitForm, className, isSmallMode, runUpdate, setFormRef } = this.props;
+    const { tasks, taskId, onAssignClick, onSubmitForm, className, isSmallMode, runUpdate, setFormRef } = this.props;
 
     if (isEmpty(tasks)) {
       return null;
     }
 
-    return tasks.map(item => (
-      <React.Fragment key={item.id}>
-        <TaskDetails
-          details={item}
-          onAssignClick={onAssignClick}
-          onSubmitForm={onSubmitForm}
-          className={className}
-          isSmallMode={isSmallMode}
-          runUpdate={runUpdate}
-          setFormRef={setFormRef}
-        />
-      </React.Fragment>
-    ));
+    return tasks.map(
+      item =>
+        (!taskId || (taskId && item.id && item.id.includes(taskId))) && (
+          <React.Fragment key={item.id}>
+            <TaskDetails
+              details={item}
+              onAssignClick={onAssignClick}
+              onSubmitForm={onSubmitForm}
+              className={className}
+              isSmallMode={isSmallMode}
+              runUpdate={runUpdate}
+              setFormRef={setFormRef}
+            />
+          </React.Fragment>
+        )
+    );
   }
 
   render() {
