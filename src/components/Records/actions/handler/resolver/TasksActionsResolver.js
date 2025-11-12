@@ -1,8 +1,9 @@
 import get from 'lodash/get';
 import merge from 'lodash/merge';
 
-import { t } from '../../../../../helpers/export/util';
 import { QueryLanguages, SourcesId } from '../../../../../constants';
+import { t } from '../../../../../helpers/export/util';
+import OpenTaskActions from '../../../../Records/actions/handler/executor/workflow/OpenTaskActions';
 import Records from '../../../Records';
 import RecordActionsResolver from '../RecordActionsResolver';
 import TaskOutcomeAction from '../executor/workflow/TaskOutcomeAction';
@@ -14,12 +15,15 @@ export default class TasksActionsResolver extends RecordActionsResolver {
 
   async resolve(records, action, context) {
     const result = {};
+
+    const evalOutcomesForTasks = get(action, 'config.evalOutcomesForTasks');
     const queryRes = await Records.query(
       {
         sourceId: SourcesId.TASK_FORM,
         language: QueryLanguages.TASKS,
         query: {
-          recordRefs: records.map(r => r.id)
+          recordRefs: records.map(r => r.id),
+          ...(evalOutcomesForTasks ? { evalOutcomesForTasks } : {})
         }
       },
       '.json'
@@ -64,6 +68,10 @@ export default class TasksActionsResolver extends RecordActionsResolver {
           type: TaskOutcomeAction.ACTION_ID,
           variants
         });
+
+        if (!outcomes.length) {
+          _action.type = OpenTaskActions.ACTION_ID;
+        }
 
         actions.push(_action);
       }
