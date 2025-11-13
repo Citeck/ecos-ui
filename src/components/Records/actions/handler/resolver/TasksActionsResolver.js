@@ -17,6 +17,7 @@ export default class TasksActionsResolver extends RecordActionsResolver {
     const result = {};
 
     const evalOutcomesForTasks = get(action, 'config.evalOutcomesForTasks');
+    const isViewTaskInfoInModal = get(action, 'config.isViewTaskInfoInModal', false);
     const queryRes = await Records.query(
       {
         sourceId: SourcesId.TASK_FORM,
@@ -70,6 +71,7 @@ export default class TasksActionsResolver extends RecordActionsResolver {
         });
 
         if (!outcomes.length) {
+          _action.isViewTaskInfoInModal = isViewTaskInfoInModal;
           _action.type = OpenTaskActions.ACTION_ID;
         }
 

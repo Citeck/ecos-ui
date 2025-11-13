@@ -11,7 +11,7 @@ export default class OpenTaskActions extends ActionsExecutor {
   static ACTION_ID = 'open-task-actions';
 
   async execForRecord(record, action, context) {
-    const { id, dashboardStateId } = action;
+    const { id, dashboardStateId, isViewTaskInfoInModal } = action;
     const taskId = id && id.includes('@') ? id.split('@')[1] : id;
 
     if (!taskId || !dashboardStateId) {
@@ -35,6 +35,7 @@ export default class OpenTaskActions extends ActionsExecutor {
         <Provider store={store}>
           <Suspense fallback={<Loader type="points" />}>
             <Tasks
+              isViewTaskInfo={isViewTaskInfoInModal}
               onSubmit={() => dialog.setVisible(false)}
               stateId={dashboardStateId}
               instanceRecord={record}
