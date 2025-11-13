@@ -20,7 +20,7 @@ import {
   IgnoredUrlParams,
   isNewVersionPage
 } from '@/helpers/urls';
-import { getCurrentUserName, getEnabledWorkspaces, getMLValue, t } from '@/helpers/util';
+import { getBool, getCurrentUserName, getEnabledWorkspaces, getMLValue, t } from '@/helpers/util';
 
 const pageApi = new PageApi();
 
@@ -473,7 +473,7 @@ export default class PageService {
       elem = event.target.closest('a[href]');
     }
 
-    if (!elem || elem.tagName !== LINK_TAG || !!elem.getAttribute(linkIgnoreAttr)) {
+    if (!elem || elem.tagName !== LINK_TAG || !!getBool(elem.getAttribute(linkIgnoreAttr))) {
       return;
     }
 
