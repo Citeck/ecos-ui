@@ -76,7 +76,7 @@ export const getCustomDasboardUrl = dashboardId => {
 export const getWikiDasboardUrl = () => {
   const workspaceId = getWorkspaceId();
 
-  return `${Urls.DASHBOARD}?recordRef=emodel/wiki@${workspaceId}$ROOT&ws=${workspaceId}`;
+  return `${Urls.DASHBOARD}?recordRef=${SourcesId.WIKI}@${workspaceId}$ROOT&ws=${workspaceId}`;
 };
 
 export const changeUrl = (url, opts = {}) => {
