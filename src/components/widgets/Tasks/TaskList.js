@@ -16,6 +16,7 @@ class TaskList extends React.Component {
     taskId: PropTypes.string,
     isLoading: PropTypes.bool,
     isSmallMode: PropTypes.bool,
+    isViewTaskInfo: PropTypes.bool,
     onAssignClick: PropTypes.func,
     onSubmitForm: PropTypes.func,
     forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })])
@@ -53,7 +54,7 @@ class TaskList extends React.Component {
   }
 
   renderTaskDetailsList() {
-    const { tasks, taskId, onAssignClick, onSubmitForm, className, isSmallMode, runUpdate, setFormRef } = this.props;
+    const { tasks, taskId, onAssignClick, onSubmitForm, className, isSmallMode, runUpdate, setFormRef, isViewTaskInfo } = this.props;
 
     if (isEmpty(tasks)) {
       return null;
@@ -65,6 +66,7 @@ class TaskList extends React.Component {
           <React.Fragment key={item.id}>
             <TaskDetails
               details={item}
+              isViewTaskInfo={isViewTaskInfo}
               onAssignClick={onAssignClick}
               onSubmitForm={onSubmitForm}
               className={className}

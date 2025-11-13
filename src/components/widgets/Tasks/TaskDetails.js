@@ -21,6 +21,7 @@ class TaskDetails extends React.Component {
     details: PropTypes.shape(TaskPropTypes).isRequired,
     className: PropTypes.string,
     isSmallMode: PropTypes.bool,
+    isViewTaskInfo: PropTypes.bool,
     onSubmitForm: PropTypes.func.isRequired
   };
 
@@ -126,21 +127,25 @@ class TaskDetails extends React.Component {
   }
 
   render() {
-    const { details, className, isSmallMode, setFormRef } = this.props;
+    const { details, className, isSmallMode, setFormRef, isViewTaskInfo } = this.props;
 
     return (
       <div className={classNames('ecos-task-ins', className)}>
-        <Headline className="ecos-task-ins__title">
-          <div title={details.title} className="ecos-task-ins__title-text">
-            {details.title}
-          </div>
-          {!isSmallMode && this.renderAssignmentPanel()}
-        </Headline>
-        <div className="ecos-task-ins__info-wrap">
-          {isSmallMode && this.renderAssignmentPanel()}
-          {!isSmallMode && this.renderDetailsGrid()}
-          {isSmallMode && this.renderDetailsEnum()}
-        </div>
+        {isViewTaskInfo && (
+          <>
+            <Headline className="ecos-task-ins__title">
+              <div title={details.title} className="ecos-task-ins__title-text">
+                {details.title}
+              </div>
+              {!isSmallMode && this.renderAssignmentPanel()}
+            </Headline>
+            <div className="ecos-task-ins__info-wrap">
+              {isSmallMode && this.renderAssignmentPanel()}
+              {!isSmallMode && this.renderDetailsGrid()}
+              {isSmallMode && this.renderDetailsEnum()}
+            </div>
+          </>
+        )}
         <div className="ecos-task-ins__eform">
           <EcosForm
             ref={setFormRef}

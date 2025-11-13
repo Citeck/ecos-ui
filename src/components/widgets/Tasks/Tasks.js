@@ -42,6 +42,7 @@ class Tasks extends React.Component {
     className: PropTypes.string,
     taskId: PropTypes.string,
     isSmallMode: PropTypes.bool,
+    isViewTaskInfo: PropTypes.bool,
     runUpdate: PropTypes.bool,
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
@@ -118,7 +119,7 @@ class Tasks extends React.Component {
   };
 
   renderTaskList = () => {
-    const { tasks, taskId, isLoading, isSmallMode, forwardedRef, runUpdate, setFormRef } = this.props;
+    const { tasks, taskId, isLoading, isSmallMode, forwardedRef, runUpdate, setFormRef, isViewTaskInfo } = this.props;
 
     const childProps = {
       tasks,
@@ -126,6 +127,7 @@ class Tasks extends React.Component {
       isSmallMode,
       runUpdate,
       taskId,
+      isViewTaskInfo,
       onAssignClick: this.onAssignClick,
       onSubmitForm: this.onSubmitForm
     };
