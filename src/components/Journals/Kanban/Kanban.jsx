@@ -100,9 +100,14 @@ class Kanban extends React.Component {
     }
 
     if (headerElement && bodyElement) {
-      const max = Math.max(headerElement.scrollWidth, bodyElement.scrollWidth);
-      headerElement.style.width = `${max}px`;
-      bodyElement.style.width = `${max}px`;
+      headerElement.style.width = 'auto';
+      bodyElement.style.width = 'auto';
+
+      window.requestAnimationFrame(() => {
+        const max = Math.max(headerElement.scrollWidth, bodyElement.scrollWidth);
+        headerElement.style.width = `${max}px`;
+        bodyElement.style.width = `${max}px`;
+      });
     }
   }
 
