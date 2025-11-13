@@ -1,5 +1,7 @@
 import FormIOCheckBoxComponent from 'formiojs/components/checkbox/Checkbox';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import isString from 'lodash/isString';
 import set from 'lodash/set';
 import unset from 'lodash/unset';
 
@@ -199,7 +201,7 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
       this.input.value = value;
     }
 
-    if (this.labelSpan) {
+    if (this.labelSpan && isString(value)) {
       this.labelSpan.setAttribute('title', value);
     }
   }
@@ -314,7 +316,7 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
         this.input.value = newValue;
       }
 
-      if (this.labelSpan) {
+      if (this.labelSpan && isString(newValue)) {
         this.labelSpan.setAttribute('title', newValue);
       }
 

@@ -406,7 +406,7 @@ class Grid extends Component {
           get(column, 'style.width') && delete column.style.width;
         }
 
-        if (!isUndefined(column.default)) {
+        if (!isUndefined(column.default) && !column.hidden) {
           column.hidden = !column.default;
         }
 
