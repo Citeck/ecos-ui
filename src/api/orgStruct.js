@@ -567,18 +567,26 @@ export class OrgStructApi extends CommonApi {
     return queryVal;
   };
 
-  static async getRoleList(searchText, extraFields = []) {
+  static async getRoleList(searchText, extraFields = [], signal) {
     return Records.query(
       {
         sourceId: SourcesId.AUTHORITY,
         query: { types: ['ROLE'] }
       },
-      { ...OrgStructApi.roleAttributes, ...extraFields }
+      { ...OrgStructApi.roleAttributes, ...extraFields },
+      { signal }
     );
   }
 
-  static async getUserList(searchText, extraFields = [], params = { page: 0, maxItems: ITEMS_PER_PAGE }, isSkipSearchInWorkspace) {
+  static async getUserList(searchText, extraFields = [], params = { page: 0, maxItems: ITEMS_PER_PAGE }, isSkipSearchInWorkspace, signal) {
     let queryVal = [];
+
+    const userMask = await OrgStructApi.fetchUsernameMask();
+    let personAttributes = {};
+
+    if (!!userMask) {
+      personAttributes = EcosFormUtils.getAttrsFromTemplate(userMask).reduce((acc, value) => ({ ...acc, [value]: value }), {});
+    }
 
     const notDisabledPredicate = await OrgStructApi.getNotDisabledPredicate();
     if (notDisabledPredicate) {
@@ -614,7 +622,8 @@ export class OrgStructApi extends CommonApi {
         },
         language: 'predicate'
       },
-      { ...OrgStructApi.userAttributes, ...searchFields, ...extraFields }
+      { ...OrgStructApi.userAttributes, ...searchFields, ...extraFields, ...personAttributes },
+      { signal }
     ).then(result => ({
       items: converterUserList(result.records),
       totalCount: result.totalCount
