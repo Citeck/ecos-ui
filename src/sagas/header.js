@@ -33,6 +33,8 @@ import PageService from '../services/PageService';
 import configService, { CREATE_MENU_TYPE } from '../services/config/ConfigService';
 import { LiveSearchTypes } from '../services/search';
 
+import { getSidebarWorkspaces, getWorkspaces } from '@/actions/workspaces';
+
 function* fetchCreateCaseWidget({ api }) {
   try {
     const createMenuView = yield call(key => configService.getValue(key), CREATE_MENU_TYPE);
@@ -80,18 +82,24 @@ function* fetchUserMenu({ api }) {
   }
 }
 
-function* fetchInfluentialParams() {
+function* fetchInfluentialParams(api) {
   const isAdmin = yield select(state => state.user.isAdmin);
   const leftMenuEditable = yield select(state => state.app.leftMenuEditable);
   const dashboardEditable = yield select(state => state.app.dashboardEditable);
   const widgetEditable = yield select(state => state.app.widgetEditable);
+  const hasWriteCurrentWorkspace = yield call(api.workspaces.hasWriteCurrentWorkspace);
 
-  return { isAdmin, dashboardEditable, widgetEditable, leftMenuEditable };
+  function* updateWorkspaces() {
+    yield put(getWorkspaces());
+    yield put(getSidebarWorkspaces());
+  }
+
+  return { isAdmin, dashboardEditable, widgetEditable, leftMenuEditable, hasWriteCurrentWorkspace, updateWorkspaces };
 }
 
-function* fetchSiteMenu() {
+function* fetchSiteMenu({ api }) {
   try {
-    const params = yield fetchInfluentialParams();
+    const params = yield fetchInfluentialParams(api);
     const url = document.location.href;
     const isDashboardPage = isDashboard(url);
     const menuItems = makeSiteMenu({ isDashboardPage, ...params });
@@ -101,9 +109,9 @@ function* fetchSiteMenu() {
   }
 }
 
-function* filterSiteMenu({}, { payload = {} }) {
+function* filterSiteMenu({ api }, { payload = {} }) {
   try {
-    const params = yield fetchInfluentialParams();
+    const params = yield fetchInfluentialParams(api);
     const { identification = null } = payload;
     const tabLink = get(payload, 'tab.link', '');
     let { url = window.location.pathname } = payload;

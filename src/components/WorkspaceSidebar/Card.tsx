@@ -7,6 +7,7 @@ import { getSidebarWorkspaces, getWorkspaces, joinToWorkspace, leaveOfWorkspace,
 import { WorkspaceType } from '@/api/workspaces/types';
 import FormManager from '@/components/EcosForm/FormManager';
 import Records from '@/components/Records';
+import RecordImpl from '@/components/Records/Record';
 import WorkspacePreview from '@/components/WorkspacePreview';
 import Confirm from '@/components/WorkspaceSidebar/Confirm';
 import Actions from '@/components/common/icons/HorizontalActions';
@@ -137,7 +138,7 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
       title: `${t('workspaces.edit-workspace-modal.title')} ${name}`,
       record: `${SourcesId.WORKSPACE}@${this.props.id}`,
       saveOnSubmit: true,
-      onSubmit: async (record: any) => {
+      onSubmit: async (record: RecordImpl) => {
         if (openWorkspace) {
           const { id: wsId, homePageLink } = await Records.get(record).load({
             id: 'id',
