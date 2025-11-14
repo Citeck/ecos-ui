@@ -1,0 +1,52 @@
+$page-loader-default-color: #7396CD;
+
+
+.citeck-page-loader {
+  display: inline-block;
+  --loader-color: #{$page-loader-default-color};
+  --duration: 1.6s;
+
+  color: var(--loader-color);
+
+  &__container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .spinner {
+    transform-box: fill-box;
+    transform-origin: 50% 50%;
+
+
+    animation: page-loader-spin var(--duration) linear infinite;
+  }
+
+  @keyframes page-loader-spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    85% {
+      transform: rotate(360deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .spinner {
+      animation: none;
+    }
+  }
+}
