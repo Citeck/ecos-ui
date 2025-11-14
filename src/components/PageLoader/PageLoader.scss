@@ -1,16 +1,19 @@
-$page-loader-default-color: #7396CD;
+$page-loader-color: #6f7ea8;
+$page-bg: #f5f6f8;
+$panel-bg: #fff;
+$muted-border: #e6e9ee;
 
+$skeleton-base: #e9eef8;
+$skeleton-highlight: #f6f7fb;
 
 .citeck-page-loader {
   display: inline-block;
-  --loader-color: #{$page-loader-default-color};
-  --duration: 1.6s;
-
+  --loader-color: #{$page-loader-color};
   color: var(--loader-color);
 
   &__container {
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -24,29 +27,184 @@ $page-loader-default-color: #7396CD;
     height: 100%;
   }
 
+  /* spinner graphic should be static in skeleton mode */
   .spinner {
     transform-box: fill-box;
     transform-origin: 50% 50%;
-
-
-    animation: page-loader-spin var(--duration) linear infinite;
   }
 
-  @keyframes page-loader-spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    85% {
-      transform: rotate(360deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .spinner {
-      animation: none;
-    }
+  h4 {
+    display: none; /* hide any text captions in skeleton mode */
   }
 }
+
+/* Skeleton layout */
+.pl-root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: $page-bg;
+  color: #333;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+
+.pl-header {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  background: $panel-bg;
+  border-bottom: 1px solid $muted-border;
+}
+
+.pl-brand {
+  width: 180px;
+  height: 28px;
+  background: linear-gradient(90deg, #3b6fb3 0%, #6f7ea8 100%);
+  border-radius: 4px;
+}
+
+.pl-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pl-body {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0; /* allow children to scroll */
+}
+
+.pl-sidebar {
+  width: 260px;
+  background: $panel-bg;
+  border-right: 1px solid $muted-border;
+  padding: 16px 12px;
+  box-sizing: border-box;
+}
+
+.pl-logo {
+  width: 100%;
+  height: 40px;
+  background: $skeleton-base;
+  border: 1px solid $muted-border;
+  margin-bottom: 12px;
+}
+
+.pl-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pl-menu-item {
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: $skeleton-base;
+  color: transparent;
+  height: 36px;
+}
+
+.pl-menu-item.active {
+  background: $skeleton-base;
+}
+
+.pl-content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  box-sizing: border-box;
+  overflow: auto;
+}
+
+.pl-content-inner {
+  flex: 1 1 auto;
+}
+
+.pl-widgets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.pl-widget-box {
+  height: 140px;
+  background: $skeleton-base;
+  border-radius: 6px;
+}
+
+.pl-table {
+  background: transparent;
+  border-radius: 6px;
+  padding: 12px 0;
+}
+
+.pl-table-heading {
+  height: 26px;
+  width: 40%;
+  background: $skeleton-base;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+.pl-table-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pl-table-row {
+  display: flex;
+  gap: 8px;
+}
+
+.pl-cell {
+  flex: 1 1 0;
+  height: 28px;
+  background: $skeleton-base;
+  border-radius: 4px;
+}
+
+.pl-loading-caption {
+  padding: 12px 0 0 0;
+}
+
+@media (max-width: 768px) {
+  .pl-sidebar {
+    display: none;
+  }
+
+  .pl-brand {
+    width: 120px;
+  }
+}
+
+/* shimmer animation for skeleton elements */
+.shimmer {
+  background: linear-gradient(90deg, $skeleton-base 0%, $skeleton-highlight 50%, $skeleton-base 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* apply shimmer to key skeleton pieces */
+.pl-logo.shimmer,
+.pl-brand.shimmer,
+.pl-widget-box.shimmer,
+.pl-cell.shimmer,
+.pl-table-heading.shimmer,
+.pl-menu-item.shimmer {
+  will-change: background-position;
+}
+
