@@ -83,6 +83,7 @@ class ActionsDashlet extends BaseWidget {
           runUpdate={runUpdate}
           isActiveLayout={isActiveLayout}
           scrollbarProps={this.scrollbarProps}
+          instanceRecord={this.instanceRecord}
         />
       </Dashlet>
     );
