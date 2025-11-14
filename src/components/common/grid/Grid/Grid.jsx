@@ -203,6 +203,10 @@ class Grid extends Component {
     }
 
     if (current) {
+      if (prevProps.loading !== loading) {
+        this.updateInlineToolsElementOfLoading();
+      }
+
       const headerElement = current.querySelector(`.${ECOS_GRID_HEADER}`);
       const headerLoaderElement = current.querySelector(`.${ECOS_GRID_HEADER_LOADER}`);
 
@@ -607,6 +611,23 @@ class Grid extends Component {
         }
       }
     }
+  };
+
+  updateInlineToolsElementOfLoading = () => {
+    const current = this._ref.current;
+    if (!current) {
+      return;
+    }
+
+    const trEl = current.querySelector(`.${ECOS_GRID_INLINE_TOOLS_CONTAINER}`)?.closest('tr');
+
+    if (!trEl) {
+      return;
+    }
+
+    trEl._inlineToolsRoot?.unmount();
+    const settingInlineTools = this.getTrOptions(trEl);
+    this.appendInlineToolsElement(trEl, settingInlineTools);
   };
 
   appendInlineToolsElement = (currentTarget, settingInlineTools) => {
@@ -1489,9 +1510,8 @@ class Grid extends Component {
   }
 
   render() {
-    const { className, noTopBorder, columns, noHeader, scrollable, selected, multiSelectable, noHorizontalScroll, isViewNewJournal, data } =
-      this.props;
-    const { updatedColumn, updatedColumnBlocked, maxHeight, hasFooter } = this.state;
+    const { className, noTopBorder, columns, noHeader, scrollable, selected, multiSelectable, noHorizontalScroll } = this.props;
+    const { updatedColumn, updatedColumnBlocked } = this.state;
 
     if (isEmpty(columns)) {
       return null;
