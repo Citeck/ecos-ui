@@ -1027,6 +1027,7 @@
   "header.user-menu.my-profile": "Мой профиль",
   "header.user-menu.edit-password": "Изменить пароль",
   "header.site-menu.admin-page": "Раздел администратора",
+  "header.site-menu.settings-current-workspace": "Настройка рабочего пространства",
   "header.site-menu.home-page": "Домашняя страница",
   "header.site-menu.go-home-page": "Открыть домашнюю страницу",
   "header.site-menu.menu-settings": "Настроить меню",

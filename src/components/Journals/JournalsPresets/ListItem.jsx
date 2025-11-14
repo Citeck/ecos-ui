@@ -1,12 +1,13 @@
-import React from 'react';
-import get from 'lodash/get';
 import classNames from 'classnames';
+import get from 'lodash/get';
+import React from 'react';
 
-import { isMobileDevice, t } from '../../../helpers/util';
 import { Tooltip } from '../../common';
-import DialogManager from '../../common/dialogs/Manager';
 import { IcoBtn } from '../../common/btns';
+import DialogManager from '../../common/dialogs/Manager';
 import { Labels } from '../constants';
+
+import { isMobileDevice, t } from '@/helpers/util';
 
 export default class ListItem extends React.PureComponent {
   onClick = () => {
@@ -42,9 +43,7 @@ export default class ListItem extends React.PureComponent {
         onClick={this.onClick}
       >
         <Tooltip uncontrolled showAsNeeded target={targetId} text={item.displayName} off={isMobileDevice()}>
-          <div className="ecos-journal-menu__list-item-title" title={item.displayName}>
-            {item.displayName}
-          </div>
+          <div className="ecos-journal-menu__list-item-title">{item.displayName}</div>
         </Tooltip>
         {item.editable && (
           <div className="ecos-journal-menu__list-item-actions">
