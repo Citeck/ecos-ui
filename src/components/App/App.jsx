@@ -306,7 +306,7 @@ class App extends Component {
 
     return (
       <div className="ecos-main-content" style={styles}>
-        <Suspense fallback={<PageLoader />}>
+        <Suspense fallback={<PageLoader withoutHeader />}>
           <CacheSwitch isCurrent={isCurrent} tabLink={tab.link}>
             <CacheRoute
               {...baseCacheRouteProps}
@@ -429,7 +429,7 @@ class App extends Component {
   renderRouter = () => {
     return (
       <div className="ecos-main-content" style={this.wrapperStyle}>
-        <Suspense fallback={<PageLoader />}>
+        <Suspense fallback={<PageLoader withoutHeader />}>
           <Switch>
             <Route path={Urls.DASHBOARD} exact render={(props) => <Page pageKey={Pages.DASHBOARD} {...props} />} />
             <Route path={Urls.ADMIN_PAGE} render={(props) => <Page pageKey={Pages.BPMN} {...props} />} />
