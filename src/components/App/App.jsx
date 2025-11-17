@@ -39,10 +39,11 @@ import {
 } from '@/selectors/workspaces';
 import { NotificationContainer } from '@/services/notifications';
 import PageTabList from '@/services/pageTabs/PageTabList';
+import PageLoader from '@/components/PageLoader';
+import Server from '../common/icons/Server';
 import UserLocalSettingsService from '@/services/userLocalSettings';
 
 import './App.scss';
-import Server from '../common/icons/Server';
 
 const allowedLinks = [
   Urls.DASHBOARD,
@@ -305,7 +306,7 @@ class App extends Component {
 
     return (
       <div className="ecos-main-content" style={styles}>
-        <Suspense fallback={null}>
+        <Suspense fallback={<PageLoader withoutHeader />}>
           <CacheSwitch isCurrent={isCurrent} tabLink={tab.link}>
             <CacheRoute
               {...baseCacheRouteProps}
@@ -428,7 +429,7 @@ class App extends Component {
   renderRouter = () => {
     return (
       <div className="ecos-main-content" style={this.wrapperStyle}>
-        <Suspense fallback={null}>
+        <Suspense fallback={<PageLoader withoutHeader />}>
           <Switch>
             <Route path={Urls.DASHBOARD} exact render={(props) => <Page pageKey={Pages.DASHBOARD} {...props} />} />
             <Route path={Urls.ADMIN_PAGE} render={(props) => <Page pageKey={Pages.BPMN} {...props} />} />
@@ -476,8 +477,7 @@ class App extends Component {
     const { isInit, isInitFailure, isMobile, isViewNewJournal } = this.props;
 
     if (!isInit) {
-      // TODO: Loading component
-      return null;
+      return <PageLoader  />;
     }
 
     const appClassNames = classNames('app-container', { mobile: isMobile, new: isViewNewJournal });
