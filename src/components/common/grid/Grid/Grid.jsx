@@ -84,6 +84,7 @@ class Grid extends Component {
     this._startResizingThOffset = 0;
     this._scrollValues = {};
     this._tr = null;
+    this._lastHoverTr = null;
     this._dragTr = null;
     this._tableDom = null;
     this._ref = React.createRef();
@@ -204,7 +205,7 @@ class Grid extends Component {
 
     if (current) {
       if (prevProps.loading !== loading) {
-        this.updateInlineToolsElementOfLoading();
+        this.updateInlineToolsElementOfLoading(isEmpty(prevProps.editingRules) && !isEmpty(this.props.editingRules));
       }
 
       const headerElement = current.querySelector(`.${ECOS_GRID_HEADER}`);
@@ -611,18 +612,31 @@ class Grid extends Component {
         }
       }
     }
+
+    this._lastHoverTr = null;
   };
 
-  updateInlineToolsElementOfLoading = () => {
+  updateInlineToolsElementOfLoading = (isFindFocusTr = false) => {
     const current = this._ref.current;
     if (!current) {
       return;
     }
 
-    const trEl = current.querySelector(`.${ECOS_GRID_INLINE_TOOLS_CONTAINER}`)?.closest('tr');
+    let trEl = current.querySelector(`.${ECOS_GRID_INLINE_TOOLS_CONTAINER}`)?.closest('tr');
 
     if (!trEl) {
-      return;
+      if (!isFindFocusTr || !this._lastHoverTr) {
+        return;
+      }
+
+      const rowIndex = this._lastHoverTr.rowIndex - 1; // because inline Loader also tr element
+      const target = Array.from(current.querySelectorAll('tr')).find(t => t.rowIndex === rowIndex);
+
+      if (!target) {
+        return;
+      }
+
+      trEl = target;
     }
 
     trEl._inlineToolsRoot?.unmount();
@@ -633,31 +647,25 @@ class Grid extends Component {
   appendInlineToolsElement = (currentTarget, settingInlineTools) => {
     const inlineToolsElement = document.createElement('td');
     inlineToolsElement.className = ECOS_GRID_INLINE_TOOLS_CONTAINER;
+    this._lastHoverTr = currentTarget;
+
+    const renderInlineTools = element => {
+      if (element) {
+        const root = createRoot(inlineToolsElement);
+        root.render(element);
+
+        currentTarget.appendChild(inlineToolsElement);
+        currentTarget.classList.add(HAS_INLINE_TOOLS_CLASS);
+        currentTarget._inlineToolsRoot = root;
+      }
+    };
 
     if (!isEmpty(settingInlineTools) && isFunction(this.props.inlineTools)) {
       const inlineTools = this.inlineTools(settingInlineTools);
-
-      if (inlineTools) {
-        const root = createRoot(inlineToolsElement);
-        root.render(inlineTools);
-
-        currentTarget.appendChild(inlineToolsElement);
-        currentTarget.classList.add(HAS_INLINE_TOOLS_CLASS);
-
-        currentTarget._inlineToolsRoot = root;
-      }
+      renderInlineTools(inlineTools);
     } else if (isFunction(this.props.inlineActions)) {
       const inlineActions = this.props.inlineActions(get(settingInlineTools, 'row.id') || null);
-
-      if (inlineActions) {
-        const root = createRoot(inlineToolsElement);
-        root.render(inlineActions);
-
-        currentTarget.appendChild(inlineToolsElement);
-        currentTarget.classList.add(HAS_INLINE_TOOLS_CLASS);
-
-        currentTarget._inlineToolsRoot = root;
-      }
+      renderInlineTools(inlineActions);
     }
   };
 
