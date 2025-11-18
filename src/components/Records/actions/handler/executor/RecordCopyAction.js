@@ -5,12 +5,14 @@ import isUndefined from 'lodash/isUndefined';
 import { t } from '../../../../../helpers/util';
 
 const NOT_EXISTS_ATT = '_notExists?bool';
+const MODULE_ID_REGEX = /@(?:.*[:$])?(.+)$/;
 
 export default class RecordCopyAction extends ActionsExecutor {
   static ACTION_ID = 'record-copy';
 
   async execForRecord(record, action, context) {
-    const currentModuleId = record.id.substring(record.id.indexOf('@') + 1);
+    const match = record.id.match(MODULE_ID_REGEX);
+    const currentModuleId = match ? match[1] : record.id;
 
     return new Promise(resolve => {
       DialogManager.showFormDialog({
