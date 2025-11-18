@@ -151,7 +151,7 @@ export default class Pagination extends Component {
             <IcoBtn
               icon={!isViewNewJournal ? 'icon-small-left' : null}
               className={classNames(
-                'ecos-btn_grey3 ecos-btn_bgr-inherit ecos-btn_hover_t-light-blue fitnesse-ecos-pagination__arrow-right',
+                'ecos-btn_grey3 ecos-btn_bgr-inherit ecos-btn_hover_t-light-blue fitnesse-ecos-pagination__arrow-left',
                 {
                   'ecos-pagination__arrow': !isViewNewJournal,
                   'ecos-pagination__arrow_new': isViewNewJournal
