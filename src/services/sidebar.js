@@ -16,7 +16,7 @@ import { arrayFlat, getEnabledWorkspaces, hasChildWithId } from '../helpers/util
 
 import ULS from './userLocalSettings';
 
-export default class SidebarService {
+class SidebarService {
   static DROPDOWN_LEVEL = 0;
   static SELECTED_MENU_ITEM_ID_KEY = 'selectedMenuItemId';
   static UPDATE_EVENT = 'menu-update-event';
@@ -399,3 +399,8 @@ export default class SidebarService {
 
 const ATypes = ActionTypes;
 const MenuItemsTypes = MenuSettings.ItemTypes;
+
+window.Citeck = window.Citeck || {};
+window.Citeck.SidebarService = SidebarService;
+
+export default window.Citeck.SidebarService;

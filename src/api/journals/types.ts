@@ -100,6 +100,7 @@ export type ApiJournalConfigJsonType = {
   defaultFilters?: unknown[];
   defaultSortBy?: SortByType[];
   editable?: boolean;
+  isReloadDataOnFocus?: boolean;
   groupBy?: string[];
   journalSettingId?: string;
   hasWritePermission: boolean;
