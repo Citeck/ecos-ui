@@ -10,10 +10,10 @@ import debounce from 'lodash/debounce';
 import throttle from 'lodash/throttle';
 import merge from 'lodash/merge';
 
-import { execJournalAction, setUrl, toggleViewMode } from '../../actions/journals';
+import { execJournalAction, setUrl, toggleViewMode, reloadGrid } from '../../actions/journals';
 import { getTypeRef } from '../../actions/docLib';
 import { getBoardList } from '../../actions/kanban';
-import { selectCommonJournalPageProps } from '../../selectors/journals';
+import { selectCommonJournalPageProps, selectJournalConfig } from '../../selectors/journals';
 import { DocLibUrlParams as DLUP, JournalUrlParams as JUP, SourcesId } from '../../constants';
 import { animateScrollTo, getBool, t } from '../../helpers/util';
 import { equalsQueryUrls, getSearchParams } from '../../helpers/urls';
@@ -35,13 +35,16 @@ import './style.scss';
 
 const mapStateToProps = (state, props) => {
   const commonProps = selectCommonJournalPageProps(state, props.stateId);
+  const journalConfig = selectJournalConfig(state, props.stateId);
 
   return {
     isAdmin: get(state, 'user.isAdmin'),
     isMobile: get(state, 'view.isMobile'),
     pageTabsIsShow: get(state, 'pageTabs.isShow'),
+    location: get(state, 'router.location', {}),
     _url: window.location.href,
-    ...commonProps
+    journalConfig,
+    ...commonProps,
   };
 };
 
@@ -49,12 +52,13 @@ const mapDispatchToProps = (dispatch, props) => {
   const w = wrapArgs(props.stateId);
 
   return {
-    setUrl: urlParams => dispatch(setUrl(w(urlParams))),
-    toggleViewMode: viewMode => dispatch(toggleViewMode({ viewMode, stateId: props.stateId })),
+    setUrl: (urlParams) => dispatch(setUrl(w(urlParams))),
+    reloadGrid: () => dispatch(reloadGrid(w())),
+    toggleViewMode: (viewMode) => dispatch(toggleViewMode({ viewMode, stateId: props.stateId })),
     execJournalAction: (records, action, context) => dispatch(execJournalAction(w({ records, action, context }))),
-    getTypeRef: journalId => dispatch(getTypeRef(w({ journalId }))),
-    getBoardList: journalId => dispatch(getBoardList({ journalId, stateId: props.stateId })),
-    updateTab: tab => dispatch(updateTab({ tab }))
+    getTypeRef: (journalId) => dispatch(getTypeRef(w({ journalId }))),
+    getBoardList: (journalId) => dispatch(getBoardList({ journalId, stateId: props.stateId })),
+    updateTab: (tab) => dispatch(updateTab({ tab })),
   };
 };
 
@@ -64,14 +68,14 @@ const defaultDisplayElements = {
   settings: true,
   pagination: true,
   groupActions: true,
-  editJournal: true
+  editJournal: true,
 };
 
 const ViewLabels = {
   [JVM.PREVIEW]: Labels.Views.PREVIEW,
   [JVM.TABLE]: Labels.Views.JOURNAL,
   [JVM.DOC_LIB]: Labels.Views.DOC_LIB,
-  [JVM.KANBAN]: Labels.Views.KANBAN
+  [JVM.KANBAN]: Labels.Views.KANBAN,
 };
 
 class Journals extends React.Component {
@@ -84,7 +88,7 @@ class Journals extends React.Component {
   state = {
     menuOpen: isDocLib(get(getSearchParams(), JUP.VIEW_MODE)),
     menuOpenAnimate: isDocLib(get(getSearchParams(), JUP.VIEW_MODE)),
-    journalId: undefined
+    journalId: undefined,
   };
 
   static getDerivedStateFromProps(props, state) {
@@ -127,19 +131,29 @@ class Journals extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { _url, isActivePage, stateId, viewMode, tabId } = this.props;
+    const { _url, isActivePage, stateId, viewMode, tabId, isLoadingGrid, location, journalConfig, reloadGrid } = this.props;
+    const { isReloadDataOnFocus } = journalConfig;
     const { journalId } = this.state;
+
+    if (
+      isReloadDataOnFocus &&
+      !isEqual(prevProps.location, location) &&
+      (get(location, 'search', '').includes(journalId) || get(prevProps.location, 'search', '').includes(journalId)) &&
+      !isLoadingGrid
+    ) {
+      reloadGrid();
+    }
 
     if (!isEqual(prevProps.viewMode, viewMode) && isDocLib(viewMode)) {
       this.setState({
         menuOpen: true,
-        menuOpenAnimate: true
+        menuOpenAnimate: true,
       });
     }
 
     const isEqualView = equalsQueryUrls({
       urls: [_url, prevProps._url],
-      compareBy: [JUP.VIEW_MODE]
+      compareBy: [JUP.VIEW_MODE],
     });
 
     if (!isEqualView && viewMode && prevProps.viewMode === viewMode) {
@@ -154,7 +168,7 @@ class Journals extends React.Component {
 
     const isEqualQuery = equalsQueryUrls({
       urls: [_url, prevProps._url],
-      ignored: [JUP.SHOW_PREVIEW, JUP.VIEW_MODE, DLUP.FOLDER_ID, DLUP.SEARCH]
+      ignored: [JUP.SHOW_PREVIEW, JUP.VIEW_MODE, DLUP.FOLDER_ID, DLUP.SEARCH],
     });
 
     const isActiveChanged = journalId && isActivePage && prevProps.isActivePage && !isEqualQuery;
@@ -200,7 +214,7 @@ class Journals extends React.Component {
     return {
       ...defaultDisplayElements,
       ...(this.props.displayElements || {}),
-      editJournal: get(this.props, 'displayElements.editJournal', true) && this.props.isAdmin
+      editJournal: get(this.props, 'displayElements.editJournal', true) && this.props.isAdmin,
     };
   };
 
@@ -222,8 +236,8 @@ class Journals extends React.Component {
       footerForwardedRef: this.setJournalFooterRef,
       bodyClassName: classNames('ecos-journal__body', bodyClassName, {
         'ecos-journal__body_with-tabs': pageTabsIsShow,
-        'ecos-journal__body_mobile': isMobile
-      })
+        'ecos-journal__body_mobile': isMobile,
+      }),
     };
   };
 
@@ -237,15 +251,15 @@ class Journals extends React.Component {
     return Math.max(height, this.minHeight);
   };
 
-  setJournalRef = ref => !!ref && (this._journalRef = ref);
+  setJournalRef = (ref) => !!ref && (this._journalRef = ref);
 
-  setJournalBodyTopRef = ref => !!ref && (this._journalBodyTopRef = ref);
+  setJournalBodyTopRef = (ref) => !!ref && (this._journalBodyTopRef = ref);
 
-  setJournalFooterRef = ref => !!ref && (this._journalFooterRef = ref);
+  setJournalFooterRef = (ref) => !!ref && (this._journalFooterRef = ref);
 
-  setJournalMenuRef = ref => !!ref && (this._journalMenuRef = ref);
+  setJournalMenuRef = (ref) => !!ref && (this._journalMenuRef = ref);
 
-  setHeight = debounce(height => this.setState({ height }), 500);
+  setHeight = debounce((height) => this.setState({ height }), 500);
 
   handleUpdateJournal = () => {
     const getTitle = get(PageService, ['pageTypes', PageTypes.JOURNALS, 'getTitle']);
@@ -257,7 +271,7 @@ class Journals extends React.Component {
     const { updateTab, tabId } = this.props;
     const { journalId } = this.state;
 
-    getTitle({ journalId, force: true }).then(title => {
+    getTitle({ journalId, force: true }).then((title) => {
       const tab = pageTabList.getTabById(tabId);
 
       if (!tab) {
@@ -268,9 +282,9 @@ class Journals extends React.Component {
     });
   };
 
-  handleEditJournal = throttle(configRec => this.props.execJournalAction(configRec, { type: ActionTypes.EDIT }), 300, {
+  handleEditJournal = throttle((configRec) => this.props.execJournalAction(configRec, { type: ActionTypes.EDIT }), 300, {
     leading: false,
-    trailing: true
+    trailing: true,
   });
 
   handleToggleMenu = () => {
@@ -298,9 +312,9 @@ class Journals extends React.Component {
               const scrollLeft = this._journalRef.scrollLeft + get(this, '_journalMenuRef.offsetWidth', 0);
               animateScrollTo(this._journalRef, { scrollLeft }, 500);
             }
-          }
+          },
         ),
-      this.state.menuOpen ? 500 : 0
+      this.state.menuOpen ? 500 : 0,
     );
   };
 
@@ -324,7 +338,7 @@ class Journals extends React.Component {
     }
   };
 
-  Header = props => {
+  Header = (props) => {
     const displayElements = this.getDisplayElements();
 
     if (displayElements.header) {
@@ -341,7 +355,7 @@ class Journals extends React.Component {
           hasBtnEdit={displayElements.editJournal && !!props.configRec}
           onToggleMenu={this.handleToggleMenu}
           onEditJournal={() => this.handleEditJournal(props.configRec)}
-          onClick={e => this.handleDisplayConfigPopup(e, props)}
+          onClick={(e) => this.handleDisplayConfigPopup(e, props)}
         />
       );
     }
@@ -394,7 +408,7 @@ class Journals extends React.Component {
           ref={this.setJournalRef}
           className={classNames('ecos-journal', className, {
             'ecos-journal_mobile': isMobile,
-            'ecos-journal_scroll': height <= commonProps.minHeight
+            'ecos-journal_scroll': height <= commonProps.minHeight,
           })}
         >
           <TableView {...commonProps} />
@@ -419,10 +433,10 @@ Journals.propTypes = {
     header: PropTypes.bool,
     settings: PropTypes.bool,
     pagination: PropTypes.bool,
-    groupActions: PropTypes.bool
+    groupActions: PropTypes.bool,
   }),
   withForceUpdate: PropTypes.bool,
-  tabId: PropTypes.string
+  tabId: PropTypes.string,
 };
 
 Journals.defaultProps = {
@@ -430,10 +444,7 @@ Journals.defaultProps = {
   className: '',
   bodyClassName: '',
   additionalHeights: 0,
-  displayElements: { ...defaultDisplayElements }
+  displayElements: { ...defaultDisplayElements },
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Journals);
+export default connect(mapStateToProps, mapDispatchToProps)(Journals);

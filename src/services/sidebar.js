@@ -15,7 +15,7 @@ import { ActionTypes, CountableItems } from '../constants/sidebar';
 import ULS from './userLocalSettings';
 import { JOURNAL_VIEW_MODE } from '../components/Journals/constants';
 
-export default class SidebarService {
+class SidebarService {
   static DROPDOWN_LEVEL = 1;
   static SELECTED_MENU_ITEM_ID_KEY = 'selectedMenuItemId';
   static UPDATE_EVENT = 'menu-update-event';
@@ -100,11 +100,11 @@ export default class SidebarService {
   }
 
   static isExpanded(expandableItems = [], itemId) {
-    return itemId ? !!(expandableItems && (expandableItems.find(fi => fi.id === itemId) || {}).isExpanded) : true;
+    return itemId ? !!(expandableItems && (expandableItems.find((fi) => fi.id === itemId) || {}).isExpanded) : true;
   }
 
   static isSelectedChild(expandableItems = [], itemId) {
-    return itemId ? !!(expandableItems && (expandableItems.find(fi => fi.id === itemId) || {}).selectedChild) : false;
+    return itemId ? !!(expandableItems && (expandableItems.find((fi) => fi.id === itemId) || {}).selectedChild) : false;
   }
 
   static getPropsStyleLevel = ({ level, item }) => {
@@ -120,19 +120,19 @@ export default class SidebarService {
       noBadge: !(badgeV0 || badgeV1),
       isSeparator: [MenuItemsTypes.HEADER_DIVIDER].includes(item.type),
       isClosedSeparator: [MenuItemsTypes.HEADER_DIVIDER].includes(item.type),
-      hiddenLabel: get(item, 'config.hiddenLabel')
+      hiddenLabel: get(item, 'config.hiddenLabel'),
     };
 
     const levels = {
       0: {
         ...common,
         noBadge: knownType ? common.noBadge : true,
-        isClosedSeparator: knownType ? [MenuItemsTypes.SECTION, MenuItemsTypes.HEADER_DIVIDER].includes(item.type) : true
+        isClosedSeparator: knownType ? [MenuItemsTypes.SECTION, MenuItemsTypes.HEADER_DIVIDER].includes(item.type) : true,
       },
       1: {
         ...common,
-        noIcon: [MenuItemsTypes.HEADER_DIVIDER].includes(item.type)
-      }
+        noIcon: [MenuItemsTypes.HEADER_DIVIDER].includes(item.type),
+      },
     };
 
     return levels[level] || { ...common };
@@ -162,7 +162,7 @@ export default class SidebarService {
               journalId: params.journalRef,
               journalSettingId: '', // TODO?
               nodeRef: params.journalRef,
-              filter: params.filterRef
+              filter: params.filterRef,
             });
 
             ignoreTabHandler = false;
@@ -174,7 +174,7 @@ export default class SidebarService {
           attributes.rel = 'noopener noreferrer';
 
           if (!extraParams.isSiteDashboardEnable && Array.isArray(item.items) && item.items.length > 0) {
-            const journalLink = item.items.find(item => {
+            const journalLink = item.items.find((item) => {
               return item.action.type === 'JOURNAL_LINK';
             });
 
@@ -189,7 +189,7 @@ export default class SidebarService {
                 journalId: params.journalRef,
                 journalSettingId: '', // TODO?
                 nodeRef: params.journalRef,
-                filter: params.filterRef
+                filter: params.filterRef,
               });
               break;
             }
@@ -233,7 +233,7 @@ export default class SidebarService {
           targetUrl = getJournalPageUrl({
             journalsListId: get(item, 'params.journalsListId'),
             journalId: get(item, 'params.journalId'),
-            viewMode: JOURNAL_VIEW_MODE.KANBAN
+            viewMode: JOURNAL_VIEW_MODE.KANBAN,
           });
         }
         ignoreTabHandler = false;
@@ -243,7 +243,7 @@ export default class SidebarService {
           targetUrl = getJournalPageUrl({
             journalsListId: get(item, 'params.journalsListId'),
             journalId: get(item, 'params.journalId'),
-            viewMode: JOURNAL_VIEW_MODE.DOC_LIB
+            viewMode: JOURNAL_VIEW_MODE.DOC_LIB,
           });
         }
         ignoreTabHandler = false;
@@ -252,7 +252,7 @@ export default class SidebarService {
         if (get(item, 'params.journalId')) {
           targetUrl = getJournalPageUrl({
             journalsListId: get(item, 'params.journalsListId'),
-            journalId: get(item, 'params.journalId')
+            journalId: get(item, 'params.journalId'),
           });
         }
         ignoreTabHandler = false;
@@ -277,14 +277,14 @@ export default class SidebarService {
 
     return {
       targetUrl,
-      attributes
+      attributes,
     };
   }
 
   static initExpandableItems(items, selectedId, isSlideMenuOpen) {
     let flatList = [];
 
-    items.forEach(item => {
+    items.forEach((item) => {
       if (!!item.items) {
         const selectedChild = hasChildWithId(item.items, selectedId);
         const isExpanded = isSlideMenuOpen && (selectedChild || (item.params.collapsible ? !item.params.collapsed : true));
@@ -293,9 +293,9 @@ export default class SidebarService {
           {
             id: item.id,
             isExpanded,
-            selectedChild
+            selectedChild,
           },
-          ...SidebarService.initExpandableItems(item.items, selectedId, isSlideMenuOpen)
+          ...SidebarService.initExpandableItems(item.items, selectedId, isSlideMenuOpen),
         );
       }
     });
@@ -306,7 +306,7 @@ export default class SidebarService {
   static getExpandableItems(expandableItems, items, id) {
     const exItems = cloneDeep(expandableItems);
 
-    exItems.forEach(item => {
+    exItems.forEach((item) => {
       const _item = treeFindFirstItem({ items, key: 'id', value: item.id }) || {};
       item.selectedChild = hasChildWithId(_item.items, id);
     });
@@ -329,3 +329,8 @@ export default class SidebarService {
 
 const ATypes = ActionTypes;
 const MenuItemsTypes = MenuSettings.ItemTypes;
+
+window.Citeck = window.Citeck || {};
+window.Citeck.SidebarService = SidebarService;
+
+export default window.Citeck.SidebarService;
