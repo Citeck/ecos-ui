@@ -205,12 +205,12 @@ class Journals extends React.Component {
       journalConfig,
       reloadGrid
     } = this.props;
-    const { isReloadDataOnFocus } = journalConfig;
+    const { reloadDataOnFocus } = journalConfig;
     const { journalId, initiatedWidgetsConfig } = this.state;
     const prevSearchParams = prevProps.searchParams;
 
     if (
-      isReloadDataOnFocus &&
+      reloadDataOnFocus &&
       !isEqual(prevProps.location, location) &&
       (get(location, 'search', '').includes(journalId) || get(prevProps.location, 'search', '').includes(journalId)) &&
       !isLoadingGrid
