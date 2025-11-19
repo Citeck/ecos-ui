@@ -70,6 +70,7 @@ class PageTabs extends React.Component {
     homepageLink: PropTypes.string.isRequired,
     allowedLinks: PropTypes.array,
     isShow: PropTypes.bool,
+    isShowSidebarLoader: PropTypes.bool,
     enableCache: PropTypes.bool
   };
 
@@ -605,12 +606,13 @@ class PageTabs extends React.Component {
   }
 
   renderTabPanes = React.memo(props => {
-    const { tabs, ContentComponent, url } = props;
+    const { tabs, ContentComponent, url, isShowSidebarLoader } = props;
 
     return tabs.map(tab => {
       return React.createElement(ContentComponent, {
         tab,
         url,
+        isShowSidebarLoader,
         isActive: pageTabList.activeTab.id === tab.id,
         key: tab.id
       });
@@ -699,13 +701,18 @@ class PageTabs extends React.Component {
   }
 
   render() {
-    const { tabs, ContentComponent, location } = this.props;
+    const { tabs, ContentComponent, location, isShowSidebarLoader } = this.props;
 
     return (
       <>
         {this.renderTabWrapper()}
         {ContentComponent && (
-          <this.renderTabPanes url={location.pathname + location.search} tabs={tabs} ContentComponent={ContentComponent} />
+          <this.renderTabPanes
+            url={location.pathname + location.search}
+            tabs={tabs}
+            isShowSidebarLoader={isShowSidebarLoader}
+            ContentComponent={ContentComponent}
+          />
         )}
         {this.renderContextMenu()}
       </>
