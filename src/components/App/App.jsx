@@ -39,7 +39,7 @@ import {
 } from '@/selectors/workspaces';
 import { NotificationContainer } from '@/services/notifications';
 import PageTabList from '@/services/pageTabs/PageTabList';
-import PageLoader from '@/components/PageLoader';
+import PageLoader, { SidebarSkeleton } from '@/components/PageLoader';
 import Server from '../common/icons/Server';
 import UserLocalSettingsService from '@/services/userLocalSettings';
 
@@ -217,14 +217,14 @@ class App extends Component {
     const { menuType } = this.props;
 
     if (this.isOnlyContent) {
-      return null;
+      return <SidebarSkeleton />;
     }
 
     if (menuType === MenuTypes.LEFT) {
       return <Menu id={BASE_LEFT_MENU_ID} />;
     }
 
-    return null;
+    return <SidebarSkeleton />;
   }
 
   renderHeader() {
@@ -259,7 +259,6 @@ class App extends Component {
           homepageLink={this.#homePageLink}
           isShow={isShowTabs && !this.isOnlyContent && !isMobile}
           ContentComponent={this.renderCachedRouter}
-          isShowSidebarLoader={this.props.menuType !== MenuTypes.LEFT || this.isOnlyContent}
         />
       );
     }
@@ -285,7 +284,7 @@ class App extends Component {
   };
 
   renderCachedRouter = React.memo((props) => {
-    const { tab, isShowSidebarLoader } = props;
+    const { tab } = props;
     const isCurrent = PageTabList.isActiveTab(tab.id);
     const baseCacheRouteProps = {
       className: PANEL_CLASS_NAME,
@@ -307,7 +306,7 @@ class App extends Component {
 
     return (
       <div className="ecos-main-content" style={styles}>
-        <Suspense fallback={<PageLoader withoutHeader withoutSidebar={!isShowSidebarLoader} />}>
+        <Suspense fallback={<PageLoader withoutHeader withoutSidebar withoutTabsPanel />}>
           <CacheSwitch isCurrent={isCurrent} tabLink={tab.link}>
             <CacheRoute
               {...baseCacheRouteProps}
@@ -430,7 +429,7 @@ class App extends Component {
   renderRouter = () => {
     return (
       <div className="ecos-main-content" style={this.wrapperStyle}>
-        <Suspense fallback={<PageLoader withoutHeader  withoutSidebar={this.props.menuType === MenuTypes.LEFT && !this.isOnlyContent} />}>
+        <Suspense fallback={<PageLoader withoutHeader withoutSidebar withoutTabsPanel />}>
           <Switch>
             <Route path={Urls.DASHBOARD} exact render={(props) => <Page pageKey={Pages.DASHBOARD} {...props} />} />
             <Route path={Urls.ADMIN_PAGE} render={(props) => <Page pageKey={Pages.BPMN} {...props} />} />
