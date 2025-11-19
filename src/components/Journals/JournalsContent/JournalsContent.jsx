@@ -7,6 +7,7 @@ import { Well } from '../../common/form';
 import JournalsDashletGrid from '../JournalsDashletGrid';
 
 import Breadcrumbs from '@/components/Journals/Breadcrumbs';
+import { HEIGHT_BREADCRUMBS } from '@/components/Journals/constants';
 import { getSearchParams } from '@/helpers/urls';
 import { selectIsViewNewJournal } from '@/selectors/view';
 
@@ -25,14 +26,14 @@ const mapStateToProps = (state, props) => {
   };
 };
 
-const Content = React.memo(({ showWidgets, isViewNewJournal, maxHeight, isNotGrouping, recordRef, ...props }) => (
+const Content = React.memo(({ showWidgets, isViewNewJournal, maxHeight, isNotGrouping, recordRef, breadcrumbsHeight, ...props }) => (
   <Well
     isViewNewJournal={isViewNewJournal}
     className={classnames('ecos-journals-content__grid-well ecos-journals-content__grid-well_overflow_hidden', {
       'ecos-journals-content__grid-well_preview': showWidgets,
       'ecos-journal__not-grouping': isNotGrouping
     })}
-    maxHeight={maxHeight}
+    maxHeight={maxHeight + breadcrumbsHeight}
   >
     {props.journalId && recordRef && <Breadcrumbs className="ecos-journals-content__breadcrumbs" stateId={props.stateId} />}
     <JournalsDashletGrid
@@ -64,6 +65,7 @@ class JournalsContent extends Component {
     } = this.props;
     const { groupBy } = _grid || {};
     const recordRef = get(searchParams, 'recordRef');
+    const breadcrumbsHeight = get(document.querySelector('.ecos-journals-content__breadcrumbs'), 'offsetHeight') || HEIGHT_BREADCRUMBS;
 
     return (
       <Content
@@ -80,6 +82,7 @@ class JournalsContent extends Component {
         autoHeight
         journalId={journalId}
         isViewNewJournal={isViewNewJournal}
+        breadcrumbsHeight={breadcrumbsHeight}
       />
     );
   }
