@@ -29,7 +29,8 @@ import {
   isKanban,
   isKanbanOrDocLib,
   isPreview,
-  isPreviewList
+  isPreviewList,
+  HEIGHT_BREADCRUMBS
 } from './constants';
 
 import { getTypeRef } from '@/actions/docLib';
@@ -385,7 +386,8 @@ class Journals extends React.Component {
     const jFooterH = (this._journalFooterRef && get(this._journalFooterRef, 'offsetHeight')) || 0;
     const footerH = get(document.querySelector('.app-footer'), 'offsetHeight') || 0;
     const scrollHeight = get(document.querySelector('.ecos-kanban__scroll_h'), 'offsetHeight') || 0;
-    const height = document.documentElement.clientHeight - headH - jFooterH - footerH - scrollHeight;
+    const breadcrumbsHeight = get(document.querySelector('.ecos-journals-content__breadcrumbs'), 'offsetHeight') || HEIGHT_BREADCRUMBS;
+    const height = document.documentElement.clientHeight - headH - jFooterH - footerH - scrollHeight - breadcrumbsHeight;
 
     const maxHeightJournal = Math.max(height, this.minHeight) - PADDING_NEW_JOURNAL;
 

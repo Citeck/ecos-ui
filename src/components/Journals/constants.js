@@ -29,6 +29,7 @@ export const MIN_CARD_DATA_NEW_JOURNAL = 6;
 export const PADDING_NEW_JOURNAL = 10;
 export const PADDING_LIST_VIEW = 20;
 export const HEIGHT_GRID_WRAPPER = 15;
+export const HEIGHT_BREADCRUMBS = 44;
 export const HEIGHT_GRID_ROW = 28;
 export const HEIGHT_THEAD = 35;
 export const MAX_HEIGHT_TOTAL_AMOUNT = 40;
