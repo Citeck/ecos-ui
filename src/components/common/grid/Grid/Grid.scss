@@ -132,10 +132,6 @@ $header-height: 44px;
     }
   }
 
-  &_hovered {
-    background: $color-blue-light3;
-  }
-
   &_no-header {
     & thead {
       display: none;

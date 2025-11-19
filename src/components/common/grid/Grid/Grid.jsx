@@ -468,7 +468,9 @@ class Grid extends Component {
           return;
         }
 
-        this.appendInlineToolsElement(tr, settingInlineTools);
+        if (!props.changeTrOptionsByRowClick) {
+          this.appendInlineToolsElement(tr, settingInlineTools);
+        }
       },
       onMouseLeave: e => {
         const relatedTarget = e.relatedTarget;
