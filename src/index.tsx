@@ -27,6 +27,7 @@ import { register as registerServiceWorker } from './serviceWorkerRegistration';
 import authService from './services/auth';
 import configureStore, { getHistory } from './store';
 
+import PageLoader from '@/components/PageLoader';
 import { registerAllActions } from '@/components/Records/actions/actions';
 import { allowedModes } from '@/constants';
 import { NotificationManager } from '@/services/notifications';
@@ -95,6 +96,11 @@ window.Citeck.Plugins = plugins;
 window.Citeck.NotificationManager = NotificationManager;
 window.Citeck.Base64 = Base64;
 
+const root = createRoot(document.getElementById('root') as HTMLElement);
+i18nInit({ debug: allowedModes.includes(process.env.NODE_ENV) }).then(() => {
+  root.render(<PageLoader />);
+});
+
 const runApp = () => {
   store.dispatch(
     initAppRequest({
@@ -107,17 +113,15 @@ const runApp = () => {
           loadThemeRequest({
             isAuthenticated,
             onRender: () => {
-              i18nInit({ debug: allowedModes.includes(process.env.NODE_ENV) }).then(() => {
-                createRoot(document.getElementById('root') as HTMLElement).render(
-                  <Provider store={store}>
-                    <ConnectedRouter history={history}>
-                      <StrictMode>
-                        <App />
-                      </StrictMode>
-                    </ConnectedRouter>
-                  </Provider>
-                );
-              });
+              root.render(
+                <Provider store={store}>
+                  <ConnectedRouter history={history}>
+                    <StrictMode>
+                      <App />
+                    </StrictMode>
+                  </ConnectedRouter>
+                </Provider>
+              );
             }
           })
         );

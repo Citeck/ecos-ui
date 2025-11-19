@@ -59,11 +59,14 @@ function* doFetchGroupSectionList({ api }, action) {
   }
 }
 
-function* updateActiveSection({}, action) {
+function* updateActiveSection({ api }, action) {
   try {
     const stateId = action.payload;
     const w = wrapArgs(stateId);
-    const sectionsGroup = yield select(state => state.adminSection.groupSectionList || []);
+    let sectionsGroup = yield select(state => state.adminSection.groupSectionList || []);
+    if (!sectionsGroup || !sectionsGroup.length) {
+      sectionsGroup = yield call(api.adminSection.getGroupSectionList);
+    }
     const activeSection = AdminSectionService.getActiveSectionInGroups(sectionsGroup);
     yield put(setActiveSection(w(activeSection)));
   } catch (e) {

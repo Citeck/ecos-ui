@@ -7,6 +7,7 @@ import { getSidebarWorkspaces, getWorkspaces, joinToWorkspace, leaveOfWorkspace,
 import { WorkspaceType } from '@/api/workspaces/types';
 import FormManager from '@/components/EcosForm/FormManager';
 import Records from '@/components/Records';
+import RecordImpl from '@/components/Records/Record';
 import WorkspacePreview from '@/components/WorkspacePreview';
 import Confirm from '@/components/WorkspaceSidebar/Confirm';
 import Actions from '@/components/common/icons/HorizontalActions';
@@ -51,7 +52,7 @@ type OpenWsEventType = React.MouseEvent<HTMLDivElement | HTMLLIElement | HTMLBut
 
 const Labels = {
   GO_TO_WORKSPACE: 'workspaces.card.go-to-workspace',
-  EDIT_WORKSPACE: 'workspaces.card.edit-workspace',
+  EDIT_WORKSPACE: 'workspaces.edit-workspace-modal.title',
   REMOVE_WORKSPACE: 'workspaces.card.remove-workspace',
   LEAVE_WORKSPACE: 'workspaces.card.leave-workspace',
   LEAVE_WORKSPACE_ERROR_TITLE: 'workspaces.card.leave-workspace.error.title',
@@ -130,13 +131,14 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
   };
 
   onEditWorkspace = (event: OpenWsEventType) => {
-    const { openWorkspace } = this.props;
+    const { openWorkspace, name } = this.props;
 
     event.stopPropagation();
     FormManager.openFormModal({
+      title: `${t('workspaces.edit-workspace-modal.title')} ${name}`,
       record: `${SourcesId.WORKSPACE}@${this.props.id}`,
       saveOnSubmit: true,
-      onSubmit: async (record: any) => {
+      onSubmit: async (record: RecordImpl) => {
         if (openWorkspace) {
           const { id: wsId, homePageLink } = await Records.get(record).load({
             id: 'id',

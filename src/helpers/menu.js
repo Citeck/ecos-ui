@@ -1,12 +1,16 @@
 import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
 import queryString from 'query-string';
 
-import { URL } from '../constants';
+import { SourcesId, URL } from '../constants';
 import { BASE_LEFT_MENU_ID, MenuTypes } from '../constants/menu';
 import MenuSettingsService from '../services/MenuSettingsService';
 import DashboardService from '../services/dashboard';
 
 import { documentScrollTop, getEnabledWorkspaces } from './util';
+
+import FormManager from '@/components/EcosForm/FormManager';
+import { getWorkspaceId } from '@/helpers/urls';
 
 export function processMenuItemsFromOldMenu(oldMenuItems) {
   let siteMenuItems = [];
@@ -49,7 +53,7 @@ export function processMenuItemsFromOldMenu(oldMenuItems) {
 }
 
 export function makeSiteMenu(params = {}) {
-  const { isAdmin, isDashboardPage, dashboardEditable, leftMenuEditable } = params || {};
+  const { isAdmin, isDashboardPage, dashboardEditable, leftMenuEditable, hasWriteCurrentWorkspace, updateWorkspaces } = params || {};
   const menu = [
     // {
     //   id: 'HOME_PAGE',
@@ -82,6 +86,19 @@ export function makeSiteMenu(params = {}) {
       targetUrl: queryString.stringifyUrl({ url: URL.ADMIN_PAGE, query: { type: 'DEV_TOOLS' } }),
       targetUrlType: 'FULL_PATH'
     });
+  } else {
+    menu.push({
+      id: 'SETTINGS_CURRENT_WORKSPACE',
+      label: 'header.site-menu.settings-current-workspace',
+      onClick: () =>
+        FormManager.openFormModal({
+          record: `${SourcesId.WORKSPACE}@${getWorkspaceId()}`,
+          saveOnSubmit: true,
+          onSubmit: () => {
+            isFunction(updateWorkspaces) && updateWorkspaces();
+          }
+        })
+    });
   }
 
   if (!params) {
@@ -96,6 +113,8 @@ export function makeSiteMenu(params = {}) {
         return leftMenuEditable;
       case 'GO_ADMIN_PAGE':
         return isAdmin;
+      case 'SETTINGS_CURRENT_WORKSPACE':
+        return hasWriteCurrentWorkspace;
       default:
         return true;
     }

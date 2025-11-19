@@ -1,13 +1,15 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { Scrollbars } from 'react-custom-scrollbars';
 import debounce from 'lodash/debounce';
+import isFunction from 'lodash/isFunction';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+import { Scrollbars } from 'react-custom-scrollbars';
+import { connect } from 'react-redux';
 
 import { changeTaskAssignee, getTaskList, resetTaskList } from '../../../actions/tasks';
 import { selectStateTasksById } from '../../../selectors/tasks';
 import Records from '../../Records';
 import { EVENTS } from '../BaseWidget';
+
 import TaskList from './TaskList';
 
 import './style.scss';
@@ -19,7 +21,7 @@ const mapStateToProps = (state, context) => {
     tasks: tasksState.list,
     isLoading: tasksState.isLoading,
     totalCount: tasksState.totalCount,
-    isMobile: state.view.isMobile
+    isMobile: context.isMobile || state.view.isMobile
   };
 };
 
@@ -38,7 +40,9 @@ class Tasks extends React.Component {
     record: PropTypes.string.isRequired,
     stateId: PropTypes.string.isRequired,
     className: PropTypes.string,
+    taskId: PropTypes.string,
     isSmallMode: PropTypes.bool,
+    isViewTaskInfo: PropTypes.bool,
     runUpdate: PropTypes.bool,
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
@@ -90,15 +94,24 @@ class Tasks extends React.Component {
   getTaskList = debounce(() => this.props.getTaskList(), 400);
 
   onAssignClick = sentData => {
-    const { changeTaskAssignee } = this.props;
+    const { changeTaskAssignee, instanceRecord } = this.props;
 
     changeTaskAssignee(sentData);
-    this.props.instanceRecord.events.emit(EVENTS.UPDATE_TASKS_WIDGETS);
+    if (instanceRecord) {
+      instanceRecord.events.emit(EVENTS.UPDATE_TASKS_WIDGETS);
+    }
   };
 
   onSubmitForm = () => {
+    const { instanceRecord, onSubmit } = this.props;
     Records.get(this.props.record).update();
-    this.props.instanceRecord.events.emit(EVENTS.UPDATE_TASKS_WIDGETS);
+    if (instanceRecord) {
+      instanceRecord.events.emit(EVENTS.UPDATE_TASKS_WIDGETS);
+    }
+
+    if (isFunction(onSubmit)) {
+      onSubmit();
+    }
   };
 
   setHeight = contentHeight => {
@@ -106,13 +119,15 @@ class Tasks extends React.Component {
   };
 
   renderTaskList = () => {
-    const { tasks, isLoading, isSmallMode, forwardedRef, runUpdate, setFormRef } = this.props;
+    const { tasks, taskId, isLoading, isSmallMode, forwardedRef, runUpdate, setFormRef, isViewTaskInfo } = this.props;
 
     const childProps = {
       tasks,
       isLoading,
       isSmallMode,
       runUpdate,
+      taskId,
+      isViewTaskInfo,
       onAssignClick: this.onAssignClick,
       onSubmitForm: this.onSubmitForm
     };
@@ -140,7 +155,4 @@ class Tasks extends React.Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Tasks);
+export default connect(mapStateToProps, mapDispatchToProps)(Tasks);

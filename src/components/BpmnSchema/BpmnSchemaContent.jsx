@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 
-import { getLastPathSegmentBeforeQuery, getSearchParams } from '../../helpers/urls';
-import { InfoText, Loader, ResizableBox } from '../common';
 import BPMNViewer from '../ModelViewer/BPMNViewer';
-import { ScaleOptions } from '../common/Scaler/util';
+import { InfoText, Loader, ResizableBox } from '../common';
 import Scaler from '../common/Scaler';
-import { t } from '../../helpers/util';
-import { URL } from '../../constants';
+import { ScaleOptions } from '../common/Scaler/util';
+
+import { URL } from '@/constants';
+import { getLastPathSegmentBeforeQuery, getSearchParams } from '@/helpers/urls';
+import { t } from '@/helpers/util';
 
 import './style.scss';
 
@@ -15,19 +16,14 @@ const BpmnSchemaContent = ({ metaInfo, activityElement, labels }) => {
   const typeSchema = getLastPathSegmentBeforeQuery();
   const [designer, setDesigner] = useState(new BPMNViewer());
 
-  const currentKeyProcess = getSearchParams()
-    .recordRef?.split('@')[1]
-    ?.split(':')[0];
+  const currentKeyProcess = getSearchParams().recordRef?.split('@')[1]?.split(':')[0];
 
   /* Updating the Designer if we went through the tabs or switched to other business processes */
-  useEffect(
-    () => {
-      if (typeSchema === URL.BPMN_ADMIN_PROCESS) {
-        setDesigner(new BPMNViewer());
-      }
-    },
-    [typeSchema, currentKeyProcess]
-  );
+  useEffect(() => {
+    if (typeSchema === URL.BPMN_ADMIN_PROCESS) {
+      setDesigner(new BPMNViewer());
+    }
+  }, [typeSchema, currentKeyProcess]);
 
   const Sheet = designer && designer.renderSheet;
   const zoomCenter = {

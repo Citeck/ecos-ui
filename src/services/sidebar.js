@@ -5,7 +5,7 @@ import omit from 'lodash/omit';
 import * as queryString from 'query-string';
 
 import { isKanban, JOURNAL_VIEW_MODE } from '../components/Journals/constants';
-import { RELOCATED_URL, SourcesId, URL, URL_MATCHING } from '../constants';
+import { JournalUrlParams as JUP, RELOCATED_URL, SourcesId, URL, URL_MATCHING } from '../constants';
 import { MenuSettings } from '../constants/menu';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../constants/pageTabs';
 import { ActionTypes, CountableItems } from '../constants/sidebar';
@@ -60,7 +60,7 @@ export default class SidebarService {
     if (queryStringValue && getEnabledWorkspaces()) {
       const params = queryStringValue
         .split('&')
-        .filter(param => !param.startsWith('ws='))
+        .filter(param => !param.startsWith('ws=') && !param.startsWith(`${JUP.VIEW_MODE}=${JOURNAL_VIEW_MODE.TABLE}`))
         .join('&');
 
       value = params ? `${baseUrl}?${params}` : baseUrl;
@@ -100,13 +100,13 @@ export default class SidebarService {
         targetUrl = targetUrl.replace(/%24/g, '$'); // Removing the character encoding $
       }
 
-      if (getEnabledWorkspaces() && targetUrl && targetUrl.includes('ws=')) {
+      if (getEnabledWorkspaces() && targetUrl) {
         const [baseUrl, queryString] = targetUrl.split('?');
 
         if (queryString) {
           const params = queryString
             .split('&')
-            .filter(param => !param.startsWith('ws='))
+            .filter(param => !param.startsWith('ws=') && !param.startsWith(`${JUP.VIEW_MODE}=${JOURNAL_VIEW_MODE.TABLE}`))
             .join('&');
 
           targetUrl = params ? `${baseUrl}?${params}` : baseUrl;

@@ -5,11 +5,13 @@ import { WorkspaceType } from './types';
 import { PureQueryResponse } from '@/api/types';
 import Records from '@/components/Records';
 import { SourcesId } from '@/constants';
+import { getWorkspaceId } from '@/helpers/urls';
 
 export interface IWorkspaceApi {
   getMyWorkspaces: () => PureQueryResponse<WorkspaceType>;
   getPublicWorkspaces: () => PureQueryResponse<WorkspaceType>;
   getWorkspaces: () => PureQueryResponse<WorkspaceType>;
+  hasWriteCurrentWorkspace: () => Promise<boolean>;
   getWorkspace: (recordRef: string) => PureQueryResponse<WorkspaceType>;
   isViewWorkspace: (wsId: WorkspaceType['id']) => PureQueryResponse<boolean>;
   visitedAction: (wsId: WorkspaceType['id']) => void;
@@ -20,7 +22,7 @@ export interface IWorkspaceApi {
   removeWorkspace: (wsId: string) => void;
 }
 
-export const workspaceAttributes: Partial<Record<keyof WorkspaceType, string>> = {
+export const workspaceAttributes: Record<keyof WorkspaceType, string> = {
   id: '?localId', // this is a shortened version of the ID, there is no 'emodel/' here
   homePageLink: 'homePageLink?str',
   name: '?disp!?localId',
@@ -44,6 +46,10 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
       },
       workspaceAttributes
     );
+  };
+
+  hasWriteCurrentWorkspace = async () => {
+    return await Records.get(`${SourcesId.WORKSPACE}@${getWorkspaceId()}`).load(workspaceAttributes.hasWrite);
   };
 
   getMyWorkspaces = () => {

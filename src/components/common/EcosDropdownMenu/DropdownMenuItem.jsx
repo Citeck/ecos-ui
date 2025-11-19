@@ -1,16 +1,17 @@
-import React from 'react';
-import { connect } from 'react-redux';
+import get from 'lodash/get';
 import PropTypes from 'prop-types';
 import queryString from 'query-string';
-import get from 'lodash/get';
+import React from 'react';
+import { connect } from 'react-redux';
 
-import { extractLabel } from '../../../helpers/util';
-import { getIconClassMenu, getSpecialClassByState } from '../../../helpers/menu';
-import handleControl from '../../../helpers/handleControl';
-import { getSearchParams, isNewVersionPage, SearchKeys } from '../../../helpers/urls';
-import { URL } from '../../../constants';
-import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../../constants/pageTabs';
-import pageTabList from '../../../services/pageTabs/PageTabList';
+import { Tooltip } from '@/components/common';
+import { URL } from '@/constants';
+import { IGNORE_TABS_HANDLER_ATTR_NAME } from '@/constants/pageTabs';
+import handleControl from '@/helpers/handleControl';
+import { getIconClassMenu, getSpecialClassByState } from '@/helpers/menu';
+import { getSearchParams, isNewVersionPage, SearchKeys } from '@/helpers/urls';
+import { extractLabel } from '@/helpers/util';
+import pageTabList from '@/services/pageTabs/PageTabList';
 
 const mapStateToProps = state => ({
   dashboardId: get(state, `dashboard[${pageTabList.activeTabId}].identification.id`, '')
@@ -114,9 +115,6 @@ class DropdownMenuItem extends React.Component {
   };
 
   renderImg() {
-    const { data } = this.props;
-    const { img } = data;
-
     return <img className="ecos-dropdown-menu__img" src={get(this.props, 'data.img')} alt={this.label} />;
   }
 
@@ -130,14 +128,16 @@ class DropdownMenuItem extends React.Component {
     }
 
     return (
-      <li className="ecos-dropdown-menu__item">
-        <a href={this.url} target={target} id={id} onClick={this.handlerClick} {...extra} disabled={disabled}>
-          {this.iconLeft && <i className={this.iconLeft} />}
-          {img && this.renderImg()}
-          {this.label}
-          {iconRight && <i className={iconRight} />}
-        </a>
-      </li>
+      <Tooltip target={id} showAsNeeded uncontrolled text={this.label}>
+        <li className="ecos-dropdown-menu__item">
+          <a href={this.url} target={target} id={id} onClick={this.handlerClick} {...extra} disabled={disabled}>
+            {this.iconLeft && <i className={this.iconLeft} />}
+            {img && this.renderImg()}
+            {this.label}
+            {iconRight && <i className={iconRight} />}
+          </a>
+        </li>
+      </Tooltip>
     );
   }
 }

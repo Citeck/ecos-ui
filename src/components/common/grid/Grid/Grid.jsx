@@ -84,6 +84,7 @@ class Grid extends Component {
     this._startResizingThOffset = 0;
     this._scrollValues = {};
     this._tr = null;
+    this._lastHoverTr = null;
     this._dragTr = null;
     this._tableDom = null;
     this._ref = React.createRef();
@@ -203,6 +204,10 @@ class Grid extends Component {
     }
 
     if (current) {
+      if (prevProps.loading !== loading) {
+        this.updateInlineToolsElementOfLoading(isEmpty(prevProps.editingRules) && !isEmpty(this.props.editingRules));
+      }
+
       const headerElement = current.querySelector(`.${ECOS_GRID_HEADER}`);
       const headerLoaderElement = current.querySelector(`.${ECOS_GRID_HEADER_LOADER}`);
 
@@ -408,7 +413,7 @@ class Grid extends Component {
           get(column, 'style.width') && delete column.style.width;
         }
 
-        if (!isUndefined(column.default)) {
+        if (!isUndefined(column.default) && !column.hidden) {
           column.hidden = !column.default;
         }
 
@@ -607,36 +612,60 @@ class Grid extends Component {
         }
       }
     }
+
+    this._lastHoverTr = null;
+  };
+
+  updateInlineToolsElementOfLoading = (isFindFocusTr = false) => {
+    const current = this._ref.current;
+    if (!current) {
+      return;
+    }
+
+    let trEl = current.querySelector(`.${ECOS_GRID_INLINE_TOOLS_CONTAINER}`)?.closest('tr');
+
+    if (!trEl) {
+      if (!isFindFocusTr || !this._lastHoverTr) {
+        return;
+      }
+
+      const rowIndex = this._lastHoverTr.rowIndex - 1; // because inline Loader also tr element
+      const target = Array.from(current.querySelectorAll('tr')).find(t => t.rowIndex === rowIndex);
+
+      if (!target) {
+        return;
+      }
+
+      trEl = target;
+    }
+
+    trEl._inlineToolsRoot?.unmount();
+    const settingInlineTools = this.getTrOptions(trEl);
+    this.appendInlineToolsElement(trEl, settingInlineTools);
   };
 
   appendInlineToolsElement = (currentTarget, settingInlineTools) => {
     const inlineToolsElement = document.createElement('td');
     inlineToolsElement.className = ECOS_GRID_INLINE_TOOLS_CONTAINER;
+    this._lastHoverTr = currentTarget;
+
+    const renderInlineTools = element => {
+      if (element) {
+        const root = createRoot(inlineToolsElement);
+        root.render(element);
+
+        currentTarget.appendChild(inlineToolsElement);
+        currentTarget.classList.add(HAS_INLINE_TOOLS_CLASS);
+        currentTarget._inlineToolsRoot = root;
+      }
+    };
 
     if (!isEmpty(settingInlineTools) && isFunction(this.props.inlineTools)) {
       const inlineTools = this.inlineTools(settingInlineTools);
-
-      if (inlineTools) {
-        const root = createRoot(inlineToolsElement);
-        root.render(inlineTools);
-
-        currentTarget.appendChild(inlineToolsElement);
-        currentTarget.classList.add(HAS_INLINE_TOOLS_CLASS);
-
-        currentTarget._inlineToolsRoot = root;
-      }
+      renderInlineTools(inlineTools);
     } else if (isFunction(this.props.inlineActions)) {
       const inlineActions = this.props.inlineActions(get(settingInlineTools, 'row.id') || null);
-
-      if (inlineActions) {
-        const root = createRoot(inlineToolsElement);
-        root.render(inlineActions);
-
-        currentTarget.appendChild(inlineToolsElement);
-        currentTarget.classList.add(HAS_INLINE_TOOLS_CLASS);
-
-        currentTarget._inlineToolsRoot = root;
-      }
+      renderInlineTools(inlineActions);
     }
   };
 
@@ -1489,9 +1518,8 @@ class Grid extends Component {
   }
 
   render() {
-    const { className, noTopBorder, columns, noHeader, scrollable, selected, multiSelectable, noHorizontalScroll, isViewNewJournal, data } =
-      this.props;
-    const { updatedColumn, updatedColumnBlocked, maxHeight, hasFooter } = this.state;
+    const { className, noTopBorder, columns, noHeader, scrollable, selected, multiSelectable, noHorizontalScroll } = this.props;
+    const { updatedColumn, updatedColumnBlocked } = this.state;
 
     if (isEmpty(columns)) {
       return null;
