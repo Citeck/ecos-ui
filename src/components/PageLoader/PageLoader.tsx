@@ -93,8 +93,38 @@ const DevToolsSkeleton = () => (
   </div>
 );
 
-const PageLoader = ({ withoutHeader, withoutSidebar }: { withoutHeader?: boolean; withoutSidebar?: boolean }) => {
-  const view = getViewFromPath(window.location && window.location.pathname ? window.location.pathname : '/');
+const getView = () => {
+  return getViewFromPath(window.location && window.location.pathname ? window.location.pathname : '/');
+};
+
+export const SidebarSkeleton = () => (
+  <aside className="skeleton-page-loader__body-sidebar">
+    <div className="pl-logo shimmer" aria-hidden="true" />
+    <nav className="pl-menu">
+      <div className={cn('pl-menu-item shimmer', { active: getView() === Pages.DASHBOARD })} aria-label="Dashboard" />
+      <div className={cn('pl-menu-item shimmer', { active: getView() === Pages.JOURNAL })} aria-label="Journal" />
+      <div className={cn('pl-menu-item shimmer', { active: getView() === Pages.DEV_TOOLS })} aria-label="Admin" />
+    </nav>
+    {Array.from({ length: 4 }).map((_, i) => (
+      <nav className="pl-menu" key={i}>
+        <div className="pl-menu-item shimmer" aria-label="Dashboard" />
+        <div className="pl-menu-item shimmer" aria-label="Journal" />
+        <div className="pl-menu-item shimmer" aria-label="Admin" />
+      </nav>
+    ))}
+  </aside>
+);
+
+const PageLoader = ({
+  withoutHeader,
+  withoutSidebar,
+  withoutTabsPanel
+}: {
+  withoutHeader?: boolean;
+  withoutSidebar?: boolean;
+  withoutTabsPanel?: boolean;
+}) => {
+  const view = getView();
 
   return (
     <div className="skeleton-page-loader">
@@ -114,30 +144,16 @@ const PageLoader = ({ withoutHeader, withoutSidebar }: { withoutHeader?: boolean
       )}
 
       <div className="skeleton-page-loader__body">
-        {!withoutSidebar && (
-          <aside className="skeleton-page-loader__body-sidebar">
-            <div className="pl-logo shimmer" aria-hidden="true" />
-            <nav className="pl-menu">
-              <div className={cn('pl-menu-item shimmer', { active: view === Pages.DASHBOARD })} aria-label="Dashboard" />
-              <div className={cn('pl-menu-item shimmer', { active: view === Pages.JOURNAL })} aria-label="Journal" />
-              <div className={cn('pl-menu-item shimmer', { active: view === Pages.DEV_TOOLS })} aria-label="Admin" />
-            </nav>
-            {Array.from({ length: 4 }).map((_, i) => (
-              <nav className="pl-menu" key={i}>
-                <div className="pl-menu-item shimmer" aria-label="Dashboard" />
-                <div className="pl-menu-item shimmer" aria-label="Journal" />
-                <div className="pl-menu-item shimmer" aria-label="Admin" />
-              </nav>
-            ))}
-          </aside>
-        )}
+        {!withoutSidebar && <SidebarSkeleton />}
 
         <main className="skeleton-page-loader__content">
-          <div className="skeleton-page-loader__content-tabs">
-            <div className="pl-brand shimmer" aria-hidden="true" style={{ width: 162, height: 22 }} />
-            <div className="pl-brand shimmer" aria-hidden="true" style={{ width: 202, height: 22 }} />
-            <div className="pl-brand shimmer" aria-hidden="true" style={{ width: 146, height: 22 }} />
-          </div>
+          {!withoutTabsPanel && (
+            <div className="skeleton-page-loader__content-tabs">
+              <div className="pl-brand shimmer" aria-hidden="true" style={{ width: 162, height: 22 }} />
+              <div className="pl-brand shimmer" aria-hidden="true" style={{ width: 202, height: 22 }} />
+              <div className="pl-brand shimmer" aria-hidden="true" style={{ width: 146, height: 22 }} />
+            </div>
+          )}
           <div className="skeleton-page-loader__content-inner">
             {view === Pages.DASHBOARD && <DashboardSkeleton />}
             {view === Pages.JOURNAL && <TableSkeleton />}
