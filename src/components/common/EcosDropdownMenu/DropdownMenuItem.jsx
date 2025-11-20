@@ -4,7 +4,6 @@ import queryString from 'query-string';
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { Tooltip } from '@/components/common';
 import { URL } from '@/constants';
 import { IGNORE_TABS_HANDLER_ATTR_NAME } from '@/constants/pageTabs';
 import handleControl from '@/helpers/handleControl';
@@ -128,16 +127,14 @@ class DropdownMenuItem extends React.Component {
     }
 
     return (
-      <Tooltip target={id} showAsNeeded uncontrolled text={this.label}>
-        <li className="ecos-dropdown-menu__item">
-          <a href={this.url} target={target} id={id} onClick={this.handlerClick} {...extra} disabled={disabled}>
-            {this.iconLeft && <i className={this.iconLeft} />}
-            {img && this.renderImg()}
-            {this.label}
-            {iconRight && <i className={iconRight} />}
-          </a>
-        </li>
-      </Tooltip>
+      <li className="ecos-dropdown-menu__item">
+        <a href={this.url} target={target} id={id} onClick={this.handlerClick} {...extra} disabled={disabled}>
+          {this.iconLeft && <i className={this.iconLeft} />}
+          {img && this.renderImg()}
+          {this.label}
+          {iconRight && <i className={iconRight} />}
+        </a>
+      </li>
     );
   }
 }
