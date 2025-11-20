@@ -82,7 +82,7 @@ class Kanban extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { isLoading, isFirstLoading } = this.props;
+    const { isLoading, isFirstLoading, columns, kanbanSettings } = this.props;
     const headerElement = get(this.refHeader, 'current');
     const bodyElement = get(this.refBody, 'current');
 
@@ -95,8 +95,14 @@ class Kanban extends React.Component {
     }
 
     if (this.state.isInView && !this.isNoMore()) {
-      this.props.cancelGetNextBoardPage();
-      this.props.getNextPage({ isSkipPagination: true });
+      const defaultColumns = Array.isArray(columns) ? columns.filter(item => item && item.id) : [];
+      const colsFromSettings = get(kanbanSettings, 'columns');
+      const cols = colsFromSettings ? [] : defaultColumns;
+
+      if (!isEmpty(cols)) {
+        this.props.cancelGetNextBoardPage();
+        this.props.getNextPage({ isSkipPagination: true });
+      }
     }
 
     if (headerElement && bodyElement) {
