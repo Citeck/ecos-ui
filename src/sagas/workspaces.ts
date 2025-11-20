@@ -163,6 +163,7 @@ function* sagaGetSidebarWorkspaces({ api }: ExtraArgumentsStore) {
     const { records: myWorkspaces }: RecordsQueryResponse<WorkspaceType> = yield call(api.workspaces.getMyWorkspaces);
     const { records: publicWorkspaces }: RecordsQueryResponse<WorkspaceType> = yield call(api.workspaces.getPublicWorkspaces);
 
+    yield put(getWorkspaces());
     yield put(setMyWorkspaces(myWorkspaces));
     yield put(setPublicWorkspaces(publicWorkspaces));
   } catch (e) {
@@ -212,7 +213,6 @@ function* sagaRemoveWorkspace({ api }: ExtraArgumentsStore, { payload }: ReturnT
       PageService.changeUrlLink(url, params);
     }
 
-    yield put(getWorkspaces());
     yield put(getSidebarWorkspaces());
 
     if (callback) {
