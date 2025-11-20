@@ -324,7 +324,7 @@ export default class SelectJournal extends Component {
       settings.queryData = queryData;
 
       const workspaces = JournalsService.getWorkspaceByPolicy(searchInWorkspacePolicy, searchInAdditionalWorkspaces);
-      if (!isLocaleData) {
+      if (!isLocaleData && !!journalConfig.system) {
         workspaces.push('default'); // has default wsId - all workspaces
       }
 
