@@ -33,7 +33,7 @@ import PageService from '../services/PageService';
 import configService, { CREATE_MENU_TYPE } from '../services/config/ConfigService';
 import { LiveSearchTypes } from '../services/search';
 
-import { getSidebarWorkspaces, getWorkspaces } from '@/actions/workspaces';
+import { getSidebarWorkspaces } from '@/actions/workspaces';
 
 function* fetchCreateCaseWidget({ api }) {
   try {
@@ -90,7 +90,6 @@ function* fetchInfluentialParams(api) {
   const hasWriteCurrentWorkspace = yield call(api.workspaces.hasWriteCurrentWorkspace);
 
   function* updateWorkspaces() {
-    yield put(getWorkspaces());
     yield put(getSidebarWorkspaces());
   }
 
