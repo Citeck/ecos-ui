@@ -35,7 +35,9 @@ const Content = React.memo(({ showWidgets, isViewNewJournal, maxHeight, isNotGro
     })}
     maxHeight={maxHeight + breadcrumbsHeight}
   >
-    {props.journalId && recordRef && <Breadcrumbs className="ecos-journals-content__breadcrumbs" stateId={props.stateId} />}
+    {props.journalId && recordRef && recordRef !== 'null' && (
+      <Breadcrumbs className="ecos-journals-content__breadcrumbs" stateId={props.stateId} />
+    )}
     <JournalsDashletGrid
       noTopBorder
       doInlineToolsOnRowClick={showWidgets}
@@ -63,9 +65,12 @@ class JournalsContent extends Component {
       draggableEvents,
       grid: _grid
     } = this.props;
-    const { groupBy } = _grid || {};
     const recordRef = get(searchParams, 'recordRef');
-    const breadcrumbsHeight = get(document.querySelector('.ecos-journals-content__breadcrumbs'), 'offsetHeight') || HEIGHT_BREADCRUMBS;
+    const hasBreadcrumbs = !!recordRef && recordRef !== 'null';
+    const { groupBy } = _grid || {};
+
+    const breadcrumbsHeight =
+      get(document.querySelector('.ecos-journals-content__breadcrumbs'), 'offsetHeight') || hasBreadcrumbs ? HEIGHT_BREADCRUMBS : 0;
 
     return (
       <Content

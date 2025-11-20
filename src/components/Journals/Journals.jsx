@@ -382,11 +382,16 @@ class Journals extends React.Component {
   };
 
   getJournalContentMaxHeight = () => {
+    const { searchParams } = this.props;
+    const { recordRef } = searchParams || {};
+    const hasBreadcrumbs = !!recordRef && recordRef !== 'null';
+
     let headH = (this._journalBodyTopRef && get(this._journalBodyTopRef.getBoundingClientRect(), 'bottom')) || 0;
     const jFooterH = (this._journalFooterRef && get(this._journalFooterRef, 'offsetHeight')) || 0;
     const footerH = get(document.querySelector('.app-footer'), 'offsetHeight') || 0;
     const scrollHeight = get(document.querySelector('.ecos-kanban__scroll_h'), 'offsetHeight') || 0;
-    const breadcrumbsHeight = get(document.querySelector('.ecos-journals-content__breadcrumbs'), 'offsetHeight') || HEIGHT_BREADCRUMBS;
+    const breadcrumbsHeight =
+      get(document.querySelector('.ecos-journals-content__breadcrumbs'), 'offsetHeight') || hasBreadcrumbs ? HEIGHT_BREADCRUMBS : 0;
     const height = document.documentElement.clientHeight - headH - jFooterH - footerH - scrollHeight - breadcrumbsHeight;
 
     const maxHeightJournal = Math.max(height, this.minHeight) - PADDING_NEW_JOURNAL;
