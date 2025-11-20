@@ -1,22 +1,25 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
 
 import Loader from '../Loader/Loader';
+
 import DropdownMenuCascade from './DropdownMenuCascade';
 import DropdownMenuGroup from './DropdownMenuGroup';
+
 import { DropdownMenuItem } from './index';
-import ZIndex from '../../../services/ZIndex';
+
+import { selectIsViewNewJournal } from '@/selectors/view';
+import ZIndex from '@/services/ZIndex';
 
 import '../form/Dropdown/Dropdown.scss';
 import './style.scss';
-import { connect } from 'react-redux';
-import { selectIsViewNewJournal } from '../../../selectors/view';
 
-const MenuModes = {
+export const MenuModes = {
   GROUP: 'group',
   CASCADE: 'cascade',
   LIST: 'list',
