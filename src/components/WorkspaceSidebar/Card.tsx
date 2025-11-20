@@ -12,6 +12,7 @@ import WorkspacePreview from '@/components/WorkspacePreview';
 import Confirm from '@/components/WorkspaceSidebar/Confirm';
 import Actions from '@/components/common/icons/HorizontalActions';
 import { SourcesId } from '@/constants';
+import { getPersonalWorkspaceId, getWorkspaceId, openLinkWorkspace } from '@/helpers/urls';
 import { t } from '@/helpers/util';
 import { selectWorkspaceIsLoadingAction } from '@/selectors/workspaces';
 import { NotificationManager } from '@/services/notifications';
@@ -160,7 +161,7 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
   };
 
   onLeaveWorkspace = () => {
-    const { isCurrentUserLastManager, leaveOfWorkspace } = this.props;
+    const { isCurrentUserLastManager, leaveOfWorkspace, id: wsId } = this.props;
     this.setState({ showMenuSettings: false, showBtnSettings: false });
 
     if (isCurrentUserLastManager) {
@@ -169,6 +170,9 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
     }
 
     leaveOfWorkspace();
+    if (wsId === getWorkspaceId()) {
+      this.openPersonalWorkspace();
+    }
   };
 
   refetchWorkspaces = () => {
@@ -263,8 +267,17 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
     });
   };
 
+  openPersonalWorkspace = () => openLinkWorkspace(getPersonalWorkspaceId());
+
   onConfirmRemove = () => {
-    this.props.removeWorkspace(() => this.toggleViewConfirm());
+    const { removeWorkspace, id: wsId } = this.props;
+
+    removeWorkspace(() => {
+      this.toggleViewConfirm();
+      if (wsId === getWorkspaceId()) {
+        this.openPersonalWorkspace();
+      }
+    });
   };
 
   renderConfirm = () => {

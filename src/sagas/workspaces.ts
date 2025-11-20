@@ -26,7 +26,7 @@ import {
 import { RecordsQueryResponse } from '@/api/types';
 import { WorkspaceType } from '@/api/workspaces/types';
 import { URL } from '@/constants';
-import { getBaseUrlWorkspace, getLinkWithWs, getPersonalWorkspaceId, getWorkspaceId, getWsIdOfTabLink } from '@/helpers/urls';
+import { getLinkWithWs, getPersonalWorkspaceId, getWsIdOfTabLink } from '@/helpers/urls';
 import { t } from '@/helpers/util';
 import { selectCurrentWorkspaceBlocked, selectCurrentWorkspaceIsBlocked } from '@/selectors/workspaces';
 import PageService from '@/services/PageService';
@@ -193,26 +193,9 @@ function* sagaOnSearchWorkspaces({ api }: ExtraArgumentsStore, { payload }: Retu
 function* sagaRemoveWorkspace({ api }: ExtraArgumentsStore, { payload }: ReturnType<typeof removeWorkspace>) {
   try {
     yield put(setLoadingAction(true));
-
     const { wsId, callback } = payload;
-    const currentWorkspaceId = getWorkspaceId();
 
     yield call(api.workspaces.removeWorkspace, wsId);
-
-    if (currentWorkspaceId === wsId) {
-      const params = {
-        openNewTab: true,
-        reopen: true,
-        closeActiveTab: false,
-        needUpdateTabs: true
-      };
-
-      const personalWorkspaceId = getPersonalWorkspaceId();
-      const url = getBaseUrlWorkspace(personalWorkspaceId);
-
-      PageService.changeUrlLink(url, params);
-    }
-
     yield put(getSidebarWorkspaces());
 
     if (callback) {
