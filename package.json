@@ -1,6 +1,6 @@
 {
   "name": "ecos-ui",
-  "version": "2.25.2-snapshot",
+  "version": "2.25.2",
   "private": true,
   "type": "module",
   "scripts": {
