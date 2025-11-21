@@ -1,6 +1,5 @@
 import classNames from 'classnames';
 import get from 'lodash/get';
-import isFunction from 'lodash/isFunction';
 import React, { useState, useEffect } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
@@ -62,12 +61,6 @@ const HierarchicalTreeWidget = ({
     isJournalMode ? String(get(getSearchParams(), JUP.RECORD_REF, '')) : initialRecordRef
   );
   const [records, setRecords] = useState<TreeNodeType[]>([]);
-
-  useEffect(() => {
-    if (isJournalMode && stateId && isFunction(reloadGrid)) {
-      reloadGrid({ skipCount: 0, page: 1 });
-    }
-  }, [recordRef]);
 
   useEffect(() => {
     fetchRecords().then(({ records = [] }) => {

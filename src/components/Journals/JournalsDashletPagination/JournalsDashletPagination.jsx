@@ -76,8 +76,17 @@ class JournalsDashletPagination extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { previewListProps, maxHeightJournalData, isViewNewJournal, setGridPagination, isDecrementLastRow, grid, viewMode, loading } =
-      this.props;
+    const {
+      previewListProps,
+      maxHeightJournalData,
+      isViewNewJournal,
+      cancelReloadGrid,
+      setGridPagination,
+      isDecrementLastRow,
+      grid,
+      viewMode,
+      loading
+    } = this.props;
     const { isTilesContent } = previewListProps || {};
     const { maxItems: gridMaxItems } = grid || {};
     const { maxItems: stateMaxItems } = this.state;
@@ -129,6 +138,7 @@ class JournalsDashletPagination extends Component {
 
         this.setState({ updatedPaginationOfNewJournal: true });
         this.setState({ maxItems }, () => {
+          cancelReloadGrid();
           setGridPagination(pagination);
 
           if (isSwapPreviewAndTable) {

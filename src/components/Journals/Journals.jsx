@@ -30,11 +30,12 @@ import {
   isKanbanOrDocLib,
   isPreview,
   isPreviewList,
-  HEIGHT_BREADCRUMBS
+  HEIGHT_BREADCRUMBS,
+  INITIAL_WIDTH_DASHBOARD
 } from './constants';
 
 import { getTypeRef } from '@/actions/docLib';
-import { execJournalAction, fetchBreadcrumbs, setUrl, toggleViewMode } from '@/actions/journals';
+import { execJournalAction, fetchBreadcrumbs, reloadGrid, setUrl, toggleViewMode } from '@/actions/journals';
 import { getBoardList } from '@/actions/kanban';
 import { updateTab } from '@/actions/pageTabs';
 import JournalsPreviewWidgets from '@/components/Journals/JournalsPreviewWidgets/JournalsPreviewWidgets';
@@ -82,6 +83,7 @@ const mapDispatchToProps = (dispatch, props) => {
     getTypeRef: journalId => dispatch(getTypeRef(w({ journalId }))),
     getBoardList: journalId => dispatch(getBoardList({ journalId, stateId: props.stateId })),
     fetchBreadcrumbs: () => dispatch(fetchBreadcrumbs(w())),
+    reloadGrid: pagination => dispatch(reloadGrid(w({ pagination }))),
     updateTab: tab => dispatch(updateTab({ tab }))
   };
 };
@@ -197,6 +199,7 @@ class Journals extends React.Component {
 
     if (journalId && !isEqual(get(searchParams, 'recordRef'), get(prevSearchParams, 'recordRef'))) {
       this.props.fetchBreadcrumbs();
+      this.props.reloadGrid({ skipCount: 0, page: 1 });
     }
 
     if (
@@ -617,6 +620,7 @@ class Journals extends React.Component {
     const { recordId, indexedDBConfig } = this.state;
     const { widgetsConfig: { boxSizes = {} } = {} } = indexedDBConfig || {};
 
+    const hasDBSises = !isEmpty(boxSizes);
     const wellClassNames = 'ecos-well_full ecos-journals-content__preview-well';
     const draggableEvents = this.draggableEventsProps;
 
@@ -626,13 +630,21 @@ class Journals extends React.Component {
 
       return (
         <div className="ecos-journals-content__sides">
-          <div id={leftId} className="ecos-journals-content__sides-small">
+          <div
+            id={leftId}
+            className="ecos-journals-content__sides-small"
+            style={{ ...(!hasDBSises && { width: `${INITIAL_WIDTH_DASHBOARD}%` }) }}
+          >
             <Well isViewNewJournal={isViewNewJournal} className={wellClassNames}>
               <JournalsPreviewWidgets stateId={stateId} recordId={recordId} isDraggingRow={draggableEvents.isDragging} />
             </Well>
             <ResizeBoxes sizes={boxSizes} onResizeComplete={this.onResizeWidgets} leftId={leftId} rightId={rightId} isSimpleVertical />
           </div>
-          <div id={rightId} className="ecos-journals-content__sides-large">
+          <div
+            id={rightId}
+            className="ecos-journals-content__sides-large"
+            style={{ ...(!hasDBSises && { width: `${100 - INITIAL_WIDTH_DASHBOARD}%` }) }}
+          >
             {this.renderViews()}
           </div>
         </div>
@@ -644,10 +656,18 @@ class Journals extends React.Component {
 
     return (
       <div className="ecos-journals-content__sides">
-        <div id={leftId} className="ecos-journals-content__sides-large">
+        <div
+          id={leftId}
+          className="ecos-journals-content__sides-large"
+          style={{ ...(!hasDBSises && { width: `${100 - INITIAL_WIDTH_DASHBOARD}%` }) }}
+        >
           {this.renderViews()}
         </div>
-        <div id={rightId} className="ecos-journals-content__sides-small">
+        <div
+          id={rightId}
+          className="ecos-journals-content__sides-small"
+          style={{ ...(!hasDBSises && { width: `${INITIAL_WIDTH_DASHBOARD}%` }) }}
+        >
           <ResizeBoxes
             sizes={boxSizes}
             onResizeComplete={this.onResizeWidgets}

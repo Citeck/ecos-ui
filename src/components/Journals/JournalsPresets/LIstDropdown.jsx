@@ -1,19 +1,20 @@
-import React from 'react';
-import { connect } from 'react-redux';
+import classNames from 'classnames';
 import get from 'lodash/get';
 import isBoolean from 'lodash/isBoolean';
+import React from 'react';
+import { connect } from 'react-redux';
 
-import { wrapArgs } from '../../../helpers/redux';
 import { deleteJournalSetting, editJournalSetting, getJournalsData, openSelectedPreset } from '../../../actions/journals';
-import { selectViewMode } from '../../../selectors/journals';
 import { resetFilter } from '../../../actions/kanban';
-import { Dropdown } from '../../common/form';
-import { selectIsViewNewJournal } from '../../../selectors/view';
-import classNames from 'classnames';
-import { filterList, renderList, onSelect } from './helpers';
-import ListItem from './ListItem';
 import { t } from '../../../helpers/export/util';
+import { wrapArgs } from '../../../helpers/redux';
+import { selectViewMode } from '../../../selectors/journals';
+import { selectIsViewNewJournal } from '../../../selectors/view';
 import { IcoBtn } from '../../common/btns';
+import { Dropdown } from '../../common/form';
+
+import ListItem from './ListItem';
+import { filterList, renderList, onSelect } from './helpers';
 
 import './style.scss';
 
@@ -82,7 +83,7 @@ class ListDropdown extends React.Component {
   };
 
   render() {
-    const { isViewNewJournal, isMobile, journalSettings = [], searchText, journalSetting } = this.props;
+    const { isViewNewJournal, isMobile, journalSettings = [], searchText, journalSetting, toggleClassName, className } = this.props;
     const { isOpenDropdown } = this.state;
 
     const settingId = get(journalSetting, 'id', '');
@@ -92,7 +93,7 @@ class ListDropdown extends React.Component {
 
     return (
       <div
-        className={classNames('ecos-journal-menu__container', {
+        className={classNames('ecos-journal-menu__container', toggleClassName, {
           'ecos-journal-menu__container_mobile': isMobile && isViewNewJournal
         })}
       >
@@ -106,6 +107,8 @@ class ListDropdown extends React.Component {
           valueField={'id'}
           controlIcon="icon-small-down"
           controlClassName={classNames('ecos-btn_grey ecos-btn_settings-down')}
+          toggleClassName={toggleClassName}
+          className={className}
           withScrollbar
           onChange={this.onSelect}
           wrapperClassName="ecos-list-group"
@@ -158,7 +161,4 @@ const mapDispatchToProps = (dispatch, props) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ListDropdown);
+export default connect(mapStateToProps, mapDispatchToProps)(ListDropdown);
