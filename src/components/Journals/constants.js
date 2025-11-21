@@ -38,6 +38,8 @@ export const ECOS_GRID_PADDING_HORIZONTAL = 14;
 export const LIST_VIEW_ITEM_GAP = 18;
 export const HEIGHT_LIST_VIEW_ITEM = 134 + LIST_VIEW_ITEM_GAP;
 
+export const INITIAL_WIDTH_DASHBOARD = 30; // %
+
 // sizes with tiles content
 export const PADDING_WELL_TILES_PREVIEW_LIST = 4;
 export const HEIGHT_HEADER_TILES_PREVIEW_LIST = 43;

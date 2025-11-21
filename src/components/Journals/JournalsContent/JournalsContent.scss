@@ -11,7 +11,6 @@
 
     & > :nth-child(n) {
       position: relative;
-      width: 50%;
 
       &:nth-child(even) {
         border-left: 1px solid $color-gray-4;
@@ -23,7 +22,7 @@
     }
 
     &-large {
-      min-width: 550px;
+      min-width: 582px;
       height: calc(100% - 34px);
     }
   }

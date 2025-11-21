@@ -7,12 +7,33 @@
   width: 100%;
   flex-wrap: wrap;
 
+  &-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+
+    &.full-width {
+      gap: 6px;
+      width: 100%;
+      justify-content: space-between;
+
+      .ecos-dropdown {
+        width: 100%;
+      }
+    }
+  }
+
   &_new {
+    flex-wrap: nowrap;
     align-items: center;
     background-color: var(--main-bg-color);
     border-radius: 12px 12px 0 0;
     margin-bottom: 0;
     padding: 2px 6px;
+
+    .ecos-journal__view-tabs {
+      display: inline-flex;
+    }
 
     .ecos-btn-settings-filter-on,
     .ecos-btn-settings-filter-on:hover {
@@ -30,7 +51,7 @@
     }
     #{$root}-template-btn.ecos-btn {
       border-radius: $border-radius-standard;
-      width: 156px;
+      max-width: 156px;
 
       .ecos-btn__text {
         width: 100%;
@@ -154,6 +175,8 @@
     &:not(.search_collapsed) {
       width: 200px;
     }
+
+    min-width: 78px;
 
     & ~ :nth-child(n) {
       transition: all 0.4s, opacity 0.2s;
@@ -412,4 +435,46 @@
 
 .ecos-btn-settings-filter-on:hover {
   background-color: $color-white !important;
+}
+
+.overflow-menu {
+  &_dropdown {
+    background: rgba($color-white, 0.95);
+    box-shadow: $box-shadow-default;
+    padding: 6px 0;
+    border-radius: 6px;
+    border: none;
+    max-width: 200px;
+  }
+  &_dropdown-content {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 0 6px;
+
+    .ecos-dropdown-outer {
+      margin: 0;
+    }
+  }
+  &_btn-toggle {
+    padding: 0 12px;
+    height: 28px;
+    border: none !important;
+    box-shadow: none !important;
+    background-color: $color-gray-25 !important;
+
+    & > svg > path {
+      fill: $color-gray-5;
+    }
+  }
+}
+
+.full-width {
+  width: 100%;
+  max-width: 100%;
+
+  .ecos-btn {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
 }
