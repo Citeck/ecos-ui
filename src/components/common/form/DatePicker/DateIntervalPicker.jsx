@@ -529,10 +529,7 @@ class DateIntervalPicker extends Component {
     switch (this.selectedType) {
       case DateTypes.RELATIVE: {
         if (this.selectedTimeAgo === datePredicateVariables.HOUR) {
-          result = `-PT${value}H`;
-        } else if (this.selectedTimeAgo === datePredicateVariables.QUARTER) {
-          const months = value * 3;
-          result = `-P${months}M`;
+          result = `-PT${value}${this.selectedTimeAgo}`;
         } else {
           result = `-P${value}${this.selectedTimeAgo}`;
         }
@@ -670,7 +667,7 @@ class DateIntervalPicker extends Component {
         <PopoverBody
           className={classNames(
             'ecos-dp-interval__popover-content',
-            `ecos-dp-interval__popover-content_${this.selectedType.toLowerCase()}`
+            `ecos-dp-interval__popover-content_${this.selectedType?.toLowerCase()}`
           )}
         >
           <Select narrow options={this.dateTypeOptions} value={selectedType} onChange={this.handleChangeDateType} />
