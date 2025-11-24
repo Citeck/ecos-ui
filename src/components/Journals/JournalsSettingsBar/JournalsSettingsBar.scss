@@ -457,11 +457,37 @@
     }
   }
   &_btn-toggle {
+    $btn: &;
     padding: 0 12px;
     height: 28px;
     border: none !important;
     box-shadow: none !important;
     background-color: $color-gray-25 !important;
+    border-radius: 6px !important;
+    transition: none;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+
+    &:hover,
+    &.active {
+      background-color: var(--primary-color) !important;
+
+      #{$btn}_text {
+        color: $color-white;
+      }
+
+      & > svg > path {
+        fill: $color-white;
+      }
+    }
+
+    &_text {
+      color: $text-color-gray;
+      font-weight: 600;
+      font-size: 11px;
+    }
 
     & > svg > path {
       fill: $color-gray-5;
