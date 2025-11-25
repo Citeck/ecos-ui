@@ -21,6 +21,24 @@ class Bar extends Component {
     isCreateLoading: false
   };
 
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isReset: false,
+      settingsVisible: props.settingsVisible || false,
+      isCreateLoading: false
+    };
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const { settingsVisible } = this.props;
+
+    if (prevProps.settingsVisible !== settingsVisible && settingsVisible !== this.state.settingsVisible) {
+      this.setState({ settingsVisible, isReset: false });
+    }
+  }
+
   getSearchText() {
     const { isActivePage, urlParams } = this.props;
     return !isActivePage ? '' : get(getSearchParams(), JUP.SEARCH, get(urlParams, JUP.SEARCH, ''));
