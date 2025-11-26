@@ -1,0 +1,49 @@
+.ecos-charts {
+  &-settings {
+    padding: 20px 20px 0;
+
+    &__type-select {
+      border: none;
+      border-radius: 5px;
+      padding: 5px 15px;
+      background: #e8edef;
+      margin-right: 10px;
+
+      &:hover {
+        background: rgb(211, 210, 210);
+      }
+    }
+
+    &__type-elem {
+      border: none;
+      border-radius: 5px;
+      padding: 5px 15px;
+      background: #e8edef;
+      margin: 10px;
+
+      &:hover {
+        background: rgb(211, 210, 210);
+      }
+    }
+
+    &__buttons {
+      display: flex;
+      margin: 10px 0;
+      flex-wrap: wrap;
+      flex-direction: row;
+      justify-self: right;
+      gap: 8px;
+
+      & > button {
+        flex-grow: 1;
+        margin: 0 !important;
+      }
+    }
+
+    &__validate-message {
+      padding: 0;
+      padding-top: 10px;
+      justify-content: flex-start;
+    }
+  }
+}

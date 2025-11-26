@@ -21,6 +21,17 @@
           "type": "String"
         }
       ]
+    },
+    {
+      "name": "aiTask",
+      "extends": ["bpmn:Task"],
+      "properties": [
+        {
+          "name": "aiUserInput",
+          "isAttr": true,
+          "type": "String"
+        }
+      ]
     }
   ],
   "emumerations": [],

@@ -3,7 +3,7 @@
 .ecos-doc-associations {
   $root: &;
 
-  min-width: 290px;
+  min-width: 249px;
 
   .dashlet__header {
     overflow: unset;
@@ -205,7 +205,7 @@
   }
 
   &__link {
-    color: $color-blue-dark;
+    color: var(--primary-color);
     @extend %ellipsis;
   }
 

@@ -1,8 +1,7 @@
-import { call, put, select, takeEvery } from 'redux-saga/effects';
-import { NotificationManager } from 'react-notifications';
 import get from 'lodash/get';
-import isString from 'lodash/isString';
 import isObject from 'lodash/isObject';
+import isString from 'lodash/isString';
+import { call, put, select, takeEvery } from 'redux-saga/effects';
 
 import {
   createActivityRequest,
@@ -23,28 +22,33 @@ import {
   uploadFilesFinally,
   viewAssignment
 } from '../actions/activities';
-import { selectAllActivities } from '../selectors/activities';
-import { getCommentForWeb } from '../dto/activities';
-import { t } from '../helpers/util';
-import { COMMENT_TYPE, SourcesId } from '../constants';
-import { uploadFileV2 } from './documents';
 import { setUploadError } from '../actions/documents';
 import Records from '../components/Records/Records';
-import { EVENTS } from '../components/widgets/BaseWidget';
-import { ActivityTypes } from '../constants/activity';
 import { ActionTypes } from '../components/Records/actions/constants';
+import { EVENTS } from '../components/widgets/BaseWidget';
+import { COMMENT_TYPE, SourcesId } from '../constants';
+import { ActivityTypes } from '../constants/activity';
+import { getCommentForWeb } from '../dto/activities';
+import { t } from '../helpers/util';
+import { selectAllActivities } from '../selectors/activities';
+
+import { uploadFileV2 } from './documents';
+
+import { NotificationManager } from '@/services/notifications';
 
 const getPureMessage = message => (message || '').replace(/\d/g, '');
 
-function* sagaGetActivities({ api, logger }, action) {
+function* sagaGetActivities({ api }, action) {
   try {
     yield put(fetchStart(action.payload));
 
+    const { records: activityTypes = [] } = yield api.activities.getTypes(action.payload);
     const { records, ...extraProps } = yield api.activities.getAll(action.payload);
 
     yield put(
       setActivities({
         recordRef: action.payload,
+        activityTypes,
         activities: records.map(record => getCommentForWeb(record)),
         ...extraProps
       })
@@ -52,11 +56,11 @@ function* sagaGetActivities({ api, logger }, action) {
 
     yield put(fetchEnd(action.payload));
   } catch (e) {
-    logger.error('[activities sagaGetActivities saga error', e);
+    console.error('[activities sagaGetActivities saga error', e);
   }
 }
 
-function* sagaCreateActivity({ api, logger }, action) {
+function* sagaCreateActivity({ api }, action) {
   try {
     const {
       payload: { recordRef, activity: text, instanceRecord, ...rest }
@@ -74,6 +78,7 @@ function* sagaCreateActivity({ api, logger }, action) {
     yield put(createActivitySuccess({ activities, recordRef }));
 
     const typeId = get(rest, 'selectedType.id');
+
     if (typeId) {
       switch (typeId) {
         case ActivityTypes.ASSIGNMENT:
@@ -97,7 +102,7 @@ function* sagaCreateActivity({ api, logger }, action) {
         recordRef: action.payload.recordRef
       })
     );
-    logger.error('[activities sagaCreateActivity saga error', e);
+    console.error('[activities sagaCreateActivity saga error', e);
   } finally {
     if (action.payload && action.payload.callback && typeof action.payload.callback === 'function') {
       action.payload.callback();
@@ -105,7 +110,7 @@ function* sagaCreateActivity({ api, logger }, action) {
   }
 }
 
-function* sagaUpdateActivity({ api, logger }, action) {
+function* sagaUpdateActivity({ api }, action) {
   try {
     const {
       payload: { recordRef, activity, initiator, performer, instanceRecord, responsible, ...rest }
@@ -171,7 +176,7 @@ function* sagaUpdateActivity({ api, logger }, action) {
         recordRef: action.payload.recordRef
       })
     );
-    logger.error('[activities sagaUpdateActivity saga error', e);
+    console.error('[activities sagaUpdateActivity saga error', e);
   } finally {
     if (action.payload && action.payload.callback && typeof action.payload.callback === 'function') {
       action.payload.callback();
@@ -179,14 +184,14 @@ function* sagaUpdateActivity({ api, logger }, action) {
   }
 }
 
-function* sagaUploadFilesInActivity({ api, logger }, { payload }) {
+function* sagaUploadFilesInActivity({ api }, { payload }) {
   let fileRecords;
 
   try {
     const createVariants = yield call(api.documents.getCreateVariants, payload.type);
     const fileUploadFunc = uploadFileV2;
 
-    const files = yield payload.files.map(function*(file) {
+    const files = yield payload.files.map(function* (file) {
       return yield fileUploadFunc({ api, file, callback: payload.callback });
     });
 
@@ -202,7 +207,7 @@ function* sagaUploadFilesInActivity({ api, logger }, { payload }) {
       recordRef = (yield Records.get(payload.type).load('sourceId')) + '@';
     }
 
-    fileRecords = yield files.map(function(file, index) {
+    fileRecords = yield files.map(function (file, index) {
       const fileResult = results[index];
 
       if (fileResult.status === 'fulfilled') {
@@ -216,7 +221,7 @@ function* sagaUploadFilesInActivity({ api, logger }, { payload }) {
     );
   } catch (e) {
     yield put(setUploadError({ ...payload, message: e.message }));
-    logger.error('[activities sagaUploadFilesInActivity saga error', e);
+    console.error('[activities sagaUploadFilesInActivity saga error', e);
     NotificationManager.error(
       t(payload.files.length > 1 ? 'documents-widget.notification.add-many.error' : 'documents-widget.notification.add-one.error'),
       t('error')
@@ -229,7 +234,7 @@ function* sagaUploadFilesInActivity({ api, logger }, { payload }) {
   }
 }
 
-function* sagaDeleteActivity({ api, logger }, { payload }) {
+function* sagaDeleteActivity({ api }, { payload }) {
   const { recordRef, id: activityId, callback } = payload;
 
   try {
@@ -250,7 +255,7 @@ function* sagaDeleteActivity({ api, logger }, { payload }) {
     NotificationManager.error(originMessage || t('comments-widget.error'), t('error'));
     yield put(setActionFailedStatus({ recordRef, status: true }));
 
-    logger.error('[activities sagaDeleteActivity saga error', e);
+    console.error('[activities sagaDeleteActivity saga error', e);
   } finally {
     yield put(sendingEnd(recordRef));
 
@@ -262,7 +267,7 @@ function* sagaDeleteActivity({ api, logger }, { payload }) {
   }
 }
 
-function* sagaViewAssignment({ api, logger }, { payload }) {
+function* sagaViewAssignment({ api }, { payload }) {
   try {
     yield call(api.recordActions.executeAction, {
       records: payload,
@@ -270,7 +275,7 @@ function* sagaViewAssignment({ api, logger }, { payload }) {
     });
   } catch (e) {
     NotificationManager.error(t('doc-associations-widget.view-association.error.message'), t('error'));
-    logger.error('[docAssociations sagaViewAssignment saga error', e);
+    console.error('[docAssociations sagaViewAssignment saga error', e);
   }
 }
 

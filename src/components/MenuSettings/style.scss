@@ -48,7 +48,7 @@
 
     .ecos-tab {
       &:not(.ecos-tab_active) {
-        background: $color-gray-4;
+        background: transparent;
       }
     }
   }
@@ -233,10 +233,10 @@
 
         &:hover {
           cursor: pointer;
-          color: $color-blue-light;
+          color: var(--primary-color);
 
           .ecos-badge {
-            background-color: $color-blue-light;
+            background-color: var(--primary-color);
           }
         }
 
@@ -272,7 +272,7 @@
           display: inline-block;
 
           .ecos-btn {
-            background-color: $color-blue-light;
+            background-color: var(--primary-color);
             color: $color-white;
           }
         }
@@ -402,7 +402,7 @@
       &::after {
         content: '*';
         padding-left: 5px;
-        color: $color-blue-dark;
+        color: var(--primary-color);
       }
     }
 

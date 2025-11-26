@@ -11,7 +11,7 @@ export default [
     tooltip: `There are several options for specifying a title:
   - Simple text;
   - Component label (selector:items) that will pass through the localization function;
-  - Template text like "Select: {{component.label}}", where the content between 
+  - Template text like "Select: {{component.label}}", where the content between
     curly braces is the path to the value of the current component from <bold>this</bold>;
   - Localization key from the form.
 
@@ -42,5 +42,39 @@ All of these options go through the localization function.
     key: CREATE_VARIANT_ACTIONS_FIELD,
     defaultValue: false,
     weight: 24
+  },
+  {
+    type: 'textarea',
+    weight: 23,
+    logic: [
+      {
+        name: 'Disabled field',
+        trigger: {
+          type: 'javascript',
+          javascript: "result = !!data['isSelectedValueAsText']"
+        },
+        actions: [
+          {
+            name: 'Disable action',
+            type: 'property',
+            property: {
+              label: 'Disabled',
+              value: 'disabled',
+              type: 'boolean'
+            },
+            state: true
+          }
+        ]
+      }
+    ],
+    input: true,
+    key: 'linkFormatter',
+    label: {
+      ru: 'Форматтер ссылки',
+      en: 'Link formatter'
+    },
+    editor: 'ace',
+    rows: 10,
+    placeholder: 'function(ref) { ... }'
   }
 ];

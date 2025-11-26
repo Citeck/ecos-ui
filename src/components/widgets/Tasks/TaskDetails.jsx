@@ -1,0 +1,171 @@
+import classNames from 'classnames';
+import cloneDeep from 'lodash/cloneDeep';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+
+import { DataFormatTypes } from '../../../constants';
+import * as ArrayOfObjects from '../../../helpers/arrayOfObjects';
+import { getOutputFormat, t } from '../../../helpers/util';
+import EcosForm from '../../EcosForm/index';
+import TaskAssignmentPanel from '../../TaskAssignmentPanel';
+import { Headline } from '../../common/form/index';
+import { Grid } from '../../common/grid/index';
+import { ComponentKeys } from '../Components';
+
+import { TaskPropTypes } from './utils';
+
+import './style.scss';
+
+class TaskDetails extends React.Component {
+  static propTypes = {
+    details: PropTypes.shape(TaskPropTypes).isRequired,
+    className: PropTypes.string,
+    isSmallMode: PropTypes.bool,
+    isViewTaskInfo: PropTypes.bool,
+    onSubmitForm: PropTypes.func.isRequired
+  };
+
+  static defaultProps = {
+    details: {},
+    className: '',
+    isSmallMode: false,
+    onAssignClick: () => {},
+    onSubmitForm: () => {}
+  };
+
+  get gridColumns() {
+    return [
+      {
+        key: 'started',
+        label: t('tasks-widget.column.started'),
+        order: 0,
+        format: DataFormatTypes.DATE
+      },
+      {
+        key: 'deadline',
+        label: t('tasks-widget.column.deadline'),
+        order: 1,
+        format: DataFormatTypes.DATETIME
+      },
+      {
+        key: 'sender',
+        label: t('tasks-widget.column.sender'),
+        order: 2
+      },
+      {
+        key: 'actors',
+        label: t('tasks-widget.column.actors'),
+        order: 3
+      },
+      {
+        key: 'lastcomment',
+        label: t('tasks-widget.column.lastcomment'),
+        order: 4
+      }
+    ];
+  }
+
+  onSubmitForm = () => {
+    this.props.onSubmitForm();
+  };
+
+  renderDetailsGrid() {
+    const details = cloneDeep(this.props.details);
+
+    for (const key in details) {
+      if (details.hasOwnProperty(key)) {
+        const desc = ArrayOfObjects.getObjectByKV(this.gridColumns, 'key', key);
+
+        if (Object.keys(desc).length) {
+          details[key] = getOutputFormat(desc.format, details[key]);
+        }
+      }
+    }
+
+    const arr = [details];
+    const updCols = ArrayOfObjects.replaceKeys(this.gridColumns, { key: 'dataField', label: 'text' });
+    const gridCols = ArrayOfObjects.filterKeys(updCols, ['dataField', 'text']);
+
+    return <Grid data={arr} columns={gridCols} scrollable={true} className="ecos-task-ins_view-table" />;
+  }
+
+  renderDetailsEnum() {
+    const { details } = this.props;
+    const columns = ArrayOfObjects.sort(this.gridColumns, 'order');
+
+    return (
+      <>
+        {columns.map((item, i) => (
+          <div className="ecos-task-ins_view-enum" key={details.id + i}>
+            <div className="ecos-task-ins_view-enum-label">{item.label}</div>
+            <div className="ecos-task-ins_view-enum-value">{getOutputFormat(item.format, details[item.key])}</div>
+          </div>
+        ))}
+      </>
+    );
+  }
+
+  renderAssignmentPanel() {
+    const { details, onAssignClick, isSmallMode } = this.props;
+
+    return (
+      <TaskAssignmentPanel
+        narrow
+        noResultModal
+        taskId={details.id}
+        errorMsg={t('tasks-widget.error.failed-assign-task')}
+        wrapperClassName={classNames('ecos-task__assign-btn__wrapper', {
+          'ecos-task__assign-btn__wrapper_small-mode': isSmallMode
+        })}
+        className={classNames('ecos-task__assign-btn ecos-btn_brown2', {
+          'ecos-task__assign-btn_small-mode': isSmallMode
+        })}
+        stateAssign={details.stateAssign}
+        onAfterExecute={onAssignClick}
+      />
+    );
+  }
+
+  render() {
+    const { details, className, isSmallMode, setFormRef, isViewTaskInfo } = this.props;
+
+    return (
+      <div className={classNames('ecos-task-ins', className)}>
+        {isViewTaskInfo && (
+          <>
+            <Headline className="ecos-task-ins__title">
+              <div title={details.title} className="ecos-task-ins__title-text">
+                {details.title}
+              </div>
+              {!isSmallMode && this.renderAssignmentPanel()}
+            </Headline>
+            <div className="ecos-task-ins__info-wrap">
+              {isSmallMode && this.renderAssignmentPanel()}
+              {!isSmallMode && this.renderDetailsGrid()}
+              {isSmallMode && this.renderDetailsEnum()}
+            </div>
+          </>
+        )}
+        <div className="ecos-task-ins__eform">
+          <EcosForm
+            ref={setFormRef}
+            record={details.id}
+            formKey={details.formKey}
+            onSubmit={this.onSubmitForm}
+            saveOnSubmit
+            options={{
+              useNarrowButtons: true,
+              fullWidthColumns: isSmallMode
+            }}
+            initiator={{
+              type: 'widget',
+              name: ComponentKeys.TASKS
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+}
+
+export default TaskDetails;

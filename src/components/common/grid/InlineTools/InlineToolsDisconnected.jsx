@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
 import './InlineTools.scss';
 
@@ -31,8 +31,6 @@ const numberOrStringType = PropTypes.oneOfType([PropTypes.number, PropTypes.stri
 
 InlineToolsDisconnected.propTypes = {
   rowId: numberOrStringType,
-  top: numberOrStringType,
-  height: numberOrStringType,
   tools: PropTypes.arrayOf(PropTypes.node),
   selectedRecords: PropTypes.arrayOf(numberOrStringType),
   className: PropTypes.string,

@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FileNameFormatter format method should render file icon 1`] = `
+<div>
+  <a
+    class="ecos-filename-formatter"
+    data-remote-title="true"
+    href="/v2/dashboard?recordRef=undefined"
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    <span
+      class="ecos-file-icon fiv-hct ecos-filename-formatter__icon fiv-icon-blank"
+    />
+  </a>
+</div>
+`;

@@ -1,16 +1,15 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 import { t } from '../../../../helpers/util';
 import { Search, Tooltip } from '../../../common';
-import DialogManager from '../../../common/dialogs/Manager/DialogManager';
 import { IcoBtn, TwoIcoBtn } from '../../../common/btns';
+import DialogManager from '../../../common/dialogs/Manager/DialogManager';
 import { Dropdown } from '../../../common/form';
-
 import ViewTabs from '../../ViewTabs';
-import DocLibService from '../DocLibService';
 import DocLibPagination from '../DocLibPagination';
+import DocLibService from '../DocLibService';
 
 import './DocLibSettingsBar.scss';
 
@@ -77,7 +76,7 @@ const DocLibSettingsBar = ({ stateId, searchText, createVariants, createNode, is
 
       <Search
         onSearch={startSearch}
-        className={`ecos-doclib__settings-bar-search search_border-white ${step}`}
+        className={`ecos-doclib__settings-bar-search ${step}`}
         collapsed={isMobile}
         text={searchText}
         cleaner

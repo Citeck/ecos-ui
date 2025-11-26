@@ -1,7 +1,7 @@
 @import '../../../../styles/constants';
 
 $selector-table: '.ecos-grid__table.table';
-$header-height: 52px;
+$header-height: 44px;
 
 %shadow-h-line {
   content: ' ';
@@ -132,10 +132,6 @@ $header-height: 52px;
     }
   }
 
-  &_hovered {
-    background: $color-blue-light3;
-  }
-
   &_no-header {
     & thead {
       display: none;
@@ -235,7 +231,6 @@ $header-height: 52px;
 }
 
 #{$selector-table} {
-  margin-bottom: 13px;
   width: 100%;
   position: relative;
 
@@ -270,7 +265,7 @@ $header-height: 52px;
 
   th {
     height: $header-height;
-    padding: 8px 0;
+    padding: 0;
     border: none;
     @extend %ellipsis;
   }
@@ -349,6 +344,7 @@ $header-height: 52px;
     width: 2px;
     height: 34px;
     right: 0;
+    bottom: 0;
     background: $color-gray-4;
   }
 }

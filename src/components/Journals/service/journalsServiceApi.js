@@ -1,7 +1,12 @@
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+
 import Records from '../../Records/Records';
-import { SourcesId } from '../../../constants';
-import { getWorkspaceId } from '../../../helpers/urls';
+
+import { SourcesId } from '@/constants';
+import { getWorkspaceId } from '@/helpers/urls';
+import { getEnabledWorkspaces } from '@/helpers/util';
+import AuthorityService from '@/services/authrority/AuthorityService';
 
 class JournalsServiceApi {
   async getJournalConfigByType(typeRef, attributes) {
@@ -16,7 +21,31 @@ class JournalsServiceApi {
   }
 
   async getJournalConfig(journalId, force) {
-    return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load('.json', force);
+    const { listViewInfo, json } = await Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load(
+      {
+        json: '.json',
+        listViewInfo: 'typeRef.aspectById.listview.config?json'
+      },
+      force
+    );
+
+    const hasWritePermission = await AuthorityService.hasConfigWritePermission(journalId);
+
+    let config = { ...json, hasWritePermission };
+
+    if (!isEmpty(listViewInfo)) {
+      config = {
+        ...config,
+        listViewInfo: {
+          titleListView: `${listViewInfo['titleAtt']}?disp`,
+          textListView: `${listViewInfo['textAtt']}?disp`,
+          previewUrl: `${listViewInfo['previewAtt']}.url`,
+          isTilesContent: `${get(listViewInfo, 'isTilesContent', false)}`
+        }
+      };
+    }
+
+    return config;
   }
 
   async isNotExistsJournal(journalId) {
@@ -36,7 +65,7 @@ class JournalsServiceApi {
   async queryData(query, attributes) {
     let result;
 
-    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+    if (getEnabledWorkspaces() && !get(query, 'workspaces')) {
       query.workspaces = [getWorkspaceId()];
     }
 

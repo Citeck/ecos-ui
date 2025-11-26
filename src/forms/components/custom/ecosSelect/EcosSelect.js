@@ -2,10 +2,11 @@ import Formio from 'formiojs/Formio';
 import _ from 'lodash';
 
 import Choices from '../../../choices';
-import BaseComponent from '../base/BaseComponent';
-import { getMLValue, isNodeRef } from '../../../../helpers/util';
-import { createDocumentUrl } from '../../../../helpers/urls';
 import { requestAnimationFrame } from '../../override/misc';
+import BaseComponent from '../base/BaseComponent';
+
+import { createDocumentUrl } from '@/helpers/urls';
+import { getMLValue, isNodeRef } from '@/helpers/util';
 
 export default class SelectComponent extends BaseComponent {
   static schema(...extend) {
@@ -669,10 +670,7 @@ export default class SelectComponent extends BaseComponent {
 
     // Make the request.
     options.header = headers;
-    Formio.makeRequest(this.options.formio, 'select', url, method, body, options)
-      .then(processItems)
-      .then(resolveItems)
-      .catch(rejectItems);
+    Formio.makeRequest(this.options.formio, 'select', url, method, body, options).then(processItems).then(resolveItems).catch(rejectItems);
   }
 
   /**
@@ -698,7 +696,7 @@ export default class SelectComponent extends BaseComponent {
     return headers;
   }
 
-  getCustomItems() {
+  getCustomItemsSync() {
     return this.evaluate(
       this.component.data.custom,
       {
@@ -708,8 +706,26 @@ export default class SelectComponent extends BaseComponent {
     );
   }
 
-  updateCustomItems() {
-    this.setItems(this.getCustomItems() || []);
+  async getCustomItems() {
+    const evaluated = this.evaluate(
+      this.component.data.custom,
+      {
+        values: []
+      },
+      'values'
+    );
+
+    if (_.isFunction(_.get(evaluated, 'then'))) {
+      return await evaluated;
+    }
+
+    return evaluated;
+  }
+
+  async updateCustomItems() {
+    const items = await this.getCustomItems();
+
+    this.setItems(items || []);
   }
 
   /* eslint-disable max-statements */
@@ -913,10 +929,10 @@ export default class SelectComponent extends BaseComponent {
 
             return template(`
               <div title="${pureLabel}" class="${classNames.item} ${classNames.itemChoice} ${
-              data.disabled ? classNames.itemDisabled : classNames.itemSelectable
-            }" data-select-text="${itemSelectText}" data-choice ${
-              data.disabled ? 'data-choice-disabled aria-disabled="true"' : 'data-choice-selectable'
-            } data-id="${data.id}" data-value="${data.value}" ${data.groupId > 0 ? 'role="treeitem"' : 'role="option"'}>
+                data.disabled ? classNames.itemDisabled : classNames.itemSelectable
+              }" data-select-text="${itemSelectText}" data-choice ${
+                data.disabled ? 'data-choice-disabled aria-disabled="true"' : 'data-choice-selectable'
+              } data-id="${data.id}" data-value="${data.value}" ${data.groupId > 0 ? 'role="treeitem"' : 'role="option"'}>
                 ${data.label}
               </div>
             `);
@@ -1044,9 +1060,9 @@ export default class SelectComponent extends BaseComponent {
 
   /* eslint-enable max-statements */
 
-  update() {
+  async update() {
     if (this.component.dataSrc === 'custom') {
-      this.updateCustomItems();
+      await this.updateCustomItems();
     }
 
     // Activate the control.
@@ -1288,7 +1304,7 @@ export default class SelectComponent extends BaseComponent {
           valueProperty = 'value';
           break;
         case 'custom':
-          items = this.getCustomItems();
+          items = this.getCustomItemsSync();
           valueProperty = this.component.valueProperty;
           break;
         case 'url':
@@ -1302,8 +1318,8 @@ export default class SelectComponent extends BaseComponent {
         this.component.multiple && Array.isArray(value)
           ? _.filter(items, item => value.includes(item[valueProperty]))
           : valueProperty
-          ? _.find(items, [valueProperty, value])
-          : value;
+            ? _.find(items, [valueProperty, value])
+            : value;
     }
 
     if (_.isString(value)) {
@@ -1329,9 +1345,15 @@ export default class SelectComponent extends BaseComponent {
   }
 
   destroy() {
-    if (this.choices) {
+    if (this.choices && !this.choices.destroyed && this.choices.initialised) {
       this.choices.destroyed = true;
-      this.choices.destroy();
+
+      try {
+        this.choices.destroy();
+      } catch (e) {
+        console.error('Error of EcosSelect component:', e);
+      }
+
       this.choices = null;
     }
 

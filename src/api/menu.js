@@ -1,24 +1,28 @@
 import lodashGet from 'lodash/get';
-import lodashSet from 'lodash/set';
-import Omit from 'lodash/omit';
-import isFunction from 'lodash/isFunction';
-import last from 'lodash/last';
 import head from 'lodash/head';
+import isArray from 'lodash/isArray';
+import isFunction from 'lodash/isFunction';
+import isNil from 'lodash/isNil';
+import isNumber from 'lodash/isNumber';
+import last from 'lodash/last';
+import Omit from 'lodash/omit';
+import lodashSet from 'lodash/set';
 
-import { generateSearchTerm, getCurrentUserName, getEnabledWorkspaces } from '../helpers/util';
-import { getWorkspaceId } from '../helpers/urls';
-import { SourcesId, URL } from '../constants';
-import { ActionTypes } from '../constants/sidebar';
+import Records from '../components/Records';
+import { PERMISSION_CHANGE_PASSWORD } from '../components/Records/constants';
+import { AUTHORITY_TYPE_GROUP } from '../components/common/form/SelectOrgstruct/constants';
+import { ADMIN_WORKSPACE_ID, SourcesId, URL } from '../constants';
 import { CITECK_URI, PROXY_URI, UISERV_API } from '../constants/alfresco';
 import { GROUP_EVERYONE, MENU_VERSION, MenuSettings as ms } from '../constants/menu';
+import { ActionTypes } from '../constants/sidebar';
 import MenuConverter from '../dto/export/menu';
-import Records from '../components/Records';
-import { AUTHORITY_TYPE_GROUP } from '../components/common/form/SelectOrgstruct/constants';
-import { CommonApi } from './common';
-import ConfigService, { MAIN_MENU_TYPE, SITE_DASHBOARD_ENABLE, MENU_GROUP_PRIORITY } from '../services/config/ConfigService';
+import { getWorkspaceId } from '../helpers/urls';
+import { generateSearchTerm, getCurrentUserName, getEnabledWorkspaces } from '../helpers/util';
 import AuthorityService from '../services/authrority/AuthorityService';
-import { PERMISSION_CHANGE_PASSWORD } from '../components/Records/constants';
+import ConfigService, { MAIN_MENU_TYPE, SITE_DASHBOARD_ENABLE, MENU_GROUP_PRIORITY } from '../services/config/ConfigService';
 import { LiveSearchTypes } from '../services/search';
+
+import { CommonApi } from './common';
 
 const $4H = 14400000;
 const SITE = 'site';
@@ -100,10 +104,38 @@ export class MenuApi extends CommonApi {
     return `${URL.JOURNAL}?journalId=${journalRef}&journalSettingId=&journalsListId=${listId}`;
   };
 
+  getMenuData = async (user = getCurrentUserName()) => {
+    const workspaceId = getWorkspaceId();
+    const enabledWorkspaces = getEnabledWorkspaces();
+
+    const configVersion = await ConfigService.getValue(MAIN_MENU_TYPE);
+    const version = configVersion && configVersion.includes('left-v') ? +configVersion.replace('left-v', '') : MENU_VERSION;
+
+    const config = await Records.queryOne(
+      {
+        sourceId: SourcesId.RESOLVED_MENU,
+        query: {
+          user,
+          version,
+          ...(enabledWorkspaces && { workspace: workspaceId })
+        }
+      },
+      { menu: 'subMenu?json', id: 'id?str' }
+    );
+
+    return {
+      ...lodashGet(config, 'menu', {}),
+      id: config.id,
+      version,
+      configVersion,
+      ...(enabledWorkspaces && { workspace: workspaceId })
+    };
+  };
+
   getMainMenuCreateVariants = (version = MENU_VERSION) => {
     const user = getCurrentUserName();
     const workspaceId = getWorkspaceId();
-    const enabledWorkspaces = lodashGet(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+    const enabledWorkspaces = getEnabledWorkspaces();
 
     return Records.queryOne(
       {
@@ -188,7 +220,7 @@ export class MenuApi extends CommonApi {
   };
 
   getMenuItems = async ({ version, id, resolved }) => {
-    const enabledWorkspaces = lodashGet(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+    const enabledWorkspaces = getEnabledWorkspaces();
     const user = getCurrentUserName();
     let config;
 
@@ -219,8 +251,125 @@ export class MenuApi extends CommonApi {
     });
   };
 
+  createJournalTotalCountLoader({ batchDelay = 10, maxBatchSize = 500 } = {}) {
+    const contextBatches = new Map(); // { batch: Map<journalId, {resolve, reject}>, timer }
+
+    function makeContextKey() {
+      return `${getWorkspaceId()}::journals-total-count::${SourcesId.JOURNAL_SERVICE}`;
+    }
+
+    async function flushContext(key) {
+      const ctx = contextBatches.get(key);
+      if (!ctx) {
+        return;
+      }
+
+      contextBatches.delete(key);
+
+      const entries = Array.from(ctx.batch.entries()); // [ [journalId, {resolve,reject}], ... ]
+      if (entries.length === 0) {
+        return;
+      }
+
+      const ids = entries.map(([id]) => id);
+
+      const chunks = [];
+      for (let i = 0; i < ids.length; i += maxBatchSize) {
+        chunks.push(ids.slice(i, i + maxBatchSize));
+      }
+
+      try {
+        const responses = await Promise.all(
+          chunks.map(chunkIds =>
+            Records.queryOne(
+              {
+                sourceId: SourcesId.JOURNAL_SERVICE,
+                language: 'journals-total-count',
+                query: { journals: chunkIds },
+                workspaces: [getWorkspaceId()]
+              },
+              'totalCount[]?num'
+            )
+          )
+        );
+
+        const combinedMap = new Map();
+
+        responses.forEach((resp, respIndex) => {
+          const chunkIds = chunks[respIndex];
+
+          if (isArray(resp) && resp.every(count => isNumber(count)) && resp.length === chunkIds.length) {
+            resp.forEach((num, idx) => {
+              combinedMap.set(String(chunkIds[idx]), num);
+            });
+          }
+        });
+
+        for (const [id, { resolve }] of entries) {
+          const value = combinedMap.has(String(id))
+            ? combinedMap.get(String(id))
+            : combinedMap.has(Number(id))
+              ? combinedMap.get(Number(id))
+              : undefined;
+          if (isNil(value)) {
+            console.warn(`No totalCount for journalId=${id} in batched response`);
+            resolve(undefined);
+          } else {
+            resolve(Number(value));
+          }
+        }
+      } catch (err) {
+        for (const [, { reject }] of entries) {
+          reject(err);
+        }
+      }
+    }
+
+    return function getJournalTotalCount(journalId) {
+      if (!journalId) {
+        return Promise.reject(new Error('journalId is required'));
+      }
+
+      const key = makeContextKey();
+      let ctx = contextBatches.get(key);
+      if (!ctx) {
+        ctx = { batch: new Map(), timer: null };
+        contextBatches.set(key, ctx);
+      }
+
+      const existing = ctx.batch.get(journalId);
+      if (existing) {
+        return existing.promise;
+      }
+
+      let resolve, reject;
+      const promise = new Promise((res, rej) => {
+        resolve = res;
+        reject = rej;
+      });
+
+      ctx.batch.set(journalId, { resolve, reject, promise });
+
+      if (!ctx.timer) {
+        ctx.timer = setTimeout(() => flushContext(key), batchDelay);
+      }
+
+      return promise;
+    };
+  }
+
   getJournalTotalCount = journalId => {
-    return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load('totalCount?num!0');
+    return Records.queryOne(
+      {
+        sourceId: SourcesId.JOURNAL_SERVICE,
+        language: 'journals-total-count',
+        query: {
+          journals: [journalId]
+        },
+        workspaces: [getWorkspaceId()]
+      },
+      'totalCount?num!0'
+    );
   };
 
   getMenuConfig = () => {
@@ -235,7 +384,7 @@ export class MenuApi extends CommonApi {
    * @returns {*|RecordsComponent}
    */
   getUserCustomMenuConfig = (user = getCurrentUserName(), version = 1) => {
-    const enabledWorkspaces = lodashGet(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+    const enabledWorkspaces = getEnabledWorkspaces();
     const workspaceId = getWorkspaceId();
 
     return Records.queryOne(
@@ -262,20 +411,22 @@ export class MenuApi extends CommonApi {
     return ConfigService.getValue(SITE_DASHBOARD_ENABLE);
   };
 
-  getUserMenuConfig = async () => {
+  getUserMenuConfig = async configId => {
     const user = getCurrentUserName();
     const workspace = getWorkspaceId();
-    const enabledWorkspaces = lodashGet(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+    const enabledWorkspaces = getEnabledWorkspaces();
 
     const configVersion = await ConfigService.getValue(MAIN_MENU_TYPE);
     const version = configVersion && configVersion.includes('left-v') ? +configVersion.replace('left-v', '') : 0;
-    const id = await Records.queryOne(
-      {
-        sourceId: SourcesId.MENU,
-        query: { user, version, workspace }
-      },
-      'id'
-    ).catch(e => console.error(e));
+    const id = configId
+      ? configId
+      : await Records.queryOne(
+          {
+            sourceId: SourcesId.MENU,
+            query: { user, version, workspace }
+          },
+          'id'
+        ).catch(e => console.error(e));
 
     return { version, configVersion, id, ...(enabledWorkspaces && { workspace }) };
   };
@@ -354,8 +505,11 @@ export class MenuApi extends CommonApi {
     rec.att('authorities[]?str', authorities);
     rec.att('version', version);
 
-    if (lodashGet(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
-      rec.att('workspace', getWorkspaceId());
+    if (getEnabledWorkspaces()) {
+      const workspaceId = getWorkspaceId();
+      if (workspaceId !== ADMIN_WORKSPACE_ID) {
+        rec.att('workspace', workspaceId);
+      }
     }
 
     return rec.save().then(res => {
@@ -374,7 +528,7 @@ export class MenuApi extends CommonApi {
   };
 }
 
-async function fetchExtraItemInfo(data = [], attributes) {
+export async function fetchExtraItemInfo(data = [], attributes) {
   const { JOURNAL, KANBAN, DOCLIB, LINK_CREATE_CASE, EDIT_RECORD, START_WORKFLOW, PREVIEW_LIST } = ms.ItemTypes;
 
   return Promise.all(
@@ -408,8 +562,8 @@ async function fetchExtraItemInfo(data = [], attributes) {
 
       if (iconRef && iconRef.includes(SourcesId.ICON)) {
         target.icon = await Records.get(iconRef).load({
-          url: 'data?str',
-          type: 'type',
+          url: 'url',
+          type: 'ecosType',
           value: 'id'
         });
       }

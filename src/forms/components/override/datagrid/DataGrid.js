@@ -1,15 +1,18 @@
 import FormIODataGridComponent from 'formiojs/components/datagrid/DataGrid';
 import { flattenComponents } from 'formiojs/utils/utils';
-import isEqual from 'lodash/isEqual';
-import isEmpty from 'lodash/isEmpty';
-import pick from 'lodash/pick';
+import cloneDeep from 'lodash/cloneDeep';
+import forEach from 'lodash/forEach';
 import forIn from 'lodash/forIn';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import isObject from 'lodash/isObject';
-import forEach from 'lodash/forEach';
-import cloneDeep from 'lodash/cloneDeep';
+import pick from 'lodash/pick';
 
 import { overrideTriggerChange } from '../misc';
+
+import dragula from '@/services/dragula';
+
 export default class DataGridComponent extends FormIODataGridComponent {
   constructor(...args) {
     super(...args);
@@ -57,6 +60,26 @@ export default class DataGridComponent extends FormIODataGridComponent {
         component.data = this.dataValue[index] || component.data;
       })
     );
+  }
+
+  isEmptyRow(row) {
+    const comps = flattenComponents(this.component.components);
+    return Object.keys(comps).every(key => {
+      const comp = comps[key];
+      const emptyVal = comp.emptyValue ?? comp.defaultValue ?? null;
+
+      if (comp.type === 'mlText') {
+        return Object.keys(row[key]).every(lang => {
+          return isEmpty(row[key][lang]);
+        });
+      }
+
+      return isEqual(row[key], emptyVal);
+    });
+  }
+
+  getNotEmptyValue() {
+    return (super.getValue() || []).filter(row => !this.isEmptyRow(row));
   }
 
   checkValidity(data, dirty, rowData) {
@@ -126,6 +149,10 @@ export default class DataGridComponent extends FormIODataGridComponent {
     return needsHeader ? thead : null;
   }
 
+  addDraggable(containers) {
+    this.dragula = dragula(containers, this.getRowDragulaOptions()).on('drop', this.onRowDrop.bind(this));
+  }
+
   setValue(value, flags) {
     flags = this.getFlags.apply(this, arguments);
 
@@ -146,14 +173,14 @@ export default class DataGridComponent extends FormIODataGridComponent {
     const changed = this.hasChanged(value, this.dataValue); //always should build if not built yet OR is trying to set empty value (in order to prevent deleting last row)
     let shouldBuildRows = !this.isBuilt || changed || isEqual(this.emptyValue, value); //check if visible columns changed
     let visibleColumnsAmount = 0;
-    forEach(this.visibleColumns, function(value) {
+    forEach(this.visibleColumns, function (value) {
       if (value) {
         visibleColumnsAmount++;
       }
     });
     const visibleComponentsAmount = this.visibleComponents ? this.visibleComponents.length : 0; //should build if visible columns changed
     shouldBuildRows = shouldBuildRows || visibleColumnsAmount !== visibleComponentsAmount; //loop through all rows and check if there is field in new value that differs from current value
-    const keys = this.componentComponents.map(function(component) {
+    const keys = this.componentComponents.map(function (component) {
       return component.key;
     });
     for (let i = 0; i < value.length; i++) {

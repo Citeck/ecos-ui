@@ -1,13 +1,15 @@
-import _ from 'lodash';
 import { evaluate as formioEvaluate } from 'formiojs/utils/utils';
+import _ from 'lodash';
 
-import { getTextByLocale, trimFields } from '../../../../helpers/util';
-import SelectJournal from '../../../../components/common/form/SelectJournal';
-import Records from '../../../../components/Records';
-import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
-import GqlDataSource from '../../../../components/common/grid/dataSource/GqlDataSource';
 import BaseReactComponent from '../base/BaseReactComponent';
-import { DataTypes, DisplayModes, SortOrderOptions, TableTypes, TEMPLATE_REGEX } from './constants';
+
+import { DataTypes, DisplayModes, SearchInWorkspacePolicy, SortOrderOptions, TableTypes, TEMPLATE_REGEX } from './constants';
+
+import EcosFormUtils from '@/components/EcosForm/EcosFormUtils';
+import Records from '@/components/Records';
+import SelectJournal from '@/components/common/form/SelectJournal';
+import GqlDataSource from '@/components/common/grid/dataSource/GqlDataSource';
+import { getTextByLocale, trimFields } from '@/helpers/util';
 
 export default class SelectJournalComponent extends BaseReactComponent {
   static schema(...extend) {
@@ -43,6 +45,8 @@ export default class SelectJournalComponent extends BaseReactComponent {
           valueDisplayName: ''
         },
         searchField: '',
+        searchInWorkspacePolicy: SearchInWorkspacePolicy.CURRENT,
+        searchInAdditionalWorkspaces: [],
         ecos: {
           dataType: DataTypes.ASSOC
         }
@@ -332,8 +336,11 @@ export default class SelectJournalComponent extends BaseReactComponent {
       multiple: comp.multiple,
       placeholder: getTextByLocale(comp.placeholder),
       disabled: comp.disabled,
+      linkFormatter: comp.linkFormatter,
       viewOnly: this.viewOnly,
       viewMode: comp.source.viewMode,
+      searchInWorkspacePolicy: comp.searchInWorkspacePolicy,
+      searchInAdditionalWorkspaces: comp.searchInAdditionalWorkspaces,
       customValues: SelectJournalComponent.getCustomValues(comp),
       displayColumns: comp.displayColumns,
       isSelectedValueAsText: comp.isSelectedValueAsText,
@@ -429,64 +436,6 @@ export default class SelectJournalComponent extends BaseReactComponent {
 
   redraw(shouldRedrawInBuilder) {
     super.redraw(shouldRedrawInBuilder);
-
-    this.updateLabel();
-  }
-
-  // Cause: https://citeck.atlassian.net/browse/ECOSUI-1401
-  updateLabel() {
-    if (this.viewOnly) {
-      return;
-    }
-
-    const isLabelHidden = this.labelIsHidden();
-    let className = 'control-label';
-    let style = '';
-
-    if (!isLabelHidden) {
-      const { labelPosition } = this.component;
-
-      if (labelPosition === 'bottom') {
-        className += ' control-label--bottom';
-      } else if (labelPosition && labelPosition !== 'top') {
-        const labelWidth = this.getLabelWidth();
-        const labelMargin = this.getLabelMargin();
-
-        // Label is on the left or right.
-        if (this.labelOnTheLeft(labelPosition)) {
-          style += `float: left; width: ${labelWidth}%; margin-right: ${labelMargin}%; `;
-        } else if (this.labelOnTheRight(labelPosition)) {
-          style += `float: right; width: ${labelWidth}%; margin-left: ${labelMargin}%; `;
-        }
-
-        if (this.rightAlignedLabel(labelPosition)) {
-          style += 'text-align: right; ';
-        }
-      }
-    } else {
-      this.addClass(this.element, 'formio-component-label-hidden');
-      className += ' control-label--hidden';
-    }
-
-    if (this.hasInput && this.component.validate && this.component.validate.required) {
-      className += ' field-required';
-    }
-
-    const labelElement = this.ce('label', {
-      class: className,
-      style
-    });
-
-    if (!isLabelHidden) {
-      if (this.info.attr.id) {
-        labelElement.setAttribute('for', this.info.attr.id);
-      }
-
-      labelElement.appendChild(this.text(this.component.label));
-      this.createTooltip(labelElement);
-    }
-
-    this.element.replaceChild(labelElement, this.element.firstChild);
   }
 
   viewOnlyBuild() {

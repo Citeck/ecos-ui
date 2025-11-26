@@ -1,29 +1,139 @@
-import React, { useEffect, useState } from 'react';
-import uuidv4 from 'uuid/v4';
+import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import React, { useEffect, useState } from 'react';
+import uuidv4 from 'uuidv4';
 
-import { SourcesId } from '../../../constants';
-import { PREFIX_FORM_ELM, SUBPROCESS_TYPE, TYPE_BPMN_PROCESS } from '../../../constants/bpmn';
-import BPMNModeler from '../../../components/ModelEditor/BPMNModeler';
+import ModelEditor from '../ModelEditor';
 
+import { editorContextService, CONTEXT_TYPES, aiAssistantService } from '@/components/AIAssistant';
+import BPMNModeler from '@/components/ModelEditor/BPMNModeler';
+import { SourcesId } from '@/constants';
 import {
+  PREFIX_FORM_ELM,
+  SUBPROCESS_TYPE,
+  TYPE_BPMN_PROCESS,
   ELEMENT_TYPES_WITH_CUSTOM_FORM_DETERMINER,
   ELEMENT_TYPES_FORM_DETERMINER_BY_DEF_TYPE_MAP,
   ELEMENT_TYPES_FORM_DETERMINER_BY_ECOS_TASK_TYPE_MAP,
   BPMN_DELIMITER,
   BPMN_PREFIX_UNDERLINE
-} from '../../../constants/bpmn';
-
-import { t } from '../../../helpers/export/util';
-
-import ModelEditor from '../ModelEditor';
+} from '@/constants/bpmn';
+import { t } from '@/helpers/export/util';
 
 class BPMNEditorPage extends ModelEditor {
   static modelType = 'bpmn';
 
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      ...this.state,
+      isAIAssistantOpen: false
+    };
+
+    this.debouncedUpdateContext = debounce(this._updateAIAssistantContextData, 500);
+  }
+
+  componentDidMount() {
+    super.componentDidMount && super.componentDidMount();
+
+    this.updateAIAssistantContext();
+
+    setTimeout(() => {
+      aiAssistantService.checkAvailability();
+    }, 200);
+  }
+
+  componentDidUpdate(prevProps) {
+    super.componentDidUpdate && super.componentDidUpdate(prevProps);
+    this.updateAIAssistantContext();
+  }
+
+  componentWillUnmount() {
+    super.componentWillUnmount && super.componentWillUnmount();
+
+    editorContextService.clearContext();
+  }
+
+  updateAIAssistantContext = () => {
+    const processRef = this.recordRef || '';
+    const ecosType = this.props.formProps?.formData?.ecosType || '';
+
+    if (!editorContextService.hasContext()) {
+      editorContextService.setContext(
+        CONTEXT_TYPES.BPMN_EDITOR,
+        {
+          onSubmit: this.handleAIAssistantSubmit,
+          updateContextBeforeRequest: this.updateContextBeforeRequest
+        },
+        {
+          processRef,
+          ecosType,
+          currentBpmnXml: null
+        }
+      );
+    }
+
+    this.debouncedUpdateContext();
+  };
+
+  _updateAIAssistantContextData = () => {
+    const processRef = this.recordRef || '';
+    const ecosType = this.props.formProps?.formData?.ecosType || '';
+
+    // Получаем текущий BPMN XML
+    this.getBpmnXml(currentBpmnXml => {
+      if (!currentBpmnXml) return;
+
+      editorContextService.updateContextData({
+        processRef,
+        ecosType,
+        currentBpmnXml
+      });
+    });
+  };
+
+  updateContextBeforeRequest = callback => {
+    const processRef = this.recordRef || '';
+    const ecosType = this.props.formProps?.formData?.ecosType || '';
+
+    this.getBpmnXml(currentBpmnXml => {
+      if (currentBpmnXml) {
+        editorContextService.updateContextData({
+          processRef,
+          ecosType,
+          currentBpmnXml
+        });
+      }
+
+      callback && callback();
+    });
+  };
+
+  getBpmnXml = callback => {
+    if (!this.designer) {
+      callback && callback(null);
+      return;
+    }
+
+    this.designer.saveXML({
+      callback: ({ error, xml }) => {
+        if (error) {
+          console.error('Ошибка при получении BPMN XML:', error);
+          callback && callback(null);
+          return;
+        }
+
+        callback && callback(xml);
+      }
+    });
+  };
+
   initModeler = () => {
-    this.designer = new BPMNModeler();
+    if (!this.designer) {
+      this.designer = new BPMNModeler();
+    }
   };
 
   get linter() {
@@ -43,38 +153,29 @@ class BPMNEditorPage extends ModelEditor {
     const [warnings, setWarnings] = useState(linterResult.warnings || 0);
     const [text, setText] = useState(t('bpmn-linter.toggle') || '');
 
-    useEffect(
-      () => {
-        if (errors !== linterResult.errors) {
-          setErrors(linterResult.errors);
-        }
-      },
-      [linterResult.errors]
-    );
+    useEffect(() => {
+      if (errors !== linterResult.errors) {
+        setErrors(linterResult.errors);
+      }
+    }, [linterResult.errors]);
 
-    useEffect(
-      () => {
-        if (warnings !== linterResult.warnings) {
-          setWarnings(linterResult.warnings);
-        }
-      },
-      [linterResult.warnings]
-    );
+    useEffect(() => {
+      if (warnings !== linterResult.warnings) {
+        setWarnings(linterResult.warnings);
+      }
+    }, [linterResult.warnings]);
 
-    useEffect(
-      () => {
-        let newText = t('bpmn-linter.toggle');
+    useEffect(() => {
+      let newText = t('bpmn-linter.toggle');
 
-        if (warnings || errors) {
-          newText += `\n${t('bpmn-linter.all-errors', { errors, warnings })}`;
-        }
+      if (warnings || errors) {
+        newText += `\n${t('bpmn-linter.all-errors', { errors, warnings })}`;
+      }
 
-        if (text !== newText) {
-          setText(newText);
-        }
-      },
-      [warnings, errors]
-    );
+      if (text !== newText) {
+        setText(newText);
+      }
+    }, [warnings, errors]);
 
     return <div>{text}</div>;
   };
@@ -96,6 +197,18 @@ class BPMNEditorPage extends ModelEditor {
 
     return extraButtons;
   }
+
+  handleAIAssistantSubmit = bpmnXml => {
+    if (bpmnXml && this.designer) {
+      this.designer.setDiagram(bpmnXml, {
+        callback: ({ mounted }) => {
+          if (mounted) {
+            console.debug('BPMN диаграмма успешно загружена в редактор');
+          }
+        }
+      });
+    }
+  };
 
   getFormType(selectedElement) {
     const elementType = this._determineElementType(selectedElement || {});

@@ -1,8 +1,10 @@
-import { call, put, select, takeLatest } from 'redux-saga/effects';
 import get from 'lodash/get';
-import set from 'lodash/set';
 import isString from 'lodash/isString';
+import set from 'lodash/set';
+import { call, put, select, takeLatest } from 'redux-saga/effects';
 
+import { setLeftMenuEditable } from '../actions/app';
+import { setDashboardIdentification } from '../actions/dashboard';
 import {
   fetchCreateCaseWidgetData,
   fetchSiteMenuData,
@@ -15,25 +17,25 @@ import {
   setSiteMenuItems,
   setUserMenuItems
 } from '../actions/header';
-import { setDashboardIdentification } from '../actions/dashboard';
-import { getAppUserThumbnail, validateUserSuccess } from '../actions/user';
 import { changeTab } from '../actions/pageTabs';
-import { setLeftMenuEditable } from '../actions/app';
-import { selectIdentificationForView } from '../selectors/dashboard';
-import { makeSiteMenu } from '../helpers/menu';
-import { getIconObjectWeb } from '../helpers/icon';
+import { getAppUserThumbnail, validateUserSuccess } from '../actions/user';
+import { LiveSearchAttributes } from '../api/menu';
 import { SourcesId } from '../constants';
 import { DefaultUserMenu } from '../constants/menu';
+import MenuConverter from '../dto/menu';
+import { getIconObjectWeb } from '../helpers/icon';
+import { makeSiteMenu } from '../helpers/menu';
+import { getBaseUrlWorkspace, isDashboard } from '../helpers/urls';
+import { getMLValue } from '../helpers/util';
+import { selectIdentificationForView } from '../selectors/dashboard';
 import MenuService from '../services/MenuService';
 import PageService from '../services/PageService';
 import configService, { CREATE_MENU_TYPE } from '../services/config/ConfigService';
-import MenuConverter from '../dto/menu';
-import { getBaseUrlWorkspace, isDashboard } from '../helpers/urls';
-import { LiveSearchAttributes } from '../api/menu';
 import { LiveSearchTypes } from '../services/search';
-import { getMLValue } from '../helpers/util';
 
-function* fetchCreateCaseWidget({ api, logger }) {
+import { getSidebarWorkspaces } from '@/actions/workspaces';
+
+function* fetchCreateCaseWidget({ api }) {
   try {
     const createMenuView = yield call(key => configService.getValue(key), CREATE_MENU_TYPE);
     const menuConfigItems = yield call(api.menu.getMainMenuCreateVariants);
@@ -42,11 +44,11 @@ function* fetchCreateCaseWidget({ api, logger }) {
     yield put(setCreateCaseWidgetItems(config));
     yield put(setCreateCaseWidgetIsCascade(createMenuView === 'cascad'));
   } catch (e) {
-    logger.error('[fetchCreateCaseWidget saga] error', e);
+    console.error('[fetchCreateCaseWidget saga] error', e);
   }
 }
 
-function* fetchUserMenu({ api, logger }) {
+function* fetchUserMenu({ api }) {
   try {
     const userData = yield select(state => state.user);
     const { userName, isDeputyAvailable: isAvailable } = userData || {};
@@ -76,40 +78,49 @@ function* fetchUserMenu({ api, logger }) {
     yield put(setUserMenuItems(items));
     yield put(getAppUserThumbnail());
   } catch (e) {
-    logger.error('[fetchUserMenu saga] error', e);
+    console.error('[fetchUserMenu saga] error', e);
   }
 }
 
-function* fetchInfluentialParams() {
+function* fetchInfluentialParams(api) {
   const isAdmin = yield select(state => state.user.isAdmin);
   const leftMenuEditable = yield select(state => state.app.leftMenuEditable);
   const dashboardEditable = yield select(state => state.app.dashboardEditable);
   const widgetEditable = yield select(state => state.app.widgetEditable);
+  const hasWriteCurrentWorkspace = yield call(api.workspaces.hasWriteCurrentWorkspace);
 
-  return { isAdmin, dashboardEditable, widgetEditable, leftMenuEditable };
+  function* updateWorkspaces() {
+    yield put(getSidebarWorkspaces());
+  }
+
+  return { isAdmin, dashboardEditable, widgetEditable, leftMenuEditable, hasWriteCurrentWorkspace, updateWorkspaces };
 }
 
-function* fetchSiteMenu({ logger }) {
+function* fetchSiteMenu({ api }) {
   try {
-    const params = yield fetchInfluentialParams();
+    const params = yield fetchInfluentialParams(api);
     const url = document.location.href;
     const isDashboardPage = isDashboard(url);
     const menuItems = makeSiteMenu({ isDashboardPage, ...params });
     yield put(setSiteMenuItems(menuItems));
   } catch (e) {
-    logger.error('[fetchSiteMenu saga] error', e);
+    console.error('[fetchSiteMenu saga] error', e);
   }
 }
 
-function* filterSiteMenu({ logger }, { payload = {} }) {
+function* filterSiteMenu({ api }, { payload = {} }) {
   try {
-    const params = yield fetchInfluentialParams();
+    const params = yield fetchInfluentialParams(api);
     const { identification = null } = payload;
     const tabLink = get(payload, 'tab.link', '');
     let { url = window.location.pathname } = payload;
 
     if (!url && tabLink) {
       url = tabLink;
+    }
+
+    if (!url) {
+      url = window.location.pathname;
     }
 
     let isDashboardPage = false;
@@ -126,22 +137,22 @@ function* filterSiteMenu({ logger }, { payload = {} }) {
 
     yield put(setSiteMenuItems(menuItems));
   } catch (e) {
-    logger.error('[filterSiteMenu saga] error', e);
+    console.error('[filterSiteMenu saga] error', e);
   }
 }
 
-function* goToPageSiteMenu({ logger }, { payload }) {
+function* goToPageSiteMenu({}, { payload }) {
   try {
     const dashboard = yield select(selectIdentificationForView);
     const link = yield MenuService.getSiteMenuLink(payload, dashboard);
 
     PageService.changeUrlLink(link, { openNewTab: true });
   } catch (e) {
-    logger.error('[header goToPageSiteMenu saga] error', e);
+    console.error('[header goToPageSiteMenu saga] error', e);
   }
 }
 
-function* sagaRunSearchAutocomplete({ api, logger }, { payload }) {
+function* sagaRunSearchAutocomplete({ api }, { payload }) {
   try {
     const isAlfrescoEnabled = yield select(state => state.app.isEnabledAlfresco);
 
@@ -191,7 +202,7 @@ function* sagaRunSearchAutocomplete({ api, logger }, { payload }) {
             workspaces.push({
               ...record,
               ...otherParamsWorkspaces,
-              url: getBaseUrlWorkspace(otherParamsWorkspaces.wsId, otherParamsWorkspaces.homePageLink),
+              url: getBaseUrlWorkspace(otherParamsWorkspaces.id, otherParamsWorkspaces.homePageLink),
               description: getMLValue(otherParamsWorkspaces.description),
               title: get(record, LiveSearchAttributes.DISP),
               isNotAlfresco: true
@@ -217,7 +228,7 @@ function* sagaRunSearchAutocomplete({ api, logger }, { payload }) {
       );
     }
   } catch (e) {
-    logger.error('[sagaRunSearchAutocomplete saga] error', e);
+    console.error('[sagaRunSearchAutocomplete saga] error', e);
   }
 }
 

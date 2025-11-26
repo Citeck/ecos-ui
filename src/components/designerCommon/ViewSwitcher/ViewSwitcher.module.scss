@@ -23,9 +23,9 @@
 }
 
 .itemActive {
-  color: $color-blue-light;
+  color: var(--header-bg-color);
 
   &:hover {
-    color: $color-blue-light;
+    color: var(--primary-color);
   }
 }

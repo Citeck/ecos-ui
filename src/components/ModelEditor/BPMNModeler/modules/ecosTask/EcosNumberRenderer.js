@@ -1,12 +1,12 @@
-import _ from 'lodash';
-import BaseRenderer from 'diagram-js/lib/draw/BaseRenderer';
 import { isAny } from 'bpmn-js/lib/features/modeling/util/ModelingUtil';
-import { append as svgAppend } from 'tiny-svg';
 import { is } from 'bpmn-js/lib/util/ModelUtil';
+import BaseRenderer from 'diagram-js/lib/draw/BaseRenderer';
 import TextUtil from 'diagram-js/lib/util/Text';
+import _ from 'lodash';
+import { append as svgAppend } from 'tiny-svg';
 
-import { TYPE_BPMN_TASK, PARTICIPANT_TYPE, LABEL_STYLE } from '../../../../../constants/bpmn';
-import Records from '../../../../../components/Records/Records';
+import Records from '@/components/Records/Records';
+import { TYPE_BPMN_TASK, PARTICIPANT_TYPE, LABEL_STYLE } from '@/constants/bpmn';
 
 const HIGH_PRIORITY = 1600;
 

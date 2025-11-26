@@ -6,9 +6,13 @@
 
     & svg {
       margin: auto;
+
+      & path {
+        fill: black !important;
+      }
     }
 
-    &-warning {
+    &-warning {    line-height: 15px;
       background-color: $warning;
     }
 
@@ -18,8 +22,16 @@
   }
 
   &-issues {
+    background: $color-white;
+    box-shadow: $box-shadow-tooltip;
+    border-radius: $border-radius-standard;
+    font-family: $font-family;
+    font-weight: 600;
+    font-size: .7rem;
+
     .icon {
-      line-height: 15px;
+      align-items: center;
+      line-height: 22px;
     }
 
     a {

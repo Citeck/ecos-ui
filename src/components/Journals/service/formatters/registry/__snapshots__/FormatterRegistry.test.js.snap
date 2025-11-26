@@ -1,8 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`FormatterRegistry should add formatter from folder and not 1`] = `
-Array [
-  [Function],
-  [Function],
-]
-`;

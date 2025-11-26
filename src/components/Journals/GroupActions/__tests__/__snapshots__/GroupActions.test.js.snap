@@ -1,84 +1,28 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`GroupActions tests <GroupActions /> should render GroupActions component 1`] = `
-<Fragment>
-  <DropdownOuter
-    className="ecos-group-actions__dropdown"
-    disabled={true}
-    getStateOpen={[Function]}
-    isStatic={true}
-    itemClassName={[Function]}
-    keyFields={
-      Array [
-        "id",
-        "formRef",
-        "pluralName",
-        "_typeAct",
-      ]
-    }
-    menuClassName="ecos-group-actions__dropdown-menu"
-    modifiers={
-      Array [
-        Object {
-          "enabled": true,
-          "name": "flip",
-          "options": Object {
-            "fallbackPlacements": Array [
-              "bottom",
-              "top",
-              "right",
-              "left",
-            ],
-          },
-        },
-      ]
-    }
-    onChange={[Function]}
-    outClassName="ecos-dropdown-outer-tooltip"
-    placement="bottom-start"
-    source={Array []}
-    titleField="pluralName"
-    trigger="click"
-    valueField="id"
+<div>
+  <div
+    class="ecos-dropdown-outer ecos-group-actions__dropdown ecos-dropdown-outer_disabled"
+    id="EcosDropdownOuter_2"
   >
-    <Tooltip
-      autohide={false}
-      boundariesElement="window"
-      contentComponent="journal.group-actions.selected-records.label-count"
-      delay={0}
-      hideArrow={false}
-      isOpen={false}
-      minWidthByContent={false}
-      modifiers={
-        Array [
-          Object {
-            "enabled": true,
-            "name": "offset",
-            "options": Object {
-              "offset": Array [
-                0,
-                5,
-              ],
-            },
-          },
-        ]
-      }
-      placement="top"
-      showAsNeeded={true}
-      target="group-actions-1-rec"
-      text=""
-      uncontrolled={true}
-    >
-      <IcoBtn
-        className="ecos-btn_hover_blue2 ecos-btn_grey3 ecos-group-actions__control"
-        disabled={true}
+    <div>
+      <button
+        class="ecos-btn ecos-btn_hover_blue2 ecos-btn_grey3 ecos-group-actions__control"
+        disabled=""
         icon="ecos-btn__i_right icon-small-down"
         id="group-actions-1-rec"
-        invert={true}
-        loaderType="points"
-        loading={false}
-      />
-    </Tooltip>
-  </DropdownOuter>
-</Fragment>
+      >
+        <span
+          class="ecos-btn__text"
+        >
+          journal.group-actions.selected-records.label_short
+        </span>
+        <i
+          class="ecos-btn__i ecos-btn__i_right ecos-btn__i_right icon-small-down"
+        />
+      </button>
+    </div>
+  </div>
+</div>
 `;

@@ -26,9 +26,17 @@ yarn-error.log*
 .idea/
 ignore/
 
+.github/instructions
+
 .cookies
 .vscode/
 *.code-workspace
 
 .yarn/cache
 .yarn/install-state.gz
+/tsconfig.tsbuildinfo
+/src/plugins/*
+!/src/plugins/ecos-ui-publication-widget-plugin/
+!/src/plugins/ecos-ui-welcome-widget-plugin/
+!/src/plugins/ecos-ui-news-widget-plugin/
+!/src/plugins/ecos-ui-hierarchical-tree-widget-plugin/

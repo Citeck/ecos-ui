@@ -1,20 +1,20 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
 import { selectJournal, selectPreset } from '../../../actions/journals';
-import { selectJournalData, selectNewVersionDashletConfig } from '../../../selectors/journals';
 import { wrapArgs } from '../../../helpers/redux';
 import { goToCardDetailsPage } from '../../../helpers/urls';
+import { selectJournalData, selectNewVersionDashletConfig } from '../../../selectors/journals';
+import FormManager from '../../EcosForm/FormManager';
+import Export from '../../Export/Export';
 import { IcoBtn, TwoIcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
-import Export from '../../Export/Export';
-import FormManager from '../../EcosForm/FormManager';
-import { getCreateVariantKeyField } from '../service/util';
-import JournalsDashletPagination from '../JournalsDashletPagination';
 import GroupActions from '../GroupActions';
+import JournalsDashletPagination from '../JournalsDashletPagination';
+import { getCreateVariantKeyField } from '../service/util';
 
 const mapStateToProps = (state, props) => {
   const ownState = selectJournalData(state, props.stateId);
@@ -118,6 +118,7 @@ class JournalsDashletToolbar extends Component {
       config,
       selectedRecords,
       lsJournalId,
+      isHideCreateVariants,
       recordRef
     } = this.props;
     const nodeRef = get(this.props, 'journalConfig.meta.nodeRef', '');
@@ -126,12 +127,12 @@ class JournalsDashletToolbar extends Component {
     return (
       <>
         <div ref={this.props.forwardRef} className="ecos-journal-dashlet__toolbar">
-          {this.renderCreateMenu()}
+          {!isHideCreateVariants && this.renderCreateMenu()}
 
           {!!selectedJournals && selectedJournals.length > 1 && (
             <Dropdown
               hasEmpty
-              source={selectedJournals}
+              source={selectedJournals.filter(journal => !!journal.title)}
               value={lsJournalId || nodeRef}
               valueField={'id'}
               titleField={'title'}
@@ -184,7 +185,4 @@ class JournalsDashletToolbar extends Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(JournalsDashletToolbar);
+export default connect(mapStateToProps, mapDispatchToProps)(JournalsDashletToolbar);

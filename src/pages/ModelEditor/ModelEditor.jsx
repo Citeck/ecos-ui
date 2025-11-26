@@ -1,19 +1,33 @@
-import React from 'react';
-import queryString from 'query-string';
+import { is } from 'bpmn-js/lib/util/ModelUtil';
 import classNames from 'classnames';
-import isEmpty from 'lodash/isEmpty';
-import isString from 'lodash/isString';
-import isUndefined from 'lodash/isUndefined';
-import isEqual from 'lodash/isEqual';
+import { flattenComponents } from 'formiojs/utils/formUtils';
 import debounce from 'lodash/debounce';
 import get from 'lodash/get';
-import set from 'lodash/set';
+import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
+import isString from 'lodash/isString';
+import isUndefined from 'lodash/isUndefined';
+import set from 'lodash/set';
+import queryString from 'query-string';
+import React from 'react';
 import XMLViewer from 'react-xml-viewer';
-import { flattenComponents } from 'formiojs/utils/formUtils';
-import { is } from 'bpmn-js/lib/util/ModelUtil';
 
-import { getCurrentLocale, getMLValue, getTextByLocale, t, fileDownload } from '../../helpers/util';
+import { PROCESS_DEF_API_ACTIONS } from '@/api/process';
+import { getEcosType, getValue } from '@/components/ModelEditor/CMMNModeler/utils';
+import ModelEditorWrapper from '@/components/ModelEditorWrapper';
+import { EcosModal, InfoText, Loader } from '@/components/common';
+import { FormWrapper } from '@/components/common/dialogs';
+import {
+  DEFINITON_TYPE,
+  GATEWAY_TYPES,
+  SEQUENCE_TYPE,
+  TASK_TYPES,
+  LOOP_CHARACTERISTICS,
+  COLLABORATION_TYPE,
+  PARTICIPANT_TYPE,
+  TYPE_BPMN_PROCESS
+} from '@/constants/bpmn';
 import {
   EventListeners,
   IGNORED_VALUE_COMPONENTS,
@@ -24,24 +38,13 @@ import {
   LABEL_POSTFIX,
   ML_POSTFIX,
   PREFIX_FIELD
-} from '../../constants/cmmn';
-import {
-  DEFINITON_TYPE,
-  GATEWAY_TYPES,
-  SEQUENCE_TYPE,
-  TASK_TYPES,
-  LOOP_CHARACTERISTICS,
-  COLLABORATION_TYPE,
-  PARTICIPANT_TYPE,
-  TYPE_BPMN_PROCESS
-} from '../../constants/bpmn';
-import { EcosModal, InfoText, Loader } from '../../components/common';
-import { FormWrapper } from '../../components/common/dialogs';
-import ModelEditorWrapper from '../../components/ModelEditorWrapper';
-import { getEcosType, getValue } from '../../components/ModelEditor/CMMNModeler/utils';
-import { DMN_DEFINITIONS } from '../../constants/dmn';
-
-import { PROCESS_DEF_API_ACTIONS } from '../../api/process';
+} from '@/constants/cmmn';
+import { DMN_DEFINITIONS } from '@/constants/dmn';
+import { URL as Urls } from '@/constants/index';
+import { getWorkspaceId } from '@/helpers/urls';
+import { getCurrentLocale, getMLValue, getTextByLocale, t, fileDownload } from '@/helpers/util';
+import PageService from '@/services/PageService';
+import PageTabList from '@/services/pageTabs/PageTabList';
 
 import './ModelEditor.scss';
 
@@ -55,27 +58,91 @@ class ModelEditorPage extends React.Component {
     xmlViewerXml: '',
     xmlViewerIsOpen: false,
     errors: 0,
-    warnings: 0
+    warnings: 0,
+    initiated: false
   };
 
   designer;
   urlQuery = queryString.parseUrl(window.location.href).query;
-  modelEditorRef = React.createRef();
+  modelEditorRef = React.createRef(null);
   _processDefId = null;
+  _tabId = null;
   _tempFormData = {};
-  _formWrapperRef = React.createRef();
+  _formWrapperRef = React.createRef(null);
   _prevValue = {};
   _cachedLabels = {};
   _labelIsEdited = false;
   _formReady = false;
   _formsCache = {};
+  _cachedEditor = null;
+  _lastSavedModel = null;
+  _lastSectionPath = null;
 
   #prevMultiInstanceType = null;
 
   componentDidMount() {
+    this._tabId = PageTabList.activeTabId;
+    this.handleInit();
+  }
+
+  handleCloseEditor = (params, tabId) => {
+    const initialWsIdParam = this.urlQuery.ws;
+    let nameEditor = '';
+
+    switch (this.props.location.pathname) {
+      case Urls.DMN_EDITOR:
+        nameEditor = 'DMN';
+        break;
+
+      case Urls.BPMN_EDITOR:
+        nameEditor = 'BPMN';
+        break;
+
+      default:
+        break;
+    }
+
+    return new Promise((resolve, reject) => {
+      const newUrl = new URL(params.link, window.location.origin);
+      const newWsId = newUrl.searchParams.get('ws') || getWorkspaceId(); // If there is no workspace, then we move to the current space
+
+      if (newWsId !== initialWsIdParam) {
+        const callback = () => {
+          const confirmed = window.confirm(t('editor.warning.change-workspace', { nameEditor }));
+          if (!confirmed) {
+            reject(t('editor.warning.change-workspace.cancel'));
+          } else {
+            resolve();
+          }
+        };
+
+        const tab = PageTabList.tabs.find(tab => tabId && tab.id === tabId);
+        if (tab && tab.id && tab.link && tabId) {
+          this.props.changeTab({
+            data: { isActive: true },
+            filter: { id: tab.id },
+            url: tab.link,
+            callback
+          });
+        } else {
+          // if there is no tab, then the tab is already closed
+          resolve();
+        }
+      } else {
+        resolve();
+      }
+    });
+  };
+
+  handleInit = () => {
     this.initModeler();
     this.props.initData();
-  }
+    this.setState({ initiated: true });
+
+    if (get(this.props, 'location.pathname') !== Urls.CMMN_EDITOR) {
+      PageService.registerUrlChangeGuard(this.handleCloseEditor, this._tabId || PageTabList.activeTabId);
+    }
+  };
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     this.setHeight();
@@ -88,10 +155,20 @@ class ModelEditorPage extends React.Component {
     }
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    if (nextState.xmlViewerIsOpen !== this.state.xmlViewerIsOpen) {
+      return true;
+    }
+
+    return !isEqual(this.props, nextProps);
+  }
+
   componentWillUnmount() {
     this._cachedLabels = {};
     this._formsCache = {};
     this.designer && this.designer.destroy();
+    PageService.clearUrlChangeGuard(this._tabId);
+    this._tabId = null;
   }
 
   initModeler = () => {};
@@ -164,7 +241,7 @@ class ModelEditorPage extends React.Component {
       [EventListeners.ELEMENT_UPDATE_ID]: this.handleElementUpdateId,
       [EventListeners.CS_ELEMENT_DELETE_POST]: this.handleElementDelete,
       [EventListeners.DRAG_START]: this.handleDragStart,
-      [EventListeners.ROOT_SET]: this.handleSetRoot,
+      // [EventListeners.ROOT_SET]: this.handleSetRoot, // This causes cyclical updates. At first glance, it works well without it
       [EventListeners.CS_CONNECTION_CREATE_PRE_EXECUTE]: this.handleCreateConnection
     };
   }
@@ -505,11 +582,17 @@ class ModelEditorPage extends React.Component {
 
       const type = this.getFormType(root);
 
-      this.props.getFormProps(type, selected);
+      if (type) {
+        this.props.getFormProps(type, selected, this._cachedLabels);
+      }
 
       this.setState({ selectedElement: selected, selectedDiagramElement: root });
     } else {
-      this.props.getFormProps(this.getFormType(selectedElement), selectedElement);
+      const type = this.getFormType(selectedElement);
+
+      if (type) {
+        this.props.getFormProps(type, selectedElement, this._cachedLabels);
+      }
 
       this.setState({ selectedElement, selectedDiagramElement: element });
     }
@@ -800,8 +883,12 @@ class ModelEditorPage extends React.Component {
   renderEditor = () => {
     const { savedModel, sectionPath } = this.props;
 
-    if (savedModel) {
-      return this.designer.renderSheet({
+    if (!savedModel) {
+      return <InfoText text={t('editor.error.no-model')} />;
+    }
+
+    if (this._cachedEditor == null || this._lastSavedModel !== savedModel || this._lastSectionPath !== sectionPath) {
+      this._cachedEditor = this.designer.renderSheet({
         diagram: savedModel,
         onClickElement: this.handleSelectItem,
         onMounted: this.handleReadySheet,
@@ -810,14 +897,21 @@ class ModelEditorPage extends React.Component {
         extraEvents: this.extraEvents,
         sectionPath
       });
-    } else {
-      return <InfoText text={t(`editor.error.no-model`)} />;
+
+      this._lastSavedModel = savedModel;
+      this._lastSectionPath = sectionPath;
     }
+
+    return this._cachedEditor;
   };
 
   render() {
     const { title, formProps, isLoading, isTableView, hasDeployRights } = this.props;
-    const { selectedElement, xmlViewerXml, xmlViewerIsOpen } = this.state;
+    const { selectedElement, xmlViewerXml, xmlViewerIsOpen, initiated } = this.state;
+
+    if (!initiated) {
+      return null;
+    }
 
     return (
       <div className="ecos-model-editor__page" ref={this.modelEditorRef}>

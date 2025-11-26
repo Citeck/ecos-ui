@@ -41,6 +41,10 @@
       background-color: $color-blue-light;
     }
 
+    &_currentColor {
+      background-color: var(--primary-color);
+    }
+
     &-1 {
       animation-delay: -$delayRange;
     }

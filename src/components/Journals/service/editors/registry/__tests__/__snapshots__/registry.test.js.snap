@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`editors registry type > expected props type "boolean" expects props 1`] = `<DocumentFragment />`;
+
+exports[`editors registry type > expected props type "boolean" expects props 2`] = `<DocumentFragment />`;
+
+exports[`editors registry type > expected props type "date" expects props 1`] = `<DocumentFragment />`;
+
+exports[`editors registry type > expected props type "datetime" expects props 1`] = `<DocumentFragment />`;
+
+exports[`editors registry type > expected props type "journal" expects props 1`] = `<DocumentFragment />`;
+
+exports[`editors registry type > expected props type "number" expects props 1`] = `<DocumentFragment />`;
+
+exports[`editors registry type > expected props type "orgstruct" expects props 1`] = `<DocumentFragment />`;
+
+exports[`editors registry type > expected props type "text" expects props 1`] = `<DocumentFragment />`;

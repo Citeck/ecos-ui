@@ -1,30 +1,32 @@
+import chunk from 'lodash/chunk';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
-import set from 'lodash/set';
-import chunk from 'lodash/chunk';
+import isArray from 'lodash/isArray';
 import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
-import isArray from 'lodash/isArray';
 import isObject from 'lodash/isObject';
 import isString from 'lodash/isString';
+import set from 'lodash/set';
 
-import { beArray, extractLabel, getMLValue, getModule, t } from '../../../helpers/util';
-import { DialogManager } from '../../common/dialogs';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
+import { DialogManager } from '../../common/dialogs';
 import { EVENTS } from '../../widgets/BaseWidget';
-import { replaceAttributeValues } from '../utils/recordUtils';
-import { getFitnesseInlineToolsClassName } from '../../../helpers/tools';
-import { DetailActionResult, getActionResultTitle, getRef, notifyFailure, notifySuccess } from './util/actionUtils';
-import { ResultTypes } from './util/constants';
 import Records from '../Records';
-import actionsApi from './recordActionsApi';
+import { replaceAttributeValues } from '../utils/recordUtils';
+
+import RecordsIterator from './RecordsIterator';
 import actionsRegistry from './actionsRegistry';
 import ActionsExecutor from './handler/ActionsExecutor';
 import ActionsResolver from './handler/ActionsResolver';
 import RecordActionsResolver from './handler/RecordActionsResolver';
-import RecordsIterator from './RecordsIterator';
-import { SourcesId } from '../../../constants';
+import actionsApi from './recordActionsApi';
+import { DetailActionResult, getActionResultTitle, getRef, notifyFailure, notifySuccess } from './util/actionUtils';
+import { ResultTypes } from './util/constants';
+
+import { SourcesId } from '@/constants';
+import { getFitnesseInlineToolsClassName } from '@/helpers/tools';
+import { beArray, extractLabel, getMLValue, getModule, t } from '@/helpers/util';
 
 const ACTION_CONTEXT_KEY = '__act_ctx__';
 
@@ -569,6 +571,48 @@ class RecordActions {
   _lastExecutionalActionId = '';
 
   /**
+   * @param {Object} actionConfig
+   * @param {Object} context
+   */
+  static async _getFillTemplateConfig(actionConfig, context) {
+    const { journalName, journalId } = context || {};
+    let { journalColumns = [] } = context || {};
+
+    if (journalColumns.every(col => !col.formatter && col.newFormatter)) {
+      journalColumns = journalColumns
+        .filter(c => c.default)
+        .map(({ attribute, text, newType, newFormatter, multiple }) => ({
+          attribute,
+          name: text,
+          type: newType,
+          formatter: newFormatter,
+          multiple: multiple
+        }));
+    }
+
+    const newConfig = await Records.queryOne(
+      {
+        sourceId: SourcesId.FILL_TEMPLATE_VALUE,
+        query: {
+          context: {
+            journalColumns,
+            journalName,
+            journalId
+          },
+          value: actionConfig || {}
+        }
+      },
+      '?json'
+    );
+
+    if (!newConfig) {
+      return actionConfig;
+    }
+
+    return newConfig;
+  }
+
+  /**
    * @param {Array<String>|Array<Record>} records
    * @param {RecActionWithCtx} action
    * @param {Object} context
@@ -602,7 +646,7 @@ class RecordActions {
 
     const chunkedRecords = this._chunkedRecords;
 
-    const execution = await (async function() {
+    const execution = await (async function () {
       if (!records || !records.length) {
         return false;
       }
@@ -629,7 +673,10 @@ class RecordActions {
       }
 
       if (!ungearedPopups) {
-        popupExecution = await DetailActionResult.showPreviewRecords(recordInstances.map(r => getRef(r)), resultOptions);
+        popupExecution = await DetailActionResult.showPreviewRecords(
+          recordInstances.map(r => getRef(r)),
+          resultOptions
+        );
       }
 
       const allowedInfo = await getActionAllowedInfoForRecords(recordInstances, action, context);
@@ -776,11 +823,14 @@ class RecordActions {
                 }
               };
             } else {
-              await DetailActionResult.showPreviewRecords(allowedRecords.map(r => getRef(r)), {
-                ...resultOptions,
-                withoutLoader: true,
-                forRecords: get(result, 'data.results', []).map(item => getRef(item))
-              });
+              await DetailActionResult.showPreviewRecords(
+                allowedRecords.map(r => getRef(r)),
+                {
+                  ...resultOptions,
+                  withoutLoader: true,
+                  forRecords: get(result, 'data.results', []).map(item => getRef(item))
+                }
+              );
 
               actResult = {
                 ...(actResult || {}),
@@ -838,6 +888,16 @@ class RecordActions {
 
         if (preResult.configMerged) {
           action.config = preResult.config;
+        }
+
+        if (context.journalColumns && context.journalName) {
+          const newConfig = await RecordActions._getFillTemplateConfig(action.config, context);
+
+          if (!get(newConfig, 'record.id') && get(action.config, 'record.id')) {
+            action.config = { ...newConfig, record: { ...get(action.config, 'record', {}), id: action.config.record.id } };
+          } else {
+            action.config = newConfig;
+          }
         }
 
         const filteredRecords = preResult.preProcessedRecords
@@ -977,6 +1037,10 @@ class RecordActions {
 
     if (preResult.configMerged) {
       action.config = preResult.config;
+    }
+
+    if (context.journalColumns && context.journalName) {
+      action.config = await RecordActions._getFillTemplateConfig(action.config, context);
     }
 
     if (!!get(action, 'execForQueryConfig.execAsForRecords')) {

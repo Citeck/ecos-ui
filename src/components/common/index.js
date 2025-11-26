@@ -1,7 +1,7 @@
 export { default as CollapsibleList } from './CollapsibleList/CollapsibleList';
 export { default as EcosDropdownMenu } from './EcosDropdownMenu';
 export { default as EcosModal } from './EcosModal';
-export { default as Icon } from './icons/Icon/Icon';
+export { default as Icon } from './icons/Icon';
 export { default as Loader } from './Loader/Loader';
 export { default as Pagination } from './Pagination/Pagination';
 export { default as PanelBar } from './PanelBar/PanelBar';

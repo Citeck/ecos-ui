@@ -1,12 +1,12 @@
 import React from 'react';
 
-import { Wall } from '../../../components/common/form';
-import { useContext } from '../DevToolsContext';
-import { TABS } from '../constants';
+import { Well } from '../../../components/common/form';
 import BuildTab from '../Build';
-import DevModulesTab from '../DevModules';
 import CommitsTab from '../Commits';
+import DevModulesTab from '../DevModules';
+import { useContext } from '../DevToolsContext';
 import SettingsTab from '../Settings';
+import { TABS } from '../constants';
 
 const TabContent = () => {
   const context = useContext();
@@ -29,9 +29,9 @@ const TabContent = () => {
   }
 
   return (
-    <Wall className="dev-tools-page__tab-content">
+    <Well className="dev-tools-page__tab-content">
       <TabComponent />
-    </Wall>
+    </Well>
   );
 };
 

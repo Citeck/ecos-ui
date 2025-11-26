@@ -1,81 +1,59 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Export component tests should render Export component 1`] = `
-<div
-  className="ecos-btn-export"
->
-  <Dropdown
-    CustomItem={null}
-    cascade={false}
-    className=""
-    controlClassName="ecos-btn_grey ecos-btn_settings-down"
-    controlIcon="icon-download"
-    direction="down"
-    full={false}
-    getStateOpen={[Function]}
-    hasEmpty={true}
-    hideSelected={false}
-    isButton={true}
-    isLinks={false}
-    isStatic={true}
-    labelIsDiv={false}
-    menuClassName=""
-    onChange={[Function]}
-    placeholder=""
-    right={false}
-    scrollbarHeightMax="100%"
-    scrollbarHeightMin="100%"
-    source={
-      Array [
-        Object {
-          "download": false,
-          "id": 0,
-          "target": "_blank",
-          "title": "export-component.action.html-read",
-          "type": "html",
-        },
-        Object {
-          "download": true,
-          "id": 1,
-          "target": "_self",
-          "title": "export-component.action.html-load",
-          "type": "html",
-        },
-        Object {
-          "download": true,
-          "id": 2,
-          "target": "_self",
-          "title": "Excel",
-          "type": "xlsx",
-        },
-        Object {
-          "download": true,
-          "id": 3,
-          "target": "_self",
-          "title": "CSV",
-          "type": "csv",
-        },
-        Object {
-          "click": [Function],
-          "id": 4,
-          "title": "export-component.action.copy-link",
-        },
-      ]
-    }
-    titleField="title"
-    toggleClassName=""
-    valueField="id"
-    withScrollbar={false}
-  />
-  <form
-    encType="multipart/form-data"
-    method="post"
+<div>
+  <div
+    class="ecos-btn-export"
   >
-    <input
-      name="jsondata"
-      type="hidden"
-      value=""
-    />
-  </form>
+    <div
+      class="ecos-dropdown dropdown"
+    >
+      <span
+        aria-expanded="false"
+        aria-haspopup="true"
+        class="ecos-dropdown__toggle"
+        data-toggle="dropdown"
+      >
+        <button
+          class="ecos-btn ecos-btn_mi ecos-dropdown__toggle_static ecos-btn_grey ecos-btn_settings-down"
+          label=""
+        >
+          <i
+            class="ecos-btn__i icon-download"
+          />
+          <i
+            class="ecos-btn__i icon-small-down"
+          />
+        </button>
+      </span>
+      <div
+        aria-hidden="true"
+        class="ecos-dropdown__menu dropdown-menu"
+        role="menu"
+        tabindex="-1"
+      >
+        <div>
+          <ul>
+            <li
+              class=""
+              id="dropdown-menu-item_00000000-0000-0000-0000-000000000000"
+            >
+              export-component.action.copy-link
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <form
+      enctype="multipart/form-data"
+      method="post"
+    >
+      <input
+        name="jsondata"
+        type="hidden"
+        value=""
+      />
+    </form>
+  </div>
 </div>
 `;

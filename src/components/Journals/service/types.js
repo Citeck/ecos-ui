@@ -29,6 +29,8 @@
  * @typedef JournalSettings
  * @property {Predicate} predicate
  * @property {Object} queryData - additional data to send in search query
+ * @property {Object} grouping
+ * @property {Array<string>} workspaces
  * @property {Object<String, String>} attributes - additional attributes to load
  * @property {SortBy} sortBy - search query sorting
  * @property {GroupBy} groupBy - search query sorting
@@ -100,13 +102,4 @@
  * @property {Array<String>} searchByText
  *
  * @todo fill all
- */
-
-/**
- * @typedef RecordsQuery
- * @property {String} sourceId
- * @property {String} language
- * @property {String} consistency
- * @property {Object} query
- * @property {Object} page
  */

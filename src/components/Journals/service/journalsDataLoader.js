@@ -1,23 +1,26 @@
-import { NotificationManager } from 'react-notifications';
-
 import cloneDeep from 'lodash/cloneDeep';
-import get from 'lodash/get';
 import filter from 'lodash/filter';
+import get from 'lodash/get';
+import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import isObject from 'lodash/isObject';
 
-import { Attributes } from '../../../constants';
-import AttributesService from '../../../services/AttributesService';
-import JournalsConverter from '../../../dto/journals';
-import { t } from '../../../helpers/util';
+import { ParserPredicate } from '../../Filters/predicates';
+import Records from '../../Records';
 import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_AND, PREDICATE_CONTAINS, PREDICATE_EQ, PREDICATE_OR } from '../../Records/predicates/predicates';
 import { convertAttributeValues } from '../../Records/predicates/util';
-import Records from '../../Records';
 import * as RecordUtils from '../../Records/utils/recordUtils';
-import journalsServiceApi from './journalsServiceApi';
+
 import computedService from './computed/computedService';
+import journalsServiceApi from './journalsServiceApi';
 import { COMPUTED_ATT_PREFIX } from './util';
-import { ParserPredicate } from '../../Filters/predicates';
+
+import { Attributes } from '@/constants';
+import JournalsConverter from '@/dto/journals';
+import { getWorkspaceId } from '@/helpers/urls';
+import { getEnabledWorkspaces, t } from '@/helpers/util';
+import AttributesService from '@/services/AttributesService';
+import { NotificationManager } from '@/services/notifications';
 
 class JournalsDataLoader {
   /**
@@ -153,6 +156,21 @@ class JournalsDataLoader {
     const sortBy = this._getSortBy(journalConfig, settings);
     const groupBy = this._getGroupBy(journalConfig, settings);
 
+    if (getEnabledWorkspaces()) {
+      const workspaces = !get(settings, 'workspaces') ? [getWorkspaceId()] : settings.workspaces;
+
+      return {
+        sourceId,
+        language,
+        consistency,
+        query,
+        page: settings.page,
+        sortBy,
+        groupBy,
+        workspaces
+      };
+    }
+
     return {
       sourceId,
       language,
@@ -244,21 +262,37 @@ class JournalsDataLoader {
    */
   getPredicates = async (journalConfig, settings) => {
     const columns = journalConfig.columns || settings.columns || [];
-    const predicateFilter = convertAttributeValues(filter(settings.filter, p => !!p), columns);
+    const predicateFilter = convertAttributeValues(
+      filter(settings.filter, p => !!p),
+      columns
+    );
 
-    let predicates = [journalConfig.predicate, settings.predicate, ...predicateFilter].filter(p => !!p);
+    let predicates = [journalConfig.predicate, settings.predicate, ...(settings.predicates || []), ...predicateFilter].filter(p => !!p);
+
+    const isCustomJournalMode = get(settings, 'isCustomJournalMode', false);
 
     if (settings.onlyLinked && settings.recordRef) {
-      predicates.push({
-        t: PREDICATE_OR,
-        val: columns
-          .filter(c => c.type === COLUMN_DATA_TYPE_ASSOC && c.searchable)
-          .map(a => ({
-            t: PREDICATE_CONTAINS,
-            val: settings.recordRef,
-            att: a.attribute
-          }))
+      const mapToPredicates = a => ({
+        t: PREDICATE_CONTAINS,
+        val: settings.recordRef,
+        att: a.attribute
       });
+
+      if (!isCustomJournalMode && isArray(settings.attrsToLoad)) {
+        const attrsToLoad = settings.attrsToLoad.map(attr => attr.value);
+
+        predicates.push({
+          t: PREDICATE_OR,
+          val: columns
+            .filter(c => c.type === COLUMN_DATA_TYPE_ASSOC && c.searchable && attrsToLoad.includes(c.attribute))
+            .map(mapToPredicates)
+        });
+      } else if (isCustomJournalMode) {
+        predicates.push({
+          t: PREDICATE_OR,
+          val: columns.filter(c => c.type === COLUMN_DATA_TYPE_ASSOC && c.searchable).map(mapToPredicates)
+        });
+      }
 
       predicates = await RecordUtils.replaceAttrValuesForRecord(predicates, settings.recordRef);
     }

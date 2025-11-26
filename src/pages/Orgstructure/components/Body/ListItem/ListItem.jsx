@@ -1,24 +1,30 @@
-import React, { useContext, useState, useEffect, useCallback } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
-import set from 'lodash/set';
-import noop from 'lodash/noop';
 import isFunction from 'lodash/isFunction';
-import { NotificationManager } from 'react-notifications';
+import noop from 'lodash/noop';
+import PropTypes from 'prop-types';
+import React, { useContext, useState, useEffect, useCallback, useMemo, Suspense } from 'react';
+import { connect } from 'react-redux';
+import { Collapse } from 'reactstrap';
 
-import { OrgstructContext } from '../../../../../components/common/Orgstruct/OrgstructContext';
-import { EcosModal } from '../../../../../components/common';
-import FormManager from '../../../../../components/EcosForm/FormManager';
 import ModalContent from '../ModalContent';
-import { setSelectedPerson } from '../../../../../actions/orgstructure';
-import { t } from '../../../../../helpers/util';
-import { updateCurrentUrl } from '../../../../../helpers/urls';
-import { getDashboardConfig } from '../../../../../actions/dashboard';
+
+import CollapseArrow from './CollapseArrow';
 import GroupIcon from './GroupIcon';
-import { SourcesId } from '../../../../../constants';
-import defaultAvatar from './Vector.png';
+import InternalList from './InternalList';
+
+import { getDashboardConfig, setLoading } from '@/actions/dashboard';
+import { setSelectedPerson } from '@/actions/orgstructure';
+import FormManager from '@/components/EcosForm/FormManager';
+import Records from '@/components/Records';
+import { EcosModal, Loader } from '@/components/common';
+import { OrgstructContext } from '@/components/common/Orgstruct/OrgstructContext';
+import { ROOT_GROUP_NAME } from '@/components/common/Orgstruct/constants';
+import { handleResponse } from '@/components/common/form/SelectOrgstruct/helpers';
+import { SourcesId } from '@/constants';
+import { updateCurrentUrl } from '@/helpers/urls';
+import { t } from '@/helpers/util';
+import { NotificationManager } from '@/services/notifications';
 
 import './ListItem.scss';
 
@@ -60,150 +66,166 @@ const FORM_CONFIG = {
   }
 };
 
-const Avatar = ({ item }) => {
-  return <img src={item?.attributes?.photo || defaultAvatar} alt="avatar" className="orgstructure-page__avatar" />;
-};
+const ListItem = ({ item, tabId, toggleToFirstTab, dispatch, path, onManualRefresh }) => {
+  const {
+    onToggleCollapse,
+    getItemsByParent,
+    setGroupModal,
+    setPersonModal,
+    excludeAuthoritiesByName,
+    excludeAuthoritiesByType,
+    isIncludedAdminGroup,
+    orgStructApi
+  } = useContext(OrgstructContext);
 
-const renderListItem = (item, nestingLevel, isPerson) => {
-  if (!item.extraLabel) {
-    return <span className="orgstructure-page__list-item-label">{item.label}</span>;
-  }
-
-  return (
-    <div
-      className={classNames('orgstructure-page__list-item-label-with-extra', {
-        'orgstructure-page__list-item-label-with-extra_fullwidth': nestingLevel === 0
-      })}
-    >
-      {isPerson && <Avatar item={item} />}
-      <span className="orgstructure-page__list-item-label">{item.label}</span>
-      <span className="select-orgstruct__list-item-label-extra">({item.extraLabel})</span>
-    </div>
-  );
-};
-
-const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, selectedPerson, tabId, toggleToFirstTab, previousParent }) => {
-  const { onToggleCollapse, getItemsByParent, setGroupModal, setPersonModal, openedItems } = useContext(OrgstructContext);
-
-  const [hovered, setHovered] = useState(false);
-  const [scrollLeft, setScrollLeftPosition] = useState(0);
+  const [nestingLevel, setNestingLevel] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState('');
-  const selected = selectedPerson === item.id;
-  const onClickLabel = () => {
-    if (item.hasChildren) {
-      onToggleCollapse(item, null, previousParent);
-    }
-  };
-  const onScroll = useCallback(
-    e => {
-      const targetScrollLeft = get(e, 'target.scrollLeft', 0);
 
-      if (scrollLeft !== targetScrollLeft) {
-        setScrollLeftPosition(targetScrollLeft);
+  const [isToggle, setToggle] = useState(false);
+  const [expandedId, setExpandedId] = useState(null);
+  const [nestedList, setNestedList] = useState([]);
+  const [groupId, setGroupId] = useState(null);
+  const [listId, setListId] = useState([]);
+  const [loadedData, setLoadedData] = useState({});
+  const [errorItem, setErrorItem] = useState(null);
+
+  const onClickLabel = useCallback(
+    async groupItem => {
+      if (!groupItem?.hasChildren && !groupItem?.isLoaded) return;
+      setNestingLevel(prev => (expandedId === groupItem.id ? prev - 1 : prev + 1));
+      setExpandedId(expandedId === groupItem.id ? null : groupItem.id);
+      setGroupId(groupItem.id);
+      setToggle(!isToggle);
+
+      if (loadedData[groupItem.id]?.length && nestingLevel >= 1) return;
+      try {
+        const queryGroups = {
+          query: { groupName: groupItem.attributes.shortName },
+          excludeAuthoritiesByName,
+          excludeAuthoritiesByType,
+          isIncludedAdminGroup
+        };
+        const childrenGroups = await orgStructApi.fetchGroup(queryGroups);
+        const result = await handleResponse(childrenGroups);
+        const configResult = result.map(item => ({
+          ...item,
+          parentId: groupItem.id
+        }));
+
+        if (!configResult.length) {
+          setNestedList([{ id: 'empty', label: t('empty-groups-or-users'), hasChildren: false }]);
+          setLoadedData(prev => ({ ...prev, [groupItem.id]: configResult }));
+          return;
+        }
+        setNestedList(configResult);
+        setLoadedData(prev => ({ ...prev, [groupItem.id]: configResult }));
+      } catch (e) {
+        console.log('e: ', e);
       }
     },
-    [scrollLeft]
+    [expandedId, excludeAuthoritiesByName, excludeAuthoritiesByType, isIncludedAdminGroup, loadedData, orgStructApi]
   );
 
-  useEffect(() => {
-    window.addEventListener('scroll', onScroll, true);
-
-    return () => {
-      window.removeEventListener('scroll', onScroll, true);
+  const refreshCurrentGroup = async groupId => {
+    const queryGroups = {
+      query: { groupName: ROOT_GROUP_NAME },
+      excludeAuthoritiesByName,
+      excludeAuthoritiesByType,
+      isIncludedAdminGroup
     };
-  });
 
-  const renderCollapseHandler = () => {
-    if (item.hasChildren) {
-      const isOpen =
-        previousParent && openedItems[item.id] && openedItems[item.id].length >= 0
-          ? openedItems[item.id].includes(previousParent)
-          : item.isOpen;
+    const childrenGroups = await orgStructApi.fetchGroup(queryGroups);
+    const result = await handleResponse(childrenGroups);
+    return result.find(item => item.id === groupId);
+  };
 
-      const collapseHandlerClassNames = classNames('icon select-orgstruct__collapse-handler', {
-        'icon-small-right': !isOpen,
-        'icon-small-down': isOpen
-      });
+  const createForm = useCallback(
+    formConfig =>
+      (e, isEditMode = false) => {
+        e.stopPropagation();
 
-      return <span className={collapseHandlerClassNames} />;
+        const isPerson = formConfig.sourceId === SourcesId.PERSON;
+
+        const extraConfig = {
+          recordRef: isEditMode ? item.id : isPerson ? null : undefined
+        };
+
+        const title = isPerson ? t(Labels.TITLE_PERSON_CREATE) : isEditMode ? t(Labels.TITLE_GROUP_EDIT) : t(Labels.TITLE_SUBGROUP_CREATE);
+
+        const onSubmit = async submitedRecord => {
+          const newGroups = await Records.get(submitedRecord).load('authorityGroups[]?id');
+          const prevGroups = get(item, 'attributes.groups', []);
+          const difference = prevGroups.filter(authorityGroup => !newGroups.includes(authorityGroup));
+          const groupId = difference[0] || newGroups[1];
+          const groupForRefresh = await refreshCurrentGroup(groupId);
+          if (groupForRefresh && onManualRefresh) {
+            onManualRefresh(groupForRefresh);
+          }
+
+          getItemsByParent(
+            {
+              ...item,
+              attributes: { ...item.attributes, groups: newGroups }
+            },
+            isEditMode,
+            difference.includes(`emodel/authority-group@${ROOT_GROUP_NAME}`)
+          );
+        };
+
+        FormManager.createRecordByVariant(
+          { ...formConfig, ...extraConfig },
+          {
+            title,
+            onSubmit,
+            initiator: {
+              type: 'form-component',
+              name: 'CreateVariants'
+            }
+          }
+        );
+      },
+    []
+  );
+
+  const deletePersonItem = useCallback(async item => {
+    const record = Records.get(item.id);
+    record.att('att_rem_authorityGroups', item.parentId);
+
+    const groupForRefresh = await refreshCurrentGroup(item.parentId);
+    if (groupForRefresh && onManualRefresh) {
+      onManualRefresh(groupForRefresh);
     }
-  };
-
-  const handleMouseEnter = e => {
-    const parent = e.target.closest('.slide-menu-list > div');
-
-    setHovered(true);
-    parent && setScrollLeftPosition(parent.scrollLeft);
-  };
-
-  const handleMouseLeave = () => {
-    setHovered(false);
-  };
-
-  const createForm = formConfig => (e, isEditMode = false) => {
-    e.stopPropagation();
-
-    const isPerson = formConfig.sourceId === SourcesId.PERSON;
-    const extraConfig = {};
-    let title;
-
-    set(extraConfig, 'attributes.authorityGroups', [item.id]);
-
-    if (isPerson) {
-      extraConfig.recordRef = null;
-
-      title = t(Labels.TITLE_PERSON_CREATE);
-    } else {
-      title = isEditMode ? t(Labels.TITLE_GROUP_EDIT) : t(Labels.TITLE_SUBGROUP_CREATE);
-    }
-
-    if (isEditMode) {
-      extraConfig.recordRef = item.id;
-    }
-
-    FormManager.createRecordByVariant(
-      { ...formConfig, ...extraConfig },
-      {
-        title,
-        onSubmit: () => {
-          getItemsByParent(item, isEditMode);
-        },
-        initiator: {
-          type: 'form-component',
-          name: 'CreateVariants'
-        }
-      }
-    );
-  };
+    return record.save();
+  }, []);
 
   const createPerson = createForm(FORM_CONFIG.PERSON);
   const createGroup = createForm(FORM_CONFIG.AUTHORITY_GROUP);
 
-  const openModal = type => e => {
-    e.stopPropagation();
-    setModalType(type);
-    setModalOpen(true);
-  };
+  const openModal = useCallback(
+    type => e => {
+      e.stopPropagation();
+      setModalType(type);
+      setModalOpen(true);
+    },
+    []
+  );
 
-  const closeModal = e => {
+  const closeModal = useCallback(e => {
     e.stopPropagation();
     setModalOpen(false);
-  };
+  });
 
-  const openPersonModal = openModal('person');
-
-  const deleteFromGroup = async e => {
+  const deleteFromGroup = useCallback(async e => {
     closeModal(e);
-
     try {
-      await deleteItem({ ...item });
+      await deletePersonItem({ ...item });
     } catch (e) {
       NotificationManager.error(t('user-profile-widget.error.delete-profile-data'));
     } finally {
       getItemsByParent(item);
     }
-  };
+  }, []);
 
   const personConfig = {
     text: t(Labels.CONFIRM_PERSON_DELETE),
@@ -220,114 +242,90 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
     ]
   };
 
-  let modalTitle = '';
-
-  if (modalType === 'group') {
-    modalTitle = t(Labels.TITLE_GROUP_DELETE);
-  }
-
-  if (modalType === 'person') {
-    modalTitle = t(Labels.TITLE_PERSON_DELETE);
-  }
-
-  const renderModalContent = () => {
-    if (modalType === 'person') {
-      return <ModalContent config={personConfig} />;
-    }
-
-    return null;
+  const modalTitleMap = {
+    group: t(Labels.TITLE_GROUP_DELETE),
+    person: t(Labels.TITLE_PERSON_DELETE)
   };
 
-  const handleModalClick = e => {
-    e.stopPropagation();
-  };
+  const modalTitle = modalTitleMap[modalType] || '';
 
-  const selectPerson = e => {
+  const renderModalContent = () => (modalType === 'person' ? <ModalContent config={personConfig} /> : null);
+
+  const selectPerson = useCallback(e => {
     e.stopPropagation();
-    dispatch(setSelectedPerson({ recordRef: item.id }));
-    dispatch(getDashboardConfig({ recordRef: item.id }));
+
+    dispatch(setSelectedPerson({ recordRef: item.id, key: tabId }));
+    dispatch(setLoading({ status: true, key: tabId }));
+    dispatch(getDashboardConfig({ recordRef: item.id, key: tabId }));
+
     updateCurrentUrl({ recordRef: item.id });
     isFunction(toggleToFirstTab) && toggleToFirstTab();
-  };
+  }, []);
 
-  const isPerson = item.id.includes(SourcesId.PERSON);
-  const isGroup = item.id.includes(SourcesId.GROUP);
+  const canEdit = useMemo(() => get(item, 'attributes.canEdit', false), []);
+  const isPerson = useMemo(() => item.id.includes(SourcesId.PERSON), []);
+  const isGroup = useMemo(() => item.id.includes(SourcesId.GROUP), []);
+
+  const getGroups = useCallback(item => get(item, 'attributes.groups', []), [nestingLevel]);
 
   return (
-    <li>
+    <div>
       <div
         className={classNames('select-orgstruct__list-item', 'orgstructure-page', {
           'select-orgstruct__list-item_strong': item.isStrong
         })}
-        style={{
-          paddingLeft: 20 * nestingLevel
-        }}
         onClick={isPerson ? selectPerson : noop}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
       >
         <div
           className={classNames('select-orgstruct__list-item-label', 'orgstructure-page', {
             'select-orgstruct__list-item-label_clickable': item.hasChildren,
             'select-orgstruct__list-item-label_margin-left': nestingLevel > 0 && !item.hasChildren
           })}
-          onClick={onClickLabel}
+          onClick={() => onClickLabel(item)}
         >
           <div className="orgstructure-page__list-item-container">
             <div>
-              {renderCollapseHandler()}
-              {renderListItem(item, nestingLevel, isPerson)}
+              <CollapseArrow isToggle={isToggle} hasChildren={item.hasChildren} />
+              <InternalList infoLabel={item} nestingLevel={nestingLevel} isPerson={isPerson} />
             </div>
 
-            <div
-              className={classNames('orgstructure-page__list-item-icons', {
-                'orgstructure-page__list-item-icons_hidden': !hovered
-              })}
-              style={{ right: 12 - scrollLeft }}
-            >
-              {isPerson && item.parentId && (
-                <GroupIcon title={t(Labels.TITLE_PERSON_DELETE)} icon="remove-person" onClick={openPersonModal} />
+            <div className={classNames('orgstructure-page__list-item-icons')}>
+              {canEdit && isPerson && item.parentId && (
+                <GroupIcon title={t(Labels.TITLE_PERSON_DELETE)} icon="remove-person" onClick={openModal('person')} />
               )}
-              {isPerson && (
-                <GroupIcon
-                  title={t(Labels.TITLE_PERSON_SELECT)}
-                  icon="select-person"
-                  className={classNames([{ 'icon-user__clicked': selected }])}
-                  onClick={selectPerson}
-                />
-              )}
+              {canEdit && isPerson && <GroupIcon title={t(Labels.TITLE_PERSON_SELECT)} icon="select-person" onClick={selectPerson} />}
 
-              {isGroup && <GroupIcon title={t(Labels.TITLE_GROUP_EDIT)} icon="edit" onClick={e => createGroup(e, true)} />}
-              {isGroup && (
+              {canEdit && isGroup && <GroupIcon title={t(Labels.TITLE_GROUP_EDIT)} icon="edit" onClick={e => createGroup(e, true)} />}
+              {canEdit && isGroup && (
                 <GroupIcon
                   title={t(Labels.TITLE_SUBGROUP_CREATE)}
                   icon="add-group"
                   onClick={event => {
                     event.preventDefault();
                     event.stopPropagation();
-                    onToggleCollapse(item, () => setGroupModal(item));
+                    setGroupModal(item);
                   }}
                 />
               )}
-              {isGroup && (
+              {canEdit && isGroup && (
                 <GroupIcon
                   title={t(Labels.TITLE_PERSON_ADD)}
                   icon="add-user"
                   onClick={event => {
                     event.preventDefault();
                     event.stopPropagation();
-                    onToggleCollapse(item, () => setPersonModal(item));
+                    setPersonModal(item);
                   }}
                 />
               )}
-              {isGroup && <GroupIcon title={t(Labels.TITLE_PERSON_CREATE)} icon="create-user" onClick={createPerson} />}
+              {canEdit && isGroup && <GroupIcon title={t(Labels.TITLE_PERSON_CREATE)} icon="create-user" onClick={createPerson} />}
 
               <EcosModal
                 className="ecos-modal_width-lg ecos-form-modal orgstructure-page-modal"
                 isOpen={modalOpen}
                 title={modalTitle}
                 hideModal={closeModal}
-                onClick={handleModalClick}
+                onClick={e => e.stopPropagation()}
               >
                 {renderModalContent()}
               </EcosModal>
@@ -335,8 +333,37 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
           </div>
         </div>
       </div>
-      {nestedList}
-    </li>
+      {expandedId === groupId && (
+        <>
+          {nestedList.map((childItem, index, originNestedList) => {
+            return (
+              <div
+                key={`${path}/${childItem.id}`}
+                style={{
+                  paddingLeft: 20 * nestingLevel
+                }}
+              >
+                {childItem.id === 'empty' ? (
+                  <div className="select-orgstruct__list-item__empty" key={childItem.id}>
+                    {childItem.label}
+                  </div>
+                ) : (
+                  <Suspense fallback={<Loader type="points" />}>
+                    <ListItem
+                      item={childItem}
+                      dispatch={dispatch}
+                      tabId={tabId}
+                      toggleToFirstTab={toggleToFirstTab}
+                      onManualRefresh={onClickLabel}
+                    />
+                  </Suspense>
+                )}
+              </div>
+            );
+          })}
+        </>
+      )}
+    </div>
   );
 };
 
@@ -356,13 +383,14 @@ export const itemPropType = PropTypes.shape({
 });
 
 ListItem.propTypes = {
+  key: PropTypes.string,
+  tabId: PropTypes.string,
   item: itemPropType,
-  nestingLevel: PropTypes.number,
-  nestedList: PropTypes.node
+  nestingLevel: PropTypes.number
 };
 
 const mapStateToProps = state => ({
   selectedPerson: get(state, 'orgstructure.id', '')
 });
 
-export default connect(mapStateToProps)(ListItem);
+export default connect(mapStateToProps)(React.memo(ListItem));

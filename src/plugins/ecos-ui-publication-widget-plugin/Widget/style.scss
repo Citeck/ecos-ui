@@ -1,5 +1,11 @@
 @import '../../../styles/constants';
 
+.ecos-publications {
+  &__publication-image-stack_img {
+    min-width: 40px;
+  }
+}
+
 .ecos-publication-widget {
   $root: &;
 
@@ -7,7 +13,7 @@
     padding: 0;
 
     .dashlet__body {
-      padding: 10px 20px;
+      padding: 10px 16px;
 
       .ecos-publication {
         display: flex;

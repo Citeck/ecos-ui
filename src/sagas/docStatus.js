@@ -1,5 +1,6 @@
 import { head, isEmpty } from 'lodash';
 import { call, put, takeEvery } from 'redux-saga/effects';
+
 import {
   changeDocStatus,
   getAvailableToChangeStatuses,
@@ -9,20 +10,20 @@ import {
   setDocStatus
 } from '../actions/docStatus';
 import { setNotificationMessage } from '../actions/notification';
-import { t } from '../helpers/util';
 import DocStatusConverter from '../dto/docStatus';
+import { t } from '../helpers/util';
 import DocStatusService from '../services/docStatus';
 
-function* sagaInitDocStatus({ api, logger }, { payload }) {
+function* sagaInitDocStatus({ api }, { payload }) {
   try {
     yield put(getAvailableToChangeStatuses(payload));
     yield put(getDocStatus(payload));
   } catch (e) {
-    logger.error('[docStatus/sagaInitDocStatus saga] error', e);
+    console.error('[docStatus/sagaInitDocStatus saga] error', e);
   }
 }
 
-function* sagaGetDocStatus({ api, logger }, { payload }) {
+function* sagaGetDocStatus({ api }, { payload }) {
   const err = t('doc-status-widget.saga.error1');
   const { record, stateId } = payload;
 
@@ -38,11 +39,11 @@ function* sagaGetDocStatus({ api, logger }, { payload }) {
     );
   } catch (e) {
     yield put(setNotificationMessage(err));
-    logger.error('[docStatus/sagaGetDocStatus saga] error', e);
+    console.error('[docStatus/sagaGetDocStatus saga] error', e);
   }
 }
 
-function* sagaGetAvailableToChangeStatuses({ api, logger }, { payload }) {
+function* sagaGetAvailableToChangeStatuses({ api }, { payload }) {
   const err = t('doc-status-widget.saga.error2');
   const { record, stateId } = payload;
 
@@ -59,11 +60,11 @@ function* sagaGetAvailableToChangeStatuses({ api, logger }, { payload }) {
     }
   } catch (e) {
     yield put(setNotificationMessage(err));
-    logger.error('[docStatus/sagaGetAvailableToChangeStatuses saga] error', e);
+    console.error('[docStatus/sagaGetAvailableToChangeStatuses saga] error', e);
   }
 }
 
-function* sagaChangeDocStatus({ api, logger }, { payload }) {
+function* sagaChangeDocStatus({ api }, { payload }) {
   const err = t('doc-status-widget.saga.error3');
   const { record } = payload;
 
@@ -72,7 +73,7 @@ function* sagaChangeDocStatus({ api, logger }, { payload }) {
     yield put(initDocStatus, payload);
   } catch (e) {
     yield put(setNotificationMessage(err));
-    logger.error('[docStatus/sagaChangeDocStatus saga] error', e);
+    console.error('[docStatus/sagaChangeDocStatus saga] error', e);
   }
 }
 

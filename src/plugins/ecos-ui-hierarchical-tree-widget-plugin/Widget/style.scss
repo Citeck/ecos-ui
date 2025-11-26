@@ -1,0 +1,248 @@
+@import '@/styles/constants';
+
+.ecos-hierarchical-tree-widget {
+  $root: &;
+
+  &.fullHeight {
+    height: 100%;
+  }
+
+  &__editor {
+    padding: 10px 20px;
+
+    &-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+
+  &__structure {
+    &-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+
+      &_btn {
+        &.active i {
+          color: var(--header-bg-color) !important;
+        }
+      }
+    }
+  }
+
+  i.icon {
+    color: $color-gray-5;
+    cursor: pointer;
+    transition: color 0.2s, visibility 0s ease 0.2s;
+
+    &:hover {
+      color: var(--dark-primary-color);
+    }
+  }
+
+  padding: 0;
+  margin: 0;
+  background-color: white;
+  border: 1px solid $color-gray-4;
+  border-radius: 12px;
+  font-family: $font-family-open-sans;
+  color: $text-color-dark;
+
+  &-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px 11px;
+    border-bottom: 1px solid $color-gray-4;
+
+    &-info {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    h4 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 700;
+      color: $text-color-gray;
+      cursor: pointer;
+      transition: color 0.2s;
+
+      &:hover {
+        color: var(--dark-primary-color);
+      }
+    }
+  }
+
+  &-empty {
+    display: flex;
+    flex-direction: column;
+    justify-items: center;
+    align-items: center;
+    margin: 0 20px;
+    padding: 40px 0;
+
+    p {
+      font-size: 14px;
+      opacity: 0.4;
+      color: $text-color-gray;
+    }
+  }
+
+  &-body {
+    margin: 0;
+    padding: 12px 12px 0;
+    list-style-type: none;
+
+    &.draggable {
+      border: 1px dashed var(--header-bg-color);
+      border-bottom-right-radius: 12px;
+      border-bottom-left-radius: 12px;
+    }
+
+    ul.tree {
+      $spacing: 0.1rem;
+      $radius: 2px;
+
+      margin-bottom: 1rem;
+      font-size: 12px;
+      font-style: normal;
+
+      details > summary {
+        list-style-type: none;
+      }
+
+      li {
+        display: block;
+        position: relative;
+
+        summary {
+          border-radius: 6px;
+
+          &:hover {
+            div.tree-actions {
+              display: flex;
+
+              i::before {
+                opacity: 1;
+              }
+            }
+          }
+        }
+      }
+
+      .parent-tree {
+        font-weight: 600;
+
+        & > details > summary > label {
+          font-weight: 600 !important;
+        }
+
+        summary {
+          display: flex;
+          align-items: center;
+          text-wrap: nowrap;
+          overflow: hidden;
+          transition: background-color 0.2s;
+
+          &:hover {
+            background: $color-blue-morning;
+          }
+        }
+
+        &__active {
+          summary:not(.child-tree summary) {
+            color: var(--dark-primary-color);
+          }
+
+          summary::before {
+            color: var(--dark-primary-color) !important;
+          }
+        }
+      }
+
+      .child-tree {
+        font-weight: 400;
+
+        &__last {
+          ::before {
+            opacity: 0;
+          }
+        }
+
+        &__active {
+          & > details > summary {
+            color: var(--dark-primary-color);
+          }
+        }
+      }
+
+      div.tree-actions {
+        display: none;
+        position: absolute;
+        top: 6px;
+        right: 0;
+        padding-right: 6px;
+        gap: 3px;
+        background: linear-gradient(to right, rgba(238, 240, 248, 0), $color-blue-morning 15%);
+
+        i {
+          font-size: 11pt;
+          color: var(--dark-primary-color);
+          cursor: pointer;
+          transition: opacity 0.2s, visibility 0s ease 0.2s;
+
+          &:hover {
+            opacity: 0.5;
+          }
+        }
+      }
+
+      ul {
+        margin-left: calc($radius - $spacing);
+        padding-top: 0 !important;
+      }
+    }
+  }
+}
+
+.tree-summary {
+  &.hoverDragging {
+    background-color: var(--light-primary-color);
+  }
+
+  &::before {
+    content: none !important;
+  }
+
+  &.active &_btn > svg > path {
+    stroke: var(--dark-primary-color);
+  }
+
+  &_btn {
+    padding: 9px 0 9px 8px;
+    height: 100%;
+
+    display: inline-flex;
+    align-self: center;
+
+    & > svg > path {
+      stroke: $text-color-gray;
+    }
+  }
+
+  &_label {
+    padding: 9px 6px;
+    margin: 0;
+    cursor: pointer;
+    font-weight: 400;
+  }
+
+  &_ul {
+    padding-top: 5px;
+    padding-left: 24px;
+  }
+}

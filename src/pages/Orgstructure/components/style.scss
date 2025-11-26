@@ -1,3 +1,5 @@
+@import '../../../styles/constants';
+
 .orgstructure-page {
   &__structure {
     &__header {
@@ -6,7 +8,7 @@
       padding: 16px 22px;
 
       h1 {
-        font-family: 'Open Sans', sans-serif;
+        font-family: $font-family-open-sans;
         font-size: 18px;
         font-style: normal;
         font-weight: 700;
@@ -34,6 +36,10 @@
 
     &__bnt-create {
       cursor: pointer;
+
+      i.icon-plus {
+        color: #767676;
+      }
     }
   }
   &__search {

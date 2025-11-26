@@ -1,20 +1,21 @@
-import { call, put, takeEvery } from 'redux-saga/effects';
 import isEmpty from 'lodash/isEmpty';
-import { NotificationManager } from 'react-notifications';
+import { call, put, takeEvery } from 'redux-saga/effects';
 
-import Records from '../components/Records/Records';
 import { executeAction, getCurrentTaskList, initCurrentTasks, setCurrentTaskList } from '../actions/currentTasks';
-import { t } from '../helpers/util';
+import Records from '../components/Records/Records';
 import { EVENTS } from '../components/widgets/BaseWidget';
 import { AssignActions } from '../constants/tasks';
 import TasksConverter from '../dto/tasks';
+import { t } from '../helpers/util';
 import ConfigService, { ALFRESCO_ENABLED } from '../services/config/ConfigService';
 
-function* runInit({ api, logger }, { payload }) {
+import { NotificationManager } from '@/services/notifications';
+
+function* runInit({ api }, { payload }) {
   try {
-    yield* sagaGetCurrentTasks({ api, logger }, { payload });
+    yield* sagaGetCurrentTasks({ api }, { payload });
   } catch (e) {
-    logger.error('[current-tasks/runInit saga] error', e);
+    console.error('[current-tasks/runInit saga] error', e);
   }
 }
 
@@ -22,7 +23,7 @@ function* getConfigValue(value) {
   return yield ConfigService.getValue(value);
 }
 
-function* sagaGetCurrentTasks({ api, logger }, { payload }) {
+function* sagaGetCurrentTasks({ api }, { payload }) {
   try {
     const { record: document, stateId } = payload;
     const result = yield call(api.tasks.getCurrentTasksForUser, { document });
@@ -51,11 +52,11 @@ function* sagaGetCurrentTasks({ api, logger }, { payload }) {
     }
   } catch (e) {
     NotificationManager.error(t('current-tasks-widget.error.get-tasks'), t('error'));
-    logger.error('[current-tasks/sagaGetCurrentTasks saga] error', e);
+    console.error('[current-tasks/sagaGetCurrentTasks saga] error', e);
   }
 }
 
-function* sagaExecuteAction({ api, logger }, { payload }) {
+function* sagaExecuteAction({ api }, { payload }) {
   try {
     const { taskId: records, action, record, instanceRecord } = payload;
 
@@ -68,7 +69,7 @@ function* sagaExecuteAction({ api, logger }, { payload }) {
     instanceRecord.events.emit(EVENTS.UPDATE_TASKS_WIDGETS);
   } catch (e) {
     NotificationManager.error(t('current-tasks-widget.error.execute-action'), t('error'));
-    logger.error('[current-tasks/sagaExecuteAction saga] error', e);
+    console.error('[current-tasks/sagaExecuteAction saga] error', e);
   }
 }
 

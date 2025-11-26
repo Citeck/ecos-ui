@@ -1,7 +1,7 @@
-import { EventEmitter2 } from 'eventemitter2';
+import { EventEmitter } from 'events';
 
 class WorkspaceService {
-  static emitter = new EventEmitter2();
+  static emitter = new EventEmitter();
 
   static Events = {
     UPDATE_LIST: 'ecos-workspace-update-list'

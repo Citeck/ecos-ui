@@ -38,8 +38,8 @@
   .modal-header {
     border-bottom: none;
     color: $text-color-dark;
-    height: 70px;
-    padding: 0 20px;
+    height: 58px;
+    padding: 0 16px;
     align-items: center;
 
     .close {
@@ -108,7 +108,11 @@
 
     &__title,
     &__buttons {
-      display: inline-block;
+      display: flex;
+      align-items: start;
+      flex-direction: row;
+      gap: 5px;
+      margin-left: 5px;
     }
 
     &__title + &__buttons {
@@ -120,6 +124,9 @@
       flex: 0 1 auto;
       min-width: 0;
       line-height: normal;
+      font-weight: 700;
+      color: $text-color-dark;
+      font-size: 18px;
     }
   }
 

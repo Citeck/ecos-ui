@@ -59,7 +59,7 @@
     max-width: 190px;
     width: 100%;
     height: 40px;
-    background: $color-blue-dark;
+    background-color: var(--primary-color);
     color: $color-white;
     font-weight: bold;
     font-size: 14px;
@@ -68,7 +68,7 @@
     border-radius: 8px;
 
     &:hover {
-      background: $color-blue-light;
+      background-color: var(--dark-primary-color);
     }
   }
 
@@ -76,7 +76,7 @@
     border: 0;
     height: 6px;
     border-radius: 3px;
-    background-color: $color-blue-dark;
+    background-color: var(--primary-color);
     width: 244px;
     margin-bottom: 20px;
 
@@ -96,7 +96,7 @@
       border: 0;
       height: 6px;
       border-radius: 3px;
-      background-color: $color-blue-dark;
+      background-color: var(--primary-color);
     }
 
     &::-moz-progress-bar {

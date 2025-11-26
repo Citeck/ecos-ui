@@ -1,9 +1,9 @@
-import { NotificationManager } from 'react-notifications';
-
 import EcosFormUtils from '../../../../../EcosForm/EcosFormUtils';
 import Records from '../../../../Records';
-
 import actionsRegistry from '../../../actionsRegistry';
+
+import { NotificationManager } from '@/services/notifications';
+
 import '../../../index';
 import EditAction from '../EditAction';
 import { SourcesId } from '../../../../../../constants';

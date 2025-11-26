@@ -1,7 +1,5 @@
-import logger from '../logger';
 import { getLicenseInfo } from './licenseApi';
-
-import { LICENSE_FEATURE_GROUP_ACTIONS, FLAG_DEVELOPER, FEATURES, LICENSE_FEATURE_IMPORT_DATA } from './licenseConstants';
+import {LICENSE_FEATURE_GROUP_ACTIONS, FLAG_DEVELOPER, FEATURES, LICENSE_FEATURE_IMPORT_DATA, LICENSE_FEATURE_AI} from './licenseConstants';
 
 class LicenseService {
   async hasGroupActionsFeature() {
@@ -12,11 +10,15 @@ class LicenseService {
     return this.hasFeature(LICENSE_FEATURE_IMPORT_DATA);
   }
 
+  async hasAiFeature() {
+    return this.hasFeature(LICENSE_FEATURE_AI);
+  }
+
   async hasFeature(feature) {
     return getLicenseInfo()
       .then(r => r[FLAG_DEVELOPER] === true || !!r[FEATURES][feature])
       .catch(error => {
-        logger.error("[LicenseService] Feature flag loading error. Feature: '" + feature + "'", error);
+        console.error("[LicenseService] Feature flag loading error. Feature: '" + feature + "'", error);
         return false;
       });
   }

@@ -2,9 +2,9 @@ import React, { useReducer } from 'react';
 
 import DevToolsConverter from '../../../dto/devTools';
 import { t } from '../../../helpers/util';
-
 import devToolsApi from '../api';
 import { ECOS_UI_ID, ECOS_UI_LABEL } from '../constants';
+
 import { SET_REPOS, SET_COMMITS, SET_IS_READY, SET_ERROR, SELECT_REPO } from './actions';
 import { reducer, initialState } from './reducer';
 

@@ -15,6 +15,7 @@ export const selectStateByRecordRef = (state, recordRef) => {
     hasMore: ownState.hasMore,
     totalCount: ownState.totalCount,
     errorMessage: ownState.errorMessage,
+    activityTypes: ownState.activityTypes,
     activities: ownState.activities,
     actionFailed: ownState.actionFailed,
     isUploadingFile: ownState.isUploadingFile

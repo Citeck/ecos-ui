@@ -1,10 +1,13 @@
 import ReplaceMenuProvider from 'bpmn-js/lib/features/popup-menu/ReplaceMenuProvider';
-import { getBusinessObject, is } from 'bpmn-js/lib/util/ModelUtil';
-import { filter } from 'min-dash';
 import { isDifferentType } from 'bpmn-js/lib/features/popup-menu/util/TypeUtil';
+import * as replaceOptions from 'bpmn-js/lib/features/replace/ReplaceOptions';
+import { isExpanded } from 'bpmn-js/lib/util/DiUtil';
+import { getBusinessObject, is } from 'bpmn-js/lib/util/ModelUtil';
 import get from 'lodash/get';
+import { filter } from 'min-dash';
 
-import { ECOS_TASK_BASE_ELEMENT, GATEWAY_TYPES, TASK_TYPES } from '../../../../../../constants/bpmn';
+import { isEventSubProcess } from '../../../utils';
+
 import {
   BOUNDARY_EVENT,
   END_EVENT,
@@ -20,9 +23,8 @@ import {
   TASK,
   TRANSACTION
 } from './ReplaceOptions';
-import { isEventSubProcess } from '../../../utils';
-import * as replaceOptions from 'bpmn-js/lib/features/replace/ReplaceOptions';
-import { isExpanded } from 'bpmn-js/lib/util/DiUtil';
+
+import { ECOS_TASK_BASE_ELEMENT, GATEWAY_TYPES, TASK_TYPES } from '@/constants/bpmn';
 
 const originGetEntries = ReplaceMenuProvider.prototype.getPopupMenuEntries;
 const originCreateEntries = ReplaceMenuProvider.prototype._createEntries;
@@ -99,7 +101,7 @@ const disabledEndEvent = [
 ];
 
 //TODO: find a better way to disable elements
-ReplaceMenuProvider.prototype.getPopupMenuEntries = function(element) {
+ReplaceMenuProvider.prototype.getPopupMenuEntries = function (element) {
   const businessObject = element.businessObject;
   const differentType = isDifferentType(element);
 
@@ -115,7 +117,7 @@ ReplaceMenuProvider.prototype.getPopupMenuEntries = function(element) {
 
   // start events outside sub processes
   if (is(businessObject, 'bpmn:StartEvent') && !is(businessObject.$parent, 'bpmn:SubProcess')) {
-    entries = filter(START_EVENT, function(entry) {
+    entries = filter(START_EVENT, function (entry) {
       return differentType(entry) && !disableReplaceMenuForStart.includes(entry.actionName);
     });
 
@@ -124,7 +126,7 @@ ReplaceMenuProvider.prototype.getPopupMenuEntries = function(element) {
 
   // expanded/collapsed pools
   if (is(businessObject, 'bpmn:Participant')) {
-    entries = filter(PARTICIPANT, function(entry) {
+    entries = filter(PARTICIPANT, function (entry) {
       return isExpanded(element) !== entry.target.isExpanded;
     });
 
@@ -133,7 +135,7 @@ ReplaceMenuProvider.prototype.getPopupMenuEntries = function(element) {
 
   // start events inside event sub processes
   if (is(businessObject, 'bpmn:StartEvent') && isEventSubProcess(businessObject.$parent)) {
-    entries = filter(EVENT_SUB_PROCESS_START_EVENT, function(entry) {
+    entries = filter(EVENT_SUB_PROCESS_START_EVENT, function (entry) {
       const target = entry.target;
 
       const isInterrupting = target.isInterrupting !== false;
@@ -163,7 +165,7 @@ ReplaceMenuProvider.prototype.getPopupMenuEntries = function(element) {
 
   // end events
   if (is(businessObject, 'bpmn:EndEvent')) {
-    entries = filter(END_EVENT, function(entry) {
+    entries = filter(END_EVENT, function (entry) {
       const target = entry.target;
 
       // hide cancel end events outside transactions
@@ -179,7 +181,7 @@ ReplaceMenuProvider.prototype.getPopupMenuEntries = function(element) {
 
   // boundary events
   if (is(businessObject, 'bpmn:BoundaryEvent')) {
-    entries = filter(BOUNDARY_EVENT, function(entry) {
+    entries = filter(BOUNDARY_EVENT, function (entry) {
       const target = entry.target;
 
       if (target.eventDefinitionType === 'bpmn:CancelEventDefinition' && !is(businessObject.attachedToRef, 'bpmn:Transaction')) {
@@ -199,7 +201,7 @@ ReplaceMenuProvider.prototype.getPopupMenuEntries = function(element) {
 
   // intermediate events
   if (is(businessObject, 'bpmn:IntermediateCatchEvent') || is(businessObject, 'bpmn:IntermediateThrowEvent')) {
-    entries = filter(INTERMEDIATE_EVENT, function(entry) {
+    entries = filter(INTERMEDIATE_EVENT, function (entry) {
       return !disabledIntermidiateEvent.includes(entry.actionName) && differentType(entry);
     });
 
@@ -222,7 +224,7 @@ ReplaceMenuProvider.prototype.getPopupMenuEntries = function(element) {
 
   // expanded event sub processes
   if (isEventSubProcess(businessObject) && isExpanded(element)) {
-    entries = filter(EVENT_SUB_PROCESS, function(entry) {
+    entries = filter(EVENT_SUB_PROCESS, function (entry) {
       return !disabledEventSubProcess.includes(entry.actionName) && differentType(entry);
     });
 
@@ -231,7 +233,7 @@ ReplaceMenuProvider.prototype.getPopupMenuEntries = function(element) {
 
   // expanded sub processes
   if (is(businessObject, 'bpmn:SubProcess') && isExpanded(element)) {
-    entries = filter(SUBPROCESS_EXPANDED, function(entry) {
+    entries = filter(SUBPROCESS_EXPANDED, function (entry) {
       return differentType(entry) && !disabledReplaceMenuForSubprocess.includes(entry.actionName);
     });
 
@@ -240,7 +242,7 @@ ReplaceMenuProvider.prototype.getPopupMenuEntries = function(element) {
 
   // collapsed ad hoc sub processes
   if (is(businessObject, 'bpmn:AdHocSubProcess') && !isExpanded(element)) {
-    entries = filter(TASK, function(entry) {
+    entries = filter(TASK, function (entry) {
       const target = entry.target;
 
       const isTargetSubProcess = target.type === 'bpmn:SubProcess';
@@ -255,7 +257,7 @@ ReplaceMenuProvider.prototype.getPopupMenuEntries = function(element) {
 
   // sequence flows
   if (is(businessObject, 'bpmn:SequenceFlow')) {
-    entries = filter(SEQUENCE_FLOW, function(entry) {
+    entries = filter(SEQUENCE_FLOW, function (entry) {
       return !disableReplaceMenuForFlows.includes(entry.actionName);
     });
 
@@ -264,7 +266,7 @@ ReplaceMenuProvider.prototype.getPopupMenuEntries = function(element) {
 
   // flow nodes
   if (is(businessObject, 'bpmn:FlowNode')) {
-    entries = filter(TASK, function(entry) {
+    entries = filter(TASK, function (entry) {
       const target = entry.target;
 
       return differentType(entry) || get(element, 'businessObject.taskType') !== target.taskType;
@@ -272,7 +274,7 @@ ReplaceMenuProvider.prototype.getPopupMenuEntries = function(element) {
 
     // collapsed SubProcess can not be replaced with itself
     if (is(businessObject, 'bpmn:SubProcess') && !isExpanded(element)) {
-      entries = filter(entries, function(entry) {
+      entries = filter(entries, function (entry) {
         return entry.label !== 'Sub Process (collapsed)';
       });
     }
@@ -283,7 +285,7 @@ ReplaceMenuProvider.prototype.getPopupMenuEntries = function(element) {
   return originGetEntries.call(this, element);
 };
 
-ReplaceMenuProvider.prototype._createEntries = function(element, replaceOptions) {
+ReplaceMenuProvider.prototype._createEntries = function (element, replaceOptions) {
   if (TASK_TYPES.includes(element.type)) {
     replaceOptions = replaceOptions.filter(option => !disabledReplaceMenuForTasks.includes(option.actionName));
 
@@ -301,7 +303,7 @@ ReplaceMenuProvider.prototype._createEntries = function(element, replaceOptions)
   return originCreateEntries.call(this, element, replaceOptions);
 };
 
-ReplaceMenuProvider.prototype.getPopupMenuHeaderEntries = function(element) {
+ReplaceMenuProvider.prototype.getPopupMenuHeaderEntries = function (element) {
   let entries = originGetHeaderEntries.call(this, element);
 
   if (Object.keys(disabledHeaderEntriesByElements).includes(element.type)) {

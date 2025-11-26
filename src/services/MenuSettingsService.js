@@ -1,16 +1,18 @@
-import uuidV4 from 'uuid/v4';
+import { EventEmitter } from 'events';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import set from 'lodash/set';
-import { EventEmitter2 } from 'eventemitter2';
+import uuidV4 from 'uuidv4';
 
-import { isExistValue, packInLabel, t } from '../helpers/util';
-import { getIconObjectWeb } from '../helpers/icon';
-import { treeFindFirstItem, treeGetPathItem, treeRemoveItem } from '../helpers/arrayOfObjects';
 import { ConfigTypes, CreateOptions, MenuSettings as ms, MenuTypes, UserMenu, UserOptions } from '../constants/menu';
+import { treeFindFirstItem, treeGetPathItem, treeRemoveItem } from '../helpers/arrayOfObjects';
+import { getIconObjectWeb } from '../helpers/icon';
+import { getEnabledWorkspaces, isExistValue, packInLabel, t } from '../helpers/util';
+
+import { getWorkspaceId } from '@/helpers/urls';
 
 export default class MenuSettingsService {
-  static emitter = new EventEmitter2();
+  static emitter = new EventEmitter();
 
   static Events = {
     SHOW: 'ecos-menu-settings-show',
@@ -41,6 +43,7 @@ export default class MenuSettingsService {
       config: { ...data.config },
       items: [],
       allowedFor: get(data, 'allowedFor', []),
+      collapsed: get(data, 'collapsed', null),
       //only for ui, tree
       locked: !!data.hidden,
       draggable: permissions.draggable
@@ -100,6 +103,7 @@ export default class MenuSettingsService {
       draggable: knownType && ![].includes(item.type),
       removable: ![].includes(item.type),
       hideable: ![].includes(item.type),
+      collapsable: true,
       hasIcon:
         (configType === ConfigTypes.USER && ![ms.ItemTypes.USER_STATUS].includes(item.type)) ||
         ([ConfigTypes.LEFT].includes(configType) && ![ms.ItemTypes.HEADER_DIVIDER].includes(item.type) && [1].includes(level)),
@@ -248,6 +252,9 @@ export default class MenuSettingsService {
   }
 
   static getAvailableCreateOptions = (item, params) => {
+    const enabledWorkspaces = getEnabledWorkspaces();
+    const wsId = getWorkspaceId();
+
     const { configType, level } = params || {};
     const array = cloneDeep(MenuSettingsService.getCreateOptionsByType(configType));
 
@@ -263,6 +270,12 @@ export default class MenuSettingsService {
         !isExistValue(level) || ((!isExistValue(maxLevel) || maxLevel >= level) && (!isExistValue(minLevel) || minLevel <= level));
       const goodType = MenuSettingsService.isKnownType(get(item, 'type'));
       const allowedType = !MenuSettingsService.isChildless(item);
+
+      if (enabledWorkspaces) {
+        if (wsId.includes('user$') && type.key === 'WIKI') {
+          return false;
+        }
+      }
 
       return goodLevel && (!isExistValue(item) || (goodType && allowedType));
     });

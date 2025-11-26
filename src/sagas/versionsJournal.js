@@ -1,6 +1,5 @@
-import { NotificationManager } from 'react-notifications';
-import { call, put, takeEvery } from 'redux-saga/effects';
 import get from 'lodash/get';
+import { call, put, takeEvery } from 'redux-saga/effects';
 
 import {
   addNewVersion,
@@ -16,11 +15,13 @@ import {
   setVersionsComparison,
   setWritePermission
 } from '../actions/versionsJournal';
-import VersionsJournalConverter from '../dto/versionsJournal';
 import Records from '../components/Records';
+import VersionsJournalConverter from '../dto/versionsJournal';
 import { t } from '../helpers/util';
 
-function* sagaGetVersions({ api, logger }, { payload }) {
+import { NotificationManager } from '@/services/notifications';
+
+function* sagaGetVersions({ api }, { payload }) {
   try {
     const result = yield call(api.versionsJournal.getVersions, payload.record);
 
@@ -32,11 +33,11 @@ function* sagaGetVersions({ api, logger }, { payload }) {
       })
     );
   } catch (e) {
-    logger.error('[versionJournal/sagaGetVersions saga] error', e);
+    console.error('[versionJournal/sagaGetVersions saga] error', e);
   }
 }
 
-function* sagaAddNewVersion({ api, logger }, { payload }) {
+function* sagaAddNewVersion({ api }, { payload }) {
   try {
     const result = yield call(api.versionsJournal.addNewVersion, {
       body: VersionsJournalConverter.getAddVersionFormDataForServer(payload),
@@ -50,43 +51,43 @@ function* sagaAddNewVersion({ api, logger }, { payload }) {
       yield put(addNewVersionError({ message: result.message, id: payload.id }));
     }
   } catch (e) {
-    logger.error('[versionJournal/sagaAddNewVersion saga] error', e);
+    console.error('[versionJournal/sagaAddNewVersion saga] error', e);
     NotificationManager.error(t('documents-widget.error.upload-filed'), t('error'));
     yield put(addNewVersionError({ message: e.message, id: payload.id }));
   }
 }
 
-function* sagaSetNewVersion({ api, logger }, { payload }) {
+function* sagaSetNewVersion({ api }, { payload }) {
   try {
     yield call(api.versionsJournal.setActiveVersion, VersionsJournalConverter.getActiveVersionForServer(payload));
     yield put(setActiveVersionSuccess(payload.id));
     yield put(getVersions({ record: payload.record, id: payload.id }));
     Records.get(payload.record).update();
   } catch (e) {
-    logger.error('[versionJournal/sagaSetNewVersion saga] error', e);
+    console.error('[versionJournal/sagaSetNewVersion saga] error', e);
     yield put(setActiveVersionError({ message: e.message, id: payload.id }));
   }
 }
 
-function* sagaGetVersionsComparison({ api, logger }, { payload }) {
+function* sagaGetVersionsComparison({ api }, { payload }) {
   try {
     const result = yield call(api.versionsJournal.getVersionsComparison, VersionsJournalConverter.getVersionsComparisonForServer(payload));
     const comparison = get(result, ['records', '0', 'diff'], '');
 
     yield put(setVersionsComparison({ record: payload.record, id: payload.id, comparison }));
   } catch (e) {
-    logger.error('[versionJournal/sagaGetVersionsComparison saga] error', e);
+    console.error('[versionJournal/sagaGetVersionsComparison saga] error', e);
     NotificationManager.error(t('documents-widget.error.upload-version'), t('error'));
   }
 }
 
-function* sagaGetWritePermission({ api, logger }, { payload }) {
+function* sagaGetWritePermission({ api }, { payload }) {
   try {
     const hasWritePermission = yield call(api.versionsJournal.hasWritePermission, payload.record);
 
     yield put(setWritePermission({ record: payload.record, id: payload.id, hasWritePermission }));
   } catch (e) {
-    logger.error('[versionJournal/sagaGetWritePermission saga] error', e);
+    console.error('[versionJournal/sagaGetWritePermission saga] error', e);
   }
 }
 

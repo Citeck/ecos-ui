@@ -6,28 +6,28 @@
     base: 4,
     active: 3,
     tab-item: 1,
-    context-menu: 1100
+    context-menu: 1100,
   );
 
   height: 30px;
-  background-color: $color-gray-6;
+  background-color: $color-gray-4;
   display: flex;
   position: relative;
   user-select: none;
   margin-bottom: 0;
 
   &::after {
-    content: ' ';
-    background: $color-gray-6;
     flex: 1;
+    background: $color-gray-4;
     z-index: map-get($z-index, base);
+    content: ' ';
   }
 
   &_gradient {
     &-left {
       &:before {
         content: '';
-        left: 35px;
+        left: 0;
         top: 0;
         position: absolute;
         width: 40px;
@@ -37,11 +37,10 @@
         pointer-events: none;
       }
     }
-
     &-right {
       &:after {
         content: '';
-        right: 60px;
+        right: 0;
         top: 0;
         position: absolute;
         width: 40px;
@@ -64,15 +63,13 @@
     cursor: pointer;
     margin: auto 7px auto 14px;
     color: $color-gray-5;
-
     &-placeholder {
       display: flex;
       width: 40px;
       height: 100%;
       z-index: map-get($z-index, base);
-      background-color: $color-gray-6;
+      background-color: $color-gray-4;
     }
-
     &:hover {
       background-color: $text-color-gray;
       color: $color-white;
@@ -84,100 +81,83 @@
         line-height: inherit !important;
       }
     }
-
     &_disable {
       background-color: $color-gray-5;
-      color: $color-gray-6;
+      color: $color-gray-4;
       cursor: not-allowed;
-
       &:hover {
         background-color: $color-gray-5;
-        color: $color-gray-6;
+        color: $color-gray-4;
       }
     }
   }
-
   &__tabs {
-    height: 28px;
     align-self: flex-end;
     display: flex;
     max-width: 100%;
     overflow: hidden;
     padding: 0 10px;
-
     &_sorting {
       overflow-x: auto;
       overflow-y: hidden;
-
       &::-webkit-scrollbar {
         width: 0;
         height: 0;
       }
-
       scrollbar-width: none;
     }
-
     &-btn {
       cursor: pointer;
       display: flex;
       align-items: center;
       color: $text-color-gray;
-      background-color: $color-gray-6;
+      background-color: $color-gray-4;
       z-index: map-get($z-index, base);
-
       &:hover {
         color: $text-color-dark;
       }
-
       &:before {
         margin: 0 !important;
       }
-
       &_add {
         font-size: 21px;
       }
-
       &_close {
         font-size: 19px;
         margin-left: 4px;
       }
     }
-
     &-item {
       $item: &;
-
       position: relative;
       min-width: #{$tab-min-width};
       width: auto;
       max-width: 300px;
       padding: 3px 5px 6px 10px;
       border-radius: 6px 6px 0 0;
-      background-color: $color-gray-6;
+      background-color: $color-gray-4;
       z-index: map-get($z-index, tab-item);
       cursor: pointer;
       display: flex;
       align-items: flex-end;
       justify-content: space-between;
       margin: 0 0 0 4px;
-
       &:after {
         $height: 70%;
         content: '';
         height: $height;
-        width: 2px;
+        width: 1px;
         background-color: $color-gray-5;
         position: absolute;
         top: calc(50% - (#{$height} / 2));
         right: -4px;
       }
-
       &:not(&_active):hover {
         background-color: $color-gray-1;
         margin-left: 0;
         padding-left: 14px;
         padding-right: 5px;
         min-width: calc(#{$tab-min-width} + 4px);
-
         &:before {
           content: '';
           position: absolute;
@@ -190,11 +170,9 @@
           width: 20px;
           height: 20px;
         }
-
         &:after {
           background-color: unset;
           top: unset;
-
           content: '';
           position: absolute;
           bottom: -6px;
@@ -206,14 +184,12 @@
           width: 20px;
           height: 20px;
         }
-
         #{$item}-close {
           color: $text-color-dark;
         }
       }
-
       &_active {
-        background-color: $color-gray-4;
+        background-color: var(--main-bg-color);
         z-index: map-get($z-index, active);
         margin-left: 0;
         padding-left: 14px;
@@ -232,12 +208,11 @@
           left: -14px;
           transform: rotate(0deg);
           border-bottom-right-radius: 12px;
-          border-right: 6px $color-gray-4 solid;
-          border-bottom: 6px $color-gray-4 solid;
+          border-right: 6px var(--main-bg-color) solid;
+          border-bottom: 6px var(--main-bg-color) solid;
           width: 20px;
           height: 20px;
         }
-
         &:after {
           background-color: transparent;
           top: auto;
@@ -247,36 +222,31 @@
           right: -14px;
           transform: rotate(0deg);
           border-bottom-left-radius: 12px;
-          border-left: 6px $color-gray-4 solid;
-          border-bottom: 6px $color-gray-4 solid;
+          border-left: 6px var(--main-bg-color) solid;
+          border-bottom: 6px var(--main-bg-color) solid;
           width: 20px;
           height: 20px;
         }
       }
-
       &_disabled {
         pointer-events: none;
       }
-
       &_sorting {
         top: 0;
         border-radius: 6px;
         display: flex;
         align-items: center;
         background-color: $color-gray-1;
-
         &::after,
         &::before {
           display: none !important;
         }
       }
-
       .tooltip &-tooltip {
         text-align: left;
         max-width: 260px;
         min-width: 200px;
       }
-
       &-title {
         font-style: normal;
         font-weight: 600;
@@ -287,39 +257,32 @@
         overflow: hidden;
         line-height: inherit;
         margin-right: 5px;
-
         &-loader {
           margin-right: 5px;
           width: 40px;
           display: inline-flex;
         }
       }
-
       &-close {
         align-self: end;
         color: $text-color-gray;
         line-height: initial;
-
         &:hover {
-          color: $color-blue-dark !important;
+          color: var(--primary-color) !important;
         }
       }
     }
   }
-
   &__body {
     background-color: $color-gray-4;
     position: relative;
     height: 100%;
-
     display: flex;
-
     &-content {
       height: 100%;
       padding: 0 10px 10px;
     }
   }
-
   &__panel {
     overflow: auto;
     height: 100%;
@@ -327,12 +290,10 @@
     display: grid;
     grid-template-rows: 1fr auto;
     grid-template-columns: minmax(auto, 100%);
-
     .app-content {
       padding-bottom: 20px;
     }
   }
-
   &__context-menu {
     position: absolute;
     min-width: 200px;
@@ -344,11 +305,9 @@
     font-size: 14px;
     white-space: nowrap;
     overflow: hidden;
-
     &-item {
       cursor: pointer;
       padding: 2px 10px;
-
       &:hover {
         background: $color-gray-4;
       }

@@ -51,7 +51,7 @@ describe('TasksActions resolver', () => {
 
     expect(recordQuerySpy).toHaveBeenCalledTimes(1);
     expect(result.test).not.toBeUndefined();
-    expect(result.test[0].type).toEqual('task-outcome');
+    expect(result.test[0].type).toEqual('open-task-actions');
     expect(result.test[0].variants.length).toEqual(0);
   });
 

@@ -44,7 +44,7 @@
       .choices__item {
         margin-bottom: 0;
         line-height: 26px;
-        background-color: #4b75b7;
+        background-color: var(--primary-color);
         border: none;
         border-radius: 100px;
         padding: 0 $input-padding;
@@ -62,6 +62,8 @@
       .form-control {
         padding: 4px 12px;
         line-height: 28px;
+        height: 40px;
+
         .choices__input {
           font-weight: $font-weight-semi-bold;
           padding: 0;
@@ -73,7 +75,7 @@
     .choices {
       &.is-focused {
         .form-control {
-          border-color: $color-blue-dark;
+          border-color: var(--primary-color);
 
           &:after {
             content: '\54';
@@ -98,46 +100,53 @@
           justify-content: center;
           top: 0;
           margin-top: 0;
-          margin-right: 30px;
+          margin-right: 28px;
           padding-top: 9px;
+          opacity: 1;
+
+          &:hover:after {
+            color: var(--primary-color);
+          }
 
           &:after {
             font-family: $font-family-citeck;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: normal;
             content: $citeck-icon-close;
-            color: $color-gray-6;
+            color: $color-gray-5;
           }
         }
 
         .form-control {
+          transition: none;
           &:after {
             font-family: $font-family-citeck;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: normal;
             content: $citeck-icon-down;
             position: absolute;
             top: 0;
+            opacity: 1 !important;
             right: $input-padding;
             line-height: $form-input-height;
             pointer-events: none;
-            color: $color-gray-6;
-            transition: color 0.15s ease-in-out;
+            color: $color-gray-5;
+            transition: none;
           }
 
           &:focus:after {
-            color: $color-blue-dark;
+            color: var(--primary-color);
           }
 
           &:hover:after {
-            color: $color-blue-light;
+            color: var(--primary-color);
           }
         }
 
         &.is-open {
           .form-control {
-            border-color: $color-blue-dark;
-            background-color: $color-blue-dark;
+            border-color: var(--primary-color);
+            background-color: var(--primary-color);
             color: $color-white;
 
             &:after {

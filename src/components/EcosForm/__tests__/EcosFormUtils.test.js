@@ -1,3 +1,4 @@
+import Records from '../../Records';
 import EcosFormUtils from '../EcosFormUtils/EcosFormUtils';
 import {
   asyncDataCase,
@@ -23,7 +24,6 @@ import {
   tableFormCase,
   tableFormCaseOptimized
 } from '../__fixtures__/EcosFormUtils.fixtures';
-import Records from '../../Records';
 
 function runTests(tests, method) {
   tests.forEach(item => {
@@ -190,6 +190,97 @@ describe('EcosFormUtils', () => {
       return EcosFormUtils.getForm(recordId).then(result => {
         expect(result.id).toBe(recordId);
       });
+    });
+  });
+
+  describe('getAttrsFromTemplate method', () => {
+    it('should return an empty array when no matches found', () => {
+      const result = EcosFormUtils.getAttrsFromTemplate('No template here');
+      expect(result).toEqual([]);
+    });
+
+    it('should extract attributes from strings with templates', () => {
+      const str = 'Hello ${name} and ${?disp}';
+      const result = EcosFormUtils.getAttrsFromTemplate(str);
+      expect(result).toEqual(['name', '?disp']);
+    });
+
+    it('should trim whitespace from extracted attribute names', () => {
+      const str = 'Hello ${fullName} and ${ email }';
+      const result = EcosFormUtils.getAttrsFromTemplate(str);
+      expect(result).toEqual(['fullName', 'email']);
+    });
+
+    it('should extract multiple unique attributes from a string', () => {
+      const str = 'User: ${user?id}, Display Name: ${_disp}, Settings: ${model.attributes[]}';
+      const result = EcosFormUtils.getAttrsFromTemplate(str);
+      expect(result).toEqual(['user?id', '_disp', 'model.attributes[]']);
+    });
+
+    it('should return an empty array when input string is null', () => {
+      const result = EcosFormUtils.getAttrsFromTemplate(null);
+      expect(result).toEqual([]);
+    });
+
+    it('should return an empty array when input string is empty', () => {
+      const result = EcosFormUtils.getAttrsFromTemplate('');
+      expect(result).toEqual([]);
+    });
+
+    it('Arguments with special characters - returns the list without deleting the special characters', () => {
+      const result = EcosFormUtils.getAttrsFromTemplate('${ecos:alfresco} ${?disp} ${test:argument?json} ${list:argumentList[]!}');
+      expect(result).toEqual(['ecos:alfresco', '?disp', 'test:argument?json', 'list:argumentList[]!']);
+    });
+  });
+
+  describe('stripHTML method', () => {
+    const EcosFormUtils = window.Citeck.EcosFormUtils;
+
+    test('should return empty string for empty input', () => {
+      expect(EcosFormUtils.stripHTML('')).toBe('');
+    });
+
+    test('should return empty string for null input', () => {
+      expect(EcosFormUtils.stripHTML(null)).toBe('');
+    });
+
+    test('should return empty string for undefined input', () => {
+      expect(EcosFormUtils.stripHTML(undefined)).toBe('');
+    });
+
+    test('should extract text content from HTML', () => {
+      const html = '<div><p>Hello <b>World</b>!</p></div>';
+      expect(EcosFormUtils.stripHTML(html)).toBe('Hello World!');
+    });
+
+    test('should handle nested HTML elements', () => {
+      const html = '<div><span><b>Nested <i>Text</i></b></span></div>';
+      expect(EcosFormUtils.stripHTML(html)).toBe('Nested Text');
+    });
+
+    test('should handle self-closing tags', () => {
+      const html = '<input type="text"/><br/>';
+      expect(EcosFormUtils.stripHTML(html)).toBe('');
+    });
+
+    test('should handle invalid HTML content', () => {
+      const html = '<invalid><p>Some text</p>';
+      expect(EcosFormUtils.stripHTML(html)).toBe('Some text');
+    });
+
+    test('should handle multiple root HTML nodes', () => {
+      const html = '<p>First</p><p>Second</p>';
+      expect(EcosFormUtils.stripHTML(html)).toBe('FirstSecond'); // No whitespace in between
+    });
+
+    test('should return text from multiple lines of HTML', () => {
+      const html = '<div>Line1</div><div>Line2</div><div>Line3</div>';
+      expect(EcosFormUtils.stripHTML(html)).toBe('Line1Line2Line3');
+    });
+
+    test('should return the text if it is not wrapped in HTML', () => {
+      const html = 'plain text without any HTML tags';
+      expect(EcosFormUtils.stripHTML(html)).toBe('plain text without any HTML tags');
     });
   });
 });

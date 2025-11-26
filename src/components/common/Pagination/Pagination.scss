@@ -46,7 +46,7 @@
     &_new {
       &:hover rect,
       &:hover path {
-        fill: $color-blue-dark;
+        fill: var(--primary-color);
         stroke: $color-white;
       }
 

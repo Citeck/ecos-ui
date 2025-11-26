@@ -1,11 +1,11 @@
+import { parseISO, isValid } from 'date-fns';
+import FormIODateTimeComponent from 'formiojs/components/datetime/DateTime';
 import get from 'lodash/get';
+import isDate from 'lodash/isDate';
+import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isString from 'lodash/isString';
-import isDate from 'lodash/isDate';
 import omitBy from 'lodash/omitBy';
-import FormIODateTimeComponent from 'formiojs/components/datetime/DateTime';
-import isEmpty from 'lodash/isEmpty';
-import { parseISO, isValid } from 'date-fns';
 
 export default class DateTimeComponent extends FormIODateTimeComponent {
   build(state) {
@@ -23,7 +23,7 @@ export default class DateTimeComponent extends FormIODateTimeComponent {
 
       if (isValid(parsedDate)) {
         value = parsedDate.toISOString().replace('.000Z', 'Z');
-      } else {
+      } else if (!!value.trim()) {
         return;
       }
     } else if (isDate(value)) {

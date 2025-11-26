@@ -1,53 +1,55 @@
-import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
 import classNames from 'classnames';
+import cloneDeep from 'lodash/cloneDeep';
+import find from 'lodash/find';
+import get from 'lodash/get';
+import head from 'lodash/head';
+import isArray from 'lodash/isArray';
+import isBoolean from 'lodash/isBoolean';
+import isElement from 'lodash/isElement';
+import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
+import isFunction from 'lodash/isFunction';
+import isNil from 'lodash/isNil';
+import isNumber from 'lodash/isNumber';
+import isObject from 'lodash/isObject';
+import isString from 'lodash/isString';
+import isUndefined from 'lodash/isUndefined';
+import last from 'lodash/last';
+import omit from 'lodash/omit';
+import pick from 'lodash/pick';
+import set from 'lodash/set';
 import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
 import BootstrapTableConst from 'react-bootstrap-table-next/lib/src/const';
 import cellEditFactory from 'react-bootstrap-table2-editor';
 import { Scrollbars } from 'react-custom-scrollbars';
-import set from 'lodash/set';
-import get from 'lodash/get';
-import head from 'lodash/head';
-import last from 'lodash/last';
-import cloneDeep from 'lodash/cloneDeep';
-import omit from 'lodash/omit';
-import pick from 'lodash/pick';
-import find from 'lodash/find';
-import isEmpty from 'lodash/isEmpty';
-import isEqual from 'lodash/isEqual';
-import isNil from 'lodash/isNil';
-import isUndefined from 'lodash/isUndefined';
-import isArray from 'lodash/isArray';
-import isFunction from 'lodash/isFunction';
-import isString from 'lodash/isString';
-import isBoolean from 'lodash/isBoolean';
-import isObject from 'lodash/isObject';
-import isElement from 'lodash/isElement';
-
+import { createRoot } from 'react-dom/client';
 import { Tooltip } from 'reactstrap';
-import { NotificationManager } from 'react-notifications';
 
-import EcosTooltip from '../../Tooltip';
-import Loader from '../../../common/Loader';
-import { getId, t, getCurrentUserName } from '../../../../helpers/util';
-import FormatterService from '../../../Journals/service/formatters/FormatterService';
-import EcosProgressLoading from '../../EcosProgressLoading';
-import DateTimeFormatter from '../../../Journals/service/formatters/registry/DateTimeFormatter';
-import DateFormatter from '../../../Journals/service/formatters/registry/DateFormatter';
+import ClickOutside from '../../../ClickOutside';
 import { COMPLEX_FILTER_LIMIT, ECOS_GRID_PADDING_HORIZONTAL, JOURNAL_MIN_HEIGHT } from '../../../Journals/constants';
-import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
-import { SELECTOR_MENU_KEY } from '../util';
+import FormatterService from '../../../Journals/service/formatters/FormatterService';
+import DateFormatter from '../../../Journals/service/formatters/registry/DateFormatter';
+import DateTimeFormatter from '../../../Journals/service/formatters/registry/DateTimeFormatter';
+import Loader from '../../../common/Loader';
+import EcosProgressLoading from '../../EcosProgressLoading';
+import EcosTooltip from '../../Tooltip';
+import Button from '../../btns/Btn';
+import Icon from '../../icons/Icon';
+import NoData from '../../icons/NoData';
 import ErrorCell from '../ErrorCell';
 import ErrorTable from '../ErrorTable';
-import SelectorHeader from './SelectorHeader';
+import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
+import { SELECTOR_MENU_KEY } from '../util';
+
 import Selector from './Selector';
-import pageTabList from '../../../../services/pageTabs/PageTabList';
-import NoData from '../../icons/NoData';
-import Button from '../../btns/Btn';
-import { pagesStore } from '../../../../helpers/indexedDB';
-import ClickOutside from '../../../ClickOutside';
-import Icon from '../../icons/Icon';
+import SelectorHeader from './SelectorHeader';
+
+import { pagesStore } from '@/helpers/indexedDB';
+import { getId, t, getCurrentUserName } from '@/helpers/util';
+import { NotificationManager } from '@/services/notifications';
+import pageTabList from '@/services/pageTabs/PageTabList';
 
 import './Grid.scss';
 import '../../Tooltip/style.scss';
@@ -57,6 +59,7 @@ const ECOS_JOURNAL_CLASS = 'ecos-journal';
 const ECOS_GRID_HOVERED_CLASS = 'ecos-grid_hovered';
 const ECOS_GRID_GRAG_CLASS = 'ecos-grid_drag';
 const ECOS_GRID_ROW_CLASS = 'ecos-grid__row';
+const HAS_INLINE_TOOLS_CLASS = 'has-inline-tools';
 const ECOS_GRID_HEADER = 'ecos-grid__header';
 const ECOS_GRID_HEADER_LOADER = 'ecos-grid__header-loader';
 const ECOS_GRID_HEAD_SHADOW = 'ecos-grid__head-shadow';
@@ -81,6 +84,7 @@ class Grid extends Component {
     this._startResizingThOffset = 0;
     this._scrollValues = {};
     this._tr = null;
+    this._lastHoverTrIndex = null;
     this._dragTr = null;
     this._tableDom = null;
     this._ref = React.createRef();
@@ -97,6 +101,7 @@ class Grid extends Component {
       isScrolling: false,
       maxHeight: props.maxHeight,
       selected: props.selected || [],
+      selectedRowId: null,
       updatedColumn: null,
       updatedColumnBlocked: null,
       ecosGridWidth: 0
@@ -118,7 +123,7 @@ class Grid extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
-    return !nextState.isScrolling || (nextProps.isViewNewJournal && !(nextProps.data && nextProps.data.length));
+    return !nextState.isScrolling || (nextProps.isViewNewJournal && !(nextProps.data && nextProps.data.length)) || false;
   }
 
   componentDidMount() {
@@ -157,7 +162,7 @@ class Grid extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { byContentHeight, resizableColumns, columns, selected, isResetSettings, loading, isViewNewJournal } = this.props;
+    const { byContentHeight, resizableColumns, columns, selected, isResetSettings, loading, isViewNewJournal, data } = this.props;
     const { maxHeight } = this.state;
     const current = this._ref.current;
 
@@ -173,7 +178,12 @@ class Grid extends Component {
       resizableColumns ? this.createColumnResizeEvents() : this.removeColumnResizeEvents();
     }
 
-    if (!isEqual(prevProps.columns.map(i => i.id), columns.map(i => i.id))) {
+    if (
+      !isEqual(
+        prevProps.columns.map(i => i.id),
+        columns.map(i => i.id)
+      )
+    ) {
       this.setState({ needCellUpdate: true }, () => this.setState({ needCellUpdate: false }));
     }
 
@@ -194,8 +204,17 @@ class Grid extends Component {
     }
 
     if (current) {
+      if (prevProps.loading !== loading || (!loading && prevProps.data.length > data.length)) {
+        this.updateInlineToolsElementOfLoading(
+          isEmpty(prevProps.editingRules) && !isEmpty(this.props.editingRules),
+          !loading && prevProps.loading === loading && prevProps.data.length > data.length
+        );
+      }
+
       const headerElement = current.querySelector(`.${ECOS_GRID_HEADER}`);
       const headerLoaderElement = current.querySelector(`.${ECOS_GRID_HEADER_LOADER}`);
+
+      let root = null;
 
       if (headerElement && !headerLoaderElement && loading) {
         const theadElement = headerElement.closest('thead');
@@ -206,10 +225,11 @@ class Grid extends Component {
 
           theadElement.appendChild(loaderDiv);
 
-          ReactDOM.render(<EcosProgressLoading />, loaderDiv);
+          root = createRoot(loaderDiv);
+          root.render(<EcosProgressLoading />);
         }
       } else if (headerLoaderElement && !loading) {
-        ReactDOM.unmountComponentAtNode(headerLoaderElement);
+        root?.unmount();
         headerLoaderElement.remove();
       }
     }
@@ -396,7 +416,7 @@ class Grid extends Component {
           get(column, 'style.width') && delete column.style.width;
         }
 
-        if (!isUndefined(column.default)) {
+        if (!isUndefined(column.default) && !column.hidden) {
           column.hidden = !column.default;
         }
 
@@ -451,12 +471,13 @@ class Grid extends Component {
           return;
         }
 
-        this.appendInlineToolsElement(tr, settingInlineTools);
+        if (!props.changeTrOptionsByRowClick) {
+          this.appendInlineToolsElement(tr, settingInlineTools);
+        }
       },
       onMouseLeave: e => {
         const relatedTarget = e.relatedTarget;
         const currentTarget = e.currentTarget;
-
         const insideInlineToolsContainer =
           relatedTarget && this.isInsideInlineToolsContainer(relatedTarget, ECOS_GRID_INLINE_TOOLS_CONTAINER);
         if (insideInlineToolsContainer) {
@@ -485,13 +506,19 @@ class Grid extends Component {
           const settingInlineTools = this.getTrOptions(currentTarget);
 
           this.removeInlineToolsElement();
-          this.appendInlineToolsElement(currentTarget, settingInlineTools);
+
+          if (get(this.props.data[currentTarget.rowIndex - 1], 'id') !== this.state.selectedRowId) {
+            this.appendInlineToolsElement(currentTarget, settingInlineTools);
+          }
         }
 
         this.onRowClick(currentTarget);
       },
+      draggable: !!props.draggable,
       onDoubleClick: this.onDoubleClick,
       onDragOver: this.onDragOver,
+      onDragStart: this.onDragStart,
+      onDragEnd: this.onDragEnd,
       onDrop: this.onDrop,
       ...extra.rowEvents
     };
@@ -573,44 +600,76 @@ class Grid extends Component {
     if (currentTarget) {
       const inlineToolsElement = currentTarget.querySelector(`.${ECOS_GRID_INLINE_TOOLS_CONTAINER}`);
       if (inlineToolsElement) {
-        ReactDOM.unmountComponentAtNode(inlineToolsElement);
+        currentTarget._inlineToolsRoot?.unmount();
         currentTarget.removeChild(inlineToolsElement);
-        currentTarget.classList.remove('has-inline-tools');
+        currentTarget.classList.remove(HAS_INLINE_TOOLS_CLASS);
       }
     } else {
       const inlineToolsElement = document.querySelector(`.${ECOS_GRID_INLINE_TOOLS_CONTAINER}`);
       if (inlineToolsElement) {
-        ReactDOM.unmountComponentAtNode(inlineToolsElement);
         const parentElement = inlineToolsElement.parentNode;
         inlineToolsElement.remove();
 
         if (parentElement && !parentElement.querySelector(`.${ECOS_GRID_INLINE_TOOLS_CONTAINER}`)) {
-          parentElement.classList.remove('has-inline-tools');
+          parentElement._inlineToolsRoot?.unmount();
+          parentElement.classList.remove(HAS_INLINE_TOOLS_CLASS);
         }
       }
     }
+
+    this._lastHoverTrIndex = null;
+  };
+
+  updateInlineToolsElementOfLoading = (isFindFocusTr = false, isDecreaseDataInForm = false) => {
+    const current = this._ref.current;
+    if (!current) {
+      return;
+    }
+
+    let trEl = current.querySelector(`.${ECOS_GRID_INLINE_TOOLS_CONTAINER}`)?.closest('tr');
+
+    if (!trEl) {
+      if ((!isFindFocusTr && !isDecreaseDataInForm) || !this._lastHoverTrIndex) {
+        return;
+      }
+
+      const rowIndex = this._lastHoverTrIndex - isDecreaseDataInForm ? 0 : 1; // because inline Loader also tr element
+      const target = Array.from(current.querySelectorAll('tr')).find(t => t.rowIndex === rowIndex);
+
+      if (!target) {
+        return;
+      }
+
+      trEl = target;
+    }
+
+    trEl._inlineToolsRoot?.unmount();
+    const settingInlineTools = this.getTrOptions(trEl);
+    this.appendInlineToolsElement(trEl, settingInlineTools);
   };
 
   appendInlineToolsElement = (currentTarget, settingInlineTools) => {
     const inlineToolsElement = document.createElement('td');
     inlineToolsElement.className = ECOS_GRID_INLINE_TOOLS_CONTAINER;
+    this._lastHoverTrIndex = currentTarget.rowIndex || null;
+
+    const renderInlineTools = element => {
+      if (element) {
+        const root = createRoot(inlineToolsElement);
+        root.render(element);
+
+        currentTarget.appendChild(inlineToolsElement);
+        currentTarget.classList.add(HAS_INLINE_TOOLS_CLASS);
+        currentTarget._inlineToolsRoot = root;
+      }
+    };
 
     if (!isEmpty(settingInlineTools) && isFunction(this.props.inlineTools)) {
       const inlineTools = this.inlineTools(settingInlineTools);
-
-      if (inlineTools) {
-        ReactDOM.render(inlineTools, inlineToolsElement);
-        currentTarget.appendChild(inlineToolsElement);
-        currentTarget.classList.add('has-inline-tools');
-      }
+      renderInlineTools(inlineTools);
     } else if (isFunction(this.props.inlineActions)) {
       const inlineActions = this.props.inlineActions(get(settingInlineTools, 'row.id') || null);
-
-      if (inlineActions) {
-        ReactDOM.render(inlineActions, inlineToolsElement);
-        currentTarget.appendChild(inlineToolsElement);
-        currentTarget.classList.add('has-inline-tools');
-      }
+      renderInlineTools(inlineActions);
     }
   };
 
@@ -753,7 +812,7 @@ class Grid extends Component {
         this.setState({ hasFooter: true });
       }
 
-      const targetId = `total-amount-${journalId}_${name}`;
+      const targetId = `total-amount-${journalId}_${name}`.replace(/\:/g, '');
 
       return (
         <div className="ecos-grid__table_footer__value">
@@ -770,17 +829,8 @@ class Grid extends Component {
   };
 
   setHeaderFormatter = (column, filterable, sortable, width) => {
-    const {
-      filters,
-      sortBy,
-      onSort,
-      onFilter,
-      onOpenSettings,
-      originPredicates,
-      recordRef,
-      deselectAllRecords,
-      isViewNewJournal
-    } = this.props;
+    const { filters, sortBy, onSort, onFilter, onOpenSettings, originPredicates, recordRef, deselectAllRecords, isViewNewJournal } =
+      this.props;
     const isFilterable = filterable && column.searchable && column.searchableByText && isFunction(onFilter);
     const disableSelect = column.disableSelect;
     const isSortable = sortable && isFunction(onSort);
@@ -1148,6 +1198,14 @@ class Grid extends Component {
     this.setHover(tr, ECOS_GRID_HOVERED_CLASS, true);
 
     const { onRowClick } = this.props;
+
+    const selectedRowId = get(this.props.data[tr.rowIndex - 1], 'id', null);
+    if (selectedRowId !== this.state.selectedRowId) {
+      this.setState({ selectedRowId });
+    } else {
+      this.setState({ selectedRowId: null });
+    }
+
     isFunction(onRowClick) && onRowClick(this.props.data[tr.rowIndex - 1]);
   };
 
@@ -1208,6 +1266,27 @@ class Grid extends Component {
 
     this.setState({ isScrolling: false });
     isFunction(onScrollStop) && onScrollStop(e || this._scrollRef.getValues());
+  };
+
+  onDragStart = e => {
+    const { onDragStart } = this.props;
+
+    if (!onDragStart) {
+      return false;
+    }
+
+    const rowIndex = get(e, 'target.rowIndex');
+    isFunction(onDragStart) && onDragStart(e, isNumber(rowIndex) ? get(this.props.data, [rowIndex - 1, 'id'], null) : null);
+  };
+
+  onDragEnd = e => {
+    const { onDragEnd } = this.props;
+
+    if (!onDragEnd) {
+      return false;
+    }
+
+    isFunction(onDragEnd) && onDragEnd(e);
   };
 
   onDragOver = e => {
@@ -1364,7 +1443,6 @@ class Grid extends Component {
 
     return (
       <Scrollbars
-        minHeight={isViewNewJournal && ecosJournalEl ? maxHeight : null}
         ref={this.scrollRefCallback}
         onScrollStart={this.onScrollStart}
         onScrollFrame={this.onScrollFrame}
@@ -1417,11 +1495,13 @@ class Grid extends Component {
     ]);
 
     const bootProps = this.getBootstrapTableProps(props, cloneDeep(extraProps));
+    const rulesKey = `table-${isEmpty(this.props.editingRules) ? 'without' : 'with'}-rules-${JSON.stringify(this.props.editingRules || {})}`;
 
     return (
       <div ref={this.setGridRef}>
         <ErrorTable>
           <BootstrapTable
+            key={rulesKey}
             {...bootProps}
             classes={classNames('ecos-grid__table', {
               'ecos-grid__table_grouping': this.hasGrouping && isViewNewJournal
@@ -1442,19 +1522,8 @@ class Grid extends Component {
   }
 
   render() {
-    const {
-      className,
-      noTopBorder,
-      columns,
-      noHeader,
-      scrollable,
-      selected,
-      multiSelectable,
-      noHorizontalScroll,
-      isViewNewJournal,
-      data
-    } = this.props;
-    const { updatedColumn, updatedColumnBlocked, maxHeight, hasFooter } = this.state;
+    const { className, noTopBorder, columns, noHeader, scrollable, selected, multiSelectable, noHorizontalScroll } = this.props;
+    const { updatedColumn, updatedColumnBlocked } = this.state;
 
     if (isEmpty(columns)) {
       return null;
@@ -1482,9 +1551,10 @@ class Grid extends Component {
 
         {scrollable ? this.renderScrollableGrid() : this.renderGrid()}
 
-        {isViewNewJournal && !hasFooter && !!data && !!data.length && (
+        {/* Cause: overrides checkboxes in Safari (ECOSUI-3299) */}
+        {/*{isViewNewJournal && !hasFooter && !!data && !!data.length && (
           <div style={{ height: cssNum(maxHeight) }} className="ecos-grid__border" />
-        )}
+        )}*/}
 
         {updatedColumn && (
           <Tooltip

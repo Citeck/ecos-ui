@@ -1,7 +1,7 @@
 import cloneDeep from 'lodash/cloneDeep';
 
-import * as UrlUtils from '../urls';
 import { history } from '../__mocks__/urls.mock';
+import * as UrlUtils from '../urls';
 
 describe('Urls helpers', () => {
   describe('Method replaceHistoryLink', () => {
@@ -72,19 +72,20 @@ describe('Urls helpers', () => {
     });
   });
 
-  describe.each([['/v2/journals', false], ['/v2/dashboard', true], ['/v2/dashboard/settings', false]])(
-    'fun isDashboard %s',
-    (url, expected) => {
-      beforeEach(() => {
-        delete window.location;
-        window.location = { pathname: url };
-      });
+  describe.each([
+    ['/v2/journals', false],
+    ['/v2/dashboard', true],
+    ['/v2/dashboard/settings', false]
+  ])('fun isDashboard %s', (url, expected) => {
+    beforeEach(() => {
+      delete window.location;
+      window.location = { pathname: url };
+    });
 
-      it(`returns ${expected}`, () => {
-        expect(UrlUtils.isDashboard(url)).toEqual(expected);
-      });
-    }
-  );
+    it(`returns ${expected}`, () => {
+      expect(UrlUtils.isDashboard(url)).toEqual(expected);
+    });
+  });
 
   describe('Method isHomePage', () => {
     const data = [

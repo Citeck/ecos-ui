@@ -1,12 +1,9 @@
-import { NotificationManager } from 'react-notifications';
-import { call, put, select, takeLatest } from 'redux-saga/effects';
-import set from 'lodash/set';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-import { t } from '../helpers/util';
-import { ConfigTypes, GROUP_EVERYONE, MenuSettings as ms } from '../constants/menu';
-import MenuConverter from '../dto/menu';
-import MenuSettingsService from '../services/MenuSettingsService';
+import set from 'lodash/set';
+import { call, put, select, takeLatest } from 'redux-saga/effects';
+
+import { getMenuConfig } from '@/actions/menu';
 import {
   addJournalMenuItems,
   getAuthorityInfoByRefs,
@@ -19,16 +16,22 @@ import {
   setIsForAll,
   setLastAddedCreateItems,
   setLastAddedLeftItems,
+  setIsForAllCreateMenu,
+  setAuthoritiesCreateMenu,
   setLeftMenuItems,
   setLoading,
   setMenuIcons,
   setOriginalConfig,
   setUserMenuItems
-} from '../actions/menuSettings';
-import { selectMenuByType } from '../selectors/menu';
-import { getMenuConfig } from '../actions/menu';
+} from '@/actions/menuSettings';
+import { ConfigTypes, GROUP_EVERYONE, MenuSettings as ms } from '@/constants/menu';
+import MenuConverter from '@/dto/menu';
+import { t } from '@/helpers/util';
+import { selectMenuByType } from '@/selectors/menu';
+import MenuSettingsService from '@/services/MenuSettingsService';
+import { NotificationManager } from '@/services/notifications';
 
-function* fetchSettingsConfig({ api, logger }) {
+function* fetchSettingsConfig({ api }) {
   try {
     const id = yield select(state => state.menuSettings.editedId);
 
@@ -51,14 +54,16 @@ function* fetchSettingsConfig({ api, logger }) {
     yield put(setOriginalConfig(config));
     yield put(setLeftMenuItems(leftItems));
     yield put(setCreateMenuItems(createItems));
+    yield put(setAuthoritiesCreateMenu(get(config, 'menu.create.allowedFor'), []));
+    yield put(setIsForAllCreateMenu(isEmpty(config, 'menu.create.allowedFor'), []));
     yield put(setUserMenuItems(userMenuItems));
     yield put(setAuthorities(authorities));
     yield put(setMenuIcons({ font }));
-    yield put(setIsForAll(!authorities.length));
+    yield put(setIsForAll(isEmpty(authorities)));
   } catch (e) {
     yield put(setLoading(false));
     NotificationManager.error(t('menu-settings.error.get-config'), t('error'));
-    logger.error('[menu-settings / fetchSettingsConfig]', e);
+    console.error('[menu-settings / fetchSettingsConfig]', e);
   }
 }
 
@@ -67,13 +72,7 @@ function* runSaveMenuSettings(props, action) {
   const resultGlobal = yield runSaveGlobalSettings(props, action);
 
   if (![resultMenu, resultGlobal].includes(false)) {
-    const id = yield resultMenu.load('id');
-    const prevId = yield select(state => state.menuSettings.editedId);
-
-    if (id !== prevId) {
-      yield put(getMenuConfig());
-    }
-
+    yield put(getMenuConfig());
     MenuSettingsService.emitter.emit(MenuSettingsService.Events.HIDE);
     NotificationManager.success(t('menu-settings.success.save-all-menu-settings'), t('success'));
   }
@@ -81,33 +80,36 @@ function* runSaveMenuSettings(props, action) {
   yield put(setLoading(false));
 }
 
-function* runSaveMenuConfig({ api, logger }, action) {
+function* runSaveMenuConfig({ api }) {
   try {
     const id = yield select(state => state.menuSettings.editedId);
     const result = yield select(state => state.menuSettings.originalConfig);
     const leftItems = yield select(state => state.menuSettings.leftItems);
-    const createItems = yield select(state => state.menuSettings.createItems);
+    const createMenu = yield select(state => state.menuSettings.createMenu);
     const userMenuItems = yield select(state => state.menuSettings.userMenuItems);
     const authoritiesInfo = yield select(state => state.menuSettings.authorities);
     const authorities = authoritiesInfo.map(item => item.name);
     const newLeftItems = MenuConverter.getMenuItemsServer({ originalItems: get(result, 'menu.left.items'), items: leftItems });
-    const newCreateItems = MenuConverter.getMenuItemsServer({ originalItems: get(result, 'menu.create.items'), items: createItems });
+    const newCreateMenuItems = MenuConverter.getMenuItemsServer({
+      originalItems: get(result, 'menu.create.items'),
+      items: createMenu.items
+    });
     const newUserMenuItems = MenuConverter.getMenuItemsServer({ originalItems: get(result, 'menu.user.items'), items: userMenuItems });
     const subMenu = {};
 
     set(subMenu, 'left.items', newLeftItems);
-    set(subMenu, 'create.items', newCreateItems);
+    set(subMenu, 'create', { items: newCreateMenuItems, allowedFor: createMenu.authorities || [] });
     set(subMenu, 'user.items', newUserMenuItems);
 
     return yield call(api.menu.saveMenuSettingsConfig, { id, subMenu, authorities, version: result.version });
   } catch (e) {
     NotificationManager.error(t('menu-settings.error.save-config'), t('error'));
-    logger.error('[menu-settings / runSaveMenuSettings]', e);
+    console.error('[menu-settings / runSaveMenuSettings]', e);
     return false;
   }
 }
 
-function* runSaveGlobalSettings({ api, logger }, action) {
+function* runSaveGlobalSettings({ api }) {
   try {
     const _groupPriority = yield select(state => state.menuSettings.groupPriority);
 
@@ -120,12 +122,12 @@ function* runSaveGlobalSettings({ api, logger }, action) {
     return true;
   } catch (e) {
     NotificationManager.error(t('menu-settings.error.save-group-priority'), t('error'));
-    logger.error('[menu-settings / runSaveGlobalSettings]', e);
+    console.error('[menu-settings / runSaveGlobalSettings]', e);
     return false;
   }
 }
 
-function* runAddJournalMenuItems({ api, logger }, { payload }) {
+function* runAddJournalMenuItems({ api }, { payload }) {
   try {
     const { records, id, type, level, configType } = payload;
     const items = yield select(state => selectMenuByType(state, configType));
@@ -165,11 +167,11 @@ function* runAddJournalMenuItems({ api, logger }, { payload }) {
   } catch (e) {
     yield put(setLoading(false));
     NotificationManager.error(t('menu-settings.error.set-items-from-journal'), t('error'));
-    logger.error('[menu-settings / runAddJournalMenuItems]', e);
+    console.error('[menu-settings / runAddJournalMenuItems]', e);
   }
 }
 
-function* fetchGroupPriority({ api, logger }) {
+function* fetchGroupPriority({ api }) {
   try {
     const authorities = yield select(state => state.menuSettings.authorities || []);
     const groupPriority = yield call(api.menu.getFullGroupPriority, { authorities });
@@ -178,11 +180,11 @@ function* fetchGroupPriority({ api, logger }) {
   } catch (e) {
     yield put(setGroupPriority(MenuConverter.getGroupPriorityConfigWeb([])));
     NotificationManager.error(t('menu-settings.error.get-group-priority'), t('error'));
-    logger.error('[menu-settings / fetchGroupPriority]', e);
+    console.error('[menu-settings / fetchGroupPriority]', e);
   }
 }
 
-function* fetchAuthorityInfoByRefs({ api, logger }, { payload = [] }) {
+function* fetchAuthorityInfoByRefs({ api }, { payload = [] }) {
   try {
     yield put(setAuthorities(payload.map(ref => ({ ref }))));
 
@@ -192,7 +194,7 @@ function* fetchAuthorityInfoByRefs({ api, logger }, { payload = [] }) {
       yield put(setAuthorities(authorities));
     }
   } catch (e) {
-    logger.error('[menu-settings / fetchAuthorityInfoByRefs]', e);
+    console.error('[menu-settings / fetchAuthorityInfoByRefs]', e);
   }
 }
 

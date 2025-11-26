@@ -1,5 +1,8 @@
-import JC from '../journals';
+/**
+ * @jest-environment jsdom
+ */
 import { PREDICATE_AND, PREDICATE_CONTAINS, PREDICATE_OR } from '../../components/Records/predicates/predicates';
+import JC from '../journals';
 
 const check = (methodName, data) => {
   data.forEach(test => {

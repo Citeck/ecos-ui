@@ -16,7 +16,7 @@
       &::after {
         content: '*';
         padding-left: 5px;
-        color: $color-blue-dark;
+        color: var(--primary-color);
       }
     }
   }
@@ -28,6 +28,10 @@
   &__buttons {
     display: flex;
     justify-content: space-between;
+  }
+
+  & .assoc-value {
+    width: auto;
   }
 }
 

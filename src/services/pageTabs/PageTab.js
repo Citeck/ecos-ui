@@ -1,9 +1,10 @@
-import uuidv4 from 'uuid/v4';
+import uuidv4 from 'uuidv4';
 
-import { decodeLink } from '../../helpers/urls';
 import PageService from '../PageService';
-import { t } from '../../helpers/export/util';
-import { TITLE } from '../../constants/pageTabs';
+
+import { TITLE } from '@/constants/pageTabs';
+import { t } from '@/helpers/export/util';
+import { decodeLink } from '@/helpers/urls';
 
 /**
  * @define Describe One Application Tab
@@ -40,7 +41,7 @@ export default class PageTab {
   }
 
   get uniqueKey() {
-    return PageService.keyId({ link: this.link, wsId: this.workspace });
+    return PageService.keyId({ link: this.link, workspace: this.workspace });
   }
 
   get storage() {

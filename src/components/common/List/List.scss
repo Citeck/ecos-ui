@@ -58,13 +58,13 @@
     }
 
     &:hover {
-      background: $color-blue-light;
+      background-color: var(--dark-primary-color);
       color: $color-white;
       border-radius: $border-radius-standard;
     }
 
     &.list-group-item_selected {
-      background: $color-blue-light;
+      background-color: var(--light-primary-color);
       color: $color-white;
       border-radius: $border-radius-standard;
     }

@@ -1,31 +1,57 @@
+import { WidgetsKeys } from '@/constants/widgets';
+
+export const DEFAULT_TABLE_WIDGETS = [WidgetsKeys.DOC_PREVIEW];
+export const ALLOW_WIDGETS_PREVIEW = [
+  WidgetsKeys.TASKS,
+  WidgetsKeys.PROPERTIES,
+  WidgetsKeys.DOC_ASSOCIATIONS,
+  WidgetsKeys.PUBLICATION,
+  WidgetsKeys.COMMENTS,
+  WidgetsKeys.HIERARCHICAL_TREE,
+  WidgetsKeys.DOC_PREVIEW
+];
+
 export const DEFAULT_PAGINATION = {
   skipCount: 0,
   maxItems: 10,
   page: 1
 };
 
-export const PAGINATION_SIZES = [{ value: 10, label: 10 }, { value: 30, label: 30 }, { value: 50, label: 50 }, { value: 100, label: 100 }];
+export const PAGINATION_SIZES = [
+  { value: 10, label: 10 },
+  { value: 30, label: 30 },
+  { value: 50, label: 50 },
+  { value: 100, label: 100 }
+];
 
 export const MIN_CARD_DATA_NEW_JOURNAL = 6;
 
 export const PADDING_NEW_JOURNAL = 10;
+export const PADDING_LIST_VIEW = 20;
 export const HEIGHT_GRID_WRAPPER = 15;
+export const HEIGHT_BREADCRUMBS = 44;
 export const HEIGHT_GRID_ROW = 28;
 export const HEIGHT_THEAD = 35;
 export const MAX_HEIGHT_TOTAL_AMOUNT = 40;
 export const ECOS_GRID_PADDING_HORIZONTAL = 14;
 
-export const HEIGHT_LIST_VIEW_ITEM = 134 + 18; // 18px - gap
+export const LIST_VIEW_ITEM_GAP = 18;
+export const HEIGHT_LIST_VIEW_ITEM = 134 + LIST_VIEW_ITEM_GAP;
 
-export const CLASSNAME_JOURNAL_BODY_TOP = 'ecos-journal__body-top';
+export const INITIAL_WIDTH_DASHBOARD = 30; // %
 
-export const DEFAULT_INLINE_TOOL_SETTINGS = {
-  height: 0,
-  top: 0,
-  left: 0,
-  row: {},
-  actions: []
+// sizes with tiles content
+export const PADDING_WELL_TILES_PREVIEW_LIST = 4;
+export const HEIGHT_HEADER_TILES_PREVIEW_LIST = 43;
+export const SIZE_LISTVIEW_ITEM_TILES = {
+  SIMPLE: {
+    height: 256 + 12 / 2, // max-height + gap
+    width: 218 + 12 / 2 // max-width + gap
+  }
 };
+
+export const CLASSNAME_PREVIEW_LIST_CARD = 'citeck-preview-list-content__card';
+export const CLASSNAME_JOURNAL_BODY_TOP = 'ecos-journal__body-top';
 
 export const JOURNAL_MIN_HEIGHT = 300;
 export const JOURNAL_MIN_HEIGHT_MOB = 450;
@@ -35,7 +61,8 @@ export const JOURNAL_VIEW_MODE = {
   PREVIEW: 'table-preview',
   DOC_LIB: 'document-library',
   PREVIEW_LIST: 'preview-list',
-  KANBAN: 'kanban'
+  KANBAN: 'kanban',
+  WIDGETS: 'widgets-preview'
 };
 
 export const KANBAN_SELECTOR_MODE = {
@@ -55,6 +82,8 @@ export const Labels = {
   Kanban: {
     BAR_TOTAL: 'kanban.label.big-total',
     NO_COLUMNS: 'kanban.label.no-columns',
+    COLUMNS_SUM: 'kanban.label.columns-sum',
+    COLUMNS_SUM_BY: 'kanban.label.columns-sum.by',
     COL_NO_CARD: 'kanban.label.no-card',
     COL_NO_MORE_CARDS: 'kanban.label.no-more-cards',
     CARD_NO_TITLE: 'kanban.label.no-name',
@@ -67,10 +96,10 @@ export const Labels = {
   },
   Views: {
     JOURNAL: 'journals.view.label.journal',
-    PREVIEW: 'journals.view.label.journal-preview',
     PREVIEW_LIST: 'journals.view.label.preview-list',
     DOC_LIB: 'journals.view.label.document-library',
-    KANBAN: 'journals.view.label.kanban'
+    KANBAN: 'journals.view.label.kanban',
+    WIDGETS_SETTINGS: 'journals.view.label.widgets-settings'
   },
   Menu: {
     HIDE_MENU: 'journals.action.hide-menu',
@@ -89,7 +118,7 @@ export const Labels = {
     //editor
     FIELD_NAME: 'journal.presets.modal.field.name',
     FIELD_AUTH: 'journal.presets.modal.field.authority',
-    FIELD_ALL_AUTH: 'journal.presets.modal.field.authorities',
+    FIELD_WORKSPACES: 'journal.presets.modal.field.workspaces',
     BTN_CLOSE: 'journal.presets.modal.btn.cancel',
     BTN_SAVE: 'journal.presets.modal.btn.save',
     //list
@@ -102,11 +131,13 @@ export const Labels = {
 };
 
 export const isTable = vm => vm === JOURNAL_VIEW_MODE.TABLE;
-export const isPreview = vm => vm === JOURNAL_VIEW_MODE.PREVIEW;
 export const isDocLib = vm => vm === JOURNAL_VIEW_MODE.DOC_LIB;
+export const isPreview = vm => vm === JOURNAL_VIEW_MODE.PREVIEW;
 export const isKanban = vm => vm === JOURNAL_VIEW_MODE.KANBAN;
+export const isKanbanOrDocLib = vm => isKanban(vm) || isDocLib(vm);
 export const isPreviewList = vm => vm === JOURNAL_VIEW_MODE.PREVIEW_LIST;
-export const isTableOrPreview = vm => isTable(vm) || isPreview(vm);
+export const isWidgetsPreview = vm => vm === JOURNAL_VIEW_MODE.WIDGETS;
+export const isTableOrPreview = vm => isTable(vm) || isWidgetsPreview(vm);
 export const isUnknownView = vm => !Object.values(JOURNAL_VIEW_MODE).includes(vm);
 
 export const relatedViews = [JOURNAL_VIEW_MODE.TABLE, JOURNAL_VIEW_MODE.KANBAN];

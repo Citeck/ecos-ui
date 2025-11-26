@@ -7,12 +7,33 @@
   width: 100%;
   flex-wrap: wrap;
 
-  &_new {
+  &-actions {
+    display: inline-flex;
     align-items: center;
-    background-color: $color-white;
+    gap: 12px;
+
+    &.full-width {
+      gap: 6px;
+      width: 100%;
+      justify-content: space-between;
+
+      .ecos-dropdown {
+        width: 100%;
+      }
+    }
+  }
+
+  &_new {
+    flex-wrap: nowrap;
+    align-items: center;
+    background-color: var(--main-bg-color);
     border-radius: 12px 12px 0 0;
     margin-bottom: 0;
     padding: 2px 6px;
+
+    .ecos-journal__view-tabs {
+      display: inline-flex;
+    }
 
     .ecos-btn-settings-filter-on,
     .ecos-btn-settings-filter-on:hover {
@@ -20,7 +41,7 @@
 
       path,
       ellipse {
-        stroke: $color-blue-dark !important;
+        stroke: var(--primary-color) !important;
       }
     }
 
@@ -30,7 +51,7 @@
     }
     #{$root}-template-btn.ecos-btn {
       border-radius: $border-radius-standard;
-      width: 156px;
+      max-width: 156px;
 
       .ecos-btn__text {
         width: 100%;
@@ -47,6 +68,7 @@
     .ecos-btn_drop-down {
       font-size: 11px;
       line-height: 9px;
+      border: 1px solid $color-gray-4;
 
       .ecos-dropdown__toggle-label {
         padding: 0;
@@ -134,6 +156,11 @@
   .ecos-btn.ecos-journal__add-record {
     font-size: $font-size-xxl;
     min-width: 40px;
+
+    svg path {
+      fill: $color-gray-5;
+      stroke: $color-gray-5;
+    }
   }
 
   .ecos-journal__icon-small-down i:last-child {
@@ -149,6 +176,8 @@
       width: 200px;
     }
 
+    min-width: 78px;
+
     & ~ :nth-child(n) {
       transition: all 0.4s, opacity 0.2s;
     }
@@ -156,7 +185,7 @@
 
   &-export-btn.ecos-btn {
     min-width: 70px;
-    background: $color-white;
+    background-color: $color-white;
   }
 
   &-right-side {
@@ -245,7 +274,7 @@
   justify-content: center;
 
   &:hover {
-    background-color: $color-blue-dark !important;
+    background-color: var(--primary-color) !important;
   }
 
   i {
@@ -267,10 +296,18 @@
     margin-right: 0 !important;
   }
 
+  &_focus {
+    svg path {
+      color: $color-white !important;
+      stroke: $color-white !important;
+    }
+  }
+
   &.create,
   &.export {
     width: 48px;
     padding: 0;
+    border: 1px solid $color-gray-4;
 
     > span {
       padding: 0;
@@ -298,8 +335,8 @@
 
   &.search {
     justify-content: flex-start;
-    padding: 14px 9px;
-    border: 0;
+    padding: 12px 8px;
+    border: 1px solid $color-gray-4;
 
     &:hover,
     &:hover i {
@@ -309,26 +346,38 @@
 
     &:focus-within {
       i {
-        color: $color-blue-dark !important;
+        color: var(--primary-color) !important;
       }
     }
 
     > i {
-      top: 5px;
+      top: 3px;
     }
 
     i:last-child {
-      top: 0;
+      top: -2px;
     }
 
     .search__input {
+      left: 28px;
       font-size: 11px !important;
       background-color: $color-gray-25;
     }
   }
 
+  &.shape {
+    svg path {
+      stroke: $color-gray-5 !important;
+    }
+
+    &:hover svg path {
+      stroke: $color-white !important;
+    }
+  }
+
   &.filter,
   &.shape {
+    border: 1px solid $color-gray-4;
     border-radius: $border-radius-standard;
     min-width: 28px !important;
     min-height: 28px !important;
@@ -341,11 +390,11 @@
   }
 
   &.filter:hover {
-    background-color: $color-blue-dark !important;
+    background-color: var(--primary-color) !important;
 
     path,
     ellipse {
-      fill: $color-blue-dark;
+      fill: var(--primary-color);
       stroke: $color-white !important;
     }
   }
@@ -358,12 +407,12 @@
   &_selected {
     > span,
     > i {
-      color: $color-blue-dark;
+      color: var(--primary-color);
     }
   }
 
   &_focus {
-    background-color: $color-blue-dark !important;
+    background-color: var(--primary-color) !important;
 
     path,
     i,
@@ -380,10 +429,78 @@
 }
 
 .ecos-btn-settings-filter-on:hover i::before {
-  color: $color-blue-dark;
+  color: var(--primary-color);
   background-color: $color-white;
 }
 
 .ecos-btn-settings-filter-on:hover {
   background-color: $color-white !important;
+}
+
+.overflow-menu {
+  &_dropdown {
+    background: rgba($color-white, 0.95);
+    box-shadow: $box-shadow-default;
+    padding: 6px 0;
+    border-radius: 6px;
+    border: none;
+    max-width: 200px;
+  }
+  &_dropdown-content {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 0 6px;
+
+    .ecos-dropdown-outer {
+      margin: 0;
+    }
+  }
+  &_btn-toggle {
+    $btn: &;
+    padding: 0 12px;
+    height: 28px;
+    border: none !important;
+    box-shadow: none !important;
+    background-color: $color-gray-25 !important;
+    border-radius: 6px !important;
+    transition: none;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+
+    &:hover,
+    &.active {
+      background-color: var(--primary-color) !important;
+
+      #{$btn}_text {
+        color: $color-white;
+      }
+
+      & > svg > path {
+        fill: $color-white;
+      }
+    }
+
+    &_text {
+      color: $text-color-gray;
+      font-weight: 600;
+      font-size: 11px;
+    }
+
+    & > svg > path {
+      fill: $color-gray-5;
+    }
+  }
+}
+
+.full-width {
+  width: 100%;
+  max-width: 100%;
+
+  .ecos-btn {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
 }

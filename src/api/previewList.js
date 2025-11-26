@@ -1,5 +1,6 @@
-import { CommonApi } from './common';
 import Records from '../components/Records';
+
+import { CommonApi } from './common';
 
 export const PREVIEW_LIST_ASPECT_ATTRIBUTES = {
   title: `titleAtt`,

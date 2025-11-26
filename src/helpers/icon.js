@@ -1,6 +1,6 @@
-import isString from 'lodash/isString';
-import isObject from 'lodash/isObject';
 import isEmpty from 'lodash/isEmpty';
+import isObject from 'lodash/isObject';
+import isString from 'lodash/isString';
 
 import { SourcesId, TMP_ICON_EMPTY } from '../constants';
 
@@ -29,7 +29,7 @@ export function getIconObjectWeb(data) {
 
 export function getIconRef(icon) {
   if (isObject(icon)) {
-    const source = icon.type === 'img' ? SourcesId.ICON : SourcesId.FONT_ICON;
+    const source = icon.type === 'img' || (icon.type === 'icon' && !!icon.url) ? SourcesId.ICON : SourcesId.FONT_ICON;
     const value = icon.value;
 
     return `${source}@${value}`;

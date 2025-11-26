@@ -1,5 +1,6 @@
+import { render } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { shallow } from 'enzyme';
 
 import DocLibBreadcrumbs from '../DocLibBreadcrumbs';
 
@@ -17,38 +18,38 @@ const demoItems = [
 describe('DocLibBreadcrumbs tests', () => {
   describe('<DocLibBreadcrumbs />', () => {
     it('should render DocLibBreadcrumbs component', () => {
-      const component = shallow(<DocLibBreadcrumbs />);
-      expect(component).toMatchSnapshot();
+      const { container } = render(<DocLibBreadcrumbs />);
+      expect(container).toMatchSnapshot();
     });
 
     it('should render all items', () => {
-      const component = shallow(<DocLibBreadcrumbs path={demoItems} />);
-      expect(component.find('.ecos-doclib__breadcrumbs-link')).toHaveLength(demoItems.length);
-      expect(component.find('.ecos-doclib__breadcrumbs-link-separator')).toHaveLength(demoItems.length);
+      const { container } = render(<DocLibBreadcrumbs path={demoItems} />);
+      expect(container.getElementsByClassName('ecos-doclib__breadcrumbs-link')).toHaveLength(demoItems.length);
+      expect(container.getElementsByClassName('ecos-doclib__breadcrumbs-link-separator')).toHaveLength(demoItems.length);
     });
 
     it('should render item label', () => {
-      const component = shallow(<DocLibBreadcrumbs path={demoItems} />);
-      const elementIndex = 0;
-      const link = component.find('.ecos-doclib__breadcrumbs-link').at(elementIndex);
-      expect(link.text()).toBe(demoItems[elementIndex].disp);
+      const { container, asFragment } = render(<DocLibBreadcrumbs path={demoItems} />);
+      const link = container.getElementsByClassName('ecos-doclib__breadcrumbs-link');
+      expect(link[0].textContent).toBe(demoItems[0].disp);
+      expect(asFragment()).toMatchSnapshot();
     });
 
     it('should render null if empty path', () => {
-      const component = shallow(<DocLibBreadcrumbs path={[]} />);
-      expect(component.isEmptyRender()).toBe(true);
+      const { container, asFragment } = render(<DocLibBreadcrumbs path={[]} />);
+      expect(container.outerHTML).toBe('<div></div>');
+      expect(asFragment()).toMatchSnapshot();
     });
 
-    it(`should call 'onClick' when click by item`, () => {
+    it(`should call 'onClick' when click by item`, async () => {
+      const user = userEvent.setup();
+
       const onClick = jest.fn();
       const elementIndex = 0;
-      const component = shallow(<DocLibBreadcrumbs path={demoItems} onClick={onClick} />);
-      component
-        .find('.ecos-doclib__breadcrumbs-link')
-        .at(elementIndex)
-        .simulate('click', {
-          preventDefault: () => {}
-        });
+      const { container } = render(<DocLibBreadcrumbs path={demoItems} onClick={onClick} />);
+
+      await user.click(container.getElementsByClassName('ecos-doclib__breadcrumbs-link')[0]);
+
       expect(onClick).toHaveBeenCalledTimes(1);
       expect(onClick).toHaveBeenCalledWith(demoItems[elementIndex].id);
     });

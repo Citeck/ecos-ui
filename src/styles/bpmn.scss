@@ -30,6 +30,36 @@
   }
 }
 
+.bpmn-icon-ai {
+  position: relative;
+
+  &::after {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    background: url('/bpmn-editor/images/ai_icon.svg') no-repeat;
+    background-position: center;
+    background-size: contain;
+  }
+}
+
+.bpmn-icon-ai-task {
+  position: relative;
+
+  &::before {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    background: url('/bpmn-editor/images/ai_icon.svg') no-repeat;
+    background-position: center;
+    background-size: contain;
+  }
+}
+
 .djs-palette {
   z-index: 900;
 
@@ -44,6 +74,26 @@
   }
 
   .bpmn-icon-set-status-task {
+    &::before {
+      background-size: inherit;
+    }
+
+    &:hover::after {
+      filter: invert(0.45) sepia(0.6) saturate(5) hue-rotate(175deg);
+    }
+  }
+
+  .bpmn-icon-ai {
+    &::after {
+      background-size: inherit;
+    }
+
+    &:hover::after {
+      filter: invert(0.45) sepia(0.6) saturate(5) hue-rotate(175deg);
+    }
+  }
+
+  .bpmn-icon-ai-task {
     &::before {
       background-size: inherit;
     }
@@ -87,7 +137,7 @@
     }
 
     .bjs-crumb {
-      color: $color-blue-dark;
+      color: var(--primary-color);
       cursor: pointer;
     }
 

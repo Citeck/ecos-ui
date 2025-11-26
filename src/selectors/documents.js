@@ -1,13 +1,13 @@
 import get from 'lodash/get';
-import omit from 'lodash/omit';
 import isEmpty from 'lodash/isEmpty';
+import omit from 'lodash/omit';
 import { createSelector } from 'reselect';
 
-import { initialState } from '../reducers/documents';
-import { getOutputFormat } from '../helpers/util';
-import { t } from '../helpers/export/util';
-import { documentFields, Labels, statusesKeys } from '../constants/documents';
 import { DataFormatTypes } from '../constants';
+import { documentFields, Labels, statusesKeys } from '../constants/documents';
+import { t } from '../helpers/export/util';
+import { getOutputFormat } from '../helpers/util';
+import { initialState } from '../reducers/documents';
 
 const selectState = (state, key) => get(state, ['documents', key], { ...initialState });
 const getIsLoadChecklist = ownState => {
@@ -54,7 +54,7 @@ export const selectStateByKey = createSelector(selectState, ownState => {
 const getDynamicTypes = state => get(state, 'dynamicTypes', []);
 const getDocumentsByTypes = state => get(state, 'documentsByTypes');
 const selectDocuments = createSelector(selectState, getDocumentsByTypes);
-const selectActions = createSelector(selectState, ownProps => get(ownProps, 'actions', {}));
+export const selectActions = createSelector(selectState, ownProps => get(ownProps, 'actions', {}));
 
 export const selectDynamicTypes = createSelector(selectState, getDynamicTypes);
 
@@ -142,7 +142,11 @@ export const selectAvailableTypes = createSelector(selectState, getAvailableType
 export const selectActionsByType = (state, key, type) => {
   const availableTypes = getAvailableTypes(selectState(state, key)) || [];
 
-  return get(availableTypes.find(item => item.id === type), 'actions', []);
+  return get(
+    availableTypes.find(item => item.id === type),
+    'actions',
+    []
+  );
 };
 
 export const selectActionsByTypes = (state, key, types) => {
@@ -157,7 +161,11 @@ export const selectActionsByTypes = (state, key, types) => {
 export const selectActionsDynamicType = (state, key, type) => {
   const dynamicTypes = getDynamicTypes(selectState(state, key)) || [];
 
-  return get(dynamicTypes.find(item => item.type === type), 'actions', []);
+  return get(
+    dynamicTypes.find(item => item.type === type),
+    'actions',
+    []
+  );
 };
 
 export const selectActionsDynamicTypes = (state, key, types) => {
@@ -193,7 +201,10 @@ export const selectGroupedAvailableTypes = createSelector(getAvailableTypes, get
         ...item,
         ...dTypeParams,
         isSelected: selectedTypes.includes(item.id),
-        items: getChildren(types.filter(type => type.parent && type.parent === item.id), types)
+        items: getChildren(
+          types.filter(type => type.parent && type.parent === item.id),
+          types
+        )
       };
     });
   };
@@ -213,7 +224,10 @@ export const selectGroupedAvailableTypes = createSelector(getAvailableTypes, get
         ...item,
         ...dTypeParams,
         isSelected: selectedTypes.includes(item.id),
-        items: getChildren(availableTypes.filter(type => type.parent === item.id), availableTypes)
+        items: getChildren(
+          availableTypes.filter(type => type.parent === item.id),
+          availableTypes
+        )
       };
     });
 });
@@ -250,15 +264,9 @@ export const selectFilteredTypes = createSelector(
     if (!isEmpty(text)) {
       filteredTypes = filteredTypes.filter(type => {
         return (
-          get(type, 'name', '')
-            .toLowerCase()
-            .includes(text) ||
-          get(type, documentFields.loadedBy, '')
-            .toLowerCase()
-            .includes(text) ||
-          get(type, documentFields.modified, '')
-            .toLowerCase()
-            .includes(text)
+          get(type, 'name', '').toLowerCase().includes(text) ||
+          get(type, documentFields.loadedBy, '').toLowerCase().includes(text) ||
+          get(type, documentFields.modified, '').toLowerCase().includes(text)
         );
       });
     }

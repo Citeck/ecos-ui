@@ -53,11 +53,11 @@
 
   &-action {
     &__text {
-      color: $color-blue-dark;
+      color: var(--primary-color);
       cursor: pointer;
 
       &:hover {
-        color: $color-blue-dark2;
+        color: var(--primary-color);
       }
     }
   }

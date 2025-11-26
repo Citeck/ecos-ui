@@ -62,7 +62,7 @@
           cursor: pointer;
 
           #{$item}-name {
-            color: $color-blue-dark;
+            color: var(--primary-color);
           }
         }
       }

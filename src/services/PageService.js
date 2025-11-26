@@ -1,12 +1,16 @@
-import queryString from 'query-string';
 import get from 'lodash/get';
-import isString from 'lodash/isString';
 import isArray from 'lodash/isArray';
+import isNil from 'lodash/isNil';
+import isString from 'lodash/isString';
+import queryString from 'query-string';
 
-import { SourcesId, URL } from '../constants';
-import { IGNORE_TABS_HANDLER_ATTR_NAME, LINK_HREF, LINK_TAG, OPEN_IN_BACKGROUND, TITLE } from '../constants/pageTabs';
-import { SectionTypes } from '../constants/adminSection';
-import { getCurrentUserName, getEnabledWorkspaces, getMLValue, t } from '../helpers/util';
+import { PageApi } from '@/api/page';
+import { JOURNAL_VIEW_MODE as JVM } from '@/components/Journals/constants';
+import Records from '@/components/Records';
+import { JournalUrlParams as JUP, SourcesId, URL } from '@/constants';
+import { SectionTypes } from '@/constants/adminSection';
+import { IGNORE_TABS_HANDLER_ATTR_NAME, LINK_HREF, LINK_TAG, OPEN_IN_BACKGROUND, TITLE } from '@/constants/pageTabs';
+import { getData, isExistLocalStorage, setData } from '@/helpers/ls';
 import {
   decodeLink,
   getLinkWithout,
@@ -15,10 +19,8 @@ import {
   getWorkspaceId,
   IgnoredUrlParams,
   isNewVersionPage
-} from '../helpers/urls';
-import { getData, isExistLocalStorage, setData } from '../helpers/ls';
-import { PageApi } from '../api/page';
-import Records from '../components/Records';
+} from '@/helpers/urls';
+import { getBool, getCurrentUserName, getEnabledWorkspaces, getMLValue, t } from '@/helpers/util';
 
 const pageApi = new PageApi();
 
@@ -61,6 +63,7 @@ const TYPE_TITLES = {
 
 export default class PageService {
   static eventIsDispatched = false;
+  static beforeUrlChangeGuards = [];
 
   static getType(link) {
     const _link = link || window.location.href;
@@ -180,12 +183,18 @@ export default class PageService {
     }
   }
 
-  static keyId({ link, type, key, wsId }) {
+  static keyId({ link, type, key, workspace: wsId }) {
     const _type = type || PageService.getType(link);
     const _key = key || PageService.getKey({ link, type });
     const _wsId = wsId || getWorkspaceId();
 
     if (getEnabledWorkspaces()) {
+      const [source, value] = _key.split('@');
+
+      if (source.includes('wiki')) {
+        return `${_type}-wiki-${_wsId}`;
+      }
+
       return `${_type}-${_key}-${_wsId}`;
     }
 
@@ -237,7 +246,26 @@ export default class PageService {
           journalId = PageService.getRef(link);
         }
 
-        return pageApi.getJournalTitle(journalId, force).then(title => `${t(TITLE.JOURNAL)} "${convertTitle(title)}"`);
+        const separator = '?';
+        const searchParams = new URLSearchParams(link && link.includes(separator) ? separator + link.split(separator)[1] : '');
+        const viewMode = searchParams.get(JUP.VIEW_MODE);
+
+        let previewTextKey;
+        switch (viewMode) {
+          case JVM.PREVIEW_LIST:
+            previewTextKey = TITLE.PREVIEW_LIST;
+            break;
+          case JVM.DOC_LIB:
+            previewTextKey = TITLE.DOC_LIB;
+            break;
+          case JVM.KANBAN:
+            previewTextKey = TITLE.KANBAN;
+            break;
+          default:
+            previewTextKey = TITLE.JOURNAL;
+        }
+
+        return pageApi.getJournalTitle(journalId, force).then(title => `${t(previewTextKey)} "${convertTitle(title)}"`);
       }
     },
     [PageTypes.TIMESHEET]: {
@@ -316,12 +344,61 @@ export default class PageService {
     PageService.eventIsDispatched = true;
 
     try {
-      CHANGE_URL.params = { link: decodeLink(link), ...params };
+      const fullParams = { link: decodeLink(link), ...params };
+      CHANGE_URL.params = fullParams;
+
+      if (this.beforeUrlChangeGuards.length) {
+        this.beforeUrlChangeGuards
+          .reduce((prevP, guard) => {
+            return prevP.then(() =>
+              Promise.resolve(guard.fn(fullParams, guard.tabId || null)).then(result => {
+                if (result === false) {
+                  throw new Error('__GUARD_CANCEL__');
+                }
+                return;
+              })
+            );
+          }, Promise.resolve())
+          .then(() => {
+            document.dispatchEvent(CHANGE_URL);
+          })
+          .catch(err => {
+            if (err && err.message === '__GUARD_CANCEL__') {
+              return;
+            }
+            console.error('guard chain error:', err);
+          });
+
+        return;
+      }
+
       document.dispatchEvent(CHANGE_URL);
     } finally {
       PageService.eventIsDispatched = false;
     }
   };
+
+  /** Prevents history changes. Allows controlling when the history should change using a promise-based function
+   * @param guardFn {function(*): Promise<unknown>}
+   * @param tabId {string}
+   **/
+  static registerUrlChangeGuard(guardFn, tabId) {
+    // To avoid duplication of promises, it is necessary to give the same link to the function!
+    const exists = !!PageService.beforeUrlChangeGuards.find(guard => guard.fn === guardFn || (tabId && guard.tabId === tabId));
+    if (!exists) {
+      PageService.beforeUrlChangeGuards.push({ fn: guardFn, tabId });
+    }
+  }
+
+  static clearUrlChangeGuards() {
+    PageService.beforeUrlChangeGuards = [];
+  }
+
+  static clearUrlChangeGuard(tabId) {
+    if (!isNil(tabId)) {
+      PageService.beforeUrlChangeGuards = PageService.beforeUrlChangeGuards.filter(value => value.tabId !== tabId);
+    }
+  }
 
   /**
    * Create link params from event & extra params || make the transition
@@ -396,7 +473,7 @@ export default class PageService {
       elem = event.target.closest('a[href]');
     }
 
-    if (!elem || elem.tagName !== LINK_TAG || !!elem.getAttribute(linkIgnoreAttr)) {
+    if (!elem || elem.tagName !== LINK_TAG || !!getBool(elem.getAttribute(linkIgnoreAttr))) {
       return;
     }
 
@@ -479,7 +556,7 @@ export default class PageService {
 }
 
 function staticTitle(keyTitle) {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     setTimeout(() => {
       resolve(t(keyTitle));
     }, 80);

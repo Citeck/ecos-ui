@@ -46,10 +46,10 @@
 
       &.btn-primary {
         color: $color-white;
-        background-color: $color-blue-dark;
+        background-color: var(--primary-color);
 
         &:hover {
-          background-color: $color-blue-light;
+          background-color: var(--dark-primary-color);
         }
 
         &:focus {
@@ -57,7 +57,7 @@
         }
 
         &:active {
-          background-color: $color-blue-dark;
+          background-color: var(--light-primary-color);
         }
 
         &:disabled {

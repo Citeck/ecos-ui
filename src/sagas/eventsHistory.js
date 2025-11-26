@@ -1,9 +1,10 @@
 import { call, put, select, takeEvery } from 'redux-saga/effects';
+
 import { filterJournalHistory, getEventsHistory, getJournalHistory, setEventsHistory } from '../actions/eventsHistory';
-import { selectDataEventsHistoryByStateId } from '../selectors/eventsHistory';
 import JournalsService from '../components/Journals/service/journalsService';
-import JournalsConverter from '../dto/journals';
 import { PREDICATE_EQ } from '../components/Records/predicates/predicates';
+import JournalsConverter from '../dto/journals';
+import { selectDataEventsHistoryByStateId } from '../selectors/eventsHistory';
 import EventsHistoryService from '../services/eventsHistory';
 
 const getSettings = ({ predicates, record }) => {
@@ -16,7 +17,7 @@ const getSettings = ({ predicates, record }) => {
 /**
  * @deprecated
  */
-function* sagaGetEventsHistory({ api, logger }, { payload }) {
+function* sagaGetEventsHistory({ api }, { payload }) {
   const { record, stateId, columns } = payload;
 
   try {
@@ -25,11 +26,11 @@ function* sagaGetEventsHistory({ api, logger }, { payload }) {
     yield put(setEventsHistory({ stateId, list: res.data || [], columns: res.columns || [] }));
   } catch (e) {
     yield put(setEventsHistory({ stateId, list: [], columns: [] }));
-    logger.error('[eventHistory sagaGetEventsHistory saga] error', e);
+    console.error('[eventHistory sagaGetEventsHistory saga] error', e);
   }
 }
 
-function* sagaGetJournalHistory({ logger }, { payload }) {
+function* sagaGetJournalHistory({}, { payload }) {
   const { record, stateId, selectedJournal } = payload;
 
   try {
@@ -44,11 +45,11 @@ function* sagaGetJournalHistory({ logger }, { payload }) {
     yield put(setEventsHistory({ stateId, list: res.records || [], columns: journalConfig.columns, journalConfig }));
   } catch (e) {
     yield put(setEventsHistory({ stateId, list: [], columns: [] }));
-    logger.error('[eventHistory sagaGetJournalHistory saga] error', e);
+    console.error('[eventHistory sagaGetJournalHistory saga] error', e);
   }
 }
 
-function* sagaFilterJournalHistory({ logger }, { payload }) {
+function* sagaFilterJournalHistory({}, { payload }) {
   const { record, stateId, predicates } = payload;
 
   try {
@@ -59,7 +60,7 @@ function* sagaFilterJournalHistory({ logger }, { payload }) {
     yield put(setEventsHistory({ stateId, list: res.records || [] }));
   } catch (e) {
     yield put(setEventsHistory({ stateId, list: [] }));
-    logger.error('[eventHistory sagaFilterJournalHistory saga] error', e);
+    console.error('[eventHistory sagaFilterJournalHistory saga] error', e);
   }
 }
 

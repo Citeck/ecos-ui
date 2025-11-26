@@ -1,9 +1,10 @@
 import { is } from 'bpmn-js/lib/util/ModelUtil';
 import get from 'lodash/get';
 
-import { PREFIX_FIELD } from '../../../../../../constants/cmmn';
-import { t } from '../../../../../../helpers/util';
 import { BPMN_LINT_PREFIX } from '../constants';
+
+import { PREFIX_FIELD } from '@/constants/cmmn';
+import { t } from '@/helpers/util';
 
 const USER_TASK = 'bpmn:UserTask';
 
@@ -104,7 +105,7 @@ const userTaskManualDueDateBusinessTimeNoDuration = {
       const durationType = get(dueDateManualMeta, [ATT_DURATION_TYPE], '').trim();
 
       // should be selected workingDays or duration
-      if (durationType === DURATION_TYPE_BUSINESS && (!duration && !workingDays)) {
+      if (durationType === DURATION_TYPE_BUSINESS && !duration && !workingDays) {
         reporter.report(node.id, t('bpmn-linter.user-task.duration.manual-business-no-one-duration'));
       }
     };
@@ -200,8 +201,7 @@ export const userTaskCacheMap = {
   [`${BPMN_LINT_PREFIX}${userTaskManualDueDateCalendarTimeNoDuration.id}`]: userTaskManualDueDateCalendarTimeNoDuration.callback,
   [`${BPMN_LINT_PREFIX}${userTaskManualDueDateBusinessTimeNoDuration.id}`]: userTaskManualDueDateBusinessTimeNoDuration.callback,
   [`${BPMN_LINT_PREFIX}${userTaskManualDueDateBusinessTimeNoSchedule.id}`]: userTaskManualDueDateBusinessTimeNoSchedule.callback,
-  [`${BPMN_LINT_PREFIX}${
-    userTaskDueDateSelectedExpressionAndManualAtSameTime.id
-  }`]: userTaskDueDateSelectedExpressionAndManualAtSameTime.callback,
+  [`${BPMN_LINT_PREFIX}${userTaskDueDateSelectedExpressionAndManualAtSameTime.id}`]:
+    userTaskDueDateSelectedExpressionAndManualAtSameTime.callback,
   [`${BPMN_LINT_PREFIX}${userTaskDueDateIncorrectManualDurationInput.id}`]: userTaskDueDateIncorrectManualDurationInput.callback
 };

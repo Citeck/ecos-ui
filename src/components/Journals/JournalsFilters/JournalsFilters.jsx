@@ -1,14 +1,14 @@
-import React, { Component } from 'react';
-import isFunction from 'lodash/isFunction';
-import isEqual from 'lodash/isEqual';
-import isArray from 'lodash/isArray';
-import isObject from 'lodash/isObject';
 import get from 'lodash/get';
+import isArray from 'lodash/isArray';
+import isEqual from 'lodash/isEqual';
+import isFunction from 'lodash/isFunction';
+import isObject from 'lodash/isObject';
+import React, { Component } from 'react';
 
-import Filters from '../../Filters/Filters';
-import PanelBar from '../../common/PanelBar/PanelBar';
 import { t } from '../../../helpers/util';
 import { selectFilterGroup } from '../../../selectors/journals';
+import Filters from '../../Filters/Filters';
+import PanelBar from '../../common/PanelBar/PanelBar';
 
 import './JournalsFilters.scss';
 

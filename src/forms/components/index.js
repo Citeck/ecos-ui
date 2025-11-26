@@ -1,3 +1,4 @@
+/* eslint-disable */ // Eslint breaks the application (before initialization)
 import DefaultComponents from 'formiojs/components';
 import Components from 'formiojs/components/Components';
 import get from 'lodash/get';
@@ -8,7 +9,6 @@ import Button from './override/button';
 import { Column, Columns } from './override/columns';
 import Checkbox from './override/checkbox';
 import Currency from './override/currency';
-import DataMap from './override/datamap';
 import DateTime from './override/datetime';
 import Email from './override/email';
 import File from './override/file';
@@ -25,6 +25,7 @@ import TextField from './override/textfield';
 import Url from './override/url';
 import Hidden from './override/hidden';
 import DataGrid from './override/datagrid';
+import DataMap from './override/datamap';
 import EditGrid from './override/editgrid';
 
 import AsyncData from './custom/asyncData';
@@ -42,8 +43,6 @@ import ImportButton from './custom/importButton';
 import IncludeForm from './custom/includeForm';
 
 import { prepareComponents } from '../utils';
-
-import './Validator';
 
 const components = {
   ...DefaultComponents,
@@ -83,19 +82,19 @@ const components = {
   importButton: ImportButton,
   datagrid: DataGrid,
   editgrid: EditGrid,
-  includeForm: IncludeForm
+  includeForm: IncludeForm,
 };
 
 for (const key in components) {
   const component = components[key];
   const originEditForm = component.editForm;
 
-  component.editForm = function(...extend) {
+  component.editForm = function (...extend) {
     const result = originEditForm(...extend);
     const components = get(result, 'components.0.components');
 
     if (!isEmpty(components)) {
-      components.forEach(item => {
+      components.forEach((item) => {
         item.components = (item.components || []).sort((prev, next) => prev.weight - next.weight);
       });
     }

@@ -1,9 +1,9 @@
-import { NotificationManager } from 'react-notifications';
+import { NotificationManager } from '@/services/notifications';
 
-import PageService from '../../../../../../services/PageService';
 import { NEW_VERSION_PREFIX } from '../../../../../../helpers/export/urls';
-import actionsRegistry from '../../../actionsRegistry';
+import PageService from '../../../../../../services/PageService';
 import Records from '../../../../Records';
+import actionsRegistry from '../../../actionsRegistry';
 
 import '../../../index';
 import ViewAction from '../ViewAction';

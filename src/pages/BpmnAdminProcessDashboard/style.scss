@@ -14,4 +14,14 @@
   & .icon {
     font-size: 14px !important;
   }
+
+  & .model-badges {
+    &__item {
+      cursor: pointer;
+
+      &_incidents {
+        background-color: $color-red-2;
+      }
+    }
+  }
 }

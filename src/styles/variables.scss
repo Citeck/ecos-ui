@@ -1,0 +1,11 @@
+@use 'constants';
+
+:root {
+  --header-bg-color: #{constants.$color-blue-light};
+  --header-component-color: #{var(--primary-color)};
+  --main-bg-color: #{constants.$page-background-color};
+
+  --primary-color: #{constants.$primary};
+  --dark-primary-color: #{constants.$color-blue-light};
+  --light-primary-color: #{constants.$color-blue-light2};
+}

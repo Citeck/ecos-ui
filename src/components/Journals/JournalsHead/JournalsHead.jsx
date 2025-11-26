@@ -1,10 +1,10 @@
-import React from 'react';
 import classNames from 'classnames';
+import React from 'react';
 
 import { extractLabel } from '../../../helpers/util';
-import { Caption } from '../../common/form';
-import { IcoBtn } from '../../common/btns';
 import TitlePageLoader from '../../common/TitlePageLoader';
+import { IcoBtn } from '../../common/btns';
+import { Caption } from '../../common/form';
 
 import './JournalsHead.scss';
 
@@ -26,11 +26,7 @@ const JournalsHead = ({ isOpenMenu, title, isMobile, hasBtnMenu, hasBtnEdit, lab
       <div className="journals-head__space" />
       {hasBtnMenu && (
         <div className={classNames('journals-head__menu-btn', { 'journals-head__menu-btn_hidden': isOpenMenu })}>
-          <IcoBtn
-            onClick={onToggleMenu}
-            icon="icon-small-arrow-left"
-            className={'ecos-btn_light-blue ecos-btn_hover_dark-blue ecos-btn_narrow-t_standard ecos-btn_r_biggest'}
-          >
+          <IcoBtn onClick={onToggleMenu} icon="icon-small-arrow-left" className={'ecos-btn ecos-btn_narrow-t_standard ecos-btn_r_biggest'}>
             {labelBtnMenu}
           </IcoBtn>
         </div>

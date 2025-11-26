@@ -1,7 +1,8 @@
 import { call, put, select, takeLatest } from 'redux-saga/effects';
+
 import { getTotalCounts, setTotalCounts } from '../../actions/timesheet/common';
-import { selectUserName } from '../../selectors/user';
 import { TimesheetTypes } from '../../constants/timesheet';
+import { selectUserName } from '../../selectors/user';
 
 function* sagaGetTotalCounts({ api, logger }, { payload }) {
   try {
@@ -16,7 +17,7 @@ function* sagaGetTotalCounts({ api, logger }, { payload }) {
 
     yield put(setTotalCounts({ [TimesheetTypes.DELEGATED]: delegatedCount }));
   } catch (e) {
-    logger.error('[timesheetCommon sagaGetTotalCounts saga] error', e);
+    console.error('[timesheetCommon sagaGetTotalCounts saga] error', e);
   }
 }
 

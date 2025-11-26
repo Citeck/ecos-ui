@@ -1,28 +1,29 @@
-import React, { Component } from 'react';
 import classNames from 'classnames';
-import PropTypes from 'prop-types';
-import queryString from 'query-string';
 import get from 'lodash/get';
-import omit from 'lodash/omit';
+import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
-import isBoolean from 'lodash/isBoolean';
-import { NotificationManager } from 'react-notifications';
+import omit from 'lodash/omit';
+import PropTypes from 'prop-types';
+import queryString from 'query-string';
+import React, { Component } from 'react';
 
-import { instUserConfigApi as api } from '../../api/userConfig';
-import ConfigService, { ALFRESCO_ENABLED } from '../../services/config/ConfigService';
-import LicenseService from '../../services/license/LicenseService';
-import { URL } from '../../constants';
-import { t } from '../../helpers/util';
-import { decodeLink } from '../../helpers/urls';
-import JournalsConverter from '../../dto/journals';
-import recordActions from '../Records/actions/recordActions';
-import RecordsExportAction from '../Records/actions/handler/executor/RecordsExport';
-import journalsService from '../Journals/service/journalsService';
-import { Dropdown, Well } from '../common/form';
-import { CollapsibleList } from '../common';
-import { Labels } from '../Journals/constants';
 import ListItem from '../Journals/JournalsPresets/ListItem';
+import { Labels } from '../Journals/constants';
+import journalsService from '../Journals/service/journalsService';
+import RecordsExportAction from '../Records/actions/handler/executor/RecordsExport';
+import recordActions from '../Records/actions/recordActions';
+import { CollapsibleList } from '../common';
+import { Dropdown, Well } from '../common/form';
+
+import { instUserConfigApi as api } from '@/api/userConfig';
+import { URL } from '@/constants';
+import JournalsConverter from '@/dto/journals';
+import { decodeLink } from '@/helpers/urls';
+import { getTextByLocale, t } from '@/helpers/util';
+import ConfigService, { ALFRESCO_ENABLED } from '@/services/config/ConfigService';
+import LicenseService from '@/services/license/LicenseService';
+import { NotificationManager } from '@/services/notifications';
 
 import './Export.scss';
 
@@ -114,14 +115,20 @@ export default class Export extends Component {
     this.#actionsDoing.set(item.id, true);
 
     if (item.target) {
-      const { journalConfig } = this.props;
+      const { journalConfig, grid } = this.props;
       const recordsQuery = await journalsService.getRecordsQuery(journalConfig, this.getJSettings());
       const actionConfig = this.getActionConfig(item);
       const action = recordActions.getActionInfo({ type: RecordsExportAction.ACTION_ID, config: actionConfig });
 
       this.textInput.current.value = JSON.stringify(recordsQuery.query);
 
-      await recordActions.execForQuery(recordsQuery, action);
+      const actionContext = {
+        journalColumns: get(grid, 'columns', []),
+        journalName: getTextByLocale(get(journalConfig, 'name')),
+        journalId: get(grid, 'journalId')
+      };
+
+      await recordActions.execForQuery(recordsQuery, action, actionContext);
     } else if (isFunction(item.click)) {
       await item.click();
     }
@@ -212,7 +219,15 @@ export default class Export extends Component {
   render() {
     const { hasAlfresco, hasGroupActionsLicense, isOpenDropdown } = this.state;
     const { right, className, children, classNameBtn, isMobile, isViewNewJournal, loading, ...props } = this.props;
-    const attributes = omit(props, ['selectedItems', 'journalConfig', 'dashletConfig', 'grid', 'recordRef']);
+    const attributes = omit(props, [
+      'selectedItems',
+      'journalConfig',
+      'dashletConfig',
+      'grid',
+      'recordRef',
+      'getStateOpen',
+      'journalSetting'
+    ]);
 
     if (isMobile && isViewNewJournal) {
       return (

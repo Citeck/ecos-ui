@@ -1,10 +1,12 @@
-import inherits from 'inherits';
 import ReplaceMenuProvider from 'cmmn-js/lib/features/popup-menu/ReplaceMenuProvider';
 import { isManualActivation, isRepeatable } from 'cmmn-js/lib/util/ModelUtil';
+import inherits from 'inherits';
 
-import { extractLabel } from '../../../../../helpers/util';
 import * as CmmnUtils from '../../utils';
+
 import actionTypes from './action-types.json';
+
+import { extractLabel } from '@/helpers/util';
 
 /**
  * This module is an element agnostic replace menu provider for the popup menu.
@@ -24,7 +26,7 @@ inherits(CustomReplaceMenuProvider, ReplaceMenuProvider);
 
 CustomReplaceMenuProvider.$inject = ['popupMenu', 'cmmnReplace', 'cmmnFactory', 'modeling', 'rules', 'eventBus'];
 
-CustomReplaceMenuProvider.prototype.getEntries = function(element) {
+CustomReplaceMenuProvider.prototype.getEntries = function (element) {
   const eventBus = this._eventBus;
   const ecosType = CmmnUtils.getEcosType(element);
 
@@ -35,14 +37,14 @@ CustomReplaceMenuProvider.prototype.getEntries = function(element) {
   return actionTypes.map(actionType => ({
     id: `action_${actionType.id}`,
     label: extractLabel(actionType.name),
-    action: function() {
+    action: function () {
       element.businessObject.definitionRef.set('ecos:cmmnType', actionType.id);
       eventBus.fire('element.changed', { element });
     }
   }));
 };
 
-CustomReplaceMenuProvider.prototype.getHeaderEntries = function(element) {
+CustomReplaceMenuProvider.prototype.getHeaderEntries = function (element) {
   const self = this;
   const ecosType = CmmnUtils.getEcosType(element);
 
@@ -51,7 +53,7 @@ CustomReplaceMenuProvider.prototype.getHeaderEntries = function(element) {
   }
 
   function toggleControlEntry(control, type) {
-    return function(event, entry) {
+    return function (event, entry) {
       const value = {};
 
       if (entry.active) {
@@ -88,6 +90,6 @@ CustomReplaceMenuProvider.prototype.getHeaderEntries = function(element) {
 /**
  * Register replace menu provider in the popup menu
  */
-CustomReplaceMenuProvider.prototype.register = function() {
+CustomReplaceMenuProvider.prototype.register = function () {
   this._popupMenu.registerProvider('cmmn-replace', this);
 };

@@ -1,16 +1,17 @@
-import React, { Component } from 'react';
-import { Dropdown as Drd, DropdownMenu, DropdownToggle } from 'reactstrap';
 import classNames from 'classnames';
-import PropTypes from 'prop-types';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
-import uuidV4 from 'uuid/v4';
+import { Dropdown as Drd, DropdownMenu, DropdownToggle } from 'reactstrap';
+import uuidV4 from 'uuidv4';
 
+import { getIconUpDown } from '../../../../helpers/icon';
+import { getPropByStringKey, getTextByLocale, isMobileDevice } from '../../../../helpers/util';
 import { Tooltip } from '../../../common';
 import { IcoBtn, TwoIcoBtn } from '../../btns';
-import { getPropByStringKey, getTextByLocale, isMobileDevice } from '../../../../helpers/util';
-import { getIconUpDown } from '../../../../helpers/icon';
+
 import MenuItem from './MenuItem';
 
 import './Dropdown.scss';
@@ -33,6 +34,7 @@ export default class Dropdown extends Component {
     right: PropTypes.bool,
     full: PropTypes.bool,
     isButton: PropTypes.bool,
+    source: PropTypes.array,
     isStatic: PropTypes.bool,
     isLinks: PropTypes.bool,
     cascade: PropTypes.bool,
@@ -192,7 +194,7 @@ export default class Dropdown extends Component {
     return isStatic ? this.getStaticControl() : this.getControl(getPropByStringKey(this.selected, titleField));
   }
 
-  renderMenuItems() {
+  renderMenuItems = React.memo(() => {
     const {
       valueField,
       source = [],
@@ -224,7 +226,7 @@ export default class Dropdown extends Component {
         <ul>{filteredSource.map(this.renderMenuItem)}</ul>
       </Wrapper>
     );
-  }
+  });
 
   renderMenuItem = (item, i) => {
     const { CustomItem, titleField, valueField, value, itemClassName, otherFuncForCustomItem } = this.props;
@@ -259,7 +261,9 @@ export default class Dropdown extends Component {
         <DropdownToggle onClick={this.toggle} data-toggle="dropdown" aria-expanded={dropdownOpen} className={cssDropdownToggle} tag="span">
           {this.renderToggle()}
         </DropdownToggle>
-        <DropdownMenu className={this.cssDropdownMenu}>{this.renderMenuItems()}</DropdownMenu>
+        <DropdownMenu className={this.cssDropdownMenu}>
+          <this.renderMenuItems />
+        </DropdownMenu>
       </Drd>
     );
   }

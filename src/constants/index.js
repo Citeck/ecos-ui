@@ -1,12 +1,15 @@
-import { CITECK_URI } from './alfresco';
 import { SectionTypes } from './adminSection';
+import { CITECK_URI } from './alfresco';
 
 export const DEFAULT_EIS = Object.freeze({
   EIS_ID: 'EIS_ID',
   LOGOUT_URL: 'LOGOUT_URL'
 });
 
+export const MAX_WORKSPACE_PREVIEW_ITEMS = 8;
 export const BASE_URLS_REDIRECT = ['/', '/v2', '/v2/'];
+
+export const ADMIN_WORKSPACE_ID = 'admin$workspace';
 
 export const URL = {
   HOME: '/',
@@ -57,12 +60,16 @@ export const pagesWithOnlyContent = [
 ];
 
 export const SourcesId = {
+  AUTHORITY: 'emodel/authority',
+  FILL_TEMPLATE_VALUE: 'uiserv/fill-template-value',
   ADMIN_PAGE_SECTION: 'uiserv/admin-page-section',
   EAPPS_BUILD_INFO: 'eapps/build-info',
+  CATEGORY: 'emodel/category',
   DASHBOARD: 'uiserv/dashboard',
   DOCLIB: 'emodel/doclib',
   RESOLVED_FORM: 'uiserv/rform',
   FORM: 'uiserv/form',
+  WIKI: 'emodel/wiki',
   USER_CONF: 'uiserv/user-conf',
   MENU: 'uiserv/menu',
   RESOLVED_MENU: 'uiserv/rmenu',
@@ -72,10 +79,12 @@ export const SourcesId = {
   META: 'uiserv/meta',
   JOURNAL: 'uiserv/journal',
   RESOLVED_JOURNAL: 'uiserv/rjournal',
+  JOURNAL_SERVICE: 'uiserv/journals-service',
   BOARD: 'uiserv/board',
   RESOLVED_BOARD: 'uiserv/rboard',
   RESOLVED_TYPE: 'emodel/rtype',
   WORKSPACE: 'emodel/workspace',
+  WORKSPACE_SERVICE: 'emodel/workspace-service',
   TYPE: 'emodel/type',
   FONT_ICON: 'ui/icon',
   MODEL_META: 'emodel/meta',
@@ -86,6 +95,7 @@ export const SourcesId = {
   LEGACY_COMMENT: 'comment',
   EMODEL_COMMENT: 'emodel/comment',
   EMODEL_ACTIVITY: 'emodel/activity',
+  EMODEL_ACTIVITY_TYPE: 'emodel/activity-type',
   VERSION: 'emodel/version',
   VERSION_DIFF: 'emodel/version-diff',
   BIRTHDAYS: 'birthdays',
@@ -219,7 +229,8 @@ export const JournalUrlParams = {
   USER_CONFIG_ID: 'userConfigId',
   SHOW_PREVIEW: 'showPreview',
   SEARCH: 'search',
-  VIEW_MODE: 'viewMode'
+  VIEW_MODE: 'viewMode',
+  VIEW_WIDGET_PREVIEW: 'viewWidgets'
 };
 
 export const DocLibUrlParams = {
@@ -242,6 +253,7 @@ export const SystemJournals = {
   MENUS: 'ecos-menus',
   FORMS: 'ecos-forms',
   PROCESS: 'bpmn-process-latest',
+  WORKSPACES: 'workspaces-journal',
   PROCESS_ELMS: 'bpmn-process-elements'
 };
 
@@ -256,6 +268,7 @@ export const DateFormats = {
 export const IGNORED_EVENT_ATTRIBUTE = '_isIgnoredEvent';
 
 export const DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS = ['id', '_name'];
+export const allowedModes = ['development', 'dev-stage'];
 
 window.Citeck = window.Citeck || {};
 window.Citeck.constants = window.Citeck.constants || {};

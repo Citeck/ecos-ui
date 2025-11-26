@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
 import classNames from 'classnames';
+import React, { Component } from 'react';
 import { Row, Col } from 'reactstrap';
 
 import './Columns.scss';

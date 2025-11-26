@@ -3,7 +3,7 @@
 .ecos-avatar {
   $root: &;
 
-  background: $color-blue-light;
+  background-color: var(--light-primary-color);
   height: 40px;
   width: 40px;
   overflow: hidden;

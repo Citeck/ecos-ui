@@ -1,11 +1,11 @@
-import getCadespluginAPI from 'async-cadesplugin';
 import get from 'lodash/get';
 import set from 'lodash/set';
 
+import Records from '../components/Records/Records';
 import { PROXY_URI } from '../constants/alfresco';
 import { EDI_REQUEST } from '../constants/esign';
+import getCadespluginAPI from '../services/asyncCadesPlugin';
 import ConfigService, { ALFRESCO_ENABLED } from '../services/config/ConfigService';
-import Records from '../components/Records/Records';
 
 class EsignApi {
   static _cadespluginApi = null;

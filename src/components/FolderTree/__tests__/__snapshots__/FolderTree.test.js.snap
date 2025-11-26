@@ -1,39 +1,75 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`FolderTree tests <FolderTree /> should render FolderTree component 1`] = `
-<div
-  className="ecos-folder-tree"
-/>
+<div>
+  <div
+    class="ecos-folder-tree"
+  />
+</div>
+`;
+
+exports[`FolderTree tests <FolderTree /> should render FolderTree component 2`] = `
+<DocumentFragment>
+  <div
+    class="ecos-folder-tree"
+  />
+</DocumentFragment>
 `;
 
 exports[`FolderTree tests <FolderTreeItem /> should render FolderTreeItem component 1`] = `
-<div
-  className="ecos-folder-tree__item"
->
+<div>
   <div
-    className="ecos-folder-tree__fold-switch"
-  />
-  <div>
+    class="ecos-folder-tree__item"
+  >
     <div
-      className="ecos-folder-tree__item-body"
-      onClick={[Function]}
-    >
-      <Memo(EcosIcon)
-        className="ecos-folder-tree__folder-image"
-        data={
-          Object {
-            "value": "icon-folder",
-          }
-        }
-      />
-      <span
-        className="ecos-folder-tree__item-title"
-        title=""
+      class="ecos-folder-tree__fold-switch"
+    />
+    <div>
+      <div
+        class="ecos-folder-tree__item-body"
+      >
+        <i
+          class="icon ecos-icon ecos-folder-tree__folder-image icon-folder"
+          title=""
+        />
+        <span
+          class="ecos-folder-tree__item-title"
+          title=""
+        />
+      </div>
+      <div
+        class="ecos-folder-tree__item-children"
       />
     </div>
-    <div
-      className="ecos-folder-tree__item-children"
-    />
   </div>
 </div>
+`;
+
+exports[`FolderTree tests <FolderTreeItem /> should render FolderTreeItem component 2`] = `
+<DocumentFragment>
+  <div
+    class="ecos-folder-tree__item"
+  >
+    <div
+      class="ecos-folder-tree__fold-switch"
+    />
+    <div>
+      <div
+        class="ecos-folder-tree__item-body"
+      >
+        <i
+          class="icon ecos-icon ecos-folder-tree__folder-image icon-folder"
+          title=""
+        />
+        <span
+          class="ecos-folder-tree__item-title"
+          title=""
+        />
+      </div>
+      <div
+        class="ecos-folder-tree__item-children"
+      />
+    </div>
+  </div>
+</DocumentFragment>
 `;

@@ -1,15 +1,14 @@
-import { EventEmitter2 } from 'eventemitter2';
+import { EventEmitter } from 'events';
 import get from 'lodash/get';
 
-import { SourcesId } from '../../../constants';
-import DocLibConverter from '../../../dto/docLib';
-
-import { LS_UNFOLDED_PREFIX, NODE_TYPES } from '../../../constants/docLib';
-import { t } from '../../../helpers/export/util';
 import EcosFormUtils from '../../../components/EcosForm/EcosFormUtils';
+import { SourcesId } from '../../../constants';
+import { LS_UNFOLDED_PREFIX, NODE_TYPES } from '../../../constants/docLib';
+import DocLibConverter from '../../../dto/docLib';
+import { t } from '../../../helpers/export/util';
+import Records from '../../Records';
 
 import docLibApi from './DocLibServiceApi';
-import Records from '../../Records';
 
 const CREATE_VARIANTS_ATT = 'createVariants[]{id,name,typeRef?id,formRef?id,attributes?json,postActionRef?id}!';
 
@@ -20,7 +19,7 @@ class DocLibService {
   actionSuccessCallback = 'ACTION_SUCCESS_CALLBACK';
 
   constructor() {
-    this.emitter = new EventEmitter2();
+    this.emitter = new EventEmitter();
   }
 
   getRootId(typeRef) {

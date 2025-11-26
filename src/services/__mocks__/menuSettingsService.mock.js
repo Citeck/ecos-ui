@@ -9,6 +9,7 @@ export const ITEMS_INPUT = [
     id: 'HEADER_TASKS',
     label: 'menu.header.tasks',
     type: 'item',
+    collapsed: false,
     hidden: false,
     icon: 'uiserv/icon@3e0627d9-3c0b-49ac-8a11-97ae3da86527',
     config: {},
@@ -18,6 +19,7 @@ export const ITEMS_INPUT = [
     id: 'HEADER_ORGSTRUCT',
     label: 'menu.header.orgstructure',
     type: 'item',
+    collapsed: false,
     hidden: false,
     icon: 'ui/icon@icon-empty',
     config: {},
@@ -28,6 +30,7 @@ export const ITEMS_INPUT = [
     label: 'menu.header.my',
     icon: '',
     type: 'HEADER-DIVIDER',
+    collapsed: false,
     hidden: false,
     config: {},
     allowedFor: []
@@ -36,6 +39,7 @@ export const ITEMS_INPUT = [
     id: 'ARBITRARY',
     label: 'menu.header.ARBITRARY',
     type: 'item',
+    collapsed: false,
     icon: '',
     hidden: false,
     config: {},
@@ -45,6 +49,7 @@ export const ITEMS_INPUT = [
     id: 'HEADER_TASKS',
     label: 'menu.header.tasks',
     type: 'SECTION',
+    collapsed: false,
     hidden: false,
     icon: 'uiserv/icon@3e0627d9-3c0b-49ac-8a11-97ae3da86527',
     config: {},
@@ -54,6 +59,7 @@ export const ITEMS_INPUT = [
     id: 'HEADER_TASKS',
     label: 'menu.header.tasks',
     type: 'SECTION',
+    collapsed: false,
     icon: 'uiserv/icon@3e0627d9-3c0b-49ac-8a11-97ae3da86527',
     config: {},
     allowedFor: []
@@ -62,6 +68,7 @@ export const ITEMS_INPUT = [
     id: 'JOURNAL_1',
     label: 'menu.header.tasks',
     type: 'JOURNAL',
+    collapsed: false,
     icon: 'uiserv/icon@3e0627d9-3c0b-49ac-8a11-97ae3da86527',
     config: {},
     allowedFor: []
@@ -70,6 +77,7 @@ export const ITEMS_INPUT = [
     id: 'JOURNAL_2',
     label: 'menu.header.tasks',
     type: 'JOURNAL',
+    collapsed: false,
     hidden: true,
     icon: 'uiserv/icon@3e0627d9-3c0b-49ac-8a11-97ae3da86527',
     config: {},
@@ -79,6 +87,7 @@ export const ITEMS_INPUT = [
     id: 'CREATE_IN_SECTION',
     label: 'menu.header.create',
     type: 'CREATE_IN_SECTION',
+    collapsed: false,
     hidden: false,
     icon: 'uiserv/icon@3e0627d9-3c0b-49ac-8a11-97ae3da86527',
     config: {},
@@ -100,7 +109,8 @@ export const ITEM_PARAMS_OUTPUT = [
     items: [],
     locked: !!ITEMS_INPUT[0].hidden,
     draggable: false,
-    allowedFor: []
+    allowedFor: [],
+    collapsed: false
   },
   {
     id: ITEMS_INPUT[1].id,
@@ -115,7 +125,8 @@ export const ITEM_PARAMS_OUTPUT = [
     items: [],
     locked: !!ITEMS_INPUT[1].hidden,
     draggable: false,
-    allowedFor: []
+    allowedFor: [],
+    collapsed: false
   },
   {
     id: ITEMS_INPUT[2].id,
@@ -127,7 +138,8 @@ export const ITEM_PARAMS_OUTPUT = [
     items: [],
     locked: !!ITEMS_INPUT[2].hidden,
     draggable: true,
-    allowedFor: []
+    allowedFor: [],
+    collapsed: false
   },
   {
     id: ITEMS_INPUT[3].id,
@@ -139,7 +151,8 @@ export const ITEM_PARAMS_OUTPUT = [
     items: [],
     locked: !!ITEMS_INPUT[3].hidden,
     draggable: false,
-    allowedFor: []
+    allowedFor: [],
+    collapsed: false
   },
   {
     config: {},
@@ -151,7 +164,8 @@ export const ITEM_PARAMS_OUTPUT = [
     label: 'menu.header.tasks',
     locked: false,
     type: 'SECTION',
-    allowedFor: []
+    allowedFor: [],
+    collapsed: false
   },
   {
     config: {},
@@ -163,7 +177,8 @@ export const ITEM_PARAMS_OUTPUT = [
     label: 'menu.header.tasks',
     locked: false,
     type: 'SECTION',
-    allowedFor: []
+    allowedFor: [],
+    collapsed: false
   }
 ];
 
@@ -212,7 +227,8 @@ export const PERMISSIONS_BY_TYPE = {
     hasUrl: false,
     hideable: true,
     removable: true,
-    hideableLabel: false
+    hideableLabel: false,
+    collapsable: true
   },
   [MenuSettings.ItemTypes.JOURNAL]: {
     draggable: true,
@@ -221,7 +237,8 @@ export const PERMISSIONS_BY_TYPE = {
     hasUrl: false,
     hideable: true,
     removable: true,
-    hideableLabel: false
+    hideableLabel: false,
+    collapsable: true
   },
   [MenuSettings.ItemTypes.ARBITRARY]: {
     draggable: true,
@@ -230,7 +247,8 @@ export const PERMISSIONS_BY_TYPE = {
     hasUrl: true,
     hideable: true,
     removable: true,
-    hideableLabel: false
+    hideableLabel: false,
+    collapsable: true
   },
   [MenuSettings.ItemTypes.LINK_CREATE_CASE]: {
     draggable: true,
@@ -239,7 +257,8 @@ export const PERMISSIONS_BY_TYPE = {
     hasUrl: false,
     hideable: true,
     removable: true,
-    hideableLabel: false
+    hideableLabel: false,
+    collapsable: true
   },
   [MenuSettings.ItemTypes.HEADER_DIVIDER]: {
     draggable: true,
@@ -248,7 +267,8 @@ export const PERMISSIONS_BY_TYPE = {
     hasUrl: false,
     hideable: true,
     removable: true,
-    hideableLabel: false
+    hideableLabel: false,
+    collapsable: true
   },
   [MenuSettings.ItemTypes.CREATE_IN_SECTION]: {
     draggable: true,
@@ -257,7 +277,8 @@ export const PERMISSIONS_BY_TYPE = {
     hasUrl: false,
     hideable: true,
     removable: true,
-    hideableLabel: false
+    hideableLabel: false,
+    collapsable: true
   },
   [MenuSettings.ItemTypes.EDIT_RECORD]: {
     draggable: true,
@@ -266,7 +287,8 @@ export const PERMISSIONS_BY_TYPE = {
     hasUrl: false,
     hideable: true,
     removable: true,
-    hideableLabel: false
+    hideableLabel: false,
+    collapsable: true
   }
 };
 
@@ -1334,6 +1356,7 @@ export const ACTIONS_ON_MENU_ITEMS = {
           icon: { value: 'icon-empty' },
           config: { recordRef: 'uiserv/journal@Test' },
           items: [],
+          collapsed: null,
           locked: false,
           draggable: true,
           allowedFor: []
@@ -1348,6 +1371,7 @@ export const ACTIONS_ON_MENU_ITEMS = {
           icon: { value: 'icon-empty' },
           config: { recordRef: 'uiserv/journal@Test' },
           items: [],
+          collapsed: null,
           locked: false,
           draggable: true,
           allowedFor: []
@@ -3897,8 +3921,7 @@ export const ACTIONS_ON_MENU_ITEMS = {
           value: '91ee6c3c-3ae1-4909-ab3a-3b833d3c742b',
           id: 'uiserv/icon@91ee6c3c-3ae1-4909-ab3a-3b833d3c742b',
           type: 'img',
-          url:
-            'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cG9seWdvbiBwb2ludHM9IjEyIDIgMTUuMDkgOC4yNiAyMiA5LjI3IDE3IDE0LjE0IDE4LjE4IDIxLjAyIDEyIDE3Ljc3IDUuODIgMjEuMDIgNyAxNC4xNCAyIDkuMjcgOC45MSA4LjI2IDEyIDIiPjwvcG9seWdvbj48L3N2Zz4='
+          url: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cG9seWdvbiBwb2ludHM9IjEyIDIgMTUuMDkgOC4yNiAyMiA5LjI3IDE3IDE0LjE0IDE4LjE4IDIxLjAyIDEyIDE3Ljc3IDUuODIgMjEuMDIgNyAxNC4xNCAyIDkuMjcgOC45MSA4LjI2IDEyIDIiPjwvcG9seWdvbj48L3N2Zz4='
         },
         type: 'SECTION'
       },
@@ -4396,8 +4419,7 @@ export const ACTIONS_ON_MENU_ITEMS = {
             value: '91ee6c3c-3ae1-4909-ab3a-3b833d3c742b',
             id: 'uiserv/icon@91ee6c3c-3ae1-4909-ab3a-3b833d3c742b',
             type: 'img',
-            url:
-              'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cG9seWdvbiBwb2ludHM9IjEyIDIgMTUuMDkgOC4yNiAyMiA5LjI3IDE3IDE0LjE0IDE4LjE4IDIxLjAyIDEyIDE3Ljc3IDUuODIgMjEuMDIgNyAxNC4xNCAyIDkuMjcgOC45MSA4LjI2IDEyIDIiPjwvcG9seWdvbj48L3N2Zz4='
+            url: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cG9seWdvbiBwb2ludHM9IjEyIDIgMTUuMDkgOC4yNiAyMiA5LjI3IDE3IDE0LjE0IDE4LjE4IDIxLjAyIDEyIDE3Ljc3IDUuODIgMjEuMDIgNyAxNC4xNCAyIDkuMjcgOC45MSA4LjI2IDEyIDIiPjwvcG9seWdvbj48L3N2Zz4='
           },
           config: {},
           items: [
@@ -4441,8 +4463,7 @@ export const ACTIONS_ON_MENU_ITEMS = {
             value: '91ee6c3c-3ae1-4909-ab3a-3b833d3c742b',
             id: 'uiserv/icon@91ee6c3c-3ae1-4909-ab3a-3b833d3c742b',
             type: 'img',
-            url:
-              'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cG9seWdvbiBwb2ludHM9IjEyIDIgMTUuMDkgOC4yNiAyMiA5LjI3IDE3IDE0LjE0IDE4LjE4IDIxLjAyIDEyIDE3Ljc3IDUuODIgMjEuMDIgNyAxNC4xNCAyIDkuMjcgOC45MSA4LjI2IDEyIDIiPjwvcG9seWdvbj48L3N2Zz4='
+            url: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cG9seWdvbiBwb2ludHM9IjEyIDIgMTUuMDkgOC4yNiAyMiA5LjI3IDE3IDE0LjE0IDE4LjE4IDIxLjAyIDEyIDE3Ljc3IDUuODIgMjEuMDIgNyAxNC4xNCAyIDkuMjcgOC45MSA4LjI2IDEyIDIiPjwvcG9seWdvbj48L3N2Zz4='
           },
           config: {},
           items: [

@@ -1,6 +1,6 @@
-import isBoolean from 'lodash/isBoolean';
 import FormioValidator from 'formiojs/components/Validator';
 import { boolValue } from 'formiojs/utils/utils';
+import isBoolean from 'lodash/isBoolean';
 
 FormioValidator.validators.required = {
   ...FormioValidator.validators.required,

@@ -19,9 +19,10 @@
   }
 
   &__grid {
-    margin-bottom: 15px;
-    overflow: auto;
     position: static;
+    height: auto;
+    max-height: 300px;
+    overflow: auto;
 
     &-wrapper {
       position: relative;
@@ -33,6 +34,7 @@
     grid-auto-flow: column;
     justify-content: start;
     grid-gap: 1em;
+    margin-top: 15px;
   }
 
   &__import-input {

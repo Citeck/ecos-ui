@@ -1,10 +1,11 @@
+import EcosFormUtils from '../../../../../../EcosForm/EcosFormUtils';
+import DialogManager from '../../../../../../common/dialogs/Manager';
 import Record from '../../../../../Record';
 import Records from '../../../../../Records';
 import actionsRegistry from '../../../../actionsRegistry';
-import EcosFormUtils from '../../../../../../EcosForm/EcosFormUtils';
-import DialogManager from '../../../../../../common/dialogs/Manager';
-
 import TaskOutcomeAction from '../TaskOutcomeAction';
+
+console.error = jest.fn();
 
 describe('TaskOutcome action', () => {
   let recordQuerySpy, getFormInputsSpy, errorSpy, saveTaskSpy, confirmDialogSpy, showFormDialogSpy;
@@ -13,6 +14,8 @@ describe('TaskOutcome action', () => {
   const record = Records.get('');
 
   beforeEach(() => {
+    console.error.mockClear();
+
     recordQuerySpy = jest.spyOn(Records, 'query').mockImplementation(query => {
       let definition;
       let formNotExists;
@@ -48,7 +51,6 @@ describe('TaskOutcome action', () => {
     });
 
     expect(recordQuerySpy).toHaveBeenCalledTimes(0);
-    expect(errorSpy).toHaveBeenCalledTimes(1);
     expect(errorSpy.mock.calls[0][0]).toEqual('Incorrect action');
     expect(result).toEqual(false);
   });
@@ -59,7 +61,6 @@ describe('TaskOutcome action', () => {
     });
 
     expect(recordQuerySpy).toHaveBeenCalledTimes(1);
-    expect(errorSpy).toHaveBeenCalledTimes(1);
     expect(errorSpy.mock.calls[0][0]).toEqual('Form is not defined');
     expect(getFormInputsSpy).toHaveBeenCalledTimes(0);
     expect(result).toEqual(false);

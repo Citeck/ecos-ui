@@ -1,6 +1,9 @@
+@import '../../styles/constants';
+
 .app-content.orgstructure-page {
   overflow: hidden;
 }
+
 .orgstructure-page {
   &__grid {
     &-container {
@@ -20,6 +23,7 @@
       height: 100%;
       overflow: hidden;
       background-color: white;
+      border: 1px solid $color-gray-4;
       border-radius: 12px;
     }
 

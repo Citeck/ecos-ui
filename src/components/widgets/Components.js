@@ -1,46 +1,20 @@
-import { lazy } from 'react';
+import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
-import isString from 'lodash/isString';
-import cloneDeep from 'lodash/cloneDeep';
 import isFunction from 'lodash/isFunction';
-import uuidV4 from 'uuid/v4';
+import isString from 'lodash/isString';
+import { lazy } from 'react';
+import uuidV4 from 'uuidv4';
 
-import { getCurrentLocale, t } from '../../helpers/util';
-import { CONFIG_VERSION, DashboardTypes } from '../../constants/dashboard';
-import ConfigService, { ALFRESCO_ENABLED } from '../../services/config/ConfigService';
 import { FORM_MODE_EDIT, FORM_MODE_VIEW } from '../EcosForm';
 
-export const ComponentKeys = {
-  HTML: 'html',
-  PAGINATION: 'pagination',
-  DOC_PREVIEW: 'doc-preview',
-  JOURNAL: 'journal',
-  REPORT: 'report',
-  COMMENTS: 'comments',
-  ACTIVITIES: 'activities',
-  PROPERTIES: 'properties',
-  TASKS: 'tasks',
-  CURRENT_TASKS: 'current-tasks',
-  DOC_STATUS: 'doc-status',
-  EVENTS_HISTORY: 'events-history',
-  VERSIONS_JOURNAL: 'versions-journal',
-  DOC_ASSOCIATIONS: 'doc-associations',
-  RECORD_ACTIONS: 'record-actions',
-  WEB_PAGE: 'web-page',
-  BARCODE: 'barcode',
-  BIRTHDAYS: 'birthdays',
-  DOCUMENTS: 'documents',
-  USER_PROFILE: 'user-profile',
-  DOC_CONSTRUCTOR: 'doc-constructor',
-  PROCESS_STATISTICS: 'process-statistics',
-  STAGES: 'stages',
-  CHARTS: 'charts',
-  PUBLICATION: 'publication',
-  HIERARCHICAL_TREE: 'hierarchical-tree',
-  KANBAN_BOARD: 'kanban-board'
-};
+import { CONFIG_VERSION, DashboardTypes } from '@/constants/dashboard';
+import { WidgetsKeys } from '@/constants/widgets';
+import { getCurrentLocale, getEnabledWorkspaces, t } from '@/helpers/util';
+import ConfigService, { ALFRESCO_ENABLED } from '@/services/config/ConfigService';
+
+export const ComponentKeys = WidgetsKeys;
 
 /**
  * При добавлении нового виджета, необходимо его зарегистрировать
@@ -67,6 +41,35 @@ export default class Components {
    * @supportedDashboardTypes {Array} - types of dashboards where this widget is available. If empty - available everywhere
    */
   static components = Object.freeze({
+    [ComponentKeys.WELCOME]: {
+      load: () =>
+        lazy(() =>
+          import('../../plugins').then(plugins => ({
+            default: get(plugins, 'default.WelcomeWidget', () => null)
+          }))
+        ),
+      checkIsAvailable: () => {
+        const workspacesEnabled = getEnabledWorkspaces();
+
+        if (!workspacesEnabled) {
+          return false;
+        }
+
+        return Boolean(get(window, 'Citeck.Plugins.WelcomeWidget'));
+      },
+      label: 'dashboard-settings.widget.welcome',
+      supportedDashboardTypes: [DashboardTypes.USER, DashboardTypes.CUSTOM]
+    },
+    [ComponentKeys.NEWS]: {
+      load: () =>
+        lazy(() =>
+          import('../../plugins').then(plugins => ({
+            default: get(plugins, 'default.NewsWidget', () => null)
+          }))
+        ),
+      label: 'dashboard-settings.widget.news',
+      supportedDashboardTypes: [DashboardTypes.USER, DashboardTypes.CUSTOM]
+    },
     [ComponentKeys.DOC_PREVIEW]: {
       load: () => lazy(() => import('./DocPreview')),
       label: 'dashboard-settings.widget.preview',
@@ -90,6 +93,17 @@ export default class Components {
       label: 'HTML',
       supportedDashboardTypes: [],
       props: {}
+    },
+    [ComponentKeys.GANTT_CHART]: {
+      load: () =>
+        lazy(() =>
+          import('../../plugins').then(plugins => ({
+            default: get(plugins, 'default.GanttChartWidget', () => null)
+          }))
+        ),
+      checkIsAvailable: () => Boolean(get(window, 'Citeck.Plugins.GanttChartWidget')),
+      label: 'dashboard-settings.widget.gantt-chart',
+      supportedDashboardTypes: []
     },
     [ComponentKeys.REPORT]: {
       load: () => lazy(() => import('./Report')),
@@ -226,7 +240,7 @@ export default class Components {
       label: 'dashboard-settings.widget.activities',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS, DashboardTypes.CUSTOM],
       checkIsAvailable: () => {
-        const workspacesEnabled = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+        const workspacesEnabled = getEnabledWorkspaces();
 
         if (!workspacesEnabled) {
           return false;
@@ -279,7 +293,7 @@ export default class Components {
           (!layout.columns || (layout.columns.length !== 1 && !layout.columns.find(column => Array.isArray(column) && column.length === 1)))
       },
       checkIsAvailable: () => {
-        const workspacesEnabled = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+        const workspacesEnabled = getEnabledWorkspaces();
 
         if (!workspacesEnabled) {
           return false;
@@ -288,7 +302,7 @@ export default class Components {
         return Boolean(get(window, 'Citeck.Plugins.PublicationWidget'));
       },
       label: 'dashboard-settings.widget.publication',
-      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
+      supportedDashboardTypes: [DashboardTypes.PUBLICATION]
     },
     [ComponentKeys.HIERARCHICAL_TREE]: {
       load: () =>
@@ -298,7 +312,7 @@ export default class Components {
           }))
         ),
       checkIsAvailable: () => {
-        const workspacesEnabled = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+        const workspacesEnabled = getEnabledWorkspaces();
 
         if (!workspacesEnabled) {
           return false;
@@ -307,7 +321,10 @@ export default class Components {
         return Boolean(get(window, 'Citeck.Plugins.HierarchicalTreeWidget'));
       },
       label: 'dashboard-settings.widget.hierarchical-tree',
-      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS, DashboardTypes.CUSTOM]
+      supportedDashboardTypes: [DashboardTypes.PUBLICATION, DashboardTypes.CUSTOM],
+      props: {
+        isStaticPreviewWidget: true
+      }
     },
     [ComponentKeys.STAGES]: {
       load: () =>
@@ -336,12 +353,11 @@ export default class Components {
   });
 
   static allDashboardsComponents = [
+    ComponentKeys.NEWS,
     ComponentKeys.JOURNAL,
     ComponentKeys.WEB_PAGE,
-    ComponentKeys.PUBLICATION,
     ComponentKeys.HTML,
-    ComponentKeys.ACTIVITIES,
-    ComponentKeys.HIERARCHICAL_TREE
+    ComponentKeys.GANTT_CHART
   ];
 
   static get allDashboardTypes() {
@@ -360,6 +376,19 @@ export default class Components {
     }
 
     return loadComponent();
+  }
+
+  static getRaw(name) {
+    const descriptor = Components.components[name];
+    if (!descriptor) {
+      return Promise.resolve(null);
+    }
+
+    if (descriptor.checkIsAvailable?.() === false) {
+      return Promise.resolve(null);
+    }
+
+    return descriptor.load();
   }
 
   static settings(component) {
@@ -386,7 +415,7 @@ export default class Components {
     await Promise.all(
       Object.entries(Components.components).map(async ([name, component]) => {
         if (isFunction(component.checkIsAvailable)) {
-          const isAvaliable = await component.checkIsAvailable();
+          const isAvaliable = await component.checkIsAvailable(dashboardType);
           if (!isAvaliable) {
             return;
           }

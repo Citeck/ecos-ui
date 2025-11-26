@@ -1,10 +1,10 @@
-import { call, put, takeLatest } from 'redux-saga/effects';
-import set from 'lodash/set';
 import get from 'lodash/get';
+import set from 'lodash/set';
+import { call, put, takeLatest } from 'redux-saga/effects';
 
 import { getUserData, setNewUIAvailableStatus, validateUserSuccess } from '../actions/user';
 
-export function* initUser({ api, logger }, { payload }) {
+export function* initUser({ api }, { payload }) {
   try {
     const resp = yield call(api.user.getUserData);
 
@@ -19,7 +19,7 @@ export function* initUser({ api, logger }, { payload }) {
 
     typeof payload.onSuccess === 'function' && payload.onSuccess();
   } catch (e) {
-    logger.error('[user/getUserData saga] error', e);
+    console.error('[user/getUserData saga] error', e);
   }
 }
 

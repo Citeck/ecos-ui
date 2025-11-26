@@ -10,6 +10,7 @@
 
   .ecos-btn.ecos-doclib__add-record {
     font-size: $font-size-xxl;
+    border: 1px solid $color-gray-4;
   }
 
   &-update {
@@ -19,6 +20,10 @@
   &-export,
   &-update {
     transition: all 0.4s;
+  }
+
+  &-search {
+    border: 1px solid $color-gray-4;
   }
 
   &_mobile &-search {

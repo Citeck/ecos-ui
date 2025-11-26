@@ -98,12 +98,12 @@
 
   &__pseudo-link {
     display: inline-grid;
-    cursor: help;
     border-bottom: 1px dashed $color-gray-5;
+    cursor: help;
 
     &:hover {
-      color: $color-blue-dark;
-      border-color: $color-blue-dark;
+      color: var(--primary-color);
+      border-color: var(--primary-color);
     }
   }
 }

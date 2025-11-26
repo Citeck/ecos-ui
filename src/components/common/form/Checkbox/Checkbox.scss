@@ -42,10 +42,10 @@
     }
 
     &_blue {
-      color: $color-blue-dark;
+      color: var(--primary-color);
 
       &:hover {
-        color: $color-blue-light;
+        color: var(--dark-primary-color);
       }
     }
 
@@ -55,7 +55,7 @@
 
     &_hover_blue {
       &:hover {
-        color: $color-blue-dark;
+        color: var(--dark-primary-color);
       }
     }
   }
@@ -107,10 +107,10 @@
   }
 
   &_checked {
-    background-color: $color-blue-dark;
+    background-color: var(--primary-color);
 
     &:after {
-      border-color: $color-blue-dark;
+      border-color: var(--primary-color);
       left: calc(100% - #{$slider-size});
     }
   }

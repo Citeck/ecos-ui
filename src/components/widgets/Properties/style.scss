@@ -32,7 +32,7 @@
 
   &__formio {
     width: 100%;
-    padding: 20px 20px 0;
+    padding: 10px 16px 0;
 
     &_small {
       padding-top: 0;
@@ -58,7 +58,7 @@
       }
     }
 
-    .formio-component-columns_theme_ecos {
+    .formio-component-columns {
       div[class*='formio-component-cancel' i],
       div[class*='formio-component-submit' i] {
         display: none;
@@ -73,10 +73,6 @@
       .ecos-form-buttons-container-manual {
         @include show_buttons;
       }
-    }
-
-    & .formio-form .card .card-body {
-      padding-top: 10px;
     }
   }
 

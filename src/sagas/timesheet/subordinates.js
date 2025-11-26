@@ -1,7 +1,5 @@
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
-import { NotificationManager } from 'react-notifications';
 
-import { TimesheetMessages } from '../../helpers/timesheet/dictionary';
 import {
   delegateTo,
   getSubordinatesTimesheetByParams,
@@ -16,6 +14,11 @@ import {
   setSubordinatesTimesheetByParams,
   setUpdatingEventDayHours
 } from '../../actions/timesheet/subordinates';
+import { DelegationTypes } from '../../constants/timesheet';
+import DelegationTimesheetConverter from '../../dto/timesheet/delegated';
+import SubordinatesTimesheetConverter from '../../dto/timesheet/subordinates';
+import { TimesheetMessages } from '../../helpers/timesheet/dictionary';
+import { deepClone, t } from '../../helpers/util';
 import {
   selectTSubordinatesDelegatedTo,
   selectTSubordinatesList,
@@ -23,12 +26,10 @@ import {
   selectTSubordinatesUpdatingHours
 } from '../../selectors/timesheet';
 import { selectUserName } from '../../selectors/user';
-import SubordinatesTimesheetConverter from '../../dto/timesheet/subordinates';
 import CommonTimesheetService from '../../services/timesheet/common';
 import SubordinatesTimesheetService from '../../services/timesheet/subordinates';
-import DelegationTimesheetConverter from '../../dto/timesheet/delegated';
-import { DelegationTypes } from '../../constants/timesheet';
-import { deepClone, t } from '../../helpers/util';
+
+import { NotificationManager } from '@/services/notifications';
 
 function* sagaGetSubordinatesTimesheetByParams({ api, logger }, { payload }) {
   try {
@@ -81,7 +82,7 @@ function* sagaGetSubordinatesTimesheetByParams({ api, logger }, { payload }) {
 
     yield put(setSubordinatesTimesheetByParams({ mergedList, deputy }));
   } catch (e) {
-    logger.error('[timesheetSubordinates sagaGetSubordinatesTimesheetByParams saga] error', e);
+    console.error('[timesheetSubordinates sagaGetSubordinatesTimesheetByParams saga] error', e);
   }
 }
 
@@ -106,7 +107,7 @@ function* sagaModifyTaskStatus({ api, logger }, { payload }) {
   } catch (e) {
     yield put(setLoading(false));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_STATUS));
-    logger.error('[timesheetSubordinates sagaModifyTaskStatus saga] error', e);
+    console.error('[timesheetSubordinates sagaModifyTaskStatus saga] error', e);
   }
 }
 
@@ -165,7 +166,7 @@ function* sagaModifyEventDayHours({ api, logger }, { payload }) {
 
     yield put(setUpdatingEventDayHours(thirdState));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
-    logger.error('[timesheetSubordinates sagaModifyStatus saga] error', e);
+    console.error('[timesheetSubordinates sagaModifyStatus saga] error', e);
   }
 }
 
@@ -182,7 +183,7 @@ function* sagaResetEventDayHours({ api, logger }, { payload }) {
 
     yield put(setUpdatingEventDayHours(secondState));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
-    logger.error('[timesheetSubordinates sagaResetEventDayHours saga] error', e);
+    console.error('[timesheetSubordinates sagaResetEventDayHours saga] error', e);
   }
 }
 
@@ -200,7 +201,7 @@ function* sagaDelegateTo({ api, logger }, { payload }) {
     yield put(setDelegatedTo(deputy));
   } catch (e) {
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_DELEGATE_TO));
-    logger.error('[timesheetSubordinates sagaDelegateTo saga] error', e);
+    console.error('[timesheetSubordinates sagaDelegateTo saga] error', e);
   }
 }
 
@@ -214,7 +215,7 @@ function* sagaRemoveDelegation({ api, logger }) {
     yield put(setDelegatedTo(DelegationTimesheetConverter.getDeputyData()));
   } catch (e) {
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_REMOVE_DELEGATED_TO));
-    logger.error('[timesheetSubordinates sagaRemoveDelegation saga] error', e);
+    console.error('[timesheetSubordinates sagaRemoveDelegation saga] error', e);
   }
 }
 

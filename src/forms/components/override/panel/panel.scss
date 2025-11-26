@@ -11,12 +11,18 @@ $theme-title-back: (
   'info': $color-blue-light2,
   'success': $success,
   'danger': $danger,
-  'warning': $warning
+  'warning': $warning,
+  'transparent': $transparent,
 );
 $theme-title-dark-color: 'info', 'default';
+$theme-title-gray-color: 'transparent';
 
 .formio-dialog-content .preview-panel,
 .formio-form {
+  .tab-content {
+    padding: 10px 16px 0;
+  }
+
   .card {
     background-color: transparent;
 
@@ -36,6 +42,12 @@ $theme-title-dark-color: 'info', 'default';
       }
     }
 
+    @each $name in $theme-title-gray-color {
+      &.panel-#{$name} {
+        --title-color: #{$text-color-dark};
+      }
+    }
+
     .card-header {
       background-color: transparent !important;
       border-bottom: none;
@@ -43,10 +55,12 @@ $theme-title-dark-color: 'info', 'default';
     }
 
     .card-body {
-      padding: 13px 0 5px 0;
+      padding: 0;
     }
 
     .card-title {
+      margin: 12px 0 !important;
+      padding: 5px 12px;
       background-color: var(--title-background-color);
       border-radius: 6px;
       font-family: $font-family-open-sans;
@@ -54,20 +68,19 @@ $theme-title-dark-color: 'info', 'default';
       font-size: $font-size-large;
       color: var(--title-color);
       line-height: 22px;
-      padding: 5px 12px;
     }
   }
 }
 
 .ecos-modal {
   .formio-form .panel-body.panel-body_scrollable {
-    border: 2px solid $color-gray-4;
+    border: 1px solid $color-gray-4;
     border-right-width: 0;
     border-left-width: 0;
     overflow-y: auto;
     overflow-x: hidden;
     margin: 0 -20px 20px -20px;
-    padding: 15px;
+    padding: 10px 16px;
   }
 
   .formio-form .panel-body.drag-container.panel-body_scrollable {
@@ -75,7 +88,24 @@ $theme-title-dark-color: 'info', 'default';
   }
 }
 
-// fix for legacy card-details page
-#bd .yui-gc:not(.grid) > .yui-u .document-details-panel .formio-form .panel-body {
-  padding: 13px 0 5px 0;
+.card .card-title {
+  padding: 7px 0;
+}
+
+.citeck-panel-icon-chevron {
+  display: inline-block;
+  vertical-align: middle;
+  width: 20px;
+  height: 20px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  transition: transform .2s ease;
+
+  &.down {
+    background-image: url('./chevron-down.svg');
+  }
+
+  &.right {
+    background-image: url('./chevron-right.svg');
+  }
 }

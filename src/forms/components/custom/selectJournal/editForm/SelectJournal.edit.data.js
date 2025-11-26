@@ -1,7 +1,8 @@
-import { Attributes } from '../../../../../constants';
+import { Attributes, SourcesId } from '../../../../../constants';
 import { t } from '../../../../../helpers/export/util';
+import { DataTypes, DisplayModes, SearchInWorkspacePolicy, SearchWorkspacePolicyOptions, SortOrderOptions, TableTypes } from '../constants';
 
-import { DataTypes, DisplayModes, SortOrderOptions, TableTypes } from '../constants';
+import Records from '@/components/Records';
 
 const CUSTOM_QUERY_DATA_FIELD = 'queryData';
 const CUSTOM_PREDICATE_FIELD = 'customPredicateJs';
@@ -19,6 +20,57 @@ export default [
       required: false
     },
     weight: 20
+  },
+  {
+    type: 'select',
+    key: 'searchInWorkspacePolicy',
+    get label() {
+      return t('workspace-polices.title');
+    },
+    defaultValue: SearchInWorkspacePolicy.CURRENT,
+    weight: 60,
+    template: '<span>{{ item.label }}</span>',
+    data: {
+      get values() {
+        return SearchWorkspacePolicyOptions.map(({ value, label }) => ({ value, label: t(label) }));
+      }
+    },
+    searchEnabled: false,
+    removeItemButton: false,
+    defaultValue: SearchInWorkspacePolicy.CURRENT,
+    input: true
+  },
+  {
+    type: 'select',
+    key: 'searchInAdditionalWorkspaces',
+    get label() {
+      return t('workspace-polices.additional-title');
+    },
+    input: true,
+    weight: 60,
+    conditional: {
+      json: {
+        and: [
+          { '!=': [{ var: 'data.searchInWorkspacePolicy' }, SearchInWorkspacePolicy.CURRENT] },
+          { '!=': [{ var: 'data.searchInWorkspacePolicy' }, SearchInWorkspacePolicy.ALL] }
+        ]
+      }
+    },
+    dataSrc: 'custom',
+    valueProperty: 'value',
+    clearOnHide: true,
+    multiple: true,
+    data: {
+      custom: function custom(context) {
+        return Records.query(
+          {
+            sourceId: SourcesId.WORKSPACE,
+            language: 'predicate'
+          },
+          { label: '?disp', value: '?localId' }
+        ).then(({ records = [] }) => [...records]);
+      }
+    }
   },
   {
     type: 'select',

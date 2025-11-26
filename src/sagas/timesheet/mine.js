@@ -1,6 +1,5 @@
 import { put, select, takeLatest, takeEvery, call } from 'redux-saga/effects';
 
-import { TimesheetMessages } from '../../helpers/timesheet/dictionary';
 import {
   getMyTimesheetByParams,
   getStatus,
@@ -16,12 +15,13 @@ import {
   setDelegatedTo,
   removeDelegation
 } from '../../actions/timesheet/mine';
-import { selectUserName } from '../../selectors/user';
-import { selectTMineUpdatingHours, selectTMineDelegatedTo } from '../../selectors/timesheet';
+import { DelegationTypes } from '../../constants/timesheet';
 import CommonTimesheetConverter from '../../dto/timesheet/common';
 import DelegationTimesheetConverter from '../../dto/timesheet/delegated';
+import { TimesheetMessages } from '../../helpers/timesheet/dictionary';
+import { selectTMineUpdatingHours, selectTMineDelegatedTo } from '../../selectors/timesheet';
+import { selectUserName } from '../../selectors/user';
 import CommonTimesheetService from '../../services/timesheet/common';
-import { DelegationTypes } from '../../constants/timesheet';
 
 function* sagaGetMyTimesheetByParams({ api, logger }, { payload }) {
   try {
@@ -48,7 +48,7 @@ function* sagaGetMyTimesheetByParams({ api, logger }, { payload }) {
 
     yield put(setMyTimesheetByParams({ status, mergedEvents, deputy }));
   } catch (e) {
-    logger.error('[timesheetMine sagaGetMyTimesheetByParams saga] error', e);
+    console.error('[timesheetMine sagaGetMyTimesheetByParams saga] error', e);
   }
 }
 
@@ -65,7 +65,7 @@ function* sagaGetStatus({ api, logger }, { payload }) {
 
     yield put(setStatus(CommonTimesheetConverter.getStatusForWeb(statuses)));
   } catch (e) {
-    logger.error('[timesheetMine sagaGetStatus saga] error', e);
+    console.error('[timesheetMine sagaGetStatus saga] error', e);
   }
 }
 
@@ -90,7 +90,7 @@ function* sagaModifyStatus({ api, logger }, { payload }) {
     yield put(setStatus(payload.status));
     yield put(setUpdatingStatus(false));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_STATUS));
-    logger.error('[timesheetMine sagaModifyStatus saga] error', e);
+    console.error('[timesheetMine sagaModifyStatus saga] error', e);
   }
 }
 
@@ -114,7 +114,7 @@ function* sagaModifyEventDayHours({ api, logger }, { payload }) {
 
     yield put(setUpdatingEventDayHours(thirdState));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
-    logger.error('[timesheetMine sagaModifyStatus saga] error', e);
+    console.error('[timesheetMine sagaModifyStatus saga] error', e);
   }
 }
 
@@ -131,7 +131,7 @@ function* sagaResetEventDayHours({ api, logger }, { payload }) {
 
     yield put(setUpdatingEventDayHours(secondState));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
-    logger.error('[timesheetMine sagaResetEventDayHours saga] error', e);
+    console.error('[timesheetMine sagaResetEventDayHours saga] error', e);
   }
 }
 
@@ -149,7 +149,7 @@ function* sagaDelegateTo({ api, logger }, { payload }) {
     yield put(setDelegatedTo(deputy));
   } catch (e) {
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_DELEGATE_TO));
-    logger.error('[timesheetMine sagaDelegateTo saga] error', e);
+    console.error('[timesheetMine sagaDelegateTo saga] error', e);
   }
 }
 
@@ -163,7 +163,7 @@ function* sagaRemoveDelegation({ api, logger }) {
     yield put(setDelegatedTo(DelegationTimesheetConverter.getDeputyData()));
   } catch (e) {
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_REMOVE_DELEGATED_TO));
-    logger.error('[timesheetMine sagaRemoveDelegation saga] error', e);
+    console.error('[timesheetMine sagaRemoveDelegation saga] error', e);
   }
 }
 

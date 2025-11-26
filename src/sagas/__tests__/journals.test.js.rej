@@ -1,0 +1,43 @@
+diff a/src/sagas/__tests__/journals.test.js b/src/sagas/__tests__/journals.test.js	(rejected hunks)
+@@ -18 +18 @@ const api = {
+-  journals: new JournalApi()
++  journals: new JournalApi(),
+@@ -36,2 +36,2 @@ async function wrapRunSaga(sagaFun, payload = {}, state = {}) {
+-      dispatch: action => dispatched.push(action),
+-      getState: () => state
++      dispatch: (action) => dispatched.push(action),
++      getState: () => state,
+@@ -41 +41 @@ async function wrapRunSaga(sagaFun, payload = {}, state = {}) {
+-    { payload: { stateId, boardId, templateId, ...payload } }
++    { payload: { stateId, boardId, templateId, ...payload } },
+@@ -56,2 +56,2 @@ describe('journals sagas tests', () => {
+-            viewMode: JOURNAL_VIEW_MODE.TABLE
+-          }
++            viewMode: JOURNAL_VIEW_MODE.TABLE,
++          },
+@@ -61,4 +61,4 @@ describe('journals sagas tests', () => {
+-            isFirstLoading: false
+-          }
+-        }
+-      }
++            isFirstLoading: false,
++          },
++        },
++      },
+@@ -77 +77 @@ describe('journals sagas tests', () => {
+-          stateId
++          stateId,
+@@ -82,2 +82,2 @@ describe('journals sagas tests', () => {
+-            viewMode: JOURNAL_VIEW_MODE.KANBAN
+-          }
++            viewMode: JOURNAL_VIEW_MODE.KANBAN,
++          },
+@@ -87,4 +87,4 @@ describe('journals sagas tests', () => {
+-            isFirstLoading: false
+-          }
+-        }
+-      }
++            isFirstLoading: false,
++          },
++        },
++      },

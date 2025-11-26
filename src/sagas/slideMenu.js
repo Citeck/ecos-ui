@@ -1,7 +1,9 @@
-import { call, put, select, takeLatest } from 'redux-saga/effects';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
+import { call, put, select, takeLatest } from 'redux-saga/effects';
 
+import { setTabs } from '../actions/pageTabs';
 import {
   fetchSlideMenuItems,
   getSiteDashboardEnable,
@@ -14,63 +16,67 @@ import {
   setSlideMenuItems,
   toggleIsOpen
 } from '../actions/slideMenu';
-import SidebarService from '../services/sidebar';
-import SidebarConverter from '../dto/sidebar';
-import { goToCardDetailsPage } from '../helpers/urls';
+import { FORM_MODE_CREATE } from '../components/EcosForm';
+import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
+import FormManager from '../components/EcosForm/FormManager';
+import Records from '../components/Records';
 import { SourcesId } from '../constants';
 import { MenuSettings } from '../constants/menu';
-import Records from '../components/Records';
-import FormManager from '../components/EcosForm/FormManager';
-import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
-import { FORM_MODE_CREATE } from '../components/EcosForm';
-import { setTabs } from '../actions/pageTabs';
+import SidebarConverter from '../dto/sidebar';
+import { goToCardDetailsPage } from '../helpers/urls';
+import SidebarService from '../services/sidebar';
 
-function* fetchSlideMenu({ api, logger }, action) {
+function* fetchSlideMenu({ api }, action) {
   try {
     const version = yield select(state => state.menu.version);
+    const items = yield select(state => state.slideMenu.items);
     const isOpen = SidebarService.getOpenState();
     const id = get(action, 'payload.id');
+    const forceFetch = get(action, 'payload.forceFetch', false);
 
-    let menuItems;
+    if (forceFetch || (!forceFetch && (!items || isEmpty(items)))) {
+      let menuItems;
 
-    if (!isNil(id) || !isNil(version)) {
-      menuItems = yield call(api.menu.getMenuItems, { id, version, resolved: true });
-    } else {
-      const apiData = yield call(api.menu.getSlideMenuItems);
-      menuItems = apiData.items;
+      if (!isNil(id) || !isNil(version)) {
+        menuItems = yield call(api.menu.getMenuItems, { id, version, resolved: true });
+      } else {
+        const apiData = yield call(api.menu.getSlideMenuItems);
+        menuItems = apiData.items;
+      }
+
+      menuItems = SidebarConverter.getMenuListWeb(menuItems);
+
+      yield put(setSlideMenuItems(menuItems));
     }
 
-    menuItems = SidebarConverter.getMenuListWeb(menuItems);
-
     yield put(toggleIsOpen(isOpen));
-    yield put(setSlideMenuItems(menuItems));
     yield put(setIsReady(true));
 
     yield put(setExpandableItems({ force: isOpen }));
   } catch (e) {
-    logger.error('[fetchSlideMenu saga] error', e);
+    console.error('[fetchSlideMenu saga] error', e);
   }
 }
 
-function* fetchSiteDashboardEnable({ api, logger }) {
+function* fetchSiteDashboardEnable({ api }) {
   try {
     const res = yield call(api.menu.checkSiteDashboardEnable);
 
     yield put(setSiteDashboardEnable(!!res));
   } catch (e) {
-    logger.error('[fetchSiteDashboardEnable saga] error', e);
+    console.error('[fetchSiteDashboardEnable saga] error', e);
   }
 }
 
-function* sagaToggleMenu({ api, logger }, action) {
+function* sagaToggleMenu({ api }, action) {
   try {
     yield call(SidebarService.setOpenState, action.payload);
   } catch (e) {
-    logger.error('[sagaToggleMenu saga] error', e);
+    console.error('[sagaToggleMenu saga] error', e);
   }
 }
 
-function* sagaSetSelectedId({ api, logger }) {
+function* sagaSetSelectedId({ api }) {
   try {
     const { isReady, items } = yield select(state => state.slideMenu);
 
@@ -83,11 +89,11 @@ function* sagaSetSelectedId({ api, logger }) {
     yield put(setSelectedId(selectedId));
     yield put(setExpandableItems({ selectedId }));
   } catch (e) {
-    logger.error('[sagaSetSelectedId saga] error', e);
+    console.error('[sagaSetSelectedId saga] error', e);
   }
 }
 
-function* sagaPerformAction({ api, logger }, { payload }) {
+function* sagaPerformAction({ api }, { payload }) {
   try {
     let createVariant = {};
 
@@ -131,14 +137,14 @@ function* sagaPerformAction({ api, logger }, { payload }) {
           case 'none':
             break;
           default:
-            if (!postCreateActionExecuted) {
+            if (!postCreateActionExecuted || createVariant.postActionRef === 'uiserv/action@none') {
               goToCardDetailsPage(record.id);
             }
         }
       }
     });
   } catch (e) {
-    logger.error('[sagaSetSelectedId saga] error', e);
+    console.error('[sagaSetSelectedId saga] error', e);
   }
 }
 

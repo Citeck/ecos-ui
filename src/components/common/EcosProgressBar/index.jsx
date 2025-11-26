@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
 import './styles.scss';
 
@@ -46,8 +46,8 @@ export default class EcosProgressBar extends Component {
             {fixedCount
               ? percentage.toFixed(Number(fixedCount))
               : (percentage > 99 && percentage < 100) || (percentage > 0 && percentage < 1)
-              ? percentage.toFixed(2)
-              : percentage.toFixed(0)}
+                ? percentage.toFixed(2)
+                : percentage.toFixed(0)}
             %
           </p>
         )}

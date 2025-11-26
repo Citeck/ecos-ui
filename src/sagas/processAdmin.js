@@ -1,5 +1,4 @@
-import { takeEvery } from 'redux-saga';
-import { call, put, select } from 'redux-saga/effects';
+import { call, put, select, takeEvery } from 'redux-saga/effects';
 
 import {
   getMetaInfo,
@@ -10,13 +9,13 @@ import {
   setJournalTabInfo,
   getActionsInfo,
   setActionsInfo
-} from '../actions/processAdmin';
-import { selectProcessTabInfo } from '../selectors/processAdmin';
-import RecordActionsApi from '../components/Records/actions/recordActionsApi';
-import RecordActions from '../components/Records/actions/recordActions';
-import { SourcesId } from '../constants';
+} from '@/actions/processAdmin';
+import RecordActions from '@/components/Records/actions/recordActions';
+import RecordActionsApi from '@/components/Records/actions/recordActionsApi';
+import { SourcesId } from '@/constants';
+import { selectProcessTabInfo } from '@/selectors/processAdmin';
 
-function* sagaGetMetaInfo({ api, logger }, { payload }) {
+function* sagaGetMetaInfo({ api }, { payload }) {
   try {
     const { processId } = payload;
 
@@ -24,11 +23,11 @@ function* sagaGetMetaInfo({ api, logger }, { payload }) {
 
     yield put(setMetaInfo({ processId, metaInfo }));
   } catch (e) {
-    logger.error('[bpmnAdmin sagaGetMetaInfo saga] error', e);
+    console.error('[bpmnAdmin sagaGetMetaInfo saga] error', e);
   }
 }
 
-function* sagaGetAllVersions({ api, logger }, { payload }) {
+function* sagaGetAllVersions({ api }, { payload }) {
   try {
     const { processId, processKey } = payload;
 
@@ -36,11 +35,11 @@ function* sagaGetAllVersions({ api, logger }, { payload }) {
 
     yield put(setAllVersions({ processId, versions: versionsResponse.records }));
   } catch (e) {
-    logger.error('[bpmnAdmin sagaGetAllVersions saga] error', e);
+    console.error('[bpmnAdmin sagaGetAllVersions saga] error', e);
   }
 }
 
-function* sagaGetActionsInfo({ api, logger }, { payload }) {
+function* sagaGetActionsInfo({ api }, { payload }) {
   try {
     const { processId } = payload;
 
@@ -54,11 +53,11 @@ function* sagaGetActionsInfo({ api, logger }, { payload }) {
 
     yield put(setActionsInfo({ processId, actions: actionsResponse.forRecord[processId] }));
   } catch (e) {
-    logger.error('[bpmnAdmin sagaGetJournalTabInfo saga] error', e);
+    console.error('[bpmnAdmin sagaGetJournalTabInfo saga] error', e);
   }
 }
 
-function* sagaGetJournalTabInfo({ api, logger }, { payload }) {
+function* sagaGetJournalTabInfo({ api }, { payload }) {
   try {
     const tabInfo = yield select(selectProcessTabInfo, payload);
 
@@ -66,7 +65,7 @@ function* sagaGetJournalTabInfo({ api, logger }, { payload }) {
 
     yield put(setJournalTabInfo({ ...tabInfo, ...payload, data: tabInfoResponse.records, totalCount: tabInfoResponse.totalCount }));
   } catch (e) {
-    logger.error('[bpmnAdmin sagaGetJournalTabInfo saga] error', e);
+    console.error('[bpmnAdmin sagaGetJournalTabInfo saga] error', e);
   }
 }
 

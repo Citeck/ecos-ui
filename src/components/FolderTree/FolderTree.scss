@@ -37,9 +37,10 @@
 
   &__folder-image {
     font-size: 15px;
-    color: $color-blue-light2;
+    color: var(--light-primary-color);
+
     &_selected {
-      color: $color-blue-light;
+      color: var(--primary-color);
     }
   }
 

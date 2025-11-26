@@ -1,16 +1,19 @@
 import get from 'lodash/get';
 
-import DMNModeler from '../../../components/ModelEditor/DMNModeler';
-import { EventListeners } from '../../../constants/cmmn';
 import ModelEditor from '../ModelEditor';
-import { SourcesId } from '../../../constants';
-import { DMN_KEY_FIELDS } from '../../../constants/dmn';
+
+import DMNModeler from '@/components/ModelEditor/DMNModeler';
+import { SourcesId } from '@/constants';
+import { EventListeners } from '@/constants/cmmn';
+import { DMN_KEY_FIELDS } from '@/constants/dmn';
 
 class DMNEditorPage extends ModelEditor {
   static modelType = 'dmn';
 
   initModeler = () => {
-    this.designer = new DMNModeler();
+    if (!this.designer) {
+      this.designer = new DMNModeler();
+    }
   };
 
   get formTitle() {

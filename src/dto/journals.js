@@ -1,18 +1,18 @@
 import cloneDeep from 'lodash/cloneDeep';
 import concat from 'lodash/concat';
-import get from 'lodash/get';
 import find from 'lodash/find';
-import isEqual from 'lodash/isEqual';
+import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import isString from 'lodash/isString';
 import set from 'lodash/set';
 
-import Predicate from '../components/Filters/predicates/Predicate';
-import AttributesService from '../services/AttributesService';
 import { ParserPredicate } from '../components/Filters/predicates';
+import Predicate from '../components/Filters/predicates/Predicate';
 import { PREDICATE_AND, PREDICATE_CONTAINS, PREDICATE_OR } from '../components/Records/predicates/predicates';
-import { getId } from '../helpers/util';
 import { GROUPING_COUNT_ALL } from '../constants/journal';
+import { getId } from '../helpers/util';
+import AttributesService from '../services/AttributesService';
 
 const isPredicateValid = predicate => {
   return !!(predicate && predicate.t);
@@ -30,7 +30,10 @@ export default class JournalsConverter {
    */
   static getSearchConfig(predicate, columns) {
     const attribute = get(predicate, 'att', get(predicate, 'a'));
-    let searchConfig = get(find(columns, column => JournalsConverter.getColumnId(column) === attribute), 'searchConfig');
+    let searchConfig = get(
+      find(columns, column => JournalsConverter.getColumnId(column) === attribute),
+      'searchConfig'
+    );
 
     let val = get(predicate, 'val', get(predicate, 'v'));
 
@@ -47,7 +50,7 @@ export default class JournalsConverter {
   }
 
   /**
-   * @param {Column} column
+   * @param {JournalColumnType} column
    * @returns {?string}
    */
   static getColumnId(column) {
@@ -74,7 +77,10 @@ export default class JournalsConverter {
     }
 
     const attribute = get(predicate, 'att', get(predicate, 'a'));
-    const searchConfig = get(find(columns, column => JournalsConverter.getColumnId(column) === attribute), 'searchConfig');
+    const searchConfig = get(
+      find(columns, column => JournalsConverter.getColumnId(column) === attribute),
+      'searchConfig'
+    );
 
     let val = get(predicate, 'val', get(predicate, 'v'));
 
@@ -230,9 +236,11 @@ export default class JournalsConverter {
       }
     }
 
+    target.attrsToLoad = _source.attrsToLoad;
     target.customSourceId = _source.sourceId;
     target.predicate = _source.predicate;
     target.onlyLinked = !!_source.onlyLinked;
+    target.isCustomJournalMode = !!_source.customJournalMode;
     target.recordRef = _source.recordRef;
     target.page = _source.pagination;
     target.filter = concat(_source.predicates, _source.searchPredicate);
@@ -348,9 +356,9 @@ export default class JournalsConverter {
 
   /**
    *
-   * @param {Predicate|Array<Predicate>} predicate
+   * @param {PredicateType|Array<PredicateType>} predicate
    * @param {Array} configColumns
-   * @returns {Predicate|Array<Predicate>}
+   * @returns {PredicateType|Array<PredicateType>}
    */
   static filterPredicatesByConfigColumns(predicate, configColumns) {
     if (Array.isArray(predicate)) {

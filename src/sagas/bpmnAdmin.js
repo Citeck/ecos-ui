@@ -1,10 +1,9 @@
-import { takeEvery } from 'redux-saga';
-import { call, put, select } from 'redux-saga/effects';
+import { call, put, select, takeEvery } from 'redux-saga/effects';
 
 import { getProcesses, setProcesses, setTotalCount } from '../actions/bpmnAdmin';
 import { selectBpmnAdminFilter, selectBpmnAdminPage } from '../selectors/bpmnAdmin';
 
-function* sagaGetProcesses({ api, logger }, { payload }) {
+function* sagaGetProcesses({ api }, { payload }) {
   try {
     const allRecords = payload && payload.allRecords;
     const page = yield select(selectBpmnAdminPage);
@@ -14,7 +13,7 @@ function* sagaGetProcesses({ api, logger }, { payload }) {
     yield put(setProcesses(processes.records));
     yield put(setTotalCount(processes.totalCount));
   } catch (e) {
-    logger.error('[bpmnAdmin doGetProcesses saga] error', e);
+    console.error('[bpmnAdmin doGetProcesses saga] error', e);
   }
 }
 

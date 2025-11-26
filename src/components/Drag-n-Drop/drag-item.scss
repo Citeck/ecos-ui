@@ -15,19 +15,16 @@ $ecos_btn_grey5: ecos-btn_grey5;
   max-width: 200px;
   background: $color-white;
   mix-blend-mode: normal;
-  box-shadow: $box-shadow-default;
-  border-radius: 6px;
+  border: 1px solid $color-gray-4;
+  border-radius: $border-radius-standard;
   box-sizing: border-box;
+  gap: 10px;
+  padding: 5px;
 
   // for Safari
-  padding: 0 0 0 7px;
-  margin: 0 10px 10px 0;
+  padding: 0 0 0 10px;
   min-height: 32px;
   user-select: none !important;
-
-  &:last-child {
-    margin-right: 0;
-  }
 
   &:focus {
     outline: none;
@@ -44,6 +41,8 @@ $ecos_btn_grey5: ecos-btn_grey5;
   }
 
   &_clone {
+    position: absolute;
+    opacity: 0;
     user-select: none;
     pointer-events: none;
     background: $color-gray-13;

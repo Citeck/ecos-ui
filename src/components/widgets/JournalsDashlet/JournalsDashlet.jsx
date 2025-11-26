@@ -1,20 +1,22 @@
-import React from 'react';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
-import isNil from 'lodash/isNil';
 import isFunction from 'lodash/isFunction';
+import isNil from 'lodash/isNil';
 import PropTypes from 'prop-types';
 import queryString from 'query-string';
+import React from 'react';
+import { connect } from 'react-redux';
 
-import { goToJournalsPage } from '../../../helpers/urls';
-import { getStateId, wrapArgs } from '../../../helpers/redux';
-import { extractLabel, getDOMElementMeasurer, getTextByLocale, t } from '../../../helpers/util';
-import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
-import DAction from '../../../services/DashletActionService';
-import UserLocalSettingsService from '../../../services/userLocalSettings';
+import Dashlet from '../../Dashlet';
+import JournalsDashletEditor from '../../Journals/JournalsDashletEditor';
+import JournalsDashletFooter from '../../Journals/JournalsDashletFooter';
+import JournalsDashletGrid from '../../Journals/JournalsDashletGrid';
+import JournalsDashletToolbar from '../../Journals/JournalsDashletToolbar';
+import { JOURNAL_DASHLET_CONFIG_VERSION } from '../../Journals/constants';
+import BaseWidget from '../BaseWidget';
+
 import {
   execRecordsAction,
   getDashletConfig,
@@ -26,17 +28,16 @@ import {
   setRecordRef,
   setSelectAllPageRecords,
   setSelectedRecords
-} from '../../../actions/journals';
-import { selectJournalDashletProps } from '../../../selectors/dashletJournals';
-import Dashlet from '../../Dashlet';
-import JournalsDashletGrid from '../../Journals/JournalsDashletGrid';
-import JournalsDashletToolbar from '../../Journals/JournalsDashletToolbar';
-import JournalsDashletEditor from '../../Journals/JournalsDashletEditor';
-import JournalsDashletFooter from '../../Journals/JournalsDashletFooter';
-import BaseWidget from '../BaseWidget';
+} from '@/actions/journals';
+import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '@/constants';
+import { getStateId, wrapArgs } from '@/helpers/store';
+import { goToJournalsPage } from '@/helpers/urls';
+import { extractLabel, getDOMElementMeasurer, getTextByLocale, t } from '@/helpers/util';
+import { selectJournalDashletProps } from '@/selectors/dashletJournals';
+import DAction from '@/services/DashletActionService';
+import UserLocalSettingsService from '@/services/userLocalSettings';
 
 import './JournalsDashlet.scss';
-import { JOURNAL_DASHLET_CONFIG_VERSION } from '../../Journals/constants';
 
 const Labels = {
   J_TITLE: 'journal.title',
@@ -62,7 +63,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
   const w = wrapArgs(getKey(ownProps));
 
   return {
-    initState: () => dispatch(initState(getKey(ownProps))),
+    initState: () => dispatch(initState({ stateId: getKey(ownProps) })),
     resetState: () => dispatch(resetState(getKey(ownProps))),
     getDashletConfig: id => dispatch(getDashletConfig(w(id))),
     setRecordRef: recordRef => dispatch(setRecordRef(w(recordRef))),
@@ -131,7 +132,9 @@ class JournalsDashlet extends BaseWidget {
     const { setRecordRef, getDashletConfig, setDashletConfigByParams, id, config, onSave } = this.props;
     const { journalId } = this.state;
 
-    setRecordRef(this.recordRef);
+    if (this.recordRef) {
+      setRecordRef(this.recordRef);
+    }
 
     if (isFunction(onSave)) {
       setDashletConfigByParams(id, config, this.recordRef, journalId);
@@ -148,7 +151,9 @@ class JournalsDashlet extends BaseWidget {
     const { journalId } = this.state;
 
     if (!isEqual(config, prevConfig) && isFunction(onSave)) {
-      setRecordRef(this.recordRef);
+      if (this.recordRef) {
+        setRecordRef(this.recordRef);
+      }
       setDashletConfigByParams(id, config, this.recordRef, journalId);
     }
   }
@@ -159,6 +164,17 @@ class JournalsDashlet extends BaseWidget {
 
   get footerHeight() {
     return get(this._footerRef, 'offsetHeight', 0);
+  }
+
+  get showGoToButton() {
+    const { editorMode, config } = this.props;
+    const { width } = this.state;
+
+    if (get(config, [JOURNAL_DASHLET_CONFIG_VERSION, 'isHideGoToButton'], false)) {
+      return false;
+    }
+
+    return width >= MIN_WIDTH_DASHLET_LARGE && !isEmpty(config) && !editorMode;
   }
 
   setToolbarRef = ref => !!ref && (this._toolbarRef = ref);
@@ -246,7 +262,7 @@ class JournalsDashlet extends BaseWidget {
   }
 
   renderJournal() {
-    const { editorMode, stateId } = this.props;
+    const { editorMode, stateId, config } = this.props;
     const { width, journalId } = this.state;
 
     if (editorMode || this.isCollapsed) {
@@ -259,6 +275,7 @@ class JournalsDashlet extends BaseWidget {
     return (
       <>
         <JournalsDashletToolbar
+          isHideCreateVariants={get(config, [JOURNAL_DASHLET_CONFIG_VERSION, 'isHideCreateVariants'], false)}
           measurer={getDOMElementMeasurer(this._toolbarRef)}
           lsJournalId={journalId}
           forwardRef={this.setToolbarRef}
@@ -282,8 +299,7 @@ class JournalsDashlet extends BaseWidget {
   }
 
   render() {
-    const { journalConfig, className, dragHandleProps, editorMode, config, configJournalId } = this.props;
-    const { width } = this.state;
+    const { journalConfig, className, dragHandleProps, editorMode, configJournalId } = this.props;
     const actions = {
       [DAction.Actions.HELP]: {
         onClick: () => null
@@ -310,7 +326,7 @@ class JournalsDashlet extends BaseWidget {
         style={{ minWidth: `${MIN_WIDTH_DASHLET_SMALL}px` }}
         title={journalName || t(Labels.J_TITLE)}
         onGoTo={this.goToJournalsPage}
-        needGoTo={width >= MIN_WIDTH_DASHLET_LARGE && !isEmpty(config) && !editorMode}
+        needGoTo={this.showGoToButton}
         goToButtonName={this.goToButtonName}
         actionConfig={actions}
         onResize={this.handleResize}
@@ -331,8 +347,4 @@ class JournalsDashlet extends BaseWidget {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-  mergeProps
-)(JournalsDashlet);
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(JournalsDashlet);

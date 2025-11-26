@@ -1,5 +1,5 @@
+import { render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
-import { mount } from 'enzyme';
 import { unmountComponentAtNode } from 'react-dom';
 
 import formatterStore from '../../formatterStore';
@@ -44,7 +44,7 @@ describe('FunctionFormatterV2 React Component', () => {
       props: {
         ...defaultProps,
         params: {
-          fn: function(...params) {
+          fn: function (...params) {
             const utils = params.slice(-1)[0];
 
             return utils.lodash.get(params, '[1].id');
@@ -126,13 +126,9 @@ describe('FunctionFormatterV2 React Component', () => {
   ];
 
   data.forEach(item => {
-    it(item.title, () => {
-      const mounted = mount(<FunctionFormatterV2 {...item.props} />);
-      return Promise.resolve(mounted)
-        .then(() => mounted.update())
-        .then(() => {
-          expect(mounted.text()).toBe(item.output);
-        });
+    it(item.title, async () => {
+      const { container } = render(<FunctionFormatterV2 {...item.props} />);
+      await waitFor(() => expect(screen.getByText(item.output)).toBeInTheDocument());
     });
   });
 });
@@ -153,7 +149,7 @@ describe('FunctionFormatterV2 getFilterValue static method', () => {
           id: 'workspace://SpacesStore/ae9f0b14-66eb-46b8-98fc-64a24d536f53'
         },
         {
-          fn: function(...params) {
+          fn: function (...params) {
             const utils = params.slice(-1)[0];
 
             return utils.lodash.get(params, '[1].id');

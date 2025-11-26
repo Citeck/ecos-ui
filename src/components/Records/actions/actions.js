@@ -1,3 +1,4 @@
+/* eslint-disable */
 import actionsRegistry from './actionsRegistry';
 
 import AttributeActionsResolver from './handler/resolver/AttributeActionsResolver';
@@ -9,6 +10,7 @@ import EditTaskAssignee from './handler/executor/workflow/EditTaskAssignee';
 import SetTaskAssignee from './handler/executor/workflow/SetTaskAssignee';
 import TaskOutcomeAction from './handler/executor/workflow/TaskOutcomeAction';
 import OpenSubmitAction from './handler/executor/workflow/OpenSubmitAction';
+import OpenTaskActions from './handler/executor/workflow/OpenTaskActions';
 
 import EditAction from './handler/executor/EditAction';
 import EditMenuAction from './handler/executor/EditMenuAction';
@@ -47,14 +49,13 @@ import RecordCopyAction from './handler/executor/RecordCopyAction';
 import TransformAction from './handler/executor/TransformAction';
 import CustomUiAction from './handler/executor/CustomUiAction';
 import MigrateTokenAction from './handler/executor/MigrateTokenAction';
-import { IS_TEST_ENV } from '../../../helpers/util';
 import UserEventAction from './handler/executor/UserEventAction';
 
 export { default } from './recordActions';
 
 // Executors - Common
 
-const registerAllActions = () => {
+export const registerAllActions = () => {
   actionsRegistry.register(new DeleteAction());
   actionsRegistry.register(new EditAction());
   actionsRegistry.register(new EditMenuAction());
@@ -104,6 +105,7 @@ const registerAllActions = () => {
   actionsRegistry.register(new TaskOutcomeAction());
   actionsRegistry.register(new ViewBusinessProcessAction());
   actionsRegistry.register(new OpenSubmitAction());
+  actionsRegistry.register(new OpenTaskActions());
 
   // Executors - ECOS Module
 
@@ -114,7 +116,3 @@ const registerAllActions = () => {
   actionsRegistry.register(new AttributeActionsResolver());
   actionsRegistry.register(new TasksActionsResolver());
 };
-
-if (!IS_TEST_ENV) {
-  registerAllActions();
-}

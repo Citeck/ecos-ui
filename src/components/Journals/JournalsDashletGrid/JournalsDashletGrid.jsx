@@ -1,16 +1,16 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import connect from 'react-redux/es/connect/connect';
+import first from 'lodash/first';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
-import first from 'lodash/first';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
 import { ParserPredicate } from '../../Filters/predicates';
 import { InfoText, Loader } from '../../common';
 import { EmptyGrid, Grid, InlineTools } from '../../common/grid';
-import { t } from '../../../helpers/util';
-import { wrapArgs } from '../../../helpers/redux';
+import { DEFAULT_PAGINATION } from '../constants';
+
 import {
   deselectAllRecords,
   execRecordsAction,
@@ -19,18 +19,18 @@ import {
   saveRecords,
   setColumnsSetup,
   setExcludedRecords,
-  setGridInlineToolSettings,
   setJournalSetting,
   setPredicate,
   setSelectAllPageRecords,
   setSelectAllRecordsVisible,
   setSelectedRecords,
   saveColumn
-} from '../../../actions/journals';
-import { selectJournalDashletGridProps } from '../../../selectors/dashletJournals';
-import { DEFAULT_PAGINATION } from '../constants';
-import { selectOriginGridPredicates } from '../../../selectors/journals';
-import { selectIsViewNewJournal } from '../../../selectors/view';
+} from '@/actions/journals';
+import { wrapArgs } from '@/helpers/redux';
+import { t } from '@/helpers/util';
+import { selectJournalDashletGridProps } from '@/selectors/dashletJournals';
+import { selectOriginGridPredicates } from '@/selectors/journals';
+import { selectIsViewNewJournal } from '@/selectors/view';
 
 const mapStateToProps = (state, props) => {
   const ownState = selectJournalDashletGridProps(state, props.stateId);
@@ -67,7 +67,6 @@ const mapDispatchToProps = (dispatch, props) => {
     setSelectAllPageRecords: need => dispatch(setSelectAllPageRecords(w(need))),
     setSelectAllRecordsVisible: visible => dispatch(setSelectAllRecordsVisible(w(visible))),
     deselectAllRecords: () => dispatch(deselectAllRecords(w())),
-    setGridInlineToolSettings: settings => dispatch(setGridInlineToolSettings(w(settings))),
     goToJournalsPage: row => dispatch(goToJournalsPage(w(row))),
     setPredicate: options => dispatch(setPredicate(w(options))),
     setJournalSetting: settings => dispatch(setJournalSetting(w(settings))),
@@ -135,7 +134,7 @@ class JournalsDashletGrid extends Component {
     !isNil(excluded) && setExcludedRecords(_allPossible ? excluded : []);
   };
 
-  reloadGrid(options) {
+  reloadGrid = options => {
     options = options || {};
     const { predicate, grid } = this.props;
     const { columns, groupBy, sortBy } = grid || {};
@@ -144,7 +143,7 @@ class JournalsDashletGrid extends Component {
 
     this.hideGridInlineToolSettings();
     this.props.reloadGrid({ ...currentOptions, ...options });
-  }
+  };
 
   onFilterInline = (_predicates, _type) => {
     const [filter] = _predicates;
@@ -195,8 +194,14 @@ class JournalsDashletGrid extends Component {
 
     const currentRow = this.selectedRow.id;
     const recordActions = get(forRecord, currentRow, []);
+    const handlers = {
+      reloadJournalGrid: this.reloadGrid
+    };
 
-    return recordActions.map(action => ({ ...action, onClick: () => execRecordsAction(currentRow, action) }));
+    return recordActions.map(action => ({
+      ...action,
+      onClick: () => execRecordsAction(currentRow, { ...action, config: { handlers, ...(action.config || {}) } })
+    }));
   }
 
   hideGridInlineToolSettings = () => {
@@ -266,6 +271,7 @@ class JournalsDashletGrid extends Component {
       footerValue,
       journalSetting,
       journalSettings,
+      draggableEvents,
       isViewNewJournal
     } = this.props;
 
@@ -335,6 +341,7 @@ class JournalsDashletGrid extends Component {
               journalSetting={journalSetting}
               journalSettings={journalSettings}
               isViewNewJournal={isViewNewJournal}
+              {...draggableEvents}
             />
           </HeightCalculation>
         </div>
@@ -347,6 +354,7 @@ JournalsDashletGrid.propTypes = {
   stateId: PropTypes.string,
   journalId: PropTypes.string,
   className: PropTypes.string,
+  draggableEvents: PropTypes.object,
   toolsClassName: PropTypes.string,
   selectorContainer: PropTypes.string,
   originPredicates: PropTypes.array,
@@ -360,7 +368,4 @@ JournalsDashletGrid.propTypes = {
   onOpenSettings: PropTypes.func
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(JournalsDashletGrid);
+export default connect(mapStateToProps, mapDispatchToProps)(JournalsDashletGrid);

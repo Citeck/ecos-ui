@@ -1,0 +1,131 @@
+@import '../../../styles/constants';
+
+.ecos-journals-preview {
+  position: relative;
+  height: 100%;
+}
+
+.ecos-journals-preview__caption-well {
+  font-size: $font-size-large;
+  font-weight: $font-weight-bold;
+  padding: 18px 12px;
+  line-height: 1;
+}
+
+.ecos-journals-preview {
+  &__settings-modal {
+    &-view {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+
+      margin-bottom: 15px;
+
+      &_icon {
+        cursor: pointer;
+
+        &:hover,
+        &.selected {
+          rect:not(:first-child) {
+            fill: var(--dark-primary-color);
+          }
+
+          path, rect:first-child {
+            stroke: var(--primary-color);
+            fill: var(--light-primary-color);
+          }
+        }
+      }
+    }
+  }
+
+  &__container {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    overflow-x: hidden;
+  }
+
+  &__empty {
+    &-widgets {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      gap: 28px;
+
+      width: 100%;
+      height: 100%;
+
+      &-preview {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+
+        gap: 24px;
+
+        & svg > g > g {
+          & > path:nth-child(1),
+          & > path[fill-rule="evenodd"] {
+            fill: var(--light-primary-color);
+          }
+        }
+      }
+
+      &_text {
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 22px;
+        color: $color-gray-5;
+      }
+
+      &_btn {
+        height: 25px !important;
+        padding: 8px 34px !important;
+        border-radius: 6px !important;
+
+        & .ecos-btn__content {
+          font-size: 12px;
+          font-weight: 600;
+          line-height: 10px;
+        }
+      }
+    }
+
+    &-record {
+      width: 100%;
+      height: 100%;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 30px;
+
+      &_text {
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 22px;
+        color: $color-gray-5;
+      }
+    }
+  }
+
+  &__widgets {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: 100%;
+  }
+
+  &__modal {
+    &_checkbox {
+      margin-bottom: 15px;
+    }
+  }
+}

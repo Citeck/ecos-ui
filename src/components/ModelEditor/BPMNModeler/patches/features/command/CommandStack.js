@@ -1,9 +1,8 @@
 import CommandStack from 'diagram-js/lib/command/CommandStack';
-
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 
-CommandStack.prototype.undo = function() {
+CommandStack.prototype.undo = function () {
   let action = this._getUndoAction(),
     next;
 

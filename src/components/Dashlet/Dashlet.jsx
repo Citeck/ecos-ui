@@ -1,18 +1,19 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
-import PropTypes from 'prop-types';
-import ReactResizeDetector from 'react-resize-detector';
 import debounce from 'lodash/debounce';
 import get from 'lodash/get';
-import uniqueId from 'lodash/uniqueId';
 import isFunction from 'lodash/isFunction';
+import uniqueId from 'lodash/uniqueId';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import ReactResizeDetector from 'react-resize-detector';
 
 import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_DEFAULT_HEIGHT_DASHLET } from '../../constants';
 import { getDOMElementMeasurer, t } from '../../helpers/util';
+import { ErrorBoundary } from '../ErrorBoundary';
 import { Loader, Panel, ResizableBox } from '../common';
 import { Btn } from '../common/btns';
-import { ErrorBoundary } from '../ErrorBoundary';
+
 import Header from './Header';
 
 import './Dashlet.scss';
@@ -35,6 +36,7 @@ class Dashlet extends Component {
     needGoTo: PropTypes.bool,
     actionDrag: PropTypes.bool,
     resizable: PropTypes.bool,
+    isSameHeight: PropTypes.bool,
     canDragging: PropTypes.bool,
     isMobile: PropTypes.bool,
     isCollapsed: PropTypes.bool,
@@ -238,11 +240,12 @@ class Dashlet extends Component {
       children,
       isCollapsed,
       customActions,
+      isSameHeight,
       disableCollapse
     } = this.props;
 
     return (
-      <div ref={this.setDashletRef} className="dashlet">
+      <div ref={this.setDashletRef} className={classNames('dashlet', { same: isSameHeight && !isCollapsed })}>
         <Panel
           {...this.props}
           className={classNames('dashlet', className, { dashlet_mobile: isMobile })}
@@ -301,7 +304,4 @@ const mapStateToProps = state => ({
   isMobile: get(state, 'view.isMobile')
 });
 
-export default connect(
-  mapStateToProps,
-  null
-)(Dashlet);
+export default connect(mapStateToProps, null)(Dashlet);

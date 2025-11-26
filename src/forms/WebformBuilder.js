@@ -1,20 +1,23 @@
-import Components from 'formiojs/components/Components';
 import EventEmitter from 'formiojs/EventEmitter';
-import BuilderUtils from 'formiojs/utils/builder';
-import { getComponent } from 'formiojs/utils/formUtils';
 import Webform from 'formiojs/Webform';
 import WebformBuilder from 'formiojs/WebformBuilder';
+import Components from 'formiojs/components/Components';
+import BuilderUtils from 'formiojs/utils/builder';
+import { getComponent } from 'formiojs/utils/formUtils';
 import _ from 'lodash';
 
 import { t } from '../helpers/export/util';
-import { prepareComponentBuilderInfo } from './utils';
 import { getMLValue } from '../helpers/util';
+
+import { prepareComponentBuilderInfo } from './utils';
+
+import dragula from '@/services/dragula';
 
 const originAddBuilderComponentInfo = WebformBuilder.prototype.addBuilderComponentInfo;
 const originAddBuilderComponent = WebformBuilder.prototype.addBuilderComponent;
 
 Object.defineProperty(WebformBuilder.prototype, 'defaultComponents', {
-  get: function() {
+  get: function () {
     return {
       basic: {
         title: t('form-constructor.builder.basic'),
@@ -37,7 +40,7 @@ Object.defineProperty(WebformBuilder.prototype, 'defaultComponents', {
   }
 });
 
-WebformBuilder.prototype.deleteComponent = function(component) {
+WebformBuilder.prototype.deleteComponent = function (component) {
   if (!component.parent) {
     return;
   }
@@ -60,7 +63,7 @@ WebformBuilder.prototype.deleteComponent = function(component) {
   return remove;
 };
 
-WebformBuilder.prototype.pasteComponent = function(component) {
+WebformBuilder.prototype.pasteComponent = function (component) {
   if (!window.sessionStorage) {
     return console.log('Session storage is not supported in this browser.');
   }
@@ -86,7 +89,7 @@ WebformBuilder.prototype.pasteComponent = function(component) {
   }
 };
 
-WebformBuilder.prototype.onDrop = function(element, target, source, sibling) {
+WebformBuilder.prototype.onDrop = function (element, target, source, sibling) {
   if (!element || !element.id) {
     console.warn('No element.id defined for dropping');
     return;
@@ -121,7 +124,7 @@ WebformBuilder.prototype.onDrop = function(element, target, source, sibling) {
       target.dragEvents.onDrop(element, target, source, sibling, componentSchema);
     } // Add the new component.
 
-    var component = this.addComponentTo(componentSchema, newParent.component, newParent, sibling, function(comp) {
+    var component = this.addComponentTo(componentSchema, newParent.component, newParent, sibling, function (comp) {
       // Set that this is a new component.
       comp.isNew = true; // Pass along the save event.
 
@@ -158,7 +161,7 @@ WebformBuilder.prototype.onDrop = function(element, target, source, sibling) {
   }
 };
 
-WebformBuilder.prototype.updateComponent = function(component) {
+WebformBuilder.prototype.updateComponent = function (component) {
   // Update the preview.
   if (this.componentPreview) {
     if (this.preview) {
@@ -233,7 +236,7 @@ WebformBuilder.prototype.updateComponent = function(component) {
   this.emit('updateComponent', component);
 };
 
-WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
+WebformBuilder.prototype.editComponent = function (component, isJsonEdit) {
   const componentCopy = _.cloneDeep(component);
   let componentClass = Components.components[componentCopy.component.type];
   const isCustom = componentClass === undefined;
@@ -539,7 +542,7 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
     }
 
     const target = document.querySelector('.formarea');
-    const observer = new MutationObserver(function() {
+    const observer = new MutationObserver(function () {
       container.scrollTo(0, top);
       setTimeout(() => {
         observer.disconnect();
@@ -567,11 +570,11 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
   this.emit('editComponent', component);
 };
 
-WebformBuilder.prototype.addBuilderComponentInfo = function(builderInfo) {
+WebformBuilder.prototype.addBuilderComponentInfo = function (builderInfo) {
   return originAddBuilderComponentInfo.call(this, prepareComponentBuilderInfo(builderInfo));
 };
 
-WebformBuilder.prototype.addBuilderComponent = function(...props) {
+WebformBuilder.prototype.addBuilderComponent = function (...props) {
   const component = originAddBuilderComponent.call(this, ...props);
   if (component.element && component.documentation) {
     const helper = this.ce('i', {
@@ -585,6 +588,30 @@ WebformBuilder.prototype.addBuilderComponent = function(...props) {
     component.element.appendChild(helper);
   }
   return component;
+};
+
+WebformBuilder.prototype.refreshDraggable = function () {
+  if (this.dragula) {
+    this.dragula.destroy();
+  }
+
+  this.dragula = dragula(this.sidebarContainers.concat(this.dragContainers), {
+    moves(el) {
+      return !el.classList.contains('no-drag');
+    },
+    copy(el) {
+      return el.classList.contains('drag-copy');
+    },
+    accepts(el, target) {
+      return !el.contains(target) && !target.classList.contains('no-drop');
+    }
+  }).on('drop', (element, target, source, sibling) => {
+    return this.onDrop(element, target, source, sibling);
+  });
+
+  // If there are no components, then we need to add a default submit button.
+  this.addSubmitButton();
+  this.builderReadyResolve();
 };
 
 export default WebformBuilder;

@@ -1,31 +1,32 @@
-import { mountWithContext } from '../../../helpers/tests';
+import userEvent from '@testing-library/user-event';
 
-import { TypePermissionsEditorContext } from '../TypePermissionsEditor/Context';
 import ButtonsPanel from '../TypePermissionsEditor/ButtonsPanel';
+import { TypePermissionsEditorContext } from '../TypePermissionsEditor/Context';
+
+import { mountWithContext } from '@/helpers/tests';
 
 describe('<ButtonsPanel />', () => {
-  it('render buttons', () => {
+  it('render buttons', async () => {
+    const user = userEvent.setup();
+
     const savePermissions = jest.fn();
     const closeEditor = jest.fn();
-    const wrapper = mountWithContext(ButtonsPanel, TypePermissionsEditorContext, {
+    const { container } = mountWithContext(ButtonsPanel, TypePermissionsEditorContext, {
       savePermissions,
       closeEditor
     });
-    return Promise.resolve(wrapper)
-      .then(() => {
-        const buttons = wrapper.find('button');
-        expect(buttons.length).toBe(3);
 
-        const cancelButton = buttons.at(0);
-        expect(closeEditor.mock.calls.length).toBe(0);
-        cancelButton.simulate('click');
-        expect(closeEditor.mock.calls.length).toBe(1);
+    const buttons = container.getElementsByTagName('button');
+    expect(buttons).toHaveLength(3);
 
-        const saveButton = buttons.at(2);
-        expect(savePermissions.mock.calls.length).toBe(0);
-        saveButton.simulate('click');
-        expect(savePermissions.mock.calls.length).toBe(1);
-      })
-      .then(() => wrapper.unmount());
+    const cancelButton = buttons.item(0);
+    expect(closeEditor).toHaveBeenCalledTimes(0);
+    await user.click(cancelButton);
+    expect(closeEditor).toHaveBeenCalledTimes(1);
+
+    const saveButton = buttons.item(2);
+    expect(savePermissions).toHaveBeenCalledTimes(0);
+    await user.click(saveButton);
+    expect(savePermissions).toHaveBeenCalledTimes(1);
   });
 });

@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import ReactLoader from 'react-loader-spinner';
 
 import PointsLoader from '../PointsLoader/PointsLoader';
@@ -13,7 +13,7 @@ export default class Loader extends Component {
     width: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     zIndex: PropTypes.number,
     className: PropTypes.string,
-    color: PropTypes.oneOf(['white', 'light-blue']),
+    color: PropTypes.oneOf(['white', 'light-blue', 'currentColor']),
     type: PropTypes.oneOf(['circle', 'points']),
     blur: PropTypes.bool,
     darkened: PropTypes.bool,
@@ -26,7 +26,7 @@ export default class Loader extends Component {
     width: 45,
     zIndex: null,
     className: '',
-    color: 'light-blue',
+    color: 'currentColor',
     type: 'circle',
     blur: false,
     darkened: false,
@@ -60,7 +60,7 @@ export default class Loader extends Component {
 
     return (
       <div className={cssClasses} style={this.style}>
-        <ReactLoader type="Oval" color="#7396cd" height={height} width={width} />
+        <ReactLoader type="Oval" color="currentColor" height={height} width={width} />
       </div>
     );
   }

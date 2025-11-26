@@ -1,18 +1,19 @@
-import * as queryString from 'query-string';
+import get from 'lodash/get';
+import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import isUndefined from 'lodash/isUndefined';
-import get from 'lodash/get';
-import pick from 'lodash/pick';
 import omit from 'lodash/omit';
-import isArray from 'lodash/isArray';
+import pick from 'lodash/pick';
+import * as queryString from 'query-string';
 
+import { ParserPredicate } from '../components/Filters/predicates/index';
 import { JournalUrlParams, KanbanUrlParams, SourcesId, URL as Urls } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
-import { ParserPredicate } from '../components/Filters/predicates/index';
-import PageTabList from '../services/pageTabs/PageTabList';
 import PageService from '../services/PageService';
+import PageTabList from '../services/pageTabs/PageTabList';
+
 import { isNewVersionPage, isNewVersionSharePage } from './export/urls';
-import { IS_TEST_ENV, getCurrentUserName, hasInString, getEnabledWorkspaces } from './util';
+import { IS_TEST_ENV, getCurrentUserName, hasInString, getEnabledWorkspaces, getDefaultWorkspace } from './util';
 
 const JOURNAL_ID_KEY = JournalUrlParams.JOURNAL_ID;
 const DASHBOARD_ID_KEY = 'dashboardId';
@@ -50,6 +51,24 @@ export { NEW_VERSION_PREFIX, isNewVersionPage, isNewVersionSharePage } from './e
 
 export const OLD_LINKS = false;
 
+export const openLinkWorkspace = (id, homePageLink, openNewBrowserTab) => {
+  const needUpdateTabsWorkspace = id !== getWorkspaceId();
+  const params = {
+    openNewTab: true,
+    reopen: true,
+    closeActiveTab: false,
+    needUpdateTabs: needUpdateTabsWorkspace
+  };
+
+  const url = getBaseUrlWorkspace(id, homePageLink, false);
+
+  if (!openNewBrowserTab) {
+    PageService.changeUrlLink(url, params);
+  } else {
+    PageService.changeUrlLink(url, { openNewBrowserTab });
+  }
+};
+
 export const getCustomDasboardUrl = dashboardId => {
   return `${Urls.DASHBOARD}?dashboardId=${dashboardId}`;
 };
@@ -57,7 +76,7 @@ export const getCustomDasboardUrl = dashboardId => {
 export const getWikiDasboardUrl = () => {
   const workspaceId = getWorkspaceId();
 
-  return `${Urls.DASHBOARD}?recordRef=emodel/wiki@${workspaceId}$ROOT&ws=${workspaceId}`;
+  return `${Urls.DASHBOARD}?recordRef=${SourcesId.WIKI}@${workspaceId}$ROOT&ws=${workspaceId}`;
 };
 
 export const changeUrl = (url, opts = {}) => {
@@ -420,7 +439,7 @@ export const isTaskDashboard = (url = window.location.href) => {
   return isDashboard(url) && hasInString(url, `${SourcesId.TASK}@`);
 };
 
-export const getWorkspaceId = (defaultWorkspace = '', search = window.location.search) => {
+export const getWorkspaceId = (defaultWorkspace = getDefaultWorkspace(), search = window.location.search) => {
   if (!getEnabledWorkspaces()) {
     return '';
   }
@@ -449,6 +468,10 @@ export const getUrlWithWorkspace = (path, urlSearch, workspaceId) => {
   const pathname = path || window.location.pathname;
   const search = isUndefined(urlSearch) ? window.location.search : urlSearch;
   const searchParams = search ? new URLSearchParams(search) : new URLSearchParams();
+
+  if (!workspaceId) {
+    console.error('This method requires the required "workspaceId" parameter');
+  }
 
   if (!!workspaceId && !!workspaceId.trim()) {
     searchParams.set('ws', workspaceId.trim());
@@ -480,13 +503,17 @@ export const getLinkWithWs = (link = '', workspaceId = getWorkspaceId(), isFullL
   return isFullLink ? url.origin + newUrl : newUrl;
 };
 
-export const getBaseUrlWorkspace = (wsId, homePageLink) => {
+export const getBaseUrlWorkspace = (wsId, homePageLink, withHost = true) => {
   const lastActiveTabWs = PageTabList.getLastActiveTabWs(wsId);
   const url = new URL(get(lastActiveTabWs, 'link') || homePageLink || Urls.DASHBOARD, window.location.origin);
 
   url.searchParams.set('ws', wsId);
 
-  return url.toString();
+  if (withHost) {
+    return url.toString();
+  }
+
+  return url.pathname + url.search;
 };
 
 window.Citeck.Navigator = {

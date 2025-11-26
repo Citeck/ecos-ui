@@ -1,0 +1,100 @@
+import classNames from 'classnames';
+import isEmpty from 'lodash/isEmpty';
+import PropTypes from 'prop-types';
+import * as React from 'react';
+
+import { t } from '../../../helpers/util';
+import { InfoText, Loader } from '../../common/index';
+
+import TaskDetails from './TaskDetails';
+import { TaskPropTypes } from './utils';
+
+class TaskList extends React.Component {
+  static propTypes = {
+    tasks: PropTypes.arrayOf(PropTypes.shape(TaskPropTypes)).isRequired,
+    className: PropTypes.string,
+    taskId: PropTypes.string,
+    isLoading: PropTypes.bool,
+    isSmallMode: PropTypes.bool,
+    isViewTaskInfo: PropTypes.bool,
+    onAssignClick: PropTypes.func,
+    onSubmitForm: PropTypes.func,
+    forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })])
+  };
+
+  static defaultProps = {
+    tasks: [],
+    className: '',
+    isLoading: false,
+    isSmallMode: false,
+    onAssignClick: () => {},
+    onSubmitForm: () => {}
+  };
+
+  contentRef = React.createRef();
+
+  renderLoader() {
+    const { isLoading } = this.props;
+
+    if (!isLoading) {
+      return null;
+    }
+
+    return <Loader blur />;
+  }
+
+  renderEmptyInfo() {
+    const { tasks, isLoading } = this.props;
+
+    if (isLoading || !isEmpty(tasks)) {
+      return null;
+    }
+
+    return <InfoText text={t('tasks-widget.no-tasks')} />;
+  }
+
+  renderTaskDetailsList() {
+    const { tasks, taskId, onAssignClick, onSubmitForm, className, isSmallMode, runUpdate, setFormRef, isViewTaskInfo } = this.props;
+
+    if (isEmpty(tasks)) {
+      return null;
+    }
+
+    return tasks.map(
+      item =>
+        (!taskId || (taskId && item.id && item.id.includes(taskId))) && (
+          <React.Fragment key={item.id}>
+            <TaskDetails
+              details={item}
+              isViewTaskInfo={isViewTaskInfo}
+              onAssignClick={onAssignClick}
+              onSubmitForm={onSubmitForm}
+              className={className}
+              isSmallMode={isSmallMode}
+              runUpdate={runUpdate}
+              setFormRef={setFormRef}
+            />
+          </React.Fragment>
+        )
+    );
+  }
+
+  render() {
+    const { isLoading } = this.props;
+
+    return (
+      <div
+        ref={this.props.forwardedRef}
+        className={classNames('ecos-task-list__container', {
+          'ecos-task-list__container_min-height': isLoading
+        })}
+      >
+        {this.renderLoader()}
+        {this.renderEmptyInfo()}
+        {this.renderTaskDetailsList()}
+      </div>
+    );
+  }
+}
+
+export default TaskList;

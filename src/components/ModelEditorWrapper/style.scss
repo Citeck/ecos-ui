@@ -14,16 +14,15 @@
   &__designer {
     display: flex;
     flex-direction: column;
-    margin: 20px;
     position: relative;
     width: 100vw;
     min-width: 25%;
 
-    & > :nth-child(n):not(:last-child) {
-      margin-bottom: 10px;
-    }
-
     &-title {
+      padding: 10px 0;
+      padding-left: 20px;
+      border-bottom: 1px solid $color-gray-4;
+
       &:empty {
         display: none;
       }
@@ -79,7 +78,7 @@
     &-buttons {
       z-index: 1000;
       position: absolute;
-      bottom: 0;
+      bottom: 20px;
       display: flex;
       padding: 10px;
 
@@ -103,7 +102,7 @@
       z-index: 5;
       padding-top: 20px;
       padding-bottom: 20px;
-      border-bottom: 2px $color-gray-6 solid;
+      border-bottom: 1px $color-gray-4 solid;
       padding-left: 20px;
       margin: -20px -20px 5px -20px;
     }
@@ -111,6 +110,7 @@
     &-resizer {
       left: -10px;
       top: 5rem;
+      z-index: 100;
     }
 
     &_open {
@@ -120,7 +120,7 @@
 
     &-opener {
       position: absolute;
-      z-index: 905;
+      z-index: 100;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -139,7 +139,7 @@
       }
 
       &:hover {
-        background: $color-blue-light;
+        background: var(--primary-color);
 
         .icon {
           color: $color-white;
@@ -171,8 +171,8 @@
 
   &__designer-zoom {
     position: absolute;
-    bottom: 40px;
-    right: 10px;
+    bottom: 70px;
+    right: 20px;
 
     .ecos-btn {
       margin-bottom: 10px;

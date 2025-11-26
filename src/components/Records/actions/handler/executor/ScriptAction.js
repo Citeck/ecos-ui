@@ -2,9 +2,11 @@ import get from 'lodash/get';
 import isBoolean from 'lodash/isBoolean';
 import isUndefined from 'lodash/isUndefined';
 
-import { t } from '../../../../../helpers/export/util';
 import { notifyFailure } from '../../util/actionUtils';
 import ActionsExecutor from '../ActionsExecutor';
+
+import { t } from '@/helpers/export/util';
+import ESMRequire from '@/services/ESMRequire';
 
 export default class ScriptAction extends ActionsExecutor {
   static ACTION_ID = 'script';
@@ -35,7 +37,7 @@ export default class ScriptAction extends ActionsExecutor {
 
     if (config.module) {
       return new Promise(resolve => {
-        window.require(
+        ESMRequire.require(
           [config.module],
           module => {
             const result = module.default.execute({ record, action, context });

@@ -52,7 +52,7 @@
         &_selected:hover {
           font-weight: 600;
           color: $color-white;
-          background-color: $color-blue-dark3;
+          background-color: var(--dark-primary-color);
         }
       }
     }

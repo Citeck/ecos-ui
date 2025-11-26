@@ -50,13 +50,13 @@
   &[type='text'],
   &_hover {
     &:not(:disabled):hover {
-      border-color: $color-blue-light !important;
+      border-color: var(--light-primary-color) !important;
     }
   }
   &[type='text'],
   &_focus {
     &:not(:disabled):hover {
-      border-color: $color-blue-dark !important;
+      border-color: var(--primary-color) !important;
     }
   }
 
@@ -98,7 +98,7 @@
   &__input &:not(disabled) {
     &:focus,
     &:hover {
-      border-color: $color-blue-light;
+      border-color: var(--dark-primary-color);
     }
   }
 }

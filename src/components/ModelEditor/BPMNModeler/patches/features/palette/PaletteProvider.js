@@ -7,7 +7,7 @@ const disabledPaletteElements = [
   'create.data-object' // Data Store
 ];
 
-PaletteProvider.prototype.getPaletteEntries = function() {
+PaletteProvider.prototype.getPaletteEntries = function () {
   const entries = originGetPaletteEntries.apply(this);
 
   disabledPaletteElements.forEach(key => {

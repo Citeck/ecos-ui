@@ -1,19 +1,19 @@
+import get from 'lodash/get';
 import isNil from 'lodash/isNil';
 import isUndefined from 'lodash/isUndefined';
-import get from 'lodash/get';
 
 import { SourcesId } from '../../../constants';
+
 import { AUTHORITY_TYPE_USER, AUTHORITY_TYPE_GROUP } from './constants';
+
+import EcosFormUtils from '@/components/EcosForm/EcosFormUtils';
 
 export const getGroupName = str => str.replace(`${AUTHORITY_TYPE_GROUP}_`, '');
 export const getGroupRef = str => `${SourcesId.GROUP}@${str}`;
 export const getPersonRef = str => `${SourcesId.PERSON}@${str}`;
 export const getRecordRef = str => str.replace('emodel/@', '');
 export const getAuthRef = str =>
-  str
-    .replace(`${SourcesId.GROUP}@`, `${AUTHORITY_TYPE_GROUP}_`)
-    .replace(`${SourcesId.PERSON}@`, '')
-    .replace('emodel/@', '');
+  str.replace(`${SourcesId.GROUP}@`, `${AUTHORITY_TYPE_GROUP}_`).replace(`${SourcesId.PERSON}@`, '').replace('emodel/@', '');
 
 export function handleResponse(result) {
   if (!Array.isArray(result)) {
@@ -75,31 +75,6 @@ export function converterUserList(source) {
   }));
 }
 
-export function isHTML(str) {
-  const doc = new DOMParser().parseFromString(str, 'text/html');
-
-  return Array.from(doc.body.childNodes).some(node => node.nodeType === 1);
-}
-
 export function renderUsernameString(str, replacements) {
-  const regex = /\${[^{]+}/g;
-
-  function interpolate(template, variables, fallback) {
-    return template.replace(regex, match => {
-      const path = match.slice(2, -1).trim();
-
-      return getObjPath(path, variables, fallback);
-    });
-  }
-
-  function getObjPath(path, obj, fallback = '') {
-    return path.split('.').reduce((res, key) => res[key] || fallback, obj);
-  }
-
-  return interpolate(str, replacements);
-}
-
-export function stripHTML(html) {
-  const doc = new DOMParser().parseFromString(html, 'text/html');
-  return doc.body.textContent || '';
+  return EcosFormUtils.renderByTemplate(str, replacements);
 }

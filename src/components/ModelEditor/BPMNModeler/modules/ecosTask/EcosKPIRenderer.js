@@ -1,15 +1,17 @@
-import _ from 'lodash';
 import { isAny } from 'bpmn-js/lib/features/modeling/util/ModelingUtil';
-import { append as svgAppend, attr as svgAttr, create as svgCreate, classes as svgClasses } from 'tiny-svg';
-import { is } from 'bpmn-js/lib/util/ModelUtil';
 import { isExpanded } from 'bpmn-js/lib/util/DiUtil';
+import { is } from 'bpmn-js/lib/util/ModelUtil';
+import _ from 'lodash';
+import { append as svgAppend, attr as svgAttr, create as svgCreate, classes as svgClasses } from 'tiny-svg';
+
+import DurationFormatter from '../../../../Journals/service/formatters/registry/DurationFormatter/DurationFormatter';
+import Records from '../../../../Records';
 
 import NumberRenderer from './EcosNumberRenderer';
-import { URL } from '../../../../../constants';
-import DurationFormatter from '../../../../Journals/service/formatters/registry/DurationFormatter/DurationFormatter';
-import { PERMISSION_VIEW_REPORTS, TYPE_BPMN_EVENT } from '../../../../../constants/bpmn';
-import { getSearchParams } from '../../../../../helpers/urls';
-import Records from '../../../../Records';
+
+import { URL } from '@/constants';
+import { PERMISSION_VIEW_REPORTS, TYPE_BPMN_EVENT } from '@/constants/bpmn';
+import { getSearchParams } from '@/helpers/urls';
 
 const HIGH_PRIORITY = 1700;
 

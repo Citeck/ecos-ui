@@ -1,5 +1,5 @@
-import MenuSettingsService from '../MenuSettingsService';
 import { MenuSettings as ms, MenuTypes } from '../../constants/menu';
+import MenuSettingsService from '../MenuSettingsService';
 import {
   ACTIONS,
   ACTIONS_BY_TYPE,

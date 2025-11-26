@@ -1,14 +1,15 @@
 import _ from 'lodash';
 
-import { t } from '../../../../helpers/util';
-import ecosFetch from '../../../../helpers/ecosFetch';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
-import Records from '../../../../components/Records';
 import JournalsService from '../../../../components/Journals/service';
 import formatterRegistry from '../../../../components/Journals/service/formatters/registry';
+import Records from '../../../../components/Records';
 import DialogManager from '../../../../components/common/dialogs/Manager';
 import TableForm from '../../../../components/common/form/TableForm';
+import ecosFetch from '../../../../helpers/ecosFetch';
+import { t } from '../../../../helpers/util';
 import BaseReactComponent from '../base/BaseReactComponent';
+
 import { TableTypes } from './constants';
 
 const Labels = {
@@ -68,6 +69,8 @@ export default class TableFormComponent extends BaseReactComponent {
         },
         triggerEventOnChange: false,
         isInstantClone: false,
+        enableSelectButton: false,
+        selectJournalId: '',
         defaultValue: [],
         customButtonName: {},
         noHorizontalScroll: false
@@ -593,7 +596,9 @@ export default class TableFormComponent extends BaseReactComponent {
           valueFormKey: value => this.getValueFormKey(value)
         },
         customButtonName: component.customButtonName,
-        noHorizontalScroll: component.noHorizontalScroll
+        noHorizontalScroll: component.noHorizontalScroll,
+        enableSelectButton: component.enableSelectButton,
+        selectJournalId: component.selectJournalId
       };
     };
 

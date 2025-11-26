@@ -1,13 +1,11 @@
-import React from 'react';
+import { render } from '@testing-library/react';
 import set from 'lodash/set';
-import { configure, mount } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
+import React from 'react';
 import { unmountComponentAtNode } from 'react-dom';
 
 import formatterStore from '../../formatterStore';
-import { LANGUAGE_EN } from '../../../../../../constants/lang';
 
-configure({ adapter: new Adapter() });
+import { LANGUAGE_EN } from '@/constants/lang';
 
 const { NumberFormatter } = formatterStore;
 const originToLocaleString = Number.prototype.toLocaleString;
@@ -17,7 +15,7 @@ beforeEach(() => {
   container = document.createElement('div');
   document.body.appendChild(container);
 
-  Number.prototype.toLocaleString = function(locales, options) {
+  Number.prototype.toLocaleString = function (locales, options) {
     return originToLocaleString.call(this, LANGUAGE_EN, options);
   };
 });
@@ -68,9 +66,9 @@ describe('NumberFormatter React Component', () => {
   data.forEach(item => {
     it(item.title, () => {
       set(item, 'input.params.locales', 'en-EN');
-      const component = mount(<NumberFormatter {...item.input} />);
 
-      expect(component.text()).toBe(item.output);
+      const { container } = render(<NumberFormatter {...item.input} />);
+      expect(container.textContent).toBe(item.output);
     });
   });
 });

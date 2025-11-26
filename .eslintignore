@@ -1,1 +1,3 @@
 **/bpmnlint-config.js
+**/__snapshots__/*.test.js.snap
+**/*.test.js.snap

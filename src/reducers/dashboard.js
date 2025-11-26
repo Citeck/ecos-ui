@@ -1,5 +1,5 @@
-import { handleActions } from 'redux-actions';
 import get from 'lodash/get';
+import { handleActions } from 'redux-actions';
 
 import {
   getDashboardConfig,
@@ -13,7 +13,6 @@ import {
   setRequestResultDashboard,
   setWarningMessage
 } from '../actions/dashboard';
-import { getDashboardConfig as getOrgstructureDashboardConfig } from '../actions/orgstructure';
 import { setUserData } from '../actions/user';
 
 const initialState = {
@@ -49,22 +48,6 @@ export { initialState };
 export default handleActions(
   {
     [getDashboardConfig]: (state, { payload }) => {
-      let ownState = { ...initialState };
-
-      if (state[payload.key]) {
-        ownState = { ...ownState, ...state[payload.key] };
-      }
-
-      return {
-        ...state,
-        [payload.key]: {
-          ...ownState,
-          reset: false,
-          isLoading: true
-        }
-      };
-    },
-    [getOrgstructureDashboardConfig]: (state, { payload }) => {
       let ownState = { ...initialState };
 
       if (state[payload.key]) {
@@ -205,8 +188,8 @@ export default handleActions(
     },
 
     [setUserData]: (state, { payload }) => {
-      // todo подумать, как получать key более универсально
       const key = payload.stateId.split(']-')[0].replace('[', '');
+
       return { ...state, [key]: { ...state[key], isLoading: false } };
     }
   },

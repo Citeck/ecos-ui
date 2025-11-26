@@ -8,6 +8,20 @@
   overflow-x: auto;
   display: flex;
 
+  &-view {
+    &__total {
+      font-size: 12px;
+      line-height: 16px;
+      font-weight: 600;
+      text-align: center;
+      color: $text-color-gray;
+
+      margin: auto 0;
+      min-width: 142px;
+      height: 100%;
+    }
+  }
+
   &__small-btn_new {
     width: auto !important;
     height: auto !important;
@@ -35,7 +49,7 @@
     &-svg-btn {
       &_blue_selected rect,
       &_blue_hover:hover rect {
-        fill: $color-blue-light;
+        fill: var(--header-bg-color);
       }
     }
 
@@ -236,6 +250,11 @@
     }
   }
 
+  .ecos-journal-view__doc-lib {
+    margin: 10px 10px 0 10px !important;
+    padding: 12px !important;
+  }
+
   .ecos-grid__row_new {
     &:last-child {
       border-bottom: 1px solid $color-gray-27;
@@ -270,7 +289,9 @@
     &:hover td,
     &.has-inline-tools td {
       border: none !important;
-      box-shadow: 0 -1px 0 0 $color-brown-2 inset, 0 1px 0 0 $color-brown-2 inset;
+      box-shadow:
+        0 -1px 0 0 $color-brown-2 inset,
+        0 1px 0 0 $color-brown-2 inset;
     }
 
     &:hover .ecos-grid__checkbox_block {
@@ -285,7 +306,7 @@
     }
     .ecos-inline-tools-actions {
       margin-top: 1px !important;
-      height: calc(100% - 2px) !important;
+      height: calc(100% - 3px) !important;
       background: linear-gradient(to right, rgba($color-white, 0), $color-white 15%);
     }
   }
@@ -335,7 +356,7 @@
     }
 
     &__content {
-      padding: 0 7px;
+      padding: 0;
 
       &-text {
         font-size: 11px;
@@ -343,7 +364,7 @@
     }
 
     &_filtered {
-      padding: 5px 15px;
+      padding: 5px 8px;
 
       .ecos-th__content {
         border-radius: $border-radius-standard;
@@ -478,10 +499,11 @@
   .ecos-popper__text {
     font-size: 11px;
     font-weight: 600;
+    width: calc(100% + 1px);
   }
 
   .ecos-journal__body {
-    padding: 10px 10px 0 10px;
+    padding: 0;
   }
 
   &__not-mobile {
@@ -501,6 +523,22 @@
 
   .ecos-pagination__arrow + .ecos-pagination__arrow {
     margin-left: 3px;
+  }
+}
+
+.with-vertical-line {
+  position: relative;
+  padding-left: 7px !important;
+
+  &::before{
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 24px;
+    background: $color-gray-4;
   }
 }
 

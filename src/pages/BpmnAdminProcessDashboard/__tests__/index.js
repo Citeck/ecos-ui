@@ -1,11 +1,12 @@
+import { render } from '@testing-library/react';
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render } from 'enzyme';
-import configureStore from '../../../store';
-import { getIncidentsTableColumns, getInstancesTableColumns, getProcessJobDefs } from '../ProcessJournalWidget/VersionTable/constants';
-import { ProcessContextProvider } from '../ProcessContext';
-import InfoPanel from '../InfoPanel';
+
 import { PROCESS_TABS_TYPES } from '../../../constants/processAdmin';
+import configureStore from '../../../store';
+import InfoPanel from '../InfoPanel';
+import { ProcessContextProvider } from '../ProcessContext';
+import { getIncidentsTableColumns, getInstancesTableColumns, getProcessJobDefs } from '../ProcessJournalWidget/VersionTable/constants';
 
 const initialState = {};
 
@@ -24,11 +25,12 @@ const renderWithRedux = Component => {
     </Provider>
   );
 };
+
 describe('', () => {
   describe('', () => {
     it('should render InfoPanel component', () => {
-      const component = render(renderWithRedux(() => <InfoPanel processId="test-process-id" />));
-      expect(component).toMatchSnapshot();
+      const { container } = render(renderWithRedux(() => <InfoPanel processId="test-process-id" />));
+      expect(container).toMatchSnapshot();
     });
 
     it('should render corrent columns for instances', () => {

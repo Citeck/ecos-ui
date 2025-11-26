@@ -6,6 +6,10 @@
   }
 
   &__editor {
+    &-content {
+      margin-bottom: 20px;
+    }
+
     &-title {
       margin-bottom: 20px;
     }
@@ -18,5 +22,9 @@
     &_field .ecos-field__control {
       width: 100%;
     }
+  }
+
+  .ace_editor {
+    width: 100% !important;
   }
 }

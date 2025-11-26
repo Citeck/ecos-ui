@@ -1,19 +1,19 @@
-import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 import isString from 'lodash/isString';
 
-import { TITLE } from '../constants/pageTabs';
-import { DashboardTypes } from '../constants/dashboard';
-import Components from '../components/widgets/Components';
-import Records from '../components/Records';
 import { ASSOC_TYPES } from '../components/Journals/service/journalColumnsResolver';
-import DashboardService from '../services/dashboard';
-import { getWorkspaceId } from '../helpers/urls';
-import { getCurrentUserName, getEnabledWorkspaces, getMLValue, isExistIndex, t } from '../helpers/util';
+import Records from '../components/Records';
+import Components from '../components/widgets/Components';
+import { ADMIN_WORKSPACE_ID, EmodelTypes, SourcesId } from '../constants';
+import { DashboardTypes } from '../constants/dashboard';
+import { TITLE } from '../constants/pageTabs';
 import Cache from '../helpers/cache';
 import { getRefWithAlfrescoPrefix, parseJournalId, parseTypeId } from '../helpers/ref';
-import { EmodelTypes, SourcesId } from '../constants';
+import { getWorkspaceId } from '../helpers/urls';
+import { getCurrentUserName, getEnabledWorkspaces, getMLValue, isExistIndex, t } from '../helpers/util';
+import DashboardService from '../services/dashboard';
 
 const defaultAttr = {
   id: 'id',
@@ -115,8 +115,11 @@ export class DashboardApi {
       record.att('scope', 'orgstructure');
     }
 
-    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
-      record.att('workspace', getWorkspaceId());
+    if (getEnabledWorkspaces()) {
+      const workspaceId = getWorkspaceId();
+      if (workspaceId !== ADMIN_WORKSPACE_ID) {
+        record.att('workspace', getWorkspaceId());
+      }
     }
 
     return record.save().then(response => {
@@ -131,6 +134,10 @@ export class DashboardApi {
     record.att('id', id);
     record.att('name?json', name);
     record.att('config?json', DashboardService.getEmptyDashboardConfig());
+
+    if (getEnabledWorkspaces()) {
+      record.att('workspace', getWorkspaceId());
+    }
 
     return record
       .save()
@@ -317,14 +324,14 @@ export class DashboardApi {
     }
   };
 
-  checkExistDashboard = function*({ key, type, user }) {
+  checkExistDashboard = function* ({ key, type, user, isCustomDashboard }) {
     return yield Records.queryOne({
       sourceId: SourcesId.DASHBOARD,
       query: {
         typeRef: key,
-        authority: user,
         includeForAll: false,
-        expandType: false
+        expandType: false,
+        ...(!isCustomDashboard && { authority: user })
       }
     }).then(response => {
       return {
@@ -381,8 +388,8 @@ export class DashboardApi {
   };
 
   getModelAttributes = ref => {
-    return Records.get(parseTypeId(ref))
-      .load('resolvedModel.attributes[]{id,name,type}')
+    return Records.get(parseJournalId(ref))
+      .load('typeRef.model.attributes[]{id,name,type}')
       .catch(e => {
         console.error(e);
         return [];
@@ -390,7 +397,12 @@ export class DashboardApi {
   };
 
   getLinkedAttributesWithJournal = async (typeRef, journalId) => {
-    const modelAttributes = await this.getModelAttributes(typeRef);
+    if (!journalId) {
+      console.error('Property "journalId" is required!');
+      return;
+    }
+
+    const modelAttributes = await this.getModelAttributes(journalId);
 
     const assocAttributes = modelAttributes.filter(att => ASSOC_TYPES.includes(att.type));
     const attrsMap = new Map();
@@ -403,12 +415,9 @@ export class DashboardApi {
     return Records.get(parseTypeId(typeRef))
       .load(attrsToLoad)
       .then((attributesWithJournalIds = {}) => {
-        const attrsWithSameJournal = Object.entries(attributesWithJournalIds).filter(
-          ([, attJournalId]) => parseJournalId(attJournalId) === parseJournalId(journalId)
-        );
+        const attrsWithSameJournal = Object.entries(attributesWithJournalIds);
 
-        const attribuesOptions = attrsWithSameJournal.map(([attId]) => ({ label: attrsMap.get(attId).name, value: attId }));
-        return attribuesOptions;
+        return attrsWithSameJournal.map(([attId]) => ({ label: attrsMap.get(attId).name, value: attId }));
       })
       .catch(e => {
         console.error(e);

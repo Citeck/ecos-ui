@@ -1,41 +1,45 @@
-import React from 'react';
-import moment from 'moment';
-import uuidV4 from 'uuid/v4';
-import { NotificationManager } from 'react-notifications';
-import isEmpty from 'lodash/isEmpty';
-import lodashGet from 'lodash/get';
-import lodashSet from 'lodash/set';
+import cloneDeep from 'lodash/cloneDeep';
 import first from 'lodash/first';
 import flatMap from 'lodash/flatMap';
-import isPlainObject from 'lodash/isPlainObject';
-import cloneDeep from 'lodash/cloneDeep';
-import isString from 'lodash/isString';
+import lodashGet from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isBoolean from 'lodash/isBoolean';
-import omitBy from 'lodash/omitBy';
+import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
+import isPlainObject from 'lodash/isPlainObject';
+import isString from 'lodash/isString';
 import isUndefined from 'lodash/isUndefined';
+import omitBy from 'lodash/omitBy';
+import lodashSet from 'lodash/set';
+import moment from 'moment';
+import React from 'react';
+import uuidV4 from 'uuidv4';
 
+import { AppApi } from '../../../api/app';
+import { UserApi } from '../../../api/user';
 import { SourcesId } from '../../../constants';
 import { OUTCOME_BUTTONS_PREFIX } from '../../../constants/forms';
-import { getCurrentUserName, getMLValue, t } from '../../../helpers/util';
-import { UserApi } from '../../../api/user';
-import { AppApi } from '../../../api/app';
 import { Components } from '../../../forms/components';
 import DataGridAssocComponent from '../../../forms/components/custom/datagridAssoc/DataGridAssoc';
+import { getCurrentUserName, getMLValue, t } from '../../../helpers/util';
 import { PRE_SETTINGS_TYPES, PreSettings } from '../../PreSettings';
-import Modal from '../../common/EcosModal/CiteckEcosModal';
-import { PERMISSION_WRITE_ATTR } from '../../Records/constants';
 import Records from '../../Records';
-import { FORM_MODE_CREATE, FORM_MODE_EDIT } from '../constants';
+import { PERMISSION_WRITE_ATTR } from '../../Records/constants';
+import Modal from '../../common/EcosModal/CiteckEcosModal';
 import EcosForm from '../EcosForm';
 import EcosFormModal from '../EcosFormModal';
+import { FORM_MODE_CREATE, FORM_MODE_EDIT } from '../constants';
+
 import BaseEcosFormUtils from './BaseEcosFormUtils';
+
+import AuthorityService from '@/services/authrority/AuthorityService';
+import { NotificationManager } from '@/services/notifications';
 
 const SOURCE_DIVIDER = '@';
 const EDGE_PREFIX = 'edge__';
 const NOT_INPUT_TYPES = ['container', 'datagrid', 'button', 'horizontalLine'];
+const TEMPLATE_PARSER_REGEX = /\${[^{]+}/g;
 
 const getComponentInnerAttSchema = component => {
   let dataType = lodashGet(component, 'ecos.dataType', '');
@@ -86,7 +90,7 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
         language: 'fts-alfresco'
       },
       'cm:member[].cm:userName'
-    ).then(function(userNames) {
+    ).then(function (userNames) {
       return (userNames || []).indexOf(currentPersonName) !== -1;
     });
   }
@@ -129,7 +133,7 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
         displayName: '.disp',
         formMode: '_formMode'
       })
-      .then(function(recordData) {
+      .then(function (recordData) {
         const formMode = config.formMode || recordData.formMode || EcosFormUtils.getFormMode(instanceRec);
 
         if (formMode === FORM_MODE_CREATE) {
@@ -141,7 +145,11 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
         options.formMode = formMode;
         formParams.options = options;
 
-        formParams['onSubmit'] = function(record, form, alias) {
+        if (configParams.handlers) {
+          formParams.handlers = configParams.handlers;
+        }
+
+        formParams['onSubmit'] = function (record, form, alias) {
           if (modal) {
             modal.close();
           }
@@ -158,7 +166,7 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
           }
         };
 
-        formParams['onFormCancel'] = function(record, form) {
+        formParams['onFormCancel'] = function (record, form) {
           if (modal) {
             modal.close();
           }
@@ -168,7 +176,7 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
           }
         };
 
-        formParams['onCancelModal'] = function() {
+        formParams['onCancelModal'] = function () {
           const onHideModal = lodashGet(configParams, 'onHideModal');
           const onCancel = lodashGet(configParams, 'onCancel');
 
@@ -185,8 +193,8 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
           }
         };
 
-        formParams['onReady'] = function() {
-          setTimeout(function(record, form) {
+        formParams['onReady'] = function () {
+          setTimeout(function (record, form) {
             if (isFunction(configParams.onReady)) {
               configParams.onReady(record, form);
             }
@@ -289,6 +297,10 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
         params.onPreSettingSubmit = config.onPreSettingSubmit;
       }
 
+      if (config.handlers) {
+        params.handlers = config.handlers;
+      }
+
       const [source] = recordRef.split('@');
       if (!hasPermission && source === SourcesId.JOURNAL) {
         config.preSettingsType = PRE_SETTINGS_TYPES.JOURNAL;
@@ -330,49 +342,58 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
   }
 
   static cloneRecord({ clonedRecord, createVariant, saveOnSubmit }) {
-    return new Promise((resolve, reject) => {
-      let { recordRef, formKey } = createVariant || {};
-      const newRecord = Records.getRecordToEdit(recordRef);
-      const formAttributes = { definition: 'definition?json' };
-      const formPromise = EcosFormUtils.getForm(newRecord, formKey, formAttributes);
+    if (!clonedRecord || !createVariant) {
+      return Promise.reject(new Error('clonedRecord and createVariant are required'));
+    }
 
-      formPromise.then(formData => {
+    const newRecord = Records.getRecordToEdit(createVariant.sourceId + '@');
+    newRecord.att('_type', createVariant.typeRef);
+
+    const formAttributes = { definition: 'definition?json' };
+
+    return new Promise(async (resolve, reject) => {
+      try {
+        const formData = await EcosFormUtils.getForm(clonedRecord, null, formAttributes);
+
         if (!formData || !formData.definition) {
           NotificationManager.error(t('ecos-form.error.clone-get-fields'), t('error'));
-          reject(null);
+          return reject(null);
         }
 
         const formDefinition = cloneDeep(formData.definition);
         const inputs = EcosFormUtils.getFormInputs(formDefinition);
-        const recordDataPromise = EcosFormUtils.getClonedData(clonedRecord, inputs);
-        const onSuccess = result => {
-          NotificationManager.success(t('ecos-form.success.clone-record'), t('success'));
-          resolve(result);
-        };
 
-        recordDataPromise
-          .then(data => {
-            for (let att in data) {
-              if (data.hasOwnProperty(att)) {
-                newRecord.att(att, data[att]);
-              }
-            }
+        try {
+          const data = await EcosFormUtils.getClonedData(clonedRecord, inputs);
 
-            if (saveOnSubmit === false) {
-              onSuccess(newRecord);
-            } else {
-              newRecord
-                .save()
-                .then(onSuccess)
-                .catch(e => Promise.reject(e));
-            }
-          })
-          .catch(e => {
-            console.error(e);
-            reject(null);
-            NotificationManager.error(t('ecos-form.error.clone-record'), t('error'));
+          Object.entries(data).forEach(([att, value]) => {
+            newRecord.att(att, value);
           });
-      });
+
+          if (saveOnSubmit === false) {
+            NotificationManager.success(t('ecos-form.success.clone-record'), t('success'));
+            resolve(newRecord);
+          } else {
+            try {
+              const result = await newRecord.save();
+              NotificationManager.success(t('ecos-form.success.clone-record'), t('success'));
+              resolve(result);
+            } catch (saveError) {
+              console.error('Error saving cloned record:', saveError);
+              NotificationManager.error(t('ecos-form.error.clone-record'), t('error'));
+              reject(saveError);
+            }
+          }
+        } catch (dataError) {
+          console.error('Error getting cloned data:', dataError);
+          NotificationManager.error(t('ecos-form.error.clone-record'), t('error'));
+          reject(dataError);
+        }
+      } catch (formError) {
+        console.error('Error getting form definition:', formError);
+        NotificationManager.error(t('ecos-form.error.clone-get-fields'), t('error'));
+        reject(formError);
+      }
     });
   }
 
@@ -654,7 +675,7 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
     const leaveAtts = ['key', 'type', 'input'];
     const removeAtts = ['id'];
 
-    return EcosFormUtils.forEachComponent(form, function(comp) {
+    return EcosFormUtils.forEachComponent(form, function (comp) {
       const currentComponent = Components.components[comp.type];
       if (!currentComponent) {
         return comp;
@@ -1151,8 +1172,8 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
     return component && component.type === 'button' && component.key.startsWith(OUTCOME_BUTTONS_PREFIX);
   }
 
-  static isConfigurableForm() {
-    return EcosFormUtils._apiUser.isUserAdmin();
+  static isConfigurableForm(recordId) {
+    return AuthorityService.hasConfigWritePermission(recordId);
   }
 
   static isComponentsReady(components, options = {}) {
@@ -1227,6 +1248,68 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
     }
 
     return true;
+  }
+
+  /**
+   * @param {string} str - The template string from which to extract attributes.
+   * @return {string[]} An array of extracted attribute names (trimmed and without [[ ]]).
+   */
+  static getAttrsFromTemplate(str) {
+    if (!isString(str)) {
+      return [];
+    }
+
+    const matches = str.match(TEMPLATE_PARSER_REGEX);
+
+    if (!matches) {
+      return [];
+    }
+
+    return matches.map(match => match.slice(2, -1).trim());
+  }
+
+  /**
+   * @param {string} str - The template string containing placeholders to be replaced.
+   * @param {Object} replacements - An object containing variable values to interpolate into the template.
+   * @return {string} - The rendered string with placeholders replaced by corresponding values from the replacements object.
+   */
+  static renderByTemplate(str, replacements) {
+    function interpolate(template, variables, fallback) {
+      return template.replace(TEMPLATE_PARSER_REGEX, match => {
+        const path = match.slice(2, -1).trim();
+
+        return getObjPath(path, variables, fallback);
+      });
+    }
+
+    function getObjPath(path, obj, fallback = '') {
+      return path.split('.').reduce((res, key) => res[key] || fallback, obj);
+    }
+
+    return interpolate(str, replacements);
+  }
+
+  /**
+   * @param {string} str - The string to check for HTML content.
+   * @return {boolean} Returns true if the string contains HTML elements; otherwise, false.
+   */
+  static isHTML(str) {
+    const doc = new DOMParser().parseFromString(str, 'text/html');
+    return Array.from(doc.body.childNodes).some(node => node.nodeType === 1);
+  }
+
+  /**
+   * @param {string} html The HTML string to process
+   * @return {string} The text content with all HTML tags removed
+   */
+  static stripHTML(html) {
+    if (!isString(html)) {
+      return '';
+    }
+
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+
+    return doc?.body?.textContent || '';
   }
 }
 

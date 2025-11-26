@@ -1,7 +1,7 @@
 @import '../../styles/constants';
 
 $expanded-sidebar-width: 300px;
-$transition-duration: 0.3s;
+$transition-duration: 0.2s;
 
 .ecos-base-page {
   display: flex;
@@ -23,7 +23,7 @@ $transition-duration: 0.3s;
       cursor: pointer;
 
       &:hover {
-        transition: opasity 1s;
+        transition: opasity 2s;
         opacity: 0.5;
       }
     }
@@ -34,6 +34,10 @@ $transition-duration: 0.3s;
 
     .workspace-preview div {
       margin: 0;
+
+      svg {
+        vertical-align: top;
+      }
     }
   }
 }
@@ -90,18 +94,24 @@ $transition-duration: 0.3s;
 
     &__link {
       display: block;
-      cursor: pointer;
+      position: relative;
       height: 100%;
+      cursor: pointer;
     }
 
     &__img {
       transition: opacity $transition-duration;
       position: absolute;
+      max-width: 170px;
       max-height: 30px;
     }
 
     &__icon {
       font-size: 25px;
+
+      svg {
+        vertical-align: unset;
+      }
     }
 
     &__img_small_hide {
@@ -118,8 +128,34 @@ $transition-duration: 0.3s;
     border-top: 2px solid #e8edef;
     cursor: pointer;
 
+    &__menu_btn {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+
+      width: 46px;
+      height: 46px;
+
+      z-index: 21;
+
+      border: none;
+      outline: none;
+      border-radius: 50%;
+      background-color: var(--light-primary-color);
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover,
+      &:focus,
+      &:active {
+        background-color: var(--primary-color);
+      }
+    }
+
     &:hover {
-      background: $color-gray-25;
+      background-color: $color-gray-25;
     }
 
     p {
@@ -143,15 +179,15 @@ $transition-duration: 0.3s;
 
   &-item {
     display: flex;
-    align-items: center;
     position: relative;
     height: 38px;
     width: 100%;
-    cursor: pointer;
     padding-right: 15px;
+    align-items: center;
+    cursor: pointer;
 
     &:hover {
-      background: $color-gray-25;
+      background-color: $color-gray-25;
 
       #{$menu-item}__point {
         border-color: $color-gray-25;
@@ -202,7 +238,7 @@ $transition-duration: 0.3s;
     }
 
     &#{$menu-item}_selected:not(#{$menu-item}_nested-expanded):not(:hover) {
-      background: $color-blue-light;
+      background-color: var(--header-bg-color);
 
       #{$menu-item}__icon,
       #{$menu-item}__label,
@@ -211,12 +247,12 @@ $transition-duration: 0.3s;
       }
 
       #{$menu-item}__badge {
-        background: $color-white;
+        background-color: $color-white;
         color: $text-color-gray;
       }
 
       #{$menu-item}__point {
-        background: $color-white;
+        background-color: $color-white;
         border-color: $color-blue-light;
       }
 
@@ -245,7 +281,10 @@ $transition-duration: 0.3s;
       &-inner.tooltip-inner {
         width: 100%;
         height: 100%;
-        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 3px 4px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.14);
+        box-shadow:
+          0 1px 5px rgba(0, 0, 0, 0.2),
+          0 3px 4px rgba(0, 0, 0, 0.12),
+          0 2px 4px rgba(0, 0, 0, 0.14);
         border-radius: $border-radius-extra-large;
         background-color: $color-white;
         text-align: left;
@@ -270,12 +309,11 @@ $transition-duration: 0.3s;
     }
 
     &__link {
-      width: 100%;
-      height: 100%;
       display: inline-flex;
+      width: calc(100% - 32px);
+      height: 100%;
       align-items: center;
       text-decoration: none;
-      padding-right: 3px;
 
       .workspace-preview {
         margin-right: 9px;
@@ -319,14 +357,15 @@ $transition-duration: 0.3s;
     }
 
     &__badge {
+      min-width: 32px;
+      padding: 0 7px;
+      line-height: 18px;
       font-size: $font-size-extra-small;
       opacity: 1;
       transition: opacity $transition-duration;
-      padding: 0 7px;
-      line-height: 18px;
 
       &_hide {
-        opacity: 0;
+        display: none;
       }
     }
 
@@ -450,7 +489,10 @@ $transition-duration: 0.3s;
       }
 
       & &-inner.tooltip-inner {
-        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 3px 4px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.14);
+        box-shadow:
+          0 1px 5px rgba(0, 0, 0, 0.2),
+          0 3px 4px rgba(0, 0, 0, 0.12),
+          0 2px 4px rgba(0, 0, 0, 0.14);
         border-radius: $border-radius-extra-large;
         background-color: $color-white;
         text-align: left;
@@ -522,6 +564,7 @@ $transition-duration: 0.3s;
   $menu-list: '.ecos-sidebar-list';
   padding: 0 9px;
   width: 70px;
+  border-right: 1px solid $color-gray-4;
 
   .ecos-sidebar-logo {
     padding-top: 17px;
@@ -545,6 +588,18 @@ $transition-duration: 0.3s;
     &__badge {
       line-height: 20px;
     }
+
+    &_collapsible {
+      cursor: pointer !important;
+    }
+
+    &_hidden {
+      display: flex;
+
+      .ecos-sidebar-item__label {
+        display: none;
+      }
+    }
   }
 
   .ecos-sidebar-list {
@@ -552,6 +607,7 @@ $transition-duration: 0.3s;
       #{$menu-item}_lvl-0 {
         margin-bottom: 6px;
         padding-left: 12px;
+        cursor: default;
 
         &::after {
           @extend %menu-item-separator;
@@ -593,6 +649,12 @@ $transition-duration: 0.3s;
 
   &_expanded {
     width: 243px;
+
+    .ecos-sidebar-toggle {
+      svg {
+        transform: rotate(180deg)
+      }
+    }
   }
 
   &_collapsed {
@@ -617,7 +679,6 @@ $transition-duration: 0.3s;
   .ecos-sidebar {
     width: 0;
     position: absolute;
-    top: 60px;
     z-index: 900;
     height: calc(100% - 60px);
     transition: width $transition-duration;

@@ -1,7 +1,8 @@
 import { nth, split, get, isNil } from 'lodash';
-import { formatFileSize, getIconFileByMimetype, getRelativeTime, t } from '../helpers/util';
+
 import { getData, getSessionData, isExistLocalStorage, isExistSessionStorage, setSessionData } from '../helpers/ls';
 import { createDocumentUrl, createProfileUrl } from '../helpers/urls';
+import { formatFileSize, getIconFileByMimetype, getRelativeTime, t } from '../helpers/util';
 
 const Urls = {
   DASHBOARD: ref => createDocumentUrl(ref),
@@ -18,8 +19,13 @@ export const LiveSearchTypes = {
 export default class SearchService {
   static SearchAutocompleteTypes = Object.fromEntries(Object.keys(LiveSearchTypes).map((key, index) => [key, index]));
 
-  static formatSearchAutocompleteResults = function(item, type) {
+  static formatSearchAutocompleteResults = function (item, type, hasAlfresco) {
     const Types = SearchService.SearchAutocompleteTypes;
+
+    if (!hasAlfresco) {
+      delete LiveSearchTypes.SITES;
+    }
+
     const data = {
       type,
       title: '',
@@ -29,7 +35,6 @@ export default class SearchService {
       wsName: '',
       iconUrl: ''
     };
-
     const isEnabledAlfresco = isNil(get(item, 'isNotAlfresco')) || get(item, 'isNotAlfresco') === false;
 
     switch (type) {
@@ -68,8 +73,8 @@ export default class SearchService {
         data.title = item.title;
         data.description = item.description;
         data.url = item.url;
-        data.iconUrl = item.icon;
-        data.wsName = item.wsName;
+        data.iconUrl = item.image;
+        data.wsName = item.name;
 
         break;
 

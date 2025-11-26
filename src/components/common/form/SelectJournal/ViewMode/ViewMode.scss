@@ -5,6 +5,7 @@
   padding-left: 0;
 
   & &-value {
-    white-space: normal;
+    white-space: nowrap;
+    width: 100%;
   }
 }

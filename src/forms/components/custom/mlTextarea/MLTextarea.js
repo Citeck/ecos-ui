@@ -1,9 +1,10 @@
+import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
-import BaseReactComponent from '../base/BaseReactComponent';
 import MLTextarea from '../../../../components/common/form/Textarea/MLTextarea';
 import { getCurrentLocale } from '../../../../helpers/export/util';
 import { checkIsEmptyMlField } from '../../../utils';
+import BaseReactComponent from '../base/BaseReactComponent';
 
 export default class MLTextareaComponent extends BaseReactComponent {
   static schema(...extend) {
@@ -84,6 +85,7 @@ export default class MLTextareaComponent extends BaseReactComponent {
       editorLang: this.component.as,
       viewOnly: this.viewOnly,
       value: this.getInitialValue(),
+      required: get(this.schema, 'validate.required', false),
       placeholder: this.placeholder,
       onChange: this.handleChange
     };

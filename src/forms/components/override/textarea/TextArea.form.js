@@ -15,7 +15,7 @@ if (editor && editor.data && editor.data.values && editor.data.values.length) {
   });
 }
 
-export default function(...extend) {
+export default function (...extend) {
   return BaseEditForm(
     [
       {

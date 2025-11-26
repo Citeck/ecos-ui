@@ -1,18 +1,13 @@
-import { call, put, select, takeEvery, all, race, take } from 'redux-saga/effects';
-import * as queryString from 'query-string';
-import { NotificationManager } from 'react-notifications';
+import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isNil from 'lodash/isNil';
-import get from 'lodash/get';
 import set from 'lodash/set';
-import cloneDeep from 'lodash/cloneDeep';
+import * as queryString from 'query-string';
+import { call, put, select, takeEvery, all, race, take } from 'redux-saga/effects';
 
-import { JournalUrlParams, KanbanUrlParams, SourcesId } from '../constants';
-import { decodeLink, getSearchParams, getUrlWithoutOrigin } from '../helpers/urls';
-import { isExistValue } from '../helpers/util';
-import { t } from '../helpers/export/util';
-import { wrapArgs, wrapSaga } from '../helpers/redux';
+import { applyJournalSetting, execRecordsActionComplete, runSearch, setJournalSetting, setPredicate } from '../actions/journals';
 import {
   applyFilter,
   getBoardConfig,
@@ -43,22 +38,30 @@ import {
   applyPreset,
   cancelGetNextBoardPage
 } from '../actions/kanban';
-import { applyJournalSetting, execRecordsActionComplete, setJournalSetting, setPredicate } from '../actions/journals';
-import { selectJournalData, selectSettingsData, selectViewMode } from '../selectors/journals';
-import { selectKanban, selectKanbanPageProps, selectPagination } from '../selectors/kanban';
-import { emptyJournalConfig } from '../reducers/journals';
-import PageService from '../services/PageService';
-import JournalsConverter from '../dto/journals';
-import KanbanConverter from '../dto/kanban';
-import RecordActions from '../components/Records/actions/recordActions';
 import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
 import { ParserPredicate } from '../components/Filters/predicates';
-import JournalsService from '../components/Journals/service/journalsService';
 import { DEFAULT_PAGINATION, isKanban, KANBAN_SELECTOR_MODE } from '../components/Journals/constants';
-import { getGridParams, getJournalConfig, getJournalSettingFully } from './journals';
+import JournalsService from '../components/Journals/service/journalsService';
+import RecordActions from '../components/Records/actions/recordActions';
 import { PREDICATE_EQ } from '../components/Records/predicates/predicates';
+import { JournalUrlParams, KanbanUrlParams, SourcesId } from '../constants';
+import JournalsConverter from '../dto/journals';
+import KanbanConverter from '../dto/kanban';
+import { t } from '../helpers/export/util';
+import { wrapArgs, wrapSaga } from '../helpers/redux';
+import { decodeLink, getSearchParams, getUrlWithoutOrigin } from '../helpers/urls';
+import { isExistValue } from '../helpers/util';
+import { emptyJournalConfig } from '../reducers/journals';
+import { selectJournalData, selectSettingsData, selectViewMode } from '../selectors/journals';
+import { selectKanban, selectKanbanPageProps, selectPagination } from '../selectors/kanban';
+import PageService from '../services/PageService';
 
-export function* sagaGetBoardList({ api, logger }, { payload }) {
+import { getGridParams, getJournalConfig, getJournalSettingFully } from './journals';
+
+import AuthorityService from '@/services/authrority/AuthorityService';
+import { NotificationManager } from '@/services/notifications';
+
+export function* sagaGetBoardList({ api }, { payload }) {
   try {
     const { journalId, stateId, enableEmptyData } = payload;
 
@@ -78,11 +81,11 @@ export function* sagaGetBoardList({ api, logger }, { payload }) {
       );
     }
   } catch (e) {
-    logger.error('[kanban/sagaGetBoardList saga] error', e);
+    console.error('[kanban/sagaGetBoardList saga] error', e);
   }
 }
 
-export function* sagaRecordActionComplete({ logger, stateId, w, ...otherProps }, { payload, ...extra }) {
+export function* sagaRecordActionComplete({ stateId, w, ...otherProps }, { payload, ...extra }) {
   try {
     const { records } = payload || {};
     const isBoard = records && (records.startsWith(SourcesId.BOARD) || records.startsWith(SourcesId.RESOLVED_BOARD));
@@ -92,11 +95,11 @@ export function* sagaRecordActionComplete({ logger, stateId, w, ...otherProps },
       yield put(getBoardData({ stateId, boardId: payload.records }));
     }
   } catch (e) {
-    logger.error('[kanban/sagaGetBoardConfig saga] error', e);
+    console.error('[kanban/sagaGetBoardConfig saga] error', e);
   }
 }
 
-export function* sagaGetBoardConfig({ api, logger }, { payload }) {
+export function* sagaGetBoardConfig({ api }, { payload }) {
   try {
     const { boardId, templateId, stateId } = payload;
     const { boardDef, ...config } = yield call(api.kanban.getBoardConfig, { boardId, templateId });
@@ -120,11 +123,11 @@ export function* sagaGetBoardConfig({ api, logger }, { payload }) {
 
     return boardConfig;
   } catch (e) {
-    logger.error('[kanban/sagaGetBoardConfig saga] error', e);
+    console.error('[kanban/sagaGetBoardConfig saga] error', e);
   }
 }
 
-export function* sagaFormProps({ api, logger }, { payload: { stateId, formId } }) {
+export function* sagaFormProps({ api }, { payload: { stateId, formId } }) {
   try {
     if (!formId) {
       throw new Error('No form ID ' + formId);
@@ -145,15 +148,15 @@ export function* sagaFormProps({ api, logger }, { payload: { stateId, formId } }
   } catch (e) {
     yield put(setFormProps({ stateId, formProps: {} }));
     NotificationManager.error(t('kanban.error.form-not-found'), t('error'));
-    logger.error('[kanban/sagaFormProps saga] error', e);
+    console.error('[kanban/sagaFormProps saga] error', e);
   }
 }
 
-export function* sagaGetBoardData({ api, logger }, { payload }) {
+export function* sagaGetBoardData({ api }, { payload }) {
   try {
     const { stateId, recordRefs } = payload;
-    const boardConfig = yield sagaGetBoardConfig({ api, logger }, { payload });
-    const formProps = yield sagaFormProps({ api, logger }, { payload: { formId: boardConfig.cardFormRef, stateId } });
+    const boardConfig = yield sagaGetBoardConfig({ api }, { payload });
+    const formProps = yield sagaFormProps({ api }, { payload: { formId: boardConfig.cardFormRef, stateId } });
     let { journalConfig, journalSetting } = yield select(selectJournalData, stateId);
 
     if (!!boardConfig.journalRef && (isEmpty(journalConfig) || isEqual(journalConfig, emptyJournalConfig))) {
@@ -166,22 +169,19 @@ export function* sagaGetBoardData({ api, logger }, { payload }) {
     const pagination = DEFAULT_PAGINATION;
 
     yield put(setPagination({ stateId, pagination }));
-    yield sagaGetData(
-      { api, logger },
-      { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination, recordRefs } }
-    );
+    yield sagaGetData({ api }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination, recordRefs } });
     const { boardId, templateId, isDefaultBoardAndTemplate } = payload;
 
     if (isDefaultBoardAndTemplate && (!isNil(boardId) || !isNil(templateId))) {
-      yield call(sagaSetDefaultBoardAndTemplate, { api, logger }, { payload: { boardId, templateId, stateId } });
+      yield call(sagaSetDefaultBoardAndTemplate, { api }, { payload: { boardId, templateId, stateId } });
     }
     yield put(setLoading({ stateId, isLoading: false }));
   } catch (e) {
-    logger.error('[kanban/sagaGetBoardData saga] error', e);
+    console.error('[kanban/sagaGetBoardData saga] error', e);
   }
 }
 
-export function* sagaGetData({ api, logger }, { payload }) {
+export function* sagaGetData({ api }, { payload }) {
   try {
     const {
       boardConfig = {},
@@ -194,13 +194,13 @@ export function* sagaGetData({ api, logger }, { payload }) {
       isHandlePagination
     } = payload;
 
-    const pagination = _pagination;
+    let pagination = _pagination;
     if (isHandlePagination && get(pagination, 'page') >= 0 && get(pagination, 'maxItems') >= 0) {
       pagination.skipCount = pagination.page * pagination.maxItems;
       pagination.page += 1;
     }
 
-    const params = yield getGridParams({ journalConfig, journalSetting, pagination });
+    let params = yield getGridParams({ journalConfig, journalSetting, pagination });
     const { dataCards: prevDataCards, kanbanSettings } = yield select(selectKanban, stateId);
 
     const urlProps = getSearchParams();
@@ -217,6 +217,11 @@ export function* sagaGetData({ api, logger }, { payload }) {
 
     params.attributes = { ...attributes, ...KanbanConverter.getCardAttributes() };
 
+    if (boardConfig.cardTitleTemplate) {
+      const templateAttrs = EcosFormUtils.getAttrsFromTemplate(boardConfig.cardTitleTemplate);
+      params.attributes = { ...params.attributes, ...Object.fromEntries(templateAttrs.map(key => [key, key])) };
+    }
+
     const predicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(params.predicates));
 
     const searchPredicate = isExistValue(searchText)
@@ -226,22 +231,29 @@ export function* sagaGetData({ api, logger }, { payload }) {
         })
       : [];
 
+    if (get(journalSetting, 'kanban.columns') && !get(boardConfig, 'columns', []).every(col => !col.hideOldItems)) {
+      journalSetting.kanban.columns = journalSetting.kanban.columns.map(col => {
+        if (col && col.id) {
+          const foundConfigColumn = (boardConfig.columns || []).find(c => c.id && c.id === col.id);
+          if (foundConfigColumn) {
+            col.hideOldItems = foundConfigColumn.hideOldItems;
+            col.hideItemsOlderThan = foundConfigColumn.hideItemsOlderThan;
+          }
+        }
+
+        return col;
+      });
+    }
+
     const result = yield all(
-      (boardConfig.columns || []).map(function*(column, i) {
+      (get(journalSetting, 'kanban.columns') || boardConfig.columns || []).map(function* (column, i) {
         if (get(prevDataCards, [i, 'records', 'length'], 0) === get(prevDataCards, [i, 'totalCount'])) {
           return {};
         }
 
         const colPredicate = KanbanConverter.preparePredicate(column);
 
-        const statusModifiedPredicate =
-          column.hideOldItems === 'true' && !!column.hideItemsOlderThan
-            ? {
-                t: 'ge',
-                att: '_statusModified',
-                val: `-${column.hideItemsOlderThan}`
-              }
-            : undefined;
+        const statusModifiedPredicate = KanbanConverter.getStatusModifiedPredicate(column);
 
         const idsPredicate = Boolean(recordRefs)
           ? {
@@ -285,7 +297,16 @@ export function* sagaGetData({ api, logger }, { payload }) {
           status: prevStatus
         });
       } else {
-        const preparedRecords = data.records.map(recordData => EcosFormUtils.postProcessingAttrsData({ recordData, inputByKey }));
+        const preparedRecords = data.records.map(recordData => {
+          let newData = EcosFormUtils.postProcessingAttrsData({ recordData, inputByKey });
+
+          if (boardConfig.cardTitleTemplate) {
+            newData.cardTitle = EcosFormUtils.renderByTemplate(boardConfig.cardTitleTemplate, newData);
+          }
+
+          return newData;
+        });
+
         newRecordRefs.push(preparedRecords.map(rec => rec.cardId));
 
         // only unique records
@@ -299,25 +320,29 @@ export function* sagaGetData({ api, logger }, { payload }) {
       }
     });
 
-    const totalCount = dataCards.reduce((count, col) => count + get(col, 'totalCount', 0), 0);
+    const kanbanColumnsIds = get(boardConfig, 'columns', []).length > 0 ? boardConfig.columns.map(col => col.id) : null;
+    const totalCount = dataCards
+      .filter(column => (kanbanColumnsIds ? kanbanColumnsIds.includes(column.status) : true))
+      .reduce((count, col) => count + get(col, 'totalCount', 0), 0);
 
     yield put(setDataCards({ stateId, dataCards }));
     yield put(setTotalCount({ stateId, totalCount }));
     if (isEmpty(kanbanSettings)) {
-      yield put(setKanbanSettings({ stateId, kanbanSettings: journalSetting.kanban || {} }));
+      const hasWritePermission = yield call([AuthorityService, AuthorityService.hasConfigWritePermission], urlProps.boardId);
+      yield put(setKanbanSettings({ stateId, kanbanSettings: journalSetting.kanban || {}, hasWritePermission }));
     }
-    yield sagaGetActions({ api, logger }, { payload: { boardConfig, newRecordRefs, stateId } });
+    yield sagaGetActions({ api }, { payload: { boardConfig, newRecordRefs, stateId } });
   } catch (e) {
-    logger.error('[kanban/sagaGetData saga] error', e);
+    console.error('[kanban/sagaGetData saga] error', e);
   }
 }
 
-export function* sagaGetActions({ api, logger }, { payload }) {
+export function* sagaGetActions({ api }, { payload }) {
   try {
     const { boardConfig = {}, newRecordRefs = [], stateId } = payload;
     const { resolvedActions: prevResolvedActions = [] } = yield select(selectKanban, stateId);
 
-    const resolvedActions = yield (boardConfig.columns || []).map(function*(column, i) {
+    const resolvedActions = yield (boardConfig.columns || []).map(function* (column, i) {
       const newResolvedActions = yield call([JournalsService, JournalsService.getRecordActions], boardConfig, newRecordRefs[i]);
       const status = column.id || '';
       const actions = { ...newResolvedActions.forRecord, status };
@@ -327,11 +352,11 @@ export function* sagaGetActions({ api, logger }, { payload }) {
 
     yield put(setResolvedActions({ stateId, resolvedActions }));
   } catch (e) {
-    logger.error('[kanban/sagaGetActions saga] error', e);
+    console.error('[kanban/sagaGetActions saga] error', e);
   }
 }
 
-export function* sagaSelectFromUrl({ api, logger }, { payload }) {
+export function* sagaSelectFromUrl({ api }, { payload }) {
   try {
     const urlData = queryString.parseUrl(getUrlWithoutOrigin());
     const { boardId, stateId, templateId, type = KANBAN_SELECTOR_MODE.BOARD, settings } = payload;
@@ -345,22 +370,22 @@ export function* sagaSelectFromUrl({ api, logger }, { payload }) {
     yield put(setLoading({ stateId, isLoading: true }));
 
     if (type === KANBAN_SELECTOR_MODE.TEMPLATES && settings) {
-      yield sagaApplyFilter({ api, logger }, { payload });
+      yield sagaApplyFilter({ api }, { payload });
     }
 
     yield call([PageService, PageService.changeUrlLink], decodeLink(queryString.stringifyUrl(urlData)), { updateUrl: true });
   } catch (e) {
-    logger.error('[kanban/sagaSelectBoard saga] error', e);
+    console.error('[kanban/sagaSelectBoard saga] error', e);
   }
 }
 
-export function* sagaGetNextPage({ api, logger }, { payload }) {
+export function* sagaGetNextPage({ api }, { payload }) {
   try {
     const { stateId, isSkipPagination } = payload;
 
     const { canceled } = yield race({
-      task: call(function*() {
-        const { formProps, boardConfig, isLoading } = yield select(selectKanban, stateId);
+      task: call(function* () {
+        const { formProps, boardConfig, isLoading, totalCount } = yield select(selectKanban, stateId);
 
         if (!isLoading) {
           yield put(setLoading({ stateId, isLoading: true }));
@@ -368,19 +393,31 @@ export function* sagaGetNextPage({ api, logger }, { payload }) {
           const { journalConfig, journalSetting } = yield select(selectJournalData, stateId);
           const pagination = yield select(selectPagination, stateId);
 
+          const nextSkipCount = pagination.page * pagination.maxItems;
+
           if (!isSkipPagination) {
-            pagination.skipCount = pagination.page * pagination.maxItems;
+            pagination.skipCount = nextSkipCount;
             pagination.page += 1;
 
             yield put(setPagination({ stateId, pagination }));
           }
 
-          yield sagaGetData(
-            { api, logger },
-            {
-              payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination, isHandlePagination: isSkipPagination }
-            }
-          );
+          if (totalCount > nextSkipCount) {
+            yield sagaGetData(
+              { api },
+              {
+                payload: {
+                  stateId,
+                  boardConfig,
+                  journalSetting,
+                  journalConfig,
+                  formProps,
+                  pagination,
+                  isHandlePagination: isSkipPagination
+                }
+              }
+            );
+          }
         }
 
         yield put(setLoading({ stateId, isLoading: false }));
@@ -392,21 +429,21 @@ export function* sagaGetNextPage({ api, logger }, { payload }) {
       yield put(setLoading({ stateId, isLoading: false }));
     }
   } catch (e) {
-    logger.error('[kanban/sagaGetNextPage saga] error', e);
+    console.error('[kanban/sagaGetNextPage saga] error', e);
   }
 }
 
-export function* sagaRunAction({ api, logger }, { payload }) {
+export function* sagaRunAction({ api }, { payload }) {
   try {
     const { recordRef, action } = payload;
 
     yield call([RecordActions, RecordActions.execForRecord], recordRef, action);
   } catch (e) {
-    logger.error('[kanban/sagaRunAction saga] error', e);
+    console.error('[kanban/sagaRunAction saga] error', e);
   }
 }
 
-export function* sagaMoveCard({ api, logger }, { payload }) {
+export function* sagaMoveCard({ api }, { payload }) {
   let rollbackCards = [];
   try {
     const { stateId, cardIndex, fromColumnRef, toColumnRef } = payload;
@@ -434,15 +471,15 @@ export function* sagaMoveCard({ api, logger }, { payload }) {
       set(dataCards, [toColumnIndex, 'records'], []);
       set(dataCards, [toColumnIndex, 'totalCount'], 0);
     }
-
     const card = get(deleted, [0], {});
     const recordRef = card.id || card.cardId;
 
     dataCards[toColumnIndex].records.unshift(card);
     dataCards[toColumnIndex].totalCount += 1;
 
-    yield put(setDataCards({ stateId, dataCards }));
     const result = yield call(api.kanban.moveRecord, { recordRef, columnId: toColumnRef });
+
+    yield put(setDataCards({ stateId, dataCards }));
 
     if (get(result, 'id') !== recordRef) {
       throw new Error('Incorrect move result');
@@ -450,13 +487,13 @@ export function* sagaMoveCard({ api, logger }, { payload }) {
   } catch (e) {
     yield put(setDataCards({ stateId: payload.stateId, dataCards: rollbackCards }));
     NotificationManager.error(e.message || t('kanban.error.card-not-moved'), t('error'));
-    logger.error('[kanban/sagaRunAction saga] error', e);
+    console.error('[kanban/sagaRunAction saga] error', e);
   } finally {
     yield put(setLoadingColumns({ stateId: payload.stateId, isLoadingColumns: [] }));
   }
 }
 
-export function* sagaApplyFilter({ api, logger }, { payload }) {
+export function* sagaApplyFilter({ api }, { payload }) {
   try {
     const {
       settings: { predicate, kanban },
@@ -474,7 +511,7 @@ export function* sagaApplyFilter({ api, logger }, { payload }) {
     yield put(setJournalSetting(w({ predicate, kanban })));
     yield put(setKanbanSettings({ stateId, kanbanSettings: kanban || {} }));
     yield put(setPagination({ stateId, pagination }));
-    yield sagaGetData({ api, logger }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
+    yield sagaGetData({ api }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
 
     const settings = {
       columns: get(originGridSettings, 'columnsSetup.columns'),
@@ -486,11 +523,11 @@ export function* sagaApplyFilter({ api, logger }, { payload }) {
     yield put(applyJournalSetting(w({ settings })));
     yield put(setLoading({ stateId, isLoading: false }));
   } catch (e) {
-    logger.error('[kanban/sagaApplyFilter saga] error', e);
+    console.error('[kanban/sagaApplyFilter saga] error', e);
   }
 }
 
-export function* sagaApplyPreset({ api, logger }, { payload }) {
+export function* sagaApplyPreset({ api }, { payload }) {
   try {
     const {
       settings: { predicate, kanban },
@@ -514,18 +551,18 @@ export function* sagaApplyPreset({ api, logger }, { payload }) {
 
     yield put(setKanbanSettings({ stateId, kanbanSettings: kanban || {} }));
     yield put(setPagination({ stateId, pagination }));
-    yield sagaGetData({ api, logger }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
+    yield sagaGetData({ api }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
 
     yield put(setLoading({ stateId, isLoading: false }));
   } catch (e) {
-    logger.error('[kanban/sagaApplyPreset saga] error', e);
+    console.error('[kanban/sagaApplyPreset saga] error', e);
   }
 }
 
-export function* sagaSetDefaultBoardAndTemplate({ api, logger }, { payload }) {
+export function* sagaSetDefaultBoardAndTemplate({ api }, { payload }) {
   try {
     const { stateId, boardId, templateId } = payload;
-    yield call(sagaSelectFromUrl, { api, logger }, { payload: { stateId, boardId } });
+    yield call(sagaSelectFromUrl, { api }, { payload: { stateId, boardId } });
 
     const kanbanProps = yield select(selectKanbanPageProps, stateId);
     const { templateList } = kanbanProps;
@@ -534,7 +571,7 @@ export function* sagaSetDefaultBoardAndTemplate({ api, logger }, { payload }) {
     if (template) {
       yield call(
         sagaSelectFromUrl,
-        { api, logger },
+        { api },
         {
           payload: {
             templateId,
@@ -546,28 +583,30 @@ export function* sagaSetDefaultBoardAndTemplate({ api, logger }, { payload }) {
       );
     }
   } catch (e) {
-    logger.error('[kanban/sagaSetDefaultBoardAndTemplate saga error', e);
+    console.error('[kanban/sagaSetDefaultBoardAndTemplate saga error', e);
   }
 }
 
-export function* sagaResetFilter({ api, logger }, { payload }) {
+export function* sagaResetFilter({ api }, { payload }) {
   try {
     const { stateId } = payload;
     const settings = yield select(selectSettingsData, stateId);
     const predicate = get(settings, 'originGridSettings.predicate', {});
 
-    yield sagaApplyFilter({ api, logger }, { payload: { stateId, settings: { predicate } } });
+    yield sagaApplyFilter({ api }, { payload: { stateId, settings: { predicate } } });
     yield put(setIsFiltered({ stateId, isFiltered: false }));
   } catch (e) {
-    logger.error('[kanban/sagaResetFilter saga error', e);
+    console.error('[kanban/sagaResetFilter saga error', e);
   }
 }
 
-export function* sagaRunSearchCard({ api, logger }, { payload }) {
+export function* sagaRunSearchCard({ api }, { payload }) {
   try {
     const urlData = queryString.parseUrl(getUrlWithoutOrigin());
-    const { text } = payload;
+    const { text, stateId } = payload;
     const searchText = text || undefined;
+
+    yield put(runSearch({ stateId, text: searchText }));
 
     if (get(urlData, ['query', JournalUrlParams.SEARCH]) !== searchText) {
       set(urlData, ['query', JournalUrlParams.SEARCH], searchText);
@@ -577,11 +616,11 @@ export function* sagaRunSearchCard({ api, logger }, { payload }) {
       yield call([PageService, PageService.changeUrlLink], decodeLink(queryString.stringifyUrl(urlData)), { updateUrl: true });
     }
   } catch (e) {
-    logger.error('[kanban/sagaRunSearchCard saga error', e);
+    console.error('[kanban/sagaRunSearchCard saga error', e);
   }
 }
 
-export function* sagaReloadBoardData({ api, logger }, { payload }) {
+export function* sagaReloadBoardData({ api }, { payload }) {
   try {
     const { stateId } = payload;
     yield put(setLoading({ stateId, isLoading: true }));
@@ -592,10 +631,10 @@ export function* sagaReloadBoardData({ api, logger }, { payload }) {
     const { boardConfig, formProps } = yield select(selectKanban, stateId);
     const { journalConfig, journalSetting } = yield select(selectJournalData, stateId);
 
-    yield sagaGetData({ api, logger }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
+    yield sagaGetData({ api }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
     yield put(setLoading({ stateId, isLoading: false }));
   } catch (e) {
-    logger.error('[kanban/sagaRunSearchCard saga error', e);
+    console.error('[kanban/sagaRunSearchCard saga error', e);
   }
 }
 

@@ -1,7 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`FileIcon tests <FileIcon /> should render FileIcon component 1`] = `
-<span
-  className="ecos-file-icon fiv-hct fiv-icon-blank"
-/>
+<DocumentFragment>
+  <span
+    class="ecos-file-icon fiv-hct fiv-icon-blank"
+  />
+</DocumentFragment>
 `;

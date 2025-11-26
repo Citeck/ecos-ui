@@ -1,19 +1,26 @@
+import { EventEmitter } from 'events';
 import get from 'lodash/get';
 
 import { AppApi } from '../api/app';
+import Records from '../components/Records';
+import { ActionTypes } from '../components/Records/actions/constants';
+import RecordActions from '../components/Records/actions/recordActions';
 import DialogManager from '../components/common/dialogs/Manager';
 import { SourcesId } from '../constants';
 import { MenuSettings } from '../constants/menu';
-import RecordActions from '../components/Records/actions/recordActions';
-import { ActionTypes } from '../components/Records/actions/constants';
-import Records from '../components/Records';
 import { t } from '../helpers/export/util';
-import { getCurrentUserName } from '../helpers/util';
 import getFormDefinitionUserStatus from '../helpers/menu/formDefinitionUserStatus';
 import { changeUrl, createProfileUrl, getSearchParams, SearchKeys } from '../helpers/urls';
+import { getCurrentUserName } from '../helpers/util';
 
-export default class MenuService {
-  static getSiteMenuLink = async function(menuItem, dashboard) {
+class MenuService {
+  static emitter = new EventEmitter();
+
+  static Events = {
+    UPDATE_MENU: 'citeck-menu-update'
+  };
+
+  static getSiteMenuLink = async function (menuItem, dashboard) {
     const { recordRef, dashboardKey } = getSearchParams();
     const params = [];
     let link = menuItem.targetUrl;
@@ -96,7 +103,7 @@ export default class MenuService {
         );
       }
       case MenuSettings.ItemTypes.USER_FEEDBACK: {
-        return (async function() {
+        return (async function () {
           const url = await AppApi.getCustomFeedbackUrl();
           window.open(url);
         })();
@@ -107,7 +114,7 @@ export default class MenuService {
         return changeUrl(targetUrl, { openNewTab: true });
       }
       case MenuSettings.ItemTypes.USER_SEND_PROBLEM_REPORT: {
-        return (async function() {
+        return (async function () {
           const url = await AppApi.getCustomReportIssueUrl();
           window.open(url);
         })();
@@ -117,3 +124,8 @@ export default class MenuService {
     }
   };
 }
+
+window.Citeck = window.Citeck || {};
+window.Citeck.MenuService = MenuService;
+
+export default window.Citeck.MenuService;

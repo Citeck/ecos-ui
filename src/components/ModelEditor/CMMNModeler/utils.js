@@ -1,6 +1,6 @@
 import ModelUtil from 'cmmn-js/lib/util/ModelUtil';
 
-import { KEY_FIELD_NAME, ML_POSTFIX, PREFIX_FIELD, TYPE_CUSTOM } from '../../../constants/cmmn';
+import { KEY_FIELD_NAME, ML_POSTFIX, PREFIX_FIELD, TYPE_CUSTOM } from '@/constants/cmmn';
 
 export function getEcosType(element) {
   const definition = ModelUtil.getDefinition(element);

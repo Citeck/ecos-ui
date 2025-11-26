@@ -1,22 +1,21 @@
-import { put, takeLatest, call, select } from 'redux-saga/effects';
 import get from 'lodash/get';
+import { put, takeLatest, call, select } from 'redux-saga/effects';
 
-import { detectMobileDevice, setTheme, setThemeConfig } from '../actions/view';
-import { setIsMobile, loadThemeRequest } from '../actions/view';
+import { detectMobileDevice, setTheme, setThemeConfig, setIsMobile, loadThemeRequest } from '../actions/view';
 import { applyTheme, isMobileDevice, loadStylesheet } from '../helpers/util';
 import { selectActiveThemeStylesheet } from '../selectors/view';
 
-export function* doDetectMobileDevice({ logger }) {
+export function* doDetectMobileDevice() {
   try {
     yield put(setIsMobile(isMobileDevice()));
   } catch (e) {
-    logger.error('[doDetectMobileDevice saga] error', e);
+    console.error('[doDetectMobileDevice saga] error', e);
   }
 }
 
-export function* loadTheme({ api, logger }, { payload }) {
+export function* loadTheme({ api }, { payload }) {
   try {
-    const { isAuthenticated, onSuccess } = payload;
+    const { isAuthenticated, onRender } = payload;
     const id = yield call(api.view.getActiveThemeId);
     const cacheKeys = yield call(api.view.getThemeCacheKeys);
     const themeConfig = { id, cacheKeys };
@@ -28,14 +27,15 @@ export function* loadTheme({ api, logger }, { payload }) {
     }
 
     yield put(setThemeConfig(themeConfig));
-
     yield put(setTheme(id));
+
     yield call(applyTheme, id);
 
     const stylesheetUrl = yield select(selectActiveThemeStylesheet);
-    yield call(loadStylesheet, stylesheetUrl, onSuccess, onSuccess);
+
+    yield call(loadStylesheet, stylesheetUrl, onRender, onRender);
   } catch (e) {
-    logger.error('[loadTheme saga] error', e);
+    console.error('[loadTheme saga] error', e);
   }
 }
 

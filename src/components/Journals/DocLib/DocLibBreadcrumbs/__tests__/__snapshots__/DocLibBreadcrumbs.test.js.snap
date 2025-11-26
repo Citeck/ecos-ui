@@ -1,3 +1,36 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`DocLibBreadcrumbs tests <DocLibBreadcrumbs /> should render DocLibBreadcrumbs component 1`] = `""`;
+exports[`DocLibBreadcrumbs tests <DocLibBreadcrumbs /> should render DocLibBreadcrumbs component 1`] = `<div />`;
+
+exports[`DocLibBreadcrumbs tests <DocLibBreadcrumbs /> should render item label 1`] = `
+<DocumentFragment>
+  <div
+    class="ecos-doclib__breadcrumbs"
+  >
+    <span
+      class="ecos-doclib__breadcrumbs-link-separator"
+    >
+      /
+    </span>
+    <a
+      class="ecos-doclib__breadcrumbs-link"
+      href="http://localhost/?folderId=item1"
+    >
+      Folder 1
+    </a>
+    <span
+      class="ecos-doclib__breadcrumbs-link-separator"
+    >
+      /
+    </span>
+    <a
+      class="ecos-doclib__breadcrumbs-link"
+      href="http://localhost/?folderId=item2"
+    >
+      Folder 2
+    </a>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`DocLibBreadcrumbs tests <DocLibBreadcrumbs /> should render null if empty path 1`] = `<DocumentFragment />`;

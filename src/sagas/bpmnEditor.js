@@ -1,8 +1,8 @@
-import { call, put, takeEvery } from 'redux-saga/effects';
-import { NotificationManager } from 'react-notifications';
-import isUndefined from 'lodash/isUndefined';
 import get from 'lodash/get';
+import isUndefined from 'lodash/isUndefined';
+import { call, put, takeEvery } from 'redux-saga/effects';
 
+import { updateModels } from '../actions/bpmn';
 import {
   getFormProps,
   getModel,
@@ -16,26 +16,28 @@ import {
   setModel,
   setTitle
 } from '../actions/bpmnEditor';
-import { t } from '../helpers/export/util';
+import { PROCESS_DEF_API_ACTIONS } from '../api/process';
 import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
 import * as BpmnUtils from '../components/ModelEditor/BPMNModeler/utils';
-import { isJsonObjectString } from '../helpers/util';
-import { JSON_VALUE_COMPONENTS } from '../constants/cmmn';
-import { PROCESS_DEF_API_ACTIONS } from '../api/process';
-import { updateModels } from '../actions/bpmn';
 import { SourcesId } from '../constants';
+import { JSON_VALUE_COMPONENTS, KEY_FIELD_NAME, ML_POSTFIX } from '../constants/cmmn';
+import { t } from '../helpers/export/util';
+import { isJsonObjectString } from '../helpers/util';
 
-export function* init({ api, logger }, { payload: { stateId, record } }) {
+import { TYPE_BPMN_ANNOTATION } from '@/constants/bpmn';
+import { NotificationManager } from '@/services/notifications';
+
+export function* init({ api }, { payload: { stateId, record } }) {
   try {
     yield put(getTitle({ stateId, record }));
     yield put(getModel({ stateId, record }));
     yield put(getHasDeployRights({ stateId, record }));
   } catch (e) {
-    logger.error('[bpmnEditor/init saga] error', e);
+    console.error('[bpmnEditor/init saga] error', e);
   }
 }
 
-export function* fetchModel({ api, logger }, { payload: { stateId, record } }) {
+export function* fetchModel({ api }, { payload: { stateId, record } }) {
   try {
     const sectionPath = yield call(api.process.getSectionPath, record);
     const model = yield call(api.process.getDefinition, record);
@@ -43,11 +45,11 @@ export function* fetchModel({ api, logger }, { payload: { stateId, record } }) {
     yield put(setModel({ stateId, model, sectionPath }));
   } catch (e) {
     yield put(setModel({ stateId, model: null }));
-    logger.error('[bpmnEditor/fetchModel saga] error', e);
+    console.error('[bpmnEditor/fetchModel saga] error', e);
   }
 }
 
-export function* runSaveModel({ api, logger }, { payload: { stateId, record, xml, img, definitionAction, processDefId } }) {
+export function* runSaveModel({ api }, { payload: { stateId, record, xml, img, definitionAction, processDefId } }) {
   try {
     if (xml && img) {
       const base64 = yield call(api.app.getBase64, new Blob([img], { type: 'image/svg+xml' }));
@@ -72,6 +74,8 @@ export function* runSaveModel({ api, logger }, { payload: { stateId, record, xml
 
       yield put(updateModels(updatePayload));
       yield put(setLoading({ stateId, isLoading: false }));
+
+      yield put(getModel({ stateId, record }));
     }
   } catch (e) {
     yield put(setLoading({ stateId, isLoading: false }));
@@ -82,32 +86,32 @@ export function* runSaveModel({ api, logger }, { payload: { stateId, record, xml
       title = t('editor.error.can-not-save-deploy-model');
     }
     NotificationManager.error(message, title);
-    logger.error('[bpmnEditor/runSaveModel saga] error', e);
+    console.error('[bpmnEditor/runSaveModel saga] error', e);
   }
 }
 
-export function* fetchTitle({ api, logger }, { payload: { stateId, record } }) {
+export function* fetchTitle({ api }, { payload: { stateId, record } }) {
   try {
     const title = yield call(api.page.getRecordTitle, record);
 
     yield put(setTitle({ stateId, title }));
   } catch (e) {
     yield put(setTitle({ stateId, title: '' }));
-    logger.error('[bpmnEditor/fetchTitle saga] error', e);
+    console.error('[bpmnEditor/fetchTitle saga] error', e);
   }
 }
 
-export function* fetchHasDeployRights({ api, logger }, { payload: { stateId, record } }) {
+export function* fetchHasDeployRights({ api }, { payload: { stateId, record } }) {
   try {
     const hasDeployRights = yield call(api.process.getHasDeployRights, record);
 
     yield put(setHasDeployRights({ stateId, hasDeployRights }));
   } catch (e) {
-    logger.error('[bpmnEditor/fetchHasDeployRights saga] error', e);
+    console.error('[bpmnEditor/fetchHasDeployRights saga] error', e);
   }
 }
 
-export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, element } }) {
+export function* fetchFormProps({ api }, { payload: { stateId, formId, element, cacheLabels } }) {
   try {
     if (!formId) {
       throw new Error('No form ID ' + formId);
@@ -141,6 +145,10 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
           value = isJsonObjectString(value) ? JSON.parse(value) : value;
         }
 
+        if (cacheLabels && att === KEY_FIELD_NAME + ML_POSTFIX && isUndefined(value) && element.type === TYPE_BPMN_ANNOTATION) {
+          value = get(cacheLabels, [element.id, att]);
+        }
+
         if (!isUndefined(value) && !['asyncData'].includes(inputType)) {
           formData[att] = value;
         }
@@ -156,7 +164,7 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
     yield put(setFormProps({ stateId, formProps: {} }));
 
     NotificationManager.error(t('model-editor.error.form-not-found'), t('error'));
-    logger.error('[bpmnEditor/fetchFormProps saga] error', e);
+    console.error('[bpmnEditor/fetchFormProps saga] error', e);
   }
 }
 

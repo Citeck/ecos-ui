@@ -2,7 +2,7 @@
 @import './constants';
 
 // Import Bootstrap and its default variables
-@import '~bootstrap/scss/bootstrap';
+@import 'bootstrap/scss/bootstrap';
 
 // TODO: remove from this after using anywhere Tooltip from src/components/common/Tooltip/Tooltip.js
 @import '../components/common/Tooltip/style';

@@ -1,7 +1,10 @@
+import { render } from '@testing-library/react';
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render } from 'enzyme';
+
+import { INSTANCE_TABS_TYPES } from '../../../constants/instanceAdmin';
 import configureStore from '../../../store';
+import { InstanceContextProvider } from '../InstanceContext';
 import {
   getCalledProcessesColumns,
   getExternalTasksColumns,
@@ -9,8 +12,6 @@ import {
   getJobDefinitionsColumns,
   getVariableColumns
 } from '../JournalsTabs/columns';
-import { INSTANCE_TABS_TYPES } from '../../../constants/instanceAdmin';
-import { InstanceContextProvider } from '../InstanceContext';
 import MetaInfo from '../MetaInfo';
 
 const initialState = {};
@@ -31,6 +32,7 @@ const renderWithRedux = Component => {
     </Provider>
   );
 };
+
 describe('', () => {
   describe('', () => {
     it('should render MetaInfo component', () => {

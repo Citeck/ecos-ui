@@ -1,17 +1,19 @@
-import isArray from 'lodash/isArray';
-import set from 'lodash/set';
-import get from 'lodash/get';
-import find from 'lodash/find';
+import { EventEmitter } from 'events';
 import cloneDeep from 'lodash/cloneDeep';
+import find from 'lodash/find';
+import get from 'lodash/get';
+import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
-import { EventEmitter2 } from 'eventemitter2';
+import set from 'lodash/set';
 
-import * as storage from '../../helpers/ls';
-import { equalsQueryUrls, getWorkspaceId, IgnoredUrlParams } from '../../helpers/urls';
-import { t, getCurrentLocale, getEnabledWorkspaces } from '../../helpers/util';
-import { TITLE } from '../../constants/pageTabs';
-import PageTab from './PageTab';
 import PageService from '../PageService';
+
+import PageTab from './PageTab';
+
+import { TITLE } from '@/constants/pageTabs';
+import * as storage from '@/helpers/ls';
+import { equalsQueryUrls, getWorkspaceId, IgnoredUrlParams } from '@/helpers/urls';
+import { t, getCurrentLocale, getEnabledWorkspaces } from '@/helpers/util';
 
 const exist = index => !!~index;
 
@@ -86,7 +88,7 @@ class PageTabList {
     this.#displayState = !!displayState;
     this.#isDuplicateAllowed = !!isDuplicateAllowed;
 
-    const enabledWorkspace = get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false);
+    const enabledWorkspace = getEnabledWorkspaces();
 
     let tabs = this.getFromStorage();
 
@@ -340,8 +342,8 @@ class PageTabList {
     return last || !this.#tabs.length || !exist(activeIndex)
       ? this.#tabs.length
       : exist(currentTabIndex) && currentTabIndex <= activeIndex
-      ? activeIndex
-      : activeIndex + 1;
+        ? activeIndex
+        : activeIndex + 1;
   }
 
   getValidList(tabs = this.#tabs) {
@@ -379,7 +381,11 @@ class PageTabList {
       return false;
     }
 
-    return get(this.#tabs.find(tab => tab.id === tabId), 'isActive', false);
+    return get(
+      this.#tabs.find(tab => tab.id === tabId),
+      'isActive',
+      false
+    );
   };
 
   setLastActiveTabWs = (tab = this.activeTab) => {
@@ -401,7 +407,11 @@ class PageTabList {
       return false;
     }
 
-    return get(this.#tabs.find(tab => tab.id === tabId && tab.workspace === ws), 'isLastActive', false);
+    return get(
+      this.#tabs.find(tab => tab.id === tabId && tab.workspace === ws),
+      'isLastActive',
+      false
+    );
   };
 
   getLastActiveTabWs = (wsId = getWorkspaceId()) => {
@@ -424,7 +434,7 @@ class PageTabList {
 
 const pageTabList = get(window, 'Citeck.PageTabList', new PageTabList());
 
-export const updateTabEmitter = new EventEmitter2();
+export const updateTabEmitter = new EventEmitter();
 
 window.addEventListener('popstate', event => {
   const { href, origin } = get(event, 'target.location');

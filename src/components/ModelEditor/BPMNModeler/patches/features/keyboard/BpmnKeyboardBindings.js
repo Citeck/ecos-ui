@@ -1,9 +1,9 @@
-import Keyboard from 'diagram-js/lib/features/keyboard/Keyboard';
 import BpmnKeyboardBindings from 'bpmn-js/lib/features/keyboard/BpmnKeyboardBindings';
+import Keyboard from 'diagram-js/lib/features/keyboard/Keyboard';
 
-import { URL } from '../../../../../../constants';
+import { URL } from '@/constants';
 
-Keyboard.prototype._keyHandler = function(event, type) {
+Keyboard.prototype._keyHandler = function (event, type) {
   let eventBusResult;
 
   if (this._isEventIgnored(event)) {

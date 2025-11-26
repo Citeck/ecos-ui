@@ -2,14 +2,13 @@ const openConnection = (dbName = 'citeck', ver = 1) => {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(dbName, ver);
 
-    request.onupgradeneeded = function() {
+    request.onupgradeneeded = function () {
       const db = request.result;
 
       db.createObjectStore('pages', { keyPath: 'pageId' });
     };
 
     request.onsuccess = () => {
-      console.log(`DB: ${dbName} created`);
       resolve(request.result);
     };
     request.onerror = e => {
@@ -31,7 +30,7 @@ const openCiteckDB = async () => {
 
 const pagesStore = {
   name: 'pages',
-  put: function(entity) {
+  put: function (entity) {
     return new Promise(async (resolve, reject) => {
       if (!indexedDB) {
         reject('there is no indexedDB');
@@ -60,7 +59,7 @@ const pagesStore = {
       };
     });
   },
-  get: function(key) {
+  get: function (key) {
     return new Promise(async (resolve, reject) => {
       if (!indexedDB) {
         reject('there is no indexedDB');
@@ -87,7 +86,7 @@ const pagesStore = {
       };
     });
   },
-  migrate: function(from, to) {
+  migrate: function (from, to) {
     return new Promise(async (resolve, reject) => {
       if (!indexedDB) {
         resolve();

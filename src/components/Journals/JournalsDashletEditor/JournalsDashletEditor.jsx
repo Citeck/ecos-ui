@@ -1,17 +1,27 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
+import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
-import omit from 'lodash/omit';
+import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isEqualWith from 'lodash/isEqualWith';
-import isUndefined from 'lodash/isUndefined';
 import isFunction from 'lodash/isFunction';
+import isObject from 'lodash/isObject';
+import isUndefined from 'lodash/isUndefined';
+import omit from 'lodash/omit';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
-import { Caption, Checkbox, Field, Input, Select, SelectJournal } from '../../common/form';
+import JournalsService from '../../../components/Journals/service';
+import { LinkedAttributesSelect } from '../../LinkedAttributesSelect';
+import Records from '../../Records';
 import { Btn } from '../../common/btns';
+import { Caption, Checkbox, Field, Input, Select, SelectJournal } from '../../common/form';
+import { JOURNAL_DASHLET_CONFIG_VERSION } from '../constants';
+
+import GoToButton from './GoToButton';
+
 import {
   checkConfig,
   getDashletEditorData,
@@ -20,16 +30,14 @@ import {
   setDashletConfigByParams,
   setEditorMode,
   setLoading
-} from '../../../actions/journals';
-import { selectJournalDashletEditorProps } from '../../../selectors/dashletJournals';
-import { getSelectedValue, t } from '../../../helpers/util';
-import { wrapArgs } from '../../../helpers/redux';
-import DashboardService from '../../../services/dashboard';
-import { SystemJournals } from '../../../constants';
-import { LinkedAttributesSelect } from '../../LinkedAttributesSelect';
-import Records from '../../Records';
-import { JOURNAL_DASHLET_CONFIG_VERSION } from '../constants';
-import GoToButton from './GoToButton';
+} from '@/actions/journals';
+import { SystemJournals, SourcesId } from '@/constants';
+import { SearchInWorkspacePolicy, SearchWorkspacePolicyOptions } from '@/forms/components/custom/selectJournal/constants';
+import { wrapArgs } from '@/helpers/redux';
+import { getWorkspaceId } from '@/helpers/urls';
+import { getEnabledWorkspaces, getSelectedValue, t } from '@/helpers/util';
+import { selectJournalDashletEditorProps } from '@/selectors/dashletJournals';
+import DashboardService from '@/services/dashboard';
 
 import './JournalsDashletEditor.scss';
 
@@ -60,10 +68,14 @@ const Labels = {
   SETTING_TITLE: 'journals.action.edit-dashlet',
   CUSTOM_FIELD: 'journals.action.custom-journal',
   NAME_FIELD: 'journals.name',
+  AGGREGATION_WORKSPACES: 'journals.aggregation-workspaces',
   SETTING_FIELD: 'journals.settings',
   SETTING_FIELD_PLACEHOLDER: 'journals.default',
   CUSTOM_MODE_FIELD: 'journals.action.custom-journal',
+  HIDE_GO_TO_BUTTON: 'journals.toolbar.hide-goto-button',
+  HIDE_CREATE_VARIANTS: 'journals.toolbar.hide-create-variants',
   ONLY_LINKED_FIELD: 'journals.action.only-linked',
+  ONLY_LINKED_FIELD_ALL_ATTRIBUTES: 'journals.action.only-linked.all-attributes',
   GO_TO_BUTTON_NAME_FIELD: 'journals.action.go-to-button-name',
   RESET_BTN: 'journals.action.reset-settings',
   CANCEL_BTN: 'journals.action.cancel',
@@ -89,19 +101,33 @@ class JournalsDashletEditor extends Component {
     isCustomJournalMode: false
   });
 
-  #dataInit = false;
+  _dataInit;
 
   constructor(props) {
     super(props);
 
+    const defaultPolicy = SearchWorkspacePolicyOptions.find(item => item.value === SearchInWorkspacePolicy.CURRENT);
+
     this.state = {
       ...this.#defaultStateConfig,
-      isOnlyLinked: get(props, 'config.onlyLinked') || false,
-      attrsToLoad: get(props, 'config.attrsToLoad') || []
+      isOnlyLinkedJournals: get(props, 'config.onlyLinkedJournals') || {},
+      attrsToLoad: get(props, 'config.attrsToLoad') || {},
+      isHideCreateVariants: get(props, 'config.isHideCreateVariants') || false,
+      isHideGoToButton: get(props, 'config.isHideGoToButton') || false,
+      searchInWorkspacePolicy:
+        (isObject(get(props, 'config.searchInWorkspacePolicy'))
+          ? props.config.searchInWorkspacePolicy.value
+          : get(props.config, 'searchInWorkspacePolicy')) || defaultPolicy.value,
+      searchInAdditionalWorkspaces: (
+        get(props, 'config.searchInAdditionalWorkspaces') ||
+        get(props, 'config.aggregateWorkspaces') ||
+        []
+      ).filter(ws => ws !== getWorkspaceId() && ws !== `${SourcesId.WORKSPACE}@${getWorkspaceId()}`)
     };
   }
 
   componentDidMount() {
+    this._dataInit = false;
     const { config, getDashletEditorData } = this.props;
 
     getDashletEditorData(config);
@@ -131,7 +157,13 @@ class JournalsDashletEditor extends Component {
       getDashletEditorData(config);
     }
 
-    if (editorMode && isFunction(onSave) && prevResultDashboard.status !== resultDashboard.status && resultDashboard.status) {
+    if (
+      editorMode &&
+      isFunction(onSave) &&
+      prevResultDashboard.status !== resultDashboard.status &&
+      resultDashboard.status &&
+      isObject(config)
+    ) {
       setDashletConfigByParams(id, config);
       setEditorMode(false);
       this.setState({ ...this.#defaultStateConfig });
@@ -146,10 +178,25 @@ class JournalsDashletEditor extends Component {
     this.setState({ ...this.#defaultStateConfig });
   }
 
-  get isDisabled() {
-    const { isCustomJournalMode, isOnlyLinked, attrsToLoad, customJournal, selectedJournals } = this.state;
+  getDispJournalId(journalId) {
+    return journalId?.includes('@') ? journalId.split('@')[1] : journalId;
+  }
 
-    if (isOnlyLinked && attrsToLoad && attrsToLoad.length === 0) {
+  get isDisabled() {
+    const { isCustomJournalMode, isOnlyLinkedJournals, attrsToLoad, customJournal, selectedJournals } = this.state;
+
+    if (
+      !isCustomJournalMode &&
+      isOnlyLinkedJournals &&
+      attrsToLoad &&
+      isObject(attrsToLoad) &&
+      isObject(isOnlyLinkedJournals) &&
+      !Object.entries(isOnlyLinkedJournals)
+        .filter(([journalId]) =>
+          selectedJournals.map(journalId => this.getDispJournalId(journalId)).includes(this.getDispJournalId(journalId))
+        )
+        .every(([journalId, flag]) => !flag || (!!flag && get(attrsToLoad, [journalId]) && attrsToLoad[journalId].length > 0))
+    ) {
       return true;
     }
 
@@ -168,7 +215,7 @@ class JournalsDashletEditor extends Component {
     const newState = {};
     const config = this.props.config;
 
-    if (!isEmpty(config) && !this.#dataInit) {
+    if (!isEmpty(config) && !this._dataInit) {
       if (!isUndefined(config.journalsListIds) && !isEqual(config.journalsListIds, this.state.selectedJournals)) {
         newState.selectedJournals = config.journalsListIds;
       }
@@ -185,8 +232,8 @@ class JournalsDashletEditor extends Component {
         newState.isCustomJournalMode = config.customJournalMode;
       }
 
-      if (!isUndefined(config.onlyLinked) && !isEqual(config.onlyLinked, this.state.isOnlyLinked)) {
-        newState.isOnlyLinked = config.onlyLinked;
+      if (!isUndefined(config.onlyLinked) && !isEqual(config.onlyLinked, this.state.isOnlyLinkedJournals)) {
+        newState.isOnlyLinkedJournals = config.onlyLinkedJournals;
       }
 
       if (!isUndefined(config.goToButtonName) && !isEqual(config.goToButtonName, this.state.goToButtonName)) {
@@ -195,7 +242,7 @@ class JournalsDashletEditor extends Component {
     }
 
     if (!isEmpty(newState)) {
-      this.#dataInit = true;
+      this._dataInit = true;
       this.setState(newState);
     }
   }
@@ -228,18 +275,37 @@ class JournalsDashletEditor extends Component {
       isCustomJournalMode,
       customJournal,
       journalSettingId,
-      isOnlyLinked,
-      goToButtonName
+      isOnlyLinkedJournals,
+      searchInWorkspacePolicy,
+      searchInAdditionalWorkspaces,
+      goToButtonName,
+      isHideCreateVariants,
+      isHideGoToButton
     } = this.state;
     const generalConfig = this.props.generalConfig || {};
     const journalId = get(selectedJournals, '0', '');
+
     let newConfig = omit(config, ['journalsListId', 'journalType']);
 
     if (recordRef) {
-      newConfig.onlyLinked = isOnlyLinked;
+      newConfig.onlyLinkedJournals = isOnlyLinkedJournals;
       newConfig.attrsToLoad = attrsToLoad;
     }
 
+    if (getEnabledWorkspaces()) {
+      newConfig.searchInWorkspacePolicy = searchInWorkspacePolicy;
+      newConfig.aggregateWorkspaces = JournalsService.getWorkspaceByPolicy(searchInWorkspacePolicy, searchInAdditionalWorkspaces);
+
+      if (
+        searchInWorkspacePolicy === SearchInWorkspacePolicy.CURRENT ||
+        searchInWorkspacePolicy === SearchInWorkspacePolicy.CURRENT_AND_ADDITIONAL
+      ) {
+        newConfig.aggregateWorkspaces = newConfig.aggregateWorkspaces.filter(ws => ws !== getWorkspaceId());
+      }
+    }
+
+    newConfig.isHideCreateVariants = isHideCreateVariants;
+    newConfig.isHideGoToButton = isHideGoToButton;
     newConfig.journalsListIds = selectedJournals;
     newConfig.journalSettingId = journalSettingId;
     newConfig.journalId = journalId.substr(journalId.indexOf('@') + 1);
@@ -282,7 +348,28 @@ class JournalsDashletEditor extends Component {
     this.setState({ journalSettingId: item.id });
   };
 
-  onChangeLinkedSettings = newSettings => {
+  onChangeLinkedSettings = (settings, id) => {
+    const newSettings = cloneDeep(settings);
+    const { isOnlyLinked: newIsOnlyLinked, attrsToLoad: newAttrsToLoad } = newSettings || {};
+    const { attrsToLoad, isOnlyLinkedJournals } = this.state;
+
+    const journalId = this.getDispJournalId(id);
+
+    if (journalId) {
+      if (!newAttrsToLoad && !get(attrsToLoad, [journalId]) && newIsOnlyLinked) {
+        newSettings.attrsToLoad = { ...attrsToLoad, [journalId]: [] };
+      }
+
+      if (newAttrsToLoad) {
+        newSettings.attrsToLoad = { ...attrsToLoad, [journalId]: newAttrsToLoad };
+      }
+    }
+
+    if (isBoolean(newIsOnlyLinked) && journalId) {
+      newSettings.isOnlyLinkedJournals = { ...isOnlyLinkedJournals, [journalId]: newIsOnlyLinked };
+      delete newSettings.isOnlyLinked;
+    }
+
     this.setState(newSettings);
   };
 
@@ -298,8 +385,24 @@ class JournalsDashletEditor extends Component {
     });
   };
 
+  toggleHideGoToButton = () => {
+    this.setState(state => ({ isHideGoToButton: !state.isHideGoToButton }));
+  };
+
+  toggleIsHideCreateVariants = () => {
+    this.setState(state => ({ isHideCreateVariants: !state.isHideCreateVariants }));
+  };
+
   setSelectedJournals = (selectedJournals = []) => {
     this.setState({ selectedJournals });
+  };
+
+  setSelectedWorkspacePolicy = policy => {
+    this.setState({ searchInWorkspacePolicy: policy.value });
+  };
+
+  setSelectedAdditionsWorkspaces = (searchInAdditionalWorkspaces = []) => {
+    this.setState({ searchInAdditionalWorkspaces });
   };
 
   handleChangeGoToButtonName = goToButtonName => {
@@ -321,9 +424,15 @@ class JournalsDashletEditor extends Component {
       selectedJournals,
       journalSettingId,
       isCustomJournalMode,
-      isOnlyLinked,
+      isHideGoToButton,
+      isHideCreateVariants,
+      isOnlyLinkedJournals,
+      searchInWorkspacePolicy,
+      searchInAdditionalWorkspaces,
       goToButtonName
     } = this.state;
+
+    const workspacePolicy = SearchWorkspacePolicyOptions.find(({ value }) => value === searchInWorkspacePolicy);
 
     return (
       <div className={classNames('ecos-journal-dashlet-editor', className)} ref={forwardRef}>
@@ -349,6 +458,37 @@ class JournalsDashletEditor extends Component {
                 />
               </Field>
 
+              {getEnabledWorkspaces() && (
+                <>
+                  <Field label={t('workspace-polices.title')} isSmall={this.isSmall} labelPosition="top">
+                    <Select
+                      onChange={this.setSelectedWorkspacePolicy}
+                      value={workspacePolicy ? { value: workspacePolicy.value, label: t(workspacePolicy.label) } : null}
+                      options={SearchWorkspacePolicyOptions.map(item => ({
+                        value: item.value,
+                        label: t(item.label)
+                      }))}
+                    />
+                  </Field>
+                  {[SearchInWorkspacePolicy.CURRENT_AND_ADDITIONAL, SearchInWorkspacePolicy.ONLY_ADDITIONAL].includes(
+                    searchInWorkspacePolicy
+                  ) && (
+                    <Field label={t('workspace-polices.additional-title')} isSmall={this.isSmall} labelPosition="top">
+                      <SelectJournal
+                        journalId={SystemJournals.WORKSPACES}
+                        defaultValue={searchInAdditionalWorkspaces}
+                        multiple
+                        hideCreateButton
+                        isSelectedValueAsText
+                        onChange={this.setSelectedAdditionsWorkspaces}
+                        isCompact
+                        isRequired
+                      />
+                    </Field>
+                  )}
+                </>
+              )}
+
               <Field label={t(Labels.SETTING_FIELD)} isSmall={this.isSmall}>
                 <Select
                   className="ecos-journal-dashlet-editor__select"
@@ -365,17 +505,37 @@ class JournalsDashletEditor extends Component {
           <Field label={t(Labels.CUSTOM_MODE_FIELD)} isSmall={this.isSmall}>
             <Checkbox checked={isCustomJournalMode} onClick={this.setCustomJournalMode} />
           </Field>
-          {!!recordRef && (
-            <LinkedAttributesSelect
-              typeRef={typeRef}
-              journalId={selectedJournals[0]}
-              onChange={this.onChangeLinkedSettings}
-              isOnlyLinked={isOnlyLinked}
-              attrsToLoad={attrsToLoad}
-            />
-          )}
+          <Field label={t(Labels.HIDE_GO_TO_BUTTON)} isSmall={this.isSmall}>
+            <Checkbox checked={isHideGoToButton} onClick={this.toggleHideGoToButton} />
+          </Field>
+          <Field label={t(Labels.HIDE_CREATE_VARIANTS)} isSmall={this.isSmall}>
+            <Checkbox checked={isHideCreateVariants} onClick={this.toggleIsHideCreateVariants} />
+          </Field>
 
           <GoToButton isSmall={this.isSmall} value={goToButtonName} onChange={this.handleChangeGoToButtonName} />
+
+          {!!recordRef && isCustomJournalMode && (
+            <Field label={t(Labels.ONLY_LINKED_FIELD_ALL_ATTRIBUTES)} isSmall={this.isSmall}>
+              <Checkbox
+                checked={get(isOnlyLinkedJournals, [this.getDispJournalId(customJournal)], false)}
+                onClick={isOnlyLinked => this.onChangeLinkedSettings({ isOnlyLinked }, customJournal)}
+              />
+            </Field>
+          )}
+
+          {!!recordRef &&
+            !isCustomJournalMode &&
+            !!selectedJournals?.length &&
+            selectedJournals.map(journalId => (
+              <LinkedAttributesSelect
+                key={journalId}
+                typeRef={typeRef}
+                journalId={journalId}
+                onChange={settings => this.onChangeLinkedSettings(settings, journalId)}
+                isOnlyLinked={get(isOnlyLinkedJournals, [this.getDispJournalId(journalId)], false)}
+                attrsToLoad={get(attrsToLoad, [this.getDispJournalId(journalId)], [])}
+              />
+            ))}
         </div>
 
         <div className={classNames('ecos-journal-dashlet-editor__actions', { 'ecos-journal-dashlet-editor__actions_small': this.isSmall })}>
@@ -391,7 +551,4 @@ class JournalsDashletEditor extends Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(JournalsDashletEditor);
+export default connect(mapStateToProps, mapDispatchToProps)(JournalsDashletEditor);

@@ -453,28 +453,6 @@ describe('Util helpers', () => {
     check(data, 'getMonthPeriodByDate');
   });
 
-  describe('function stripHTML', () => {
-    const data = [
-      {
-        title: 'Returns a string if it is a string',
-        input: ['example string'],
-        output: 'example string'
-      },
-      {
-        title: 'Returns a string without markup if it is HTML',
-        input: ['<div>Example String</div>'],
-        output: 'Example String'
-      },
-      {
-        title: 'Returns a string without markup, even if it is complex HTML',
-        input: ['<div><h1>Hello!</h1><p> It is <b>SIMPLE</b> example!</p></div>'],
-        output: 'Hello! It is SIMPLE example!'
-      }
-    ];
-
-    check(data, 'stripHTML');
-  });
-
   describe('function camelize', () => {
     const data = [
       {

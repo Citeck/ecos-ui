@@ -18,7 +18,7 @@
       }
 
       &_selected {
-        border-bottom-color: $color-blue-dark;
+        border-bottom-color: var(--primary-color);
       }
     }
 

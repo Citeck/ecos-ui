@@ -18,7 +18,7 @@
   }
 
   &_primary {
-    color: $color-blue-light;
+    color: var(--primary-color);
   }
 
   &_warn {

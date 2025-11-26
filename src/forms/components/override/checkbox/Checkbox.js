@@ -1,11 +1,14 @@
 import FormIOCheckBoxComponent from 'formiojs/components/checkbox/Checkbox';
 import get from 'lodash/get';
-import unset from 'lodash/unset';
+import isEmpty from 'lodash/isEmpty';
+import isString from 'lodash/isString';
 import set from 'lodash/set';
+import unset from 'lodash/unset';
 
-import { getBool, t } from '../../../../helpers/util';
-import { DEFAULT_LABEL_POSITION } from '../../../../constants/forms';
 import Base from '../base/Base';
+
+import { DEFAULT_LABEL_POSITION } from '@/constants/forms';
+import { getBool, getMLValue, t } from '@/helpers/util';
 
 export default class CheckBoxComponent extends FormIOCheckBoxComponent {
   static schema(...extend) {
@@ -19,39 +22,7 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
     );
   }
 
-  #beforeState;
-
-  set dataValue(value) {
-    if (!this.key) {
-      return value;
-    }
-
-    if (this.hasThreeStates) {
-      if (value === undefined) {
-        unset(this.data, this.key);
-      } else {
-        set(this.data, this.key, value);
-      }
-
-      this.checkState(value);
-
-      return value;
-    }
-
-    if (value === null || value === undefined) {
-      unset(this.data, this.key);
-    } else {
-      set(this.data, this.key, value);
-    }
-
-    if (this.isRadioCheckbox) {
-      set(this.data, this.component.key, value === this.component.value);
-
-      this.setCheckedState(value);
-    }
-
-    return value;
-  }
+  _beforeState;
 
   get defaultValue() {
     if (this.isRadioCheckbox) {
@@ -103,12 +74,52 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
     return value;
   }
 
+  set dataValue(value) {
+    if (!this.key) {
+      return value;
+    }
+
+    if (this.hasThreeStates) {
+      if (value === undefined) {
+        unset(this.data, this.key);
+      } else {
+        set(this.data, this.key, value);
+      }
+
+      this.checkState(value);
+
+      return value;
+    }
+
+    if (value === null || value === undefined) {
+      unset(this.data, this.key);
+    } else {
+      set(this.data, this.key, value);
+    }
+
+    if (this.isRadioCheckbox) {
+      set(this.data, this.component.key, value === this.component.value);
+
+      this.setCheckedState(value);
+    }
+
+    return value;
+  }
+
   get defaultSchema() {
     return CheckBoxComponent.schema();
   }
 
   get hasThreeStates() {
     return this.component.hasThreeStates;
+  }
+
+  errorMessage(type) {
+    if (type === 'required') {
+      return t('ecos.forms.checkbox.required', { field: getMLValue(this.component.label) });
+    }
+
+    return super.errorMessage(type);
   }
 
   isEmpty(value) {
@@ -188,18 +199,18 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
 
     const value = this.setElementState(state);
 
-    if (needUpdate && this.#beforeState === undefined && this.#beforeState !== state) {
+    if (needUpdate && this._beforeState === undefined && this._beforeState !== state) {
       this.dataValue = state;
     }
 
-    this.#beforeState = value;
+    this._beforeState = value;
 
     if (this.input) {
       this.input.checked = value;
       this.input.value = value;
     }
 
-    if (this.labelSpan) {
+    if (this.labelSpan && isString(value)) {
       this.labelSpan.setAttribute('title', value);
     }
   }
@@ -240,18 +251,36 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
     return super.setCheckedState(value);
   }
 
-  setValue(value, flags) {
-    if (this.options.formMode === 'CREATE') {
-      if (!get(this.currentForm, 'hasSetValue', true)) {
-        return;
-      }
+  updateVisible = () => {
+    if (this.options.builder || isEmpty(get(this.component, 'logic'))) {
+      return;
     }
 
-    return super.setValue(value, flags);
-  }
+    if (get(this.component, 'hidden') !== get(this.element, 'hidden') && this.element) {
+      if (!!this.component.hidden) {
+        this.element.setAttribute('hidden', true);
+        this.element.style.visibility = 'hidden';
+        this.element.style.position = 'absolute';
+      } else if (
+        this.parent &&
+        this.parent.parent &&
+        this.parent.parent.component.type === 'columns' &&
+        this.parent.parent.component.autoAdjust
+      ) {
+        this.element.style.visibility = 'hidden';
+        this.element.style.position = 'relative';
+      } else {
+        this.element.removeAttribute('hidden');
+        this.element.style.visibility = 'visible';
+        this.element.style.position = 'relative';
+      }
+    }
+  };
 
   // TODO delete when will fixed in new formiojs version
   updateValue(flags, value) {
+    this.updateVisible();
+
     if (this.hasThreeStates) {
       if (!flags.modified && value === undefined) {
         return;
@@ -266,7 +295,7 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
          * value change logic:
          * true => false => null => etc by circle
          */
-        switch (this.#beforeState) {
+        switch (this._beforeState) {
           case null:
             newValue = true;
             break;
@@ -283,7 +312,7 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
 
       const changed = newValue !== undefined ? this.hasChanged(newValue, this.dataValue) : false;
 
-      this.#beforeState = newValue;
+      this._beforeState = newValue;
       this.dataValue = newValue;
       this.updateOnChange(flags, changed);
 
@@ -296,7 +325,7 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
         this.input.value = newValue;
       }
 
-      if (this.labelSpan) {
+      if (this.labelSpan && isString(newValue)) {
         this.labelSpan.setAttribute('title', newValue);
       }
 

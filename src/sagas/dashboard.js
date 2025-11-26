@@ -1,11 +1,9 @@
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
-import { call, put, select, takeLatest } from 'redux-saga/effects';
-import { NotificationManager } from 'react-notifications';
+import isObject from 'lodash/isObject';
+import { all, call, put, select, takeLatest } from 'redux-saga/effects';
 
-import { RequestStatuses } from '../constants';
-import { t } from '../helpers/util';
-import { getRefWithAlfrescoPrefix } from '../helpers/ref';
 import {
   getDashboardConfig,
   getDashboardTitle,
@@ -19,59 +17,117 @@ import {
   setWarningMessage
 } from '../actions/dashboard';
 import { setDashboardConfig as setDashboardSettingsConfig } from '../actions/dashboardSettings';
-import { selectDashboardConfigs, selectIdentificationForView, selectResetStatus } from '../selectors/dashboard';
+import { RequestStatuses, SourcesId } from '../constants';
 import DashboardConverter from '../dto/dashboard';
-import DashboardService from '../services/dashboard';
+import { getRefWithAlfrescoPrefix } from '../helpers/ref';
+import { getEnabledWorkspaces, t } from '../helpers/util';
+import { selectDashboardConfigs, selectIdentificationForView, selectResetStatus } from '../selectors/dashboard';
 import { selectNewVersionConfig, selectSelectedWidgetsById } from '../selectors/dashboardSettings';
-import { selectCurrentWorkspaceIsBlocked } from '../selectors/workspaces';
+import { selectCurrentWorkspaceIsBlocked, selectWorkspaces } from '../selectors/workspaces';
+import DashboardService from '../services/dashboard';
 
-export function* _parseConfig({ api, logger }, { recordRef, config }) {
+import { ComponentKeys } from '@/components/widgets/Components';
+import { getWorkspaceId } from '@/helpers/urls';
+import { NotificationManager } from '@/services/notifications';
+
+export function* _parseConfig({ api }, { recordRef, config }) {
   const migratedConfig = DashboardService.migrateConfigFromOldVersion(config);
   const newConfig = yield select(() => selectNewVersionConfig(migratedConfig));
 
   newConfig.widgets = yield call(api.dashboard.getFilteredWidgets, newConfig.widgets, { recordRef });
+  newConfig.widgets = yield all(
+    (newConfig.widgets || []).map(function* (widget) {
+      if (widget.name === ComponentKeys.JOURNAL) {
+        let isExistJournal = false;
+
+        const journalConfig = get(widget, 'props.config') || {};
+        const versionConfigJournal = journalConfig[get(journalConfig, 'version') || 'v2'];
+        const journalId = get(versionConfigJournal, 'journalId');
+
+        if (journalConfig && versionConfigJournal && journalId) {
+          const journalData = yield Records.get(journalId.includes('@') ? journalId : `${SourcesId.JOURNAL}@${journalId}`).load('.json');
+
+          if (isObject(journalData) && !isEmpty(journalData)) {
+            isExistJournal = true;
+          }
+        }
+
+        return {
+          ...widget,
+          isExistJournal
+        };
+      }
+
+      return widget;
+    })
+  );
+
   const widgetsById = yield select(() => selectSelectedWidgetsById(newConfig));
 
   return DashboardConverter.getNewDashboardForWeb(newConfig, widgetsById, migratedConfig.version);
 }
 
-function* doGetDashboardRequest({ api, logger }, { payload }) {
+function* doGetDashboardRequest({ api }, { payload }) {
   const workspaceIsBlocked = yield select(selectCurrentWorkspaceIsBlocked);
+  const enabledWorkspaces = getEnabledWorkspaces();
 
   try {
     const { dashboardId, recordRef } = payload;
+    const wsId = getWorkspaceId();
+
     const recordIsExist = yield call(api.app.recordIsExist, recordRef, true);
 
     if (recordRef && !recordIsExist) {
-      yield put(setWarningMessage({ key: payload.key, message: t('record.not-found.message') }));
+      if (enabledWorkspaces) {
+        const workspaces = yield select(selectWorkspaces);
+        const currentWorkspace = (workspaces || []).find(workspace => workspace.id === wsId) || '';
+
+        yield put(
+          setWarningMessage({
+            key: payload.key,
+            message: t('record.not-found.message.workspace', { workspaceName: currentWorkspace.name })
+          })
+        );
+      } else {
+        yield put(setWarningMessage({ key: payload.key, message: t('record.not-found.message') }));
+      }
+
       yield put(setLoading({ key: payload.key, status: false }));
 
       return;
     }
 
+    let hasWorkspaceReadPermission = true;
+
+    if (enabledWorkspaces) {
+      hasWorkspaceReadPermission = yield call(api.app.hasWorkspaceReadPermission, wsId, true);
+    }
+
     const hasRecordReadPermission = yield call(api.app.hasRecordReadPermission, recordRef, true);
 
-    if (recordRef && !hasRecordReadPermission) {
+    if (recordRef && (!hasRecordReadPermission || !hasWorkspaceReadPermission)) {
       yield put(setWarningMessage({ key: payload.key, message: t('record.permission-denied.message') }));
       yield put(setLoading({ key: payload.key, status: false }));
 
       return;
     }
+
     const result = yield call(api.dashboard.getDashboardByOneOf, { dashboardId, recordRef: getRefWithAlfrescoPrefix(recordRef) });
 
-    const modelAttributes = yield call(api.dashboard.getModelAttributes, result.key);
+    const modelAttributes = yield call(api.dashboard.getModelAttributes, get(result, 'key'));
     const webKeyInfo = DashboardConverter.getKeyInfoDashboardForWeb(result);
-    const webConfigs = yield _parseConfig({ api, logger }, { config: result.config, recordRef });
+    const webConfigs = yield _parseConfig({ api }, { config: get(result, 'config'), recordRef });
     const isReset = yield select(selectResetStatus);
 
     if (isReset) {
       throw new Error('info: Dashboard is unmounted');
     }
-    yield put(setDashboardIdentification({ ...webKeyInfo, key: payload.key }));
+
+    yield put(setDashboardIdentification({ ...webKeyInfo, key: payload.key, url: window.location.pathname }));
     yield put(
       setDashboardConfig({
         config: get(webConfigs, 'config.layouts', []),
-        originalConfig: result.config,
+        originalConfig: get(result, 'config'),
         modelAttributes,
         key: payload.key
       })
@@ -80,15 +136,15 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
   } catch (e) {
     yield put(setLoading({ key: payload.key, status: false }));
 
-    if (!workspaceIsBlocked || !get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+    if (!workspaceIsBlocked || !enabledWorkspaces) {
       NotificationManager.error(t('dashboard.error.get-config'), t('error'));
     }
 
-    logger.error('[dashboard/ doGetDashboardRequest saga] error', e);
+    console.error('[dashboard/ doGetDashboardRequest saga] error', e);
   }
 }
 
-function* doGetDashboardTitleRequest({ api, logger }, { payload }) {
+function* doGetDashboardTitleRequest({ api }, { payload }) {
   try {
     const { dashboardId, recordRef } = payload;
     const resTitle = yield call(api.dashboard.getTitleInfo, recordRef, dashboardId);
@@ -97,11 +153,11 @@ function* doGetDashboardTitleRequest({ api, logger }, { payload }) {
     yield put(setDashboardTitleInfo({ titleInfo, key: payload.key }));
   } catch (e) {
     NotificationManager.error(t('dashboard.error.get-title'), t('error'));
-    logger.error('[dashboard/ doGetDashboardTitleRequest saga] error', e);
+    console.error('[dashboard/ doGetDashboardTitleRequest saga] error', e);
   }
 }
 
-function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
+function* doSaveDashboardConfigRequest({ api }, { payload }) {
   yield put(setRequestResultDashboard({ key: payload.key }));
 
   try {
@@ -122,7 +178,7 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
       config = dashboardConfig;
     }
 
-    const forWeb = yield _parseConfig({ api, logger }, { config, recordRef });
+    const forWeb = yield _parseConfig({ api }, { config, recordRef });
 
     if (recordRef && identification.appliedToRef) {
       recordRef = getRefWithAlfrescoPrefix(recordRef);
@@ -176,7 +232,7 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
   } catch (e) {
     yield put(setLoading({ key: payload.key, status: false }));
     NotificationManager.error(t('dashboard.error.save-config'), t('error'));
-    logger.error('[dashboard/ doSaveDashboardConfigRequest saga] error', e);
+    console.error('[dashboard/ doSaveDashboardConfigRequest saga] error', e);
   }
 }
 

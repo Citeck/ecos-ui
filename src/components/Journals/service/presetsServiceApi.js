@@ -1,6 +1,7 @@
 import Records from '../../Records/Records';
 import { SourcesId } from '../../../constants';
 import { PERMISSION_WRITE_ATTR } from '../../Records/constants';
+import {getWorkspaceId} from "@/helpers/urls.js";
 
 class ID {
   static includes(id = '') {
@@ -21,7 +22,7 @@ class PresetsServiceApi {
     return Records.query(
       {
         sourceId: SourcesId.PRESETS,
-        query: { journalId }
+        query: { journalId, workspaces: [getWorkspaceId()] }
       },
       {
         authority: 'authority',
@@ -38,6 +39,7 @@ class PresetsServiceApi {
     return Records.get(ID.getFull(id)).load({
       authority: 'authority',
       authorities: 'authorities[]',
+      workspaces: 'workspaces[]',
       journalId: 'journalId',
       name: 'name?json',
       displayName: '?disp',
@@ -46,12 +48,12 @@ class PresetsServiceApi {
     });
   }
 
-  async savePreset({ id, name, authority, authorities, journalId, settings }) {
+  async savePreset({ id, name, workspacesRefs, authorities, journalId, settings }) {
     const record = Records.get(ID.getFull(id));
 
     record.att('name', name);
-    record.att('authority', authority);
     record.att('authorities', authorities);
+    record.att('workspacesRefs', workspacesRefs);
     record.att('journalId', journalId);
     record.att('settings?json', settings);
 
