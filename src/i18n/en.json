@@ -2823,7 +2823,7 @@
   "bpmn-linter.ai-task.no-user-input": "AI User Input not filled",
   "bpmn-linter.ai-task.unavailable": "AI assistant is not available",
 
-  "workspaces.create-button": "Add a workspace",
+  "workspaces.create-button": "Create workspace",
   "workspaces.edit-workspace-modal.title": "Edit",
   "workspaces.see-more": "See more",
   "workspaces.sidebar.no-data-workspace.head": "There are no available workspaces",

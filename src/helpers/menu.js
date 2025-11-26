@@ -7,7 +7,7 @@ import { BASE_LEFT_MENU_ID, MenuTypes } from '../constants/menu';
 import MenuSettingsService from '../services/MenuSettingsService';
 import DashboardService from '../services/dashboard';
 
-import { documentScrollTop, getEnabledWorkspaces } from './util';
+import { documentScrollTop, getEnabledWorkspaces, t } from './util';
 
 import FormManager from '@/components/EcosForm/FormManager';
 import { getWorkspaceId } from '@/helpers/urls';
@@ -92,6 +92,7 @@ export function makeSiteMenu(params = {}) {
       label: 'header.site-menu.settings-current-workspace',
       onClick: () =>
         FormManager.openFormModal({
+          title: `${t('header.site-menu.settings-current-workspace')}`,
           record: `${SourcesId.WORKSPACE}@${getWorkspaceId()}`,
           saveOnSubmit: true,
           onSubmit: () => {

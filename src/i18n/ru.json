@@ -2822,7 +2822,7 @@
   "bpmn-linter.ai-task.no-user-input": "Не заполнено Текст запроса для AI",
   "bpmn-linter.ai-task.unavailable": "AI помощник недоступен",
 
-  "workspaces.create-button": "Добавить пространство",
+  "workspaces.create-button": "Создать пространство",
   "workspaces.edit-workspace-modal.title": "Настроить",
   "workspaces.see-more": "Посмотреть больше",
   "workspaces.sidebar.no-data-workspace.head": "Нет доступных пространств",
