@@ -1,14 +1,14 @@
-import React from 'react';
-import { connect } from 'react-redux';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import React from 'react';
+import { connect } from 'react-redux';
 import { Alert } from 'reactstrap';
 
-import { ConfigTypes, DefaultUserMenu, MenuSettings } from '../../../constants/menu';
-import { setUserMenuItems } from '../../../actions/menuSettings';
-import { extractLabel } from '../../../helpers/util';
-import { t } from '../../../helpers/export/util';
 import BaseEditorMenu from './BaseEditorMenu';
+
+import { setUserMenuItems } from '@/actions/menuSettings';
+import { ConfigTypes, DefaultUserMenu, MenuSettings } from '@/constants/menu';
+import { t, extractLabel } from '@/helpers/util';
 
 const Labels = {
   EMPTY_MESSAGE: 'menu-editor.user.empty.msg'
@@ -49,7 +49,4 @@ const mapDispatchToProps = dispatch => ({
   setMenuItems: items => dispatch(setUserMenuItems(items))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(EditorUserMenu);
+export default connect(mapStateToProps, mapDispatchToProps)(EditorUserMenu);

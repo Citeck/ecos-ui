@@ -27,6 +27,9 @@
   "date.minute": "Minute",
   "date.quarter": "Quarter",
 
+  "platform.description.join-into-community": "Join the community ",
+  "platform.description.copyright": "{{ copyright }}. All rights reserved",
+
   "no-source": "No source of type",
 
   "variable-not-found": "Variable \"{{var}}\" not found",
@@ -1926,6 +1929,7 @@
   "icon-select.btn.cancel": "Cancel",
   "icon-select.btn.done": "Done",
   "icon-select.custom.title": "Custom",
+  "icon-select.system.title": "System",
   "icon-select.custom.no-icons": "No icon has been loaded yet",
   "icon-select.custom.tip": "The icon looks better if format is png/svg, size is 20x20px and there are no small details",
   "icon-select.error.get-custom-icons": "Customs menu icons haven't received",

@@ -1,10 +1,12 @@
 import classNames from 'classnames';
+import isFunction from 'lodash/isFunction';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 
 import Icon from '../icons/Icon';
 
 import { MenuApi } from '@/api/menu';
+import { reactIconsModules } from '@/components/common/icons/global';
 import { TMP_ICON_EMPTY } from '@/constants';
 import { createContentUrl } from '@/helpers/urls';
 
@@ -14,7 +16,7 @@ const menuApi = new MenuApi();
 
 function EcosIcon({ code, className, data, title, family, onClick, id, defaultVal }) {
   const [remoteData, setRemoteData] = useState({});
-  const { type, value, url } = remoteData || {};
+  const { type, value, url, Component } = remoteData || {};
   const commonClass = classNames('ecos-icon', className, { 'ecos-icon_button': onClick });
   const commonProps = { title, id };
 
@@ -34,6 +36,26 @@ function EcosIcon({ code, className, data, title, family, onClick, id, defaultVa
     }
   }, [code, data]);
 
+  if ((type === 'react-icon' && isFunction(Component)) || value?.includes('react:')) {
+    if (isFunction(Component)) {
+      return (
+        <div className={classNames(commonClass, 'ecos-icon-svg')} {...commonProps}>
+          <Component />
+        </div>
+      );
+    }
+
+    const key = value?.replace('react:', '');
+    if (reactIconsModules[key]?.default) {
+      const Component = reactIconsModules[key].default;
+      return (
+        <div className={classNames(commonClass, 'ecos-icon-svg')} {...commonProps}>
+          <Component />
+        </div>
+      );
+    }
+  }
+
   if ((type === 'img' || (type === 'icon' && !!url)) && !!(value || url)) {
     const src = url || createContentUrl({ value });
 
@@ -44,11 +66,7 @@ function EcosIcon({ code, className, data, title, family, onClick, id, defaultVa
     );
   }
 
-  return (
-    <>
-      <Icon className={classNames(commonClass, { [defaultVal]: !value, fa: type === 'fa', [value]: !!value })} {...commonProps} />
-    </>
-  );
+  return <Icon className={classNames(commonClass, { [defaultVal]: !value, fa: type === 'fa', [value]: !!value })} {...commonProps} />;
 }
 
 EcosIcon.propTypes = {

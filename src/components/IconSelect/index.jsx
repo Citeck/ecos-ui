@@ -1,15 +1,16 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { connect } from 'react-redux';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
 
-import { deleteCustomIcon, getCustomIcons, getFontIcons, uploadCustomIcon } from '../../actions/iconSelect';
-import { TMP_ICON_EMPTY } from '../../constants';
-import { t } from '../../helpers/util';
-import { BtnUpload, EcosIcon, EcosModal, Loader } from '../../components/common';
-import { Btn } from '../../components/common/btns';
+import { deleteCustomIcon, getCustomIcons, getFontIcons, uploadCustomIcon } from '@/actions/iconSelect';
+import { BtnUpload, EcosIcon, EcosModal, Loader } from '@/components/common';
+import { Btn } from '@/components/common/btns';
+import reactIcons from '@/components/common/icons/global';
+import { TMP_ICON_EMPTY } from '@/constants';
+import { t } from '@/helpers/util';
 
 import './style.scss';
 
@@ -19,7 +20,8 @@ const Labels = {
   BTN_UPLOAD_ICON: 'icon-select.btn.upload-custom',
   BTN_CANCEL: 'icon-select.btn.cancel',
   BTN_DONE: 'icon-select.btn.done',
-  ICON_CUSTOM_TITLE: 'icon-select.custom.title',
+  ICONS_CUSTOM_TITLE: 'icon-select.custom.title',
+  ICONS_SYSTEM_TITLE: 'icon-select.system.title',
   ICON_CUSTOM_TIP: 'icon-select.custom.tip',
   ICON_CUSTOM_NONE: 'icon-select.custom.no-icons'
 };
@@ -61,8 +63,8 @@ class IconSelect extends React.Component {
     deleteCustomIcon(this.state.icon);
   };
 
-  selected = item => !!item.value && item.value === get(this.state, 'icon.value');
-  prevSelected = item => !!item.value && item.value === get(this.props, 'selectedIcon.value');
+  selected = item => !!item.value && item.value.replace('react:', '') === get(this.state, 'icon.value')?.replace('react:', '');
+  prevSelected = item => !!item.value && item.value.replace('react:', '') === get(this.props, 'selectedIcon.value')?.replace('react:', '');
 
   get disabledDelete() {
     const { customIcons } = this.props;
@@ -72,8 +74,8 @@ class IconSelect extends React.Component {
   }
 
   get disabledApply() {
-    const prev = get(this.props, 'selectedIcon.value');
-    const next = get(this.state, 'icon.value');
+    const prev = get(this.props, 'selectedIcon.value')?.replace('react:', '');
+    const next = get(this.state, 'icon.value')?.replace('react:', '');
 
     return next === TMP_ICON_EMPTY || next === prev;
   }
@@ -109,8 +111,10 @@ class IconSelect extends React.Component {
     return (
       <EcosModal className="ecos-icon-select__modal ecos-modal_width-xs" isOpen hideModal={this.onCancel} title={t(Labels.TITLE)}>
         {isLoading && <Loader blur className="ecos-icon-select__loader" />}
+        {this.renderIcons(reactIcons)}
+        <div className="ecos-icon-select__custom-title">{t(Labels.ICONS_SYSTEM_TITLE)}</div>
         {this.renderIcons(fontIcons)}
-        <div className="ecos-icon-select__custom-title">{t(Labels.ICON_CUSTOM_TITLE)}</div>
+        <div className="ecos-icon-select__custom-title">{t(Labels.ICONS_CUSTOM_TITLE)}</div>
         {this.renderIcons(customIcons)}
         <div className="ecos-icon-select__custom-buttons">
           <BtnUpload
@@ -166,7 +170,4 @@ const mapDispatchToProps = dispatch => ({
   deleteCustomIcon: data => dispatch(deleteCustomIcon(data))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(IconSelect);
+export default connect(mapStateToProps, mapDispatchToProps)(IconSelect);

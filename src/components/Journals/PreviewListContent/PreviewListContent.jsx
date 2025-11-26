@@ -9,8 +9,8 @@ import { connect } from 'react-redux';
 
 import { Loader, PointsLoader } from '../../common';
 import { Well } from '../../common/form';
-import Clock from '../../common/icons/Clock';
 import NoData from '../../common/icons/NoData';
+import Clock from '../../common/icons/global/Clock';
 import DefaultIcon from '../PreviewListContent/DefaultIcon';
 import {
   CLASSNAME_PREVIEW_LIST_CARD,

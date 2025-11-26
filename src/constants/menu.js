@@ -185,7 +185,7 @@ export const UserMenu = {
   },
   USER_ABOUT_PLATFORM: {
     label: { ru: 'О платформе', en: 'About platform' },
-    icon: { type: 'icon', value: 'icon-platform' },
+    icon: { type: 'react-icon', value: 'react:./Info.tsx' },
     type: MenuSettings.ItemTypes.USER_ABOUT_PLATFORM
   },
   USER_LOGOUT: {

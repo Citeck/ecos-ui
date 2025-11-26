@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 
 import FormManager from '../../../../EcosForm/FormManager';
 
-import ChevronRight from '@/components/common/icons/ChevronRight';
 import Subtract from '@/components/common/icons/Subtract';
+import ChevronRight from '@/components/common/icons/global/ChevronRight';
 import { t } from '@/helpers/util';
 
 const MenuCreateVariants = ({ items, onCreateFormSubmit }) => {

@@ -3,17 +3,17 @@ import isEqual from 'lodash/isEqual';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import { TMP_ICON_EMPTY } from '../../../constants';
-import { MenuSettings as MS } from '../../../constants/menu';
-import { t } from '../../../helpers/export/util';
-import { extractLabel, isFilledLabelWeak } from '../../../helpers/util';
-import MenuSettingsService from '../../../services/MenuSettingsService';
 import IconSelect from '../../IconSelect';
 import { EcosModal } from '../../common';
 import EcosIcon from '../../common/EcosIcon';
 import { Btn } from '../../common/btns';
 import { Field } from '../Field';
 import { Labels } from '../utils';
+
+import { TMP_ICON_EMPTY } from '@/constants';
+import { MenuSettings as MS } from '@/constants/menu';
+import { extractLabel, isFilledLabelWeak, t } from '@/helpers/util';
+import MenuSettingsService from '@/services/MenuSettingsService';
 
 import '../style.scss';
 
@@ -90,7 +90,7 @@ class Base extends React.Component {
     const { defaultIcon = {}, icon = defaultIcon, isOpenSelectIcon, isLoading } = this.state;
     const { item, fontIcons, onClose } = this.props;
     const { hasIcon } = this.permissions;
-    console.log('menu count', icon);
+
     return (
       <EcosModal
         className="ecos-menu-editor-item__modal ecos-modal_width-sm"

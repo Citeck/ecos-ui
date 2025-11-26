@@ -1,4 +1,3 @@
-import { isError } from 'lodash';
 import get from 'lodash/get';
 import isBoolean from 'lodash/isBoolean';
 import isFunction from 'lodash/isFunction';
@@ -48,7 +47,6 @@ import ConfigService, {
   NEW_JOURNAL_ENABLED,
   WORKSPACES_ALLOW_CREATE
 } from '@/services/config/ConfigService';
-import { loadConfigs } from '@/services/config/configApi';
 
 export function* initApp({ api }, { payload }) {
   try {

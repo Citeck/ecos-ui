@@ -29,6 +29,10 @@ export function getIconObjectWeb(data) {
 
 export function getIconRef(icon) {
   if (isObject(icon)) {
+    if (icon.type === 'react-icon') {
+      return `react:${icon.value}`;
+    }
+
     const source = icon.type === 'img' || (icon.type === 'icon' && !!icon.url) ? SourcesId.ICON : SourcesId.FONT_ICON;
     const value = icon.value;
 

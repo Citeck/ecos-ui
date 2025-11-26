@@ -53,9 +53,6 @@
   /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
 }
 
-.icon-platform:before {
-  content: '\e85b';
-} /* '' */
 .icon-arrow:before {
   content: '\e800';
 } /* '' */
@@ -275,7 +272,6 @@
 .icon-notify:before {
   content: '\e849';
 } /* '' */
-
 .icon-custom-file-doc:before {
   content: '\e84a';
 } /* '' */

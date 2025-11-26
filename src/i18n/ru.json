@@ -27,6 +27,9 @@
   "date.minute": "Минута",
   "date.quarter": "Квартал",
 
+  "platform.description.join-into-community": "Присоединяйтесь к сообществу ",
+  "platform.description.copyright": "{{ copyright }}. Все права защищены",
+
   "no-source": "Нет источника типа",
 
   "variable-not-found": "Переменная \"{{var}}\" не найдена",
@@ -1879,6 +1882,7 @@
   "icon-select.btn.cancel": "Отмена",
   "icon-select.btn.done": "Готово",
   "icon-select.custom.title": "Пользовательские",
+  "icon-select.system.title": "Системные",
   "icon-select.custom.no-icons": "Еще не загружено ни одной иконки",
   "icon-select.custom.tip": "Иконка выглядит лучше, если используется формат png/svg, размер 20x20px и отсутствуют мелкие детали",
   "icon-select.error.get-custom-icons": "Пользовательские иконки меню не получены",

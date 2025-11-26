@@ -1,4 +1,4 @@
-import { $generateHtmlFromNodes, $generateNodesFromDOM } from "@lexical/html";
+import { $generateHtmlFromNodes, $generateNodesFromDOM } from '@lexical/html';
 import {
   $createParagraphNode,
   $createTextNode,
@@ -8,13 +8,13 @@ import {
   $isRangeSelection,
   $setSelection,
   LexicalEditor
-} from "lexical";
-import { useCallback, useEffect, useState } from "react";
+} from 'lexical';
+import React, { useCallback, useEffect, useState } from 'react';
 
-import AiAssistant from "../../../common/icons/AiAssistant";
-import aiAssistantService from "../../../AIAssistant/AIAssistantService";
-import { AI_ASSISTANT_EVENTS, ADDITIONAL_CONTEXT_TYPES, AI_INTENTS } from "../../../AIAssistant/constants";
-import editorContextService, { CONTEXT_TYPES } from "../../../AIAssistant/EditorContextService";
+import aiAssistantService from '../../../AIAssistant/AIAssistantService';
+import editorContextService, { CONTEXT_TYPES } from '../../../AIAssistant/EditorContextService';
+import { AI_ASSISTANT_EVENTS, ADDITIONAL_CONTEXT_TYPES, AI_INTENTS } from '../../../AIAssistant/constants';
+import AiAssistant from '../../../common/icons/global/AiAssistant';
 
 interface AIAssistantFloatingButtonProps {
   editor: LexicalEditor;
@@ -24,13 +24,13 @@ interface AIAssistantFloatingButtonProps {
 
 export default function AIAssistantFloatingButton({ editor, recordRef, attribute }: AIAssistantFloatingButtonProps) {
   const [isAvailable, setIsAvailable] = useState(false);
-  const ref = recordRef ? recordRef.split("-alias-")[0] : null;
+  const ref = recordRef ? recordRef.split('-alias-')[0] : null;
 
   useEffect(() => {
     let isMounted = true;
 
     const checkAvailability = async () => {
-      const available = await aiAssistantService.isAvailable() && !!ref && !!attribute;
+      const available = (await aiAssistantService.isAvailable()) && !!ref && !!attribute;
       if (isMounted) {
         setIsAvailable(available);
       }
@@ -50,8 +50,8 @@ export default function AIAssistantFloatingButton({ editor, recordRef, attribute
   }, [ref, attribute]);
 
   const handleAIAssistant = useCallback(() => {
-    let selectedText = "";
-    let selectedHtml = "";
+    let selectedText = '';
+    let selectedHtml = '';
 
     // First, read the selection data
     editor.getEditorState().read(() => {
@@ -82,16 +82,16 @@ export default function AIAssistantFloatingButton({ editor, recordRef, attribute
               const root = $getRoot();
               root.clear();
 
-              if (newText.includes("<") && newText.includes(">")) {
+              if (newText.includes('<') && newText.includes('>')) {
                 try {
                   const parser = new DOMParser();
-                  const dom = parser.parseFromString(newText, "text/html");
+                  const dom = parser.parseFromString(newText, 'text/html');
 
                   const nodes = $generateNodesFromDOM(editor, dom);
                   root.select();
                   $insertNodes(nodes);
                 } catch (error) {
-                  console.warn("Failed to parse HTML content, falling back to plain text:", error);
+                  console.warn('Failed to parse HTML content, falling back to plain text:', error);
                   const paragraph = $createParagraphNode();
                   const textNode = $createTextNode(newText);
                   paragraph.append(textNode);
@@ -108,7 +108,7 @@ export default function AIAssistantFloatingButton({ editor, recordRef, attribute
             });
           },
           getCurrentText: () => {
-            let text = "";
+            let text = '';
             editor.update(() => {
               text = $generateHtmlFromNodes(editor, null);
             });
@@ -134,32 +134,38 @@ export default function AIAssistantFloatingButton({ editor, recordRef, attribute
       setTimeout(() => {
         // Add record to context if available
         if (recordRef) {
-          window.dispatchEvent(new CustomEvent(AI_ASSISTANT_EVENTS.ADD_CONTEXT, {
-            detail: {
-              contextType: ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD,
-              recordRef
-            }
-          }));
+          window.dispatchEvent(
+            new CustomEvent(AI_ASSISTANT_EVENTS.ADD_CONTEXT, {
+              detail: {
+                contextType: ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD,
+                recordRef
+              }
+            })
+          );
         }
 
         // Add attribute to context if available
         if (attribute) {
-          window.dispatchEvent(new CustomEvent(AI_ASSISTANT_EVENTS.ADD_CONTEXT, {
-            detail: {
-              contextType: ADDITIONAL_CONTEXT_TYPES.ATTRIBUTES,
-              recordRef: recordRef || "",
-              attribute: attribute
-            }
-          }));
+          window.dispatchEvent(
+            new CustomEvent(AI_ASSISTANT_EVENTS.ADD_CONTEXT, {
+              detail: {
+                contextType: ADDITIONAL_CONTEXT_TYPES.ATTRIBUTES,
+                recordRef: recordRef || '',
+                attribute: attribute
+              }
+            })
+          );
         }
 
         // Add reference to selected text in the chat input
-        window.dispatchEvent(new CustomEvent(AI_ASSISTANT_EVENTS.ADD_TEXT_REFERENCE, {
-          detail: {
-            reference: `выделенный_текст`,
-            selectedText
-          }
-        }));
+        window.dispatchEvent(
+          new CustomEvent(AI_ASSISTANT_EVENTS.ADD_TEXT_REFERENCE, {
+            detail: {
+              reference: `выделенный_текст`,
+              selectedText
+            }
+          })
+        );
       }, 100);
     }
   }, [editor, ref, attribute]);
@@ -172,7 +178,7 @@ export default function AIAssistantFloatingButton({ editor, recordRef, attribute
     <button
       type="button"
       onClick={handleAIAssistant}
-      className={"popup-item spaced ai-assistant-selection"}
+      className={'popup-item spaced ai-assistant-selection'}
       title="Использовать выделенный текст в AI Assistant"
       aria-label="Use selected text in AI Assistant"
     >

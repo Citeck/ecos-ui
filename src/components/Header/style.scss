@@ -560,6 +560,11 @@
   .ecos-header-user__menu-item {
     font-size: $font-size-small;
 
+    svg {
+      width: 17px;
+      height: 16px;
+    }
+
     .icon:not(.icon_on):not(.icon_off) {
       &:before {
         font-size: $font-size-large;
