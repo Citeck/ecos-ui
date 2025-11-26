@@ -1,19 +1,20 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
 
-import { getScrollbarWidth, t } from '../../../helpers/util';
-import { selectViewMode } from '../../../selectors/journals';
 import { Search } from '../../common';
 import { IcoBtn } from '../../common/btns';
-import { isDocLib, JOURNAL_VIEW_MODE, Labels } from '../constants';
+import Close from '../../common/icons/global/Close';
 import FoldersTree from '../DocLib/FoldersTree';
 import { JournalsPresetList } from '../JournalsPresets';
-import { selectIsViewNewJournal } from '../../../selectors/view';
-import Close from '../../common/icons/Close';
+import { isDocLib, JOURNAL_VIEW_MODE, Labels } from '../constants';
+
+import { getScrollbarWidth, t } from '@/helpers/util';
+import { selectViewMode } from '@/selectors/journals';
+import { selectIsViewNewJournal } from '@/selectors/view';
 
 import './JournalsMenu.scss';
 

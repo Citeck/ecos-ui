@@ -5,19 +5,19 @@ import isNumber from 'lodash/isNumber';
 import React, { useState, useEffect } from 'react';
 import { FormText } from 'reactstrap';
 
-import { NODE_TYPES } from '../../../constants/docLib';
-import { t } from '../../../helpers/util';
-import { sendToWorker } from '../../../workers/docLib';
 import Btn from '../btns/Btn';
 import { Input, Radio } from '../form';
-import Close from '../icons/Close';
-import Error from '../icons/Error';
-import File from '../icons/File';
 import ChevronDown from '../icons/FillChevronDown';
-import Success from '../icons/Success';
+import Close from '../icons/global/Close';
+import Error from '../icons/global/Error';
+import File from '../icons/global/File';
+import Success from '../icons/global/Success';
 import { Loader } from '../index';
 
+import { NODE_TYPES } from '@/constants/docLib';
+import { t } from '@/helpers/util';
 import { NotificationManager } from '@/services/notifications';
+import { sendToWorker } from '@/workers/docLib';
 
 import './styles.scss';
 

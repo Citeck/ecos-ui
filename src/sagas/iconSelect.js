@@ -17,7 +17,6 @@ import { NotificationManager } from '@/services/notifications';
 function* fetchGetCustomIcons({ api }, { payload: { family } }) {
   try {
     const icons = yield call(api.customIcon.getIcons, { family });
-
     yield put(setCustomIcons(icons.map(icon => getIconObjectWeb(icon))));
   } catch (e) {
     yield put(setLoading(false));
@@ -30,7 +29,6 @@ function* fetchGetFontIcons({ api }, { payload: prefix }) {
   try {
     const common = yield import('../fonts/citeck/config.json');
     const icons = common.glyphs.map(item => ({ value: `icon-${item.css}`, type: 'icon' }));
-
     yield put(setFontIcons(prefix ? icons.filter(item => item.value.startsWith(prefix)) : icons));
   } catch (e) {
     NotificationManager.error(t('icon-select.error.get-font-icons'), t('error'));

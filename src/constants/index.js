@@ -115,6 +115,7 @@ export const SourcesId = {
   PROC_TASK: 'eproc/proc-task',
   PROC_HISTORIC_TASK: 'eproc/proc-historic-task',
   DOCUMENTS: 'emodel/documents',
+  SYSTEM_REPO: 'eapps/system-info-repo',
   SEARCH: 'emodel/search',
   get CURRENT_USER() {
     return `${SourcesId.PERSON}@CURRENT`;

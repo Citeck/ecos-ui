@@ -7,8 +7,8 @@ import FormManager from '../EcosForm/FormManager';
 import Records from '../Records';
 import { Loader } from '../common';
 import { Btn } from '../common/btns';
-import Cube from '../common/icons/Cube';
 import WorkspaceSwitcher from '../common/icons/WorkspacesSwitcher';
+import Cube from '../common/icons/global/Cube';
 
 import { getSidebarWorkspaces, getWorkspaces, visitedAction } from '@/actions/workspaces';
 import { WorkspaceType } from '@/api/workspaces/types';

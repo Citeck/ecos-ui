@@ -10,7 +10,7 @@ import { connect } from 'react-redux';
 import FormManager from '../EcosForm/FormManager';
 import { Tooltip } from '../common';
 import { Dropdown } from '../common/form';
-import DownloadIcon from '../common/icons/Download';
+import DownloadIcon from '../common/icons/global/Download';
 
 import { deselectAllRecords, reloadGrid } from '@/actions/journals';
 import Records from '@/components/Records';

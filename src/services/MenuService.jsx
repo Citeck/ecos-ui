@@ -1,5 +1,7 @@
 import { EventEmitter } from 'events';
 import get from 'lodash/get';
+import React, { Suspense } from 'react';
+import { Provider } from 'react-redux';
 
 import { AppApi } from '../api/app';
 import Records from '../components/Records';
@@ -12,6 +14,10 @@ import { t } from '../helpers/export/util';
 import getFormDefinitionUserStatus from '../helpers/menu/formDefinitionUserStatus';
 import { changeUrl, createProfileUrl, getSearchParams, SearchKeys } from '../helpers/urls';
 import { getCurrentUserName } from '../helpers/util';
+
+import AboutPlatform from '@/components/AboutPlatform';
+import { Loader } from '@/components/common';
+import { getStore } from '@/store';
 
 class MenuService {
   static emitter = new EventEmitter();
@@ -118,6 +124,21 @@ class MenuService {
           const url = await AppApi.getCustomReportIssueUrl();
           window.open(url);
         })();
+      }
+      case MenuSettings.ItemTypes.USER_ABOUT_PLATFORM: {
+        const store = getStore();
+
+        return DialogManager.showCustomDialog({
+          title: 'О Платформе',
+          modalClass: 'citeck-about-platform__modal',
+          body: (
+            <Provider store={store}>
+              <Suspense fallback={<Loader type="points" />}>
+                <AboutPlatform />{' '}
+              </Suspense>
+            </Provider>
+          )
+        });
       }
       default:
         break;
