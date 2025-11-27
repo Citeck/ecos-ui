@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Btn } from '@/components/common/btns';
-import Close from '@/components/common/icons/global/Close';
+import Close from '@/components/common/icons/Close';
 import { t } from '@/helpers/util';
 import './styles.scss';
 

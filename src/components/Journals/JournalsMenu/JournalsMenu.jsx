@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 
 import { Search } from '../../common';
 import { IcoBtn } from '../../common/btns';
-import Close from '../../common/icons/global/Close';
+import Close from '../../common/icons/Close';
 import FoldersTree from '../DocLib/FoldersTree';
 import { JournalsPresetList } from '../JournalsPresets';
 import { isDocLib, JOURNAL_VIEW_MODE, Labels } from '../constants';

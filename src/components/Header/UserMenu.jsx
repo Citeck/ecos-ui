@@ -1,18 +1,19 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import React from 'react';
 import { connect } from 'react-redux';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 
-import { extractLabel, t } from '../../helpers/util';
-import { extractIcon, getIconObjectWeb, getIconUpDown } from '../../helpers/icon';
-import MenuService from '../../services/MenuService';
-import UserService from '../../services/UserService';
 import { Avatar, EcosDropdownMenu, Tooltip, EcosIcon } from '../common';
 import { IcoBtn } from '../common/btns';
-import { getFitnesseClassName } from '../../helpers/tools';
-import { selectIsViewNewJournal } from '../../selectors/view';
 import AvatarBtn from '../common/btns/AvatarBtn';
+
+import { extractIcon, getIconObjectWeb, getIconUpDown } from '@/helpers/icon';
+import { getFitnesseClassName } from '@/helpers/tools';
+import { extractLabel, t } from '@/helpers/util';
+import { selectIsViewNewJournal } from '@/selectors/view';
+import MenuService from '@/services/MenuService';
+import UserService from '@/services/UserService';
 
 const mapStateToProps = state => ({
   userFullName: state.user.fullName,
@@ -63,7 +64,7 @@ class UserMenu extends React.Component {
         onClick={() => MenuService.getUserMenuCallback(item)}
         {...extraProps}
       >
-        {icon && <EcosIcon data={getIconObjectWeb(item.icon)} />}
+        {icon && <EcosIcon data={{ ...getIconObjectWeb(item.icon), color: '#B7B7B7' }} />}
         <span className="ecos-header-user__menu-item-label">{extractLabel(item.label)}</span>
       </button>
     );

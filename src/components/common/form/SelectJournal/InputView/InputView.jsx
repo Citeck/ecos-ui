@@ -17,12 +17,12 @@ import Records from '@/components/Records/Records';
 import DebugFormAction from '@/components/Records/actions/handler/executor/DebugFormAction';
 import RecordActions from '@/components/Records/actions/recordActions';
 import { getFormattedLink, getFormatter } from '@/components/common/form/SelectJournal/helpers';
+import ChevronRight from '@/components/common/icons/ChevronRight';
+import Close from '@/components/common/icons/Close';
+import Edit from '@/components/common/icons/Edit';
 import Subtract from '@/components/common/icons/Subtract';
-import ChevronRight from '@/components/common/icons/global/ChevronRight';
-import Close from '@/components/common/icons/global/Close';
+import VerticalActions from '@/components/common/icons/VerticalActions';
 import Debug from '@/components/common/icons/global/Debug';
-import Edit from '@/components/common/icons/global/Edit';
-import VerticalActions from '@/components/common/icons/global/VerticalActions';
 import { getEnabledWorkspaces, getMLValue, t } from '@/helpers/util';
 import { NotificationManager } from '@/services/notifications';
 
