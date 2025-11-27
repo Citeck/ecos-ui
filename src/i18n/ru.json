@@ -2656,6 +2656,18 @@
   "day-form1": "день",
   "day-form2": "дня",
   "day-form3": "дней",
+  "week-form1": "неделя",
+  "week-form2": "недели",
+  "week-form3": "недель",
+  "month-form1": "месяц",
+  "month-form2": "месяца",
+  "month-form3": "месяцев",
+  "quarter-form1": "квартал",
+  "quarter-form2": "квартала",
+  "quarter-form3": "кварталов",
+  "year-form1": "год",
+  "year-form2": "года",
+  "year-form3": "лет",
 
   "proc-def-admin.action.open-proc-editor.error": "Действие для перехода в редактор недоступно",
 
