@@ -8,4 +8,5 @@ export const MUTATE_URL = `${BASE_URL}mutate`;
 export const ASSOC_DEFAULT_INNER_SCHEMA = '{disp:?disp,value:?assoc}';
 
 export const PERMISSION_WRITE_ATTR = 'permissions._has.Write?bool!true';
+export const IS_CONTENT_PROTECTED_ATTR = '_edge._content.protected?bool!';
 export const PERMISSION_CHANGE_PASSWORD = 'permissions._has.CHANGE_PASSWORD?bool!';
