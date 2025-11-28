@@ -16,7 +16,7 @@ const menuApi = new MenuApi();
 
 function EcosIcon({ code, className, data, title, family, onClick, id, defaultVal }) {
   const [remoteData, setRemoteData] = useState({});
-  const { type, value, url, Component } = remoteData || {};
+  const { type, value, url, Component, color = '#767676' } = remoteData || {};
   const commonClass = classNames('ecos-icon', className, { 'ecos-icon_button': onClick });
   const commonProps = { title, id };
 
@@ -40,7 +40,7 @@ function EcosIcon({ code, className, data, title, family, onClick, id, defaultVa
     if (isFunction(Component)) {
       return (
         <div className={classNames(commonClass, 'ecos-icon-svg')} {...commonProps}>
-          <Component />
+          <Component color={color} />
         </div>
       );
     }
@@ -50,7 +50,7 @@ function EcosIcon({ code, className, data, title, family, onClick, id, defaultVa
       const Component = reactIconsModules[key].default;
       return (
         <div className={classNames(commonClass, 'ecos-icon-svg')} {...commonProps}>
-          <Component />
+          <Component color={color} />
         </div>
       );
     }

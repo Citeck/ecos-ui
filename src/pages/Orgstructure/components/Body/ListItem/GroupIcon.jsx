@@ -1,11 +1,11 @@
 import React from 'react';
 
+import EditIcon from '@/components/common/icons/Edit';
+import PlusIcon from '@/components/common/icons/Plus';
 import RemovePersonIcon from '@/components/common/icons/RemovePerson';
+import SelectPersonIcon from '@/components/common/icons/SelectPerson';
 import AddUserIcon from '@/components/common/icons/global/AddUser';
 import CreateUserIcon from '@/components/common/icons/global/CreateUser';
-import EditIcon from '@/components/common/icons/global/Edit';
-import PlusIcon from '@/components/common/icons/global/Plus';
-import SelectPersonIcon from '@/components/common/icons/global/SelectPerson';
 
 import './ListItem.scss';
 

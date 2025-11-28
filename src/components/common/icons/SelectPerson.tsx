@@ -1,7 +1,7 @@
 import React from 'react';
 
-export default ({ width = 18, height = 18, viewBox = '0 0 13 13', fill = '#B7B7B7' }) => (
-  <svg width={width} height={height} viewBox={viewBox} fill={fill} xmlns="http://www.w3.org/2000/svg">
+export default ({ width = 18, height = 18, viewBox = '0 0 13 13', fill = '#B7B7B7', color = '' }) => (
+  <svg width={width} height={height} viewBox={viewBox} fill={color || fill} xmlns="http://www.w3.org/2000/svg">
     <path
       fillRule="evenodd"
       clipRule="evenodd"

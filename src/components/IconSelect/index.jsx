@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 import { deleteCustomIcon, getCustomIcons, getFontIcons, uploadCustomIcon } from '@/actions/iconSelect';
 import { BtnUpload, EcosIcon, EcosModal, Loader } from '@/components/common';
 import { Btn } from '@/components/common/btns';
-import reactIcons from '@/components/common/icons/global';
+import reactIcons, { sortReactIconModules } from '@/components/common/icons/global';
 import { TMP_ICON_EMPTY } from '@/constants';
 import { t } from '@/helpers/util';
 
@@ -85,6 +85,7 @@ class IconSelect extends React.Component {
       <div className="ecos-icon-select__option-list">
         {items
           .sort((a, b) => this.prevSelected(b) - this.prevSelected(a))
+          .sort(sortReactIconModules)
           .map((item, i) => (
             <div
               key={`${item.value}-${i}`}
@@ -92,7 +93,7 @@ class IconSelect extends React.Component {
               onClick={() => this.setState({ icon: item })}
             >
               <EcosIcon
-                data={item}
+                data={{ ...item, color: '#d0d0d0' }}
                 family={item.family}
                 className={classNames('ecos-icon-select__option-value', {
                   'ecos-icon-select__option-value_selected': this.selected(item),
