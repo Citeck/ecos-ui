@@ -10,6 +10,8 @@ stages:
   - testing
 
 testing:
+  tags:
+    - k8s-cloudstack-production
   stage: testing
   before_script:
     - yarn
