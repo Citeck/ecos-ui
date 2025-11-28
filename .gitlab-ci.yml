@@ -10,8 +10,6 @@ stages:
   - testing
 
 testing:
-  tags:
-    - kuber-run-new
   stage: testing
   before_script:
     - yarn
