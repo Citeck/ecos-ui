@@ -76,6 +76,18 @@ const Labels = {
   DAY_F1: 'day-form1',
   DAY_F2: 'day-form2',
   DAY_F3: 'day-form3',
+  WEEK_F1: 'week-form1',
+  WEEK_F2: 'week-form2',
+  WEEK_F3: 'week-form3',
+  MONTH_F1: 'month-form1',
+  MONTH_F2: 'month-form2',
+  MONTH_F3: 'month-form3',
+  QUARTER_F1: 'quarter-form1',
+  QUARTER_F2: 'quarter-form2',
+  QUARTER_F3: 'quarter-form3',
+  YEAR_F1: 'year-form1',
+  YEAR_F2: 'year-form2',
+  YEAR_F3: 'year-form3',
 
   RESULT_LABEL_AGO: 'interval-picker.labels.ago'
 };
@@ -335,6 +347,13 @@ class DateIntervalPicker extends Component {
 
     const count = this.getNumberFromDate(date);
 
+    if (this.checkIsHours(date)) {
+      return t(Labels.RESULT_LABEL_AGO, {
+        count,
+        unit: t(num2str(count, [Labels.HOUR_F1, Labels.HOUR_F2, Labels.HOUR_F3]))
+      });
+    }
+
     if (this.checkIsDays(date)) {
       return t(Labels.RESULT_LABEL_AGO, {
         count,
@@ -342,10 +361,31 @@ class DateIntervalPicker extends Component {
       });
     }
 
-    if (this.checkIsHours(date)) {
+    if (this.checkIsWeeks(date)) {
       return t(Labels.RESULT_LABEL_AGO, {
         count,
-        unit: t(num2str(count, [Labels.HOUR_F1, Labels.HOUR_F2, Labels.HOUR_F3]))
+        unit: t(num2str(count, [Labels.WEEK_F1, Labels.WEEK_F2, Labels.WEEK_F3]))
+      });
+    }
+
+    if (this.checkIsMonths(date)) {
+      return t(Labels.RESULT_LABEL_AGO, {
+        count,
+        unit: t(num2str(count, [Labels.MONTH_F1, Labels.MONTH_F2, Labels.MONTH_F3]))
+      });
+    }
+
+    if (this.checkIsQuarters(date)) {
+      return t(Labels.RESULT_LABEL_AGO, {
+        count,
+        unit: t(num2str(count, [Labels.QUARTER_F1, Labels.QUARTER_F2, Labels.QUARTER_F3]))
+      });
+    }
+
+    if (this.checkIsYears(date)) {
+      return t(Labels.RESULT_LABEL_AGO, {
+        count,
+        unit: t(num2str(count, [Labels.YEAR_F1, Labels.YEAR_F2, Labels.YEAR_F3]))
       });
     }
 
@@ -380,12 +420,28 @@ class DateIntervalPicker extends Component {
     return date;
   }
 
+  checkIsHours(date) {
+    return date.match(/-PT\d+H/) !== null;
+  }
+
   checkIsDays(date) {
     return date.match(/-P\d+D/) !== null;
   }
 
-  checkIsHours(date) {
-    return date.match(/-PT\d+H/) !== null;
+  checkIsWeeks(date) {
+    return date.match(/-P\d+W/) !== null;
+  }
+
+  checkIsMonths(date) {
+    return date.match(/-P\d+M/) !== null;
+  }
+
+  checkIsQuarters(date) {
+    return date.match(/-P\d+Q/) !== null;
+  }
+
+  checkIsYears(date) {
+    return date.match(/-P\d+Y/) !== null;
   }
 
   checkIsISO8601(date) {
@@ -411,7 +467,14 @@ class DateIntervalPicker extends Component {
       return;
     }
 
-    if (this.checkIsDays(date) || this.checkIsHours(date)) {
+    if (
+      this.checkIsHours(date) ||
+      this.checkIsDays(date) ||
+      this.checkIsWeeks(date) ||
+      this.checkIsMonths(date) ||
+      this.checkIsQuarters(date) ||
+      this.checkIsYears(date)
+    ) {
       this.setState({
         selectedType: this.dateTypeOptions.find(item => item.value === DateTypes.RELATIVE),
         selectedTimeAgo: this.timeAgoOptions.find(item => item.value === this.unitOfTime)

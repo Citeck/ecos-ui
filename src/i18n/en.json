@@ -2723,6 +2723,18 @@
   "day-form1": "day",
   "day-form2": "day",
   "day-form3": "days",
+  "week-form1": "week",
+  "week-form2": "weeks",
+  "week-form3": "weeks",
+  "month-form1": "month",
+  "month-form2": "months",
+  "month-form3": "months",
+  "quarter-form1": "quarter",
+  "quarter-form2": "quarters",
+  "quarter-form3": "quarters",
+  "year-form1": "year",
+  "year-form2": "years",
+  "year-form3": "years",
 
   "proc-def-admin.action.open-proc-editor.error": "Open editor action is unavailable",
 
