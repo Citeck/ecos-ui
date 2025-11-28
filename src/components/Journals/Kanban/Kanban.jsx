@@ -9,7 +9,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
 import ReactResizeDetector from 'react-resize-detector';
 
-import { InfoText, Loader, PointsLoader } from '../../common';
+import { Loader, PointsLoader } from '../../common';
 import { Labels } from '../constants';
 
 import Column from './Column';
@@ -17,6 +17,7 @@ import HeaderColumn from './HeaderColumn';
 
 import { cancelGetNextBoardPage, getNextPage, moveCard, runAction } from '@/actions/kanban';
 import { ParserPredicate } from '@/components/Filters/predicates';
+import EmptyColumns from '@/components/common/icons/EmptyColumns';
 import { t } from '@/helpers/util';
 import { selectJournalPageProps, selectJournalSetting } from '@/selectors/journals';
 import { selectKanbanProps } from '@/selectors/kanban';
@@ -267,7 +268,12 @@ class Kanban extends React.Component {
               ref={this.refBody}
             >
               {isLoading && isEmpty(cols) && <Loader />}
-              {!isLoading && isEmpty(cols) && <InfoText className="ecos-kanban__info" text={t(Labels.Kanban.NO_COLUMNS)} />}
+              {!isLoading && isEmpty(cols) && (
+                <div className="ecos-kanban__empty">
+                  <EmptyColumns />
+                  <p className="ecos-kanban__empty_text">{t(Labels.Kanban.NO_COLUMNS)}</p>
+                </div>
+              )}
               <DragDropContext onDragEnd={this.handleDragEnd} onDragStart={this.handleDragStart}>
                 {cols.map(this.renderColumn)}
               </DragDropContext>
