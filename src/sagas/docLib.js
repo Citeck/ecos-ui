@@ -279,7 +279,7 @@ function* sagaOpenFolder({ api, stateId, w }, action) {
   }
 }
 
-function* sagaDocLibLoadFolderData({ api, stateId, w }) {
+function* sagaDocLibLoadFolderData({ stateId, w }) {
   try {
     const folderId = yield select(state => selectDocLibFolderId(state, stateId));
 
@@ -310,7 +310,7 @@ function* sagaLoadFilesViewerData({ api, stateId, w }) {
   }
 }
 
-function* getFilesViewerData({ api, stateId, w }) {
+function* getFilesViewerData({ stateId, w }) {
   try {
     const store = getStore();
     const folderId = yield select(state => selectDocLibFolderId(state, stateId));
@@ -525,7 +525,8 @@ export function* sagaCreateNode({ api, stateId, w }, action) {
       return;
     }
 
-    if (createVariant.nodeType === NODE_TYPES.FILE) {
+    const isFileNode = createVariant.nodeType === NODE_TYPES.FILE;
+    if (isFileNode) {
       yield put(setFileViewerLoadingStatus(w(true)));
     }
 
@@ -533,8 +534,40 @@ export function* sagaCreateNode({ api, stateId, w }, action) {
     const currentFolderId = yield select(state => selectDocLibFolderId(state, stateId));
     const typeRef = createVariant.typeRef;
 
-    const createChildResult = yield call(DocLibService.createChild, rootId, currentFolderId, typeRef, submission, currentItemTitle);
-    const newRecord = yield call(DocLibService.loadNode, createChildResult.id);
+    let createChildResult;
+    try {
+      createChildResult = yield call(DocLibService.createChild, rootId, currentFolderId, typeRef, submission, currentItemTitle);
+    } catch (error) {
+      if (error?.message?.includes('Permission Denied')) {
+        NotificationManager.error(
+          t('document-library.error.create.permissions-dined', {
+            message: t(`document-library.child-name.${isFileNode ? 'file' : 'folder'}`)
+          })
+        );
+      } else {
+        NotificationManager.error(
+          t('document-library.error.create.other', {
+            message: t(`document-library.child-name.${isFileNode ? 'file2' : 'folder2'}`)
+          })
+        );
+      }
+      throw new Error(error);
+    }
+
+    let newRecord;
+    try {
+      newRecord = yield call(DocLibService.loadNode, createChildResult.id);
+    } catch (error) {
+      NotificationManager.error(
+        t('document-library.error.create.other', {
+          message: t(`document-library.error.load-node`, {
+            message: t(`document-library.child-name.${isFileNode ? 'file3' : 'folder3'}`)
+          })
+        })
+      );
+
+      throw new Error(error);
+    }
 
     if (createVariant.nodeType === NODE_TYPES.DIR) {
       const newChildren = DocLibConverter.prepareFolderTreeItems([newRecord], currentFolderId);
@@ -542,13 +575,23 @@ export function* sagaCreateNode({ api, stateId, w }, action) {
       yield put(unfoldSidebarItem(w(currentFolderId)));
     } else {
       if (createVariant.postActionRef) {
-        const actionProps = yield call(api.recordActions.getActionProps, { action: createVariant.postActionRef });
-        let recordId = createChildResult.id;
-        const recordIdParts = DOCLIB_INNER_DOC_ID_REGEX.exec(createChildResult.id);
-        if (recordIdParts) {
-          recordId = recordIdParts[1];
+        try {
+          const actionProps = yield call(api.recordActions.getActionProps, { action: createVariant.postActionRef });
+          let recordId = createChildResult.id;
+          const recordIdParts = DOCLIB_INNER_DOC_ID_REGEX.exec(createChildResult.id);
+          if (recordIdParts) {
+            recordId = recordIdParts[1];
+          }
+          yield call(api.recordActions.executeAction, { records: recordId, action: actionProps });
+        } catch (error) {
+          NotificationManager.error(
+            t('document-library.error.create.other', {
+              message: t(`document-library.error.get-action`, { postActionRef: createVariant.postActionRef })
+            })
+          );
+
+          throw new Error(error);
         }
-        yield call(api.recordActions.executeAction, { records: recordId, action: actionProps });
       }
     }
     yield put(loadFilesViewerData(w()));
