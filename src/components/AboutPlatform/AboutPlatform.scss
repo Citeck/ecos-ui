@@ -1,0 +1,117 @@
+@use '@/styles/constants';
+
+.citeck-about-platform {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  &__description {
+    display: flex;
+    flex-direction: column;
+
+    &_text {
+      margin: 0;
+      color: constants.$color-white;
+      font-weight: 400;
+      font-size: 12px;
+      line-height: 16px;
+
+      &.link {
+        text-decoration: underline;
+        color: constants.$color-white;
+        cursor: pointer;
+      }
+    }
+  }
+
+  &__status {
+    padding: 6px 8px;
+    border-radius: 18px;
+    font-weight: 700;
+    font-size: 12px;
+    line-height: 9px;
+    color: var(--primary-color);
+    text-transform: capitalize;
+    max-height: 21px;
+
+    &.community {
+      background-color: constants.$color-white;
+    }
+
+    &.enterprise {
+      background-color: constants.$color-yellow5;
+    }
+  }
+
+  &_head-text,
+  &__modal .ecos-popper__text {
+    color: constants.$color-white;
+    font-weight: 700;
+    font-size: 16px;
+    margin: 0;
+  }
+
+  &__content {
+    display: inline-flex;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+
+    &-info {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    &-version {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+
+      &_text {
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 16px;
+        color: constants.$color-white;
+
+        &:first-child::after {
+          content: ":";
+        }
+      }
+
+      &.description {
+        gap: 4px;
+      }
+    }
+  }
+
+  &__modal {
+    max-width: 368px !important;
+    height: 89%;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+
+    & .modal-content {
+      background-color: var(--primary-color);
+      border: none;
+    }
+
+    & .modal-body {
+      padding: 0 21px;
+    }
+
+    & .ecos-modal-close__icon::before {
+      color: constants.$color-white;
+      text-shadow: none;
+      font-size: 12px;
+    }
+
+    & .ecos-modal-header {
+      margin-top: 9px;
+      margin-bottom: 26px;
+      padding: 0 21px;
+      height: auto;
+    }
+  }
+}

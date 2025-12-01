@@ -8,3 +8,7 @@ enableFetchMocks();
 jest.mock('./services/license/licenseApi');
 
 jest.mock('uuidv4', () => () => '00000000-0000-0000-0000-000000000000');
+
+jest.mock('./workers/workers.ts', () => ({
+  workersUrls: {}
+}));

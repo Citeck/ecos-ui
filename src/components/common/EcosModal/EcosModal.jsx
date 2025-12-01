@@ -49,7 +49,7 @@ export default class EcosModal extends Component {
 
     newState = {
       ...newState,
-      zIndexCalc: props.isPriorityModal ? ZIndex.calcZ(searchZIndexModalClassName) + 2 : ZIndex.calcZ(searchZIndexModalClassName)
+      zIndexCalc: ZIndex.calcZ(searchZIndexModalClassName, props.isPriorityModal)
     };
 
     return newState;
@@ -90,9 +90,7 @@ export default class EcosModal extends Component {
       return;
     }
 
-    const zIndex = this.props.isPriorityModal
-      ? ZIndex.calcZ(this.searchZIndexModalClassName) + 2
-      : ZIndex.calcZ(this.searchZIndexModalClassName);
+    const zIndex = ZIndex.calcZ(this.searchZIndexModalClassName, this.props.isPriorityModal);
 
     if (zIndex !== this.state.zIndexCalc) {
       this.setState({ zIndexCalc: zIndex });

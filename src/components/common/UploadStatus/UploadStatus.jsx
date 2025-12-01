@@ -5,19 +5,19 @@ import isNumber from 'lodash/isNumber';
 import React, { useState, useEffect } from 'react';
 import { FormText } from 'reactstrap';
 
-import { NODE_TYPES } from '../../../constants/docLib';
-import { t } from '../../../helpers/util';
-import { sendToWorker } from '../../../workers/docLib';
 import Btn from '../btns/Btn';
 import { Input, Radio } from '../form';
 import Close from '../icons/Close';
 import Error from '../icons/Error';
-import File from '../icons/File';
 import ChevronDown from '../icons/FillChevronDown';
 import Success from '../icons/Success';
+import File from '../icons/global/File';
 import { Loader } from '../index';
 
+import { NODE_TYPES } from '@/constants/docLib';
+import { t } from '@/helpers/util';
 import { NotificationManager } from '@/services/notifications';
+import { sendToWorker } from '@/workers/docLib';
 
 import './styles.scss';
 
@@ -254,7 +254,7 @@ const UploadStatus = () => {
             <h4 className="citeck-file-replacement-modal__card-header_text">{t('document-library.settings-upload')}</h4>
           </div>
           <p className="citeck-file-replacement-modal__card-description">
-            {t('document-library.warning-replace-file')}: "{fileDataConfirm.path || fileDataConfirm.file.name}"
+            {t('document-library.warning-replace-file')}: {`"${fileDataConfirm.path || fileDataConfirm.file.name}"`}
           </p>
           <div className="citeck-file-replacement-modal__card-radio_list">
             <Radio

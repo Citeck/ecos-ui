@@ -27,6 +27,9 @@
   "date.minute": "Minute",
   "date.quarter": "Quarter",
 
+  "platform.description.join-into-community": "Join the community ",
+  "platform.description.copyright": "{{ copyright }}. All rights reserved",
+
   "no-source": "No source of type",
 
   "variable-not-found": "Variable \"{{var}}\" not found",
@@ -577,6 +580,16 @@
   "document-library.uploading-file.message.size-error": "Error uploading the file «{{ fileName }}»: The file is too large",
   "document-library.uploading-file.message.abort": "Unable to upload file(s)",
   "document-library.uploading-folder.message.abort": "Error during folder upload",
+  "document-library.error.create.permissions-dined": "Error during {{ message }}: Insufficient permissions",
+  "document-library.error.create.other": "Error. Failed to {{ message }}",
+  "document-library.error.load-node": "load information for {{ message }}",
+  "document-library.error.get-action": "perform the action “{{ postActionRef }}”",
+  "document-library.child-name.folder": "creating a folder",
+  "document-library.child-name.folder2": "create a folder",
+  "document-library.child-name.folder3": "the created folder",
+  "document-library.child-name.file": "uploading a file",
+  "document-library.child-name.file2": "upload a file",
+  "document-library.child-name.file3": "the uploaded file",
 
   "kanban.label.big-total": "Total: {{count}}",
   "kanban.label.no-columns": "Columns not configured",
@@ -1918,6 +1931,7 @@
   "menu-item.type.user-feedback": "Feedback",
   "menu-item.type.user-send-problem-report": "Report a problem",
   "menu-item.type.user-logout": "Log out",
+  "menu-item.type.user-about-platform": "About platform",
 
   "icon-select.title": "Select Icon",
   "icon-select.btn.upload-custom": "Upload",
@@ -1925,6 +1939,7 @@
   "icon-select.btn.cancel": "Cancel",
   "icon-select.btn.done": "Done",
   "icon-select.custom.title": "Custom",
+  "icon-select.system.title": "System",
   "icon-select.custom.no-icons": "No icon has been loaded yet",
   "icon-select.custom.tip": "The icon looks better if format is png/svg, size is 20x20px and there are no small details",
   "icon-select.error.get-custom-icons": "Customs menu icons haven't received",
@@ -2718,6 +2733,18 @@
   "day-form1": "day",
   "day-form2": "day",
   "day-form3": "days",
+  "week-form1": "week",
+  "week-form2": "weeks",
+  "week-form3": "weeks",
+  "month-form1": "month",
+  "month-form2": "months",
+  "month-form3": "months",
+  "quarter-form1": "quarter",
+  "quarter-form2": "quarters",
+  "quarter-form3": "quarters",
+  "year-form1": "year",
+  "year-form2": "years",
+  "year-form3": "years",
 
   "proc-def-admin.action.open-proc-editor.error": "Open editor action is unavailable",
 
@@ -2818,7 +2845,7 @@
   "bpmn-linter.ai-task.no-user-input": "AI User Input not filled",
   "bpmn-linter.ai-task.unavailable": "AI assistant is not available",
 
-  "workspaces.create-button": "Add a workspace",
+  "workspaces.create-button": "Create workspace",
   "workspaces.edit-workspace-modal.title": "Edit",
   "workspaces.see-more": "See more",
   "workspaces.sidebar.no-data-workspace.head": "There are no available workspaces",

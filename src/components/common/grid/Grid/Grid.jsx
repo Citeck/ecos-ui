@@ -84,7 +84,7 @@ class Grid extends Component {
     this._startResizingThOffset = 0;
     this._scrollValues = {};
     this._tr = null;
-    this._lastHoverTr = null;
+    this._lastHoverTrIndex = null;
     this._dragTr = null;
     this._tableDom = null;
     this._ref = React.createRef();
@@ -162,7 +162,7 @@ class Grid extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { byContentHeight, resizableColumns, columns, selected, isResetSettings, loading, isViewNewJournal } = this.props;
+    const { byContentHeight, resizableColumns, columns, selected, isResetSettings, loading, isViewNewJournal, data } = this.props;
     const { maxHeight } = this.state;
     const current = this._ref.current;
 
@@ -204,8 +204,11 @@ class Grid extends Component {
     }
 
     if (current) {
-      if (prevProps.loading !== loading) {
-        this.updateInlineToolsElementOfLoading(isEmpty(prevProps.editingRules) && !isEmpty(this.props.editingRules));
+      if (prevProps.loading !== loading || (!loading && prevProps.data.length > data.length)) {
+        this.updateInlineToolsElementOfLoading(
+          isEmpty(prevProps.editingRules) && !isEmpty(this.props.editingRules),
+          !loading && prevProps.loading === loading && prevProps.data.length > data.length
+        );
       }
 
       const headerElement = current.querySelector(`.${ECOS_GRID_HEADER}`);
@@ -468,12 +471,13 @@ class Grid extends Component {
           return;
         }
 
-        this.appendInlineToolsElement(tr, settingInlineTools);
+        if (!props.changeTrOptionsByRowClick) {
+          this.appendInlineToolsElement(tr, settingInlineTools);
+        }
       },
       onMouseLeave: e => {
         const relatedTarget = e.relatedTarget;
         const currentTarget = e.currentTarget;
-
         const insideInlineToolsContainer =
           relatedTarget && this.isInsideInlineToolsContainer(relatedTarget, ECOS_GRID_INLINE_TOOLS_CONTAINER);
         if (insideInlineToolsContainer) {
@@ -613,10 +617,10 @@ class Grid extends Component {
       }
     }
 
-    this._lastHoverTr = null;
+    this._lastHoverTrIndex = null;
   };
 
-  updateInlineToolsElementOfLoading = (isFindFocusTr = false) => {
+  updateInlineToolsElementOfLoading = (isFindFocusTr = false, isDecreaseDataInForm = false) => {
     const current = this._ref.current;
     if (!current) {
       return;
@@ -625,11 +629,11 @@ class Grid extends Component {
     let trEl = current.querySelector(`.${ECOS_GRID_INLINE_TOOLS_CONTAINER}`)?.closest('tr');
 
     if (!trEl) {
-      if (!isFindFocusTr || !this._lastHoverTr) {
+      if ((!isFindFocusTr && !isDecreaseDataInForm) || !this._lastHoverTrIndex) {
         return;
       }
 
-      const rowIndex = this._lastHoverTr.rowIndex - 1; // because inline Loader also tr element
+      const rowIndex = this._lastHoverTrIndex - isDecreaseDataInForm ? 0 : 1; // because inline Loader also tr element
       const target = Array.from(current.querySelectorAll('tr')).find(t => t.rowIndex === rowIndex);
 
       if (!target) {
@@ -647,7 +651,7 @@ class Grid extends Component {
   appendInlineToolsElement = (currentTarget, settingInlineTools) => {
     const inlineToolsElement = document.createElement('td');
     inlineToolsElement.className = ECOS_GRID_INLINE_TOOLS_CONTAINER;
-    this._lastHoverTr = currentTarget;
+    this._lastHoverTrIndex = currentTarget.rowIndex || null;
 
     const renderInlineTools = element => {
       if (element) {

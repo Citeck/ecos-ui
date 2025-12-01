@@ -132,10 +132,6 @@ $header-height: 44px;
     }
   }
 
-  &_hovered {
-    background: $color-blue-light3;
-  }
-
   &_no-header {
     & thead {
       display: none;
@@ -231,6 +227,7 @@ $header-height: 44px;
     position: -webkit-sticky;
     position: sticky;
     right: 0;
+    width: 0;
   }
 }
 

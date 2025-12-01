@@ -1,5 +1,3 @@
-/* eslint-disable no-restricted-globals */
-
 const activeRequests = {};
 const cancelledRequests = [];
 
@@ -591,3 +589,5 @@ const defaultAttributesDocLib = {
   modified: '_modified?str',
   name: '_name?str'
 };
+
+export {}; // so that TS understands that this is a module

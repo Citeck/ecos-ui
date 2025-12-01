@@ -62,6 +62,7 @@ export const MenuSettings = {
     USER_FEEDBACK: 'USER-FEEDBACK',
     USER_SEND_PROBLEM_REPORT: 'USER-SEND-PROBLEM-REPORT',
     USER_LOGOUT: 'USER-LOGOUT',
+    USER_ABOUT_PLATFORM: 'USER-ABOUT-PLATFORM',
     START_WORKFLOW: 'START_WORKFLOW'
   }
 };
@@ -146,6 +147,10 @@ export const UserOptions = {
     key: MenuSettings.ItemTypes.USER_LOGOUT,
     label: 'menu-item.type.user-logout'
   },
+  USER_ABOUT_PLATFORM: {
+    key: MenuSettings.ItemTypes.USER_ABOUT_PLATFORM,
+    label: 'menu-item.type.user-about-platform'
+  },
   ARBITRARY: {
     key: MenuSettings.ItemTypes.ARBITRARY,
     label: 'menu-item.type.arbitrary'
@@ -178,6 +183,11 @@ export const UserMenu = {
     icon: { type: 'icon', value: 'icon-alert' },
     type: MenuSettings.ItemTypes.USER_SEND_PROBLEM_REPORT
   },
+  USER_ABOUT_PLATFORM: {
+    label: { ru: 'О платформе', en: 'About platform' },
+    icon: { type: 'react-icon', value: 'react:./Info.tsx' },
+    type: MenuSettings.ItemTypes.USER_ABOUT_PLATFORM
+  },
   USER_LOGOUT: {
     label: { ru: 'Выйти', en: 'Log out' },
     icon: { type: 'icon', value: 'icon-exit' },
@@ -191,5 +201,6 @@ export const DefaultUserMenu = [
   // UserMenu.USER_CHANGE_PASSWORD,
   UserMenu.USER_FEEDBACK,
   UserMenu.USER_SEND_PROBLEM_REPORT,
-  UserMenu.USER_LOGOUT
+  UserMenu.USER_LOGOUT,
+  UserMenu.USER_ABOUT_PLATFORM
 ];

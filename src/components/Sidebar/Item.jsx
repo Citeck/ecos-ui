@@ -116,7 +116,12 @@ class Item extends React.Component {
       );
     }
 
-    if (typeof data.icon === 'string' && !data.icon.includes(SourcesId.ICON) && !data.icon.includes(SourcesId.FONT_ICON)) {
+    if (
+      typeof data.icon === 'string' &&
+      !data.icon.includes(SourcesId.ICON) &&
+      !data.icon.includes('react:') &&
+      !data.icon.includes(SourcesId.FONT_ICON)
+    ) {
       iconCode = data.icon;
     } else {
       iconData = getIconObjectWeb(data.icon);

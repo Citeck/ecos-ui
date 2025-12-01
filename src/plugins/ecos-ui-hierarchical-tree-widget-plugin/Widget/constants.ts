@@ -1,4 +1,4 @@
-export const createCategoryFormId = 'create-category';
+export const createCategoryFormId = 'category-form';
 
 export const tooltipIdCreate = 'create-tree-node-button';
 export const tooltipIdSettings = 'settings-tree-node-button';

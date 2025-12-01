@@ -11,7 +11,7 @@ stages:
 
 testing:
   tags:
-    - kuber-run-new
+    - k8s-cloudstack-production
   stage: testing
   before_script:
     - yarn

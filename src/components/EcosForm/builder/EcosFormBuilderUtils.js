@@ -1,13 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import { goToCardDetailsPage } from '../../../helpers/urls';
 import { PRE_SETTINGS_TYPES, PreSettings } from '../../PreSettings';
 import Records from '../../Records/Records';
 import { PERMISSION_WRITE_ATTR } from '../../Records/constants';
 import EcosFormLocaleEditor from '../locale/FormLocaleEditorModal';
 
 import EcosFormBuilder from './EcosFormBuilderModal';
+
+import { SourcesId } from '@/constants';
+import { goToCardDetailsPage } from '@/helpers/urls';
 
 let formPanelIdx = 0;
 const builders = {};
@@ -77,7 +79,9 @@ export class EcosFormBuilderUtils {
               processFormDefinition(data.definition);
             });
         } else {
-          if (!data.canWrite) {
+          const formId = record.getBaseRecord().id;
+
+          if (!data.canWrite && formId !== `${SourcesId.FORM}@`) {
             processPreSettings(data.definition);
             return;
           }

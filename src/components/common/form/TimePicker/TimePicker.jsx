@@ -1,11 +1,11 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import isNaN from 'lodash/isNaN';
-import isFunction from 'lodash/isFunction';
 import classNames from 'classnames';
+import isFunction from 'lodash/isFunction';
+import isNaN from 'lodash/isNaN';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
 import { IcoBtn } from '../../btns';
-import Clock from '../../icons/Clock';
+import Clock from '../../icons/global/Clock';
 import './TimePicker.scss';
 
 const DEFAULT_VALUE_HOURS = '07';

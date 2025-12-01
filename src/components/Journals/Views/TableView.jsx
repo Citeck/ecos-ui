@@ -80,7 +80,8 @@ function mapDispatchToProps(dispatch, props) {
 
 class TableView extends React.Component {
   state = {
-    isClose: true
+    isClose: true,
+    settingsVisible: false
   };
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -127,6 +128,10 @@ class TableView extends React.Component {
   componentWillUnmount() {
     this.setState({ isClose: true });
   }
+
+  handleToggleSettings = () => {
+    this.setState(({ settingsVisible }) => ({ settingsVisible: !settingsVisible }));
+  };
 
   getSelectedBoardFromUrl() {
     const { urlParams = {}, boardList } = this.props;
@@ -204,6 +209,7 @@ class TableView extends React.Component {
           )}
           <Bar
             {...this.props}
+            settingsVisible={this.state.settingsVisible}
             hasWritePermission={get(journalConfig, 'hasWritePermission', false)}
             hasBtnEdit={() => hasBtnEdit(configRec)}
             onEditJournal={() => onEditJournal(configRec)}
