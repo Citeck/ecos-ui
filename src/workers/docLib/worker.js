@@ -1,9 +1,17 @@
+import get from 'lodash/get';
+
+import { WORKER_STATUSES, ACTION_CANCEL_REQUEST, Endpoints } from './constants';
+
+import { DocLibServiceApi } from '@/components/Journals/DocLib/DocLibServiceApi';
+import { SourcesId } from '@/constants';
+import { NODE_TYPES } from '@/constants/docLib';
+
 const activeRequests = {};
 const cancelledRequests = [];
 
 self.addEventListener('message', e => {
   const { type, requestId } = e.data;
-  if (type === 'CANCEL_REQUEST' && activeRequests[requestId]) {
+  if (type === ACTION_CANCEL_REQUEST && activeRequests[requestId]) {
     activeRequests[requestId].abort();
     delete activeRequests[requestId];
     cancelledRequests.push(requestId);
@@ -111,7 +119,7 @@ self.onmessage = async event => {
 
     await handleUploads({ items, folderId, rootId, destinationFile, destinationDir, totalCount, ws });
   } catch (e) {
-    self.postMessage({ status: 'error', error: e.message });
+    self.postMessage({ status: WORKER_STATUSES.UPLOAD_ERROR, error: e.message });
   }
 };
 
@@ -190,7 +198,7 @@ async function getAllFolders(files, childrenRootDir, rootFolderTitle, ws) {
 
 async function handleUploads({ items, folderId, rootId, destinationFile, destinationDir, totalCount, ws }) {
   try {
-    self.postMessage({ status: 'start' });
+    self.postMessage({ status: WORKER_STATUSES.START_INIT_HANDLERS });
 
     // TODO: Sequential download of files and folders. We need to make a parallel one.
     let successFileCount = 0;
@@ -286,7 +294,7 @@ async function handleUploads({ items, folderId, rootId, destinationFile, destina
           }
         }
       } else {
-        self.postMessage({ status: 'error' });
+        self.postMessage({ status: WORKER_STATUSES.UPLOAD_ERROR });
       }
     }
 
@@ -295,18 +303,18 @@ async function handleUploads({ items, folderId, rootId, destinationFile, destina
       return await handleUploadFile({ file, dirId: folderId, rootId, destinationFile });
     }));*/
 
-    self.postMessage({ status: 'success', result });
+    self.postMessage({ status: WORKER_STATUSES.UPLOAD_SUCCESS, result });
   } catch (error) {
-    self.postMessage({ status: 'error', error: error.message });
+    self.postMessage({ status: WORKER_STATUSES.UPLOAD_ERROR, error: error.message });
   }
 }
 
 function getConfirmationFromMainThread(file) {
   return new Promise(resolve => {
-    self.postMessage({ status: 'confirm-file-replacement', file: { file, isLoading: true, isError: false } });
+    self.postMessage({ status: WORKER_STATUSES.CONFIRM_FILE_REPLACE, file: { file, isLoading: true, isError: false } });
 
     self.onmessage = event => {
-      if (event.data.status === 'confirmation-file-response') {
+      if (event.data.status === WORKER_STATUSES.CONFIRM_FILE_RESPONSE) {
         resolve({ confirmed: event.data.confirmed, isReplaceAllFiles: event.data.isReplaceAllFiles });
       }
     };
@@ -330,9 +338,9 @@ async function getFolderItems(parentRef, ws) {
     querySettings.workspaces = [ws];
   }
 
-  const response = await citeckFetch('/gateway/api/records/query', {
+  const response = await citeckFetch(Endpoints.QUERY, {
     body: {
-      attributes: defaultAttributesDocLib,
+      attributes: DocLibServiceApi.defaultAttributes,
       query: querySettings,
       version: 1
     },
@@ -349,7 +357,7 @@ async function getFolderItems(parentRef, ws) {
 }
 
 async function deleteChild(record) {
-  const response = await citeckFetch('/gateway/api/records/delete', {
+  const response = await citeckFetch(Endpoints.DELETE_CHILDREN, {
     body: {
       records: [record],
       version: 1
@@ -365,6 +373,15 @@ async function handleUploadDirectory({ dirName, parentId, destinationDir, rootId
 
   if (!convertDir) {
     return Promise.reject('Error: Error when converting a dir');
+  }
+
+  const folderItems = await getFolderItems(parentId, ws);
+  const foundFolder = (folderItems || []).find(
+    item => get(item, 'attributes.nodeType') === NODE_TYPES.DIR && get(item, 'attributes.name') === get(convertDir, '_name')
+  );
+
+  if (foundFolder) {
+    return foundFolder;
   }
 
   const result = await createChild(rootId, parentId, destinationDir, convertDir, ws).then(async res => await res.json());
@@ -384,7 +401,7 @@ async function handleUploadFile({ file, dirId, rootId, destinationFile, totalCou
   activeRequests[requestId] = controller;
 
   self.postMessage({
-    status: 'in-progress',
+    status: WORKER_STATUSES.PROGRESS_UPDATE,
     requestId,
     totalCount,
     successFileCount,
@@ -400,7 +417,7 @@ async function handleUploadFile({ file, dirId, rootId, destinationFile, totalCou
     formData.append('_workspace', ws);
   }
 
-  const responseData = await citeckFetch('/gateway/emodel/api/ecos/webapp/content', {
+  const responseData = await citeckFetch(Endpoints.CONTENT, {
     body: formData,
     method: 'POST',
     signal
@@ -410,7 +427,7 @@ async function handleUploadFile({ file, dirId, rootId, destinationFile, totalCou
         return await res.json();
       } else {
         self.postMessage({
-          status: 'error',
+          status: WORKER_STATUSES.UPLOAD_ERROR,
           errorStatus: res.status,
           totalCount,
           successFileCount,
@@ -421,7 +438,7 @@ async function handleUploadFile({ file, dirId, rootId, destinationFile, totalCou
     })
     .catch(() => {
       self.postMessage({
-        status: 'error',
+        status: WORKER_STATUSES.UPLOAD_ERROR,
         totalCount,
         successFileCount,
         isCancelled: cancelledRequests.includes(requestId),
@@ -452,7 +469,7 @@ async function handleUploadFile({ file, dirId, rootId, destinationFile, totalCou
   return await createChild(rootId, dirId, destinationFile, convertFile, ws, signal)
     .then(async res => {
       self.postMessage({
-        status: 'in-progress',
+        status: WORKER_STATUSES.PROGRESS_UPDATE,
         totalCount,
         successFileCount: successFileCount + 1,
         file: { file, isLoading: false, isError: false },
@@ -462,7 +479,7 @@ async function handleUploadFile({ file, dirId, rootId, destinationFile, totalCou
     })
     .catch(() => {
       self.postMessage({
-        status: 'error',
+        status: WORKER_STATUSES.UPLOAD_ERROR,
         totalCount,
         successFileCount,
         isCancelled: cancelledRequests.includes(requestId),
@@ -570,24 +587,5 @@ async function citeckFetch(path = '', options = {}) {
     return resp;
   });
 }
-
-const NODE_TYPES = {
-  DIR: 'DIR',
-  FILE: 'FILE'
-};
-
-const SourcesId = {
-  DOCLIB: 'emodel/doclib'
-};
-
-const defaultAttributesDocLib = {
-  id: '?id',
-  title: '?disp',
-  nodeType: 'nodeType',
-  hasChildrenDirs: 'hasChildrenDirs?bool',
-  typeRef: '_type?id',
-  modified: '_modified?str',
-  name: '_name?str'
-};
 
 export {}; // so that TS understands that this is a module

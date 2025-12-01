@@ -88,13 +88,15 @@ setNotAuthCallback(setAuthStatus);
 
 emitter.on(RESET_AUTH_STATE_EVENT, setAuthStatus);
 
-if (!window.Citeck) {
-  window.Citeck = {};
-}
+if (typeof window !== 'undefined') {
+  if (!window.Citeck) {
+    window.Citeck = {};
+  }
 
-window.Citeck.Plugins = plugins;
-window.Citeck.NotificationManager = NotificationManager;
-window.Citeck.Base64 = Base64;
+  window.Citeck.Plugins = plugins;
+  window.Citeck.NotificationManager = NotificationManager;
+  window.Citeck.Base64 = Base64;
+}
 
 const root = createRoot(document.getElementById('root') as HTMLElement);
 i18nInit({ debug: allowedModes.includes(process.env.NODE_ENV) }).then(() => {
