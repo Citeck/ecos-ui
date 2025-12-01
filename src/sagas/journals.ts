@@ -560,6 +560,7 @@ function* getJournalSetting(
       }
 
       if (journalSettingId) {
+        const query = getSearchParams();
         const preset: JournalSettingsItemType = yield call([PresetsServiceApi, PresetsServiceApi.getPreset], { id: journalSettingId });
         const _journalConfig: IJournalState['journalConfig'] = yield call(
           [JournalsService, JournalsService.getJournalConfig],
@@ -569,7 +570,9 @@ function* getJournalSetting(
         );
 
         if (isEmpty(preset) || isEmpty(preset.settings)) {
-          NotificationManager.error(t('journal.presets.error.get-one'));
+          if (get(query, 'journalSettingId') === journalSettingId) {
+            NotificationManager.error(t('journal.presets.error.get-one'));
+          }
           journalSetting = getDefaultJournalSetting(journalConfig);
         } else {
           if (!get(preset.settings, 'grouping') && !isEmpty(get(preset.settings, 'journalSetting'))) {
