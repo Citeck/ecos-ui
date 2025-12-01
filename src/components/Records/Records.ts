@@ -296,14 +296,19 @@ class RecordsComponent {
   }
 }
 
-if (!window.Citeck) {
-  window.Citeck = {};
+if (typeof window !== 'undefined') {
+  if (!window.Citeck) {
+    window.Citeck = {};
+  }
+
+  window.Citeck = window.Citeck || {};
 }
 
-window.Citeck = window.Citeck || {};
-const Records: RecordsContainerType = window.Citeck.Records || new RecordsComponent();
-window.Citeck.Records = Records;
-window.Records = Records;
+const Records: RecordsContainerType = (typeof window !== 'undefined' && window.Citeck?.Records) || new RecordsComponent();
+if (typeof window !== 'undefined' && window.Citeck) {
+  window.Citeck.Records = Records;
+  window.Records = Records;
+}
 
 recordsClientManager.init(Records);
 

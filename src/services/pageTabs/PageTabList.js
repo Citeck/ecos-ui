@@ -432,56 +432,59 @@ class PageTabList {
   };
 }
 
-const pageTabList = get(window, 'Citeck.PageTabList', new PageTabList());
+const pageTabList = get(typeof window !== 'undefined' ? window : {}, 'Citeck.PageTabList', new PageTabList());
 
 export const updateTabEmitter = new EventEmitter();
 
-window.addEventListener('popstate', event => {
-  const { href, origin } = get(event, 'target.location');
-  const link = href.replace(origin, '');
-  let tabs = cloneDeep(pageTabList.storeList);
-  const founded = tabs.find(tab => PageTab.equals(tab, { link }));
+typeof window !== 'undefined' &&
+  window.addEventListener('popstate', event => {
+    const { href, origin } = get(event, 'target.location');
+    const link = href.replace(origin, '');
+    let tabs = cloneDeep(pageTabList.storeList);
+    const founded = tabs.find(tab => PageTab.equals(tab, { link }));
 
-  if (founded) {
-    tabs.forEach(tab => {
-      tab.isActive = tab.link === founded.link;
-    });
-  } else {
-    const newTab = new PageTab({
-      title: t(TITLE.LOADING),
-      isLoading: true,
-      isActive: true,
-      link: window.encodeURIComponent(link),
-      workspace: getWorkspaceId()
-    });
-
-    tabs.forEach(tab => {
-      tab.isActive = false;
-    });
-
-    try {
-      const decodedLink = decodeURIComponent(link);
-      const getTitle = PageService.getPage({ link: decodedLink }).getTitle({}, decodedLink);
-
-      Promise.all([getTitle]).then(values => {
-        newTab.title = values[0];
-        newTab.isLoading = false;
-        pageTabList.setTab(newTab);
-        updateTabEmitter.emit('update');
+    if (founded) {
+      tabs.forEach(tab => {
+        tab.isActive = tab.link === founded.link;
       });
-    } catch (e) {
-      console.error('Update tab title filed: ', e.message);
+    } else {
+      const newTab = new PageTab({
+        title: t(TITLE.LOADING),
+        isLoading: true,
+        isActive: true,
+        link: window.encodeURIComponent(link),
+        workspace: getWorkspaceId()
+      });
+
+      tabs.forEach(tab => {
+        tab.isActive = false;
+      });
+
+      try {
+        const decodedLink = decodeURIComponent(link);
+        const getTitle = PageService.getPage({ link: decodedLink }).getTitle({}, decodedLink);
+
+        Promise.all([getTitle]).then(values => {
+          newTab.title = values[0];
+          newTab.isLoading = false;
+          pageTabList.setTab(newTab);
+          updateTabEmitter.emit('update');
+        });
+      } catch (e) {
+        console.error('Update tab title filed: ', e.message);
+      }
+
+      tabs.push(newTab.store);
     }
 
-    tabs.push(newTab.store);
-  }
+    tabs = pageTabList.getValidList(tabs);
 
-  tabs = pageTabList.getValidList(tabs);
+    pageTabList.tabs = { tabs, params: { openNewTab: true } };
+    updateTabEmitter.emit('update');
+  });
 
-  pageTabList.tabs = { tabs, params: { openNewTab: true } };
-  updateTabEmitter.emit('update');
-});
-
-set(window, 'Citeck.PageTabList', pageTabList);
+if (typeof window !== 'undefined') {
+  set(window, 'Citeck.PageTabList', pageTabList);
+}
 
 export default pageTabList;

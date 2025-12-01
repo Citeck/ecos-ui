@@ -44,8 +44,10 @@ export const Events = {
   CHANGE_URL_LINK_EVENT: 'CHANGE_URL_LINK_EVENT'
 };
 
-const CHANGE_URL = document.createEvent('Event');
-CHANGE_URL.initEvent(Events.CHANGE_URL_LINK_EVENT, true, true);
+const CHANGE_URL = typeof document !== 'undefined' && document.createEvent('Event');
+if (CHANGE_URL) {
+  CHANGE_URL.initEvent(Events.CHANGE_URL_LINK_EVENT, true, true);
+}
 
 const TYPES = {
   TYPE: 'emodel/type@type',

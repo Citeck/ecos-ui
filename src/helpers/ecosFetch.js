@@ -59,6 +59,6 @@ const ecosFetch = function (url, options = {}) {
 
 export default ecosFetch;
 
-if (window && !window.ecosFetch) {
+if (typeof window !== 'undefined' && !window.ecosFetch) {
   window.ecosFetch = ecosFetch;
 }

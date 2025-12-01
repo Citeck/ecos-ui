@@ -271,8 +271,10 @@ export const IGNORED_EVENT_ATTRIBUTE = '_isIgnoredEvent';
 export const DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS = ['id', '_name'];
 export const allowedModes = ['development', 'dev-stage'];
 
-window.Citeck = window.Citeck || {};
-window.Citeck.constants = window.Citeck.constants || {};
-window.Citeck.constants = { ...window.Citeck.constants, URL, SourcesId };
+if (typeof window !== 'undefined') {
+  window.Citeck = window.Citeck || {};
+  window.Citeck.constants = window.Citeck.constants || {};
+  window.Citeck.constants = { ...window.Citeck.constants, URL, SourcesId };
+}
 
 export const _LOCALHOST_ = 'http://localhost:3000';

@@ -456,7 +456,7 @@ export const getWorkspaceId = (defaultWorkspace = getDefaultWorkspace(), search 
 
 export const getPersonalWorkspaceId = () => `user$${getCurrentUserName()}`;
 
-if (!window.Citeck) {
+if (typeof window !== 'undefined' && !window.Citeck) {
   window.Citeck = {};
 }
 
@@ -516,12 +516,14 @@ export const getBaseUrlWorkspace = (wsId, homePageLink, withHost = true) => {
   return url.pathname + url.search;
 };
 
-window.Citeck.Navigator = {
-  goToDashboard: (recordRef, options) => {
-    goToCardDetailsPage(recordRef, options);
-  },
-  getWorkspaceId: () => getWorkspaceId()
-};
+if (typeof window !== 'undefined') {
+  window.Citeck.Navigator = {
+    goToDashboard: (recordRef, options) => {
+      goToCardDetailsPage(recordRef, options);
+    },
+    getWorkspaceId: () => getWorkspaceId()
+  };
+}
 
 export const replaceHistoryLink = (history = window, link = '', force = false) => {
   if (isEmpty(history)) {
