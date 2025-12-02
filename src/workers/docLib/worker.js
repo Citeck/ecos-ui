@@ -384,7 +384,18 @@ async function handleUploadDirectory({ dirName, parentId, destinationDir, rootId
     return foundFolder;
   }
 
-  const result = await createChild(rootId, parentId, destinationDir, convertDir, ws).then(async res => await res.json());
+  const result = await createChild(rootId, parentId, destinationDir, convertDir, ws).then(async res => {
+    if (res.ok) {
+      await res.json();
+    } else {
+      self.postMessage({
+        status: WORKER_STATUSES.UPLOAD_ERROR,
+        typeCurrentItem: NODE_TYPES.DIR,
+        targetDirTitle: get(convertDir, '_name'),
+        errorStatus: res.status
+      });
+    }
+  });
 
   if (result && result.records && result.records.length) {
     return result.records[0];
@@ -468,14 +479,25 @@ async function handleUploadFile({ file, dirId, rootId, destinationFile, totalCou
 
   return await createChild(rootId, dirId, destinationFile, convertFile, ws, signal)
     .then(async res => {
-      self.postMessage({
-        status: WORKER_STATUSES.PROGRESS_UPDATE,
-        totalCount,
-        successFileCount: successFileCount + 1,
-        file: { file, isLoading: false, isError: false },
-        requestId
-      });
-      return await res.json();
+      if (res.ok) {
+        self.postMessage({
+          status: WORKER_STATUSES.PROGRESS_UPDATE,
+          totalCount,
+          successFileCount: successFileCount + 1,
+          file: { file, isLoading: false, isError: false },
+          requestId
+        });
+        return await res.json();
+      } else {
+        self.postMessage({
+          status: WORKER_STATUSES.UPLOAD_ERROR,
+          errorStatus: res.status,
+          totalCount,
+          successFileCount,
+          isCancelled: cancelledRequests.includes(requestId),
+          file: { file, isLoading: false, isError: true }
+        });
+      }
     })
     .catch(() => {
       self.postMessage({
