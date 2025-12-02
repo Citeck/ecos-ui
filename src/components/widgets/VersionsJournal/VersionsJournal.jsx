@@ -559,11 +559,7 @@ class VersionsJournal extends BaseWidget {
           withScrollbar
           scrollbarHeightMax="200px"
         >
-          <IcoBtn
-            invert
-            icon="icon-small-down ecos-vj__comparison-dropdown-toggle-icon"
-            className="ecos-vj__comparison-dropdown-toggle ecos-btn_transparent"
-          />
+          <IcoBtn invert icon="icon-small-down ecos-vj__comparison-dropdown-toggle-icon" className="ecos-vj__comparison-dropdown-toggle" />
         </Dropdown>
 
         <Dropdown
@@ -578,11 +574,7 @@ class VersionsJournal extends BaseWidget {
           withScrollbar
           scrollbarHeightMax={'200px'}
         >
-          <IcoBtn
-            invert
-            icon="icon-small-down ecos-vj__comparison-dropdown-toggle-icon"
-            className="ecos-vj__comparison-dropdown-toggle ecos-btn_transparent"
-          />
+          <IcoBtn invert icon="icon-small-down ecos-vj__comparison-dropdown-toggle-icon" className="ecos-vj__comparison-dropdown-toggle" />
         </Dropdown>
 
         <Btn

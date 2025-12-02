@@ -214,7 +214,6 @@ export default function ImagesPlugin({ captionsEnabled }: { captionsEnabled?: bo
 const TRANSPARENT_IMAGE = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 const img = document.createElement('img');
 img.src = TRANSPARENT_IMAGE;
-img.crossOrigin = 'credentials';
 
 function $onDragStart(event: DragEvent): boolean {
   const node = $getImageNodeInSelection();
