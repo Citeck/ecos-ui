@@ -93,8 +93,8 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
     );
   };
 
-  getWorkspace = async (recordRef: string) => {
-    return await Records.get(recordRef).load(workspaceAttributes);
+  getWorkspace = async (recordRef: string, extraFields?: Record<string, string>) => {
+    return await Records.get(recordRef).load({ ...workspaceAttributes, ...extraFields });
   };
 
   visitedAction = (wsId: WorkspaceType['id']) => {
