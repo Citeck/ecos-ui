@@ -258,6 +258,10 @@ class PageTabs extends React.Component {
         }
 
         const url = new URL(link);
+        const searchParams = new URLSearchParams(url.search);
+        if (searchParams.get('ws') !== getWorkspaceId()) {
+          data.needUpdateTabs = true;
+        }
 
         if (url.host === window.location.host) {
           setTab({ data, params: { reopen, closeActiveTab } });
