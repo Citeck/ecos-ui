@@ -100,7 +100,7 @@ const UploadStatus = () => {
           isImporting
         } = event.data;
 
-        if (type === SERVICE_WORKER_TYPES.UPDATE_STATUS) {
+        if (type === SERVICE_WORKER_TYPES.PROGRESS) {
           setStatus(status);
 
           if (isBoolean(isImporting)) {
@@ -161,7 +161,13 @@ const UploadStatus = () => {
                 if (errorStatus === 413) {
                   NotificationManager.error(t('document-library.uploading-file.message.size-error', { fileName }));
                 } else {
-                  NotificationManager.error(t('document-library.uploading-file.message.error', { fileName }));
+                  NotificationManager.error(
+                    t('document-library.uploading-file.message.error', {
+                      fileName: targetDirTitle,
+                      message:
+                        typeCurrentItem === NODE_TYPES.DIR ? t('document-library.child-name.folder') : t('document-library.child-name.file')
+                    })
+                  );
                 }
               }
 
