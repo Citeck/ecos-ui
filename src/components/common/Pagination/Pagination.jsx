@@ -45,7 +45,10 @@ export default class Pagination extends Component {
 
     const searchParams = new URLSearchParams(window.location.search);
 
-    if ((!SPage && PPage) || (!!searchParams.get('search')?.trim() && prevProps.page !== PPage && PPage === 1)) {
+    if (
+      (!SPage && PPage) ||
+      ((!!searchParams.get('search')?.trim() || !!searchParams.get('recordRef')?.trim()) && prevProps.page !== PPage && PPage === 1)
+    ) {
       this.setState({ page: PPage });
     }
   }
