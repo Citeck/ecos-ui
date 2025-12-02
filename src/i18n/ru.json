@@ -3070,6 +3070,8 @@
   "insert": "Вставить",
   "add": "Добавить",
   "remove": "Удалить",
+  "more": "Еще",
+
   "gantt.settings.title": "Настройки диаграммы Ганта",
   "gantt.settings.data-type.label": "Тип данных",
   "gantt.settings.data-type.standalone": "Автономная - Ручной ввод данных",
