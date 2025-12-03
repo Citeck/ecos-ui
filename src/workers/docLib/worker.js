@@ -386,7 +386,7 @@ async function handleUploadDirectory({ dirName, parentId, destinationDir, rootId
 
   const result = await createChild(rootId, parentId, destinationDir, convertDir, ws).then(async res => {
     if (res.ok) {
-      await res.json();
+      return await res.json();
     } else {
       self.postMessage({
         status: WORKER_STATUSES.UPLOAD_ERROR,
