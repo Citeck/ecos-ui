@@ -132,11 +132,11 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
   };
 
   onEditWorkspace = (event: OpenWsEventType) => {
-    const { openWorkspace, name } = this.props;
+    const { openWorkspace } = this.props;
 
     event.stopPropagation();
     FormManager.openFormModal({
-      title: `${t('workspaces.edit-workspace-modal.title')} ${name}`,
+      title: `${t('header.site-menu.settings-current-workspace')}`,
       record: `${SourcesId.WORKSPACE}@${this.props.id}`,
       saveOnSubmit: true,
       onSubmit: async (record: RecordImpl) => {
