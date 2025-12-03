@@ -34,6 +34,7 @@ export const IS_TEST_ENV = process.env.NODE_ENV === 'test';
 export function setCookie(name, value, options = {}) {
   options = {
     path: '/',
+    sameSite: 'Lax', // Default SameSite to Lax for better security
     ...options
   };
 
