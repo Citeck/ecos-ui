@@ -46,6 +46,10 @@ const UploadStatus = () => {
   const [successCountFiles, setSuccessCountFiles] = useState(0);
 
   useEffect(() => {
+    if (!navigator.serviceWorker) {
+      return;
+    }
+
     const handleBeforeUnload = e => {
       if (status === WORKER_STATUSES.PROGRESS_UPDATE) {
         e.preventDefault();
@@ -252,6 +256,10 @@ const UploadStatus = () => {
 
   const isDisabledInputRenaming =
     isEmptyInputRenaming || (parentItemsTitles && titleRenamingItem && parentItemsTitles.includes(currentTitleRenaming.trim()));
+
+  if (!navigator.serviceWorker) {
+    return null;
+  }
 
   if (status && status === WORKER_STATUSES.CONFIRM_FILE_REPLACE) {
     return showConfirmModal && get(fileDataConfirm, 'file.name') ? (
