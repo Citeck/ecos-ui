@@ -21,6 +21,7 @@ import { selectJournalConfig } from '@/selectors/journals';
 import PageService from '@/services/PageService';
 import LicenseService from '@/services/license/LicenseService';
 import { NotificationManager } from '@/services/notifications';
+import { WORKER_STATUSES, SERVICE_WORKER_TYPES } from '@/workers/docLib/constants';
 
 import './Import.scss';
 
@@ -117,14 +118,14 @@ class Import extends Component {
 
     if (navigator.serviceWorker && navigator.serviceWorker.controller && persistedRecordId && get(fileData, 'file')) {
       navigator.serviceWorker.controller.postMessage({
-        type: 'UPLOAD_PROGRESS',
-        status: 'start',
+        type: SERVICE_WORKER_TYPES.PROGRESS,
+        status: WORKER_STATUSES.START_INIT_HANDLERS,
         isImporting: true
       });
 
       navigator.serviceWorker.controller.postMessage({
-        type: 'UPLOAD_PROGRESS',
-        status: 'in-progress',
+        type: SERVICE_WORKER_TYPES.PROGRESS,
+        status: WORKER_STATUSES.PROGRESS_UPDATE,
         totalCount: 0,
         successFileCount: 0,
         file: fileData
@@ -143,8 +144,8 @@ class Import extends Component {
           switch (state) {
             case StatusesUpdate.RUNNING:
               navigator.serviceWorker.controller.postMessage({
-                type: 'UPLOAD_PROGRESS',
-                status: 'in-progress',
+                type: SERVICE_WORKER_TYPES.PROGRESS,
+                status: WORKER_STATUSES.PROGRESS_UPDATE,
                 totalCount,
                 successFileCount: processedRowCount || 0,
                 file: fileData
@@ -153,8 +154,8 @@ class Import extends Component {
 
             case StatusesUpdate.STOPPED:
               navigator.serviceWorker.controller.postMessage({
-                type: 'UPLOAD_PROGRESS',
-                status: 'in-progress',
+                type: SERVICE_WORKER_TYPES.PROGRESS,
+                status: WORKER_STATUSES.PROGRESS_UPDATE,
                 totalCount,
                 successFileCount: processedRowCount || 0,
                 file: {
@@ -203,8 +204,8 @@ class Import extends Component {
         }
 
         navigator.serviceWorker.controller.postMessage({
-          type: 'UPLOAD_PROGRESS',
-          status: 'success'
+          type: SERVICE_WORKER_TYPES.PROGRESS,
+          status: WORKER_STATUSES.UPLOAD_SUCCESS
         });
 
         isFunction(deselectAllRecords) && deselectAllRecords();
@@ -220,8 +221,8 @@ class Import extends Component {
         }
 
         navigator.serviceWorker.controller.postMessage({
-          type: 'UPLOAD_PROGRESS',
-          status: 'error',
+          type: SERVICE_WORKER_TYPES.PROGRESS,
+          status: WORKER_STATUSES.UPLOAD_ERROR,
           totalCount: record.att(ATT_TOTAL_COUNT) || 0,
           successFileCount: record.att(ATT_PROCESSED_ROW_COUNT) || 0,
           file: {
@@ -239,8 +240,8 @@ class Import extends Component {
 
           case StatusesUpdate.STOPPED:
             navigator.serviceWorker.controller.postMessage({
-              type: 'UPLOAD_PROGRESS',
-              status: 'in-progress',
+              type: SERVICE_WORKER_TYPES.PROGRESS,
+              status: WORKER_STATUSES.PROGRESS_UPDATE,
               totalCount: record.att(ATT_TOTAL_COUNT) || 0,
               successFileCount: record.att(ATT_PROCESSED_ROW_COUNT) || 0,
               file: {

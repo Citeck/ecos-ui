@@ -1,20 +1,23 @@
 /* eslint-disable no-restricted-globals */
 
-const CACHE_NAME = 'app-cache-v2.1';
+/**
+ * Important! For any change to custom-sw.js (this file) needs to change the CACHE_NAME version
+ **/
+const CACHE_NAME = 'app-cache-v2.2';
 
-self.addEventListener('install', (event) => {
-  console.log('[Service Worker] Install Event');
+self.addEventListener('install', () => {
+  console.info('[Service Worker] Install Event');
   self.skipWaiting();
 });
 
-self.addEventListener('activate', (event) => {
-  console.log('[Service Worker] Activate Event');
+self.addEventListener('activate', event => {
+  console.info('[Service Worker] Activate Event');
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
+    caches.keys().then(cacheNames => {
       return Promise.all(
-        cacheNames.map((cacheName) => {
+        cacheNames.map(cacheName => {
           if (cacheName !== CACHE_NAME) {
-            console.log('[Service Worker] Removing old cache:', cacheName);
+            console.info('[Service Worker] Removing old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
@@ -24,64 +27,10 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-self.addEventListener('message', (event) => {
-  const { type } = event.data;
-
-  switch (type) {
-    case 'UPLOAD_PROGRESS':
-      const { status, isImporting, errorStatus, file, totalCount, successFileCount, requestId, isCancelled } = event.data;
-      self.clients.matchAll().then(clients => {
-        clients.forEach(client => {
-          client.postMessage({
-            type: 'UPDATE_UPLOAD_STATUS',
-            status,
-            errorStatus,
-            isImporting,
-            isCancelled,
-            file,
-            totalCount,
-            successFileCount,
-            requestId
-          });
-        });
-      });
-      break;
-
-    case 'CONFIRMATION_FILE_RESPONSE':
-      const { confirmed, isReplaceAllFiles } = event.data;
-      self.clients.matchAll().then(clients => {
-        clients.forEach(client => {
-          client.postMessage({ type: 'CONFIRMATION_FILE_RESPONSE', confirmed, isReplaceAllFiles });
-        });
-      });
-      break;
-
-    case 'CONFIRMATION_RENAME_DIR_REQUEST':
-      const { currentItemTitle, targetDirTitle, parentDirTitles, typeCurrentItem, isReplacementItem = false } = event.data;
-      self.clients.matchAll().then(clients => {
-        clients.forEach(client => {
-          client.postMessage({
-            type: 'CONFIRMATION_RENAME_DIR_REQUEST',
-            currentItemTitle,
-            parentDirTitles,
-            typeCurrentItem,
-            targetDirTitle,
-            isReplacementItem
-          });
-        });
-      });
-      break;
-
-    case 'CONFIRMATION_RENAME_DIR_RESPONSE':
-      const { confirmedRenameItem, titleRenamingItem } = event.data;
-      self.clients.matchAll().then(clients => {
-        clients.forEach(client => {
-          client.postMessage({ type: 'CONFIRMATION_RENAME_DIR_RESPONSE', confirmedRenameItem, titleRenamingItem });
-        });
-      });
-      break;
-
-    default:
-      break;
-  }
+self.addEventListener('message', event => {
+  self.clients.matchAll().then(clients => {
+    clients.forEach(client => {
+      client.postMessage(event.data || {});
+    });
+  });
 });

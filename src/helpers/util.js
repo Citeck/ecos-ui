@@ -34,6 +34,7 @@ export const IS_TEST_ENV = process.env.NODE_ENV === 'test';
 export function setCookie(name, value, options = {}) {
   options = {
     path: '/',
+    sameSite: 'Lax', // Default SameSite to Lax for better security
     ...options
   };
 
@@ -1377,6 +1378,8 @@ export function camelize(s = '') {
   return s;
 }
 
-lodashSet(window, 'Citeck.helpers.getMonthPeriodByDate', getMonthPeriodByDate);
-lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);
-lodashSet(window, 'Citeck.helpers.getMLValue', getMLValue);
+if (typeof window !== 'undefined') {
+  lodashSet(window, 'Citeck.helpers.getMonthPeriodByDate', getMonthPeriodByDate);
+  lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);
+  lodashSet(window, 'Citeck.helpers.getMLValue', getMLValue);
+}

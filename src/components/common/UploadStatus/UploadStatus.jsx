@@ -18,6 +18,7 @@ import { NODE_TYPES } from '@/constants/docLib';
 import { t } from '@/helpers/util';
 import { NotificationManager } from '@/services/notifications';
 import { sendToWorker } from '@/workers/docLib';
+import { SERVICE_WORKER_TYPES, WORKER_STATUSES, ACTION_CANCEL_REQUEST } from '@/workers/docLib/constants';
 
 import './styles.scss';
 
@@ -46,7 +47,7 @@ const UploadStatus = () => {
 
   useEffect(() => {
     const handleBeforeUnload = e => {
-      if (status === 'in-progress') {
+      if (status === WORKER_STATUSES.PROGRESS_UPDATE) {
         e.preventDefault();
         e.returnValue = ''; // Required for some browsers to show a warning
       }
@@ -99,7 +100,7 @@ const UploadStatus = () => {
           isImporting
         } = event.data;
 
-        if (type === 'UPDATE_UPLOAD_STATUS') {
+        if (type === SERVICE_WORKER_TYPES.PROGRESS) {
           setStatus(status);
 
           if (isBoolean(isImporting)) {
@@ -110,23 +111,23 @@ const UploadStatus = () => {
           const fileId = `file-${get(fileData, 'file.size', 0)}-${fileName}-${get(fileData, 'file.lastModified', 0)}`;
 
           switch (status) {
-            case 'start':
+            case WORKER_STATUSES.START_INIT_HANDLERS:
               setStatus(null);
               setFileStatuses({});
               setIsReplaceAllFiles(false);
               setIsReadyLoadData(false);
               break;
 
-            case 'confirm-file-replacement':
+            case WORKER_STATUSES.CONFIRM_FILE_REPLACE:
               setFileDataConfirm(get(fileData, 'file', null));
               setShowConfirmModal(true);
               break;
 
-            case 'in-progress':
+            case WORKER_STATUSES.PROGRESS_UPDATE:
               setTotalCountFiles(totalCount);
               setSuccessCountFiles(successFileCount);
 
-              const cancelRequest = () => sendToWorker({ type: 'CANCEL_REQUEST', requestId });
+              const cancelRequest = () => sendToWorker({ type: ACTION_CANCEL_REQUEST, requestId });
 
               setFileStatuses(prevState => ({
                 ...prevState,
@@ -140,7 +141,7 @@ const UploadStatus = () => {
               }));
               break;
 
-            case 'error':
+            case WORKER_STATUSES.UPLOAD_ERROR:
               if (isNumber(totalCount) && isNumber(successFileCount)) {
                 setTotalCountFiles(totalCount);
                 setSuccessCountFiles(successFileCount);
@@ -160,13 +161,19 @@ const UploadStatus = () => {
                 if (errorStatus === 413) {
                   NotificationManager.error(t('document-library.uploading-file.message.size-error', { fileName }));
                 } else {
-                  NotificationManager.error(t('document-library.uploading-file.message.error', { fileName }));
+                  NotificationManager.error(
+                    t('document-library.uploading-file.message.error', {
+                      fileName: targetDirTitle,
+                      message:
+                        typeCurrentItem === NODE_TYPES.DIR ? t('document-library.child-name.folder') : t('document-library.child-name.file')
+                    })
+                  );
                 }
               }
 
               break;
 
-            case 'success':
+            case WORKER_STATUSES.UPLOAD_SUCCESS:
               setIsReadyLoadData(true);
               break;
 
@@ -175,7 +182,7 @@ const UploadStatus = () => {
           }
         }
 
-        if (type === 'CONFIRMATION_RENAME_DIR_REQUEST') {
+        if (type === SERVICE_WORKER_TYPES.RENAME_DIR_REQUEST) {
           if (typeCurrentItem === NODE_TYPES.FILE) {
             const lastDotIndex = currentItemTitle.lastIndexOf('.');
             const extension = lastDotIndex !== -1 ? currentItemTitle.substring(lastDotIndex + 1) : null;
@@ -210,7 +217,7 @@ const UploadStatus = () => {
   const handleConfirmResponse = confirmed => {
     setShowConfirmModal(false);
     navigator.serviceWorker.controller.postMessage({
-      type: 'CONFIRMATION_FILE_RESPONSE',
+      type: SERVICE_WORKER_TYPES.FILE_RESPONSE,
       confirmed,
       isReplaceAllFiles
     });
@@ -225,7 +232,7 @@ const UploadStatus = () => {
     }
 
     navigator.serviceWorker.controller.postMessage({
-      type: 'CONFIRMATION_RENAME_DIR_RESPONSE',
+      type: SERVICE_WORKER_TYPES.RENAME_DIR_RESPONSE,
       confirmedRenameItem,
       titleRenamingItem: title
     });
@@ -246,7 +253,7 @@ const UploadStatus = () => {
   const isDisabledInputRenaming =
     isEmptyInputRenaming || (parentItemsTitles && titleRenamingItem && parentItemsTitles.includes(currentTitleRenaming.trim()));
 
-  if (status && status === 'confirm-file-replacement') {
+  if (status && status === WORKER_STATUSES.CONFIRM_FILE_REPLACE) {
     return showConfirmModal && get(fileDataConfirm, 'file.name') ? (
       <div className="citeck-file-replacement-modal">
         <div className="citeck-file-replacement-modal__card">

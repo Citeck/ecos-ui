@@ -576,7 +576,7 @@
   "document-library.create-node.fields.content": "Content",
   "document-library.uploading-file.message.success": "File \"{{file}}\" has been successfully uploaded to the folder \"{{folder}}\"",
   "document-library.uploading-file.message.info.error": "Error when receiving information about the file",
-  "document-library.uploading-file.message.error": "An error occurred while uploading the file «{{ fileName }}»",
+  "document-library.uploading-file.message.error": "An error occurred while {{ message }} «{{ fileName }}»",
   "document-library.uploading-file.message.size-error": "Error uploading the file «{{ fileName }}»: The file is too large",
   "document-library.uploading-file.message.abort": "Unable to upload file(s)",
   "document-library.uploading-folder.message.abort": "Error during folder upload",
@@ -588,7 +588,7 @@
   "document-library.child-name.folder2": "create a folder",
   "document-library.child-name.folder3": "the created folder",
   "document-library.child-name.file": "uploading a file",
-  "document-library.child-name.file2": "upload a file",
+  "document-library.child-name.file2": "create a file",
   "document-library.child-name.file3": "the uploaded file",
 
   "kanban.label.big-total": "Total: {{count}}",
@@ -3071,6 +3071,8 @@
   "insert": "Insert",
   "add": "Add",
   "remove": "Remove",
+  "more": "More",
+
   "gantt.settings.title": "Gantt Chart Settings",
   "gantt.settings.data-type.label": "Data Type",
   "gantt.settings.data-type.standalone": "Standalone - Manual data entry",

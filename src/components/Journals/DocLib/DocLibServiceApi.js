@@ -6,7 +6,7 @@ import { SourcesId } from '../../../constants';
 import { getWorkspaceId } from '../../../helpers/urls';
 import Records from '../../Records/Records';
 
-class DocLibServiceApi {
+export class DocLibServiceApi {
   static defaultAttributes = {
     id: '?id',
     title: '?disp',

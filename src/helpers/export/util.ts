@@ -6,8 +6,9 @@ export const COOKIE_KEY_LOCALE = 'alf_share_locale';
 const LOCALE_EN = 'en';
 
 export function getCookie(name: string) {
-  // eslint-disable-next-line
-  let matches = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)'));
+  const matches =
+    typeof document !== 'undefined' &&
+    document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)'));
 
   return matches ? decodeURIComponent(matches[1]) : undefined;
 }
@@ -19,7 +20,7 @@ export function getCurrentLocale() {
     return cookiesLocale.substr(0, 2).toLowerCase();
   }
 
-  if (!window.navigator) {
+  if (typeof window === 'undefined' || !window.navigator) {
     return LOCALE_EN;
   }
 

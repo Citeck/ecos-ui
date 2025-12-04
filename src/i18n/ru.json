@@ -510,7 +510,7 @@
   "document-library.create-node.fields.content": "Содержимое",
   "document-library.uploading-file.message.success": "Файл \"{{file}}\" успешно загружен в папку \"{{folder}}\"",
   "document-library.uploading-file.message.info.error": "Ошибка при получении информации о файле",
-  "document-library.uploading-file.message.error": "При загрузке файла «{{ fileName }}» возникла ошибка",
+  "document-library.uploading-file.message.error": "При {{ message }} «{{ fileName }}» возникла ошибка",
   "document-library.uploading-file.message.size-error": "Ошибка при загрузке файла «{{ fileName }}»: Файл слишком велик",
   "document-library.uploading-file.message.abort": "Невозможно загрузить файл(ы)",
   "document-library.uploading-folder.message.abort": "Ошибка при загрузке папки",
@@ -522,7 +522,7 @@
   "document-library.child-name.folder2": "создать папку",
   "document-library.child-name.folder3": "созданной папке",
   "document-library.child-name.file": "загрузке файла",
-  "document-library.child-name.file2": "загрузить файл",
+  "document-library.child-name.file2": "создать файл",
   "document-library.child-name.file3": "загруженному файлу",
 
   "editor.format-bold": "Жирный",
@@ -3070,6 +3070,8 @@
   "insert": "Вставить",
   "add": "Добавить",
   "remove": "Удалить",
+  "more": "Еще",
+
   "gantt.settings.title": "Настройки диаграммы Ганта",
   "gantt.settings.data-type.label": "Тип данных",
   "gantt.settings.data-type.standalone": "Автономная - Ручной ввод данных",
