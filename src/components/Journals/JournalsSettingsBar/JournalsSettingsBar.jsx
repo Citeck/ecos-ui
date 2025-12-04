@@ -95,6 +95,7 @@ const JournalsSettingsBar = ({
 }) => {
   const journalSettingsBarRef = useRef(null);
   const [isCollapsed, setIsCollapsed] = React.useState(false);
+  const [isHideTextPagination, setIsHideTextPagination] = React.useState(false);
   const showWidgets = getBool(get(getSearchParams(), JUP.VIEW_WIDGET_PREVIEW));
   const [isOpenDropdownExport, setIsOpenDropdownExport] = useState(false);
   const [isOpenDropdownImport, setIsOpenDropdownImport] = useState(false);
@@ -121,6 +122,13 @@ const JournalsSettingsBar = ({
           setIsCollapsed(false);
         } else {
           setIsCollapsed(true);
+        }
+
+        console.log('entries[0].contentRect.width:', entries[0].contentRect.width);
+        if (entries[0].contentRect.width < 630) {
+          setIsHideTextPagination(true);
+        } else {
+          setIsHideTextPagination(false);
         }
       }
     });
@@ -368,7 +376,8 @@ const JournalsSettingsBar = ({
         {isViewNewJournal && (
           <div
             className={classNames('ecos-journal__settings-bar-container', {
-              'ecos-journal__settings-bar-container_mobile': isMobile
+              'ecos-journal__settings-bar-container_mobile': isMobile,
+              'ecos-journal__hide-text-pagination': isHideTextPagination
             })}
           >
             <div className="ecos-journal__settings-bar-right-side">
