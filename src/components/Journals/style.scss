@@ -8,6 +8,10 @@
   overflow-x: auto;
   display: flex;
 
+  &__hide-text-pagination .ecos-pagination__text {
+    display: none;
+  }
+
   &-view {
     &__total {
       font-size: 12px;
