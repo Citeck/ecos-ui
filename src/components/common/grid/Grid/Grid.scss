@@ -204,6 +204,10 @@ $header-height: 44px;
     position: relative;
     border-bottom: 2px $color-gray-4 solid;
 
+    &:hover .ecos-grid__inline-tools-container {
+      display: block;
+    }
+
     &_new {
       border-bottom: none;
     }
@@ -224,6 +228,7 @@ $header-height: 44px;
   }
 
   &__inline-tools-container {
+    display: none;
     position: -webkit-sticky;
     position: sticky;
     right: 0;

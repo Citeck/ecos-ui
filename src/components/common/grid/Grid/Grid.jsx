@@ -162,7 +162,7 @@ class Grid extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { byContentHeight, resizableColumns, columns, selected, isResetSettings, loading, isViewNewJournal, data } = this.props;
+    const { byContentHeight, resizableColumns, columns, selected, isResetSettings, loading, isViewNewJournal } = this.props;
     const { maxHeight } = this.state;
     const current = this._ref.current;
 
@@ -204,13 +204,6 @@ class Grid extends Component {
     }
 
     if (current) {
-      if (prevProps.loading !== loading || (!loading && prevProps.data.length > data.length)) {
-        this.updateInlineToolsElementOfLoading(
-          isEmpty(prevProps.editingRules) && !isEmpty(this.props.editingRules),
-          !loading && prevProps.loading === loading && prevProps.data.length > data.length
-        );
-      }
-
       const headerElement = current.querySelector(`.${ECOS_GRID_HEADER}`);
       const headerLoaderElement = current.querySelector(`.${ECOS_GRID_HEADER_LOADER}`);
 
@@ -231,6 +224,23 @@ class Grid extends Component {
       } else if (headerLoaderElement && !loading) {
         root?.unmount();
         headerLoaderElement.remove();
+      }
+
+      if (
+        this.state.selectedRowId &&
+        this.props.changeTrOptionsByRowClick &&
+        !current.querySelector(`.${HAS_INLINE_TOOLS_CLASS}`) &&
+        !loading
+      ) {
+        const foundSelectedElementActions = document.getElementById('inline-tools_' + this.state.selectedRowId);
+        if (!foundSelectedElementActions) {
+          return;
+        }
+
+        const rowElement = foundSelectedElementActions.closest('tr');
+        if (rowElement) {
+          rowElement.classList.add(HAS_INLINE_TOOLS_CLASS);
+        }
       }
     }
 
@@ -443,6 +453,16 @@ class Grid extends Component {
 
         return column;
       });
+
+      options.columns = [
+        ...options.columns,
+        {
+          formatter: this.initActionsFormatter(),
+          attrs: {
+            className: ECOS_GRID_INLINE_TOOLS_CONTAINER
+          }
+        }
+      ];
     }
 
     if (props.editable) {
@@ -454,35 +474,15 @@ class Grid extends Component {
     options.rowEvents = {
       onMouseEnter: e => {
         const tr = e.currentTarget;
-        let settingInlineTools = {};
-
         if (props.changeTrOptionsByRowClick) {
           this.setHover(tr, ECOS_GRID_HOVERED_CLASS, false, this._tr);
-        } else {
-          settingInlineTools = this.getTrOptions(tr);
         }
 
         const { onMouseEnter } = props;
         isFunction(onMouseEnter) && onMouseEnter(e);
-
-        const hasInlineToolsElement = !!tr.querySelector(`.${ECOS_GRID_INLINE_TOOLS_CONTAINER}`);
-
-        if (hasInlineToolsElement) {
-          return;
-        }
-
-        if (!props.changeTrOptionsByRowClick) {
-          this.appendInlineToolsElement(tr, settingInlineTools);
-        }
       },
       onMouseLeave: e => {
-        const relatedTarget = e.relatedTarget;
         const currentTarget = e.currentTarget;
-        const insideInlineToolsContainer =
-          relatedTarget && this.isInsideInlineToolsContainer(relatedTarget, ECOS_GRID_INLINE_TOOLS_CONTAINER);
-        if (insideInlineToolsContainer) {
-          return;
-        }
 
         if (props.changeTrOptionsByRowClick) {
           this.setHover(currentTarget, ECOS_GRID_HOVERED_CLASS, true);
@@ -494,21 +494,19 @@ class Grid extends Component {
         if (isFunction(onRowMouseLeave)) {
           onRowMouseLeave(e);
         }
-
-        if (!props.changeTrOptionsByRowClick) {
-          this.removeInlineToolsElement(currentTarget);
-        }
       },
       onClick: e => {
         const currentTarget = e.currentTarget;
 
         if (props.changeTrOptionsByRowClick) {
-          const settingInlineTools = this.getTrOptions(currentTarget);
-
-          this.removeInlineToolsElement();
+          const viewActionsElement = document.querySelector(`.${HAS_INLINE_TOOLS_CLASS}`);
+          if (viewActionsElement) {
+            viewActionsElement.classList.remove(HAS_INLINE_TOOLS_CLASS);
+          }
 
           if (get(this.props.data[currentTarget.rowIndex - 1], 'id') !== this.state.selectedRowId) {
-            this.appendInlineToolsElement(currentTarget, settingInlineTools);
+            currentTarget.classList.add(HAS_INLINE_TOOLS_CLASS);
+            currentTarget.attributes.id = get(this.props.data[currentTarget.rowIndex - 1], 'id');
           }
         }
 
@@ -620,69 +618,6 @@ class Grid extends Component {
     this._lastHoverTrIndex = null;
   };
 
-  updateInlineToolsElementOfLoading = (isFindFocusTr = false, isDecreaseDataInForm = false) => {
-    const current = this._ref.current;
-    if (!current) {
-      return;
-    }
-
-    let trEl = current.querySelector(`.${ECOS_GRID_INLINE_TOOLS_CONTAINER}`)?.closest('tr');
-
-    if (!trEl) {
-      if ((!isFindFocusTr && !isDecreaseDataInForm) || !this._lastHoverTrIndex) {
-        return;
-      }
-
-      const rowIndex = this._lastHoverTrIndex - isDecreaseDataInForm ? 0 : 1; // because inline Loader also tr element
-      const target = Array.from(current.querySelectorAll('tr')).find(t => t.rowIndex === rowIndex);
-
-      if (!target) {
-        return;
-      }
-
-      trEl = target;
-    }
-
-    trEl._inlineToolsRoot?.unmount();
-    const settingInlineTools = this.getTrOptions(trEl);
-    this.appendInlineToolsElement(trEl, settingInlineTools);
-  };
-
-  appendInlineToolsElement = (currentTarget, settingInlineTools) => {
-    const inlineToolsElement = document.createElement('td');
-    inlineToolsElement.className = ECOS_GRID_INLINE_TOOLS_CONTAINER;
-    this._lastHoverTrIndex = currentTarget.rowIndex || null;
-
-    const renderInlineTools = element => {
-      if (element) {
-        const root = createRoot(inlineToolsElement);
-        root.render(element);
-
-        currentTarget.appendChild(inlineToolsElement);
-        currentTarget.classList.add(HAS_INLINE_TOOLS_CLASS);
-        currentTarget._inlineToolsRoot = root;
-      }
-    };
-
-    if (!isEmpty(settingInlineTools) && isFunction(this.props.inlineTools)) {
-      const inlineTools = this.inlineTools(settingInlineTools);
-      renderInlineTools(inlineTools);
-    } else if (isFunction(this.props.inlineActions)) {
-      const inlineActions = this.props.inlineActions(get(settingInlineTools, 'row.id') || null);
-      renderInlineTools(inlineActions);
-    }
-  };
-
-  isInsideInlineToolsContainer = (element, containerClass) => {
-    while (element) {
-      if (element.classList && element.classList.contains(containerClass)) {
-        return true;
-      }
-      element = element.parentElement;
-    }
-    return false;
-  };
-
   checkColumnEditable = (...data) => {
     const { editingRules = {} } = this.props;
     const [column, , row] = data;
@@ -787,6 +722,21 @@ class Grid extends Component {
           </div>
         </ErrorCell>
       );
+    };
+  };
+
+  initActionsFormatter = () => {
+    return (cell, row, rowIndex) => {
+      const settingInlineTools = { row, position: rowIndex };
+      let content = cell;
+
+      if (!isEmpty(settingInlineTools) && isFunction(this.props.inlineTools)) {
+        content = this.inlineTools(settingInlineTools);
+      } else if (isFunction(this.props.inlineActions)) {
+        content = this.props.inlineActions(get(row, 'id') || null);
+      }
+
+      return content;
     };
   };
 
@@ -1197,9 +1147,9 @@ class Grid extends Component {
   onRowClick = tr => {
     this.setHover(tr, ECOS_GRID_HOVERED_CLASS, true);
 
-    const { onRowClick } = this.props;
+    const { onRowClick, loading } = this.props;
 
-    const selectedRowId = get(this.props.data[tr.rowIndex - 1], 'id', null);
+    const selectedRowId = get(this.props.data[tr.rowIndex - (loading ? 2 : 1)], 'id', null);
     if (selectedRowId !== this.state.selectedRowId) {
       this.setState({ selectedRowId });
     } else {
@@ -1495,7 +1445,7 @@ class Grid extends Component {
     ]);
 
     const bootProps = this.getBootstrapTableProps(props, cloneDeep(extraProps));
-    const rulesKey = `table-${isEmpty(this.props.editingRules) ? 'without' : 'with'}-rules-${JSON.stringify(this.props.editingRules || {})}`;
+    const rulesKey = `table-${isEmpty(this.props.editingRules) ? 'without' : 'with'}-rules-${JSON.stringify(this.props.editingRules || {})}_loading-${this.props.loading}_length-${this.props.data.length}`;
 
     return (
       <div ref={this.setGridRef}>
