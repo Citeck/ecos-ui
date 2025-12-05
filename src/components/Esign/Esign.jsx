@@ -14,7 +14,12 @@ import './style.scss';
 
 class EsignComponent extends Component {
   static propTypes = {
-    recordRefs: PropTypes.arrayOf(PropTypes.string).isRequired,
+    recordRefs: PropTypes.arrayOf(
+                    PropTypes.oneOfType([
+                      PropTypes.string,
+                      PropTypes.object
+                    ])
+                  ).isRequired,
     thumbprints: PropTypes.arrayOf(PropTypes.string),
     /**
      * callback function upon successful signing of a document
@@ -158,7 +163,14 @@ class EsignComponent extends Component {
 
     if (isFunction(onBeforeSigning)) {
       try {
-        await onBeforeSigning(recordRefs, selectedCertificate);
+        const composedRefs = recordRefs.map(document => {
+          if (typeof document === 'string') {
+            return document;
+          } else if (typeof document === 'object' && document !== null) {
+            return  document.recordRef;
+          }
+        })
+        await onBeforeSigning(composedRefs, selectedCertificate);
         Esign.signDocument(this.props.recordRefs, selectedCertificate, this.setSignatures).then(this.documentSigned).catch(this.setError);
       } catch (e) {
         console.error('[EsignComponent] Error in handleSignDocument:', e);

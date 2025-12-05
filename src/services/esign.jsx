@@ -200,7 +200,7 @@ class Esign {
     return objectByString({ action: action ? t(Labels.ACTION, { action }) : '', ...error });
   };
 
-  static signDocumentByNode = async (thumbprint, document) => {
+  static signDocumentByNode = async (thumbprint, document, contentAtt = "") => {
     try {
       if (!thumbprint) {
         return Promise.reject({
@@ -219,7 +219,7 @@ class Esign {
         hasAlfresco = await ConfigService.getValue(ALFRESCO_ENABLED);
       }
 
-      const documentResponse = await api.getDocumentData(document, hasAlfresco);
+      const documentResponse = await api.getDocumentData(document, contentAtt, hasAlfresco);
       const base64 = get(documentResponse, hasAlfresco ? 'data.0.base64' : 'records[0].data', '');
 
       if (!base64) {
@@ -300,8 +300,17 @@ class Esign {
         });
       }
 
+      //TODO add here?
       const signStatuses = await Promise.all(
-        documents.map(async document => await Esign.signDocumentByNode(certificate.thumbprint, document))
+        documents.map(async document => {
+          if (typeof document === 'string') {
+            return await Esign.signDocumentByNode(certificate.thumbprint, document)
+          } else if (typeof document === 'object' && document !== null) {
+            return await Esign.signDocumentByNode(certificate.thumbprint, document.recordRef, document.contentAtt)
+          } else {
+            console.log('EsignService signDocument warn. Document would not be signed. Unknown type: ' + document);
+          }
+        })
       );
 
       const stringSignatures = signStatuses.filter(status => isString(status.success));
