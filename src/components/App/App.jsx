@@ -214,17 +214,17 @@ class App extends Component {
   }
 
   renderMenu() {
-    const { menuType } = this.props;
+    const { menuType, isMobile } = this.props;
 
     if (this.isOnlyContent) {
-      return <SidebarSkeleton />;
+      return !isMobile ? <SidebarSkeleton /> : null;
     }
 
     if (menuType === MenuTypes.LEFT) {
       return <Menu id={BASE_LEFT_MENU_ID} />;
     }
 
-    return <SidebarSkeleton />;
+    return !isMobile ? <SidebarSkeleton /> : null;
   }
 
   renderHeader() {
@@ -477,7 +477,7 @@ class App extends Component {
     const { isInit, isInitFailure, isMobile, isViewNewJournal } = this.props;
 
     if (!isInit) {
-      return <PageLoader  />;
+      return <PageLoader withoutSidebar={isMobile} />;
     }
 
     const appClassNames = classNames('app-container', { mobile: isMobile, new: isViewNewJournal });

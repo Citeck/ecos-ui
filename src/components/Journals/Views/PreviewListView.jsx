@@ -141,6 +141,10 @@ class PreviewListView extends React.Component {
     const { total } = grid || {};
 
     if (isTilesContent && isPreviewList(urlParams.viewMode || viewMode)) {
+      if (isMobile) {
+        return null;
+      }
+
       return <h5 className="ecos-journal-view__total">{t('preview-list.bar.total', { total })}</h5>;
     }
 
