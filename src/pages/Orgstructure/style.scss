@@ -5,6 +5,19 @@
 }
 
 .orgstructure-page {
+  &__back-link {
+    margin: 0 0 10px 0;
+    padding: 12px;
+    color: var(--dark-primary-color);
+    font-size: 14px;
+    font-weight: 500;
+    top: 58px;
+    z-index: 101;
+    background-color: $color-white;
+    width: 100%;
+    box-shadow: $box-shadow-default;
+  }
+
   &__grid {
     &-container {
       display: grid;
@@ -13,6 +26,22 @@
       grid-column-gap: 24px;
       grid-row-gap: 0px;
       height: 100%;
+
+      &.mobile {
+        display: flex;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+
+        & .orgstructure-page__grid-layout {
+          padding-top: 0;
+          width: 100%;
+
+          & .ecos-layout {
+            padding: 0 4px;
+          }
+        }
+      }
     }
 
     &-main {
@@ -25,6 +54,11 @@
       background-color: white;
       border: 1px solid $color-gray-4;
       border-radius: 12px;
+
+      &.mobile {
+        margin: 0;
+        border-radius: 0;
+      }
     }
 
     &-layout {
