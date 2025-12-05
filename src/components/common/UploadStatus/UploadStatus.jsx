@@ -167,7 +167,7 @@ const UploadStatus = () => {
                 } else {
                   NotificationManager.error(
                     t('document-library.uploading-file.message.error', {
-                      fileName: targetDirTitle,
+                      fileName: typeCurrentItem === NODE_TYPES.DIR ? targetDirTitle : fileName,
                       message:
                         typeCurrentItem === NODE_TYPES.DIR ? t('document-library.child-name.folder') : t('document-library.child-name.file')
                     })
