@@ -93,7 +93,7 @@ class ViewTabs extends React.Component {
 
     return (
       <div className="ecos-journal__view-tabs">
-        {!isMobile && (
+        {(!isMobile || isDocLibEnabled || isPreviewListEnabled) && (
           <Tooltip off={isMobile} target={target(JVM.TABLE)} text={t(Labels.Views.JOURNAL)} uncontrolled modifiers={tooltipModifiers}>
             <IcoBtn
               id={target(JVM.TABLE)}

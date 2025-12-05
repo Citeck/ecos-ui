@@ -124,7 +124,6 @@ const JournalsSettingsBar = ({
           setIsCollapsed(true);
         }
 
-        console.log('entries[0].contentRect.width:', entries[0].contentRect.width);
         if (entries[0].contentRect.width < 630) {
           setIsHideTextPagination(true);
         } else {

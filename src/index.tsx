@@ -20,7 +20,7 @@ import { configureAPI } from './api';
 import App from './components/App';
 import IdleTimer from './components/IdleTimer';
 import { RESET_AUTH_STATE_EVENT, emitter } from './helpers/ecosFetch';
-import { getCurrentLocale, IS_TEST_ENV, isMobileAppWebView } from './helpers/util';
+import { getCurrentLocale, IS_TEST_ENV, isMobileAppWebView, isMobileDevice } from './helpers/util';
 import { i18nInit } from './i18n';
 import plugins from './plugins';
 import { register as registerServiceWorker } from './serviceWorkerRegistration';
@@ -100,7 +100,7 @@ if (typeof window !== 'undefined') {
 
 const root = createRoot(document.getElementById('root') as HTMLElement);
 i18nInit({ debug: allowedModes.includes(process.env.NODE_ENV) }).then(() => {
-  root.render(<PageLoader />);
+  root.render(<PageLoader withoutSidebar={isMobileDevice()} />);
 });
 
 const runApp = () => {
