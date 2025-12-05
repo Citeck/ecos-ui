@@ -25,6 +25,7 @@ export default class Pagination extends Component {
     isMobile: PropTypes.bool,
     noData: PropTypes.bool,
     noCtrl: PropTypes.bool,
+    searching: PropTypes.bool,
     loading: PropTypes.bool
   };
 
@@ -40,14 +41,15 @@ export default class Pagination extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { page: PPage } = this.props;
+    const { page: PPage, searching } = this.props;
     const { page: SPage } = this.state;
 
     const searchParams = new URLSearchParams(window.location.search);
 
     if (
       (!SPage && PPage) ||
-      ((!!searchParams.get('search')?.trim() || !!searchParams.get('recordRef')?.trim()) && prevProps.page !== PPage && PPage === 1)
+      ((!!searchParams.get('search')?.trim() || !!searchParams.get('recordRef')?.trim()) && prevProps.page !== PPage && PPage === 1) ||
+      (prevProps.searching !== searching && !!searching)
     ) {
       this.setState({ page: PPage });
     }
