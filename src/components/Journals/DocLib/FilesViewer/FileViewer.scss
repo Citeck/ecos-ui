@@ -4,8 +4,6 @@
   $element: &;
 
   overflow-y: auto;
-  margin-right: -5px;
-  padding-right: 5px;
 
   $baseHeight: 280px;
   $breadCrumbsHeight: 72px;
@@ -16,7 +14,7 @@
   max-height: calc(100vh - #{$baseHeight});
 
   &-well {
-    padding: 12px 0;
+    padding: 0;
     position: relative;
     border: 1px solid $color-gray-4;
   }
