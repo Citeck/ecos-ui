@@ -29,7 +29,7 @@ import {
   ROOT_GROUP_NAME,
   TabTypes
 } from '@/components/common/Orgstruct/constants';
-import { decodeLink, getSearchParams, getSortedUrlParams, pushHistoryLink, replaceHistoryLink } from '@/helpers/urls';
+import { decodeLink, getSearchParams, getSortedUrlParams, pushHistoryLink, replaceHistoryLink, updateCurrentUrl } from '@/helpers/urls';
 import { t } from '@/helpers/util';
 import DashboardService from '@/services/dashboard';
 import PageTabList from '@/services/pageTabs/PageTabList';
@@ -64,7 +64,8 @@ const controlProps = {
 };
 
 const Labels = {
-  NO_DATA_TEXT: 'orgstructure-page-no-picked-person-text'
+  NO_DATA_TEXT: 'orgstructure-page-no-picked-person-text',
+  BACK_TO_ORGSTRUCT: 'orgstructure-page-back-link'
 };
 
 const getStateId = state => {
@@ -188,6 +189,10 @@ class Orgstructure extends React.Component {
       }
     }
   }
+
+  clearSelectPerson = () => {
+    updateCurrentUrl({ recordRef: '' });
+  };
 
   prepareWidgetsConfig = (data, dnd) => {
     const activeLayout = cloneDeep(this.activeLayout);
@@ -365,7 +370,7 @@ class Orgstructure extends React.Component {
     );
   }
 
-  renderDashboard() {
+  renderDashboard(isRenderBackText = false) {
     const { config = {}, menuType, isMobile, tabId, isLoading, recordRef } = this.props;
     const { activeTab } = this.state;
     const activeLayout = config[activeTab];
@@ -378,6 +383,11 @@ class Orgstructure extends React.Component {
     return (
       <div className="orgstructure-page__grid-layout">
         {this.renderTabs()}
+        {isRenderBackText && (
+          <h4 className="orgstructure-page__back-link" onClick={this.clearSelectPerson}>
+            {t(Labels.BACK_TO_ORGSTRUCT)}
+          </h4>
+        )}
         <Layout
           className={classNames({ 'ecos-layout_mobile': isMobile })}
           menuType={menuType}
@@ -397,14 +407,22 @@ class Orgstructure extends React.Component {
   }
 
   render() {
+    const { config = {}, recordRef, isMobile } = this.props;
+    const { activeTab } = this.state;
+    const activeLayout = config[activeTab];
+    const hasDashboardContent = !!activeLayout && !!recordRef;
+    const isViewOrgstructure = !isMobile || (isMobile && !hasDashboardContent);
+
     return (
-      <div className="orgstructure-page__grid-container">
-        <div className="orgstructure-page__grid-main">
-          <OrgstructProvider orgStructApi={api} controlProps={controlProps}>
-            <Structure tabId={this.props.tabId} toggleToFirstTab={this.toggleToFirstTab} />
-          </OrgstructProvider>
-        </div>
-        {this.renderDashboard()}
+      <div className={classNames('orgstructure-page__grid-container', { mobile: isMobile })}>
+        {isViewOrgstructure && (
+          <div className={classNames('orgstructure-page__grid-main', { mobile: isMobile })}>
+            <OrgstructProvider orgStructApi={api} controlProps={controlProps}>
+              <Structure tabId={this.props.tabId} toggleToFirstTab={this.toggleToFirstTab} />
+            </OrgstructProvider>
+          </div>
+        )}
+        {(!isViewOrgstructure || !isMobile) && this.renderDashboard(!isViewOrgstructure && isMobile)}
       </div>
     );
   }
@@ -412,6 +430,7 @@ class Orgstructure extends React.Component {
 
 const mapStateToProps = (state, ownProps) => {
   return {
+    isMobile: get(state, 'view.isMobile'),
     recordRef: get(state, 'orgstructure.id'),
     config: get(state, ['dashboard', ownProps.tabId, 'config']),
     isLoading: get(state, ['dashboard', ownProps.tabId, 'isLoading'])

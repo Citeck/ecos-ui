@@ -2682,6 +2682,7 @@
   "proc-def-admin.action.open-proc-editor.error": "Действие для перехода в редактор недоступно",
 
   "orgstructure-page-no-picked-person-text": "Открыть профиль пользователя",
+  "orgstructure-page-back-link": "Вернуться в оргструктуру",
   "orgstructure-page-title": "Оргструктура",
   "orgstructure-page-add-group": "Создать группу",
   "orgstructure-edit-modal-title-person": "Добавить пользователя в группу",
