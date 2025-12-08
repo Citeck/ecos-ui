@@ -238,7 +238,6 @@ export default class HeaderFormatter extends Component {
   handleOpenSettings = () => {
     const { onOpenSettings } = this.props;
 
-    console.log('onOpenSettings:', onOpenSettings);
     if (isFunction(onOpenSettings)) {
       onOpenSettings();
 
