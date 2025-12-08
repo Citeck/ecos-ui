@@ -26,6 +26,9 @@ import CustomEventEmitter from '@/forms/EventEmitter';
 import { getSearchParams } from '@/helpers/urls';
 import { getCurrentLocale, getMLValue, isMobileDevice, strSplice, t } from '@/helpers/util';
 import ESMRequire from '@/services/ESMRequire';
+import AuthorityService from '@/services/authrority/AuthorityService';
+import { NotificationManager } from '@/services/notifications';
+
 import './formio.full.min.css';
 import './glyphicon-to-fa.scss';
 import '../../forms/style.scss';
@@ -129,6 +132,7 @@ class EcosForm extends React.Component {
       i18n: 'i18n?json',
       width: 'width',
       atts: 'attributes?json',
+      isSystem: 'system?bool',
       formId: '?localId'
     };
 
@@ -211,7 +215,7 @@ class EcosForm extends React.Component {
         canWritePromise = EcosFormUtils.hasWritePermission(recordId, true);
       }
 
-      const canEditSettingsPromise = EcosFormUtils.hasWritePermission(formId, true);
+      const canEditSettingsPromise = AuthorityService.hasConfigWritePermission(formId);
 
       if (isDebugModeOn) {
         options.isDebugModeOn = isDebugModeOn;
@@ -226,7 +230,7 @@ class EcosForm extends React.Component {
           options.canWrite = canWrite;
         }
 
-        options.showPreSettings = !canEditSettings;
+        options.showPreSettings = formData.isSystem ? true : !canEditSettings;
 
         const attributesTitles = {};
 
@@ -516,13 +520,17 @@ class EcosForm extends React.Component {
       this._formBuilderModal.show(
         definitionToEdit,
         form => {
-          EcosFormUtils.saveFormBuilder(form, formId).then(() => {
-            EcosFormUtils.getFormById(formId, 'definition?json', true).then(newFormDef => {
-              this.initForm(newFormDef);
-              isFunction(onFormSubmitDone) && onFormSubmitDone();
-              isFunction(callback) && callback(newFormDef);
+          EcosFormUtils.saveFormBuilder(form, formId)
+            .then(() => {
+              EcosFormUtils.getFormById(formId, 'definition?json', true).then(newFormDef => {
+                this.initForm(newFormDef);
+                isFunction(onFormSubmitDone) && onFormSubmitDone();
+                isFunction(callback) && callback(newFormDef);
+              });
+            })
+            .catch(e => {
+              NotificationManager.error(e.message);
             });
-          });
         },
         options
       );
@@ -531,6 +539,7 @@ class EcosForm extends React.Component {
 
   submitForm = debounce(
     (form, submission, forceSave = false, submissionResolve, submissionReject) => {
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
       const self = this;
       const { recordId, containerId } = this.state;
       const inputs = EcosFormUtils.getFormInputs(form.component);

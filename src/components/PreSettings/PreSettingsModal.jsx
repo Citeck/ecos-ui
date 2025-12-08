@@ -122,7 +122,7 @@ class PreSettingsModal extends React.Component {
           )}`
         );
       }
-    });
+    }).catch(err => console.error(err));
   };
 
   fetchRollbackAttributes = () => {
