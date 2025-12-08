@@ -1411,6 +1411,9 @@ const AIAssistantChat = () => {
           {activeTab === TAB_TYPES.UNIVERSAL && (
             <div className="ai-assistant-chat__capabilities">
               <div className="ai-assistant-chat__capability">
+                <strong>🏗️ Бизнес-приложения:</strong> генерация полноценных приложений из описания
+              </div>
+              <div className="ai-assistant-chat__capability">
                 <strong>📋 Типы данных:</strong> создание, редактирование и анализ
               </div>
               <div className="ai-assistant-chat__capability">
@@ -1428,10 +1431,10 @@ const AIAssistantChat = () => {
 
               <p className="ai-assistant-chat__hint">
                 <strong>Примеры запросов:</strong><br />
+                • "Создай приложение для бронирования переговорных комнат"<br />
                 • "Создай тип данных для заявки на отпуск"<br />
                 • "Проанализируй документ @карточка"<br />
                 • "Расскажи о клиенте @карточка"<br />
-                • "Проанализируй документ @название_документа"<br />
                 • "Что ты умеешь делать?"
               </p>
 
