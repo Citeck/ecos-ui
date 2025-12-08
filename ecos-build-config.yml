@@ -9,7 +9,7 @@ properties:
         - heatmap:1.12.0
         - charts-widget:1.5.0-snapshot
         - stages-widget:1.6.0
-        - kanban-widget:1.8.0
+        - kanban-widget:1.9.0-snapshot
         - activities-widget:1.5.0-snapshot
         - gantt-chart-widget:1.0.1-snapshot
     - enterprise: false
