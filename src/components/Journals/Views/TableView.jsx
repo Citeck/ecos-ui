@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import get from 'lodash/get';
+import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isEqualWith from 'lodash/isEqualWith';
@@ -129,8 +130,8 @@ class TableView extends React.Component {
     this.setState({ isClose: true });
   }
 
-  handleToggleSettings = () => {
-    this.setState(({ settingsVisible }) => ({ settingsVisible: !settingsVisible }));
+  handleToggleSettings = flag => {
+    this.setState(({ settingsVisible }) => ({ settingsVisible: isBoolean(flag) ? flag : !settingsVisible }));
   };
 
   getSelectedBoardFromUrl() {
@@ -210,6 +211,7 @@ class TableView extends React.Component {
           <Bar
             {...this.props}
             settingsVisible={this.state.settingsVisible}
+            onToggleSettings={this.handleToggleSettings}
             hasWritePermission={get(journalConfig, 'hasWritePermission', false)}
             hasBtnEdit={() => hasBtnEdit(configRec)}
             onEditJournal={() => onEditJournal(configRec)}

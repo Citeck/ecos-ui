@@ -32,10 +32,11 @@ class Bar extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { settingsVisible } = this.props;
+    const { settingsVisible, onToggleSettings } = this.props;
 
     if (prevProps.settingsVisible !== settingsVisible && settingsVisible !== this.state.settingsVisible) {
       this.setState({ settingsVisible, isReset: false });
+      onToggleSettings && onToggleSettings(settingsVisible);
     }
   }
 
@@ -45,7 +46,11 @@ class Bar extends Component {
   }
 
   handleToggleSettings = () => {
-    this.setState(({ settingsVisible }) => ({ settingsVisible: !settingsVisible, isReset: false }));
+    const { onToggleSettings } = this.props;
+    this.setState(
+      ({ settingsVisible }) => ({ settingsVisible: !settingsVisible, isReset: false }),
+      () => onToggleSettings && onToggleSettings(this.state.settingsVisible)
+    );
   };
 
   handleApplySettings = (isChangedPredicates, settings) => {
