@@ -48,7 +48,7 @@ import { wrapArgs } from '@/helpers/redux';
 import { showModalJson } from '@/helpers/tools';
 import { equalsQueryUrls, getSearchParams, updateCurrentUrl } from '@/helpers/urls';
 import { animateScrollTo, getBool, getCurrentUserName, t } from '@/helpers/util';
-import { selectCommonJournalPageProps, selectWidgetsConfig } from '@/selectors/journals';
+import { selectCommonJournalPageProps, selectJournalConfig, selectWidgetsConfig } from '@/selectors/journals';
 import { selectIsViewNewJournal } from '@/selectors/view';
 import PageService, { PageTypes } from '@/services/PageService';
 import pageTabList from '@/services/pageTabs/PageTabList';
@@ -57,6 +57,7 @@ import './style.scss';
 
 const mapStateToProps = (state, props) => {
   const commonProps = selectCommonJournalPageProps(state, props.stateId);
+  const journalConfig = selectJournalConfig(state, props.stateId);
   const widgetsConfig = selectWidgetsConfig(state, props.stateId);
   const isViewNewJournal = selectIsViewNewJournal(state);
   const searchParams = getSearchParams();
@@ -65,10 +66,12 @@ const mapStateToProps = (state, props) => {
     isAdmin: get(state, 'user.isAdmin'),
     isMobile: get(state, 'view.isMobile'),
     pageTabsIsShow: get(state, 'pageTabs.isShow'),
+    location: get(state, 'router.location', {}),
     _url: window.location.href,
     isViewNewJournal,
     searchParams,
     widgetsConfig,
+    journalConfig,
     ...commonProps
   };
 };
@@ -78,6 +81,7 @@ const mapDispatchToProps = (dispatch, props) => {
 
   return {
     setUrl: urlParams => dispatch(setUrl(w(urlParams))),
+    reloadGrid: () => dispatch(reloadGrid(w())),
     toggleViewMode: viewMode => dispatch(toggleViewMode(w({ viewMode, stateId: props.stateId }))),
     execJournalAction: (records, action, context) => dispatch(execJournalAction(w({ records, action, context }))),
     getTypeRef: journalId => dispatch(getTypeRef(w({ journalId }))),
@@ -190,9 +194,32 @@ class Journals extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { _url, isActivePage, stateId, viewMode, tabId, isViewNewJournal, widgetsConfig, isLoadingGrid, searchParams } = this.props;
+    const {
+      _url,
+      isActivePage,
+      stateId,
+      viewMode,
+      tabId,
+      isViewNewJournal,
+      widgetsConfig,
+      isLoadingGrid,
+      searchParams,
+      location,
+      journalConfig,
+      reloadGrid
+    } = this.props;
+    const { reloadDataOnFocus } = journalConfig;
     const { journalId, initiatedWidgetsConfig } = this.state;
     const prevSearchParams = prevProps.searchParams;
+
+    if (
+      reloadDataOnFocus &&
+      !isEqual(prevProps.location, location) &&
+      (get(location, 'search', '').includes(journalId) || get(prevProps.location, 'search', '').includes(journalId)) &&
+      !isLoadingGrid
+    ) {
+      reloadGrid();
+    }
 
     const { isLeftPositionWidgets } = widgetsConfig || {};
     const prevIsLeftPositionWidgets = get(prevProps, 'widgetsConfig.isLeftPositionWidgets');
