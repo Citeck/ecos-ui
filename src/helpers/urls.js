@@ -616,6 +616,12 @@ export const getRecordRef = (sourceUrl = window.location.href) => {
   return isArray(recordRef) ? recordRef.shift() : recordRef;
 };
 
+export const getDashboardId = (sourceUrl = window.location.href) => {
+  const dashboardId = get(queryString.parseUrl(sourceUrl), 'query.dashboardId', '');
+
+  return isArray(dashboardId) ? dashboardId.shift() : dashboardId;
+};
+
 export const isUrl = value => {
   const str = value.toString();
 

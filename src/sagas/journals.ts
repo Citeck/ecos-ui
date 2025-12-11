@@ -1012,12 +1012,8 @@ function* loadGrid(
       const editingRules: IJournalState['grid']['editingRules'] = yield getGridEditingRules(api, gridData);
       let selectedRecords: string[] = [];
 
-      if (!!userConfigId) {
-        if (isEmpty(sharedSettings.selectedItems)) {
-          selectedRecords = get(gridData, 'data', []).map(item => item.id);
-        } else {
-          selectedRecords = sharedSettings.selectedItems || [];
-        }
+      if (!!userConfigId && !isEmpty(sharedSettings.selectedItems)) {
+        selectedRecords = sharedSettings.selectedItems || [];
       }
 
       if (!isEmpty(gridData.columns)) {
