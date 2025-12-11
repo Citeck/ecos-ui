@@ -33,7 +33,7 @@ export default class RecordCopyAction extends ActionsExecutor {
         },
         onSubmit: async submission => {
           const recordLocalId = submission.data.id;
-          const newRecId = record.id.replace(currentModuleId, recordLocalId);
+          const newRecId = record.id.replace('type$', '').replace(currentModuleId, recordLocalId);
 
           const notExists = await Records.get(newRecId).load(NOT_EXISTS_ATT, true);
 
