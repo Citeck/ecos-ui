@@ -60,7 +60,20 @@ export function getValue(element, key) {
   }
 
   if (element.type === PARTICIPANT_TYPE && key === 'processRef') {
-    return get(getBusinessObject(element), 'processRef.id', `Process_${uuidV4()}`);
+    let processRef = get(getBusinessObject(element), 'processRef.id', `Process_${uuidV4()}`);
+
+    if (element.recordRef && element.recordRef.includes('@')) {
+      const refId = element.recordRef.split('@')[1];
+      if (refId && refId.includes(':')) {
+        const prefixId = refId.split(':')[0];
+
+        if (prefixId && !processRef.includes(`${prefixId}..`)) {
+          processRef = `${prefixId}..${processRef}`;
+        }
+      }
+    }
+
+    return processRef;
   }
 
   if (element.type === PARTICIPANT_TYPE && key === 'ecosType') {
