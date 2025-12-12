@@ -81,7 +81,6 @@ const mapDispatchToProps = (dispatch, props) => {
 
   return {
     setUrl: urlParams => dispatch(setUrl(w(urlParams))),
-    reloadGrid: () => dispatch(reloadGrid(w())),
     toggleViewMode: viewMode => dispatch(toggleViewMode(w({ viewMode, stateId: props.stateId }))),
     execJournalAction: (records, action, context) => dispatch(execJournalAction(w({ records, action, context }))),
     getTypeRef: journalId => dispatch(getTypeRef(w({ journalId }))),

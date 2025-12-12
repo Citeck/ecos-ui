@@ -497,6 +497,9 @@ export function* sagaMoveCard({ api }, { payload }) {
 
     yield put(setDataCards({ stateId, dataCards }));
 
+    const newRecordRefs = dataCards.map(cards => cards.records.map(record => record.id));
+    yield sagaGetActions({ api }, { payload: { boardConfig, newRecordRefs, stateId } });
+
     if (get(result, 'id') !== recordRef) {
       throw new Error('Incorrect move result');
     }
