@@ -426,7 +426,7 @@ describe('kanban sagas tests', () => {
         }
       }
     );
-    const [_firstLoadingColumns, _dataCards, _lastLoadingColumns] = dispatched;
+    const [_firstLoadingColumns, _dataCards, _updatedActions, _lastLoadingColumns] = dispatched;
 
     expect(_firstLoadingColumns.type).toEqual(setLoadingColumns().type);
     expect(_firstLoadingColumns.payload.isLoadingColumns).toEqual(['some-id-1', 'some-id-2']);
@@ -441,7 +441,7 @@ describe('kanban sagas tests', () => {
     expect(spyError).not.toHaveBeenCalled();
     expect(console.error).not.toHaveBeenCalled();
 
-    expect(dispatched).toHaveLength(3);
+    expect(dispatched).toHaveLength(4);
   });
 
   it('sagaApplyFilter', async () => {
