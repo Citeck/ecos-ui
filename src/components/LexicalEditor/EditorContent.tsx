@@ -15,7 +15,15 @@ type EditorContentProps = {
   uploadFilesInComment: (data: UploadFilesInCommentProps) => void;
 } & Omit<LexicalEditorProps, 'onUpload'>;
 
-function EditorContent({ htmlString, readonly = false, uploadFilesInComment, withoutTimeout, attribute, recordRef, ...props }: EditorContentProps): JSX.Element {
+function EditorContent({
+  htmlString,
+  readonly = false,
+  uploadFilesInComment,
+  withoutTimeout,
+  attribute,
+  recordRef,
+  ...props
+}: EditorContentProps): JSX.Element {
   const { UploadDocsService } = props;
   useSyncWithInputHtml(htmlString, { timeoutMs: withoutTimeout ? 0 : 800 });
 

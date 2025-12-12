@@ -305,7 +305,7 @@ export class Comment extends Component {
           htmlString={comment ? comment.text : null}
           onChange={this.handleEditorStateChange}
           UploadDocsService={this._uploadDocsRefService}
-          recordRef={comment ? comment.id : "emodel/comment@"}
+          recordRef={comment ? comment.id : 'emodel/comment@'}
           attribute="text"
         />
         <div className="ecos-comments__editor-footer">
