@@ -85,7 +85,7 @@ export function hasData(key = '', type: any = '') {
   return data !== null && typeMatches;
 }
 
-export function generateKey(extName = 'app', complicate = false) {
+export function generateKey(extName = 'app', complicate = false, longKey = false) {
   const base = projectInfo.name;
   const name = `${base}-${extName}`;
 
@@ -103,7 +103,7 @@ export function generateKey(extName = 'app', complicate = false) {
     .match(/.{1,5}/g)
     ?.join('-');
 
-  if (isDashboard()) {
+  if (isDashboard() && longKey) {
     return `${name}-${complicatingPart}-${getRecordRef()}-${getDashboardId()}`;
   }
 

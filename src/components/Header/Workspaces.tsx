@@ -10,7 +10,7 @@ import { Btn } from '../common/btns';
 import WorkspaceSwitcher from '../common/icons/WorkspacesSwitcher';
 import Cube from '../common/icons/global/Cube';
 
-import { getSidebarWorkspaces, getWorkspaces, visitedAction } from '@/actions/workspaces';
+import { getSidebarWorkspaces, getWorkspaces, onSearchWorkspaces, visitedAction } from '@/actions/workspaces';
 import { WorkspaceType } from '@/api/workspaces/types';
 import WorkspaceCard from '@/components/WorkspaceSidebar/Card';
 import WorkspaceSidebar from '@/components/WorkspaceSidebar/WorkspaceSidebar';
@@ -22,7 +22,8 @@ import {
   selectWorkspaces,
   selectWorkspaceIsLoading,
   selectWorkspaceIsError,
-  selectWorkspaceIsAllowToCreateWorkspace
+  selectWorkspaceIsAllowToCreateWorkspace,
+  selectSearchText
 } from '@/selectors/workspaces';
 import WorkspaceService from '@/services/WorkspaceService';
 import PageTabList from '@/services/pageTabs/PageTabList';
@@ -36,10 +37,12 @@ interface WorkspacesProps {
   isLoading: boolean;
   isError: boolean;
   isAllowToCreateWorkspace: boolean;
+  searchText: string;
   workspaces: WorkspaceType[];
   getWorkspaces: () => void;
   visitedAction: (id: WorkspaceType['id']) => void;
   getSidebarWorkspaces: () => void;
+  onSearch: (text: string) => void;
 }
 
 type OpenWsEventType = React.MouseEvent<HTMLDivElement | HTMLLIElement | HTMLButtonElement>;
@@ -56,7 +59,9 @@ const Workspaces = ({
   workspaces,
   getWorkspaces,
   visitedAction,
-  getSidebarWorkspaces
+  getSidebarWorkspaces,
+  onSearch,
+  searchText
 }: WorkspacesProps) => {
   const [isActivePreview, setIsActivePreview] = useState(false);
   const [isOpenSidebarWorkspace, setIsOpenSidebarWorkspace] = useState(false);
@@ -79,6 +84,9 @@ const Workspaces = ({
   const openSideBarWorkspaces = () => {
     closeMenu();
     toggleOpenSideBarWorkspace();
+    if (!!searchText) {
+      onSearch('');
+    }
   };
 
   const handleClickOutside = (event: MouseEvent) => {
@@ -221,14 +229,20 @@ const Workspaces = ({
   );
 };
 
-const mapStateToProps = (store: RootState): Pick<WorkspacesProps, 'workspaces' | 'isAllowToCreateWorkspace' | 'isLoading' | 'isError'> => ({
+const mapStateToProps = (
+  store: RootState
+): Pick<WorkspacesProps, 'workspaces' | 'isAllowToCreateWorkspace' | 'searchText' | 'isLoading' | 'isError'> => ({
   workspaces: selectWorkspaces(store),
+  searchText: selectSearchText(store),
   isLoading: selectWorkspaceIsLoading(store),
   isAllowToCreateWorkspace: selectWorkspaceIsAllowToCreateWorkspace(store),
   isError: selectWorkspaceIsError(store)
 });
 
-const mapDispatchToProps = (dispatch: Dispatch): Pick<WorkspacesProps, 'visitedAction' | 'getWorkspaces' | 'getSidebarWorkspaces'> => ({
+const mapDispatchToProps = (
+  dispatch: Dispatch
+): Pick<WorkspacesProps, 'visitedAction' | 'onSearch' | 'getWorkspaces' | 'getSidebarWorkspaces'> => ({
+  onSearch: text => dispatch(onSearchWorkspaces(text)),
   getSidebarWorkspaces: () => dispatch(getSidebarWorkspaces()),
   visitedAction: id => dispatch(visitedAction(id)),
   getWorkspaces: () => dispatch(getWorkspaces())

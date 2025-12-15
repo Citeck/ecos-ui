@@ -21,6 +21,7 @@ export const removeWorkspace = createAction<{ wsId: WorkspaceType['id']; wsName:
   prefix + 'REMOVE_WORKSPACE'
 );
 
+export const setSearchText = createAction<string>(prefix + 'SET_SEARCH_TEXT');
 export const setDefaultWorkspace = createAction<WorkspaceType['id']>(prefix + 'SET_DEFAULT_WORKSPACE');
 export const setIsBlockedCurrentWorkspace = createAction<boolean>(prefix + 'SET_IS_BLOCKED_CURRENT_WORKSPACE');
 export const setBlockedCurrentWorkspace = createAction<WorkspaceType>(prefix + 'SET_BLOCKED_CURRENT_WORKSPACE');
