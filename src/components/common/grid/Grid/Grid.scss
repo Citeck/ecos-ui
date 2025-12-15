@@ -205,7 +205,7 @@ $header-height: 44px;
     border-bottom: 2px $color-gray-4 solid;
 
     &:hover .ecos-grid__inline-tools-container {
-      display: block;
+      display: table-cell;
     }
 
     &_new {
