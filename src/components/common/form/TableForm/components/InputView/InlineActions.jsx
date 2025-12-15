@@ -22,7 +22,8 @@ const InlineActions = ({ context, rowId = null }) => {
     showPreview,
     showViewOnlyForm,
     createVariants,
-    controlProps
+    controlProps,
+    gridRows
   } = context;
   const { disabled, viewOnly, displayElements, selectedRows, isUsedJournalActions, journalActions } = controlProps;
 
@@ -32,8 +33,14 @@ const InlineActions = ({ context, rowId = null }) => {
   const shouldShowCloneButton =
     !disabled && !viewOnly && !isEmpty(createVariants) && (isBoolean(get(displayElements, 'clone')) ? displayElements.clone : false);
   const shouldShowDeleteButton = !disabled && !viewOnly && (isBoolean(get(displayElements, 'delete')) ? displayElements.delete : true);
-
   const renderButtons = useMemo(() => {
+    const currentRow = gridRows.find(row => row.id === rowId);
+    const isNotExists = currentRow['_notExists?bool'] === true;
+
+    if (isNotExists) {
+      return [];
+    }
+
     const keyRender = act => `${act.id}-${act.key}`;
 
     let actions = [];
@@ -122,7 +129,7 @@ const InlineActions = ({ context, rowId = null }) => {
     }
 
     return actions.map(action => renderAction(action, keyRender(action), !!action.name));
-  }, [displayElements, journalActions, rowId]);
+  }, [displayElements, journalActions, rowId, gridRows]);
 
   return <InlineToolsDisconnected selectedRecords={selectedRows} rowId={rowId} tools={renderButtons} />;
 };

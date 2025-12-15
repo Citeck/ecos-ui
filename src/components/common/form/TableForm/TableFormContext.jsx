@@ -19,7 +19,7 @@ import TableFormPropTypes from './TableFormPropTypes';
 import { getAllComponents } from './utils';
 
 import { LOCAL_ID } from '@/constants/journal';
-import { getMLValue } from '@/helpers/util';
+import { getMLValue, t } from '@/helpers/util';
 import WidgetService from '@/services/WidgetService';
 
 export const TableFormContext = React.createContext();
@@ -98,7 +98,7 @@ export const TableFormContextProvider = props => {
 
           let allComponents = [];
 
-          if (isFunction(form.load)) {
+          if (form && isFunction(form.load)) {
             const definition = await form.load('definition?json');
             allComponents = getAllComponents(definition.components);
           }
@@ -119,35 +119,46 @@ export const TableFormContextProvider = props => {
             }
           }
 
-          for (let attSchema in result) {
-            if (!result.hasOwnProperty(attSchema)) {
-              continue;
-            }
+          const notExistsResult = await record.load('_notExists?bool');
+          const isNotExists = notExistsResult === true;
 
-            if (noNeedParseIndices.includes(currentAttIndex)) {
-              fetchedAtts[attSchema] = result[attSchema];
-            } else {
-              const attData = parseAttribute(attSchema);
+          if (isNotExists) {
+            columns.forEach(column => {
+              fetchedAtts[column.attribute] = t('comp.no-data.head');
+            });
 
-              if (!attData) {
-                currentAttIndex++;
+            fetchedAtts['_notExists?bool'] = true;
+          } else {
+            for (let attSchema in result) {
+              if (!result.hasOwnProperty(attSchema)) {
                 continue;
               }
 
-              const component = allComponents.find(component => component.key === attData.name && component.type === 'ecosSelect');
+              if (noNeedParseIndices.includes(currentAttIndex)) {
+                fetchedAtts[attSchema] = result[attSchema];
+              } else {
+                const attData = parseAttribute(attSchema);
 
-              if (component) {
-                const option = get(component, 'data.values', []).find(item => item.value === result[attSchema]);
-
-                if (option) {
-                  fetchedAtts[attData.name] = isObject(option.label) ? getMLValue(option.label) : option.label;
+                if (!attData) {
+                  currentAttIndex++;
                   continue;
                 }
-              }
 
-              fetchedAtts[attData.name] = result[attSchema];
+                const component = allComponents.find(component => component.key === attData.name && component.type === 'ecosSelect');
+
+                if (component) {
+                  const option = get(component, 'data.values', []).find(item => item.value === result[attSchema]);
+
+                  if (option) {
+                    fetchedAtts[attData.name] = isObject(option.label) ? getMLValue(option.label) : option.label;
+                    continue;
+                  }
+                }
+
+                fetchedAtts[attData.name] = result[attSchema];
+              }
+              currentAttIndex++;
             }
-            currentAttIndex++;
           }
 
           return { ...fetchedAtts, id: rec, [LOCAL_ID]: rec };
