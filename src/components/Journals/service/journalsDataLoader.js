@@ -283,9 +283,7 @@ class JournalsDataLoader {
 
         predicates.push({
           t: PREDICATE_OR,
-          val: columns
-            .filter(c => c.type === COLUMN_DATA_TYPE_ASSOC && c.searchable && attrsToLoad.includes(c.attribute))
-            .map(mapToPredicates)
+          val: attrsToLoad.map(attribute => mapToPredicates({ attribute }))
         });
       } else if (isCustomJournalMode) {
         predicates.push({
