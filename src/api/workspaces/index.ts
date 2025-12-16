@@ -56,8 +56,17 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
     return Records.query<WorkspaceType>(
       {
         sourceId: SourcesId.WORKSPACE,
-        language: 'user-workspaces',
-        sortBy: [{ attribute: '_created', ascending: false }]
+        language: 'predicate',
+        query: {
+          t: 'and',
+          v: [
+            {
+              t: 'eq',
+              a: 'isCurrentUserMember',
+              v: true
+            }
+          ]
+        }
       },
       workspaceAttributes
     );
@@ -83,11 +92,10 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
             {
               t: 'eq',
               a: 'isCurrentUserMember',
-              v: false
+              v: true
             }
           ]
-        },
-        sortBy: [{ attribute: '_created', ascending: false }]
+        }
       },
       workspaceAttributes
     );
