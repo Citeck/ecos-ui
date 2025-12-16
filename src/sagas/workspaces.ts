@@ -21,8 +21,7 @@ import {
   onSearchWorkspaces,
   setIsBlockedCurrentWorkspace,
   removeWorkspace,
-  leaveOfWorkspace,
-  setSearchText
+  leaveOfWorkspace
 } from '@/actions/workspaces';
 import { RecordsQueryResponse } from '@/api/types';
 import { WorkspaceType } from '@/api/workspaces/types';
@@ -178,7 +177,6 @@ function* sagaGetSidebarWorkspaces({ api }: ExtraArgumentsStore) {
 function* sagaOnSearchWorkspaces({ api }: ExtraArgumentsStore, { payload }: ReturnType<typeof onSearchWorkspaces>) {
   try {
     yield put(setLoading(true));
-    yield put(setSearchText(payload));
     const { records: myWorkspaces }: RecordsQueryResponse<WorkspaceType> = yield call(api.workspaces.searchMyWorkspaces, payload);
     const { records: publicWorkspaces }: RecordsQueryResponse<WorkspaceType> = yield call(api.workspaces.searchPublicWorkspaces, payload);
 

@@ -4,7 +4,6 @@ import { getWorkspaceId } from '@/helpers/urls';
 import { RootState } from '@/types/store';
 
 export const selectWorkspaces = (state: RootState) => get(state, 'workspaces.workspaces', []);
-export const selectSearchText = (state: RootState) => get(state, 'workspaces.searchText', '');
 export const selectMyWorkspaces = (state: RootState) => get(state, 'workspaces.myWorkspaces', []);
 export const selectPublicWorkspaces = (state: RootState) => get(state, 'workspaces.publicWorkspaces', []);
 
