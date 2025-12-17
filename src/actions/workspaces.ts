@@ -16,7 +16,7 @@ export const setLoading = createAction<boolean>(prefix + 'SET_LOADING');
 export const getWorkspaces = createAction<void>(prefix + 'GET_WORKSPACES');
 export const getSidebarWorkspaces = createAction<void>(prefix + 'GET_SIDEBAR_WORKSPACES');
 
-export const onSearchWorkspaces = createAction<string>(prefix + 'ON_SEARCH_WORKSPACES');
+export const onSearchWorkspaces = createAction<{ text: string; withoutLoading?: boolean }>(prefix + 'ON_SEARCH_WORKSPACES');
 export const removeWorkspace = createAction<{ wsId: WorkspaceType['id']; wsName: WorkspaceType['name']; callback?: () => void }>(
   prefix + 'REMOVE_WORKSPACE'
 );

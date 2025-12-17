@@ -66,7 +66,8 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
               v: true
             }
           ]
-        }
+        },
+        sortBy: [{ attribute: '_created', ascending: false }]
       },
       workspaceAttributes
     );
@@ -95,7 +96,8 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
               v: true
             }
           ]
-        }
+        },
+        sortBy: [{ attribute: '_created', ascending: false }]
       },
       workspaceAttributes
     );
@@ -167,7 +169,8 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
               ]
             }
           ]
-        }
+        },
+        sortBy: [{ attribute: '_created', ascending: false }]
       },
       workspaceAttributes
     );
@@ -202,7 +205,8 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
               ]
             }
           ]
-        }
+        },
+        sortBy: [{ attribute: '_created', ascending: false }]
       },
       workspaceAttributes
     );
