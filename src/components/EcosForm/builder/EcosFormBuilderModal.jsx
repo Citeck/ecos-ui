@@ -79,11 +79,16 @@ export default class EcosFormBuilderModal extends React.Component {
     if (!formId) {
       return null;
     }
+    let localFormId = formId;
+    const twoDotsIdx = localFormId.indexOf(':');
+    if (twoDotsIdx !== -1) {
+      localFormId = localFormId.substring(twoDotsIdx + 1);
+    }
 
     return (
       <div className="form-builder-modal__info">
         <span className="form-builder-modal__info-key">{t(Labels.FORM_ID_LABEL)}:</span>
-        <span className="form-builder-modal__info-value">{formId}</span>
+        <span className="form-builder-modal__info-value">{localFormId}</span>
       </div>
     );
   }
