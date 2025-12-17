@@ -1,12 +1,11 @@
 import isString from 'lodash/isString';
 
-import { SourcesId } from '../../constants';
-
 import * as authorityApi from './authorityApi';
 
 import Records from '@/components/Records/Records';
 import { PERMISSION_WRITE_ATTR } from '@/components/Records/constants';
 import { AttributesType } from '@/components/Records/types';
+import { SourcesId } from '@/constants';
 import { getCurrentUserName, getEnabledWorkspaces } from '@/helpers/util';
 
 const GROUP_PREFIX = 'GROUP_';
@@ -97,7 +96,12 @@ class AuthorityService {
     return Records.get(await this.getAuthorityRef(authority)).load(attributes);
   }
 
-  async hasConfigWritePermission(recordId: string) {
+  async hasConfigWritePermission(recordId: string, params?: { toCheckGenerateForm?: boolean }) {
+    const { toCheckGenerateForm } = params || {};
+    if (toCheckGenerateForm && recordId && recordId.includes('type$')) {
+      return false;
+    }
+
     const isAdmin = await Records.get(`${SourcesId.PERSON}@${getCurrentUserName()}`).load('isAdmin?bool');
 
     if (isAdmin) {
@@ -112,9 +116,7 @@ class AuthorityService {
       }
     }
 
-    const permission = await Records.get(recordId).load(PERMISSION_WRITE_ATTR, true);
-
-    return permission;
+    return await Records.get(recordId).load(PERMISSION_WRITE_ATTR, true);
   }
 }
 
