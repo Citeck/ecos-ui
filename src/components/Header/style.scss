@@ -325,6 +325,10 @@
     &:hover {
       background-color: $color-white;
       color: var(--primary-color);
+
+      & .ecos-points-loader-child {
+        background-color: var(--primary-color);
+      }
     }
 
     &.isActivePreview {

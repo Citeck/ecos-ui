@@ -177,10 +177,15 @@ function* sagaGetSidebarWorkspaces({ api }: ExtraArgumentsStore) {
 
 function* sagaOnSearchWorkspaces({ api }: ExtraArgumentsStore, { payload }: ReturnType<typeof onSearchWorkspaces>) {
   try {
-    yield put(setLoading(true));
-    yield put(setSearchText(payload));
-    const { records: myWorkspaces }: RecordsQueryResponse<WorkspaceType> = yield call(api.workspaces.searchMyWorkspaces, payload);
-    const { records: publicWorkspaces }: RecordsQueryResponse<WorkspaceType> = yield call(api.workspaces.searchPublicWorkspaces, payload);
+    if (!payload.withoutLoading) {
+      yield put(setLoading(true));
+    }
+    yield put(setSearchText(payload.text));
+    const { records: myWorkspaces }: RecordsQueryResponse<WorkspaceType> = yield call(api.workspaces.searchMyWorkspaces, payload.text);
+    const { records: publicWorkspaces }: RecordsQueryResponse<WorkspaceType> = yield call(
+      api.workspaces.searchPublicWorkspaces,
+      payload.text
+    );
 
     yield put(setMyWorkspaces(myWorkspaces));
     yield put(setPublicWorkspaces(publicWorkspaces));
@@ -188,7 +193,9 @@ function* sagaOnSearchWorkspaces({ api }: ExtraArgumentsStore, { payload }: Retu
     console.error('[workspaces/ sagaOnSearchWorkspaces] error', e);
     yield put(setWorkspacesError());
   } finally {
-    yield put(setLoading(false));
+    if (!payload.withoutLoading) {
+      yield put(setLoading(false));
+    }
   }
 }
 
