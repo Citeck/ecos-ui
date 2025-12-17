@@ -215,7 +215,7 @@ class EcosForm extends React.Component {
         canWritePromise = EcosFormUtils.hasWritePermission(recordId, true);
       }
 
-      const canEditSettingsPromise = AuthorityService.hasConfigWritePermission(formId);
+      const canEditSettingsPromise = AuthorityService.hasConfigWritePermission(formId, { toCheckGenerateForm: true });
 
       if (isDebugModeOn) {
         options.isDebugModeOn = isDebugModeOn;
@@ -230,7 +230,7 @@ class EcosForm extends React.Component {
           options.canWrite = canWrite;
         }
 
-        options.showPreSettings = formData.isSystem ? true : !canEditSettings;
+        options.showPreSettings = !canEditSettings;
 
         const attributesTitles = {};
 
