@@ -21,6 +21,7 @@ import { getWorkspaceId } from '@/helpers/urls';
 import { getEnabledWorkspaces, t } from '@/helpers/util';
 import AttributesService from '@/services/AttributesService';
 import { NotificationManager } from '@/services/notifications';
+import { VIRTUAL_ATT_ID } from "@/constants/journal.js";
 
 class JournalsDataLoader {
   /**
@@ -137,6 +138,8 @@ class JournalsDataLoader {
       const newQuery = { t: PREDICATE_AND, val: innerPredicates };
       query = { t: PREDICATE_AND, val: [query, newQuery] };
     }
+
+    JournalsConverter.mapPredicateKeys(query, { [VIRTUAL_ATT_ID]: "id" });
 
     if (journalConfig.queryData || settings.queryData) {
       queryData = {
@@ -384,7 +387,12 @@ class JournalsDataLoader {
 
     for (let key in attributesMap) {
       if (attributesMap.hasOwnProperty(key)) {
-        attributesSet.add(attributesMap[key]);
+        let value = attributesMap[key]
+        if (value.indexOf(VIRTUAL_ATT_ID) !== -1) {
+          value = value.replace(VIRTUAL_ATT_ID, "id")
+          attributesMap[key] = value
+        }
+        attributesSet.add(value);
       }
     }
 
