@@ -201,6 +201,6 @@ export const DefaultUserMenu = [
   // UserMenu.USER_CHANGE_PASSWORD,
   UserMenu.USER_FEEDBACK,
   UserMenu.USER_SEND_PROBLEM_REPORT,
-  UserMenu.USER_LOGOUT,
-  UserMenu.USER_ABOUT_PLATFORM
+  // UserMenu.USER_ABOUT_PLATFORM,
+  UserMenu.USER_LOGOUT
 ];
