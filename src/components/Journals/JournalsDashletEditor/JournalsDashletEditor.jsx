@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
+import isArray from 'lodash/isArray';
 import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
@@ -416,7 +417,7 @@ class JournalsDashletEditor extends Component {
   }
 
   render() {
-    const { className, recordRef, journalSettings, configJournalId, forwardRef } = this.props;
+    const { className, recordRef, journalSettings, configJournalId, forwardRef, config } = this.props;
     const {
       attrsToLoad,
       typeRef,
@@ -532,8 +533,8 @@ class JournalsDashletEditor extends Component {
                 typeRef={typeRef}
                 journalId={journalId}
                 onChange={settings => this.onChangeLinkedSettings(settings, journalId)}
-                isOnlyLinked={get(isOnlyLinkedJournals, [this.getDispJournalId(journalId)], false)}
-                attrsToLoad={get(attrsToLoad, [this.getDispJournalId(journalId)], [])}
+                isOnlyLinked={get(isOnlyLinkedJournals, [this.getDispJournalId(journalId)], get(config, 'onlyLinked', false))}
+                attrsToLoad={isArray(attrsToLoad) ? attrsToLoad : get(attrsToLoad, [this.getDispJournalId(journalId)], [])}
               />
             ))}
         </div>

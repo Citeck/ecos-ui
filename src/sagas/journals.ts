@@ -767,7 +767,7 @@ export function* getGridData(
   const onlyLinked = get(config, ['onlyLinkedJournals', journalId]) ?? get(config, 'onlyLinked');
 
   let attrsToLoad: Array<{ value: string; label?: string }> | undefined;
-  if (isObject(get(config, 'attrsToLoad')) && journalId) {
+  if (journalId && isArray(get(config, ['attrsToLoad', journalId]))) {
     attrsToLoad = get(config, ['attrsToLoad', journalId]);
   } else {
     attrsToLoad = get(config, 'attrsToLoad');
