@@ -190,7 +190,7 @@
   "admin-section.error.access-denied": "You don't have access to this page",
   "admin-section.error.existed-module": "Module with this ID already exists",
 
-  "pre-settings-modal.error.not-valid": "The string contains invalid characters (\":\")",
+  "pre-settings-modal.error.not-valid": "The string contains invalid characters ({{ chars }})",
 
   "instance-admin.info-widget.title": "Information",
   "instance-admin.info-widget.id": "ID",

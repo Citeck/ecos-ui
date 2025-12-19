@@ -15,6 +15,7 @@ import { Field, Input, SelectJournal } from '../common/form';
 
 import { RecordActionsApi } from '@/api/recordActions';
 import { SourcesId, SystemJournals } from '@/constants';
+import { forbiddenSymbols } from '@/constants/validation';
 import { pagesStore } from '@/helpers/indexedDB';
 import { goToJournalsPage } from '@/helpers/urls';
 import { t } from '@/helpers/util';
@@ -78,11 +79,19 @@ class PreSettingsModal extends React.Component {
 
   checkValidity = () => {
     const { newRecordRef } = this.state;
-    const isValid = !!newRecordRef && !newRecordRef.includes(':');
+
+    const value = newRecordRef || '';
+    const present = forbiddenSymbols.filter(ch => value.includes(ch));
+    const isValid = present.length === 0;
 
     this.setState({
       isValid,
-      ...(!isValid && newRecordRef?.includes(':') && { message: t('pre-settings-modal.error.not-valid') })
+      ...(!isValid &&
+        newRecordRef?.includes(':') && {
+          message: t('pre-settings-modal.error.not-valid', {
+            chars: present.map(c => `'${c}'`).join(', ')
+          })
+        })
     });
   };
 
