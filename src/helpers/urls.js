@@ -92,7 +92,11 @@ export const createProfileUrl = userName => {
 };
 
 export const createDocumentUrl = recordRef => {
-  return `${Urls.DASHBOARD}?recordRef=${recordRef}`;
+  if (!getEnabledWorkspaces()) {
+    return `${Urls.DASHBOARD}?recordRef=${recordRef}`;
+  }
+
+  return `${Urls.DASHBOARD}?recordRef=${recordRef}&ws=${getWorkspaceId()}`;
 };
 
 export const getSelectedValueLink = item => {
