@@ -124,7 +124,7 @@
   "admin-section.error.access-denied": "У Вас нет доступа к этой странице",
   "admin-section.error.existed-module": "Модуль с таким ID уже существует",
 
-  "pre-settings-modal.error.not-valid": "В строке присутствуют недопустимые символы (\":\")",
+  "pre-settings-modal.error.not-valid": "В строке присутствуют недопустимые символы ({{ chars }})",
 
   "instance-admin.info-widget.title": "Информация",
   "instance-admin.info-widget.id": "Идентификатор",

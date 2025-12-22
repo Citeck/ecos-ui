@@ -1,9 +1,9 @@
 import i18next from 'i18next';
 import lodashSet from 'lodash/set';
 
-import { getCurrentLocale } from '../helpers/util';
 import { AppApi } from '../api/app';
 import { LANGUAGE_EN } from '../constants/lang';
+import { getCurrentLocale } from '../helpers/util';
 
 export function i18nInit({ debug = false }) {
   const lng = getCurrentLocale();
@@ -30,6 +30,9 @@ export function i18nInit({ debug = false }) {
           fallbackLng: LANGUAGE_EN,
           lng,
           debug,
+          interpolation: {
+            escapeValue: false // to pass quotation marks to localization arguments (examole: t('text', { arg: 'text, "in", quotation, "marks"' })
+          },
           keySeparator: false,
           resources: {
             [lng]: { translation }
