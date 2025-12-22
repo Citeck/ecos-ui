@@ -1,6 +1,6 @@
-import { createSelector } from 'reselect';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import { createSelector } from 'reselect';
 
 import {
   selectDashletConfig,
@@ -13,6 +13,7 @@ import {
 export const selectJournalDashletProps = createSelector(
   [selectJournalData, selectDashletConfig, selectDashletConfigJournalId],
   (ownState, config, configJournalId) => ({
+    isLoadingGrid: ownState.loadingGrid,
     editorMode: ownState.editorMode,
     journalConfig: ownState.journalConfig,
     grid: ownState.grid,
