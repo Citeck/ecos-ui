@@ -1,12 +1,13 @@
+import BigNumber from 'bignumber.js';
 import FormIONumberComponent from 'formiojs/components/number/Number';
 import _ from 'lodash';
-import { maskInput } from 'vanilla-text-mask';
-import BigNumber from 'bignumber.js';
 import { createNumberMask } from 'text-mask-addons';
+import { maskInput } from 'vanilla-text-mask';
 
 import { overrideTriggerChange } from '../misc';
-import { getNumberSeparators, reverseString } from '../../../../helpers/util';
-import { LANGUAGE_RU } from '../../../../constants/lang';
+
+import { LANGUAGE_RU } from '@/constants/lang';
+import { getNumberSeparators, reverseString } from '@/helpers/util';
 
 export default class NumberComponent extends FormIONumberComponent {
   static schema(...extend) {
@@ -302,6 +303,14 @@ export default class NumberComponent extends FormIONumberComponent {
 
     if (this.component.delimiter) {
       value = this._applyThousandsSeparator(value);
+    }
+
+    if (/^-?\d+(\.\d+)?$/.test(value)) {
+      const [int, frac] = value.split('.');
+
+      const formattedInt = Number(int).toLocaleString('ru-RU');
+
+      value = frac ? `${formattedInt}.${frac}` : formattedInt;
     }
 
     renderValue(value);
