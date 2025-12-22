@@ -87,7 +87,7 @@ class PreSettingsModal extends React.Component {
     this.setState({
       isValid,
       ...(!isValid &&
-        newRecordRef?.includes(':') && {
+        Array.from(newRecordRef || '').some(symbol => forbiddenSymbols.includes(symbol)) && {
           message: t('pre-settings-modal.error.not-valid', {
             chars: present.map(c => `'${c}'`).join(', ')
           })
