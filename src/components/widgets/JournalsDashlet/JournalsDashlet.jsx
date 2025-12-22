@@ -55,6 +55,7 @@ const mapStateToProps = (state, ownProps) => {
   return {
     stateId,
     isMobile: !!get(state, 'view.isMobile'),
+    location: get(state, 'router.location', {}),
     ...ownState
   };
 };
@@ -147,8 +148,18 @@ class JournalsDashlet extends BaseWidget {
     super.componentDidUpdate(prevProps, prevState, snapshot);
 
     const { config: prevConfig } = prevProps;
-    const { id, config, setDashletConfigByParams, setRecordRef, onSave } = this.props;
+    const { id, config, setDashletConfigByParams, setRecordRef, onSave, journalConfig, isLoadingGrid, location } = this.props;
     const { journalId } = this.state;
+    const { reloadDataOnFocus } = journalConfig || {};
+
+    if (
+      reloadDataOnFocus &&
+      !isEqual(prevProps.location, location) &&
+      (get(location, 'search', '').includes(journalId) || get(prevProps.location, 'search', '').includes(journalId)) &&
+      !isLoadingGrid
+    ) {
+      this.handleReload();
+    }
 
     if (!isEqual(config, prevConfig) && isFunction(onSave)) {
       if (this.recordRef) {
