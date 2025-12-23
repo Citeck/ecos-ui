@@ -263,7 +263,7 @@ export function* sagaGetData({ api }, { payload }) {
 
         const statusModifiedPredicate = KanbanConverter.getStatusModifiedPredicate(column);
 
-        const idsPredicate = Boolean(recordRefs)
+        const idsPredicate = Boolean(get(recordRefs, 'length'))
           ? {
               t: PREDICATE_EQ,
               att: 'id',
