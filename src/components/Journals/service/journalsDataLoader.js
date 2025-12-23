@@ -16,12 +16,12 @@ import journalsServiceApi from './journalsServiceApi';
 import { COMPUTED_ATT_PREFIX } from './util';
 
 import { Attributes } from '@/constants';
+import { VIRTUAL_ATT_ID } from '@/constants/journal';
 import JournalsConverter from '@/dto/journals';
 import { getWorkspaceId } from '@/helpers/urls';
 import { getEnabledWorkspaces, t } from '@/helpers/util';
 import AttributesService from '@/services/AttributesService';
 import { NotificationManager } from '@/services/notifications';
-import { VIRTUAL_ATT_ID } from "@/constants/journal.js";
 
 class JournalsDataLoader {
   /**
@@ -139,7 +139,7 @@ class JournalsDataLoader {
       query = { t: PREDICATE_AND, val: [query, newQuery] };
     }
 
-    JournalsConverter.mapPredicateKeys(query, { [VIRTUAL_ATT_ID]: "id" });
+    JournalsConverter.mapPredicateKeys(query, { [VIRTUAL_ATT_ID]: 'id' });
 
     if (journalConfig.queryData || settings.queryData) {
       queryData = {
@@ -387,10 +387,10 @@ class JournalsDataLoader {
 
     for (let key in attributesMap) {
       if (attributesMap.hasOwnProperty(key)) {
-        let value = attributesMap[key]
+        let value = attributesMap[key];
         if (value.indexOf(VIRTUAL_ATT_ID) !== -1) {
-          value = value.replace(VIRTUAL_ATT_ID, "id")
-          attributesMap[key] = value
+          value = value.replace(VIRTUAL_ATT_ID, 'id');
+          attributesMap[key] = value;
         }
         attributesSet.add(value);
       }

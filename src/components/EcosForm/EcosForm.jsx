@@ -200,6 +200,9 @@ class EcosForm extends React.Component {
       const formDefinition = EcosFormUtils.preProcessFormDefinition(originalFormDefinition, options);
 
       this.setState({ originalFormDefinition, formDefinition, formId: formData.formId });
+      if (this.props.onFormIdLoaded) {
+        this.props.onFormIdLoaded(formData.formId);
+      }
 
       if (this._formBuilderModal) {
         this._formBuilderModal.setStateData({ formId: formData.formId });
@@ -787,6 +790,7 @@ EcosForm.propTypes = {
   onReady: PropTypes.func, // Form ready, but not rendered yet
   onReadyToSubmit: PropTypes.func,
   onFormCancel: PropTypes.func,
+  onFormIdLoaded: PropTypes.func,
   /**
    * @see https://github.com/formio/formio.js/wiki/Form-Renderer#events
    */
