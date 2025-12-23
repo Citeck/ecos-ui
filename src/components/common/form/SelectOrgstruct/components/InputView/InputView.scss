@@ -5,6 +5,13 @@
     color: $color-red-1;
   }
 
+  &__field-placeholder {
+    margin-top: 7px;
+    margin-right: 4px;
+    font-size: 14px;
+    color: $text-color-gray;
+  }
+
   &__values-list {
     border: 1px solid $color-gray-6;
     border-radius: 6px;

@@ -1833,6 +1833,7 @@
   "menu-settings.editor-item.field.form-ref.title": "Ref формы",
   "menu-settings.editor-item.field.attributes.title": "Атрибуты",
   "menu-settings.editor-item.field.icon.label": "Иконка",
+  "menu-settings.editor-item.field.allowed-for-all.placeholder": "Для всех",
   "menu-settings.editor-item.field.icon.btn.cancel": "Сбросить",
   "menu-settings.editor-item.field.icon.btn.select": "Выбрать",
   "menu-settings.editor-item.field.allowed-for.label": "Доступно для",
