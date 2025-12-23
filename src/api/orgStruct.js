@@ -207,6 +207,17 @@ export class OrgStructApi extends CommonApi {
 
     const extraQueryVal = [];
 
+    if (searchText && groupName) {
+      const predicateSpecGroup = {
+        t: 'contains',
+        att: 'authorityGroupsFull',
+        val: groupName
+      };
+
+      queryVal.push(predicateSpecGroup);
+      queryValPerson.push(predicateSpecGroup);
+    }
+
     if (excludeAuthoritiesByName) {
       excludeAuthoritiesByName.split(',').forEach(name => {
         extraQueryVal.push({
