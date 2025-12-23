@@ -4,7 +4,7 @@ import Icon from '../icons/Icon';
 
 import './Tags.scss';
 
-const Tags = ({ tags = [], onTagsChange, onAddTag, className = '', exception = [], disabled = false }) => {
+const Tags = ({ tags = [], onTagsChange, onAddTag, className = '', placeholder, disabled = false }) => {
   const handleRemoveTag = tagToRemove => {
     const filtered = tags.filter(tag => tag.name !== tagToRemove.name);
     onTagsChange && onTagsChange(filtered);
@@ -13,7 +13,9 @@ const Tags = ({ tags = [], onTagsChange, onAddTag, className = '', exception = [
   return (
     <div className={`ecos-tags ${className}`}>
       <div className="ecos-tags-body">
-        {tags.map((tag, index, originTags) => (
+        {!tags.length && !!placeholder && <span className="select-orgstruct__field-placeholder">{placeholder}</span>}
+
+        {tags.map((tag, index) => (
           <div key={index} className="ecos-tag">
             <span title={tag.name} className="ecos-tag__name">
               {tag.name}

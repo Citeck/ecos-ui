@@ -133,6 +133,7 @@ const InputView = () => {
   if (viewModeType === ViewModes.TAGS) {
     return (
       <Tags
+        placeholder={placeholder}
         tags={selectedRows.map(row => ({ name: row.label, id: row.id }))}
         onTagsChange={remainingSelectedRows => {
           const remainingItems = {};
@@ -179,6 +180,7 @@ const InputView = () => {
   return (
     <div className={classNames('select-orgstruct__input-view')} onClick={e => handleAction(e, toggleSelectModal)}>
       <ul className={classNames('select-orgstruct__values-list', { multiple, disabled })}>
+        {!selectedRows.length && placeholder && <li className="select-orgstruct__field-placeholder">{placeholder}</li>}
         {selectedRows.map((item, idx) => (
           <li className="select-orgstruct__values-list_text-content" key={item.id || idx}>
             {renderSelectedValue(item)}
