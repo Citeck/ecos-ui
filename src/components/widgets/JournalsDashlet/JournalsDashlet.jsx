@@ -119,7 +119,8 @@ class JournalsDashlet extends BaseWidget {
 
     this.state = {
       ...this.state,
-      journalId: UserLocalSettingsService.getDashletProperty(this.state.lsId, 'journalId')
+      journalId: UserLocalSettingsService.getDashletProperty(this.state.lsId, 'journalId'),
+      locationSearch: null
     };
 
     this.props.initState();
@@ -142,6 +143,8 @@ class JournalsDashlet extends BaseWidget {
     } else {
       getDashletConfig(id);
     }
+
+    this.setState({ locationSearch: window.location.search });
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -149,14 +152,14 @@ class JournalsDashlet extends BaseWidget {
 
     const { config: prevConfig } = prevProps;
     const { id, config, setDashletConfigByParams, setRecordRef, onSave, journalConfig, isLoadingGrid, location } = this.props;
-    const { journalId } = this.state;
+    const { journalId, locationSearch } = this.state;
     const { reloadDataOnFocus } = journalConfig || {};
 
     if (
       reloadDataOnFocus &&
       !isEqual(prevProps.location, location) &&
-      (get(location, 'search', '').includes(journalId) || get(prevProps.location, 'search', '').includes(journalId)) &&
-      !isLoadingGrid
+      !isLoadingGrid &&
+      get(location, 'search', '').includes(locationSearch)
     ) {
       this.handleReload();
     }
