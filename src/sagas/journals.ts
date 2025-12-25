@@ -152,9 +152,25 @@ function* getColumnsSum(
   w: IJournalsExtraArgumentsStore['w'],
   columns: JournalColumnType[],
   journalId: string,
-  predicates: PredicateType[]
+  predicates: PredicateType[],
+  gridParams?: IJournalState['grid']
 ) {
   try {
+    const clonePredicates = cloneDeep(predicates);
+
+    const { query: queryParams } = gridParams || {};
+    const { query: queryGridRequest } = queryParams || {};
+    const categoryPredicate: PredicateType | boolean =
+      !!queryParams &&
+      !!queryGridRequest &&
+      !!queryGridRequest.val &&
+      !!Array.isArray(queryGridRequest.val) &&
+      (queryGridRequest.val.find(predicate => get(predicate, 'att') === 'has-category:category') as PredicateType);
+
+    if (categoryPredicate) {
+      clonePredicates.push(categoryPredicate);
+    }
+
     if (!columns || !columns.length || !journalId) {
       return;
     }
@@ -178,8 +194,8 @@ function* getColumnsSum(
 
       let query;
 
-      if (predicates) {
-        const cleanPredicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(predicates));
+      if (clonePredicates) {
+        const cleanPredicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(clonePredicates));
         query = convertAttributeValues(cleanPredicates, columns);
         query = JournalsConverter.optimizePredicate({ t: 'and', val: query });
       }
@@ -1156,9 +1172,10 @@ function* sagaReloadGrid(
           });
         }
 
+        const gridParams = { ...params, ...gridData, editingRules, columns };
         yield put(setSelectAllPageRecords(w(_selectAllPageRecords)));
         yield put(setSelectedRecords(w(_selectedRecords)));
-        yield put(setGrid(w({ ...params, ...gridData, editingRules, columns })));
+        yield put(setGrid(w(gridParams)));
 
         const predicates = [];
         if (journalData?.predicate) {
@@ -1169,7 +1186,7 @@ function* sagaReloadGrid(
         }
 
         if (isEmpty(payload.groupBy) && journalData?.journalConfig?.columns && journalData?.journalConfig?.id) {
-          yield getColumnsSum(api, w, journalData.journalConfig.columns, journalData.journalConfig.id, predicates);
+          yield getColumnsSum(api, w, journalData.journalConfig.columns, journalData.journalConfig.id, predicates, gridParams);
         } else {
           yield put(setFooterValue(w(null)));
         }
@@ -1259,11 +1276,11 @@ function* sagaInitJournal({ api, stateId, w }: IJournalsExtraArgumentsStore, { p
           (...data) => ({ ...w(...data) })
         );
 
-        const { predicate } = yield select(selectJournalData, stateId);
+        const { predicate, grid } = yield select(selectJournalData, stateId);
         const predicates = [predicate, journalConfig.predicate];
 
         if (journalConfig?.columns) {
-          yield getColumnsSum(api, w, journalConfig.columns, journalId, predicates);
+          yield getColumnsSum(api, w, journalConfig.columns, journalId, predicates, grid);
         }
         yield put(setLoading(w(false)));
       }),
@@ -1288,7 +1305,7 @@ function* sagaOpenSelectedPreset(
       return;
     }
 
-    const { journalSetting, journalConfig } = yield select(selectJournalData, stateId);
+    const { journalSetting, journalConfig, grid } = yield select(selectJournalData, stateId);
 
     if (journalSetting.id === selectedId) {
       return;
@@ -1327,7 +1344,7 @@ function* sagaOpenSelectedPreset(
     }
     const settingsKanban = { predicate: predicates, kanban: kanbanSettings };
 
-    yield getColumnsSum(api, w, journalConfig.columns, journalConfig?.id, predicates);
+    yield getColumnsSum(api, w, journalConfig.columns, journalConfig?.id, predicates, grid);
 
     yield put(applyPreset({ stateId, settings: settingsKanban }));
 
@@ -1749,7 +1766,8 @@ function* sagaGoToJournalsPage(
         const predicates = [journalData.predicate, journalData.journalConfig.predicate, ...params.predicates];
 
         if (journalConfig.columns && journalData.journalConfig?.id) {
-          yield getColumnsSum(api, w, journalConfig.columns, journalData.journalConfig.id, predicates);
+          const { grid }: IJournalState = yield select(selectJournalData, stateId);
+          yield getColumnsSum(api, w, journalConfig.columns, journalData.journalConfig.id, predicates, grid);
         }
       }),
       canceled: take(cancelGoToPageJournal().type)
