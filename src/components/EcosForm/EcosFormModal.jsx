@@ -242,12 +242,12 @@ export default class EcosFormModal extends React.Component {
     const modalTitle = title || EcosFormUtils.getFormTitle(recordData, title);
 
     let formProps = Object.assign({}, this.props);
-    formProps.onFormIdLoaded = (formId) => {
-      EcosFormUtils.isConfigurableForm(formId).then(isConfigurableForm => {
+    formProps.onFormEditPermsUpdated = (perms) => {
+      if (perms !== 'NONE') {
         this.setState({
-          isConfigurableForm: !!isConfigurableForm
+          isConfigurableForm: true
         });
-      });
+      }
     }
     let formOptions = formProps.options || {};
 

@@ -250,9 +250,11 @@ class PreSettingsModal extends React.Component {
         : `${SourcesId.JOURNAL}@${workspaceSysIdPrefix}${newRecordRef}`;
 
     if (newType) {
-      const newTypeRecord = Records.get(newType.replace(SourcesId.TYPE, 'emodel/types-repo'));
-      newTypeRecord.att(att, newRef);
-      this.typeToSave = newTypeRecord;
+      this.typeToSave = {
+        typeRef: newType.replace(SourcesId.TYPE, 'emodel/types-repo'),
+        newRef: newRef,
+        attribute: att
+      };
     } else {
       this.typeToSave = null;
     }
@@ -287,19 +289,13 @@ class PreSettingsModal extends React.Component {
               if (this.isFormType) {
                 this.recordRef = `uiserv/form@${workspaceSysIdPrefix}${newRecordRef}`;
               }
-
-              if (!this.typeToSave) {
+              this.handleTypeToSave(this.typeToSave).then(() => {
                 isFunction(cb) && cb(newRef, newDefinition);
-              }
-
-              this.typeToSave &&
-                this.typeToSave.save().then(() => {
-                  isFunction(cb) && cb(newRef, newDefinition);
-                });
-
-              isFunction(resolve) && resolve();
-
-              this.rollback();
+                isFunction(resolve) && resolve();
+              }).catch((e) => {
+                console.error("Type updating failed", this.typeToSave, e);
+                this.rollback();
+              });
             });
           }
         };
@@ -342,18 +338,14 @@ class PreSettingsModal extends React.Component {
                 }
 
                 this.instanceRecordToSave.save().then(() => {
-                  if (!this.typeToSave) {
-                    goToJournalsPage({ journalId: workspaceSysIdPrefix + newRecordRef });
-                  }
-
-                  this.typeToSave &&
-                    this.typeToSave.save().then(() => {
-                      if (!this.isFormType) {
-                        goToJournalsPage({ journalId: workspaceSysIdPrefix + newRecordRef, replaceJournal: true });
-                      }
-                    });
-
-                  this.rollback();
+                  this.handleTypeToSave(this.typeToSave).then(() => {
+                    if (!this.isFormType) {
+                      goToJournalsPage({ journalId: workspaceSysIdPrefix + newRecordRef, replaceJournal: true });
+                    }
+                  }).catch((e) => {
+                    console.error("Type updating failed", this.typeToSave, e);
+                    this.rollback();
+                  });
                 });
               }
             }
@@ -366,6 +358,22 @@ class PreSettingsModal extends React.Component {
 
     this.changeAttributes(attributes);
   };
+
+  async handleTypeToSave(typeToSave) {
+    if (!typeToSave) {
+      return Promise.resolve(false);
+    }
+    const newTypeRecord = Records.getRecordToEdit(typeToSave.typeRef);
+    const typeAtts = await newTypeRecord.load({
+      canWrite: PERMISSION_WRITE_ATTR,
+      currentRef: typeToSave.attribute
+    }, true);
+    if (typeAtts.canWrite === true && typeToSave.newRef !== typeAtts.currentRef) {
+      newTypeRecord.att(typeToSave.attribute, typeToSave.newRef);
+      return newTypeRecord.save().then(() => true);
+    }
+    return Promise.resolve(false);
+  }
 
   render() {
     const { isOpen, isValid, message, isLoading, newRecordRef, newType } = this.state;

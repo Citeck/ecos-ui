@@ -196,16 +196,22 @@ class EcosForm extends React.Component {
         }
       });
 
-      const originalFormDefinition = Object.keys(newFormDefinition).length ? newFormDefinition : formData.definition;
+      let formId = formData.formId;
+      let originalFormDefinition;
+      if (Object.keys(newFormDefinition).length) {
+        originalFormDefinition = newFormDefinition;
+        if (originalFormDefinition.formId) {
+          formId = originalFormDefinition.formId;
+        }
+      } else {
+        originalFormDefinition = formData.definition;
+      }
       const formDefinition = EcosFormUtils.preProcessFormDefinition(originalFormDefinition, options);
 
-      this.setState({ originalFormDefinition, formDefinition, formId: formData.formId });
-      if (this.props.onFormIdLoaded) {
-        this.props.onFormIdLoaded(formData.formId);
-      }
+      this.setState({ originalFormDefinition, formDefinition, formId });
 
       if (this._formBuilderModal) {
-        this._formBuilderModal.setStateData({ formId: formData.formId });
+        this._formBuilderModal.setStateData({ formId });
       }
 
       const inputs = EcosFormUtils.getFormInputs(formDefinition);
@@ -218,13 +224,13 @@ class EcosForm extends React.Component {
         canWritePromise = EcosFormUtils.hasWritePermission(recordId, true);
       }
 
-      const canEditSettingsPromise = AuthorityService.hasConfigWritePermission(formId, { toCheckGenerateForm: true });
+      const formEditPermsPromise = AuthorityService.getArtifactPerms(SourcesId.FORM + '@' + formId);
 
       if (isDebugModeOn) {
         options.isDebugModeOn = isDebugModeOn;
       }
 
-      Promise.all([recordDataPromise, canWritePromise, canEditSettingsPromise]).then(([recordData, canWrite, canEditSettings]) => {
+      Promise.all([recordDataPromise, canWritePromise, formEditPermsPromise]).then(([recordData, canWrite, formEditPerms]) => {
         if (this._lastFormOptions !== propsOptions) {
           return;
         }
@@ -233,7 +239,10 @@ class EcosForm extends React.Component {
           options.canWrite = canWrite;
         }
 
-        options.showPreSettings = !canEditSettings;
+        options.formEditPerms = formEditPerms;
+        if (this.props.onFormEditPermsUpdated) {
+          this.props.onFormEditPermsUpdated(formEditPerms);
+        }
 
         const attributesTitles = {};
 
@@ -499,10 +508,11 @@ class EcosForm extends React.Component {
   );
 
   onShowFormBuilder = async callback => {
-    const { showPreSettings } = get(this, 'form.options', {});
-    const { options, onFormSubmitDone, onSavePreSettings, onFormCancel } = this.props;
+    const { formEditPerms } = get(this, 'form.options', {});
+    const { options, onFormSubmitDone, onSavePreSettings } = this.props;
     const { formId } = this.state;
     const definitionToEdit = await Records.get(EcosFormUtils.getNotResolvedFormId(formId)).load('definition?json', true);
+    const showPreSettings = formEditPerms === 'COPY';
 
     if (this._preSettings && showPreSettings) {
       const config = {
@@ -510,13 +520,17 @@ class EcosForm extends React.Component {
         definition: definitionToEdit
       };
 
-      const preSettingsCallback = () => {
+      const preSettingsCallback = (newFormRef) => {
         isFunction(onSavePreSettings) && onSavePreSettings();
         this.toggleLoader(false);
-        isFunction(onFormCancel) && onFormCancel();
+        EcosFormUtils.getFormById(newFormRef, 'definition?json', true).then(newFormDef => {
+          newFormDef['formId'] = newFormRef.substring(newFormRef.indexOf('@') + 1);
+          this.initForm(newFormDef);
+          isFunction(callback) && callback(newFormDef);
+        });
       };
 
-      this._preSettings.open(this.props.formId, config, preSettingsCallback, this.toggleLoader);
+      this._preSettings.open(`${SourcesId.FORM}@${formId}`, config, preSettingsCallback, this.toggleLoader);
     }
 
     if (this._formBuilderModal && !showPreSettings) {
@@ -526,6 +540,7 @@ class EcosForm extends React.Component {
           EcosFormUtils.saveFormBuilder(form, formId)
             .then(() => {
               EcosFormUtils.getFormById(formId, 'definition?json', true).then(newFormDef => {
+                newFormDef['formId'] = formId;
                 this.initForm(newFormDef);
                 isFunction(onFormSubmitDone) && onFormSubmitDone();
                 isFunction(callback) && callback(newFormDef);
@@ -790,7 +805,7 @@ EcosForm.propTypes = {
   onReady: PropTypes.func, // Form ready, but not rendered yet
   onReadyToSubmit: PropTypes.func,
   onFormCancel: PropTypes.func,
-  onFormIdLoaded: PropTypes.func,
+  onFormEditPermsUpdated: PropTypes.func,
   /**
    * @see https://github.com/formio/formio.js/wiki/Form-Renderer#events
    */
