@@ -148,12 +148,16 @@ export default class Export extends Component {
   };
 
   getJSettings = () => {
-    const { grid, dashletConfig, recordRef } = this.props;
+    const { grid, dashletConfig, journalConfig, recordRef } = this.props;
+
+    const journalId = get(grid, 'journalId') ?? get(journalConfig, 'meta.nodeRef', get(dashletConfig, 'journalId')) ?? '';
+    const onlyLinked = get(dashletConfig, ['onlyLinkedJournals', journalId]) ?? get(dashletConfig, 'onlyLinked');
 
     return JournalsConverter.getSettingsForDataLoaderServer({
       ...grid,
       predicates: JournalsConverter.cleanUpPredicate(grid.predicates),
-      onlyLinked: get(dashletConfig, 'onlyLinked'),
+      onlyLinked,
+      customJournalMode: get(dashletConfig, 'customJournalMode'),
       recordRef
     });
   };
