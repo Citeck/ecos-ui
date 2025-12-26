@@ -14,7 +14,7 @@ import { PREDICATE_AND, PREDICATE_CONTAINS, PREDICATE_OR } from '../components/R
 import { getId } from '../helpers/util';
 import { GROUPING_COUNT_ALL } from '../constants/journal';
 
-const isPredicateValid = predicate => {
+const isPredicateValid = (predicate) => {
   return !!(predicate && predicate.t);
 };
 
@@ -30,7 +30,10 @@ export default class JournalsConverter {
    */
   static getSearchConfig(predicate, columns) {
     const attribute = get(predicate, 'att', get(predicate, 'a'));
-    let searchConfig = get(find(columns, column => JournalsConverter.getColumnId(column) === attribute), 'searchConfig');
+    let searchConfig = get(
+      find(columns, (column) => JournalsConverter.getColumnId(column) === attribute),
+      'searchConfig',
+    );
 
     let val = get(predicate, 'val', get(predicate, 'v'));
 
@@ -74,7 +77,10 @@ export default class JournalsConverter {
     }
 
     const attribute = get(predicate, 'att', get(predicate, 'a'));
-    const searchConfig = get(find(columns, column => JournalsConverter.getColumnId(column) === attribute), 'searchConfig');
+    const searchConfig = get(
+      find(columns, (column) => JournalsConverter.getColumnId(column) === attribute),
+      'searchConfig',
+    );
 
     let val = get(predicate, 'val', get(predicate, 'v'));
 
@@ -91,7 +97,7 @@ export default class JournalsConverter {
     if (Array.isArray(val)) {
       return {
         ...predicate,
-        val: val.map(item => JournalsConverter.searchConfigProcessed(item, columns))
+        val: val.map((item) => JournalsConverter.searchConfigProcessed(item, columns)),
       };
     }
 
@@ -126,12 +132,12 @@ export default class JournalsConverter {
     return {
       t: PREDICATE_OR,
       val: result.map(
-        val =>
+        (val) =>
           new Predicate({
             ...predicate,
-            val
-          })
-      )
+            val,
+          }),
+      ),
     };
   }
 
@@ -145,13 +151,13 @@ export default class JournalsConverter {
     const val = get(predicate, 'val', get(predicate, 'v'));
 
     if (Array.isArray(val)) {
-      const allColumnsByPredicate = val.map(item => JournalsConverter.getColoumnByPredicates(item, columns));
+      const allColumnsByPredicate = val.map((item) => JournalsConverter.getColoumnByPredicates(item, columns));
       return allColumnsByPredicate.reduce((res, cur) => ({ ...res, ...cur }), {});
     }
 
     const attribute = get(predicate, 'att', get(predicate, 'a'));
 
-    const result = find(columns, column => JournalsConverter.getColumnId(column) === attribute);
+    const result = find(columns, (column) => JournalsConverter.getColumnId(column) === attribute);
     return result === undefined ? {} : { [attribute]: { result, predicate } };
   }
 
@@ -185,7 +191,7 @@ export default class JournalsConverter {
 
           return prev;
         }, [])
-        .filter(item => !!item.trim());
+        .filter((item) => !!item.trim());
     }
 
     return [string];
@@ -197,7 +203,7 @@ export default class JournalsConverter {
     }
 
     if (predicate.t === PREDICATE_AND || predicate.t === PREDICATE_OR) {
-      const predicates = (predicate.val || []).map(pred => JournalsConverter.optimizePredicate(pred)).filter(isPredicateValid);
+      const predicates = (predicate.val || []).map((pred) => JournalsConverter.optimizePredicate(pred)).filter(isPredicateValid);
 
       if (predicates.length === 0) {
         return {};
@@ -206,7 +212,7 @@ export default class JournalsConverter {
       } else {
         return {
           ...predicate,
-          val: predicates
+          val: predicates,
         };
       }
     }
@@ -241,8 +247,12 @@ export default class JournalsConverter {
     target.attributes = {
       ..._source.attributes,
       ...AttributesService.hasContent,
-      ...AttributesService.getPermissions(permissionsArr)
+      ...AttributesService.getPermissions(permissionsArr),
     };
+
+    if (_source.workspaces) {
+      target.workspaces = _source.workspaces;
+    }
 
     return target;
   }
@@ -266,7 +276,7 @@ export default class JournalsConverter {
     return {
       forRecords: source.forRecords || {},
       forQuery: source.forQuery || {},
-      forRecord: source.forRecord || {}
+      forRecord: source.forRecord || {},
     };
   }
 
@@ -278,7 +288,7 @@ export default class JournalsConverter {
     }
 
     for (let i = result.length - 1; i >= 0; i--) {
-      const item = arrayFrom.find(item => item[compareField] === result[i][compareField]);
+      const item = arrayFrom.find((item) => item[compareField] === result[i][compareField]);
 
       if (isEmpty(item)) {
         continue;
@@ -286,7 +296,7 @@ export default class JournalsConverter {
 
       result[i] = {
         ...result[i],
-        ...item
+        ...item,
       };
     }
 
@@ -295,14 +305,14 @@ export default class JournalsConverter {
 
   static injectId(data) {
     if (Array.isArray(data)) {
-      return data.map(item => JournalsConverter.injectId(item));
+      return data.map((item) => JournalsConverter.injectId(item));
     }
 
     return data.id
       ? data
       : {
           ...data,
-          id: getId()
+          id: getId(),
         };
   }
 
@@ -311,10 +321,10 @@ export default class JournalsConverter {
       return columns;
     }
 
-    const configColumnsIds = (configColumns || []).map(item => JournalsConverter.getColumnId(item));
+    const configColumnsIds = (configColumns || []).map((item) => JournalsConverter.getColumnId(item));
 
     return columns
-      .filter(item => {
+      .filter((item) => {
         const column = item.column;
 
         // TODO: add constants like DynamicColumns
@@ -328,10 +338,10 @@ export default class JournalsConverter {
 
         return configColumnsIds.includes(column || JournalsConverter.getColumnId(item));
       })
-      .map(item => {
+      .map((item) => {
         const id = JournalsConverter.getColumnId(item);
         const attribute = item.column || item.attribute;
-        const originColumn = configColumns.find(column => column.attribute === attribute && id.includes(attribute));
+        const originColumn = configColumns.find((column) => column.attribute === attribute && id.includes(attribute));
 
         if (!originColumn) {
           return item;
@@ -341,7 +351,7 @@ export default class JournalsConverter {
           ...item,
           newFormatter: originColumn.newFormatter,
           newEditor: originColumn.newEditor,
-          sortable: originColumn.sortable
+          sortable: originColumn.sortable,
         };
       });
   }
@@ -354,15 +364,15 @@ export default class JournalsConverter {
    */
   static filterPredicatesByConfigColumns(predicate, configColumns) {
     if (Array.isArray(predicate)) {
-      predicate.forEach(item => JournalsConverter.filterPredicatesByConfigColumns(item, configColumns));
+      predicate.forEach((item) => JournalsConverter.filterPredicatesByConfigColumns(item, configColumns));
 
       return predicate;
     }
 
-    const configColumnsIds = (configColumns || []).map(item => JournalsConverter.getColumnId(item));
+    const configColumnsIds = (configColumns || []).map((item) => JournalsConverter.getColumnId(item));
 
     if (Array.isArray(predicate.val) && !predicate.att) {
-      predicate.val = predicate.val.filter(item => JournalsConverter.filterPredicatesByConfigColumns(item, configColumns));
+      predicate.val = predicate.val.filter((item) => JournalsConverter.filterPredicatesByConfigColumns(item, configColumns));
     }
 
     if (predicate.att) {

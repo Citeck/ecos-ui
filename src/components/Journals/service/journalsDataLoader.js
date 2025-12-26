@@ -17,6 +17,7 @@ import * as RecordUtils from '../../Records/utils/recordUtils';
 import journalsServiceApi from './journalsServiceApi';
 import computedService from './computed/computedService';
 import { COMPUTED_ATT_PREFIX } from './util';
+import isArray from 'lodash/isArray';
 
 class JournalsDataLoader {
   /**
@@ -30,8 +31,8 @@ class JournalsDataLoader {
 
     return journalsServiceApi
       .queryData(recordsQuery, attributes.attributesSet)
-      .then(res => ({ ...res, query: recordsQuery }))
-      .then(resArg => {
+      .then((res) => ({ ...res, query: recordsQuery }))
+      .then((resArg) => {
         const result = { ...resArg };
         const resultRecords = [];
         const records = result.records || [];
@@ -45,8 +46,8 @@ class JournalsDataLoader {
             rawAttributes: {
               recordRef: record.id,
               '?id': record.id,
-              ...record
-            }
+              ...record,
+            },
           };
 
           const recordComputed = get(journalConfig, 'configData.recordComputed');
@@ -72,7 +73,7 @@ class JournalsDataLoader {
           resultRecords.push(newRecord);
         }
 
-        return Promise.all(computedPromises).then(computedResults => {
+        return Promise.all(computedPromises).then((computedResults) => {
           for (let idx = 0; idx < computedResults.length; idx++) {
             const computedAttributes = computedResults[idx];
             const recordRawAtts = resultRecords[idx].rawAttributes;
@@ -121,10 +122,10 @@ class JournalsDataLoader {
     }
 
     const innerPredicates = Object.keys(innerResult)
-      .filter(key => !isEmpty(innerResult[key]))
-      .map(key => ({
+      .filter((key) => !isEmpty(innerResult[key]))
+      .map((key) => ({
         t: PREDICATE_OR,
-        val: innerResult[key].map(val => ({ t: PREDICATE_EQ, att: searchAttribute || key, val }))
+        val: innerResult[key].map((val) => ({ t: PREDICATE_EQ, att: searchAttribute || key, val })),
       }));
 
     query = JournalsConverter.searchConfigProcessed(query, columns);
@@ -137,14 +138,14 @@ class JournalsDataLoader {
     if (journalConfig.queryData || settings.queryData) {
       queryData = {
         ...(journalConfig.queryData || {}),
-        ...(settings.queryData || {})
+        ...(settings.queryData || {}),
       };
     }
 
     if (queryData && Object.keys(queryData).length > 0) {
       query = {
         data: queryData,
-        predicate: query
+        predicate: query,
       };
       language = 'predicate-with-data';
     }
@@ -159,7 +160,7 @@ class JournalsDataLoader {
       query,
       page: settings.page,
       sortBy,
-      groupBy
+      groupBy,
     };
   };
 
@@ -183,7 +184,7 @@ class JournalsDataLoader {
     const language = 'predicate';
     const replaceMap = {
       $TEXT: get(predicate, 'val'),
-      $PREDICATE_TYPE: get(predicate, 't')
+      $PREDICATE_TYPE: get(predicate, 't'),
     };
     const innerQueryCopy = cloneDeep(innerQuery);
     const query = this.recoursiveReplaceObjectValues(innerQueryCopy, replaceMap);
@@ -194,9 +195,9 @@ class JournalsDataLoader {
         ...query,
         sourceId: query.sourceId || parentSourceId,
         page: {
-          maxItems: maxItems + 1
+          maxItems: maxItems + 1,
         },
-        language
+        language,
       });
 
       const records = result.records;
@@ -212,6 +213,14 @@ class JournalsDataLoader {
     }
 
     return [];
+  };
+
+  getJournalWorkspacesSetting = (dashletConfig = {}) => {
+    const aggregateWorkspaces = get(dashletConfig, 'aggregateWorkspaces');
+    if (isArray(aggregateWorkspaces)) {
+      return aggregateWorkspaces.map((wsId) => (wsId.includes('@') ? wsId.split('@')[1] : wsId));
+    }
+    return null;
   };
 
   recoursiveReplaceObjectValues = (obj, replaceMap = {}) => {
@@ -243,20 +252,23 @@ class JournalsDataLoader {
    */
   getPredicates = async (journalConfig, settings) => {
     const columns = journalConfig.columns || settings.columns || [];
-    const predicateFilter = convertAttributeValues(filter(settings.filter, p => !!p), columns);
+    const predicateFilter = convertAttributeValues(
+      filter(settings.filter, (p) => !!p),
+      columns,
+    );
 
-    let predicates = [journalConfig.predicate, settings.predicate, ...predicateFilter].filter(p => !!p);
+    let predicates = [journalConfig.predicate, settings.predicate, ...predicateFilter].filter((p) => !!p);
 
     if (settings.onlyLinked && settings.recordRef) {
       predicates.push({
         t: PREDICATE_OR,
         val: columns
-          .filter(c => c.type === COLUMN_DATA_TYPE_ASSOC && c.searchable)
-          .map(a => ({
+          .filter((c) => c.type === COLUMN_DATA_TYPE_ASSOC && c.searchable)
+          .map((a) => ({
             t: PREDICATE_CONTAINS,
             val: settings.recordRef,
-            att: a.attribute
-          }))
+            att: a.attribute,
+          })),
       });
 
       predicates = await RecordUtils.replaceAttrValuesForRecord(predicates, settings.recordRef);
@@ -284,7 +296,7 @@ class JournalsDataLoader {
       sortBy = journalConfig.sortBy || [];
     }
 
-    sortBy = sortBy.filter(s => !!s.attribute);
+    sortBy = sortBy.filter((s) => !!s.attribute);
 
     if (!sortBy.length) {
       sortBy = [{ attribute: Attributes.CREATED, ascending: false }];
@@ -365,7 +377,7 @@ class JournalsDataLoader {
 
     return {
       attributesMap: attributesMap,
-      attributesSet: [...attributesSet]
+      attributesSet: [...attributesSet],
     };
   };
 }

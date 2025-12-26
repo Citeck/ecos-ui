@@ -14,7 +14,7 @@ import { getCurrentUserName } from '../../../helpers/util';
 
 const COLUMN_COMPUTED_PREFIX = 'column_';
 
-const getSavedValue = async config => {
+const getSavedValue = async (config) => {
   const { id } = config;
 
   if (!id) {
@@ -26,7 +26,7 @@ const getSavedValue = async config => {
     const userName = getCurrentUserName();
 
     if (userName && dbValue?.[userName]?.columns) {
-      config.columns.forEach(column => {
+      config.columns.forEach((column) => {
         const savedColumn = dbValue[userName].columns[column.attribute];
 
         if (savedColumn && savedColumn.width) {
@@ -41,8 +41,8 @@ const getSavedValue = async config => {
   return config;
 };
 
-const getColumnsWidth = columns =>
-  columns.map(column => {
+const getColumnsWidth = (columns) =>
+  columns.map((column) => {
     if (column.width && typeof column.width === 'number') {
       column.width = `${column.width}px`;
     }
@@ -101,19 +101,19 @@ class JournalsService {
   }
 
   __replaceConfigPlaceholders(columns, computed) {
-    return columns.map(column => {
-      ['newFormatter', 'newEditor', 'formatter', 'editor'].forEach(prop => {
+    return columns.map((column) => {
+      ['newFormatter', 'newEditor', 'formatter', 'editor'].forEach((prop) => {
         const config = _.get(column, `${prop}.config`);
         if (_.size(config) > 0) {
           _.set(
             column,
             `${prop}.config`,
-            replacePlaceholders(config, computed, key => {
+            replacePlaceholders(config, computed, (key) => {
               if (key.indexOf('$computed.') !== 0) {
                 return null;
               }
               return key.replace('$computed.', '');
-            })
+            }),
           );
         }
       });
@@ -135,12 +135,12 @@ class JournalsService {
     const params = _.cloneDeep(config.properties || {});
     if (config.sortBy && config.sortBy.length) {
       params['defaultSortBy'] = JSON.stringify(
-        config.sortBy.map(sort => {
+        config.sortBy.map((sort) => {
           return {
             id: sort.attribute,
-            order: sort.ascending ? 'asc' : 'desc'
+            order: sort.ascending ? 'asc' : 'desc',
           };
-        })
+        }),
       );
     }
 
@@ -156,11 +156,11 @@ class JournalsService {
     meta.metaRecord = config.metaRecord;
     meta.predicate = config.predicate || {};
     meta.title = getTextByLocale(config.label || config.name);
-    meta.createVariants = (config.createVariants || []).map(cv => this.__mapCreateVariant(cv));
+    meta.createVariants = (config.createVariants || []).map((cv) => this.__mapCreateVariant(cv));
 
     config.meta = meta;
 
-    config.columns = config.columns.map(c => this.__mapNewColumnConfigToLegacy(c));
+    config.columns = config.columns.map((c) => this.__mapNewColumnConfigToLegacy(c));
 
     return config;
   }
@@ -206,7 +206,7 @@ class JournalsService {
     }
 
     if (Array.isArray(options)) {
-      options.forEach(item => {
+      options.forEach((item) => {
         if (item.label) {
           item.label = getTextByLocale(item.label);
         }
@@ -220,7 +220,7 @@ class JournalsService {
     return {
       ...cv,
       title: getTextByLocale(cv.name),
-      canCreate: true
+      canCreate: true,
     };
   }
 
@@ -246,7 +246,7 @@ class JournalsService {
     const journalActions = journalConfig.actions;
     const actionsContext = {
       mode: ActionModes.JOURNAL,
-      scope: journalConfig.id
+      scope: journalConfig.id,
     };
 
     return RecordActions.getActionsForRecords(recordRefs, journalActions, actionsContext);
@@ -271,7 +271,7 @@ class JournalsService {
         const computedList = attributesBefore !== attributesToLoad.size ? recordComputed : configComputed;
         const newComputed = {
           ...computed,
-          id: scope ? scope + '.' + computed.id : computed.id
+          id: scope ? scope + '.' + computed.id : computed.id,
         };
         computedList.push(newComputed);
 
@@ -288,7 +288,7 @@ class JournalsService {
       for (let column of journalConfig.columns) {
         let computedScopeByName = processComputedList(column.computed, COLUMN_COMPUTED_PREFIX + column.attribute);
 
-        ['formatter', 'editor', 'newFormatter', 'newEditor'].forEach(field => {
+        ['formatter', 'editor', 'newFormatter', 'newEditor'].forEach((field) => {
           let newConfig = fillTemplateAttsAndMapComputedScope((column[field] || {}).config, attributesToLoad, computedScopeByName);
           if (newConfig) {
             column[field].config = newConfig;
@@ -300,7 +300,7 @@ class JournalsService {
     return {
       attributesToLoad: [...attributesToLoad],
       configComputed,
-      recordComputed
+      recordComputed,
     };
   }
 
@@ -321,6 +321,10 @@ class JournalsService {
    */
   getPredicates = async (journalConfig, settings) => {
     return journalDataLoader.getPredicates(journalConfig, settings);
+  };
+
+  getJournalWorkspacesSetting = (dashletConfig = {}) => {
+    return journalDataLoader.getJournalWorkspacesSetting(dashletConfig);
   };
 }
 

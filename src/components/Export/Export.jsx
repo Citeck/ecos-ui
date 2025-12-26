@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import queryString from 'query-string';
 import get from 'lodash/get';
+import isArray from 'lodash/isArray';
 import omit from 'lodash/omit';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
@@ -31,12 +32,12 @@ export default class Export extends Component {
     journalConfig: PropTypes.object,
     grid: PropTypes.object,
     right: PropTypes.bool,
-    selectedItems: PropTypes.array
+    selectedItems: PropTypes.array,
   };
 
   static defaultProps = {
     className: '',
-    dashletConfig: {}
+    dashletConfig: {},
   };
 
   #actionsDoing = new Map();
@@ -48,20 +49,20 @@ export default class Export extends Component {
 
     this.state = {
       hasAlfresco: false,
-      hasGroupActionsLicense: false
+      hasGroupActionsLicense: false,
     };
   }
 
   componentDidMount() {
-    ConfigService.getValue(ALFRESCO_ENABLED).then(value => {
+    ConfigService.getValue(ALFRESCO_ENABLED).then((value) => {
       this.setState({
-        hasAlfresco: value
+        hasAlfresco: value,
       });
     });
-    LicenseService.hasGroupActionsFeature().then(hasFeature => {
+    LicenseService.hasGroupActionsFeature().then((hasFeature) => {
       if (hasFeature) {
         this.setState({
-          hasGroupActionsLicense: true
+          hasGroupActionsLicense: true,
         });
       }
     });
@@ -80,7 +81,7 @@ export default class Export extends Component {
     return variants;
   }
 
-  handleExport = async item => {
+  handleExport = async (item) => {
     if (this.#actionsDoing.get(item.id)) {
       NotificationManager.warning(t('ecos-form.export.attention'));
       return;
@@ -121,26 +122,35 @@ export default class Export extends Component {
     const journalId = get(grid, 'journalId') ?? get(journalConfig, 'meta.nodeRef', get(dashletConfig, 'journalId')) ?? '';
     const onlyLinked = get(dashletConfig, ['onlyLinkedJournals', journalId]) ?? get(dashletConfig, 'onlyLinked');
 
+    let attrsToLoad;
+    if (journalId && isArray(get(dashletConfig, ['attrsToLoad', journalId]))) {
+      attrsToLoad = get(dashletConfig, ['attrsToLoad', journalId]);
+    } else {
+      attrsToLoad = get(dashletConfig, 'attrsToLoad');
+    }
+
     return JournalsConverter.getSettingsForDataLoaderServer({
       ...grid,
       predicates: JournalsConverter.cleanUpPredicate(grid.predicates),
       onlyLinked,
+      attrsToLoad,
       customJournalMode: get(dashletConfig, 'customJournalMode'),
-      recordRef
+      recordRef,
+      workspaces: journalsService.getJournalWorkspacesSetting(dashletConfig),
     });
   };
 
-  getActionConfig = item => {
+  getActionConfig = (item) => {
     const { journalConfig, grid } = this.props;
     const cols = get(grid, 'columns') || journalConfig.columns || [];
     const columns = cols
-      .filter(c => c.default)
+      .filter((c) => c.default)
       .map(({ attribute, text, newType, newFormatter, multiple }) => ({
         attribute,
         name: text,
         type: newType,
         formatter: newFormatter,
-        multiple: multiple
+        multiple: multiple,
       }));
 
     const journalName = get(journalConfig, 'meta.title') || '';
@@ -152,7 +162,7 @@ export default class Export extends Component {
       title: item.title,
       download: item.download,
       reportTitle,
-      journalName
+      journalName,
     };
   };
 
