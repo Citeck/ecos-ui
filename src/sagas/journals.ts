@@ -94,7 +94,6 @@ import { PREDICATE_EQ } from '@/components/Records/predicates/predicates';
 import { convertAttributeValues } from '@/components/Records/predicates/util';
 import { JournalUrlParams, SourcesId } from '@/constants';
 import { GROUPING_COUNT_ALL } from '@/constants/journal';
-import { SearchInWorkspacePolicy } from '@/forms/components/custom/selectJournal/constants';
 import { wrapSaga } from '@/helpers/redux';
 import { wrapArgs } from '@/helpers/store';
 import { decodeLink, getFilterParam, getSearchParams, getUrlWithoutOrigin, removeUrlSearchParams } from '@/helpers/urls';
@@ -843,16 +842,8 @@ export function* getGridData(
     settings.groupBy = [];
   }
 
-  const aggregateWorkspaces = get(config, 'aggregateWorkspaces');
-  const searchInWorkspacePolicy = get(config, 'searchInWorkspacePolicy');
-  if (isArray(aggregateWorkspaces)) {
-    const additionalWorkspaces = aggregateWorkspaces.map(wsId => (wsId.includes('@') ? wsId.split('@')[1] : wsId));
-
-    if (searchInWorkspacePolicy && Object.values(SearchInWorkspacePolicy).includes(searchInWorkspacePolicy)) {
-      settings.workspaces = JournalsService.getWorkspaceByPolicy(searchInWorkspacePolicy, additionalWorkspaces);
-    } else {
-      settings.workspaces = additionalWorkspaces;
-    }
+  if (isArray(get(config, 'aggregateWorkspaces'))) {
+    settings.workspaces = JournalsService.getJournalWorkspacesSetting(config);
   }
 
   const resultData: Partial<IJournalState['grid']> = yield call([JournalsService, JournalsService.getJournalData], journalConfig, {

@@ -1,8 +1,5 @@
 import _ from 'lodash';
 
-import { ActionModes } from '../../../constants';
-import { pagesStore } from '../../../helpers/indexedDB';
-import { getTextByLocale, getCurrentUserName } from '../../../helpers/util';
 import RecordActions from '../../Records/actions';
 
 import computedService from './computed/computedService';
@@ -12,8 +9,11 @@ import journalDataLoader from './journalsDataLoader';
 import journalsApi from './journalsServiceApi';
 import { COLUMN_TYPE_NEW_TO_LEGACY_MAPPING, replacePlaceholders, fillTemplateAttsAndMapComputedScope } from './util';
 
+import { ActionModes } from '@/constants';
 import { SearchInWorkspacePolicy } from '@/forms/components/custom/selectJournal/constants';
+import { pagesStore } from '@/helpers/indexedDB';
 import { getWorkspaceId } from '@/helpers/urls';
+import { getTextByLocale, getCurrentUserName } from '@/helpers/util';
 
 const COLUMN_COMPUTED_PREFIX = 'column_';
 
@@ -358,6 +358,15 @@ class JournalsService {
     }
 
     return [getWorkspaceId()];
+  };
+
+  /**
+   * Returns a list of workspaces based on configuration settings.
+   * @param {?object} dashletConfig - dashboard configuration.
+   * @returns {Array<string>} a list of workspaces based on configuration settings.
+   */
+  getJournalWorkspacesSetting = (dashletConfig = {}) => {
+    return journalDataLoader.getJournalWorkspacesSetting(dashletConfig);
   };
 }
 
