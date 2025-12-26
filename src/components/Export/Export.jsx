@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import get from 'lodash/get';
+import isArray from 'lodash/isArray';
 import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
@@ -153,12 +154,21 @@ export default class Export extends Component {
     const journalId = get(grid, 'journalId') ?? get(journalConfig, 'meta.nodeRef', get(dashletConfig, 'journalId')) ?? '';
     const onlyLinked = get(dashletConfig, ['onlyLinkedJournals', journalId]) ?? get(dashletConfig, 'onlyLinked');
 
+    let attrsToLoad;
+    if (journalId && isArray(get(dashletConfig, ['attrsToLoad', journalId]))) {
+      attrsToLoad = get(dashletConfig, ['attrsToLoad', journalId]);
+    } else {
+      attrsToLoad = get(dashletConfig, 'attrsToLoad');
+    }
+
     return JournalsConverter.getSettingsForDataLoaderServer({
       ...grid,
       predicates: JournalsConverter.cleanUpPredicate(grid.predicates),
       onlyLinked,
+      attrsToLoad,
       customJournalMode: get(dashletConfig, 'customJournalMode'),
-      recordRef
+      recordRef,
+      workspaces: journalsService.getJournalWorkspacesSetting(dashletConfig)
     });
   };
 

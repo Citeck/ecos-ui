@@ -15,9 +15,11 @@ import computedService from './computed/computedService';
 import journalsServiceApi from './journalsServiceApi';
 import { COMPUTED_ATT_PREFIX } from './util';
 
+import JournalsService from '@/components/Journals/service/journalsService';
 import { Attributes } from '@/constants';
 import { VIRTUAL_ATT_ID } from '@/constants/journal';
 import JournalsConverter from '@/dto/journals';
+import { SearchInWorkspacePolicy } from '@/forms/components/custom/selectJournal/constants';
 import { getWorkspaceId } from '@/helpers/urls';
 import { getEnabledWorkspaces, t } from '@/helpers/util';
 import AttributesService from '@/services/AttributesService';
@@ -234,6 +236,24 @@ class JournalsDataLoader {
     }
 
     return [];
+  };
+
+  getJournalWorkspacesSetting = (dashletConfig = {}) => {
+    let workspaces = null;
+
+    const aggregateWorkspaces = get(dashletConfig, 'aggregateWorkspaces');
+    const searchInWorkspacePolicy = get(dashletConfig, 'searchInWorkspacePolicy');
+    if (isArray(aggregateWorkspaces)) {
+      const additionalWorkspaces = aggregateWorkspaces.map(wsId => (wsId.includes('@') ? wsId.split('@')[1] : wsId));
+
+      if (searchInWorkspacePolicy && Object.values(SearchInWorkspacePolicy).includes(searchInWorkspacePolicy)) {
+        workspaces = JournalsService.getWorkspaceByPolicy(searchInWorkspacePolicy, additionalWorkspaces);
+      } else {
+        workspaces = additionalWorkspaces;
+      }
+    }
+
+    return workspaces;
   };
 
   recoursiveReplaceObjectValues = (obj, replaceMap = {}) => {
