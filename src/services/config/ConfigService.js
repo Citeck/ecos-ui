@@ -30,6 +30,7 @@ export const TABS_ENABLED = 'tabs-enabled';
 export const NEW_JOURNAL_ENABLED = 'new-journal-enabled';
 export const DEFAULT_WORKSPACE = 'default-workspace';
 export const WORKSPACES_ENABLED = 'workspaces-enabled';
+export const WORKSPACES_ALLOW_CREATE = 'app/emodel$workspaces-allow-create-for-all-users';
 export const ALFRESCO_ENABLED = 'app/alfresco$alfresco-enabled';
 export const ALFRESCO_EXPORT_SRC_ID_PATTERN = 'app/alfresco$alfresco-export-src-id-pattern';
 
@@ -141,13 +142,25 @@ const CONFIG_PROPS = {
     defaultValue: true
   },
   [NEW_JOURNAL_ENABLED]: {
+    defaultValue: true,
+    type: TYPE_BOOLEAN
+  },
+  [WORKSPACES_ALLOW_CREATE]: {
     defaultValue: false,
     type: TYPE_BOOLEAN
+  },
+  [WORKSPACES_ENABLED]: {
+    defaultValue: true,
+    type: TYPE_BOOLEAN
+  },
+  [DEFAULT_WORKSPACE]: {
+    defaultValue: '',
+    type: TYPE_TEXT
   },
   [TOUCH_CONFIG]: {
     defaultValue: {
       enabled: true,
-      uri: `${CITECK_URI}ecos/touch`
+      uri: `/gateway/api/gateway/touch`
     }
   }
 };

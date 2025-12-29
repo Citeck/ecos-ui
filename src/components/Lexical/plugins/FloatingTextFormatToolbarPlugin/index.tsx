@@ -22,7 +22,7 @@ import {
   getDOMSelection,
   LexicalEditor,
   SELECTION_CHANGE_COMMAND
-} from 'lexical';
+} from "lexical";
 import { JSX, Dispatch, useCallback, useEffect, useRef, useState } from 'react';
 import * as React from 'react';
 import { createPortal } from 'react-dom';
@@ -31,6 +31,8 @@ import { getDOMRangeRect } from '../../utils/getDOMRangeRect';
 import { getSelectedNode } from '../../utils/getSelectedNode';
 import { setFloatingElemPosition } from '../../utils/setFloatingElemPosition';
 import { INSERT_INLINE_COMMAND } from '../CommentPlugin';
+
+import AIAssistantFloatingButton from "./AIAssistantFloatingButton";
 
 function TextFormatFloatingToolbar({
   editor,
@@ -43,7 +45,9 @@ function TextFormatFloatingToolbar({
   isStrikethrough,
   isSubscript,
   isSuperscript,
-  setIsLinkEditMode
+  setIsLinkEditMode,
+  recordRef,
+  attribute
 }: {
   editor: LexicalEditor;
   anchorElem: HTMLElement;
@@ -59,6 +63,8 @@ function TextFormatFloatingToolbar({
   isSuperscript: boolean;
   isUnderline: boolean;
   setIsLinkEditMode: Dispatch<boolean>;
+  recordRef?: string;
+  attribute?: string;
 }): JSX.Element {
   const popupCharStylesEditorRef = useRef<HTMLDivElement | null>(null);
 
@@ -75,6 +81,8 @@ function TextFormatFloatingToolbar({
   const insertComment = () => {
     editor.dispatchCommand(INSERT_INLINE_COMMAND, undefined);
   };
+
+
 
   function mouseMoveListener(e: MouseEvent) {
     if (popupCharStylesEditorRef?.current && (e.buttons === 1 || e.buttons === 3)) {
@@ -279,6 +287,11 @@ function TextFormatFloatingToolbar({
       >
         <i className="format add-comment" />
       </button>
+      <AIAssistantFloatingButton
+        editor={editor}
+        recordRef={recordRef}
+        attribute={attribute}
+      />
     </div>
   );
 }
@@ -286,7 +299,9 @@ function TextFormatFloatingToolbar({
 function useFloatingTextFormatToolbar(
   editor: LexicalEditor,
   anchorElem: HTMLElement,
-  setIsLinkEditMode: Dispatch<boolean>
+  setIsLinkEditMode: Dispatch<boolean>,
+  recordRef?: string,
+  attribute?: string
 ): JSX.Element | null {
   const [isText, setIsText] = useState(false);
   const [isLink, setIsLink] = useState(false);
@@ -399,6 +414,8 @@ function useFloatingTextFormatToolbar(
       isUnderline={isUnderline}
       isCode={isCode}
       setIsLinkEditMode={setIsLinkEditMode}
+      recordRef={recordRef}
+      attribute={attribute}
     />,
     anchorElem
   );
@@ -406,11 +423,15 @@ function useFloatingTextFormatToolbar(
 
 export default function FloatingTextFormatToolbarPlugin({
   anchorElem = document.body,
-  setIsLinkEditMode
+  setIsLinkEditMode,
+  recordRef,
+  attribute
 }: {
   anchorElem?: HTMLElement;
   setIsLinkEditMode: Dispatch<boolean>;
+  recordRef?: string;
+  attribute?: string;
 }): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
-  return useFloatingTextFormatToolbar(editor, anchorElem, setIsLinkEditMode);
+  return useFloatingTextFormatToolbar(editor, anchorElem, setIsLinkEditMode, recordRef, attribute);
 }

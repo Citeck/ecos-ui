@@ -3,7 +3,9 @@ import assign from 'lodash/assign';
 import find from 'lodash/find';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
 import queryString from 'query-string';
+import { delay } from 'redux-saga';
 import { call, put, select, takeEvery, takeLatest, all } from 'redux-saga/effects';
 
 import {
@@ -276,6 +278,11 @@ function* sagaChangeTabData({ api }, { payload }) {
     }
 
     yield put(setTabs(PageTabList.storeList));
+
+    if (isFunction(payload.callback)) {
+      yield delay(300);
+      yield call(payload.callback);
+    }
   } catch (e) {
     console.error('[pageTabs] sagaChangeTabData saga error', e);
   }

@@ -1,6 +1,8 @@
 /// <reference types="vite/client" />
 import { Base64 } from 'js-base64';
+import { compose } from 'redux';
 
+import { RecordsContainerType } from '@/components/Records/Records';
 import { NotificationManager } from '@/services/notifications';
 
 export {};
@@ -21,11 +23,14 @@ declare global {
   }
 
   interface Window {
+    Records: RecordsContainerType;
+    __REDUX_DEVTOOLS_EXTENSION_COMPOSE__?: <Opts>(opts?: Opts) => typeof compose;
+
     Citeck?: {
       Plugins?: any;
       NotificationManager?: typeof NotificationManager;
       Base64?: typeof Base64;
-      Records?: any;
+      Records?: RecordsContainerType;
       [key: string]: any;
     };
 

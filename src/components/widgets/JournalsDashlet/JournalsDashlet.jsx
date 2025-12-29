@@ -30,7 +30,7 @@ import {
   setSelectedRecords
 } from '@/actions/journals';
 import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '@/constants';
-import { getStateId, wrapArgs } from '@/helpers/redux';
+import { getStateId, wrapArgs } from '@/helpers/store';
 import { goToJournalsPage } from '@/helpers/urls';
 import { extractLabel, getDOMElementMeasurer, getTextByLocale, t } from '@/helpers/util';
 import { selectJournalDashletProps } from '@/selectors/dashletJournals';
@@ -55,6 +55,7 @@ const mapStateToProps = (state, ownProps) => {
   return {
     stateId,
     isMobile: !!get(state, 'view.isMobile'),
+    location: get(state, 'router.location', {}),
     ...ownState
   };
 };
@@ -118,7 +119,8 @@ class JournalsDashlet extends BaseWidget {
 
     this.state = {
       ...this.state,
-      journalId: UserLocalSettingsService.getDashletProperty(this.state.lsId, 'journalId')
+      journalId: UserLocalSettingsService.getDashletProperty(this.state.lsId, 'journalId'),
+      locationSearch: null
     };
 
     this.props.initState();
@@ -132,24 +134,40 @@ class JournalsDashlet extends BaseWidget {
     const { setRecordRef, getDashletConfig, setDashletConfigByParams, id, config, onSave } = this.props;
     const { journalId } = this.state;
 
-    setRecordRef(this.recordRef);
+    if (this.recordRef) {
+      setRecordRef(this.recordRef);
+    }
 
     if (isFunction(onSave)) {
       setDashletConfigByParams(id, config, this.recordRef, journalId);
     } else {
       getDashletConfig(id);
     }
+
+    this.setState({ locationSearch: window.location.search });
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     super.componentDidUpdate(prevProps, prevState, snapshot);
 
     const { config: prevConfig } = prevProps;
-    const { id, config, setDashletConfigByParams, setRecordRef, onSave } = this.props;
-    const { journalId } = this.state;
+    const { id, config, setDashletConfigByParams, setRecordRef, onSave, journalConfig, isLoadingGrid, location } = this.props;
+    const { journalId, locationSearch } = this.state;
+    const { reloadDataOnFocus } = journalConfig || {};
+
+    if (
+      reloadDataOnFocus &&
+      !isEqual(prevProps.location, location) &&
+      !isLoadingGrid &&
+      get(location, 'search', '').includes(locationSearch)
+    ) {
+      this.handleReload();
+    }
 
     if (!isEqual(config, prevConfig) && isFunction(onSave)) {
-      setRecordRef(this.recordRef);
+      if (this.recordRef) {
+        setRecordRef(this.recordRef);
+      }
       setDashletConfigByParams(id, config, this.recordRef, journalId);
     }
   }

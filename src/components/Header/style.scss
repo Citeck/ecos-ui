@@ -325,6 +325,10 @@
     &:hover {
       background-color: $color-white;
       color: var(--primary-color);
+
+      & .ecos-points-loader-child {
+        background-color: var(--primary-color);
+      }
     }
 
     &.isActivePreview {
@@ -361,7 +365,6 @@
 
       display: flex;
       flex-direction: column;
-      gap: 12px;
 
       & .citeck-workspace-sidebar__card {
         width: $width-card;
@@ -416,7 +419,7 @@
         flex-wrap: wrap;
         gap: 12px;
         justify-content: center;
-        padding: 24px 24px 0 24px;
+        padding: 20px;
       }
 
       &__create-button {
@@ -424,7 +427,7 @@
         align-items: center;
         justify-content: center;
         width: 100%;
-        padding: 0 24px 24px 24px;
+        padding: 0 24px 20px;
 
         .ecos-btn {
           background-color: var(--header-bg-color);
@@ -524,6 +527,8 @@
       padding: 8px;
       background-color: var(--header-component-color);
 
+      &:active,
+      &:focus,
       &:hover {
         background-color: $color-white;
         color: var(--primary-color);
@@ -558,6 +563,11 @@
 
   .ecos-header-user__menu-item {
     font-size: $font-size-small;
+
+    svg {
+      width: 17px;
+      height: 16px;
+    }
 
     .icon:not(.icon_on):not(.icon_off) {
       &:before {

@@ -5,45 +5,16 @@ import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 import isString from 'lodash/isString';
 import { lazy } from 'react';
-import uuidV4 from 'uuid/v4';
+import uuidV4 from 'uuidv4';
 
 import { FORM_MODE_EDIT, FORM_MODE_VIEW } from '../EcosForm';
 
 import { CONFIG_VERSION, DashboardTypes } from '@/constants/dashboard';
+import { WidgetsKeys } from '@/constants/widgets';
 import { getCurrentLocale, getEnabledWorkspaces, t } from '@/helpers/util';
 import ConfigService, { ALFRESCO_ENABLED } from '@/services/config/ConfigService';
 
-export const ComponentKeys = {
-  WELCOME: 'welcome',
-  NEWS: 'news',
-  HTML: 'html',
-  PAGINATION: 'pagination',
-  DOC_PREVIEW: 'doc-preview',
-  JOURNAL: 'journal',
-  REPORT: 'report',
-  COMMENTS: 'comments',
-  ACTIVITIES: 'activities',
-  PROPERTIES: 'properties',
-  TASKS: 'tasks',
-  CURRENT_TASKS: 'current-tasks',
-  DOC_STATUS: 'doc-status',
-  EVENTS_HISTORY: 'events-history',
-  VERSIONS_JOURNAL: 'versions-journal',
-  DOC_ASSOCIATIONS: 'doc-associations',
-  RECORD_ACTIONS: 'record-actions',
-  WEB_PAGE: 'web-page',
-  BARCODE: 'barcode',
-  BIRTHDAYS: 'birthdays',
-  DOCUMENTS: 'documents',
-  USER_PROFILE: 'user-profile',
-  DOC_CONSTRUCTOR: 'doc-constructor',
-  PROCESS_STATISTICS: 'process-statistics',
-  STAGES: 'stages',
-  CHARTS: 'charts',
-  PUBLICATION: 'publication',
-  HIERARCHICAL_TREE: 'hierarchical-tree',
-  KANBAN_BOARD: 'kanban-board'
-};
+export const ComponentKeys = WidgetsKeys;
 
 /**
  * При добавлении нового виджета, необходимо его зарегистрировать
@@ -122,6 +93,17 @@ export default class Components {
       label: 'HTML',
       supportedDashboardTypes: [],
       props: {}
+    },
+    [ComponentKeys.GANTT_CHART]: {
+      load: () =>
+        lazy(() =>
+          import('../../plugins').then(plugins => ({
+            default: get(plugins, 'default.GanttChartWidget', () => null)
+          }))
+        ),
+      checkIsAvailable: () => Boolean(get(window, 'Citeck.Plugins.GanttChartWidget')),
+      label: 'dashboard-settings.widget.gantt-chart',
+      supportedDashboardTypes: []
     },
     [ComponentKeys.REPORT]: {
       load: () => lazy(() => import('./Report')),
@@ -339,7 +321,10 @@ export default class Components {
         return Boolean(get(window, 'Citeck.Plugins.HierarchicalTreeWidget'));
       },
       label: 'dashboard-settings.widget.hierarchical-tree',
-      supportedDashboardTypes: [DashboardTypes.PUBLICATION, DashboardTypes.CUSTOM]
+      supportedDashboardTypes: [DashboardTypes.PUBLICATION, DashboardTypes.CUSTOM],
+      props: {
+        isStaticPreviewWidget: true
+      }
     },
     [ComponentKeys.STAGES]: {
       load: () =>
@@ -367,7 +352,13 @@ export default class Components {
     }
   });
 
-  static allDashboardsComponents = [ComponentKeys.NEWS, ComponentKeys.JOURNAL, ComponentKeys.WEB_PAGE, ComponentKeys.HTML];
+  static allDashboardsComponents = [
+    ComponentKeys.NEWS,
+    ComponentKeys.JOURNAL,
+    ComponentKeys.WEB_PAGE,
+    ComponentKeys.HTML,
+    ComponentKeys.GANTT_CHART
+  ];
 
   static get allDashboardTypes() {
     return Object.values(DashboardTypes);

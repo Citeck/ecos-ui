@@ -8,7 +8,6 @@ import React from 'react';
 import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
 import { isSmallMode } from '../../helpers/util';
 import UserLocalSettingsService, { DashletProps } from '../../services/userLocalSettings';
-// @ts-ignore
 import Records from '../Records/Records';
 
 export const EVENTS = {
@@ -16,7 +15,8 @@ export const EVENTS = {
   UPDATE_COMMENTS: 'UPDATE_COMMENTS',
   UPDATE_ASSOCIATIONS: 'UPDATE_ASSOCIATIONS',
   UPDATE_TASKS_WIDGETS: 'UPDATE_TASKS_WIDGETS',
-  ASSOC_UPDATE: 'ASSOC_UPDATE'
+  ASSOC_UPDATE: 'ASSOC_UPDATE',
+  ATTS_UPDATED: 'ATTS_UPDATED'
 };
 
 interface FitHeights {
@@ -28,6 +28,8 @@ export interface BaseWidgetProps {
   dashboardId: string;
   record: string;
   tabId: string;
+  isSameHeight: boolean;
+  stateId?: string;
   config?: {
     collapsed?: boolean;
   };
@@ -105,12 +107,16 @@ abstract class BaseWidget<P extends BaseWidgetProps = BaseWidgetProps, S extends
 
     return isCollapsedByLS === undefined ? (isCollapsedByConfig ?? false) : isCollapsedByLS;
   }
+
+  get widgetType(): string {
+    return get(this.constructor, 'name', 'UnknownWidget');
+  }
+
   get isNarrow(): boolean {
     return isSmallMode(this.state.width);
   }
 
   get instanceRecord() {
-    // @ts-ignore
     return Records.get(this.props.record);
   }
 

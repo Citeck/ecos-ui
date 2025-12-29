@@ -8,6 +8,7 @@ import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 import isObject from 'lodash/isObject';
+import isString from 'lodash/isString';
 import isUndefined from 'lodash/isUndefined';
 import set from 'lodash/set';
 import Tooltip from 'tooltip.js';
@@ -17,7 +18,7 @@ import Widgets from '../../../widgets';
 
 import { FORM_MODE_CREATE } from '@/components/EcosForm/constants';
 import { t } from '@/helpers/export/util';
-import { getCurrentLocale, getMLValue, getTextByLocale, isEqualLexicalValue } from '@/helpers/util';
+import { getCurrentLocale, getMLValue, getTextByLocale, IS_TEST_ENV, isEqualLexicalValue } from '@/helpers/util';
 import ZIndex from '@/services/ZIndex';
 
 // >>> Methods
@@ -479,6 +480,32 @@ Base.prototype.createInlineEditButton = function (container) {
 Base.prototype.createViewOnlyValue = function (container) {
   originalCreateViewOnlyValue.call(this, container);
 
+  const prefix = get(this, 'component.prefix');
+  const suffix = get(this, 'component.suffix');
+
+  if ((prefix && isString(prefix)) || (suffix && isString(suffix))) {
+    const dd = container.querySelector('dd');
+    if (dd) {
+      const wrapper = this.ce('div', { class: 'formio-form_view-mode__view-with-affixes' });
+
+      container.insertBefore(wrapper, dd);
+
+      if (prefix) {
+        const prefixDiv = this.ce('div', { class: 'formio-form_view-mode__view-prefix' });
+        prefixDiv.appendChild(document.createTextNode(prefix));
+        wrapper.appendChild(prefixDiv);
+      }
+
+      wrapper.appendChild(dd);
+
+      if (suffix) {
+        const suffixDiv = this.ce('div', { class: 'formio-form_view-mode__view-suffix' });
+        suffixDiv.appendChild(document.createTextNode(suffix));
+        wrapper.appendChild(suffixDiv);
+      }
+    }
+  }
+
   this.createInlineEditButton(container);
 
   const customClass = get(this, 'component.customClass');
@@ -821,7 +848,7 @@ Base.prototype.createViewOnlyLabel = function (container) {
     return;
   }
 
-  const labelElement = this.ce('dt');
+  const labelElement = this.ce('dt', { title: t(this.label) });
 
   labelElement.appendChild(this.text(this.label));
   this.createTooltip(labelElement);
@@ -958,12 +985,21 @@ Object.defineProperty(Base.prototype, 'component', {
   }
 });
 
+let WidgetService = {};
+
+if (!IS_TEST_ENV) {
+  import('@/services/WidgetService').then(({ default: WidgetServiceDefault }) => {
+    WidgetService = WidgetServiceDefault;
+  });
+}
+
 Base.prototype.evalContext = function (additional) {
   const context = originalEvalContext.call(this, additional);
   const utils = {
     ...context.utils,
     getTextByLocale,
-    getCurrentLocale
+    getCurrentLocale,
+    openSettingsWidgets: IS_TEST_ENV ? () => null : WidgetService.openEditJournalWidgets
   };
 
   return {

@@ -12,7 +12,7 @@ import Close from '@/components/common/icons/Close';
 import NoDataWorkspaces from '@/components/common/icons/NoDataWorkspaces';
 import { getWorkspaceId } from '@/helpers/urls';
 import { t } from '@/helpers/util';
-import { selectMyWorkspaces, selectPublicWorkspaces, selectWorkspaceIsLoading } from '@/selectors/workspaces';
+import { selectMyWorkspaces, selectPublicWorkspaces, selectSearchText, selectWorkspaceIsLoading } from '@/selectors/workspaces';
 import WorkspaceService from '@/services/WorkspaceService';
 import { Dispatch, RootState } from '@/types/store';
 import './styles.scss';
@@ -23,9 +23,10 @@ interface WorkspaceSidebarProps {
   isOpen: boolean;
   isLoading: boolean;
   isMobile: boolean;
+  searchText: string;
   toggleIsOpen: (flag?: boolean) => void;
   getSidebarWorkspaces: () => void;
-  onSearch: (text: string) => void;
+  onSearch: (text: string, withoutLoading?: boolean) => void;
   openLink: (id: WorkspaceType['id'], homePageLink: WorkspaceType['homePageLink'], openNewBrowserTab?: boolean) => void;
   myWorkspaces: WorkspaceType[];
   publicWorkspaces: WorkspaceType[];
@@ -99,7 +100,7 @@ class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebar
     const clickedInPanel = clickedElement.closest(`.${PANEL_CLASSNAME}`);
 
     if (!clickedInsideSidebar || !clickedInPanel) {
-      this.props.toggleIsOpen(false);
+      this.toggleOpen(false);
     }
   };
 
@@ -119,7 +120,7 @@ class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebar
       if (this.props.isOpen) {
         clearTimeout(this.timeoutId);
 
-        this.setState({ visible: true, shouldAnimateOpen: false }, () => {
+        this.setState({ visible: true, shouldAnimateOpen: false, activeTab: TabsId.MY_WORKSPACE }, () => {
           requestAnimationFrame(() => {
             this.setState({ shouldAnimateOpen: true });
           });
@@ -140,7 +141,7 @@ class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebar
     homePageLink: WorkspaceType['homePageLink']
   ) => {
     event.stopPropagation();
-    this.props.toggleIsOpen();
+    this.toggleOpen();
 
     if (wsId !== getWorkspaceId()) {
       this.props.openLink(wsId, homePageLink);
@@ -199,7 +200,7 @@ class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebar
   }
 
   renderPublicWorkspaces() {
-    const { publicWorkspaces, isLoading, toggleIsOpen } = this.props;
+    const { publicWorkspaces, isLoading } = this.props;
 
     if (!publicWorkspaces.length) {
       return this.NoDataWorkspaces;
@@ -215,8 +216,8 @@ class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebar
                 {...workspace}
                 key={idx}
                 onMouseDown={e => this.onMouseDown(e, workspace.id, workspace.homePageLink)}
-                openWorkspace={e => this.openWorkspace(e, workspace.id, workspace.homePageLink)}
-                onJoinCallback={toggleIsOpen}
+                openWorkspace={(e, id, homeLink) => this.openWorkspace(e, id || workspace.id, homeLink || workspace.homePageLink)}
+                onJoinCallback={this.toggleOpen}
                 hasAnimationOnHover
               />
             ))}
@@ -226,8 +227,17 @@ class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebar
     );
   }
 
+  toggleOpen = (flag?: boolean) => {
+    const { toggleIsOpen, onSearch, searchText } = this.props;
+    toggleIsOpen(flag);
+
+    if (!flag && !!searchText) {
+      onSearch('');
+    }
+  };
+
   render() {
-    const { toggleIsOpen, onSearch, isMobile } = this.props;
+    const { onSearch, isMobile } = this.props;
     const { visible, shouldAnimateOpen, activeTab } = this.state;
 
     if (!visible) {
@@ -248,7 +258,7 @@ class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebar
               <Tabs items={this.tabs} narrow />
               {activeTab === TabsId.MY_WORKSPACE && this.renderMyWorkspaces()}
               {activeTab === TabsId.PUBLIC_WORKSPACE && this.renderPublicWorkspaces()}
-              <button className="citeck-workspace-sidebar_btn--close" onClick={() => toggleIsOpen(false)}>
+              <button className="citeck-workspace-sidebar_btn--close" onClick={() => this.toggleOpen(false)}>
                 <Close />
               </button>
             </div>
@@ -261,7 +271,8 @@ class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebar
 
 const mapStateToProps = (
   state: RootState
-): Pick<WorkspaceSidebarProps, 'isLoading' | 'myWorkspaces' | 'publicWorkspaces' | 'isMobile'> => ({
+): Pick<WorkspaceSidebarProps, 'isLoading' | 'myWorkspaces' | 'searchText' | 'publicWorkspaces' | 'isMobile'> => ({
+  searchText: selectSearchText(state),
   isLoading: selectWorkspaceIsLoading(state),
   myWorkspaces: selectMyWorkspaces(state),
   publicWorkspaces: selectPublicWorkspaces(state),
@@ -270,7 +281,7 @@ const mapStateToProps = (
 
 const mapDispatchToProps = (dispatch: Dispatch): Pick<WorkspaceSidebarProps, 'getSidebarWorkspaces' | 'onSearch'> => ({
   getSidebarWorkspaces: () => dispatch(getSidebarWorkspaces()),
-  onSearch: text => dispatch(onSearchWorkspaces(text))
+  onSearch: (text, withoutLoading) => dispatch(onSearchWorkspaces({ text, withoutLoading }))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(WorkspaceSidebar);

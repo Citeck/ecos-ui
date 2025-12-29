@@ -1,12 +1,12 @@
+import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-import debounce from 'lodash/debounce';
 import React, { useEffect, useState } from 'react';
-import uuidv4 from 'uuid/v4';
+import uuidv4 from 'uuidv4';
 
 import ModelEditor from '../ModelEditor';
 
-import { aiAssistantContext, CONTEXT_TYPES, aiAssistantService } from '@/components/AIAssistant';
+import { editorContextService, CONTEXT_TYPES, aiAssistantService } from '@/components/AIAssistant';
 import BPMNModeler from '@/components/ModelEditor/BPMNModeler';
 import { SourcesId } from '@/constants';
 import {
@@ -53,26 +53,30 @@ class BPMNEditorPage extends ModelEditor {
   componentWillUnmount() {
     super.componentWillUnmount && super.componentWillUnmount();
 
-    aiAssistantContext.clearContext();
+    editorContextService.clearContext();
   }
 
   updateAIAssistantContext = () => {
     const processRef = this.recordRef || '';
     const ecosType = this.props.formProps?.formData?.ecosType || '';
 
-    if (!aiAssistantContext.hasContext()) {
-      aiAssistantContext.setContext(CONTEXT_TYPES.BPMN_EDITOR, {
-        onSubmit: this.handleAIAssistantSubmit,
-        updateContextBeforeRequest: this.updateContextBeforeRequest
-      }, {
-        processRef,
-        ecosType,
-        currentBpmnXml: null
-      });
+    if (!editorContextService.hasContext()) {
+      editorContextService.setContext(
+        CONTEXT_TYPES.BPMN_EDITOR,
+        {
+          onSubmit: this.handleAIAssistantSubmit,
+          updateContextBeforeRequest: this.updateContextBeforeRequest
+        },
+        {
+          processRef,
+          ecosType,
+          currentBpmnXml: null
+        }
+      );
     }
 
     this.debouncedUpdateContext();
-  }
+  };
 
   _updateAIAssistantContextData = () => {
     const processRef = this.recordRef || '';
@@ -82,21 +86,21 @@ class BPMNEditorPage extends ModelEditor {
     this.getBpmnXml(currentBpmnXml => {
       if (!currentBpmnXml) return;
 
-      aiAssistantContext.updateContextData({
+      editorContextService.updateContextData({
         processRef,
         ecosType,
         currentBpmnXml
       });
     });
-  }
+  };
 
-  updateContextBeforeRequest = (callback) => {
+  updateContextBeforeRequest = callback => {
     const processRef = this.recordRef || '';
     const ecosType = this.props.formProps?.formData?.ecosType || '';
 
     this.getBpmnXml(currentBpmnXml => {
       if (currentBpmnXml) {
-        aiAssistantContext.updateContextData({
+        editorContextService.updateContextData({
           processRef,
           ecosType,
           currentBpmnXml
@@ -105,9 +109,9 @@ class BPMNEditorPage extends ModelEditor {
 
       callback && callback();
     });
-  }
+  };
 
-  getBpmnXml = (callback) => {
+  getBpmnXml = callback => {
     if (!this.designer) {
       callback && callback(null);
       return;
@@ -194,7 +198,7 @@ class BPMNEditorPage extends ModelEditor {
     return extraButtons;
   }
 
-  handleAIAssistantSubmit = (bpmnXml) => {
+  handleAIAssistantSubmit = bpmnXml => {
     if (bpmnXml && this.designer) {
       this.designer.setDiagram(bpmnXml, {
         callback: ({ mounted }) => {

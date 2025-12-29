@@ -40,6 +40,7 @@ import { sanitizeUrl } from '../../utils/url';
 import { OPEN_UPLOAD_MODAL } from '../FilePlugin/constants';
 import { SHORTCUTS } from '../ShortcutsPlugin/shortcuts';
 
+import AIAssistantButton from './AIAssistantButton';
 import FontSize from './fontSize';
 import { AlignFormatDropdown } from './formats/AlignFormat';
 import { BlockFormatDropDown } from './formats/BlockFormat';
@@ -48,7 +49,6 @@ import { InsertFormatDropdown } from './formats/InsertFormat';
 import { TextFormatDropdown } from './formats/TextFormat';
 
 import { t } from '@/helpers/export/util';
-import { getRecordRef } from '@/helpers/urls';
 import { isNodeRef } from '@/helpers/util';
 import { NotificationManager } from '@/services/notifications';
 
@@ -61,13 +61,17 @@ export default function ToolbarPlugin({
   activeEditor,
   setActiveEditor,
   setIsLinkEditMode,
-  isViewFileUploadBtn
+  isViewFileUploadBtn,
+  attribute,
+  recordRef
 }: {
   editor: LexicalEditor;
   activeEditor: LexicalEditor;
   setActiveEditor: Dispatch<LexicalEditor>;
   setIsLinkEditMode: Dispatch<boolean>;
   isViewFileUploadBtn: boolean;
+  attribute?: string;
+  recordRef?: string;
 }): JSX.Element {
   const [selectedElementKey, setSelectedElementKey] = useState<NodeKey | null>(null);
   const [modal, showModal] = useModal();
@@ -273,7 +277,6 @@ export default function ToolbarPlugin({
 
   const canViewerSeeInsertDropdown = !toolbarState.isImageCaption;
   const canViewerSeeInsertCodeButton = !toolbarState.isImageCaption;
-  const recordRef = getRecordRef();
 
   return (
     <div className="toolbar">
@@ -381,6 +384,13 @@ export default function ToolbarPlugin({
         </>
       )}
       <AlignFormatDropdown disabled={!isEditable} value={toolbarState.elementFormat} editor={activeEditor} isRTL={toolbarState.isRTL} />
+      <Divider />
+      <AIAssistantButton
+        key={`${recordRef}-${attribute}`}
+        disabled={!isEditable}
+        recordRef={recordRef}
+        attribute={attribute}
+      />
       {isViewFileUploadBtn && (
         <div className="citeck-lexical-editor__load-node">
           <IcoBtn

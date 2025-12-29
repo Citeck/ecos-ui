@@ -3,11 +3,10 @@ import React from 'react';
 import { workspaceAttributes } from '@/api/workspaces';
 import { WorkspaceType } from '@/api/workspaces/types';
 import Dashlet from '@/components/Dashlet';
-// @ts-ignore
 import Records from '@/components/Records';
 import Card from '@/components/WorkspaceSidebar/Card';
 import { Loader } from '@/components/common';
-import BaseWidget, { BaseWidgetState } from '@/components/widgets/BaseWidget';
+import BaseWidget, { BaseWidgetProps, BaseWidgetState } from '@/components/widgets/BaseWidget';
 import { omit } from '@/helpers/omitObject';
 import { getWorkspaceId, openLinkWorkspace } from '@/helpers/urls';
 import { t } from '@/helpers/util';
@@ -24,8 +23,8 @@ interface WelcomeState extends BaseWidgetState {
   workspaces: wsItem[];
 }
 
-class WelcomeWidget extends BaseWidget<any, WelcomeState> {
-  constructor(props: any) {
+class WelcomeWidget<P extends BaseWidgetProps> extends BaseWidget<P, WelcomeState> {
+  constructor(props: P) {
     super(props);
     this.state = {
       isLoading: false,
@@ -42,7 +41,6 @@ class WelcomeWidget extends BaseWidget<any, WelcomeState> {
   async getWelcomeWorkspaces() {
     const attributesWs = omit(workspaceAttributes, ['hasDelete', 'hasWrite']);
     try {
-      // @ts-ignore
       const workspaces = await Records.get([
         'emodel/workspace@corpport-workspace',
         'emodel/workspace@data-lists-workspace',
@@ -98,6 +96,7 @@ class WelcomeWidget extends BaseWidget<any, WelcomeState> {
     return (
       // @ts-ignore
       <Dashlet
+        {...this.props}
         title={t('dashboard-settings.widget.welcome')}
         className="ecos-welcome-widget-dashlet"
         disableCollapse={false}

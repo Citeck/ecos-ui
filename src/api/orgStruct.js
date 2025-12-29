@@ -7,6 +7,7 @@ import Records from '../components/Records';
 import {
   ALFRESCO_ADMINISTRATORS_GROUP,
   AUTHORITY_TYPE_GROUP,
+  AUTHORITY_TYPE_ROLE,
   AUTHORITY_TYPE_USER,
   DataTypes,
   ITEMS_PER_PAGE,
@@ -18,10 +19,11 @@ import {
   getGroupRef,
   getPersonRef,
   getAuthRef,
-  getRecordRef
+  getRecordRef,
+  getRoleRef
 } from '../components/common/form/SelectOrgstruct/helpers';
 import { SourcesId, DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS } from '../constants';
-import { permute } from '../helpers/util';
+import { getEnabledWorkspaces, permute } from '../helpers/util';
 import ConfigService, {
   ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS,
   ORGSTRUCT_HIDE_DISABLED_USERS,
@@ -33,7 +35,9 @@ import ConfigService, {
 
 import { CommonApi } from './common';
 
-import EcosFormUtils from '@/components/EcosForm/EcosFormUtils/EcosFormUtils.js';
+import EcosFormUtils from '@/components/EcosForm/EcosFormUtils/EcosFormUtils';
+import { PREDICATE_NOT_EQ, PREDICATE_EQ, PREDICATE_AND } from '@/components/Records/predicates/predicates';
+import { getWorkspaceId } from '@/helpers/urls';
 
 export class OrgStructApi extends CommonApi {
   get groupAttributes() {
@@ -41,6 +45,7 @@ export class OrgStructApi extends CommonApi {
       displayName: '?disp',
       firstName: 'firstName',
       lastName: 'lastName',
+      authorityName: 'authorityName',
       fullName: 'authorityName',
       groupSubType: 'groupSubType!""',
       isPersonDisabled: 'personDisabled?bool',
@@ -57,6 +62,7 @@ export class OrgStructApi extends CommonApi {
     return {
       displayName: '?disp',
       fullName: 'authorityName',
+      authorityName: 'authorityName',
       email: 'email',
       isPersonDisabled: 'personDisabled?bool',
       canEdit: 'permissions._has.Write?bool',
@@ -67,6 +73,18 @@ export class OrgStructApi extends CommonApi {
       authorityType: `authorityType!"${AUTHORITY_TYPE_USER}"`,
       photo: 'avatar.url',
       groups: 'authorityGroups[]?id'
+    };
+  }
+
+  static get roleAttributes() {
+    return {
+      id: '?id',
+      nodeRef: '?id',
+      label: '?disp',
+      authorityName: '?localId',
+      displayName: '?disp',
+      canEdit: 'permissions._has.Write?bool',
+      authorityType: `authorityType!"${AUTHORITY_TYPE_ROLE}"`
     };
   }
 
@@ -140,7 +158,7 @@ export class OrgStructApi extends CommonApi {
     return searchFields;
   };
 
-  fetchGroup = async ({ query, excludeAuthoritiesByType = [], excludeAuthoritiesByName, isIncludedAdminGroup }) => {
+  fetchGroup = async ({ query, excludeAuthoritiesByType = [], excludeAuthoritiesByName, isIncludedAdminGroup }, signal) => {
     const { groupName, searchText } = query;
 
     const userMask = await OrgStructApi.fetchUsernameMask();
@@ -189,6 +207,17 @@ export class OrgStructApi extends CommonApi {
 
     const extraQueryVal = [];
 
+    if (searchText && groupName) {
+      const predicateSpecGroup = {
+        t: 'contains',
+        att: 'authorityGroupsFull',
+        val: groupName
+      };
+
+      queryVal.push(predicateSpecGroup);
+      queryValPerson.push(predicateSpecGroup);
+    }
+
     if (excludeAuthoritiesByName) {
       excludeAuthoritiesByName.split(',').forEach(name => {
         extraQueryVal.push({
@@ -218,7 +247,8 @@ export class OrgStructApi extends CommonApi {
         query: { t: 'and', v: [...queryVal, ...extraQueryVal] },
         language: 'predicate'
       },
-      { ...this.groupAttributes, ...globalSearchConfig }
+      { ...this.groupAttributes, ...globalSearchConfig },
+      { signal }
     )
       .then(r => get(r, 'records', []))
       .then(filterByType)
@@ -250,7 +280,8 @@ export class OrgStructApi extends CommonApi {
         query: { t: 'and', v: queryValPerson },
         language: 'predicate'
       },
-      { ...OrgStructApi.userAttributes, ...globalSearchConfig, ...personAttributes }
+      { ...OrgStructApi.userAttributes, ...globalSearchConfig, ...personAttributes },
+      { signal }
     ).then(r => get(r, 'records', []));
 
     return Promise.all([groups, users]).then(([groups, users]) => [...groups, ...users]);
@@ -271,9 +302,23 @@ export class OrgStructApi extends CommonApi {
   };
 
   static prepareRecordRef = async recordRef => {
-    const authorityType = recordRef.includes(SourcesId.GROUP) ? AUTHORITY_TYPE_GROUP : AUTHORITY_TYPE_USER;
+    let authorityType;
 
-    if (recordRef.includes(SourcesId.GROUP) || recordRef.includes(SourcesId.PERSON)) {
+    switch (true) {
+      case recordRef.includes(SourcesId.GROUP):
+        authorityType = AUTHORITY_TYPE_GROUP;
+        break;
+
+      case recordRef.includes(SourcesId.AUTHORITY):
+        authorityType = AUTHORITY_TYPE_ROLE;
+        break;
+
+      default:
+        authorityType = AUTHORITY_TYPE_USER;
+        break;
+    }
+
+    if (recordRef.includes(SourcesId.GROUP) || recordRef.includes(SourcesId.PERSON) || recordRef.includes(SourcesId.AUTHORITY)) {
       return {
         recordRef,
         authorityType
@@ -315,6 +360,13 @@ export class OrgStructApi extends CommonApi {
       };
     }
 
+    if (recordRef.includes(`${AUTHORITY_TYPE_ROLE}_`)) {
+      return {
+        recordRef: getRoleRef(getGroupName(recordRef)),
+        authorityType: AUTHORITY_TYPE_ROLE
+      };
+    }
+
     return {
       recordRef: getPersonRef(recordRef),
       authorityType
@@ -326,6 +378,10 @@ export class OrgStructApi extends CommonApi {
 
     if (authorityType === AUTHORITY_TYPE_USER) {
       return Records.get(recordRef).load(OrgStructApi.userAttributes);
+    }
+
+    if (authorityType === AUTHORITY_TYPE_ROLE) {
+      return Records.get(recordRef).load(OrgStructApi.roleAttributes);
     }
 
     return Records.get(recordRef).load(this.groupAttributes).then(this._prepareGroups);
@@ -522,8 +578,26 @@ export class OrgStructApi extends CommonApi {
     return queryVal;
   };
 
-  static async getUserList(searchText, extraFields = [], params = { page: 0, maxItems: ITEMS_PER_PAGE }) {
+  static async getRoleList(searchText, extraFields = [], signal) {
+    return Records.query(
+      {
+        sourceId: SourcesId.AUTHORITY,
+        query: { types: ['ROLE'] }
+      },
+      { ...OrgStructApi.roleAttributes, ...extraFields },
+      { signal }
+    );
+  }
+
+  static async getUserList(searchText, extraFields = [], params = { page: 0, maxItems: ITEMS_PER_PAGE }, isSkipSearchInWorkspace, signal) {
     let queryVal = [];
+
+    const userMask = await OrgStructApi.fetchUsernameMask();
+    let personAttributes = {};
+
+    if (!!userMask) {
+      personAttributes = EcosFormUtils.getAttrsFromTemplate(userMask).reduce((acc, value) => ({ ...acc, [value]: value }), {});
+    }
 
     const notDisabledPredicate = await OrgStructApi.getNotDisabledPredicate();
     if (notDisabledPredicate) {
@@ -533,9 +607,17 @@ export class OrgStructApi extends CommonApi {
     const excludedUsers = await OrgStructApi.fetchGlobalHideInOrgstruct();
     (excludedUsers || []).forEach(item => {
       if (item) {
-        queryVal.push({ t: 'not-eq', att: 'id', val: item.replace('GROUP_', '') });
+        queryVal.push({ t: PREDICATE_NOT_EQ, att: 'id', val: item.replace('GROUP_', '') });
       }
     });
+
+    if (getEnabledWorkspaces() && !isSkipSearchInWorkspace) {
+      queryVal.push({
+        t: PREDICATE_EQ,
+        att: '_workspace',
+        val: getWorkspaceId()
+      });
+    }
 
     const searchFields = await OrgStructApi.getSearchFields(searchText, extraFields);
 
@@ -544,14 +626,15 @@ export class OrgStructApi extends CommonApi {
     return Records.query(
       {
         sourceId: SourcesId.PERSON,
-        query: { t: 'and', v: queryVal },
+        query: { t: PREDICATE_AND, v: queryVal },
         page: {
           maxItems: params.maxItems,
           skipCount: params.page * params.maxItems
         },
         language: 'predicate'
       },
-      { ...OrgStructApi.userAttributes, ...searchFields, ...extraFields }
+      { ...OrgStructApi.userAttributes, ...searchFields, ...extraFields, ...personAttributes },
+      { signal }
     ).then(result => ({
       items: converterUserList(result.records),
       totalCount: result.totalCount

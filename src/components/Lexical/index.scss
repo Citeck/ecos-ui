@@ -1876,3 +1876,33 @@ i.page-break,
 #test-recorder-button-download::after {
   background-image: url(images/icons/download.svg);
 }
+
+// AI Assistant Button styles
+.toolbar-item.ai-assistant-button {
+  color: #333;
+
+  svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+  }
+
+  &:hover:not([disabled]) {
+    background-color: #f5f5f5;
+    color: #007bff;
+  }
+
+  &:disabled {
+    color: #6c757d;
+    opacity: 0.5;
+  }
+}
+
+@keyframes ai-spinner {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

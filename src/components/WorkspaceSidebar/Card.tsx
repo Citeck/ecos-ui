@@ -6,10 +6,13 @@ import { connect } from 'react-redux';
 import { getSidebarWorkspaces, getWorkspaces, joinToWorkspace, leaveOfWorkspace, removeWorkspace } from '@/actions/workspaces';
 import { WorkspaceType } from '@/api/workspaces/types';
 import FormManager from '@/components/EcosForm/FormManager';
+import Records from '@/components/Records';
+import RecordImpl from '@/components/Records/Record';
 import WorkspacePreview from '@/components/WorkspacePreview';
 import Confirm from '@/components/WorkspaceSidebar/Confirm';
-import Actions from '@/components/common/icons/Actions';
+import Actions from '@/components/common/icons/HorizontalActions';
 import { SourcesId } from '@/constants';
+import { getPersonalWorkspaceId, getWorkspaceId, openLinkWorkspace } from '@/helpers/urls';
 import { t } from '@/helpers/util';
 import { selectWorkspaceIsLoadingAction } from '@/selectors/workspaces';
 import { NotificationManager } from '@/services/notifications';
@@ -20,7 +23,7 @@ interface WorkspaceCardProps extends WorkspaceType {
   isSmallView?: boolean;
   hasAnimationOnHover?: boolean;
   className?: string;
-  openWorkspace?: (e: OpenWsEventType) => void;
+  openWorkspace?: (e: OpenWsEventType, wsId?: string, homePageLink?: string) => void;
   customImagePreview?: ReactNode;
   onMouseDown?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
   onJoinCallback?: () => void;
@@ -50,7 +53,7 @@ type OpenWsEventType = React.MouseEvent<HTMLDivElement | HTMLLIElement | HTMLBut
 
 const Labels = {
   GO_TO_WORKSPACE: 'workspaces.card.go-to-workspace',
-  EDIT_WORKSPACE: 'workspaces.card.edit-workspace',
+  EDIT_WORKSPACE: 'workspaces.edit-workspace-modal.title',
   REMOVE_WORKSPACE: 'workspaces.card.remove-workspace',
   LEAVE_WORKSPACE: 'workspaces.card.leave-workspace',
   LEAVE_WORKSPACE_ERROR_TITLE: 'workspaces.card.leave-workspace.error.title',
@@ -129,11 +132,25 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
   };
 
   onEditWorkspace = (event: OpenWsEventType) => {
+    const { openWorkspace } = this.props;
+
     event.stopPropagation();
     FormManager.openFormModal({
+      title: `${t('header.site-menu.settings-current-workspace')}`,
       record: `${SourcesId.WORKSPACE}@${this.props.id}`,
       saveOnSubmit: true,
-      onSubmit: () => this.refetchWorkspaces()
+      onSubmit: async (record: RecordImpl) => {
+        if (openWorkspace) {
+          const { id: wsId, homePageLink } = await Records.get(record).load({
+            id: 'id',
+            homePageLink: 'homePageLink?str'
+          });
+
+          openWorkspace(event, wsId, homePageLink);
+        }
+
+        this.refetchWorkspaces();
+      }
     });
     this.toggleMenuSettings();
   };
@@ -144,7 +161,7 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
   };
 
   onLeaveWorkspace = () => {
-    const { isCurrentUserLastManager, leaveOfWorkspace } = this.props;
+    const { isCurrentUserLastManager, leaveOfWorkspace, id: wsId } = this.props;
     this.setState({ showMenuSettings: false, showBtnSettings: false });
 
     if (isCurrentUserLastManager) {
@@ -153,6 +170,9 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
     }
 
     leaveOfWorkspace();
+    if (wsId === getWorkspaceId()) {
+      this.openPersonalWorkspace();
+    }
   };
 
   refetchWorkspaces = () => {
@@ -247,8 +267,17 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
     });
   };
 
+  openPersonalWorkspace = () => openLinkWorkspace(getPersonalWorkspaceId());
+
   onConfirmRemove = () => {
-    this.props.removeWorkspace(() => this.toggleViewConfirm());
+    const { removeWorkspace, id: wsId } = this.props;
+
+    removeWorkspace(() => {
+      this.toggleViewConfirm();
+      if (wsId === getWorkspaceId()) {
+        this.openPersonalWorkspace();
+      }
+    });
   };
 
   renderConfirm = () => {

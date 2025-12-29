@@ -28,7 +28,7 @@ export default class UploadDocsRefService {
     const submissionDataValues = Object.values(attrs).join(' ');
 
     this.getUploadedEntityRefs().forEach(docRef => {
-      if (submissionDataValues.includes(docRef)) {
+      if (submissionDataValues.includes(docRef) || (docRef.includes('@') && submissionDataValues.includes(docRef.split('@')[1]))) {
         docsRefsSubmission.push(docRef);
       }
     });

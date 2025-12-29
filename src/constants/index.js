@@ -60,12 +60,16 @@ export const pagesWithOnlyContent = [
 ];
 
 export const SourcesId = {
+  AUTHORITY: 'emodel/authority',
+  FILL_TEMPLATE_VALUE: 'uiserv/fill-template-value',
   ADMIN_PAGE_SECTION: 'uiserv/admin-page-section',
   EAPPS_BUILD_INFO: 'eapps/build-info',
+  CATEGORY: 'emodel/category',
   DASHBOARD: 'uiserv/dashboard',
   DOCLIB: 'emodel/doclib',
   RESOLVED_FORM: 'uiserv/rform',
   FORM: 'uiserv/form',
+  WIKI: 'emodel/wiki',
   USER_CONF: 'uiserv/user-conf',
   MENU: 'uiserv/menu',
   RESOLVED_MENU: 'uiserv/rmenu',
@@ -75,6 +79,7 @@ export const SourcesId = {
   META: 'uiserv/meta',
   JOURNAL: 'uiserv/journal',
   RESOLVED_JOURNAL: 'uiserv/rjournal',
+  JOURNAL_SERVICE: 'uiserv/journals-service',
   BOARD: 'uiserv/board',
   RESOLVED_BOARD: 'uiserv/rboard',
   RESOLVED_TYPE: 'emodel/rtype',
@@ -110,6 +115,7 @@ export const SourcesId = {
   PROC_TASK: 'eproc/proc-task',
   PROC_HISTORIC_TASK: 'eproc/proc-historic-task',
   DOCUMENTS: 'emodel/documents',
+  SYSTEM_REPO: 'eapps/system-info-repo',
   SEARCH: 'emodel/search',
   get CURRENT_USER() {
     return `${SourcesId.PERSON}@CURRENT`;
@@ -224,7 +230,8 @@ export const JournalUrlParams = {
   USER_CONFIG_ID: 'userConfigId',
   SHOW_PREVIEW: 'showPreview',
   SEARCH: 'search',
-  VIEW_MODE: 'viewMode'
+  VIEW_MODE: 'viewMode',
+  VIEW_WIDGET_PREVIEW: 'viewWidgets'
 };
 
 export const DocLibUrlParams = {
@@ -264,8 +271,10 @@ export const IGNORED_EVENT_ATTRIBUTE = '_isIgnoredEvent';
 export const DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS = ['id', '_name'];
 export const allowedModes = ['development', 'dev-stage'];
 
-window.Citeck = window.Citeck || {};
-window.Citeck.constants = window.Citeck.constants || {};
-window.Citeck.constants = { ...window.Citeck.constants, URL, SourcesId };
+if (typeof window !== 'undefined') {
+  window.Citeck = window.Citeck || {};
+  window.Citeck.constants = window.Citeck.constants || {};
+  window.Citeck.constants = { ...window.Citeck.constants, URL, SourcesId };
+}
 
 export const _LOCALHOST_ = 'http://localhost:3000';

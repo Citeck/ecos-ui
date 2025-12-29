@@ -1,12 +1,34 @@
 import ButtonEditDisplay from 'formiojs/components/button/editForm/Button.edit.display';
+
 import baseEditForm from '../base/Base.form';
 
-export default function(...extend) {
+export default function (...extend) {
   return baseEditForm(
     [
       {
         key: 'display',
         components: [
+          {
+            type: 'textarea',
+            key: 'custom',
+            label: 'Button Custom Logic',
+            tooltip: 'The custom logic to evaluate when the button is clicked.',
+            rows: 5,
+            editor: 'ace',
+            input: true,
+            weight: 120,
+            placeholder: 'return form.ecosButtonSubmit().then(...)',
+            conditional: {
+              json: {
+                '===': [
+                  {
+                    var: 'data.action'
+                  },
+                  'custom'
+                ]
+              }
+            }
+          },
           ...ButtonEditDisplay,
           {
             label: 'Remove bottom indents',

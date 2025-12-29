@@ -89,6 +89,7 @@ export class BpmnApi extends RecordService {
       {
         sourceId: 'eproc/bpmn-def',
         language: 'predicate',
+        workspaces: ['default'],
         query: categoryId
           ? {
               t: PREDICATE_EQ,

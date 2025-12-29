@@ -4,19 +4,10 @@
 @import '../fonts/citeck-leftmenu/style.css';
 @import '../fonts/open-sans/open-sans.css';
 @import './constants';
+@import "./variables";
 @import './scrollbars';
 @import './notifications';
 @import './bpmn';
-
-:root {
-  --header-bg-color: #{$color-blue-light};
-  --header-component-color: #{var(--primary-color)};
-  --main-bg-color: #{$page-background-color};
-
-  --primary-color: #{$primary};
-  --dark-primary-color: #{$color-blue-light};
-  --light-primary-color: #{$color-blue-light2};
-}
 
 html {
   overflow: auto;

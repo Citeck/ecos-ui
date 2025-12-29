@@ -1,4 +1,4 @@
-import { DataTypes, DisplayModes } from '../../../../forms/components/custom/selectJournal/constants';
+import { DataTypes, DisplayModes } from '@/forms/components/custom/selectJournal/constants';
 
 export { DataTypes, DisplayModes };
 
@@ -7,6 +7,7 @@ export const Labels = {
   NO_JOURNAL_CONFIG_ERROR: 'select-journal.error.no-journal-config',
   DEFAULT_TITLE: 'select-journal.select-modal.title',
   FILTER_BUTTON: 'select-journal.select-modal.filter-button',
+  LOCAL_DATA: 'select-journal.select-modal.local-data',
   CANCEL_BUTTON: 'select-journal.select-modal.cancel-button',
   SAVE_BUTTON: 'select-journal.select-modal.ok-button',
   FILTER_RESET_BTN: 'select-journal.select-modal.reset-button',

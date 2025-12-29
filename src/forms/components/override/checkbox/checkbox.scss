@@ -264,7 +264,7 @@ $positions: (
           &:focus {
             + span {
               &:after {
-                color: $color-blue-light;
+                color: var(--primary-color);
               }
 
               &:before {

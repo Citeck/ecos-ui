@@ -49,6 +49,7 @@
 
   &-control-panel {
     & .ecos-dropdown__toggle_static {
+      height: 42px;
       font-size: $font-size-xxl;
       border: 1px solid $color-gray-4;
     }

@@ -1,4 +1,5 @@
 import { handleActions } from 'redux-actions';
+
 import {
   applyFilter,
   getBoardConfig,
@@ -21,9 +22,9 @@ import {
   applyPreset,
   clearFiltered
 } from '../actions/kanban';
-import { updateState } from '../helpers/redux';
 import { DEFAULT_PAGINATION } from '../components/Journals/constants';
 import { t } from '../helpers/export/util';
+import { updateState } from '../helpers/redux';
 
 export const initialState = {
   isLoading: true,
@@ -78,8 +79,8 @@ export default handleActions(
       return updateState(state, stateId, { boardConfig }, initialState);
     },
     [setKanbanSettings]: (state, { payload }) => {
-      const { stateId, kanbanSettings } = payload;
-      return updateState(state, stateId, { kanbanSettings }, initialState);
+      const { stateId, kanbanSettings, hasWritePermission } = payload;
+      return updateState(state, stateId, { kanbanSettings, hasWritePermission }, initialState);
     },
     [setOriginKanbanSettings]: (state, { payload }) => {
       const { stateId, originKanbanSettings } = payload;

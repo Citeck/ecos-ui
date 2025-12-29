@@ -1,35 +1,38 @@
 @import '../../../styles/constants';
 
 .ecos-journals-content {
+  &__breadcrumbs {
+    padding: 18px 6px 12px 18px;
+  }
+
   &__sides {
     display: flex;
+    width: 100%;
 
     & > :nth-child(n) {
       position: relative;
-      width: 50%;
 
       &:nth-child(even) {
         border-left: 1px solid $color-gray-4;
       }
     }
 
-    &-left {
-      min-width: 280px;
+    &-small {
+      min-width: 300px;
     }
 
-    &-right {
-      min-width: 440px;
+    &-large {
+      min-width: 582px;
+      height: calc(100% - 34px);
     }
   }
 
   &__resizer {
-    right: initial;
-    left: -10px;
-    top: 45%;
+    right: 0;
   }
 
   &__preview-well {
-    padding: 17px 15px;
+    padding: 12px 18px;
     min-height: 468px;
     background-color: var(--main-bg-color);
   }

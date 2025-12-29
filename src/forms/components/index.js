@@ -9,7 +9,6 @@ import Button from './override/button';
 import { Column, Columns } from './override/columns';
 import Checkbox from './override/checkbox';
 import Currency from './override/currency';
-import DataMap from './override/datamap';
 import DateTime from './override/datetime';
 import Email from './override/email';
 import File from './override/file';
@@ -26,6 +25,7 @@ import TextField from './override/textfield';
 import Url from './override/url';
 import Hidden from './override/hidden';
 import DataGrid from './override/datagrid';
+import DataMap from './override/datamap';
 import EditGrid from './override/editgrid';
 
 import AsyncData from './custom/asyncData';

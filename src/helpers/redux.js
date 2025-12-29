@@ -33,16 +33,12 @@ export function wrapArgs(stateId) {
 }
 
 export function* wrapSaga({ api, saga }, action) {
-  const stateId = get(action, 'payload.stateId');
+  const stateId = get(action, 'payload.stateId', '');
   const w = wrapArgs(stateId);
 
   action = handleAction(action);
 
   yield saga({ api, stateId, w }, action);
-}
-
-export function getStateId({ tabId = '', id = '' }) {
-  return `[${tabId}]-[${id}]`;
 }
 
 export function getCurrentStateById(state, stateId, initialState = {}) {

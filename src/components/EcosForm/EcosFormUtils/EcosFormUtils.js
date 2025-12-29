@@ -14,7 +14,7 @@ import omitBy from 'lodash/omitBy';
 import lodashSet from 'lodash/set';
 import moment from 'moment';
 import React from 'react';
-import uuidV4 from 'uuid/v4';
+import uuidV4 from 'uuidv4';
 
 import { AppApi } from '../../../api/app';
 import { UserApi } from '../../../api/user';
@@ -33,6 +33,7 @@ import { FORM_MODE_CREATE, FORM_MODE_EDIT } from '../constants';
 
 import BaseEcosFormUtils from './BaseEcosFormUtils';
 
+import AuthorityService from '@/services/authrority/AuthorityService';
 import { NotificationManager } from '@/services/notifications';
 
 const SOURCE_DIVIDER = '@';
@@ -1171,8 +1172,8 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
     return component && component.type === 'button' && component.key.startsWith(OUTCOME_BUTTONS_PREFIX);
   }
 
-  static isConfigurableForm() {
-    return EcosFormUtils._apiUser.isUserAdmin();
+  static isConfigurableForm(recordId) {
+    return AuthorityService.hasConfigWritePermission(recordId);
   }
 
   static isComponentsReady(components, options = {}) {

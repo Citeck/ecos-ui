@@ -36,8 +36,8 @@ export class AppApi extends CommonApi {
   constructor() {
     super();
 
-    emitter.on(RESET_AUTH_STATE_EVENT, () => {
-      this.#isAuthenticated = false;
+    emitter.on(RESET_AUTH_STATE_EVENT, status => {
+      this.#isAuthenticated = status;
     });
   }
 
@@ -161,7 +161,7 @@ export class AppApi extends CommonApi {
       .catch(_ => '0');
     const url = queryString.stringifyUrl({ url: `${UISERV_API}messages/locale`, query: { id, cb } });
 
-    return ecosFetch(url)
+    return ecosFetch(url, { credentials: 'include' })
       .then(res => (res.ok ? res.json() : Promise.reject(res)))
       .catch(e => {
         console.error(e);
@@ -183,6 +183,20 @@ export class AppApi extends CommonApi {
 
         return !status;
       })
+      .catch(e => {
+        if (showNotification) {
+          NotificationManager.error(t('page.error-loading.message'), t('page.error-loading.title'));
+        }
+
+        console.error(e);
+        return false;
+      });
+  }
+
+  hasWorkspaceReadPermission(workspaceId, showNotification = false) {
+    return Records.get(`${SourcesId.WORKSPACE}@${workspaceId}`)
+      .load('isCurrentUserMember?bool!')
+      .then(status => status)
       .catch(e => {
         if (showNotification) {
           NotificationManager.error(t('page.error-loading.message'), t('page.error-loading.title'));

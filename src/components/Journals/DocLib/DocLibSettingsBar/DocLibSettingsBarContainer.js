@@ -1,8 +1,8 @@
 import { connect } from 'react-redux';
 
-import { wrapArgs } from '../../../../helpers/redux';
 import { loadFilesViewerData, startSearch, createNode } from '../../../../actions/docLib';
 import { toggleViewMode } from '../../../../actions/journals';
+import { wrapArgs } from '../../../../helpers/redux';
 import { selectDocLibCreateVariants, selectDocLibSearchText } from '../../../../selectors/docLib';
 
 import DocLibSettingsBar from './DocLibSettingsBar';
@@ -24,11 +24,8 @@ const mapDispatchToProps = (dispatch, props) => {
     onRefresh: () => dispatch(loadFilesViewerData(w())),
     startSearch: text => dispatch(startSearch(w(text))),
     createNode: data => dispatch(createNode(w(data))),
-    toggleViewMode: viewMode => dispatch(toggleViewMode(w({ viewMode })))
+    toggleViewMode: viewMode => dispatch(toggleViewMode(w({ viewMode, stateId: props.stateId })))
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(DocLibSettingsBar);
+export default connect(mapStateToProps, mapDispatchToProps)(DocLibSettingsBar);

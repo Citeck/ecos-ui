@@ -5,8 +5,8 @@ import Choices from '../../../choices';
 import { requestAnimationFrame } from '../../override/misc';
 import BaseComponent from '../base/BaseComponent';
 
-import { createDocumentUrl } from '@/helpers/urls.js';
-import { getMLValue, isNodeRef } from '@/helpers/util.js';
+import { createDocumentUrl } from '@/helpers/urls';
+import { getMLValue, isNodeRef } from '@/helpers/util';
 
 export default class SelectComponent extends BaseComponent {
   static schema(...extend) {
@@ -1345,9 +1345,15 @@ export default class SelectComponent extends BaseComponent {
   }
 
   destroy() {
-    if (this.choices) {
+    if (this.choices && !this.choices.destroyed && this.choices.initialised) {
       this.choices.destroyed = true;
-      this.choices.destroy();
+
+      try {
+        this.choices.destroy();
+      } catch (e) {
+        console.error('Error of EcosSelect component:', e);
+      }
+
       this.choices = null;
     }
 

@@ -1,8 +1,9 @@
+import { IJournalsApi } from '@/api/journals';
 import { IWorkspaceApi } from '@/api/workspaces';
 
 export type ConfigureAPIType = {
   api: ApiType;
-  setNotAuthCallback: (callback: () => void) => void;
+  setNotAuthCallback: (callback: (status?: boolean) => void) => void;
 };
 
 export type ApiType = {
@@ -14,7 +15,7 @@ export type ApiType = {
   menu: any;
   orgStruct: any;
   user: any;
-  journals: any;
+  journals: IJournalsApi;
   tasks: any;
   comments: any;
   activities: any;
@@ -51,12 +52,14 @@ export type ApiType = {
   previewList: any;
 };
 
-export type RecordsQueryResponse<T> = {
+export type RecordsQueryResponse<R, A = any> = {
   hasMore: boolean;
   messages: string[];
-  records: T[];
+  records: R[];
   totalCount: number;
-  version: number;
+  version?: number;
+  attributes: A;
+  errors: string[];
 };
 
 export type PureQueryResponse<T = unknown> = Promise<RecordsQueryResponse<T>>;

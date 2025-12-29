@@ -1,4 +1,4 @@
-import { allowedModes } from '@/constants/index.js';
+import { allowedModes } from '@/constants';
 import ecosFetch from '@/helpers/ecosFetch';
 import { getCurrentLocale } from '@/helpers/util';
 

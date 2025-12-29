@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import get from 'lodash/get';
+import isArray from 'lodash/isArray';
 import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
@@ -8,13 +9,6 @@ import PropTypes from 'prop-types';
 import queryString from 'query-string';
 import React, { Component } from 'react';
 
-import { instUserConfigApi as api } from '../../api/userConfig';
-import { URL } from '../../constants';
-import JournalsConverter from '../../dto/journals';
-import { decodeLink } from '../../helpers/urls';
-import { t } from '../../helpers/util';
-import ConfigService, { ALFRESCO_ENABLED } from '../../services/config/ConfigService';
-import LicenseService from '../../services/license/LicenseService';
 import ListItem from '../Journals/JournalsPresets/ListItem';
 import { Labels } from '../Journals/constants';
 import journalsService from '../Journals/service/journalsService';
@@ -23,6 +17,13 @@ import recordActions from '../Records/actions/recordActions';
 import { CollapsibleList } from '../common';
 import { Dropdown, Well } from '../common/form';
 
+import { instUserConfigApi as api } from '@/api/userConfig';
+import { URL } from '@/constants';
+import JournalsConverter from '@/dto/journals';
+import { decodeLink } from '@/helpers/urls';
+import { getTextByLocale, t } from '@/helpers/util';
+import ConfigService, { ALFRESCO_ENABLED } from '@/services/config/ConfigService';
+import LicenseService from '@/services/license/LicenseService';
 import { NotificationManager } from '@/services/notifications';
 
 import './Export.scss';
@@ -115,14 +116,20 @@ export default class Export extends Component {
     this.#actionsDoing.set(item.id, true);
 
     if (item.target) {
-      const { journalConfig } = this.props;
+      const { journalConfig, grid } = this.props;
       const recordsQuery = await journalsService.getRecordsQuery(journalConfig, this.getJSettings());
       const actionConfig = this.getActionConfig(item);
       const action = recordActions.getActionInfo({ type: RecordsExportAction.ACTION_ID, config: actionConfig });
 
       this.textInput.current.value = JSON.stringify(recordsQuery.query);
 
-      await recordActions.execForQuery(recordsQuery, action);
+      const actionContext = {
+        journalColumns: get(grid, 'columns', []),
+        journalName: getTextByLocale(get(journalConfig, 'name')),
+        journalId: get(grid, 'journalId')
+      };
+
+      await recordActions.execForQuery(recordsQuery, action, actionContext);
     } else if (isFunction(item.click)) {
       await item.click();
     }
@@ -142,13 +149,26 @@ export default class Export extends Component {
   };
 
   getJSettings = () => {
-    const { grid, dashletConfig, recordRef } = this.props;
+    const { grid, dashletConfig, journalConfig, recordRef } = this.props;
+
+    const journalId = get(grid, 'journalId') ?? get(journalConfig, 'meta.nodeRef', get(dashletConfig, 'journalId')) ?? '';
+    const onlyLinked = get(dashletConfig, ['onlyLinkedJournals', journalId]) ?? get(dashletConfig, 'onlyLinked');
+
+    let attrsToLoad;
+    if (journalId && isArray(get(dashletConfig, ['attrsToLoad', journalId]))) {
+      attrsToLoad = get(dashletConfig, ['attrsToLoad', journalId]);
+    } else {
+      attrsToLoad = get(dashletConfig, 'attrsToLoad');
+    }
 
     return JournalsConverter.getSettingsForDataLoaderServer({
       ...grid,
       predicates: JournalsConverter.cleanUpPredicate(grid.predicates),
-      onlyLinked: get(dashletConfig, 'onlyLinked'),
-      recordRef
+      onlyLinked,
+      attrsToLoad,
+      customJournalMode: get(dashletConfig, 'customJournalMode'),
+      recordRef,
+      workspaces: journalsService.getJournalWorkspacesSetting(dashletConfig)
     });
   };
 

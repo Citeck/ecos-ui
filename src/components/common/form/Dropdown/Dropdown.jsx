@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { Dropdown as Drd, DropdownMenu, DropdownToggle } from 'reactstrap';
-import uuidV4 from 'uuid/v4';
+import uuidV4 from 'uuidv4';
 
 import { getIconUpDown } from '../../../../helpers/icon';
 import { getPropByStringKey, getTextByLocale, isMobileDevice } from '../../../../helpers/util';
@@ -34,6 +34,7 @@ export default class Dropdown extends Component {
     right: PropTypes.bool,
     full: PropTypes.bool,
     isButton: PropTypes.bool,
+    source: PropTypes.array,
     isStatic: PropTypes.bool,
     isLinks: PropTypes.bool,
     cascade: PropTypes.bool,
@@ -206,7 +207,6 @@ export default class Dropdown extends Component {
     } = this.props;
     const filteredSource = hideSelected ? source.filter(item => item[valueField] !== value) : source;
     let Wrapper = ({ children }) => <div className={wrapperClassName}>{children}</div>;
-
     if (withScrollbar) {
       Wrapper = ({ children }) => (
         <Scrollbars

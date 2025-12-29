@@ -207,7 +207,7 @@ describe('kanban sagas tests', () => {
     expect(_loading.type).toEqual(setLoading().type);
     expect(_loading.payload.isLoading).toBeFalsy();
 
-    expect(spyRecordsGet).toHaveBeenCalledTimes(1);
+    expect(spyRecordsGet).toHaveBeenCalledTimes(2);
     expect(spyGetFormInputs).toHaveBeenCalledTimes(1);
     expect(spyGetJournalConfig).toHaveBeenCalledTimes(2);
     expect(spyGetJournalData).toHaveBeenCalledTimes(colsLen);
@@ -426,7 +426,7 @@ describe('kanban sagas tests', () => {
         }
       }
     );
-    const [_firstLoadingColumns, _dataCards, _lastLoadingColumns] = dispatched;
+    const [_firstLoadingColumns, _dataCards, _updatedActions, _lastLoadingColumns] = dispatched;
 
     expect(_firstLoadingColumns.type).toEqual(setLoadingColumns().type);
     expect(_firstLoadingColumns.payload.isLoadingColumns).toEqual(['some-id-1', 'some-id-2']);
@@ -441,7 +441,7 @@ describe('kanban sagas tests', () => {
     expect(spyError).not.toHaveBeenCalled();
     expect(console.error).not.toHaveBeenCalled();
 
-    expect(dispatched).toHaveLength(3);
+    expect(dispatched).toHaveLength(4);
   });
 
   it('sagaApplyFilter', async () => {
@@ -523,7 +523,7 @@ describe('kanban sagas tests', () => {
     expect(spyChangeUrlLink).not.toHaveBeenCalled();
     expect(console.error).not.toHaveBeenCalled();
 
-    expect(dispatched).toHaveLength(0);
+    expect(dispatched).toHaveLength(1);
   });
 
   it('sagaRunSearchCard > there is _new text & was no', async () => {
@@ -535,7 +535,7 @@ describe('kanban sagas tests', () => {
     expect(spyChangeUrlLink).toHaveBeenCalledWith('/test?search=test', { updateUrl: true });
     expect(console.error).not.toHaveBeenCalled();
 
-    expect(dispatched).toHaveLength(0);
+    expect(dispatched).toHaveLength(1);
   });
 
   it('sagaRunSearchCard > there is _same text & was', async () => {
@@ -544,7 +544,7 @@ describe('kanban sagas tests', () => {
     const dispatched = await wrapRunSaga(kanban.sagaRunSearchCard, { text: 'test' });
 
     expect(spyChangeUrlLink).not.toHaveBeenCalled();
-    expect(dispatched).toHaveLength(0);
+    expect(dispatched).toHaveLength(1);
   });
 
   it('sagaRunSearchCard > there is _clean text & was', async () => {
@@ -556,7 +556,7 @@ describe('kanban sagas tests', () => {
     expect(spyChangeUrlLink).toHaveBeenCalledWith('/test', { updateUrl: true });
     expect(console.error).not.toHaveBeenCalled();
 
-    expect(dispatched).toHaveLength(0);
+    expect(dispatched).toHaveLength(1);
   });
 
   it('sagaReloadBoardData > there is no data', async () => {

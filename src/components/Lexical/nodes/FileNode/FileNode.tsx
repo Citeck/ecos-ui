@@ -89,7 +89,7 @@ export class FileNode extends DecoratorNode<JSX.Element> {
 
   getDownLoadUrl = (): string => {
     const url = `${Urls.DASHBOARD}?recordRef=${this.__fileRecordId}`;
-    return new URL(url, window.location.origin).toString();
+    return new URL(url, window.location.origin).toString().replace(window.location.origin, '');
   };
 
   updateDOM(): boolean {

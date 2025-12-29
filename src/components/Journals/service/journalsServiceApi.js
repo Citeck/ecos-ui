@@ -5,7 +5,8 @@ import Records from '../../Records/Records';
 
 import { SourcesId } from '@/constants';
 import { getWorkspaceId } from '@/helpers/urls';
-import { getEnabledWorkspaces } from '@/helpers/util.js';
+import { getEnabledWorkspaces } from '@/helpers/util';
+import AuthorityService from '@/services/authrority/AuthorityService';
 
 class JournalsServiceApi {
   async getJournalConfigByType(typeRef, attributes) {
@@ -28,15 +29,18 @@ class JournalsServiceApi {
       force
     );
 
-    let config = { ...json };
+    const hasWritePermission = await AuthorityService.hasConfigWritePermission(journalId);
+
+    let config = { ...json, hasWritePermission };
 
     if (!isEmpty(listViewInfo)) {
       config = {
         ...config,
         listViewInfo: {
-          title: `${listViewInfo['titleAtt']}?disp`,
-          text: `${listViewInfo['textAtt']}?disp`,
-          previewUrl: `${listViewInfo['previewAtt']}.url`
+          titleListView: `${listViewInfo['titleAtt']}?disp`,
+          textListView: `${listViewInfo['textAtt']}?disp`,
+          previewUrl: `${listViewInfo['previewAtt']}.url`,
+          isTilesContent: `${get(listViewInfo, 'isTilesContent', false)}`
         }
       };
     }

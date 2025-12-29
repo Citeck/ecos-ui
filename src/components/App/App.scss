@@ -63,4 +63,26 @@
     background: $color-footer;
     grid-row-end: -1;
   }
+
+  &-error {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    padding: 20px;
+    text-align: center;
+    background-color: #f8f9fa;
+
+    h2 {
+      color: $danger;
+      margin-bottom: 15px;
+    }
+
+    p {
+      color: $color-gray-11;
+      font-size: 16px;
+      max-width: 500px;
+    }
+  }
 }

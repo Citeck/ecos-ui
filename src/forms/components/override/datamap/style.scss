@@ -1,0 +1,45 @@
+@import '../../../constants';
+
+.formio-component-datamap {
+  table {
+    table-layout: fixed;
+    border-radius: $border-radius-standard;
+  }
+
+  table.table-bordered {
+    border-style: hidden;
+    box-shadow: 0 0 0 1px $color-gray-4;
+    border-radius: $border-radius-standard;
+
+    thead {
+      tr {
+        &.d-flex {
+          display: table-row !important;
+        }
+
+        th {
+          border: 0;
+          border-right: 1px solid $color-gray-4;
+          border-color: $color-gray-4;
+        }
+      }
+    }
+
+    td {
+      padding: 0.65rem 0.5rem;
+      border: 1px solid $color-gray-4;
+
+      &.formio-remove-column {
+        padding: 0.65rem 0.2rem;
+
+        button.formio-button-remove-row {
+          position: relative;
+          padding: 0;
+          width: 100%;
+          height: 40px;
+          align-items: center;
+        }
+      }
+    }
+  }
+}

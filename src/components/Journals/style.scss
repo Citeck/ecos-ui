@@ -8,9 +8,28 @@
   overflow-x: auto;
   display: flex;
 
+  &__hide-text-pagination .ecos-pagination__text {
+    display: none;
+  }
+
+  &-view {
+    &__total {
+      font-size: 12px;
+      line-height: 16px;
+      font-weight: 600;
+      text-align: center;
+      color: $text-color-gray;
+
+      margin: auto 0;
+      min-width: 142px;
+      height: 100%;
+    }
+  }
+
   &__small-btn_new {
     width: auto !important;
     height: auto !important;
+    background-color: inherit !important;
 
     .ecos-btn__text {
       display: flex;
@@ -292,7 +311,7 @@
     }
     .ecos-inline-tools-actions {
       margin-top: 1px !important;
-      height: calc(100% - 2px) !important;
+      height: calc(100% - 3px) !important;
       background: linear-gradient(to right, rgba($color-white, 0), $color-white 15%);
     }
   }
@@ -342,7 +361,7 @@
     }
 
     &__content {
-      padding: 0 7px;
+      padding: 0;
 
       &-text {
         font-size: 11px;
@@ -350,7 +369,7 @@
     }
 
     &_filtered {
-      padding: 5px 15px;
+      padding: 5px 8px;
 
       .ecos-th__content {
         border-radius: $border-radius-standard;
@@ -509,6 +528,22 @@
 
   .ecos-pagination__arrow + .ecos-pagination__arrow {
     margin-left: 3px;
+  }
+}
+
+.with-vertical-line {
+  position: relative;
+  padding-left: 7px !important;
+
+  &::before{
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 24px;
+    background: $color-gray-4;
   }
 }
 

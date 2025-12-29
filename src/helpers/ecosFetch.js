@@ -11,12 +11,20 @@ export const emitter = new EventEmitter();
 export const RESET_AUTH_STATE_EVENT = 'set-auth-status-event';
 
 const ecosFetch = function (url, options = {}) {
-  const { method, headers = {}, body, noHeaders = false, mode } = options;
+  const { method, headers = {}, body, noHeaders = false, mode, signal, credentials } = options;
 
   const params = {};
 
+  if (signal) {
+    params.signal = signal;
+  }
+
   if (method) {
     params.method = method;
+  }
+
+  if (credentials) {
+    params.credentials = credentials;
   }
 
   if (!noHeaders) {
@@ -55,6 +63,6 @@ const ecosFetch = function (url, options = {}) {
 
 export default ecosFetch;
 
-if (window && !window.ecosFetch) {
+if (typeof window !== 'undefined' && !window.ecosFetch) {
   window.ecosFetch = ecosFetch;
 }

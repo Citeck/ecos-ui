@@ -10,14 +10,14 @@ import isString from 'lodash/isString';
 import lodashSet from 'lodash/set';
 import moment from 'moment';
 import * as queryString from 'query-string';
-import uuidV4 from 'uuid/v4';
+import uuidV4 from 'uuidv4';
 
 import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE, MOBILE_APP_USER_AGENT } from '../constants';
 
 export { getCookie, getCurrentLocale, t } from './export/util';
 import { getCurrentLocale, t } from './export/util';
 
-import { allowedModes } from '@/constants/index.js';
+import { allowedModes } from '@/constants';
 import ESMRequire from '@/services/ESMRequire';
 
 const UTC_AS_LOCAL_FORMAT = 'YYYY-MM-DDTHH:mm:ss';
@@ -34,6 +34,7 @@ export const IS_TEST_ENV = process.env.NODE_ENV === 'test';
 export function setCookie(name, value, options = {}) {
   options = {
     path: '/',
+    sameSite: 'Lax', // Default SameSite to Lax for better security
     ...options
   };
 
@@ -501,6 +502,10 @@ export function getScale(scale, paramsContainer, paramsPage, ratioAuto = 50) {
 
 export function getCurrentUserName() {
   return lodashGet(window, 'Citeck.constants.USERNAME', '');
+}
+
+export function getCurrentUser() {
+  return lodashGet(window, 'Citeck.constants.CURRENT_USER', '');
 }
 
 export function getEnabledWorkspaces() {
@@ -1373,16 +1378,8 @@ export function camelize(s = '') {
   return s;
 }
 
-// Getting a web-worker for initialization
-export async function createWorkerFromScript(scriptPath = '') {
-  const response = await fetch(scriptPath);
-  const script = await response.text();
-
-  const blob = new Blob([script], { type: 'application/javascript' });
-
-  return new Worker(URL.createObjectURL(blob));
+if (typeof window !== 'undefined') {
+  lodashSet(window, 'Citeck.helpers.getMonthPeriodByDate', getMonthPeriodByDate);
+  lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);
+  lodashSet(window, 'Citeck.helpers.getMLValue', getMLValue);
 }
-
-lodashSet(window, 'Citeck.helpers.getMonthPeriodByDate', getMonthPeriodByDate);
-lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);
-lodashSet(window, 'Citeck.helpers.getMLValue', getMLValue);

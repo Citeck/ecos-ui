@@ -7,7 +7,9 @@ import path from 'path';
 // eslint-disable-next-line import/default
 import ViteExpress from 'vite-express';
 
+// ================= ENV ===================
 const isDevStage = process.env.NODE_ENV === 'dev-stage';
+const isDev = process.env.NODE_ENV === 'development';
 
 const pathDevelopment = '.env.development';
 const pathDevelopmentLocal = '.env.development.local';
@@ -23,13 +25,13 @@ if (envFile) {
 }
 
 const PROXY_URL = {
-  SHARE: process.env.SHARE_PROXY_URL || 'http://localhost:8080',
+  SHARE: process.env.SHARE_PROXY_URL || 'http://localhost:8080'
 };
 
 const shareProxyOptions = {
   target: PROXY_URL.SHARE,
   changeOrigin: true,
-  secure: false,
+  secure: false
 };
 
 // ======================== APP SETTINGS ========================
@@ -37,8 +39,10 @@ const shareProxyOptions = {
 const app = express();
 const router = express.Router();
 
-// React app routes
-if (isDevStage) {
+if (isDev) {
+  // We do NOT register createMainRoute in dev — vite-express / Vite middleware will handle it itself index.html
+  console.log('🟢 Running in development mode — letting vite-express serve index.html');
+} else if (isDevStage) {
   router.get(['/', '/v2', '/v2/*'], (req, res) => {
     res.sendFile(path.resolve(process.cwd(), 'build', 'index.html'));
   });
@@ -61,11 +65,14 @@ app.use('/gateway/**', shareProxy);
 app.use('/build-info/**', shareProxy);
 app.use('/', router);
 
+// Static files
 if (isDevStage) {
   app.use(express.static(path.resolve(process.cwd(), 'build')));
 } else {
   app.use(express.static(path.resolve(process.cwd(), 'public')));
 }
+
+// ViteExpress.static() - dev-asset middleware
 app.use(ViteExpress.static());
 
 // Run app
@@ -82,13 +89,15 @@ const server = app.listen(PORT, () => {
     ║    Press Ctrl+C to stop the server
     ╚════════════════════════════════════════════════════
   `,
-    '\x1b[0m',
+    '\x1b[0m'
   );
 });
 
 if (!isDevStage) {
   ViteExpress.bind(app, server);
 }
+
+/* ----------------- Helpers ----------------- */
 
 function createMainRoute() {
   const assetsCacheHash = generateAssetsCacheHash();
@@ -102,6 +111,7 @@ function createMainRoute() {
     // TODO detect mobile device and inject classes
     // TODO inject theme class
 
+    res.setHeader('Content-Type', 'text/html');
     res.send(htmlData);
   };
 }

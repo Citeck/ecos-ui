@@ -615,7 +615,7 @@ export const formatted = {
       allowedFor: [],
       params: {
         collapsible: false,
-        collapsed: false
+        collapsed: true
       }
     }
   ],
@@ -773,7 +773,7 @@ export const formatted = {
       allowedFor: [],
       params: {
         collapsible: false,
-        collapsed: false
+        collapsed: true
       }
     }
   ],

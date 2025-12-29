@@ -1,7 +1,7 @@
-import each from 'lodash/each';
-import get from 'lodash/get';
 import FormIOButtonComponent from 'formiojs/components/button/Button';
 import { flattenComponents } from 'formiojs/utils/formUtils';
+import each from 'lodash/each';
+import get from 'lodash/get';
 
 const MAX_WAITING_TIME = 30000;
 
@@ -16,8 +16,6 @@ export default class ButtonComponent extends FormIOButtonComponent {
     );
   }
 
-  _loading = false;
-
   get defaultSchema() {
     return ButtonComponent.schema();
   }
@@ -27,29 +25,19 @@ export default class ButtonComponent extends FormIOButtonComponent {
   }
 
   set disabled(disabled) {
-    if (disabled && (this.component.disableOnInvalid && !this.shouldDisable)) {
+    if (disabled && this.component.disableOnInvalid && !this.shouldDisable) {
       disabled = false;
     }
 
     super.disabled = disabled;
   }
 
-  get disabled() {
-    return this._disabled;
-  }
-
   set loading(loading) {
-    this._loading = loading;
-
     if ((loading && !this.disabled) || (!loading && !this.disabled)) {
       this.setDisabled(this.buttonElement, loading);
     }
 
     super.loading = loading;
-  }
-
-  get loading() {
-    return this._loading;
   }
 
   build() {
@@ -132,16 +120,19 @@ export default class ButtonComponent extends FormIOButtonComponent {
           if (typeof get(result, 'then') === 'function') {
             this.root.loading = true;
             this.loading = true;
+            this.forceDisabled = true;
 
             const cancelTimerId = window.setTimeout(() => {
               this.root.loading = false;
               this.loading = false;
+              this.forceDisabled = false;
             }, MAX_WAITING_TIME);
 
             result.finally(() => {
               window.clearTimeout(cancelTimerId);
               this.root.loading = false;
               this.loading = false;
+              this.forceDisabled = false;
             });
           }
 

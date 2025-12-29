@@ -1,4 +1,5 @@
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 
@@ -28,22 +29,27 @@ import SidebarService from '../services/sidebar';
 function* fetchSlideMenu({ api }, action) {
   try {
     const version = yield select(state => state.menu.version);
+    const items = yield select(state => state.slideMenu.items);
     const isOpen = SidebarService.getOpenState();
     const id = get(action, 'payload.id');
+    const forceFetch = get(action, 'payload.forceFetch', false);
 
-    let menuItems;
+    if (forceFetch || (!forceFetch && (!items || isEmpty(items)))) {
+      let menuItems;
 
-    if (!isNil(id) || !isNil(version)) {
-      menuItems = yield call(api.menu.getMenuItems, { id, version, resolved: true });
-    } else {
-      const apiData = yield call(api.menu.getSlideMenuItems);
-      menuItems = apiData.items;
+      if (!isNil(id) || !isNil(version)) {
+        menuItems = yield call(api.menu.getMenuItems, { id, version, resolved: true });
+      } else {
+        const apiData = yield call(api.menu.getSlideMenuItems);
+        menuItems = apiData.items;
+      }
+
+      menuItems = SidebarConverter.getMenuListWeb(menuItems);
+
+      yield put(setSlideMenuItems(menuItems));
     }
 
-    menuItems = SidebarConverter.getMenuListWeb(menuItems);
-
     yield put(toggleIsOpen(isOpen));
-    yield put(setSlideMenuItems(menuItems));
     yield put(setIsReady(true));
 
     yield put(setExpandableItems({ force: isOpen }));

@@ -72,6 +72,8 @@ export function extractStyles(element: HTMLElement): string {
   const indexes: number[] = [];
   const computedStyles: CSSStyleDeclaration = element?.style;
 
+  const allowProperties: (keyof CSSStyleDeclaration)[] = ['color', 'backgroundColor'];
+
   Object.keys(computedStyles).forEach((key: string) => {
     if (isFinite(Number(key))) {
       indexes.push(Number(key));
@@ -79,10 +81,10 @@ export function extractStyles(element: HTMLElement): string {
   });
 
   indexes.forEach(key => {
-    const property = computedStyles[key];
-    const value = computedStyles.getPropertyValue(property);
+    const property = computedStyles[key] as keyof CSSStyleDeclaration;
+    const value = computedStyles.getPropertyValue(property as string);
 
-    if (value && value.trim() !== '') {
+    if (value && value.trim() !== '' && allowProperties.includes(property)) {
       styleString += `${property}: ${value}; `;
     }
   });

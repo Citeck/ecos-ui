@@ -15,3 +15,7 @@ export type WrapArgsType<T> = {
   _args: T;
   stateId: string;
 };
+
+type PayloadOf<A> = A extends { payload: infer P } ? P : never;
+
+export type UnwrapArgsType<A> = PayloadOf<A> extends WrapArgsType<infer Inner> ? { payload: Inner } : { payload: PayloadOf<A> };

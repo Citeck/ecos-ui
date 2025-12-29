@@ -5,16 +5,16 @@ import moment from 'moment';
 
 import Dashlet from '../../../components/Dashlet/Dashlet';
 import FormManager from '../../../components/EcosForm/FormManager';
-// @ts-ignore
-import Records from '../../../components/Records/Records';
-import { Avatar, Loader } from '../../../components/common';
-import BaseWidget, { BaseWidgetProps, BaseWidgetState } from '../../../components/widgets/BaseWidget';
-import { getStateId } from '../../../helpers/redux';
-import DAction from '../../../services/DashletActionService';
 
+import LexicalEditor from '@/components/LexicalEditor';
+import Records from '@/components/Records/Records';
+import { Avatar, Loader } from '@/components/common';
+import BaseWidget, { BaseWidgetProps, BaseWidgetState, EVENTS } from '@/components/widgets/BaseWidget';
+import { getStateId } from '@/helpers/store';
 import { getFitnesseClassName } from '@/helpers/tools';
 import { getRecordRef } from '@/helpers/urls';
 import { t } from '@/helpers/util';
+import DAction from '@/services/DashletActionService';
 import { Events } from '@/services/PageService';
 
 import './style.scss';
@@ -47,45 +47,66 @@ interface PublicationWidgetDashletState extends BaseWidgetState {
 
 class PublicationWidgetDashlet<P extends PublicationWidgetDashletProps, S extends PublicationWidgetDashletState> extends BaseWidget<P, S> {
   stateId: string;
-  unlisten: any;
+
+  private isMountedFlag = false;
+  private onUrlChange: () => void;
 
   constructor(props: P) {
     super(props);
 
+    const initialRef = getRecordRef() || props.record;
+
     this.state = {
       isLoading: true,
-      recordRef: props.record,
-      publication: {},
+      recordRef: initialRef,
+      publication: {} as any,
       hasPermissions: false
     } as S;
 
     this.stateId = getStateId(props);
 
+    this.fetchPublication = this.fetchPublication.bind(this);
+    this.updatePublication = this.updatePublication.bind(this);
+    this.onUrlChange = this.updatePublication;
+
     this.observableFieldsToUpdate = [...new Set([...this.observableFieldsToUpdate, 'title?str', 'text?str'])];
-    document.addEventListener(Events.CHANGE_URL_LINK_EVENT, this.updatePublication.bind(this));
   }
 
   componentDidMount() {
     super.componentDidMount();
+    this.isMountedFlag = true;
+
+    this.instanceRecord.events.on(EVENTS.ATTS_UPDATED, this.fetchPublication);
+    document.addEventListener(Events.CHANGE_URL_LINK_EVENT, this.onUrlChange);
+
     this.fetchPublication();
   }
 
   componentWillUnmount() {
     super.componentWillUnmount();
-    document.removeEventListener(Events.CHANGE_URL_LINK_EVENT, this.updatePublication.bind(this));
+    this.isMountedFlag = false;
+
+    this.instanceRecord.events.off(EVENTS.ATTS_UPDATED, this.fetchPublication);
+    document.removeEventListener(Events.CHANGE_URL_LINK_EVENT, this.onUrlChange);
   }
 
   updatePublication() {
-    const newRecordRef = getRecordRef();
+    const newRecordRef = getRecordRef() || this.props.record;
+    if (!newRecordRef) return;
 
-    if (newRecordRef) {
-      this.setState({ recordRef: newRecordRef }, () => this.fetchPublication());
+    if (!this.isMountedFlag) {
+      return;
     }
+
+    this.setState({ recordRef: newRecordRef }, this.fetchPublication);
   }
 
   fetchPublication() {
     const { recordRef } = this.state;
-    // @ts-ignore
+    if (!recordRef) return;
+
+    if (this.isMountedFlag) this.setState({ isLoading: true });
+
     return Records.get(recordRef)
       .load({
         id: 'id',
@@ -118,10 +139,9 @@ class PublicationWidgetDashlet<P extends PublicationWidgetDashletProps, S extend
   }
 
   get dashletActions() {
-    const actions = {};
+    const actions: Record<string, { className: string; onClick: () => void }> = {};
 
     if (this.state.hasPermissions) {
-      // @ts-ignore
       actions[DAction.Actions.EDIT] = {
         className: getFitnesseClassName('publication-widget', DAction.Actions.EDIT),
         onClick: this.toggleEdit
@@ -159,6 +179,7 @@ class PublicationWidgetDashlet<P extends PublicationWidgetDashletProps, S extend
     return (
       // @ts-ignore
       <Dashlet
+        {...this.props}
         title={this.widgetTitle}
         actionConfig={this.dashletActions}
         className="ecos-publication-widget-dashlet"
@@ -188,7 +209,7 @@ class PublicationWidgetDashlet<P extends PublicationWidgetDashletProps, S extend
                 <p className="ecos-publication-info__date">{moment(publication.modified).format('dddd, MMMM Do YYYY, h:mm:ss')}</p>
               </div>
             </div>
-            {isString(publication.text) && <div dangerouslySetInnerHTML={{ __html: publication.text }} />}
+            {isString(publication.text) && <LexicalEditor readonly htmlString={publication.text} />}
           </>
         )}
       </Dashlet>

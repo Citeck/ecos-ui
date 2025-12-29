@@ -16,13 +16,14 @@ import {
   setIsForAll,
   setLastAddedCreateItems,
   setLastAddedLeftItems,
+  setIsForAllCreateMenu,
+  setAuthoritiesCreateMenu,
   setLeftMenuItems,
   setLoading,
   setMenuIcons,
   setOriginalConfig,
   setUserMenuItems
 } from '@/actions/menuSettings';
-import { fetchSlideMenuItems } from '@/actions/slideMenu.js';
 import { ConfigTypes, GROUP_EVERYONE, MenuSettings as ms } from '@/constants/menu';
 import MenuConverter from '@/dto/menu';
 import { t } from '@/helpers/util';
@@ -53,10 +54,12 @@ function* fetchSettingsConfig({ api }) {
     yield put(setOriginalConfig(config));
     yield put(setLeftMenuItems(leftItems));
     yield put(setCreateMenuItems(createItems));
+    yield put(setAuthoritiesCreateMenu(get(config, 'menu.create.allowedFor'), []));
+    yield put(setIsForAllCreateMenu(isEmpty(config, 'menu.create.allowedFor'), []));
     yield put(setUserMenuItems(userMenuItems));
     yield put(setAuthorities(authorities));
     yield put(setMenuIcons({ font }));
-    yield put(setIsForAll(!authorities.length));
+    yield put(setIsForAll(isEmpty(authorities)));
   } catch (e) {
     yield put(setLoading(false));
     NotificationManager.error(t('menu-settings.error.get-config'), t('error'));
@@ -69,14 +72,7 @@ function* runSaveMenuSettings(props, action) {
   const resultGlobal = yield runSaveGlobalSettings(props, action);
 
   if (![resultMenu, resultGlobal].includes(false)) {
-    const id = yield resultMenu.load('id');
-    const prevId = yield select(state => state.menuSettings.editedId);
-
-    if (id !== prevId) {
-      yield put(getMenuConfig());
-      yield put(fetchSlideMenuItems());
-    }
-
+    yield put(getMenuConfig());
     MenuSettingsService.emitter.emit(MenuSettingsService.Events.HIDE);
     NotificationManager.success(t('menu-settings.success.save-all-menu-settings'), t('success'));
   }
@@ -89,17 +85,20 @@ function* runSaveMenuConfig({ api }) {
     const id = yield select(state => state.menuSettings.editedId);
     const result = yield select(state => state.menuSettings.originalConfig);
     const leftItems = yield select(state => state.menuSettings.leftItems);
-    const createItems = yield select(state => state.menuSettings.createItems);
+    const createMenu = yield select(state => state.menuSettings.createMenu);
     const userMenuItems = yield select(state => state.menuSettings.userMenuItems);
     const authoritiesInfo = yield select(state => state.menuSettings.authorities);
     const authorities = authoritiesInfo.map(item => item.name);
     const newLeftItems = MenuConverter.getMenuItemsServer({ originalItems: get(result, 'menu.left.items'), items: leftItems });
-    const newCreateItems = MenuConverter.getMenuItemsServer({ originalItems: get(result, 'menu.create.items'), items: createItems });
+    const newCreateMenuItems = MenuConverter.getMenuItemsServer({
+      originalItems: get(result, 'menu.create.items'),
+      items: createMenu.items
+    });
     const newUserMenuItems = MenuConverter.getMenuItemsServer({ originalItems: get(result, 'menu.user.items'), items: userMenuItems });
     const subMenu = {};
 
     set(subMenu, 'left.items', newLeftItems);
-    set(subMenu, 'create.items', newCreateItems);
+    set(subMenu, 'create', { items: newCreateMenuItems, allowedFor: createMenu.authorities || [] });
     set(subMenu, 'user.items', newUserMenuItems);
 
     return yield call(api.menu.saveMenuSettingsConfig, { id, subMenu, authorities, version: result.version });

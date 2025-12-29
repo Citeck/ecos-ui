@@ -1,0 +1,84 @@
+@import '../../../constants';
+
+.formio-component-textfield {
+  & > input {
+    position: relative;
+  }
+
+  &.formio-component-multiple {
+    table {
+      table-layout: fixed;
+      border-radius: $border-radius-standard;
+    }
+
+    table.table-bordered {
+      border-style: hidden;
+      box-shadow: 0 0 0 1px $color-gray-4;
+      border-radius: $border-radius-standard;
+
+      thead {
+        tr {
+          &.d-flex {
+            display: table-row !important;
+          }
+
+          th {
+            border: 0;
+            border-right: 1px solid $color-gray-4;
+            border-color: $color-gray-4;
+          }
+        }
+      }
+
+      td {
+        padding: 0.65rem 0.5rem;
+        border: 1px solid $color-gray-4;
+        height: 40px;
+
+        &.formio-remove-column {
+          button.formio-button-remove-row {
+            position: relative;
+            padding: 0;
+            width: 100%;
+            height: 40px;
+            align-items: center;
+          }
+        }
+      }
+    }
+  }
+
+  &__typeahead {
+    position: absolute;
+    background: white;
+    padding-top: 3px;
+    width: 100%;
+    top: 93%;
+    z-index: 1;
+    border: 2px $color-gray-6 solid;
+    border-top: none;
+    border-bottom-left-radius: $border-radius-standard;
+    border-bottom-right-radius: $border-radius-standard;
+    max-height: 300px;
+    overflow: auto;
+
+    &-item {
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: 14px;
+
+      &:hover {
+        background: $color-blue-light;
+        color: white;
+      }
+    }
+
+    &:empty {
+      display: none;
+    }
+
+    &:not(:empty) {
+      display: unset;
+    }
+  }
+}

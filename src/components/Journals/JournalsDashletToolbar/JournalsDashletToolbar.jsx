@@ -4,10 +4,6 @@ import isFunction from 'lodash/isFunction';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-import { selectJournal, selectPreset } from '../../../actions/journals';
-import { wrapArgs } from '../../../helpers/redux';
-import { goToCardDetailsPage } from '../../../helpers/urls';
-import { selectJournalData, selectNewVersionDashletConfig } from '../../../selectors/journals';
 import FormManager from '../../EcosForm/FormManager';
 import Export from '../../Export/Export';
 import { IcoBtn, TwoIcoBtn } from '../../common/btns';
@@ -16,6 +12,11 @@ import GroupActions from '../GroupActions';
 import JournalsDashletPagination from '../JournalsDashletPagination';
 import { getCreateVariantKeyField } from '../service/util';
 
+import { selectJournal, selectPreset } from '@/actions/journals';
+import { wrapArgs } from '@/helpers/redux';
+import { goToCardDetailsPage } from '@/helpers/urls';
+import { selectJournalData, selectNewVersionDashletConfig } from '@/selectors/journals';
+
 const mapStateToProps = (state, props) => {
   const ownState = selectJournalData(state, props.stateId);
   const config = selectNewVersionDashletConfig(state, props.stateId);
@@ -23,6 +24,7 @@ const mapStateToProps = (state, props) => {
   return {
     journals: ownState.journals,
     journalConfig: ownState.journalConfig,
+    journalSetting: ownState.journalSetting,
     journalSettings: ownState.journalSettings,
     grid: ownState.grid,
     selectedRecords: ownState.selectedRecords,
@@ -110,6 +112,7 @@ class JournalsDashletToolbar extends Component {
     const {
       stateId,
       journalConfig,
+      journalSetting,
       selectedJournals,
       journalSettings,
       measurer,
@@ -159,6 +162,7 @@ class JournalsDashletToolbar extends Component {
             <Export
               className="ecos-journal-dashlet__action-export"
               journalConfig={journalConfig}
+              journalSetting={journalSetting}
               grid={grid}
               dashletConfig={config}
               recordRef={recordRef}

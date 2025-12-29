@@ -1,0 +1,30 @@
+@import "@/styles/constants";
+
+.breadcrumbs {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px;
+  gap: 5px;
+  width: 100%;
+
+  &__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+
+    &_text {
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      color: $color-gray-5;
+    }
+  }
+
+  &_title {
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    margin: 0;
+    color: $text-color-gray;
+  }
+}

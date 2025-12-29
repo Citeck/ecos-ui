@@ -1,11 +1,13 @@
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
+import isNil from 'lodash/isNil';
 import isString from 'lodash/isString';
 import queryString from 'query-string';
 
 import { PageApi } from '@/api/page';
+import { JOURNAL_VIEW_MODE as JVM } from '@/components/Journals/constants';
 import Records from '@/components/Records';
-import { SourcesId, URL } from '@/constants';
+import { JournalUrlParams as JUP, SourcesId, URL } from '@/constants';
 import { SectionTypes } from '@/constants/adminSection';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, LINK_HREF, LINK_TAG, OPEN_IN_BACKGROUND, TITLE } from '@/constants/pageTabs';
 import { getData, isExistLocalStorage, setData } from '@/helpers/ls';
@@ -18,7 +20,7 @@ import {
   IgnoredUrlParams,
   isNewVersionPage
 } from '@/helpers/urls';
-import { getCurrentUserName, getEnabledWorkspaces, getMLValue, t } from '@/helpers/util';
+import { getBool, getCurrentUserName, getEnabledWorkspaces, getMLValue, t } from '@/helpers/util';
 
 const pageApi = new PageApi();
 
@@ -42,8 +44,10 @@ export const Events = {
   CHANGE_URL_LINK_EVENT: 'CHANGE_URL_LINK_EVENT'
 };
 
-const CHANGE_URL = document.createEvent('Event');
-CHANGE_URL.initEvent(Events.CHANGE_URL_LINK_EVENT, true, true);
+const CHANGE_URL = typeof document !== 'undefined' && document.createEvent('Event');
+if (CHANGE_URL) {
+  CHANGE_URL.initEvent(Events.CHANGE_URL_LINK_EVENT, true, true);
+}
 
 const TYPES = {
   TYPE: 'emodel/type@type',
@@ -244,7 +248,26 @@ export default class PageService {
           journalId = PageService.getRef(link);
         }
 
-        return pageApi.getJournalTitle(journalId, force).then(title => `${t(TITLE.JOURNAL)} "${convertTitle(title)}"`);
+        const separator = '?';
+        const searchParams = new URLSearchParams(link && link.includes(separator) ? separator + link.split(separator)[1] : '');
+        const viewMode = searchParams.get(JUP.VIEW_MODE);
+
+        let previewTextKey;
+        switch (viewMode) {
+          case JVM.PREVIEW_LIST:
+            previewTextKey = TITLE.PREVIEW_LIST;
+            break;
+          case JVM.DOC_LIB:
+            previewTextKey = TITLE.DOC_LIB;
+            break;
+          case JVM.KANBAN:
+            previewTextKey = TITLE.KANBAN;
+            break;
+          default:
+            previewTextKey = TITLE.JOURNAL;
+        }
+
+        return pageApi.getJournalTitle(journalId, force).then(title => `${t(previewTextKey)} "${convertTitle(title)}"`);
       }
     },
     [PageTypes.TIMESHEET]: {
@@ -327,11 +350,26 @@ export default class PageService {
       CHANGE_URL.params = fullParams;
 
       if (this.beforeUrlChangeGuards.length) {
-        const guardPromises = this.beforeUrlChangeGuards.map(fn => fn(fullParams));
-
-        Promise.all(guardPromises).then(() => {
-          document.dispatchEvent(CHANGE_URL);
-        });
+        this.beforeUrlChangeGuards
+          .reduce((prevP, guard) => {
+            return prevP.then(() =>
+              Promise.resolve(guard.fn(fullParams, guard.tabId || null)).then(result => {
+                if (result === false) {
+                  throw new Error('__GUARD_CANCEL__');
+                }
+                return;
+              })
+            );
+          }, Promise.resolve())
+          .then(() => {
+            document.dispatchEvent(CHANGE_URL);
+          })
+          .catch(err => {
+            if (err && err.message === '__GUARD_CANCEL__') {
+              return;
+            }
+            console.error('guard chain error:', err);
+          });
 
         return;
       }
@@ -344,17 +382,24 @@ export default class PageService {
 
   /** Prevents history changes. Allows controlling when the history should change using a promise-based function
    * @param guardFn {function(*): Promise<unknown>}
+   * @param tabId {string}
    **/
-  static registerUrlChangeGuard(guardFn) {
+  static registerUrlChangeGuard(guardFn, tabId) {
     // To avoid duplication of promises, it is necessary to give the same link to the function!
-    const exists = PageService.beforeUrlChangeGuards.includes(guardFn);
+    const exists = !!PageService.beforeUrlChangeGuards.find(guard => guard.fn === guardFn || (tabId && guard.tabId === tabId));
     if (!exists) {
-      PageService.beforeUrlChangeGuards.push(guardFn);
+      PageService.beforeUrlChangeGuards.push({ fn: guardFn, tabId });
     }
   }
 
   static clearUrlChangeGuards() {
     PageService.beforeUrlChangeGuards = [];
+  }
+
+  static clearUrlChangeGuard(tabId) {
+    if (!isNil(tabId)) {
+      PageService.beforeUrlChangeGuards = PageService.beforeUrlChangeGuards.filter(value => value.tabId !== tabId);
+    }
   }
 
   /**
@@ -430,7 +475,7 @@ export default class PageService {
       elem = event.target.closest('a[href]');
     }
 
-    if (!elem || elem.tagName !== LINK_TAG || !!elem.getAttribute(linkIgnoreAttr)) {
+    if (!elem || elem.tagName !== LINK_TAG || !!getBool(elem.getAttribute(linkIgnoreAttr))) {
       return;
     }
 

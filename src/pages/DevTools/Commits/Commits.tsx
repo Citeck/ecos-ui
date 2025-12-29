@@ -1,5 +1,4 @@
 import React, { useContext, useEffect } from 'react';
-// @ts-ignore
 import { Row, Col } from 'reactstrap';
 
 import Select from '../../../components/common/form/Select/Select';

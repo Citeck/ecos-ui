@@ -5,6 +5,7 @@
 .formio-component-datagrid {
   table {
     table-layout: fixed;
+    border-radius: $border-radius-standard;
   }
 
   table.table-bordered {
@@ -14,8 +15,13 @@
 
     thead {
       tr {
+        &.d-flex {
+          display: table-row !important;
+        }
+
         th {
-          border-bottom: 0;
+          border: 0;
+          border-right: 1px solid $color-gray-4;
           border-color: $color-gray-4;
         }
       }
@@ -28,7 +34,11 @@
 
       &.formio-remove-column {
         button.formio-button-remove-row {
+          position: relative;
+          padding: 0;
+          width: 100%;
           height: 40px;
+          align-items: center;
         }
       }
     }

@@ -68,7 +68,7 @@ function buildImportMap(): DOMConversionMap {
   return importMap;
 }
 
-function EditorWrapper({ readonly = false, ...props }: LexicalEditorProps): JSX.Element {
+function EditorWrapper({ readonly = false, attribute, recordRef, ...props }: LexicalEditorProps): JSX.Element {
   const initialConfig = {
     editable: !readonly,
     html: {
@@ -87,7 +87,7 @@ function EditorWrapper({ readonly = false, ...props }: LexicalEditorProps): JSX.
       <SharedHistoryContext>
         <TableContext>
           <ToolbarContext>
-            <EditorContent {...props} readonly={readonly} />
+            <EditorContent {...props} readonly={readonly} attribute={attribute} recordRef={recordRef} />
           </ToolbarContext>
         </TableContext>
       </SharedHistoryContext>
@@ -95,11 +95,11 @@ function EditorWrapper({ readonly = false, ...props }: LexicalEditorProps): JSX.
   );
 }
 
-export default function LexicalEditor({ readonly = false, ...props }: LexicalEditorProps): JSX.Element {
+export default function LexicalEditor({ readonly = false, attribute, recordRef, ...props }: LexicalEditorProps): JSX.Element {
   return (
     <SettingsContext>
       <FlashMessageContext>
-        <EditorWrapper {...props} readonly={readonly} />
+        <EditorWrapper {...props} readonly={readonly} attribute={attribute} recordRef={recordRef} />
       </FlashMessageContext>
     </SettingsContext>
   );

@@ -6,7 +6,7 @@ import isString from 'lodash/isString';
 import { ASSOC_TYPES } from '../components/Journals/service/journalColumnsResolver';
 import Records from '../components/Records';
 import Components from '../components/widgets/Components';
-import { EmodelTypes, SourcesId } from '../constants';
+import { ADMIN_WORKSPACE_ID, EmodelTypes, SourcesId } from '../constants';
 import { DashboardTypes } from '../constants/dashboard';
 import { TITLE } from '../constants/pageTabs';
 import Cache from '../helpers/cache';
@@ -115,8 +115,11 @@ export class DashboardApi {
       record.att('scope', 'orgstructure');
     }
 
-    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
-      record.att('workspace', getWorkspaceId());
+    if (getEnabledWorkspaces()) {
+      const workspaceId = getWorkspaceId();
+      if (workspaceId !== ADMIN_WORKSPACE_ID) {
+        record.att('workspace', getWorkspaceId());
+      }
     }
 
     return record.save().then(response => {
@@ -132,7 +135,7 @@ export class DashboardApi {
     record.att('name?json', name);
     record.att('config?json', DashboardService.getEmptyDashboardConfig());
 
-    if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
+    if (getEnabledWorkspaces()) {
       record.att('workspace', getWorkspaceId());
     }
 
@@ -321,14 +324,14 @@ export class DashboardApi {
     }
   };
 
-  checkExistDashboard = function* ({ key, type, user }) {
+  checkExistDashboard = function* ({ key, type, user, isCustomDashboard }) {
     return yield Records.queryOne({
       sourceId: SourcesId.DASHBOARD,
       query: {
         typeRef: key,
-        authority: user,
         includeForAll: false,
-        expandType: false
+        expandType: false,
+        ...(!isCustomDashboard && { authority: user })
       }
     }).then(response => {
       return {

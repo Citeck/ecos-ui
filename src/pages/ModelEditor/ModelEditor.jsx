@@ -40,8 +40,11 @@ import {
   PREFIX_FIELD
 } from '@/constants/cmmn';
 import { DMN_DEFINITIONS } from '@/constants/dmn';
+import { URL as Urls } from '@/constants/index';
+import { getWorkspaceId } from '@/helpers/urls';
 import { getCurrentLocale, getMLValue, getTextByLocale, t, fileDownload } from '@/helpers/util';
-import PageService from '@/services/PageService.js';
+import PageService from '@/services/PageService';
+import PageTabList from '@/services/pageTabs/PageTabList';
 
 import './ModelEditor.scss';
 
@@ -63,6 +66,7 @@ class ModelEditorPage extends React.Component {
   urlQuery = queryString.parseUrl(window.location.href).query;
   modelEditorRef = React.createRef(null);
   _processDefId = null;
+  _tabId = null;
   _tempFormData = {};
   _formWrapperRef = React.createRef(null);
   _prevValue = {};
@@ -70,32 +74,63 @@ class ModelEditorPage extends React.Component {
   _labelIsEdited = false;
   _formReady = false;
   _formsCache = {};
+  _cachedEditor = null;
+  _lastSavedModel = null;
+  _lastSectionPath = null;
 
   #prevMultiInstanceType = null;
 
   componentDidMount() {
+    this._tabId = PageTabList.activeTabId;
     this.handleInit();
   }
 
-  handleCloseEditor = params => {
+  handleCloseEditor = (params, tabId) => {
     const initialWsIdParam = this.urlQuery.ws;
+    let nameEditor = '';
+
+    switch (this.props.location.pathname) {
+      case Urls.DMN_EDITOR:
+        nameEditor = 'DMN';
+        break;
+
+      case Urls.BPMN_EDITOR:
+        nameEditor = 'BPMN';
+        break;
+
+      default:
+        break;
+    }
 
     return new Promise((resolve, reject) => {
       const newUrl = new URL(params.link, window.location.origin);
-      const newWsId = newUrl.searchParams.get('ws');
+      const newWsId = newUrl.searchParams.get('ws') || getWorkspaceId(); // If there is no workspace, then we move to the current space
 
       if (newWsId !== initialWsIdParam) {
-        const confirmed = window.confirm(t('editor.warning.change-workspace'));
-        if (!confirmed) {
-          reject(t('editor.warning.change-workspace.cancel'));
-          return;
-        } else {
-          resolve();
-          return;
-        }
-      }
+        const callback = () => {
+          const confirmed = window.confirm(t('editor.warning.change-workspace', { nameEditor }));
+          if (!confirmed) {
+            reject(t('editor.warning.change-workspace.cancel'));
+          } else {
+            resolve();
+          }
+        };
 
-      resolve();
+        const tab = PageTabList.tabs.find(tab => tabId && tab.id === tabId);
+        if (tab && tab.id && tab.link && tabId) {
+          this.props.changeTab({
+            data: { isActive: true },
+            filter: { id: tab.id },
+            url: tab.link,
+            callback
+          });
+        } else {
+          // if there is no tab, then the tab is already closed
+          resolve();
+        }
+      } else {
+        resolve();
+      }
     });
   };
 
@@ -103,7 +138,10 @@ class ModelEditorPage extends React.Component {
     this.initModeler();
     this.props.initData();
     this.setState({ initiated: true });
-    PageService.registerUrlChangeGuard(this.handleCloseEditor);
+
+    if (get(this.props, 'location.pathname') !== Urls.CMMN_EDITOR) {
+      PageService.registerUrlChangeGuard(this.handleCloseEditor, this._tabId || PageTabList.activeTabId);
+    }
   };
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -129,7 +167,8 @@ class ModelEditorPage extends React.Component {
     this._cachedLabels = {};
     this._formsCache = {};
     this.designer && this.designer.destroy();
-    PageService.clearUrlChangeGuards();
+    PageService.clearUrlChangeGuard(this._tabId);
+    this._tabId = null;
   }
 
   initModeler = () => {};
@@ -202,7 +241,7 @@ class ModelEditorPage extends React.Component {
       [EventListeners.ELEMENT_UPDATE_ID]: this.handleElementUpdateId,
       [EventListeners.CS_ELEMENT_DELETE_POST]: this.handleElementDelete,
       [EventListeners.DRAG_START]: this.handleDragStart,
-      [EventListeners.ROOT_SET]: this.handleSetRoot,
+      // [EventListeners.ROOT_SET]: this.handleSetRoot, // This causes cyclical updates. At first glance, it works well without it
       [EventListeners.CS_CONNECTION_CREATE_PRE_EXECUTE]: this.handleCreateConnection
     };
   }
@@ -501,7 +540,6 @@ class ModelEditorPage extends React.Component {
     Promise.all([promiseXml, promiseImg])
       .then(([xml, img]) => {
         this.props.saveModel(xml, img, definitionAction, this._processDefId);
-        this.props.getModel && this.props.getModel();
       })
       .catch(error => {
         throw new Error(`Failure to save xml or image: ${error.message}`);
@@ -545,7 +583,7 @@ class ModelEditorPage extends React.Component {
       const type = this.getFormType(root);
 
       if (type) {
-        this.props.getFormProps(type, selected);
+        this.props.getFormProps(type, selected, this._cachedLabels);
       }
 
       this.setState({ selectedElement: selected, selectedDiagramElement: root });
@@ -553,7 +591,7 @@ class ModelEditorPage extends React.Component {
       const type = this.getFormType(selectedElement);
 
       if (type) {
-        this.props.getFormProps(type, selectedElement);
+        this.props.getFormProps(type, selectedElement, this._cachedLabels);
       }
 
       this.setState({ selectedElement, selectedDiagramElement: element });
@@ -845,8 +883,12 @@ class ModelEditorPage extends React.Component {
   renderEditor = () => {
     const { savedModel, sectionPath } = this.props;
 
-    if (savedModel) {
-      return this.designer.renderSheet({
+    if (!savedModel) {
+      return <InfoText text={t('editor.error.no-model')} />;
+    }
+
+    if (this._cachedEditor == null || this._lastSavedModel !== savedModel || this._lastSectionPath !== sectionPath) {
+      this._cachedEditor = this.designer.renderSheet({
         diagram: savedModel,
         onClickElement: this.handleSelectItem,
         onMounted: this.handleReadySheet,
@@ -855,9 +897,12 @@ class ModelEditorPage extends React.Component {
         extraEvents: this.extraEvents,
         sectionPath
       });
-    } else {
-      return <InfoText text={t(`editor.error.no-model`)} />;
+
+      this._lastSavedModel = savedModel;
+      this._lastSectionPath = sectionPath;
     }
+
+    return this._cachedEditor;
   };
 
   render() {

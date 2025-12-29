@@ -3,25 +3,26 @@ import { CommonApi } from '../common';
 import { WorkspaceType } from './types';
 
 import { PureQueryResponse } from '@/api/types';
-// @ts-ignore
 import Records from '@/components/Records';
 import { SourcesId } from '@/constants';
+import { getWorkspaceId } from '@/helpers/urls';
 
 export interface IWorkspaceApi {
   getMyWorkspaces: () => PureQueryResponse<WorkspaceType>;
   getPublicWorkspaces: () => PureQueryResponse<WorkspaceType>;
   getWorkspaces: () => PureQueryResponse<WorkspaceType>;
+  hasWriteCurrentWorkspace: () => Promise<boolean>;
   getWorkspace: (recordRef: string) => PureQueryResponse<WorkspaceType>;
   isViewWorkspace: (wsId: WorkspaceType['id']) => PureQueryResponse<boolean>;
   visitedAction: (wsId: WorkspaceType['id']) => void;
   joinToWorkspace: (wsId: WorkspaceType['id']) => void;
   leaveOfWorkspace: (wsId: WorkspaceType['id']) => void;
-  searchMyWorkspaces: (text: string) => void;
-  searchPublicWorkspaces: (text: string) => void;
+  searchMyWorkspaces: (text: string) => PureQueryResponse<WorkspaceType>;
+  searchPublicWorkspaces: (text: string) => PureQueryResponse<WorkspaceType>;
   removeWorkspace: (wsId: string) => void;
 }
 
-export const workspaceAttributes: Partial<Record<keyof WorkspaceType, string>> = {
+export const workspaceAttributes: Record<keyof WorkspaceType, string> = {
   id: '?localId', // this is a shortened version of the ID, there is no 'emodel/' here
   homePageLink: 'homePageLink?str',
   name: '?disp!?localId',
@@ -38,8 +39,7 @@ export const workspaceAttributes: Partial<Record<keyof WorkspaceType, string>> =
 
 export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
   getWorkspaces = () => {
-    // @ts-ignore
-    return Records.query(
+    return Records.query<WorkspaceType>(
       {
         sourceId: SourcesId.WORKSPACE,
         language: 'user-workspaces'
@@ -48,12 +48,25 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
     );
   };
 
+  hasWriteCurrentWorkspace = async () => {
+    return await Records.get(`${SourcesId.WORKSPACE}@${getWorkspaceId()}`).load(workspaceAttributes.hasWrite);
+  };
+
   getMyWorkspaces = () => {
-    // @ts-ignore
-    return Records.query(
+    return Records.query<WorkspaceType>(
       {
         sourceId: SourcesId.WORKSPACE,
-        language: 'user-workspaces',
+        language: 'predicate',
+        query: {
+          t: 'and',
+          v: [
+            {
+              t: 'eq',
+              a: 'isCurrentUserMember',
+              v: true
+            }
+          ]
+        },
         sortBy: [{ attribute: '_created', ascending: false }]
       },
       workspaceAttributes
@@ -61,13 +74,11 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
   };
 
   removeWorkspace = (wsId: string) => {
-    // @ts-ignore
     return Records.remove([`${SourcesId.WORKSPACE}@${wsId}`]);
   };
 
   getPublicWorkspaces = () => {
-    // @ts-ignore
-    return Records.query(
+    return Records.query<WorkspaceType>(
       {
         sourceId: SourcesId.WORKSPACE,
         language: 'predicate',
@@ -82,7 +93,7 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
             {
               t: 'eq',
               a: 'isCurrentUserMember',
-              v: false
+              v: true
             }
           ]
         },
@@ -92,13 +103,11 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
     );
   };
 
-  getWorkspace = async (recordRef: string) => {
-    // @ts-ignore
-    return await Records.get(recordRef).load(workspaceAttributes);
+  getWorkspace = async (recordRef: string, extraFields?: Record<string, string>) => {
+    return await Records.get(recordRef).load({ ...workspaceAttributes, ...extraFields });
   };
 
   visitedAction = (wsId: WorkspaceType['id']) => {
-    // @ts-ignore
     const record = Records.getRecordToEdit(`${SourcesId.WORKSPACE}-visited-action@`);
 
     if (wsId) {
@@ -109,12 +118,10 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
   };
 
   isViewWorkspace = (wsId: WorkspaceType['id']) => {
-    // @ts-ignore
     return Records.get(`${SourcesId.WORKSPACE}@${wsId}`).load('isCurrentUserMember?bool!');
   };
 
   joinToWorkspace = (wsId: WorkspaceType['id']) => {
-    // @ts-ignore
     const action = Records.getRecordToEdit(`${SourcesId.WORKSPACE_SERVICE}@`);
     action.att('type', 'JOIN');
     action.att('workspace', wsId);
@@ -122,7 +129,6 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
   };
 
   leaveOfWorkspace = (wsId: WorkspaceType['id']) => {
-    // @ts-ignore
     const action = Records.getRecordToEdit(`${SourcesId.WORKSPACE_SERVICE}@`);
     action.att('type', 'LEAVE');
     action.att('workspace', wsId);
@@ -130,8 +136,7 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
   };
 
   searchPublicWorkspaces = (text: string) => {
-    // @ts-ignore
-    return Records.query(
+    return Records.query<WorkspaceType>(
       {
         sourceId: SourcesId.WORKSPACE,
         language: 'predicate',
@@ -164,15 +169,15 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
               ]
             }
           ]
-        }
+        },
+        sortBy: [{ attribute: '_created', ascending: false }]
       },
       workspaceAttributes
     );
   };
 
   searchMyWorkspaces = (text: string) => {
-    // @ts-ignore
-    return Records.query(
+    return Records.query<WorkspaceType>(
       {
         sourceId: SourcesId.WORKSPACE,
         language: 'predicate',
@@ -200,7 +205,8 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
               ]
             }
           ]
-        }
+        },
+        sortBy: [{ attribute: '_created', ascending: false }]
       },
       workspaceAttributes
     );

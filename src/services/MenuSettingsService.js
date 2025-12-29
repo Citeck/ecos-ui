@@ -2,7 +2,7 @@ import { EventEmitter } from 'events';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import set from 'lodash/set';
-import uuidV4 from 'uuid/v4';
+import uuidV4 from 'uuidv4';
 
 import { ConfigTypes, CreateOptions, MenuSettings as ms, MenuTypes, UserMenu, UserOptions } from '../constants/menu';
 import { treeFindFirstItem, treeGetPathItem, treeRemoveItem } from '../helpers/arrayOfObjects';
@@ -43,6 +43,7 @@ export default class MenuSettingsService {
       config: { ...data.config },
       items: [],
       allowedFor: get(data, 'allowedFor', []),
+      collapsed: get(data, 'collapsed', null),
       //only for ui, tree
       locked: !!data.hidden,
       draggable: permissions.draggable
@@ -102,6 +103,7 @@ export default class MenuSettingsService {
       draggable: knownType && ![].includes(item.type),
       removable: ![].includes(item.type),
       hideable: ![].includes(item.type),
+      collapsable: true,
       hasIcon:
         (configType === ConfigTypes.USER && ![ms.ItemTypes.USER_STATUS].includes(item.type)) ||
         ([ConfigTypes.LEFT].includes(configType) && ![ms.ItemTypes.HEADER_DIVIDER].includes(item.type) && [1].includes(level)),
@@ -225,6 +227,10 @@ export default class MenuSettingsService {
       ...UserOptions.USER_SEND_PROBLEM_REPORT,
       default: UserMenu.USER_SEND_PROBLEM_REPORT
     },
+    // {
+    //   ...UserOptions.USER_ABOUT_PLATFORM,
+    //   default: UserMenu.USER_ABOUT_PLATFORM
+    // },
     {
       ...UserOptions.USER_LOGOUT,
       default: UserMenu.USER_LOGOUT

@@ -2,12 +2,13 @@ import get from 'lodash/get';
 import isNil from 'lodash/isNil';
 import isUndefined from 'lodash/isUndefined';
 
-import { SourcesId } from '../../../../constants';
-
 import { AUTHORITY_TYPE_USER, AUTHORITY_TYPE_GROUP } from './constants';
+
+import { SourcesId } from '@/constants';
 
 export const getGroupName = str => str.replace(`${AUTHORITY_TYPE_GROUP}_`, '');
 export const getGroupRef = str => `${SourcesId.GROUP}@${str}`;
+export const getRoleRef = str => `${SourcesId.AUTHORITY}@${str}`;
 export const getPersonRef = str => `${SourcesId.PERSON}@${str}`;
 export const getRecordRef = str => str.replace('emodel/@', '');
 export const getAuthRef = str =>
@@ -23,6 +24,7 @@ export function handleResponse(result) {
     label: item.displayName,
     isPersonDisabled: get(item, 'isPersonDisabled', false),
     canEdit: get(item, 'canEdit', false),
+    isSkipUserMask: get(item, 'isSkipUserMask', false),
     extraLabel: item.authorityType === AUTHORITY_TYPE_USER ? item.fullName : null,
     hasChildren: !isNil(item.groupType),
     isLoaded: isUndefined(item.isLoaded) ? false : item.isLoaded,

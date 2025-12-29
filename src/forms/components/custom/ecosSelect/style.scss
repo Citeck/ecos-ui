@@ -1,4 +1,24 @@
+@import "@/styles/constants";
+
 .choices {
-  &__item {
+  $root: &;
+
+  &__list--single {
+    #{$root}__item {
+      &--selectable {
+        display: inline-flex;
+        overflow: hidden;
+
+        & > span {
+          @extend %ellipsis;
+          width: calc(100% - 36px);
+        }
+      }
+    }
   }
+}
+
+.formio-form .formio-component-ecosSelect.formio-component-multiple .form-control {
+  height: auto;
+  min-height: 40px;
 }

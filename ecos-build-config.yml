@@ -2,16 +2,17 @@ type: ecos-ui
 properties:
   buildImage: ecos-nodejs-build:1.1
   image:
-    configVersion: v9
+    configVersion: v10
   builds:
     - enterprise: true
       plugins:
-        - heatmap:1.11.0
-        - charts-widget:1.3.1
-        - stages-widget:1.5.0
-        - kanban-widget:1.7.0
-        - activities-widget:1.3.2
+        - heatmap:1.12.0
+        - charts-widget:1.5.0-snapshot
+        - stages-widget:1.6.0
+        - kanban-widget:1.9.0-snapshot
+        - activities-widget:1.5.0-snapshot
+        - gantt-chart-widget:1.0.1-snapshot
     - enterprise: false
       plugins:
-        - stages-widget:1.5.0
-        - kanban-widget:1.7.0
+        - stages-widget:1.6.0
+        - kanban-widget:1.8.0

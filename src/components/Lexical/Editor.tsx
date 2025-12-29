@@ -77,6 +77,7 @@ export type LexicalEditorProps = {
   htmlString?: string;
   placeholder?: string;
   readonly?: boolean;
+  autoFocus?: boolean;
   hideToolbar?: boolean;
   className?: string;
   onChange?: (editorState: EditorState, editor: LexicalEditor, noChange: boolean) => void;
@@ -84,6 +85,8 @@ export type LexicalEditorProps = {
   onUpload?: OnImageUpload;
   withoutTimeout?: boolean;
   UploadDocsService?: UploadDocsRefServiceInstance;
+  attribute?: string;
+  recordRef?: string;
 };
 
 const skipCollaborationInit =
@@ -94,11 +97,14 @@ export default function Editor({
   placeholder: propsPlaceholder,
   onChange,
   readonly = false,
+  autoFocus = false,
   hideToolbar = false,
   className,
   onEditorReady,
   onUpload,
-  UploadDocsService
+  UploadDocsService,
+  attribute,
+  recordRef
 }: LexicalEditorProps): React.JSX.Element {
   const { historyState } = useSharedHistoryContext();
 
@@ -177,6 +183,8 @@ export default function Editor({
           activeEditor={activeEditor}
           setActiveEditor={setActiveEditor}
           setIsLinkEditMode={setIsLinkEditMode}
+          attribute={attribute}
+          recordRef={recordRef}
         />
       )}
       {isRichText && <ShortcutsPlugin editor={activeEditor} setIsLinkEditMode={setIsLinkEditMode} />}
@@ -186,7 +194,7 @@ export default function Editor({
         })}
       >
         <DragDropPaste />
-        <AutoFocusPlugin />
+        {autoFocus && <AutoFocusPlugin />}
         {selectionAlwaysOnDisplay && <SelectionAlwaysOnDisplay />}
         <ClearEditorPlugin />
         <AutoEmbedPlugin />
@@ -224,6 +232,7 @@ export default function Editor({
                 <div className="editor-scroller">
                   <div className="editor" ref={onRef}>
                     <ContentEditable
+                      autoFocus={autoFocus}
                       placeholder={placeholder}
                       className={classNames('ecos-rt-editor__content', readonly ? 'content_readonly' : 'ContentEditable__root')}
                     />
@@ -264,7 +273,12 @@ export default function Editor({
                 />
                 <TableCellActionMenuPlugin anchorElem={floatingAnchorElem} cellMerge={true} />
                 <TableHoverActionsPlugin anchorElem={floatingAnchorElem} />
-                <FloatingTextFormatToolbarPlugin anchorElem={floatingAnchorElem} setIsLinkEditMode={setIsLinkEditMode} />
+                <FloatingTextFormatToolbarPlugin
+                  anchorElem={floatingAnchorElem}
+                  setIsLinkEditMode={setIsLinkEditMode}
+                  recordRef={recordRef}
+                  attribute={attribute}
+                />
               </>
             )}
           </>
@@ -273,6 +287,7 @@ export default function Editor({
             <PlainTextPlugin
               contentEditable={
                 <ContentEditable
+                  autoFocus={autoFocus}
                   className={classNames('ecos-rt-editor__content', readonly ? 'content_readonly' : 'ContentEditable__root')}
                   placeholder={placeholder}
                 />

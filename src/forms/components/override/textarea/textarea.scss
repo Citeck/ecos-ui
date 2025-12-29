@@ -20,6 +20,10 @@
       pointer-events: none;
     }
   }
+
+  .ace_scrollbar {
+    pointer-events: initial;
+  }
 }
 
 .lexical-readonly-container {

@@ -107,7 +107,7 @@ function registerValidSW(swUrl: string, config?: ConfigProps) {
 
 function checkValidServiceWorker(swUrl: string, config?: ConfigProps) {
   // Check if the service worker can be found. If it can't reload the page.
-  ecosFetch(swUrl)
+  ecosFetch(swUrl, { credentials: 'include' })
     .then(response => {
       // Ensure service worker exists, and that we really are getting a JS file.
       const contentType = response.headers.get('content-type');

@@ -1,12 +1,13 @@
-import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { Scrollbars } from 'react-custom-scrollbars';
 import classNames from 'classnames';
 import isEqual from 'lodash/isEqual';
+import React, { Component } from 'react';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { Scrollbars } from 'react-custom-scrollbars';
+import ReactDOM from 'react-dom';
 
-import { getId } from '../../../../helpers/util';
 import ListItem from '../../../ColumnsSetup/ListItem';
+
+import { getId } from '@/helpers/util';
 
 import './DndList.scss';
 
@@ -15,13 +16,7 @@ const Scroll = React.memo(({ noScroll, children }) =>
 );
 const ListItemWrapper = React.memo(({ cssItemClasses, provided, children }) => {
   return (
-    <span
-      className={cssItemClasses}
-      ref={provided.innerRef}
-      {...provided.draggableProps}
-      {...provided.dragHandleProps}
-      style={provided.draggableProps.style}
-    >
+    <span className={cssItemClasses} ref={provided.innerRef} {...provided.draggableProps} style={provided.draggableProps.style}>
       {children}
     </span>
   );
@@ -97,25 +92,9 @@ export default class DndList extends Component {
             {provided => (
               <div className={cssClasses} {...provided.droppableProps} ref={provided.innerRef}>
                 {data.map((item, index) => (
-                  <Draggable key={item.id} draggableId={item.id} index={index}>
+                  <Draggable key={item.id} draggableId={String(item.id)} index={index}>
                     {(provided, snapshot) => {
-                      return snapshot.isDragging ? (
-                        ReactDOM.createPortal(
-                          <ListItemWrapper
-                            cssItemClasses={snapshot.isDragging ? `${cssItemClasses} ${draggableClassName}` : cssItemClasses}
-                            provided={provided}
-                          >
-                            <ListItem
-                              column={item}
-                              sortBy={sortBy}
-                              titleField={titleField}
-                              onChangeVisible={onChangeVisible}
-                              onChangeSortBy={onChangeSortBy}
-                            />
-                          </ListItemWrapper>,
-                          this.portal
-                        )
-                      ) : (
+                      const wrapper = (
                         <ListItemWrapper
                           cssItemClasses={snapshot.isDragging ? `${cssItemClasses} ${draggableClassName}` : cssItemClasses}
                           provided={provided}
@@ -126,9 +105,12 @@ export default class DndList extends Component {
                             titleField={titleField}
                             onChangeVisible={onChangeVisible}
                             onChangeSortBy={onChangeSortBy}
+                            dragHandleProps={provided.dragHandleProps}
                           />
                         </ListItemWrapper>
                       );
+
+                      return snapshot.isDragging ? ReactDOM.createPortal(wrapper, this.portal) : wrapper;
                     }}
                   </Draggable>
                 ))}

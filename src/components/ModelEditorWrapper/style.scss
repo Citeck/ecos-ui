@@ -102,7 +102,7 @@
       z-index: 5;
       padding-top: 20px;
       padding-bottom: 20px;
-      border-bottom: 2px $color-gray-6 solid;
+      border-bottom: 1px $color-gray-4 solid;
       padding-left: 20px;
       margin: -20px -20px 5px -20px;
     }
@@ -110,6 +110,7 @@
     &-resizer {
       left: -10px;
       top: 5rem;
+      z-index: 100;
     }
 
     &_open {
@@ -119,7 +120,7 @@
 
     &-opener {
       position: absolute;
-      z-index: 905;
+      z-index: 100;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -138,7 +139,7 @@
       }
 
       &:hover {
-        background: $color-blue-light;
+        background: var(--primary-color);
 
         .icon {
           color: $color-white;

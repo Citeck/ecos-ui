@@ -24,80 +24,82 @@ import {
   setHomeLink,
   setLeftMenuEditable,
   setRedirectToNewUi,
-  setSeparateActionListForQuery
+  setSeparateActionListForQuery,
+  setAllowToCreateWorkspace
 } from '@/actions/app';
 import { registerEventListeners } from '@/actions/customEvent';
 import { getMenuConfig, setMenuConfig } from '@/actions/menu';
 import { setNewUIAvailableStatus, validateUserFailure, validateUserSuccess } from '@/actions/user';
 import { detectMobileDevice, setViewNewJournal } from '@/actions/view';
 import { getWorkspaces, setBlockedCurrentWorkspace, setDefaultWorkspace } from '@/actions/workspaces';
+import { OrgStructApi } from '@/api/orgStruct';
 import { SourcesId, URL } from '@/constants';
 import { getWorkspaceId } from '@/helpers/urls';
 import { getCurrentUserName, getEnabledWorkspaces } from '@/helpers/util';
 import { SETTING_ENABLE_VIEW_NEW_JOURNAL } from '@/pages/DevTools/constants';
 import { selectWorkspaces } from '@/selectors/workspaces';
 import PageService from '@/services/PageService';
+import AuthorityService from '@/services/authrority/AuthorityService';
 import ConfigService, {
   DEFAULT_WORKSPACE,
   WORKSPACES_ENABLED,
   FOOTER_CONTENT,
   HOME_LINK_URL,
-  NEW_JOURNAL_ENABLED
+  NEW_JOURNAL_ENABLED,
+  WORKSPACES_ALLOW_CREATE
 } from '@/services/config/ConfigService';
-import { loadConfigs } from '@/services/config/configApi';
 
 export function* initApp({ api }, { payload }) {
   try {
     let isAuthenticated = false;
+    let hasError = false;
 
     try {
       const { query } = queryString.parseUrl(window.location.href);
 
-      const resp = yield call(api.user.getUserData);
-      const configs = yield loadConfigs({
-        [NEW_JOURNAL_ENABLED]: 'value?bool',
-        [DEFAULT_WORKSPACE]: 'value?str',
-        [WORKSPACES_ENABLED]: 'value?bool'
-      });
+      const userResponse = yield call(api.user.getUserData, OrgStructApi.userAttributes);
+      const isAllowToCreateWorkspace = yield ConfigService.getValue(WORKSPACES_ALLOW_CREATE);
 
-      const _isViewNewJournal = configs[NEW_JOURNAL_ENABLED];
+      let isViewNewJournal = yield ConfigService.getValue(NEW_JOURNAL_ENABLED);
 
-      let isViewNewJournal;
+      const defaultWorkspace = yield ConfigService.getValue(DEFAULT_WORKSPACE);
+      const isWorkspacesEnabled = yield ConfigService.getValue(WORKSPACES_ENABLED);
+
       const isViewNewJournalStorage = Boolean(localStorage.getItem(SETTING_ENABLE_VIEW_NEW_JOURNAL));
 
-      switch (true) {
-        case isViewNewJournalStorage:
-          isViewNewJournal = true;
-          break;
+      if (isViewNewJournalStorage) {
+        isViewNewJournal = true;
+      }
 
-        default:
-          isViewNewJournal = _isViewNewJournal;
-          break;
+      if (isAllowToCreateWorkspace || get(userResponse, 'payload.isAdmin', false)) {
+        yield put(setAllowToCreateWorkspace(true));
       }
 
       if (isBoolean(isViewNewJournal)) {
         yield put(setViewNewJournal(isViewNewJournal));
       }
 
-      if (isString(configs[DEFAULT_WORKSPACE])) {
-        yield put(setDefaultWorkspace(configs[DEFAULT_WORKSPACE]));
+      if (isString(defaultWorkspace)) {
+        yield put(setDefaultWorkspace(defaultWorkspace));
       }
 
-      if (configs[WORKSPACES_ENABLED]) {
+      if (isWorkspacesEnabled) {
         yield put(getWorkspaces());
       }
 
-      if (!resp.success) {
+      if (!userResponse.success) {
+        hasError = true;
         yield put(validateUserFailure());
       } else {
         isAuthenticated = true;
-        yield put(validateUserSuccess(resp.payload));
+        yield put(validateUserSuccess(userResponse.payload));
 
         // TODO remove in future: see src/helpers/util.js getCurrentUserName()
-        lodashSet(window, 'Citeck.constants.USERNAME', get(resp.payload, 'userName'));
-        lodashSet(window, 'Citeck.constants.FIRSTNAME', get(resp.payload, 'firstName'));
-        lodashSet(window, 'Citeck.navigator.WORKSPACES_ENABLED', configs[WORKSPACES_ENABLED]);
-        lodashSet(window, 'Citeck.navigator.DEFAULT_WORKSPACE', configs[DEFAULT_WORKSPACE]);
+        lodashSet(window, 'Citeck.constants.USERNAME', get(userResponse.payload, 'userName'));
+        lodashSet(window, 'Citeck.constants.FIRSTNAME', get(userResponse.payload, 'firstName'));
+        lodashSet(window, 'Citeck.constants.CURRENT_USER', userResponse.payload);
+        lodashSet(window, 'Citeck.navigator.WORKSPACES_ENABLED', isWorkspacesEnabled);
+        lodashSet(window, 'Citeck.navigator.DEFAULT_WORKSPACE', defaultWorkspace || `user$${getCurrentUserName()}`);
         lodashSet(window, 'Citeck.constants.NEW_JOURNAL_ENABLED', isViewNewJournal);
 
         if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
@@ -105,8 +107,8 @@ export function* initApp({ api }, { payload }) {
         }
       }
 
-      if (configs[WORKSPACES_ENABLED]) {
-        const wsId = get(query, 'ws') || getWorkspaceId(configs[DEFAULT_WORKSPACE]);
+      if (isWorkspacesEnabled) {
+        const wsId = get(query, 'ws') || getWorkspaceId(defaultWorkspace || `user$${getCurrentUserName()}`);
         const workspace = yield call(api.workspaces.getWorkspace, `${SourcesId.WORKSPACE}@${wsId}`);
 
         if (isBoolean(get(workspace, 'isCurrentUserMember'))) {
@@ -114,17 +116,17 @@ export function* initApp({ api }, { payload }) {
         }
       }
 
-      const isNewUIAvailable = true;
-
-      yield put(setNewUIAvailableStatus(isNewUIAvailable));
+      yield put(setNewUIAvailableStatus(true));
 
       const isForceOldUserDashboardEnabled = yield call(api.app.isForceOldUserDashboardEnabled);
 
-      yield put(setRedirectToNewUi(!isForceOldUserDashboardEnabled));
+      if (!hasError) {
+        yield put(setRedirectToNewUi(!isForceOldUserDashboardEnabled));
 
-      const homeLink = yield ConfigService.getValue(HOME_LINK_URL);
+        const homeLink = yield ConfigService.getValue(HOME_LINK_URL);
 
-      yield put(setHomeLink(homeLink));
+        yield put(setHomeLink(homeLink));
+      }
     } catch (e) {
       if (e.message === 'User is disabled') {
         alert('User is disabled');
@@ -134,9 +136,14 @@ export function* initApp({ api }, { payload }) {
     }
 
     yield put(detectMobileDevice());
-    yield put(initAppSuccess());
 
-    payload && isFunction(payload.onSuccess) && payload.onSuccess(isAuthenticated);
+    if (hasError) {
+      yield put(initAppFailure());
+    } else {
+      yield put(initAppSuccess());
+    }
+
+    payload && isFunction(payload.onRender) && payload.onRender(isAuthenticated);
   } catch (e) {
     console.error('[app saga] initApp error', e);
     yield put(initAppFailure());
@@ -167,10 +174,34 @@ export function* sagaRedirectToLoginPage({ api }) {
     }
 
     if (!url) {
-      window.location.reload();
+      const reloadCount = parseInt(sessionStorage.getItem('loginRedirectReloadCount') || '0', 10);
+      const maxReloadAttempts = 3;
+
+      if (reloadCount < maxReloadAttempts) {
+        sessionStorage.setItem('loginRedirectReloadCount', (reloadCount + 1).toString());
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      } else {
+        sessionStorage.removeItem('loginRedirectReloadCount');
+        console.error('[app saga] Maximum reload attempts reached. Unable to redirect to login page.');
+      }
     }
   } catch (e) {
     console.error('[app saga] sagaRedirectToLoginPage error', e);
+
+    const reloadCount = parseInt(sessionStorage.getItem('loginRedirectReloadCount') || '0', 10);
+    const maxReloadAttempts = 3;
+
+    if (reloadCount < maxReloadAttempts) {
+      sessionStorage.setItem('loginRedirectReloadCount', (reloadCount + 1).toString());
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    } else {
+      sessionStorage.removeItem('loginRedirectReloadCount');
+    }
   }
 }
 
@@ -231,9 +262,9 @@ export function* fetchLeftMenuEditable() {
 
     let isEditable = isAdmin && menuVersion > 0;
 
-    if (workspacesEnabled && wsId) {
-      const currentWs = workspaces?.find(ws => ws?.id === wsId);
-      const isCurrentUserManager = get(currentWs, 'isCurrentUserManager', false);
+    if (workspacesEnabled) {
+      const isCurrentUserManager = yield AuthorityService.hasConfigWritePermission();
+
       isEditable = (isAdmin || isCurrentUserManager) && menuVersion > 0;
     }
 

@@ -20,15 +20,16 @@ import { configureAPI } from './api';
 import App from './components/App';
 import IdleTimer from './components/IdleTimer';
 import { RESET_AUTH_STATE_EVENT, emitter } from './helpers/ecosFetch';
-import { getCurrentLocale, IS_TEST_ENV, isMobileAppWebView } from './helpers/util';
+import { getCurrentLocale, IS_TEST_ENV, isMobileAppWebView, isMobileDevice } from './helpers/util';
 import { i18nInit } from './i18n';
 import plugins from './plugins';
 import { register as registerServiceWorker } from './serviceWorkerRegistration';
 import authService from './services/auth';
 import configureStore, { getHistory } from './store';
 
+import PageLoader from '@/components/PageLoader';
 import { registerAllActions } from '@/components/Records/actions/actions';
-import { allowedModes } from '@/constants/index.js';
+import { allowedModes } from '@/constants';
 import { NotificationManager } from '@/services/notifications';
 
 // Files are included in the build only if imported from here
@@ -77,41 +78,52 @@ setDefaultLocale(currentLocale);
 const { api, setNotAuthCallback } = configureAPI();
 export const store = configureStore({ api });
 const history: History = getHistory();
-const setAuthStatus = () => {
-  store.dispatch(setIsAuthenticated(false));
+const setAuthStatus = (status?: boolean) => {
+  if (!status) {
+    store.dispatch(setIsAuthenticated(false));
+  }
 };
 
 setNotAuthCallback(setAuthStatus);
 
 emitter.on(RESET_AUTH_STATE_EVENT, setAuthStatus);
 
-if (!window.Citeck) {
-  window.Citeck = {};
+if (typeof window !== 'undefined') {
+  if (!window.Citeck) {
+    window.Citeck = {};
+  }
+
+  window.Citeck.Plugins = plugins;
+  window.Citeck.NotificationManager = NotificationManager;
+  window.Citeck.Base64 = Base64;
 }
 
-window.Citeck.Plugins = plugins;
-window.Citeck.NotificationManager = NotificationManager;
-window.Citeck.Base64 = Base64;
+const root = createRoot(document.getElementById('root') as HTMLElement);
+i18nInit({ debug: allowedModes.includes(process.env.NODE_ENV) }).then(() => {
+  root.render(<PageLoader withoutSidebar={isMobileDevice()} />);
+});
 
 const runApp = () => {
   store.dispatch(
     initAppRequest({
-      onSuccess: (isAuthenticated: boolean) => {
+      onRender: (isAuthenticated: boolean) => {
+        if (isAuthenticated && allowedModes.includes(process.env.NODE_ENV)) {
+          emitter.emit(RESET_AUTH_STATE_EVENT, true);
+        }
+
         store.dispatch(
           loadThemeRequest({
             isAuthenticated,
-            onSuccess: () => {
-              i18nInit({ debug: allowedModes.includes(process.env.NODE_ENV) }).then(() => {
-                createRoot(document.getElementById('root') as HTMLElement).render(
-                  <Provider store={store}>
-                    <ConnectedRouter history={history}>
-                      <StrictMode>
-                        <App />
-                      </StrictMode>
-                    </ConnectedRouter>
-                  </Provider>
-                );
-              });
+            onRender: () => {
+              root.render(
+                <Provider store={store}>
+                  <ConnectedRouter history={history}>
+                    <StrictMode>
+                      <App />
+                    </StrictMode>
+                  </ConnectedRouter>
+                </Provider>
+              );
             }
           })
         );

@@ -1,18 +1,21 @@
 import classNames from 'classnames';
+import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
+import isObject from 'lodash/isObject';
 import React, { useState, useEffect } from 'react';
 
-import { extractLabel, t } from '../../../helpers/util';
 import { Tooltip } from '../../common';
 import TitlePageLoader from '../../common/TitlePageLoader';
 import { Badge } from '../../common/form';
 import { Labels } from '../constants';
 
-// @ts-ignore
 import Records from '@/components/Records';
+import { PREDICATE_AND, PREDICATE_EQ } from '@/components/Records/predicates/predicates';
 import NumberFormatter from '@/components/common/grid/formatters/gql/NumberFormatter';
 import JournalsConverter from '@/dto/journals';
+import KanbanConverter from '@/dto/kanban';
 import { getWorkspaceId } from '@/helpers/urls';
+import { extractLabel, t } from '@/helpers/util';
 import AttributesService from '@/services/AttributesService';
 
 interface HeaderColumnProps {
@@ -21,30 +24,41 @@ interface HeaderColumnProps {
   isReady: boolean;
   isViewNewJournal: boolean;
   predicate: any;
+  searchPredicate: any;
   typeRef: string;
 }
 
-const HeaderColumn = ({ data, totalCount, isReady, typeRef, isViewNewJournal, predicate }: HeaderColumnProps) => {
+const HeaderColumn = ({ data, totalCount, isReady, typeRef, isViewNewJournal, predicate, searchPredicate }: HeaderColumnProps) => {
   const [columnSum, setColumnSum] = useState<number | undefined>();
   const [columnSumLabel, setColumnSumLabel] = useState<{ en: string; ru: string } | undefined>();
 
   useEffect(() => {
+    const toConvertPredicates = isArray(predicate) ? predicate : [predicate];
+    const statusModifiedPredicate = KanbanConverter.getStatusModifiedPredicate(data);
+
+    if (!isEmpty(searchPredicate) && isObject(searchPredicate)) {
+      toConvertPredicates.push(searchPredicate);
+    }
+
+    if (!isEmpty(statusModifiedPredicate) && isObject(statusModifiedPredicate)) {
+      toConvertPredicates.push(statusModifiedPredicate);
+    }
+
     if (isViewNewJournal && data.hasSum) {
       const journalId = AttributesService.parseId(typeRef);
-      // @ts-ignore
       Records.queryOne(
         {
           sourceId: `emodel/${journalId}`,
           query: {
-            t: 'and',
+            t: PREDICATE_AND,
             v: [
               {
-                t: 'eq',
+                t: PREDICATE_EQ,
                 a: '_status',
                 v: data.id
               },
-              { ...JournalsConverter.cleanUpPredicate([predicate])[0] }
-            ]
+              ...JournalsConverter.cleanUpPredicate(toConvertPredicates)
+            ].filter(Boolean)
           },
           language: 'predicate',
           workspaces: [`${getWorkspaceId()}`],
@@ -53,20 +67,24 @@ const HeaderColumn = ({ data, totalCount, isReady, typeRef, isViewNewJournal, pr
         { value: `sum(${data.sumAtt})?num` }
       ).then(({ value }: { value: number }) => {
         setColumnSum(value || 0);
+        updateColumnSumLabel();
       });
     }
   }, [totalCount]);
 
   useEffect(() => {
+    updateColumnSumLabel();
+  }, []);
+
+  const updateColumnSumLabel = () => {
     if (isViewNewJournal && data.hasSum) {
-      // @ts-ignore
       Records.get(typeRef)
         .load(`attributeById.${data.sumAtt}.name{ru,en}`)
         .then((label: { en: string; ru: string }) => {
           setColumnSumLabel(label || { en: '', ru: '' });
         });
     }
-  }, []);
+  };
 
   if (isEmpty(data)) {
     return null;

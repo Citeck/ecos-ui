@@ -1,6 +1,8 @@
 @import '../../styles/constants';
 
 .ecos-files-viewer {
+  padding: 12px 0;
+
   &_dragged-not-files {
     padding-bottom: 30px;
   }
@@ -83,6 +85,10 @@
         bottom: 2px;
         padding-left: 20px;
         background: linear-gradient(to right, rgba($color-white, 0), $color-white 15%);
+
+        button {
+          font-size: 15px;
+        }
       }
 
       &#{$item}_selected {

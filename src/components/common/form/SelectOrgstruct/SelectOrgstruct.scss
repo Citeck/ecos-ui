@@ -13,8 +13,37 @@
   }
 
   &_compact {
-    overflow: hidden;
+    overflow: initial;
     width: 100%;
+
+    & .select-orgstruct__values-list {
+      padding: 1px 8px;
+      flex-wrap: nowrap;
+      min-height: auto;
+
+      &-actions {
+        right: 2% !important;
+        top: calc(50% - 8px) !important;
+
+        &_item {
+          & > svg {
+            width: 12px !important;
+          }
+        }
+      }
+
+      &_text-content {
+        min-width: 36px;
+        padding: 2px 4px !important;
+        overflow: hidden;
+      }
+
+      svg {
+        width: 16px;
+        height: 100%;
+        margin-bottom: 2px;
+      }
+    }
 
     &-extra {
       &.ecos-btn {

@@ -1,14 +1,15 @@
 import get from 'lodash/get';
 
-import { t } from '../../../../../helpers/util';
-import { SourcesId } from '../../../../../constants';
-import { PROXY_URI } from '../../../../../constants/alfresco';
 import { replacePlaceholders } from '../../../../Journals/service/util';
 import Records from '../../../Records';
-import ActionsExecutor from '../ActionsExecutor';
 import { ResultTypes } from '../../util/constants';
-import LicenseService from '../../../../../services/license/LicenseService';
-import ConfigService, {ALFRESCO_ENABLED, ALFRESCO_EXPORT_SRC_ID_PATTERN} from '../../../../../services/config/ConfigService';
+import ActionsExecutor from '../ActionsExecutor';
+
+import { SourcesId } from '@/constants';
+import { PROXY_URI } from '@/constants/alfresco';
+import { t } from '@/helpers/util';
+import ConfigService, { ALFRESCO_ENABLED, ALFRESCO_EXPORT_SRC_ID_PATTERN } from '@/services/config/ConfigService';
+import LicenseService from '@/services/license/LicenseService';
 
 const ALF_ACTION_ID = `${SourcesId.ACTION}@alf-download-report-group-action-`;
 const ACTION_ID = `${SourcesId.ACTION}@group-action-export-`;
@@ -119,7 +120,7 @@ export default class RecordsExportAction extends ActionsExecutor {
       } else {
         let newConfig = await Records.queryOne(
           {
-            sourceId: 'uiserv/fill-template-value',
+            sourceId: SourcesId.FILL_TEMPLATE_VALUE,
             query: {
               context: {
                 reportColumns: columns,

@@ -4,8 +4,8 @@ import {
   ROOT_GROUP_NAME,
   GroupTypes,
   TabTypes
-} from '../../../../../components/common/form/SelectOrgstruct/constants';
-import { t } from '../../../../../helpers/export/util';
+} from '@/components/common/form/SelectOrgstruct/constants';
+import { t } from '@/helpers/util';
 
 export default [
   {
@@ -14,6 +14,14 @@ export default [
     key: 'modalTitle',
     label: 'Modal title (optional)',
     weight: 13
+  },
+  {
+    type: 'checkbox',
+    input: true,
+    key: 'isSkipSearchInWorkspace',
+    label: 'Display all users of the system',
+    weight: 13,
+    defaultValue: false
   },
   {
     type: 'checkbox',

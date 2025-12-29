@@ -1,4 +1,5 @@
 import * as ReduxUtils from '../redux';
+import * as StoreUtils from '../store';
 
 describe('Redux helpers', () => {
   describe('fun handleAction', () => {
@@ -19,12 +20,12 @@ describe('Redux helpers', () => {
 
   describe('fun getStateId', () => {
     it("there's full data", () => {
-      const id = ReduxUtils.getStateId({ tabId: 0, id: 1 });
+      const id = StoreUtils.getStateId({ tabId: 0, id: 1 });
       expect(id).toEqual('[0]-[1]');
     });
 
     it("there isn't full data", () => {
-      const id = ReduxUtils.getStateId({});
+      const id = StoreUtils.getStateId({});
       expect(id).toEqual('[]-[]');
     });
   });

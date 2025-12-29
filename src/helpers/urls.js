@@ -76,7 +76,7 @@ export const getCustomDasboardUrl = dashboardId => {
 export const getWikiDasboardUrl = () => {
   const workspaceId = getWorkspaceId();
 
-  return `${Urls.DASHBOARD}?recordRef=emodel/wiki@${workspaceId}$ROOT&ws=${workspaceId}`;
+  return `${Urls.DASHBOARD}?recordRef=${SourcesId.WIKI}@${workspaceId}$ROOT&ws=${workspaceId}`;
 };
 
 export const changeUrl = (url, opts = {}) => {
@@ -92,7 +92,11 @@ export const createProfileUrl = userName => {
 };
 
 export const createDocumentUrl = recordRef => {
-  return `${Urls.DASHBOARD}?recordRef=${recordRef}`;
+  if (!getEnabledWorkspaces()) {
+    return `${Urls.DASHBOARD}?recordRef=${recordRef}`;
+  }
+
+  return `${Urls.DASHBOARD}?recordRef=${recordRef}&ws=${getWorkspaceId()}`;
 };
 
 export const getSelectedValueLink = item => {
@@ -456,7 +460,7 @@ export const getWorkspaceId = (defaultWorkspace = getDefaultWorkspace(), search 
 
 export const getPersonalWorkspaceId = () => `user$${getCurrentUserName()}`;
 
-if (!window.Citeck) {
+if (typeof window !== 'undefined' && !window.Citeck) {
   window.Citeck = {};
 }
 
@@ -516,12 +520,14 @@ export const getBaseUrlWorkspace = (wsId, homePageLink, withHost = true) => {
   return url.pathname + url.search;
 };
 
-window.Citeck.Navigator = {
-  goToDashboard: (recordRef, options) => {
-    goToCardDetailsPage(recordRef, options);
-  },
-  getWorkspaceId: () => getWorkspaceId()
-};
+if (typeof window !== 'undefined') {
+  window.Citeck.Navigator = {
+    goToDashboard: (recordRef, options) => {
+      goToCardDetailsPage(recordRef, options);
+    },
+    getWorkspaceId: () => getWorkspaceId()
+  };
+}
 
 export const replaceHistoryLink = (history = window, link = '', force = false) => {
   if (isEmpty(history)) {
@@ -612,6 +618,12 @@ export const getRecordRef = (sourceUrl = window.location.href) => {
   const recordRef = get(queryString.parseUrl(sourceUrl), 'query.recordRef', '');
 
   return isArray(recordRef) ? recordRef.shift() : recordRef;
+};
+
+export const getDashboardId = (sourceUrl = window.location.href) => {
+  const dashboardId = get(queryString.parseUrl(sourceUrl), 'query.dashboardId', '');
+
+  return isArray(dashboardId) ? dashboardId.shift() : dashboardId;
 };
 
 export const isUrl = value => {

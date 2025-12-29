@@ -5,9 +5,10 @@ import isString from 'lodash/isString';
 import set from 'lodash/set';
 import unset from 'lodash/unset';
 
-import { DEFAULT_LABEL_POSITION } from '../../../../constants/forms';
-import { getBool, t } from '../../../../helpers/util';
 import Base from '../base/Base';
+
+import { DEFAULT_LABEL_POSITION } from '@/constants/forms';
+import { getBool, getMLValue, t } from '@/helpers/util';
 
 export default class CheckBoxComponent extends FormIOCheckBoxComponent {
   static schema(...extend) {
@@ -21,7 +22,7 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
     );
   }
 
-  #beforeState;
+  _beforeState;
 
   get defaultValue() {
     if (this.isRadioCheckbox) {
@@ -113,6 +114,14 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
     return this.component.hasThreeStates;
   }
 
+  errorMessage(type) {
+    if (type === 'required') {
+      return t('ecos.forms.checkbox.required', { field: getMLValue(this.component.label) });
+    }
+
+    return super.errorMessage(type);
+  }
+
   isEmpty(value) {
     if (this.hasThreeStates) {
       return value === null;
@@ -190,11 +199,11 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
 
     const value = this.setElementState(state);
 
-    if (needUpdate && this.#beforeState === undefined && this.#beforeState !== state) {
+    if (needUpdate && this._beforeState === undefined && this._beforeState !== state) {
       this.dataValue = state;
     }
 
-    this.#beforeState = value;
+    this._beforeState = value;
 
     if (this.input) {
       this.input.checked = value;
@@ -243,7 +252,7 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
   }
 
   updateVisible = () => {
-    if (this.options.builder) {
+    if (this.options.builder || isEmpty(get(this.component, 'logic'))) {
       return;
     }
 
@@ -286,7 +295,7 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
          * value change logic:
          * true => false => null => etc by circle
          */
-        switch (this.#beforeState) {
+        switch (this._beforeState) {
           case null:
             newValue = true;
             break;
@@ -303,7 +312,7 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
 
       const changed = newValue !== undefined ? this.hasChanged(newValue, this.dataValue) : false;
 
-      this.#beforeState = newValue;
+      this._beforeState = newValue;
       this.dataValue = newValue;
       this.updateOnChange(flags, changed);
 

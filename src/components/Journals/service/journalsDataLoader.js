@@ -15,8 +15,11 @@ import computedService from './computed/computedService';
 import journalsServiceApi from './journalsServiceApi';
 import { COMPUTED_ATT_PREFIX } from './util';
 
+import JournalsService from '@/components/Journals/service/journalsService';
 import { Attributes } from '@/constants';
+import { VIRTUAL_ATT_ID } from '@/constants/journal';
 import JournalsConverter from '@/dto/journals';
+import { SearchInWorkspacePolicy } from '@/forms/components/custom/selectJournal/constants';
 import { getWorkspaceId } from '@/helpers/urls';
 import { getEnabledWorkspaces, t } from '@/helpers/util';
 import AttributesService from '@/services/AttributesService';
@@ -138,6 +141,8 @@ class JournalsDataLoader {
       query = { t: PREDICATE_AND, val: [query, newQuery] };
     }
 
+    JournalsConverter.mapPredicateKeys(query, { [VIRTUAL_ATT_ID]: 'id' });
+
     if (journalConfig.queryData || settings.queryData) {
       queryData = {
         ...(journalConfig.queryData || {}),
@@ -233,6 +238,24 @@ class JournalsDataLoader {
     return [];
   };
 
+  getJournalWorkspacesSetting = (dashletConfig = {}) => {
+    let workspaces = null;
+
+    const aggregateWorkspaces = get(dashletConfig, 'aggregateWorkspaces');
+    const searchInWorkspacePolicy = get(dashletConfig, 'searchInWorkspacePolicy');
+    if (isArray(aggregateWorkspaces)) {
+      const additionalWorkspaces = aggregateWorkspaces.map(wsId => (wsId.includes('@') ? wsId.split('@')[1] : wsId));
+
+      if (searchInWorkspacePolicy && Object.values(SearchInWorkspacePolicy).includes(searchInWorkspacePolicy)) {
+        workspaces = JournalsService.getWorkspaceByPolicy(searchInWorkspacePolicy, additionalWorkspaces);
+      } else {
+        workspaces = additionalWorkspaces;
+      }
+    }
+
+    return workspaces;
+  };
+
   recoursiveReplaceObjectValues = (obj, replaceMap = {}) => {
     if (!Object.keys(replaceMap).length) {
       return obj;
@@ -267,7 +290,7 @@ class JournalsDataLoader {
       columns
     );
 
-    let predicates = [journalConfig.predicate, settings.predicate, ...predicateFilter].filter(p => !!p);
+    let predicates = [journalConfig.predicate, settings.predicate, ...(settings.predicates || []), ...predicateFilter].filter(p => !!p);
 
     const isCustomJournalMode = get(settings, 'isCustomJournalMode', false);
 
@@ -283,9 +306,7 @@ class JournalsDataLoader {
 
         predicates.push({
           t: PREDICATE_OR,
-          val: columns
-            .filter(c => c.type === COLUMN_DATA_TYPE_ASSOC && c.searchable && attrsToLoad.includes(c.attribute))
-            .map(mapToPredicates)
+          val: attrsToLoad.map(attribute => mapToPredicates({ attribute }))
         });
       } else if (isCustomJournalMode) {
         predicates.push({
@@ -386,7 +407,12 @@ class JournalsDataLoader {
 
     for (let key in attributesMap) {
       if (attributesMap.hasOwnProperty(key)) {
-        attributesSet.add(attributesMap[key]);
+        let value = attributesMap[key];
+        if (value.indexOf(VIRTUAL_ATT_ID) !== -1) {
+          value = value.replace(VIRTUAL_ATT_ID, 'id');
+          attributesMap[key] = value;
+        }
+        attributesSet.add(value);
       }
     }
 

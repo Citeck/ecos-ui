@@ -4,9 +4,7 @@ import { call, put, takeLatest, takeEvery, select } from 'redux-saga/effects';
 
 import { getDashboardEditable } from '@/actions/app';
 import { getDashboardConfig } from '@/actions/dashboard';
-import { fetchCreateCaseWidgetData } from '@/actions/header';
 import { getMenuConfig } from '@/actions/menu';
-import { fetchSlideMenuItems } from '@/actions/slideMenu';
 import {
   getWorkspaces,
   goToDefaultFromBlockedWs,
@@ -23,12 +21,13 @@ import {
   onSearchWorkspaces,
   setIsBlockedCurrentWorkspace,
   removeWorkspace,
-  leaveOfWorkspace
+  leaveOfWorkspace,
+  setSearchText
 } from '@/actions/workspaces';
 import { RecordsQueryResponse } from '@/api/types';
 import { WorkspaceType } from '@/api/workspaces/types';
 import { URL } from '@/constants';
-import { getBaseUrlWorkspace, getLinkWithWs, getPersonalWorkspaceId, getWorkspaceId, getWsIdOfTabLink } from '@/helpers/urls';
+import { getLinkWithWs, getPersonalWorkspaceId, getWsIdOfTabLink } from '@/helpers/urls';
 import { t } from '@/helpers/util';
 import { selectCurrentWorkspaceBlocked, selectCurrentWorkspaceIsBlocked } from '@/selectors/workspaces';
 import PageService from '@/services/PageService';
@@ -153,8 +152,6 @@ function* sagaUpdateUIWorkspace() {
   try {
     yield put(getDashboardEditable());
     yield put(getMenuConfig());
-    yield put(fetchSlideMenuItems());
-    yield put(fetchCreateCaseWidgetData());
   } catch (e) {
     console.error('[workspaces/ sagaUpdateUIWorkspace] error', e);
     yield put(setWorkspacesError());
@@ -167,6 +164,7 @@ function* sagaGetSidebarWorkspaces({ api }: ExtraArgumentsStore) {
     const { records: myWorkspaces }: RecordsQueryResponse<WorkspaceType> = yield call(api.workspaces.getMyWorkspaces);
     const { records: publicWorkspaces }: RecordsQueryResponse<WorkspaceType> = yield call(api.workspaces.getPublicWorkspaces);
 
+    yield put(getWorkspaces());
     yield put(setMyWorkspaces(myWorkspaces));
     yield put(setPublicWorkspaces(publicWorkspaces));
   } catch (e) {
@@ -179,9 +177,15 @@ function* sagaGetSidebarWorkspaces({ api }: ExtraArgumentsStore) {
 
 function* sagaOnSearchWorkspaces({ api }: ExtraArgumentsStore, { payload }: ReturnType<typeof onSearchWorkspaces>) {
   try {
-    yield put(setLoading(true));
-    const { records: myWorkspaces }: RecordsQueryResponse<WorkspaceType> = yield call(api.workspaces.searchMyWorkspaces, payload);
-    const { records: publicWorkspaces }: RecordsQueryResponse<WorkspaceType> = yield call(api.workspaces.searchPublicWorkspaces, payload);
+    if (!payload.withoutLoading) {
+      yield put(setLoading(true));
+    }
+    yield put(setSearchText(payload.text));
+    const { records: myWorkspaces }: RecordsQueryResponse<WorkspaceType> = yield call(api.workspaces.searchMyWorkspaces, payload.text);
+    const { records: publicWorkspaces }: RecordsQueryResponse<WorkspaceType> = yield call(
+      api.workspaces.searchPublicWorkspaces,
+      payload.text
+    );
 
     yield put(setMyWorkspaces(myWorkspaces));
     yield put(setPublicWorkspaces(publicWorkspaces));
@@ -189,34 +193,18 @@ function* sagaOnSearchWorkspaces({ api }: ExtraArgumentsStore, { payload }: Retu
     console.error('[workspaces/ sagaOnSearchWorkspaces] error', e);
     yield put(setWorkspacesError());
   } finally {
-    yield put(setLoading(false));
+    if (!payload.withoutLoading) {
+      yield put(setLoading(false));
+    }
   }
 }
 
 function* sagaRemoveWorkspace({ api }: ExtraArgumentsStore, { payload }: ReturnType<typeof removeWorkspace>) {
   try {
     yield put(setLoadingAction(true));
-
     const { wsId, callback } = payload;
-    const currentWorkspaceId = getWorkspaceId();
 
     yield call(api.workspaces.removeWorkspace, wsId);
-
-    if (currentWorkspaceId === wsId) {
-      const params = {
-        openNewTab: true,
-        reopen: true,
-        closeActiveTab: false,
-        needUpdateTabs: true
-      };
-
-      const personalWorkspaceId = getPersonalWorkspaceId();
-      const url = getBaseUrlWorkspace(personalWorkspaceId);
-
-      PageService.changeUrlLink(url, params);
-    }
-
-    yield put(getWorkspaces());
     yield put(getSidebarWorkspaces());
 
     if (callback) {

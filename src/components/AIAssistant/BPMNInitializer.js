@@ -1,9 +1,9 @@
-import aiAssistantContext, { CONTEXT_TYPES } from './AIAssistantContext';
+import editorContextService, { CONTEXT_TYPES } from './EditorContextService';
 import aiAssistantService from './AIAssistantService';
 
 const clearBPMNContext = () => {
-  if (aiAssistantContext.hasContextType(CONTEXT_TYPES.BPMN_EDITOR)) {
-    aiAssistantContext.clearContext();
+  if (editorContextService.hasContextType(CONTEXT_TYPES.BPMN_EDITOR)) {
+    editorContextService.clearContext();
   }
 };
 
@@ -17,7 +17,7 @@ const initBPMNContext = async () => {
 
     if (isBPMNPage) {
       // Only set context if not already set
-      if (!aiAssistantContext.hasContextType(CONTEXT_TYPES.BPMN_EDITOR)) {
+      if (!editorContextService.hasContextType(CONTEXT_TYPES.BPMN_EDITOR)) {
         // Context will be set by the BPMN editor component itself
         // This is just for cleanup when navigating away
       }
