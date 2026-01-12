@@ -8,22 +8,13 @@ import { Menu } from './Menu';
 export const Actions = ({
   id,
   isActive,
-  isEditable,
   isOpenMenu,
   classNameTooltip,
   startEdit,
-  onClose,
   disabled,
   onDelete,
   onToggleMenu
 }) => {
-  if (isEditable) {
-    return (
-      <div className="ecos-tab-actions">
-        <Icon key="close" className="icon-small-close ecos-tab-actions__icon" onClick={onClose} />
-      </div>
-    );
-  }
 
   return (
     <div className="ecos-tab-actions">
@@ -31,7 +22,6 @@ export const Actions = ({
         <Menu
           id={id}
           isActive={isActive}
-          isEditable={isEditable}
           disabled={disabled}
           isOpenMenu={isOpenMenu}
           classNameTooltip={classNameTooltip}

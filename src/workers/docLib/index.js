@@ -1,10 +1,10 @@
-import { createWorkerFromScript } from '../helpers/util';
+import DocLibWorker from './worker?worker';
 
 let workerInstance = null;
 let sendMethod = null;
 
 const initializeWorker = async () => {
-  workerInstance = await createWorkerFromScript('/workers/docLib-script.js');
+  workerInstance = new DocLibWorker();
 
   sendMethod = message => {
     if (workerInstance) {

@@ -1,9 +1,12 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { renderAction } from './helpers';
-import './InlineTools.scss';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+
 import Loader from '../../Loader';
+
+import { renderAction } from './helpers';
+
+import './InlineTools.scss';
 
 class InlineTools extends Component {
   static propTypes = {
@@ -46,6 +49,7 @@ class InlineTools extends Component {
           'ecos-inline-tools_selected': selected,
           'ecos-inline-tools__loading': loading
         })}
+        id={'inline-tools_' + row.id}
       >
         <div className="ecos-inline-tools-actions" {...actionsProps}>
           {loading && <Loader type="points" width="80%" height="100%" />}

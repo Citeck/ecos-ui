@@ -161,7 +161,7 @@ export class AppApi extends CommonApi {
       .catch(_ => '0');
     const url = queryString.stringifyUrl({ url: `${UISERV_API}messages/locale`, query: { id, cb } });
 
-    return ecosFetch(url)
+    return ecosFetch(url, { credentials: 'include' })
       .then(res => (res.ok ? res.json() : Promise.reject(res)))
       .catch(e => {
         console.error(e);

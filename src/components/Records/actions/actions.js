@@ -10,6 +10,7 @@ import EditTaskAssignee from './handler/executor/workflow/EditTaskAssignee';
 import SetTaskAssignee from './handler/executor/workflow/SetTaskAssignee';
 import TaskOutcomeAction from './handler/executor/workflow/TaskOutcomeAction';
 import OpenSubmitAction from './handler/executor/workflow/OpenSubmitAction';
+import OpenTaskActions from './handler/executor/workflow/OpenTaskActions';
 
 import EditAction from './handler/executor/EditAction';
 import EditMenuAction from './handler/executor/EditMenuAction';
@@ -104,6 +105,7 @@ export const registerAllActions = () => {
   actionsRegistry.register(new TaskOutcomeAction());
   actionsRegistry.register(new ViewBusinessProcessAction());
   actionsRegistry.register(new OpenSubmitAction());
+  actionsRegistry.register(new OpenTaskActions());
 
   // Executors - ECOS Module
 

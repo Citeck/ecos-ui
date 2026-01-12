@@ -1,17 +1,21 @@
 import React, { Component } from 'react';
 
-import { handleCloseMenuOnScroll } from '../../helpers/util';
-import { t } from '../../helpers/export/util';
-import ZIndex from '../../services/ZIndex';
-import Columns from '../common/templates/Columns/Columns';
 import Checkbox from '../common/form/Checkbox';
 import Label from '../common/form/Label';
 import Select from '../common/form/Select';
+import Columns from '../common/templates/Columns/Columns';
+
+import { t } from '@/helpers/export/util';
+import { handleCloseMenuOnScroll } from '@/helpers/util';
+import ZIndex from '@/services/ZIndex';
 
 import './ColumnsSetup.scss';
 
 export default class ListItem extends Component {
-  sortTypes = [{ title: t('columns-setup.ascending'), value: true }, { title: t('columns-setup.descending'), value: false }];
+  sortTypes = [
+    { title: t('columns-setup.ascending'), value: true },
+    { title: t('columns-setup.descending'), value: false }
+  ];
 
   handleChangeVisible = ({ checked }) => {
     const { onChangeVisible, column } = this.props;
@@ -43,14 +47,14 @@ export default class ListItem extends Component {
   };
 
   render() {
-    const { column, titleField, sortBy } = this.props;
+    const { column, titleField, sortBy, dragHandleProps = {} } = this.props;
 
     return (
       <Columns
         classNamesColumn={'columns_height_full columns-setup__column_align'}
         cols={[
           <div className={'two-columns__left columns-setup__column_align '}>
-            <i className="icon-custom-drag-big columns-setup__icon-drag" />
+            <i className="icon-custom-drag-big columns-setup__icon-drag" {...dragHandleProps} />
             <Checkbox
               className="columns-setup__next fitnesse-column-setup__checkbox"
               checked={column.default}

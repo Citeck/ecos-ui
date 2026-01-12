@@ -10,6 +10,7 @@ import {
   setMyWorkspaces,
   setLoadingAction,
   setLoading,
+  setSearchText,
   setIsBlockedCurrentWorkspace
 } from '@/actions/workspaces';
 import { WorkspaceType } from '@/api/workspaces/types';
@@ -18,6 +19,7 @@ interface WorkspaceState {
   isLoading: boolean;
   isLoadingAction: boolean;
   isError: boolean;
+  searchText: string;
   workspaces: WorkspaceType[];
   myWorkspaces: WorkspaceType[];
   publicWorkspaces: WorkspaceType[];
@@ -29,6 +31,7 @@ interface WorkspaceState {
 }
 
 const initialState: WorkspaceState = {
+  searchText: '',
   isLoading: true,
   isError: false,
   isLoadingAction: false,
@@ -53,6 +56,10 @@ export default handleActions<WorkspaceState, any>(
     [setLoadingAction.toString()]: (state, action: ReturnType<typeof setLoadingAction>) => ({
       ...state,
       isLoadingAction: action.payload
+    }),
+    [setSearchText.toString()]: (state, action: ReturnType<typeof setSearchText>) => ({
+      ...state,
+      searchText: action.payload
     }),
     [setLoading.toString()]: (state, action: ReturnType<typeof setLoading>) => ({
       ...state,

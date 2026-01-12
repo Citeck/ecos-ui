@@ -20,13 +20,14 @@ import { configureAPI } from './api';
 import App from './components/App';
 import IdleTimer from './components/IdleTimer';
 import { RESET_AUTH_STATE_EVENT, emitter } from './helpers/ecosFetch';
-import { getCurrentLocale, IS_TEST_ENV, isMobileAppWebView } from './helpers/util';
+import { getCurrentLocale, IS_TEST_ENV, isMobileAppWebView, isMobileDevice } from './helpers/util';
 import { i18nInit } from './i18n';
 import plugins from './plugins';
 import { register as registerServiceWorker } from './serviceWorkerRegistration';
 import authService from './services/auth';
 import configureStore, { getHistory } from './store';
 
+import PageLoader from '@/components/PageLoader';
 import { registerAllActions } from '@/components/Records/actions/actions';
 import { allowedModes } from '@/constants';
 import { NotificationManager } from '@/services/notifications';
@@ -87,13 +88,20 @@ setNotAuthCallback(setAuthStatus);
 
 emitter.on(RESET_AUTH_STATE_EVENT, setAuthStatus);
 
-if (!window.Citeck) {
-  window.Citeck = {};
+if (typeof window !== 'undefined') {
+  if (!window.Citeck) {
+    window.Citeck = {};
+  }
+
+  window.Citeck.Plugins = plugins;
+  window.Citeck.NotificationManager = NotificationManager;
+  window.Citeck.Base64 = Base64;
 }
 
-window.Citeck.Plugins = plugins;
-window.Citeck.NotificationManager = NotificationManager;
-window.Citeck.Base64 = Base64;
+const root = createRoot(document.getElementById('root') as HTMLElement);
+i18nInit({ debug: allowedModes.includes(process.env.NODE_ENV) }).then(() => {
+  root.render(<PageLoader withoutSidebar={isMobileDevice()} />);
+});
 
 const runApp = () => {
   store.dispatch(
@@ -107,17 +115,15 @@ const runApp = () => {
           loadThemeRequest({
             isAuthenticated,
             onRender: () => {
-              i18nInit({ debug: allowedModes.includes(process.env.NODE_ENV) }).then(() => {
-                createRoot(document.getElementById('root') as HTMLElement).render(
-                  <Provider store={store}>
-                    <ConnectedRouter history={history}>
-                      <StrictMode>
-                        <App />
-                      </StrictMode>
-                    </ConnectedRouter>
-                  </Provider>
-                );
-              });
+              root.render(
+                <Provider store={store}>
+                  <ConnectedRouter history={history}>
+                    <StrictMode>
+                      <App />
+                    </StrictMode>
+                  </ConnectedRouter>
+                </Provider>
+              );
             }
           })
         );

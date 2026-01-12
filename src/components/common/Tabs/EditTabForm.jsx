@@ -22,7 +22,11 @@ class EditTabForm extends React.Component {
     const { isOpen, isValidText, hideModal, label, onChangeLabel, onSave } = this.props;
 
     return (
-      <EcosModal title={t(Labels.Modal.SETTINGS_MODAL_TITLE)} isOpen={isOpen} hideModal={hideModal} size="small">
+      <EcosModal title={t(Labels.Modal.SETTINGS_MODAL_TITLE)}
+                 isOpen={isOpen}
+                 hideModal={hideModal}
+                 size="small"
+                 reactstrapProps={{zIndex: 100000}}>
         <div className="ecos-tab-settings-modal">
           <Field label={t(Labels.Modal.SETTINGS_LABEL_TITLE)} isRequired>
             <MLText value={this.getMLValue(label)} onChange={onChangeLabel} />

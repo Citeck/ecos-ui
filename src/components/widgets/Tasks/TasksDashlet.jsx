@@ -126,6 +126,7 @@ class TasksDashlet extends BaseWidget {
           scrollbarProps={this.scrollbarProps}
           setFormRef={this.setFormRef}
           instanceRecord={this.instanceRecord}
+          isViewTaskInfo
         />
       </Dashlet>
     );

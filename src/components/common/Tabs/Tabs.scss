@@ -84,10 +84,6 @@
     background-color: transparent;
     border-color: var(--primary-color);
 
-    #{$root}-label_editing {
-      color: $color-white;
-    }
-
     #{$root}-actions {
       --back-actions: transparent;
 

@@ -1,5 +1,7 @@
 import * as projectInfo from '../../package.json';
 
+import { getDashboardId, getRecordRef, isDashboard } from '@/helpers/urls';
+
 export type LSDataType = Array<{ key: string; value: string }>;
 
 export function isExistLocalStorage() {
@@ -70,7 +72,7 @@ export function hasData(key = '', type: any = '') {
     return data !== null;
   }
 
-  let typeMatches = false;
+  let typeMatches;
 
   switch (type) {
     case 'array':
@@ -83,7 +85,7 @@ export function hasData(key = '', type: any = '') {
   return data !== null && typeMatches;
 }
 
-export function generateKey(extName = 'app', complicate = false) {
+export function generateKey(extName = 'app', complicate = false, longKey = false) {
   const base = projectInfo.name;
   const name = `${base}-${extName}`;
 
@@ -100,6 +102,10 @@ export function generateKey(extName = 'app', complicate = false) {
     .join('')
     .match(/.{1,5}/g)
     ?.join('-');
+
+  if (isDashboard() && longKey) {
+    return `${name}-${complicatingPart}-${getRecordRef()}-${getDashboardId()}`;
+  }
 
   return `${name}-${complicatingPart}`;
 }

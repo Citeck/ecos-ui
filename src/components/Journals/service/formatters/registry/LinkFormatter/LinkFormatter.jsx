@@ -1,4 +1,5 @@
 import isFunction from 'lodash/isFunction';
+import isObject from 'lodash/isObject';
 import isString from 'lodash/isString';
 import React from 'react';
 
@@ -25,9 +26,9 @@ export default class LinkFormatter extends BaseFormatter {
       href = config.getUrl(row);
     }
 
-    if (isString(config.target)) {
+    if (isString(config.target) || isObject(config.target)) {
       try {
-        const serviceConfig = JSON.parse(config.target);
+        const serviceConfig = isObject(config.target) ? config.target : JSON.parse(config.target);
 
         return (
           <a

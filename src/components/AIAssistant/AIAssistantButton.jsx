@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { IcoBtn } from '../common/btns';
-import AiAssistant from '../common/icons/AiAssistant';
+import AiAssistant from '../common/icons/global/AiAssistant';
 
 import aiAssistantService from './AIAssistantService';
 

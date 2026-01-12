@@ -1,15 +1,20 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { connect } from 'react-redux';
+import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 
-import { goToPageFromSiteMenu } from '../../actions/header';
-import { processMenuItemsFromOldMenu } from '../../helpers/menu';
-import { getIconUpDown } from '../../helpers/icon';
-import { EcosDropdownMenu, Icon } from '../common';
+import { EcosDropdownMenu, Icon, Tooltip } from '../common';
 import { IcoBtn } from '../common/btns';
+
+import { goToPageFromSiteMenu } from '@/actions/header';
+import { DropdownMenuItem } from '@/components/common/EcosDropdownMenu';
+import { MenuModes } from '@/components/common/EcosDropdownMenu/DropdownMenu';
+import { getIconUpDown } from '@/helpers/icon';
+import { processMenuItemsFromOldMenu } from '@/helpers/menu';
+import { extractLabel } from '@/helpers/util';
 
 const mapStateToProps = state => ({
   items: state.header.siteMenu.items,
@@ -62,7 +67,7 @@ class SiteMenu extends React.Component {
       'ecos-btn_blue-classic'
     );
 
-    let menuItems = [];
+    let menuItems;
     if (Array.isArray(legacyItems) && legacyItems.length) {
       menuItems = processMenuItemsFromOldMenu(legacyItems);
     } else {
@@ -81,14 +86,19 @@ class SiteMenu extends React.Component {
           </IcoBtn>
         </DropdownToggle>
         <DropdownMenu className="ecos-header-site__menu ecos-dropdown__menu ecos-dropdown__menu_right ecos-dropdown__menu_links">
-          <EcosDropdownMenu items={menuItems} onClick={this.handleClickItem} />
+          <EcosDropdownMenu
+            items={menuItems}
+            mode={MenuModes.CUSTOM}
+            renderItem={(item, key) => (
+              <Tooltip key={item.id || key} target={item.id} uncontrolled showAsNeeded text={extractLabel(get(item, 'label'))}>
+                <DropdownMenuItem key={item.id || key} data={item} onClick={this.handleClickItem} />
+              </Tooltip>
+            )}
+          />
         </DropdownMenu>
       </Dropdown>
     );
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(SiteMenu);
+export default connect(mapStateToProps, mapDispatchToProps)(SiteMenu);

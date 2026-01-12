@@ -70,7 +70,6 @@ export default class EcosFormModal extends React.Component {
   componentDidMount() {
     const { record, options, formMode } = this.props;
 
-    this.checkEditRights();
     this.instanceRecord = Records.get(record);
     this.instanceRecord
       .load({
@@ -142,12 +141,6 @@ export default class EcosFormModal extends React.Component {
     }
 
     window.removeEventListener('beforeunload', this._onbeforeunload);
-  }
-
-  checkEditRights() {
-    EcosFormUtils.isConfigurableForm(this.props.formId).then(isConfigurableForm => {
-      !!isConfigurableForm && this.setState({ isConfigurableForm });
-    });
   }
 
   _onbeforeunload = e => {
@@ -249,6 +242,13 @@ export default class EcosFormModal extends React.Component {
     const modalTitle = title || EcosFormUtils.getFormTitle(recordData, title);
 
     let formProps = Object.assign({}, this.props);
+    formProps.onFormEditPermsUpdated = (perms) => {
+      if (perms !== 'NONE') {
+        this.setState({
+          isConfigurableForm: true
+        });
+      }
+    }
     let formOptions = formProps.options || {};
 
     formOptions['formMode'] = recordData.formMode || formOptions['formMode'] || FORM_MODE_EDIT;

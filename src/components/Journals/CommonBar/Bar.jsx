@@ -21,13 +21,36 @@ class Bar extends Component {
     isCreateLoading: false
   };
 
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isReset: false,
+      settingsVisible: props.settingsVisible || false,
+      isCreateLoading: false
+    };
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const { settingsVisible, onToggleSettings } = this.props;
+
+    if (prevProps.settingsVisible !== settingsVisible && settingsVisible !== this.state.settingsVisible) {
+      this.setState({ settingsVisible, isReset: false });
+      onToggleSettings && onToggleSettings(settingsVisible);
+    }
+  }
+
   getSearchText() {
     const { isActivePage, urlParams } = this.props;
     return !isActivePage ? '' : get(getSearchParams(), JUP.SEARCH, get(urlParams, JUP.SEARCH, ''));
   }
 
   handleToggleSettings = () => {
-    this.setState(({ settingsVisible }) => ({ settingsVisible: !settingsVisible, isReset: false }));
+    const { onToggleSettings } = this.props;
+    this.setState(
+      ({ settingsVisible }) => ({ settingsVisible: !settingsVisible, isReset: false }),
+      () => onToggleSettings && onToggleSettings(this.state.settingsVisible)
+    );
   };
 
   handleApplySettings = (isChangedPredicates, settings) => {

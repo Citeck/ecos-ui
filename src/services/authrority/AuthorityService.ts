@@ -1,12 +1,11 @@
 import isString from 'lodash/isString';
 
-import { SourcesId } from '../../constants';
-
 import * as authorityApi from './authorityApi';
 
 import Records from '@/components/Records/Records';
 import { PERMISSION_WRITE_ATTR } from '@/components/Records/constants';
 import { AttributesType } from '@/components/Records/types';
+import { SourcesId } from '@/constants';
 import { getCurrentUserName, getEnabledWorkspaces } from '@/helpers/util';
 
 const GROUP_PREFIX = 'GROUP_';
@@ -16,6 +15,12 @@ const GROUPS_SOURCE_ID = SourcesId.GROUP;
 
 const ALFRESCO_PREFIX = 'alfresco/@';
 const ALFRESCO_WORKSPACE_SPACES_STORE = 'workspace://SpacesStore/';
+
+export const ArtifactEditPerms = {
+  COPY: 'COPY',
+  EDIT: 'EDIT',
+  NONE: 'NONE'
+}
 
 class AuthorityService {
   async getAuthorityName(authority: string | string[]): Promise<string | string[]> {
@@ -97,24 +102,66 @@ class AuthorityService {
     return Records.get(await this.getAuthorityRef(authority)).load(attributes);
   }
 
-  async hasConfigWritePermission(recordId: string) {
-    const isAdmin = await Records.get(`${SourcesId.PERSON}@${getCurrentUserName()}`).load('isAdmin?bool');
+  async getArtifactPerms(recordId: string): Promise<string> {
+    if (!recordId) {
+      return ArtifactEditPerms.NONE
+    }
+    const isAdmin = await this.isCurrentUserAdmin()
+    if (recordId.includes('type$')) {
+      if (isAdmin || await this.isCurrentUserManagerOfCurrentWs()) {
+        return ArtifactEditPerms.COPY;
+      } else {
+        return ArtifactEditPerms.NONE;
+      }
+    }
+    if (isAdmin) {
+      return ArtifactEditPerms.EDIT;
+    }
+    const recAtts = await Records.get(recordId).load({
+      'canWrite': PERMISSION_WRITE_ATTR,
+      'isSystem': 'system?bool!'
+    }, true)
+
+    if (recAtts['canWrite']) {
+      return ArtifactEditPerms.EDIT;
+    }
+    if (recAtts['isSystem']) {
+      return ArtifactEditPerms.NONE;
+    }
+    if (await this.isCurrentUserManagerOfCurrentWs()) {
+      return ArtifactEditPerms.COPY;
+    }
+    return ArtifactEditPerms.NONE;
+  }
+
+  async hasConfigWritePermission(recordId: string, params?: { toCheckGenerateForm?: boolean }) {
+    const { toCheckGenerateForm } = params || {};
+    if (toCheckGenerateForm && recordId && recordId.includes('type$')) {
+      return false;
+    }
+
+    const isAdmin = await this.isCurrentUserAdmin();
 
     if (isAdmin) {
       return true;
     }
 
-    if (getEnabledWorkspaces()) {
-      const isCurrentUserManager = await authorityApi.isManagerCurrentUser();
-
-      if (isCurrentUserManager) {
-        return true;
-      }
+    if (await this.isCurrentUserManagerOfCurrentWs()) {
+      return true;
     }
 
-    const permission = await Records.get(recordId).load(PERMISSION_WRITE_ATTR, true);
+    return Records.get(recordId).load(PERMISSION_WRITE_ATTR, true);
+  }
 
-    return permission;
+  private async isCurrentUserAdmin(): Promise<boolean> {
+    return Records.get(`${SourcesId.PERSON}@${getCurrentUserName()}`).load('isAdmin?bool');
+  }
+
+  private async isCurrentUserManagerOfCurrentWs(): Promise<boolean> {
+    if (!getEnabledWorkspaces()) {
+      return false
+    }
+    return authorityApi.isManagerCurrentUser();
   }
 }
 

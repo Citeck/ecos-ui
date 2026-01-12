@@ -74,10 +74,12 @@ import JournalsConverter from '@/dto/journals';
 import { t } from '@/helpers/export/util';
 import { wrapSaga } from '@/helpers/redux';
 import { getSearchParams, getUrlWithoutOrigin, getWorkspaceId } from '@/helpers/urls';
+import { getEnabledWorkspaces } from '@/helpers/util';
 import PageService from '@/services/PageService';
 import { NotificationManager } from '@/services/notifications';
 import { getStore } from '@/store';
 import initializeWorker from '@/workers/docLib';
+import { SERVICE_WORKER_TYPES, WORKER_STATUSES } from '@/workers/docLib/constants';
 
 const DOCLIB_INNER_DOC_ID_REGEX = /^emodel\/doclib@.+\$(.+)$/;
 
@@ -279,7 +281,7 @@ function* sagaOpenFolder({ api, stateId, w }, action) {
   }
 }
 
-function* sagaDocLibLoadFolderData({ api, stateId, w }) {
+function* sagaDocLibLoadFolderData({ stateId, w }) {
   try {
     const folderId = yield select(state => selectDocLibFolderId(state, stateId));
 
@@ -310,7 +312,7 @@ function* sagaLoadFilesViewerData({ api, stateId, w }) {
   }
 }
 
-function* getFilesViewerData({ api, stateId, w }) {
+function* getFilesViewerData({ stateId, w }) {
   try {
     const store = getStore();
     const folderId = yield select(state => selectDocLibFolderId(state, stateId));
@@ -480,7 +482,7 @@ function* checkUniqueNameNode({ api, stateId, w }, { submission, nodeType, isExi
       if (currentItemTitle && parentDirTitles.includes(currentItemTitle)) {
         if (navigator.serviceWorker.controller) {
           navigator.serviceWorker.controller.postMessage({
-            type: 'CONFIRMATION_RENAME_DIR_REQUEST',
+            type: SERVICE_WORKER_TYPES.RENAME_DIR_REQUEST,
             typeCurrentItem: nodeType,
             parentDirTitles,
             currentItemTitle,
@@ -490,7 +492,7 @@ function* checkUniqueNameNode({ api, stateId, w }, { submission, nodeType, isExi
           navigator.serviceWorker.onmessage = event => {
             const { type, confirmedRenameItem, titleRenamingItem } = event.data;
 
-            if (type === 'CONFIRMATION_RENAME_DIR_RESPONSE' && confirmedRenameItem) {
+            if (type === SERVICE_WORKER_TYPES.RENAME_DIR_RESPONSE && confirmedRenameItem) {
               currentItemTitle = titleRenamingItem;
               resolve();
             }
@@ -525,7 +527,8 @@ export function* sagaCreateNode({ api, stateId, w }, action) {
       return;
     }
 
-    if (createVariant.nodeType === NODE_TYPES.FILE) {
+    const isFileNode = createVariant.nodeType === NODE_TYPES.FILE;
+    if (isFileNode) {
       yield put(setFileViewerLoadingStatus(w(true)));
     }
 
@@ -533,8 +536,40 @@ export function* sagaCreateNode({ api, stateId, w }, action) {
     const currentFolderId = yield select(state => selectDocLibFolderId(state, stateId));
     const typeRef = createVariant.typeRef;
 
-    const createChildResult = yield call(DocLibService.createChild, rootId, currentFolderId, typeRef, submission, currentItemTitle);
-    const newRecord = yield call(DocLibService.loadNode, createChildResult.id);
+    let createChildResult;
+    try {
+      createChildResult = yield call(DocLibService.createChild, rootId, currentFolderId, typeRef, submission, currentItemTitle);
+    } catch (error) {
+      if (error?.message?.includes('Permission Denied')) {
+        NotificationManager.error(
+          t('document-library.error.create.permissions-dined', {
+            message: t(`document-library.child-name.${isFileNode ? 'file' : 'folder'}`)
+          })
+        );
+      } else {
+        NotificationManager.error(
+          t('document-library.error.create.other', {
+            message: t(`document-library.child-name.${isFileNode ? 'file2' : 'folder2'}`)
+          })
+        );
+      }
+      throw new Error(error);
+    }
+
+    let newRecord;
+    try {
+      newRecord = yield call(DocLibService.loadNode, createChildResult.id);
+    } catch (error) {
+      NotificationManager.error(
+        t('document-library.error.create.other', {
+          message: t(`document-library.error.load-node`, {
+            message: t(`document-library.child-name.${isFileNode ? 'file3' : 'folder3'}`)
+          })
+        })
+      );
+
+      throw new Error(error);
+    }
 
     if (createVariant.nodeType === NODE_TYPES.DIR) {
       const newChildren = DocLibConverter.prepareFolderTreeItems([newRecord], currentFolderId);
@@ -542,13 +577,23 @@ export function* sagaCreateNode({ api, stateId, w }, action) {
       yield put(unfoldSidebarItem(w(currentFolderId)));
     } else {
       if (createVariant.postActionRef) {
-        const actionProps = yield call(api.recordActions.getActionProps, { action: createVariant.postActionRef });
-        let recordId = createChildResult.id;
-        const recordIdParts = DOCLIB_INNER_DOC_ID_REGEX.exec(createChildResult.id);
-        if (recordIdParts) {
-          recordId = recordIdParts[1];
+        try {
+          const actionProps = yield call(api.recordActions.getActionProps, { action: createVariant.postActionRef });
+          let recordId = createChildResult.id;
+          const recordIdParts = DOCLIB_INNER_DOC_ID_REGEX.exec(createChildResult.id);
+          if (recordIdParts) {
+            recordId = recordIdParts[1];
+          }
+          yield call(api.recordActions.executeAction, { records: recordId, action: actionProps });
+        } catch (error) {
+          NotificationManager.error(
+            t('document-library.error.create.other', {
+              message: t(`document-library.error.get-action`, { postActionRef: createVariant.postActionRef })
+            })
+          );
+
+          throw new Error(error);
         }
-        yield call(api.recordActions.executeAction, { records: recordId, action: actionProps });
       }
     }
     yield put(loadFilesViewerData(w()));
@@ -660,7 +705,7 @@ function* sagaSetParentItem({ api, stateId, w }, { payload }) {
       if (itemTitle && parentDirTitles.includes(itemTitle)) {
         if (navigator.serviceWorker.controller) {
           navigator.serviceWorker.controller.postMessage({
-            type: 'CONFIRMATION_RENAME_DIR_REQUEST',
+            type: SERVICE_WORKER_TYPES.RENAME_DIR_REQUEST,
             typeCurrentItem: get(item, 'type'),
             isReplacementItem: true,
             parentDirTitles,
@@ -671,7 +716,7 @@ function* sagaSetParentItem({ api, stateId, w }, { payload }) {
           navigator.serviceWorker.onmessage = event => {
             const { type, confirmedRenameItem, titleRenamingItem } = event.data;
 
-            if (type === 'CONFIRMATION_RENAME_DIR_RESPONSE' && confirmedRenameItem) {
+            if (type === SERVICE_WORKER_TYPES.RENAME_DIR_RESPONSE && confirmedRenameItem) {
               currentItemTitle = titleRenamingItem;
               resolve();
             }
@@ -806,22 +851,33 @@ function* sagaUploadFiles({ api, stateId, w }, action) {
 
     const uploadPromise = new Promise(resolve => {
       worker.onmessage = event => {
-        const { status, result, file = {}, totalCount, successFileCount, requestId, isCancelled, errorStatus } = event.data;
+        const {
+          status,
+          result,
+          file = {},
+          totalCount,
+          successFileCount,
+          requestId,
+          isCancelled,
+          errorStatus,
+          typeCurrentItem,
+          targetDirTitle
+        } = event.data;
 
         if (navigator.serviceWorker.controller) {
           switch (status) {
-            case 'start':
-            case 'confirm-file-replacement':
+            case WORKER_STATUSES.START_INIT_HANDLERS:
+            case WORKER_STATUSES.CONFIRM_FILE_REPLACE:
               navigator.serviceWorker.controller.postMessage({
-                type: 'UPLOAD_PROGRESS',
+                type: SERVICE_WORKER_TYPES.PROGRESS,
                 status,
                 file
               });
               break;
 
-            case 'in-progress':
+            case WORKER_STATUSES.PROGRESS_UPDATE:
               navigator.serviceWorker.controller.postMessage({
-                type: 'UPLOAD_PROGRESS',
+                type: SERVICE_WORKER_TYPES.PROGRESS,
                 status,
                 file,
                 totalCount,
@@ -830,22 +886,24 @@ function* sagaUploadFiles({ api, stateId, w }, action) {
               });
               break;
 
-            case 'success':
+            case WORKER_STATUSES.UPLOAD_SUCCESS:
               navigator.serviceWorker.controller.postMessage({
-                type: 'UPLOAD_PROGRESS',
+                type: SERVICE_WORKER_TYPES.PROGRESS,
                 status,
                 result
               });
               resolve();
               break;
 
-            case 'error':
+            case WORKER_STATUSES.UPLOAD_ERROR:
               navigator.serviceWorker.controller.postMessage({
-                type: 'UPLOAD_PROGRESS',
+                type: SERVICE_WORKER_TYPES.PROGRESS,
                 status,
                 errorStatus,
                 file,
-                isCancelled
+                isCancelled,
+                typeCurrentItem,
+                targetDirTitle
               });
               break;
 
@@ -858,8 +916,8 @@ function* sagaUploadFiles({ api, stateId, w }, action) {
       navigator.serviceWorker.onmessage = event => {
         const { type, confirmed, isReplaceAllFiles } = event.data;
 
-        if (type === 'CONFIRMATION_FILE_RESPONSE') {
-          worker.postMessage({ status: 'confirmation-file-response', confirmed, isReplaceAllFiles });
+        if (type === SERVICE_WORKER_TYPES.FILE_RESPONSE) {
+          worker.postMessage({ status: WORKER_STATUSES.CONFIRM_FILE_RESPONSE, confirmed, isReplaceAllFiles });
         }
       };
     });
@@ -871,7 +929,7 @@ function* sagaUploadFiles({ api, stateId, w }, action) {
       folderTitle,
       destinations,
       totalCount,
-      ...(get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false) && { ws: getWorkspaceId() })
+      ...(getEnabledWorkspaces() && { ws: getWorkspaceId() })
     });
 
     yield call(() => uploadPromise);

@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import get from 'lodash/get';
+import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isEqualWith from 'lodash/isEqualWith';
@@ -80,7 +81,8 @@ function mapDispatchToProps(dispatch, props) {
 
 class TableView extends React.Component {
   state = {
-    isClose: true
+    isClose: true,
+    settingsVisible: false
   };
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -127,6 +129,10 @@ class TableView extends React.Component {
   componentWillUnmount() {
     this.setState({ isClose: true });
   }
+
+  handleToggleSettings = flag => {
+    this.setState(({ settingsVisible }) => ({ settingsVisible: isBoolean(flag) ? flag : !settingsVisible }));
+  };
 
   getSelectedBoardFromUrl() {
     const { urlParams = {}, boardList } = this.props;
@@ -204,6 +210,8 @@ class TableView extends React.Component {
           )}
           <Bar
             {...this.props}
+            settingsVisible={this.state.settingsVisible}
+            onToggleSettings={this.handleToggleSettings}
             hasWritePermission={get(journalConfig, 'hasWritePermission', false)}
             hasBtnEdit={() => hasBtnEdit(configRec)}
             onEditJournal={() => onEditJournal(configRec)}

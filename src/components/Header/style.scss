@@ -325,6 +325,10 @@
     &:hover {
       background-color: $color-white;
       color: var(--primary-color);
+
+      & .ecos-points-loader-child {
+        background-color: var(--primary-color);
+      }
     }
 
     &.isActivePreview {
@@ -559,6 +563,11 @@
 
   .ecos-header-user__menu-item {
     font-size: $font-size-small;
+
+    svg {
+      width: 17px;
+      height: 16px;
+    }
 
     .icon:not(.icon_on):not(.icon_off) {
       &:before {

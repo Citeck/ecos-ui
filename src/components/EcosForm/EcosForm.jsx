@@ -26,6 +26,9 @@ import CustomEventEmitter from '@/forms/EventEmitter';
 import { getSearchParams } from '@/helpers/urls';
 import { getCurrentLocale, getMLValue, isMobileDevice, strSplice, t } from '@/helpers/util';
 import ESMRequire from '@/services/ESMRequire';
+import AuthorityService from '@/services/authrority/AuthorityService';
+import { NotificationManager } from '@/services/notifications';
+
 import './formio.full.min.css';
 import './glyphicon-to-fa.scss';
 import '../../forms/style.scss';
@@ -129,6 +132,7 @@ class EcosForm extends React.Component {
       i18n: 'i18n?json',
       width: 'width',
       atts: 'attributes?json',
+      isSystem: 'system?bool',
       formId: '?localId'
     };
 
@@ -192,13 +196,22 @@ class EcosForm extends React.Component {
         }
       });
 
-      const originalFormDefinition = Object.keys(newFormDefinition).length ? newFormDefinition : formData.definition;
+      let formId = formData.formId;
+      let originalFormDefinition;
+      if (Object.keys(newFormDefinition).length) {
+        originalFormDefinition = newFormDefinition;
+        if (originalFormDefinition.formId) {
+          formId = originalFormDefinition.formId;
+        }
+      } else {
+        originalFormDefinition = formData.definition;
+      }
       const formDefinition = EcosFormUtils.preProcessFormDefinition(originalFormDefinition, options);
 
-      this.setState({ originalFormDefinition, formDefinition, formId: formData.formId });
+      this.setState({ originalFormDefinition, formDefinition, formId });
 
       if (this._formBuilderModal) {
-        this._formBuilderModal.setStateData({ formId: formData.formId });
+        this._formBuilderModal.setStateData({ formId });
       }
 
       const inputs = EcosFormUtils.getFormInputs(formDefinition);
@@ -211,13 +224,13 @@ class EcosForm extends React.Component {
         canWritePromise = EcosFormUtils.hasWritePermission(recordId, true);
       }
 
-      const canEditSettingsPromise = EcosFormUtils.hasWritePermission(formId, true);
+      const formEditPermsPromise = AuthorityService.getArtifactPerms(SourcesId.FORM + '@' + formId);
 
       if (isDebugModeOn) {
         options.isDebugModeOn = isDebugModeOn;
       }
 
-      Promise.all([recordDataPromise, canWritePromise, canEditSettingsPromise]).then(([recordData, canWrite, canEditSettings]) => {
+      Promise.all([recordDataPromise, canWritePromise, formEditPermsPromise]).then(([recordData, canWrite, formEditPerms]) => {
         if (this._lastFormOptions !== propsOptions) {
           return;
         }
@@ -226,7 +239,10 @@ class EcosForm extends React.Component {
           options.canWrite = canWrite;
         }
 
-        options.showPreSettings = !canEditSettings;
+        options.formEditPerms = formEditPerms;
+        if (this.props.onFormEditPermsUpdated) {
+          this.props.onFormEditPermsUpdated(formEditPerms);
+        }
 
         const attributesTitles = {};
 
@@ -492,10 +508,11 @@ class EcosForm extends React.Component {
   );
 
   onShowFormBuilder = async callback => {
-    const { showPreSettings } = get(this, 'form.options', {});
-    const { options, onFormSubmitDone, onSavePreSettings, onFormCancel } = this.props;
+    const { formEditPerms } = get(this, 'form.options', {});
+    const { options, onFormSubmitDone, onSavePreSettings } = this.props;
     const { formId } = this.state;
     const definitionToEdit = await Records.get(EcosFormUtils.getNotResolvedFormId(formId)).load('definition?json', true);
+    const showPreSettings = formEditPerms === 'COPY';
 
     if (this._preSettings && showPreSettings) {
       const config = {
@@ -503,26 +520,35 @@ class EcosForm extends React.Component {
         definition: definitionToEdit
       };
 
-      const preSettingsCallback = () => {
+      const preSettingsCallback = (newFormRef) => {
         isFunction(onSavePreSettings) && onSavePreSettings();
         this.toggleLoader(false);
-        isFunction(onFormCancel) && onFormCancel();
+        EcosFormUtils.getFormById(newFormRef, 'definition?json', true).then(newFormDef => {
+          newFormDef['formId'] = newFormRef.substring(newFormRef.indexOf('@') + 1);
+          this.initForm(newFormDef);
+          isFunction(callback) && callback(newFormDef);
+        });
       };
 
-      this._preSettings.open(this.props.formId, config, preSettingsCallback, this.toggleLoader);
+      this._preSettings.open(`${SourcesId.FORM}@${formId}`, config, preSettingsCallback, this.toggleLoader);
     }
 
     if (this._formBuilderModal && !showPreSettings) {
       this._formBuilderModal.show(
         definitionToEdit,
         form => {
-          EcosFormUtils.saveFormBuilder(form, formId).then(() => {
-            EcosFormUtils.getFormById(formId, 'definition?json', true).then(newFormDef => {
-              this.initForm(newFormDef);
-              isFunction(onFormSubmitDone) && onFormSubmitDone();
-              isFunction(callback) && callback(newFormDef);
+          EcosFormUtils.saveFormBuilder(form, formId)
+            .then(() => {
+              EcosFormUtils.getFormById(formId, 'definition?json', true).then(newFormDef => {
+                newFormDef['formId'] = formId;
+                this.initForm(newFormDef);
+                isFunction(onFormSubmitDone) && onFormSubmitDone();
+                isFunction(callback) && callback(newFormDef);
+              });
+            })
+            .catch(e => {
+              NotificationManager.error(e.message);
             });
-          });
         },
         options
       );
@@ -531,6 +557,7 @@ class EcosForm extends React.Component {
 
   submitForm = debounce(
     (form, submission, forceSave = false, submissionResolve, submissionReject) => {
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
       const self = this;
       const { recordId, containerId } = this.state;
       const inputs = EcosFormUtils.getFormInputs(form.component);
@@ -778,6 +805,7 @@ EcosForm.propTypes = {
   onReady: PropTypes.func, // Form ready, but not rendered yet
   onReadyToSubmit: PropTypes.func,
   onFormCancel: PropTypes.func,
+  onFormEditPermsUpdated: PropTypes.func,
   /**
    * @see https://github.com/formio/formio.js/wiki/Form-Renderer#events
    */

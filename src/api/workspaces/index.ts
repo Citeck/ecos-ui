@@ -5,11 +5,13 @@ import { WorkspaceType } from './types';
 import { PureQueryResponse } from '@/api/types';
 import Records from '@/components/Records';
 import { SourcesId } from '@/constants';
+import { getWorkspaceId } from '@/helpers/urls';
 
 export interface IWorkspaceApi {
   getMyWorkspaces: () => PureQueryResponse<WorkspaceType>;
   getPublicWorkspaces: () => PureQueryResponse<WorkspaceType>;
   getWorkspaces: () => PureQueryResponse<WorkspaceType>;
+  hasWriteCurrentWorkspace: () => Promise<boolean>;
   getWorkspace: (recordRef: string) => PureQueryResponse<WorkspaceType>;
   isViewWorkspace: (wsId: WorkspaceType['id']) => PureQueryResponse<boolean>;
   visitedAction: (wsId: WorkspaceType['id']) => void;
@@ -20,7 +22,7 @@ export interface IWorkspaceApi {
   removeWorkspace: (wsId: string) => void;
 }
 
-export const workspaceAttributes: Partial<Record<keyof WorkspaceType, string>> = {
+export const workspaceAttributes: Record<keyof WorkspaceType, string> = {
   id: '?localId', // this is a shortened version of the ID, there is no 'emodel/' here
   homePageLink: 'homePageLink?str',
   name: '?disp!?localId',
@@ -46,11 +48,25 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
     );
   };
 
+  hasWriteCurrentWorkspace = async () => {
+    return await Records.get(`${SourcesId.WORKSPACE}@${getWorkspaceId()}`).load(workspaceAttributes.hasWrite);
+  };
+
   getMyWorkspaces = () => {
     return Records.query<WorkspaceType>(
       {
         sourceId: SourcesId.WORKSPACE,
-        language: 'user-workspaces',
+        language: 'predicate',
+        query: {
+          t: 'and',
+          v: [
+            {
+              t: 'eq',
+              a: 'isCurrentUserMember',
+              v: true
+            }
+          ]
+        },
         sortBy: [{ attribute: '_created', ascending: false }]
       },
       workspaceAttributes
@@ -77,7 +93,7 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
             {
               t: 'eq',
               a: 'isCurrentUserMember',
-              v: false
+              v: true
             }
           ]
         },
@@ -87,8 +103,8 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
     );
   };
 
-  getWorkspace = async (recordRef: string) => {
-    return await Records.get(recordRef).load(workspaceAttributes);
+  getWorkspace = async (recordRef: string, extraFields?: Record<string, string>) => {
+    return await Records.get(recordRef).load({ ...workspaceAttributes, ...extraFields });
   };
 
   visitedAction = (wsId: WorkspaceType['id']) => {
@@ -153,7 +169,8 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
               ]
             }
           ]
-        }
+        },
+        sortBy: [{ attribute: '_created', ascending: false }]
       },
       workspaceAttributes
     );
@@ -188,7 +205,8 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
               ]
             }
           ]
-        }
+        },
+        sortBy: [{ attribute: '_created', ascending: false }]
       },
       workspaceAttributes
     );

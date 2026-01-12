@@ -89,7 +89,7 @@ class JournalsPreviewWidgets<P extends JournalsPreviewWidgetsProps, S extends Jo
     const urlParams = new URLSearchParams(window.location.search);
     const journalId = urlParams.get('journalId');
 
-    if (journalId) {
+    if (journalId && get(this.props, 'stateId', '').includes(journalId)) {
       this.props.getJournalWidgetsConfig(journalId);
     }
   }

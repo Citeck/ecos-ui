@@ -53,6 +53,10 @@
         align-items: start;
 
         margin-bottom: 60px;
+
+        &.mobile {
+          margin-bottom: 90px;
+        }
       }
 
       #{$root}__card {

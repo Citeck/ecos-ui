@@ -47,7 +47,9 @@ export interface IJournalsApi {
  * @see src/components/Journals/service
  */
 export class JournalsApi extends RecordService implements IJournalsApi {
-  lsJournalSettingIdsKey = ls.generateKey('journal-setting-ids', true);
+  get lsJournalSettingIdsKey() {
+    return ls.generateKey('journal-setting-ids', true, true);
+  }
 
   getLsJournalSettingIds: IJournalsApi['getLsJournalSettingIds'] = () => {
     let ids: LSDataType = [];

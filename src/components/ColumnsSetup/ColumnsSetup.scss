@@ -28,6 +28,7 @@
   position: relative;
   font-size: 20px;
   color: $color-gray-6;
+  cursor: grab;
 
   &::before {
     margin: 0 !important;

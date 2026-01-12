@@ -1,12 +1,14 @@
-import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
+import React from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
+import { connect } from 'react-redux';
 
-import { ActionModes } from '../../../constants';
-import { selectDataRecordActionsByStateId } from '../../../selectors/recordActions';
-import { selectIdentificationForView } from '../../../selectors/dashboard';
 import { getActions, resetActions, runExecuteAction } from '../../../actions/recordActions';
+import { ActionModes } from '../../../constants';
+import { selectIdentificationForView } from '../../../selectors/dashboard';
+import { selectDataRecordActionsByStateId } from '../../../selectors/recordActions';
+import { EVENTS } from '../BaseWidget';
+
 import ActionsList from './ActionsList';
 
 import './style.scss';
@@ -46,7 +48,11 @@ class Actions extends React.Component {
   };
 
   componentDidMount() {
+    const { instanceRecord } = this.props;
     this.getActions();
+    if (instanceRecord) {
+      instanceRecord.events.on(EVENTS.UPDATE_TASKS_WIDGETS, this.getActions);
+    }
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -75,9 +81,9 @@ class Actions extends React.Component {
   };
 
   executeAction = action => {
-    const { runExecuteAction } = this.props;
+    const { runExecuteAction, stateId: dashboardStateId } = this.props;
 
-    runExecuteAction({ action });
+    runExecuteAction({ action: { ...action, dashboardStateId } });
   };
 
   renderActionsList = () => {
@@ -115,7 +121,4 @@ class Actions extends React.Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Actions);
+export default connect(mapStateToProps, mapDispatchToProps)(Actions);

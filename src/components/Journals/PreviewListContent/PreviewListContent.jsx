@@ -9,8 +9,8 @@ import { connect } from 'react-redux';
 
 import { Loader, PointsLoader } from '../../common';
 import { Well } from '../../common/form';
-import Clock from '../../common/icons/Clock';
 import NoData from '../../common/icons/NoData';
+import Clock from '../../common/icons/global/Clock';
 import DefaultIcon from '../PreviewListContent/DefaultIcon';
 import {
   CLASSNAME_PREVIEW_LIST_CARD,
@@ -42,6 +42,7 @@ const mapStateToProps = (state, props) => {
   const showWidgets = getBool(get(getSearchParams(), JUP.VIEW_WIDGET_PREVIEW));
 
   return {
+    isMobile: get(state, 'view.isMobile'),
     journalId: get(newState, 'journalConfig.id', ''),
     gridData: get(newState, 'grid.data', []),
     journalName: get(newState, 'journalConfig.name', ''),
@@ -235,7 +236,7 @@ class PreviewListContent extends Component {
   };
 
   renderItems = () => {
-    const { gridData, isTilesContent } = this.props;
+    const { gridData, isTilesContent, isMobile } = this.props;
 
     const items = (gridData || []).map(this.renderItemData);
 
@@ -250,7 +251,7 @@ class PreviewListContent extends Component {
           onScrollFrame={this.handleScrollFrame}
           ref={this.refScroll}
         >
-          <div className="citeck-preview-list-content__list-well_wrap-list">{items}</div>
+          <div className={classnames('citeck-preview-list-content__list-well_wrap-list', { mobile: isMobile })}>{items}</div>
         </Scrollbars>
       );
     }

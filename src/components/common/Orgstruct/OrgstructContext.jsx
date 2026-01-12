@@ -356,7 +356,8 @@ export const OrgstructProvider = props => {
         searchText,
         userSearchExtraFields,
         { page: pagination.page - 1, maxItems: pagination.count },
-        isSkipSearchInWorkspace
+        isSkipSearchInWorkspace,
+        signal
       ).then(({ items, totalCount }) => {
         if (!livePromise) {
           return;
@@ -382,7 +383,7 @@ export const OrgstructProvider = props => {
 
     if (!isAllUsersGroupsFetched && isSelectModalOpen && currentTab === TabTypes.ROLE) {
       setIsSearching(true);
-      OrgStructApi.getRoleList(searchText).then(({ records: items = [] }) => {
+      OrgStructApi.getRoleList(searchText, [], signal).then(({ records: items = [] }) => {
         if (!livePromise) {
           return;
         }

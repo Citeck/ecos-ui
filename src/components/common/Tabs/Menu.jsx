@@ -7,10 +7,7 @@ import Icon from '../icons/Icon';
 
 import { Labels } from './constants';
 
-export const Menu = ({ disabled, id, isActive, isEditable, isOpenMenu, classNameTooltip, startEdit, onDelete, onToggleMenu }) => {
-  if (isEditable) {
-    return null;
-  }
+export const Menu = ({ disabled, id, isActive, isOpenMenu, classNameTooltip, startEdit, onDelete, onToggleMenu }) => {
 
   return (
     <>

@@ -52,7 +52,8 @@ class Item extends React.Component {
       nextProps.isSelected !== this.props.isSelected ||
       nextProps.inDropdown !== this.props.inDropdown ||
       nextProps.isOpen !== this.props.isOpen ||
-      !isEqual({ label: label_1, icon: icon_1 }, { label: label_2, icon: icon_2 })
+      !isEqual({ label: label_1, icon: icon_1 }, { label: label_2, icon: icon_2 }) ||
+      !isEqual(get(this.props, 'data.config.url'), get(nextProps, 'data.config.url'))
     );
   }
 
@@ -86,7 +87,7 @@ class Item extends React.Component {
   }
 
   onToggleList = e => {
-    const { isMobile, isOpen, data, toggleExpanded, toggleIsOpen } = this.props;
+    const { isMobile, data, toggleExpanded, toggleIsOpen } = this.props;
 
     if (this.collapsible) {
       toggleExpanded(data);
@@ -116,7 +117,12 @@ class Item extends React.Component {
       );
     }
 
-    if (typeof data.icon === 'string' && !data.icon.includes(SourcesId.ICON) && !data.icon.includes(SourcesId.FONT_ICON)) {
+    if (
+      typeof data.icon === 'string' &&
+      !data.icon.includes(SourcesId.ICON) &&
+      !data.icon.includes('react:') &&
+      !data.icon.includes(SourcesId.FONT_ICON)
+    ) {
       iconCode = data.icon;
     } else {
       iconData = getIconObjectWeb(data.icon);

@@ -29,11 +29,13 @@ import {
   isKanban,
   isKanbanOrDocLib,
   isPreview,
-  isPreviewList
+  isPreviewList,
+  HEIGHT_BREADCRUMBS,
+  INITIAL_WIDTH_DASHBOARD
 } from './constants';
 
 import { getTypeRef } from '@/actions/docLib';
-import { execJournalAction, fetchBreadcrumbs, setUrl, toggleViewMode } from '@/actions/journals';
+import { execJournalAction, fetchBreadcrumbs, reloadGrid, setUrl, toggleViewMode } from '@/actions/journals';
 import { getBoardList } from '@/actions/kanban';
 import { updateTab } from '@/actions/pageTabs';
 import JournalsPreviewWidgets from '@/components/Journals/JournalsPreviewWidgets/JournalsPreviewWidgets';
@@ -46,7 +48,7 @@ import { wrapArgs } from '@/helpers/redux';
 import { showModalJson } from '@/helpers/tools';
 import { equalsQueryUrls, getSearchParams, updateCurrentUrl } from '@/helpers/urls';
 import { animateScrollTo, getBool, getCurrentUserName, t } from '@/helpers/util';
-import { selectCommonJournalPageProps, selectWidgetsConfig } from '@/selectors/journals';
+import { selectCommonJournalPageProps, selectJournalConfig, selectWidgetsConfig } from '@/selectors/journals';
 import { selectIsViewNewJournal } from '@/selectors/view';
 import PageService, { PageTypes } from '@/services/PageService';
 import pageTabList from '@/services/pageTabs/PageTabList';
@@ -55,6 +57,7 @@ import './style.scss';
 
 const mapStateToProps = (state, props) => {
   const commonProps = selectCommonJournalPageProps(state, props.stateId);
+  const journalConfig = selectJournalConfig(state, props.stateId);
   const widgetsConfig = selectWidgetsConfig(state, props.stateId);
   const isViewNewJournal = selectIsViewNewJournal(state);
   const searchParams = getSearchParams();
@@ -63,10 +66,12 @@ const mapStateToProps = (state, props) => {
     isAdmin: get(state, 'user.isAdmin'),
     isMobile: get(state, 'view.isMobile'),
     pageTabsIsShow: get(state, 'pageTabs.isShow'),
+    location: get(state, 'router.location', {}),
     _url: window.location.href,
     isViewNewJournal,
     searchParams,
     widgetsConfig,
+    journalConfig,
     ...commonProps
   };
 };
@@ -81,6 +86,7 @@ const mapDispatchToProps = (dispatch, props) => {
     getTypeRef: journalId => dispatch(getTypeRef(w({ journalId }))),
     getBoardList: journalId => dispatch(getBoardList({ journalId, stateId: props.stateId })),
     fetchBreadcrumbs: () => dispatch(fetchBreadcrumbs(w())),
+    reloadGrid: pagination => dispatch(reloadGrid(w({ pagination }))),
     updateTab: tab => dispatch(updateTab({ tab }))
   };
 };
@@ -187,15 +193,39 @@ class Journals extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { _url, isActivePage, stateId, viewMode, tabId, isViewNewJournal, widgetsConfig, isLoadingGrid, searchParams } = this.props;
+    const {
+      _url,
+      isActivePage,
+      stateId,
+      viewMode,
+      tabId,
+      isViewNewJournal,
+      widgetsConfig,
+      isLoadingGrid,
+      searchParams,
+      location,
+      journalConfig,
+      reloadGrid
+    } = this.props;
+    const { reloadDataOnFocus } = journalConfig;
     const { journalId, initiatedWidgetsConfig } = this.state;
     const prevSearchParams = prevProps.searchParams;
+
+    if (
+      reloadDataOnFocus &&
+      !isEqual(prevProps.location, location) &&
+      (get(location, 'search', '').includes(journalId) || get(prevProps.location, 'search', '').includes(journalId)) &&
+      !isLoadingGrid
+    ) {
+      reloadGrid();
+    }
 
     const { isLeftPositionWidgets } = widgetsConfig || {};
     const prevIsLeftPositionWidgets = get(prevProps, 'widgetsConfig.isLeftPositionWidgets');
 
     if (journalId && !isEqual(get(searchParams, 'recordRef'), get(prevSearchParams, 'recordRef'))) {
       this.props.fetchBreadcrumbs();
+      this.props.reloadGrid({ skipCount: 0, page: 1 });
     }
 
     if (
@@ -381,11 +411,17 @@ class Journals extends React.Component {
   };
 
   getJournalContentMaxHeight = () => {
+    const { searchParams } = this.props;
+    const { recordRef } = searchParams || {};
+    const hasBreadcrumbs = !!recordRef && recordRef !== 'null';
+
     let headH = (this._journalBodyTopRef && get(this._journalBodyTopRef.getBoundingClientRect(), 'bottom')) || 0;
     const jFooterH = (this._journalFooterRef && get(this._journalFooterRef, 'offsetHeight')) || 0;
     const footerH = get(document.querySelector('.app-footer'), 'offsetHeight') || 0;
     const scrollHeight = get(document.querySelector('.ecos-kanban__scroll_h'), 'offsetHeight') || 0;
-    const height = document.documentElement.clientHeight - headH - jFooterH - footerH - scrollHeight;
+    const breadcrumbsHeight =
+      get(document.querySelector('.ecos-journals-content__breadcrumbs'), 'offsetHeight') || hasBreadcrumbs ? HEIGHT_BREADCRUMBS : 0;
+    const height = document.documentElement.clientHeight - headH - jFooterH - footerH - scrollHeight - breadcrumbsHeight;
 
     const maxHeightJournal = Math.max(height, this.minHeight) - PADDING_NEW_JOURNAL;
 
@@ -610,6 +646,7 @@ class Journals extends React.Component {
     const { recordId, indexedDBConfig } = this.state;
     const { widgetsConfig: { boxSizes = {} } = {} } = indexedDBConfig || {};
 
+    const hasDBSises = !isEmpty(boxSizes);
     const wellClassNames = 'ecos-well_full ecos-journals-content__preview-well';
     const draggableEvents = this.draggableEventsProps;
 
@@ -619,13 +656,21 @@ class Journals extends React.Component {
 
       return (
         <div className="ecos-journals-content__sides">
-          <div id={leftId} className="ecos-journals-content__sides-small">
+          <div
+            id={leftId}
+            className="ecos-journals-content__sides-small"
+            style={{ ...(!hasDBSises && { width: `${INITIAL_WIDTH_DASHBOARD}%` }) }}
+          >
             <Well isViewNewJournal={isViewNewJournal} className={wellClassNames}>
               <JournalsPreviewWidgets stateId={stateId} recordId={recordId} isDraggingRow={draggableEvents.isDragging} />
             </Well>
             <ResizeBoxes sizes={boxSizes} onResizeComplete={this.onResizeWidgets} leftId={leftId} rightId={rightId} isSimpleVertical />
           </div>
-          <div id={rightId} className="ecos-journals-content__sides-large">
+          <div
+            id={rightId}
+            className="ecos-journals-content__sides-large"
+            style={{ ...(!hasDBSises && { width: `${100 - INITIAL_WIDTH_DASHBOARD}%` }) }}
+          >
             {this.renderViews()}
           </div>
         </div>
@@ -637,10 +682,18 @@ class Journals extends React.Component {
 
     return (
       <div className="ecos-journals-content__sides">
-        <div id={leftId} className="ecos-journals-content__sides-large">
+        <div
+          id={leftId}
+          className="ecos-journals-content__sides-large"
+          style={{ ...(!hasDBSises && { width: `${100 - INITIAL_WIDTH_DASHBOARD}%` }) }}
+        >
           {this.renderViews()}
         </div>
-        <div id={rightId} className="ecos-journals-content__sides-small">
+        <div
+          id={rightId}
+          className="ecos-journals-content__sides-small"
+          style={{ ...(!hasDBSises && { width: `${INITIAL_WIDTH_DASHBOARD}%` }) }}
+        >
           <ResizeBoxes
             sizes={boxSizes}
             onResizeComplete={this.onResizeWidgets}

@@ -14,6 +14,7 @@ export default {
   moduleNameMapper: {
     "\\.(css|scss)$": "<rootDir>/src/__mocks__/style.mock.js",
     "\\.(png|jpg)$": "<rootDir>/src/__mocks__/image.mock.js",
+    "^(.*)\\?worker$": "<rootDir>/src/__mocks__/worker.mock.js",
     "@/(.*)$": "<rootDir>/src/$1",
     "bpmn-js*": "<rootDir>/src/mock.js",
     "BPMN*": "<rootDir>/src/mock.js",

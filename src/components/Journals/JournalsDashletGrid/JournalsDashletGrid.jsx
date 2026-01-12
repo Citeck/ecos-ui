@@ -96,7 +96,6 @@ export const HeightCalculation = props => {
 };
 
 class JournalsDashletGrid extends Component {
-  selectedRow = {};
   scrollPosition = {};
 
   state = {
@@ -141,7 +140,6 @@ class JournalsDashletGrid extends Component {
     const predicates = predicate ? [predicate] : [];
     const currentOptions = { columns, groupBy, sortBy, predicates };
 
-    this.hideGridInlineToolSettings();
     this.props.reloadGrid({ ...currentOptions, ...options });
   };
 
@@ -169,14 +167,6 @@ class JournalsDashletGrid extends Component {
     this.reloadGrid({ sortBy });
   };
 
-  setSelectedRow(row) {
-    this.selectedRow = row || {};
-  }
-
-  showGridInlineToolSettings = options => {
-    this.setSelectedRow(options.row);
-  };
-
   getCurrentRowInlineActions(row) {
     const { execRecordsAction, grid } = this.props;
     const { groupBy = [], actions } = grid || {};
@@ -186,13 +176,13 @@ class JournalsDashletGrid extends Component {
       return [
         {
           title: t('grid.inline-tools.details'),
-          onClick: () => this.props.goToJournalsPage(row || this.selectedRow),
+          onClick: () => this.props.goToJournalsPage(row),
           icon: 'icon-small-arrow-right'
         }
       ];
     }
 
-    const currentRow = this.selectedRow.id;
+    const currentRow = get(row, 'id');
     const recordActions = get(forRecord, currentRow, []);
     const handlers = {
       reloadJournalGrid: this.reloadGrid
@@ -200,13 +190,11 @@ class JournalsDashletGrid extends Component {
 
     return recordActions.map(action => ({
       ...action,
-      onClick: () => execRecordsAction(currentRow, { ...action, config: { handlers, ...(action.config || {}) } })
+      onClick: () => {
+        execRecordsAction(currentRow, { ...action, config: { handlers, ...(action.config || {}) } });
+      }
     }));
   }
-
-  hideGridInlineToolSettings = () => {
-    this.setSelectedRow();
-  };
 
   inlineTools = inlineToolSettings => {
     const { settingsInlineTools, loading } = this.props;
@@ -321,8 +309,6 @@ class JournalsDashletGrid extends Component {
               onFilter={this.onFilterInline}
               onSelect={this.setSelectedRecords}
               onRowClick={doInlineToolsOnRowClick ? this.onRowClick : null}
-              onMouseLeave={!doInlineToolsOnRowClick ? this.hideGridInlineToolSettings : null}
-              onChangeTrOptions={this.showGridInlineToolSettings}
               onEdit={saveRecords}
               selected={selectedRecords}
               excluded={excludedRecords}

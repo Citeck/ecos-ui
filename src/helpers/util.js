@@ -34,6 +34,7 @@ export const IS_TEST_ENV = process.env.NODE_ENV === 'test';
 export function setCookie(name, value, options = {}) {
   options = {
     path: '/',
+    sameSite: 'Lax', // Default SameSite to Lax for better security
     ...options
   };
 
@@ -1377,16 +1378,8 @@ export function camelize(s = '') {
   return s;
 }
 
-// Getting a web-worker for initialization
-export async function createWorkerFromScript(scriptPath = '') {
-  const response = await fetch(scriptPath);
-  const script = await response.text();
-
-  const blob = new Blob([script], { type: 'application/javascript' });
-
-  return new Worker(URL.createObjectURL(blob));
+if (typeof window !== 'undefined') {
+  lodashSet(window, 'Citeck.helpers.getMonthPeriodByDate', getMonthPeriodByDate);
+  lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);
+  lodashSet(window, 'Citeck.helpers.getMLValue', getMLValue);
 }
-
-lodashSet(window, 'Citeck.helpers.getMonthPeriodByDate', getMonthPeriodByDate);
-lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);
-lodashSet(window, 'Citeck.helpers.getMLValue', getMLValue);

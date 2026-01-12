@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import isString from 'lodash/isString';
+import isEqual from 'lodash/isEqual';
 import PropTypes from 'prop-types';
 import React from 'react';
 import uuidV4 from 'uuidv4';
@@ -49,19 +50,20 @@ class Tab extends React.Component {
 
   shouldComponentUpdate(nextProps, nextState) {
     const { index, isActive, hasHover, label, hasHint, disabled, isNew } = this.props;
-    const { editing, text, isOpenMenu, isOpenEditModal } = this.state;
+    const { editing, text, newText, isOpenMenu, isOpenEditModal } = this.state;
     let needUpdate = false;
 
     if (
       nextProps.index !== index ||
       nextProps.isActive !== isActive ||
       nextProps.hasHover !== hasHover ||
-      nextProps.label !== label ||
+      !isEqual(nextProps.label, label) ||
       nextProps.hasHint !== hasHint ||
       nextProps.disabled !== disabled ||
       nextProps.isNew !== isNew ||
       nextState.editing !== editing ||
-      nextState.text !== text ||
+      !isEqual(nextState.text, text) ||
+      !isEqual(nextState.newText, newText) ||
       nextState.isOpenMenu !== isOpenMenu ||
       nextState.isOpenEditModal !== isOpenEditModal
     ) {
@@ -83,7 +85,7 @@ class Tab extends React.Component {
   }
 
   showEditModal = () => {
-    this.setState({ isOpenEditModal: true });
+    this.setState({ isOpenEditModal: true, isOpenMenu: false, newText: this.state.text });
   };
 
   hideEditModal = () => {
@@ -103,21 +105,21 @@ class Tab extends React.Component {
 
   endEdit = () => {
     const state = {};
-    const { text, defText, editing } = this.state;
+    const { newText, defText, editing } = this.state;
 
     if (!editing) {
       return;
     }
 
-    state.text = text || this.props.label || defText;
+    state.text = newText || this.props.label || defText;
     state.editing = false;
     this.setState(state);
     this.props.onEdit && this.props.onEdit(state.text);
     this.hideEditModal();
   };
 
-  onChange = text => {
-    this.setState({ text, isValidText: !!getMLValue(text).trim() });
+  onChange = newText => {
+    this.setState({ newText, isValidText: !!getMLValue(newText).trim() });
   };
 
   onClose = e => {
@@ -142,7 +144,7 @@ class Tab extends React.Component {
       }
     }
 
-    this.setState({ editing: false, text: label });
+    this.setState({ editing: false });
     this.hideEditModal();
   };
 
@@ -183,23 +185,14 @@ class Tab extends React.Component {
   };
 
   render() {
-    const { isActive, hasHover, hasHint, disabled, className, isNew, onClick, classNameTooltip } = this.props;
-    const { id, isOpenMenu, text, defText, isValidText, isOpenEditModal } = this.state;
+    const { isActive, hasHover, disabled, className, onClick, classNameTooltip } = this.props;
+    const { id, isOpenMenu, newText, isValidText, isOpenEditModal } = this.state;
     const isEdit = this.isEditable;
     const tabClassNames = classNames('ecos-tab ecos-tab_editable', className, {
       'ecos-tab_active': isActive,
       'ecos-tab_hover': hasHover,
       'ecos-tab_editing': isEdit
     });
-    const addProps = {};
-
-    if (isNew) {
-      addProps.placeholder = defText;
-    }
-
-    if (hasHint) {
-      addProps.title = text;
-    }
 
     return (
       <div className={tabClassNames} onClick={onClick}>
@@ -219,7 +212,7 @@ class Tab extends React.Component {
         <EditTabForm
           isOpen={isOpenEditModal}
           hideModal={this.onReset}
-          label={text}
+          label={newText}
           isValidText={isValidText}
           onChangeLabel={this.onChange}
           onSave={this.endEdit}

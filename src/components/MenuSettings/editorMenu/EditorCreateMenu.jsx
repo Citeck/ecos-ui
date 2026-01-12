@@ -3,8 +3,7 @@ import isEmpty from 'lodash/isEmpty';
 import React from 'react';
 import { connect } from 'react-redux';
 
-import DialogManager from '../../common/dialogs/Manager';
-import { ControlledCheckbox, SelectOrgstruct } from '../../common/form';
+import { SelectOrgstruct } from '../../common/form';
 import { GroupTypes, ViewModes, DataTypes } from '../../common/form/SelectOrgstruct/constants';
 import { Labels } from '../utils';
 
@@ -23,28 +22,6 @@ import { t } from '@/helpers/util';
 class EditorCreateMenu extends BaseEditorMenu {
   configType = ConfigTypes.CREATE;
 
-  handleToggleForAll = checked => {
-    const { isForAll, authorityRefs } = this.props;
-
-    if (checked === isForAll) {
-      return;
-    }
-
-    if (checked && authorityRefs.length) {
-      DialogManager.confirmDialog({
-        title: Labels.DIALOG_FOR_ALL_TITLE,
-        text: Labels.DIALOG_FOR_ALL_TEXT,
-        onNo: () => this.props.setIsForAll(false),
-        onYes: () => {
-          this.props.getAuthorityInfoByRefs([]);
-          this.props.setIsForAll(true);
-        }
-      });
-    } else {
-      this.props.setIsForAll(checked);
-    }
-  };
-
   handleSelectOrg = data => {
     if (!isEmpty(data)) {
       this.props.setIsForAll(false);
@@ -58,10 +35,7 @@ class EditorCreateMenu extends BaseEditorMenu {
 
     return (
       <div className="mt-3 ecos-menu-settings-ownership">
-        <div className="ecos-menu-settings__title">{t(Labels.TITLE_OWNERSHIP)}</div>
-        <ControlledCheckbox className="ecos-menu-settings-ownership__field-for-all" checked={isForAll} onClick={this.handleToggleForAll}>
-          {t(Labels.FIELD_FOR_ALL_USERS)}
-        </ControlledCheckbox>
+        <div className="ecos-menu-settings__title">{t(Labels.TITLE_CREATE)}</div>
         <SelectOrgstruct
           defaultValue={authorityRefs}
           dataType={DataTypes.AUTHORITY}
@@ -73,6 +47,7 @@ class EditorCreateMenu extends BaseEditorMenu {
           allowedGroupTypes={Object.values(GroupTypes)}
           isIncludedAdminGroup
           disabled={isForAll}
+          placeholder={t(Labels.FIELD_ALLOWED_FOR_ALL)}
         />
       </div>
     );

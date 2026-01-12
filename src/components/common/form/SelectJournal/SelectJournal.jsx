@@ -70,6 +70,7 @@ export default class SelectJournal extends Component {
     customPredicate: null,
     value: undefined,
     isLoading: false,
+    searching: false,
     isLocaleData: false
   };
 
@@ -324,7 +325,7 @@ export default class SelectJournal extends Component {
       settings.queryData = queryData;
 
       const workspaces = JournalsService.getWorkspaceByPolicy(searchInWorkspacePolicy, searchInAdditionalWorkspaces);
-      if (!isLocaleData) {
+      if (!isLocaleData && !!journalConfig.system) {
         workspaces.push('default'); // has default wsId - all workspaces
       }
 
@@ -348,7 +349,12 @@ export default class SelectJournal extends Component {
     };
 
     return new Promise(resolve => {
-      this.setState({ isGridDataReady: false }, () => getData(resolve));
+      this.setState({ isGridDataReady: false }, () =>
+        getData(dataGrid => {
+          resolve(dataGrid);
+          this.setState({ searching: false });
+        })
+      );
     });
   };
 
@@ -746,7 +752,8 @@ export default class SelectJournal extends Component {
       () => ({
         filterPredicate,
         pagination: paginationInitState,
-        isJournalConfigFetched: true
+        isJournalConfigFetched: true,
+        searching: true
       }),
       this.refreshGridData
     );
@@ -799,7 +806,8 @@ export default class SelectJournal extends Component {
       journalConfig,
       pagination,
       isCreateModalOpen,
-      isLocaleData
+      isLocaleData,
+      searching
     } = this.state;
     const extraProps = {};
 
@@ -903,7 +911,13 @@ export default class SelectJournal extends Component {
         </div>
 
         <div className="select-journal-select-modal__buttons">
-          <Pagination className="select-journal__pagination" total={gridData.total} {...pagination} onChange={this.onChangePage} />
+          <Pagination
+            className="select-journal__pagination"
+            total={gridData.total}
+            {...pagination}
+            onChange={this.onChangePage}
+            searching={searching}
+          />
           <div className="select-journal-select-modal__buttons-space" />
           <Btn className="select-journal-select-modal__buttons-cancel" onClick={this.onCancelSelect}>
             {t(Labels.CANCEL_BUTTON)}

@@ -29,6 +29,7 @@ export const MIN_CARD_DATA_NEW_JOURNAL = 6;
 export const PADDING_NEW_JOURNAL = 10;
 export const PADDING_LIST_VIEW = 20;
 export const HEIGHT_GRID_WRAPPER = 15;
+export const HEIGHT_BREADCRUMBS = 44;
 export const HEIGHT_GRID_ROW = 28;
 export const HEIGHT_THEAD = 35;
 export const MAX_HEIGHT_TOTAL_AMOUNT = 40;
@@ -36,6 +37,8 @@ export const ECOS_GRID_PADDING_HORIZONTAL = 14;
 
 export const LIST_VIEW_ITEM_GAP = 18;
 export const HEIGHT_LIST_VIEW_ITEM = 134 + LIST_VIEW_ITEM_GAP;
+
+export const INITIAL_WIDTH_DASHBOARD = 30; // %
 
 // sizes with tiles content
 export const PADDING_WELL_TILES_PREVIEW_LIST = 4;

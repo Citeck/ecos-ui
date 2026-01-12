@@ -3,6 +3,7 @@ export const Labels = {
   TITLE: 'menu-settings.header.title',
   TITLE_ITEMS: 'menu-settings.editor-items.title',
   TITLE_OWNERSHIP: 'menu-settings.editor-ownership.title',
+  TITLE_CREATE: 'journal.presets.modal.field.authority',
   TITLE_GROUP_PRIORITY: 'menu-settings.editor-group-priority.title',
   GOTO_JOURNAL: 'menu-settings.header.btn.journal-menu-template',
   GLOBAL_DESC: 'menu-settings.desc.global-config',
@@ -52,6 +53,7 @@ export const Labels = {
   FIELD_DATA_TYPE: 'menu-settings.editor-item.field.data-type.title',
   FIELD_PROCESS: 'menu-settings.editor-item.field.process-def.title',
 
+  FIELD_ALLOWED_FOR_ALL: 'menu-settings.editor-item.field.allowed-for-all.placeholder',
   FIELD_ICON_LABEL: 'menu-settings.editor-item.field.icon.label',
   FIELD_ICON_BTN_CANCEL: 'menu-settings.editor-item.field.icon.btn.cancel',
   FIELD_ICON_BTN_SELECT: 'menu-settings.editor-item.field.icon.btn.select',

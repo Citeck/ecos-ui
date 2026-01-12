@@ -256,7 +256,7 @@ class RecordActions {
    * @returns {Promise<Boolean | unknown>}
    * @private
    */
-  static async _checkConfirmAction(action, params) {
+  static async _checkConfirmAction(action, params = {}) {
     /** @see ConfirmAction */
     const confirmData = await RecordActions._getConfirmData(action, params);
 

@@ -66,6 +66,22 @@
     min-height: 10px;
   }
 
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+
+    &_text {
+      margin: 0;
+      color: $color-gray-5;
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 11px;
+    }
+  }
+
   &__info {
     width: 100%;
   }
@@ -201,7 +217,7 @@
       justify-content: space-between;
       border-radius: 6px;
       border: 1px solid #D4DADD;
-      box-shadow: 0px 3px 4px 0px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 3px 4px 0 rgba(0, 0, 0, 0.15);
       backdrop-filter: blur(10px);
 
       p {
@@ -210,7 +226,7 @@
         font-weight: 600;
         text-align: center;
         vertical-align: middle;
-        line-height: 14px; 
+        line-height: 14px;
       }
 
       &-help {
@@ -480,7 +496,7 @@
   $kanban: &;
 
   margin-top: 2px;
-  padding: 10px 12px 0px 10px;
+  padding: 10px 12px 0 10px;
   background-color: var(--main-bg-color);
   border-radius: 0 0 12px 12px;
 

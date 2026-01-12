@@ -7,10 +7,12 @@ import { getSidebarWorkspaces, getWorkspaces, joinToWorkspace, leaveOfWorkspace,
 import { WorkspaceType } from '@/api/workspaces/types';
 import FormManager from '@/components/EcosForm/FormManager';
 import Records from '@/components/Records';
+import RecordImpl from '@/components/Records/Record';
 import WorkspacePreview from '@/components/WorkspacePreview';
 import Confirm from '@/components/WorkspaceSidebar/Confirm';
 import Actions from '@/components/common/icons/HorizontalActions';
 import { SourcesId } from '@/constants';
+import { getPersonalWorkspaceId, getWorkspaceId, openLinkWorkspace } from '@/helpers/urls';
 import { t } from '@/helpers/util';
 import { selectWorkspaceIsLoadingAction } from '@/selectors/workspaces';
 import { NotificationManager } from '@/services/notifications';
@@ -51,7 +53,7 @@ type OpenWsEventType = React.MouseEvent<HTMLDivElement | HTMLLIElement | HTMLBut
 
 const Labels = {
   GO_TO_WORKSPACE: 'workspaces.card.go-to-workspace',
-  EDIT_WORKSPACE: 'workspaces.card.edit-workspace',
+  EDIT_WORKSPACE: 'workspaces.edit-workspace-modal.title',
   REMOVE_WORKSPACE: 'workspaces.card.remove-workspace',
   LEAVE_WORKSPACE: 'workspaces.card.leave-workspace',
   LEAVE_WORKSPACE_ERROR_TITLE: 'workspaces.card.leave-workspace.error.title',
@@ -134,9 +136,10 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
 
     event.stopPropagation();
     FormManager.openFormModal({
+      title: `${t('header.site-menu.settings-current-workspace')}`,
       record: `${SourcesId.WORKSPACE}@${this.props.id}`,
       saveOnSubmit: true,
-      onSubmit: async (record: any) => {
+      onSubmit: async (record: RecordImpl) => {
         if (openWorkspace) {
           const { id: wsId, homePageLink } = await Records.get(record).load({
             id: 'id',
@@ -158,7 +161,7 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
   };
 
   onLeaveWorkspace = () => {
-    const { isCurrentUserLastManager, leaveOfWorkspace } = this.props;
+    const { isCurrentUserLastManager, leaveOfWorkspace, id: wsId } = this.props;
     this.setState({ showMenuSettings: false, showBtnSettings: false });
 
     if (isCurrentUserLastManager) {
@@ -167,6 +170,9 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
     }
 
     leaveOfWorkspace();
+    if (wsId === getWorkspaceId()) {
+      this.openPersonalWorkspace();
+    }
   };
 
   refetchWorkspaces = () => {
@@ -261,8 +267,17 @@ class WorkspaceCard extends Component<WorkspaceCardProps, WorkspaceCardState> {
     });
   };
 
+  openPersonalWorkspace = () => openLinkWorkspace(getPersonalWorkspaceId());
+
   onConfirmRemove = () => {
-    this.props.removeWorkspace(() => this.toggleViewConfirm());
+    const { removeWorkspace, id: wsId } = this.props;
+
+    removeWorkspace(() => {
+      this.toggleViewConfirm();
+      if (wsId === getWorkspaceId()) {
+        this.openPersonalWorkspace();
+      }
+    });
   };
 
   renderConfirm = () => {

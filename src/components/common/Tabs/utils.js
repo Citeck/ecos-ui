@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 
 export const commonOneTabPropTypes = {
   id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  label: PropTypes.string,
+  label: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   className: PropTypes.string,
   isActive: PropTypes.bool,
   hasHover: PropTypes.bool,

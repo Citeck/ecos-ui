@@ -7,8 +7,8 @@ import FormManager from '../EcosForm/FormManager';
 import Records from '../Records';
 import { Loader } from '../common';
 import { Btn } from '../common/btns';
-import Cube from '../common/icons/Cube';
 import WorkspaceSwitcher from '../common/icons/WorkspacesSwitcher';
+import Cube from '../common/icons/global/Cube';
 
 import { getSidebarWorkspaces, getWorkspaces, visitedAction } from '@/actions/workspaces';
 import { WorkspaceType } from '@/api/workspaces/types';
@@ -141,9 +141,9 @@ const Workspaces = ({
           active: isActivePreview,
           isActivePreview: !isOpenSidebarWorkspace && isActivePreview
         })}
-        onClick={e => toggleMenu(e)}
+        onClick={toggleMenu}
       >
-        {isLoading ? <Loader type="points" height={20} width={24} /> : <WorkspaceSwitcher />}
+        {isLoading ? <Loader type="points" color="white" height={20} width={24} /> : <WorkspaceSwitcher />}
 
         {isActivePreview && (
           <div ref={wrapperRef} className="workspace-panel">

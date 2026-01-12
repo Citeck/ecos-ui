@@ -1,10 +1,12 @@
 import classNames from 'classnames';
+import isFunction from 'lodash/isFunction';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 
 import Icon from '../icons/Icon';
 
 import { MenuApi } from '@/api/menu';
+import { reactIconsModules } from '@/components/common/icons/global';
 import { TMP_ICON_EMPTY } from '@/constants';
 import { createContentUrl } from '@/helpers/urls';
 
@@ -14,7 +16,7 @@ const menuApi = new MenuApi();
 
 function EcosIcon({ code, className, data, title, family, onClick, id, defaultVal }) {
   const [remoteData, setRemoteData] = useState({});
-  const { type, value, url } = remoteData || {};
+  const { type, value, url, Component, color = '#767676' } = remoteData || {};
   const commonClass = classNames('ecos-icon', className, { 'ecos-icon_button': onClick });
   const commonProps = { title, id };
 
@@ -33,6 +35,26 @@ function EcosIcon({ code, className, data, title, family, onClick, id, defaultVa
       setRemoteData(data);
     }
   }, [code, data]);
+
+  if ((type === 'react-icon' && isFunction(Component)) || value?.includes('react:')) {
+    if (isFunction(Component)) {
+      return (
+        <div className={classNames(commonClass, 'ecos-icon-svg')} {...commonProps}>
+          <Component color={color} />
+        </div>
+      );
+    }
+
+    const key = value?.replace('react:', '');
+    if (reactIconsModules[key]?.default) {
+      const Component = reactIconsModules[key].default;
+      return (
+        <div className={classNames(commonClass, 'ecos-icon-svg')} {...commonProps}>
+          <Component color={color} />
+        </div>
+      );
+    }
+  }
 
   if ((type === 'img' || (type === 'icon' && !!url)) && !!(value || url)) {
     const src = url || createContentUrl({ value });

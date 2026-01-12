@@ -15,7 +15,7 @@ import {
 import EditorScope from './editors/EditorScope';
 import { DEFAULT_TYPE } from './constants';
 import { ASSOC_DEFAULT_INNER_SCHEMA } from '../../Records/constants';
-import { LOCAL_ID } from '../../../constants/journal';
+import { VIRTUAL_ATT_ID } from '@/constants/journal';
 
 const NOT_SORTABLE_TYPES = [
   COLUMN_DATA_TYPE_ASSOC,
@@ -69,7 +69,7 @@ class JournalColumnsResolver {
 
     ['name', 'attribute', 'schema'].forEach(attr => {
       if (column[attr] === 'id') {
-        column[attr] = LOCAL_ID;
+        column[attr] = VIRTUAL_ATT_ID;
       }
     });
 

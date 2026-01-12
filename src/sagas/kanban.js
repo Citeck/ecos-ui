@@ -154,7 +154,7 @@ export function* sagaFormProps({ api }, { payload: { stateId, formId } }) {
 
 export function* sagaGetBoardData({ api }, { payload }) {
   try {
-    const { stateId, recordRefs } = payload;
+    const { stateId, recordRefs, attrsToLoad, onlyLinked } = payload;
     const boardConfig = yield sagaGetBoardConfig({ api }, { payload });
     const formProps = yield sagaFormProps({ api }, { payload: { formId: boardConfig.cardFormRef, stateId } });
     let { journalConfig, journalSetting } = yield select(selectJournalData, stateId);
@@ -169,7 +169,10 @@ export function* sagaGetBoardData({ api }, { payload }) {
     const pagination = DEFAULT_PAGINATION;
 
     yield put(setPagination({ stateId, pagination }));
-    yield sagaGetData({ api }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination, recordRefs } });
+    yield sagaGetData(
+      { api },
+      { payload: { stateId, boardConfig, attrsToLoad, onlyLinked, journalSetting, journalConfig, formProps, pagination, recordRefs } }
+    );
     const { boardId, templateId, isDefaultBoardAndTemplate } = payload;
 
     if (isDefaultBoardAndTemplate && (!isNil(boardId) || !isNil(templateId))) {
@@ -191,6 +194,8 @@ export function* sagaGetData({ api }, { payload }) {
       pagination: _pagination = {},
       recordRefs,
       stateId,
+      attrsToLoad,
+      onlyLinked,
       isHandlePagination
     } = payload;
 
@@ -205,7 +210,10 @@ export function* sagaGetData({ api }, { payload }) {
 
     const urlProps = getSearchParams();
     const searchText = urlProps[JournalUrlParams.SEARCH];
-    const _journalConfig = cloneDeep(journalConfig);
+    const recordRef = urlProps[JournalUrlParams.RECORD_REF];
+    let _journalConfig = cloneDeep(journalConfig);
+
+    const journalColumns = cloneDeep(_journalConfig.columns);
 
     delete params.columns;
     delete params.groupBy;
@@ -255,7 +263,7 @@ export function* sagaGetData({ api }, { payload }) {
 
         const statusModifiedPredicate = KanbanConverter.getStatusModifiedPredicate(column);
 
-        const idsPredicate = Boolean(recordRefs)
+        const idsPredicate = Boolean(get(recordRefs, 'length'))
           ? {
               t: PREDICATE_EQ,
               att: 'id',
@@ -265,11 +273,19 @@ export function* sagaGetData({ api }, { payload }) {
 
         const settings = JournalsConverter.getSettingsForDataLoaderServer({
           ...params,
+          onlyLinked,
+          attrsToLoad,
+          recordRef,
           predicates: [...predicates, colPredicate, idsPredicate, statusModifiedPredicate],
           searchPredicate
         });
 
-        const res = yield call([JournalsService, JournalsService.getJournalData], _journalConfig, settings, recordRefs);
+        const res = yield call(
+          [JournalsService, JournalsService.getJournalData],
+          _journalConfig,
+          { ...settings, columns: journalColumns },
+          recordRefs
+        );
         const status = column.id || '';
 
         return { ...res, status };
@@ -480,6 +496,9 @@ export function* sagaMoveCard({ api }, { payload }) {
     const result = yield call(api.kanban.moveRecord, { recordRef, columnId: toColumnRef });
 
     yield put(setDataCards({ stateId, dataCards }));
+
+    const newRecordRefs = dataCards.map(cards => cards.records.map(record => record.id));
+    yield sagaGetActions({ api }, { payload: { boardConfig, newRecordRefs, stateId } });
 
     if (get(result, 'id') !== recordRef) {
       throw new Error('Incorrect move result');

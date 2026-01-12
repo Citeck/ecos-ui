@@ -252,6 +252,10 @@ export default class JournalsConverter {
       ...AttributesService.getPermissions(permissionsArr)
     };
 
+    if (_source.workspaces) {
+      target.workspaces = _source.workspaces;
+    }
+
     return target;
   }
 
@@ -378,5 +382,33 @@ export default class JournalsConverter {
     }
 
     return predicate;
+  }
+
+  static mapPredicateKeys(predicate, mapping) {
+    if (!predicate) {
+      return;
+    }
+    if (Array.isArray(predicate)) {
+      for (let elem of predicate) {
+        this.mapPredicateKeys(elem, mapping);
+      }
+      return;
+    }
+    let predType = predicate['t'];
+    if (!predType) {
+      return;
+    }
+    if (predType === 'and' || predType === 'or' || predType === 'not') {
+      this.mapPredicateKeys(predicate['val'] || predicate['v'], mapping);
+    } else {
+      let attKey = 'a';
+      if (!predicate.hasOwnProperty(attKey)) {
+        attKey = 'att';
+      }
+      let newAttName = mapping[predicate[attKey] || ''];
+      if (newAttName) {
+        predicate[attKey] = newAttName;
+      }
+    }
   }
 }

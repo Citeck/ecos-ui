@@ -32,7 +32,7 @@ function convertMentionElement(domNode: HTMLElement): DOMConversionOutput | null
   const textContent = domNode.textContent;
 
   if (textContent !== null) {
-    const node = $createMentionNode(textContent);
+    const node = $createMentionNode(textContent, domNode.getAttribute('data-mention'));
     return {
       node
     };
@@ -48,7 +48,7 @@ const mentionStyle = `
 `;
 
 export class MentionNode extends TextNode {
-  __authorityId: string | undefined;
+  __authorityId: string | undefined | null;
   __mention: string;
 
   static getType(): string {
@@ -68,7 +68,7 @@ export class MentionNode extends TextNode {
     return node;
   }
 
-  constructor(mentionName: string, text?: string, key?: NodeKey, id?: string) {
+  constructor(mentionName: string, text?: string, key?: NodeKey, id?: string | null) {
     super(text ?? mentionName, key);
 
     this.__mention = mentionName;
@@ -122,7 +122,7 @@ export class MentionNode extends TextNode {
   }
 }
 
-export function $createMentionNode(mentionName: string, id?: string): MentionNode {
+export function $createMentionNode(mentionName: string, id?: string | null): MentionNode {
   const mentionNode = new MentionNode(mentionName, undefined, undefined, id);
   mentionNode.setMode('segmented').toggleDirectionless();
   return $applyNodeReplacement(mentionNode);
