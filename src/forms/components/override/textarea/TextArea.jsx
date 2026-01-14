@@ -14,11 +14,19 @@ import { Provider } from 'react-redux';
 import { overrideTriggerChange } from '../misc';
 
 import LexicalEditor from '@/components/LexicalEditor';
+import ScriptEditorAIButton from '@/components/AIAssistant/ScriptEditorAIButton';
+import TextAreaAIButton from '@/components/AIAssistant/TextAreaAIButton';
+import editorContextService from '@/components/AIAssistant/EditorContextService';
+import { FIELD_TYPES } from '@/components/AIAssistant/AIQuickActions/config';
+import FormContextService from '@/components/AIAssistant/FormContextService';
+import { TEXT_CONTEXT_TYPES } from '@/components/AIAssistant/TextAIService';
 import { t } from '@/helpers/export/util';
+import { getTextByLocale } from '@/helpers/util';
 import { updateEditorContent } from '@/helpers/lexical';
 import ESMRequire from '@/services/ESMRequire';
 import UploadDocsRefService from '@/services/uploadDocsRefsStore';
 import { getStore } from '@/store';
+import { getContextExtractionConfig } from "@/components/AIAssistant/AIQuickActions/config/fieldActionConfigs.ts";
 
 export default class TextAreaComponent extends FormIOTextAreaComponent {
   static schema(...extend) {
@@ -43,6 +51,10 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     this._lexicalInited = false;
     this._lexicalFirstUpdate = true;
     this._uploadDocsRefService = new UploadDocsRefService();
+    this._scriptAIButtonRoot = null;
+    this._scriptAIInlineInputContainer = null;
+    this._textAreaAIButtonRoot = null;
+    this._textAreaAIContainer = null;
   }
 
   get defaultSchema() {
@@ -395,11 +407,196 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
           this.editor.setReadOnly(true);
         }
 
+        // Add AI Assistant button for script editors
+        this.addScriptAIButton(element);
+
         return this.editor;
       });
     } catch (error) {
       console.error('TextAreaComponent.addAce | cant load Ace editor', error);
       return {};
+    }
+  }
+
+  addScriptAIButton(editorElement) {
+    // Only show AI button if aiEnabled is true and scriptContextType is configured
+    if (!this.component.aiEnabled || !this.component.scriptContextType) {
+      return;
+    }
+    const scriptContextType = this.component.scriptContextType;
+
+    if (this.options.readOnly || this.component.disabled || this._scriptAIButtonRoot) {
+      return;
+    }
+
+    try {
+      // Create container for AI button
+      const buttonContainer = document.createElement('div');
+      buttonContainer.className = 'script-editor-ai-button-container';
+
+      // Create container for inline input (below editor)
+      const inlineInputContainer = document.createElement('div');
+      inlineInputContainer.className = 'script-ai-inline-input-container';
+      this._scriptAIInlineInputContainer = inlineInputContainer;
+
+      // Position the container relative to the editor
+      const editorParent = editorElement.parentElement;
+      if (editorParent) {
+        editorParent.style.position = 'relative';
+        editorParent.appendChild(buttonContainer);
+        // Append inside editor parent for overlay positioning
+        editorParent.appendChild(inlineInputContainer);
+      }
+
+      const store = getStore();
+      this._scriptAIButtonRoot = createRoot(buttonContainer);
+
+      const contextData = editorContextService.getContextData() || {};
+      const ecosType = contextData.ecosType || this.root?.options?.editor?.getEcosType?.() || '';
+      const processRef = contextData.processRef || '';
+
+      // Extract form context for AI (parent form data for computed attributes, etc.)
+      const extractionConfig = getContextExtractionConfig(scriptContextType);
+      const formContext = extractionConfig.enabled
+        ? FormContextService.extractContextData(this, scriptContextType, extractionConfig)
+        : null;
+
+      // Extract field info for AI context
+      // First try fieldContext from options (for modals opened from datagrid/fields)
+      // Fallback to current component info
+      const fieldContext = FormContextService.extractFieldContext(this);
+      const fieldInfo = fieldContext || (this.component ? {
+        id: this.component.key || '',
+        name: getTextByLocale(this.component.label) || this.component.key || '',
+        type: this.component.dataType || 'TEXT'
+      } : null);
+
+      this._scriptAIButtonRoot.render(
+        <Provider store={store}>
+          <ScriptEditorAIButton
+            disabled={this.options.readOnly || this.component.disabled}
+            recordRef={this.root?.options?.recordId || ''}
+            scriptContextType={scriptContextType}
+            ecosType={ecosType}
+            processRef={processRef}
+            formContext={formContext}
+            fieldInfo={fieldInfo}
+            getEditorValue={() => this.editor?.getValue() || ''}
+            setEditorValue={(value) => {
+              if (this.editor) {
+                this.editor.setValue(value, -1);
+                this.editor.clearSelection();
+              }
+            }}
+            inlineInputContainer={inlineInputContainer}
+          />
+        </Provider>
+      );
+    } catch (error) {
+      console.error('TextAreaComponent.addScriptAIButton | error:', error);
+    }
+  }
+
+  /**
+   * Check if AI is enabled for this textarea field
+   * AI is enabled if aiEnabled is true and textAreaAIContextType is configured
+   */
+  get isTextAreaAIEnabled() {
+    return !!this.component.aiEnabled && !!this.component.textAreaAIContextType;
+  }
+
+  /**
+   * Get the AI context type for this textarea
+   * Returns only explicitly configured value or default
+   */
+  get textAreaAIContextType() {
+    return this.component.textAreaAIContextType || TEXT_CONTEXT_TYPES.GENERAL;
+  }
+
+  /**
+   * Get field type for AI quick actions
+   */
+  get aiFieldType() {
+    const contextType = this.textAreaAIContextType;
+
+    if (contextType === TEXT_CONTEXT_TYPES.DOCUMENTATION) {
+      return FIELD_TYPES.DOCUMENTATION;
+    }
+
+    return FIELD_TYPES.TEXTAREA;
+  }
+
+  /**
+   * Add AI button for plain textarea fields
+   */
+  addTextAreaAIButton(textareaElement) {
+    // Only show AI button if textAreaAIContextType is configured or auto-detected
+    if (!this.isTextAreaAIEnabled) {
+      return;
+    }
+
+    if (this.options.readOnly || this.component.disabled || this._textAreaAIButtonRoot) {
+      return;
+    }
+
+    try {
+      // Find the textarea wrapper
+      const wrapper = textareaElement.parentElement;
+      if (!wrapper) {
+        return;
+      }
+
+      // Make wrapper position relative for absolute positioning of AI elements
+      wrapper.style.position = 'relative';
+
+      // Create container for AI button (positioned in corner of textarea)
+      const buttonContainer = document.createElement('div');
+      buttonContainer.className = 'textarea-ai-button-container';
+
+      // Create container for actions bar and result (overlay below textarea)
+      // Positioned inside wrapper to overlay content without affecting layout
+      const aiContainer = document.createElement('div');
+      aiContainer.className = 'textarea-ai-container';
+      this._textAreaAIContainer = aiContainer;
+
+      // Append both containers inside wrapper for proper positioning
+      wrapper.appendChild(buttonContainer);
+      wrapper.appendChild(aiContainer);
+
+      const store = getStore();
+      this._textAreaAIButtonRoot = createRoot(buttonContainer);
+
+      // Extract field info for AI context
+      const fieldInfo = this.component ? {
+        id: this.component.key || '',
+        name: getTextByLocale(this.component.label) || this.component.key || '',
+        type: this.component.dataType || 'TEXT'
+      } : null;
+
+      this._textAreaAIButtonRoot.render(
+        <Provider store={store}>
+          <TextAreaAIButton
+            disabled={this.options.readOnly || this.component.disabled}
+            recordRef={this.root?.options?.recordId || ''}
+            fieldType={this.aiFieldType}
+            fieldLabel={getTextByLocale(this.component.label) || this.component.key || ''}
+            contextType={this.textAreaAIContextType}
+            fieldInfo={fieldInfo}
+            getValue={() => this.getValue() || ''}
+            setValue={(value) => {
+              this.setValue(value);
+              // Also update the textarea element directly for immediate visual feedback
+              if (textareaElement) {
+                textareaElement.value = value;
+              }
+            }}
+            actionsBarContainer={aiContainer}
+            resultContainer={aiContainer}
+          />
+        </Provider>
+      );
+    } catch (error) {
+      console.error('TextAreaComponent.addTextAreaAIButton | error:', error);
     }
   }
 
@@ -432,6 +629,18 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
             this.addAutoExpanding(element);
           }
         });
+      }
+
+      // Add AI button for plain textareas (if enabled)
+      if (this.isPlain && !this.options.readOnly && !this.options.htmlView) {
+        // Find the textarea element
+        const textareaElement = this.element?.querySelector('textarea') || this.input;
+        if (textareaElement) {
+          // Use setTimeout to ensure DOM is ready
+          setTimeout(() => {
+            this.addTextAreaAIButton(textareaElement);
+          }, 0);
+        }
       }
 
       return;
@@ -594,6 +803,30 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     if (this._lexicalViewRoot) {
       this._lexicalViewRoot.unmount();
       this._lexicalViewRoot = null;
+    }
+
+    // Cleanup Script AI button root
+    if (this._scriptAIButtonRoot) {
+      this._scriptAIButtonRoot.unmount();
+      this._scriptAIButtonRoot = null;
+    }
+
+    // Remove inline input container from DOM
+    if (this._scriptAIInlineInputContainer) {
+      this._scriptAIInlineInputContainer.remove();
+      this._scriptAIInlineInputContainer = null;
+    }
+
+    // Cleanup TextArea AI button root
+    if (this._textAreaAIButtonRoot) {
+      this._textAreaAIButtonRoot.unmount();
+      this._textAreaAIButtonRoot = null;
+    }
+
+    // Remove TextArea AI container from DOM
+    if (this._textAreaAIContainer) {
+      this._textAreaAIContainer.remove();
+      this._textAreaAIContainer = null;
     }
 
     return super.destroy();

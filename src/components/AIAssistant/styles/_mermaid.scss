@@ -1,0 +1,258 @@
+// AI Assistant Mermaid Diagram Styles
+
+@import 'variables';
+
+// Mermaid diagram in email modal
+.ai-assistant-email-modal {
+  &__mermaid-diagram {
+    margin: $spacing-lg 0;
+    padding: $spacing-xl;
+    background-color: var(--surface-color, #fff);
+    border: 1px solid var(--border-color, #e1e5e9);
+    border-radius: $border-radius-lg;
+    text-align: center;
+    overflow: auto;
+    min-height: 200px;
+
+    svg {
+      max-width: 100% !important;
+      display: block;
+      margin: 0 auto;
+
+      text {
+        font-size: $font-size-md !important;
+      }
+
+      path, line {
+        stroke-width: 2px !important;
+      }
+    }
+
+    > div {
+      min-height: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mermaid-error {
+      color: var(--error-color, #dc3545);
+      text-align: left;
+      background-color: var(--error-bg-light, #f8d7da);
+      padding: $spacing-md;
+      border-radius: $border-radius-sm;
+      border: 1px solid var(--error-border, #f5c6cb);
+
+      strong {
+        display: block;
+        margin-bottom: $spacing-sm;
+        font-weight: 600;
+      }
+
+      pre {
+        margin: 0;
+        font-family: 'Monaco', 'Consolas', monospace;
+        font-size: $font-size-sm;
+        white-space: pre-wrap;
+        word-break: break-word;
+        background: none;
+        border: none;
+        padding: 0;
+      }
+    }
+  }
+}
+
+// Mermaid Diagram Component
+.mermaid-diagram {
+  position: relative;
+
+  &__controls {
+    position: absolute;
+    top: $spacing-sm;
+    right: $spacing-sm;
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    opacity: 0;
+    transition: opacity $transition-normal;
+    z-index: 10;
+  }
+
+  &:hover &__controls {
+    opacity: 1;
+  }
+
+  &__control-btn {
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: none;
+    border-radius: $border-radius-sm;
+    padding: 6px $spacing-sm;
+    font-size: $font-size-sm;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    transition: all $transition-normal;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.85);
+      transform: scale(1.05);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+
+    i {
+      font-size: $font-size-sm;
+    }
+  }
+}
+
+// Fullscreen Modal
+.mermaid-fullscreen-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.95);
+  z-index: 105000;
+  display: flex;
+  flex-direction: column;
+
+  &__header {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: $spacing-md $spacing-xl;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  &__zoom-controls {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+  }
+
+  &__zoom-group {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: $border-radius-lg;
+    padding: 2px;
+  }
+
+  &__zoom-level {
+    color: white;
+    font-weight: 500;
+    min-width: 50px;
+    text-align: center;
+    font-size: $font-size-md;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+
+  &__control-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: $border-radius-md;
+    padding: $spacing-sm $spacing-md;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all $transition-normal;
+    backdrop-filter: blur(5px);
+
+    &:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-1px);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    i {
+      font-size: 13px;
+    }
+  }
+
+  &__close-btn {
+    background: rgba(220, 53, 69, 0.8);
+    border-color: rgba(220, 53, 69, 0.9);
+
+    &:hover:not(:disabled) {
+      background: rgba(220, 53, 69, 0.9);
+      border-color: rgba(220, 53, 69, 1);
+    }
+  }
+
+  &__content {
+    flex: 1;
+    overflow: auto;
+    padding: $spacing-xl;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+
+    .mermaid-diagram-content {
+      width: auto;
+      min-width: fit-content;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &--fullscreen {
+        transform-origin: center;
+        align-items: flex-start;
+      }
+
+      svg {
+        background-color: white;
+        border-radius: $border-radius-lg;
+        padding: $spacing-xl;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        display: block;
+      }
+    }
+
+    // Custom scrollbar
+    &::-webkit-scrollbar {
+      width: 12px;
+      height: 12px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 6px;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.4);
+      }
+    }
+  }
+}

@@ -5,7 +5,7 @@ import AiAssistant from '../common/icons/global/AiAssistant';
 
 import aiAssistantService from './AIAssistantService';
 
-import './style.scss';
+import './styles/index.scss';
 
 const AIAssistantButton = () => {
   const [isAvailable, setIsAvailable] = useState(false);

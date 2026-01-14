@@ -19,6 +19,8 @@ export default {
     "bpmn-js*": "<rootDir>/src/mock.js",
     "BPMN*": "<rootDir>/src/mock.js",
     "diagram-js*": "<rootDir>/src/mock.js",
+    "react-markdown": "<rootDir>/src/__mocks__/react-markdown.mock.js",
+    "remark-gfm": "<rootDir>/src/__mocks__/remark-gfm.mock.js",
   },
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "scss", "png", "node"],
   globals: {

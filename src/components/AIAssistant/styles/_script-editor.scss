@@ -1,0 +1,466 @@
+// AI Assistant Script Editor Integration Styles
+
+@import 'variables';
+@import 'mixins';
+
+// Script Editor AI Button Container
+.script-editor-ai-button-container {
+  position: absolute;
+  bottom: $spacing-md;
+  right: $spacing-md;
+  z-index: 100;
+}
+
+// Script Editor AI Button
+// Unified with ai-field-trigger--floating style
+.script-editor-ai-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--primary-color, #007bff);
+  cursor: pointer;
+  transition: all 150ms ease;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.08),
+    0 4px 12px rgba(0, 0, 0, 0.04);
+  backdrop-filter: blur(8px);
+
+  &:hover:not(:disabled) {
+    background: #fff;
+    border-color: var(--primary-color, #007bff);
+    color: var(--dark-primary-color, #0056b3);
+    box-shadow:
+      0 2px 8px rgba(0, 123, 255, 0.15),
+      0 4px 16px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.95);
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    transform: none;
+    filter: grayscale(1);
+  }
+
+  &--active {
+    background: var(--primary-color, #007bff);
+    color: #fff;
+    border-color: var(--primary-color, #007bff);
+
+    &:hover:not(:disabled) {
+      background: var(--dark-primary-color, #0056b3);
+      border-color: var(--dark-primary-color, #0056b3);
+      color: #fff;
+    }
+  }
+
+  &--generating {
+    background: linear-gradient(135deg, var(--primary-color, #007bff), #6366f1);
+    border-color: transparent;
+    color: #fff;
+    pointer-events: none;
+
+    svg {
+      animation: ai-sparkle-pulse 1.2s ease-in-out infinite;
+    }
+  }
+
+  svg {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+    transition: transform 150ms ease;
+  }
+}
+
+// Script AI Inline Input Container
+// Styles are defined in _ai-quick-actions.scss for consistency
+// Using overlay positioning to avoid layout shifts
+
+// Script AI Inline Input
+.script-ai-inline-input {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: $spacing-md 14px;
+  background: linear-gradient(to right, #f8f9fa, #fff);
+  border: 1px solid #e1e4e8;
+  border-radius: $border-radius-lg;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  animation: slideIn $transition-normal;
+
+  &__quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  &__quick-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 14px;
+    font-size: $font-size-sm;
+    font-weight: 500;
+    color: #4b5563;
+    cursor: pointer;
+    transition: all $transition-fast;
+    white-space: nowrap;
+
+    &:hover:not(:disabled) {
+      background: #f3f4f6;
+      border-color: #9ca3af;
+      color: #1f2937;
+    }
+
+    &:active:not(:disabled) {
+      transform: scale(0.97);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .fa {
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    &:hover:not(:disabled) .fa {
+      color: var(--primary-color, #3b82f6);
+    }
+  }
+
+  &__input-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  &--with-actions {
+    .script-ai-inline-input__input-row {
+      padding-top: 6px;
+      border-top: 1px solid #f0f0f0;
+    }
+  }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    margin-top: 2px;
+    color: var(--primary-color, #007bff);
+    flex-shrink: 0;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .fa-spinner {
+      font-size: $font-size-lg;
+    }
+  }
+
+  &__field {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: $font-size-md;
+    line-height: 1.5;
+    color: var(--text-primary, #24292e);
+    outline: none;
+    resize: none;
+    min-height: 24px;
+    max-height: 150px;
+    padding: 0;
+    font-family: inherit;
+
+    &::placeholder {
+      color: var(--text-secondary, #6a737d);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: flex-end;
+    align-self: flex-end;
+    gap: 6px;
+  }
+
+  &__submit,
+  &__cancel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: $border-radius-md;
+    cursor: pointer;
+    transition: all $transition-fast;
+  }
+
+  &__submit {
+    background: var(--primary-color, #007bff);
+    color: white;
+
+    &:hover:not(:disabled) {
+      background: var(--dark-primary-color, #0056b3);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  &__cancel {
+    background: transparent;
+    color: var(--text-secondary, #6a737d);
+
+    &:hover:not(:disabled) {
+      background: rgba(0, 0, 0, 0.05);
+      color: var(--danger-color, #dc3545);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  &--loading {
+    background: linear-gradient(to right, #f0f7ff, #fff);
+    border-color: var(--primary-color, #007bff);
+  }
+
+  &--disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}
+
+// Script AI Modal
+.script-ai-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 110000;
+  padding: 24px;
+  animation: fadeIn $transition-fast;
+}
+
+.script-ai-modal {
+  background: var(--surface-color, #fff);
+  border-radius: $border-radius-lg;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-height: calc(100vh - 48px);
+  display: flex;
+  flex-direction: column;
+  animation: slideUp $transition-normal;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $spacing-md $spacing-lg;
+    border-bottom: 1px solid var(--border-color, #e5e7eb);
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    font-size: $font-size-md;
+    font-weight: 500;
+    color: var(--text-primary, #374151);
+
+    .fa-code {
+      color: var(--text-secondary, #6b7280);
+    }
+  }
+
+  &__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: transparent;
+    border: none;
+    border-radius: $border-radius-sm;
+    color: var(--text-secondary, #6b7280);
+    cursor: pointer;
+    transition: all $transition-fast;
+
+    &:hover:not(:disabled) {
+      background: var(--hover-bg, #f3f4f6);
+      color: var(--text-primary, #374151);
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+
+  &__content {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 200px;
+
+    .ai-assistant-chat-script-diff-viewer {
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+      margin: 0;
+
+      &__header {
+        display: none;
+      }
+    }
+  }
+
+  &__loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px $spacing-xl;
+    color: var(--primary-color, #3b82f6);
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    padding: $spacing-md $spacing-lg;
+    border-top: 1px solid var(--border-color, #e5e7eb);
+    background: var(--background-secondary, #f9fafb);
+  }
+
+  &__retry-input-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1px solid var(--border-color, #d1d5db);
+    border-radius: $border-radius-md;
+    transition: border-color $transition-fast;
+
+    &:focus-within {
+      border-color: var(--primary-color, #3b82f6);
+    }
+  }
+
+  &__retry-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    padding: $spacing-sm $spacing-md;
+    outline: none;
+
+    &::placeholder {
+      color: var(--text-tertiary, #9ca3af);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+    }
+  }
+
+  &__retry-submit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    margin-right: $spacing-xs;
+    background: var(--primary-color, #3b82f6);
+    border: none;
+    border-radius: $border-radius-sm;
+    color: white;
+    cursor: pointer;
+    transition: background $transition-fast;
+
+    &:hover:not(:disabled) {
+      background: var(--primary-hover, #2563eb);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    flex-shrink: 0;
+  }
+
+  &__button {
+    @include button-base;
+    gap: 6px;
+    padding: $spacing-sm 14px;
+    font-size: 13px;
+    font-weight: 500;
+
+    .fa {
+      font-size: 11px;
+    }
+
+    &--cancel {
+      background: transparent;
+      color: var(--text-secondary, #6b7280);
+
+      &:hover:not(:disabled) {
+        background: var(--hover-bg, #f3f4f6);
+      }
+    }
+
+    &--apply {
+      background: var(--success-color, #10b981);
+      color: white;
+
+      &:hover:not(:disabled) {
+        background: #059669;
+      }
+    }
+  }
+
+  &--loading {
+    .script-ai-modal__content {
+      min-height: 300px;
+    }
+  }
+}

@@ -1,0 +1,307 @@
+// AI Assistant Chat Messages Styles
+
+@import 'variables';
+@import 'mixins';
+
+.ai-assistant-chat {
+  &__messages {
+    flex: 1;
+    padding: $spacing-lg;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    @include custom-scrollbar;
+  }
+
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-secondary, #888);
+    text-align: center;
+    padding: 0 $spacing-xl;
+
+    p {
+      margin: 0;
+      font-size: $font-size-md;
+      line-height: 1.5;
+    }
+  }
+
+  &__hint {
+    margin-top: 10px !important;
+    font-size: $font-size-sm !important;
+    color: var(--text-tertiary, #999);
+    font-style: italic;
+  }
+
+  &__message {
+    padding: 10px $spacing-md;
+    border-radius: $border-radius-xl;
+    max-width: 80%;
+    word-break: break-word;
+    position: relative;
+
+    &--user {
+      background-color: var(--primary-bg-light, #e1f5fe);
+      align-self: flex-end;
+      border-bottom-right-radius: $border-radius-sm;
+    }
+
+    &--ai {
+      background-color: var(--background-light, #f5f5f5);
+      align-self: flex-start;
+      border-bottom-left-radius: $border-radius-sm;
+    }
+
+    &--error {
+      background-color: var(--danger-bg-light, rgba(255, 0, 0, 0.1));
+      border-left: 3px solid var(--danger-color, #ff0000);
+    }
+
+    &--processing {
+      background-color: var(--warning-bg-light, rgba(255, 165, 0, 0.1));
+      border-left: 3px solid var(--warning-color, #ffa500);
+
+      .ai-assistant-chat__message-content {
+        display: flex;
+        align-items: center;
+
+        &:after {
+          content: '';
+          display: inline-block;
+          width: 10px;
+          height: 10px;
+          margin-left: 10px;
+          border-radius: 50%;
+          background-color: var(--warning-color, #ffa500);
+          animation: pulse 1.5s infinite ease-in-out;
+        }
+      }
+    }
+
+    &--cancelled {
+      background-color: var(--secondary-bg-light, rgba(128, 128, 128, 0.1));
+      border-left: 3px solid var(--secondary-color, #888);
+      color: var(--text-secondary, #666);
+    }
+
+    &--loading {
+      background-color: transparent;
+      padding: 5px;
+    }
+
+    &--email {
+      border-left: 3px solid #4CAF50;
+      background-color: rgba(76, 175, 80, 0.1);
+    }
+
+    &--text-diff {
+      border-left: 3px solid #2196F3;
+      background-color: rgba(33, 150, 243, 0.1);
+    }
+
+    &--script-diff {
+      border-left: 3px solid #6f42c1;
+      background-color: rgba(111, 66, 193, 0.1);
+    }
+
+    &--business-app {
+      max-width: 100%;
+    }
+  }
+
+  &__message-content {
+    @include markdown-content;
+
+    // GitHub Flavored Markdown task lists
+    .contains-task-list {
+      list-style-type: none !important;
+      padding-left: 0 !important;
+      margin-left: 0 !important;
+    }
+
+    .task-list-item {
+      position: relative;
+      padding-left: 1.5em;
+      margin-bottom: 0.3em;
+      display: list-item !important;
+      list-style: none !important;
+
+      input[type="checkbox"] {
+        position: absolute;
+        left: 0;
+        top: 0.15em;
+        margin: 0;
+      }
+    }
+
+    del {
+      text-decoration: line-through;
+      color: var(--text-secondary, #777);
+    }
+
+    // Tables with GFM styling
+    table {
+      border-collapse: collapse;
+      margin: 1em 0;
+      overflow-x: auto;
+      display: block;
+      max-width: 100%;
+
+      th, td {
+        padding: 6px 13px;
+        border: 1px solid var(--border-color, #dfe2e5);
+      }
+
+      th {
+        background-color: var(--background-light, #f6f8fa);
+        font-weight: 600;
+      }
+
+      tr {
+        background-color: var(--surface-color, #fff);
+        border-top: 1px solid var(--border-color, #c6cbd1);
+      }
+
+      tr:nth-child(2n) {
+        background-color: var(--background-light, #f6f8fa);
+      }
+    }
+  }
+
+  &__message-time {
+    font-size: $font-size-xs;
+    color: var(--text-tertiary, #999);
+    margin-top: $spacing-xs;
+    text-align: right;
+  }
+
+  &__message-actions {
+    margin-top: $spacing-sm;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  &__cancel-action {
+    margin-top: $spacing-sm;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  &__action-button {
+    @include button-primary;
+    padding: 5px 10px;
+    gap: $spacing-xs;
+
+    &--cancel {
+      @include button-danger;
+    }
+
+    &--copy {
+      background-color: #2196F3;
+
+      &:hover:not(:disabled) {
+        background-color: #1976D2;
+      }
+    }
+
+    &--send {
+      @include button-success;
+    }
+
+    &--apply {
+      @include button-success;
+    }
+  }
+
+  &__loading-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-xs;
+
+    span {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background-color: var(--primary-color);
+      border-radius: 50%;
+      animation: bounce 1.4s infinite ease-in-out both;
+
+      &:nth-child(1) {
+        animation-delay: -0.32s;
+      }
+
+      &:nth-child(2) {
+        animation-delay: -0.16s;
+      }
+    }
+  }
+}
+
+// Welcome message styles
+.ai-assistant-chat {
+  &__welcome {
+    margin-bottom: $spacing-xl;
+
+    h4 {
+      color: var(--primary-color);
+      margin: 0 0 10px 0;
+      font-size: $font-size-lg;
+      font-weight: 600;
+    }
+
+    p {
+      margin: 0;
+      font-size: $font-size-md;
+      line-height: 1.4;
+    }
+  }
+
+  &__capabilities {
+    text-align: left;
+    margin-top: $spacing-lg;
+  }
+
+  &__capability {
+    margin-bottom: $spacing-sm;
+    font-size: 13px;
+    line-height: 1.4;
+
+    strong {
+      color: var(--primary-color);
+    }
+  }
+
+  &__hint {
+    font-size: $font-size-sm;
+    line-height: 1.5;
+    margin: $spacing-lg 0 10px 0;
+    padding: $spacing-md;
+    background-color: var(--background-light, #f8f9fa);
+    border-radius: $border-radius-md;
+    border-left: 3px solid var(--primary-color);
+  }
+
+  &__tip {
+    font-size: 11px;
+    color: var(--text-secondary, #666);
+    margin-top: 10px;
+    padding: $spacing-sm $spacing-md;
+    background-color: var(--warning-bg-light, #fff3cd);
+    border-radius: $border-radius-sm;
+    border-left: 3px solid var(--warning-color, #ffc107);
+
+    code {
+      background-color: var(--background-light, rgba(0, 0, 0, 0.1));
+      padding: 2px $spacing-xs;
+      border-radius: 3px;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 11px;
+    }
+  }
+}
