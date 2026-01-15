@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import PanelTitle from '../../../components/common/PanelTitle';
 import { Grid } from '../../../components/common/grid';
@@ -8,6 +8,8 @@ import Loader from '../Loader';
 
 import { BuildContext } from './BuildContext';
 
+import Records from '@/components/Records';
+import { SourcesId } from '@/constants';
 import { t } from '@/helpers/export/util';
 
 export const Labels = {
@@ -17,10 +19,18 @@ export const Labels = {
 
 const BuildTab = () => {
   const context = useContext(BuildContext);
+
+  const [bundleVersion, setBundleVersion] = useState('');
+
   const { state, getBuildInfo } = context;
   const { alfresco, system } = state;
 
   useEffect(() => {
+    Records.get(`${SourcesId.EAPPS_BUNDLE_INFO}@`)
+      .load('version?str!')
+      .then((version: string) => setBundleVersion(version))
+      .catch(_error => setBundleVersion(''));
+
     getBuildInfo();
   }, []);
 
@@ -64,7 +74,10 @@ const BuildTab = () => {
 
   return (
     <>
-      <PanelTitle>{t(Labels.title)}</PanelTitle>
+      <PanelTitle>
+        {t(Labels.title)}
+        {bundleVersion ? <small className="pull-right">v{bundleVersion}</small> : null}
+      </PanelTitle>
       {systemModules}
       {alfresco.enabled && (
         <>

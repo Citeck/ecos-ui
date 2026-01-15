@@ -18,7 +18,7 @@ export default function AboutPlatform() {
 
   useEffect(() => {
     Records.get(`${SourcesId.EAPPS_BUNDLE_INFO}@`)
-      .load('version?str')
+      .load('version?str!')
       .then((version: string) => setSystemVersion(version))
       .catch(_error => setSystemVersion(''));
   }, []);
