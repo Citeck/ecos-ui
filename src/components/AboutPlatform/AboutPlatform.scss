@@ -16,6 +16,10 @@
       font-size: 12px;
       line-height: 16px;
 
+      &:last-child {
+        margin-bottom: 9px;
+      }
+
       &.link {
         text-decoration: underline;
         color: constants.$color-white;

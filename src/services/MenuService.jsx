@@ -134,7 +134,7 @@ class MenuService {
           body: (
             <Provider store={store}>
               <Suspense fallback={<Loader type="points" />}>
-                <AboutPlatform />{' '}
+                <AboutPlatform />
               </Suspense>
             </Provider>
           )

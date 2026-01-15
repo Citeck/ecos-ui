@@ -64,6 +64,7 @@ export const SourcesId = {
   FILL_TEMPLATE_VALUE: 'uiserv/fill-template-value',
   ADMIN_PAGE_SECTION: 'uiserv/admin-page-section',
   EAPPS_BUILD_INFO: 'eapps/build-info',
+  EAPPS_BUNDLE_INFO: 'eapps/bundle-info',
   CATEGORY: 'emodel/category',
   DASHBOARD: 'uiserv/dashboard',
   DOCLIB: 'emodel/doclib',
@@ -115,7 +116,6 @@ export const SourcesId = {
   PROC_TASK: 'eproc/proc-task',
   PROC_HISTORIC_TASK: 'eproc/proc-historic-task',
   DOCUMENTS: 'emodel/documents',
-  SYSTEM_REPO: 'eapps/system-info-repo',
   SEARCH: 'emodel/search',
   get CURRENT_USER() {
     return `${SourcesId.PERSON}@CURRENT`;
