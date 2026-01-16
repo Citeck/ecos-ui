@@ -129,7 +129,7 @@ class MenuService {
         const store = getStore();
 
         return DialogManager.showCustomDialog({
-          title: 'О Платформе',
+          title: t('platform.modal.title'),
           modalClass: 'citeck-about-platform__modal',
           body: (
             <Provider store={store}>

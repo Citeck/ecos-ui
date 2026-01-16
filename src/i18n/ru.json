@@ -27,6 +27,7 @@
   "date.minute": "Минута",
   "date.quarter": "Квартал",
 
+  "platform.modal.title": "О Платформе",
   "platform.description.join-into-community": "Присоединяйтесь к сообществу ",
   "platform.description.copyright": "{{ copyright }}. Все права защищены",
 
