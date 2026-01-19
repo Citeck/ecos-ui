@@ -27,8 +27,8 @@
   "date.minute": "Minute",
   "date.quarter": "Quarter",
 
-  "platform.modal.title": "About",
-  "platform.description.join-into-community": "Join the community ",
+  "platform.modal.title": "About platform",
+  "platform.description.join-into-community": "Join the community of ",
   "platform.description.copyright": "{{ copyright }}. All rights reserved",
 
   "no-source": "No source of type",
