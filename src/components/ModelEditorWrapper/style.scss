@@ -30,7 +30,6 @@
 
     &-work-zone {
       background: $color-white;
-      border-radius: $border-radius-extra-large;
       flex: auto;
       display: flex;
       flex-direction: column;
@@ -78,7 +77,7 @@
     &-buttons {
       z-index: 1000;
       position: absolute;
-      bottom: 20px;
+      bottom: 30px;
       display: flex;
       padding: 10px;
 
@@ -99,7 +98,6 @@
       position: sticky;
       top: -20px;
       background: white;
-      z-index: 5;
       padding-top: 20px;
       padding-bottom: 20px;
       border-bottom: 1px $color-gray-4 solid;
@@ -171,7 +169,7 @@
 
   &__designer-zoom {
     position: absolute;
-    bottom: 70px;
+    bottom: 90px;
     right: 20px;
 
     .ecos-btn {
