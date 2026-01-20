@@ -93,7 +93,7 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
             {
               t: 'eq',
               a: 'isCurrentUserMember',
-              v: true
+              v: false
             }
           ]
         },
