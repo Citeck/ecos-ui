@@ -518,7 +518,7 @@ class InputView extends Component {
         {error && <p className="select-journal__error">{error.message}</p>}
         {(isCompact || isTable) && (
           <div className="select-journal__actions">
-            {isTable && hasActionButton && this.renderActionButton()}
+            {(isCompact || (isTable && hasActionButton)) && this.renderActionButton()}
             {this.renderCustomButtons()}
           </div>
         )}
