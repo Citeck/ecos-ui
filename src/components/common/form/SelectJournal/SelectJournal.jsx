@@ -88,6 +88,31 @@ export default class SelectJournal extends Component {
     return newState;
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    // Optimize re-renders by checking if relevant props/state have changed
+    if (nextProps.journalId !== this.props.journalId) return true;
+    if (nextProps.multiple !== this.props.multiple) return true;
+    if (nextProps.disabled !== this.props.disabled) return true;
+    if (nextProps.viewMode !== this.props.viewMode) return true;
+    if (nextProps.defaultValue !== this.props.defaultValue) return true;
+    if (nextState.value !== this.state.value) return true;
+    if (nextState.selectedRows !== this.state.selectedRows) return true;
+    if (nextState.isSelectModalOpen !== this.state.isSelectModalOpen) return true;
+    if (nextState.isGridDataReady !== this.state.isGridDataReady) return true;
+    if (nextState.gridData !== this.state.gridData) return true;
+    if (nextProps.customValues !== this.props.customValues) return true;
+
+    // Always update when grid data becomes ready
+    if (!this.state.isGridDataReady && nextState.isGridDataReady) return true;
+
+    // Always update when grid data changes
+    if (nextState.gridData.data !== this.state.gridData.data) return true;
+    if (nextState.gridData.columns !== this.state.gridData.columns) return true;
+    if (nextState.gridData.total !== this.state.gridData.total) return true;
+
+    return false;
+  }
+
   get isQuery() {
     return this.props.dataType === DataTypes.QUERY;
   }
@@ -151,6 +176,10 @@ export default class SelectJournal extends Component {
 
     if (this.props.journalId !== prevProps.journalId) {
       this.checkJournalId();
+    }
+
+    if (!isEqual(prevState.gridData, this.state.gridData)) {
+      this.setState({ isGridDataReady: true });
     }
   }
 
@@ -775,19 +804,33 @@ export default class SelectJournal extends Component {
     const { columns } = this.props;
     const baseColumns = get(this.state, 'gridData.columns', []);
 
-    if (isEmpty(columns)) {
-      return baseColumns;
+    if (!this._memoizedColumns || this._memoizedColumns.props !== columns || this._memoizedColumns.baseColumns !== baseColumns) {
+      let result;
+
+      if (isEmpty(columns)) {
+        result = baseColumns;
+      } else {
+        result = columns.map(item => {
+          const { dataField, ...otherData } = baseColumns.find(column => column.dataField === item.dataField) || {};
+
+          return {
+            ...otherData,
+            ...item,
+            dataField: dataField || item.attribute
+          };
+        });
+      }
+
+      this._memoizedColumns = {
+        props: columns,
+        baseColumns,
+        result
+      };
+
+      return result;
     }
 
-    return columns.map(item => {
-      const { dataField, ...otherData } = baseColumns.find(column => column.dataField === item.dataField) || {};
-
-      return {
-        ...otherData,
-        ...item,
-        dataField: dataField || item.attribute
-      };
-    });
+    return this._memoizedColumns.result;
   };
 
   showWarningMessage = () => {
