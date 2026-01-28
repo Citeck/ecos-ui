@@ -39,6 +39,7 @@ export const TITLE = {
   [URL.DASHBOARD]: 'header.site-menu.home-page',
   [URL.ORGSTRUCTURE]: 'page-tabs.orgstructure',
   [URL.DEV_TOOLS]: 'page-tabs.dev-tools',
+  [URL.DEV_CONSOLE]: 'page-tabs.dev-console',
   [URL.TIMESHEET]: 'page-tabs.timesheet',
   [URL.TIMESHEET_SUBORDINATES]: 'page-tabs.timesheet',
   [URL.TIMESHEET_FOR_VERIFICATION]: 'page-tabs.timesheet',

@@ -1095,6 +1095,7 @@
   "header.site-menu.go-home-page": "Go home",
   "header.site-menu.menu-settings": "Menu settings",
   "header.site-menu.page-settings": "Page settings",
+  "header.site-menu.dev-console": "Dev console",
 
   "modal.make-notavailable.start.label": "Beginning of absence",
   "modal.make-notavailable.end.label": "End of absence",
@@ -1325,6 +1326,7 @@
   "page-tabs.tab-name-default": "Tab",
   "page-tabs.timesheet": "Timesheet",
   "page-tabs.dev-tools": "Development tools",
+  "page-tabs.dev-console": "Development console",
   "page-tabs.form-components": "Form components",
   "page-tabs.cmmn-editor": "Scenario",
   "page-tabs.bpmn-editor": "Process",
@@ -3096,5 +3098,11 @@
   "gantt.chart.title": "Gantt Chart",
   "gantt.chart.error.load-failed": "Failed to load Gantt settings",
   "gantt.chart.error.save-failed": "Failed to save Gantt settings",
-  "gantt.chart.retry": "Retry"
+  "gantt.chart.retry": "Retry",
+
+  "developer-console.run-code": "Execute Code",
+  "developer-console.output.title": "Output",
+  "developer-console.output.empty": "Run code to see response",
+  "developer-console.executing": "Executing...",
+  "developer-console.select-example": "Examples"
 }

@@ -3,6 +3,7 @@ import isFunction from 'lodash/isFunction';
 import queryString from 'query-string';
 
 import { SourcesId, URL } from '../constants';
+import { SectionTypes } from '../constants/adminSection';
 import { BASE_LEFT_MENU_ID, MenuTypes } from '../constants/menu';
 import MenuSettingsService from '../services/MenuSettingsService';
 import DashboardService from '../services/dashboard';
@@ -54,24 +55,14 @@ export function processMenuItemsFromOldMenu(oldMenuItems) {
 
 export function makeSiteMenu(params = {}) {
   const { isAdmin, isDashboardPage, dashboardEditable, leftMenuEditable, hasWriteCurrentWorkspace, updateWorkspaces } = params || {};
+  const wsId = getWorkspaceId();
+
   const menu = [
-    // {
-    //   id: 'HOME_PAGE',
-    //   label: 'header.site-menu.home-page',
-    //   targetUrl: URL.DASHBOARD,
-    //   targetUrlType: 'FULL_PATH'
-    // },
     {
       id: 'SETTINGS_DASHBOARD',
       label: 'header.site-menu.page-settings',
       onClick: params => DashboardService.openEditModal(params)
     },
-    // {
-    //   id: 'SETTINGS_DASHBOARD',
-    //   label: 'Настроить страницу в новой вкладке',
-    //   targetUrl: URL.DASHBOARD_SETTINGS,
-    //   targetUrlType: 'FULL_PATH'
-    // },
     {
       id: 'SETTINGS_MENU',
       label: 'header.site-menu.menu-settings',
@@ -79,11 +70,23 @@ export function makeSiteMenu(params = {}) {
     }
   ];
 
+  if (isAdmin && wsId === 'admin$workspace') {
+    menu.push({
+      id: 'DEV_CONSOLE',
+      label: 'header.site-menu.dev-console',
+      targetUrl: queryString.stringifyUrl({
+        url: URL.ADMIN_PAGE,
+        query: { type: SectionTypes.DEV_CONSOLE, ws: 'admin$workspace' }
+      }),
+      targetUrlType: 'FULL_PATH'
+    });
+  }
+
   if (!getEnabledWorkspaces()) {
     menu.push({
       id: 'GO_ADMIN_PAGE',
       label: 'header.site-menu.admin-page',
-      targetUrl: queryString.stringifyUrl({ url: URL.ADMIN_PAGE, query: { type: 'DEV_TOOLS' } }),
+      targetUrl: queryString.stringifyUrl({ url: URL.ADMIN_PAGE, query: { type: SectionTypes.DEV_TOOLS } }),
       targetUrlType: 'FULL_PATH'
     });
   } else {

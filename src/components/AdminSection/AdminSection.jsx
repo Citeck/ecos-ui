@@ -25,6 +25,7 @@ import { showModalJson } from '@/helpers/tools';
 import { getEnabledWorkspaces, t } from '@/helpers/util';
 import BpmAdministration from '@/pages/BPMAdministrationPage/BpmAdministration';
 import DevTools from '@/pages/DevTools';
+import DeveloperConsole from '@/pages/DeveloperConsole';
 import pageTabList from '@/services/pageTabs/PageTabList';
 
 import './style.scss';
@@ -179,6 +180,7 @@ class AdminSection extends React.PureComponent {
                     sectionStateId={stateId}
                   />
                   <DevTools hidden={this.isHidden(SectionTypes.DEV_TOOLS)} isActivePage={isActivePage} />
+                  <DeveloperConsole hidden={this.isHidden(SectionTypes.DEV_CONSOLE)} />
                 </Col>
               </Row>
             )}

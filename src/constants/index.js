@@ -29,6 +29,7 @@ export const URL = {
   CMMN_EDITOR: '/v2/cmmn-editor',
   DMN_EDITOR: '/v2/dmn-editor',
   DEV_TOOLS: '/v2/dev-tools',
+  DEV_CONSOLE: '/v2/dev-console',
   TIMESHEET: '/v2/timesheet',
   TIMESHEET_SUBORDINATES: '/v2/timesheet/subordinates',
   TIMESHEET_FOR_VERIFICATION: '/v2/timesheet/for-verification',
@@ -214,6 +215,7 @@ export const Pages = {
   BPMN_EDITOR: 'bpmn-editor',
   DMN_EDITOR: 'dmn-editor',
   DEV_TOOLS: 'dev-tools',
+  DEV_CONSOLE: 'dev-console',
   ORGSTRUCTURE: 'orgstructure'
 };
 

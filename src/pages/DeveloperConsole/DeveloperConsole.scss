@@ -1,0 +1,161 @@
+.developer-console-container {
+  display: flex;
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 92px);
+  flex-direction: column;
+  background: var(--bg-color);
+  overflow: hidden;
+
+  &.panel-location-bottom {
+    .developer-console {
+      flex-direction: column;
+    }
+
+    .resize-handle {
+      display: block;
+      height: 4px;
+      background: transparent;
+      cursor: row-resize;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+
+      &:hover {
+        background: var(--light-primary-color);
+      }
+    }
+
+    .resize-handle-vertical {
+      display: none;
+    }
+  }
+
+  &.panel-location-right {
+    .developer-console {
+      flex-direction: row;
+    }
+
+    .console-output {
+      display: inline-flex;
+      border-left: 1px solid #e8edef;
+    }
+
+    .console-editor {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .resize-handle {
+      display: none;
+    }
+
+    .resize-handle-vertical {
+      display: block;
+      width: 4px;
+      background: transparent;
+      cursor: col-resize;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+
+      &:hover {
+        background: var(--light-primary-color);
+      }
+    }
+  }
+
+  .console-controls {
+    padding: 12px 16px;
+    background: var(--bg-color);
+    border: 1px solid #e8edef;
+    border-radius: 6px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+
+    .example-selector {
+      display: flex;
+      flex-direction: column;
+      min-width: 200px;
+
+      label {
+        color: #cccccc;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin: 0;
+      }
+
+      .console-example-select {
+        min-width: 200px;
+
+        .ecos-btn {
+          font-size: inherit;
+        }
+      }
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+
+      svg {
+        width: 15px;
+        height: 15px;
+      }
+    }
+  }
+
+  .developer-console {
+    flex: 1;
+    display: flex;
+    position: relative;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .console-editor {
+    flex: 1;
+    overflow: hidden;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .console-output {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    min-width: 0;
+    min-height: 0;
+
+    .response-handle {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      cursor: row-resize;
+
+      &:hover {
+        background: rgba(0, 122, 204, 0.1);
+      }
+    }
+  }
+
+  .btn, .ecos-btn {
+    font-size: 14px;
+    font-weight: 400;
+    height: 40px;
+  }
+}

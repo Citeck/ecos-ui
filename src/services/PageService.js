@@ -37,6 +37,7 @@ export const PageTypes = {
   BPMN_DESIGNER: 'bpmn-designer',
   ORGSTRUCTURE: 'orgstructure',
   DEV_TOOLS: 'dev-tools',
+  DEV_CONSOLE: 'dev-console',
   TIMESHEET: 'timesheet'
 };
 
@@ -104,6 +105,10 @@ export default class PageService {
       return PageTypes.BPMN_ADMIN_INSTANCE;
     }
 
+    if (type.indexOf(PageTypes.DEV_CONSOLE) === 0) {
+      return PageTypes.DEV_CONSOLE;
+    }
+
     if ([PageTypes.BPMN_DESIGNER, PageTypes.DEV_TOOLS].includes(type)) {
       return PageTypes.ADMIN_PAGE;
     }
@@ -145,11 +150,13 @@ export default class PageService {
         return urlProps.query.journalId || '';
       case PageTypes.BPMN_DESIGNER:
       case PageTypes.DEV_TOOLS:
+      case PageTypes.DEV_CONSOLE:
         return PageTypes.ADMIN_PAGE;
-
       // To save a tab using a unique key in the admin area (when enabled workspaces)
       case SectionTypes.DEV_TOOLS:
         return SectionTypes.DEV_TOOLS;
+      case SectionTypes.DEV_CONSOLE:
+        return SectionTypes.DEV_CONSOLE;
       case SectionTypes.DMN:
         return SectionTypes.DMN;
       case SectionTypes.BPM:
@@ -298,6 +305,10 @@ export default class PageService {
 
         if (type === SectionTypes.BPMN_ADMIN) {
           return staticTitle(TITLE.BPM_ADMIN);
+        }
+
+        if (type === SectionTypes.DEV_CONSOLE) {
+          return staticTitle(TITLE[URL.DEV_CONSOLE]);
         }
 
         return staticTitle(TITLE.ADMIN_PAGE);

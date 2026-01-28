@@ -1048,6 +1048,7 @@
   "header.site-menu.go-home-page": "Открыть домашнюю страницу",
   "header.site-menu.menu-settings": "Настроить меню",
   "header.site-menu.page-settings": "Настроить страницу",
+  "header.site-menu.dev-console": "Консоль разработчика",
 
   "modal.make-notavailable.start.label": "Начало отсутствия",
   "modal.make-notavailable.end.label": "Окончание отсутствия",
@@ -1278,6 +1279,7 @@
   "page-tabs.tab-name-default": "Вкладка",
   "page-tabs.timesheet": "Табель",
   "page-tabs.dev-tools": "Инструменты разработчика",
+  "page-tabs.dev-console": "Консоль разработчика",
   "page-tabs.form-components": "Компоненты формы",
   "page-tabs.cmmn-editor": "Сценарий",
   "page-tabs.bpmn-editor": "Процесс",
@@ -3095,5 +3097,11 @@
   "gantt.chart.title": "Диаграмма Ганта",
   "gantt.chart.error.load-failed": "Не удалось загрузить настройки диаграммы Ганта",
   "gantt.chart.error.save-failed": "Не удалось сохранить настройки диаграммы Ганта",
-  "gantt.chart.retry": "Повторить"
+  "gantt.chart.retry": "Повторить",
+
+  "developer-console.run-code": "Выполнить",
+  "developer-console.output.title": "Вывод консоли",
+  "developer-console.output.empty": "Выполните код, чтобы увидеть результат",
+  "developer-console.executing": "Выполнение...",
+  "developer-console.select-example": "Примеры кода"
 }

@@ -1,0 +1,111 @@
+.response-panel {
+  display: flex;
+  flex-direction: column;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+
+  .response-header {
+    padding: 8px 12px;
+    background: var(--bg-color);
+    
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+    border: 1px solid #e8edef;
+
+    .response-title {
+      color: #cccccc;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .response-clear {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      transition: color 0.2s;
+
+      &:hover {
+        opacity: .6;
+      }
+    }
+  }
+
+  .response-content {
+    flex: 1;
+    padding: 8px 12px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #2d2d30;
+    background: #fff;
+    border: 1px solid #e8edef;
+    border-top: none;
+    overflow: auto;
+
+    .response-output {
+      margin: 0;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      color: #2d2d30;
+
+      &::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: #1e1e1e;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: #464647;
+        border-radius: 4px;
+
+        &:hover {
+          background: #5a5a5a;
+        }
+      }
+    }
+
+    .response-empty {
+      color: #9d9da0;
+      font-style: italic;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    }
+
+    .response-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 12px;
+
+      .spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #3e3e42;
+        border-top-color: #007acc;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+      }
+
+      span {
+        color: #9d9da0;
+        font-size: 12px;
+      }
+    }
+  }
+
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

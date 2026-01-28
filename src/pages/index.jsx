@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import React, { lazy, useState } from 'react';
 
 import { Pages } from '../constants';
+
 import Footer from './Footer';
 
 const AdminPage = lazy(() => import('./AdminPage'));
@@ -17,6 +18,7 @@ const MyTimesheetPage = lazy(() => import('./Timesheet/MyTimesheetPage'));
 const SubordinatesTimesheetPage = lazy(() => import('./Timesheet/SubordinatesTimesheetPage'));
 const VerificationTimesheetPage = lazy(() => import('./Timesheet/VerificationTimesheetPage'));
 const DelegatedTimesheetsPage = lazy(() => import('./Timesheet/DelegatedTimesheetsPage'));
+const DeveloperConsole = lazy(() => import('./DeveloperConsole'));
 
 const FormIOPage = lazy(() => import('./debug/FormIOPage'));
 const TreePage = lazy(() => import('./debug/Tree'));
@@ -80,6 +82,9 @@ export default ({ pageKey, withoutFooter, ...props }) => {
       break;
     case Pages.ORGSTRUCTURE:
       Page = OrgstructurePage;
+      break;
+    case Pages.DEV_CONSOLE:
+      Page = DeveloperConsole;
       break;
     default:
   }
