@@ -12,9 +12,8 @@ import Records from '../components/Records';
 import { PERMISSION_CHANGE_PASSWORD } from '../components/Records/constants';
 import { AUTHORITY_TYPE_GROUP } from '../components/common/form/SelectOrgstruct/constants';
 import { ADMIN_WORKSPACE_ID, SourcesId, URL } from '../constants';
-import { CITECK_URI, PROXY_URI, UISERV_API } from '../constants/alfresco';
+import { CITECK_URI, PROXY_URI } from '../constants/alfresco';
 import { GROUP_EVERYONE, MENU_VERSION, MenuSettings as ms } from '../constants/menu';
-import { ActionTypes } from '../constants/sidebar';
 import MenuConverter from '../dto/export/menu';
 import { getWorkspaceId } from '../helpers/urls';
 import { generateSearchTerm, getCurrentUserName, getEnabledWorkspaces } from '../helpers/util';
@@ -44,33 +43,6 @@ const PeopleSearchParams = {
   LAST_NAME: 'lastName?str',
   FIRST_NAME: 'firstName?str',
   AVATAR: 'avatar.url'
-};
-
-const postProcessMenuItemChildren = items => {
-  if (items && items.length) {
-    return Promise.all(items.map(postProcessMenuConfig));
-  }
-  return Promise.resolve(items);
-};
-
-const postProcessMenuConfig = item => {
-  const type = lodashGet(item, 'action.type');
-  const journalRef = lodashGet(item, 'action.params.journalRef');
-  const siteName = lodashGet(item, 'action.params.siteName');
-
-  const items = postProcessMenuItemChildren(item.items);
-  const journalUiType = type === ActionTypes.JOURNAL_LINK && journalRef ? 'react' : '';
-  const siteUiType = type === ActionTypes.SITE_LINK && siteName ? MenuApi.getSiteUiType(siteName) : '';
-
-  return Promise.all([items, journalUiType, siteUiType]).then((itemsAndUIType = []) => {
-    item.items = itemsAndUIType[0];
-
-    if (itemsAndUIType[1] || itemsAndUIType[2]) {
-      item.action.params.uiType = itemsAndUIType[1] || itemsAndUIType[2];
-    }
-
-    return item;
-  });
 };
 
 export class MenuApi extends CommonApi {
@@ -199,24 +171,6 @@ export class MenuApi extends CommonApi {
   getLiveSearchPeople = terms => {
     const url = `${PROXY_URI}slingshot/live-search-people?t=${generateSearchTerm(terms)}&maxResults=5`;
     return this.getJson(url);
-  };
-
-  getSlideMenuItems = () => {
-    const username = getCurrentUserName();
-    const cacheKey = Records.get(`${SourcesId.META}@`)
-      .load('attributes.menu-cache-key')
-      .catch(() => '0');
-
-    return cacheKey
-      .then(key =>
-        this.getJsonWithSessionCache({
-          url: `${UISERV_API}usermenu?username=${username}`,
-          cacheKey: key,
-          timeout: $4H,
-          postProcess: menu => postProcessMenuConfig(menu)
-        })
-      )
-      .catch(() => ({}));
   };
 
   getMenuItems = async ({ version, id, resolved }) => {
