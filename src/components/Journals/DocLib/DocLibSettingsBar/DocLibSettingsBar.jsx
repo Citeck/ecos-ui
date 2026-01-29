@@ -26,6 +26,7 @@ const DocLibSettingsBar = ({ stateId, searchText, createVariants, createNode, is
       formData: {
         ...(createVariant.attributes || {})
       },
+      formRef: createVariant.formRef,
       onSubmit: submission => {
         createNode({ createVariant, submission: submission.data });
       }

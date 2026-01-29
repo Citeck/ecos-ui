@@ -226,6 +226,7 @@ class RecordActions {
             formOptions: { ...formOptions, ...options, ...optionsFromProps },
             formDefinition: { display: 'form', ...definition },
             formData,
+            formRef: `${SourcesId.FORM}@${formId}`,
             onSubmit: submission => callback(submission.data),
             onCancel: _ => callback(false)
           });
