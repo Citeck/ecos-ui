@@ -2,13 +2,19 @@ import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 import isNil from 'lodash/isNil';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { Collapse, Card, CardBody } from 'reactstrap';
 
-import { getEnabledNewJournal, getEnabledWorkspaces, objectByString, t } from '../../../../helpers/util';
+import { SourcesId } from '@/constants/index.js';
+import { getEnabledNewJournal, getEnabledWorkspaces, objectByString, t } from '@/helpers/util.js';
+import AuthorityService, {ArtifactEditPerms} from '../../../../services/authrority/AuthorityService';
+import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
+import EcosFormBuilderModal from '../../../EcosForm/builder/EcosFormBuilderModal';
+import Records from '../../../Records';
 import EcosModal from '../../EcosModal';
-import { Btn } from '../../btns';
+import UncontrolledTooltip from '../../UncontrolledTooltip';
+import { Btn, IcoBtn } from '../../btns';
 import RemoveDialog from '../RemoveDialog';
 
 import FormWrapper from './FormWrapper';
@@ -287,12 +293,82 @@ export const dialogsById = {
       onSubmit = () => undefined,
       modalClass,
       showDefaultButtons = false,
-      reactstrapProps = {}
+      reactstrapProps = {},
+      formRef
     } = props.dialogProps;
+
+    const formId = formRef ? formRef.replace(/^.*@/, '') : null;
+    const [isConfigurableForm, setIsConfigurableForm] = useState(false);
+    const [formDefinitionState, setFormDefinitionState] = useState(null);
+    const [formVersion, setFormVersion] = useState(0);
+    const formBuilderModalRef = useRef(null);
+
+    useEffect(() => {
+      if (!formId || !isVisible) {
+        setIsConfigurableForm(false);
+        return;
+      }
+
+      AuthorityService.getArtifactPerms(`${SourcesId.FORM}@${formId}`).then(perms => {
+        if (perms === ArtifactEditPerms.EDIT) {
+          setIsConfigurableForm(true);
+        }
+      });
+    }, [formId, isVisible]);
 
     const hideModal = () => {
       setVisible(false);
+      setIsConfigurableForm(false);
+      setFormDefinitionState(null);
+      setFormVersion(0);
       onCancel();
+    };
+
+    const handleShowFormBuilder = async () => {
+      if (!formId) return;
+
+      const definition = await Records.get(EcosFormUtils.getNotResolvedFormId(formId)).load('definition?json', true);
+
+      formBuilderModalRef.current.show(definition, async form => {
+        await EcosFormUtils.saveFormBuilder(form, formId);
+        const newDef = await EcosFormUtils.getFormById(formId, 'definition?json', true);
+        setFormDefinitionState({ display: 'form', ...newDef });
+        setFormVersion(v => v + 1);
+      });
+    };
+
+    const renderConstructorButton = () => {
+      if (!isConfigurableForm) {
+        return null;
+      }
+
+      return (
+        <React.Fragment key="dialog-form-constructor-btn">
+          <IcoBtn
+            id="dialog-form-constructor-btn"
+            icon="icon-settings"
+            className={classNames('ecos-btn_grey ecos-btn_sq_sm2 ml-2 ecos-form-modal__btn-settings')}
+            onClick={handleShowFormBuilder}
+          />
+          <UncontrolledTooltip
+            target="dialog-form-constructor-btn"
+            delay={0}
+            placement="top"
+            className="ecos-modal-tooltip ecos-base-tooltip"
+            innerClassName="ecos-base-tooltip-inner"
+            arrowClassName="ecos-base-tooltip-arrow"
+            modifiers={{
+              offset: {
+                name: 'offset',
+                enabled: true,
+                offset: '0, 10px'
+              }
+            }}
+          >
+            {t('eform.btn.tooltip.constructor')}
+          </UncontrolledTooltip>
+        </React.Fragment>
+      );
     };
 
     const formProps = {
@@ -307,6 +383,10 @@ export const dialogsById = {
       },
       onFormCancel: hideModal
     };
+
+    if (formDefinitionState) {
+      formProps.formDefinition = formDefinitionState;
+    }
 
     if (showDefaultButtons && formProps.formDefinition) {
       const definition = formProps.formDefinition;
@@ -371,12 +451,14 @@ export const dialogsById = {
             hideModal={hideModal}
             className={classNames('ecos-dialog ecos-dialog_form', modalClass)}
             reactstrapProps={{ backdrop: 'static', ...reactstrapProps }}
+            customButtons={[renderConstructorButton()]}
           >
             <div className="ecos-dialog__body">
-              <FormWrapper isVisible {...formProps} />
+              <FormWrapper key={formVersion} isVisible {...formProps} />
             </div>
           </EcosModal>
         )}
+        <EcosFormBuilderModal ref={formBuilderModalRef} />
       </>
     );
   },
