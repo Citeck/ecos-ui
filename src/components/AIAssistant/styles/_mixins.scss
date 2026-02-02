@@ -1,0 +1,313 @@
+// AI Assistant Reusable Mixins
+
+@import 'variables';
+
+// Button base styles
+@mixin button-base {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: $border-radius-sm;
+  font-size: $font-size-sm;
+  cursor: pointer;
+  transition: all $transition-normal;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+@mixin button-primary {
+  @include button-base;
+  background-color: var(--primary-color);
+  color: var(--surface-color, white);
+
+  &:hover:not(:disabled) {
+    background-color: var(--dark-primary-color);
+  }
+}
+
+@mixin button-secondary {
+  @include button-base;
+  background-color: #757575;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background-color: #616161;
+  }
+}
+
+@mixin button-success {
+  @include button-base;
+  background-color: #4CAF50;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background-color: #45a049;
+  }
+}
+
+@mixin button-danger {
+  @include button-base;
+  background-color: var(--danger-color, #e74c3c);
+  color: white;
+
+  &:hover:not(:disabled) {
+    background-color: var(--danger-dark, #c0392b);
+  }
+}
+
+@mixin button-ghost {
+  @include button-base;
+  background: transparent;
+  color: var(--text-secondary, #6c757d);
+
+  &:hover:not(:disabled) {
+    background: var(--background-light, #f1f3f4);
+    color: var(--text-primary, #202124);
+  }
+}
+
+// Input base styles
+@mixin input-base {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: $border-radius-sm;
+  font-size: $font-size-md;
+  font-family: inherit;
+  outline: none;
+  transition: border-color $transition-normal, box-shadow $transition-normal;
+
+  &:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--primary-bg-light, rgba(52, 152, 219, 0.2));
+  }
+
+  &::placeholder {
+    color: var(--text-secondary, #999);
+  }
+
+  &:disabled {
+    background-color: var(--background-light, #f9f9f9);
+    cursor: not-allowed;
+  }
+}
+
+// Close button styles
+@mixin close-button {
+  background: none;
+  border: none;
+  color: var(--surface-color, white);
+  cursor: pointer;
+  padding: $spacing-xs;
+  font-size: $font-size-lg;
+  opacity: 0.8;
+  transition: opacity $transition-normal;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+// Progress bar styles
+@mixin progress-bar($height: 3px) {
+  height: $height;
+  background: var(--background-light, #f0f0f0);
+  border-radius: calc($height / 2);
+  overflow: hidden;
+}
+
+@mixin progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  transition: width 0.5s ease-in-out;
+}
+
+// Card/container styles
+@mixin card-base {
+  background: var(--surface-color, white);
+  border: 1px solid var(--border-color, #e1e5e9);
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-sm;
+}
+
+// Scrollbar styles
+@mixin custom-scrollbar {
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--background-light, #f1f1f1);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--border-color, #ccc);
+    border-radius: 3px;
+
+    &:hover {
+      background: var(--text-secondary, #999);
+    }
+  }
+}
+
+// Tooltip styles
+@mixin tooltip {
+  &::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--tooltip-bg, #24292f);
+    color: var(--tooltip-text, white);
+    padding: 6px 8px;
+    border-radius: $border-radius-sm;
+    font-size: $font-size-sm;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity $transition-normal, visibility $transition-normal;
+    margin-bottom: $spacing-sm;
+    z-index: 1000;
+    pointer-events: none;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: var(--tooltip-bg, #24292f);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity $transition-normal, visibility $transition-normal;
+    margin-bottom: $spacing-xs;
+    z-index: 1000;
+    pointer-events: none;
+  }
+
+  &:hover::after,
+  &:hover::before {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+// Markdown content styles
+@mixin markdown-content {
+  word-break: break-word;
+  line-height: 1.5;
+
+  h1, h2, h3, h4, h5, h6 {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    font-weight: 600;
+  }
+
+  h1 { font-size: 1.4em; }
+  h2 { font-size: 1.3em; }
+  h3 { font-size: 1.2em; }
+  h4, h5, h6 { font-size: 1.1em; }
+
+  p {
+    margin-bottom: 0.8em;
+  }
+
+  ul, ol {
+    margin-left: 1.5em;
+    margin-bottom: 0.8em;
+    padding-left: 0;
+  }
+
+  ul {
+    list-style: disc !important;
+    padding-left: 1.2em !important;
+  }
+
+  ol {
+    list-style: decimal !important;
+    padding-left: 1.2em !important;
+  }
+
+  li {
+    margin-bottom: 0.3em;
+    display: list-item !important;
+
+    ul, ol {
+      margin-top: 0.3em;
+      margin-bottom: 0.3em;
+      margin-left: 1em;
+    }
+
+    ul { list-style: circle !important; }
+    ol { list-style: lower-alpha !important; }
+  }
+
+  a {
+    color: var(--primary-color);
+    text-decoration: underline;
+  }
+
+  code {
+    background-color: var(--background-light, rgba(0, 0, 0, 0.1));
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-family: monospace;
+  }
+
+  pre {
+    background-color: var(--background-light, rgba(0, 0, 0, 0.1));
+    padding: 0.5em;
+    border-radius: 3px;
+    overflow-x: auto;
+    margin-bottom: 0.8em;
+
+    code {
+      background-color: transparent;
+      padding: 0;
+      border-radius: 0;
+    }
+  }
+
+  blockquote {
+    border-left: 4px solid var(--border-color, #ccc);
+    padding-left: 1em;
+    margin-left: 0;
+    margin-right: 0;
+    margin-bottom: 0.8em;
+    font-style: italic;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  hr {
+    border: 0;
+    border-top: 1px solid var(--border-color, #ccc);
+    margin: 1em 0;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 0.8em;
+  }
+
+  th, td {
+    border: 1px solid var(--border-color, #ccc);
+    padding: 0.5em;
+  }
+
+  th {
+    background-color: var(--background-light, rgba(0, 0, 0, 0.05));
+  }
+}

@@ -50,6 +50,7 @@ import EquationsPlugin from './plugins/EquationsPlugin';
 import FilePlugin from './plugins/FilePlugin';
 import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
 import FloatingTextFormatToolbarPlugin from './plugins/FloatingTextFormatToolbarPlugin';
+import AIFloatingPopup from './plugins/FloatingTextFormatToolbarPlugin/AIFloatingPopup';
 import ImagesPlugin from './plugins/ImagesPlugin';
 import KeywordsPlugin from './plugins/KeywordsPlugin';
 import { LayoutPlugin } from './plugins/LayoutPlugin/LayoutPlugin';
@@ -279,6 +280,7 @@ export default function Editor({
                   recordRef={recordRef}
                   attribute={attribute}
                 />
+                <AIFloatingPopup />
               </>
             )}
           </>

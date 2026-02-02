@@ -1,0 +1,158 @@
+// AI Assistant Chat Input Styles
+
+@import 'variables';
+@import 'mixins';
+
+.ai-assistant-chat {
+  &__input-section {
+    border-top: 1px solid var(--border-color, #eee);
+    background-color: var(--background-light, #f8f9fa);
+    border-bottom-left-radius: $chat-border-radius;
+    border-bottom-right-radius: $chat-border-radius;
+  }
+
+  &__upload-status {
+    padding: 6px $spacing-lg;
+    font-size: $font-size-sm;
+    color: var(--success-color, #4caf50);
+    background: var(--success-bg-light, rgba(76, 175, 80, 0.1));
+    border-radius: $border-radius-sm;
+    margin: $spacing-sm $spacing-lg 0 $spacing-lg;
+    text-align: center;
+    transition: all $transition-slow;
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  &__input-container {
+    padding: $spacing-lg;
+  }
+
+  &__input-wrapper {
+    position: relative;
+    background-color: var(--surface-color, white);
+    border: 1px solid var(--border-color, #ddd);
+    border-radius: $border-radius-xl;
+    transition: all $transition-normal;
+    box-shadow: $shadow-sm;
+    display: flex;
+    align-items: flex-end;
+    padding-right: $spacing-sm;
+
+    &:focus-within {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px var(--primary-bg-light, rgba(52, 152, 219, 0.1));
+    }
+  }
+
+  &__input-controls {
+    display: flex;
+    gap: $spacing-xs;
+    align-items: center;
+  }
+
+  &__input-actions {
+    display: flex;
+    gap: $spacing-xs;
+    align-items: center;
+    margin-bottom: $spacing-sm;
+  }
+
+  &__input-action {
+    @include button-ghost;
+    padding: $spacing-sm;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    position: relative;
+
+    &--context {
+      &.ai-assistant-chat__input-action--active {
+        background: var(--primary-color);
+        color: var(--surface-color, white);
+
+        &:hover {
+          background: var(--primary-color);
+        }
+      }
+    }
+
+    .fa {
+      font-size: $font-size-md;
+    }
+  }
+
+  &__floating-action {
+    @include button-ghost;
+    padding: 6px;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    position: relative;
+    color: var(--text-secondary, #8e8ea0);
+
+    &:hover {
+      background: var(--background-light, #f4f4f4);
+      color: var(--text-primary, #40414f);
+    }
+
+    .fa {
+      font-size: $font-size-lg;
+    }
+
+    @include tooltip;
+
+    // Special positioning for clear context button (rightmost)
+    &--clear-context {
+      &::after {
+        left: auto;
+        right: 0;
+        transform: translateX(0);
+      }
+
+      &::before {
+        left: auto;
+        right: $spacing-md;
+        transform: translateX(0);
+      }
+    }
+  }
+
+  &__input {
+    flex: 1;
+    padding: $spacing-md $spacing-lg;
+    border: none;
+    border-radius: $border-radius-xl;
+    font-size: $font-size-md;
+    outline: none;
+    resize: none;
+    max-height: 100px;
+    overflow-y: auto;
+    font-family: inherit;
+    background-color: transparent;
+    box-sizing: border-box;
+    color: var(--text-primary, inherit);
+
+    &::placeholder {
+      color: var(--text-secondary, #999);
+    }
+
+    &:disabled {
+      background-color: var(--background-light, #f9f9f9);
+      cursor: not-allowed;
+    }
+  }
+
+  &__submit {
+    @include button-primary;
+    padding: 10px $spacing-lg;
+    font-size: $font-size-md;
+    align-self: flex-end;
+
+    &:disabled {
+      background-color: var(--light-primary-color);
+    }
+  }
+}

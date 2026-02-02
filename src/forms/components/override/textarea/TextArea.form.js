@@ -1,7 +1,8 @@
 import BaseEditForm from 'formiojs/components/base/Base.form';
 import TextAreaDisplay from 'formiojs/components/textarea/editForm/TextArea.edit.display';
 
-import { t } from '../../../../helpers/export/util';
+import TextAreaEditAI from './editForm/TextArea.edit.ai';
+import { t } from "@/helpers/export/util.ts";
 
 const editor = TextAreaDisplay.find(el => el.key === 'editor');
 const wysiwyg = TextAreaDisplay.find(el => el.key === 'wysiwyg');
@@ -42,6 +43,12 @@ export default function (...extend) {
             weight: 418
           }
         ]
+      },
+      {
+        label: 'AI',
+        key: 'ai',
+        weight: 100,
+        components: TextAreaEditAI
       }
     ],
     ...extend

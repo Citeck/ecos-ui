@@ -1,31 +1,39 @@
 /**
  * AI Assistant Button for Lexical Toolbar
+ * Uses inline AI quick actions for unified UX
  */
 
 import { $generateNodesFromDOM, $generateHtmlFromNodes } from '@lexical/html';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import classNames from 'classnames';
 import { $getRoot, $setSelection, $createParagraphNode, $createTextNode, $insertNodes } from 'lexical';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
+// @ts-ignore - uuidv4 doesn't have types
+import uuidV4 from 'uuidv4';
 
 import aiAssistantService from '../../../AIAssistant/AIAssistantService';
-import editorContextService, { CONTEXT_TYPES } from '../../../AIAssistant/EditorContextService';
-import { AI_ASSISTANT_EVENTS, ADDITIONAL_CONTEXT_TYPES, AI_INTENTS } from '../../../AIAssistant/constants';
+import { AIFieldActions } from '../../../AIAssistant/AIQuickActions/components';
+import { FIELD_TYPES } from "@/components/AIAssistant";
+import { CONTENT_TYPES } from "@/components/AIAssistant";
 import AiAssistant from '../../../common/icons/global/AiAssistant';
-
-import { t } from '@/helpers/export/util';
+import { useLexicalAIGenerate } from '../../hooks/useLexicalAIGenerate';
 
 interface AIAssistantButtonProps {
   disabled?: boolean;
-  currentText?: string;
   recordRef?: string;
   attribute?: string;
+  resultContainer?: HTMLElement | null;
 }
 
-export default function AIAssistantButton({ disabled = false, recordRef, attribute }: AIAssistantButtonProps): React.JSX.Element | null {
+export default function AIAssistantButton({
+  disabled = false,
+  recordRef,
+  attribute,
+  resultContainer
+}: AIAssistantButtonProps): React.JSX.Element | null {
   const [isAvailable, setIsAvailable] = useState(false);
   const [editor] = useLexicalComposerContext();
   const ref = recordRef ? recordRef.split('-alias-')[0] : null;
+  const conversationIdRef = useRef(uuidV4());
 
   useEffect(() => {
     let isMounted = true;
@@ -48,23 +56,12 @@ export default function AIAssistantButton({ disabled = false, recordRef, attribu
       isMounted = false;
       aiAssistantService.removeAvailabilityListener(handleAvailabilityChange);
     };
-  }, [ref, attribute, editor]);
+  }, [ref, attribute]);
 
-  useEffect(() => {
-    return () => {
-      // Clear context when component unmounts
-      const currentContextData = editorContextService.getContextData();
-      if (
-        currentContextData.forceIntent === AI_INTENTS.TEXT_EDITING &&
-        currentContextData.recordRef === ref &&
-        currentContextData.attribute === attribute
-      ) {
-        editorContextService.clearContext();
-      }
-    };
-  }, []);
-
-  const updateLexicalContent = (newText: string) => {
+  /**
+   * Update Lexical editor content with HTML
+   */
+  const updateLexicalContent = useCallback((newText: string) => {
     editor.update(() => {
       const root = $getRoot();
       root.clear();
@@ -73,105 +70,65 @@ export default function AIAssistantButton({ disabled = false, recordRef, attribu
         try {
           const parser = new DOMParser();
           const dom = parser.parseFromString(newText, 'text/html');
-
           const nodes = $generateNodesFromDOM(editor, dom);
-
           root.select();
           $insertNodes(nodes);
         } catch (error) {
           console.warn('Failed to parse HTML content, falling back to plain text:', error);
-          // Fallback to plain text
           const paragraph = $createParagraphNode();
           const textNode = $createTextNode(newText);
           paragraph.append(textNode);
           root.append(paragraph);
         }
       } else {
-        // Plain text content
         const paragraph = $createParagraphNode();
         const textNode = $createTextNode(newText);
         paragraph.append(textNode);
         root.append(paragraph);
       }
 
-      // Clear selection to avoid issues
       $setSelection(null);
     });
-  };
+  }, [editor]);
 
-  const handleClick = async () => {
-    if (disabled) {
-      return;
-    }
+  /**
+   * Get current HTML content from editor
+   */
+  const getValue = useCallback(() => {
+    let html = '';
+    editor.read(() => {
+      html = $generateHtmlFromNodes(editor, null);
+    });
+    return html;
+  }, [editor]);
 
-    if (!isAvailable) {
-      alert('AI Assistant недоступен. Проверьте подключение к серверу.');
-      return;
-    }
+  // Memoize context to avoid recreating on every render
+  const aiContext = useMemo(() => ({
+    recordRef: ref || '',
+    attribute,
+    conversationId: conversationIdRef.current
+  }), [ref, attribute]);
 
-    // Register universal context with forceIntent for text editor
-    editorContextService.setContext(
-      CONTEXT_TYPES.UNIVERSAL,
-      {
-        updateLexicalContent: updateLexicalContent,
-        getCurrentText: () => {
-          let text = '';
-          editor.read(() => {
-            text = $generateHtmlFromNodes(editor, null);
-          });
-          return text;
-        }
-      },
-      {
-        recordRef: ref,
-        attribute,
-        editor,
-        forceIntent: AI_INTENTS.TEXT_EDITING
-      }
-    );
+  // Use centralized AI generate hook
+  const handleGenerateRequest = useLexicalAIGenerate(aiContext);
 
-    // Open universal AI assistant chat
-    aiAssistantService.toggleChat();
+  if (!isAvailable) {
+    return null;
+  }
 
-    // Automatically add record and attribute to context
-    setTimeout(() => {
-      // Add record to context
-      if (recordRef) {
-        window.dispatchEvent(
-          new CustomEvent(AI_ASSISTANT_EVENTS.ADD_CONTEXT, {
-            detail: {
-              contextType: ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD,
-              recordRef
-            }
-          })
-        );
-      }
-
-      // Add attribute to context
-      if (attribute) {
-        window.dispatchEvent(
-          new CustomEvent(AI_ASSISTANT_EVENTS.ADD_CONTEXT, {
-            detail: {
-              contextType: ADDITIONAL_CONTEXT_TYPES.ATTRIBUTES,
-              recordRef: recordRef || '',
-              attribute: attribute
-            }
-          })
-        );
-      }
-    }, 100);
-  };
-
-  return isAvailable ? (
-    <button
+  return (
+    <AIFieldActions
+      fieldType={FIELD_TYPES.RICHTEXT}
+      getValue={getValue}
+      setValue={updateLexicalContent}
+      recordRef={ref || ''}
+      contentType={CONTENT_TYPES.HTML}
+      onGenerateRequest={handleGenerateRequest}
       disabled={disabled}
-      onClick={handleClick}
-      className={classNames('toolbar-item', 'spaced', 'ai-assistant-button')}
-      title={t('lexical.plugins.toolbar.ai-assistant', 'AI Assistant')}
-      type="button"
-      aria-label={t('lexical.plugins.toolbar.ai-assistant-label', 'Open AI Assistant')}
-    >
-      <AiAssistant />
-    </button>
-  ) : null;
+      resultContainer={resultContainer || undefined}
+      triggerIcon={<AiAssistant />}
+      triggerClassName="toolbar-item spaced ai-assistant-button"
+      positionVariant="lexical"
+    />
+  );
 }
