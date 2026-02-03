@@ -3225,5 +3225,13 @@
   "developer-console.output.title": "Вывод консоли",
   "developer-console.output.empty": "Выполните код, чтобы увидеть результат",
   "developer-console.executing": "Выполнение...",
-  "developer-console.select-example": "Примеры кода"
+  "developer-console.select-example": "Примеры кода",
+  "developer-console.save-code": "Сохранить код",
+  "developer-console.saved-snippets": "Сохранённые",
+  "developer-console.save-modal.title": "Сохранить код",
+  "developer-console.save-modal.label": "Название",
+  "developer-console.save-modal.placeholder": "Введите название сниппета",
+  "developer-console.save-modal.save": "Сохранить",
+  "developer-console.save-modal.cancel": "Отмена",
+  "developer-console.delete-snippet": "Удалить"
 }

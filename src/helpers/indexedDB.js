@@ -1,11 +1,17 @@
-const openConnection = (dbName = 'citeck', ver = 1) => {
+const openConnection = (dbName = 'citeck', ver = 2) => {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(dbName, ver);
 
-    request.onupgradeneeded = function () {
+    request.onupgradeneeded = function (event) {
       const db = request.result;
 
-      db.createObjectStore('pages', { keyPath: 'pageId' });
+      if (!db.objectStoreNames.contains('pages')) {
+        db.createObjectStore('pages', { keyPath: 'pageId' });
+      }
+
+      if (!db.objectStoreNames.contains('snippets')) {
+        db.createObjectStore('snippets', { keyPath: 'id' });
+      }
     };
 
     request.onsuccess = () => {
@@ -126,4 +132,87 @@ const pagesStore = {
   }
 };
 
-export { pagesStore };
+const snippetsStore = {
+  name: 'snippets',
+  put: function (entity) {
+    return new Promise(async (resolve, reject) => {
+      if (!indexedDB) {
+        reject('there is no indexedDB');
+      }
+
+      if (!citeckDB) {
+        await openCiteckDB();
+      }
+
+      const transaction = citeckDB.transaction([this.name], 'readwrite');
+      const store = transaction.objectStore(this.name);
+
+      const idbRequest = store.put(entity);
+
+      idbRequest.onsuccess = () => {
+        transaction.commit();
+      };
+
+      transaction.oncomplete = () => {
+        resolve();
+      };
+
+      transaction.onerror = e => {
+        console.log(`${this.name} transaction is aborted: ${JSON.stringify(e)}`);
+        reject(`${this.name} transaction is failed: ${e}`);
+      };
+    });
+  },
+  getAll: function () {
+    return new Promise(async (resolve, reject) => {
+      if (!indexedDB) {
+        reject('there is no indexedDB');
+      }
+
+      if (!citeckDB) {
+        await openCiteckDB();
+      }
+
+      const transaction = citeckDB.transaction([this.name], 'readonly');
+      const store = transaction.objectStore(this.name);
+
+      const idbRequest = store.getAll();
+
+      idbRequest.onsuccess = () => {
+        resolve(idbRequest.result || []);
+      };
+
+      transaction.onerror = e => {
+        console.log(`${this.name} transaction is aborted`);
+        reject(`${this.name} transaction is failed: ${e}`);
+      };
+    });
+  },
+  delete: function (key) {
+    return new Promise(async (resolve, reject) => {
+      if (!indexedDB) {
+        reject('there is no indexedDB');
+      }
+
+      if (!citeckDB) {
+        await openCiteckDB();
+      }
+
+      const transaction = citeckDB.transaction([this.name], 'readwrite');
+      const store = transaction.objectStore(this.name);
+
+      store.delete(key);
+
+      transaction.oncomplete = () => {
+        resolve();
+      };
+
+      transaction.onerror = e => {
+        console.log(`${this.name} transaction is aborted`);
+        reject(`${this.name} transaction is failed: ${e}`);
+      };
+    });
+  }
+};
+
+export { pagesStore, snippetsStore };

@@ -5,6 +5,8 @@ import ResponsePanel from './ResponsePanel';
 import EXAMPLES_DATA from './examplesData';
 
 import { Dropdown } from '@/components/common/form';
+import EcosModal from '@/components/common/EcosModal/EcosModal';
+import { snippetsStore } from '@/helpers/indexedDB';
 import { t } from '@/helpers/util';
 
 import './DeveloperConsole.scss';
@@ -15,6 +17,13 @@ const STORAGE_KEYS = {
   PANEL_SIZE: 'developerConsole_panelSize',
   PANEL_LOCATION: 'developerConsole_panelLocation'
 };
+
+interface Snippet {
+  id: string;
+  title: string;
+  code: string;
+  createdAt: number;
+}
 
 const DEFAULT_PANEL_STATE = {
   width: 400,
@@ -34,10 +43,23 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
   const [panelSize, setPanelSize] = useState(DEFAULT_PANEL_STATE);
   const [panelPosition, setPanelPosition] = useState({ x: 0, y: 0 });
 
+  const [savedSnippets, setSavedSnippets] = useState<Snippet[]>([]);
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [snippetTitle, setSnippetTitle] = useState('');
+
   const containerRef = useRef<HTMLDivElement>(null);
 
   const editorRef = useRef<any>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+
+  const loadSnippets = useCallback(async () => {
+    try {
+      const all = await snippetsStore.getAll();
+      setSavedSnippets(all);
+    } catch (err) {
+      console.error('Error loading snippets from IndexedDB:', err);
+    }
+  }, []);
 
   useEffect(() => {
     try {
@@ -76,6 +98,8 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
       setInitialValue(DEFAULT_CODE);
       setError(null);
     }
+
+    loadSnippets();
   }, []);
 
   const handleExampleChange = (selectedOption: { value: string }) => {
@@ -90,6 +114,52 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
         }
       }
     }
+  };
+
+  const handleSnippetSelect = (selectedOption: { value: string }) => {
+    if (selectedOption && selectedOption.value) {
+      const snippet = savedSnippets.find(s => s.id === selectedOption.value);
+
+      if (snippet) {
+        setInitialValue(snippet.code);
+
+        if (editorRef.current) {
+          editorRef.current.setValue(snippet.code);
+        }
+      }
+    }
+  };
+
+  const handleSaveCode = () => {
+    setSnippetTitle('');
+    setIsSaveModalOpen(true);
+  };
+
+  const handleSaveConfirm = async () => {
+    const code = editorRef.current ? editorRef.current.getValue() : '';
+    const title = snippetTitle.trim();
+
+    if (!title || !code.trim()) {
+      return;
+    }
+
+    const newSnippet: Snippet = {
+      id: `snippet_${Date.now()}`,
+      title,
+      code,
+      createdAt: Date.now()
+    };
+
+    await snippetsStore.put(newSnippet);
+    setSavedSnippets(prev => [...prev, newSnippet]);
+
+    setIsSaveModalOpen(false);
+    setSnippetTitle('');
+  };
+
+  const handleDeleteSnippet = async (snippetId: string) => {
+    await snippetsStore.delete(snippetId);
+    setSavedSnippets(prev => prev.filter(s => s.id !== snippetId));
   };
 
   const handleCodeChange = (newCode: string) => {
@@ -247,6 +317,11 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
     setResponse('');
   };
 
+  const snippetsSource = savedSnippets.map(s => ({
+    value: s.id,
+    label: s.title
+  }));
+
   if (hidden) {
     return null;
   }
@@ -270,6 +345,16 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
                 {t('developer-console.run-code')}
               </>
             )}
+          </button>
+          <button className="btn btn-secondary" onClick={handleSaveCode} disabled={loading}>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#444444">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z"
+              />
+            </svg>
+            {t('developer-console.save-code')}
           </button>
           <button
             className="btn btn-secondary"
@@ -315,6 +400,36 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
               onChange={handleExampleChange}
             />
           </div>
+          {snippetsSource.length > 0 && (
+            <div className="example-selector saved-snippets-selector">
+              <Dropdown
+                controlLabel={t('developer-console.saved-snippets')}
+                className="console-example-dropdown"
+                source={snippetsSource}
+                valueField="value"
+                titleField="label"
+                hasEmpty
+                isStatic
+                onChange={handleSnippetSelect}
+              />
+              {savedSnippets.length > 0 && (
+                <div className="saved-snippets-actions">
+                  {savedSnippets.map(s => (
+                    <span key={s.id} className="saved-snippet-tag">
+                      <span className="saved-snippet-tag__title">{s.title}</span>
+                      <button
+                        className="saved-snippet-tag__delete"
+                        onClick={() => handleDeleteSnippet(s.id)}
+                        title={t('developer-console.delete-snippet')}
+                      >
+                        &times;
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
         <div className="action-buttons">
           <button className="btn btn-secondary" onClick={togglePanelLocation} disabled={loading}>
@@ -358,6 +473,33 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
           />
         </div>
       </div>
+
+      <EcosModal isOpen={isSaveModalOpen} hideModal={() => setIsSaveModalOpen(false)} title={t('developer-console.save-modal.title')}>
+        <div className="save-snippet-modal">
+          <label className="save-snippet-modal__label">{t('developer-console.save-modal.label')}</label>
+          <input
+            className="form-control save-snippet-modal__input"
+            type="text"
+            value={snippetTitle}
+            onChange={e => setSnippetTitle(e.target.value)}
+            placeholder={t('developer-console.save-modal.placeholder')}
+            autoFocus
+            onKeyDown={e => {
+              if (e.key === 'Enter') {
+                handleSaveConfirm();
+              }
+            }}
+          />
+          <div className="save-snippet-modal__buttons">
+            <button className="btn btn-secondary" onClick={() => setIsSaveModalOpen(false)}>
+              {t('developer-console.save-modal.cancel')}
+            </button>
+            <button className="btn btn-primary" onClick={handleSaveConfirm} disabled={!snippetTitle.trim()}>
+              {t('developer-console.save-modal.save')}
+            </button>
+          </div>
+        </div>
+      </EcosModal>
     </div>
   );
 };
