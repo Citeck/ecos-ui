@@ -3226,5 +3226,13 @@
   "developer-console.output.title": "Output",
   "developer-console.output.empty": "Run code to see response",
   "developer-console.executing": "Executing...",
-  "developer-console.select-example": "Examples"
+  "developer-console.select-example": "Examples",
+  "developer-console.save-code": "Save Code",
+  "developer-console.saved-snippets": "Saved",
+  "developer-console.save-modal.title": "Save Code",
+  "developer-console.save-modal.label": "Title",
+  "developer-console.save-modal.placeholder": "Enter snippet title",
+  "developer-console.save-modal.save": "Save",
+  "developer-console.save-modal.cancel": "Cancel",
+  "developer-console.delete-snippet": "Delete"
 }
