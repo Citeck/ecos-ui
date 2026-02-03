@@ -4,8 +4,8 @@ import CodeEditor from './CodeEditor';
 import ResponsePanel from './ResponsePanel';
 import EXAMPLES_DATA from './examplesData';
 
-import { Dropdown } from '@/components/common/form';
 import EcosModal from '@/components/common/EcosModal/EcosModal';
+import { Dropdown } from '@/components/common/form';
 import { snippetsStore } from '@/helpers/indexedDB';
 import { t } from '@/helpers/util';
 
@@ -411,23 +411,24 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
                 hasEmpty
                 isStatic
                 onChange={handleSnippetSelect}
-              />
-              {savedSnippets.length > 0 && (
-                <div className="saved-snippets-actions">
-                  {savedSnippets.map(s => (
-                    <span key={s.id} className="saved-snippet-tag">
-                      <span className="saved-snippet-tag__title">{s.title}</span>
-                      <button
-                        className="saved-snippet-tag__delete"
-                        onClick={() => handleDeleteSnippet(s.id)}
-                        title={t('developer-console.delete-snippet')}
-                      >
-                        &times;
-                      </button>
+                CustomItem={({ item, onClick }: { item: any; onClick: any }) => (
+                  <li className="saved-snippet-item">
+                    <span className="saved-snippet-item__title" onClick={() => onClick(item)}>
+                      {item.label}
                     </span>
-                  ))}
-                </div>
-              )}
+                    <button
+                      className="btn btn-xxs"
+                      onClick={(e: React.MouseEvent) => {
+                        e.stopPropagation();
+                        handleDeleteSnippet(item.value);
+                      }}
+                      title={t('developer-console.delete-snippet')}
+                    >
+                      &times;
+                    </button>
+                  </li>
+                )}
+              />
             </div>
           )}
         </div>
@@ -474,7 +475,12 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
         </div>
       </div>
 
-      <EcosModal isOpen={isSaveModalOpen} hideModal={() => setIsSaveModalOpen(false)} title={t('developer-console.save-modal.title')}>
+      <EcosModal
+        isOpen={isSaveModalOpen}
+        size="xs"
+        hideModal={() => setIsSaveModalOpen(false)}
+        title={t('developer-console.save-modal.title')}
+      >
         <div className="save-snippet-modal">
           <label className="save-snippet-modal__label">{t('developer-console.save-modal.label')}</label>
           <input
