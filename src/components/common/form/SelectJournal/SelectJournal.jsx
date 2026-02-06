@@ -101,11 +101,10 @@ export default class SelectJournal extends Component {
     if (nextState.isGridDataReady !== this.state.isGridDataReady) return true;
     if (nextState.gridData !== this.state.gridData) return true;
     if (nextProps.customValues !== this.props.customValues) return true;
+    if (nextState.isCollapsePanelOpen !== this.props.isCollapsePanelOpen) return true;
 
-    // Always update when grid data becomes ready
     if (!this.state.isGridDataReady && nextState.isGridDataReady) return true;
 
-    // Always update when grid data changes
     if (nextState.gridData.data !== this.state.gridData.data) return true;
     if (nextState.gridData.columns !== this.state.gridData.columns) return true;
     if (nextState.gridData.total !== this.state.gridData.total) return true;
