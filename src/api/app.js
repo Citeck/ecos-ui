@@ -4,7 +4,7 @@ import * as queryString from 'query-string';
 
 import Records from '../components/Records/Records';
 import { ALL_USERS_GROUP_SHORT_NAME } from '../components/common/form/SelectOrgstruct/constants';
-import { AppEditions, DEFAULT_EIS, SourcesId } from '../constants';
+import { AppEditions, DEFAULT_EIS, SourcesId, URL } from '../constants';
 import { PROXY_URI, UISERV_API } from '../constants/alfresco';
 import { allowedLanguages, LANGUAGE_EN } from '../constants/lang';
 import ecosFetch, { RESET_AUTH_STATE_EVENT, emitter } from '../helpers/ecosFetch';
@@ -24,6 +24,7 @@ import ConfigService, {
 
 import { CommonApi } from './common';
 
+import PageService from '@/services/PageService';
 import { NotificationManager } from '@/services/notifications';
 
 let customLogoutAction = null;
@@ -188,6 +189,22 @@ export class AppApi extends CommonApi {
           NotificationManager.error(t('page.error-loading.message'), t('page.error-loading.title'));
         }
 
+        console.error(e);
+        return false;
+      });
+  }
+
+  hasRecordRedirection(recordRef) {
+    return Records.get(recordRef)
+      .load('_movedToRef?id')
+      .then(ref => {
+        if (ref === null) {
+          return false;
+        }
+
+        PageService.changeUrlLink(`${URL.DASHBOARD}?recordRef=${ref}`, { openNewTab: true, needUpdateTabs: true });
+      })
+      .catch(e => {
         console.error(e);
         return false;
       });

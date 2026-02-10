@@ -75,6 +75,8 @@ function* doGetDashboardRequest({ api }, { payload }) {
     const { dashboardId, recordRef } = payload;
     const wsId = getWorkspaceId();
 
+    yield call(api.app.hasRecordRedirection, recordRef);
+
     const recordIsExist = yield call(api.app.recordIsExist, recordRef, true);
 
     if (recordRef && !recordIsExist) {
