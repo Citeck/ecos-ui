@@ -521,7 +521,7 @@ const AIAssistantChat = () => {
                 onTabChange={setActiveTab}
                 hasContext={hasContext}
                 contextTitle={getContextTitle()}
-                activeBusinessAppProgress={universalChatHook.activeBusinessAppProgress}
+                businessAppProgress={universalChatHook.activeBusinessAppProgress}
                 generationStages={universalChatHook.generationStages}
                 getStageStatus={getStageStatus}
               />
