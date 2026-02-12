@@ -205,14 +205,18 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
       const containerWidth = containerRect?.width || window.innerWidth;
       const containerHeight = containerRect?.height || window.innerHeight;
 
+      let currentSize = { ...panelSize };
+
       const doResize = (moveEvent: MouseEvent) => {
         if (panelSize.location === 'bottom') {
           const heightDiff = startY - moveEvent.clientY;
           const newHeight = Math.max(100, Math.min(containerHeight - 200, startHeight + heightDiff));
+          currentSize = { ...currentSize, height: newHeight };
           setPanelSize(prev => ({ ...prev, height: newHeight }));
         } else {
           const widthDiff = startX - moveEvent.clientX;
           const newWidth = Math.max(200, Math.min(containerWidth - 300, startWidth + widthDiff));
+          currentSize = { ...currentSize, width: newWidth };
           setPanelSize(prev => ({ ...prev, width: newWidth }));
         }
       };
@@ -220,7 +224,7 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
       const stopResize = () => {
         window.removeEventListener('mousemove', doResize);
         window.removeEventListener('mouseup', stopResize);
-        savePanelState(panelSize, panelPosition);
+        savePanelState(currentSize, panelPosition);
       };
 
       window.addEventListener('mousemove', doResize);
