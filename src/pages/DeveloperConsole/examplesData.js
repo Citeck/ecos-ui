@@ -42,7 +42,7 @@ export const EXAMPLES_DATA = [
       "ascending": false
     }
   ]
-});
+}, ['_created', 'fullName']);
 
 return person;`
   }
