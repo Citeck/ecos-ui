@@ -19,6 +19,32 @@ export const EXAMPLES_DATA = [
     value: 'records-api-delete',
     label: 'Records API Delete',
     code: 'Records.remove("emodel/someType@id1");\nRecords.remove(["emodel/someType@id1", "emodel/someType@id2"]);\n'
+  },
+  {
+    value: 'records-api-query',
+    label: 'Records API Query',
+    code: `const person = await Records.query({
+  "sourceId": "emodel/person",
+  "language": "predicate",
+  "query": {
+    "t": "eq",
+    "att": "id",
+    "val": "admin"
+  },
+  "page": {
+    "skipCount": 0,
+    "maxItems": 25,
+    "page": 1
+  },
+  "sortBy": [
+    {
+      "attribute": "_created",
+      "ascending": false
+    }
+  ]
+});
+
+return person;`
   }
 ];
 
