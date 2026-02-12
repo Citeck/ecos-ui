@@ -898,7 +898,7 @@ export default class SelectComponent extends BaseComponent {
       itemSelectText: '',
       classNames: {
         containerOuter: 'choices form-group formio-choices',
-        containerInner: 'form-control'
+        containerInner: 'form-control ecos-select'
       },
       addItemText: false,
       placeholder: !!this.component.placeholder,
