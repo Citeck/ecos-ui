@@ -386,7 +386,7 @@ const AIAssistantChat = () => {
       if (result && typeof result === 'object') {
         autocompleteHook.insertContextMention(
           result.type,
-          result.recordData,
+          result.data,
           universalChatHook.message,
           universalChatHook.setMessage,
           universalTextareaRef
