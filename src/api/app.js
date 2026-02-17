@@ -175,52 +175,14 @@ export class AppApi extends CommonApi {
     return false;
   }
 
-  recordIsExist(recordRef, showNotification = false) {
-    return Records.get(recordRef)
-      .load('_notExists?bool', true)
-      .then(status => {
-        if (status === null) {
-          return true;
-        }
-
-        return !status;
-      })
-      .catch(e => {
-        if (showNotification) {
-          NotificationManager.error(t('page.error-loading.message'), t('page.error-loading.title'));
-        }
-
-        console.error(e);
-        return false;
-      });
-  }
-
-  hasRecordRedirection(recordRef) {
-    const wsId = getWorkspaceId();
-
-    return Records.get(recordRef)
-      .load('_movedToRef?id')
-      .then(ref => {
-        if (ref === null) {
-          return false;
-        }
-
-        PageService.changeUrlLink(`${URL.DASHBOARD}?recordRef=${ref}&ws=${wsId}`, { openNewTab: true, needUpdateTabs: true });
-      })
-      .catch(e => {
-        console.error(e);
-        return false;
-      });
-  }
-
   checkRecordExistenceAndRedirection(recordRef, showNotification = false) {
     const wsId = getWorkspaceId();
 
     return Records.get(recordRef)
-      .load('_notExists?bool,_movedToRef?id')
+      .load({ notExists: '_notExists?bool', movedToRef: '_movedToRef?id' })
       .then(data => {
-        const notExists = data['_notExists?bool'];
-        const movedToRef = data['_movedToRef?id'];
+        const notExists = data['notExists'];
+        const movedToRef = data['movedToRef'];
 
         if (movedToRef !== null) {
           PageService.changeUrlLink(`${URL.DASHBOARD}?recordRef=${movedToRef}&ws=${wsId}`, { openNewTab: true, needUpdateTabs: true });
@@ -234,7 +196,9 @@ export class AppApi extends CommonApi {
         if (showNotification) {
           NotificationManager.error(t('page.error-loading.message'), t('page.error-loading.title'));
         }
+
         console.error(e);
+
         return { exists: false, redirected: false };
       });
   }
