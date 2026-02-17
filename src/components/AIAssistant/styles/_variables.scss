@@ -1,12 +1,22 @@
 // AI Assistant CSS Variables and Constants
 
-// Chat dimensions
-$chat-default-width: 350px;
-$chat-default-height: 500px;
-$chat-min-width: 300px;
+// Chat dimensions - Mobile First
+$chat-default-width: 100%;
+$chat-default-height: 100%;
+$chat-min-width: 280px;
 $chat-min-height: 300px;
+$chat-max-width: 450px;
+$chat-max-height: 600px;
+$chat-desktop-width: 380px;
+$chat-desktop-height: 600px;
 $chat-border-radius: 10px;
 $chat-z-index: 100000;
+
+// Breakpoints
+$mobile-small: 320px;
+$mobile-large: 480px;
+$tablet: 768px;
+$desktop: 1024px;
 
 // Spacing
 $spacing-xs: 4px;

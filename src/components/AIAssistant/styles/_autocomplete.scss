@@ -1,4 +1,4 @@
-// AI Assistant Autocomplete Styles
+// AI Assistant Autocomplete Styles - Mobile First
 
 @import 'variables';
 @import 'mixins';
@@ -9,21 +9,33 @@
     border: 1px solid var(--border-color, #ddd);
     border-radius: $border-radius-lg;
     box-shadow: $shadow-md;
-    min-width: 250px;
-    max-width: 400px;
+    min-width: calc(100vw - 40px);
+    max-width: calc(100vw - 40px);
     max-height: 200px;
     overflow-y: auto;
     z-index: 105001;
     @include custom-scrollbar;
+
+    @media (min-width: $tablet) {
+      min-width: 250px;
+      max-width: 400px;
+    }
   }
 
   &__autocomplete-item {
     display: flex;
     align-items: center;
-    padding: 10px $spacing-md;
+    padding: 12px 16px;
     cursor: pointer;
     transition: all $transition-normal;
-    gap: 10px;
+    gap: 12px;
+    min-height: 44px;
+
+    @media (min-width: $tablet) {
+      padding: 10px $spacing-md;
+      min-height: auto;
+      gap: 10px;
+    }
 
     &:hover {
       background: var(--background-light, #f5f5f5);

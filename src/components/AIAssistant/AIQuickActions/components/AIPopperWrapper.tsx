@@ -5,13 +5,15 @@
  * Supports "sticky" mode for floating toolbars where reference may unmount
  */
 
+import { Placement, Modifier } from '@popperjs/core';
+import classNames from 'classnames';
 import React, { useState, useEffect, useMemo, useRef, ReactNode } from 'react';
 import ReactDOM from 'react-dom';
-import classNames from 'classnames';
 import { usePopper } from 'react-popper';
-import { Placement, Modifier } from '@popperjs/core';
-import { CONTENT_TYPES } from '@/components/AIAssistant/constants';
+
 import { ContentType } from '../config/fieldActionConfigs';
+
+import { CONTENT_TYPES } from '@/components/AIAssistant/constants';
 
 type PositionVariant = 'text-field' | 'script-editor' | 'lexical';
 
@@ -28,11 +30,7 @@ interface ContentMetrics {
  * Calculate adaptive width based on content metrics
  * Uses text length estimation to determine optimal popup width
  */
-const calculateContentBasedWidth = (
-  metrics: ContentMetrics,
-  minWidth: number,
-  maxWidthValue: number
-): number => {
+const calculateContentBasedWidth = (metrics: ContentMetrics, minWidth: number, maxWidthValue: number): number => {
   const { contentLength = 0, contentType, hasExplanation } = metrics;
 
   // Base width is the effective minimum
@@ -135,8 +133,9 @@ const createModifiers = (
     phase: 'beforeWrite',
     requires: ['computeStyles'],
     fn: ({ state }) => {
-      const rightEdgePadding = 24;
       const viewportWidth = window.innerWidth;
+      const isMobile = viewportWidth < 768;
+      const rightEdgePadding = isMobile ? 8 : 24; // Smaller padding on mobile
 
       if (variant === 'text-field') {
         // Match reference width for text fields, with minimum 400px
@@ -150,10 +149,7 @@ const createModifiers = (
           : effectiveMinWidth;
 
         // Final width: max of reference width and content-based width, clamped to maxWidth
-        let finalWidth = Math.min(
-          Math.max(refWidth, contentBasedWidth),
-          maxWidthValue
-        );
+        let finalWidth = Math.min(Math.max(refWidth, contentBasedWidth), maxWidthValue);
 
         // Ensure popup doesn't extend beyond right edge with padding
         const popperLeft = state.modifiersData.popperOffsets?.x || state.rects.reference.x;
@@ -164,8 +160,26 @@ const createModifiers = (
         state.styles.popper.width = `${finalWidth}px`;
         state.styles.popper.maxWidth = `calc(60vw - ${rightEdgePadding * 2}px)`;
       } else if (variant === 'script-editor') {
-        state.styles.popper.minWidth = '600px';
-        state.styles.popper.maxWidth = `calc(60vw - ${rightEdgePadding * 2}px)`;
+        const popperLeft = state.modifiersData.popperOffsets?.x || state.rects.reference.x;
+        const availableWidth = viewportWidth - popperLeft - rightEdgePadding;
+
+        // On mobile, use more width; on desktop, cap at 600px
+        const constrainedWidth = isMobile ? Math.max(availableWidth, 280) : Math.min(600, availableWidth);
+
+        state.styles.popper.minWidth = `${constrainedWidth}px`;
+        state.styles.popper.width = `${constrainedWidth}px`;
+        state.styles.popper.maxWidth = `${constrainedWidth}px`;
+
+        if (isMobile) {
+          if (state.styles.popper.right !== undefined) {
+            delete state.styles.popper.right;
+          }
+        } else {
+          state.styles.popper.right = '10px';
+          if (state.styles.popper.left !== undefined) {
+            delete state.styles.popper.left;
+          }
+        }
       } else if (variant === 'lexical') {
         state.styles.popper.minWidth = '450px';
         state.styles.popper.maxWidth = '600px';
@@ -178,6 +192,12 @@ const createModifiers = (
  * Get preferred placement based on variant
  */
 const getPlacementForVariant = (variant: PositionVariant): Placement => {
+  const isMobile = window.innerWidth < 768;
+
+  if (isMobile) {
+    return 'bottom-start';
+  }
+
   switch (variant) {
     case 'script-editor':
       return 'bottom-end';
@@ -284,15 +304,11 @@ const AIPopperWrapper: React.FC<AIPopperWrapperProps> = ({
   }, [referenceElement, stickyPosition, isVisible]);
 
   // Use Popper for positioning
-  const { styles, attributes, state, update } = usePopper(
-    isVisible ? effectiveReference : null,
-    isVisible ? popperElement : null,
-    {
-      placement: preferredPlacement,
-      modifiers: modifiers as Modifier<string, object>[],
-      strategy: 'fixed' // Use fixed for portal rendering
-    }
-  );
+  const { styles, attributes, state, update } = usePopper(isVisible ? effectiveReference : null, isVisible ? popperElement : null, {
+    placement: preferredPlacement,
+    modifiers: modifiers as Modifier<string, object>[],
+    strategy: 'fixed' // Use fixed for portal rendering
+  });
 
   // Get actual placement after potential flip
   const actualPlacement = state?.placement || preferredPlacement;

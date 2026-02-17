@@ -1,4 +1,4 @@
-// AI Assistant Context Tags Styles
+// AI Assistant Context Tags Styles - Mobile First
 
 @import 'variables';
 
@@ -7,8 +7,13 @@
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    margin-bottom: $spacing-sm;
-    padding: 0 $spacing-xs;
+    margin-bottom: 8px;
+    padding: 0 4px;
+
+    @media (min-width: $tablet) {
+      margin-bottom: $spacing-sm;
+      padding: 0 $spacing-xs;
+    }
   }
 
   &__context-tag {
@@ -18,12 +23,22 @@
     color: var(--primary-color);
     border: 1px solid var(--primary-border-light, #bbdefb);
     border-radius: $border-radius-xl;
-    padding: $spacing-xs $spacing-sm;
-    font-size: $font-size-sm;
+    padding: 6px 8px;
+    font-size: 12px;
     gap: 6px;
+    min-height: 28px;
+
+    @media (min-width: $tablet) {
+      padding: $spacing-xs $spacing-sm;
+      font-size: $font-size-sm;
+      min-height: auto;
+    }
 
     span {
       font-weight: 500;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     &--document {
@@ -50,7 +65,11 @@
       background: var(--info-bg-light, #d1ecf1);
       color: var(--info-color, #0c5460);
       border: 1px solid var(--info-border-light, #bee5eb);
-      max-width: 300px;
+      max-width: 100%;
+
+      @media (min-width: $tablet) {
+        max-width: 300px;
+      }
 
       .ai-assistant-chat__context-tag-remove {
         color: var(--info-color, #0c5460);
@@ -60,7 +79,11 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        max-width: 250px;
+        max-width: calc(100vw - 120px);
+
+        @media (min-width: $tablet) {
+          max-width: 250px;
+        }
       }
     }
 
@@ -94,10 +117,27 @@
     border: none;
     color: inherit;
     cursor: pointer;
-    font-size: $font-size-xs;
-    padding: 0;
-    width: 14px;
-    height: 14px;
+    font-size: 12px;
+    padding: 4px;
+    min-width: 28px;
+    min-height: 28px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all $transition-normal;
+    flex-shrink: 0;
+
+    @media (min-width: $tablet) {
+      font-size: $font-size-xs;
+      padding: 0;
+      width: 16px;
+      height: 16px;
+      min-width: 16px;
+      min-height: 16px;
+    }
     border-radius: 50%;
     display: flex;
     align-items: center;

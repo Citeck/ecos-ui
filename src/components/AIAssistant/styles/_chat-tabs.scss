@@ -1,4 +1,4 @@
-// AI Assistant Chat Tabs Styles
+// AI Assistant Chat Tabs Styles - Mobile First
 
 @import 'variables';
 
@@ -11,18 +11,27 @@
 
   &__tab {
     flex: 1;
-    padding: $spacing-sm;
+    padding: 12px 12px;
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
     color: var(--text-secondary, #6c757d);
     transition: all $transition-normal;
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
+    min-height: 48px;
+    align-items: center;
+    justify-content: center;
+
+    @media (min-width: $tablet) {
+      padding: $spacing-sm;
+      font-size: 13px;
+      gap: 6px;
+    }
 
     &:hover:not(&--disabled) {
       background-color: var(--background-hover, #e9ecef);
@@ -50,6 +59,7 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      width: 100%;
     }
   }
 
@@ -61,15 +71,23 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: $spacing-sm $spacing-lg;
+    padding: 12px 16px;
     background-color: var(--background-light, #f8f9fa);
     border-bottom: 1px solid var(--border-color, #dee2e6);
-    font-size: $font-size-sm;
+    font-size: 12px;
     color: var(--text-secondary, #6c757d);
+
+    @media (min-width: $tablet) {
+      padding: $spacing-sm $spacing-lg;
+      font-size: $font-size-sm;
+    }
 
     span {
       flex: 1;
       font-weight: 500;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
   }
 
@@ -78,9 +96,34 @@
     border: none;
     color: var(--text-secondary, #6c757d);
     cursor: pointer;
-    padding: $spacing-xs;
-    border-radius: $border-radius-sm;
+    padding: 6px 8px;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
     transition: all $transition-normal;
+    flex-shrink: 0;
+
+    @media (min-width: $tablet) {
+      padding: 4px;
+      min-width: auto;
+      min-height: auto;
+    }
+
+    &:hover {
+      background-color: var(--background-hover, #e9ecef);
+      color: var(--text-primary, #495057);
+    }
+
+    .fa {
+      font-size: 16px;
+
+      @media (min-width: $tablet) {
+        font-size: 14px;
+      }
+    }
 
     &:hover {
       background-color: var(--danger-bg-light, #fff2f2);

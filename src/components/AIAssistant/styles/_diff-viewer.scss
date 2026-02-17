@@ -1,4 +1,4 @@
-// AI Assistant Diff Viewer Styles
+// AI Assistant Diff Viewer Styles - Mobile First
 
 @import 'variables';
 @import 'mixins';
@@ -7,10 +7,16 @@
 .ai-assistant-chat-diff-viewer {
   &__actions {
     display: flex;
-    gap: $spacing-sm;
-    margin: $spacing-md 0 $spacing-sm 0;
-    padding: 0 $spacing-md;
+    gap: 8px;
+    margin: 12px 0 8px 0;
+    padding: 0 16px;
     flex-wrap: wrap;
+
+    @media (min-width: $tablet) {
+      gap: $spacing-sm;
+      margin: $spacing-md 0 $spacing-sm 0;
+      padding: 0 $spacing-md;
+    }
   }
 }
 
@@ -21,12 +27,22 @@
     border-radius: $border-radius-md;
     overflow: hidden;
     border: 1px solid var(--border-color, #e0e0e0);
+
+    @media (min-width: $tablet) {
+      border-radius: $border-radius-md;
+    }
   }
 
   &__text-diff-description {
-    padding: $spacing-md $spacing-lg;
+    padding: 12px 16px;
     border-bottom: 1px solid var(--border-color, #e0e0e0);
     background: var(--background-color-light, #f8f9fa);
+    font-size: 13px;
+
+    @media (min-width: $tablet) {
+      padding: $spacing-md $spacing-lg;
+      font-size: inherit;
+    }
   }
 }
 
@@ -34,10 +50,14 @@
 .ai-assistant-chat {
   &__script-diff-preview {
     background: var(--surface-color, #fff);
-    border-radius: $border-radius-lg;
+    border-radius: 6px;
     overflow: hidden;
     border: 1px solid #e1e4e8;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+
+    @media (min-width: $tablet) {
+      border-radius: $border-radius-lg;
+    }
   }
 
   &-script-diff-viewer {
@@ -45,28 +65,42 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: $spacing-md $spacing-lg;
+      padding: 12px 16px;
       background: linear-gradient(to bottom, #f6f8fa, #f1f3f5);
       color: #24292e;
       border-bottom: 1px solid #e1e4e8;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
+
+      @media (min-width: $tablet) {
+        padding: $spacing-md $spacing-lg;
+        font-size: 13px;
+      }
 
       .fa-code {
         color: #6f42c1;
-        font-size: $font-size-md;
+        font-size: 14px;
+
+        @media (min-width: $tablet) {
+          font-size: $font-size-md;
+        }
       }
     }
 
     &__badge {
       display: inline-flex;
       align-items: center;
-      padding: 2px $spacing-sm;
+      padding: 2px 8px;
       border-radius: $border-radius-xl;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 500;
       text-transform: uppercase;
       letter-spacing: 0.3px;
+
+      @media (min-width: $tablet) {
+        padding: 2px $spacing-sm;
+        font-size: 11px;
+      }
 
       &--new {
         background: #ddf4ff;
@@ -76,8 +110,14 @@
     }
 
     &__explanation {
-      padding: 14px $spacing-lg;
+      padding: 12px 16px;
       background: #fff;
+      font-size: 13px;
+
+      @media (min-width: $tablet) {
+        padding: 14px $spacing-lg;
+        font-size: inherit;
+      }
       border-bottom: 1px solid #e1e4e8;
       font-size: 13px;
       line-height: 1.6;

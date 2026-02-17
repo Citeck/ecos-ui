@@ -1,4 +1,4 @@
-// AI Assistant Email Modal Styles
+// AI Assistant Email Modal Styles - Mobile First
 
 @import 'variables';
 @import 'mixins';
@@ -8,49 +8,86 @@
   &__email-preview {
     border: 1px solid #e0e0e0;
     border-radius: $border-radius-md;
-    padding: $spacing-md;
+    padding: 12px;
     background-color: rgba(255, 255, 255, 0.8);
+    font-size: 13px;
+
+    @media (min-width: $tablet) {
+      padding: $spacing-md;
+      font-size: inherit;
+    }
   }
 
   &__email-subject {
     margin-bottom: 10px;
-    padding-bottom: $spacing-sm;
+    padding-bottom: 8px;
     border-bottom: 1px solid #f0f0f0;
-    font-size: $font-size-md;
+    font-size: 13px;
+
+    @media (min-width: $tablet) {
+      font-size: $font-size-md;
+    }
 
     strong {
       color: #333;
-      margin-right: $spacing-sm;
+      margin-right: 8px;
+
+      @media (min-width: $tablet) {
+        margin-right: $spacing-sm;
+      }
     }
   }
 
   &__email-body {
     margin: 10px 0;
     line-height: 1.5;
+    font-size: 13px;
+
+    @media (min-width: $tablet) {
+      font-size: inherit;
+    }
 
     p {
-      margin: $spacing-sm 0;
+      margin: 8px 0;
+
+      @media (min-width: $tablet) {
+        margin: $spacing-sm 0;
+      }
     }
   }
 
   &__email-recipient {
     margin-top: 10px;
-    padding-top: $spacing-sm;
+    padding-top: 8px;
     border-top: 1px solid #f0f0f0;
-    font-size: 13px;
+    font-size: 12px;
     color: #666;
+
+    @media (min-width: $tablet) {
+      font-size: 13px;
+      padding-top: $spacing-sm;
+    }
 
     strong {
       color: #333;
-      margin-right: $spacing-sm;
+      margin-right: 8px;
+
+      @media (min-width: $tablet) {
+        margin-right: $spacing-sm;
+      }
     }
   }
 
   &__email-actions {
     display: flex;
-    gap: $spacing-sm;
-    margin-top: $spacing-sm;
+    gap: 8px;
+    margin-top: 12px;
     flex-wrap: wrap;
+
+    @media (min-width: $tablet) {
+      gap: $spacing-sm;
+      margin-top: $spacing-sm;
+    }
   }
 }
 
@@ -66,18 +103,30 @@
   align-items: center;
   justify-content: center;
   z-index: 110000;
+  padding: 16px;
+
+  @media (min-width: $tablet) {
+    padding: 0;
+  }
 }
 
 // Email Modal
 .ai-assistant-email-modal {
   background-color: var(--surface-color, #fff);
-  border-radius: $chat-border-radius;
+  border-radius: 8px;
   box-shadow: $shadow-xl;
-  width: 90%;
-  max-width: 600px;
-  max-height: 80vh;
+  width: 100%;
+  max-width: 100%;
+  max-height: calc(100vh - 32px);
   display: flex;
   flex-direction: column;
+
+  @media (min-width: $tablet) {
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    border-radius: $chat-border-radius;
+  }
 
   &__header {
     display: flex;

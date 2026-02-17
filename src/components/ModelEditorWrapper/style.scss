@@ -85,6 +85,16 @@
         margin-right: 10px;
       }
     }
+
+    @media (max-width: 992px) {
+      &-buttons {
+        bottom: 60px;
+
+        .ecos-btn {
+          padding: 10px;
+        }
+      }
+    }
   }
 
   &__sidebar-right {
@@ -103,6 +113,7 @@
       border-bottom: 1px $color-gray-4 solid;
       padding-left: 20px;
       margin: -20px -20px 5px -20px;
+      z-index: 99;
     }
 
     &-resizer {
@@ -174,6 +185,18 @@
 
     .ecos-btn {
       margin-bottom: 10px;
+    }
+
+    @media (max-width: 992px) {
+      .ecos-btn {
+        padding: 10px;
+      }
+    }
+  }
+
+  @media (max-width: 992px) {
+    &__designer-zoom {
+      bottom: 120px;
     }
   }
 }

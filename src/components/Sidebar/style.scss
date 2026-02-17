@@ -685,6 +685,7 @@ $transition-duration: 0.2s;
 
     &_expanded {
       width: 100%;
+      height: calc(100lvh - 52px);
     }
 
     &_collapsed {
