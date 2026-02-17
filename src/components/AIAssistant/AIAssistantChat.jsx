@@ -1,27 +1,15 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import classNames from "classnames";
-import { ResizableBox } from "react-resizable";
-import "react-resizable/css/styles.css";
+import classNames from 'classnames';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { ResizableBox } from 'react-resizable';
 
-import aiAssistantService from "./AIAssistantService";
-import editorContextService, { CONTEXT_TYPES } from "./EditorContextService";
-import {
-  AI_INTENTS,
-  EDITOR_CONTEXT_HANDLERS,
-  API_ENDPOINTS,
-  TAB_TYPES,
-  getScriptContextLabel
-} from "./constants";
-import { Icon } from "../common";
-import Records from "../Records";
-import { getRecordRef } from "@/helpers/urls";
-import { IS_APPLE, useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
-import { NotificationManager } from "@/services/notifications";
-import MermaidDiagram from "./MermaidDiagram";
-import "./styles/index.scss";
-import { EVENTS } from "@/components/widgets/BaseWidget";
+import Records from '../Records';
+import { Icon } from '../common';
 
-// Hooks
+import aiAssistantService from './AIAssistantService';
+import editorContextService, { CONTEXT_TYPES } from './EditorContextService';
+import MermaidDiagram from './MermaidDiagram';
+import { ChatHeader, ChatTabs, ChatInput, ChatContextTags, EmailModal, MessageList } from './components';
+import { AI_INTENTS, EDITOR_CONTEXT_HANDLERS, API_ENDPOINTS, TAB_TYPES, getScriptContextLabel } from './constants';
 import {
   useChatResize,
   useFileUpload,
@@ -30,21 +18,38 @@ import {
   useAutocomplete,
   useUniversalChat,
   useContextualChat
-} from "./hooks";
+} from './hooks';
+import { getStageStatus } from './utils';
 
-// Components
-import {
-  ChatHeader,
-  ChatTabs,
-  ChatInput,
-  ChatContextTags,
-  EmailModal,
-  MessageList
-} from "./components";
+import { EVENTS } from '@/components/widgets/BaseWidget';
+import { getRecordRef } from '@/helpers/urls';
+import { IS_APPLE, useKeyboardShortcut } from '@/hooks/useKeyboardShortcut';
+import { NotificationManager } from '@/services/notifications';
 
-import { getStageStatus } from "./utils";
+import 'react-resizable/css/styles.css';
+import './styles/index.scss';
+
+// Hook to detect if device is mobile
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth < 768;
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return isMobile;
+};
 
 const AIAssistantChat = () => {
+  const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState(TAB_TYPES.UNIVERSAL);
   const [contextType, setContextType] = useState(() => editorContextService.getContext());
 
@@ -52,9 +57,9 @@ const AIAssistantChat = () => {
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [isEmailSending, setIsEmailSending] = useState(false);
   const [emailFormData, setEmailFormData] = useState({
-    to: "",
-    subject: "",
-    body: "",
+    to: '',
+    subject: '',
+    body: '',
     addToActivities: true
   });
 
@@ -82,7 +87,7 @@ const AIAssistantChat = () => {
   }, []);
 
   // Wrapper function that uses ref to access setMessage after it's available
-  const setMessageWrapper = useCallback((value) => {
+  const setMessageWrapper = useCallback(value => {
     setMessageRef.current?.(value);
   }, []);
 
@@ -145,37 +150,33 @@ const AIAssistantChat = () => {
   const currentTextareaRef = activeTab === TAB_TYPES.UNIVERSAL ? universalTextareaRef : contextualTextareaRef;
 
   // Markdown components - memoized
-  const markdownComponents = useMemo(() => ({
-    a: ({ node, ...props }) => (
-      <a {...props} target="_blank" rel="noopener noreferrer" />
-    ),
-    code: ({ node, className, children, ...props }) => {
-      const match = /language-(\w+)/.exec(className || '');
-      const language = match ? match[1] : '';
+  const markdownComponents = useMemo(
+    () => ({
+      a: ({ node, ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" />,
+      code: ({ node, className, children, ...props }) => {
+        const match = /language-(\w+)/.exec(className || '');
+        const language = match ? match[1] : '';
 
-      if (language === 'mermaid') {
+        if (language === 'mermaid') {
+          return <MermaidDiagram chart={String(children).replace(/\n$/, '')} className="ai-assistant-chat__mermaid-diagram" />;
+        }
+
         return (
-          <MermaidDiagram
-            chart={String(children).replace(/\n$/, '')}
-            className="ai-assistant-chat__mermaid-diagram"
-          />
+          <code className={className} {...props}>
+            {children}
+          </code>
         );
       }
-
-      return (
-        <code className={className} {...props}>
-          {children}
-        </code>
-      );
-    }
-  }), []);
+    }),
+    []
+  );
 
   // Keyboard shortcut for opening chat
   const useAIAssistantShortcut = (callback, deps = []) => {
     const modifiers = IS_APPLE
       ? { meta: true, alt: false, shift: false, ctrl: false }
       : { meta: false, alt: true, shift: false, ctrl: false };
-    useKeyboardShortcut("i", modifiers, callback, deps);
+    useKeyboardShortcut('i', modifiers, callback, deps);
   };
 
   useAIAssistantShortcut(() => {
@@ -235,24 +236,24 @@ const AIAssistantChat = () => {
 
   // Scroll to bottom on new messages
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [currentChat.messages]);
 
   // Email handlers
-  const handleCopyEmail = useCallback((emailData) => {
+  const handleCopyEmail = useCallback(emailData => {
     if (emailData?.body) {
       navigator.clipboard.writeText(emailData.body).catch(err => {
-        console.error("Failed to copy email:", err);
+        console.error('Failed to copy email:', err);
       });
     }
   }, []);
 
-  const handleSendEmail = useCallback((emailData) => {
+  const handleSendEmail = useCallback(emailData => {
     if (emailData) {
       setEmailFormData({
-        to: emailData.to || "",
-        subject: emailData.subject || "",
-        body: emailData.body || "",
+        to: emailData.to || '',
+        subject: emailData.subject || '',
+        body: emailData.body || '',
         addToActivities: true
       });
       setShowEmailModal(true);
@@ -262,7 +263,7 @@ const AIAssistantChat = () => {
   const handleEmailModalClose = useCallback(() => {
     setShowEmailModal(false);
     setIsEmailSending(false);
-    setEmailFormData({ to: "", subject: "", body: "", addToActivities: true });
+    setEmailFormData({ to: '', subject: '', body: '', addToActivities: true });
   }, []);
 
   const handleEmailSend = useCallback(async () => {
@@ -271,8 +272,8 @@ const AIAssistantChat = () => {
 
     try {
       const response = await fetch(API_ENDPOINTS.SEND_MAIL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...emailFormData,
           recordRef: getRecordRef() || null
@@ -286,33 +287,33 @@ const AIAssistantChat = () => {
 
       const result = await response.json();
       if (!result.success) {
-        throw new Error(result.message || "Неизвестная ошибка при отправке письма");
+        throw new Error(result.message || 'Неизвестная ошибка при отправке письма');
       }
 
-      NotificationManager.success("Письмо успешно отправлено", "Отправка письма");
+      NotificationManager.success('Письмо успешно отправлено', 'Отправка письма');
       handleEmailModalClose();
     } catch (error) {
-      NotificationManager.error(error.message, "Ошибка отправки");
+      NotificationManager.error(error.message, 'Ошибка отправки');
     } finally {
       setIsEmailSending(false);
     }
   }, [emailFormData, isEmailSending, handleEmailModalClose]);
 
   // Text diff handler
-  const handleApplyTextChanges = useCallback(async (diffData) => {
+  const handleApplyTextChanges = useCallback(async diffData => {
     if (!diffData?.recordRef || !diffData?.attribute) return;
     setIsApplyingTextChanges(true);
 
     try {
       const { recordRef, attribute, modifiedText: newText } = diffData;
-      if (!newText) throw new Error("Нет данных для применения изменений");
+      if (!newText) throw new Error('Нет данных для применения изменений');
 
       const contextData = editorContextService.getContextData();
       if (contextData.forceIntent === AI_INTENTS.TEXT_EDITING) {
         const updateHandler = editorContextService.getHandler(EDITOR_CONTEXT_HANDLERS.UPDATE_LEXICAL_CONTENT);
         if (contextData.recordRef === recordRef && contextData.attribute === attribute && updateHandler) {
           updateHandler(newText);
-          NotificationManager.success("Изменения успешно применены в редакторе", "Редактирование текста");
+          NotificationManager.success('Изменения успешно применены в редакторе', 'Редактирование текста');
         } else {
           await applyChangesViaRecordsAPI(recordRef, attribute, newText);
         }
@@ -320,29 +321,29 @@ const AIAssistantChat = () => {
         await applyChangesViaRecordsAPI(recordRef, attribute, newText);
       }
     } catch (error) {
-      NotificationManager.error(error.message || "Ошибка при применении изменений", "Ошибка");
+      NotificationManager.error(error.message || 'Ошибка при применении изменений', 'Ошибка');
     } finally {
       setIsApplyingTextChanges(false);
     }
   }, []);
 
   const applyChangesViaRecordsAPI = async (recordRef, attribute, newText) => {
-    const recordId = recordRef.substring(recordRef.indexOf("@") + 1);
+    const recordId = recordRef.substring(recordRef.indexOf('@') + 1);
     if (!recordId) {
-      NotificationManager.error("Редактор не найден или документ не сохранен", "Ошибка");
+      NotificationManager.error('Редактор не найден или документ не сохранен', 'Ошибка');
       return;
     }
     const recordToSave = Records.get(recordRef);
     recordToSave.att(attribute, newText);
     await recordToSave.save();
     recordToSave.events.emit(EVENTS.ATTS_UPDATED);
-    NotificationManager.success("Изменения успешно применены", "Редактирование текста");
+    NotificationManager.success('Изменения успешно применены', 'Редактирование текста');
   };
 
   // Script diff handler
-  const handleApplyScriptChanges = useCallback(async (scriptData) => {
+  const handleApplyScriptChanges = useCallback(async scriptData => {
     if (!scriptData?.modifiedScript) {
-      NotificationManager.error("Нет данных для применения изменений", "Ошибка");
+      NotificationManager.error('Нет данных для применения изменений', 'Ошибка');
       return;
     }
     setIsApplyingScriptChanges(true);
@@ -353,54 +354,59 @@ const AIAssistantChat = () => {
         const updateHandler = editorContextService.getHandler(EDITOR_CONTEXT_HANDLERS.UPDATE_SCRIPT_CONTENT);
         if (updateHandler) {
           updateHandler(scriptData.modifiedScript);
-          NotificationManager.success("Скрипт успешно обновлен в редакторе", "Редактирование скрипта");
+          NotificationManager.success('Скрипт успешно обновлен в редакторе', 'Редактирование скрипта');
         } else {
-          NotificationManager.error("Редактор скрипта не найден. Скопируйте код вручную.", "Ошибка");
+          NotificationManager.error('Редактор скрипта не найден. Скопируйте код вручную.', 'Ошибка');
         }
       } else {
-        NotificationManager.error("Контекст редактора скрипта не найден. Скопируйте код вручную.", "Ошибка");
+        NotificationManager.error('Контекст редактора скрипта не найден. Скопируйте код вручную.', 'Ошибка');
       }
     } catch (error) {
-      NotificationManager.error(error.message || "Ошибка при применении скрипта", "Ошибка");
+      NotificationManager.error(error.message || 'Ошибка при применении скрипта', 'Ошибка');
     } finally {
       setIsApplyingScriptChanges(false);
     }
   }, []);
 
-  // Input handlers
-  const handleInputChange = useCallback((e, isUniversal) => {
-    const value = e.target.value;
-    const setMessage = isUniversal ? universalChatHook.setMessage : contextualChatHook.setMessage;
-    setMessage(value);
+  const handleInputChange = useCallback(
+    (e, isUniversal) => {
+      const value = e.target.value;
+      const setMessage = isUniversal ? universalChatHook.setMessage : contextualChatHook.setMessage;
+      setMessage(value);
 
-    if (isUniversal) {
-      autocompleteHook.handleAutocompleteInputChange(value, e.target.selectionStart, e.target);
-    }
-  }, [universalChatHook, contextualChatHook, autocompleteHook]);
-
-  const handleKeyDown = useCallback((e, isUniversal) => {
-    if (autocompleteHook.showAutocomplete && isUniversal) {
-      const filteredOptions = autocompleteHook.getFilteredAutocompleteOptions();
-      const result = autocompleteHook.handleAutocompleteKeyDown(e, filteredOptions);
-
-      if (result && typeof result === 'object') {
-        autocompleteHook.insertContextMention(
-          result.type,
-          result.data,
-          universalChatHook.message,
-          universalChatHook.setMessage,
-          universalTextareaRef
-        );
-        return;
+      if (isUniversal) {
+        autocompleteHook.handleAutocompleteInputChange(value, e.target.selectionStart, e.target);
       }
-      if (result) return;
-    }
+    },
+    [universalChatHook, contextualChatHook, autocompleteHook]
+  );
 
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      currentChat.handleSubmit(e);
-    }
-  }, [autocompleteHook, universalChatHook, currentChat]);
+  const handleKeyDown = useCallback(
+    (e, isUniversal) => {
+      if (autocompleteHook.showAutocomplete && isUniversal) {
+        const filteredOptions = autocompleteHook.getFilteredAutocompleteOptions();
+        const result = autocompleteHook.handleAutocompleteKeyDown(e, filteredOptions);
+
+        if (result && typeof result === 'object') {
+          autocompleteHook.insertContextMention(
+            result.type,
+            result.data,
+            universalChatHook.message,
+            universalChatHook.setMessage,
+            universalTextareaRef
+          );
+          return;
+        }
+        if (result) return;
+      }
+
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        currentChat.handleSubmit(e);
+      }
+    },
+    [autocompleteHook, universalChatHook, currentChat]
+  );
 
   const handleFileUploadClick = useCallback(() => {
     fileInputRef.current?.click();
@@ -416,8 +422,10 @@ const AIAssistantChat = () => {
   const getContextTitle = () => {
     const context = editorContextService.getContext();
     switch (context) {
-      case CONTEXT_TYPES.BPMN_EDITOR: return "BPMN Редактор";
-      default: return "Нет контекста";
+      case CONTEXT_TYPES.BPMN_EDITOR:
+        return 'BPMN Редактор';
+      default:
+        return 'Нет контекста';
     }
   };
 
@@ -425,8 +433,9 @@ const AIAssistantChat = () => {
     const context = editorContextService.getContext();
     switch (context) {
       case CONTEXT_TYPES.BPMN_EDITOR:
-        return "Например: \"Создай процесс обработки заявки на отпуск\". Чем детальнее описание, тем точнее будет результат.";
-      default: return "Контекст не определен";
+        return 'Например: "Создай процесс обработки заявки на отпуск". Чем детальнее описание, тем точнее будет результат.';
+      default:
+        return 'Контекст не определен';
     }
   };
 
@@ -435,14 +444,15 @@ const AIAssistantChat = () => {
   const currentRealTimeContext = editorContextService.getContext();
   const hasContext = !!currentRealTimeContext && currentRealTimeContext !== CONTEXT_TYPES.UNIVERSAL;
 
-  return (
-    <div className="ai-assistant-resizable">
+  // Render chat content
+  const chatContent = (
+    <>
       {/* Autocomplete dropdown */}
       {autocompleteHook.showAutocomplete && (
         <div
           className="ai-assistant-chat__autocomplete"
           style={{
-            position: "fixed",
+            position: 'fixed',
             top: autocompleteHook.autocompletePosition.top,
             left: autocompleteHook.autocompletePosition.left,
             zIndex: 105001
@@ -458,18 +468,21 @@ const AIAssistantChat = () => {
           )}
           {autocompleteHook.getFilteredAutocompleteOptions().map((option, index) => (
             <div
-              key={`${option.type}-${option.data?.recordRef || "current"}`}
-              className={classNames("ai-assistant-chat__autocomplete-item", {
-                "ai-assistant-chat__autocomplete-item--disabled": option.disabled,
-                "ai-assistant-chat__autocomplete-item--selected": index === autocompleteHook.selectedAutocompleteIndex
+              key={`${option.type}-${option.data?.recordRef || 'current'}`}
+              className={classNames('ai-assistant-chat__autocomplete-item', {
+                'ai-assistant-chat__autocomplete-item--disabled': option.disabled,
+                'ai-assistant-chat__autocomplete-item--selected': index === autocompleteHook.selectedAutocompleteIndex
               })}
-              onClick={() => !option.disabled && autocompleteHook.insertContextMention(
-                option.type,
-                option.data,
-                universalChatHook.message,
-                universalChatHook.setMessage,
-                universalTextareaRef
-              )}
+              onClick={() =>
+                !option.disabled &&
+                autocompleteHook.insertContextMention(
+                  option.type,
+                  option.data,
+                  universalChatHook.message,
+                  universalChatHook.setMessage,
+                  universalTextareaRef
+                )
+              }
             >
               <Icon className={`fa ${option.icon} ai-assistant-chat__autocomplete-icon`} />
               <div className="ai-assistant-chat__autocomplete-text">
@@ -480,107 +493,94 @@ const AIAssistantChat = () => {
         </div>
       )}
 
-      <ResizableBox
-        width={chatSize.width}
-        height={isMinimized ? 50 : chatSize.height}
-        minConstraints={[300, 300]}
-        onResize={handleResize}
-        resizeHandles={["nw"]}
-        disableResize={isMinimized}
+      <div
+        className={classNames('ai-assistant-chat ai-assistant-chat--tabs', {
+          minimized: isMinimized,
+          'ai-assistant-chat--drag-over': dragOver
+        })}
+        ref={chatRef}
+        onDrop={e => {
+          e.preventDefault();
+          if (activeTab === TAB_TYPES.UNIVERSAL) {
+            handleFileUpload(e.dataTransfer.files);
+          }
+          fileUploadHook.handleDragLeave(e);
+        }}
+        onDragOver={e => {
+          if (activeTab === TAB_TYPES.UNIVERSAL) {
+            handleDragOver(e);
+          }
+        }}
+        onDragLeave={handleDragLeave}
       >
-        <div
-          className={classNames("ai-assistant-chat ai-assistant-chat--tabs", {
-            "minimized": isMinimized,
-            "ai-assistant-chat--drag-over": dragOver
-          })}
-          ref={chatRef}
-          onDrop={(e) => {
-            e.preventDefault();
-            if (activeTab === TAB_TYPES.UNIVERSAL) {
-              handleFileUpload(e.dataTransfer.files);
-            }
-            fileUploadHook.handleDragLeave(e);
-          }}
-          onDragOver={(e) => {
-            if (activeTab === TAB_TYPES.UNIVERSAL) {
-              handleDragOver(e);
-            }
-          }}
-          onDragLeave={handleDragLeave}
-        >
-          <ChatHeader
-            isMinimized={isMinimized}
-            onMinimize={handleMinimize}
-            onClose={handleClose}
-          />
+        <ChatHeader isMinimized={isMinimized} onMinimize={handleMinimize} onClose={handleClose} />
 
-          {!isMinimized && (
-            <>
-              <ChatTabs
+        {!isMinimized && (
+          <>
+            <ChatTabs
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+              hasContext={hasContext}
+              contextTitle={getContextTitle()}
+              businessAppProgress={universalChatHook.activeBusinessAppProgress}
+              generationStages={universalChatHook.generationStages}
+              getStageStatus={getStageStatus}
+            />
+
+            <div className="ai-assistant-chat__messages">
+              <MessageList
+                messages={currentChat.messages}
                 activeTab={activeTab}
-                onTabChange={setActiveTab}
-                hasContext={hasContext}
-                contextTitle={getContextTitle()}
-                businessAppProgress={universalChatHook.activeBusinessAppProgress}
-                generationStages={universalChatHook.generationStages}
-                getStageStatus={getStageStatus}
+                contextHint={getContextHint()}
+                markdownComponents={markdownComponents}
+                onCancelRequest={currentChat.cancelRequest}
+                onCopyEmail={handleCopyEmail}
+                onSendEmail={handleSendEmail}
+                onApplyTextChanges={handleApplyTextChanges}
+                onApplyScriptChanges={handleApplyScriptChanges}
+                isApplyingTextChanges={isApplyingTextChanges}
+                isApplyingScriptChanges={isApplyingScriptChanges}
+                isLoading={currentChat.isLoading}
+                activeRequestId={currentChat.activeRequestId}
+                messagesEndRef={messagesEndRef}
               />
+            </div>
 
-              <div className="ai-assistant-chat__messages">
-                <MessageList
-                  messages={currentChat.messages}
-                  activeTab={activeTab}
-                  contextHint={getContextHint()}
-                  markdownComponents={markdownComponents}
-                  onCancelRequest={currentChat.cancelRequest}
-                  onCopyEmail={handleCopyEmail}
-                  onSendEmail={handleSendEmail}
-                  onApplyTextChanges={handleApplyTextChanges}
-                  onApplyScriptChanges={handleApplyScriptChanges}
-                  isApplyingTextChanges={isApplyingTextChanges}
-                  isApplyingScriptChanges={isApplyingScriptChanges}
-                  isLoading={currentChat.isLoading}
-                  activeRequestId={currentChat.activeRequestId}
-                  messagesEndRef={messagesEndRef}
-                />
-              </div>
-
-              <div className="ai-assistant-chat__input-section">
-                <form className="ai-assistant-chat__input-container" onSubmit={currentChat.handleSubmit}>
-                  {activeTab === TAB_TYPES.UNIVERSAL && (
-                    <ChatContextTags
-                      selectedAdditionalContext={selectedAdditionalContext}
-                      additionalContext={additionalContext}
-                      selectedTextContext={selectedTextContext}
-                      uploadedFiles={uploadedFiles}
-                      uploadingFiles={uploadingFiles}
-                      scriptContext={scriptContext}
-                      onToggleContext={toggleAdditionalContext}
-                      onRemoveSelectedText={removeSelectedTextContext}
-                      onRemoveUploadedFile={removeUploadedFile}
-                      onRemoveScriptContext={removeScriptContext}
-                      getScriptContextLabel={getScriptContextLabel}
-                    />
-                  )}
-                  <ChatInput
-                    textareaRef={currentTextareaRef}
-                    message={currentChat.message}
-                    isLoading={currentChat.isLoading}
-                    isUniversal={activeTab === TAB_TYPES.UNIVERSAL}
-                    isUploadingFile={isUploadingFile}
-                    onInputChange={handleInputChange}
-                    onKeyDown={handleKeyDown}
-                    onFileUploadClick={handleFileUploadClick}
-                    onClearConversation={handleClearConversation}
-                    fileInputRef={fileInputRef}
-                    onFileUpload={handleFileUpload}
+            <div className="ai-assistant-chat__input-section">
+              <form className="ai-assistant-chat__input-container" onSubmit={currentChat.handleSubmit}>
+                {activeTab === TAB_TYPES.UNIVERSAL && (
+                  <ChatContextTags
+                    selectedAdditionalContext={selectedAdditionalContext}
+                    additionalContext={additionalContext}
+                    selectedTextContext={selectedTextContext}
+                    uploadedFiles={uploadedFiles}
+                    uploadingFiles={uploadingFiles}
+                    scriptContext={scriptContext}
+                    onToggleContext={toggleAdditionalContext}
+                    onRemoveSelectedText={removeSelectedTextContext}
+                    onRemoveUploadedFile={removeUploadedFile}
+                    onRemoveScriptContext={removeScriptContext}
+                    getScriptContextLabel={getScriptContextLabel}
                   />
-                </form>
-              </div>
-            </>
-          )}
-        </div>
-      </ResizableBox>
+                )}
+                <ChatInput
+                  textareaRef={currentTextareaRef}
+                  message={currentChat.message}
+                  isLoading={currentChat.isLoading}
+                  isUniversal={activeTab === TAB_TYPES.UNIVERSAL}
+                  isUploadingFile={isUploadingFile}
+                  onInputChange={handleInputChange}
+                  onKeyDown={handleKeyDown}
+                  onFileUploadClick={handleFileUploadClick}
+                  onClearConversation={handleClearConversation}
+                  fileInputRef={fileInputRef}
+                  onFileUpload={handleFileUpload}
+                />
+              </form>
+            </div>
+          </>
+        )}
+      </div>
 
       {showEmailModal && (
         <EmailModal
@@ -591,6 +591,27 @@ const AIAssistantChat = () => {
           onFieldChange={(field, value) => setEmailFormData(prev => ({ ...prev, [field]: value }))}
         />
       )}
+    </>
+  );
+
+  // On mobile, render without resizable box
+  if (isMobile) {
+    return chatContent;
+  }
+
+  // On desktop/tablet, render with resizable box
+  return (
+    <div className="ai-assistant-resizable">
+      <ResizableBox
+        width={chatSize.width}
+        height={isMinimized ? 50 : chatSize.height}
+        minConstraints={[300, 300]}
+        onResize={handleResize}
+        resizeHandles={['nw']}
+        disableResize={isMinimized}
+      >
+        {chatContent}
+      </ResizableBox>
     </div>
   );
 };

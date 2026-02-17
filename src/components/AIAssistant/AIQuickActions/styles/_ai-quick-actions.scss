@@ -52,6 +52,11 @@
   --ai-result-min-width: 400px;
   --ai-result-min-height: 200px;
   --ai-result-max-height: 70vh;
+
+  // Breakpoints
+  --ai-breakpoint-mobile: 480px;
+  --ai-breakpoint-tablet: 768px;
+  --ai-breakpoint-desktop: 1024px;
 }
 
 // ============================================
@@ -143,7 +148,7 @@
 }
 
 // ============================================
-// AI Field Trigger Button
+// AI Field Trigger Button - Mobile First
 // Unified design matching language button style
 // ============================================
 .ai-field-trigger {
@@ -151,8 +156,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   padding: 0;
   background: transparent;
   border: none;
@@ -162,11 +167,25 @@
   transition: all 150ms ease;
   z-index: 10;
   filter: drop-shadow(0px 1px 4px rgba(0, 0, 0, 0.18));
+  min-width: 24px;
+  min-height: 24px;
+
+  @media (min-width: 768px) {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    min-height: 20px;
+  }
 
   &__icon {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
     transition: transform 150ms ease, opacity 150ms ease;
+
+    @media (min-width: 768px) {
+      width: 16px;
+      height: 16px;
+    }
   }
 
   // Hover: subtle scale and color shift
@@ -187,19 +206,25 @@
   // Inline: inside text input (right side, vertically centered)
   &--inline {
     position: absolute;
-    right: 40px; // Space for language button at right: 13px
+    right: 44px;
     top: 0;
     bottom: 0;
     margin: auto 0;
+
+    @media (min-width: 768px) {
+      right: 40px;
+    }
   }
 
   // Floating: unified style for textarea and code editors (bottom-right corner)
   &--floating {
     position: absolute;
-    right: 12px;
-    bottom: 12px;
-    width: 24px;
-    height: 24px;
+    right: 10px;
+    bottom: 10px;
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    min-height: 28px;
     background: rgba(255, 255, 255, 0.95);
     border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 6px;
@@ -209,9 +234,23 @@
     filter: none;
     backdrop-filter: blur(8px);
 
+    @media (min-width: 768px) {
+      right: 12px;
+      bottom: 12px;
+      width: 24px;
+      height: 24px;
+      min-width: 24px;
+      min-height: 24px;
+    }
+
     .ai-field-trigger__icon {
-      width: 14px;
-      height: 14px;
+      width: 16px;
+      height: 16px;
+
+      @media (min-width: 768px) {
+        width: 14px;
+        height: 14px;
+      }
     }
 
     &:hover:not(:disabled) {
@@ -271,24 +310,31 @@
   }
 }
 
-// ============================================
-// AI Actions Bar
-// ============================================
 .ai-actions-bar {
   position: absolute;
   top: calc(100% + 8px);
-  right: 0;
   left: 0;
   background: var(--ai-surface-primary);
   border: 1px solid #e1e4e8;
-  border-radius: 10px;
+  border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  padding: 12px 14px;
+  padding: 8px 10px;
   z-index: 1000;
   opacity: 0;
   visibility: hidden;
   transform: translateY(-8px);
   transition: all var(--ai-transition-normal);
+  width: 100%;
+  max-width: calc(100vw - 16px);
+  box-sizing: border-box;
+
+  @media (min-width: 768px) {
+    right: 0;
+    left: auto;
+    padding: 12px 14px;
+    border-radius: 10px;
+    max-width: none;
+  }
 
   // Visible state
   &--visible {
@@ -320,6 +366,10 @@
     padding-bottom: 10px;
     border-bottom: 1px solid #f0f0f0;
 
+    @media (min-width: 768px) {
+      gap: 8px;
+    }
+
     &:empty {
       display: none;
     }
@@ -328,14 +378,12 @@
   // Input row
   &__input-row {
     display: flex;
-    align-items: flex-start;
-    gap: 10px;
-  }
+    align-items: center;
+    gap: 8px;
 
-  // With actions modifier
-  &--with-actions {
-    .ai-actions-bar__input-row {
-      // Already has padding from quick actions
+    @media (min-width: 768px) {
+      align-items: flex-start;
+      gap: 10px;
     }
   }
 
@@ -384,6 +432,10 @@
     padding: 0;
     resize: none;
 
+    @media (min-width: 768px) {
+      font-size: 14px;
+    }
+
     &::placeholder {
       color: var(--text-secondary, #6a737d);
     }
@@ -398,14 +450,24 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
     background: var(--primary-color, #007bff);
     border: none;
     border-radius: 6px;
     color: white;
     cursor: pointer;
     transition: all 120ms ease;
+    flex-shrink: 0;
+
+    @media (min-width: 768px) {
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      min-height: 28px;
+    }
 
     &:hover:not(:disabled) {
       background: var(--dark-primary-color, #0056b3);
@@ -422,14 +484,24 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
     background: transparent;
     border: none;
     border-radius: 6px;
     color: var(--text-secondary, #6a737d);
     cursor: pointer;
     transition: all 120ms ease;
+    flex-shrink: 0;
+
+    @media (min-width: 768px) {
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      min-height: 28px;
+    }
 
     &:hover:not(:disabled) {
       background: rgba(0, 0, 0, 0.05);
@@ -444,33 +516,49 @@
 }
 
 // ============================================
-// Quick Action Pill Button
+// Quick Action Pill Button - Mobile First
 // ============================================
 .ai-quick-action {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 5px 10px;
+  gap: 4px;
+  padding: 6px 10px;
   background: #fff;
   border: 1px solid #d1d5db;
   border-radius: 14px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   font-family: inherit;
   color: #4b5563;
   cursor: pointer;
   transition: all var(--ai-transition-fast);
   white-space: nowrap;
+  min-height: 28px;
+
+  @media (min-width: 768px) {
+    padding: 5px 10px;
+    font-size: 12px;
+    min-height: auto;
+  }
 
   svg {
-    width: 12px;
-    height: 12px;
+    width: 11px;
+    height: 11px;
     opacity: 0.7;
+
+    @media (min-width: 768px) {
+      width: 12px;
+      height: 12px;
+    }
   }
 
   .fa {
-    font-size: 11px;
+    font-size: 10px;
     color: #6b7280;
+
+    @media (min-width: 768px) {
+      font-size: 11px;
+    }
   }
 
   &:hover:not(:disabled) {
@@ -497,30 +585,40 @@
   }
 }
 
-// ============================================
-// AI Inline Result
-// ============================================
 .ai-inline-result {
   position: absolute;
   top: calc(100% + 8px);
-  right: 0;
   left: 0;
   background: var(--ai-surface-elevated);
   border: 1px solid var(--ai-success);
-  border-radius: 10px;
+  border-radius: 8px;
   box-shadow: var(--ai-shadow-lg);
   z-index: 1000;
   animation: ai-slide-up var(--ai-transition-normal);
+  width: 100%;
+  max-width: calc(100vw - 16px);
+  box-sizing: border-box;
+
+  @media (min-width: 768px) {
+    right: 0;
+    left: auto;
+    border-radius: 10px;
+    max-width: none;
+  }
 
   // Constraints for proper sizing
   max-height: var(--ai-result-max-height);
-  min-width: var(--ai-result-min-width);
-  min-height: var(--ai-result-min-height);
+  min-width: auto;
+  min-height: auto;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  width: 100%;
   height: 100%;
+
+  @media (min-width: 768px) {
+    min-width: var(--ai-result-min-width);
+    min-height: var(--ai-result-min-height);
+  }
 
   // Loading state - compact, no extra space
   &--loading {
@@ -534,11 +632,19 @@
     }
 
     .ai-inline-result__header {
-      padding: 10px 14px;
+      padding: 10px 12px;
+
+      @media (min-width: 768px) {
+        padding: 10px 14px;
+      }
     }
 
     .ai-inline-result__actions {
-      padding: 10px 14px;
+      padding: 10px 12px;
+
+      @media (min-width: 768px) {
+        padding: 10px 14px;
+      }
     }
   }
 
@@ -546,11 +652,16 @@
   &__header {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 12px 16px;
+    gap: 8px;
+    padding: 10px 12px;
     background: var(--ai-success-soft);
     border-bottom: 1px solid rgba(16, 185, 129, 0.2);
-    flex-shrink: 0; // Header stays fixed
+    flex-shrink: 0;
+
+    @media (min-width: 768px) {
+      gap: 10px;
+      padding: 12px 16px;
+    }
   }
 
   &--loading &__header {
@@ -562,19 +673,31 @@
   &__badge {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    padding: 2px 8px;
+    gap: 3px;
+    padding: 2px 7px;
     background: var(--ai-success);
     border-radius: 9999px;
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 600;
     color: var(--ai-text-inverse);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
+
+    @media (min-width: 768px) {
+      gap: 4px;
+      padding: 2px 8px;
+      font-size: 10px;
+      letter-spacing: 0.5px;
+    }
 
     svg {
-      width: 10px;
-      height: 10px;
+      width: 9px;
+      height: 9px;
+
+      @media (min-width: 768px) {
+        width: 10px;
+        height: 10px;
+      }
     }
   }
 
@@ -584,24 +707,36 @@
 
   // Context type (e.g., "BPMN Script Task")
   &__context-type {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 500;
     color: var(--ai-text-primary);
+
+    @media (min-width: 768px) {
+      font-size: 12px;
+    }
   }
 
   // Label - pushed to the right
   &__label {
     margin-left: auto;
-    font-size: 12px;
+    font-size: 11px;
     color: var(--ai-text-secondary);
+
+    @media (min-width: 768px) {
+      font-size: 12px;
+    }
   }
 
   // Content
   &__content {
-    padding: 16px;
+    padding: 12px;
     flex: 1;
-    overflow-y: auto; // Scrollable content
-    min-height: 0; // Required for flex overflow
+    overflow-y: auto;
+    min-height: 0;
+
+    @media (min-width: 768px) {
+      padding: 16px;
+    }
   }
 
   // Loading state - compact centered indicator
@@ -609,7 +744,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px 16px;
+    padding: 16px 12px;
+
+    @media (min-width: 768px) {
+      padding: 20px 16px;
+    }
   }
 
   &__loading-indicator {
@@ -620,15 +759,20 @@
 
   // Preview
   &__preview {
-    font-size: 14px;
+    font-size: 13px;
     line-height: 1.5;
     color: var(--ai-text-primary);
     background: var(--ai-surface-secondary);
-    padding: 16px;
+    padding: 12px;
     border-radius: 6px;
     border: 1px dashed var(--ai-border-default);
     word-break: break-word;
     margin: 0;
+
+    @media (min-width: 768px) {
+      font-size: 14px;
+      padding: 16px;
+    }
   }
 
   // Explanation with markdown support - shown above diff
@@ -666,14 +810,19 @@
   &__retry-row {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 12px;
+    gap: 6px;
+    padding: 10px;
+
+    @media (min-width: 768px) {
+      gap: 8px;
+      padding: 12px;
+    }
   }
 
   &__retry-input {
     flex: 1;
-    height: 32px;
-    padding: 0 12px;
+    height: 36px;
+    padding: 0 10px;
     border: 1px solid var(--ai-border-default);
     border-radius: 6px;
     font-size: 13px;
@@ -681,6 +830,12 @@
     color: var(--ai-text-primary);
     background: var(--ai-surface-primary);
     transition: border-color var(--ai-transition-fast);
+
+    @media (min-width: 768px) {
+      height: 32px;
+      padding: 0 12px;
+      font-size: 13px;
+    }
 
     &::placeholder {
       color: var(--ai-text-tertiary);
@@ -696,18 +851,33 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
     background: var(--ai-accent);
     border: none;
     border-radius: 6px;
     color: var(--ai-text-inverse);
     cursor: pointer;
     transition: background var(--ai-transition-fast);
+    flex-shrink: 0;
+
+    @media (min-width: 768px) {
+      width: 32px;
+      height: 32px;
+      min-width: 32px;
+      min-height: 32px;
+    }
 
     svg {
-      width: 14px;
-      height: 14px;
+      width: 16px;
+      height: 16px;
+
+      @media (min-width: 768px) {
+        width: 14px;
+        height: 14px;
+      }
     }
 
     &:hover:not(:disabled) {
@@ -725,24 +895,28 @@
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    gap: 8px;
-    padding: 12px 16px;
+    gap: 6px;
+    padding: 10px 12px;
     border-top: 1px solid var(--ai-border-subtle);
-    flex-shrink: 0; // Actions always visible
+    flex-shrink: 0;
     background: var(--ai-surface-elevated);
+
+    @media (min-width: 768px) {
+      gap: 8px;
+      padding: 12px 16px;
+    }
   }
 }
 
-// ============================================
-// Result Icon Buttons (matches floating-action style)
-// ============================================
 .ai-result-icon-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  padding: 6px;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0;
   border-radius: 50%;
   border: none;
   cursor: pointer;
@@ -750,14 +924,31 @@
   background: transparent;
   color: var(--text-secondary, #8e8ea0);
   position: relative;
+  flex-shrink: 0;
+
+  @media (min-width: 768px) {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+  }
 
   svg {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
+
+    @media (min-width: 768px) {
+      width: 18px;
+      height: 18px;
+    }
   }
 
   .fa {
-    font-size: 16px;
+    font-size: 18px;
+
+    @media (min-width: 768px) {
+      font-size: 16px;
+    }
   }
 
   &:hover:not(:disabled) {
@@ -781,14 +972,19 @@
     color: var(--tooltip-text, white);
     padding: 6px 8px;
     border-radius: 4px;
-    font-size: 12px;
+    font-size: 11px;
     white-space: nowrap;
     opacity: 0;
     visibility: hidden;
     transition: opacity 200ms ease, visibility 200ms ease;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     z-index: 1000;
     pointer-events: none;
+
+    @media (min-width: 768px) {
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
   }
 
   &::before {
@@ -802,7 +998,7 @@
     opacity: 0;
     visibility: hidden;
     transition: opacity 200ms ease, visibility 200ms ease;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
     z-index: 1000;
     pointer-events: none;
   }
@@ -844,21 +1040,32 @@
   }
 }
 
-// Legacy text buttons (kept for backwards compatibility)
 .ai-result-btn {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 8px 12px;
+  gap: 3px;
+  padding: 8px 10px;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
   transition: all var(--ai-transition-fast);
+  min-height: 32px;
+
+  @media (min-width: 768px) {
+    gap: 4px;
+    padding: 8px 12px;
+    font-size: 12px;
+    min-height: auto;
+  }
 
   .fa {
-    font-size: 11px;
+    font-size: 10px;
+
+    @media (min-width: 768px) {
+      font-size: 11px;
+    }
   }
 
   // Secondary variant
@@ -896,12 +1103,13 @@
   }
 }
 
-// ============================================
-// Diff Preview (Text)
-// ============================================
 .ai-diff-preview {
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.6;
+
+  @media (min-width: 768px) {
+    font-size: 14px;
+  }
 
   // Compact mode - single line with inline highlights
   &--compact {
@@ -913,8 +1121,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 16px;
+    padding: 12px;
     color: var(--ai-accent);
+
+    @media (min-width: 768px) {
+      padding: 16px;
+    }
   }
 
   &--text {

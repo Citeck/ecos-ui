@@ -1,18 +1,24 @@
-// AI Assistant Mermaid Diagram Styles
+// AI Assistant Mermaid Diagram Styles - Mobile First
 
 @import 'variables';
 
 // Mermaid diagram in email modal
 .ai-assistant-email-modal {
   &__mermaid-diagram {
-    margin: $spacing-lg 0;
-    padding: $spacing-xl;
+    margin: 12px 0;
+    padding: 16px;
     background-color: var(--surface-color, #fff);
     border: 1px solid var(--border-color, #e1e5e9);
-    border-radius: $border-radius-lg;
+    border-radius: 6px;
     text-align: center;
     overflow: auto;
     min-height: 200px;
+
+    @media (min-width: $tablet) {
+      margin: $spacing-lg 0;
+      padding: $spacing-xl;
+      border-radius: $border-radius-lg;
+    }
 
     svg {
       max-width: 100% !important;
@@ -20,7 +26,11 @@
       margin: 0 auto;
 
       text {
-        font-size: $font-size-md !important;
+        font-size: 12px !important;
+
+        @media (min-width: $tablet) {
+          font-size: $font-size-md !important;
+        }
       }
 
       path, line {
@@ -39,14 +49,25 @@
       color: var(--error-color, #dc3545);
       text-align: left;
       background-color: var(--error-bg-light, #f8d7da);
-      padding: $spacing-md;
-      border-radius: $border-radius-sm;
+      padding: 12px;
+      border-radius: 4px;
       border: 1px solid var(--error-border, #f5c6cb);
+      font-size: 12px;
+
+      @media (min-width: $tablet) {
+        padding: $spacing-md;
+        border-radius: $border-radius-sm;
+        font-size: inherit;
+      }
 
       strong {
         display: block;
-        margin-bottom: $spacing-sm;
+        margin-bottom: 8px;
         font-weight: 600;
+
+        @media (min-width: $tablet) {
+          margin-bottom: $spacing-sm;
+        }
       }
 
       pre {
