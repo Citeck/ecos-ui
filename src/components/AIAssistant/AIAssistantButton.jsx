@@ -75,7 +75,7 @@ const AIAssistantButton = () => {
 
   return (
     <div className="ecos-model-editor__designer-ai-button">
-      <IcoBtn id={buttonId} icon={<AiAssistant />} onClick={handleClick} className="ecos-btn_blue-classic" />
+      <IcoBtn id={buttonId} icon={<AiAssistant color="#ffffff" />} onClick={handleClick} className="ecos-btn_blue-classic" />
     </div>
   );
 };

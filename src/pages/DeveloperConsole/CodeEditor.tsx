@@ -71,13 +71,12 @@ const CodeEditor = ({
   const handleBeforeMount: BeforeMount = monaco => {
     completionDisposable.current?.dispose();
 
-    // Disable built-in JS language service completions —
-    // it suggests all identifiers from the file (including "Citeck") in any context
     monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
       target: monaco.languages.typescript.ScriptTarget.ESNext,
       allowNonTsExtensions: true,
       noLib: true
     });
+
     monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
       noSemanticValidation: true,
       noSyntaxValidation: true
@@ -85,7 +84,13 @@ const CodeEditor = ({
 
     completionDisposable.current = monaco.languages.registerCompletionItemProvider('javascript', {
       triggerCharacters: ['.'],
-      provideCompletionItems(model, position) {
+      provideCompletionItems(
+        model: {
+          getValueInRange: (arg0: { startLineNumber: any; startColumn: number; endLineNumber: any; endColumn: any }) => any;
+          getWordUntilPosition: (arg0: any) => any;
+        },
+        position: { lineNumber: any; column: any }
+      ) {
         const textUntilPosition = model.getValueInRange({
           startLineNumber: position.lineNumber,
           startColumn: 1,
@@ -93,7 +98,6 @@ const CodeEditor = ({
           endColumn: position.column
         });
 
-        // Match "Citeck.", "Citeck.Re", "Citeck.Records.qu" etc.
         const dotMatch = textUntilPosition.match(/([\w]+(?:\.[\w]+)*)\.\w*$/);
 
         if (dotMatch) {
@@ -111,7 +115,9 @@ const CodeEditor = ({
           };
 
           const keys = getObjectKeys(obj);
-          const suggestions = keys.map(key => {
+          const suggestionsMap = new Map();
+
+          keys.forEach(key => {
             let valueType = 'unknown';
             try {
               valueType = typeof obj[key];
@@ -126,14 +132,16 @@ const CodeEditor = ({
                   ? monaco.languages.CompletionItemKind.Module
                   : monaco.languages.CompletionItemKind.Property;
 
-            return {
+            suggestionsMap.set(key, {
               label: key,
               kind,
               insertText: key,
               detail: `${objectPath}.${key} (${valueType})`,
               range
-            };
+            });
           });
+
+          const suggestions = Array.from(suggestionsMap.values());
 
           return { suggestions };
         }
@@ -148,7 +156,9 @@ const CodeEditor = ({
         };
 
         const globals = getWindowGlobals();
-        const suggestions = globals.map(key => {
+        const suggestionsMap = new Map();
+
+        globals.forEach(key => {
           const value = (window as any)[key];
           const kind =
             typeof value === 'function'
@@ -157,14 +167,16 @@ const CodeEditor = ({
                 ? monaco.languages.CompletionItemKind.Module
                 : monaco.languages.CompletionItemKind.Variable;
 
-          return {
+          suggestionsMap.set(key, {
             label: key,
             kind,
             insertText: key,
             detail: `window.${key} (${typeof value})`,
             range
-          };
+          });
         });
+
+        const suggestions = Array.from(suggestionsMap.values());
 
         return { suggestions };
       }

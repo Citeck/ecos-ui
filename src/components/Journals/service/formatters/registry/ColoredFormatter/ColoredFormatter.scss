@@ -3,7 +3,6 @@
 .value-color-formatter {
   font-size: $font-size-extra-small;
   font-weight: $font-weight-normal;
-  line-height: 1;
 
   &__pointer {
     display: inline-block;
@@ -14,8 +13,6 @@
   }
 
   &__text {
-    vertical-align: middle;
-
     span {
       &[class^='value-color-formatter_'] {
         padding: 4px 15px;

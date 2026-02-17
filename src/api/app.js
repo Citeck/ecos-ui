@@ -24,6 +24,7 @@ import ConfigService, {
 
 import { CommonApi } from './common';
 
+import { getWorkspaceId } from '@/helpers/urls';
 import PageService from '@/services/PageService';
 import { NotificationManager } from '@/services/notifications';
 
@@ -174,15 +175,22 @@ export class AppApi extends CommonApi {
     return false;
   }
 
-  recordIsExist(recordRef, showNotification = false) {
+  checkRecordExistenceAndRedirection(recordRef, showNotification = false) {
+    const wsId = getWorkspaceId();
+
     return Records.get(recordRef)
-      .load('_notExists?bool', true)
-      .then(status => {
-        if (status === null) {
-          return true;
+      .load({ notExists: '_notExists?bool', movedToRef: '_movedToRef?id' })
+      .then(data => {
+        const notExists = data['notExists'];
+        const movedToRef = data['movedToRef'];
+
+        if (movedToRef !== null) {
+          PageService.changeUrlLink(`${URL.DASHBOARD}?recordRef=${movedToRef}&ws=${wsId}`, { openNewTab: true, needUpdateTabs: true });
+
+          return { exists: false, redirected: true };
         }
 
-        return !status;
+        return { exists: !notExists, redirected: false };
       })
       .catch(e => {
         if (showNotification) {
@@ -190,23 +198,8 @@ export class AppApi extends CommonApi {
         }
 
         console.error(e);
-        return false;
-      });
-  }
 
-  hasRecordRedirection(recordRef) {
-    return Records.get(recordRef)
-      .load('_movedToRef?id')
-      .then(ref => {
-        if (ref === null) {
-          return false;
-        }
-
-        PageService.changeUrlLink(`${URL.DASHBOARD}?recordRef=${ref}`, { openNewTab: true, needUpdateTabs: true });
-      })
-      .catch(e => {
-        console.error(e);
-        return false;
+        return { exists: false, redirected: false };
       });
   }
 

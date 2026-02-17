@@ -63,13 +63,9 @@
 
   .form-control {
     display: block;
-    box-sizing: border-box;
     width: 100%;
-    padding: 6px 12px;
-    height: $form-input-height;
+    padding: 6px $input-padding;
     line-height: 24px;
-    padding-left: $input-padding;
-    padding-right: $input-padding;
     background: $color-white;
     border: $border-width-standard solid $color-gray-6;
     border-radius: $border-radius-standard;
@@ -82,6 +78,10 @@
       color: $color-gray-5;
     }
 
+    &:not(textarea) {
+      height: $form-input-height;
+    }
+
     &:focus {
       border-color: var(--primary-color);
       box-shadow: none;
@@ -89,6 +89,10 @@
 
     &:hover {
       border-color: var(--dark-primary-color);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
     }
   }
 

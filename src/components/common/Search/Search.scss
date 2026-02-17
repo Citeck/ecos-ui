@@ -1,15 +1,13 @@
 @import '../../../styles/constants';
 
 .search {
-  border-radius: $border-radius-standard;
-  padding: 6px 12px 6px 6px;
-  display: inline-block;
-  border: 2px solid $color-gray-1;
-  background: $color-white;
+  display: flex;
   position: relative;
-  width: 220px;
   min-width: 40px;
   transition: width 0.5s;
+  border: 2px solid $color-gray-1;
+  border-radius: $border-radius-standard;
+  background: $color-white;
   overflow: hidden;
 
   &_border-white {
@@ -22,14 +20,12 @@
   }
 
   &__input {
+    width: calc(100% - 40px) !important;
     outline: none !important;
     border: none !important;
     font-weight: $font-weight-semi-bold !important;
     font-size: $font-size-standard !important;
-    width: calc(100% - 40px) !important;
     transition: width 0.5s;
-    position: absolute;
-    left: 35px;
     color: $text-color-dark;
 
     &::placeholder {
@@ -42,10 +38,10 @@
   }
 
   &__icon {
+    padding: 0 4px;
+    align-content: center;
     color: $color-gray-5;
     cursor: pointer;
-    position: absolute;
-    top: 8px;
 
     &-search {
       z-index: 10;
