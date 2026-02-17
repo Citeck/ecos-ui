@@ -20,6 +20,8 @@
 
     .ecos-dropdown__menu_cascade[x-placement='left-start'] {
       left: -5px !important;
+      max-height: 400px;
+      overflow: scroll;
     }
   }
 
