@@ -355,6 +355,10 @@
 
   .editor-shell .editor-image img {
     max-width: 100%;
+    cursor: zoom-in;
+  }
+
+  &.editable .editor-shell .editor-image img {
     cursor: default;
   }
 
