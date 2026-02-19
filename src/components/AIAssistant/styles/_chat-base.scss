@@ -30,14 +30,6 @@
   // Tablet: Fixed position with border radius
   @media (min-width: $tablet) {
     position: fixed;
-    right: 20px;
-    bottom: 20px;
-    top: auto;
-    left: auto;
-    width: $chat-desktop-width;
-    height: $chat-desktop-height;
-    max-width: $chat-max-width;
-    max-height: $chat-max-height;
     border-radius: $chat-border-radius;
     box-shadow: $shadow-lg;
     padding: 0;
@@ -80,7 +72,7 @@
     flex-shrink: 0;
 
     @media (min-width: $tablet) {
-      padding: $spacing-md $spacing-lg;
+      padding: 5px $spacing-lg;
       border-top-left-radius: $chat-border-radius;
       border-top-right-radius: $chat-border-radius;
       min-height: 50px;
@@ -232,7 +224,6 @@
   }
 }
 
-// Resizable container - Mobile First
 .ai-assistant-resizable {
   position: fixed;
   top: 0;
@@ -249,7 +240,7 @@
 
   @media (min-width: $tablet) {
     position: fixed;
-    right: 20px;
+    right: 18px;
     bottom: 20px;
     top: auto;
     left: auto;
@@ -259,13 +250,14 @@
     .react-resizable-handle {
       display: block;
       position: absolute;
-      left: -25px;
-      top: -25px;
+      left: -5px;
+      top: -5px;
       width: 50px;
       height: 50px;
       cursor: nw-resize;
       z-index: 101000;
       background-color: transparent;
+      background-image: none;
       border: none;
 
       &:hover {
