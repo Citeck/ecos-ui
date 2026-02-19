@@ -321,7 +321,17 @@
   }
 
   .ecos-journal__settings-bar-search:not(.search_collapsed) {
-    width: 141px;
+    width: 220px;
+    transition: width 0.3s ease 0.15s;
+
+    &:focus-within {
+      width: 350px;
+      transition: width 0.3s ease 0s;
+    }
+  }
+
+  .ecos-journal__settings-bar-search .search__icon-cleaner_show {
+    transition-delay: 0s;
   }
 
   .ecos-dropdown-outer_disabled button:disabled {
