@@ -173,7 +173,17 @@
 
   &-search {
     &:not(.search_collapsed) {
-      width: 200px;
+      width: 220px;
+      transition: width 0.3s ease 0.15s;
+
+      &:focus-within {
+        width: 350px;
+        transition: width 0.3s ease 0s;
+      }
+    }
+
+    .search__icon-cleaner_show {
+      transition-delay: 0s;
     }
 
     min-width: 82px;
