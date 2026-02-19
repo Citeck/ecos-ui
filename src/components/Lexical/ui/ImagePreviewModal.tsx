@@ -1,6 +1,6 @@
 import './ImagePreviewModal.css';
 
-import { JSX, useCallback, useEffect } from 'react';
+import { type MouseEvent, JSX, useCallback, useEffect, useMemo } from 'react';
 
 export default function ImagePreviewModal({
   src,
@@ -26,7 +26,7 @@ export default function ImagePreviewModal({
   }, [onClose]);
 
   const onOverlayClick = useCallback(
-    (event: React.MouseEvent) => {
+    (event: MouseEvent) => {
       if (event.target === event.currentTarget) {
         onClose();
       }
@@ -34,9 +34,17 @@ export default function ImagePreviewModal({
     [onClose]
   );
 
+  const imageUrl = useMemo(() => {
+    if (src.includes('/api/ecos/webapp/content')) {
+      const separator = src.includes('?') ? '&' : '?';
+      return `${src}${separator}download=false`;
+    }
+    return src;
+  }, [src]);
+
   return (
     <div className="ImagePreviewModal__overlay" onClick={onOverlayClick}>
-      <img className="ImagePreviewModal__image" src={src} alt={altText} />
+      <img className="ImagePreviewModal__image" src={imageUrl} alt={altText} />
       <button
         className="ImagePreviewModal__closeButton"
         aria-label="Close preview"
