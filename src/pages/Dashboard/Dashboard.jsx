@@ -15,6 +15,7 @@ import {
   getDashboardTitle,
   resetDashboardConfig,
   saveDashboardConfig,
+  setDashboardTitleInfo,
   setLoading,
   setWarningMessage
 } from '@/actions/dashboard';
@@ -94,7 +95,8 @@ const mapDispatchToProps = (dispatch, state) => ({
   setLoading: status => dispatch(setLoading({ status, key: getStateId(state) })),
   resetDashboardConfig: () => dispatch(resetDashboardConfig(getStateId(state))),
   deleteTab: tab => dispatch(deleteTab(tab)),
-  closeWarningMessage: () => dispatch(setWarningMessage({ key: getStateId(state), message: '' }))
+  closeWarningMessage: () => dispatch(setWarningMessage({ key: getStateId(state), message: '' })),
+  setTitleInfo: titleInfo => dispatch(setDashboardTitleInfo({ titleInfo, key: getStateId(state) }))
 });
 
 class Dashboard extends Component {
@@ -115,7 +117,8 @@ class Dashboard extends Component {
     const recordRef = get(this.getPathInfo(), 'recordRef', null);
 
     this.instanceRecord = Records.get(recordRef);
-    this.watcher = this.instanceRecord.watch(['version', 'name', '_disp'], this.updateSomeDetails);
+    this.watcher = this.instanceRecord.watch(['version', 'name'], this.updateSomeDetails);
+    this.dispWatcher = this.instanceRecord.watch('?disp', this.updateTitle);
 
     this.recordUpdater = new RecordUpdater(this.instanceRecord);
   }
@@ -247,6 +250,7 @@ class Dashboard extends Component {
 
   componentWillUnmount() {
     this.instanceRecord.unwatch(this.watcher);
+    this.instanceRecord.unwatch(this.dispWatcher);
     this.showWarningMessage.cancel();
     this.recordUpdater.dispose();
   }
@@ -392,6 +396,14 @@ class Dashboard extends Component {
   get isShowTabs() {
     return this.tabList.length > 1 && !isMobileAppWebView();
   }
+
+  updateTitle = displayName => {
+    const { titleInfo, setTitleInfo } = this.props;
+
+    if (displayName && displayName !== titleInfo.name) {
+      setTitleInfo({ ...titleInfo, name: displayName });
+    }
+  };
 
   updateSomeDetails = () => {
     const { getDashboardTitle } = this.props;

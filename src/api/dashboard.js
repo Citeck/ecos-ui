@@ -294,7 +294,7 @@ export class DashboardApi {
             Records.get(recordRef)
               .load(
                 {
-                  displayName: '.disp',
+                  displayName: '?disp',
                   version: 'version',
                   pendingUpdate: 'pendingUpdate?bool'
                 },
