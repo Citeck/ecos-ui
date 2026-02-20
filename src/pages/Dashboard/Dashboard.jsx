@@ -115,7 +115,7 @@ class Dashboard extends Component {
     const recordRef = get(this.getPathInfo(), 'recordRef', null);
 
     this.instanceRecord = Records.get(recordRef);
-    this.watcher = this.instanceRecord.watch(['version', 'name'], this.updateSomeDetails);
+    this.watcher = this.instanceRecord.watch(['version', 'name', '_disp'], this.updateSomeDetails);
 
     this.recordUpdater = new RecordUpdater(this.instanceRecord);
   }
