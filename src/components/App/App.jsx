@@ -45,6 +45,11 @@ import UserLocalSettingsService from '@/services/userLocalSettings';
 
 import './App.scss';
 
+const Agentation =
+  import.meta.env.VITE_AGENTATION_ENABLED === 'true'
+    ? React.lazy(() => import('agentation').then(m => ({ default: m.Agentation })))
+    : () => null;
+
 const allowedLinks = [
   Urls.DASHBOARD,
   Urls.BPMN_DESIGNER,
@@ -520,6 +525,9 @@ class App extends Component {
           <MenuSettingsController />
           <UploadStatus />
           <AIAssistantContainer />
+          <Suspense fallback={null}>
+            <Agentation />
+          </Suspense>
         </div>
       </ErrorBoundary>
     );
