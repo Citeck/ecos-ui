@@ -8,6 +8,7 @@ import { NotificationManager } from '@/services/notifications';
 export {};
 
 declare global {
+  const __BUILD_TIME__: string;
   namespace NodeJS {
     interface ProcessEnv {
       REACT_APP_KEYCLOAK_CONFIG_CLIENT_ID?: string;

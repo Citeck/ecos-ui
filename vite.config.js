@@ -100,7 +100,8 @@ export default defineConfig(({ mode }) => {
         NODE_DEBUG: false,
         ...needEnvSettings.reduce((acc, key) => ({ ...acc, [key]: env[key] }), {})
       }),
-      'process.versions': JSON.stringify({ node: packageInfo.volta.node })
+      'process.versions': JSON.stringify({ node: packageInfo.volta.node }),
+      '__BUILD_TIME__': JSON.stringify(new Date().toISOString())
     },
     build: {
       outDir: 'build',
