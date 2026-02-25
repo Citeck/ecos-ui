@@ -16,7 +16,7 @@ import { t } from '@/helpers/util';
 import './ColoredFormatter.scss';
 
 const HEX_COLOR_REGEX = /^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/;
-const SUPPORTED_DEFAULT_COLOR = ['green', 'yellow', 'pink', 'red'];
+const SUPPORTED_DEFAULT_COLOR = ['green', 'blue', 'yellow', 'pink', 'red', 'currentColor'];
 
 export default class ColoredFormatter extends BaseFormatter {
   static TYPE = 'colored';

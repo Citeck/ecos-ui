@@ -46,3 +46,12 @@
 .value-color-formatter_red {
   background: $color-red-2;
 }
+
+.value-color-formatter_blue {
+  background: $color-blue-light;
+}
+
+.value-color-formatter_currentColor {
+  color: var(--main-bg-color);
+  background: var(--primary-color);
+}
