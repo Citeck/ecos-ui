@@ -43,7 +43,7 @@ function* _handleChangeUrl({ api }, { payload: event }) {
 
         pushHistoryLink(window, {
           pathname: url,
-          search: decodeLink(queryString.stringify(query))
+          search: decodeLink(queryString.stringify(query, { sort: false }))
         });
       } else {
         replaceHistoryLink(window, link);

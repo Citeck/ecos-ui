@@ -185,7 +185,7 @@ export class AppApi extends CommonApi {
         const movedToRef = data['movedToRef'];
 
         if (movedToRef !== null) {
-          PageService.changeUrlLink(`${URL.DASHBOARD}?recordRef=${movedToRef}&ws=${wsId}`, { openNewTab: true, needUpdateTabs: true });
+          PageService.changeUrlLink(`${URL.DASHBOARD}?ws=${wsId}&recordRef=${movedToRef}`, { openNewTab: true, needUpdateTabs: true });
 
           return { exists: false, redirected: true };
         }

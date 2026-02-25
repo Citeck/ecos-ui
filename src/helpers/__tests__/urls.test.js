@@ -156,7 +156,7 @@ describe('Urls helpers', () => {
       {
         title: 'Add a workspace ID for a direct link',
         input: [url.pathname, url.search, wsId],
-        output: `/v2/dashboard?activeTab=0&recordRef=emodel/sd-request-type@28ad7478-b848-40cc-8056-afaa512daf0a&ws=${wsId}`
+        output: `/v2/dashboard?ws=${wsId}&activeTab=0&recordRef=emodel/sd-request-type@28ad7478-b848-40cc-8056-afaa512daf0a`
       },
       {
         title: 'Do not add a workspace identifier if it is not defined',
@@ -171,7 +171,7 @@ describe('Urls helpers', () => {
       {
         title: 'Pass undefined parameters',
         input: [url.pathname, undefined, wsId],
-        output: `/v2/dashboard?example-params=test&ws=${wsId}` // The method should return a link with the parameters that are in the current location
+        output: `/v2/dashboard?ws=${wsId}&example-params=test` // The method should return a link with the parameters that are in the current location
       }
     ];
 
@@ -207,22 +207,22 @@ describe('Urls helpers', () => {
       {
         title: 'Add a workspace to the link with the parameter',
         input: ['/v2/journal?journalId=example123', 'example-default'],
-        output: `/v2/journal?journalId=example123&ws=example-default`
+        output: `/v2/journal?ws=example-default&journalId=example123`
       },
       {
         title: 'Add a workspace to the full link without the parameter',
         input: ['https://example.com/v2/journal?journalId=example123', 'example-default'],
-        output: `/v2/journal?journalId=example123&ws=example-default`
+        output: `/v2/journal?ws=example-default&journalId=example123`
       },
       {
         title: 'Add a workspace with a special symbol to the link',
         input: ['/v2/journal?journalId=test&activeTab=true', 'user$test-user'],
-        output: `/v2/journal?journalId=test&activeTab=true&ws=user$test-user`
+        output: `/v2/journal?ws=user$test-user&journalId=test&activeTab=true`
       },
       {
         title: 'Add a workspace with a special character and the full url to the link',
         input: ['/v2/journal?journalId=test&activeTab=true', 'user$test-user', true],
-        output: `${location.origin}v2/journal?journalId=test&activeTab=true&ws=user$test-user`
+        output: `${location.origin}v2/journal?ws=user$test-user&journalId=test&activeTab=true`
       }
     ];
 
