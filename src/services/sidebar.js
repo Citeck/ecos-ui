@@ -344,7 +344,7 @@ class SidebarService {
 
     return {
       targetUrl:
-        workspaceId && targetUrl && workspaceEnabled && !hasWorkspaceInLink && !hasRedirects
+        workspaceId && targetUrl && workspaceEnabled && !hasWorkspaceInLink && !hasRedirects && !targetUrl.startsWith('http')
           ? getLinkWithWs(targetUrl, workspaceId)
           : targetUrl,
       attributes
