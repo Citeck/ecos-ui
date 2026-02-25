@@ -343,7 +343,10 @@ export default class SidebarService {
     }
 
     return {
-      targetUrl: workspaceId && targetUrl && workspaceEnabled && !hasWorkspaceInLink && !hasRedirects ? getLinkWithWs(targetUrl, workspaceId) : targetUrl,
+      targetUrl:
+        workspaceId && targetUrl && workspaceEnabled && !hasWorkspaceInLink && !hasRedirects && !targetUrl.startsWith('http')
+          ? getLinkWithWs(targetUrl, workspaceId)
+          : targetUrl,
       attributes
     };
   }
