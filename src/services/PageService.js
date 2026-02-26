@@ -450,7 +450,7 @@ export default class PageService {
 
         if (getEnabledWorkspaces() && window.location.href.includes('ws=') && link && !link.includes('ws=')) {
           const url = new URLSearchParams(window.location.search);
-          const wsId = url.get('ws');
+          const wsId = getWorkspaceId();
 
           tab = window.open(getLinkWithWs(link, wsId), target);
         } else {
