@@ -13,9 +13,7 @@ import './DeveloperConsole.scss';
 
 const STORAGE_KEYS = {
   CODE: 'developerConsole_code',
-  PANEL_POSITION: 'developerConsole_panelPosition',
-  PANEL_SIZE: 'developerConsole_panelSize',
-  PANEL_LOCATION: 'developerConsole_panelLocation'
+  PANEL_SIZE: 'developerConsole_panelSize'
 };
 
 interface Snippet {
@@ -33,15 +31,27 @@ const DEFAULT_PANEL_STATE = {
 
 const DEFAULT_CODE = '// Write your JavaScript code here\nconsole.log("Hello from Developer Console!");';
 
+const loadFromStorage = <T,>(key: string, fallback: T): T => {
+  try {
+    const saved = localStorage.getItem(key);
+
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  } catch (err) {
+    console.warn(`Could not parse ${key}:`, err);
+  }
+
+  return fallback;
+};
+
 const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
   const [initialValue, setInitialValue] = useState('');
 
   const [response, setResponse] = useState('');
   const [loading, setLoading] = useState(false);
-  const [_error, setError] = useState<any>(null);
 
-  const [panelSize, setPanelSize] = useState(DEFAULT_PANEL_STATE);
-  const [panelPosition, setPanelPosition] = useState({ x: 0, y: 0 });
+  const [panelSize, setPanelSize] = useState(() => loadFromStorage(STORAGE_KEYS.PANEL_SIZE, DEFAULT_PANEL_STATE));
 
   const [savedSnippets, setSavedSnippets] = useState<Snippet[]>([]);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
@@ -50,7 +60,9 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const editorRef = useRef<any>(null);
-  const panelRef = useRef<HTMLDivElement>(null);
+
+  const panelSizeRef = useRef(panelSize);
+  panelSizeRef.current = panelSize;
 
   const loadSnippets = useCallback(async () => {
     try {
@@ -64,39 +76,10 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
   useEffect(() => {
     try {
       const savedCode = localStorage.getItem(STORAGE_KEYS.CODE);
-      const savedPanelSize = localStorage.getItem(STORAGE_KEYS.PANEL_SIZE);
-      const savedPanelPosition = localStorage.getItem(STORAGE_KEYS.PANEL_POSITION);
-      const savedPanelLocation = localStorage.getItem(STORAGE_KEYS.PANEL_LOCATION);
-
-      if (savedCode) {
-        setInitialValue(savedCode);
-      } else {
-        setInitialValue(DEFAULT_CODE);
-      }
-
-      if (savedPanelSize) {
-        try {
-          setPanelSize(JSON.parse(savedPanelSize));
-        } catch (parseErr) {
-          console.warn('Could not parse panel size:', parseErr);
-        }
-      }
-
-      if (savedPanelPosition) {
-        try {
-          setPanelPosition(JSON.parse(savedPanelPosition));
-        } catch (parseErr) {
-          console.warn('Could not parse panel position:', parseErr);
-        }
-      }
-
-      if (savedPanelLocation) {
-        setPanelSize(prev => ({ ...prev, location: savedPanelLocation }));
-      }
+      setInitialValue(savedCode || DEFAULT_CODE);
     } catch (err) {
       console.error('Error loading from localStorage:', err);
       setInitialValue(DEFAULT_CODE);
-      setError(null);
     }
 
     loadSnippets();
@@ -170,11 +153,9 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
     }
   };
 
-  const savePanelState = useCallback((newSize: any, newPosition: any) => {
+  const savePanelState = useCallback((newSize: typeof DEFAULT_PANEL_STATE) => {
     try {
       localStorage.setItem(STORAGE_KEYS.PANEL_SIZE, JSON.stringify(newSize));
-      localStorage.setItem(STORAGE_KEYS.PANEL_POSITION, JSON.stringify(newPosition));
-      localStorage.setItem(STORAGE_KEYS.PANEL_LOCATION, newSize.location);
     } catch (error) {
       console.error('Error saving panel state:', error);
     }
@@ -183,10 +164,6 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
   const handleResizeStart = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault();
-
-      if (e.target instanceof HTMLElement && e.target.classList.contains('response-handle')) {
-        return;
-      }
 
       const isEdgeResize =
         e.target instanceof HTMLElement &&
@@ -198,17 +175,19 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
 
       const startX = e.clientX;
       const startY = e.clientY;
-      const startWidth = panelSize.width;
-      const startHeight = panelSize.height;
+      const currentPanelSize = panelSizeRef.current;
+      const startWidth = currentPanelSize.width;
+      const startHeight = currentPanelSize.height;
+      const location = currentPanelSize.location;
 
       const containerRect = containerRef.current?.getBoundingClientRect();
       const containerWidth = containerRect?.width || window.innerWidth;
       const containerHeight = containerRect?.height || window.innerHeight;
 
-      let currentSize = { ...panelSize };
+      let currentSize = { ...currentPanelSize };
 
       const doResize = (moveEvent: MouseEvent) => {
-        if (panelSize.location === 'bottom') {
+        if (location === 'bottom') {
           const heightDiff = startY - moveEvent.clientY;
           const newHeight = Math.max(100, Math.min(containerHeight - 200, startHeight + heightDiff));
           currentSize = { ...currentSize, height: newHeight };
@@ -224,21 +203,22 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
       const stopResize = () => {
         window.removeEventListener('mousemove', doResize);
         window.removeEventListener('mouseup', stopResize);
-        savePanelState(currentSize, panelPosition);
+        savePanelState(currentSize);
       };
 
       window.addEventListener('mousemove', doResize);
       window.addEventListener('mouseup', stopResize);
     },
-    [panelSize, panelPosition, savePanelState]
+    [savePanelState]
   );
 
   const togglePanelLocation = useCallback(() => {
-    const newLocation = panelSize.location === 'bottom' ? 'right' : 'bottom';
-    const newSize = { ...panelSize, location: newLocation };
-    setPanelSize(newSize);
-    savePanelState(newSize, panelPosition);
-  }, [panelSize, panelPosition, savePanelState]);
+    setPanelSize(prev => {
+      const newSize = { ...prev, location: prev.location === 'bottom' ? 'right' : 'bottom' };
+      savePanelState(newSize);
+      return newSize;
+    });
+  }, [savePanelState]);
 
   const executeCode = useCallback(async () => {
     const code = editorRef.current ? editorRef.current.getValue() : '';
@@ -251,39 +231,34 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
     setLoading(true);
     setResponse('');
 
+    const logs: [string, any[]][] = [];
+    const originalLog = console.log;
+    const originalError = console.error;
+    const originalWarn = console.warn;
+    const originalInfo = console.info;
+
+    console.log = (...args) => {
+      logs.push(['log', args]);
+      originalLog(...args);
+    };
+
+    console.error = (...args) => {
+      logs.push(['error', args]);
+      originalError(...args);
+    };
+
+    console.warn = (...args) => {
+      logs.push(['warn', args]);
+      originalWarn(...args);
+    };
+
+    console.info = (...args) => {
+      logs.push(['info', args]);
+      originalInfo(...args);
+    };
+
     try {
-      const logs: [string, any[]][] = [];
-      const originalLog = console.log;
-      const originalError = console.error;
-      const originalWarn = console.warn;
-      const originalInfo = console.info;
-
-      console.log = (...args) => {
-        logs.push(['log', args]);
-        originalLog(...args);
-      };
-
-      console.error = (...args) => {
-        logs.push(['error', args]);
-        originalError(...args);
-      };
-
-      console.warn = (...args) => {
-        logs.push(['warn', args]);
-        originalWarn(...args);
-      };
-
-      console.info = (...args) => {
-        logs.push(['info', args]);
-        originalInfo(...args);
-      };
-
       const result = await eval(`(async () => { ${code} })()`);
-
-      console.log = originalLog;
-      console.error = originalError;
-      console.warn = originalWarn;
-      console.info = originalInfo;
 
       let output = '';
 
@@ -313,6 +288,10 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
     } catch (error) {
       setResponse(`Error:\n${(error as Error).message}\n\nStack:\n${(error as Error).stack}`);
     } finally {
+      console.log = originalLog;
+      console.error = originalError;
+      console.warn = originalWarn;
+      console.info = originalInfo;
       setLoading(false);
     }
   }, []);
@@ -463,7 +442,6 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
         </div>
         <div
           className="console-output"
-          ref={panelRef}
           style={panelSize.location === 'bottom' ? { flex: `0 0 ${panelSize.height}px` } : { flex: `0 0 ${panelSize.width}px` }}
         >
           {panelSize.location === 'bottom' && <div className="resize-handle" onMouseDown={handleResizeStart} />}
