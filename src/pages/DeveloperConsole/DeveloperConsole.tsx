@@ -1,9 +1,12 @@
+import _ from 'lodash';
 import React, { useCallback, useState, useEffect, useRef } from 'react';
 
 import CodeEditor from './CodeEditor';
 import ResponsePanel from './ResponsePanel';
 import EXAMPLES_DATA from './examplesData';
+import { safeStringify } from './utils';
 
+import Records from '@/components/Records';
 import EcosModal from '@/components/common/EcosModal/EcosModal';
 import { Dropdown } from '@/components/common/form';
 import { snippetsStore } from '@/helpers/indexedDB';
@@ -30,6 +33,7 @@ const DEFAULT_PANEL_STATE = {
 };
 
 const DEFAULT_CODE = '// Write your JavaScript code here\nconsole.log("Hello from Developer Console!");';
+const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
 const loadFromStorage = <T,>(key: string, fallback: T): T => {
   try {
@@ -258,7 +262,17 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
     };
 
     try {
-      const result = await eval(`(async () => { ${code} })()`);
+      const func = new AsyncFunction(
+        'Records',
+        'Citeck',
+        '_',
+        'console',
+        `
+        ${code};
+      `
+      );
+
+      const result = await func(Records, window.Citeck, _, console);
 
       let output = '';
 
@@ -268,7 +282,7 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
             const formattedArgs = args
               .map((arg: any) => {
                 if (typeof arg === 'object') {
-                  return JSON.stringify(arg, null, 2);
+                  return safeStringify(arg, 2);
                 }
                 return String(arg);
               })
@@ -280,7 +294,7 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
 
       if (result !== undefined) {
         if (output) output += '\n\n';
-        const returnValue = typeof result === 'object' ? JSON.stringify(result, null, 2) : String(result);
+        const returnValue = typeof result === 'object' ? safeStringify(result, 2) : String(result);
         output += `Return value:\n${returnValue}`;
       }
 
