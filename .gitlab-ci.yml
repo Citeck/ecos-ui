@@ -1,4 +1,21 @@
-include:
-  - component: gitlab.citeck.ru/infrastructure/gitlab-ci/ecos-ui@2
-    inputs:
-      node_version: "20"
+image: node:18.20-alpine
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
+    - .yarn/cache/
+
+stages:
+  - testing
+
+testing:
+  tags:
+    - k8s-cloudstack-production
+  stage: testing
+  before_script:
+    - yarn
+  script:
+    - yarn test:ci
+  rules:
+    - if: ($CI_PIPELINE_SOURCE == 'merge_request_event') && ($CI_PIPELINE_SOURCE != $CI_MERGE_REQUEST_DRAFT)
