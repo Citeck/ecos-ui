@@ -123,6 +123,22 @@ class Dashboard extends Component {
     this.recordUpdater = new RecordUpdater(this.instanceRecord);
   }
 
+  static orderSearchParams(params) {
+    const ordered = {};
+
+    if (params.ws !== undefined) {
+      ordered.ws = params.ws;
+    }
+
+    for (const key of Object.keys(params)) {
+      if (key !== 'ws') {
+        ordered[key] = params[key];
+      }
+    }
+
+    return ordered;
+  }
+
   static getDerivedStateFromProps(props, state) {
     const newState = {};
     const newUrlParams = getSortedUrlParams();
@@ -228,9 +244,12 @@ class Dashboard extends Component {
       if (isNil(activeTabIndex) && !!layoutId) {
         const searchParams = queryString.parse(window.location.search);
         const tabIndex = config.findIndex(layout => layout.id === layoutId);
+        const resolvedTabIndex = tabIndex === -1 ? 0 : tabIndex;
 
-        if (hasManyTabs) {
-          searchParams.activeTab = tabIndex === -1 ? 0 : tabIndex;
+        if (hasManyTabs && resolvedTabIndex > 0) {
+          searchParams.activeTab = resolvedTabIndex;
+        } else {
+          delete searchParams.activeTab;
         }
         delete searchParams.activeLayoutId;
 
@@ -464,35 +483,43 @@ class Dashboard extends Component {
   setActiveLink = activeTabIndex => {
     const searchParams = queryString.parse(window.location.search);
 
-    if (this.tabList && this.tabList.length > 1) {
+    if (this.tabList && this.tabList.length > 1 && activeTabIndex > 0) {
       searchParams.activeTab = activeTabIndex;
+    } else {
+      delete searchParams.activeTab;
     }
 
     this.addSearchParams(searchParams);
   };
 
   addSearchParams = searchParams => {
+    if (searchParams.activeTab === 0 || searchParams.activeTab === '0') {
+      delete searchParams.activeTab;
+    }
+
+    const orderedParams = Dashboard.orderSearchParams(searchParams);
+
     const { urlParams } = this.state;
     const prevSearchParams = queryString.parse(urlParams);
-    const isEqualRefs = get(prevSearchParams, 'recordRef', '') === get(searchParams, 'recordRef');
-    const isEqualLayoutIndexes = get(prevSearchParams, 'activeTab', '') === get(searchParams, 'activeTab');
+    const isEqualRefs = get(prevSearchParams, 'recordRef', '') === get(orderedParams, 'recordRef');
+    const isEqualLayoutIndexes = get(prevSearchParams, 'activeTab', '') === get(orderedParams, 'activeTab');
 
     if (!urlParams || (isEqualRefs && !isEqualLayoutIndexes)) {
       replaceHistoryLink(
         cloneDeep(this.props.history),
-        `${URL.DASHBOARD}${isEmpty(searchParams) ? '' : '?' + decodeLink(queryString.stringify(searchParams))}`,
+        `${URL.DASHBOARD}${isEmpty(orderedParams) ? '' : '?' + decodeLink(queryString.stringify(orderedParams, { sort: false }))}`,
         true
       );
     } else {
       pushHistoryLink(
         undefined,
-        isEmpty(searchParams)
+        isEmpty(orderedParams)
           ? {
               pathname: URL.DASHBOARD
             }
           : {
               pathname: URL.DASHBOARD,
-              search: decodeLink(queryString.stringify(searchParams))
+              search: decodeLink(queryString.stringify(orderedParams, { sort: false }))
             },
         true
       );
@@ -596,7 +623,7 @@ class Dashboard extends Component {
 
         pushHistoryLink(this.props.history, {
           pathname: URL.DASHBOARD,
-          search: queryString.stringify(searchParams)
+          search: queryString.stringify(Dashboard.orderSearchParams(searchParams), { sort: false })
         });
       }
     }
