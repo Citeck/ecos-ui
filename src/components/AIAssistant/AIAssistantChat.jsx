@@ -69,6 +69,7 @@ const AIAssistantChat = () => {
 
   // Refs
   const messagesEndRef = useRef(null);
+  const prevMessagesCountRef = useRef(0);
   const universalTextareaRef = useRef(null);
   const contextualTextareaRef = useRef(null);
   const chatRef = useRef(null);
@@ -234,9 +235,13 @@ const AIAssistantChat = () => {
     }
   }, [isOpen, isMinimized, activeTab, currentTextareaRef]);
 
-  // Scroll to bottom on new messages
+  // Scroll to bottom only when new messages are added (not on progress updates)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const currentCount = currentChat.messages.length;
+    if (currentCount > prevMessagesCountRef.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+    prevMessagesCountRef.current = currentCount;
   }, [currentChat.messages]);
 
   // Email handlers
