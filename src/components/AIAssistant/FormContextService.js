@@ -53,6 +53,9 @@ const CONTEXT_CONFIGS = {
   },
   gateway_condition: {
     enabled: false
+  },
+  dev_console: {
+    enabled: false
   }
 };
 

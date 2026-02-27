@@ -2650,6 +2650,7 @@
   "script-context.computed-role": "Computed Role",
   "script-context.ui-action": "UI Action Script",
   "script-context.journal-formatter": "Journal Formatter",
+  "script-context.dev-console": "Developer Console",
   "script-context.default": "Script",
   "script-diff.original": "Original",
   "script-diff.modified": "Modified",
@@ -3235,5 +3236,11 @@
   "developer-console.save-modal.placeholder": "Enter snippet title",
   "developer-console.save-modal.save": "Save",
   "developer-console.save-modal.cancel": "Cancel",
-  "developer-console.delete-snippet": "Delete"
+  "developer-console.delete-snippet": "Delete",
+  "developer-console.delete-snippet.confirm": "Are you sure you want to delete the snippet \"{{ title }}\"?",
+  "developer-console.save-modal.update-hint": "The existing snippet will be updated",
+  "developer-console.undo": "Undo",
+  "developer-console.redo": "Redo",
+  "developer-console.panel-right": "Move panel to the right",
+  "developer-console.panel-bottom": "Move panel to the bottom"
 }

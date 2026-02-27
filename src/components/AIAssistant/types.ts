@@ -36,7 +36,8 @@ export const SCRIPT_CONTEXT_TYPES = {
   COMPUTED_ATTRIBUTE: 'computed_attribute',
   COMPUTED_ROLE: 'computed_role',
   UI_ACTION: 'ui_action',
-  JOURNAL_FORMATTER: 'journal_formatter'
+  JOURNAL_FORMATTER: 'journal_formatter',
+  DEV_CONSOLE: 'dev_console'
 } as const;
 
 export type ScriptContextType = (typeof SCRIPT_CONTEXT_TYPES)[keyof typeof SCRIPT_CONTEXT_TYPES];
