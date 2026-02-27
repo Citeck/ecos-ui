@@ -8,7 +8,10 @@ import { safeStringify } from './utils';
 
 import Records from '@/components/Records';
 import EcosModal from '@/components/common/EcosModal/EcosModal';
+import { Tooltip } from '@/components/common';
 import { Dropdown } from '@/components/common/form';
+import ScriptEditorAIButton from '@/components/AIAssistant/ScriptEditorAIButton';
+import { SCRIPT_CONTEXT_TYPES } from '@/components/AIAssistant/types';
 import { snippetsStore } from '@/helpers/indexedDB';
 import { t } from '@/helpers/util';
 
@@ -60,6 +63,8 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
   const [savedSnippets, setSavedSnippets] = useState<Snippet[]>([]);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [snippetTitle, setSnippetTitle] = useState('');
+  const [activeSnippetId, setActiveSnippetId] = useState<string | null>(null);
+  const [deleteConfirmSnippet, setDeleteConfirmSnippet] = useState<Snippet | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -95,10 +100,8 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
 
       if (example) {
         setInitialValue(example.code);
-
-        if (editorRef.current) {
-          editorRef.current.setValue(example.code);
-        }
+        setActiveSnippetId(null);
+        setEditorValue(example.code);
       }
     }
   };
@@ -109,16 +112,15 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
 
       if (snippet) {
         setInitialValue(snippet.code);
-
-        if (editorRef.current) {
-          editorRef.current.setValue(snippet.code);
-        }
+        setActiveSnippetId(snippet.id);
+        setEditorValue(snippet.code);
       }
     }
   };
 
   const handleSaveCode = () => {
-    setSnippetTitle('');
+    const activeSnippet = activeSnippetId ? savedSnippets.find(s => s.id === activeSnippetId) : null;
+    setSnippetTitle(activeSnippet ? activeSnippet.title : '');
     setIsSaveModalOpen(true);
   };
 
@@ -130,32 +132,81 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
       return;
     }
 
-    const newSnippet: Snippet = {
-      id: `snippet_${Date.now()}`,
-      title,
-      code,
-      createdAt: Date.now()
-    };
+    const activeSnippet = activeSnippetId ? savedSnippets.find(s => s.id === activeSnippetId) : null;
+    const isUpdate = activeSnippet && activeSnippet.title === title;
 
-    await snippetsStore.put(newSnippet);
-    setSavedSnippets(prev => [...prev, newSnippet]);
+    if (isUpdate) {
+      const updated: Snippet = {
+        ...activeSnippet,
+        code,
+        createdAt: Date.now()
+      };
+
+      await snippetsStore.put(updated);
+      setSavedSnippets(prev => prev.map(s => (s.id === activeSnippetId ? updated : s)));
+    } else {
+      const newSnippet: Snippet = {
+        id: `snippet_${Date.now()}`,
+        title,
+        code,
+        createdAt: Date.now()
+      };
+
+      await snippetsStore.put(newSnippet);
+      setSavedSnippets(prev => [...prev, newSnippet]);
+      setActiveSnippetId(newSnippet.id);
+    }
 
     setIsSaveModalOpen(false);
     setSnippetTitle('');
   };
 
-  const handleDeleteSnippet = async (snippetId: string) => {
-    await snippetsStore.delete(snippetId);
-    setSavedSnippets(prev => prev.filter(s => s.id !== snippetId));
+  const handleDeleteSnippet = (snippetId: string) => {
+    const snippet = savedSnippets.find(s => s.id === snippetId);
+    if (snippet) {
+      setDeleteConfirmSnippet(snippet);
+    }
   };
 
-  const handleCodeChange = (newCode: string) => {
+  const handleDeleteConfirm = async () => {
+    if (!deleteConfirmSnippet) return;
+
+    await snippetsStore.delete(deleteConfirmSnippet.id);
+    setSavedSnippets(prev => prev.filter(s => s.id !== deleteConfirmSnippet.id));
+
+    if (activeSnippetId === deleteConfirmSnippet.id) {
+      setActiveSnippetId(null);
+    }
+
+    setDeleteConfirmSnippet(null);
+  };
+
+  const handleCodeChange = useCallback((newCode: string) => {
     try {
       localStorage.setItem(STORAGE_KEYS.CODE, newCode);
     } catch (error) {
       console.error('Error saving code to localStorage:', error);
     }
-  };
+  }, []);
+
+  const getEditorValue = useCallback((): string => {
+    return editorRef.current ? editorRef.current.getValue() : '';
+  }, []);
+
+  const setEditorValue = useCallback(
+    (value: string): void => {
+      if (editorRef.current) {
+        const model = editorRef.current.getModel();
+        if (model) {
+          model.pushEditOperations([], [{ range: model.getFullModelRange(), text: value }], () => null);
+        } else {
+          editorRef.current.setValue(value);
+        }
+        handleCodeChange(value);
+      }
+    },
+    [handleCodeChange]
+  );
 
   const savePanelState = useCallback((newSize: typeof DEFAULT_PANEL_STATE) => {
     try {
@@ -325,67 +376,77 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
 
   return (
     <div ref={containerRef} className={`developer-console-container panel-location-${panelSize.location}`}>
-      <div className="console-controls">
-        <div className="action-buttons">
-          <button className="btn btn-primary" onClick={executeCode} disabled={loading}>
-            {loading ? (
-              t('developer-console.executing')
-            ) : (
-              <>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ffffff">
-                  <path
-                    fillRule="evenodd"
-                    d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                {t('developer-console.run-code')}
-              </>
-            )}
-          </button>
-          <button className="btn btn-secondary" onClick={handleSaveCode} disabled={loading}>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#444444">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z"
-              />
-            </svg>
-            {t('developer-console.save-code')}
-          </button>
-          <button
-            className="btn btn-secondary"
-            onClick={() => {
-              const model = editorRef.current?.getModel();
+      <div className="console-toolbar">
+        <div className="console-toolbar__group">
+          <Tooltip target="dc-btn-run" text={t('developer-console.run-code')} uncontrolled>
+            <button
+              id="dc-btn-run"
+              className="console-toolbar__btn console-toolbar__btn--run"
+              onClick={executeCode}
+              disabled={loading}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
+              </svg>
+            </button>
+          </Tooltip>
+          <span className="console-toolbar__separator" />
+          <Tooltip target="dc-btn-undo" text={t('developer-console.undo')} uncontrolled>
+            <button
+              id="dc-btn-undo"
+              className="console-toolbar__btn"
+              onClick={() => {
+                const model = editorRef.current?.getModel();
 
-              if (model) {
-                model.undo();
-              }
-            }}
-            disabled={loading}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#444444">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
-            </svg>
-          </button>
-          <button
-            className="btn btn-secondary"
-            onClick={() => {
-              const model = editorRef.current?.getModel();
+                if (model) {
+                  model.undo();
+                }
+              }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
+              </svg>
+            </button>
+          </Tooltip>
+          <Tooltip target="dc-btn-redo" text={t('developer-console.redo')} uncontrolled>
+            <button
+              id="dc-btn-redo"
+              className="console-toolbar__btn"
+              onClick={() => {
+                const model = editorRef.current?.getModel();
 
-              if (model) {
-                model.redo();
-              }
-            }}
-            disabled={loading}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#444444">
-              <path strokeLinecap="round" strokeLinejoin="round" d="m15 15 6-6m0 0-6-6m6 6H9a6 6 0 0 0 0 12h3" />
-            </svg>
-          </button>
-        </div>
-        <div className="action-buttons">
-          <div className="example-selector">
+                if (model) {
+                  model.redo();
+                }
+              }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m15 15 6-6m0 0-6-6m6 6H9a6 6 0 0 0 0 12h3" />
+              </svg>
+            </button>
+          </Tooltip>
+          <span className="console-toolbar__separator" />
+          <ScriptEditorAIButton
+            recordRef=""
+            scriptContextType={SCRIPT_CONTEXT_TYPES.DEV_CONSOLE}
+            getEditorValue={getEditorValue}
+            setEditorValue={setEditorValue}
+            language="javascript"
+            positionVariant="text-field"
+          />
+          <span className="console-toolbar__separator" />
+          <Tooltip target="dc-btn-save" text={t('developer-console.save-code')} uncontrolled>
+            <button id="dc-btn-save" className="console-toolbar__btn" onClick={handleSaveCode}>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z"
+                />
+              </svg>
+            </button>
+          </Tooltip>
+          <div className="console-toolbar__dropdown">
             <Dropdown
               controlLabel={t('developer-console.select-example')}
               className="console-example-dropdown"
@@ -398,7 +459,7 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
             />
           </div>
           {snippetsSource.length > 0 && (
-            <div className="example-selector saved-snippets-selector">
+            <div className="console-toolbar__dropdown">
               <Dropdown
                 controlLabel={t('developer-console.saved-snippets')}
                 className="console-example-dropdown"
@@ -429,19 +490,23 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
             </div>
           )}
         </div>
-        <div className="action-buttons">
-          <button className="btn btn-secondary" onClick={togglePanelLocation} disabled={loading}>
+        <Tooltip
+          target="dc-btn-panel-toggle"
+          text={panelSize.location === 'bottom' ? t('developer-console.panel-right') : t('developer-console.panel-bottom')}
+          uncontrolled
+        >
+          <button id="dc-btn-panel-toggle" className="console-toolbar__btn" onClick={togglePanelLocation}>
             {panelSize.location === 'bottom' ? (
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#444444">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5" />
               </svg>
             ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#444444">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 5.25 7.5 7.5 7.5-7.5m-15 6 7.5 7.5 7.5-7.5" />
               </svg>
             )}
           </button>
-        </div>
+        </Tooltip>
       </div>
       <div className="developer-console">
         <div
@@ -452,7 +517,7 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
               : { flex: `1 1 calc(100% - ${panelSize.width}px)` }
           }
         >
-          {initialValue && <CodeEditor editorRef={editorRef} defaultValue={initialValue} onCodeChange={handleCodeChange} />}
+          {initialValue && <CodeEditor editorRef={editorRef} defaultValue={initialValue} onCodeChange={handleCodeChange} onExecute={executeCode} />}
         </div>
         <div
           className="console-output"
@@ -492,12 +557,36 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
               }
             }}
           />
+          {activeSnippetId &&
+            snippetTitle.trim() &&
+            savedSnippets.find(s => s.id === activeSnippetId)?.title === snippetTitle.trim() && (
+              <p className="save-snippet-modal__hint">{t('developer-console.save-modal.update-hint')}</p>
+            )}
           <div className="save-snippet-modal__buttons">
             <button className="btn btn-secondary" onClick={() => setIsSaveModalOpen(false)}>
               {t('developer-console.save-modal.cancel')}
             </button>
             <button className="btn btn-primary" onClick={handleSaveConfirm} disabled={!snippetTitle.trim()}>
               {t('developer-console.save-modal.save')}
+            </button>
+          </div>
+        </div>
+      </EcosModal>
+
+      <EcosModal
+        isOpen={!!deleteConfirmSnippet}
+        size="xs"
+        hideModal={() => setDeleteConfirmSnippet(null)}
+        title={t('developer-console.delete-snippet')}
+      >
+        <div className="save-snippet-modal">
+          <p>{deleteConfirmSnippet ? t('developer-console.delete-snippet.confirm', { title: deleteConfirmSnippet.title }) : ''}</p>
+          <div className="save-snippet-modal__buttons">
+            <button className="btn btn-secondary" onClick={() => setDeleteConfirmSnippet(null)}>
+              {t('developer-console.save-modal.cancel')}
+            </button>
+            <button className="btn btn-danger" onClick={handleDeleteConfirm}>
+              {t('developer-console.delete-snippet')}
             </button>
           </div>
         </div>

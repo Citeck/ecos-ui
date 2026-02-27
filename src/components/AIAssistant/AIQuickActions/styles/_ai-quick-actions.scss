@@ -292,13 +292,9 @@
     }
   }
 
-  // Generating: pulsing animation
+  // Generating: disable interaction while AI is working
   &--generating {
     pointer-events: none;
-
-    .ai-field-trigger__icon {
-      animation: ai-sparkle-pulse 1.2s ease-in-out infinite;
-    }
   }
 
   // Disabled
@@ -1457,17 +1453,6 @@
 // ============================================
 // Animations
 // ============================================
-@keyframes ai-sparkle-pulse {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1) rotate(0deg);
-  }
-  50% {
-    opacity: 0.6;
-    transform: scale(0.92) rotate(8deg);
-  }
-}
-
 @keyframes ai-slide-up {
   from {
     opacity: 0;

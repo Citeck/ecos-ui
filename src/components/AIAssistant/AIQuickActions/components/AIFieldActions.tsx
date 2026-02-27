@@ -42,6 +42,7 @@ export interface AIFieldActionsProps {
   stickyPosition?: boolean;
   preventSelectionLoss?: boolean;
   noWrapper?: boolean;
+  popperClassName?: string;
   className?: string;
   children?: ReactNode;
 }
@@ -69,6 +70,7 @@ const AIFieldActions: React.FC<AIFieldActionsProps> = ({
   stickyPosition = false,
   preventSelectionLoss = false,
   noWrapper = false,
+  popperClassName,
   className,
   children
 }) => {
@@ -234,6 +236,7 @@ const AIFieldActions: React.FC<AIFieldActionsProps> = ({
           contentLength={contentMetrics?.length}
           contentType={contentMetrics?.type}
           hasExplanation={contentMetrics?.hasExplanation}
+          className={popperClassName}
         >
           {content}
         </AIPopperWrapper>

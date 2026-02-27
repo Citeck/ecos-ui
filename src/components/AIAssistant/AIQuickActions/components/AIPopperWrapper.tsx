@@ -151,6 +151,12 @@ const createModifiers = (
         // Final width: max of reference width and content-based width, clamped to maxWidth
         let finalWidth = Math.min(Math.max(refWidth, contentBasedWidth), maxWidthValue);
 
+        // For CODE content, use vw-based width for better readability
+        if (contentMetrics?.contentType === CONTENT_TYPES.CODE && !isMobile) {
+          const vwBasedWidth = viewportWidth * 0.6 - rightEdgePadding * 2;
+          finalWidth = Math.max(finalWidth, vwBasedWidth);
+        }
+
         // Ensure popup doesn't extend beyond right edge with padding
         const popperLeft = state.modifiersData.popperOffsets?.x || state.rects.reference.x;
         const availableWidth = viewportWidth - popperLeft - rightEdgePadding;
@@ -160,25 +166,21 @@ const createModifiers = (
         state.styles.popper.width = `${finalWidth}px`;
         state.styles.popper.maxWidth = `calc(60vw - ${rightEdgePadding * 2}px)`;
       } else if (variant === 'script-editor') {
-        const popperLeft = state.modifiersData.popperOffsets?.x || state.rects.reference.x;
-        const availableWidth = viewportWidth - popperLeft - rightEdgePadding;
-
-        // On mobile, use more width; on desktop, cap at 600px
-        const constrainedWidth = isMobile ? Math.max(availableWidth, 280) : Math.min(600, availableWidth);
-
-        state.styles.popper.minWidth = `${constrainedWidth}px`;
-        state.styles.popper.width = `${constrainedWidth}px`;
-        state.styles.popper.maxWidth = `${constrainedWidth}px`;
-
         if (isMobile) {
+          const popperLeft = state.modifiersData.popperOffsets?.x || state.rects.reference.x;
+          const availableWidth = viewportWidth - popperLeft - rightEdgePadding;
+          const constrainedWidth = Math.max(availableWidth, 280);
+
+          state.styles.popper.minWidth = `${constrainedWidth}px`;
+          state.styles.popper.width = `${constrainedWidth}px`;
+          state.styles.popper.maxWidth = `${constrainedWidth}px`;
+
           if (state.styles.popper.right !== undefined) {
             delete state.styles.popper.right;
           }
         } else {
-          state.styles.popper.right = '10px';
-          if (state.styles.popper.left !== undefined) {
-            delete state.styles.popper.left;
-          }
+          state.styles.popper.minWidth = '600px';
+          state.styles.popper.maxWidth = `calc(60vw - ${rightEdgePadding * 2}px)`;
         }
       } else if (variant === 'lexical') {
         state.styles.popper.minWidth = '450px';

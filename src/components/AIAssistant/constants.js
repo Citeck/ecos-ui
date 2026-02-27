@@ -11,7 +11,8 @@ const SCRIPT_CONTEXT_TYPES = {
   computed_attribute: 'computed-attribute',
   computed_role: 'computed-role',
   ui_action: 'ui-action',
-  journal_formatter: 'journal-formatter'
+  journal_formatter: 'journal-formatter',
+  dev_console: 'dev-console'
 };
 
 /**

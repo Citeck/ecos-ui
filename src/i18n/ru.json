@@ -2577,6 +2577,7 @@
   "script-context.computed-role": "Вычисляемая роль",
   "script-context.ui-action": "UI Action скрипт",
   "script-context.journal-formatter": "Форматтер журнала",
+  "script-context.dev-console": "Консоль разработчика",
   "script-context.default": "Скрипт",
   "script-diff.original": "Оригинал",
   "script-diff.modified": "Изменённый",
@@ -3233,5 +3234,11 @@
   "developer-console.save-modal.placeholder": "Введите название сниппета",
   "developer-console.save-modal.save": "Сохранить",
   "developer-console.save-modal.cancel": "Отмена",
-  "developer-console.delete-snippet": "Удалить"
+  "developer-console.delete-snippet": "Удалить",
+  "developer-console.delete-snippet.confirm": "Вы уверены, что хотите удалить сниппет \"{{ title }}\"?",
+  "developer-console.save-modal.update-hint": "Существующий сниппет будет обновлён",
+  "developer-console.undo": "Отменить",
+  "developer-console.redo": "Повторить",
+  "developer-console.panel-right": "Панель справа",
+  "developer-console.panel-bottom": "Панель снизу"
 }

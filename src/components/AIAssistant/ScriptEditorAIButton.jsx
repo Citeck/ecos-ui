@@ -46,7 +46,9 @@ const ScriptEditorAIButton = ({
   setEditorValue,
   inlineInputContainer,
   resultContainer,
-  language = 'javascript'
+  language = 'javascript',
+  popperClassName,
+  positionVariant
 }) => {
   // Conversation ID for multi-turn interactions
   const conversationIdRef = useRef(uuidV4());
@@ -135,6 +137,8 @@ const ScriptEditorAIButton = ({
       disabled={disabled}
       actionsBarContainer={inlineInputContainer}
       resultContainer={resultContainer}
+      popperClassName={popperClassName}
+      positionVariant={positionVariant}
       className="script-editor-ai-button-wrapper"
     />
   );
