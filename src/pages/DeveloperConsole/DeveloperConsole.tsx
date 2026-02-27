@@ -1,11 +1,11 @@
 import _ from 'lodash';
 import React, { useCallback, useState, useEffect, useRef } from 'react';
 
-import CodeEditor from './CodeEditor';
 import ResponsePanel from './ResponsePanel';
 import EXAMPLES_DATA from './examplesData';
 import { safeStringify } from './utils';
 
+import CodeEditor from '@/components/MonacoEditor/CodeEditor';
 import Records from '@/components/Records';
 import EcosModal from '@/components/common/EcosModal/EcosModal';
 import { Dropdown } from '@/components/common/form';

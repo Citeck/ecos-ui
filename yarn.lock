@@ -7393,6 +7393,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dompurify@npm:3.2.7":
+  version: 3.2.7
+  resolution: "dompurify@npm:3.2.7"
+  dependencies:
+    "@types/trusted-types": ^2.0.7
+  dependenciesMeta:
+    "@types/trusted-types":
+      optional: true
+  checksum: 15958b76e0266f463303b81bc190ab78808c20640e5211dcf7e5071e4fe4396b904c04a8cb68e149e02ab44360defa13a00147e3f23721d41a81ca4bf6d7c983
+  languageName: node
+  linkType: hard
+
 "dotenv-expand@npm:^12.0.1":
   version: 12.0.3
   resolution: "dotenv-expand@npm:12.0.3"
@@ -7610,6 +7622,7 @@ __metadata:
     lint-staged: 8.2.1
     lodash: 4.17.21
     moment: 2.29.4
+    monaco-editor: ^0.55.1
     npm-run-all: 4.1.5
     pdfjs-dist: 2.4.456
     power-assert: 1.6.1
@@ -12318,6 +12331,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"marked@npm:14.0.0":
+  version: 14.0.0
+  resolution: "marked@npm:14.0.0"
+  bin:
+    marked: bin/marked.js
+  checksum: 965405cde11d180e5da78cf51074b1947f1e5483ed99691d3ec990a078aa6ca9113cf19bbd44da45473d0e7eec7298255e7d860a650dd5e7aed78ca5a8e0161b
+  languageName: node
+  linkType: hard
+
 "matcher@npm:^1.0.0":
   version: 1.1.1
   resolution: "matcher@npm:1.1.1"
@@ -13332,6 +13354,16 @@ __metadata:
   version: 2.30.1
   resolution: "moment@npm:2.30.1"
   checksum: 859236bab1e88c3e5802afcf797fc801acdbd0ee509d34ea3df6eea21eb6bcc2abd4ae4e4e64aa7c986aa6cba563c6e62806218e6412a765010712e5fa121ba6
+  languageName: node
+  linkType: hard
+
+"monaco-editor@npm:^0.55.1":
+  version: 0.55.1
+  resolution: "monaco-editor@npm:0.55.1"
+  dependencies:
+    dompurify: 3.2.7
+    marked: 14.0.0
+  checksum: e6f6d9507e2c9cb81fd30370f853a42cd5133236d2d00158ce74e14c19044606c0dfc0465d9af57b7cf164c4f813c9b87572ebb57d10b02d713a61b566b77d56
   languageName: node
   linkType: hard
 

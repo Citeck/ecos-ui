@@ -1,9 +1,16 @@
-import Editor, { BeforeMount } from '@monaco-editor/react';
+import Editor, { BeforeMount, loader } from '@monaco-editor/react';
 import React, { useEffect, useRef, Suspense } from 'react';
 
 import { Loader } from '@/components/common';
 
 import './CodeEditor.scss';
+
+// Configure monaco-editor to use local version instead of CDN
+loader.config({
+  paths: {
+    vs: '/monaco-editor/min/vs'
+  }
+});
 
 const NATIVE_WINDOW_KEYS = new Set(Object.getOwnPropertyNames(Window.prototype));
 
@@ -56,13 +63,13 @@ const CodeEditor = ({
   language = 'javascript'
 }: {
   editorRef: React.RefObject<any>;
-  defaultValue: string;
+  defaultValue?: string;
   onCodeChange: (value: string) => void;
   language?: string;
 }): React.JSX.Element => {
   const completionDisposable = useRef<any>(null);
 
-  const handleEditorChange = (value: string | undefined, event: any) => {
+  const handleEditorChange = (value: string | undefined, _event: any) => {
     if (value !== undefined) {
       onCodeChange(value || '');
     }
@@ -208,8 +215,6 @@ const CodeEditor = ({
           beforeMount={handleBeforeMount}
           onMount={editor => (editorRef.current = editor)}
           options={{
-            saveViewState: true,
-            keepCurrentModel: true,
             contextmenu: false,
             automaticLayout: true,
             minimap: { enabled: false },

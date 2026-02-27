@@ -1,10 +1,12 @@
 import { $generateHtmlFromNodes } from '@lexical/html';
+import { fi } from 'date-fns/locale';
 import Formio from 'formiojs/Formio';
 import FormIOTextAreaComponent from 'formiojs/components/textarea/TextArea';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
+import isObject from 'lodash/isObject';
 import merge from 'lodash/merge';
 import NativePromise from 'native-promise-only';
 import React from 'react';
@@ -13,20 +15,21 @@ import { Provider } from 'react-redux';
 
 import { overrideTriggerChange } from '../misc';
 
-import LexicalEditor from '@/components/LexicalEditor';
-import ScriptEditorAIButton from '@/components/AIAssistant/ScriptEditorAIButton';
-import TextAreaAIButton from '@/components/AIAssistant/TextAreaAIButton';
-import editorContextService from '@/components/AIAssistant/EditorContextService';
 import { FIELD_TYPES } from '@/components/AIAssistant/AIQuickActions/config';
+import { getContextExtractionConfig } from '@/components/AIAssistant/AIQuickActions/config/fieldActionConfigs.ts';
+import editorContextService from '@/components/AIAssistant/EditorContextService';
 import FormContextService from '@/components/AIAssistant/FormContextService';
+import ScriptEditorAIButton from '@/components/AIAssistant/ScriptEditorAIButton';
 import { TEXT_CONTEXT_TYPES } from '@/components/AIAssistant/TextAIService';
+import TextAreaAIButton from '@/components/AIAssistant/TextAreaAIButton';
+import LexicalEditor from '@/components/LexicalEditor';
+import CodeEditor from '@/components/MonacoEditor/CodeEditor';
 import { t } from '@/helpers/export/util';
-import { getTextByLocale } from '@/helpers/util';
 import { updateEditorContent } from '@/helpers/lexical';
+import { getTextByLocale } from '@/helpers/util';
 import ESMRequire from '@/services/ESMRequire';
 import UploadDocsRefService from '@/services/uploadDocsRefsStore';
 import { getStore } from '@/store';
-import { getContextExtractionConfig } from "@/components/AIAssistant/AIQuickActions/config/fieldActionConfigs.ts";
 
 export default class TextAreaComponent extends FormIOTextAreaComponent {
   static schema(...extend) {
@@ -50,11 +53,14 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     this._lexicalRoot = null;
     this._lexicalInited = false;
     this._lexicalFirstUpdate = true;
+    this._monacoFirstUpdate = true;
     this._uploadDocsRefService = new UploadDocsRefService();
     this._scriptAIButtonRoot = null;
     this._scriptAIInlineInputContainer = null;
     this._textAreaAIButtonRoot = null;
     this._textAreaAIContainer = null;
+    this._monacoRoot = null;
+    this.editorRef = null;
   }
 
   get defaultSchema() {
@@ -75,6 +81,10 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
   get isAceEditor() {
     return this.component.editor === 'ace';
+  }
+
+  get isMonacoEditor() {
+    return this.component.editor === 'monaco';
   }
 
   setValue(value, flags) {
@@ -139,6 +149,29 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         });
       });
 
+      return;
+    }
+
+    if (this.isMonacoEditor) {
+      if (skipSetting) {
+        return;
+      }
+
+      if (this.editorRef && this.editorRef.current) {
+        if (!isEmpty(value) && this._monacoFirstUpdate) {
+          if (isObject(value)) {
+            this.editorRef.current.setValue(JSON.stringify(value, null, 2));
+          } else {
+            this.editorRef.current.setValue(value || '');
+          }
+
+          this._monacoFirstUpdate = false;
+
+          return;
+        }
+
+        this.editorRef.current.setValue(value || '');
+      }
       return;
     }
 
@@ -418,6 +451,73 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     }
   }
 
+  addMonaco(element, settings, props) {
+    return new Promise((resolve, reject) => {
+      if (this._monacoRoot || this.viewOnly) {
+        resolve(this.editorRef?.current);
+        return;
+      }
+
+      const store = getStore();
+
+      try {
+        const container = document.createElement('div');
+        container.className = 'monaco-editor-container';
+        container.style.width = '100%';
+        container.style.height = '500px';
+        element.appendChild(container);
+
+        this.editorRef = React.createRef();
+        this._monacoRoot = createRoot(container);
+
+        let editorMounted = false;
+
+        const checkEditorMount = (attempt = 0, maxAttempts = 5) => {
+          if (editorMounted) return;
+
+          const editor = this.editorRef?.current;
+
+          if (editor && typeof editor.getValue === 'function') {
+            editorMounted = true;
+            this.editor = editor;
+            this.editorReadyResolve(this.editor);
+            if (this.options.readOnly || this.component.disabled) {
+              this.editor?.updateOptions?.({ readOnly: true });
+            }
+            this.addScriptAIButton(element);
+            resolve(this.editor);
+            return;
+          }
+
+          if (attempt < maxAttempts) {
+            setTimeout(() => checkEditorMount(attempt + 1, maxAttempts), 100);
+          } else {
+            const elapsedMs = maxAttempts * 100;
+            this.showFallbackWysiwyg();
+            reject(new Error('Monaco editor failed to initialize after ' + elapsedMs + 'ms'));
+          }
+        };
+
+        this._monacoRoot.render(
+          <Provider store={store}>
+            <CodeEditor
+              editorRef={this.editorRef}
+              defaultValue={this.dataValue || ''}
+              onCodeChange={code => this.updateEditorValue(code)}
+              language={this.component.codeAs || 'javascript'}
+            />
+          </Provider>
+        );
+
+        checkEditorMount();
+      } catch (err) {
+        console.error('TextAreaComponent.addMonaco | error initializing:', err);
+        this.showFallbackWysiwyg();
+        reject(err);
+      }
+    });
+  }
+
   addScriptAIButton(editorElement) {
     // Only show AI button if aiEnabled is true and scriptContextType is configured
     if (!this.component.aiEnabled || !this.component.scriptContextType) {
@@ -461,15 +561,16 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         ? FormContextService.extractContextData(this, scriptContextType, extractionConfig)
         : null;
 
-      // Extract field info for AI context
-      // First try fieldContext from options (for modals opened from datagrid/fields)
-      // Fallback to current component info
       const fieldContext = FormContextService.extractFieldContext(this);
-      const fieldInfo = fieldContext || (this.component ? {
-        id: this.component.key || '',
-        name: getTextByLocale(this.component.label) || this.component.key || '',
-        type: this.component.dataType || 'TEXT'
-      } : null);
+      const fieldInfo =
+        fieldContext ||
+        (this.component
+          ? {
+              id: this.component.key || '',
+              name: getTextByLocale(this.component.label) || this.component.key || '',
+              type: this.component.dataType || 'TEXT'
+            }
+          : null);
 
       this._scriptAIButtonRoot.render(
         <Provider store={store}>
@@ -482,7 +583,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
             formContext={formContext}
             fieldInfo={fieldInfo}
             getEditorValue={() => this.editor?.getValue() || ''}
-            setEditorValue={(value) => {
+            setEditorValue={value => {
               if (this.editor) {
                 this.editor.setValue(value, -1);
                 this.editor.clearSelection();
@@ -567,11 +668,13 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       this._textAreaAIButtonRoot = createRoot(buttonContainer);
 
       // Extract field info for AI context
-      const fieldInfo = this.component ? {
-        id: this.component.key || '',
-        name: getTextByLocale(this.component.label) || this.component.key || '',
-        type: this.component.dataType || 'TEXT'
-      } : null;
+      const fieldInfo = this.component
+        ? {
+            id: this.component.key || '',
+            name: getTextByLocale(this.component.label) || this.component.key || '',
+            type: this.component.dataType || 'TEXT'
+          }
+        : null;
 
       this._textAreaAIButtonRoot.render(
         <Provider store={store}>
@@ -583,7 +686,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
             contextType={this.textAreaAIContextType}
             fieldInfo={fieldInfo}
             getValue={() => this.getValue() || ''}
-            setValue={(value) => {
+            setValue={value => {
               this.setValue(value);
               // Also update the textarea element directly for immediate visual feedback
               if (textareaElement) {
@@ -619,6 +722,14 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     }
 
     this.autoModified = false;
+  }
+
+  showFallbackWysiwyg() {
+    // display the current value directly if editor cannot initialize
+    if (this.input) {
+      const val = this.dataValue || '';
+      this.input.innerHTML = this.interpolate(val);
+    }
   }
 
   enableWysiwyg() {
@@ -659,11 +770,39 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       return this.input;
     }
 
+    if (this.isMonacoEditor) {
+      const settings = cloneDeep(this.component.wysiwyg || {});
+      const props = { rows: this.component.rows || 15 }; // default to 15 rows if not specified
+
+      if (this.input) {
+        this.input.style.minHeight = '300px';
+        this.input.style.height = '500px';
+      }
+
+      this.addMonaco(this.input, settings, props)
+        .then(editor => {
+          if (this.options.readOnly || this.component.disabled) {
+            editor?.updateOptions?.({ readOnly: true });
+          }
+          return editor;
+        })
+        .catch(() => {
+          this.showFallbackWysiwyg();
+        });
+      return this.input;
+    }
+
     if (this.isAceEditor) {
       const settings = cloneDeep(this.component.wysiwyg || {});
       const props = { rows: this.component.rows };
 
-      this.addAce(this.input, settings, props);
+      const aceResult = this.addAce(this.input, settings, props);
+
+      if (aceResult && typeof aceResult.catch === 'function') {
+        aceResult.catch(() => {
+          this.showFallbackWysiwyg();
+        });
+      }
       return this.input;
     }
 
@@ -680,7 +819,8 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
           return editor;
         })
         .catch(() => {
-          this.refreshWysiwyg();
+          // gracefully fall back to plain content when CKE fails
+          this.showFallbackWysiwyg();
         });
       return this.input;
     }
@@ -723,7 +863,10 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         this.editorReadyResolve(quill);
         return quill;
       })
-      .catch(err => console.warn(err));
+      .catch(err => {
+        console.warn(err);
+        this.showFallbackWysiwyg();
+      });
   }
 
   refreshWysiwyg() {
@@ -744,15 +887,19 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       this.editorReady = null;
     }
 
-    // Additional cleanup for Lexical React root if it wasn't destroyed yet
     if (this._lexicalRoot) {
       this._lexicalRoot.unmount();
       this._lexicalRoot = null;
     }
+
+    if (this._monacoRoot) {
+      this._monacoRoot.unmount();
+      this._monacoRoot = null;
+    }
   }
 
   destroyWysiwyg() {
-    if (this.isLexicalEditor && this.editor) {
+    if ((this.isLexicalEditor || this.isMonacoEditor) && this.editor) {
       this.editor = null;
     }
 
@@ -760,6 +907,12 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     if (this._lexicalRoot) {
       this._lexicalRoot.unmount();
       this._lexicalRoot = null;
+    }
+
+    // Unmount Monaco React root
+    if (this._monacoRoot) {
+      this._monacoRoot.unmount();
+      this._monacoRoot = null;
     }
 
     if (this._uploadDocsRefService) {
@@ -785,7 +938,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
   }
 
   redraw(...r) {
-    if (this.isQuillEditor) {
+    if (this.isQuillEditor || this.isMonacoEditor) {
       this.setWysiwygValue(this.dataValue);
       return;
     }
@@ -798,6 +951,12 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     if (this._lexicalRoot) {
       this._lexicalRoot.unmount();
       this._lexicalRoot = null;
+    }
+
+    // Cleanup Monaco React root
+    if (this._monacoRoot) {
+      this._monacoRoot.unmount();
+      this._monacoRoot = null;
     }
 
     if (this._lexicalViewRoot) {
