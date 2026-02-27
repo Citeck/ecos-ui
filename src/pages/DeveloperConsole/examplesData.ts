@@ -8,7 +8,7 @@ export const EXAMPLES_DATA = [
   {
     value: 'records-api-update',
     label: 'Records API Update',
-    code: 'const user = Records.getRecordToEdit("emodel/person@admin");\n\nuser.att("firstName",  "John");\nuser.att("lastName", "Doe");\n\nawait user.save()\n\n;return await user.load("?json");'
+    code: 'const user = Records.getRecordToEdit("emodel/person@admin");\n\nuser.att("firstName",  "John");\nuser.att("lastName", "Doe");\n\nawait user.save();\n\nreturn await user.load("?json");'
   },
   {
     value: 'records-api-create',
