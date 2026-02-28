@@ -1,6 +1,4 @@
 import NavigatedViewer from 'bpmn-js/lib/NavigatedViewer';
-import { isExpanded } from 'bpmn-js/lib/util/DiUtil';
-import { is } from 'bpmn-js/lib/util/ModelUtil';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import isNumber from 'lodash/isNumber';
@@ -259,18 +257,87 @@ export default class ModelViewer {
 
     const root = canvas.getRootElement();
 
-    const _data =
-      data &&
-      data.filter(item => {
-        const element = elementRegistry.get(item.id);
-        const parent = get(element, 'parent') || {};
+    // Collect IDs of activities that have their own stats from the API
+    const dataIds = new Set(data && data.map(item => item.id));
 
-        if (parent.layer && parent.layer !== root.layer) {
-          return false;
+    // Find the collapsed SubProcess on the current root layer for a nested element.
+    // Planes (e.g. SubProcess_X_plane) are root elements without a parent,
+    // so we map plane ID → collapsed SubProcess ID by stripping the _plane suffix.
+    const findCollapsedAncestor = el => {
+      const parent = el.parent;
+
+      if (!parent) {
+        return null;
+      }
+
+      const collapsedId = parent.id.replace(/_plane$/, '');
+
+      if (collapsedId !== parent.id) {
+        // Parent is a _plane element — find the corresponding collapsed SubProcess
+        const collapsed = elementRegistry.get(collapsedId);
+
+        if (collapsed) {
+          const collapsedParent = get(collapsed, 'parent') || {};
+
+          if (collapsedParent.layer === root.layer) {
+            return collapsed;
+          }
+
+          // The collapsed SubProcess is itself nested — recurse up
+          return findCollapsedAncestor(collapsed);
+        }
+      }
+
+      return null;
+    };
+
+    // Aggregate nested element stats onto their closest visible ancestor (collapsed SubProcess)
+    const aggregated = {};
+
+    data &&
+      data.forEach(item => {
+        const element = elementRegistry.get(item.id);
+
+        if (!element) {
+          return;
         }
 
-        return element && !element.hidden && (isExpanded(element) || is(element, 'bpmn:CallActivity') || is(element, 'bpmn:SubProcess'));
+        const parent = get(element, 'parent') || {};
+
+        if (!parent.layer || parent.layer === root.layer) {
+          // Element is on the current root layer — keep as-is
+          if (!element.hidden) {
+            aggregated[item.id] = aggregated[item.id] || { ...item, instances: 0, incidents: 0 };
+            aggregated[item.id].instances += item.instances || 0;
+            aggregated[item.id].incidents += item.incidents || 0;
+          }
+          return;
+        }
+
+        // Element is nested — find closest collapsed SubProcess ancestor on the current root layer
+        const collapsed = findCollapsedAncestor(element);
+
+        if (!collapsed || collapsed.hidden) {
+          return;
+        }
+
+        const targetId = collapsed.id;
+
+        // Only aggregate if the SubProcess doesn't already have its own stats from the API
+        // (to avoid double-counting when API returns both SubProcess and its children)
+        if (dataIds.has(targetId)) {
+          return;
+        }
+
+        aggregated[targetId] = aggregated[targetId] || { ...item, id: targetId, instances: 0, incidents: 0 };
+        aggregated[targetId].instances += item.instances || 0;
+        aggregated[targetId].incidents += item.incidents || 0;
       });
+
+    const _data = Object.values(aggregated).map(item => ({
+      ...item,
+      incidents: item.incidents || undefined
+    }));
 
     this.#badges = new Badges();
     this.#badges.create(this.modeler.get('overlays'));

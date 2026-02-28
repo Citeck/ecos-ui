@@ -94,6 +94,9 @@ const BpmnSchemaContent = ({ metaInfo, activityElement, labels }) => {
               zoom={ScaleOptions.FIT}
               zoomCenter={zoomCenter}
               markedElement={activityElement}
+              modelEvents={{
+                'root.set': () => renderBadges()
+              }}
             />
           </ResizableBox>
         </>
