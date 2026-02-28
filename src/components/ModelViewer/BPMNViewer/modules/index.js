@@ -9,4 +9,9 @@ export const withoutDragging = {
   ]
 };
 
-export default [onlyRenderer, withoutDragging];
+export const withoutCanvasScroll = {
+  moveCanvas: ['value', null],
+  zoomScroll: ['value', null]
+};
+
+export default [onlyRenderer, withoutDragging, withoutCanvasScroll];

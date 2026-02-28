@@ -6,6 +6,7 @@ import React from 'react';
 
 import ecosTask from '../ModelEditor/BPMNModeler/moddle/ecosTask.json';
 import { onlyRenderer } from '../ModelEditor/BPMNModeler/modules';
+import { withoutCanvasScroll } from './BPMNViewer/modules';
 import { ScaleOptions } from '../common/Scaler/util';
 
 import { Sheet } from './Sheet';
@@ -25,7 +26,7 @@ export default class ModelViewer {
       moddleExtensions: {
         ecosTask: ecosTask
       },
-      additionalModules: [onlyRenderer]
+      additionalModules: [onlyRenderer, withoutCanvasScroll]
     });
 
     await modeler.importXML(diagram);
@@ -41,7 +42,7 @@ export default class ModelViewer {
       moddleExtensions: {
         ecosTask: ecosTask
       },
-      additionalModules: [onlyRenderer]
+      additionalModules: [onlyRenderer, withoutCanvasScroll]
     });
 
     if (container) {
@@ -52,7 +53,9 @@ export default class ModelViewer {
     await this.setDiagram(diagram, { onMounted });
     this.setEvents(modelEvents);
 
-    zoom && this.canvas.zoom(zoom, zoomCenter);
+    if (zoom && this.canvas.viewbox().inner.width > 0) {
+      this.canvas.zoom(zoom, zoomCenter);
+    }
     markedElement && this.setMarkedElement(markedElement);
 
     this.scaleByWidth();
@@ -107,6 +110,11 @@ export default class ModelViewer {
 
     const width = viewboxToScale.outer.width;
     const innerWidth = viewboxToScale.inner.width;
+
+    if (!innerWidth) {
+      return;
+    }
+
     canvas.zoom(width / innerWidth);
 
     const currentViewbox = canvas.viewbox();
