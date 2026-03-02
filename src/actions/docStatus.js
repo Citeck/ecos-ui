@@ -10,4 +10,5 @@ export const getAvailableToChangeStatuses = createAction(prefix + 'GET_AVAILABLE
 
 export const setDocStatus = createAction(prefix + 'SET_DOC_STATUS');
 export const setAvailableToChangeStatuses = createAction(prefix + 'SET_AVAILABLE_TO_CHANGE_STATUSES');
+export const setChangeResult = createAction(prefix + 'SET_CHANGE_RESULT');
 export const resetDocStatus = createAction(prefix + 'RESET_DOC_STATUS');

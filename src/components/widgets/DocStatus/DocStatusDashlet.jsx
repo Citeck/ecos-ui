@@ -3,7 +3,10 @@ import PropTypes from 'prop-types';
 import * as React from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 
-import { isMobileDevice, t } from '../../../helpers/util';
+import get from 'lodash/get';
+
+import { isMobileDevice, t } from "@/helpers/util.js";
+import { CONFIG_VERSION } from "@/constants/dashboard.js";
 import Dashlet from '../../Dashlet/Dashlet';
 import BaseWidget from '../BaseWidget';
 
@@ -73,6 +76,7 @@ class DocStatusDashlet extends BaseWidget {
             title={title}
             isMobile={isMobile || isSmall}
             {...config}
+            allowChangeStatus={get(config, [CONFIG_VERSION, 'allowChangeStatus'], false)}
             className={classNameStatus}
             record={record}
             stateId={record}
