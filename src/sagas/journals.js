@@ -1003,8 +1003,14 @@ function* sagaSaveRecords({ api, logger, stateId, w }, action) {
     const tempAttributes = {};
 
     const currentColumn = grid.columns.find((item) => item.attribute === attribute);
-
     const valueToSave = EditorService.getValueToSave(value, currentColumn.multiple);
+    const optimisticData = grid.data.map((record) => {
+      if (record.id === id) {
+        return { ...record, [attribute]: value };
+      }
+      return record;
+    });
+    yield put(setGrid(w({ ...grid, data: optimisticData, editingRules })));
 
     if (isNodeRef(id)) {
       yield call(api.journals.saveRecords, {
@@ -1029,7 +1035,9 @@ function* sagaSaveRecords({ api, logger, stateId, w }, action) {
 
     const savedRecord = yield call(api.journals.getRecord, { id, attributes: tempAttributes, noCache: true });
 
-    grid.data = grid.data.map((record) => {
+    const { grid: currentGrid } = yield select(selectJournalData, stateId);
+
+    const updatedData = currentGrid.data.map((record) => {
       if (record.id === id) {
         const savedValue = EditorService.getValueToSave(savedRecord[attribute], currentColumn.multiple);
 
@@ -1043,7 +1051,7 @@ function* sagaSaveRecords({ api, logger, stateId, w }, action) {
       return record;
     });
 
-    yield put(setGrid(w({ ...grid, editingRules })));
+    yield put(setGrid(w({ ...currentGrid, data: updatedData, editingRules })));
   } catch (e) {
     logger.error('[journals sagaSaveRecords saga error', e);
   }
