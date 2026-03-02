@@ -53,12 +53,18 @@ const MigrationInfo = ({ processId }) => {
       const record = head(result.records);
 
       if (record) {
+        const processInstanceQuery = {
+          processDefinitionId: migrationPlan?.processInstanceQuery?.processDefinitionId || source
+        };
+
+        const resolvedActivities = migrationPlan?.processInstanceQuery?.activityIdIn || activities;
+        if (resolvedActivities.length) {
+          processInstanceQuery.activityIdIn = resolvedActivities;
+        }
+
         setMigrationPlan({
           migrationPlan: record.migrationPlan,
-          processInstanceQuery: {
-            processDefinitionId: migrationPlan?.processInstanceQuery.processDefinitionId || source,
-            activityIdIn: migrationPlan?.processInstanceQuery.activityIdIn || activities
-          },
+          processInstanceQuery,
           skipCustomListeners: migrationPlan?.skipCustomListeners ?? true
         });
       }

@@ -1,3 +1,4 @@
+import { is } from 'bpmn-js/lib/util/ModelUtil';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import isString from 'lodash/isString';
@@ -38,6 +39,7 @@ const BpmnSchema = ({ processId, metaInfo, versionsInfo, getMetaInfo, getAllVers
   const [designer, setDesigner] = useState(new ModelViewer());
 
   const [isInitProcesses, setIsInitProcesses] = useState(false);
+  const [sheetMounted, setSheetMounted] = useState(false);
 
   const {
     activities,
@@ -59,6 +61,7 @@ const BpmnSchema = ({ processId, metaInfo, versionsInfo, getMetaInfo, getAllVers
   useEffect(() => {
     if (typeSchema === URL.BPMN_MIGRATION) {
       setDesigner(new ModelViewer());
+      setSheetMounted(false);
     }
   }, [typeSchema, processId]);
 
@@ -146,17 +149,16 @@ const BpmnSchema = ({ processId, metaInfo, versionsInfo, getMetaInfo, getAllVers
         return prev;
       }
 
-      if (!activities.length) {
-        if (prev.processInstanceQuery) {
-          delete prev.processInstanceQuery;
-
-          return { ...prev };
-        }
-
-        return { ...prev };
-      }
-
       const [, source] = get(sourceProcessDefinitionId, 'id', '').split('@');
+
+      if (!activities.length) {
+        return {
+          ...prev,
+          processInstanceQuery: {
+            processDefinitionId: prev.processInstanceQuery?.processDefinitionId || source
+          }
+        };
+      }
 
       return {
         ...prev,
@@ -170,7 +172,7 @@ const BpmnSchema = ({ processId, metaInfo, versionsInfo, getMetaInfo, getAllVers
 
   const handleReadySheet = ({ mounted, result }) => {
     if (mounted) {
-      renderBadges();
+      setSheetMounted(true);
     } else {
       console.warn({ result });
     }
@@ -199,12 +201,31 @@ const BpmnSchema = ({ processId, metaInfo, versionsInfo, getMetaInfo, getAllVers
     });
   };
 
+  useEffect(() => {
+    if (sheetMounted) {
+      renderBadges();
+    }
+  }, [sheetMounted, metaInfo?.activityStatistics]);
+
   const handleClickZoom = value => {
     designer.setZoom(value);
   };
 
+  const getLeafActivityIds = element => {
+    if (is(element, 'bpmn:SubProcess') && element.children && element.children.length) {
+      return element.children.filter(child => is(child, 'bpmn:FlowNode')).flatMap(child => getLeafActivityIds(child));
+    }
+    return [element.id];
+  };
+
   const handleClickElement = (_event, elementInfo) => {
-    setActivities(prev => Array.from(new Set([...prev, get(elementInfo, 'element.id')])));
+    const element = get(elementInfo, 'element');
+    if (!element) {
+      return;
+    }
+
+    const ids = is(element, 'bpmn:SubProcess') ? getLeafActivityIds(element) : [element.id];
+    setActivities(prev => Array.from(new Set([...prev, ...ids])));
   };
 
   const showLoader =
@@ -265,7 +286,8 @@ const BpmnSchema = ({ processId, metaInfo, versionsInfo, getMetaInfo, getAllVers
             zoomCenter={zoomCenter}
             onMounted={handleReadySheet}
             modelEvents={{
-              'element.click': handleClickElement
+              'element.click': handleClickElement,
+              'root.set': () => renderBadges()
             }}
           />
         </>
