@@ -584,6 +584,7 @@
   "doc-status-widget.saga.error1": "Ошибка получения статуса документа",
   "doc-status-widget.saga.error2": "Ошибка получения доступных статусов",
   "doc-status-widget.saga.error3": "Ошибка изменения статуса",
+  "doc-status-widget.settings.allow-change-status": "Разрешить изменение статуса",
   "doc-status-widget.title": "Статус",
 
   "dochist.assoc.added": "Добавлено",

@@ -30,36 +30,32 @@
     @extend %ellipsis;
   }
 
-  &__data {
-    min-width: 0;
+  &__pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 26px;
+    height: 26px;
+    padding: 0 12px;
+    border-radius: $border-radius-standard;
+    background: $color-blue-light2;
+    color: $color-blue-dark;
+    font-weight: $font-weight-bold;
+    font-size: $font-size-standard;
 
-    &_read {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      height: 26px;
-      padding: 0 15px;
-      border-radius: $border-radius-standard;
-      background: $color-blue-light2;
-      color: $color-blue-dark;
-      font-weight: $font-weight-bold;
-      font-size: $font-size-standard;
+    &_interactive {
+      cursor: pointer;
+      padding-right: 8px;
+      transition: background-color 0.15s ease, box-shadow 0.15s ease;
+
+      &:hover {
+        background-color: darken($color-blue-light2, 5%);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+      }
     }
 
-    &_manual {
-      .ecos-dropdown {
-        width: 100%;
-
-        &__menu {
-          width: 100%;
-        }
-      }
-
-      .ecos-btn {
-        margin-top: 0;
-        font-weight: $font-weight-bold;
-        font-size: $font-size-standard;
-      }
+    &_readonly {
+      cursor: default;
     }
 
     &_no-status {
@@ -67,8 +63,67 @@
       color: $text-color-gray;
     }
 
+    &_changing {
+      pointer-events: none;
+      opacity: 0.7;
+      transition: opacity 0.2s ease;
+    }
+
+    &-result-icon {
+      margin-left: 4px;
+      min-width: 14px;
+      text-align: center;
+      font-size: 10px;
+      animation: doc-status-icon-pop 150ms ease-out;
+
+      &_success {
+        color: $color-green1;
+      }
+
+      &_error {
+        color: $color-red-3;
+      }
+    }
+
+    &_no-status.ecos-doc-status__pill_interactive:hover {
+      background-color: darken($color-gray-4, 5%);
+    }
+
     &-label {
       @extend %ellipsis;
+    }
+
+    &-chevron {
+      margin-left: 4px;
+      font-size: 10px;
+      min-width: 14px;
+      text-align: center;
+    }
+
+    &-loader {
+      margin-left: 4px;
+      display: inline-flex;
+      width: auto;
+      min-width: 14px;
+      margin-top: 0;
+      margin-bottom: 0;
+      gap: 2px;
+      font-size: 5px;
+    }
+  }
+
+  .ecos-dropdown {
+    .ecos-dropdown__toggle {
+      background: none;
+      border: none;
+      padding: 0;
+
+      &:hover,
+      &:focus,
+      &:active {
+        background: none;
+        box-shadow: none;
+      }
     }
   }
 
@@ -82,5 +137,17 @@
 
     &_points {
     }
+  }
+}
+
+@keyframes doc-status-icon-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
   }
 }

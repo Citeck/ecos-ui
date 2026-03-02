@@ -36,25 +36,49 @@ export class DocStatusApi extends RecordService {
     ).then(res => res);
   };
 
-  setDocStatus = ({ record, ...data }) => {
-    return {};
+  setDocStatus = async ({ record, status }) => {
+    const rec = Records.getRecordToEdit(record);
+    rec.att('_status', status);
+    await rec.save();
   };
 
-  getAvailableToChangeStatuses = ({ record }) => {
-    if (record.indexOf('workspace://') === -1) {
+  getAvailableToChangeStatuses = async ({ record }) => {
+    if (record.indexOf('workspace://') !== -1) {
+      return Records.query(
+        {
+          sourceId: SourcesId.STATUS,
+          query: {
+            allAvailableToChange: record
+          }
+        },
+        {
+          name: 'name',
+          type: 'type'
+        }
+      ).then(res => res);
+    }
+
+    const { canWrite, status, typeRef } = await Records.get(record).load({
+      canWrite: 'permissions._has.Write?bool!false',
+      status: '_status?str',
+      typeRef: '_type?id'
+    });
+
+    if (!canWrite || !typeRef) {
       return { records: [] };
     }
-    return Records.query(
-      {
-        sourceId: SourcesId.STATUS,
-        query: {
-          allAvailableToChange: record
-        }
-      },
-      {
-        name: 'name',
-        type: 'type'
-      }
-    ).then(res => res);
+
+    const resolvedTypeRef = typeRef.replace(`${SourcesId.TYPE}@`, `${SourcesId.RESOLVED_TYPE}@`);
+    const typeStatuses = await Records.get(resolvedTypeRef).load('model.statuses[]{id,name}');
+
+    if (!Array.isArray(typeStatuses)) {
+      return { records: [] };
+    }
+
+    const available = typeStatuses
+      .filter(s => s.id !== status)
+      .map(s => ({ id: s.id, name: s.name }));
+
+    return { records: available };
   };
 }

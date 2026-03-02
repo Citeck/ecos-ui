@@ -634,6 +634,7 @@
   "doc-status-widget.saga.error1": "Error. Failure to fetch document status",
   "doc-status-widget.saga.error2": "Error. Failure to fetch document status list",
   "doc-status-widget.saga.error3": "Error. Failure to change document status",
+  "doc-status-widget.settings.allow-change-status": "Allow status change",
   "doc-status-widget.title": "Status",
 
   "dochist.assoc.added": "Added",
