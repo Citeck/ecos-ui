@@ -39,7 +39,7 @@ export default [
       json: {
         and: [
           { '===': [{ var: 'data.aiEnabled' }, true] },
-          { '===': [{ var: 'data.editor' }, 'ace'] }
+          { in: [{ var: 'data.editor' }, ['ace', 'monaco']] }
         ]
       }
     },
@@ -75,6 +75,7 @@ export default [
         and: [
           { '===': [{ var: 'data.aiEnabled' }, true] },
           { '!==': [{ var: 'data.editor' }, 'ace'] },
+          { '!==': [{ var: 'data.editor' }, 'monaco'] },
           { '!==': [{ var: 'data.editor' }, 'ckeditor'] },
           { '!==': [{ var: 'data.editor' }, 'quill'] },
           { '!==': [{ var: 'data.editor' }, 'lexical'] }

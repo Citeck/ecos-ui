@@ -585,8 +585,18 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
             getEditorValue={() => this.editor?.getValue() || ''}
             setEditorValue={value => {
               if (this.editor) {
-                this.editor.setValue(value, -1);
-                this.editor.clearSelection();
+                if (this.isMonacoEditor) {
+                  const model = this.editor.getModel();
+                  if (model) {
+                    model.pushEditOperations([], [{ range: model.getFullModelRange(), text: value }], () => null);
+                  } else {
+                    this.editor.setValue(value);
+                  }
+                  this.updateEditorValue(value);
+                } else {
+                  this.editor.setValue(value, -1);
+                  this.editor.clearSelection();
+                }
               }
             }}
             inlineInputContainer={inlineInputContainer}
