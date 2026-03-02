@@ -201,7 +201,13 @@ const CodeEditor = ({
   }, []);
 
   return (
-    <div className="code-editor-container" tabIndex={-1}>
+    <div
+      className="code-editor-container"
+      tabIndex={-1}
+      onKeyDown={(e: React.KeyboardEvent) => {
+        e.stopPropagation();
+      }}
+    >
       <Suspense
         fallback={
           <div style={{ padding: '20px', textAlign: 'center' }}>
