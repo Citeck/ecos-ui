@@ -609,6 +609,10 @@
   "kanban.error.form-not-found": "Form card has not found",
   "kanban.error.card-not-moved": "Card hasn't moved",
   "kanban.error.get-column-data": "Error getting cards for the column",
+  "kanban.grouping.label": "Group by",
+  "kanban.grouping.none": "None",
+  "kanban.swimlane.unassigned": "Unassigned",
+  "kanban.swimlane.show-more": "{{count}} more",
 
   "type-permissions.empty-attribute.title": "Attribute id is empty",
   "type-permissions.empty-attribute.text": "Please fill id field before call permissions editor",

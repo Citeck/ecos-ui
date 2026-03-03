@@ -5,7 +5,7 @@ import isEqual from 'lodash/isEqual';
 import isNil from 'lodash/isNil';
 import set from 'lodash/set';
 import * as queryString from 'query-string';
-import { call, put, select, takeEvery, all, race, take } from 'redux-saga/effects';
+import { call, put, select, takeEvery, takeLatest, all, race, take } from 'redux-saga/effects';
 
 import { applyJournalSetting, execRecordsActionComplete, runSearch, setJournalSetting, setPredicate } from '../actions/journals';
 import {
@@ -36,7 +36,14 @@ import {
   setOriginKanbanSettings,
   setKanbanSettings,
   applyPreset,
-  cancelGetNextBoardPage
+  cancelGetNextBoardPage,
+  setSwimlaneGrouping,
+  changeSwimlaneGrouping,
+  setSwimlaneValues,
+  setSwimlaneCellData,
+  loadMoreSwimlaneCell,
+  setSwimlaneCellLoading,
+  moveSwimlaneCard
 } from '../actions/kanban';
 import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
 import { ParserPredicate } from '../components/Filters/predicates';
@@ -49,17 +56,65 @@ import JournalsConverter from '../dto/journals';
 import KanbanConverter from '../dto/kanban';
 import { t } from '../helpers/export/util';
 import { wrapArgs, wrapSaga } from '../helpers/redux';
-import { decodeLink, getSearchParams, getUrlWithoutOrigin } from '../helpers/urls';
+import { decodeLink, getSearchParams, getUrlWithoutOrigin, getWorkspaceId } from '../helpers/urls';
 import { isExistValue } from '../helpers/util';
 import { emptyJournalConfig } from '../reducers/journals';
 import { selectJournalData, selectSettingsData, selectViewMode } from '../selectors/journals';
-import { selectKanban, selectKanbanPageProps, selectPagination } from '../selectors/kanban';
+import { selectKanban, selectKanbanPageProps, selectPagination, selectSwimlaneGrouping } from '../selectors/kanban';
 import PageService from '../services/PageService';
 
 import { getGridParams, getJournalConfig, getJournalSettingFully } from './journals';
 
 import AuthorityService from '@/services/authrority/AuthorityService';
 import { NotificationManager } from '@/services/notifications';
+
+function* buildSwimlaneCellQueryParams({ api, stateId, boardConfig, formProps, swimlaneGrouping, swimlaneId, journalConfig, journalSetting }) {
+  const params = yield getGridParams({ journalConfig, journalSetting, pagination: DEFAULT_PAGINATION });
+  const predicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(params.predicates));
+
+  const urlProps = getSearchParams();
+  const searchText = urlProps[JournalUrlParams.SEARCH];
+  const searchPredicate = isExistValue(searchText)
+    ? ParserPredicate.getSearchPredicates({
+        text: searchText,
+        columns: ParserPredicate.getAvailableSearchColumns(journalSetting.columns)
+      })
+    : [];
+
+  const { attributes, inputByKey } = EcosFormUtils.preProcessingAttrs(get(formProps, 'formFields', []));
+  const attrMap = { ...attributes, ...KanbanConverter.getCardAttributes() };
+
+  if (boardConfig.cardTitleTemplate) {
+    const templateAttrs = EcosFormUtils.getAttrsFromTemplate(boardConfig.cardTitleTemplate);
+    templateAttrs.forEach(key => { attrMap[key] = key; });
+  }
+
+  delete params.columns;
+  delete params.groupBy;
+  delete params.groupActions;
+  delete params.attributes;
+
+  const journalColumns = cloneDeep(journalConfig.columns);
+
+  const swimlaneAttrPredicate = swimlaneId === '__unassigned__'
+    ? { t: 'empty', att: swimlaneGrouping.attribute }
+    : { t: 'eq', att: swimlaneGrouping.attribute, val: swimlaneId };
+
+  return {
+    queryParams: { params, predicates, searchPredicate, attrMap, journalColumns, swimlaneAttrPredicate },
+    inputByKey
+  };
+}
+
+function processCardRecords(records, inputByKey, boardConfig) {
+  return (records || []).map(recordData => {
+    let newData = EcosFormUtils.postProcessingAttrsData({ recordData, inputByKey });
+    if (boardConfig.cardTitleTemplate) {
+      newData.cardTitle = EcosFormUtils.renderByTemplate(boardConfig.cardTitleTemplate, newData);
+    }
+    return newData;
+  });
+}
 
 export function* sagaGetBoardList({ api }, { payload }) {
   try {
@@ -519,7 +574,7 @@ export function* sagaApplyFilter({ api }, { payload }) {
       stateId
     } = payload;
     const { journalConfig, journalSetting: _journalSetting, originGridSettings } = yield select(selectJournalData, stateId);
-    const { formProps, boardConfig } = yield select(selectKanban, stateId);
+    const { formProps, boardConfig, swimlaneGrouping } = yield select(selectKanban, stateId);
     const pagination = DEFAULT_PAGINATION;
     const w = wrapArgs(stateId);
     const journalSetting = cloneDeep(_journalSetting);
@@ -530,7 +585,12 @@ export function* sagaApplyFilter({ api }, { payload }) {
     yield put(setJournalSetting(w({ predicate, kanban })));
     yield put(setKanbanSettings({ stateId, kanbanSettings: kanban || {} }));
     yield put(setPagination({ stateId, pagination }));
-    yield sagaGetData({ api }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
+
+    if (swimlaneGrouping) {
+      yield sagaLoadSwimlaneValues({ api }, { payload: { stateId } });
+    } else {
+      yield sagaGetData({ api }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
+    }
 
     const settings = {
       columns: get(originGridSettings, 'columnsSetup.columns'),
@@ -553,7 +613,7 @@ export function* sagaApplyPreset({ api }, { payload }) {
       stateId
     } = payload;
     const { journalConfig, journalSetting: _journalSetting } = yield select(selectJournalData, stateId);
-    const { formProps, boardConfig } = yield select(selectKanban, stateId);
+    const { formProps, boardConfig, swimlaneGrouping } = yield select(selectKanban, stateId);
     const viewMode = yield select(selectViewMode, stateId);
     const pagination = DEFAULT_PAGINATION;
     const w = wrapArgs(stateId);
@@ -570,7 +630,12 @@ export function* sagaApplyPreset({ api }, { payload }) {
 
     yield put(setKanbanSettings({ stateId, kanbanSettings: kanban || {} }));
     yield put(setPagination({ stateId, pagination }));
-    yield sagaGetData({ api }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
+
+    if (swimlaneGrouping) {
+      yield sagaLoadSwimlaneValues({ api }, { payload: { stateId } });
+    } else {
+      yield sagaGetData({ api }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
+    }
 
     yield put(setLoading({ stateId, isLoading: false }));
   } catch (e) {
@@ -639,6 +704,331 @@ export function* sagaRunSearchCard({ api }, { payload }) {
   }
 }
 
+export function* sagaSetSwimlaneGrouping({ api }, { payload }) {
+  try {
+    const { stateId, swimlaneGrouping } = payload;
+
+    if (!swimlaneGrouping || !swimlaneGrouping.attribute) {
+      yield put(setSwimlaneGrouping({ stateId, swimlaneGrouping: null }));
+      yield sagaReloadBoardData({ api }, { payload: { stateId } });
+      return;
+    }
+
+    yield put(setSwimlaneGrouping({ stateId, swimlaneGrouping }));
+    yield sagaLoadSwimlaneValues({ api }, { payload: { stateId } });
+  } catch (e) {
+    console.error('[kanban/sagaSetSwimlaneGrouping saga] error', e);
+  }
+}
+
+export function* sagaLoadSwimlaneValues({ api }, { payload }) {
+  try {
+    const { stateId } = payload;
+    const { boardConfig, formProps, swimlaneGrouping } = yield select(selectKanban, stateId);
+
+    if (!swimlaneGrouping || !swimlaneGrouping.attribute) {
+      return;
+    }
+
+    const { journalConfig, journalSetting } = yield select(selectJournalData, stateId);
+    const params = yield getGridParams({ journalConfig, journalSetting, pagination: DEFAULT_PAGINATION });
+    const predicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(params.predicates));
+    const sourceId = journalConfig.sourceId;
+
+    const urlProps = getSearchParams();
+    const searchText = urlProps[JournalUrlParams.SEARCH];
+    const searchPredicate = isExistValue(searchText)
+      ? ParserPredicate.getSearchPredicates({
+          text: searchText,
+          columns: ParserPredicate.getAvailableSearchColumns(journalSetting.columns)
+        })
+      : [];
+
+    const allPredicates = [...predicates];
+    if (searchPredicate && searchPredicate.length) {
+      allPredicates.push(...(Array.isArray(searchPredicate) ? searchPredicate : [searchPredicate]));
+    }
+
+    const distinctValues = yield call(api.kanban.getDistinctValues, {
+      sourceId,
+      attribute: swimlaneGrouping.attribute,
+      predicates: allPredicates,
+      workspaces: [getWorkspaceId()]
+    });
+
+    const sortedValues = KanbanConverter.prepareSwimlaneValues(distinctValues);
+
+    const columns = get(journalSetting, 'kanban.columns') || boardConfig.columns || [];
+    const swimlanes = sortedValues.map(val => ({
+      id: val.id,
+      label: val.label,
+      isCollapsed: false,
+      cells: columns.reduce((acc, col) => {
+        acc[col.id] = {
+          records: [],
+          totalCount: 0,
+          pagination: { ...DEFAULT_PAGINATION },
+          isLoading: true
+        };
+        return acc;
+      }, {})
+    }));
+
+    yield put(setSwimlaneValues({ stateId, swimlanes }));
+
+    yield all(
+      swimlanes.map(sl =>
+        call(sagaLoadSwimlaneCells, { api }, { payload: { stateId, swimlaneId: sl.id } })
+      )
+    );
+
+    // Load actions for all swimlane records
+    const updatedState = yield select(selectKanban, stateId);
+    const newRecordRefs = columns.map(col => {
+      const refs = [];
+      (updatedState.swimlanes || []).forEach(sl => {
+        const cell = sl.cells[col.id];
+        if (cell && cell.records) {
+          cell.records.forEach(rec => { if (rec.cardId) refs.push(rec.cardId); });
+        }
+      });
+      return refs;
+    });
+    yield sagaGetActions({ api }, { payload: { boardConfig, newRecordRefs, stateId } });
+
+    yield put(setLoading({ stateId, isLoading: false }));
+  } catch (e) {
+    yield put(setLoading({ stateId: payload.stateId, isLoading: false }));
+    console.error('[kanban/sagaLoadSwimlaneValues saga] error', e);
+  }
+}
+
+export function* sagaLoadSwimlaneCells({ api }, { payload }) {
+  try {
+    const { stateId, swimlaneId } = payload;
+    const { boardConfig, formProps, swimlaneGrouping, swimlanes } = yield select(selectKanban, stateId);
+    const { journalConfig, journalSetting } = yield select(selectJournalData, stateId);
+
+    if (!swimlaneGrouping) {
+      return;
+    }
+
+    const columns = get(journalSetting, 'kanban.columns') || boardConfig.columns || [];
+    const { queryParams, inputByKey } = yield call(buildSwimlaneCellQueryParams, { api, stateId, boardConfig, formProps, swimlaneGrouping, swimlaneId, journalConfig, journalSetting });
+
+    const swimlane = swimlanes.find(sl => sl.id === swimlaneId);
+
+    yield all(
+      columns.map(function* (column) {
+        try {
+          const colPredicate = KanbanConverter.preparePredicate(column);
+          const statusModifiedPredicate = KanbanConverter.getStatusModifiedPredicate(column);
+          const cellPagination = get(swimlane, ['cells', column.id, 'pagination'], DEFAULT_PAGINATION);
+
+          const settings = JournalsConverter.getSettingsForDataLoaderServer({
+            ...queryParams.params,
+            attributes: queryParams.attrMap,
+            predicates: [...queryParams.predicates, colPredicate, queryParams.swimlaneAttrPredicate, statusModifiedPredicate],
+            searchPredicate: queryParams.searchPredicate
+          });
+
+          settings.pagination = cellPagination;
+
+          const res = yield call(
+            [JournalsService, JournalsService.getJournalData],
+            journalConfig,
+            { ...settings, columns: queryParams.journalColumns }
+          );
+
+          const records = processCardRecords(res.records, inputByKey, boardConfig);
+
+          yield put(setSwimlaneCellData({
+            stateId,
+            swimlaneId,
+            statusId: column.id,
+            records,
+            totalCount: res.totalCount || 0
+          }));
+        } catch (e) {
+          yield put(setSwimlaneCellData({
+            stateId,
+            swimlaneId,
+            statusId: column.id,
+            records: [],
+            totalCount: 0,
+            error: e.message
+          }));
+          console.error('[kanban/sagaLoadSwimlaneCells saga] cell error', e);
+        }
+      })
+    );
+  } catch (e) {
+    console.error('[kanban/sagaLoadSwimlaneCells saga] error', e);
+  }
+}
+
+export function* sagaLoadMoreSwimlaneCell({ api }, { payload }) {
+  const { stateId, swimlaneId, statusId } = payload;
+  let loadingStarted = false;
+
+  try {
+    const { boardConfig, formProps, swimlaneGrouping, swimlanes } = yield select(selectKanban, stateId);
+    const { journalConfig, journalSetting } = yield select(selectJournalData, stateId);
+
+    if (!swimlaneGrouping) {
+      return;
+    }
+
+    const swimlane = swimlanes.find(sl => sl.id === swimlaneId);
+    const cell = get(swimlane, ['cells', statusId]);
+
+    if (!cell) {
+      return;
+    }
+
+    const columns = get(journalSetting, 'kanban.columns') || boardConfig.columns || [];
+    const column = columns.find(c => c.id === statusId);
+
+    if (!column) {
+      return;
+    }
+
+    yield put(setSwimlaneCellLoading({ stateId, swimlaneId, statusId, isLoading: true }));
+    loadingStarted = true;
+
+    const { queryParams, inputByKey } = yield call(buildSwimlaneCellQueryParams, { api, stateId, boardConfig, formProps, swimlaneGrouping, swimlaneId, journalConfig, journalSetting });
+
+    const colPredicate = KanbanConverter.preparePredicate(column);
+    const statusModifiedPredicate = KanbanConverter.getStatusModifiedPredicate(column);
+
+    const newPagination = {
+      skipCount: cell.records.length,
+      maxItems: DEFAULT_PAGINATION.maxItems,
+      page: cell.pagination.page + 1
+    };
+
+    const settings = JournalsConverter.getSettingsForDataLoaderServer({
+      ...queryParams.params,
+      attributes: queryParams.attrMap,
+      predicates: [...queryParams.predicates, colPredicate, queryParams.swimlaneAttrPredicate, statusModifiedPredicate],
+      searchPredicate: queryParams.searchPredicate
+    });
+
+    settings.pagination = newPagination;
+
+    const res = yield call(
+      [JournalsService, JournalsService.getJournalData],
+      journalConfig,
+      { ...settings, columns: queryParams.journalColumns }
+    );
+
+    const newRecords = processCardRecords(res.records, inputByKey, boardConfig);
+    const allRecords = [...cell.records, ...newRecords];
+
+    yield put(setSwimlaneCellData({
+      stateId,
+      swimlaneId,
+      statusId,
+      records: allRecords,
+      totalCount: res.totalCount || cell.totalCount
+    }));
+  } catch (e) {
+    console.error('[kanban/sagaLoadMoreSwimlaneCell saga] error', e);
+  } finally {
+    if (loadingStarted) {
+      yield put(setSwimlaneCellLoading({ stateId, swimlaneId, statusId, isLoading: false }));
+    }
+  }
+}
+
+export function* sagaMoveSwimlaneCard({ api }, { payload }) {
+  let rollbackFromCell = null;
+  let rollbackToCell = null;
+
+  try {
+    const { stateId, cardIndex, fromSwimlaneId, fromStatusId, toStatusId } = payload;
+    const { swimlanes, boardConfig } = yield select(selectKanban, stateId);
+
+    if (fromStatusId === toStatusId) {
+      return;
+    }
+
+    const swimlane = swimlanes.find(sl => sl.id === fromSwimlaneId);
+
+    if (!swimlane) {
+      return;
+    }
+
+    const fromCell = swimlane.cells[fromStatusId];
+    const toCell = swimlane.cells[toStatusId];
+
+    if (!fromCell || !fromCell.records[cardIndex]) {
+      return;
+    }
+
+    // Save state for rollback
+    rollbackFromCell = { records: [...fromCell.records], totalCount: fromCell.totalCount };
+    rollbackToCell = toCell ? { records: [...toCell.records], totalCount: toCell.totalCount } : null;
+
+    const card = fromCell.records[cardIndex];
+    const recordRef = card.id || card.cardId;
+    const swimlaneId = fromSwimlaneId;
+
+    // Optimistic update: remove from source cell, add to target cell
+    const newFromRecords = [...fromCell.records];
+    newFromRecords.splice(cardIndex, 1);
+    yield put(setSwimlaneCellData({
+      stateId,
+      swimlaneId,
+      statusId: fromStatusId,
+      records: newFromRecords,
+      totalCount: fromCell.totalCount - 1
+    }));
+
+    const newToRecords = [card, ...(toCell ? toCell.records : [])];
+    yield put(setSwimlaneCellData({
+      stateId,
+      swimlaneId,
+      statusId: toStatusId,
+      records: newToRecords,
+      totalCount: (toCell ? toCell.totalCount : 0) + 1
+    }));
+
+    const result = yield call(api.kanban.moveRecord, { recordRef, columnId: toStatusId });
+
+    if (get(result, 'id') !== recordRef) {
+      throw new Error('Incorrect move result');
+    }
+  } catch (e) {
+    // Rollback: restore previous cell state
+    const { stateId, fromSwimlaneId, fromStatusId, toStatusId } = payload;
+    const swimlaneId = fromSwimlaneId;
+
+    if (rollbackFromCell) {
+      yield put(setSwimlaneCellData({
+        stateId,
+        swimlaneId,
+        statusId: fromStatusId,
+        records: rollbackFromCell.records,
+        totalCount: rollbackFromCell.totalCount
+      }));
+    }
+
+    if (rollbackToCell) {
+      yield put(setSwimlaneCellData({
+        stateId,
+        swimlaneId,
+        statusId: toStatusId,
+        records: rollbackToCell.records,
+        totalCount: rollbackToCell.totalCount
+      }));
+    }
+
+    NotificationManager.error(e.message || t('kanban.error.card-not-moved'), t('error'));
+    console.error('[kanban/sagaMoveSwimlaneCard saga] error', e);
+  }
+}
+
 export function* sagaReloadBoardData({ api }, { payload }) {
   try {
     const { stateId } = payload;
@@ -647,13 +1037,17 @@ export function* sagaReloadBoardData({ api }, { payload }) {
     const pagination = DEFAULT_PAGINATION;
     yield put(setPagination({ stateId, pagination }));
 
-    const { boardConfig, formProps } = yield select(selectKanban, stateId);
+    const { boardConfig, formProps, swimlaneGrouping } = yield select(selectKanban, stateId);
     const { journalConfig, journalSetting } = yield select(selectJournalData, stateId);
 
-    yield sagaGetData({ api }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
-    yield put(setLoading({ stateId, isLoading: false }));
+    if (swimlaneGrouping) {
+      yield sagaLoadSwimlaneValues({ api }, { payload: { stateId } });
+    } else {
+      yield sagaGetData({ api }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
+      yield put(setLoading({ stateId, isLoading: false }));
+    }
   } catch (e) {
-    console.error('[kanban/sagaRunSearchCard saga error', e);
+    console.error('[kanban/sagaReloadBoardData saga error', e);
   }
 }
 
@@ -672,6 +1066,9 @@ export function* docStatusSaga(ea) {
   yield takeEvery(resetFilter().type, sagaResetFilter, ea);
   yield takeEvery(runSearchCard().type, sagaRunSearchCard, ea);
   yield takeEvery(reloadBoardData().type, sagaReloadBoardData, ea);
+  yield takeLatest(changeSwimlaneGrouping().type, sagaSetSwimlaneGrouping, ea);
+  yield takeEvery(loadMoreSwimlaneCell().type, sagaLoadMoreSwimlaneCell, ea);
+  yield takeEvery(moveSwimlaneCard().type, sagaMoveSwimlaneCard, ea);
   yield takeEvery(execRecordsActionComplete().type, wrapSaga, { ...ea, saga: sagaRecordActionComplete });
 }
 

@@ -14,8 +14,9 @@ import { Labels } from '../constants';
 
 import Column from './Column';
 import HeaderColumn from './HeaderColumn';
+import Swimlane from './Swimlane';
 
-import { cancelGetNextBoardPage, getNextPage, moveCard, runAction } from '@/actions/kanban';
+import { cancelGetNextBoardPage, getNextPage, loadMoreSwimlaneCell, moveCard, moveSwimlaneCard, runAction, toggleSwimlaneCollapse } from '@/actions/kanban';
 import { ParserPredicate } from '@/components/Filters/predicates';
 import EmptyColumns from '@/components/common/icons/EmptyColumns';
 import { t } from '@/helpers/util';
@@ -42,7 +43,11 @@ function mapDispatchToProps(dispatch, props) {
     getNextPage: settings => dispatch(getNextPage({ stateId: props.stateId, ...settings })),
     cancelGetNextBoardPage: () => dispatch(cancelGetNextBoardPage({ stateId: props.stateId })),
     moveCard: data => dispatch(moveCard({ stateId: props.stateId, ...data })),
-    runAction: (recordRef, action) => dispatch(runAction({ recordRef, action, stateId: props.stateId }))
+    runAction: (recordRef, action) => dispatch(runAction({ recordRef, action, stateId: props.stateId })),
+    toggleSwimlaneCollapse: swimlaneId => dispatch(toggleSwimlaneCollapse({ stateId: props.stateId, swimlaneId })),
+    loadMoreSwimlaneCell: (swimlaneId, statusId) =>
+      dispatch(loadMoreSwimlaneCell({ stateId: props.stateId, swimlaneId, statusId })),
+    moveSwimlaneCard: data => dispatch(moveSwimlaneCard({ stateId: props.stateId, ...data }))
   };
 }
 
@@ -60,7 +65,8 @@ class Kanban extends React.Component {
   refBottom = React.createRef();
 
   state = {
-    isDragging: false
+    isDragging: false,
+    draggingSwimlaneId: null
   };
 
   get searchPredicate() {
@@ -83,7 +89,7 @@ class Kanban extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { isLoading, isFirstLoading, columns, kanbanSettings } = this.props;
+    const { isLoading, isFirstLoading, columns, kanbanSettings, swimlaneGrouping } = this.props;
     const headerElement = get(this.refHeader, 'current');
     const bodyElement = get(this.refBody, 'current');
 
@@ -95,7 +101,7 @@ class Kanban extends React.Component {
       return;
     }
 
-    if (this.state.isInView && !this.isNoMore()) {
+    if (!swimlaneGrouping && this.state.isInView && !this.isNoMore()) {
       const defaultColumns = Array.isArray(columns) ? columns.filter(item => item && item.id) : [];
       const colsFromSettings = get(kanbanSettings, 'columns');
       const cols = colsFromSettings ? [] : defaultColumns;
@@ -146,16 +152,31 @@ class Kanban extends React.Component {
     }
   };
 
-  handleDragStart = () => {
+  handleDragStart = result => {
+    const { swimlaneGrouping } = this.props;
     const isDragging = true;
+    let draggingSwimlaneId = null;
 
-    this.setState({ isDragging });
+    if (swimlaneGrouping) {
+      const droppableId = get(result, 'source.droppableId', '');
+      const parts = droppableId.split('::');
+      if (parts.length === 2) {
+        draggingSwimlaneId = parts[0];
+      }
+    }
+
+    this.setState({ isDragging, draggingSwimlaneId });
   };
 
   handleDragEnd = result => {
-    const isDragging = false;
+    const { swimlaneGrouping } = this.props;
 
-    this.setState({ isDragging });
+    this.setState({ isDragging: false, draggingSwimlaneId: null });
+
+    if (swimlaneGrouping) {
+      this.handleSwimlanesDragEnd(result);
+      return;
+    }
 
     const cardIndex = get(result, 'source.index');
     const fromColumnRef = get(result, 'source.droppableId');
@@ -166,6 +187,42 @@ class Kanban extends React.Component {
     }
 
     this.props.moveCard({ cardIndex, fromColumnRef, toColumnRef });
+  };
+
+  handleSwimlanesDragEnd = result => {
+    const sourceId = get(result, 'source.droppableId');
+    const destId = get(result, 'destination.droppableId');
+
+    if (!destId) {
+      return;
+    }
+
+    const sourceParts = sourceId.split('::');
+    const destParts = destId.split('::');
+
+    if (sourceParts.length !== 2 || destParts.length !== 2) {
+      return;
+    }
+
+    const [fromSwimlaneId, fromStatusId] = sourceParts;
+    const [toSwimlaneId, toStatusId] = destParts;
+
+    if (fromSwimlaneId !== toSwimlaneId) {
+      return;
+    }
+
+    if (fromStatusId === toStatusId) {
+      return;
+    }
+
+    const cardIndex = get(result, 'source.index');
+
+    this.props.moveSwimlaneCard({
+      cardIndex,
+      fromSwimlaneId,
+      fromStatusId,
+      toStatusId
+    });
   };
 
   /**
@@ -191,32 +248,16 @@ class Kanban extends React.Component {
     );
   };
 
-  render() {
-    const {
-      columns,
-      dataCards = [],
-      isLoading,
-      isFirstLoading,
-      page,
-      selectedBoard,
-      kanbanSettings,
-      isViewNewJournal,
-      predicate,
-      boardConfig
-    } = this.props;
-    const { isDragging } = this.state;
-    const bodyStyle = { minHeight: this.getHeight(-70) };
-
+  getColumns() {
+    const { columns, kanbanSettings } = this.props;
     const defaultColumns = Array.isArray(columns) ? columns.filter(item => item && item.id) : [];
     const colsFromSettings = get(kanbanSettings, 'columns');
     const cols = colsFromSettings ? [] : defaultColumns;
 
-    /* To prevent the columns from changing places, you need to go through the default columns and insert them in the same order */
     if (colsFromSettings) {
       defaultColumns.forEach(item => {
         if (item?.id) {
           const column = colsFromSettings.find(i => i && i.id === item.id);
-
           if (column?.default) {
             cols.push(item);
           }
@@ -224,66 +265,172 @@ class Kanban extends React.Component {
       });
     }
 
-    if (isDragging) {
-      bodyStyle.height = bodyStyle.minHeight;
-      bodyStyle.overflow = 'hidden';
-    }
+    return cols;
+  }
+
+  renderLayout({ extraClassName, onScrollFrame, renderHeader, renderBody, renderAfterScrollbars }) {
+    const { isViewNewJournal } = this.props;
+    const cols = this.getColumns();
 
     return (
       <ReactResizeDetector handleWidth onResize={this.handleResize}>
-        <div className={classNames('ecos-kanban', { 'ecos-kanban__new': isViewNewJournal })} style={{ '--count-col': cols.length || 1 }}>
+        <div className={classNames('ecos-kanban', extraClassName, { 'ecos-kanban__new': isViewNewJournal })} style={{ '--count-col': cols.length || 1 }}>
           <Scrollbars
             autoHeight
             autoHeightMin={this.getHeight(-10)}
             autoHeightMax={this.getHeight(-10)}
             renderThumbVertical={props => <div {...props} className="ecos-kanban__scroll_v" />}
             renderTrackHorizontal={props => <div {...props} className="ecos-kanban__scroll_h" />}
-            onScrollFrame={this.handleScrollFrame}
+            onScrollFrame={onScrollFrame}
             ref={this.refScroll}
           >
             <div className="ecos-kanban__head" ref={this.refHeader}>
-              {cols.map(data => {
-                const column = dataCards.find(card => card.status === data.id);
-
-                return (
-                  <HeaderColumn
-                    key={`head_${selectedBoard}-${data.id}`}
-                    isReady={!isFirstLoading}
-                    data={data}
-                    predicate={predicate}
-                    searchPredicate={this.searchPredicate}
-                    typeRef={get(boardConfig, 'typeRef')}
-                    totalCount={get(column, 'totalCount', '⭯')}
-                    isViewNewJournal={isViewNewJournal}
-                  />
-                );
-              })}
+              {renderHeader(cols)}
             </div>
-            <div
-              className={classNames('ecos-kanban__body', {
-                'ecos-kanban__body_dragging': isDragging,
-                'ecos-kanban__body_end': this.isNoMore()
-              })}
-              style={bodyStyle}
-              ref={this.refBody}
-            >
-              {isLoading && isEmpty(cols) && <Loader />}
-              {!isLoading && isEmpty(cols) && (
-                <div className="ecos-kanban__empty">
-                  <EmptyColumns />
-                  <p className="ecos-kanban__empty_text">{t(Labels.Kanban.NO_COLUMNS)}</p>
-                </div>
-              )}
-              <DragDropContext onDragEnd={this.handleDragEnd} onDragStart={this.handleDragStart}>
-                {cols.map(this.renderColumn)}
-              </DragDropContext>
-            </div>
+            {renderBody(cols)}
             <div ref={this.refBottom} className="ecos-kanban__footer-border" />
           </Scrollbars>
-          {isLoading && page > 1 && <PointsLoader className="ecos-kanban__loader" />}
+          {renderAfterScrollbars && renderAfterScrollbars()}
         </div>
       </ReactResizeDetector>
     );
+  }
+
+  renderSwimlaneHeader = cols => {
+    const { swimlanes, isFirstLoading, selectedBoard, predicate, boardConfig, isViewNewJournal } = this.props;
+
+    return cols.map(data => {
+      let totalCount = 0;
+      (swimlanes || []).forEach(sl => {
+        const cell = sl.cells[data.id];
+        if (cell) {
+          totalCount += cell.totalCount;
+        }
+      });
+
+      return (
+        <HeaderColumn
+          key={`head_${selectedBoard}-${data.id}`}
+          isReady={!isFirstLoading}
+          data={data}
+          predicate={predicate}
+          searchPredicate={this.searchPredicate}
+          typeRef={get(boardConfig, 'typeRef')}
+          totalCount={totalCount}
+          isViewNewJournal={isViewNewJournal}
+        />
+      );
+    });
+  };
+
+  renderSwimlaneBody = cols => {
+    const { swimlanes, formProps, boardConfig, resolvedActions, isLoading } = this.props;
+    const { isDragging, draggingSwimlaneId } = this.state;
+    const readOnly = get(boardConfig, 'readOnly');
+
+    return (
+      <DragDropContext onDragEnd={this.handleDragEnd} onDragStart={this.handleDragStart}>
+        <div className="ecos-kanban__swimlanes" ref={this.refBody}>
+          {isLoading && isEmpty(swimlanes) && <Loader />}
+          {!isLoading && isEmpty(swimlanes) && isEmpty(cols) && (
+            <div className="ecos-kanban__empty">
+              <EmptyColumns />
+              <p className="ecos-kanban__empty_text">{t(Labels.Kanban.NO_COLUMNS)}</p>
+            </div>
+          )}
+          {(swimlanes || []).map(swimlane => (
+            <Swimlane
+              key={swimlane.id}
+              swimlane={swimlane}
+              columns={cols}
+              formProps={formProps}
+              readOnly={readOnly}
+              boardConfig={boardConfig}
+              resolvedActions={resolvedActions}
+              isDragging={isDragging}
+              draggingSwimlaneId={draggingSwimlaneId}
+              onToggleCollapse={this.props.toggleSwimlaneCollapse}
+              onLoadMore={this.props.loadMoreSwimlaneCell}
+              onClickAction={this.props.runAction}
+            />
+          ))}
+        </div>
+      </DragDropContext>
+    );
+  };
+
+  renderDefaultHeader = cols => {
+    const { dataCards = [], isFirstLoading, selectedBoard, predicate, boardConfig, isViewNewJournal } = this.props;
+
+    return cols.map(data => {
+      const column = dataCards.find(card => card.status === data.id);
+
+      return (
+        <HeaderColumn
+          key={`head_${selectedBoard}-${data.id}`}
+          isReady={!isFirstLoading}
+          data={data}
+          predicate={predicate}
+          searchPredicate={this.searchPredicate}
+          typeRef={get(boardConfig, 'typeRef')}
+          totalCount={get(column, 'totalCount', '⭯')}
+          isViewNewJournal={isViewNewJournal}
+        />
+      );
+    });
+  };
+
+  renderDefaultBody = cols => {
+    const { isLoading } = this.props;
+    const { isDragging } = this.state;
+
+    const bodyStyle = { minHeight: this.getHeight(-70) };
+
+    if (isDragging) {
+      bodyStyle.height = bodyStyle.minHeight;
+      bodyStyle.overflow = 'hidden';
+    }
+
+    return (
+      <div
+        className={classNames('ecos-kanban__body', {
+          'ecos-kanban__body_dragging': isDragging,
+          'ecos-kanban__body_end': this.isNoMore()
+        })}
+        style={bodyStyle}
+        ref={this.refBody}
+      >
+        {isLoading && isEmpty(cols) && <Loader />}
+        {!isLoading && isEmpty(cols) && (
+          <div className="ecos-kanban__empty">
+            <EmptyColumns />
+            <p className="ecos-kanban__empty_text">{t(Labels.Kanban.NO_COLUMNS)}</p>
+          </div>
+        )}
+        <DragDropContext onDragEnd={this.handleDragEnd} onDragStart={this.handleDragStart}>
+          {cols.map(this.renderColumn)}
+        </DragDropContext>
+      </div>
+    );
+  };
+
+  render() {
+    const { swimlaneGrouping, isLoading, page } = this.props;
+
+    if (swimlaneGrouping) {
+      return this.renderLayout({
+        extraClassName: 'ecos-kanban_swimlane',
+        renderHeader: this.renderSwimlaneHeader,
+        renderBody: this.renderSwimlaneBody
+      });
+    }
+
+    return this.renderLayout({
+      onScrollFrame: this.handleScrollFrame,
+      renderHeader: this.renderDefaultHeader,
+      renderBody: this.renderDefaultBody,
+      renderAfterScrollbars: () => isLoading && page > 1 ? <PointsLoader className="ecos-kanban__loader" /> : null
+    });
   }
 }
 

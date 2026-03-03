@@ -19,6 +19,9 @@ export const selectIsKanbanEnabled = createSelector(selectKanban, state => get(s
 
 export const selectPagination = createSelector(selectKanban, state => cloneDeep(get(state, 'pagination', DEFAULT_PAGINATION)));
 
+export const selectSwimlaneGrouping = createSelector(selectKanban, s => s.swimlaneGrouping);
+export const selectSwimlanes = createSelector(selectKanban, s => s.swimlanes || []);
+
 export const selectKanbanPageProps = createSelector(selectKanban, data => ({
   originKanbanSettings: data.originKanbanSettings,
   kanbanSettings: data.kanbanSettings,
@@ -27,7 +30,8 @@ export const selectKanbanPageProps = createSelector(selectKanban, data => ({
   boardConfig: data.boardConfig,
   isLoading: data.isLoading,
   isEnabled: data.isEnabled,
-  totalCount: data.totalCount
+  totalCount: data.totalCount,
+  swimlaneGrouping: data.swimlaneGrouping
 }));
 
 export const selectKanbanProps = createSelector(selectKanban, data => ({
@@ -41,7 +45,9 @@ export const selectKanbanProps = createSelector(selectKanban, data => ({
   isLoading: data.isLoading,
   isFirstLoading: data.isFirstLoading,
   page: data.pagination.page,
-  selectedBoard: get(data, 'boardConfig.name')
+  selectedBoard: get(data, 'boardConfig.name'),
+  swimlaneGrouping: data.swimlaneGrouping,
+  swimlanes: data.swimlanes || []
 }));
 
 export const selectColumnData = (state, key, status) => {

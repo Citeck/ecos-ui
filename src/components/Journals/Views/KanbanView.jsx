@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 import { JournalUrlParams, JournalUrlParams as JUP, KanbanUrlParams as KUP, SourcesId } from '../../../constants';
 import { Dropdown } from '../../common/form';
 import Kanban, { Bar } from '../Kanban';
+import SwimlaneGroupingDropdown from '../Kanban/SwimlaneGroupingDropdown';
 import { isKanban, Labels } from '../constants';
 
 import {
@@ -28,7 +29,7 @@ import {
   setSelectedRecords,
   setUrl
 } from '@/actions/journals';
-import { applyFilter, getBoardData, reloadBoardData, resetFilter, selectBoardId } from '@/actions/kanban';
+import { applyFilter, getBoardData, reloadBoardData, resetFilter, selectBoardId, changeSwimlaneGrouping } from '@/actions/kanban';
 import { t } from '@/helpers/export/util';
 import { wrapArgs } from '@/helpers/redux';
 import { getSearchParams } from '@/helpers/urls';
@@ -44,6 +45,8 @@ function mapStateToProps(state, props) {
   const ownProps = selectKanbanPageProps(state, props.stateId);
   const newState = get(state, ['journals', props.stateId]) || {};
   const isViewNewJournal = selectIsViewNewJournal(state);
+  const journalConfig = get(newState, 'journalConfig') || {};
+  const groupableColumns = (journalConfig.columns || []).filter(c => c.groupable);
 
   return {
     predicate: newState.journalSetting?.predicate || {},
@@ -51,6 +54,7 @@ function mapStateToProps(state, props) {
     isAdmin: selectIsAdmin(state),
     isViewNewJournal,
     viewMode,
+    groupableColumns,
     ...ownProps
   };
 }
@@ -77,7 +81,8 @@ function mapDispatchToProps(dispatch, props) {
     setSelectedRecords: records => dispatch(setSelectedRecords(w(records))),
     setSelectAllPageRecords: need => dispatch(setSelectAllPageRecords(w(need))),
     deselectAllRecords: stateId => dispatch(deselectAllRecords({ stateId })),
-    setUrl: urlParams => dispatch(setUrl(w(urlParams)))
+    setUrl: urlParams => dispatch(setUrl(w(urlParams))),
+    changeSwimlaneGrouping: swimlaneGrouping => dispatch(changeSwimlaneGrouping({ stateId: props.stateId, swimlaneGrouping }))
   };
 }
 
@@ -151,8 +156,12 @@ class KanbanView extends React.Component {
     return <span className="ecos-pagination__text">{t(Labels.Kanban.BAR_TOTAL, { count })}</span>;
   };
 
+  handleChangeSwimlaneGrouping = grouping => {
+    this.props.changeSwimlaneGrouping(grouping);
+  };
+
   LeftBarChild = () => {
-    const { boardList, isViewNewJournal } = this.props;
+    const { boardList, isViewNewJournal, groupableColumns, swimlaneGrouping } = this.props;
 
     return (
       <>
@@ -174,6 +183,14 @@ class KanbanView extends React.Component {
           )}
           menuClassName="ecos-kanban__dropdown-menu"
         />
+        {!isEmpty(groupableColumns) && (
+          <SwimlaneGroupingDropdown
+            groupableColumns={groupableColumns}
+            swimlaneGrouping={swimlaneGrouping}
+            onChangeSwimlaneGrouping={this.handleChangeSwimlaneGrouping}
+            isViewNewJournal={isViewNewJournal}
+          />
+        )}
       </>
     );
   };

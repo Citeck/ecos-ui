@@ -20,7 +20,12 @@ import {
   setOriginKanbanSettings,
   setTotalCount,
   applyPreset,
-  clearFiltered
+  clearFiltered,
+  setSwimlaneGrouping,
+  setSwimlaneValues,
+  setSwimlaneCellData,
+  toggleSwimlaneCollapse,
+  setSwimlaneCellLoading
 } from '../actions/kanban';
 import { DEFAULT_PAGINATION } from '../components/Journals/constants';
 import { t } from '../helpers/export/util';
@@ -40,7 +45,9 @@ export const initialState = {
   totalCount: 0,
   dataCards: [],
   resolvedActions: [],
-  pagination: DEFAULT_PAGINATION
+  pagination: DEFAULT_PAGINATION,
+  swimlaneGrouping: null,
+  swimlanes: []
 };
 
 export default handleActions(
@@ -128,6 +135,68 @@ export default handleActions(
     [setLoadingColumns]: (state, { payload }) => {
       const { stateId, isLoadingColumns } = payload;
       return updateState(state, stateId, { isLoadingColumns }, initialState);
+    },
+    [setSwimlaneGrouping]: (state, { payload }) => {
+      const { stateId, swimlaneGrouping } = payload;
+      return updateState(state, stateId, { swimlaneGrouping, swimlanes: [], isLoading: true }, initialState);
+    },
+    [setSwimlaneValues]: (state, { payload }) => {
+      const { stateId, swimlanes } = payload;
+      return updateState(state, stateId, { swimlanes, isFirstLoading: false }, initialState);
+    },
+    [setSwimlaneCellData]: (state, { payload }) => {
+      const { stateId, swimlaneId, statusId, records, totalCount, error } = payload;
+      const prevSwimlanes = (state[stateId] || {}).swimlanes || [];
+      const swimlanes = prevSwimlanes.map(sl => {
+        if (sl.id !== swimlaneId) {
+          return sl;
+        }
+        return {
+          ...sl,
+          cells: {
+            ...sl.cells,
+            [statusId]: {
+              ...sl.cells[statusId],
+              records: records,
+              totalCount: totalCount,
+              error: error,
+              isLoading: false
+            }
+          }
+        };
+      });
+      return updateState(state, stateId, { swimlanes }, initialState);
+    },
+    [toggleSwimlaneCollapse]: (state, { payload }) => {
+      const { stateId, swimlaneId } = payload;
+      const prevSwimlanes = (state[stateId] || {}).swimlanes || [];
+      const swimlanes = prevSwimlanes.map(sl => {
+        if (sl.id !== swimlaneId) {
+          return sl;
+        }
+        return { ...sl, isCollapsed: !sl.isCollapsed };
+      });
+      return updateState(state, stateId, { swimlanes }, initialState);
+    },
+    [setSwimlaneCellLoading]: (state, { payload }) => {
+      const { stateId, swimlaneId, statusId, isLoading } = payload;
+      const prevSwimlanes = (state[stateId] || {}).swimlanes || [];
+      const swimlanes = prevSwimlanes.map(sl => {
+        if (sl.id !== swimlaneId) {
+          return sl;
+        }
+        return {
+          ...sl,
+          cells: {
+            ...sl.cells,
+            [statusId]: {
+              ...sl.cells[statusId],
+              isLoading
+            }
+          }
+        };
+      });
+      return updateState(state, stateId, { swimlanes }, initialState);
     }
   },
   {}

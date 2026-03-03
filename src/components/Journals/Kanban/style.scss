@@ -1,6 +1,7 @@
 @import '../../../styles/constants';
 @import '../../../styles/animateStripes';
 @import '../../../styles/animatePulse';
+@import './swimlane';
 
 @function HexToRGB($hex) {
   @return red($hex), green($hex), blue($hex);

@@ -51,6 +51,27 @@ export default class KanbanConverter {
       : undefined;
   }
 
+  static prepareSwimlaneValues(values) {
+    let hasUnassigned = false;
+    const assigned = [];
+
+    (values || []).forEach(item => {
+      if (!item.id || item.id === '' || item.id === 'null' || item.id === null) {
+        hasUnassigned = true;
+      } else {
+        assigned.push(item);
+      }
+    });
+
+    assigned.sort((a, b) => (a.id || '').localeCompare(b.id || '', undefined, { numeric: true }));
+
+    if (hasUnassigned) {
+      assigned.push({ id: '__unassigned__', label: '' });
+    }
+
+    return assigned;
+  }
+
   static getCardAttributes() {
     return {
       cardId: '.id',

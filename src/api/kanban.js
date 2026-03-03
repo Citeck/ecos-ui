@@ -44,6 +44,25 @@ export class KanbanApi {
     ).then(result => result.records);
   }
 
+  getDistinctValues({ sourceId, attribute, predicates, workspaces }) {
+    return Records.query(
+      {
+        sourceId,
+        query: {
+          t: 'and',
+          v: predicates.filter(Boolean)
+        },
+        language: 'predicate',
+        workspaces,
+        groupBy: [attribute]
+      },
+      {
+        id: attribute + '?str',
+        label: attribute + '?disp'
+      }
+    ).then(result => (result.records || []).slice(0, 100));
+  }
+
   moveRecord({ recordRef, columnId }) {
     const rec = Records.get(recordRef);
     rec.att('_status', columnId);
