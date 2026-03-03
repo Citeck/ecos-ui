@@ -23,12 +23,26 @@ export default class DurationFormatter extends BaseFormatter {
     // maxAsHours is false by default
     const maxAsHours = isBoolean(config.maxAsHours) ? config.maxAsHours : config.maxAsHours === 'true';
 
+    // hoursPerDay: when set (> 0), days are calculated as totalHours / hoursPerDay (person-days mode)
+    const hoursPerDayRaw = Number(config.hoursPerDay);
+    const hoursPerDay = !isNaN(hoursPerDayRaw) && hoursPerDayRaw > 0 ? hoursPerDayRaw : 0;
+
     const isNegative = cell < 0;
     const numberModulo = Math.abs(cell);
     const duration = moment.duration(numberModulo);
 
-    const days = Math.floor(duration.asDays());
-    const hours = maxAsHours ? Math.floor(duration.asHours()) : duration.hours();
+    const totalHours = Math.floor(duration.asHours());
+    const usePersonDays = !maxAsHours && hoursPerDay > 0;
+
+    const days = usePersonDays ? Math.floor(totalHours / hoursPerDay) : Math.floor(duration.asDays());
+    let hours;
+    if (maxAsHours) {
+      hours = totalHours;
+    } else if (usePersonDays) {
+      hours = totalHours % hoursPerDay;
+    } else {
+      hours = duration.hours();
+    }
     const minutes = duration.minutes();
     const seconds = duration.seconds();
 
