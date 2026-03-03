@@ -384,11 +384,18 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
     setResponse('');
   };
 
+  const handleRegisterClose = useCallback((fn: () => void) => {
+    closeAIRef.current = fn;
+  }, []);
+
   const handleClearEditor = useCallback(() => {
     setEditorValue('');
   }, [setEditorValue]);
 
   const handleToolbarGroupClick = useCallback((e: React.MouseEvent) => {
+    // Ignore clicks from portalled elements (AI popups rendered outside this DOM node)
+    if (!(e.currentTarget as Node).contains(e.target as Node)) return;
+
     const aiWrapper = (e.currentTarget as Element).querySelector('.script-editor-ai-button-wrapper');
     if (aiWrapper && aiWrapper.contains(e.target as Node)) return;
     closeAIRef.current?.();
@@ -465,7 +472,7 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
             setEditorValue={setEditorValue}
             language="javascript"
             positionVariant="text-field"
-            onRegisterClose={(fn: () => void) => { closeAIRef.current = fn; }}
+            onRegisterClose={handleRegisterClose}
           />
           <span className="console-toolbar__separator" />
           <button className="console-toolbar__btn" onClick={handleSaveCode} data-tooltip={t('developer-console.save-code')}>

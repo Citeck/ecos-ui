@@ -132,11 +132,10 @@ const AIFieldActions: React.FC<AIFieldActionsProps> = ({
   useEffect(() => {
     if (onRegisterClose) {
       onRegisterClose(() => {
-        closeActionsBar();
-        closeResult();
+        cancelGeneration();
       });
     }
-  }, [onRegisterClose, closeActionsBar, closeResult]);
+  }, [onRegisterClose, cancelGeneration]);
 
   // Determine content type - use prop override or get from config
   const contentType = useMemo(
