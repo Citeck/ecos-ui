@@ -117,6 +117,7 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
         setInitialValue(example.code);
         setActiveSnippetId(null);
         setEditorValue(example.code);
+        editorRef.current?.focus();
       }
     }
   };
@@ -130,6 +131,7 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
         setInitialValue(snippet.code);
         setActiveSnippetId(snippet.id);
         setEditorValue(snippet.code);
+        editorRef.current?.focus();
       }
     }
   };
