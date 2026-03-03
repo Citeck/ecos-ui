@@ -48,7 +48,8 @@ const ScriptEditorAIButton = ({
   resultContainer,
   language = 'javascript',
   popperClassName,
-  positionVariant
+  positionVariant,
+  onRegisterClose
 }) => {
   // Conversation ID for multi-turn interactions
   const conversationIdRef = useRef(uuidV4());
@@ -139,6 +140,7 @@ const ScriptEditorAIButton = ({
       resultContainer={resultContainer}
       popperClassName={popperClassName}
       positionVariant={positionVariant}
+      onRegisterClose={onRegisterClose}
       className="script-editor-ai-button-wrapper"
     />
   );

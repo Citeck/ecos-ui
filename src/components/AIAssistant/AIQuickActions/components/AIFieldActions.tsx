@@ -5,7 +5,7 @@
  * Supports smart positioning with automatic flip when near viewport edges
  */
 
-import React, { useCallback, useMemo, useRef, useState, ReactNode } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState, ReactNode } from 'react';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 
@@ -45,6 +45,7 @@ export interface AIFieldActionsProps {
   popperClassName?: string;
   className?: string;
   children?: ReactNode;
+  onRegisterClose?: (closeFn: () => void) => void;
 }
 
 const AIFieldActions: React.FC<AIFieldActionsProps> = ({
@@ -72,7 +73,8 @@ const AIFieldActions: React.FC<AIFieldActionsProps> = ({
   noWrapper = false,
   popperClassName,
   className,
-  children
+  children,
+  onRegisterClose
 }) => {
   // Internal ref for trigger when no external element provided
   const internalTriggerRef = useRef<HTMLButtonElement | null>(null);
@@ -125,6 +127,16 @@ const AIFieldActions: React.FC<AIFieldActionsProps> = ({
     selectedText,
     disabled
   });
+
+  // Register close function for external callers (e.g., when another toolbar action is triggered)
+  useEffect(() => {
+    if (onRegisterClose) {
+      onRegisterClose(() => {
+        closeActionsBar();
+        closeResult();
+      });
+    }
+  }, [onRegisterClose, closeActionsBar, closeResult]);
 
   // Determine content type - use prop override or get from config
   const contentType = useMemo(
