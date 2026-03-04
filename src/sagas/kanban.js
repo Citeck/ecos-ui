@@ -89,6 +89,10 @@ function* buildSwimlaneCellQueryParams({ api, stateId, boardConfig, formProps, s
     templateAttrs.forEach(key => { attrMap[key] = key; });
   }
 
+  if (boardConfig.coloredAttr) {
+    attrMap['_colorAttrValue'] = boardConfig.coloredAttr + '?str';
+  }
+
   delete params.columns;
   delete params.groupBy;
   delete params.groupActions;
@@ -221,6 +225,16 @@ export function* sagaGetBoardData({ api }, { payload }) {
       journalSetting = yield getJournalSettingFully(api, { journalConfig, stateId }, w);
     }
 
+    // Extract colored formatter column for card border coloring (used in both grouped and non-grouped modes)
+    const coloredColumn = (journalConfig.columns || []).find(
+      col => get(col, 'newFormatter.type') === 'colored'
+    );
+    if (coloredColumn) {
+      boardConfig.coloredAttr = coloredColumn.attribute || coloredColumn.dataField;
+      boardConfig.colorMap = get(coloredColumn, 'newFormatter.config.color', {});
+      yield put(setBoardConfig({ boardConfig, stateId }));
+    }
+
     const pagination = DEFAULT_PAGINATION;
 
     yield put(setPagination({ stateId, pagination }));
@@ -306,6 +320,10 @@ export function* sagaGetData({ api }, { payload }) {
 
         return col;
       });
+    }
+
+    if (boardConfig.coloredAttr) {
+      params.attributes['_colorAttrValue'] = boardConfig.coloredAttr + '?str';
     }
 
     const result = yield all(
@@ -758,10 +776,18 @@ export function* sagaLoadSwimlaneValues({ api }, { payload }) {
 
     const sortedValues = KanbanConverter.prepareSwimlaneValues(distinctValues);
 
+    // Extract color map from journal column formatter if available
+    const swimlaneColumn = (journalConfig.columns || []).find(
+      col => col.attribute === swimlaneGrouping.attribute || col.dataField === swimlaneGrouping.attribute
+    );
+    const formatterConfig = get(swimlaneColumn, 'newFormatter', {});
+    const colorMap = formatterConfig.type === 'colored' ? get(formatterConfig, 'config.color', {}) : {};
+
     const columns = get(journalSetting, 'kanban.columns') || boardConfig.columns || [];
     const swimlanes = sortedValues.map(val => ({
       id: val.id,
       label: val.label,
+      color: colorMap[val.id] || colorMap[val.label] || null,
       isCollapsed: false,
       cells: columns.reduce((acc, col) => {
         acc[col.id] = {
@@ -968,7 +994,7 @@ export function* sagaMoveSwimlaneCard({ api }, { payload }) {
 
     // Save state for rollback
     rollbackFromCell = { records: [...fromCell.records], totalCount: fromCell.totalCount };
-    rollbackToCell = toCell ? { records: [...toCell.records], totalCount: toCell.totalCount } : null;
+    rollbackToCell = toCell ? { records: [...toCell.records], totalCount: toCell.totalCount } : { records: [], totalCount: 0 };
 
     const card = fromCell.records[cardIndex];
     const recordRef = card.id || card.cardId;

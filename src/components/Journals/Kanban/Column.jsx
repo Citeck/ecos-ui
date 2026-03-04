@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -101,6 +102,9 @@ class Column extends React.PureComponent {
     }
 
     const { formProps, readOnly, actions = {}, boardConfig = {} } = this.props;
+    const colorMap = get(boardConfig, 'colorMap', {});
+    const colorValue = get(record, '_colorAttrValue');
+    const cardColor = colorValue ? colorMap[colorValue] || null : null;
 
     return (
       <Card
@@ -111,6 +115,7 @@ class Column extends React.PureComponent {
         readOnly={readOnly}
         actions={actions[record.cardId]}
         boardConfig={boardConfig}
+        swimlaneColor={cardColor}
         onClickAction={this.handleAction}
       />
     );

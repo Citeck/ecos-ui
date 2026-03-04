@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React from 'react';
 import PropTypes from 'prop-types';
 
@@ -25,8 +26,10 @@ const Swimlane = ({
         isCollapsed={swimlane.isCollapsed}
         onToggleCollapse={() => onToggleCollapse(swimlane.id)}
       />
-      {!swimlane.isCollapsed && (
-        <div className="ecos-kanban__swimlane-body">
+      <div className={classNames('ecos-kanban__swimlane-body', {
+        'ecos-kanban__swimlane-body_collapsed': swimlane.isCollapsed
+      })}>
+        <div className="ecos-kanban__swimlane-body-inner">
           {columns.map(col => {
             const colActions = (resolvedActions || []).find(a => a.status === col.id) || {};
             return (
@@ -35,6 +38,7 @@ const Swimlane = ({
                 swimlaneId={swimlane.id}
                 statusId={col.id}
                 cell={swimlane.cells[col.id]}
+                swimlaneColor={swimlane.color}
                 columnInfo={col}
                 formProps={formProps}
                 readOnly={readOnly}
@@ -42,13 +46,14 @@ const Swimlane = ({
                 actions={colActions}
                 isDragging={isDragging}
                 draggingSwimlaneId={draggingSwimlaneId}
+                isCollapsed={swimlane.isCollapsed}
                 onLoadMore={onLoadMore}
                 onClickAction={onClickAction}
               />
             );
           })}
         </div>
-      )}
+      </div>
     </div>
   );
 };

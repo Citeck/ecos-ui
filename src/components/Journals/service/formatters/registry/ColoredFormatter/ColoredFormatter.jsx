@@ -18,6 +18,14 @@ import './ColoredFormatter.scss';
 const HEX_COLOR_REGEX = /^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/;
 const SUPPORTED_DEFAULT_COLOR = ['green', 'blue', 'yellow', 'pink', 'red', 'currentColor'];
 
+export const NAMED_COLOR_MAP = {
+  green: '#24A148',
+  yellow: '#F1C21B',
+  pink: '#FF832B',
+  red: '#DA1E28',
+  blue: '#4285F4'
+};
+
 export default class ColoredFormatter extends BaseFormatter {
   static TYPE = 'colored';
 
@@ -25,6 +33,11 @@ export default class ColoredFormatter extends BaseFormatter {
 
   static isHexColor(color) {
     return isString(color) && HEX_COLOR_REGEX.test(color);
+  }
+
+  static resolveColor(color) {
+    if (color === 'currentColor') return null;
+    return NAMED_COLOR_MAP[color] || color;
   }
 
   format(props) {
@@ -49,12 +62,8 @@ export default class ColoredFormatter extends BaseFormatter {
     let colorByScript = this.colorByScript({ Records, cell, row, index }, config.fn);
     let finalColor = colorByScript || color[key] || defaultColor;
 
-    const isHexColor = ColoredFormatter.isHexColor(finalColor);
-
-    // Check supported colors
-    if (!isHexColor && finalColor && !SUPPORTED_DEFAULT_COLOR.includes(finalColor)) {
-      console.warn(`ColoredFormatter: Unsupported color "${finalColor}". Use one of ${SUPPORTED_DEFAULT_COLOR.join(', ')} or HEX color.`);
-    }
+    // Resolve named colors to hex
+    finalColor = ColoredFormatter.resolveColor(finalColor);
 
     const isHexFinalColor = ColoredFormatter.isHexColor(finalColor);
     const colorStyle = isHexFinalColor ? { backgroundColor: finalColor } : {};

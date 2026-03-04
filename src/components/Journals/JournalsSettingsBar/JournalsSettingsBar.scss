@@ -67,13 +67,11 @@
 
     .ecos-btn_drop-down {
       font-size: 11px;
-      line-height: 9px;
+      line-height: normal;
       border: 1px solid $color-gray-4;
 
       .ecos-dropdown__toggle-label {
         padding: 0;
-        height: 150%;
-        margin-top: 2px;
         margin-right: 4px;
       }
     }
@@ -338,8 +336,6 @@
   &.template {
     .ecos-btn__text {
       overflow: visible;
-      margin-top: 2px;
-      height: 150%;
     }
   }
 
@@ -411,7 +407,7 @@
 
   .ecos-btn__text {
     font-size: 11px;
-    line-height: 9px;
+    line-height: normal;
   }
 
   &_selected {

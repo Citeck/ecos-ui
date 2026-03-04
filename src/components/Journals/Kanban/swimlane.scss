@@ -41,6 +41,14 @@ $kanban-head-height: 50px;
   }
 }
 
+.ecos-kanban__swimlane-header-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
 .ecos-kanban__swimlane-header-icon {
   margin-right: 8px;
   font-size: 12px;
@@ -62,11 +70,49 @@ $kanban-head-height: 50px;
   color: $text-color-gray;
 }
 
+.ecos-kanban__swimlane-header-breakdown {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  gap: 4px;
+}
+
+.ecos-kanban__swimlane-header-col-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 18px;
+  padding: 0 5px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 9px;
+  font-size: 11px;
+  font-weight: $font-weight-semi-bold;
+  color: $text-color-gray;
+}
+
 .ecos-kanban__swimlane-body {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.3s ease-out, opacity 0.2s ease-out;
+  opacity: 1;
+
+  &_collapsed {
+    grid-template-rows: 0fr;
+    opacity: 0;
+  }
+}
+
+.ecos-kanban__swimlane-body-inner {
   display: flex;
   flex-direction: row;
   min-width: 100%;
   padding: 4px 0 8px;
+  overflow: hidden;
+
+  .ecos-kanban__swimlane-body_collapsed & {
+    padding: 0;
+  }
 }
 
 .ecos-kanban__swimlane-cell {
@@ -82,6 +128,13 @@ $kanban-head-height: 50px;
 
   &:not(:first-child) {
     margin-left: 11px;
+  }
+
+  &-empty-text {
+    color: $text-color-gray;
+    font-size: 12px;
+    font-style: italic;
+    user-select: none;
   }
 
   &_dragging-over {
@@ -135,7 +188,7 @@ $kanban-head-height: 50px;
     }
   }
 
-  .ecos-kanban__swimlane-body {
+  .ecos-kanban__swimlane-body-inner {
     gap: 12px;
   }
 

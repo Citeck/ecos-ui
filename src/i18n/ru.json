@@ -563,6 +563,7 @@
   "kanban.grouping.none": "Нет",
   "kanban.swimlane.unassigned": "Не назначено",
   "kanban.swimlane.show-more": "Ещё {{count}}",
+  "kanban.swimlane.no-cards": "Нет карточек",
 
   "type-permissions.empty-attribute.title": "Идинтификатор атрибута не заполнен",
   "type-permissions.empty-attribute.text": "Пожалуйста, заполните поле 'Идентификатор' перед редактированием прав",

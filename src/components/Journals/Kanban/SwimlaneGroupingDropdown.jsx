@@ -1,6 +1,8 @@
 import React, { useMemo, useCallback } from 'react';
+import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
+import { IcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
 import { t } from '@/helpers/util';
 
@@ -35,16 +37,23 @@ const SwimlaneGroupingDropdown = ({ groupableColumns, swimlaneGrouping, onChange
   return (
     <Dropdown
       isButton
-      isStatic
       source={source}
       value={currentValue}
       valueField="id"
       titleField="name"
       onChange={handleChange}
-      controlLabel={t('kanban.grouping.label')}
-      controlClassName={`ecos-btn_drop-down ${isViewNewJournal ? 'ecos-btn_hover_blue2 ecos-journal__btn_new ecos-btn_grey3' : 'ecos-kanban__dropdown'}`}
       menuClassName="ecos-kanban__dropdown-menu"
-    />
+    >
+      <IcoBtn
+        invert
+        icon="icon-small-down"
+        className={classNames('ecos-btn_hover_blue2 ecos-btn_drop-down ecos-btn_grey3 ecos-journal__btn_new', {
+          'ecos-journal__btn_new_selected': !!swimlaneGrouping
+        })}
+      >
+        {swimlaneGrouping ? swimlaneGrouping.label : t('kanban.grouping.label')}
+      </IcoBtn>
+    </Dropdown>
   );
 };
 

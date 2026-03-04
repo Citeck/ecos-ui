@@ -613,6 +613,7 @@
   "kanban.grouping.none": "None",
   "kanban.swimlane.unassigned": "Unassigned",
   "kanban.swimlane.show-more": "{{count}} more",
+  "kanban.swimlane.no-cards": "No cards",
 
   "type-permissions.empty-attribute.title": "Attribute id is empty",
   "type-permissions.empty-attribute.text": "Please fill id field before call permissions editor",
