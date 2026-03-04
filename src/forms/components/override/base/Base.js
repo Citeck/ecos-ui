@@ -984,20 +984,23 @@ function extendingOfComponent(component) {
   return component;
 }
 
-// Cause: https://citeck.atlassian.net/browse/ECOSUI-918
-Object.defineProperty(Base.prototype, 'component', {
-  get: function () {
-    return extendingOfComponent(this._component);
-  },
+const _componentDescriptor = Object.getOwnPropertyDescriptor(Base.prototype, 'component');
+if (!_componentDescriptor || _componentDescriptor.configurable) {
+  Object.defineProperty(Base.prototype, 'component', {
+    configurable: true,
+    get: function () {
+      return extendingOfComponent(this._component);
+    },
 
-  set: function (component) {
-    if (component.addAnother) {
-      component.addAnother = t(component.addAnother);
+    set: function (component) {
+      if (component.addAnother) {
+        component.addAnother = t(component.addAnother);
+      }
+
+      this._component = extendingOfComponent(component);
     }
-
-    this._component = extendingOfComponent(component);
-  }
-});
+  });
+}
 
 let WidgetService = {};
 

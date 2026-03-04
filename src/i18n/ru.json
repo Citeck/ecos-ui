@@ -3223,6 +3223,7 @@
   "gantt.settings.linked-with-type.placeholder": "Введите тип связанных данных",
   "gantt.settings.linked-with-ref.label": "Ссылка на связанный объект",
   "gantt.settings.linked-with-ref.placeholder": "Введите ссылку на связанный документ",
+  "gantt.settings.data-source.gantt-pm": "Управление проектами",
   "gantt.chart.settings": "Настройки диаграммы Ганта",
   "gantt.chart.title": "Диаграмма Ганта",
   "gantt.chart.error.load-failed": "Не удалось загрузить настройки диаграммы Ганта",

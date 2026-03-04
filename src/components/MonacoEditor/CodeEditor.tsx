@@ -62,7 +62,8 @@ const CodeEditor = ({
   onCodeChange,
   onExecute,
   onEditorMount,
-  language = 'javascript'
+  language = 'javascript',
+  height = '100%'
 }: {
   editorRef: React.RefObject<any>;
   defaultValue?: string;
@@ -70,6 +71,7 @@ const CodeEditor = ({
   onExecute?: () => void;
   onEditorMount?: (editor: any) => void;
   language?: string;
+  height?: string;
 }): React.JSX.Element => {
   const completionDisposable = useRef<any>(null);
 
@@ -194,6 +196,8 @@ const CodeEditor = ({
     });
   };
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     editorRef.current?.focus();
 
@@ -202,9 +206,38 @@ const CodeEditor = ({
     };
   }, []);
 
+  useEffect(() => {
+    const container = containerRef.current;
+
+    if (!container) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      const editor = editorRef.current;
+
+      if (!editor) return;
+
+      const scrollTop = editor.getScrollTop();
+      const scrollHeight = editor.getScrollHeight();
+      const layoutHeight = editor.getLayoutInfo().height;
+
+      const atTop = e.deltaY < 0 && scrollTop <= 0;
+      const atBottom = e.deltaY > 0 && scrollTop + layoutHeight >= scrollHeight;
+
+      if (atTop || atBottom) {
+        e.stopPropagation();
+      }
+    };
+
+    container.addEventListener('wheel', handleWheel, { capture: true, passive: false });
+
+    return () => container.removeEventListener('wheel', handleWheel, { capture: true });
+  }, []);
+
   return (
     <div
+      ref={containerRef}
       className="code-editor-container"
+      style={{ height }}
       tabIndex={-1}
       onKeyDown={(e: React.KeyboardEvent) => {
         e.stopPropagation();
@@ -218,7 +251,7 @@ const CodeEditor = ({
         }
       >
         <Editor
-          height="100%"
+          height={height}
           language={language}
           defaultValue={defaultValue}
           onChange={handleEditorChange}
