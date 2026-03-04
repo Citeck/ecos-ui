@@ -312,36 +312,40 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     settings.base64Upload = true;
 
     return new Promise((resolve, reject) => {
-      ESMRequire.require(['/js/lib/ckeditor5-build-classic/v12.2.0-formio.2/ckeditor.js'], ckeditor => {
-        if (!get(element, 'parentNode')) {
-          reject();
-          return;
-        }
+      ESMRequire.require(
+        ['/js/lib/ckeditor5-build-classic/v12.2.0-formio.2/ckeditor.js'],
+        ckeditor => {
+          if (!get(element, 'parentNode')) {
+            reject();
+            return;
+          }
 
-        return ckeditor.create(element, settings).then(editor => {
-          editor.model.document.on('change', () => {
-            if (!this._ckEditorInitialized) {
-              this._ckEditorInitialized = true;
-              return;
-            }
+          return ckeditor.create(element, settings).then(editor => {
+            editor.model.document.on('change', () => {
+              if (!this._ckEditorInitialized) {
+                this._ckEditorInitialized = true;
+                return;
+              }
 
-            onChange(editor.data.get());
+              onChange(editor.data.get());
+            });
+
+            // Allows you to move the button tooltips to the left to prevent unnecessary indentation
+            const ckTooltips = document.querySelectorAll('.ck-tooltip');
+            [...ckTooltips].map(ckTooltip => (ckTooltip.style.left = '-150%'));
+
+            // Allows you to add an internal scroll when expanding
+            const ckEditorContainer = editor.ui.view.editable.element.parentElement;
+            Object.assign(ckEditorContainer.style, {
+              maxWidth: '100%'
+            });
+
+            resolve(editor);
+            return editor;
           });
-
-          // Allows you to move the button tooltips to the left to prevent unnecessary indentation
-          const ckTooltips = document.querySelectorAll('.ck-tooltip');
-          [...ckTooltips].map(ckTooltip => (ckTooltip.style.left = '-150%'));
-
-          // Allows you to add an internal scroll when expanding
-          const ckEditorContainer = editor.ui.view.editable.element.parentElement;
-          Object.assign(ckEditorContainer.style, {
-            maxWidth: '100%'
-          });
-
-          resolve(editor);
-          return editor;
-        });
-      });
+        },
+        reject
+      );
     });
   }
 
@@ -349,7 +353,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     const _settings = {};
     merge(_settings, this.wysiwygDefault);
     merge(_settings, settings);
-    // Lazy load the quill css.
+
     Formio.requireLibrary(
       `quill-css-${_settings.theme}`,
       'Quill',
@@ -357,55 +361,59 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       true
     );
 
-    return new Promise(resolve => {
-      ESMRequire.require(['/js/lib/quill/1.3.6/quill.js'], Quill => {
-        if (!get(element, 'parentNode')) {
-          return NativePromise.reject();
-        }
+    return new Promise((resolve, reject) => {
+      ESMRequire.require(
+        ['/js/lib/quill/1.3.6/quill.js'],
+        Quill => {
+          if (!get(element, 'parentNode')) {
+            return reject(new Error('Quill: element has no parentNode'));
+          }
 
-        let quill = new Quill(element, _settings);
+          let quill = new Quill(element, _settings);
 
-        /** This block of code adds the [source] capabilities.  See https://codepen.io/anon/pen/ZyEjrQ **/
-        const txtArea = document.createElement('textarea');
-        txtArea.setAttribute('class', 'quill-source-code');
-        quill.addContainer('ql-custom').appendChild(txtArea);
+          /** This block of code adds the [source] capabilities.  See https://codepen.io/anon/pen/ZyEjrQ **/
+          const txtArea = document.createElement('textarea');
+          txtArea.setAttribute('class', 'quill-source-code');
+          quill.addContainer('ql-custom').appendChild(txtArea);
 
-        const qlSource = element.parentNode.querySelector('.ql-source');
-        let onClickSource;
-        if (qlSource) {
-          onClickSource = event => {
-            event.preventDefault();
-            if (txtArea.style.display === 'inherit') {
-              quill.setContents(quill.clipboard.convert(txtArea.value));
-            }
-            txtArea.style.display = txtArea.style.display === 'none' ? 'inherit' : 'none';
+          const qlSource = element.parentNode.querySelector('.ql-source');
+          let onClickSource;
+          if (qlSource) {
+            onClickSource = event => {
+              event.preventDefault();
+              if (txtArea.style.display === 'inherit') {
+                quill.setContents(quill.clipboard.convert(txtArea.value));
+              }
+              txtArea.style.display = txtArea.style.display === 'none' ? 'inherit' : 'none';
+            };
+            this.addEventListener(qlSource, 'click', onClickSource);
+          }
+          /** END CODEBLOCK **/
+
+          // Make sure to select cursor when they click on the element.
+          const onClickElm = () => quill && quill.focus();
+          this.addEventListener(element, 'click', onClickElm);
+
+          // Allows the container to expand based on the text height value
+          const qlContainers = document.querySelectorAll('.ql-container');
+          [...qlContainers].map(qlContainer => (qlContainer.style.minHeight = '100%'));
+
+          // Allows users to skip toolbar items when tabbing though form
+          const buttons = document.querySelectorAll('.ql-formats > button');
+          [...buttons].map(btn => btn.setAttribute('tabindex', '-1'));
+
+          const onTextChange = () => {
+            txtArea.value = get(quill, 'root.innerHTML');
+            onChange(txtArea);
           };
-          this.addEventListener(qlSource, 'click', onClickSource);
-        }
-        /** END CODEBLOCK **/
 
-        // Make sure to select cursor when they click on the element.
-        const onClickElm = () => quill && quill.focus();
-        this.addEventListener(element, 'click', onClickElm);
+          quill.on('text-change', onTextChange);
 
-        // Allows the container to expand based on the text height value
-        const qlContainers = document.querySelectorAll('.ql-container');
-        [...qlContainers].map(qlContainer => (qlContainer.style.minHeight = '100%'));
-
-        // Allows users to skip toolbar items when tabbing though form
-        const buttons = document.querySelectorAll('.ql-formats > button');
-        [...buttons].map(btn => btn.setAttribute('tabindex', '-1'));
-
-        const onTextChange = () => {
-          txtArea.value = get(quill, 'root.innerHTML');
-          onChange(txtArea);
-        };
-
-        quill.on('text-change', onTextChange);
-
-        resolve(quill);
-        return quill;
-      });
+          resolve(quill);
+          return quill;
+        },
+        reject
+      );
     });
   }
 
@@ -501,7 +509,9 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
           }
         };
 
-        const emptyDefault = Array(props.rows || 1).fill('').join('\n');
+        const emptyDefault = Array(props.rows || 1)
+          .fill('')
+          .join('\n');
 
         this._monacoRoot.render(
           <Provider store={store}>
@@ -1005,6 +1015,11 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     if (this._textAreaAIContainer) {
       this._textAreaAIContainer.remove();
       this._textAreaAIContainer = null;
+    }
+
+    // Prevent FormIO base destroy() from calling editor.destroy() — Lexical/Monaco use dispose(), not destroy()
+    if (this.isLexicalEditor || this.isMonacoEditor) {
+      this.editorReady = null;
     }
 
     return super.destroy();
