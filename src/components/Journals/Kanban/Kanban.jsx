@@ -101,7 +101,7 @@ class Kanban extends React.Component {
       return;
     }
 
-    if (!swimlaneGrouping && this.state.isInView && !this.isNoMore()) {
+    if (!swimlaneGrouping && !this.state.isDragging && this.state.isInView && !this.isNoMore()) {
       const defaultColumns = Array.isArray(columns) ? columns.filter(item => item && item.id) : [];
       const colsFromSettings = get(kanbanSettings, 'columns');
       const cols = colsFromSettings ? [] : defaultColumns;
@@ -147,7 +147,7 @@ class Kanban extends React.Component {
   };
 
   handleScrollFrame = (scroll = {}) => {
-    if (!this.props.isLoading && !this.isNoMore() && scroll.scrollTop && scroll.scrollTop + scroll.clientHeight === scroll.scrollHeight) {
+    if (!this.state.isDragging && !this.props.isLoading && !this.isNoMore() && scroll.scrollTop && scroll.scrollTop + scroll.clientHeight === scroll.scrollHeight) {
       this.props.getNextPage();
     }
   };

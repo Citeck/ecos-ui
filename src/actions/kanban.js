@@ -44,3 +44,4 @@ export const toggleSwimlaneCollapse = createAction(prefix + 'TOGGLE_SWIMLANE_COL
 export const loadMoreSwimlaneCell = createAction(prefix + 'LOAD_MORE_SWIMLANE_CELL');
 export const setSwimlaneCellLoading = createAction(prefix + 'SET_SWIMLANE_CELL_LOADING');
 export const moveSwimlaneCard = createAction(prefix + 'MOVE_SWIMLANE_CARD');
+export const refreshCardData = createAction(prefix + 'REFRESH_CARD_DATA');

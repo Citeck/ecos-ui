@@ -6,4 +6,8 @@ export default class KanbanApi {
   getBoardSettings = journalId => (journalId ? data.templateList : []);
   getBoardConfig = ({ boardId }) => (boardId ? data.boardConfig : {});
   moveRecord = ({ recordRef }) => ({ id: recordRef });
+  getDistinctValues = () => [
+    { id: 'priority-high', label: 'High' },
+    { id: 'priority-low', label: 'Low' }
+  ];
 }
