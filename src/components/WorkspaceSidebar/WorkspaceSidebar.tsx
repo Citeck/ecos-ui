@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import get from 'lodash/get';
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 
 import { getSidebarWorkspaces, onSearchWorkspaces } from '@/actions/workspaces';
@@ -65,7 +65,7 @@ const Labels = {
   CREATE_WORKSPACE: 'workspaces.create-button'
 };
 
-class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebarState> {
+class WorkspaceSidebar extends PureComponent<WorkspaceSidebarProps, WorkspaceSidebarState> {
   private _containerSidebarRef: React.RefObject<HTMLDivElement | null> = React.createRef();
   timeoutId?: NodeJS.Timeout;
 
@@ -185,7 +185,7 @@ class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebar
     </div>
   );
 
-  renderCreateWorkspaceCard() {
+  renderCreateWorkspaceCard(isSmall = true) {
     const { isAllowToCreateWorkspace, onCreateWorkspace } = this.props;
 
     if (!isAllowToCreateWorkspace) {
@@ -193,7 +193,12 @@ class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebar
     }
 
     return (
-      <div className="citeck-workspace-sidebar__create-card" onClick={onCreateWorkspace}>
+      <div
+        className={classNames('citeck-workspace-sidebar__create-card', {
+          'citeck-workspace-sidebar__create-card--base': !isSmall
+        })}
+        onClick={onCreateWorkspace}
+      >
         <div className="citeck-workspace-sidebar__create-card-inner">
           <div className="citeck-workspace-sidebar__create-card-icon">
             <CreateIcon width={20} height={20} />
@@ -206,7 +211,7 @@ class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebar
     );
   }
 
-  renderSkeletonCards(count = 6) {
+  renderSkeletonCards(count = 12) {
     return (
       <div className="citeck-workspace-sidebar__content-wrapper">
         <div className="citeck-workspace-sidebar__content-wrapper_wrap">
@@ -272,7 +277,7 @@ class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebar
               hasAnimationOnHover
             />
           ))}
-          {this.renderCreateWorkspaceCard()}
+          {this.renderCreateWorkspaceCard(false)}
         </div>
       </div>
     );
