@@ -463,8 +463,11 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       try {
         const container = document.createElement('div');
         container.className = 'monaco-editor-container';
+        // fontSize=13, lineHeight=1.6 from CodeEditor options
+        const lineHeightPx = Math.ceil(13 * 1.6);
+        const height = props.rows ? props.rows * lineHeightPx : 500;
         container.style.width = '100%';
-        container.style.height = '500px';
+        container.style.height = `${height}px`;
         element.appendChild(container);
 
         this.editorRef = React.createRef();
@@ -498,13 +501,16 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
           }
         };
 
+        const emptyDefault = Array(props.rows || 1).fill('').join('\n');
+
         this._monacoRoot.render(
           <Provider store={store}>
             <CodeEditor
               editorRef={this.editorRef}
-              defaultValue={this.dataValue || ''}
+              defaultValue={this.dataValue || emptyDefault}
               onCodeChange={code => this.updateEditorValue(code)}
               language={this.component.codeAs || 'javascript'}
+              height={`${height}px`}
             />
           </Provider>
         );
@@ -782,11 +788,14 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
     if (this.isMonacoEditor) {
       const settings = cloneDeep(this.component.wysiwyg || {});
-      const props = { rows: this.component.rows || 15 }; // default to 15 rows if not specified
+      const rows = this.component.rows || 15;
+      const props = { rows };
 
       if (this.input) {
-        this.input.style.minHeight = '300px';
-        this.input.style.height = '500px';
+        const lineHeightPx = Math.ceil(13 * 1.6);
+        const height = rows * lineHeightPx;
+        this.input.style.minHeight = `${height}px`;
+        this.input.style.height = `${height}px`;
       }
 
       this.addMonaco(this.input, settings, props)
