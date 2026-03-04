@@ -55,6 +55,7 @@ import ImagesPlugin from './plugins/ImagesPlugin';
 import KeywordsPlugin from './plugins/KeywordsPlugin';
 import { LayoutPlugin } from './plugins/LayoutPlugin/LayoutPlugin';
 import LinkPlugin from './plugins/LinkPlugin';
+import MarkdownPastePlugin from './plugins/MarkdownPastePlugin';
 import MarkdownShortcutPlugin from './plugins/MarkdownShortcutPlugin';
 import MentionsPlugin from './plugins/MentionsPlugin';
 import OnImageUploadPlugin, { type OnImageUpload } from './plugins/OnImageUploadPlugin';
@@ -243,6 +244,7 @@ export default function Editor({
               ErrorBoundary={LexicalErrorBoundary}
             />
             <MarkdownShortcutPlugin />
+            <MarkdownPastePlugin />
             <CodeHighlightPlugin />
             <ListPlugin />
             <CheckListPlugin />
