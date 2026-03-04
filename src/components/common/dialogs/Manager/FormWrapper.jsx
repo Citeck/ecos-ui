@@ -44,8 +44,9 @@ class FormWrapper extends React.Component {
 
   componentWillUnmount() {
     if (this._form) {
-      this._form.destroy();
+      const form = this._form;
       this._form = null;
+      setTimeout(() => form.destroy(), 0);
     }
   }
 
@@ -62,8 +63,9 @@ class FormWrapper extends React.Component {
       }
 
       this._form.formReadyReject();
-      this._form.destroy();
+      const oldForm = this._form;
       this._form = null;
+      setTimeout(() => oldForm.destroy(), 0);
     }
 
     if (!this.props.isVisible) {
