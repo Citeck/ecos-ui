@@ -3246,6 +3246,7 @@
   "developer-console.save-modal.update-hint": "The existing snippet will be updated",
   "developer-console.undo": "Undo",
   "developer-console.redo": "Redo",
+  "developer-console.clear-editor": "Clear Editor",
   "developer-console.panel-right": "Move panel to the right",
   "developer-console.panel-bottom": "Move panel to the bottom"
 }

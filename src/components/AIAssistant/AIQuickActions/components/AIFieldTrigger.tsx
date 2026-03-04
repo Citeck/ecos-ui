@@ -86,7 +86,7 @@ const AIFieldTrigger = forwardRef<HTMLButtonElement, AIFieldTriggerProps>(({
       onClick={handleClick}
       onMouseDown={handleMouseDown}
       disabled={disabled || isGenerating}
-      title={t('ai-actions.trigger.title', 'AI Assistant')}
+      data-tooltip={t('ai-actions.trigger.title', 'AI Assistant')}
       aria-label={t('ai-actions.trigger.aria-label', 'Open AI Assistant')}
     >
       {customIcon || <SparkleIcon className="ai-field-trigger__icon" />}

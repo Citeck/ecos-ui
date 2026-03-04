@@ -61,12 +61,14 @@ const CodeEditor = ({
   defaultValue,
   onCodeChange,
   onExecute,
+  onEditorMount,
   language = 'javascript'
 }: {
   editorRef: React.RefObject<any>;
   defaultValue?: string;
   onCodeChange: (value: string) => void;
   onExecute?: () => void;
+  onEditorMount?: (editor: any) => void;
   language?: string;
 }): React.JSX.Element => {
   const completionDisposable = useRef<any>(null);
@@ -230,6 +232,8 @@ const CodeEditor = ({
               keybindings: [monaco.KeyMod.Shift | monaco.KeyCode.Enter],
               run: () => onExecute?.()
             });
+
+            onEditorMount?.(editor);
           }}
           options={{
             contextmenu: false,

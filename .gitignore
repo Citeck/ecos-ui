@@ -28,6 +28,8 @@ ignore/
 
 .github/instructions
 
+.playwright-mcp
+
 .cookies
 .vscode/
 *.code-workspace

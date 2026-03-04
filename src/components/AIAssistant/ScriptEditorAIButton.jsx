@@ -19,8 +19,7 @@
  * ```
  */
 
-import React, { useCallback, useRef, useEffect } from 'react';
-import uuidV4 from 'uuidv4';
+import React, { useCallback } from 'react';
 
 import { AIFieldActions } from './AIQuickActions/components';
 import { FIELD_TYPES } from './AIQuickActions/config';
@@ -48,16 +47,9 @@ const ScriptEditorAIButton = ({
   resultContainer,
   language = 'javascript',
   popperClassName,
-  positionVariant
+  positionVariant,
+  onRegisterClose
 }) => {
-  // Conversation ID for multi-turn interactions
-  const conversationIdRef = useRef(uuidV4());
-
-  // Reset conversation ID when context changes
-  useEffect(() => {
-    conversationIdRef.current = uuidV4();
-  }, [recordRef, scriptContextType]);
-
   /**
    * Get resolved context data
    */
@@ -77,6 +69,7 @@ const ScriptEditorAIButton = ({
     prompt,
     quickActionId,
     currentValue,
+    conversationId,
     onRequestId
   }) => {
     const { ecosType: resolvedEcosType, processRef: resolvedProcessRef } = getResolvedContext();
@@ -106,7 +99,7 @@ const ScriptEditorAIButton = ({
       processRef: resolvedProcessRef,
       metadata: metadata,
       field: fieldInfo,
-      conversationId: conversationIdRef.current,
+      conversationId,
       // Pass through onRequestId for cancellation support
       onRequestId,
     });
@@ -139,6 +132,7 @@ const ScriptEditorAIButton = ({
       resultContainer={resultContainer}
       popperClassName={popperClassName}
       positionVariant={positionVariant}
+      onRegisterClose={onRegisterClose}
       className="script-editor-ai-button-wrapper"
     />
   );

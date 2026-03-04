@@ -5,7 +5,6 @@
   height: calc(100vh - 100px);
   flex-direction: column;
   background: var(--bg-color);
-  overflow: hidden;
 
   &.panel-location-bottom {
     .developer-console {
@@ -75,7 +74,10 @@
     padding: 0 8px;
     height: 36px;
     background: #f3f4f6;
+    border: 1px solid #e8edef;
     border-bottom: 1px solid #dde0e4;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
     flex-shrink: 0;
 
@@ -106,6 +108,7 @@
       cursor: pointer;
       flex-shrink: 0;
       transition: background 0.1s, color 0.1s, transform 0.1s;
+      position: relative;
 
       svg {
         width: 16px;
@@ -130,6 +133,38 @@
 
       &--run {
         color: #22c55e;
+      }
+
+      // CSS tooltip via data-tooltip attribute
+      &[data-tooltip]:not(:disabled):hover::before {
+        content: attr(data-tooltip);
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 50%;
+        transform: translateX(-50%);
+        background: #fff;
+        color: #24292f;
+        border: 1px solid #e0e0e0;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        line-height: 1.4;
+        white-space: nowrap;
+        z-index: 9999;
+        pointer-events: none;
+      }
+
+      &[data-tooltip]:not(:disabled):hover::after {
+        content: '';
+        position: absolute;
+        top: calc(100% + 2px);
+        left: 50%;
+        transform: translateX(-50%);
+        border: 4px solid transparent;
+        border-bottom-color: #e0e0e0;
+        z-index: 9999;
+        pointer-events: none;
       }
     }
 
@@ -161,7 +196,11 @@
       align-items: center;
 
       .ai-field-trigger--floating {
-        position: static;
+        position: relative;
+        top: auto;
+        right: auto;
+        bottom: auto;
+        left: auto;
         width: 28px;
         height: 28px;
         min-width: unset;
@@ -177,7 +216,7 @@
         opacity: 1;
 
         &:hover:not(:disabled) {
-          background: #f3f4f6;
+          background: #e5e7eb;
           border: none;
           transform: none;
           box-shadow: none;
@@ -191,6 +230,38 @@
           color: #1f2937;
           opacity: 1;
         }
+
+        // CSS tooltip matching toolbar button style
+        &[data-tooltip]:not(:disabled):hover::before {
+          content: attr(data-tooltip);
+          position: absolute;
+          top: calc(100% + 6px);
+          left: 50%;
+          transform: translateX(-50%);
+          background: #fff;
+          color: #24292f;
+          border: 1px solid #e0e0e0;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+          padding: 3px 8px;
+          border-radius: 4px;
+          font-size: 11px;
+          line-height: 1.4;
+          white-space: nowrap;
+          z-index: 9999;
+          pointer-events: none;
+        }
+
+        &[data-tooltip]:not(:disabled):hover::after {
+          content: '';
+          position: absolute;
+          top: calc(100% + 2px);
+          left: 50%;
+          transform: translateX(-50%);
+          border: 4px solid transparent;
+          border-bottom-color: #e0e0e0;
+          z-index: 9999;
+          pointer-events: none;
+        }
       }
     }
   }
@@ -201,6 +272,7 @@
     position: relative;
     min-width: 0;
     min-height: 0;
+    overflow: hidden;
   }
 
   .console-editor {
