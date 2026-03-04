@@ -1,5 +1,4 @@
 import babel from '@rollup/plugin-babel';
-import { svelte } from '@sveltejs/vite-plugin-svelte';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
@@ -101,7 +100,7 @@ export default defineConfig(({ mode }) => {
         ...needEnvSettings.reduce((acc, key) => ({ ...acc, [key]: env[key] }), {})
       }),
       'process.versions': JSON.stringify({ node: packageInfo.volta.node }),
-      '__BUILD_TIME__': JSON.stringify(new Date().toISOString())
+      __BUILD_TIME__: JSON.stringify(new Date().toISOString())
     },
     build: {
       outDir: 'build',
@@ -157,7 +156,6 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [
       react(),
-      svelte(),
       nodePolyfills({
         include: ['crypto', 'events']
       }),
