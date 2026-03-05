@@ -290,8 +290,7 @@ describe('ColoredFormatter', () => {
       });
 
       expect(result.props.className).toContain('value-color-formatter__oval');
-      expect(result.props.className).toContain('value-color-formatter_green');
-      expect(result.props.style).toEqual({});
+      expect(result.props.style).toEqual({ backgroundColor: '#24A148' });
     });
 
     it('should use value for mapping and disp for display when cell is an object', () => {
@@ -314,7 +313,7 @@ describe('ColoredFormatter', () => {
       expect(result.props.children).toBe('Низкий');
     });
 
-    it('should log warning for unsupported colors', () => {
+    it('should use unsupported color as CSS class', () => {
       const config = {
         color: {
           low: 'unsupported-color'
@@ -323,12 +322,13 @@ describe('ColoredFormatter', () => {
         enabledNewJournal: false
       };
 
-      coloredFormatterInstance.format({
+      const result = coloredFormatterInstance.format({
         cell: 'low',
         config
       });
 
-      expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('ColoredFormatter: Unsupported color "unsupported-color"'));
+      expect(result.props.className).toContain('value-color-formatter_unsupported-color');
+      expect(result.props.style).toEqual({});
     });
   });
 });
