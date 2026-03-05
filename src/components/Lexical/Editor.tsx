@@ -25,13 +25,10 @@ import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin
 import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
 import { useLexicalEditable } from '@lexical/react/useLexicalEditable';
 import classNames from 'classnames';
-import { EditorState, type LexicalEditor } from 'lexical';
+import { $getRoot, EditorState, type LexicalEditor } from 'lexical';
 import isFunction from 'lodash/isFunction';
-import isString from 'lodash/isString';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-
-import { LENGTH_LIMIT } from '../widgets/Comments/Comment';
 
 import { createWebsocketProvider } from './collaboration';
 import { useSettings } from './context/SettingsContext';
@@ -57,6 +54,7 @@ import { LayoutPlugin } from './plugins/LayoutPlugin/LayoutPlugin';
 import LinkPlugin from './plugins/LinkPlugin';
 import MarkdownPastePlugin from './plugins/MarkdownPastePlugin';
 import MarkdownShortcutPlugin from './plugins/MarkdownShortcutPlugin';
+import { MaxLengthPlugin } from './plugins/MaxLengthPlugin';
 import MentionsPlugin from './plugins/MentionsPlugin';
 import OnImageUploadPlugin, { type OnImageUpload } from './plugins/OnImageUploadPlugin';
 import PollPlugin from './plugins/PollPlugin';
@@ -89,11 +87,14 @@ export type LexicalEditorProps = {
   UploadDocsService?: UploadDocsRefServiceInstance;
   attribute?: string;
   recordRef?: string;
+  maxLength?: number;
 };
 
 const skipCollaborationInit =
   // @ts-expect-error
   window.parent != null && window.parent.frames.right === window;
+
+const DEFAULT_MAX_LENGTH = 5_000_000;
 
 export default function Editor({
   placeholder: propsPlaceholder,
@@ -106,7 +107,8 @@ export default function Editor({
   onUpload,
   UploadDocsService,
   attribute,
-  recordRef
+  recordRef,
+  maxLength = DEFAULT_MAX_LENGTH
 }: LexicalEditorProps): React.JSX.Element {
   const { historyState } = useSharedHistoryContext();
 
@@ -209,16 +211,14 @@ export default function Editor({
         {onChange && (
           <OnChangePlugin
             onChange={(state, editor) => {
-              const editorProps = editor.getRootElement();
-              const { textContent, innerHTML = '' } = editorProps || {};
+              const textContentSize = state.read(() => $getRoot().getTextContentSize());
+              setTextLength(textContentSize);
+              setOption('isMaxLength', textContentSize >= maxLength);
 
-              if (isString(textContent)) {
-                setTextLength(textContent.length);
-                setOption('isMaxLength', textContent.length > LENGTH_LIMIT);
+              if (isFunction(onChange)) {
+                const { innerHTML = '' } = editor.getRootElement() || {};
+                onChange(state, editor, textContentSize === 0 && !innerHTML.includes('img') && !innerHTML.includes('hr'));
               }
-
-              isFunction(onChange) &&
-                onChange(state, editor, textContent?.length === 0 && !innerHTML.includes('img') && !innerHTML.includes('hr'));
             }}
           />
         )}
@@ -301,6 +301,7 @@ export default function Editor({
             <HistoryPlugin externalHistoryState={historyState} />
           </>
         )}
+        <MaxLengthPlugin maxLength={maxLength} />
         {(isCharLimit || isCharLimitUtf8) && <CharacterLimitPlugin charset={isCharLimit ? 'UTF-16' : 'UTF-8'} maxLength={5} />}
         {isAutocomplete && <AutocompletePlugin />}
         <div>{showTableOfContents && <TableOfContentsPlugin />}</div>
@@ -309,11 +310,11 @@ export default function Editor({
       </div>
       {isMaxLength && !readonly && (
         <div
-          className="alert alert-danger"
+          className="alert alert-warning"
           dangerouslySetInnerHTML={{
-            __html: t('comments-widget.editor.limit.error', {
+            __html: t('lexical.editor.char-limit.error', {
               textLength: textLength,
-              limit: LENGTH_LIMIT
+              limit: maxLength
             })
           }}
         />
