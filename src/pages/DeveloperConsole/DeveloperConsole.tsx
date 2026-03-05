@@ -356,6 +356,35 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
       originalInfo(...args);
     };
 
+    // Track all promises from Records method calls to catch unawaited errors
+    const trackedPromises: Promise<any>[] = [];
+
+    function makeTrackedProxy(target: any): any {
+      return new Proxy(target, {
+        get(t: any, prop: string | symbol) {
+          const value = t[prop];
+          if (typeof value === 'function') {
+            return (...args: any[]) => {
+              const result = value.apply(t, args);
+              if (result && typeof result.then === 'function') {
+                result.catch(() => {}); // prevent unhandled rejection event
+                trackedPromises.push(result);
+                return result;
+              }
+              // Wrap non-promise objects (e.g. RecordImpl from Records.get())
+              if (result && typeof result === 'object') {
+                return makeTrackedProxy(result);
+              }
+              return result;
+            };
+          }
+          return value;
+        }
+      });
+    }
+
+    const trackedRecords = makeTrackedProxy(Records);
+
     try {
       const func = new AsyncFunction(
         'Records',
@@ -367,7 +396,20 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
       `
       );
 
-      const result = await func(Records, window.Citeck, _, console);
+      const result = await func(trackedRecords, window.Citeck, _, console);
+
+      // Wait for all async operations (including unawaited) to complete.
+      // Drain loop: chained async calls may add new promises after initial batch settles.
+      let prevLen = 0;
+      while (trackedPromises.length > prevLen) {
+        prevLen = trackedPromises.length;
+        await Promise.allSettled(trackedPromises);
+      }
+
+      const settled = await Promise.allSettled(trackedPromises);
+      const asyncErrors = settled
+        .filter((r): r is PromiseRejectedResult => r.status === 'rejected')
+        .map(r => (r.reason instanceof Error ? r.reason : new Error(String(r.reason))));
 
       let output = '';
 
@@ -391,6 +433,11 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
         if (output) output += '\n\n';
         const returnValue = typeof result === 'object' ? safeStringify(result, 2) : String(result);
         output += `Return value:\n${returnValue}`;
+      }
+
+      if (asyncErrors.length > 0) {
+        if (output) output += '\n\n';
+        output += asyncErrors.map(err => `Error:\n${err.message}${err.stack ? `\n\nStack:\n${err.stack}` : ''}`).join('\n\n');
       }
 
       setResponse(output || 'Code executed successfully (no output)');
