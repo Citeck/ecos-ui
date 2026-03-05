@@ -47,7 +47,8 @@ export default handleActions(
       ...state,
       [stateId]: {
         ...getCurrentStateById(state, stateId, initialState),
-        availableToChangeStatuses
+        availableToChangeStatuses,
+        isLoading: false
       }
     }),
     [changeDocStatus]: (state, { payload: { stateId } }) => ({

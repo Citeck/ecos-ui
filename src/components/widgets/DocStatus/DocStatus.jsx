@@ -5,7 +5,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import uuid from 'uuidv4';
 
-import { changeDocStatus, getDocStatus, initDocStatus, resetDocStatus, setChangeResult } from '../../../actions/docStatus';
+import { changeDocStatus, getAvailableToChangeStatuses, getDocStatus, initDocStatus, resetDocStatus, setChangeResult } from '../../../actions/docStatus';
 import { LoaderTypes } from '../../../constants/index';
 import { deepClone } from '../../../helpers/util';
 import { selectStateDocStatusById } from '../../../selectors/docStatus';
@@ -33,7 +33,8 @@ const mapDispatchToProps = dispatch => ({
   changeDocStatus: payload => dispatch(changeDocStatus(payload)),
   getDocStatus: payload => dispatch(getDocStatus(payload)),
   resetDocStatus: payload => dispatch(resetDocStatus(payload)),
-  clearChangeResult: stateId => dispatch(setChangeResult({ stateId, changeResult: null }))
+  clearChangeResult: stateId => dispatch(setChangeResult({ stateId, changeResult: null })),
+  getAvailableToChangeStatuses: payload => dispatch(getAvailableToChangeStatuses(payload))
 });
 
 class DocStatus extends BaseWidget {
@@ -77,7 +78,12 @@ class DocStatus extends BaseWidget {
   componentDidUpdate(prevProps, prevState) {
     super.componentDidUpdate(prevProps, prevState);
 
-    const { isLoading, status, changeResult } = this.props;
+    const { isLoading, status, changeResult, allowChangeStatus } = this.props;
+
+    if (!prevProps.allowChangeStatus && allowChangeStatus) {
+      const { stateId, record, getAvailableToChangeStatuses } = this.props;
+      getAvailableToChangeStatuses({ stateId, record });
+    }
 
     if (prevProps.isLoading && !isLoading) {
       if (isEmpty(status)) {

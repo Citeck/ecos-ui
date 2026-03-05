@@ -273,6 +273,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
             UploadDocsService={this._uploadDocsRefService}
             recordRef={this.root.options.recordId}
             attribute={this.component.key}
+            maxLength={this.component.lexicalMaxLength || undefined}
             onEditorReady={editor => {
               this.calculatedValue = this.dataValue;
               this.editor = editor;
@@ -509,15 +510,11 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
           }
         };
 
-        const emptyDefault = Array(props.rows || 1)
-          .fill('')
-          .join('\n');
-
         this._monacoRoot.render(
           <Provider store={store}>
             <CodeEditor
               editorRef={this.editorRef}
-              defaultValue={this.dataValue || emptyDefault}
+              defaultValue={this.dataValue}
               onCodeChange={code => this.updateEditorValue(code)}
               language={this.component.codeAs || 'javascript'}
               height={`${height}px`}
@@ -873,15 +870,13 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       this.emit('componentEdit', this);
     }
 
-    // Add the quill editor.
     this.addQuill(this.input, this.component.wysiwyg, txt => this.updateEditorValue(txt.value))
       .then(quill => {
         if (this.component.isUploadEnabled) {
-          const _this = this;
+          const boundImageHandler = this.imageHandler.bind(this);
           quill.getModule('toolbar').addHandler('image', function () {
             //we need initial 'this' because quill calls this method with its own context and we need some inner quill methods exposed in it
-            //we also need current component instance as we use some fields and methods from it as well
-            _this.imageHandler.call(_this, this);
+            boundImageHandler(this);
           });
         }
         quill.root.spellcheck = this.component.spellcheck;

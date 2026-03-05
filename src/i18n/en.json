@@ -235,9 +235,6 @@
   "comments-widget.confirm.delete": "Delete",
   "comments-widget.confirm.title": "Delete this comment",
   "comments-widget.editor.cancel": "Cancel",
-  "comments-widget.editor.placeholder.part-1": "Write a comment no more than",
-  "comments-widget.editor.placeholder.part-2": "characters...",
-  "comments-widget.editor.limit.error": "<strong>Attention!</strong> Your message is too long. {{textLength}}/{{limit}}",
   "comments-widget.editor.internal_comment": "Internal comment",
   "comments-widget.editor.save": "Send",
   "comments-widget.editor.link": "Link",
@@ -2632,6 +2629,9 @@
   "form-constructor.html.records-script": "<p>Enter custom javascript code. You must assign the <strong>value</strong> variable. You can assign array of records or single record</p>",
   "form-constructor.html.textarea.configuration": "<details>\n <summary><b>Configuration Help Info</b></summary>\n <ul>\n <li>Enter configuration settings in the field above as <b>JSON</b></li>\n' <li><b>Different config</b> for every Editor. Define at first what prefer. See properties:</li>\n' <li><a href='https://ckeditor.com/docs/ckeditor5/latest/api/module_core_editor_editorconfig-EditorConfig.html'>CKEditor</a></li>\n <li><a href='https://quilljs.com/docs/configuration/'>Quill</a></li>\n <li><a href='https://github.com/ajaxorg/ace/wiki/Configuring-Ace'>Ace</a></li>\n <li>Be careful. Properties intersect with component's props and can be replaced or opposite...\n </li>\n </ul>\n<details>\n    <summary><b>Examples</b></summary>\n <ul>\n <li>\nCKEditor\n<code>{'toolbar': [ 'bold', 'italic'], 'placeholder': 'Type some text...'}</code>\n</li>\n <li>Quill\n<code>{'placeholder': 'Compose an epic...', 'readOnly': true}</code>\n</li>\n <li>Ace\n<code>{'fontSize': 20, 'readOnly': true}</code>\n</li>\n</ul>\n </details>\n </details>\n",
   "form-constructor.html.textarea.codeAs": "Select editor language",
+  "lexical.editor.char-limit.error": "<strong>Attention!</strong> Character limit reached. {{textLength}}/{{limit}}",
+  "form-constructor.textarea.lexical-max-length.label": "Character limit",
+  "form-constructor.textarea.lexical-max-length.tooltip": "Maximum number of characters allowed in the editor. Default: 5,000,000",
   "form-constructor.textarea.script-context-type.label": "Script Context Type",
   "form-constructor.textarea.script-context-type.tooltip": "Select the script execution context for AI Assistant",
   "form-constructor.textarea.script-context.bpmn-script-task": "BPMN Script Task",
@@ -3250,5 +3250,6 @@
   "developer-console.redo": "Redo",
   "developer-console.clear-editor": "Clear Editor",
   "developer-console.panel-right": "Move panel to the right",
-  "developer-console.panel-bottom": "Move panel to the bottom"
+  "developer-console.panel-bottom": "Move panel to the bottom",
+  "developer-console.clear-output": "Clear output"
 }

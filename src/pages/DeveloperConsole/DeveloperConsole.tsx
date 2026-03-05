@@ -64,11 +64,14 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
   const [snippetTitle, setSnippetTitle] = useState('');
   const [activeSnippetId, setActiveSnippetId] = useState<string | null>(null);
   const [deleteConfirmSnippet, setDeleteConfirmSnippet] = useState<Snippet | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const closeAIRef = useRef<(() => void) | null>(null);
+  const pendingSaveRef = useRef<(() => void) | null>(null);
+  const deleteConfirmedRef = useRef(false);
 
   const editorRef = useRef<any>(null);
 
@@ -151,18 +154,20 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
       return;
     }
 
-    const activeSnippet = activeSnippetId ? savedSnippets.find(s => s.id === activeSnippetId) : null;
-    const isUpdate = activeSnippet && activeSnippet.title === title;
+    const existingSnippet = savedSnippets.find(s => s.title.toLowerCase() === title.toLowerCase());
 
-    if (isUpdate) {
+    if (existingSnippet) {
       const updated: Snippet = {
-        ...activeSnippet,
+        ...existingSnippet,
         code,
         createdAt: Date.now()
       };
 
       await snippetsStore.put(updated);
-      setSavedSnippets(prev => prev.map(s => (s.id === activeSnippetId ? updated : s)));
+      pendingSaveRef.current = () => {
+        setSavedSnippets(prev => prev.map(s => (s.id === existingSnippet.id ? updated : s)));
+        setActiveSnippetId(existingSnippet.id);
+      };
     } else {
       const newSnippet: Snippet = {
         id: `snippet_${Date.now()}`,
@@ -172,32 +177,52 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
       };
 
       await snippetsStore.put(newSnippet);
-      setSavedSnippets(prev => [...prev, newSnippet]);
-      setActiveSnippetId(newSnippet.id);
+      pendingSaveRef.current = () => {
+        setSavedSnippets(prev => [...prev, newSnippet]);
+        setActiveSnippetId(newSnippet.id);
+      };
     }
 
     setIsSaveModalOpen(false);
+  };
+
+  const handleSaveModalClosed = () => {
     setSnippetTitle('');
+    if (pendingSaveRef.current) {
+      pendingSaveRef.current();
+      pendingSaveRef.current = null;
+    }
   };
 
   const handleDeleteSnippet = (snippetId: string) => {
     const snippet = savedSnippets.find(s => s.id === snippetId);
     if (snippet) {
       setDeleteConfirmSnippet(snippet);
+      setIsDeleteDialogOpen(true);
     }
   };
 
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = () => {
     if (!deleteConfirmSnippet) return;
+    deleteConfirmedRef.current = true;
+    setIsDeleteDialogOpen(false);
+  };
 
-    await snippetsStore.delete(deleteConfirmSnippet.id);
-    setSavedSnippets(prev => prev.filter(s => s.id !== deleteConfirmSnippet.id));
-
-    if (activeSnippetId === deleteConfirmSnippet.id) {
-      setActiveSnippetId(null);
-    }
+  const handleDeleteDialogClosed = async () => {
+    const snippetToDelete = deleteConfirmSnippet;
+    const confirmed = deleteConfirmedRef.current;
 
     setDeleteConfirmSnippet(null);
+    deleteConfirmedRef.current = false;
+
+    if (!confirmed || !snippetToDelete) return;
+
+    await snippetsStore.delete(snippetToDelete.id);
+    setSavedSnippets(prev => prev.filter(s => s.id !== snippetToDelete.id));
+
+    if (activeSnippetId === snippetToDelete.id) {
+      setActiveSnippetId(null);
+    }
   };
 
   const handleCodeChange = useCallback((newCode: string) => {
@@ -331,6 +356,35 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
       originalInfo(...args);
     };
 
+    // Track all promises from Records method calls to catch unawaited errors
+    const trackedPromises: Promise<any>[] = [];
+
+    function makeTrackedProxy(target: any): any {
+      return new Proxy(target, {
+        get(t: any, prop: string | symbol) {
+          const value = t[prop];
+          if (typeof value === 'function') {
+            return (...args: any[]) => {
+              const result = value.apply(t, args);
+              if (result && typeof result.then === 'function') {
+                result.catch(() => {}); // prevent unhandled rejection event
+                trackedPromises.push(result);
+                return result;
+              }
+              // Wrap non-promise objects (e.g. RecordImpl from Records.get())
+              if (result && typeof result === 'object') {
+                return makeTrackedProxy(result);
+              }
+              return result;
+            };
+          }
+          return value;
+        }
+      });
+    }
+
+    const trackedRecords = makeTrackedProxy(Records);
+
     try {
       const func = new AsyncFunction(
         'Records',
@@ -342,7 +396,20 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
       `
       );
 
-      const result = await func(Records, window.Citeck, _, console);
+      const result = await func(trackedRecords, window.Citeck, _, console);
+
+      // Wait for all async operations (including unawaited) to complete.
+      // Drain loop: chained async calls may add new promises after initial batch settles.
+      let prevLen = 0;
+      while (trackedPromises.length > prevLen) {
+        prevLen = trackedPromises.length;
+        await Promise.allSettled(trackedPromises);
+      }
+
+      const settled = await Promise.allSettled(trackedPromises);
+      const asyncErrors = settled
+        .filter((r): r is PromiseRejectedResult => r.status === 'rejected')
+        .map(r => (r.reason instanceof Error ? r.reason : new Error(String(r.reason))));
 
       let output = '';
 
@@ -366,6 +433,11 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
         if (output) output += '\n\n';
         const returnValue = typeof result === 'object' ? safeStringify(result, 2) : String(result);
         output += `Return value:\n${returnValue}`;
+      }
+
+      if (asyncErrors.length > 0) {
+        if (output) output += '\n\n';
+        output += asyncErrors.map(err => `Error:\n${err.message}${err.stack ? `\n\nStack:\n${err.stack}` : ''}`).join('\n\n');
       }
 
       setResponse(output || 'Code executed successfully (no output)');
@@ -516,6 +588,7 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
                       className="btn btn-xxs"
                       onClick={(e: React.MouseEvent) => {
                         e.stopPropagation();
+                        onClick(null);
                         handleDeleteSnippet(item.value);
                       }}
                       title={t('developer-console.delete-snippet')}
@@ -585,6 +658,7 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
         size="xs"
         hideModal={() => setIsSaveModalOpen(false)}
         title={t('developer-console.save-modal.title')}
+        reactstrapProps={{ onClosed: handleSaveModalClosed }}
       >
         <div className="save-snippet-modal">
           <label className="save-snippet-modal__label">{t('developer-console.save-modal.label')}</label>
@@ -601,11 +675,9 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
               }
             }}
           />
-          {activeSnippetId &&
-            snippetTitle.trim() &&
-            savedSnippets.find(s => s.id === activeSnippetId)?.title === snippetTitle.trim() && (
-              <p className="save-snippet-modal__hint">{t('developer-console.save-modal.update-hint')}</p>
-            )}
+          {snippetTitle.trim() && savedSnippets.find(s => s.title.toLowerCase() === snippetTitle.trim().toLowerCase()) && (
+            <p className="save-snippet-modal__hint">{t('developer-console.save-modal.update-hint')}</p>
+          )}
           <div className="save-snippet-modal__buttons">
             <button className="btn btn-secondary" onClick={() => setIsSaveModalOpen(false)}>
               {t('developer-console.save-modal.cancel')}
@@ -618,15 +690,16 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
       </EcosModal>
 
       <EcosModal
-        isOpen={!!deleteConfirmSnippet}
+        isOpen={isDeleteDialogOpen}
         size="xs"
-        hideModal={() => setDeleteConfirmSnippet(null)}
+        hideModal={() => setIsDeleteDialogOpen(false)}
         title={t('developer-console.delete-snippet')}
+        reactstrapProps={{ onClosed: handleDeleteDialogClosed }}
       >
         <div className="save-snippet-modal">
           <p>{deleteConfirmSnippet ? t('developer-console.delete-snippet.confirm', { title: deleteConfirmSnippet.title }) : ''}</p>
           <div className="save-snippet-modal__buttons">
-            <button className="btn btn-secondary" onClick={() => setDeleteConfirmSnippet(null)}>
+            <button className="btn btn-secondary" onClick={() => setIsDeleteDialogOpen(false)}>
               {t('developer-console.save-modal.cancel')}
             </button>
             <button className="btn btn-danger" onClick={handleDeleteConfirm}>
