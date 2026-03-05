@@ -3244,5 +3244,6 @@
   "developer-console.redo": "Повторить",
   "developer-console.clear-editor": "Очистить редактор",
   "developer-console.panel-right": "Панель справа",
-  "developer-console.panel-bottom": "Панель снизу"
+  "developer-console.panel-bottom": "Панель снизу",
+  "developer-console.clear-output": "Очистить вывод"
 }
