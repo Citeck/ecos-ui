@@ -1027,6 +1027,7 @@ Base.prototype.evalContext = function (additional) {
 };
 
 Object.defineProperty(Base.prototype, 'originalComponent', {
+  configurable: true,
   get: function () {
     return extendingOfComponent(this._originalComponent);
   },
