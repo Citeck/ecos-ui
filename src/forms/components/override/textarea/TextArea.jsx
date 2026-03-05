@@ -509,15 +509,11 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
           }
         };
 
-        const emptyDefault = Array(props.rows || 1)
-          .fill('')
-          .join('\n');
-
         this._monacoRoot.render(
           <Provider store={store}>
             <CodeEditor
               editorRef={this.editorRef}
-              defaultValue={this.dataValue || emptyDefault}
+              defaultValue={this.dataValue}
               onCodeChange={code => this.updateEditorValue(code)}
               language={this.component.codeAs || 'javascript'}
               height={`${height}px`}
