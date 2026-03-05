@@ -138,7 +138,7 @@ export default handleActions(
     },
     [setSwimlaneGrouping]: (state, { payload }) => {
       const { stateId, swimlaneGrouping } = payload;
-      return updateState(state, stateId, { swimlaneGrouping, swimlanes: [], isLoading: true }, initialState);
+      return updateState(state, stateId, { swimlaneGrouping, swimlanes: [], dataCards: [], isLoading: true, isFirstLoading: true }, initialState);
     },
     [setSwimlaneValues]: (state, { payload }) => {
       const { stateId, swimlanes } = payload;

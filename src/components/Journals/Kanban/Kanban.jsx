@@ -12,8 +12,8 @@ import ReactResizeDetector from 'react-resize-detector';
 import { Loader, PointsLoader } from '../../common';
 import { Labels } from '../constants';
 
-import Column from './Column';
 import HeaderColumn from './HeaderColumn';
+import KanbanColumn from './KanbanColumn';
 import Swimlane from './Swimlane';
 
 import { cancelGetNextBoardPage, getNextPage, loadMoreSwimlaneCell, moveCard, moveSwimlaneCard, runAction, toggleSwimlaneCollapse } from '@/actions/kanban';
@@ -120,6 +120,11 @@ class Kanban extends React.Component {
         const max = Math.max(headerElement.scrollWidth, bodyElement.scrollWidth);
         headerElement.style.width = `${max}px`;
         bodyElement.style.width = `${max}px`;
+
+        if (swimlaneGrouping) {
+          const headHeight = headerElement.offsetHeight;
+          headerElement.parentElement.style.setProperty('--kanban-head-height', `${headHeight}px`);
+        }
       });
     }
   }
@@ -231,19 +236,31 @@ class Kanban extends React.Component {
    * @returns {JSX.Element}
    */
   renderColumn = (data, index) => {
-    const { stateId, runAction, selectedBoard, boardConfig } = this.props;
+    const { runAction, selectedBoard, boardConfig, dataCards, resolvedActions, formProps, isLoading, isFirstLoading, isFiltered, isLoadingColumns } = this.props;
     const { isDragging } = this.state;
 
+    const columnData = (dataCards || []).find(card => card.status === data.id) || {};
+    const colActions = (resolvedActions || []).find(a => a.status === data.id) || {};
+    const isLoadingCol = (isLoadingColumns || []).includes(data.id);
+    const readOnly = get(boardConfig, 'readOnly');
+
     return (
-      <Column
+      <KanbanColumn
         key={`${index}_col_${selectedBoard}-${data.id}`}
-        data={data}
-        stateId={stateId}
-        columnStatus={data.id}
-        isDragging={isDragging}
+        columnInfo={data}
+        records={columnData.records}
+        error={columnData.error}
+        actions={colActions}
+        formProps={formProps}
         boardConfig={boardConfig}
-        runAction={runAction}
+        readOnly={readOnly}
+        isLoadingCol={isLoadingCol}
+        isLoading={isLoading}
+        isFirstLoading={isFirstLoading}
+        isFiltered={isFiltered}
         hasSum={data.hasSum}
+        isDragging={isDragging}
+        onClickAction={runAction}
       />
     );
   };
@@ -330,7 +347,7 @@ class Kanban extends React.Component {
 
     return (
       <DragDropContext onDragEnd={this.handleDragEnd} onDragStart={this.handleDragStart}>
-        <div className="ecos-kanban__swimlanes" ref={this.refBody}>
+        <div className={classNames('ecos-kanban__swimlanes', { 'ecos-kanban__swimlanes_dragging': isDragging })} ref={this.refBody}>
           {isLoading && isEmpty(swimlanes) && <Loader />}
           {!isLoading && isEmpty(swimlanes) && isEmpty(cols) && (
             <div className="ecos-kanban__empty">

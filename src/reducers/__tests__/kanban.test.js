@@ -81,7 +81,9 @@ describe('kanban reducer tests', () => {
 
     expect(ownState.swimlaneGrouping).toEqual(grouping);
     expect(ownState.swimlanes).toEqual([]);
+    expect(ownState.dataCards).toEqual([]);
     expect(ownState.isLoading).toBeTruthy();
+    expect(ownState.isFirstLoading).toBeTruthy();
   });
 
   it('setSwimlaneValues', () => {

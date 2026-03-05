@@ -567,7 +567,7 @@ export function* sagaRunAction({ api }, { payload }) {
     }
 
     if (action && (action.type === 'view' || action.type === 'edit')) {
-      yield put(refreshCardData({ stateId, recordRef }));
+      yield put(refreshCardData({ stateId, recordRef, actionType: action.type }));
     } else {
       yield put(reloadBoardData({ stateId }));
     }
@@ -642,6 +642,42 @@ function* reloadColumns({ api, stateId, boardConfig, columnIds }) {
 
   const newRecordRefs = updatedDataCards.map(cards => (cards.records || []).map(record => record.id));
   yield sagaGetActions({ api }, { payload: { boardConfig, newRecordRefs, stateId } });
+}
+
+function* reloadSwimlaneCells({ api, stateId, boardConfig, swimlaneGrouping, cells }) {
+  const { formProps } = yield select(selectKanban, stateId);
+  const { journalConfig, journalSetting } = yield select(selectJournalData, stateId);
+  const columns = get(journalSetting, 'kanban.columns') || boardConfig.columns || [];
+
+  yield all(
+    cells.map(function* ({ swimlaneId, statusId }) {
+      const column = columns.find(c => c.id === statusId);
+      if (!column) return;
+
+      const { queryParams, inputByKey } = yield call(buildSwimlaneCellQueryParams, {
+        api, stateId, boardConfig, formProps, swimlaneGrouping, swimlaneId, journalConfig, journalSetting
+      });
+
+      const colPredicate = KanbanConverter.preparePredicate(column);
+      const statusModifiedPredicate = KanbanConverter.getStatusModifiedPredicate(column);
+
+      const settings = JournalsConverter.getSettingsForDataLoaderServer({
+        ...queryParams.params,
+        attributes: queryParams.attrMap,
+        predicates: [...queryParams.predicates, colPredicate, queryParams.swimlaneAttrPredicate, statusModifiedPredicate],
+        searchPredicate: queryParams.searchPredicate
+      });
+
+      const res = yield call(
+        [JournalsService, JournalsService.getJournalData],
+        journalConfig,
+        { ...settings, columns: queryParams.journalColumns }
+      );
+
+      const records = processCardRecords(res.records, inputByKey, boardConfig);
+      yield put(setSwimlaneCellData({ stateId, swimlaneId, statusId, records, totalCount: res.totalCount || 0 }));
+    })
+  );
 }
 
 export function* sagaMoveCard({ api }, { payload }) {
@@ -1252,7 +1288,7 @@ function* refreshFlatCard({ stateId, recordRef, newCardData, newStatus, dataCard
 
 export function* sagaRefreshCard({ api }, { payload }) {
   try {
-    const { stateId, recordRef } = payload;
+    const { stateId, recordRef, actionType } = payload;
     const { boardConfig, formProps, dataCards, swimlaneGrouping, swimlanes } = yield select(selectKanban, stateId);
     const columns = get(boardConfig, 'columns', []);
 
@@ -1299,6 +1335,59 @@ export function* sagaRefreshCard({ api }, { payload }) {
     if (!success) {
       yield put(reloadBoardData({ stateId }));
       return;
+    }
+
+    // Silent reload after edit to get correct sort order from server
+    if (actionType === 'edit') {
+      try {
+        if (swimlaneGrouping && swimlanes && swimlanes.length > 0) {
+          const oldLocation = findCardInSwimlanes(swimlanes, recordRef);
+          const cellsToReload = [];
+
+          if (oldLocation) {
+            cellsToReload.push({ swimlaneId: oldLocation.swimlaneId, statusId: oldLocation.statusId });
+
+            const targetColumn = columns.find(col => col.id === newStatus);
+            const targetStatusId = targetColumn ? targetColumn.id : oldLocation.statusId;
+
+            const newSwimlaneValue = recordData._swimlaneValue || '';
+            let targetSwimlaneId = oldLocation.swimlaneId;
+            const matchingSwimlane = swimlanes.find(sl => sl.id === newSwimlaneValue);
+            if (matchingSwimlane) {
+              targetSwimlaneId = matchingSwimlane.id;
+            } else if (newSwimlaneValue === '') {
+              const unassigned = swimlanes.find(sl => sl.id === '__unassigned__');
+              if (unassigned) targetSwimlaneId = unassigned.id;
+            }
+
+            if (oldLocation.swimlaneId !== targetSwimlaneId || oldLocation.statusId !== targetStatusId) {
+              cellsToReload.push({ swimlaneId: targetSwimlaneId, statusId: targetStatusId });
+            }
+          }
+
+          if (cellsToReload.length > 0) {
+            yield call(reloadSwimlaneCells, { api, stateId, boardConfig, swimlaneGrouping, cells: cellsToReload });
+          }
+        } else {
+          const oldLocation = findCardInDataCards(dataCards, recordRef);
+          const columnIdsToReload = new Set();
+
+          if (oldLocation) {
+            columnIdsToReload.add(columns[oldLocation.columnIndex].id);
+          }
+
+          const targetColumn = columns.find(col => col.id === newStatus);
+          if (targetColumn) {
+            columnIdsToReload.add(targetColumn.id);
+          }
+
+          if (columnIdsToReload.size > 0) {
+            yield call(reloadColumns, { api, stateId, boardConfig, columnIds: [...columnIdsToReload] });
+          }
+        }
+      } catch (e) {
+        console.error('[kanban/sagaRefreshCard] silent reload after edit error', e);
+      }
     }
 
     // Refresh actions for the updated card

@@ -396,7 +396,7 @@ describe('kanban sagas tests', () => {
 
     expect(dispatched).toHaveLength(1);
     expect(dispatched[0].type).toEqual(refreshCardData().type);
-    expect(dispatched[0].payload).toEqual({ stateId: 'stateId', recordRef: '111' });
+    expect(dispatched[0].payload).toEqual({ stateId: 'stateId', recordRef: '111', actionType: 'view' });
   });
 
   it('sagaRunAction > non-view action dispatches reloadBoardData', async () => {
@@ -417,7 +417,7 @@ describe('kanban sagas tests', () => {
 
     expect(dispatched).toHaveLength(1);
     expect(dispatched[0].type).toEqual(refreshCardData().type);
-    expect(dispatched[0].payload).toEqual({ stateId: 'stateId', recordRef: '111' });
+    expect(dispatched[0].payload).toEqual({ stateId: 'stateId', recordRef: '111', actionType: 'edit' });
   });
 
   it('sagaRunAction > cancelled action does not refresh or reload', async () => {

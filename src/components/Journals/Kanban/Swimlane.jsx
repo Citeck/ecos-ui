@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import SwimlaneHeader from './SwimlaneHeader';
-import SwimlaneCell from './SwimlaneCell';
+import KanbanColumn from './KanbanColumn';
 
 const Swimlane = ({
   swimlane,
@@ -31,15 +31,18 @@ const Swimlane = ({
       })}>
         <div className="ecos-kanban__swimlane-body-inner">
           {columns.map(col => {
+            const cell = swimlane.cells[col.id] || {};
             const colActions = (resolvedActions || []).find(a => a.status === col.id) || {};
             return (
-              <SwimlaneCell
+              <KanbanColumn
                 key={`${swimlane.id}_${col.id}`}
+                columnInfo={col}
                 swimlaneId={swimlane.id}
                 statusId={col.id}
-                cell={swimlane.cells[col.id]}
+                records={cell.records}
+                totalCount={cell.totalCount}
+                isLoading={cell.isLoading}
                 swimlaneColor={swimlane.color}
-                columnInfo={col}
                 formProps={formProps}
                 readOnly={readOnly}
                 boardConfig={boardConfig}

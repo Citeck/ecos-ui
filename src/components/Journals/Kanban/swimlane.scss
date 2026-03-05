@@ -3,6 +3,7 @@
 $kanban-head-height: 50px;
 
 .ecos-kanban_swimlane {
+  --kanban-head-height: #{$kanban-head-height};
   overflow: auto;
 }
 
@@ -11,12 +12,7 @@ $kanban-head-height: 50px;
 }
 
 .ecos-kanban__swimlane {
-  border-bottom: 1px solid $color-gray-5;
   margin-bottom: 4px;
-
-  &:last-child {
-    border-bottom: none;
-  }
 }
 
 .ecos-kanban__swimlane-header {
@@ -29,7 +25,7 @@ $kanban-head-height: 50px;
   border-radius: $border-radius-standard;
   margin-bottom: 4px;
   position: sticky;
-  top: $kanban-head-height;
+  top: var(--kanban-head-height, #{$kanban-head-height});
   z-index: 5;
 
   &:hover {
@@ -115,40 +111,62 @@ $kanban-head-height: 50px;
   }
 }
 
-.ecos-kanban__swimlane-cell {
-  flex: auto;
-  min-width: 250px;
-  max-width: 350px;
-  width: calc(100% / var(--count-col) - 20px);
-  padding: 4px;
-  border-radius: $border-radius-standard;
-  min-height: 60px;
-  position: relative;
-  box-sizing: border-box;
-
-  &:not(:first-child) {
-    margin-left: 11px;
+// Swimlane mode column overrides
+.ecos-kanban_swimlane {
+  .ecos-kanban__column:not(.ecos-kanban__column-name) {
+    min-height: 60px;
   }
 
-  &-empty-text {
-    color: $text-color-gray;
-    font-size: 12px;
-    font-style: italic;
-    user-select: none;
-  }
-
-  &_dragging-over {
-    background: rgba($success, 0.1);
-    border: 1px dashed $success;
-  }
-
-  &_disabled {
-    opacity: 0.5;
-    cursor: no-drop;
-  }
-
-  &-loader {
+  .ecos-kanban__column-loader {
     min-height: 40px;
+    padding-top: 0;
+  }
+}
+
+// Swimlane DnD styles — mirrors .ecos-kanban__body_dragging behavior
+.ecos-kanban__swimlanes_dragging {
+  .ecos-kanban__column {
+    --color-column: #{HexToRGB($primary)};
+
+    overflow: hidden;
+    border-style: dotted;
+    border-color: rgba(var(--color-column), 1);
+    background: rgba(var(--color-column), 0.1);
+
+    &::before {
+      color: rgba(var(--color-column), 1);
+    }
+
+    &_dragging-over:not(.ecos-kanban__column_owner) {
+      --color-column: #{HexToRGB($success)};
+
+      .ecos-kanban__card-info_float {
+        --color-info: #{HexToRGB($success)};
+        @extend %show-card-info-float;
+      }
+
+      .ecos-kanban__card:not(.ecos-kanban__card_dragging) {
+        opacity: 0.5;
+      }
+    }
+
+    &_owner,
+    &_disabled {
+      --color-column: #{HexToRGB($color-gray-5)};
+
+      .ecos-kanban__card-info_float {
+        --color-info: #{HexToRGB($color-gray-5)};
+        @extend %show-card-info-float;
+      }
+    }
+
+    &_disabled {
+      cursor: no-drop;
+
+      .ecos-kanban__card:not(.ecos-kanban__card_dragging) {
+        opacity: 0.8;
+      }
+    }
   }
 }
 
@@ -175,17 +193,17 @@ $kanban-head-height: 50px;
 
 // New journal view overrides
 .ecos-kanban__new.ecos-kanban_swimlane {
-  .ecos-kanban__swimlane-cell {
-    min-width: 237px;
-    max-width: 337px;
-    background: #f6f8f9;
-    border: 1px solid $color-gray-4;
-    border-radius: 0;
-    padding: 8px 11px;
+  .ecos-kanban__head {
+    margin-bottom: 8px;
+  }
 
-    &:not(:first-child) {
-      margin-left: 0;
-    }
+  .ecos-kanban__column-name {
+    border-radius: $border-radius-extra-large;
+    box-shadow: inset 0 1px 0 0 $color-gray-4, inset -1px 0 0 0 $color-gray-4, inset 1px 0 0 0 $color-gray-4, inset 0 -1px 0 0 $color-gray-4;
+  }
+
+  .ecos-kanban__column-head {
+    margin: 6px 0;
   }
 
   .ecos-kanban__swimlane-body-inner {
@@ -194,5 +212,11 @@ $kanban-head-height: 50px;
 
   .ecos-kanban__swimlane-header {
     border-radius: $border-radius-extra-large;
+  }
+
+  // DnD overrides for new journal swimlane mode
+  .ecos-kanban__swimlanes_dragging .ecos-kanban__column {
+    border: 1px dotted rgba(var(--color-column), 1);
+    background: rgba(var(--color-column), 0.1);
   }
 }
