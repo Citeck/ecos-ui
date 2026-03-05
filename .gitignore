@@ -42,3 +42,4 @@ ignore/
 !/src/plugins/ecos-ui-welcome-widget-plugin/
 !/src/plugins/ecos-ui-news-widget-plugin/
 !/src/plugins/ecos-ui-hierarchical-tree-widget-plugin/
+!/src/plugins/ecos-ui-gantt-chart-widget-plugin/
