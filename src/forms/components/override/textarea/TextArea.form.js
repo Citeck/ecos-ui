@@ -52,6 +52,23 @@ if (asField) {
   };
 }
 
+const lexicalMaxLength = {
+  type: 'number',
+  get label() {
+    return t('form-constructor.textarea.lexical-max-length.label');
+  },
+  get tooltip() {
+    return t('form-constructor.textarea.lexical-max-length.tooltip');
+  },
+  key: 'lexicalMaxLength',
+  weight: 416,
+  clearOnHide: true,
+  placeholder: '5000000',
+  conditional: {
+    json: { '===': [{ var: 'data.editor' }, 'lexical'] }
+  }
+};
+
 const languageSelection = {
   type: 'select',
   get label() {
@@ -85,6 +102,7 @@ export default function (...extend) {
             ...editor
           },
           languageSelection,
+          lexicalMaxLength,
           {
             ...wysiwyg,
             description: 'Enter the WYSIWYG editor JSON configuration.',
