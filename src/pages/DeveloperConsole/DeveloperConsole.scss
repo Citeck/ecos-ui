@@ -107,7 +107,7 @@
       color: #6b7280;
       cursor: pointer;
       flex-shrink: 0;
-      transition: background 0.1s, color 0.1s, transform 0.1s;
+      transition: background 0.1s, color 0.1s;
       position: relative;
 
       svg {
@@ -124,6 +124,11 @@
         background: #d1d5db;
         color: #111827;
         transform: scale(0.93);
+
+        &::before,
+        &::after {
+          display: none;
+        }
       }
 
       &:disabled {
@@ -136,7 +141,7 @@
       }
 
       // CSS tooltip via data-tooltip attribute
-      &[data-tooltip]:not(:disabled):hover::before {
+      &[data-tooltip]:not(:disabled)::before {
         content: attr(data-tooltip);
         position: absolute;
         top: calc(100% + 6px);
@@ -153,9 +158,11 @@
         white-space: nowrap;
         z-index: 9999;
         pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.15s ease 0.25s;
       }
 
-      &[data-tooltip]:not(:disabled):hover::after {
+      &[data-tooltip]:not(:disabled)::after {
         content: '';
         position: absolute;
         top: calc(100% + 2px);
@@ -165,6 +172,26 @@
         border-bottom-color: #e0e0e0;
         z-index: 9999;
         pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.15s ease 0.25s;
+      }
+
+      &[data-tooltip]:not(:disabled):hover::before,
+      &[data-tooltip]:not(:disabled):hover::after {
+        opacity: 1;
+      }
+
+      // Right-aligned toggle button: anchor tooltip to the right edge
+      &:last-child[data-tooltip]:not(:disabled)::before {
+        left: auto;
+        right: 0;
+        transform: none;
+      }
+
+      &:last-child[data-tooltip]:not(:disabled)::after {
+        left: auto;
+        right: 10px;
+        transform: none;
       }
     }
 
@@ -232,7 +259,7 @@
         }
 
         // CSS tooltip matching toolbar button style
-        &[data-tooltip]:not(:disabled):hover::before {
+        &[data-tooltip]:not(:disabled)::before {
           content: attr(data-tooltip);
           position: absolute;
           top: calc(100% + 6px);
@@ -249,9 +276,11 @@
           white-space: nowrap;
           z-index: 9999;
           pointer-events: none;
+          opacity: 0;
+          transition: opacity 0.15s ease 0.25s;
         }
 
-        &[data-tooltip]:not(:disabled):hover::after {
+        &[data-tooltip]:not(:disabled)::after {
           content: '';
           position: absolute;
           top: calc(100% + 2px);
@@ -261,6 +290,13 @@
           border-bottom-color: #e0e0e0;
           z-index: 9999;
           pointer-events: none;
+          opacity: 0;
+          transition: opacity 0.15s ease 0.25s;
+        }
+
+        &[data-tooltip]:not(:disabled):hover::before,
+        &[data-tooltip]:not(:disabled):hover::after {
+          opacity: 1;
         }
       }
     }
