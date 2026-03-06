@@ -233,8 +233,11 @@ export default class BaseReactComponent extends BaseComponent {
 
   destroy() {
     if (this.react.container) {
-      this.react.container._root?.unmount();
+      const root = this.react.container._root;
       this.react.wrapper = null;
+      if (root) {
+        setTimeout(() => root.unmount(), 0);
+      }
     }
 
     return super.destroy();
@@ -244,8 +247,11 @@ export default class BaseReactComponent extends BaseComponent {
     this.labelElement.remove();
 
     if (this.react.container) {
-      this.react.container._root?.unmount();
+      const root = this.react.container._root;
       this.react = {};
+      if (root) {
+        setTimeout(() => root.unmount(), 0);
+      }
     }
   }
 
