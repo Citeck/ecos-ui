@@ -16,6 +16,10 @@
       font-size: 12px;
       line-height: 16px;
 
+      &:last-child {
+        margin-bottom: 21px;
+      }
+
       &.link {
         text-decoration: underline;
         color: constants.$color-white;
@@ -108,7 +112,7 @@
     }
 
     & .ecos-modal-header {
-      margin-top: 9px;
+      margin-top: 10px;
       margin-bottom: 26px;
       padding: 0 21px;
       height: auto;

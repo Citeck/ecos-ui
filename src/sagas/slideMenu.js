@@ -1,6 +1,5 @@
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-import isNil from 'lodash/isNil';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 
 import { setTabs } from '../actions/pageTabs';
@@ -35,14 +34,7 @@ function* fetchSlideMenu({ api }, action) {
     const forceFetch = get(action, 'payload.forceFetch', false);
 
     if (forceFetch || (!forceFetch && (!items || isEmpty(items)))) {
-      let menuItems;
-
-      if (!isNil(id) || !isNil(version)) {
-        menuItems = yield call(api.menu.getMenuItems, { id, version, resolved: true });
-      } else {
-        const apiData = yield call(api.menu.getSlideMenuItems);
-        menuItems = apiData.items;
-      }
+      let menuItems = yield call(api.menu.getMenuItems, { id, version, resolved: true });
 
       menuItems = SidebarConverter.getMenuListWeb(menuItems);
 

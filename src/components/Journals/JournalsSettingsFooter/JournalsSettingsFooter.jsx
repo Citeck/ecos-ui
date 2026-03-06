@@ -28,7 +28,7 @@ class JournalsSettingsFooter extends Component {
   }
 
   removeKeydownEvents() {
-    document.removeEventListener('keydown', this.onKeydown);
+    document.removeEventListener('keydown', this.onKeydown, { capture: true });
   }
 
   onKeydown = e => {

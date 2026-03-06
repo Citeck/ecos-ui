@@ -1,6 +1,9 @@
 class ESMRequire {
   constructor() {
     this.loadedModules = new Map();
+    this._loadingScripts = new Map();
+    this._pendingScripts = 0;
+    this._savedDefine = undefined;
   }
 
   async loadModule(src) {
@@ -18,17 +21,42 @@ class ESMRequire {
     }
   }
 
-  loadScript(src) {
-    return new Promise((resolve, reject) => {
-      if (this.loadedModules.has(src)) {
-        return resolve(this.loadedModules.get(src));
-      }
+  // Suppress AMD (RequireJS) while loading UMD scripts so they export to window
+  _suppressAmd() {
+    if (this._pendingScripts === 0 && typeof window.define === 'function' && window.define.amd) {
+      this._savedDefine = window.define;
+      window.define = undefined;
+    }
+    this._pendingScripts++;
+  }
 
+  _restoreAmd() {
+    this._pendingScripts--;
+    if (this._pendingScripts === 0 && this._savedDefine !== undefined) {
+      window.define = this._savedDefine;
+      this._savedDefine = undefined;
+    }
+  }
+
+  loadScript(src) {
+    if (this.loadedModules.has(src)) {
+      return Promise.resolve(this.loadedModules.get(src));
+    }
+
+    if (this._loadingScripts.has(src)) {
+      return this._loadingScripts.get(src);
+    }
+
+    const promise = new Promise((resolve, reject) => {
       const script = document.createElement('script');
       script.src = src;
       script.async = true;
 
+      this._suppressAmd();
+
       script.onload = () => {
+        this._restoreAmd();
+        this._loadingScripts.delete(src);
         const module = window[this.getGlobalModuleName(src)];
         if (!module) {
           return reject(new Error(`ESMRequire: Module not found in window: ${src}`));
@@ -38,15 +66,26 @@ class ESMRequire {
         resolve(module);
       };
 
-      script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
+      script.onerror = () => {
+        this._restoreAmd();
+        this._loadingScripts.delete(src);
+        reject(new Error(`Failed to load script: ${src}`));
+      };
+
       document.body.appendChild(script);
     });
+
+    this._loadingScripts.set(src, promise);
+    return promise;
   }
 
-  require(scripts, callback) {
+  require(scripts, callback, onError) {
     Promise.all(scripts.map(src => this.loadModule(src)))
       .then(modules => callback && callback(...modules))
-      .catch(error => console.error('ESMRequire error:', error));
+      .catch(error => {
+        console.error('ESMRequire error:', error);
+        onError && onError(error);
+      });
   }
 
   getGlobalModuleName(src) {

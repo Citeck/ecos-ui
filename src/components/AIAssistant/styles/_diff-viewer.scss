@@ -1,0 +1,306 @@
+// AI Assistant Diff Viewer Styles - Mobile First
+
+@import 'variables';
+@import 'mixins';
+
+// Common Diff Viewer styles
+.ai-assistant-chat-diff-viewer {
+  &__actions {
+    display: flex;
+    gap: 8px;
+    margin: 12px 0 8px 0;
+    padding: 0 16px;
+    flex-wrap: wrap;
+
+    @media (min-width: $tablet) {
+      gap: $spacing-sm;
+      margin: $spacing-md 0 $spacing-sm 0;
+      padding: 0 $spacing-md;
+    }
+  }
+}
+
+// Text Diff Preview
+.ai-assistant-chat {
+  &__text-diff-preview {
+    background: var(--surface-color, #fff);
+    border-radius: $border-radius-md;
+    overflow: hidden;
+    border: 1px solid var(--border-color, #e0e0e0);
+
+    @media (min-width: $tablet) {
+      border-radius: $border-radius-md;
+    }
+  }
+
+  &__text-diff-description {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color, #e0e0e0);
+    background: var(--background-color-light, #f8f9fa);
+    font-size: 13px;
+
+    @media (min-width: $tablet) {
+      padding: $spacing-md $spacing-lg;
+      font-size: inherit;
+    }
+  }
+}
+
+// Script Diff Viewer
+.ai-assistant-chat {
+  &__script-diff-preview {
+    background: var(--surface-color, #fff);
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #e1e4e8;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+
+    @media (min-width: $tablet) {
+      border-radius: $border-radius-lg;
+    }
+  }
+
+  &-script-diff-viewer {
+    &__header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: linear-gradient(to bottom, #f6f8fa, #f1f3f5);
+      color: #24292e;
+      border-bottom: 1px solid #e1e4e8;
+      font-size: 12px;
+      font-weight: 600;
+
+      @media (min-width: $tablet) {
+        padding: $spacing-md $spacing-lg;
+        font-size: 13px;
+      }
+
+      .fa-code {
+        color: #6f42c1;
+        font-size: 14px;
+
+        @media (min-width: $tablet) {
+          font-size: $font-size-md;
+        }
+      }
+    }
+
+    &__badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: $border-radius-xl;
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+
+      @media (min-width: $tablet) {
+        padding: 2px $spacing-sm;
+        font-size: 11px;
+      }
+
+      &--new {
+        background: #ddf4ff;
+        color: #0969da;
+        border: 1px solid #b6e3ff;
+      }
+    }
+
+    &__explanation {
+      padding: 12px 16px;
+      background: #fff;
+      font-size: 13px;
+
+      @media (min-width: $tablet) {
+        padding: 14px $spacing-lg;
+        font-size: inherit;
+      }
+      border-bottom: 1px solid #e1e4e8;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #57606a;
+
+      p {
+        margin: 0 0 $spacing-sm;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+
+      ul, ol {
+        margin: $spacing-sm 0;
+        padding-left: $spacing-xl;
+      }
+
+      li {
+        margin: $spacing-xs 0;
+      }
+
+      code {
+        background: #f6f8fa;
+        padding: 2px 6px;
+        border-radius: $border-radius-sm;
+        font-family: "SF Mono", Monaco, Menlo, Consolas, monospace;
+        font-size: $font-size-sm;
+      }
+
+      pre {
+        background: #f6f8fa;
+        padding: $spacing-md;
+        border-radius: $border-radius-md;
+        overflow-x: auto;
+        margin: $spacing-sm 0;
+
+        code {
+          background: none;
+          padding: 0;
+        }
+      }
+
+      strong {
+        font-weight: 600;
+        color: #24292e;
+      }
+
+      a {
+        color: #0366d6;
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+
+    &__content {
+      max-height: 450px;
+      overflow: auto;
+      background: #fafbfc;
+
+      table {
+        font-family: "SF Mono", Monaco, Menlo, Consolas, monospace;
+        font-size: 13px;
+        width: 100%;
+        border-collapse: collapse;
+
+        td {
+          padding: 0;
+          vertical-align: top;
+        }
+
+        pre {
+          margin: 0;
+          padding: 0 $spacing-md;
+          line-height: 22px;
+          white-space: pre-wrap;
+          word-break: break-word;
+        }
+      }
+
+      // Gutter (line numbers) styling
+      [class*="gutter"] {
+        background: #f6f8fa !important;
+        color: #8b949e !important;
+        border-right: 1px solid #e1e4e8;
+        text-align: right;
+        padding: 0 $spacing-sm !important;
+        min-width: 44px;
+        font-size: $font-size-sm;
+        user-select: none;
+        white-space: nowrap;
+        word-break: normal;
+
+        pre {
+          white-space: nowrap;
+          word-break: normal;
+        }
+      }
+
+      // Added lines
+      [class*="added"] {
+        background: #e6ffec !important;
+
+        pre {
+          color: #24292e;
+        }
+
+        &[class*="gutter"] {
+          background: #ccffd8 !important;
+          color: #1a7f37 !important;
+        }
+      }
+
+      // Removed lines
+      [class*="removed"] {
+        background: #ffebe9 !important;
+
+        pre {
+          color: #24292e;
+        }
+
+        &[class*="gutter"] {
+          background: #ffd7d5 !important;
+          color: #cf222e !important;
+        }
+      }
+
+      // Word-level diff highlights
+      [class*="word-added"] {
+        background: #abf2bc !important;
+        border-radius: 3px;
+        padding: 1px 2px;
+      }
+
+      [class*="word-removed"] {
+        background: #ffc0c0 !important;
+        border-radius: 3px;
+        padding: 1px 2px;
+        text-decoration: line-through;
+      }
+
+      // Title blocks
+      [class*="title-block"] {
+        background: #f6f8fa !important;
+        color: #57606a !important;
+        font-weight: 600;
+        font-size: $font-size-sm;
+        padding: $spacing-sm $spacing-md !important;
+        border-bottom: 1px solid #e1e4e8;
+      }
+    }
+
+    &__code-preview {
+      background: #f6f8fa;
+      padding: 0;
+      overflow-x: auto;
+
+      pre {
+        margin: 0;
+        padding: $spacing-lg;
+        background: transparent;
+        overflow-x: auto;
+      }
+
+      code {
+        font-family: "SF Mono", Monaco, Menlo, Consolas, monospace;
+        font-size: 13px;
+        line-height: 1.6;
+        color: #24292e;
+        white-space: pre;
+        display: block;
+      }
+    }
+
+    &__actions {
+      display: flex;
+      gap: 10px;
+      padding: 14px $spacing-lg;
+      background: #f6f8fa;
+      border-top: 1px solid #e1e4e8;
+    }
+  }
+}

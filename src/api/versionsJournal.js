@@ -1,9 +1,10 @@
-import { CommonApi } from './common';
 import Records from '../components/Records';
+import { IS_CONTENT_PROTECTED_ATTR, PERMISSION_WRITE_ATTR } from '../components/Records/constants';
 import { SourcesId } from '../constants';
-import ecosXhr from '../helpers/ecosXhr';
 import { PROXY_URI } from '../constants/alfresco';
-import { PERMISSION_WRITE_ATTR } from '../components/Records/constants';
+import ecosXhr from '../helpers/ecosXhr';
+
+import { CommonApi } from './common';
 
 export class VersionsJournalApi extends CommonApi {
   getVersions = record => {
@@ -65,9 +66,14 @@ export class VersionsJournalApi extends CommonApi {
     ).then(response => response);
   };
 
-  hasWritePermission = record => {
-    return Records.get(record)
-      .load(PERMISSION_WRITE_ATTR)
-      .catch(() => false);
+  hasWritePermission = async record => {
+    try {
+      const hasWrite = await Records.get(record).load(PERMISSION_WRITE_ATTR);
+      const isContentProtected = await Records.get(record).load(IS_CONTENT_PROTECTED_ATTR);
+
+      return hasWrite && !isContentProtected;
+    } catch (_error) {
+      return false;
+    }
   };
 }

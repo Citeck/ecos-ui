@@ -3,7 +3,6 @@
 .value-color-formatter {
   font-size: $font-size-extra-small;
   font-weight: $font-weight-normal;
-  line-height: 1;
 
   &__pointer {
     display: inline-block;
@@ -14,8 +13,6 @@
   }
 
   &__text {
-    vertical-align: middle;
-
     span {
       &[class^='value-color-formatter_'] {
         padding: 4px 15px;
@@ -48,4 +45,13 @@
 
 .value-color-formatter_red {
   background: $color-red-2;
+}
+
+.value-color-formatter_blue {
+  background: $color-blue-light;
+}
+
+.value-color-formatter_currentColor {
+  color: var(--main-bg-color);
+  background: var(--primary-color);
 }

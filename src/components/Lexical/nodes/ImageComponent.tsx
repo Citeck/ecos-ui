@@ -42,6 +42,7 @@ import {
 } from 'lexical';
 import * as React from 'react';
 import { Suspense, useCallback, useEffect, useRef, useState, JSX } from 'react';
+import { createPortal } from 'react-dom';
 
 import { createWebsocketProvider } from '../collaboration';
 import { useSharedHistoryContext } from '../context/SharedHistoryContext';
@@ -51,6 +52,7 @@ import KeywordsPlugin from '../plugins/KeywordsPlugin';
 import LinkPlugin from '../plugins/LinkPlugin';
 import MentionsPlugin from '../plugins/MentionsPlugin';
 import ContentEditable from '../ui/ContentEditable';
+import ImagePreviewModal from '../ui/ImagePreviewModal';
 import ImageResizer from '../ui/ImageResizer';
 
 import { $isImageNode } from './ImageNode';
@@ -163,7 +165,11 @@ export default function ImageComponent({
   const [selection, setSelection] = useState<BaseSelection | null>(null);
   const activeEditorRef = useRef<LexicalEditor | null>(null);
   const [isLoadError, setIsLoadError] = useState<boolean>(false);
+  const [showPreview, setShowPreview] = useState(false);
   const isEditable = useLexicalEditable();
+
+  const onPreviewOpen = useCallback(() => setShowPreview(true), []);
+  const onPreviewClose = useCallback(() => setShowPreview(false), []);
 
   const $onDelete = useCallback(
     (payload: KeyboardEvent) => {
@@ -338,7 +344,7 @@ export default function ImageComponent({
   return (
     <Suspense fallback={null}>
       <>
-        <div draggable={draggable}>
+        <div draggable={draggable} onClick={!isEditable && !isLoadError ? onPreviewOpen : undefined}>
           {isLoadError ? (
             <BrokenImage />
           ) : (
@@ -397,6 +403,7 @@ export default function ImageComponent({
             captionsEnabled={!isLoadError && captionsEnabled}
           />
         )}
+        {showPreview && createPortal(<ImagePreviewModal src={src} altText={altText} onClose={onPreviewClose} />, document.body)}
       </>
     </Suspense>
   );

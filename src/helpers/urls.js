@@ -76,7 +76,7 @@ export const getCustomDasboardUrl = dashboardId => {
 export const getWikiDasboardUrl = () => {
   const workspaceId = getWorkspaceId();
 
-  return `${Urls.DASHBOARD}?recordRef=${SourcesId.WIKI}@${workspaceId}$ROOT&ws=${workspaceId}`;
+  return `${Urls.DASHBOARD}?ws=${workspaceId}&recordRef=${SourcesId.WIKI}@${workspaceId}$ROOT`;
 };
 
 export const changeUrl = (url, opts = {}) => {
@@ -96,7 +96,7 @@ export const createDocumentUrl = recordRef => {
     return `${Urls.DASHBOARD}?recordRef=${recordRef}`;
   }
 
-  return `${Urls.DASHBOARD}?recordRef=${recordRef}&ws=${getWorkspaceId()}`;
+  return `${Urls.DASHBOARD}?ws=${getWorkspaceId()}&recordRef=${recordRef}`;
 };
 
 export const getSelectedValueLink = item => {
@@ -279,7 +279,7 @@ export const getSortedUrlParams = (params = window.location.search) => {
       return -1;
     }
 
-    if (a.toLowerCase() < b.toLowerCase()) {
+    if (a.toLowerCase() > b.toLowerCase()) {
       return 1;
     }
 
@@ -291,6 +291,30 @@ export const getSortedUrlParams = (params = window.location.search) => {
 
 export const getSearchParams = (params = window.location.search, options) => {
   return queryString.parse(params, options);
+};
+
+/**
+ * Reorder URLSearchParams so that 'ws' comes first.
+ * If wsValue is provided, it replaces any existing 'ws'.
+ * If wsValue is not provided, existing 'ws' is preserved in first position.
+ */
+export const orderUrlSearchParams = (sourceParams, wsValue) => {
+  const orderedParams = new URLSearchParams();
+  const hasNewWs = wsValue !== undefined && wsValue !== null && !!String(wsValue).trim();
+
+  if (hasNewWs) {
+    orderedParams.set('ws', String(wsValue).trim());
+  } else if (sourceParams.has('ws')) {
+    orderedParams.set('ws', sourceParams.get('ws'));
+  }
+
+  for (const [key, value] of sourceParams.entries()) {
+    if (key !== 'ws') {
+      orderedParams.set(key, value);
+    }
+  }
+
+  return orderedParams;
 };
 
 /**
@@ -471,17 +495,14 @@ export const getLinkWithOrigin = (link = '') => {
 export const getUrlWithWorkspace = (path, urlSearch, workspaceId) => {
   const pathname = path || window.location.pathname;
   const search = isUndefined(urlSearch) ? window.location.search : urlSearch;
-  const searchParams = search ? new URLSearchParams(search) : new URLSearchParams();
+  const sourceParams = search ? new URLSearchParams(search) : new URLSearchParams();
 
   if (!workspaceId) {
     console.error('This method requires the required "workspaceId" parameter');
   }
 
-  if (!!workspaceId && !!workspaceId.trim()) {
-    searchParams.set('ws', workspaceId.trim());
-  }
-
-  const newUrl = `${pathname}?${searchParams.toString()}`;
+  const orderedParams = orderUrlSearchParams(sourceParams, workspaceId);
+  const newUrl = `${pathname}?${orderedParams.toString()}`;
 
   return decodeLinkWithEncodeParams(newUrl);
 };
@@ -511,7 +532,7 @@ export const getBaseUrlWorkspace = (wsId, homePageLink, withHost = true) => {
   const lastActiveTabWs = PageTabList.getLastActiveTabWs(wsId);
   const url = new URL(get(lastActiveTabWs, 'link') || homePageLink || Urls.DASHBOARD, window.location.origin);
 
-  url.searchParams.set('ws', wsId);
+  url.search = orderUrlSearchParams(url.searchParams, wsId).toString();
 
   if (withHost) {
     return url.toString();

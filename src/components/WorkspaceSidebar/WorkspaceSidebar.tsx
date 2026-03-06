@@ -1,33 +1,44 @@
 import classNames from 'classnames';
 import get from 'lodash/get';
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 
 import { getSidebarWorkspaces, onSearchWorkspaces } from '@/actions/workspaces';
 import { WorkspaceType } from '@/api/workspaces/types';
 import WorkspaceCard from '@/components/WorkspaceSidebar/Card';
 import SearchWorkspaceSidebar from '@/components/WorkspaceSidebar/Search';
-import { Loader, Tabs } from '@/components/common';
+import { Tabs } from '@/components/common';
 import Close from '@/components/common/icons/Close';
+import CreateIcon from '@/components/common/icons/Create';
 import NoDataWorkspaces from '@/components/common/icons/NoDataWorkspaces';
 import { getWorkspaceId } from '@/helpers/urls';
 import { t } from '@/helpers/util';
-import { selectMyWorkspaces, selectPublicWorkspaces, selectSearchText, selectWorkspaceIsLoading } from '@/selectors/workspaces';
+import {
+  selectMyWorkspaces,
+  selectPublicWorkspaces,
+  selectSearchText,
+  selectWorkspaceIsLoading,
+  selectWorkspaceIsAllowToCreateWorkspace
+} from '@/selectors/workspaces';
 import WorkspaceService from '@/services/WorkspaceService';
 import { Dispatch, RootState } from '@/types/store';
 import './styles.scss';
 
 type TabId = 'my-workspaces' | 'public-workspaces';
 
+const WORKSPACE_SWITCHER_ID = 'workspace-menu-switcher';
+
 interface WorkspaceSidebarProps {
   isOpen: boolean;
   isLoading: boolean;
   isMobile: boolean;
   searchText: string;
+  isAllowToCreateWorkspace: boolean;
   toggleIsOpen: (flag?: boolean) => void;
   getSidebarWorkspaces: () => void;
   onSearch: (text: string, withoutLoading?: boolean) => void;
   openLink: (id: WorkspaceType['id'], homePageLink: WorkspaceType['homePageLink'], openNewBrowserTab?: boolean) => void;
+  onCreateWorkspace: () => void;
   myWorkspaces: WorkspaceType[];
   publicWorkspaces: WorkspaceType[];
 }
@@ -50,10 +61,11 @@ const TabsId: {
 const Labels = {
   MY_WORKSPACE: 'workspaces.card.my-workspaces',
   PUBLIC_WORKSPACE: 'workspaces.card.public-workspaces',
-  NO_DATA_HEAD: 'workspaces.sidebar.no-data-workspace.head'
+  NO_DATA_HEAD: 'workspaces.sidebar.no-data-workspace.head',
+  CREATE_WORKSPACE: 'workspaces.create-button'
 };
 
-class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebarState> {
+class WorkspaceSidebar extends PureComponent<WorkspaceSidebarProps, WorkspaceSidebarState> {
   private _containerSidebarRef: React.RefObject<HTMLDivElement | null> = React.createRef();
   timeoutId?: NodeJS.Timeout;
 
@@ -95,6 +107,8 @@ class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebar
     const clickedElement = event.target as HTMLElement;
 
     if (!sidebarContainer) return;
+
+    if (clickedElement.closest(`#${WORKSPACE_SWITCHER_ID}`)) return;
 
     const clickedInsideSidebar = sidebarContainer.contains(clickedElement);
     const clickedInPanel = clickedElement.closest(`.${PANEL_CLASSNAME}`);
@@ -171,8 +185,50 @@ class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebar
     </div>
   );
 
+  renderCreateWorkspaceCard(isSmall = true) {
+    const { isAllowToCreateWorkspace, onCreateWorkspace } = this.props;
+
+    if (!isAllowToCreateWorkspace) {
+      return null;
+    }
+
+    return (
+      <div
+        className={classNames('citeck-workspace-sidebar__create-card', {
+          'citeck-workspace-sidebar__create-card--base': !isSmall
+        })}
+        onClick={onCreateWorkspace}
+      >
+        <div className="citeck-workspace-sidebar__create-card-inner">
+          <div className="citeck-workspace-sidebar__create-card-icon">
+            <CreateIcon width={20} height={20} />
+          </div>
+          <div className="citeck-workspace-sidebar__card-info">
+            <h3 className="citeck-workspace-sidebar__card-info_title">{t(Labels.CREATE_WORKSPACE)}</h3>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  renderSkeletonCards(count = 12) {
+    return (
+      <div className="citeck-workspace-sidebar__content-wrapper">
+        <div className="citeck-workspace-sidebar__content-wrapper_wrap">
+          {Array.from({ length: count }).map((_, i) => (
+            <div key={i} className="citeck-workspace-sidebar__skeleton-card" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   renderMyWorkspaces() {
     const { myWorkspaces, isLoading } = this.props;
+
+    if (isLoading) {
+      return this.renderSkeletonCards();
+    }
 
     if (!myWorkspaces.length) {
       return this.NoDataWorkspaces;
@@ -180,21 +236,19 @@ class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebar
 
     return (
       <div className="citeck-workspace-sidebar__content-wrapper">
-        {isLoading && <Loader type="points" />}
-        {!isLoading && (
-          <div className="citeck-workspace-sidebar__content-wrapper_wrap">
-            {myWorkspaces.map((workspace, idx) => (
-              <WorkspaceCard
-                {...workspace}
-                isSmallView
-                key={idx}
-                onMouseDown={e => this.onMouseDown(e, workspace.id, workspace.homePageLink)}
-                openWorkspace={e => this.openWorkspace(e, workspace.id, workspace.homePageLink)}
-                hasAnimationOnHover
-              />
-            ))}
-          </div>
-        )}
+        <div className="citeck-workspace-sidebar__content-wrapper_wrap">
+          {myWorkspaces.map((workspace, idx) => (
+            <WorkspaceCard
+              {...workspace}
+              isSmallView
+              key={idx}
+              onMouseDown={e => this.onMouseDown(e, workspace.id, workspace.homePageLink)}
+              openWorkspace={e => this.openWorkspace(e, workspace.id, workspace.homePageLink)}
+              hasAnimationOnHover
+            />
+          ))}
+          {this.renderCreateWorkspaceCard()}
+        </div>
       </div>
     );
   }
@@ -202,27 +256,29 @@ class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebar
   renderPublicWorkspaces() {
     const { publicWorkspaces, isLoading } = this.props;
 
+    if (isLoading) {
+      return this.renderSkeletonCards();
+    }
+
     if (!publicWorkspaces.length) {
       return this.NoDataWorkspaces;
     }
 
     return (
       <div className="citeck-workspace-sidebar__content-wrapper">
-        {isLoading && <Loader type="points" />}
-        {!isLoading && (
-          <div className="citeck-workspace-sidebar__content-wrapper_wrap">
-            {publicWorkspaces.map((workspace, idx) => (
-              <WorkspaceCard
-                {...workspace}
-                key={idx}
-                onMouseDown={e => this.onMouseDown(e, workspace.id, workspace.homePageLink)}
-                openWorkspace={(e, id, homeLink) => this.openWorkspace(e, id || workspace.id, homeLink || workspace.homePageLink)}
-                onJoinCallback={this.toggleOpen}
-                hasAnimationOnHover
-              />
-            ))}
-          </div>
-        )}
+        <div className="citeck-workspace-sidebar__content-wrapper_wrap">
+          {publicWorkspaces.map((workspace, idx) => (
+            <WorkspaceCard
+              {...workspace}
+              key={idx}
+              onMouseDown={e => this.onMouseDown(e, workspace.id, workspace.homePageLink)}
+              openWorkspace={(e, id, homeLink) => this.openWorkspace(e, id || workspace.id, homeLink || workspace.homePageLink)}
+              onJoinCallback={this.toggleOpen}
+              hasAnimationOnHover
+            />
+          ))}
+          {this.renderCreateWorkspaceCard(false)}
+        </div>
       </div>
     );
   }
@@ -237,7 +293,7 @@ class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebar
   };
 
   render() {
-    const { onSearch, isMobile } = this.props;
+    const { onSearch, isMobile, isAllowToCreateWorkspace, onCreateWorkspace } = this.props;
     const { visible, shouldAnimateOpen, activeTab } = this.state;
 
     if (!visible) {
@@ -254,7 +310,14 @@ class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebar
                 mobile: isMobile
               })}
             >
-              <SearchWorkspaceSidebar onSearch={onSearch} />
+              <div className="citeck-workspace-sidebar__search-row">
+                <SearchWorkspaceSidebar onSearch={onSearch} />
+                {isAllowToCreateWorkspace && (
+                  <button className="citeck-workspace-sidebar__create-btn" onClick={onCreateWorkspace} title={t(Labels.CREATE_WORKSPACE)}>
+                    <CreateIcon width={14} height={14} />
+                  </button>
+                )}
+              </div>
               <Tabs items={this.tabs} narrow />
               {activeTab === TabsId.MY_WORKSPACE && this.renderMyWorkspaces()}
               {activeTab === TabsId.PUBLIC_WORKSPACE && this.renderPublicWorkspaces()}
@@ -271,12 +334,16 @@ class WorkspaceSidebar extends Component<WorkspaceSidebarProps, WorkspaceSidebar
 
 const mapStateToProps = (
   state: RootState
-): Pick<WorkspaceSidebarProps, 'isLoading' | 'myWorkspaces' | 'searchText' | 'publicWorkspaces' | 'isMobile'> => ({
+): Pick<
+  WorkspaceSidebarProps,
+  'isLoading' | 'myWorkspaces' | 'searchText' | 'publicWorkspaces' | 'isMobile' | 'isAllowToCreateWorkspace'
+> => ({
   searchText: selectSearchText(state),
   isLoading: selectWorkspaceIsLoading(state),
   myWorkspaces: selectMyWorkspaces(state),
   publicWorkspaces: selectPublicWorkspaces(state),
-  isMobile: get(state, 'view.isMobile')
+  isMobile: get(state, 'view.isMobile'),
+  isAllowToCreateWorkspace: selectWorkspaceIsAllowToCreateWorkspace(state)
 });
 
 const mapDispatchToProps = (dispatch: Dispatch): Pick<WorkspaceSidebarProps, 'getSidebarWorkspaces' | 'onSearch'> => ({

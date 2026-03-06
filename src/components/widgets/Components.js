@@ -153,9 +153,16 @@ export default class Components {
     },
     [ComponentKeys.DOC_STATUS]: {
       load: () => lazy(() => import('./DocStatus')),
+      settings: () => lazy(() => import('./DocStatus/Settings')),
       label: 'dashboard-settings.widget.doc-status',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS],
-      props: {}
+      props: {
+        config: {
+          [CONFIG_VERSION]: {
+            allowChangeStatus: false
+          }
+        }
+      }
     },
     [ComponentKeys.EVENTS_HISTORY]: {
       load: () => lazy(() => import('./EventsHistory')),

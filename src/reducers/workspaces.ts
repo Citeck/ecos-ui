@@ -67,18 +67,15 @@ export default handleActions<WorkspaceState, any>(
     }),
     [setWorkspaces.toString()]: (state, action: ReturnType<typeof setWorkspaces>) => ({
       ...state,
-      workspaces: [...action.payload],
-      isLoading: false
+      workspaces: [...action.payload]
     }),
     [setPublicWorkspaces.toString()]: (state, action: ReturnType<typeof setPublicWorkspaces>) => ({
       ...state,
-      publicWorkspaces: [...action.payload],
-      isLoading: false
+      publicWorkspaces: [...action.payload]
     }),
     [setMyWorkspaces.toString()]: (state, action: ReturnType<typeof setMyWorkspaces>) => ({
       ...state,
-      myWorkspaces: [...action.payload],
-      isLoading: false
+      myWorkspaces: [...action.payload].sort((a, b) => (a.id === 'admin$workspace' ? -1 : b.id === 'admin$workspace' ? 1 : 0))
     }),
     [setWorkspacesError.toString()]: state => ({
       ...state,

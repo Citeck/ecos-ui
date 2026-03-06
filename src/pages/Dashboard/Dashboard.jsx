@@ -15,6 +15,7 @@ import {
   getDashboardTitle,
   resetDashboardConfig,
   saveDashboardConfig,
+  setDashboardTitleInfo,
   setLoading,
   setWarningMessage
 } from '@/actions/dashboard';
@@ -94,7 +95,8 @@ const mapDispatchToProps = (dispatch, state) => ({
   setLoading: status => dispatch(setLoading({ status, key: getStateId(state) })),
   resetDashboardConfig: () => dispatch(resetDashboardConfig(getStateId(state))),
   deleteTab: tab => dispatch(deleteTab(tab)),
-  closeWarningMessage: () => dispatch(setWarningMessage({ key: getStateId(state), message: '' }))
+  closeWarningMessage: () => dispatch(setWarningMessage({ key: getStateId(state), message: '' })),
+  setTitleInfo: titleInfo => dispatch(setDashboardTitleInfo({ titleInfo, key: getStateId(state) }))
 });
 
 class Dashboard extends Component {
@@ -116,8 +118,25 @@ class Dashboard extends Component {
 
     this.instanceRecord = Records.get(recordRef);
     this.watcher = this.instanceRecord.watch(['version', 'name'], this.updateSomeDetails);
+    this.dispWatcher = this.instanceRecord.watch('?disp', this.updateTitle);
 
     this.recordUpdater = new RecordUpdater(this.instanceRecord);
+  }
+
+  static orderSearchParams(params) {
+    const ordered = {};
+
+    if (params.ws !== undefined) {
+      ordered.ws = params.ws;
+    }
+
+    for (const key of Object.keys(params)) {
+      if (key !== 'ws') {
+        ordered[key] = params[key];
+      }
+    }
+
+    return ordered;
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -225,9 +244,12 @@ class Dashboard extends Component {
       if (isNil(activeTabIndex) && !!layoutId) {
         const searchParams = queryString.parse(window.location.search);
         const tabIndex = config.findIndex(layout => layout.id === layoutId);
+        const resolvedTabIndex = tabIndex === -1 ? 0 : tabIndex;
 
-        if (hasManyTabs) {
-          searchParams.activeTab = tabIndex === -1 ? 0 : tabIndex;
+        if (hasManyTabs && resolvedTabIndex > 0) {
+          searchParams.activeTab = resolvedTabIndex;
+        } else {
+          delete searchParams.activeTab;
         }
         delete searchParams.activeLayoutId;
 
@@ -247,6 +269,7 @@ class Dashboard extends Component {
 
   componentWillUnmount() {
     this.instanceRecord.unwatch(this.watcher);
+    this.instanceRecord.unwatch(this.dispWatcher);
     this.showWarningMessage.cancel();
     this.recordUpdater.dispose();
   }
@@ -393,6 +416,14 @@ class Dashboard extends Component {
     return this.tabList.length > 1 && !isMobileAppWebView();
   }
 
+  updateTitle = displayName => {
+    const { titleInfo, setTitleInfo } = this.props;
+
+    if (displayName && displayName !== titleInfo.name) {
+      setTitleInfo({ ...titleInfo, name: displayName });
+    }
+  };
+
   updateSomeDetails = () => {
     const { getDashboardTitle } = this.props;
     const { dashboardId, recordRef } = this.getPathInfo();
@@ -452,35 +483,43 @@ class Dashboard extends Component {
   setActiveLink = activeTabIndex => {
     const searchParams = queryString.parse(window.location.search);
 
-    if (this.tabList && this.tabList.length > 1) {
+    if (this.tabList && this.tabList.length > 1 && activeTabIndex > 0) {
       searchParams.activeTab = activeTabIndex;
+    } else {
+      delete searchParams.activeTab;
     }
 
     this.addSearchParams(searchParams);
   };
 
   addSearchParams = searchParams => {
+    if (searchParams.activeTab === 0 || searchParams.activeTab === '0') {
+      delete searchParams.activeTab;
+    }
+
+    const orderedParams = Dashboard.orderSearchParams(searchParams);
+
     const { urlParams } = this.state;
     const prevSearchParams = queryString.parse(urlParams);
-    const isEqualRefs = get(prevSearchParams, 'recordRef', '') === get(searchParams, 'recordRef');
-    const isEqualLayoutIndexes = get(prevSearchParams, 'activeTab', '') === get(searchParams, 'activeTab');
+    const isEqualRefs = get(prevSearchParams, 'recordRef', '') === get(orderedParams, 'recordRef');
+    const isEqualLayoutIndexes = get(prevSearchParams, 'activeTab', '') === get(orderedParams, 'activeTab');
 
     if (!urlParams || (isEqualRefs && !isEqualLayoutIndexes)) {
       replaceHistoryLink(
         cloneDeep(this.props.history),
-        `${URL.DASHBOARD}${isEmpty(searchParams) ? '' : '?' + decodeLink(queryString.stringify(searchParams))}`,
+        `${URL.DASHBOARD}${isEmpty(orderedParams) ? '' : '?' + decodeLink(queryString.stringify(orderedParams, { sort: false }))}`,
         true
       );
     } else {
       pushHistoryLink(
         undefined,
-        isEmpty(searchParams)
+        isEmpty(orderedParams)
           ? {
               pathname: URL.DASHBOARD
             }
           : {
               pathname: URL.DASHBOARD,
-              search: decodeLink(queryString.stringify(searchParams))
+              search: decodeLink(queryString.stringify(orderedParams, { sort: false }))
             },
         true
       );
@@ -584,7 +623,7 @@ class Dashboard extends Component {
 
         pushHistoryLink(this.props.history, {
           pathname: URL.DASHBOARD,
-          search: queryString.stringify(searchParams)
+          search: queryString.stringify(Dashboard.orderSearchParams(searchParams), { sort: false })
         });
       }
     }

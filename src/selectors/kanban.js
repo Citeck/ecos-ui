@@ -19,6 +19,9 @@ export const selectIsKanbanEnabled = createSelector(selectKanban, state => get(s
 
 export const selectPagination = createSelector(selectKanban, state => cloneDeep(get(state, 'pagination', DEFAULT_PAGINATION)));
 
+export const selectSwimlaneGrouping = createSelector(selectKanban, s => s.swimlaneGrouping);
+export const selectSwimlanes = createSelector(selectKanban, s => s.swimlanes || []);
+
 export const selectKanbanPageProps = createSelector(selectKanban, data => ({
   originKanbanSettings: data.originKanbanSettings,
   kanbanSettings: data.kanbanSettings,
@@ -27,7 +30,8 @@ export const selectKanbanPageProps = createSelector(selectKanban, data => ({
   boardConfig: data.boardConfig,
   isLoading: data.isLoading,
   isEnabled: data.isEnabled,
-  totalCount: data.totalCount
+  totalCount: data.totalCount,
+  swimlaneGrouping: data.swimlaneGrouping
 }));
 
 export const selectKanbanProps = createSelector(selectKanban, data => ({
@@ -40,42 +44,11 @@ export const selectKanbanProps = createSelector(selectKanban, data => ({
   totalCount: data.totalCount,
   isLoading: data.isLoading,
   isFirstLoading: data.isFirstLoading,
+  isFiltered: data.isFiltered,
+  isLoadingColumns: data.isLoadingColumns || [],
   page: data.pagination.page,
-  selectedBoard: get(data, 'boardConfig.name')
+  selectedBoard: get(data, 'boardConfig.name'),
+  swimlaneGrouping: data.swimlaneGrouping,
+  swimlanes: data.swimlanes || []
 }));
 
-export const selectColumnData = (state, key, status) => {
-  const dataCards = get(state, [prefix, key, 'dataCards'], []);
-
-  return dataCards.find(card => card.status === status) || {};
-};
-
-export const selectCardActions = (state, key, status) => {
-  const resolvedActions = get(state, [prefix, key, 'resolvedActions'], []);
-
-  return resolvedActions.find(action => action.status === status) || {};
-};
-
-export const selectIsLoadingCol = (state, key, status) => get(state, [prefix, key, 'isLoadingColumns'], []).includes(status) || false;
-
-export const selectColumnInfo = (state, key, status) => {
-  const columnInfos = get(state, [prefix, key, 'boardConfig', 'columns'], []);
-
-  return columnInfos.find(info => info.id === status) || {};
-};
-
-export const selectColumnProps = createSelector(
-  [selectKanban, selectColumnData, selectColumnInfo, selectCardActions, selectIsLoadingCol],
-  (kanban, columnData, columnInfo, actions, isLoadingCol) => ({
-    readOnly: get(kanban, 'boardConfig.readOnly'),
-    records: columnData.records,
-    error: columnData.error,
-    actions,
-    columnInfo,
-    isLoadingCol,
-    formProps: kanban.formProps,
-    isLoading: kanban.isLoading,
-    isFirstLoading: kanban.isFirstLoading,
-    isFiltered: kanban.isFiltered
-  })
-);

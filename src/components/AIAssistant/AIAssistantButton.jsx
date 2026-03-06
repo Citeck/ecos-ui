@@ -5,7 +5,7 @@ import AiAssistant from '../common/icons/global/AiAssistant';
 
 import aiAssistantService from './AIAssistantService';
 
-import './style.scss';
+import './styles/index.scss';
 
 const AIAssistantButton = () => {
   const [isAvailable, setIsAvailable] = useState(false);
@@ -75,7 +75,7 @@ const AIAssistantButton = () => {
 
   return (
     <div className="ecos-model-editor__designer-ai-button">
-      <IcoBtn id={buttonId} icon={<AiAssistant />} onClick={handleClick} className="ecos-btn_blue-classic" />
+      <IcoBtn id={buttonId} icon={<AiAssistant color="#ffffff" />} onClick={handleClick} className="ecos-btn_blue-classic" />
     </div>
   );
 };

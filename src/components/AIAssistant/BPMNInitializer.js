@@ -36,7 +36,14 @@ const initBPMNContext = async () => {
   }
 };
 
+// Store cleanup resources
+let bpmnContextIntervalId = null;
+let popstateHandler = null;
+
 const setupBPMNContextObserver = () => {
+  // Clean up previous observer if exists
+  cleanupBPMNContextObserver();
+
   // Initial check
   initBPMNContext();
 
@@ -54,12 +61,24 @@ const setupBPMNContextObserver = () => {
     setTimeout(initBPMNContext, 100);
   };
 
-  window.addEventListener('popstate', () => {
+  popstateHandler = () => {
     setTimeout(initBPMNContext, 100);
-  });
+  };
+  window.addEventListener('popstate', popstateHandler);
 
   // Periodic check (in case other mechanisms change the URL)
-  setInterval(initBPMNContext, 1000);
+  bpmnContextIntervalId = setInterval(initBPMNContext, 1000);
 };
 
-export { initBPMNContext, setupBPMNContextObserver };
+const cleanupBPMNContextObserver = () => {
+  if (bpmnContextIntervalId) {
+    clearInterval(bpmnContextIntervalId);
+    bpmnContextIntervalId = null;
+  }
+  if (popstateHandler) {
+    window.removeEventListener('popstate', popstateHandler);
+    popstateHandler = null;
+  }
+};
+
+export { initBPMNContext, setupBPMNContextObserver, cleanupBPMNContextObserver };

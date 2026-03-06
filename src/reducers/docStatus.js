@@ -6,6 +6,7 @@ import {
   initDocStatus,
   resetDocStatus,
   setAvailableToChangeStatuses,
+  setChangeResult,
   setDocStatus
 } from '../actions/docStatus';
 import { deleteStateById, getCurrentStateById, startLoading } from '../helpers/redux';
@@ -14,18 +15,24 @@ const commonInitialState = {};
 
 const initialState = {
   isLoading: false,
+  isChanging: false,
+  changeResult: null,
   status: {},
   availableToChangeStatuses: []
 };
 
 export default handleActions(
   {
-    [initDocStatus]: (state, { payload: { stateId } }) => ({
-      ...state,
-      [stateId]: {
-        ...initialState
-      }
-    }),
+    [initDocStatus]: (state, { payload: { stateId } }) => {
+      const current = getCurrentStateById(state, stateId, initialState);
+      return {
+        ...state,
+        [stateId]: {
+          ...initialState,
+          status: current.status
+        }
+      };
+    },
     [getDocStatus]: startLoading(initialState),
     [setDocStatus]: (state, { payload: { stateId, status } }) => ({
       ...state,
@@ -40,15 +47,24 @@ export default handleActions(
       ...state,
       [stateId]: {
         ...getCurrentStateById(state, stateId, initialState),
-        availableToChangeStatuses
+        availableToChangeStatuses,
+        isLoading: false
       }
     }),
     [changeDocStatus]: (state, { payload: { stateId } }) => ({
       ...state,
       [stateId]: {
         ...getCurrentStateById(state, stateId, initialState),
-        status: {},
-        isLoading: true
+        isChanging: true,
+        changeResult: null
+      }
+    }),
+    [setChangeResult]: (state, { payload: { stateId, changeResult } }) => ({
+      ...state,
+      [stateId]: {
+        ...getCurrentStateById(state, stateId, initialState),
+        changeResult,
+        isChanging: false
       }
     }),
     [resetDocStatus]: (state, { payload: { stateId } }) => deleteStateById(state, stateId)

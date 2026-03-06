@@ -227,10 +227,10 @@ export default class MenuSettingsService {
       ...UserOptions.USER_SEND_PROBLEM_REPORT,
       default: UserMenu.USER_SEND_PROBLEM_REPORT
     },
-    // {
-    //   ...UserOptions.USER_ABOUT_PLATFORM,
-    //   default: UserMenu.USER_ABOUT_PLATFORM
-    // },
+    {
+      ...UserOptions.USER_ABOUT_PLATFORM,
+      default: UserMenu.USER_ABOUT_PLATFORM
+    },
     {
       ...UserOptions.USER_LOGOUT,
       default: UserMenu.USER_LOGOUT

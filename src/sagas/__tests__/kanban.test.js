@@ -17,7 +17,12 @@ import {
   setOriginKanbanSettings,
   setPagination,
   setResolvedActions,
-  setTotalCount
+  setTotalCount,
+  refreshCardData,
+  reloadBoardData,
+  setSwimlaneGrouping,
+  setSwimlaneCellData,
+  setSwimlaneCellLoading
 } from '../../actions/kanban';
 import EcosFormUtils from '../../components/EcosForm/EcosFormUtils';
 import { DEFAULT_PAGINATION } from '../../components/Journals/constants';
@@ -28,7 +33,7 @@ import { KanbanUrlParams } from '../../constants';
 import PageService from '../../services/PageService';
 import JournalApi from '../__mocks__/journalApi';
 import KanbanApi from '../__mocks__/kanbanApi';
-import data from '../__mocks__/kanbanData';
+import data, { dataCardsWithRecords, swimlaneData } from '../__mocks__/kanbanData';
 import * as kanban from '../kanban';
 
 import { NotificationManager } from '@/services/notifications';
@@ -383,12 +388,43 @@ describe('kanban sagas tests', () => {
     expect(console.error).not.toHaveBeenCalled();
   });
 
-  it('sagaRunAction', async () => {
+  it('sagaRunAction > view action dispatches refreshCardData', async () => {
     const spyGetRecordActions = jest.spyOn(RecordActions, 'execForRecord').mockResolvedValue(true);
-    const dispatched = await wrapRunSaga(kanban.sagaRunAction, { recordRef: '111', action: {} });
+    const dispatched = await wrapRunSaga(kanban.sagaRunAction, { recordRef: '111', action: { type: 'view' } });
 
     expect(spyGetRecordActions).toHaveBeenCalledTimes(1);
 
+    expect(dispatched).toHaveLength(1);
+    expect(dispatched[0].type).toEqual(refreshCardData().type);
+    expect(dispatched[0].payload).toEqual({ stateId: 'stateId', recordRef: '111', actionType: 'view' });
+  });
+
+  it('sagaRunAction > non-view action dispatches reloadBoardData', async () => {
+    const spyGetRecordActions = jest.spyOn(RecordActions, 'execForRecord').mockResolvedValue(true);
+    const dispatched = await wrapRunSaga(kanban.sagaRunAction, { recordRef: '111', action: { type: 'delete' } });
+
+    expect(spyGetRecordActions).toHaveBeenCalledTimes(1);
+
+    expect(dispatched).toHaveLength(1);
+    expect(dispatched[0].type).toEqual(reloadBoardData().type);
+  });
+
+  it('sagaRunAction > edit action dispatches refreshCardData', async () => {
+    const spyGetRecordActions = jest.spyOn(RecordActions, 'execForRecord').mockResolvedValue(true);
+    const dispatched = await wrapRunSaga(kanban.sagaRunAction, { recordRef: '111', action: { type: 'edit' } });
+
+    expect(spyGetRecordActions).toHaveBeenCalledTimes(1);
+
+    expect(dispatched).toHaveLength(1);
+    expect(dispatched[0].type).toEqual(refreshCardData().type);
+    expect(dispatched[0].payload).toEqual({ stateId: 'stateId', recordRef: '111', actionType: 'edit' });
+  });
+
+  it('sagaRunAction > cancelled action does not refresh or reload', async () => {
+    const spyGetRecordActions = jest.spyOn(RecordActions, 'execForRecord').mockResolvedValue(false);
+    const dispatched = await wrapRunSaga(kanban.sagaRunAction, { recordRef: '111', action: { type: 'edit' } });
+
+    expect(spyGetRecordActions).toHaveBeenCalledTimes(1);
     expect(dispatched).toHaveLength(0);
   });
 
@@ -421,27 +457,39 @@ describe('kanban sagas tests', () => {
         kanban: {
           [stateId]: {
             dataCards,
-            boardConfig: data.boardConfig
+            boardConfig: data.boardConfig,
+            formProps: data.formProps
+          }
+        },
+        journals: {
+          [stateId]: {
+            journalConfig: data.journalConfig,
+            journalSetting: data.journalSetting
           }
         }
       }
     );
-    const [_firstLoadingColumns, _dataCards, _updatedActions, _lastLoadingColumns] = dispatched;
+    const _firstLoadingColumns = first(dispatched);
+    const _optimisticDataCards = dispatched.find(d => d.type === setDataCards().type);
+    const _lastLoadingColumns = last(dispatched);
 
     expect(_firstLoadingColumns.type).toEqual(setLoadingColumns().type);
     expect(_firstLoadingColumns.payload.isLoadingColumns).toEqual(['some-id-1', 'some-id-2']);
-    expect(_dataCards.type).toEqual(setDataCards().type);
-    expect(get(_dataCards, 'payload.dataCards')).toHaveLength(2);
-    expect(get(_dataCards, 'payload.dataCards[0].records')).toHaveLength(1);
-    expect(get(_dataCards, 'payload.dataCards[1].records')).toHaveLength(1);
-    expect(get(_dataCards, 'payload.dataCards[0].records[0].id')).toEqual('2');
-    expect(get(_dataCards, 'payload.dataCards[1].records[0].id')).toEqual('1');
+    expect(_optimisticDataCards.type).toEqual(setDataCards().type);
+    expect(get(_optimisticDataCards, 'payload.dataCards')).toHaveLength(2);
+    expect(get(_optimisticDataCards, 'payload.dataCards[0].records')).toHaveLength(1);
+    expect(get(_optimisticDataCards, 'payload.dataCards[1].records')).toHaveLength(1);
+    expect(get(_optimisticDataCards, 'payload.dataCards[0].records[0].id')).toEqual('2');
+    expect(get(_optimisticDataCards, 'payload.dataCards[1].records[0].id')).toEqual('1');
+    expect(_lastLoadingColumns.type).toEqual(setLoadingColumns().type);
     expect(_lastLoadingColumns.payload.isLoadingColumns).toEqual([]);
+
+    // After API success, sagaGetData reloads data with server sorting
+    const reloadedDataCards = dispatched.filter(d => d.type === setDataCards().type);
+    expect(reloadedDataCards.length).toBeGreaterThanOrEqual(1);
 
     expect(spyError).not.toHaveBeenCalled();
     expect(console.error).not.toHaveBeenCalled();
-
-    expect(dispatched).toHaveLength(4);
   });
 
   it('sagaApplyFilter', async () => {
@@ -612,5 +660,309 @@ describe('kanban sagas tests', () => {
     expect(console.error).not.toHaveBeenCalled();
     expect(_lastLoading.type).toEqual(setLoading().type);
     expect(_lastLoading.payload.isLoading).toBeFalsy();
+  });
+
+  describe('sagaRefreshCard', () => {
+    const baseKanbanState = {
+      boardConfig: data.boardConfig,
+      formProps: data.formProps,
+      pagination: DEFAULT_PAGINATION
+    };
+
+    const makeState = (kanbanOverrides = {}) => ({
+      journals: { [stateId]: { journalConfig: data.journalConfig, journalSetting: data.journalSetting } },
+      kanban: { [stateId]: { ...baseKanbanState, ...kanbanOverrides } }
+    });
+
+    it('flat mode > card stays in same column', async () => {
+      spyRecordsGet.mockImplementation(id => ({
+        id,
+        getBaseRecord: () => ({ id, load }),
+        load: async attrs => ({ ...attrs, _status: 'some-id-1', id, cardId: id })
+      }));
+
+      const dispatched = await wrapRunSaga(
+        kanban.sagaRefreshCard,
+        { recordRef: 'rec-1' },
+        makeState({ dataCards: dataCardsWithRecords })
+      );
+
+      const dataCardsAction = dispatched.find(d => d.type === setDataCards().type);
+      expect(dataCardsAction).toBeDefined();
+      expect(dataCardsAction.payload.dataCards[0].records).toHaveLength(2);
+      expect(dataCardsAction.payload.dataCards[0].records.find(r => r.id === 'rec-1')).toBeDefined();
+    });
+
+    it('flat mode > card moves to different column', async () => {
+      spyRecordsGet.mockImplementation(id => ({
+        id,
+        getBaseRecord: () => ({ id, load }),
+        load: async attrs => ({ ...attrs, _status: 'some-id-2', id, cardId: id })
+      }));
+
+      const dispatched = await wrapRunSaga(
+        kanban.sagaRefreshCard,
+        { recordRef: 'rec-1' },
+        makeState({ dataCards: dataCardsWithRecords })
+      );
+
+      const dataCardsAction = dispatched.find(d => d.type === setDataCards().type);
+      expect(dataCardsAction).toBeDefined();
+      expect(dataCardsAction.payload.dataCards[0].records).toHaveLength(1);
+      expect(dataCardsAction.payload.dataCards[1].records).toHaveLength(2);
+    });
+
+    it('flat mode > card not found dispatches reloadBoardData', async () => {
+      spyRecordsGet.mockImplementation(id => ({
+        id,
+        getBaseRecord: () => ({ id, load }),
+        load: async attrs => ({ ...attrs, _status: 'some-id-1', id, cardId: id })
+      }));
+
+      const dispatched = await wrapRunSaga(
+        kanban.sagaRefreshCard,
+        { recordRef: 'non-existent' },
+        makeState({ dataCards: dataCardsWithRecords })
+      );
+
+      expect(dispatched.some(d => d.type === reloadBoardData().type)).toBeTruthy();
+    });
+
+    it('flat mode > no boardConfig dispatches reloadBoardData', async () => {
+      const dispatched = await wrapRunSaga(
+        kanban.sagaRefreshCard,
+        { recordRef: 'rec-1' },
+        makeState({ boardConfig: null })
+      );
+
+      expect(dispatched.some(d => d.type === reloadBoardData().type)).toBeTruthy();
+    });
+
+    it('swimlane mode > card stays in same cell', async () => {
+      spyRecordsGet.mockImplementation(id => ({
+        id,
+        getBaseRecord: () => ({ id, load }),
+        load: async attrs => ({ ...attrs, _status: 'some-id-1', _swimlaneValue: 'priority-high', id, cardId: id })
+      }));
+
+      const dispatched = await wrapRunSaga(
+        kanban.sagaRefreshCard,
+        { recordRef: 'rec-1' },
+        makeState({ ...swimlaneData })
+      );
+
+      const cellActions = dispatched.filter(d => d.type === setSwimlaneCellData().type);
+      expect(cellActions).toHaveLength(1);
+      expect(cellActions[0].payload.swimlaneId).toBe('priority-high');
+      expect(cellActions[0].payload.statusId).toBe('some-id-1');
+    });
+
+    it('swimlane mode > card moves to different status', async () => {
+      spyRecordsGet.mockImplementation(id => ({
+        id,
+        getBaseRecord: () => ({ id, load }),
+        load: async attrs => ({ ...attrs, _status: 'some-id-2', _swimlaneValue: 'priority-high', id, cardId: id })
+      }));
+
+      const dispatched = await wrapRunSaga(
+        kanban.sagaRefreshCard,
+        { recordRef: 'rec-1' },
+        makeState({ ...swimlaneData })
+      );
+
+      const cellActions = dispatched.filter(d => d.type === setSwimlaneCellData().type);
+      expect(cellActions).toHaveLength(2);
+    });
+
+    it('swimlane mode > card moves to different swimlane', async () => {
+      spyRecordsGet.mockImplementation(id => ({
+        id,
+        getBaseRecord: () => ({ id, load }),
+        load: async attrs => ({ ...attrs, _status: 'some-id-1', _swimlaneValue: 'priority-low', id, cardId: id })
+      }));
+
+      const dispatched = await wrapRunSaga(
+        kanban.sagaRefreshCard,
+        { recordRef: 'rec-1' },
+        makeState({ ...swimlaneData })
+      );
+
+      const cellActions = dispatched.filter(d => d.type === setSwimlaneCellData().type);
+      expect(cellActions).toHaveLength(2);
+      const swimlaneIds = cellActions.map(a => a.payload.swimlaneId);
+      expect(swimlaneIds).toContain('priority-high');
+      expect(swimlaneIds).toContain('priority-low');
+    });
+
+    it('swimlane mode > unknown swimlane value dispatches reloadBoardData', async () => {
+      spyRecordsGet.mockImplementation(id => ({
+        id,
+        getBaseRecord: () => ({ id, load }),
+        load: async attrs => ({ ...attrs, _status: 'some-id-1', _swimlaneValue: 'unknown', id, cardId: id })
+      }));
+
+      const dispatched = await wrapRunSaga(
+        kanban.sagaRefreshCard,
+        { recordRef: 'rec-1' },
+        makeState({ ...swimlaneData })
+      );
+
+      expect(dispatched.some(d => d.type === reloadBoardData().type)).toBeTruthy();
+    });
+
+    it('error dispatches reloadBoardData', async () => {
+      spyRecordsGet.mockImplementation(id => ({
+        id,
+        getBaseRecord: () => ({ id, load }),
+        load: async () => { throw new Error('load failed'); }
+      }));
+
+      const dispatched = await wrapRunSaga(
+        kanban.sagaRefreshCard,
+        { recordRef: 'rec-1' },
+        makeState({ dataCards: dataCardsWithRecords })
+      );
+
+      expect(dispatched.some(d => d.type === reloadBoardData().type)).toBeTruthy();
+      expect(console.error).toHaveBeenCalled();
+    });
+  });
+
+  describe('sagaMoveSwimlaneCard', () => {
+    const makeState = (kanbanOverrides = {}) => ({
+      kanban: { [stateId]: { boardConfig: data.boardConfig, ...swimlaneData, ...kanbanOverrides } }
+    });
+
+    it('successful move', async () => {
+      const dispatched = await wrapRunSaga(
+        kanban.sagaMoveSwimlaneCard,
+        { cardIndex: 0, fromSwimlaneId: 'priority-high', fromStatusId: 'some-id-1', toStatusId: 'some-id-2' },
+        {
+          ...makeState(),
+          journals: { [stateId]: { journalConfig: data.journalConfig, journalSetting: data.journalSetting } }
+        }
+      );
+
+      const cellActions = dispatched.filter(d => d.type === setSwimlaneCellData().type);
+      // 2 optimistic + reload from server (sagaLoadSwimlaneCells)
+      expect(cellActions.length).toBeGreaterThanOrEqual(2);
+      expect(cellActions[0].payload.statusId).toBe('some-id-1');
+      expect(cellActions[1].payload.statusId).toBe('some-id-2');
+    });
+
+    it('same column is noop', async () => {
+      const dispatched = await wrapRunSaga(
+        kanban.sagaMoveSwimlaneCard,
+        { cardIndex: 0, fromSwimlaneId: 'priority-high', fromStatusId: 'some-id-1', toStatusId: 'some-id-1' },
+        makeState()
+      );
+
+      expect(dispatched).toHaveLength(0);
+    });
+
+    it('swimlane not found is noop', async () => {
+      const dispatched = await wrapRunSaga(
+        kanban.sagaMoveSwimlaneCard,
+        { cardIndex: 0, fromSwimlaneId: 'non-existent', fromStatusId: 'some-id-1', toStatusId: 'some-id-2' },
+        makeState()
+      );
+
+      expect(dispatched).toHaveLength(0);
+    });
+
+    it('API error triggers rollback', async () => {
+      const origMoveRecord = api.kanban.moveRecord;
+      api.kanban.moveRecord = jest.fn().mockRejectedValue(new Error('move failed'));
+
+      const dispatched = await wrapRunSaga(
+        kanban.sagaMoveSwimlaneCard,
+        { cardIndex: 0, fromSwimlaneId: 'priority-high', fromStatusId: 'some-id-1', toStatusId: 'some-id-2' },
+        makeState()
+      );
+
+      const cellActions = dispatched.filter(d => d.type === setSwimlaneCellData().type);
+      expect(cellActions).toHaveLength(4);
+      expect(spyError).toHaveBeenCalled();
+
+      api.kanban.moveRecord = origMoveRecord;
+    });
+  });
+
+  describe('sagaSetSwimlaneGrouping', () => {
+    it('enable grouping dispatches setSwimlaneGrouping', async () => {
+      const dispatched = await wrapRunSaga(
+        kanban.sagaSetSwimlaneGrouping,
+        { swimlaneGrouping: { attribute: 'priority', label: 'Priority' } },
+        {
+          journals: { [stateId]: { journalConfig: data.journalConfig, journalSetting: data.journalSetting } },
+          kanban: { [stateId]: { boardConfig: data.boardConfig, formProps: data.formProps, swimlaneGrouping: null, swimlanes: [] } }
+        }
+      );
+
+      const groupingAction = dispatched.find(d => d.type === setSwimlaneGrouping().type);
+      expect(groupingAction).toBeDefined();
+      expect(groupingAction.payload.swimlaneGrouping).toEqual({ attribute: 'priority', label: 'Priority' });
+    });
+
+    it('disable grouping dispatches setSwimlaneGrouping(null) and reloads', async () => {
+      const dispatched = await wrapRunSaga(
+        kanban.sagaSetSwimlaneGrouping,
+        { swimlaneGrouping: null },
+        {
+          journals: { [stateId]: { journalConfig: data.journalConfig, journalSetting: data.journalSetting } },
+          kanban: { [stateId]: { boardConfig: data.boardConfig, formProps: data.formProps, ...swimlaneData, pagination: DEFAULT_PAGINATION } }
+        }
+      );
+
+      const groupingAction = dispatched.find(d => d.type === setSwimlaneGrouping().type);
+      expect(groupingAction).toBeDefined();
+      expect(groupingAction.payload.swimlaneGrouping).toBeNull();
+
+      const loadingActions = dispatched.filter(d => d.type === setLoading().type);
+      expect(loadingActions.length).toBeGreaterThanOrEqual(1);
+    });
+  });
+
+  describe('sagaLoadMoreSwimlaneCell', () => {
+    const makeState = (kanbanOverrides = {}) => ({
+      journals: { [stateId]: { journalConfig: { ...data.journalConfig, id: 'set-data-cards' }, journalSetting: data.journalSetting } },
+      kanban: { [stateId]: { boardConfig: data.boardConfig, formProps: data.formProps, ...swimlaneData, ...kanbanOverrides } }
+    });
+
+    it('successful load more', async () => {
+      const dispatched = await wrapRunSaga(
+        kanban.sagaLoadMoreSwimlaneCell,
+        { swimlaneId: 'priority-high', statusId: 'some-id-1' },
+        makeState()
+      );
+
+      const loadingActions = dispatched.filter(d => d.type === setSwimlaneCellLoading().type);
+      expect(loadingActions.length).toBeGreaterThanOrEqual(2);
+      expect(loadingActions[0].payload.isLoading).toBe(true);
+      expect(loadingActions[loadingActions.length - 1].payload.isLoading).toBe(false);
+
+      const cellDataAction = dispatched.find(d => d.type === setSwimlaneCellData().type);
+      expect(cellDataAction).toBeDefined();
+    });
+
+    it('no swimlaneGrouping returns early', async () => {
+      const dispatched = await wrapRunSaga(
+        kanban.sagaLoadMoreSwimlaneCell,
+        { swimlaneId: 'priority-high', statusId: 'some-id-1' },
+        makeState({ swimlaneGrouping: null })
+      );
+
+      expect(dispatched).toHaveLength(0);
+    });
+
+    it('cell not found returns early', async () => {
+      const dispatched = await wrapRunSaga(
+        kanban.sagaLoadMoreSwimlaneCell,
+        { swimlaneId: 'priority-high', statusId: 'non-existent' },
+        makeState()
+      );
+
+      expect(dispatched).toHaveLength(0);
+    });
   });
 });

@@ -1,9 +1,9 @@
-import queryString from 'query-string';
-import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
+import isEqual from 'lodash/isEqual';
+import queryString from 'query-string';
 
-import { SectionNewTab, SectionTypes } from '../constants/adminSection';
 import { URL } from '../constants';
+import { SectionNewTab, SectionTypes } from '../constants/adminSection';
 import { getWorkspaceId } from '../helpers/urls';
 import { getEnabledWorkspaces } from '../helpers/util';
 
@@ -39,6 +39,8 @@ export default class AdminSectionService {
       type = query.type || SectionTypes.BPM;
     } else if (url.includes(URL.DEV_TOOLS)) {
       type = SectionTypes.DEV_TOOLS;
+    } else if (url.includes(URL.DEV_CONSOLE)) {
+      type = SectionTypes.DEV_CONSOLE;
     }
 
     return type;

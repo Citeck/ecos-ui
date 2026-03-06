@@ -29,6 +29,7 @@ export const URL = {
   CMMN_EDITOR: '/v2/cmmn-editor',
   DMN_EDITOR: '/v2/dmn-editor',
   DEV_TOOLS: '/v2/dev-tools',
+  DEV_CONSOLE: '/v2/dev-console',
   TIMESHEET: '/v2/timesheet',
   TIMESHEET_SUBORDINATES: '/v2/timesheet/subordinates',
   TIMESHEET_FOR_VERIFICATION: '/v2/timesheet/for-verification',
@@ -64,6 +65,7 @@ export const SourcesId = {
   FILL_TEMPLATE_VALUE: 'uiserv/fill-template-value',
   ADMIN_PAGE_SECTION: 'uiserv/admin-page-section',
   EAPPS_BUILD_INFO: 'eapps/build-info',
+  EAPPS_BUNDLE_INFO: 'eapps/bundle-info',
   CATEGORY: 'emodel/category',
   DASHBOARD: 'uiserv/dashboard',
   DOCLIB: 'emodel/doclib',
@@ -115,7 +117,6 @@ export const SourcesId = {
   PROC_TASK: 'eproc/proc-task',
   PROC_HISTORIC_TASK: 'eproc/proc-historic-task',
   DOCUMENTS: 'emodel/documents',
-  SYSTEM_REPO: 'eapps/system-info-repo',
   SEARCH: 'emodel/search',
   get CURRENT_USER() {
     return `${SourcesId.PERSON}@CURRENT`;
@@ -214,6 +215,7 @@ export const Pages = {
   BPMN_EDITOR: 'bpmn-editor',
   DMN_EDITOR: 'dmn-editor',
   DEV_TOOLS: 'dev-tools',
+  DEV_CONSOLE: 'dev-console',
   ORGSTRUCTURE: 'orgstructure'
 };
 

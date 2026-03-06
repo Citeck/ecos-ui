@@ -1,0 +1,426 @@
+.developer-console-container {
+  display: flex;
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 100px);
+  flex-direction: column;
+  background: var(--bg-color);
+
+  &.panel-location-bottom {
+    .developer-console {
+      flex-direction: column;
+    }
+
+    .resize-handle {
+      display: block;
+      height: 4px;
+      background: transparent;
+      cursor: row-resize;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+
+      &:hover {
+        background: var(--light-primary-color);
+      }
+    }
+
+    .resize-handle-vertical {
+      display: none;
+    }
+  }
+
+  &.panel-location-right {
+    .developer-console {
+      flex-direction: row;
+    }
+
+    .console-output {
+      display: inline-flex;
+      border-left: 1px solid #e8edef;
+    }
+
+    .console-editor {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .resize-handle {
+      display: none;
+    }
+
+    .resize-handle-vertical {
+      display: block;
+      width: 4px;
+      background: transparent;
+      cursor: col-resize;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+
+      &:hover {
+        background: var(--light-primary-color);
+      }
+    }
+  }
+
+  .console-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 8px;
+    height: 36px;
+    background: #f3f4f6;
+    border: 1px solid #e8edef;
+    border-bottom: 1px solid #dde0e4;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    flex-shrink: 0;
+
+    &__group {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    &__separator {
+      width: 1px;
+      height: 16px;
+      background: #e0e0e0;
+      margin: 0 4px;
+    }
+
+    &__btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      background: transparent;
+      border: none;
+      border-radius: 4px;
+      color: #6b7280;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.1s, color 0.1s;
+      position: relative;
+
+      svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      &:hover:not(:disabled) {
+        background: #e5e7eb;
+        color: #1f2937;
+      }
+
+      &:active:not(:disabled) {
+        background: #d1d5db;
+        color: #111827;
+        transform: scale(0.93);
+
+        &::before,
+        &::after {
+          display: none;
+        }
+      }
+
+      &:disabled {
+        opacity: 0.35;
+        cursor: default;
+      }
+
+      &--run {
+        color: #22c55e;
+      }
+
+      // CSS tooltip via data-tooltip attribute
+      &[data-tooltip]:not(:disabled)::before {
+        content: attr(data-tooltip);
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 50%;
+        transform: translateX(-50%);
+        background: #fff;
+        color: #24292f;
+        border: 1px solid #e0e0e0;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        line-height: 1.4;
+        white-space: nowrap;
+        z-index: 9999;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.15s ease 0.25s;
+      }
+
+      &[data-tooltip]:not(:disabled)::after {
+        content: '';
+        position: absolute;
+        top: calc(100% + 2px);
+        left: 50%;
+        transform: translateX(-50%);
+        border: 4px solid transparent;
+        border-bottom-color: #e0e0e0;
+        z-index: 9999;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.15s ease 0.25s;
+      }
+
+      &[data-tooltip]:not(:disabled):hover::before,
+      &[data-tooltip]:not(:disabled):hover::after {
+        opacity: 1;
+      }
+
+      // Right-aligned toggle button: anchor tooltip to the right edge
+      &:last-child[data-tooltip]:not(:disabled)::before {
+        left: auto;
+        right: 0;
+        transform: none;
+      }
+
+      &:last-child[data-tooltip]:not(:disabled)::after {
+        left: auto;
+        right: 10px;
+        transform: none;
+      }
+    }
+
+    &__dropdown {
+      display: flex;
+      align-items: center;
+
+      .ecos-btn {
+        height: 28px;
+        font-size: 13px;
+        padding: 0 8px;
+        border: none;
+        background: transparent;
+        color: #6b7280;
+
+        &:hover {
+          background: #f3f4f6;
+          color: #1f2937;
+        }
+      }
+
+      label {
+        display: none;
+      }
+    }
+
+    .script-editor-ai-button-wrapper {
+      display: flex;
+      align-items: center;
+
+      .ai-field-trigger--floating {
+        position: relative;
+        top: auto;
+        right: auto;
+        bottom: auto;
+        left: auto;
+        width: 28px;
+        height: 28px;
+        min-width: unset;
+        min-height: unset;
+        padding: 0;
+        background: transparent;
+        border: none;
+        border-radius: 4px;
+        box-shadow: none;
+        backdrop-filter: none;
+        filter: none;
+        color: #6b7280;
+        opacity: 1;
+
+        &:hover:not(:disabled) {
+          background: #e5e7eb;
+          border: none;
+          transform: none;
+          box-shadow: none;
+          color: #1f2937;
+          opacity: 1;
+        }
+
+        &.ai-field-trigger--active {
+          background: #f3f4f6;
+          border: none;
+          color: #1f2937;
+          opacity: 1;
+        }
+
+        // CSS tooltip matching toolbar button style
+        &[data-tooltip]:not(:disabled)::before {
+          content: attr(data-tooltip);
+          position: absolute;
+          top: calc(100% + 6px);
+          left: 50%;
+          transform: translateX(-50%);
+          background: #fff;
+          color: #24292f;
+          border: 1px solid #e0e0e0;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+          padding: 3px 8px;
+          border-radius: 4px;
+          font-size: 11px;
+          line-height: 1.4;
+          white-space: nowrap;
+          z-index: 9999;
+          pointer-events: none;
+          opacity: 0;
+          transition: opacity 0.15s ease 0.25s;
+        }
+
+        &[data-tooltip]:not(:disabled)::after {
+          content: '';
+          position: absolute;
+          top: calc(100% + 2px);
+          left: 50%;
+          transform: translateX(-50%);
+          border: 4px solid transparent;
+          border-bottom-color: #e0e0e0;
+          z-index: 9999;
+          pointer-events: none;
+          opacity: 0;
+          transition: opacity 0.15s ease 0.25s;
+        }
+
+        &[data-tooltip]:not(:disabled):hover::before,
+        &[data-tooltip]:not(:disabled):hover::after {
+          opacity: 1;
+        }
+      }
+    }
+  }
+
+  .developer-console {
+    flex: 1;
+    display: flex;
+    position: relative;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .console-editor {
+    flex: 1;
+    overflow: hidden;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .console-output {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    min-width: 0;
+    min-height: 0;
+
+    .response-handle {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      cursor: row-resize;
+
+      &:hover {
+        background: rgba(0, 122, 204, 0.1);
+      }
+    }
+  }
+
+  .btn, .ecos-btn {
+    font-size: 13px;
+    font-weight: 400;
+  }
+
+  .saved-snippets-selector {
+    position: relative;
+  }
+
+  .saved-snippet-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+
+    &__title {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .btn-xxs {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      min-width: unset;
+      min-height: unset;
+      padding: 0;
+      font-size: 14px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: transparent;
+      color: #9ca3af;
+      border-radius: 4px;
+
+      &:hover {
+        background: #e5e7eb;
+        color: #6b7280;
+      }
+    }
+  }
+
+  .saved-snippets-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 4px;
+  }
+}
+
+.save-snippet-modal {
+  padding: 16px 0;
+
+  &__label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+  }
+
+  &__input {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+
+  &__hint {
+    font-size: 12px;
+    color: #6b7280;
+    margin: -8px 0 12px;
+    font-style: italic;
+  }
+
+  &__buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+}
+

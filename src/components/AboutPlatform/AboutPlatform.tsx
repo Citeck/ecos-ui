@@ -17,9 +17,10 @@ export default function AboutPlatform() {
   const appEdition: string = useSelector((state: RootState) => get(state, 'app.appEdition')) || '';
 
   useEffect(() => {
-    Records.get(`${SourcesId.SYSTEM_REPO}@ecos-system-info`)
-      .load('data.deploymentVersion', true)
-      .then((version: string | null) => setSystemVersion(version));
+    Records.get(`${SourcesId.EAPPS_BUNDLE_INFO}@`)
+      .load('version?str!')
+      .then((version: string) => setSystemVersion(version))
+      .catch(_error => setSystemVersion(''));
   }, []);
 
   return (

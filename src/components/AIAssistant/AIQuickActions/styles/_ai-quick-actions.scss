@@ -1,0 +1,1684 @@
+/**
+ * AI Quick Actions Universal Styles
+ * Unified design system for AI-powered field actions
+ */
+
+@import '../../styles/mixins';
+
+// ============================================
+// CSS Variables (Design Tokens)
+// Uses project colors via CSS variables
+// ============================================
+:root {
+  // AI Accent Colors - use project primary color
+  --ai-accent: var(--primary-color, #007bff);
+  --ai-accent-hover: var(--dark-primary-color, #0056b3);
+  --ai-accent-soft: rgba(0, 123, 255, 0.08);
+  --ai-accent-glow: rgba(0, 123, 255, 0.15);
+
+  // Surfaces
+  --ai-surface-primary: #ffffff;
+  --ai-surface-secondary: #f8f9fa;
+  --ai-surface-elevated: #ffffff;
+
+  // Text
+  --ai-text-primary: var(--text-primary, #24292e);
+  --ai-text-secondary: var(--text-secondary, #6a737d);
+  --ai-text-tertiary: #9ca3af;
+  --ai-text-inverse: #ffffff;
+
+  // Borders
+  --ai-border-subtle: #e1e4e8;
+  --ai-border-default: #d1d5db;
+  --ai-border-focus: var(--ai-accent);
+
+  // Semantic
+  --ai-success: var(--success-color, #10b981);
+  --ai-success-soft: rgba(16, 185, 129, 0.1);
+  --ai-danger: var(--danger-color, #dc3545);
+
+  // Shadows
+  --ai-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --ai-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --ai-shadow-lg: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --ai-shadow-ai: 0 4px 20px rgba(0, 123, 255, 0.1);
+
+  // Transitions
+  --ai-transition-fast: 120ms ease;
+  --ai-transition-normal: 200ms ease;
+  --ai-transition-spring: 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  // Result popup dimensions
+  --ai-result-min-width: 400px;
+  --ai-result-min-height: 200px;
+  --ai-result-max-height: 70vh;
+
+  // Breakpoints
+  --ai-breakpoint-mobile: 480px;
+  --ai-breakpoint-tablet: 768px;
+  --ai-breakpoint-desktop: 1024px;
+}
+
+// ============================================
+// AI Field Actions Container
+// ============================================
+.ai-field-actions {
+  position: relative;
+  display: contents; // Don't affect layout
+}
+
+// ============================================
+// AI Popper Wrapper (Smart Positioning)
+// Renders via Portal with Popper.js positioning
+// ============================================
+.ai-popper {
+  // Popper handles positioning via inline styles
+  // We just need to ensure proper styling
+
+  // Smooth position transitions when content changes (prevents jarring jumps)
+  // Only apply after initial positioning (when data-popper-placement is set)
+  &[data-popper-placement] {
+    transition: transform 150ms ease-out;
+  }
+
+  // Animation based on placement direction
+  &--bottom {
+    animation: ai-popper-slide-down var(--ai-transition-normal) ease-out;
+  }
+
+  &--top {
+    animation: ai-popper-slide-up var(--ai-transition-normal) ease-out;
+  }
+
+  // Override child component positioning when inside popper
+  .ai-actions-bar,
+  .ai-inline-result {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+  }
+
+  // Ensure visibility
+  .ai-actions-bar {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  // AI inline result inside popper - ensure proper constraints
+  .ai-inline-result {
+    max-height: var(--ai-result-max-height);
+    min-width: var(--ai-result-min-width);
+    min-height: var(--ai-result-min-height);
+
+    .ai-inline-result__content {
+      max-height: calc(var(--ai-result-max-height) - 140px); // Account for header and actions
+    }
+
+    // Loading state in popper - compact without min-height
+    &.ai-inline-result--loading {
+      min-height: auto;
+    }
+  }
+}
+
+// Popper animations
+@keyframes ai-popper-slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ai-popper-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ============================================
+// AI Field Trigger Button - Mobile First
+// Unified design matching language button style
+// ============================================
+.ai-field-trigger {
+  // Base: matches language button exactly (20x20, centered, drop-shadow)
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: var(--primary-color, #007bff);
+  cursor: pointer;
+  transition: all 150ms ease;
+  z-index: 10;
+  filter: drop-shadow(0px 1px 4px rgba(0, 0, 0, 0.18));
+  min-width: 24px;
+  min-height: 24px;
+
+  @media (min-width: 768px) {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    min-height: 20px;
+  }
+
+  &__icon {
+    width: 18px;
+    height: 18px;
+    transition: transform 150ms ease, opacity 150ms ease;
+
+    @media (min-width: 768px) {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  // Hover: subtle scale and color shift
+  &:hover:not(:disabled) {
+    color: var(--dark-primary-color, #0056b3);
+    transform: scale(1.12);
+    filter: drop-shadow(0px 2px 6px rgba(0, 123, 255, 0.25));
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.95);
+  }
+
+  // ----------------------------------------
+  // Position Variants
+  // ----------------------------------------
+
+  // Inline: inside text input (right side, vertically centered)
+  &--inline {
+    position: absolute;
+    right: 44px;
+    top: 0;
+    bottom: 0;
+    margin: auto 0;
+
+    @media (min-width: 768px) {
+      right: 40px;
+    }
+  }
+
+  // Floating: unified style for textarea and code editors (bottom-right corner)
+  &--floating {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    min-height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.08),
+      0 4px 12px rgba(0, 0, 0, 0.04);
+    filter: none;
+    backdrop-filter: blur(8px);
+
+    @media (min-width: 768px) {
+      right: 12px;
+      bottom: 12px;
+      width: 24px;
+      height: 24px;
+      min-width: 24px;
+      min-height: 24px;
+    }
+
+    .ai-field-trigger__icon {
+      width: 16px;
+      height: 16px;
+
+      @media (min-width: 768px) {
+        width: 14px;
+        height: 14px;
+      }
+    }
+
+    &:hover:not(:disabled) {
+      background: #fff;
+      border-color: var(--primary-color, #007bff);
+      box-shadow:
+        0 2px 8px rgba(0, 123, 255, 0.15),
+        0 4px 16px rgba(0, 0, 0, 0.08);
+      transform: translateY(-1px);
+    }
+  }
+
+  // ----------------------------------------
+  // State Variants
+  // ----------------------------------------
+
+  // Active: actions bar is open
+  &--active {
+    color: var(--primary-color, #007bff);
+
+    &:not(.ai-field-trigger--floating) {
+      transform: scale(1.1);
+    }
+
+    .ai-field-trigger__icon {
+      transform: rotate(20deg);
+    }
+
+    // Floating variant active state
+    &.ai-field-trigger--floating {
+      background: var(--primary-color, #007bff);
+      border-color: var(--primary-color, #007bff);
+      color: #fff;
+
+      &:hover:not(:disabled) {
+        background: var(--dark-primary-color, #0056b3);
+        border-color: var(--dark-primary-color, #0056b3);
+      }
+    }
+  }
+
+  // Generating: disable interaction while AI is working
+  &--generating {
+    pointer-events: none;
+  }
+
+  // Disabled
+  &--disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+    filter: grayscale(1);
+  }
+}
+
+.ai-actions-bar {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  background: var(--ai-surface-primary);
+  border: 1px solid #e1e4e8;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 8px 10px;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition: all var(--ai-transition-normal);
+  width: 100%;
+  max-width: calc(100vw - 16px);
+  box-sizing: border-box;
+
+  @media (min-width: 768px) {
+    right: 0;
+    left: auto;
+    padding: 12px 14px;
+    border-radius: 10px;
+    max-width: none;
+  }
+
+  // Visible state
+  &--visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  // Loading state
+  &--loading {
+    background: var(--ai-surface-primary);
+    border-color: var(--ai-accent);
+  }
+
+  // Code editor variant (positioned below editor, not absolute)
+  &--code-editor {
+    position: relative;
+    top: auto;
+    margin-top: 8px;
+    background: var(--ai-surface-primary);
+  }
+
+  // Quick actions row
+  &__quick {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f0f0f0;
+
+    @media (min-width: 768px) {
+      gap: 8px;
+    }
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  // Input row
+  &__input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    @media (min-width: 768px) {
+      align-items: flex-start;
+      gap: 10px;
+    }
+  }
+
+  // AI icon
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    margin-top: 2px;
+    color: var(--primary-color, #007bff);
+    flex-shrink: 0;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .fa-spinner {
+      font-size: 16px;
+    }
+  }
+
+  // Actions wrapper (submit + close buttons)
+  &__actions {
+    display: flex;
+    align-items: flex-end;
+    align-self: flex-end;
+    gap: 6px;
+  }
+
+  // Input field (textarea)
+  &__input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    line-height: 1.5;
+    font-family: inherit;
+    color: var(--text-primary, #24292e);
+    outline: none;
+    min-width: 0;
+    min-height: 24px;
+    max-height: 150px;
+    padding: 0;
+    resize: none;
+
+    @media (min-width: 768px) {
+      font-size: 14px;
+    }
+
+    &::placeholder {
+      color: var(--text-secondary, #6a737d);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+    }
+  }
+
+  // Submit button
+  &__submit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+    background: var(--primary-color, #007bff);
+    border: none;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    transition: all 120ms ease;
+    flex-shrink: 0;
+
+    @media (min-width: 768px) {
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      min-height: 28px;
+    }
+
+    &:hover:not(:disabled) {
+      background: var(--dark-primary-color, #0056b3);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  // Close button
+  &__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: var(--text-secondary, #6a737d);
+    cursor: pointer;
+    transition: all 120ms ease;
+    flex-shrink: 0;
+
+    @media (min-width: 768px) {
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      min-height: 28px;
+    }
+
+    &:hover:not(:disabled) {
+      background: rgba(0, 0, 0, 0.05);
+      color: var(--danger-color, #dc3545);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// ============================================
+// Quick Action Pill Button - Mobile First
+// ============================================
+.ai-quick-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 14px;
+  font-size: 11px;
+  font-weight: 500;
+  font-family: inherit;
+  color: #4b5563;
+  cursor: pointer;
+  transition: all var(--ai-transition-fast);
+  white-space: nowrap;
+  min-height: 28px;
+
+  @media (min-width: 768px) {
+    padding: 5px 10px;
+    font-size: 12px;
+    min-height: auto;
+  }
+
+  svg {
+    width: 11px;
+    height: 11px;
+    opacity: 0.7;
+
+    @media (min-width: 768px) {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  .fa {
+    font-size: 10px;
+    color: #6b7280;
+
+    @media (min-width: 768px) {
+      font-size: 11px;
+    }
+  }
+
+  &:hover:not(:disabled) {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+    color: #1f2937;
+
+    svg {
+      opacity: 1;
+    }
+
+    .fa {
+      color: var(--ai-accent);
+    }
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.ai-inline-result {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  background: var(--ai-surface-elevated);
+  border: 1px solid var(--ai-success);
+  border-radius: 8px;
+  box-shadow: var(--ai-shadow-lg);
+  z-index: 1000;
+  animation: ai-slide-up var(--ai-transition-normal);
+  width: 100%;
+  max-width: calc(100vw - 16px);
+  box-sizing: border-box;
+
+  @media (min-width: 768px) {
+    right: 0;
+    left: auto;
+    border-radius: 10px;
+    max-width: none;
+  }
+
+  // Constraints for proper sizing
+  max-height: var(--ai-result-max-height);
+  min-width: auto;
+  min-height: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+
+  @media (min-width: 768px) {
+    min-width: var(--ai-result-min-width);
+    min-height: var(--ai-result-min-height);
+  }
+
+  // Loading state - compact, no extra space
+  &--loading {
+    border-color: var(--ai-accent);
+    min-height: auto !important;
+    height: auto !important;
+
+    .ai-inline-result__content {
+      max-height: none;
+      padding: 0;
+    }
+
+    .ai-inline-result__header {
+      padding: 10px 12px;
+
+      @media (min-width: 768px) {
+        padding: 10px 14px;
+      }
+    }
+
+    .ai-inline-result__actions {
+      padding: 10px 12px;
+
+      @media (min-width: 768px) {
+        padding: 10px 14px;
+      }
+    }
+  }
+
+  // Header
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: var(--ai-success-soft);
+    border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+    flex-shrink: 0;
+
+    @media (min-width: 768px) {
+      gap: 10px;
+      padding: 12px 16px;
+    }
+  }
+
+  &--loading &__header {
+    background: var(--ai-accent-soft);
+    border-bottom-color: rgba(99, 102, 241, 0.2);
+  }
+
+  // Badge
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 7px;
+    background: var(--ai-success);
+    border-radius: 9999px;
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--ai-text-inverse);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+
+    @media (min-width: 768px) {
+      gap: 4px;
+      padding: 2px 8px;
+      font-size: 10px;
+      letter-spacing: 0.5px;
+    }
+
+    svg {
+      width: 9px;
+      height: 9px;
+
+      @media (min-width: 768px) {
+        width: 10px;
+        height: 10px;
+      }
+    }
+  }
+
+  &--loading &__badge {
+    background: var(--ai-accent);
+  }
+
+  // Context type (e.g., "BPMN Script Task")
+  &__context-type {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--ai-text-primary);
+
+    @media (min-width: 768px) {
+      font-size: 12px;
+    }
+  }
+
+  // Label - pushed to the right
+  &__label {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--ai-text-secondary);
+
+    @media (min-width: 768px) {
+      font-size: 12px;
+    }
+  }
+
+  // Content
+  &__content {
+    padding: 12px;
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+
+    @media (min-width: 768px) {
+      padding: 16px;
+    }
+  }
+
+  // Loading state - compact centered indicator
+  &__loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 12px;
+
+    @media (min-width: 768px) {
+      padding: 20px 16px;
+    }
+  }
+
+  &__loading-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  // Preview
+  &__preview {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--ai-text-primary);
+    background: var(--ai-surface-secondary);
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px dashed var(--ai-border-default);
+    word-break: break-word;
+    margin: 0;
+
+    @media (min-width: 768px) {
+      font-size: 14px;
+      padding: 16px;
+    }
+  }
+
+  // Explanation with markdown support - shown above diff
+  &__explanation {
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    background: var(--ai-accent-soft);
+    border-radius: 6px;
+    font-size: 13px;
+    color: var(--ai-text-primary);
+    @include markdown-content;
+
+    // Adjust spacing for inline result context
+    p:last-child {
+      margin-bottom: 0;
+    }
+
+    h1, h2, h3 {
+      font-size: 1.1em;
+      margin-top: 0.3em;
+      color: var(--ai-text-primary);
+    }
+
+    pre {
+      background: rgba(0, 0, 0, 0.05);
+      font-size: 11px;
+    }
+
+    code {
+      font-size: 0.9em;
+    }
+  }
+
+  // Retry row
+  &__retry-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px;
+
+    @media (min-width: 768px) {
+      gap: 8px;
+      padding: 12px;
+    }
+  }
+
+  &__retry-input {
+    flex: 1;
+    height: 36px;
+    padding: 0 10px;
+    border: 1px solid var(--ai-border-default);
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--ai-text-primary);
+    background: var(--ai-surface-primary);
+    transition: border-color var(--ai-transition-fast);
+
+    @media (min-width: 768px) {
+      height: 32px;
+      padding: 0 12px;
+      font-size: 13px;
+    }
+
+    &::placeholder {
+      color: var(--ai-text-tertiary);
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--ai-accent);
+    }
+  }
+
+  &__retry-submit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+    background: var(--ai-accent);
+    border: none;
+    border-radius: 6px;
+    color: var(--ai-text-inverse);
+    cursor: pointer;
+    transition: background var(--ai-transition-fast);
+    flex-shrink: 0;
+
+    @media (min-width: 768px) {
+      width: 32px;
+      height: 32px;
+      min-width: 32px;
+      min-height: 32px;
+    }
+
+    svg {
+      width: 16px;
+      height: 16px;
+
+      @media (min-width: 768px) {
+        width: 14px;
+        height: 14px;
+      }
+    }
+
+    &:hover:not(:disabled) {
+      background: var(--ai-accent-hover);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  // Actions - Icon button layout
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 12px;
+    border-top: 1px solid var(--ai-border-subtle);
+    flex-shrink: 0;
+    background: var(--ai-surface-elevated);
+
+    @media (min-width: 768px) {
+      gap: 8px;
+      padding: 12px 16px;
+    }
+  }
+}
+
+.ai-result-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition: all 200ms ease;
+  background: transparent;
+  color: var(--text-secondary, #8e8ea0);
+  position: relative;
+  flex-shrink: 0;
+
+  @media (min-width: 768px) {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+
+    @media (min-width: 768px) {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .fa {
+    font-size: 18px;
+
+    @media (min-width: 768px) {
+      font-size: 16px;
+    }
+  }
+
+  &:hover:not(:disabled) {
+    background: var(--background-light, #f4f4f4);
+    color: var(--text-primary, #40414f);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  // Tooltip via data-tooltip attribute
+  &::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--tooltip-bg, #24292f);
+    color: var(--tooltip-text, white);
+    padding: 6px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 200ms ease, visibility 200ms ease;
+    margin-bottom: 6px;
+    z-index: 1000;
+    pointer-events: none;
+
+    @media (min-width: 768px) {
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: var(--tooltip-bg, #24292f);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 200ms ease, visibility 200ms ease;
+    margin-bottom: 2px;
+    z-index: 1000;
+    pointer-events: none;
+  }
+
+  &:hover::after,
+  &:hover::before {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  // Active state (e.g., when edit input is shown)
+  &--active {
+    background: var(--primary-bg-light, rgba(52, 152, 219, 0.1));
+    color: var(--primary-color) !important;
+  }
+
+  // Primary button (Apply) - visible but not overwhelming
+  &--primary {
+    color: #059669;
+    background: rgba(16, 185, 129, 0.15);
+
+    &:hover:not(:disabled) {
+      background: rgba(16, 185, 129, 0.25);
+      color: #047857;
+    }
+
+    // Tooltip positioning fix for right edge - align to right
+    &::after {
+      left: auto;
+      right: 0;
+      transform: translateX(0);
+    }
+
+    &::before {
+      left: auto;
+      right: 12px;
+      transform: translateX(0);
+    }
+  }
+}
+
+.ai-result-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all var(--ai-transition-fast);
+  min-height: 32px;
+
+  @media (min-width: 768px) {
+    gap: 4px;
+    padding: 8px 12px;
+    font-size: 12px;
+    min-height: auto;
+  }
+
+  .fa {
+    font-size: 10px;
+
+    @media (min-width: 768px) {
+      font-size: 11px;
+    }
+  }
+
+  // Secondary variant
+  &--secondary {
+    background: transparent;
+    border: 1px solid var(--ai-border-default);
+    color: var(--ai-text-secondary);
+
+    &:hover:not(:disabled) {
+      background: var(--ai-surface-secondary);
+      border-color: var(--ai-border-default);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  // Primary variant
+  &--primary {
+    background: var(--ai-success);
+    border: 1px solid var(--ai-success);
+    color: var(--ai-text-inverse);
+
+    &:hover:not(:disabled) {
+      background: #059669;
+      border-color: #059669;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.ai-diff-preview {
+  font-size: 13px;
+  line-height: 1.6;
+
+  @media (min-width: 768px) {
+    font-size: 14px;
+  }
+
+  // Compact mode - single line with inline highlights
+  &--compact {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  &--loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    color: var(--ai-accent);
+
+    @media (min-width: 768px) {
+      padding: 16px;
+    }
+  }
+
+  &--text {
+    // Text-specific styling
+  }
+}
+
+.ai-diff-added {
+  background: rgba(16, 185, 129, 0.25);
+  color: inherit;
+  border-radius: 2px;
+}
+
+.ai-diff-unchanged {
+  // No special styling for unchanged text
+}
+
+.ai-diff-removed {
+  background: rgba(239, 68, 68, 0.2);
+  color: #dc2626;
+  padding: 1px 2px;
+  border-radius: 2px;
+  text-decoration: line-through;
+}
+
+// ============================================
+// Code Diff Preview
+// ============================================
+.ai-code-diff-preview {
+  border-radius: 6px;
+  overflow: hidden;
+  background: #f8f9fa;
+
+  // New code indicator
+  &--new {
+    // Clean preview style for new code
+  }
+
+  // Unchanged state
+  &--unchanged {
+    padding: 16px;
+    text-align: center;
+    color: var(--ai-text-secondary);
+  }
+
+  &__message {
+    font-size: 13px;
+    font-style: italic;
+  }
+
+  // Content always scrollable - parent container controls max-height
+  .ai-code-diff-preview__code,
+  .ai-code-diff-preview__diff {
+    overflow-y: auto;
+  }
+
+  // Header
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #f0f2f4;
+    border-bottom: 1px solid #e1e4e8;
+    font-size: 12px;
+    color: var(--ai-text-secondary);
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    &--new {
+      background: rgba(16, 185, 129, 0.15);
+      color: #059669;
+    }
+  }
+
+  &__context {
+    font-weight: 500;
+  }
+
+  // Code preview (non-diff)
+  &__code {
+    overflow-y: auto;
+
+    pre {
+      margin: 0;
+      padding: 12px;
+      overflow-x: auto;
+      background: transparent;
+    }
+
+    code {
+      font-family: 'SF Mono', Monaco, Menlo, Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #24292e;
+    }
+  }
+
+  // Diff view
+  &__diff {
+    overflow-y: auto;
+
+    // react-diff-viewer overrides
+    table {
+      font-size: 12px !important;
+    }
+  }
+}
+
+// ============================================
+// HTML Diff Preview
+// ============================================
+.ai-html-diff-preview {
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #e1e4e8;
+
+  &--unchanged {
+    padding: 16px;
+    text-align: center;
+    border: none;
+    background: transparent;
+  }
+
+  &__message {
+    font-size: 13px;
+    font-style: italic;
+    color: var(--ai-text-secondary);
+  }
+
+  // Tabs
+  &__tabs {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 12px;
+    background: #f6f8fa;
+    border-bottom: 1px solid #e1e4e8;
+  }
+
+  &__tab {
+    padding: 4px 10px;
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ai-text-secondary);
+    cursor: pointer;
+    transition: all 150ms ease;
+
+    &:hover:not(&--active) {
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    &--active {
+      background: #fff;
+      color: var(--ai-accent);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+    }
+  }
+
+  &__badge {
+    margin-left: auto;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    &--new {
+      background: rgba(16, 185, 129, 0.15);
+      color: #059669;
+    }
+  }
+
+  // Content - always scrollable, parent container controls max-height
+  &__content {
+    padding: 12px;
+    overflow-y: auto;
+  }
+
+  // Rendered HTML preview
+  &__rendered {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--ai-text-primary);
+
+    // Reset some HTML element styles
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 0.5em;
+      margin-bottom: 0.5em;
+    }
+
+    p {
+      margin-bottom: 0.5em;
+    }
+
+    ul, ol {
+      padding-left: 1.5em;
+      margin-bottom: 0.5em;
+    }
+
+    a {
+      color: var(--ai-accent);
+    }
+
+    code {
+      background: #f6f8fa;
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-size: 0.9em;
+    }
+
+    pre {
+      background: #f6f8fa;
+      padding: 12px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+  }
+
+  // Text diff view
+  &__text-diff {
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  // Source view
+  &__source {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    overflow-x: auto;
+
+    code {
+      font-family: 'SF Mono', Monaco, Menlo, Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #24292e;
+    }
+  }
+}
+
+// ============================================
+// AI Inline Result - Content Type Modifiers
+// ============================================
+.ai-inline-result {
+  // Code content type
+  &--code {
+    .ai-inline-result__preview {
+      padding: 0;
+      background: transparent;
+      border: none;
+    }
+
+    .ai-inline-result__content {
+      padding: 0;
+    }
+
+    .ai-inline-result__explanation {
+      margin: 12px;
+    }
+  }
+
+  // HTML content type
+  &--html {
+    .ai-inline-result__preview {
+      padding: 0;
+      background: transparent;
+      border: none;
+    }
+
+    .ai-inline-result__content {
+      padding: 0;
+    }
+
+    .ai-inline-result__explanation {
+      margin: 12px;
+    }
+  }
+
+  // Code plain preview (no diff)
+  &__code-plain {
+    margin: 0;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    overflow-x: auto;
+
+    code {
+      font-family: 'SF Mono', Monaco, Menlo, Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #24292e;
+    }
+  }
+
+  // Preview modifiers
+  &__preview {
+    &--code {
+      padding: 0;
+      background: transparent;
+      border: none;
+    }
+
+    &--html {
+      padding: 0;
+      background: transparent;
+      border: none;
+    }
+  }
+}
+
+// ============================================
+// Animations
+// ============================================
+@keyframes ai-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ai-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+// ============================================
+// AI Loading Wave Animation
+// Modern thinking/processing indicator
+// ============================================
+.ai-loading-wave {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  span {
+    display: block;
+    width: 10px;
+    height: 10px;
+    background: var(--ai-accent);
+    border-radius: 50%;
+    animation: ai-wave-bounce 1.4s ease-in-out infinite;
+
+    &:nth-child(1) {
+      animation-delay: 0s;
+    }
+
+    &:nth-child(2) {
+      animation-delay: 0.16s;
+    }
+
+    &:nth-child(3) {
+      animation-delay: 0.32s;
+    }
+  }
+}
+
+@keyframes ai-wave-bounce {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  30% {
+    transform: translateY(-6px);
+    opacity: 1;
+  }
+}
+
+// ============================================
+// Dark Theme Support (for code editors)
+// ============================================
+.ace_editor,
+[class*="code-editor"],
+[class*="dark-theme"] {
+  .ai-field-trigger--floating,
+  .script-editor-ai-button {
+    background: rgba(30, 41, 59, 0.92);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.7);
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.2),
+      0 4px 12px rgba(0, 0, 0, 0.15);
+
+    &:hover:not(:disabled) {
+      background: rgba(30, 41, 59, 0.98);
+      border-color: var(--primary-color, #007bff);
+      color: #fff;
+      box-shadow:
+        0 2px 8px rgba(0, 123, 255, 0.25),
+        0 4px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    &.ai-field-trigger--active,
+    &.script-editor-ai-button--active {
+      background: var(--primary-color, #007bff);
+      border-color: var(--primary-color, #007bff);
+      color: #fff;
+    }
+  }
+}
+
+// ============================================
+// Textarea AI Button Integration
+// Unified floating style (bottom-right corner)
+// ============================================
+.textarea-ai-button-container {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 10;
+  pointer-events: none; // Container doesn't block clicks
+
+  .ai-field-actions,
+  .ai-field-trigger {
+    pointer-events: auto; // But trigger does receive clicks
+    // Override position when inside container (already positioned by container)
+    position: static !important;
+  }
+}
+
+.textarea-ai-container {
+  // Overlay positioning - appears below textarea without affecting layout
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%; // Position right below the textarea
+  z-index: 100;
+  padding-top: 4px;
+
+  // Actions bar and result are positioned inside container
+  .ai-actions-bar,
+  .ai-inline-result {
+    position: relative;
+    top: auto;
+    transform: none;
+    animation: ai-slide-up var(--ai-transition-normal);
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+// Ensure textarea wrapper has proper positioning for overlay
+.formio-component-textarea {
+  .input-group,
+  .form-control-wrapper {
+    position: relative;
+    overflow: visible; // Allow overlay to extend beyond wrapper
+  }
+}
+
+// Script editor container positioning
+// Unified positioning for ACE code editor AI button
+.script-editor-ai-button-container {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  z-index: 100;
+
+  // Override position variant when inside container
+  .ai-field-trigger--floating {
+    position: static !important;
+  }
+}
+
+// Script editor wrapper - Popper handles positioning, this is for layout only
+.script-editor-ai-button-wrapper {
+  position: relative;
+
+  .ai-field-actions {
+    position: static;
+  }
+}
+
+// ============================================
+// Lexical AI Integration
+// ============================================
+// Lexical editor container - ensure proper z-index stacking
+.citeck-lexical-editor {
+  .ai-actions-bar,
+  .ai-inline-result {
+    z-index: 1000;
+  }
+}
+
+// ============================================
+// AI Floating Popup (independent from toolbar)
+// ============================================
+.ai-floating-popup {
+  .ai-actions-bar,
+  .ai-inline-result {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    animation: ai-slide-up var(--ai-transition-normal);
+  }
+}
+
+// ============================================
+// Floating Text Format Toolbar Integration
+// Ensures AI button appears correctly in Lexical floating toolbar
+// ============================================
+.floating-text-format-popup {
+  // ai-field-actions wrapper should not affect layout
+  .ai-field-actions {
+    display: contents;
+  }
+
+  // Ensure AI button maintains proper styling
+  button.ai-assistant-selection {
+    border: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border-radius: 10px;
+    padding: 4px 8px;
+    cursor: pointer;
+    margin-left: 4px;
+
+    &:hover:not(:disabled) {
+      background-color: #e3f2fd;
+    }
+
+    svg {
+      width: 18px;
+      height: 18px;
+      opacity: 0.7;
+    }
+
+    &:hover:not(:disabled) svg {
+      opacity: 1;
+    }
+  }
+}

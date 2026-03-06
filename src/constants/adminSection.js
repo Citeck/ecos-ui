@@ -6,15 +6,17 @@ export const Labels = {
   EMPTY_LIST: 'admin-section.sidebar.list-empty',
   BTN_CLOSE_MENU: 'admin-section.btn-toggle.close',
   BTN_OPEN_MENU: 'admin-section.btn-toggle.open',
-  DEV_TOOLS: 'admin-section.dev-tools'
+  DEV_TOOLS: 'admin-section.dev-tools',
+  DEV_CONSOLE: 'admin-section.developer-console'
 };
 
 export const SectionTypes = {
   DMN: 'DMN',
   BPM: 'BPM',
   DEV_TOOLS: 'DEV_TOOLS',
+  DEV_CONSOLE: 'DEV_CONSOLE',
   JOURNAL: 'JOURNAL',
   BPMN_ADMIN: 'BPMN_ADMIN'
 };
 
-export const SectionNewTab = [SectionTypes.DEV_TOOLS];
+export const SectionNewTab = [SectionTypes.DEV_TOOLS, SectionTypes.DEV_CONSOLE];

@@ -8,7 +8,15 @@ import { NotificationManager } from '@/services/notifications';
 export {};
 
 declare global {
+  // Extends ImportMetaEnv from vite/client with custom env variables
+  // noinspection JSUnusedGlobalSymbols
+  interface ImportMetaEnv {
+    readonly VITE_AGENTATION_ENABLED: string;
+  }
+
+  const __BUILD_TIME__: string;
   namespace NodeJS {
+    // noinspection JSUnusedGlobalSymbols
     interface ProcessEnv {
       REACT_APP_KEYCLOAK_CONFIG_CLIENT_ID?: string;
       REACT_APP_KEYCLOAK_CONFIG_REALM_ID?: string;

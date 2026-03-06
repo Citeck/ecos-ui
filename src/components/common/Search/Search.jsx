@@ -38,6 +38,8 @@ export default class Search extends Component {
     collapsed: false
   };
 
+  inputRef = React.createRef();
+
   constructor(props) {
     super(props);
 
@@ -102,7 +104,12 @@ export default class Search extends Component {
       }
 
       return st;
-    }, this.triggerClean);
+    }, () => {
+      this.triggerClean();
+      if (!this.state.collapsed && this.inputRef.current) {
+        this.inputRef.current.focus();
+      }
+    });
   };
 
   triggerSearch = (text = this.state.text) => {
@@ -124,6 +131,7 @@ export default class Search extends Component {
       <div className={classNames('search', { search_collapsed: collapsed, search_expanded: !collapsed }, className)}>
         <Icon className="icon-search search__icon search__icon-search" onClick={this.onPressBtn} />
         <input
+          ref={this.inputRef}
           className={classNames('search__input', { 'search__input_with-cleaner': hasCleaner })}
           type="text"
           placeholder={t('search.placeholder')}

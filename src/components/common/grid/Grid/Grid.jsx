@@ -178,12 +178,10 @@ class Grid extends Component {
       resizableColumns ? this.createColumnResizeEvents() : this.removeColumnResizeEvents();
     }
 
-    if (
-      !isEqual(
-        prevProps.columns.map(i => i.id),
-        columns.map(i => i.id)
-      )
-    ) {
+    const prevColumnIds = prevProps.columns.map(i => i.id);
+    const currentColumnIds = columns.map(i => i.id);
+
+    if (!isEqual(prevColumnIds, currentColumnIds)) {
       this.setState({ needCellUpdate: true }, () => this.setState({ needCellUpdate: false }));
     }
 
@@ -1500,11 +1498,6 @@ class Grid extends Component {
         {!!toolsVisible && this.tools(selected)}
 
         {scrollable ? this.renderScrollableGrid() : this.renderGrid()}
-
-        {/* Cause: overrides checkboxes in Safari (ECOSUI-3299) */}
-        {/*{isViewNewJournal && !hasFooter && !!data && !!data.length && (
-          <div style={{ height: cssNum(maxHeight) }} className="ecos-grid__border" />
-        )}*/}
 
         {updatedColumn && (
           <Tooltip

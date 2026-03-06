@@ -61,4 +61,35 @@ data.formProps.i18n = data.formConfig.i18n;
 data.formProps.formDefinition = data.formConfig.formDefinition;
 data.formProps.formFields = data.formFields;
 
+export const dataCardsWithRecords = [
+  { status: 'some-id-1', records: [{ id: 'rec-1', cardId: 'rec-1' }, { id: 'rec-2', cardId: 'rec-2' }], totalCount: 2 },
+  { status: 'some-id-2', records: [{ id: 'rec-3', cardId: 'rec-3' }], totalCount: 1 }
+];
+
+export const swimlaneData = {
+  swimlanes: [
+    {
+      id: 'priority-high',
+      label: 'High',
+      color: '#ff0000',
+      isCollapsed: false,
+      cells: {
+        'some-id-1': { records: [{ id: 'rec-1', cardId: 'rec-1' }, { id: 'rec-2', cardId: 'rec-2' }], totalCount: 2, pagination: { page: 0, maxItems: 10, skipCount: 0 }, isLoading: false },
+        'some-id-2': { records: [{ id: 'rec-3', cardId: 'rec-3' }], totalCount: 1, pagination: { page: 0, maxItems: 10, skipCount: 0 }, isLoading: false }
+      }
+    },
+    {
+      id: 'priority-low',
+      label: 'Low',
+      color: null,
+      isCollapsed: false,
+      cells: {
+        'some-id-1': { records: [{ id: 'rec-4', cardId: 'rec-4' }], totalCount: 1, pagination: { page: 0, maxItems: 10, skipCount: 0 }, isLoading: false },
+        'some-id-2': { records: [], totalCount: 0, pagination: { page: 0, maxItems: 10, skipCount: 0 }, isLoading: false }
+      }
+    }
+  ],
+  swimlaneGrouping: { attribute: 'priority', label: 'Priority' }
+};
+
 export default data;

@@ -264,7 +264,7 @@ class NewsWidget extends BaseWidget {
 
                     <a
                       className="ecos-news-widget-article__title"
-                      href={`${URL.DASHBOARD}?recordRef=emodel/${typeId || this.config.currentType}@${item.id}&ws=${this.currentWS}`}
+                      href={`${URL.DASHBOARD}?ws=${this.currentWS}&recordRef=emodel/${typeId || this.config.currentType}@${item.id}`}
                     >
                       {item.title}
                     </a>

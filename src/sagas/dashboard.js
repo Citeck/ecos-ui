@@ -75,7 +75,14 @@ function* doGetDashboardRequest({ api }, { payload }) {
     const { dashboardId, recordRef } = payload;
     const wsId = getWorkspaceId();
 
-    const recordIsExist = yield call(api.app.recordIsExist, recordRef, true);
+    const recordCheckResult = yield call(api.app.checkRecordExistenceAndRedirection, recordRef, true);
+
+    if (recordCheckResult.redirected) {
+      yield put(setLoading({ key: payload.key, status: false }));
+      return;
+    }
+
+    const recordIsExist = recordCheckResult.exists;
 
     if (recordRef && !recordIsExist) {
       if (enabledWorkspaces) {

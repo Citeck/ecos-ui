@@ -31,6 +31,8 @@ import BaseWidget, { EVENTS } from '../BaseWidget';
 
 import AssociationGrid from './AssociationGrid';
 
+import { SearchInWorkspacePolicy } from '@/forms/components/custom/selectJournal/constants';
+
 import './style.scss';
 
 const LABELS = {
@@ -306,18 +308,7 @@ class DocAssociations extends BaseWidget {
         </DropdownToggle>
         <DropdownMenu
           className="ecos-dropdown__menu ecos-dropdown__menu_links ecos-dropdown__menu_cascade ecos-doc-associations__menu"
-          modifiers={{
-            computeStyle: {
-              fn: data => {
-                const { popper } = data.instance;
-                const style = popper.getAttribute('style');
-
-                popper.setAttribute('style', `${style} left: unset !important; right: 0;`);
-
-                return data;
-              }
-            }
-          }}
+          placement="auto"
         >
           <EcosDropdownMenu
             emptyMessage={t(LABELS.EMPTY_ALLOWED_ASSOCIATIONS_MESSAGE)}
@@ -354,6 +345,7 @@ class DocAssociations extends BaseWidget {
         renderView={() => null}
         onChange={this.handleSelectJournal}
         onCancel={() => this.setState({ journalId: '' })}
+        searchInWorkspacePolicy={SearchInWorkspacePolicy.ALL}
       />
     );
   }

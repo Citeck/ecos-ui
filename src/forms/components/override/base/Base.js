@@ -44,6 +44,7 @@ const setPristine = Base.prototype.setPristine;
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-166
 const originalGetClassName = Object.getOwnPropertyDescriptor(Base.prototype, 'className');
 const originalPropertyViewOnly = Object.getOwnPropertyDescriptor(Base.prototype, 'viewOnly');
+const originalPropertyPlaceholder = Object.getOwnPropertyDescriptor(Base.prototype, 'placeholder');
 // PropertyDescriptors <<<
 
 const INLINE_EDITING_CLASSNAME = 'inline-editing';
@@ -200,21 +201,34 @@ Object.defineProperty(Base.prototype, 'label', {
   }
 });
 
-// Cause: https://citeck.atlassian.net/browse/ECOSUI-829
 Object.defineProperty(Base.prototype, 'placeholder', {
+  configurable: true,
   get: function () {
+    // Check if there was an original placeholder property and if it had a get function
+    if (originalPropertyPlaceholder && originalPropertyPlaceholder.get) {
+      try {
+        // Try to call the original getter first
+        const originalValue = originalPropertyPlaceholder.get.call(this);
+        // If the original getter returns a value, use it
+        if (originalValue !== undefined) {
+          return originalValue;
+        }
+      } catch (e) {
+        // If there's an error with the original getter, fall back to our implementation
+        console.warn('Error calling original placeholder getter:', e);
+      }
+    }
+    // Our implementation as fallback
     return getTextByLocale(this.component.placeholder);
   }
 });
 
-// Cause: https://citeck.atlassian.net/browse/ECOSUI-829
 Object.defineProperty(Base.prototype, 'name', {
   get: function () {
     return this.t(this.label || this.placeholder || this.key);
   }
 });
 
-// Cause: https://citeck.atlassian.net/browse/ECOSUI-208
 const emptyCalculateValue = Symbol('empty calculate value');
 
 const modifiedOriginalCalculateValue = function (data, flags) {
@@ -970,20 +984,23 @@ function extendingOfComponent(component) {
   return component;
 }
 
-// Cause: https://citeck.atlassian.net/browse/ECOSUI-918
-Object.defineProperty(Base.prototype, 'component', {
-  get: function () {
-    return extendingOfComponent(this._component);
-  },
+const _componentDescriptor = Object.getOwnPropertyDescriptor(Base.prototype, 'component');
+if (!_componentDescriptor || _componentDescriptor.configurable) {
+  Object.defineProperty(Base.prototype, 'component', {
+    configurable: true,
+    get: function () {
+      return extendingOfComponent(this._component);
+    },
 
-  set: function (component) {
-    if (component.addAnother) {
-      component.addAnother = t(component.addAnother);
+    set: function (component) {
+      if (component.addAnother) {
+        component.addAnother = t(component.addAnother);
+      }
+
+      this._component = extendingOfComponent(component);
     }
-
-    this._component = extendingOfComponent(component);
-  }
-});
+  });
+}
 
 let WidgetService = {};
 
@@ -1010,6 +1027,7 @@ Base.prototype.evalContext = function (additional) {
 };
 
 Object.defineProperty(Base.prototype, 'originalComponent', {
+  configurable: true,
   get: function () {
     return extendingOfComponent(this._originalComponent);
   },

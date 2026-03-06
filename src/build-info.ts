@@ -1,7 +1,7 @@
 import packageJson from '../package.json';
 
 const info = {
-  time: new Date().toISOString(),
+  time: typeof __BUILD_TIME__ !== 'undefined' ? __BUILD_TIME__ : new Date().toISOString(),
   version: packageJson.version
 };
 

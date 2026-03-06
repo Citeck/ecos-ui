@@ -1,0 +1,230 @@
+// AI Assistant Email Modal Styles - Mobile First
+
+@import 'variables';
+@import 'mixins';
+
+// Email message preview in chat
+.ai-assistant-chat {
+  &__email-preview {
+    border: 1px solid #e0e0e0;
+    border-radius: $border-radius-md;
+    padding: 12px;
+    background-color: rgba(255, 255, 255, 0.8);
+    font-size: 13px;
+
+    @media (min-width: $tablet) {
+      padding: $spacing-md;
+      font-size: inherit;
+    }
+  }
+
+  &__email-subject {
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 13px;
+
+    @media (min-width: $tablet) {
+      font-size: $font-size-md;
+    }
+
+    strong {
+      color: #333;
+      margin-right: 8px;
+
+      @media (min-width: $tablet) {
+        margin-right: $spacing-sm;
+      }
+    }
+  }
+
+  &__email-body {
+    margin: 10px 0;
+    line-height: 1.5;
+    font-size: 13px;
+
+    @media (min-width: $tablet) {
+      font-size: inherit;
+    }
+
+    p {
+      margin: 8px 0;
+
+      @media (min-width: $tablet) {
+        margin: $spacing-sm 0;
+      }
+    }
+  }
+
+  &__email-recipient {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid #f0f0f0;
+    font-size: 12px;
+    color: #666;
+
+    @media (min-width: $tablet) {
+      font-size: 13px;
+      padding-top: $spacing-sm;
+    }
+
+    strong {
+      color: #333;
+      margin-right: 8px;
+
+      @media (min-width: $tablet) {
+        margin-right: $spacing-sm;
+      }
+    }
+  }
+
+  &__email-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+
+    @media (min-width: $tablet) {
+      gap: $spacing-sm;
+      margin-top: $spacing-sm;
+    }
+  }
+}
+
+// Email Modal Overlay
+.ai-assistant-email-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 110000;
+  padding: 16px;
+
+  @media (min-width: $tablet) {
+    padding: 0;
+  }
+}
+
+// Email Modal
+.ai-assistant-email-modal {
+  background-color: var(--surface-color, #fff);
+  border-radius: 8px;
+  box-shadow: $shadow-xl;
+  width: 100%;
+  max-width: 100%;
+  max-height: calc(100vh - 32px);
+  display: flex;
+  flex-direction: column;
+
+  @media (min-width: $tablet) {
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    border-radius: $chat-border-radius;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $spacing-lg $spacing-xl;
+    background-color: var(--header-bg-color);
+    color: var(--surface-color, white);
+    border-top-left-radius: $chat-border-radius;
+    border-top-right-radius: $chat-border-radius;
+
+    h3 {
+      margin: 0;
+      font-size: $font-size-lg;
+      font-weight: 500;
+    }
+  }
+
+  &__close {
+    @include close-button;
+    padding: $spacing-xs;
+    font-size: $font-size-lg;
+  }
+
+  &__content {
+    padding: $spacing-xl;
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  &__field {
+    margin-bottom: $spacing-lg;
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      font-size: $font-size-md;
+      color: var(--text-color, #333);
+    }
+
+    input, textarea {
+      @include input-base;
+      resize: vertical;
+    }
+
+    textarea {
+      min-height: 120px;
+    }
+
+    &--checkbox {
+      margin-top: 5px;
+      margin-bottom: 5px;
+
+      label {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0;
+        cursor: pointer;
+        font-weight: 400;
+        user-select: none;
+        gap: 10px;
+
+        input[type="checkbox"] {
+          width: auto;
+          margin: 0;
+          cursor: pointer;
+        }
+
+        span {
+          flex: 1;
+          font-size: $font-size-md;
+          line-height: 1.4;
+        }
+      }
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    padding: $spacing-lg $spacing-xl;
+    border-top: 1px solid #eee;
+  }
+
+  &__button {
+    @include button-base;
+    gap: 6px;
+    padding: $spacing-sm $spacing-lg;
+    font-size: $font-size-md;
+
+    &--cancel {
+      @include button-secondary;
+    }
+
+    &--send {
+      @include button-success;
+    }
+  }
+}

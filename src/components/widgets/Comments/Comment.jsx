@@ -229,7 +229,7 @@ export class Comment extends Component {
   handleEditorStateChange = (editorState, editor, noChanges) => {
     editor.update(() => {
       const { textContent = '' } = editor.getRootElement();
-      this.setState({ isMaxLength: textContent.length > LENGTH_LIMIT, noChanges });
+      this.setState({ isMaxLength: textContent.length >= LENGTH_LIMIT, noChanges });
 
       const htmlComment = $generateHtmlFromNodes(editor, null);
       if (!isNil(htmlComment)) {
@@ -307,6 +307,7 @@ export class Comment extends Component {
           UploadDocsService={this._uploadDocsRefService}
           recordRef={comment ? comment.id : 'emodel/comment@'}
           attribute="text"
+          maxLength={LENGTH_LIMIT}
         />
         <div className="ecos-comments__editor-footer">
           {this.state.isInternalSupported && (

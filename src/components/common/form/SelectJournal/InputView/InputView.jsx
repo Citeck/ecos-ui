@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import uniqueId from 'lodash/uniqueId';
 import PropTypes from 'prop-types';
@@ -29,6 +30,24 @@ import { NotificationManager } from '@/services/notifications';
 import './InputView.scss';
 
 class InputView extends Component {
+  shouldComponentUpdate(nextProps, nextState) {
+    if (nextProps.selectedRows !== this.props.selectedRows) return true;
+    if (nextProps.disabled !== this.props.disabled) return true;
+    if (nextProps.viewMode !== this.props.viewMode) return true;
+    if (nextProps.multiple !== this.props.multiple) return true;
+    if (nextProps.isCompact !== this.props.isCompact) return true;
+    if (nextProps.gridData !== this.props.gridData) return true;
+    if (nextState.aditionalButtons !== this.state.aditionalButtons) return true;
+    if (nextState.createVariants !== this.state.createVariants) return true;
+    if (nextState.isOpenMenuActions !== this.state.isOpenMenuActions) return true;
+
+    if (nextProps.gridData && nextProps.gridData.data !== this.props.gridData?.data) return true;
+    if (nextProps.gridData && nextProps.gridData.columns !== this.props.gridData?.columns) return true;
+    if (nextProps.gridData && nextProps.gridData.total !== this.props.gridData?.total) return true;
+
+    return false;
+  }
+
   #toolsRef = React.createRef();
   menuRef = React.createRef();
 
@@ -290,9 +309,7 @@ class InputView extends Component {
       );
     }
 
-    return (
-      <InlineToolsDisconnected forwardedRef={this.#toolsRef} selectedRecords={selectedRows} {...inlineToolsOffsets} tools={iconButtons} />
-    );
+    return <InlineToolsDisconnected ref={this.#toolsRef} selectedRecords={selectedRows} {...inlineToolsOffsets} tools={iconButtons} />;
   };
 
   handleAction = (e, callback) => {
@@ -396,7 +413,7 @@ class InputView extends Component {
       );
     }
 
-    if (isEmpty(selectedRows) && !multiple) {
+    if (viewMode !== 'table' && isEmpty(selectedRows) && !multiple) {
       return (
         <div
           className={classNames('select-journal__values-list', { multiple, disabled })}
@@ -420,6 +437,7 @@ class InputView extends Component {
             scrollable
             inlineTools={this.renderInlineTools}
             onChangeTrOptions={this.setInlineToolsOffsets}
+            key={`grid-${gridData.total}-${gridData.data?.length || 0}`}
           />
         </div>
       );
@@ -499,18 +517,25 @@ class InputView extends Component {
   }
 
   render() {
-    const { error, className, isCompact } = this.props;
-    const wrapperClasses = classNames('select-journal__input-view', { 'select-journal__input-view_compact': isCompact }, className);
+    const { error, className, isCompact, viewMode, multiple, gridData } = this.props;
+    const wrapperClasses = classNames(
+      'select-journal__input-view',
+      {
+        'select-journal__input-view_compact': isCompact
+      },
+      className
+    );
+
+    const isTable = viewMode === 'table';
+    const hasActionButton = multiple || (!multiple && get(gridData, 'total') > 0);
 
     return (
       <div className={wrapperClasses}>
         {this.renderList()}
-
         {error && <p className="select-journal__error">{error.message}</p>}
-
-        {isCompact && (
+        {(isCompact || isTable) && (
           <div className="select-journal__actions">
-            {this.renderActionButton()}
+            {(isCompact || (isTable && hasActionButton)) && this.renderActionButton()}
             {this.renderCustomButtons()}
           </div>
         )}

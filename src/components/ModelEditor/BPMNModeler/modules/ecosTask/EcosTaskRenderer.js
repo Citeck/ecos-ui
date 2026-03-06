@@ -124,11 +124,19 @@ class CustomRenderer extends KPIRenderer {
   }
 
   getEcosType(element) {
-    if (element && _.isString(element.$attrs['ecos:ecosType'])) {
+    if (!element) {
+      return null;
+    }
+
+    if (_.isString(element.$attrs?.['ecos:ecosType'])) {
       return element.$attrs['ecos:ecosType'];
     }
 
     const parent = this.getRootProccess(element);
+    if (!parent || parent === element) {
+      return null;
+    }
+
     return this.getEcosType(parent);
   }
 

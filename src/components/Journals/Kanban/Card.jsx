@@ -12,6 +12,7 @@ import { Icon, Tooltip } from '../../common';
 import { FormWrapper } from '../../common/dialogs';
 import { DropdownOuter } from '../../common/form';
 import { Labels } from '../constants';
+import ColoredFormatter from '@/components/Journals/service/formatters/registry/ColoredFormatter/ColoredFormatter';
 
 class Card extends React.PureComponent {
   state = {
@@ -172,7 +173,7 @@ class Card extends React.PureComponent {
   };
 
   render() {
-    const { data, cardIndex, readOnly } = this.props;
+    const { data, cardIndex, readOnly, swimlaneColor } = this.props;
     const { noForm } = this.state;
 
     return (
@@ -186,6 +187,7 @@ class Card extends React.PureComponent {
                   'ecos-kanban__card_dragging': snapshot.isDragging,
                   'ecos-kanban__card_no-form': noForm
                 })}
+                style={swimlaneColor ? { borderTopColor: ColoredFormatter.resolveColor(swimlaneColor) } : undefined}
               >
                 {this.renderHeader(provided)}
                 {this.renderBody()}

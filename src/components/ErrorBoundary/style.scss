@@ -2,7 +2,11 @@
 
 .ecos-error-boundary {
   @extend %block--1;
-  margin: 40px;
+
+  position: relative;
+  top: 40px;
+  width: 80%;
+  margin: 0 auto;
 
   &__title {
     @extend %title-block--1;

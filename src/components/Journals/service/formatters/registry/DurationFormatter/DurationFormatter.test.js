@@ -190,4 +190,90 @@ describe('DurationFormatter', () => {
     const result = durationFormatterInstance.format(props);
     expect(result).toBe('5d 17h 30m');
   });
+
+  describe('hoursPerDay (person-days mode)', () => {
+    it('should format exact person-day', () => {
+      // 8h = 1 person-day
+      const props = { cell: 28800000, config: { hoursPerDay: 8 } };
+      expect(durationFormatterInstance.format(props)).toBe('1d');
+    });
+
+    it('should format person-days with remaining hours', () => {
+      // 10h = 1d 2h at 8h/day
+      const props = { cell: 36000000, config: { hoursPerDay: 8 } };
+      expect(durationFormatterInstance.format(props)).toBe('1d 2h');
+    });
+
+    it('should format multiple person-days', () => {
+      // 16h = 2d at 8h/day
+      const props = { cell: 57600000, config: { hoursPerDay: 8 } };
+      expect(durationFormatterInstance.format(props)).toBe('2d');
+    });
+
+    it('should convert 24h to 3 person-days at 8h/day (not 1 calendar day)', () => {
+      // 24h = 3d at 8h/day, vs 1d in calendar mode
+      const props = { cell: 86400000, config: { hoursPerDay: 8 } };
+      expect(durationFormatterInstance.format(props)).toBe('3d');
+    });
+
+    it('should format person-days with remaining hours and minutes', () => {
+      // 10h 30m = 1d 2h 30m at 8h/day
+      const props = { cell: 37800000, config: { hoursPerDay: 8 } };
+      expect(durationFormatterInstance.format(props)).toBe('1d 2h 30m');
+    });
+
+    it('should format person-days with seconds when showSeconds enabled', () => {
+      // 8h 30m 15s = 1d 30m 15s at 8h/day
+      const props = { cell: 30615000, config: { hoursPerDay: 8, showSeconds: true } };
+      expect(durationFormatterInstance.format(props)).toBe('1d 30m 15s');
+    });
+
+    it('should show only hours when less than one person-day', () => {
+      // 5h < 8h/day → 0d, show 5h
+      const props = { cell: 18000000, config: { hoursPerDay: 8 } };
+      expect(durationFormatterInstance.format(props)).toBe('5h');
+    });
+
+    it('should support hoursPerDay as string (from JSON config)', () => {
+      // 10h = 1d 2h at 8h/day
+      const props = { cell: 36000000, config: { hoursPerDay: '8' } };
+      expect(durationFormatterInstance.format(props)).toBe('1d 2h');
+    });
+
+    it('should format negative duration in person-days mode', () => {
+      // -10h = -1d 2h at 8h/day
+      const props = { cell: -36000000, config: { hoursPerDay: 8 } };
+      expect(durationFormatterInstance.format(props)).toBe('- 1d 2h');
+    });
+
+    it('should ignore hoursPerDay when maxAsHours is true', () => {
+      // maxAsHours takes priority — show raw hours only
+      const props = { cell: 36000000, config: { hoursPerDay: 8, maxAsHours: true } };
+      expect(durationFormatterInstance.format(props)).toBe('10h');
+    });
+
+    it('should not activate person-days mode when hoursPerDay is 0', () => {
+      // hoursPerDay: 0 → calendar days (24h/day)
+      const props = { cell: 86400000, config: { hoursPerDay: 0 } };
+      expect(durationFormatterInstance.format(props)).toBe('1d');
+    });
+
+    it('should not activate person-days mode without hoursPerDay', () => {
+      // no hoursPerDay → calendar days (24h/day), same as existing behaviour
+      const props = { cell: 86400000 };
+      expect(durationFormatterInstance.format(props)).toBe('1d');
+    });
+
+    it('should support custom hoursPerDay value (e.g. 6h workday)', () => {
+      // 12h = 2d at 6h/day
+      const props = { cell: 43200000, config: { hoursPerDay: 6 } };
+      expect(durationFormatterInstance.format(props)).toBe('2d');
+    });
+
+    it('should fall back to calendar days when hoursPerDay is non-numeric string', () => {
+      // invalid config value → disable person-days mode, use 24h/day
+      const props = { cell: 86400000, config: { hoursPerDay: 'abc' } };
+      expect(durationFormatterInstance.format(props)).toBe('1d');
+    });
+  });
 });

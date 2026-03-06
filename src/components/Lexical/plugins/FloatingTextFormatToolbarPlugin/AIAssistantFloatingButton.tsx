@@ -1,20 +1,16 @@
-import { $generateHtmlFromNodes, $generateNodesFromDOM } from '@lexical/html';
-import {
-  $createParagraphNode,
-  $createTextNode,
-  $getRoot,
-  $getSelection,
-  $insertNodes,
-  $isRangeSelection,
-  $setSelection,
-  LexicalEditor
-} from 'lexical';
-import React, { useCallback, useEffect, useState } from 'react';
+/**
+ * AI Assistant Floating Button for Lexical Selection
+ * Simple button that triggers AI popup via event
+ * Popup is rendered independently to survive toolbar unmount
+ */
+
+import { $generateHtmlFromNodes } from '@lexical/html';
+import { $getSelection, $isRangeSelection, LexicalEditor } from 'lexical';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import aiAssistantService from '../../../AIAssistant/AIAssistantService';
-import editorContextService, { CONTEXT_TYPES } from '../../../AIAssistant/EditorContextService';
-import { AI_ASSISTANT_EVENTS, ADDITIONAL_CONTEXT_TYPES, AI_INTENTS } from '../../../AIAssistant/constants';
 import AiAssistant from '../../../common/icons/global/AiAssistant';
+import { AI_FLOATING_POPUP_OPEN } from './AIFloatingPopup';
 
 interface AIAssistantFloatingButtonProps {
   editor: LexicalEditor;
@@ -24,6 +20,7 @@ interface AIAssistantFloatingButtonProps {
 
 export default function AIAssistantFloatingButton({ editor, recordRef, attribute }: AIAssistantFloatingButtonProps) {
   const [isAvailable, setIsAvailable] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const ref = recordRef ? recordRef.split('-alias-')[0] : null;
 
   useEffect(() => {
@@ -36,139 +33,57 @@ export default function AIAssistantFloatingButton({ editor, recordRef, attribute
       }
     };
 
-    const handleAvailabilityChange = async () => {
-      await checkAvailability();
-    };
-
     checkAvailability();
-    aiAssistantService.addAvailabilityListener(handleAvailabilityChange);
+    aiAssistantService.addAvailabilityListener(checkAvailability);
 
     return () => {
       isMounted = false;
-      aiAssistantService.removeAvailabilityListener(handleAvailabilityChange);
+      aiAssistantService.removeAvailabilityListener(checkAvailability);
     };
   }, [ref, attribute]);
 
-  const handleAIAssistant = useCallback(() => {
-    let selectedText = '';
-    let selectedHtml = '';
+  const handleClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
 
-    // First, read the selection data
-    editor.getEditorState().read(() => {
-      const selection = $getSelection();
-      if (!$isRangeSelection(selection) || selection.isCollapsed()) {
-        return;
-      }
+      // Get trigger position before anything changes
+      const triggerRect = buttonRef.current?.getBoundingClientRect();
+      if (!triggerRect) return;
 
-      selectedText = selection.getTextContent();
-    });
+      // Get selection and current value
+      let selectedText = '';
+      let currentValue = '';
 
-    // If we have valid selection, generate HTML outside of read context
-    if (selectedText) {
       editor.update(() => {
         const selection = $getSelection();
         if ($isRangeSelection(selection) && !selection.isCollapsed()) {
-          selectedHtml = $generateHtmlFromNodes(editor, selection);
+          selectedText = $generateHtmlFromNodes(editor, selection);
         }
+        currentValue = $generateHtmlFromNodes(editor, null);
       });
 
-      // Register context with selected text information
-      editorContextService.setContext(
-        CONTEXT_TYPES.UNIVERSAL,
-        {
-          updateLexicalContent: (newText: string) => {
-            // This would update the entire document content
-            editor.update(() => {
-              const root = $getRoot();
-              root.clear();
-
-              if (newText.includes('<') && newText.includes('>')) {
-                try {
-                  const parser = new DOMParser();
-                  const dom = parser.parseFromString(newText, 'text/html');
-
-                  const nodes = $generateNodesFromDOM(editor, dom);
-                  root.select();
-                  $insertNodes(nodes);
-                } catch (error) {
-                  console.warn('Failed to parse HTML content, falling back to plain text:', error);
-                  const paragraph = $createParagraphNode();
-                  const textNode = $createTextNode(newText);
-                  paragraph.append(textNode);
-                  root.append(paragraph);
-                }
-              } else {
-                const paragraph = $createParagraphNode();
-                const textNode = $createTextNode(newText);
-                paragraph.append(textNode);
-                root.append(paragraph);
-              }
-
-              $setSelection(null);
-            });
-          },
-          getCurrentText: () => {
-            let text = '';
-            editor.update(() => {
-              text = $generateHtmlFromNodes(editor, null);
-            });
-            return text;
+      // Dispatch event to open popup
+      window.dispatchEvent(
+        new CustomEvent(AI_FLOATING_POPUP_OPEN, {
+          detail: {
+            editor,
+            triggerRect,
+            selectedText,
+            currentValue,
+            recordRef: ref || '',
+            attribute: attribute || ''
           }
-        },
-        {
-          recordRef: ref,
-          attribute,
-          editor,
-          forceIntent: AI_INTENTS.TEXT_EDITING,
-          selectionContext: {
-            text: selectedText,
-            html: selectedHtml
-          }
-        }
+        })
       );
+    },
+    [editor, ref, attribute]
+  );
 
-      // Open AI assistant chat (only open, don't toggle)
-      aiAssistantService.openChat();
-
-      // Automatically add record and selection context
-      setTimeout(() => {
-        // Add record to context if available
-        if (recordRef) {
-          window.dispatchEvent(
-            new CustomEvent(AI_ASSISTANT_EVENTS.ADD_CONTEXT, {
-              detail: {
-                contextType: ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD,
-                recordRef
-              }
-            })
-          );
-        }
-
-        // Add attribute to context if available
-        if (attribute) {
-          window.dispatchEvent(
-            new CustomEvent(AI_ASSISTANT_EVENTS.ADD_CONTEXT, {
-              detail: {
-                contextType: ADDITIONAL_CONTEXT_TYPES.ATTRIBUTES,
-                recordRef: recordRef || '',
-                attribute: attribute
-              }
-            })
-          );
-        }
-
-        // Add reference to selected text in the chat input
-        window.dispatchEvent(
-          new CustomEvent(AI_ASSISTANT_EVENTS.ADD_TEXT_REFERENCE, {
-            detail: {
-              reference: `выделенный_текст`,
-              selectedText
-            }
-          })
-        );
-      }, 100);
-    }
-  }, [editor, ref, attribute]);
+  // Prevent selection loss on mousedown
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+  }, []);
 
   if (!isAvailable) {
     return null;
@@ -176,11 +91,13 @@ export default function AIAssistantFloatingButton({ editor, recordRef, attribute
 
   return (
     <button
+      ref={buttonRef}
       type="button"
-      onClick={handleAIAssistant}
-      className={'popup-item spaced ai-assistant-selection'}
-      title="Использовать выделенный текст в AI Assistant"
-      aria-label="Use selected text in AI Assistant"
+      className="popup-item spaced ai-assistant-selection"
+      onClick={handleClick}
+      onMouseDown={handleMouseDown}
+      title="AI Assistant"
+      aria-label="AI Assistant"
     >
       <AiAssistant />
     </button>

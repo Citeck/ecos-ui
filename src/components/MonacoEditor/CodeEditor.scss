@@ -1,0 +1,16 @@
+.code-editor-container {
+  width: 100%;
+  height: 100%;
+  background: var(--bg-color);
+  border: 1px solid #e8edef;
+  border-radius: 6px;
+  overflow: hidden;
+
+  .monaco-editor {
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+
+    .margin-view-overlays {
+      background: #f7f7f7;
+    }
+  }
+}

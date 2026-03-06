@@ -1,0 +1,29 @@
+// AI Assistant Styles - Main Entry Point
+// This file imports all style modules for the AI Assistant component
+
+@import '../../../styles/constants';
+
+// Foundation
+@import 'variables';
+@import 'mixins';
+@import 'animations';
+
+// Core Components
+@import 'chat-base';
+@import 'chat-tabs';
+@import 'chat-messages';
+@import 'chat-input';
+
+// Features
+@import 'autocomplete';
+@import 'context-tags';
+@import 'progress';
+
+// Modals & Viewers
+@import 'email-modal';
+@import 'diff-viewer';
+@import 'mermaid';
+@import 'script-editor';
+
+// Universal AI Quick Actions
+@import '../AIQuickActions/styles/index';

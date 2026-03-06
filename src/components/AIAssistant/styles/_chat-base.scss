@@ -1,0 +1,294 @@
+@import 'variables';
+@import 'mixins';
+
+.ai-assistant-chat {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  background-color: var(--surface-color, #fff);
+  border-radius: 0;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  z-index: $chat-z-index;
+  overflow: hidden;
+  transition: all $transition-slow;
+  padding: 0;
+
+  // Safe area support for notched devices
+  padding-top: max(0, env(safe-area-inset-top));
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+
+  // Tablet: Fixed position with border radius
+  @media (min-width: $tablet) {
+    position: fixed;
+    border-radius: $chat-border-radius;
+    box-shadow: $shadow-lg;
+    padding: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  // Minimized state
+  &.minimized {
+    height: 0;
+    overflow: hidden;
+    display: none;
+
+    .ai-assistant-chat__messages,
+    .ai-assistant-chat__form {
+      display: none;
+    }
+
+    .ai-assistant-chat__header {
+      border-radius: $chat-border-radius;
+    }
+
+    @media (min-width: $tablet) {
+      display: flex;
+      height: 50px !important;
+    }
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $spacing-md 16px;
+    background-color: var(--header-bg-color);
+    color: var(--surface-color, white);
+    border-radius: 0;
+    min-height: 56px;
+    flex-shrink: 0;
+
+    @media (min-width: $tablet) {
+      padding: 5px $spacing-lg;
+      border-top-left-radius: $chat-border-radius;
+      border-top-right-radius: $chat-border-radius;
+      min-height: 50px;
+    }
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    @media (min-width: $tablet) {
+      font-size: $font-size-lg;
+    }
+  }
+
+  &__header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  &__close {
+    @include close-button;
+    font-size: 24px;
+    padding: 8px;
+    line-height: 1;
+    min-width: 40px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    @media (min-width: $tablet) {
+      padding: 4px;
+      min-width: auto;
+      min-height: auto;
+      font-size: 20px;
+    }
+  }
+
+  &__minimize {
+    @include close-button;
+    font-size: 18px;
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+
+    @media (min-width: $tablet) {
+      width: 32px;
+      min-width: 32px;
+      height: 32px;
+      min-height: 32px;
+      margin-right: 8px;
+      font-size: 16px;
+    }
+  }
+
+  &__icon {
+    color: var(--surface-color, white);
+    font-size: $font-size-md;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  // Modifications for tabs version
+  &--tabs {
+    .ai-assistant-chat__messages {
+      padding: 12px 16px;
+
+      @media (min-width: $tablet) {
+        padding: 12px $spacing-lg;
+      }
+    }
+  }
+
+  // Drag and drop styles
+  &--drag-over {
+    border: 2px dashed var(--primary-color);
+    background-color: var(--primary-bg-light, rgba(52, 152, 219, 0.1));
+    transition: all $transition-normal;
+
+    &::before {
+      content: "Отпустите файлы для загрузки";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--surface-color, white);
+      color: var(--primary-color);
+      padding: $spacing-md $spacing-xl;
+      border-radius: $border-radius-lg;
+      box-shadow: $shadow-md;
+      font-weight: 500;
+      z-index: 1000;
+      pointer-events: none;
+      font-size: 14px;
+    }
+
+    .ai-assistant-chat__messages,
+    .ai-assistant-chat__input-section,
+    .ai-assistant-chat__tabs {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+  }
+
+  &__drag-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--primary-bg-light, rgba(52, 152, 219, 0.1));
+    border: 2px dashed var(--primary-color);
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    font-size: $font-size-lg;
+    font-weight: 500;
+    color: var(--primary-color);
+
+    @media (min-width: $tablet) {
+      border-radius: $chat-border-radius;
+    }
+  }
+
+  &__resize-handle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 12px;
+    height: 12px;
+    cursor: nw-resize;
+  }
+}
+
+.ai-assistant-resizable {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  z-index: $chat-z-index;
+
+  .react-resizable-handle {
+    display: none;
+  }
+
+  @media (min-width: $tablet) {
+    position: fixed;
+    right: 18px;
+    bottom: 20px;
+    top: auto;
+    left: auto;
+    width: auto;
+    height: auto;
+
+    .react-resizable-handle {
+      display: block;
+      position: absolute;
+      left: -5px;
+      top: -5px;
+      width: 50px;
+      height: 50px;
+      cursor: nw-resize;
+      z-index: 101000;
+      background-color: transparent;
+      background-image: none;
+      border: none;
+
+      &:hover {
+        background-color: transparent;
+      }
+    }
+
+    .ai-assistant-chat {
+      position: relative;
+      width: 100% !important;
+      height: 100% !important;
+      box-sizing: border-box;
+    }
+  }
+}
+
+// BPMN Editor AI button
+.ecos-model-editor__designer-ai-button {
+  display: inline-block;
+  margin: 0 5px;
+
+  .ecos-btn {
+    color: var(--surface-color, white);
+
+    &:hover {
+      background-color: var(--background-hover, #e9ecef);
+      color: var(--primary-color);
+
+      svg {
+        fill: var(--primary-color);
+      }
+    }
+  }
+}

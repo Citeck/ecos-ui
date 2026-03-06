@@ -12,6 +12,8 @@
   opacity: 1;
 }
 
+@import './swimlane';
+
 .ecos-kanban {
   $kanban: &;
 

@@ -4,7 +4,7 @@ import './style.scss';
 
 const originHideDropdown = Choices.prototype.hideDropdown;
 
-Choices.prototype.hideDropdown = function(preventInputFocus) {
+Choices.prototype.hideDropdown = function (preventInputFocus) {
   originHideDropdown.call(this, preventInputFocus);
 
   this.clearInput();
@@ -23,7 +23,7 @@ Choices.prototype.hideDropdown = function(preventInputFocus) {
   return this;
 };
 
-Choices.prototype.showDropdown = function(preventInputFocus) {
+Choices.prototype.showDropdown = function (preventInputFocus) {
   if (this.dropdown.isActive) {
     return this;
   }
@@ -43,7 +43,7 @@ Choices.prototype.showDropdown = function(preventInputFocus) {
   return this;
 };
 
-Choices.prototype.recalcDropdownPosition = function(preventInputFocus) {
+Choices.prototype.recalcDropdownPosition = function (preventInputFocus) {
   try {
     const modalWrapper = this.containerInner.element.closest('.modal.show');
     const containerSizes = this.containerInner.element.getBoundingClientRect();

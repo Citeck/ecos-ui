@@ -35,3 +35,13 @@ export const setPagination = createAction(prefix + 'SET_PAGINATION');
 export const setDefaultBoardAndTemplate = createAction(prefix + 'SET_DEFAULT_BOARD_AND_TEMPLATE');
 
 export const cancelGetNextBoardPage = createAction(prefix + 'CANCEL_GET_NEXT_BOARD_PAGE');
+
+export const setSwimlaneGrouping = createAction(prefix + 'SET_SWIMLANE_GROUPING');
+export const changeSwimlaneGrouping = createAction(prefix + 'CHANGE_SWIMLANE_GROUPING');
+export const setSwimlaneValues = createAction(prefix + 'SET_SWIMLANE_VALUES');
+export const setSwimlaneCellData = createAction(prefix + 'SET_SWIMLANE_CELL_DATA');
+export const toggleSwimlaneCollapse = createAction(prefix + 'TOGGLE_SWIMLANE_COLLAPSE');
+export const loadMoreSwimlaneCell = createAction(prefix + 'LOAD_MORE_SWIMLANE_CELL');
+export const setSwimlaneCellLoading = createAction(prefix + 'SET_SWIMLANE_CELL_LOADING');
+export const moveSwimlaneCard = createAction(prefix + 'MOVE_SWIMLANE_CARD');
+export const refreshCardData = createAction(prefix + 'REFRESH_CARD_DATA');

@@ -385,7 +385,13 @@ class DocPreview extends Component {
     const { recordId, byLink, link, fileName = '' } = this.state;
 
     if (byLink && link) {
-      this.setState({ downloadData: { link, fileName } });
+      if (recordId) {
+        DocPreviewApi.getDownloadData(recordId).then(downloadData => {
+          this.exist && this.setState({ downloadData });
+        });
+      } else {
+        this.setState({ downloadData: { link, fileName } });
+      }
       return;
     }
 
@@ -442,10 +448,12 @@ class DocPreview extends Component {
           recordId,
           link,
           error,
-          fileName,
-          downloadData: { link, fileName }
+          fileName
         },
-        () => this.loadPDF(link)
+        () => {
+          this.loadPDF(link);
+          this.getDownloadData();
+        }
       );
     }
   };

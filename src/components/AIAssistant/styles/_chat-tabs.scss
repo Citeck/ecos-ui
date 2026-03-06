@@ -1,0 +1,250 @@
+// AI Assistant Chat Tabs Styles - Mobile First
+
+@import 'variables';
+
+.ai-assistant-chat {
+  &__tabs {
+    display: flex;
+    background-color: var(--background-light, #f8f9fa);
+    border-bottom: 1px solid var(--border-color, #dee2e6);
+  }
+
+  &__tab {
+    flex: 1;
+    padding: 12px 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary, #6c757d);
+    transition: all $transition-normal;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-height: 48px;
+    align-items: center;
+    justify-content: center;
+
+    @media (min-width: $tablet) {
+      padding: $spacing-sm;
+      font-size: 13px;
+      gap: 6px;
+    }
+
+    &:hover:not(&--disabled) {
+      background-color: var(--background-hover, #e9ecef);
+      color: var(--text-primary, #495057);
+    }
+
+    &--active {
+      background-color: var(--surface-color, white);
+      color: var(--primary-color);
+      border-bottom: 2px solid var(--primary-color);
+    }
+
+    &--disabled {
+      color: var(--text-disabled, #adb5bd);
+      cursor: not-allowed;
+      opacity: 0.6;
+
+      &:hover {
+        background-color: transparent;
+      }
+    }
+
+    > span {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+    }
+  }
+
+  &__tab-content {
+    background-color: var(--surface-color, white);
+  }
+
+  &__tab-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background-color: var(--background-light, #f8f9fa);
+    border-bottom: 1px solid var(--border-color, #dee2e6);
+    font-size: 12px;
+    color: var(--text-secondary, #6c757d);
+
+    @media (min-width: $tablet) {
+      padding: $spacing-sm $spacing-lg;
+      font-size: $font-size-sm;
+    }
+
+    span {
+      flex: 1;
+      font-weight: 500;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  &__clear-button {
+    background: none;
+    border: none;
+    color: var(--text-secondary, #6c757d);
+    cursor: pointer;
+    padding: 6px 8px;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all $transition-normal;
+    flex-shrink: 0;
+
+    @media (min-width: $tablet) {
+      padding: 4px;
+      min-width: auto;
+      min-height: auto;
+    }
+
+    &:hover {
+      background-color: var(--background-hover, #e9ecef);
+      color: var(--text-primary, #495057);
+    }
+
+    .fa {
+      font-size: 16px;
+
+      @media (min-width: $tablet) {
+        font-size: 14px;
+      }
+    }
+
+    &:hover {
+      background-color: var(--danger-bg-light, #fff2f2);
+      color: var(--danger-color, #dc3545);
+    }
+
+    .fa {
+      font-size: $font-size-sm;
+    }
+  }
+
+  // Stage Timeline in tab
+  &__stage-timeline {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0;
+    width: 100%;
+    margin-top: 2px;
+  }
+
+  &__stage-timeline-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    position: relative;
+    min-width: 0;
+
+    &--completed {
+      .ai-assistant-chat__stage-timeline-marker {
+        background-color: var(--success-color, #28a745);
+        color: white;
+
+        .fa {
+          font-size: 8px;
+        }
+      }
+
+      .ai-assistant-chat__stage-timeline-label {
+        color: var(--success-color, #28a745);
+        font-weight: 500;
+      }
+
+      .ai-assistant-chat__stage-timeline-connector {
+        background-color: var(--success-color, #28a745);
+      }
+    }
+
+    &--active {
+      .ai-assistant-chat__stage-timeline-marker {
+        background-color: var(--primary-color, #2196F3);
+        box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+      }
+
+      .ai-assistant-chat__stage-timeline-label {
+        color: var(--primary-color, #2196F3);
+        font-weight: 600;
+      }
+
+      .ai-assistant-chat__stage-timeline-connector {
+        background: linear-gradient(to right, var(--success-color, #28a745) 0%, var(--primary-color, #2196F3) 100%);
+      }
+    }
+
+    &--pending {
+      .ai-assistant-chat__stage-timeline-marker {
+        background-color: var(--background-light, #e9ecef);
+        border: 1px solid var(--border-color, #dee2e6);
+      }
+
+      .ai-assistant-chat__stage-timeline-label {
+        color: var(--text-muted, #adb5bd);
+      }
+    }
+  }
+
+  &__stage-timeline-marker {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2px;
+    transition: all $transition-slow;
+    position: relative;
+    z-index: 2;
+  }
+
+  &__stage-timeline-pulse {
+    width: 6px;
+    height: 6px;
+    background-color: white;
+    border-radius: 50%;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  &__stage-timeline-dot {
+    width: 6px;
+    height: 6px;
+    background-color: var(--text-muted, #adb5bd);
+    border-radius: 50%;
+  }
+
+  &__stage-timeline-label {
+    font-size: $font-size-xs;
+    text-align: center;
+    line-height: 1.1;
+    color: var(--text-color-secondary, #6c757d);
+    max-width: 80px;
+    word-wrap: break-word;
+  }
+
+  &__stage-timeline-connector {
+    position: absolute;
+    top: 7px;
+    left: 50%;
+    width: 100%;
+    height: 1px;
+    background-color: var(--border-color, #dee2e6);
+    z-index: 1;
+  }
+}

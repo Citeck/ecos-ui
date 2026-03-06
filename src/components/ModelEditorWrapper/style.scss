@@ -30,7 +30,6 @@
 
     &-work-zone {
       background: $color-white;
-      border-radius: $border-radius-extra-large;
       flex: auto;
       display: flex;
       flex-direction: column;
@@ -76,14 +75,23 @@
     }
 
     &-buttons {
-      z-index: 1000;
       position: absolute;
-      bottom: 20px;
+      bottom: 30px;
       display: flex;
       padding: 10px;
 
       & :nth-child(n):not(:last-child) {
         margin-right: 10px;
+      }
+    }
+
+    @media (max-width: 992px) {
+      &-buttons {
+        bottom: 60px;
+
+        .ecos-btn {
+          padding: 10px;
+        }
       }
     }
   }
@@ -92,6 +100,7 @@
     width: 30px;
     position: relative;
     box-shadow: -5px 0px 5px -5px rgba(0, 0, 0, 0.2);
+    background-color: white;
     transition: width 0.5s;
     flex-grow: 2;
 
@@ -99,12 +108,12 @@
       position: sticky;
       top: -20px;
       background: white;
-      z-index: 5;
       padding-top: 20px;
       padding-bottom: 20px;
       border-bottom: 1px $color-gray-4 solid;
       padding-left: 20px;
       margin: -20px -20px 5px -20px;
+      z-index: 99;
     }
 
     &-resizer {
@@ -171,11 +180,23 @@
 
   &__designer-zoom {
     position: absolute;
-    bottom: 70px;
+    bottom: 90px;
     right: 20px;
 
     .ecos-btn {
       margin-bottom: 10px;
+    }
+
+    @media (max-width: 992px) {
+      .ecos-btn {
+        padding: 10px;
+      }
+    }
+  }
+
+  @media (max-width: 992px) {
+    &__designer-zoom {
+      bottom: 120px;
     }
   }
 }

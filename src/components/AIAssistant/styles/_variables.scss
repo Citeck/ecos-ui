@@ -1,0 +1,49 @@
+// AI Assistant CSS Variables and Constants
+
+// Chat dimensions - Mobile First
+$chat-default-width: 100%;
+$chat-default-height: 100%;
+$chat-min-width: 280px;
+$chat-min-height: 300px;
+$chat-max-width: 450px;
+$chat-max-height: 600px;
+$chat-desktop-width: 380px;
+$chat-desktop-height: 600px;
+$chat-border-radius: 10px;
+$chat-z-index: 100000;
+
+// Breakpoints
+$mobile-small: 320px;
+$mobile-large: 480px;
+$tablet: 768px;
+$desktop: 1024px;
+
+// Spacing
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 12px;
+$spacing-lg: 16px;
+$spacing-xl: 20px;
+
+// Font sizes
+$font-size-xs: 10px;
+$font-size-sm: 12px;
+$font-size-md: 14px;
+$font-size-lg: 16px;
+
+// Border radius
+$border-radius-sm: 4px;
+$border-radius-md: 6px;
+$border-radius-lg: 8px;
+$border-radius-xl: 12px;
+
+// Transitions
+$transition-fast: 0.15s ease;
+$transition-normal: 0.2s ease;
+$transition-slow: 0.3s ease-in-out;
+
+// Shadows
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+$shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+$shadow-lg: 0 5px 20px rgba(0, 0, 0, 0.15);
+$shadow-xl: 0 10px 30px rgba(0, 0, 0, 0.3);

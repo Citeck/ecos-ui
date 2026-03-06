@@ -634,7 +634,10 @@ export default class SelectComponent extends BaseComponent {
     };
 
     let filter = this.component.filter;
-    if (this.component.data.url === '/citeck/ecos/records/query' && !filter) {
+    let dataUrl = this.component.data.url;
+    // When no URL is configured or the legacy records-query URL is used,
+    // load options directly from the current record's attribute via Records API.
+    if (this.component.dataSrc === 'url' && (!dataUrl || dataUrl === '/citeck/ecos/records/query') && !filter) {
       this.getRecord()
         .load('#' + this.getAttributeToEdit() + '?options')
         .then(processItems)
@@ -898,7 +901,7 @@ export default class SelectComponent extends BaseComponent {
       itemSelectText: '',
       classNames: {
         containerOuter: 'choices form-group formio-choices',
-        containerInner: 'form-control'
+        containerInner: 'form-control ecos-select'
       },
       addItemText: false,
       placeholder: !!this.component.placeholder,

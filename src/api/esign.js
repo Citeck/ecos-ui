@@ -60,7 +60,7 @@ class EsignApi {
     }
   }
 
-  getDocumentData = async (record, hasAlfresco = null) => {
+  getDocumentData = async (record, contentAtt = "", hasAlfresco = null) => {
     if (hasAlfresco === null) {
       hasAlfresco = await ConfigService.getValue(ALFRESCO_ENABLED);
     }
@@ -75,7 +75,7 @@ class EsignApi {
     return Records.query(
       {
         sourceId: EDI_REQUEST.GET_DIGEST,
-        query: { documentRef: record }
+        query: { documentRef: record, contentAtt: contentAtt }
       },
       {
         success: 'success?bool',

@@ -1,0 +1,153 @@
+// AI Assistant Context Tags Styles - Mobile First
+
+@import 'variables';
+
+.ai-assistant-chat {
+  &__context-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+    padding: 0 4px;
+
+    @media (min-width: $tablet) {
+      margin-bottom: $spacing-sm;
+      padding: 0 $spacing-xs;
+    }
+  }
+
+  &__context-tag {
+    display: flex;
+    align-items: center;
+    background: var(--primary-bg-light, #e3f2fd);
+    color: var(--primary-color);
+    border: 1px solid var(--primary-border-light, #bbdefb);
+    border-radius: $border-radius-xl;
+    padding: 6px 8px;
+    font-size: 12px;
+    gap: 6px;
+    min-height: 28px;
+
+    @media (min-width: $tablet) {
+      padding: $spacing-xs $spacing-sm;
+      font-size: $font-size-sm;
+      min-height: auto;
+    }
+
+    span {
+      font-weight: 500;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    &--document {
+      background: var(--success-bg-light, #e8f5e8);
+      color: var(--success-color, #4caf50);
+      border: 1px solid var(--success-border-light, #c8e6c9);
+
+      .ai-assistant-chat__context-tag-remove {
+        color: var(--success-color, #4caf50);
+      }
+    }
+
+    &--attribute {
+      background: var(--warning-bg-light, #fff3cd);
+      color: var(--warning-color, #856404);
+      border: 1px solid var(--warning-border-light, #ffeaa7);
+
+      .ai-assistant-chat__context-tag-remove {
+        color: var(--warning-color, #856404);
+      }
+    }
+
+    &--selected-text {
+      background: var(--info-bg-light, #d1ecf1);
+      color: var(--info-color, #0c5460);
+      border: 1px solid var(--info-border-light, #bee5eb);
+      max-width: 100%;
+
+      @media (min-width: $tablet) {
+        max-width: 300px;
+      }
+
+      .ai-assistant-chat__context-tag-remove {
+        color: var(--info-color, #0c5460);
+      }
+
+      span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: calc(100vw - 120px);
+
+        @media (min-width: $tablet) {
+          max-width: 250px;
+        }
+      }
+    }
+
+    &--uploaded-file {
+      background: var(--success-bg-light, #e8f5e8);
+      color: var(--success-color, #4caf50);
+      border: 1px solid var(--success-border-light, #c8e6c9);
+
+      .ai-assistant-chat__context-tag-remove {
+        color: var(--success-color, #4caf50);
+      }
+    }
+
+    &--script {
+      background: rgba(103, 58, 183, 0.1);
+      color: #673ab7;
+      border: 1px solid rgba(103, 58, 183, 0.3);
+
+      .fa-code {
+        font-size: 11px;
+      }
+
+      .ai-assistant-chat__context-tag-remove {
+        color: #673ab7;
+      }
+    }
+  }
+
+  &__context-tag-remove {
+    background: transparent;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 4px;
+    min-width: 28px;
+    min-height: 28px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all $transition-normal;
+    flex-shrink: 0;
+
+    @media (min-width: $tablet) {
+      font-size: $font-size-xs;
+      padding: 0;
+      width: 16px;
+      height: 16px;
+      min-width: 16px;
+      min-height: 16px;
+    }
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all $transition-normal;
+    box-shadow: $shadow-sm;
+
+    &:focus-within {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px var(--primary-bg-light, rgba(52, 152, 219, 0.1));
+    }
+  }
+}
