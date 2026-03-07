@@ -198,7 +198,11 @@ describe('AdditionalContextService', () => {
         [ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD], setSelectedTypes
       );
 
-      // Should remove context type since it's the last record
+      // Now setSelectedTypes is called from inside the setAdditionalContext updater
+      // So we need to invoke the setAdditionalContext updater first
+      const contextUpdater = setAdditionalContext.mock.calls[0][0];
+      contextUpdater(context);
+
       const typeUpdater = setSelectedTypes.mock.calls[0][0];
       const result = typeUpdater([ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD, ADDITIONAL_CONTEXT_TYPES.DOCUMENTS]);
       expect(result).not.toContain(ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD);
@@ -246,6 +250,54 @@ describe('AdditionalContextService', () => {
       expect(result.documents).toHaveLength(0);
     });
   });
+
+  describe('loadWorkspaceContext', () => {
+    it('returns null when workspaceId is empty', async () => {
+      const result = await additionalContextService.loadWorkspaceContext('');
+      expect(result).toBeNull();
+    });
+
+    it('loads workspace context from Records API', async () => {
+      mockRecords.get.mockReturnValue({
+        load: jest.fn().mockResolvedValue({
+          workspaceName: 'My Workspace'
+        })
+      } as any);
+
+      const result = await additionalContextService.loadWorkspaceContext('test-ws');
+
+      expect(mockRecords.get).toHaveBeenCalledWith('emodel/workspace@test-ws');
+      expect(result).toEqual({
+        workspaceId: 'test-ws',
+        workspaceName: 'My Workspace'
+      });
+    });
+
+    it('uses workspaceId as fallback name', async () => {
+      mockRecords.get.mockReturnValue({
+        load: jest.fn().mockResolvedValue({
+          workspaceName: ''
+        })
+      } as any);
+
+      const result = await additionalContextService.loadWorkspaceContext('test-ws');
+
+      expect(result!.workspaceName).toBe('test-ws');
+    });
+
+    it('returns null on error', async () => {
+      const errorSpy = jest.spyOn(console, 'error').mockImplementation();
+      mockRecords.get.mockReturnValue({
+        load: jest.fn().mockRejectedValue(new Error('fail'))
+      } as any);
+
+      const result = await additionalContextService.loadWorkspaceContext('test-ws');
+
+      expect(result).toBeNull();
+      errorSpy.mockRestore();
+    });
+  });
+
 
   describe('handleAddRecordContext', () => {
     const emptyContext: AdditionalContext = { records: [], attributes: [], documents: [] };

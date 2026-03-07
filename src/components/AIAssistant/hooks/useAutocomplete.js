@@ -17,6 +17,7 @@ const useAutocomplete = (options = {}) => {
     getAdditionalContext,
     toggleAdditionalContext,
     addRecordToContext,
+    addDocumentToContext,
     additionalContext,
     selectedAdditionalContext
   } = options;
@@ -131,10 +132,14 @@ const useAutocomplete = (options = {}) => {
     const options = [];
     const query = autocompleteQuery.toLowerCase();
 
+    const contextRecords = additionalContext?.records || [];
+    const contextDocuments = additionalContext?.documents || [];
+
     // Add current record option
     if (currentRecordForAutocomplete) {
       const recordLabel = currentRecordForAutocomplete.displayName || 'Текущая карточка';
-      if (!query || recordLabel.toLowerCase().includes(query)) {
+      const alreadyInContext = contextRecords.some(r => r.recordRef === currentRecordForAutocomplete.recordRef);
+      if (!alreadyInContext && (!query || recordLabel.toLowerCase().includes(query))) {
         options.push({
           type: ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD,
           label: recordLabel,
@@ -146,29 +151,35 @@ const useAutocomplete = (options = {}) => {
 
     // Add search results
     searchResults.forEach(result => {
-      options.push({
-        type: 'search_result',
-        label: result.displayName || result.recordRef,
-        icon: 'fa-search',
-        data: result
-      });
-    });
-
-    // Add available documents
-    availableDocuments.forEach(doc => {
-      const docLabel = doc.displayName || doc.recordRef;
-      if (!query || docLabel.toLowerCase().includes(query)) {
+      const alreadyInContext = contextRecords.some(r => r.recordRef === result.recordRef);
+      if (!alreadyInContext) {
         options.push({
-          type: ADDITIONAL_CONTEXT_TYPES.DOCUMENTS,
-          label: docLabel,
-          icon: 'fa-file-o',
-          data: doc
+          type: 'search_result',
+          label: result.displayName || result.recordRef,
+          icon: 'fa-search',
+          data: result
         });
       }
     });
 
+    // Add available documents
+    availableDocuments.forEach(doc => {
+      const alreadyInContext = contextDocuments.some(d => d.recordRef === doc.recordRef);
+      if (!alreadyInContext) {
+        const docLabel = doc.displayName || doc.recordRef;
+        if (!query || docLabel.toLowerCase().includes(query)) {
+          options.push({
+            type: ADDITIONAL_CONTEXT_TYPES.DOCUMENTS,
+            label: docLabel,
+            icon: 'fa-file-o',
+            data: doc
+          });
+        }
+      }
+    });
+
     return options;
-  }, [autocompleteQuery, currentRecordForAutocomplete, searchResults, availableDocuments]);
+  }, [autocompleteQuery, currentRecordForAutocomplete, searchResults, availableDocuments, additionalContext]);
 
   // Insert context mention into message
   const insertContextMention = useCallback(async (
@@ -227,14 +238,14 @@ const useAutocomplete = (options = {}) => {
       if (contextType === 'search_result') {
         addRecordToContext?.(contextDataToAdd);
       } else if (contextType === ADDITIONAL_CONTEXT_TYPES.DOCUMENTS) {
-        toggleAdditionalContext?.(contextType, contextDataToAdd);
+        addDocumentToContext?.(contextDataToAdd);
       } else if (contextType === ADDITIONAL_CONTEXT_TYPES.ATTRIBUTES) {
         // Attributes handled separately
       } else {
         toggleAdditionalContext?.(contextType);
       }
     }
-  }, [getAdditionalContext, toggleAdditionalContext, addRecordToContext, hideAutocomplete]);
+  }, [getAdditionalContext, toggleAdditionalContext, addRecordToContext, addDocumentToContext, hideAutocomplete]);
 
   // Handle keyboard navigation in autocomplete
   const handleAutocompleteKeyDown = useCallback((e, filteredOptions) => {

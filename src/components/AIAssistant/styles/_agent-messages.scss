@@ -1,0 +1,321 @@
+// AI Assistant Agent Messages Styles - Mobile First
+
+@import 'variables';
+@import 'mixins';
+
+.ai-assistant-chat {
+  // Agent Plan Message
+  &__agent-plan {
+    @include markdown-content;
+  }
+
+  &__agent-error {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: $spacing-sm $spacing-md;
+    margin-top: $spacing-md;
+    background-color: var(--danger-bg-light, rgba(244, 67, 54, 0.1));
+    border-left: 3px solid var(--danger-color, #f44336);
+    border-radius: $border-radius-md;
+    color: var(--danger-color, #f44336);
+    font-size: $font-size-sm;
+
+    .fa {
+      flex-shrink: 0;
+    }
+  }
+
+  &__agent-hint {
+    margin-top: $spacing-md;
+    padding: $spacing-sm $spacing-md;
+    font-size: $font-size-sm;
+    color: var(--text-secondary, #666);
+    font-style: italic;
+    background-color: var(--background-light, #f8f9fa);
+    border-radius: $border-radius-md;
+    border-left: 3px solid var(--primary-color);
+  }
+
+  // Agent Progress Message
+  &__agent-progress {
+    @include card-base;
+    padding: 12px 16px;
+    margin: $spacing-sm 0;
+
+    @media (min-width: $tablet) {
+      padding: $spacing-lg;
+    }
+  }
+
+  &__agent-progress-header {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    font-weight: 600;
+    color: var(--primary-color);
+    font-size: $font-size-md;
+    margin-bottom: $spacing-md;
+
+    .fa {
+      font-size: 16px;
+
+      @media (min-width: $tablet) {
+        font-size: 18px;
+      }
+    }
+  }
+
+  &__agent-step-counter {
+    font-size: $font-size-sm;
+    color: var(--text-secondary, #666);
+    margin-bottom: $spacing-sm;
+  }
+
+  &__agent-progress-bar {
+    @include progress-bar(6px);
+    margin-bottom: $spacing-md;
+  }
+
+  &__agent-progress-fill {
+    @include progress-fill;
+    background: linear-gradient(90deg, var(--primary-color) 0%, var(--light-primary-color) 100%);
+  }
+
+  &__agent-current-step {
+    font-size: $font-size-sm;
+    color: var(--text-primary, #333);
+    font-style: italic;
+    margin-bottom: $spacing-md;
+  }
+
+  // Step checklist
+  &__agent-steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+    margin-top: $spacing-sm;
+  }
+
+  &__agent-step {
+    display: flex;
+    flex-direction: column;
+    padding: $spacing-xs $spacing-sm;
+    border-radius: $border-radius-sm;
+    font-size: $font-size-sm;
+    transition: background-color $transition-fast;
+    animation: agentStepFadeIn $transition-slow;
+
+    // Step status modifiers
+    &.agent-step--pending {
+      color: var(--text-secondary, #999);
+
+      .fa {
+        color: var(--text-secondary, #999);
+      }
+    }
+
+    &.agent-step--in-progress {
+      color: var(--primary-color);
+      background-color: var(--primary-bg-light, rgba(52, 152, 219, 0.08));
+
+      .fa {
+        color: var(--primary-color);
+      }
+    }
+
+    &.agent-step--completed {
+      color: var(--text-primary, #333);
+
+      .fa {
+        color: var(--success-color, #4caf50);
+        animation: agentStepCheckAppear 0.3s ease;
+      }
+    }
+
+    &.agent-step--failed {
+      color: var(--danger-color, #f44336);
+
+      .fa {
+        color: var(--danger-color, #f44336);
+      }
+    }
+
+    &.agent-step--skipped {
+      color: var(--text-secondary, #999);
+      text-decoration: line-through;
+
+      .fa {
+        color: var(--text-secondary, #999);
+      }
+    }
+  }
+
+  &__agent-step-header {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+
+    .fa {
+      font-size: 14px;
+      flex-shrink: 0;
+      width: 16px;
+      text-align: center;
+    }
+
+    &--expandable {
+      cursor: pointer;
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+  }
+
+  &__agent-step-description {
+    flex: 1;
+    line-height: 1.4;
+  }
+
+  &__agent-step-time {
+    font-size: $font-size-xs;
+    color: var(--text-secondary, #999);
+    white-space: nowrap;
+    margin-left: auto;
+    padding-left: $spacing-sm;
+  }
+
+  &__agent-step-toggle {
+    font-size: 10px !important;
+    width: 12px !important;
+    color: var(--text-secondary, #999);
+    margin-left: $spacing-xs;
+  }
+
+  &__agent-step-error {
+    display: flex;
+    align-items: flex-start;
+    gap: $spacing-xs;
+    margin-top: $spacing-xs;
+    margin-left: 24px;
+    padding: $spacing-xs $spacing-sm;
+    font-size: $font-size-xs;
+    color: var(--danger-color, #f44336);
+    background-color: var(--danger-bg-light, rgba(244, 67, 54, 0.06));
+    border-radius: $border-radius-sm;
+
+    .fa {
+      font-size: 11px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+  }
+
+  &__agent-step-preview-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-xs;
+    margin-top: $spacing-xs;
+    margin-left: 24px;
+    padding: 2px $spacing-sm;
+    font-size: $font-size-xs;
+    color: var(--primary-color);
+    background: none;
+    border: 1px solid var(--primary-color);
+    border-radius: $border-radius-sm;
+    cursor: pointer;
+    transition: background-color $transition-fast, color $transition-fast;
+
+    &:hover {
+      background-color: var(--primary-bg-light, rgba(52, 152, 219, 0.08));
+    }
+
+    .fa {
+      font-size: 11px;
+    }
+  }
+
+  &__agent-step-details {
+    margin-top: $spacing-xs;
+    margin-left: 24px;
+    animation: agentStepFadeIn $transition-fast;
+  }
+
+  &__agent-step-preview {
+    font-size: $font-size-xs;
+    line-height: 1.5;
+    padding: $spacing-sm;
+    background-color: var(--background-light, #f5f5f5);
+    border: 1px solid var(--border-color, #e0e0e0);
+    border-radius: $border-radius-sm;
+    max-height: 300px;
+    overflow-y: auto;
+
+    pre {
+      font-family: monospace;
+      font-size: $font-size-xs;
+      line-height: 1.5;
+      padding: $spacing-sm;
+      background-color: var(--code-bg, #f0f0f0);
+      border-radius: $border-radius-sm;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 0;
+      overflow-x: auto;
+    }
+
+    code {
+      font-family: monospace;
+      font-size: $font-size-xs;
+    }
+
+    p:first-child {
+      margin-top: 0;
+    }
+
+    p:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  &__agent-step-output {
+    font-family: monospace;
+    font-size: $font-size-xs;
+    line-height: 1.5;
+    padding: $spacing-sm;
+    background-color: var(--background-light, #f5f5f5);
+    border: 1px solid var(--border-color, #e0e0e0);
+    border-radius: $border-radius-sm;
+    max-height: 200px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin: 0;
+  }
+}
+
+// Animations
+@keyframes agentStepFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes agentStepCheckAppear {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

@@ -3,40 +3,7 @@ import classNames from 'classnames';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Icon } from '../../../common';
-
-/**
- * Renders artifacts list
- */
-const ArtifactsList = ({ artifacts }) => {
-  if (!artifacts || artifacts.length === 0) return null;
-
-  return (
-    <div className="ai-assistant-chat__artifacts">
-      <div className="ai-assistant-chat__artifacts-header">
-        <Icon className="fa fa-check-circle" />
-        <span>Созданные артефакты:</span>
-      </div>
-      <div className="ai-assistant-chat__artifacts-list">
-        {artifacts.map((artifact, index) => (
-          <div key={index} className="ai-assistant-chat__artifact-item">
-            <Icon className={`fa ${artifact.type?.icon || ''}`} />
-            <a
-              href={artifact.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="ai-assistant-chat__artifact-link"
-            >
-              {artifact.name}
-            </a>
-            <span className="ai-assistant-chat__artifact-type">
-              {artifact.type?.displayName || ''}
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
+import ArtifactsList from './ArtifactsList';
 
 /**
  * Business app generation progress message

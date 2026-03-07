@@ -103,9 +103,11 @@ const AIAssistantChat = () => {
     selectedAdditionalContext,
     selectedTextContext,
     scriptContext,
+    workspaceContext,
     toggleAdditionalContext,
     getAdditionalContext,
     addRecordToContext,
+    addDocumentToContext,
     removeSelectedTextContext,
     removeScriptContext,
     clearAllContext
@@ -142,6 +144,7 @@ const AIAssistantChat = () => {
     getAdditionalContext,
     toggleAdditionalContext,
     addRecordToContext,
+    addDocumentToContext,
     additionalContext,
     selectedAdditionalContext
   });
@@ -453,7 +456,11 @@ const AIAssistantChat = () => {
   const chatContent = (
     <>
       {/* Autocomplete dropdown */}
-      {autocompleteHook.showAutocomplete && (
+      {autocompleteHook.showAutocomplete && (() => {
+        const filteredOptions = autocompleteHook.getFilteredAutocompleteOptions();
+        const showLoading = autocompleteHook.isSearching && autocompleteHook.autocompleteQuery.length >= 3;
+        if (!showLoading && filteredOptions.length === 0) return null;
+        return (
         <div
           className="ai-assistant-chat__autocomplete"
           style={{
@@ -463,7 +470,7 @@ const AIAssistantChat = () => {
             zIndex: 105001
           }}
         >
-          {autocompleteHook.isSearching && autocompleteHook.autocompleteQuery.length >= 3 && (
+          {showLoading && (
             <div className="ai-assistant-chat__autocomplete-item ai-assistant-chat__autocomplete-item--loading">
               <Icon className="fa fa-spinner fa-spin ai-assistant-chat__autocomplete-icon" />
               <div className="ai-assistant-chat__autocomplete-text">
@@ -471,7 +478,7 @@ const AIAssistantChat = () => {
               </div>
             </div>
           )}
-          {autocompleteHook.getFilteredAutocompleteOptions().map((option, index) => (
+          {filteredOptions.map((option, index) => (
             <div
               key={`${option.type}-${option.data?.recordRef || 'current'}`}
               className={classNames('ai-assistant-chat__autocomplete-item', {
@@ -491,12 +498,13 @@ const AIAssistantChat = () => {
             >
               <Icon className={`fa ${option.icon} ai-assistant-chat__autocomplete-icon`} />
               <div className="ai-assistant-chat__autocomplete-text">
-                <div className="ai-assistant-chat__autocomplete-label">@{option.label}</div>
+                <div className="ai-assistant-chat__autocomplete-label">{option.label}</div>
               </div>
             </div>
           ))}
         </div>
-      )}
+        );
+      })()}
 
       <div
         className={classNames('ai-assistant-chat ai-assistant-chat--tabs', {
@@ -518,7 +526,7 @@ const AIAssistantChat = () => {
         }}
         onDragLeave={handleDragLeave}
       >
-        <ChatHeader isMinimized={isMinimized} onMinimize={handleMinimize} onClose={handleClose} />
+        <ChatHeader isMinimized={isMinimized} onMinimize={handleMinimize} onClose={handleClose} agentStatus={universalChatHook.agentStatus} />
 
         {!isMinimized && (
           <>
@@ -548,6 +556,7 @@ const AIAssistantChat = () => {
                 isLoading={currentChat.isLoading}
                 activeRequestId={currentChat.activeRequestId}
                 messagesEndRef={messagesEndRef}
+                onActionClick={currentChat.handleActionClick}
               />
             </div>
 
@@ -558,13 +567,16 @@ const AIAssistantChat = () => {
                     selectedAdditionalContext={selectedAdditionalContext}
                     additionalContext={additionalContext}
                     selectedTextContext={selectedTextContext}
+                    workspaceContext={workspaceContext}
                     uploadedFiles={uploadedFiles}
                     uploadingFiles={uploadingFiles}
                     scriptContext={scriptContext}
+                    autoContextArtifacts={universalChatHook.autoContextArtifacts}
                     onToggleContext={toggleAdditionalContext}
                     onRemoveSelectedText={removeSelectedTextContext}
                     onRemoveUploadedFile={removeUploadedFile}
                     onRemoveScriptContext={removeScriptContext}
+                    onRemoveAutoContextArtifact={universalChatHook.removeAutoContextArtifact}
                     getScriptContextLabel={getScriptContextLabel}
                   />
                 )}

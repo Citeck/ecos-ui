@@ -56,7 +56,9 @@ export const MESSAGE_TYPES = {
   EMAIL: 'email',
   TEXT_EDITING: 'text_editing',
   SCRIPT_WRITING: 'script_writing',
-  BUSINESS_APP_GENERATION: 'business_app_generation'
+  BUSINESS_APP_GENERATION: 'business_app_generation',
+  AGENT_PLANNING: 'agent_planning',
+  AGENT_EXECUTION: 'agent_execution'
 };
 
 // Content types for AI generation
@@ -94,6 +96,30 @@ export const CHAT_DIMENSIONS = {
 
 // Autocomplete
 export const AUTOCOMPLETE_QUERY_THRESHOLD = 2;
+
+// Context artifact type icons
+export const CONTEXT_ARTIFACT_ICONS = {
+  DATA_TYPE: 'fa-database',
+  FORM: 'fa-file-text-o',
+  BPMN_PROCESS: 'fa-sitemap',
+  UNKNOWN: 'fa-cube'
+};
+
+export const getContextArtifactIcon = (type) => CONTEXT_ARTIFACT_ICONS[type] || CONTEXT_ARTIFACT_ICONS.UNKNOWN;
+
+/**
+ * Derive artifact type icon from a record ref string.
+ * Useful when records are added via @ mention and don't carry an explicit artifact type.
+ * @param {string} recordRef - e.g. 'uiserv/form@my-form', 'emodel/type@my-type'
+ * @returns {string} FontAwesome icon class
+ */
+export const getRecordRefIcon = (recordRef) => {
+  if (!recordRef) return CONTEXT_ARTIFACT_ICONS.UNKNOWN;
+  if (recordRef.startsWith('uiserv/form@') || recordRef.includes('/form@')) return CONTEXT_ARTIFACT_ICONS.FORM;
+  if (recordRef.startsWith('emodel/type@') || recordRef.includes('/type@')) return CONTEXT_ARTIFACT_ICONS.DATA_TYPE;
+  if (recordRef.startsWith('emodel/bpmn-process@') || recordRef.includes('/bpmn-process@')) return CONTEXT_ARTIFACT_ICONS.BPMN_PROCESS;
+  return CONTEXT_ARTIFACT_ICONS.DATA_TYPE; // default for records
+};
 
 // API endpoints
 export const API_ENDPOINTS = {

@@ -34,6 +34,14 @@
       min-height: auto;
     }
 
+    > i,
+    > .icon {
+      font-size: 11px;
+      flex-shrink: 0;
+      width: 12px;
+      text-align: center;
+    }
+
     span {
       font-weight: 500;
       overflow: hidden;
@@ -97,17 +105,45 @@
       }
     }
 
+    &--workspace {
+      background: rgba(96, 125, 139, 0.1);
+      color: #546e7a;
+      border: 1px solid rgba(96, 125, 139, 0.3);
+      cursor: default;
+    }
+
+    &-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(96, 125, 139, 0.2);
+      color: #546e7a;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 600;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      line-height: 1;
+    }
+
     &--script {
       background: rgba(103, 58, 183, 0.1);
       color: #673ab7;
       border: 1px solid rgba(103, 58, 183, 0.3);
 
-      .fa-code {
-        font-size: 11px;
-      }
-
       .ai-assistant-chat__context-tag-remove {
         color: #673ab7;
+      }
+    }
+
+    &--auto {
+      background: #e8e0f0;
+      color: #5e35b1;
+      border: 1px solid #d1c4e9;
+
+      .ai-assistant-chat__context-tag-remove {
+        color: #5e35b1;
       }
     }
   }
@@ -138,13 +174,6 @@
       min-width: 16px;
       min-height: 16px;
     }
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all $transition-normal;
-    box-shadow: $shadow-sm;
-
     &:focus-within {
       border-color: var(--primary-color);
       box-shadow: 0 0 0 3px var(--primary-bg-light, rgba(52, 152, 219, 0.1));

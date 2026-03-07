@@ -8,8 +8,113 @@ import {
   EDITOR_CONTEXT_HANDLERS,
   API_ENDPOINTS, CONTENT_TYPES
 } from "../constants";
+import { AGENT_STATUSES } from '../types';
 import { generateUUID } from '../utils';
 import usePolling from './usePolling';
+
+/**
+ * Builds message data fields for a processing message based on progress type.
+ * Returns the fields to merge onto the processing message, or null if no update.
+ * @param {Object} progress - Progress data from polling
+ * @returns {{ isAgent: boolean, messageFields: Object }} Message fields to apply
+ */
+const buildProgressMessageData = (progress) => {
+  const isAgentProgress = progress.type && progress.type.startsWith('agent_');
+
+  if (isAgentProgress) {
+    return {
+      isAgent: true,
+      messageFields: {
+        isAgentProgressContent: true,
+        messageData: {
+          type: progress.type,
+          currentStepId: progress.currentStepId,
+          currentStepDescription: progress.currentStepDescription,
+          completedSteps: progress.completedSteps,
+          totalSteps: progress.totalSteps,
+          overallProgress: progress.overallProgress,
+          steps: progress.steps
+        }
+      }
+    };
+  }
+
+  return {
+    isAgent: false,
+    messageFields: {
+      isBusinessAppContent: true,
+      messageData: {
+        type: MESSAGE_TYPES.BUSINESS_APP_GENERATION,
+        stage: progress.stage,
+        progress: progress.progress,
+        message: progress.message,
+        detailedStatus: progress.detailedStatus,
+        stageMetadata: progress.stageMetadata,
+        currentAttempt: progress.currentAttempt,
+        maxAttempts: progress.maxAttempts
+      }
+    }
+  };
+};
+
+/**
+ * Builds the initial processing message based on initialProgress type.
+ * Routes agent progress, business app progress, and generic messages.
+ * @param {Object} data - Response data from async API call
+ * @returns {Object} Processing message object
+ */
+const buildInitialProcessingMessage = (data) => {
+  const base = {
+    id: generateUUID(),
+    sender: 'ai',
+    timestamp: new Date(),
+    isProcessing: true,
+    pollingIsUsed: true
+  };
+
+  const initialProgress = data.initialProgress;
+  const progressType = initialProgress?.type;
+
+  // Agent progress (type starts with 'agent_')
+  if (progressType && progressType.startsWith('agent_')) {
+    return {
+      ...base,
+      isAgentProgressContent: true,
+      messageData: {
+        type: progressType,
+        currentStepId: initialProgress.currentStepId,
+        currentStepDescription: initialProgress.currentStepDescription,
+        completedSteps: initialProgress.completedSteps,
+        totalSteps: initialProgress.totalSteps,
+        overallProgress: initialProgress.overallProgress,
+        message: initialProgress.message
+      }
+    };
+  }
+
+  // Business app progress (by initialProgress.type or legacy detectedIntent fallback)
+  if (
+    progressType === 'business_app_generation' ||
+    (data.detectedIntent === 'BUSINESS_APP_GENERATION' && initialProgress)
+  ) {
+    return {
+      ...base,
+      isBusinessAppContent: true,
+      messageData: {
+        type: MESSAGE_TYPES.BUSINESS_APP_GENERATION,
+        stage: initialProgress.stage,
+        progress: initialProgress.progress,
+        message: initialProgress.message
+      }
+    };
+  }
+
+  // Generic processing message
+  return {
+    ...base,
+    text: 'Запрос обрабатывается. Это может занять некоторое время...'
+  };
+};
 
 /**
  * Creates an AI message object based on response data
@@ -17,9 +122,54 @@ import usePolling from './usePolling';
  * @param {Object} options - Additional options
  * @returns {Object} Message object
  */
+const AGENT_PLAN_STATUSES = [
+  AGENT_STATUSES.WAITING_PLAN_APPROVAL,
+  AGENT_STATUSES.WAITING_STEP_APPROVAL,
+  AGENT_STATUSES.COMPLETED,
+  AGENT_STATUSES.FAILED
+];
+
 const createAIMessage = (responseData, options = {}) => {
   const { setGenerationStages, generationStages } = options;
   const messageData = responseData.message;
+
+  // Agent mode messages (determined by agentStatus in response)
+  if (responseData.agentStatus) {
+    const isAgentPlan = AGENT_PLAN_STATUSES.includes(responseData.agentStatus);
+
+    if (isAgentPlan) {
+      return {
+        id: generateUUID(),
+        text: typeof messageData === 'object' ? messageData.message : messageData || '',
+        sender: 'ai',
+        timestamp: new Date(),
+        isAgentPlanContent: true,
+        messageData: {
+          agentStatus: responseData.agentStatus,
+          message: typeof messageData === 'object' ? messageData.message : messageData,
+          plan: typeof messageData === 'object' ? messageData.plan : undefined,
+          artifacts: responseData.artifacts,
+          contextArtifacts: responseData.contextArtifacts,
+          actions: responseData.actions
+        }
+      };
+    }
+
+    // PLANNING, EXECUTING — progress states
+    return {
+      id: generateUUID(),
+      text: typeof messageData === 'object' ? messageData.message : messageData || 'Обрабатывается...',
+      sender: 'ai',
+      timestamp: new Date(),
+      isAgentProgressContent: true,
+      messageData: {
+        agentStatus: responseData.agentStatus,
+        message: typeof messageData === 'object' ? messageData.message : messageData,
+        actions: responseData.actions
+      }
+    };
+  }
+
   const isObjectMessage = typeof messageData === 'object';
 
   // Check message types
@@ -76,12 +226,24 @@ const createAIMessage = (responseData, options = {}) => {
   }
 
   // Default text message
-  return {
+  const defaultMessage = {
     id: generateUUID(),
     text: messageData || 'Не удалось получить ответ.',
     sender: 'ai',
     timestamp: new Date()
   };
+
+  const hasContextArtifacts = responseData.contextArtifacts?.length > 0;
+  const hasActions = responseData.actions?.length > 0;
+
+  if (hasContextArtifacts || hasActions) {
+    defaultMessage.messageData = {
+      ...(hasContextArtifacts && { contextArtifacts: responseData.contextArtifacts }),
+      ...(hasActions && { actions: responseData.actions })
+    };
+  }
+
+  return defaultMessage;
 };
 
 /**
@@ -108,6 +270,8 @@ const useUniversalChat = (options = {}) => {
   const [conversationForceIntent, setConversationForceIntent] = useState(null);
   const [activeBusinessAppProgress, setActiveBusinessAppProgress] = useState(null);
   const [generationStages, setGenerationStages] = useState(null);
+  const [agentStatus, setAgentStatus] = useState(null);
+  const [autoContextArtifacts, setAutoContextArtifacts] = useState([]);
 
   // Fetch status function for polling
   const fetchStatus = useCallback(async (requestId) => {
@@ -122,8 +286,23 @@ const useUniversalChat = (options = {}) => {
   const handlePollingResult = useCallback((result) => {
     setIsLoading(false);
 
+    if (result.agentStatus) {
+      setAgentStatus(result.agentStatus);
+    } else {
+      setAgentStatus(null);
+    }
+
     if (result.forceIntent) {
       setConversationForceIntent(result.forceIntent);
+    }
+
+    if (result.contextArtifacts) {
+      const manualRefs = new Set(
+        (additionalContext.records || []).map(r => r.recordRef)
+      );
+      setAutoContextArtifacts(
+        result.contextArtifacts.filter(a => !manualRefs.has(a.ref))
+      );
     }
 
     const isBusinessAppCompleted = typeof result.message === 'object' &&
@@ -142,7 +321,7 @@ const useUniversalChat = (options = {}) => {
       const aiMessage = createAIMessage(result, { setGenerationStages, generationStages });
       return [...filteredMessages, aiMessage];
     });
-  }, [generationStages]);
+  }, [generationStages, additionalContext]);
 
   // Handle polling error
   const handlePollingError = useCallback((error) => {
@@ -184,37 +363,37 @@ const useUniversalChat = (options = {}) => {
 
   // Handle polling progress
   const handlePollingProgress = useCallback((progress) => {
-    setActiveBusinessAppProgress({
-      stage: progress.stage,
-      progress: progress.progress,
-      message: progress.message,
-      detailedStatus: progress.detailedStatus,
-      stageMetadata: progress.stageMetadata,
-      currentAttempt: progress.currentAttempt,
-      maxAttempts: progress.maxAttempts
-    });
+    const { isAgent, messageFields } = buildProgressMessageData(progress);
 
-    if (progress.availableStages && !generationStages) {
-      setGenerationStages(progress.availableStages);
+    if (isAgent) {
+      const progressType = progress.type;
+      if (progressType === 'agent_planning') {
+        setAgentStatus(AGENT_STATUSES.PLANNING);
+      } else if (progressType === 'agent_execution') {
+        setAgentStatus(AGENT_STATUSES.EXECUTING);
+      }
+    }
+
+    if (!isAgent) {
+      setActiveBusinessAppProgress({
+        stage: progress.stage,
+        progress: progress.progress,
+        message: progress.message,
+        detailedStatus: progress.detailedStatus,
+        stageMetadata: progress.stageMetadata,
+        currentAttempt: progress.currentAttempt,
+        maxAttempts: progress.maxAttempts
+      });
+
+      if (progress.availableStages && !generationStages) {
+        setGenerationStages(progress.availableStages);
+      }
     }
 
     setMessages(prevMessages =>
       prevMessages.map(msg => {
         if (msg.isProcessing) {
-          return {
-            ...msg,
-            isBusinessAppContent: true,
-            messageData: {
-              type: MESSAGE_TYPES.BUSINESS_APP_GENERATION,
-              stage: progress.stage,
-              progress: progress.progress,
-              message: progress.message,
-              detailedStatus: progress.detailedStatus,
-              stageMetadata: progress.stageMetadata,
-              currentAttempt: progress.currentAttempt,
-              maxAttempts: progress.maxAttempts
-            }
-          };
+          return { ...msg, ...messageFields };
         }
         return msg;
       })
@@ -250,8 +429,7 @@ const useUniversalChat = (options = {}) => {
       const contextToSend = {
         records: additionalContext.records ? Object.values(additionalContext.records) : [],
         documents: additionalContext.documents ? Object.values(additionalContext.documents) : [],
-        attributes: additionalContext.attributes ? Object.values(additionalContext.attributes) : [],
-        selectedTexts: additionalContext.selectedTexts || []
+        attributes: additionalContext.attributes ? Object.values(additionalContext.attributes) : []
       };
 
       // Auto-include parent records from documents
@@ -354,7 +532,8 @@ const useUniversalChat = (options = {}) => {
           selection: selectionData,
           content: contentData,
           forceIntent: forceIntent,
-          ...(editing && { editing })
+          ...(editing && { editing }),
+          ...(autoContextArtifacts.length > 0 && { contextArtifacts: autoContextArtifacts })
         }
       };
 
@@ -381,32 +560,7 @@ const useUniversalChat = (options = {}) => {
 
       startPolling(requestId);
 
-      let processingMessage;
-      if (data.detectedIntent === 'BUSINESS_APP_GENERATION' && data.initialProgress) {
-        processingMessage = {
-          id: generateUUID(),
-          sender: 'ai',
-          timestamp: new Date(),
-          isProcessing: true,
-          pollingIsUsed: true,
-          isBusinessAppContent: true,
-          messageData: {
-            type: MESSAGE_TYPES.BUSINESS_APP_GENERATION,
-            stage: data.initialProgress.stage,
-            progress: data.initialProgress.progress,
-            message: data.initialProgress.message
-          }
-        };
-      } else {
-        processingMessage = {
-          id: generateUUID(),
-          text: 'Запрос обрабатывается. Это может занять некоторое время...',
-          sender: 'ai',
-          timestamp: new Date(),
-          isProcessing: true,
-          pollingIsUsed: true
-        };
-      }
+      const processingMessage = buildInitialProcessingMessage(data);
 
       setMessages(prevMessages => [...prevMessages, processingMessage]);
 
@@ -423,7 +577,7 @@ const useUniversalChat = (options = {}) => {
 
       setIsLoading(false);
     }
-  }, [message, conversationId, additionalContext, uploadedFiles, conversationForceIntent, startPolling]);
+  }, [message, conversationId, additionalContext, uploadedFiles, conversationForceIntent, autoContextArtifacts, startPolling]);
 
   // Cancel active request
   const cancelRequest = useCallback(async () => {
@@ -462,6 +616,71 @@ const useUniversalChat = (options = {}) => {
     }
   }, [activeRequestId, stopPolling]);
 
+  // Handle action button click (plan approval, error recovery)
+  const handleActionClick = useCallback(async (actionId) => {
+    if (!conversationId) return;
+
+    setIsLoading(true);
+
+    try {
+      const requestData = {
+        message: '',
+        action: actionId,
+        conversationId: conversationId,
+        context: {
+          workspace: getWorkspaceId()
+        }
+      };
+
+      const response = await fetch(API_ENDPOINTS.UNIVERSAL_ASYNC, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestData)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const requestId = data.requestId;
+
+      if (!requestId) {
+        throw new Error('Не удалось получить ID запроса');
+      }
+
+      // Remove actions from the message that was acted upon
+      setMessages(prevMessages =>
+        prevMessages.map(msg =>
+          msg.messageData?.actions ? { ...msg, messageData: { ...msg.messageData, actions: null } } : msg
+        )
+      );
+
+      startPolling(requestId);
+
+      const processingMessage = buildInitialProcessingMessage(data);
+      setMessages(prevMessages => [...prevMessages, processingMessage]);
+
+    } catch (error) {
+      console.error('Error sending action:', error);
+
+      setMessages(prevMessages => [...prevMessages, {
+        id: generateUUID(),
+        text: 'Произошла ошибка при обработке действия. Пожалуйста, попробуйте снова.',
+        sender: 'ai',
+        timestamp: new Date(),
+        isError: true
+      }]);
+
+      setIsLoading(false);
+    }
+  }, [conversationId, startPolling]);
+
+  // Remove a single auto context artifact by ref
+  const removeAutoContextArtifact = useCallback((ref) => {
+    setAutoContextArtifacts(prev => prev.filter(a => a.ref !== ref));
+  }, []);
+
   // Clear conversation
   const clearConversation = useCallback(async () => {
     try {
@@ -475,6 +694,8 @@ const useUniversalChat = (options = {}) => {
         setConversationForceIntent(null);
         setActiveBusinessAppProgress(null);
         setGenerationStages(null);
+        setAgentStatus(null);
+        setAutoContextArtifacts([]);
 
         clearAllContext?.();
         clearUploadedFiles?.();
@@ -496,16 +717,22 @@ const useUniversalChat = (options = {}) => {
     conversationForceIntent,
     activeBusinessAppProgress,
     generationStages,
+    agentStatus,
+    autoContextArtifacts,
 
     // Setters
     setMessage,
     setMessages,
+    setAutoContextArtifacts,
 
     // Actions
     handleSubmit,
+    handleActionClick,
     cancelRequest,
-    clearConversation
+    clearConversation,
+    removeAutoContextArtifact
   };
 };
 
+export { createAIMessage, buildProgressMessageData, buildInitialProcessingMessage };
 export default useUniversalChat;

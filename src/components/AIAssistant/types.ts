@@ -77,3 +77,57 @@ export interface ProgressInfo {
   progress: number;
   message: string;
 }
+
+/**
+ * Agent status values for agent orchestrator mode
+ * Keep synchronized with backend AgentState.AgentStatus enum
+ */
+export const AGENT_STATUSES = {
+  PLANNING: 'PLANNING',
+  WAITING_PLAN_APPROVAL: 'WAITING_PLAN_APPROVAL',
+  EXECUTING: 'EXECUTING',
+  WAITING_STEP_APPROVAL: 'WAITING_STEP_APPROVAL',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED'
+} as const;
+
+export type AgentStatus = (typeof AGENT_STATUSES)[keyof typeof AGENT_STATUSES];
+
+/**
+ * Step status within agent execution
+ */
+export type AgentStepStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED' | 'SKIPPED';
+
+/**
+ * Progress info for individual agent step
+ */
+export interface AgentStepProgress {
+  id: string;
+  description: string;
+  status: AgentStepStatus;
+  error?: string;
+  output?: string;
+}
+
+/**
+ * Workspace context loaded automatically when chat opens
+ */
+export interface WorkspaceContext {
+  workspaceId: string;
+  workspaceName: string;
+}
+
+
+/**
+ * Progress info for agent orchestrator mode
+ * Keep synchronized with backend agent progress format
+ */
+export interface AgentProgressInfo {
+  type: 'agent_planning' | 'agent_execution';
+  currentStepId?: string;
+  currentStepDescription?: string;
+  completedSteps?: number;
+  totalSteps?: number;
+  overallProgress?: number;
+  steps?: AgentStepProgress[];
+}
