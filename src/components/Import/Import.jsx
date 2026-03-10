@@ -19,7 +19,6 @@ import { wrapArgs } from '@/helpers/redux';
 import { t, getCurrentUserName, isMobileDevice } from '@/helpers/util';
 import { selectJournalConfig } from '@/selectors/journals';
 import PageService from '@/services/PageService';
-import LicenseService from '@/services/license/LicenseService';
 import { NotificationManager } from '@/services/notifications';
 import { WORKER_STATUSES, SERVICE_WORKER_TYPES } from '@/workers/docLib/constants';
 
@@ -60,35 +59,23 @@ class Import extends Component {
   state = {
     importDataConfig: [],
     authorityGroupsCurrentUser: [],
-    isOpenDropdown: false,
-    hasImportDataLicense: false
+    isOpenDropdown: false
   };
 
   componentDidMount() {
-    LicenseService.hasImportDataFeature().then(hasFeature => {
-      if (hasFeature) {
-        this.setState(
-          {
-            hasImportDataLicense: true
-          },
-          () => {
-            const { journalConfig = {} } = this.props;
-            const typeRef = get(journalConfig, 'typeRef');
+    const { journalConfig = {} } = this.props;
+    const typeRef = get(journalConfig, 'typeRef');
 
-            Records.query(
-              {
-                sourceId: 'integrations/import-data-variant',
-                query: {
-                  typeRef: typeRef
-                }
-              },
-              { variantId: 'variantId?str', name: 'name?str', allowedFor: 'allowedFor[]?str' }
-            ).then(({ records }) => {
-              this.setState({ importDataConfig: records });
-            });
-          }
-        );
-      }
+    Records.query(
+      {
+        sourceId: 'integrations/import-data-variant',
+        query: {
+          typeRef: typeRef
+        }
+      },
+      { variantId: 'variantId?str', name: 'name?str', allowedFor: 'allowedFor[]?str' }
+    ).then(({ records }) => {
+      this.setState({ importDataConfig: records });
     });
 
     Records.get(`${SourcesId.PERSON}@${getCurrentUserName()}`)
@@ -108,10 +95,6 @@ class Import extends Component {
       isFunction(this.props.getStateOpen) && this.props.getStateOpen(isOpenDropdown);
     }
   };
-
-  dropdownSourceVariants(importDataConfig, hasImportDataLicense) {
-    return hasImportDataLicense ? importDataConfig : [];
-  }
 
   handleSubmit = async (fileData, persistedRecordId) => {
     const { deselectAllRecords, reloadGrid } = this.props;
@@ -363,12 +346,11 @@ class Import extends Component {
 
   render() {
     const { isViewNewJournal, classNameBtn, children, className, right, journalConfig } = this.props;
-    const { importDataConfig, isOpenDropdown, hasImportDataLicense, authorityGroupsCurrentUser } = this.state;
+    const { importDataConfig, isOpenDropdown, authorityGroupsCurrentUser } = this.state;
     const { hideImportDataActions = false } = journalConfig || {};
 
-    const variants = this.dropdownSourceVariants(importDataConfig, hasImportDataLicense);
-    const allowVariants = get(variants, 'length')
-      ? variants.filter(variant => {
+    const allowVariants = get(importDataConfig, 'length')
+      ? importDataConfig.filter(variant => {
           const allowedFor = get(variant, 'allowedFor', []);
 
           if (isArray(allowedFor) && !allowedFor.length) {

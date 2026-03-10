@@ -1,11 +1,7 @@
 import { getLicenseInfo } from './licenseApi';
-import { FLAG_DEVELOPER, FEATURES, LICENSE_FEATURE_IMPORT_DATA, LICENSE_FEATURE_AI } from './licenseConstants';
+import { FLAG_DEVELOPER, FEATURES, LICENSE_FEATURE_AI } from './licenseConstants';
 
 class LicenseService {
-  async hasImportDataFeature() {
-    return this.hasFeature(LICENSE_FEATURE_IMPORT_DATA);
-  }
-
   async hasAiFeature() {
     return this.hasFeature(LICENSE_FEATURE_AI);
   }
