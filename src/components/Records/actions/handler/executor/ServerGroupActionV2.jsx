@@ -3,15 +3,12 @@ import isEmpty from 'lodash/isEmpty';
 import React from 'react';
 
 import { t } from '../../../../../helpers/export/util';
-import LicenseService from '../../../../../services/license/LicenseService';
 import EcosProgressBar from '../../../../common/EcosProgressBar';
 import { DialogManager } from '../../../../common/dialogs';
 import Records from '../../../Records';
 import { notifyStart, removeNotify } from '../../util/actionUtils';
 import { ResultTypes } from '../../util/constants';
 import ActionsExecutor from '../ActionsExecutor';
-
-import { NotificationManager } from '@/services/notifications';
 
 const STATUS_WAITING = 'WAITING';
 const STATUS_RUNNING = 'RUNNING';
@@ -62,12 +59,6 @@ export default class ServerGroupActionV2 extends ActionsExecutor {
   }
 
   async execForValues(values, action) {
-    const hasGroupActionsLicense = await LicenseService.hasGroupActionsFeature();
-    if (!hasGroupActionsLicense) {
-      NotificationManager.error(t('records-actions.server-group-actions-v2.error.license'));
-      return false;
-    }
-
     const { targetApp, executionParams = {}, valuesParams = {}, outputParams = {} } = action.config || {};
 
     const actionValuesParams = { ...values, ...valuesParams };
