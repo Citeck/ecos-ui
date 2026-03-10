@@ -4,6 +4,8 @@ import { connect } from 'react-redux';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 
+import { getNextSortAscending } from '../../../helpers/sortUtils';
+
 import { selectInstanceMetaInfo, selectInstanceTabInfo } from '../../../selectors/instanceAdmin';
 import {
   getJournalTabInfo,
@@ -50,7 +52,7 @@ const Journal = ({ isMobile, instanceId, tabId, metaInfo, dataInfo, getDataInfo,
   const handleSort = e => {
     const sortBy = {
       attribute: e.column.attribute,
-      ascending: !e.ascending
+      ascending: getNextSortAscending(e.ascending, e.column.type)
     };
 
     isFunction(setSortBy) && setSortBy(instanceId, sortBy, tabId);

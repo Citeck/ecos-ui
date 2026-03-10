@@ -5,6 +5,8 @@ import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import head from 'lodash/head';
 
+import { getNextSortAscending } from '../../../../helpers/sortUtils';
+
 import { CommonTable } from '../../../../components/CommonTable';
 import { getTableColumns } from './constants';
 import {
@@ -56,7 +58,7 @@ const VersionTable = ({ isMobile, processId, dataInfo, getDataInfo, setPage, set
   const handleSort = e => {
     const sortBy = {
       attribute: e.column.attribute,
-      ascending: !e.ascending
+      ascending: getNextSortAscending(e.ascending, e.column.type)
     };
 
     isFunction(setSortBy) && setSortBy(processId, sortBy, tabId);

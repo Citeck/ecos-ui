@@ -3,6 +3,7 @@ import isObject from 'lodash/isObject';
 import isString from 'lodash/isString';
 
 import { SourcesId, TMP_ICON_EMPTY } from '../constants';
+import { getDefaultSortAscending } from './sortUtils';
 
 export function getIconObjectWeb(data) {
   let icon = { value: TMP_ICON_EMPTY };
@@ -50,4 +51,8 @@ export function extractIcon(icon) {
 
 export function getIconUpDown(up) {
   return up ? 'icon-small-up' : 'icon-small-down';
+}
+
+export function getDefaultSortIconForType(columnType) {
+  return getIconUpDown(getDefaultSortAscending(columnType));
 }
