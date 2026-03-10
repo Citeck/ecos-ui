@@ -27,6 +27,7 @@ import {
   saveColumn
 } from '@/actions/journals';
 import { wrapArgs } from '@/helpers/redux';
+import { getNextSortAscending } from '@/helpers/sortUtils';
 import { t } from '@/helpers/util';
 import { selectJournalDashletGridProps } from '@/selectors/dashletJournals';
 import { selectOriginGridPredicates } from '@/selectors/journals';
@@ -160,7 +161,7 @@ class JournalsDashletGrid extends Component {
     const sortBy = [
       {
         attribute: e.column.attribute,
-        ascending: !e.ascending
+        ascending: getNextSortAscending(e.ascending, e.column.type)
       }
     ];
 
