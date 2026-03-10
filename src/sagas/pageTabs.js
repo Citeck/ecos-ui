@@ -142,22 +142,23 @@ function* sagaSetOneTab({ api }, { payload }) {
       return;
     }
 
-    if (dataTab.needUpdateTabs && dataTab.link) {
-      yield put(push(dataTab.link));
-      yield put(setTabs(PageTabList.storeList));
-    }
-
     if (enabledWorkspaces) {
-      const workspace = getWorkspaceId();
+      const wsFromLink = getWsIdOfTabLink(dataTab.link);
+      const workspace = wsFromLink || getWorkspaceId();
 
       if (workspace) {
         params.workspace = workspace;
         dataTab.workspace = workspace;
       }
 
-      if (dataTab && dataTab.link && !getWsIdOfTabLink(dataTab.link)) {
+      if (dataTab && dataTab.link && !wsFromLink) {
         dataTab.link = getLinkWithWs(dataTab.link, workspace);
       }
+    }
+
+    if (dataTab.needUpdateTabs && dataTab.link) {
+      yield put(push(dataTab.link));
+      yield put(setTabs(PageTabList.storeList));
     }
 
     const tab = PageTabList.setTab(dataTab, params);
@@ -185,13 +186,14 @@ function* sagaAddOneTab({ api }, { payload }) {
     }
 
     if (getEnabledWorkspaces()) {
-      const workspace = workspaceId || getWorkspaceId();
+      const wsFromLink = getWsIdOfTabLink(dataTab.link);
+      const workspace = wsFromLink || workspaceId || getWorkspaceId();
 
       if (workspace) {
         params.workspace = workspace;
       }
 
-      if (dataTab && dataTab.link && !getWsIdOfTabLink(dataTab.link)) {
+      if (dataTab && dataTab.link && !wsFromLink) {
         dataTab.link = getLinkWithWs(dataTab.link, workspace);
       }
     }

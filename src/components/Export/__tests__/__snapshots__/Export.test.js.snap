@@ -38,6 +38,30 @@ exports[`Export component tests should render Export component 1`] = `
               class=""
               id="dropdown-menu-item_00000000-0000-0000-0000-000000000000"
             >
+              export-component.action.html-read
+            </li>
+            <li
+              class=""
+              id="dropdown-menu-item_00000000-0000-0000-0000-000000000000"
+            >
+              export-component.action.html-load
+            </li>
+            <li
+              class=""
+              id="dropdown-menu-item_00000000-0000-0000-0000-000000000000"
+            >
+              Excel
+            </li>
+            <li
+              class=""
+              id="dropdown-menu-item_00000000-0000-0000-0000-000000000000"
+            >
+              CSV
+            </li>
+            <li
+              class=""
+              id="dropdown-menu-item_00000000-0000-0000-0000-000000000000"
+            >
               export-component.action.copy-link
             </li>
           </ul>

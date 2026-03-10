@@ -21,9 +21,18 @@ const BpmnSchemaContent = ({ metaInfo, activityElement, labels }) => {
   /* Updating the Designer if we went through the tabs or switched to other business processes */
   useEffect(() => {
     if (typeSchema === URL.BPMN_ADMIN_PROCESS) {
-      setDesigner(new BPMNViewer());
+      setDesigner(prev => {
+        prev && prev.destroy();
+        return new BPMNViewer();
+      });
     }
   }, [typeSchema, currentKeyProcess]);
+
+  useEffect(() => {
+    return () => {
+      designer && designer.destroy();
+    };
+  }, [designer]);
 
   const Sheet = designer && designer.renderSheet;
   const zoomCenter = {

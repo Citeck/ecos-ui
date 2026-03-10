@@ -57,35 +57,17 @@ export default class Export extends Component {
     this.form = React.createRef();
 
     this.state = {
-      isOpenDropdown: false,
-      hasAlfresco: false,
-      hasGroupActionsLicense: false
+      isOpenDropdown: false
     };
   }
 
-  componentDidMount() {
-    ConfigService.getValue(ALFRESCO_ENABLED).then(value => {
-      this.setState({
-        hasAlfresco: value
-      });
-    });
-    LicenseService.hasGroupActionsFeature().then(hasFeature => {
-      if (hasFeature) {
-        this.setState({
-          hasGroupActionsLicense: true
-        });
-      }
-    });
-  }
-
-  dropdownSourceVariants(hasAlfresco, hasGroupActionsLicense) {
+  dropdownSourceVariants() {
     const variants = [];
-    if (hasAlfresco || hasGroupActionsLicense) {
-      variants.push({ id: 0, title: t('export-component.action.html-read'), type: 'html', download: false, target: '_blank' });
-      variants.push({ id: 1, title: t('export-component.action.html-load'), type: 'html', download: true, target: '_self' });
-      variants.push({ id: 2, title: 'Excel', type: 'xlsx', download: true, target: '_self' });
-      variants.push({ id: 3, title: 'CSV', type: 'csv', download: true, target: '_self' });
-    }
+
+    variants.push({ id: 0, title: t('export-component.action.html-read'), type: 'html', download: false, target: '_blank' });
+    variants.push({ id: 1, title: t('export-component.action.html-load'), type: 'html', download: true, target: '_self' });
+    variants.push({ id: 2, title: 'Excel', type: 'xlsx', download: true, target: '_self' });
+    variants.push({ id: 3, title: 'CSV', type: 'csv', download: true, target: '_self' });
     variants.push({ id: 4, title: t('export-component.action.copy-link'), click: this.handleCopyUrl });
 
     return variants;
@@ -100,9 +82,7 @@ export default class Export extends Component {
   };
 
   get renderList() {
-    const { hasAlfresco, hasGroupActionsLicense } = this.state;
-
-    return (this.dropdownSourceVariants(hasAlfresco, hasGroupActionsLicense) || []).map(item => (
+    return (this.dropdownSourceVariants() || []).map(item => (
       <ListItem key={get(item, 'id')} onClick={() => this.handleExport(item)} item={this.handleItem(item)} />
     ));
   }
@@ -231,8 +211,9 @@ export default class Export extends Component {
   };
 
   render() {
-    const { hasAlfresco, hasGroupActionsLicense, isOpenDropdown } = this.state;
     const { right, className, children, classNameBtn, isMobile, isViewNewJournal, loading, ...props } = this.props;
+    const { isOpenDropdown } = this.state;
+
     const attributes = omit(props, [
       'selectedItems',
       'journalConfig',
@@ -268,7 +249,7 @@ export default class Export extends Component {
           hasEmpty
           isStatic={!children}
           right={right}
-          source={this.dropdownSourceVariants(hasAlfresco, hasGroupActionsLicense)}
+          source={this.dropdownSourceVariants()}
           valueField={'id'}
           titleField={'title'}
           controlIcon="icon-download"
