@@ -143,14 +143,15 @@ function* sagaSetOneTab({ api }, { payload }) {
     }
 
     if (enabledWorkspaces) {
-      const workspace = getWorkspaceId();
+      const wsFromLink = getWsIdOfTabLink(dataTab.link);
+      const workspace = wsFromLink || getWorkspaceId();
 
       if (workspace) {
         params.workspace = workspace;
         dataTab.workspace = workspace;
       }
 
-      if (dataTab && dataTab.link && !getWsIdOfTabLink(dataTab.link)) {
+      if (dataTab && dataTab.link && !wsFromLink) {
         dataTab.link = getLinkWithWs(dataTab.link, workspace);
       }
     }
@@ -185,13 +186,14 @@ function* sagaAddOneTab({ api }, { payload }) {
     }
 
     if (getEnabledWorkspaces()) {
-      const workspace = workspaceId || getWorkspaceId();
+      const wsFromLink = getWsIdOfTabLink(dataTab.link);
+      const workspace = wsFromLink || workspaceId || getWorkspaceId();
 
       if (workspace) {
         params.workspace = workspace;
       }
 
-      if (dataTab && dataTab.link && !getWsIdOfTabLink(dataTab.link)) {
+      if (dataTab && dataTab.link && !wsFromLink) {
         dataTab.link = getLinkWithWs(dataTab.link, workspace);
       }
     }
