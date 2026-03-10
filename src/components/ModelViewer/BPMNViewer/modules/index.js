@@ -10,7 +10,6 @@ export const withoutDragging = {
 };
 
 export const withoutCanvasScroll = {
-  moveCanvas: ['value', null],
   zoomScroll: ['value', null]
 };
 

@@ -1,5 +1,5 @@
 import get from 'lodash/get';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 
 import ModelViewer from './ModelViewer';
 
@@ -18,7 +18,7 @@ export const Sheet = ({
   className = ModelViewer.querySelector,
   ...props
 }) => {
-  const [initialized, setInitialized] = useState(false);
+  const initializedRef = useRef(false);
   const containerRef = useRef(null);
   const events = {};
 
@@ -29,8 +29,8 @@ export const Sheet = ({
   }
 
   useEffect(() => {
-    if (!initialized && get(containerRef, 'current')) {
-      setInitialized(true);
+    if (!initializedRef.current && get(containerRef, 'current')) {
+      initializedRef.current = true;
       init({
         diagram,
         sectionPath,
@@ -43,7 +43,7 @@ export const Sheet = ({
         zoomCenter
       });
     }
-  }, [initialized, containerRef, sectionPath]);
+  }, [sectionPath]);
 
   useEffect(() => {
     if (markedElement) {
