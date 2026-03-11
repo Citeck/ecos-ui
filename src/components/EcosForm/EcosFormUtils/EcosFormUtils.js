@@ -310,6 +310,14 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
         return;
       }
 
+      if (!hasPermission && source === SourcesId.BOARD) {
+        config.presettingsType = PRE_SETTINGS_TYPES.BOARD;
+
+        EcosFormUtils.openPreSettings(recordRef, config);
+
+        return;
+      }
+
       EcosFormUtils.eform(recordRef, {
         params,
         class: 'ecos-modal_width-lg',
