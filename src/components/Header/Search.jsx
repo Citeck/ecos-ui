@@ -22,6 +22,7 @@ const mapStateToProps = state => ({
   people: state.header.search.people,
   sites: state.header.search.sites,
   workspaces: state.header.search.workspaces,
+  semantic: state.header.search.semantic,
   noResults: state.header.search.noResults,
   isLoading: state.header.search.isLoading,
   theme: state.view.theme
@@ -99,7 +100,7 @@ class Search extends React.Component {
     }
 
     const reopenBrowserTab = !isNewVersionPage(data.url);
-    const openNewTab = [Types.DOCUMENTS, Types.SITES, Types.PEOPLE, Types.WORKSPACES].includes(data.type) && !reopenBrowserTab;
+    const openNewTab = [Types.DOCUMENTS, Types.SITES, Types.PEOPLE, Types.WORKSPACES, Types.SEMANTIC].includes(data.type) && !reopenBrowserTab;
     const onResetSearch = get(this._searchSelectRef, 'current.resetSearch');
     const needUpdateTabs = !!data.wsName && getEnabledWorkspaces();
 
@@ -116,7 +117,7 @@ class Search extends React.Component {
   };
 
   get searchResult() {
-    const { documents, people, sites, workspaces, hasAlfresco } = this.props;
+    const { documents, people, sites, workspaces, semantic, hasAlfresco } = this.props;
     const searchResult = [];
 
     if (!isEmpty(documents)) {
@@ -137,6 +138,11 @@ class Search extends React.Component {
     if (!isEmpty(workspaces) && getEnabledWorkspaces()) {
       searchResult.push({ groupName: t('header.search.workspaces') });
       searchResult.push(...setOutputParams(workspaces, Types.WORKSPACES));
+    }
+
+    if (!isEmpty(semantic)) {
+      searchResult.push({ groupName: t('header.search.semantic') });
+      searchResult.push(...setOutputParams(semantic, Types.SEMANTIC));
     }
 
     return searchResult;

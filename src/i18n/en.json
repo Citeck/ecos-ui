@@ -1081,6 +1081,7 @@
   "header.search.people": "People",
   "header.search.sites": "Sites",
   "header.search.workspaces": "Workspaces",
+  "header.search.semantic": "Semantic search",
   "header.search.documents": "Documents",
   "header.create-workflow-adhoc.label": "Assignment",
   "header.create-workflow-adhoc.description": "Create an assignment",

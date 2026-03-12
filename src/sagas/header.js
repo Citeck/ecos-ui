@@ -170,6 +170,7 @@ function* sagaRunSearchAutocomplete({ api }, { payload }) {
       const sites = [];
       const people = [];
       const workspaces = [];
+      const semantic = [];
 
       for (const record of records) {
         switch (record.groupType) {
@@ -209,12 +210,22 @@ function* sagaRunSearchAutocomplete({ api }, { payload }) {
             });
             break;
 
+          case LiveSearchTypes.SEMANTIC:
+            semantic.push({
+              ...record,
+              modifiedOn: get(record, LiveSearchAttributes.MODIFIED),
+              nodeRef: get(record, LiveSearchAttributes.ID),
+              name: get(record, LiveSearchAttributes.DISP),
+              isNotAlfresco: true
+            });
+            break;
+
           default:
             break;
         }
       }
 
-      const noResults = !(!!documents.length + !!sites.length + !!people.length + !!workspaces.length);
+      const noResults = !(!!documents.length + !!sites.length + !!people.length + !!workspaces.length + !!semantic.length);
       const getObject = arr => ({ items: arr });
 
       yield put(
@@ -223,6 +234,7 @@ function* sagaRunSearchAutocomplete({ api }, { payload }) {
           sites: getObject(sites),
           people: getObject(people),
           workspaces: getObject(workspaces),
+          semantic: getObject(semantic),
           noResults
         })
       );

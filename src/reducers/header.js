@@ -24,6 +24,7 @@ const initialState = {
     sites: [],
     people: [],
     workspaces: [],
+    semantic: [],
     noResults: false
   },
   siteMenu: {
@@ -75,7 +76,7 @@ export default handleActions(
       };
     },
     [setSearchAutocompleteItems]: (state, action) => {
-      const { documents, sites, people, workspaces, noResults } = action.payload || {};
+      const { documents, sites, people, workspaces, semantic, noResults } = action.payload || {};
 
       return {
         ...state,
@@ -83,7 +84,8 @@ export default handleActions(
           documents: documents.items || [],
           people: people.items || [],
           sites: sites.items || [],
-          workspaces: workspaces.items || [],
+          workspaces: workspaces ? workspaces.items || [] : [],
+          semantic: semantic ? semantic.items || [] : [],
           noResults,
           isLoading: false
         }
@@ -96,6 +98,7 @@ export default handleActions(
           documents: [],
           people: [],
           sites: [],
+          semantic: [],
           noResults: false,
           isLoading: false
         }

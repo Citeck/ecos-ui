@@ -1036,6 +1036,7 @@
   "header.search.people": "Люди",
   "header.search.sites": "Сайты",
   "header.search.workspaces": "Рабочие пространства",
+  "header.search.semantic": "Семантический поиск",
   "header.search.documents": "Документы",
   "header.create-workflow-adhoc.label": "Поручение",
   "header.create-workflow-adhoc.description": "Создать поручение",
