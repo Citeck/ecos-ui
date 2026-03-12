@@ -212,7 +212,7 @@ class DocStatus extends BaseWidget {
         isButton
         disabled={isChanging || !!changeResult}
       >
-        <div className={pillClass}>
+        <div className={pillClass} title={status.name}>
           <span className="ecos-doc-status__pill-label">{status.name}</span>
           {this.renderTrailingIcon()}
         </div>
