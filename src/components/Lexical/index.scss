@@ -1054,7 +1054,6 @@
     display: flex;
     position: relative;
     outline: 0;
-    z-index: 0;
   }
 
   .editor {
@@ -1062,7 +1061,6 @@
     max-width: 100%;
     position: relative;
     resize: vertical;
-    z-index: -1;
   }
 
   .test-recorder-output {

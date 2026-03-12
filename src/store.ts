@@ -47,10 +47,7 @@ export default function configureStore(ea: ExtraArgumentsStore, defaultState = {
   );
 
   sagaMiddleware.run(sagas, ea);
-  store = {
-    ...baseStore,
-    asyncReducers: {} // Async reducer registry
-  };
+  store = Object.assign(baseStore, { asyncReducers: {} }) as ExtendedStore;
 
   return store;
 }
