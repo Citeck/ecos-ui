@@ -1,16 +1,15 @@
 import classNames from 'classnames';
+import get from 'lodash/get';
 import PropTypes from 'prop-types';
 import * as React from 'react';
-import { Scrollbars } from 'react-custom-scrollbars';
 
-import get from 'lodash/get';
-
-import { isMobileDevice, t } from "@/helpers/util.js";
-import { CONFIG_VERSION } from "@/constants/dashboard.js";
 import Dashlet from '../../Dashlet/Dashlet';
 import BaseWidget from '../BaseWidget';
 
 import DocStatus from './DocStatus';
+
+import { CONFIG_VERSION } from '@/constants/dashboard.js';
+import { isMobileDevice, t } from '@/helpers/util.js';
 
 import './style.scss';
 
@@ -71,17 +70,15 @@ class DocStatusDashlet extends BaseWidget {
         noHeader={isBig}
         setRef={this.setDashletRef}
       >
-        <Scrollbars {...this.scrollbarProps}>
-          <DocStatus
-            title={title}
-            isMobile={isMobile || isSmall}
-            {...config}
-            allowChangeStatus={get(config, [CONFIG_VERSION, 'allowChangeStatus'], false)}
-            className={classNameStatus}
-            record={record}
-            stateId={record}
-          />
-        </Scrollbars>
+        <DocStatus
+          title={title}
+          isMobile={isMobile || isSmall}
+          {...config}
+          allowChangeStatus={get(config, [CONFIG_VERSION, 'allowChangeStatus'], false)}
+          className={classNameStatus}
+          record={record}
+          stateId={record}
+        />
       </Dashlet>
     );
   }

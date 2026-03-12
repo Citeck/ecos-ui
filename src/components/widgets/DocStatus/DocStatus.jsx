@@ -5,7 +5,14 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import uuid from 'uuidv4';
 
-import { changeDocStatus, getAvailableToChangeStatuses, getDocStatus, initDocStatus, resetDocStatus, setChangeResult } from '../../../actions/docStatus';
+import {
+  changeDocStatus,
+  getAvailableToChangeStatuses,
+  getDocStatus,
+  initDocStatus,
+  resetDocStatus,
+  setChangeResult
+} from '../../../actions/docStatus';
 import { LoaderTypes } from '../../../constants/index';
 import { deepClone } from '../../../helpers/util';
 import { selectStateDocStatusById } from '../../../selectors/docStatus';
@@ -137,7 +144,7 @@ class DocStatus extends BaseWidget {
     getDocStatus({ stateId, record });
   };
 
-  handleChangeStatus = (selected) => {
+  handleChangeStatus = selected => {
     const { stateId, record, changeDocStatus } = this.props;
 
     changeDocStatus({ stateId, record, status: selected.id });
