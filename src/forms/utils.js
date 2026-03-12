@@ -288,6 +288,10 @@ export const prepareComponents = components => {
  */
 export const processEditFormConfig = (advancedConfig, tabsByKey) => {
   tabsByKey = tabsByKey.map(tab => {
+    if (!tab.components) {
+      return tab;
+    }
+
     tab.components = tab.components
       .map(item => {
         const tabConfig = advancedConfig[tab.key];

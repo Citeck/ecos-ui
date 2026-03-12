@@ -57,7 +57,6 @@ import DropDown, { DropDownItem } from '../../ui/DropDown';
 import type { ElementNode, LexicalEditor } from 'lexical';
 
 import { t } from '@/helpers/export/util';
-import ZIndex from '@/services/ZIndex';
 
 function computeSelectionCount(selection: TableSelection): {
   columns: number;
@@ -584,7 +583,6 @@ function TableActionMenu({
     // eslint-disable-next-line jsx-a11y/no-static-element-interactions
     <div
       className="citeck-lexical-editor__dropdown"
-      style={{ zIndex: ZIndex.calcZ() + 1 }}
       ref={dropDownRef}
       onClick={e => {
         e.stopPropagation();

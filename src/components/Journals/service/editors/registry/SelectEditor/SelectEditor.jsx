@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import ZIndex from '../../../../../../services/ZIndex';
 import Records from '../../../../../Records';
 import { Select } from '../../../../../common/form';
 import EditorScope from '../../EditorScope';
@@ -15,7 +14,6 @@ export default class SelectEditor extends BaseEditor {
   getControl(config, scope) {
     return ({ value, attribute, recordRef, multiple, onUpdate }) => {
       const [options, setOptions] = useState([]);
-      const [zIndex, setZIndex] = useState(ZIndex.calcZ() + 1);
       const [isLoading, setLoading] = useState(false);
       const [selected, setSelected] = useState([]);
 
@@ -48,13 +46,6 @@ export default class SelectEditor extends BaseEditor {
           document.removeEventListener('mousedown', handleClickOutside);
         };
       }, [selected, onSelectUpdate]);
-
-      useEffect(() => {
-        const newZIndex = ZIndex.calcZ() + 1;
-        if (zIndex !== newZIndex) {
-          setZIndex(newZIndex);
-        }
-      });
 
       useEffect(() => {
         const selected = options ? options.filter(opt => (opt.value || opt) === value) : null;
@@ -117,7 +108,7 @@ export default class SelectEditor extends BaseEditor {
             isMulti={multiple}
             autoFocus={scope === EditorScope.CELL}
             onChange={onSelectUpdate}
-            className="select_narrow select_width_full ecosZIndexAnchor ecos-select__editor"
+            className="select_narrow select_width_full ecos-select__editor"
             getOptionLabel={option => option.label || option}
             getOptionValue={option => option.value || option}
             options={[{ value: null, label: t('react-select.select-value.label') }, ...options]}
@@ -134,7 +125,7 @@ export default class SelectEditor extends BaseEditor {
               }),
               menuPortal: base => ({
                 ...base,
-                zIndex
+                zIndex: 10000
               }),
               dropdownIndicator: css => ({
                 ...css,

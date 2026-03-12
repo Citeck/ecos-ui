@@ -1,7 +1,7 @@
-import React from 'react';
 import 'formiojs/FormBuilder';
-import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import React from 'react';
 
 import { SourcesId } from '../../../constants';
 import Formio from '../../../forms/Formio';
@@ -13,6 +13,9 @@ import EcosFormUtils from '../EcosFormUtils';
 let formPanelIdx = 0;
 
 export default class EcosFormBuilder extends React.Component {
+  _builderToken = 0;
+  _editorForm = null;
+
   constructor(props) {
     super(props);
 
@@ -29,30 +32,78 @@ export default class EcosFormBuilder extends React.Component {
     return await Records.get(`${SourcesId.FORM}@DEFAULT`).load('definition?json');
   }
 
-  async makeDefaultForm() {
+  _createInnerContainer() {
+    const outer = document.getElementById(this.contentId);
+    if (!outer) {
+      return null;
+    }
+    outer.innerHTML = '';
+    const inner = document.createElement('div');
+    outer.appendChild(inner);
+    return inner;
+  }
+
+  async makeDefaultForm(token) {
     const { options } = this.props;
     const data = await this.getDefaultForm();
 
-    Formio.builder(document.getElementById(this.contentId), { components: get(data, 'components') || [] }, options).then(editorForm => {
-      this.setState({ editorForm });
+    if (this._builderToken !== token) {
+      return;
+    }
+
+    const inner = this._createInnerContainer();
+    if (!inner) {
+      return;
+    }
+
+    Formio.builder(inner, { components: get(data, 'components') || [] }, options).then(editorForm => {
+      if (this._builderToken === token) {
+        this._editorForm = editorForm;
+        this.setState({ editorForm });
+      } else {
+        clearFormFromCache(editorForm.id);
+        editorForm.destroy();
+      }
     });
   }
 
   componentDidMount() {
+    const token = ++this._builderToken;
     const { options, formDefinition } = this.props;
     const isDefault = this.isDefaultForm();
 
     if (isDefault) {
-      this.makeDefaultForm();
+      this.makeDefaultForm(token);
     } else {
-      Formio.builder(document.getElementById(this.contentId), formDefinition, options).then(editorForm => {
-        this.setState({ editorForm });
+      const inner = this._createInnerContainer();
+      if (!inner) {
+        return;
+      }
+      Formio.builder(inner, formDefinition, options).then(editorForm => {
+        if (this._builderToken === token) {
+          this._editorForm = editorForm;
+          this.setState({ editorForm });
+        } else {
+          clearFormFromCache(editorForm.id);
+          editorForm.destroy();
+        }
       });
     }
   }
 
   componentWillUnmount() {
-    clearFormFromCache(get(this.state, 'editorForm.id'));
+    this._builderToken++;
+
+    if (this._editorForm) {
+      clearFormFromCache(this._editorForm.id);
+      this._editorForm.destroy();
+      this._editorForm = null;
+    }
+
+    const outer = document.getElementById(this.contentId);
+    if (outer) {
+      outer.innerHTML = '';
+    }
   }
 
   onCancel() {

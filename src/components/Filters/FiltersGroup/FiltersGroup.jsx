@@ -16,7 +16,6 @@ import { ParserPredicate } from '../predicates';
 import ListItem from './ListItem';
 
 import { getId, handleCloseMenuOnScroll, t } from '@/helpers/util';
-import ZIndex from '@/services/ZIndex';
 
 import './FiltersGroup.scss';
 
@@ -178,7 +177,6 @@ export default class FiltersGroup extends Component {
     const { className, columns, first, group, index, droppableIdPrefix = '_', sourceId, metaRecord, textEmpty, needUpdate } = this.props;
     const groupConditions = ParserPredicate.getGroupConditions();
     const droppableId = `${droppableIdPrefix}${index}`;
-    const zIndex = ZIndex.calcZ();
 
     return (
       <Well className={classNames('ecos-filters-group', className)}>
@@ -194,7 +192,7 @@ export default class FiltersGroup extends Component {
             <div className="ecos-filters-group__tools-label">{t('filter-list.filter-group-add')}</div>
 
             <Select
-              className={classNames('ecos-filters-group__select select_narrow ecosZIndexAnchor', {
+              className={classNames('ecos-filters-group__select select_narrow', {
                 'ecos-select_blue': first,
                 'ecos-select_grey': !first
               })}
@@ -205,7 +203,7 @@ export default class FiltersGroup extends Component {
               getOptionValue={option => option.attribute}
               onChange={this.handleAddFilter}
               styles={{
-                menuPortal: base => ({ ...base, zIndex }),
+                menuPortal: base => ({ ...base, zIndex: 10000 }),
                 placeholder: base => ({ ...base, width: '100%' })
               }}
               menuPortalTarget={document.body}
@@ -215,7 +213,7 @@ export default class FiltersGroup extends Component {
 
             {first && (
               <Select
-                className="ecos-filters-group__select select_narrow ecos-select_blue ecosZIndexAnchor"
+                className="ecos-filters-group__select select_narrow ecos-select_blue"
                 placeholder={this.getPlaceholder(t('filter-list.condition-group'))}
                 options={groupConditions}
                 getOptionLabel={option => option.label}
@@ -223,7 +221,7 @@ export default class FiltersGroup extends Component {
                 getOptionValue={option => option.value}
                 onChange={this.handleAddGroup}
                 styles={{
-                  menuPortal: base => ({ ...base, zIndex }),
+                  menuPortal: base => ({ ...base, zIndex: 10000 }),
                   placeholder: base => ({ ...base, width: '100%' })
                 }}
                 menuPortalTarget={document.body}

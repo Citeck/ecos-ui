@@ -3813,8 +3813,8 @@ html.formio-dialog-open {
   -webkit-animation: 0.5s formio-dialog-flyin;
   animation: 0.5s formio-dialog-flyin;
   background: #fff;
-  border-radius: 5px;
-  font-family: Helvetica, sans-serif;
+  border-radius: 12px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, 'Open Sans', 'Helvetica Neue', sans-serif;
   font-size: 1.1em;
   line-height: 1.5em;
   margin: 0 auto;

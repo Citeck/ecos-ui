@@ -12,7 +12,6 @@ import Icon from '../icons/Icon';
 import Modal from './ModalDraggable';
 
 import { getMLValue, isMobileDevice, t, trigger } from '@/helpers/util';
-import ZIndex from '@/services/ZIndex';
 
 import './EcosModal.scss';
 
@@ -26,11 +25,6 @@ export default class EcosModal extends Component {
   };
 
   static getDerivedStateFromProps(props, state) {
-    const { reactstrapProps } = props;
-    const { searchZIndexModalClassName } = reactstrapProps || {};
-
-    let newState = null;
-
     if (props.isOpen !== state.isOpen) {
       let openModalsCounter = document.querySelectorAll('.ecos-modal').length;
 
@@ -40,25 +34,13 @@ export default class EcosModal extends Component {
         openModalsCounter = 0;
       }
 
-      newState = {
-        ...newState,
+      return {
         isOpen: props.isOpen,
         level: isUndefined(props.customLevel) ? openModalsCounter : props.customLevel
       };
     }
 
-    newState = {
-      ...newState,
-      zIndexCalc: ZIndex.calcZ(searchZIndexModalClassName, props.isPriorityModal)
-    };
-
-    return newState;
-  }
-
-  get searchZIndexModalClassName() {
-    const { reactstrapProps } = this.props;
-    const { searchZIndexModalClassName } = reactstrapProps || {};
-    return searchZIndexModalClassName || '';
+    return null;
   }
 
   componentDidMount() {
@@ -88,12 +70,6 @@ export default class EcosModal extends Component {
   calculateBounds = () => {
     if (this.props.noDraggable) {
       return;
-    }
-
-    const zIndex = ZIndex.calcZ(this.searchZIndexModalClassName, this.props.isPriorityModal);
-
-    if (zIndex !== this.state.zIndexCalc) {
-      this.setState({ zIndexCalc: zIndex });
     }
 
     if (this._dialog) {
@@ -174,7 +150,7 @@ export default class EcosModal extends Component {
   render() {
     const { hideModal, children, className, classNameBody, reactstrapProps, isLoading, onResize, size, container, isBlurBackground } =
       this.props;
-    const { isOpen, level, draggableState, zIndexCalc } = this.state;
+    const { isOpen, level, draggableState } = this.state;
     const modalLevel = level > MAX_LEVEL ? MAX_LEVEL : level;
     const classMobile = isMobileDevice() ? 'ecos-modal_mobile' : '';
 
@@ -209,7 +185,6 @@ export default class EcosModal extends Component {
         isOpen={isOpen}
         isLoading={isLoading}
         toggle={hideModal}
-        zIndex={zIndexCalc}
         size={size}
         className={modalClassName}
         {...reactstrapProps}
@@ -217,7 +192,7 @@ export default class EcosModal extends Component {
         draggableProps={draggableProps}
         data-level={level}
         container={container}
-        containerClassName="ecos-modal-container ecosZIndexAnchor"
+        containerClassName="ecos-modal-container"
         isblurbackground={isBlurBackground}
       >
         {this.renderModalHeader()}

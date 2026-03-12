@@ -1,6 +1,5 @@
 import Component from 'formiojs/Component';
 import tippy from 'tippy.js';
-import ZIndex from '../services/ZIndex';
 
 const originAddComponent = Component.prototype.hook;
 
@@ -8,7 +7,7 @@ const prependTooltip = (buttonGroup, querySelectorClass, content) => {
   const button = buttonGroup.querySelector(querySelectorClass);
   if (button) {
     tippy(button, {
-      zIndex: ZIndex.calcZ() + 1,
+      zIndex: 10000,
       content: content
     });
   }

@@ -125,6 +125,9 @@
   }
 
   span.arrow.ecos-th__filter-tooltip-marker {
+    top: auto;
+    bottom: auto;
+
     &::before {
       border-top-color: $color-white;
       border-bottom-color: $color-white;

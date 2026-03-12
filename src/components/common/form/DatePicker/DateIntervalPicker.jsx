@@ -16,7 +16,6 @@ import DatePicker from './DatePicker';
 
 import { DateFormats } from '@/constants';
 import { num2str, prepareTooltipId, t } from '@/helpers/util';
-import ZIndex from '@/services/ZIndex';
 
 import './DateIntervalPicker.scss';
 
@@ -137,10 +136,6 @@ class DateIntervalPicker extends Component {
       this.splitIntervalToParts();
     }
 
-    if (this.state.selectedPart) {
-      ZIndex.calcZ();
-      ZIndex.setZ('ecos-dp-interval__popover');
-    }
   }
 
   componentWillUnmount() {
@@ -715,7 +710,7 @@ class DateIntervalPicker extends Component {
       <UncontrolledPopover
         className="ecos-dp-interval__popover"
         innerClassName="ecos-dp-interval__popover-inner"
-        popperClassName="ecos-dp-interval__popover-popper ecosZIndexAnchor"
+        popperClassName="ecos-dp-interval__popover-popper"
         arrowClassName={classNames('ecos-dp-interval__popover-arrow', {
           'ecos-dp-interval__popover-arrow_end': selectedPart === DateInputs.END
         })}

@@ -4,7 +4,6 @@ import get from 'lodash/get';
 
 import { t } from '../../../../../../helpers/export/util';
 import { getBool, handleCloseMenuOnScroll } from '../../../../../../helpers/util';
-import ZIndex from '../../../../../../services/ZIndex';
 import { Checkbox, Select } from '../../../../../common/form';
 import EditorScope from '../../EditorScope';
 import BaseEditor from '../BaseEditor';
@@ -38,20 +37,12 @@ export default class BooleanEditor extends BaseEditor {
   getControl(config, scope) {
     return ({ value, onUpdate }) => {
       const [selected, setSelected] = useState(value);
-      const [zIndex, setZIndex] = useState(ZIndex.calcZ() + 1);
       const mode = config.mode || Modes.select;
       const _value = getBool(value);
 
       if (mode === Modes.checkbox) {
         return <Checkbox className="p-1" checked={_value} onChange={e => onUpdate(e.checked)} />;
       }
-
-      useEffect(() => {
-        const newZIndex = ZIndex.calcZ() + 1;
-        if (zIndex !== newZIndex) {
-          setZIndex(newZIndex);
-        }
-      });
 
       useEffect(
         () => {
@@ -80,11 +71,11 @@ export default class BooleanEditor extends BaseEditor {
           autoFocus={scope === EditorScope.CELL}
           onChange={onSelect}
           isSearchable={false}
-          className="select_narrow select_width_full ecosZIndexAnchor"
+          className="select_narrow select_width_full"
           menuPortalTarget={document.body}
           menuPlacement="auto"
           closeMenuOnScroll={(e, { innerSelect }) => handleCloseMenuOnScroll(e, innerSelect)}
-          styles={{ menuPortal: base => ({ ...base, zIndex }) }}
+          styles={{ menuPortal: base => ({ ...base, zIndex: 10000 }) }}
         />
       );
     };

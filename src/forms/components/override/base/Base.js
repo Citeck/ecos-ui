@@ -19,7 +19,6 @@ import Widgets from '../../../widgets';
 import { FORM_MODE_CREATE } from '@/components/EcosForm/constants';
 import { t } from '@/helpers/export/util';
 import { getCurrentLocale, getMLValue, getTextByLocale, IS_TEST_ENV, isEqualLexicalValue } from '@/helpers/util';
-import ZIndex from '@/services/ZIndex';
 
 // >>> Methods
 const originalCreateViewOnlyValue = Base.prototype.createViewOnlyValue;
@@ -1071,8 +1070,6 @@ Base.prototype.createModal = function (...params) {
   this.addEventListener(dialog, 'close', () => {
     this.removeChildFrom(dialog, document.body);
   });
-  dialog.classList.add('ecosZIndexAnchor');
-
   document.body.appendChild(dialog);
   dialog.body = modalBody;
   dialog.bodyContainer = modalBodyContainer;
@@ -1082,9 +1079,6 @@ Base.prototype.createModal = function (...params) {
     dialog.dispatchEvent(new CustomEvent('close'));
     this.removeChildFrom(dialog, document.body);
   };
-
-  ZIndex.calcZ();
-  ZIndex.setZ(dialog);
 
   return dialog;
 };

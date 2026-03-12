@@ -3,8 +3,6 @@ import get from 'lodash/get';
 import React, { useState, useEffect } from 'react';
 import { usePopper } from 'react-popper';
 
-import ZIndex from '../../../services/ZIndex';
-
 import { popupEmitter, Events } from './emitter';
 
 export const PopupContainer = () => {
@@ -62,8 +60,7 @@ export const PopupContainer = () => {
       ref={setPopperElement}
       style={{
         ...styles.popper,
-        display: text ? 'unset' : 'none',
-        zIndex: ZIndex.calcZ()
+        display: text ? 'unset' : 'none'
       }}
       {...attributes.popper}
       className={classNames('ecos-popup-manager ecos-popup-manager_fade-in', get(attributes, 'popper.className', ''))}

@@ -1,6 +1,7 @@
-import React from 'react';
 import classNames from 'classnames';
 import isArray from 'lodash/isArray';
+import React from 'react';
+
 import { TooltipWrapper, propsTypes } from './TooltipWrapper';
 
 const defaultProps = {
