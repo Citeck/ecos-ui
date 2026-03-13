@@ -30,6 +30,7 @@ export default class TableFormComponent extends BaseReactComponent {
 
   #journalConfig;
   #needRefreshComp = false;
+  _setJournalActions = null;
 
   static schema(...extend) {
     return BaseReactComponent.schema(
@@ -218,7 +219,12 @@ export default class TableFormComponent extends BaseReactComponent {
     this.refreshElementHasValueClasses();
 
     if (changed && !_.isEmpty(value) && this.#journalConfig) {
-      this._fetchActions(value).then(journalActions => this.setReactProps({ journalActions }));
+      this._fetchActions(value).then(journalActions => {
+        if (this._setJournalActions) {
+          this._setJournalActions(journalActions);
+        }
+        this.setReactProps({ journalActions });
+      });
     }
 
     return changed;
@@ -598,7 +604,10 @@ export default class TableFormComponent extends BaseReactComponent {
         customButtonName: component.customButtonName,
         noHorizontalScroll: component.noHorizontalScroll,
         enableSelectButton: component.enableSelectButton,
-        selectJournalId: component.selectJournalId
+        selectJournalId: component.selectJournalId,
+        registerJournalActionsSetter: setter => {
+          this._setJournalActions = setter;
+        }
       };
     };
 
