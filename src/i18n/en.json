@@ -1003,6 +1003,7 @@
   "records-actions.notify.title": "Widget Actions",
   "records-actions.error.execute-action": "Action failed",
   "records-actions.error.get-actions": "Actions haven't received",
+  "records-actions.error.redirect-not-working": "Redirect is not working",
 
   "records-actions.create.create-variant-with-id-not-found": "Creation variant with id = '{{id}}' doesn't found",
 
