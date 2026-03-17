@@ -597,6 +597,16 @@ Base.prototype.silentSaveForm = function () {
 
 Base.prototype.createInlineEditSaveAndCancelButtons = function () {
   if (this._isInlineEditingMode) {
+    const existingButtons = this.element.querySelector('.inline-editing__buttons');
+
+    if (existingButtons) {
+      if (isFunction(this._removeEventListeners)) {
+        this._removeEventListeners.call(this);
+      }
+
+      existingButtons.remove();
+    }
+
     this._inlineEditSaveButton = this.ce(
       'button',
       {

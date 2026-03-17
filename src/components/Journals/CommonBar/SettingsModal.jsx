@@ -183,7 +183,6 @@ class SettingsModal extends Component {
         title={t('journals.action.setting-dialog-msg')}
         isOpen={isOpen}
         hideModal={onClose}
-        reactstrapProps={{ searchZIndexModalClassName: 'ecos-modal-container' }}
         isBigHeader
         className={'ecos-modal_width-m ecos-modal_zero-padding ecos-modal_shadow'}
       >

@@ -46,7 +46,6 @@ const Modal = () => {
       isOpen={isSelectModalOpen}
       hideModal={toggleSelectModal}
       isPriorityModal
-      reactstrapProps={{ searchZIndexModalClassName: 'ecos-modal-container' }}
       className="select-orgstruct-select-modal ecos-modal_width-sm"
     >
       {!hideTabSwitcher && (
