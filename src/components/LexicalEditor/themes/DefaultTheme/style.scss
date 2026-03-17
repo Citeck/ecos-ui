@@ -303,22 +303,22 @@ i.columns {
   padding-left: 16px;
 }
 .LEd__h1 {
-  font-size: 24px;
+  font-size: 28px;
   color: $color-gray-dark;
-  font-weight: 400;
+  font-weight: 700;
   margin: 0;
 }
 .LEd__h2 {
-  font-size: 15px;
-  color: $text-color-gray;
+  font-size: 24px;
   font-weight: 700;
   margin: 0;
-  text-transform: uppercase;
+  color: $color-gray-dark;
 }
 .LEd__h3 {
-  font-size: 12px;
+  font-size: 20px;
   margin: 0;
-  text-transform: uppercase;
+  font-weight: 600;
+  color: $color-gray-dark;
 }
 .LEd__indent {
   --lexical-indent-base-value: 40px;
