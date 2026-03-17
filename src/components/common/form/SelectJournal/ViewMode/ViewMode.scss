@@ -2,7 +2,8 @@
 
 .select-journal-view-mode__list {
   list-style: none;
-  padding-left: 0;
+  padding: 0;
+  height: 18px;
 
   & &-value {
     white-space: nowrap;
