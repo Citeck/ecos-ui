@@ -194,6 +194,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
     if (this._root) {
       const root = this._root;
       this._root = null;
+      this.reactContainer = null;
       setTimeout(() => root.unmount(), 0);
     }
     return super.destroy();
