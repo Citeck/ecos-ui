@@ -280,7 +280,7 @@ export default class SelectJournal extends Component {
 
       fetchedGridData.columns = displayedColumns;
 
-      const mergedData = this.mergeFetchedDataWithInMemoryData(fetchedGridData);
+      const mergedData = await this.mergeFetchedDataWithInMemoryData(fetchedGridData);
 
       this.setState({
         gridData: { ...gridData, ...mergedData },
@@ -295,7 +295,7 @@ export default class SelectJournal extends Component {
     });
   };
 
-  mergeFetchedDataWithInMemoryData = fetchedGridData => {
+  mergeFetchedDataWithInMemoryData = async fetchedGridData => {
     const { gridData, pagination } = this.state;
     const { inMemoryData = [] } = gridData;
 
@@ -309,46 +309,44 @@ export default class SelectJournal extends Component {
       const memoryRecord = inMemoryData[i];
       const exists = fetchedGridData.data.find(item => item.id === memoryRecord.id);
 
-      // если запись успела проиндексироваться, удаляем её из inMemoryData, иначе добаляем в fetchedData.data временную запись
       if (exists) {
+        // if the record has been indexed, remove it from inMemoryData
         newInMemoryData = newInMemoryData.filter(item => item.id !== memoryRecord.id);
+      } else if (fetchedGridData.data.length < pagination.maxItems) {
+        // otherwise, try to load absent attributes
+        const rec = Records.get(memoryRecord.id);
+        const attrsForLoad = this.normalizeAttributesForLoad(fetchedGridData.attributes);
+        await rec.load(attrsForLoad);
 
-        continue;
+        const loadedAtts = rec.getRawAttributes();
+        const formattedAtts = {}; // Cause: https://citeck.atlassian.net/browse/ECOSUI-908
+
+        for (let attr in loadedAtts) {
+          if (!loadedAtts.hasOwnProperty(attr)) {
+            continue;
+          }
+
+          let newAttr = attr;
+
+          if (newAttr.indexOf('(n:"') !== -1) {
+            newAttr = newAttr.substring(newAttr.indexOf('(n:"') + 4, newAttr.indexOf('")'));
+          }
+
+          if (newAttr.indexOf('?') !== -1) {
+            newAttr = newAttr.substr(0, newAttr.indexOf('?'));
+          }
+
+          if (newAttr.indexOf('{') !== -1 && newAttr.indexOf('}') !== -1) {
+            newAttr = newAttr.substring(0, newAttr.indexOf('{'));
+          }
+
+          newAttr = newAttr.replace(':', '_');
+          formattedAtts[newAttr] = loadedAtts[attr];
+        }
+
+        // add a temporary record to the fetchedData.data
+        fetchedGridData.data.push({ ...memoryRecord, ...loadedAtts, ...formattedAtts });
       }
-
-      const formattedAtts = {};
-      let record = cloneDeep(memoryRecord);
-
-      if (fetchedGridData.data.length < pagination.maxItems) {
-        if (memoryRecord.id === get(fetchedGridData, 'recordData.id')) {
-          newInMemoryData[i] = record = fetchedGridData.recordData;
-        }
-      }
-
-      for (let attr in record) {
-        if (!record.hasOwnProperty(attr)) {
-          continue;
-        }
-
-        let newAttr = attr;
-
-        if (newAttr.indexOf('(n:"') !== -1) {
-          newAttr = newAttr.substring(newAttr.indexOf('(n:"') + 4, newAttr.indexOf('")'));
-        }
-
-        if (newAttr.indexOf('?') !== -1) {
-          newAttr = newAttr.substr(0, newAttr.indexOf('?'));
-        }
-
-        if (newAttr.indexOf('{') !== -1 && newAttr.indexOf('}') !== -1) {
-          newAttr = newAttr.substring(0, newAttr.indexOf('{'));
-        }
-
-        newAttr = newAttr.replace(':', '_');
-        formattedAtts[newAttr] = record[attr];
-      }
-
-      fetchedGridData.data.push({ ...record, ...formattedAtts });
     }
 
     return {
@@ -357,6 +355,24 @@ export default class SelectJournal extends Component {
       total: fetchedGridData.total + newInMemoryData.length
     };
   };
+
+  normalizeAttributesForLoad(attributes = []) {
+    return attributes
+      .filter(attr => {
+        if (!attr) return false;
+
+        return !(attr.includes('cm:content') || attr.includes('permissions'));
+      })
+      .map(attr => {
+        let newAttr = attr;
+
+        if (newAttr.indexOf('(n:"') !== -1) {
+          newAttr = newAttr.substring(newAttr.indexOf('(n:"') + 4, newAttr.indexOf('")'));
+        }
+
+        return newAttr;
+      });
+  }
 
   hideSelectModal = () => {
     const { onCancel } = this.props;
