@@ -116,7 +116,10 @@ class DesktopDocuments extends BaseDocuments {
     this._typesList = React.createRef();
     this._emptyStubRef = React.createRef();
     this._counterRef = React.createRef();
+  }
 
+  componentDidMount() {
+    super.componentDidMount();
     this.#updateWatcherLocal = this.instanceRecord.watch(this.observableFieldsToUpdate, this.updateDocList);
   }
 
