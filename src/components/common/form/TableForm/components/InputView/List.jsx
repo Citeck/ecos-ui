@@ -1,10 +1,9 @@
 import classNames from 'classnames';
 import isEqual from 'lodash/isEqual';
 import isEqualWith from 'lodash/isEqualWith';
-import React, { useContext } from 'react';
+import React from 'react';
 
 import Grid from '../../../../grid/Grid';
-import { TableFormContext } from '../../TableFormContext';
 
 import InlineActions from './InlineActions';
 
@@ -12,8 +11,6 @@ import { t } from '@/helpers/util';
 
 const List = React.memo(
   props => {
-    const context = useContext(TableFormContext);
-
     const {
       wrapperRef,
       viewOnly,
@@ -43,7 +40,7 @@ const List = React.memo(
             onSelect={onSelectGridItem}
             selected={selectedRows}
             nonSelectable={nonSelectableRows.filter(item => rowsIds.includes(item))}
-            inlineActions={rowId => <InlineActions rowId={rowId} context={context} />}
+            inlineActions={rowId => <InlineActions rowId={rowId} />}
             className="ecos-table-form__grid"
             scrollable={false}
             noHeader={noHeader}

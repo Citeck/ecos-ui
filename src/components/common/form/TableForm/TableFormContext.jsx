@@ -48,6 +48,19 @@ export const TableFormContextProvider = props => {
   const [clonedRecord, setClonedRecord] = useState(null);
   const [gridRows, setGridRows] = useState([]);
   const [rowPosition, setRowPosition] = useState(0);
+  const [journalActions, setJournalActions] = useState(controlProps.journalActions);
+
+  useEffect(() => {
+    if (controlProps.registerJournalActionsSetter) {
+      controlProps.registerJournalActionsSetter(setJournalActions);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (controlProps.journalActions) {
+      setJournalActions(controlProps.journalActions);
+    }
+  }, [controlProps.journalActions]);
 
   const isInstantClone = isBoolean(get(settingElements, 'isInstantClone')) ? settingElements.isInstantClone : false;
 
@@ -152,6 +165,21 @@ export const TableFormContextProvider = props => {
                   if (option) {
                     fetchedAtts[attData.name] = isObject(option.label) ? getMLValue(option.label) : option.label;
                     continue;
+                  }
+
+                  if (!record.isBaseRecord() && result[attSchema]) {
+                    try {
+                      const options = await record.load(`#${attData.name}?options`);
+                      if (isArray(options)) {
+                        const typeOption = options.find(item => item.value === result[attSchema]);
+                        if (typeOption) {
+                          fetchedAtts[attData.name] = isObject(typeOption.label) ? getMLValue(typeOption.label) : typeOption.label;
+                          continue;
+                        }
+                      }
+                    } catch (e) {
+                      // fallback to raw value below
+                    }
                   }
                 }
 
@@ -277,7 +305,8 @@ export const TableFormContextProvider = props => {
     <TableFormContext.Provider
       value={{
         controlProps: {
-          ...controlProps
+          ...controlProps,
+          journalActions
         },
         error,
         formMode,
