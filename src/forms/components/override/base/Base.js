@@ -561,6 +561,9 @@ Base.prototype.silentSaveForm = function () {
   const options = { withoutLoader: true };
   let before;
 
+  // Flush any pending widget value before saving
+  this.updateValue({ changeByUser: true });
+
   if (this.options.saveDraft) {
     before = false;
     options.state = 'draft';
@@ -636,10 +639,9 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function () {
 
       const form = get(this, 'root');
 
-      if (form.changing) {
-        this.switchToViewOnlyMode();
-        return;
-      }
+      // Flush any pending widget value (e.g. flatpickr debounces time-spinner
+      // changes for 300 ms; without this the stale dataValue would be saved).
+      this.updateValue({ changeByUser: true });
 
       // Cause: https://citeck.atlassian.net/browse/ECOSUI-1559
       const submitAttributes = [];

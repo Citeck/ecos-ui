@@ -12,7 +12,7 @@ import { connect } from 'react-redux';
 import { t } from '../../../helpers/util';
 import { FORM_MODE_EDIT } from '../../EcosForm';
 import EcosForm from '../../EcosForm/EcosForm';
-import { InfoText, Loader } from '../../common';
+import { InfoText } from '../../common';
 import { ComponentKeys } from '../Components';
 
 import './style.scss';
@@ -143,6 +143,35 @@ class Properties extends React.Component {
     this.props.getTitle && this.props.getTitle(title);
   };
 
+  renderSkeleton() {
+    const { formMode } = this.props;
+    const isEdit = formMode === FORM_MODE_EDIT;
+
+    if (isEdit) {
+      return (
+        <div className="ecos-properties__skeleton ecos-properties__skeleton_edit">
+          {Array.from({ length: 5 }, (_, i) => (
+            <div key={i} className="ecos-properties__skeleton-field">
+              <div className="ecos-properties__skeleton-label ecos-properties__shimmer" style={{ width: `${25 + ((i * 13) % 20)}%` }} />
+              <div className="ecos-properties__skeleton-input ecos-properties__shimmer" />
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    return (
+      <div className="ecos-properties__skeleton">
+        {Array.from({ length: 10 }, (_, i) => (
+          <div key={i} className="ecos-properties__skeleton-row">
+            <div className="ecos-properties__skeleton-label ecos-properties__shimmer" />
+            <div className="ecos-properties__skeleton-value ecos-properties__shimmer" style={{ width: `${55 + ((i * 17) % 30)}%` }} />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   renderForm() {
     const { record, isSmallMode, formId, formMode, isDraft, isMobile, onUpdate, onInlineEditSave } = this.props;
     const { isReadySubmit, loaded, isLoading } = this.state;
@@ -151,7 +180,7 @@ class Properties extends React.Component {
 
     return (
       <>
-        {!isLoaded && <Loader className="ecos-properties__loader" blur />}
+        {!isLoaded && this.renderSkeleton()}
         <EcosForm
           ref={this._ecosForm}
           record={record}
@@ -203,6 +232,8 @@ class Properties extends React.Component {
 
   render() {
     const { forwardedRef, className, scrollProps, minHeight } = this.props;
+    const { loaded, isLoading } = this.state;
+    const isLoaded = loaded && !isLoading;
 
     return (
       <Scrollbars
@@ -211,7 +242,7 @@ class Properties extends React.Component {
         hideTracksWhenNotNeeded
         {...scrollProps}
       >
-        <div ref={forwardedRef} style={{ minHeight: minHeight || '50px' }}>
+        <div ref={forwardedRef} style={{ minHeight: isLoaded ? undefined : minHeight || '50px' }}>
           {this.renderForm()}
         </div>
       </Scrollbars>

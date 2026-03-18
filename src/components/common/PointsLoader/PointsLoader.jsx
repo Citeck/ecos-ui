@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import './style.scss';
 
-export default class PointsLoader extends React.Component {
+export default class PointsLoader extends React.PureComponent {
   static propTypes = {
     className: PropTypes.string,
     color: PropTypes.oneOf(['white', 'light-blue', 'currentColor']),

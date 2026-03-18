@@ -9,6 +9,7 @@ import { FORM_MODE_VIEW } from '../../EcosForm';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import { PERMISSION_WRITE_ATTR } from '../../Records/constants';
 import TaskAssignmentPanel from '../../TaskAssignmentPanel';
+import PointsLoader from '../../common/PointsLoader/PointsLoader';
 import BaseWidget, { EVENTS } from '../BaseWidget';
 
 import Properties from './Properties';
@@ -109,7 +110,7 @@ class PropertiesDashlet extends BaseWidget {
   }
 
   get dashletActions() {
-    const { canEditRecord, isShowSetting, formIsValid, formIsChanged, isDraft } = this.state;
+    const { canEditRecord, isShowSetting, formIsValid, formIsChanged, isDraft, isSaving } = this.state;
 
     if (isShowSetting) {
       return {};
@@ -165,10 +166,13 @@ class PropertiesDashlet extends BaseWidget {
             getFitnesseClassName('properties-widget', formType, DAction.Actions.SUBMIT),
             'btn btn-primary btn-xsm eform-edit-form-btn',
             {
-              'disabled btn_disabled': !isDraft && !formIsValid
+              'disabled btn_disabled': isSaving || (!isDraft && !formIsValid)
             }
           ),
-          onClick: () => this.submitForm(isDraft)
+          component: (
+            <button type="button">{isSaving ? <PointsLoader color="white" height={16} width={40} /> : t(Labels.BTN_SUBMIT_TIP)}</button>
+          ),
+          onClick: () => !isSaving && this.submitForm(isDraft)
         }
       };
     }
@@ -262,11 +266,18 @@ class PropertiesDashlet extends BaseWidget {
 
     const currentForm = get(this._propertiesRef, 'current._ecosForm.current');
 
-    this.setState({ formIsChanged: false }, () => {
+    this.setState({ formIsChanged: false, isSaving: true }, () => {
       currentForm.submitForm.cancel();
 
       const submission = currentForm._form;
       const baseForm = get(this._propertiesRef, 'current._hiddenEcosForm.current._form');
+
+      // Flush any pending widget values (e.g. flatpickr debounces time-spinner
+      // changes for 300 ms) so that submission.data is up-to-date.
+      if (submission) {
+        const allComponents = submission.getAllComponents();
+        allComponents.forEach(component => component.updateValue({ changeByUser: true }));
+      }
 
       currentForm.submitForm(baseForm, submission, true);
     });
@@ -307,7 +318,7 @@ class PropertiesDashlet extends BaseWidget {
   };
 
   onPropertiesUpdate = () => {
-    this.setState({ formIsChanged: true }, () => this.setState({ formIsChanged: false }));
+    this.setState({ formIsChanged: true, isSaving: false }, () => this.setState({ formIsChanged: false }));
   };
 
   setTitle = title => {
