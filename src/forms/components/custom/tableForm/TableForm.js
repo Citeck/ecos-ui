@@ -27,9 +27,7 @@ export default class TableFormComponent extends BaseReactComponent {
   _displayElementsValue = {};
   _nonSelectableRows = [];
   _createVariants = [];
-
-  #journalConfig;
-  #needRefreshComp = false;
+  _journalConfig;
   _setJournalActions = null;
 
   static schema(...extend) {
@@ -218,7 +216,7 @@ export default class TableFormComponent extends BaseReactComponent {
 
     this.refreshElementHasValueClasses();
 
-    if (changed && !_.isEmpty(value) && this.#journalConfig) {
+    if (changed && !_.isEmpty(value) && this._journalConfig) {
       this._fetchActions(value).then(journalActions => {
         if (this._setJournalActions) {
           this._setJournalActions(journalActions);
@@ -351,7 +349,7 @@ export default class TableFormComponent extends BaseReactComponent {
             const journalConfig = await JournalsService.getJournalConfig(journalId);
             let columns = journalConfig.columns;
 
-            this.#journalConfig = journalConfig;
+            this._journalConfig = journalConfig;
 
             if (_.isEmpty(this._createVariants)) {
               this._createVariants = journalConfig.meta.createVariants || [];
@@ -535,12 +533,12 @@ export default class TableFormComponent extends BaseReactComponent {
   }
 
   _fetchActions = records => {
-    if (!this.component.isUsedJournalActions || !this.#journalConfig) {
+    if (!this.component.isUsedJournalActions || !this._journalConfig) {
       return Promise.resolve({});
     }
 
     return new Promise(async resolve =>
-      resolve(await JournalsService.getRecordActions(this.#journalConfig, records || []).catch(() => ({})))
+      resolve(await JournalsService.getRecordActions(this._journalConfig, records || []).catch(() => ({})))
     );
   };
 
