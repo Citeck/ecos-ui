@@ -6,6 +6,7 @@
 import Records from '../Records';
 import { getRecordRef } from '@/helpers/urls';
 import { ADDITIONAL_CONTEXT_TYPES } from './constants';
+import type { WorkspaceContext } from './types';
 
 /** Record data for context */
 export interface RecordData {
@@ -45,7 +46,10 @@ class AdditionalContextService {
    * Load record data from server
    */
   async loadRecordData(recordRef: string): Promise<RecordData> {
-    const recordData = await Records.get(recordRef).load({
+    const record = Records.get(recordRef);
+    record.reset();
+
+    const recordData = await record.load({
       displayName: '?disp',
       type: '_type?id'
     });
@@ -84,7 +88,7 @@ class AdditionalContextService {
         displayName: doc['.disp'] as string,
         type: (doc['_type{.id, .disp}'] as Record<string, string>)['.id'],
         typeDisp: (doc['_type{.id, .disp}'] as Record<string, string>)['.disp'],
-        parentRef: doc['_parent'] as string
+        parentRef: (doc['_parent?id'] as string) || currentRecordRef
       }));
     } catch (error) {
       console.error('Error loading documents:', error);
@@ -229,16 +233,15 @@ class AdditionalContextService {
     );
 
     if (existingRecordIndex !== -1) {
-      setAdditionalContext((prev: AdditionalContext) => ({
-        ...prev,
-        records: prev.records.filter((_, index) => index !== existingRecordIndex)
-      }));
-
-      if (additionalContext.records.length === 1) {
-        setSelectedTypes((prev: string[]) =>
-          prev.filter(c => c !== ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD)
-        );
-      }
+      setAdditionalContext((prev: AdditionalContext) => {
+        const updatedRecords = prev.records.filter(r => r.recordRef !== recordData.recordRef);
+        if (updatedRecords.length === 0) {
+          setSelectedTypes((prevTypes: string[]) =>
+            prevTypes.filter(c => c !== ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD)
+          );
+        }
+        return { ...prev, records: updatedRecords };
+      });
     } else {
       setAdditionalContext((prev: AdditionalContext) => ({
         ...prev,
@@ -250,6 +253,64 @@ class AdditionalContextService {
         selectedTypes,
         setSelectedTypes
       );
+    }
+  }
+
+  /**
+   * Load workspace context (name and basic info)
+   */
+  async loadWorkspaceContext(workspaceId: string): Promise<WorkspaceContext | null> {
+    if (!workspaceId) return null;
+
+    try {
+      const data = await Records.get(`emodel/workspace@${workspaceId}`).load({
+        workspaceName: '?disp'
+      });
+
+      return {
+        workspaceId,
+        workspaceName: data.workspaceName || workspaceId
+      };
+    } catch (error) {
+      console.error('Error loading workspace context:', error);
+      return null;
+    }
+  }
+
+
+  /**
+   * Search records by display name and type
+   */
+  async searchRecordsByDisp(query: string, type: string): Promise<RecordData[]> {
+    if (!query || !type) return [];
+
+    try {
+      const result = await Records.query(
+        {
+          ecosType: type.replace('emodel/type@', ''),
+          language: 'predicate',
+          query: {
+            t: 'contains',
+            a: '_disp',
+            v: query
+          },
+          page: { maxItems: 10 },
+          sortBy: [{ attribute: '_modified', ascending: false }]
+        },
+        {
+          displayName: '?disp',
+          type: '_type?id'
+        }
+      );
+
+      return (result.records || []).map((record: any) => ({
+        recordRef: record.id,
+        displayName: record.displayName || record.id,
+        type: record.type || type
+      }));
+    } catch (error) {
+      console.error('Error searching records by disp:', error);
+      return [];
     }
   }
 
@@ -268,16 +329,15 @@ class AdditionalContextService {
     );
 
     if (existingDocumentIndex !== -1) {
-      setAdditionalContext((prev: AdditionalContext) => ({
-        ...prev,
-        documents: prev.documents.filter((_, index) => index !== existingDocumentIndex)
-      }));
-
-      if (additionalContext.documents.length === 1) {
-        setSelectedTypes((prev: string[]) =>
-          prev.filter(c => c !== ADDITIONAL_CONTEXT_TYPES.DOCUMENTS)
-        );
-      }
+      setAdditionalContext((prev: AdditionalContext) => {
+        const updatedDocuments = prev.documents.filter(d => d.recordRef !== documentData.recordRef);
+        if (updatedDocuments.length === 0) {
+          setSelectedTypes((prevTypes: string[]) =>
+            prevTypes.filter(c => c !== ADDITIONAL_CONTEXT_TYPES.DOCUMENTS)
+          );
+        }
+        return { ...prev, documents: updatedDocuments };
+      });
     } else {
       setAdditionalContext((prev: AdditionalContext) => ({
         ...prev,

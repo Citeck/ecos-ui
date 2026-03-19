@@ -65,6 +65,7 @@ describe('AdditionalContextService', () => {
   describe('loadRecordData', () => {
     it('loads record data from Records API', async () => {
       mockRecords.get.mockReturnValue({
+        reset: jest.fn(),
         load: jest.fn().mockResolvedValue({
           displayName: 'Test Record',
           type: 'emodel/type@test'
@@ -82,6 +83,7 @@ describe('AdditionalContextService', () => {
 
     it('uses recordRef as fallback displayName', async () => {
       mockRecords.get.mockReturnValue({
+        reset: jest.fn(),
         load: jest.fn().mockResolvedValue({
           displayName: '',
           type: ''
@@ -107,6 +109,7 @@ describe('AdditionalContextService', () => {
     it('loads current record when ref exists', async () => {
       mockGetRecordRef.mockReturnValue('rec-1');
       mockRecords.get.mockReturnValue({
+        reset: jest.fn(),
         load: jest.fn().mockResolvedValue({
           displayName: 'Current',
           type: 'type1'
@@ -198,7 +201,11 @@ describe('AdditionalContextService', () => {
         [ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD], setSelectedTypes
       );
 
-      // Should remove context type since it's the last record
+      // Now setSelectedTypes is called from inside the setAdditionalContext updater
+      // So we need to invoke the setAdditionalContext updater first
+      const contextUpdater = setAdditionalContext.mock.calls[0][0];
+      contextUpdater(context);
+
       const typeUpdater = setSelectedTypes.mock.calls[0][0];
       const result = typeUpdater([ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD, ADDITIONAL_CONTEXT_TYPES.DOCUMENTS]);
       expect(result).not.toContain(ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD);
@@ -247,6 +254,54 @@ describe('AdditionalContextService', () => {
     });
   });
 
+  describe('loadWorkspaceContext', () => {
+    it('returns null when workspaceId is empty', async () => {
+      const result = await additionalContextService.loadWorkspaceContext('');
+      expect(result).toBeNull();
+    });
+
+    it('loads workspace context from Records API', async () => {
+      mockRecords.get.mockReturnValue({
+        load: jest.fn().mockResolvedValue({
+          workspaceName: 'My Workspace'
+        })
+      } as any);
+
+      const result = await additionalContextService.loadWorkspaceContext('test-ws');
+
+      expect(mockRecords.get).toHaveBeenCalledWith('emodel/workspace@test-ws');
+      expect(result).toEqual({
+        workspaceId: 'test-ws',
+        workspaceName: 'My Workspace'
+      });
+    });
+
+    it('uses workspaceId as fallback name', async () => {
+      mockRecords.get.mockReturnValue({
+        load: jest.fn().mockResolvedValue({
+          workspaceName: ''
+        })
+      } as any);
+
+      const result = await additionalContextService.loadWorkspaceContext('test-ws');
+
+      expect(result!.workspaceName).toBe('test-ws');
+    });
+
+    it('returns null on error', async () => {
+      const errorSpy = jest.spyOn(console, 'error').mockImplementation();
+      mockRecords.get.mockReturnValue({
+        load: jest.fn().mockRejectedValue(new Error('fail'))
+      } as any);
+
+      const result = await additionalContextService.loadWorkspaceContext('test-ws');
+
+      expect(result).toBeNull();
+      errorSpy.mockRestore();
+    });
+  });
+
+
   describe('handleAddRecordContext', () => {
     const emptyContext: AdditionalContext = { records: [], attributes: [], documents: [] };
 
@@ -266,6 +321,7 @@ describe('AdditionalContextService', () => {
 
     it('loads and adds record data', async () => {
       mockRecords.get.mockReturnValue({
+        reset: jest.fn(),
         load: jest.fn().mockResolvedValue({
           displayName: 'New Record',
           type: 'type1'
@@ -286,6 +342,7 @@ describe('AdditionalContextService', () => {
     it('returns false on error', async () => {
       const errorSpy = jest.spyOn(console, 'error').mockImplementation();
       mockRecords.get.mockReturnValue({
+        reset: jest.fn(),
         load: jest.fn().mockRejectedValue(new Error('fail'))
       } as any);
 

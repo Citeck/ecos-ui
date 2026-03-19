@@ -6,6 +6,10 @@ import EmailMessage from './EmailMessage';
 import TextDiffMessage from './TextDiffMessage';
 import ScriptDiffMessage from './ScriptDiffMessage';
 import BusinessAppMessage from './BusinessAppMessage';
+import AgentPlanMessage from './AgentPlanMessage';
+import AgentProgressMessage from './AgentProgressMessage';
+import ContextArtifactsList from './ContextArtifactsList';
+import MessageActions from './MessageActions';
 import { formatMessageTime } from '../../utils';
 
 /**
@@ -30,7 +34,8 @@ const MessageItem = ({
   onApplyTextChanges,
   onApplyScriptChanges,
   isApplyingTextChanges,
-  isApplyingScriptChanges
+  isApplyingScriptChanges,
+  onActionClick
 }) => {
   const renderContent = () => {
     // Email message
@@ -70,6 +75,26 @@ const MessageItem = ({
       );
     }
 
+    // Agent plan message (plan approval, step approval, completed, failed)
+    if (message.isAgentPlanContent) {
+      return (
+        <AgentPlanMessage
+          message={message}
+          markdownComponents={markdownComponents}
+          onActionClick={onActionClick}
+        />
+      );
+    }
+
+    // Agent progress message (planning, executing)
+    if (message.isAgentProgressContent) {
+      return (
+        <AgentProgressMessage
+          message={message}
+        />
+      );
+    }
+
     // Business app progress message
     if (message.isBusinessAppContent && message.messageData) {
       return (
@@ -82,9 +107,17 @@ const MessageItem = ({
 
     // Default markdown message
     return (
-      <Markdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-        {message.text}
-      </Markdown>
+      <>
+        <Markdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+          {message.text}
+        </Markdown>
+        {message.messageData?.contextArtifacts && (
+          <ContextArtifactsList contextArtifacts={message.messageData.contextArtifacts} />
+        )}
+        {message.messageData?.actions && (
+          <MessageActions actions={message.messageData.actions} onActionClick={onActionClick} />
+        )}
+      </>
     );
   };
 
@@ -100,7 +133,9 @@ const MessageItem = ({
           'ai-assistant-chat__message--email': message.isEmailContent,
           'ai-assistant-chat__message--text-diff': message.isTextDiffContent,
           'ai-assistant-chat__message--script-diff': message.isScriptDiffContent,
-          'ai-assistant-chat__message--business-app': message.isBusinessAppContent
+          'ai-assistant-chat__message--business-app': message.isBusinessAppContent,
+          'ai-assistant-chat__message--agent-plan': message.isAgentPlanContent,
+          'ai-assistant-chat__message--agent-progress': message.isAgentProgressContent
         }
       )}
     >

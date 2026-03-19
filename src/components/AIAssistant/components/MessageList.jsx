@@ -35,7 +35,8 @@ const MessageList = ({
   isApplyingScriptChanges,
   isLoading,
   activeRequestId,
-  messagesEndRef
+  messagesEndRef,
+  onActionClick
 }) => {
   // Show welcome screen when no messages
   if (messages.length === 0) {
@@ -64,6 +65,7 @@ const MessageList = ({
           onApplyScriptChanges={onApplyScriptChanges}
           isApplyingTextChanges={isApplyingTextChanges}
           isApplyingScriptChanges={isApplyingScriptChanges}
+          onActionClick={onActionClick}
         />
       ))}
 

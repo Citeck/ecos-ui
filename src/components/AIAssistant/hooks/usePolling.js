@@ -26,6 +26,7 @@ const usePolling = (options = {}) => {
   const [activeRequestId, setActiveRequestId] = useState(null);
   const pollingTimerRef = useRef(null);
   const isMountedRef = useRef(true);
+  const generationRef = useRef(0);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -39,13 +40,13 @@ const usePolling = (options = {}) => {
     };
   }, []);
 
-  const poll = useCallback(async (requestId) => {
+  const poll = useCallback(async (requestId, generation) => {
     if (!isMountedRef.current || !fetchStatus) return;
 
     try {
       const data = await fetchStatus(requestId);
 
-      if (!isMountedRef.current) return;
+      if (!isMountedRef.current || generation !== generationRef.current) return;
 
       if (data.result) {
         // Request completed successfully
@@ -73,11 +74,11 @@ const usePolling = (options = {}) => {
         if (data.progress) {
           onProgress?.(data.progress);
         }
-        pollingTimerRef.current = setTimeout(() => poll(requestId), pollingInterval);
+        pollingTimerRef.current = setTimeout(() => poll(requestId, generation), pollingInterval);
       }
 
     } catch (error) {
-      if (!isMountedRef.current) return;
+      if (!isMountedRef.current || generation !== generationRef.current) return;
 
       console.error('Error polling request status:', error);
       pollingTimerRef.current = null;
@@ -91,12 +92,14 @@ const usePolling = (options = {}) => {
     if (pollingTimerRef.current) {
       clearTimeout(pollingTimerRef.current);
     }
+    const generation = ++generationRef.current;
     setActiveRequestId(requestId);
     setIsPolling(true);
-    pollingTimerRef.current = setTimeout(() => poll(requestId), pollingInterval);
+    pollingTimerRef.current = setTimeout(() => poll(requestId, generation), pollingInterval);
   }, [poll, pollingInterval]);
 
   const stopPolling = useCallback(() => {
+    generationRef.current++;
     if (pollingTimerRef.current) {
       clearTimeout(pollingTimerRef.current);
       pollingTimerRef.current = null;
