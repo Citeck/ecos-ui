@@ -579,7 +579,7 @@ WebformBuilder.prototype.addBuilderComponent = function (...props) {
   if (component.element && component.documentation) {
     const helper = this.ce('i', {
       class: 'fa fa-question-circle-o formcomponent__doc',
-      style: 'right: 5px; position: absolute;font-size: 13px;cursor: pointer;',
+      style: 'right: 10px; position: absolute;font-size: 13px;cursor: pointer;',
       title: t('form-editor.open-comp-doc', { name: component.title || component.key })
     });
 

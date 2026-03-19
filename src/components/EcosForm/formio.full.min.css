@@ -4296,6 +4296,9 @@ td .formio-component-modaledit .formio-modaledit-view-container {
 .form-builder-panel .panel-body {
   padding: 5px;
 }
+.form-builder-panel .panel-collapse {
+  padding: 10px 5px;
+}
 .formio-drop-zone {
   display: none;
   position: absolute;

@@ -3254,5 +3254,6 @@
   "developer-console.clear-editor": "Clear Editor",
   "developer-console.panel-right": "Move panel to the right",
   "developer-console.panel-bottom": "Move panel to the bottom",
-  "developer-console.clear-output": "Clear output"
+  "developer-console.clear-output": "Clear output",
+  "color-picker.placeholder": "Select color"
 }

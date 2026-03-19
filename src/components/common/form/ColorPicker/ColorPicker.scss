@@ -1,0 +1,113 @@
+.ecos-color-picker {
+  position: relative;
+
+  &__swatch {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    border: 1px solid #d0d0d0;
+    border-radius: 6px;
+    cursor: pointer;
+    background: #fff;
+    width: 100%;
+    min-width: 60px;
+    height: 40px;
+
+    &:hover {
+      border-color: var(--primary-color);
+    }
+
+    &_disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+
+      &:hover {
+        border-color: #ccc;
+      }
+    }
+  }
+
+  &__color {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+  }
+
+  &__value {
+    flex: 1;
+    font-size: 13px;
+    color: #333;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+    border-left: 1px solid #d0d0d0;
+    align-self: stretch;
+    color: #999;
+    font-size: 14px;
+  }
+
+  &__popover {
+    position: fixed;
+    z-index: 10000;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    padding: 12px;
+
+    .react-colorful {
+      width: 200px;
+      height: 160px;
+    }
+  }
+
+  &__input {
+    display: block;
+    width: 100%;
+    margin-top: 8px;
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    outline: none;
+    font-size: 13px;
+    font-family: inherit;
+    box-sizing: border-box;
+
+    &:focus {
+      border-color: var(--primary-color, #4A90D9);
+    }
+  }
+
+  &__presets {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 4px;
+    margin-top: 8px;
+  }
+
+  &__preset {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    padding: 0;
+    outline: none;
+
+    &:hover {
+      transform: scale(1.15);
+    }
+
+    &_active {
+      box-shadow: 0 0 0 2px #fff, 0 0 0 3px #4A90D9;
+    }
+  }
+}

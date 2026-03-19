@@ -7635,6 +7635,7 @@ __metadata:
     react-bootstrap-table2-editor: 1.2.3
     react-chartjs-2: 5.2.0
     react-collapse: 4.0.3
+    react-colorful: ^5.6.1
     react-css-collapse: 3.6.1
     react-custom-scrollbars: 4.2.1
     react-datepicker: 2.4.0
@@ -15003,6 +15004,16 @@ __metadata:
     react: ">=15.3"
     react-motion: ^0.4 || ^0.5
   checksum: 634ffd1588f12da5734cbe3a71eb0c37ea68447187d5be4129846207815ecf5c96fd3b7891903b3ba08c08ea8c2b6d1b41518708224e2a09de0f0f22ab6b68d5
+  languageName: node
+  linkType: hard
+
+"react-colorful@npm:^5.6.1":
+  version: 5.6.1
+  resolution: "react-colorful@npm:5.6.1"
+  peerDependencies:
+    react: ">=16.8.0"
+    react-dom: ">=16.8.0"
+  checksum: e432b7cb0df57e8f0bcdc3b012d2e93fcbcb6092c9e0f85654788d5ebfc4442536d8cc35b2418061ba3c4afb8b7788cc101c606d86a1732407921de7a9244c8d
   languageName: node
   linkType: hard
 

@@ -39,6 +39,7 @@ import SelectAction from './custom/selectAction';
 import SelectOrgstruct from './custom/selectOrgstruct';
 import TableForm from './custom/tableForm';
 import TaskOutcome from './custom/taskOutcome/index';
+import ColorPicker from './custom/colorPicker';
 import ImportButton from './custom/importButton';
 import IncludeForm from './custom/includeForm';
 
@@ -50,6 +51,7 @@ const components = {
   base: Base,
   button: Button,
   checkbox: Checkbox,
+  colorPicker: ColorPicker,
   column: Column,
   columns: Columns,
   currency: Currency,

@@ -19,3 +19,4 @@ export { default as SelectOrgstruct } from './SelectOrgstruct';
 export { default as SelectJournal } from './SelectJournal';
 export { default as TableForm } from './TableForm';
 export { default as Range } from './Range';
+export { default as ColorPicker } from './ColorPicker';
