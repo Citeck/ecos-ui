@@ -32,7 +32,7 @@ const buildProgressMessageData = (progress) => {
           currentStepDescription: progress.currentStepDescription,
           completedSteps: progress.completedSteps,
           totalSteps: progress.totalSteps,
-          overallProgress: progress.overallProgress,
+          overallProgress: progress.progress,
           steps: progress.steps
         }
       }
@@ -86,7 +86,7 @@ const buildInitialProcessingMessage = (data) => {
         currentStepDescription: initialProgress.currentStepDescription,
         completedSteps: initialProgress.completedSteps,
         totalSteps: initialProgress.totalSteps,
-        overallProgress: initialProgress.overallProgress,
+        overallProgress: initialProgress.overallProgress ?? initialProgress.progress,
         message: initialProgress.message
       }
     };

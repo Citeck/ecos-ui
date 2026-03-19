@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import AgentProgressMessage from '../components/messages/AgentProgressMessage';
 
 // Mock Icon component
@@ -7,15 +7,6 @@ jest.mock('../../common', () => ({
   Icon: ({ className }) => <i className={className} data-testid="icon" />
 }));
 
-// Mock react-markdown
-jest.mock('react-markdown', () => {
-  return ({ children }) => <div data-testid="markdown-content">{children}</div>;
-});
-
-// Mock remark-gfm
-jest.mock('remark-gfm', () => {
-  return () => {};
-});
 
 describe('AgentProgressMessage', () => {
   it('returns null when messageData is missing', () => {
@@ -291,7 +282,7 @@ describe('AgentProgressMessage', () => {
       expect(container.querySelector('.ai-assistant-chat__agent-step-error')).toBeNull();
     });
 
-    it('shows toggle icon for completed step with output', () => {
+    it('does not show toggle icon for step without expandable content', () => {
       const message = {
         messageData: {
           type: 'agent_execution',
@@ -299,27 +290,7 @@ describe('AgentProgressMessage', () => {
           totalSteps: 1,
           overallProgress: 100,
           steps: [
-            { id: 'step-1', description: 'Create data type', status: 'COMPLETED', output: 'Generated YAML content' }
-          ]
-        }
-      };
-
-      render(<AgentProgressMessage message={message} />);
-
-      const icons = screen.getAllByTestId('icon');
-      const toggleIcon = icons.find(icon => icon.className.includes('fa-chevron-down'));
-      expect(toggleIcon).toBeTruthy();
-    });
-
-    it('does not show toggle icon for pending step', () => {
-      const message = {
-        messageData: {
-          type: 'agent_execution',
-          completedSteps: 0,
-          totalSteps: 1,
-          overallProgress: 0,
-          steps: [
-            { id: 'step-1', description: 'Create data type', status: 'PENDING', output: 'some output' }
+            { id: 'step-1', description: 'Deploy artifacts', status: 'COMPLETED' }
           ]
         }
       };
@@ -331,233 +302,6 @@ describe('AgentProgressMessage', () => {
         icon.className.includes('fa-chevron-down') || icon.className.includes('fa-chevron-up')
       );
       expect(toggleIcon).toBeFalsy();
-    });
-
-    it('expands step details on click and shows output via Markdown', () => {
-      const message = {
-        messageData: {
-          type: 'agent_execution',
-          completedSteps: 1,
-          totalSteps: 1,
-          overallProgress: 100,
-          steps: [
-            { id: 'step-1', description: 'Create data type', status: 'COMPLETED', output: 'id: my-type\nname: My Type' }
-          ]
-        }
-      };
-
-      const { container } = render(<AgentProgressMessage message={message} />);
-
-      // Output should not be visible initially
-      expect(container.querySelector('.ai-assistant-chat__agent-step-details')).toBeNull();
-
-      // Click the step header to expand
-      const stepHeader = container.querySelector('.ai-assistant-chat__agent-step-header--expandable');
-      fireEvent.click(stepHeader);
-
-      // Output should now be visible rendered through Markdown
-      expect(container.querySelector('.ai-assistant-chat__agent-step-details')).toBeTruthy();
-      const preview = container.querySelector('.ai-assistant-chat__agent-step-preview');
-      expect(preview).toBeTruthy();
-      const markdownEl = screen.getByTestId('markdown-content');
-      expect(markdownEl.textContent).toBe('id: my-type\nname: My Type');
-
-      // Toggle icon should change to chevron-up
-      const icons = screen.getAllByTestId('icon');
-      const upIcon = icons.find(icon => icon.className.includes('fa-chevron-up'));
-      expect(upIcon).toBeTruthy();
-    });
-
-    it('collapses step details on second click', () => {
-      const message = {
-        messageData: {
-          type: 'agent_execution',
-          completedSteps: 1,
-          totalSteps: 1,
-          overallProgress: 100,
-          steps: [
-            { id: 'step-1', description: 'Create data type', status: 'COMPLETED', output: 'Generated content' }
-          ]
-        }
-      };
-
-      const { container } = render(<AgentProgressMessage message={message} />);
-
-      const stepHeader = container.querySelector('.ai-assistant-chat__agent-step-header--expandable');
-
-      // Click to expand
-      fireEvent.click(stepHeader);
-      expect(container.querySelector('.ai-assistant-chat__agent-step-details')).toBeTruthy();
-
-      // Click again to collapse
-      fireEvent.click(stepHeader);
-      expect(container.querySelector('.ai-assistant-chat__agent-step-details')).toBeNull();
-    });
-
-    it('shows "Показать" button for completed step with output', () => {
-      const message = {
-        messageData: {
-          type: 'agent_execution',
-          completedSteps: 1,
-          totalSteps: 1,
-          overallProgress: 100,
-          steps: [
-            { id: 'step-1', description: 'Create data type', status: 'COMPLETED', output: 'Generated YAML' }
-          ]
-        }
-      };
-
-      const { container } = render(<AgentProgressMessage message={message} />);
-
-      const toggleBtn = container.querySelector('.ai-assistant-chat__agent-step-preview-toggle');
-      expect(toggleBtn).toBeTruthy();
-      expect(toggleBtn.textContent).toContain('Показать');
-    });
-
-    it('changes button text to "Скрыть" when expanded', () => {
-      const message = {
-        messageData: {
-          type: 'agent_execution',
-          completedSteps: 1,
-          totalSteps: 1,
-          overallProgress: 100,
-          steps: [
-            { id: 'step-1', description: 'Create data type', status: 'COMPLETED', output: 'Generated YAML' }
-          ]
-        }
-      };
-
-      const { container } = render(<AgentProgressMessage message={message} />);
-
-      const toggleBtn = container.querySelector('.ai-assistant-chat__agent-step-preview-toggle');
-
-      // Click to expand
-      fireEvent.click(toggleBtn);
-      expect(toggleBtn.textContent).toContain('Скрыть');
-
-      // Click to collapse
-      fireEvent.click(toggleBtn);
-      expect(toggleBtn.textContent).toContain('Показать');
-    });
-
-    it('does not show preview toggle for steps without output', () => {
-      const message = {
-        messageData: {
-          type: 'agent_execution',
-          completedSteps: 1,
-          totalSteps: 1,
-          overallProgress: 100,
-          steps: [
-            { id: 'step-1', description: 'Deploy artifacts', status: 'COMPLETED' }
-          ]
-        }
-      };
-
-      const { container } = render(<AgentProgressMessage message={message} />);
-
-      expect(container.querySelector('.ai-assistant-chat__agent-step-preview-toggle')).toBeNull();
-    });
-
-    it('renders output through Markdown component', () => {
-      const yamlOutput = '```yaml\nid: my-type\nname: My Type\n```';
-      const message = {
-        messageData: {
-          type: 'agent_execution',
-          completedSteps: 1,
-          totalSteps: 1,
-          overallProgress: 100,
-          steps: [
-            { id: 'step-1', description: 'Create data type', status: 'COMPLETED', output: yamlOutput }
-          ]
-        }
-      };
-
-      const { container } = render(<AgentProgressMessage message={message} />);
-
-      // Expand the step
-      const toggleBtn = container.querySelector('.ai-assistant-chat__agent-step-preview-toggle');
-      fireEvent.click(toggleBtn);
-
-      // Verify Markdown component is used
-      const markdownEl = screen.getByTestId('markdown-content');
-      expect(markdownEl).toBeTruthy();
-      expect(markdownEl.textContent).toBe(yamlOutput);
-    });
-
-    it('preview has max-height container', () => {
-      const message = {
-        messageData: {
-          type: 'agent_execution',
-          completedSteps: 1,
-          totalSteps: 1,
-          overallProgress: 100,
-          steps: [
-            { id: 'step-1', description: 'Create data type', status: 'COMPLETED', output: 'Some output content' }
-          ]
-        }
-      };
-
-      const { container } = render(<AgentProgressMessage message={message} />);
-
-      // Expand
-      const toggleBtn = container.querySelector('.ai-assistant-chat__agent-step-preview-toggle');
-      fireEvent.click(toggleBtn);
-
-      const preview = container.querySelector('.ai-assistant-chat__agent-step-preview');
-      expect(preview).toBeTruthy();
-    });
-
-    it('shows toggle and error for failed step with error and output', () => {
-      const message = {
-        messageData: {
-          type: 'agent_execution',
-          completedSteps: 0,
-          totalSteps: 1,
-          overallProgress: 0,
-          steps: [
-            {
-              id: 'step-1',
-              description: 'Generate form',
-              status: 'FAILED',
-              error: 'Schema validation error',
-              output: 'Partial output before failure'
-            }
-          ]
-        }
-      };
-
-      const { container } = render(<AgentProgressMessage message={message} />);
-
-      // Error should be visible immediately
-      expect(screen.getByText('Schema validation error')).toBeTruthy();
-
-      // Toggle should be present (failed step with output is expandable)
-      const stepHeader = container.querySelector('.ai-assistant-chat__agent-step-header--expandable');
-      expect(stepHeader).toBeTruthy();
-
-      // Click toggle button to expand and see output via Markdown
-      const toggleBtn = container.querySelector('.ai-assistant-chat__agent-step-preview-toggle');
-      fireEvent.click(toggleBtn);
-      const markdownEl = screen.getByTestId('markdown-content');
-      expect(markdownEl.textContent).toBe('Partial output before failure');
-    });
-
-    it('does not render step header as expandable when no output or error', () => {
-      const message = {
-        messageData: {
-          type: 'agent_execution',
-          completedSteps: 1,
-          totalSteps: 1,
-          overallProgress: 100,
-          steps: [
-            { id: 'step-1', description: 'Deploy artifacts', status: 'COMPLETED' }
-          ]
-        }
-      };
-
-      const { container } = render(<AgentProgressMessage message={message} />);
-
-      expect(container.querySelector('.ai-assistant-chat__agent-step-header--expandable')).toBeNull();
     });
   });
 });

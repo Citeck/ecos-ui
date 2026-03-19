@@ -28,7 +28,7 @@ describe('buildProgressMessageData', () => {
         currentStepDescription: 'Create form',
         completedSteps: 1,
         totalSteps: 3,
-        overallProgress: 33,
+        progress: 33,
         steps
       };
 

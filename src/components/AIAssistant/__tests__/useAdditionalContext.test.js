@@ -12,7 +12,8 @@ jest.mock('../AdditionalContextService', () => ({
     toggleRecordContext: jest.fn(),
     toggleDocumentContext: jest.fn(),
     handleAddRecordContext: jest.fn(),
-    handleAddAttributeContext: jest.fn()
+    handleAddAttributeContext: jest.fn(),
+    isRecordInContext: jest.fn().mockReturnValue(false)
   }
 }));
 

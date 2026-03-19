@@ -65,6 +65,7 @@ describe('AdditionalContextService', () => {
   describe('loadRecordData', () => {
     it('loads record data from Records API', async () => {
       mockRecords.get.mockReturnValue({
+        reset: jest.fn(),
         load: jest.fn().mockResolvedValue({
           displayName: 'Test Record',
           type: 'emodel/type@test'
@@ -82,6 +83,7 @@ describe('AdditionalContextService', () => {
 
     it('uses recordRef as fallback displayName', async () => {
       mockRecords.get.mockReturnValue({
+        reset: jest.fn(),
         load: jest.fn().mockResolvedValue({
           displayName: '',
           type: ''
@@ -107,6 +109,7 @@ describe('AdditionalContextService', () => {
     it('loads current record when ref exists', async () => {
       mockGetRecordRef.mockReturnValue('rec-1');
       mockRecords.get.mockReturnValue({
+        reset: jest.fn(),
         load: jest.fn().mockResolvedValue({
           displayName: 'Current',
           type: 'type1'
@@ -318,6 +321,7 @@ describe('AdditionalContextService', () => {
 
     it('loads and adds record data', async () => {
       mockRecords.get.mockReturnValue({
+        reset: jest.fn(),
         load: jest.fn().mockResolvedValue({
           displayName: 'New Record',
           type: 'type1'
@@ -338,6 +342,7 @@ describe('AdditionalContextService', () => {
     it('returns false on error', async () => {
       const errorSpy = jest.spyOn(console, 'error').mockImplementation();
       mockRecords.get.mockReturnValue({
+        reset: jest.fn(),
         load: jest.fn().mockRejectedValue(new Error('fail'))
       } as any);
 

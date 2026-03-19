@@ -46,7 +46,10 @@ class AdditionalContextService {
    * Load record data from server
    */
   async loadRecordData(recordRef: string): Promise<RecordData> {
-    const recordData = await Records.get(recordRef).load({
+    const record = Records.get(recordRef);
+    record.reset();
+
+    const recordData = await record.load({
       displayName: '?disp',
       type: '_type?id'
     });

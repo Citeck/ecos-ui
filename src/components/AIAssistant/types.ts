@@ -106,7 +106,6 @@ export interface AgentStepProgress {
   description: string;
   status: AgentStepStatus;
   error?: string;
-  output?: string;
 }
 
 /**

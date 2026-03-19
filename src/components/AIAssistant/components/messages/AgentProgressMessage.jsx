@@ -1,7 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import Markdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import { Icon } from '../../../common';
 
 const STEP_STATUS_ICONS = {
@@ -17,26 +15,15 @@ const STEP_STATUS_ICONS = {
  * Supports expandable details (output, error) and execution time display
  */
 const StepItem = ({ step }) => {
-  const [expanded, setExpanded] = useState(false);
   const statusConfig = STEP_STATUS_ICONS[step.status] || STEP_STATUS_ICONS.PENDING;
-  const hasDetails = step.output || step.error;
-  const isExpandable = hasDetails && (step.status === 'COMPLETED' || step.status === 'FAILED');
 
   return (
     <div className={classNames('ai-assistant-chat__agent-step', statusConfig.className)}>
-      <div
-        className={classNames('ai-assistant-chat__agent-step-header', {
-          'ai-assistant-chat__agent-step-header--expandable': isExpandable
-        })}
-        onClick={isExpandable ? () => setExpanded(!expanded) : undefined}
-      >
+      <div className="ai-assistant-chat__agent-step-header">
         <Icon className={classNames('fa', statusConfig.icon, { 'fa-spin': statusConfig.spin })} />
         <span className="ai-assistant-chat__agent-step-description">{step.description}</span>
         {step.executionTime && step.status === 'COMPLETED' && (
           <span className="ai-assistant-chat__agent-step-time">{step.executionTime}</span>
-        )}
-        {isExpandable && (
-          <Icon className={classNames('fa', expanded ? 'fa-chevron-up' : 'fa-chevron-down', 'ai-assistant-chat__agent-step-toggle')} />
         )}
       </div>
 
@@ -45,29 +32,6 @@ const StepItem = ({ step }) => {
         <div className="ai-assistant-chat__agent-step-error">
           <Icon className="fa fa-exclamation-triangle" />
           <span>{step.error}</span>
-        </div>
-      )}
-
-      {/* Show/Hide button for expandable steps */}
-      {isExpandable && (
-        <button
-          className="ai-assistant-chat__agent-step-preview-toggle"
-          onClick={() => setExpanded(!expanded)}
-          type="button"
-        >
-          <Icon className={classNames('fa', expanded ? 'fa-eye-slash' : 'fa-eye')} />
-          <span>{expanded ? 'Скрыть' : 'Показать'}</span>
-        </button>
-      )}
-
-      {/* Expandable preview with Markdown rendering */}
-      {isExpandable && expanded && (
-        <div className="ai-assistant-chat__agent-step-details">
-          {step.output && (
-            <div className="ai-assistant-chat__agent-step-preview">
-              <Markdown remarkPlugins={[remarkGfm]}>{step.output}</Markdown>
-            </div>
-          )}
         </div>
       )}
     </div>
