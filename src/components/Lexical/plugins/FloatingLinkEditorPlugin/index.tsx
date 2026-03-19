@@ -277,6 +277,7 @@ function useFloatingLinkEditorToolbar(
 ): JSX.Element | null {
   const [activeEditor, setActiveEditor] = useState(editor);
   const [isLink, setIsLink] = useState(false);
+  const hasUserInteracted = useRef(false);
 
   useEffect(() => {
     function $updateToolbar() {
@@ -303,7 +304,7 @@ function useFloatingLinkEditorToolbar(
             );
           });
         if (!badNode) {
-          setIsLink(true);
+          setIsLink(hasUserInteracted.current);
         } else {
           setIsLink(false);
         }
@@ -327,6 +328,8 @@ function useFloatingLinkEditorToolbar(
       editor.registerCommand(
         CLICK_COMMAND,
         payload => {
+          hasUserInteracted.current = true;
+          $updateToolbar();
           const selection = $getSelection();
           if ($isRangeSelection(selection)) {
             const node = getSelectedNode(selection);

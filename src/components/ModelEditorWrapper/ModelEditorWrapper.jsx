@@ -276,12 +276,6 @@ class ModelEditorWrapper extends React.Component {
           />
         )}
 
-        {!isTableView && (
-          <div className="ecos-model-editor__sidebar-right-opener" onClick={this.togglePropertiesOpen}>
-            <Icon className={classNames({ 'icon-small-left': !rightSidebarOpen, 'icon-small-right': rightSidebarOpen })} />
-          </div>
-        )}
-
         <div ref={this.setRightSidebarRef} className="ecos-model-editor__sidebar-right-content">
           {rightSidebarTitle && (
             <Caption normal className="ecos-model-editor__sidebar-right-caption">
@@ -291,6 +285,12 @@ class ModelEditorWrapper extends React.Component {
 
           {rightSidebar}
         </div>
+
+        {!isTableView && (
+          <div className="ecos-model-editor__sidebar-right-opener" onClick={this.togglePropertiesOpen}>
+            <Icon className={classNames({ 'icon-small-left': !rightSidebarOpen, 'icon-small-right': rightSidebarOpen })} />
+          </div>
+        )}
       </div>
     );
   };

@@ -135,6 +135,7 @@ class Layout extends Component {
 
         items.forEach((item, index) => {
           item.style.top = 0;
+          item.style.zIndex = items.length - index;
 
           if (countInnerColumns && index < countInnerColumns) {
             return;

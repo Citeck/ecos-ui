@@ -6,6 +6,7 @@
   align-items: center;
   padding: 0 20px;
   min-height: 34px;
+  overflow: hidden;
 
   &-dashlet {
     $dashlet: &;
@@ -37,6 +38,7 @@
     min-height: 26px;
     height: 26px;
     padding: 0 12px;
+    max-width: 100%;
     border-radius: $border-radius-standard;
     background: $color-blue-light2;
     color: $color-blue-dark;
@@ -112,11 +114,24 @@
     }
   }
 
+  .ecos-dropdown-outer {
+    min-width: 0;
+    overflow: hidden;
+
+    > div {
+      min-width: 0;
+      overflow: hidden;
+    }
+  }
+
   .ecos-dropdown {
+    min-width: 0;
+
     .ecos-dropdown__toggle {
       background: none;
       border: none;
       padding: 0;
+      max-width: 100%;
 
       &:hover,
       &:focus,

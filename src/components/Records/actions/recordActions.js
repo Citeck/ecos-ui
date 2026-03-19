@@ -9,6 +9,8 @@ import isObject from 'lodash/isObject';
 import isString from 'lodash/isString';
 import set from 'lodash/set';
 
+import PageService from '../../../services/PageService';
+import PageTabList from '../../../services/pageTabs/PageTabList';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import { DialogManager } from '../../common/dialogs';
 import { EVENTS } from '../../widgets/BaseWidget';
@@ -24,8 +26,9 @@ import actionsApi from './recordActionsApi';
 import { DetailActionResult, getActionResultTitle, getRef, notifyFailure, notifySuccess } from './util/actionUtils';
 import { ResultTypes } from './util/constants';
 
-import { SourcesId } from '@/constants';
+import { SourcesId, URL } from '@/constants';
 import { getFitnesseInlineToolsClassName } from '@/helpers/tools';
+import { getWorkspaceId } from '@/helpers/urls';
 import { beArray, extractLabel, getMLValue, getModule, t } from '@/helpers/util';
 
 const ACTION_CONTEXT_KEY = '__act_ctx__';
@@ -548,7 +551,7 @@ class RecordActions {
       action.config = preResult.config;
     }
 
-    const result = handler.execForRecord(recordInstance, actionToExec, execContext);
+    const result = await handler.execForRecord(recordInstance, actionToExec, execContext);
     const actResult = await RecordActions._wrapResultIfRequired(result);
 
     RecordActions._updateRecords(record);
@@ -557,10 +560,29 @@ class RecordActions {
       recordInstance.events.emit(EVENTS.RECORD_ACTION_COMPLETED);
     }
 
-    const noResultModal = get(action, 'config.noResultModal');
+    const { noResultModal = false, targetApp = '' } = get(action, 'config', {});
 
     if (!noResultModal) {
       await DetailActionResult.showResult(actResult, { title: getActionResultTitle(action) });
+    }
+
+    if (targetApp) {
+      recordInstance
+        .load('_movedToRef?str', true)
+        .then(movedToRef => {
+          if (movedToRef) {
+            const wsId = getWorkspaceId();
+            const activeTab = PageTabList.activeTab;
+
+            PageService.changeUrlLink(`${URL.DASHBOARD}?ws=${wsId}&recordRef=${movedToRef}`, {
+              openNewTab: true,
+              needUpdateTabs: true
+            });
+
+            PageTabList.delete(activeTab);
+          }
+        })
+        .catch(() => notifyFailure(t('records-actions.error.redirect-not-working')));
     }
 
     return actResult;

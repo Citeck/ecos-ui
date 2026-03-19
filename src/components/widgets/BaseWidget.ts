@@ -56,7 +56,8 @@ abstract class BaseWidget<P extends BaseWidgetProps = BaseWidgetProps, S extends
 > {
   _dashletRef: HTMLDivElement | null = null;
   _observableFieldsToUpdate: string[] = ['_modified'];
-  _updateWatcher: any;
+  _updateWatcher: any = null;
+  _isMounted = false;
   contentRef = React.createRef<HTMLDivElement>();
 
   constructor(props: P) {
@@ -75,10 +76,12 @@ abstract class BaseWidget<P extends BaseWidgetProps = BaseWidgetProps, S extends
       previousHeight: 0,
       userHeight: UserLocalSettingsService.getDashletHeight(lsId)
     } as S;
-    this._updateWatcher = this.instanceRecord.watch(this._observableFieldsToUpdate, this.reload);
   }
 
   componentDidMount() {
+    this._isMounted = true;
+    this._updateWatcher = this.instanceRecord.watch(this._observableFieldsToUpdate, this.reload);
+
     const { onLoad } = this.props;
 
     isFunction(onLoad) && onLoad(this);
@@ -96,14 +99,16 @@ abstract class BaseWidget<P extends BaseWidgetProps = BaseWidgetProps, S extends
   }
 
   componentWillUnmount() {
+    this._isMounted = false;
     this.instanceRecord.unwatch(this._updateWatcher);
+    this._updateWatcher = null;
   }
 
   get isCollapsed(): boolean {
     const { config } = this.props;
     const lsId = this.state.lsId;
     const isCollapsedByConfig = config?.collapsed;
-    const isCollapsedByLS = UserLocalSettingsService.getDashletProperty(lsId, DashletProps.IS_COLLAPSED);
+    const isCollapsedByLS: any = UserLocalSettingsService.getDashletProperty(lsId, DashletProps.IS_COLLAPSED);
 
     return isCollapsedByLS === undefined ? (isCollapsedByConfig ?? false) : isCollapsedByLS;
   }
@@ -201,7 +206,7 @@ abstract class BaseWidget<P extends BaseWidgetProps = BaseWidgetProps, S extends
       this._updateWatcher = null;
     }
 
-    if (!isEmpty(fields)) {
+    if (this._isMounted && !isEmpty(fields)) {
       this._updateWatcher = this.instanceRecord.watch(this._observableFieldsToUpdate, this.reload.bind(this));
     }
   }

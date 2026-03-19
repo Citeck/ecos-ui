@@ -76,17 +76,19 @@
   color: $color-gray-5;
   font-size: $font-size-standard;
   margin: 0 4px;
+  transition: color 0.2s ease;
   cursor: pointer;
 
   &:hover {
-    color: var(--dark-primary-color);
+    color: var(--primary-color);
   }
 
   &_active {
-    color: var(--light-primary-color);
+    color: var(--primary-color);
+    transition: opacity 0.2s ease;
 
     &:hover {
-      color: var(--dark-primary-color);
+      opacity: .7;
     }
   }
 
@@ -123,6 +125,9 @@
   }
 
   span.arrow.ecos-th__filter-tooltip-marker {
+    top: auto;
+    bottom: auto;
+
     &::before {
       border-top-color: $color-white;
       border-bottom-color: $color-white;

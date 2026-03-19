@@ -8,7 +8,6 @@ import React, { Component } from 'react';
 import { TooltipWrapper } from './TooltipWrapper';
 
 import { isClosestHidden } from '@/helpers/util';
-import ZIndex from '@/services/ZIndex';
 import './style.scss';
 
 export const baseModifiers = [
@@ -114,11 +113,6 @@ class Tooltip extends Component {
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     this.stealthCheck();
-
-    if (this.state.isOpen) {
-      ZIndex.calcZ();
-      ZIndex.setZ('ecos-base-tooltip');
-    }
   }
 
   stealthCheck = () => {
@@ -181,7 +175,7 @@ class Tooltip extends Component {
       className: classNames('ecos-base-tooltip', className),
       innerClassName: classNames('ecos-base-tooltip-inner', innerClassName, { 'ecos-base-tooltip-inner_new': isViewNewJournal }),
       arrowClassName: classNames('ecos-base-tooltip-arrow', arrowClassName),
-      popperClassName: classNames('ecos-base-tooltip-popper', 'ecosZIndexAnchor', popperClassName),
+      popperClassName: classNames('ecos-base-tooltip-popper', popperClassName),
       toggle: this.onToggle
     };
   };

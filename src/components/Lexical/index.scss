@@ -70,6 +70,7 @@
     color: initial;
     font-size: 13px;
     line-height: 1.53;
+    border-radius: 6px;
   }
 
   &__load-node {
@@ -1054,7 +1055,6 @@
     display: flex;
     position: relative;
     outline: 0;
-    z-index: 0;
   }
 
   .editor {
@@ -1062,7 +1062,6 @@
     max-width: 100%;
     position: relative;
     resize: vertical;
-    z-index: -1;
   }
 
   .test-recorder-output {
@@ -1369,6 +1368,7 @@
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
   border-radius: 8px;
   position: fixed;
+  z-index: 10000;
 }
 
 .typeahead-popover ul {

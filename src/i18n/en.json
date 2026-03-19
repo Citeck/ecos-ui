@@ -1003,6 +1003,7 @@
   "records-actions.notify.title": "Widget Actions",
   "records-actions.error.execute-action": "Action failed",
   "records-actions.error.get-actions": "Actions haven't received",
+  "records-actions.error.redirect-not-working": "Redirect is not working",
 
   "records-actions.create.create-variant-with-id-not-found": "Creation variant with id = '{{id}}' doesn't found",
 
@@ -2023,7 +2024,9 @@
   "ecos-form.builder.form-id.label": "Form ID",
 
   "ecos-form.create-new-artefact": "Create new artefact",
-  "ecos-form.create-new-artefact-info-text": "Editing of the virtual form/magazine is prohibited. You need to create a new one.",
+  "ecos-form.create-new-artefact-info-text.board": "This is a global Kanban board available to all users. To customize it for local use, you need to create a copy. The original board will remain unchanged.",
+  "ecos-form.create-new-artefact-info-text.form": "This is a global form available to all users. To customize it for local use, you need to create a copy. The original form will remain unchanged.",
+  "ecos-form.create-new-artefact-info-text.journal": "This is a global journal available to all users. To customize it for local use, you need to create a copy. The original journal will remain unchanged.",
   "ecos-form.new-record-ref.id": "ID",
   "ecos-form.create-new-artefact.type": "Data type",
   "editor.placeholder": "Add a comment...",

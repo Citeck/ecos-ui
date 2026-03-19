@@ -710,7 +710,7 @@ export default class SelectJournal extends Component {
 
   fetchJournalData = () => this.getJournalConfig().then(this.refreshGridData);
 
-  onCreateFormSubmit = (record, form, alias) => {
+  onCreateFormSubmit = (record, _form, alias) => {
     const { multiple } = this.props;
     const { gridData, pagination } = this.state;
 

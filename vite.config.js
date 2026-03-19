@@ -1,11 +1,45 @@
 import babel from '@rollup/plugin-babel';
 import react from '@vitejs/plugin-react';
+import { cpSync, readFileSync, statSync } from 'fs';
 import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
 import packageInfo from './package.json';
+
+const MIME_TYPES = {
+  '.js': 'application/javascript',
+  '.css': 'text/css',
+  '.ttf': 'font/ttf',
+  '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+  '.html': 'text/html'
+};
+
+function serveMonacoEditorPlugin() {
+  const monacoRoot = path.resolve(__dirname, 'node_modules/monaco-editor');
+
+  return {
+    name: 'serve-monaco-editor',
+    configureServer(server) {
+      server.middlewares.use('/monaco-editor', (req, res, next) => {
+        const filePath = path.join(monacoRoot, (req.url || '/').replace(/\?.*$/, ''));
+        try {
+          if (!statSync(filePath).isFile()) return next();
+          res.setHeader('Content-Type', MIME_TYPES[path.extname(filePath)] || 'application/octet-stream');
+          res.end(readFileSync(filePath));
+        } catch {
+          next();
+        }
+      });
+    },
+    writeBundle(options) {
+      const outDir = options.dir || path.resolve(__dirname, 'build');
+      cpSync(path.join(monacoRoot, 'min/vs'), path.join(outDir, 'monaco-editor/min/vs'), { recursive: true });
+    }
+  };
+}
 
 const needEnvSettings = [
   'ECOS_PAGE_TITLE',
@@ -156,6 +190,7 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [
       react(),
+      serveMonacoEditorPlugin(),
       nodePolyfills({
         include: ['crypto', 'events']
       }),

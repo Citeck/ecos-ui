@@ -180,6 +180,7 @@ export default handleActions(
       }
     }),
     [setDownloadLoading]: (state, { payload }) => ({
+      ...state,
       [payload.key]: {
         ...state[payload.key],
         isLoadingDownload: payload.loading
@@ -292,7 +293,7 @@ export default handleActions(
       ...state,
       [payload.key]: {
         ...state[payload.key],
-        [payload.loadindField || 'isLoading']: payload.status
+        [payload.loadingField || 'isLoading']: payload.status
       }
     })
   },

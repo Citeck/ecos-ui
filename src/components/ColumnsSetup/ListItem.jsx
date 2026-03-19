@@ -7,7 +7,6 @@ import Columns from '../common/templates/Columns/Columns';
 
 import { t } from '@/helpers/export/util';
 import { handleCloseMenuOnScroll } from '@/helpers/util';
-import ZIndex from '@/services/ZIndex';
 
 import './ColumnsSetup.scss';
 
@@ -69,10 +68,10 @@ export default class ListItem extends Component {
               getOptionLabel={option => option.title}
               getOptionValue={option => option.value}
               onChange={this.handleChangeSortBy}
-              className="select_narrow select_width_full ecosZIndexAnchor"
+              className="select_narrow select_width_full"
               placeholder={t('journals.default')}
               value={this.getSelected(column, sortBy)}
-              styles={{ menuPortal: base => ({ ...base, zIndex: ZIndex.calcZ() }) }}
+              styles={{ menuPortal: base => ({ ...base, zIndex: 10000 }) }}
               menuPortalTarget={document.body}
               menuPlacement="auto"
               closeMenuOnScroll={(e, { innerSelect }) => handleCloseMenuOnScroll(e, innerSelect)}

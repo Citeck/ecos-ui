@@ -18,7 +18,7 @@ import Icon from '../../../../icons/Icon';
 
 import InlineFilter from '@/components/Filters/Filter/InlineFilter';
 import { t } from '@/helpers/export/util';
-import { getIconUpDown } from '@/helpers/icon';
+import { getDefaultSortIconForType, getIconUpDown } from '@/helpers/icon';
 import { closest, getId } from '@/helpers/util';
 
 import './HeaderFormatter.scss';
@@ -352,7 +352,7 @@ export default class HeaderFormatter extends Component {
   };
 
   renderActions = () => {
-    const { disableSelect, filterable, ascending, sortable } = this.props;
+    const { disableSelect, filterable, ascending, sortable, column } = this.props;
 
     if (!filterable && !sortable) {
       return null;
@@ -364,9 +364,11 @@ export default class HeaderFormatter extends Component {
       <div className="ecos-th__actions">
         {sortable && (
           <Icon
-            className={classNames('ecos-th__order ecos-th__action-icon', getIconUpDown(ascending), {
-              'ecos-th__action-icon_active': !isNil(ascending)
-            })}
+            className={classNames(
+              'ecos-th__order ecos-th__action-icon',
+              isNil(ascending) ? getDefaultSortIconForType(column.type) : getIconUpDown(ascending),
+              { 'ecos-th__action-icon_active': !isNil(ascending) }
+            )}
           />
         )}
         {filterable && (

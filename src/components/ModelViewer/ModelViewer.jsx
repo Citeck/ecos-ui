@@ -38,6 +38,10 @@ export default class ModelViewer {
   init = async ({ diagram, container, onInit, onMounted, modelEvents, markedElement, zoom, zoomCenter }) => {
     isFunction(onInit) && onInit(true);
 
+    if (this.modeler) {
+      this.destroy();
+    }
+
     this.modeler = new NavigatedViewer({
       moddleExtensions: {
         ecosTask: ecosTask

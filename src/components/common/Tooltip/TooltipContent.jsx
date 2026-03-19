@@ -9,8 +9,6 @@ import { Popper as ReactPopper } from 'react-popper';
 import Fade from 'reactstrap/lib/Fade';
 import { DOMElement, getTarget, mapToCssModules, tagPropType, targetPropType } from 'reactstrap/lib/utils';
 
-import ZIndex from '@/services/ZIndex';
-
 export class TooltipContent extends Component {
   constructor(props) {
     super(props);
@@ -141,12 +139,7 @@ export class TooltipContent extends Component {
     if (this.props.isOpen && !this.props.isHiddenTarget) {
       return this.props.container === 'inline'
         ? this.renderChildren()
-        : ReactDOM.createPortal(
-            <div ref={this.getRef} style={{ zIndex: ZIndex.calcZ() + 1, position: 'relative' }}>
-              {this.renderChildren()}
-            </div>,
-            this.getContainerNode()
-          );
+        : ReactDOM.createPortal(this.renderChildren(), this.getContainerNode());
     }
 
     return null;

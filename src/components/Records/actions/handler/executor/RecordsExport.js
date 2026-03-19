@@ -9,7 +9,6 @@ import { SourcesId } from '@/constants';
 import { PROXY_URI } from '@/constants/alfresco';
 import { t } from '@/helpers/util';
 import ConfigService, { ALFRESCO_ENABLED, ALFRESCO_EXPORT_SRC_ID_PATTERN } from '@/services/config/ConfigService';
-import LicenseService from '@/services/license/LicenseService';
 
 const ALF_ACTION_ID = `${SourcesId.ACTION}@alf-download-report-group-action-`;
 const ACTION_ID = `${SourcesId.ACTION}@group-action-export-`;
@@ -66,10 +65,6 @@ export default class RecordsExportAction extends ActionsExecutor {
     const isAlfrescoEnabled = await ConfigService.getValue(ALFRESCO_ENABLED);
     if (!isAlfrescoEnabled) {
       return false;
-    }
-    const isGroupActionsLicenseExists = await LicenseService.hasGroupActionsFeature();
-    if (!isGroupActionsLicenseExists) {
-      return true;
     }
     const alfSrcIdPattern = await ConfigService.getValue(ALFRESCO_EXPORT_SRC_ID_PATTERN);
     return alfSrcIdPattern && !!sourceId.match(alfSrcIdPattern);

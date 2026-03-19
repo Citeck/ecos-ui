@@ -116,7 +116,10 @@ class DesktopDocuments extends BaseDocuments {
     this._typesList = React.createRef();
     this._emptyStubRef = React.createRef();
     this._counterRef = React.createRef();
+  }
 
+  componentDidMount() {
+    super.componentDidMount();
     this.#updateWatcherLocal = this.instanceRecord.watch(this.observableFieldsToUpdate, this.updateDocList);
   }
 
@@ -139,12 +142,13 @@ class DesktopDocuments extends BaseDocuments {
     }
 
     const dynamicTypes = this.props.dynamicTypes || [];
+    const prevDynamicTypes = prevProps.dynamicTypes || [];
+    const isInitialLoad = prevDynamicTypes.length === 0 && dynamicTypes.length > 0;
     if (
-      (prevState.selectedType && !this.state.selectedType) ||
-      dynamicTypes.length !== prevProps.dynamicTypes.length ||
-      !dynamicTypes.every(
-        obj => !!prevProps.dynamicTypes.find(prevObj => prevObj.type === obj.type && isEqual(prevObj.actions, obj.actions))
-      )
+      !isInitialLoad &&
+      ((prevState.selectedType && !this.state.selectedType) ||
+        dynamicTypes.length !== prevDynamicTypes.length ||
+        !dynamicTypes.every(obj => !!prevDynamicTypes.find(prevObj => prevObj.type === obj.type && isEqual(prevObj.actions, obj.actions))))
     ) {
       isFunction(getAllDocuments) && getAllDocuments();
     }

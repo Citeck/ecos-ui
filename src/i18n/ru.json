@@ -636,7 +636,9 @@
   "ecos-form.event-overload": "Обнаружена перегрузка обработки событий на форме",
 
   "ecos-form.create-new-artefact": "Создание артефакта",
-  "ecos-form.create-new-artefact-info-text": "Редактирование виртуальной формы/журнала запрещено. Необходимо создать новую(ый).",
+  "ecos-form.create-new-artefact-info-text.board": "Это глобальная канбан-доска, доступная всем пользователям. Для локальной настройки необходимо создать копию. Оригинальная доска останется без изменений.",
+  "ecos-form.create-new-artefact-info-text.form": "Это глобальная форма, доступная всем пользователям. Для локальной настройки необходимо создать копию. Оригинальная форма останется без изменений.",
+  "ecos-form.create-new-artefact-info-text.journal": "Это глобальный журнал, доступный всем пользователям. Для локальной настройки необходимо создать копию. Оригинальный журнал останется без изменений.",
   "ecos-form.new-record-ref.id": "Идентификатор",
   "ecos-form.create-new-artefact.type": "Тип данных",
 
@@ -958,6 +960,7 @@
   "records-actions.notify.title": "Виджет Действия",
   "records-actions.error.execute-action": "Ошибка выполнения действия",
   "records-actions.error.get-actions": "Действия не получены",
+  "records-actions.error.redirect-not-working": "Переход не происходит из-за ошибки",
 
   "records-actions.create.create-variant-with-id-not-found": "Вариант создания с id = '{{id}}' не найден",
 

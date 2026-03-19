@@ -18,6 +18,10 @@ export default class BPMNViewer extends ModelViewer {
   init = async ({ diagram, container, onInit, onMounted, modelEvents, markedElement, zoom, zoomCenter }) => {
     isFunction(onInit) && onInit(true);
 
+    if (this.modeler) {
+      this.destroy();
+    }
+
     this.modeler = new Modeler({
       additionalModules: [...customModules],
       moddleExtensions: {

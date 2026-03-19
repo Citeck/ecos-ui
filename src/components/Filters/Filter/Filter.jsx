@@ -17,7 +17,6 @@ import { ParserPredicate } from '../predicates';
 
 import { IGNORED_EVENT_ATTRIBUTE } from '@/constants';
 import { handleCloseMenuOnScroll, t } from '@/helpers/util';
-import ZIndex from '@/services/ZIndex';
 
 import './Filter.scss';
 
@@ -46,17 +45,14 @@ export default class Filter extends Component {
 
     this.state = {
       value: get(props, 'filter.predicate.val', ''),
-      hasDataEntry: false,
-      zIndex: ZIndex.calcZ()
+      hasDataEntry: false
     };
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
-    const zIndex = ZIndex.calcZ() + 1;
     return (
       !isEqual(omit(this.props, ['children']), omit(nextProps, ['children'])) ||
-      !isEqual(this.state, nextState) ||
-      this.state.zIndex !== zIndex
+      !isEqual(this.state, nextState)
     );
   }
 
@@ -67,11 +63,6 @@ export default class Filter extends Component {
 
     if (!prevProps.needUpdate && this.props.needUpdate && value !== currentValue) {
       this.setState({ value: currentValue });
-    }
-
-    const zIndex = ZIndex.calcZ() + 1;
-    if (zIndex !== this.state.zIndex) {
-      this.setState({ zIndex });
     }
 
     if (hasDataEntry) {
@@ -251,18 +242,17 @@ export default class Filter extends Component {
       }
     } = this.props;
     const predicates = column.predicates || getPredicates(column);
-    const { zIndex } = this.state;
 
     return (
       <Select
-        className={classNames(this.selectorClassNames, 'ecosZIndexAnchor')}
+        className={this.selectorClassNames}
         placeholder={t('journals.default')}
         options={predicates}
         getOptionLabel={option => option.label}
         getOptionValue={option => option.value}
         value={predicates.find(el => el.value === this.selectedPredicate.value) || predicates[0]}
         onChange={this.onChangePredicate}
-        styles={{ menuPortal: base => ({ ...base, zIndex }) }}
+        styles={{ menuPortal: base => ({ ...base, zIndex: 10000 }) }}
         menuPortalTarget={document.body}
         menuPlacement="auto"
         closeMenuOnScroll={(e, { innerSelect }) => handleCloseMenuOnScroll(e, innerSelect)}

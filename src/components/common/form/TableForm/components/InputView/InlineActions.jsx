@@ -1,7 +1,7 @@
 import get from 'lodash/get';
 import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
-import React, { useMemo } from 'react';
+import React, { useContext, useMemo } from 'react';
 
 import RecordActions from '../../../../../Records/actions/recordActions';
 import InlineToolsDisconnected from '../../../../grid/InlineTools/InlineToolsDisconnected';
@@ -12,8 +12,10 @@ import DeleteAction from '@/components/Records/actions/handler/executor/DeleteAc
 import EditAction from '@/components/Records/actions/handler/executor/EditAction';
 import { getFitnesseInlineToolsClassName } from '@/helpers/tools';
 import { t } from '@/helpers/util';
+import { TableFormContext } from '../../TableFormContext';
 
-const InlineActions = ({ context, rowId = null }) => {
+const InlineActions = ({ rowId = null }) => {
+  const context = useContext(TableFormContext);
   const {
     deleteSelectedItem,
     showEditForm,

@@ -155,10 +155,6 @@ function* sagaGetDynamicTypes({ api }, { payload }) {
 
     combinedTypes = yield fillTypeInfo(api, combinedTypes);
 
-    if (combinedTypes.length === 1) {
-      yield put(getDocumentsByType({ ...payload, type: combinedTypes[0].type }));
-    }
-
     combinedTypes = yield Promise.all(
       combinedTypes.map(async item => {
         const getParents = async type => {
@@ -195,6 +191,10 @@ function* sagaGetDynamicTypes({ api }, { payload }) {
     );
 
     yield put(setDynamicTypes({ key: payload.key, dynamicTypes: filledTypes }));
+
+    if (filledTypes.length === 1) {
+      yield put(getDocumentsByType({ ...payload, type: filledTypes[0].type, delay: 0 }));
+    }
   } catch (e) {
     console.error('[documents sagaGetDynamicTypes saga error', e);
     NotificationManager.error(t('documents-widget.error.upload-filed'), t('error'));
@@ -261,7 +261,9 @@ function* sagaGetDocumentsByType({ api }, { payload }) {
   }
 
   try {
-    yield delay(payload.delay || 1000);
+    if (payload.delay) {
+      yield delay(payload.delay);
+    }
 
     const attributes = DocumentsConverter.getColumnsAttributes(
       yield select(state => selectColumnsConfig(state, payload.key, payload.type))
@@ -648,8 +650,7 @@ function* sagaUploadFiles({ api }, { payload }) {
   } finally {
     yield put(setLoadingStatus({ key: payload.key, loadingField: 'isLoading', status: true }));
     yield put(uploadFilesFinally(payload.key));
-    yield put(getDocumentsByTypes({ ...payload, delay: 1000 }));
-    yield put(getDocumentsByType({ ...payload }));
+    yield put(getDocumentsByType({ ...payload, delay: 1000 }));
     yield put(setLoadingStatus({ key: payload.key, loadingField: 'isLoading', status: false }));
   }
 }

@@ -964,6 +964,10 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
   redraw(...r) {
     if (this.isQuillEditor || this.isMonacoEditor) {
       this.setWysiwygValue(this.dataValue);
+      // Update visibility without full rebuild — formio logic (e.g. property actions
+      // that change "hidden") triggers redraw(), but super.redraw() would destroy
+      // and recreate the editor. Instead, just sync the DOM visibility.
+      this.showElement(this.visible && !this.component.hidden);
       return;
     }
 

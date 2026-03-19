@@ -14,7 +14,6 @@ import DropdownMenuGroup from './DropdownMenuGroup';
 import { DropdownMenuItem } from './index';
 
 import { selectIsViewNewJournal } from '@/selectors/view';
-import ZIndex from '@/services/ZIndex';
 
 import '../form/Dropdown/Dropdown.scss';
 import './style.scss';
@@ -111,7 +110,6 @@ class EcosDropdownMenu extends React.Component {
           'ecos-dropdown-menu_loading': this.props.isLoading,
           'ecos-dropdown__menu_new': this.props.isViewNewJournal
         })}
-        style={{ zIndex: ZIndex.calcZ() }}
       >
         {this.renderMode()}
       </div>

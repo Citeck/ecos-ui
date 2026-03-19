@@ -19,7 +19,6 @@ import Widgets from '../../../widgets';
 import { FORM_MODE_CREATE } from '@/components/EcosForm/constants';
 import { t } from '@/helpers/export/util';
 import { getCurrentLocale, getMLValue, getTextByLocale, IS_TEST_ENV, isEqualLexicalValue } from '@/helpers/util';
-import ZIndex from '@/services/ZIndex';
 
 // >>> Methods
 const originalCreateViewOnlyValue = Base.prototype.createViewOnlyValue;
@@ -562,6 +561,9 @@ Base.prototype.silentSaveForm = function () {
   const options = { withoutLoader: true };
   let before;
 
+  // Flush any pending widget value before saving
+  this.updateValue({ changeByUser: true });
+
   if (this.options.saveDraft) {
     before = false;
     options.state = 'draft';
@@ -598,6 +600,16 @@ Base.prototype.silentSaveForm = function () {
 
 Base.prototype.createInlineEditSaveAndCancelButtons = function () {
   if (this._isInlineEditingMode) {
+    const existingButtons = this.element.querySelector('.inline-editing__buttons');
+
+    if (existingButtons) {
+      if (isFunction(this._removeEventListeners)) {
+        this._removeEventListeners.call(this);
+      }
+
+      existingButtons.remove();
+    }
+
     this._inlineEditSaveButton = this.ce(
       'button',
       {
@@ -627,10 +639,9 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function () {
 
       const form = get(this, 'root');
 
-      if (form.changing) {
-        this.switchToViewOnlyMode();
-        return;
-      }
+      // Flush any pending widget value (e.g. flatpickr debounces time-spinner
+      // changes for 300 ms; without this the stale dataValue would be saved).
+      this.updateValue({ changeByUser: true });
 
       // Cause: https://citeck.atlassian.net/browse/ECOSUI-1559
       const submitAttributes = [];
@@ -1071,8 +1082,6 @@ Base.prototype.createModal = function (...params) {
   this.addEventListener(dialog, 'close', () => {
     this.removeChildFrom(dialog, document.body);
   });
-  dialog.classList.add('ecosZIndexAnchor');
-
   document.body.appendChild(dialog);
   dialog.body = modalBody;
   dialog.bodyContainer = modalBodyContainer;
@@ -1082,9 +1091,6 @@ Base.prototype.createModal = function (...params) {
     dialog.dispatchEvent(new CustomEvent('close'));
     this.removeChildFrom(dialog, document.body);
   };
-
-  ZIndex.calcZ();
-  ZIndex.setZ(dialog);
 
   return dialog;
 };

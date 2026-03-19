@@ -8,8 +8,6 @@ import { TooltipContainer as Tooltip } from '../../Tooltip/TooltipContainer';
 
 import Dropdown from './Dropdown';
 
-import ZIndex from '@/services/ZIndex';
-
 import './Dropdown.scss';
 
 export default class DropdownOuter extends Dropdown {
@@ -50,16 +48,6 @@ export default class DropdownOuter extends Dropdown {
     this.dropdownOuterRef = React.createRef();
   }
 
-  componentDidUpdate() {
-    const { outClassName } = this.props;
-    const { dropdownOpen } = this.state;
-
-    if (dropdownOpen) {
-      ZIndex.calcZ();
-      ZIndex.setZ(outClassName);
-    }
-  }
-
   render() {
     const { className, outClassName = '', trigger, boundariesElement, modifiers, placement, disabled } = this.props;
     const { dropdownOpen, targetId } = this.state;
@@ -86,7 +74,7 @@ export default class DropdownOuter extends Dropdown {
           placement={placement}
           modifiers={modifiers}
           fade={false}
-          popperClassName="ecosZIndexAnchor"
+          popperClassName=""
         >
           <ClickOutside
             className={this.cssDropdownMenu}
