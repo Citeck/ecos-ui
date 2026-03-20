@@ -4,7 +4,7 @@
   width: 100%;
   height: calc(100vh - 100px);
   flex-direction: column;
-  background: var(--bg-color);
+  background: var(--main-bg-color);
 
   &.panel-location-bottom {
     .developer-console {
