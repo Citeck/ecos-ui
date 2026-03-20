@@ -2,6 +2,7 @@ import Records from './Records';
 
 const getCurrentTime = () => new Date().getTime();
 const ATT_TO_CHECK = '_modified';
+const ATT_MOVED_TO_REF = '_movedToRef?id';
 
 export default class RecordUpdater {
   constructor(record, config = {}) {
@@ -30,6 +31,7 @@ export default class RecordUpdater {
       periodMs: this._periodMs,
       action: () => this.checkRecord()
     });
+
     this.startChecking();
   }
 
@@ -37,11 +39,29 @@ export default class RecordUpdater {
     if (this.isDisposed()) {
       return;
     }
-    let newModified = this._record.load(ATT_TO_CHECK, true);
-    if (this._modified !== newModified) {
-      this._modified = newModified;
-      this._record.update();
+
+    const atts = { modified: ATT_TO_CHECK };
+
+    if (this._config.onMovedToRef) {
+      atts.movedToRef = ATT_MOVED_TO_REF;
     }
+
+    this._record.load(atts, true).then(response => {
+      if (this.isDisposed()) {
+        return;
+      }
+
+      if (response.movedToRef) {
+        this._config.onMovedToRef(response.movedToRef);
+        return;
+      }
+
+      if (this._modified !== response.modified) {
+        this._modified = response.modified;
+        this._record.update();
+      }
+    });
+
     return false;
   }
 

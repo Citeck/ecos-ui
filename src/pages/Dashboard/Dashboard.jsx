@@ -120,7 +120,19 @@ class Dashboard extends Component {
     this.watcher = this.instanceRecord.watch(['version', 'name'], this.updateSomeDetails);
     this.dispWatcher = this.instanceRecord.watch('?disp', this.updateTitle);
 
-    this.recordUpdater = new RecordUpdater(this.instanceRecord);
+    this.recordUpdater = new RecordUpdater(this.instanceRecord, {
+      onMovedToRef: movedToRef => {
+        const wsId = getWorkspaceId();
+        const activeTab = PageTabList.activeTab;
+
+        PageService.changeUrlLink(`${URL.DASHBOARD}?ws=${wsId}&recordRef=${movedToRef}`, {
+          openNewTab: true,
+          needUpdateTabs: true
+        });
+
+        PageTabList.delete(activeTab);
+      }
+    });
   }
 
   static orderSearchParams(params) {

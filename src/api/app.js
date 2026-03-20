@@ -27,6 +27,7 @@ import { CommonApi } from './common';
 import { getWorkspaceId } from '@/helpers/urls';
 import PageService from '@/services/PageService';
 import { NotificationManager } from '@/services/notifications';
+import PageTabList from '@/services/pageTabs/PageTabList';
 
 let customLogoutAction = null;
 
@@ -185,7 +186,13 @@ export class AppApi extends CommonApi {
         const movedToRef = data['movedToRef'];
 
         if (movedToRef !== null) {
+          const activeTab = PageTabList.activeTab;
+
           PageService.changeUrlLink(`${URL.DASHBOARD}?ws=${wsId}&recordRef=${movedToRef}`, { openNewTab: true, needUpdateTabs: true });
+
+          if (activeTab) {
+            PageTabList.delete(activeTab);
+          }
 
           return { exists: false, redirected: true };
         }
