@@ -482,32 +482,14 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         this.editorRef = React.createRef();
         this._monacoRoot = createRoot(container);
 
-        let editorMounted = false;
-
-        const checkEditorMount = (attempt = 0, maxAttempts = 5) => {
-          if (editorMounted) return;
-
-          const editor = this.editorRef?.current;
-
-          if (editor && typeof editor.getValue === 'function') {
-            editorMounted = true;
-            this.editor = editor;
-            this.editorReadyResolve(this.editor);
-            if (this.options.readOnly || this.component.disabled) {
-              this.editor?.updateOptions?.({ readOnly: true });
-            }
-            this.addScriptAIButton(element);
-            resolve(this.editor);
-            return;
+        const handleEditorMount = editor => {
+          this.editor = editor;
+          this.editorReadyResolve(this.editor);
+          if (this.options.readOnly || this.component.disabled) {
+            this.editor?.updateOptions?.({ readOnly: true });
           }
-
-          if (attempt < maxAttempts) {
-            setTimeout(() => checkEditorMount(attempt + 1, maxAttempts), 100);
-          } else {
-            const elapsedMs = maxAttempts * 100;
-            this.showFallbackWysiwyg();
-            reject(new Error('Monaco editor failed to initialize after ' + elapsedMs + 'ms'));
-          }
+          this.addScriptAIButton(element);
+          resolve(this.editor);
         };
 
         this._monacoRoot.render(
@@ -516,13 +498,12 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
               editorRef={this.editorRef}
               defaultValue={this.dataValue}
               onCodeChange={code => this.updateEditorValue(code)}
+              onEditorMount={handleEditorMount}
               language={this.component.codeAs || 'javascript'}
               height={`${height}px`}
             />
           </Provider>
         );
-
-        checkEditorMount();
       } catch (err) {
         console.error('TextAreaComponent.addMonaco | error initializing:', err);
         this.showFallbackWysiwyg();
@@ -919,6 +900,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     if (this._monacoRoot) {
       this._monacoRoot.unmount();
       this._monacoRoot = null;
+      this._monacoFirstUpdate = true;
     }
   }
 
@@ -937,6 +919,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     if (this._monacoRoot) {
       this._monacoRoot.unmount();
       this._monacoRoot = null;
+      this._monacoFirstUpdate = true;
     }
 
     if (this._uploadDocsRefService) {
@@ -985,6 +968,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     if (this._monacoRoot) {
       this._monacoRoot.unmount();
       this._monacoRoot = null;
+      this._monacoFirstUpdate = true;
     }
 
     if (this._lexicalViewRoot) {
