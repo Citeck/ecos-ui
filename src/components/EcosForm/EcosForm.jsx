@@ -653,6 +653,8 @@ class EcosForm extends React.Component {
 
         if (isFunction(submissionResolve)) {
           submissionResolve({ persistedRecord, form, record });
+        } else {
+          form.emit('submitDone');
         }
       };
 
@@ -691,6 +693,8 @@ class EcosForm extends React.Component {
 
             if (isFunction(submissionReject)) {
               submissionReject(e);
+            } else {
+              form.emit('submitDone');
             }
           })
           .finally(() => {
