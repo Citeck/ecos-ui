@@ -205,6 +205,25 @@ class Comments extends BaseWidget {
     );
   }
 
+  renderSkeleton() {
+    return (
+      <div className="ecos-comments__skeleton">
+        {Array.from({ length: 3 }, (_, i) => (
+          <div key={i} className="ecos-comments__skeleton-item">
+            <div className="ecos-comments__skeleton-header">
+              <div className="ecos-comments__skeleton-avatar ecos-comments__shimmer" />
+              <div className="ecos-comments__skeleton-meta">
+                <div className="ecos-comments__skeleton-name ecos-comments__shimmer" style={{ width: `${60 + ((i * 23) % 30)}%` }} />
+                <div className="ecos-comments__skeleton-date ecos-comments__shimmer" />
+              </div>
+            </div>
+            <div className="ecos-comments__skeleton-text ecos-comments__shimmer" style={{ width: `${70 + ((i * 17) % 25)}%` }} />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   renderComments() {
     const { comments, isMobile, saveIsLoading, userName, actionFailed } = this.props;
     const { recordRef } = this.state;
@@ -241,12 +260,14 @@ class Comments extends BaseWidget {
   }
 
   render() {
-    const { dragHandleProps, canDragging, fetchIsLoading, ...props } = this.props;
+    const { dragHandleProps, canDragging, fetchIsLoading, comments, ...props } = this.props;
     const actions = {
       [DAction.Actions.RELOAD]: {
         onClick: this.fetchData
       }
     };
+
+    const isFirstLoading = fetchIsLoading && !comments.length;
 
     return (
       <div className={this.className}>
@@ -259,7 +280,7 @@ class Comments extends BaseWidget {
           canDragging={canDragging}
           dragHandleProps={dragHandleProps}
           resizable
-          isLoading={fetchIsLoading}
+          isLoading={fetchIsLoading && !isFirstLoading}
           onResize={this.handleResize}
           contentMaxHeight={this.clientHeight + this.otherHeight}
           onChangeHeight={this.handleChangeHeight}
@@ -267,8 +288,14 @@ class Comments extends BaseWidget {
           onToggleCollapse={this.handleToggleContent}
           isCollapsed={this.isCollapsed}
         >
-          {this.renderHeader()}
-          {this.renderComments()}
+          {isFirstLoading ? (
+            this.renderSkeleton()
+          ) : (
+            <>
+              {this.renderHeader()}
+              {this.renderComments()}
+            </>
+          )}
         </Dashlet>
       </div>
     );
