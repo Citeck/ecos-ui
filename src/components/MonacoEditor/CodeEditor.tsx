@@ -251,6 +251,7 @@ const CodeEditor = ({
         }
       >
         <Editor
+          loading={<Loader rounded />}
           height={height}
           language={language}
           defaultValue={defaultValue}
