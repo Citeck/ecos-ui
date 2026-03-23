@@ -317,7 +317,7 @@ class DocAssociations extends BaseWidget {
             isLoading={isLoadingMenu}
             modifiers={{
               preventOverflow: {
-                escapeWithReference: true,
+                escapeWithReference: false,
                 boundariesElement: 'viewport'
               },
               onlyFirstParent: true

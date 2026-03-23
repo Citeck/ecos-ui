@@ -18,10 +18,13 @@
     z-index: 1001;
     left: -13px !important;
 
-    .ecos-dropdown__menu_cascade[x-placement='left-start'] {
-      left: -5px !important;
-      max-height: 400px;
-      overflow: scroll;
+    .ecos-dropdown__menu_cascade {
+      max-height: calc(100vh - 100px);
+      overflow: auto;
+
+      &[x-placement='left-start'] {
+        left: -5px !important;
+      }
     }
   }
 
