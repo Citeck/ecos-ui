@@ -157,7 +157,7 @@ class PropertiesDashlet extends BaseWidget {
               const currentForm = get(this._propertiesRef, 'current._ecosForm.current');
 
               PropertiesApi.resetPropertipesDashlet(currentForm.state.recordId).then(() => {
-                this.onReloadDashlet();
+                this.onReloadDashlet(true);
               });
             })
         },

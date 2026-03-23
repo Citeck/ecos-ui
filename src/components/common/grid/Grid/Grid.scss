@@ -202,7 +202,6 @@ $header-height: 44px;
 
   &__row {
     position: relative;
-    border-bottom: 2px $color-gray-4 solid;
 
     &:hover .ecos-grid__inline-tools-container {
       display: table-cell;
@@ -234,6 +233,12 @@ $header-height: 44px;
     right: 0;
     width: 0;
   }
+
+  th:has(+ .ecos-grid__inline-tools-header) {
+    .ecos-th__divider {
+      display: none;
+    }
+  }
 }
 
 #{$selector-table} {
@@ -257,13 +262,19 @@ $header-height: 44px;
 
   .ecos-grid__row {
     & td {
-      border-top: 2px solid $color-gray-4;
+      border-top: 1px solid $color-gray-4;
+      border-bottom: 1px solid $color-gray-4;
       vertical-align: middle;
+      transition: border-color 0.15s ease;
+    }
+
+    & td.ecos-grid__inline-tools-container {
+      border: none !important;
     }
 
     &:hover td,
     &.has-inline-tools td {
-      border: 2px solid $color-brown-2;
+      border: 1px solid $color-brown-2;
       border-right: none;
       border-left: none;
     }

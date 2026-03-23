@@ -23,6 +23,34 @@
     height: auto;
     max-height: 300px;
     overflow: auto;
+    border: 1px solid $color-gray-4;
+    border-radius: $border-radius-standard;
+
+    .ecos-th {
+      height: auto;
+      padding: 12px 17px;
+    }
+
+    .ecos-th__divider {
+      width: 1px;
+    }
+
+    th:last-child:empty {
+      display: none;
+    }
+
+    .ecos-grid__row {
+      border-bottom-width: 1px;
+
+      td {
+        border-top-width: 1px;
+      }
+
+      &:hover td,
+      &.has-inline-tools td {
+        border-width: 1px;
+      }
+    }
 
     &-wrapper {
       position: relative;

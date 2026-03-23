@@ -428,15 +428,22 @@ class InputView extends Component {
     }
 
     if (viewMode === 'table') {
+      const { hideActionButton } = this.props;
+
+      const hasData = !isEmpty(selectedRows);
+      const showInlineTools = hasData && !hideActionButton;
+      const isViewOnly = !!hideActionButton;
+      const useScrollable = hasData && !isViewOnly;
+
       return (
         <div ref={this.setRef} className="mb-3">
           <Grid
             {...gridData}
-            autoHeight
-            byContentHeight
-            scrollable
-            inlineTools={this.renderInlineTools}
-            onChangeTrOptions={this.setInlineToolsOffsets}
+            autoHeight={useScrollable}
+            byContentHeight={useScrollable}
+            scrollable={useScrollable}
+            inlineTools={showInlineTools ? this.renderInlineTools : undefined}
+            onChangeTrOptions={showInlineTools ? this.setInlineToolsOffsets : undefined}
             key={`grid-${gridData.total}-${gridData.data?.length || 0}`}
           />
         </div>

@@ -435,7 +435,16 @@ export default class SelectJournalComponent extends BaseReactComponent {
   }
 
   redraw(shouldRedrawInBuilder) {
+    this.delayedSettingProps.cancel();
     super.redraw(shouldRedrawInBuilder);
+  }
+
+  switchToViewOnlyMode() {
+    if (this.options.readOnly && !this._isInlineEditingMode) {
+      return;
+    }
+
+    super.switchToViewOnlyMode();
   }
 
   viewOnlyBuild() {
@@ -487,6 +496,11 @@ export default class SelectJournalComponent extends BaseReactComponent {
 
     if (source.viewMode !== DisplayModes.TABLE) {
       return;
+    }
+
+    const viewOnlyTableClassName = 'formio-component__view-only-table';
+    if (!this.element.classList.contains(viewOnlyTableClassName)) {
+      this.element.classList.add(viewOnlyTableClassName);
     }
 
     const viewOnlyHasValueClassName = 'formio-component__view-only-table-has-rows';

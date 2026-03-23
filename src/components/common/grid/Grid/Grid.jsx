@@ -452,15 +452,19 @@ class Grid extends Component {
         return column;
       });
 
-      options.columns = [
-        ...options.columns,
-        {
-          formatter: this.initActionsFormatter(),
-          attrs: {
-            className: ECOS_GRID_INLINE_TOOLS_CONTAINER
+      if (isFunction(props.inlineTools) || isFunction(props.inlineActions)) {
+        options.columns = [
+          ...options.columns,
+          {
+            formatter: this.initActionsFormatter(),
+            attrs: {
+              className: ECOS_GRID_INLINE_TOOLS_CONTAINER
+            },
+            headerClasses: 'ecos-grid__inline-tools-header',
+            headerStyle: { width: 0, padding: 0, border: 'none' }
           }
-        }
-      ];
+        ];
+      }
     }
 
     if (props.editable) {

@@ -24,7 +24,11 @@
     justify-content: flex-start;
     align-items: flex-start;
     border-bottom: 1px solid $color-gray-4;
+    border-left: 2px solid transparent;
+    border-right: 2px solid transparent;
+    border-top: 2px solid transparent;
     position: relative;
+    transition: border-color 0.2s ease, margin 0.2s ease, padding 0.2s ease, border-radius 0.2s ease;
 
     &:only-child {
       height: 100%;
@@ -48,20 +52,30 @@
       border-bottom: none;
     }
 
-    &.formio-component__view-only-table-has-rows {
+    &.formio-component__view-only-table {
       display: grid;
       grid-template-columns: 100%;
-      grid-gap: 10px;
       border-bottom: none;
-
-      .select-journal__value-not-selected,
-      .ecos-table-form__value-not-selected {
-        display: none;
-      }
+      height: auto;
 
       dt,
       dd {
         width: 100%;
+        min-width: 0;
+      }
+
+      .select-journal__grid {
+        overflow-x: auto;
+        overflow-y: hidden;
+      }
+    }
+
+    &.formio-component__view-only-table-has-rows {
+      grid-gap: 10px;
+
+      .select-journal__value-not-selected,
+      .ecos-table-form__value-not-selected {
+        display: none;
       }
     }
 
