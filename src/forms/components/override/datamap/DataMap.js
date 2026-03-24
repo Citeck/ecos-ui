@@ -44,6 +44,24 @@ export default class DataMapComponent extends FormIODataMapComponent {
     return optimizedComponent;
   }
 
+  addRow() {
+    super.addRow();
+    this.valueChangedByUser = true;
+  }
+
+  removeRow(key) {
+    super.removeRow(key);
+    this.valueChangedByUser = true;
+  }
+
+  calculateValue(data, flags) {
+    if (this.valueChangedByUser) {
+      return false;
+    }
+
+    return super.calculateValue(data, flags);
+  }
+
   buildRow(value, key, state) {
     if (!this.rows[key]) {
       this.rows[key] = this.createValueComponent(state);
