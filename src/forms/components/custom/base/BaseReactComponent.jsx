@@ -244,7 +244,9 @@ export default class BaseReactComponent extends BaseComponent {
   }
 
   clear() {
-    this.labelElement.remove();
+    if (this.labelElement) {
+      this.labelElement.remove();
+    }
 
     if (this.react.container) {
       const root = this.react.container._root;

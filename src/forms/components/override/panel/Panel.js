@@ -78,7 +78,7 @@ export default class PanelComponent extends FormIOPanelComponent {
       }
     }
 
-    if (this.component.scrollableContent) {
+    if (this.component.scrollableContent && !hidePanels) {
       this.panelBody.classList.add('panel-body_scrollable');
 
       setTimeout(() => {

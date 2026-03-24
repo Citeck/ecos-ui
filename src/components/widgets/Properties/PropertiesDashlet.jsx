@@ -72,6 +72,7 @@ class PropertiesDashlet extends BaseWidget {
       canEditRecord: false,
       isShowSetting: false,
       wasLastModifiedWithInlineEditor: false,
+      wasLastModifiedWithFormSubmit: false,
       title: '',
       isDraft: false,
       formIsValid: false,
@@ -220,11 +221,13 @@ class PropertiesDashlet extends BaseWidget {
   };
 
   handleUpdate() {
-    if (this.state.wasLastModifiedWithInlineEditor) {
-      this.setState({ wasLastModifiedWithInlineEditor: false });
+    if (this.state.wasLastModifiedWithInlineEditor || this.state.wasLastModifiedWithFormSubmit) {
+      this.setState({ wasLastModifiedWithInlineEditor: false, wasLastModifiedWithFormSubmit: false });
+      this.checkPermissions();
+      return;
     }
 
-    this.onReloadDashlet(this.state.wasLastModifiedWithInlineEditor);
+    this.onReloadDashlet(false);
   }
 
   onReloadDashlet = withSaveData => {
@@ -266,7 +269,7 @@ class PropertiesDashlet extends BaseWidget {
 
     const currentForm = get(this._propertiesRef, 'current._ecosForm.current');
 
-    this.setState({ formIsChanged: false, isSaving: true }, () => {
+    this.setState({ formIsChanged: false, isSaving: true, wasLastModifiedWithFormSubmit: true }, () => {
       currentForm.submitForm.cancel();
 
       const submission = currentForm._form;

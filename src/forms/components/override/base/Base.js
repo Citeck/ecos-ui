@@ -667,12 +667,6 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function () {
           if (isFunction(this.options.onInlineEditSave)) {
             this.options.onInlineEditSave();
           }
-          const ecosForm = get(form, 'ecos.form');
-          if (ecosForm !== null) {
-            ecosForm.onReload(true);
-          } else {
-            form.showErrors('', true);
-          }
         })
         .finally(() => {
           form.loading = false;

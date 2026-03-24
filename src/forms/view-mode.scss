@@ -71,8 +71,6 @@
     }
 
     &.formio-component__view-only-table-has-rows {
-      grid-gap: 10px;
-
       .select-journal__value-not-selected,
       .ecos-table-form__value-not-selected {
         display: none;
@@ -212,7 +210,7 @@
     font-size: $font-size-small;
     font-weight: $font-weight-bold;
     margin-bottom: 0;
-    width: 60%;
+    width: 100%;
 
     &.dd-html {
       font-weight: $font-weight-normal;
@@ -232,6 +230,7 @@
   &.formio-form .card {
     .card-body {
       padding: 10px 0 0;
+      overflow: hidden;
     }
 
     .card-title {

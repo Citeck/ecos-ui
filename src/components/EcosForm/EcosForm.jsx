@@ -520,7 +520,7 @@ class EcosForm extends React.Component {
         definition: definitionToEdit
       };
 
-      const preSettingsCallback = (newFormRef) => {
+      const preSettingsCallback = newFormRef => {
         isFunction(onSavePreSettings) && onSavePreSettings();
         this.toggleLoader(false);
         EcosFormUtils.getFormById(newFormRef, 'definition?json', true).then(newFormDef => {
@@ -728,7 +728,13 @@ class EcosForm extends React.Component {
     const container = get(this._formContainer, 'current');
 
     if (container) {
-      container.style.height = toSave ? `${container.offsetHeight}px` : 'auto';
+      if (toSave) {
+        container.style.minHeight = `${container.offsetHeight}px`;
+        container.style.height = '';
+      } else {
+        container.style.minHeight = '';
+        container.style.height = '';
+      }
     }
   }
 

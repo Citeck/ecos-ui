@@ -498,7 +498,7 @@
   $kanban: &;
 
   margin-top: 2px;
-  padding: 10px 12px 0 10px;
+  padding: 10px 12px 0 6px;
   background-color: var(--main-bg-color);
   border-radius: 0 0 12px 12px;
 
@@ -682,7 +682,7 @@
         &_withoutTitle {
           top: 6px;
           z-index: 9;
-        }
+        }padding: 10px 12px 0 10px;
       }
 
       &-icon {
@@ -695,14 +695,8 @@
       overflow-x: hidden;
       min-height: 40px;
 
-      &_inline {
-        & > div dl {
-          display: inline;
-        }
-      }
-
       & > div dl {
-        padding: 5px 0;
+        padding: 4px 0;
         border-bottom: none;
         justify-content: space-between;
 
