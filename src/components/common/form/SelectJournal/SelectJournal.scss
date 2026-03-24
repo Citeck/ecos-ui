@@ -63,6 +63,12 @@
   }
 }
 
+.select-journal-select-modal {
+  .select-journal__grid {
+    border-radius: 0;
+  }
+}
+
 .select-journal-select-modal__buttons {
   $btns: &;
 

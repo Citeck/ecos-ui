@@ -358,8 +358,8 @@ $header-height: 44px;
 
   &-divider {
     position: absolute;
-    width: 2px;
-    height: 34px;
+    width: 1px;
+    top: 0;
     right: 0;
     bottom: 0;
     background: $color-gray-4;
