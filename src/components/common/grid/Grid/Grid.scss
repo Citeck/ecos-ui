@@ -265,7 +265,6 @@ $header-height: 44px;
       border-top: 1px solid $color-gray-4;
       border-bottom: 1px solid $color-gray-4;
       vertical-align: middle;
-      transition: border-color 0.15s ease;
     }
 
     & td.ecos-grid__inline-tools-container {
@@ -274,9 +273,8 @@ $header-height: 44px;
 
     &:hover td,
     &.has-inline-tools td {
-      border: 1px solid $color-brown-2;
-      border-right: none;
-      border-left: none;
+      border-top-color: $color-brown-2;
+      border-bottom-color: $color-brown-2;
     }
   }
 
