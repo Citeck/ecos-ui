@@ -86,6 +86,7 @@ class Properties extends React.Component {
 
     if (isFunction(onShowFormBuilder)) {
       onShowFormBuilder(() => {
+        this.onUpdateForm(false);
         this.setState({ isReadySubmit: false }, () => this.setState({ isReadySubmit: true }));
       });
     }
