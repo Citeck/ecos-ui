@@ -66,18 +66,59 @@ describe('TableForm localRowCache', () => {
       expect(results[1].amount).toBe(200000);
     });
 
-    it('should clean up cache entries after successful server load', () => {
-      localRowCache.set('emodel/payments@-alias-1', { id: 'emodel/payments@-alias-1', amount: 100 });
-      localRowCache.set('emodel/payments@-alias-2', { id: 'emodel/payments@-alias-2', amount: 200 });
+    it('should only clean up cache entries loaded from server, not from cache', () => {
+      const aliasId = 'emodel/payments@-alias-1';
+      const serverId = 'emodel/payments@real-server-id';
+      localRowCache.set(aliasId, { id: aliasId, amount: 100 });
 
-      // Simulate useEffect .then cleanup: delete loaded entries
-      const loadedRows = [
-        { id: 'emodel/payments@-alias-1' },
-        { id: 'emodel/payments@-alias-2' }
-      ];
-      loadedRows.forEach(row => localRowCache.delete(row.id));
+      // Simulate useEffect: track which IDs were loaded from cache
+      const loadedFromCache = new Set();
+      const initValue = [serverId, aliasId];
 
-      expect(localRowCache.size).toBe(0);
+      initValue.forEach(rec => {
+        if (localRowCache.has(rec)) {
+          loadedFromCache.add(rec);
+        }
+      });
+
+      // After loading, only delete entries NOT loaded from cache
+      const loadedRows = [{ id: serverId }, { id: aliasId }];
+      loadedRows.forEach(row => {
+        if (!loadedFromCache.has(row.id)) {
+          localRowCache.delete(row.id);
+        }
+      });
+
+      // Server record was cleaned up
+      expect(localRowCache.has(serverId)).toBe(false);
+      // Alias record stays cached (it was loaded from cache, not server)
+      expect(localRowCache.has(aliasId)).toBe(true);
+      expect(localRowCache.get(aliasId).amount).toBe(100);
+    });
+
+    it('should preserve cache across multiple useEffect runs for alias records', () => {
+      const aliasId = 'emodel/payments@-alias-1';
+      localRowCache.set(aliasId, { id: aliasId, amount: 500 });
+
+      // First useEffect run: loads from cache, does NOT delete
+      const loadedFromCache1 = new Set();
+      if (localRowCache.has(aliasId)) {
+        loadedFromCache1.add(aliasId);
+      }
+      // Cleanup: skip cache-loaded entries
+      if (!loadedFromCache1.has(aliasId)) {
+        localRowCache.delete(aliasId);
+      }
+
+      // Second useEffect run: cache still available
+      expect(localRowCache.has(aliasId)).toBe(true);
+
+      const loadedFromCache2 = new Set();
+      if (localRowCache.has(aliasId)) {
+        loadedFromCache2.add(aliasId);
+      }
+
+      expect(localRowCache.get(aliasId).amount).toBe(500);
     });
 
     it('should survive React component remount (cache persists as module-level)', () => {

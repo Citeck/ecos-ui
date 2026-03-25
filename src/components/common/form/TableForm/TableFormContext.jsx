@@ -109,10 +109,13 @@ export const TableFormContextProvider = props => {
         atts.push(schema);
         attsAsIs.push(attribute);
       });
+      const loadedFromCache = new Set();
+
       Promise.all(
         initValue.map(async rec => {
           // Use cached data for locally created rows (not yet saved to server)
           if (localRowCache.has(rec)) {
+            loadedFromCache.add(rec);
             return localRowCache.get(rec);
           }
 
@@ -204,8 +207,14 @@ export const TableFormContextProvider = props => {
       )
         .then(result => {
           setGridRows(result);
-          // Clear cache entries that were successfully loaded from the server
-          result.forEach(row => localRowCache.delete(row.id));
+          // Only clear cache entries that were loaded from the server (not from cache).
+          // Alias rows loaded from cache must stay cached because subsequent useEffect
+          // runs would try to fetch them from the server where they don't exist yet.
+          result.forEach(row => {
+            if (!loadedFromCache.has(row.id)) {
+              localRowCache.delete(row.id);
+            }
+          });
           isFunction(triggerEventOnTableChange) && triggerEventOnTableChange();
         })
         .catch(e => {

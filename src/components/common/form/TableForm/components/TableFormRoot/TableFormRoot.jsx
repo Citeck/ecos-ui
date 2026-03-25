@@ -1,5 +1,5 @@
-import React, { useContext } from 'react';
 import classNames from 'classnames';
+import React, { useContext } from 'react';
 
 import { TableFormContext } from '../../TableFormContext';
 import InputView from '../InputView';
