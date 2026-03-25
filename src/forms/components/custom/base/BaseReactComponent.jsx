@@ -235,6 +235,7 @@ export default class BaseReactComponent extends BaseComponent {
     if (this.react.container) {
       const root = this.react.container._root;
       this.react.wrapper = null;
+
       if (root) {
         setTimeout(() => root.unmount(), 0);
       }
@@ -250,10 +251,17 @@ export default class BaseReactComponent extends BaseComponent {
 
     if (this.react.container) {
       const root = this.react.container._root;
+
+      this.react.container.remove();
       this.react = {};
+
       if (root) {
         setTimeout(() => root.unmount(), 0);
       }
+    }
+
+    if (this.element) {
+      this.element.querySelectorAll('.ecos-form__inline-edit-button').forEach(btn => btn.remove());
     }
   }
 
