@@ -251,54 +251,72 @@ export const TableFormContextProvider = props => {
       allComponents = form.getAllComponents();
     }
 
-    record.toJsonAsync(true).then(async res => {
-      const attributes = cloneDeep(res.attributes);
-      const restAttrs = Object.keys(attributes);
+    record
+      .toJsonAsync(true)
+      .then(async res => {
+        const attributes = cloneDeep(res.attributes);
+        const restAttrs = Object.keys(attributes);
+        const atPattern = /^.+\/.+@.*$/;
 
-      for (let column of columns) {
-        if (column.attribute in attributes) {
-          const index = restAttrs.findIndex(value => value === column.attribute);
-          let displayName = null;
-          const component = allComponents.find(component => component.key === column.attribute && component.type === 'ecosSelect');
+        for (let column of columns) {
+          if (column.attribute in attributes) {
+            const index = restAttrs.findIndex(value => value === column.attribute);
+            let displayName = null;
+            const component = allComponents.find(component => component.key === column.attribute && component.type === 'ecosSelect');
+            const attrValue = res.attributes[column.attribute];
 
-          displayName = await Records.get(res.attributes[column.attribute]).load('.disp');
+            try {
+              if (isString(attrValue) && atPattern.test(attrValue)) {
+                displayName = await Records.get(attrValue).load('.disp');
+              } else if (isArray(attrValue)) {
+                const attributesForLoad = (attrValue || []).filter(att => isString(att) && atPattern.test(att));
+                if (attributesForLoad.length > 0) {
+                  displayName = await Promise.all(attributesForLoad.map(att => Records.get(att).load('.disp')));
+                }
+              }
+            } catch (e) {
+              // fallback to raw value
+            }
 
-          if (component && !displayName) {
-            const attValue = attributes[column.attribute];
-            if (attValue) {
-              const option = get(component, 'currentItems', []).find(item => item.value === attValue);
-              if (option) {
-                displayName = isObject(option.label) ? getMLValue(option.label) : option.label;
+            if (component && !displayName) {
+              const attValue = attributes[column.attribute];
+              if (attValue) {
+                const option = get(component, 'currentItems', []).find(item => item.value === attValue);
+                if (option) {
+                  displayName = isObject(option.label) ? getMLValue(option.label) : option.label;
+                }
               }
             }
-          }
 
-          restAttrs.splice(index, 1);
-          if (displayName) {
-            attributes[column.attribute] = displayName;
+            restAttrs.splice(index, 1);
+            if (displayName) {
+              attributes[column.attribute] = displayName;
+            }
           }
         }
-      }
-      const unresolvedCols = columns.filter(item => !(item.attribute in res.attributes));
-      unresolvedCols.forEach(col => {
-        const similarAttr = restAttrs.find(att => col.attribute.includes(att));
+        const unresolvedCols = columns.filter(item => !(item.attribute in res.attributes));
+        unresolvedCols.forEach(col => {
+          const similarAttr = restAttrs.find(att => col.attribute.includes(att));
 
-        if (similarAttr) {
-          attributes[col.attribute] = attributes[similarAttr];
-        }
+          if (similarAttr) {
+            attributes[col.attribute] = attributes[similarAttr];
+          }
+        });
+
+        const newGridRows = [
+          ...gridRows,
+          {
+            id: record.id,
+            [LOCAL_ID]: record.id,
+            ...attributes
+          }
+        ];
+        setGridRows(newGridRows);
+        onChangeHandler(newGridRows);
+      })
+      .catch(e => {
+        console.error('[TableForm] onCreateFormSubmit error:', e);
       });
-
-      const newGridRows = [
-        ...gridRows,
-        {
-          id: record.id,
-          [LOCAL_ID]: record.id,
-          ...attributes
-        }
-      ];
-      setGridRows(newGridRows);
-      onChangeHandler(newGridRows);
-    });
   };
 
   return (
