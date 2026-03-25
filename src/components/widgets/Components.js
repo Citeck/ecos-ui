@@ -415,15 +415,24 @@ export default class Components {
   static async getComponentsFullData(dashboardType = DashboardTypes.CASE_DETAILS) {
     const components = new Map();
 
-    Components.widgetsForAllDasboards.forEach(component => {
-      components.set(component.name, { label: component.label, additionalProps: get(component, 'additionalProps', {}) });
-    });
+    await Promise.all(
+      Components.widgetsForAllDasboards.map(async component => {
+        const descriptor = Components.components[component.name];
+        if (isFunction(descriptor?.checkIsAvailable)) {
+          const isAvailable = await descriptor.checkIsAvailable(dashboardType);
+          if (!isAvailable) {
+            return;
+          }
+        }
+        components.set(component.name, { label: component.label, additionalProps: get(component, 'additionalProps', {}) });
+      })
+    );
 
     await Promise.all(
       Object.entries(Components.components).map(async ([name, component]) => {
         if (isFunction(component.checkIsAvailable)) {
-          const isAvaliable = await component.checkIsAvailable(dashboardType);
-          if (!isAvaliable) {
+          const isAvailable = await component.checkIsAvailable(dashboardType);
+          if (!isAvailable) {
             return;
           }
         }
