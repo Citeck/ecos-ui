@@ -24,11 +24,6 @@ import WidgetService from '@/services/WidgetService';
 
 export const TableFormContext = React.createContext();
 
-// Module-level cache for locally created rows (survives React remounts).
-// Key: record alias id, Value: row data object with display values.
-// Exported for testing purposes.
-export const localRowCache = new Map();
-
 export const TableFormContextProvider = props => {
   const { controlProps } = props;
   const {
@@ -109,24 +104,9 @@ export const TableFormContextProvider = props => {
         atts.push(schema);
         attsAsIs.push(attribute);
       });
-      const loadedFromCache = new Set();
-      const isAliasRecord = id => isString(id) && id.includes('-alias-');
 
       Promise.all(
         initValue.map(async rec => {
-          // Use cached data for locally created rows (not yet saved to server)
-          if (localRowCache.has(rec)) {
-            loadedFromCache.add(rec);
-            return localRowCache.get(rec);
-          }
-
-          // Alias records only exist locally — never try to fetch them from the server.
-          // If the cache was lost (shouldn't happen normally), return an empty row
-          // to avoid server errors for non-existent alias IDs.
-          if (isAliasRecord(rec)) {
-            return { id: rec, [LOCAL_ID]: rec };
-          }
-
           const record = await Records.get(rec);
           const form = await EcosFormUtils.getForm(rec);
 
@@ -215,14 +195,6 @@ export const TableFormContextProvider = props => {
       )
         .then(result => {
           setGridRows(result);
-          // Only clear cache entries that were loaded from the server (not from cache).
-          // Alias rows loaded from cache must stay cached because subsequent useEffect
-          // runs would try to fetch them from the server where they don't exist yet.
-          result.forEach(row => {
-            if (!loadedFromCache.has(row.id)) {
-              localRowCache.delete(row.id);
-            }
-          });
           isFunction(triggerEventOnTableChange) && triggerEventOnTableChange();
         })
         .catch(e => {
@@ -337,9 +309,6 @@ export const TableFormContextProvider = props => {
           [LOCAL_ID]: record.id,
           ...attributes
         };
-
-        // Cache locally so useEffect can restore this row after remount
-        localRowCache.set(record.id, newRow);
 
         const newGridRows = [...gridRows, newRow];
         setGridRows(newGridRows);
@@ -499,8 +468,8 @@ export const TableFormContextProvider = props => {
 
         deleteSelectedItem: id => {
           const newGridRows = gridRows.filter(item => item.id !== id);
-          setGridRows([...newGridRows]);
 
+          setGridRows([...newGridRows]);
           setRowPosition(null);
 
           onChangeHandler(newGridRows);
