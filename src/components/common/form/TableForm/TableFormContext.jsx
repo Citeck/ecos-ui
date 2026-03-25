@@ -110,6 +110,7 @@ export const TableFormContextProvider = props => {
         attsAsIs.push(attribute);
       });
       const loadedFromCache = new Set();
+      const isAliasRecord = id => isString(id) && id.includes('-alias-');
 
       Promise.all(
         initValue.map(async rec => {
@@ -117,6 +118,13 @@ export const TableFormContextProvider = props => {
           if (localRowCache.has(rec)) {
             loadedFromCache.add(rec);
             return localRowCache.get(rec);
+          }
+
+          // Alias records only exist locally — never try to fetch them from the server.
+          // If the cache was lost (shouldn't happen normally), return an empty row
+          // to avoid server errors for non-existent alias IDs.
+          if (isAliasRecord(rec)) {
+            return { id: rec, [LOCAL_ID]: rec };
           }
 
           const record = await Records.get(rec);

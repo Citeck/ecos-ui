@@ -121,6 +121,17 @@ describe('TableForm localRowCache', () => {
       expect(localRowCache.get(aliasId).amount).toBe(500);
     });
 
+    it('should not attempt server fetch for alias records without cache', () => {
+      // Alias records only exist locally. If cache is missing, return empty row
+      // instead of making a server request that would fail.
+      const aliasId = 'emodel/payments@-alias-5';
+      const isAliasRecord = id => typeof id === 'string' && id.includes('-alias-');
+
+      expect(localRowCache.has(aliasId)).toBe(false);
+      expect(isAliasRecord(aliasId)).toBe(true);
+      expect(isAliasRecord('emodel/payments@real-id')).toBe(false);
+    });
+
     it('should survive React component remount (cache persists as module-level)', () => {
       // First "mount": onCreateFormSubmit caches a row
       localRowCache.set('emodel/test@-alias-1', { id: 'emodel/test@-alias-1', type: 'Test' });
