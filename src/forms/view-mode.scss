@@ -191,6 +191,7 @@
         display: block;
         padding: 0;
         padding-left: 10px;
+        border-left-width: 0;
         background: linear-gradient(to right, rgba($color-white, 0), $color-white 15%);
       }
     }

@@ -172,12 +172,7 @@ export default class TableFormComponent extends BaseReactComponent {
   }
 
   setReactValue(_component, defaultValue) {
-    try {
-      this.setReactProps({ defaultValue });
-      this.triggerChange();
-    } finally {
-      this.triggerRedraw();
-    }
+    this.setReactProps({ defaultValue });
   }
 
   getValueFormKey(value) {

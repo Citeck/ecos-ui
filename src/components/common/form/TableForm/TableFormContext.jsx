@@ -24,6 +24,11 @@ import WidgetService from '@/services/WidgetService';
 
 export const TableFormContext = React.createContext();
 
+// Module-level cache for locally created rows (survives React remounts).
+// Key: record alias id, Value: row data object with display values.
+// Exported for testing purposes.
+export const localRowCache = new Map();
+
 export const TableFormContextProvider = props => {
   const { controlProps } = props;
   const {
@@ -106,6 +111,11 @@ export const TableFormContextProvider = props => {
       });
       Promise.all(
         initValue.map(async rec => {
+          // Use cached data for locally created rows (not yet saved to server)
+          if (localRowCache.has(rec)) {
+            return localRowCache.get(rec);
+          }
+
           const record = await Records.get(rec);
           const form = await EcosFormUtils.getForm(rec);
 
@@ -194,6 +204,8 @@ export const TableFormContextProvider = props => {
       )
         .then(result => {
           setGridRows(result);
+          // Clear cache entries that were successfully loaded from the server
+          result.forEach(row => localRowCache.delete(row.id));
           isFunction(triggerEventOnTableChange) && triggerEventOnTableChange();
         })
         .catch(e => {
@@ -303,15 +315,18 @@ export const TableFormContextProvider = props => {
           }
         });
 
-        const newGridRows = [
-          ...gridRows,
-          {
-            id: record.id,
-            [LOCAL_ID]: record.id,
-            ...attributes
-          }
-        ];
+        const newRow = {
+          id: record.id,
+          [LOCAL_ID]: record.id,
+          ...attributes
+        };
+
+        // Cache locally so useEffect can restore this row after remount
+        localRowCache.set(record.id, newRow);
+
+        const newGridRows = [...gridRows, newRow];
         setGridRows(newGridRows);
+
         onChangeHandler(newGridRows);
       })
       .catch(e => {
@@ -459,6 +474,7 @@ export const TableFormContextProvider = props => {
             }
 
             setGridRows(newGridRows);
+
             onChangeHandler(newGridRows);
             setIsModalFormOpen(false);
           });
@@ -467,6 +483,7 @@ export const TableFormContextProvider = props => {
         deleteSelectedItem: id => {
           const newGridRows = gridRows.filter(item => item.id !== id);
           setGridRows([...newGridRows]);
+
           setRowPosition(null);
 
           onChangeHandler(newGridRows);
