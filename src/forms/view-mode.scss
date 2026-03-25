@@ -31,6 +31,7 @@
     transition: border-color 0.2s ease, margin 0.2s ease, padding 0.2s ease, border-radius 0.2s ease;
 
     &:only-child {
+      display: block;
       height: 100%;
     }
 
@@ -71,6 +72,9 @@
     }
 
     &.formio-component__view-only-table-has-rows {
+      display: block;
+      width: 100%;
+
       .select-journal__value-not-selected,
       .ecos-table-form__value-not-selected {
         display: none;
