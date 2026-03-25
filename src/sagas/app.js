@@ -40,6 +40,7 @@ import { SETTING_ENABLE_VIEW_NEW_JOURNAL } from '@/pages/DevTools/constants';
 import { selectWorkspaces } from '@/selectors/workspaces';
 import PageService from '@/services/PageService';
 import AuthorityService from '@/services/authrority/AuthorityService';
+import { isManagerCurrentUser } from '@/services/authrority/authorityApi';
 import ConfigService, {
   DEFAULT_WORKSPACE,
   WORKSPACES_ENABLED,
@@ -263,7 +264,7 @@ export function* fetchLeftMenuEditable() {
     let isEditable = isAdmin && menuVersion > 0;
 
     if (workspacesEnabled) {
-      const isCurrentUserManager = yield AuthorityService.hasConfigWritePermission();
+      const isCurrentUserManager = yield call(isManagerCurrentUser);
 
       isEditable = (isAdmin || isCurrentUserManager) && menuVersion > 0;
     }
