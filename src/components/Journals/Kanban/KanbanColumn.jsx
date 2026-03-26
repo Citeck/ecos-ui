@@ -9,6 +9,7 @@ import { t } from '@/helpers/util';
 import { Loader } from '../../common';
 import { Labels } from '../constants';
 import Card from './Card';
+import SkeletonCards from './SkeletonCard';
 import { isDropDisabled as checkDropDisabled } from './utils';
 
 const KanbanColumn = ({
@@ -81,7 +82,7 @@ const KanbanColumn = ({
       },
       {
         text: ' ',
-        isAvailable: isFlatLoading
+        isAvailable: false
       },
       {
         text: t(Labels.Kanban.DND_ALREADY_HERE),
@@ -156,10 +157,10 @@ const KanbanColumn = ({
             {...provided.droppableProps}
             ref={provided.innerRef}
           >
-            {isLoadingCol && <Loader className="ecos-kanban__column-loader" blur />}
-            {isSwimlaneMode && isLoading && isEmpty(records) && <Loader className="ecos-kanban__column-loader" blur />}
+            {(isLoadingCol || isFlatLoading) && <SkeletonCards />}
+            {isSwimlaneMode && isLoading && isEmpty(records) && <SkeletonCards />}
             {renderStatuses({ isColumnOwner, isDraggingOver })}
-            {records.map(renderCard)}
+            {!isLoadingCol && !isFlatLoading && records.map(renderCard)}
             {provided.placeholder}
             {isSwimlaneMode && isLoading && !isEmpty(records) && <Loader className="ecos-kanban__column-loader" blur />}
             {remaining > 0 && !isLoading && (

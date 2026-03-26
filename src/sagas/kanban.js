@@ -620,10 +620,10 @@ function* reloadColumns({ api, stateId, boardConfig, columnIds }) {
 
   yield all(
     columnIds.map(function* (columnId) {
-      const colIndex = columns.findIndex(c => c.id === columnId);
+      const colIndex = currentDataCards.findIndex(c => c.status === columnId);
       if (colIndex === -1) return;
 
-      const column = columns[colIndex];
+      const column = columns.find(c => c.id === columnId) || { id: columnId };
       const colPredicate = KanbanConverter.preparePredicate(column);
       const statusModifiedPredicate = KanbanConverter.getStatusModifiedPredicate(column);
 
@@ -707,13 +707,14 @@ export function* sagaMoveCard({ api }, { payload }) {
     const dataCards = cloneDeep(prevDataCards);
     rollbackCards = cloneDeep(prevDataCards);
 
-    const fromColumnIndex = boardConfig.columns.findIndex(column => column.id === fromColumnRef);
-    const toColumnIndex = boardConfig.columns.findIndex(column => column.id === toColumnRef);
+    const fromColumnIndex = dataCards.findIndex(col => col.status === fromColumnRef);
+    const toColumnIndex = dataCards.findIndex(col => col.status === toColumnRef);
 
-    const fromColumnId = fromColumnIndex === -1 ? '' : boardConfig.columns[fromColumnIndex].id;
-    const toColumnId = toColumnIndex === -1 ? '' : boardConfig.columns[toColumnIndex].id;
+    if (fromColumnIndex === -1 || toColumnIndex === -1) {
+      throw new Error('Column not found in dataCards');
+    }
 
-    yield put(setLoadingColumns({ stateId, isLoadingColumns: [fromColumnId, toColumnId] }));
+    yield put(setLoadingColumns({ stateId, isLoadingColumns: [fromColumnRef, toColumnRef] }));
 
     const deleted = dataCards[fromColumnIndex].records.splice(cardIndex, 1);
     dataCards[fromColumnIndex].totalCount -= 1;
@@ -738,7 +739,7 @@ export function* sagaMoveCard({ api }, { payload }) {
     }
 
     // Reload affected columns from server to get correct sorting
-    yield call(reloadColumns, { api, stateId, boardConfig, columnIds: [fromColumnId, toColumnId] });
+    yield call(reloadColumns, { api, stateId, boardConfig, columnIds: [fromColumnRef, toColumnRef] });
   } catch (e) {
     yield put(setDataCards({ stateId: payload.stateId, dataCards: rollbackCards }));
     NotificationManager.error(e.message || t('kanban.error.card-not-moved'), t('error'));

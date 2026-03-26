@@ -35,6 +35,8 @@ const mapStateToProps = state => ({
 });
 
 class Header extends React.Component {
+  _headerRef = React.createRef();
+
   state = {
     hasAlfresco: false,
     widthHeader: 0
@@ -79,8 +81,9 @@ class Header extends React.Component {
     return (
       <>
         {this.renderMenuSettings()}
-        <ReactResizeDetector handleWidth handleHeight onResize={debounce(this.onResize, 400)} />
+        <ReactResizeDetector handleWidth handleHeight onResize={debounce(this.onResize, 400)} targetRef={this._headerRef} />
         <div
+          ref={this._headerRef}
           className={classNames('ecos-header', `ecos-header_theme_${theme}`, {
             'ecos-header_small': isMobile,
             'ecos-header_new': isViewNewJournal

@@ -18,6 +18,8 @@ import './EcosModal.scss';
 const MAX_LEVEL = 4;
 
 export default class EcosModal extends Component {
+  _modalBodyRef = React.createRef();
+
   state = {
     isOpen: false,
     level: 0,
@@ -196,8 +198,10 @@ export default class EcosModal extends Component {
         isblurbackground={isBlurBackground}
       >
         {this.renderModalHeader()}
-        <ModalBody className={classNames(classNameBody, classMobile)}>{children}</ModalBody>
-        <ReactResizeDetector handleWidth handleHeight onResize={onResize} />
+        <ModalBody innerRef={this._modalBodyRef} className={classNames(classNameBody, classMobile)}>
+          {children}
+        </ModalBody>
+        <ReactResizeDetector handleWidth handleHeight onResize={onResize} targetRef={this._modalBodyRef} />
       </Modal>
     );
   }

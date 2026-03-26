@@ -33,6 +33,7 @@ export default class HeaderFormatter extends Component {
     super(props);
 
     this.thRef = React.createRef();
+    this._filterWrapperRef = React.createRef();
     this._id = getId();
     this.fetchValue = false;
     this.state = {
@@ -342,10 +343,15 @@ export default class HeaderFormatter extends Component {
           }
         }}
       >
-        <ReactResizeDetector handleWidth onResize={() => this.forceUpdate()}>
-          <ClickOutside handleClickOutside={this.handleClickOutside} excludeElements={[filterIcon, ...document.querySelectorAll('.modal')]}>
-            {tooltipBody}
-          </ClickOutside>
+        <ReactResizeDetector handleWidth onResize={() => this.forceUpdate()} targetRef={this._filterWrapperRef}>
+          <div ref={this._filterWrapperRef}>
+            <ClickOutside
+              handleClickOutside={this.handleClickOutside}
+              excludeElements={[filterIcon, ...document.querySelectorAll('.modal')]}
+            >
+              {tooltipBody}
+            </ClickOutside>
+          </div>
         </ReactResizeDetector>
       </Tooltip>
     );
