@@ -671,7 +671,7 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function () {
 
           const ecosForm = get(form, 'ecos.form');
 
-          if (ecosForm !== null) {
+          if (ecosForm && isFunction(ecosForm.onReload)) {
             ecosForm.onReload(true);
           } else {
             form.showErrors('', true);
