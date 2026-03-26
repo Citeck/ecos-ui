@@ -124,7 +124,7 @@ class PropertiesDashlet extends BaseWidget {
     let actions = {
       [DAction.Actions.RELOAD]: {
         className: getFitnesseClassName('properties-widget', formType, DAction.Actions.RELOAD),
-        onClick: this.onReloadDashlet
+        onClick: () => this.onReloadDashlet(true)
       },
       [DAction.Actions.SETTINGS]: {
         className: getFitnesseClassName('properties-widget', formType, DAction.Actions.SETTINGS),

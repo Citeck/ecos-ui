@@ -664,8 +664,17 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function () {
             form.showErrors('', true);
           }
           this.removeClass(this.element, 'has-error');
+
           if (isFunction(this.options.onInlineEditSave)) {
             this.options.onInlineEditSave();
+          }
+
+          const ecosForm = get(form, 'ecos.form');
+
+          if (ecosForm !== null) {
+            ecosForm.onReload(true);
+          } else {
+            form.showErrors('', true);
           }
         })
         .finally(() => {

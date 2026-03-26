@@ -12,7 +12,7 @@ import { connect } from 'react-redux';
 import { t } from '../../../helpers/util';
 import { FORM_MODE_EDIT } from '../../EcosForm';
 import EcosForm from '../../EcosForm/EcosForm';
-import { InfoText } from '../../common';
+import { InfoText, Loader } from '../../common';
 import { ComponentKeys } from '../Components';
 
 import './style.scss';
@@ -45,6 +45,7 @@ class Properties extends React.Component {
   state = {
     loaded: false,
     isLoading: true,
+    isReloading: false,
     isReadySubmit: true,
     initData: {},
     contentHeight: 0
@@ -74,11 +75,27 @@ class Properties extends React.Component {
     const formData = get(this._ecosForm, 'current._form.data');
     const initData = cloneDeep(formData);
 
-    this.setState({ initData, isLoading: false, loaded: true });
+    this._isReloading = false;
+    this.setState({ initData, isLoading: false, isReloading: false, loaded: true });
   }, 350);
 
   onToggleLoader = (isLoading = !this.state.isLoading) => {
+    if (this._isReloading) {
+      return;
+    }
+
     this.setState({ isLoading });
+  };
+
+  handleInlineEditSave = () => {
+    const { onInlineEditSave } = this.props;
+
+    this._isReloading = true;
+    this.setState({ isReloading: true });
+
+    if (isFunction(onInlineEditSave)) {
+      onInlineEditSave();
+    }
   };
 
   onShowBuilder = () => {
@@ -129,11 +146,12 @@ class Properties extends React.Component {
       return;
     }
 
+    this._isReloading = true;
+    this.setState({ isReloading: true });
+
     if (typeof form.onReload === 'function') {
       form.onReload.call(form, withSaveData);
     }
-
-    this.setState({ loaded: false });
   };
 
   setHeight = contentHeight => {
@@ -174,14 +192,15 @@ class Properties extends React.Component {
   }
 
   renderForm() {
-    const { record, isSmallMode, formId, formMode, isDraft, isMobile, onUpdate, onInlineEditSave } = this.props;
-    const { isReadySubmit, loaded, isLoading } = this.state;
+    const { record, isSmallMode, formId, formMode, isDraft, isMobile, onUpdate } = this.props;
+    const { isReadySubmit, loaded, isLoading, isReloading, reloadHeight } = this.state;
     const isShow = isReadySubmit;
     const isLoaded = loaded && !isLoading;
 
     return (
       <>
-        {!isLoaded && this.renderSkeleton()}
+        {!isLoaded && !isReloading && this.renderSkeleton()}
+        {isReloading && <Loader blur />}
         <EcosForm
           ref={this._ecosForm}
           record={record}
@@ -195,7 +214,7 @@ class Properties extends React.Component {
             },
             formMode,
             saveDraft: isDraft,
-            onInlineEditSave
+            onInlineEditSave: this.handleInlineEditSave
           }}
           onFormSubmitDone={onUpdate}
           onFormChanged={this.onFormChanged}
@@ -204,7 +223,7 @@ class Properties extends React.Component {
           className={classNames('ecos-properties__formio', {
             'ecos-properties__formio_small': isSmallMode,
             'ecos-properties__formio_mobile': isMobile,
-            'd-none': !isShow || !isLoaded
+            'd-none': !isShow || (!isLoaded && !isReloading)
           })}
           getTitle={this.getTitle}
           initiator={{
@@ -233,7 +252,7 @@ class Properties extends React.Component {
 
   render() {
     const { forwardedRef, className, scrollProps, minHeight } = this.props;
-    const { loaded, isLoading } = this.state;
+    const { loaded, isLoading, isReloading } = this.state;
     const isLoaded = loaded && !isLoading;
 
     return (
@@ -243,7 +262,7 @@ class Properties extends React.Component {
         hideTracksWhenNotNeeded
         {...scrollProps}
       >
-        <div ref={forwardedRef} style={{ minHeight: isLoaded ? undefined : minHeight || '50px' }}>
+        <div ref={forwardedRef} style={{ position: 'relative', minHeight: isLoaded || isReloading ? undefined : minHeight || '50px' }}>
           {this.renderForm()}
         </div>
       </Scrollbars>
