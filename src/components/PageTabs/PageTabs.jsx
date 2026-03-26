@@ -587,7 +587,7 @@ class PageTabs extends React.Component {
         </SortableContainer>
         {this.renderCloseAllTabsButton()}
         {this.renderRightButton()}
-        <ReactResizeDetector handleWidth handleHeight onResize={this.handleResize} />
+        <ReactResizeDetector handleWidth handleHeight onResize={this.handleResize} targetRef={this.$tabWrapper} />
       </ClickOutside>
     );
   }

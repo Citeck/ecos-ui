@@ -108,6 +108,7 @@ const ViewLabels = {
 
 class Journals extends React.Component {
   _journalRef = null;
+  _journalContainerRef = React.createRef();
   _journalBodyTopRef = null;
   _journalFooterRef = null;
   _journalMenuRef = null;
@@ -439,7 +440,12 @@ class Journals extends React.Component {
     return this.state.maxHeightJournal || maxHeightJournal;
   };
 
-  setJournalRef = ref => !!ref && (this._journalRef = ref);
+  setJournalRef = ref => {
+    if (ref) {
+      this._journalRef = ref;
+      this._journalContainerRef.current = ref;
+    }
+  };
 
   setJournalBodyTopRef = ref => !!ref && (this._journalBodyTopRef = ref);
 
@@ -717,7 +723,7 @@ class Journals extends React.Component {
     const { showWidgets } = commonProps || {};
 
     return (
-      <ReactResizeDetector handleHeight={!isViewNewJournal} onResize={this.handleResize}>
+      <ReactResizeDetector handleHeight={!isViewNewJournal} onResize={this.handleResize} targetRef={this._journalContainerRef}>
         <div
           ref={this.setJournalRef}
           className={classNames('ecos-journal', className, {

@@ -23,6 +23,8 @@ export default class DefineHeight extends React.Component {
     getContentHeight: () => null
   };
 
+  _containerRef = React.createRef();
+
   state = {
     contentHeight: 0,
     optimalHeight: 0
@@ -60,8 +62,8 @@ export default class DefineHeight extends React.Component {
     const { children, className, ...detectorProps } = this.props;
 
     return children ? (
-      <div className={classNames('ecos-def-height__container', className)}>
-        <ReactResizeDetector handleHeight onResize={this.onResize} {...detectorProps} />
+      <div className={classNames('ecos-def-height__container', className)} ref={this._containerRef}>
+        <ReactResizeDetector handleHeight onResize={this.onResize} targetRef={this._containerRef} />
         {children}
       </div>
     ) : null;
