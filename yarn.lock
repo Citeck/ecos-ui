@@ -4965,12 +4965,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"attr-accept@npm:^1.1.3":
-  version: 1.1.3
-  resolution: "attr-accept@npm:1.1.3"
-  dependencies:
-    core-js: ^2.5.0
-  checksum: 836c0e863719c0355e8ad4214e4c81f24dd9e724233153200189732da691f73e6f13316b8ac456d75749a89780f0da67e44387e46dfc3fd9a517a84a0e45acbc
+"attr-accept@npm:^2.2.4":
+  version: 2.2.5
+  resolution: "attr-accept@npm:2.2.5"
+  checksum: e6a23183c112f5d313ebfc7e63e454de0600caffe9ab88f86e9df420d2399a48e27e6c46ee8de2fc6f34fee3541ecdb557f2b86e6d8bd7d24fd3a66cc75e6349
   languageName: node
   linkType: hard
 
@@ -7642,7 +7640,7 @@ __metadata:
     react-diff-viewer-continued: ^3.4.0
     react-dom: 18.2.0
     react-draggable: 3.3.2
-    react-dropzone: 8.2.0
+    react-dropzone: 14.4.1
     react-json-pretty: 2.2.0
     react-loader-spinner: 2.3.0
     react-markdown: ^10.1.0
@@ -7651,7 +7649,7 @@ __metadata:
     react-popper: 2.3.0
     react-redux: 7.2.0
     react-resizable: ^3.0.5
-    react-resize-detector: 4.2.3
+    react-resize-detector: 9.1.1
     react-router: 5.1.2
     react-select: 4.3.1
     react-transition-group: ^4.4.5
@@ -8963,12 +8961,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"file-selector@npm:^0.1.8":
-  version: 0.1.19
-  resolution: "file-selector@npm:0.1.19"
+"file-selector@npm:^2.1.0":
+  version: 2.1.2
+  resolution: "file-selector@npm:2.1.2"
   dependencies:
-    tslib: ^2.0.1
-  checksum: 5b105a3ede9139729ada72d6653ae3f4387a7bf2585e8700f9fa53f22457d1f88304fdde9ad7b43b694a5610d67058302257f448a75248fc2225880bca6df5df
+    tslib: ^2.7.0
+  checksum: 0e7c5233ca7d33a05eb99236e8cfc843ea304335589d954393aeb7c5b7595f30be23c79173d28180e728b6eb441cd1dd355d6ad7fbb03b8e4f37d20e3d5c3184
   languageName: node
   linkType: hard
 
@@ -12048,7 +12046,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash-es@npm:^4.17.15, lodash-es@npm:^4.2.1":
+"lodash-es@npm:^4.2.1":
   version: 4.17.23
   resolution: "lodash-es@npm:4.17.23"
   checksum: b1bd1d141bbde8ffc72978e34b364065675806b0ca42ab99477d247fb2ae795faeed81db9283bf18ae1f096c2b6611ec0589e0503fa9724bf82e3dce947bad69
@@ -14706,18 +14704,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prop-types-extra@npm:^1.1.0":
-  version: 1.1.1
-  resolution: "prop-types-extra@npm:1.1.1"
-  dependencies:
-    react-is: ^16.3.2
-    warning: ^4.0.0
-  peerDependencies:
-    react: ">=0.14.0"
-  checksum: ebf1c048687bb538457f91a3610abb36ca0f50587a6afae80443a9e65b9db96882d18c3511175a8967fad4ca5dcd804913bbc241d7b5160c74cf69aacdd054f0
-  languageName: node
-  linkType: hard
-
 "prop-types@npm:15.8.1, prop-types@npm:15.x, prop-types@npm:^15.5.10, prop-types@npm:^15.5.8, prop-types@npm:^15.6.0, prop-types@npm:^15.6.1, prop-types@npm:^15.6.2, prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
   version: 15.8.1
   resolution: "prop-types@npm:15.8.1"
@@ -14871,7 +14857,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"raf-schd@npm:^4.0.0, raf-schd@npm:^4.0.2":
+"raf-schd@npm:^4.0.0":
   version: 4.0.3
   resolution: "raf-schd@npm:4.0.3"
   checksum: 45514041c5ad31fa96aef3bb3c572a843b92da2f2cd1cb4a47c9ad58e48761d3a4126e18daa32b2bfa0bc2551a42d8f324a0e40e536cb656969929602b4e8b58
@@ -15108,17 +15094,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dropzone@npm:8.2.0":
-  version: 8.2.0
-  resolution: "react-dropzone@npm:8.2.0"
+"react-dropzone@npm:14.4.1":
+  version: 14.4.1
+  resolution: "react-dropzone@npm:14.4.1"
   dependencies:
-    attr-accept: ^1.1.3
-    file-selector: ^0.1.8
-    prop-types: ^15.6.2
-    prop-types-extra: ^1.1.0
+    attr-accept: ^2.2.4
+    file-selector: ^2.1.0
+    prop-types: ^15.8.1
   peerDependencies:
-    react: ">=0.14.0"
-  checksum: a649d6e9ad3bdc138728905f393c7b028ca5a9eb600c76428f77305b2186276bcb35b1cb89c3eb84676b5827fab8b964d19b79407fb4750f16f59b3080a7de14
+    react: ">= 16.8 || 18.0.0"
+  checksum: 7c16f5c36c8514cfec0687aaaf9e9c3de497bdeaa23b64b483ca26908744c478c271256f9223f458d1258a6b80535d180a270764899ea6d2e2e92f164125bc41
   languageName: node
   linkType: hard
 
@@ -15151,7 +15136,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-is@npm:^16.13.1, react-is@npm:^16.3.2, react-is@npm:^16.6.0, react-is@npm:^16.7.0, react-is@npm:^16.9.0":
+"react-is@npm:^16.13.1, react-is@npm:^16.6.0, react-is@npm:^16.7.0, react-is@npm:^16.9.0":
   version: 16.13.1
   resolution: "react-is@npm:16.13.1"
   checksum: f7a19ac3496de32ca9ae12aa030f00f14a3d45374f1ceca0af707c831b2a6098ef0d6bdae51bd437b0a306d7f01d4677fcc8de7c0d331eb47ad0f46130e53c5f
@@ -15355,19 +15340,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-resize-detector@npm:4.2.3":
-  version: 4.2.3
-  resolution: "react-resize-detector@npm:4.2.3"
+"react-resize-detector@npm:9.1.1":
+  version: 9.1.1
+  resolution: "react-resize-detector@npm:9.1.1"
   dependencies:
-    lodash: ^4.17.15
-    lodash-es: ^4.17.15
-    prop-types: ^15.7.2
-    raf-schd: ^4.0.2
-    resize-observer-polyfill: ^1.5.1
+    lodash: ^4.17.21
   peerDependencies:
-    react: ^16.0.0
-    react-dom: ^16.0.0
-  checksum: a1b6c3f7ba84c2ba8823a67a67d96698e43bae968f34f67a1100edb83396cd9300c3c0ad175d41a2659c7dccbea073b9201b89770b947237d89c86b4b28fb5c7
+    react: ^16.0.0 || ^17.0.0 || ^18.0.0
+    react-dom: ^16.0.0 || ^17.0.0 || ^18.0.0
+  checksum: 0612b4416212962e5762f25e20c7016bdce3107d745a399b44bc099a04488a704228908357845c2e3fa49bf9902077f0eeebc99cf76d42ea479a8aa79f4c5b9d
   languageName: node
   linkType: hard
 
@@ -15848,13 +15829,6 @@ __metadata:
   version: 4.0.0
   resolution: "reselect@npm:4.0.0"
   checksum: ac7dfc9ef2cdb42b6fc87a856f3ce904c2e4363a2bc1e6fb7eea5f78902a6f506e4388e6509752984877c6dbfe501100c076671d334799eb5a1bfe9936cb2c12
-  languageName: node
-  linkType: hard
-
-"resize-observer-polyfill@npm:^1.5.1":
-  version: 1.5.1
-  resolution: "resize-observer-polyfill@npm:1.5.1"
-  checksum: 57e7f79489867b00ba43c9c051524a5c8f162a61d5547e99333549afc23e15c44fd43f2f318ea0261ea98c0eb3158cca261e6f48d66e1ed1cd1f340a43977094
   languageName: node
   linkType: hard
 
@@ -17731,7 +17705,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.0.1, tslib@npm:^2.4.0":
+"tslib@npm:^2.0.1, tslib@npm:^2.4.0, tslib@npm:^2.7.0":
   version: 2.8.1
   resolution: "tslib@npm:2.8.1"
   checksum: e4aba30e632b8c8902b47587fd13345e2827fa639e7c3121074d5ee0880723282411a8838f830b55100cbe4517672f84a2472667d355b81e8af165a55dc6203a
@@ -18531,7 +18505,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"warning@npm:^4.0.0, warning@npm:^4.0.2, warning@npm:^4.0.3":
+"warning@npm:^4.0.2, warning@npm:^4.0.3":
   version: 4.0.3
   resolution: "warning@npm:4.0.3"
   dependencies:

@@ -37,6 +37,7 @@ class DocPreview extends Component {
   _toolbarRef = null;
   _bodyRef = null;
   _viewerRef = null;
+  _wrapperRef = React.createRef();
 
   static propTypes = {
     link: PropTypes.string,
@@ -619,6 +620,7 @@ class DocPreview extends Component {
 
     return (
       <div
+        ref={this._wrapperRef}
         className={classNames('ecos-doc-preview', className, {
           [`ecos-doc-preview_decreasing-step-${this.decreasingStep}`]: this.decreasingStep,
           'ecos-doc-preview_hidden': this.hiddenPreview
@@ -637,7 +639,7 @@ class DocPreview extends Component {
             {this.renderMessage()}
           </div>
         )}
-        <ReactResizeDetector handleWidth onResize={this.handleResizeWrapper} />
+        <ReactResizeDetector handleWidth onResize={this.handleResizeWrapper} targetRef={this._wrapperRef} />
       </div>
     );
   }

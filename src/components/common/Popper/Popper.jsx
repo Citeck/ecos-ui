@@ -12,6 +12,7 @@ import { getFirstNotNil } from '@/helpers/util';
 import './style.scss';
 
 export default class Popper extends Component {
+  _popperRef = React.createRef();
   static propTypes = {
     className: PropTypes.string,
     popupClassName: PropTypes.string,
@@ -201,8 +202,8 @@ export default class Popper extends Component {
     const { className, onClick } = this.props;
 
     return (
-      <ReactResizeDetector handleWidth onResize={this.handleResize}>
-        <div className={classNames('ecos-popper', className)} onClick={onClick}>
+      <ReactResizeDetector handleWidth onResize={this.handleResize} targetRef={this._popperRef}>
+        <div ref={this._popperRef} className={classNames('ecos-popper', className)} onClick={onClick}>
           {this.renderText()}
           {this.renderIcon()}
         </div>
