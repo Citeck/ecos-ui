@@ -464,6 +464,74 @@
       }
     }
 
+    &-skeleton {
+      background: $color-white;
+      border-radius: $border-radius-large;
+      padding: 20px 16px;
+      margin-bottom: 14px;
+      opacity: 0.45;
+
+      &-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 18px;
+      }
+
+      &-title {
+        height: 14px;
+        width: 65%;
+        border-radius: 4px;
+        background: $color-gray-4;
+        @extend %animationPulse;
+      }
+
+      &-icon {
+        height: 16px;
+        width: 16px;
+        border-radius: 4px;
+        background: $color-gray-4;
+        @extend %animationPulse;
+      }
+
+      &-body {
+        border-top: 2px solid $color-gray-4;
+        padding-top: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      &-line {
+        height: 10px;
+        border-radius: 6px;
+        background: linear-gradient(90deg, $color-gray-4 25%, darken($color-gray-4, 5%) 50%, $color-gray-4 75%);
+        background-size: 200% 100%;
+        animation: kanban-shimmer 1.5s ease-in-out infinite;
+
+        &_wide {
+          width: 80%;
+        }
+
+        &_medium {
+          width: 55%;
+        }
+
+        &_narrow {
+          width: 35%;
+        }
+      }
+    }
+
+    @keyframes kanban-shimmer {
+      0% {
+        background-position: 200% 0;
+      }
+      100% {
+        background-position: -200% 0;
+      }
+    }
+
     &-opener {
       border-radius: 100%;
       background: $color-gray-4;
@@ -611,6 +679,13 @@
         }
       }
     }
+  }
+
+  .ecos-kanban__card-skeleton {
+    padding: 16px;
+    border-radius: $border-radius-standard;
+    border-top: 2px solid var(--primary-color);
+    margin-bottom: 12px;
   }
 
   .ecos-kanban__card {
