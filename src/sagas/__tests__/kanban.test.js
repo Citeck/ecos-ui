@@ -442,8 +442,11 @@ describe('kanban sagas tests', () => {
   });
 
   it('sagaMoveCard > there is _some data', async () => {
-    const dataCards = [data.journalData];
-    expect(dataCards).toHaveLength(1);
+    const dataCards = [
+      { status: 'some-id-1', records: [{ id: '1', cardId: '1', attributes: {} }, { id: '2', cardId: '2', attributes: {} }], totalCount: 2 },
+      { status: 'some-id-2', records: [], totalCount: 0 }
+    ];
+    expect(dataCards).toHaveLength(2);
     expect(get(dataCards, '[0].records')).toHaveLength(2);
 
     const dispatched = await wrapRunSaga(
