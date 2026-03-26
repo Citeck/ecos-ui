@@ -20,7 +20,7 @@ export const ArtifactEditPerms = {
   COPY: 'COPY',
   EDIT: 'EDIT',
   NONE: 'NONE'
-}
+};
 
 class AuthorityService {
   async getAuthorityName(authority: string | string[]): Promise<string | string[]> {
@@ -104,11 +104,11 @@ class AuthorityService {
 
   async getArtifactPerms(recordId: string): Promise<string> {
     if (!recordId) {
-      return ArtifactEditPerms.NONE
+      return ArtifactEditPerms.NONE;
     }
-    const isAdmin = await this.isCurrentUserAdmin()
+    const isAdmin = await this.isCurrentUserAdmin();
     if (recordId.includes('type$')) {
-      if (isAdmin || await this.isCurrentUserManagerOfCurrentWs()) {
+      if (isAdmin || (await this.isCurrentUserManagerOfCurrentWs())) {
         return ArtifactEditPerms.COPY;
       } else {
         return ArtifactEditPerms.NONE;
@@ -117,10 +117,13 @@ class AuthorityService {
     if (isAdmin) {
       return ArtifactEditPerms.EDIT;
     }
-    const recAtts = await Records.get(recordId).load({
-      'canWrite': PERMISSION_WRITE_ATTR,
-      'isSystem': 'system?bool!'
-    }, true)
+    const recAtts = await Records.get(recordId).load(
+      {
+        canWrite: PERMISSION_WRITE_ATTR,
+        isSystem: 'system?bool!'
+      },
+      true
+    );
 
     if (recAtts['canWrite']) {
       return ArtifactEditPerms.EDIT;
@@ -159,7 +162,7 @@ class AuthorityService {
 
   private async isCurrentUserManagerOfCurrentWs(): Promise<boolean> {
     if (!getEnabledWorkspaces()) {
-      return false
+      return false;
     }
     return authorityApi.isManagerCurrentUser();
   }

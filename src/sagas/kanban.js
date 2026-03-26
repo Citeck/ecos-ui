@@ -76,7 +76,9 @@ function buildCardAttrMap(formProps, boardConfig) {
 
   if (boardConfig.cardTitleTemplate) {
     const templateAttrs = EcosFormUtils.getAttrsFromTemplate(boardConfig.cardTitleTemplate);
-    templateAttrs.forEach(key => { attrMap[key] = key; });
+    templateAttrs.forEach(key => {
+      attrMap[key] = key;
+    });
   }
 
   if (boardConfig.coloredAttr) {
@@ -92,7 +94,9 @@ function collectRecordRefsFromSwimlanes(swimlanes, columns) {
     (swimlanes || []).forEach(sl => {
       const cell = sl.cells[col.id];
       if (cell && cell.records) {
-        cell.records.forEach(rec => { if (rec.cardId) refs.push(rec.cardId); });
+        cell.records.forEach(rec => {
+          if (rec.cardId) refs.push(rec.cardId);
+        });
       }
     });
     return refs;
@@ -122,7 +126,16 @@ function findCardInDataCards(dataCards, recordRef) {
   return null;
 }
 
-function* buildSwimlaneCellQueryParams({ api, stateId, boardConfig, formProps, swimlaneGrouping, swimlaneId, journalConfig, journalSetting }) {
+function* buildSwimlaneCellQueryParams({
+  api,
+  stateId,
+  boardConfig,
+  formProps,
+  swimlaneGrouping,
+  swimlaneId,
+  journalConfig,
+  journalSetting
+}) {
   const params = yield getGridParams({ journalConfig, journalSetting, pagination: DEFAULT_PAGINATION });
   const predicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(params.predicates));
 
@@ -144,9 +157,10 @@ function* buildSwimlaneCellQueryParams({ api, stateId, boardConfig, formProps, s
 
   const journalColumns = cloneDeep(journalConfig.columns);
 
-  const swimlaneAttrPredicate = swimlaneId === '__unassigned__'
-    ? { t: 'empty', att: swimlaneGrouping.attribute }
-    : { t: 'eq', att: swimlaneGrouping.attribute, val: swimlaneId };
+  const swimlaneAttrPredicate =
+    swimlaneId === '__unassigned__'
+      ? { t: 'empty', att: swimlaneGrouping.attribute }
+      : { t: 'eq', att: swimlaneGrouping.attribute, val: swimlaneId };
 
   return {
     queryParams: { params, predicates, searchPredicate, attrMap, journalColumns, swimlaneAttrPredicate },
@@ -270,9 +284,7 @@ export function* sagaGetBoardData({ api }, { payload }) {
     }
 
     // Extract colored formatter column for card border coloring (used in both grouped and non-grouped modes)
-    const coloredColumn = (journalConfig.columns || []).find(
-      col => get(col, 'newFormatter.type') === 'colored'
-    );
+    const coloredColumn = (journalConfig.columns || []).find(col => get(col, 'newFormatter.type') === 'colored');
     if (coloredColumn) {
       boardConfig.coloredAttr = coloredColumn.attribute || coloredColumn.dataField;
       boardConfig.colorMap = get(coloredColumn, 'newFormatter.config.color', {});
@@ -451,7 +463,7 @@ export function* sagaGetData({ api }, { payload }) {
     yield put(setDataCards({ stateId, dataCards }));
     yield put(setTotalCount({ stateId, totalCount }));
     if (isEmpty(kanbanSettings)) {
-      const hasWritePermission = yield call([AuthorityService, AuthorityService.hasConfigWritePermission], urlProps.boardId);
+      const hasWritePermission = yield call([AuthorityService, AuthorityService.hasConfigWritePermission], boardConfig.id);
       yield put(setKanbanSettings({ stateId, kanbanSettings: journalSetting.kanban || {}, hasWritePermission }));
     }
     yield sagaGetActions({ api }, { payload: { boardConfig, newRecordRefs, stateId } });
@@ -621,11 +633,7 @@ function* reloadColumns({ api, stateId, boardConfig, columnIds }) {
         searchPredicate
       });
 
-      const res = yield call(
-        [JournalsService, JournalsService.getJournalData],
-        journalConfig,
-        { ...settings, columns: journalColumns }
-      );
+      const res = yield call([JournalsService, JournalsService.getJournalData], journalConfig, { ...settings, columns: journalColumns });
 
       const records = processCardRecords(res.records, inputByKey, boardConfig);
       updatedDataCards[colIndex] = { ...updatedDataCards[colIndex], records, totalCount: res.totalCount || 0 };
@@ -655,7 +663,14 @@ function* reloadSwimlaneCells({ api, stateId, boardConfig, swimlaneGrouping, cel
       if (!column) return;
 
       const { queryParams, inputByKey } = yield call(buildSwimlaneCellQueryParams, {
-        api, stateId, boardConfig, formProps, swimlaneGrouping, swimlaneId, journalConfig, journalSetting
+        api,
+        stateId,
+        boardConfig,
+        formProps,
+        swimlaneGrouping,
+        swimlaneId,
+        journalConfig,
+        journalSetting
       });
 
       const colPredicate = KanbanConverter.preparePredicate(column);
@@ -668,11 +683,10 @@ function* reloadSwimlaneCells({ api, stateId, boardConfig, swimlaneGrouping, cel
         searchPredicate: queryParams.searchPredicate
       });
 
-      const res = yield call(
-        [JournalsService, JournalsService.getJournalData],
-        journalConfig,
-        { ...settings, columns: queryParams.journalColumns }
-      );
+      const res = yield call([JournalsService, JournalsService.getJournalData], journalConfig, {
+        ...settings,
+        columns: queryParams.journalColumns
+      });
 
       const records = processCardRecords(res.records, inputByKey, boardConfig);
       yield put(setSwimlaneCellData({ stateId, swimlaneId, statusId, records, totalCount: res.totalCount || 0 }));
@@ -951,11 +965,7 @@ export function* sagaLoadSwimlaneValues({ api }, { payload }) {
 
     yield put(setSwimlaneValues({ stateId, swimlanes }));
 
-    yield all(
-      swimlanes.map(sl =>
-        call(sagaLoadSwimlaneCells, { api }, { payload: { stateId, swimlaneId: sl.id } })
-      )
-    );
+    yield all(swimlanes.map(sl => call(sagaLoadSwimlaneCells, { api }, { payload: { stateId, swimlaneId: sl.id } })));
 
     // Load actions for all swimlane records
     const updatedState = yield select(selectKanban, stateId);
@@ -980,7 +990,16 @@ export function* sagaLoadSwimlaneCells({ api }, { payload }) {
     }
 
     const columns = get(journalSetting, 'kanban.columns') || boardConfig.columns || [];
-    const { queryParams, inputByKey } = yield call(buildSwimlaneCellQueryParams, { api, stateId, boardConfig, formProps, swimlaneGrouping, swimlaneId, journalConfig, journalSetting });
+    const { queryParams, inputByKey } = yield call(buildSwimlaneCellQueryParams, {
+      api,
+      stateId,
+      boardConfig,
+      formProps,
+      swimlaneGrouping,
+      swimlaneId,
+      journalConfig,
+      journalSetting
+    });
 
     const swimlane = swimlanes.find(sl => sl.id === swimlaneId);
 
@@ -1000,30 +1019,33 @@ export function* sagaLoadSwimlaneCells({ api }, { payload }) {
 
           settings.pagination = cellPagination;
 
-          const res = yield call(
-            [JournalsService, JournalsService.getJournalData],
-            journalConfig,
-            { ...settings, columns: queryParams.journalColumns }
-          );
+          const res = yield call([JournalsService, JournalsService.getJournalData], journalConfig, {
+            ...settings,
+            columns: queryParams.journalColumns
+          });
 
           const records = processCardRecords(res.records, inputByKey, boardConfig);
 
-          yield put(setSwimlaneCellData({
-            stateId,
-            swimlaneId,
-            statusId: column.id,
-            records,
-            totalCount: res.totalCount || 0
-          }));
+          yield put(
+            setSwimlaneCellData({
+              stateId,
+              swimlaneId,
+              statusId: column.id,
+              records,
+              totalCount: res.totalCount || 0
+            })
+          );
         } catch (e) {
-          yield put(setSwimlaneCellData({
-            stateId,
-            swimlaneId,
-            statusId: column.id,
-            records: [],
-            totalCount: 0,
-            error: e.message
-          }));
+          yield put(
+            setSwimlaneCellData({
+              stateId,
+              swimlaneId,
+              statusId: column.id,
+              records: [],
+              totalCount: 0,
+              error: e.message
+            })
+          );
           console.error('[kanban/sagaLoadSwimlaneCells saga] cell error', e);
         }
       })
@@ -1062,7 +1084,16 @@ export function* sagaLoadMoreSwimlaneCell({ api }, { payload }) {
     yield put(setSwimlaneCellLoading({ stateId, swimlaneId, statusId, isLoading: true }));
     loadingStarted = true;
 
-    const { queryParams, inputByKey } = yield call(buildSwimlaneCellQueryParams, { api, stateId, boardConfig, formProps, swimlaneGrouping, swimlaneId, journalConfig, journalSetting });
+    const { queryParams, inputByKey } = yield call(buildSwimlaneCellQueryParams, {
+      api,
+      stateId,
+      boardConfig,
+      formProps,
+      swimlaneGrouping,
+      swimlaneId,
+      journalConfig,
+      journalSetting
+    });
 
     const colPredicate = KanbanConverter.preparePredicate(column);
     const statusModifiedPredicate = KanbanConverter.getStatusModifiedPredicate(column);
@@ -1082,22 +1113,23 @@ export function* sagaLoadMoreSwimlaneCell({ api }, { payload }) {
 
     settings.pagination = newPagination;
 
-    const res = yield call(
-      [JournalsService, JournalsService.getJournalData],
-      journalConfig,
-      { ...settings, columns: queryParams.journalColumns }
-    );
+    const res = yield call([JournalsService, JournalsService.getJournalData], journalConfig, {
+      ...settings,
+      columns: queryParams.journalColumns
+    });
 
     const newRecords = processCardRecords(res.records, inputByKey, boardConfig);
     const allRecords = [...cell.records, ...newRecords];
 
-    yield put(setSwimlaneCellData({
-      stateId,
-      swimlaneId,
-      statusId,
-      records: allRecords,
-      totalCount: res.totalCount || cell.totalCount
-    }));
+    yield put(
+      setSwimlaneCellData({
+        stateId,
+        swimlaneId,
+        statusId,
+        records: allRecords,
+        totalCount: res.totalCount || cell.totalCount
+      })
+    );
   } catch (e) {
     console.error('[kanban/sagaLoadMoreSwimlaneCell saga] error', e);
   } finally {
@@ -1143,22 +1175,26 @@ export function* sagaMoveSwimlaneCard({ api }, { payload }) {
     // Optimistic update: remove from source cell, add to target cell
     const newFromRecords = [...fromCell.records];
     newFromRecords.splice(cardIndex, 1);
-    yield put(setSwimlaneCellData({
-      stateId,
-      swimlaneId,
-      statusId: fromStatusId,
-      records: newFromRecords,
-      totalCount: fromCell.totalCount - 1
-    }));
+    yield put(
+      setSwimlaneCellData({
+        stateId,
+        swimlaneId,
+        statusId: fromStatusId,
+        records: newFromRecords,
+        totalCount: fromCell.totalCount - 1
+      })
+    );
 
     const newToRecords = [card, ...(toCell ? toCell.records : [])];
-    yield put(setSwimlaneCellData({
-      stateId,
-      swimlaneId,
-      statusId: toStatusId,
-      records: newToRecords,
-      totalCount: (toCell ? toCell.totalCount : 0) + 1
-    }));
+    yield put(
+      setSwimlaneCellData({
+        stateId,
+        swimlaneId,
+        statusId: toStatusId,
+        records: newToRecords,
+        totalCount: (toCell ? toCell.totalCount : 0) + 1
+      })
+    );
 
     const result = yield call(api.kanban.moveRecord, { recordRef, columnId: toStatusId });
 
@@ -1174,23 +1210,27 @@ export function* sagaMoveSwimlaneCard({ api }, { payload }) {
     const swimlaneId = fromSwimlaneId;
 
     if (rollbackFromCell) {
-      yield put(setSwimlaneCellData({
-        stateId,
-        swimlaneId,
-        statusId: fromStatusId,
-        records: rollbackFromCell.records,
-        totalCount: rollbackFromCell.totalCount
-      }));
+      yield put(
+        setSwimlaneCellData({
+          stateId,
+          swimlaneId,
+          statusId: fromStatusId,
+          records: rollbackFromCell.records,
+          totalCount: rollbackFromCell.totalCount
+        })
+      );
     }
 
     if (rollbackToCell) {
-      yield put(setSwimlaneCellData({
-        stateId,
-        swimlaneId,
-        statusId: toStatusId,
-        records: rollbackToCell.records,
-        totalCount: rollbackToCell.totalCount
-      }));
+      yield put(
+        setSwimlaneCellData({
+          stateId,
+          swimlaneId,
+          statusId: toStatusId,
+          records: rollbackToCell.records,
+          totalCount: rollbackToCell.totalCount
+        })
+      );
     }
 
     NotificationManager.error(e.message || t('kanban.error.card-not-moved'), t('error'));
@@ -1226,22 +1266,44 @@ function* refreshSwimlaneCard({ stateId, recordRef, newCardData, newStatus, swim
   if (oldSwimlaneId === targetSwimlaneId && oldStatusId === targetStatusId) {
     const swimlane = swimlanes.find(sl => sl.id === oldSwimlaneId);
     const cell = swimlane.cells[oldStatusId];
-    const updatedRecords = cell.records.map(r =>
-      (r.id === recordRef || r.cardId === recordRef) ? { ...r, ...newCardData } : r
+    const updatedRecords = cell.records.map(r => (r.id === recordRef || r.cardId === recordRef ? { ...r, ...newCardData } : r));
+    yield put(
+      setSwimlaneCellData({
+        stateId,
+        swimlaneId: oldSwimlaneId,
+        statusId: oldStatusId,
+        records: updatedRecords,
+        totalCount: cell.totalCount
+      })
     );
-    yield put(setSwimlaneCellData({ stateId, swimlaneId: oldSwimlaneId, statusId: oldStatusId, records: updatedRecords, totalCount: cell.totalCount }));
   } else {
     const oldSwimlane = swimlanes.find(sl => sl.id === oldSwimlaneId);
     const oldCell = oldSwimlane.cells[oldStatusId];
     const filteredRecords = oldCell.records.filter(r => r.id !== recordRef && r.cardId !== recordRef);
-    yield put(setSwimlaneCellData({ stateId, swimlaneId: oldSwimlaneId, statusId: oldStatusId, records: filteredRecords, totalCount: Math.max(0, oldCell.totalCount - 1) }));
+    yield put(
+      setSwimlaneCellData({
+        stateId,
+        swimlaneId: oldSwimlaneId,
+        statusId: oldStatusId,
+        records: filteredRecords,
+        totalCount: Math.max(0, oldCell.totalCount - 1)
+      })
+    );
 
     const targetSwimlane = swimlanes.find(sl => sl.id === targetSwimlaneId);
     if (!targetSwimlane || !targetSwimlane.cells[targetStatusId]) {
       return false;
     }
     const targetCell = targetSwimlane.cells[targetStatusId];
-    yield put(setSwimlaneCellData({ stateId, swimlaneId: targetSwimlaneId, statusId: targetStatusId, records: [newCardData, ...targetCell.records], totalCount: targetCell.totalCount + 1 }));
+    yield put(
+      setSwimlaneCellData({
+        stateId,
+        swimlaneId: targetSwimlaneId,
+        statusId: targetStatusId,
+        records: [newCardData, ...targetCell.records],
+        totalCount: targetCell.totalCount + 1
+      })
+    );
   }
 
   return true;
@@ -1327,7 +1389,16 @@ export function* sagaRefreshCard({ api }, { payload }) {
     let success;
 
     if (swimlaneGrouping && swimlanes && swimlanes.length > 0) {
-      success = yield* refreshSwimlaneCard({ stateId, recordRef, newCardData, newStatus, swimlanes, swimlaneGrouping, columns, recordData });
+      success = yield* refreshSwimlaneCard({
+        stateId,
+        recordRef,
+        newCardData,
+        newStatus,
+        swimlanes,
+        swimlaneGrouping,
+        columns,
+        recordData
+      });
     } else {
       success = yield* refreshFlatCard({ stateId, recordRef, newCardData, newStatus, dataCards, columns });
     }
