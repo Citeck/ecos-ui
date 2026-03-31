@@ -252,29 +252,7 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
   }
 
   updateVisible = () => {
-    if (this.options.builder || isEmpty(get(this.component, 'logic'))) {
-      return;
-    }
-
-    if (get(this.component, 'hidden') !== get(this.element, 'hidden') && this.element) {
-      if (!!this.component.hidden) {
-        this.element.setAttribute('hidden', true);
-        this.element.style.visibility = 'hidden';
-        this.element.style.position = 'absolute';
-      } else if (
-        this.parent &&
-        this.parent.parent &&
-        this.parent.parent.component.type === 'columns' &&
-        this.parent.parent.component.autoAdjust
-      ) {
-        this.element.style.visibility = 'hidden';
-        this.element.style.position = 'relative';
-      } else {
-        this.element.removeAttribute('hidden');
-        this.element.style.visibility = 'visible';
-        this.element.style.position = 'relative';
-      }
-    }
+    applyCheckboxVisibility(this);
   };
 
   // TODO delete when will fixed in new formiojs version
@@ -408,6 +386,35 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
 
     if (this.labelSpan && this.labelSpan.innerText) {
       this.labelSpan.innerHTML = this.labelSpan.innerText;
+    }
+  }
+}
+
+export function applyCheckboxVisibility(ctx) {
+  if (ctx.options.builder || isEmpty(get(ctx.component, 'logic'))) {
+    return;
+  }
+
+  const shouldBeHidden = !!ctx.component.hidden || ctx._visible === false;
+  const isCurrentlyHidden = !!get(ctx.element, 'hidden');
+
+  if (shouldBeHidden !== isCurrentlyHidden && ctx.element) {
+    if (shouldBeHidden) {
+      ctx.element.setAttribute('hidden', true);
+      ctx.element.style.visibility = 'hidden';
+      ctx.element.style.position = 'absolute';
+    } else if (
+      ctx.parent &&
+      ctx.parent.parent &&
+      ctx.parent.parent.component.type === 'columns' &&
+      ctx.parent.parent.component.autoAdjust
+    ) {
+      ctx.element.style.visibility = 'hidden';
+      ctx.element.style.position = 'relative';
+    } else {
+      ctx.element.removeAttribute('hidden');
+      ctx.element.style.visibility = 'visible';
+      ctx.element.style.position = 'relative';
     }
   }
 }
