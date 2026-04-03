@@ -27,7 +27,6 @@ export default class ColoredFormatter extends BaseFormatter {
     const { cell, row, config = {}, valueIndex: index } = props;
     const {
       color = {},
-      fontColor = '#444444',
       enabledNewJournal = get(window, 'Citeck.constants.NEW_JOURNAL_ENABLED', false),
       showPointer = false,
       defaultColor = ColoredFormatter.DEFAULT_COLOR
@@ -44,7 +43,7 @@ export default class ColoredFormatter extends BaseFormatter {
     }
 
     let colorByScript = this.colorByScript({ Records, cell, row, index }, config.fn);
-    let finalColor = colorByScript || color[key] || color || defaultColor;
+    let finalColor = colorByScript || color[key] || defaultColor;
 
     const isHexColor = ColoredFormatter.isHexColor(finalColor);
 
@@ -54,7 +53,7 @@ export default class ColoredFormatter extends BaseFormatter {
     }
 
     const isHexFinalColor = ColoredFormatter.isHexColor(finalColor);
-    const colorStyle = isHexFinalColor ? { backgroundColor: finalColor, color: fontColor } : {};
+    const colorStyle = isHexFinalColor ? { backgroundColor: finalColor } : {};
     const colorClass = !isHexFinalColor && finalColor ? `value-color-formatter_${finalColor}` : '';
 
     // If defaultColor is not HEX, and it's a supported color, use its class
