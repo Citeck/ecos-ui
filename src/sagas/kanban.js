@@ -927,6 +927,9 @@ export function* sagaLoadSwimlaneValues({ api }, { payload }) {
       : [];
 
     const allPredicates = [...predicates];
+    if (journalConfig.predicate) {
+      allPredicates.push(journalConfig.predicate);
+    }
     if (searchPredicate && searchPredicate.length) {
       allPredicates.push(...(Array.isArray(searchPredicate) ? searchPredicate : [searchPredicate]));
     }
