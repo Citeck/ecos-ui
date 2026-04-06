@@ -418,6 +418,9 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
           .map(([level, args]) => {
             const formattedArgs = args
               .map((arg: any) => {
+                if (arg instanceof Error || (arg && typeof arg === 'object' && typeof arg.message === 'string' && 'stack' in arg)) {
+                  return `${arg.message}${arg.stack ? `\n${arg.stack}` : ''}`;
+                }
                 if (typeof arg === 'object') {
                   return safeStringify(arg, 2);
                 }
@@ -431,13 +434,41 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
 
       if (result !== undefined) {
         if (output) output += '\n\n';
-        const returnValue = typeof result === 'object' ? safeStringify(result, 2) : String(result);
+        const returnValue =
+          result instanceof Error || (result && typeof result === 'object' && typeof result.message === 'string' && 'stack' in result)
+            ? `${result.message}${result.stack ? `\n${result.stack}` : ''}`
+            : typeof result === 'object'
+              ? safeStringify(result, 2)
+              : String(result);
         output += `Return value:\n${returnValue}`;
       }
 
       if (asyncErrors.length > 0) {
         if (output) output += '\n\n';
         output += asyncErrors.map(err => `Error:\n${err.message}${err.stack ? `\n\nStack:\n${err.stack}` : ''}`).join('\n\n');
+      }
+
+      // Show results of unawaited async calls (e.g. Records.get().load() without return/await)
+      if (result === undefined && settled.length > 0) {
+        const asyncResults = settled
+          .filter((r): r is PromiseFulfilledResult<any> => r.status === 'fulfilled' && r.value !== undefined)
+          .map(r => r.value);
+
+        if (asyncResults.length > 0) {
+          if (output) output += '\n\n';
+          const formatted = asyncResults
+            .map((val, i) => {
+              const formatted =
+                val instanceof Error || (val && typeof val === 'object' && typeof val.message === 'string' && 'stack' in val)
+                  ? `${val.message}${val.stack ? `\n${val.stack}` : ''}`
+                  : typeof val === 'object'
+                    ? safeStringify(val, 2)
+                    : String(val);
+              return asyncResults.length === 1 ? formatted : `[${i + 1}] ${formatted}`;
+            })
+            .join('\n\n');
+          output += `Async result:\n${formatted}`;
+        }
       }
 
       setResponse(output || 'Code executed successfully (no output)');

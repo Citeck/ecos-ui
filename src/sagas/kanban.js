@@ -179,12 +179,18 @@ function processCardRecords(records, inputByKey, boardConfig) {
 }
 
 function* updateBoardConfigColors({ boardConfig, journalConfig, stateId }) {
+  if (!boardConfig || !journalConfig) {
+    return;
+  }
   const coloredColumn = (journalConfig.columns || []).find(col => get(col, 'newFormatter.type') === 'colored');
   if (coloredColumn) {
     boardConfig.coloredAttr = coloredColumn.attribute || coloredColumn.dataField;
     boardConfig.colorMap = get(coloredColumn, 'newFormatter.config.color', {});
-    yield put(setBoardConfig({ boardConfig, stateId }));
+  } else {
+    delete boardConfig.coloredAttr;
+    delete boardConfig.colorMap;
   }
+  yield put(setBoardConfig({ boardConfig, stateId }));
 }
 
 export function* sagaGetBoardList({ api }, { payload }) {
