@@ -178,6 +178,15 @@ function processCardRecords(records, inputByKey, boardConfig) {
   });
 }
 
+function* updateBoardConfigColors({ boardConfig, journalConfig, stateId }) {
+  const coloredColumn = (journalConfig.columns || []).find(col => get(col, 'newFormatter.type') === 'colored');
+  if (coloredColumn) {
+    boardConfig.coloredAttr = coloredColumn.attribute || coloredColumn.dataField;
+    boardConfig.colorMap = get(coloredColumn, 'newFormatter.config.color', {});
+    yield put(setBoardConfig({ boardConfig, stateId }));
+  }
+}
+
 export function* sagaGetBoardList({ api }, { payload }) {
   try {
     const { journalId, stateId, enableEmptyData } = payload;
@@ -283,13 +292,7 @@ export function* sagaGetBoardData({ api }, { payload }) {
       journalSetting = yield getJournalSettingFully(api, { journalConfig, stateId }, w);
     }
 
-    // Extract colored formatter column for card border coloring (used in both grouped and non-grouped modes)
-    const coloredColumn = (journalConfig.columns || []).find(col => get(col, 'newFormatter.type') === 'colored');
-    if (coloredColumn) {
-      boardConfig.coloredAttr = coloredColumn.attribute || coloredColumn.dataField;
-      boardConfig.colorMap = get(coloredColumn, 'newFormatter.config.color', {});
-      yield put(setBoardConfig({ boardConfig, stateId }));
-    }
+    yield updateBoardConfigColors({ boardConfig, journalConfig, stateId });
 
     const pagination = DEFAULT_PAGINATION;
 
@@ -768,6 +771,8 @@ export function* sagaApplyFilter({ api }, { payload }) {
     yield put(setKanbanSettings({ stateId, kanbanSettings: kanban || {} }));
     yield put(setPagination({ stateId, pagination }));
 
+    yield updateBoardConfigColors({ boardConfig, journalConfig, stateId });
+
     if (swimlaneGrouping) {
       yield sagaLoadSwimlaneValues({ api }, { payload: { stateId } });
     } else {
@@ -812,6 +817,8 @@ export function* sagaApplyPreset({ api }, { payload }) {
 
     yield put(setKanbanSettings({ stateId, kanbanSettings: kanban || {} }));
     yield put(setPagination({ stateId, pagination }));
+
+    yield updateBoardConfigColors({ boardConfig, journalConfig, stateId });
 
     if (swimlaneGrouping) {
       yield sagaLoadSwimlaneValues({ api }, { payload: { stateId } });
@@ -1488,6 +1495,8 @@ export function* sagaReloadBoardData({ api }, { payload }) {
 
     const { boardConfig, formProps, swimlaneGrouping } = yield select(selectKanban, stateId);
     const { journalConfig, journalSetting } = yield select(selectJournalData, stateId);
+
+    yield updateBoardConfigColors({ boardConfig, journalConfig, stateId });
 
     if (swimlaneGrouping) {
       yield sagaLoadSwimlaneValues({ api }, { payload: { stateId } });
