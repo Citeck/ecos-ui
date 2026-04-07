@@ -2,13 +2,13 @@ import { useState, useRef, useCallback } from 'react';
 import ecosXhr from '@/helpers/ecosXhr';
 import { NotificationManager } from '@/services/notifications';
 
-const DEFAULT_ALLOWED_TYPES = ['.pdf', '.doc', '.docx', '.txt'];
+const DEFAULT_ALLOWED_TYPES = ['.pdf', '.doc', '.docx', '.txt', '.bpmn', '.xml'];
 const DEFAULT_MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
 
 /**
  * Hook for handling file uploads with drag & drop support
  * @param {Object} options - Configuration options
- * @param {string[]} options.allowedTypes - Allowed file extensions (default: ['.pdf', '.doc', '.docx', '.txt'])
+ * @param {string[]} options.allowedTypes - Allowed file extensions (default: ['.pdf', '.doc', '.docx', '.txt', '.bpmn'])
  * @param {number} options.maxSizeBytes - Maximum file size in bytes (default: 10MB)
  * @param {Function} options.onUploadStart - Callback when upload starts
  * @param {Function} options.onUploadComplete - Callback when all uploads complete
