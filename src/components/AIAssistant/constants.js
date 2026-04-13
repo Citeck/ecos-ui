@@ -128,6 +128,7 @@ export const API_ENDPOINTS = {
   UNIVERSAL_CONVERSATION: '/gateway/ai/api/assistant/universal/conversation',
   BPMN_ASYNC: '/gateway/ai/api/assistant/bpmn/async',
   BPMN_STATUS: '/gateway/ai/api/assistant/bpmn',
+  BPMN_CONVERSATION: '/gateway/ai/api/assistant/bpmn/conversation',
   SEND_MAIL: '/gateway/ai/api/assistant/send-mail',
   FILE_UPLOAD: '/gateway/ai/api/assistant/upload-file'
 };

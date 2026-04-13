@@ -17,6 +17,7 @@ const useContextualChat = (options = {}) => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [conversationId, setConversationId] = useState(() => generateUUID());
 
   // Fetch status function for polling
   const fetchStatus = useCallback(async (requestId) => {
@@ -32,22 +33,56 @@ const useContextualChat = (options = {}) => {
     setIsLoading(false);
 
     if (result && contextType === CONTEXT_TYPES.BPMN_EDITOR) {
-      aiAssistantService.handleSubmit(result);
-    }
+      if (result.type === 'TEXT') {
+        // Text answer — display as markdown message in chat
+        setMessages(prevMessages =>
+          prevMessages.map(msg => {
+            if (msg.isProcessing) {
+              return {
+                id: msg.id || generateUUID(),
+                text: result.text || 'Не удалось получить ответ.',
+                sender: 'ai',
+                timestamp: new Date()
+              };
+            }
+            return msg;
+          })
+        );
+      } else if (result.type === 'BPMN' && result.bpmnXml) {
+        // BPMN XML — load into editor
+        aiAssistantService.handleSubmit(result.bpmnXml);
 
-    setMessages(prevMessages =>
-      prevMessages.map(msg => {
-        if (msg.isProcessing) {
-          return {
-            id: msg.id || generateUUID(),
-            text: 'Процесс успешно создан и загружен в редактор.',
-            sender: 'ai',
-            timestamp: new Date()
-          };
-        }
-        return msg;
-      })
-    );
+        setMessages(prevMessages =>
+          prevMessages.map(msg => {
+            if (msg.isProcessing) {
+              return {
+                id: msg.id || generateUUID(),
+                text: 'Процесс успешно создан и загружен в редактор.',
+                sender: 'ai',
+                timestamp: new Date()
+              };
+            }
+            return msg;
+          })
+        );
+      } else {
+        // Unknown or malformed result type
+        console.error('Unexpected BPMN result format:', result);
+        setMessages(prevMessages =>
+          prevMessages.map(msg => {
+            if (msg.isProcessing) {
+              return {
+                ...msg,
+                text: 'Получен неожиданный формат ответа.',
+                isProcessing: false,
+                isError: true
+              };
+            }
+            return msg;
+          })
+        );
+      }
+    }
   }, [contextType]);
 
   // Handle polling error
@@ -121,6 +156,7 @@ const useContextualChat = (options = {}) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: messageToProcess,
+          conversationId: conversationId,
           context: {
             type: contextType,
             ...contextData
@@ -165,7 +201,7 @@ const useContextualChat = (options = {}) => {
 
       setIsLoading(false);
     }
-  }, [message, contextType, startPolling]);
+  }, [message, contextType, conversationId, startPolling]);
 
   // Cancel active request
   const cancelRequest = useCallback(async () => {
@@ -178,9 +214,10 @@ const useContextualChat = (options = {}) => {
 
       if (!response.ok) {
         console.error(`Error cancelling request: ${response.status}`);
-        return;
       }
-
+    } catch (error) {
+      console.error('Error cancelling request:', error);
+    } finally {
       stopPolling();
 
       setMessages(prevMessages =>
@@ -198,16 +235,24 @@ const useContextualChat = (options = {}) => {
       );
 
       setIsLoading(false);
-
-    } catch (error) {
-      console.error('Error cancelling request:', error);
     }
   }, [activeRequestId, stopPolling]);
 
-  // Clear messages
-  const clearMessages = useCallback(() => {
-    setMessages([]);
-  }, []);
+  // Clear messages and conversation memory
+  const clearMessages = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_ENDPOINTS.BPMN_CONVERSATION}/${conversationId}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        setMessages([]);
+        setConversationId(generateUUID());
+      }
+    } catch (error) {
+      console.error('Error clearing BPMN conversation:', error);
+    }
+  }, [conversationId]);
 
   return {
     // State
@@ -215,6 +260,7 @@ const useContextualChat = (options = {}) => {
     messages,
     isLoading,
     activeRequestId,
+    conversationId,
 
     // Setters
     setMessage,
