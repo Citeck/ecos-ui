@@ -62,6 +62,7 @@ export const JOURNAL_VIEW_MODE = {
   DOC_LIB: 'document-library',
   PREVIEW_LIST: 'preview-list',
   KANBAN: 'kanban',
+  HIERARCHY: 'hierarchy',
   WIDGETS: 'widgets-preview'
 };
 
@@ -99,6 +100,7 @@ export const Labels = {
     PREVIEW_LIST: 'journals.view.label.preview-list',
     DOC_LIB: 'journals.view.label.document-library',
     KANBAN: 'journals.view.label.kanban',
+    HIERARCHY: 'journals.view.label.hierarchy',
     WIDGETS_SETTINGS: 'journals.view.label.widgets-settings'
   },
   Menu: {
@@ -134,6 +136,7 @@ export const isTable = vm => vm === JOURNAL_VIEW_MODE.TABLE;
 export const isDocLib = vm => vm === JOURNAL_VIEW_MODE.DOC_LIB;
 export const isPreview = vm => vm === JOURNAL_VIEW_MODE.PREVIEW;
 export const isKanban = vm => vm === JOURNAL_VIEW_MODE.KANBAN;
+export const isHierarchy = vm => vm === JOURNAL_VIEW_MODE.HIERARCHY;
 export const isKanbanOrDocLib = vm => isKanban(vm) || isDocLib(vm);
 export const isPreviewList = vm => vm === JOURNAL_VIEW_MODE.PREVIEW_LIST;
 export const isWidgetsPreview = vm => vm === JOURNAL_VIEW_MODE.WIDGETS;

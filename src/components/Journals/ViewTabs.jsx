@@ -7,9 +7,10 @@ import { connect } from 'react-redux';
 
 import { Tooltip } from '../common';
 import { IcoBtn } from '../common/btns';
+import HierarchyTree from '../common/icons/HierarchyTree';
 import PreviewList from '../common/icons/PreviewList';
 
-import { isDocLib, isKanban, isKanbanOrDocLib, isPreviewList, isTable, JOURNAL_VIEW_MODE as JVM, Labels } from './constants';
+import { isDocLib, isHierarchy, isKanban, isKanbanOrDocLib, isPreviewList, isTable, JOURNAL_VIEW_MODE as JVM, Labels } from './constants';
 
 import { toggleViewMode } from '@/actions/journals';
 import WidgetsPreview from '@/components/common/icons/WidgetsPreview';
@@ -75,7 +76,7 @@ class ViewTabs extends React.Component {
   };
 
   render() {
-    const { isMobile, isDocLibEnabled, isKanbanEnabled, isPreviewListEnabled, viewMode, widgetsConfig } = this.props;
+    const { isMobile, isDocLibEnabled, isKanbanEnabled, isHierarchyEnabled, isPreviewListEnabled, viewMode, widgetsConfig } = this.props;
     const { isLeftPositionWidgets } = widgetsConfig || {};
 
     const { isViewWidgetsPreview } = this.state;
@@ -88,6 +89,7 @@ class ViewTabs extends React.Component {
     const isTableMode = isTable(viewMode);
     const isDocLibMode = isDocLib(viewMode);
     const isKanbanMode = isKanban(viewMode);
+    const isHierarchyMode = isHierarchy(viewMode);
     const isPreviewListMode = isPreviewList(viewMode);
     const target = str => `${this.targetId}-${str}`;
 
@@ -117,6 +119,20 @@ class ViewTabs extends React.Component {
               })}
               onClick={() => this.onToggleViewMode(JVM.KANBAN)}
             />
+          </Tooltip>
+        )}
+        {isHierarchyEnabled && (
+          <Tooltip off={isMobile} target={target(JVM.HIERARCHY)} text={t(Labels.Views.HIERARCHY)} uncontrolled modifiers={tooltipModifiers}>
+            <IcoBtn
+              id={target(JVM.HIERARCHY)}
+              className={classNames(common, {
+                [available]: isHierarchyMode,
+                [disable]: !isHierarchyMode
+              })}
+              onClick={() => this.onToggleViewMode(JVM.HIERARCHY)}
+            >
+              <HierarchyTree />
+            </IcoBtn>
           </Tooltip>
         )}
         {isDocLibEnabled && (
@@ -152,7 +168,7 @@ class ViewTabs extends React.Component {
             </IcoBtn>
           </Tooltip>
         )}
-        {!isKanbanOrDocLib(viewMode) && !isMobile && (
+        {!isKanbanOrDocLib(viewMode) && !isHierarchy(viewMode) && !isMobile && (
           <Tooltip
             off={isMobile}
             target={target(JVM.WIDGETS)}
