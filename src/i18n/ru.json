@@ -3255,5 +3255,18 @@
   "developer-console.panel-right": "Панель справа",
   "developer-console.panel-bottom": "Панель снизу",
   "developer-console.clear-output": "Очистить вывод",
-  "color-picker.placeholder": "Выберите цвет"
+  "color-picker.placeholder": "Выберите цвет",
+  "select-hierarchical.placeholder.single": "Выберите значение",
+  "select-hierarchical.placeholder.multiple": "Выберите значения",
+  "select-hierarchical.selected-count": "Выбрано: {{count}}",
+  "select-hierarchical.empty": "(пусто)",
+  "select-hierarchical.loading": "Загрузка...",
+  "select-hierarchical.untitled": "Без названия",
+  "select-hierarchical.error.association-not-found": "У типа \"{{typeRef}}\" нет ассоциации с атрибутом \"{{attribute}}\". Иерархический выбор недоступен.",
+  "select-hierarchical.error.association-not-self": "Ассоциация \"{{attribute}}\" у типа \"{{typeRef}}\" не является ссылкой на тот же тип (указывает на \"{{target}}\"). Иерархический выбор недоступен.",
+  "select-hierarchical.error.type-not-resolved": "Тип не указан и не может быть определён по текущей записи.",
+  "journals.view.label.hierarchy": "Иерархия",
+  "journals.view.hierarchy.total": "{{count}} элементов",
+  "journals.view.hierarchy.expand-all": "Развернуть всё",
+  "journals.view.hierarchy.collapse-all": "Свернуть всё"
 }

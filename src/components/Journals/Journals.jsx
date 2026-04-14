@@ -17,6 +17,8 @@ import { ActionTypes } from '../Records/actions/constants';
 import JournalsHead from './JournalsHead';
 import JournalsMenu from './JournalsMenu';
 import { DocLibView, KanbanView, PreviewListView, TableView } from './Views';
+
+const HierarchyView = React.lazy(() => import('./Views/HierarchyView'));
 import {
   isDocLib,
   isUnknownView,
@@ -27,6 +29,7 @@ import {
   Labels,
   isTable,
   isKanban,
+  isHierarchy,
   isKanbanOrDocLib,
   isPreview,
   isPreviewList,
@@ -36,6 +39,7 @@ import {
 
 import { getTypeRef } from '@/actions/docLib';
 import { execJournalAction, fetchBreadcrumbs, reloadGrid, setUrl, toggleViewMode } from '@/actions/journals';
+import { checkHierarchyEnabled } from '@/actions/hierarchy';
 import { getBoardList } from '@/actions/kanban';
 import { updateTab } from '@/actions/pageTabs';
 import JournalsPreviewWidgets from '@/components/Journals/JournalsPreviewWidgets/JournalsPreviewWidgets';
@@ -85,6 +89,7 @@ const mapDispatchToProps = (dispatch, props) => {
     execJournalAction: (records, action, context) => dispatch(execJournalAction(w({ records, action, context }))),
     getTypeRef: journalId => dispatch(getTypeRef(w({ journalId }))),
     getBoardList: journalId => dispatch(getBoardList({ journalId, stateId: props.stateId })),
+    checkHierarchyEnabled: journalId => dispatch(checkHierarchyEnabled(w({ journalId }))),
     fetchBreadcrumbs: () => dispatch(fetchBreadcrumbs(w())),
     reloadGrid: pagination => dispatch(reloadGrid(w({ pagination }))),
     updateTab: tab => dispatch(updateTab({ tab }))
@@ -273,6 +278,7 @@ class Journals extends React.Component {
     if (journalId && journalId !== prevState.journalId) {
       this.props.getTypeRef(journalId);
       this.props.getBoardList(journalId);
+      this.props.checkHierarchyEnabled(journalId);
     }
 
     const isEqualQuery = equalsQueryUrls({
@@ -608,6 +614,11 @@ class Journals extends React.Component {
         <DocLibView {...commonProps} />
         <KanbanView {...commonProps} />
         <PreviewListView {...commonProps} />
+        {isHierarchy(this.props.viewMode) && (
+          <React.Suspense fallback={null}>
+            <HierarchyView {...commonProps} />
+          </React.Suspense>
+        )}
         <this.RightMenu />
       </>
     );

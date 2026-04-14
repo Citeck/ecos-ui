@@ -78,6 +78,7 @@ import {
   updateJournalWidgetsConfig
 } from '@/actions/journals';
 import { applyPreset, clearFiltered, reloadBoardData, selectTemplateId, setKanbanSettings } from '@/actions/kanban';
+import { checkHierarchyEnabled, setIsHierarchyEnabled } from '@/actions/hierarchy';
 import { setIsEnabledPreviewList, setLoadingPreviewList, setPreviewListConfig } from '@/actions/previewList';
 import { IJournalsApi, JournalsApi } from '@/api/journals';
 import { ApiJournalConfigJsonType, JournalColumnType, JournalCreateVariantType } from '@/api/journals/types';
@@ -1987,6 +1988,30 @@ export function* sagaFetchBreadcrumbs({ w, api }: IJournalsExtraArgumentsStore) 
   }
 }
 
+function* sagaCheckHierarchyEnabled({ stateId, w }: IJournalsExtraArgumentsStore, action: any) {
+  try {
+    const { journalId } = action.payload;
+    const typeRef: string = yield Records.get(`uiserv/journal@${journalId}`).load('typeRef?id');
+
+    if (!typeRef) {
+      yield put(setIsHierarchyEnabled(w(false)));
+      return;
+    }
+
+    const attrs: Array<{ id: string; type: string; configTypeRef: string; configChild: boolean }> = yield Records.get(typeRef).load(
+      'model.attributes[]{id,type,configTypeRef:config.typeRef,configChild:config.child?bool}'
+    );
+
+    const hasSelfAssoc =
+      Array.isArray(attrs) && attrs.some(a => a.type === 'ASSOC' && a.configTypeRef === typeRef && a.configChild === true);
+
+    yield put(setIsHierarchyEnabled(w(!!hasSelfAssoc)));
+  } catch (e) {
+    console.error('[journals sagaCheckHierarchyEnabled saga error', e);
+    yield put(setIsHierarchyEnabled(w(false)));
+  }
+}
+
 function* saga(ea: IJournalsExtraArgumentsStore) {
   yield takeEvery(getDashletConfig.toString(), wrapSaga, { ...ea, saga: sagaGetDashletConfig });
   yield takeEvery(setDashletConfigByParams.toString(), wrapSaga, { ...ea, saga: sagaSetDashletConfigFromParams });
@@ -2025,6 +2050,7 @@ function* saga(ea: IJournalsExtraArgumentsStore) {
   yield takeEvery(toggleViewMode.toString(), wrapSaga, { ...ea, saga: sagaToggleViewMode });
   yield takeEvery(getNextPage.toString(), wrapSaga, { ...ea, saga: sagaGetNextPage });
   yield takeEvery(fetchBreadcrumbs.toString(), wrapSaga, { ...ea, saga: sagaFetchBreadcrumbs });
+  yield takeLatest(checkHierarchyEnabled.toString(), wrapSaga, { ...ea, saga: sagaCheckHierarchyEnabled });
 }
 
 export default saga;

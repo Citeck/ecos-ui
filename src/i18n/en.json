@@ -3256,5 +3256,18 @@
   "developer-console.panel-right": "Move panel to the right",
   "developer-console.panel-bottom": "Move panel to the bottom",
   "developer-console.clear-output": "Clear output",
-  "color-picker.placeholder": "Select color"
+  "color-picker.placeholder": "Select color",
+  "select-hierarchical.placeholder.single": "Select value",
+  "select-hierarchical.placeholder.multiple": "Select values",
+  "select-hierarchical.selected-count": "{{count}} items selected",
+  "select-hierarchical.empty": "(empty)",
+  "select-hierarchical.loading": "Loading...",
+  "select-hierarchical.untitled": "Untitled",
+  "select-hierarchical.error.association-not-found": "Type \"{{typeRef}}\" does not have an association with attribute \"{{attribute}}\". Hierarchical select is not available.",
+  "select-hierarchical.error.association-not-self": "Association \"{{attribute}}\" on type \"{{typeRef}}\" is not a self-association (points to \"{{target}}\"). Hierarchical select is not available.",
+  "select-hierarchical.error.type-not-resolved": "Type is not specified and could not be resolved from the current record.",
+  "journals.view.label.hierarchy": "Hierarchy",
+  "journals.view.hierarchy.total": "{{count}} items",
+  "journals.view.hierarchy.expand-all": "Expand all",
+  "journals.view.hierarchy.collapse-all": "Collapse all"
 }
