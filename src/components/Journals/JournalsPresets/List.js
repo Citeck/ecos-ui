@@ -15,12 +15,14 @@ import ListItem from './ListItem';
 
 class List extends React.Component {
   componentDidMount() {
-    const { getJournalsData } = this.props;
+    const { getJournalsData, journalSettings } = this.props;
 
-    isFunction(getJournalsData) && getJournalsData({ force: true });
+    if (isFunction(getJournalsData) && (!journalSettings || journalSettings.length <= 1)) {
+      getJournalsData({ force: true });
+    }
   }
 
-  onSelect = setting => {
+  onSelect = (setting) => {
     const { journalSetting = [] } = this.props;
 
     if (journalSetting.id !== setting.id) {
@@ -33,30 +35,30 @@ class List extends React.Component {
     }
   };
 
-  onDelete = item => {
+  onDelete = (item) => {
     this.props.deleteJournalSetting(item.id);
   };
 
-  onEdit = item => {
+  onEdit = (item) => {
     this.props.editJournalSetting(item.id);
   };
 
   filterList = () => {
     const { searchText, journalSettings = [] } = this.props;
-    const compare = item => new RegExp(`(${searchText})`, 'ig').test(get(item, 'displayName'));
+    const compare = (item) => new RegExp(`(${searchText})`, 'ig').test(get(item, 'displayName'));
     return !searchText ? journalSettings : journalSettings.filter(compare);
   };
 
   get renderList() {
     const { journalSettings = [] } = this.props;
-    return this.filterList(journalSettings).map(item => (
+    return this.filterList(journalSettings).map((item) => (
       <ListItem key={get(item, 'id')} onClick={this.onSelect} onDelete={this.onDelete} onEdit={this.onEdit} item={item} />
     ));
   }
 
   get selectedIndex() {
     const { journalSetting, journalSettings = [] } = this.props;
-    return journalSettings.findIndex(item => item.id === (journalSetting.id || ''));
+    return journalSettings.findIndex((item) => item.id === (journalSetting.id || ''));
   }
 
   render() {
@@ -86,7 +88,7 @@ const mapStateToProps = (state, props) => {
     journalSettings: newState.journalSettings,
     journalSetting: newState.journalSetting,
     loading: newState.loading,
-    viewMode
+    viewMode,
   };
 };
 
@@ -95,14 +97,11 @@ const mapDispatchToProps = (dispatch, props) => {
 
   return {
     kanbanResetFilter: () => dispatch(resetFilter({ stateId: props.stateId })),
-    getJournalsData: options => dispatch(getJournalsData(w(options))),
-    deleteJournalSetting: id => dispatch(deleteJournalSetting(w(id))),
-    editJournalSetting: id => dispatch(editJournalSetting(w(id))),
-    openSelectedPreset: id => dispatch(openSelectedPreset(w(id)))
+    getJournalsData: (options) => dispatch(getJournalsData(w(options))),
+    deleteJournalSetting: (id) => dispatch(deleteJournalSetting(w(id))),
+    editJournalSetting: (id) => dispatch(editJournalSetting(w(id))),
+    openSelectedPreset: (id) => dispatch(openSelectedPreset(w(id))),
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(List);
+export default connect(mapStateToProps, mapDispatchToProps)(List);
