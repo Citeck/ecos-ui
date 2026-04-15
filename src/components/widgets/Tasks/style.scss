@@ -132,7 +132,8 @@
 
       &_small-mode {
         flex-wrap: wrap;
-        margin: 13px 0;
+        margin: 12px 0;
+        gap: 8px;
       }
 
       &:not(&_small-mode) > :nth-child(n) {
