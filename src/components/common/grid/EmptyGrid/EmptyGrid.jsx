@@ -7,11 +7,12 @@ class EmptyGrid extends React.Component {
   constructor(props) {
     super(props);
     this._ref = null;
+    this._resizeObserver = null;
     this.state = { height: 0 };
   }
 
   getHeight = () => {
-    if (this._ref) {
+    if (this._ref && this._ref.offsetHeight > 0) {
       return this._ref.offsetHeight + this.props.diff;
     }
 
@@ -20,12 +21,44 @@ class EmptyGrid extends React.Component {
 
   setRef = ref => {
     if (!ref) {
+      this.disconnectObserver();
       return;
     }
 
     this._ref = ref;
 
-    this.setState({ height: ref.offsetHeight + this.props.diff });
+    const height = this.getHeight();
+
+    if (height) {
+      this.setState({ height });
+      return;
+    }
+
+    this.observeUntilVisible();
+  };
+
+  observeUntilVisible = () => {
+    if (this._resizeObserver || typeof ResizeObserver === 'undefined' || !this._ref) {
+      return;
+    }
+
+    this._resizeObserver = new ResizeObserver(() => {
+      const height = this.getHeight();
+
+      if (height) {
+        this.disconnectObserver();
+        this.setState({ height });
+      }
+    });
+
+    this._resizeObserver.observe(this._ref);
+  };
+
+  disconnectObserver = () => {
+    if (this._resizeObserver) {
+      this._resizeObserver.disconnect();
+      this._resizeObserver = null;
+    }
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -34,6 +67,10 @@ class EmptyGrid extends React.Component {
     } else if (this.state.height === undefined) {
       this.setState({ height: this.getHeight() });
     }
+  }
+
+  componentWillUnmount() {
+    this.disconnectObserver();
   }
 
   getChild = height => {
