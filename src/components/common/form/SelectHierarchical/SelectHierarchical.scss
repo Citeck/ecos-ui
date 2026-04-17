@@ -139,6 +139,7 @@
     flex-wrap: wrap;
     gap: 4px;
     width: 100%;
+    min-width: 0;
     padding: 2px 0;
   }
 
@@ -147,6 +148,7 @@
     align-items: center;
     gap: 4px;
     max-width: 100%;
+    min-width: 0;
     padding: 2px 4px 2px 8px;
     background: rgba(var(--primary-color-rgb, 74, 144, 217), 0.08);
     border: $border-width-standard solid rgba(var(--primary-color-rgb, 74, 144, 217), 0.18);
@@ -178,7 +180,8 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: 260px;
+    min-width: 0;
+    flex-shrink: 1;
   }
 
   &__chip-leaf {
@@ -187,7 +190,8 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: 260px;
+    min-width: 0;
+    flex-shrink: 1;
   }
 
   &__chip-skeleton {
@@ -245,8 +249,8 @@
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
     padding: 4px;
     max-height: 320px;
-    overflow-y: auto;
-    min-width: 260px;
+    max-width: calc(100vw - 16px);
+    overflow: auto;
     animation: ecos-select-hierarchical-fade-in 0.15s ease-out;
 
     scrollbar-width: thin;
@@ -435,5 +439,33 @@
     background: #fef2f2;
     color: $color-red-1;
     font-size: $font-size-standard;
+  }
+
+  // ── View-only mode ──
+
+  &_view-only {
+    width: 100%;
+  }
+
+  &__view {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    min-height: 24px;
+    padding: 2px 0;
+    min-width: 0;
+  }
+
+  &__view-empty {
+    color: $text-color-gray;
+    font-size: $font-size-standard;
+  }
+
+  &_view-only &__chip {
+    cursor: default;
+
+    &:hover {
+      background: rgba(var(--primary-color-rgb, 74, 144, 217), 0.08);
+    }
   }
 }

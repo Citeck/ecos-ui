@@ -3268,5 +3268,6 @@
   "journals.view.label.hierarchy": "Иерархия",
   "journals.view.hierarchy.total": "{{count}} элементов",
   "journals.view.hierarchy.expand-all": "Развернуть всё",
-  "journals.view.hierarchy.collapse-all": "Свернуть всё"
+  "journals.view.hierarchy.collapse-all": "Свернуть всё",
+  "journals.view.hierarchy.create": "Создать запись"
 }

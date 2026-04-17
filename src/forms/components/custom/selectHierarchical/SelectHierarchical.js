@@ -78,6 +78,7 @@ export default class SelectHierarchicalFormComponent extends BaseReactComponent 
   async getInitialReactProps() {
     const attributeName = this.getAttributeToEdit();
     const hasExplicitTypeRef = !!this.component.typeRef;
+    const builderMode = !!(this.options && this.options.builder);
 
     const typeRef = await this.resolveTypeRef();
     const associations = typeRef ? await this.loadAssociations(typeRef) : [];
@@ -87,6 +88,8 @@ export default class SelectHierarchicalFormComponent extends BaseReactComponent 
       value: this.dataValue == null ? this.emptyValue : this.dataValue,
       multiple: !!this.component.multiple,
       disabled: this.disabled,
+      viewOnly: !!this.viewOnly,
+      builderMode,
       attribute: attributeName,
       onChange: this.onReactValueChanged
     };
@@ -95,12 +98,20 @@ export default class SelectHierarchicalFormComponent extends BaseReactComponent 
       return { ...baseProps, error: 'TYPE_NOT_RESOLVED' };
     }
 
-    // When typeRef is explicitly set (external reference type), find ANY self-association
-    // on that type. When typeRef is resolved from the record's own type, match by
-    // the form field's attribute name.
-    const association = hasExplicitTypeRef
-      ? associations.find(a => a && a.config === typeRef)
-      : associations.find(a => a && a.id === attributeName);
+    // When typeRef is explicitly set, prefer matching the form field key first
+    // (disambiguates when the type has multiple self-associations like 'parent' and
+    // 'children'), then fall back to any self-association on the type.
+    // When typeRef is implicit (resolved from the record's own type), strictly
+    // require the form field key to match an association on that type.
+    let association;
+    if (hasExplicitTypeRef) {
+      const byName = associations.find(a => a && a.id === attributeName);
+      association = byName && byName.config === typeRef
+        ? byName
+        : associations.find(a => a && a.config === typeRef);
+    } else {
+      association = associations.find(a => a && a.id === attributeName);
+    }
 
     if (!association) {
       return { ...baseProps, typeRef, error: 'ASSOCIATION_NOT_FOUND' };

@@ -48,6 +48,17 @@
       border-color: var(--primary-color);
       color: var(--primary-color);
     }
+
+    &_create {
+      i {
+        font-size: 13px;
+        line-height: 1;
+      }
+
+      &:hover i {
+        color: var(--primary-color);
+      }
+    }
   }
 
   &__bar-count {

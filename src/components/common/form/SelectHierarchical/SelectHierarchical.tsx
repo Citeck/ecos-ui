@@ -25,6 +25,8 @@ interface SelectHierarchicalProps {
   associationTarget?: string;
   error?: ErrorCode;
   disabled?: boolean;
+  viewOnly?: boolean;
+  builderMode?: boolean;
   onChange?: (value: string | string[]) => void;
 }
 
@@ -83,7 +85,7 @@ const extractTypeId = (ref: string): string => {
   return atIdx >= 0 ? ref.substring(atIdx + 1) : ref;
 };
 
-const SelectHierarchical: React.FC<SelectHierarchicalProps> = ({
+const SelectHierarchical = ({
   value,
   multiple,
   typeRef,
@@ -91,8 +93,10 @@ const SelectHierarchical: React.FC<SelectHierarchicalProps> = ({
   associationTarget,
   error,
   disabled,
+  viewOnly,
+  builderMode,
   onChange
-}) => {
+}: SelectHierarchicalProps) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [position, setPosition] = useState<{ top: number; left: number; width: number }>({ top: 0, left: 0, width: 0 });
   const [childrenByParent, setChildrenByParent] = useState<Record<string, TreeNode[]>>({});
@@ -119,7 +123,7 @@ const SelectHierarchical: React.FC<SelectHierarchicalProps> = ({
       return;
     }
 
-    setInternalSelected(prev => (arraysEqual(prev, next) ? prev : next));
+    setInternalSelected((prev: string[]) => (arraysEqual(prev, next) ? prev : next));
   }, [value]);
 
   const selectedRefs = internalSelected;
@@ -128,7 +132,7 @@ const SelectHierarchical: React.FC<SelectHierarchicalProps> = ({
   // Resolve ancestor paths (for breadcrumb chips + auto-expand). Each selected
   // ref walks up the `_parent` chain collecting `_disp` for every ancestor.
   useEffect(() => {
-    const unresolved = selectedRefs.filter(ref => ref && !ancestorsByRef[ref]);
+    const unresolved = selectedRefs.filter((ref: string) => ref && !ancestorsByRef[ref]);
     if (unresolved.length === 0) {
       return;
     }
@@ -156,18 +160,18 @@ const SelectHierarchical: React.FC<SelectHierarchicalProps> = ({
       return [ref, path] as const;
     };
 
-    Promise.all(unresolved.map(loadPath)).then(entries => {
+    Promise.all(unresolved.map(loadPath)).then((entries: ReadonlyArray<readonly [string, AncestorPathItem[]]>) => {
       if (cancelled) {
         return;
       }
-      setAncestorsByRef(prev => {
+      setAncestorsByRef((prev: Record<string, AncestorPathItem[]>) => {
         const next = { ...prev };
         for (const [ref, path] of entries) {
           next[ref] = path;
         }
         return next;
       });
-      setLabelsByRef(prev => {
+      setLabelsByRef((prev: Record<string, string>) => {
         const next = { ...prev };
         for (const [, path] of entries) {
           for (const item of path) {
@@ -194,7 +198,7 @@ const SelectHierarchical: React.FC<SelectHierarchicalProps> = ({
       }
       const key = parentRef || ROOT_KEY;
 
-      setLoadingByParent(prev => ({ ...prev, [key]: true }));
+      setLoadingByParent((prev: Record<string, boolean>) => ({ ...prev, [key]: true }));
 
       const query = parentRef
         ? { t: 'eq', a: '_parent', val: parentRef }
@@ -214,14 +218,14 @@ const SelectHierarchical: React.FC<SelectHierarchicalProps> = ({
           }
         );
 
-        const records: TreeNode[] = (result?.records || []).map(r => ({
+        const records: TreeNode[] = (result?.records || []).map((r: { id: string; name: string; childIds: string[] | null }) => ({
           id: r.id,
           name: r.name || t(Labels.UNTITLED),
           hasChildren: Array.isArray(r.childIds) && r.childIds.length > 0
         }));
 
-        setChildrenByParent(prev => ({ ...prev, [key]: records }));
-        setLabelsByRef(prev => {
+        setChildrenByParent((prev: Record<string, TreeNode[]>) => ({ ...prev, [key]: records }));
+        setLabelsByRef((prev: Record<string, string>) => {
           const next = { ...prev };
           for (const rec of records) {
             if (!next[rec.id]) {
@@ -232,9 +236,9 @@ const SelectHierarchical: React.FC<SelectHierarchicalProps> = ({
         });
       } catch (e) {
         console.error('[SelectHierarchical] failed to load nodes', e);
-        setChildrenByParent(prev => ({ ...prev, [key]: [] }));
+        setChildrenByParent((prev: Record<string, TreeNode[]>) => ({ ...prev, [key]: [] }));
       } finally {
-        setLoadingByParent(prev => {
+        setLoadingByParent((prev: Record<string, boolean>) => {
           const next = { ...prev };
           delete next[key];
           return next;
@@ -286,10 +290,10 @@ const SelectHierarchical: React.FC<SelectHierarchicalProps> = ({
       return;
     }
 
-    setExpanded(prev => {
+    setExpanded((prev: Record<string, boolean>) => {
       let changed = false;
       const next = { ...prev };
-      ancestorsToExpand.forEach(id => {
+      ancestorsToExpand.forEach((id: string) => {
         if (!next[id]) {
           next[id] = true;
           changed = true;
@@ -298,7 +302,7 @@ const SelectHierarchical: React.FC<SelectHierarchicalProps> = ({
       return changed ? next : prev;
     });
 
-    ancestorsToExpand.forEach(id => {
+    ancestorsToExpand.forEach((id: string) => {
       if (!childrenByParent[id] && !loadingByParent[id]) {
         loadChildren(id);
       }
@@ -325,14 +329,14 @@ const SelectHierarchical: React.FC<SelectHierarchicalProps> = ({
 
   const handleToggle = useCallback(() => {
     if (!disabled && !error) {
-      setIsOpen(prev => !prev);
+      setIsOpen((prev: boolean) => !prev);
     }
   }, [disabled, error]);
 
   const handleToggleExpand = useCallback(
     (nodeRef: string) => {
       const willOpen = !expanded[nodeRef];
-      setExpanded(prev => ({ ...prev, [nodeRef]: willOpen }));
+      setExpanded((prev: Record<string, boolean>) => ({ ...prev, [nodeRef]: willOpen }));
       if (willOpen && !childrenByParent[nodeRef] && !loadingByParent[nodeRef]) {
         loadChildren(nodeRef);
       }
@@ -347,7 +351,7 @@ const SelectHierarchical: React.FC<SelectHierarchicalProps> = ({
       }
 
       if (multiple) {
-        const next = selectedSet.has(nodeRef) ? selectedRefs.filter(r => r !== nodeRef) : [...selectedRefs, nodeRef];
+        const next = selectedSet.has(nodeRef) ? selectedRefs.filter((r: string) => r !== nodeRef) : [...selectedRefs, nodeRef];
         setInternalSelected(next);
         lastEmittedRef.current = next;
         onChange?.(next);
@@ -363,7 +367,7 @@ const SelectHierarchical: React.FC<SelectHierarchicalProps> = ({
     [disabled, multiple, selectedRefs, selectedSet, onChange]
   );
 
-  if (error) {
+  if (error && !builderMode) {
     let message: string;
     if (error === 'ASSOCIATION_NOT_FOUND') {
       message = t(Labels.ERROR_ASSOCIATION_NOT_FOUND, { attribute: attribute || '', typeRef: typeRef || '' });
@@ -387,12 +391,15 @@ const SelectHierarchical: React.FC<SelectHierarchicalProps> = ({
 
   const renderSelectedChips = () => {
     if (selectedRefs.length === 0) {
+      if (viewOnly) {
+        return <span className="ecos-select-hierarchical__view-empty">—</span>;
+      }
       return <span className="ecos-select-hierarchical__trigger-placeholder">{placeholderText}</span>;
     }
 
     return (
       <div className="ecos-select-hierarchical__chips">
-        {selectedRefs.map(ref => {
+        {selectedRefs.map((ref: string) => {
           const path = ancestorsByRef[ref];
           const isLoadingPath = !path;
           const fallbackLabel = labelsByRef[ref];
@@ -402,16 +409,16 @@ const SelectHierarchical: React.FC<SelectHierarchicalProps> = ({
               <span
                 key={ref}
                 className="ecos-select-hierarchical__chip ecos-select-hierarchical__chip_loading"
-                onClick={e => e.stopPropagation()}
+                onClick={(e: React.MouseEvent) => e.stopPropagation()}
                 aria-busy="true"
               >
                 <span className="ecos-select-hierarchical__chip-skeleton ecos-select-hierarchical__chip-skeleton_path" />
                 <span className="ecos-select-hierarchical__chip-skeleton ecos-select-hierarchical__chip-skeleton_leaf" />
-                {!disabled && (
+                {!disabled && !viewOnly && (
                   <button
                     type="button"
                     className="ecos-select-hierarchical__chip-close"
-                    onClick={e => {
+                    onClick={(e: React.MouseEvent) => {
                       e.stopPropagation();
                       handleSelect(ref);
                     }}
@@ -424,16 +431,16 @@ const SelectHierarchical: React.FC<SelectHierarchicalProps> = ({
             );
           }
 
-          const fullPathText = path && path.length > 0 ? path.map(p => p.disp).join(' › ') : fallbackLabel || ref;
+          const fullPathText = path && path.length > 0 ? path.map((p: AncestorPathItem) => p.disp).join(' › ') : fallbackLabel || ref;
           const leafText = path && path.length > 0 ? path[path.length - 1].disp : fallbackLabel || ref;
-          const parentPathText = path && path.length > 1 ? path.slice(0, -1).map(p => p.disp).join(' › ') : '';
+          const parentPathText = path && path.length > 1 ? path.slice(0, -1).map((p: AncestorPathItem) => p.disp).join(' › ') : '';
 
           return (
             <span
               key={ref}
               className="ecos-select-hierarchical__chip"
               title={fullPathText}
-              onClick={e => e.stopPropagation()}
+              onClick={(e: React.MouseEvent) => e.stopPropagation()}
             >
               {parentPathText && <span className="ecos-select-hierarchical__chip-path">{parentPathText} ›&nbsp;</span>}
               <span className="ecos-select-hierarchical__chip-leaf">{leafText}</span>
@@ -441,7 +448,7 @@ const SelectHierarchical: React.FC<SelectHierarchicalProps> = ({
                 <button
                   type="button"
                   className="ecos-select-hierarchical__chip-close"
-                  onClick={e => {
+                  onClick={(e: React.MouseEvent) => {
                     e.stopPropagation();
                     handleSelect(ref);
                   }}
@@ -472,7 +479,7 @@ const SelectHierarchical: React.FC<SelectHierarchicalProps> = ({
               className={classNames('ecos-select-hierarchical__chevron', {
                 'ecos-select-hierarchical__chevron_open': isExpanded
               })}
-              onClick={e => {
+              onClick={(e: React.MouseEvent) => {
                 e.stopPropagation();
                 handleToggleExpand(node.id);
               }}
@@ -488,7 +495,7 @@ const SelectHierarchical: React.FC<SelectHierarchicalProps> = ({
               checked={isSelected}
               disabled={disabled}
               onChange={() => handleSelect(node.id)}
-              onClick={e => e.stopPropagation()}
+              onClick={(e: React.MouseEvent) => e.stopPropagation()}
             />
             <span className="ecos-select-hierarchical__name">{node.name}</span>
           </label>
@@ -505,7 +512,7 @@ const SelectHierarchical: React.FC<SelectHierarchicalProps> = ({
                 {t(Labels.EMPTY)}
               </li>
             )}
-            {!isLoading && isLoaded && children!.map(child => renderNode(child, depth + 1))}
+            {!isLoading && isLoaded && children!.map((child: TreeNode) => renderNode(child, depth + 1))}
           </ul>
         )}
       </li>
@@ -514,6 +521,14 @@ const SelectHierarchical: React.FC<SelectHierarchicalProps> = ({
 
   const rootNodes = childrenByParent[ROOT_KEY];
   const isRootLoading = !!loadingByParent[ROOT_KEY];
+
+  if (viewOnly) {
+    return (
+      <div className="ecos-select-hierarchical ecos-select-hierarchical_view-only">
+        <div className="ecos-select-hierarchical__view">{renderSelectedChips()}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="ecos-select-hierarchical">
@@ -543,7 +558,7 @@ const SelectHierarchical: React.FC<SelectHierarchicalProps> = ({
               <div className="ecos-select-hierarchical__info">{t(Labels.EMPTY)}</div>
             )}
             {!isRootLoading && Array.isArray(rootNodes) && rootNodes.length > 0 && (
-              <ul className="ecos-select-hierarchical__tree">{rootNodes.map(n => renderNode(n, 0))}</ul>
+              <ul className="ecos-select-hierarchical__tree">{rootNodes.map((n: TreeNode) => renderNode(n, 0))}</ul>
             )}
           </div>,
           document.body

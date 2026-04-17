@@ -46,6 +46,26 @@ function buildTree(records) {
   return result;
 }
 
+// True when `nodeId` is the same as `ancestorId` or any of its descendants.
+function isDescendantOrSelf(nodeId, ancestorId, tree) {
+  if (!nodeId || !ancestorId) return false;
+  if (nodeId === ancestorId) return true;
+
+  const stack = [ancestorId];
+  const seen = new Set();
+  while (stack.length) {
+    const current = stack.pop();
+    if (seen.has(current)) continue;
+    seen.add(current);
+    const children = tree[current] || [];
+    for (const child of children) {
+      if (child.id === nodeId) return true;
+      stack.push(child.id);
+    }
+  }
+  return false;
+}
+
 function collectAllExpandable(tree) {
   const ids = {};
   for (const key of Object.keys(tree)) {
@@ -79,11 +99,16 @@ const TreeNodeRow = ({
   selectedId,
   sourceId,
   childAssocAttr,
+  canCreate,
+  permissionsById,
   onToggle,
   onClick,
   onReload,
   isParentLevel
 }) => {
+  const nodePerms = permissionsById[node.id] || {};
+  const canWrite = !!nodePerms.canWrite;
+  const canDelete = !!nodePerms.canDelete;
   const isOpen = !!expanded[node.id];
   const isActive = selectedId && selectedId.includes(node.id);
   const children = tree[node.id] || [];
@@ -138,12 +163,13 @@ const TreeNodeRow = ({
     dragCounter.current = 0;
     setIsHoverDrag(false);
     const recordRef = e.dataTransfer && e.dataTransfer.getData('text/plain');
-    if (recordRef && recordRef !== node.id) {
-      const rec = Records.getRecordToEdit(recordRef);
-      rec.att('_parent', node.id);
-      rec.att('_parentAtt', childAssocAttr || 'children');
-      rec.save().then(() => onReload());
-    }
+    if (!recordRef) return;
+    // Disallow drop on self or on any of own descendants — would otherwise create a cycle.
+    if (isDescendantOrSelf(node.id, recordRef, tree)) return;
+    const rec = Records.getRecordToEdit(recordRef);
+    rec.att('_parent', node.id);
+    rec.att('_parentAtt', childAssocAttr || 'children');
+    rec.save().then(() => onReload());
   };
 
   return (
@@ -153,18 +179,18 @@ const TreeNodeRow = ({
           'ehv-summary_active': isActive,
           'ehv-summary_hover-drag': isHoverDrag
         })}
-        draggable
+        draggable={canWrite}
         onClick={() => onClick(node)}
         onClickCapture={e => e.preventDefault()}
-        onDragStart={e => {
+        onDragStart={canWrite ? e => {
           e.stopPropagation();
           e.dataTransfer.setData('text/plain', node.id);
           e.dataTransfer.effectAllowed = 'move';
-        }}
-        onDragEnter={onDragEnter}
-        onDragOver={onDragOver}
-        onDragLeave={onDragLeave}
-        onDrop={onDrop}
+        } : undefined}
+        onDragEnter={canWrite ? onDragEnter : undefined}
+        onDragOver={canWrite ? onDragOver : undefined}
+        onDragLeave={canWrite ? onDragLeave : undefined}
+        onDrop={canWrite ? onDrop : undefined}
       >
         {filteredChildren.length > 0 && (
           <div
@@ -180,13 +206,15 @@ const TreeNodeRow = ({
             <span className="ehv-summary__count">{node.childCount}</span>
           )}
         </label>
-        <div className="ehv-summary__actions">
-          <div className="ehv-summary__actions-inner">
-            <Icon className="icon-edit" onClick={handleEdit} />
-            <Icon className="icon-plus" onClick={handleCreate} />
-            <Icon className="icon-delete" onClick={handleDelete} />
+        {(canWrite || canCreate || canDelete) && (
+          <div className="ehv-summary__actions">
+            <div className="ehv-summary__actions-inner">
+              {canWrite && <Icon className="icon-edit" onClick={handleEdit} />}
+              {canCreate && <Icon className="icon-plus" onClick={handleCreate} />}
+              {canDelete && <Icon className="icon-delete" onClick={handleDelete} />}
+            </div>
           </div>
-        </div>
+        )}
       </summary>
       {isOpen && filteredChildren.length > 0 && (
         <ul className="ehv-summary__children">
@@ -205,6 +233,8 @@ const TreeNodeRow = ({
                 selectedId={selectedId}
                 sourceId={sourceId}
                 childAssocAttr={childAssocAttr}
+                canCreate={canCreate}
+                permissionsById={permissionsById}
                 onToggle={onToggle}
                 onClick={onClick}
                 onReload={onReload}
@@ -236,6 +266,8 @@ const HierarchyView = ({
   const [resolvedTypeId, setResolvedTypeId] = useState('');
   const [resolvedTypeRef, setResolvedTypeRef] = useState('');
   const [childAssocAttr, setChildAssocAttr] = useState('children');
+  const [canCreate, setCanCreate] = useState(false);
+  const [permissionsById, setPermissionsById] = useState({});
 
   // Resolve type from journal
   useEffect(() => {
@@ -257,6 +289,12 @@ const HierarchyView = ({
             if (cancelled || !Array.isArray(attrs)) return;
             const selfAssoc = attrs.find(a => a.type === 'ASSOC' && a.configTypeRef === typeRef && a.configChild === true);
             if (selfAssoc) setChildAssocAttr(selfAssoc.id);
+          });
+
+        Records.get(typeRef)
+          .load('createVariants[]{recordRef}')
+          .then(variants => {
+            if (!cancelled) setCanCreate(Array.isArray(variants) && variants.length > 0);
           });
       });
 
@@ -286,6 +324,19 @@ const HierarchyView = ({
         const treeMap = buildTree(records);
         setTree(treeMap);
         setTotalCount(records.length);
+
+        Promise.all(
+          records.map(r =>
+            Records.get(r.id)
+              .load({ canWrite: 'permissions._has.Write?bool', canDelete: 'permissions._has.Delete?bool' })
+              .then(p => ({ id: r.id, canWrite: !!p.canWrite, canDelete: !!p.canDelete }))
+              .catch(() => ({ id: r.id, canWrite: false, canDelete: false }))
+          )
+        ).then(perms => {
+          const map = {};
+          for (const p of perms) map[p.id] = p;
+          setPermissionsById(map);
+        });
 
         if (!preserveExpanded) {
           const roots = treeMap[ROOT_KEY] || [];
@@ -318,6 +369,14 @@ const HierarchyView = ({
   const rootNodes = tree[ROOT_KEY] || [];
   const hasAnyExpanded = Object.values(expanded).some(Boolean);
 
+  const handleCreateRoot = useCallback(() => {
+    if (!sourceId) return;
+    FormManager.openFormModal({
+      record: `${sourceId}@`,
+      onSubmit: () => loadAllRecords(true)
+    });
+  }, [sourceId, loadAllRecords]);
+
   return (
     <div className={classNames('ecos-hierarchy-view', bodyClassName)}>
       <div ref={bodyTopForwardedRef} className="ecos-hierarchy-view__top">
@@ -337,6 +396,16 @@ const HierarchyView = ({
                   {t('journals.view.hierarchy.total', { count: totalCount })}
                 </span>
               </>
+            )}
+            {sourceId && canCreate && (
+              <button
+                type="button"
+                className="ecos-hierarchy-view__bar-btn ecos-hierarchy-view__bar-btn_create"
+                onClick={handleCreateRoot}
+                title={t('journals.view.hierarchy.create')}
+              >
+                <Icon className="icon-plus" />
+              </button>
             )}
           </div>
           <ViewTabs stateId={stateId} />
@@ -363,6 +432,8 @@ const HierarchyView = ({
                   selectedId={selectedRecordId}
                   sourceId={sourceId}
                   childAssocAttr={childAssocAttr}
+                  canCreate={canCreate}
+                  permissionsById={permissionsById}
                   onToggle={handleToggle}
                   onClick={handleNodeClick}
                   onReload={() => loadAllRecords(true)}
