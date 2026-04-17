@@ -128,8 +128,10 @@
     }
 
     &-avatar {
-      width: 49px;
-      height: 49px;
+      &.ecos-avatar {
+        width: 49px;
+        height: 49px;
+      }
       margin-right: 10px;
       background: $color-gray-7;
 
