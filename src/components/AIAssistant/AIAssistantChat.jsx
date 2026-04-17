@@ -19,6 +19,7 @@ import {
   useUniversalChat,
   useContextualChat
 } from './hooks';
+import { exportChat } from './exportChatHistory';
 import { getStageStatus } from './utils';
 
 import { EVENTS } from '@/components/widgets/BaseWidget';
@@ -198,6 +199,14 @@ const AIAssistantChat = () => {
     removeSelectedTextContext();
     baseHandleClose();
   }, [universalChatHook, contextualChatHook, baseHandleClose, removeSelectedTextContext]);
+
+  const handleExportMarkdown = useCallback(() => {
+    exportChat(currentChat.messages, 'markdown', currentChat.selectedAgent);
+  }, [currentChat.messages, currentChat.selectedAgent]);
+
+  const handleExportHtml = useCallback(() => {
+    exportChat(currentChat.messages, 'html', currentChat.selectedAgent);
+  }, [currentChat.messages, currentChat.selectedAgent]);
 
   const { clearMessages: clearContextualMessages } = contextualChatHook;
 
@@ -420,8 +429,8 @@ const AIAssistantChat = () => {
     fileInputRef.current?.click();
   }, [fileInputRef]);
 
-  // Clear conversation with script context reset
-  const handleClearConversation = useCallback(() => {
+  // Clear conversation with script context reset (keep selected agent)
+  const handleClearConversationKeepAgent = useCallback(() => {
     universalChatHook.clearConversation();
     removeScriptContext();
   }, [universalChatHook, removeScriptContext]);
@@ -526,7 +535,16 @@ const AIAssistantChat = () => {
         }}
         onDragLeave={handleDragLeave}
       >
-        <ChatHeader isMinimized={isMinimized} onMinimize={handleMinimize} onClose={handleClose} agentStatus={universalChatHook.agentStatus} />
+        <ChatHeader
+          isMinimized={isMinimized}
+          onMinimize={handleMinimize}
+          onClose={handleClose}
+          agentStatus={universalChatHook.agentStatus}
+          selectedAgent={universalChatHook.selectedAgent}
+          onExportMarkdown={handleExportMarkdown}
+          onExportHtml={handleExportHtml}
+          hasMessages={currentChat.messages.length > 0}
+        />
 
         {!isMinimized && (
           <>
@@ -572,6 +590,10 @@ const AIAssistantChat = () => {
                     uploadingFiles={uploadingFiles}
                     scriptContext={scriptContext}
                     autoContextArtifacts={universalChatHook.autoContextArtifacts}
+                    selectedAgent={universalChatHook.selectedAgent}
+                    onSelectAgent={universalChatHook.setSelectedAgent}
+                    onClearConversation={handleClearConversationKeepAgent}
+                    hasMessages={universalChatHook.messages.length > 0}
                     onToggleContext={toggleAdditionalContext}
                     onRemoveSelectedText={removeSelectedTextContext}
                     onRemoveUploadedFile={removeUploadedFile}
@@ -589,7 +611,7 @@ const AIAssistantChat = () => {
                   onInputChange={handleInputChange}
                   onKeyDown={handleKeyDown}
                   onFileUploadClick={handleFileUploadClick}
-                  onClearConversation={handleClearConversation}
+                  onClearConversation={handleClearConversationKeepAgent}
                   fileInputRef={fileInputRef}
                   onFileUpload={handleFileUpload}
                 />

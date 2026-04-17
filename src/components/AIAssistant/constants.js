@@ -130,5 +130,6 @@ export const API_ENDPOINTS = {
   BPMN_STATUS: '/gateway/ai/api/assistant/bpmn',
   BPMN_CONVERSATION: '/gateway/ai/api/assistant/bpmn/conversation',
   SEND_MAIL: '/gateway/ai/api/assistant/send-mail',
-  FILE_UPLOAD: '/gateway/ai/api/assistant/upload-file'
+  FILE_UPLOAD: '/gateway/ai/api/assistant/upload-file',
+  AGENT_LIST: '/gateway/ai/api/ai-agent/list'
 };

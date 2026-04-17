@@ -179,4 +179,117 @@
       box-shadow: 0 0 0 3px var(--primary-bg-light, rgba(52, 152, 219, 0.1));
     }
   }
+
+  &__agent-selector-inline {
+    position: relative;
+  }
+
+  &__context-tag--agent {
+    cursor: pointer;
+    border: 1px solid var(--primary-border-light, #bbdefb);
+    background: var(--primary-bg-light, #e3f2fd);
+    color: var(--primary-color);
+    transition: background-color 0.15s;
+    user-select: none;
+
+    &:hover {
+      background: var(--primary-bg-hover, #d0e8fa);
+    }
+
+    &-active {
+      background: var(--primary-color, #2196f3);
+      color: #fff;
+      border-color: var(--primary-color, #2196f3);
+
+      &:hover {
+        opacity: 0.9;
+      }
+    }
+
+    .fa-caret-down {
+      font-size: 10px;
+      margin-left: 2px;
+    }
+  }
+
+  &__agent-dropdown {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    margin-bottom: 4px;
+    min-width: 220px;
+    max-width: 300px;
+    max-height: 300px;
+    overflow-y: auto;
+    background: var(--surface-color, #fff);
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    z-index: 105002;
+    padding: 4px;
+
+    &-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--text-color, #333);
+      font-size: 13px;
+      transition: background-color 0.15s;
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+      }
+
+      &--selected {
+        background-color: rgba(59, 130, 246, 0.1);
+
+        &:hover {
+          background-color: rgba(59, 130, 246, 0.15);
+        }
+      }
+
+      .fa {
+        margin-top: 2px;
+        font-size: 14px;
+        flex-shrink: 0;
+        color: var(--text-color-muted, #666);
+      }
+
+      &-text {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+
+      &-name {
+        font-weight: 500;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      &-desc {
+        font-size: 11px;
+        color: var(--text-color-muted, #999);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+
+    &-divider {
+      height: 1px;
+      background-color: rgba(0, 0, 0, 0.08);
+      margin: 4px 0;
+    }
+
+    &-empty {
+      padding: 12px 10px;
+      text-align: center;
+      color: var(--text-color-muted, #999);
+      font-size: 12px;
+    }
+  }
 }
