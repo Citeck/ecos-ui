@@ -19,9 +19,9 @@ describe('ChatContextTags', () => {
     onRemoveUploadedFile: jest.fn()
   };
 
-  it('returns null when there is no content', () => {
+  it('always renders agent selector even when there is no other content', () => {
     const { container } = render(<ChatContextTags {...defaultProps} />);
-    expect(container.firstChild).toBeNull();
+    expect(container.querySelector('.ai-assistant-chat__agent-selector-inline')).toBeTruthy();
   });
 
   it('renders workspace tag when workspaceContext is provided', () => {
@@ -162,8 +162,10 @@ describe('ChatContextTags', () => {
         />
       );
 
-      const tag = container.querySelector('.ai-assistant-chat__context-tag');
-      expect(tag.querySelector('.fa-database')).toBeTruthy();
+      const tags = container.querySelectorAll('.ai-assistant-chat__context-tag');
+      // First tag is agent selector, record tag follows
+      const recordTag = Array.from(tags).find(t => t.querySelector('.fa-database'));
+      expect(recordTag).toBeTruthy();
       expect(screen.getByText('Test Record')).toBeTruthy();
     });
 
@@ -355,11 +357,12 @@ describe('ChatContextTags', () => {
       expect(screen.getByText('emodel/type@test')).toBeTruthy();
     });
 
-    it('returns null when autoContextArtifacts is the only content but empty', () => {
+    it('renders only agent selector when autoContextArtifacts is empty', () => {
       const { container } = render(
         <ChatContextTags {...defaultProps} autoContextArtifacts={[]} />
       );
-      expect(container.firstChild).toBeNull();
+      expect(container.querySelector('.ai-assistant-chat__agent-selector-inline')).toBeTruthy();
+      expect(container.querySelector('.ai-assistant-chat__context-tag--auto')).toBeNull();
     });
   });
 

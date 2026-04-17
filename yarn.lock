@@ -7618,6 +7618,7 @@ __metadata:
     lexical: ^0.26.0
     lint-staged: 8.2.1
     lodash: 4.17.21
+    marked: ^14.0.0
     moment: 2.29.4
     monaco-editor: ^0.55.1
     npm-run-all: 4.1.5
@@ -12301,6 +12302,15 @@ __metadata:
   bin:
     marked: bin/marked.js
   checksum: 965405cde11d180e5da78cf51074b1947f1e5483ed99691d3ec990a078aa6ca9113cf19bbd44da45473d0e7eec7298255e7d860a650dd5e7aed78ca5a8e0161b
+  languageName: node
+  linkType: hard
+
+"marked@npm:^14.0.0":
+  version: 14.1.4
+  resolution: "marked@npm:14.1.4"
+  bin:
+    marked: bin/marked.js
+  checksum: 6f2f7dd0ba2b8ccfe612185d83521a1264d0707ed6abe2d4a36e437f775844e76db147840a21fb5bd33518b9470c58e0f281e3a2ea1659f0b1e6cdcd4b3a6d3a
   languageName: node
   linkType: hard
 

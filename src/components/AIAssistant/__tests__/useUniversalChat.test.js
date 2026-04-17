@@ -201,3 +201,114 @@ describe('useUniversalChat - autoContextArtifacts', () => {
     expect(result.current.autoContextArtifacts).toEqual([]);
   });
 });
+
+describe('useUniversalChat - selectedAgent', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    global.fetch = jest.fn();
+  });
+
+  it('initializes selectedAgent as null', () => {
+    const { result } = renderHook(() => useUniversalChat());
+    expect(result.current.selectedAgent).toBeNull();
+  });
+
+  it('setSelectedAgent updates selectedAgent state', () => {
+    const { result } = renderHook(() => useUniversalChat());
+    const agent = { id: 'agent-1', name: 'Бизнес-аналитик' };
+
+    act(() => {
+      result.current.setSelectedAgent(agent);
+    });
+
+    expect(result.current.selectedAgent).toEqual(agent);
+  });
+
+  it('setSelectedAgent to null clears agent', () => {
+    const { result } = renderHook(() => useUniversalChat());
+
+    act(() => {
+      result.current.setSelectedAgent({ id: 'agent-1', name: 'Agent' });
+    });
+
+    act(() => {
+      result.current.setSelectedAgent(null);
+    });
+
+    expect(result.current.selectedAgent).toBeNull();
+  });
+
+  it('handleSubmit includes agentRef in request when agent is selected', async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: jest.fn().mockResolvedValue({ requestId: 'req-123' })
+    });
+
+    const { result } = renderHook(() => useUniversalChat());
+
+    act(() => {
+      result.current.setSelectedAgent({ id: 'business-analyst', name: 'Бизнес-аналитик' });
+      result.current.setMessage('test message');
+    });
+
+    await act(async () => {
+      await result.current.handleSubmit({ preventDefault: jest.fn() });
+    });
+
+    const fetchCall = global.fetch.mock.calls[0];
+    const requestBody = JSON.parse(fetchCall[1].body);
+    expect(requestBody.context.agentRef).toBe('emodel/ai-agent@business-analyst');
+  });
+
+  it('handleSubmit does not include agentRef when no agent selected', async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: jest.fn().mockResolvedValue({ requestId: 'req-123' })
+    });
+
+    const { result } = renderHook(() => useUniversalChat());
+
+    act(() => {
+      result.current.setMessage('test message');
+    });
+
+    await act(async () => {
+      await result.current.handleSubmit({ preventDefault: jest.fn() });
+    });
+
+    const fetchCall = global.fetch.mock.calls[0];
+    const requestBody = JSON.parse(fetchCall[1].body);
+    expect(requestBody.context.agentRef).toBeUndefined();
+  });
+
+  it('clearConversation does NOT reset selectedAgent', async () => {
+    global.fetch = jest.fn().mockResolvedValue({ ok: true });
+
+    const { result } = renderHook(() => useUniversalChat());
+    const agent = { id: 'agent-1', name: 'Test Agent' };
+
+    act(() => {
+      result.current.setSelectedAgent(agent);
+    });
+
+    expect(result.current.selectedAgent).toEqual(agent);
+
+    await act(async () => {
+      await result.current.clearConversation();
+    });
+
+    expect(result.current.selectedAgent).toEqual(agent);
+  });
+
+  it('clearConversation resets agentStatus to null', async () => {
+    global.fetch = jest.fn().mockResolvedValue({ ok: true });
+
+    const { result } = renderHook(() => useUniversalChat());
+
+    await act(async () => {
+      await result.current.clearConversation();
+    });
+
+    expect(result.current.agentStatus).toBeNull();
+  });
+});

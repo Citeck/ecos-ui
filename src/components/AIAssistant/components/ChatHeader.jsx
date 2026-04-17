@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import classNames from 'classnames';
 import { Icon } from '../../common';
+import { t } from '@/helpers/export/util';
 import { AGENT_STATUSES } from '../types';
 
 const ACTIVE_AGENT_STATUSES = [
@@ -18,33 +19,83 @@ const AGENT_STATUS_LABELS = {
 };
 
 /**
- * Chat header component with minimize and close buttons
- * @param {Object} props
- * @param {boolean} props.isMinimized - Whether chat is minimized
- * @param {Function} props.onMinimize - Minimize button click handler
- * @param {Function} props.onClose - Close button click handler
- * @param {string} props.title - Header title (default: 'Citeck AI')
- * @param {string|null} props.agentStatus - Current agent status
+ * Chat header component with minimize, close and export buttons
  */
 const ChatHeader = ({
   isMinimized,
   onMinimize,
   onClose,
   title = 'Citeck AI',
-  agentStatus = null
+  agentStatus = null,
+  selectedAgent = null,
+  onExportMarkdown,
+  onExportHtml,
+  hasMessages = false
 }) => {
   const isAgentActive = agentStatus && ACTIVE_AGENT_STATUSES.includes(agentStatus);
+  const [showExportDropdown, setShowExportDropdown] = useState(false);
+  const exportDropdownRef = useRef(null);
+
+  const handleClickOutside = useCallback((event) => {
+    if (exportDropdownRef.current && !exportDropdownRef.current.contains(event.target)) {
+      setShowExportDropdown(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (showExportDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showExportDropdown, handleClickOutside]);
 
   return (
     <div className="ai-assistant-chat__header">
-      <h3 className="ai-assistant-chat__title">{title}</h3>
-      {isAgentActive && (
-        <span className="ai-assistant-chat__agent-badge" title={AGENT_STATUS_LABELS[agentStatus]}>
-          <Icon className="ai-assistant-chat__agent-badge-icon fa fa-robot" />
-          <span className="ai-assistant-chat__agent-badge-text">Agent</span>
-        </span>
-      )}
-      <div className="ai-assistant-chat__header-actions">
+      <div className="ai-assistant-chat__header-left">
+        <h3 className="ai-assistant-chat__title">{selectedAgent ? selectedAgent.name : title}</h3>
+        {isAgentActive && (
+          <span className="ai-assistant-chat__agent-badge" title={AGENT_STATUS_LABELS[agentStatus]}>
+            <Icon className="ai-assistant-chat__agent-badge-icon fa fa-robot" />
+            <span className="ai-assistant-chat__agent-badge-text">Agent</span>
+          </span>
+        )}
+      </div>
+      <div className="ai-assistant-chat__header-actions" ref={exportDropdownRef}>
+        {hasMessages && (
+          <>
+            <button
+              className="ai-assistant-chat__minimize"
+              onClick={() => setShowExportDropdown(!showExportDropdown)}
+              title={t('ai-assistant.export.button-title')}
+            >
+              <Icon className="ai-assistant-chat__icon fa fa-download" />
+            </button>
+            {showExportDropdown && (
+              <div className="ai-assistant-chat__export-dropdown">
+                <div
+                  className="ai-assistant-chat__export-dropdown-item"
+                  onClick={() => {
+                    onExportMarkdown?.();
+                    setShowExportDropdown(false);
+                  }}
+                >
+                  Markdown (.md)
+                </div>
+                <div
+                  className="ai-assistant-chat__export-dropdown-item"
+                  onClick={() => {
+                    onExportHtml?.();
+                    setShowExportDropdown(false);
+                  }}
+                >
+                  HTML (.html)
+                </div>
+              </div>
+            )}
+          </>
+        )}
         <button
           className="ai-assistant-chat__minimize"
           onClick={onMinimize}

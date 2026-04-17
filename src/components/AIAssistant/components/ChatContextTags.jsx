@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import classNames from 'classnames';
 import { Icon } from '../../common';
-import { ADDITIONAL_CONTEXT_TYPES, getContextArtifactIcon, getRecordRefIcon } from '../constants';
+import { ADDITIONAL_CONTEXT_TYPES, API_ENDPOINTS, getContextArtifactIcon, getRecordRefIcon } from '../constants';
 import { getTextByLocale } from '../../../helpers/util';
+import { t } from '@/helpers/export/util';
 
 /**
  * Icon mapping for context types
@@ -28,8 +30,6 @@ const DOCUMENT_TYPE_ICONS = {
 
 /**
  * Get icon class for a document based on its typeDisp
- * @param {Object} document - Document object with optional typeDisp
- * @returns {string} FontAwesome icon class
  */
 export const getDocumentIcon = (document) => {
   if (!document?.typeDisp) return CONTEXT_TYPE_ICONS.documents;
@@ -45,24 +45,128 @@ export const getDocumentIcon = (document) => {
   return CONTEXT_TYPE_ICONS.documents;
 };
 
+/**
+ * Agent selector dropdown component
+ */
+const AgentSelector = ({ selectedAgent, onSelectAgent, onClearConversation, hasMessages }) => {
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [agents, setAgents] = useState([]);
+  const [agentsLoaded, setAgentsLoaded] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const loadAgents = useCallback(async () => {
+    if (agentsLoaded) return;
+    try {
+      const response = await fetch(API_ENDPOINTS.AGENT_LIST);
+      if (response.ok) {
+        const data = await response.json();
+        setAgents(data);
+      }
+    } catch (error) {
+      console.error('Error loading agents:', error);
+    }
+    setAgentsLoaded(true);
+  }, [agentsLoaded]);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setShowDropdown(false);
+      }
+    };
+    if (showDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showDropdown]);
+
+  const handleToggle = () => {
+    if (!showDropdown) loadAgents();
+    setShowDropdown(!showDropdown);
+  };
+
+  const confirmSwitch = () => {
+    return !hasMessages || window.confirm(t('ai-agent.confirm-switch'));
+  };
+
+  const handleSelect = (agent) => {
+    if (selectedAgent?.id === agent.id) {
+      setShowDropdown(false);
+      return;
+    }
+    if (!confirmSwitch()) return;
+    onClearConversation?.();
+    onSelectAgent?.(agent);
+    setShowDropdown(false);
+  };
+
+  const handleDeselect = () => {
+    if (!selectedAgent) {
+      setShowDropdown(false);
+      return;
+    }
+    if (!confirmSwitch()) return;
+    onClearConversation?.();
+    onSelectAgent?.(null);
+    setShowDropdown(false);
+  };
+
+  return (
+    <div className="ai-assistant-chat__agent-selector-inline" ref={dropdownRef}>
+      <button
+        type="button"
+        className={classNames('ai-assistant-chat__context-tag', 'ai-assistant-chat__context-tag--agent', {
+          'ai-assistant-chat__context-tag--agent-active': !!selectedAgent
+        })}
+        onClick={handleToggle}
+      >
+        <Icon className={classNames('fa', selectedAgent ? 'fa-robot' : 'fa-magic')} />
+        <span>{selectedAgent ? selectedAgent.name : 'Citeck AI'}</span>
+        <Icon className="fa fa-caret-down" />
+      </button>
+      {showDropdown && (
+        <div className="ai-assistant-chat__agent-dropdown">
+          <div
+            className={classNames('ai-assistant-chat__agent-dropdown-item', {
+              'ai-assistant-chat__agent-dropdown-item--selected': !selectedAgent
+            })}
+            onClick={handleDeselect}
+          >
+            <Icon className="fa fa-magic" />
+            <div className="ai-assistant-chat__agent-dropdown-item-text">
+              <span className="ai-assistant-chat__agent-dropdown-item-name">Citeck AI</span>
+              <span className="ai-assistant-chat__agent-dropdown-item-desc">{t('ai-agent.universal-assistant')}</span>
+            </div>
+          </div>
+          {agents.length > 0 && <div className="ai-assistant-chat__agent-dropdown-divider" />}
+          {agents.map(agent => (
+            <div
+              key={agent.id}
+              className={classNames('ai-assistant-chat__agent-dropdown-item', {
+                'ai-assistant-chat__agent-dropdown-item--selected': selectedAgent?.id === agent.id
+              })}
+              onClick={() => handleSelect(agent)}
+            >
+              <Icon className="fa fa-robot" />
+              <div className="ai-assistant-chat__agent-dropdown-item-text">
+                <span className="ai-assistant-chat__agent-dropdown-item-name">{agent.name || agent.id}</span>
+                {agent.description && (
+                  <span className="ai-assistant-chat__agent-dropdown-item-desc">{agent.description}</span>
+                )}
+              </div>
+            </div>
+          ))}
+          {agentsLoaded && agents.length === 0 && (
+            <div className="ai-assistant-chat__agent-dropdown-empty">{t('ai-agent.no-agents')}</div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
 
 /**
- * Context tags component showing selected context items
- * @param {Object} props
- * @param {string[]} props.selectedAdditionalContext - Selected context types
- * @param {Object} props.additionalContext - Additional context data (records, documents, attributes)
- * @param {Object} props.selectedTextContext - Selected text context
- * @param {Object} props.scriptContext - Script context data
- * @param {Object} props.workspaceContext - Auto-detected workspace context (not removable)
- * @param {Array} props.uploadedFiles - List of uploaded files
- * @param {Array} props.uploadingFiles - List of files being uploaded
- * @param {Array} props.autoContextArtifacts - Auto-discovered context artifacts
- * @param {Function} props.onToggleContext - Handler to toggle context item
- * @param {Function} props.onRemoveSelectedText - Handler to remove text context
- * @param {Function} props.onRemoveScriptContext - Handler to remove script context
- * @param {Function} props.onRemoveFile - Handler to remove uploaded file
- * @param {Function} props.onRemoveAutoContextArtifact - Handler to remove auto context artifact
- * @param {Function} props.getScriptContextLabel - Function to get script context label
+ * Context tags component showing selected context items and agent selector
  */
 const ChatContextTags = ({
   selectedAdditionalContext = [],
@@ -73,6 +177,10 @@ const ChatContextTags = ({
   uploadedFiles = [],
   uploadingFiles = [],
   autoContextArtifacts = [],
+  selectedAgent,
+  onSelectAgent,
+  onClearConversation,
+  hasMessages,
   onToggleContext,
   onRemoveSelectedText,
   onRemoveScriptContext,
@@ -80,7 +188,8 @@ const ChatContextTags = ({
   onRemoveAutoContextArtifact,
   getScriptContextLabel
 }) => {
-  const hasContent = selectedAdditionalContext.length > 0 ||
+  // Agent selector is always visible
+  const hasContextContent = selectedAdditionalContext.length > 0 ||
     selectedTextContext ||
     uploadedFiles.length > 0 ||
     uploadingFiles.length > 0 ||
@@ -88,10 +197,16 @@ const ChatContextTags = ({
     workspaceContext ||
     autoContextArtifacts.length > 0;
 
-  if (!hasContent) return null;
-
   return (
     <div className="ai-assistant-chat__context-tags">
+      {/* Agent selector (always visible) */}
+      <AgentSelector
+        selectedAgent={selectedAgent}
+        onSelectAgent={onSelectAgent}
+        onClearConversation={onClearConversation}
+        hasMessages={hasMessages}
+      />
+
       {/* Workspace context (auto-detected, not removable) */}
       {workspaceContext && (
         <div className="ai-assistant-chat__context-tag ai-assistant-chat__context-tag--workspace">
