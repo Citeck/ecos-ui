@@ -2,7 +2,7 @@ type: ecos-ui
 properties:
   buildImage: ecos-nodejs-build:1.1
   image:
-    configVersion: v10
+    configVersion: v11
   builds:
     - enterprise: true
       plugins:
