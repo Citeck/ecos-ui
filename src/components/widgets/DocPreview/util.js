@@ -10,6 +10,12 @@ export const Labels = {
   DOWNLOAD: 'doc-preview.download',
   OUT_OF: 'doc-preview.out-of',
 
+  TEXT_TRUNCATED: 'doc-preview.text.truncated',
+  TEXT_LOAD_ERROR: 'doc-preview.text.load-error',
+  TEXT_WRAP_LABEL: 'doc-preview.text.wrap.label',
+  TEXT_WRAP_ON: 'doc-preview.text.wrap.on',
+  TEXT_WRAP_OFF: 'doc-preview.text.wrap.off',
+
   DOC_TRANSITION_MSG: 'doc-preview.doc-transition.msg',
   DOC_TRANSITION_BTN: 'doc-preview.doc-transition.btn',
 
