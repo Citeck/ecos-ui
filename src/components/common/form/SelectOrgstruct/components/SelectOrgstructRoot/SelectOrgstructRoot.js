@@ -1,19 +1,27 @@
 import React, { useContext } from 'react';
 import classNames from 'classnames';
 import InputView from '../InputView';
-// import SelectModal from '../SelectModal';
 import { SelectOrgstructContext } from '../../SelectOrgstructContext';
 import Orgstruct from '../../../../Orgstruct';
 import Loader from '../../../../Loader/Loader';
 
 const SelectOrgstructRoot = () => {
   const context = useContext(SelectOrgstructContext);
-  const { controlProps, selectedRows, setSelectedRows, isSelectModalOpen, toggleSelectModal, onChangeValue, ...orgstructProps } = context;
+  const {
+    controlProps,
+    selectedRows,
+    setSelectedRows,
+    isSelectModalOpen,
+    toggleSelectModal,
+    closeSelectModal,
+    onChangeValue,
+    ...orgstructProps
+  } = context;
   const { isCompact, viewOnly, className, isLoading } = controlProps;
 
   const wrapperClasses = classNames('select-orgstruct', className, {
     'select-orgstruct_compact': isCompact,
-    'select-orgstruct_view-only': viewOnly
+    'select-orgstruct_view-only': viewOnly,
   });
 
   return (
@@ -22,10 +30,10 @@ const SelectOrgstructRoot = () => {
       <InputView />
       {!viewOnly && isSelectModalOpen && (
         <Orgstruct
-          onSubmit={newSelectedRows => {
+          onSubmit={(newSelectedRows) => {
             onChangeValue(newSelectedRows);
             setSelectedRows(newSelectedRows);
-            toggleSelectModal(false);
+            closeSelectModal();
           }}
           onCancelSelect={() => {
             toggleSelectModal(false);

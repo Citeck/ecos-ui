@@ -10,7 +10,7 @@ import {
   COLUMN_DATA_TYPE_AUTHORITY_GROUP,
   COLUMN_DATA_TYPE_CATEGORY,
   COLUMN_DATA_TYPE_NODEREF,
-  COLUMN_DATA_TYPE_TEXT
+  COLUMN_DATA_TYPE_TEXT,
 } from '../../Records/predicates/predicates';
 import EditorScope from './editors/EditorScope';
 import { DEFAULT_TYPE } from './constants';
@@ -22,7 +22,7 @@ const NOT_SORTABLE_TYPES = [
   COLUMN_DATA_TYPE_AUTHORITY,
   COLUMN_DATA_TYPE_AUTHORITY_GROUP,
   COLUMN_DATA_TYPE_CATEGORY,
-  COLUMN_DATA_TYPE_NODEREF
+  COLUMN_DATA_TYPE_NODEREF,
 ];
 
 const GROUPABLE_TYPES = [
@@ -31,7 +31,7 @@ const GROUPABLE_TYPES = [
   COLUMN_DATA_TYPE_AUTHORITY_GROUP,
   COLUMN_DATA_TYPE_CATEGORY,
   COLUMN_DATA_TYPE_NODEREF,
-  COLUMN_DATA_TYPE_TEXT
+  COLUMN_DATA_TYPE_TEXT,
 ];
 
 export const ASSOC_TYPES = ['ASSOC', 'PERSON', 'AUTHORITY_GROUP', 'AUTHORITY', 'CONTENT'];
@@ -41,6 +41,18 @@ for (let type of ASSOC_TYPES) {
   if (mapValue) {
     ASSOC_TYPES.push(mapValue);
   }
+}
+
+/**
+ * Build the attribute key used when saving a journal cell via Records.att().
+ * For assoc-typed columns the backend needs an explicit ?assoc scalar —
+ * without it the default ?str scalar is inferred and silently dropped.
+ */
+export function buildSaveAttKey(attribute, columnType) {
+  if (!attribute || attribute.indexOf('?') !== -1) {
+    return attribute;
+  }
+  return ASSOC_TYPES.includes(columnType) ? `${attribute}?assoc` : attribute;
 }
 
 const getBoolOrElse = (value, orElse) => {
@@ -61,13 +73,13 @@ class JournalColumnsResolver {
     if (!columns) {
       columns = [];
     }
-    return columns.map(c => this._resolveColumn(c));
+    return columns.map((c) => this._resolveColumn(c));
   }
 
   _resolveColumn(data) {
     const column = { ...data };
 
-    ['name', 'attribute', 'schema'].forEach(attr => {
+    ['name', 'attribute', 'schema'].forEach((attr) => {
       if (column[attr] === 'id') {
         column[attr] = LOCAL_ID;
       }
@@ -112,11 +124,11 @@ class JournalColumnsResolver {
       width,
       text: label,
       dataField: name,
-      default: defaultValue
+      default: defaultValue,
     };
 
     updColumn.formatExtraData = { createVariants: updColumn.createVariants };
-    updColumn.filterValue = cell => {
+    updColumn.filterValue = (cell) => {
       let res = cell || '';
       if (res.disp) {
         res = res.disp;
@@ -127,15 +139,15 @@ class JournalColumnsResolver {
     if (!updColumn.newFormatter || !updColumn.newFormatter.type) {
       if (updColumn.type === 'boolean') {
         updColumn.newFormatter = {
-          type: 'bool'
+          type: 'bool',
         };
       } else if (['float', 'double', 'int'].includes(updColumn.type)) {
         updColumn.newFormatter = {
-          type: 'number'
+          type: 'number',
         };
       } else {
         updColumn.newFormatter = {
-          type: 'default'
+          type: 'default',
         };
       }
     }
@@ -147,7 +159,7 @@ class JournalColumnsResolver {
     return updColumn;
   }
 
-  _initEditorRenderer = column => {
+  _initEditorRenderer = (column) => {
     return (editorProps, value, row) => {
       const key = JSON.stringify({ column, editorProps, row });
       const control = EditorService.getEditorControl({
@@ -159,7 +171,7 @@ class JournalColumnsResolver {
         onBlur: editorProps.onBlur,
         editor: column.newEditor,
         multiple: column.multiple,
-        scope: EditorScope.CELL
+        scope: EditorScope.CELL,
       });
 
       if (this.#controls.has(key)) {

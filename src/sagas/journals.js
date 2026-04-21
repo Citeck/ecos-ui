@@ -81,6 +81,7 @@ import {
 } from '../selectors/journals';
 import JournalsService, { EditorService, PresetsServiceApi } from '../components/Journals/service';
 import { isSavedAttValueEqual } from '../components/Journals/service/editors/editorUtils';
+import { buildSaveAttKey } from '../components/Journals/service/journalColumnsResolver';
 import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_PAGINATION, JOURNAL_DASHLET_CONFIG_VERSION } from '../components/Journals/constants';
 import { ParserPredicate } from '../components/Filters/predicates';
 import Records from '../components/Records';
@@ -1021,11 +1022,7 @@ function* sagaSaveRecords({ api, logger, stateId, w }, action) {
       });
     } else {
       const record = yield Records.get(id);
-      for (const att in attributes) {
-        if (attributes.hasOwnProperty(att)) {
-          record.att(att, attributes[att]);
-        }
-      }
+      record.att(buildSaveAttKey(attribute, currentColumn?.type), valueToSave);
       yield record.save();
     }
 

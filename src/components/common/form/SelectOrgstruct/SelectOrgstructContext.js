@@ -14,7 +14,7 @@ export const SelectOrgstructContext = React.createContext();
 
 export const useSelectOrgstructContext = () => useContext(SelectOrgstructContext);
 
-export const SelectOrgstructProvider = props => {
+export const SelectOrgstructProvider = (props) => {
   const { orgStructApi, controlProps } = props;
 
   const {
@@ -35,7 +35,7 @@ export const SelectOrgstructProvider = props => {
     isIncludedAdminGroup,
     dataType,
     rootGroupName,
-    allowedGroupTypes
+    allowedGroupTypes,
   } = controlProps;
 
   const [isSelectModalOpen, toggleSelectModal] = useState(openByDefault);
@@ -44,69 +44,60 @@ export const SelectOrgstructProvider = props => {
   const [tabItems, setTabItems] = useState({
     [TabTypes.LEVELS]: [],
     [TabTypes.USERS]: [],
-    [TabTypes.SELECTED]: []
+    [TabTypes.SELECTED]: [],
   });
 
-  useEffect(
-    () => {
-      !targetId && setTargetId(uniqueId('SelectOrgstruct_'));
-    },
-    [targetId]
-  );
+  useEffect(() => {
+    !targetId && setTargetId(uniqueId('SelectOrgstruct_'));
+  }, [targetId]);
 
   const [isSelectedFetched, setIsSelectedFetched] = useState(false);
 
   const prevDefaultValue = usePrevious(defaultValue);
 
   // reset isSelectedFetched if new previewValue
-  useEffect(
-    () => {
-      if (isEqual(prevDefaultValue, defaultValue)) {
-        return;
-      }
+  useEffect(() => {
+    if (isEqual(prevDefaultValue, defaultValue)) {
+      return;
+    }
 
-      setIsSelectedFetched(false);
-    },
-    [defaultValue]
-  );
+    setIsSelectedFetched(false);
+  }, [defaultValue]);
 
   // set default value
-  useEffect(
-    () => {
-      if (isSelectedFetched) {
-        return;
-      }
+  useEffect(() => {
+    if (isSelectedFetched) {
+      return;
+    }
 
-      setIsSelectedFetched(true);
+    setIsSelectedFetched(true);
 
-      let initValue;
+    let initValue;
 
-      if (multiple && Array.isArray(defaultValue) && defaultValue.length > 0) {
-        initValue = [...defaultValue];
-      } else if (!multiple && Array.isArray(defaultValue)) {
-        initValue = defaultValue.length > 0 ? [defaultValue[0]] : [];
-      } else if (!multiple && !!defaultValue) {
-        initValue = [defaultValue];
-      } else {
-        initValue = [];
-      }
+    if (multiple && Array.isArray(defaultValue) && defaultValue.length > 0) {
+      initValue = [...defaultValue];
+    } else if (!multiple && Array.isArray(defaultValue)) {
+      initValue = defaultValue.length > 0 ? [defaultValue[0]] : [];
+    } else if (!multiple && !!defaultValue) {
+      initValue = [defaultValue];
+    } else {
+      initValue = [];
+    }
 
-      if (Array.isArray(initValue)) {
-        const promises = initValue.map(item => orgStructApi.fetchAuthority(dataType, item));
+    if (Array.isArray(initValue)) {
+      const promises = initValue.map((item) => orgStructApi.fetchAuthority(dataType, item));
 
-        Promise.all(promises)
-          .then(handleResponse)
-          .then(items => items.map(prepareSelected))
-          .then(selectedItems => {
-            setSelectedRows([...selectedItems]);
-          })
-          .catch(_ => _);
-      }
-    },
-    [isSelectedFetched]
-  );
+      Promise.all(promises)
+        .then(handleResponse)
+        .then((items) => items.map(prepareSelected))
+        .then((selectedItems) => {
+          setSelectedRows([...selectedItems]);
+        })
+        .catch((_) => _);
+    }
+  }, [isSelectedFetched]);
 
-  const onChangeValue = selectedList => {
+  const onChangeValue = (selectedList) => {
     const { onChange } = controlProps;
     let value;
 
@@ -124,11 +115,11 @@ export const SelectOrgstructProvider = props => {
         break;
       }
       case dataType === DataTypes.AUTHORITY: {
-        value = getVal(selectedList.map(item => (item.id ? getAuthRef(item.id) : '')));
+        value = getVal(selectedList.map((item) => (item.id ? getAuthRef(item.id) : '')));
         break;
       }
       default: {
-        value = getVal(selectedList.map(item => (item.id ? getRecordRef(item.id) : '')));
+        value = getVal(selectedList.map((item) => (item.id ? getRecordRef(item.id) : '')));
         break;
       }
     }
@@ -140,7 +131,7 @@ export const SelectOrgstructProvider = props => {
     <SelectOrgstructContext.Provider
       value={{
         controlProps: {
-          ...controlProps
+          ...controlProps,
         },
 
         allowedGroupTypes,
@@ -177,6 +168,10 @@ export const SelectOrgstructProvider = props => {
           }
         },
 
+        closeSelectModal: () => {
+          toggleSelectModal(false);
+        },
+
         onCancelSelect: () => {
           toggleSelectModal(false);
 
@@ -187,39 +182,39 @@ export const SelectOrgstructProvider = props => {
 
         onChangeValue,
 
-        deleteSelectedItem: targetId => {
-          const selectedFiltered = tabItems[TabTypes.SELECTED].filter(item => item.id !== targetId);
+        deleteSelectedItem: (targetId) => {
+          const selectedFiltered = tabItems[TabTypes.SELECTED].filter((item) => item.id !== targetId);
 
           setTabItems({
             ...tabItems,
             [TabTypes.SELECTED]: selectedFiltered,
-            [TabTypes.LEVELS]: tabItems[TabTypes.LEVELS].map(item => {
+            [TabTypes.LEVELS]: tabItems[TabTypes.LEVELS].map((item) => {
               if (item.id !== targetId) {
                 return item;
               }
 
               return {
                 ...item,
-                isSelected: false
+                isSelected: false,
               };
             }),
-            [TabTypes.USERS]: tabItems[TabTypes.USERS].map(item => {
+            [TabTypes.USERS]: tabItems[TabTypes.USERS].map((item) => {
               if (item.id !== targetId) {
                 return item;
               }
 
               return {
                 ...item,
-                isSelected: false
+                isSelected: false,
               };
-            })
+            }),
           });
 
-          const newSelectedRows = selectedRows.filter(item => item.id !== targetId);
+          const newSelectedRows = selectedRows.filter((item) => item.id !== targetId);
 
           onChangeValue(newSelectedRows);
           setSelectedRows(newSelectedRows);
-        }
+        },
       }}
     >
       {props.children}
@@ -235,6 +230,6 @@ SelectOrgstructProvider.propTypes = {
     onError: PropTypes.func,
     multiple: PropTypes.bool,
     isCompact: PropTypes.bool,
-    isIncludedAdminGroup: PropTypes.bool
-  })
+    isIncludedAdminGroup: PropTypes.bool,
+  }),
 };
