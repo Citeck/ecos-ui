@@ -18,6 +18,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         label: 'SelectJournal',
         key: 'selectJournal',
         type: 'selectJournal',
+        customJournalId: '',
         customPredicateJs: '',
         customActionRefs: [],
         queryData: null,
@@ -70,6 +71,16 @@ export default class SelectJournalComponent extends BaseReactComponent {
   }
 
   get journalId() {
+    const { customJournalId } = this.component;
+
+    if (customJournalId) {
+      const evaluated = this.evaluate(customJournalId, {}, 'value', '');
+
+      if (evaluated) {
+        return evaluated;
+      }
+    }
+
     let journalId = this.component.journalId || '';
 
     const matches = journalId.match(TEMPLATE_REGEX);
@@ -88,6 +99,17 @@ export default class SelectJournalComponent extends BaseReactComponent {
 
   checkConditions(data) {
     const result = super.checkConditions(data);
+
+    if (this.component.customJournalId) {
+      const journalId = this.evaluate(this.component.customJournalId, {}, 'value', '');
+
+      if (journalId !== this.customJournalIdValue) {
+        this.customJournalIdValue = journalId;
+
+        this.delayedSettingProps.cancel();
+        this.setReactProps({ journalId });
+      }
+    }
 
     if (!this.component.customPredicateJs) {
       return result;
