@@ -43,6 +43,18 @@ for (let type of ASSOC_TYPES) {
   }
 }
 
+/**
+ * Build the attribute key used when saving a journal cell via Records.att().
+ * For assoc-typed columns the backend needs an explicit ?assoc scalar —
+ * without it the default ?str scalar is inferred and silently dropped.
+ */
+export function buildSaveAttKey(attribute, columnType) {
+  if (!attribute || attribute.indexOf('?') !== -1) {
+    return attribute;
+  }
+  return ASSOC_TYPES.includes(columnType) ? `${attribute}?assoc` : attribute;
+}
+
 const getBoolOrElse = (value, orElse) => {
   if (value == null) {
     if (isFunction(orElse)) {

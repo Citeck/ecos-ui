@@ -168,6 +168,10 @@ export const SelectOrgstructProvider = props => {
           }
         },
 
+        closeSelectModal: () => {
+          toggleSelectModal(false);
+        },
+
         onCancelSelect: () => {
           toggleSelectModal(false);
 
