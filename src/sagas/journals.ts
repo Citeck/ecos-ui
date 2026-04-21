@@ -16,6 +16,7 @@ import { call, put, all, race, select, take, takeEvery, takeLatest } from 'redux
 
 import JournalsConverter from '../dto/journals'; // the shortened path is '@/...' breaks the tests
 
+import { checkHierarchyEnabled, setIsHierarchyEnabled } from '@/actions/hierarchy';
 import {
   applyJournalSetting,
   cancelGoToPageJournal,
@@ -78,7 +79,6 @@ import {
   updateJournalWidgetsConfig
 } from '@/actions/journals';
 import { applyPreset, clearFiltered, reloadBoardData, selectTemplateId, setKanbanSettings } from '@/actions/kanban';
-import { checkHierarchyEnabled, setIsHierarchyEnabled } from '@/actions/hierarchy';
 import { setIsEnabledPreviewList, setLoadingPreviewList, setPreviewListConfig } from '@/actions/previewList';
 import { IJournalsApi, JournalsApi } from '@/api/journals';
 import { ApiJournalConfigJsonType, JournalColumnType, JournalCreateVariantType } from '@/api/journals/types';
@@ -87,6 +87,7 @@ import { ParserPredicate } from '@/components/Filters/predicates';
 import { WidgetsConfigType } from '@/components/Journals/JournalsPreviewWidgets/JournalsPreviewWidgets';
 import { DEFAULT_PAGINATION, isKanban, JOURNAL_DASHLET_CONFIG_VERSION } from '@/components/Journals/constants';
 import JournalsService, { EditorService, PresetsServiceApi } from '@/components/Journals/service';
+import { buildSaveAttKey } from '@/components/Journals/service/journalColumnsResolver';
 import Records from '@/components/Records';
 import RecordImpl from '@/components/Records/Record';
 import ActionsRegistry from '@/components/Records/actions/actionsRegistry';
@@ -1436,17 +1437,7 @@ function* sagaSaveRecords({ api, stateId, w }: IJournalsExtraArgumentsStore, act
       });
     } else {
       const record: RecordImpl = yield Records.get(id);
-      for (const att in attributes) {
-        if (attributes.hasOwnProperty(att)) {
-          const attributeValue = attributes[att];
-
-          if (isObject(attributeValue) && !!get(attributeValue, 'value')) {
-            record.att(att, attributeValue.value);
-          } else {
-            record.att(att, attributeValue);
-          }
-        }
-      }
+      record.att(buildSaveAttKey(attribute, currentColumn?.type), valueToSave);
       yield record.save();
     }
 
