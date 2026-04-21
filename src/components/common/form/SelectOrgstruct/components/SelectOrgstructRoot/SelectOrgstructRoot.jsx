@@ -5,11 +5,19 @@ import Loader from '../../../../Loader/Loader';
 import Orgstruct from '../../../../Orgstruct';
 import { SelectOrgstructContext } from '../../SelectOrgstructContext';
 import InputView from '../InputView';
-// import SelectModal from '../SelectModal';
 
 const SelectOrgstructRoot = () => {
   const context = useContext(SelectOrgstructContext);
-  const { controlProps, selectedRows, setSelectedRows, isSelectModalOpen, toggleSelectModal, onChangeValue, ...orgstructProps } = context;
+  const {
+    controlProps,
+    selectedRows,
+    setSelectedRows,
+    isSelectModalOpen,
+    toggleSelectModal,
+    closeSelectModal,
+    onChangeValue,
+    ...orgstructProps
+  } = context;
   const { isCompact, viewOnly, className, isLoading, isSkipSearchInWorkspace } = controlProps;
 
   const wrapperClasses = classNames('select-orgstruct', className, {
@@ -26,7 +34,7 @@ const SelectOrgstructRoot = () => {
           onSubmit={newSelectedRows => {
             onChangeValue(newSelectedRows);
             setSelectedRows(newSelectedRows);
-            toggleSelectModal(false);
+            closeSelectModal();
           }}
           onCancelSelect={() => {
             toggleSelectModal(false);
