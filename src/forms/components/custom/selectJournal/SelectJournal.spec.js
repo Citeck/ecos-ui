@@ -85,4 +85,80 @@ describe('SelectJournal Component', () => {
       done();
     });
   });
+
+  describe('customJournalId', () => {
+    it('Should have empty customJournalId in default schema', () => {
+      expect(SelectJournalComponent.schema().customJournalId).toBe('');
+    });
+
+    it('Should resolve journalId from customJournalId expression using form data', done => {
+      Harness.testCreate(SelectJournalComponent, {
+        ...comp1,
+        customJournalId: 'value = data._parentType === "deal" ? "deals-journal" : "project-journal";'
+      }).then(component => {
+        component.root.data = { ...component.root.data, _parentType: 'deal' };
+        expect(component.journalId).toBe('deals-journal');
+
+        component.root.data = { ...component.root.data, _parentType: 'project' };
+        expect(component.journalId).toBe('project-journal');
+        done();
+      });
+    });
+
+    it('Should fall back to static journalId when customJournalId returns empty', done => {
+      Harness.testCreate(SelectJournalComponent, {
+        ...comp1,
+        journalId: 'static-journal',
+        customJournalId: 'value = "";'
+      }).then(component => {
+        expect(component.journalId).toBe('static-journal');
+        done();
+      });
+    });
+
+    it('checkConditions should push new journalId via setReactProps when customJournalId changes', done => {
+      Harness.testCreate(SelectJournalComponent, {
+        ...comp1,
+        customJournalId: 'value = data._parentType === "deal" ? "deals-journal" : "";'
+      }).then(component => {
+        const setReactPropsSpy = jest.spyOn(component, 'setReactProps').mockImplementation(() => {});
+        const cancelSpy = jest.spyOn(component.delayedSettingProps, 'cancel').mockImplementation(() => {});
+
+        component.root.data = { ...component.root.data, _parentType: 'deal' };
+        component.checkConditions(component.root.data);
+
+        expect(cancelSpy).toHaveBeenCalled();
+        expect(setReactPropsSpy).toHaveBeenCalledWith({ journalId: 'deals-journal' });
+        expect(component.customJournalIdValue).toBe('deals-journal');
+
+        setReactPropsSpy.mockClear();
+        cancelSpy.mockClear();
+
+        // Same data → no further push
+        component.checkConditions(component.root.data);
+        expect(setReactPropsSpy).not.toHaveBeenCalled();
+
+        // Change data → pushed again
+        component.root.data = { ...component.root.data, _parentType: 'project' };
+        component.checkConditions(component.root.data);
+        expect(setReactPropsSpy).toHaveBeenCalledWith({ journalId: '' });
+
+        setReactPropsSpy.mockRestore();
+        cancelSpy.mockRestore();
+        done();
+      });
+    });
+
+    it('checkConditions should not touch React when customJournalId is empty', done => {
+      Harness.testCreate(SelectJournalComponent, comp1).then(component => {
+        const setReactPropsSpy = jest.spyOn(component, 'setReactProps').mockImplementation(() => {});
+
+        component.checkConditions(component.root.data);
+
+        expect(setReactPropsSpy).not.toHaveBeenCalled();
+        setReactPropsSpy.mockRestore();
+        done();
+      });
+    });
+  });
 });

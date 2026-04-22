@@ -175,6 +175,10 @@ export default class SelectJournal extends Component {
 
     if (this.props.journalId !== prevProps.journalId) {
       this.checkJournalId();
+
+      if (prevProps.journalId) {
+        this.resetJournalConfig();
+      }
     }
 
     if (!isEqual(prevState.gridData, this.state.gridData)) {
@@ -212,6 +216,23 @@ export default class SelectJournal extends Component {
       });
     }
   }
+
+  resetJournalConfig = () => {
+    const { onChange, multiple } = this.props;
+
+    this.setState(
+      {
+        journalConfig: { ...emptyJournalConfig },
+        isJournalConfigFetched: false,
+        isGridDataReady: false,
+        filterPredicate: [],
+        selectedRows: [],
+        gridData: { total: 0, data: [], inMemoryData: [], columns: [], selected: [] },
+        value: multiple ? [] : ''
+      },
+      () => isFunction(onChange) && onChange(multiple ? [] : '')
+    );
+  };
 
   checkJournalId = () => {
     const { journalId, onError } = this.props;
