@@ -933,11 +933,34 @@ describe('kanban sagas tests', () => {
       kanban: { [stateId]: { boardConfig: data.boardConfig, formProps: data.formProps, ...swimlaneData, ...kanbanOverrides } }
     });
 
+    const makeSwimlanesWithRoom = () => ([
+      {
+        id: 'priority-high',
+        label: 'High',
+        color: '#ff0000',
+        isCollapsed: false,
+        cells: {
+          'some-id-1': {
+            records: [{ id: 'rec-1', cardId: 'rec-1' }, { id: 'rec-2', cardId: 'rec-2' }],
+            totalCount: 5,
+            pagination: { page: 0, maxItems: 10, skipCount: 0 },
+            isLoading: false
+          },
+          'some-id-2': {
+            records: [{ id: 'rec-3', cardId: 'rec-3' }],
+            totalCount: 1,
+            pagination: { page: 0, maxItems: 10, skipCount: 0 },
+            isLoading: false
+          }
+        }
+      }
+    ]);
+
     it('successful load more', async () => {
       const dispatched = await wrapRunSaga(
         kanban.sagaLoadMoreSwimlaneCell,
         { swimlaneId: 'priority-high', statusId: 'some-id-1' },
-        makeState()
+        makeState({ swimlanes: makeSwimlanesWithRoom() })
       );
 
       const loadingActions = dispatched.filter(d => d.type === setSwimlaneCellLoading().type);
@@ -967,6 +990,59 @@ describe('kanban sagas tests', () => {
       );
 
       expect(dispatched).toHaveLength(0);
+    });
+
+    it('returns early when all records already loaded', async () => {
+      // Default swimlaneData fixture has records.length === totalCount === 2 for this cell.
+      const dispatched = await wrapRunSaga(
+        kanban.sagaLoadMoreSwimlaneCell,
+        { swimlaneId: 'priority-high', statusId: 'some-id-1' },
+        makeState()
+      );
+
+      expect(dispatched).toHaveLength(0);
+      expect(spyGetJournalData).not.toHaveBeenCalled();
+    });
+
+    it('caps totalCount to loaded records when server returns nothing new', async () => {
+      // Simulate the COREDEV-82 scenario: server reports a totalCount larger than what it can
+      // actually return — we must cap to records we have, otherwise "Show more" stays visible.
+      const emptyResponseSpy = jest.spyOn(JournalsService, 'getJournalData').mockResolvedValueOnce({ records: [], totalCount: 99 });
+
+      const swimlanes = makeSwimlanesWithRoom();
+      const dispatched = await wrapRunSaga(
+        kanban.sagaLoadMoreSwimlaneCell,
+        { swimlaneId: 'priority-high', statusId: 'some-id-1' },
+        makeState({ swimlanes })
+      );
+
+      const cellDataAction = dispatched.find(d => d.type === setSwimlaneCellData().type);
+      expect(cellDataAction).toBeDefined();
+      expect(cellDataAction.payload.records).toHaveLength(2);
+      expect(cellDataAction.payload.totalCount).toBe(2);
+
+      emptyResponseSpy.mockRestore();
+    });
+
+    it('dedups overlapping records so duplicates do not inflate the counter', async () => {
+      // Server returns a record the client already has plus a new one.
+      const overlapSpy = jest
+        .spyOn(JournalsService, 'getJournalData')
+        .mockResolvedValueOnce({ records: [{ id: 'rec-2', attributes: {} }, { id: 'rec-new', attributes: {} }], totalCount: 3 });
+
+      const swimlanes = makeSwimlanesWithRoom();
+      const dispatched = await wrapRunSaga(
+        kanban.sagaLoadMoreSwimlaneCell,
+        { swimlaneId: 'priority-high', statusId: 'some-id-1' },
+        makeState({ swimlanes })
+      );
+
+      const cellDataAction = dispatched.find(d => d.type === setSwimlaneCellData().type);
+      expect(cellDataAction).toBeDefined();
+      const ids = cellDataAction.payload.records.map(r => r.id).sort();
+      expect(ids).toEqual(['rec-1', 'rec-2', 'rec-new']);
+
+      overlapSpy.mockRestore();
     });
   });
 });

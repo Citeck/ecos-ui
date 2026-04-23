@@ -1091,6 +1091,11 @@ export function* sagaLoadMoreSwimlaneCell({ api }, { payload }) {
       return;
     }
 
+    const loadedCount = (cell.records || []).length;
+    if (typeof cell.totalCount === 'number' && cell.totalCount > 0 && loadedCount >= cell.totalCount) {
+      return;
+    }
+
     const columns = get(journalSetting, 'kanban.columns') || boardConfig.columns || [];
     const column = columns.find(c => c.id === statusId);
 
@@ -1136,7 +1141,20 @@ export function* sagaLoadMoreSwimlaneCell({ api }, { payload }) {
     });
 
     const newRecords = processCardRecords(res.records, inputByKey, boardConfig);
-    const allRecords = [...cell.records, ...newRecords];
+
+    // Dedup by id: overlapping pages must not inflate records.length.
+    const mergedMap = new Map();
+    (cell.records || []).forEach(r => r && mergedMap.set(r.id, r));
+    newRecords.forEach(r => r && mergedMap.set(r.id, r));
+    const allRecords = [...mergedMap.values()];
+
+    // End-of-data detection: if the server returned fewer records than asked for,
+    // or nothing new after dedup, cap totalCount to what we actually loaded — otherwise
+    // a stale/growing server totalCount keeps "Show more" visible and inflates counters.
+    const returnedCount = (res.records || []).length;
+    const reachedEnd = returnedCount < newPagination.maxItems || allRecords.length === loadedCount;
+    const serverTotalCount = typeof res.totalCount === 'number' ? res.totalCount : cell.totalCount;
+    const nextTotalCount = reachedEnd ? allRecords.length : Math.max(serverTotalCount || 0, allRecords.length);
 
     yield put(
       setSwimlaneCellData({
@@ -1144,7 +1162,7 @@ export function* sagaLoadMoreSwimlaneCell({ api }, { payload }) {
         swimlaneId,
         statusId,
         records: allRecords,
-        totalCount: res.totalCount || cell.totalCount
+        totalCount: nextTotalCount
       })
     );
   } catch (e) {
