@@ -168,7 +168,7 @@ class ViewTabs extends React.Component {
             </IcoBtn>
           </Tooltip>
         )}
-        {!isKanbanOrDocLib(viewMode) && !isHierarchy(viewMode) && !isMobile && (
+        {!isKanbanOrDocLib(viewMode) && !isMobile && (
           <Tooltip
             off={isMobile}
             target={target(JVM.WIDGETS)}

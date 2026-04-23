@@ -1,4 +1,5 @@
 import get from 'lodash/get';
+import isEqual from 'lodash/isEqual';
 
 import Records from '../../../../components/Records';
 import SelectHierarchicalComponent from '../../../../components/common/form/SelectHierarchical';
@@ -62,7 +63,9 @@ export default class SelectHierarchicalFormComponent extends BaseReactComponent 
     }
 
     try {
-      const attributes = await Records.get(typeRef).load('model.attributes[]{id,type,config.typeRef}');
+      const attributes = await Records.get(typeRef).load(
+        'model.attributes[]{id,type,config.typeRef,configChild:config.child?bool}'
+      );
 
       if (!Array.isArray(attributes)) {
         return [];
@@ -78,7 +81,9 @@ export default class SelectHierarchicalFormComponent extends BaseReactComponent 
   async getInitialReactProps() {
     const attributeName = this.getAttributeToEdit();
     const hasExplicitTypeRef = !!this.component.typeRef;
-    const builderMode = !!(this.options && this.options.builder);
+    // Form builder context: `builder` is set on the canvas; `preview` is set on the
+    // small preview pane in the component-properties editor.
+    const builderMode = !!(this.options && (this.options.builder || this.options.preview));
 
     const typeRef = await this.resolveTypeRef();
     const associations = typeRef ? await this.loadAssociations(typeRef) : [];
@@ -123,6 +128,10 @@ export default class SelectHierarchicalFormComponent extends BaseReactComponent 
       return { ...baseProps, typeRef, error: 'ASSOCIATION_NOT_SELF', associationTarget };
     }
 
+    // Remember whether this is a parent-owned ("child") association so we can
+    // protect removed items from cascade-delete on the parent's submit.
+    this._isChildAssoc = !!association.configChild;
+
     // Pass the self-association's attribute id to the React component so it
     // can query children correctly (e.g. "children[]?id" for hasChildren check).
     return { ...baseProps, typeRef, selfAssociation: association, attribute: association.id };
@@ -131,4 +140,33 @@ export default class SelectHierarchicalFormComponent extends BaseReactComponent 
   setReactValue(component, value) {
     this.setReactProps({ value: value == null ? this.emptyValue : value });
   }
+
+  // For "child" self-associations in multi mode, re-parent removed items to null
+  // BEFORE the parent's mutation reaches the backend — otherwise the backend
+  // would treat them as orphans of an owning parent and cascade-delete them.
+  // The user's intent in the hierarchy view is "move to root", not "delete".
+  onReactValueChanged = (value, flags = {}) => {
+    if (isEqual(value, this.dataValue)) {
+      return;
+    }
+
+    if (this._isChildAssoc && this.component.multiple) {
+      const oldValue = Array.isArray(this.dataValue) ? this.dataValue : [];
+      const newValue = Array.isArray(value) ? value : [];
+      const removed = oldValue.filter(id => id && !newValue.includes(id));
+
+      if (removed.length > 0) {
+        Promise.all(
+          removed.map(id => {
+            const rec = Records.getRecordToEdit(id);
+            rec.att('_parent', null);
+            return rec.save();
+          })
+        ).catch(e => console.error('[SelectHierarchical] failed to re-parent removed children', e));
+      }
+    }
+
+    this.setPristine(false);
+    this.updateValue({ skipReactWrapperUpdating: true, ...flags }, value);
+  };
 }

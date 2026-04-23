@@ -48,7 +48,7 @@ function createMockContext(overrides = {}) {
 function mockRecordsLoad(typeRef, modelAttributes) {
   Records.get.mockImplementation(ref => ({
     load: jest.fn().mockImplementation(attr => {
-      if (attr === 'model.attributes[]{id,type,config.typeRef}') {
+      if (attr === 'model.attributes[]{id,type,config.typeRef,configChild:config.child?bool}') {
         return Promise.resolve(ref === typeRef ? modelAttributes : []);
       }
       if (attr === '_type?id') {

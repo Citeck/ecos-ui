@@ -389,11 +389,26 @@ const SelectHierarchical = ({
 
   const placeholderText = t(multiple ? Labels.PLACEHOLDER_MULTIPLE : Labels.PLACEHOLDER_SINGLE);
 
+  const renderViewText = () => {
+    if (selectedRefs.length === 0) {
+      return <span className="ecos-select-hierarchical__view-empty">—</span>;
+    }
+
+    const labels = selectedRefs.map((ref: string) => {
+      const path = ancestorsByRef[ref];
+
+      if (path && path.length > 0) {
+        return path[path.length - 1].disp;
+      }
+
+      return labelsByRef[ref] || ref;
+    });
+
+    return <span className="ecos-select-hierarchical__view-text">{labels.join(', ')}</span>;
+  };
+
   const renderSelectedChips = () => {
     if (selectedRefs.length === 0) {
-      if (viewOnly) {
-        return <span className="ecos-select-hierarchical__view-empty">—</span>;
-      }
       return <span className="ecos-select-hierarchical__trigger-placeholder">{placeholderText}</span>;
     }
 
@@ -523,11 +538,7 @@ const SelectHierarchical = ({
   const isRootLoading = !!loadingByParent[ROOT_KEY];
 
   if (viewOnly) {
-    return (
-      <div className="ecos-select-hierarchical ecos-select-hierarchical_view-only">
-        <div className="ecos-select-hierarchical__view">{renderSelectedChips()}</div>
-      </div>
-    );
+    return <div className="ecos-select-hierarchical ecos-select-hierarchical_view-only">{renderViewText()}</div>;
   }
 
   return (

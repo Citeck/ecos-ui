@@ -445,27 +445,29 @@
 
   &_view-only {
     width: 100%;
+    background: transparent;
+    border: none;
+    padding: 0;
   }
 
-  &__view {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    min-height: 24px;
-    padding: 2px 0;
-    min-width: 0;
+  &__view-text {
+    display: block;
+    color: #444444;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 15px;
+    margin-bottom: 0;
+    width: 100%;
+    word-break: break-word;
   }
 
   &__view-empty {
-    color: $text-color-gray;
-    font-size: $font-size-standard;
-  }
-
-  &_view-only &__chip {
-    cursor: default;
-
-    &:hover {
-      background: rgba(var(--primary-color-rgb, 74, 144, 217), 0.08);
-    }
+    display: block;
+    color: #444444;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 15px;
+    margin-bottom: 0;
+    width: 100%;
   }
 }

@@ -99,7 +99,6 @@ const TreeNodeRow = ({
   selectedId,
   sourceId,
   childAssocAttr,
-  canCreate,
   permissionsById,
   onToggle,
   onClick,
@@ -206,11 +205,11 @@ const TreeNodeRow = ({
             <span className="ehv-summary__count">{node.childCount}</span>
           )}
         </label>
-        {(canWrite || canCreate || canDelete) && (
+        {(canWrite || canDelete) && (
           <div className="ehv-summary__actions">
             <div className="ehv-summary__actions-inner">
               {canWrite && <Icon className="icon-edit" onClick={handleEdit} />}
-              {canCreate && <Icon className="icon-plus" onClick={handleCreate} />}
+              {canWrite && <Icon className="icon-plus" onClick={handleCreate} />}
               {canDelete && <Icon className="icon-delete" onClick={handleDelete} />}
             </div>
           </div>
@@ -233,7 +232,6 @@ const TreeNodeRow = ({
                 selectedId={selectedId}
                 sourceId={sourceId}
                 childAssocAttr={childAssocAttr}
-                canCreate={canCreate}
                 permissionsById={permissionsById}
                 onToggle={onToggle}
                 onClick={onClick}
@@ -266,7 +264,7 @@ const HierarchyView = ({
   const [resolvedTypeId, setResolvedTypeId] = useState('');
   const [resolvedTypeRef, setResolvedTypeRef] = useState('');
   const [childAssocAttr, setChildAssocAttr] = useState('children');
-  const [canCreate, setCanCreate] = useState(false);
+  const [canCreateRoot, setCanCreateRoot] = useState(false);
   const [permissionsById, setPermissionsById] = useState({});
 
   // Resolve type from journal
@@ -294,7 +292,7 @@ const HierarchyView = ({
         Records.get(typeRef)
           .load('createVariants[]{recordRef}')
           .then(variants => {
-            if (!cancelled) setCanCreate(Array.isArray(variants) && variants.length > 0);
+            if (!cancelled) setCanCreateRoot(Array.isArray(variants) && variants.length > 0);
           });
       });
 
@@ -397,7 +395,7 @@ const HierarchyView = ({
                 </span>
               </>
             )}
-            {sourceId && canCreate && (
+            {sourceId && canCreateRoot && (
               <button
                 type="button"
                 className="ecos-hierarchy-view__bar-btn ecos-hierarchy-view__bar-btn_create"
@@ -432,7 +430,6 @@ const HierarchyView = ({
                   selectedId={selectedRecordId}
                   sourceId={sourceId}
                   childAssocAttr={childAssocAttr}
-                  canCreate={canCreate}
                   permissionsById={permissionsById}
                   onToggle={handleToggle}
                   onClick={handleNodeClick}
