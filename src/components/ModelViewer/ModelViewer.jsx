@@ -6,7 +6,6 @@ import React from 'react';
 
 import ecosTask from '../ModelEditor/BPMNModeler/moddle/ecosTask.json';
 import { onlyRenderer } from '../ModelEditor/BPMNModeler/modules';
-import { withoutCanvasScroll } from './BPMNViewer/modules';
 import { ScaleOptions } from '../common/Scaler/util';
 
 import { Sheet } from './Sheet';
@@ -26,7 +25,7 @@ export default class ModelViewer {
       moddleExtensions: {
         ecosTask: ecosTask
       },
-      additionalModules: [onlyRenderer, withoutCanvasScroll]
+      additionalModules: [onlyRenderer]
     });
 
     await modeler.importXML(diagram);
@@ -46,7 +45,7 @@ export default class ModelViewer {
       moddleExtensions: {
         ecosTask: ecosTask
       },
-      additionalModules: [onlyRenderer, withoutCanvasScroll]
+      additionalModules: [onlyRenderer]
     });
 
     if (container) {
