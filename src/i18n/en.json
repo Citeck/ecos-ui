@@ -3258,6 +3258,13 @@
   "gantt.chart.error.load-failed": "Failed to load Gantt settings",
   "gantt.chart.error.save-failed": "Failed to save Gantt settings",
   "gantt.chart.retry": "Retry",
+  "gantt.chart.scale.label": "Scale",
+  "gantt.chart.scale.hours": "Hours",
+  "gantt.chart.scale.days": "Days",
+  "gantt.chart.scale.weeks": "Weeks",
+  "gantt.chart.scale.months": "Months",
+  "gantt.chart.scale.years": "Years",
+  "gantt.chart.empty-state": "Gantt chart is not configured yet. Open the widget settings to pick a data source.",
 
   "developer-console.run-code": "Execute Code",
   "developer-console.output.title": "Output",
