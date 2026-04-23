@@ -8,6 +8,15 @@
   }
 }
 
+// EcosModal-контейнер портится в document.body (сиблинг .formio-dialog) с инлайновым z-index 1050.
+// Любой EcosModal, открытый ПОСЛЕ formio-dialog (например, выбор из журнала на вкладке «Данные»
+// в настройках компонента Select Journal / Select Orgstruct), должен стоять над ним.
+// Комбинатор ~ затрагивает только следующие сиблинги, поэтому EcosFormBuilderModal (идёт в DOM до
+// formio-dialog) остаётся под ним, как и задумано.
+.formio-dialog.formio-dialog-theme-default ~ .ecos-modal-container {
+  z-index: 10002 !important;
+}
+
 .formio-dialog-content .panel.form-builder__panel-js {
   margin-bottom: 10px;
 }
