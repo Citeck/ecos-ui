@@ -222,7 +222,7 @@ class PropertiesDashlet extends BaseWidget {
 
   handleUpdate() {
     if (this.state.wasLastModifiedWithInlineEditor || this.state.wasLastModifiedWithFormSubmit) {
-      this.setState({ wasLastModifiedWithInlineEditor: false, wasLastModifiedWithFormSubmit: false });
+      this.setState({ wasLastModifiedWithInlineEditor: false, wasLastModifiedWithFormSubmit: false, isSaving: false });
       this.checkPermissions();
       return;
     }
