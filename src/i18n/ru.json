@@ -3264,6 +3264,7 @@
   "gantt.chart.scale.months": "Месяцы",
   "gantt.chart.scale.years": "Годы",
   "gantt.chart.empty-state": "Диаграмма ещё не настроена. Откройте настройки виджета, чтобы выбрать источник данных.",
+  "gantt.settings.default-scale.label": "Масштаб по умолчанию",
 
   "developer-console.run-code": "Выполнить",
   "developer-console.output.title": "Вывод консоли",

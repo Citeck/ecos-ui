@@ -3265,6 +3265,7 @@
   "gantt.chart.scale.months": "Months",
   "gantt.chart.scale.years": "Years",
   "gantt.chart.empty-state": "Gantt chart is not configured yet. Open the widget settings to pick a data source.",
+  "gantt.settings.default-scale.label": "Default scale",
 
   "developer-console.run-code": "Execute Code",
   "developer-console.output.title": "Output",
