@@ -310,10 +310,12 @@ const TreeNode = ({
         className={classNames('tree-summary', { active: recordRef?.includes(node.id), hoverDragging: isHoverDragging })}
         data-record={node.id}
       >
-        {filteredChildren.length > 0 && (
+        {filteredChildren.length > 0 ? (
           <div className="tree-summary_btn" onClick={onClickChevron}>
             {isOpen ? <ChevronDownIcon width={16} height={16} /> : <ChevronRightIcon width={16} height={16} />}
           </div>
+        ) : (
+          <div className="tree-summary_btn tree-summary_btn--empty" aria-hidden="true" />
         )}
         <label className="tree-summary_label">{displayName}</label>
         {renderActions()}

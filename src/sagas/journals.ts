@@ -813,7 +813,7 @@ export function* getGridData(
   if (foundCategoryAspect && qJournalId) {
     if (qRecordRef && qRecordRef !== 'null') {
       categoryPredicates.push({
-        att: 'has-category:category',
+        att: 'tree-search:path',
         t: PREDICATE_EQ,
         val: qRecordRef
       });

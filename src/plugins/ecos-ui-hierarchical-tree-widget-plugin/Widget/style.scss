@@ -232,6 +232,11 @@
     & > svg > path {
       stroke: $text-color-gray;
     }
+
+    &--empty {
+      width: 24px;
+      pointer-events: none;
+    }
   }
 
   &_label {
