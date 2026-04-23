@@ -9,7 +9,7 @@ import JournalsConverter from '../dto/journals';
 import AttributesService from '../services/AttributesService';
 
 export class ChartsApi {
-  getChartData = async (typeRef, groupByParams, aggregationParam, selectedPreset) => {
+  getChartData = async (typeRef, groupByParams, aggregationParam, selectedPreset, journalPredicate) => {
     const presetRef = isObject(selectedPreset) ? get(selectedPreset, 'id') : selectedPreset;
     const _predicate = await Records.get(presetRef).load('predicate?json');
     const _predicates = [_predicate];
@@ -31,6 +31,17 @@ export class ChartsApi {
 
     if (!isEmpty(predicate)) {
       predicates.push(predicate);
+    }
+
+    if (!isEmpty(journalPredicate)) {
+      const _journalPredicates = [journalPredicate];
+      const cleanedJournalPredicate = ParserPredicate.replacePredicatesType(
+        JournalsConverter.cleanUpPredicate(_journalPredicates)
+      )[0];
+
+      if (!isEmpty(cleanedJournalPredicate)) {
+        predicates.push(cleanedJournalPredicate);
+      }
     }
 
     const journalId = AttributesService.parseId(typeRef);
