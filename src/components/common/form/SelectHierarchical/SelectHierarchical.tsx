@@ -218,11 +218,13 @@ const SelectHierarchical = ({
           }
         );
 
-        const records: TreeNode[] = (result?.records || []).map((r: { id: string; name: string; childIds: string[] | null }) => ({
-          id: r.id,
-          name: r.name || t(Labels.UNTITLED),
-          hasChildren: Array.isArray(r.childIds) && r.childIds.length > 0
-        }));
+        const records: TreeNode[] = (result?.records || [])
+          .map((r: { id: string; name: string; childIds: string[] | null }) => ({
+            id: r.id,
+            name: r.name || t(Labels.UNTITLED),
+            hasChildren: Array.isArray(r.childIds) && r.childIds.length > 0
+          }))
+          .sort((a: TreeNode, b: TreeNode) => a.name.localeCompare(b.name));
 
         setChildrenByParent((prev: Record<string, TreeNode[]>) => ({ ...prev, [key]: records }));
         setLabelsByRef((prev: Record<string, string>) => {
