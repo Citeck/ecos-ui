@@ -3,9 +3,10 @@ import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import isString from 'lodash/isString';
 import isUndefined from 'lodash/isUndefined';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 
-import { Labels, createCategoryFormId } from './constants';
+import { Labels, TREE_NODE_DRAG_MIME, TREE_REFRESH_EVENT, createCategoryFormId } from './constants';
+import { TreeDragContext } from './dragContext';
 import ChevronDownIcon from './icons/ChevronDownIcon';
 import ChevronRightIcon from './icons/ChevronRightIcon';
 
@@ -64,10 +65,42 @@ const TreeNode = ({
 
   const [isHoverDragging, setIsHoverDragging] = useState<boolean>(false);
   const dragCounter = useRef(0);
+  const dragCtx = useContext(TreeDragContext);
 
   const journalId = String(get(getSearchParams(), JUP.JOURNAL_ID, ''));
   const isJournalMode = !!journalId;
   const sourceId = isJournalMode ? SourcesId.CATEGORY : SourcesId.WIKI;
+
+  const isInternalDragSource = dragCtx?.draggedNode?.id === node.id;
+  const isInternalDragActive = !!dragCtx?.draggedNode;
+
+  const isDescendantOrSelf = (rootNode: TreeNode, targetId: string): boolean => {
+    if (rootNode.id === targetId) {
+      return true;
+    }
+    if (!Array.isArray(rootNode.children)) {
+      return false;
+    }
+    for (const child of rootNode.children) {
+      if (isString(child)) {
+        if (child.includes(targetId)) {
+          return true;
+        }
+        continue;
+      }
+      if (isDescendantOrSelf(child, targetId)) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const canAcceptInternalDrop = (): boolean => {
+    if (!dragCtx?.draggedNode) {
+      return false;
+    }
+    return !isDescendantOrSelf(dragCtx.draggedNode, node.id);
+  };
 
   const create = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
@@ -168,19 +201,49 @@ const TreeNode = ({
     }
   }, [isOpen]);
 
+  const handleDragStart = (e: React.DragEvent<HTMLElement>) => {
+    if (!canEdit || isDraggingRow) {
+      return;
+    }
+    e.stopPropagation();
+    try {
+      e.dataTransfer.setData(TREE_NODE_DRAG_MIME, node.id);
+      e.dataTransfer.setData('text/plain', node.id);
+      e.dataTransfer.effectAllowed = 'move';
+    } catch (error) {
+      console.error(error);
+    }
+    dragCtx?.setDraggedNode(node);
+  };
+
+  const handleDragEnd = () => {
+    dragCtx?.setDraggedNode(null);
+    dragCounter.current = 0;
+    setIsHoverDragging(false);
+  };
+
   const handleDragEnter = () => {
-    if (!isDraggingRow) {
+    if (isDraggingRow) {
+      dragCounter.current += 1;
+      if (dragCounter.current > 0) {
+        setIsHoverDragging(true);
+      }
       return;
     }
 
-    dragCounter.current += 1;
-    if (dragCounter.current > 0) {
-      setIsHoverDragging(true);
+    if (isInternalDragActive) {
+      if (!canAcceptInternalDrop()) {
+        return;
+      }
+      dragCounter.current += 1;
+      if (dragCounter.current > 0) {
+        setIsHoverDragging(true);
+      }
     }
   };
 
   const handleDragLeave = () => {
-    if (!isDraggingRow) {
+    if (!isDraggingRow && !isInternalDragActive) {
       return;
     }
 
@@ -192,16 +255,23 @@ const TreeNode = ({
   };
 
   const handleDragOver = (e: React.DragEvent) => {
-    if (!isDraggingRow) {
+    if (isDraggingRow) {
+      e.preventDefault();
+      try {
+        e.dataTransfer!.dropEffect = 'move';
+      } catch (error) {
+        console.error(error);
+      }
       return;
     }
 
-    e.preventDefault();
-
-    try {
-      e.dataTransfer!.dropEffect = 'move';
-    } catch (error) {
-      console.error(error);
+    if (isInternalDragActive && canAcceptInternalDrop()) {
+      e.preventDefault();
+      try {
+        e.dataTransfer!.dropEffect = 'move';
+      } catch (error) {
+        console.error(error);
+      }
     }
   };
 
@@ -212,8 +282,23 @@ const TreeNode = ({
     dragCounter.current = 0;
     setIsHoverDragging(false);
 
-    const recordRef = e.dataTransfer && e.dataTransfer.getData && e.dataTransfer.getData('text/plain');
+    const internalSourceId = e.dataTransfer && e.dataTransfer.getData && e.dataTransfer.getData(TREE_NODE_DRAG_MIME);
+    if (internalSourceId) {
+      if (internalSourceId === node.id) {
+        return;
+      }
+      if (dragCtx?.draggedNode && isDescendantOrSelf(dragCtx.draggedNode, node.id)) {
+        return;
+      }
+      dragCtx?.moveNode(internalSourceId, node.id, dragCtx.draggedNode?.parent || null, dragCtx.draggedNode?.name);
+      return;
+    }
 
+    if (!isDraggingRow) {
+      return;
+    }
+
+    const recordRef = e.dataTransfer && e.dataTransfer.getData && e.dataTransfer.getData('text/plain');
     if (recordRef) {
       addRecordToCategory(undefined, recordRef);
     }
@@ -230,6 +315,28 @@ const TreeNode = ({
       window.removeEventListener('dragend', onGlobalDragEnd);
     };
   }, []);
+
+  useEffect(() => {
+    const onTreeRefresh = (event: Event) => {
+      const detail = (event as CustomEvent<{ affectedParents?: string[] }>).detail;
+      const affected = detail?.affectedParents || [];
+      const myFullId = `${sourceId}@${node.id}`;
+      if (!affected.includes(myFullId)) {
+        return;
+      }
+      if (!isFunction(onFetchChildren)) {
+        return;
+      }
+      onFetchChildren(myFullId).then(({ records: refreshed = [] }) => {
+        setChildren(refreshed);
+      });
+    };
+
+    document.addEventListener(TREE_REFRESH_EVENT, onTreeRefresh);
+    return () => {
+      document.removeEventListener(TREE_REFRESH_EVENT, onTreeRefresh);
+    };
+  }, [node.id, sourceId, onFetchChildren]);
 
   const onClickChevron = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
@@ -298,16 +405,26 @@ const TreeNode = ({
     );
   };
 
+  const isDraggable = canEdit && !isDraggingRow;
+
   return (
     <details open={isOpen}>
       <summary
         onClick={onClickPoint}
         onClickCapture={e => e.preventDefault()}
+        draggable={isDraggable}
+        onDragStart={isDraggable ? handleDragStart : undefined}
+        onDragEnd={isDraggable ? handleDragEnd : undefined}
         onDragEnter={handleDragEnter}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={classNames('tree-summary', { active: recordRef?.includes(node.id), hoverDragging: isHoverDragging })}
+        className={classNames('tree-summary', {
+          active: recordRef?.includes(node.id),
+          hoverDragging: isHoverDragging,
+          'tree-summary--dragging': isInternalDragSource,
+          'tree-summary--draggable': isDraggable
+        })}
         data-record={node.id}
       >
         {filteredChildren.length > 0 ? (

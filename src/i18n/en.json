@@ -3060,6 +3060,10 @@
   "hierarchical-tree-widget.card.to-category.success": "The card has been successfully moved to the category \"{{ categoryName }}\"",
   "hierarchical-tree-widget.card.to-category.error": "Error while moving the card to the category \"{{ categoryName }}\"",
   "hierarchical-tree-widget.card.to-category.tooltip": "Move the card to a category \"{{ categoryName }}\"",
+  "hierarchical-tree-widget.move-node.success": "\"{{ nodeName }}\" successfully moved",
+  "hierarchical-tree-widget.move-node.error": "Error while moving \"{{ nodeName }}\"",
+  "hierarchical-tree-widget.move-node.cycle": "An item cannot be moved into itself or one of its sub-items",
+  "hierarchical-tree-widget.move-node.to-root": "Drop here to move to the top level",
 
   "lexical.plugins.auto-embed.embed": "Embed",
 

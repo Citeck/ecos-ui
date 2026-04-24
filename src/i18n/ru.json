@@ -3059,6 +3059,10 @@
   "hierarchical-tree-widget.card.to-category.success": "Карточка успешно перенесена в категорию «{{ categoryName }}»",
   "hierarchical-tree-widget.card.to-category.error": "Ошибка при переносе карточки в категориюОшибка при переносе карточки в категорию «{{ categoryName }}»",
   "hierarchical-tree-widget.card.to-category.tooltip": "Переместить карточку в категорию «{{ categoryName }}»",
+  "hierarchical-tree-widget.move-node.success": "«{{ nodeName }}» успешно перемещён",
+  "hierarchical-tree-widget.move-node.error": "Ошибка при перемещении «{{ nodeName }}»",
+  "hierarchical-tree-widget.move-node.cycle": "Нельзя переместить элемент в самого себя или в свой дочерний элемент",
+  "hierarchical-tree-widget.move-node.to-root": "Перетащите сюда, чтобы переместить на верхний уровень",
 
   "lexical.plugins.auto-embed.embed": "Вставка",
 
