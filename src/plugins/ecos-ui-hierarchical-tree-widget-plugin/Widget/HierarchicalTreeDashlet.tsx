@@ -9,6 +9,7 @@ import TreeNode, { type TreeNode as TreeNodeType } from './TreeNode';
 import { createCategoryFormId, Labels, TREE_REFRESH_EVENT, tooltipIdCreate, tooltipIdSettings } from './constants';
 import { TreeDragContext, type TreeDragContextValue } from './dragContext';
 import EmptyIcon from './icons/EmptyIcon';
+import { sortNodesByName } from './sortUtils';
 
 import { fetchBreadcrumbs, reloadGrid } from '@/actions/journals';
 import FormManager from '@/components/EcosForm/FormManager';
@@ -56,6 +57,7 @@ const HierarchicalTreeWidget = ({
   const isJournalMode = !!journalId;
   const sourceId = isJournalMode ? SourcesId.CATEGORY : SourcesId.WIKI;
   const rootRecord = isJournalMode ? 'null' : `${SourcesId.WIKI}@${getWorkspaceId()}$ROOT`;
+  const rootParentRef = isJournalMode ? `${SourcesId.JOURNAL}@${journalId}` : rootRecord;
 
   const [canEdit, setCanEdit] = useState<boolean>(false);
   const [isOpenSettings, setIsOpenSettings] = useState<boolean>(false);
@@ -69,7 +71,7 @@ const HierarchicalTreeWidget = ({
 
   useEffect(() => {
     fetchRecords().then(({ records = [] }) => {
-      setRecords(records);
+      setRecords(sortNodesByName(records));
     });
 
     Records.get(`${SourcesId.PERSON}@${getCurrentUserName()}`)
@@ -135,7 +137,7 @@ const HierarchicalTreeWidget = ({
     }
 
     const sourceFullId = `${sourceId}@${sourceNodeId}`;
-    const targetParentFullId = targetParentNodeId === null ? rootRecord : `${sourceId}@${targetParentNodeId}`;
+    const targetParentFullId = targetParentNodeId === null ? rootParentRef : `${sourceId}@${targetParentNodeId}`;
 
     if (sourceOldParent && sourceOldParent === targetParentFullId) {
       return;
@@ -146,7 +148,7 @@ const HierarchicalTreeWidget = ({
     if (targetParentNodeId !== null) {
       const visited = new Set<string>();
       let current: string | null = targetParentFullId;
-      while (current && current !== rootRecord && !visited.has(current)) {
+      while (current && current !== rootParentRef && !visited.has(current)) {
         if (current === sourceFullId) {
           NotificationManager.error(t(Labels.MOVE_NODE_CYCLE));
           return;
@@ -169,7 +171,7 @@ const HierarchicalTreeWidget = ({
       await rec.save();
 
       const { records: newRecords = [] } = await fetchRecords();
-      setRecords(newRecords);
+      setRecords(sortNodesByName(newRecords));
 
       const affectedParents = [sourceOldParent, targetParentFullId].filter(Boolean) as string[];
       document.dispatchEvent(new CustomEvent(TREE_REFRESH_EVENT, { detail: { affectedParents } }));
@@ -187,7 +189,7 @@ const HierarchicalTreeWidget = ({
     moveNode
   };
 
-  const canDropOnRoot = !!draggedNode && draggedNode.parent !== rootRecord;
+  const canDropOnRoot = !!draggedNode && draggedNode.parent !== rootParentRef;
 
   useEffect(() => {
     if (!draggedNode) {
@@ -269,7 +271,7 @@ const HierarchicalTreeWidget = ({
       },
       onSubmit: (record: RecordImpl) => {
         fetchRecords().then(({ records = [] }) => {
-          setRecords(records);
+          setRecords(sortNodesByName(records));
 
           if (!isJournalMode && record.id) {
             updateCurrentUrl({ recordRef: record.id });
@@ -311,7 +313,7 @@ const HierarchicalTreeWidget = ({
                 <TreeNode
                   isDraggingRow={isDraggingRow}
                   toggleOpen={() => updateCurrentUrl({ recordRef: `${sourceId}@${record.id}` })}
-                  updateRootChilds={childs => setRecords(childs)}
+                  updateRootChilds={childs => setRecords(sortNodesByName(childs))}
                   rootRecord={rootRecord}
                   recordRef={recordRef}
                   node={record}

@@ -9,6 +9,7 @@ import { Labels, TREE_NODE_DRAG_MIME, TREE_REFRESH_EVENT, createCategoryFormId }
 import { TreeDragContext } from './dragContext';
 import ChevronDownIcon from './icons/ChevronDownIcon';
 import ChevronRightIcon from './icons/ChevronRightIcon';
+import { sortNodesByName } from './sortUtils';
 
 import FormManager from '@/components/EcosForm/FormManager';
 import Records from '@/components/Records';
@@ -61,7 +62,7 @@ const TreeNode = ({
 }): React.ReactElement => {
   const [isOpen, setIsOpen] = useState<boolean>(get(node, 'children.length', 0) > 1);
   const [displayName, setDisplayName] = useState<string>(node.name || t('documents-widget.untitled'));
-  const [children, setChildren] = useState<TreeNode['children']>(node.children || []);
+  const [children, setChildren] = useState<TreeNode['children']>(sortNodesByName(node.children || []));
 
   const [isHoverDragging, setIsHoverDragging] = useState<boolean>(false);
   const dragCounter = useRef(0);
@@ -141,7 +142,7 @@ const TreeNode = ({
 
         const currentNode = parentRecords.find(record => record.id === node.id);
 
-        setChildren(currentNode?.children || []);
+        setChildren(sortNodesByName(currentNode?.children || []));
         setIsOpen(true);
 
         callbackSubmitForm && callbackSubmitForm();
@@ -174,7 +175,7 @@ const TreeNode = ({
   };
 
   const updateChilds = (childs: TreeNode[]) => {
-    setChildren(childs);
+    setChildren(sortNodesByName(childs));
   };
 
   useEffect(() => {
@@ -192,7 +193,7 @@ const TreeNode = ({
     if (isOpen && hasFirstChildrenName.length === 0) {
       isFunction(onFetchChildren) &&
         onFetchChildren(`${sourceId}@${node.id}`).then(({ records = [] }) => {
-          setChildren(records);
+          setChildren(sortNodesByName(records));
 
           if (records.length > 0) {
             setIsOpen(true);
@@ -328,7 +329,7 @@ const TreeNode = ({
         return;
       }
       onFetchChildren(myFullId).then(({ records: refreshed = [] }) => {
-        setChildren(refreshed);
+        setChildren(sortNodesByName(refreshed));
       });
     };
 

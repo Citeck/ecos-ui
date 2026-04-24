@@ -18,6 +18,8 @@ const extractTypeId = (ref) => {
   return atIdx >= 0 ? ref.substring(atIdx + 1) : ref;
 };
 
+const nameCollator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+
 function buildTree(records) {
   const byParent = {};
   const hasChildrenSet = new Set();
@@ -41,7 +43,7 @@ function buildTree(records) {
         hasChildren: hasChildrenSet.has(node.id),
         childCount: childCount[node.id] || 0
       }))
-      .sort((a, b) => a.name.localeCompare(b.name));
+      .sort((a, b) => nameCollator.compare(a.name || '', b.name || ''));
   }
   return result;
 }
