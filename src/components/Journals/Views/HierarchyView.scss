@@ -21,6 +21,17 @@
     border-bottom: 1px solid $color-gray-4;
     min-height: 44px;
     gap: 12px;
+    transition: background-color 0.15s;
+
+    &_root-drop-available {
+      cursor: copy;
+      outline: 1px dashed var(--header-bg-color);
+      outline-offset: -3px;
+    }
+
+    &_root-drop-active {
+      background-color: var(--light-primary-color);
+    }
   }
 
   &__bar-left {
@@ -97,6 +108,23 @@
     font-size: $font-size-standard;
     color: $text-color-gray;
     opacity: 0.6;
+  }
+
+  &__root-drop {
+    margin: 8px 0 12px;
+    padding: 10px 12px;
+    border: 1px dashed var(--header-bg-color);
+    border-radius: $border-radius-standard;
+    color: $text-color-gray;
+    font-size: 12px;
+    text-align: center;
+    opacity: 0.7;
+    transition: background-color 0.15s, opacity 0.15s;
+
+    &_active {
+      background-color: var(--light-primary-color);
+      opacity: 1;
+    }
   }
 }
 

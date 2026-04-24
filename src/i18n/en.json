@@ -3306,5 +3306,6 @@
   "journals.view.hierarchy.total": "{{count}} items",
   "journals.view.hierarchy.expand-all": "Expand all",
   "journals.view.hierarchy.collapse-all": "Collapse all",
-  "journals.view.hierarchy.create": "Create record"
+  "journals.view.hierarchy.create": "Create record",
+  "journals.view.hierarchy.move-to-root": "Drop here to move to the top level"
 }

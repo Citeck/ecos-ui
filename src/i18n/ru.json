@@ -3305,5 +3305,6 @@
   "journals.view.hierarchy.total": "{{count}} элементов",
   "journals.view.hierarchy.expand-all": "Развернуть всё",
   "journals.view.hierarchy.collapse-all": "Свернуть всё",
-  "journals.view.hierarchy.create": "Создать запись"
+  "journals.view.hierarchy.create": "Создать запись",
+  "journals.view.hierarchy.move-to-root": "Перетащите сюда, чтобы переместить на верхний уровень"
 }

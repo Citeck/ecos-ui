@@ -105,7 +105,9 @@ const TreeNodeRow = ({
   onToggle,
   onClick,
   onReload,
-  isParentLevel
+  isParentLevel,
+  onDragStartNode,
+  onDragEndNode
 }) => {
   const nodePerms = permissionsById[node.id] || {};
   const canWrite = !!nodePerms.canWrite;
@@ -187,7 +189,9 @@ const TreeNodeRow = ({
           e.stopPropagation();
           e.dataTransfer.setData('text/plain', node.id);
           e.dataTransfer.effectAllowed = 'move';
+          onDragStartNode && onDragStartNode(node);
         } : undefined}
+        onDragEnd={canWrite ? () => { onDragEndNode && onDragEndNode(); } : undefined}
         onDragEnter={canWrite ? onDragEnter : undefined}
         onDragOver={canWrite ? onDragOver : undefined}
         onDragLeave={canWrite ? onDragLeave : undefined}
@@ -239,6 +243,8 @@ const TreeNodeRow = ({
                 onClick={onClick}
                 onReload={onReload}
                 isParentLevel={false}
+                onDragStartNode={onDragStartNode}
+                onDragEndNode={onDragEndNode}
               />
             </li>
           ))}
@@ -268,6 +274,10 @@ const HierarchyView = ({
   const [childAssocAttr, setChildAssocAttr] = useState('children');
   const [canCreateRoot, setCanCreateRoot] = useState(false);
   const [permissionsById, setPermissionsById] = useState({});
+  const [draggedNodeId, setDraggedNodeId] = useState(null);
+  const [parentIdByNodeId, setParentIdByNodeId] = useState({});
+  const [isRootDropActive, setIsRootDropActive] = useState(false);
+  const [isBarDropActive, setIsBarDropActive] = useState(false);
 
   // Resolve type from journal
   useEffect(() => {
@@ -325,6 +335,12 @@ const HierarchyView = ({
         setTree(treeMap);
         setTotalCount(records.length);
 
+        const parentMap = {};
+        for (const r of records) {
+          parentMap[r.id] = r.parentId || null;
+        }
+        setParentIdByNodeId(parentMap);
+
         Promise.all(
           records.map(r =>
             Records.get(r.id)
@@ -377,10 +393,79 @@ const HierarchyView = ({
     });
   }, [sourceId, loadAllRecords]);
 
+  const handleDragStartNode = useCallback(node => {
+    setDraggedNodeId(node?.id || null);
+  }, []);
+
+  const handleDragEndNode = useCallback(() => {
+    setDraggedNodeId(null);
+    setIsRootDropActive(false);
+    setIsBarDropActive(false);
+  }, []);
+
+  const canDropOnRoot = !!draggedNodeId && !!parentIdByNodeId[draggedNodeId];
+
+  const moveDraggedToRoot = useCallback(() => {
+    if (!draggedNodeId || !canDropOnRoot) return;
+    const id = draggedNodeId;
+    const rec = Records.getRecordToEdit(id);
+    rec.att('_parent', null);
+    rec.save()
+      .then(() => loadAllRecords(true))
+      .catch(e => console.error('[HierarchyView] failed to move record to root', e));
+  }, [draggedNodeId, canDropOnRoot, loadAllRecords]);
+
+  const onRootDragOver = e => {
+    if (!canDropOnRoot) return;
+    e.preventDefault();
+    try { e.dataTransfer.dropEffect = 'move'; } catch (_) {}
+    if (!isRootDropActive) setIsRootDropActive(true);
+  };
+
+  const onRootDragLeave = e => {
+    if (e.currentTarget.contains(e.relatedTarget)) return;
+    setIsRootDropActive(false);
+  };
+
+  const onRootDrop = e => {
+    setIsRootDropActive(false);
+    if (!canDropOnRoot) return;
+    e.preventDefault();
+    moveDraggedToRoot();
+  };
+
+  const onBarDragOver = e => {
+    if (!canDropOnRoot) return;
+    e.preventDefault();
+    try { e.dataTransfer.dropEffect = 'move'; } catch (_) {}
+    if (!isBarDropActive) setIsBarDropActive(true);
+  };
+
+  const onBarDragLeave = e => {
+    if (e.currentTarget.contains(e.relatedTarget)) return;
+    setIsBarDropActive(false);
+  };
+
+  const onBarDrop = e => {
+    setIsBarDropActive(false);
+    if (!canDropOnRoot) return;
+    e.preventDefault();
+    moveDraggedToRoot();
+  };
+
   return (
     <div className={classNames('ecos-hierarchy-view', bodyClassName)}>
       <div ref={bodyTopForwardedRef} className="ecos-hierarchy-view__top">
-        <div className="ecos-hierarchy-view__bar">
+        <div
+          className={classNames('ecos-hierarchy-view__bar', {
+            'ecos-hierarchy-view__bar_root-drop-available': canDropOnRoot,
+            'ecos-hierarchy-view__bar_root-drop-active': isBarDropActive
+          })}
+          onDragEnter={onBarDragOver}
+          onDragOver={onBarDragOver}
+          onDragLeave={onBarDragLeave}
+          onDrop={onBarDrop}
+        >
           <div className="ecos-hierarchy-view__bar-left">
             {totalCount > 0 && (
               <>
@@ -437,10 +522,25 @@ const HierarchyView = ({
                   onClick={handleNodeClick}
                   onReload={() => loadAllRecords(true)}
                   isParentLevel
+                  onDragStartNode={handleDragStartNode}
+                  onDragEndNode={handleDragEndNode}
                 />
               </li>
             ))}
           </ul>
+        )}
+        {canDropOnRoot && (
+          <div
+            className={classNames('ecos-hierarchy-view__root-drop', {
+              'ecos-hierarchy-view__root-drop_active': isRootDropActive
+            })}
+            onDragEnter={onRootDragOver}
+            onDragOver={onRootDragOver}
+            onDragLeave={onRootDragLeave}
+            onDrop={onRootDrop}
+          >
+            {t('journals.view.hierarchy.move-to-root')}
+          </div>
         )}
       </div>
     </div>
