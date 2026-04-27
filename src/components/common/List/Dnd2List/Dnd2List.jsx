@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Scrollbars } from 'react-custom-scrollbars';
+import { getDndPortalContainer } from '../../../../helpers/dndPortalContainer';
 import { getId, trigger } from '../../../../helpers/util';
 import Columns from '../../templates/Columns/Columns';
 
@@ -62,8 +63,6 @@ export default class Dnd2List extends Component {
   constructor(props) {
     super(props);
 
-    this.portal = this.createDraggableContainer();
-
     this._firstId = getId();
     this._secondId = getId();
 
@@ -88,20 +87,6 @@ export default class Dnd2List extends Component {
     if (props.second !== prevProps.second) {
       this.setState({ second: props.second });
     }
-  }
-
-  createDraggableContainer = () => {
-    let div = document.createElement('div');
-    document.body.appendChild(div);
-    return div;
-  };
-
-  removeDraggableContainer = () => {
-    document.body.removeChild(this.portal);
-  };
-
-  componentWillUnmount() {
-    this.removeDraggableContainer();
   }
 
   view = data => {
@@ -183,7 +168,7 @@ export default class Dnd2List extends Component {
               cssClasses={cssClasses}
               cssItemClasses={cssItemClasses}
               id={this._firstId}
-              portal={this.portal}
+              portal={getDndPortalContainer()}
               draggableClassName={draggableClassName}
             />,
             <Dnd
@@ -191,7 +176,7 @@ export default class Dnd2List extends Component {
               cssClasses={cssClasses}
               cssItemClasses={cssItemClasses}
               id={this._secondId}
-              portal={this.portal}
+              portal={getDndPortalContainer()}
               draggableClassName={draggableClassName}
             />
           ]}

@@ -7,6 +7,7 @@ import isFunction from 'lodash/isFunction';
 import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
 
+import { getDndPortalContainer } from '../../../../helpers/dndPortalContainer';
 import { getId } from '../../../../helpers/util';
 import AggregationListItem from '../../../ColumnsSetup/AggregationListItem';
 
@@ -36,7 +37,6 @@ export default class DndAggregationList extends Component {
 
     this._id = getId();
     this.state = { data: props.data || [], isDropDisabled: false };
-    this.portal = this.createDraggableContainer();
   }
 
   componentDidUpdate(prevProps) {
@@ -46,22 +46,6 @@ export default class DndAggregationList extends Component {
       this.setState({ data });
     }
   }
-
-  componentWillUnmount() {
-    this.removeDraggableContainer();
-  }
-
-  createDraggableContainer = () => {
-    const div = document.createElement('div');
-
-    document.body.appendChild(div);
-
-    return div;
-  };
-
-  removeDraggableContainer = () => {
-    document.body.removeChild(this.portal);
-  };
 
   onDragUpdate = ({ destination }) => {
     const { data } = this.props;
@@ -174,7 +158,7 @@ export default class DndAggregationList extends Component {
                                 isDragging={snapshot.isDragging}
                               />
                             </ListItemWrapper>,
-                            this.portal
+                            getDndPortalContainer()
                           )
                         ) : (
                           <ListItemWrapper
