@@ -291,6 +291,7 @@ export default class HeaderFormatter extends Component {
 
     const { open } = this.state;
     const filterIcon = document.getElementById(this.tooltipFilterId);
+    const isInModal = !!(filterIcon && filterIcon.closest('.modal'));
 
     return (
       <Tooltip
@@ -299,7 +300,7 @@ export default class HeaderFormatter extends Component {
         trigger="click"
         placement="top"
         boundariesElement="window"
-        className="ecos-th__filter-tooltip"
+        className={classNames('ecos-th__filter-tooltip', { 'ecos-modal-tooltip': isInModal })}
         innerClassName="ecos-th__filter-tooltip-body"
         arrowClassName="ecos-th__filter-tooltip-marker"
         modifiers={{

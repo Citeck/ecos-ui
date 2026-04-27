@@ -98,6 +98,14 @@
 }
 
 .ecos-th__filter-tooltip {
+  & > .tooltip {
+    z-index: 1040;
+  }
+
+  &.ecos-modal-tooltip > .tooltip {
+    z-index: 11000;
+  }
+
   & > .tooltip.show {
     opacity: 1;
     background-color: transparent !important;
