@@ -196,9 +196,8 @@ const useAutocomplete = (options = {}) => {
       contextLabel = recordData.displayName || recordData.recordRef;
       contextDataToAdd = recordData;
     } else if (contextType === ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD) {
-      const contextData = getAdditionalContext
-        ? await getAdditionalContext(contextType)
-        : null;
+      const contextData = recordData
+        || (getAdditionalContext ? await getAdditionalContext(contextType) : null);
       if (contextData) {
         contextLabel = contextData.displayName || contextData.recordRef || 'карточка';
         contextDataToAdd = contextData;
@@ -212,11 +211,16 @@ const useAutocomplete = (options = {}) => {
     }
 
     // Replace @ mention with context label
-    const cursorPosition = textareaRef?.current?.selectionStart || currentMessage.length;
+    const cursorPosition = textareaRef?.current?.selectionStart ?? currentMessage.length;
     const textBeforeCursor = currentMessage.substring(0, cursorPosition);
     const textAfterCursor = currentMessage.substring(cursorPosition);
 
     const lastAtIndex = textBeforeCursor.lastIndexOf('@');
+    if (lastAtIndex === -1) {
+      hideAutocomplete();
+      return;
+    }
+
     const newText = textBeforeCursor.substring(0, lastAtIndex) +
       `@${contextLabel} ` +
       textAfterCursor;
@@ -249,7 +253,22 @@ const useAutocomplete = (options = {}) => {
 
   // Handle keyboard navigation in autocomplete
   const handleAutocompleteKeyDown = useCallback((e, filteredOptions) => {
-    if (!showAutocomplete || filteredOptions.length === 0) return false;
+    if (!showAutocomplete) return false;
+
+    if (e.key === 'Escape') {
+      hideAutocomplete();
+      return true;
+    }
+
+    if (filteredOptions.length === 0) {
+      // Autocomplete is open but options haven't loaded yet — swallow Enter/Tab
+      // so the form is not submitted while the user is mid-selection.
+      if (e.key === 'Enter' || e.key === 'Tab') {
+        e.preventDefault();
+        return true;
+      }
+      return false;
+    }
 
     if (e.key === 'ArrowDown') {
       e.preventDefault();
@@ -269,14 +288,11 @@ const useAutocomplete = (options = {}) => {
 
     if (e.key === 'Enter' || e.key === 'Tab') {
       e.preventDefault();
-      const selectedOption = filteredOptions[selectedAutocompleteIndex];
+      const safeIndex = Math.min(selectedAutocompleteIndex, filteredOptions.length - 1);
+      const selectedOption = filteredOptions[safeIndex];
       if (selectedOption) {
         return selectedOption;
       }
-    }
-
-    if (e.key === 'Escape') {
-      hideAutocomplete();
       return true;
     }
 
