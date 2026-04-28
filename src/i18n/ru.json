@@ -1933,6 +1933,7 @@
   "model-editor.btn.auto-layout": "Авто-разметка",
   "model-editor.error.form-not-found": "Форма свойств для этой записи не найдена",
   "model-editor.error.auto-layout-failed": "Не удалось выполнить авто-разметку",
+  "model-editor.success.auto-layout-applied": "Авто-разметка применена",
 
   "editor.success.model-saved": "Процесс успешно сохранен",
   "editor.success.model-save-deployed": "Процесс успешно сохранен и опубликован",

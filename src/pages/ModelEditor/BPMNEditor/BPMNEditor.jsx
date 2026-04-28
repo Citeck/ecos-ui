@@ -33,7 +33,8 @@ class BPMNEditorPage extends ModelEditor {
 
     this.state = {
       ...this.state,
-      isAIAssistantOpen: false
+      isAIAssistantOpen: false,
+      isAutoLayoutLoading: false
     };
 
     this.debouncedUpdateContext = debounce(this._updateAIAssistantContextData, 500);
@@ -52,6 +53,13 @@ class BPMNEditorPage extends ModelEditor {
   componentDidUpdate(prevProps) {
     super.componentDidUpdate && super.componentDidUpdate(prevProps);
     this.updateAIAssistantContext();
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if (nextState.isAutoLayoutLoading !== this.state.isAutoLayoutLoading) {
+      return true;
+    }
+    return super.shouldComponentUpdate(nextProps, nextState);
   }
 
   componentWillUnmount() {
@@ -189,7 +197,7 @@ class BPMNEditorPage extends ModelEditor {
     const linter = this.linter;
 
     extraButtons.config.push({
-      icon: 'fa fa-magic',
+      icon: this.state.isAutoLayoutLoading ? 'fa fa-spinner fa-spin' : 'fa fa-magic',
       action: this.handleAutoLayout,
       text: t('model-editor.btn.auto-layout'),
       id: `bpmn-auto-layout-${uuidv4()}`,
@@ -212,7 +220,7 @@ class BPMNEditorPage extends ModelEditor {
   }
 
   handleAutoLayout = () => {
-    if (!this.designer) {
+    if (!this.designer || this.state.isAutoLayoutLoading) {
       return;
     }
 
@@ -222,24 +230,33 @@ class BPMNEditorPage extends ModelEditor {
         return;
       }
 
+      this.setState({ isAutoLayoutLoading: true });
+
       processApi
         .applyAutoLayout(xml)
         .then(layoutedXml => {
           if (!this.designer) {
+            this.setState({ isAutoLayoutLoading: false });
             return;
           }
 
           this.designer.setDiagram(layoutedXml, {
             callback: ({ error }) => {
+              this.setState({ isAutoLayoutLoading: false });
+
               if (error) {
                 console.error('Failed to import auto-layouted BPMN XML', error);
                 NotificationManager.error(t('model-editor.error.auto-layout-failed'), t('error'));
+                return;
               }
+
+              NotificationManager.success(t('model-editor.success.auto-layout-applied'), t('success'));
             }
           });
         })
         .catch(error => {
           console.error('Auto-layout request failed', error);
+          this.setState({ isAutoLayoutLoading: false });
           NotificationManager.error(t('model-editor.error.auto-layout-failed'), t('error'));
         });
     });
