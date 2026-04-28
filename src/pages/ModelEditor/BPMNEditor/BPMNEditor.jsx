@@ -6,6 +6,7 @@ import uuidv4 from 'uuidv4';
 
 import ModelEditor from '../ModelEditor';
 
+import { ProcessApi } from '@/api/process';
 import { editorContextService, CONTEXT_TYPES, aiAssistantService } from '@/components/AIAssistant';
 import BPMNModeler from '@/components/ModelEditor/BPMNModeler';
 import { SourcesId } from '@/constants';
@@ -20,6 +21,9 @@ import {
   BPMN_PREFIX_UNDERLINE
 } from '@/constants/bpmn';
 import { t } from '@/helpers/export/util';
+import { NotificationManager } from '@/services/notifications';
+
+const processApi = new ProcessApi();
 
 class BPMNEditorPage extends ModelEditor {
   static modelType = 'bpmn';
@@ -184,6 +188,15 @@ class BPMNEditorPage extends ModelEditor {
     const extraButtons = super.editorExtraButtons;
     const linter = this.linter;
 
+    extraButtons.config.push({
+      icon: 'fa fa-magic',
+      action: this.handleAutoLayout,
+      text: t('model-editor.btn.auto-layout'),
+      id: `bpmn-auto-layout-${uuidv4()}`,
+      trigger: 'hover',
+      className: ''
+    });
+
     if (linter) {
       extraButtons.config.push({
         icon: 'icon-bug',
@@ -197,6 +210,40 @@ class BPMNEditorPage extends ModelEditor {
 
     return extraButtons;
   }
+
+  handleAutoLayout = () => {
+    if (!this.designer) {
+      return;
+    }
+
+    this.getBpmnXml(xml => {
+      if (!xml) {
+        NotificationManager.error(t('model-editor.error.auto-layout-failed'), t('error'));
+        return;
+      }
+
+      processApi
+        .applyAutoLayout(xml)
+        .then(layoutedXml => {
+          if (!this.designer) {
+            return;
+          }
+
+          this.designer.setDiagram(layoutedXml, {
+            callback: ({ error }) => {
+              if (error) {
+                console.error('Failed to import auto-layouted BPMN XML', error);
+                NotificationManager.error(t('model-editor.error.auto-layout-failed'), t('error'));
+              }
+            }
+          });
+        })
+        .catch(error => {
+          console.error('Auto-layout request failed', error);
+          NotificationManager.error(t('model-editor.error.auto-layout-failed'), t('error'));
+        });
+    });
+  };
 
   handleAIAssistantSubmit = bpmnXml => {
     if (bpmnXml && this.designer) {

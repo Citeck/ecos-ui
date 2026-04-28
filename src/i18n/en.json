@@ -1975,7 +1975,9 @@
   "model-editor.btn.reset-zoom": "Reset zoom",
   "model-editor.btn.zoom-in": "Zoom in",
   "model-editor.btn.zoom-out": "Zoom out",
+  "model-editor.btn.auto-layout": "Auto-layout",
   "model-editor.error.form-not-found": "Properties form has not found for this record",
+  "model-editor.error.auto-layout-failed": "Failed to apply auto-layout",
 
   "editor.success.model-saved": "Process successfully saved",
   "editor.success.model-save-deployed": "Process successfully saved and deployed",

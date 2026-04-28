@@ -2,12 +2,15 @@ import Records from '../components/Records';
 import { SourcesId } from '../constants';
 import { PERMISSION_DEPLOY_PROCESS } from '../constants/bpmn';
 import { PERMISSION_DMN_DEPLOY_PROCESS } from '../constants/dmn';
+import ecosFetch from '../helpers/ecosFetch';
 
 export const PROCESS_DEF_API_ACTIONS = {
   DRAFT: 'DRAFT',
   SAVE: 'SAVE',
   DEPLOY: 'DEPLOY'
 };
+
+const BPMN_AUTO_LAYOUT_URL = '/gateway/eproc/api/bpmn/auto-layout/transform';
 
 export class ProcessApi {
   getDefinition = record => {
@@ -34,6 +37,26 @@ export class ProcessApi {
     rec.att('action', definitionAction);
 
     return rec.save();
+  };
+
+  applyAutoLayout = xml => {
+    return ecosFetch(BPMN_AUTO_LAYOUT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ definition: xml })
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(({ success, definition, message }) => {
+        if (!success) {
+          throw new Error(message || 'Auto-layout failed');
+        }
+        return definition;
+      });
   };
 
   saveRecordData = (record, data) => {
