@@ -6,6 +6,7 @@ import uuidv4 from 'uuidv4';
 
 import ModelEditor from '../ModelEditor';
 
+import { ProcessApi } from '@/api/process';
 import { editorContextService, CONTEXT_TYPES, aiAssistantService } from '@/components/AIAssistant';
 import BPMNModeler from '@/components/ModelEditor/BPMNModeler';
 import { SourcesId } from '@/constants';
@@ -20,6 +21,9 @@ import {
   BPMN_PREFIX_UNDERLINE
 } from '@/constants/bpmn';
 import { t } from '@/helpers/export/util';
+import { NotificationManager } from '@/services/notifications';
+
+const processApi = new ProcessApi();
 
 class BPMNEditorPage extends ModelEditor {
   static modelType = 'bpmn';
@@ -29,7 +33,8 @@ class BPMNEditorPage extends ModelEditor {
 
     this.state = {
       ...this.state,
-      isAIAssistantOpen: false
+      isAIAssistantOpen: false,
+      isAutoLayoutLoading: false
     };
 
     this.debouncedUpdateContext = debounce(this._updateAIAssistantContextData, 500);
@@ -48,6 +53,13 @@ class BPMNEditorPage extends ModelEditor {
   componentDidUpdate(prevProps) {
     super.componentDidUpdate && super.componentDidUpdate(prevProps);
     this.updateAIAssistantContext();
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if (nextState.isAutoLayoutLoading !== this.state.isAutoLayoutLoading) {
+      return true;
+    }
+    return super.shouldComponentUpdate(nextProps, nextState);
   }
 
   componentWillUnmount() {
@@ -184,6 +196,15 @@ class BPMNEditorPage extends ModelEditor {
     const extraButtons = super.editorExtraButtons;
     const linter = this.linter;
 
+    extraButtons.config.push({
+      icon: this.state.isAutoLayoutLoading ? 'fa fa-spinner fa-spin' : 'fa fa-magic',
+      action: this.handleAutoLayout,
+      text: t('model-editor.btn.auto-layout'),
+      id: `bpmn-auto-layout-${uuidv4()}`,
+      trigger: 'hover',
+      className: ''
+    });
+
     if (linter) {
       extraButtons.config.push({
         icon: 'icon-bug',
@@ -197,6 +218,49 @@ class BPMNEditorPage extends ModelEditor {
 
     return extraButtons;
   }
+
+  handleAutoLayout = () => {
+    if (!this.designer || this.state.isAutoLayoutLoading) {
+      return;
+    }
+
+    this.getBpmnXml(xml => {
+      if (!xml) {
+        NotificationManager.error(t('model-editor.error.auto-layout-failed'), t('error'));
+        return;
+      }
+
+      this.setState({ isAutoLayoutLoading: true });
+
+      processApi
+        .applyAutoLayout(xml)
+        .then(layoutedXml => {
+          if (!this.designer) {
+            this.setState({ isAutoLayoutLoading: false });
+            return;
+          }
+
+          this.designer.setDiagram(layoutedXml, {
+            callback: ({ error }) => {
+              this.setState({ isAutoLayoutLoading: false });
+
+              if (error) {
+                console.error('Failed to import auto-layouted BPMN XML', error);
+                NotificationManager.error(t('model-editor.error.auto-layout-failed'), t('error'));
+                return;
+              }
+
+              NotificationManager.success(t('model-editor.success.auto-layout-applied'), t('success'));
+            }
+          });
+        })
+        .catch(error => {
+          console.error('Auto-layout request failed', error);
+          this.setState({ isAutoLayoutLoading: false });
+          NotificationManager.error(t('model-editor.error.auto-layout-failed'), t('error'));
+        });
+    });
+  };
 
   handleAIAssistantSubmit = bpmnXml => {
     if (bpmnXml && this.designer) {
