@@ -487,8 +487,15 @@ export function* sagaGetActions({ api }, { payload }) {
     const { resolvedActions: prevResolvedActions = [] } = yield select(selectKanban, stateId);
 
     const resolvedActions = yield (boardConfig.columns || []).map(function* (column, i) {
-      const newResolvedActions = yield call([JournalsService, JournalsService.getRecordActions], boardConfig, newRecordRefs[i]);
       const status = column.id || '';
+
+      // Skip columns whose records didn't change — keep previously resolved actions.
+      // Reduces redundant queries to uiserv/record-actions after partial reloads (e.g. card move).
+      if (newRecordRefs[i] === undefined) {
+        return { ...get(prevResolvedActions, [i], {}), status };
+      }
+
+      const newResolvedActions = yield call([JournalsService, JournalsService.getRecordActions], boardConfig, newRecordRefs[i]);
       const actions = { ...newResolvedActions.forRecord, status };
 
       return { ...get(prevResolvedActions, [i], {}), ...actions };
@@ -636,8 +643,15 @@ function* reloadColumns({ api, stateId, boardConfig, columnIds }) {
       const colPredicate = KanbanConverter.preparePredicate(column);
       const statusModifiedPredicate = KanbanConverter.getStatusModifiedPredicate(column);
 
+      // Refetch as many records as were already loaded so the next getNextPage
+      // continues from the correct offset — otherwise scrolling after a move
+      // skips a page worth of records or stops loading entirely.
+      const loadedCount = (currentDataCards[colIndex].records || []).length;
+      const reloadMaxItems = Math.max(loadedCount, DEFAULT_PAGINATION.maxItems);
+
       const settings = JournalsConverter.getSettingsForDataLoaderServer({
         ...params,
+        pagination: { skipCount: 0, maxItems: reloadMaxItems, page: 1 },
         predicates: [...predicates, colPredicate, statusModifiedPredicate],
         searchPredicate
       });
@@ -657,7 +671,11 @@ function* reloadColumns({ api, stateId, boardConfig, columnIds }) {
   yield put(setDataCards({ stateId, dataCards: updatedDataCards }));
   yield put(setTotalCount({ stateId, totalCount }));
 
-  const newRecordRefs = updatedDataCards.map(cards => (cards.records || []).map(record => record.id));
+  // Only refresh actions for the columns we actually reloaded — sagaGetActions keeps prev for the rest.
+  const affected = new Set(columnIds);
+  const newRecordRefs = updatedDataCards.map(card =>
+    affected.has(card.status) ? (card.records || []).map(record => record.id) : undefined
+  );
   yield sagaGetActions({ api }, { payload: { boardConfig, newRecordRefs, stateId } });
 }
 
@@ -728,15 +746,17 @@ export function* sagaMoveCard({ api }, { payload }) {
     const deleted = dataCards[fromColumnIndex].records.splice(cardIndex, 1);
     dataCards[fromColumnIndex].totalCount -= 1;
 
-    if (isEmpty(get(dataCards, [toColumnIndex, 'records']))) {
+    // Defensive: ensure destination has a records array. Don't reset totalCount —
+    // an empty visible list doesn't mean the column has zero records (filters,
+    // pagination, etc.), and resetting it produces a counter flicker on move.
+    if (!Array.isArray(get(dataCards, [toColumnIndex, 'records']))) {
       set(dataCards, [toColumnIndex, 'records'], []);
-      set(dataCards, [toColumnIndex, 'totalCount'], 0);
     }
     const card = get(deleted, [0], {});
     const recordRef = card.id || card.cardId;
 
     dataCards[toColumnIndex].records.unshift(card);
-    dataCards[toColumnIndex].totalCount += 1;
+    dataCards[toColumnIndex].totalCount = (dataCards[toColumnIndex].totalCount || 0) + 1;
 
     // Optimistic update for immediate visual feedback
     yield put(setDataCards({ stateId, dataCards }));
