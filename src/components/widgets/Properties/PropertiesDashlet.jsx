@@ -279,7 +279,7 @@ class PropertiesDashlet extends BaseWidget {
     const currentForm = get(this._propertiesRef, 'current._ecosForm.current');
     const form = get(currentForm, '_form');
 
-    if (!isDraft && form && isFunction(form.checkValidity) && !form.checkValidity(form.data, true)) {
+    if (!isDraft && form && isFunction(form.checkValidity) && !form.checkValidity(form.data, false)) {
       this.setState({ formIsValid: false });
       return;
     }
