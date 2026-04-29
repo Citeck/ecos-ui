@@ -5,12 +5,14 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { Droppable } from 'react-beautiful-dnd';
 
-import { t } from '@/helpers/util';
 import { Loader } from '../../common';
 import { Labels } from '../constants';
+
 import Card from './Card';
 import SkeletonCards from './SkeletonCard';
 import { isDropDisabled as checkDropDisabled } from './utils';
+
+import { t } from '@/helpers/util';
 
 const KanbanColumn = ({
   columnInfo,
@@ -45,7 +47,7 @@ const KanbanColumn = ({
   if (isCollapsed) {
     return (
       <Droppable droppableId={droppableId} isDropDisabled>
-        {(provided) => (
+        {provided => (
           <div
             className={classNames('ecos-kanban__column', { 'ecos-kanban__column_has-sum': hasSum })}
             {...provided.droppableProps}
@@ -165,7 +167,7 @@ const KanbanColumn = ({
             {isSwimlaneMode && isLoading && !isEmpty(records) && <Loader className="ecos-kanban__column-loader" blur />}
             {remaining > 0 && !isLoading && (
               <button className="ecos-kanban__cell-show-more" onClick={() => onLoadMore && onLoadMore(swimlaneId, statusId)}>
-                {t('kanban.swimlane.show-more', { count: remaining })}
+                {t('kanban.swimlane.show-more')}
               </button>
             )}
           </div>

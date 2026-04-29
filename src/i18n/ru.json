@@ -564,7 +564,7 @@
   "kanban.grouping.label": "Группировка",
   "kanban.grouping.none": "Нет",
   "kanban.swimlane.unassigned": "Не назначено",
-  "kanban.swimlane.show-more": "Ещё {{count}}",
+  "kanban.swimlane.show-more": "Ещё",
   "kanban.swimlane.no-cards": "Нет карточек",
 
   "type-permissions.empty-attribute.title": "Идинтификатор атрибута не заполнен",

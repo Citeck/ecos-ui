@@ -614,7 +614,7 @@
   "kanban.grouping.label": "Group by",
   "kanban.grouping.none": "None",
   "kanban.swimlane.unassigned": "Unassigned",
-  "kanban.swimlane.show-more": "{{count}} more",
+  "kanban.swimlane.show-more": "More",
   "kanban.swimlane.no-cards": "No cards",
 
   "type-permissions.empty-attribute.title": "Attribute id is empty",

@@ -1054,7 +1054,7 @@ export function* sagaLoadSwimlaneCells({ api }, { payload }) {
             searchPredicate: queryParams.searchPredicate
           });
 
-          settings.pagination = cellPagination;
+          settings.page = cellPagination;
 
           const res = yield call([JournalsService, JournalsService.getJournalData], journalConfig, {
             ...settings,
@@ -1153,7 +1153,7 @@ export function* sagaLoadMoreSwimlaneCell({ api }, { payload }) {
       searchPredicate: queryParams.searchPredicate
     });
 
-    settings.pagination = newPagination;
+    settings.page = newPagination;
 
     const res = yield call([JournalsService, JournalsService.getJournalData], journalConfig, {
       ...settings,
