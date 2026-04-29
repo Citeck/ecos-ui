@@ -20,7 +20,7 @@
     display: flex;
     align-items: center;
     background: var(--primary-bg-light, #e3f2fd);
-    color: var(--primary-color);
+    color: var(--primary-color, #4b75b7);
     border: 1px solid var(--primary-border-light, #bbdefb);
     border-radius: $border-radius-xl;
     padding: 6px 8px;
@@ -188,7 +188,7 @@
     cursor: pointer;
     border: 1px solid var(--primary-border-light, #bbdefb);
     background: var(--primary-bg-light, #e3f2fd);
-    color: var(--primary-color);
+    color: var(--primary-color, #4b75b7);
     transition: background-color 0.15s;
     user-select: none;
 
