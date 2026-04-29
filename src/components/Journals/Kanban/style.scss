@@ -56,6 +56,13 @@
       min-width: 200px;
       max-width: 400px;
 
+      & li {
+        font-family: $font-family;
+        font-size: $font-size-extra-small;
+        font-weight: $font-weight-semi-bold;
+        color: $text-color-dark;
+      }
+
       & .selected {
         font-weight: $font-weight-bold;
         pointer-events: none;
