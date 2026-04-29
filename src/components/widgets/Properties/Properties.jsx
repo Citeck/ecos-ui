@@ -127,8 +127,10 @@ class Properties extends React.Component {
       const isChanged = editedComponent.length || changedType === 'button' || (componentsCount >= 0 && componentsCount !== length);
 
       if (!isDraft) {
-        const valid = form.checkValidity(submission.data, !!isChanged);
-        onFormIsChanged(isChanged, valid);
+        // dirty=false validates only touched components; strict validation
+        // happens at submit time. Using dirty=true here caused stale empty
+        // pristine fields to fail validation and disable Save on re-edit.
+        onFormIsChanged(isChanged, form.checkValidity(submission.data, false));
       } else {
         onFormIsChanged(isChanged);
       }
