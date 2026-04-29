@@ -358,6 +358,44 @@ describe('kanban sagas tests', () => {
     expect(dispatched).toHaveLength(1);
   });
 
+  it('sagaGetData > caps totalCount when server returns nothing new (post-move scroll loop)', async () => {
+    // Regression: after a move + scroll past available records, the server returns 0 records
+    // but a stale/inflated totalCount. Without capping, records.length stays < totalCount,
+    // componentDidUpdate keeps firing getNextPage, and the kanban loops indefinitely.
+    const prevDataCards = [
+      {
+        status: 'some-id-1',
+        records: Array.from({ length: 9 }, (_, i) => ({ id: `r${i + 1}`, cardId: `r${i + 1}`, attributes: {} })),
+        totalCount: 30
+      },
+      { status: 'some-id-2', records: [], totalCount: 0 }
+    ];
+
+    spyGetJournalData.mockClear();
+    spyGetJournalData.mockResolvedValueOnce({ records: [], totalCount: 30 });
+    spyGetJournalData.mockResolvedValueOnce({ records: [], totalCount: 0 });
+
+    const dispatched = await wrapRunSaga(
+      kanban.sagaGetData,
+      {
+        boardConfig: data.boardConfig,
+        journalConfig: { ...data.journalConfig, id: 'set-data-cards' },
+        journalSetting: data.journalSetting,
+        formProps: data.formProps,
+        pagination: { skipCount: 30, maxItems: 10, page: 4 }
+      },
+      { kanban: { [stateId]: { dataCards: prevDataCards } }, journals: { [stateId]: {} } }
+    );
+
+    const setDataCardsAction = dispatched.find(d => d.type === setDataCards().type);
+    expect(setDataCardsAction).toBeDefined();
+    const updatedFromCol = get(setDataCardsAction, 'payload.dataCards[0]');
+    // Server returned no new records → totalCount must be capped to records.length (9),
+    // not the stale 30 the server kept reporting.
+    expect(updatedFromCol.totalCount).toBe(9);
+    expect(updatedFromCol.records).toHaveLength(9);
+  });
+
   it('sagaGetNextPage > there is _some data', async () => {
     const dispatched = await wrapRunSaga(
       kanban.sagaGetNextPage,
@@ -492,6 +530,10 @@ describe('kanban sagas tests', () => {
     expect(get(_optimisticDataCards, 'payload.dataCards[1].records')).toHaveLength(1);
     expect(get(_optimisticDataCards, 'payload.dataCards[0].records[0].id')).toEqual('2');
     expect(get(_optimisticDataCards, 'payload.dataCards[1].records[0].id')).toEqual('1');
+    // totalCount must NOT change optimistically — server reads use EVENTUAL consistency,
+    // so a +/-1 optimistic bump bounces (badge: 43 → 44 → 43 → 44 once server catches up).
+    expect(get(_optimisticDataCards, 'payload.dataCards[0].totalCount')).toEqual(2);
+    expect(get(_optimisticDataCards, 'payload.dataCards[1].totalCount')).toEqual(0);
     expect(_lastLoadingColumns.type).toEqual(setLoadingColumns().type);
     expect(_lastLoadingColumns.payload.isLoadingColumns).toEqual([]);
 
@@ -501,6 +543,54 @@ describe('kanban sagas tests', () => {
 
     expect(spyError).not.toHaveBeenCalled();
     expect(console.error).not.toHaveBeenCalled();
+  });
+
+  it('sagaMoveCard > reload caps maxItems at loadedCount to avoid server bug inflating totalCount', async () => {
+    // Regression: requesting maxItems > actual records makes the server respond with
+    // totalCount = requested maxItems (instead of the filtered count), surfacing as the
+    // badge bouncing through inflated values (e.g. 11 → 30 → 10, 10 → 40 → 9) before the
+    // next scroll-fetch corrects it. Cap reload's maxItems to loadedCount.
+    const dataCards = [
+      {
+        status: 'some-id-1',
+        records: Array.from({ length: 10 }, (_, i) => ({ id: `r${i + 1}`, cardId: `r${i + 1}`, attributes: {} })),
+        totalCount: 27
+      },
+      {
+        status: 'some-id-2',
+        records: [{ id: 'r99', cardId: 'r99', attributes: {} }],
+        totalCount: 1
+      }
+    ];
+
+    spyGetJournalData.mockClear();
+
+    await wrapRunSaga(
+      kanban.sagaMoveCard,
+      { cardIndex: 0, fromColumnRef: 'some-id-1', toColumnRef: 'some-id-2' },
+      {
+        kanban: {
+          [stateId]: {
+            dataCards,
+            boardConfig: data.boardConfig,
+            formProps: data.formProps,
+            pagination: { skipCount: 30, maxItems: 10, page: 4 }
+          }
+        },
+        journals: {
+          [stateId]: { journalConfig: data.journalConfig, journalSetting: data.journalSetting }
+        }
+      }
+    );
+
+    const reloadCalls = spyGetJournalData.mock.calls;
+    expect(reloadCalls.length).toBeGreaterThanOrEqual(2);
+    // pagination.page=4 would have inflated maxItems to 40; reload must stay grounded
+    // in actual loadedCount (clamped to DEFAULT_PAGINATION.maxItems=10) instead.
+    reloadCalls.forEach(([, settings]) => {
+      expect(settings.page.maxItems).toBeLessThanOrEqual(10);
+      expect(settings.page).toEqual(expect.objectContaining({ skipCount: 0 }));
+    });
   });
 
   it('sagaApplyFilter', async () => {

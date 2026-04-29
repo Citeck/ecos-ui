@@ -399,8 +399,16 @@ export function* sagaGetData({ api }, { payload }) {
             }
           : undefined;
 
+        // Per-column skip = this column's loaded record count. Global pagination skip
+        // (page * maxItems) drifts past un-loaded records after a move (loadedCount stops
+        // being a multiple of maxItems), causing 1-2 records per page to be silently skipped
+        // on subsequent scrolls — visible as the badge dropping from 42 to 38, etc.
+        const colLoadedCount = get(prevDataCards, [i, 'records', 'length'], 0);
+        const colPagination = { ...params.pagination, skipCount: colLoadedCount };
+
         const settings = JournalsConverter.getSettingsForDataLoaderServer({
           ...params,
+          pagination: colPagination,
           onlyLinked,
           attrsToLoad,
           recordRef,
@@ -456,10 +464,19 @@ export function* sagaGetData({ api }, { payload }) {
         // only unique records
         const allRecords = [...new Map([...prevRecords, ...preparedRecords].map(record => [record.id, record])).values()];
 
-        if (data.totalCount >= allRecords.length) {
-          dataCards.push({ totalCount: data.totalCount, records: [...allRecords], status: data.status });
+        // End-of-data detection: only cap when the fetch made literally no progress
+        // (server returned nothing new after dedup). A short page (returnedCount < maxItems)
+        // alone doesn't mean end — could just be the last partial page with more records
+        // still legitimate. Capping on short page caused real records to disappear from
+        // the badge after scroll (41 → 37).
+        const reachedEnd = data.records.length === 0 && allRecords.length === prevRecords.length;
+        const serverTotalCount = typeof data.totalCount === 'number' ? data.totalCount : prevTotalCount;
+        const nextTotalCount = reachedEnd ? allRecords.length : Math.max(serverTotalCount || 0, allRecords.length);
+
+        if (nextTotalCount >= allRecords.length) {
+          dataCards.push({ totalCount: nextTotalCount, records: [...allRecords], status: data.status });
         } else {
-          dataCards.push({ totalCount: data.totalCount, records: [...preparedRecords], status: data.status });
+          dataCards.push({ totalCount: nextTotalCount, records: [...preparedRecords], status: data.status });
         }
       }
     });
@@ -643,9 +660,10 @@ function* reloadColumns({ api, stateId, boardConfig, columnIds }) {
       const colPredicate = KanbanConverter.preparePredicate(column);
       const statusModifiedPredicate = KanbanConverter.getStatusModifiedPredicate(column);
 
-      // Refetch as many records as were already loaded so the next getNextPage
-      // continues from the correct offset — otherwise scrolling after a move
-      // skips a page worth of records or stops loading entirely.
+      // Refetch only as many records as we actually display. Asking for more (e.g. rounding up
+      // to a page boundary) makes the server return totalCount = requested maxItems instead
+      // of the real filtered count — visible as the badge bouncing through inflated values
+      // (11 → 30 → 10) before the next scroll-fetch corrects it.
       const loadedCount = (currentDataCards[colIndex].records || []).length;
       const reloadMaxItems = Math.max(loadedCount, DEFAULT_PAGINATION.maxItems);
 
@@ -659,7 +677,13 @@ function* reloadColumns({ api, stateId, boardConfig, columnIds }) {
       const res = yield call([JournalsService, JournalsService.getJournalData], journalConfig, { ...settings, columns: journalColumns });
 
       const records = processCardRecords(res.records, inputByKey, boardConfig);
-      updatedDataCards[colIndex] = { ...updatedDataCards[colIndex], records, totalCount: res.totalCount || 0 };
+
+      // Trust server totalCount but never let it drop below what we actually have —
+      // and don't cap on a short page alone (could be a legitimate last page; capping
+      // there caused real records to disappear from the badge after the next scroll).
+      const serverTotalCount = typeof res.totalCount === 'number' ? res.totalCount : 0;
+      const totalCount = Math.max(serverTotalCount, records.length);
+      updatedDataCards[colIndex] = { ...updatedDataCards[colIndex], records, totalCount };
     })
   );
 
@@ -744,7 +768,6 @@ export function* sagaMoveCard({ api }, { payload }) {
     yield put(setLoadingColumns({ stateId, isLoadingColumns: [fromColumnRef, toColumnRef] }));
 
     const deleted = dataCards[fromColumnIndex].records.splice(cardIndex, 1);
-    dataCards[fromColumnIndex].totalCount -= 1;
 
     // Defensive: ensure destination has a records array. Don't reset totalCount —
     // an empty visible list doesn't mean the column has zero records (filters,
@@ -756,9 +779,12 @@ export function* sagaMoveCard({ api }, { payload }) {
     const recordRef = card.id || card.cardId;
 
     dataCards[toColumnIndex].records.unshift(card);
-    dataCards[toColumnIndex].totalCount = (dataCards[toColumnIndex].totalCount || 0) + 1;
 
-    // Optimistic update for immediate visual feedback
+    // Optimistic update: move card visually, but leave totalCount alone.
+    // Server reads use EVENTUAL consistency; the post-move reload often returns the
+    // pre-move count, so an optimistic +1/-1 bounces (e.g. 43 → 44 → 43 → 44 once
+    // server catches up). Keeping totalCount stable until the reload settles avoids
+    // the bounce — the visible card list still updates immediately.
     yield put(setDataCards({ stateId, dataCards }));
 
     const result = yield call(api.kanban.moveRecord, { recordRef, columnId: toColumnRef });
