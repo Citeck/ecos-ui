@@ -16,7 +16,7 @@ export default class DateEditorControl extends React.Component {
     super(props);
     this.portal = this.createDateEditorContainer();
     this.state = {
-      date: props.value
+      date: props.value,
     };
   }
 
@@ -59,7 +59,12 @@ export default class DateEditorControl extends React.Component {
     this.removeDateEditorContainer();
   }
 
-  onChange = value => {
+  onChange = (value) => {
+    if (value == null) {
+      this.setState({ date: null }, this.sendData);
+      return;
+    }
+
     let date = moment(value);
 
     if (this.extraProps.showTimeInput) {
@@ -71,7 +76,7 @@ export default class DateEditorControl extends React.Component {
     this.setState({ date }, this.sendData);
   };
 
-  onChangeInterval = dates => {
+  onChangeInterval = (dates) => {
     if (dates && dates.includes('/')) {
       this.setState({ date: dates }, this.sendData);
     }
@@ -81,7 +86,7 @@ export default class DateEditorControl extends React.Component {
     this.props.onUpdate && this.props.onUpdate(this.state.date);
   };
 
-  onKeyDown = e => {
+  onKeyDown = (e) => {
     if (e.key === 'Enter') {
       this.sendData();
     }
@@ -130,10 +135,10 @@ export default class DateEditorControl extends React.Component {
       <DatePicker
         className={classNames({
           'ecos-input_grid-editor': this.isCell,
-          'ecos-input_narrow': !this.isCell
+          'ecos-input_narrow': !this.isCell,
         })}
         wrapperClasses={classNames({
-          'ecos-filter_width_full': !this.isCell
+          'ecos-filter_width_full': !this.isCell,
         })}
         onChange={this.onChange}
         onKeyDown={this.onKeyDown}

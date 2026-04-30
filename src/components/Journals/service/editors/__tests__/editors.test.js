@@ -1,4 +1,4 @@
-import { isSavedAttValueEqual } from '../editorUtils';
+import { isSavedAttValueEqual, isValidAttValueForType } from '../editorUtils';
 import { getCellValue } from '../util';
 
 const testCases1 = [undefined, 0, 1, true, false, null, 'a', ''];
@@ -78,6 +78,48 @@ describe('editors util', () => {
       expect(isSavedAttValueEqual([1, 2], ['1', '2'], 'number')).toBe(true);
       expect(isSavedAttValueEqual([1, 2], [1, 3], 'number')).toBe(false);
       expect(isSavedAttValueEqual([1, 2], [1], 'number')).toBe(false);
+    });
+  });
+
+  describe('isValidAttValueForType', () => {
+    it('allows empty values (clearing)', () => {
+      expect(isValidAttValueForType(null, 'date')).toBe(true);
+      expect(isValidAttValueForType(undefined, 'datetime')).toBe(true);
+      expect(isValidAttValueForType('', 'number')).toBe(true);
+      expect(isValidAttValueForType([], 'date')).toBe(true);
+    });
+
+    it('rejects "Invalid date" string and unparseable dates', () => {
+      expect(isValidAttValueForType('Invalid date', 'date')).toBe(false);
+      expect(isValidAttValueForType('not-a-date', 'date')).toBe(false);
+      expect(isValidAttValueForType('Invalid date', 'datetime')).toBe(false);
+    });
+
+    it('rejects dates with implausible years', () => {
+      expect(isValidAttValueForType('0026-05-10', 'date')).toBe(false);
+      expect(isValidAttValueForType('3500-01-01', 'date')).toBe(false);
+    });
+
+    it('accepts valid dates within plausible range', () => {
+      expect(isValidAttValueForType('2024-01-15', 'date')).toBe(true);
+      expect(isValidAttValueForType('2024-01-15T10:30:00.000+00:00', 'datetime')).toBe(true);
+      expect(isValidAttValueForType('1900-01-01', 'date')).toBe(true);
+    });
+
+    it('rejects NaN for numeric columns', () => {
+      expect(isValidAttValueForType('abc', 'number')).toBe(false);
+      expect(isValidAttValueForType('1.5', 'double')).toBe(true);
+      expect(isValidAttValueForType(42, 'int')).toBe(true);
+    });
+
+    it('does not validate for non-numeric, non-date types', () => {
+      expect(isValidAttValueForType('anything', 'text')).toBe(true);
+      expect(isValidAttValueForType('foo', 'boolean')).toBe(true);
+    });
+
+    it('validates each element of an array', () => {
+      expect(isValidAttValueForType(['2024-01-15', '2024-02-15'], 'date')).toBe(true);
+      expect(isValidAttValueForType(['2024-01-15', 'Invalid date'], 'date')).toBe(false);
     });
   });
 });
