@@ -160,6 +160,9 @@ class Tooltip extends Component {
 
     const modifiers = isArray(_modifiers) ? _modifiers : [_modifiers];
 
+    const targetElement = typeof target === 'string' ? document.getElementById(target) : null;
+    const isInModal = !!(targetElement && targetElement.closest('.modal'));
+
     return {
       target,
       placement,
@@ -172,7 +175,7 @@ class Tooltip extends Component {
       offset,
       container,
       hideArrow,
-      className: classNames('ecos-base-tooltip', className),
+      className: classNames('ecos-base-tooltip', { 'ecos-modal-tooltip': isInModal }, className),
       innerClassName: classNames('ecos-base-tooltip-inner', innerClassName, { 'ecos-base-tooltip-inner_new': isViewNewJournal }),
       arrowClassName: classNames('ecos-base-tooltip-arrow', arrowClassName),
       popperClassName: classNames('ecos-base-tooltip-popper', popperClassName),

@@ -84,6 +84,7 @@ class Dashlet extends Component {
   };
 
   _dashletRef = null;
+  _dashletContainerRef = React.createRef();
 
   resizableRef = React.createRef();
 
@@ -245,7 +246,13 @@ class Dashlet extends Component {
     } = this.props;
 
     return (
-      <div ref={this.setDashletRef} className={classNames('dashlet', { same: isSameHeight && !isCollapsed })}>
+      <div
+        ref={ref => {
+          this.setDashletRef(ref);
+          this._dashletContainerRef.current = ref;
+        }}
+        className={classNames('dashlet', { same: isSameHeight && !isCollapsed })}
+      >
         <Panel
           {...this.props}
           className={classNames('dashlet', className, { dashlet_mobile: isMobile })}
@@ -292,7 +299,7 @@ class Dashlet extends Component {
             <div className="dashlet__body-indent dashlet__body-indent_bottom" />
           </ErrorBoundary>
         </Panel>
-        <ReactResizeDetector handleWidth handleHeight onResize={debounce(onResize, 400)} />
+        <ReactResizeDetector handleWidth handleHeight onResize={debounce(onResize, 400)} targetRef={this._dashletContainerRef} />
 
         {this.renderLoader()}
       </div>

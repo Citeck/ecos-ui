@@ -232,13 +232,14 @@ describe('kanban sagas tests', () => {
       }
     );
 
-    const [_boardConfig, _originKanbanSettings, _formProps, _pagination] = dispatched;
+    const [_boardConfig, _originKanbanSettings, _formProps, _boardConfigColors, _pagination] = dispatched;
     const _loading = last(dispatched);
 
     expect(_boardConfig.type).toEqual(setBoardConfig().type);
     const colsLen = get(_boardConfig, 'payload.boardConfig.columns.length');
     expect(_formProps.type).toEqual(setFormProps().type);
     expect(_originKanbanSettings.type).toEqual(setOriginKanbanSettings().type);
+    expect(_boardConfigColors.type).toEqual(setBoardConfig().type);
     expect(_pagination.type).toEqual(setPagination().type);
     expect(_pagination.payload.pagination).toEqual(DEFAULT_PAGINATION);
     expect(_loading.type).toEqual(setLoading().type);
@@ -357,6 +358,44 @@ describe('kanban sagas tests', () => {
     expect(dispatched).toHaveLength(1);
   });
 
+  it('sagaGetData > caps totalCount when server returns nothing new (post-move scroll loop)', async () => {
+    // Regression: after a move + scroll past available records, the server returns 0 records
+    // but a stale/inflated totalCount. Without capping, records.length stays < totalCount,
+    // componentDidUpdate keeps firing getNextPage, and the kanban loops indefinitely.
+    const prevDataCards = [
+      {
+        status: 'some-id-1',
+        records: Array.from({ length: 9 }, (_, i) => ({ id: `r${i + 1}`, cardId: `r${i + 1}`, attributes: {} })),
+        totalCount: 30
+      },
+      { status: 'some-id-2', records: [], totalCount: 0 }
+    ];
+
+    spyGetJournalData.mockClear();
+    spyGetJournalData.mockResolvedValueOnce({ records: [], totalCount: 30 });
+    spyGetJournalData.mockResolvedValueOnce({ records: [], totalCount: 0 });
+
+    const dispatched = await wrapRunSaga(
+      kanban.sagaGetData,
+      {
+        boardConfig: data.boardConfig,
+        journalConfig: { ...data.journalConfig, id: 'set-data-cards' },
+        journalSetting: data.journalSetting,
+        formProps: data.formProps,
+        pagination: { skipCount: 30, maxItems: 10, page: 4 }
+      },
+      { kanban: { [stateId]: { dataCards: prevDataCards } }, journals: { [stateId]: {} } }
+    );
+
+    const setDataCardsAction = dispatched.find(d => d.type === setDataCards().type);
+    expect(setDataCardsAction).toBeDefined();
+    const updatedFromCol = get(setDataCardsAction, 'payload.dataCards[0]');
+    // Server returned no new records → totalCount must be capped to records.length (9),
+    // not the stale 30 the server kept reporting.
+    expect(updatedFromCol.totalCount).toBe(9);
+    expect(updatedFromCol.records).toHaveLength(9);
+  });
+
   it('sagaGetNextPage > there is _some data', async () => {
     const dispatched = await wrapRunSaga(
       kanban.sagaGetNextPage,
@@ -442,8 +481,18 @@ describe('kanban sagas tests', () => {
   });
 
   it('sagaMoveCard > there is _some data', async () => {
-    const dataCards = [data.journalData];
-    expect(dataCards).toHaveLength(1);
+    const dataCards = [
+      {
+        status: 'some-id-1',
+        records: [
+          { id: '1', cardId: '1', attributes: {} },
+          { id: '2', cardId: '2', attributes: {} }
+        ],
+        totalCount: 2
+      },
+      { status: 'some-id-2', records: [], totalCount: 0 }
+    ];
+    expect(dataCards).toHaveLength(2);
     expect(get(dataCards, '[0].records')).toHaveLength(2);
 
     const dispatched = await wrapRunSaga(
@@ -481,6 +530,10 @@ describe('kanban sagas tests', () => {
     expect(get(_optimisticDataCards, 'payload.dataCards[1].records')).toHaveLength(1);
     expect(get(_optimisticDataCards, 'payload.dataCards[0].records[0].id')).toEqual('2');
     expect(get(_optimisticDataCards, 'payload.dataCards[1].records[0].id')).toEqual('1');
+    // totalCount must NOT change optimistically — server reads use EVENTUAL consistency,
+    // so a +/-1 optimistic bump bounces (badge: 43 → 44 → 43 → 44 once server catches up).
+    expect(get(_optimisticDataCards, 'payload.dataCards[0].totalCount')).toEqual(2);
+    expect(get(_optimisticDataCards, 'payload.dataCards[1].totalCount')).toEqual(0);
     expect(_lastLoadingColumns.type).toEqual(setLoadingColumns().type);
     expect(_lastLoadingColumns.payload.isLoadingColumns).toEqual([]);
 
@@ -490,6 +543,54 @@ describe('kanban sagas tests', () => {
 
     expect(spyError).not.toHaveBeenCalled();
     expect(console.error).not.toHaveBeenCalled();
+  });
+
+  it('sagaMoveCard > reload caps maxItems at loadedCount to avoid server bug inflating totalCount', async () => {
+    // Regression: requesting maxItems > actual records makes the server respond with
+    // totalCount = requested maxItems (instead of the filtered count), surfacing as the
+    // badge bouncing through inflated values (e.g. 11 → 30 → 10, 10 → 40 → 9) before the
+    // next scroll-fetch corrects it. Cap reload's maxItems to loadedCount.
+    const dataCards = [
+      {
+        status: 'some-id-1',
+        records: Array.from({ length: 10 }, (_, i) => ({ id: `r${i + 1}`, cardId: `r${i + 1}`, attributes: {} })),
+        totalCount: 27
+      },
+      {
+        status: 'some-id-2',
+        records: [{ id: 'r99', cardId: 'r99', attributes: {} }],
+        totalCount: 1
+      }
+    ];
+
+    spyGetJournalData.mockClear();
+
+    await wrapRunSaga(
+      kanban.sagaMoveCard,
+      { cardIndex: 0, fromColumnRef: 'some-id-1', toColumnRef: 'some-id-2' },
+      {
+        kanban: {
+          [stateId]: {
+            dataCards,
+            boardConfig: data.boardConfig,
+            formProps: data.formProps,
+            pagination: { skipCount: 30, maxItems: 10, page: 4 }
+          }
+        },
+        journals: {
+          [stateId]: { journalConfig: data.journalConfig, journalSetting: data.journalSetting }
+        }
+      }
+    );
+
+    const reloadCalls = spyGetJournalData.mock.calls;
+    expect(reloadCalls.length).toBeGreaterThanOrEqual(2);
+    // pagination.page=4 would have inflated maxItems to 40; reload must stay grounded
+    // in actual loadedCount (clamped to DEFAULT_PAGINATION.maxItems=10) instead.
+    reloadCalls.forEach(([, settings]) => {
+      expect(settings.page.maxItems).toBeLessThanOrEqual(10);
+      expect(settings.page).toEqual(expect.objectContaining({ skipCount: 0 }));
+    });
   });
 
   it('sagaApplyFilter', async () => {
@@ -681,11 +782,7 @@ describe('kanban sagas tests', () => {
         load: async attrs => ({ ...attrs, _status: 'some-id-1', id, cardId: id })
       }));
 
-      const dispatched = await wrapRunSaga(
-        kanban.sagaRefreshCard,
-        { recordRef: 'rec-1' },
-        makeState({ dataCards: dataCardsWithRecords })
-      );
+      const dispatched = await wrapRunSaga(kanban.sagaRefreshCard, { recordRef: 'rec-1' }, makeState({ dataCards: dataCardsWithRecords }));
 
       const dataCardsAction = dispatched.find(d => d.type === setDataCards().type);
       expect(dataCardsAction).toBeDefined();
@@ -700,11 +797,7 @@ describe('kanban sagas tests', () => {
         load: async attrs => ({ ...attrs, _status: 'some-id-2', id, cardId: id })
       }));
 
-      const dispatched = await wrapRunSaga(
-        kanban.sagaRefreshCard,
-        { recordRef: 'rec-1' },
-        makeState({ dataCards: dataCardsWithRecords })
-      );
+      const dispatched = await wrapRunSaga(kanban.sagaRefreshCard, { recordRef: 'rec-1' }, makeState({ dataCards: dataCardsWithRecords }));
 
       const dataCardsAction = dispatched.find(d => d.type === setDataCards().type);
       expect(dataCardsAction).toBeDefined();
@@ -729,11 +822,7 @@ describe('kanban sagas tests', () => {
     });
 
     it('flat mode > no boardConfig dispatches reloadBoardData', async () => {
-      const dispatched = await wrapRunSaga(
-        kanban.sagaRefreshCard,
-        { recordRef: 'rec-1' },
-        makeState({ boardConfig: null })
-      );
+      const dispatched = await wrapRunSaga(kanban.sagaRefreshCard, { recordRef: 'rec-1' }, makeState({ boardConfig: null }));
 
       expect(dispatched.some(d => d.type === reloadBoardData().type)).toBeTruthy();
     });
@@ -745,11 +834,7 @@ describe('kanban sagas tests', () => {
         load: async attrs => ({ ...attrs, _status: 'some-id-1', _swimlaneValue: 'priority-high', id, cardId: id })
       }));
 
-      const dispatched = await wrapRunSaga(
-        kanban.sagaRefreshCard,
-        { recordRef: 'rec-1' },
-        makeState({ ...swimlaneData })
-      );
+      const dispatched = await wrapRunSaga(kanban.sagaRefreshCard, { recordRef: 'rec-1' }, makeState({ ...swimlaneData }));
 
       const cellActions = dispatched.filter(d => d.type === setSwimlaneCellData().type);
       expect(cellActions).toHaveLength(1);
@@ -764,11 +849,7 @@ describe('kanban sagas tests', () => {
         load: async attrs => ({ ...attrs, _status: 'some-id-2', _swimlaneValue: 'priority-high', id, cardId: id })
       }));
 
-      const dispatched = await wrapRunSaga(
-        kanban.sagaRefreshCard,
-        { recordRef: 'rec-1' },
-        makeState({ ...swimlaneData })
-      );
+      const dispatched = await wrapRunSaga(kanban.sagaRefreshCard, { recordRef: 'rec-1' }, makeState({ ...swimlaneData }));
 
       const cellActions = dispatched.filter(d => d.type === setSwimlaneCellData().type);
       expect(cellActions).toHaveLength(2);
@@ -781,11 +862,7 @@ describe('kanban sagas tests', () => {
         load: async attrs => ({ ...attrs, _status: 'some-id-1', _swimlaneValue: 'priority-low', id, cardId: id })
       }));
 
-      const dispatched = await wrapRunSaga(
-        kanban.sagaRefreshCard,
-        { recordRef: 'rec-1' },
-        makeState({ ...swimlaneData })
-      );
+      const dispatched = await wrapRunSaga(kanban.sagaRefreshCard, { recordRef: 'rec-1' }, makeState({ ...swimlaneData }));
 
       const cellActions = dispatched.filter(d => d.type === setSwimlaneCellData().type);
       expect(cellActions).toHaveLength(2);
@@ -801,11 +878,7 @@ describe('kanban sagas tests', () => {
         load: async attrs => ({ ...attrs, _status: 'some-id-1', _swimlaneValue: 'unknown', id, cardId: id })
       }));
 
-      const dispatched = await wrapRunSaga(
-        kanban.sagaRefreshCard,
-        { recordRef: 'rec-1' },
-        makeState({ ...swimlaneData })
-      );
+      const dispatched = await wrapRunSaga(kanban.sagaRefreshCard, { recordRef: 'rec-1' }, makeState({ ...swimlaneData }));
 
       expect(dispatched.some(d => d.type === reloadBoardData().type)).toBeTruthy();
     });
@@ -814,14 +887,12 @@ describe('kanban sagas tests', () => {
       spyRecordsGet.mockImplementation(id => ({
         id,
         getBaseRecord: () => ({ id, load }),
-        load: async () => { throw new Error('load failed'); }
+        load: async () => {
+          throw new Error('load failed');
+        }
       }));
 
-      const dispatched = await wrapRunSaga(
-        kanban.sagaRefreshCard,
-        { recordRef: 'rec-1' },
-        makeState({ dataCards: dataCardsWithRecords })
-      );
+      const dispatched = await wrapRunSaga(kanban.sagaRefreshCard, { recordRef: 'rec-1' }, makeState({ dataCards: dataCardsWithRecords }));
 
       expect(dispatched.some(d => d.type === reloadBoardData().type)).toBeTruthy();
       expect(console.error).toHaveBeenCalled();
@@ -910,7 +981,9 @@ describe('kanban sagas tests', () => {
         { swimlaneGrouping: null },
         {
           journals: { [stateId]: { journalConfig: data.journalConfig, journalSetting: data.journalSetting } },
-          kanban: { [stateId]: { boardConfig: data.boardConfig, formProps: data.formProps, ...swimlaneData, pagination: DEFAULT_PAGINATION } }
+          kanban: {
+            [stateId]: { boardConfig: data.boardConfig, formProps: data.formProps, ...swimlaneData, pagination: DEFAULT_PAGINATION }
+          }
         }
       );
 
@@ -929,11 +1002,37 @@ describe('kanban sagas tests', () => {
       kanban: { [stateId]: { boardConfig: data.boardConfig, formProps: data.formProps, ...swimlaneData, ...kanbanOverrides } }
     });
 
+    const makeSwimlanesWithRoom = () => [
+      {
+        id: 'priority-high',
+        label: 'High',
+        color: '#ff0000',
+        isCollapsed: false,
+        cells: {
+          'some-id-1': {
+            records: [
+              { id: 'rec-1', cardId: 'rec-1' },
+              { id: 'rec-2', cardId: 'rec-2' }
+            ],
+            totalCount: 5,
+            pagination: { page: 0, maxItems: 10, skipCount: 0 },
+            isLoading: false
+          },
+          'some-id-2': {
+            records: [{ id: 'rec-3', cardId: 'rec-3' }],
+            totalCount: 1,
+            pagination: { page: 0, maxItems: 10, skipCount: 0 },
+            isLoading: false
+          }
+        }
+      }
+    ];
+
     it('successful load more', async () => {
       const dispatched = await wrapRunSaga(
         kanban.sagaLoadMoreSwimlaneCell,
         { swimlaneId: 'priority-high', statusId: 'some-id-1' },
-        makeState()
+        makeState({ swimlanes: makeSwimlanesWithRoom() })
       );
 
       const loadingActions = dispatched.filter(d => d.type === setSwimlaneCellLoading().type);
@@ -963,6 +1062,79 @@ describe('kanban sagas tests', () => {
       );
 
       expect(dispatched).toHaveLength(0);
+    });
+
+    it('returns early when all records already loaded', async () => {
+      // Default swimlaneData fixture has records.length === totalCount === 2 for this cell.
+      const dispatched = await wrapRunSaga(
+        kanban.sagaLoadMoreSwimlaneCell,
+        { swimlaneId: 'priority-high', statusId: 'some-id-1' },
+        makeState()
+      );
+
+      expect(dispatched).toHaveLength(0);
+      expect(spyGetJournalData).not.toHaveBeenCalled();
+    });
+
+    it('caps totalCount to loaded records when server returns nothing new', async () => {
+      // Simulate the COREDEV-82 scenario: server reports a totalCount larger than what it can
+      // actually return — we must cap to records we have, otherwise "Show more" stays visible.
+      const emptyResponseSpy = jest.spyOn(JournalsService, 'getJournalData').mockResolvedValueOnce({ records: [], totalCount: 99 });
+
+      const swimlanes = makeSwimlanesWithRoom();
+      const dispatched = await wrapRunSaga(
+        kanban.sagaLoadMoreSwimlaneCell,
+        { swimlaneId: 'priority-high', statusId: 'some-id-1' },
+        makeState({ swimlanes })
+      );
+
+      const cellDataAction = dispatched.find(d => d.type === setSwimlaneCellData().type);
+      expect(cellDataAction).toBeDefined();
+      expect(cellDataAction.payload.records).toHaveLength(2);
+      expect(cellDataAction.payload.totalCount).toBe(2);
+
+      emptyResponseSpy.mockRestore();
+    });
+
+    it('dedups overlapping records so duplicates do not inflate the counter', async () => {
+      // Server returns a record the client already has plus a new one.
+      const overlapSpy = jest.spyOn(JournalsService, 'getJournalData').mockResolvedValueOnce({
+        records: [
+          { id: 'rec-2', attributes: {} },
+          { id: 'rec-new', attributes: {} }
+        ],
+        totalCount: 3
+      });
+
+      const swimlanes = makeSwimlanesWithRoom();
+      const dispatched = await wrapRunSaga(
+        kanban.sagaLoadMoreSwimlaneCell,
+        { swimlaneId: 'priority-high', statusId: 'some-id-1' },
+        makeState({ swimlanes })
+      );
+
+      const cellDataAction = dispatched.find(d => d.type === setSwimlaneCellData().type);
+      expect(cellDataAction).toBeDefined();
+      const ids = cellDataAction.payload.records.map(r => r.id).sort();
+      expect(ids).toEqual(['rec-1', 'rec-2', 'rec-new']);
+
+      overlapSpy.mockRestore();
+    });
+
+    it('forwards skipCount based on already loaded records to the data loader', async () => {
+      // Regression: settings.page (not settings.pagination) is what journalsDataLoader reads.
+      // Without this, "Show more" refetches the first page and capping logic freezes the cell.
+      const paginationSpy = jest
+        .spyOn(JournalsService, 'getJournalData')
+        .mockResolvedValueOnce({ records: [{ id: 'rec-x', attributes: {} }], totalCount: 5 });
+
+      const swimlanes = makeSwimlanesWithRoom();
+      await wrapRunSaga(kanban.sagaLoadMoreSwimlaneCell, { swimlaneId: 'priority-high', statusId: 'some-id-1' }, makeState({ swimlanes }));
+
+      const settings = paginationSpy.mock.calls[0][1];
+      expect(settings.page).toEqual(expect.objectContaining({ skipCount: 2, maxItems: DEFAULT_PAGINATION.maxItems }));
+
+      paginationSpy.mockRestore();
     });
   });
 });

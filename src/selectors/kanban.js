@@ -1,9 +1,9 @@
-import { createSelector } from 'reselect';
-import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
+import { createSelector } from 'reselect';
 
-import { initialState } from '../reducers/kanban';
 import { DEFAULT_PAGINATION } from '../components/Journals/constants';
+import { initialState } from '../reducers/kanban';
 
 const prefix = 'kanban';
 
@@ -51,4 +51,3 @@ export const selectKanbanProps = createSelector(selectKanban, data => ({
   swimlaneGrouping: data.swimlaneGrouping,
   swimlanes: data.swimlanes || []
 }));
-

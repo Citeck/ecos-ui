@@ -43,7 +43,8 @@ export const propsTypes = {
   innerRef: PropTypes.oneOfType([PropTypes.func, PropTypes.string, PropTypes.object]),
   trigger: PropTypes.string,
   fade: PropTypes.bool,
-  flip: PropTypes.bool
+  flip: PropTypes.bool,
+  needTooltip: PropTypes.bool
 };
 
 export class TooltipWrapper extends Component {

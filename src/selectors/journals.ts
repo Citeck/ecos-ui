@@ -6,6 +6,7 @@ import FilterPredicate from '../components/Filters/predicates/FilterPredicate';
 
 import { selectIsDocLibEnabled } from './docLib';
 import { selectIsKanbanEnabled } from './kanban';
+import { selectIsHierarchyEnabled } from './hierarchy';
 import { selectIsEnabledPreviewList } from './previewList';
 
 import { JournalColumnType } from '@/api/journals/types';
@@ -179,15 +180,16 @@ export const selectKanbanJournalProps = createSelector(
 );
 
 export const selectCommonJournalPageProps = createSelector(
-  [selectState, selectUrl, selectIsDocLibEnabled, selectIsKanbanEnabled, selectIsEnabledPreviewList],
-  (ownState, urlParams, isDocLibEnabled, isKanbanEnabled, isPreviewListEnabled) => ({
+  [selectState, selectUrl, selectIsDocLibEnabled, selectIsKanbanEnabled, selectIsEnabledPreviewList, selectIsHierarchyEnabled],
+  (ownState, urlParams, isDocLibEnabled, isKanbanEnabled, isPreviewListEnabled, isHierarchyEnabled) => ({
     isLoadingGrid: ownState.loadingGrid,
     viewMode: ownState.viewMode,
     title: getTextByLocale(get(ownState, 'journalConfig.name')),
     urlParams,
     isDocLibEnabled,
     isKanbanEnabled,
-    isPreviewListEnabled
+    isPreviewListEnabled,
+    isHierarchyEnabled
   })
 );
 

@@ -272,6 +272,7 @@ const useUniversalChat = (options = {}) => {
   const [generationStages, setGenerationStages] = useState(null);
   const [agentStatus, setAgentStatus] = useState(null);
   const [autoContextArtifacts, setAutoContextArtifacts] = useState([]);
+  const [selectedAgent, setSelectedAgent] = useState(null);
 
   // Fetch status function for polling
   const fetchStatus = useCallback(async (requestId) => {
@@ -533,7 +534,8 @@ const useUniversalChat = (options = {}) => {
           content: contentData,
           forceIntent: forceIntent,
           ...(editing && { editing }),
-          ...(autoContextArtifacts.length > 0 && { contextArtifacts: autoContextArtifacts })
+          ...(autoContextArtifacts.length > 0 && { contextArtifacts: autoContextArtifacts }),
+          ...(selectedAgent && { agentRef: `emodel/ai-agent@${selectedAgent.id}` })
         }
       };
 
@@ -577,7 +579,7 @@ const useUniversalChat = (options = {}) => {
 
       setIsLoading(false);
     }
-  }, [message, conversationId, additionalContext, uploadedFiles, conversationForceIntent, autoContextArtifacts, startPolling]);
+  }, [message, conversationId, additionalContext, uploadedFiles, conversationForceIntent, autoContextArtifacts, selectedAgent, startPolling]);
 
   // Cancel active request
   const cancelRequest = useCallback(async () => {
@@ -719,11 +721,13 @@ const useUniversalChat = (options = {}) => {
     generationStages,
     agentStatus,
     autoContextArtifacts,
+    selectedAgent,
 
     // Setters
     setMessage,
     setMessages,
     setAutoContextArtifacts,
+    setSelectedAgent,
 
     // Actions
     handleSubmit,

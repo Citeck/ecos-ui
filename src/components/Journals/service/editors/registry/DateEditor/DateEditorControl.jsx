@@ -8,13 +8,13 @@ import ReactDOM from 'react-dom';
 import editorRegistry from '../';
 import { PREDICATE_TIME_INTERVAL } from '../../../../../Records/predicates/predicates';
 import { DatePicker, DateIntervalPicker } from '../../../../../common/form';
+import { getDateEditorContainer } from '../../../../../common/form/DatePicker/dateEditorContainer';
 import EditorScope from '../../EditorScope';
 import TextEditor from '../TextEditor';
 
 export default class DateEditorControl extends React.Component {
   constructor(props) {
     super(props);
-    this.portal = this.createDateEditorContainer();
     this.state = {
       date: props.value
     };
@@ -41,22 +41,6 @@ export default class DateEditorControl extends React.Component {
   get selected() {
     const date = moment(this.state.date).toISOString(true);
     return this.state.date ? moment(date).toDate() : undefined;
-  }
-
-  createDateEditorContainer = () => {
-    let div = document.createElement('div');
-    div.classList.add('date-editor-container');
-    document.body.appendChild(div);
-
-    return div;
-  };
-
-  removeDateEditorContainer = () => {
-    document.body.removeChild(this.portal);
-  };
-
-  componentWillUnmount() {
-    this.removeDateEditorContainer();
   }
 
   onChange = value => {
@@ -144,7 +128,7 @@ export default class DateEditorControl extends React.Component {
         onCancel={get(this.props, 'onCancel')}
         dateFormat={this.dateFormat}
         popperPlacement="top"
-        popperContainer={({ children }) => ReactDOM.createPortal(children, this.portal)}
+        popperContainer={({ children }) => ReactDOM.createPortal(children, getDateEditorContainer())}
         {...this.extraProps}
       />
     );

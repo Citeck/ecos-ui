@@ -6,8 +6,10 @@ import { connect } from 'react-redux';
 
 import SettingsWidget from './Settings';
 import TreeNode, { type TreeNode as TreeNodeType } from './TreeNode';
-import { createCategoryFormId, Labels, tooltipIdCreate, tooltipIdSettings } from './constants';
+import { createCategoryFormId, Labels, TREE_REFRESH_EVENT, tooltipIdCreate, tooltipIdSettings } from './constants';
+import { TreeDragContext, type TreeDragContextValue } from './dragContext';
 import EmptyIcon from './icons/EmptyIcon';
+import { sortNodesByName } from './sortUtils';
 
 import { fetchBreadcrumbs, reloadGrid } from '@/actions/journals';
 import FormManager from '@/components/EcosForm/FormManager';
@@ -20,6 +22,7 @@ import { JournalUrlParams as JUP, SourcesId } from '@/constants';
 import { getStateId, wrapArgs } from '@/helpers/store';
 import { getRecordRef, getSearchParams, getWorkspaceId, updateCurrentUrl } from '@/helpers/urls';
 import { isMobileDevice, t, getCurrentUserName, getMLValue } from '@/helpers/util';
+import { NotificationManager } from '@/services/notifications';
 import { Events } from '@/services/PageService';
 import { MLTextType } from '@/types/components';
 import { Dispatch, RootState } from '@/types/store';
@@ -54,6 +57,7 @@ const HierarchicalTreeWidget = ({
   const isJournalMode = !!journalId;
   const sourceId = isJournalMode ? SourcesId.CATEGORY : SourcesId.WIKI;
   const rootRecord = isJournalMode ? 'null' : `${SourcesId.WIKI}@${getWorkspaceId()}$ROOT`;
+  const rootParentRef = isJournalMode ? `${SourcesId.JOURNAL}@${journalId}` : rootRecord;
 
   const [canEdit, setCanEdit] = useState<boolean>(false);
   const [isOpenSettings, setIsOpenSettings] = useState<boolean>(false);
@@ -61,10 +65,13 @@ const HierarchicalTreeWidget = ({
     isJournalMode ? String(get(getSearchParams(), JUP.RECORD_REF, '')) : initialRecordRef
   );
   const [records, setRecords] = useState<TreeNodeType[]>([]);
+  const [draggedNode, setDraggedNode] = useState<TreeNodeType | null>(null);
+  const [isRootDropActive, setIsRootDropActive] = useState<boolean>(false);
+  const [isHeaderDropActive, setIsHeaderDropActive] = useState<boolean>(false);
 
   useEffect(() => {
     fetchRecords().then(({ records = [] }) => {
-      setRecords(records);
+      setRecords(sortNodesByName(records));
     });
 
     Records.get(`${SourcesId.PERSON}@${getCurrentUserName()}`)
@@ -119,6 +126,140 @@ const HierarchicalTreeWidget = ({
     );
   };
 
+  const moveNode = async (
+    sourceNodeId: string,
+    targetParentNodeId: string | null,
+    sourceOldParent?: string | null,
+    sourceName?: string
+  ) => {
+    if (targetParentNodeId !== null && sourceNodeId === targetParentNodeId) {
+      return;
+    }
+
+    const sourceFullId = `${sourceId}@${sourceNodeId}`;
+    const targetParentFullId = targetParentNodeId === null ? rootParentRef : `${sourceId}@${targetParentNodeId}`;
+
+    if (sourceOldParent && sourceOldParent === targetParentFullId) {
+      return;
+    }
+
+    // Cycle prevention: walk up from the target parent — if we encounter the dragged node
+    // in the chain, the move would create a loop. Root target can never form a cycle.
+    if (targetParentNodeId !== null) {
+      const visited = new Set<string>();
+      let current: string | null = targetParentFullId;
+      while (current && current !== rootParentRef && !visited.has(current)) {
+        if (current === sourceFullId) {
+          NotificationManager.error(t(Labels.MOVE_NODE_CYCLE));
+          return;
+        }
+        visited.add(current);
+        try {
+          const parent: string | null = await Records.get(current).load('_parent?id');
+          current = parent || null;
+        } catch (error) {
+          console.error(error);
+          current = null;
+        }
+      }
+    }
+
+    try {
+      const rec = Records.getRecordToEdit(sourceFullId);
+      rec.att('_parent', targetParentFullId);
+      rec.att('_parentAtt', 'children');
+      await rec.save();
+
+      const { records: newRecords = [] } = await fetchRecords();
+      setRecords(sortNodesByName(newRecords));
+
+      const affectedParents = [sourceOldParent, targetParentFullId].filter(Boolean) as string[];
+      document.dispatchEvent(new CustomEvent(TREE_REFRESH_EVENT, { detail: { affectedParents } }));
+
+      NotificationManager.success(t(Labels.MOVE_NODE_SUCCESS, { nodeName: sourceName || '' }));
+    } catch (error) {
+      console.error(error);
+      NotificationManager.error(t(Labels.MOVE_NODE_ERROR, { nodeName: sourceName || '' }));
+    }
+  };
+
+  const dragContextValue: TreeDragContextValue = {
+    draggedNode,
+    setDraggedNode,
+    moveNode
+  };
+
+  const canDropOnRoot = !!draggedNode && draggedNode.parent !== rootParentRef;
+
+  useEffect(() => {
+    if (!draggedNode) {
+      setIsRootDropActive(false);
+      setIsHeaderDropActive(false);
+    }
+  }, [draggedNode]);
+
+  const handleRootDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!canDropOnRoot) {
+      return;
+    }
+    e.preventDefault();
+    try {
+      e.dataTransfer.dropEffect = 'move';
+    } catch (error) {
+      console.error(error);
+    }
+    if (!isRootDropActive) {
+      setIsRootDropActive(true);
+    }
+  };
+
+  const handleRootDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    if (e.currentTarget.contains(e.relatedTarget as Node)) {
+      return;
+    }
+    setIsRootDropActive(false);
+  };
+
+  const handleRootDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    setIsRootDropActive(false);
+    if (!canDropOnRoot || !draggedNode) {
+      return;
+    }
+    e.preventDefault();
+    moveNode(draggedNode.id, null, draggedNode.parent || null, draggedNode.name);
+  };
+
+  const handleHeaderDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!canDropOnRoot) {
+      return;
+    }
+    e.preventDefault();
+    try {
+      e.dataTransfer.dropEffect = 'move';
+    } catch (error) {
+      console.error(error);
+    }
+    if (!isHeaderDropActive) {
+      setIsHeaderDropActive(true);
+    }
+  };
+
+  const handleHeaderDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    if (e.currentTarget.contains(e.relatedTarget as Node)) {
+      return;
+    }
+    setIsHeaderDropActive(false);
+  };
+
+  const handleHeaderDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    setIsHeaderDropActive(false);
+    if (!canDropOnRoot || !draggedNode) {
+      return;
+    }
+    e.preventDefault();
+    moveNode(draggedNode.id, null, draggedNode.parent || null, draggedNode.name);
+  };
+
   const create = async (parent?: string) => {
     FormManager.openFormModal({
       ...(isJournalMode && { formId: createCategoryFormId }),
@@ -130,7 +271,7 @@ const HierarchicalTreeWidget = ({
       },
       onSubmit: (record: RecordImpl) => {
         fetchRecords().then(({ records = [] }) => {
-          setRecords(records);
+          setRecords(sortNodesByName(records));
 
           if (!isJournalMode && record.id) {
             updateCurrentUrl({ recordRef: record.id });
@@ -148,45 +289,60 @@ const HierarchicalTreeWidget = ({
         {canEdit && <Btn onClick={() => create()}>{t(Labels.ADD)}</Btn>}
       </div>
     ) : (
-      <div
-        className={classNames('ecos-hierarchical-tree-widget-body', {
-          draggable: isDraggingRow
-        })}
-      >
-        <ul className="tree">
-          {records.map(record => (
-            <li
-              key={record.id}
-              className={classNames('parent-tree', {
-                'parent-tree__active': recordRef && recordRef.includes(record.id),
-                'parent-tree__no-children': record.children.length === 0
+      <TreeDragContext.Provider value={dragContextValue}>
+        <div
+          className={classNames('ecos-hierarchical-tree-widget-body', {
+            draggable: isDraggingRow
+          })}
+        >
+          <ul className="tree">
+            {records.map(record => (
+              <li
+                key={record.id}
+                className={classNames('parent-tree', {
+                  'parent-tree__active': recordRef && recordRef.includes(record.id),
+                  'parent-tree__no-children': record.children.length === 0
+                })}
+                onClick={(event: React.MouseEvent<HTMLElement>) => {
+                  event.preventDefault();
+                  if (record.children.length === 0) {
+                    updateCurrentUrl({ recordRef: `${sourceId}@${record.id}` });
+                  }
+                }}
+              >
+                <TreeNode
+                  isDraggingRow={isDraggingRow}
+                  toggleOpen={() => updateCurrentUrl({ recordRef: `${sourceId}@${record.id}` })}
+                  updateRootChilds={childs => setRecords(sortNodesByName(childs))}
+                  rootRecord={rootRecord}
+                  recordRef={recordRef}
+                  node={record}
+                  onFetchChildren={fetchRecords}
+                  canEdit={canEdit}
+                  records={records}
+                  setRecords={setRecords}
+                  initialRecordRef={initialRecordRef}
+                  reloadGrid={reloadGrid}
+                  callbackSubmitForm={isJournalMode ? fetchBreadcrumbs : () => null}
+                />
+              </li>
+            ))}
+          </ul>
+          {canDropOnRoot && (
+            <div
+              className={classNames('ecos-hierarchical-tree-widget-root-drop', {
+                'ecos-hierarchical-tree-widget-root-drop--active': isRootDropActive
               })}
-              onClick={(event: React.MouseEvent<HTMLElement>) => {
-                event.preventDefault();
-                if (record.children.length === 0) {
-                  updateCurrentUrl({ recordRef: `${sourceId}@${record.id}` });
-                }
-              }}
+              onDragEnter={handleRootDragOver}
+              onDragOver={handleRootDragOver}
+              onDragLeave={handleRootDragLeave}
+              onDrop={handleRootDrop}
             >
-              <TreeNode
-                isDraggingRow={isDraggingRow}
-                toggleOpen={() => updateCurrentUrl({ recordRef: `${sourceId}@${record.id}` })}
-                updateRootChilds={childs => setRecords(childs)}
-                rootRecord={rootRecord}
-                recordRef={recordRef}
-                node={record}
-                onFetchChildren={fetchRecords}
-                canEdit={canEdit}
-                records={records}
-                setRecords={setRecords}
-                initialRecordRef={initialRecordRef}
-                reloadGrid={reloadGrid}
-                callbackSubmitForm={isJournalMode ? fetchBreadcrumbs : () => null}
-              />
-            </li>
-          ))}
-        </ul>
-      </div>
+              {t(Labels.MOVE_TO_ROOT)}
+            </div>
+          )}
+        </div>
+      </TreeDragContext.Provider>
     );
 
   const renderContent = () =>
@@ -236,7 +392,16 @@ const HierarchicalTreeWidget = ({
         fullHeight: isSameHeight
       })}
     >
-      <div className="ecos-hierarchical-tree-widget-header">
+      <div
+        className={classNames('ecos-hierarchical-tree-widget-header', {
+          'ecos-hierarchical-tree-widget-header--root-drop-available': canDropOnRoot,
+          'ecos-hierarchical-tree-widget-header--root-drop-active': isHeaderDropActive
+        })}
+        onDragEnter={handleHeaderDragOver}
+        onDragOver={handleHeaderDragOver}
+        onDragLeave={handleHeaderDragLeave}
+        onDrop={handleHeaderDrop}
+      >
         <div className="ecos-hierarchical-tree-widget-header-info">
           <h4
             onClick={(event: React.MouseEvent<HTMLElement>) => {

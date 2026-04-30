@@ -125,6 +125,13 @@ $kanban-head-height: 50px;
 
 // Swimlane DnD styles — mirrors .ecos-kanban__body_dragging behavior
 .ecos-kanban__swimlanes_dragging {
+  // Keep the row (and therefore each cell) tall enough to remain a usable drop
+  // target while the only card in a cell is in flight — otherwise the placeholder
+  // collapses inside `overflow: hidden` and the cell visually disappears.
+  .ecos-kanban__swimlane-body-inner {
+    min-height: 100px;
+  }
+
   .ecos-kanban__column {
     --color-column: #{HexToRGB($primary)};
 
@@ -132,6 +139,7 @@ $kanban-head-height: 50px;
     border-style: dotted;
     border-color: rgba(var(--color-column), 1);
     background: rgba(var(--color-column), 0.1);
+    min-height: 100px;
 
     &::before {
       color: rgba(var(--color-column), 1);

@@ -34,6 +34,7 @@ import EcosSelect from './custom/ecosSelect';
 import HorizontalLine from './custom/horizontalLine';
 import MLText from './custom/mlText';
 import MLTextarea from './custom/mlTextarea';
+import SelectHierarchical from './custom/selectHierarchical';
 import SelectJournal from './custom/selectJournal';
 import SelectAction from './custom/selectAction';
 import SelectOrgstruct from './custom/selectOrgstruct';
@@ -71,6 +72,7 @@ const components = {
   phoneNumber: PhoneNumber,
   radio: Radio,
   select: Select,
+  selectHierarchical: SelectHierarchical,
   selectJournal: SelectJournal,
   selectAction: SelectAction,
   selectOrgstruct: SelectOrgstruct,

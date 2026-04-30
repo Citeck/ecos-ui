@@ -410,6 +410,19 @@ export function isPDFbyStr(str) {
   return (str || '').toLowerCase().endsWith('pdf');
 }
 
+const TEXT_EXTENSIONS = ['txt', 'log', 'har', 'csv', 'xml', 'html', 'json', 'yaml', 'yml'];
+
+export function isTextByStr(str) {
+  const lower = (str || '').toLowerCase();
+  if (!lower) {
+    return false;
+  }
+  // formatLink() in api/docPreview.js appends fragment "#.ext|filename.ext"
+  const fragmentMatch = lower.match(/#\.([a-z0-9]+)(?:\||$)/);
+  const ext = fragmentMatch ? fragmentMatch[1] : lower.substring(lower.lastIndexOf('.') + 1);
+  return TEXT_EXTENSIONS.includes(ext);
+}
+
 /**
  * Implementation of downloading a file with adding an element to the dom and removing it after a click
  * @param link link to download file

@@ -78,7 +78,7 @@ const ChatInput = ({
         ref={fileInputRef}
         type="file"
         multiple
-        accept=".pdf,.docx,.txt,.doc,.rtf"
+        accept=".pdf,.docx,.txt,.doc,.rtf,.bpmn,.xml"
         style={{ display: 'none' }}
         onChange={(e) => onFileUpload(e.target.files)}
       />

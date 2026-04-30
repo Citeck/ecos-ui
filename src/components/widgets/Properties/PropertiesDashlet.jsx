@@ -222,8 +222,23 @@ class PropertiesDashlet extends BaseWidget {
 
   handleUpdate() {
     if (this.state.wasLastModifiedWithInlineEditor || this.state.wasLastModifiedWithFormSubmit) {
-      this.setState({ wasLastModifiedWithInlineEditor: false, wasLastModifiedWithFormSubmit: false });
+      const form = get(this._propertiesRef, 'current._ecosForm.current._form');
+
+      if (form && isFunction(form.getAllComponents)) {
+        form.getAllComponents().forEach(component => {
+          component.valueChangedByUser = false;
+        });
+      }
+
+      this.setState({
+        wasLastModifiedWithInlineEditor: false,
+        wasLastModifiedWithFormSubmit: false,
+        isSaving: false,
+        formIsValid: true
+      });
+
       this.checkPermissions();
+
       return;
     }
 
@@ -261,13 +276,13 @@ class PropertiesDashlet extends BaseWidget {
   };
 
   submitForm = isDraft => {
-    const { formIsValid } = this.state;
+    const currentForm = get(this._propertiesRef, 'current._ecosForm.current');
+    const form = get(currentForm, '_form');
 
-    if (!formIsValid && !isDraft) {
+    if (!isDraft && form && isFunction(form.checkValidity) && !form.checkValidity(form.data, false)) {
+      this.setState({ formIsValid: false });
       return;
     }
-
-    const currentForm = get(this._propertiesRef, 'current._ecosForm.current');
 
     this.setState({ formIsChanged: false, isSaving: true, wasLastModifiedWithFormSubmit: true }, () => {
       currentForm.submitForm.cancel();
@@ -276,10 +291,13 @@ class PropertiesDashlet extends BaseWidget {
       const baseForm = get(this._propertiesRef, 'current._hiddenEcosForm.current._form');
 
       // Flush any pending widget values (e.g. flatpickr debounces time-spinner
-      // changes for 300 ms) so that submission.data is up-to-date.
+      // changes for 300 ms) so that submission.data is up-to-date. Use
+      // noUpdateEvent so the flush does not emit form 'change' events that
+      // would later resurface as a stale onFormChanged with dirty=true and
+      // disable the Save button on the next edit cycle.
       if (submission) {
         const allComponents = submission.getAllComponents();
-        allComponents.forEach(component => component.updateValue({ changeByUser: true }));
+        allComponents.forEach(component => component.updateValue({ changeByUser: true, noUpdateEvent: true }));
       }
 
       currentForm.submitForm(baseForm, submission, true);
@@ -321,7 +339,7 @@ class PropertiesDashlet extends BaseWidget {
   };
 
   onPropertiesUpdate = () => {
-    this.setState({ formIsChanged: true, isSaving: false }, () => this.setState({ formIsChanged: false }));
+    this.setState({ formIsChanged: true, isSaving: false, formIsValid: true }, () => this.setState({ formIsChanged: false }));
   };
 
   setTitle = title => {

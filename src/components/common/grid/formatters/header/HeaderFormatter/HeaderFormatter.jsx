@@ -33,6 +33,7 @@ export default class HeaderFormatter extends Component {
     super(props);
 
     this.thRef = React.createRef();
+    this._filterWrapperRef = React.createRef();
     this._id = getId();
     this.fetchValue = false;
     this.state = {
@@ -290,6 +291,7 @@ export default class HeaderFormatter extends Component {
 
     const { open } = this.state;
     const filterIcon = document.getElementById(this.tooltipFilterId);
+    const isInModal = !!(filterIcon && filterIcon.closest('.modal'));
 
     return (
       <Tooltip
@@ -298,7 +300,7 @@ export default class HeaderFormatter extends Component {
         trigger="click"
         placement="top"
         boundariesElement="window"
-        className="ecos-th__filter-tooltip"
+        className={classNames('ecos-th__filter-tooltip', { 'ecos-modal-tooltip': isInModal })}
         innerClassName="ecos-th__filter-tooltip-body"
         arrowClassName="ecos-th__filter-tooltip-marker"
         modifiers={{
@@ -342,10 +344,15 @@ export default class HeaderFormatter extends Component {
           }
         }}
       >
-        <ReactResizeDetector handleWidth onResize={() => this.forceUpdate()}>
-          <ClickOutside handleClickOutside={this.handleClickOutside} excludeElements={[filterIcon, ...document.querySelectorAll('.modal')]}>
-            {tooltipBody}
-          </ClickOutside>
+        <ReactResizeDetector handleWidth onResize={() => this.forceUpdate()} targetRef={this._filterWrapperRef}>
+          <div ref={this._filterWrapperRef}>
+            <ClickOutside
+              handleClickOutside={this.handleClickOutside}
+              excludeElements={[filterIcon, ...document.querySelectorAll('.modal')]}
+            >
+              {tooltipBody}
+            </ClickOutside>
+          </div>
         </ReactResizeDetector>
       </Tooltip>
     );

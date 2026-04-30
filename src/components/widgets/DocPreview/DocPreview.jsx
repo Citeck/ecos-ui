@@ -16,6 +16,7 @@ import { Btn } from '../../common/btns';
 
 import ImgViewer from './ImgViewer';
 import PdfViewer from './PdfViewer';
+import TextViewer from './TextViewer';
 import Toolbar from './Toolbar';
 import getViewer from './Viewer';
 import { Labels } from './util';
@@ -23,7 +24,7 @@ import { Labels } from './util';
 import { DocPreviewApi } from '@/api/docPreview';
 import { DocScaleOptions } from '@/constants';
 import { getOptimalHeight } from '@/helpers/layout';
-import { isPDFbyStr, t } from '@/helpers/util';
+import { isPDFbyStr, isTextByStr, t } from '@/helpers/util';
 
 import './style.scss';
 
@@ -37,6 +38,7 @@ class DocPreview extends Component {
   _toolbarRef = null;
   _bodyRef = null;
   _viewerRef = null;
+  _wrapperRef = React.createRef();
 
   static propTypes = {
     link: PropTypes.string,
@@ -203,6 +205,10 @@ class DocPreview extends Component {
 
   get isPDF() {
     return isPDFbyStr(this.state.link);
+  }
+
+  get isText() {
+    return !this.isPDF && isTextByStr(this.state.link);
   }
 
   get commonProps() {
@@ -552,6 +558,25 @@ class DocPreview extends Component {
     );
   }
 
+  textViewer() {
+    const { forwardedRef } = this.props;
+    const { link, downloadData } = this.state;
+
+    return (
+      <Text
+        src={link}
+        forwardedRef={forwardedRef}
+        downloadData={downloadData}
+        isLastDocument={this.isLastDocument}
+        {...this.commonProps}
+        onError={error => {
+          console.error(error);
+          this.setState({ error: t(Labels.Errors.FAILURE_FETCH) });
+        }}
+      />
+    );
+  }
+
   renderToolbar() {
     const { scale, toolbarConfig } = this.props;
     const { pdf, scrollPage, calcScale, downloadData, filesList, fileName, recordId } = this.state;
@@ -589,6 +614,10 @@ class DocPreview extends Component {
       return this.pdfViewer();
     }
 
+    if (this.isText) {
+      return this.textViewer();
+    }
+
     return this.imgViewer();
   }
 
@@ -619,6 +648,7 @@ class DocPreview extends Component {
 
     return (
       <div
+        ref={this._wrapperRef}
         className={classNames('ecos-doc-preview', className, {
           [`ecos-doc-preview_decreasing-step-${this.decreasingStep}`]: this.decreasingStep,
           'ecos-doc-preview_hidden': this.hiddenPreview
@@ -637,7 +667,7 @@ class DocPreview extends Component {
             {this.renderMessage()}
           </div>
         )}
-        <ReactResizeDetector handleWidth onResize={this.handleResizeWrapper} />
+        <ReactResizeDetector handleWidth onResize={this.handleResizeWrapper} targetRef={this._wrapperRef} />
       </div>
     );
   }
@@ -645,5 +675,6 @@ class DocPreview extends Component {
 
 const Pdf = getViewer(PdfViewer, true);
 const Img = getViewer(ImgViewer, false);
+const Text = getViewer(TextViewer, false);
 
 export default DocPreview;

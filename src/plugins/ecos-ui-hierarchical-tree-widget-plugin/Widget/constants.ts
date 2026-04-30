@@ -22,5 +22,12 @@ export const Labels = {
   CONFIRM_MODAL_DELETE_TEXT: 'record-action.delete.dialog.msg.remove-one',
   CARD_TO_CATEGORY_SUCCESS: 'hierarchical-tree-widget.card.to-category.success',
   CARD_TO_CATEGORY_ERROR: 'hierarchical-tree-widget.card.to-category.error',
-  CARD_TO_CATEGORY_TOOLTIP: 'hierarchical-tree-widget.card.to-category.tooltip'
+  CARD_TO_CATEGORY_TOOLTIP: 'hierarchical-tree-widget.card.to-category.tooltip',
+  MOVE_NODE_SUCCESS: 'hierarchical-tree-widget.move-node.success',
+  MOVE_NODE_ERROR: 'hierarchical-tree-widget.move-node.error',
+  MOVE_NODE_CYCLE: 'hierarchical-tree-widget.move-node.cycle',
+  MOVE_TO_ROOT: 'hierarchical-tree-widget.move-node.to-root'
 };
+
+export const TREE_NODE_DRAG_MIME = 'application/x-wiki-tree-node';
+export const TREE_REFRESH_EVENT = 'wiki-tree-refresh';

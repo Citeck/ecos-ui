@@ -13,6 +13,7 @@ import Input from '../Input';
 import Select from '../Select';
 
 import DatePicker from './DatePicker';
+import { getDateEditorContainer } from './dateEditorContainer';
 
 import { DateFormats } from '@/constants';
 import { num2str, prepareTooltipId, t } from '@/helpers/util';
@@ -110,12 +111,6 @@ class DateIntervalPicker extends Component {
     selectedType: this.dateTypeOptions[0],
     selectedTimeAgo: this.timeAgoOptions[0]
   };
-
-  constructor(props) {
-    super(props);
-
-    this.portal = this.createDateEditorContainer();
-  }
 
   componentDidMount() {
     const component = get(this.#componentRef, 'current');
@@ -306,15 +301,6 @@ class DateIntervalPicker extends Component {
 
     return settings;
   }
-
-  createDateEditorContainer = () => {
-    const div = document.createElement('div');
-
-    div.classList.add('date-editor-container');
-    document.body.appendChild(div);
-
-    return div;
-  };
 
   splitIntervalToParts = (props = this.props) => {
     const { value } = props;
@@ -674,7 +660,7 @@ class DateIntervalPicker extends Component {
             showTimeSelect={showTimeInput}
             selected={this.date}
             placeholderText={t(Labels.DATEPICKER_PLACEHOLDER)}
-            popperContainer={({ children }) => ReactDOM.createPortal(children, this.portal)}
+            popperContainer={({ children }) => ReactDOM.createPortal(children, getDateEditorContainer())}
             onChange={this.handleSelectDate}
           />
         );

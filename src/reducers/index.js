@@ -35,6 +35,7 @@ import header from './header';
 import iconSelect from './iconSelect';
 import instanceAdmin from './instanceAdmin';
 import journals from './journals';
+import hierarchy from './hierarchy';
 import kanban from './kanban';
 import menu from './menu';
 import menuSettings from './menuSettings';
@@ -104,6 +105,7 @@ const reducers = {
   instanceAdmin,
   adminSection,
   cmmnEditor,
+  hierarchy,
   kanban,
   processStatistics,
   customWidgetHtml,

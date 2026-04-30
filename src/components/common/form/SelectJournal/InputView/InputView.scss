@@ -64,6 +64,8 @@
       border-radius: 100px;
       box-sizing: border-box;
       max-width: 100%;
+      // Fits the absolutely-positioned hover actions (edit + delete) so they don't overflow on 1-2 char values.
+      min-width: 60px;
 
       & .select-journal__values-list-actions {
         position: absolute;

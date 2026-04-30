@@ -16,6 +16,7 @@ import { call, put, all, race, select, take, takeEvery, takeLatest } from 'redux
 
 import JournalsConverter from '../dto/journals'; // the shortened path is '@/...' breaks the tests
 
+import { checkHierarchyEnabled, setIsHierarchyEnabled } from '@/actions/hierarchy';
 import {
   applyJournalSetting,
   cancelGoToPageJournal,
@@ -86,6 +87,8 @@ import { ParserPredicate } from '@/components/Filters/predicates';
 import { WidgetsConfigType } from '@/components/Journals/JournalsPreviewWidgets/JournalsPreviewWidgets';
 import { DEFAULT_PAGINATION, isKanban, JOURNAL_DASHLET_CONFIG_VERSION } from '@/components/Journals/constants';
 import JournalsService, { EditorService, PresetsServiceApi } from '@/components/Journals/service';
+import { isSavedAttValueEqual } from '@/components/Journals/service/editors/editorUtils';
+import { buildSaveAttKey } from '@/components/Journals/service/journalColumnsResolver';
 import Records from '@/components/Records';
 import RecordImpl from '@/components/Records/Record';
 import ActionsRegistry from '@/components/Records/actions/actionsRegistry';
@@ -811,7 +814,7 @@ export function* getGridData(
   if (foundCategoryAspect && qJournalId) {
     if (qRecordRef && qRecordRef !== 'null') {
       categoryPredicates.push({
-        att: 'has-category:category',
+        att: 'tree-search:path',
         t: PREDICATE_EQ,
         val: qRecordRef
       });
@@ -1417,8 +1420,14 @@ function* sagaSaveRecords({ api, stateId, w }: IJournalsExtraArgumentsStore, act
     const tempAttributes: Record<string, string> = {};
 
     const currentColumn = grid.columns.find(item => item.attribute === attribute);
-
     const valueToSave = EditorService.getValueToSave(value, currentColumn?.multiple);
+    const optimisticData = grid.data.map(record => {
+      if (record.id === id) {
+        return { ...record, [attribute]: value };
+      }
+      return record;
+    });
+    yield put(setGrid(w({ ...grid, data: optimisticData, editingRules })));
 
     if (isNodeRef(id)) {
       yield call(api.journals.saveRecords, {
@@ -1429,17 +1438,7 @@ function* sagaSaveRecords({ api, stateId, w }: IJournalsExtraArgumentsStore, act
       });
     } else {
       const record: RecordImpl = yield Records.get(id);
-      for (const att in attributes) {
-        if (attributes.hasOwnProperty(att)) {
-          const attributeValue = attributes[att];
-
-          if (isObject(attributeValue) && !!get(attributeValue, 'value')) {
-            record.att(att, attributeValue.value);
-          } else {
-            record.att(att, attributeValue);
-          }
-        }
-      }
+      record.att(buildSaveAttKey(attribute, currentColumn?.type), valueToSave);
       yield record.save();
     }
 
@@ -1449,11 +1448,13 @@ function* sagaSaveRecords({ api, stateId, w }: IJournalsExtraArgumentsStore, act
 
     const savedRecord: Record<string, string> = yield call(api.journals.getRecord, { id, attributes: tempAttributes, noCache: true });
 
-    grid.data = grid.data.map(record => {
+    const { grid: currentGrid }: IJournalState = yield select(selectJournalData, stateId);
+
+    const updatedData = currentGrid.data.map(record => {
       if (record.id === id) {
         const savedValue = EditorService.getValueToSave(savedRecord[attribute], currentColumn?.multiple);
 
-        if (!isEqual(savedValue, valueToSave)) {
+        if (!isSavedAttValueEqual(savedValue, valueToSave, currentColumn?.type)) {
           savedRecord.error = attribute;
         }
 
@@ -1463,7 +1464,7 @@ function* sagaSaveRecords({ api, stateId, w }: IJournalsExtraArgumentsStore, act
       return record;
     });
 
-    yield put(setGrid(w({ ...grid, editingRules })));
+    yield put(setGrid(w({ ...currentGrid, data: updatedData, editingRules })));
   } catch (e) {
     console.error('[journals sagaSaveRecords saga error', e);
   }
@@ -1979,6 +1980,30 @@ export function* sagaFetchBreadcrumbs({ w, api }: IJournalsExtraArgumentsStore) 
   }
 }
 
+function* sagaCheckHierarchyEnabled({ stateId, w }: IJournalsExtraArgumentsStore, action: any) {
+  try {
+    const { journalId } = action.payload;
+    const typeRef: string = yield Records.get(`uiserv/journal@${journalId}`).load('typeRef?id');
+
+    if (!typeRef) {
+      yield put(setIsHierarchyEnabled(w(false)));
+      return;
+    }
+
+    const attrs: Array<{ id: string; type: string; configTypeRef: string; configChild: boolean }> = yield Records.get(typeRef).load(
+      'model.attributes[]{id,type,configTypeRef:config.typeRef,configChild:config.child?bool}'
+    );
+
+    const hasSelfAssoc =
+      Array.isArray(attrs) && attrs.some(a => a.type === 'ASSOC' && a.configTypeRef === typeRef && a.configChild === true);
+
+    yield put(setIsHierarchyEnabled(w(!!hasSelfAssoc)));
+  } catch (e) {
+    console.error('[journals sagaCheckHierarchyEnabled saga error', e);
+    yield put(setIsHierarchyEnabled(w(false)));
+  }
+}
+
 function* saga(ea: IJournalsExtraArgumentsStore) {
   yield takeEvery(getDashletConfig.toString(), wrapSaga, { ...ea, saga: sagaGetDashletConfig });
   yield takeEvery(setDashletConfigByParams.toString(), wrapSaga, { ...ea, saga: sagaSetDashletConfigFromParams });
@@ -2017,6 +2042,7 @@ function* saga(ea: IJournalsExtraArgumentsStore) {
   yield takeEvery(toggleViewMode.toString(), wrapSaga, { ...ea, saga: sagaToggleViewMode });
   yield takeEvery(getNextPage.toString(), wrapSaga, { ...ea, saga: sagaGetNextPage });
   yield takeEvery(fetchBreadcrumbs.toString(), wrapSaga, { ...ea, saga: sagaFetchBreadcrumbs });
+  yield takeLatest(checkHierarchyEnabled.toString(), wrapSaga, { ...ea, saga: sagaCheckHierarchyEnabled });
 }
 
 export default saga;

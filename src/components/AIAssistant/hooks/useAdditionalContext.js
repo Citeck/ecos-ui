@@ -29,7 +29,10 @@ const useAdditionalContext = (options = {}) => {
     documents: [],
     attributes: []
   });
-  const [workspaceContext, setWorkspaceContext] = useState(null);
+  const [workspaceContext, setWorkspaceContext] = useState(() => {
+    const wsId = getWorkspaceId();
+    return wsId ? { workspaceId: wsId, workspaceName: wsId } : null;
+  });
 
   // Auto-load workspace context on mount and when workspace changes
   useEffect(() => {
@@ -37,7 +40,15 @@ const useAdditionalContext = (options = {}) => {
 
     const loadWorkspace = () => {
       const wsId = getWorkspaceId();
-      if (!wsId) return;
+      if (!wsId) {
+        setWorkspaceContext(null);
+        return;
+      }
+
+      // Show id-only tag immediately while the proper name is loading
+      setWorkspaceContext(prev =>
+        prev && prev.workspaceId === wsId ? prev : { workspaceId: wsId, workspaceName: wsId }
+      );
 
       additionalContextService.loadWorkspaceContext(wsId).then(context => {
         if (!cancelled && context) {

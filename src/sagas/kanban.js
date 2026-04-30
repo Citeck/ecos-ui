@@ -178,6 +178,21 @@ function processCardRecords(records, inputByKey, boardConfig) {
   });
 }
 
+function* updateBoardConfigColors({ boardConfig, journalConfig, stateId }) {
+  if (!boardConfig || !journalConfig) {
+    return;
+  }
+  const coloredColumn = (journalConfig.columns || []).find(col => get(col, 'newFormatter.type') === 'colored');
+  if (coloredColumn) {
+    boardConfig.coloredAttr = coloredColumn.attribute || coloredColumn.dataField;
+    boardConfig.colorMap = get(coloredColumn, 'newFormatter.config.color', {});
+  } else {
+    delete boardConfig.coloredAttr;
+    delete boardConfig.colorMap;
+  }
+  yield put(setBoardConfig({ boardConfig, stateId }));
+}
+
 export function* sagaGetBoardList({ api }, { payload }) {
   try {
     const { journalId, stateId, enableEmptyData } = payload;
@@ -283,13 +298,7 @@ export function* sagaGetBoardData({ api }, { payload }) {
       journalSetting = yield getJournalSettingFully(api, { journalConfig, stateId }, w);
     }
 
-    // Extract colored formatter column for card border coloring (used in both grouped and non-grouped modes)
-    const coloredColumn = (journalConfig.columns || []).find(col => get(col, 'newFormatter.type') === 'colored');
-    if (coloredColumn) {
-      boardConfig.coloredAttr = coloredColumn.attribute || coloredColumn.dataField;
-      boardConfig.colorMap = get(coloredColumn, 'newFormatter.config.color', {});
-      yield put(setBoardConfig({ boardConfig, stateId }));
-    }
+    yield updateBoardConfigColors({ boardConfig, journalConfig, stateId });
 
     const pagination = DEFAULT_PAGINATION;
 
@@ -390,8 +399,16 @@ export function* sagaGetData({ api }, { payload }) {
             }
           : undefined;
 
+        // Per-column skip = this column's loaded record count. Global pagination skip
+        // (page * maxItems) drifts past un-loaded records after a move (loadedCount stops
+        // being a multiple of maxItems), causing 1-2 records per page to be silently skipped
+        // on subsequent scrolls — visible as the badge dropping from 42 to 38, etc.
+        const colLoadedCount = get(prevDataCards, [i, 'records', 'length'], 0);
+        const colPagination = { ...params.pagination, skipCount: colLoadedCount };
+
         const settings = JournalsConverter.getSettingsForDataLoaderServer({
           ...params,
+          pagination: colPagination,
           onlyLinked,
           attrsToLoad,
           recordRef,
@@ -447,10 +464,19 @@ export function* sagaGetData({ api }, { payload }) {
         // only unique records
         const allRecords = [...new Map([...prevRecords, ...preparedRecords].map(record => [record.id, record])).values()];
 
-        if (data.totalCount >= allRecords.length) {
-          dataCards.push({ totalCount: data.totalCount, records: [...allRecords], status: data.status });
+        // End-of-data detection: only cap when the fetch made literally no progress
+        // (server returned nothing new after dedup). A short page (returnedCount < maxItems)
+        // alone doesn't mean end — could just be the last partial page with more records
+        // still legitimate. Capping on short page caused real records to disappear from
+        // the badge after scroll (41 → 37).
+        const reachedEnd = data.records.length === 0 && allRecords.length === prevRecords.length;
+        const serverTotalCount = typeof data.totalCount === 'number' ? data.totalCount : prevTotalCount;
+        const nextTotalCount = reachedEnd ? allRecords.length : Math.max(serverTotalCount || 0, allRecords.length);
+
+        if (nextTotalCount >= allRecords.length) {
+          dataCards.push({ totalCount: nextTotalCount, records: [...allRecords], status: data.status });
         } else {
-          dataCards.push({ totalCount: data.totalCount, records: [...preparedRecords], status: data.status });
+          dataCards.push({ totalCount: nextTotalCount, records: [...preparedRecords], status: data.status });
         }
       }
     });
@@ -478,8 +504,15 @@ export function* sagaGetActions({ api }, { payload }) {
     const { resolvedActions: prevResolvedActions = [] } = yield select(selectKanban, stateId);
 
     const resolvedActions = yield (boardConfig.columns || []).map(function* (column, i) {
-      const newResolvedActions = yield call([JournalsService, JournalsService.getRecordActions], boardConfig, newRecordRefs[i]);
       const status = column.id || '';
+
+      // Skip columns whose records didn't change — keep previously resolved actions.
+      // Reduces redundant queries to uiserv/record-actions after partial reloads (e.g. card move).
+      if (newRecordRefs[i] === undefined) {
+        return { ...get(prevResolvedActions, [i], {}), status };
+      }
+
+      const newResolvedActions = yield call([JournalsService, JournalsService.getRecordActions], boardConfig, newRecordRefs[i]);
       const actions = { ...newResolvedActions.forRecord, status };
 
       return { ...get(prevResolvedActions, [i], {}), ...actions };
@@ -620,15 +653,23 @@ function* reloadColumns({ api, stateId, boardConfig, columnIds }) {
 
   yield all(
     columnIds.map(function* (columnId) {
-      const colIndex = columns.findIndex(c => c.id === columnId);
+      const colIndex = currentDataCards.findIndex(c => c.status === columnId);
       if (colIndex === -1) return;
 
-      const column = columns[colIndex];
+      const column = columns.find(c => c.id === columnId) || { id: columnId };
       const colPredicate = KanbanConverter.preparePredicate(column);
       const statusModifiedPredicate = KanbanConverter.getStatusModifiedPredicate(column);
 
+      // Refetch only as many records as we actually display. Asking for more (e.g. rounding up
+      // to a page boundary) makes the server return totalCount = requested maxItems instead
+      // of the real filtered count — visible as the badge bouncing through inflated values
+      // (11 → 30 → 10) before the next scroll-fetch corrects it.
+      const loadedCount = (currentDataCards[colIndex].records || []).length;
+      const reloadMaxItems = Math.max(loadedCount, DEFAULT_PAGINATION.maxItems);
+
       const settings = JournalsConverter.getSettingsForDataLoaderServer({
         ...params,
+        pagination: { skipCount: 0, maxItems: reloadMaxItems, page: 1 },
         predicates: [...predicates, colPredicate, statusModifiedPredicate],
         searchPredicate
       });
@@ -636,7 +677,13 @@ function* reloadColumns({ api, stateId, boardConfig, columnIds }) {
       const res = yield call([JournalsService, JournalsService.getJournalData], journalConfig, { ...settings, columns: journalColumns });
 
       const records = processCardRecords(res.records, inputByKey, boardConfig);
-      updatedDataCards[colIndex] = { ...updatedDataCards[colIndex], records, totalCount: res.totalCount || 0 };
+
+      // Trust server totalCount but never let it drop below what we actually have —
+      // and don't cap on a short page alone (could be a legitimate last page; capping
+      // there caused real records to disappear from the badge after the next scroll).
+      const serverTotalCount = typeof res.totalCount === 'number' ? res.totalCount : 0;
+      const totalCount = Math.max(serverTotalCount, records.length);
+      updatedDataCards[colIndex] = { ...updatedDataCards[colIndex], records, totalCount };
     })
   );
 
@@ -648,7 +695,11 @@ function* reloadColumns({ api, stateId, boardConfig, columnIds }) {
   yield put(setDataCards({ stateId, dataCards: updatedDataCards }));
   yield put(setTotalCount({ stateId, totalCount }));
 
-  const newRecordRefs = updatedDataCards.map(cards => (cards.records || []).map(record => record.id));
+  // Only refresh actions for the columns we actually reloaded — sagaGetActions keeps prev for the rest.
+  const affected = new Set(columnIds);
+  const newRecordRefs = updatedDataCards.map(card =>
+    affected.has(card.status) ? (card.records || []).map(record => record.id) : undefined
+  );
   yield sagaGetActions({ api }, { payload: { boardConfig, newRecordRefs, stateId } });
 }
 
@@ -707,28 +758,33 @@ export function* sagaMoveCard({ api }, { payload }) {
     const dataCards = cloneDeep(prevDataCards);
     rollbackCards = cloneDeep(prevDataCards);
 
-    const fromColumnIndex = boardConfig.columns.findIndex(column => column.id === fromColumnRef);
-    const toColumnIndex = boardConfig.columns.findIndex(column => column.id === toColumnRef);
+    const fromColumnIndex = dataCards.findIndex(col => col.status === fromColumnRef);
+    const toColumnIndex = dataCards.findIndex(col => col.status === toColumnRef);
 
-    const fromColumnId = fromColumnIndex === -1 ? '' : boardConfig.columns[fromColumnIndex].id;
-    const toColumnId = toColumnIndex === -1 ? '' : boardConfig.columns[toColumnIndex].id;
+    if (fromColumnIndex === -1 || toColumnIndex === -1) {
+      throw new Error('Column not found in dataCards');
+    }
 
-    yield put(setLoadingColumns({ stateId, isLoadingColumns: [fromColumnId, toColumnId] }));
+    yield put(setLoadingColumns({ stateId, isLoadingColumns: [fromColumnRef, toColumnRef] }));
 
     const deleted = dataCards[fromColumnIndex].records.splice(cardIndex, 1);
-    dataCards[fromColumnIndex].totalCount -= 1;
 
-    if (isEmpty(get(dataCards, [toColumnIndex, 'records']))) {
+    // Defensive: ensure destination has a records array. Don't reset totalCount —
+    // an empty visible list doesn't mean the column has zero records (filters,
+    // pagination, etc.), and resetting it produces a counter flicker on move.
+    if (!Array.isArray(get(dataCards, [toColumnIndex, 'records']))) {
       set(dataCards, [toColumnIndex, 'records'], []);
-      set(dataCards, [toColumnIndex, 'totalCount'], 0);
     }
     const card = get(deleted, [0], {});
     const recordRef = card.id || card.cardId;
 
     dataCards[toColumnIndex].records.unshift(card);
-    dataCards[toColumnIndex].totalCount += 1;
 
-    // Optimistic update for immediate visual feedback
+    // Optimistic update: move card visually, but leave totalCount alone.
+    // Server reads use EVENTUAL consistency; the post-move reload often returns the
+    // pre-move count, so an optimistic +1/-1 bounces (e.g. 43 → 44 → 43 → 44 once
+    // server catches up). Keeping totalCount stable until the reload settles avoids
+    // the bounce — the visible card list still updates immediately.
     yield put(setDataCards({ stateId, dataCards }));
 
     const result = yield call(api.kanban.moveRecord, { recordRef, columnId: toColumnRef });
@@ -738,7 +794,7 @@ export function* sagaMoveCard({ api }, { payload }) {
     }
 
     // Reload affected columns from server to get correct sorting
-    yield call(reloadColumns, { api, stateId, boardConfig, columnIds: [fromColumnId, toColumnId] });
+    yield call(reloadColumns, { api, stateId, boardConfig, columnIds: [fromColumnRef, toColumnRef] });
   } catch (e) {
     yield put(setDataCards({ stateId: payload.stateId, dataCards: rollbackCards }));
     NotificationManager.error(e.message || t('kanban.error.card-not-moved'), t('error'));
@@ -766,6 +822,8 @@ export function* sagaApplyFilter({ api }, { payload }) {
     yield put(setJournalSetting(w({ predicate, kanban })));
     yield put(setKanbanSettings({ stateId, kanbanSettings: kanban || {} }));
     yield put(setPagination({ stateId, pagination }));
+
+    yield updateBoardConfigColors({ boardConfig, journalConfig, stateId });
 
     if (swimlaneGrouping) {
       yield sagaLoadSwimlaneValues({ api }, { payload: { stateId } });
@@ -811,6 +869,8 @@ export function* sagaApplyPreset({ api }, { payload }) {
 
     yield put(setKanbanSettings({ stateId, kanbanSettings: kanban || {} }));
     yield put(setPagination({ stateId, pagination }));
+
+    yield updateBoardConfigColors({ boardConfig, journalConfig, stateId });
 
     if (swimlaneGrouping) {
       yield sagaLoadSwimlaneValues({ api }, { payload: { stateId } });
@@ -926,6 +986,9 @@ export function* sagaLoadSwimlaneValues({ api }, { payload }) {
       : [];
 
     const allPredicates = [...predicates];
+    if (journalConfig.predicate) {
+      allPredicates.push(journalConfig.predicate);
+    }
     if (searchPredicate && searchPredicate.length) {
       allPredicates.push(...(Array.isArray(searchPredicate) ? searchPredicate : [searchPredicate]));
     }
@@ -1017,7 +1080,7 @@ export function* sagaLoadSwimlaneCells({ api }, { payload }) {
             searchPredicate: queryParams.searchPredicate
           });
 
-          settings.pagination = cellPagination;
+          settings.page = cellPagination;
 
           const res = yield call([JournalsService, JournalsService.getJournalData], journalConfig, {
             ...settings,
@@ -1074,6 +1137,11 @@ export function* sagaLoadMoreSwimlaneCell({ api }, { payload }) {
       return;
     }
 
+    const loadedCount = (cell.records || []).length;
+    if (typeof cell.totalCount === 'number' && cell.totalCount > 0 && loadedCount >= cell.totalCount) {
+      return;
+    }
+
     const columns = get(journalSetting, 'kanban.columns') || boardConfig.columns || [];
     const column = columns.find(c => c.id === statusId);
 
@@ -1111,7 +1179,7 @@ export function* sagaLoadMoreSwimlaneCell({ api }, { payload }) {
       searchPredicate: queryParams.searchPredicate
     });
 
-    settings.pagination = newPagination;
+    settings.page = newPagination;
 
     const res = yield call([JournalsService, JournalsService.getJournalData], journalConfig, {
       ...settings,
@@ -1119,7 +1187,20 @@ export function* sagaLoadMoreSwimlaneCell({ api }, { payload }) {
     });
 
     const newRecords = processCardRecords(res.records, inputByKey, boardConfig);
-    const allRecords = [...cell.records, ...newRecords];
+
+    // Dedup by id: overlapping pages must not inflate records.length.
+    const mergedMap = new Map();
+    (cell.records || []).forEach(r => r && mergedMap.set(r.id, r));
+    newRecords.forEach(r => r && mergedMap.set(r.id, r));
+    const allRecords = [...mergedMap.values()];
+
+    // End-of-data detection: if the server returned fewer records than asked for,
+    // or nothing new after dedup, cap totalCount to what we actually loaded — otherwise
+    // a stale/growing server totalCount keeps "Show more" visible and inflates counters.
+    const returnedCount = (res.records || []).length;
+    const reachedEnd = returnedCount < newPagination.maxItems || allRecords.length === loadedCount;
+    const serverTotalCount = typeof res.totalCount === 'number' ? res.totalCount : cell.totalCount;
+    const nextTotalCount = reachedEnd ? allRecords.length : Math.max(serverTotalCount || 0, allRecords.length);
 
     yield put(
       setSwimlaneCellData({
@@ -1127,7 +1208,7 @@ export function* sagaLoadMoreSwimlaneCell({ api }, { payload }) {
         swimlaneId,
         statusId,
         records: allRecords,
-        totalCount: res.totalCount || cell.totalCount
+        totalCount: nextTotalCount
       })
     );
   } catch (e) {
@@ -1484,6 +1565,8 @@ export function* sagaReloadBoardData({ api }, { payload }) {
 
     const { boardConfig, formProps, swimlaneGrouping } = yield select(selectKanban, stateId);
     const { journalConfig, journalSetting } = yield select(selectJournalData, stateId);
+
+    yield updateBoardConfigColors({ boardConfig, journalConfig, stateId });
 
     if (swimlaneGrouping) {
       yield sagaLoadSwimlaneValues({ api }, { payload: { stateId } });

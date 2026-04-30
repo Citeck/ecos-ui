@@ -19,7 +19,51 @@ export default [
     validate: {
       required: false
     },
+    logic: [
+      {
+        name: 'Disabled field',
+        trigger: {
+          type: 'javascript',
+          javascript: "result = !!data['customJournalId'] && data['customJournalId'].length > 0"
+        },
+        actions: [
+          {
+            name: 'Disable action',
+            type: 'property',
+            property: {
+              label: 'Disabled',
+              value: 'disabled',
+              type: 'boolean'
+            },
+            state: true
+          },
+          {
+            name: 'Edit tips',
+            type: 'property',
+            property: {
+              label: 'Description',
+              value: 'description',
+              type: 'string'
+            },
+            text: () => t('form-constructor.tabs-description.journalId.disabled')
+          }
+        ]
+      }
+    ],
     weight: 20
+  },
+  {
+    type: 'textarea',
+    weight: 21,
+    input: true,
+    key: 'customJournalId',
+    label: {
+      ru: 'Пользовательское значение ID журнала',
+      en: 'Custom value of journal ID'
+    },
+    editor: 'ace',
+    rows: 10,
+    placeholder: 'value = data._selectedJournalId;'
   },
   {
     type: 'select',

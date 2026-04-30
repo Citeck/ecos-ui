@@ -12,9 +12,12 @@ import { Icon, Tooltip } from '../../common';
 import { FormWrapper } from '../../common/dialogs';
 import { DropdownOuter } from '../../common/form';
 import { Labels } from '../constants';
+
 import ColoredFormatter from '@/components/Journals/service/formatters/registry/ColoredFormatter/ColoredFormatter';
 
 class Card extends React.PureComponent {
+  _cardBodyRef = React.createRef();
+
   state = {
     openerSet: new Set(),
     noForm: true
@@ -122,7 +125,10 @@ class Card extends React.PureComponent {
     const { cardFieldsLabelLayout } = boardConfig;
 
     return (
-      <div className={classNames('ecos-kanban__card-body', { 'ecos-kanban__card-body_hidden': openerSet.has(data.cardId) })}>
+      <div
+        ref={this._cardBodyRef}
+        className={classNames('ecos-kanban__card-body', { 'ecos-kanban__card-body_hidden': openerSet.has(data.cardId) })}
+      >
         <FormWrapper
           className={classNames('ecos-kanban__card-form', { 'ecos-kanban__card-form_inline': cardFieldsLabelLayout === 'TOP' })}
           isVisible
@@ -137,7 +143,7 @@ class Card extends React.PureComponent {
             }
           }}
         />
-        <ReactResizeDetector handleHeight onResize={debounce(this.handleDetectHeight, 400)} />
+        <ReactResizeDetector handleHeight onResize={debounce(this.handleDetectHeight, 400)} targetRef={this._cardBodyRef} />
       </div>
     );
   };

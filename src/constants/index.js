@@ -182,6 +182,8 @@ export const DocScaleOptions = {
   PAGE_WIDTH: 'page-width'
 };
 
+export const DOC_PREVIEW_TEXT_MAX_BYTES = 2 * 1024 * 1024;
+
 export const Permissions = {
   Write: 'Write',
   Read: 'Read'

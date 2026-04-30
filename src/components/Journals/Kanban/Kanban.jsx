@@ -16,7 +16,15 @@ import HeaderColumn from './HeaderColumn';
 import KanbanColumn from './KanbanColumn';
 import Swimlane from './Swimlane';
 
-import { cancelGetNextBoardPage, getNextPage, loadMoreSwimlaneCell, moveCard, moveSwimlaneCard, runAction, toggleSwimlaneCollapse } from '@/actions/kanban';
+import {
+  cancelGetNextBoardPage,
+  getNextPage,
+  loadMoreSwimlaneCell,
+  moveCard,
+  moveSwimlaneCard,
+  runAction,
+  toggleSwimlaneCollapse
+} from '@/actions/kanban';
 import { ParserPredicate } from '@/components/Filters/predicates';
 import EmptyColumns from '@/components/common/icons/EmptyColumns';
 import { t } from '@/helpers/util';
@@ -45,8 +53,7 @@ function mapDispatchToProps(dispatch, props) {
     moveCard: data => dispatch(moveCard({ stateId: props.stateId, ...data })),
     runAction: (recordRef, action) => dispatch(runAction({ recordRef, action, stateId: props.stateId })),
     toggleSwimlaneCollapse: swimlaneId => dispatch(toggleSwimlaneCollapse({ stateId: props.stateId, swimlaneId })),
-    loadMoreSwimlaneCell: (swimlaneId, statusId) =>
-      dispatch(loadMoreSwimlaneCell({ stateId: props.stateId, swimlaneId, statusId })),
+    loadMoreSwimlaneCell: (swimlaneId, statusId) => dispatch(loadMoreSwimlaneCell({ stateId: props.stateId, swimlaneId, statusId })),
     moveSwimlaneCard: data => dispatch(moveSwimlaneCard({ stateId: props.stateId, ...data }))
   };
 }
@@ -63,6 +70,7 @@ class Kanban extends React.Component {
   refScroll = React.createRef();
   refHeader = React.createRef();
   refBottom = React.createRef();
+  _kanbanRef = React.createRef();
 
   state = {
     isDragging: false,
@@ -152,7 +160,13 @@ class Kanban extends React.Component {
   };
 
   handleScrollFrame = (scroll = {}) => {
-    if (!this.state.isDragging && !this.props.isLoading && !this.isNoMore() && scroll.scrollTop && scroll.scrollTop + scroll.clientHeight === scroll.scrollHeight) {
+    if (
+      !this.state.isDragging &&
+      !this.props.isLoading &&
+      !this.isNoMore() &&
+      scroll.scrollTop &&
+      scroll.scrollTop + scroll.clientHeight === scroll.scrollHeight
+    ) {
       this.props.getNextPage();
     }
   };
@@ -236,7 +250,18 @@ class Kanban extends React.Component {
    * @returns {JSX.Element}
    */
   renderColumn = (data, index) => {
-    const { runAction, selectedBoard, boardConfig, dataCards, resolvedActions, formProps, isLoading, isFirstLoading, isFiltered, isLoadingColumns } = this.props;
+    const {
+      runAction,
+      selectedBoard,
+      boardConfig,
+      dataCards,
+      resolvedActions,
+      formProps,
+      isLoading,
+      isFirstLoading,
+      isFiltered,
+      isLoadingColumns
+    } = this.props;
     const { isDragging } = this.state;
 
     const columnData = (dataCards || []).find(card => card.status === data.id) || {};
@@ -290,8 +315,12 @@ class Kanban extends React.Component {
     const cols = this.getColumns();
 
     return (
-      <ReactResizeDetector handleWidth onResize={this.handleResize}>
-        <div className={classNames('ecos-kanban', extraClassName, { 'ecos-kanban__new': isViewNewJournal })} style={{ '--count-col': cols.length || 1 }}>
+      <ReactResizeDetector handleWidth onResize={this.handleResize} targetRef={this._kanbanRef}>
+        <div
+          ref={this._kanbanRef}
+          className={classNames('ecos-kanban', extraClassName, { 'ecos-kanban__new': isViewNewJournal })}
+          style={{ '--count-col': cols.length || 1 }}
+        >
           <Scrollbars
             autoHeight
             autoHeightMin={this.getHeight(-10)}
@@ -446,7 +475,7 @@ class Kanban extends React.Component {
       onScrollFrame: this.handleScrollFrame,
       renderHeader: this.renderDefaultHeader,
       renderBody: this.renderDefaultBody,
-      renderAfterScrollbars: () => isLoading && page > 1 ? <PointsLoader className="ecos-kanban__loader" /> : null
+      renderAfterScrollbars: () => (isLoading && page > 1 ? <PointsLoader className="ecos-kanban__loader" /> : null)
     });
   }
 }

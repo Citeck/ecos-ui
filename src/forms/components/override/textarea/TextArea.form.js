@@ -82,7 +82,8 @@ const languageSelection = {
       { label: 'XML', value: 'xml' },
       { label: 'YAML', value: 'yaml' },
       { label: 'HTML', value: 'html' },
-      { label: 'JSON', value: 'json' }
+      { label: 'JSON', value: 'json' },
+      { label: 'Markdown', value: 'markdown' }
     ]
   },
   clearOnHide: true,

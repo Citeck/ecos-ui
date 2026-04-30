@@ -5,6 +5,10 @@
   padding: 0;
   height: 18px;
 
+  li {
+    height: 18px;
+  }
+
   & &-value {
     white-space: nowrap;
     width: 100%;

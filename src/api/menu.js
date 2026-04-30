@@ -132,6 +132,7 @@ export class MenuApi extends CommonApi {
   };
 
   getNewLiveSearch = async text => {
+    const enabledWs = getEnabledWorkspaces();
     return await Records.query(
       {
         sourceId: SourcesId.SEARCH,
@@ -139,8 +140,13 @@ export class MenuApi extends CommonApi {
           text,
           types: Object.keys(LiveSearchTypes)
             .map(key => LiveSearchTypes[key])
-            .filter(item => (!getEnabledWorkspaces() ? item !== LiveSearchTypes.WORKSPACES : true)),
-          maxItemsForType: 5
+            .filter(item => {
+              if (!enabledWs && item === LiveSearchTypes.WORKSPACES) return false;
+              if (!enabledWs && item === LiveSearchTypes.SEMANTIC) return false;
+              return true;
+            }),
+          maxItemsForType: 5,
+          ...(enabledWs && { workspaceId: getWorkspaceId() })
         }
       },
       Object.keys(Omit(LiveSearchAttributes, 'ID')).map(key => LiveSearchAttributes[key])

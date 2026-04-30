@@ -7,6 +7,7 @@ import ReactDOM from 'react-dom';
 
 import ListItem from '../../../ColumnsSetup/ListItem';
 
+import { getDndPortalContainer } from '@/helpers/dndPortalContainer';
 import { getId } from '@/helpers/util';
 
 import './DndList.scss';
@@ -28,7 +29,6 @@ export default class DndList extends Component {
 
     this._id = getId();
     this.state = { data: props.data || [] };
-    this.portal = this.createDraggableContainer();
   }
 
   componentDidUpdate(prevProps) {
@@ -38,22 +38,6 @@ export default class DndList extends Component {
       this.setState({ data });
     }
   }
-
-  componentWillUnmount() {
-    this.removeDraggableContainer();
-  }
-
-  createDraggableContainer = () => {
-    const div = document.createElement('div');
-
-    document.body.appendChild(div);
-
-    return div;
-  };
-
-  removeDraggableContainer = () => {
-    document.body.removeChild(this.portal);
-  };
 
   onDragEnd = result => {
     if (!result.destination) {
@@ -110,7 +94,7 @@ export default class DndList extends Component {
                         </ListItemWrapper>
                       );
 
-                      return snapshot.isDragging ? ReactDOM.createPortal(wrapper, this.portal) : wrapper;
+                      return snapshot.isDragging ? ReactDOM.createPortal(wrapper, getDndPortalContainer()) : wrapper;
                     }}
                   </Draggable>
                 ))}

@@ -516,4 +516,41 @@ describe('Util helpers', () => {
 
     check(data, 'permute');
   });
+
+  describe('Method isTextByStr', () => {
+    const data = [
+      { title: 'null returns false', input: [null], output: false },
+      { title: 'undefined returns false', input: [undefined], output: false },
+      { title: 'empty string returns false', input: [''], output: false },
+      { title: 'pdf returns false', input: ['foo.pdf'], output: false },
+      { title: 'png returns false', input: ['foo.png'], output: false },
+      { title: '.txt returns true', input: ['foo.txt'], output: true },
+      { title: '.log returns true', input: ['app.log'], output: true },
+      { title: '.har returns true', input: ['archive.har'], output: true },
+      { title: '.csv returns true', input: ['data.csv'], output: true },
+      { title: '.xml returns true', input: ['config.xml'], output: true },
+      { title: '.html returns true', input: ['page.html'], output: true },
+      { title: '.json returns true', input: ['data.json'], output: true },
+      { title: '.yaml returns true', input: ['config.yaml'], output: true },
+      { title: '.yml returns true', input: ['config.yml'], output: true },
+      { title: 'link with fragment hint .log', input: ['https://host/blob/x#.log|app.log'], output: true },
+      { title: 'link with fragment hint .json', input: ['https://host/blob/x#.json|data.json'], output: true },
+      { title: 'link with fragment hint .pdf returns false', input: ['https://host/blob/x#.pdf|doc.pdf'], output: false },
+      { title: 'link without extension returns false', input: ['https://host/blob/abc123'], output: false },
+      { title: 'uppercase extension still recognized', input: ['FILE.LOG'], output: true }
+    ];
+
+    check(data, 'isTextByStr');
+  });
+
+  describe('Method isPDFbyStr', () => {
+    const data = [
+      { title: 'null returns false', input: [null], output: false },
+      { title: '.pdf returns true', input: ['doc.pdf'], output: true },
+      { title: '.log returns false', input: ['app.log'], output: false },
+      { title: 'link with .pdf fragment returns true', input: ['https://host/blob/x#.pdf|doc.pdf'], output: true }
+    ];
+
+    check(data, 'isPDFbyStr');
+  });
 });

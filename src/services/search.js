@@ -13,7 +13,8 @@ export const LiveSearchTypes = {
   PEOPLE: 'PEOPLE',
   DOCUMENTS: 'DOCUMENTS',
   SITES: 'SITES',
-  WORKSPACES: 'WORKSPACES'
+  WORKSPACES: 'WORKSPACES',
+  SEMANTIC: 'SEMANTIC'
 };
 
 export default class SearchService {
@@ -84,6 +85,16 @@ export default class SearchService {
         data.url = Urls.USER(item.userName);
         data.description = [item.jobtitle, item.location].filter(Boolean).join(', ');
         break;
+
+      case Types.SEMANTIC: {
+        const semanticLink = Urls.DASHBOARD(item.nodeRef);
+        const semanticModifiedTimeParts = getRelativeTime(item.modifiedOn);
+
+        data.title = item.name;
+        data.url = semanticLink;
+        data.description = `${semanticModifiedTimeParts.relative}`;
+        break;
+      }
 
       default:
         console.warn('Unknown search autocomplete item type');

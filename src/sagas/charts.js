@@ -2,9 +2,9 @@ import { call, put, takeEvery } from 'redux-saga/effects';
 
 import { getChartData, setChartData, setError, setLoading } from '../actions/charts';
 
-function* sagaGetChartData({ api }, { payload: { stateId, typeRef, groupByParams, aggregationParam, selectedPreset } }) {
+function* sagaGetChartData({ api }, { payload: { stateId, typeRef, groupByParams, aggregationParam, selectedPreset, journalPredicate } }) {
   try {
-    const chartData = yield call(api.charts.getChartData, typeRef, groupByParams, aggregationParam, selectedPreset);
+    const chartData = yield call(api.charts.getChartData, typeRef, groupByParams, aggregationParam, selectedPreset, journalPredicate);
 
     yield put(setChartData({ stateId, chartData }));
     yield put(setError({ stateId, error: null }));

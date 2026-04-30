@@ -15,6 +15,7 @@ import { ParserPredicate } from '../predicates';
 
 import ListItem from './ListItem';
 
+import { getDndPortalContainer } from '@/helpers/dndPortalContainer';
 import { getId, handleCloseMenuOnScroll, t } from '@/helpers/util';
 
 import './FiltersGroup.scss';
@@ -24,7 +25,6 @@ export default class FiltersGroup extends Component {
 
   constructor(props) {
     super(props);
-    this.portal = this.createDraggableContainer();
   }
 
   get cloneFilters() {
@@ -124,20 +124,6 @@ export default class FiltersGroup extends Component {
     const { onAddGroup } = this.props;
     onAddGroup(condition);
   };
-
-  createDraggableContainer = () => {
-    const div = document.createElement('div');
-    document.body.appendChild(div);
-    return div;
-  };
-
-  removeDraggableContainer = () => {
-    document.body.removeChild(this.portal);
-  };
-
-  componentWillUnmount() {
-    this.removeDraggableContainer();
-  }
 
   getPlaceholder = text => (
     <Popper showAsNeeded text={text} popupClassName="ecos-formatter-popper" contentComponent={<span className="d-flex py-2">{text}</span>}>
@@ -266,7 +252,7 @@ export default class FiltersGroup extends Component {
                               groupConditions={groupConditions}
                             />
                           </ListItem>,
-                          this.portal
+                          getDndPortalContainer()
                         )
                       ) : (
                         <ListItem provided={provided}>
