@@ -1,5 +1,6 @@
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import React from 'react';
 import { connect } from 'react-redux';
 
 import {
@@ -95,4 +96,7 @@ const mapDispatchToProps = dispatch => ({
   addJournalMenuItems: data => dispatch(addJournalMenuItems(data))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(EditorCreateMenu);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(EditorCreateMenu);
