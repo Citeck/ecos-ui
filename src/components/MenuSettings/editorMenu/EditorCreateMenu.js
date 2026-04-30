@@ -93,7 +93,8 @@ const mapDispatchToProps = dispatch => ({
   setMenuItems: items => dispatch(setCreateMenuItems(items)),
   setLastAddedItems: items => dispatch(setLastAddedCreateItems(items)),
   setIsForAll: payload => dispatch(setIsForAllCreateMenu(payload)),
-  addJournalMenuItems: data => dispatch(addJournalMenuItems(data))
+  addJournalMenuItems: data => dispatch(addJournalMenuItems(data)),
+  getAuthorityInfoByRefs: refs => dispatch(getAuthorityInfoByRefs(refs))
 });
 
 export default connect(
