@@ -39,8 +39,8 @@
     "@lexical/utils": "0.26.0",
     "@monaco-editor/react": "^4.7.0",
     "@popperjs/core": "^2.4.4",
-    "@svar-ui/react-core": "^2.4.3",
-    "@svar-ui/react-gantt": "^2.5.2",
+    "@svar-ui/react-core": "2.4.3",
+    "@svar-ui/react-gantt": "2.5.2",
     "bignumber.js": "9.1.1",
     "bootstrap": "4.6.2",
     "bpmn-font": "0.12.1",
@@ -247,7 +247,11 @@
     "flatpickr@^4.6.6": "patch:flatpickr@npm%3A4.6.13#./.yarn/patches/flatpickr-npm-4.6.13-06399933fc.patch",
     "font-awesome@4.7.0": "patch:font-awesome@npm%3A4.7.0#./.yarn/patches/font-awesome-npm-4.7.0-7a553c5fbb.patch",
     "formiojs@3.30.1": "patch:formiojs@npm%3A3.30.1#./.yarn/patches/formiojs-npm-3.30.1-210b022db1.patch",
-    "connected-react-router@6.0.0": "patch:connected-react-router@npm%3A6.0.0#./.yarn/patches/connected-react-router-npm-6.0.0-4d298ac2d7.patch"
+    "connected-react-router@6.0.0": "patch:connected-react-router@npm%3A6.0.0#./.yarn/patches/connected-react-router-npm-6.0.0-4d298ac2d7.patch",
+    "@svar-ui/react-core@^2.4.3": "patch:@svar-ui/react-core@npm%3A2.4.3#./.yarn/patches/@svar-ui-react-core-npm-2.4.3-5c5a148a43.patch",
+    "@svar-ui/react-core@2.4.3": "patch:@svar-ui/react-core@npm%3A2.4.3#./.yarn/patches/@svar-ui-react-core-npm-2.4.3-5c5a148a43.patch",
+    "@svar-ui/react-gantt@^2.5.2": "patch:@svar-ui/react-gantt@npm%3A2.5.2#./.yarn/patches/@svar-ui-react-gantt-npm-2.5.2-4a5c29b098.patch",
+    "@svar-ui/react-gantt@2.5.2": "patch:@svar-ui/react-gantt@npm%3A2.5.2#./.yarn/patches/@svar-ui-react-gantt-npm-2.5.2-4a5c29b098.patch"
   },
   "volta": {
     "node": "20.19.5",

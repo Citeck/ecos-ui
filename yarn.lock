@@ -3442,7 +3442,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@svar-ui/react-core@npm:2.4.3, @svar-ui/react-core@npm:^2.4.3":
+"@svar-ui/react-core@npm:2.4.3":
   version: 2.4.3
   resolution: "@svar-ui/react-core@npm:2.4.3"
   dependencies:
@@ -3453,6 +3453,20 @@ __metadata:
     react: ">=18"
     react-dom: ">=18"
   checksum: 6f2937997e4c7663a6b6ec676702d74a0efab0d60d9eacba7302c0ad6096e609c6be444aed96e0846ba0cfa8554e490016a5f512110ee01d80878a355dc84449
+  languageName: node
+  linkType: hard
+
+"@svar-ui/react-core@patch:@svar-ui/react-core@npm%3A2.4.3#./.yarn/patches/@svar-ui-react-core-npm-2.4.3-5c5a148a43.patch::locator=ecos-ui%40workspace%3A.":
+  version: 2.4.3
+  resolution: "@svar-ui/react-core@patch:@svar-ui/react-core@npm%3A2.4.3#./.yarn/patches/@svar-ui-react-core-npm-2.4.3-5c5a148a43.patch::version=2.4.3&hash=aaa6e6&locator=ecos-ui%40workspace%3A."
+  dependencies:
+    "@svar-ui/core-locales": ^2.4.0
+    "@svar-ui/lib-dom": 0.11.1
+    "@svar-ui/lib-react": 1.2.2
+  peerDependencies:
+    react: ">=18"
+    react-dom: ">=18"
+  checksum: cf626c2166311c10e299b3ea159f9e2f19ff10e2198dcdf7869def99b727ea656729a3a8df56258473ba34234c5c93c81fb633ad677fe0a7d6ef3470ea448de1
   languageName: node
   linkType: hard
 
@@ -3492,7 +3506,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@svar-ui/react-gantt@npm:^2.5.2":
+"@svar-ui/react-gantt@npm:2.5.2":
   version: 2.5.2
   resolution: "@svar-ui/react-gantt@npm:2.5.2"
   dependencies:
@@ -3511,6 +3525,28 @@ __metadata:
     react: ">=18"
     react-dom: ">=18"
   checksum: f87e6c0ed0b580e08a8714f7a58c28ff697263114f11a0ea374ce1c6cd3794dfd1042cbe20babdb912a1e2ef22f27e132c3c535bf11c7b7c3159cbd11e1627cd
+  languageName: node
+  linkType: hard
+
+"@svar-ui/react-gantt@patch:@svar-ui/react-gantt@npm%3A2.5.2#./.yarn/patches/@svar-ui-react-gantt-npm-2.5.2-4a5c29b098.patch::locator=ecos-ui%40workspace%3A.":
+  version: 2.5.2
+  resolution: "@svar-ui/react-gantt@patch:@svar-ui/react-gantt@npm%3A2.5.2#./.yarn/patches/@svar-ui-react-gantt-npm-2.5.2-4a5c29b098.patch::version=2.5.2&hash=51dd5c&locator=ecos-ui%40workspace%3A."
+  dependencies:
+    "@svar-ui/gantt-data-provider": 2.5.1
+    "@svar-ui/gantt-locales": 2.5.1
+    "@svar-ui/gantt-store": 2.5.1
+    "@svar-ui/lib-dom": 0.11.1
+    "@svar-ui/lib-react": 1.2.2
+    "@svar-ui/lib-state": 1.9.6
+    "@svar-ui/react-core": 2.4.3
+    "@svar-ui/react-editor": 2.4.3
+    "@svar-ui/react-grid": 2.5.1
+    "@svar-ui/react-menu": 2.4.3
+    "@svar-ui/react-toolbar": 2.4.3
+  peerDependencies:
+    react: ">=18"
+    react-dom: ">=18"
+  checksum: 1e208c7de6f8db3a249b49dc4b06c988520fb964514d4016921df99e2827acd31bc84576288d155c8fb672b1d763efeffc0d7205e9073e8e7445064ee2d7c6fa
   languageName: node
   linkType: hard
 
@@ -7519,8 +7555,8 @@ __metadata:
     "@monaco-editor/react": ^4.7.0
     "@popperjs/core": ^2.4.4
     "@rollup/plugin-babel": 6.0.4
-    "@svar-ui/react-core": ^2.4.3
-    "@svar-ui/react-gantt": ^2.5.2
+    "@svar-ui/react-core": 2.4.3
+    "@svar-ui/react-gantt": 2.5.2
     "@testing-library/dom": ^10.4.0
     "@testing-library/jest-dom": ^6.6.3
     "@testing-library/react": ^16.2.0
