@@ -107,6 +107,7 @@
     &-caption {
       position: sticky;
       top: -20px;
+      z-index: 2;
       background: white;
       padding-top: 20px;
       padding-bottom: 20px;
@@ -128,6 +129,7 @@
 
     &-opener {
       position: absolute;
+      z-index: 3;
       display: flex;
       align-items: center;
       justify-content: center;
