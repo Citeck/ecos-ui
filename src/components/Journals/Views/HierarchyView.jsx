@@ -12,6 +12,22 @@ import './HierarchyView.scss';
 
 const ROOT_KEY = '__root__';
 
+// `createRecordByVariant` is what the table view uses (via Bar.handleAddRecord);
+// it carries formRef/formKey/typeRef/attributes/postActionRef from the variant
+// so the correct create form is opened. A bare openFormModal({record: 'src@'})
+// produces a blank/missing form for journals whose form is configured on the
+// type rather than resolvable from an empty record ref.
+const openCreateForm = (variant, extraAttributes, onSubmit) => {
+  if (!variant) {
+    return;
+  }
+  const merged = {
+    ...variant,
+    attributes: { ...(variant.attributes || {}), ...(extraAttributes || {}) }
+  };
+  FormManager.createRecordByVariant(merged, { onSubmit });
+};
+
 const extractTypeId = (ref) => {
   if (!ref) return '';
   const atIdx = ref.indexOf('@');
@@ -101,6 +117,7 @@ const TreeNodeRow = ({
   selectedId,
   sourceId,
   childAssocAttr,
+  createVariant,
   permissionsById,
   onToggle,
   onClick,
@@ -138,14 +155,11 @@ const TreeNodeRow = ({
 
   const handleCreate = (e) => {
     e.stopPropagation();
-    FormManager.openFormModal({
-      record: `${sourceId}@`,
-      attributes: {
-        _parent: node.id,
-        _parentAtt: childAssocAttr || 'children'
-      },
-      onSubmit: () => onReload()
-    });
+    openCreateForm(
+      createVariant,
+      { _parent: node.id, _parentAtt: childAssocAttr || 'children' },
+      () => onReload()
+    );
   };
 
   const handleDelete = (e) => {
@@ -215,7 +229,7 @@ const TreeNodeRow = ({
           <div className="ehv-summary__actions">
             <div className="ehv-summary__actions-inner">
               {canWrite && <Icon className="icon-edit" onClick={handleEdit} />}
-              {canWrite && <Icon className="icon-plus" onClick={handleCreate} />}
+              {canWrite && createVariant && <Icon className="icon-plus" onClick={handleCreate} />}
               {canDelete && <Icon className="icon-delete" onClick={handleDelete} />}
             </div>
           </div>
@@ -238,6 +252,7 @@ const TreeNodeRow = ({
                 selectedId={selectedId}
                 sourceId={sourceId}
                 childAssocAttr={childAssocAttr}
+                createVariant={createVariant}
                 permissionsById={permissionsById}
                 onToggle={onToggle}
                 onClick={onClick}
@@ -272,7 +287,7 @@ const HierarchyView = ({
   const [resolvedTypeId, setResolvedTypeId] = useState('');
   const [resolvedTypeRef, setResolvedTypeRef] = useState('');
   const [childAssocAttr, setChildAssocAttr] = useState('children');
-  const [canCreateRoot, setCanCreateRoot] = useState(false);
+  const [createVariants, setCreateVariants] = useState([]);
   const [permissionsById, setPermissionsById] = useState({});
   const [draggedNodeId, setDraggedNodeId] = useState(null);
   const [parentIdByNodeId, setParentIdByNodeId] = useState({});
@@ -302,9 +317,9 @@ const HierarchyView = ({
           });
 
         Records.get(typeRef)
-          .load('createVariants[]{recordRef}')
+          .load('createVariants[]?json')
           .then(variants => {
-            if (!cancelled) setCanCreateRoot(Array.isArray(variants) && variants.length > 0);
+            if (!cancelled) setCreateVariants(Array.isArray(variants) ? variants : []);
           });
       });
 
@@ -384,14 +399,14 @@ const HierarchyView = ({
   const sourceId = resolvedTypeRef ? `emodel/${resolvedTypeId}` : '';
   const rootNodes = tree[ROOT_KEY] || [];
   const hasAnyExpanded = Object.values(expanded).some(Boolean);
+  // For now we use the first variant (matches the single-variant case in
+  // table view's CreateMenu). Multi-variant support would need a dropdown here.
+  const primaryCreateVariant = createVariants[0] || null;
+  const canCreateRoot = !!primaryCreateVariant;
 
   const handleCreateRoot = useCallback(() => {
-    if (!sourceId) return;
-    FormManager.openFormModal({
-      record: `${sourceId}@`,
-      onSubmit: () => loadAllRecords(true)
-    });
-  }, [sourceId, loadAllRecords]);
+    openCreateForm(primaryCreateVariant, null, () => loadAllRecords(true));
+  }, [primaryCreateVariant, loadAllRecords]);
 
   const handleDragStartNode = useCallback(node => {
     setDraggedNodeId(node?.id || null);
@@ -517,6 +532,7 @@ const HierarchyView = ({
                   selectedId={selectedRecordId}
                   sourceId={sourceId}
                   childAssocAttr={childAssocAttr}
+                  createVariant={primaryCreateVariant}
                   permissionsById={permissionsById}
                   onToggle={handleToggle}
                   onClick={handleNodeClick}
