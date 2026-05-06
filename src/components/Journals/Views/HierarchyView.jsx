@@ -28,7 +28,7 @@ const openCreateForm = (variant, extraAttributes, onSubmit) => {
   FormManager.createRecordByVariant(merged, { onSubmit });
 };
 
-const extractTypeId = (ref) => {
+const extractTypeId = ref => {
   if (!ref) return '';
   const atIdx = ref.indexOf('@');
   return atIdx >= 0 ? ref.substring(atIdx + 1) : ref;
@@ -145,7 +145,7 @@ const TreeNodeRow = ({
     }
   }, [node.id]);
 
-  const handleEdit = (e) => {
+  const handleEdit = e => {
     e.stopPropagation();
     FormManager.openFormModal({
       record: node.id,
@@ -153,16 +153,12 @@ const TreeNodeRow = ({
     });
   };
 
-  const handleCreate = (e) => {
+  const handleCreate = e => {
     e.stopPropagation();
-    openCreateForm(
-      createVariant,
-      { _parent: node.id, _parentAtt: childAssocAttr || 'children' },
-      () => onReload()
-    );
+    openCreateForm(createVariant, { _parent: node.id, _parentAtt: childAssocAttr || 'children' }, () => onReload());
   };
 
-  const handleDelete = (e) => {
+  const handleDelete = e => {
     e.stopPropagation();
     Records.remove([node.id]).then(() => onReload());
   };
@@ -171,10 +167,24 @@ const TreeNodeRow = ({
   const dragCounter = useRef(0);
   const [isHoverDrag, setIsHoverDrag] = useState(false);
 
-  const onDragEnter = () => { dragCounter.current += 1; if (dragCounter.current > 0) setIsHoverDrag(true); };
-  const onDragLeave = () => { dragCounter.current -= 1; if (dragCounter.current <= 0) { dragCounter.current = 0; setIsHoverDrag(false); } };
-  const onDragOver = (e) => { e.preventDefault(); try { e.dataTransfer.dropEffect = 'move'; } catch (_) {} };
-  const onDrop = (e) => {
+  const onDragEnter = () => {
+    dragCounter.current += 1;
+    if (dragCounter.current > 0) setIsHoverDrag(true);
+  };
+  const onDragLeave = () => {
+    dragCounter.current -= 1;
+    if (dragCounter.current <= 0) {
+      dragCounter.current = 0;
+      setIsHoverDrag(false);
+    }
+  };
+  const onDragOver = e => {
+    e.preventDefault();
+    try {
+      e.dataTransfer.dropEffect = 'move';
+    } catch (_) {}
+  };
+  const onDrop = e => {
     e.preventDefault();
     e.stopPropagation();
     dragCounter.current = 0;
@@ -199,13 +209,23 @@ const TreeNodeRow = ({
         draggable={canWrite}
         onClick={() => onClick(node)}
         onClickCapture={e => e.preventDefault()}
-        onDragStart={canWrite ? e => {
-          e.stopPropagation();
-          e.dataTransfer.setData('text/plain', node.id);
-          e.dataTransfer.effectAllowed = 'move';
-          onDragStartNode && onDragStartNode(node);
-        } : undefined}
-        onDragEnd={canWrite ? () => { onDragEndNode && onDragEndNode(); } : undefined}
+        onDragStart={
+          canWrite
+            ? e => {
+                e.stopPropagation();
+                e.dataTransfer.setData('text/plain', node.id);
+                e.dataTransfer.effectAllowed = 'move';
+                onDragStartNode && onDragStartNode(node);
+              }
+            : undefined
+        }
+        onDragEnd={
+          canWrite
+            ? () => {
+                onDragEndNode && onDragEndNode();
+              }
+            : undefined
+        }
         onDragEnter={canWrite ? onDragEnter : undefined}
         onDragOver={canWrite ? onDragOver : undefined}
         onDragLeave={canWrite ? onDragLeave : undefined}
@@ -214,16 +234,17 @@ const TreeNodeRow = ({
         {filteredChildren.length > 0 && (
           <div
             className="ehv-summary__btn"
-            onClick={(e) => { e.stopPropagation(); onToggle(node.id); }}
+            onClick={e => {
+              e.stopPropagation();
+              onToggle(node.id);
+            }}
           >
             {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
           </div>
         )}
         <label className={classNames('ehv-summary__label', { 'ehv-summary__label_parent': isParentLevel })}>
           {displayName}
-          {node.childCount > 0 && (
-            <span className="ehv-summary__count">{node.childCount}</span>
-          )}
+          {node.childCount > 0 && <span className="ehv-summary__count">{node.childCount}</span>}
         </label>
         {(canWrite || canDelete) && (
           <div className="ehv-summary__actions">
@@ -271,15 +292,7 @@ const TreeNodeRow = ({
 
 // ── Main View ──
 
-const HierarchyView = ({
-  stateId,
-  journalId,
-  onRowClick,
-  selectedRecordId,
-  bodyTopForwardedRef,
-  bodyClassName,
-  getMaxHeight
-}) => {
+const HierarchyView = ({ stateId, journalId, onRowClick, selectedRecordId, bodyTopForwardedRef, bodyClassName, getMaxHeight }) => {
   const [tree, setTree] = useState({});
   const [loading, setLoading] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
@@ -323,78 +336,88 @@ const HierarchyView = ({
           });
       });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [journalId]);
 
-  const loadAllRecords = useCallback((preserveExpanded = false) => {
-    if (!resolvedTypeId) return;
-    setLoading(true);
-    setTree({});
-    setTotalCount(0);
+  const loadAllRecords = useCallback(
+    (preserveExpanded = false) => {
+      if (!resolvedTypeId) return;
+      setLoading(true);
+      setTree({});
+      setTotalCount(0);
 
-    if (!preserveExpanded) {
-      setExpanded({});
-    }
+      if (!preserveExpanded) {
+        setExpanded({});
+      }
 
-    Records.query(
-      { ecosType: resolvedTypeId, language: 'predicate', query: {}, page: { maxItems: 10000 } },
-      { id: '?id', name: '_disp', parentId: '_parent?id' }
-    )
-      .then(result => {
-        const records = (result?.records || []).map(r => ({
-          id: r.id,
-          name: r.name || t('select-hierarchical.untitled'),
-          parentId: r.parentId || null
-        }));
-        const treeMap = buildTree(records);
-        setTree(treeMap);
-        setTotalCount(records.length);
+      Records.query(
+        { ecosType: resolvedTypeId, language: 'predicate', query: {}, page: { maxItems: 10000 } },
+        { id: '?id', name: '_disp', parentId: '_parent?id' }
+      )
+        .then(result => {
+          const records = (result?.records || []).map(r => ({
+            id: r.id,
+            name: r.name || t('select-hierarchical.untitled'),
+            parentId: r.parentId || null
+          }));
+          const treeMap = buildTree(records);
+          setTree(treeMap);
+          setTotalCount(records.length);
 
-        const parentMap = {};
-        for (const r of records) {
-          parentMap[r.id] = r.parentId || null;
-        }
-        setParentIdByNodeId(parentMap);
+          const parentMap = {};
+          for (const r of records) {
+            parentMap[r.id] = r.parentId || null;
+          }
+          setParentIdByNodeId(parentMap);
 
-        Promise.all(
-          records.map(r =>
-            Records.get(r.id)
-              .load({ canWrite: 'permissions._has.Write?bool', canDelete: 'permissions._has.Delete?bool' })
-              .then(p => ({ id: r.id, canWrite: !!p.canWrite, canDelete: !!p.canDelete }))
-              .catch(() => ({ id: r.id, canWrite: false, canDelete: false }))
-          )
-        ).then(perms => {
-          const map = {};
-          for (const p of perms) map[p.id] = p;
-          setPermissionsById(map);
-        });
+          Promise.all(
+            records.map(r =>
+              Records.get(r.id)
+                .load({ canWrite: 'permissions._has.Write?bool', canDelete: 'permissions._has.Delete?bool' })
+                .then(p => ({ id: r.id, canWrite: !!p.canWrite, canDelete: !!p.canDelete }))
+                .catch(() => ({ id: r.id, canWrite: false, canDelete: false }))
+            )
+          ).then(perms => {
+            const map = {};
+            for (const p of perms) map[p.id] = p;
+            setPermissionsById(map);
+          });
 
-        if (!preserveExpanded) {
-          const roots = treeMap[ROOT_KEY] || [];
-          const init = {};
-          for (const root of roots) init[root.id] = true;
-          setExpanded(init);
-        }
-      })
-      .catch(e => {
-        console.error('[HierarchyView] failed to load records', e);
-        setTree({});
-      })
-      .finally(() => setLoading(false));
-  }, [resolvedTypeId]);
+          if (!preserveExpanded) {
+            const roots = treeMap[ROOT_KEY] || [];
+            const init = {};
+            for (const root of roots) init[root.id] = true;
+            setExpanded(init);
+          }
+        })
+        .catch(e => {
+          console.error('[HierarchyView] failed to load records', e);
+          setTree({});
+        })
+        .finally(() => setLoading(false));
+    },
+    [resolvedTypeId]
+  );
 
-  useEffect(() => { loadAllRecords(); }, [loadAllRecords]);
+  useEffect(() => {
+    loadAllRecords();
+  }, [loadAllRecords]);
 
-  const handleToggle = useCallback((nodeRef) => {
+  const handleToggle = useCallback(nodeRef => {
     setExpanded(prev => ({ ...prev, [nodeRef]: !prev[nodeRef] }));
   }, []);
 
   const handleExpandAll = useCallback(() => setExpanded(collectAllExpandable(tree)), [tree]);
   const handleCollapseAll = useCallback(() => setExpanded({}), []);
 
-  const handleNodeClick = useCallback((node) => {
-    if (onRowClick) onRowClick({ id: node.id });
-  }, [onRowClick]);
+  const handleNodeClick = useCallback(
+    node => {
+      if (onRowClick) onRowClick({ id: node.id });
+    },
+    [onRowClick]
+  );
 
   const sourceId = resolvedTypeRef ? `emodel/${resolvedTypeId}` : '';
   const rootNodes = tree[ROOT_KEY] || [];
@@ -425,7 +448,8 @@ const HierarchyView = ({
     const id = draggedNodeId;
     const rec = Records.getRecordToEdit(id);
     rec.att('_parent', null);
-    rec.save()
+    rec
+      .save()
       .then(() => loadAllRecords(true))
       .catch(e => console.error('[HierarchyView] failed to move record to root', e));
   }, [draggedNodeId, canDropOnRoot, loadAllRecords]);
@@ -433,7 +457,9 @@ const HierarchyView = ({
   const onRootDragOver = e => {
     if (!canDropOnRoot) return;
     e.preventDefault();
-    try { e.dataTransfer.dropEffect = 'move'; } catch (_) {}
+    try {
+      e.dataTransfer.dropEffect = 'move';
+    } catch (_) {}
     if (!isRootDropActive) setIsRootDropActive(true);
   };
 
@@ -452,7 +478,9 @@ const HierarchyView = ({
   const onBarDragOver = e => {
     if (!canDropOnRoot) return;
     e.preventDefault();
-    try { e.dataTransfer.dropEffect = 'move'; } catch (_) {}
+    try {
+      e.dataTransfer.dropEffect = 'move';
+    } catch (_) {}
     if (!isBarDropActive) setIsBarDropActive(true);
   };
 
@@ -492,9 +520,7 @@ const HierarchyView = ({
                 >
                   {hasAnyExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                 </button>
-                <span className="ecos-hierarchy-view__bar-count">
-                  {t('journals.view.hierarchy.total', { count: totalCount })}
-                </span>
+                <span className="ecos-hierarchy-view__bar-count">{t('journals.view.hierarchy.total', { count: totalCount })}</span>
               </>
             )}
             {sourceId && canCreateRoot && (
@@ -513,9 +539,7 @@ const HierarchyView = ({
       </div>
       <div className="ecos-hierarchy-view__body" style={{ maxHeight: getMaxHeight?.() }}>
         {loading && <div className="ecos-hierarchy-view__info">{t('select-hierarchical.loading')}</div>}
-        {!loading && rootNodes.length === 0 && (
-          <div className="ecos-hierarchy-view__info">{t('select-hierarchical.empty')}</div>
-        )}
+        {!loading && rootNodes.length === 0 && <div className="ecos-hierarchy-view__info">{t('select-hierarchical.empty')}</div>}
         {!loading && rootNodes.length > 0 && (
           <ul className="ecos-hierarchy-view__tree">
             {rootNodes.map(node => (
