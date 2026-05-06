@@ -3272,6 +3272,7 @@
   "gantt.chart.scale.years": "Годы",
   "gantt.chart.empty-state": "Диаграмма ещё не настроена. Откройте настройки виджета, чтобы выбрать источник данных.",
   "gantt.settings.default-scale.label": "Масштаб по умолчанию",
+  "gantt.settings.data-type.linked.hint": "В режиме «Связанная» диаграмма поддерживает только обычные проекты (не Scrum).",
 
   "developer-console.run-code": "Выполнить",
   "developer-console.output.title": "Вывод консоли",
