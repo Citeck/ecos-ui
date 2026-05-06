@@ -140,6 +140,8 @@ $kanban-head-height: 50px;
     border-color: rgba(var(--color-column), 1);
     background: rgba(var(--color-column), 0.1);
     min-height: 100px;
+    padding-bottom: 100px;
+    margin-bottom: -100px;
 
     &::before {
       color: rgba(var(--color-column), 1);
