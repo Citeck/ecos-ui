@@ -121,6 +121,21 @@ $kanban-head-height: 50px;
     min-height: 40px;
     padding-top: 0;
   }
+
+  // Плашка-индикатор drag («Карточка из этой колонки» / «Перенести сюда»)
+  // в обычном режиме раздвигает колонку сверху на 100px (height: 0 → 100),
+  // что в момент захвата сдвигает placeholder и всю дорожку — особенно
+  // заметно у sticky-заголовка дорожки, расположенной у верха страницы.
+  // В swimlane-режиме делаем её абсолютным оверлеем: визуально остаётся,
+  // но layout не дёргается.
+  .ecos-kanban__card-info_float {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+    z-index: 2;
+  }
 }
 
 // Swimlane DnD styles — mirrors .ecos-kanban__body_dragging behavior
