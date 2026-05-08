@@ -3530,7 +3530,7 @@ __metadata:
 
 "@svar-ui/react-gantt@patch:@svar-ui/react-gantt@npm%3A2.5.2#./.yarn/patches/@svar-ui-react-gantt-npm-2.5.2-4a5c29b098.patch::locator=ecos-ui%40workspace%3A.":
   version: 2.5.2
-  resolution: "@svar-ui/react-gantt@patch:@svar-ui/react-gantt@npm%3A2.5.2#./.yarn/patches/@svar-ui-react-gantt-npm-2.5.2-4a5c29b098.patch::version=2.5.2&hash=51dd5c&locator=ecos-ui%40workspace%3A."
+  resolution: "@svar-ui/react-gantt@patch:@svar-ui/react-gantt@npm%3A2.5.2#./.yarn/patches/@svar-ui-react-gantt-npm-2.5.2-4a5c29b098.patch::version=2.5.2&hash=8c962f&locator=ecos-ui%40workspace%3A."
   dependencies:
     "@svar-ui/gantt-data-provider": 2.5.1
     "@svar-ui/gantt-locales": 2.5.1
@@ -3546,7 +3546,7 @@ __metadata:
   peerDependencies:
     react: ">=18"
     react-dom: ">=18"
-  checksum: 1e208c7de6f8db3a249b49dc4b06c988520fb964514d4016921df99e2827acd31bc84576288d155c8fb672b1d763efeffc0d7205e9073e8e7445064ee2d7c6fa
+  checksum: 5130f389918f9e89f80a6d987dcbfa3399c6da1623e0ac7041a25bc0bd1631ac19e058a09567e3bdbaf2b8b6fcebe5585aa9d08481614f8394d20b0a820e8d0b
   languageName: node
   linkType: hard
 
