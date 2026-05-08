@@ -115,6 +115,16 @@ $kanban-head-height: 50px;
 .ecos-kanban_swimlane {
   .ecos-kanban__column:not(.ecos-kanban__column-name) {
     min-height: 60px;
+
+    // Расширяем bounds колонки вниз, не меняя видимую высоту дорожки.
+    // ВАЖНО: применяется всегда в swimlane-режиме (не через drag-класс),
+    // чтобы react-beautiful-dnd снял bounds Droppable’ов уже с этим
+    // расширением. Если применять по факту начала drag (через
+    // .swimlanes_dragging), класс выставляется через React state — то есть
+    // после того, как rbd закэшировал размеры, и тогда хит-детект бьётся
+    // о маленькие старые bounds, а layout «прыгает».
+    padding-bottom: 100px;
+    margin-bottom: -100px;
   }
 
   .ecos-kanban__column-loader {
@@ -136,6 +146,14 @@ $kanban-head-height: 50px;
     pointer-events: none;
     z-index: 2;
   }
+
+  // Прячем плашку «Карточка не может быть перемещена сюда» в чужих дорожках —
+  // там колонки заполнены карточками других исполнителей, и абсолютный
+  // оверлей-индикатор перекрывал бы первую карточку. Сигнал «нельзя дропнуть
+  // сюда» остаётся через cursor: no-drop и приглушённую opacity карточек.
+  .ecos-kanban__column_disabled .ecos-kanban__card-info_float {
+    display: none;
+  }
 }
 
 // Swimlane DnD styles — mirrors .ecos-kanban__body_dragging behavior
@@ -155,8 +173,6 @@ $kanban-head-height: 50px;
     border-color: rgba(var(--color-column), 1);
     background: rgba(var(--color-column), 0.1);
     min-height: 100px;
-    padding-bottom: 100px;
-    margin-bottom: -100px;
 
     &::before {
       color: rgba(var(--color-column), 1);
