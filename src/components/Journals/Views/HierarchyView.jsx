@@ -301,6 +301,7 @@ const HierarchyView = ({ stateId, journalId, onRowClick, selectedRecordId, bodyT
   const [resolvedTypeRef, setResolvedTypeRef] = useState('');
   const [childAssocAttr, setChildAssocAttr] = useState('children');
   const [createVariants, setCreateVariants] = useState([]);
+  const [canCreateOnType, setCanCreateOnType] = useState(false);
   const [permissionsById, setPermissionsById] = useState({});
   const [draggedNodeId, setDraggedNodeId] = useState(null);
   const [parentIdByNodeId, setParentIdByNodeId] = useState({});
@@ -333,6 +334,15 @@ const HierarchyView = ({ stateId, journalId, onRowClick, selectedRecordId, bodyT
           .load('createVariants[]?json')
           .then(variants => {
             if (!cancelled) setCreateVariants(Array.isArray(variants) ? variants : []);
+          });
+
+        Records.get(typeRef)
+          .load('permissions._has.Write?bool')
+          .then(canWrite => {
+            if (!cancelled) setCanCreateOnType(!!canWrite);
+          })
+          .catch(() => {
+            if (!cancelled) setCanCreateOnType(false);
           });
       });
 
@@ -425,7 +435,7 @@ const HierarchyView = ({ stateId, journalId, onRowClick, selectedRecordId, bodyT
   // For now we use the first variant (matches the single-variant case in
   // table view's CreateMenu). Multi-variant support would need a dropdown here.
   const primaryCreateVariant = createVariants[0] || null;
-  const canCreateRoot = !!primaryCreateVariant;
+  const canCreateRoot = !!primaryCreateVariant && canCreateOnType;
 
   const handleCreateRoot = useCallback(() => {
     openCreateForm(primaryCreateVariant, null, () => loadAllRecords(true));
