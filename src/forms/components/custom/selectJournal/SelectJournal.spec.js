@@ -105,13 +105,13 @@ describe('SelectJournal Component', () => {
       });
     });
 
-    it('Should fall back to static journalId when customJournalId returns empty', done => {
+    it('Should not fall back to static journalId when customJournalId returns empty', done => {
       Harness.testCreate(SelectJournalComponent, {
         ...comp1,
         journalId: 'static-journal',
         customJournalId: 'value = "";'
       }).then(component => {
-        expect(component.journalId).toBe('static-journal');
+        expect(component.journalId).toBe('');
         done();
       });
     });

@@ -73,12 +73,12 @@ export default class SelectJournalComponent extends BaseReactComponent {
   get journalId() {
     const { customJournalId } = this.component;
 
+    // When a custom journal expression is configured it fully owns the journalId:
+    // an empty/null/undefined result must propagate as-is so the React component
+    // disables the field with NO_JOURNAL_ID_ERROR instead of silently falling
+    // back to the static configuration.
     if (customJournalId) {
-      const evaluated = this.evaluate(customJournalId, {}, 'value', '');
-
-      if (evaluated) {
-        return evaluated;
-      }
+      return this.evaluate(customJournalId, {}, 'value', '') || '';
     }
 
     let journalId = this.component.journalId || '';
@@ -433,15 +433,21 @@ export default class SelectJournalComponent extends BaseReactComponent {
     };
 
     const journalId = this.journalId;
+    const hasCustomJournalId = !!this.component.customJournalId;
     const fetchPropertiesAndResolve = async journalId => {
       const columns = await this.fetchAsyncProperties(this.component.source);
 
-      journalId = await this.getJournalId(journalId);
+      if (!hasCustomJournalId) {
+        journalId = await this.getJournalId(journalId);
+      }
 
       return resolveProps(journalId, columns);
     };
 
-    if (!journalId) {
+    // When a custom journal expression is configured, never resolve a fallback
+    // journalId via type metadata — an empty result from the expression must
+    // surface to the React component so the field stays blocked.
+    if (!journalId && !hasCustomJournalId) {
       const attribute = this.getAttributeToEdit();
 
       const record = this.getRecord().loadEditorKey(attribute);
