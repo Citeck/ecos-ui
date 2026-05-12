@@ -70,15 +70,28 @@ export default class SelectJournalComponent extends BaseReactComponent {
     return SelectJournalComponent.schema();
   }
 
+  // Form builder context: `builder` is set on the canvas; `preview` is set on the
+  // small preview pane in the component-properties editor; `editInFormBuilder`
+  // is set on the editForm itself (e.g. the Default Value field on the Data tab).
+  get isInBuilderMode() {
+    return !!(this.options && (this.options.builder || this.options.preview || this.options.editInFormBuilder));
+  }
+
   get journalId() {
     const { customJournalId } = this.component;
 
-    // When a custom journal expression is configured it fully owns the journalId:
-    // an empty/null/undefined result must propagate as-is so the React component
-    // disables the field with NO_JOURNAL_ID_ERROR instead of silently falling
-    // back to the static configuration.
+    // When a custom journal expression is configured on a real form it fully
+    // owns the journalId: an empty result must propagate as-is so the React
+    // component disables the field with NO_JOURNAL_ID_ERROR. In the form
+    // builder/preview `data` is empty by design, so most data-driven scripts
+    // return empty there — fall back to the static journalId to keep the
+    // preview and Default Value picker usable.
     if (customJournalId) {
-      return this.evaluate(customJournalId, {}, 'value', '') || '';
+      const evaluated = this.evaluate(customJournalId, {}, 'value', '') || '';
+
+      if (evaluated || !this.isInBuilderMode) {
+        return evaluated;
+      }
     }
 
     let journalId = this.component.journalId || '';
@@ -101,7 +114,9 @@ export default class SelectJournalComponent extends BaseReactComponent {
     const result = super.checkConditions(data);
 
     if (this.component.customJournalId) {
-      const journalId = this.evaluate(this.component.customJournalId, {}, 'value', '');
+      // Use the getter so builder/preview mode falls back to the static
+      // journalId rather than pushing an empty value into the React child.
+      const journalId = this.journalId;
 
       if (journalId !== this.customJournalIdValue) {
         this.customJournalIdValue = journalId;
@@ -433,21 +448,22 @@ export default class SelectJournalComponent extends BaseReactComponent {
     };
 
     const journalId = this.journalId;
-    const hasCustomJournalId = !!this.component.customJournalId;
+    // Only short-circuit the typeRef fallback when an empty journalId is the
+    // *intended* runtime signal (real form + customJournalId). In the builder
+    // the getter already substitutes the static journalId, so this branch is
+    // false and the regular fetch path runs.
+    const skipTypeRefFallback = !!this.component.customJournalId && !this.isInBuilderMode;
     const fetchPropertiesAndResolve = async journalId => {
       const columns = await this.fetchAsyncProperties(this.component.source);
 
-      if (!hasCustomJournalId) {
+      if (!skipTypeRefFallback) {
         journalId = await this.getJournalId(journalId);
       }
 
       return resolveProps(journalId, columns);
     };
 
-    // When a custom journal expression is configured, never resolve a fallback
-    // journalId via type metadata — an empty result from the expression must
-    // surface to the React component so the field stays blocked.
-    if (!journalId && !hasCustomJournalId) {
+    if (!journalId && !skipTypeRefFallback) {
       const attribute = this.getAttributeToEdit();
 
       const record = this.getRecord().loadEditorKey(attribute);
