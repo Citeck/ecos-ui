@@ -1,12 +1,12 @@
 import classNames from 'classnames';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
+import ViewTabs from '../ViewTabs';
+
 import FormManager from '@/components/EcosForm/FormManager';
 import Records from '@/components/Records';
 import { Icon } from '@/components/common';
 import { t } from '@/helpers/util';
-
-import ViewTabs from '../ViewTabs';
 
 import './HierarchyView.scss';
 
@@ -128,7 +128,6 @@ const TreeNodeRow = ({
 }) => {
   const nodePerms = permissionsById[node.id] || {};
   const canWrite = !!nodePerms.canWrite;
-  const canDelete = !!nodePerms.canDelete;
   const isOpen = !!expanded[node.id];
   const isActive = selectedId && selectedId.includes(node.id);
   const children = tree[node.id] || [];
@@ -246,12 +245,12 @@ const TreeNodeRow = ({
           {displayName}
           {node.childCount > 0 && <span className="ehv-summary__count">{node.childCount}</span>}
         </label>
-        {(canWrite || canDelete) && (
+        {canWrite && (
           <div className="ehv-summary__actions">
             <div className="ehv-summary__actions-inner">
-              {canWrite && <Icon className="icon-edit" onClick={handleEdit} />}
-              {canWrite && createVariant && <Icon className="icon-plus" onClick={handleCreate} />}
-              {canDelete && <Icon className="icon-delete" onClick={handleDelete} />}
+              <Icon className="icon-edit" onClick={handleEdit} />
+              {createVariant && <Icon className="icon-plus" onClick={handleCreate} />}
+              <Icon className="icon-delete" onClick={handleDelete} />
             </div>
           </div>
         )}
@@ -385,9 +384,9 @@ const HierarchyView = ({ stateId, journalId, onRowClick, selectedRecordId, bodyT
           Promise.all(
             records.map(r =>
               Records.get(r.id)
-                .load({ canWrite: 'permissions._has.Write?bool', canDelete: 'permissions._has.Delete?bool' })
-                .then(p => ({ id: r.id, canWrite: !!p.canWrite, canDelete: !!p.canDelete }))
-                .catch(() => ({ id: r.id, canWrite: false, canDelete: false }))
+                .load('permissions._has.Write?bool')
+                .then(canWrite => ({ id: r.id, canWrite: !!canWrite }))
+                .catch(() => ({ id: r.id, canWrite: false }))
             )
           ).then(perms => {
             const map = {};
