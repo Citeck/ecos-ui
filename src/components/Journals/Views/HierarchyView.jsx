@@ -310,7 +310,9 @@ const HierarchyView = ({ stateId, journalId, onRowClick, selectedRecordId, bodyT
   useEffect(() => {
     if (!journalId) return;
     let cancelled = false;
-    const journalRef = journalId.includes('@') ? journalId : `uiserv/journal@${journalId}`;
+    const journalLocalId = journalId.includes('@') ? journalId.substring(journalId.indexOf('@') + 1) : journalId;
+    const journalRef = `uiserv/journal@${journalLocalId}`;
+    const resolvedJournalRef = `uiserv/rjournal@${journalLocalId}`;
 
     Records.get(journalRef)
       .load('typeRef?id')
@@ -327,12 +329,17 @@ const HierarchyView = ({ stateId, journalId, onRowClick, selectedRecordId, bodyT
             const selfAssoc = attrs.find(a => a.type === 'ASSOC' && a.configTypeRef === typeRef && a.configChild === true);
             if (selfAssoc) setChildAssocAttr(selfAssoc.id);
           });
+      });
 
-        Records.get(typeRef)
-          .load('createVariants[]?json')
-          .then(variants => {
-            if (!cancelled) setCreateVariants(Array.isArray(variants) ? variants : []);
-          });
+    // Load createVariants from resolved-journal (same source as table view's CreateMenu),
+    // so journal-level overrides and backend permission filtering apply identically.
+    Records.get(resolvedJournalRef)
+      .load('createVariants[]?json')
+      .then(variants => {
+        if (!cancelled) setCreateVariants(Array.isArray(variants) ? variants : []);
+      })
+      .catch(() => {
+        if (!cancelled) setCreateVariants([]);
       });
 
     return () => {
