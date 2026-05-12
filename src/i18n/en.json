@@ -908,6 +908,7 @@
   "record-action.task-outcome.form-not-found.message": "Form not found. Contact your system administrator",
   "record-action.task-outcome.complete-task.header": "Complete task",
   "record-action.task-outcome.complete-task.message": "Complete task with outcome \"{{outcome}}\"",
+  "task-outcome.comment-required": "Comment is required for this action",
 
   "record-action.msg.confirm.title": "Action confirmation",
   "record-action.msg.info.title": "Information",
