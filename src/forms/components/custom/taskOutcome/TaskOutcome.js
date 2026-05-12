@@ -119,7 +119,8 @@ export default class TaskOutcome extends NestedComponent {
         return {
           id: item.id,
           name: item.name,
-          theme: _.get(item, 'config.theme', DEFAULT_TASK_BUTTON_THEME).toLowerCase()
+          theme: _.get(item, 'config.theme', DEFAULT_TASK_BUTTON_THEME).toLowerCase(),
+          commentRequired: _.get(item, 'config.commentRequired', false)
         };
       });
     } else {
@@ -147,7 +148,8 @@ export default class TaskOutcome extends NestedComponent {
       return {
         key: item.id,
         label: item.name,
-        theme: item.theme
+        theme: item.theme,
+        commentRequired: !!item.commentRequired
       };
     });
 
@@ -190,6 +192,33 @@ export default class TaskOutcome extends NestedComponent {
   }
 
   beforeSubmit() {
+    const pressedKey = Object.keys(this.data).find(
+      key => key.startsWith(this.#buttonKeyPrefix) && this.data[key]
+    );
+
+    if (pressedKey) {
+      const outcomeId = pressedKey.slice(this.#buttonKeyPrefix.length);
+      const button = (this.component.buttons || []).find(b => b.key === outcomeId);
+      if (button && button.commentRequired) {
+        const commentComp = this.root && this.root.getComponent ? this.root.getComponent('comment') : null;
+        const commentValue = ((commentComp && commentComp.dataValue) || '').toString().trim();
+        if (!commentValue) {
+          this.data[pressedKey] = undefined;
+          const message = t('task-outcome.comment-required');
+          if (commentComp && typeof commentComp.setCustomValidity === 'function') {
+            commentComp.setCustomValidity(message, true);
+            if (commentComp.element && typeof commentComp.element.scrollIntoView === 'function') {
+              commentComp.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          }
+          if (typeof this.emit === 'function') {
+            this.emit('error', message);
+          }
+          return Promise.reject(new Error(message));
+        }
+      }
+    }
+
     const keys = Object.keys(this.data).filter(key => key.includes(this.#buttonKeyPrefix));
 
     keys.forEach(key => {
@@ -198,7 +227,7 @@ export default class TaskOutcome extends NestedComponent {
       }
     });
 
-    super.beforeSubmit();
+    return super.beforeSubmit();
   }
 
   viewOnlyBuild() {
