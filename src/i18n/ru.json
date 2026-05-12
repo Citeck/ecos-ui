@@ -865,6 +865,7 @@
   "record-action.task-outcome.form-not-found.message": "Форма для задачи не найдена. Если ошибка повторится, обратитесь к администратору",
   "record-action.task-outcome.complete-task.header": "Завершить задачу",
   "record-action.task-outcome.complete-task.message": "Завершить задачу с вердиктом \"{{outcome}}\"",
+  "task-outcome.comment-required": "Для этого действия необходимо заполнить комментарий",
 
   "record-action.msg.confirm.title": "Подтверждение действия",
   "record-action.msg.info.title": "Информация",
