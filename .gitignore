@@ -46,3 +46,12 @@ ignore/
 
 # ralphex progress logs
 .ralphex/progress/
+
+# local agent artifacts
+.serena/
+.claude/scheduled_tasks.lock
+.claude/settings.local.json
+
+# screenshots / scratch artifacts at repo root
+/*.png
+/journal-snapshot.md

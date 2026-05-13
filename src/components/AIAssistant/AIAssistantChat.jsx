@@ -121,7 +121,6 @@ const AIAssistantChat = () => {
     dragOver,
     isUploadingFile,
     handleFileUpload,
-    handleFileDrop,
     handleDragOver,
     handleDragLeave,
     removeUploadedFile,

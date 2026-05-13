@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
+
 import { Icon } from '../../common';
+import { FILE_UPLOAD_ACCEPT_STRING } from '../constants';
 
 /**
  * Chat input component with textarea and action buttons
@@ -37,9 +39,7 @@ const ChatInput = ({
     }
   }, [message, textareaRef]);
 
-  const placeholder = isUniversal
-    ? 'Опишите, что вы хотите создать...'
-    : 'Введите ваш запрос...';
+  const placeholder = isUniversal ? 'Опишите, что вы хотите создать...' : 'Введите ваш запрос...';
 
   return (
     <div className="ai-assistant-chat__input-wrapper">
@@ -47,8 +47,8 @@ const ChatInput = ({
         ref={textareaRef}
         className="ai-assistant-chat__input"
         value={message}
-        onChange={(e) => onInputChange(e, isUniversal)}
-        onKeyDown={(e) => onKeyDown(e, isUniversal)}
+        onChange={e => onInputChange(e, isUniversal)}
+        onKeyDown={e => onKeyDown(e, isUniversal)}
         disabled={isLoading}
         rows={1}
         placeholder={placeholder}
@@ -78,9 +78,9 @@ const ChatInput = ({
         ref={fileInputRef}
         type="file"
         multiple
-        accept=".pdf,.docx,.txt,.doc,.rtf,.bpmn,.xml"
+        accept={FILE_UPLOAD_ACCEPT_STRING}
         style={{ display: 'none' }}
-        onChange={(e) => onFileUpload(e.target.files)}
+        onChange={e => onFileUpload(e.target.files)}
       />
     </div>
   );

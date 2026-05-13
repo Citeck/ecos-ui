@@ -44,6 +44,11 @@ export default class DateEditorControl extends React.Component {
   }
 
   onChange = value => {
+    if (value == null) {
+      this.setState({ date: null }, this.sendData);
+      return;
+    }
+
     let date = moment(value);
 
     if (this.extraProps.showTimeInput) {
