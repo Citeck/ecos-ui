@@ -1,6 +1,6 @@
 import babel from '@rollup/plugin-babel';
 import react from '@vitejs/plugin-react';
-import { cpSync, readFileSync, statSync } from 'fs';
+import { cpSync, readFileSync, rmSync, statSync } from 'fs';
 import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
@@ -36,7 +36,10 @@ function serveMonacoEditorPlugin() {
     },
     writeBundle(options) {
       const outDir = options.dir || path.resolve(__dirname, 'build');
-      cpSync(path.join(monacoRoot, 'min/vs'), path.join(outDir, 'monaco-editor/min/vs'), { recursive: true });
+      const target = path.join(outDir, 'monaco-editor');
+
+      rmSync(target, { force: true, recursive: true });
+      cpSync(path.join(monacoRoot, 'min/vs'), path.join(target, 'min/vs'), { recursive: true });
     }
   };
 }
@@ -138,18 +141,18 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       outDir: 'build',
-      sourcemap: true,
+      sourcemap: mode !== 'production',
       minify: 'terser',
+      chunkSizeWarningLimit: 1500,
       terserOptions: {
         keep_classnames: true,
         parse: {
-          ecma: 2017
+          ecma: 2020
         },
         compress: {
-          ecma: 5,
+          ecma: 2020,
           comparisons: false,
           inline: 2,
-
           /** Attention! Don't forget to remove the 'debugger' from the codebase if you don't need it! **/
           drop_debugger: false // for debug on stand
         },
@@ -157,7 +160,7 @@ export default defineConfig(({ mode }) => {
           safari10: true
         },
         output: {
-          ecma: 5,
+          ecma: 2020,
           comments: false,
           ascii_only: true
         }
@@ -166,6 +169,66 @@ export default defineConfig(({ mode }) => {
         output: {
           sourcemapPathTransform: relativeSourcePath => {
             return path.relative('src', relativeSourcePath).replace(/\\/g, '/');
+          },
+          manualChunks(id) {
+            if (!id.includes('node_modules')) return;
+
+            if (
+              /[\\/]node_modules[\\/](react|react-dom|scheduler|react-redux|redux|redux-saga|redux-thunk|redux-actions|redux-logger|reselect|connected-react-router|history|react-router|react-router-dom)[\\/]/.test(
+                id
+              )
+            ) {
+              return 'vendor-react';
+            }
+            if (/[\\/]node_modules[\\/](formiojs|@formio)[\\/]/.test(id)) {
+              return 'vendor-formio';
+            }
+            if (
+              /[\\/]node_modules[\\/](bpmn-js|dmn-js|cmmn-js|diagram-js|camunda-dmn-js|bpmn-js-bpmnlint|bpmn-js-color-picker|dmn-js-properties-panel|dmn-js-drd|dmn-js-shared|@bpmn-io|bpmn-font|min-dom|tiny-svg|bpmnlint)[\\/]/.test(
+                id
+              )
+            ) {
+              return 'vendor-bpmn';
+            }
+            if (/[\\/]node_modules[\\/](lexical|@lexical)[\\/]/.test(id)) {
+              return 'vendor-lexical';
+            }
+            if (/[\\/]node_modules[\\/](chart\.js|react-chartjs-2|chartjs-plugin-datalabels|heatmap\.js)[\\/]/.test(id)) {
+              return 'vendor-charts';
+            }
+            if (/[\\/]node_modules[\\/]@excalidraw[\\/]/.test(id)) {
+              return 'vendor-excalidraw';
+            }
+            if (/[\\/]node_modules[\\/](monaco-editor|@monaco-editor|ace-builds|react-ace)[\\/]/.test(id)) {
+              return 'vendor-editors';
+            }
+            if (/[\\/]node_modules[\\/](pdfjs-dist|react-xml-viewer|react-diff-viewer-continued)[\\/]/.test(id)) {
+              return 'vendor-pdf';
+            }
+            if (/[\\/]node_modules[\\/](yjs|y-websocket|y-protocols|lib0)[\\/]/.test(id)) {
+              return 'vendor-collab';
+            }
+            if (/[\\/]node_modules[\\/]@svar-ui[\\/]/.test(id)) {
+              return 'vendor-gantt';
+            }
+            if (/[\\/]node_modules[\\/]keycloak-js[\\/]/.test(id)) {
+              return 'vendor-auth';
+            }
+            if (
+              /[\\/]node_modules[\\/](lodash|moment|date-fns|classnames|uuidv4|dompurify|query-string|js-base64|bignumber\.js|marked|i18next|invariant|eventemitter2|prop-types)[\\/]/.test(
+                id
+              )
+            ) {
+              return 'vendor-utils';
+            }
+            if (
+              /[\\/]node_modules[\\/](reactstrap|bootstrap|react-select|react-datepicker|flatpickr|react-bootstrap-table-next|react-bootstrap-table2-editor|react-beautiful-dnd|react-collapse|react-css-collapse|react-custom-scrollbars|react-draggable|react-dropzone|react-json-pretty|react-loader-spinner|react-markdown|react-motion|react-placeholder|react-popper|react-resizable|react-resize-detector|react-transition-group|react-colorful|@popperjs|tippy\.js|tooltip\.js|clipboard|fscreen|choices\.js|text-mask-addons|vanilla-text-mask)[\\/]/.test(
+                id
+              )
+            ) {
+              return 'vendor-ui';
+            }
+            return 'vendor-misc';
           }
         },
         input: {
@@ -192,13 +255,13 @@ export default defineConfig(({ mode }) => {
       react(),
       serveMonacoEditorPlugin(),
       nodePolyfills({
-        include: ['crypto', 'events']
+        include: ['events']
       }),
       babel({
         babelHelpers: 'bundled',
         babelrc: false,
         configFile: false,
-        exclude: '/**/node_modules/**',
+        exclude: [/[\\/]node_modules[\\/]/, /[\\/]\.vite[\\/]/],
         extensions: ['jsx', 'js', 'ts', 'tsx', 'mjs'],
         plugins: ['@babel/plugin-transform-flow-strip-types'],
         presets: [['@babel/preset-react', { runtime: 'automatic' }]]
