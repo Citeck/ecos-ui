@@ -119,12 +119,13 @@ class Settings extends React.Component {
 
   renderMenuInfo = () => {
     const { editedId } = this.props;
+    const displayId = (editedId || '').includes(':') ? editedId.substring(editedId.indexOf(':') + 1) : editedId;
 
     return (
       <div className="ecos-menu-settings__card ">
         <div>
           <span className="ecos-menu-settings__card-label">{t(Labels.MENU_ID)}:</span>
-          <span className="ecos-menu-settings__card-value">{editedId}</span>
+          <span className="ecos-menu-settings__card-value">{displayId}</span>
         </div>
       </div>
     );

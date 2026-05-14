@@ -865,6 +865,7 @@
   "record-action.task-outcome.form-not-found.message": "Форма для задачи не найдена. Если ошибка повторится, обратитесь к администратору",
   "record-action.task-outcome.complete-task.header": "Завершить задачу",
   "record-action.task-outcome.complete-task.message": "Завершить задачу с вердиктом \"{{outcome}}\"",
+  "task-outcome.comment-required": "Для этого действия необходимо заполнить комментарий",
 
   "record-action.msg.confirm.title": "Подтверждение действия",
   "record-action.msg.info.title": "Информация",
@@ -3272,6 +3273,7 @@
   "gantt.chart.scale.years": "Годы",
   "gantt.chart.empty-state": "Диаграмма ещё не настроена. Откройте настройки виджета, чтобы выбрать источник данных.",
   "gantt.settings.default-scale.label": "Масштаб по умолчанию",
+  "gantt.settings.data-type.linked.hint": "В режиме «Связанная» диаграмма поддерживает только обычные проекты (не Scrum).",
 
   "developer-console.run-code": "Выполнить",
   "developer-console.output.title": "Вывод консоли",

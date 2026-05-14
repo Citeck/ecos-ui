@@ -82,8 +82,11 @@ export default class SelectHierarchicalFormComponent extends BaseReactComponent 
     const attributeName = this.getAttributeToEdit();
     const hasExplicitTypeRef = !!this.component.typeRef;
     // Form builder context: `builder` is set on the canvas; `preview` is set on the
-    // small preview pane in the component-properties editor.
-    const builderMode = !!(this.options && (this.options.builder || this.options.preview));
+    // small preview pane in the component-properties editor; `editInFormBuilder`
+    // is set on the editForm itself (e.g. the Default Value field on the Data tab).
+    const builderMode = !!(
+      this.options && (this.options.builder || this.options.preview || this.options.editInFormBuilder)
+    );
 
     const typeRef = await this.resolveTypeRef();
     const associations = typeRef ? await this.loadAssociations(typeRef) : [];

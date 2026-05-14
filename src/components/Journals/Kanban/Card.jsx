@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 import React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
@@ -20,8 +21,16 @@ class Card extends React.PureComponent {
 
   state = {
     openerSet: new Set(),
-    noForm: true
+    noForm: true,
+    stableFormData: null
   };
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (prevState.stableFormData && isEqual(prevState.stableFormData, nextProps.data)) {
+      return null;
+    }
+    return { stableFormData: nextProps.data };
+  }
 
   get target() {
     const { data } = this.props;
@@ -121,7 +130,7 @@ class Card extends React.PureComponent {
 
   renderBody = () => {
     const { data, formProps, boardConfig } = this.props;
-    const { openerSet } = this.state;
+    const { openerSet, stableFormData } = this.state;
     const { cardFieldsLabelLayout } = boardConfig;
 
     return (
@@ -133,7 +142,7 @@ class Card extends React.PureComponent {
           className={classNames('ecos-kanban__card-form', { 'ecos-kanban__card-form_inline': cardFieldsLabelLayout === 'TOP' })}
           isVisible
           {...formProps}
-          formData={data}
+          formData={stableFormData}
           formOptions={{
             readOnly: true,
             viewAsHtml: true,

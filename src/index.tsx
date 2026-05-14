@@ -8,7 +8,7 @@ import datePickerLocaleRu from 'date-fns/locale/ru';
 import { History } from 'history';
 import { Base64 } from 'js-base64';
 import moment from 'moment';
-import React, { StrictMode } from 'react';
+import { StrictMode } from 'react';
 import { registerLocale, setDefaultLocale } from 'react-datepicker';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';

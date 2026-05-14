@@ -92,7 +92,7 @@ export class MenuApi extends CommonApi {
           ...(enabledWorkspaces && { workspace: workspaceId })
         }
       },
-      { menu: 'subMenu?json', id: 'id?str' }
+      { menu: 'subMenu?json', id: '?localId' }
     );
 
     return {
@@ -385,7 +385,7 @@ export class MenuApi extends CommonApi {
             sourceId: SourcesId.MENU,
             query: { user, version, workspace }
           },
-          'id'
+          '?localId'
         ).catch(e => console.error(e));
 
     return { version, configVersion, id, ...(enabledWorkspaces && { workspace }) };
@@ -394,7 +394,7 @@ export class MenuApi extends CommonApi {
   getMenuSettingsConfig = async ({ id = '' }) => {
     const config = await Records.get(`${SourcesId.MENU}@${id}`).load(
       {
-        id: 'id',
+        id: '?localId',
         version: 'version',
         authorities: 'authorities[]?str![]',
         menu: 'subMenu?json'

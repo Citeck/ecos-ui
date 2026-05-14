@@ -115,11 +115,44 @@ $kanban-head-height: 50px;
 .ecos-kanban_swimlane {
   .ecos-kanban__column:not(.ecos-kanban__column-name) {
     min-height: 60px;
+
+    // Расширяем bounds колонки вниз, не меняя видимую высоту дорожки.
+    // ВАЖНО: применяется всегда в swimlane-режиме (не через drag-класс),
+    // чтобы react-beautiful-dnd снял bounds Droppable’ов уже с этим
+    // расширением. Если применять по факту начала drag (через
+    // .swimlanes_dragging), класс выставляется через React state — то есть
+    // после того, как rbd закэшировал размеры, и тогда хит-детект бьётся
+    // о маленькие старые bounds, а layout «прыгает».
+    padding-bottom: 100px;
+    margin-bottom: -100px;
   }
 
   .ecos-kanban__column-loader {
     min-height: 40px;
     padding-top: 0;
+  }
+
+  // Плашка-индикатор drag («Карточка из этой колонки» / «Перенести сюда»)
+  // в обычном режиме раздвигает колонку сверху на 100px (height: 0 → 100),
+  // что в момент захвата сдвигает placeholder и всю дорожку — особенно
+  // заметно у sticky-заголовка дорожки, расположенной у верха страницы.
+  // В swimlane-режиме делаем её абсолютным оверлеем: визуально остаётся,
+  // но layout не дёргается.
+  .ecos-kanban__card-info_float {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  // Прячем плашку «Карточка не может быть перемещена сюда» в чужих дорожках —
+  // там колонки заполнены карточками других исполнителей, и абсолютный
+  // оверлей-индикатор перекрывал бы первую карточку. Сигнал «нельзя дропнуть
+  // сюда» остаётся через cursor: no-drop и приглушённую opacity карточек.
+  .ecos-kanban__column_disabled .ecos-kanban__card-info_float {
+    display: none;
   }
 }
 

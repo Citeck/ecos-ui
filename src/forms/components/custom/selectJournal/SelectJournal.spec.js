@@ -105,12 +105,32 @@ describe('SelectJournal Component', () => {
       });
     });
 
-    it('Should fall back to static journalId when customJournalId returns empty', done => {
+    it('Should not fall back to static journalId on a real form when customJournalId returns empty', done => {
       Harness.testCreate(SelectJournalComponent, {
         ...comp1,
         journalId: 'static-journal',
         customJournalId: 'value = "";'
       }).then(component => {
+        expect(component.journalId).toBe('');
+        done();
+      });
+    });
+
+    it('Should fall back to static journalId in builder mode when customJournalId returns empty', done => {
+      Harness.testCreate(SelectJournalComponent, {
+        ...comp1,
+        journalId: 'static-journal',
+        customJournalId: 'value = "";'
+      }).then(component => {
+        component.options.builder = true;
+        expect(component.journalId).toBe('static-journal');
+
+        component.options.builder = false;
+        component.options.preview = true;
+        expect(component.journalId).toBe('static-journal');
+
+        component.options.preview = false;
+        component.options.editInFormBuilder = true;
         expect(component.journalId).toBe('static-journal');
         done();
       });

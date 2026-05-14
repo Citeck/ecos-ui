@@ -908,6 +908,7 @@
   "record-action.task-outcome.form-not-found.message": "Form not found. Contact your system administrator",
   "record-action.task-outcome.complete-task.header": "Complete task",
   "record-action.task-outcome.complete-task.message": "Complete task with outcome \"{{outcome}}\"",
+  "task-outcome.comment-required": "Comment is required for this action",
 
   "record-action.msg.confirm.title": "Action confirmation",
   "record-action.msg.info.title": "Information",
@@ -3273,6 +3274,7 @@
   "gantt.chart.scale.years": "Years",
   "gantt.chart.empty-state": "Gantt chart is not configured yet. Open the widget settings to pick a data source.",
   "gantt.settings.default-scale.label": "Default scale",
+  "gantt.settings.data-type.linked.hint": "In the \"Linked\" mode, the chart supports regular projects only (not Scrum).",
 
   "developer-console.run-code": "Execute Code",
   "developer-console.output.title": "Output",
