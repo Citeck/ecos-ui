@@ -44,6 +44,33 @@ function serveMonacoEditorPlugin() {
   };
 }
 
+function serveExcalidrawAssetsPlugin() {
+  const assetsRoot = path.resolve(__dirname, 'node_modules/@excalidraw/excalidraw/dist/excalidraw-assets');
+
+  return {
+    name: 'serve-excalidraw-assets',
+    configureServer(server) {
+      server.middlewares.use('/excalidraw-assets', (req, res, next) => {
+        const filePath = path.join(assetsRoot, (req.url || '/').replace(/\?.*$/, ''));
+        try {
+          if (!statSync(filePath).isFile()) return next();
+          res.setHeader('Content-Type', MIME_TYPES[path.extname(filePath)] || 'application/octet-stream');
+          res.end(readFileSync(filePath));
+        } catch {
+          next();
+        }
+      });
+    },
+    writeBundle(options) {
+      const outDir = options.dir || path.resolve(__dirname, 'build');
+      const target = path.join(outDir, 'excalidraw-assets');
+
+      rmSync(target, { force: true, recursive: true });
+      cpSync(assetsRoot, target, { recursive: true });
+    }
+  };
+}
+
 const needEnvSettings = [
   'ECOS_PAGE_TITLE',
   'SHARE_PROXY_URL',
@@ -220,6 +247,7 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       serveMonacoEditorPlugin(),
+      serveExcalidrawAssetsPlugin(),
       nodePolyfills({
         include: ['events']
       }),
