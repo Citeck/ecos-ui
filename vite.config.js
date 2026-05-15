@@ -1,6 +1,6 @@
 import babel from '@rollup/plugin-babel';
 import react from '@vitejs/plugin-react';
-import { cpSync, readFileSync, statSync } from 'fs';
+import { cpSync, readFileSync, rmSync, statSync } from 'fs';
 import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
