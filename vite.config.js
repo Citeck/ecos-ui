@@ -1,6 +1,6 @@
 import babel from '@rollup/plugin-babel';
 import react from '@vitejs/plugin-react';
-import { cpSync, readFileSync, rmSync, statSync } from 'fs';
+import { cpSync, readFileSync, statSync } from 'fs';
 import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
@@ -174,10 +174,10 @@ export default defineConfig(({ mode }) => {
       terserOptions: {
         keep_classnames: true,
         parse: {
-          ecma: 2020
+          ecma: 2017
         },
         compress: {
-          ecma: 2020,
+          ecma: 5,
           comparisons: false,
           inline: 2,
           /** Attention! Don't forget to remove the 'debugger' from the codebase if you don't need it! **/
@@ -187,7 +187,7 @@ export default defineConfig(({ mode }) => {
           safari10: true
         },
         output: {
-          ecma: 2020,
+          ecma: 5,
           comments: false,
           ascii_only: true
         }
@@ -223,13 +223,13 @@ export default defineConfig(({ mode }) => {
       serveMonacoEditorPlugin(),
       serveExcalidrawAssetsPlugin(),
       nodePolyfills({
-        include: ['events']
+        include: ['crypto', 'events']
       }),
       babel({
         babelHelpers: 'bundled',
         babelrc: false,
         configFile: false,
-        exclude: [/[\\/]node_modules[\\/]/, /[\\/]\.vite[\\/]/],
+        exclude: '/**/node_modules/**',
         extensions: ['jsx', 'js', 'ts', 'tsx', 'mjs'],
         plugins: ['@babel/plugin-transform-flow-strip-types'],
         presets: [['@babel/preset-react', { runtime: 'automatic' }]]
