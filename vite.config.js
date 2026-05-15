@@ -168,16 +168,16 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       outDir: 'build',
-      sourcemap: mode !== 'production',
+      sourcemap: true,
       minify: 'terser',
       chunkSizeWarningLimit: 1500,
       terserOptions: {
         keep_classnames: true,
         parse: {
-          ecma: 2017
+          ecma: 2020
         },
         compress: {
-          ecma: 5,
+          ecma: 2020,
           comparisons: false,
           inline: 2,
           /** Attention! Don't forget to remove the 'debugger' from the codebase if you don't need it! **/
@@ -187,7 +187,7 @@ export default defineConfig(({ mode }) => {
           safari10: true
         },
         output: {
-          ecma: 5,
+          ecma: 2020,
           comments: false,
           ascii_only: true
         }
