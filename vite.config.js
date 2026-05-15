@@ -193,32 +193,13 @@ export default defineConfig(({ mode }) => {
         }
       },
       rollupOptions: {
+        // manualChunks отключены: даже консервативное разделение по vendor-* группам ломает
+        // рантайм-инициализацию (null.forEach в saga-chain / useGanttData / setDashletConfigByParams).
+        // Rollup сам управляет графом чанков — это безопасно и сохраняет автоматический code-splitting
+        // по lazy()-маршрутам.
         output: {
           sourcemapPathTransform: relativeSourcePath => {
             return path.relative('src', relativeSourcePath).replace(/\\/g, '/');
-          },
-          manualChunks(id) {
-            if (!id.includes('node_modules')) return;
-
-            if (/[\\/]node_modules[\\/](lexical|@lexical|@excalidraw)[\\/]/.test(id)) {
-              return 'vendor-lexical';
-            }
-            if (
-              /[\\/]node_modules[\\/](bpmn-js|dmn-js|cmmn-js|diagram-js|camunda-dmn-js|bpmn-js-bpmnlint|bpmn-js-color-picker|dmn-js-properties-panel|dmn-js-drd|dmn-js-shared|dmn-js-decision-table|dmn-js-literal-expression|bpmn-moddle|dmn-moddle|cmmn-moddle|camunda-dmn-moddle|@bpmn-io|bpmn-font|cmmn-font|bpmnlint|bpmnlint-utils|min-dom|min-dash|tiny-svg|didi|moddle|moddle-xml|ids|object-refs|saxen|inherits-browser|hammerjs|preact|htm|@codemirror|@lezer|crelt|style-mod|w3c-keyname)[\\/]/.test(
-                id
-              )
-            ) {
-              return 'vendor-bpmn';
-            }
-            if (/[\\/]node_modules[\\/](pdfjs-dist|react-xml-viewer|react-diff-viewer-continued)[\\/]/.test(id)) {
-              return 'vendor-pdf';
-            }
-            if (/[\\/]node_modules[\\/](yjs|y-websocket|y-protocols|lib0)[\\/]/.test(id)) {
-              return 'vendor-collab';
-            }
-            if (/[\\/]node_modules[\\/]keycloak-js[\\/]/.test(id)) {
-              return 'vendor-auth';
-            }
           }
         },
         input: {
