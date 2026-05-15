@@ -193,10 +193,6 @@ export default defineConfig(({ mode }) => {
         }
       },
       rollupOptions: {
-        // manualChunks отключены: даже консервативное разделение по vendor-* группам ломает
-        // рантайм-инициализацию (null.forEach в saga-chain / useGanttData / setDashletConfigByParams).
-        // Rollup сам управляет графом чанков — это безопасно и сохраняет автоматический code-splitting
-        // по lazy()-маршрутам.
         output: {
           sourcemapPathTransform: relativeSourcePath => {
             return path.relative('src', relativeSourcePath).replace(/\\/g, '/');
