@@ -210,9 +210,6 @@ export default defineConfig(({ mode }) => {
             ) {
               return 'vendor-bpmn';
             }
-            if (/[\\/]node_modules[\\/](formiojs|@formio)[\\/]/.test(id)) {
-              return 'vendor-formio';
-            }
             if (/[\\/]node_modules[\\/](pdfjs-dist|react-xml-viewer|react-diff-viewer-continued)[\\/]/.test(id)) {
               return 'vendor-pdf';
             }
