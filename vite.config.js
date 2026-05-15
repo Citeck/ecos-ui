@@ -174,10 +174,10 @@ export default defineConfig(({ mode }) => {
       terserOptions: {
         keep_classnames: true,
         parse: {
-          ecma: 2020
+          ecma: 2017
         },
         compress: {
-          ecma: 2020,
+          ecma: 5,
           comparisons: false,
           inline: 2,
           /** Attention! Don't forget to remove the 'debugger' from the codebase if you don't need it! **/
@@ -187,7 +187,7 @@ export default defineConfig(({ mode }) => {
           safari10: true
         },
         output: {
-          ecma: 2020,
+          ecma: 5,
           comments: false,
           ascii_only: true
         }
