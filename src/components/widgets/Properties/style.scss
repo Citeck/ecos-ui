@@ -30,6 +30,20 @@
     }
   }
 
+  // Allow ecosSelect dropdown to escape the react-custom-scrollbars wrapper
+  // when opened. Without this the dropdown is clipped by inline overflow:hidden
+  // set by Scrollbars (e.g. release-version select on the EPT task card).
+  &:has(.formio-component-ecosSelect .choices.is-open) {
+    .ecos-properties__scroll,
+    .ecos-properties__scroll > div {
+      overflow: visible !important;
+    }
+  }
+
+  .formio-component-ecosSelect .choices.is-open {
+    z-index: 10;
+  }
+
   &__formio {
     width: 100%;
     height: 100%;
