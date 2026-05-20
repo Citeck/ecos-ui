@@ -1,0 +1,4 @@
+[submodule "src/plugins/ecos-ui-gantt-chart-widget-plugin"]
+	path = src/plugins/ecos-ui-gantt-chart-widget-plugin
+	url = git@gitlab.citeck.ru:citeck-projects/ecos-ui-gantt-chart-widget-plugin.git
+	branch = develop
