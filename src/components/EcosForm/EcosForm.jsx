@@ -8,6 +8,7 @@ import isFunction from 'lodash/isFunction';
 import isString from 'lodash/isString';
 import PropTypes from 'prop-types';
 import React from 'react';
+import ReactDOM from 'react-dom';
 
 import { PRE_SETTINGS_TYPES, PreSettings } from '../PreSettings';
 import Records from '../Records';
@@ -17,6 +18,7 @@ import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
 import { FORM_MODE_EDIT } from './constants';
 
+import Loader from '@/components/common/Loader/Loader';
 import { SourcesId } from '@/constants';
 import { PROXY_URI } from '@/constants/alfresco';
 import { SUBMIT_FORM_TIMEOUT } from '@/constants/forms';
@@ -100,7 +102,8 @@ class EcosForm extends React.Component {
     return {
       formId: 'form@',
       error: null,
-      formDefinition: {}
+      formDefinition: {},
+      isAsyncLoading: false
     };
   }
 
@@ -374,8 +377,23 @@ class EcosForm extends React.Component {
 
             this._containerHeightTimerId = window.setTimeout(() => this.toggleContainerHeight(), 500);
 
-            isFunction(this.props.onReadyToSubmit) &&
-              EcosFormUtils.isComponentsReadyWaiting(form.components).then(state => this.props.onReadyToSubmit(form, state));
+            // Block the form UI with a React-controlled overlay while
+            // asyncData components finish initial loading. We don't use
+            // formio's `form.loading` because formio resets it to false on
+            // every onChange (incl. setValue from asyncData itself), and we
+            // don't use EcosFormModal's toggleLoader because that re-renders
+            // EcosModal and triggers Draggable bounds recalculation.
+            this.setState({ isAsyncLoading: true });
+
+            const readyPromise = EcosFormUtils.isComponentsReadyWaiting(form.components);
+
+            readyPromise.finally(() => {
+              this.setState({ isAsyncLoading: false });
+            });
+
+            if (isFunction(this.props.onReadyToSubmit)) {
+              readyPromise.then(state => this.props.onReadyToSubmit(form, state));
+            }
           });
 
           this._form = form;
@@ -788,15 +806,22 @@ class EcosForm extends React.Component {
 
   render() {
     const { className } = this.props;
-    const { error, containerId } = this.state;
+    const { error, containerId, isAsyncLoading } = this.state;
 
     if (error) {
       return <div className={classNames('ecos-ui-form__error', className)}>{error.message}</div>;
     }
 
+    const containerEl = this._formContainer.current;
+    const loaderTarget =
+      isAsyncLoading && containerEl
+        ? containerEl.closest('.ecos-modal') || containerEl.closest('.modal-dialog') || containerEl.parentElement
+        : null;
+
     return (
-      <div className={className}>
+      <div className={classNames('ecos-ui-form', className)} style={{ position: 'relative' }}>
         <div id={containerId} ref={this._formContainer} />
+        {loaderTarget && ReactDOM.createPortal(<Loader blur rounded className="ecos-ui-form__async-loader" />, loaderTarget)}
         <EcosFormBuilderModal ref={this.setRefFormBuilderModal} />
       </div>
     );

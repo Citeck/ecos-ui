@@ -1,16 +1,17 @@
 import Formio from 'formiojs/Formio';
-import omitBy from 'lodash/omitBy';
-import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import debounce from 'lodash/debounce';
-import isEqual from 'lodash/isEqual';
+import get from 'lodash/get';
 import isArray from 'lodash/isArray';
-import isString from 'lodash/isString';
+import isEqual from 'lodash/isEqual';
 import isNil from 'lodash/isNil';
+import isString from 'lodash/isString';
+import omitBy from 'lodash/omitBy';
 
-import ecosFetch from '../../../../helpers/ecosFetch';
 import Records from '../../../../components/Records';
+import ecosFetch from '../../../../helpers/ecosFetch';
 import BaseComponent from '../base/BaseComponent';
+
 import { SourceTypes, UpdateTypes } from './const';
 
 let ajaxGetCache = {};
@@ -124,7 +125,11 @@ export default class AsyncDataComponent extends BaseComponent {
   }
 
   isReadyToSubmit() {
-    return this.activeAsyncActionsCounter === 0;
+    // Use <= 0 instead of === 0 to defend against rebuild races where build()
+    // resets the counter to 0 while a previous in-flight async action still
+    // has its .finally(decrement) pending — that decrement would otherwise
+    // leave the counter at -1 forever.
+    return this.activeAsyncActionsCounter <= 0;
   }
 
   elementInfo() {
@@ -385,9 +390,13 @@ export default class AsyncDataComponent extends BaseComponent {
 
       const decrement = () => this.activeAsyncActionsCounter--;
 
-      const actionImpl = () => {
-        this.activeAsyncActionsCounter++;
+      // Increment synchronously here (before setTimeout) so any immediate
+      // isReadyToSubmit() check correctly reports "not ready" while async
+      // work is pending. Without this, a check between scheduling and
+      // setTimeout firing would see counter=0 and let submit through.
+      this.activeAsyncActionsCounter++;
 
+      const actionImpl = () => {
         if (isEqual(data, this[dataField])) {
           try {
             const result = action.call(this, data);

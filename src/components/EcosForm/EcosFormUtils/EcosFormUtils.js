@@ -1204,7 +1204,7 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
   }
 
   static isComponentsReadyWaiting(components, options = {}) {
-    const opt = { attempts: 7, interval: 1000, ...options };
+    const opt = { attempts: 7, interval: 1000, firstCheckDelay: 200, ...options };
 
     return new Promise(resolve => {
       let checkTimes = 0;
@@ -1222,7 +1222,13 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
         setTimeout(check, opt.interval);
       };
 
-      check();
+      // Defer the first check so that async actions scheduled during form
+      // init (e.g. lodash-debounced _updateValue in AsyncData, which uses
+      // requestAnimationFrame and fires ~16ms later) have time to run and
+      // increment their pending counter. Without this delay the first
+      // check would see counter=0 and resolve immediately, hiding the
+      // loader before the real work even started.
+      setTimeout(check, opt.firstCheckDelay);
     });
   }
 
