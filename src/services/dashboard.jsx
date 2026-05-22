@@ -79,6 +79,16 @@ export default class DashboardService {
     return (id || '').replace(SourcesId.DASHBOARD + separatorId, '');
   }
 
+  /**
+   * Strips the workspace prefix from a workspace-scoped dashboard local id.
+   * Local id of a workspace-scoped dashboard has the `{wsSysId}:{dashboardId}` format,
+   * while the dashboard id itself (uuid) never contains a colon.
+   */
+  static getIdWithoutWorkspace(id) {
+    const value = id || '';
+    return value.includes(':') ? value.substring(value.indexOf(':') + 1) : value;
+  }
+
   static isDashboardRecord(recordRef = '') {
     return recordRef.indexOf(SourcesId.DASHBOARD) === 0;
   }
