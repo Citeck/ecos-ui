@@ -29,13 +29,10 @@ export default class BaseComponent extends FormIOBase {
     if (!isValid) {
       return false;
     }
-    // Only enforce isReadyToSubmit at submit time. Outside of submit (during
-    // normal value-change checkValidity calls during init) treat the
-    // component as valid even if async work is pending — otherwise form.errors
-    // would include this asyncData and downstream checks like
-    // `if (form.errors.length) return` would block submit prematurely.
-    if (this.root.submitting && !this.isReadyToSubmit()) {
-      this.setCustomValidity(t('eform.form-is-not-ready'));
+    if (!this.isReadyToSubmit()) {
+      if (this.root.submitting) {
+        this.setCustomValidity(t('eform.form-is-not-ready'));
+      }
       return false;
     }
     return true;
