@@ -436,7 +436,7 @@ class Settings extends Component {
       <div className="ecos-dashboard-settings__spec">
         <div className="ecos-dashboard-settings__spec-block">
           <span className="ecos-dashboard-settings__spec-label">{t(Labels.SPEC_ID)}:</span>
-          <span className="ecos-dashboard-settings__spec-value">{identification.id}</span>
+          <span className="ecos-dashboard-settings__spec-value">{DashboardService.getIdWithoutWorkspace(identification.id)}</span>
         </div>
       </div>
     );

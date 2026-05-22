@@ -83,6 +83,32 @@ describe('Dashboard Service', () => {
     });
   });
 
+  describe('Method getIdWithoutWorkspace', () => {
+    const data = [
+      {
+        title: 'Workspace-scoped local id - strips the workspace prefix',
+        input: `admin$workspace:${SHORT_DASHBOARD_ID}`,
+        output: SHORT_DASHBOARD_ID
+      },
+      {
+        title: 'Short dashboard id without workspace - unchanged',
+        input: SHORT_DASHBOARD_ID,
+        output: SHORT_DASHBOARD_ID
+      },
+      {
+        title: 'Without input parameter',
+        input: '',
+        output: ''
+      }
+    ];
+
+    data.forEach(item => {
+      it(item.title, () => {
+        expect(DashboardService.getIdWithoutWorkspace(item.input)).toEqual(item.output);
+      });
+    });
+  });
+
   describe('Method checkDashboardResult', () => {
     it('Empty dashboard result - generate default dashboard config', () => {
       const result = DashboardService.checkDashboardResult();
