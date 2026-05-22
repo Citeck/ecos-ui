@@ -19,7 +19,51 @@ export default [
     validate: {
       required: false
     },
+    logic: [
+      {
+        name: 'Disabled field',
+        trigger: {
+          type: 'javascript',
+          javascript: "result = !!data['customJournalId'] && data['customJournalId'].length > 0"
+        },
+        actions: [
+          {
+            name: 'Disable action',
+            type: 'property',
+            property: {
+              label: 'Disabled',
+              value: 'disabled',
+              type: 'boolean'
+            },
+            state: true
+          },
+          {
+            name: 'Edit tips',
+            type: 'property',
+            property: {
+              label: 'Description',
+              value: 'description',
+              type: 'string'
+            },
+            text: () => t('form-constructor.tabs-description.journalId.disabled')
+          }
+        ]
+      }
+    ],
     weight: 20
+  },
+  {
+    type: 'textarea',
+    weight: 21,
+    input: true,
+    key: 'customJournalId',
+    label: {
+      ru: 'Пользовательское значение ID журнала',
+      en: 'Custom value of journal ID'
+    },
+    editor: 'ace',
+    rows: 10,
+    placeholder: 'value = data._selectedJournalId;'
   },
   {
     type: 'select',
@@ -605,31 +649,33 @@ export default [
     label: 'Async Data',
     inputType: 'asyncData',
     source: {
-      type: 'ajax',
-      ajax: {
-        method: 'GET',
-        url: '/api/journals/config',
-        data: `
+      type: 'custom',
+      custom: {
+        syncData: `
           value={
             journalId: data.journalId || data._journalId
           };
         `,
-        mapping: `
-          if (data.columns && Array.isArray(data.columns)) {
-            value = data.columns.map(function (item) {
-              return {
-                label: item.text,
-                value: item.attribute
-              };
-            });
-          } else {
-            value = [];
+        asyncData: `
+          if (!data.journalId) {
+            return [];
           }
+
+          return window.Citeck.Journals.getJournalConfig(data.journalId).then(config => {
+            if (config.columns && Array.isArray(config.columns)) {
+              return config.columns.map(function (item) {
+                return {
+                  label: item.text,
+                  value: item.attribute
+                };
+              });
+            }
+
+            return [];
+          });
         `
       },
-      record: { id: '', attributes: {} },
-      recordsQuery: { query: '', attributes: {}, isSingle: false },
-      custom: { syncData: {}, asyncData: {} }
+      recordsQuery: { query: '', attributes: {}, isSingle: false }
     },
     update: { type: 'any-change', event: '', rate: 100 }
   }
