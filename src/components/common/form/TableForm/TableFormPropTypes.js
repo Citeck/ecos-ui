@@ -26,7 +26,6 @@ export default {
   isSelectableRows: PropTypes.bool,
   onSelectRows: PropTypes.func,
   viewOnly: PropTypes.bool,
-  parentForm: PropTypes.object,
   triggerEventOnTableChange: PropTypes.func,
   isUsedJournalActions: PropTypes.bool,
   journalActions: PropTypes.object,

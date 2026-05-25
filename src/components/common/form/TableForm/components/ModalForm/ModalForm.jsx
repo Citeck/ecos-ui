@@ -1,12 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
 
-import { TableFormContext } from '../../TableFormContext';
-import EcosForm from '../../../../../EcosForm/EcosForm';
-import { FORM_MODE_CLONE, FORM_MODE_CREATE, FORM_MODE_EDIT, FORM_MODE_VIEW } from '../../../../../EcosForm';
-import EcosModal from '../../../../EcosModal';
 import { t } from '../../../../../../helpers/util';
-import Records from '../../../../../Records';
 import useIsMounted from '../../../../../../hooks/useIsMounted';
+import { FORM_MODE_CLONE, FORM_MODE_CREATE, FORM_MODE_EDIT, FORM_MODE_VIEW } from '../../../../../EcosForm';
+import EcosForm from '../../../../../EcosForm/EcosForm';
+import Records from '../../../../../Records';
+import EcosModal from '../../../../EcosModal';
+import { TableFormContext } from '../../TableFormContext';
 
 const ModalForm = () => {
   const context = useContext(TableFormContext);
@@ -24,8 +24,9 @@ const ModalForm = () => {
     computed,
     rowPosition
   } = context;
-  const { parentForm, isStaticModalTitle, customStringForConcatWithStaticTitle } = controlProps;
   const isMounted = useIsMounted();
+
+  const { isStaticModalTitle, customStringForConcatWithStaticTitle } = controlProps;
   const [displayName, setDisplayName] = useState('');
   useEffect(() => {
     if (isStaticModalTitle) {
@@ -82,7 +83,6 @@ const ModalForm = () => {
   let recordForForm = recordRef || record;
 
   const formOptions = {
-    parentForm,
     formMode: formMode === FORM_MODE_EDIT ? FORM_MODE_EDIT : FORM_MODE_CREATE,
     rowPosition
   };
