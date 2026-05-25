@@ -42,6 +42,7 @@ import { removeItems } from '@/helpers/ls';
 import { decodeLink, getSearchParams, getSortedUrlParams, SearchKeys } from '@/helpers/urls';
 import { t } from '@/helpers/util';
 import { selectStateByKey } from '@/selectors/dashboardSettings';
+import { selectCurrentWorkspace } from '@/selectors/workspaces';
 import DashboardService from '@/services/dashboard';
 import PageTabList from '@/services/pageTabs/PageTabList';
 import UserLocalSettingsService from '@/services/userLocalSettings';
@@ -443,7 +444,7 @@ class Settings extends Component {
   }
 
   renderOwnershipBlock() {
-    const { dashboardKeyItems, userData, resetConfigToDefault, isDefaultConfig, isLoadingKeys } = this.props;
+    const { dashboardKeyItems, userData, isCurrentUserManager, resetConfigToDefault, isDefaultConfig, isLoadingKeys } = this.props;
     const { selectedDashboardKey, isForAllUsers } = this.state;
     const { recordRef, dashboardId } = this.getPathInfo();
 
@@ -465,6 +466,7 @@ class Settings extends Component {
           keys={dashboardKeyItems}
           selectedDashboardKey={selectedDashboardKey}
           isAdmin={userData.isAdmin}
+          isCurrentUserManager={isCurrentUserManager}
           isCustomDashboard={this.isCustomDashboard}
           isForAllUsers={isForAllUsers}
           isDefaultConfig={isDefaultConfig}
@@ -796,6 +798,7 @@ export const mapStateToProps = (state, ownProps) => ({
     userName: get(state, 'user.userName'),
     isAdmin: get(state, 'user.isAdmin', false)
   },
+  isCurrentUserManager: get(selectCurrentWorkspace(state), 'isCurrentUserManager', false),
   isLoadingMenu: get(state, ['menu', 'isLoading']),
   menuType: get(state, ['menu', 'type']),
   ...selectStateByKey(state, getStateId(ownProps))
