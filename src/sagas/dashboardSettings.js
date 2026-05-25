@@ -35,6 +35,7 @@ import {
   selectSelectedWidgetsById
 } from '../selectors/dashboardSettings';
 import { selectIsAdmin, selectUserName } from '../selectors/user';
+import { selectCurrentWorkspace } from '../selectors/workspaces';
 import DashboardService from '../services/dashboard';
 import UserLocalSettingsService from '../services/userLocalSettings';
 
@@ -164,10 +165,11 @@ function* doSaveSettingsRequest({ api }, { payload }) {
     const identification = yield select(selectIdentificationForSet, payload.key);
     const newIdentification = payload.newIdentification || {};
     const isAdmin = yield select(selectIsAdmin);
+    const isCurrentUserManager = yield select(state => get(selectCurrentWorkspace(state), 'isCurrentUserManager', false));
     const identificationData = { ...identification, ...newIdentification };
     let recordRef = yield select(state => selectRecordRef(state, payload.key));
 
-    if (!isAdmin) {
+    if (!isAdmin && !isCurrentUserManager) {
       const user = yield select(state => {
         return selectUserName(state);
       });
