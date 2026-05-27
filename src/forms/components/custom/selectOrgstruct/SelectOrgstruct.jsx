@@ -133,6 +133,13 @@ export default class SelectOrgstructComponent extends BaseComponent {
     this.attachRefreshOn();
     // this.autofocus();
     this.attachLogic();
+
+    // Cause: form.io logic action property/hidden — обёртка Base.prototype.build
+    // не отрабатывает, т.к. этот build() не вызывает super.build().
+    // Зеркалим её поведение из src/forms/components/override/base/Base.js:737-739.
+    if (!this.options.builder) {
+      this.showElement(this.visible && !this.component.hidden);
+    }
   }
 
   renderReactComponent = (config = {}) => {

@@ -111,6 +111,13 @@ export default class BaseReactComponent extends BaseComponent {
     } else {
       this.updateDescription();
     }
+
+    // Cause: form.io logic action property/hidden — обёртка Base.prototype.build
+    // не отрабатывает, т.к. этот build() не вызывает super.build().
+    // Зеркалим её поведение из src/forms/components/override/base/Base.js:737-739.
+    if (!this.options.builder) {
+      this.showElement(this.visible && !this.component.hidden);
+    }
   }
 
   // Cause: https://citeck.atlassian.net/browse/ECOSUI-1506
