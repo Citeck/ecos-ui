@@ -651,10 +651,14 @@ const useUniversalChat = (options = {}) => {
         throw new Error('Не удалось получить ID запроса');
       }
 
-      // Remove actions from the message that was acted upon
+      // Remove actions only from the message whose action was clicked, so that other
+      // assistant messages keep their own Save/Cancel buttons live (e.g. with multiple
+      // pending images in chat, cancelling one must not disable the others).
       setMessages(prevMessages =>
         prevMessages.map(msg =>
-          msg.messageData?.actions ? { ...msg, messageData: { ...msg.messageData, actions: null } } : msg
+          msg.messageData?.actions?.some(a => a.id === actionId)
+            ? { ...msg, messageData: { ...msg.messageData, actions: null } }
+            : msg
         )
       );
 
