@@ -302,6 +302,56 @@ describe('useUniversalChat - handlers', () => {
       expect(msgs[0].messageData.actions).toBeNull();
     });
 
+    it('clears actions only on the message whose action was clicked', async () => {
+      // Multi-pending file-save scenario: two assistant messages each carrying their own
+      // Save/Cancel pair for distinct tempRefs. Clicking Cancel on one must NOT disable the
+      // other — the surviving pending must remain saveable.
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: true,
+        json: jest.fn().mockResolvedValue({ requestId: 'action-req-2' })
+      });
+
+      const { result } = renderHook(() => useUniversalChat());
+
+      act(() => {
+        result.current.setMessages([
+          {
+            id: 'msg-a',
+            text: 'Green square ready',
+            messageData: {
+              actions: [
+                { id: 'new_record|temp-file@A', label: 'Save' },
+                { id: 'file_cancel|temp-file@A', label: 'Cancel' }
+              ]
+            }
+          },
+          {
+            id: 'msg-b',
+            text: 'Yellow circle ready',
+            messageData: {
+              actions: [
+                { id: 'new_record|temp-file@B', label: 'Save' },
+                { id: 'file_cancel|temp-file@B', label: 'Cancel' }
+              ]
+            }
+          }
+        ]);
+      });
+
+      await act(async () => {
+        await result.current.handleActionClick('file_cancel|temp-file@A');
+      });
+
+      const msgs = result.current.messages;
+      // msg-a was the source of the click → its actions are cleared
+      expect(msgs.find(m => m.id === 'msg-a').messageData.actions).toBeNull();
+      // msg-b owns a different pending → its actions must survive
+      expect(msgs.find(m => m.id === 'msg-b').messageData.actions).toEqual([
+        { id: 'new_record|temp-file@B', label: 'Save' },
+        { id: 'file_cancel|temp-file@B', label: 'Cancel' }
+      ]);
+    });
+
     it('adds error message on failure', async () => {
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
       global.fetch = jest.fn().mockRejectedValue(new Error('Network error'));
