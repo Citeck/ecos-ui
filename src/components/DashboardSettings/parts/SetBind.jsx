@@ -27,6 +27,7 @@ class SetBind extends React.Component {
     selectedDashboardKey: PropTypes.string,
     keys: PropTypes.array,
     isAdmin: PropTypes.bool,
+    isCurrentUserManager: PropTypes.bool,
     isForAllUsers: PropTypes.bool,
     isDefaultConfig: PropTypes.bool,
     isLoadingKeys: PropTypes.bool,
@@ -57,7 +58,7 @@ class SetBind extends React.Component {
   };
 
   render() {
-    const { keys, isAdmin, selectedDashboardKey, isForAllUsers, isCustomDashboard, isDefaultConfig, isLoadingKeys } = this.props;
+    const { keys, isAdmin, isCurrentUserManager, selectedDashboardKey, isForAllUsers, isCustomDashboard, isDefaultConfig, isLoadingKeys } = this.props;
 
     return (
       <>
@@ -93,7 +94,7 @@ class SetBind extends React.Component {
             <Icon id="ecos-dashboard-settings-bindings-reset" className="icon-question" />
           </Tooltip>
         </div>
-        {isAdmin && !isCustomDashboard && (
+        {(isAdmin || isCurrentUserManager) && !isCustomDashboard && (
           <div className="ecos-dashboard-settings__bindings-owner">
             <Checkbox checked={isForAllUsers} onChange={this.onChangeOwner} className="ecos-checkbox_flex">
               {t(Labels.BIND_ALL)}

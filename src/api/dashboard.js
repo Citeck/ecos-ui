@@ -16,7 +16,7 @@ import { getCurrentUserName, getEnabledWorkspaces, getMLValue, isExistIndex, t }
 import DashboardService from '../services/dashboard';
 
 const defaultAttr = {
-  id: 'id',
+  id: '?localId',
   config: 'config?json',
   authority: 'authority',
   user: 'authority',
@@ -101,7 +101,11 @@ export class DashboardApi {
     record.att('authority?str', user);
 
     if (type === DashboardTypes.CUSTOM) {
-      record.att('id', id);
+      // `id` may be a workspace-scoped local id (`{wsSysId}:{dashboardId}`). The backend's mutate
+      // expects a plain `id` here (the prefix is a workspace *system* id, a different namespace than
+      // the `workspace` attribute, and can't be parsed from this att — see DashboardRecords.mutate).
+      // The workspace is not lost: it is set from the current context via the `workspace` attribute below.
+      record.att('id', DashboardService.getIdWithoutWorkspace(id));
     } else {
       record.att('typeRef', key);
     }

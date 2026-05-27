@@ -6,8 +6,12 @@ export const getAuthorityNameFromAlfresco = async (nodeRef: string): Promise<str
   return Records.get(nodeRef).load('cm:userName!cm:authorityName');
 };
 
-export const isManagerCurrentUser = async (): Promise<boolean> => {
-  const wsId = getWorkspaceId();
+export const isManagerCurrentUser = async (workspaceId?: string): Promise<boolean> => {
+  const wsId = workspaceId || getWorkspaceId();
+
+  if (!wsId) {
+    return false;
+  }
 
   return Records.get(`emodel/workspace@${wsId}`).load('isCurrentUserManager?bool', true);
 };

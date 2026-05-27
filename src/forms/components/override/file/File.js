@@ -169,6 +169,22 @@ export default class FileComponent extends FormIOFileComponent {
     }
   }
 
+  refreshDOM() {
+    if (!this.inputsContainer || !this.listContainer || !this.uploadContainer) {
+      return;
+    }
+
+    const listAttached = this.listContainer.parentNode === this.inputsContainer;
+    const uploadAttached = this.uploadContainer.parentNode === this.inputsContainer;
+
+    if (!listAttached || !uploadAttached) {
+      this.triggerRedraw();
+      return;
+    }
+
+    super.refreshDOM();
+  }
+
   checkConditions(data) {
     const result = super.checkConditions(data);
 
