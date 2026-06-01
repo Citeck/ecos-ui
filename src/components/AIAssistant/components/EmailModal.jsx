@@ -1,4 +1,6 @@
 import React from 'react';
+
+import { t } from '@/helpers/export/util';
 import { Icon } from '../../common';
 
 /**
@@ -28,7 +30,7 @@ const EmailModal = ({
     <div className="ai-assistant-email-modal-overlay">
       <div className="ai-assistant-email-modal">
         <div className="ai-assistant-email-modal__header">
-          <h3>Отправить</h3>
+          <h3>{t('ai-assistant.email-modal.title')}</h3>
           <button
             className="ai-assistant-email-modal__close"
             onClick={onClose}
@@ -39,7 +41,7 @@ const EmailModal = ({
 
         <div className="ai-assistant-email-modal__content">
           <div className="ai-assistant-email-modal__field">
-            <label>Получатель:</label>
+            <label>{t('ai-assistant.email-modal.recipient')}</label>
             <input
               type="email"
               value={emailFormData.to}
@@ -49,22 +51,22 @@ const EmailModal = ({
           </div>
 
           <div className="ai-assistant-email-modal__field">
-            <label>Тема:</label>
+            <label>{t('ai-assistant.email-modal.subject')}</label>
             <input
               type="text"
               value={emailFormData.subject}
               onChange={handleFieldChange('subject')}
-              placeholder="Тема письма"
+              placeholder={t('ai-assistant.email-modal.subject-placeholder')}
             />
           </div>
 
           <div className="ai-assistant-email-modal__field">
-            <label>Сообщение:</label>
+            <label>{t('ai-assistant.email-modal.body')}</label>
             <textarea
               value={emailFormData.body}
               onChange={handleFieldChange('body')}
               rows="10"
-              placeholder="Текст письма"
+              placeholder={t('ai-assistant.email-modal.body-placeholder')}
             />
           </div>
 
@@ -75,7 +77,7 @@ const EmailModal = ({
                 checked={emailFormData.addToActivities}
                 onChange={handleFieldChange('addToActivities')}
               />
-              <span>Добавить письмо в активности</span>
+              <span>{t('ai-assistant.email-modal.add-to-activities')}</span>
             </label>
           </div>
         </div>
@@ -85,7 +87,7 @@ const EmailModal = ({
             className="ai-assistant-email-modal__button ai-assistant-email-modal__button--cancel"
             onClick={onClose}
           >
-            Отмена
+            {t('ai-assistant.email-modal.cancel')}
           </button>
           <button
             className="ai-assistant-email-modal__button ai-assistant-email-modal__button--send"
@@ -95,12 +97,12 @@ const EmailModal = ({
             {isEmailSending ? (
               <>
                 <Icon className="fa fa-spinner fa-spin" />
-                Отправка...
+                {t('ai-assistant.email-modal.sending')}
               </>
             ) : (
               <>
                 <Icon className="fa fa-send" />
-                Отправить
+                {t('ai-assistant.email-modal.send')}
               </>
             )}
           </button>

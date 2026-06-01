@@ -117,7 +117,7 @@ describe('buildInitialProcessingMessage', () => {
 
       expect(result.isProcessing).toBe(true);
       expect(result.pollingIsUsed).toBe(true);
-      expect(result.text).toBe('Запрос обрабатывается. Это может занять некоторое время...');
+      expect(result.text).toBe('ai-assistant.message.processing-long');
       expect(result).not.toHaveProperty('isAgentProgressContent');
       expect(result).not.toHaveProperty('isBusinessAppContent');
     });
@@ -131,7 +131,7 @@ describe('buildInitialProcessingMessage', () => {
 
       const result = buildInitialProcessingMessage(data);
 
-      expect(result.text).toBe('Запрос обрабатывается. Это может занять некоторое время...');
+      expect(result.text).toBe('ai-assistant.message.processing-long');
     });
 
     it('creates generic message when detectedIntent is not BUSINESS_APP_GENERATION', () => {
@@ -144,7 +144,7 @@ describe('buildInitialProcessingMessage', () => {
 
       const result = buildInitialProcessingMessage(data);
 
-      expect(result.text).toBe('Запрос обрабатывается. Это может занять некоторое время...');
+      expect(result.text).toBe('ai-assistant.message.processing-long');
     });
   });
 

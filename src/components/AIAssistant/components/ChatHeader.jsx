@@ -12,10 +12,10 @@ const ACTIVE_AGENT_STATUSES = [
 ];
 
 const AGENT_STATUS_LABELS = {
-  [AGENT_STATUSES.PLANNING]: 'Планирование',
-  [AGENT_STATUSES.WAITING_PLAN_APPROVAL]: 'Ожидание подтверждения',
-  [AGENT_STATUSES.EXECUTING]: 'Выполнение',
-  [AGENT_STATUSES.WAITING_STEP_APPROVAL]: 'Ожидание подтверждения шага'
+  [AGENT_STATUSES.PLANNING]: 'ai-assistant.agent-status.planning',
+  [AGENT_STATUSES.WAITING_PLAN_APPROVAL]: 'ai-assistant.agent-status.waiting-plan',
+  [AGENT_STATUSES.EXECUTING]: 'ai-assistant.agent-status.executing',
+  [AGENT_STATUSES.WAITING_STEP_APPROVAL]: 'ai-assistant.agent-status.waiting-step'
 };
 
 /**
@@ -56,7 +56,7 @@ const ChatHeader = ({
       <div className="ai-assistant-chat__header-left">
         <h3 className="ai-assistant-chat__title">{selectedAgent ? selectedAgent.name : title}</h3>
         {isAgentActive && (
-          <span className="ai-assistant-chat__agent-badge" title={AGENT_STATUS_LABELS[agentStatus]}>
+          <span className="ai-assistant-chat__agent-badge" title={t(AGENT_STATUS_LABELS[agentStatus])}>
             <Icon className="ai-assistant-chat__agent-badge-icon fa fa-robot" />
             <span className="ai-assistant-chat__agent-badge-text">Agent</span>
           </span>
@@ -99,7 +99,7 @@ const ChatHeader = ({
         <button
           className="ai-assistant-chat__minimize"
           onClick={onMinimize}
-          title={isMinimized ? 'Развернуть' : 'Свернуть'}
+          title={isMinimized ? t('ai-assistant.header.expand') : t('ai-assistant.header.minimize')}
         >
           <Icon
             className={classNames(
@@ -112,7 +112,7 @@ const ChatHeader = ({
         <button
           className="ai-assistant-chat__close"
           onClick={onClose}
-          title="Закрыть"
+          title={t('ai-assistant.header.close')}
         >
           <Icon className="ai-assistant-chat__icon fa fa-times" />
         </button>

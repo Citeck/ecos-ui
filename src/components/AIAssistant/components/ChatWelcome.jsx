@@ -1,9 +1,17 @@
 import React from 'react';
 
+import { t } from '@/helpers/export/util';
+
 const TAB_TYPES = {
   UNIVERSAL: 'universal',
   CONTEXTUAL: 'contextual'
 };
+
+const Capability = ({ titleKey, descKey }) => (
+  <div className="ai-assistant-chat__capability">
+    <strong>{t(titleKey)}</strong> — {t(descKey)}
+  </div>
+);
 
 /**
  * Welcome screen component shown when chat is empty
@@ -18,42 +26,56 @@ const ChatWelcome = ({
   return (
     <div className="ai-assistant-chat__empty">
       <div className="ai-assistant-chat__welcome">
-        <h4>👋 Привет! Я - Citeck AI Assistant</h4>
-        <p>Я помогу вам автоматизировать бизнес-процессы и работать с документами.</p>
+        <h4>{t('ai-assistant.welcome.title')}</h4>
+        <p>{t('ai-assistant.welcome.subtitle')}</p>
       </div>
 
       {activeTab === TAB_TYPES.UNIVERSAL && (
         <div className="ai-assistant-chat__capabilities">
-          <div className="ai-assistant-chat__capability">
-            <strong>🏗️ Бизнес-приложения:</strong> генерация полноценных приложений из описания
-          </div>
-          <div className="ai-assistant-chat__capability">
-            <strong>📋 Типы данных:</strong> создание, редактирование и анализ
-          </div>
-          <div className="ai-assistant-chat__capability">
-            <strong>🔄 BPMN:</strong> генерация бизнес-процессов
-          </div>
-          <div className="ai-assistant-chat__capability">
-            <strong>📄 Документы:</strong> анализ, сравнение версий, Q&A
-          </div>
-          <div className="ai-assistant-chat__capability">
-            <strong>✉️ Письма:</strong> составление деловых писем
-          </div>
-          <div className="ai-assistant-chat__capability">
-            <strong>👥 Клиент 360:</strong> анализ клиентов, сделок, заказов, платежей
-          </div>
+          <h5 className="ai-assistant-chat__section">{t('ai-assistant.welcome.section.config')}</h5>
+          <Capability titleKey="ai-assistant.welcome.capability.business-apps.title" descKey="ai-assistant.welcome.capability.business-apps.description" />
+          <Capability titleKey="ai-assistant.welcome.capability.data-types.title" descKey="ai-assistant.welcome.capability.data-types.description" />
+          <Capability titleKey="ai-assistant.welcome.capability.forms.title" descKey="ai-assistant.welcome.capability.forms.description" />
+          <Capability titleKey="ai-assistant.welcome.capability.bpmn.title" descKey="ai-assistant.welcome.capability.bpmn.description" />
+          <Capability titleKey="ai-assistant.welcome.capability.scripts.title" descKey="ai-assistant.welcome.capability.scripts.description" />
+          <Capability titleKey="ai-assistant.welcome.capability.app-docs.title" descKey="ai-assistant.welcome.capability.app-docs.description" />
+          <Capability titleKey="ai-assistant.welcome.capability.platform-docs.title" descKey="ai-assistant.welcome.capability.platform-docs.description" />
+
+          <h5 className="ai-assistant-chat__section">{t('ai-assistant.welcome.section.tasks')}</h5>
+          <Capability titleKey="ai-assistant.welcome.capability.tasks.title" descKey="ai-assistant.welcome.capability.tasks.description" />
+          <Capability titleKey="ai-assistant.welcome.capability.record-search.title" descKey="ai-assistant.welcome.capability.record-search.description" />
+          <Capability titleKey="ai-assistant.welcome.capability.data-edit.title" descKey="ai-assistant.welcome.capability.data-edit.description" />
+          <Capability titleKey="ai-assistant.welcome.capability.record-create.title" descKey="ai-assistant.welcome.capability.record-create.description" />
+          <Capability titleKey="ai-assistant.welcome.capability.comments.title" descKey="ai-assistant.welcome.capability.comments.description" />
+
+          <h5 className="ai-assistant-chat__section">{t('ai-assistant.welcome.section.content')}</h5>
+          <Capability titleKey="ai-assistant.welcome.capability.doc-analysis.title" descKey="ai-assistant.welcome.capability.doc-analysis.description" />
+          <Capability titleKey="ai-assistant.welcome.capability.text-editing.title" descKey="ai-assistant.welcome.capability.text-editing.description" />
+          <Capability titleKey="ai-assistant.welcome.capability.emails.title" descKey="ai-assistant.welcome.capability.emails.description" />
+          <Capability titleKey="ai-assistant.welcome.capability.images.title" descKey="ai-assistant.welcome.capability.images.description" />
+
+          <h5 className="ai-assistant-chat__section">{t('ai-assistant.welcome.section.search')}</h5>
+          <Capability titleKey="ai-assistant.welcome.capability.doc-search.title" descKey="ai-assistant.welcome.capability.doc-search.description" />
+          <Capability titleKey="ai-assistant.welcome.capability.client-360.title" descKey="ai-assistant.welcome.capability.client-360.description" />
+
+          <h5 className="ai-assistant-chat__section">{t('ai-assistant.welcome.section.agents')}</h5>
+          <Capability titleKey="ai-assistant.welcome.capability.specialized-agents.title" descKey="ai-assistant.welcome.capability.specialized-agents.description" />
+          <Capability titleKey="ai-assistant.welcome.capability.multi-step.title" descKey="ai-assistant.welcome.capability.multi-step.description" />
 
           <p className="ai-assistant-chat__hint">
-            <strong>Примеры запросов:</strong><br />
-            • "Создай приложение для бронирования переговорных комнат"<br />
-            • "Создай тип данных для заявки на отпуск"<br />
-            • "Проанализируй документ @карточка"<br />
-            • "Расскажи о клиенте @карточка"<br />
-            • "Что ты умеешь делать?"
+            <strong>{t('ai-assistant.welcome.examples-title')}</strong><br />
+            {t('ai-assistant.welcome.example.1')}<br />
+            {t('ai-assistant.welcome.example.2')}<br />
+            {t('ai-assistant.welcome.example.3')}<br />
+            {t('ai-assistant.welcome.example.4')}<br />
+            {t('ai-assistant.welcome.example.5')}<br />
+            {t('ai-assistant.welcome.example.6')}<br />
+            {t('ai-assistant.welcome.example.7')}<br />
+            {t('ai-assistant.welcome.example.8')}
           </p>
 
           <p className="ai-assistant-chat__tip">
-            💡 Используйте <code>@</code> для добавления записей и документов в контекст
+            💡 {t('ai-assistant.welcome.tip.before')} <code>@</code> {t('ai-assistant.welcome.tip.after')}
           </p>
         </div>
       )}

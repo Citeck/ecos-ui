@@ -29,7 +29,7 @@ describe('ContextArtifactsList', () => {
 
     const { container } = render(<ContextArtifactsList contextArtifacts={artifacts} />);
 
-    expect(screen.getByText('Связанные артефакты:')).toBeTruthy();
+    expect(screen.getByText('ai-assistant.context-artifacts.title')).toBeTruthy();
     const headerIcon = container.querySelector('.ai-assistant-chat__context-artifacts-header .fa-link');
     expect(headerIcon).toBeTruthy();
   });

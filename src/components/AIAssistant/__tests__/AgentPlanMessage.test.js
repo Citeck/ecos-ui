@@ -30,7 +30,7 @@ describe('AgentPlanMessage', () => {
     render(<AgentPlanMessage message={message} markdownComponents={markdownComponents} />);
 
     expect(screen.getByText('Plan content here')).toBeTruthy();
-    expect(screen.getByText('Подтвердите план, предложите изменения или задайте вопросы')).toBeTruthy();
+    expect(screen.getByText('ai-assistant.agent-plan.hint-waiting-plan')).toBeTruthy();
   });
 
   it('renders hint for WAITING_STEP_APPROVAL', () => {
@@ -44,7 +44,7 @@ describe('AgentPlanMessage', () => {
 
     render(<AgentPlanMessage message={message} markdownComponents={markdownComponents} />);
 
-    expect(screen.getByText('Подтвердите или пропустите шаг')).toBeTruthy();
+    expect(screen.getByText('ai-assistant.agent-plan.hint-waiting-step')).toBeTruthy();
   });
 
   it('renders artifacts for COMPLETED status', () => {
@@ -63,7 +63,7 @@ describe('AgentPlanMessage', () => {
     render(<AgentPlanMessage message={message} markdownComponents={markdownComponents} />);
 
     expect(screen.getByText('All done')).toBeTruthy();
-    expect(screen.getByText('Артефакты:')).toBeTruthy();
+    expect(screen.getByText('ai-assistant.artifacts.title')).toBeTruthy();
     expect(screen.getByText('MyForm')).toBeTruthy();
     expect(screen.getByText('MyType')).toBeTruthy();
     expect(screen.getByText('Form')).toBeTruthy();
@@ -102,7 +102,7 @@ describe('AgentPlanMessage', () => {
 
     expect(screen.getByText('Something went wrong')).toBeTruthy();
     expect(screen.getByText('Timeout exceeded')).toBeTruthy();
-    expect(screen.getByText('Повторить / Пропустить / Отменить')).toBeTruthy();
+    expect(screen.getByText('ai-assistant.agent-plan.hint-failed')).toBeTruthy();
   });
 
   it('does not render hint for COMPLETED status', () => {
@@ -116,8 +116,8 @@ describe('AgentPlanMessage', () => {
 
     render(<AgentPlanMessage message={message} markdownComponents={markdownComponents} />);
 
-    expect(screen.queryByText('Подтвердите план')).toBeNull();
-    expect(screen.queryByText('Повторить')).toBeNull();
+    expect(screen.queryByText('ai-assistant.agent-plan.hint-waiting-plan')).toBeNull();
+    expect(screen.queryByText('ai-assistant.agent-plan.hint-failed')).toBeNull();
   });
 
   it('renders ContextArtifactsList for WAITING_PLAN_APPROVAL with contextArtifacts', () => {
@@ -135,7 +135,7 @@ describe('AgentPlanMessage', () => {
 
     render(<AgentPlanMessage message={message} markdownComponents={markdownComponents} />);
 
-    expect(screen.getByText('Связанные артефакты:')).toBeTruthy();
+    expect(screen.getByText('ai-assistant.context-artifacts.title')).toBeTruthy();
     expect(screen.getByText('Сотрудник')).toBeTruthy();
     expect(screen.getByText('Форма сотрудника')).toBeTruthy();
   });
@@ -154,7 +154,7 @@ describe('AgentPlanMessage', () => {
 
     render(<AgentPlanMessage message={message} markdownComponents={markdownComponents} />);
 
-    expect(screen.getByText('Связанные артефакты:')).toBeTruthy();
+    expect(screen.getByText('ai-assistant.context-artifacts.title')).toBeTruthy();
     expect(screen.getByText('Сотрудник')).toBeTruthy();
   });
 
@@ -170,7 +170,7 @@ describe('AgentPlanMessage', () => {
     render(<AgentPlanMessage message={message} markdownComponents={markdownComponents} />);
 
     expect(screen.getByText('Plan without artifacts')).toBeTruthy();
-    expect(screen.queryByText('Связанные артефакты:')).toBeNull();
+    expect(screen.queryByText('ai-assistant.context-artifacts.title')).toBeNull();
   });
 
   it('does not render ContextArtifactsList for FAILED status even with contextArtifacts', () => {
@@ -188,7 +188,7 @@ describe('AgentPlanMessage', () => {
 
     render(<AgentPlanMessage message={message} markdownComponents={markdownComponents} />);
 
-    expect(screen.queryByText('Связанные артефакты:')).toBeNull();
+    expect(screen.queryByText('ai-assistant.context-artifacts.title')).toBeNull();
   });
 
   it('falls back to text when messageData.message is empty', () => {

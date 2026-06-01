@@ -1,4 +1,6 @@
 import React from 'react';
+
+import { t } from '@/helpers/export/util';
 import { Icon } from '../../../common';
 
 /**
@@ -15,7 +17,7 @@ const ArtifactsList = ({ artifacts }) => {
     <div className="ai-assistant-chat__artifacts">
       <div className="ai-assistant-chat__artifacts-header">
         <Icon className="fa fa-check-circle" />
-        <span>Артефакты:</span>
+        <span>{t('ai-assistant.artifacts.title')}</span>
       </div>
       <div className="ai-assistant-chat__artifacts-list">
         {artifacts.map((artifact, index) => (

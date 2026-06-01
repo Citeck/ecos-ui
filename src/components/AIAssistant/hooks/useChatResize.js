@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 
-const DEFAULT_WIDTH = 350;
-const DEFAULT_HEIGHT = 500;
+const DEFAULT_WIDTH = 480;
+const DEFAULT_HEIGHT = 680;
 const STORAGE_KEY = 'aiAssistantChatSize';
 
 /**

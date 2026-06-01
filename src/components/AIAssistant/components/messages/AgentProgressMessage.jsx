@@ -1,5 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
+
+import { t } from '@/helpers/export/util';
 import { Icon } from '../../../common';
 
 const STEP_STATUS_ICONS = {
@@ -58,7 +60,7 @@ const AgentProgressMessage = ({ message }) => {
       <div className="ai-assistant-chat__agent-progress">
         <div className="ai-assistant-chat__agent-progress-header">
           <Icon className="fa fa-spinner fa-spin" />
-          <span>Составляю план...</span>
+          <span>{t('ai-assistant.agent-progress.planning')}</span>
         </div>
       </div>
     );
@@ -72,12 +74,12 @@ const AgentProgressMessage = ({ message }) => {
       <div className="ai-assistant-chat__agent-progress">
         <div className="ai-assistant-chat__agent-progress-header">
           <Icon className="fa fa-cog fa-spin" />
-          <span>Выполнение плана</span>
+          <span>{t('ai-assistant.agent-progress.executing')}</span>
         </div>
 
         {/* Step counter */}
         <div className="ai-assistant-chat__agent-step-counter">
-          Шаг {completedSteps} из {totalSteps}
+          {t('ai-assistant.agent-progress.step-counter', { current: completedSteps, total: totalSteps })}
         </div>
 
         {/* Progress bar */}

@@ -36,53 +36,47 @@ describe('useFileUpload', () => {
       validateFile = result.current.validateFile;
     });
 
-    it('rejects .exe with blocklist message mentioning the extension', () => {
+    it('rejects .exe with blocklist message', () => {
       const result = validateFile(makeFile('virus.exe', 100));
       expect(result.valid).toBe(false);
-      expect(result.error).toMatch(/\.exe/);
-      expect(result.error).toMatch(/не поддерживаются/i);
+      expect(result.error).toBe('ai-assistant.file-upload.unsupported-ext');
     });
 
     it('rejects uppercase blocklisted extension (.EXE)', () => {
       const result = validateFile(makeFile('VIRUS.EXE', 100));
       expect(result.valid).toBe(false);
-      expect(result.error).toMatch(/\.exe/);
+      expect(result.error).toBe('ai-assistant.file-upload.unsupported-ext');
     });
 
     it('rejects .svg as blocklisted (XSS protection)', () => {
       const result = validateFile(makeFile('icon.svg', 100));
       expect(result.valid).toBe(false);
-      expect(result.error).toMatch(/\.svg/);
-      expect(result.error).toMatch(/не поддерживаются/i);
+      expect(result.error).toBe('ai-assistant.file-upload.unsupported-ext');
     });
 
     it('rejects .zip (archives blocklist)', () => {
       const result = validateFile(makeFile('archive.zip', 100));
       expect(result.valid).toBe(false);
-      expect(result.error).toMatch(/\.zip/);
+      expect(result.error).toBe('ai-assistant.file-upload.unsupported-ext');
     });
 
     it('rejects extension not present in any whitelist group', () => {
       const result = validateFile(makeFile('strange.xyz', 100));
       expect(result.valid).toBe(false);
-      expect(result.error).toMatch(/неподдерживаемый тип/i);
-      expect(result.error).toMatch(/\.xyz/);
+      expect(result.error).toBe('ai-assistant.file-upload.unsupported-type');
     });
 
     it('rejects file with no extension', () => {
       const result = validateFile(makeFile('Makefile', 100));
       expect(result.valid).toBe(false);
-      expect(result.error).toMatch(/неподдерживаемый тип/i);
+      expect(result.error).toBe('ai-assistant.file-upload.unsupported-type-no-ext');
     });
 
-    it('rejects file larger than maxFileSizeMb with filename, size and limit', () => {
+    it('rejects file larger than maxFileSizeMb', () => {
       const oversize = makeFile('report.pdf', 12 * 1024 * 1024);
       const result = validateFile(oversize);
       expect(result.valid).toBe(false);
-      expect(result.error).toMatch(/report\.pdf/);
-      expect(result.error).toMatch(/12/);
-      expect(result.error).toMatch(/10/);
-      expect(result.error).toMatch(/MB/i);
+      expect(result.error).toBe('ai-assistant.file-upload.too-large');
     });
 
     it('accepts file exactly at maxFileSizeMb limit', () => {
@@ -94,7 +88,7 @@ describe('useFileUpload', () => {
     it('rejects empty (0-byte) file as empty/directory', () => {
       const result = validateFile(makeFile('empty.pdf', 0));
       expect(result.valid).toBe(false);
-      expect(result.error).toMatch(/пуст|папка/i);
+      expect(result.error).toBe('ai-assistant.file-upload.empty-or-folder');
     });
 
     it('rejects filename longer than maxFileNameLength', () => {
@@ -102,8 +96,7 @@ describe('useFileUpload', () => {
       const longName = `${longBase}.pdf`;
       const result = validateFile(makeFile(longName, 100));
       expect(result.valid).toBe(false);
-      expect(result.error).toMatch(/имя файла слишком длинное/i);
-      expect(result.error).toMatch(String(FILE_UPLOAD_LIMITS.maxFileNameLength));
+      expect(result.error).toBe('ai-assistant.file-upload.name-too-long');
     });
 
     it('accepts a filename at exactly maxFileNameLength', () => {
@@ -131,8 +124,7 @@ describe('useFileUpload', () => {
     it('blocklist takes precedence over whitelist (e.g., a hypothetical mp3 would be blocked even if not whitelisted)', () => {
       const result = validateFile(makeFile('song.mp3', 100));
       expect(result.valid).toBe(false);
-      expect(result.error).toMatch(/\.mp3/);
-      expect(result.error).toMatch(/не поддерживаются/i);
+      expect(result.error).toBe('ai-assistant.file-upload.unsupported-ext');
     });
   });
 
@@ -157,8 +149,7 @@ describe('useFileUpload', () => {
       const files = Array.from({ length: FILE_UPLOAD_LIMITS.maxFilesPerUpload + 1 }, (_, i) => makeFile(`file-${i}.pdf`, 1024));
       const result = validateBatch(files, []);
       expect(result.valid).toBe(false);
-      expect(result.error).toMatch(new RegExp(String(FILE_UPLOAD_LIMITS.maxFilesPerUpload)));
-      expect(result.error).toMatch(/файл/i);
+      expect(result.error).toBe('ai-assistant.file-upload.too-many');
     });
 
     it('accepts exactly maxFilesPerUpload files (boundary)', () => {
@@ -171,8 +162,7 @@ describe('useFileUpload', () => {
       const files = [makeFile('a.pdf', 30 * oneMb), makeFile('b.pdf', 25 * oneMb)];
       const result = validateBatch(files, []);
       expect(result.valid).toBe(false);
-      expect(result.error).toMatch(new RegExp(String(FILE_UPLOAD_LIMITS.maxTotalSizeMb)));
-      expect(result.error).toMatch(/MB/i);
+      expect(result.error).toBe('ai-assistant.file-upload.total-size-exceeded');
     });
 
     it('rejects when new sizes plus alreadyUploaded sizes exceed maxTotalSizeMb', () => {
@@ -181,7 +171,7 @@ describe('useFileUpload', () => {
       const files = [makeFile('new.pdf', 15 * oneMb)];
       const result = validateBatch(files, alreadyUploaded);
       expect(result.valid).toBe(false);
-      expect(result.error).toMatch(new RegExp(String(FILE_UPLOAD_LIMITS.maxTotalSizeMb)));
+      expect(result.error).toBe('ai-assistant.file-upload.total-size-exceeded');
     });
 
     it('accepts when total exactly equals maxTotalSizeMb (boundary)', () => {
@@ -195,7 +185,7 @@ describe('useFileUpload', () => {
       const files = Array.from({ length: FILE_UPLOAD_LIMITS.maxFilesPerUpload + 2 }, (_, i) => makeFile(`file-${i}.pdf`, 20 * oneMb));
       const result = validateBatch(files, []);
       expect(result.valid).toBe(false);
-      expect(result.error).toMatch(new RegExp(String(FILE_UPLOAD_LIMITS.maxFilesPerUpload)));
+      expect(result.error).toBe('ai-assistant.file-upload.too-many');
     });
 
     it('handles missing alreadyUploaded argument gracefully', () => {
@@ -215,7 +205,7 @@ describe('useFileUpload', () => {
 
       expect(ecosXhr).not.toHaveBeenCalled();
       expect(NotificationManager.error).toHaveBeenCalledTimes(1);
-      expect(NotificationManager.error.mock.calls[0][0]).toMatch(new RegExp(String(FILE_UPLOAD_LIMITS.maxFilesPerUpload)));
+      expect(NotificationManager.error.mock.calls[0][0]).toBe('ai-assistant.file-upload.too-many');
     });
 
     it('does not call uploadFileToRecords when total size > maxTotalSizeMb', async () => {
@@ -238,8 +228,7 @@ describe('useFileUpload', () => {
 
       expect(ecosXhr).not.toHaveBeenCalled();
       expect(NotificationManager.error).toHaveBeenCalledTimes(1);
-      expect(NotificationManager.error.mock.calls[0][0]).toMatch(/MB/i);
-      expect(NotificationManager.error.mock.calls[0][0]).toMatch(/30/);
+      expect(NotificationManager.error.mock.calls[0][0]).toBe('ai-assistant.file-upload.total-size-exceeded');
     });
 
     it('rejects entire batch when one file is invalid (per-file validation, all-or-nothing)', async () => {
@@ -354,8 +343,7 @@ describe('useFileUpload', () => {
 
       expect(ecosXhr).toHaveBeenCalledTimes(1); // no new request
       expect(NotificationManager.error).toHaveBeenCalledTimes(1);
-      expect(NotificationManager.error.mock.calls[0][0]).toMatch(/30/);
-      expect(NotificationManager.error.mock.calls[0][0]).toMatch(/MB/i);
+      expect(NotificationManager.error.mock.calls[0][0]).toBe('ai-assistant.file-upload.total-size-exceeded');
 
       // Now finish the first upload to flush state cleanly.
       await act(async () => {
@@ -446,8 +434,7 @@ describe('useFileUpload', () => {
 
       expect(ecosXhr).toHaveBeenCalledTimes(1); // unchanged
       expect(NotificationManager.error).toHaveBeenCalledTimes(1);
-      expect(NotificationManager.error.mock.calls[0][0]).toMatch(/30/);
-      expect(NotificationManager.error.mock.calls[0][0]).toMatch(/MB/i);
+      expect(NotificationManager.error.mock.calls[0][0]).toBe('ai-assistant.file-upload.total-size-exceeded');
     });
   });
 

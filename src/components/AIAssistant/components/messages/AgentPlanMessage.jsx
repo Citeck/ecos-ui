@@ -1,16 +1,18 @@
 import React from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+
+import { t } from '@/helpers/export/util';
 import { Icon } from '../../../common';
 import { AGENT_STATUSES } from '../../types';
 import ArtifactsList from './ArtifactsList';
 import ContextArtifactsList from './ContextArtifactsList';
 import MessageActions from './MessageActions';
 
-const HINT_MESSAGES = {
-  [AGENT_STATUSES.WAITING_PLAN_APPROVAL]: 'Подтвердите план, предложите изменения или задайте вопросы',
-  [AGENT_STATUSES.WAITING_STEP_APPROVAL]: 'Подтвердите или пропустите шаг',
-  [AGENT_STATUSES.FAILED]: 'Повторить / Пропустить / Отменить'
+const HINT_KEYS = {
+  [AGENT_STATUSES.WAITING_PLAN_APPROVAL]: 'ai-assistant.agent-plan.hint-waiting-plan',
+  [AGENT_STATUSES.WAITING_STEP_APPROVAL]: 'ai-assistant.agent-plan.hint-waiting-step',
+  [AGENT_STATUSES.FAILED]: 'ai-assistant.agent-plan.hint-failed'
 };
 
 /**
@@ -29,7 +31,8 @@ const AgentPlanMessage = ({ message, markdownComponents, onActionClick }) => {
 
   const agentStatus = messageData.agentStatus;
   const content = messageData.message || text;
-  const hint = HINT_MESSAGES[agentStatus];
+  const hintKey = HINT_KEYS[agentStatus];
+  const hint = hintKey ? t(hintKey) : null;
 
   return (
     <div className="ai-assistant-chat__agent-plan">

@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 
+import { t } from '@/helpers/export/util';
 import { Icon } from '../../common';
 import { FILE_UPLOAD_ACCEPT_STRING } from '../constants';
 
@@ -39,7 +40,9 @@ const ChatInput = ({
     }
   }, [message, textareaRef]);
 
-  const placeholder = isUniversal ? 'Опишите, что вы хотите создать...' : 'Введите ваш запрос...';
+  const placeholder = isUniversal
+    ? t('ai-assistant.input.placeholder.universal')
+    : t('ai-assistant.input.placeholder.contextual');
 
   return (
     <div className="ai-assistant-chat__input-wrapper">
@@ -60,7 +63,7 @@ const ChatInput = ({
             className="ai-assistant-chat__floating-action ai-assistant-chat__floating-action--file-upload"
             onClick={onFileUploadClick}
             disabled={isUploadingFile}
-            data-tooltip={isUploadingFile ? 'Загрузка...' : 'Загрузить файл'}
+            data-tooltip={isUploadingFile ? t('ai-assistant.input.uploading') : t('ai-assistant.input.upload')}
           >
             <Icon className={isUploadingFile ? 'fa fa-spinner fa-spin' : 'fa fa-paperclip'} />
           </button>
@@ -68,7 +71,7 @@ const ChatInput = ({
             type="button"
             className="ai-assistant-chat__floating-action ai-assistant-chat__floating-action--clear-context"
             onClick={onClearConversation}
-            data-tooltip="Очистить контекст"
+            data-tooltip={t('ai-assistant.input.clear-context')}
           >
             <Icon className="fa fa-trash-o" />
           </button>

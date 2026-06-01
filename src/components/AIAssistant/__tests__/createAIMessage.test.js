@@ -129,7 +129,7 @@ describe('createAIMessage', () => {
       const result = createAIMessage(responseData);
 
       expect(result.isAgentProgressContent).toBe(true);
-      expect(result.text).toBe('Обрабатывается...');
+      expect(result.text).toBe('ai-assistant.chat.processing');
     });
   });
 

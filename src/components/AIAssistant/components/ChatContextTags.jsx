@@ -225,14 +225,14 @@ const ChatContextTags = ({
         <div className="ai-assistant-chat__context-tag ai-assistant-chat__context-tag--selected-text">
           <Icon className="fa fa-quote-left" />
           <span>
-            Текст: "{selectedTextContext.text.length > 50
+            {t('ai-assistant.context-tag.selected-text-prefix')}"{selectedTextContext.text.length > 50
               ? selectedTextContext.text.substring(0, 50) + '...'
               : selectedTextContext.text}"
           </span>
           <button
             className="ai-assistant-chat__context-tag-remove"
             onClick={onRemoveSelectedText}
-            title="Удалить текст из контекста"
+            title={t('ai-assistant.context-tag.remove-text')}
           >
             <Icon className="fa fa-times" />
           </button>
@@ -247,11 +247,11 @@ const ChatContextTags = ({
             className="ai-assistant-chat__context-tag"
           >
             <Icon className={`fa ${getRecordRefIcon(record.recordRef)}`} />
-            <span>{record.displayName || record.recordRef || 'Карточка'}</span>
+            <span>{record.displayName || record.recordRef || t('ai-assistant.context-tag.record-fallback')}</span>
             <button
               className="ai-assistant-chat__context-tag-remove"
               onClick={() => onToggleContext(ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD, record)}
-              title="Удалить из контекста"
+              title={t('ai-assistant.context-tag.remove')}
             >
               <Icon className="fa fa-times" />
             </button>
@@ -267,11 +267,11 @@ const ChatContextTags = ({
             className="ai-assistant-chat__context-tag ai-assistant-chat__context-tag--document"
           >
             <Icon className={`fa ${getDocumentIcon(document)}`} />
-            <span>{document.displayName || document.recordRef || 'Документ'}</span>
+            <span>{document.displayName || document.recordRef || t('ai-assistant.context-tag.document-fallback')}</span>
             <button
               className="ai-assistant-chat__context-tag-remove"
               onClick={() => onToggleContext(ADDITIONAL_CONTEXT_TYPES.DOCUMENTS, document)}
-              title="Удалить документ из контекста"
+              title={t('ai-assistant.context-tag.remove-document')}
             >
               <Icon className="fa fa-times" />
             </button>
@@ -287,11 +287,11 @@ const ChatContextTags = ({
             className="ai-assistant-chat__context-tag ai-assistant-chat__context-tag--attribute"
           >
             <Icon className="fa fa-tag" />
-            <span>{'Атрибут: ' + (attribute.displayName || attribute.attribute)}</span>
+            <span>{t('ai-assistant.context-tag.attribute-prefix') + (attribute.displayName || attribute.attribute)}</span>
             <button
               className="ai-assistant-chat__context-tag-remove"
               onClick={() => onToggleContext(ADDITIONAL_CONTEXT_TYPES.ATTRIBUTES, attribute)}
-              title="Удалить атрибут из контекста"
+              title={t('ai-assistant.context-tag.remove-attribute')}
             >
               <Icon className="fa fa-times" />
             </button>
@@ -307,7 +307,7 @@ const ChatContextTags = ({
           <button
             className="ai-assistant-chat__context-tag-remove"
             onClick={onRemoveScriptContext}
-            title="Удалить скрипт из контекста"
+            title={t('ai-assistant.context-tag.remove-script')}
           >
             <Icon className="fa fa-times" />
           </button>
@@ -336,7 +336,7 @@ const ChatContextTags = ({
           <button
             className="ai-assistant-chat__context-tag-remove"
             onClick={() => onRemoveUploadedFile(file)}
-            title="Удалить файл"
+            title={t('ai-assistant.context-tag.remove-file')}
           >
             <Icon className="fa fa-times" />
           </button>
@@ -348,7 +348,7 @@ const ChatContextTags = ({
         <div
           key={`auto-artifact-${artifact.ref}`}
           className="ai-assistant-chat__context-tag ai-assistant-chat__context-tag--auto"
-          title="Найдено автоматически"
+          title={t('ai-assistant.context-tag.auto-found')}
         >
           <Icon className="fa fa-magic" />
           <Icon className={`fa ${getContextArtifactIcon(artifact.type)}`} />
@@ -356,7 +356,7 @@ const ChatContextTags = ({
           <button
             className="ai-assistant-chat__context-tag-remove"
             onClick={() => onRemoveAutoContextArtifact?.(artifact.ref)}
-            title="Удалить из контекста"
+            title={t('ai-assistant.context-tag.remove')}
           >
             <Icon className="fa fa-times" />
           </button>

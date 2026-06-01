@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState, memo, useCallback } from 'react';
+
+import { t } from '@/helpers/export/util';
 import { Icon } from '../common';
 import { NotificationManager } from '../../services/notifications';
 import ESMRequire from '../../services/ESMRequire';
@@ -328,14 +330,14 @@ const MermaidDiagram = ({ chart, className = '' }) => {
 
       img.onerror = (error) => {
         console.error('SVG to PNG conversion failed:', error);
-        NotificationManager.error('PNG экспорт не удался: ' + error.message);
+        NotificationManager.error(t('ai-assistant.mermaid.export-error') + ' ' + error.message);
       };
 
       img.src = dataUrl;
 
     } catch (error) {
       console.error('PNG export error:', error);
-      NotificationManager.error('PNG экспорт не удался: ' + error.message);
+      NotificationManager.error(t('ai-assistant.mermaid.export-error') + ' ' + error.message);
     }
   }, [svgContent]);
 
@@ -424,14 +426,14 @@ const MermaidDiagram = ({ chart, className = '' }) => {
             <button
               className="mermaid-diagram__control-btn"
               onClick={downloadPNG}
-              title="Скачать PNG"
+              title={t('ai-assistant.mermaid.download-png')}
             >
               <Icon className="fa fa-download" />
             </button>
             <button
               className="mermaid-diagram__control-btn"
               onClick={toggleFullscreen}
-              title="Открыть во весь экран"
+              title={t('ai-assistant.mermaid.fullscreen')}
             >
               <Icon className="fa fa-expand" />
             </button>
@@ -452,7 +454,7 @@ const MermaidDiagram = ({ chart, className = '' }) => {
                   className="mermaid-fullscreen-modal__control-btn"
                   onClick={handleZoomOut}
                   disabled={zoom <= 0.25}
-                  title="Уменьшить"
+                  title={t('ai-assistant.mermaid.zoom-out')}
                 >
                   <Icon className="fa fa-search-minus" />
                 </button>
@@ -463,7 +465,7 @@ const MermaidDiagram = ({ chart, className = '' }) => {
                   className="mermaid-fullscreen-modal__control-btn"
                   onClick={handleZoomIn}
                   disabled={zoom >= 5}
-                  title="Увеличить"
+                  title={t('ai-assistant.mermaid.zoom-in')}
                 >
                   <Icon className="fa fa-search-plus" />
                 </button>
@@ -471,7 +473,7 @@ const MermaidDiagram = ({ chart, className = '' }) => {
               <button
                 className="mermaid-fullscreen-modal__control-btn"
                 onClick={resetZoom}
-                title="Подогнать под экран"
+                title={t('ai-assistant.mermaid.fit')}
               >
                 <Icon className="fa fa-arrows-alt" />
               </button>
@@ -481,14 +483,14 @@ const MermaidDiagram = ({ chart, className = '' }) => {
               <button
                 className="mermaid-fullscreen-modal__control-btn"
                 onClick={downloadPNG}
-                title="Скачать PNG"
+                title={t('ai-assistant.mermaid.download-png')}
               >
                 <Icon className="fa fa-download" />
               </button>
               <button
                 className="mermaid-fullscreen-modal__control-btn mermaid-fullscreen-modal__close-btn"
                 onClick={toggleFullscreen}
-                title="Закрыть (Esc)"
+                title={t('ai-assistant.mermaid.close')}
               >
                 <Icon className="fa fa-times" />
               </button>

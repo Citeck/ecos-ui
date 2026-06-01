@@ -2,6 +2,8 @@ import React from 'react';
 import classNames from 'classnames';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+
+import { t } from '@/helpers/export/util';
 import { Icon } from '../../../common';
 import ArtifactsList from './ArtifactsList';
 
@@ -35,7 +37,7 @@ const BusinessAppMessage = ({
   const stageMetadata = messageData.stageMetadata || {};
   const isInProgress = messageData.stage !== 'COMPLETED' && !messageData.error;
   const severity = stageMetadata.severity || 'INFO';
-  const label = stageMetadata.label || 'Обработка';
+  const label = stageMetadata.label || t('ai-assistant.business-app.default-label');
   const icon = stageMetadata.icon || 'fa-cog';
   const description = stageMetadata.description;
   const animated = stageMetadata.animated !== undefined ? stageMetadata.animated : isProcessing;
@@ -91,7 +93,7 @@ const BusinessAppMessage = ({
       {/* Retry attempts */}
       {messageData.currentAttempt > 1 && messageData.maxAttempts && (
         <div className="ai-assistant-chat__progress-attempts">
-          Попытка {messageData.currentAttempt} из {messageData.maxAttempts}
+          {t('ai-assistant.business-app.attempt', { current: messageData.currentAttempt, total: messageData.maxAttempts })}
         </div>
       )}
 

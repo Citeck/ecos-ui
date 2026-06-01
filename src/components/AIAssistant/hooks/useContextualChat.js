@@ -1,4 +1,6 @@
 import { useState, useCallback } from 'react';
+
+import { t } from '@/helpers/export/util';
 import aiAssistantService from '../AIAssistantService';
 import editorContextService, { CONTEXT_TYPES } from '../EditorContextService';
 import { API_ENDPOINTS } from '../constants';
@@ -40,7 +42,7 @@ const useContextualChat = (options = {}) => {
             if (msg.isProcessing) {
               return {
                 id: msg.id || generateUUID(),
-                text: result.text || 'Не удалось получить ответ.',
+                text: result.text || t('ai-assistant.chat.no-response'),
                 sender: 'ai',
                 timestamp: new Date()
               };
@@ -57,7 +59,7 @@ const useContextualChat = (options = {}) => {
             if (msg.isProcessing) {
               return {
                 id: msg.id || generateUUID(),
-                text: 'Процесс успешно создан и загружен в редактор.',
+                text: t('ai-assistant.chat.bpmn-created'),
                 sender: 'ai',
                 timestamp: new Date()
               };
@@ -73,7 +75,7 @@ const useContextualChat = (options = {}) => {
             if (msg.isProcessing) {
               return {
                 ...msg,
-                text: 'Получен неожиданный формат ответа.',
+                text: t('ai-assistant.chat.unexpected-format'),
                 isProcessing: false,
                 isError: true
               };
@@ -94,8 +96,8 @@ const useContextualChat = (options = {}) => {
           return {
             ...msg,
             text: typeof error === 'string'
-              ? `Ошибка: ${error}`
-              : 'Произошла ошибка при получении результата. Пожалуйста, попробуйте снова.',
+              ? t('ai-assistant.chat.error-prefix', { error })
+              : t('ai-assistant.chat.result-error'),
             isProcessing: false,
             isError: true
           };
@@ -113,7 +115,7 @@ const useContextualChat = (options = {}) => {
         if (msg.isProcessing) {
           return {
             ...msg,
-            text: 'Запрос был отменен.',
+            text: t('ai-assistant.chat.cancelled'),
             isProcessing: false,
             isCancelled: true
           };
@@ -172,14 +174,14 @@ const useContextualChat = (options = {}) => {
       const requestId = data.requestId;
 
       if (!requestId) {
-        throw new Error('Не удалось получить ID запроса');
+        throw new Error(t('ai-assistant.chat.no-request-id'));
       }
 
       startPolling(requestId);
 
       const processingMessage = {
         id: generateUUID(),
-        text: 'Запрос обрабатывается...',
+        text: t('ai-assistant.message.processing'),
         sender: 'ai',
         timestamp: new Date(),
         isProcessing: true,
@@ -193,7 +195,7 @@ const useContextualChat = (options = {}) => {
 
       setMessages(prevMessages => [...prevMessages, {
         id: generateUUID(),
-        text: 'Произошла ошибка при обработке запроса. Пожалуйста, попробуйте снова.',
+        text: t('ai-assistant.chat.request-error'),
         sender: 'ai',
         timestamp: new Date(),
         isError: true
@@ -225,7 +227,7 @@ const useContextualChat = (options = {}) => {
           if (msg.isProcessing) {
             return {
               ...msg,
-              text: 'Запрос был отменен.',
+              text: t('ai-assistant.chat.cancelled'),
               isProcessing: false,
               isCancelled: true
             };

@@ -29,7 +29,7 @@ describe('ArtifactsList', () => {
 
     render(<ArtifactsList artifacts={artifacts} />);
 
-    expect(screen.getByText('Артефакты:')).toBeTruthy();
+    expect(screen.getByText('ai-assistant.artifacts.title')).toBeTruthy();
   });
 
   it('renders artifact name as link with correct href and target', () => {

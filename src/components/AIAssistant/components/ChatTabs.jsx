@@ -1,5 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
+
+import { t } from '@/helpers/export/util';
 import { Icon } from '../../common';
 import { TAB_TYPES } from '../constants';
 import { getStageStatus } from '../utils';
@@ -18,14 +20,21 @@ const ChatTabs = ({
   activeTab,
   onTabChange,
   hasContext = false,
-  contextTitle = 'Контекстный',
+  contextTitle,
   businessAppProgress,
   generationStages
 }) => {
+  const resolvedContextTitle = contextTitle || t('ai-assistant.tabs.contextual-default');
   const showTimeline = businessAppProgress &&
     activeTab === TAB_TYPES.UNIVERSAL &&
     generationStages &&
     generationStages.length > 0;
+
+  // Hide the tab bar when there's nothing actionable to show:
+  // no contextual mode available and no business-app generation in progress.
+  if (!hasContext && !businessAppProgress) {
+    return null;
+  }
 
   return (
     <div className="ai-assistant-chat__tabs">
@@ -38,8 +47,8 @@ const ChatTabs = ({
       >
         <span>
           {businessAppProgress && activeTab === TAB_TYPES.UNIVERSAL
-            ? 'Генерация бизнес-приложения'
-            : 'Универсальный помощник'}
+            ? t('ai-assistant.tabs.business-app-generation')
+            : t('ai-assistant.tabs.universal')}
         </span>
 
         {/* Business App Generation Progress Timeline */}
@@ -86,9 +95,9 @@ const ChatTabs = ({
             { 'ai-assistant-chat__tab--active': activeTab === TAB_TYPES.CONTEXTUAL }
           )}
           onClick={() => onTabChange(TAB_TYPES.CONTEXTUAL)}
-          title={`Контекстный помощник - ${contextTitle}`}
+          title={t('ai-assistant.tabs.contextual-title', { title: resolvedContextTitle })}
         >
-          <span>{contextTitle}</span>
+          <span>{resolvedContextTitle}</span>
         </button>
       )}
     </div>
