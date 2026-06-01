@@ -139,6 +139,8 @@ $bottom-pad: 80px;
     align-items: center;
     justify-content: center;
     height: 100%;
+    padding-bottom: 20px;
+    box-sizing: border-box;
 
     &-msg {
       height: unset;
