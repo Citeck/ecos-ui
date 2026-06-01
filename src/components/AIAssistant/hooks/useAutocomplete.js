@@ -1,4 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
+
+import { t } from '@/helpers/export/util';
 import additionalContextService from '../AdditionalContextService';
 import { ADDITIONAL_CONTEXT_TYPES, AUTOCOMPLETE_QUERY_THRESHOLD } from '../constants';
 
@@ -137,7 +139,7 @@ const useAutocomplete = (options = {}) => {
 
     // Add current record option
     if (currentRecordForAutocomplete) {
-      const recordLabel = currentRecordForAutocomplete.displayName || 'Текущая карточка';
+      const recordLabel = currentRecordForAutocomplete.displayName || t('ai-assistant.autocomplete.current-record');
       const alreadyInContext = contextRecords.some(r => r.recordRef === currentRecordForAutocomplete.recordRef);
       if (!alreadyInContext && (!query || recordLabel.toLowerCase().includes(query))) {
         options.push({
@@ -189,7 +191,7 @@ const useAutocomplete = (options = {}) => {
     setMessage,
     textareaRef
   ) => {
-    let contextLabel = 'карточка';
+    let contextLabel = t('ai-assistant.autocomplete.record-fallback');
     let contextDataToAdd = null;
 
     if (contextType === 'search_result' && recordData) {
@@ -199,7 +201,7 @@ const useAutocomplete = (options = {}) => {
       const contextData = recordData
         || (getAdditionalContext ? await getAdditionalContext(contextType) : null);
       if (contextData) {
-        contextLabel = contextData.displayName || contextData.recordRef || 'карточка';
+        contextLabel = contextData.displayName || contextData.recordRef || t('ai-assistant.autocomplete.record-fallback');
         contextDataToAdd = contextData;
       }
     } else if (contextType === ADDITIONAL_CONTEXT_TYPES.DOCUMENTS && recordData) {

@@ -60,13 +60,13 @@ describe('ChatHeader', () => {
   it('badge has correct title attribute for PLANNING', () => {
     render(<ChatHeader {...defaultProps} agentStatus={AGENT_STATUSES.PLANNING} />);
     const badge = screen.getByText('Agent').closest('.ai-assistant-chat__agent-badge');
-    expect(badge.getAttribute('title')).toBe('Планирование');
+    expect(badge.getAttribute('title')).toBe('ai-assistant.agent-status.planning');
   });
 
   it('badge has correct title attribute for EXECUTING', () => {
     render(<ChatHeader {...defaultProps} agentStatus={AGENT_STATUSES.EXECUTING} />);
     const badge = screen.getByText('Agent').closest('.ai-assistant-chat__agent-badge');
-    expect(badge.getAttribute('title')).toBe('Выполнение');
+    expect(badge.getAttribute('title')).toBe('ai-assistant.agent-status.executing');
   });
 
   it('renders custom title', () => {

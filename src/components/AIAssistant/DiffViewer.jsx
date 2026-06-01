@@ -1,6 +1,8 @@
 import React from "react";
 import ReactDiffViewer, { DiffMethod } from "react-diff-viewer-continued";
+
 import { getMLValue } from '@/helpers/util';
+import { t } from '@/helpers/export/util';
 import { Icon } from "../common";
 
 const DiffViewer = ({
@@ -26,8 +28,8 @@ const DiffViewer = ({
           compareMethod={DiffMethod.WORDS}
           hideLineNumbers={true}
           useDarkTheme={false}
-          leftTitle={getMLValue(attributeName) + " (до)"}
-          rightTitle={getMLValue(attributeName) + " (после)"}
+          leftTitle={getMLValue(attributeName) + ' ' + t('ai-assistant.diff.before')}
+          rightTitle={getMLValue(attributeName) + ' ' + t('ai-assistant.diff.after')}
         />
       </div>
 
@@ -37,17 +39,17 @@ const DiffViewer = ({
             className="ai-assistant-chat__action-button ai-assistant-chat__action-button--apply"
             onClick={onApplyChanges}
             disabled={isApplying}
-            title="Применить изменения"
+            title={t('ai-assistant.diff.apply')}
           >
             {isApplying ? (
               <>
                 <Icon className="fa fa-spinner fa-spin" />
-                Применение...
+                {t('ai-assistant.diff.applying')}
               </>
             ) : (
               <>
                 <Icon className="fa fa-check" />
-                Применить изменения
+                {t('ai-assistant.diff.apply')}
               </>
             )}
           </button>

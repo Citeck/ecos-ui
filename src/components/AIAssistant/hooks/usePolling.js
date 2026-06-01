@@ -1,4 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
+
+import { t } from '@/helpers/export/util';
 import { POLLING_INTERVAL } from '../constants';
 
 /**
@@ -84,7 +86,7 @@ const usePolling = (options = {}) => {
       pollingTimerRef.current = null;
       setActiveRequestId(null);
       setIsPolling(false);
-      onError?.(error.message || 'Произошла ошибка при получении результата');
+      onError?.(error.message || t('ai-assistant.chat.polling-error'));
     }
   }, [fetchStatus, onResult, onError, onCancelled, onProgress, pollingInterval]);
 

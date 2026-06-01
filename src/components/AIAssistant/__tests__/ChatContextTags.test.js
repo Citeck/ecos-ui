@@ -328,7 +328,7 @@ describe('ChatContextTags', () => {
       );
 
       const autoTag = container.querySelector('.ai-assistant-chat__context-tag--auto');
-      expect(autoTag.getAttribute('title')).toBe('Найдено автоматически');
+      expect(autoTag.getAttribute('title')).toBe('ai-assistant.context-tag.auto-found');
     });
 
     it('calls onRemoveAutoContextArtifact when remove button is clicked', () => {

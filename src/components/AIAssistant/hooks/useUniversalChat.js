@@ -1,5 +1,7 @@
 import { useState, useCallback } from 'react';
+
 import { getWorkspaceId } from '@/helpers/urls';
+import { t } from '@/helpers/export/util';
 import Records from '../../Records';
 import editorContextService from '../EditorContextService';
 import {
@@ -112,7 +114,7 @@ const buildInitialProcessingMessage = (data) => {
   // Generic processing message
   return {
     ...base,
-    text: 'Запрос обрабатывается. Это может занять некоторое время...'
+    text: t('ai-assistant.message.processing-long')
   };
 };
 
@@ -158,7 +160,7 @@ const createAIMessage = (responseData, options = {}) => {
     // PLANNING, EXECUTING — progress states
     return {
       id: generateUUID(),
-      text: typeof messageData === 'object' ? messageData.message : messageData || 'Обрабатывается...',
+      text: typeof messageData === 'object' ? messageData.message : messageData || t('ai-assistant.chat.processing'),
       sender: 'ai',
       timestamp: new Date(),
       isAgentProgressContent: true,
@@ -192,7 +194,7 @@ const createAIMessage = (responseData, options = {}) => {
   if (isTextDiffMessage) {
     return {
       id: generateUUID(),
-      text: messageData.description || 'Предлагаемые изменения:',
+      text: messageData.description || t('ai-assistant.chat.suggested-changes'),
       sender: 'ai',
       timestamp: new Date(),
       isTextDiffContent: true,
@@ -203,7 +205,7 @@ const createAIMessage = (responseData, options = {}) => {
   if (isScriptDiffMessage) {
     return {
       id: generateUUID(),
-      text: messageData.explanation || 'Предлагаемые изменения скрипта:',
+      text: messageData.explanation || t('ai-assistant.chat.suggested-script-changes'),
       sender: 'ai',
       timestamp: new Date(),
       isScriptDiffContent: true,
@@ -217,7 +219,7 @@ const createAIMessage = (responseData, options = {}) => {
     }
     return {
       id: generateUUID(),
-      text: messageData.message || 'Обрабатывается запрос...',
+      text: messageData.message || t('ai-assistant.chat.processing-request'),
       sender: 'ai',
       timestamp: new Date(),
       isBusinessAppContent: true,
@@ -228,7 +230,7 @@ const createAIMessage = (responseData, options = {}) => {
   // Default text message
   const defaultMessage = {
     id: generateUUID(),
-    text: messageData || 'Не удалось получить ответ.',
+    text: messageData || t('ai-assistant.chat.no-response'),
     sender: 'ai',
     timestamp: new Date()
   };
@@ -333,8 +335,8 @@ const useUniversalChat = (options = {}) => {
           return {
             ...msg,
             text: typeof error === 'string'
-              ? `Ошибка: ${error}`
-              : 'Произошла ошибка при получении результата. Пожалуйста, попробуйте снова.',
+              ? t('ai-assistant.chat.error-prefix', { error })
+              : t('ai-assistant.chat.result-error'),
             isProcessing: false,
             isError: true
           };
@@ -352,7 +354,7 @@ const useUniversalChat = (options = {}) => {
         if (msg.isProcessing) {
           return {
             ...msg,
-            text: 'Запрос был отменен.',
+            text: t('ai-assistant.chat.cancelled'),
             isProcessing: false,
             isCancelled: true
           };
@@ -553,7 +555,7 @@ const useUniversalChat = (options = {}) => {
       const requestId = data.requestId;
 
       if (!requestId) {
-        throw new Error('Не удалось получить ID запроса');
+        throw new Error(t('ai-assistant.chat.no-request-id'));
       }
 
       if (data.initialProgress?.availableStages) {
@@ -571,7 +573,7 @@ const useUniversalChat = (options = {}) => {
 
       setMessages(prevMessages => [...prevMessages, {
         id: generateUUID(),
-        text: 'Произошла ошибка при обработке запроса. Пожалуйста, попробуйте снова.',
+        text: t('ai-assistant.chat.request-error'),
         sender: 'ai',
         timestamp: new Date(),
         isError: true
@@ -602,7 +604,7 @@ const useUniversalChat = (options = {}) => {
           if (msg.isProcessing) {
             return {
               ...msg,
-              text: 'Запрос был отменен.',
+              text: t('ai-assistant.chat.cancelled'),
               isProcessing: false,
               isCancelled: true
             };
@@ -648,7 +650,7 @@ const useUniversalChat = (options = {}) => {
       const requestId = data.requestId;
 
       if (!requestId) {
-        throw new Error('Не удалось получить ID запроса');
+        throw new Error(t('ai-assistant.chat.no-request-id'));
       }
 
       // Remove actions only from the message whose action was clicked, so that other
@@ -672,7 +674,7 @@ const useUniversalChat = (options = {}) => {
 
       setMessages(prevMessages => [...prevMessages, {
         id: generateUUID(),
-        text: 'Произошла ошибка при обработке действия. Пожалуйста, попробуйте снова.',
+        text: t('ai-assistant.chat.action-error'),
         sender: 'ai',
         timestamp: new Date(),
         isError: true

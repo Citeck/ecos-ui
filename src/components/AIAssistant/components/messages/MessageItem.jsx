@@ -2,6 +2,8 @@ import React from 'react';
 import classNames from 'classnames';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+
+import { t } from '@/helpers/export/util';
 import EmailMessage from './EmailMessage';
 import TextDiffMessage from './TextDiffMessage';
 import ScriptDiffMessage from './ScriptDiffMessage';
@@ -150,7 +152,7 @@ const MessageItem = ({
             className="ai-assistant-chat__action-button ai-assistant-chat__action-button--cancel"
             onClick={onCancelRequest}
           >
-            Отменить
+            {t('ai-assistant.action.cancel')}
           </button>
         </div>
       )}

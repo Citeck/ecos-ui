@@ -168,7 +168,7 @@ describe('useUniversalChat - handlers', () => {
       const msgs = result.current.messages;
       expect(msgs[0].isError).toBe(true);
       expect(msgs[0].isProcessing).toBe(false);
-      expect(msgs[0].text).toContain('Something went wrong');
+      expect(msgs[0].text).toContain('ai-assistant.chat.error-prefix');
     });
   });
 

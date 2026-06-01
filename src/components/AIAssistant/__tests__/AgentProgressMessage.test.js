@@ -32,7 +32,7 @@ describe('AgentProgressMessage', () => {
 
       render(<AgentProgressMessage message={message} />);
 
-      expect(screen.getByText('Составляю план...')).toBeTruthy();
+      expect(screen.getByText('ai-assistant.agent-progress.planning')).toBeTruthy();
       const icons = screen.getAllByTestId('icon');
       const spinnerIcon = icons.find(icon => icon.className.includes('fa-spinner'));
       expect(spinnerIcon).toBeTruthy();
@@ -53,8 +53,8 @@ describe('AgentProgressMessage', () => {
 
       render(<AgentProgressMessage message={message} />);
 
-      expect(screen.getByText('Выполнение плана')).toBeTruthy();
-      expect(screen.getByText('Шаг 2 из 5')).toBeTruthy();
+      expect(screen.getByText('ai-assistant.agent-progress.executing')).toBeTruthy();
+      expect(screen.getByText('ai-assistant.agent-progress.step-counter')).toBeTruthy();
     });
 
     it('renders progress bar with correct width', () => {
@@ -203,7 +203,7 @@ describe('AgentProgressMessage', () => {
 
       render(<AgentProgressMessage message={message} />);
 
-      expect(screen.getByText('Шаг 0 из 0')).toBeTruthy();
+      expect(screen.getByText('ai-assistant.agent-progress.step-counter')).toBeTruthy();
     });
 
     // Enhanced step details tests (Task 10)

@@ -1,6 +1,8 @@
 import React from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+
+import { t } from '@/helpers/export/util';
 import { Icon } from '../../../common';
 
 /**
@@ -23,7 +25,7 @@ const EmailMessage = ({
     <>
       <div className="ai-assistant-chat__email-preview">
         <div className="ai-assistant-chat__email-subject">
-          <strong>Тема:</strong> {messageData.subject}
+          <strong>{t('ai-assistant.email-message.subject')}</strong> {messageData.subject}
         </div>
         <div className="ai-assistant-chat__email-body">
           <Markdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
@@ -32,7 +34,7 @@ const EmailMessage = ({
         </div>
         {messageData.to && (
           <div className="ai-assistant-chat__email-recipient">
-            <strong>Получатель:</strong> {messageData.to}
+            <strong>{t('ai-assistant.email-message.recipient')}</strong> {messageData.to}
           </div>
         )}
       </div>
@@ -41,13 +43,13 @@ const EmailMessage = ({
           className="ai-assistant-chat__action-button ai-assistant-chat__action-button--copy"
           onClick={onCopy}
         >
-          <Icon className="fa fa-copy" /> Скопировать
+          <Icon className="fa fa-copy" /> {t('ai-assistant.email-message.copy')}
         </button>
         <button
           className="ai-assistant-chat__action-button ai-assistant-chat__action-button--send"
           onClick={onSend}
         >
-          <Icon className="fa fa-send" /> Отправить
+          <Icon className="fa fa-send" /> {t('ai-assistant.email-message.send')}
         </button>
       </div>
     </>

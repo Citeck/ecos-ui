@@ -1,4 +1,6 @@
 import React from 'react';
+
+import { t } from '@/helpers/export/util';
 import { Icon } from '../../../common';
 import { getContextArtifactIcon } from '../../constants';
 import { getTextByLocale } from '../../../../helpers/util';
@@ -22,7 +24,7 @@ const ContextArtifactsList = ({ contextArtifacts }) => {
     <div className="ai-assistant-chat__context-artifacts">
       <div className="ai-assistant-chat__context-artifacts-header">
         <Icon className="fa fa-link" />
-        <span>Связанные артефакты:</span>
+        <span>{t('ai-assistant.context-artifacts.title')}</span>
       </div>
       <div className="ai-assistant-chat__context-artifacts-list">
         {contextArtifacts.map((artifact) => {

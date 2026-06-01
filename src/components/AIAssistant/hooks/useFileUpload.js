@@ -11,6 +11,7 @@ import {
 } from '../constants';
 
 import ecosXhr from '@/helpers/ecosXhr';
+import { t } from '@/helpers/export/util';
 import { NotificationManager } from '@/services/notifications';
 
 /**
@@ -135,14 +136,14 @@ const useFileUpload = (options = {}) => {
       if (isExtensionBlocked(file.name, blocklistGroups)) {
         return {
           valid: false,
-          error: `Файлы типа ${ext} не поддерживаются`
+          error: t('ai-assistant.file-upload.unsupported-ext', { ext })
         };
       }
 
       if (!isExtensionAllowed(file.name, whitelistGroups)) {
         return {
           valid: false,
-          error: ext ? `Неподдерживаемый тип файла: ${ext}` : 'Неподдерживаемый тип файла: расширение отсутствует'
+          error: ext ? t('ai-assistant.file-upload.unsupported-type', { ext }) : t('ai-assistant.file-upload.unsupported-type-no-ext')
         };
       }
 
@@ -150,21 +151,21 @@ const useFileUpload = (options = {}) => {
         const fileSizeMb = (file.size / 1024 / 1024).toFixed(1);
         return {
           valid: false,
-          error: `Файл «${file.name}» слишком большой (${fileSizeMb} MB, лимит ${maxFileSizeMb} MB)`
+          error: t('ai-assistant.file-upload.too-large', { name: file.name, size: fileSizeMb, limit: maxFileSizeMb })
         };
       }
 
       if (file.size === 0) {
         return {
           valid: false,
-          error: 'Файл пуст или это папка'
+          error: t('ai-assistant.file-upload.empty-or-folder')
         };
       }
 
       if (file.name.length > limits.maxFileNameLength) {
         return {
           valid: false,
-          error: `Имя файла слишком длинное (макс. ${limits.maxFileNameLength} символов)`
+          error: t('ai-assistant.file-upload.name-too-long', { limit: limits.maxFileNameLength })
         };
       }
 
@@ -188,7 +189,7 @@ const useFileUpload = (options = {}) => {
       if (fileArray.length > limits.maxFilesPerUpload) {
         return {
           valid: false,
-          error: `Можно загрузить не более ${limits.maxFilesPerUpload} файлов за раз`
+          error: t('ai-assistant.file-upload.too-many', { limit: limits.maxFilesPerUpload })
         };
       }
 
@@ -200,7 +201,7 @@ const useFileUpload = (options = {}) => {
       if (totalBytes > maxTotalBytes) {
         return {
           valid: false,
-          error: `Превышен лимит ${limits.maxTotalSizeMb} MB на разговор`
+          error: t('ai-assistant.file-upload.total-size-exceeded', { limit: limits.maxTotalSizeMb })
         };
       }
 
@@ -234,7 +235,7 @@ const useFileUpload = (options = {}) => {
       // cumulative cap by starting before the first batch finishes.
       const batchValidation = validateBatch(files, [...uploadedFiles, ...uploadingFilesRef.current]);
       if (!batchValidation.valid) {
-        NotificationManager.error(batchValidation.error, 'Загрузка файлов');
+        NotificationManager.error(batchValidation.error, t('ai-assistant.file-upload.title'));
         return;
       }
 
@@ -252,7 +253,7 @@ const useFileUpload = (options = {}) => {
       for (const fileData of filesToUpload) {
         const validation = validateFile(fileData.file);
         if (!validation.valid) {
-          NotificationManager.error(validation.error, 'Загрузка файлов');
+          NotificationManager.error(validation.error, t('ai-assistant.file-upload.title'));
           return;
         }
       }
@@ -272,7 +273,7 @@ const useFileUpload = (options = {}) => {
           } catch (error) {
             updateUploadingFiles(prev => prev.filter(f => f.id !== fileData.id));
             console.error('Error uploading file:', fileData.name, error);
-            NotificationManager.error(`Ошибка загрузки файла "${fileData.name}": ${error.message}`, 'Загрузка файлов');
+            NotificationManager.error(t('ai-assistant.file-upload.error', { name: fileData.name, message: error.message }), t('ai-assistant.file-upload.title'));
             onUploadError?.(error, fileData);
           }
         }

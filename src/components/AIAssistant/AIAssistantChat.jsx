@@ -2,6 +2,8 @@ import classNames from 'classnames';
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { ResizableBox } from 'react-resizable';
 
+import { t } from '@/helpers/export/util';
+
 import Records from '../Records';
 import { Icon } from '../common';
 
@@ -298,18 +300,18 @@ const AIAssistantChat = () => {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `Ошибка отправки письма (${response.status})`);
+        throw new Error(errorData.message || t('ai-assistant.notification.email-send-failed-status', { status: response.status }));
       }
 
       const result = await response.json();
       if (!result.success) {
-        throw new Error(result.message || 'Неизвестная ошибка при отправке письма');
+        throw new Error(result.message || t('ai-assistant.notification.email-send-unknown-error'));
       }
 
-      NotificationManager.success('Письмо успешно отправлено', 'Отправка письма');
+      NotificationManager.success(t('ai-assistant.notification.email-sent'), t('ai-assistant.notification.email-send-title'));
       handleEmailModalClose();
     } catch (error) {
-      NotificationManager.error(error.message, 'Ошибка отправки');
+      NotificationManager.error(error.message, t('ai-assistant.notification.email-send-error-title'));
     } finally {
       setIsEmailSending(false);
     }
@@ -322,14 +324,14 @@ const AIAssistantChat = () => {
 
     try {
       const { recordRef, attribute, modifiedText: newText } = diffData;
-      if (!newText) throw new Error('Нет данных для применения изменений');
+      if (!newText) throw new Error(t('ai-assistant.notification.no-changes-data'));
 
       const contextData = editorContextService.getContextData();
       if (contextData.forceIntent === AI_INTENTS.TEXT_EDITING) {
         const updateHandler = editorContextService.getHandler(EDITOR_CONTEXT_HANDLERS.UPDATE_LEXICAL_CONTENT);
         if (contextData.recordRef === recordRef && contextData.attribute === attribute && updateHandler) {
           updateHandler(newText);
-          NotificationManager.success('Изменения успешно применены в редакторе', 'Редактирование текста');
+          NotificationManager.success(t('ai-assistant.notification.text-applied-editor'), t('ai-assistant.notification.text-editing-title'));
         } else {
           await applyChangesViaRecordsAPI(recordRef, attribute, newText);
         }
@@ -337,7 +339,7 @@ const AIAssistantChat = () => {
         await applyChangesViaRecordsAPI(recordRef, attribute, newText);
       }
     } catch (error) {
-      NotificationManager.error(error.message || 'Ошибка при применении изменений', 'Ошибка');
+      NotificationManager.error(error.message || t('ai-assistant.notification.text-apply-error'), t('ai-assistant.notification.error-title'));
     } finally {
       setIsApplyingTextChanges(false);
     }
@@ -346,20 +348,20 @@ const AIAssistantChat = () => {
   const applyChangesViaRecordsAPI = async (recordRef, attribute, newText) => {
     const recordId = recordRef.substring(recordRef.indexOf('@') + 1);
     if (!recordId) {
-      NotificationManager.error('Редактор не найден или документ не сохранен', 'Ошибка');
+      NotificationManager.error(t('ai-assistant.notification.editor-not-found'), t('ai-assistant.notification.error-title'));
       return;
     }
     const recordToSave = Records.get(recordRef);
     recordToSave.att(attribute, newText);
     await recordToSave.save();
     recordToSave.events.emit(EVENTS.ATTS_UPDATED);
-    NotificationManager.success('Изменения успешно применены', 'Редактирование текста');
+    NotificationManager.success(t('ai-assistant.notification.text-applied'), t('ai-assistant.notification.text-editing-title'));
   };
 
   // Script diff handler
   const handleApplyScriptChanges = useCallback(async scriptData => {
     if (!scriptData?.modifiedScript) {
-      NotificationManager.error('Нет данных для применения изменений', 'Ошибка');
+      NotificationManager.error(t('ai-assistant.notification.no-changes-data'), t('ai-assistant.notification.error-title'));
       return;
     }
     setIsApplyingScriptChanges(true);
@@ -370,15 +372,15 @@ const AIAssistantChat = () => {
         const updateHandler = editorContextService.getHandler(EDITOR_CONTEXT_HANDLERS.UPDATE_SCRIPT_CONTENT);
         if (updateHandler) {
           updateHandler(scriptData.modifiedScript);
-          NotificationManager.success('Скрипт успешно обновлен в редакторе', 'Редактирование скрипта');
+          NotificationManager.success(t('ai-assistant.notification.script-updated'), t('ai-assistant.notification.script-editing-title'));
         } else {
-          NotificationManager.error('Редактор скрипта не найден. Скопируйте код вручную.', 'Ошибка');
+          NotificationManager.error(t('ai-assistant.notification.script-editor-not-found'), t('ai-assistant.notification.error-title'));
         }
       } else {
-        NotificationManager.error('Контекст редактора скрипта не найден. Скопируйте код вручную.', 'Ошибка');
+        NotificationManager.error(t('ai-assistant.notification.script-context-not-found'), t('ai-assistant.notification.error-title'));
       }
     } catch (error) {
-      NotificationManager.error(error.message || 'Ошибка при применении скрипта', 'Ошибка');
+      NotificationManager.error(error.message || t('ai-assistant.notification.script-apply-error'), t('ai-assistant.notification.error-title'));
     } finally {
       setIsApplyingScriptChanges(false);
     }
@@ -439,9 +441,9 @@ const AIAssistantChat = () => {
     const context = editorContextService.getContext();
     switch (context) {
       case CONTEXT_TYPES.BPMN_EDITOR:
-        return 'BPMN Редактор';
+        return t('ai-assistant.context-title.bpmn-editor');
       default:
-        return 'Нет контекста';
+        return t('ai-assistant.context-title.none');
     }
   };
 
@@ -449,9 +451,9 @@ const AIAssistantChat = () => {
     const context = editorContextService.getContext();
     switch (context) {
       case CONTEXT_TYPES.BPMN_EDITOR:
-        return 'Например: "Создай процесс обработки заявки на отпуск". Чем детальнее описание, тем точнее будет результат.';
+        return t('ai-assistant.context-hint.bpmn-example');
       default:
-        return 'Контекст не определен';
+        return t('ai-assistant.context-hint.unknown');
     }
   };
 
@@ -482,7 +484,7 @@ const AIAssistantChat = () => {
             <div className="ai-assistant-chat__autocomplete-item ai-assistant-chat__autocomplete-item--loading">
               <Icon className="fa fa-spinner fa-spin ai-assistant-chat__autocomplete-icon" />
               <div className="ai-assistant-chat__autocomplete-text">
-                <div className="ai-assistant-chat__autocomplete-label">Поиск записей...</div>
+                <div className="ai-assistant-chat__autocomplete-label">{t('ai-assistant.autocomplete.searching')}</div>
               </div>
             </div>
           )}
