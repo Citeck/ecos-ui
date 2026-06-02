@@ -578,7 +578,6 @@ export default class TableFormComponent extends BaseReactComponent {
         forceReload: component.forceReload,
         onSelectRows: this._setSelectedRows,
         viewOnly: this.viewOnly,
-        parentForm: this.root,
         triggerEventOnTableChange,
         displayElements: this._displayElementsValue,
         isUsedJournalActions: component.isUsedJournalActions,
