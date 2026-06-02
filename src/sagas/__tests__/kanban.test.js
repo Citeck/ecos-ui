@@ -82,6 +82,12 @@ const spyGetJournalData = jest
   .spyOn(JournalsService, 'getJournalData')
   .mockImplementation(d => (d.id === 'set-data-cards' ? data.journalData : {}));
 const spyGetRecordActions = jest.spyOn(JournalsService, 'getRecordActions').mockResolvedValue(data.journalActions);
+const spyGetBoardCards = jest.spyOn(api.kanban, 'getBoardCards').mockResolvedValue([]);
+
+// Helper to build a board-cards column-entry array (the new getBoardCards return shape) from
+// the requested `columns` arg, using a per-column records/totalCount provider.
+const boardCardsFor = (columns = [], makeEntry = () => ({ records: [], totalCount: 0 })) =>
+  (columns || []).map(col => ({ columnId: col.id, ...makeEntry(col) }));
 const spyChangeUrlLink = jest.spyOn(PageService, 'changeUrlLink').mockResolvedValue(data.journalActions);
 const spyRecordsGet = jest.spyOn(Records, 'get').mockImplementation(recordsGet);
 
@@ -215,7 +221,9 @@ describe('kanban sagas tests', () => {
     expect(spyRecordsGet).toHaveBeenCalledTimes(2);
     expect(spyGetFormInputs).toHaveBeenCalledTimes(1);
     expect(spyGetJournalConfig).toHaveBeenCalledTimes(2);
-    expect(spyGetJournalData).toHaveBeenCalledTimes(colsLen);
+    // Unified board-cards: ONE call loads all columns.
+    expect(spyGetBoardCards).toHaveBeenCalledTimes(1);
+    expect(get(spyGetBoardCards.mock.calls, '[0][0].columns.length')).toEqual(colsLen);
     expect(console.error).not.toHaveBeenCalled();
   });
 
@@ -247,7 +255,9 @@ describe('kanban sagas tests', () => {
 
     expect(spyGetFormInputs).toHaveBeenCalledTimes(1);
     expect(spyGetJournalConfig).not.toHaveBeenCalled();
-    expect(spyGetJournalData).toHaveBeenCalledTimes(colsLen);
+    // Unified board-cards: ONE call loads all columns.
+    expect(spyGetBoardCards).toHaveBeenCalledTimes(1);
+    expect(get(spyGetBoardCards.mock.calls, '[0][0].columns.length')).toEqual(colsLen);
     expect(console.error).not.toHaveBeenCalled();
   });
 
@@ -285,6 +295,9 @@ describe('kanban sagas tests', () => {
   });
 
   it('sagaGetData > there is _some data', async () => {
+    spyGetBoardCards.mockImplementationOnce(({ columns }) =>
+      boardCardsFor(columns, () => ({ records: data.journalData.records, totalCount: data.journalData.totalCount }))
+    );
     const dispatched = await wrapRunSaga(kanban.sagaGetData, { ...data, journalConfig: { ...data.journalConfig, id: 'set-data-cards' } });
     const [_dataCards, _totalCount] = dispatched;
     const colsLen = data.boardConfig.columns.length;
@@ -294,7 +307,9 @@ describe('kanban sagas tests', () => {
     expect(_totalCount.type).toEqual(setTotalCount().type);
     expect(_totalCount.payload.totalCount).toEqual(colsLen * data.journalData.totalCount);
 
-    expect(spyGetJournalData).toHaveBeenCalledTimes(colsLen);
+    // Unified board-cards: ONE call requesting all columns.
+    expect(spyGetBoardCards).toHaveBeenCalledTimes(1);
+    expect(get(spyGetBoardCards.mock.calls, '[0][0].columns.length')).toEqual(colsLen);
     expect(spyPostProcessingAttrs).toHaveBeenCalled();
     expect(console.error).not.toHaveBeenCalled();
   });
@@ -371,9 +386,8 @@ describe('kanban sagas tests', () => {
       { status: 'some-id-2', records: [], totalCount: 0 }
     ];
 
-    spyGetJournalData.mockClear();
-    spyGetJournalData.mockResolvedValueOnce({ records: [], totalCount: 30 });
-    spyGetJournalData.mockResolvedValueOnce({ records: [], totalCount: 0 });
+    spyGetBoardCards.mockClear();
+    spyGetBoardCards.mockImplementationOnce(({ columns }) => boardCardsFor(columns, () => ({ records: [], totalCount: 30 })));
 
     const dispatched = await wrapRunSaga(
       kanban.sagaGetData,
@@ -394,6 +408,10 @@ describe('kanban sagas tests', () => {
     // not the stale 30 the server kept reporting.
     expect(updatedFromCol.totalCount).toBe(9);
     expect(updatedFromCol.records).toHaveLength(9);
+    // The fully-loaded column (some-id-2: records.length === totalCount === 0) must be skipped,
+    // so only the not-fully-loaded some-id-1 is requested. Guards the skip condition against inversion.
+    expect(get(spyGetBoardCards.mock.calls, '[0][0].columns')).toHaveLength(1);
+    expect(get(spyGetBoardCards.mock.calls, '[0][0].columns[0].id')).toBe('some-id-1');
   });
 
   it('sagaGetNextPage > there is _some data', async () => {
@@ -495,10 +513,13 @@ describe('kanban sagas tests', () => {
     expect(dataCards).toHaveLength(2);
     expect(get(dataCards, '[0].records')).toHaveLength(2);
 
+    const spyMoveCard = jest.spyOn(api.kanban, 'moveCard');
+
     const dispatched = await wrapRunSaga(
       kanban.sagaMoveCard,
       {
         cardIndex: 0,
+        toIndex: 0,
         fromColumnRef: 'some-id-1',
         toColumnRef: 'some-id-2'
       },
@@ -537,9 +558,134 @@ describe('kanban sagas tests', () => {
     expect(_lastLoadingColumns.type).toEqual(setLoadingColumns().type);
     expect(_lastLoadingColumns.payload.isLoadingColumns).toEqual([]);
 
-    // After API success, sagaGetData reloads data with server sorting
+    // New API: moveCard called with boardRef, card, column, afterCard (null = top for toIndex=0).
+    expect(spyMoveCard).toHaveBeenCalledWith({
+      boardRef: data.boardConfig.id,
+      card: '1',
+      column: 'some-id-2',
+      afterCard: null,
+      grouping: ''
+    });
+
+    // After API success, reloadColumns reloads data with server sorting.
     const reloadedDataCards = dispatched.filter(d => d.type === setDataCards().type);
     expect(reloadedDataCards.length).toBeGreaterThanOrEqual(1);
+
+    expect(spyError).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
+  });
+
+  it('sagaMoveCard > cross-column move at non-top index computes correct afterCard anchor', async () => {
+    // Card '1' (index 0 in col-1) moves to col-2 at toIndex=1 (after card 'b').
+    const dataCards = [
+      {
+        status: 'some-id-1',
+        records: [{ id: '1', cardId: '1', attributes: {} }],
+        totalCount: 1
+      },
+      {
+        status: 'some-id-2',
+        records: [
+          { id: 'a', cardId: 'a', attributes: {} },
+          { id: 'b', cardId: 'b', attributes: {} }
+        ],
+        totalCount: 2
+      }
+    ];
+
+    const spyMoveCard = jest.spyOn(api.kanban, 'moveCard');
+
+    await wrapRunSaga(
+      kanban.sagaMoveCard,
+      {
+        cardIndex: 0,
+        toIndex: 1,
+        fromColumnRef: 'some-id-1',
+        toColumnRef: 'some-id-2'
+      },
+      {
+        kanban: {
+          [stateId]: {
+            dataCards,
+            boardConfig: data.boardConfig,
+            formProps: data.formProps
+          }
+        },
+        journals: {
+          [stateId]: {
+            journalConfig: data.journalConfig,
+            journalSetting: data.journalSetting
+          }
+        }
+      }
+    );
+
+    // afterCard should be 'a' — the card at position toIndex-1=0 in the target list
+    // after the moved card has been filtered out (cross-column, so '1' was never there).
+    expect(spyMoveCard).toHaveBeenCalledWith({
+      boardRef: data.boardConfig.id,
+      card: '1',
+      column: 'some-id-2',
+      afterCard: 'a',
+      grouping: ''
+    });
+
+    expect(spyError).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
+  });
+
+  it('sagaMoveCard > same-column reorder computes correct afterCard anchor', async () => {
+    // Column 'some-id-1' holds [a, b, c]. Move card 'a' (cardIndex 0) to toIndex 2.
+    // After splice removes 'a', the column list is [b, c].
+    // getAfterCardRef([b, c], 2, 'a'): list (already excludes 'a') = [b, c], anchor = list[2-1] = c.
+    // So afterCard must be 'c'.
+    const dataCards = [
+      {
+        status: 'some-id-1',
+        records: [
+          { id: 'a', cardId: 'a', attributes: {} },
+          { id: 'b', cardId: 'b', attributes: {} },
+          { id: 'c', cardId: 'c', attributes: {} }
+        ],
+        totalCount: 3
+      },
+      { status: 'some-id-2', records: [], totalCount: 0 }
+    ];
+
+    const spyMoveCard = jest.spyOn(api.kanban, 'moveCard');
+
+    await wrapRunSaga(
+      kanban.sagaMoveCard,
+      {
+        cardIndex: 0,
+        toIndex: 2,
+        fromColumnRef: 'some-id-1',
+        toColumnRef: 'some-id-1'
+      },
+      {
+        kanban: {
+          [stateId]: {
+            dataCards,
+            boardConfig: data.boardConfig,
+            formProps: data.formProps
+          }
+        },
+        journals: {
+          [stateId]: {
+            journalConfig: data.journalConfig,
+            journalSetting: data.journalSetting
+          }
+        }
+      }
+    );
+
+    expect(spyMoveCard).toHaveBeenCalledWith({
+      boardRef: data.boardConfig.id,
+      card: 'a',
+      column: 'some-id-1',
+      afterCard: 'c',
+      grouping: ''
+    });
 
     expect(spyError).not.toHaveBeenCalled();
     expect(console.error).not.toHaveBeenCalled();
@@ -563,11 +709,11 @@ describe('kanban sagas tests', () => {
       }
     ];
 
-    spyGetJournalData.mockClear();
+    spyGetBoardCards.mockClear();
 
     await wrapRunSaga(
       kanban.sagaMoveCard,
-      { cardIndex: 0, fromColumnRef: 'some-id-1', toColumnRef: 'some-id-2' },
+      { cardIndex: 0, toIndex: 0, fromColumnRef: 'some-id-1', toColumnRef: 'some-id-2' },
       {
         kanban: {
           [stateId]: {
@@ -583,13 +729,16 @@ describe('kanban sagas tests', () => {
       }
     );
 
-    const reloadCalls = spyGetJournalData.mock.calls;
-    expect(reloadCalls.length).toBeGreaterThanOrEqual(2);
+    // Reload now issues ONE getBoardCards call carrying both affected columns.
+    const reloadCalls = spyGetBoardCards.mock.calls;
+    expect(reloadCalls.length).toBeGreaterThanOrEqual(1);
     // pagination.page=4 would have inflated maxItems to 40; reload must stay grounded
     // in actual loadedCount (clamped to DEFAULT_PAGINATION.maxItems=10) instead.
-    reloadCalls.forEach(([, settings]) => {
-      expect(settings.page.maxItems).toBeLessThanOrEqual(10);
-      expect(settings.page).toEqual(expect.objectContaining({ skipCount: 0 }));
+    reloadCalls.forEach(([{ columns }]) => {
+      (columns || []).forEach(col => {
+        expect(col.maxItems).toBeLessThanOrEqual(10);
+        expect(col).toEqual(expect.objectContaining({ skipCount: 0 }));
+      });
     });
   });
 
@@ -904,10 +1053,12 @@ describe('kanban sagas tests', () => {
       kanban: { [stateId]: { boardConfig: data.boardConfig, ...swimlaneData, ...kanbanOverrides } }
     });
 
-    it('successful move', async () => {
+    it('successful cross-cell move calls moveCard with boardRef/card/column/afterCard', async () => {
+      const spyMoveCard = jest.spyOn(api.kanban, 'moveCard');
+
       const dispatched = await wrapRunSaga(
         kanban.sagaMoveSwimlaneCard,
-        { cardIndex: 0, fromSwimlaneId: 'priority-high', fromStatusId: 'some-id-1', toStatusId: 'some-id-2' },
+        { cardIndex: 0, toIndex: 0, fromSwimlaneId: 'priority-high', fromStatusId: 'some-id-1', toStatusId: 'some-id-2' },
         {
           ...makeState(),
           journals: { [stateId]: { journalConfig: data.journalConfig, journalSetting: data.journalSetting } }
@@ -919,22 +1070,51 @@ describe('kanban sagas tests', () => {
       expect(cellActions.length).toBeGreaterThanOrEqual(2);
       expect(cellActions[0].payload.statusId).toBe('some-id-1');
       expect(cellActions[1].payload.statusId).toBe('some-id-2');
+
+      // afterCard = null because toIndex=0 (top of destination)
+      expect(spyMoveCard).toHaveBeenCalledWith({
+        boardRef: data.boardConfig.id,
+        card: 'rec-1',
+        column: 'some-id-2',
+        afterCard: null,
+        grouping: 'priority'
+      });
     });
 
-    it('same column is noop', async () => {
+    it('same-cell reorder computes correct afterCard anchor', async () => {
+      // swimlaneData priority-high some-id-1 holds [rec-1, rec-2].
+      // Move rec-1 (cardIndex 0) to toIndex 1 → afterCard should be 'rec-2'.
+      const spyMoveCard = jest.spyOn(api.kanban, 'moveCard');
+
       const dispatched = await wrapRunSaga(
         kanban.sagaMoveSwimlaneCard,
-        { cardIndex: 0, fromSwimlaneId: 'priority-high', fromStatusId: 'some-id-1', toStatusId: 'some-id-1' },
-        makeState()
+        { cardIndex: 0, toIndex: 1, fromSwimlaneId: 'priority-high', fromStatusId: 'some-id-1', toStatusId: 'some-id-1' },
+        {
+          ...makeState(),
+          journals: { [stateId]: { journalConfig: data.journalConfig, journalSetting: data.journalSetting } }
+        }
       );
 
-      expect(dispatched).toHaveLength(0);
+      const cellActions = dispatched.filter(d => d.type === setSwimlaneCellData().type);
+      // 1 optimistic for same-cell + reloads from sagaLoadSwimlaneCells
+      expect(cellActions.length).toBeGreaterThanOrEqual(1);
+
+      expect(spyMoveCard).toHaveBeenCalledWith({
+        boardRef: data.boardConfig.id,
+        card: 'rec-1',
+        column: 'some-id-1',
+        afterCard: 'rec-2',
+        grouping: 'priority'
+      });
+
+      expect(spyError).not.toHaveBeenCalled();
+      expect(console.error).not.toHaveBeenCalled();
     });
 
     it('swimlane not found is noop', async () => {
       const dispatched = await wrapRunSaga(
         kanban.sagaMoveSwimlaneCard,
-        { cardIndex: 0, fromSwimlaneId: 'non-existent', fromStatusId: 'some-id-1', toStatusId: 'some-id-2' },
+        { cardIndex: 0, toIndex: 0, fromSwimlaneId: 'non-existent', fromStatusId: 'some-id-1', toStatusId: 'some-id-2' },
         makeState()
       );
 
@@ -942,12 +1122,12 @@ describe('kanban sagas tests', () => {
     });
 
     it('API error triggers rollback', async () => {
-      const origMoveRecord = api.kanban.moveRecord;
-      api.kanban.moveRecord = jest.fn().mockRejectedValue(new Error('move failed'));
+      const origMoveCard = api.kanban.moveCard;
+      api.kanban.moveCard = jest.fn().mockRejectedValue(new Error('move failed'));
 
       const dispatched = await wrapRunSaga(
         kanban.sagaMoveSwimlaneCard,
-        { cardIndex: 0, fromSwimlaneId: 'priority-high', fromStatusId: 'some-id-1', toStatusId: 'some-id-2' },
+        { cardIndex: 0, toIndex: 0, fromSwimlaneId: 'priority-high', fromStatusId: 'some-id-1', toStatusId: 'some-id-2' },
         makeState()
       );
 
@@ -955,7 +1135,7 @@ describe('kanban sagas tests', () => {
       expect(cellActions).toHaveLength(4);
       expect(spyError).toHaveBeenCalled();
 
-      api.kanban.moveRecord = origMoveRecord;
+      api.kanban.moveCard = origMoveCard;
     });
   });
 
@@ -1073,13 +1253,13 @@ describe('kanban sagas tests', () => {
       );
 
       expect(dispatched).toHaveLength(0);
-      expect(spyGetJournalData).not.toHaveBeenCalled();
+      expect(spyGetBoardCards).not.toHaveBeenCalled();
     });
 
     it('caps totalCount to loaded records when server returns nothing new', async () => {
       // Simulate the COREDEV-82 scenario: server reports a totalCount larger than what it can
       // actually return — we must cap to records we have, otherwise "Show more" stays visible.
-      const emptyResponseSpy = jest.spyOn(JournalsService, 'getJournalData').mockResolvedValueOnce({ records: [], totalCount: 99 });
+      spyGetBoardCards.mockResolvedValueOnce([{ columnId: 'some-id-1', records: [], totalCount: 99 }]);
 
       const swimlanes = makeSwimlanesWithRoom();
       const dispatched = await wrapRunSaga(
@@ -1092,19 +1272,20 @@ describe('kanban sagas tests', () => {
       expect(cellDataAction).toBeDefined();
       expect(cellDataAction.payload.records).toHaveLength(2);
       expect(cellDataAction.payload.totalCount).toBe(2);
-
-      emptyResponseSpy.mockRestore();
     });
 
     it('dedups overlapping records so duplicates do not inflate the counter', async () => {
       // Server returns a record the client already has plus a new one.
-      const overlapSpy = jest.spyOn(JournalsService, 'getJournalData').mockResolvedValueOnce({
-        records: [
-          { id: 'rec-2', attributes: {} },
-          { id: 'rec-new', attributes: {} }
-        ],
-        totalCount: 3
-      });
+      spyGetBoardCards.mockResolvedValueOnce([
+        {
+          columnId: 'some-id-1',
+          records: [
+            { id: 'rec-2', attributes: {} },
+            { id: 'rec-new', attributes: {} }
+          ],
+          totalCount: 3
+        }
+      ]);
 
       const swimlanes = makeSwimlanesWithRoom();
       const dispatched = await wrapRunSaga(
@@ -1117,24 +1298,19 @@ describe('kanban sagas tests', () => {
       expect(cellDataAction).toBeDefined();
       const ids = cellDataAction.payload.records.map(r => r.id).sort();
       expect(ids).toEqual(['rec-1', 'rec-2', 'rec-new']);
-
-      overlapSpy.mockRestore();
     });
 
     it('forwards skipCount based on already loaded records to the data loader', async () => {
-      // Regression: settings.page (not settings.pagination) is what journalsDataLoader reads.
-      // Without this, "Show more" refetches the first page and capping logic freezes the cell.
-      const paginationSpy = jest
-        .spyOn(JournalsService, 'getJournalData')
-        .mockResolvedValueOnce({ records: [{ id: 'rec-x', attributes: {} }], totalCount: 5 });
+      // Regression: page.skipCount must equal the number of already-loaded records so that
+      // "Show more" fetches the next page rather than refetching the first page.
+      spyGetBoardCards.mockResolvedValueOnce([{ columnId: 'some-id-1', records: [{ id: 'rec-x', attributes: {} }], totalCount: 5 }]);
 
       const swimlanes = makeSwimlanesWithRoom();
       await wrapRunSaga(kanban.sagaLoadMoreSwimlaneCell, { swimlaneId: 'priority-high', statusId: 'some-id-1' }, makeState({ swimlanes }));
 
-      const settings = paginationSpy.mock.calls[0][1];
-      expect(settings.page).toEqual(expect.objectContaining({ skipCount: 2, maxItems: DEFAULT_PAGINATION.maxItems }));
-
-      paginationSpy.mockRestore();
+      const callArgs = spyGetBoardCards.mock.calls[spyGetBoardCards.mock.calls.length - 1][0];
+      // ONE column requested with skipCount = already-loaded count (2).
+      expect(callArgs.columns).toEqual([expect.objectContaining({ id: 'some-id-1', skipCount: 2, maxItems: DEFAULT_PAGINATION.maxItems })]);
     });
   });
 });
