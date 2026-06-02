@@ -3,6 +3,7 @@
 export default {
   displayName: "test",
   testEnvironment: "jest-environment-jsdom",
+  workerIdleMemoryLimit: "512MB",
   preset: "ts-jest/presets/js-with-ts-esm",
   transform: {
     "^.+\\.[t|j]sx?$": "babel-jest",
