@@ -198,14 +198,20 @@ class Kanban extends React.Component {
     }
 
     const cardIndex = get(result, 'source.index');
+    const toIndex = get(result, 'destination.index');
     const fromColumnRef = get(result, 'source.droppableId');
     const toColumnRef = get(result, 'destination.droppableId');
 
-    if (fromColumnRef === toColumnRef || isNil(toColumnRef)) {
+    if (isNil(toColumnRef) || isNil(toIndex)) {
       return;
     }
 
-    this.props.moveCard({ cardIndex, fromColumnRef, toColumnRef });
+    // Same-column reorder is now meaningful (persisted order) — skip only a true drop-in-place.
+    if (fromColumnRef === toColumnRef && cardIndex === toIndex) {
+      return;
+    }
+
+    this.props.moveCard({ cardIndex, toIndex, fromColumnRef, toColumnRef });
   };
 
   handleSwimlanesDragEnd = result => {
@@ -227,17 +233,20 @@ class Kanban extends React.Component {
     const [toSwimlaneId, toStatusId] = destParts;
 
     if (fromSwimlaneId !== toSwimlaneId) {
-      return;
-    }
-
-    if (fromStatusId === toStatusId) {
-      return;
+      return; // moving across swimlanes is not supported
     }
 
     const cardIndex = get(result, 'source.index');
+    const toIndex = get(result, 'destination.index');
+
+    // Same-cell reorder is now meaningful — skip only a true drop-in-place.
+    if (fromStatusId === toStatusId && cardIndex === toIndex) {
+      return;
+    }
 
     this.props.moveSwimlaneCard({
       cardIndex,
+      toIndex,
       fromSwimlaneId,
       fromStatusId,
       toStatusId

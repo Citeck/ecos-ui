@@ -84,6 +84,8 @@ export const SourcesId = {
   JOURNAL_SERVICE: 'uiserv/journals-service',
   BOARD: 'uiserv/board',
   RESOLVED_BOARD: 'uiserv/rboard',
+  BOARD_CARDS: 'uiserv/board-cards',
+  BOARDS_SERVICE: 'uiserv/boards-service',
   RESOLVED_TYPE: 'emodel/rtype',
   WORKSPACE: 'emodel/workspace',
   WORKSPACE_SERVICE: 'emodel/workspace-service',

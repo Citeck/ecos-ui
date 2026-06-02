@@ -53,14 +53,6 @@ class Card extends React.PureComponent {
     this.setState({ noForm: !h });
   };
 
-  changeTransform = (provided, snapshot) => {
-    const transform = provided.draggableProps.style.transform;
-
-    if (transform && !snapshot.isDragging) {
-      provided.draggableProps.style.transform = transform.split(',')[0] + ', 0)';
-    }
-  };
-
   renderHeader = provided => {
     const { data, boardConfig = {} } = this.props;
     const { disableTitle } = boardConfig;
@@ -193,23 +185,20 @@ class Card extends React.PureComponent {
 
     return (
       <Draggable draggableId={data.cardId} index={cardIndex} isDragDisabled={readOnly}>
-        {(provided, snapshot) => {
-          this.changeTransform(provided, snapshot);
-          return (
-            <div ref={provided.innerRef} {...provided.draggableProps}>
-              <div
-                className={classNames('ecos-kanban__card', {
-                  'ecos-kanban__card_dragging': snapshot.isDragging,
-                  'ecos-kanban__card_no-form': noForm
-                })}
-                style={swimlaneColor ? { borderTopColor: ColoredFormatter.resolveColor(swimlaneColor) } : undefined}
-              >
-                {this.renderHeader(provided)}
-                {this.renderBody()}
-              </div>
+        {(provided, snapshot) => (
+          <div ref={provided.innerRef} {...provided.draggableProps}>
+            <div
+              className={classNames('ecos-kanban__card', {
+                'ecos-kanban__card_dragging': snapshot.isDragging,
+                'ecos-kanban__card_no-form': noForm
+              })}
+              style={swimlaneColor ? { borderTopColor: ColoredFormatter.resolveColor(swimlaneColor) } : undefined}
+            >
+              {this.renderHeader(provided)}
+              {this.renderBody()}
             </div>
-          );
-        }}
+          </div>
+        )}
       </Draggable>
     );
   }

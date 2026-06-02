@@ -67,7 +67,7 @@ const KanbanColumn = ({
   const remaining = isSwimlaneMode && typeof totalCount === 'number' ? totalCount - records.length : 0;
   const isFlatLoading = !isSwimlaneMode && (isFirstLoading || (isLoading && isFiltered));
 
-  const renderStatuses = ({ isColumnOwner }) => {
+  const renderStatuses = () => {
     if (isLoadingCol) {
       return null;
     }
@@ -81,26 +81,10 @@ const KanbanColumn = ({
         text: t(Labels.Kanban.ERROR_FETCH_DATA),
         isAlert: true,
         isAvailable: !!error
-      },
-      {
-        text: ' ',
-        isAvailable: false
-      },
-      {
-        text: t(Labels.Kanban.DND_ALREADY_HERE),
-        isFloat: true,
-        isAvailable: !readOnly && !dropDisabled && isColumnOwner
-      },
-      {
-        text: t(Labels.Kanban.DND_MOVE_HERE),
-        isFloat: true,
-        isAvailable: !readOnly && !dropDisabled && !isColumnOwner
-      },
-      {
-        text: t(Labels.Kanban.DND_NOT_MOVE_HERE),
-        isFloat: true,
-        isAvailable: !readOnly && dropDisabled
       }
+      // No floating drag banners: the inline reorder gap shows the exact drop position and the
+      // valid target column highlights green via `_dragging-over` (disabled columns don't highlight),
+      // so text hints would only add redundant top spacing.
     ];
 
     return statuses
@@ -161,7 +145,7 @@ const KanbanColumn = ({
           >
             {(isLoadingCol || isFlatLoading) && <SkeletonCards />}
             {isSwimlaneMode && isLoading && isEmpty(records) && <SkeletonCards />}
-            {renderStatuses({ isColumnOwner, isDraggingOver })}
+            {renderStatuses()}
             {!isLoadingCol && !isFlatLoading && records.map(renderCard)}
             {provided.placeholder}
             {isSwimlaneMode && isLoading && !isEmpty(records) && <Loader className="ecos-kanban__column-loader" blur />}
