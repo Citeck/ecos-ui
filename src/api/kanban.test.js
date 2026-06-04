@@ -119,6 +119,7 @@ describe('KanbanApi board-cards integration', () => {
       column: 'DONE',
       afterCard: 'src@c2',
       grouping: 'priority',
+      cards: [],
       // order is workspaceScope=PRIVATE on the backend -> workspace travels inside config
       workspace: ''
     });

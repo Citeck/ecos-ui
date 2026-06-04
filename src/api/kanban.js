@@ -94,12 +94,14 @@ export class KanbanApi {
     }));
   }
 
-  moveCard({ boardRef, card, column, afterCard = null, grouping = '' }) {
+  moveCard({ boardRef, card, column, afterCard = null, grouping = '', cards = [] }) {
     const rec = Records.getRecordToEdit(`${SourcesId.BOARDS_SERVICE}@`);
     rec.att('action', 'move-card');
     // Workspace goes inside config (the sibling _workspace control-att isn't delivered to the
     // boards-service action DTO); order is workspaceScope=PRIVATE and scoped by it.
-    rec.att('config', { board: boardRef, card, column, afterCard, grouping, workspace: getWorkspaceId() });
+    // `cards` is the target column's refs in the order we render them — the service positions the
+    // card within this list instead of re-fetching the column.
+    rec.att('config', { board: boardRef, card, column, afterCard, grouping, cards, workspace: getWorkspaceId() });
     return rec.save();
   }
 }

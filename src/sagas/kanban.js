@@ -792,7 +792,8 @@ export function* sagaMoveCard({ api }, { payload }) {
       card: recordRef,
       column: toColumnRef,
       afterCard,
-      grouping: ''
+      grouping: '',
+      cards: dataCards[toColumnIndex].records.map(r => r.id || r.cardId)
     });
 
     // Reload affected columns from server to settle ordering + counts.
@@ -1269,10 +1270,12 @@ export function* sagaMoveSwimlaneCard({ api }, { payload }) {
     // Optimistic update.
     const newFromRecords = [...fromCell.records];
     newFromRecords.splice(cardIndex, 1);
+    let toRecords;
 
     if (sameCell) {
       const insertAt = Math.max(0, Math.min(typeof toIndex === 'number' ? toIndex : 0, newFromRecords.length));
       newFromRecords.splice(insertAt, 0, card);
+      toRecords = newFromRecords;
       yield put(
         setSwimlaneCellData({ stateId, swimlaneId, statusId: fromStatusId, records: newFromRecords, totalCount: fromCell.totalCount })
       );
@@ -1283,6 +1286,7 @@ export function* sagaMoveSwimlaneCard({ api }, { payload }) {
       const newToRecords = [...(toCell ? toCell.records : [])];
       const insertAt = Math.max(0, Math.min(typeof toIndex === 'number' ? toIndex : 0, newToRecords.length));
       newToRecords.splice(insertAt, 0, card);
+      toRecords = newToRecords;
       yield put(
         setSwimlaneCellData({
           stateId,
@@ -1299,7 +1303,8 @@ export function* sagaMoveSwimlaneCard({ api }, { payload }) {
       card: recordRef,
       column: toStatusId,
       afterCard,
-      grouping: get(swimlaneGrouping, 'attribute', '')
+      grouping: get(swimlaneGrouping, 'attribute', ''),
+      cards: toRecords.map(r => r.id || r.cardId)
     });
 
     // Reload swimlane cells from server to settle ordering.

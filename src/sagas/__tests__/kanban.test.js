@@ -564,7 +564,8 @@ describe('kanban sagas tests', () => {
       card: '1',
       column: 'some-id-2',
       afterCard: null,
-      grouping: ''
+      grouping: '',
+      cards: ['1']
     });
 
     // After API success, reloadColumns reloads data with server sorting.
@@ -627,7 +628,8 @@ describe('kanban sagas tests', () => {
       card: '1',
       column: 'some-id-2',
       afterCard: 'a',
-      grouping: ''
+      grouping: '',
+      cards: ['a', '1', 'b']
     });
 
     expect(spyError).not.toHaveBeenCalled();
@@ -684,7 +686,8 @@ describe('kanban sagas tests', () => {
       card: 'a',
       column: 'some-id-1',
       afterCard: 'c',
-      grouping: ''
+      grouping: '',
+      cards: ['b', 'c', 'a']
     });
 
     expect(spyError).not.toHaveBeenCalled();
@@ -1077,7 +1080,8 @@ describe('kanban sagas tests', () => {
         card: 'rec-1',
         column: 'some-id-2',
         afterCard: null,
-        grouping: 'priority'
+        grouping: 'priority',
+        cards: ['rec-1', 'rec-3']
       });
     });
 
@@ -1104,7 +1108,8 @@ describe('kanban sagas tests', () => {
         card: 'rec-1',
         column: 'some-id-1',
         afterCard: 'rec-2',
-        grouping: 'priority'
+        grouping: 'priority',
+        cards: ['rec-2', 'rec-1']
       });
 
       expect(spyError).not.toHaveBeenCalled();
