@@ -553,4 +553,42 @@ describe('Util helpers', () => {
 
     check(data, 'isPDFbyStr');
   });
+
+  describe('Method isNodeRef', () => {
+    const data = [
+      { title: 'legacy workspace nodeRef returns true', input: ['workspace://SpacesStore/abc-123'], output: true },
+      { title: 'alfresco-prefixed workspace nodeRef returns true', input: ['alfresco/@workspace://SpacesStore/abc-123'], output: true },
+      { title: 'new-platform ref returns false', input: ['emodel/ept-issue@COREDEV-297'], output: false },
+      { title: 'workspace ref not at start returns false', input: ['foo workspace://SpacesStore/abc'], output: false },
+      { title: 'plain text returns false', input: ['plain text'], output: false },
+      { title: 'empty string returns false', input: [''], output: false },
+      { title: 'null returns false', input: [null], output: false },
+      { title: 'undefined returns false', input: [undefined], output: false },
+      { title: 'number returns false', input: [123], output: false }
+    ];
+
+    check(data, 'isNodeRef');
+  });
+
+  describe('Method isRecordRef', () => {
+    const data = [
+      { title: 'new-platform emodel ref returns true', input: ['emodel/ept-issue@COREDEV-297'], output: true },
+      { title: 'multi-segment source ref returns true', input: ['emodel/types-repo@type-id'], output: true },
+      { title: 'bare legacy workspace nodeRef returns false (no @)', input: ['workspace://SpacesStore/abc-123'], output: false },
+      // Intentional overlap with isNodeRef: alfresco-prefixed nodeRefs satisfy both checks.
+      { title: 'alfresco-prefixed workspace nodeRef returns true', input: ['alfresco/@workspace://SpacesStore/abc-123'], output: true },
+      { title: 'email is not a ref', input: ['user@example.com'], output: false },
+      { title: 'URL-like string with slash before @ is a false positive (documented heuristic)', input: ['v2/api@latest'], output: true },
+      { title: 'source without slash is not a ref', input: ['dict@value'], output: false },
+      { title: 'ref without localId returns false', input: ['emodel/ept-issue@'], output: false },
+      { title: 'localId only (no source) returns false', input: ['@localOnly'], output: false },
+      { title: 'plain text returns false', input: ['plain text'], output: false },
+      { title: 'empty string returns false', input: [''], output: false },
+      { title: 'null returns false', input: [null], output: false },
+      { title: 'undefined returns false', input: [undefined], output: false },
+      { title: 'number returns false', input: [123], output: false }
+    ];
+
+    check(data, 'isRecordRef');
+  });
 });

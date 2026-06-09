@@ -6,7 +6,7 @@ import { requestAnimationFrame } from '../../override/misc';
 import BaseComponent from '../base/BaseComponent';
 
 import { createDocumentUrl } from '@/helpers/urls';
-import { getMLValue, isNodeRef } from '@/helpers/util';
+import { getMLValue, isNodeRef, isRecordRef } from '@/helpers/util';
 
 export default class SelectComponent extends BaseComponent {
   static schema(...extend) {
@@ -243,7 +243,7 @@ export default class SelectComponent extends BaseComponent {
   itemTemplate(data) {
     const label = this.getLabel(data);
 
-    if (this.viewOnly && !this.component.isSelectedValueAsText && (data.recordRef || isNodeRef(data.value))) {
+    if (this.viewOnly && !this.component.isSelectedValueAsText && (data.recordRef || isNodeRef(data.value) || isRecordRef(data.value))) {
       return `<a href='${createDocumentUrl(data.recordRef || data.value)}'>${label}</a>`;
     }
 

@@ -694,6 +694,32 @@ export function isNodeRef(str) {
 }
 
 /**
+ * Determine whether a string is a new-platform record reference of the form
+ * "<app>/<source>@<localId>" (e.g. emodel/ept-issue@COREDEV-297).
+ *
+ * Implemented separately from {@link isNodeRef} (it does not call it), but the
+ * two match sets are NOT disjoint: the alfresco-prefixed nodeRef form
+ * "alfresco/@workspace://SpacesStore/<uuid>" satisfies both checks.
+ *
+ * The "/" before "@" requirement keeps plain values containing "@" (e.g. emails
+ * like user@example.com) from being treated as refs. Note it is a heuristic, not
+ * a strict parser: URL-like strings with a slash before "@" would also match, so
+ * callers passing arbitrary free text should validate accordingly.
+ *
+ * @param {*} value
+ * @return {Boolean}
+ */
+export function isRecordRef(value) {
+  if (typeof value !== 'string' || isEmpty(value)) {
+    return false;
+  }
+
+  const atIndex = value.indexOf('@');
+
+  return atIndex > 0 && atIndex < value.length - 1 && value.slice(0, atIndex).includes('/');
+}
+
+/**
  * Convert from ISO8601 date to JavaScript date
  */
 export function fromISO8601(formattedString) {
