@@ -109,6 +109,30 @@ Universal formatter for displaying values with color indication.
       defaultColor: 'red'
 ```
 
+### Usage with custom background and text color
+
+To set both a background color and a text (font) color per value, use the `colors` key.
+Each value maps to an object with `backgroundColor` and `color`. These settings take
+precedence over the legacy `color` map for the same value (legacy `color` is kept as a
+fallback for values not present in `colors`).
+
+```yaml
+- id: priority
+  name:
+    ru: Приоритет
+    en: Priority
+  type: TEXT
+  editor:
+    type: select
+  formatter:
+    type: colored
+    config:
+      colors:
+        low: { backgroundColor: '#24A148', color: '#FFFFFF' }
+        medium: { backgroundColor: '#F1C21B', color: '#000000' }
+        high: { backgroundColor: '#DA1E28', color: '#FFFFFF' }
+```
+
 ### Script-based color formatting
 
 ```yaml
@@ -130,12 +154,13 @@ Universal formatter for displaying values with color indication.
 
 ### Value Color Mode Parameters
 
-| Parameter    | Type            | Default   | Description                                                            |
-| ------------ | --------------- | --------- | ---------------------------------------------------------------------- |
-| color        | Object          | {}        | Object mapping values to colors                                        |
-| showPointer  | Boolean         | false     | Whether to show color pointer. If false, shows rounded oval background |
-| defaultColor | String          | '#FFFFFF' | Default color for values not found in color. Can be HEX or named color |
-| fn           | String/Function | -         | Script or function to determine text color                             |
+| Parameter    | Type            | Default   | Description                                                                          |
+| ------------ | --------------- | --------- | ------------------------------------------------------------------------------------ |
+| color        | Object          | {}        | Legacy map of value → background color (HEX or named)                                |
+| colors       | Object          | {}        | Map of value → `{ backgroundColor, color }`. Takes precedence over `color` per value |
+| showPointer  | Boolean         | false     | Whether to show color pointer. If false, shows rounded oval background               |
+| defaultColor | String          | '#FFFFFF' | Default color for values not found in color/colors. Can be HEX or named color        |
+| fn           | String/Function | -         | Script or function to determine background color                                     |
 
 ## Predefined Colors
 
