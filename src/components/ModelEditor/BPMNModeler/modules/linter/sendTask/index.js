@@ -95,14 +95,45 @@ const sendTaskHasRecipients = {
   }
 };
 
+const sendTaskPerRecipientWithCcBcc = {
+  id: 'send-task-per-recipient-with-cc-bcc',
+  callback: () => {
+    const check = (node, reporter) => {
+      if (!is(node, SEND_TASK)) {
+        return;
+      }
+
+      const strategy = get(node.$attrs, [`${PREFIX_FIELD}notificationRecipientsStrategy`], '').trim();
+      if (strategy !== 'PER_RECIPIENT') {
+        return;
+      }
+
+      const cc = parseArray(node, `${PREFIX_FIELD}notificationCc`);
+      const bcc = parseArray(node, `${PREFIX_FIELD}notificationBcc`);
+      const ccExpression = parseArray(node, `${PREFIX_FIELD}notificationCcExpression`);
+      const bccExpression = parseArray(node, `${PREFIX_FIELD}notificationBccExpression`);
+
+      if (cc.length || bcc.length || ccExpression.length || bccExpression.length) {
+        reporter.report(node.id, t('bpmn-linter.send-task.per-recipient-with-cc-bcc'));
+      }
+    };
+
+    return {
+      check
+    };
+  }
+};
+
 export const sendTaskRulesMap = {
   [sendTaskHasNotificationType.id]: 'error',
   [sendTaskHasMessage.id]: 'error',
-  [sendTaskHasRecipients.id]: 'error'
+  [sendTaskHasRecipients.id]: 'error',
+  [sendTaskPerRecipientWithCcBcc.id]: 'error'
 };
 
 export const sendTaskCacheMap = {
   [`${BPMN_LINT_PREFIX}${sendTaskHasNotificationType.id}`]: sendTaskHasNotificationType.callback,
   [`${BPMN_LINT_PREFIX}${sendTaskHasMessage.id}`]: sendTaskHasMessage.callback,
-  [`${BPMN_LINT_PREFIX}${sendTaskHasRecipients.id}`]: sendTaskHasRecipients.callback
+  [`${BPMN_LINT_PREFIX}${sendTaskHasRecipients.id}`]: sendTaskHasRecipients.callback,
+  [`${BPMN_LINT_PREFIX}${sendTaskPerRecipientWithCcBcc.id}`]: sendTaskPerRecipientWithCcBcc.callback
 };

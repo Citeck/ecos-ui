@@ -3150,6 +3150,7 @@
   "bpmn-linter.send-task.no-notification-type": "Notification type not specified",
   "bpmn-linter.send-task.no-message": "Not defined Notification message",
   "bpmn-linter.send-task.no-recipients": "Not filled Notification recipients",
+  "bpmn-linter.send-task.per-recipient-with-cc-bcc": "\"Separate email per recipient\" strategy works only when Cc and Bcc are empty",
   "bpmn-linter.set-status.no-status": "No status",
   "bpmn-linter.service-task.no-type": "Task type not defined",
   "bpmn-linter.service-task.no-topic-external-type": "External task topic not defined",
