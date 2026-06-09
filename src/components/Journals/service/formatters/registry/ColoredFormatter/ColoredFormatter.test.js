@@ -331,4 +331,104 @@ describe('ColoredFormatter', () => {
       expect(result.props.style).toEqual({});
     });
   });
+
+  describe('config.colors (new format with background and text color)', () => {
+    it('should apply background and text color from colors[key] (old journal)', () => {
+      const config = {
+        colors: {
+          low: { backgroundColor: '#00FF00', color: '#FF0000' }
+        },
+        showPointer: false,
+        enabledNewJournal: false
+      };
+
+      const result = coloredFormatterInstance.format({ cell: 'low', config });
+
+      expect(result.props.className).toContain('value-color-formatter__oval');
+      expect(result.props.style).toEqual({ backgroundColor: '#00FF00', color: '#FF0000' });
+      expect(result.props.children).toBe('low');
+    });
+
+    it('should apply background and text color from colors[key] (new journal)', () => {
+      const config = {
+        colors: {
+          low: { backgroundColor: '#00FF00', color: '#FF0000' }
+        },
+        showPointer: false,
+        enabledNewJournal: true
+      };
+
+      const result = coloredFormatterInstance.format({ cell: 'low', config });
+
+      const textContainer = result.props.children[1];
+      const colorSpan = textContainer.props.children;
+
+      expect(colorSpan.props.className).toBe('value-color-formatter__oval');
+      expect(colorSpan.props.style).toEqual({ backgroundColor: '#00FF00', color: '#FF0000' });
+      expect(colorSpan.props.children).toBe('low');
+    });
+
+    it('should prefer colors over color for the same value', () => {
+      const config = {
+        color: {
+          low: '#000000'
+        },
+        colors: {
+          low: { backgroundColor: '#00FF00', color: '#FF0000' }
+        },
+        showPointer: false,
+        enabledNewJournal: false
+      };
+
+      const result = coloredFormatterInstance.format({ cell: 'low', config });
+
+      expect(result.props.style).toEqual({ backgroundColor: '#00FF00', color: '#FF0000' });
+    });
+
+    it('should resolve named background color from colors to hex', () => {
+      const config = {
+        colors: {
+          low: { backgroundColor: 'green', color: '#FFFFFF' }
+        },
+        showPointer: false,
+        enabledNewJournal: false
+      };
+
+      const result = coloredFormatterInstance.format({ cell: 'low', config });
+
+      expect(result.props.style).toEqual({ backgroundColor: '#24A148', color: '#FFFFFF' });
+    });
+
+    it('should fall back to defaultColor for background when colors[key] has only text color', () => {
+      const config = {
+        colors: {
+          low: { color: '#FF0000' }
+        },
+        defaultColor: '#CCCCCC',
+        showPointer: false,
+        enabledNewJournal: false
+      };
+
+      const result = coloredFormatterInstance.format({ cell: 'low', config });
+
+      expect(result.props.style).toEqual({ backgroundColor: '#CCCCCC', color: '#FF0000' });
+    });
+
+    it('should fall back to legacy color for values absent in colors', () => {
+      const config = {
+        color: {
+          high: '#00FF00'
+        },
+        colors: {
+          low: { backgroundColor: '#0000FF', color: '#FFFFFF' }
+        },
+        showPointer: false,
+        enabledNewJournal: false
+      };
+
+      const result = coloredFormatterInstance.format({ cell: 'high', config });
+
+      expect(result.props.style).toEqual({ backgroundColor: '#00FF00' });
+    });
+  });
 });

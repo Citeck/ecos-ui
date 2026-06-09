@@ -44,6 +44,7 @@ export default class ColoredFormatter extends BaseFormatter {
     const { cell, row, config = {}, valueIndex: index } = props;
     const {
       color = {},
+      colors = {},
       enabledNewJournal = get(window, 'Citeck.constants.NEW_JOURNAL_ENABLED', false),
       showPointer = false,
       defaultColor = ColoredFormatter.DEFAULT_COLOR
@@ -59,14 +60,30 @@ export default class ColoredFormatter extends BaseFormatter {
       displayText = cell;
     }
 
-    let colorByScript = this.colorByScript({ Records, cell, row, index }, config.fn);
-    let finalColor = colorByScript || color[key] || defaultColor;
+    const colorByScript = this.colorByScript({ Records, cell, row, index }, config.fn);
+    const newEntry = isPlainObject(colors[key]) ? colors[key] : null;
+
+    // Priority: fn script (background only) -> config.colors (background + text) -> config.color (background) -> default
+    let finalColor;
+    let textColor = null;
+    if (colorByScript) {
+      finalColor = colorByScript;
+    } else if (newEntry) {
+      finalColor = newEntry.backgroundColor || defaultColor;
+      textColor = newEntry.color || null;
+    } else {
+      finalColor = color[key] || defaultColor;
+    }
 
     // Resolve named colors to hex
     finalColor = ColoredFormatter.resolveColor(finalColor);
+    textColor = textColor ? ColoredFormatter.resolveColor(textColor) : null;
 
     const isHexFinalColor = ColoredFormatter.isHexColor(finalColor);
-    const colorStyle = isHexFinalColor ? { backgroundColor: finalColor } : {};
+    const colorStyle = {
+      ...(isHexFinalColor ? { backgroundColor: finalColor } : {}),
+      ...(textColor ? { color: textColor } : {})
+    };
     const colorClass = !isHexFinalColor && finalColor ? `value-color-formatter_${finalColor}` : '';
 
     // If defaultColor is not HEX, and it's a supported color, use its class
@@ -88,10 +105,7 @@ export default class ColoredFormatter extends BaseFormatter {
     return enabledNewJournal ? (
       <div className="value-color-formatter">
         {showPointer ? (
-          <span
-            className={`value-color-formatter__pointer ${!isHexFinalColor ? finalColorClass : ''}`}
-            style={isHexFinalColor ? colorStyle : {}}
-          />
+          <span className={`value-color-formatter__pointer ${!isHexFinalColor ? finalColorClass : ''}`} style={colorStyle} />
         ) : null}
         <span className="value-color-formatter__text">
           {!showPointer ? (
@@ -108,18 +122,12 @@ export default class ColoredFormatter extends BaseFormatter {
         </span>
       </div>
     ) : !showPointer ? (
-      <span
-        className={`value-color-formatter value-color-formatter__oval ${!isHexFinalColor ? finalColorClass : ''}`}
-        style={isHexFinalColor ? colorStyle : {}}
-      >
+      <span className={`value-color-formatter value-color-formatter__oval ${!isHexFinalColor ? finalColorClass : ''}`} style={colorStyle}>
         {displayText}
       </span>
     ) : (
       <div className="value-color-formatter">
-        <span
-          className={`value-color-formatter__pointer ${!isHexFinalColor ? finalColorClass : ''}`}
-          style={isHexFinalColor ? colorStyle : {}}
-        />
+        <span className={`value-color-formatter__pointer ${!isHexFinalColor ? finalColorClass : ''}`} style={colorStyle} />
         <span className="value-color-formatter__text">{displayText}</span>
       </div>
     );
