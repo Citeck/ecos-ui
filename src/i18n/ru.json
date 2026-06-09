@@ -3150,6 +3150,7 @@
   "bpmn-linter.send-task.no-notification-type": "Не указан Тип уведомления",
   "bpmn-linter.send-task.no-message": "Не определено Сообщение уведомления",
   "bpmn-linter.send-task.no-recipients": "Не заполнены Получатели уведомления",
+  "bpmn-linter.send-task.per-recipient-with-cc-bcc": "Стратегия «Отдельное письмо каждому получателю» работает только при пустых полях Копия и Скрытая копия",
   "bpmn-linter.set-status.no-status": "Не выбран Статус",
   "bpmn-linter.service-task.no-type": "Не определен Тип задачи",
   "bpmn-linter.service-task.no-topic-external-type": "Не определен Топик внешней задачи",
