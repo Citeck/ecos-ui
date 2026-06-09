@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import merge from 'lodash/merge';
@@ -70,6 +71,8 @@ class Layout extends Component {
 
   _wrapperRef = React.createRef();
 
+  _rafId = null;
+
   componentDidMount() {
     this.checkWrapperStyle();
   }
@@ -79,6 +82,31 @@ class Layout extends Component {
       this.checkWrapperStyle();
     }
   }
+
+  componentWillUnmount() {
+    this._handleResize.cancel();
+
+    if (this._rafId) {
+      cancelAnimationFrame(this._rafId);
+    }
+  }
+
+  // double rAF: первый кадр даёт браузеру применить новую раскладку грида,
+  // второй кадр меряет уже после завершившегося рефлоу
+  _scheduleCheckWidgets = () => {
+    if (this._rafId) {
+      cancelAnimationFrame(this._rafId);
+    }
+
+    this._rafId = requestAnimationFrame(() => {
+      this._rafId = requestAnimationFrame(() => {
+        this._rafId = null;
+        this.checkWidgets();
+      });
+    });
+  };
+
+  _handleResize = debounce(this._scheduleCheckWidgets, 100);
 
   get className() {
     const { className } = this.props;
@@ -129,26 +157,32 @@ class Layout extends Component {
       }
 
       adaptiveColumns.forEach(adaptiveColumn => {
-        const columnWidth = adaptiveColumn.offsetWidth;
         const items = [...adaptiveColumn.querySelectorAll('.ecos-layout__element')];
-        const countInnerColumns = Math.floor(columnWidth / get(items, '[0].offsetWidth', 1));
 
+        // сброс прошлых смещений, чтобы offsetTop отражал фактическую раскладку грида
         items.forEach((item, index) => {
           item.style.top = 0;
           item.style.zIndex = items.length - index;
+        });
 
-          if (countInnerColumns && index < countInnerColumns) {
+        // число колонок определяем по offsetTop первого ряда (устойчиво к grid-gap и границам перестроения)
+        const firstRowTop = get(items, '[0].offsetTop', 0);
+        let countInnerColumns = 0;
+
+        for (let i = 0; i < items.length && items[i].offsetTop === firstRowTop; i++) {
+          countInnerColumns++;
+        }
+
+        if (!countInnerColumns) {
+          countInnerColumns = 1;
+        }
+
+        items.forEach((item, index) => {
+          if (index < countInnerColumns) {
             return;
           }
 
-          let topElement;
-
-          if (countInnerColumns) {
-            topElement = items[index - countInnerColumns];
-          } else {
-            topElement = items[index - 1];
-          }
-
+          const topElement = items[index - countInnerColumns];
           const topElementChild = get(topElement, 'firstElementChild', null);
 
           if (!topElement || !topElementChild) {
@@ -229,8 +263,8 @@ class Layout extends Component {
         dashboardId,
         isActiveLayout,
         onSave: this.props.onSaveWidgetProps,
-        onLoad: this.checkWidgets,
-        onUpdate: this.checkWidgets
+        onLoad: this._scheduleCheckWidgets,
+        onUpdate: this._scheduleCheckWidgets
       };
 
       const props = {};
@@ -361,7 +395,7 @@ class Layout extends Component {
     return (
       <div className="ecos-layout__wrapper" ref={this._wrapperRef}>
         {columns.map((...data) => this.renderColumn(columns, ...data))}
-        <ReactResizeDetector handleWidth handleHeight onResize={this.checkWidgets} targetRef={this._wrapperRef} />
+        <ReactResizeDetector handleWidth handleHeight onResize={this._handleResize} targetRef={this._wrapperRef} />
       </div>
     );
   }
