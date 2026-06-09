@@ -74,59 +74,23 @@ export class ProcessApi {
   };
 
   getHeatmapData = (procDef, predicates = []) => {
-    const pageSize = 100;
+    const BPMN_STAT_PAGE_LIMIT = 10000;
 
-    const queryPage = (completed, lastElementId = null) => {
-      const baseQuery = {
-        sourceId: SourcesId.BPMN_STAT,
-        language: 'predicate',
-        page: {
-          maxItems: pageSize,
-        },
-        query: {
-          t: 'and',
-          v: [
-            { t: 'eq', a: 'procDefRef', v: procDef },
-            { t: completed ? 'not-empty' : 'empty', a: 'completed' },
-            ...predicates
-          ]
-        },
-        groupBy: ['elementDefId'],
-        sort: [{ attribute: 'elementDefId', ascending: true }]
-      };
+    const query = completed => ({
+      sourceId: SourcesId.BPMN_STAT,
+      language: 'predicate',
+      page: { maxItems: BPMN_STAT_PAGE_LIMIT },
+      query: {
+        t: 'and',
+        v: [{ t: 'eq', a: 'procDefRef', v: procDef }, { t: completed ? 'not-empty' : 'empty', a: 'completed' }, ...predicates]
+      },
+      groupBy: ['elementDefId']
+    });
 
-      if (lastElementId) {
-        baseQuery.query.v.push({ t: 'gt', a: 'elementDefId', v: lastElementId });
-      }
+    const promiseCompleted = Records.query(query(true), { id: 'elementDefId', completedCount: 'count(*)?num' });
+    const promiseActive = Records.query(query(false), { id: 'elementDefId', activeCount: 'count(*)?num' });
 
-      return baseQuery;
-    };
-
-    const getAllPages = async (completed) => {
-      const allRecords = [];
-      let lastElementId = null;
-      let hasMoreData = true;
-
-      while (hasMoreData) {
-        const query = queryPage(completed, lastElementId);
-        const response = await Records.query(query, {
-          id: 'elementDefId',
-          [completed ? 'completedCount' : 'activeCount']: 'count(*)?num'
-        });
-
-        allRecords.push(...response.records);
-
-        if (response.records.length < pageSize) {
-          hasMoreData = false;
-        } else {
-          lastElementId = response.records[response.records.length - 1].id;
-        }
-      }
-
-      return { records: allRecords };
-    };
-
-    return Promise.all([getAllPages(true), getAllPages(false)]).then(([completedCount, activeCount]) => {
+    return Promise.all([promiseCompleted, promiseActive]).then(([completedCount, activeCount]) => {
       const mergedRecords = [...completedCount.records];
 
       activeCount.records.forEach(rec => {
