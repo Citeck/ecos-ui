@@ -19,7 +19,7 @@ import { extractLabel, t } from '@/helpers/util';
 import AttributesService from '@/services/AttributesService';
 
 interface HeaderColumnProps {
-  data: { id: string; name: string; hasSum: boolean; sumAtt: string };
+  data: { id: string; name: string; hasSum: boolean; sumAtt: string; additionalFilter?: any };
   totalCount: number;
   isReady: boolean;
   isViewNewJournal: boolean;
@@ -34,14 +34,14 @@ const HeaderColumn = ({ data, totalCount, isReady, typeRef, isViewNewJournal, pr
 
   useEffect(() => {
     const toConvertPredicates = isArray(predicate) ? predicate : [predicate];
-    const statusModifiedPredicate = KanbanConverter.getStatusModifiedPredicate(data);
+    const additionalFilter = KanbanConverter.getAdditionalFilter(data);
 
     if (!isEmpty(searchPredicate) && isObject(searchPredicate)) {
       toConvertPredicates.push(searchPredicate);
     }
 
-    if (!isEmpty(statusModifiedPredicate) && isObject(statusModifiedPredicate)) {
-      toConvertPredicates.push(statusModifiedPredicate);
+    if (!isEmpty(additionalFilter) && isObject(additionalFilter)) {
+      toConvertPredicates.push(additionalFilter);
     }
 
     if (isViewNewJournal && data.hasSum) {

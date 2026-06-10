@@ -1,4 +1,4 @@
-import { buildBoardCardsFilter, getAfterCardRef } from '../kanban';
+import KanbanConverter, { buildBoardCardsFilter, getAfterCardRef } from '../kanban';
 
 describe('buildBoardCardsFilter', () => {
   it('returns null when no parts', () => {
@@ -15,6 +15,24 @@ describe('buildBoardCardsFilter', () => {
         { t: 'eq', att: 'b', val: 2 }
       ]
     });
+  });
+});
+
+describe('getAdditionalFilter', () => {
+  const get = KanbanConverter.getAdditionalFilter;
+
+  it('returns undefined for a column with no filter config', () => {
+    expect(get(undefined)).toBeUndefined();
+    expect(get({ id: 'OPEN' })).toBeUndefined();
+  });
+
+  it('returns the server-computed additionalFilter (the single source of the column filter rule)', () => {
+    const predicate = { t: 'ge', att: '_statusModified', val: '-P30D' };
+    expect(get({ id: 'OPEN', additionalFilter: predicate })).toEqual(predicate);
+  });
+
+  it('does NOT derive the cutoff from legacy hideOldItems fields — the server computes the rule', () => {
+    expect(get({ id: 'OPEN', hideOldItems: true, hideItemsOlderThan: 'P30D' })).toBeUndefined();
   });
 });
 

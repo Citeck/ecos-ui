@@ -15,7 +15,7 @@ export class KanbanApi {
       {
         actions: 'actions[]?id![]',
         cardFormRef: 'cardFormRef?id',
-        columns: 'columns[]{id,name,hideItemsOlderThan,hideOldItems?bool,hasSum?bool,sumAtt}![]',
+        columns: 'columns[]{id,name,hasSum?bool,sumAtt,additionalFilter?json}![]',
         journalRef: 'journalRef?id',
         name: 'name',
         disableTitle: 'disableTitle?bool!false',

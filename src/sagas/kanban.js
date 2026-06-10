@@ -358,13 +358,12 @@ export function* sagaGetData({ api }, { payload }) {
         })
       : [];
 
-    if (get(journalSetting, 'kanban.columns') && !get(boardConfig, 'columns', []).every(col => !col.hideOldItems)) {
+    if (get(journalSetting, 'kanban.columns') && get(boardConfig, 'columns', []).some(col => col.additionalFilter)) {
       journalSetting.kanban.columns = journalSetting.kanban.columns.map(col => {
         if (col && col.id) {
           const foundConfigColumn = (boardConfig.columns || []).find(c => c.id && c.id === col.id);
           if (foundConfigColumn) {
-            col.hideOldItems = foundConfigColumn.hideOldItems;
-            col.hideItemsOlderThan = foundConfigColumn.hideItemsOlderThan;
+            col.additionalFilter = foundConfigColumn.additionalFilter;
           }
         }
 
@@ -376,7 +375,8 @@ export function* sagaGetData({ api }, { payload }) {
 
     const idsPredicate = Boolean(get(recordRefs, 'length')) ? { t: PREDICATE_EQ, att: 'id', val: recordRefs } : undefined;
 
-    // board-cards applies per-column `_status`/`hideOldItems` itself — only AND the shared filter.
+    // board-cards applies per-column `_status` itself; each column's own `additionalFilter` (e.g. the
+    // hideOldItems cutoff) is sent per-column below — only AND the shared filter here.
     const filter = buildBoardCardsFilter([predicates, searchPredicate, idsPredicate]);
     const maxItems = get(params, 'pagination.maxItems', DEFAULT_PAGINATION.maxItems);
 
@@ -388,7 +388,7 @@ export function* sagaGetData({ api }, { payload }) {
         return;
       }
       const colLoadedCount = get(prevDataCards, [i, 'records', 'length'], 0);
-      requestedColumns.push({ id: column.id, skipCount: colLoadedCount, maxItems });
+      requestedColumns.push({ id: column.id, skipCount: colLoadedCount, maxItems, additionalFilter: KanbanConverter.getAdditionalFilter(column) });
     });
 
     const boardCards =
@@ -640,7 +640,8 @@ function* reloadColumns({ api, stateId, boardConfig, columnIds }) {
 
   const updatedDataCards = currentDataCards.map(col => ({ ...col }));
 
-  // board-cards applies per-column `_status`/`hideOldItems` itself — only AND the shared filter.
+  // board-cards applies per-column `_status` itself; each column's own `additionalFilter` is sent
+  // per-column below — only AND the shared filter here.
   const filter = buildBoardCardsFilter([predicates, searchPredicate]);
 
   // Build one columns[] request: each column from index 0, capped maxItems = reloadMaxItems(id).
@@ -652,7 +653,8 @@ function* reloadColumns({ api, stateId, boardConfig, columnIds }) {
     const loadedCount = (currentDataCards[colIndex].records || []).length;
     const reloadMaxItems = Math.max(loadedCount, DEFAULT_PAGINATION.maxItems);
     maxItemsPerColumn = Math.max(maxItemsPerColumn, reloadMaxItems);
-    reloadColumnsArg.push({ id: columnId, skipCount: 0, maxItems: reloadMaxItems });
+    const column = columns.find(c => c.id === columnId);
+    reloadColumnsArg.push({ id: columnId, skipCount: 0, maxItems: reloadMaxItems, additionalFilter: KanbanConverter.getAdditionalFilter(column) });
   });
 
   if (reloadColumnsArg.length > 0) {
@@ -718,12 +720,18 @@ function* reloadSwimlaneCells({ api, stateId, boardConfig, swimlaneGrouping, cel
         journalSetting
       });
 
-      // board-cards applies per-column `_status`/`hideOldItems` itself.
+      // board-cards applies per-column `_status` itself; each column's own `additionalFilter` is sent
+      // per-column below.
       const filter = buildBoardCardsFilter([queryParams.predicates, queryParams.swimlaneAttrPredicate, queryParams.searchPredicate]);
 
       const pagination = get(queryParams, 'params.pagination', DEFAULT_PAGINATION);
       const maxItems = get(pagination, 'maxItems', DEFAULT_PAGINATION.maxItems);
-      const columnsArg = statusIds.map(statusId => ({ id: statusId, skipCount: 0, maxItems }));
+      const columnsArg = statusIds.map(statusId => ({
+        id: statusId,
+        skipCount: 0,
+        maxItems,
+        additionalFilter: KanbanConverter.getAdditionalFilter(columns.find(c => c.id === statusId))
+      }));
 
       const boardCards = yield call(api.kanban.getBoardCards, {
         boardRef: boardConfig.id,
@@ -751,7 +759,7 @@ export function* sagaMoveCard({ api }, { payload }) {
   let rollbackCards = [];
   try {
     const { stateId, cardIndex, toIndex, fromColumnRef, toColumnRef } = payload;
-    const { dataCards: prevDataCards = [], boardConfig = {} } = yield select(selectKanban, stateId);
+    const { dataCards: prevDataCards = [], boardConfig = {}, pagination = {} } = yield select(selectKanban, stateId);
 
     if (!boardConfig || isEmpty(boardConfig.columns)) {
       throw new Error('No columns in config?!');
@@ -793,7 +801,13 @@ export function* sagaMoveCard({ api }, { payload }) {
       column: toColumnRef,
       afterCard,
       grouping: '',
-      cards: dataCards[toColumnIndex].records.map(r => r.id || r.cardId)
+      // The move API only needs the cards above the drop slot and one below it; but always send at
+      // least the first page (the board's ACTUAL page size, which can exceed the default) so the whole
+      // "new" (unranked) block gets materialized — unranked cards left out of this list sink below the
+      // ranked block on the server.
+      cards: dataCards[toColumnIndex].records
+        .slice(0, Math.max(insertAt + 2, get(pagination, 'maxItems') || DEFAULT_PAGINATION.maxItems))
+        .map(r => r.id || r.cardId)
     });
 
     // Reload affected columns from server to settle ordering + counts.
@@ -1070,7 +1084,8 @@ export function* sagaLoadSwimlaneCells({ api }, { payload }) {
 
     const swimlane = swimlanes.find(sl => sl.id === swimlaneId);
 
-    // board-cards applies per-column `_status`/`hideOldItems` itself — only AND the row + search filter.
+    // board-cards applies per-column `_status` itself; each column's own `additionalFilter` is sent
+    // per-column below — only AND the row + search filter here.
     const filter = buildBoardCardsFilter([queryParams.predicates, queryParams.swimlaneAttrPredicate, queryParams.searchPredicate]);
 
     // ONE call for the whole row: all columns, each with its cell's skipCount.
@@ -1079,7 +1094,8 @@ export function* sagaLoadSwimlaneCells({ api }, { payload }) {
       return {
         id: column.id,
         skipCount: get(cellPagination, 'skipCount', 0),
-        maxItems: get(cellPagination, 'maxItems', DEFAULT_PAGINATION.maxItems)
+        maxItems: get(cellPagination, 'maxItems', DEFAULT_PAGINATION.maxItems),
+        additionalFilter: KanbanConverter.getAdditionalFilter(column)
       };
     });
 
@@ -1183,12 +1199,19 @@ export function* sagaLoadMoreSwimlaneCell({ api }, { payload }) {
       page: cell.pagination.page + 1
     };
 
-    // board-cards applies per-column `_status`/`hideOldItems` itself.
+    // board-cards applies per-column `_status` itself; the column's own `additionalFilter` is sent below.
     const filter = buildBoardCardsFilter([queryParams.predicates, queryParams.swimlaneAttrPredicate, queryParams.searchPredicate]);
 
     const boardCards = yield call(api.kanban.getBoardCards, {
       boardRef: boardConfig.id,
-      columns: [{ id: statusId, skipCount: newPagination.skipCount, maxItems: newPagination.maxItems }],
+      columns: [
+        {
+          id: statusId,
+          skipCount: newPagination.skipCount,
+          maxItems: newPagination.maxItems,
+          additionalFilter: KanbanConverter.getAdditionalFilter(column)
+        }
+      ],
       filter,
       maxItemsPerColumn: newPagination.maxItems,
       grouping: swimlaneGrouping.attribute,
@@ -1241,7 +1264,7 @@ export function* sagaMoveSwimlaneCard({ api }, { payload }) {
 
   try {
     const { stateId, cardIndex, toIndex, fromSwimlaneId, fromStatusId, toStatusId } = payload;
-    const { swimlanes, boardConfig, swimlaneGrouping } = yield select(selectKanban, stateId);
+    const { swimlanes, boardConfig, swimlaneGrouping, pagination = {} } = yield select(selectKanban, stateId);
 
     const swimlane = swimlanes.find(sl => sl.id === fromSwimlaneId);
     if (!swimlane) {
@@ -1271,9 +1294,10 @@ export function* sagaMoveSwimlaneCard({ api }, { payload }) {
     const newFromRecords = [...fromCell.records];
     newFromRecords.splice(cardIndex, 1);
     let toRecords;
+    let insertAt;
 
     if (sameCell) {
-      const insertAt = Math.max(0, Math.min(typeof toIndex === 'number' ? toIndex : 0, newFromRecords.length));
+      insertAt = Math.max(0, Math.min(typeof toIndex === 'number' ? toIndex : 0, newFromRecords.length));
       newFromRecords.splice(insertAt, 0, card);
       toRecords = newFromRecords;
       yield put(
@@ -1284,7 +1308,7 @@ export function* sagaMoveSwimlaneCard({ api }, { payload }) {
         setSwimlaneCellData({ stateId, swimlaneId, statusId: fromStatusId, records: newFromRecords, totalCount: fromCell.totalCount - 1 })
       );
       const newToRecords = [...(toCell ? toCell.records : [])];
-      const insertAt = Math.max(0, Math.min(typeof toIndex === 'number' ? toIndex : 0, newToRecords.length));
+      insertAt = Math.max(0, Math.min(typeof toIndex === 'number' ? toIndex : 0, newToRecords.length));
       newToRecords.splice(insertAt, 0, card);
       toRecords = newToRecords;
       yield put(
@@ -1304,7 +1328,10 @@ export function* sagaMoveSwimlaneCard({ api }, { payload }) {
       column: toStatusId,
       afterCard,
       grouping: get(swimlaneGrouping, 'attribute', ''),
-      cards: toRecords.map(r => r.id || r.cardId)
+      // Same trimming as sagaMoveCard: the prefix down to the drop slot +1, but at least the first page
+      // (the board's actual page size) so the whole "new" (unranked) block gets materialized — off-list
+      // unranked cards sink below the ranked block on the server.
+      cards: toRecords.slice(0, Math.max(insertAt + 2, get(pagination, 'maxItems') || DEFAULT_PAGINATION.maxItems)).map(r => r.id || r.cardId)
     });
 
     // Reload swimlane cells from server to settle ordering.

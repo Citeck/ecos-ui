@@ -13,7 +13,8 @@ const data = Object.freeze({
     columns: [
       {
         id: 'some-id-1',
-        name: { ru: 'Русское имя', en: 'English name' }
+        name: { ru: 'Русское имя', en: 'English name' },
+        additionalFilter: { t: 'ge', att: '_statusModified', val: '-P7D' }
       },
       {
         id: 'some-id-2',

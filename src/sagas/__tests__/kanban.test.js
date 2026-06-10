@@ -224,6 +224,12 @@ describe('kanban sagas tests', () => {
     // Unified board-cards: ONE call loads all columns.
     expect(spyGetBoardCards).toHaveBeenCalledTimes(1);
     expect(get(spyGetBoardCards.mock.calls, '[0][0].columns.length')).toEqual(colsLen);
+    // each column carries its own additionalFilter so the server count honours the cutoff
+    expect(get(spyGetBoardCards.mock.calls, '[0][0].columns[0].additionalFilter')).toEqual({
+      t: 'ge',
+      att: '_statusModified',
+      val: '-P7D'
+    });
     expect(console.error).not.toHaveBeenCalled();
   });
 
@@ -688,6 +694,61 @@ describe('kanban sagas tests', () => {
       afterCard: 'c',
       grouping: '',
       cards: ['b', 'c', 'a']
+    });
+
+    expect(spyError).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
+  });
+
+  it('sagaMoveCard > long column sends only the prefix down to the drop slot (at least one page)', async () => {
+    // 13 cards loaded; move the last card to the top. The move API only needs the cards above the
+    // drop slot +1, floored at the board's ACTUAL page size — NOT the whole loaded column.
+    const ids = Array.from({ length: 13 }, (_, i) => String(i + 1));
+    const dataCards = [
+      {
+        status: 'some-id-1',
+        records: ids.map(id => ({ id, cardId: id, attributes: {} })),
+        totalCount: 13
+      },
+      { status: 'some-id-2', records: [], totalCount: 0 }
+    ];
+
+    const spyMoveCard = jest.spyOn(api.kanban, 'moveCard');
+
+    await wrapRunSaga(
+      kanban.sagaMoveCard,
+      {
+        cardIndex: 12,
+        toIndex: 0,
+        fromColumnRef: 'some-id-1',
+        toColumnRef: 'some-id-1'
+      },
+      {
+        kanban: {
+          [stateId]: {
+            dataCards,
+            boardConfig: data.boardConfig,
+            formProps: data.formProps,
+            pagination: { skipCount: 0, maxItems: 11, page: 1 }
+          }
+        },
+        journals: {
+          [stateId]: {
+            journalConfig: data.journalConfig,
+            journalSetting: data.journalSetting
+          }
+        }
+      }
+    );
+
+    // post-insert list = [13, 1, 2, ...]; trimmed to max(insertAt + 2, pagination.maxItems) = 11
+    expect(spyMoveCard).toHaveBeenCalledWith({
+      boardRef: data.boardConfig.id,
+      card: '13',
+      column: 'some-id-1',
+      afterCard: null,
+      grouping: '',
+      cards: ['13', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
     });
 
     expect(spyError).not.toHaveBeenCalled();

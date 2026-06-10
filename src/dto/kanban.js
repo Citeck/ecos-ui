@@ -72,14 +72,14 @@ export default class KanbanConverter {
     return Object.keys(target).map(id => target[id]);
   }
 
-  static getStatusModifiedPredicate(column) {
-    return column.hideOldItems
-      ? {
-          t: 'ge',
-          att: '_statusModified',
-          val: `-${column.hideItemsOlderThan}`
-        }
-      : undefined;
+  /**
+   * The column's additional card filter (predicate) or undefined. The SERVER computes it as the
+   * column's `additionalFilter` attribute (currently the `hideOldItems` recency cutoff) — the single
+   * source for the per-column filtering rule. We send it back in the board-cards query (so column
+   * counts honour it) and apply it to the column sum; the UI never derives the rule itself.
+   */
+  static getAdditionalFilter(column) {
+    return (column && column.additionalFilter) || undefined;
   }
 
   static prepareSwimlaneValues(values) {
