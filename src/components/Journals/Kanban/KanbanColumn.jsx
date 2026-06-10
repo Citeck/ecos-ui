@@ -143,12 +143,17 @@ const KanbanColumn = ({
             {...provided.droppableProps}
             ref={provided.innerRef}
           >
-            {(isLoadingCol || isFlatLoading) && <SkeletonCards />}
+            {/* While reloading a NON-empty column keep its cards rendered under a blur overlay: swapping
+                them for a short skeleton collapses the scroll container's height, and the browser clamps
+                scrollTop — the board "jumps" to the top right after a card is dropped far down the list. */}
+            {(isLoadingCol || isFlatLoading) && isEmpty(records) && <SkeletonCards />}
             {isSwimlaneMode && isLoading && isEmpty(records) && <SkeletonCards />}
             {renderStatuses()}
-            {!isLoadingCol && !isFlatLoading && records.map(renderCard)}
+            {records.map(renderCard)}
             {provided.placeholder}
-            {isSwimlaneMode && isLoading && !isEmpty(records) && <Loader className="ecos-kanban__column-loader" blur />}
+            {(isLoadingCol || isFlatLoading || (isSwimlaneMode && isLoading)) && !isEmpty(records) && (
+              <Loader className="ecos-kanban__column-loader" blur />
+            )}
             {remaining > 0 && !isLoading && (
               <button className="ecos-kanban__cell-show-more" onClick={() => onLoadMore && onLoadMore(swimlaneId, statusId)}>
                 {t('kanban.swimlane.show-more')}
