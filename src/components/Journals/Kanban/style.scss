@@ -137,7 +137,6 @@
     margin-left: -1px;
 
     &_dragging {
-      max-height: inherit;
       padding-bottom: 6px;
 
       & #{$kanban}__column {
@@ -627,7 +626,9 @@
     margin-bottom: 0;
     margin-top: 0;
     gap: 12px;
-    background-color: unset;
+    // The head is sticky: it must stay opaque (same color as the board background), otherwise the
+    // scrolled column borders/tinted drag zones show through the gaps around the header cells.
+    background-color: var(--main-bg-color);
   }
 
   .ecos-kanban__body {
@@ -636,7 +637,6 @@
     display: flex;
 
     &_dragging {
-      max-height: inherit;
       padding-bottom: 6px;
 
       & .ecos-kanban__column {
