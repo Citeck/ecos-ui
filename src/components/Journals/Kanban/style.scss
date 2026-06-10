@@ -137,7 +137,6 @@
     margin-left: -1px;
 
     &_dragging {
-      overflow: hidden;
       max-height: inherit;
       padding-bottom: 6px;
 
@@ -145,7 +144,6 @@
         $col: &;
         --color-column: #{HexToRGB($primary)};
 
-        overflow: hidden;
         border-style: dotted;
         border-color: rgba(var(--color-column), 1);
         background: rgba(var(--color-column), 0.1);
@@ -638,7 +636,6 @@
     display: flex;
 
     &_dragging {
-      overflow: hidden;
       max-height: inherit;
       padding-bottom: 6px;
 
@@ -646,7 +643,6 @@
         $col: &;
         --color-column: #{HexToRGB($primary)};
 
-        overflow: hidden;
         border: 1px dotted rgba(var(--color-column), 1);
         background: rgba(var(--color-column), 0.1);
 

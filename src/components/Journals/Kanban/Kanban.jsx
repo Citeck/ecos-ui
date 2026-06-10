@@ -439,12 +439,10 @@ class Kanban extends React.Component {
     const { isLoading } = this.props;
     const { isDragging } = this.state;
 
+    // NB: the body must NOT be clamped/clipped while dragging — collapsing its height resets the
+    // scroll container's scrollTop (the board "jumps" to the top when a low card is lifted) and
+    // clips everything below the viewport, making rbd's auto-scroll useless.
     const bodyStyle = { minHeight: this.getHeight(-70) };
-
-    if (isDragging) {
-      bodyStyle.height = bodyStyle.minHeight;
-      bodyStyle.overflow = 'hidden';
-    }
 
     return (
       <div
