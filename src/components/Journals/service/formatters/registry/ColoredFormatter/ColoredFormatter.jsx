@@ -80,10 +80,9 @@ export default class ColoredFormatter extends BaseFormatter {
     textColor = textColor ? ColoredFormatter.resolveColor(textColor) : null;
 
     const isHexFinalColor = ColoredFormatter.isHexColor(finalColor);
-    const colorStyle = {
-      ...(isHexFinalColor ? { backgroundColor: finalColor } : {}),
-      ...(textColor ? { color: textColor } : {})
-    };
+    const backgroundStyle = isHexFinalColor ? { backgroundColor: finalColor } : {};
+    const textStyle = textColor ? { color: textColor } : {};
+    const colorStyle = { ...backgroundStyle, ...textStyle };
     const colorClass = !isHexFinalColor && finalColor ? `value-color-formatter_${finalColor}` : '';
 
     // If defaultColor is not HEX, and it's a supported color, use its class
@@ -105,9 +104,9 @@ export default class ColoredFormatter extends BaseFormatter {
     return enabledNewJournal ? (
       <div className="value-color-formatter">
         {showPointer ? (
-          <span className={`value-color-formatter__pointer ${!isHexFinalColor ? finalColorClass : ''}`} style={colorStyle} />
+          <span className={`value-color-formatter__pointer ${!isHexFinalColor ? finalColorClass : ''}`} style={backgroundStyle} />
         ) : null}
-        <span className="value-color-formatter__text">
+        <span className="value-color-formatter__text" style={textStyle}>
           {!showPointer ? (
             isHexFinalColor ? (
               <span className="value-color-formatter__oval" style={colorStyle}>
@@ -127,8 +126,10 @@ export default class ColoredFormatter extends BaseFormatter {
       </span>
     ) : (
       <div className="value-color-formatter">
-        <span className={`value-color-formatter__pointer ${!isHexFinalColor ? finalColorClass : ''}`} style={colorStyle} />
-        <span className="value-color-formatter__text">{displayText}</span>
+        <span className={`value-color-formatter__pointer ${!isHexFinalColor ? finalColorClass : ''}`} style={backgroundStyle} />
+        <span className="value-color-formatter__text" style={textStyle}>
+          {displayText}
+        </span>
       </div>
     );
   }

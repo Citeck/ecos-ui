@@ -414,6 +414,44 @@ describe('ColoredFormatter', () => {
       expect(result.props.style).toEqual({ backgroundColor: '#CCCCCC', color: '#FF0000' });
     });
 
+    it('should apply text color to the text span and background to the pointer when showPointer = true (old journal)', () => {
+      const config = {
+        colors: {
+          low: { backgroundColor: '#00FF00', color: '#FF0000' }
+        },
+        showPointer: true,
+        enabledNewJournal: false
+      };
+
+      const result = coloredFormatterInstance.format({ cell: 'low', config });
+
+      const pointer = result.props.children[0];
+      const textContainer = result.props.children[1];
+
+      expect(pointer.props.style).toEqual({ backgroundColor: '#00FF00' });
+      expect(textContainer.props.style).toEqual({ color: '#FF0000' });
+      expect(textContainer.props.children).toBe('low');
+    });
+
+    it('should apply text color to the text span and background to the pointer when showPointer = true (new journal)', () => {
+      const config = {
+        colors: {
+          low: { backgroundColor: '#00FF00', color: '#FF0000' }
+        },
+        showPointer: true,
+        enabledNewJournal: true
+      };
+
+      const result = coloredFormatterInstance.format({ cell: 'low', config });
+
+      const pointer = result.props.children[0];
+      const textContainer = result.props.children[1];
+
+      expect(pointer.props.style).toEqual({ backgroundColor: '#00FF00' });
+      expect(textContainer.props.style).toEqual({ color: '#FF0000' });
+      expect(textContainer.props.children).toBe('low');
+    });
+
     it('should fall back to legacy color for values absent in colors', () => {
       const config = {
         color: {
