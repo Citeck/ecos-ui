@@ -337,6 +337,11 @@ $adaptive-columns-size: 68%;
 
       #{$root}__element {
         position: relative;
+        pointer-events: none; // пустая растянутая область грид-ячейки не должна перехватывать события
+
+        > * {
+          pointer-events: auto; // сам виджет (корневой .dashlet) и всё его содержимое остаются интерактивными
+        }
 
         &:not(:last-child):not(:empty) {
           margin-bottom: 0;
