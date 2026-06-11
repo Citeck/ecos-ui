@@ -2,8 +2,6 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
-import isEqual from 'lodash/isEqual';
-import isEqualWith from 'lodash/isEqualWith';
 import React from 'react';
 import { connect } from 'react-redux';
 
@@ -29,8 +27,7 @@ import {
   setSelectedRecords,
   setUrl
 } from '@/actions/journals';
-import { getBoardData } from '@/actions/kanban';
-import { JournalUrlParams, JournalUrlParams as JUP, KanbanUrlParams as KUP, SourcesId } from '@/constants';
+import { JournalUrlParams, JournalUrlParams as JUP, SourcesId } from '@/constants';
 import { wrapArgs } from '@/helpers/redux';
 import { getSearchParams } from '@/helpers/urls';
 import { getTextByLocale } from '@/helpers/util';
@@ -60,7 +57,6 @@ function mapDispatchToProps(dispatch, props) {
   const w = wrapArgs(props.stateId);
 
   return {
-    getBoardData: boardId => dispatch(getBoardData({ boardId, stateId: props.stateId })),
     applySettings: settings => dispatch(applyJournalSetting(w(settings))),
     resetFiltering: () => dispatch(resetFiltering(w())),
     clearSearch: () => dispatch(setGrid(w({ search: '' }))),
@@ -91,7 +87,6 @@ class TableView extends React.Component {
       viewMode,
       stateId,
       journalId,
-      boardList,
       urlParams = {},
       withForceUpdate: force,
       deselectAllRecords
@@ -112,18 +107,6 @@ class TableView extends React.Component {
     if (urlParams[JUP.SEARCH] !== get(prevProps, ['urlParams', JUP.SEARCH])) {
       this.props.getJournalsData({ force });
     }
-
-    if (
-      !isEqualWith(boardList, prevProps.boardList, isEqual) ||
-      (!isEmpty(boardList) && this.state.isClose) ||
-      urlParams[KUP.BOARD_ID] !== get(prevProps, ['urlParams', KUP.BOARD_ID]) ||
-      urlParams[KUP.TEMPLATE_ID] !== get(prevProps, ['urlParams', KUP.TEMPLATE_ID])
-    ) {
-      const boardId = this.getSelectedBoardFromUrl();
-      if (boardId) {
-        this.props.getBoardData(boardId);
-      }
-    }
   }
 
   componentWillUnmount() {
@@ -133,12 +116,6 @@ class TableView extends React.Component {
   handleToggleSettings = flag => {
     this.setState(({ settingsVisible }) => ({ settingsVisible: isBoolean(flag) ? flag : !settingsVisible }));
   };
-
-  getSelectedBoardFromUrl() {
-    const { urlParams = {}, boardList } = this.props;
-
-    return urlParams.boardId || get(boardList, '[0].id');
-  }
 
   RightBarChild = ({ hasPageSize, noData, maxHeight, hasTotalSumField }) => {
     const { stateId, isMobile, isViewNewJournal } = this.props;

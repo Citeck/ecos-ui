@@ -1,8 +1,6 @@
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-import isEqual from 'lodash/isEqual';
-import isEqualWith from 'lodash/isEqualWith';
 import React from 'react';
 import { connect } from 'react-redux';
 
@@ -28,9 +26,8 @@ import {
   setSelectedRecords,
   setUrl
 } from '@/actions/journals';
-import { getBoardData } from '@/actions/kanban';
 import { initPreviewList } from '@/actions/previewList';
-import { JournalUrlParams, JournalUrlParams as JUP, KanbanUrlParams as KUP, SourcesId } from '@/constants';
+import { JournalUrlParams, JournalUrlParams as JUP, SourcesId } from '@/constants';
 import { wrapArgs } from '@/helpers/redux';
 import { getSearchParams } from '@/helpers/urls';
 import { getBool, getTextByLocale, t } from '@/helpers/util';
@@ -65,7 +62,6 @@ function mapDispatchToProps(dispatch, props) {
   const w = wrapArgs(props.stateId);
 
   return {
-    getBoardData: boardId => dispatch(getBoardData({ boardId, stateId: props.stateId })),
     applySettings: settings => dispatch(applyJournalSetting(w(settings))),
     resetFiltering: () => dispatch(resetFiltering(w())),
     clearSearch: () => dispatch(setGrid(w({ search: '' }))),
@@ -91,7 +87,7 @@ class PreviewListView extends React.Component {
   };
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { isActivePage, stateId, journalId, boardList, urlParams = {}, withForceUpdate: force, deselectAllRecords } = this.props;
+    const { isActivePage, stateId, journalId, urlParams = {}, withForceUpdate: force, deselectAllRecords } = this.props;
 
     if (!journalId || !isActivePage || !isPreviewList(urlParams[JournalUrlParams.VIEW_MODE])) {
       if (prevProps.journalId !== journalId) {
@@ -112,24 +108,6 @@ class PreviewListView extends React.Component {
     if (urlParams[JUP.SEARCH] !== get(prevProps, ['urlParams', JUP.SEARCH])) {
       this.props.reloadGrid();
     }
-
-    if (
-      !isEqualWith(boardList, prevProps.boardList, isEqual) ||
-      (!isEmpty(boardList) && this.state.isClose) ||
-      urlParams[KUP.BOARD_ID] !== get(prevProps, ['urlParams', KUP.BOARD_ID]) ||
-      urlParams[KUP.TEMPLATE_ID] !== get(prevProps, ['urlParams', KUP.TEMPLATE_ID])
-    ) {
-      const boardId = this.getSelectedBoardFromUrl();
-      if (boardId) {
-        this.props.getBoardData(boardId);
-      }
-    }
-  }
-
-  getSelectedBoardFromUrl() {
-    const { urlParams = {}, boardList } = this.props;
-
-    return urlParams.boardId || get(boardList, '[0].id');
   }
 
   componentWillUnmount() {
