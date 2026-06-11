@@ -380,6 +380,12 @@ Base.prototype.createTooltip = function (container, component, classes) {
     trigger: 'hover click',
     placement: 'top',
     html: true,
+    // Append to body, otherwise the tooltip node is inserted next to the icon and
+    // gets clipped by panels with overflow: hidden (or breaks the form layout)
+    container: document.body,
+    boundariesElement: 'viewport',
+    template:
+      '<div class="tooltip formio-field-tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>',
     title: this.interpolate(this.t(getTextByLocale(component.tooltip))).replace(/(?:\r\n|\r|\n)/g, '<br />')
   });
 

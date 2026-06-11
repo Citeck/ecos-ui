@@ -212,7 +212,7 @@ describe('TextField Builder', () => {
       () => {
         expect(!!builder.preview.tooltip).toBe(true);
         builder.preview.tooltip.show();
-        const toolTipText = builder.preview.element.querySelector('.tooltip-inner');
+        const toolTipText = builder.preview.tooltip.popperInstance.popper.querySelector('.tooltip-inner');
         expect(toolTipText.innerHTML).toBe(value);
         done();
       },
