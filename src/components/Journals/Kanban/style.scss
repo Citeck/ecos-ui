@@ -146,6 +146,21 @@
         border-style: dotted;
         border-color: rgba(var(--color-column), 1);
         background: rgba(var(--color-column), 0.1);
+        transition: none;
+
+        & #{$kanban}__card {
+          transition: none;
+        }
+
+        & #{$kanban}__card:nth-of-type(10n + 11) {
+          padding-top: 20px;
+          border-top: 0;
+        }
+
+        & :not(#{$kanban}__card):not(#{$kanban}__card-info):nth-of-type(10n + 11) {
+          padding-top: 0;
+          border-top: 0;
+        }
 
         &::before {
           color: rgba(var(--color-column), 1);
@@ -645,6 +660,22 @@
 
         border: 1px dotted rgba(var(--color-column), 1);
         background: rgba(var(--color-column), 0.1);
+        transition: none;
+
+        & .ecos-kanban__card {
+          transition: none;
+        }
+
+        // Заморозка периодического разделителя на время drag (см. .ecos-kanban__body_dragging).
+        & .ecos-kanban__card:nth-of-type(10n + 11) {
+          padding-top: 16px;
+          border-top: 0;
+        }
+
+        & :not(.ecos-kanban__card):not(.ecos-kanban__card-info):nth-of-type(10n + 11) {
+          padding-top: 0;
+          border-top: 0;
+        }
 
         &::before {
           color: rgba(var(--color-column), 1);
