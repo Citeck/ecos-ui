@@ -27,6 +27,9 @@
 .tooltip.formio-field-tooltip {
   opacity: 1;
   z-index: 11000;
+  // Контейнер .tooltip получает тёмный фон из глобального каскада (раньше его гасил скоуп
+  // .formio-form .tooltip, теперь узел в body) — иначе тёмный фон проступает рамкой вокруг inner.
+  background-color: transparent;
 
   .tooltip-inner {
     width: max-content;
