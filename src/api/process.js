@@ -81,15 +81,11 @@ export class ProcessApi {
         sourceId: SourcesId.BPMN_STAT,
         language: 'predicate',
         page: {
-          maxItems: pageSize,
+          maxItems: pageSize
         },
         query: {
           t: 'and',
-          v: [
-            { t: 'eq', a: 'procDefRef', v: procDef },
-            { t: completed ? 'not-empty' : 'empty', a: 'completed' },
-            ...predicates
-          ]
+          v: [{ t: 'eq', a: 'procDefRef', v: procDef }, { t: completed ? 'not-empty' : 'empty', a: 'completed' }, ...predicates]
         },
         groupBy: ['elementDefId'],
         sort: [{ attribute: 'elementDefId', ascending: true }]
@@ -102,7 +98,7 @@ export class ProcessApi {
       return baseQuery;
     };
 
-    const getAllPages = async (completed) => {
+    const getAllPages = async completed => {
       const allRecords = [];
       let lastElementId = null;
       let hasMoreData = true;
