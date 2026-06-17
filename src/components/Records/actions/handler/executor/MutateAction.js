@@ -42,23 +42,16 @@ export default class MutateAction extends ActionsExecutor {
       }
     }
 
-    let nodeRef = record.id;
+    const nodeRef = originalRecord.id;
+    const disp = await originalRecord.load('.disp').catch(() => undefined);
 
     await record
       .save()
-      .then(data => {
-        if (data.isPendingCreate()) {
-          nodeRef = originalRecord.id;
-        }
-
-        mutatedRecords.push({ status: 'OK', nodeRef, message: '' });
+      .then(() => {
+        mutatedRecords.push({ status: 'OK', nodeRef, disp, message: '' });
       })
       .catch(e => {
-        if (record.isPendingCreate()) {
-          nodeRef = originalRecord.id;
-        }
-
-        mutatedRecords.push({ status: 'SKIPPED', nodeRef, message: e.message });
+        mutatedRecords.push({ status: 'SKIPPED', nodeRef, disp, message: e.message });
 
         return false;
       });
