@@ -65,7 +65,7 @@ const CAPIWS = {
     }
     socket.onclose = function(e) {
       if (error) {
-        if (e.code != 1000) {
+        if (e.code !== 1000) {
           error(e.code);
         }
       }
