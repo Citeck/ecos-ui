@@ -30,6 +30,57 @@ export default class EsignConverter {
     return target;
   }
 
+  static async getEimzoCertificateForModal(source = {}) {
+    const target = {};
+
+    if (!source || (source && !Object.keys(source))) {
+      return target;
+    }
+
+    const alias = source.alias;
+
+    const parsedAlias = Object.fromEntries(
+      alias.split(',').map(pair => {
+        const [key, ...rest] = pair.split('=');
+        return [key.trim(), rest.join('=').trim()];
+      })
+    );
+    const validFrom = parsedAlias.validfrom;
+    const validTo = parsedAlias.validto;
+    const subject = parsedAlias.cn.toString().toUpperCase();
+
+    target.id = source.name;
+    target.name = subject;
+    target.subject = subject;
+    if (validFrom) {
+      target.dateFrom = moment(validFrom, 'YYYY.MM.DD HH:mm:ss').format('DD.MM.YYYY HH:mm:ss');
+    }
+    if (validTo) {
+      target.dateTo = moment(validTo, 'YYYY.MM.DD HH:mm:ss').format('DD.MM.YYYY HH:mm:ss');
+    }
+    target.provider = 'E-IMZO';
+    target.disk = source.disk;
+    target.path = source.path;
+    target.alias = alias;
+
+    return target;
+  }
+
+  static async getEimzoUsbTokensForModal(source = {}) {
+    const target = {};
+
+    if (!source || (source && !Object.keys(source))) {
+      return target;
+    }
+
+    target.id = source.deviceID;
+    target.deviceId = source.deviceID;
+    target.name = 'USB-токен: ' + source.deviceID;
+    target.provider = 'E-IMZO';
+
+    return target;
+  }
+
   static getSignQueryParams(source = {}) {
     const target = {};
 
@@ -37,7 +88,7 @@ export default class EsignConverter {
       return target;
     }
 
-    const { document, signedMessage, user, isApprovementSignature } = source;
+    const { document, signedMessage, user, isApprovementSignature, signCountry, signHex } = source;
 
     if (document) {
       target.nodeRef = document;
@@ -53,6 +104,14 @@ export default class EsignConverter {
 
     if (isApprovementSignature === true) {
       target.isApprovementSignature = true;
+    }
+
+    if (signCountry) {
+      target.signCountry = signCountry;
+    }
+
+    if (signHex) {
+      target.signHex = signHex;
     }
 
     return target;

@@ -1,9 +1,8 @@
 import getCadespluginAPI from 'async-cadesplugin';
 import get from 'lodash/get';
 import set from 'lodash/set';
-import { PROXY_URI } from '../constants/alfresco';
 
-class EsignApi {
+class CadespluginEsignApi {
   static _cadespluginApi = null;
 
   constructor() {
@@ -14,11 +13,11 @@ class EsignApi {
   }
 
   get cadespluginApi() {
-    return EsignApi._cadespluginApi;
+    return CadespluginEsignApi._cadespluginApi;
   }
 
   set cadespluginApi(api) {
-    EsignApi._cadespluginApi = api;
+    CadespluginEsignApi._cadespluginApi = api;
     set(window, 'cadesplugin.api', api);
   }
 
@@ -50,13 +49,6 @@ class EsignApi {
     return await this.cadespluginApi.getValidCertificates();
   }
 
-  getDocumentData = record => {
-    return fetch(`${PROXY_URI}acm/digestAndAttr?nodeRef=${record}`, {
-      method: 'GET',
-      credentials: 'include'
-    }).then(response => response.json());
-  };
-
   async getSignedDocument(thumbprint, base64) {
     return await this.cadespluginApi.signBase64(thumbprint, base64);
   }
@@ -64,14 +56,6 @@ class EsignApi {
   verifySigned = async (signedMessage, signedDocument) => {
     return await this.cadespluginApi.verifyBase64(signedMessage, signedDocument);
   };
-
-  sendSignedDocument = (body = {}) => {
-    return fetch(`${PROXY_URI}acm/digitalSignaturePut`, {
-      method: 'POST',
-      credentials: 'include',
-      body: JSON.stringify(body)
-    }).then(response => response.json());
-  };
 }
 
-export default new EsignApi();
+export default new CadespluginEsignApi();

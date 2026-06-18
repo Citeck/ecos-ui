@@ -5,12 +5,12 @@ import get from 'lodash/get';
 import { Esign } from '../../services/esign';
 import EsignModal from './EsignModal';
 import { t } from '../../helpers/util';
-import { ErrorTypes, Labels, PLUGIN_URL } from '../../constants/esign';
+import { ErrorTypes, Labels } from '../../constants/esign';
 import DialogManager from '../common/dialogs/Manager';
 
 import './style.scss';
 
-class EsignComponent extends Component {
+class EimzoEsignComponent extends Component {
   static propTypes = {
     recordRefs: PropTypes.arrayOf(PropTypes.string).isRequired,
     /**
@@ -32,7 +32,7 @@ class EsignComponent extends Component {
     messageTitle: '',
     messageDescription: '',
     errorType: '',
-    cadespluginApi: null,
+    eimzoApi: null,
     certificates: [],
     isFetchingApi: true,
     selectedCertificate: null,
@@ -44,7 +44,7 @@ class EsignComponent extends Component {
 
     this.state.isOpen = true;
 
-    Esign.init(props.recordRefs)
+    Esign.initEimzo(props.recordRefs)
       .then(this.serviceInitialized)
       .catch(this.setError);
   }
@@ -60,16 +60,11 @@ class EsignComponent extends Component {
     let buttons = [];
 
     switch (errorType) {
-      case ErrorTypes.NO_CADESPLUGIN:
+      case ErrorTypes.NO_EIMZO:
         buttons = [
           {
             label: Labels.CANCEL_BTN,
             onClick: this.handleCloseModal
-          },
-          {
-            label: Labels.GO_TO_PLUGIN_PAGE_BTN,
-            className: 'ecos-btn_blue ecos-btn_hover_light-blue esign-message__btn-full',
-            onClick: this.handleGoToPlugin
           }
         ];
         descriptionClassNames = 'esign-message__description';
@@ -96,7 +91,7 @@ class EsignComponent extends Component {
   };
 
   getCertificates() {
-    Esign.getCertificates()
+    Esign.getEimzoCertificates()
       .then(this.setCertificates)
       .catch(this.setError);
   }
@@ -109,12 +104,12 @@ class EsignComponent extends Component {
     this.setState({ signatures });
   };
 
-  serviceInitialized = cadespluginApi => {
+  serviceInitialized = eimzoApi => {
     this.getCertificates();
     this.setState({
       isFetchingApi: false,
       isLoading: false,
-      cadespluginApi
+      eimzoApi
     });
   };
 
@@ -122,14 +117,10 @@ class EsignComponent extends Component {
     this.setState({ isOpen: false }, this.props.onClose);
   };
 
-  handleGoToPlugin = () => {
-    window.open(PLUGIN_URL, '_blank');
-  };
-
   handleSignDocument = selectedCertificate => {
     this.setState({ isLoading: true, selectedCertificate });
 
-    Esign.signDocument(this.props.recordRefs, selectedCertificate, this.setSignatures)
+    Esign.signDocumentEimzo(this.props.recordRefs, selectedCertificate, this.setSignatures)
       .then(this.documentSigned)
       .catch(this.setError);
   };
@@ -142,7 +133,7 @@ class EsignComponent extends Component {
 
     if (selectedCertificate) {
       certificate = {
-        subject: selectedCertificate.friendlySubjectInfo
+        subject: selectedCertificate.alias
       };
     }
 
@@ -166,7 +157,7 @@ class EsignComponent extends Component {
   }
 
   render() {
-    const { isOpen, isLoading, certificates, cadespluginApi, documentSigned } = this.state;
+    const { isOpen, isLoading, certificates, eimzoApi, documentSigned } = this.state;
 
     if (documentSigned) {
       return null;
@@ -177,7 +168,7 @@ class EsignComponent extends Component {
         {this.renderViewElement()}
 
         <EsignModal
-          isOpen={Boolean(isOpen && cadespluginApi && !this.hasErrors)}
+          isOpen={Boolean(isOpen && eimzoApi && !this.hasErrors)}
           isLoading={isLoading}
           title={t(Labels.MODAL_TITLE)}
           onHideModal={this.handleCloseModal}
@@ -190,4 +181,4 @@ class EsignComponent extends Component {
   }
 }
 
-export default EsignComponent;
+export default EimzoEsignComponent;
