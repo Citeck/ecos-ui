@@ -1,6 +1,7 @@
 export const ErrorTypes = {
   DEFAULT: 'default',
   NO_CADESPLUGIN: 'no-cadesplugin',
+  NO_EIMZO: 'no-eimzo',
   SIGNED: 'signed',
   NO_CERTIFICATES: 'no-certificates'
 };
@@ -16,7 +17,9 @@ export const Labels = {
   ACTION_SIGN_DOCS: 'esign.action.sign-docs.title',
   EDS_ERROR: 'esign.eds-error',
   ADD_PLUGIN: 'esign.add-plugin.title',
+  ADD_EIMZO: 'esign.add-eimzo.title',
   ADD_PLUGIN_MESSAGE: 'esign.message.add-plugin',
+  ADD_EIMZO_MESSAGE: 'esign.message.add-eimzo',
   NODE_NOT_FOUND_MESSAGE: 'esign.message.node-not-found',
   NODE_REF_NOT_FOUND: 'esign.no-document-ref',
   NO_CERTIFICATES_MESSAGE: 'esign.message.no-certificates',

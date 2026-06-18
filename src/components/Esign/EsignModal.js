@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
-import get from 'lodash/get';
 import PropTypes from 'prop-types';
 
 import { Btn } from '../common/btns';
@@ -129,26 +128,36 @@ class EsignModal extends Component {
         <div className="esign-cert__info-title">{t(Labels.MODAL_CERTIFICATE_PROPERTIES)}</div>
 
         <div className="esign-cert__info-list">
-          <div className="esign-cert__info-list-item">
-            <div className="esign-cert__info-list-item-label">{t(Labels.MODAL_SUBJECT)}</div>
-            <div className="esign-cert__info-list-item-value">{get(certificate, 'subject', t(Labels.NO_DATA))}</div>
-          </div>
-          <div className="esign-cert__info-list-item">
-            <div className="esign-cert__info-list-item-label">{t(Labels.MODAL_ISSUER)}</div>
-            <div className="esign-cert__info-list-item-value">{get(certificate, 'issuer', t(Labels.NO_DATA))}</div>
-          </div>
-          <div className="esign-cert__info-list-item">
-            <div className="esign-cert__info-list-item-label">{t(Labels.MODAL_DATE_FROM)}</div>
-            <div className="esign-cert__info-list-item-value">{get(certificate, 'dateFrom', t(Labels.NO_DATA))}</div>
-          </div>
-          <div className="esign-cert__info-list-item">
-            <div className="esign-cert__info-list-item-label">{t(Labels.MODAL_DATE_TO)}</div>
-            <div className="esign-cert__info-list-item-value">{get(certificate, 'dateTo', t(Labels.NO_DATA))}</div>
-          </div>
-          <div className="esign-cert__info-list-item">
-            <div className="esign-cert__info-list-item-label">{t(Labels.MODAL_PROVIDER)}</div>
-            <div className="esign-cert__info-list-item-value">{get(certificate, 'provider', t(Labels.NO_DATA))}</div>
-          </div>
+          {certificate.subject && (
+            <div className="esign-cert__info-list-item">
+              <div className="esign-cert__info-list-item-label">{t(Labels.MODAL_SUBJECT)}</div>
+              <div className="esign-cert__info-list-item-value">{certificate.subject}</div>
+            </div>
+          )}
+          {certificate.issuer && (
+            <div className="esign-cert__info-list-item">
+              <div className="esign-cert__info-list-item-label">{t(Labels.MODAL_ISSUER)}</div>
+              <div className="esign-cert__info-list-item-value">{certificate.issuer}</div>
+            </div>
+          )}
+          {certificate.dateFrom && (
+            <div className="esign-cert__info-list-item">
+              <div className="esign-cert__info-list-item-label">{t(Labels.MODAL_DATE_FROM)}</div>
+              <div className="esign-cert__info-list-item-value">{certificate.dateFrom}</div>
+            </div>
+          )}
+          {certificate.dateTo && (
+            <div className="esign-cert__info-list-item">
+              <div className="esign-cert__info-list-item-label">{t(Labels.MODAL_DATE_TO)}</div>
+              <div className="esign-cert__info-list-item-value">{certificate.dateTo}</div>
+            </div>
+          )}
+          {certificate.provider && (
+            <div className="esign-cert__info-list-item">
+              <div className="esign-cert__info-list-item-label">{t(Labels.MODAL_PROVIDER)}</div>
+              <div className="esign-cert__info-list-item-value">{certificate.provider}</div>
+            </div>
+          )}
         </div>
       </div>
     );

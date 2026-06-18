@@ -1,1 +1,1 @@
-export { default } from './Esign';
+export { default } from './CriptoProEsign';
