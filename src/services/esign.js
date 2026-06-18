@@ -311,7 +311,7 @@ class Esign {
       }
 
       const signatureResponse = await eimzoApi.getSignedDocument(keyIdForSign, base64);
-      if (signatureResponse.success == false) {
+      if (!signatureResponse.success) {
         alert('Не удалось создать подпись в E-IMZO: ' + signatureResponse.error);
         return;
       }
