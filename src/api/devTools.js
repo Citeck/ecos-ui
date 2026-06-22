@@ -1,9 +1,11 @@
-import { PROXY_URI } from '../constants/alfresco';
-import { SourcesId } from '../constants';
-import { getCurrentUserName } from '../helpers/util';
-import Records from '../components/Records';
-import { CommonApi } from './common';
+import { SourcesId } from '@citeck/constants';
+import { PROXY_URI } from '@citeck/constants/alfresco';
+import Records from '@citeck/records-core';
+
 import buildInfo from '../build-info';
+import { getCurrentUserName } from '../helpers/util';
+
+import { CommonApi } from './common';
 
 export class DevToolsApi extends CommonApi {
   /**

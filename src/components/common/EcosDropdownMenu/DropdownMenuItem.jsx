@@ -4,8 +4,8 @@ import queryString from 'query-string';
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { URL } from '@/constants';
-import { IGNORE_TABS_HANDLER_ATTR_NAME } from '@/constants/pageTabs';
+import { URL } from '@citeck/constants';
+import { IGNORE_TABS_HANDLER_ATTR_NAME } from '@citeck/constants/pageTabs';
 import handleControl from '@/helpers/handleControl';
 import { getIconClassMenu, getSpecialClassByState } from '@/helpers/menu';
 import { getSearchParams, isNewVersionPage, SearchKeys } from '@/helpers/urls';

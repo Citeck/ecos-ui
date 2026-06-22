@@ -1,4 +1,5 @@
-import { Labels, ViewTypes } from '../constants/bpmn';
+import { Labels, ViewTypes } from '@citeck/constants/bpmn';
+
 import { t } from '../helpers/export/util';
 
 export default class DesignerService {

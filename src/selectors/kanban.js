@@ -2,7 +2,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import { createSelector } from 'reselect';
 
-import { DEFAULT_PAGINATION } from '../components/Journals/constants';
+import { DEFAULT_PAGINATION } from '@/components/journals/Journals/constants';
 import { initialState } from '../reducers/kanban';
 
 const prefix = 'kanban';

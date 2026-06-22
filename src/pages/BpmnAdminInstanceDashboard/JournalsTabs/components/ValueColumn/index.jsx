@@ -1,17 +1,16 @@
+import { SourcesId } from '@citeck/constants';
+import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 
-import get from 'lodash/get';
-import isFunction from 'lodash/isFunction';
-
-import RecordActions from '../../../../../components/Records/actions/recordActions';
-import RecordActionsApi from '../../../../../components/Records/actions/recordActionsApi';
-import { SourcesId } from '../../../../../constants';
-import { FORM_MODE_EDIT } from '../../../../../components/EcosForm';
-import { JOURNALS_TABS_BLOCK_CLASS } from '../../../constants';
 import { getJournalTabInfo } from '../../../../../actions/instanceAdmin';
+import { FORM_MODE_EDIT } from '@/components/forms/EcosForm';
+import RecordActions from '@/components/core/Records/actions/recordActions';
+import RecordActionsApi from '@/components/core/Records/actions/recordActionsApi';
 import { Icon, Popper } from '../../../../../components/common';
 import { copyToClipboard } from '../../../../../helpers/util';
+import { JOURNALS_TABS_BLOCK_CLASS } from '@/pages/BpmnAdminInstanceDashboard/constants';
 
 export const EditAction = ({ row, getDataInfo, instanceId, tabId }) => {
   const [editAction, setEditAction] = useState([]);
@@ -86,7 +85,4 @@ const mapDispatchToProps = dispatch => ({
   getDataInfo: (instanceId, tabId) => dispatch(getJournalTabInfo({ tabId, instanceId }))
 });
 
-export const ValueColumn = connect(
-  null,
-  mapDispatchToProps
-)(EditAction);
+export const ValueColumn = connect(null, mapDispatchToProps)(EditAction);

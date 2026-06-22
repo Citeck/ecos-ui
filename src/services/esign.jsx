@@ -1,3 +1,4 @@
+import { ErrorTypes, Labels } from '@citeck/constants/esign';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
@@ -6,8 +7,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 
 import api from '../api/esign';
-import EsignComponent from '../components/Esign';
-import { ErrorTypes, Labels } from '../constants/esign';
+import EsignComponent from '@/components/domain/Esign';
 import EsignConverter from '../dto/esign';
 import { t, objectByString } from '../helpers/util';
 import ConfigService, { ALFRESCO_ENABLED } from '../services/config/ConfigService';
@@ -200,7 +200,7 @@ class Esign {
     return objectByString({ action: action ? t(Labels.ACTION, { action }) : '', ...error });
   };
 
-  static signDocumentByNode = async (thumbprint, document, contentAtt = "") => {
+  static signDocumentByNode = async (thumbprint, document, contentAtt = '') => {
     try {
       if (!thumbprint) {
         return Promise.reject({
@@ -304,9 +304,9 @@ class Esign {
       const signStatuses = await Promise.all(
         documents.map(async document => {
           if (typeof document === 'string') {
-            return await Esign.signDocumentByNode(certificate.thumbprint, document)
+            return await Esign.signDocumentByNode(certificate.thumbprint, document);
           } else if (typeof document === 'object' && document !== null) {
-            return await Esign.signDocumentByNode(certificate.thumbprint, document.recordRef, document.contentAtt)
+            return await Esign.signDocumentByNode(certificate.thumbprint, document.recordRef, document.contentAtt);
           } else {
             console.log('EsignService signDocument warn. Document would not be signed. Unknown type: ' + document);
           }

@@ -1,4 +1,4 @@
-import { Types } from '../constants';
+import { Types } from '@/forms/components/custom/selectAction/constants';
 
 export default [
   {

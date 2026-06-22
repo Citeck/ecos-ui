@@ -1,4 +1,5 @@
-import { LOCAL_STORAGE_KEY_PAGE_POSITION } from '../constants/bpmn';
+import { LOCAL_STORAGE_KEY_PAGE_POSITION } from '@citeck/constants/bpmn';
+
 import { getDesignerPagePositionState, saveDesignerPagePositionState } from './designer';
 
 export function getPagePositionState() {

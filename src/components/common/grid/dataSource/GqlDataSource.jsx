@@ -1,12 +1,13 @@
+import Records from '@citeck/records-core';
 import lodashGet from 'lodash/get';
 
-import { getCurrentLocale, t } from '../../../../helpers/util';
 import ecosFetch from '../../../../helpers/ecosFetch';
-import Records from '../../../Records';
+import { getCurrentLocale, t } from '../../../../helpers/util';
+import AttributesService from '../../../../services/AttributesService';
 import formatterStore from '../formatters/formatterStore';
 import Mapper from '../mapping/Mapper';
+
 import BaseDataSource, { DEFAULT_FORMATTER } from './BaseDataSource';
-import AttributesService from '../../../../services/AttributesService';
 
 /**
  * @deprecated

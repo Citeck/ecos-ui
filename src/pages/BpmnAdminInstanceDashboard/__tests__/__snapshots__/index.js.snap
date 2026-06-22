@@ -9,7 +9,7 @@ exports[`  should render MetaInfo component 1`] = `
         class="dashlet"
       >
         <div
-          class="ecos-well ecos-panel dashlet"
+          class="ecos-well ecos-well_new ecos-panel dashlet"
         >
           <div
             class="ecos-panel__head dashlet__header-wrapper"
@@ -20,7 +20,11 @@ exports[`  should render MetaInfo component 1`] = `
               <span
                 class="dashlet__caption"
               >
-                instance-admin.info-widget.title
+                <span
+                  class="dashlet__caption-title"
+                >
+                  instance-admin.info-widget.title
+                </span>
               </span>
               <span
                 class="ecos-badge ecos-badge_info ecos-badge_large"
@@ -151,7 +155,7 @@ exports[`  should render MetaInfo component 1`] = `
       class="dashlet"
     >
       <div
-        class="ecos-well ecos-panel dashlet"
+        class="ecos-well ecos-well_new ecos-panel dashlet"
       >
         <div
           class="ecos-panel__head dashlet__header-wrapper"
@@ -162,7 +166,11 @@ exports[`  should render MetaInfo component 1`] = `
             <span
               class="dashlet__caption"
             >
-              instance-admin.info-widget.title
+              <span
+                class="dashlet__caption-title"
+              >
+                instance-admin.info-widget.title
+              </span>
             </span>
             <span
               class="ecos-badge ecos-badge_info ecos-badge_large"

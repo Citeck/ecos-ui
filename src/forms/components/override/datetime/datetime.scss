@@ -26,10 +26,8 @@
         margin-left: 10px;
 
         &:before {
-          font-family: $font-family-citeck;
-          content: $citeck-icon-calendar;
-          display: inline-block;
-          line-height: $form-input-height;
+          @include citeck-icon($citeck-icon-calendar, $font-size-extra-large);
+          vertical-align: middle;
         }
       }
     }

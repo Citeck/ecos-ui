@@ -1,6 +1,6 @@
 import isNil from 'lodash/isNil';
 
-import { COLUMN_TYPE_NEW_TO_LEGACY_MAPPING } from '@/components/Journals/service/util';
+import { COLUMN_TYPE_NEW_TO_LEGACY_MAPPING } from '@/components/journals/Journals/service/util';
 
 const DESCENDING_FIRST_TYPES = [
   COLUMN_TYPE_NEW_TO_LEGACY_MAPPING.DATE,

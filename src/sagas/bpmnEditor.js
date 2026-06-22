@@ -1,3 +1,6 @@
+import { SourcesId } from '@citeck/constants';
+import { TYPE_BPMN_ANNOTATION } from '@citeck/constants/bpmn';
+import { JSON_VALUE_COMPONENTS, KEY_FIELD_NAME, ML_POSTFIX } from '@citeck/constants/cmmn';
 import get from 'lodash/get';
 import isUndefined from 'lodash/isUndefined';
 import { call, put, takeEvery } from 'redux-saga/effects';
@@ -17,14 +20,11 @@ import {
   setTitle
 } from '../actions/bpmnEditor';
 import { PROCESS_DEF_API_ACTIONS } from '../api/process';
-import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
-import * as BpmnUtils from '../components/ModelEditor/BPMNModeler/utils';
-import { SourcesId } from '../constants';
-import { JSON_VALUE_COMPONENTS, KEY_FIELD_NAME, ML_POSTFIX } from '../constants/cmmn';
+import EcosFormUtils from '@/components/forms/EcosForm/EcosFormUtils';
+import * as BpmnUtils from '@/components/editors/ModelEditor/BPMNModeler/utils';
 import { t } from '../helpers/export/util';
 import { isJsonObjectString } from '../helpers/util';
 
-import { TYPE_BPMN_ANNOTATION } from '@/constants/bpmn';
 import { NotificationManager } from '@/services/notifications';
 
 export function* init({ api }, { payload: { stateId, record } }) {

@@ -28,12 +28,9 @@
           position: relative;
 
           &:before {
-            font-family: $font-family-citeck;
-            content: $citeck-icon-radio;
+            @include citeck-icon($citeck-icon-radio, 24px);
             color: $color-gray-6;
             margin-right: 10px;
-            font-size: 24px;
-            font-weight: normal;
             position: absolute;
             left: 0;
           }
@@ -42,7 +39,7 @@
         &:checked {
           + span {
             &:before {
-              content: $citeck-icon-radio-checked;
+              @include citeck-icon-change($citeck-icon-radio-checked);
               color: var(--primary-color);
             }
           }
@@ -61,7 +58,7 @@
             color: $color-gray-5;
 
             &:before {
-              content: $citeck-icon-radio-dark;
+              @include citeck-icon-change($citeck-icon-radio-dark);
               color: $color-gray-4;
             }
           }
@@ -69,7 +66,7 @@
           &:checked {
             + span {
               &:before {
-                content: $citeck-icon-radio-checked;
+                @include citeck-icon-change($citeck-icon-radio-checked);
               }
             }
           }

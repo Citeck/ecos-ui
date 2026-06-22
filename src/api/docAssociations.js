@@ -1,12 +1,13 @@
-import isEmpty from 'lodash/isEmpty';
+import { EmodelTypes } from '@citeck/constants';
+import { PROXY_URI } from '@citeck/constants/alfresco';
+import { baseColumnsConfig } from '@citeck/constants/docAssociations';
+import Records from '@citeck/records-core';
 import cloneDeep from 'lodash/cloneDeep';
+import isEmpty from 'lodash/isEmpty';
 
+import journalsService from '@/components/journals/Journals/service/journalsService';
 import ecosFetch from '../helpers/ecosFetch';
-import { EmodelTypes } from '../constants';
-import { PROXY_URI } from '../constants/alfresco';
-import { baseColumnsConfig } from '../constants/docAssociations';
-import Records from '../components/Records';
-import journalsService from '../components/Journals/service/journalsService';
+
 import { DocumentsApi } from './documents';
 
 const TWO_DOTS_ATT_ALIAS_REPLACEMENT = '_u003A_';

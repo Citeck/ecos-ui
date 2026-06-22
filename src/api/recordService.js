@@ -1,4 +1,5 @@
-import { CITECK_URI } from '../constants/alfresco';
+import { CITECK_URI } from '@citeck/constants/alfresco';
+
 import { CommonApi } from './common';
 
 /**

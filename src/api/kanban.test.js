@@ -1,10 +1,10 @@
-import Records from '../components/Records';
+import Records from '@citeck/records-core';
 
 import { KanbanApi } from './kanban';
 
-const { SourcesId } = jest.requireActual('../constants');
+const { SourcesId } = jest.requireActual('@citeck/constants');
 
-jest.mock('../components/Records', () => {
+jest.mock('@citeck/records-core', () => {
   const query = jest.fn(() => Promise.resolve({ records: [], totalCount: 0 }));
   const load = jest.fn(() => Promise.resolve([]));
   const get = jest.fn(() => ({ load }));
@@ -19,7 +19,7 @@ describe('KanbanApi board-cards integration', () => {
   afterEach(() => jest.clearAllMocks());
 
   it('getBoardCards builds a single board-cards query that hydrates cards inline', async () => {
-    const { query } = jest.requireMock('../components/Records')._mocks;
+    const { query } = jest.requireMock('@citeck/records-core')._mocks;
     query.mockResolvedValueOnce({ records: [] });
 
     await api.getBoardCards({
@@ -51,7 +51,7 @@ describe('KanbanApi board-cards integration', () => {
   });
 
   it('getBoardCards returns [{columnId,totalCount,records}] from the inline cards in one request', async () => {
-    const { query, get } = jest.requireMock('../components/Records')._mocks;
+    const { query, get } = jest.requireMock('@citeck/records-core')._mocks;
     query.mockResolvedValueOnce({
       records: [
         {
@@ -89,7 +89,7 @@ describe('KanbanApi board-cards integration', () => {
   });
 
   it('getBoardCards always requests id:?id so each card keeps a distinct id (no dedup collapse)', async () => {
-    const { query } = jest.requireMock('../components/Records')._mocks;
+    const { query } = jest.requireMock('@citeck/records-core')._mocks;
     query.mockResolvedValueOnce({ records: [] });
 
     await api.getBoardCards({ boardRef: 'uiserv/rboard@b1', attributes: { cardId: '.id' } });
@@ -98,7 +98,7 @@ describe('KanbanApi board-cards integration', () => {
   });
 
   it('getBoardCards backslash-escapes aliases so special chars (e.g. ":") do not break the inner schema', async () => {
-    const { query } = jest.requireMock('../components/Records')._mocks;
+    const { query } = jest.requireMock('@citeck/records-core')._mocks;
     query.mockResolvedValueOnce({ records: [] });
 
     await api.getBoardCards({ boardRef: 'uiserv/rboard@b1', attributes: { 'a:b': '.disp' } });
@@ -109,7 +109,7 @@ describe('KanbanApi board-cards integration', () => {
   });
 
   it('moveCard mutates boards-service with move-card action and grouping', () => {
-    const { att, save, getRecordToEdit } = jest.requireMock('../components/Records')._mocks;
+    const { att, save, getRecordToEdit } = jest.requireMock('@citeck/records-core')._mocks;
     api.moveCard({ boardRef: 'uiserv/rboard@b1', card: 'src@c1', column: 'DONE', afterCard: 'src@c2', grouping: 'priority' });
     expect(getRecordToEdit).toHaveBeenCalledWith(`${SourcesId.BOARDS_SERVICE}@`);
     expect(att).toHaveBeenCalledWith('action', 'move-card');

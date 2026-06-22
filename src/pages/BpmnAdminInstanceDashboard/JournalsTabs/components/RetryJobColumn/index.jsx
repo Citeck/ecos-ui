@@ -1,17 +1,16 @@
+import Records from '@citeck/records-core';
+import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 
-import get from 'lodash/get';
-import isFunction from 'lodash/isFunction';
-
-import { EcosModal, Icon, InfoText, SaveAndCancelButtons } from '../../../../../components/common';
-import { t } from '../../../../../helpers/util';
-import { Input } from '../../../../../components/common/form';
-import Records from '../../../../../components/Records';
 import { getJournalTabInfo } from '../../../../../actions/instanceAdmin';
+import { EcosModal, Icon, InfoText, SaveAndCancelButtons } from '../../../../../components/common';
+import { Input } from '../../../../../components/common/form';
+import { t } from '../../../../../helpers/util';
+import { JOURNALS_TABS_BLOCK_CLASS } from '@/pages/BpmnAdminInstanceDashboard/constants';
 
 import './style.scss';
-import { JOURNALS_TABS_BLOCK_CLASS } from '../../../constants';
 
 export const RetryButton = ({ row, getDataInfo, instanceId, tabId }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -64,7 +63,4 @@ const mapDispatchToProps = dispatch => ({
   getDataInfo: (instanceId, tabId) => dispatch(getJournalTabInfo({ tabId, instanceId }))
 });
 
-export const RetryJobColumn = connect(
-  null,
-  mapDispatchToProps
-)(RetryButton);
+export const RetryJobColumn = connect(null, mapDispatchToProps)(RetryButton);

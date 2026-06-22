@@ -1,10 +1,10 @@
+import { CONFIG_VERSION } from '@citeck/constants/dashboard';
+import { TITLE } from '@citeck/constants/pageTabs';
+import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
-import { TITLE } from '../constants/pageTabs';
 import DashboardService from '../services/dashboard';
-import cloneDeep from 'lodash/cloneDeep';
-import { CONFIG_VERSION } from '../constants/dashboard';
 
 export default class DashboardConverter {
   static getKeyInfoDashboardForWeb(source) {

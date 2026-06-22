@@ -1,14 +1,13 @@
+import { PREDICATE_EQ } from '@citeck/records-core/predicates/predicates';
+import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 import React, { useContext } from 'react';
 import { connect } from 'react-redux';
 
-import get from 'lodash/get';
-import isFunction from 'lodash/isFunction';
-
 import { getJournalTabInfo, setJournalTabInfoFilters } from '../../../../../actions/instanceAdmin';
 import { selectInstanceTabInfo } from '../../../../../selectors/instanceAdmin';
-import { PREDICATE_EQ } from '../../../../../components/Records/predicates/predicates';
 import { InstanceContext } from '../../../InstanceContext';
-import { JOURNALS_TABS_BLOCK_CLASS } from '../../../constants';
+import { JOURNALS_TABS_BLOCK_CLASS } from '@/pages/BpmnAdminInstanceDashboard/constants';
 
 const Column = ({ row, tabId, dataInfo, instanceId, getDataInfo, setFilters }) => {
   const context = useContext(InstanceContext);
@@ -54,7 +53,4 @@ const mapDispatchToProps = dispatch => ({
   getDataInfo: (instanceId, tabId) => dispatch(getJournalTabInfo({ tabId, instanceId }))
 });
 
-export const ScopeColumn = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Column);
+export const ScopeColumn = connect(mapStateToProps, mapDispatchToProps)(Column);

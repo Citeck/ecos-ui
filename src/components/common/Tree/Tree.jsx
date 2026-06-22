@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 
 import { t } from '../../../helpers/util';
-import { SortableContainer } from '../../Drag-n-Drop';
+import { SortableContainer } from '@/components/common/DragAndDrop';
 import { ItemInterface, Labels } from './constants';
 import TreeItem from './TreeItem';
 

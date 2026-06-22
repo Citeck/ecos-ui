@@ -1,3 +1,7 @@
+import { JournalUrlParams, KanbanUrlParams, SourcesId } from '@citeck/constants';
+import Records from '@citeck/records-core';
+import { PREDICATE_EQ } from '@citeck/records-core/predicates/predicates';
+import { ParserPredicate } from '@citeck/records-predicates';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
@@ -46,14 +50,10 @@ import {
   moveSwimlaneCard,
   refreshCardData
 } from '../actions/kanban';
-import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
-import { ParserPredicate } from '../components/Filters/predicates';
-import { DEFAULT_PAGINATION, isKanban, KANBAN_SELECTOR_MODE } from '../components/Journals/constants';
-import JournalsService from '../components/Journals/service/journalsService';
-import Records from '../components/Records/Records';
-import RecordActions from '../components/Records/actions/recordActions';
-import { PREDICATE_EQ } from '../components/Records/predicates/predicates';
-import { JournalUrlParams, KanbanUrlParams, SourcesId } from '../constants';
+import EcosFormUtils from '@/components/forms/EcosForm/EcosFormUtils';
+import { DEFAULT_PAGINATION, isKanban, KANBAN_SELECTOR_MODE } from '@/components/journals/Journals/constants';
+import JournalsService from '@/components/journals/Journals/service/journalsService';
+import RecordActions from '@/components/core/Records/actions/recordActions';
 import JournalsConverter from '../dto/journals';
 import KanbanConverter, { buildBoardCardsFilter, getAfterCardRef } from '../dto/kanban';
 import { t } from '../helpers/export/util';

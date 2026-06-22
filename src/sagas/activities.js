@@ -1,3 +1,6 @@
+import { COMMENT_TYPE, SourcesId } from '@citeck/constants';
+import { ActivityTypes } from '@citeck/constants/activity';
+import Records from '@citeck/records-core';
 import get from 'lodash/get';
 import isObject from 'lodash/isObject';
 import isString from 'lodash/isString';
@@ -23,11 +26,8 @@ import {
   viewAssignment
 } from '../actions/activities';
 import { setUploadError } from '../actions/documents';
-import Records from '../components/Records/Records';
-import { ActionTypes } from '../components/Records/actions/constants';
-import { EVENTS } from '../components/widgets/BaseWidget';
-import { COMMENT_TYPE, SourcesId } from '../constants';
-import { ActivityTypes } from '../constants/activity';
+import { ActionTypes } from '@/components/core/Records/actions/constants';
+import { EVENTS } from '@/components/dashboard/widgets/BaseWidget';
 import { getCommentForWeb } from '../dto/activities';
 import { t } from '../helpers/util';
 import { selectAllActivities } from '../selectors/activities';

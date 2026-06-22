@@ -4,7 +4,7 @@ import isEmpty from 'lodash/isEmpty';
 import lodashClone from 'lodash/cloneDeep';
 
 import { deepClone, getTextByLocale, isExistValue, t } from '../helpers/util';
-import { DATE_FORMAT, documentFields, fieldFormatters, NULL_FORM } from '../constants/documents';
+import { DATE_FORMAT, documentFields, fieldFormatters, NULL_FORM } from '@/helpers/documents';
 
 export default class DocumentsConverter {
   static formIdIsNull = (id = '') => {

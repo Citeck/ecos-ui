@@ -2,8 +2,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import { initState } from '@/actions/journals';
-import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { Journals } from '@/components/Journals';
+import { ErrorBoundary } from '@/components/common/ErrorBoundary';
+import { Journals } from '@/components/journals/Journals';
 import { getStateId } from '@/helpers/store';
 import { getSearchParams } from '@/helpers/urls';
 import { getId, t } from '@/helpers/util';

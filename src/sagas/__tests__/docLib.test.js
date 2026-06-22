@@ -1,3 +1,4 @@
+import { DocLibUrlParams, SourcesId } from '@citeck/constants';
 import clone from 'lodash/clone';
 import { runSaga } from 'redux-saga';
 
@@ -10,9 +11,8 @@ import {
   setSearchText,
   setSidebarIsReady
 } from '../../actions/docLib';
-import DocLibService from '../../components/Journals/DocLib/DocLibService';
-import JournalsService from '../../components/Journals/service/journalsService';
-import { DocLibUrlParams, SourcesId } from '../../constants';
+import DocLibService from '@/components/journals/Journals/DocLib/DocLibService';
+import JournalsService from '@/components/journals/Journals/service/journalsService';
 import { wrapArgs } from '../../helpers/redux';
 import {
   loadDocumentLibrarySettings,

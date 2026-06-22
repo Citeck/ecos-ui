@@ -1,3 +1,4 @@
+import Records from '@citeck/records-core';
 import _ from 'lodash';
 import React, { useCallback, useState, useEffect, useRef } from 'react';
 
@@ -5,12 +6,11 @@ import ResponsePanel from './ResponsePanel';
 import EXAMPLES_DATA from './examplesData';
 import { safeStringify } from './utils';
 
-import CodeEditor from '@/components/MonacoEditor/CodeEditor';
-import Records from '@/components/Records';
+import ScriptEditorAIButton from '@/components/ai/AIAssistant/ScriptEditorAIButton';
+import { SCRIPT_CONTEXT_TYPES } from '@/components/ai/AIAssistant/types';
+import CodeEditor from '@/components/editors/MonacoEditor/CodeEditor';
 import EcosModal from '@/components/common/EcosModal/EcosModal';
 import { Dropdown } from '@/components/common/form';
-import ScriptEditorAIButton from '@/components/AIAssistant/ScriptEditorAIButton';
-import { SCRIPT_CONTEXT_TYPES } from '@/components/AIAssistant/types';
 import { snippetsStore } from '@/helpers/indexedDB';
 import { t } from '@/helpers/util';
 
@@ -558,13 +558,13 @@ const DeveloperConsole = ({ hidden }: { hidden: boolean }) => {
               <path strokeLinecap="round" strokeLinejoin="round" d="m15 15 6-6m0 0-6-6m6 6H9a6 6 0 0 0 0 12h3" />
             </svg>
           </button>
-          <button
-            className="console-toolbar__btn"
-            onClick={handleClearEditor}
-            data-tooltip={t('developer-console.clear-editor')}
-          >
+          <button className="console-toolbar__btn" onClick={handleClearEditor} data-tooltip={t('developer-console.clear-editor')}>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9.75 14.25 12m0 0 2.25 2.25M14.25 12l2.25-2.25M14.25 12 12 14.25m-2.58 4.92-6.374-6.375a1.125 1.125 0 0 1 0-1.59L9.42 4.83c.21-.211.497-.33.795-.33H19.5a2.25 2.25 0 0 1 2.25 2.25v10.5a2.25 2.25 0 0 1-2.25 2.25h-9.284c-.298 0-.585-.119-.795-.33Z" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 9.75 14.25 12m0 0 2.25 2.25M14.25 12l2.25-2.25M14.25 12 12 14.25m-2.58 4.92-6.374-6.375a1.125 1.125 0 0 1 0-1.59L9.42 4.83c.21-.211.497-.33.795-.33H19.5a2.25 2.25 0 0 1 2.25 2.25v10.5a2.25 2.25 0 0 1-2.25 2.25h-9.284c-.298 0-.585-.119-.795-.33Z"
+              />
             </svg>
           </button>
           <span className="console-toolbar__separator" />

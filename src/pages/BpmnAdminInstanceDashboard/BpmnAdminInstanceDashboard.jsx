@@ -9,7 +9,7 @@ import labels from './Labels';
 
 import './style.scss';
 
-const BpmnSchema = React.lazy(() => import('../../components/BpmnSchema'));
+const BpmnSchema = React.lazy(() => import('@/components/editors/BpmnSchema'));
 const JournalsTabs = React.lazy(() => import('./JournalsTabs'));
 const MetaInfo = React.lazy(() => import('./MetaInfo'));
 

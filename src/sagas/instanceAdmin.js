@@ -1,9 +1,9 @@
+import { SourcesId } from '@citeck/constants';
 import { call, put, select, takeEvery } from 'redux-saga/effects';
 
 import { getJournalTabInfo, getMetaInfo, getActionsInfo, setJournalTabInfo, setMetaInfo, setActionsInfo } from '../actions/instanceAdmin';
-import RecordActions from '../components/Records/actions/recordActions';
-import RecordActionsApi from '../components/Records/actions/recordActionsApi';
-import { SourcesId } from '../constants';
+import RecordActions from '@/components/core/Records/actions/recordActions';
+import RecordActionsApi from '@/components/core/Records/actions/recordActionsApi';
 import { selectInstanceTabInfo } from '../selectors/instanceAdmin';
 
 function* sagaGetMetaInfo({ api }, { payload }) {

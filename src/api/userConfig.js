@@ -1,7 +1,7 @@
+import { SourcesId } from '@citeck/constants';
+import Records from '@citeck/records-core';
 import get from 'lodash/get';
 
-import Records from '../components/Records';
-import { SourcesId } from '../constants';
 import CopyToClipboard from '../helpers/copyToClipboard';
 import { getLinkWithWs, getWorkspaceId } from '../helpers/urls';
 import { getEnabledWorkspaces, t } from '../helpers/util';

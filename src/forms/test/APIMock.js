@@ -1,9 +1,9 @@
-import _ from 'lodash';
-import Formio from 'formiojs/Formio';
-import fetchMock from 'fetch-mock/es5/client';
+import Records from '@citeck/records-core';
 import Chance from 'chance';
 import esc from 'escape-string-regexp';
-import Records from '../../components/Records/Records';
+import fetchMock from 'fetch-mock/es5/client';
+import Formio from 'formiojs/Formio';
+import _ from 'lodash';
 
 Formio.fetch = fetchMock.fetchHandler;
 const chance = Chance();
@@ -21,7 +21,7 @@ const recordsGet = id => ({
 jest.spyOn(Records, 'get').mockImplementation(recordsGet);
 
 export const APIMock = {
-  submission: function(url, form) {
+  submission: function (url, form) {
     const submissions = {};
     const domain = url.match(/http[s]?:\/\/[^/]+/)[0];
     const requests = {

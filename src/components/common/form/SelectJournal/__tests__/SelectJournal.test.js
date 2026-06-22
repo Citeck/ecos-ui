@@ -1,16 +1,16 @@
-jest.mock('../../../../EcosForm', () => ({
+jest.mock('@/components/forms/EcosForm', () => ({
   __esModule: true,
   FORM_MODE_EDIT: 'EDIT',
   FORM_MODE_VIEW: 'VIEW',
   FORM_MODE_CREATE: 'CREATE'
 }));
 
-jest.mock('../../../../EcosForm/FormManager', () => ({
+jest.mock('@/components/forms/EcosForm/FormManager', () => ({
   __esModule: true,
   default: {}
 }));
 
-jest.mock('../../../../Journals/service', () => ({
+jest.mock('@/components/journals/Journals/service', () => ({
   __esModule: true,
   default: {}
 }));

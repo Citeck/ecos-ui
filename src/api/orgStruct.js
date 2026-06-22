@@ -1,9 +1,11 @@
+import { SourcesId, DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS } from '@citeck/constants';
+import Records from '@citeck/records-core';
+import { PREDICATE_NOT_EQ, PREDICATE_EQ, PREDICATE_AND } from '@citeck/records-core/predicates/predicates';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import isString from 'lodash/isString';
 
-import Records from '../components/Records';
 import {
   ALFRESCO_ADMINISTRATORS_GROUP,
   AUTHORITY_TYPE_GROUP,
@@ -22,7 +24,6 @@ import {
   getRecordRef,
   getRoleRef
 } from '../components/common/form/SelectOrgstruct/helpers';
-import { SourcesId, DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS } from '../constants';
 import { getEnabledWorkspaces, permute } from '../helpers/util';
 import ConfigService, {
   ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS,
@@ -35,8 +36,7 @@ import ConfigService, {
 
 import { CommonApi } from './common';
 
-import EcosFormUtils from '@/components/EcosForm/EcosFormUtils/EcosFormUtils';
-import { PREDICATE_NOT_EQ, PREDICATE_EQ, PREDICATE_AND } from '@/components/Records/predicates/predicates';
+import EcosFormUtils from '@/components/forms/EcosForm/EcosFormUtils/EcosFormUtils';
 import { getWorkspaceId } from '@/helpers/urls';
 
 export class OrgStructApi extends CommonApi {

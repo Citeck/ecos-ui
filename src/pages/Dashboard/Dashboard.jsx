@@ -1,3 +1,8 @@
+import { LoaderTypes, URL } from '@citeck/constants';
+import { DashboardTypes } from '@citeck/constants/dashboard';
+import { MenuTypes } from '@citeck/constants/menu';
+import Records from '@citeck/records-core';
+import RecordUpdater from '@citeck/records-core/RecordUpdater';
 import classNames from 'classnames';
 import cloneDeep from 'lodash/cloneDeep';
 import debounce from 'lodash/debounce';
@@ -22,20 +27,15 @@ import {
 import { saveMenuConfig } from '@/actions/menu';
 import { deleteTab } from '@/actions/pageTabs';
 import { AppApi } from '@/api/app';
-import { DndUtils } from '@/components/Drag-n-Drop';
-import Layout from '@/components/Layout';
-import TopMenu from '@/components/Layout/TopMenu';
-import Records from '@/components/Records';
-import RecordUpdater from '@/components/Records/RecordUpdater';
+import { DndUtils } from '@/components/common/DragAndDrop';
+import Layout from '@/components/layout/Layout';
+import TopMenu from '@/components/layout/Layout/TopMenu';
 import { Loader, ScrollArrow, Tabs } from '@/components/common';
 import TitlePageLoader from '@/components/common/TitlePageLoader';
 import DialogManager from '@/components/common/dialogs/Manager';
 import { Badge } from '@/components/common/form';
-import Components, { ComponentKeys } from '@/components/widgets/Components';
-import { DocStatus } from '@/components/widgets/DocStatus';
-import { LoaderTypes, URL } from '@/constants';
-import { DashboardTypes } from '@/constants/dashboard';
-import { MenuTypes } from '@/constants/menu';
+import Components, { ComponentKeys } from '@/components/dashboard/widgets/Components';
+import { DocStatus } from '@/components/dashboard/widgets/DocStatus';
 import { showModalJson } from '@/helpers/tools';
 import {
   decodeLink,

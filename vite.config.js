@@ -213,6 +213,35 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: [
         {
+          find: /^@citeck\/records-core$/,
+          replacement: path.resolve(__dirname, 'packages/records-core/src/index.ts')
+        },
+        {
+          find: /^@citeck\/records-core\//,
+          replacement: path.resolve(__dirname, 'packages/records-core/src') + '/'
+        },
+        {
+          find: /^@citeck\/records-predicates$/,
+          replacement: path.resolve(__dirname, 'packages/records-predicates/src/index.ts')
+        },
+        {
+          find: /^@citeck\/records-predicates\//,
+          replacement: path.resolve(__dirname, 'packages/records-predicates/src') + '/'
+        },
+        {
+          find: /^@citeck\/constants$/,
+          replacement: path.resolve(__dirname, 'packages/constants/src/index.ts')
+        },
+        {
+          find: /^@citeck\/constants\//,
+          replacement: path.resolve(__dirname, 'packages/constants/src') + '/'
+        },
+        {
+          // Compat for the gantt git submodule which still imports `@/constants`.
+          find: /^@\/constants$/,
+          replacement: path.resolve(__dirname, 'packages/constants/src/index.ts')
+        },
+        {
           find: '@',
           replacement: path.resolve(__dirname, 'src')
         }
@@ -247,6 +276,9 @@ export default defineConfig(({ mode }) => {
         scss: {
           api: 'modern-compiler',
           quietDeps: true,
+          // Injects the responsive breakpoint tokens + media-up/down/between/only mixins
+          // into every compiled .scss so they are available everywhere with no @import.
+          additionalData: '@use "@/styles/breakpoints" as *;\n',
           silenceDeprecations: ['global-builtin', 'color-functions', 'import'] // TODO: transfer all @import to @use
         }
       }

@@ -7,7 +7,7 @@ import head from 'lodash/head';
 
 import { getNextSortAscending } from '../../../../helpers/sortUtils';
 
-import { CommonTable } from '../../../../components/CommonTable';
+import { CommonTable } from '@/components/journals/CommonTable';
 import { getTableColumns } from './constants';
 import {
   getJournalTabInfo,

@@ -1,8 +1,9 @@
+import { SourcesId } from '@citeck/constants';
+import { CITECK_URI } from '@citeck/constants/alfresco';
+import { TimesheetSourcesId } from '@citeck/constants/timesheet';
+import Records from '@citeck/records-core';
+
 import { RecordService } from '../recordService';
-import Records from '../../components/Records';
-import { SourcesId } from '../../constants';
-import { CITECK_URI } from '../../constants/alfresco';
-import { TimesheetSourcesId } from '../../constants/timesheet';
 
 export function getQueryFewValues(prefix, values) {
   return values && values.map(value => `${prefix}${value}`).join(' OR ');
@@ -171,8 +172,9 @@ export class TimesheetCommonApi extends RecordService {
   getAllUsersByDate = ({ year, month, status }) => {
     return Records.query(
       {
-        query: `TYPE:'timesheet:Request' AND @timesheet:currentYear:${year} AND @timesheet:currentMonth:${month +
-          1} AND @timesheet:status:${status}`,
+        query: `TYPE:'timesheet:Request' AND @timesheet:currentYear:${year} AND @timesheet:currentMonth:${
+          month + 1
+        } AND @timesheet:status:${status}`,
         language: 'fts-alfresco',
         maxItems: 100,
         debug: false

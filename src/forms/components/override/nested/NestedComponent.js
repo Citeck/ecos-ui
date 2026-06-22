@@ -2,7 +2,7 @@ import get from 'lodash/get';
 import Base from 'formiojs/components/base/Base';
 import NestedComponent from 'formiojs/components/nested/NestedComponent';
 
-import { FORM_MODE_CREATE } from '../../../../components/EcosForm/constants';
+import { FORM_MODE_CREATE } from '@/components/forms/EcosForm/constants';
 import { isExistValue } from '../../../../helpers/util';
 
 NestedComponent.prototype.checkConditions = function(data) {

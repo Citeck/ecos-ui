@@ -6,7 +6,7 @@ exports[`  should render InfoPanel component 1`] = `
     class="dashlet"
   >
     <div
-      class="ecos-well ecos-panel dashlet info-panel"
+      class="ecos-well ecos-well_new ecos-panel dashlet info-panel"
     >
       <div
         class="ecos-panel__head dashlet__header-wrapper"
@@ -17,7 +17,11 @@ exports[`  should render InfoPanel component 1`] = `
           <span
             class="dashlet__caption"
           >
-            bpmn-admin.info-title
+            <span
+              class="dashlet__caption-title"
+            >
+              bpmn-admin.info-title
+            </span>
           </span>
           <span
             class="ecos-badge ecos-badge_info ecos-badge_large"

@@ -1,3 +1,5 @@
+import { SourcesId } from '@citeck/constants';
+import Records from '@citeck/records-core';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
@@ -15,13 +17,11 @@ import InternalList from './InternalList';
 
 import { getDashboardConfig, setLoading } from '@/actions/dashboard';
 import { setSelectedPerson } from '@/actions/orgstructure';
-import FormManager from '@/components/EcosForm/FormManager';
-import Records from '@/components/Records';
+import FormManager from '@/components/forms/EcosForm/FormManager';
 import { EcosModal, Loader } from '@/components/common';
 import { OrgstructContext } from '@/components/common/Orgstruct/OrgstructContext';
 import { ROOT_GROUP_NAME } from '@/components/common/Orgstruct/constants';
 import { handleResponse } from '@/components/common/form/SelectOrgstruct/helpers';
-import { SourcesId } from '@/constants';
 import { updateCurrentUrl } from '@/helpers/urls';
 import { t } from '@/helpers/util';
 import { NotificationManager } from '@/services/notifications';

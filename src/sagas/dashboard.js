@@ -1,3 +1,4 @@
+import { RequestStatuses, SourcesId } from '@citeck/constants';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
@@ -17,7 +18,6 @@ import {
   setWarningMessage
 } from '../actions/dashboard';
 import { setDashboardConfig as setDashboardSettingsConfig } from '../actions/dashboardSettings';
-import { RequestStatuses, SourcesId } from '../constants';
 import DashboardConverter from '../dto/dashboard';
 import { getRefWithAlfrescoPrefix } from '../helpers/ref';
 import { getEnabledWorkspaces, t } from '../helpers/util';
@@ -26,7 +26,7 @@ import { selectNewVersionConfig, selectSelectedWidgetsById } from '../selectors/
 import { selectCurrentWorkspaceIsBlocked, selectWorkspaces } from '../selectors/workspaces';
 import DashboardService from '../services/dashboard';
 
-import { ComponentKeys } from '@/components/widgets/Components';
+import { ComponentKeys } from '@/components/dashboard/widgets/Components';
 import { getWorkspaceId } from '@/helpers/urls';
 import { NotificationManager } from '@/services/notifications';
 

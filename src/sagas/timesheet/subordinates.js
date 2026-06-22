@@ -1,3 +1,4 @@
+import { DelegationTypes } from '@citeck/constants/timesheet';
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 
 import {
@@ -14,7 +15,6 @@ import {
   setSubordinatesTimesheetByParams,
   setUpdatingEventDayHours
 } from '../../actions/timesheet/subordinates';
-import { DelegationTypes } from '../../constants/timesheet';
 import DelegationTimesheetConverter from '../../dto/timesheet/delegated';
 import SubordinatesTimesheetConverter from '../../dto/timesheet/subordinates';
 import { TimesheetMessages } from '../../helpers/timesheet/dictionary';

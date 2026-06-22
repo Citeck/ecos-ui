@@ -6,7 +6,7 @@ import isEqual from 'lodash/isEqual';
 import isString from 'lodash/isString';
 
 import { arrayMove } from '../../../helpers/util';
-import { SortableContainer, SortableElement } from '../../Drag-n-Drop';
+import { SortableContainer, SortableElement } from '@/components/common/DragAndDrop';
 import { commonTabsDefaultProps, commonTabsPropTypes } from './utils';
 import Tab from './Tab';
 

@@ -2,7 +2,7 @@ import { runSaga } from 'redux-saga';
 
 import { setForceUpdate } from '../../actions/journals';
 import { reloadBoardData } from '../../actions/kanban';
-import { JOURNAL_VIEW_MODE } from '../../components/Journals/constants';
+import { JOURNAL_VIEW_MODE } from '@/components/journals/Journals/constants';
 import { wrapArgs } from '../../helpers/redux';
 import JournalApi from '../__mocks__/journalApi';
 import KanbanApi from '../__mocks__/kanbanApi';

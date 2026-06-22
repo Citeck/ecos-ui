@@ -1,9 +1,8 @@
+import { SourcesId } from '@citeck/constants';
+import { PROXY_URI } from '@citeck/constants/alfresco';
+import Records from '@citeck/records-core';
 import endsWith from 'lodash/endsWith';
 import get from 'lodash/get';
-
-import Records from '../components/Records';
-import { PROXY_URI } from '../constants/alfresco';
-import { SourcesId } from '../constants';
 
 export class DocPreviewApi {
   static getPreviewLinkByRecord = async recordRef => {

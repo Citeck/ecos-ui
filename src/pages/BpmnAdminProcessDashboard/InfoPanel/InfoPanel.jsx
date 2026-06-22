@@ -5,11 +5,11 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import { getMetaInfo } from '../../../actions/processAdmin';
-import Dashlet from '../../../components/Dashlet';
+import Dashlet from '@/components/dashboard/Dashlet';
 import { Loader } from '../../../components/common';
 import PanelTitle, { COLOR_GRAY } from '../../../components/common/PanelTitle/PanelTitle';
 import { Btn } from '../../../components/common/btns';
-import BaseWidget from '../../../components/widgets/BaseWidget';
+import BaseWidget from '@/components/dashboard/widgets/BaseWidget';
 import { createDocumentUrl } from '../../../helpers/urls';
 import { t } from '../../../helpers/util';
 import { selectProcessMetaInfo, selectProcessVersions } from '../../../selectors/processAdmin';

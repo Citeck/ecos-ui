@@ -1,21 +1,21 @@
+import { SourcesId } from '@citeck/constants';
+import { MenuSettings } from '@citeck/constants/menu';
+import Records from '@citeck/records-core';
 import { EventEmitter } from 'events';
 import get from 'lodash/get';
 import React, { Suspense } from 'react';
 import { Provider } from 'react-redux';
 
 import { AppApi } from '../api/app';
-import Records from '../components/Records';
-import { ActionTypes } from '../components/Records/actions/constants';
-import RecordActions from '../components/Records/actions/recordActions';
+import { ActionTypes } from '@/components/core/Records/actions/constants';
+import RecordActions from '@/components/core/Records/actions/recordActions';
 import DialogManager from '../components/common/dialogs/Manager';
-import { SourcesId } from '../constants';
-import { MenuSettings } from '../constants/menu';
 import { t } from '../helpers/export/util';
 import getFormDefinitionUserStatus from '../helpers/menu/formDefinitionUserStatus';
 import { changeUrl, createProfileUrl, getSearchParams, SearchKeys } from '../helpers/urls';
 import { getCurrentUserName } from '../helpers/util';
 
-import AboutPlatform from '@/components/AboutPlatform';
+import AboutPlatform from '@/components/domain/AboutPlatform';
 import { Loader } from '@/components/common';
 import { getStore } from '@/store';
 

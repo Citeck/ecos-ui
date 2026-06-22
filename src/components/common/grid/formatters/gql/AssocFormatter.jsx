@@ -1,13 +1,14 @@
-import React from 'react';
+import Records from '@citeck/records-core';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import React from 'react';
 
-import { isNodeRef } from '../../../../../helpers/util';
-import Records from '../../../../../components/Records';
-import { AssocEditor, AssocOrgstructEditor } from '../../editors';
-import DefaultGqlFormatter from './DefaultGqlFormatter';
 import { createDocumentUrl } from '../../../../../helpers/urls';
+import { isNodeRef } from '../../../../../helpers/util';
 import PageService from '../../../../../services/PageService';
+import { AssocEditor, AssocOrgstructEditor } from '../../editors';
+
+import DefaultGqlFormatter from './DefaultGqlFormatter';
 
 export default class AssocFormatter extends DefaultGqlFormatter {
   static getQueryString(attribute) {

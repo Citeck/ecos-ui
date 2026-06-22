@@ -13,7 +13,7 @@ import set from 'lodash/set';
 
 import Formio from './Formio';
 
-import { getCompDoc } from '@/constants/documentation';
+import { getCompDoc } from '@/helpers/documentation';
 
 export function findUploadDocsService() {
   let uploadService = null;

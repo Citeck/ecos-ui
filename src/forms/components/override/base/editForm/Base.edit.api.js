@@ -1,7 +1,6 @@
-import set from 'lodash/set';
+import { SourcesId } from '@citeck/constants';
 import BaseEditApi from 'formiojs/components/base/editForm/Base.edit.api';
-
-import { SourcesId } from '../../../../../constants';
+import set from 'lodash/set';
 
 const propertiesComponent = BaseEditApi.find(item => item.key === 'properties');
 

@@ -1,3 +1,4 @@
+import Records from '@citeck/records-core';
 import { call, put, select, takeEvery } from 'redux-saga/effects';
 
 import {
@@ -12,7 +13,6 @@ import {
   setLoading,
   setSettings
 } from '../actions/docConstructor';
-import Records from '../components/Records';
 import { t } from '../helpers/util';
 import PageService from '../services/PageService';
 

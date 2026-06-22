@@ -82,9 +82,16 @@ class EmptyGrid extends React.Component {
   };
 
   render() {
-    const { maxItems, minHeight, maxHeight } = this.props;
+    const { maxItems, minHeight, maxHeight, autoHeight } = this.props;
     const { height } = this.state;
     const fakeData = Array.from(Array(maxItems), (e, i) => ({ id: i }));
+
+    // With autoHeight the grid sizes itself to its real content, so reserving a
+    // fixed height from fake rows (measured at a different row height) would leave
+    // empty space below. Render children directly and let autoHeight fit content.
+    if (autoHeight) {
+      return this.props.children;
+    }
 
     if (height) {
       return this.getChild(height);
@@ -101,6 +108,7 @@ class EmptyGrid extends React.Component {
 EmptyGrid.propTypes = {
   maxItems: PropTypes.number,
   diff: PropTypes.number,
+  autoHeight: PropTypes.bool,
   children: PropTypes.object
 };
 

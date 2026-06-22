@@ -1,6 +1,6 @@
-import Records from '../components/Records';
-import { PREDICATE_AND, PREDICATE_EQ } from '../components/Records/predicates/predicates';
-import { PROCESS_TABS_TYPES } from '../constants/processAdmin';
+import { PROCESS_TABS_TYPES } from '@citeck/constants/processAdmin';
+import Records from '@citeck/records-core';
+import { PREDICATE_AND, PREDICATE_EQ } from '@citeck/records-core/predicates/predicates';
 
 export class ProcessAdminApi {
   getMetaInfo = processId => {

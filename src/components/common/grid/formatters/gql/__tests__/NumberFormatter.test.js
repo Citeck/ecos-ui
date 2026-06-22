@@ -5,7 +5,7 @@ import { unmountComponentAtNode } from 'react-dom';
 
 import formatterStore from '../../formatterStore';
 
-import { LANGUAGE_EN } from '@/constants/lang';
+import { LANGUAGE_EN } from '@/i18n/lang';
 
 const { NumberFormatter } = formatterStore;
 const originToLocaleString = Number.prototype.toLocaleString;

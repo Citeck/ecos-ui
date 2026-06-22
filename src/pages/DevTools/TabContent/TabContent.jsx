@@ -6,7 +6,7 @@ import CommitsTab from '../Commits';
 import DevModulesTab from '../DevModules';
 import { useContext } from '../DevToolsContext';
 import SettingsTab from '../Settings';
-import { TABS } from '../constants';
+import { TABS } from '@/pages/DevTools/constants';
 
 const TabContent = () => {
   const context = useContext();

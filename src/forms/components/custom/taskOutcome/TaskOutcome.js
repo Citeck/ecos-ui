@@ -1,8 +1,7 @@
+import Records from '@citeck/records-core';
 import NestedComponent from 'formiojs/components/nested/NestedComponent';
-
 import _ from 'lodash';
 
-import Records from '../../../../components/Records';
 import { t } from '../../../../helpers/util';
 
 const ButtonType = {
@@ -192,9 +191,7 @@ export default class TaskOutcome extends NestedComponent {
   }
 
   beforeSubmit() {
-    const pressedKey = Object.keys(this.data).find(
-      key => key.startsWith(this.#buttonKeyPrefix) && this.data[key]
-    );
+    const pressedKey = Object.keys(this.data).find(key => key.startsWith(this.#buttonKeyPrefix) && this.data[key]);
 
     if (pressedKey) {
       const outcomeId = pressedKey.slice(this.#buttonKeyPrefix.length);

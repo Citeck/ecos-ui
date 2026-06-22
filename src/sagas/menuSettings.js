@@ -1,3 +1,4 @@
+import { ConfigTypes, GROUP_EVERYONE, MenuSettings as ms } from '@citeck/constants/menu';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import set from 'lodash/set';
@@ -24,7 +25,6 @@ import {
   setOriginalConfig,
   setUserMenuItems
 } from '@/actions/menuSettings';
-import { ConfigTypes, GROUP_EVERYONE, MenuSettings as ms } from '@/constants/menu';
 import MenuConverter from '@/dto/menu';
 import { t } from '@/helpers/util';
 import { selectMenuByType } from '@/selectors/menu';

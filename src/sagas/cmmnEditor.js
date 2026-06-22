@@ -12,8 +12,8 @@ import {
   setTitle
 } from '../actions/cmmnEditor';
 import { deleteTab } from '../actions/pageTabs';
-import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
-import * as CmmnUtils from '../components/ModelEditor/CMMNModeler/utils';
+import EcosFormUtils from '@/components/forms/EcosForm/EcosFormUtils';
+import * as CmmnUtils from '@/components/editors/ModelEditor/CMMNModeler/utils';
 import { t } from '../helpers/export/util';
 import PageTabList from '../services/pageTabs/PageTabList';
 

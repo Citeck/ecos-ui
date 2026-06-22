@@ -124,7 +124,6 @@ $tabs-height: 26px;
           width: 15px;
           height: 100%;
           background: linear-gradient(90deg, #fff 41.99%, rgba(245, 245, 245, 0) 100%);
-          z-index: 4;
           pointer-events: none;
         }
 
@@ -136,7 +135,6 @@ $tabs-height: 26px;
           width: 15px;
           height: 100%;
           background: linear-gradient(270deg, #fff 41.99%, rgba(245, 245, 245, 0) 100%);
-          z-index: 4;
           pointer-events: none;
         }
       }
@@ -163,15 +161,13 @@ $tabs-height: 26px;
         }
 
         &:after {
-          font-family: $font-family-citeck;
-          content: $citeck-icon-left;
-          font-weight: normal;
+          @include citeck-icon($citeck-icon-left, 14px);
         }
       }
 
       .formio-component-tabs-right-button {
         &:after {
-          content: $citeck-icon-right;
+          @include citeck-icon-change($citeck-icon-right);
         }
       }
     }

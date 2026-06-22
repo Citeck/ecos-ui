@@ -1,9 +1,9 @@
+import { SourcesId } from '@citeck/constants';
+import { ActivityTypes, PLANNED_ACTIVITY_TYPE } from '@citeck/constants/activity';
+import Records from '@citeck/records-core';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 
-import Records from '../components/Records';
-import { SourcesId } from '../constants';
-import { ActivityTypes, PLANNED_ACTIVITY_TYPE } from '../constants/activity';
 import { getWorkspaceId } from '../helpers/urls';
 
 const EMODEL_FIELDS = {

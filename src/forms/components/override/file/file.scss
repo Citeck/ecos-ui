@@ -121,7 +121,7 @@
   }
 }
 
-@media (max-width: 767px) {
+@include media-down(md) {
   .formio-form {
     .formio-component-file {
       .list-group {

@@ -1,7 +1,9 @@
-import { RecordService } from './recordService';
+import { Permissions, SourcesId } from '@citeck/constants';
+import { PROXY_URI } from '@citeck/constants/alfresco';
+
 import GqlDataSource from '../components/common/grid/dataSource/GqlDataSource';
-import { PROXY_URI } from '../constants/alfresco';
-import { Permissions, SourcesId } from '../constants';
+
+import { RecordService } from './recordService';
 
 export class EventsHistoryApi extends RecordService {
   /**

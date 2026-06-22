@@ -1,4 +1,4 @@
-import { notifyFailure } from '../components/Records/actions/util/actionUtils';
+import { notifyFailure } from '@/components/core/Records/actions/util/actionUtils';
 
 export default class AttributesService {
   static get hasContent() {

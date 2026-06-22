@@ -1,10 +1,10 @@
+import { URL } from '@citeck/constants';
+import { DelegationTypes, GroupedStatuses, ServerEventTypes, ServerStatusKeys, TimesheetTypes } from '@citeck/constants/timesheet';
 import get from 'lodash/get';
 
-import { deepClone, t } from '../../helpers/util';
 import { CommonLabels } from '../../helpers/timesheet/dictionary';
 import { isOnlyContent } from '../../helpers/timesheet/util';
-import { URL } from '../../constants';
-import { DelegationTypes, GroupedStatuses, ServerEventTypes, ServerStatusKeys, TimesheetTypes } from '../../constants/timesheet';
+import { deepClone, t } from '../../helpers/util';
 
 const Types = TimesheetTypes;
 const Statuses = ServerStatusKeys;

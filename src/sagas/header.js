@@ -1,3 +1,5 @@
+import { SourcesId } from '@citeck/constants';
+import { DefaultUserMenu } from '@citeck/constants/menu';
 import get from 'lodash/get';
 import isString from 'lodash/isString';
 import set from 'lodash/set';
@@ -20,8 +22,6 @@ import {
 import { changeTab } from '../actions/pageTabs';
 import { getAppUserThumbnail, validateUserSuccess } from '../actions/user';
 import { LiveSearchAttributes } from '../api/menu';
-import { SourcesId } from '../constants';
-import { DefaultUserMenu } from '../constants/menu';
 import MenuConverter from '../dto/menu';
 import { getIconObjectWeb } from '../helpers/icon';
 import { makeSiteMenu } from '../helpers/menu';

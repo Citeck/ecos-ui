@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import * as React from 'react';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 
-import ClickOutside from '../../ClickOutside';
+import ClickOutside from '@/components/common/ClickOutside';
 import Loader from '../Loader/Loader';
 import { Btn } from '../btns';
 import { Input } from '../form';

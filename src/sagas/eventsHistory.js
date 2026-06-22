@@ -1,8 +1,8 @@
+import { PREDICATE_EQ } from '@citeck/records-core/predicates/predicates';
 import { call, put, select, takeEvery } from 'redux-saga/effects';
 
 import { filterJournalHistory, getEventsHistory, getJournalHistory, setEventsHistory } from '../actions/eventsHistory';
-import JournalsService from '../components/Journals/service/journalsService';
-import { PREDICATE_EQ } from '../components/Records/predicates/predicates';
+import JournalsService from '@/components/journals/Journals/service/journalsService';
 import JournalsConverter from '../dto/journals';
 import { selectDataEventsHistoryByStateId } from '../selectors/eventsHistory';
 import EventsHistoryService from '../services/eventsHistory';

@@ -1,3 +1,5 @@
+import { SourcesId } from '@citeck/constants';
+import Records from '@citeck/records-core';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
@@ -6,18 +8,17 @@ import React, { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { Collapse, Card, CardBody } from 'reactstrap';
 
-import { SourcesId } from '@/constants/index.js';
-import { getEnabledNewJournal, getEnabledWorkspaces, objectByString, t } from '@/helpers/util.js';
-import AuthorityService, {ArtifactEditPerms} from '../../../../services/authrority/AuthorityService';
-import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
-import EcosFormBuilderModal from '../../../EcosForm/builder/EcosFormBuilderModal';
-import Records from '../../../Records';
+import AuthorityService, { ArtifactEditPerms } from '../../../../services/authrority/AuthorityService';
+import EcosFormUtils from '@/components/forms/EcosForm/EcosFormUtils';
+import EcosFormBuilderModal from '@/components/forms/EcosForm/builder/EcosFormBuilderModal';
 import EcosModal from '../../EcosModal';
 import UncontrolledTooltip from '../../UncontrolledTooltip';
 import { Btn, IcoBtn } from '../../btns';
 import RemoveDialog from '../RemoveDialog';
 
 import FormWrapper from './FormWrapper';
+
+import { getEnabledNewJournal, getEnabledWorkspaces, objectByString, t } from '@/helpers/util.js';
 
 import './DialogManager.scss';
 

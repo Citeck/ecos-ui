@@ -1,3 +1,4 @@
+import Records from '@citeck/records-core';
 import get from 'lodash/get';
 import { call, put, takeEvery } from 'redux-saga/effects';
 
@@ -15,7 +16,6 @@ import {
   setVersionsComparison,
   setWritePermission
 } from '../actions/versionsJournal';
-import Records from '../components/Records';
 import VersionsJournalConverter from '../dto/versionsJournal';
 import { t } from '../helpers/util';
 

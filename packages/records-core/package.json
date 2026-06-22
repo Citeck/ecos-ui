@@ -1,0 +1,40 @@
+{
+  "name": "@citeck/records-core",
+  "version": "0.1.0",
+  "description": "Platform-agnostic SDK for Citeck Records API (query/mutate/delete, record cache, lazy attributes, predicates). Works in browser and React Native via dependency injection.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "jest"
+  },
+  "dependencies": {
+    "events": "^3.3.0",
+    "js-base64": "^3.7.5",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.4",
+    "query-string": "^6.12.1",
+    "uuidv4": "^4.0.0"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.8.2"
+  }
+}

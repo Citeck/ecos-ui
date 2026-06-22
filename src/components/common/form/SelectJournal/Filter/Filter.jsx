@@ -4,8 +4,8 @@ import get from 'lodash/get';
 
 import { t } from '../../../../../helpers/util';
 import Select from '../../../../common/form/Select';
-import EditorService from '../../../../Journals/service/editors/EditorService';
-import EditorScope from '../../../../Journals/service/editors/EditorScope';
+import EditorService from '@/components/journals/Journals/service/editors/EditorService';
+import EditorScope from '@/components/journals/Journals/service/editors/EditorScope';
 import FiltersContext from '../Filters/FiltersContext';
 
 import './Filter.scss';

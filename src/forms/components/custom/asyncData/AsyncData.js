@@ -1,16 +1,17 @@
+import Records from '@citeck/records-core';
 import Formio from 'formiojs/Formio';
-import omitBy from 'lodash/omitBy';
-import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import debounce from 'lodash/debounce';
-import isEqual from 'lodash/isEqual';
+import get from 'lodash/get';
 import isArray from 'lodash/isArray';
-import isString from 'lodash/isString';
+import isEqual from 'lodash/isEqual';
 import isNil from 'lodash/isNil';
+import isString from 'lodash/isString';
+import omitBy from 'lodash/omitBy';
 
 import ecosFetch from '../../../../helpers/ecosFetch';
-import Records from '../../../../components/Records';
 import BaseComponent from '../base/BaseComponent';
+
 import { SourceTypes, UpdateTypes } from './const';
 
 let ajaxGetCache = {};

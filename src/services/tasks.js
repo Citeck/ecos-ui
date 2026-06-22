@@ -1,16 +1,18 @@
-import { select } from 'redux-saga/effects';
+import { USER_CURRENT } from '@citeck/constants';
+import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import isString from 'lodash/isString';
-import get from 'lodash/get';
-import { selectStateTasksById } from '../selectors/tasks';
+import { select } from 'redux-saga/effects';
+
 import { getIndexObjectByKV } from '../helpers/arrayOfObjects';
 import { isExistIndex } from '../helpers/util';
-import { USER_CURRENT } from '../constants';
+import { selectStateTasksById } from '../selectors/tasks';
+
 import authorityService from './authrority/AuthorityService';
 
 export default class TasksService {
-  static updateList = function*({ stateId, taskId, updatedFields, ownerUserName }) {
+  static updateList = function* ({ stateId, taskId, updatedFields, ownerUserName }) {
     const dataTasks = yield select(selectStateTasksById, stateId);
     const list = get(dataTasks, 'list', []);
     const taskIndex = getIndexObjectByKV(list, 'id', taskId);

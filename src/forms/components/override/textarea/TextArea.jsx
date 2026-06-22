@@ -15,15 +15,15 @@ import { Provider } from 'react-redux';
 
 import { overrideTriggerChange } from '../misc';
 
-import { FIELD_TYPES } from '@/components/AIAssistant/AIQuickActions/config';
-import { getContextExtractionConfig } from '@/components/AIAssistant/AIQuickActions/config/fieldActionConfigs.ts';
-import editorContextService from '@/components/AIAssistant/EditorContextService';
-import FormContextService from '@/components/AIAssistant/FormContextService';
-import ScriptEditorAIButton from '@/components/AIAssistant/ScriptEditorAIButton';
-import { TEXT_CONTEXT_TYPES } from '@/components/AIAssistant/TextAIService';
-import TextAreaAIButton from '@/components/AIAssistant/TextAreaAIButton';
-import LexicalEditor from '@/components/LexicalEditor';
-import CodeEditor from '@/components/MonacoEditor/CodeEditor';
+import { FIELD_TYPES } from '@/components/ai/AIAssistant/AIQuickActions/config';
+import { getContextExtractionConfig } from '@/components/ai/AIAssistant/AIQuickActions/config/fieldActionConfigs.ts';
+import editorContextService from '@/components/ai/AIAssistant/EditorContextService';
+import FormContextService from '@/components/ai/AIAssistant/FormContextService';
+import ScriptEditorAIButton from '@/components/ai/AIAssistant/ScriptEditorAIButton';
+import { TEXT_CONTEXT_TYPES } from '@/components/ai/AIAssistant/TextAIService';
+import TextAreaAIButton from '@/components/ai/AIAssistant/TextAreaAIButton';
+import LexicalEditor from '@/components/editors/LexicalEditor';
+import CodeEditor from '@/components/editors/MonacoEditor/CodeEditor';
 import { t } from '@/helpers/export/util';
 import { updateEditorContent } from '@/helpers/lexical';
 import { getTextByLocale } from '@/helpers/util';

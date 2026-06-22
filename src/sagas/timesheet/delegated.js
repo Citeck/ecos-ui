@@ -1,3 +1,4 @@
+import { DelegationTypes } from '@citeck/constants/timesheet';
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 
 import {
@@ -14,7 +15,6 @@ import {
   setPopupMessage,
   setUpdatingEventDayHours
 } from '../../actions/timesheet/delegated';
-import { DelegationTypes } from '../../constants/timesheet';
 import DelegatedTimesheetConverter from '../../dto/timesheet/delegated';
 import { TimesheetMessages } from '../../helpers/timesheet/dictionary';
 import { deepClone } from '../../helpers/util';

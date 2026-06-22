@@ -1,3 +1,5 @@
+import { KanbanUrlParams } from '@citeck/constants';
+import Records from '@citeck/records-core';
 import first from 'lodash/first';
 import get from 'lodash/get';
 import last from 'lodash/last';
@@ -24,12 +26,10 @@ import {
   setSwimlaneCellData,
   setSwimlaneCellLoading
 } from '../../actions/kanban';
-import EcosFormUtils from '../../components/EcosForm/EcosFormUtils';
-import { DEFAULT_PAGINATION } from '../../components/Journals/constants';
-import JournalsService from '../../components/Journals/service/journalsService';
-import Records from '../../components/Records/Records';
-import RecordActions from '../../components/Records/actions/recordActions';
-import { KanbanUrlParams } from '../../constants';
+import EcosFormUtils from '@/components/forms/EcosForm/EcosFormUtils';
+import { DEFAULT_PAGINATION } from '@/components/journals/Journals/constants';
+import JournalsService from '@/components/journals/Journals/service/journalsService';
+import RecordActions from '@/components/core/Records/actions/recordActions';
 import PageService from '../../services/PageService';
 import JournalApi from '../__mocks__/journalApi';
 import KanbanApi from '../__mocks__/kanbanApi';

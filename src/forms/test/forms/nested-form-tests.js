@@ -1,8 +1,7 @@
+import { COOKIE_KEY_LOCALE } from '@citeck/constants/alfresco';
 import { comp1 as nestedForm } from 'formiojs/components/form/fixtures';
 import { Components } from 'formiojs/formio.form.js';
 import sinon from 'sinon';
-
-import { COOKIE_KEY_LOCALE } from '../../../constants/alfresco';
 
 export default {
   title: 'Nested Form Tests',

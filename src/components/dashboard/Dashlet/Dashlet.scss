@@ -1,0 +1,293 @@
+@import '@/styles/constants';
+
+.dashlet {
+  $root: &;
+  $same-height: calc((100vh - 181px) / 2.5);
+  $header-wrapper-height: 36px;
+  $content-top-padding: 20px;
+
+  min-height: auto !important;
+  padding-top: 0 !important;
+  position: relative;
+
+  &__same-scrollbar {
+    height: calc($same-height - $header-wrapper-height - $content-top-padding) !important;
+
+    &_track {
+      position: absolute;
+      width: 6px;
+      right: 2px;
+      bottom: 2px;
+      top: 2px;
+      border-radius: 3px;
+      z-index: 100;
+    }
+  }
+
+  &.same {
+    overflow: hidden;
+
+    & .ecos-panel {
+      height: $same-height;
+    }
+
+    & .ecos-panel__body,
+    & .dashlet__body-content {
+      height: 100%;
+    }
+
+    & .ecos-panel__body {
+      height: calc($same-height - $header-wrapper-height - $content-top-padding);
+    }
+  }
+
+  &__header {
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+
+    &-wrapper {
+      height: $header-wrapper-height;
+      padding: 0 6px;
+      border-bottom: 1px solid $color-gray-4;
+      background-color: $color-white;
+      border-radius: $border-radius-extra-large $border-radius-extra-large 0 0;
+      margin-right: 0;
+      margin-left: 0;
+
+      &_rounded {
+        border-bottom: none;
+        border-radius: $border-radius-extra-large;
+      }
+
+      &_collapsed {
+        border: none;
+        border-radius: $border-radius-extra-large;
+      }
+    }
+
+    &-measurer {
+      height: 100%;
+    }
+
+    &-collapser {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 10pt !important;
+      cursor: pointer;
+    }
+
+    &-actions {
+      position: absolute;
+      right: 0;
+      background: $color-white;
+      border-top-right-radius: $border-radius-extra-large;
+      border-bottom-right-radius: $border-radius-extra-large;
+      color: $color-gray-5;
+      opacity: 0;
+      transition: opacity 0.15s;
+
+      button.ecos-btn_i {
+        font-size: 11.5pt;
+      }
+
+      .ecos-btn__i svg {
+        width: 16px;
+        height: 16px;
+      }
+    }
+
+    &-wrapper:hover &-actions {
+      opacity: 1;
+
+      & > :nth-child(n) {
+        margin-left: 4px;
+      }
+
+      svg path[fill="currentColor"],
+      svg rect[fill="currentColor"],
+      svg circle[fill="currentColor"],
+      svg ellipse[fill="currentColor"],
+      svg polygon[fill="currentColor"],
+      svg[fill="currentColor"] {
+        fill: $color-gray-5;
+      }
+
+      svg[stroke="currentColor"] {
+        stroke: $color-gray-5;
+      }
+
+      button:hover {
+        svg path[fill="currentColor"],
+        svg rect[fill="currentColor"],
+        svg circle[fill="currentColor"],
+        svg ellipse[fill="currentColor"],
+        svg polygon[fill="currentColor"],
+        svg[fill="currentColor"] {
+          fill: $text-color-dark;
+        }
+
+        svg[stroke="currentColor"] {
+          stroke: $text-color-dark;
+        }
+      }
+
+      &:before {
+        $size: 25px;
+        content: '';
+        width: $size;
+        position: absolute;
+        left: -$size;
+        height: 100%;
+        background: linear-gradient(to right, rgba(255, 255, 255, 0), $color-white);
+        margin: 0;
+      }
+    }
+  }
+
+  &__caption {
+    display: inline-block;
+    border: 1px solid transparent;
+    background: inherit;
+    color: $text-color-gray;
+    font-family: $font-family;
+    font-size: $font-size-standard;
+    font-weight: $font-weight-bold;
+    box-sizing: border-box;
+    padding-right: 10px;
+    @extend %ellipsis;
+
+    &-collapser {
+      display: inline-flex;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    &-title_link {
+      cursor: pointer;
+      transition: color 0.15s;
+
+      &:hover {
+        color: $text-color-dark;
+      }
+    }
+
+    &-link-icon {
+      margin-left: 6px;
+      font-size: 12px;
+      vertical-align: middle;
+      opacity: 0.75;
+    }
+  }
+
+  &__body {
+    min-height: 20px;
+    padding-bottom: 5px;
+
+    &_relative {
+      position: relative;
+    }
+
+    &_no-bottom-indent {
+      #{$root}__body-content {
+        padding-bottom: 0;
+      }
+    }
+
+    &-actions {
+      padding: 5px 15px 15px;
+    }
+
+    &-content {
+      display: block;
+
+      &_hidden {
+        display: none;
+      }
+    }
+
+    &_collapsed {
+      display: none;
+    }
+  }
+
+  &__btn {
+    font-size: $font-size-standard;
+    font-weight: $font-weight-bold;
+
+    &_move {
+      font-size: 28px !important;
+
+      &-wrapper {
+        display: inline-block;
+      }
+    }
+
+    &_add {
+      font-size: 28px !important;
+
+      &-wrapper {
+        display: inline-block;
+      }
+    }
+
+    &_goto {
+      display: flex !important;
+      color: $color-gray-5;
+
+      &:hover {
+        color: $text-color-dark;
+      }
+
+      .ecos-btn__text {
+        font-style: normal;
+        font-weight: bold;
+        font-size: $font-size-standard;
+      }
+
+      .ecos-btn__i {
+        svg {
+          width: 12px;
+          height: 12px;
+        }
+
+        svg [fill="currentColor"] {
+          fill: #444444;
+        }
+      }
+    }
+  }
+
+  &__footer {
+    padding: 2px 0 5px;
+  }
+
+  &__error-boundary {
+    margin: 0;
+    box-shadow: none;
+    border: none;
+  }
+
+  &_mobile {
+    #{$root} {
+      &__header-wrapper {
+        padding: 0 15px;
+      }
+
+      &__caption {
+        font-size: $font-size-standard;
+      }
+    }
+  }
+}
+
+.header-action {
+  &-tooltip {
+    & &-inner {
+      max-width: none;
+    }
+  }
+}

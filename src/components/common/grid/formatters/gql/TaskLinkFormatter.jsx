@@ -1,8 +1,9 @@
+import { REMOTE_TITLE_ATTR_NAME } from '@citeck/constants/pageTabs';
+import Records from '@citeck/records-core';
 import React from 'react';
 
-import Records from '../../../../Records';
 import { createTaskUrl, isNewVersionPage } from '../../../../../helpers/urls';
-import { REMOTE_TITLE_ATTR_NAME } from '../../../../../constants/pageTabs';
+
 import DefaultGqlFormatter from './DefaultGqlFormatter';
 
 export default class TaskLinkFormatter extends DefaultGqlFormatter {

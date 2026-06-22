@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 
 import get from 'lodash/get';
 
-import BPMNViewer from '../../../../../components/ModelViewer/BPMNViewer';
+import BPMNViewer from '@/components/editors/ModelViewer/BPMNViewer';
 import { ProcessContext } from '../../../ProcessContext';
 
 export const ActivityComponent = ({ row }) => {

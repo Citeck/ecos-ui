@@ -1,3 +1,4 @@
+import { ParserPredicate } from '@citeck/records-predicates';
 import debounce from 'lodash/debounce';
 import isFunction from 'lodash/isFunction';
 import PropTypes from 'prop-types';
@@ -5,11 +6,10 @@ import React from 'react';
 import { Col, Row } from 'reactstrap';
 
 import { t } from '../../../../../helpers/util';
-import ParserPredicate from '../../../../Filters/predicates/ParserPredicate';
 import { Btn, IcoBtn } from '../../../../common/btns';
 import Dropdown from '../../../../common/form/Dropdown';
 import Filter from '../Filter';
-import { Labels, SELECT_JOURNAL_MODAL_CLASSNAME } from '../constants';
+import { Labels, SELECT_JOURNAL_MODAL_CLASSNAME } from '@/components/common/form/SelectJournal/constants';
 
 import FiltersContext from './FiltersContext';
 

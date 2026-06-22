@@ -1,6 +1,5 @@
+import { COOKIE_KEY_LOCALE } from '@citeck/constants/alfresco';
 import each from 'lodash/each';
-
-import { COOKIE_KEY_LOCALE } from '../constants/alfresco';
 
 import Formio from './Formio';
 import Webform from './Webform';

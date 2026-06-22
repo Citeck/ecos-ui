@@ -1,8 +1,9 @@
-import React from 'react';
+import { REMOTE_TITLE_ATTR_NAME } from '@citeck/constants/pageTabs';
 import get from 'lodash/get';
+import React from 'react';
 
 import { createDocumentUrl, isNewVersionPage } from '../../../../../helpers/urls';
-import { REMOTE_TITLE_ATTR_NAME } from '../../../../../constants/pageTabs';
+
 import DefaultGqlFormatter from './DefaultGqlFormatter';
 
 export default class DocumentLinkFormatter extends DefaultGqlFormatter {

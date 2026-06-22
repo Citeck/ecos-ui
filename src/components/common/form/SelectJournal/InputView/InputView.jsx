@@ -1,3 +1,4 @@
+import Records from '@citeck/records-core';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
@@ -12,11 +13,10 @@ import InlineToolsDisconnected from '../../../grid/InlineTools/InlineToolsDiscon
 import { AssocLink } from '../../AssocLink';
 import CreateVariants from '../CreateVariants';
 import MenuCreateVariants from '../CreateVariants/MenuCreateVariants';
-import { Labels } from '../constants';
+import { Labels } from '@/components/common/form/SelectJournal/constants';
 
-import Records from '@/components/Records/Records';
-import DebugFormAction from '@/components/Records/actions/handler/executor/DebugFormAction';
-import RecordActions from '@/components/Records/actions/recordActions';
+import DebugFormAction from '@/components/core/Records/actions/handler/executor/DebugFormAction';
+import RecordActions from '@/components/core/Records/actions/recordActions';
 import { getFormattedLink, getFormatter } from '@/components/common/form/SelectJournal/helpers';
 import ChevronRight from '@/components/common/icons/ChevronRight';
 import Close from '@/components/common/icons/Close';

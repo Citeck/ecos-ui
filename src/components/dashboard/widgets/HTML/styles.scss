@@ -1,0 +1,30 @@
+@import '@/styles/constants';
+
+.citeck-html-widget {
+  &__body {
+    padding: 20px;
+  }
+
+  &__editor {
+    &-content {
+      margin-bottom: 20px;
+    }
+
+    &-title {
+      margin-bottom: 20px;
+    }
+
+    &-buttons {
+      display: inline-flex;
+      gap: 1rem;
+    }
+
+    &_field .ecos-field__control {
+      width: 100%;
+    }
+  }
+
+  .ace_editor {
+    width: 100% !important;
+  }
+}

@@ -1,12 +1,11 @@
+import { SourcesId } from '@citeck/constants';
+import isFunction from 'lodash/isFunction';
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 
-import isFunction from 'lodash/isFunction';
-
-import RecordActions from '../../../../../components/Records/actions/recordActions';
-import RecordActionsApi from '../../../../../components/Records/actions/recordActionsApi';
 import { getJournalTabInfo } from '../../../../../actions/instanceAdmin';
-import { SourcesId } from '../../../../../constants';
+import RecordActions from '@/components/core/Records/actions/recordActions';
+import RecordActionsApi from '@/components/core/Records/actions/recordActionsApi';
 import { Icon } from '../../../../../components/common';
 import { t } from '../../../../../helpers/util';
 
@@ -55,7 +54,4 @@ const mapDispatchToProps = dispatch => ({
   getDataInfo: (instanceId, tabId) => dispatch(getJournalTabInfo({ tabId, instanceId }))
 });
 
-export const VariableActionColumn = connect(
-  null,
-  mapDispatchToProps
-)(VariableAction);
+export const VariableActionColumn = connect(null, mapDispatchToProps)(VariableAction);

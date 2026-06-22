@@ -1,3 +1,4 @@
+import { allowedModes } from '@citeck/constants';
 import { routerMiddleware } from 'connected-react-router';
 import { createBrowserHistory, History } from 'history';
 import { applyMiddleware, compose, createStore, Middleware, Reducer, Store } from 'redux';
@@ -8,7 +9,6 @@ import thunk from 'redux-thunk';
 import createRootReducer, { createReducer } from './reducers';
 import sagas from './sagas';
 
-import { allowedModes } from '@/constants';
 import { SETTING_ENABLE_SAGA_LOGGER } from '@/pages/DevTools/constants';
 import { ExtraArgumentsStore, RootState } from '@/types/store';
 

@@ -1,41 +1,36 @@
+import { INSTANCE_TABS_TYPES } from '@citeck/constants/instanceAdmin';
+import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 
-import get from 'lodash/get';
-import isFunction from 'lodash/isFunction';
-
-import { getNextSortAscending } from '../../../helpers/sortUtils';
-
-import { selectInstanceMetaInfo, selectInstanceTabInfo } from '../../../selectors/instanceAdmin';
 import {
   getJournalTabInfo,
   setJournalTabInfoPage,
   setJournalTabInfoSortBy,
   setJournalTabInfoFilters
 } from '../../../actions/instanceAdmin';
-import { CommonTable } from '../../../components/CommonTable';
+import { CommonTable } from '@/components/journals/CommonTable';
 import { InfoText } from '../../../components/common';
-
-import { getTableColumns } from './columns';
-import { INSTANCE_TABS_TYPES } from '../../../constants/instanceAdmin';
+import { getNextSortAscending } from '../../../helpers/sortUtils';
 import { t } from '../../../helpers/util';
+import { selectInstanceMetaInfo, selectInstanceTabInfo } from '../../../selectors/instanceAdmin';
+
 import Labels from './Labels';
+import { getTableColumns } from './columns';
 
 const Journal = ({ isMobile, instanceId, tabId, metaInfo, dataInfo, getDataInfo, setPage, setSortBy, setFilters }) => {
-  useEffect(
-    () => {
-      if (dataInfo && dataInfo.data) {
-        return;
-      }
+  useEffect(() => {
+    if (dataInfo && dataInfo.data) {
+      return;
+    }
 
-      if ((!metaInfo || !metaInfo.definitionRefId) && tabId !== INSTANCE_TABS_TYPES.VARIABLES) {
-        return;
-      }
+    if ((!metaInfo || !metaInfo.definitionRefId) && tabId !== INSTANCE_TABS_TYPES.VARIABLES) {
+      return;
+    }
 
-      isFunction(getDataInfo) && getDataInfo(instanceId, tabId);
-    },
-    [instanceId, tabId, metaInfo]
-  );
+    isFunction(getDataInfo) && getDataInfo(instanceId, tabId);
+  }, [instanceId, tabId, metaInfo]);
 
   const handleChangePage = ({ page, maxItems }) => {
     const newPage = {
@@ -107,7 +102,4 @@ const mapDispatchToProps = dispatch => ({
   setFilters: (instanceId, filters, tabId) => dispatch(setJournalTabInfoFilters({ tabId, instanceId, filters }))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Journal);
+export default connect(mapStateToProps, mapDispatchToProps)(Journal);

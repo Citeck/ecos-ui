@@ -1,3 +1,4 @@
+import { DelegationTypes, ServerStatusKeys } from '@citeck/constants/timesheet';
 import { debounce } from 'lodash';
 import get from 'lodash/get';
 import values from 'lodash/values';
@@ -16,11 +17,10 @@ import {
   setPopupMessage,
   setUpdatingStatus
 } from '../../actions/timesheet/mine';
-import Timesheet, { BlockStatus, DateSlider, SelectUserModal } from '../../components/Timesheet';
-import RouteTypeTabs from '../../components/Timesheet/RouteTypeTabs';
+import Timesheet, { BlockStatus, DateSlider, SelectUserModal } from '@/components/domain/Timesheet';
+import RouteTypeTabs from '@/components/domain/Timesheet/RouteTypeTabs';
 import { Loader } from '../../components/common';
 import { Switch } from '../../components/common/form';
-import { DelegationTypes, ServerStatusKeys } from '../../constants/timesheet';
 import { CommonLabels, MyTimesheetLabels } from '../../helpers/timesheet/dictionary';
 import { t } from '../../helpers/util';
 import MyTimesheetService from '../../services/timesheet/mine';

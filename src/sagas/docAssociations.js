@@ -1,3 +1,5 @@
+import { DIRECTIONS } from '@citeck/constants/docAssociations';
+import Records from '@citeck/records-core';
 import concat from 'lodash/concat';
 import { call, put, select, takeEvery, all } from 'redux-saga/effects';
 
@@ -14,9 +16,7 @@ import {
   setSectionList,
   viewAssociation
 } from '../actions/docAssociations';
-import Records from '../components/Records';
-import { ActionTypes } from '../components/Records/actions/constants';
-import { DIRECTIONS } from '../constants/docAssociations';
+import { ActionTypes } from '@/components/core/Records/actions/constants';
 import DocAssociationsConverter from '../dto/docAssociations';
 import { t } from '../helpers/util';
 import {

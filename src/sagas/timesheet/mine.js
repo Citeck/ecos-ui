@@ -1,3 +1,4 @@
+import { DelegationTypes } from '@citeck/constants/timesheet';
 import { put, select, takeLatest, takeEvery, call } from 'redux-saga/effects';
 
 import {
@@ -15,7 +16,6 @@ import {
   setDelegatedTo,
   removeDelegation
 } from '../../actions/timesheet/mine';
-import { DelegationTypes } from '../../constants/timesheet';
 import CommonTimesheetConverter from '../../dto/timesheet/common';
 import DelegationTimesheetConverter from '../../dto/timesheet/delegated';
 import { TimesheetMessages } from '../../helpers/timesheet/dictionary';

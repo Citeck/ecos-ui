@@ -1,7 +1,8 @@
-import Records from '../../../../../components/Records';
+import Records from '@citeck/records-core';
+
 import SelectHierarchicalFormComponent from '../SelectHierarchical';
 
-jest.mock('../../../../../components/Records', () => ({
+jest.mock('@citeck/records-core', () => ({
   get: jest.fn()
 }));
 
@@ -140,9 +141,7 @@ describe('SelectHierarchicalFormComponent', () => {
         recordTypeRef: TYPE_REF
       });
 
-      mockRecordsLoad(TYPE_REF, [
-        { id: 'parent', type: 'ASSOC', config: 'emodel/type@other-type' }
-      ]);
+      mockRecordsLoad(TYPE_REF, [{ id: 'parent', type: 'ASSOC', config: 'emodel/type@other-type' }]);
 
       const props = await SelectHierarchicalFormComponent.prototype.getInitialReactProps.call(ctx);
 
@@ -166,9 +165,7 @@ describe('SelectHierarchicalFormComponent', () => {
 
   describe('getInitialReactProps — value handling', () => {
     const TYPE_REF = 'emodel/type@example:example';
-    const MODEL_ATTRS = [
-      { id: 'children', type: 'ASSOC', config: TYPE_REF }
-    ];
+    const MODEL_ATTRS = [{ id: 'children', type: 'ASSOC', config: TYPE_REF }];
 
     it('passes dataValue to React component', async () => {
       const ctx = createMockContext({

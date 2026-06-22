@@ -1,7 +1,8 @@
-import { LayoutTypes } from '../../constants/layout';
-import { SourcesId } from '../../constants';
-import ru from '../../i18n/ru.json';
+import { SourcesId } from '@citeck/constants';
+import { LayoutTypes } from '@citeck/constants/layout';
+
 import en from '../../i18n/en.json';
+import ru from '../../i18n/ru.json';
 
 export const getDefaultDashboardConfig = idLayout => ({
   layout: {

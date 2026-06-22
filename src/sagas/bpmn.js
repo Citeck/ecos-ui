@@ -1,3 +1,5 @@
+import { BPMN_MODELS_PAGE_MAX_ITEMS, EDITOR_PAGE_CONTEXT } from '@citeck/constants/bpmn';
+import Records from '@citeck/records-core';
 import endsWith from 'lodash/endsWith';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
@@ -28,10 +30,8 @@ import {
   getFullModels
 } from '../actions/bpmn';
 import { showModal } from '../actions/modal';
-import FormManager from '../components/EcosForm/FormManager';
-import Records from '../components/Records';
+import FormManager from '@/components/forms/EcosForm/FormManager';
 import { INFO_DIALOG_ID } from '../components/common/dialogs/Manager/DialogManager';
-import { BPMN_MODELS_PAGE_MAX_ITEMS, EDITOR_PAGE_CONTEXT } from '../constants/bpmn';
 import { getPagePositionState, savePagePositionState } from '../helpers/bpmn';
 import { t } from '../helpers/util';
 import { selectAllCategories, selectAllModels, selectModelsInfoByCategoryId } from '../selectors/bpmn';

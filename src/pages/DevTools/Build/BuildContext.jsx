@@ -5,7 +5,7 @@ import DevToolsConverter from '../../../dto/devTools';
 import { t } from '../../../helpers/util';
 import ConfigService, { ALFRESCO_ENABLED } from '../../../services/config/ConfigService';
 import devToolsApi from '../api';
-import { ECOS_UI_ID, ECOS_UI_LABEL } from '../constants';
+import { ECOS_UI_ID, ECOS_UI_LABEL } from '@/pages/DevTools/constants';
 
 import {
   SET_ALFRESCO_MODULES_ITEMS,

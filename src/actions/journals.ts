@@ -2,7 +2,7 @@ import { createAction } from 'redux-actions';
 
 import { IJournalsApi } from '@/api/journals';
 import { JournalColumnType, JournalCreateVariantType } from '@/api/journals/types';
-import { WidgetsConfigType } from '@/components/Journals/JournalsPreviewWidgets/JournalsPreviewWidgets';
+import { WidgetsConfigType } from '@/components/journals/Journals/JournalsPreviewWidgets/JournalsPreviewWidgets';
 import { PredicateType } from '@/types/predicates';
 import { WrapArgsType } from '@/types/store';
 import {

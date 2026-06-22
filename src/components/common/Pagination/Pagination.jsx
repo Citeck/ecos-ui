@@ -2,9 +2,8 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 
-import { PAGINATION_SIZES } from '../../Journals/constants';
+import { PAGINATION_SIZES } from '@/components/journals/Journals/constants';
 import { IcoBtn } from '../../common/btns';
-import Select from '../../common/form/Select';
 import ChevronLeft from '../icons/FillChevronLeft';
 import ChevronRight from '../icons/FillChevronRight';
 
@@ -20,7 +19,6 @@ export default class Pagination extends Component {
     sizes: PropTypes.array,
     onChange: PropTypes.func,
     hasPageSize: PropTypes.bool,
-    isViewNewJournal: PropTypes.bool,
     updatedPaginationOfNewJournal: PropTypes.bool,
     isMobile: PropTypes.bool,
     noData: PropTypes.bool,
@@ -44,11 +42,7 @@ export default class Pagination extends Component {
     const { page: PPage, searching } = this.props;
     const { page: SPage } = this.state;
 
-    if (
-      (!SPage && PPage) ||
-      (prevProps.page !== PPage && PPage !== SPage) ||
-      (prevProps.searching !== searching && !!searching)
-    ) {
+    if ((!SPage && PPage) || (prevProps.page !== PPage && PPage !== SPage) || (prevProps.searching !== searching && !!searching)) {
       this.setState({ page: PPage });
     }
   }
@@ -127,13 +121,12 @@ export default class Pagination extends Component {
   };
 
   render() {
-    const { total, className, hasPageSize, noData, noCtrl, isViewNewJournal } = this.props;
+    const { total, className, noData, noCtrl } = this.props;
 
     if (!total) {
       return null;
     }
 
-    const { value: pageSizeValue, sizes } = this.getPageSize();
     const min = this.min;
     const max = this.max;
     const page = this.page;
@@ -146,51 +139,32 @@ export default class Pagination extends Component {
               {min}-{max}
             </span>
             <span className="ecos-pagination__text ecos-pagination__text-from"> {t('pagination.from')} </span>
-            <span className={classNames('ecos-pagination__text ecos-pagination__text-total', { large: isViewNewJournal })}>{total}</span>
+            <span className="ecos-pagination__text ecos-pagination__text-total large">{total}</span>
           </>
         )}
         {!noCtrl && (
           <>
             <IcoBtn
-              icon={!isViewNewJournal ? 'icon-small-left' : null}
               className={classNames(
                 'ecos-btn_grey3 ecos-btn_bgr-inherit ecos-btn_hover_t-light-blue fitnesse-ecos-pagination__arrow-left',
-                {
-                  'ecos-pagination__arrow': !isViewNewJournal,
-                  'ecos-pagination__arrow_new': isViewNewJournal
-                }
+                'ecos-pagination__arrow_new'
               )}
               disabled={page <= 1}
               onClick={this.handleClickPrev}
             >
-              {isViewNewJournal && <ChevronLeft />}
+              <ChevronLeft width={19} height={19} />
             </IcoBtn>
             <IcoBtn
-              icon={!isViewNewJournal ? 'icon-small-right' : null}
               className={classNames(
                 'ecos-btn_grey3 ecos-btn_bgr-inherit ecos-btn_hover_t-light-blue fitnesse-ecos-pagination__arrow-right',
-                {
-                  'ecos-pagination__arrow': !isViewNewJournal,
-                  'ecos-pagination__arrow_new': isViewNewJournal
-                }
+                'ecos-pagination__arrow_new'
               )}
               disabled={page >= this.maxPage}
               onClick={this.handleClickNext}
             >
-              {isViewNewJournal && <ChevronRight />}
+              <ChevronRight width={19} height={19} />
             </IcoBtn>
           </>
-        )}
-        {hasPageSize && !isViewNewJournal && (
-          <Select
-            className="ecos-pagination__page-size select_narrow select_page-size"
-            options={sizes}
-            value={pageSizeValue}
-            onChange={this.handleChangeMaxItems}
-            menuPlacement={'auto'}
-            hideSelectedOptions
-            isSearchable={false}
-          />
         )}
       </div>
     );

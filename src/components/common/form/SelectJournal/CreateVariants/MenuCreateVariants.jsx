@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { useState } from 'react';
 
-import FormManager from '../../../../EcosForm/FormManager';
+import FormManager from '@/components/forms/EcosForm/FormManager';
 
 import ChevronRight from '@/components/common/icons/ChevronRight';
 import Subtract from '@/components/common/icons/Subtract';

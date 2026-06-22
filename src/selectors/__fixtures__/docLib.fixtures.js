@@ -1,4 +1,4 @@
-import { DEFAULT_PAGINATION } from '../../components/Journals/constants';
+import { DEFAULT_PAGINATION } from '@/components/journals/Journals/constants';
 
 export const sidebar = {
   isReady: true,

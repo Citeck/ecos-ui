@@ -80,10 +80,7 @@
     pointer-events: none;
 
     &::before {
-      font-family: $font-family-citeck;
-      font-size: 14px;
-      font-weight: normal;
-      content: $citeck-icon-down;
+      @include citeck-icon($citeck-icon-down, 14px);
     }
   }
 
@@ -105,7 +102,7 @@
     color: $color-white;
 
     &::before {
-      content: $citeck-icon-up;
+      @include citeck-icon-change($citeck-icon-up);
     }
   }
 

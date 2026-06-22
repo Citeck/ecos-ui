@@ -1,10 +1,10 @@
-import Records from '../components/Records';
-import { PERMISSION_WRITE_ATTR } from '../components/Records/constants';
 import {
   PERMISSION_DMN_SECTION_CREATE_DEF,
   PERMISSION_DMN_SECTION_EDIT_DEF,
   PERMISSION_DMN_SECTION_CREATE_SUBSECTION
-} from '../constants/dmn';
+} from '@citeck/constants/dmn';
+import Records from '@citeck/records-core';
+import { PERMISSION_WRITE_ATTR } from '@citeck/records-core/constants';
 
 export class DmnApi {
   static DMN_SECTION_ATTRS = {

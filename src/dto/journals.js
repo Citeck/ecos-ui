@@ -1,3 +1,6 @@
+import { GROUPING_COUNT_ALL } from '@citeck/constants/journal';
+import { PREDICATE_AND, PREDICATE_CONTAINS, PREDICATE_OR } from '@citeck/records-core/predicates/predicates';
+import { ParserPredicate, Predicate } from '@citeck/records-predicates';
 import cloneDeep from 'lodash/cloneDeep';
 import concat from 'lodash/concat';
 import find from 'lodash/find';
@@ -7,10 +10,6 @@ import isEqual from 'lodash/isEqual';
 import isString from 'lodash/isString';
 import set from 'lodash/set';
 
-import { ParserPredicate } from '../components/Filters/predicates';
-import Predicate from '../components/Filters/predicates/Predicate';
-import { PREDICATE_AND, PREDICATE_CONTAINS, PREDICATE_OR } from '../components/Records/predicates/predicates';
-import { GROUPING_COUNT_ALL } from '../constants/journal';
 import { getId } from '../helpers/util';
 import AttributesService from '../services/AttributesService';
 

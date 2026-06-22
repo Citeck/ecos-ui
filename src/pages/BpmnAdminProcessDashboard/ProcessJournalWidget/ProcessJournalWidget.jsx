@@ -1,7 +1,7 @@
 import React from 'react';
 
-import Dashlet from '../../../components/Dashlet';
-import BaseWidget from '../../../components/widgets/BaseWidget';
+import Dashlet from '@/components/dashboard/Dashlet';
+import BaseWidget from '@/components/dashboard/widgets/BaseWidget';
 import { t } from '../../../helpers/util';
 import ProcessTabs from './ProcessTabs';
 import ProcessTabContent from './ProcessTabContent';

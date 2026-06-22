@@ -1,3 +1,4 @@
+import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE, MOBILE_APP_USER_AGENT, allowedModes } from '@citeck/constants';
 import cloneDeep from 'lodash/cloneDeep';
 import lodashGet from 'lodash/get';
 import isArray from 'lodash/isArray';
@@ -12,12 +13,9 @@ import moment from 'moment';
 import * as queryString from 'query-string';
 import uuidV4 from 'uuidv4';
 
-import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE, MOBILE_APP_USER_AGENT } from '../constants';
-
 export { getCookie, getCurrentLocale, t } from './export/util';
 import { getCurrentLocale, t } from './export/util';
 
-import { allowedModes } from '@/constants';
 import ESMRequire from '@/services/ESMRequire';
 
 const UTC_AS_LOCAL_FORMAT = 'YYYY-MM-DDTHH:mm:ss';
@@ -530,7 +528,7 @@ export function getDefaultWorkspace() {
 }
 
 export function getEnabledNewJournal() {
-  return lodashGet(window, 'Citeck.constants.NEW_JOURNAL_ENABLED', false);
+  return true;
 }
 
 export const isSmallMode = width => width <= MIN_WIDTH_DASHLET_LARGE;

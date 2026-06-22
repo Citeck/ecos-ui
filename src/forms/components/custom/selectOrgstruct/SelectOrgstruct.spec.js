@@ -1,9 +1,10 @@
+import { SourcesId } from '@citeck/constants';
 import cloneDeep from 'lodash/cloneDeep';
 
-import Harness from '../../../test/harness';
-import SelectOrgstructComponent from './SelectOrgstruct';
 import { basicSectionTest } from '../../../test/builder/helpers';
-import { SourcesId } from '../../../../constants';
+import Harness from '../../../test/harness';
+
+import SelectOrgstructComponent from './SelectOrgstruct';
 import comp1 from './fixtures/comp1';
 
 console.error = jest.fn();

@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 
-import { COLUMN_TYPE_NEW_TO_LEGACY_MAPPING } from '@/components/Journals/service/util';
+import { COLUMN_TYPE_NEW_TO_LEGACY_MAPPING } from '@/components/journals/Journals/service/util';
 import { MLTextType } from '@/types/components';
 import { PredicateType } from '@/types/predicates';
 

@@ -1,6 +1,8 @@
-import { CITECK_URI } from '../constants/alfresco';
-import { CommonApi } from './common';
+import { CITECK_URI } from '@citeck/constants/alfresco';
+
 import ecosFetch from '../helpers/ecosFetch';
+
+import { CommonApi } from './common';
 
 export class BarcodeApi extends CommonApi {
   getBade64Barcode = ({ record, params = {} }) => {

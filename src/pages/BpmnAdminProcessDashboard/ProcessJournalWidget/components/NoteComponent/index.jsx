@@ -1,10 +1,10 @@
+import Records from '@citeck/records-core';
 import React, { useState } from 'react';
 
-import { Btn } from '../../../../../components/common/btns';
 import { EcosModal, Icon } from '../../../../../components/common';
+import { Btn } from '../../../../../components/common/btns';
 import { Textarea } from '../../../../../components/common/form';
 import { t } from '../../../../../helpers/util';
-import Records from '../../../../../components/Records';
 
 export const NoteComponent = ({ row }) => {
   const [isOpen, setIsOpen] = useState(false);

@@ -2,7 +2,7 @@ import { runSaga } from 'redux-saga';
 
 import { setFormProps, setScenario, setTitle } from '../../actions/cmmnEditor';
 import { deleteTab } from '../../actions/pageTabs';
-import EcosFormUtils from '../../components/EcosForm/EcosFormUtils';
+import EcosFormUtils from '@/components/forms/EcosForm/EcosFormUtils';
 import { fetchFormProps, fetchScenario, fetchTitle, init, runSaveScenario } from '../cmmnEditor';
 
 import { NotificationManager } from '@/services/notifications';

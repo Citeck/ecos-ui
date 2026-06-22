@@ -1,8 +1,8 @@
+import { URL } from '@citeck/constants';
 import isUndefined from 'lodash/isUndefined';
 import * as queryString from 'query-string';
 import React, { useEffect, useState } from 'react';
 
-import { URL } from '@/constants';
 import { decodeLink, getLastPathSegmentBeforeQuery, replaceHistoryLink, updateCurrentUrl } from '@/helpers/urls';
 import { getKeyProcessBPMN, getSearchParams } from '@/helpers/util';
 

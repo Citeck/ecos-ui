@@ -2,6 +2,7 @@ import 'regenerator-runtime/runtime';
 import 'moment/dist/locale/ru';
 import 'moment/dist/locale/en-gb';
 import 'flatpickr/dist/l10n/ru.js';
+import { allowedModes } from '@citeck/constants';
 import { ConnectedRouter } from 'connected-react-router';
 import datePickerLocaleEn from 'date-fns/locale/en-GB';
 import datePickerLocaleRu from 'date-fns/locale/ru';
@@ -17,40 +18,41 @@ import { initAppRequest } from './actions/app';
 import { setIsAuthenticated } from './actions/user';
 import { loadThemeRequest } from './actions/view';
 import { configureAPI } from './api';
-import App from './components/App';
-import IdleTimer from './components/IdleTimer';
+import App from '@/components/layout/App';
+import IdleTimer from '@/components/common/IdleTimer';
 import { RESET_AUTH_STATE_EVENT, emitter } from './helpers/ecosFetch';
+import { registerGlobalConstants } from './helpers/registerGlobalConstants';
 import { getCurrentLocale, IS_TEST_ENV, isMobileAppWebView, isMobileDevice } from './helpers/util';
 import { i18nInit } from './i18n';
 import plugins from './plugins';
 import { register as registerServiceWorker } from './serviceWorkerRegistration';
 import authService from './services/auth';
+import { bootstrapRecords } from './services/records/recordsBootstrap';
 import configureStore, { getHistory } from './store';
 
-import PageLoader from '@/components/PageLoader';
-import { registerAllActions } from '@/components/Records/actions/actions';
-import { allowedModes } from '@/constants';
+import PageLoader from '@/components/layout/PageLoader';
+import { registerAllActions } from '@/components/core/Records/actions/actions';
 import { NotificationManager } from '@/services/notifications';
 
 // Files are included in the build only if imported from here
-import '@/components/ModelViewer/BPMNViewer/patches/features/modeling/ElementFactory.js';
-import '@/components/ModelViewer/BPMNViewer/patches/features/keyboard/BpmnKeyboardBindings.js';
+import '@/components/editors/ModelViewer/BPMNViewer/patches/features/modeling/ElementFactory.js';
+import '@/components/editors/ModelViewer/BPMNViewer/patches/features/keyboard/BpmnKeyboardBindings.js';
 
-import '@/components/ModelEditor/BPMNModeler/modules/colorContextPadProvider/ColorContextPadProvider';
-import '@/components/ModelEditor/BPMNModeler/patches/features/modeling/ElementFactory';
-import '@/components/ModelEditor/BPMNModeler/patches/features/modeling/Modeling';
-import '@/components/ModelEditor/BPMNModeler/patches/features/modeling/cmd/UpdatePropertiesHandler';
-import '@/components/ModelEditor/BPMNModeler/patches/features/palette/PaletteProvider';
-import '@/components/ModelEditor/BPMNModeler/patches/features/popup-menu/ReplaceMenuProvider';
-import '@/components/ModelEditor/BPMNModeler/patches/features/context-pad/ContextPadProvider';
-import '@/components/ModelEditor/BPMNModeler/patches/features/keyboard/BpmnKeyboardBindings';
-import '@/components/ModelEditor/BPMNModeler/patches/features/label-editing/LabelEditingProvider';
-import '@/components/ModelEditor/BPMNModeler/patches/features/command/CommandStack';
-import '@/components/ModelEditor/BPMNModeler/patches/features/selection/Selection';
+import '@/components/editors/ModelEditor/BPMNModeler/modules/colorContextPadProvider/ColorContextPadProvider';
+import '@/components/editors/ModelEditor/BPMNModeler/patches/features/modeling/ElementFactory';
+import '@/components/editors/ModelEditor/BPMNModeler/patches/features/modeling/Modeling';
+import '@/components/editors/ModelEditor/BPMNModeler/patches/features/modeling/cmd/UpdatePropertiesHandler';
+import '@/components/editors/ModelEditor/BPMNModeler/patches/features/palette/PaletteProvider';
+import '@/components/editors/ModelEditor/BPMNModeler/patches/features/popup-menu/ReplaceMenuProvider';
+import '@/components/editors/ModelEditor/BPMNModeler/patches/features/context-pad/ContextPadProvider';
+import '@/components/editors/ModelEditor/BPMNModeler/patches/features/keyboard/BpmnKeyboardBindings';
+import '@/components/editors/ModelEditor/BPMNModeler/patches/features/label-editing/LabelEditingProvider';
+import '@/components/editors/ModelEditor/BPMNModeler/patches/features/command/CommandStack';
+import '@/components/editors/ModelEditor/BPMNModeler/patches/features/selection/Selection';
 
-import '@/components/ModelEditor/DMNModeler/patches/features/modeling/cmd/UpdatePropertiesHandler';
-import '@/components/ModelEditor/DMNModeler/patches/features/modeling/Modeling';
-import '@/components/ModelEditor/DMNModeler/patches/Viewer';
+import '@/components/editors/ModelEditor/DMNModeler/patches/features/modeling/cmd/UpdatePropertiesHandler';
+import '@/components/editors/ModelEditor/DMNModeler/patches/features/modeling/Modeling';
+import '@/components/editors/ModelEditor/DMNModeler/patches/Viewer';
 
 import '@/forms/Formio';
 import '@/forms/components';
@@ -65,6 +67,12 @@ import './services/esign';
 import './services/EcosModules';
 
 import './styles/index.scss';
+
+/* wire @citeck/records-core to the web platform (http, i18n, workspace, cipher) */
+bootstrapRecords();
+
+/* expose core constants on window.Citeck.constants for legacy consumers */
+registerGlobalConstants();
 
 /* set moment locale */
 const currentLocale = getCurrentLocale();

@@ -1,21 +1,21 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { Col, Row } from 'reactstrap';
-import queryString from 'query-string';
+import { URL } from '@citeck/constants';
 import classNames from 'classnames';
+import queryString from 'query-string';
+import React, { useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
+import { Col, Row } from 'reactstrap';
 
-import PageService from '../../services/PageService';
 import Well from '../../components/common/form/Well';
 import { t } from '../../helpers/util';
+import PageService from '../../services/PageService';
 
-import { URL } from '../../constants';
-import api from './api';
-import { TABS } from './constants';
 import { DevToolsContextProvider } from './DevToolsContext';
-import Tabs from './Tabs';
-import TabContent from './TabContent';
 import ErrorText from './ErrorText';
 import Loader from './Loader';
+import TabContent from './TabContent';
+import Tabs from './Tabs';
+import api from './api';
+import { TABS } from './constants';
 
 import './DevTools.scss';
 
@@ -43,33 +43,27 @@ const DevTools = props => {
     checkAccess();
   }, []);
 
-  useEffect(
-    () => {
-      if (props.tabLink === props.cacheKey) {
-        setIsReady(false);
-        setAccess(false);
+  useEffect(() => {
+    if (props.tabLink === props.cacheKey) {
+      setIsReady(false);
+      setAccess(false);
 
-        checkAccess();
-      }
-    },
-    [props.tabLink, props.cacheKey]
-  );
+      checkAccess();
+    }
+  }, [props.tabLink, props.cacheKey]);
 
-  useEffect(
-    () => {
-      const query = queryString.parse(window.location.search);
-      let newActiveTab = query.activeTab;
+  useEffect(() => {
+    const query = queryString.parse(window.location.search);
+    let newActiveTab = query.activeTab;
 
-      if (!Object.values(TABS).includes(newActiveTab)) {
-        newActiveTab = TABS.BUILD;
-      }
+    if (!Object.values(TABS).includes(newActiveTab)) {
+      newActiveTab = TABS.BUILD;
+    }
 
-      if (activeTab !== newActiveTab) {
-        setActiveTab(newActiveTab);
-      }
-    },
-    [window.location.search]
-  );
+    if (activeTab !== newActiveTab) {
+      setActiveTab(newActiveTab);
+    }
+  }, [window.location.search]);
 
   const _setActiveTab = useCallback(
     tabId => {

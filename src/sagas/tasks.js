@@ -1,8 +1,8 @@
+import Records from '@citeck/records-core';
 import isEmpty from 'lodash/isEmpty';
 import { call, put, takeEvery } from 'redux-saga/effects';
 
 import { changeTaskAssignee, getTaskList, setTaskAssignee, setTaskList } from '../actions/tasks';
-import Records from '../components/Records';
 import TasksConverter from '../dto/tasks';
 import { t } from '../helpers/util';
 import SidebarService from '../services/sidebar';

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { SortableHandle } from '../../Drag-n-Drop';
+import { SortableHandle } from '@/components/common/DragAndDrop';
 import Icon from '../icons/Icon';
 
 import { Menu } from './Menu';

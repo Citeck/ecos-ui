@@ -5,7 +5,7 @@ import EcosModal from '../../EcosModal';
 import Pagination from '../../Pagination';
 import { Btn } from '../../btns';
 import { OrgstructContext } from '../OrgstructContext';
-import { PAGINATION_SIZES, TabTypes } from '../constants';
+import { PAGINATION_SIZES, TabTypes } from '@/components/common/Orgstruct/constants';
 
 import Body from './Body';
 import Search from './Search';

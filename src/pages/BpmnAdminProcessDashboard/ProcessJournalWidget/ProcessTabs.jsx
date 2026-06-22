@@ -1,8 +1,8 @@
+import { PROCESS_TABS_TYPES } from '@citeck/constants/processAdmin';
 import React, { useContext } from 'react';
 
-import { t } from '../../../helpers/util';
 import { Tabs } from '../../../components/common';
-import { PROCESS_TABS_TYPES } from '../../../constants/processAdmin';
+import { t } from '../../../helpers/util';
 import { ProcessContext } from '../ProcessContext';
 
 const ProcessTabs = () => {

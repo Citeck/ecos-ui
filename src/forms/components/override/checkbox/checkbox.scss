@@ -1,12 +1,9 @@
 @import '../../../constants';
 
 %checkbox {
-  font-family: $font-family-citeck;
-  content: $citeck-icon-checkbox;
+  @include citeck-icon($citeck-icon-checkbox, 22px);
   color: $color-gray-6;
-  font-weight: normal;
   position: absolute;
-  font-size: 22px;
 }
 
 $states: (
@@ -132,7 +129,7 @@ $positions: (
         }
 
         &_#{$pos} .form-check-input:checked + .form-check-text::#{$where} {
-          content: $citeck-icon-checkbox-checked;
+          @include citeck-icon-change($citeck-icon-checkbox-checked);
         }
       }
 
@@ -166,11 +163,8 @@ $positions: (
             &.form-check-label__span {
               &:before {
                 z-index: 5;
-                content: $citeck-icon-close;
-
-                font-family: $font-family-citeck;
+                @include citeck-icon($citeck-icon-close, 16px);
                 margin-right: 12px;
-                font-size: 16px;
                 line-height: 100%;
                 margin-left: 4px;
                 top: 1px;
@@ -181,10 +175,8 @@ $positions: (
               }
 
               &:after {
-                content: $citeck-icon-checkbox-dark;
-                font-family: $font-family-citeck;
+                @include citeck-icon($citeck-icon-checkbox-dark, 22px);
                 color: var(--primary-color);
-                font-size: 22px;
                 position: absolute;
                 top: 0;
                 border-radius: $border-radius-standard;
@@ -328,7 +320,7 @@ $positions: (
       &.checkbox-checked {
         span.form-check-label__span.form-check-label__span_position-top.form-check-text {
           &:after {
-            content: $citeck-icon-checkbox-checked;
+            @include citeck-icon-change($citeck-icon-checkbox-checked);
             color: var(--primary-color);
           }
         }
@@ -342,12 +334,13 @@ $positions: (
             &:before {
               @extend %checkbox;
               color: white;
-              content: $citeck-icon-close;
+              @include citeck-icon-change($citeck-icon-close);
+              width: 16px;
+              height: 16px;
               margin-right: 12px !important;
               top: 0 !important;
               left: 3px;
               z-index: 5;
-              font-size: 16px;
               right: unset !important;
               margin-left: 0;
             }
@@ -355,7 +348,7 @@ $positions: (
             &:after {
               @extend %checkbox;
               color: var(--primary-color);
-              content: $citeck-icon-checkbox-dark;
+              @include citeck-icon-change($citeck-icon-checkbox-dark);
               top: 0 !important;
               right: unset !important;
               left: 0 !important;

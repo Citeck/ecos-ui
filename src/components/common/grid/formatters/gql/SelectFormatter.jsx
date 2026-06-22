@@ -1,7 +1,8 @@
+import Records from '@citeck/records-core';
 import React from 'react';
 
-import Records from '../../../../../components/Records';
 import { DropdownEditor } from '../../editors';
+
 import DefaultGqlFormatter from './DefaultGqlFormatter';
 
 export default class SelectFormatter extends DefaultGqlFormatter {

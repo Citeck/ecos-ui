@@ -5,7 +5,7 @@ import { CardSubtitle } from 'reactstrap';
 import classNames from 'classnames';
 
 import { Btn } from '../../../../components/common/btns';
-import DropZone from '../../../../components/widgets/Documents/parts/DropZone';
+import DropZone from '@/components/dashboard/widgets/Documents/parts/DropZone';
 import { EcosModal } from '../../../../components/common';
 import { t } from '../../../../helpers/export/util';
 

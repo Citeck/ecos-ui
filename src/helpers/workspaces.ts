@@ -1,7 +1,8 @@
-import FormManager from '@/components/EcosForm/FormManager';
-import Records from '@/components/Records';
+import { SourcesId } from '@citeck/constants';
+import Records from '@citeck/records-core';
+
 import { WorkspaceType } from '@/api/workspaces/types';
-import { SourcesId } from '@/constants';
+import FormManager from '@/components/forms/EcosForm/FormManager';
 
 interface CreateWorkspaceCallbacks {
   getWorkspaces: () => void;

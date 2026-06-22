@@ -1,10 +1,9 @@
 import { handleActions } from 'redux-actions';
 
-import { setIsMobile, setTheme, setThemeConfig, setViewNewJournal } from '../actions/view';
+import { setIsMobile, setTheme, setThemeConfig } from '../actions/view';
 
 const initialState = {
   isMobile: false,
-  isViewNewJournal: false,
   theme: null,
   themeConfig: {
     id: '',
@@ -34,12 +33,6 @@ export default handleActions(
       return {
         ...state,
         themeConfig: action.payload
-      };
-    },
-    [setViewNewJournal]: (state, action) => {
-      return {
-        ...state,
-        isViewNewJournal: action.payload
       };
     }
   },

@@ -1,3 +1,4 @@
+import Records from '@citeck/records-core';
 import lodash from 'lodash';
 import reactDefault, * as react from 'react';
 import reactDomDefault, * as reactDom from 'react-dom';
@@ -5,7 +6,6 @@ import * as reactRedux from 'react-redux';
 import * as redux from 'redux';
 import reduxThunk from 'redux-thunk';
 
-import Records from '@/components/Records';
 import * as util from '@/helpers/export/util';
 
 const pageUtils = {
@@ -29,13 +29,13 @@ export const modules = {
   moment: () => import('moment'),
   'ecos-modal': () => import('../components/common/EcosModal/CiteckEcosModal'),
   'ecos-records': () => Records,
-  'ecos-form': () => import('../components/EcosForm/export'),
-  'ecos-form-utils': () => import('../components/EcosForm/EcosFormUtils'),
-  'idle-timer': () => import('../components/IdleTimer'),
-  'eform-locale-editor': () => import('../components/EcosForm/locale/FormLocaleEditorModal'),
-  'eform-builder': () => import('../components/EcosForm/builder/EcosFormBuilderModal'),
+  'ecos-form': () => import('@/components/forms/EcosForm/export'),
+  'ecos-form-utils': () => import('@/components/forms/EcosForm/EcosFormUtils'),
+  'idle-timer': () => import('@/components/common/IdleTimer'),
+  'eform-locale-editor': () => import('@/components/forms/EcosForm/locale/FormLocaleEditorModal'),
+  'eform-builder': () => import('@/components/forms/EcosForm/builder/EcosFormBuilderModal'),
   lodash: () => lodash,
-  'record-actions': () => import('../components/Records/actions/export/recordActions'),
+  'record-actions': () => import('@/components/core/Records/actions/export/recordActions'),
   'dialog-manager': () => import('../components/common/dialogs/Manager'),
   'ecos-fetch': () => import('../helpers/ecosFetch'),
   'page-utils': pageUtils,

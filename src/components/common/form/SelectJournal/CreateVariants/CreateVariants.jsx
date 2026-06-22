@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { t } from '../../../../../helpers/util';
-import FormManager from '../../../../EcosForm/FormManager';
+import FormManager from '@/components/forms/EcosForm/FormManager';
 import { Btn, IcoBtn } from '../../../btns';
 import Dropdown from '../../Dropdown/Dropdown';
 

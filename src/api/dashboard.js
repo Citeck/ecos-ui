@@ -1,14 +1,14 @@
+import { ADMIN_WORKSPACE_ID, EmodelTypes, SourcesId } from '@citeck/constants';
+import { DashboardTypes } from '@citeck/constants/dashboard';
+import { TITLE } from '@citeck/constants/pageTabs';
+import Records from '@citeck/records-core';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 import isString from 'lodash/isString';
 
-import { ASSOC_TYPES } from '../components/Journals/service/journalColumnsResolver';
-import Records from '../components/Records';
-import Components from '../components/widgets/Components';
-import { ADMIN_WORKSPACE_ID, EmodelTypes, SourcesId } from '../constants';
-import { DashboardTypes } from '../constants/dashboard';
-import { TITLE } from '../constants/pageTabs';
+import { ASSOC_TYPES } from '@/components/journals/Journals/service/journalColumnsResolver';
+import Components from '@/components/dashboard/widgets/Components';
 import Cache from '../helpers/cache';
 import { getRefWithAlfrescoPrefix, parseJournalId, parseTypeId } from '../helpers/ref';
 import { getWorkspaceId } from '../helpers/urls';

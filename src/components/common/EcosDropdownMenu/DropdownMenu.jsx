@@ -4,7 +4,6 @@ import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { connect } from 'react-redux';
 
 import Loader from '../Loader/Loader';
 
@@ -12,8 +11,6 @@ import DropdownMenuCascade from './DropdownMenuCascade';
 import DropdownMenuGroup from './DropdownMenuGroup';
 
 import { DropdownMenuItem } from './index';
-
-import { selectIsViewNewJournal } from '@/selectors/view';
 
 import '../form/Dropdown/Dropdown.scss';
 import './style.scss';
@@ -24,10 +21,6 @@ export const MenuModes = {
   LIST: 'list',
   CUSTOM: 'custom'
 };
-
-const mapStateToProps = state => ({
-  isViewNewJournal: selectIsViewNewJournal(state)
-});
 
 class EcosDropdownMenu extends React.Component {
   static propTypes = {
@@ -106,9 +99,8 @@ class EcosDropdownMenu extends React.Component {
   render() {
     return (
       <div
-        className={classNames('ecos-dropdown-menu', {
-          'ecos-dropdown-menu_loading': this.props.isLoading,
-          'ecos-dropdown__menu_new': this.props.isViewNewJournal
+        className={classNames('ecos-dropdown-menu ecos-dropdown__menu_new', {
+          'ecos-dropdown-menu_loading': this.props.isLoading
         })}
       >
         {this.renderMode()}
@@ -117,4 +109,4 @@ class EcosDropdownMenu extends React.Component {
   }
 }
 
-export default connect(mapStateToProps)(EcosDropdownMenu);
+export default EcosDropdownMenu;

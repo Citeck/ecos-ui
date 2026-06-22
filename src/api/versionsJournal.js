@@ -1,7 +1,8 @@
-import Records from '../components/Records';
-import { IS_CONTENT_PROTECTED_ATTR, PERMISSION_WRITE_ATTR } from '../components/Records/constants';
-import { SourcesId } from '../constants';
-import { PROXY_URI } from '../constants/alfresco';
+import { SourcesId } from '@citeck/constants';
+import { PROXY_URI } from '@citeck/constants/alfresco';
+import Records from '@citeck/records-core';
+import { IS_CONTENT_PROTECTED_ATTR, PERMISSION_WRITE_ATTR } from '@citeck/records-core/constants';
+
 import ecosXhr from '../helpers/ecosXhr';
 
 import { CommonApi } from './common';

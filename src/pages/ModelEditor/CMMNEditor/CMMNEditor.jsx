@@ -1,10 +1,4 @@
-import ModelUtil from 'cmmn-js/lib/util/ModelUtil';
-
-import ModelEditor from '../ModelEditor';
-
-import CMMNModeler from '@/components/ModelEditor/CMMNModeler';
-import { getEcosType } from '@/components/ModelEditor/CMMNModeler/utils';
-import { SourcesId } from '@/constants';
+import { SourcesId } from '@citeck/constants';
 import {
   TYPE_DI_DIAGRAM,
   TYPE_DI_EDGE,
@@ -14,7 +8,13 @@ import {
   TYPE_LABEL,
   TYPE_PLAN_ITEM,
   PREFIX_FORM_ELM
-} from '@/constants/cmmn';
+} from '@citeck/constants/cmmn';
+import ModelUtil from 'cmmn-js/lib/util/ModelUtil';
+
+import ModelEditor from '../ModelEditor';
+
+import CMMNModeler from '@/components/editors/ModelEditor/CMMNModeler';
+import { getEcosType } from '@/components/editors/ModelEditor/CMMNModeler/utils';
 
 class CMMNEditorPage extends ModelEditor {
   static modelType = 'cmmn';

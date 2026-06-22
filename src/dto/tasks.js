@@ -5,7 +5,7 @@ import isEmpty from 'lodash/isEmpty';
 
 import TasksService from '../services/tasks';
 
-import EcosFormUtils from '@/components/EcosForm/EcosFormUtils';
+import EcosFormUtils from '@/components/forms/EcosForm/EcosFormUtils';
 
 export default class TasksConverter {
   static getTaskForWeb(source = {}) {

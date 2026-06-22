@@ -1,5 +1,5 @@
-import { MenuSettings, MenuTypes } from '../../constants/menu';
-import { ActionTypes } from '../../constants/sidebar';
+import { MenuSettings, MenuTypes } from '@citeck/constants/menu';
+import { ActionTypes } from '@citeck/constants/sidebar';
 
 export const makeUserMenuConfigs = [
   [

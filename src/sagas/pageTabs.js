@@ -1,3 +1,5 @@
+import { BASE_URLS_REDIRECT, RELOCATED_URL } from '@citeck/constants';
+import { TITLE } from '@citeck/constants/pageTabs';
 import { push } from 'connected-react-router';
 import assign from 'lodash/assign';
 import find from 'lodash/find';
@@ -24,8 +26,6 @@ import {
   updateTab,
   updateTabsFromStorage
 } from '@/actions/pageTabs';
-import { BASE_URLS_REDIRECT, RELOCATED_URL } from '@/constants';
-import { TITLE } from '@/constants/pageTabs';
 import { getLinkWithWs, getUrlWithWorkspace, getWorkspaceId, getWsIdOfTabLink } from '@/helpers/urls';
 import { getCurrentUserName, getCurrentLocale, getEnabledWorkspaces } from '@/helpers/util';
 import { selectInitStatus } from '@/selectors/pageTabs';

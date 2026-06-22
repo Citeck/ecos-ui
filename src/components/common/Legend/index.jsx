@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import isEqual from 'lodash/isEqual';
 
-import { EXTENDED_MODE } from '../../widgets/ProcessStatistics/constants';
+import { EXTENDED_MODE } from '@/components/dashboard/widgets/ProcessStatistics/constants';
 
 import './style.scss';
 

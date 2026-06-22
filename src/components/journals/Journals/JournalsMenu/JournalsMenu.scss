@@ -1,0 +1,170 @@
+@import '@/styles/constants';
+
+.ecos-journal-menu {
+  $menu: &;
+
+  overflow-y: auto;
+  background: $color-gray-25;
+  border: 1px solid $color-gray-4;
+  padding: 15px 25px 15px 15px;
+  height: 100%;
+  min-width: 273px;
+
+  #{$menu} {
+    &__journals,
+    &__presets {
+      overflow: hidden;
+    }
+  }
+
+  &__container_mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__collapsible-list {
+    height: 100%;
+
+    .collapsible-list__collapse {
+      overflow: auto;
+    }
+  }
+
+  &_open {
+    width: 100%;
+  }
+
+  &_tabs {
+    border-top-left-radius: $border-radius-extra-large;
+    border-bottom-left-radius: $border-radius-extra-large;
+    padding-top: 12px;
+  }
+
+  &_mobile {
+    padding: 18px 16px;
+    border-radius: 0;
+    overflow-y: auto;
+
+    &::-webkit-scrollbar-track {
+      background-color: $color-gray-3 !important;
+    }
+
+    &::-webkit-scrollbar-track-piece {
+      background-color: $color-gray-3 !important;
+    }
+  }
+
+  &__search {
+    &-block {
+      height: 50px;
+      padding-bottom: 10px;
+    }
+
+    &-field {
+      height: 100%;
+      width: 100%;
+    }
+  }
+}
+
+.ecos-journal-menu__hide-menu-btn {
+  width: 100%;
+  text-align: right;
+  margin-bottom: 15px;
+}
+
+.ecos-journal-menu__hide-menu {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 14px;
+  justify-content: space-between;
+  width: 100%;
+
+  &-title {
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 26px;
+    margin: 0;
+  }
+
+  .ecos-btn {
+    padding: 0;
+    background: none;
+    width: auto;
+    height: auto;
+  }
+}
+
+.ecos-journal-menu__journals,
+.ecos-journal-menu__presets,
+.ecos-journal-menu__folders-tree {
+  padding: 15px;
+  background: $color-white;
+}
+
+.ecos-journal-menu__journals {
+  margin-bottom: 10px;
+}
+
+.ecos-btn.ecos-journal-menu {
+  &__btn {
+    position: absolute;
+    line-height: 15px;
+
+    &_delete {
+      right: 13px;
+      top: 10px;
+    }
+
+    &_edit {
+      right: 39px;
+      top: 10px;
+    }
+
+    &_cancel {
+      right: 12px;
+      top: 10px;
+    }
+
+    &_apply {
+      right: 37px;
+      top: 10px;
+    }
+  }
+}
+
+.ecos-journal-menu__list-item {
+  height: 40px;
+  padding: 13px 15px;
+  position: relative;
+
+  &-title {
+    @extend %ellipsis;
+    width: 100%;
+    display: inline-block;
+  }
+
+  &-actions {
+    display: none;
+  }
+
+  &:hover &-actions {
+    display: inline-flex;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    background: linear-gradient(to right, rgba(#7396cd, 0), #7396cd 20%);
+    padding-left: 10px;
+  }
+
+  &-btn.ecos-btn {
+    width: auto;
+    height: auto;
+    padding: 0;
+
+    &:not(:last-child) {
+      padding-right: 5px;
+    }
+  }
+}

@@ -1,7 +1,7 @@
+import { getPredicates } from '@citeck/records-core/predicates/predicates';
 import React, { Component } from 'react';
 
-import { getPredicates } from '../../../../Records/predicates/predicates';
-import { getPredicateInput } from '../../../../Records/predicates/util';
+import { getPredicateInput } from '@/components/core/Records/predicates/util';
 
 import FiltersContext from './FiltersContext';
 

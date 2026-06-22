@@ -1,3 +1,4 @@
+import { ParserPredicate } from '@citeck/records-predicates';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
 import get from 'lodash/get';
@@ -11,12 +12,11 @@ import React, { Component } from 'react';
 import ReactResizeDetector from 'react-resize-detector';
 import { Tooltip } from 'reactstrap';
 
-import ClickOutside from '../../../../../ClickOutside';
-import { ParserPredicate } from '../../../../../Filters/predicates';
+import ClickOutside from '@/components/common/ClickOutside';
 import EcosTooltip from '../../../../Tooltip';
 import Icon from '../../../../icons/Icon';
 
-import InlineFilter from '@/components/Filters/Filter/InlineFilter';
+import InlineFilter from '@/components/journals/Filters/Filter/InlineFilter';
 import { t } from '@/helpers/export/util';
 import { getDefaultSortIconForType, getIconUpDown } from '@/helpers/icon';
 import { closest, getId } from '@/helpers/util';
@@ -393,7 +393,7 @@ export default class HeaderFormatter extends Component {
   };
 
   render() {
-    const { column = {}, sortable, colWidth, isViewNewJournal } = this.props;
+    const { column = {}, sortable, colWidth } = this.props;
     const id = `${replace(column.dataField, /[\W]*/g, '')}-${this._id}`;
 
     this.tooltipFilterId = `filter-${id}`;
@@ -404,17 +404,15 @@ export default class HeaderFormatter extends Component {
     return (
       <div
         ref={this.thRef}
-        className={classNames('ecos-th', {
+        className={classNames('ecos-th ecos-th_new', {
           'ecos-th_filtered': this.activeFilter,
-          'ecos-th_filtered_new': this.activeFilter && isViewNewJournal,
-          'ecos-th_sortable': sortable,
-          'ecos-th_new': isViewNewJournal
+          'ecos-th_filtered_new': this.activeFilter,
+          'ecos-th_sortable': sortable
         })}
         style={{ minWidth: this.minWidth, ...(colWidth && { width: colWidth }) }}
       >
         <div className="ecos-th__content" onClick={this.onSort} id={this.tooltipLabelId}>
           <EcosTooltip
-            isViewNewJournal={isViewNewJournal}
             target={this.tooltipLabelId}
             elementId={this.tooltipTextId}
             text={column.text}
@@ -453,7 +451,6 @@ HeaderFormatter.propTypes = {
   colWidth: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   onDividerMouseDown: PropTypes.func,
 
-  isViewNewJournal: PropTypes.bool,
   isComplexFilter: PropTypes.bool,
   predicate: PropTypes.object,
   originPredicate: PropTypes.object,

@@ -14,7 +14,7 @@ import {
   setJournalTabInfoFilters,
   setJournalTabInfoSortBy
 } from '../actions/processAdmin';
-import { DEFAULT_PAGINATION } from '../components/Journals/constants';
+import { DEFAULT_PAGINATION } from '@/components/journals/Journals/constants';
 
 /**
  * Process ID -- is the key

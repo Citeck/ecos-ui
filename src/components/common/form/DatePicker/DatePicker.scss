@@ -114,9 +114,16 @@
     top: 15px;
 
     &:after {
-      font-family: $font-family-citeck;
-      font-size: 14px;
-      color: $color-gray-dark;
+      content: '';
+      display: block;
+      width: 14px;
+      height: 14px;
+      margin: 6px auto;
+      background-color: $color-gray-dark;
+      -webkit-mask-size: contain;
+      mask-size: contain;
+      -webkit-mask-repeat: no-repeat;
+      mask-repeat: no-repeat;
     }
   }
 
@@ -124,7 +131,7 @@
     left: 15px;
 
     &:after {
-      content: '\e808';
+      @include citeck-icon-change($citeck-icon-left);
     }
   }
 
@@ -132,7 +139,7 @@
     right: 15px;
 
     &:after {
-      content: '\e809';
+      @include citeck-icon-change($citeck-icon-right);
     }
   }
 

@@ -1,10 +1,10 @@
+import { AssignActions } from '@citeck/constants/tasks';
+import Records from '@citeck/records-core';
 import isEmpty from 'lodash/isEmpty';
 import { call, put, takeEvery } from 'redux-saga/effects';
 
 import { executeAction, getCurrentTaskList, initCurrentTasks, setCurrentTaskList } from '../actions/currentTasks';
-import Records from '../components/Records/Records';
-import { EVENTS } from '../components/widgets/BaseWidget';
-import { AssignActions } from '../constants/tasks';
+import { EVENTS } from '@/components/dashboard/widgets/BaseWidget';
 import TasksConverter from '../dto/tasks';
 import { t } from '../helpers/util';
 import ConfigService, { ALFRESCO_ENABLED } from '../services/config/ConfigService';

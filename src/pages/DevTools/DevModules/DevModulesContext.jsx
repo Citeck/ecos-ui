@@ -1,6 +1,6 @@
 import React, { useReducer } from 'react';
 
-import JournalsService from '../../../components/Journals/service';
+import JournalsService from '@/components/journals/Journals/service';
 import { t } from '../../../helpers/util';
 
 import { SET_GRID_DATA, SET_GRID_COLUMNS, SET_GRID_ACTIONS, SET_IS_READY, SET_ERROR } from './actions';

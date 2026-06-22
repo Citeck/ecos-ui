@@ -1,3 +1,4 @@
+import { TMP_ICON_EMPTY } from '@citeck/constants';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
@@ -6,7 +7,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { Collapse } from 'reactstrap';
 
-import { SortableElement, SortableHandle } from '../../Drag-n-Drop';
+import { SortableElement, SortableHandle } from '@/components/common/DragAndDrop';
 import { EcosIcon, Icon, Tooltip } from '../../common';
 import { Badge, Checkbox } from '../../common/form';
 import Popper from '../Popper';
@@ -221,7 +222,7 @@ class TreeItem extends Component {
               title={this.title}
             />
           )}
-          {!!icon && (
+          {(!!icon || !!onClickIcon) && (
             <Tooltip
               className="ecos-tree__item-element-icon-tooltip"
               target={targetId + '-icon'}
@@ -232,8 +233,8 @@ class TreeItem extends Component {
             >
               <EcosIcon
                 id={targetId + '-icon'}
-                data={item.icon}
-                className="ecos-tree__item-element-icon"
+                data={item.icon || { value: TMP_ICON_EMPTY, type: 'icon' }}
+                className={classNames('ecos-tree__item-element-icon', { 'ecos-tree__item-element-icon_empty': !icon })}
                 onClick={() => onClickIcon && onClickIcon(item)}
               />
             </Tooltip>

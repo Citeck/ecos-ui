@@ -2,7 +2,7 @@ import { render } from '@testing-library/react';
 import React from 'react';
 
 import FileIcon from '../FileIcon';
-import { blankFormat } from '../constants';
+import { blankFormat } from '@/components/common/FileIcon/constants';
 import { detectFormat } from '../helpers';
 
 console.error = jest.fn();

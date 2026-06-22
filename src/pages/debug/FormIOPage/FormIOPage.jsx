@@ -7,7 +7,7 @@ import { Col, Container, Row } from 'reactstrap';
 // import schema from './calendarForm.json';
 // import schema from './contractor.json';
 // import Formio from 'formiojs/Formio';
-import EcosFormUtils from '@/components/EcosForm/EcosFormUtils';
+import EcosFormUtils from '@/components/forms/EcosForm/EcosFormUtils';
 import { getCurrentLocale } from '@/helpers/export/util';
 
 import './temp.scss';

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { extractLabel } from '../../../../../helpers/util';
-import RecordActions from '../../../../Records/actions/recordActions';
+import RecordActions from '@/components/core/Records/actions/recordActions';
 import DefaultGqlFormatter from './DefaultGqlFormatter';
 
 class ActionFormatter extends DefaultGqlFormatter {

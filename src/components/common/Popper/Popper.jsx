@@ -22,7 +22,6 @@ export default class Popper extends Component {
     uncontrolled: PropTypes.bool,
     autohide: PropTypes.bool,
     isOpen: PropTypes.bool,
-    isViewNewJournal: PropTypes.bool,
     withoutText: PropTypes.bool,
     contentComponent: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
     children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
@@ -50,7 +49,6 @@ export default class Popper extends Component {
     uncontrolled: true
   };
 
-  #iconRef = null;
   #textRef = null;
 
   state = {
@@ -102,12 +100,6 @@ export default class Popper extends Component {
     });
   };
 
-  setIconRef = ref => {
-    if (ref) {
-      this.#iconRef = ref;
-    }
-  };
-
   setTextRef = ref => {
     if (ref) {
       this.#textRef = ref;
@@ -139,16 +131,14 @@ export default class Popper extends Component {
   };
 
   handleMouseEnter = () => {
-    const { text, contentComponent, icon, popupClassName, isViewNewJournal, placement, uncontrolled, isOpen } = this.props;
-    const element = icon && !isViewNewJournal ? this.#iconRef : this.#textRef;
+    const { text, contentComponent, popupClassName, placement, uncontrolled, isOpen } = this.props;
+    const element = this.#textRef;
     if (uncontrolled || (!uncontrolled && isOpen)) {
       popupEmitter.emit(
         Events.SHOW,
         element,
         this.getDisp(getFirstNotNil(contentComponent, text)),
-        classNames(popupClassName, {
-          'ecos-popper__text_new': isViewNewJournal
-        }),
+        classNames(popupClassName, 'ecos-popper__text_new'),
         placement
       );
     }
@@ -157,7 +147,7 @@ export default class Popper extends Component {
   handleResize = debounce(() => this.checkNeedShowPopper(), 350);
 
   renderText = () => {
-    const { icon, text, contentComponent, children, withoutText, isViewNewJournal } = this.props;
+    const { text, contentComponent, children, withoutText } = this.props;
 
     if (withoutText) {
       return null;
@@ -165,7 +155,7 @@ export default class Popper extends Component {
 
     const extraProps = {};
 
-    if ((!icon && this.canShowPopover) || (isViewNewJournal && this.canShowPopover)) {
+    if (this.canShowPopover) {
       extraProps.onMouseEnter = this.handleMouseEnter;
       extraProps.onMouseOut = this.handleMouseOut;
     }
@@ -176,23 +166,6 @@ export default class Popper extends Component {
       </div>
     );
   };
-
-  renderIcon() {
-    const { icon, isViewNewJournal } = this.props;
-
-    if (!icon || !this.canShowPopover || isViewNewJournal) {
-      return null;
-    }
-
-    return (
-      <i
-        ref={this.setIconRef}
-        className={classNames('icon', icon, 'ecos-popper__icon')}
-        onMouseEnter={this.handleMouseEnter}
-        onMouseOut={this.handleMouseOut}
-      />
-    );
-  }
 
   render() {
     if (!this.needPopper) {
@@ -205,7 +178,6 @@ export default class Popper extends Component {
       <ReactResizeDetector handleWidth onResize={this.handleResize} targetRef={this._popperRef}>
         <div ref={this._popperRef} className={classNames('ecos-popper', className)} onClick={onClick}>
           {this.renderText()}
-          {this.renderIcon()}
         </div>
       </ReactResizeDetector>
     );

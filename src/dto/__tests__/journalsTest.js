@@ -1,7 +1,8 @@
 /**
  * @jest-environment jsdom
  */
-import { PREDICATE_AND, PREDICATE_CONTAINS, PREDICATE_OR } from '../../components/Records/predicates/predicates';
+import { PREDICATE_AND, PREDICATE_CONTAINS, PREDICATE_OR } from '@citeck/records-core/predicates/predicates';
+
 import JC from '../journals';
 
 const check = (methodName, data) => {

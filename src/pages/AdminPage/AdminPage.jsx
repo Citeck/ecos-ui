@@ -1,13 +1,13 @@
+import { SectionTypes } from '@citeck/constants/adminSection';
 import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
 import React from 'react';
 import { connect } from 'react-redux';
 
 import { initAdminSection, updActiveSection } from '../../actions/adminSection';
-import AdminSection from '../../components/AdminSection';
+import AdminSection from '@/components/admin/AdminSection';
 import { Loader } from '../../components/common';
 import { Well } from '../../components/common/form';
-import { SectionTypes } from '../../constants/adminSection';
 import { getStateId } from '../../helpers/store';
 import { getEnabledWorkspaces, getId, getSearchParams, t } from '../../helpers/util';
 

@@ -1,10 +1,10 @@
+import Records from '@citeck/records-core';
+import { PREDICATE_AND, PREDICATE_EQ } from '@citeck/records-core/predicates/predicates';
+import { ParserPredicate } from '@citeck/records-predicates';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isObject from 'lodash/isObject';
 
-import { ParserPredicate } from '../components/Filters/predicates';
-import Records from '../components/Records/Records';
-import { PREDICATE_AND, PREDICATE_EQ } from '../components/Records/predicates/predicates';
 import JournalsConverter from '../dto/journals';
 import AttributesService from '../services/AttributesService';
 
@@ -35,9 +35,7 @@ export class ChartsApi {
 
     if (!isEmpty(journalPredicate)) {
       const _journalPredicates = [journalPredicate];
-      const cleanedJournalPredicate = ParserPredicate.replacePredicatesType(
-        JournalsConverter.cleanUpPredicate(_journalPredicates)
-      )[0];
+      const cleanedJournalPredicate = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(_journalPredicates))[0];
 
       if (!isEmpty(cleanedJournalPredicate)) {
         predicates.push(cleanedJournalPredicate);

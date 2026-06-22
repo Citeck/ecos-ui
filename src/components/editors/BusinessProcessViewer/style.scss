@@ -1,0 +1,46 @@
+@import '@/styles/constants.scss';
+
+.ecos-business-process {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  &__content {
+    flex: auto;
+  }
+
+  &__actions {
+    margin-top: 20px;
+  }
+}
+
+.marked-element {
+  outline: 4px solid $color-red-2;
+  outline-offset: 4px;
+}
+
+.ecos-modal-business-process {
+  height: 90%;
+
+  & .modal-content {
+    height: 100%;
+  }
+}
+
+.ecos-camunda-process {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  &__content {
+    height: 100%;
+
+    .ecos-bpmn-model-container {
+      height: 100%;
+    }
+  }
+
+  &__actions {
+    margin-top: 20px;
+  }
+}

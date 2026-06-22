@@ -1,7 +1,7 @@
+import { SourcesId } from '@citeck/constants';
+import Records from '@citeck/records-core';
 import isEmpty from 'lodash/isEmpty';
 
-import Records from '../components/Records';
-import { SourcesId } from '../constants';
 import { t } from '../helpers/util';
 
 import { CommonApi } from './common';

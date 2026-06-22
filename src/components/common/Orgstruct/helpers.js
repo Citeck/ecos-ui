@@ -1,12 +1,11 @@
+import { SourcesId } from '@citeck/constants';
 import get from 'lodash/get';
 import isNil from 'lodash/isNil';
 import isUndefined from 'lodash/isUndefined';
 
-import { SourcesId } from '../../../constants';
-
 import { AUTHORITY_TYPE_USER, AUTHORITY_TYPE_GROUP } from './constants';
 
-import EcosFormUtils from '@/components/EcosForm/EcosFormUtils';
+import EcosFormUtils from '@/components/forms/EcosForm/EcosFormUtils';
 
 export const getGroupName = str => str.replace(`${AUTHORITY_TYPE_GROUP}_`, '');
 export const getGroupRef = str => `${SourcesId.GROUP}@${str}`;

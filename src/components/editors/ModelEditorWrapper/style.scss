@@ -1,0 +1,202 @@
+@import '@/styles/constants';
+
+.ecos-model-editor {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+
+  $right-content-min-width: 320px;
+
+  &__info {
+    height: auto;
+  }
+
+  &__designer {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    width: 100vw;
+    min-width: 25%;
+
+    &-title {
+      padding: 10px 0;
+      padding-left: 20px;
+      border-bottom: 1px solid $color-gray-4;
+
+      &:empty {
+        display: none;
+      }
+    }
+
+    &-work-zone {
+      background: $color-white;
+      flex: auto;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    &-child {
+      flex: auto;
+
+      & .ecos-model-container {
+        position: relative;
+        height: 100%;
+
+        & .bjs-container {
+          overflow: hidden;
+        }
+
+        & .dmn-decision-table-container {
+          display: flex;
+          justify-content: center;
+
+          & .tjs-container {
+            display: flex;
+            justify-content: center;
+          }
+        }
+
+        & .dmn-definitions {
+          display: none;
+        }
+
+        & .dmn-literal-expression-container {
+          display: flex;
+          justify-content: center;
+
+          & .viewer-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+          }
+        }
+      }
+    }
+
+    &-buttons {
+      position: absolute;
+      bottom: 30px;
+      display: flex;
+      padding: 10px;
+
+      & :nth-child(n):not(:last-child) {
+        margin-right: 10px;
+      }
+    }
+
+    @media (max-width: 992px) {
+      &-buttons {
+        bottom: 60px;
+
+        .ecos-btn {
+          padding: 10px;
+        }
+      }
+    }
+  }
+
+  &__sidebar-right {
+    width: 30px;
+    position: relative;
+    box-shadow: -5px 0px 5px -5px rgba(0, 0, 0, 0.2);
+    background-color: white;
+    transition: width 0.5s;
+    flex-grow: 2;
+
+    &-caption {
+      position: sticky;
+      top: -20px;
+      z-index: 2;
+      background: white;
+      padding-top: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px $color-gray-4 solid;
+      padding-left: 20px;
+      margin: -20px -20px 5px -20px;
+    }
+
+    &-resizer {
+      left: -10px;
+      top: 5rem;
+      z-index: 100;
+    }
+
+    &_open {
+      width: 25%;
+      min-width: $right-content-min-width;
+    }
+
+    &-opener {
+      position: absolute;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      top: 20px;
+      left: -12px;
+      height: 25px;
+      width: 25px;
+      background: $color-white;
+      box-shadow: $box-shadow-default;
+      border-radius: $border-radius-extra-large;
+      cursor: pointer;
+
+      & > .icon {
+        font-size: 15px;
+        margin-top: -2px;
+      }
+
+      &:hover {
+        background: var(--primary-color);
+
+        .icon {
+          color: $color-white;
+        }
+      }
+    }
+
+    &-content {
+      display: none;
+      padding: 20px;
+      background: $color-white;
+      height: 100%;
+      min-width: $right-content-min-width;
+      position: relative;
+
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    &_open > &-content {
+      display: block;
+    }
+  }
+
+  .ecos-btn__i {
+    font-size: $font-size-extra-large;
+    line-height: $font-size-extra-large;
+  }
+
+  &__designer-zoom {
+    position: absolute;
+    bottom: 90px;
+    right: 20px;
+
+    .ecos-btn {
+      margin-bottom: 10px;
+    }
+
+    @media (max-width: 992px) {
+      .ecos-btn {
+        padding: 10px;
+      }
+    }
+  }
+
+  @media (max-width: 992px) {
+    &__designer-zoom {
+      bottom: 120px;
+    }
+  }
+}

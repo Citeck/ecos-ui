@@ -1,7 +1,6 @@
+import { Pages } from '@citeck/constants';
 import classNames from 'classnames';
 import React, { lazy, useState } from 'react';
-
-import { Pages } from '../constants';
 
 import Footer from './Footer';
 

@@ -1,13 +1,14 @@
+import { DataFormatTypes } from '@citeck/constants';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import omit from 'lodash/omit';
 import { createSelector } from 'reselect';
 
-import { DataFormatTypes } from '../constants';
-import { documentFields, Labels, statusesKeys } from '../constants/documents';
 import { t } from '../helpers/export/util';
 import { getOutputFormat } from '../helpers/util';
 import { initialState } from '../reducers/documents';
+
+import { documentFields, Labels, statusesKeys } from '@/helpers/documents';
 
 const selectState = (state, key) => get(state, ['documents', key], { ...initialState });
 const getIsLoadChecklist = ownState => {

@@ -1,8 +1,8 @@
+import Records from '@citeck/records-core';
 import classNames from 'classnames';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 
-import Records from '@/components/Records';
 import { t } from '@/helpers/util';
 
 import './SelectHierarchical.scss';
@@ -200,9 +200,7 @@ const SelectHierarchical = ({
 
       setLoadingByParent((prev: Record<string, boolean>) => ({ ...prev, [key]: true }));
 
-      const query = parentRef
-        ? { t: 'eq', a: '_parent', val: parentRef }
-        : { t: 'empty', a: '_parent' };
+      const query = parentRef ? { t: 'eq', a: '_parent', val: parentRef } : { t: 'empty', a: '_parent' };
 
       try {
         const result: { records?: Array<{ id: string; name: string; childIds: string[] | null }> } = await Records.query(
@@ -450,7 +448,13 @@ const SelectHierarchical = ({
 
           const fullPathText = path && path.length > 0 ? path.map((p: AncestorPathItem) => p.disp).join(' › ') : fallbackLabel || ref;
           const leafText = path && path.length > 0 ? path[path.length - 1].disp : fallbackLabel || ref;
-          const parentPathText = path && path.length > 1 ? path.slice(0, -1).map((p: AncestorPathItem) => p.disp).join(' › ') : '';
+          const parentPathText =
+            path && path.length > 1
+              ? path
+                  .slice(0, -1)
+                  .map((p: AncestorPathItem) => p.disp)
+                  .join(' › ')
+              : '';
 
           return (
             <span
@@ -555,8 +559,7 @@ const SelectHierarchical = ({
         onClick={handleToggle}
       >
         <div className="ecos-select-hierarchical__trigger-content">{renderSelectedChips()}</div>
-        <span className="ecos-select-hierarchical__trigger-icon">&nbsp;
-        </span>
+        <span className="ecos-select-hierarchical__trigger-icon">&nbsp;</span>
       </div>
 
       {isOpen &&

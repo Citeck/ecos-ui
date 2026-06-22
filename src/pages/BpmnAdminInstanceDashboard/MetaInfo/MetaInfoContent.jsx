@@ -12,7 +12,7 @@ import { createDocumentUrl } from '../../../helpers/urls';
 import { getMetaInfo } from '../../../actions/instanceAdmin';
 import { t } from '../../../helpers/util';
 import { InstanceContext } from '../InstanceContext';
-import { META_INFO_BLOCK_CLASS } from '../constants';
+import { META_INFO_BLOCK_CLASS } from '@/pages/BpmnAdminInstanceDashboard/constants';
 import Labels from './Labels';
 import { ActionsButton } from './components';
 

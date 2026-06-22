@@ -84,6 +84,9 @@ module.exports = {
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': 'off',
     'react/prop-types': 'off',
+    // Project uses the automatic JSX runtime (vite/babel), so React need not be in scope.
+    'react/react-in-jsx-scope': 'off',
+    'react/jsx-uses-react': 'off',
     'prettier/prettier': 'warn',
     'import/no-unresolved': 'off'
   }

@@ -1,8 +1,9 @@
 @import '../../../../styles/constants';
 
 .ecos-panel {
-  padding-top: 8px;
   border: 1px solid $color-gray-4;
+  border-top-left-radius: $border-radius-extra-large;
+  border-top-right-radius: $border-radius-extra-large;
 }
 
 .ecos-panel__large {

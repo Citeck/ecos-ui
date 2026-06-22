@@ -1,8 +1,8 @@
+import { pagesWithOnlyContent } from '@citeck/constants';
+import { ServerDateFormats } from '@citeck/constants/timesheet';
 import get from 'lodash/get';
 import moment from 'moment';
 
-import { pagesWithOnlyContent } from '../../constants';
-import { ServerDateFormats } from '../../constants/timesheet';
 import { t } from '../util';
 
 import { CommonLabels } from './dictionary';

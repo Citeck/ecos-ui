@@ -35,7 +35,6 @@ class Tooltip extends Component {
     hideArrow: PropTypes.bool,
     isOpen: PropTypes.bool,
     uncontrolled: PropTypes.bool,
-    isViewNewJournal: PropTypes.bool,
     showAsNeeded: PropTypes.bool,
     getIsNeeded: PropTypes.func,
     minWidthByContent: PropTypes.bool,
@@ -154,8 +153,7 @@ class Tooltip extends Component {
       offset,
       innerRef,
       hideArrow,
-      container,
-      isViewNewJournal
+      container
     } = this.props;
 
     const modifiers = isArray(_modifiers) ? _modifiers : [_modifiers];
@@ -176,7 +174,7 @@ class Tooltip extends Component {
       container,
       hideArrow,
       className: classNames('ecos-base-tooltip', { 'ecos-modal-tooltip': isInModal }, className),
-      innerClassName: classNames('ecos-base-tooltip-inner', innerClassName, { 'ecos-base-tooltip-inner_new': isViewNewJournal }),
+      innerClassName: classNames('ecos-base-tooltip-inner ecos-base-tooltip-inner_new', innerClassName),
       arrowClassName: classNames('ecos-base-tooltip-arrow', arrowClassName),
       popperClassName: classNames('ecos-base-tooltip-popper', popperClassName),
       toggle: this.onToggle

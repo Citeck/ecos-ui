@@ -1,3 +1,4 @@
+import { SectionTypes } from '@citeck/constants/adminSection';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
@@ -12,7 +13,6 @@ import {
   updActiveSection,
   setAdminSectionInitStatus
 } from '../actions/adminSection';
-import { SectionTypes } from '../constants/adminSection';
 import { wrapArgs } from '../helpers/redux';
 import { equalsQueryUrls } from '../helpers/urls';
 import { getEnabledWorkspaces } from '../helpers/util';

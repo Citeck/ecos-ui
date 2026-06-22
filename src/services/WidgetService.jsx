@@ -3,17 +3,17 @@ import React, { lazy, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 
-import BusinessProcessViewer from '../components/BusinessProcessViewer';
-import { isFlowableProcess } from '../components/BusinessProcessViewer/util';
-import FormManager from '../components/EcosForm/FormManager';
-import { JournalsPresetEditor } from '../components/Journals/JournalsPresets';
-import { notifyFailure, notifySuccess } from '../components/Records/actions/util/actionUtils';
+import BusinessProcessViewer from '@/components/editors/BusinessProcessViewer';
+import { isFlowableProcess } from '@/components/editors/BusinessProcessViewer/util';
+import FormManager from '@/components/forms/EcosForm/FormManager';
+import { JournalsPresetEditor } from '@/components/journals/Journals/JournalsPresets';
+import { notifyFailure, notifySuccess } from '@/components/core/Records/actions/util/actionUtils';
 import Modal from '../components/common/EcosModal/CiteckEcosModal';
 import DialogManager from '../components/common/dialogs/Manager/index';
 import { SelectOrgstruct } from '../components/common/form';
 import { AUTHORITY_TYPE_USER, TabTypes } from '../components/common/form/SelectOrgstruct/constants';
-import { UploadNewVersion } from '../components/formAction';
-import { DocPreview } from '../components/widgets/DocPreview';
+import { UploadNewVersion } from '@/components/forms/FormAction';
+import { DocPreview } from '@/components/dashboard/widgets/DocPreview';
 import { t } from '../helpers/util';
 
 import { Loader } from '@/components/common/index';
@@ -53,7 +53,7 @@ export default class WidgetService {
   }
 
   static openEditJournalWidgets(props = {}) {
-    const Settings = lazy(() => import('../components/Journals/JournalsPreviewWidgets/WidgetSettings'));
+    const Settings = lazy(() => import('@/components/journals/Journals/JournalsPreviewWidgets/WidgetSettings'));
     const store = getStore();
     const modalRef = React.createRef();
 

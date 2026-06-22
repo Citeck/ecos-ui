@@ -1,35 +1,30 @@
-import React, { useContext, useEffect, useState } from 'react';
-import AceEditor from 'react-ace';
-
+import Records from '@citeck/records-core';
 import get from 'lodash/get';
 import head from 'lodash/head';
-
+import React, { useContext, useEffect, useState } from 'react';
+import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/mode-json';
 
-import { notifyFailure, notifySuccess } from '../../../components/Records/actions/util/actionUtils';
-import { t } from '../../../helpers/util';
-import { Btn } from '../../../components/common/btns';
-import Records from '../../../components/Records';
+import { notifyFailure, notifySuccess } from '@/components/core/Records/actions/util/actionUtils';
 import { EcosModal, SaveAndCancelButtons } from '../../../components/common';
+import { Btn } from '../../../components/common/btns';
+import { t } from '../../../helpers/util';
 import { MigrationContext } from '../MigrationContext';
-import { MIGRATION_INFO_BLOCK_CLASS } from '../constants';
+import { MIGRATION_INFO_BLOCK_CLASS } from '@/pages/BPMNVersionsMigration/constants';
+
 import Labels from './Labels';
 
 const MigrationInfo = ({ processId }) => {
-  const { activities, migrationPlan, setMigrationPlan, sourceProcessDefinitionId, targetProcessDefinitionId } = useContext(
-    MigrationContext
-  );
+  const { activities, migrationPlan, setMigrationPlan, sourceProcessDefinitionId, targetProcessDefinitionId } =
+    useContext(MigrationContext);
 
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [migrationPlanStringify, setMigrationPlanStringify] = useState(JSON.stringify(migrationPlan, null, 2));
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(
-    () => {
-      setMigrationPlanStringify(JSON.stringify(migrationPlan, null, 2));
-    },
-    [migrationPlan]
-  );
+  useEffect(() => {
+    setMigrationPlanStringify(JSON.stringify(migrationPlan, null, 2));
+  }, [migrationPlan]);
 
   const handleGenerate = () => {
     const [, source] = get(sourceProcessDefinitionId, 'id', '').split('@');

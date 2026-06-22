@@ -1,3 +1,8 @@
+import { ADMIN_WORKSPACE_ID, SourcesId, URL } from '@citeck/constants';
+import { CITECK_URI, PROXY_URI } from '@citeck/constants/alfresco';
+import { GROUP_EVERYONE, MENU_VERSION, MenuSettings as ms } from '@citeck/constants/menu';
+import Records from '@citeck/records-core';
+import { PERMISSION_CHANGE_PASSWORD } from '@citeck/records-core/constants';
 import lodashGet from 'lodash/get';
 import head from 'lodash/head';
 import isArray from 'lodash/isArray';
@@ -8,12 +13,7 @@ import last from 'lodash/last';
 import Omit from 'lodash/omit';
 import lodashSet from 'lodash/set';
 
-import Records from '../components/Records';
-import { PERMISSION_CHANGE_PASSWORD } from '../components/Records/constants';
 import { AUTHORITY_TYPE_GROUP } from '../components/common/form/SelectOrgstruct/constants';
-import { ADMIN_WORKSPACE_ID, SourcesId, URL } from '../constants';
-import { CITECK_URI, PROXY_URI } from '../constants/alfresco';
-import { GROUP_EVERYONE, MENU_VERSION, MenuSettings as ms } from '../constants/menu';
 import MenuConverter from '../dto/export/menu';
 import { getWorkspaceId } from '../helpers/urls';
 import { generateSearchTerm, getCurrentUserName, getEnabledWorkspaces } from '../helpers/util';

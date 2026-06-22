@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import isFunction from 'lodash/isFunction';
 
+import CheckboxIcon from './CheckboxIcon';
 import './Checkbox.scss';
 
 export default class ControlledCheckbox extends Component {
@@ -31,23 +32,9 @@ export default class ControlledCheckbox extends Component {
     const { disabled, checked, indeterminate } = this.props;
 
     return (
-      <i
-        className={classNames(
-          'ecos-checkbox__icon',
-          { 'ecos-checkbox__icon_disabled': disabled },
-          !indeterminate &&
-            !checked &&
-            classNames('ecos-checkbox__icon_unchecked icon-custom-checkbox-outline-unchecked', {
-              'ecos-checkbox__icon_hover_blue': !disabled
-            }),
-          (indeterminate || checked) &&
-            classNames('ecos-checkbox__icon_checked', {
-              'ecos-checkbox__icon_blue': !disabled,
-              'icon-custom-checkbox-filled-indeterminate': indeterminate,
-              'icon-custom-checkbox-filled-checked': !indeterminate
-            })
-        )}
-      />
+      <div className={classNames('ecos-checkbox__icon', { 'ecos-checkbox__icon_disabled': disabled })}>
+        <CheckboxIcon checked={checked} indeterminate={indeterminate} disabled={disabled} />
+      </div>
     );
   }
 

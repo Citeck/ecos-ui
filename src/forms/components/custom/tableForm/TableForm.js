@@ -1,9 +1,9 @@
+import Records from '@citeck/records-core';
 import _ from 'lodash';
 
-import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
-import JournalsService from '../../../../components/Journals/service';
-import formatterRegistry from '../../../../components/Journals/service/formatters/registry';
-import Records from '../../../../components/Records';
+import EcosFormUtils from '@/components/forms/EcosForm/EcosFormUtils';
+import JournalsService from '@/components/journals/Journals/service';
+import formatterRegistry from '@/components/journals/Journals/service/formatters/registry';
 import DialogManager from '../../../../components/common/dialogs/Manager';
 import TableForm from '../../../../components/common/form/TableForm';
 import ecosFetch from '../../../../helpers/ecosFetch';

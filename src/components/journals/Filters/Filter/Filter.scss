@@ -1,0 +1,78 @@
+@import '@/styles/constants';
+
+.ecos-filter {
+  position: relative;
+  padding: 6px 12px 6px 24px;
+  border-top: 1px solid $color-gray-4;
+  border-bottom: 1px solid $color-gray-4;
+  margin-bottom: -1px;
+
+  &__label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__actions {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+}
+
+.ecos-filter_step {
+  margin-right: 10px;
+}
+
+.ecos-filter_font_12 {
+  font-size: $font-size-small;
+
+  .select__single-value {
+    font-size: $font-size-small;
+  }
+}
+
+.ecos-filter__value-wrapper {
+  height: 26px;
+  width: 100%;
+  display: flex;
+
+  input,
+  .select__single-value {
+    font-size: $font-size-small;
+  }
+}
+
+.ecos-filter_width_full {
+  width: 100%;
+}
+
+.ecos-filter__drag-ico {
+  font-size: $font-size-extra-large;
+  color: $color-gray-6;
+  line-height: 1;
+
+  &:hover {
+    cursor: inherit;
+    background: $color-white !important;
+  }
+
+  &::before {
+    width: auto !important;
+    margin: 0 !important;
+  }
+}
+
+.select__menu-list {
+  .select__option {
+    color: $text-color-dark;
+    font-weight: $font-weight-semi-bold;
+
+    &--is-selected,
+    &--is-focused,
+    &:hover {
+      background-color: $color-gray-1;
+    }
+  }
+}

@@ -5,7 +5,7 @@ import throttle from 'lodash/throttle';
 
 import { TEMPLATE_REGEX } from '../../custom/selectJournal/constants';
 
-import EcosFormUtils from '@/components/EcosForm/EcosFormUtils';
+import EcosFormUtils from '@/components/forms/EcosForm/EcosFormUtils';
 import { t } from '@/helpers/export/util';
 import { getMLValue } from '@/helpers/util';
 import './panel.scss';

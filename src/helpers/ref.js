@@ -1,6 +1,5 @@
+import { SourcesId } from '@citeck/constants';
 import isEmpty from 'lodash/isEmpty';
-
-import { SourcesId } from '../constants';
 
 export const getRefWithAlfrescoPrefix = recordRef => {
   if (isEmpty(recordRef)) {

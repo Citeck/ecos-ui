@@ -1,3 +1,4 @@
+import Records from '@citeck/records-core';
 import { get, head } from 'lodash';
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 
@@ -10,12 +11,12 @@ import {
   setChangeResult,
   setDocStatus
 } from '../actions/docStatus';
-import Records from '../components/Records/Records';
-import { EVENTS } from '../components/widgets/BaseWidget';
+import { EVENTS } from '@/components/dashboard/widgets/BaseWidget';
 import DocStatusConverter from '../dto/docStatus';
 import { t } from '../helpers/util';
 import { selectStateDocStatusById } from '../selectors/docStatus';
 import DocStatusService from '../services/docStatus';
+
 import { NotificationManager } from '@/services/notifications';
 
 function* sagaInitDocStatus({ api }, { payload }) {

@@ -1,3 +1,4 @@
+import { SourcesId } from '@citeck/constants';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
@@ -5,7 +6,7 @@ import React, { useContext } from 'react';
 
 import { AssocLink } from '../../../AssocLink';
 import { SelectOrgstructContext } from '../../SelectOrgstructContext';
-import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, ViewModes } from '../../constants';
+import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, ViewModes } from '@/components/common/form/SelectOrgstruct/constants';
 import ViewMode from '../ViewMode';
 
 import { Tooltip } from '@/components/common';
@@ -15,7 +16,6 @@ import { Btn } from '@/components/common/btns';
 import ChevronRight from '@/components/common/icons/ChevronRight';
 import Close from '@/components/common/icons/Close';
 import Subtract from '@/components/common/icons/Subtract';
-import { SourcesId } from '@/constants';
 import { createDocumentUrl, createProfileUrl, isNewVersionPage } from '@/helpers/urls';
 import { t } from '@/helpers/util';
 

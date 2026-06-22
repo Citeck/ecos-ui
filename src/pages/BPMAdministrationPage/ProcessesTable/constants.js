@@ -1,5 +1,6 @@
-import { BpmnProcessStatusColumn } from '../../../components/BpmnProcessStatusColumn';
-import { URL } from '../../../constants';
+import { URL } from '@citeck/constants';
+
+import { BpmnProcessStatusColumn } from '@/components/domain/BpmnProcessStatusColumn';
 import { createDocumentUrl } from '../../../helpers/urls';
 import { getMLValue } from '../../../helpers/util';
 

@@ -11,13 +11,11 @@ export default class Well extends Component {
   }
 
   render() {
-    const { maxHeight, isViewNewJournal, ...props } = this.props;
-    const cssClasses = classNames('ecos-well', props.className, {
-      'ecos-well_new': isViewNewJournal
-    });
+    const { maxHeight, ...props } = this.props;
+    const cssClasses = classNames('ecos-well ecos-well_new', props.className);
 
     return (
-      <div {...props} ref={this.rootRef} className={cssClasses} style={{ ...(isViewNewJournal && maxHeight && { maxHeight }) }}>
+      <div {...props} ref={this.rootRef} className={cssClasses} style={{ ...(maxHeight && { maxHeight }) }}>
         {props.children}
       </div>
     );

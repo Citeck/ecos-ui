@@ -1,9 +1,9 @@
+import { OUTCOME_BUTTONS_PREFIX, SUBMIT_FORM_TIMEOUT } from '@citeck/constants/forms';
 import Webform from 'formiojs/Webform';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import merge from 'lodash/merge';
 
-import { OUTCOME_BUTTONS_PREFIX, SUBMIT_FORM_TIMEOUT } from '../constants/forms';
 import { getCurrentLocale } from '../helpers/export/util';
 
 import Formio from './Formio';

@@ -1,12 +1,12 @@
-import get from 'lodash/get';
-import isEmpty from 'lodash/isEmpty';
-import isArray from 'lodash/isArray';
-import head from 'lodash/head';
+import { CONFIG_VERSION } from '@citeck/constants/dashboard';
+import { Layouts, LayoutTypes } from '@citeck/constants/layout';
 import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
+import head from 'lodash/head';
+import isArray from 'lodash/isArray';
+import isEmpty from 'lodash/isEmpty';
 
-import { CONFIG_VERSION } from '../constants/dashboard';
-import { Layouts, LayoutTypes } from '../constants/layout';
-import Components from '../components/widgets/Components';
+import Components from '@/components/dashboard/widgets/Components';
 import DashboardService from '../services/dashboard';
 
 export default class DashboardSettingsConverter {
@@ -278,7 +278,11 @@ export default class DashboardSettingsConverter {
     let tabName = '';
 
     Object.keys(widgets).forEach(key => {
-      tabName = get(tabs.find(tab => tab.idLayout === key), 'label', '');
+      tabName = get(
+        tabs.find(tab => tab.idLayout === key),
+        'label',
+        ''
+      );
 
       widgets[key].forEach(eachColumn);
     });

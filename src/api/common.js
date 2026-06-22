@@ -1,4 +1,5 @@
-import { allowedModes } from '@/constants';
+import { allowedModes } from '@citeck/constants';
+
 import ecosFetch from '@/helpers/ecosFetch';
 import { getCurrentLocale } from '@/helpers/util';
 

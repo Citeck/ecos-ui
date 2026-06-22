@@ -1,16 +1,16 @@
+import { SourcesId, URL } from '@citeck/constants';
+import { SectionTypes } from '@citeck/constants/adminSection';
+import { BASE_LEFT_MENU_ID, MenuTypes } from '@citeck/constants/menu';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 import queryString from 'query-string';
 
-import { SourcesId, URL } from '../constants';
-import { SectionTypes } from '../constants/adminSection';
-import { BASE_LEFT_MENU_ID, MenuTypes } from '../constants/menu';
 import MenuSettingsService from '../services/MenuSettingsService';
 import DashboardService from '../services/dashboard';
 
 import { documentScrollTop, getEnabledWorkspaces, t } from './util';
 
-import FormManager from '@/components/EcosForm/FormManager';
+import FormManager from '@/components/forms/EcosForm/FormManager';
 import { getWorkspaceId } from '@/helpers/urls';
 
 export function processMenuItemsFromOldMenu(oldMenuItems) {

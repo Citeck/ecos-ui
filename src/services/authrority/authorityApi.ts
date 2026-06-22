@@ -1,4 +1,4 @@
-import Records from '../../components/Records/Records';
+import Records from '@citeck/records-core';
 
 import { getWorkspaceId } from '@/helpers/urls';
 

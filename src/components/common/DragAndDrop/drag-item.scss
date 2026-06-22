@@ -1,0 +1,126 @@
+@import '@/styles/constants';
+
+$ecos_btn: ecos-btn;
+$ecos_btn_grey5: ecos-btn_grey5;
+
+.ecos-drag-item {
+  $root: &;
+  $width: 100%;
+  $max-width: 250px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 32px;
+  max-width: 200px;
+  background: $color-white;
+  mix-blend-mode: normal;
+  border: 1px solid $color-gray-4;
+  border-radius: $border-radius-standard;
+  box-sizing: border-box;
+  gap: 10px;
+  padding: 5px;
+
+  // for Safari
+  padding: 0 0 0 10px;
+  min-height: 32px;
+  user-select: none !important;
+
+  &:focus {
+    outline: none;
+  }
+
+  &_selected {
+    background: $color-gray-4;
+    box-shadow: none;
+  }
+
+  &_disabled {
+    background: $color-gray-4;
+    cursor: not-allowed !important;
+  }
+
+  &_clone {
+    position: absolute;
+    opacity: 0;
+    user-select: none;
+    pointer-events: none;
+    background: $color-gray-13;
+
+    & ~ div {
+      transform: none !important;
+    }
+  }
+
+  &_full {
+    width: 100%;
+    max-width: 100%;
+    margin-right: 0;
+  }
+
+  &_by-content {
+    max-width: unset;
+  }
+
+  &__title {
+    font-style: normal;
+    font-weight: 600;
+    font-size: 12px;
+    line-height: 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &-popper {
+      padding: 5px 0;
+      font-size: 14px;
+      font-weight: 600;
+    }
+  }
+
+  &:hover {
+    & #{$root}__actions > :nth-child(n) {
+      display: block;
+    }
+  }
+
+  &__actions {
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+    right: 0;
+
+    & > :nth-child(n):not(.ecos-drag-item__actions-item_drag) {
+      margin-left: 5px;
+      display: none;
+    }
+
+    & .icon {
+      height: 100%;
+      font-size: $font-size-small;
+      color: $text-color-gray;
+      cursor: pointer;
+
+      &:hover {
+        color: $text-color-dark;
+      }
+    }
+
+    &-item {
+      &_drag {
+        pointer-events: none;
+        cursor: grab;
+        margin: 0 6px;
+
+        &.icon {
+          color: $color-gray-6;
+          font-size: $font-size-extra-large;
+        }
+      }
+
+      &_selected.icon {
+        color: $color-gray-5;
+      }
+    }
+  }
+}

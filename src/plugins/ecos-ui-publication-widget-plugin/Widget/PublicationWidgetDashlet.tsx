@@ -1,15 +1,15 @@
 /* eslint-disable react/react-in-jsx-scope */
+import Records from '@citeck/records-core';
 import isEmpty from 'lodash/isEmpty';
 import isString from 'lodash/isString';
 import moment from 'moment';
 
-import Dashlet from '../../../components/Dashlet/Dashlet';
-import FormManager from '../../../components/EcosForm/FormManager';
+import Dashlet from '@/components/dashboard/Dashlet/Dashlet';
+import FormManager from '@/components/forms/EcosForm/FormManager';
 
-import LexicalEditor from '@/components/LexicalEditor';
-import Records from '@/components/Records/Records';
+import LexicalEditor from '@/components/editors/LexicalEditor';
 import { Avatar, Loader } from '@/components/common';
-import BaseWidget, { BaseWidgetProps, BaseWidgetState, EVENTS } from '@/components/widgets/BaseWidget';
+import BaseWidget, { BaseWidgetProps, BaseWidgetState, EVENTS } from '@/components/dashboard/widgets/BaseWidget';
 import { getStateId } from '@/helpers/store';
 import { getFitnesseClassName } from '@/helpers/tools';
 import { getRecordRef } from '@/helpers/urls';

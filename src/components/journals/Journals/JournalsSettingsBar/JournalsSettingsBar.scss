@@ -1,0 +1,512 @@
+@import '@/styles/constants';
+
+.ecos-journal__settings-bar {
+  $root: &;
+  display: flex;
+  position: relative;
+  width: 100%;
+  flex-wrap: wrap;
+
+  &-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+
+    &.full-width {
+      gap: 6px;
+      width: 100%;
+      justify-content: space-between;
+
+      .ecos-dropdown {
+        width: 100%;
+      }
+    }
+  }
+
+  &_new {
+    flex-wrap: nowrap;
+    align-items: center;
+    background-color: var(--main-bg-color);
+    border-radius: 12px 12px 0 0;
+    margin-bottom: 0;
+    padding: 2px 6px;
+
+    .ecos-journal__view-tabs {
+      display: inline-flex;
+    }
+
+    .ecos-btn-settings-filter-on,
+    .ecos-btn-settings-filter-on:hover {
+      background-color: $color-gray-25 !important;
+
+      path,
+      ellipse {
+        stroke: var(--primary-color) !important;
+      }
+    }
+
+    #{$root}-export-btn.ecos-btn {
+      border-radius: $border-radius-standard;
+      min-width: 51px;
+    }
+    #{$root}-template-btn.ecos-btn {
+      border-radius: $border-radius-standard;
+      max-width: 156px;
+
+      .ecos-btn__text {
+        width: 100%;
+        @extend %ellipsis;
+      }
+    }
+
+    #{$root}-container {
+      &_mobile {
+        margin-right: 0;
+      }
+    }
+
+    .ecos-btn_drop-down {
+      font-size: 11px;
+      line-height: normal;
+      border: 1px solid $color-gray-4;
+
+      .ecos-dropdown__toggle-label {
+        padding: 0;
+        margin-right: 4px;
+      }
+    }
+  }
+
+  &-menu {
+    position: absolute;
+    margin-top: 12px;
+    right: 0;
+    top: 0;
+
+    &.admin-section {
+      top: 5%;
+      z-index: 1001;
+    }
+
+    &_mobile.ecos-btn {
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      background-color: $color-gray-25;
+
+      .ecos-btn__text {
+        height: auto;
+      }
+    }
+
+    &_text {
+      display: none;
+      color: $color-white;
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 16px;
+    }
+
+    &:hover &_text {
+      display: block;
+    }
+
+    .ecos-btn {
+      padding: 2px 6px 2px 8px;
+      height: auto;
+      background-color: $color-blue-light;
+      border-radius: 20px 0 0 20px;
+      display: inline-flex;
+      align-items: center;
+
+      &:hover {
+        background-color: $color-blue-light;
+        gap: 10px;
+      }
+
+      &:focus {
+        background-color: $color-blue-light;
+      }
+
+      > i {
+        margin: 0;
+        font-size: 12px;
+        color: $color-white;
+      }
+    }
+  }
+
+  &.ecos-journal__settings-bar_new > :nth-child(n) {
+    margin-bottom: 0;
+  }
+  &.ecos-journal__settings-bar_new > :nth-child(n):not(#{$root}-right-side):not(:last-child) {
+    margin-right: 12px;
+  }
+
+  & > :nth-child(n) {
+    margin-bottom: 12px;
+  }
+
+  & > :nth-child(n):not(#{$root}-right-side):not(:last-child) {
+    margin-right: 15px;
+  }
+
+  .ecos-btn.ecos-journal__add-record {
+    font-size: $font-size-xxl;
+    min-width: 40px;
+
+    svg path {
+      fill: $color-gray-5;
+      stroke: $color-gray-5;
+    }
+  }
+
+  .ecos-journal__icon-small-down i:last-child {
+    margin-top: 4px;
+  }
+
+  &-update {
+    max-width: 40px;
+  }
+
+  &-search {
+    &:not(.search_collapsed) {
+      width: 220px;
+      transition: width 0.3s ease 0.15s;
+
+      &:focus-within {
+        width: 350px;
+        transition: width 0.3s ease 0s;
+      }
+    }
+
+    .search__icon-cleaner_show {
+      transition-delay: 0s;
+    }
+
+    min-width: 82px;
+
+    & ~ :nth-child(n) {
+      transition: all 0.4s, opacity 0.2s;
+    }
+  }
+
+  &-export-btn.ecos-btn {
+    min-width: 70px;
+    background-color: $color-white;
+  }
+
+  &-right-side {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex: auto;
+
+    &:empty {
+      display: none;
+    }
+
+    & > :nth-child(n):not(:last-child) {
+      margin-right: 15px;
+    }
+  }
+
+  &-extra {
+    display: flex;
+    position: relative;
+    width: 100%;
+    margin-bottom: 12px;
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  &_mobile {
+    & > #{$root}-search {
+      &.search_expanded {
+        height: 40px;
+        flex: auto;
+        z-index: 1;
+
+        & ~ :nth-child(n) {
+          transform: scale(0);
+          width: 0;
+          min-width: 0;
+          margin: 0;
+          padding: 0;
+          opacity: 0;
+          flex: 0;
+        }
+      }
+    }
+
+    &.search_expanded {
+      margin-right: 0;
+    }
+  }
+
+  &-container {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-right: 0;
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 1370px) {
+  .ecos-journal__settings-bar {
+    $root: &;
+    $margin-right: 10px;
+
+    @if selector-append($root, '_new') {
+      $margin-right: 3px;
+    }
+
+    & > :nth-child(n):not(#{$root}-right-side):not(:last-child),
+    & &-right-side :nth-child(n):not(:last-child),
+    & &-extra > :nth-child(n):not(:last-child) {
+      margin-right: $margin-right;
+    }
+  }
+}
+
+.ecos-journal__btn_new {
+  display: flex !important;
+  height: 28px !important;
+  background-color: $color-gray-25 !important;
+
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background-color: var(--primary-color) !important;
+  }
+
+  i {
+    color: $color-gray-5;
+    font-size: 14px !important;
+  }
+
+  &:hover i,
+  &:hover path {
+    color: $color-white !important;
+    stroke: $color-white !important;
+  }
+
+  &:hover span {
+    color: $color-white;
+  }
+
+  &.create i {
+    margin-right: 0 !important;
+  }
+
+  &_focus {
+    svg path {
+      color: $color-white !important;
+      stroke: $color-white !important;
+    }
+  }
+
+  &.create,
+  &.export {
+    width: 48px;
+    padding: 0;
+    border: 1px solid $color-gray-4;
+
+    > span {
+      padding: 0;
+      margin-left: 6px;
+    }
+
+    &:hover path {
+      stroke: $color-white !important;
+    }
+
+    i:last-child {
+      padding: 0;
+      margin-right: 6px;
+      margin-left: 0;
+    }
+  }
+
+  &.template {
+    .ecos-btn__text {
+      overflow: visible;
+    }
+  }
+
+  &.search {
+    justify-content: flex-start;
+    padding: 12px 8px;
+    border: 1px solid $color-gray-4;
+
+    &:hover,
+    &:hover i {
+      color: $color-gray-5 !important;
+      background-color: $color-gray-25 !important;
+    }
+
+    &:focus-within {
+      i {
+        color: var(--primary-color) !important;
+      }
+    }
+
+    > i {
+      top: 3px;
+    }
+
+    i:last-child {
+      top: -2px;
+    }
+
+    .search__input {
+      left: 28px;
+      font-size: 11px !important;
+      background-color: $color-gray-25;
+    }
+  }
+
+  &.shape {
+    svg path {
+      stroke: $color-gray-5 !important;
+    }
+
+    &:hover svg path {
+      stroke: $color-white !important;
+    }
+  }
+
+  &.filter,
+  &.shape {
+    border: 1px solid $color-gray-4;
+    border-radius: $border-radius-standard;
+    min-width: 28px !important;
+    min-height: 28px !important;
+    width: 28px;
+    height: 28px;
+
+    &:hover path {
+      fill: $color-white !important;
+    }
+  }
+
+  &.filter:hover {
+    background-color: var(--primary-color) !important;
+
+    path,
+    ellipse {
+      fill: var(--primary-color);
+      stroke: $color-white !important;
+    }
+  }
+
+  .ecos-btn__text {
+    font-size: 11px;
+    line-height: normal;
+  }
+
+  &_selected {
+    > span,
+    > i {
+      color: var(--primary-color);
+    }
+  }
+
+  &_focus {
+    background-color: var(--primary-color) !important;
+
+    path,
+    i,
+    span {
+      color: $color-white;
+      stroke: $color-white;
+    }
+  }
+}
+
+.ecos-btn-settings-filter-on i::before {
+  color: $color-blue-light;
+  background-color: $color-white;
+}
+
+.ecos-btn-settings-filter-on:hover i::before {
+  color: var(--primary-color);
+  background-color: $color-white;
+}
+
+.ecos-btn-settings-filter-on:hover {
+  background-color: $color-white !important;
+}
+
+.overflow-menu {
+  &_dropdown {
+    background: rgba($color-white, 0.95);
+    box-shadow: $box-shadow-default;
+    padding: 6px 0;
+    border-radius: 6px;
+    border: none;
+    max-width: 200px;
+  }
+  &_dropdown-content {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 0 6px;
+
+    .ecos-dropdown-outer {
+      margin: 0;
+    }
+  }
+  &_btn-toggle {
+    $btn: &;
+    padding: 0 12px;
+    height: 28px;
+    border: none !important;
+    box-shadow: none !important;
+    background-color: $color-gray-25 !important;
+    border-radius: 6px !important;
+    transition: none;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+
+    &:hover,
+    &.active {
+      background-color: var(--primary-color) !important;
+
+      #{$btn}_text {
+        color: $color-white;
+      }
+
+      & > svg > path {
+        fill: $color-white;
+      }
+    }
+
+    &_text {
+      color: $text-color-gray;
+      font-weight: 600;
+      font-size: 11px;
+    }
+
+    & > svg > path {
+      fill: $color-gray-5;
+    }
+  }
+}
+
+.full-width {
+  width: 100%;
+  max-width: 100%;
+
+  .ecos-btn {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}

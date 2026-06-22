@@ -9,7 +9,7 @@ import uuidV4 from 'uuidv4';
 
 import Tooltip from '../../Tooltip';
 
-import { allowedLanguages, LANGUAGE_EN } from '@/constants/lang';
+import { allowedLanguages, LANGUAGE_EN } from '@/i18n/lang';
 import { t, getCurrentLocale } from '@/helpers/export/util';
 import { prepareTooltipId } from '@/helpers/util';
 

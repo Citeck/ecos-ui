@@ -1,9 +1,9 @@
+import { URL } from '@citeck/constants';
+import { SectionNewTab, SectionTypes } from '@citeck/constants/adminSection';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import queryString from 'query-string';
 
-import { URL } from '../constants';
-import { SectionNewTab, SectionTypes } from '../constants/adminSection';
 import { getWorkspaceId } from '../helpers/urls';
 import { getEnabledWorkspaces } from '../helpers/util';
 

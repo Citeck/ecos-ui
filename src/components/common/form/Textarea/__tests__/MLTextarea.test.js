@@ -1,7 +1,7 @@
 import { render } from '@testing-library/react';
 import React from 'react';
 
-import { LANGUAGE_RU, LANGUAGE_EN } from '../../../../../constants/lang';
+import { LANGUAGE_RU, LANGUAGE_EN } from '@/i18n/lang';
 import MLTextarea from '../MLTextarea';
 
 global.getSelection = () => '';

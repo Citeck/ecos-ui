@@ -1,7 +1,7 @@
+import { INSTANCE_TABS_TYPES } from '@citeck/constants/instanceAdmin';
 import React, { useState } from 'react';
 
 import { getSearchParams } from '../../../helpers/util';
-import { INSTANCE_TABS_TYPES } from '../../../constants/instanceAdmin';
 
 export const InstanceContext = React.createContext();
 

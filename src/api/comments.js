@@ -1,7 +1,6 @@
+import { SourcesId } from '@citeck/constants';
+import Records from '@citeck/records-core';
 import isArray from 'lodash/isArray';
-
-import Records from '../components/Records';
-import { SourcesId } from '../constants';
 
 const LEGACY_FIELDS = {
   text: 'text',

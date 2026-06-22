@@ -1,7 +1,8 @@
+import Records from '@citeck/records-core';
 import FormIODataGridComponent from 'formiojs/components/datagrid/DataGrid';
+
+import EcosFormUtils from '@/components/forms/EcosForm/EcosFormUtils';
 import { isNodeRef } from '../../../../helpers/util';
-import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
-import Records from '../../../../components/Records/Records';
 
 export default class DataGridComponent extends FormIODataGridComponent {
   static schema(...extend) {

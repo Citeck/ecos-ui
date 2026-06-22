@@ -1,4 +1,4 @@
-import Records from '../../components/Records/Records';
+import Records from '@citeck/records-core';
 
 const META_RECORD = 'uiserv/meta@';
 const CONFIG_SOURCE_ID_PREFIX = 'uiserv/cfg@';

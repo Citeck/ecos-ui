@@ -1,10 +1,9 @@
+import Records from '@citeck/records-core';
+import get from 'lodash/get';
 import React, { useState } from 'react';
 
-import get from 'lodash/get';
-
-import Records from '../../../../../components/Records';
-import { JOURNALS_TABS_BLOCK_CLASS } from '../../../constants';
 import { Loader } from '../../../../../components/common';
+import { JOURNALS_TABS_BLOCK_CLASS } from '@/pages/BpmnAdminInstanceDashboard/constants';
 
 import './style.scss';
 

@@ -1,11 +1,5 @@
-import {
-  getIconClassMenu,
-  getMenuWidth,
-  getPositionAdjustment,
-  getSpecialClassByState,
-  makeSiteMenu,
-  processMenuItemsFromOldMenu
-} from '../menu';
+import { BASE_LEFT_MENU_ID } from '@citeck/constants/menu';
+
 import {
   iconsByMenuId,
   makeSiteMenuFromConfig,
@@ -15,7 +9,14 @@ import {
   positionAdjustmentsByType,
   specialClassByState
 } from '../__mocks__/menu.mock';
-import { BASE_LEFT_MENU_ID } from '../../constants/menu';
+import {
+  getIconClassMenu,
+  getMenuWidth,
+  getPositionAdjustment,
+  getSpecialClassByState,
+  makeSiteMenu,
+  processMenuItemsFromOldMenu
+} from '../menu';
 
 function check(data, method, manyProperties = false) {
   data.forEach(item => {

@@ -1,4 +1,4 @@
-import Records from '../components/Records';
+import Records from '@citeck/records-core';
 
 export class DmnEditorApi {
   getDefinition = record => {

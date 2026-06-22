@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 
 import { AssocLink } from '../../AssocLink';
 import InputView from '../InputView';
-import { Labels } from '../constants';
+import { Labels } from '@/components/common/form/SelectJournal/constants';
 
 import { getFormattedLink, getFormatter } from '@/components/common/form/SelectJournal/helpers';
 import { DisplayModes } from '@/forms/components/custom/selectJournal/constants';

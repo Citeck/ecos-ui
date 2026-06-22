@@ -1,17 +1,15 @@
+import { FilterPredicate, ParserPredicate } from '@citeck/records-predicates';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import { createSelector } from 'reselect';
 
-import FilterPredicate from '../components/Filters/predicates/FilterPredicate';
-
 import { selectIsDocLibEnabled } from './docLib';
-import { selectIsKanbanEnabled } from './kanban';
 import { selectIsHierarchyEnabled } from './hierarchy';
+import { selectIsKanbanEnabled } from './kanban';
 import { selectIsEnabledPreviewList } from './previewList';
 
 import { JournalColumnType } from '@/api/journals/types';
-import { ParserPredicate } from '@/components/Filters/predicates';
-import { DEFAULT_PAGINATION, isTable, JOURNAL_DASHLET_CONFIG_VERSION } from '@/components/Journals/constants';
+import { DEFAULT_PAGINATION, isTable, JOURNAL_DASHLET_CONFIG_VERSION } from '@/components/journals/Journals/constants';
 import { beArray, getId, getTextByLocale } from '@/helpers/util';
 import { defaultState } from '@/reducers/journals';
 import { PredicateType } from '@/types/predicates';

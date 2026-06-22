@@ -1,7 +1,7 @@
+import Records from '@citeck/records-core';
 import React, { useEffect, useState, memo } from 'react';
 
-import FormManager from '../../../components/EcosForm/FormManager';
-import Records from '../../../components/Records';
+import FormManager from '@/components/forms/EcosForm/FormManager';
 import { Icon, Tooltip } from '../../../components/common';
 import { useOrgstructContext } from '../../../components/common/Orgstruct/OrgstructContext';
 import { isMobileDevice, t } from '../../../helpers/util';

@@ -85,12 +85,11 @@ export default class Dropdown extends Component {
   }
 
   get cssDropdownMenu() {
-    const { right, isLinks, cascade, menuClassName, isViewNewJournal } = this.props;
+    const { right, isLinks, cascade, menuClassName } = this.props;
 
     return classNames(
-      'ecos-dropdown__menu',
+      'ecos-dropdown__menu ecos-dropdown__menu_new',
       menuClassName,
-      { 'ecos-dropdown__menu_new': isViewNewJournal },
       { 'ecos-dropdown__menu_right': right },
       { 'ecos-dropdown__menu_links': isLinks },
       { 'ecos-dropdown__menu_cascade': cascade }

@@ -1,0 +1,34 @@
+@mixin icon-mask($svg) {
+  &:not(.ecos-icon)::before {
+    content: '';
+    display: inline-block;
+    width: .8em;
+    height: .8em;
+    background-color: currentColor;
+    mask-image: url('data:image/svg+xml;utf8,#{$svg}');
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-image: url('data:image/svg+xml;utf8,#{$svg}');
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+  }
+}
+
+// External link / open in new place
+.icon-new-window,
+.icon-external-link {
+  @include icon-mask('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 14"><path d="M11.5 7.5V11C11.5 11.3 11.3 11.5 11 11.5H3C2.7 11.5 2.5 11.3 2.5 11V3C2.5 2.7 2.7 2.5 3 2.5H6.5M9 2.5H11.5V5M11.5 2.5L6.5 7.5" fill="none" stroke="black" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+}
+
+// Hamburger menu
+.icon-hamburger-menu,
+.icon-menu {
+  @include icon-mask('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black"><path fill-rule="evenodd" d="M3 6.75A.75.75 0 0 1 3.75 6h16.5a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 6.75ZM3 12a.75.75 0 0 1 .75-.75h16.5a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 12Zm0 5.25a.75.75 0 0 1 .75-.75h16.5a.75.75 0 0 1 0 1.5H3.75a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd"/></svg>');
+}
+
+// Small clock
+.icon-small-clock {
+  @include icon-mask('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black"><path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM12.75 6a.75.75 0 0 0-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 0 0 0-1.5h-3.75V6Z" clip-rule="evenodd"/></svg>');
+}

@@ -59,7 +59,11 @@ $theme-title-gray-color: 'transparent';
     }
 
     .card-title {
-      margin: 12px 0 !important;
+      display: flex;
+      position: relative;
+      align-items: center;
+      width: 100%;
+      margin-top: 10px;
       padding: 5px 12px;
       background-color: var(--title-background-color);
       border-radius: 6px;
@@ -67,7 +71,6 @@ $theme-title-gray-color: 'transparent';
       font-weight: $font-weight-semi-bold !important;
       font-size: $font-size-large;
       color: var(--title-color);
-      line-height: 22px;
     }
   }
 }

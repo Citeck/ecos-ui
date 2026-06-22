@@ -122,7 +122,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@include media-down(md) {
   .formio-form .formio-component-button {
     .btn.btn_without-indents {
       margin-bottom: 10px;
@@ -130,7 +130,7 @@
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 600px) { // non-grid breakpoint (off Bootstrap scale, intentional)
   .ecos-form-buttons-container-manual {
     flex-direction: column-reverse;
   }

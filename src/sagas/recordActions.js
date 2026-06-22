@@ -3,7 +3,7 @@ import { call, put, takeEvery } from 'redux-saga/effects';
 
 import { backPageFromTransitionsHistory } from '../actions/app';
 import { backExecuteAction, getActions, runExecuteAction, setActions, setLoading } from '../actions/recordActions';
-import { ActionTypes } from '../components/Records/actions/constants';
+import { ActionTypes } from '@/components/core/Records/actions/constants';
 import { t } from '../helpers/util';
 
 import { NotificationManager } from '@/services/notifications';

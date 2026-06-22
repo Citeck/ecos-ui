@@ -1,10 +1,10 @@
+import { SourcesId } from '@citeck/constants';
+import { NODE_TYPES } from '@citeck/constants/docLib';
 import get from 'lodash/get';
 
 import { WORKER_STATUSES, ACTION_CANCEL_REQUEST, Endpoints } from './constants';
 
-import { DocLibServiceApi } from '@/components/Journals/DocLib/DocLibServiceApi';
-import { SourcesId } from '@/constants';
-import { NODE_TYPES } from '@/constants/docLib';
+import { DocLibServiceApi } from '@/components/journals/Journals/DocLib/DocLibServiceApi';
 
 const activeRequests = {};
 const cancelledRequests = [];

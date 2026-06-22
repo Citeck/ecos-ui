@@ -1,3 +1,5 @@
+import { DocLibUrlParams } from '@citeck/constants';
+import { DEFAULT_DOCLIB_PAGINATION, NODE_TYPES } from '@citeck/constants/docLib';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import * as queryString from 'query-string';
@@ -63,12 +65,10 @@ import {
 } from '../selectors/docLib';
 import { selectJournalData, selectUrl } from '../selectors/journals';
 
-import EcosFormUtils from '@/components/EcosForm/EcosFormUtils';
-import DocLibService from '@/components/Journals/DocLib/DocLibService';
-import JournalsService from '@/components/Journals/service/journalsService';
-import { ActionTypes } from '@/components/Records/actions/constants';
-import { DocLibUrlParams } from '@/constants';
-import { DEFAULT_DOCLIB_PAGINATION, NODE_TYPES } from '@/constants/docLib';
+import EcosFormUtils from '@/components/forms/EcosForm/EcosFormUtils';
+import DocLibService from '@/components/journals/Journals/DocLib/DocLibService';
+import JournalsService from '@/components/journals/Journals/service/journalsService';
+import { ActionTypes } from '@/components/core/Records/actions/constants';
 import DocLibConverter from '@/dto/docLib';
 import JournalsConverter from '@/dto/journals';
 import { t } from '@/helpers/export/util';

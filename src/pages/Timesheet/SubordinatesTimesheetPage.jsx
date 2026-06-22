@@ -1,11 +1,8 @@
-import React from 'react';
+import { DelegationTypes, ServerStatusKeys, ServerStatusOutcomeKeys, TimesheetTypes } from '@citeck/constants/timesheet';
 import get from 'lodash/get';
+import React from 'react';
 import { connect } from 'react-redux';
 
-import { t } from '../../helpers/util';
-import { BaseConfigGroupButtons } from '../../helpers/timesheet/util';
-import { CommonLabels, SubTimesheetLabels } from '../../helpers/timesheet/dictionary';
-import { DelegationTypes, ServerStatusKeys, ServerStatusOutcomeKeys, TimesheetTypes } from '../../constants/timesheet';
 import {
   delegateTo,
   getSubordinatesTimesheetByParams,
@@ -16,13 +13,16 @@ import {
   resetSubordinatesTimesheet,
   setPopupMessage
 } from '../../actions/timesheet/subordinates';
-import CommonTimesheetService from '../../services/timesheet/common';
-
+import Timesheet, { DateSlider, SelectUserModal, Tabs } from '@/components/domain/Timesheet';
+import RouteTypeTabs from '@/components/domain/Timesheet/RouteTypeTabs';
 import { Loader } from '../../components/common';
 import { Switch } from '../../components/common/form';
-import Timesheet, { DateSlider, SelectUserModal, Tabs } from '../../components/Timesheet';
+import { CommonLabels, SubTimesheetLabels } from '../../helpers/timesheet/dictionary';
+import { BaseConfigGroupButtons } from '../../helpers/timesheet/util';
+import { t } from '../../helpers/util';
+import CommonTimesheetService from '../../services/timesheet/common';
+
 import BaseTimesheetPage from './BaseTimesheetPage';
-import RouteTypeTabs from '../../components/Timesheet/RouteTypeTabs';
 
 class SubordinatesTimesheetPage extends BaseTimesheetPage {
   constructor(props) {
@@ -251,7 +251,4 @@ const mapDispatchToProps = dispatch => ({
   removeDelegation: payload => dispatch(removeDelegation(payload))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(SubordinatesTimesheetPage);
+export default connect(mapStateToProps, mapDispatchToProps)(SubordinatesTimesheetPage);

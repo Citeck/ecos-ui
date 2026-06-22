@@ -1,6 +1,8 @@
+import Records from '@citeck/records-core';
 import React from 'react';
+
 import { Select } from '../../form';
-import Records from '../../../../components/Records';
+
 import BaseEditor from './BaseEditor';
 
 export default class DropdownEditor extends BaseEditor {

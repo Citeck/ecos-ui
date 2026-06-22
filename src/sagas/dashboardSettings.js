@@ -1,3 +1,5 @@
+import { RequestStatuses } from '@citeck/constants';
+import { CONFIG_VERSION } from '@citeck/constants/dashboard';
 import get from 'lodash/get';
 import isUndefined from 'lodash/isUndefined';
 import { call, put, select, takeEvery } from 'redux-saga/effects';
@@ -19,8 +21,6 @@ import {
   setLoadingKeys,
   setRequestResultDashboard
 } from '../actions/dashboardSettings';
-import { RequestStatuses } from '../constants';
-import { CONFIG_VERSION } from '../constants/dashboard';
 import DashboardConverter from '../dto/dashboard';
 import DashboardSettingsConverter from '../dto/dashboardSettings';
 import { getRefExceptAlfrescoPrefix, getRefWithAlfrescoPrefix } from '../helpers/ref';

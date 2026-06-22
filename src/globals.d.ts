@@ -1,8 +1,8 @@
 /// <reference types="vite/client" />
+import { RecordsContainerType } from '@citeck/records-core';
 import { Base64 } from 'js-base64';
 import { compose } from 'redux';
 
-import { RecordsContainerType } from '@/components/Records/Records';
 import { NotificationManager } from '@/services/notifications';
 
 export {};

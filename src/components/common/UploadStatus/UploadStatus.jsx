@@ -1,3 +1,4 @@
+import { NODE_TYPES } from '@citeck/constants/docLib';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isBoolean from 'lodash/isBoolean';
@@ -14,7 +15,6 @@ import Success from '../icons/Success';
 import File from '../icons/global/File';
 import { Loader } from '../index';
 
-import { NODE_TYPES } from '@/constants/docLib';
 import { t } from '@/helpers/util';
 import { NotificationManager } from '@/services/notifications';
 import { sendToWorker } from '@/workers/docLib';

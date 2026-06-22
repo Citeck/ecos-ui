@@ -1,3 +1,6 @@
+import { JournalUrlParams as JUP, SourcesId } from '@citeck/constants';
+import Records from '@citeck/records-core';
+import RecordImpl from '@citeck/records-core/Record';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
@@ -11,12 +14,9 @@ import ChevronDownIcon from './icons/ChevronDownIcon';
 import ChevronRightIcon from './icons/ChevronRightIcon';
 import { sortNodesByName } from './sortUtils';
 
-import FormManager from '@/components/EcosForm/FormManager';
-import Records from '@/components/Records';
-import RecordImpl from '@/components/Records/Record';
+import FormManager from '@/components/forms/EcosForm/FormManager';
 import { Icon, Tooltip } from '@/components/common';
 import { DialogManager } from '@/components/common/dialogs';
-import { JournalUrlParams as JUP, SourcesId } from '@/constants';
 import { t } from '@/helpers/export/util';
 import { getSearchParams, updateCurrentUrl } from '@/helpers/urls';
 import { isMobileDevice } from '@/helpers/util';

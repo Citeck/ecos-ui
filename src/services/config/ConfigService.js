@@ -1,7 +1,7 @@
+import { URL } from '@citeck/constants';
+import { CITECK_URI } from '@citeck/constants/alfresco';
 import _ from 'lodash';
 
-import { URL } from '../../constants';
-import { CITECK_URI } from '../../constants/alfresco';
 import { getCurrentLocale } from '../../helpers/export/util';
 import { IS_TEST_ENV } from '../../helpers/util';
 
@@ -27,7 +27,6 @@ const MIN_CACHE_TIME_MS = 10000; // 10 sec
 
 export const ACTIVE_THEME = 'active-theme';
 export const TABS_ENABLED = 'tabs-enabled';
-export const NEW_JOURNAL_ENABLED = 'new-journal-enabled';
 export const DEFAULT_WORKSPACE = 'default-workspace';
 export const WORKSPACES_ENABLED = 'workspaces-enabled';
 export const WORKSPACES_ALLOW_CREATE = 'app/emodel$workspaces-allow-create-for-all-users';
@@ -140,10 +139,6 @@ const CONFIG_PROPS = {
   },
   [TABS_ENABLED]: {
     defaultValue: true
-  },
-  [NEW_JOURNAL_ENABLED]: {
-    defaultValue: true,
-    type: TYPE_BOOLEAN
   },
   [WORKSPACES_ALLOW_CREATE]: {
     defaultValue: false,

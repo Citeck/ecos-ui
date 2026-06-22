@@ -14,7 +14,7 @@ import {
   setFilters,
   setPagination
 } from '../actions/processStatistics';
-import { DEFAULT_PAGINATION } from '../components/Journals/constants';
+import { DEFAULT_PAGINATION } from '@/components/journals/Journals/constants';
 
 const initialState = {
   isLoadingJournal: false,

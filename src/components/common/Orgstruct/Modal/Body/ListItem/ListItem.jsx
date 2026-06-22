@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import React, { useContext } from 'react';
 
 import { OrgstructContext } from '../../../OrgstructContext';
-import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, AUTHORITY_TYPE_ROLE, TabTypes } from '../../../constants';
+import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, AUTHORITY_TYPE_ROLE, TabTypes } from '@/components/common/Orgstruct/constants';
 
 import SelectedIcon from './SelectedIcon';
 import ToSelectIcon from './ToSelectIcon';

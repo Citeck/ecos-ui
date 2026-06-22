@@ -1,7 +1,5 @@
-import { MICRO_URI } from '../constants/alfresco';
-import { CommonApi } from './common';
-import Records from '../components/Records';
-import ecosFetch from '../helpers/ecosFetch';
+import { SourcesId } from '@citeck/constants';
+import { MICRO_URI } from '@citeck/constants/alfresco';
 import {
   DEFAULT_THEME,
   THEME_URL_PATH,
@@ -9,9 +7,13 @@ import {
   CACHE_KEY_RESOURCE_IMAGES,
   CACHE_KEY_RESOURCE_I18N,
   CACHE_KEY_RESOURCE_MENU
-} from '../constants/theme';
-import { SourcesId } from '../constants';
+} from '@citeck/constants/theme';
+import Records from '@citeck/records-core';
+
+import ecosFetch from '../helpers/ecosFetch';
 import ConfigService, { ACTIVE_THEME } from '../services/config/ConfigService';
+
+import { CommonApi } from './common';
 
 export class ViewApi extends CommonApi {
   getActiveThemeId = () => {
