@@ -1,12 +1,16 @@
-jest.mock('@/components/Records', () => ({
-  query: jest.fn().mockResolvedValue({ records: [], totalCount: 0 })
+jest.mock('@citeck/records-core', () => ({
+  __esModule: true,
+  default: {
+    query: jest.fn().mockResolvedValue({ records: [], totalCount: 0 })
+  }
 }));
 
 jest.mock('@/helpers/urls', () => ({
   getWorkspaceId: jest.fn().mockReturnValue('test-ws')
 }));
 
-import Records from '@/components/Records';
+import Records from '@citeck/records-core';
+
 import { WorkspaceApi } from '../index';
 
 const mockQuery = Records.query as jest.Mock;
