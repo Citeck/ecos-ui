@@ -1,7 +1,7 @@
 import React from 'react';
 
-import BaseWidget from '../../../components/widgets/BaseWidget';
-import Dashlet from '../../../components/Dashlet';
+import BaseWidget from '@/components/dashboard/widgets/BaseWidget';
+import Dashlet from '@/components/dashboard/Dashlet';
 import { t } from '../../../helpers/util';
 import Labels from './Labels';
 import JournalsTabsContent from './JournalsTabsContent';

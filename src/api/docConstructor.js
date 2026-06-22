@@ -1,7 +1,8 @@
-import { CITECK_URI } from '../constants/alfresco';
+import { CITECK_URI } from '@citeck/constants/alfresco';
+import Records from '@citeck/records-core';
+
 import ecosFetch from '../helpers/ecosFetch';
 import { t } from '../helpers/util';
-import Records from '../components/Records/Records';
 
 export class DocConstructorApi {
   getSettings = ({ name }) => {

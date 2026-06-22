@@ -1,3 +1,4 @@
+import Records from '@citeck/records-core';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
@@ -39,12 +40,11 @@ import {
   uploadFiles,
   uploadFilesFinally
 } from '../actions/documents';
-import journalsService from '../components/Journals/service';
-import Records from '../components/Records';
-import recordActions from '../components/Records/actions';
-import { ActionTypes } from '../components/Records/actions/constants';
-import ServerGroupActionV2 from '../components/Records/actions/handler/executor/ServerGroupActionV2';
-import { documentActions, documentFields } from '../constants/documents';
+import journalsService from '@/components/journals/Journals/service';
+import recordActions from '@/components/core/Records/actions';
+import { ActionTypes } from '@/components/core/Records/actions/constants';
+import ServerGroupActionV2 from '@/components/core/Records/actions/handler/executor/ServerGroupActionV2';
+import { documentActions, documentFields } from '@/helpers/documents';
 import DocumentsConverter from '../dto/documents';
 import { getFirstNonEmpty, isNodeRef, t } from '../helpers/util';
 import {

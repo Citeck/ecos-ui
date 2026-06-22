@@ -1,3 +1,4 @@
+import { SourcesId } from '@citeck/constants';
 import React, { useContext } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 
@@ -9,7 +10,6 @@ import List from './List';
 
 import { TabTypes } from '@/components/common/Orgstruct/constants';
 import { handleResponse } from '@/components/common/form/SelectOrgstruct/helpers';
-import { SourcesId } from '@/constants';
 import { getCurrentUser, getCurrentUserName, t } from '@/helpers/util';
 
 import './Body.scss';

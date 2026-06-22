@@ -1,0 +1,39 @@
+{
+  "name": "@citeck/records-predicates",
+  "version": "0.1.0",
+  "description": "Platform-agnostic predicate / query-building utilities for the Citeck Records API (parse, build, normalize AND/OR/NOT predicates). Complements @citeck/records-core.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "jest"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
+  },
+  "peerDependencies": {
+    "@citeck/records-core": "^0.1.0"
+  },
+  "devDependencies": {
+    "@citeck/records-core": "^0.1.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.8.2"
+  }
+}

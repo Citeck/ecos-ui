@@ -1,10 +1,9 @@
+import { MenuSettings as ms } from '@citeck/constants/menu';
 import { tr } from 'date-fns/locale';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import uniqueId from 'lodash/uniqueId';
-
-import { MenuSettings as ms } from '../constants/menu';
 
 import MenuConverter from './menu';
 

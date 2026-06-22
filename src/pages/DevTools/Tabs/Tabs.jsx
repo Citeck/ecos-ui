@@ -3,7 +3,7 @@ import React from 'react';
 import { default as EcosTabs } from '../../../components/common/Tabs';
 import { t } from '../../../helpers/util';
 
-import { TABS } from '../constants';
+import { TABS } from '@/pages/DevTools/constants';
 import { useContext } from '../DevToolsContext';
 
 const Tabs = () => {

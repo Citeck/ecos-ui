@@ -1,8 +1,8 @@
-import { Attributes, SourcesId } from '../../../../../constants';
-import { t } from '../../../../../helpers/export/util';
-import { DataTypes, DisplayModes, SearchInWorkspacePolicy, SearchWorkspacePolicyOptions, SortOrderOptions, TableTypes } from '../constants';
+import { Attributes, SourcesId } from '@citeck/constants';
+import Records from '@citeck/records-core';
 
-import Records from '@/components/Records';
+import { t } from '../../../../../helpers/export/util';
+import { DataTypes, DisplayModes, SearchInWorkspacePolicy, SearchWorkspacePolicyOptions, SortOrderOptions, TableTypes } from '@/forms/components/custom/selectJournal/constants';
 
 const CUSTOM_QUERY_DATA_FIELD = 'queryData';
 const CUSTOM_PREDICATE_FIELD = 'customPredicateJs';

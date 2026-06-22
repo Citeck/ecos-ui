@@ -8,7 +8,7 @@ import React from 'react';
 import uuidv4 from 'uuidv4';
 
 import { getCurrentLocale } from '../../../../helpers/export/util';
-import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
+import EcosFormUtils from '@/components/forms/EcosForm/EcosFormUtils';
 
 class FormWrapper extends React.Component {
   constructor(props) {

@@ -1,7 +1,8 @@
-import Records from '../../components/Records';
-import { getCurrentUserName } from '../util';
-import { SourcesId } from '../../constants';
+import { SourcesId } from '@citeck/constants';
+import Records from '@citeck/records-core';
+
 import configService, { MAIN_MENU_TYPE } from '../../services/config/ConfigService';
+import { getCurrentUserName } from '../util';
 
 const isCurrentUserInGroup = group => {
   const currentPersonName = getCurrentUserName();

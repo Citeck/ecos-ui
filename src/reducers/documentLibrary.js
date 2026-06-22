@@ -1,9 +1,8 @@
-import { handleActions } from 'redux-actions';
+import { DEFAULT_DOCLIB_PAGINATION } from '@citeck/constants/docLib';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
+import { handleActions } from 'redux-actions';
 
-import { handleAction, handleState, updateState } from '../helpers/redux';
-import { DEFAULT_DOCLIB_PAGINATION } from '../constants/docLib';
 import {
   addSidebarItems,
   foldSidebarItem,
@@ -36,6 +35,7 @@ import {
   unfoldSidebarItem,
   updateSidebarItem
 } from '../actions/docLib';
+import { handleAction, handleState, updateState } from '../helpers/redux';
 
 const initialState = {};
 

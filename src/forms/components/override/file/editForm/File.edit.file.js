@@ -1,10 +1,10 @@
-import BaseEditApi from 'formiojs/components/base/editForm/Base.edit.api';
+import { SourcesId } from '@citeck/constants';
 import Formio from 'formiojs/Formio';
+import BaseEditApi from 'formiojs/components/base/editForm/Base.edit.api';
 import map from 'lodash/map';
 import set from 'lodash/set';
 
 import { t } from '../../../../../helpers/export/util';
-import { SourcesId } from '../../../../../constants';
 
 export const FILE_CLICK_ACTION_DOWNLOAD = 'download';
 export const FILE_CLICK_ACTION_OPEN_DASHBOARD = 'openDashboard';
@@ -83,7 +83,7 @@ export default [
     dataSrc: 'custom',
     data: {
       custom: function custom() {
-        return map(Formio.providers.storage, function(storage, key) {
+        return map(Formio.providers.storage, function (storage, key) {
           return {
             label: storage.title,
             value: key

@@ -1,7 +1,8 @@
-import Webform from '../../Webform';
-import { COOKIE_KEY_LOCALE } from '../../../constants/alfresco';
+import { COOKIE_KEY_LOCALE } from '@citeck/constants/alfresco';
 import FormioUtils from 'formiojs/utils';
 import _ from 'lodash';
+
+import Webform from '../../Webform';
 
 import '../harness';
 import '../APIMock';

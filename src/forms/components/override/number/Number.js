@@ -6,7 +6,7 @@ import { maskInput } from 'vanilla-text-mask';
 
 import { overrideTriggerChange } from '../misc';
 
-import { LANGUAGE_RU } from '@/constants/lang';
+import { LANGUAGE_RU } from '@/i18n/lang';
 import { getNumberSeparators, reverseString } from '@/helpers/util';
 
 export default class NumberComponent extends FormIONumberComponent {

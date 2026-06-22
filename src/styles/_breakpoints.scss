@@ -1,0 +1,119 @@
+// =============================================================================
+// Responsive breakpoints — single source of truth (Bootstrap 4 scale).
+//
+// Injected into every compiled .scss via vite.config.js
+//   css.preprocessorOptions.scss.additionalData = '@use "@/styles/breakpoints" as *;'
+// so `media-up()` / `media-down()` etc. are available everywhere with no @import.
+//
+// This partial emits NO CSS (only variables / functions / mixins) — safe to inject.
+//
+// Mobile-first is the DEFAULT authoring mode: write base styles for small screens,
+// then layer enhancements with `media-up(<bp>)`. `media-down()` is an escape hatch
+// for genuine "override only on small" cases — do not author desktop-first by default.
+//
+// NOTE: keep this map in sync with `BREAKPOINTS` in src/hooks/useViewport.js.
+// =============================================================================
+
+@use 'sass:map';
+@use 'sass:list';
+
+$grid-breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px
+) !default;
+
+// Named non-grid token, shared by the 3 admin/journal sites that branch at 1370px.
+$bp-wide: 1370px !default;
+
+// --- internal helpers --------------------------------------------------------
+
+@function bp-next($name, $breakpoints: $grid-breakpoints) {
+  $names: map.keys($breakpoints);
+  $i: list.index($names, $name);
+  @if $i == null {
+    @error "bp-next: unknown breakpoint `#{$name}`. Valid: #{$names}.";
+  }
+  @return if($i < list.length($names), list.nth($names, $i + 1), null);
+}
+
+@function bp-min($name, $breakpoints: $grid-breakpoints) {
+  @if not map.has-key($breakpoints, $name) {
+    @error "bp-min: unknown breakpoint `#{$name}`. Valid: #{map.keys($breakpoints)}.";
+  }
+  $min: map.get($breakpoints, $name);
+  @return if($min != 0, $min, null);
+}
+
+// Subtract 0.02px so down/up ranges never overlap (Bootstrap's technique).
+@function bp-max($name, $breakpoints: $grid-breakpoints) {
+  $min: bp-min($name, $breakpoints);
+  @return if($min and $min > 0, $min - 0.02px, null);
+}
+
+// --- public mixins -----------------------------------------------------------
+
+// Mobile-first: applies at >= the named breakpoint. THE DEFAULT.
+//   @include media-up(md) { ... }  ->  @media (min-width: 768px)
+@mixin media-up($name) {
+  $min: bp-min($name);
+  @if $min {
+    @media (min-width: $min) {
+      @content;
+    }
+  } @else {
+    @content; // xs (0) — no query, always applies
+  }
+}
+
+// Desktop-first ESCAPE HATCH: applies at <= just below the named breakpoint.
+//   @include media-down(md) { ... }  ->  @media (max-width: 767.98px)
+@mixin media-down($name) {
+  $max: bp-max($name);
+  @if $max {
+    @media (max-width: $max) {
+      @content;
+    }
+  } @else {
+    @content;
+  }
+}
+
+// Range: applies from $lower (inclusive) up to $upper (exclusive).
+//   @include media-between(md, xl) { ... }
+@mixin media-between($lower, $upper) {
+  $min: bp-min($lower);
+  $max: bp-max($upper);
+  @if $min and $max {
+    @media (min-width: $min) and (max-width: $max) {
+      @content;
+    }
+  } @else if $min {
+    @include media-up($lower) {
+      @content;
+    }
+  } @else if $max {
+    @include media-down($upper) {
+      @content;
+    }
+  } @else {
+    @content;
+  }
+}
+
+// Only within a single breakpoint band.
+//   @include media-only(md) { ... }
+@mixin media-only($name) {
+  $next: bp-next($name);
+  @if $next {
+    @include media-between($name, $next) {
+      @content;
+    }
+  } @else {
+    @include media-up($name) {
+      @content;
+    }
+  }
+}

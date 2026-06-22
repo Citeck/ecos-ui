@@ -13,10 +13,10 @@ import {
 import { LexicalNode } from 'lexical/LexicalNode';
 import isArray from 'lodash/isArray';
 
-import { $isImageNode } from '@/components/Lexical/nodes/ImageNode';
-import { parseAllowedFontSize } from '@/components/Lexical/plugins/ToolbarPlugin/fontSize';
-import { parseAllowedColor } from '@/components/Lexical/ui/ColorPicker';
-import { theme } from '@/components/LexicalEditor';
+import { $isImageNode } from '@/components/editors/Lexical/nodes/ImageNode';
+import { parseAllowedFontSize } from '@/components/editors/Lexical/plugins/ToolbarPlugin/fontSize';
+import { parseAllowedColor } from '@/components/editors/Lexical/ui/ColorPicker';
+import { theme } from '@/components/editors/LexicalEditor';
 
 type StyleCache = Record<string, string>;
 const classToLexicalCodeColorMap: StyleCache = {};

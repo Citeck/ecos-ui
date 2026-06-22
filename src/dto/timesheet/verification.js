@@ -1,6 +1,7 @@
+import { TimesheetTypes } from '@citeck/constants/timesheet';
 import get from 'lodash/get';
+
 import CommonTimesheetConverter from './common';
-import { TimesheetTypes } from '../../constants/timesheet';
 
 export default class VerificationTimesheetConverter {
   static getVerificationEventsListForWeb(source = []) {

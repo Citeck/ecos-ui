@@ -1,7 +1,7 @@
 import { put, takeEvery, call } from 'redux-saga/effects';
 
 import { getBirthdays, setBirthdays, setError } from '../actions/birthdays';
-import { Labels } from '../components/widgets/Birthdays/Birthdays';
+import { Labels } from '@/components/dashboard/widgets/Birthdays/Birthdays';
 import { getBirthdayDateForWeb, sortByBirthDate } from '../dto/birthday';
 import { getMonthPeriodByDate, t } from '../helpers/util';
 

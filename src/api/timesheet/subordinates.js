@@ -1,6 +1,8 @@
+import { SourcesId } from '@citeck/constants';
+import Records from '@citeck/records-core';
+
 import { RecordService } from '../recordService';
-import Records from '../../components/Records';
-import { SourcesId } from '../../constants';
+
 import { getQueryAndOrs } from './common';
 
 export class TimesheetSubordinatesApi extends RecordService {

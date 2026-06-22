@@ -1,7 +1,7 @@
+import { URL } from '@citeck/constants';
 import React from 'react';
 
 import DefaultGqlFormatter from './DefaultGqlFormatter';
-import { URL } from '../../../../../constants';
 
 export default class RejectionSignTaskFormatter extends DefaultGqlFormatter {
   render() {

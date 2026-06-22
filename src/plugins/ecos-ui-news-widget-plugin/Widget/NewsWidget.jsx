@@ -1,3 +1,6 @@
+import { SourcesId, URL } from '@citeck/constants';
+import { DashboardTypes } from '@citeck/constants/dashboard';
+import Records from '@citeck/records-core'; // Ensure RecordsType is exported from the module
 import { isFunction } from 'lodash';
 import get from 'lodash/get';
 import moment from 'moment';
@@ -8,13 +11,10 @@ import Labels from '../labels';
 import { DefaultImgNews } from './DefaultImgNews';
 import Settings from './Settings';
 
-import Dashlet from '@/components/Dashlet/Dashlet';
-import Records from '@/components/Records/Records'; // Ensure RecordsType is exported from the module
-import { notifyFailure } from '@/components/Records/actions/util/actionUtils';
+import Dashlet from '@/components/dashboard/Dashlet/Dashlet';
+import { notifyFailure } from '@/components/core/Records/actions/util/actionUtils';
 import { Loader } from '@/components/common';
-import BaseWidget from '@/components/widgets/BaseWidget';
-import { SourcesId, URL } from '@/constants';
-import { DashboardTypes } from '@/constants/dashboard';
+import BaseWidget from '@/components/dashboard/widgets/BaseWidget';
 import { getRecordRef } from '@/helpers/urls';
 import { t } from '@/helpers/util';
 import DAction from '@/services/DashletActionService';

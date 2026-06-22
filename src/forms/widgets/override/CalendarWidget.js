@@ -1,3 +1,4 @@
+import { DateFormats } from '@citeck/constants';
 import Flatpickr from 'flatpickr';
 import l10n from 'flatpickr/dist/l10n';
 import { convertFormatToMask, convertFormatToMoment } from 'formiojs/utils/utils';
@@ -5,7 +6,6 @@ import FormIOCalendarWidget from 'formiojs/widgets/CalendarWidget';
 import get from 'lodash/get';
 import moment from 'moment';
 
-import { DateFormats } from '@/constants';
 import { getCurrentLocale } from '@/helpers/util';
 
 const CALENDAR_ICON_CLASSNAME = 'glyphicon-calendar';

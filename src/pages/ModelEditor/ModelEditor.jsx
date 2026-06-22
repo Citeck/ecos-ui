@@ -1,3 +1,26 @@
+import {
+  DEFINITON_TYPE,
+  GATEWAY_TYPES,
+  SEQUENCE_TYPE,
+  TASK_TYPES,
+  LOOP_CHARACTERISTICS,
+  COLLABORATION_TYPE,
+  PARTICIPANT_TYPE,
+  TYPE_BPMN_PROCESS
+} from '@citeck/constants/bpmn';
+import {
+  EventListeners,
+  IGNORED_VALUE_COMPONENTS,
+  KEY_FIELD_ID,
+  KEY_FIELD_NAME,
+  KEY_FIELD_OUTCOMES,
+  KEY_FIELDS,
+  LABEL_POSTFIX,
+  ML_POSTFIX,
+  PREFIX_FIELD
+} from '@citeck/constants/cmmn';
+import { DMN_DEFINITIONS } from '@citeck/constants/dmn';
+import { URL as Urls } from '@citeck/constants/index';
 import { is } from 'bpmn-js/lib/util/ModelUtil';
 import classNames from 'classnames';
 import { flattenComponents } from 'formiojs/utils/formUtils';
@@ -14,33 +37,10 @@ import React from 'react';
 import XMLViewer from 'react-xml-viewer';
 
 import { PROCESS_DEF_API_ACTIONS } from '@/api/process';
-import { getEcosType, getValue } from '@/components/ModelEditor/CMMNModeler/utils';
-import ModelEditorWrapper from '@/components/ModelEditorWrapper';
+import { getEcosType, getValue } from '@/components/editors/ModelEditor/CMMNModeler/utils';
+import ModelEditorWrapper from '@/components/editors/ModelEditorWrapper';
 import { EcosModal, InfoText, Loader } from '@/components/common';
 import { FormWrapper } from '@/components/common/dialogs';
-import {
-  DEFINITON_TYPE,
-  GATEWAY_TYPES,
-  SEQUENCE_TYPE,
-  TASK_TYPES,
-  LOOP_CHARACTERISTICS,
-  COLLABORATION_TYPE,
-  PARTICIPANT_TYPE,
-  TYPE_BPMN_PROCESS
-} from '@/constants/bpmn';
-import {
-  EventListeners,
-  IGNORED_VALUE_COMPONENTS,
-  KEY_FIELD_ID,
-  KEY_FIELD_NAME,
-  KEY_FIELD_OUTCOMES,
-  KEY_FIELDS,
-  LABEL_POSTFIX,
-  ML_POSTFIX,
-  PREFIX_FIELD
-} from '@/constants/cmmn';
-import { DMN_DEFINITIONS } from '@/constants/dmn';
-import { URL as Urls } from '@/constants/index';
 import { getWorkspaceId } from '@/helpers/urls';
 import { getCurrentLocale, getMLValue, getTextByLocale, t, fileDownload } from '@/helpers/util';
 import PageService from '@/services/PageService';

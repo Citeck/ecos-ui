@@ -1,5 +1,5 @@
-import Records from '../components/Records';
-import { PREDICATE_AND, PREDICATE_EQ } from '../components/Records/predicates/predicates';
+import Records from '@citeck/records-core';
+import { PREDICATE_AND, PREDICATE_EQ } from '@citeck/records-core/predicates/predicates';
 
 export class BpmnAdminApi {
   getProcesses = ({ page, filterPredicate = {}, sortBy, allVersions = false } = {}) => {

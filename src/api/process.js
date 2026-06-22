@@ -1,7 +1,8 @@
-import Records from '../components/Records';
-import { SourcesId } from '../constants';
-import { PERMISSION_DEPLOY_PROCESS } from '../constants/bpmn';
-import { PERMISSION_DMN_DEPLOY_PROCESS } from '../constants/dmn';
+import { SourcesId } from '@citeck/constants';
+import { PERMISSION_DEPLOY_PROCESS } from '@citeck/constants/bpmn';
+import { PERMISSION_DMN_DEPLOY_PROCESS } from '@citeck/constants/dmn';
+import Records from '@citeck/records-core';
+
 import ecosFetch from '../helpers/ecosFetch';
 
 export const PROCESS_DEF_API_ACTIONS = {

@@ -1,3 +1,5 @@
+import { RequestStatuses, SourcesId } from '@citeck/constants';
+import { DefaultUserMenu } from '@citeck/constants/menu';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isString from 'lodash/isString';
@@ -5,7 +7,6 @@ import set from 'lodash/set';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 
 import { getMenuConfig, saveMenuConfig, setMenuConfig, setRequestResultMenuConfig } from '../actions/menu';
-import { RequestStatuses, SourcesId } from '../constants';
 import MenuConverter from '../dto/menu';
 import { t } from '../helpers/util';
 
@@ -13,7 +14,6 @@ import { setCreateCaseWidgetIsCascade, setCreateCaseWidgetItems, setUserMenuItem
 import { setSlideMenuItems } from '@/actions/slideMenu';
 import { getAppUserThumbnail } from '@/actions/user';
 import { fetchExtraItemInfo } from '@/api/menu';
-import { DefaultUserMenu } from '@/constants/menu';
 import SidebarConverter from '@/dto/sidebar';
 import { getIconObjectWeb } from '@/helpers/icon';
 import configService, { CREATE_MENU_TYPE } from '@/services/config/ConfigService';

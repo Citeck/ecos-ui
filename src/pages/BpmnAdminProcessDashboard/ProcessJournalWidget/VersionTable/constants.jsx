@@ -1,14 +1,14 @@
+import { URL } from '@citeck/constants';
+import { PROCESS_TABS_TYPES } from '@citeck/constants/processAdmin';
 import React from 'react';
 
-import { BpmnProcessStatusColumn } from '../../../../components/BpmnProcessStatusColumn';
+import { BpmnProcessStatusColumn } from '@/components/domain/BpmnProcessStatusColumn';
 import { createDocumentUrl } from '../../../../helpers/urls';
-import { URL } from '../../../../constants';
+import { getMLValue } from '../../../../helpers/util';
 import { ActivityComponent, MessageComponent } from '../components';
 import { FailedActivityComponent } from '../components/FailedActivityComponent';
 import { NoteComponent } from '../components/NoteComponent';
 import { RetryFailedJob } from '../components/RetryFailedJob';
-import { PROCESS_TABS_TYPES } from '../../../../constants/processAdmin';
-import { getMLValue } from '../../../../helpers/util';
 
 export const getTableColumns = (tabId, args) => {
   switch (tabId) {

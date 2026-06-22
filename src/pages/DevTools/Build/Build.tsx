@@ -1,3 +1,5 @@
+import { SourcesId } from '@citeck/constants';
+import Records from '@citeck/records-core';
 import React, { useContext, useEffect, useState } from 'react';
 
 import PanelTitle from '../../../components/common/PanelTitle';
@@ -8,8 +10,6 @@ import Loader from '../Loader';
 
 import { BuildContext } from './BuildContext';
 
-import Records from '@/components/Records';
-import { SourcesId } from '@/constants';
 import { t } from '@/helpers/export/util';
 
 export const Labels = {

@@ -1,9 +1,9 @@
+import { PROXY_URI } from '@citeck/constants/alfresco';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isString from 'lodash/isString';
 
-import recordActions from '../components/Records/actions/recordActions';
-import { PROXY_URI } from '../constants/alfresco';
+import recordActions from '@/components/core/Records/actions/recordActions';
 
 import { CommonApi } from './common';
 

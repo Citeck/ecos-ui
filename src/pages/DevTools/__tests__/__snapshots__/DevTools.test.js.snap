@@ -59,7 +59,7 @@ exports[`DevTools tests <Loader /> should render Loader component 1`] = `
 exports[`DevTools tests <TabContent /> should render Build component 1`] = `
 <div>
   <div
-    class="ecos-well dev-tools-page__tab-content"
+    class="ecos-well ecos-well_new dev-tools-page__tab-content"
   >
     <div
       class="ecos-panel-title ecos-panel-title_color-yellow"
@@ -116,7 +116,7 @@ exports[`DevTools tests <TabContent /> should render Build component 1`] = `
 exports[`DevTools tests <TabContent /> should render Commits component 1`] = `
 <div>
   <div
-    class="ecos-well dev-tools-page__tab-content"
+    class="ecos-well ecos-well_new dev-tools-page__tab-content"
   >
     <div
       class="ecos-loader ecos-loader_blur ecos-loader_rounded"
@@ -168,7 +168,7 @@ exports[`DevTools tests <TabContent /> should render Commits component 1`] = `
 exports[`DevTools tests <TabContent /> should render DevModules component 1`] = `
 <div>
   <div
-    class="ecos-well dev-tools-page__tab-content"
+    class="ecos-well ecos-well_new dev-tools-page__tab-content"
   >
     <div
       class="ecos-panel-title ecos-panel-title_color-yellow"
@@ -225,7 +225,7 @@ exports[`DevTools tests <TabContent /> should render DevModules component 1`] = 
 exports[`DevTools tests <TabContent /> should render Settings component 1`] = `
 <div>
   <div
-    class="ecos-well dev-tools-page__tab-content"
+    class="ecos-well ecos-well_new dev-tools-page__tab-content"
   >
     <div
       class="row"
@@ -240,31 +240,6 @@ exports[`DevTools tests <TabContent /> should render Settings component 1`] = `
             class="ecos-panel-title ecos-panel-title_color-gray ecos-panel-title_narrow"
           >
             dev-tools.settings.enableSagaLogger
-          </div>
-          <div
-            class="dev-tools-page__setting-body"
-          >
-            <div
-              class="dev-tools-page__switch-setting"
-            >
-              <div
-                class="ecos-switch"
-              />
-              dev-tools.settings.off
-            </div>
-          </div>
-        </div>
-      </div>
-      <div
-        class="col-lg-6 col-xl-4"
-      >
-        <div
-          class="dev-tools-page__setting"
-        >
-          <div
-            class="ecos-panel-title ecos-panel-title_color-gray ecos-panel-title_narrow"
-          >
-            dev-tools.settings.enableViewNewJournal
           </div>
           <div
             class="dev-tools-page__setting-body"
@@ -338,7 +313,7 @@ exports[`DevTools tests <TabContent /> should render Settings component 1`] = `
 exports[`DevTools tests <TabContent /> should render TabContent component 1`] = `
 <div>
   <div
-    class="ecos-well dev-tools-page__tab-content"
+    class="ecos-well ecos-well_new dev-tools-page__tab-content"
   >
     <div
       class="ecos-panel-title ecos-panel-title_color-yellow"

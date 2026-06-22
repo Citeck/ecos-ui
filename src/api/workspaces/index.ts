@@ -1,10 +1,11 @@
+import { SourcesId } from '@citeck/constants';
+import Records from '@citeck/records-core';
+
 import { CommonApi } from '../common';
 
 import { WorkspaceType } from './types';
 
 import { PureQueryResponse } from '@/api/types';
-import Records from '@/components/Records';
-import { SourcesId } from '@/constants';
 import { getWorkspaceId } from '@/helpers/urls';
 
 export interface IWorkspaceApi {

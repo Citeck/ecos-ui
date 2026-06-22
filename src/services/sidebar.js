@@ -1,14 +1,14 @@
+import { JournalUrlParams as JUP, RELOCATED_URL, SourcesId, URL, URL_MATCHING } from '@citeck/constants';
+import { MenuSettings } from '@citeck/constants/menu';
+import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '@citeck/constants/pageTabs';
+import { ActionTypes, CountableItems } from '@citeck/constants/sidebar';
 import { EventEmitter } from 'events';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import omit from 'lodash/omit';
 import * as queryString from 'query-string';
 
-import { isKanban, JOURNAL_VIEW_MODE } from '../components/Journals/constants';
-import { JournalUrlParams as JUP, RELOCATED_URL, SourcesId, URL, URL_MATCHING } from '../constants';
-import { MenuSettings } from '../constants/menu';
-import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../constants/pageTabs';
-import { ActionTypes, CountableItems } from '../constants/sidebar';
+import { isKanban, JOURNAL_VIEW_MODE } from '@/components/journals/Journals/constants';
 import { treeFindFirstItem } from '../helpers/arrayOfObjects';
 import { isNewVersionPage, NEW_VERSION_PREFIX } from '../helpers/export/urls';
 import { getCustomDasboardUrl, getJournalPageUrl, getLinkWithWs, getWikiDasboardUrl, getWorkspaceId } from '../helpers/urls';

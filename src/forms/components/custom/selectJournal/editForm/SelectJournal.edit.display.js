@@ -1,4 +1,4 @@
-import { DisplayModes } from '../constants';
+import { DisplayModes } from '@/forms/components/custom/selectJournal/constants';
 
 export default [
   {

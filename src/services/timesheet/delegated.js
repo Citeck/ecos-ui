@@ -1,6 +1,7 @@
-import { t } from '../../helpers/util';
+import { DelegationTypes } from '@citeck/constants/timesheet';
+
 import { CommonLabels } from '../../helpers/timesheet/dictionary';
-import { DelegationTypes } from '../../constants/timesheet';
+import { t } from '../../helpers/util';
 
 export default class DelegatedTimesheetService {
   static mergeManyToOneList({ peopleList = [], calendarEvents = [], requestList = [] }) {

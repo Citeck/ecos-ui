@@ -1,8 +1,10 @@
-import { RecordService } from '../recordService';
-import Records from '../../components/Records';
-import { DelegationTypes, TimesheetSourcesId, TimesheetTypes } from '../../constants/timesheet';
+import { SourcesId } from '@citeck/constants';
+import { DelegationTypes, TimesheetSourcesId, TimesheetTypes } from '@citeck/constants/timesheet';
+import Records from '@citeck/records-core';
+
 import CommonTimesheetService from '../../services/timesheet/common';
-import { SourcesId } from '../../constants';
+import { RecordService } from '../recordService';
+
 import { getQueryAndOrs } from './common';
 
 function getQueryStatuses(delegationType) {

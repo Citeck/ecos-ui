@@ -1,4 +1,4 @@
-import { ServerStatusKeys, ServerStatusOutcomeKeys } from '../../constants/timesheet';
+import { ServerStatusKeys, ServerStatusOutcomeKeys } from '@citeck/constants/timesheet';
 
 export default class MyTimesheetService {
   static getMyStatusOutcomeByCurrent(currentStatus) {

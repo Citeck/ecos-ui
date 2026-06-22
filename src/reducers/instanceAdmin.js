@@ -12,7 +12,7 @@ import {
   setJournalTabInfoPage,
   setJournalTabInfoSortBy
 } from '../actions/instanceAdmin';
-import { DEFAULT_PAGINATION } from '../components/Journals/constants';
+import { DEFAULT_PAGINATION } from '@/components/journals/Journals/constants';
 
 export const initialState = {};
 

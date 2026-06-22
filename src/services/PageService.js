@@ -1,3 +1,7 @@
+import { JournalUrlParams as JUP, SourcesId, URL } from '@citeck/constants';
+import { SectionTypes } from '@citeck/constants/adminSection';
+import { IGNORE_TABS_HANDLER_ATTR_NAME, LINK_HREF, LINK_TAG, OPEN_IN_BACKGROUND, TITLE } from '@citeck/constants/pageTabs';
+import Records from '@citeck/records-core';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isNil from 'lodash/isNil';
@@ -5,11 +9,7 @@ import isString from 'lodash/isString';
 import queryString from 'query-string';
 
 import { PageApi } from '@/api/page';
-import { JOURNAL_VIEW_MODE as JVM } from '@/components/Journals/constants';
-import Records from '@/components/Records';
-import { JournalUrlParams as JUP, SourcesId, URL } from '@/constants';
-import { SectionTypes } from '@/constants/adminSection';
-import { IGNORE_TABS_HANDLER_ATTR_NAME, LINK_HREF, LINK_TAG, OPEN_IN_BACKGROUND, TITLE } from '@/constants/pageTabs';
+import { JOURNAL_VIEW_MODE as JVM } from '@/components/journals/Journals/constants';
 import { getData, isExistLocalStorage, setData } from '@/helpers/ls';
 import {
   decodeLink,

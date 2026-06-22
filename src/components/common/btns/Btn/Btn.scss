@@ -3,8 +3,9 @@
 button {
   &.ecos-btn {
     position: relative;
-    display: inline-block;
-    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     white-space: nowrap;
     vertical-align: middle;
     border: 1px solid transparent;
@@ -106,7 +107,6 @@ button {
   &.ecos-btn_mi {
     font-size: $font-size-extra-large;
     width: auto;
-    padding: 5px 13px;
     border-radius: $border-radius-standard;
   }
 
@@ -144,9 +144,7 @@ button {
 
   &.ecos-btn_drop-down {
     padding: 9px 11px 9px 15px;
-    //width: 165px;
-    text-align: left;
-    display: inline-flex;
+    justify-content: flex-start;
 
     .icon-small-up,
     .icon-small-down {
@@ -187,7 +185,7 @@ button {
   }
 
   &.ecos-btn_i_15 {
-    font-size: $font-size-15;
+    font-size: $font-size-large;
     height: 20px;
     padding: 0;
   }

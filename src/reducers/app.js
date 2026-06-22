@@ -1,3 +1,4 @@
+import { URL } from '@citeck/constants';
 import { handleActions } from 'redux-actions';
 
 import {
@@ -13,7 +14,6 @@ import {
   setSeparateActionListForQuery,
   setAllowToCreateWorkspace
 } from '../actions/app';
-import { URL } from '../constants';
 
 const initialState = {
   isInit: false,

@@ -1,7 +1,7 @@
+import Records from '@citeck/records-core';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 
-import Records from '../../../../components/Records';
 import SelectHierarchicalComponent from '../../../../components/common/form/SelectHierarchical';
 import BaseReactComponent from '../base/BaseReactComponent';
 
@@ -63,9 +63,7 @@ export default class SelectHierarchicalFormComponent extends BaseReactComponent 
     }
 
     try {
-      const attributes = await Records.get(typeRef).load(
-        'model.attributes[]{id,type,config.typeRef,configChild:config.child?bool}'
-      );
+      const attributes = await Records.get(typeRef).load('model.attributes[]{id,type,config.typeRef,configChild:config.child?bool}');
 
       if (!Array.isArray(attributes)) {
         return [];
@@ -84,9 +82,7 @@ export default class SelectHierarchicalFormComponent extends BaseReactComponent 
     // Form builder context: `builder` is set on the canvas; `preview` is set on the
     // small preview pane in the component-properties editor; `editInFormBuilder`
     // is set on the editForm itself (e.g. the Default Value field on the Data tab).
-    const builderMode = !!(
-      this.options && (this.options.builder || this.options.preview || this.options.editInFormBuilder)
-    );
+    const builderMode = !!(this.options && (this.options.builder || this.options.preview || this.options.editInFormBuilder));
 
     const typeRef = await this.resolveTypeRef();
     const associations = typeRef ? await this.loadAssociations(typeRef) : [];
@@ -114,9 +110,7 @@ export default class SelectHierarchicalFormComponent extends BaseReactComponent 
     let association;
     if (hasExplicitTypeRef) {
       const byName = associations.find(a => a && a.id === attributeName);
-      association = byName && byName.config === typeRef
-        ? byName
-        : associations.find(a => a && a.config === typeRef);
+      association = byName && byName.config === typeRef ? byName : associations.find(a => a && a.config === typeRef);
     } else {
       association = associations.find(a => a && a.id === attributeName);
     }

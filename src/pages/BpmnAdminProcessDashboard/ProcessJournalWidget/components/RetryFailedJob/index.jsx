@@ -1,15 +1,14 @@
+import Records from '@citeck/records-core';
+import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 import React, { useContext, useState } from 'react';
 import { connect } from 'react-redux';
 
-import get from 'lodash/get';
-import isFunction from 'lodash/isFunction';
-
-import { EcosModal, Icon, InfoText, SaveAndCancelButtons } from '../../../../../components/common';
-import { t } from '../../../../../helpers/util';
-import { Input } from '../../../../../components/common/form';
-import Records from '../../../../../components/Records';
-import { ProcessContext } from '../../../ProcessContext';
 import { getJournalTabInfo } from '../../../../../actions/processAdmin';
+import { EcosModal, Icon, InfoText, SaveAndCancelButtons } from '../../../../../components/common';
+import { Input } from '../../../../../components/common/form';
+import { t } from '../../../../../helpers/util';
+import { ProcessContext } from '../../../ProcessContext';
 
 const RetryButton = ({ row, tabId, getDataInfo }) => {
   const { processId } = useContext(ProcessContext);
@@ -64,7 +63,4 @@ const mapDispatchToProps = dispatch => ({
   getDataInfo: (processId, tabId) => dispatch(getJournalTabInfo({ tabId, processId }))
 });
 
-export const RetryFailedJob = connect(
-  null,
-  mapDispatchToProps
-)(RetryButton);
+export const RetryFailedJob = connect(null, mapDispatchToProps)(RetryButton);

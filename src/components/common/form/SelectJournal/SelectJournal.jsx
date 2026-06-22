@@ -1,3 +1,8 @@
+import { Attributes, Permissions } from '@citeck/constants';
+import Records from '@citeck/records-core';
+import { PERMISSION_WRITE_ATTR } from '@citeck/records-core/constants';
+import { PREDICATE_EQ } from '@citeck/records-core/predicates/predicates';
+import { parseAttribute } from '@citeck/records-core/utils/attStrUtils';
 import classNames from 'classnames';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
@@ -9,13 +14,9 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { Collapse } from 'reactstrap';
 
-import FormManager from '../../../EcosForm/FormManager';
-import JournalsService from '../../../Journals/service';
-import { mergeFilters } from '../../../Journals/service/util';
-import Records from '../../../Records';
-import { PERMISSION_WRITE_ATTR } from '../../../Records/constants';
-import { PREDICATE_EQ } from '../../../Records/predicates/predicates';
-import { parseAttribute } from '../../../Records/utils/attStrUtils';
+import FormManager from '@/components/forms/EcosForm/FormManager';
+import JournalsService from '@/components/journals/Journals/service';
+import { mergeFilters } from '@/components/journals/Journals/service/util';
 import { EcosModal, Icon, Loader, Pagination } from '../../../common';
 import { Btn, IcoBtn } from '../../../common/btns';
 import { Grid } from '../../../common/grid';
@@ -31,7 +32,6 @@ import ViewMode from './ViewMode';
 import { DataTypes, DisplayModes, Labels, SELECT_JOURNAL_MODAL_CLASSNAME } from './constants';
 
 import { Checkbox } from '@/components/common/form';
-import { Attributes, Permissions } from '@/constants';
 import JournalsConverter from '@/dto/journals';
 import { TEMPLATE_REGEX } from '@/forms/components/custom/selectJournal/constants';
 import { getIconUpDown } from '@/helpers/icon';

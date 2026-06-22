@@ -1,6 +1,7 @@
-import Records from '../components/Records';
+import { SourcesId } from '@citeck/constants';
+import Records from '@citeck/records-core';
+
 import { CommonApi } from './common';
-import { SourcesId } from '../constants';
 
 export class PageApi extends CommonApi {
   getJournalTitle = (journalId, force = false) => {

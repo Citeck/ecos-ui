@@ -4,7 +4,7 @@ import get from 'lodash/get';
 import { Grid } from '../../../components/common/grid';
 import { renderAction } from '../../../components/common/grid/InlineTools/helpers';
 import InlineToolsDisconnected from '../../../components/common/grid/InlineTools/InlineToolsDisconnected';
-import recordActions from '../../../components/Records/actions/recordActions';
+import recordActions from '@/components/core/Records/actions/recordActions';
 
 import { DevModulesContext } from './DevModulesContext';
 

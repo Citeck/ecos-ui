@@ -1,12 +1,11 @@
+import { AppEditions, DEFAULT_EIS, SourcesId, URL } from '@citeck/constants';
+import { PROXY_URI, UISERV_API } from '@citeck/constants/alfresco';
+import Records from '@citeck/records-core';
 import get from 'lodash/get';
 import isNil from 'lodash/isNil';
 import * as queryString from 'query-string';
 
-import Records from '../components/Records/Records';
 import { ALL_USERS_GROUP_SHORT_NAME } from '../components/common/form/SelectOrgstruct/constants';
-import { AppEditions, DEFAULT_EIS, SourcesId, URL } from '../constants';
-import { PROXY_URI, UISERV_API } from '../constants/alfresco';
-import { allowedLanguages, LANGUAGE_EN } from '../constants/lang';
 import ecosFetch, { RESET_AUTH_STATE_EVENT, emitter } from '../helpers/ecosFetch';
 import ecosXhr from '../helpers/ecosXhr';
 import { t } from '../helpers/export/util';
@@ -25,6 +24,7 @@ import ConfigService, {
 import { CommonApi } from './common';
 
 import { getWorkspaceId } from '@/helpers/urls';
+import { allowedLanguages, LANGUAGE_EN } from '@/i18n/lang';
 import PageService from '@/services/PageService';
 import { NotificationManager } from '@/services/notifications';
 import PageTabList from '@/services/pageTabs/PageTabList';

@@ -1,6 +1,5 @@
+import { Layouts, LayoutTypes, MinColumnWidths } from '@citeck/constants/layout';
 import { isNumber, isSafeInteger, toFinite } from 'lodash';
-
-import { Layouts, LayoutTypes, MinColumnWidths } from '../constants/layout';
 
 /**
  * Получение минимальной ширины колонки по виду лайоута

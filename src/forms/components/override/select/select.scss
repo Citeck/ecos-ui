@@ -90,45 +90,30 @@
         }
 
         .choices__button {
-          background: none;
-          text-indent: 0;
-          font-size: 0;
-          height: 100%;
-          width: 25px;
           display: flex;
+          height: 100%;
           align-items: flex-start;
           justify-content: center;
-          top: 0;
-          margin-top: 0;
-          margin-right: 28px;
-          padding-top: 9px;
           opacity: 1;
+          
+          svg {
+            stroke: $color-gray-25;
+          }
 
           &:hover:after {
             color: var(--primary-color);
-          }
-
-          &:after {
-            font-family: $font-family-citeck;
-            font-size: 14px;
-            font-weight: normal;
-            content: $citeck-icon-close;
-            color: $color-gray-5;
           }
         }
 
         .form-control {
           transition: none;
           &:after {
-            font-family: $font-family-citeck;
-            font-size: 14px;
-            font-weight: normal;
-            content: $citeck-icon-down;
+            @include citeck-icon($citeck-icon-down, 14px);
             position: absolute;
-            top: 0;
+            top: 50%;
+            transform: translateY(-50%);
             opacity: 1 !important;
             right: $input-padding;
-            line-height: $form-input-height;
             pointer-events: none;
             color: $color-gray-5;
             transition: none;
@@ -150,7 +135,7 @@
             color: $color-white;
 
             &:after {
-              content: $citeck-icon-up;
+              @include citeck-icon-change($citeck-icon-up);
               color: $color-white;
             }
           }

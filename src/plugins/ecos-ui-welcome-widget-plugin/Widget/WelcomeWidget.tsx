@@ -1,12 +1,12 @@
+import Records from '@citeck/records-core';
 import React from 'react';
 
 import { workspaceAttributes } from '@/api/workspaces';
 import { WorkspaceType } from '@/api/workspaces/types';
-import Dashlet from '@/components/Dashlet';
-import Records from '@/components/Records';
-import Card from '@/components/WorkspaceSidebar/Card';
+import Dashlet from '@/components/dashboard/Dashlet';
+import Card from '@/components/layout/WorkspaceSidebar/Card';
 import { Loader } from '@/components/common';
-import BaseWidget, { BaseWidgetProps, BaseWidgetState } from '@/components/widgets/BaseWidget';
+import BaseWidget, { BaseWidgetProps, BaseWidgetState } from '@/components/dashboard/widgets/BaseWidget';
 import { omit } from '@/helpers/omitObject';
 import { getWorkspaceId, openLinkWorkspace } from '@/helpers/urls';
 import { t } from '@/helpers/util';

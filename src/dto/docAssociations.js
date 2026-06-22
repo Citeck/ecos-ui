@@ -1,8 +1,9 @@
-import isEmpty from 'lodash/isEmpty';
+import { DIRECTIONS } from '@citeck/constants/docAssociations';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 
 import { getTextByLocale } from '../helpers/util';
-import { DIRECTIONS } from '../constants/docAssociations';
+
 import DocumentsConverter from './documents';
 
 export default class DocAssociationsConverter extends DocumentsConverter {

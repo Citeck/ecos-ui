@@ -1,6 +1,7 @@
+import { SourcesId } from '@citeck/constants';
+import Records from '@citeck/records-core';
+
 import { CommonApi } from './common';
-import { SourcesId } from '../constants';
-import Records from '../components/Records';
 
 export class CustomIconApi extends CommonApi {
   getIcons = ({ family }) => {

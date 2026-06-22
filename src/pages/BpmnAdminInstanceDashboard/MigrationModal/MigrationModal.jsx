@@ -1,21 +1,21 @@
+import Records from '@citeck/records-core';
+import { is } from 'bpmn-js/lib/util/ModelUtil';
+import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 
-import get from 'lodash/get';
-import isFunction from 'lodash/isFunction';
-
-import { Btn, IcoBtn } from '../../../components/common/btns';
-import { EcosModal, Icon, InfoText, SaveAndCancelButtons } from '../../../components/common';
-import { selectInstanceMetaInfo } from '../../../selectors/instanceAdmin';
-import { ScaleOptions } from '../../../components/common/Scaler/util';
-import { MIGRATION_MODAL_BLOCK_CLASS } from '../constants';
-import { Checkbox, Input } from '../../../components/common/form';
-import ModelViewer from '../../../components/ModelViewer/ModelViewer';
-import { is } from 'bpmn-js/lib/util/ModelUtil';
-import Records from '../../../components/Records';
-import { notifyFailure, notifySuccess } from '../../../components/Records/actions/util/actionUtils';
 import { getMetaInfo } from '../../../actions/instanceAdmin';
+import ModelViewer from '@/components/editors/ModelViewer/ModelViewer';
+import { notifyFailure, notifySuccess } from '@/components/core/Records/actions/util/actionUtils';
+import { EcosModal, Icon, InfoText, SaveAndCancelButtons } from '../../../components/common';
+import { ScaleOptions } from '../../../components/common/Scaler/util';
+import { Btn, IcoBtn } from '../../../components/common/btns';
+import { Checkbox, Input } from '../../../components/common/form';
 import { t } from '../../../helpers/util';
+import { selectInstanceMetaInfo } from '../../../selectors/instanceAdmin';
+import { MIGRATION_MODAL_BLOCK_CLASS } from '@/pages/BpmnAdminInstanceDashboard/constants';
+
 import Labels from './Labels';
 
 import './style.scss';
@@ -49,16 +49,13 @@ const MigrationModal = ({ instanceId, metaInfo, getMetaInfo }) => {
     };
   }, []);
 
-  useEffect(
-    () => {
-      designer &&
-        designer.markElements({
-          [initial]: 'initial-element',
-          [target]: 'target-element'
-        });
-    },
-    [initial, target]
-  );
+  useEffect(() => {
+    designer &&
+      designer.markElements({
+        [initial]: 'initial-element',
+        [target]: 'target-element'
+      });
+  }, [initial, target]);
 
   const handleClickElement = (_event, elementInfo) => {
     if (is(elementInfo.element, 'bpmn:Definition') || !get(elementInfo, 'element.parent')) {
@@ -160,12 +157,9 @@ const MigrationModal = ({ instanceId, metaInfo, getMetaInfo }) => {
     });
   };
 
-  useEffect(
-    () => {
-      renderBadges();
-    },
-    [metaInfo?.bpmnDefinition]
-  );
+  useEffect(() => {
+    renderBadges();
+  }, [metaInfo?.bpmnDefinition]);
 
   const handleReadySheet = ({ mounted, result }) => {
     if (mounted) {
@@ -277,7 +271,4 @@ const mapDispatchToProps = dispatch => ({
   getMetaInfo: instanceId => dispatch(getMetaInfo({ instanceId }))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(MigrationModal);
+export default connect(mapStateToProps, mapDispatchToProps)(MigrationModal);

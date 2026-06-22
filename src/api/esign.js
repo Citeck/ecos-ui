@@ -1,9 +1,9 @@
+import { PROXY_URI } from '@citeck/constants/alfresco';
+import { EDI_REQUEST } from '@citeck/constants/esign';
+import Records from '@citeck/records-core';
 import get from 'lodash/get';
 import set from 'lodash/set';
 
-import Records from '../components/Records/Records';
-import { PROXY_URI } from '../constants/alfresco';
-import { EDI_REQUEST } from '../constants/esign';
 import getCadespluginAPI from '../services/asyncCadesPlugin';
 import ConfigService, { ALFRESCO_ENABLED } from '../services/config/ConfigService';
 
@@ -60,7 +60,7 @@ class EsignApi {
     }
   }
 
-  getDocumentData = async (record, contentAtt = "", hasAlfresco = null) => {
+  getDocumentData = async (record, contentAtt = '', hasAlfresco = null) => {
     if (hasAlfresco === null) {
       hasAlfresco = await ConfigService.getValue(ALFRESCO_ENABLED);
     }

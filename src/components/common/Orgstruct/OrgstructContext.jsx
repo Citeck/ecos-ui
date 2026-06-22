@@ -17,7 +17,7 @@ import {
 } from './helpers';
 
 import { OrgStructApi } from '@/api/orgStruct';
-import EcosFormUtils from '@/components/EcosForm/EcosFormUtils';
+import EcosFormUtils from '@/components/forms/EcosForm/EcosFormUtils';
 import { Avatar } from '@/components/common/index';
 import { usePrevious } from '@/hooks';
 

@@ -1,0 +1,410 @@
+@import '@/styles/constants';
+
+.ecos-journal-dashlet {
+  padding-top: 0;
+
+  // Match journal page (ecos-journal_new) sizing
+  .ecos-grid .ecos-grid__table.table td {
+    height: 28px !important;
+    border: none;
+    vertical-align: middle;
+  }
+
+  .ecos-grid__td {
+    margin-top: 0 !important;
+    margin-left: 10px;
+    vertical-align: middle;
+  }
+
+  .ecos-grid__table.table th {
+    padding: 0;
+  }
+
+  .ecos-grid__row_new {
+    &:not(.ecos-grid__tr_selected):nth-child(odd) {
+      background-color: $color-gray-27;
+
+      .ecos-grid__checkbox {
+        background-color: $color-gray-27;
+      }
+    }
+
+    &:last-child {
+      border-bottom: 1px solid $color-gray-27;
+
+      .ecos-grid__checkbox:last-child {
+        border-bottom: 1px solid $color-gray-27;
+      }
+    }
+
+    &:hover td,
+    &.has-inline-tools td {
+      border: none !important;
+      box-shadow:
+        0 -1px 0 0 $color-brown-2 inset,
+        0 1px 0 0 $color-brown-2 inset;
+    }
+
+    &:hover .ecos-grid__checkbox_block {
+      height: 26px;
+    }
+
+    .ecos-inline-tools-btn {
+      margin-right: 7px;
+
+      .ecos-icon-svg svg {
+        width: 14px;
+        height: 14px;
+        fill: $color-brown-2;
+      }
+    }
+
+    .ecos-inline-tools-actions {
+      margin-top: 1px !important;
+      height: calc(100% - 3px) !important;
+      background: linear-gradient(to right, rgba($color-white, 0), $color-white 15%);
+    }
+
+    &:not(.ecos-grid__tr_selected):nth-child(odd) {
+      .ecos-inline-tools-actions {
+        height: calc(100% - 2px);
+        margin-top: 1px;
+        background: linear-gradient(to right, rgba($color-gray-27, 0), $color-gray-27 15%);
+      }
+    }
+
+    &.ecos-grid__tr_selected:nth-child(odd) {
+      .ecos-inline-tools-actions {
+        height: calc(100% - 2px);
+        margin-top: 1px;
+        background: linear-gradient(to right, rgba($color-yellow4, 0), $color-yellow4 15%) !important;
+      }
+    }
+  }
+
+  .ecos-th {
+    padding: 0 15px;
+
+    &__divider {
+      padding: 6px 0 6px 8px;
+    }
+
+    &__actions i {
+      font-size: 14px;
+    }
+
+    &__content {
+      padding: 0;
+
+      &-text {
+        font-size: 11px;
+      }
+    }
+
+    &_filtered {
+      padding: 5px 8px;
+
+      .ecos-th__content {
+        border-radius: $border-radius-standard;
+        padding: 6px 7px;
+        min-width: 50px;
+        width: 100%;
+      }
+    }
+  }
+
+  .ecos-grid {
+    &__border {
+      display: block;
+    }
+
+    &__header {
+      border-top: 0;
+    }
+
+    &__td {
+      margin-top: 0;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+
+    &_freeze.ecos-grid_selectable {
+      thead > tr > th,
+      tbody > tr > td {
+        &:first-child {
+          max-width: 27px;
+        }
+      }
+    }
+
+    &__tr_selected .ecos-inline-tools-actions {
+      height: calc(100% - 4px);
+      margin-top: 2px;
+      background: linear-gradient(to right, rgba($color-yellow-1, 0), $color-yellow-1 15%) !important;
+    }
+
+    &__checkbox {
+      padding-left: 6px;
+      padding-right: 1px;
+
+      &_block {
+        border-right: 1px solid $color-gray-4;
+
+        .ecos-checkbox > i {
+          margin-top: 4px;
+        }
+      }
+
+      > i {
+        display: none;
+      }
+    }
+
+    // Header select-all cell: align checkbox with column rows and extend the
+    // divider up over the header's 2px top border so the line reaches the top.
+    &__header {
+      .ecos-grid__checkbox .ecos-checkbox > i {
+        margin-top: 4px;
+      }
+
+      .ecos-grid__checkbox-divider {
+        top: -2px;
+      }
+    }
+  }
+
+  .ecos-checkbox > i {
+    font-size: 14px;
+  }
+
+  .ecos-popper__text {
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .ecos-pagination__text {
+    font-size: 12px !important;
+  }
+
+  // Page size selector: match pagination text style
+  .ecos-pagination__page-size.select_page-size {
+    min-height: 22px !important;
+    height: 22px !important;
+    width: 55px !important;
+    min-width: 55px !important;
+
+    .select__control {
+      min-height: 22px !important;
+      height: 22px !important;
+    }
+
+    .select__value-container {
+      padding: 0 6px !important;
+    }
+
+    .select__single-value {
+      font-size: $font-size-small !important;
+      color: $text-color-gray !important;
+      font-weight: 600 !important;
+    }
+
+    .select__indicator {
+      padding: 0 2px !important;
+
+      svg {
+        width: 14px;
+        height: 14px;
+      }
+    }
+  }
+
+  // Toolbar buttons: match journal page 28px sizing (only icon-only buttons)
+  &__toolbar .ecos-btn.ecos-btn_i,
+  .dashlet__header-actions .ecos-btn.ecos-btn_i {
+    height: 28px !important;
+    width: 28px !important;
+    min-width: 28px !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+
+    i {
+      font-size: 14px !important;
+    }
+  }
+
+  // Settings/preset dropdown button: compact height, shrink icons
+  &__toolbar .ecos-btn.ecos-btn_mi,
+  .dashlet__header-actions .ecos-btn.ecos-btn_mi {
+    height: 28px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center;
+    padding: 0 !important;
+
+    i {
+      font-size: 14px !important;
+      line-height: 1 !important;
+      position: static !important;
+      top: auto !important;
+
+      & + i {
+        margin-left: 4px;
+      }
+    }
+  }
+
+  // Group actions button in toolbar
+  &__group-actions .ecos-btn {
+    height: 28px !important;
+    font-size: $font-size-small;
+    padding: 0 10px !important;
+  }
+
+  // Lay the header controls out in a horizontal row (block-level GroupActions /
+  // Export children would otherwise stack vertically — base zone isn't flex).
+  .dashlet__header-actions {
+    display: flex;
+    align-items: center;
+
+    // Flat single style for journal controls: drop the grey fill/border
+    // (preset + export use .ecos-btn_grey, GroupActions uses __control).
+    // Heights are already unified to 28px by the sizing rules above.
+    .ecos-btn_grey,
+    .ecos-group-actions__control {
+      background-color: transparent !important;
+      border-color: transparent !important;
+    }
+  }
+
+  // Header actions (journal controls live here, revealed on hover): glow blue,
+  // overriding the base gray hover treatment. Mask icons follow `color`,
+  // react-svg icons follow the fill rules.
+  .dashlet__header-wrapper:hover .dashlet__header-actions {
+    color: $color-gray-5;
+
+    svg [fill='currentColor'],
+    svg[fill='currentColor'] {
+      fill: $color-gray-5;
+    }
+
+    .ecos-btn:hover,
+    button:hover {
+      color: var(--dark-primary-color);
+
+      svg [fill='currentColor'],
+      svg[fill='currentColor'] {
+        fill: var(--dark-primary-color);
+      }
+    }
+  }
+
+  // All dropdown menus: compact items
+  .ecos-dropdown__menu,
+  .ecos-group-actions__dropdown-menu {
+    li, .dropdown-item, .ecos-group-actions__dropdown-item {
+      font-size: $font-size-small !important;
+      padding: 4px 12px !important;
+      min-height: auto !important;
+    }
+  }
+
+  .select_page-size .select__option {
+    font-size: $font-size-small !important;
+    padding: 4px 8px !important;
+  }
+
+  &__toolbar {
+    padding: 6px 11px;
+    position: relative;
+    display: flex;
+
+    &-dropdown {
+      &_small {
+        width: calc(100% - 50px);
+
+        button {
+          width: 100%;
+        }
+      }
+    }
+
+    &-extra {
+      padding: 0 15px;
+      display: flex;
+    }
+  }
+
+  &__create-btn {
+    flex-shrink: 0;
+  }
+
+  &__footer {
+    padding: 0 15px 0;
+  }
+
+  &__grid {
+    position: relative;
+
+    &-wrapper {
+      height: 100%;
+
+      .ecos-grid__table.table {
+        margin-bottom: 0px;
+      }
+    }
+
+    &-track {
+      &_h {
+        bottom: 6px;
+      }
+    }
+  }
+
+  &__body {
+    min-height: 115px;
+
+    &_warnings {
+      min-height: auto;
+    }
+  }
+
+  &__group-actions {
+    display: flex;
+
+    .ecos-dropdown-outer_disabled button:disabled {
+      outline: none;
+      opacity: 0.5;
+    }
+
+    & > :nth-child(n) {
+      margin-right: 4px;
+    }
+
+    .ecos-group-actions__control {
+      color: $text-color-dark;
+      background: $color-gray-4;
+
+      &:hover {
+        background-color: $color-gray-1;
+        & > :nth-child(n) {
+          color: $text-color-dark;
+        }
+      }
+    }
+  }
+}
+
+// Group actions dropdown from widget (rendered via portal)
+.ecos-group-actions__dropdown-menu_widget {
+  .ecos-group-actions__dropdown-item {
+    font-size: $font-size-small !important;
+    padding: 4px 12px !important;
+    min-height: auto !important;
+
+    li {
+      font-size: $font-size-small !important;
+    }
+  }
+}

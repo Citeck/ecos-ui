@@ -1,4 +1,6 @@
+import { SORT_FILTER_LAST_MODIFIED, ViewTypes } from '@citeck/constants/commonDesigner';
 import { handleActions } from 'redux-actions';
+
 import {
   cancelEditCategory,
   createCategory,
@@ -16,7 +18,6 @@ import {
   setModelsInfoByCategoryId,
   setViewType
 } from '../actions/bpmn';
-import { SORT_FILTER_LAST_MODIFIED, ViewTypes } from '../constants/commonDesigner';
 
 const initialState = {
   isReady: false,

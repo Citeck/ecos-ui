@@ -1,7 +1,7 @@
+import { TMP_ICON_EMPTY } from '@citeck/constants';
+import { MenuSettings } from '@citeck/constants/menu';
 import cloneDeep from 'lodash/cloneDeep';
 
-import { TMP_ICON_EMPTY } from '../../constants';
-import { MenuSettings } from '../../constants/menu';
 import MenuSettingsService from '../MenuSettingsService';
 
 export const ITEMS_INPUT = [

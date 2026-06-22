@@ -1,0 +1,28 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`GroupActions tests <GroupActions /> should render GroupActions component 1`] = `
+<div>
+  <div
+    class="ecos-dropdown-outer ecos-group-actions__dropdown ecos-group-actions__dropdown_new ecos-dropdown-outer_disabled"
+    id="EcosDropdownOuter_2"
+  >
+    <div>
+      <button
+        class="ecos-btn ecos-group-actions__control_new ecos-btn_grey3 ecos-group-actions__control"
+        disabled=""
+        icon="icon-small-down"
+        id="group-actions-1-rec"
+      >
+        <span
+          class="ecos-btn__text"
+        >
+          journal.group-actions.selected-records.label_short
+        </span>
+        <i
+          class="ecos-btn__i ecos-btn__i_right icon-small-down"
+        />
+      </button>
+    </div>
+  </div>
+</div>
+`;

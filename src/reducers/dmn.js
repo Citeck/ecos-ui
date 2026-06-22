@@ -1,4 +1,6 @@
+import { ViewTypes } from '@citeck/constants/commonDesigner';
 import { handleActions } from 'redux-actions';
+
 import {
   setIsReady,
   setIsCategoryOpen,
@@ -13,7 +15,6 @@ import {
   setCreateVariants,
   setCategoryData
 } from '../actions/dmn';
-import { ViewTypes } from '../constants/commonDesigner';
 
 const initialState = {
   isReady: false,

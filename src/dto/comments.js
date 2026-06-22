@@ -4,7 +4,7 @@ import get from 'lodash/get';
 import { getBool, getColorByString } from '../helpers/util';
 import { t } from '../helpers/export/util';
 import UserService from '../services/UserService';
-import { AllowedTagTypes, TagColorByType, typeInternal } from '../constants/comments';
+import { AllowedTagTypes, TagColorByType, typeInternal } from '@/helpers/comments';
 
 export const getTag = data => {
   const type = get(data, 'type');

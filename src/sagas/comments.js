@@ -1,3 +1,4 @@
+import Records from '@citeck/records-core';
 import { get, isArray } from 'lodash';
 import { call, put, select, takeEvery } from 'redux-saga/effects';
 
@@ -21,7 +22,6 @@ import {
   updateComments
 } from '../actions/comments';
 import { setUploadError } from '../actions/documents';
-import Records from '../components/Records/Records';
 import { getCommentForWeb } from '../dto/comments';
 import { isNodeRef, t } from '../helpers/util';
 import { selectAllComments } from '../selectors/comments';

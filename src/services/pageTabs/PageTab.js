@@ -1,8 +1,8 @@
+import { TITLE } from '@citeck/constants/pageTabs';
 import uuidv4 from 'uuidv4';
 
 import PageService from '../PageService';
 
-import { TITLE } from '@/constants/pageTabs';
 import { t } from '@/helpers/export/util';
 import { decodeLink } from '@/helpers/urls';
 

@@ -1,6 +1,8 @@
+import { REMOTE_TITLE_ATTR_NAME } from '@citeck/constants/pageTabs';
 import React from 'react';
+
 import { createDocumentUrl, isNewVersionPage } from '../../../../../helpers/urls';
-import { REMOTE_TITLE_ATTR_NAME } from '../../../../../constants/pageTabs';
+
 import DefaultGqlFormatter from './DefaultGqlFormatter';
 
 export default class CardDetailsLinkFormatter extends DefaultGqlFormatter {

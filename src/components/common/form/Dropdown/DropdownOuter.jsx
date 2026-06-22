@@ -3,7 +3,7 @@ import uniqueId from 'lodash/uniqueId';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import ClickOutside from '../../../ClickOutside';
+import ClickOutside from '@/components/common/ClickOutside';
 import { TooltipContainer as Tooltip } from '../../Tooltip/TooltipContainer';
 
 import Dropdown from './Dropdown';

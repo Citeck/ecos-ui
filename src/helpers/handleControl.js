@@ -1,18 +1,19 @@
+import { SourcesId, URL } from '@citeck/constants';
+import { PROXY_URI } from '@citeck/constants/alfresco';
+import Records from '@citeck/records-core';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
-import { SourcesId, URL } from '../constants';
-import { PROXY_URI } from '../constants/alfresco';
 import { AppApi } from '../api/app';
+import { ActionTypes } from '@/components/core/Records/actions/constants';
+import RecordActions from '@/components/core/Records/actions/recordActions';
 import DialogManager from '../components/common/dialogs/Manager';
-import Records from '../components/Records/Records';
-import { ActionTypes } from '../components/Records/actions/constants';
-import RecordActions from '../components/Records/actions/recordActions';
 import PageService from '../services/PageService';
-import { NEW_VERSION_PREFIX } from './export/urls';
-import { getCurrentUserName, t } from './util';
-import formDefinitionUserStatus from './menu/formDefinitionUserStatus';
+
 import ecosFetch from './ecosFetch';
+import { NEW_VERSION_PREFIX } from './export/urls';
+import formDefinitionUserStatus from './menu/formDefinitionUserStatus';
+import { getCurrentUserName, t } from './util';
 
 export const HandleControlTypes = {
   ALF_DOLOGOUT: 'ALF_DOLOGOUT',

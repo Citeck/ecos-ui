@@ -9,7 +9,7 @@ import { deleteCustomIcon, getCustomIcons, getFontIcons, uploadCustomIcon } from
 import { BtnUpload, EcosIcon, EcosModal, Loader } from '@/components/common';
 import { Btn } from '@/components/common/btns';
 import reactIcons, { sortReactIconModules } from '@/components/common/icons/global';
-import { TMP_ICON_EMPTY } from '@/constants';
+import { TMP_ICON_EMPTY } from '@citeck/constants';
 import { t } from '@/helpers/util';
 
 import './style.scss';

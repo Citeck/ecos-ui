@@ -16,7 +16,7 @@ import Tooltip from 'tooltip.js';
 import { checkIsEmptyMlField, clearFormFromCache } from '../../../utils';
 import Widgets from '../../../widgets';
 
-import { FORM_MODE_CREATE } from '@/components/EcosForm/constants';
+import { FORM_MODE_CREATE } from '@/components/forms/EcosForm/constants';
 import { t } from '@/helpers/export/util';
 import { getCurrentLocale, getMLValue, getTextByLocale, IS_TEST_ENV, isEqualLexicalValue } from '@/helpers/util';
 

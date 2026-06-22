@@ -1,8 +1,8 @@
+import { INSTANCE_TABS_TYPES } from '@citeck/constants/instanceAdmin';
 import { render } from '@testing-library/react';
 import React from 'react';
 import { Provider } from 'react-redux';
 
-import { INSTANCE_TABS_TYPES } from '../../../constants/instanceAdmin';
 import configureStore from '../../../store';
 import { InstanceContextProvider } from '../InstanceContext';
 import {

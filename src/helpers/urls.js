@@ -1,3 +1,6 @@
+import { JournalUrlParams, KanbanUrlParams, SourcesId, URL as Urls } from '@citeck/constants';
+import { PROXY_URI } from '@citeck/constants/alfresco';
+import { ParserPredicate } from '@citeck/records-predicates';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
@@ -6,9 +9,6 @@ import omit from 'lodash/omit';
 import pick from 'lodash/pick';
 import * as queryString from 'query-string';
 
-import { ParserPredicate } from '../components/Filters/predicates/index';
-import { JournalUrlParams, KanbanUrlParams, SourcesId, URL as Urls } from '../constants';
-import { PROXY_URI } from '../constants/alfresco';
 import PageService from '../services/PageService';
 import PageTabList from '../services/pageTabs/PageTabList';
 

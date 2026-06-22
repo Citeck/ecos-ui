@@ -1,4 +1,5 @@
 import get from 'lodash/get';
+
 import { initialState } from '../reducers/comments';
 
 export const selectAllComments = (state, recordRef) => {

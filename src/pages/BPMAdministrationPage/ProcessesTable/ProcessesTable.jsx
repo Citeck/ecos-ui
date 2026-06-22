@@ -5,7 +5,7 @@ import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 
 import { getProcesses, setFilter, setPage } from '../../../actions/bpmnAdmin';
-import { CommonTable } from '../../../components/CommonTable';
+import { CommonTable } from '@/components/journals/CommonTable';
 import { PROCESSED_TABLE_COLUMNS } from './constants';
 
 const ProcessesTable = ({ page: pagination, processes, totalCount, loading, isMobile, setPage, setFilter, getProcesses }) => {

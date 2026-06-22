@@ -1,8 +1,8 @@
+import { PROCESS_TABS_TYPES } from '@citeck/constants/processAdmin';
 import { render } from '@testing-library/react';
 import React from 'react';
 import { Provider } from 'react-redux';
 
-import { PROCESS_TABS_TYPES } from '../../../constants/processAdmin';
 import configureStore from '../../../store';
 import InfoPanel from '../InfoPanel';
 import { ProcessContextProvider } from '../ProcessContext';

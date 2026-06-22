@@ -9,7 +9,7 @@ import UnreadableLabel from '../../UnreadableLabel';
 import BaseComponent from '../base/BaseComponent';
 
 import { OrgStructApi } from '@/api/orgStruct';
-import { FORM_MODE_CREATE } from '@/components/EcosForm';
+import { FORM_MODE_CREATE } from '@/components/forms/EcosForm';
 import SelectOrgstruct from '@/components/common/form/SelectOrgstruct';
 import {
   AUTHORITY_TYPE_GROUP,

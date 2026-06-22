@@ -1,7 +1,7 @@
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
-import { AllowedTagTypes, TagColorByType, typeInternal } from '../constants/comments';
+import { AllowedTagTypes, TagColorByType, typeInternal } from '@/helpers/comments';
 import { t } from '../helpers/export/util';
 import { getBool, getColorByString } from '../helpers/util';
 import UserService from '../services/UserService';

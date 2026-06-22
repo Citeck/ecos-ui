@@ -1,3 +1,4 @@
+import { SourcesId, URL } from '@citeck/constants';
 import get from 'lodash/get';
 import isBoolean from 'lodash/isBoolean';
 import isFunction from 'lodash/isFunction';
@@ -30,13 +31,11 @@ import {
 import { registerEventListeners } from '@/actions/customEvent';
 import { getMenuConfig, setMenuConfig } from '@/actions/menu';
 import { setNewUIAvailableStatus, validateUserFailure, validateUserSuccess } from '@/actions/user';
-import { detectMobileDevice, setViewNewJournal } from '@/actions/view';
+import { detectMobileDevice } from '@/actions/view';
 import { getWorkspaces, setBlockedCurrentWorkspace, setDefaultWorkspace } from '@/actions/workspaces';
 import { OrgStructApi } from '@/api/orgStruct';
-import { SourcesId, URL } from '@/constants';
 import { getWorkspaceId } from '@/helpers/urls';
 import { getCurrentUserName, getEnabledWorkspaces } from '@/helpers/util';
-import { SETTING_ENABLE_VIEW_NEW_JOURNAL } from '@/pages/DevTools/constants';
 import { selectWorkspaces } from '@/selectors/workspaces';
 import PageService from '@/services/PageService';
 import AuthorityService from '@/services/authrority/AuthorityService';
@@ -46,7 +45,6 @@ import ConfigService, {
   WORKSPACES_ENABLED,
   FOOTER_CONTENT,
   HOME_LINK_URL,
-  NEW_JOURNAL_ENABLED,
   WORKSPACES_ALLOW_CREATE
 } from '@/services/config/ConfigService';
 
@@ -61,23 +59,11 @@ export function* initApp({ api }, { payload }) {
       const userResponse = yield call(api.user.getUserData, OrgStructApi.userAttributes);
       const isAllowToCreateWorkspace = yield ConfigService.getValue(WORKSPACES_ALLOW_CREATE);
 
-      let isViewNewJournal = yield ConfigService.getValue(NEW_JOURNAL_ENABLED);
-
       const defaultWorkspace = yield ConfigService.getValue(DEFAULT_WORKSPACE);
       const isWorkspacesEnabled = yield ConfigService.getValue(WORKSPACES_ENABLED);
 
-      const isViewNewJournalStorage = Boolean(localStorage.getItem(SETTING_ENABLE_VIEW_NEW_JOURNAL));
-
-      if (isViewNewJournalStorage) {
-        isViewNewJournal = true;
-      }
-
       if (isAllowToCreateWorkspace || get(userResponse, 'payload.isAdmin', false)) {
         yield put(setAllowToCreateWorkspace(true));
-      }
-
-      if (isBoolean(isViewNewJournal)) {
-        yield put(setViewNewJournal(isViewNewJournal));
       }
 
       if (isString(defaultWorkspace)) {
@@ -101,7 +87,6 @@ export function* initApp({ api }, { payload }) {
         lodashSet(window, 'Citeck.constants.CURRENT_USER', userResponse.payload);
         lodashSet(window, 'Citeck.navigator.WORKSPACES_ENABLED', isWorkspacesEnabled);
         lodashSet(window, 'Citeck.navigator.DEFAULT_WORKSPACE', defaultWorkspace || `user$${getCurrentUserName()}`);
-        lodashSet(window, 'Citeck.constants.NEW_JOURNAL_ENABLED', isViewNewJournal);
 
         if (get(window, 'Citeck.navigator.WORKSPACES_ENABLED', false)) {
           lodashSet(window, 'Citeck.navigator.WORKSPACE', getWorkspaceId());

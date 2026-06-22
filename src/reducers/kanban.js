@@ -27,7 +27,7 @@ import {
   toggleSwimlaneCollapse,
   setSwimlaneCellLoading
 } from '../actions/kanban';
-import { DEFAULT_PAGINATION } from '../components/Journals/constants';
+import { DEFAULT_PAGINATION } from '@/components/journals/Journals/constants';
 import { t } from '../helpers/export/util';
 import { updateState } from '../helpers/redux';
 

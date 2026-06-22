@@ -1,3 +1,5 @@
+import { IGNORE_TABS_HANDLER_ATTR_NAME } from '@citeck/constants/pageTabs';
+import Records from '@citeck/records-core';
 import FormIOFileComponent from 'formiojs/components/file/File';
 import cloneDeep from 'lodash/cloneDeep';
 import debounce from 'lodash/debounce';
@@ -9,10 +11,8 @@ import queryString from 'query-string';
 
 import { FILE_CLICK_ACTION_DOWNLOAD, FILE_CLICK_ACTION_NOOP, FILE_CLICK_ACTION_OPEN_DASHBOARD } from './editForm/File.edit.file';
 
-import Records from '@/components/Records';
-import recordActions from '@/components/Records/actions';
-import { ActionTypes } from '@/components/Records/actions/constants';
-import { IGNORE_TABS_HANDLER_ATTR_NAME } from '@/constants/pageTabs';
+import recordActions from '@/components/core/Records/actions';
+import { ActionTypes } from '@/components/core/Records/actions/constants';
 import { createDocumentUrl, getDownloadContentUrl, isNewVersionPage } from '@/helpers/urls';
 import { t } from '@/helpers/util';
 

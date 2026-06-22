@@ -1,3 +1,5 @@
+import { PREDICATE_EQ } from '@citeck/records-core/predicates/predicates';
+import { Predicate } from '@citeck/records-predicates';
 import get from 'lodash/get';
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 
@@ -15,10 +17,8 @@ import {
   setPagination,
   resetFilter
 } from '../actions/processStatistics';
-import { Predicate } from '../components/Filters/predicates';
-import { DEFAULT_PAGINATION } from '../components/Journals/constants';
-import JournalsService from '../components/Journals/service/journalsService';
-import { PREDICATE_EQ } from '../components/Records/predicates/predicates';
+import { DEFAULT_PAGINATION } from '@/components/journals/Journals/constants';
+import JournalsService from '@/components/journals/Journals/service/journalsService';
 import JournalsConverter from '../dto/journals';
 
 const getSettings = ({ pagination, predicates, record }) => {

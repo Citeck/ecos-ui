@@ -1,8 +1,7 @@
-import { useEffect, useState, useCallback } from 'react';
-import get from 'lodash/get';
+import { NODE_TYPES } from '@citeck/constants/docLib';
 import debounce from 'lodash/debounce';
-
-import { NODE_TYPES } from '../constants/docLib';
+import get from 'lodash/get';
+import { useEffect, useState, useCallback } from 'react';
 
 export const useDropFile = ({ callback, setParentItem, item = {} }) => {
   const [isDragged, setIsDragged] = useState(false);

@@ -1,6 +1,6 @@
+import { URL as Urls } from '@citeck/constants';
 import get from 'lodash/get';
 
-import { URL as Urls } from '@/constants';
 import { createDocumentUrl, getLinkWithWs, getSelectedValueLink } from '@/helpers/urls';
 
 export const getFormatter = (linkFormatter: string): (() => string) | null => {

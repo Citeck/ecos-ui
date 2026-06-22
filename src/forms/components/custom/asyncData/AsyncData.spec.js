@@ -1,20 +1,21 @@
+import Records from '@citeck/records-core';
 import cloneDeep from 'lodash/cloneDeep';
 
-import AsyncDataComponent from './';
-import Records from '../../../../components/Records';
 import ecosFetch from '../../../../helpers/ecosFetch';
-
 import Harness from '../../../test/harness';
+
 import ajax1 from './fixtures/ajax1';
 import ajax2 from './fixtures/ajax2';
+import comp1 from './fixtures/comp1';
 import custom1 from './fixtures/custom1';
 import custom2 from './fixtures/custom2';
-import comp1 from './fixtures/comp1';
 import record from './fixtures/record';
 import recordsArray from './fixtures/recordsArray';
 import recordsQuery from './fixtures/recordsQuery';
 import recordsScript1 from './fixtures/recordsScript1';
 import recordsScript2 from './fixtures/recordsScript2';
+
+import AsyncDataComponent from './';
 
 jest.mock('../../../../helpers/ecosFetch');
 

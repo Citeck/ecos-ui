@@ -1,0 +1,422 @@
+@import '@/styles/constants';
+@import '@/styles/content';
+
+%scroll-tree {
+  &::-webkit-scrollbar,
+  &::-webkit-scrollbar-track,
+  &::-webkit-scrollbar-track-piece {
+    background-color: transparent;
+  }
+
+  &::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border: 2px solid $color-gray-4;
+    border-radius: 8px;
+  }
+}
+
+.ecos--flex-space {
+  flex: auto;
+}
+
+.ecos-menu-settings {
+  $root: &;
+
+  &__modal {
+    .ecos-loader,
+    .modal-loading {
+      z-index: calc(#{map-get($z-index, draggable-tree-item)} + 10);
+    }
+  }
+
+  &__loader {
+    border-radius: $border-radius-large;
+    z-index: calc(#{map-get($z-index, draggable-tree-item)} + 10);
+  }
+
+  &__error {
+    margin: 0px;
+    box-shadow: none;
+  }
+
+  &__tabs {
+    margin-bottom: 15px;
+    padding-right: 2px;
+
+    .ecos-tab {
+      &:not(.ecos-tab_active) {
+        background: transparent;
+      }
+    }
+  }
+
+  &__content-container {
+    overflow: auto;
+    padding-right: 2px;
+    height: calc(100vh - 288px);
+    min-height: 150px;
+  }
+
+  &_disabled {
+    #{$root}__content-container {
+      height: calc(100vh - 209px);
+    }
+  }
+
+  &__tab-content {
+    display: flex;
+    flex-direction: column;
+    align-content: stretch;
+    justify-content: flex-start;
+    height: 100%;
+    align-items: stretch;
+
+    &:not(&_two-cols) {
+      & > :nth-child(n) {
+        margin-bottom: 15px;
+      }
+    }
+
+    &_two-cols {
+      $gap: 20px;
+      display: grid;
+      grid-template-columns: repeat(2, calc(50% - #{$gap} / 2));
+      grid-gap: $gap;
+    }
+
+    &-item {
+      display: flex;
+      flex-direction: column;
+      align-content: stretch;
+      justify-content: flex-start;
+
+      &_greedy {
+        flex-grow: 1;
+      }
+    }
+  }
+
+  &__card {
+    font-size: $font-size-standard;
+    font-weight: $font-weight-semi-bold;
+
+    grid-column-start: 1;
+    grid-column-end: 3;
+    grid-row-start: 1;
+    grid-row-end: 1;
+
+    &-label {
+      color: $color-gray-5;
+      margin-right: 5px;
+    }
+  }
+
+  &__title {
+    @extend %title-block--1;
+  }
+
+  &__subtitle {
+    @extend %title-block--2;
+  }
+
+  &__drag {
+    display: flex;
+    width: 100%;
+    justify-content: flex-start;
+
+    &_menu {
+      height: 270px;
+      margin-bottom: 34px;
+    }
+
+    &-container {
+      $container: &;
+
+      display: flex;
+      width: 100%;
+      flex-wrap: wrap;
+
+      &_menu {
+        &-to {
+          flex-basis: 40%;
+          max-width: 298px;
+        }
+
+        &-from {
+          margin-right: 10px;
+        }
+      }
+    }
+
+    &-scrollbar-wrapper {
+      padding: 10px;
+    }
+  }
+
+  &-location {
+    &__group {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      align-content: space-between;
+      margin-bottom: 10px;
+
+      &-item {
+        margin-bottom: 11px;
+        overflow: hidden;
+
+        &:not(:last-child) {
+          margin-right: 11px;
+        }
+      }
+
+      &_mobile {
+        flex-wrap: nowrap;
+      }
+    }
+  }
+
+  &-editor-items {
+    $editor: &;
+
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+
+    &__header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+
+      & > :nth-child(even) {
+        margin-left: 15px;
+      }
+    }
+
+    &__subtitle {
+      margin-bottom: 0;
+    }
+
+    &__menu-dropdown.ecos-base-tooltip {
+      .tooltip {
+        z-index: 10001;
+        min-width: 120px;
+      }
+    }
+
+    &__menu-options {
+      li {
+        font-size: $font-size-small;
+        padding: 5px 15px;
+      }
+    }
+
+    &__tree {
+      &-field {
+        @extend %block--2;
+        @extend %scroll-tree;
+
+        flex-grow: 1;
+        overflow-x: hidden;
+      }
+    }
+
+    &__action {
+      &-count {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: $color-gray-5;
+
+        &:hover {
+          cursor: pointer;
+          color: var(--primary-color);
+
+          .ecos-badge {
+            background-color: var(--primary-color);
+          }
+        }
+
+        .ecos-badge {
+          margin-right: 5px;
+          font-weight: $font-weight-semi-bold;
+        }
+
+        &_active {
+          color: $color-red-1;
+
+          .ecos-badge {
+            background-color: $color-red-1;
+          }
+        }
+
+        &_disabled {
+          pointer-events: none;
+          cursor: none;
+        }
+      }
+    }
+
+    &--item {
+      &-container {
+        z-index: map-get($z-index, draggable-tree-item);
+
+        & .ecos-tree__action#{$editor}__action_no-hide {
+          display: inline-block;
+        }
+
+        & .ecos-menu-settings-editor-items__block-dropdown.ecos-dropdown-outer_open {
+          display: inline-block;
+
+          .ecos-btn {
+            background-color: var(--primary-color);
+            color: $color-white;
+          }
+        }
+      }
+    }
+
+    & &__action {
+      &_caution {
+        &:hover {
+          color: $color-red-1;
+        }
+      }
+    }
+  }
+
+  &-ownership {
+    &__field-for-all {
+      margin-bottom: 15px;
+      width: 100%;
+    }
+  }
+
+  &-group-priority {
+    &__tree {
+      &-container {
+        position: relative;
+      }
+
+      &-field {
+        @extend %block--2;
+        @extend %scroll-tree;
+        min-height: 300px;
+        overflow-x: hidden;
+        height: calc(100vh - 380px);
+      }
+    }
+
+    &--item {
+      &-container {
+        z-index: map-get($z-index, draggable-tree-item);
+      }
+    }
+  }
+
+  &-reset {
+    display: flex;
+    justify-content: space-between;
+    margin: 30px 0;
+    padding-top: 10px;
+    border-top: $border-width-standard solid $color-gray-4;
+  }
+
+  &__buttons {
+    margin-top: 35px;
+
+    & > :not(:last-child) {
+      margin-right: 10px;
+    }
+
+    &::before {
+      content: ' ';
+      display: block;
+      background: $color-gray-4;
+      height: 2px;
+      position: absolute;
+      margin-top: -20px;
+      left: 0;
+      width: 100%;
+    }
+  }
+
+  &__explanation {
+    font-weight: $font-weight-semi-bold;
+    font-size: $font-size-standard;
+    color: $text-color-gray;
+    margin-bottom: 15px;
+    white-space: pre-wrap;
+  }
+}
+
+.ecos-menu-editor-item {
+  &__field {
+    &-icon {
+      display: flex;
+
+      .ecos-btn + .ecos-btn {
+        margin-left: 10px;
+      }
+    }
+
+    &-result {
+      font-size: $font-size-small;
+      font-weight: $font-weight-semi-bold;
+    }
+  }
+
+  &__buttons {
+    display: flex;
+    margin-top: 20px;
+
+    & > .ecos-btn {
+      flex: 1;
+
+      &:last-child {
+        margin-left: 25px;
+      }
+    }
+  }
+
+  &__modal {
+    .select-orgstruct__values-list {
+      max-height: 200px;
+      overflow: auto;
+    }
+  }
+}
+
+.ecos-field-col {
+  & + & {
+    margin-top: 20px;
+  }
+
+  &__title {
+    @extend %subtitle-block--2;
+
+    &_required {
+      &::after {
+        content: '*';
+        padding-left: 5px;
+        color: var(--primary-color);
+      }
+    }
+
+    &_full_width {
+      width: 100%;
+    }
+  }
+
+  &__description {
+    font-weight: $font-weight-semi-bold;
+    font-size: $font-size-small;
+    color: $color-gray-5;
+    margin-top: 15px;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+}

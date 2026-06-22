@@ -1,11 +1,11 @@
+import { SourcesId } from '@citeck/constants';
+import Records from '@citeck/records-core';
+import { PERMISSION_WRITE_ATTR } from '@citeck/records-core/constants';
+import { AttributesType } from '@citeck/records-core/types';
 import isString from 'lodash/isString';
 
 import * as authorityApi from './authorityApi';
 
-import Records from '@/components/Records/Records';
-import { PERMISSION_WRITE_ATTR } from '@/components/Records/constants';
-import { AttributesType } from '@/components/Records/types';
-import { SourcesId } from '@/constants';
 import { getCurrentUserName, getEnabledWorkspaces } from '@/helpers/util';
 
 const GROUP_PREFIX = 'GROUP_';

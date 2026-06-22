@@ -1,5 +1,5 @@
-import Records from '../components/Records';
-import { SourcesId } from '../constants';
+import { SourcesId } from '@citeck/constants';
+import Records from '@citeck/records-core';
 
 import { getWorkspaceId } from '@/helpers/urls.js';
 

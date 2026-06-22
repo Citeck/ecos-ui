@@ -1,8 +1,9 @@
+import { CONFIG_VERSION } from '@citeck/constants/dashboard';
+import { LayoutTypes } from '@citeck/constants/layout';
 import get from 'lodash/get';
 
-import DashboardService from '../dashboard';
-import pageTabList from '../pageTabs/PageTabList';
-import { LayoutTypes } from '../../constants/layout';
+import en from '../../i18n/en.json';
+import ru from '../../i18n/ru.json';
 import {
   CONFIGS,
   FULL_DASHBOARD_ID,
@@ -11,9 +12,8 @@ import {
   SHORT_DASHBOARD_ID,
   WIDGETS_BY_ID
 } from '../__mocks__/dashboard.mock';
-import { CONFIG_VERSION } from '../../constants/dashboard';
-import ru from '../../i18n/ru.json';
-import en from '../../i18n/en.json';
+import DashboardService from '../dashboard';
+import pageTabList from '../pageTabs/PageTabList';
 
 describe('Dashboard Service', () => {
   describe('Getter key', () => {

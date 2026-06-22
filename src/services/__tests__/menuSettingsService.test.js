@@ -1,4 +1,5 @@
-import { MenuSettings as ms, MenuTypes } from '../../constants/menu';
+import { MenuSettings as ms, MenuTypes } from '@citeck/constants/menu';
+
 import MenuSettingsService from '../MenuSettingsService';
 import {
   ACTIONS,

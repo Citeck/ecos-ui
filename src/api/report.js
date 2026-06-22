@@ -1,8 +1,8 @@
+import { SourcesId } from '@citeck/constants';
+import Records from '@citeck/records-core';
 import moment from 'moment';
 
 import { RecordService } from './recordService';
-import { SourcesId } from '../constants';
-import Records from '../components/Records';
 
 function conditionByType(type) {
   switch (type) {

@@ -1,10 +1,9 @@
-import React from 'react';
+import { TMP_ICON_EMPTY } from '@citeck/constants';
 import classNames from 'classnames';
+import React from 'react';
 
-import { TMP_ICON_EMPTY } from '../../../../constants';
+import Tooltip, { baseModifiers } from '../../Tooltip';
 import { IcoBtn } from '../../btns';
-import Tooltip from '../../Tooltip';
-import { baseModifiers } from '../../Tooltip';
 
 export const renderAction = (action, idx, withTooltip = false, modifiers = []) => {
   if (action.hidden) {

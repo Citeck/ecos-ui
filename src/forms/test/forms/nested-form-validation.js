@@ -1,7 +1,7 @@
+import { COOKIE_KEY_LOCALE } from '@citeck/constants/alfresco';
+
 import { nestedConditionalForm } from '../fixtures';
 import Harness from '../harness';
-
-import { COOKIE_KEY_LOCALE } from '../../../constants/alfresco';
 
 export default {
   title: 'Nested Form Tests',

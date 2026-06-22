@@ -8,10 +8,10 @@ import { connect } from 'react-redux';
 import { Labels } from './constants';
 
 import { updateJournalWidgetsConfig } from '@/actions/journals';
-import { WidgetsConfigType } from '@/components/Journals/JournalsPreviewWidgets/JournalsPreviewWidgets';
+import { WidgetsConfigType } from '@/components/journals/Journals/JournalsPreviewWidgets/JournalsPreviewWidgets';
 import { Btn } from '@/components/common/btns';
 import { Field, MLText } from '@/components/common/form';
-import { BaseWidgetProps } from '@/components/widgets/BaseWidget';
+import { BaseWidgetProps } from '@/components/dashboard/widgets/BaseWidget';
 import { wrapArgs } from '@/helpers/store';
 import { t } from '@/helpers/util';
 import { selectWidgetsConfig } from '@/selectors/journals';

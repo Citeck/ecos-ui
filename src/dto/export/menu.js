@@ -1,5 +1,6 @@
-import { MenuSettings } from '../../constants/menu';
+import { MenuSettings } from '@citeck/constants/menu';
 import cloneDeep from 'lodash/cloneDeep';
+
 import { extractLabel } from '../../helpers/util';
 
 /**

@@ -1,14 +1,14 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-
-import { t } from '../../../../../helpers/util';
 import {
   COLUMN_DATA_TYPE_ASSOC,
   COLUMN_DATA_TYPE_MLTEXT,
   COLUMN_DATA_TYPE_OPTIONS,
   COLUMN_DATA_TYPE_TEXT,
   PREDICATE_CONTAINS
-} from '../../../../Records/predicates/predicates';
+} from '@citeck/records-core/predicates/predicates';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+
+import { t } from '../../../../../helpers/util';
 import Input from '../../Input/Input';
 import FiltersContext from '../Filters/FiltersContext';
 

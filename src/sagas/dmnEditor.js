@@ -1,3 +1,4 @@
+import { JSON_VALUE_COMPONENTS } from '@citeck/constants/cmmn';
 import get from 'lodash/get';
 import isUndefined from 'lodash/isUndefined';
 import { put, call, takeEvery } from 'redux-saga/effects';
@@ -16,9 +17,8 @@ import {
   saveModel
 } from '../actions/dmnEditor';
 import { PROCESS_DEF_API_ACTIONS } from '../api/process';
-import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
-import * as BpmnUtils from '../components/ModelEditor/BPMNModeler/utils';
-import { JSON_VALUE_COMPONENTS } from '../constants/cmmn';
+import EcosFormUtils from '@/components/forms/EcosForm/EcosFormUtils';
+import * as BpmnUtils from '@/components/editors/ModelEditor/BPMNModeler/utils';
 import { t } from '../helpers/export/util';
 import { isJsonObjectString } from '../helpers/util';
 

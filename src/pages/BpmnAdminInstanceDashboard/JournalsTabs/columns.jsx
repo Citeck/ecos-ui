@@ -1,13 +1,14 @@
+import { URL } from '@citeck/constants';
+import { INSTANCE_TABS_TYPES } from '@citeck/constants/instanceAdmin';
+import { PREDICATE_EQ } from '@citeck/records-core/predicates/predicates';
 import React from 'react';
 
-import { INSTANCE_TABS_TYPES } from '../../../constants/instanceAdmin';
+import { BpmnProcessStatusColumn } from '@/components/domain/BpmnProcessStatusColumn';
 import { getMLValue, t } from '../../../helpers/util';
-import { ActivityElementColumn, JobActionColumn, ScopeColumn, ValueColumn, RetryJobColumn, VariableActionColumn } from './components';
 import { MessageComponent } from '../../BpmnAdminProcessDashboard/ProcessJournalWidget/components';
-import { BpmnProcessStatusColumn } from '../../../components/BpmnProcessStatusColumn';
 import { NoteComponent } from '../../BpmnAdminProcessDashboard/ProcessJournalWidget/components/NoteComponent';
-import { URL } from '../../../constants';
-import { PREDICATE_EQ } from '../../../components/Records/predicates/predicates';
+
+import { ActivityElementColumn, JobActionColumn, ScopeColumn, ValueColumn, RetryJobColumn, VariableActionColumn } from './components';
 
 export const getTableColumns = (tabId, args) => {
   switch (tabId) {

@@ -2,7 +2,7 @@ import i18next from 'i18next';
 import lodashSet from 'lodash/set';
 
 import { AppApi } from '../api/app';
-import { LANGUAGE_EN } from '../constants/lang';
+import { LANGUAGE_EN } from '@/i18n/lang';
 import { getCurrentLocale } from '../helpers/util';
 
 export function i18nInit({ debug = false }) {

@@ -1,4 +1,5 @@
-import Records from '../components/Records';
+import Records from '@citeck/records-core';
+
 import { CommonApi } from './common';
 
 export class TypePermissionsApi extends CommonApi {

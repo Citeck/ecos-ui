@@ -1,7 +1,7 @@
 import { handleActions } from 'redux-actions';
 
 import { getProcesses, setFilter, setPage, setProcesses, setTotalCount } from '../actions/bpmnAdmin';
-import { DEFAULT_PAGINATION } from '../components/Journals/constants';
+import { DEFAULT_PAGINATION } from '@/components/journals/Journals/constants';
 
 export const initialState = {
   loading: false,

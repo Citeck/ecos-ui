@@ -1,3 +1,10 @@
+import { JournalUrlParams, SourcesId } from '@citeck/constants';
+import { GROUPING_COUNT_ALL } from '@citeck/constants/journal';
+import Records from '@citeck/records-core';
+import RecordImpl from '@citeck/records-core/Record';
+import { PREDICATE_EQ } from '@citeck/records-core/predicates/predicates';
+import { convertAttributeValues } from '@citeck/records-core/predicates/util';
+import { ParserPredicate } from '@citeck/records-predicates';
 import cloneDeep from 'lodash/cloneDeep';
 import concat from 'lodash/concat';
 import getFirst from 'lodash/first';
@@ -83,20 +90,13 @@ import { setIsEnabledPreviewList, setLoadingPreviewList, setPreviewListConfig } 
 import { IJournalsApi, JournalsApi } from '@/api/journals';
 import { ApiJournalConfigJsonType, JournalColumnType, JournalCreateVariantType } from '@/api/journals/types';
 import { ApiType } from '@/api/types';
-import { ParserPredicate } from '@/components/Filters/predicates';
-import { WidgetsConfigType } from '@/components/Journals/JournalsPreviewWidgets/JournalsPreviewWidgets';
-import { DEFAULT_PAGINATION, isKanban, JOURNAL_DASHLET_CONFIG_VERSION } from '@/components/Journals/constants';
-import JournalsService, { EditorService, PresetsServiceApi } from '@/components/Journals/service';
-import { isSavedAttValueEqual, isValidAttValueForType } from '@/components/Journals/service/editors/editorUtils';
-import { buildSaveAttKey } from '@/components/Journals/service/journalColumnsResolver';
-import Records from '@/components/Records';
-import RecordImpl from '@/components/Records/Record';
-import ActionsRegistry from '@/components/Records/actions/actionsRegistry';
-import { ActionTypes } from '@/components/Records/actions/constants';
-import { PREDICATE_EQ } from '@/components/Records/predicates/predicates';
-import { convertAttributeValues } from '@/components/Records/predicates/util';
-import { JournalUrlParams, SourcesId } from '@/constants';
-import { GROUPING_COUNT_ALL } from '@/constants/journal';
+import { WidgetsConfigType } from '@/components/journals/Journals/JournalsPreviewWidgets/JournalsPreviewWidgets';
+import { DEFAULT_PAGINATION, isKanban, JOURNAL_DASHLET_CONFIG_VERSION } from '@/components/journals/Journals/constants';
+import JournalsService, { EditorService, PresetsServiceApi } from '@/components/journals/Journals/service';
+import { isSavedAttValueEqual, isValidAttValueForType } from '@/components/journals/Journals/service/editors/editorUtils';
+import { buildSaveAttKey } from '@/components/journals/Journals/service/journalColumnsResolver';
+import ActionsRegistry from '@/components/core/Records/actions/actionsRegistry';
+import { ActionTypes } from '@/components/core/Records/actions/constants';
 import { wrapSaga } from '@/helpers/redux';
 import { wrapArgs } from '@/helpers/store';
 import { decodeLink, getFilterParam, getSearchParams, getUrlWithoutOrigin, removeUrlSearchParams } from '@/helpers/urls';
@@ -116,7 +116,6 @@ import {
   selectWidgetsConfig
 } from '@/selectors/journals';
 import { selectKanban } from '@/selectors/kanban';
-import { selectIsViewNewJournal } from '@/selectors/view';
 import PageService from '@/services/PageService';
 import { NotificationManager } from '@/services/notifications';
 import { PredicateType, PredicateValueType } from '@/types/predicates';
@@ -427,14 +426,9 @@ function* sagaGetJournalsData(
     }
 
     const url: IJournalState['url'] = yield select(selectUrl, stateId);
-    const isViewNewJournal: boolean = yield select(selectIsViewNewJournal);
     const { journalId, journalSettingId = '', userConfigId } = url;
 
     yield put(setJournalExpandableProp(w(false)));
-
-    if (!isViewNewJournal) {
-      yield put(setGrid(w({ pagination: DEFAULT_PAGINATION })));
-    }
 
     yield put(initJournal(w({ journalId, journalSettingId, userConfigId, ...payload })));
   } catch (e) {
@@ -946,7 +940,6 @@ function* loadGrid(
 ) {
   const { canceled } = yield race({
     task: call(function* () {
-      const isViewNewJournal: boolean = yield select(selectIsViewNewJournal);
       const initPredicate = savePredicate || false;
       const isResetPagination = forcePagination || false;
       const sharedSettings: Partial<IJournalState['journalSetting']> = yield getJournalSharedSettings(api, userConfigId) || {};
@@ -965,8 +958,7 @@ function* loadGrid(
       const url: IJournalState['url'] = yield select(selectUrl, stateId);
       const journalData: IJournalState = yield select(selectJournalData, stateId);
 
-      const dataPagination =
-        (!isViewNewJournal && get(sharedSettings, 'pagination')) || get(journalData, 'grid.pagination') || DEFAULT_PAGINATION;
+      const dataPagination = get(journalData, 'grid.pagination') || DEFAULT_PAGINATION;
 
       const pagination = !isResetPagination ? dataPagination : { ...dataPagination, page: 1, skipCount: 0 };
       const originParams = getGridParams({ journalConfig, journalSetting: get(preset, 'settings', journalSetting), pagination });
@@ -1647,7 +1639,6 @@ function* sagaGoToJournalsPage(
         yield put(setLoading(w(true)));
 
         const journalData: IJournalState = yield select(selectJournalData, stateId);
-        const isViewNewJournal: boolean = yield select(selectIsViewNewJournal);
         const { journalConfig, grid } = journalData || {};
         const { columns, groupBy = [] } = grid;
         const { criteria = [], predicate = {} } = journalConfig.meta || {};
@@ -1726,7 +1717,7 @@ function* sagaGoToJournalsPage(
         }
 
         const gridColumns = JournalsConverter.filterColumnsByConfig(settingColumns, journalConfig.columns);
-        const pagination = isViewNewJournal ? get(journalData, 'grid.pagination', DEFAULT_PAGINATION) : DEFAULT_PAGINATION;
+        const pagination = get(journalData, 'grid.pagination', DEFAULT_PAGINATION);
 
         const params = getGridParams({
           journalConfig,
@@ -1875,7 +1866,6 @@ function* sagaExecJournalAction(
 function* sagaResetFiltering({ w, stateId }: IJournalsExtraArgumentsStore) {
   try {
     const url: IJournalState['url'] = yield select(selectUrl, stateId);
-    const isViewNewJournal: boolean = yield select(selectIsViewNewJournal);
     const journalData: IJournalState = yield select(selectJournalData, stateId);
     const { grid } = journalData || {};
     const { pagination = {} } = grid;
@@ -1883,11 +1873,7 @@ function* sagaResetFiltering({ w, stateId }: IJournalsExtraArgumentsStore) {
 
     yield put(setJournalExpandableProp(w(false)));
 
-    if (isViewNewJournal) {
-      yield put(setGrid(w({ pagination: { ...pagination, skipCount: 0, page: 1 } })));
-    } else {
-      yield put(setGrid(w({ pagination: DEFAULT_PAGINATION })));
-    }
+    yield put(setGrid(w({ pagination: { ...pagination, skipCount: 0, page: 1 } })));
 
     yield put(initJournal(w({ journalId, journalSettingId, force: true, savePredicate: false })));
   } catch (e) {

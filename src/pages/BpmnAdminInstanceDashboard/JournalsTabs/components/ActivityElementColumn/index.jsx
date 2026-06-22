@@ -2,9 +2,9 @@ import React, { useContext, useEffect, useState } from 'react';
 
 import { connect } from 'react-redux';
 
-import BPMNViewer from '../../../../../components/ModelViewer/BPMNViewer';
+import BPMNViewer from '@/components/editors/ModelViewer/BPMNViewer';
 import { selectInstanceMetaInfo } from '../../../../../selectors/instanceAdmin';
-import { JOURNALS_TABS_BLOCK_CLASS } from '../../../constants';
+import { JOURNALS_TABS_BLOCK_CLASS } from '@/pages/BpmnAdminInstanceDashboard/constants';
 import { InstanceContext } from '../../../InstanceContext';
 
 const ElementColumn = ({ row, metaInfo, nameField = 'activityId' }) => {

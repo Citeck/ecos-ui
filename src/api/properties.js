@@ -1,5 +1,5 @@
-import Records from '../components/Records';
-import { SourcesId } from '../constants';
+import { SourcesId } from '@citeck/constants';
+import Records from '@citeck/records-core';
 
 export class PropertiesApi {
   static isDraftStatus = async record => {
@@ -17,7 +17,7 @@ export class PropertiesApi {
     return isReset;
   };
 
-  getFormList = async function({ record }) {
+  getFormList = async function ({ record }) {
     const typeRef = await Records.get(record).load('_etype?id');
 
     return await Records.query(

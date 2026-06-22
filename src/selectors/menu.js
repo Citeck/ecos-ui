@@ -1,4 +1,4 @@
-import { ConfigTypes } from '../constants/menu';
+import { ConfigTypes } from '@citeck/constants/menu';
 
 export const selectMenuByType = (state, type) => {
   let key;

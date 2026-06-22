@@ -1,18 +1,18 @@
+import Records from '@citeck/records-core';
 import get from 'lodash/get';
 import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import React, { useContext, useMemo } from 'react';
 
-import RecordActions from '../../../../../Records/actions/recordActions';
+import RecordActions from '@/components/core/Records/actions/recordActions';
 import InlineToolsDisconnected from '../../../../grid/InlineTools/InlineToolsDisconnected';
 import { renderAction } from '../../../../grid/InlineTools/helpers';
+import { TableFormContext } from '../../TableFormContext';
 
-import Records from '@/components/Records';
-import DeleteAction from '@/components/Records/actions/handler/executor/DeleteAction';
-import EditAction from '@/components/Records/actions/handler/executor/EditAction';
+import DeleteAction from '@/components/core/Records/actions/handler/executor/DeleteAction';
+import EditAction from '@/components/core/Records/actions/handler/executor/EditAction';
 import { getFitnesseInlineToolsClassName } from '@/helpers/tools';
 import { t } from '@/helpers/util';
-import { TableFormContext } from '../../TableFormContext';
 
 const InlineActions = ({ rowId = null }) => {
   const context = useContext(TableFormContext);

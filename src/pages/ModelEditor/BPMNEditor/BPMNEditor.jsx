@@ -1,15 +1,4 @@
-import debounce from 'lodash/debounce';
-import get from 'lodash/get';
-import isEmpty from 'lodash/isEmpty';
-import React, { useEffect, useState } from 'react';
-import uuidv4 from 'uuidv4';
-
-import ModelEditor from '../ModelEditor';
-
-import { ProcessApi } from '@/api/process';
-import { editorContextService, CONTEXT_TYPES, aiAssistantService } from '@/components/AIAssistant';
-import BPMNModeler from '@/components/ModelEditor/BPMNModeler';
-import { SourcesId } from '@/constants';
+import { SourcesId } from '@citeck/constants';
 import {
   PREFIX_FORM_ELM,
   SUBPROCESS_TYPE,
@@ -19,7 +8,18 @@ import {
   ELEMENT_TYPES_FORM_DETERMINER_BY_ECOS_TASK_TYPE_MAP,
   BPMN_DELIMITER,
   BPMN_PREFIX_UNDERLINE
-} from '@/constants/bpmn';
+} from '@citeck/constants/bpmn';
+import debounce from 'lodash/debounce';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import React, { useEffect, useState } from 'react';
+import uuidv4 from 'uuidv4';
+
+import ModelEditor from '../ModelEditor';
+
+import { ProcessApi } from '@/api/process';
+import { editorContextService, CONTEXT_TYPES, aiAssistantService } from '@/components/ai/AIAssistant';
+import BPMNModeler from '@/components/editors/ModelEditor/BPMNModeler';
 import { t } from '@/helpers/export/util';
 import { NotificationManager } from '@/services/notifications';
 

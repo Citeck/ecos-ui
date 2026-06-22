@@ -1,3 +1,5 @@
+import { SystemJournals } from '@citeck/constants';
+import Records from '@citeck/records-core';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import PropTypes from 'prop-types';
@@ -5,13 +7,11 @@ import React, { Component } from 'react';
 
 import Labels, { ERROR_TYPES } from '../../labels';
 
-import DropDown, { DropDownItem } from '@/components/Lexical/ui/DropDown';
-import Records from '@/components/Records';
+import DropDown, { DropDownItem } from '@/components/editors/Lexical/ui/DropDown';
 import { InfoText } from '@/components/common';
 import Loader from '@/components/common/Loader';
 import { Btn } from '@/components/common/btns';
 import { Field } from '@/components/common/form';
-import { SystemJournals } from '@/constants';
 import { t } from '@/helpers/export/util';
 import { getDOMElementMeasurer } from '@/helpers/util';
 

@@ -2,8 +2,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
 
-import UserProfileDashlet from '../../../components/widgets/UserProfile/UserProfileDashlet';
-import PropertiesDashlet from '../../../components/widgets/Properties/PropertiesDashlet';
+import UserProfileDashlet from '@/components/dashboard/widgets/UserProfile/UserProfileDashlet';
+import PropertiesDashlet from '@/components/dashboard/widgets/Properties/PropertiesDashlet';
 import { t } from '../../../helpers/util';
 
 const Labels = {

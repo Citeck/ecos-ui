@@ -1,3 +1,5 @@
+import { EDITOR_PAGE_CONTEXT } from '@citeck/constants/dmn';
+import Records from '@citeck/records-core';
 import endsWith from 'lodash/endsWith';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
@@ -22,10 +24,8 @@ import {
   createModel
 } from '../actions/dmn';
 import { showModal } from '../actions/modal';
-import FormManager from '../components/EcosForm/FormManager';
-import Records from '../components/Records';
+import FormManager from '@/components/forms/EcosForm/FormManager';
 import { INFO_DIALOG_ID } from '../components/common/dialogs/Manager/DialogManager';
-import { EDITOR_PAGE_CONTEXT } from '../constants/dmn';
 import { getPagePositionState, savePagePositionState } from '../helpers/dmn';
 import { t } from '../helpers/util';
 import { selectAllCategories, selectAllModels } from '../selectors/dmn';

@@ -2,7 +2,7 @@ import isEmpty from 'lodash/isEmpty';
 import isObject from 'lodash/isObject';
 import isString from 'lodash/isString';
 
-import { SourcesId, TMP_ICON_EMPTY } from '../constants';
+import { SourcesId, TMP_ICON_EMPTY } from '@citeck/constants';
 import { getDefaultSortAscending } from './sortUtils';
 
 export function getIconObjectWeb(data) {

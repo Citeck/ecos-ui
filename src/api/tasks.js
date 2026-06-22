@@ -1,8 +1,10 @@
-import Records from '../components/Records';
+import { SourcesId, USER_CURRENT } from '@citeck/constants';
+import { ReassignTaskAction, ViewBusinessProcessTaskAction } from '@citeck/constants/tasks';
+import Records from '@citeck/records-core';
+
+import recordActions from '@/components/core/Records/actions/recordActions';
+
 import { RecordService } from './recordService';
-import recordActions from '../components/Records/actions/recordActions';
-import { SourcesId, USER_CURRENT } from '../constants';
-import { ReassignTaskAction, ViewBusinessProcessTaskAction } from '../constants/tasks';
 
 export class TasksApi extends RecordService {
   static getTask = (taskId, attrs) => {

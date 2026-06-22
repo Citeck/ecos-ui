@@ -1,7 +1,9 @@
-import journalsService from '../components/Journals/service/journalsService';
-import Records from '../components/Records';
-import { SourcesId } from '../constants';
-import { documentFields } from '../constants/documents';
+import { SourcesId } from '@citeck/constants';
+import Records from '@citeck/records-core';
+
+import journalsService from '@/components/journals/Journals/service/journalsService';
+
+import { documentFields } from '@/helpers/documents';
 
 export class DocumentsApi {
   getImageUrl = entityRef => {

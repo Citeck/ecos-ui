@@ -1,9 +1,10 @@
-import { USER_GUEST } from '../constants';
+import { USER_GUEST } from '@citeck/constants';
+
 import * as storage from '../helpers/ls';
 import { isNewVersionPage } from '../helpers/urls';
-import { CommonApi } from './common';
-
 import ConfigService, { TABS_ENABLED } from '../services/config/ConfigService';
+
+import { CommonApi } from './common';
 
 export class PageTabsApi extends CommonApi {
   #lsKey = storage.generateKey('page-tabs', true);

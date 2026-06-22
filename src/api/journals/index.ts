@@ -1,3 +1,7 @@
+import { SourcesId } from '@citeck/constants';
+import { CITECK_URI, PROXY_URI } from '@citeck/constants/alfresco';
+import Records from '@citeck/records-core';
+import { PERMISSION_WRITE_ATTR } from '@citeck/records-core/constants';
 import get from 'lodash/get';
 import isString from 'lodash/isString';
 
@@ -5,13 +9,9 @@ import { DocPreviewApi } from '../docPreview';
 import { RecordService } from '../recordService';
 
 import { PureQueryResponse } from '@/api/types';
-import { WidgetsConfigType } from '@/components/Journals/JournalsPreviewWidgets/JournalsPreviewWidgets';
-import { PERMISSION_WRITE_ATTR } from '@/components/Records/constants';
-import Records from '@/components/Records/index';
+import { WidgetsConfigType } from '@/components/journals/Journals/JournalsPreviewWidgets/JournalsPreviewWidgets';
 import { ROOT_GROUP_NAME } from '@/components/common/Orgstruct/constants';
 import TreeDataSource from '@/components/common/grid/dataSource/TreeDataSource';
-import { SourcesId } from '@/constants';
-import { CITECK_URI, PROXY_URI } from '@/constants/alfresco';
 import * as ls from '@/helpers/ls';
 import { LSDataType } from '@/helpers/ls';
 import { getSearchParams, getWorkspaceId } from '@/helpers/urls';

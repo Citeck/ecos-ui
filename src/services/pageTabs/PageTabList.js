@@ -1,3 +1,4 @@
+import { TITLE } from '@citeck/constants/pageTabs';
 import { EventEmitter } from 'events';
 import cloneDeep from 'lodash/cloneDeep';
 import find from 'lodash/find';
@@ -10,7 +11,6 @@ import PageService from '../PageService';
 
 import PageTab from './PageTab';
 
-import { TITLE } from '@/constants/pageTabs';
 import * as storage from '@/helpers/ls';
 import { equalsQueryUrls, getWorkspaceId, IgnoredUrlParams } from '@/helpers/urls';
 import { t, getCurrentLocale, getEnabledWorkspaces } from '@/helpers/util';

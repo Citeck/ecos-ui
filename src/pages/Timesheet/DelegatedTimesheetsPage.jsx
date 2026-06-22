@@ -1,3 +1,4 @@
+import { DelegationTypes, ServerStatusKeys, ServerStatusOutcomeKeys, TimesheetTypes } from '@citeck/constants/timesheet';
 import get from 'lodash/get';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -11,12 +12,11 @@ import {
   resetEventDayHours,
   setPopupMessage
 } from '../../actions/timesheet/delegated';
-import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
-import DelegatedDeputiesModal from '../../components/Timesheet/DelegatedDeputiesModal';
-import RouteTypeTabs from '../../components/Timesheet/RouteTypeTabs';
+import Timesheet, { DateSlider, Tabs } from '@/components/domain/Timesheet';
+import DelegatedDeputiesModal from '@/components/domain/Timesheet/DelegatedDeputiesModal';
+import RouteTypeTabs from '@/components/domain/Timesheet/RouteTypeTabs';
 import { Loader } from '../../components/common';
 import { Btn } from '../../components/common/btns';
-import { DelegationTypes, ServerStatusKeys, ServerStatusOutcomeKeys, TimesheetTypes } from '../../constants/timesheet';
 import { CommonLabels, DelegateTimesheetLabels } from '../../helpers/timesheet/dictionary';
 import { BaseConfigGroupButtons } from '../../helpers/timesheet/util';
 import { deepClone, t } from '../../helpers/util';

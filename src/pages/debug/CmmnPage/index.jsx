@@ -3,7 +3,7 @@ import XMLViewer from 'react-xml-viewer';
 
 import { Btn } from '../../../components/common/btns';
 import { EcosModal } from '../../../components/common';
-import CMMNModeler from '../../../components/ModelEditor/CMMNModeler';
+import CMMNModeler from '@/components/editors/ModelEditor/CMMNModeler';
 
 import 'cmmn-js/dist/assets/diagram-js.css';
 import 'cmmn-js/dist/assets/cmmn-font/css/cmmn.css';

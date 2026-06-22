@@ -1,3 +1,6 @@
+import { SourcesId } from '@citeck/constants';
+import { MenuSettings } from '@citeck/constants/menu';
+import Records from '@citeck/records-core';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
@@ -15,12 +18,9 @@ import {
   setSlideMenuItems,
   toggleIsOpen
 } from '../actions/slideMenu';
-import { FORM_MODE_CREATE } from '../components/EcosForm';
-import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
-import FormManager from '../components/EcosForm/FormManager';
-import Records from '../components/Records';
-import { SourcesId } from '../constants';
-import { MenuSettings } from '../constants/menu';
+import { FORM_MODE_CREATE } from '@/components/forms/EcosForm';
+import EcosFormUtils from '@/components/forms/EcosForm/EcosFormUtils';
+import FormManager from '@/components/forms/EcosForm/FormManager';
 import SidebarConverter from '../dto/sidebar';
 import { goToCardDetailsPage } from '../helpers/urls';
 import SidebarService from '../services/sidebar';

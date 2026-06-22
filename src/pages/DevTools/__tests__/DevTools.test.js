@@ -185,7 +185,7 @@ describe('DevTools tests', () => {
 
     it('should render Settings component', () => {
       const wrapper = renderComponent({ activeTab: TABS.SETTINGS });
-      expect(wrapper.getElementsByClassName('dev-tools-page__setting')).toHaveLength(4);
+      expect(wrapper.getElementsByClassName('dev-tools-page__setting')).toHaveLength(3);
       expect(wrapper).toMatchSnapshot();
     });
   });

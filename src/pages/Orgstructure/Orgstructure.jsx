@@ -1,3 +1,4 @@
+import { URL, SourcesId } from '@citeck/constants';
 import classNames from 'classnames';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
@@ -9,7 +10,6 @@ import * as queryString from 'query-string';
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { URL, SourcesId } from '../../constants';
 import Dashboard from '../Dashboard/Dashboard';
 
 import Structure from './components/Structure';
@@ -17,8 +17,8 @@ import Structure from './components/Structure';
 import { getDashboardConfig, getDashboardTitle, setLoading } from '@/actions/dashboard';
 import { setSelectedPerson } from '@/actions/orgstructure';
 import { OrgStructApi } from '@/api/orgStruct';
-import { DndUtils } from '@/components/Drag-n-Drop';
-import Layout from '@/components/Layout';
+import { DndUtils } from '@/components/common/DragAndDrop';
+import Layout from '@/components/layout/Layout';
 import { ScrollArrow, Tabs } from '@/components/common';
 import { OrgstructProvider } from '@/components/common/Orgstruct/OrgstructContext';
 import {

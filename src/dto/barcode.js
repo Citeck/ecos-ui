@@ -1,6 +1,6 @@
+import { defaultSettings } from '@citeck/constants/barcode';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-import { defaultSettings } from '../constants/barcode';
 
 export default class BarcodeConverter {
   static getSettingsForWeb(source = {}) {

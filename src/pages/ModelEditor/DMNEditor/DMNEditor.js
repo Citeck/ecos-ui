@@ -1,11 +1,11 @@
+import { SourcesId } from '@citeck/constants';
+import { EventListeners } from '@citeck/constants/cmmn';
+import { DMN_KEY_FIELDS } from '@citeck/constants/dmn';
 import get from 'lodash/get';
 
 import ModelEditor from '../ModelEditor';
 
-import DMNModeler from '@/components/ModelEditor/DMNModeler';
-import { SourcesId } from '@/constants';
-import { EventListeners } from '@/constants/cmmn';
-import { DMN_KEY_FIELDS } from '@/constants/dmn';
+import DMNModeler from '@/components/editors/ModelEditor/DMNModeler';
 
 class DMNEditorPage extends ModelEditor {
   static modelType = 'dmn';

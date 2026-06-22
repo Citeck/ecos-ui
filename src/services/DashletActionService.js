@@ -1,4 +1,4 @@
-import { AppEditions } from '../constants';
+import { AppEditions } from '@citeck/constants';
 
 export default class DashletActionService {
   static Actions = {

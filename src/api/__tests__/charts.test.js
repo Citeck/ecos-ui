@@ -1,7 +1,8 @@
-import Records from '../../components/Records/Records';
+import Records from '@citeck/records-core';
+
 import { ChartsApi } from '../charts';
 
-jest.mock('../../components/Records/Records', () => {
+jest.mock('@citeck/records-core', () => {
   const mock = {
     get: jest.fn().mockReturnValue({
       load: jest.fn().mockResolvedValue(null)
@@ -14,7 +15,7 @@ jest.mock('../../components/Records/Records', () => {
   };
 });
 
-jest.mock('../../components/Filters/predicates', () => ({
+jest.mock('@citeck/records-predicates', () => ({
   ParserPredicate: {
     replacePredicatesType: jest.fn(val => val),
     removeEmptyPredicates: jest.fn(val => val)
@@ -154,11 +155,6 @@ describe('ChartsApi', () => {
     const query = queryCall[0].query;
 
     expect(query.t).toBe('and');
-    expect(query.val).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ att: '_type' }),
-        expect.objectContaining({ t: 'or' })
-      ])
-    );
+    expect(query.val).toEqual(expect.arrayContaining([expect.objectContaining({ att: '_type' }), expect.objectContaining({ t: 'or' })]));
   });
 });

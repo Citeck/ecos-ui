@@ -2,7 +2,7 @@ import React, { useContext, useMemo } from 'react';
 
 import { default as EcosTabs } from '../../../Tabs';
 import { OrgstructContext } from '../../OrgstructContext';
-import { TabTypes } from '../../constants';
+import { TabTypes } from '@/components/common/Orgstruct/constants';
 
 import { AUTHORITY_TYPE_ROLE } from '@/components/common/form/SelectOrgstruct/constants';
 import { t } from '@/helpers/util';

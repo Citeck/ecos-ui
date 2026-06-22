@@ -5,7 +5,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Scrollbars } from 'react-custom-scrollbars';
 import ReactDOM from 'react-dom';
 
-import ListItem from '../../../ColumnsSetup/ListItem';
+import ListItem from '@/components/journals/ColumnsSetup/ListItem';
 
 import { getDndPortalContainer } from '@/helpers/dndPortalContainer';
 import { getId } from '@/helpers/util';

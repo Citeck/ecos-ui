@@ -1,4 +1,4 @@
-import { MenuSettings } from '../../constants/menu';
+import { MenuSettings } from '@citeck/constants/menu';
 
 export const raw = {
   0: [

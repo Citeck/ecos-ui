@@ -1,11 +1,8 @@
-import React from 'react';
+import { ServerStatusKeys, ServerStatusOutcomeKeys, TimesheetTypes } from '@citeck/constants/timesheet';
 import get from 'lodash/get';
+import React from 'react';
 import { connect } from 'react-redux';
 
-import { t } from '../../helpers/util';
-import { BaseConfigGroupButtons } from '../../helpers/timesheet/util';
-import { CommonLabels, VerifyTimesheetLabels } from '../../helpers/timesheet/dictionary';
-import { ServerStatusKeys, ServerStatusOutcomeKeys, TimesheetTypes } from '../../constants/timesheet';
 import {
   getCalendarEvents,
   getVerificationTimesheetByParams,
@@ -15,10 +12,13 @@ import {
   resetVerificationTimesheet,
   setPopupMessage
 } from '../../actions/timesheet/verification';
+import Timesheet, { DateSlider, Tabs } from '@/components/domain/Timesheet';
+import { Loader } from '../../components/common';
+import { CommonLabels, VerifyTimesheetLabels } from '../../helpers/timesheet/dictionary';
+import { BaseConfigGroupButtons } from '../../helpers/timesheet/util';
+import { t } from '../../helpers/util';
 import CommonTimesheetService from '../../services/timesheet/common';
 
-import { Loader } from '../../components/common';
-import Timesheet, { DateSlider, Tabs } from '../../components/Timesheet';
 import BaseTimesheetPage from './BaseTimesheetPage';
 
 class VerificationTimesheetPage extends BaseTimesheetPage {
@@ -189,7 +189,4 @@ const mapDispatchToProps = dispatch => ({
   getCalendarEvents: payload => dispatch(getCalendarEvents(payload))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(VerificationTimesheetPage);
+export default connect(mapStateToProps, mapDispatchToProps)(VerificationTimesheetPage);

@@ -1,3 +1,5 @@
+import { DateFormats } from '@citeck/constants';
+import { datePredicateVariables } from '@citeck/records-core/predicates/predicates';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
@@ -8,14 +10,12 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { UncontrolledPopover, PopoverHeader, PopoverBody } from 'reactstrap';
 
-import { datePredicateVariables } from '../../../Records/predicates/predicates';
 import Input from '../Input';
 import Select from '../Select';
 
 import DatePicker from './DatePicker';
 import { getDateEditorContainer } from './dateEditorContainer';
 
-import { DateFormats } from '@/constants';
 import { num2str, prepareTooltipId, t } from '@/helpers/util';
 
 import './DateIntervalPicker.scss';
@@ -130,7 +130,6 @@ class DateIntervalPicker extends Component {
     if (prevProps.value !== this.props.value) {
       this.splitIntervalToParts();
     }
-
   }
 
   componentWillUnmount() {

@@ -1,9 +1,9 @@
+import { URL } from '@citeck/constants';
+import { PROCESS_TABS_TYPES } from '@citeck/constants/processAdmin';
 import get from 'lodash/get';
 import * as queryString from 'query-string';
 import React, { useEffect, useState } from 'react';
 
-import { URL } from '../../../constants';
-import { PROCESS_TABS_TYPES } from '../../../constants/processAdmin';
 import { decodeLink, getLastPathSegmentBeforeQuery, getSearchParams, replaceHistoryLink } from '../../../helpers/urls';
 import { getKeyProcessBPMN } from '../../../helpers/util';
 import { getValue } from '../utils';

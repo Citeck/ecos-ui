@@ -7,7 +7,7 @@ import Icon from '../icons/Icon';
 
 import { MenuApi } from '@/api/menu';
 import { reactIconsModules } from '@/components/common/icons/global';
-import { TMP_ICON_EMPTY } from '@/constants';
+import { TMP_ICON_EMPTY } from '@citeck/constants';
 import { createContentUrl } from '@/helpers/urls';
 
 import './style.scss';

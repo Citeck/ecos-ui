@@ -1,12 +1,13 @@
-import { RecordService } from './recordService';
-import Records from '../components/Records';
-import { PERMISSION_WRITE_ATTR } from '../components/Records/constants';
-import { PREDICATE_EQ } from '../components/Records/predicates/predicates';
 import {
   PERMISSION_BPMN_SECTION_CREATE_DEF,
   PERMISSION_BPMN_SECTION_CREATE_SUBSECTION,
   PERMISSION_BPMN_SECTION_EDIT_DEF
-} from '../constants/bpmn';
+} from '@citeck/constants/bpmn';
+import Records from '@citeck/records-core';
+import { PERMISSION_WRITE_ATTR } from '@citeck/records-core/constants';
+import { PREDICATE_EQ } from '@citeck/records-core/predicates/predicates';
+
+import { RecordService } from './recordService';
 
 export class BpmnApi extends RecordService {
   static BPMNN_SECTION_ATTRS = {

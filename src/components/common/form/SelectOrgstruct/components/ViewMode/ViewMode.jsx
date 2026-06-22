@@ -4,7 +4,7 @@ import React, { useContext } from 'react';
 
 import { AssocLink } from '../../../AssocLink';
 import { SelectOrgstructContext } from '../../SelectOrgstructContext';
-import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, ViewModes } from '../../constants';
+import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, ViewModes } from '@/components/common/form/SelectOrgstruct/constants';
 
 import Tags from '@/components/common/Tags';
 import { createDocumentUrl, createProfileUrl, isNewVersionPage } from '@/helpers/urls';

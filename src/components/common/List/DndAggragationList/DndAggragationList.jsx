@@ -9,7 +9,7 @@ import get from 'lodash/get';
 
 import { getDndPortalContainer } from '../../../../helpers/dndPortalContainer';
 import { getId } from '../../../../helpers/util';
-import AggregationListItem from '../../../ColumnsSetup/AggregationListItem';
+import AggregationListItem from '@/components/journals/ColumnsSetup/AggregationListItem';
 
 import './DndAggragationList.scss';
 

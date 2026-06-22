@@ -21,50 +21,6 @@
   margin-bottom: 10px;
 }
 
-// Подсказки полей формы (иконка «?»). Узел рендерится в document.body (см. createTooltip
-// в override/base/Base.js), поэтому стили вне скоупа .formio-form. z-index 11000 — выше
-// EcosModal (1050) и formio-dialog (10001/10002), по конвенции .ecos-modal-tooltip.
-.tooltip.formio-field-tooltip {
-  opacity: 1;
-  z-index: 11000;
-  // Контейнер .tooltip получает тёмный фон из глобального каскада (раньше его гасил скоуп
-  // .formio-form .tooltip, теперь узел в body) — иначе тёмный фон проступает рамкой вокруг inner.
-  background-color: transparent;
-
-  .tooltip-inner {
-    width: max-content;
-    max-width: calc(100vw - 2rem);
-
-    padding: 0.5rem 1rem;
-    color: #444;
-    text-align: left;
-    background-color: #fff;
-    border-radius: $border-radius-large;
-    box-shadow: $box-shadow-tooltip;
-    font-weight: $font-weight-semi-bold;
-  }
-
-  .tooltip-arrow {
-    position: absolute;
-  }
-
-  &[x-placement='right'] .tooltip-arrow {
-    top: -0.25rem;
-    left: 0.25rem;
-    border-width: 0;
-    width: 0.5rem;
-    height: 0.5rem;
-    background-color: $color-white;
-    border-top-color: $color-white;
-    transform: rotate(-45deg);
-    box-shadow: -6px -3px 5px rgba(0, 0, 0, 0.2);
-
-    &:before {
-      content: none;
-    }
-  }
-}
-
 .formio-dialog-content .preview-panel,
 .formio-form {
   .ecos-form__value_unreadable {
@@ -194,6 +150,43 @@
     color: $color-red-1;
     font-size: $font-size-small;
     margin-top: 0.5rem;
+  }
+
+  .tooltip {
+    opacity: 1;
+  }
+
+  .tooltip-inner {
+    width: max-content;
+    max-width: calc(100vw - 2rem);
+
+    padding: 0.5rem 1rem;
+    color: #444;
+    text-align: left;
+    background-color: #fff;
+    border-radius: $border-radius-large;
+    box-shadow: $box-shadow-tooltip;
+    font-weight: $font-weight-semi-bold;
+  }
+
+  .tooltip-arrow {
+    position: absolute;
+  }
+
+  .tooltip[x-placement='right'] .tooltip-arrow {
+    top: -0.25rem;
+    left: 0.25rem;
+    border-width: 0;
+    width: 0.5rem;
+    height: 0.5rem;
+    background-color: $color-white;
+    border-top-color: $color-white;
+    transform: rotate(-45deg);
+    box-shadow: -6px -3px 5px rgba(0, 0, 0, 0.2);
+
+    &:before {
+      content: none;
+    }
   }
 
   .loader-wrapper {

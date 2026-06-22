@@ -1,3 +1,6 @@
+import { JournalUrlParams as JUP, SourcesId } from '@citeck/constants';
+import Records from '@citeck/records-core';
+import RecordImpl from '@citeck/records-core/Record';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import React, { useState, useEffect } from 'react';
@@ -12,23 +15,20 @@ import EmptyIcon from './icons/EmptyIcon';
 import { sortNodesByName } from './sortUtils';
 
 import { fetchBreadcrumbs, reloadGrid } from '@/actions/journals';
-import FormManager from '@/components/EcosForm/FormManager';
-import Records from '@/components/Records';
-import RecordImpl from '@/components/Records/Record';
+import FormManager from '@/components/forms/EcosForm/FormManager';
 import { Icon, Tooltip } from '@/components/common';
 import { Btn } from '@/components/common/btns';
-import { BaseWidgetProps } from '@/components/widgets/BaseWidget';
-import { JournalUrlParams as JUP, SourcesId } from '@/constants';
+import { BaseWidgetProps } from '@/components/dashboard/widgets/BaseWidget';
 import { getStateId, wrapArgs } from '@/helpers/store';
 import { getRecordRef, getSearchParams, getWorkspaceId, updateCurrentUrl } from '@/helpers/urls';
 import { isMobileDevice, t, getCurrentUserName, getMLValue } from '@/helpers/util';
-import { NotificationManager } from '@/services/notifications';
 import { Events } from '@/services/PageService';
+import { NotificationManager } from '@/services/notifications';
 import { MLTextType } from '@/types/components';
 import { Dispatch, RootState } from '@/types/store';
 import { IJournalState, PaginationType } from '@/types/store/journals';
 
-import '@/components/Dashlet/Dashlet.scss';
+import '@/components/dashboard/Dashlet/Dashlet.scss';
 import './style.scss';
 
 interface HierarchicalTreeWidget extends BaseWidgetProps {

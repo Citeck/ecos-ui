@@ -1,11 +1,11 @@
+import Records from '@citeck/records-core';
 import React, { useContext, useEffect, useState } from 'react';
 
 import { t } from '../../../../../../helpers/util';
 import useIsMounted from '../../../../../../hooks/useIsMounted';
-import { FORM_MODE_CLONE, FORM_MODE_CREATE, FORM_MODE_EDIT, FORM_MODE_VIEW } from '../../../../../EcosForm';
-import EcosForm from '../../../../../EcosForm/EcosForm';
-import { ErrorBoundary } from '../../../../../ErrorBoundary';
-import Records from '../../../../../Records';
+import { FORM_MODE_CLONE, FORM_MODE_CREATE, FORM_MODE_EDIT, FORM_MODE_VIEW } from '@/components/forms/EcosForm';
+import EcosForm from '@/components/forms/EcosForm/EcosForm';
+import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import EcosModal from '../../../../EcosModal';
 import { TableFormContext } from '../../TableFormContext';
 

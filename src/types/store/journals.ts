@@ -6,8 +6,8 @@ import {
   JournalCreateVariantType,
   SortByType
 } from '@/api/journals/types';
-import { WidgetsConfigType } from '@/components/Journals/JournalsPreviewWidgets/JournalsPreviewWidgets';
-import { JOURNAL_VIEW_MODE } from '@/components/Journals/constants';
+import { WidgetsConfigType } from '@/components/journals/Journals/JournalsPreviewWidgets/JournalsPreviewWidgets';
+import { JOURNAL_VIEW_MODE } from '@/components/journals/Journals/constants';
 import { MLTextType } from '@/types/components';
 import { PredicateType } from '@/types/predicates';
 import { ExtraArgumentsStore, WrapArgsType } from '@/types/store/index';

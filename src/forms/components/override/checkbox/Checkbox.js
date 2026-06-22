@@ -1,3 +1,4 @@
+import { DEFAULT_LABEL_POSITION } from '@citeck/constants/forms';
 import FormIOCheckBoxComponent from 'formiojs/components/checkbox/Checkbox';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
@@ -7,7 +8,6 @@ import unset from 'lodash/unset';
 
 import Base from '../base/Base';
 
-import { DEFAULT_LABEL_POSITION } from '@/constants/forms';
 import { getBool, getMLValue, t } from '@/helpers/util';
 
 export default class CheckBoxComponent extends FormIOCheckBoxComponent {

@@ -1,15 +1,16 @@
+import { SourcesId } from '@citeck/constants';
+import { MenuSettings, MenuTypes } from '@citeck/constants/menu';
+import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import replace from 'lodash/replace';
-import cloneDeep from 'lodash/cloneDeep';
 import set from 'lodash/set';
 
-import { SourcesId } from '../constants';
-import { MenuSettings, MenuTypes } from '../constants/menu';
-import { HandleControlTypes } from '../helpers/handleControl';
-import { getTextByLocale } from '../helpers/util';
 import { treeFindFirstItem } from '../helpers/arrayOfObjects';
+import { HandleControlTypes } from '../helpers/handleControl';
 import { getIconRef } from '../helpers/icon';
+import { getTextByLocale } from '../helpers/util';
 import MenuSettingsService from '../services/MenuSettingsService';
+
 import MenuConverterExport from './export/menu';
 
 export default class MenuConverter {

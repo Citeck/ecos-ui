@@ -1,3 +1,4 @@
+import { SourcesId } from '@citeck/constants';
 import { call, put, select, takeEvery } from 'redux-saga/effects';
 
 import {
@@ -10,9 +11,8 @@ import {
   getActionsInfo,
   setActionsInfo
 } from '@/actions/processAdmin';
-import RecordActions from '@/components/Records/actions/recordActions';
-import RecordActionsApi from '@/components/Records/actions/recordActionsApi';
-import { SourcesId } from '@/constants';
+import RecordActions from '@/components/core/Records/actions/recordActions';
+import RecordActionsApi from '@/components/core/Records/actions/recordActionsApi';
 import { selectProcessTabInfo } from '@/selectors/processAdmin';
 
 function* sagaGetMetaInfo({ api }, { payload }) {

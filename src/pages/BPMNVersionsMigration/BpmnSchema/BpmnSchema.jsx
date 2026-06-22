@@ -1,3 +1,4 @@
+import { URL } from '@citeck/constants';
 import { is } from 'bpmn-js/lib/util/ModelUtil';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
@@ -7,14 +8,14 @@ import React, { useContext, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 
 import { MigrationContext } from '../MigrationContext';
-import { SCHEMA_BLOCK_CLASS } from '../constants';
+import { SCHEMA_BLOCK_CLASS } from '@/pages/BPMNVersionsMigration/constants';
 
 import Labels from './Labels';
 import { getProcessLabel, getProcessValue, getVersionLabel, getVersionValue } from './utils';
 
 import { getAllVersions, getMetaInfo } from '@/actions/processAdmin';
 import { configureAPI } from '@/api';
-import ModelViewer from '@/components/ModelViewer';
+import ModelViewer from '@/components/editors/ModelViewer';
 import { InfoText, Loader } from '@/components/common';
 import PanelTitle from '@/components/common/PanelTitle';
 import { COLOR_GRAY } from '@/components/common/PanelTitle/PanelTitle';
@@ -22,7 +23,6 @@ import Scaler from '@/components/common/Scaler';
 import { ScaleOptions } from '@/components/common/Scaler/util';
 import { IcoBtn } from '@/components/common/btns';
 import { Select } from '@/components/common/form';
-import { URL } from '@/constants';
 import { createDocumentUrl, getLastPathSegmentBeforeQuery } from '@/helpers/urls';
 import { getKeyProcessBPMN, t } from '@/helpers/util';
 import { selectProcessMetaInfo, selectProcessVersions } from '@/selectors/processAdmin';
@@ -31,7 +31,7 @@ import { NotificationManager } from '@/services/notifications';
 
 /*  During the initial rendering, the Scaler component does not
     have time to get styles for the environment without this import  */
-import '@/components/BpmnSchema/style.scss';
+import '@/components/editors/BpmnSchema/style.scss';
 
 const BpmnSchema = ({ processId, metaInfo, versionsInfo, getMetaInfo, getAllVersions }) => {
   const { api } = configureAPI();

@@ -1,9 +1,10 @@
-import { URL } from '../../constants';
-import { MenuSettings } from '../../constants/menu';
-import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../constants/pageTabs';
+import { URL } from '@citeck/constants';
+import { MenuSettings } from '@citeck/constants/menu';
+import { IGNORE_TABS_HANDLER_ATTR_NAME } from '@citeck/constants/pageTabs';
+import { ActionTypes } from '@citeck/constants/sidebar';
+
 import { itemsForPropsUrl } from '../../helpers/__mocks__/menu.mock';
 import SidebarService from '../sidebar';
-import { ActionTypes } from '../../constants/sidebar';
 
 const ATypes = ActionTypes;
 const MITypes = MenuSettings.ItemTypes;

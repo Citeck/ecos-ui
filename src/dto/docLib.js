@@ -1,13 +1,13 @@
+import { SourcesId } from '@citeck/constants';
+import { DOCLIB_RECORDS_PREFIX, NODE_TYPES } from '@citeck/constants/docLib';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 
-import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
-import { JOURNAL_VIEW_MODE } from '../components/Journals/constants';
-import DeleteAction from '../components/Records/actions/handler/executor/DeleteAction';
-import EditAction from '../components/Records/actions/handler/executor/EditAction';
-import recordActions from '../components/Records/actions/recordActions';
-import { SourcesId } from '../constants';
-import { DOCLIB_RECORDS_PREFIX, NODE_TYPES } from '../constants/docLib';
+import EcosFormUtils from '@/components/forms/EcosForm/EcosFormUtils';
+import { JOURNAL_VIEW_MODE } from '@/components/journals/Journals/constants';
+import DeleteAction from '@/components/core/Records/actions/handler/executor/DeleteAction';
+import EditAction from '@/components/core/Records/actions/handler/executor/EditAction';
+import recordActions from '@/components/core/Records/actions/recordActions';
 import { getSearchParams } from '../helpers/urls';
 import { prepareReactKey } from '../helpers/util';
 

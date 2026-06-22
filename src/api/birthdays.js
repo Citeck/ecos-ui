@@ -1,6 +1,7 @@
+import { SourcesId } from '@citeck/constants';
+import Records from '@citeck/records-core';
+
 import { RecordService } from './recordService';
-import { SourcesId } from '../constants';
-import Records from '../components/Records';
 
 export class BirthdaysApi extends RecordService {
   getBirthdays = ({ start, end }) => {

@@ -1,6 +1,7 @@
+import { SourcesId } from '@citeck/constants';
+import Records from '@citeck/records-core';
+
 import { RecordService } from './recordService';
-import Records from '../components/Records';
-import { SourcesId } from '../constants';
 
 export class DocStatusApi extends RecordService {
   getDocStatus = async ({ record }) => {
@@ -75,9 +76,7 @@ export class DocStatusApi extends RecordService {
       return { records: [] };
     }
 
-    const available = typeStatuses
-      .filter(s => s.id !== status)
-      .map(s => ({ id: s.id, name: s.name }));
+    const available = typeStatuses.filter(s => s.id !== status).map(s => ({ id: s.id, name: s.name }));
 
     return { records: available };
   };

@@ -1,5 +1,6 @@
+import Records from '@citeck/records-core';
+
 import { t } from '../../../../helpers/util';
-import Records from '../../../../components/Records';
 import BaseComponent from '../base/BaseComponent';
 
 export default class IncludeFormComponent extends BaseComponent {
@@ -44,9 +45,7 @@ export default class IncludeFormComponent extends BaseComponent {
     };
 
     if (this.component.formRef) {
-      Records.get(this.component.formRef)
-        .load('.disp')
-        .then(resolve);
+      Records.get(this.component.formRef).load('.disp').then(resolve);
     } else {
       resolve('-');
     }

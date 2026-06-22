@@ -1,3 +1,4 @@
+import { URL } from '@citeck/constants';
 import get from 'lodash/get';
 import isBoolean from 'lodash/isBoolean';
 import { call, put, takeLatest, takeEvery, select } from 'redux-saga/effects';
@@ -26,7 +27,6 @@ import {
 } from '@/actions/workspaces';
 import { RecordsQueryResponse } from '@/api/types';
 import { WorkspaceType } from '@/api/workspaces/types';
-import { URL } from '@/constants';
 import { getLinkWithWs, getPersonalWorkspaceId, getWsIdOfTabLink } from '@/helpers/urls';
 import { t } from '@/helpers/util';
 import { selectCurrentWorkspaceBlocked, selectCurrentWorkspaceIsBlocked } from '@/selectors/workspaces';

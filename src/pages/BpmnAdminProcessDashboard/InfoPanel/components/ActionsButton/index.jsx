@@ -5,7 +5,7 @@ import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from 'reactstrap
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 
-import RecordActions from '../../../../../components/Records/actions/recordActions';
+import RecordActions from '@/components/core/Records/actions/recordActions';
 import PanelTitle, { COLOR_GRAY } from '../../../../../components/common/PanelTitle/PanelTitle';
 import { Btn } from '../../../../../components/common/btns';
 import { t } from '../../../../../helpers/util';

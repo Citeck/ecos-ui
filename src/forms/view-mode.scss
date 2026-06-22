@@ -19,7 +19,7 @@
 
   dl {
     margin-bottom: 0;
-    padding: 10px 0;
+    padding: 7px 0;
     display: flex;
     justify-content: flex-start;
     align-items: flex-start;
@@ -235,13 +235,13 @@
 
   &.formio-form .card {
     .card-body {
-      padding: 10px 0 0;
+      padding: 4px 0 0;
       overflow: hidden;
     }
 
     .card-title {
       font-weight: $font-weight-bold !important;
-      font-size: 16px;
+      font-size: 12px;
       color: $text-color-dark;
     }
   }

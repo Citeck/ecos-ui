@@ -1,12 +1,13 @@
+import { INSTANCE_TABS_TYPES } from '@citeck/constants/instanceAdmin';
 import React, { useContext } from 'react';
 
-import Journal from './Journal';
-import { INSTANCE_TABS_TYPES } from '../../../constants/instanceAdmin';
-import { t } from '../../../helpers/util';
-import Labels from './Labels';
 import { Tabs } from '../../../components/common';
-import { JOURNALS_TABS_BLOCK_CLASS } from '../constants';
+import { t } from '../../../helpers/util';
 import { InstanceContext } from '../InstanceContext';
+import { JOURNALS_TABS_BLOCK_CLASS } from '@/pages/BpmnAdminInstanceDashboard/constants';
+
+import Journal from './Journal';
+import Labels from './Labels';
 
 const JournalsTabsContent = ({ instanceId }) => {
   const { activeTabId, setActiveTabId } = useContext(InstanceContext);

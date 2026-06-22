@@ -3,7 +3,7 @@ import debounce from 'lodash/debounce';
 import isFunction from 'lodash/isFunction';
 import React from 'react';
 
-import { CommentModal } from '../../components/Timesheet';
+import { CommentModal } from '@/components/domain/Timesheet';
 import { TunableDialog } from '../../components/common/dialogs';
 import { CommonLabels } from '../../helpers/timesheet/dictionary';
 import { getDaysOfMonth, getNewDateByDayNumber } from '../../helpers/timesheet/util';

@@ -1,3 +1,5 @@
+import { KEYS_UNUSED_FIELDS } from '@citeck/constants/forms';
+import { IGNORE_TABS_HANDLER_ATTR_NAME, SCROLL_STEP } from '@citeck/constants/pageTabs';
 import NestedComponent from 'formiojs/components/nested/NestedComponent';
 import lodashGet from 'lodash/get';
 import isEqual from 'lodash/isEqual';
@@ -5,9 +7,7 @@ import isObject from 'lodash/isObject';
 import throttle from 'lodash/throttle';
 
 import { t } from '../../../../helpers/export/util';
-import { IGNORE_TABS_HANDLER_ATTR_NAME, SCROLL_STEP } from '../../../../constants/pageTabs';
 import { animateScrollTo, getMLValue } from '../../../../helpers/util';
-import { KEYS_UNUSED_FIELDS } from '../../../../constants/forms';
 
 const SCROLLABLE_CLASS = 'formio-component-tabs_scrollable';
 
@@ -489,9 +489,7 @@ export default class TabsComponent extends NestedComponent {
 
     this.tabLinks.forEach(tabLink => this.removeClass(tabLink, 'active').removeClass(tabLink.tabLink, 'active'));
     this.tabs.forEach(tab => this.removeClass(tab, 'active'));
-    this.addClass(this.tabLinks[index], 'active')
-      .addClass(this.tabLinks[index].tabLink, 'active')
-      .addClass(this.tabs[index], 'active');
+    this.addClass(this.tabLinks[index], 'active').addClass(this.tabLinks[index].tabLink, 'active').addClass(this.tabs[index], 'active');
 
     this.checkNeedUpdate(index);
   }

@@ -41,7 +41,7 @@ import {
   setJournalWidgetsConfig,
   setBreadcrumbs
 } from '@/actions/journals';
-import { DEFAULT_PAGINATION, relatedViews } from '@/components/Journals/constants';
+import { DEFAULT_PAGINATION, relatedViews } from '@/components/journals/Journals/constants';
 import { getCurrentStateById, handleState, updateState } from '@/helpers/redux';
 import { handleAction } from '@/helpers/store';
 import { t } from '@/helpers/util';

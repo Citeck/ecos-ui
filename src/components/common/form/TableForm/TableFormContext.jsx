@@ -1,3 +1,7 @@
+import { LOCAL_ID } from '@citeck/constants/journal';
+import Records from '@citeck/records-core';
+import Record from '@citeck/records-core/Record';
+import { parseAttribute } from '@citeck/records-core/utils/attStrUtils';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
@@ -9,16 +13,12 @@ import isString from 'lodash/isString';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 
-import { FORM_MODE_CLONE, FORM_MODE_CREATE, FORM_MODE_EDIT, FORM_MODE_VIEW } from '../../../EcosForm';
-import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
-import Record from '../../../Records/Record';
-import Records from '../../../Records/Records';
-import { parseAttribute } from '../../../Records/utils/attStrUtils';
+import { FORM_MODE_CLONE, FORM_MODE_CREATE, FORM_MODE_EDIT, FORM_MODE_VIEW } from '@/components/forms/EcosForm';
+import EcosFormUtils from '@/components/forms/EcosForm/EcosFormUtils';
 
 import TableFormPropTypes from './TableFormPropTypes';
 import { getAllComponents } from './utils';
 
-import { LOCAL_ID } from '@/constants/journal';
 import { getMLValue, t } from '@/helpers/util';
 import WidgetService from '@/services/WidgetService';
 

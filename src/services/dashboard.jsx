@@ -1,3 +1,7 @@
+import { SourcesId } from '@citeck/constants';
+import { CONFIG_VERSION } from '@citeck/constants/dashboard';
+import { LayoutTypes } from '@citeck/constants/layout';
+import { ParserPredicate } from '@citeck/records-predicates';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
@@ -8,12 +12,8 @@ import uuid from 'uuidv4';
 
 import PageTabList from './pageTabs/PageTabList';
 
-import { ParserPredicate } from '@/components/Filters/predicates';
 import { Loader } from '@/components/common';
 import DialogManager from '@/components/common/dialogs/Manager/DialogManager';
-import { SourcesId } from '@/constants';
-import { CONFIG_VERSION } from '@/constants/dashboard';
-import { LayoutTypes } from '@/constants/layout';
 import en from '@/i18n/en.json';
 import ru from '@/i18n/ru.json';
 import { getStore } from '@/store';
@@ -287,7 +287,7 @@ export default class DashboardService {
   }
 
   static openEditModal(props = {}) {
-    const Settings = lazy(() => import('../components/DashboardSettings/Settings'));
+    const Settings = lazy(() => import('@/components/dashboard/DashboardSettings/Settings'));
     const store = getStore();
     const modalRef = React.createRef();
 
