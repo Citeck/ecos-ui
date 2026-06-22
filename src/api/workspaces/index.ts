@@ -165,6 +165,11 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
                   t: 'contains',
                   a: 'description',
                   v: text
+                },
+                {
+                  t: 'contains',
+                  a: 'id',
+                  v: text
                 }
               ]
             }
@@ -200,6 +205,11 @@ export class WorkspaceApi extends CommonApi implements IWorkspaceApi {
                 {
                   t: 'contains',
                   a: 'description',
+                  v: text
+                },
+                {
+                  t: 'contains',
+                  a: 'id',
                   v: text
                 }
               ]
