@@ -2,9 +2,20 @@ import cloneDeep from 'lodash/cloneDeep';
 
 import { t } from '../../../../helpers/util';
 import Mapper from '../mapping/Mapper';
-import formatterStore from '../formatters/formatterStore';
 
 export const DEFAULT_FORMATTER = 'DefaultGqlFormatter';
+
+// formatterStore is loaded lazily to break a circular dependency:
+//   GqlDataSource (extends BaseDataSource) -> BaseDataSource -> formatterStore
+//   -> formatters -> editors/form barrels -> grid barrel -> GqlDataSource
+// The static version made CJS (jest) evaluate GqlDataSource while BaseDataSource was
+// still initializing ("Class extends value undefined"). formatterStore is only read at
+// runtime in _getFormatter (when a grid builds its columns, long after module init and
+// the async journal-config load), so the deferred assignment is always populated by then.
+let formatterStore = {};
+import('../formatters/formatterStore').then(module => {
+  formatterStore = module.default;
+});
 
 /**
  * @deprecated

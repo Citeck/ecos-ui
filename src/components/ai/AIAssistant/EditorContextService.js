@@ -1,6 +1,7 @@
-// Lazy import breaks the AIAssistantService <-> EditorContextService circular dependency.
-// `aiAssistantService` is only used at call-time (below), so deferring it is safe.
-const checkAiAvailability = () => import('./AIAssistantService').then(({ default: service }) => service.checkAvailability());
+// Benign call-time cycle with AIAssistantService (used only inside methods below, never at
+// module init), so it is not a TDZ risk. Kept static to preserve synchronous behavior.
+// eslint-disable-next-line import/no-cycle
+import aiAssistantService from './AIAssistantService';
 
 export const CONTEXT_TYPES = {
   BPMN_EDITOR: 'BPMN_EDITOR',
@@ -22,7 +23,7 @@ class AIAssistantContext {
 
     if (wasContextEmpty) {
       setTimeout(() => {
-        checkAiAvailability();
+        aiAssistantService.checkAvailability();
       }, 100);
     }
   }
@@ -32,7 +33,7 @@ class AIAssistantContext {
     this.currentContext = null;
 
     if (hadContext) {
-      checkAiAvailability();
+      aiAssistantService.checkAvailability();
     }
   }
 
