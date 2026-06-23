@@ -158,6 +158,13 @@ const AIAssistantChat = () => {
   const markdownComponents = useMemo(
     () => ({
       a: ({ node, ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" />,
+      // Safety net for dead previews: a temp-file image URL 500s once its backing file is gone
+      // (saved, cancelled, or expired by the 30-min sweep). The chat hook proactively strips the
+      // preview it knows about, but this hides any broken image regardless of cause so the user
+      // never sees a broken-image icon. COREDEV-321.
+      img: ({ node, ...props }) => (
+        <img {...props} onError={event => { event.currentTarget.style.display = 'none'; }} />
+      ),
       code: ({ node, className, children, ...props }) => {
         const match = /language-(\w+)/.exec(className || '');
         const language = match ? match[1] : '';
