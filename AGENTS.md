@@ -44,7 +44,7 @@ Sagas receive the `api` object via Redux middleware extra argument (dependency i
 
 ### Routing
 
-React Router 5 + connected-react-router. Routes defined in `src/components/App/App.jsx`. URL path constants in `src/constants/index.js` (`URL` object). All app routes are under `/v2/`.
+React Router 5 + connected-react-router. Routes defined in `src/components/layout/App/App.jsx`. URL path constants in `@citeck/constants` (`URL` object). All app routes are under `/v2/`.
 
 ### API
 
@@ -54,15 +54,27 @@ Domain-specific clients in `src/api/`. Called exclusively from sagas.
 
 i18next with `src/i18n/en.json` and `src/i18n/ru.json`. Use `t('key')` from `@/helpers/util`. Always add keys to **both** locale files.
 
+### Workspace packages
+
+Shared, app-agnostic code lives in `packages/` (Yarn workspaces), imported via `@citeck/*` aliases (configured in `vite.config.js`, `tsconfig.json`, `jest.config.js`):
+
+- `@citeck/records-core` — Records API (query/get/mutate, predicates, types). Default import: `import Records from '@citeck/records-core'`. Predicates: `@citeck/records-core/predicates`.
+- `@citeck/records-predicates` — predicate helpers.
+- `@citeck/constants` — app-wide constants (`URL`, `SourcesId`, `SystemJournals`, etc.). Subpaths mirror files: `@citeck/constants/menu`, `@citeck/constants/alfresco`, … Replaces the former `src/constants`.
+
+Records actions/handlers stay in the web app at `@/components/core/Records/actions/…`.
+
 ### Path alias
 
-`@/` maps to `src/` (configured in `vite.config.js` and `tsconfig.json`). Always use `@/` for cross-directory imports.
+`@/` maps to `src/` (configured in `vite.config.js` and `tsconfig.json`). Use `@/` for cross-directory imports; use `@citeck/*` for the workspace packages above.
 
 ### Styling
 
 SCSS with modern compiler (`quietDeps: true`). Component-scoped `.scss` files alongside components.
 
 ### Component conventions
+
+`src/components/` is grouped into 10 category folders — `admin`, `ai`, `common`, `core`, `dashboard`, `domain`, `editors`, `forms`, `journals`, `layout` — each holding related feature folders (e.g. `layout/App`, `core/Records`, `dashboard/widgets`, `editors/ModelEditor`). Cross-folder imports use the `@/` alias, never deep relative paths.
 
 - Larger container components: class components with `connect(mapStateToProps, mapDispatchToProps)`
 - Smaller presentational components: functional components with hooks
@@ -85,4 +97,6 @@ SCSS with modern compiler (`quietDeps: true`). Component-scoped `.scss` files al
 
 ### Testing
 
-Jest + jsdom. Config in `jest.config.js`. Heavy mocking for BPMN libs, diagram-js, react-markdown. CSS and image imports are auto-mocked.
+Jest + jsdom. Config in `jest.config.js`. Heavy mocking for BPMN libs, diagram-js, react-markdown. CSS and image imports are auto-mocked. `@citeck/*` packages are mapped to `packages/*/src` via `moduleNameMapper`.
+
+**Gotcha:** the `bpmn-js*` / `BPMN*` / `diagram-js*` stub mappings must stay **before** the `@/(.*)$` catch-all in `moduleNameMapper` — otherwise `@/`-aliased imports whose path contains `BPMN` resolve the real (heavy, unmocked) modeler code in jsdom and the suite fails to load.
