@@ -2,6 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 
 import { t } from '@/helpers/export/util';
+import { FILE_SAVE_ACTION } from '../../constants';
 
 const STYLE_MAP = {
   primary: 'ai-assistant-chat__action-button--apply',
@@ -26,7 +27,10 @@ const resolveActionLabel = (action) => {
     return t(directKey);
   }
   // File-save cancel id has form "file_cancel" or "file_cancel|<tempRef>"
-  if (typeof action.id === 'string' && action.id.split('|')[0] === 'file_cancel') {
+  if (
+    typeof action.id === 'string' &&
+    action.id.split(FILE_SAVE_ACTION.TEMP_REF_SEPARATOR)[0] === FILE_SAVE_ACTION.CANCEL
+  ) {
     return t('ai-assistant.action.cancel');
   }
   return action.label;

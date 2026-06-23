@@ -1,15 +1,81 @@
-import Records from '@citeck/records-core';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 
+import { getWorkspaceId } from '@/helpers/urls';
+import { t } from '@/helpers/export/util';
+import Records from '@citeck/records-core';
 import editorContextService from '../EditorContextService';
-import { AI_INTENTS, MESSAGE_TYPES, EDITOR_CONTEXT_HANDLERS, API_ENDPOINTS, CONTENT_TYPES } from '@/components/ai/AIAssistant/constants';
+import { AI_INTENTS, MESSAGE_TYPES, EDITOR_CONTEXT_HANDLERS, API_ENDPOINTS, CONTENT_TYPES, FILE_SAVE_ACTION } from '../constants';
 import { AGENT_STATUSES } from '../types';
 import { generateUUID } from '../utils';
-
 import usePolling from './usePolling';
 
-import { t } from '@/helpers/export/util';
-import { getWorkspaceId } from '@/helpers/urls';
+// Matches a markdown inline image: ![alt](url). URLs in our previews never contain ')'.
+const MARKDOWN_IMAGE_RE = /!\[[^\]]*\]\([^)]*\)/g;
+// Captures the temp-file local id from either a record ref (`emodel/temp-file@<id>`) or a
+// content download URL (`…/content?ref=temp-file@<id>` / url-encoded `temp-file%40<id>`).
+const TEMP_FILE_ID_RE = /temp-file(?:@|%40)([^"'\s)&?#]+)/;
+
+/**
+ * If [actionId] is a pending-file save/cancel action (`<base>|<tempRef>`), returns its tempRef;
+ * otherwise null. The tempRef lets us locate and clean up the now-dead preview once the temp
+ * file backing it is deleted on save/cancel (COREDEV-321).
+ * @param {string} actionId
+ * @returns {string|null}
+ */
+const fileSaveActionTempRef = actionId => {
+  if (typeof actionId !== 'string') {
+    return null;
+  }
+  const sepIndex = actionId.indexOf(FILE_SAVE_ACTION.TEMP_REF_SEPARATOR);
+  if (sepIndex < 0) {
+    return null;
+  }
+  const baseAction = actionId.slice(0, sepIndex);
+  const tempRef = actionId.slice(sepIndex + 1);
+  if (!tempRef) {
+    return null;
+  }
+  const isFileSaveAction =
+    baseAction === FILE_SAVE_ACTION.MAIN_CONTENT ||
+    baseAction === FILE_SAVE_ACTION.NEW_RECORD ||
+    baseAction === FILE_SAVE_ACTION.CANCEL ||
+    baseAction.startsWith(FILE_SAVE_ACTION.ATTR_PREFIX);
+  return isFileSaveAction ? tempRef : null;
+};
+
+/** Extracts the temp-file local id from a ref or content URL; null if none present. */
+const extractTempFileId = refOrUrl => {
+  if (typeof refOrUrl !== 'string') {
+    return null;
+  }
+  const match = TEMP_FILE_ID_RE.exec(refOrUrl);
+  return match ? match[1] : null;
+};
+
+/**
+ * Removes markdown image previews whose URL points to the given temp-file from a message text.
+ * Used after a save/cancel deletes the temp file: its content URL would otherwise 500 on the
+ * next render. Leftover blank lines are collapsed so the surrounding text stays tidy.
+ * @param {*} text - Message text (left untouched if not a string)
+ * @param {string} tempFileId - Temp-file local id whose previews must be dropped
+ * @returns {*} The cleaned text, or the original value when nothing changed
+ */
+const stripTempImageFromText = (text, tempFileId) => {
+  if (typeof text !== 'string' || !tempFileId || !text.includes(tempFileId)) {
+    return text;
+  }
+  // Compare the exact temp-file id captured from each image URL (boundary-anchored via
+  // TEMP_FILE_ID_RE) instead of a bare substring, so an id that is a prefix of another live
+  // file's id can never strip the wrong preview.
+  const next = text.replace(MARKDOWN_IMAGE_RE, image => (extractTempFileId(image) === tempFileId ? '' : image));
+  if (next === text) {
+    return text;
+  }
+  return next
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+};
 
 /**
  * Builds message data fields for a processing message based on progress type.
@@ -270,6 +336,18 @@ const useUniversalChat = (options = {}) => {
   const [autoContextArtifacts, setAutoContextArtifacts] = useState([]);
   const [selectedAgent, setSelectedAgent] = useState(null);
 
+  // tempRef of the pending file whose save/cancel is currently in flight. Set when a file-save
+  // action is clicked, consumed by handlePollingResult to drop the dead preview once the temp
+  // file is gone, and cleared on any terminal/non-file flow so it never triggers a stale strip.
+  const pendingFileActionTempRef = useRef(null);
+
+  // Single place to forget the in-flight tracked tempRef. Every terminal/non-file flow calls
+  // this instead of re-stating the assignment, so a newly added terminal path can't silently
+  // skip the clear and leave a stale tempRef that would strip a still-live preview.
+  const clearPendingFileAction = useCallback(() => {
+    pendingFileActionTempRef.current = null;
+  }, []);
+
   // Fetch status function for polling
   const fetchStatus = useCallback(async requestId => {
     const response = await fetch(`${API_ENDPOINTS.UNIVERSAL_STATUS}/${requestId}`);
@@ -311,35 +389,64 @@ const useUniversalChat = (options = {}) => {
         }, 5000);
       }
 
+      // A just-finished save/cancel deletes the temp file backing the original "Сохранить?" preview,
+      // so its <img src> (temp-file content URL) now 500s. If the backend's authoritative live
+      // snapshot (`pendingFiles`) no longer lists that tempRef, the file is gone — drop the dead
+      // preview from chat history. Retryable errors keep the pending alive (tempRef still listed),
+      // so we leave those previews untouched. The success message already carries a working preview
+      // from the new permanent record where applicable (COREDEV-313 / COREDEV-321).
+      const consumedTempRef = pendingFileActionTempRef.current;
+      clearPendingFileAction();
+      let deadTempFileId = null;
+      if (consumedTempRef) {
+        const aliveTempRefs = new Set((result.pendingFiles || []).map(file => file.tempRef));
+        if (!aliveTempRefs.has(consumedTempRef)) {
+          deadTempFileId = extractTempFileId(consumedTempRef);
+        }
+      }
+
       setMessages(prevMessages => {
         const filteredMessages = prevMessages.filter(msg => !msg.isProcessing);
         const aiMessage = createAIMessage(result, { setGenerationStages, generationStages });
-        return [...filteredMessages, aiMessage];
+        const nextMessages = [...filteredMessages, aiMessage];
+        if (!deadTempFileId) {
+          return nextMessages;
+        }
+        return nextMessages.map(msg => {
+          const cleanedText = stripTempImageFromText(msg.text, deadTempFileId);
+          return cleanedText === msg.text ? msg : { ...msg, text: cleanedText };
+        });
       });
     },
-    [generationStages, additionalContext]
+    [generationStages, additionalContext, clearPendingFileAction]
   );
 
   // Handle polling error
-  const handlePollingError = useCallback(error => {
-    setIsLoading(false);
-    setMessages(prevMessages =>
-      prevMessages.map(msg => {
-        if (msg.isProcessing) {
-          return {
-            ...msg,
-            text: typeof error === 'string' ? t('ai-assistant.chat.error-prefix', { error }) : t('ai-assistant.chat.result-error'),
-            isProcessing: false,
-            isError: true
-          };
-        }
-        return msg;
-      })
-    );
-  }, []);
+  const handlePollingError = useCallback(
+    error => {
+      // The temp file may still be alive (network/processing failure), so don't risk a stale strip.
+      clearPendingFileAction();
+      setIsLoading(false);
+      setMessages(prevMessages =>
+        prevMessages.map(msg => {
+          if (msg.isProcessing) {
+            return {
+              ...msg,
+              text: typeof error === 'string' ? t('ai-assistant.chat.error-prefix', { error }) : t('ai-assistant.chat.result-error'),
+              isProcessing: false,
+              isError: true
+            };
+          }
+          return msg;
+        })
+      );
+    },
+    [clearPendingFileAction]
+  );
 
   // Handle polling cancelled
   const handlePollingCancelled = useCallback(() => {
+    clearPendingFileAction();
     setIsLoading(false);
     setMessages(prevMessages =>
       prevMessages.map(msg => {
@@ -354,7 +461,7 @@ const useUniversalChat = (options = {}) => {
         return msg;
       })
     );
-  }, []);
+  }, [clearPendingFileAction]);
 
   // Handle polling progress
   const handlePollingProgress = useCallback(
@@ -412,6 +519,10 @@ const useUniversalChat = (options = {}) => {
     async e => {
       e?.preventDefault();
       if (!message.trim()) return;
+
+      // A new free-text turn is not a file save — clear any leftover tempRef from an earlier
+      // action so this turn's result can't accidentally strip a still-live preview.
+      clearPendingFileAction();
 
       const userMessage = { id: generateUUID(), text: message, sender: 'user', timestamp: new Date() };
       setMessages(prevMessages => [...prevMessages, userMessage]);
@@ -574,12 +685,24 @@ const useUniversalChat = (options = {}) => {
         setIsLoading(false);
       }
     },
-    [message, conversationId, additionalContext, uploadedFiles, conversationForceIntent, autoContextArtifacts, selectedAgent, startPolling]
+    [
+      message,
+      conversationId,
+      additionalContext,
+      uploadedFiles,
+      conversationForceIntent,
+      autoContextArtifacts,
+      selectedAgent,
+      startPolling,
+      clearPendingFileAction
+    ]
   );
 
   // Cancel active request
   const cancelRequest = useCallback(async () => {
     if (!activeRequestId) return;
+
+    clearPendingFileAction();
 
     try {
       const response = await fetch(`${API_ENDPOINTS.UNIVERSAL_STATUS}/${activeRequestId}`, {
@@ -611,12 +734,16 @@ const useUniversalChat = (options = {}) => {
     } catch (error) {
       console.error('Error cancelling request:', error);
     }
-  }, [activeRequestId, stopPolling]);
+  }, [activeRequestId, stopPolling, clearPendingFileAction]);
 
   // Handle action button click (plan approval, error recovery)
   const handleActionClick = useCallback(
     async actionId => {
       if (!conversationId) return;
+
+      // Remember which pending file this action targets (null for non-file actions) so the result
+      // handler can clean up its dead temp-file preview once the save/cancel completes.
+      pendingFileActionTempRef.current = fileSaveActionTempRef(actionId);
 
       setIsLoading(true);
 
@@ -663,6 +790,10 @@ const useUniversalChat = (options = {}) => {
       } catch (error) {
         console.error('Error sending action:', error);
 
+        // The request never reached the backend, so the temp file is untouched and polling never
+        // started — forget the tracked tempRef so a later unrelated result can't strip a live preview.
+        clearPendingFileAction();
+
         setMessages(prevMessages => [
           ...prevMessages,
           {
@@ -677,7 +808,7 @@ const useUniversalChat = (options = {}) => {
         setIsLoading(false);
       }
     },
-    [conversationId, startPolling]
+    [conversationId, startPolling, clearPendingFileAction]
   );
 
   // Remove a single auto context artifact by ref
@@ -740,5 +871,12 @@ const useUniversalChat = (options = {}) => {
   };
 };
 
-export { createAIMessage, buildProgressMessageData, buildInitialProcessingMessage };
+export {
+  createAIMessage,
+  buildProgressMessageData,
+  buildInitialProcessingMessage,
+  fileSaveActionTempRef,
+  extractTempFileId,
+  stripTempImageFromText
+};
 export default useUniversalChat;

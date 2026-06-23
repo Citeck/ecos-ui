@@ -61,6 +61,17 @@ export const MESSAGE_TYPES = {
   AGENT_EXECUTION: 'agent_execution'
 };
 
+// File-save action ids (mirror citeck-ai FileSaveOrchestrator). Action ids attached to a
+// pending file proposal have the form `<base>|<tempRef>` — the separator lets the backend
+// scope a save/cancel to one specific temp file when several previews are pending at once.
+export const FILE_SAVE_ACTION = {
+  TEMP_REF_SEPARATOR: '|',
+  MAIN_CONTENT: 'main_content',
+  NEW_RECORD: 'new_record',
+  CANCEL: 'file_cancel',
+  ATTR_PREFIX: 'attr:'
+};
+
 // Content types for AI generation
 export const CONTENT_TYPES = {
   TEXT: 'text',

@@ -1,9 +1,8 @@
 import { renderHook, act } from '@testing-library/react';
-
-import { MESSAGE_TYPES } from '@/components/ai/AIAssistant/constants';
+import useUniversalChat, { fileSaveActionTempRef, extractTempFileId, stripTempImageFromText } from '../hooks/useUniversalChat';
 import usePolling from '../hooks/usePolling';
-import useUniversalChat from '../hooks/useUniversalChat';
 import { AGENT_STATUSES } from '../types';
+import { MESSAGE_TYPES } from '../constants';
 
 jest.mock('../utils', () => ({
   generateUUID: jest.fn(() => 'test-uuid-' + Math.random().toString(36).slice(2, 8))
@@ -486,6 +485,201 @@ describe('useUniversalChat - handlers', () => {
 
       const body = JSON.parse(global.fetch.mock.calls[0][1].body);
       expect(body.context.selection).not.toHaveProperty('selectedTexts');
+    });
+  });
+
+  // COREDEV-321: a saved/cancelled pending file's temp-file content URL is deleted on the
+  // backend, so its inline preview would 500 on the next render. Helpers below identify the
+  // dead preview and the integration block verifies it is stripped from chat history.
+  describe('temp-file preview helpers', () => {
+    describe('fileSaveActionTempRef', () => {
+      it.each([
+        ['new_record|emodel/temp-file@aaa-111', 'emodel/temp-file@aaa-111'],
+        ['main_content|emodel/temp-file@bbb', 'emodel/temp-file@bbb'],
+        ['file_cancel|emodel/temp-file@ccc', 'emodel/temp-file@ccc'],
+        ['attr:logo|emodel/temp-file@ddd', 'emodel/temp-file@ddd']
+      ])('returns the tempRef for file-save action %s', (actionId, expected) => {
+        expect(fileSaveActionTempRef(actionId)).toBe(expected);
+      });
+
+      it.each([
+        ['approve_plan'],
+        ['some_action'],
+        ['new_record'], // no tempRef suffix
+        ['file_cancel'], // legacy, no tempRef suffix
+        ['approve|extra'], // separator present but not a file-save base action
+        ['new_record|'], // empty tempRef
+        [null],
+        [undefined]
+      ])('returns null for non-file-save action %s', actionId => {
+        expect(fileSaveActionTempRef(actionId)).toBeNull();
+      });
+    });
+
+    describe('extractTempFileId', () => {
+      it('extracts the id from a record ref', () => {
+        expect(extractTempFileId('emodel/temp-file@aaa-111')).toBe('aaa-111');
+      });
+
+      it('extracts the id from a content download URL', () => {
+        expect(extractTempFileId('/gateway/emodel/api/.../content?ref=temp-file@aaa-111')).toBe('aaa-111');
+      });
+
+      it('extracts the id from a url-encoded reference', () => {
+        expect(extractTempFileId('/gateway/emodel/api/content?ref=temp-file%40aaa-111')).toBe('aaa-111');
+      });
+
+      it('returns null when there is no temp-file reference', () => {
+        expect(extractTempFileId('emodel/workspace-file@perm-1')).toBeNull();
+        expect(extractTempFileId(null)).toBeNull();
+      });
+    });
+
+    describe('stripTempImageFromText', () => {
+      it('removes the markdown image pointing to the dead temp file', () => {
+        const text = 'Готов вариант. Сохранить?\n\n![pic](/gateway/emodel/content?ref=temp-file@aaa-111)';
+        expect(stripTempImageFromText(text, 'aaa-111')).toBe('Готов вариант. Сохранить?');
+      });
+
+      it('keeps images that reference other temp files', () => {
+        const text = 'Two:\n\n![a](/c?ref=temp-file@aaa-111)\n\n![b](/c?ref=temp-file@bbb-222)';
+        const result = stripTempImageFromText(text, 'aaa-111');
+        expect(result).not.toContain('temp-file@aaa-111');
+        expect(result).toContain('temp-file@bbb-222');
+      });
+
+      it('keeps a live preview whose id has the dead id as a prefix (boundary-anchored match)', () => {
+        const text = 'Two:\n\n![dead](/c?ref=temp-file@aaa-111)\n\n![live](/c?ref=temp-file@aaa-1110)';
+        const result = stripTempImageFromText(text, 'aaa-111');
+        expect(result).not.toContain('![dead]');
+        expect(result).toContain('![live](/c?ref=temp-file@aaa-1110)');
+      });
+
+      it('leaves a permanent-record preview untouched', () => {
+        const text = 'Файл сохранён.\n\n![pic](/gateway/emodel/content?ref=workspace-file@perm-1)';
+        expect(stripTempImageFromText(text, 'aaa-111')).toBe(text);
+      });
+
+      it('returns non-string text unchanged', () => {
+        const obj = { type: 'business_app' };
+        expect(stripTempImageFromText(obj, 'aaa-111')).toBe(obj);
+      });
+    });
+  });
+
+  describe('handlePollingResult - dead temp-file preview cleanup', () => {
+    const TEMP_REF_A = 'emodel/temp-file@aaa-111';
+    const TEMP_REF_B = 'emodel/temp-file@bbb-222';
+    const proposalMessage = (id, tempRef) => ({
+      id,
+      text: `Готов вариант. Сохранить?\n\n![pic](/gateway/emodel/content?ref=${tempRef.replace('emodel/', '')})`,
+      sender: 'ai',
+      messageData: {
+        actions: [
+          { id: `new_record|${tempRef}`, label: 'Save' },
+          { id: `file_cancel|${tempRef}`, label: 'Cancel' }
+        ]
+      }
+    });
+
+    it('strips the dead preview when the saved tempRef is gone from pendingFiles', async () => {
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: true,
+        json: jest.fn().mockResolvedValue({ requestId: 'save-req-1' })
+      });
+      const { result } = renderHook(() => useUniversalChat());
+      const onResult = usePolling.mock.calls[usePolling.mock.calls.length - 1][0].onResult;
+
+      act(() => {
+        result.current.setMessages([proposalMessage('msg-a', TEMP_REF_A)]);
+      });
+      await act(async () => {
+        await result.current.handleActionClick(`new_record|${TEMP_REF_A}`);
+      });
+      act(() => {
+        // Backend confirms the save: temp-file A no longer pending.
+        onResult({ message: 'Файл «pic» сохранён.', pendingFiles: [] });
+      });
+
+      const msgA = result.current.messages.find(m => m.id === 'msg-a');
+      expect(msgA.text).not.toContain('temp-file@aaa-111');
+      expect(msgA.text).toBe('Готов вариант. Сохранить?');
+    });
+
+    it('keeps the preview when the tempRef is still pending (retryable error)', async () => {
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: true,
+        json: jest.fn().mockResolvedValue({ requestId: 'save-req-1' })
+      });
+      const { result } = renderHook(() => useUniversalChat());
+      const onResult = usePolling.mock.calls[usePolling.mock.calls.length - 1][0].onResult;
+
+      act(() => {
+        result.current.setMessages([proposalMessage('msg-a', TEMP_REF_A)]);
+      });
+      await act(async () => {
+        await result.current.handleActionClick(`new_record|${TEMP_REF_A}`);
+      });
+      act(() => {
+        // Retryable error: orchestrator preserved the pending, so A is still listed.
+        onResult({
+          message: 'Не удалось сохранить файл: ...',
+          pendingFiles: [{ tempRef: TEMP_REF_A }]
+        });
+      });
+
+      const msgA = result.current.messages.find(m => m.id === 'msg-a');
+      expect(msgA.text).toContain('temp-file@aaa-111');
+    });
+
+    it('strips only the saved preview and keeps other live pendings', async () => {
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: true,
+        json: jest.fn().mockResolvedValue({ requestId: 'save-req-1' })
+      });
+      const { result } = renderHook(() => useUniversalChat());
+      const onResult = usePolling.mock.calls[usePolling.mock.calls.length - 1][0].onResult;
+
+      act(() => {
+        result.current.setMessages([proposalMessage('msg-a', TEMP_REF_A), proposalMessage('msg-b', TEMP_REF_B)]);
+      });
+      await act(async () => {
+        await result.current.handleActionClick(`new_record|${TEMP_REF_A}`);
+      });
+      act(() => {
+        // A saved, B still pending.
+        onResult({ message: 'Файл «pic» сохранён.', pendingFiles: [{ tempRef: TEMP_REF_B }] });
+      });
+
+      const msgA = result.current.messages.find(m => m.id === 'msg-a');
+      const msgB = result.current.messages.find(m => m.id === 'msg-b');
+      expect(msgA.text).not.toContain('temp-file@aaa-111');
+      expect(msgB.text).toContain('temp-file@bbb-222');
+    });
+
+    it('does not strip previews after a plain text turn (stale ref cleared)', async () => {
+      const { result } = renderHook(() => useUniversalChat());
+      const onResult = usePolling.mock.calls[usePolling.mock.calls.length - 1][0].onResult;
+
+      // A live pending preview is on screen, but the result here is a normal chat reply with no
+      // pendingFiles snapshot. The previously tracked tempRef must not cause a false strip.
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: true,
+        json: jest.fn().mockResolvedValue({ requestId: 'msg-req-1' })
+      });
+      act(() => {
+        result.current.setMessages([proposalMessage('msg-a', TEMP_REF_A)]);
+        result.current.setMessage('hi');
+      });
+      await act(async () => {
+        await result.current.handleSubmit({ preventDefault: jest.fn() });
+      });
+      act(() => {
+        onResult({ message: 'Sure!' });
+      });
+
+      const msgA = result.current.messages.find(m => m.id === 'msg-a');
+      expect(msgA.text).toContain('temp-file@aaa-111');
     });
   });
 });
