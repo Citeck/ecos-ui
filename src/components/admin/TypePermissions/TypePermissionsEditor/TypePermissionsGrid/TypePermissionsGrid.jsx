@@ -1,13 +1,13 @@
-import React from 'react';
 import classNames from 'classnames';
+import React from 'react';
 
+import { switchTypePerm } from '../../helpers/switchTypePerm';
+import { TypePermissionsEditorContext } from '../Context';
+
+import { STATUS_FIELD_NAME, TYPE_PERM_NONE, TYPE_PERM_READ, TYPE_PERM_WRITE } from '@/components/admin/TypePermissions/constants';
 import { Btn } from '@/components/common/btns';
 import { Grid } from '@/components/common/grid';
 import { t } from '@/helpers/util';
-
-import { TypePermissionsEditorContext } from '../Context';
-import { STATUS_FIELD_NAME, TYPE_PERM_NONE, TYPE_PERM_READ, TYPE_PERM_WRITE } from '@/components/admin/TypePermissions/constants';
-import { switchTypePerm } from '../../helpers/switchTypePerm';
 
 class TypePermissionsGrid extends React.PureComponent {
   static contextType = TypePermissionsEditorContext;

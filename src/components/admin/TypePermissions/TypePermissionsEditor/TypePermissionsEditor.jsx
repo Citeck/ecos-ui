@@ -1,10 +1,10 @@
 import React, { useContext } from 'react';
 
-import { Loader } from '@/components/common';
-
+import ButtonsPanel from './ButtonsPanel';
 import { TypePermissionsEditorContext } from './Context';
 import TypePermissionsGrid from './TypePermissionsGrid';
-import ButtonsPanel from './ButtonsPanel';
+
+import { Loader } from '@/components/common';
 
 const TypePermissionsEditor = () => {
   const context = useContext(TypePermissionsEditorContext);

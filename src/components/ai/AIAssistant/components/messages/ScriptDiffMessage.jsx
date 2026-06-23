@@ -1,4 +1,5 @@
 import React from 'react';
+
 import ScriptDiffViewer from '../../ScriptDiffViewer';
 
 /**
@@ -9,12 +10,7 @@ import ScriptDiffViewer from '../../ScriptDiffViewer';
  * @param {Function} props.onApplyChanges - Apply changes handler
  * @param {boolean} props.isApplying - Whether changes are being applied
  */
-const ScriptDiffMessage = ({
-  text,
-  messageData,
-  onApplyChanges,
-  isApplying
-}) => {
+const ScriptDiffMessage = ({ text, messageData, onApplyChanges, isApplying }) => {
   if (!messageData) return null;
 
   return (

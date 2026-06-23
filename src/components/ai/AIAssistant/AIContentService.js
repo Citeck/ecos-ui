@@ -6,10 +6,11 @@
 
 import uuidV4 from 'uuidv4';
 
-import { getWorkspaceId } from '@/helpers/urls';
-import { t } from '@/helpers/export/util';
-import { NotificationManager } from '@/services/notifications';
 import { AI_INTENTS, MESSAGE_TYPES, API_ENDPOINTS, POLLING_INTERVAL, CONTENT_TYPES } from './constants';
+
+import { t } from '@/helpers/export/util';
+import { getWorkspaceId } from '@/helpers/urls';
+import { NotificationManager } from '@/services/notifications';
 
 const MAX_POLLING_ATTEMPTS = 120; // 2 minutes max
 
@@ -45,7 +46,7 @@ export const CONTEXT_TYPES = {
   COMMENT: 'comment',
   GENERAL: 'general',
   // Code context types - these come from backend
-  BPMN_SCRIPT_TASK: 'bpmn_script_task',
+  BPMN_SCRIPT_TASK: 'bpmn_script_task'
 };
 
 /**
@@ -362,7 +363,7 @@ const parseResult = (responseData, originalContent, contentType) => {
 /**
  * Try to extract text from various response formats
  */
-const extractTextFromResponse = (responseData) => {
+const extractTextFromResponse = responseData => {
   if (!responseData) return null;
   if (typeof responseData === 'string') return responseData;
   if (responseData.message?.text) return responseData.message.text;
@@ -380,7 +381,7 @@ const extractTextFromResponse = (responseData) => {
  * @param {string} requestId - Request ID to cancel
  * @returns {Promise<boolean>}
  */
-export const cancelRequest = async (requestId) => {
+export const cancelRequest = async requestId => {
   try {
     const response = await fetch(`${API_ENDPOINTS.UNIVERSAL_STATUS}/${requestId}`, {
       method: 'DELETE'

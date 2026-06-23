@@ -6,12 +6,13 @@ import isEmpty from 'lodash/isEmpty';
 import set from 'lodash/set';
 import React from 'react';
 
-import { t } from '@/helpers/export/util';
-import { Dropdown, SelectJournal } from '@/components/common/form';
 import { Field } from '../Field';
 import { Labels } from '../utils';
 
 import Base from './Base';
+
+import { Dropdown, SelectJournal } from '@/components/common/form';
+import { t } from '@/helpers/export/util';
 
 export default class LinkCreateCase extends Base {
   type = MenuSettings.ItemTypes.LINK_CREATE_CASE;

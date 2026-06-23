@@ -5,14 +5,14 @@ import isFunction from 'lodash/isFunction';
 import merge from 'lodash/merge';
 import React from 'react';
 
-import { MLText, SelectOrgstruct } from '@/components/common/form';
-import { GroupTypes } from '@/components/common/form/SelectOrgstruct/constants';
 import { Field } from '../Field';
 import { Labels } from '../utils';
 
 import Base from './Base';
 
 import { MenuApi } from '@/api/menu';
+import { MLText, SelectOrgstruct } from '@/components/common/form';
+import { GroupTypes } from '@/components/common/form/SelectOrgstruct/constants';
 import { t } from '@/helpers/util';
 
 class UserMenuItem extends Base {

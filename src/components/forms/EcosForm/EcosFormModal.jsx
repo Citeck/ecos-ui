@@ -4,18 +4,16 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import { t } from '@/helpers/util';
-import TaskAssignmentPanel from '@/components/domain/TaskAssignmentPanel';
-import EcosModal from '@/components/common/EcosModal';
-import UncontrolledTooltip from '@/components/common/UncontrolledTooltip';
-import IcoBtn from '@/components/common/btns/IcoBtn';
-import DialogManager from '@/components/common/dialogs/Manager';
-
 import EcosForm from './EcosForm';
 import EcosFormUtils from './EcosFormUtils';
 import { FORM_MODE_EDIT } from './constants';
 
+import EcosModal from '@/components/common/EcosModal';
+import UncontrolledTooltip from '@/components/common/UncontrolledTooltip';
+import IcoBtn from '@/components/common/btns/IcoBtn';
+import TaskAssignmentPanel from '@/components/domain/TaskAssignmentPanel';
 import { emitter, RESET_AUTH_STATE_EVENT } from '@/helpers/ecosFetch';
+import { t } from '@/helpers/util';
 
 import './EcosFormModal.scss';
 
@@ -164,12 +162,16 @@ export default class EcosFormModal extends React.Component {
 
     this.setState({ isAuthenticated: false });
 
-    DialogManager.showRemoveDialog({
-      title: t(Labels.CONFIRM_RELOAD_TITLE),
-      text: t(Labels.CONFIRM_RELOAD_MESSAGE),
-      cancelText: t(Labels.CONFIRM_RELOAD_BTN_CANCEL),
-      confirmText: t(Labels.CONFIRM_RELOAD_BTN_CONFIRM),
-      onDelete: () => window.location.reload()
+    // Lazy import breaks the DialogManager <-> EcosFormUtils <-> EcosFormModal circular
+    // dependency (a source of the prod-only "Cannot access 'DialogManager' before initialization" TDZ).
+    import('@/components/common/dialogs/Manager').then(({ default: DialogManager }) => {
+      DialogManager.showRemoveDialog({
+        title: t(Labels.CONFIRM_RELOAD_TITLE),
+        text: t(Labels.CONFIRM_RELOAD_MESSAGE),
+        cancelText: t(Labels.CONFIRM_RELOAD_BTN_CANCEL),
+        confirmText: t(Labels.CONFIRM_RELOAD_BTN_CONFIRM),
+        onDelete: () => window.location.reload()
+      });
     });
   };
 

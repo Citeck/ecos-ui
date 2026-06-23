@@ -20,7 +20,6 @@ import TableFormPropTypes from './TableFormPropTypes';
 import { getAllComponents } from './utils';
 
 import { getMLValue, t } from '@/helpers/util';
-import WidgetService from '@/services/WidgetService';
 
 export const TableFormContext = React.createContext();
 
@@ -382,7 +381,12 @@ export const TableFormContextProvider = props => {
         },
 
         showPreview: (recordId, rowPosition = null) => {
-          WidgetService.openPreviewModal({ recordId });
+          // Lazy import breaks the TableFormContext -> WidgetService edge that closed every
+          // import cycle through WidgetService (prod-only "Cannot access 'WidgetService'
+          // before initialization" TDZ).
+          import('@/services/WidgetService').then(({ default: WidgetService }) => {
+            WidgetService.openPreviewModal({ recordId });
+          });
           setRowPosition(rowPosition);
         },
 

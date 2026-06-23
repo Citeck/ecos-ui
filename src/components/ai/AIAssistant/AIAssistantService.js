@@ -1,4 +1,4 @@
-import editorContextService from "./EditorContextService";
+import editorContextService from './EditorContextService';
 
 const BPMN_EDITOR_URL_PATTERN = /\/bpmn-editor/;
 
@@ -17,9 +17,9 @@ class AIAssistantService {
   }
 
   checkAssistantAvailability = () => {
-    return fetch("/gateway/ai/api/assistant/availability")
-      .then(res => res.ok ? res.json() : false)
-      .catch(() => false)
+    return fetch('/gateway/ai/api/assistant/availability')
+      .then(res => (res.ok ? res.json() : false))
+      .catch(() => false);
   };
 
   async isAvailable() {
@@ -30,7 +30,7 @@ class AIAssistantService {
     try {
       this.availabilityCache = await this.checkAssistantAvailability();
     } catch (error) {
-      console.error("Error checking assistant availability:", error);
+      console.error('Error checking assistant availability:', error);
       this.availabilityCache = false;
     }
 
@@ -85,13 +85,13 @@ class AIAssistantService {
 
   handleSubmit(data) {
     if (editorContextService.hasContext()) {
-      return editorContextService.callHandler("onSubmit", data);
+      return editorContextService.callHandler('onSubmit', data);
     }
     return null;
   }
 
   addListener(listener) {
-    if (typeof listener === "function" && !this.listeners.includes(listener)) {
+    if (typeof listener === 'function' && !this.listeners.includes(listener)) {
       this.listeners.push(listener);
     }
   }
@@ -108,13 +108,13 @@ class AIAssistantService {
       try {
         listener(this.isOpen, this.isMinimized);
       } catch (error) {
-        console.error("Error in AIAssistant listener:", error);
+        console.error('Error in AIAssistant listener:', error);
       }
     });
   }
 
   addAvailabilityListener(listener) {
-    if (typeof listener === "function" && !this.availabilityListeners.includes(listener)) {
+    if (typeof listener === 'function' && !this.availabilityListeners.includes(listener)) {
       this.availabilityListeners.push(listener);
     }
   }
@@ -131,7 +131,7 @@ class AIAssistantService {
       try {
         listener(isAvailable);
       } catch (error) {
-        console.error("Error in AIAssistant availability listener:", error);
+        console.error('Error in AIAssistant availability listener:', error);
       }
     });
   }
@@ -145,7 +145,7 @@ class AIAssistantService {
       this.notifyAvailabilityChange(isAvailable);
       return isAvailable;
     } catch (error) {
-      console.error("Error checking availability:", error);
+      console.error('Error checking availability:', error);
       this.notifyAvailabilityChange(false);
       return false;
     }

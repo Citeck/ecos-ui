@@ -15,15 +15,15 @@ import { generateText, TEXT_QUICK_ACTIONS, TEXT_CONTEXT_TYPES } from './TextAISe
 /**
  * Map field action IDs to TEXT_QUICK_ACTIONS
  */
-const mapActionId = (actionId) => {
+const mapActionId = actionId => {
   const mapping = {
-    'improve': TEXT_QUICK_ACTIONS.IMPROVE,
-    'expand': TEXT_QUICK_ACTIONS.EXPAND,
-    'summarize': TEXT_QUICK_ACTIONS.SUMMARIZE,
+    improve: TEXT_QUICK_ACTIONS.IMPROVE,
+    expand: TEXT_QUICK_ACTIONS.EXPAND,
+    summarize: TEXT_QUICK_ACTIONS.SUMMARIZE,
     'fix-grammar': TEXT_QUICK_ACTIONS.FIX_GRAMMAR,
-    'translate': TEXT_QUICK_ACTIONS.TRANSLATE,
-    'simplify': TEXT_QUICK_ACTIONS.SIMPLIFY,
-    'formalize': TEXT_QUICK_ACTIONS.FORMALIZE
+    translate: TEXT_QUICK_ACTIONS.TRANSLATE,
+    simplify: TEXT_QUICK_ACTIONS.SIMPLIFY,
+    formalize: TEXT_QUICK_ACTIONS.FORMALIZE
   };
   return mapping[actionId] || actionId;
 };
@@ -62,29 +62,28 @@ const TextAreaAIButton = ({
    * Handle AI generation request
    * This is called by AIFieldActions when user triggers generation
    */
-  const handleGenerateRequest = useCallback(async ({
-    prompt,
-    quickActionId,
-    currentValue
-  }) => {
-    const mappedAction = quickActionId ? mapActionId(quickActionId) : null;
+  const handleGenerateRequest = useCallback(
+    async ({ prompt, quickActionId, currentValue }) => {
+      const mappedAction = quickActionId ? mapActionId(quickActionId) : null;
 
-    const response = await generateText({
-      prompt,
-      quickAction: mappedAction,
-      currentText: currentValue,
-      contentType: contextType,
-      fieldType,
-      recordRef,
-      field: fieldInfo,
-      conversationId: conversationIdRef.current
-    });
+      const response = await generateText({
+        prompt,
+        quickAction: mappedAction,
+        currentText: currentValue,
+        contentType: contextType,
+        fieldType,
+        recordRef,
+        field: fieldInfo,
+        conversationId: conversationIdRef.current
+      });
 
-    return {
-      generatedValue: response.generatedText,
-      explanation: response.explanation
-    };
-  }, [contextType, fieldType, recordRef, fieldInfo]);
+      return {
+        generatedValue: response.generatedText,
+        explanation: response.explanation
+      };
+    },
+    [contextType, fieldType, recordRef, fieldInfo]
+  );
 
   return (
     <AIFieldActions

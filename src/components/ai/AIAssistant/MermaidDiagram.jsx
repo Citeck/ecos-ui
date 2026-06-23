@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState, memo, useCallback } from 'react';
 
-import { t } from '@/helpers/export/util';
 import { Icon } from '@/components/common';
-import { NotificationManager } from '@/services/notifications';
+import { t } from '@/helpers/export/util';
 import ESMRequire from '@/services/ESMRequire';
+import { NotificationManager } from '@/services/notifications';
 
 // Mermaid library version
 const MERMAID_VERSION = '11.12.0';
@@ -24,7 +24,7 @@ const getMermaidInstance = () => {
   return window[MERMAID_INSTANCE_KEY];
 };
 
-const setMermaidInstance = (instance) => {
+const setMermaidInstance = instance => {
   window[MERMAID_INSTANCE_KEY] = instance;
 };
 
@@ -50,7 +50,7 @@ const MermaidDiagram = ({ chart, className = '' }) => {
         }
 
         // Load mermaid from local library using ESMRequire
-        ESMRequire.require([`/js/lib/mermaid/${MERMAID_VERSION}/mermaid.min.js`], (mermaid) => {
+        ESMRequire.require([`/js/lib/mermaid/${MERMAID_VERSION}/mermaid.min.js`], mermaid => {
           if (!mermaid || typeof mermaid.initialize !== 'function') {
             throw new Error('Mermaid library not loaded correctly');
           }
@@ -139,7 +139,6 @@ const MermaidDiagram = ({ chart, className = '' }) => {
 
       // Set the SVG content
       setSvgContent(svg);
-
     } catch (error) {
       console.error('Mermaid rendering error:', error);
       setErrorMessage(error.message);
@@ -202,7 +201,6 @@ const MermaidDiagram = ({ chart, className = '' }) => {
         }
       };
 
-
       // Initialize with fullscreen config
       mermaid.initialize(fullscreenConfig);
 
@@ -211,7 +209,6 @@ const MermaidDiagram = ({ chart, className = '' }) => {
       const { svg } = await mermaid.render(id, chart.trim());
 
       return svg;
-
     } catch (error) {
       console.error('Fullscreen rendering error:', error);
       return null;
@@ -224,7 +221,6 @@ const MermaidDiagram = ({ chart, className = '' }) => {
       renderDiagram();
     }
   }, [renderDiagram, mermaidLoaded]);
-
 
   // Handle fullscreen toggle
   const toggleFullscreen = useCallback(async () => {
@@ -316,35 +312,37 @@ const MermaidDiagram = ({ chart, className = '' }) => {
         ctx.drawImage(img, 0, 0, svgWidth, svgHeight);
 
         // Download
-        canvas.toBlob((pngBlob) => {
-          const pngUrl = URL.createObjectURL(pngBlob);
-          const link = document.createElement('a');
-          link.href = pngUrl;
-          link.download = 'diagram.png';
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(pngUrl);
-        }, 'image/png', 0.95);
+        canvas.toBlob(
+          pngBlob => {
+            const pngUrl = URL.createObjectURL(pngBlob);
+            const link = document.createElement('a');
+            link.href = pngUrl;
+            link.download = 'diagram.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(pngUrl);
+          },
+          'image/png',
+          0.95
+        );
       };
 
-      img.onerror = (error) => {
+      img.onerror = error => {
         console.error('SVG to PNG conversion failed:', error);
         NotificationManager.error(t('ai-assistant.mermaid.export-error') + ' ' + error.message);
       };
 
       img.src = dataUrl;
-
     } catch (error) {
       console.error('PNG export error:', error);
       NotificationManager.error(t('ai-assistant.mermaid.export-error') + ' ' + error.message);
     }
   }, [svgContent]);
 
-
   // Handle escape key to close fullscreen
   useEffect(() => {
-    const handleEscape = (e) => {
+    const handleEscape = e => {
       if (e.key === 'Escape' && isFullscreen) {
         setIsFullscreen(false);
         setZoom(1);
@@ -381,25 +379,17 @@ const MermaidDiagram = ({ chart, className = '' }) => {
     <div
       className={`mermaid-diagram-content ${isFullscreenMode ? 'mermaid-diagram-content--fullscreen' : ''}`}
       style={{
-        minHeight: (isRendering || !mermaidLoaded) ? '50px' : 'auto',
+        minHeight: isRendering || !mermaidLoaded ? '50px' : 'auto',
         display: 'flex',
-        alignItems: (isRendering || !mermaidLoaded) ? 'center' : 'stretch',
-        justifyContent: (isRendering || !mermaidLoaded) ? 'center' : 'stretch',
+        alignItems: isRendering || !mermaidLoaded ? 'center' : 'stretch',
+        justifyContent: isRendering || !mermaidLoaded ? 'center' : 'stretch',
         transform: isFullscreenMode ? `scale(${zoom})` : 'none',
         transformOrigin: 'center center',
         transition: 'transform 0.2s ease-in-out'
       }}
     >
-      {!mermaidLoaded && (
-        <div style={{ color: '#666', fontSize: '14px' }}>
-          Loading diagram library...
-        </div>
-      )}
-      {mermaidLoaded && isRendering && (
-        <div style={{ color: '#666', fontSize: '14px' }}>
-          Rendering diagram...
-        </div>
-      )}
+      {!mermaidLoaded && <div style={{ color: '#666', fontSize: '14px' }}>Loading diagram library...</div>}
+      {mermaidLoaded && isRendering && <div style={{ color: '#666', fontSize: '14px' }}>Rendering diagram...</div>}
       {mermaidLoaded && !isRendering && errorMessage && (
         <div className="mermaid-error">
           <strong>Mermaid Diagram Error:</strong>
@@ -423,18 +413,10 @@ const MermaidDiagram = ({ chart, className = '' }) => {
         {/* Control buttons */}
         {mermaidLoaded && !isRendering && svgContent && !errorMessage && (
           <div className="mermaid-diagram__controls">
-            <button
-              className="mermaid-diagram__control-btn"
-              onClick={downloadPNG}
-              title={t('ai-assistant.mermaid.download-png')}
-            >
+            <button className="mermaid-diagram__control-btn" onClick={downloadPNG} title={t('ai-assistant.mermaid.download-png')}>
               <Icon className="fa fa-download" />
             </button>
-            <button
-              className="mermaid-diagram__control-btn"
-              onClick={toggleFullscreen}
-              title={t('ai-assistant.mermaid.fullscreen')}
-            >
+            <button className="mermaid-diagram__control-btn" onClick={toggleFullscreen} title={t('ai-assistant.mermaid.fullscreen')}>
               <Icon className="fa fa-expand" />
             </button>
           </div>
@@ -458,9 +440,7 @@ const MermaidDiagram = ({ chart, className = '' }) => {
                 >
                   <Icon className="fa fa-search-minus" />
                 </button>
-                <span className="mermaid-fullscreen-modal__zoom-level">
-                  {Math.round(zoom * 100)}%
-                </span>
+                <span className="mermaid-fullscreen-modal__zoom-level">{Math.round(zoom * 100)}%</span>
                 <button
                   className="mermaid-fullscreen-modal__control-btn"
                   onClick={handleZoomIn}
@@ -470,11 +450,7 @@ const MermaidDiagram = ({ chart, className = '' }) => {
                   <Icon className="fa fa-search-plus" />
                 </button>
               </div>
-              <button
-                className="mermaid-fullscreen-modal__control-btn"
-                onClick={resetZoom}
-                title={t('ai-assistant.mermaid.fit')}
-              >
+              <button className="mermaid-fullscreen-modal__control-btn" onClick={resetZoom} title={t('ai-assistant.mermaid.fit')}>
                 <Icon className="fa fa-arrows-alt" />
               </button>
             </div>
@@ -497,9 +473,7 @@ const MermaidDiagram = ({ chart, className = '' }) => {
             </div>
           </div>
 
-          <div className="mermaid-fullscreen-modal__content">
-            {renderDiagramContent(fullscreenRef, true)}
-          </div>
+          <div className="mermaid-fullscreen-modal__content">{renderDiagramContent(fullscreenRef, true)}</div>
         </div>
       )}
     </>

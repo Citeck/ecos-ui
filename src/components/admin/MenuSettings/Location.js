@@ -2,8 +2,8 @@ import { MenuTypesView } from '@citeck/constants/menu';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import { t } from '@/helpers/util';
 import { MenuLayoutItem } from '@/components/layout/Layout';
+import { t } from '@/helpers/util';
 
 import './style.scss';
 

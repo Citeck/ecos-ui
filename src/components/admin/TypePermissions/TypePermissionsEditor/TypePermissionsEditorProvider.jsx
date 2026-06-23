@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import React, { useState } from 'react';
 
-import TypePermissionsEditorPropTypes from './TypePermissionsEditorPropTypes';
-import dialogManager from '@/components/common/dialogs/Manager/DialogManager';
 import { formatPermissionsMatrix } from '../helpers/formatPermissionsMatrix';
+
 import { TypePermissionsEditorContext } from './Context';
+import TypePermissionsEditorPropTypes from './TypePermissionsEditorPropTypes';
+
+import dialogManager from '@/components/common/dialogs/Manager/DialogManager';
 
 export const TypePermissionsEditorContextProvider = props => {
   const { controlProps } = props;

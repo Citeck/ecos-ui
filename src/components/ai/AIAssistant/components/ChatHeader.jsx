@@ -1,8 +1,10 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
 import classNames from 'classnames';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+
+import { AGENT_STATUSES } from '../types';
+
 import { Icon } from '@/components/common';
 import { t } from '@/helpers/export/util';
-import { AGENT_STATUSES } from '../types';
 
 const ACTIVE_AGENT_STATUSES = [
   AGENT_STATUSES.PLANNING,
@@ -36,7 +38,7 @@ const ChatHeader = ({
   const [showExportDropdown, setShowExportDropdown] = useState(false);
   const exportDropdownRef = useRef(null);
 
-  const handleClickOutside = useCallback((event) => {
+  const handleClickOutside = useCallback(event => {
     if (exportDropdownRef.current && !exportDropdownRef.current.contains(event.target)) {
       setShowExportDropdown(false);
     }
@@ -101,19 +103,9 @@ const ChatHeader = ({
           onClick={onMinimize}
           title={isMinimized ? t('ai-assistant.header.expand') : t('ai-assistant.header.minimize')}
         >
-          <Icon
-            className={classNames(
-              'ai-assistant-chat__icon',
-              'fa',
-              isMinimized ? 'fa-window-restore' : 'fa-window-minimize'
-            )}
-          />
+          <Icon className={classNames('ai-assistant-chat__icon', 'fa', isMinimized ? 'fa-window-restore' : 'fa-window-minimize')} />
         </button>
-        <button
-          className="ai-assistant-chat__close"
-          onClick={onClose}
-          title={t('ai-assistant.header.close')}
-        >
+        <button className="ai-assistant-chat__close" onClick={onClose} title={t('ai-assistant.header.close')}>
           <Icon className="ai-assistant-chat__icon fa fa-times" />
         </button>
       </div>

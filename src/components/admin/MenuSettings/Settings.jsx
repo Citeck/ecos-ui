@@ -7,21 +7,21 @@ import isEmpty from 'lodash/isEmpty';
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { saveMenuSettings } from '@/actions/menuSettings';
-import { getWorkspaceId, goToAdminPage } from '@/helpers/urls';
-import { t } from '@/helpers/util';
-import MenuSettingsService from '@/services/MenuSettingsService';
-import { ErrorBoundary } from '@/components/common/ErrorBoundary';
-import { EcosModal, Loader, Tabs } from '@/components/common';
-import { Btn, IcoBtn } from '@/components/common/btns';
-import DialogManager from '@/components/common/dialogs/Manager';
-
 import EditorGroupPriority from './EditorGroupPriority';
 import EditorCreateMenu from './editorMenu/EditorCreateMenu';
 import EditorLeftMenu from './editorMenu/EditorLeftMenu';
 import EditorOwnership from './editorMenu/EditorOwnership';
 import EditorUserMenu from './editorMenu/EditorUserMenu';
 import { Labels } from './utils';
+
+import { saveMenuSettings } from '@/actions/menuSettings';
+import { EcosModal, Loader, Tabs } from '@/components/common';
+import { ErrorBoundary } from '@/components/common/ErrorBoundary';
+import { Btn, IcoBtn } from '@/components/common/btns';
+import DialogManager from '@/components/common/dialogs/Manager';
+import { getWorkspaceId, goToAdminPage } from '@/helpers/urls';
+import { t } from '@/helpers/util';
+import MenuSettingsService from '@/services/MenuSettingsService';
 
 import './style.scss';
 

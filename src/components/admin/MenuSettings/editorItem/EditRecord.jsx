@@ -6,12 +6,13 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import React from 'react';
 
-import { t } from '@/helpers/util';
-import { Input, SelectJournal, Textarea } from '@/components/common/form';
 import { Field } from '../Field';
 import { Labels } from '../utils';
 
 import Base from './Base';
+
+import { Input, SelectJournal, Textarea } from '@/components/common/form';
+import { t } from '@/helpers/util';
 
 class EditRecord extends Base {
   type = MenuSettings.ItemTypes.EDIT_RECORD;

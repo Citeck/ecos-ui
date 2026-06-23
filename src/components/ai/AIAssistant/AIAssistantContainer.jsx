@@ -14,10 +14,7 @@ const AIAssistantContainer = () => {
     };
   }, []);
 
-  return ReactDOM.createPortal(
-    <AIAssistantChat />,
-    containerRef.current
-  );
+  return ReactDOM.createPortal(<AIAssistantChat />, containerRef.current);
 };
 
 export default AIAssistantContainer;

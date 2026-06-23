@@ -1,8 +1,9 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 
-import { t } from '@/helpers/export/util';
 import additionalContextService from '../AdditionalContextService';
+
 import { ADDITIONAL_CONTEXT_TYPES, AUTOCOMPLETE_QUERY_THRESHOLD } from '@/components/ai/AIAssistant/constants';
+import { t } from '@/helpers/export/util';
 
 /**
  * Hook for managing @ autocomplete functionality
@@ -64,62 +65,65 @@ const useAutocomplete = (options = {}) => {
   }, []);
 
   // Handle input change for autocomplete
-  const handleAutocompleteInputChange = useCallback(async (value, cursorPosition, textareaElement) => {
-    const textBeforeCursor = value.substring(0, cursorPosition);
-    const lastAtIndex = textBeforeCursor.lastIndexOf('@');
+  const handleAutocompleteInputChange = useCallback(
+    async (value, cursorPosition, textareaElement) => {
+      const textBeforeCursor = value.substring(0, cursorPosition);
+      const lastAtIndex = textBeforeCursor.lastIndexOf('@');
 
-    if (lastAtIndex !== -1) {
-      const queryAfterAt = textBeforeCursor.substring(lastAtIndex + 1);
+      if (lastAtIndex !== -1) {
+        const queryAfterAt = textBeforeCursor.substring(lastAtIndex + 1);
 
-      if (queryAfterAt.length >= 0 && !queryAfterAt.includes(' ')) {
-        setAutocompleteQuery(queryAfterAt);
-        setSelectedAutocompleteIndex(0);
-        setShowAutocomplete(true);
+        if (queryAfterAt.length >= 0 && !queryAfterAt.includes(' ')) {
+          setAutocompleteQuery(queryAfterAt);
+          setSelectedAutocompleteIndex(0);
+          setShowAutocomplete(true);
 
-        // Load current record for autocomplete
-        if (getAdditionalContext) {
-          const data = await getAdditionalContext(ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD);
-          setCurrentRecordForAutocomplete(data);
+          // Load current record for autocomplete
+          if (getAdditionalContext) {
+            const data = await getAdditionalContext(ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD);
+            setCurrentRecordForAutocomplete(data);
 
-          // Search for records if query length exceeds threshold
-          if (queryAfterAt.length >= AUTOCOMPLETE_QUERY_THRESHOLD && data && data.type) {
-            const results = await searchRecordsByDisp(queryAfterAt, data.type);
-            setSearchResults(results);
-          } else {
-            setSearchResults([]);
+            // Search for records if query length exceeds threshold
+            if (queryAfterAt.length >= AUTOCOMPLETE_QUERY_THRESHOLD && data && data.type) {
+              const results = await searchRecordsByDisp(queryAfterAt, data.type);
+              setSearchResults(results);
+            } else {
+              setSearchResults([]);
+            }
+
+            // Load available documents
+            const docs = await getAdditionalContext(ADDITIONAL_CONTEXT_TYPES.DOCUMENTS);
+            setAvailableDocuments(docs || []);
           }
 
-          // Load available documents
-          const docs = await getAdditionalContext(ADDITIONAL_CONTEXT_TYPES.DOCUMENTS);
-          setAvailableDocuments(docs || []);
-        }
+          // Calculate autocomplete position
+          if (textareaElement) {
+            const rect = textareaElement.getBoundingClientRect();
+            const lines = textBeforeCursor.split('\n');
+            const currentLineIndex = lines.length - 1;
+            const currentLineText = lines[currentLineIndex];
 
-        // Calculate autocomplete position
-        if (textareaElement) {
-          const rect = textareaElement.getBoundingClientRect();
-          const lines = textBeforeCursor.split('\n');
-          const currentLineIndex = lines.length - 1;
-          const currentLineText = lines[currentLineIndex];
+            const lineHeight = 20;
+            const charWidth = 8;
+            const padding = 12;
 
-          const lineHeight = 20;
-          const charWidth = 8;
-          const padding = 12;
+            const top = rect.top + padding + currentLineIndex * lineHeight + lineHeight + 5;
+            const left = rect.left + padding + currentLineText.length * charWidth;
 
-          const top = rect.top + padding + (currentLineIndex * lineHeight) + lineHeight + 5;
-          const left = rect.left + padding + (currentLineText.length * charWidth);
-
-          setAutocompletePosition({
-            top: Math.min(top, window.innerHeight - 200),
-            left: Math.min(left, window.innerWidth - 300)
-          });
+            setAutocompletePosition({
+              top: Math.min(top, window.innerHeight - 200),
+              left: Math.min(left, window.innerWidth - 300)
+            });
+          }
+        } else {
+          hideAutocomplete();
         }
       } else {
         hideAutocomplete();
       }
-    } else {
-      hideAutocomplete();
-    }
-  }, [getAdditionalContext, searchRecordsByDisp]);
+    },
+    [getAdditionalContext, searchRecordsByDisp]
+  );
 
   // Hide autocomplete
   const hideAutocomplete = useCallback(() => {
@@ -184,122 +188,115 @@ const useAutocomplete = (options = {}) => {
   }, [autocompleteQuery, currentRecordForAutocomplete, searchResults, availableDocuments, additionalContext]);
 
   // Insert context mention into message
-  const insertContextMention = useCallback(async (
-    contextType,
-    recordData,
-    currentMessage,
-    setMessage,
-    textareaRef
-  ) => {
-    let contextLabel = t('ai-assistant.autocomplete.record-fallback');
-    let contextDataToAdd = null;
+  const insertContextMention = useCallback(
+    async (contextType, recordData, currentMessage, setMessage, textareaRef) => {
+      let contextLabel = t('ai-assistant.autocomplete.record-fallback');
+      let contextDataToAdd = null;
 
-    if (contextType === 'search_result' && recordData) {
-      contextLabel = recordData.displayName || recordData.recordRef;
-      contextDataToAdd = recordData;
-    } else if (contextType === ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD) {
-      const contextData = recordData
-        || (getAdditionalContext ? await getAdditionalContext(contextType) : null);
-      if (contextData) {
-        contextLabel = contextData.displayName || contextData.recordRef || t('ai-assistant.autocomplete.record-fallback');
-        contextDataToAdd = contextData;
+      if (contextType === 'search_result' && recordData) {
+        contextLabel = recordData.displayName || recordData.recordRef;
+        contextDataToAdd = recordData;
+      } else if (contextType === ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD) {
+        const contextData = recordData || (getAdditionalContext ? await getAdditionalContext(contextType) : null);
+        if (contextData) {
+          contextLabel = contextData.displayName || contextData.recordRef || t('ai-assistant.autocomplete.record-fallback');
+          contextDataToAdd = contextData;
+        }
+      } else if (contextType === ADDITIONAL_CONTEXT_TYPES.DOCUMENTS && recordData) {
+        contextLabel = recordData.displayName || recordData.recordRef;
+        contextDataToAdd = recordData;
+      } else if (contextType === ADDITIONAL_CONTEXT_TYPES.ATTRIBUTES && recordData) {
+        contextLabel = recordData.displayName || recordData.attribute;
+        contextDataToAdd = recordData;
       }
-    } else if (contextType === ADDITIONAL_CONTEXT_TYPES.DOCUMENTS && recordData) {
-      contextLabel = recordData.displayName || recordData.recordRef;
-      contextDataToAdd = recordData;
-    } else if (contextType === ADDITIONAL_CONTEXT_TYPES.ATTRIBUTES && recordData) {
-      contextLabel = recordData.displayName || recordData.attribute;
-      contextDataToAdd = recordData;
-    }
 
-    // Replace @ mention with context label
-    const cursorPosition = textareaRef?.current?.selectionStart ?? currentMessage.length;
-    const textBeforeCursor = currentMessage.substring(0, cursorPosition);
-    const textAfterCursor = currentMessage.substring(cursorPosition);
+      // Replace @ mention with context label
+      const cursorPosition = textareaRef?.current?.selectionStart ?? currentMessage.length;
+      const textBeforeCursor = currentMessage.substring(0, cursorPosition);
+      const textAfterCursor = currentMessage.substring(cursorPosition);
 
-    const lastAtIndex = textBeforeCursor.lastIndexOf('@');
-    if (lastAtIndex === -1) {
+      const lastAtIndex = textBeforeCursor.lastIndexOf('@');
+      if (lastAtIndex === -1) {
+        hideAutocomplete();
+        return;
+      }
+
+      const newText = textBeforeCursor.substring(0, lastAtIndex) + `@${contextLabel} ` + textAfterCursor;
+
+      setMessage(newText);
       hideAutocomplete();
-      return;
-    }
 
-    const newText = textBeforeCursor.substring(0, lastAtIndex) +
-      `@${contextLabel} ` +
-      textAfterCursor;
+      // Set cursor position after the inserted mention
+      setTimeout(() => {
+        if (textareaRef?.current) {
+          const newCursorPosition = lastAtIndex + contextLabel.length + 2;
+          textareaRef.current.focus();
+          textareaRef.current.setSelectionRange(newCursorPosition, newCursorPosition);
+        }
+      }, 0);
 
-    setMessage(newText);
-    hideAutocomplete();
-
-    // Set cursor position after the inserted mention
-    setTimeout(() => {
-      if (textareaRef?.current) {
-        const newCursorPosition = lastAtIndex + contextLabel.length + 2;
-        textareaRef.current.focus();
-        textareaRef.current.setSelectionRange(newCursorPosition, newCursorPosition);
+      // Add context data to additional context
+      if (contextDataToAdd) {
+        if (contextType === 'search_result') {
+          addRecordToContext?.(contextDataToAdd);
+        } else if (contextType === ADDITIONAL_CONTEXT_TYPES.DOCUMENTS) {
+          addDocumentToContext?.(contextDataToAdd);
+        } else if (contextType === ADDITIONAL_CONTEXT_TYPES.ATTRIBUTES) {
+          // Attributes handled separately
+        } else {
+          toggleAdditionalContext?.(contextType);
+        }
       }
-    }, 0);
-
-    // Add context data to additional context
-    if (contextDataToAdd) {
-      if (contextType === 'search_result') {
-        addRecordToContext?.(contextDataToAdd);
-      } else if (contextType === ADDITIONAL_CONTEXT_TYPES.DOCUMENTS) {
-        addDocumentToContext?.(contextDataToAdd);
-      } else if (contextType === ADDITIONAL_CONTEXT_TYPES.ATTRIBUTES) {
-        // Attributes handled separately
-      } else {
-        toggleAdditionalContext?.(contextType);
-      }
-    }
-  }, [getAdditionalContext, toggleAdditionalContext, addRecordToContext, addDocumentToContext, hideAutocomplete]);
+    },
+    [getAdditionalContext, toggleAdditionalContext, addRecordToContext, addDocumentToContext, hideAutocomplete]
+  );
 
   // Handle keyboard navigation in autocomplete
-  const handleAutocompleteKeyDown = useCallback((e, filteredOptions) => {
-    if (!showAutocomplete) return false;
+  const handleAutocompleteKeyDown = useCallback(
+    (e, filteredOptions) => {
+      if (!showAutocomplete) return false;
 
-    if (e.key === 'Escape') {
-      hideAutocomplete();
-      return true;
-    }
-
-    if (filteredOptions.length === 0) {
-      // Autocomplete is open but options haven't loaded yet — swallow Enter/Tab
-      // so the form is not submitted while the user is mid-selection.
-      if (e.key === 'Enter' || e.key === 'Tab') {
-        e.preventDefault();
+      if (e.key === 'Escape') {
+        hideAutocomplete();
         return true;
       }
-      return false;
-    }
 
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setSelectedAutocompleteIndex(prev =>
-        prev < filteredOptions.length - 1 ? prev + 1 : 0
-      );
-      return true;
-    }
-
-    if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setSelectedAutocompleteIndex(prev =>
-        prev > 0 ? prev - 1 : filteredOptions.length - 1
-      );
-      return true;
-    }
-
-    if (e.key === 'Enter' || e.key === 'Tab') {
-      e.preventDefault();
-      const safeIndex = Math.min(selectedAutocompleteIndex, filteredOptions.length - 1);
-      const selectedOption = filteredOptions[safeIndex];
-      if (selectedOption) {
-        return selectedOption;
+      if (filteredOptions.length === 0) {
+        // Autocomplete is open but options haven't loaded yet — swallow Enter/Tab
+        // so the form is not submitted while the user is mid-selection.
+        if (e.key === 'Enter' || e.key === 'Tab') {
+          e.preventDefault();
+          return true;
+        }
+        return false;
       }
-      return true;
-    }
 
-    return false;
-  }, [showAutocomplete, selectedAutocompleteIndex, hideAutocomplete]);
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setSelectedAutocompleteIndex(prev => (prev < filteredOptions.length - 1 ? prev + 1 : 0));
+        return true;
+      }
+
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setSelectedAutocompleteIndex(prev => (prev > 0 ? prev - 1 : filteredOptions.length - 1));
+        return true;
+      }
+
+      if (e.key === 'Enter' || e.key === 'Tab') {
+        e.preventDefault();
+        const safeIndex = Math.min(selectedAutocompleteIndex, filteredOptions.length - 1);
+        const selectedOption = filteredOptions[safeIndex];
+        if (selectedOption) {
+          return selectedOption;
+        }
+        return true;
+      }
+
+      return false;
+    },
+    [showAutocomplete, selectedAutocompleteIndex, hideAutocomplete]
+  );
 
   return {
     // State

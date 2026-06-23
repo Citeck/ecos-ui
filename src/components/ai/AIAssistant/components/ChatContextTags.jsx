@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
 import classNames from 'classnames';
-import { Icon } from '@/components/common';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+
 import { ADDITIONAL_CONTEXT_TYPES, API_ENDPOINTS, getContextArtifactIcon, getRecordRefIcon } from '@/components/ai/AIAssistant/constants';
-import { getTextByLocale } from '@/helpers/util';
+import { Icon } from '@/components/common';
 import { t } from '@/helpers/export/util';
+import { getTextByLocale } from '@/helpers/util';
 
 /**
  * Icon mapping for context types
@@ -31,7 +32,7 @@ const DOCUMENT_TYPE_ICONS = {
 /**
  * Get icon class for a document based on its typeDisp
  */
-export const getDocumentIcon = (document) => {
+export const getDocumentIcon = document => {
   if (!document?.typeDisp) return CONTEXT_TYPE_ICONS.documents;
 
   const typeDisp = document.typeDisp.toLowerCase();
@@ -39,8 +40,10 @@ export const getDocumentIcon = (document) => {
   if (typeDisp.includes('pdf')) return DOCUMENT_TYPE_ICONS.pdf;
   if (typeDisp.includes('word') || typeDisp.includes('doc')) return DOCUMENT_TYPE_ICONS.word;
   if (typeDisp.includes('excel') || typeDisp.includes('xls') || typeDisp.includes('spreadsheet')) return DOCUMENT_TYPE_ICONS.excel;
-  if (typeDisp.includes('image') || typeDisp.includes('png') || typeDisp.includes('jpg') || typeDisp.includes('jpeg')) return DOCUMENT_TYPE_ICONS.image;
-  if (typeDisp.includes('powerpoint') || typeDisp.includes('ppt') || typeDisp.includes('presentation')) return DOCUMENT_TYPE_ICONS.powerpoint;
+  if (typeDisp.includes('image') || typeDisp.includes('png') || typeDisp.includes('jpg') || typeDisp.includes('jpeg'))
+    return DOCUMENT_TYPE_ICONS.image;
+  if (typeDisp.includes('powerpoint') || typeDisp.includes('ppt') || typeDisp.includes('presentation'))
+    return DOCUMENT_TYPE_ICONS.powerpoint;
 
   return CONTEXT_TYPE_ICONS.documents;
 };
@@ -69,7 +72,7 @@ const AgentSelector = ({ selectedAgent, onSelectAgent, onClearConversation, hasM
   }, [agentsLoaded]);
 
   useEffect(() => {
-    const handleClickOutside = (e) => {
+    const handleClickOutside = e => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setShowDropdown(false);
       }
@@ -89,7 +92,7 @@ const AgentSelector = ({ selectedAgent, onSelectAgent, onClearConversation, hasM
     return !hasMessages || window.confirm(t('ai-agent.confirm-switch'));
   };
 
-  const handleSelect = (agent) => {
+  const handleSelect = agent => {
     if (selectedAgent?.id === agent.id) {
       setShowDropdown(false);
       return;
@@ -150,15 +153,11 @@ const AgentSelector = ({ selectedAgent, onSelectAgent, onClearConversation, hasM
               <Icon className="fa fa-robot" />
               <div className="ai-assistant-chat__agent-dropdown-item-text">
                 <span className="ai-assistant-chat__agent-dropdown-item-name">{agent.name || agent.id}</span>
-                {agent.description && (
-                  <span className="ai-assistant-chat__agent-dropdown-item-desc">{agent.description}</span>
-                )}
+                {agent.description && <span className="ai-assistant-chat__agent-dropdown-item-desc">{agent.description}</span>}
               </div>
             </div>
           ))}
-          {agentsLoaded && agents.length === 0 && (
-            <div className="ai-assistant-chat__agent-dropdown-empty">{t('ai-agent.no-agents')}</div>
-          )}
+          {agentsLoaded && agents.length === 0 && <div className="ai-assistant-chat__agent-dropdown-empty">{t('ai-agent.no-agents')}</div>}
         </div>
       )}
     </div>
@@ -189,7 +188,8 @@ const ChatContextTags = ({
   getScriptContextLabel
 }) => {
   // Agent selector is always visible
-  const hasContextContent = selectedAdditionalContext.length > 0 ||
+  const hasContextContent =
+    selectedAdditionalContext.length > 0 ||
     selectedTextContext ||
     uploadedFiles.length > 0 ||
     uploadingFiles.length > 0 ||
@@ -212,11 +212,12 @@ const ChatContextTags = ({
         <div className="ai-assistant-chat__context-tag ai-assistant-chat__context-tag--workspace">
           <Icon className="fa fa-briefcase" />
           <span>{workspaceContext.workspaceName || workspaceContext.workspaceId}</span>
-          {workspaceContext.artifacts && (() => {
-            const a = workspaceContext.artifacts;
-            const total = (a.dataTypes || 0) + (a.forms || 0) + (a.processes || 0) + (a.journals || 0);
-            return total > 0 ? <span className="ai-assistant-chat__context-tag-badge">{total}</span> : null;
-          })()}
+          {workspaceContext.artifacts &&
+            (() => {
+              const a = workspaceContext.artifacts;
+              const total = (a.dataTypes || 0) + (a.forms || 0) + (a.processes || 0) + (a.journals || 0);
+              return total > 0 ? <span className="ai-assistant-chat__context-tag-badge">{total}</span> : null;
+            })()}
         </div>
       )}
 
@@ -225,9 +226,8 @@ const ChatContextTags = ({
         <div className="ai-assistant-chat__context-tag ai-assistant-chat__context-tag--selected-text">
           <Icon className="fa fa-quote-left" />
           <span>
-            {t('ai-assistant.context-tag.selected-text-prefix')}"{selectedTextContext.text.length > 50
-              ? selectedTextContext.text.substring(0, 50) + '...'
-              : selectedTextContext.text}"
+            {t('ai-assistant.context-tag.selected-text-prefix')}"
+            {selectedTextContext.text.length > 50 ? selectedTextContext.text.substring(0, 50) + '...' : selectedTextContext.text}"
           </span>
           <button
             className="ai-assistant-chat__context-tag-remove"
@@ -242,10 +242,7 @@ const ChatContextTags = ({
       {/* Current record context */}
       {selectedAdditionalContext.includes(ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD) &&
         additionalContext.records.map((record, index) => (
-          <div
-            key={`${ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD}-${index}`}
-            className="ai-assistant-chat__context-tag"
-          >
+          <div key={`${ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD}-${index}`} className="ai-assistant-chat__context-tag">
             <Icon className={`fa ${getRecordRefIcon(record.recordRef)}`} />
             <span>{record.displayName || record.recordRef || t('ai-assistant.context-tag.record-fallback')}</span>
             <button
@@ -256,8 +253,7 @@ const ChatContextTags = ({
               <Icon className="fa fa-times" />
             </button>
           </div>
-        ))
-      }
+        ))}
 
       {/* Documents context */}
       {selectedAdditionalContext.includes(ADDITIONAL_CONTEXT_TYPES.DOCUMENTS) &&
@@ -276,8 +272,7 @@ const ChatContextTags = ({
               <Icon className="fa fa-times" />
             </button>
           </div>
-        ))
-      }
+        ))}
 
       {/* Attributes context */}
       {selectedAdditionalContext.includes(ADDITIONAL_CONTEXT_TYPES.ATTRIBUTES) &&
@@ -296,8 +291,7 @@ const ChatContextTags = ({
               <Icon className="fa fa-times" />
             </button>
           </div>
-        ))
-      }
+        ))}
 
       {/* Script context */}
       {scriptContext && (
@@ -315,11 +309,8 @@ const ChatContextTags = ({
       )}
 
       {/* Uploading files */}
-      {uploadingFiles.map((file) => (
-        <div
-          key={file.id}
-          className="ai-assistant-chat__context-tag ai-assistant-chat__context-tag--uploaded-file"
-        >
+      {uploadingFiles.map(file => (
+        <div key={file.id} className="ai-assistant-chat__context-tag ai-assistant-chat__context-tag--uploaded-file">
           <Icon className="fa fa-spinner fa-spin" />
           <span>{file.name}</span>
         </div>
@@ -327,10 +318,7 @@ const ChatContextTags = ({
 
       {/* Uploaded files */}
       {uploadedFiles.map((file, index) => (
-        <div
-          key={`uploaded-file-${index}`}
-          className="ai-assistant-chat__context-tag ai-assistant-chat__context-tag--uploaded-file"
-        >
+        <div key={`uploaded-file-${index}`} className="ai-assistant-chat__context-tag ai-assistant-chat__context-tag--uploaded-file">
           <Icon className="fa fa-file" />
           <span>{file.name}</span>
           <button

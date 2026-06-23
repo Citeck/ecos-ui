@@ -88,6 +88,11 @@ module.exports = {
     'react/react-in-jsx-scope': 'off',
     'react/jsx-uses-react': 'off',
     'prettier/prettier': 'warn',
-    'import/no-unresolved': 'off'
+    'import/no-unresolved': 'off',
+    // Guardrail against re-introducing circular imports that cause prod-only
+    // "Cannot access 'X' before initialization" TDZ errors. Kept as a warning
+    // and limited to direct (2-module) cycles to avoid noise from the many
+    // pre-existing deep barrel cycles. Run `npm run check:cycles` for the full graph.
+    'import/no-cycle': ['warn', { maxDepth: 1, ignoreExternal: true }]
   }
 };

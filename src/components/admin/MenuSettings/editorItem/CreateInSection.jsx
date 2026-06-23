@@ -4,12 +4,13 @@ import set from 'lodash/set';
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { extractLabel, t } from '@/helpers/util';
-import { Select } from '@/components/common/form';
 import { Field } from '../Field';
 import { Labels } from '../utils';
 
 import Base from './Base';
+
+import { Select } from '@/components/common/form';
+import { extractLabel, t } from '@/helpers/util';
 
 class CreateInSection extends Base {
   type = MenuSettings.ItemTypes.CREATE_IN_SECTION;

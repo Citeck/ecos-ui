@@ -24,10 +24,10 @@ import isArray from 'lodash/isArray';
 import isObject from 'lodash/isObject';
 import moment from 'moment';
 
-import { t } from '@/helpers/export/util';
-import { extractLabel } from '@/helpers/util';
 import { DatePicker, Input, Select, SelectJournal, SelectOrgstruct } from '@/components/common/form';
 import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER } from '@/components/common/form/SelectOrgstruct/constants';
+import { t } from '@/helpers/export/util';
+import { extractLabel } from '@/helpers/util';
 
 // Pure predicate helpers (convertValueByType / convertAttributeValues) now live in
 // @citeck/records-core/predicates/util. This module keeps only the web-only,

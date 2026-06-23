@@ -3,8 +3,6 @@ import get from 'lodash/get';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import { SelectJournal } from '@/components/common/form';
-
 import Arbitrary from './Arbitrary';
 import CreateInSection from './CreateInSection';
 import Dashboard from './Dashboard';
@@ -14,6 +12,8 @@ import LinkCreateCase from './LinkCreateCase';
 import Section from './Section';
 import StartWorkflow from './StartWorkflow';
 import UserMenuItem from './UserMenuItem';
+
+import { SelectJournal } from '@/components/common/form';
 
 import '../style.scss';
 

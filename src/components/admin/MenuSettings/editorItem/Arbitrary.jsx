@@ -3,12 +3,13 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import React from 'react';
 
-import { t } from '@/helpers/util';
-import { Input, MLText } from '@/components/common/form';
 import { Field } from '../Field';
 import { Labels } from '../utils';
 
 import Base from './Base';
+
+import { Input, MLText } from '@/components/common/form';
+import { t } from '@/helpers/util';
 
 export default class Arbitrary extends Base {
   type = MenuSettings.ItemTypes.ARBITRARY;

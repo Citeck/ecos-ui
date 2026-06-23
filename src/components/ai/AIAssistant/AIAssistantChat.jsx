@@ -3,8 +3,6 @@ import classNames from 'classnames';
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { ResizableBox } from 'react-resizable';
 
-import { Icon } from '@/components/common';
-
 import aiAssistantService from './AIAssistantService';
 import editorContextService, { CONTEXT_TYPES } from './EditorContextService';
 import MermaidDiagram from './MermaidDiagram';
@@ -22,6 +20,7 @@ import {
 } from './hooks';
 import { getStageStatus } from './utils';
 
+import { Icon } from '@/components/common';
 import { EVENTS } from '@/components/dashboard/widgets/BaseWidget';
 import { t } from '@/helpers/export/util';
 import { getRecordRef } from '@/helpers/urls';
@@ -163,7 +162,12 @@ const AIAssistantChat = () => {
       // preview it knows about, but this hides any broken image regardless of cause so the user
       // never sees a broken-image icon. COREDEV-321.
       img: ({ node, ...props }) => (
-        <img {...props} onError={event => { event.currentTarget.style.display = 'none'; }} />
+        <img
+          {...props}
+          onError={event => {
+            event.currentTarget.style.display = 'none';
+          }}
+        />
       ),
       code: ({ node, className, children, ...props }) => {
         const match = /language-(\w+)/.exec(className || '');

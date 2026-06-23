@@ -2,12 +2,14 @@ import React from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-import { t } from '@/helpers/export/util';
-import { Icon } from '@/components/common';
 import { AGENT_STATUSES } from '../../types';
+
 import ArtifactsList from './ArtifactsList';
 import ContextArtifactsList from './ContextArtifactsList';
 import MessageActions from './MessageActions';
+
+import { Icon } from '@/components/common';
+import { t } from '@/helpers/export/util';
 
 const HINT_KEYS = {
   [AGENT_STATUSES.WAITING_PLAN_APPROVAL]: 'ai-assistant.agent-plan.hint-waiting-plan',
@@ -42,9 +44,7 @@ const AgentPlanMessage = ({ message, markdownComponents, onActionClick }) => {
         </Markdown>
       )}
 
-      {agentStatus === AGENT_STATUSES.COMPLETED && (
-        <ArtifactsList artifacts={messageData.artifacts} />
-      )}
+      {agentStatus === AGENT_STATUSES.COMPLETED && <ArtifactsList artifacts={messageData.artifacts} />}
 
       {(agentStatus === AGENT_STATUSES.WAITING_PLAN_APPROVAL || agentStatus === AGENT_STATUSES.COMPLETED) && (
         <ContextArtifactsList contextArtifacts={messageData.contextArtifacts} />
@@ -59,11 +59,7 @@ const AgentPlanMessage = ({ message, markdownComponents, onActionClick }) => {
 
       <MessageActions actions={messageData.actions} onActionClick={onActionClick} />
 
-      {hint && !messageData.actions?.length && (
-        <div className="ai-assistant-chat__agent-hint">
-          {hint}
-        </div>
-      )}
+      {hint && !messageData.actions?.length && <div className="ai-assistant-chat__agent-hint">{hint}</div>}
     </div>
   );
 };

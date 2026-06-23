@@ -1,4 +1,4 @@
-import Records, { configure, registerGlobal, recordsClientManager } from '@citeck/records-core';
+import Records, { configure, isConfigured, registerGlobal, recordsClientManager } from '@citeck/records-core';
 import get from 'lodash/get';
 import queryString from 'query-string';
 
@@ -16,6 +16,10 @@ import { getEnabledWorkspaces, t } from '@/helpers/util';
  * Must run once, before any Records API usage.
  */
 export function bootstrapRecords(): void {
+  if (isConfigured()) {
+    return;
+  }
+
   configure({
     http: ecosFetch as any,
     storage: typeof localStorage !== 'undefined' ? localStorage : undefined,
@@ -32,3 +36,12 @@ export function bootstrapRecords(): void {
 
   registerGlobal();
 }
+
+/*
+ * Side-effect on import: configure `@citeck/records-core` during the module
+ * evaluation phase, before the heavier app graph (actions/dialogs/widgets) is
+ * pulled in. Importing this module first in the entry point guarantees the
+ * Records API is configured even if a later circular-import TDZ aborts the
+ * top-level body of `index.tsx`. The call is idempotent (guarded above).
+ */
+bootstrapRecords();

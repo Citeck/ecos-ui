@@ -7,9 +7,9 @@
  * @returns {string} UUID string
  */
 export const generateUUID = () => {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0;
-    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
 };
@@ -36,7 +36,7 @@ export const getStageStatus = (stageName, currentProgress, progressRange) => {
  * @param {Date} timestamp - Date object
  * @returns {string} Formatted time string
  */
-export const formatMessageTime = (timestamp) => {
+export const formatMessageTime = timestamp => {
   return timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
 };
 

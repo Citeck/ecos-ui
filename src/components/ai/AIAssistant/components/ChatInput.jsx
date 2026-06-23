@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 
-import { t } from '@/helpers/export/util';
-import { Icon } from '@/components/common';
 import { FILE_UPLOAD_ACCEPT_STRING } from '@/components/ai/AIAssistant/constants';
+import { Icon } from '@/components/common';
+import { t } from '@/helpers/export/util';
 
 /**
  * Chat input component with textarea and action buttons
@@ -40,9 +40,7 @@ const ChatInput = ({
     }
   }, [message, textareaRef]);
 
-  const placeholder = isUniversal
-    ? t('ai-assistant.input.placeholder.universal')
-    : t('ai-assistant.input.placeholder.contextual');
+  const placeholder = isUniversal ? t('ai-assistant.input.placeholder.universal') : t('ai-assistant.input.placeholder.contextual');
 
   return (
     <div className="ai-assistant-chat__input-wrapper">

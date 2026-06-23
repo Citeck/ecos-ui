@@ -1,12 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
+import { Labels } from './utils';
+
 import { getSettingsConfig, resetStore, setOpenMenuSettings } from '@/actions/menuSettings';
 import { t } from '@/helpers/export/util';
 import MenuSettingsService from '@/services/MenuSettingsService';
-
-import { Labels } from './utils';
-
 import { NotificationManager } from '@/services/notifications';
 
 class Controller extends React.Component {

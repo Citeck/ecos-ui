@@ -3,9 +3,9 @@
  * Defines AI quick actions available for different field types
  */
 
-import { t } from '@/helpers/export/util';
 import FormContextService from '@/components/ai/AIAssistant/FormContextService';
 import { CONTENT_TYPES } from '@/components/ai/AIAssistant/constants';
+import { t } from '@/helpers/export/util';
 
 /**
  * Field types supported by the AI Quick Actions system
@@ -334,12 +334,7 @@ export const getFieldConfig = (fieldType: string): FieldActionConfig => {
  * 3. showForContextTypes - if defined, show only if context in list
  * 4. No conditions - show (backward compatible)
  */
-export const isActionVisible = (
-  action: QuickAction,
-  contextType: string,
-  currentContent: string,
-  fieldType: string
-): boolean => {
+export const isActionVisible = (action: QuickAction, contextType: string, currentContent: string, fieldType: string): boolean => {
   // Custom predicate takes precedence
   if (typeof action.isVisible === 'function') {
     return action.isVisible({ contextType, currentContent, fieldType });
@@ -364,11 +359,7 @@ export const isActionVisible = (
 /**
  * Get available quick actions based on field type, current content, and context type
  */
-export const getAvailableActions = (
-  fieldType: string,
-  currentContent: string,
-  contextType: string = ''
-): QuickAction[] => {
+export const getAvailableActions = (fieldType: string, currentContent: string, contextType = ''): QuickAction[] => {
   const config = getFieldConfig(fieldType);
   const hasContent = currentContent && currentContent.trim().length > 0;
 
@@ -413,7 +404,7 @@ export { default as FormContextService } from '@/components/ai/AIAssistant/FormC
  * Delegates to FormContextService for single source of truth
  */
 export const getContextExtractionConfig = (contextType: string): ContextExtractionConfig => {
-  return FormContextService.getExtractionConfig(contextType);
+  return FormContextService.getExtractionConfig(contextType) as ContextExtractionConfig;
 };
 
 /**

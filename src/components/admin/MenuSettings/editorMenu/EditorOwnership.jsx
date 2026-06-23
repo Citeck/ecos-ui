@@ -3,12 +3,13 @@ import get from 'lodash/get';
 import React from 'react';
 import { connect } from 'react-redux';
 
+import { Labels } from '../utils';
+
 import { getAuthorityInfoByRefs, setIsForAll } from '@/actions/menuSettings';
-import { t } from '@/helpers/export/util';
 import DialogManager from '@/components/common/dialogs/Manager';
 import { ControlledCheckbox, SelectOrgstruct } from '@/components/common/form';
 import { GroupTypes, ViewModes } from '@/components/common/form/SelectOrgstruct/constants';
-import { Labels } from '../utils';
+import { t } from '@/helpers/export/util';
 
 class EditorOwnership extends React.Component {
   state = {

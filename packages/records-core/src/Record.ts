@@ -5,7 +5,6 @@ import isFunction from 'lodash/isFunction';
 
 import Attribute from './Attribute';
 import RecordWatcher from './RecordWatcher';
-import { RecordsContainerType } from './Records';
 import recordsClientManager from './client';
 import { getConfig } from './config';
 import { RESOLVED_TYPE_SOURCE_ID } from './constants';
@@ -22,6 +21,8 @@ import {
 } from './types';
 import { mapValueToScalar, parseAttribute } from './utils/attStrUtils';
 import { prepareAttsToLoad } from './utils/recordUtils';
+
+import type { RecordsContainerType } from './Records';
 
 export const EVENT_CHANGE = 'change';
 

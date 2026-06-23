@@ -2,9 +2,9 @@ import { ConfigTypes } from '@citeck/constants/menu';
 import get from 'lodash/get';
 import { connect } from 'react-redux';
 
-import { addJournalMenuItems, setLastAddedLeftItems, setLeftMenuItems } from '@/actions/menuSettings';
-
 import BaseEditorMenu from './BaseEditorMenu';
+
+import { addJournalMenuItems, setLastAddedLeftItems, setLeftMenuItems } from '@/actions/menuSettings';
 
 class EditorLeftMenu extends BaseEditorMenu {
   configType = ConfigTypes.LEFT;

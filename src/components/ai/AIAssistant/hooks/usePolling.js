@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 
-import { t } from '@/helpers/export/util';
 import { POLLING_INTERVAL } from '@/components/ai/AIAssistant/constants';
+import { t } from '@/helpers/export/util';
 
 /**
  * Generic polling hook for async request status checking
@@ -15,14 +15,7 @@ import { POLLING_INTERVAL } from '@/components/ai/AIAssistant/constants';
  * @returns {Object} { startPolling, stopPolling, isPolling, activeRequestId }
  */
 const usePolling = (options = {}) => {
-  const {
-    pollingInterval = POLLING_INTERVAL,
-    fetchStatus,
-    onResult,
-    onError,
-    onCancelled,
-    onProgress
-  } = options;
+  const { pollingInterval = POLLING_INTERVAL, fetchStatus, onResult, onError, onCancelled, onProgress } = options;
 
   const [isPolling, setIsPolling] = useState(false);
   const [activeRequestId, setActiveRequestId] = useState(null);
@@ -42,63 +35,65 @@ const usePolling = (options = {}) => {
     };
   }, []);
 
-  const poll = useCallback(async (requestId, generation) => {
-    if (!isMountedRef.current || !fetchStatus) return;
+  const poll = useCallback(
+    async (requestId, generation) => {
+      if (!isMountedRef.current || !fetchStatus) return;
 
-    try {
-      const data = await fetchStatus(requestId);
+      try {
+        const data = await fetchStatus(requestId);
 
-      if (!isMountedRef.current || generation !== generationRef.current) return;
+        if (!isMountedRef.current || generation !== generationRef.current) return;
 
-      if (data.result) {
-        // Request completed successfully
-        pollingTimerRef.current = null;
-        setActiveRequestId(null);
-        setIsPolling(false);
-        onResult?.(data.result);
-
-      } else if (data.error) {
-        // Request failed with error
-        pollingTimerRef.current = null;
-        setActiveRequestId(null);
-        setIsPolling(false);
-        onError?.(data.error);
-
-      } else if (data.status === 'cancelled') {
-        // Request was cancelled
-        pollingTimerRef.current = null;
-        setActiveRequestId(null);
-        setIsPolling(false);
-        onCancelled?.();
-
-      } else if (data.status === 'processing') {
-        // Still processing - report progress and continue polling
-        if (data.progress) {
-          onProgress?.(data.progress);
+        if (data.result) {
+          // Request completed successfully
+          pollingTimerRef.current = null;
+          setActiveRequestId(null);
+          setIsPolling(false);
+          onResult?.(data.result);
+        } else if (data.error) {
+          // Request failed with error
+          pollingTimerRef.current = null;
+          setActiveRequestId(null);
+          setIsPolling(false);
+          onError?.(data.error);
+        } else if (data.status === 'cancelled') {
+          // Request was cancelled
+          pollingTimerRef.current = null;
+          setActiveRequestId(null);
+          setIsPolling(false);
+          onCancelled?.();
+        } else if (data.status === 'processing') {
+          // Still processing - report progress and continue polling
+          if (data.progress) {
+            onProgress?.(data.progress);
+          }
+          pollingTimerRef.current = setTimeout(() => poll(requestId, generation), pollingInterval);
         }
-        pollingTimerRef.current = setTimeout(() => poll(requestId, generation), pollingInterval);
+      } catch (error) {
+        if (!isMountedRef.current || generation !== generationRef.current) return;
+
+        console.error('Error polling request status:', error);
+        pollingTimerRef.current = null;
+        setActiveRequestId(null);
+        setIsPolling(false);
+        onError?.(error.message || t('ai-assistant.chat.polling-error'));
       }
+    },
+    [fetchStatus, onResult, onError, onCancelled, onProgress, pollingInterval]
+  );
 
-    } catch (error) {
-      if (!isMountedRef.current || generation !== generationRef.current) return;
-
-      console.error('Error polling request status:', error);
-      pollingTimerRef.current = null;
-      setActiveRequestId(null);
-      setIsPolling(false);
-      onError?.(error.message || t('ai-assistant.chat.polling-error'));
-    }
-  }, [fetchStatus, onResult, onError, onCancelled, onProgress, pollingInterval]);
-
-  const startPolling = useCallback((requestId) => {
-    if (pollingTimerRef.current) {
-      clearTimeout(pollingTimerRef.current);
-    }
-    const generation = ++generationRef.current;
-    setActiveRequestId(requestId);
-    setIsPolling(true);
-    pollingTimerRef.current = setTimeout(() => poll(requestId, generation), pollingInterval);
-  }, [poll, pollingInterval]);
+  const startPolling = useCallback(
+    requestId => {
+      if (pollingTimerRef.current) {
+        clearTimeout(pollingTimerRef.current);
+      }
+      const generation = ++generationRef.current;
+      setActiveRequestId(requestId);
+      setIsPolling(true);
+      pollingTimerRef.current = setTimeout(() => poll(requestId, generation), pollingInterval);
+    },
+    [poll, pollingInterval]
+  );
 
   const stopPolling = useCallback(() => {
     generationRef.current++;

@@ -13,11 +13,7 @@ const STORAGE_KEY = 'aiAssistantChatSize';
  * @returns {Object} { chatSize, handleResize }
  */
 const useChatResize = (options = {}) => {
-  const {
-    defaultWidth = DEFAULT_WIDTH,
-    defaultHeight = DEFAULT_HEIGHT,
-    storageKey = STORAGE_KEY
-  } = options;
+  const { defaultWidth = DEFAULT_WIDTH, defaultHeight = DEFAULT_HEIGHT, storageKey = STORAGE_KEY } = options;
 
   const [chatSize, setChatSize] = useState({
     width: defaultWidth,
@@ -40,11 +36,14 @@ const useChatResize = (options = {}) => {
   }, [storageKey]);
 
   // Handle resize event from ResizableBox
-  const handleResize = useCallback((event, { size }) => {
-    const { width, height } = size;
-    setChatSize({ width, height });
-    localStorage.setItem(storageKey, JSON.stringify({ width, height }));
-  }, [storageKey]);
+  const handleResize = useCallback(
+    (event, { size }) => {
+      const { width, height } = size;
+      setChatSize({ width, height });
+      localStorage.setItem(storageKey, JSON.stringify({ width, height }));
+    },
+    [storageKey]
+  );
 
   return {
     chatSize,

@@ -1,8 +1,10 @@
 import { useState, useCallback, useEffect } from 'react';
+
 import additionalContextService from '../AdditionalContextService';
+
 import { AI_ASSISTANT_EVENTS, ADDITIONAL_CONTEXT_TYPES } from '@/components/ai/AIAssistant/constants';
 import { getWorkspaceId } from '@/helpers/urls';
-import { Events } from "@/services/PageService.js";
+import { Events } from '@/services/PageService.js';
 
 /**
  * Hook for managing additional context (records, documents, attributes, text, scripts)
@@ -14,12 +16,7 @@ import { Events } from "@/services/PageService.js";
  * @returns {Object} Context state and handlers
  */
 const useAdditionalContext = (options = {}) => {
-  const {
-    onContextAdded,
-    onTextReferenceAdded,
-    onScriptContextAdded,
-    setMessage
-  } = options;
+  const { onContextAdded, onTextReferenceAdded, onScriptContextAdded, setMessage } = options;
 
   const [selectedAdditionalContext, setSelectedAdditionalContext] = useState([]);
   const [selectedTextContext, setSelectedTextContext] = useState(null);
@@ -46,9 +43,7 @@ const useAdditionalContext = (options = {}) => {
       }
 
       // Show id-only tag immediately while the proper name is loading
-      setWorkspaceContext(prev =>
-        prev && prev.workspaceId === wsId ? prev : { workspaceId: wsId, workspaceName: wsId }
-      );
+      setWorkspaceContext(prev => (prev && prev.workspaceId === wsId ? prev : { workspaceId: wsId, workspaceName: wsId }));
 
       additionalContextService.loadWorkspaceContext(wsId).then(context => {
         if (!cancelled && context) {
@@ -72,7 +67,7 @@ const useAdditionalContext = (options = {}) => {
   }, []);
 
   // Get additional context data
-  const getAdditionalContext = useCallback(async (contextType) => {
+  const getAdditionalContext = useCallback(async contextType => {
     try {
       switch (contextType) {
         case ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD:
@@ -89,46 +84,49 @@ const useAdditionalContext = (options = {}) => {
   }, []);
 
   // Toggle additional context
-  const toggleAdditionalContext = useCallback(async (contextType, specificRecord = null) => {
-    if (contextType === ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD) {
-      let recordData = specificRecord;
-      if (!recordData) {
-        recordData = await getAdditionalContext(contextType);
+  const toggleAdditionalContext = useCallback(
+    async (contextType, specificRecord = null) => {
+      if (contextType === ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD) {
+        let recordData = specificRecord;
+        if (!recordData) {
+          recordData = await getAdditionalContext(contextType);
+        }
+
+        if (!recordData) return;
+
+        additionalContextService.toggleRecordContext(
+          recordData,
+          additionalContext,
+          setAdditionalContext,
+          selectedAdditionalContext,
+          setSelectedAdditionalContext
+        );
+      } else if (contextType === ADDITIONAL_CONTEXT_TYPES.DOCUMENTS) {
+        let documentData = specificRecord;
+        if (!documentData) return;
+
+        additionalContextService.toggleDocumentContext(
+          documentData,
+          additionalContext,
+          setAdditionalContext,
+          selectedAdditionalContext,
+          setSelectedAdditionalContext
+        );
+      } else if (contextType === ADDITIONAL_CONTEXT_TYPES.ATTRIBUTES) {
+        if (!specificRecord) return;
+
+        setAdditionalContext(prev => ({
+          ...prev,
+          attributes: [...prev.attributes, specificRecord]
+        }));
+
+        if (!selectedAdditionalContext.includes(ADDITIONAL_CONTEXT_TYPES.ATTRIBUTES)) {
+          setSelectedAdditionalContext(prev => [...prev, ADDITIONAL_CONTEXT_TYPES.ATTRIBUTES]);
+        }
       }
-
-      if (!recordData) return;
-
-      additionalContextService.toggleRecordContext(
-        recordData,
-        additionalContext,
-        setAdditionalContext,
-        selectedAdditionalContext,
-        setSelectedAdditionalContext
-      );
-    } else if (contextType === ADDITIONAL_CONTEXT_TYPES.DOCUMENTS) {
-      let documentData = specificRecord;
-      if (!documentData) return;
-
-      additionalContextService.toggleDocumentContext(
-        documentData,
-        additionalContext,
-        setAdditionalContext,
-        selectedAdditionalContext,
-        setSelectedAdditionalContext
-      );
-    } else if (contextType === ADDITIONAL_CONTEXT_TYPES.ATTRIBUTES) {
-      if (!specificRecord) return;
-
-      setAdditionalContext(prev => ({
-        ...prev,
-        attributes: [...prev.attributes, specificRecord]
-      }));
-
-      if (!selectedAdditionalContext.includes(ADDITIONAL_CONTEXT_TYPES.ATTRIBUTES)) {
-        setSelectedAdditionalContext(prev => [...prev, ADDITIONAL_CONTEXT_TYPES.ATTRIBUTES]);
-      }
-    }
-  }, [additionalContext, selectedAdditionalContext, getAdditionalContext]);
+    },
+    [additionalContext, selectedAdditionalContext, getAdditionalContext]
+  );
 
   // Remove selected text context
   const removeSelectedTextContext = useCallback(() => {
@@ -152,7 +150,7 @@ const useAdditionalContext = (options = {}) => {
   }, []);
 
   // Add record to context
-  const addRecordToContext = useCallback((recordData) => {
+  const addRecordToContext = useCallback(recordData => {
     setAdditionalContext(prev => {
       if (additionalContextService.isRecordInContext(recordData.recordRef, prev.records)) {
         return prev;
@@ -161,14 +159,12 @@ const useAdditionalContext = (options = {}) => {
     });
 
     setSelectedAdditionalContext(prev =>
-      prev.includes(ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD)
-        ? prev
-        : [...prev, ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD]
+      prev.includes(ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD) ? prev : [...prev, ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD]
     );
   }, []);
 
   // Add document to context (add-only, no toggle)
-  const addDocumentToContext = useCallback((documentData) => {
+  const addDocumentToContext = useCallback(documentData => {
     setAdditionalContext(prev => {
       if (prev.documents.some(doc => doc.recordRef === documentData.recordRef)) {
         return prev;
@@ -177,15 +173,13 @@ const useAdditionalContext = (options = {}) => {
     });
 
     setSelectedAdditionalContext(prev =>
-      prev.includes(ADDITIONAL_CONTEXT_TYPES.DOCUMENTS)
-        ? prev
-        : [...prev, ADDITIONAL_CONTEXT_TYPES.DOCUMENTS]
+      prev.includes(ADDITIONAL_CONTEXT_TYPES.DOCUMENTS) ? prev : [...prev, ADDITIONAL_CONTEXT_TYPES.DOCUMENTS]
     );
   }, []);
 
   // Handle external context events
   useEffect(() => {
-    const handleAddContext = async (event) => {
+    const handleAddContext = async event => {
       const { contextType, attribute } = event.detail;
       const recordRef = event.detail.recordRef ? event.detail.recordRef.split('-alias-')[0] : null;
 
@@ -218,7 +212,7 @@ const useAdditionalContext = (options = {}) => {
       }
     };
 
-    const handleAddTextReference = (event) => {
+    const handleAddTextReference = event => {
       const { reference, selectedText } = event.detail;
 
       // Update message with reference

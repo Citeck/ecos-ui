@@ -23,11 +23,12 @@ import React, { useCallback } from 'react';
 
 import { AIFieldActions } from './AIQuickActions/components';
 import { FIELD_TYPES } from './AIQuickActions/config';
-import { CONTENT_TYPES } from './constants';
-import { generateScript } from './ScriptAIService';
 import editorContextService from './EditorContextService';
-import { NotificationManager } from '@/services/notifications';
+import { generateScript } from './ScriptAIService';
+import { CONTENT_TYPES } from './constants';
+
 import { t } from '@/helpers/export/util';
+import { NotificationManager } from '@/services/notifications';
 
 /**
  * ScriptEditorAIButton using Universal AIFieldActions
@@ -65,53 +66,47 @@ const ScriptEditorAIButton = ({
    * Handle AI generation request from AIFieldActions
    * This is called when user triggers generation via quick action or prompt
    */
-  const handleGenerateRequest = useCallback(async ({
-    prompt,
-    quickActionId,
-    currentValue,
-    conversationId,
-    onRequestId
-  }) => {
-    const { ecosType: resolvedEcosType, processRef: resolvedProcessRef } = getResolvedContext();
+  const handleGenerateRequest = useCallback(
+    async ({ prompt, quickActionId, currentValue, conversationId, onRequestId }) => {
+      const { ecosType: resolvedEcosType, processRef: resolvedProcessRef } = getResolvedContext();
 
-    // Serialize form context to JSON string for backend
-    let metadata;
-    if (formContext) {
-      try {
-        metadata = JSON.stringify(formContext);
-      } catch (error) {
-        console.error('[ScriptEditorAIButton] Failed to serialize formContext:', error);
-        NotificationManager.error(
-          t('ai-actions.error.form-context'),
-          t('ai-actions.error.title', 'Error')
-        );
-        return { generatedValue: '', explanation: '', originalValue: currentValue };
+      // Serialize form context to JSON string for backend
+      let metadata;
+      if (formContext) {
+        try {
+          metadata = JSON.stringify(formContext);
+        } catch (error) {
+          console.error('[ScriptEditorAIButton] Failed to serialize formContext:', error);
+          NotificationManager.error(t('ai-actions.error.form-context'), t('ai-actions.error.title', 'Error'));
+          return { generatedValue: '', explanation: '', originalValue: currentValue };
+        }
       }
-    }
 
-    const result = await generateScript({
-      prompt,
-      quickAction: quickActionId,
-      currentScript: currentValue,
-      contextType: scriptContextType,
-      recordRef,
-      ecosType: resolvedEcosType,
-      processRef: resolvedProcessRef,
-      metadata: metadata,
-      field: fieldInfo,
-      conversationId,
-      // Pass through onRequestId for cancellation support
-      onRequestId,
-    });
+      const result = await generateScript({
+        prompt,
+        quickAction: quickActionId,
+        currentScript: currentValue,
+        contextType: scriptContextType,
+        recordRef,
+        ecosType: resolvedEcosType,
+        processRef: resolvedProcessRef,
+        metadata: metadata,
+        field: fieldInfo,
+        conversationId,
+        // Pass through onRequestId for cancellation support
+        onRequestId
+      });
 
-    // Return unified result format for AIInlineResult with CodeDiffPreview
-    return {
-      generatedValue: result.modifiedScript,
-      explanation: result.explanation,
-      originalValue: result.originalScript || currentValue,
-      contextType: result.contextType || scriptContextType
-    };
-  }, [scriptContextType, recordRef, getResolvedContext, formContext, fieldInfo]);
+      // Return unified result format for AIInlineResult with CodeDiffPreview
+      return {
+        generatedValue: result.modifiedScript,
+        explanation: result.explanation,
+        originalValue: result.originalScript || currentValue,
+        contextType: result.contextType || scriptContextType
+      };
+    },
+    [scriptContextType, recordRef, getResolvedContext, formContext, fieldInfo]
+  );
 
   return (
     <AIFieldActions

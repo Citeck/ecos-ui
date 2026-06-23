@@ -1,3 +1,10 @@
+/*
+ * MUST be the first import: configures @citeck/records-core (http/i18n/workspace)
+ * as a side-effect during module evaluation, before the rest of the app graph is
+ * pulled in. See services/records/recordsBootstrap.ts.
+ */
+import './services/records/recordsBootstrap';
+
 import 'regenerator-runtime/runtime';
 import 'moment/dist/locale/ru';
 import 'moment/dist/locale/en-gb';
@@ -18,8 +25,6 @@ import { initAppRequest } from './actions/app';
 import { setIsAuthenticated } from './actions/user';
 import { loadThemeRequest } from './actions/view';
 import { configureAPI } from './api';
-import App from '@/components/layout/App';
-import IdleTimer from '@/components/common/IdleTimer';
 import { RESET_AUTH_STATE_EVENT, emitter } from './helpers/ecosFetch';
 import { registerGlobalConstants } from './helpers/registerGlobalConstants';
 import { getCurrentLocale, IS_TEST_ENV, isMobileAppWebView, isMobileDevice } from './helpers/util';
@@ -27,11 +32,12 @@ import { i18nInit } from './i18n';
 import plugins from './plugins';
 import { register as registerServiceWorker } from './serviceWorkerRegistration';
 import authService from './services/auth';
-import { bootstrapRecords } from './services/records/recordsBootstrap';
 import configureStore, { getHistory } from './store';
 
-import PageLoader from '@/components/layout/PageLoader';
+import IdleTimer from '@/components/common/IdleTimer';
 import { registerAllActions } from '@/components/core/Records/actions/actions';
+import App from '@/components/layout/App';
+import PageLoader from '@/components/layout/PageLoader';
 import { NotificationManager } from '@/services/notifications';
 
 // Files are included in the build only if imported from here
@@ -68,8 +74,7 @@ import './services/EcosModules';
 
 import './styles/index.scss';
 
-/* wire @citeck/records-core to the web platform (http, i18n, workspace, cipher) */
-bootstrapRecords();
+/* @citeck/records-core is configured via the first-import side-effect above */
 
 /* expose core constants on window.Citeck.constants for legacy consumers */
 registerGlobalConstants();

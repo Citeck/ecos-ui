@@ -1,11 +1,11 @@
 import React from 'react';
 
-import { t } from '@/helpers/export/util';
-import { Icon } from '@/components/common';
 import { getContextArtifactIcon } from '@/components/ai/AIAssistant/constants';
+import { Icon } from '@/components/common';
+import { t } from '@/helpers/export/util';
 import { getTextByLocale } from '@/helpers/util';
 
-const getArtifactUrl = (ref) => {
+const getArtifactUrl = ref => {
   if (!ref) return null;
   return `/v2/dashboard?recordRef=${encodeURIComponent(ref)}`;
 };
@@ -27,19 +27,14 @@ const ContextArtifactsList = ({ contextArtifacts }) => {
         <span>{t('ai-assistant.context-artifacts.title')}</span>
       </div>
       <div className="ai-assistant-chat__context-artifacts-list">
-        {contextArtifacts.map((artifact) => {
+        {contextArtifacts.map(artifact => {
           const url = getArtifactUrl(artifact.ref);
           const displayText = getTextByLocale(artifact.displayName) || artifact.ref;
           return (
             <div key={artifact.ref || artifact.displayName} className="ai-assistant-chat__context-artifact-item">
               <Icon className={`fa ${getContextArtifactIcon(artifact.type)}`} />
               {url ? (
-                <a
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="ai-assistant-chat__context-artifact-link"
-                >
+                <a href={url} target="_blank" rel="noopener noreferrer" className="ai-assistant-chat__context-artifact-link">
                   {displayText}
                 </a>
               ) : (

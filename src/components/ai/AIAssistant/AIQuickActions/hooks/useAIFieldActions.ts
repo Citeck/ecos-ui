@@ -10,8 +10,9 @@ import uuidV4 from 'uuidv4';
 import aiAssistantService from '../../AIAssistantService';
 import { generateText, cancelRequest as cancelTextRequest } from '../../TextAIService';
 import { getFieldConfig, getAvailableActions, RESULT_MODES, FieldActionConfig, QuickAction } from '../config/fieldActionConfigs';
-import { NotificationManager } from '@/services/notifications';
+
 import { t } from '@/helpers/export/util';
+import { NotificationManager } from '@/services/notifications';
 
 /**
  * Result state
@@ -188,10 +189,7 @@ const useAIFieldActions = ({
   const openActionsBar = useCallback(() => {
     if (disabled || !isAvailable) {
       if (!isAvailable) {
-        NotificationManager.error(
-          t('ai-actions.error.unavailable', 'AI Assistant is unavailable'),
-          t('ai-actions.error.title', 'Error')
-        );
+        NotificationManager.error(t('ai-actions.error.unavailable', 'AI Assistant is unavailable'), t('ai-actions.error.title', 'Error'));
       }
       return;
     }
@@ -266,123 +264,129 @@ const useAIFieldActions = ({
   /**
    * Generate content using AI
    */
-  const generate = useCallback(async ({ prompt, quickActionId }: { prompt?: string; quickActionId?: string } = {}) => {
-    if (isGenerating || (!prompt?.trim() && !quickActionId)) return;
+  const generate = useCallback(
+    async ({ prompt, quickActionId }: { prompt?: string; quickActionId?: string } = {}) => {
+      if (isGenerating || (!prompt?.trim() && !quickActionId)) return;
 
-    // Reset cancelled flag at start of new generation
-    isCancelledRef.current = false;
-    setIsGenerating(true);
-    activeRequestIdRef.current = null;
-
-    // Show result popup immediately with loading state (hide actions bar)
-    setIsActionsBarVisible(false);
-    setIsResultVisible(true);
-
-    try {
-      const currentVal = typeof getValue === 'function' ? getValue() : '';
-
-      // If custom handler provided, use it
-      if (typeof onGenerateRequest === 'function') {
-        const generatedResult = await onGenerateRequest({
-          prompt,
-          quickActionId,
-          currentValue: currentVal,
-          fieldType,
-          contextType,
-          recordRef,
-          conversationId,
-          additionalContext,
-          // Pass callback to get requestId immediately for cancellation
-          onRequestId: (requestId: string) => {
-            activeRequestIdRef.current = requestId;
-          }
-        });
-
-        // Only update state if not cancelled and still mounted
-        if (isMountedRef.current && !isCancelledRef.current) {
-          // Save initial generation data for "Another variant"
-          if (!initialGenerationRef.current) {
-            initialGenerationRef.current = {
-              originalValue: currentVal,
-              quickActionId
-            };
-          }
-
-          setResult({
-            originalValue: currentVal,
-            generatedValue: generatedResult.generatedValue || generatedResult.modifiedScript || '',
-            explanation: generatedResult.explanation || ''
-          });
-        }
-      } else {
-        // Default: use TextAIService for text generation
-        const response = await generateText({
-          prompt: prompt || getDefaultPromptForAction(quickActionId, fieldType),
-          quickAction: quickActionId,
-          currentText: currentVal,
-          selectedText,
-          contentType: contextType,
-          fieldType,
-          recordRef,
-          conversationId: conversationId || undefined
-        });
-
-        // Only update state if not cancelled and still mounted
-        if (isMountedRef.current && !isCancelledRef.current) {
-          // Save initial generation data for "Another variant"
-          if (!initialGenerationRef.current) {
-            initialGenerationRef.current = {
-              originalValue: currentVal,
-              quickActionId
-            };
-          }
-
-          setResult({
-            originalValue: currentVal,
-            generatedValue: response.generatedText || '',
-            explanation: response.explanation || ''
-          });
-        }
-      }
-    } catch (error) {
-      // Check if this is a cancellation error (user cancelled or request was cancelled)
-      const isCancellationError = isCancelledRef.current ||
-        (error instanceof Error && error.message?.toLowerCase().includes('cancelled'));
-
-      // Only log and show error if not a cancellation
-      if (!isCancellationError) {
-        console.error('AI generation error:', error);
-        if (isMountedRef.current) {
-          // Close the result popup on error
-          setIsResultVisible(false);
-          NotificationManager.error(
-            t('ai-actions.error.generation', 'Failed to generate content'),
-            t('ai-actions.error.title', 'Error')
-          );
-        }
-      }
-    } finally {
-      if (isMountedRef.current && !isCancelledRef.current) {
-        setIsGenerating(false);
-      }
-      // Clear request ID when generation completes
+      // Reset cancelled flag at start of new generation
+      isCancelledRef.current = false;
+      setIsGenerating(true);
       activeRequestIdRef.current = null;
-    }
-  }, [isGenerating, getValue, onGenerateRequest, fieldType, contextType, recordRef, conversationId, additionalContext, selectedText]);
+
+      // Show result popup immediately with loading state (hide actions bar)
+      setIsActionsBarVisible(false);
+      setIsResultVisible(true);
+
+      try {
+        const currentVal = typeof getValue === 'function' ? getValue() : '';
+
+        // If custom handler provided, use it
+        if (typeof onGenerateRequest === 'function') {
+          const generatedResult = await onGenerateRequest({
+            prompt,
+            quickActionId,
+            currentValue: currentVal,
+            fieldType,
+            contextType,
+            recordRef,
+            conversationId,
+            additionalContext,
+            // Pass callback to get requestId immediately for cancellation
+            onRequestId: (requestId: string) => {
+              activeRequestIdRef.current = requestId;
+            }
+          });
+
+          // Only update state if not cancelled and still mounted
+          if (isMountedRef.current && !isCancelledRef.current) {
+            // Save initial generation data for "Another variant"
+            if (!initialGenerationRef.current) {
+              initialGenerationRef.current = {
+                originalValue: currentVal,
+                quickActionId
+              };
+            }
+
+            setResult({
+              originalValue: currentVal,
+              generatedValue: generatedResult.generatedValue || generatedResult.modifiedScript || '',
+              explanation: generatedResult.explanation || ''
+            });
+          }
+        } else {
+          // Default: use TextAIService for text generation
+          const response = await generateText({
+            prompt: prompt || getDefaultPromptForAction(quickActionId, fieldType),
+            quickAction: quickActionId,
+            currentText: currentVal,
+            selectedText,
+            contentType: contextType,
+            fieldType,
+            recordRef,
+            conversationId: conversationId || undefined
+          });
+
+          // Only update state if not cancelled and still mounted
+          if (isMountedRef.current && !isCancelledRef.current) {
+            // Save initial generation data for "Another variant"
+            if (!initialGenerationRef.current) {
+              initialGenerationRef.current = {
+                originalValue: currentVal,
+                quickActionId
+              };
+            }
+
+            setResult({
+              originalValue: currentVal,
+              generatedValue: response.generatedText || '',
+              explanation: response.explanation || ''
+            });
+          }
+        }
+      } catch (error) {
+        // Check if this is a cancellation error (user cancelled or request was cancelled)
+        const isCancellationError =
+          isCancelledRef.current || (error instanceof Error && error.message?.toLowerCase().includes('cancelled'));
+
+        // Only log and show error if not a cancellation
+        if (!isCancellationError) {
+          console.error('AI generation error:', error);
+          if (isMountedRef.current) {
+            // Close the result popup on error
+            setIsResultVisible(false);
+            NotificationManager.error(t('ai-actions.error.generation', 'Failed to generate content'), t('ai-actions.error.title', 'Error'));
+          }
+        }
+      } finally {
+        if (isMountedRef.current && !isCancelledRef.current) {
+          setIsGenerating(false);
+        }
+        // Clear request ID when generation completes
+        activeRequestIdRef.current = null;
+      }
+    },
+    [isGenerating, getValue, onGenerateRequest, fieldType, contextType, recordRef, conversationId, additionalContext, selectedText]
+  );
 
   /**
    * Handle quick action click
    */
-  const handleQuickAction = useCallback((actionId: string) => {
-    generate({ quickActionId: actionId });
-  }, [generate]);
+  const handleQuickAction = useCallback(
+    (actionId: string) => {
+      generate({ quickActionId: actionId });
+    },
+    [generate]
+  );
 
   /**
    * Handle prompt submit
    */
-  const handlePromptSubmit = useCallback((prompt: string) => {
-    generate({ prompt });
-  }, [generate]);
+  const handlePromptSubmit = useCallback(
+    (prompt: string) => {
+      generate({ prompt });
+    },
+    [generate]
+  );
 
   /**
    * Apply the generated result
@@ -399,10 +403,7 @@ const useAIFieldActions = ({
       closeResult();
     } catch (error) {
       console.error('Error applying result:', error);
-      NotificationManager.error(
-        t('ai-actions.error.apply', 'Failed to apply changes'),
-        t('ai-actions.error.title', 'Error')
-      );
+      NotificationManager.error(t('ai-actions.error.apply', 'Failed to apply changes'), t('ai-actions.error.title', 'Error'));
     } finally {
       setIsApplying(false);
     }
@@ -411,84 +412,87 @@ const useAIFieldActions = ({
   /**
    * Retry with new prompt (using current generated value as base)
    */
-  const retryGeneration = useCallback(async (newPrompt: string) => {
-    if (!newPrompt?.trim() || isGenerating) return;
+  const retryGeneration = useCallback(
+    async (newPrompt: string) => {
+      if (!newPrompt?.trim() || isGenerating) return;
 
-    // Reset cancelled flag at start of new generation
-    isCancelledRef.current = false;
-    setIsGenerating(true);
-    activeRequestIdRef.current = null;
-
-    try {
-      // Use current generated value as base for further edits
-      const baseValue = result.generatedValue || result.originalValue;
-
-      if (typeof onGenerateRequest === 'function') {
-        const generatedResult = await onGenerateRequest({
-          prompt: newPrompt,
-          currentValue: baseValue,
-          fieldType,
-          contextType,
-          recordRef,
-          conversationId,
-          additionalContext,
-          // Pass callback to get requestId immediately for cancellation
-          onRequestId: (requestId: string) => {
-            activeRequestIdRef.current = requestId;
-          }
-        });
-
-        // Only update state if not cancelled and still mounted
-        if (isMountedRef.current && !isCancelledRef.current) {
-          setResult({
-            originalValue: baseValue,
-            generatedValue: generatedResult.generatedValue || generatedResult.modifiedScript || '',
-            explanation: generatedResult.explanation || ''
-          });
-        }
-      } else {
-        // Default: use TextAIService for text generation
-        const response = await generateText({
-          prompt: newPrompt,
-          currentText: baseValue,
-          selectedText,
-          contentType: contextType,
-          fieldType,
-          recordRef,
-          conversationId: conversationId || undefined
-        });
-
-        // Only update state if not cancelled and still mounted
-        if (isMountedRef.current && !isCancelledRef.current) {
-          setResult({
-            originalValue: baseValue,
-            generatedValue: response.generatedText || '',
-            explanation: response.explanation || ''
-          });
-        }
-      }
-    } catch (error) {
-      // Check if this is a cancellation error
-      const isCancellationError = isCancelledRef.current ||
-        (error instanceof Error && error.message?.toLowerCase().includes('cancelled'));
-
-      if (!isCancellationError) {
-        console.error('AI retry error:', error);
-        if (isMountedRef.current) {
-          NotificationManager.error(
-            (error as Error).message || t('ai-actions.error.generation', 'Failed to generate content'),
-            t('ai-actions.error.title', 'Error')
-          );
-        }
-      }
-    } finally {
-      if (isMountedRef.current && !isCancelledRef.current) {
-        setIsGenerating(false);
-      }
-      // Clear request ID when generation completes
+      // Reset cancelled flag at start of new generation
+      isCancelledRef.current = false;
+      setIsGenerating(true);
       activeRequestIdRef.current = null;
-    }
-  }, [isGenerating, result, onGenerateRequest, fieldType, contextType, recordRef, conversationId, additionalContext, selectedText]);
+
+      try {
+        // Use current generated value as base for further edits
+        const baseValue = result.generatedValue || result.originalValue;
+
+        if (typeof onGenerateRequest === 'function') {
+          const generatedResult = await onGenerateRequest({
+            prompt: newPrompt,
+            currentValue: baseValue,
+            fieldType,
+            contextType,
+            recordRef,
+            conversationId,
+            additionalContext,
+            // Pass callback to get requestId immediately for cancellation
+            onRequestId: (requestId: string) => {
+              activeRequestIdRef.current = requestId;
+            }
+          });
+
+          // Only update state if not cancelled and still mounted
+          if (isMountedRef.current && !isCancelledRef.current) {
+            setResult({
+              originalValue: baseValue,
+              generatedValue: generatedResult.generatedValue || generatedResult.modifiedScript || '',
+              explanation: generatedResult.explanation || ''
+            });
+          }
+        } else {
+          // Default: use TextAIService for text generation
+          const response = await generateText({
+            prompt: newPrompt,
+            currentText: baseValue,
+            selectedText,
+            contentType: contextType,
+            fieldType,
+            recordRef,
+            conversationId: conversationId || undefined
+          });
+
+          // Only update state if not cancelled and still mounted
+          if (isMountedRef.current && !isCancelledRef.current) {
+            setResult({
+              originalValue: baseValue,
+              generatedValue: response.generatedText || '',
+              explanation: response.explanation || ''
+            });
+          }
+        }
+      } catch (error) {
+        // Check if this is a cancellation error
+        const isCancellationError =
+          isCancelledRef.current || (error instanceof Error && error.message?.toLowerCase().includes('cancelled'));
+
+        if (!isCancellationError) {
+          console.error('AI retry error:', error);
+          if (isMountedRef.current) {
+            NotificationManager.error(
+              (error as Error).message || t('ai-actions.error.generation', 'Failed to generate content'),
+              t('ai-actions.error.title', 'Error')
+            );
+          }
+        }
+      } finally {
+        if (isMountedRef.current && !isCancelledRef.current) {
+          setIsGenerating(false);
+        }
+        // Clear request ID when generation completes
+        activeRequestIdRef.current = null;
+      }
+    },
+    [isGenerating, result, onGenerateRequest, fieldType, contextType, recordRef, conversationId, additionalContext, selectedText]
+  );
 
   /**
    * Request another variant (regenerate using original value and quickAction)
@@ -552,8 +556,7 @@ const useAIFieldActions = ({
       }
     } catch (error) {
       // Check if this is a cancellation error
-      const isCancellationError = isCancelledRef.current ||
-        (error instanceof Error && error.message?.toLowerCase().includes('cancelled'));
+      const isCancellationError = isCancelledRef.current || (error instanceof Error && error.message?.toLowerCase().includes('cancelled'));
 
       if (!isCancellationError) {
         console.error('AI another variant error:', error);
@@ -604,14 +607,14 @@ const useAIFieldActions = ({
  */
 function getDefaultPromptForAction(actionId: string | undefined, fieldType: string): string {
   const prompts: Record<string, string> = {
-    'improve': t('ai-actions.prompt.improve', 'Improve this text'),
-    'translate': t('ai-actions.prompt.translate', 'Translate to English'),
-    'expand': t('ai-actions.prompt.expand', 'Expand and add more details'),
-    'summarize': t('ai-actions.prompt.summarize', 'Summarize this text'),
+    improve: t('ai-actions.prompt.improve', 'Improve this text'),
+    translate: t('ai-actions.prompt.translate', 'Translate to English'),
+    expand: t('ai-actions.prompt.expand', 'Expand and add more details'),
+    summarize: t('ai-actions.prompt.summarize', 'Summarize this text'),
     'fix-grammar': t('ai-actions.prompt.fix-grammar', 'Fix grammar and spelling'),
-    'explain': t('ai-actions.prompt.explain', 'Explain what this code does'),
-    'fix': t('ai-actions.prompt.fix', 'Find and fix errors in this code'),
-    'optimize': t('ai-actions.prompt.optimize', 'Optimize this code'),
+    explain: t('ai-actions.prompt.explain', 'Explain what this code does'),
+    fix: t('ai-actions.prompt.fix', 'Find and fix errors in this code'),
+    optimize: t('ai-actions.prompt.optimize', 'Optimize this code'),
     'add-comments': t('ai-actions.prompt.add-comments', 'Add comments to this code')
   };
 

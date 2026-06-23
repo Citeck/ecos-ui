@@ -7,14 +7,13 @@ import isFunction from 'lodash/isFunction';
 import React from 'react';
 import { Alert } from 'reactstrap';
 
-import { EcosFormBuilderUtils } from '@/components/forms/EcosForm';
-import EcosFormBuilderModal from '@/components/forms/EcosForm/builder/EcosFormBuilderModal';
-import { ActionTypes } from '@/components/core/Records/actions/constants';
+import { RecordActionsApi } from '@/api/recordActions';
 import { EcosModal, InfoText } from '@/components/common';
 import { Btn } from '@/components/common/btns';
 import { Field, Input, SelectJournal } from '@/components/common/form';
-
-import { RecordActionsApi } from '@/api/recordActions';
+import { ActionTypes } from '@/components/core/Records/actions/constants';
+import { EcosFormBuilderUtils } from '@/components/forms/EcosForm';
+import EcosFormBuilderModal from '@/components/forms/EcosForm/builder/EcosFormBuilderModal';
 import { pagesStore } from '@/helpers/indexedDB';
 import { goToJournalsPage } from '@/helpers/urls';
 import { t } from '@/helpers/util';

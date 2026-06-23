@@ -7,18 +7,17 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Col, Container, Row } from 'reactstrap';
 
-import BPMNDesigner from '@/components/editors/BPMNDesigner';
-import DMNDesigner from '@/components/editors/DMNDesigner';
-import { ActionTypes } from '@/components/core/Records/actions/constants';
-import { IcoBtn } from '@/components/common/btns';
-import { Caption } from '@/components/common/form';
-
 import JournalViewer from './JournalViewer';
 
 import { AdminMenu } from './';
 
 import { fetchGroupSectionList } from '@/actions/adminSection';
 import { execJournalAction } from '@/actions/journals';
+import { IcoBtn } from '@/components/common/btns';
+import { Caption } from '@/components/common/form';
+import { ActionTypes } from '@/components/core/Records/actions/constants';
+import BPMNDesigner from '@/components/editors/BPMNDesigner';
+import DMNDesigner from '@/components/editors/DMNDesigner';
 import { wrapArgs } from '@/helpers/redux';
 import { showModalJson } from '@/helpers/tools';
 import { getEnabledWorkspaces, t } from '@/helpers/util';

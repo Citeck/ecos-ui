@@ -1,12 +1,13 @@
+import get from 'lodash/get';
 import React from 'react';
 import { connect } from 'react-redux';
-import get from 'lodash/get';
 
-import { t } from '@/helpers/util';
-import { treeMoveItem, treeSetDndIndex } from '@/helpers/arrayOfObjects';
+import { Labels } from './utils';
+
 import { getGroupPriority, setGroupPriority } from '@/actions/menuSettings';
 import { Loader, Tree } from '@/components/common';
-import { Labels } from './utils';
+import { treeMoveItem, treeSetDndIndex } from '@/helpers/arrayOfObjects';
+import { t } from '@/helpers/util';
 
 import './style.scss';
 
@@ -55,7 +56,4 @@ const mapDispatchToProps = dispatch => ({
   getGroupPriority: () => dispatch(getGroupPriority())
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(EditorGroupPriority);
+export default connect(mapStateToProps, mapDispatchToProps)(EditorGroupPriority);

@@ -4,12 +4,13 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import React from 'react';
 
-import { t } from '@/helpers/export/util';
-import { MLText, SelectJournal } from '@/components/common/form';
 import { Field } from '../Field';
 import { Labels } from '../utils';
 
 import Base from './Base';
+
+import { MLText, SelectJournal } from '@/components/common/form';
+import { t } from '@/helpers/export/util';
 
 export default class StartWorkflow extends Base {
   type = MenuSettings.ItemTypes.START_WORKFLOW;

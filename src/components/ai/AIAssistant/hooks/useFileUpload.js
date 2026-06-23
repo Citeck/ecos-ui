@@ -9,7 +9,6 @@ import {
   isExtensionBlocked,
   hasValidDraggedFile
 } from '@/components/ai/AIAssistant/constants';
-
 import ecosXhr from '@/helpers/ecosXhr';
 import { t } from '@/helpers/export/util';
 import { NotificationManager } from '@/services/notifications';
@@ -273,7 +272,10 @@ const useFileUpload = (options = {}) => {
           } catch (error) {
             updateUploadingFiles(prev => prev.filter(f => f.id !== fileData.id));
             console.error('Error uploading file:', fileData.name, error);
-            NotificationManager.error(t('ai-assistant.file-upload.error', { name: fileData.name, message: error.message }), t('ai-assistant.file-upload.title'));
+            NotificationManager.error(
+              t('ai-assistant.file-upload.error', { name: fileData.name, message: error.message }),
+              t('ai-assistant.file-upload.title')
+            );
             onUploadError?.(error, fileData);
           }
         }

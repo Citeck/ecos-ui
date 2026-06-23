@@ -5,17 +5,17 @@
  * Supports smart positioning with automatic flip when near viewport edges
  */
 
+import classNames from 'classnames';
 import React, { useCallback, useEffect, useMemo, useRef, useState, ReactNode } from 'react';
 import ReactDOM from 'react-dom';
-import classNames from 'classnames';
 
-import AIFieldTrigger from './AIFieldTrigger';
+import { RESULT_MODES, TRIGGER_POSITIONS, getContentType, ContentType } from '../config/fieldActionConfigs';
+import useAIFieldActions, { GenerateRequestParams, GenerateResult } from '../hooks/useAIFieldActions';
+
 import AIActionsBar from './AIActionsBar';
+import AIFieldTrigger from './AIFieldTrigger';
 import AIInlineResult from './AIInlineResult';
 import AIPopperWrapper from './AIPopperWrapper';
-import useAIFieldActions from '../hooks/useAIFieldActions';
-import { RESULT_MODES, TRIGGER_POSITIONS, getContentType, ContentType } from '../config/fieldActionConfigs';
-import { GenerateRequestParams, GenerateResult } from '../hooks/useAIFieldActions';
 
 type PositionVariant = 'text-field' | 'script-editor' | 'lexical';
 
@@ -138,10 +138,7 @@ const AIFieldActions: React.FC<AIFieldActionsProps> = ({
   }, [onRegisterClose, cancelGeneration]);
 
   // Determine content type - use prop override or get from config
-  const contentType = useMemo(
-    () => contentTypeProp || getContentType(fieldType),
-    [contentTypeProp, fieldType]
-  );
+  const contentType = useMemo(() => contentTypeProp || getContentType(fieldType), [contentTypeProp, fieldType]);
 
   // Handle trigger click
   const handleTriggerClick = useCallback(() => {
@@ -158,15 +155,11 @@ const AIFieldActions: React.FC<AIFieldActionsProps> = ({
 
   // Get placeholder text
   const placeholder = useMemo(() => {
-    return typeof fieldConfig.getPlaceholder === 'function'
-      ? fieldConfig.getPlaceholder()
-      : '';
+    return typeof fieldConfig.getPlaceholder === 'function' ? fieldConfig.getPlaceholder() : '';
   }, [fieldConfig]);
 
   // Show diff for textarea fields only when content actually changed (ignoring leading/trailing whitespace)
-  const showDiff =
-    fieldConfig.resultMode === RESULT_MODES.INLINE_DIFF &&
-    result.originalValue?.trim() !== result.generatedValue?.trim();
+  const showDiff = fieldConfig.resultMode === RESULT_MODES.INLINE_DIFF && result.originalValue?.trim() !== result.generatedValue?.trim();
 
   // Calculate content metrics for adaptive popup width
   const resultContentMetrics = useMemo(() => {
@@ -292,11 +285,7 @@ const AIFieldActions: React.FC<AIFieldActionsProps> = ({
     return content;
   }
 
-  return (
-    <div className={classNames('ai-field-actions', className)}>
-      {content}
-    </div>
-  );
+  return <div className={classNames('ai-field-actions', className)}>{content}</div>;
 };
 
 export default AIFieldActions;

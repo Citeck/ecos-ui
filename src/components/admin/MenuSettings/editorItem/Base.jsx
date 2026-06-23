@@ -1,17 +1,17 @@
+import { TMP_ICON_EMPTY } from '@citeck/constants';
+import { MenuSettings as MS } from '@citeck/constants/menu';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import PropTypes from 'prop-types';
 import React from 'react';
 
+import { Field } from '../Field';
+import { Labels } from '../utils';
+
 import IconSelect from '@/components/IconSelect';
 import { EcosModal } from '@/components/common';
 import EcosIcon from '@/components/common/EcosIcon';
 import { Btn } from '@/components/common/btns';
-import { Field } from '../Field';
-import { Labels } from '../utils';
-
-import { TMP_ICON_EMPTY } from '@citeck/constants';
-import { MenuSettings as MS } from '@citeck/constants/menu';
 import { extractLabel, isFilledLabelWeak, t } from '@/helpers/util';
 import MenuSettingsService from '@/services/MenuSettingsService';
 

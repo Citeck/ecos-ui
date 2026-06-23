@@ -1,4 +1,5 @@
 import _ from 'lodash';
+
 import { TYPE_PERM_READ } from '@/components/admin/TypePermissions/constants';
 
 export const formatPermissions = (permissions, roles, statuses, options = {}) => {

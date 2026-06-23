@@ -12,12 +12,6 @@ import isObject from 'lodash/isObject';
 import isString from 'lodash/isString';
 import set from 'lodash/set';
 
-import PageService from '@/services/PageService';
-import PageTabList from '@/services/pageTabs/PageTabList';
-import EcosFormUtils from '@/components/forms/EcosForm/EcosFormUtils';
-import { DialogManager } from '@/components/common/dialogs';
-import { EVENTS } from '@/components/dashboard/widgets/BaseWidget';
-
 import RecordsIterator from './RecordsIterator';
 import actionsRegistry from './actionsRegistry';
 import ActionsExecutor from './handler/ActionsExecutor';
@@ -27,9 +21,14 @@ import actionsApi from './recordActionsApi';
 import { DetailActionResult, getActionResultTitle, getRef, notifyFailure, notifySuccess } from './util/actionUtils';
 import { ResultTypes } from './util/constants';
 
+import DialogManager from '@/components/common/dialogs/Manager';
+import { EVENTS } from '@/components/dashboard/widgets/BaseWidget';
+import EcosFormUtils from '@/components/forms/EcosForm/EcosFormUtils';
 import { getFitnesseInlineToolsClassName } from '@/helpers/tools';
 import { getWorkspaceId } from '@/helpers/urls';
 import { beArray, extractLabel, getMLValue, getModule, t } from '@/helpers/util';
+import PageService from '@/services/PageService';
+import PageTabList from '@/services/pageTabs/PageTabList';
 
 const ACTION_CONTEXT_KEY = '__act_ctx__';
 

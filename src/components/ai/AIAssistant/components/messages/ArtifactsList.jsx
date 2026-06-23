@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { t } from '@/helpers/export/util';
 import { Icon } from '@/components/common';
+import { t } from '@/helpers/export/util';
 
 /**
  * Shared component for rendering a list of generated artifacts.
@@ -23,17 +23,10 @@ const ArtifactsList = ({ artifacts }) => {
         {artifacts.map((artifact, index) => (
           <div key={index} className="ai-assistant-chat__artifact-item">
             <Icon className={`fa ${artifact.type?.icon || ''}`} />
-            <a
-              href={artifact.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="ai-assistant-chat__artifact-link"
-            >
+            <a href={artifact.url} target="_blank" rel="noopener noreferrer" className="ai-assistant-chat__artifact-link">
               {artifact.name}
             </a>
-            <span className="ai-assistant-chat__artifact-type">
-              {artifact.type?.displayName || ''}
-            </span>
+            <span className="ai-assistant-chat__artifact-type">{artifact.type?.displayName || ''}</span>
           </div>
         ))}
       </div>

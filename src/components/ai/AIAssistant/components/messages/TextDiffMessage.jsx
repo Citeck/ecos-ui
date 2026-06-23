@@ -1,6 +1,7 @@
 import React from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+
 import DiffViewer from '../../DiffViewer';
 
 /**
@@ -12,13 +13,7 @@ import DiffViewer from '../../DiffViewer';
  * @param {Function} props.onApplyChanges - Apply changes handler
  * @param {boolean} props.isApplying - Whether changes are being applied
  */
-const TextDiffMessage = ({
-  text,
-  messageData,
-  markdownComponents,
-  onApplyChanges,
-  isApplying
-}) => {
+const TextDiffMessage = ({ text, messageData, markdownComponents, onApplyChanges, isApplying }) => {
   if (!messageData) return null;
 
   return (

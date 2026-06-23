@@ -1,8 +1,10 @@
-import aiAssistantService from "./AIAssistantService";
+// Lazy import breaks the AIAssistantService <-> EditorContextService circular dependency.
+// `aiAssistantService` is only used at call-time (below), so deferring it is safe.
+const checkAiAvailability = () => import('./AIAssistantService').then(({ default: service }) => service.checkAvailability());
 
 export const CONTEXT_TYPES = {
-  BPMN_EDITOR: "BPMN_EDITOR",
-  UNIVERSAL: "UNIVERSAL"
+  BPMN_EDITOR: 'BPMN_EDITOR',
+  UNIVERSAL: 'UNIVERSAL'
 };
 
 class AIAssistantContext {
@@ -20,7 +22,7 @@ class AIAssistantContext {
 
     if (wasContextEmpty) {
       setTimeout(() => {
-        aiAssistantService.checkAvailability();
+        checkAiAvailability();
       }, 100);
     }
   }
@@ -30,7 +32,7 @@ class AIAssistantContext {
     this.currentContext = null;
 
     if (hadContext) {
-      aiAssistantService.checkAvailability();
+      checkAiAvailability();
     }
   }
 
@@ -57,7 +59,7 @@ class AIAssistantContext {
 
   callHandler(handlerName, ...args) {
     const handler = this.getHandler(handlerName);
-    if (handler && typeof handler === "function") {
+    if (handler && typeof handler === 'function') {
       return handler(...args);
     }
     return null;

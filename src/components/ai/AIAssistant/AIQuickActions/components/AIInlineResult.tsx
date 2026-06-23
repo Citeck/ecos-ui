@@ -4,10 +4,11 @@
  * Supports different content types: text, code, html
  */
 
-import React, { useState, useCallback, useRef, useEffect, useMemo, lazy, Suspense, ChangeEvent, KeyboardEvent } from 'react';
 import classNames from 'classnames';
 // @ts-ignore - diff doesn't have types bundled
 import { diffWords } from 'diff';
+// eslint-disable-next-line import/order
+import React, { useState, useCallback, useRef, useEffect, useMemo, lazy, Suspense, ChangeEvent, KeyboardEvent } from 'react';
 
 interface Change {
   value: string;
@@ -16,21 +17,41 @@ interface Change {
 }
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { t } from '@/helpers/export/util';
-import { Icon } from '@/components/common';
-import { CONTENT_TYPES, getScriptContextLabel } from '@/components/ai/AIAssistant/constants';
+
 import { ContentType } from '../config/fieldActionConfigs';
+
+import { CONTENT_TYPES, getScriptContextLabel } from '@/components/ai/AIAssistant/constants';
+import { Icon } from '@/components/common';
+import { t } from '@/helpers/export/util';
 
 // Icon components for action buttons
 const CloseIcon: React.FC = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <line x1="18" y1="6" x2="6" y2="18" />
     <line x1="6" y1="6" x2="18" y2="18" />
   </svg>
 );
 
 const RefreshIcon: React.FC = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <path d="M23 4v6h-6" />
     <path d="M1 20v-6h6" />
     <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
@@ -38,7 +59,16 @@ const RefreshIcon: React.FC = () => (
 );
 
 const CheckIcon: React.FC = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <polyline points="20 6 9 17 4 12" />
   </svg>
 );
@@ -170,16 +200,19 @@ const AIInlineResult: React.FC<AIInlineResultProps> = ({
     }
   }, [retryPrompt, isLoading, onRetry]);
 
-  const handleRetryKeyDown = useCallback((e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleRetrySubmit();
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      setShowRetryInput(false);
-      setRetryPrompt('');
-    }
-  }, [handleRetrySubmit]);
+  const handleRetryKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleRetrySubmit();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        setShowRetryInput(false);
+        setRetryPrompt('');
+      }
+    },
+    [handleRetrySubmit]
+  );
 
   if (!isVisible) {
     return null;
@@ -204,16 +237,8 @@ const AIInlineResult: React.FC<AIInlineResultProps> = ({
           <SparkleIcon />
           AI
         </span>
-        {contextType && (
-          <span className="ai-inline-result__context-type">
-            {getScriptContextLabel(contextType)}
-          </span>
-        )}
-        {!isLoading && (
-          <span className="ai-inline-result__label">
-            {t('ai-actions.result.generated', 'Generated result')}
-          </span>
-        )}
+        {contextType && <span className="ai-inline-result__context-type">{getScriptContextLabel(contextType)}</span>}
+        {!isLoading && <span className="ai-inline-result__label">{t('ai-actions.result.generated', 'Generated result')}</span>}
       </div>
 
       {/* Content */}
@@ -236,9 +261,7 @@ const AIInlineResult: React.FC<AIInlineResultProps> = ({
                 <Markdown
                   remarkPlugins={[remarkGfm]}
                   components={{
-                    a: ({ node, ...props }) => (
-                      <a {...props} target="_blank" rel="noopener noreferrer" />
-                    )
+                    a: ({ node, ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" />
                   }}
                 >
                   {explanation}
@@ -247,10 +270,12 @@ const AIInlineResult: React.FC<AIInlineResultProps> = ({
             )}
 
             {/* Generated Value Preview - adaptive based on contentType */}
-            <div className={classNames('ai-inline-result__preview', {
-              'ai-inline-result__preview--code': contentType === CONTENT_TYPES.CODE,
-              'ai-inline-result__preview--html': contentType === CONTENT_TYPES.HTML
-            })}>
+            <div
+              className={classNames('ai-inline-result__preview', {
+                'ai-inline-result__preview--code': contentType === CONTENT_TYPES.CODE,
+                'ai-inline-result__preview--html': contentType === CONTENT_TYPES.HTML
+              })}
+            >
               <AdaptiveDiffPreview
                 original={originalValue}
                 generated={generatedValue}
@@ -328,11 +353,7 @@ const AIInlineResult: React.FC<AIInlineResultProps> = ({
           data-tooltip={t('ai-actions.result.apply', 'Apply')}
           aria-label={t('ai-actions.result.apply', 'Apply')}
         >
-          {isApplying ? (
-            <Icon className="fa fa-spinner fa-spin" />
-          ) : (
-            <CheckIcon />
-          )}
+          {isApplying ? <Icon className="fa fa-spinner fa-spin" /> : <CheckIcon />}
         </button>
       </div>
     </div>
@@ -361,14 +382,7 @@ interface AdaptiveDiffPreviewProps {
  * Adaptive Diff Preview
  * Selects the appropriate diff component based on content type
  */
-const AdaptiveDiffPreview: React.FC<AdaptiveDiffPreviewProps> = ({
-  original,
-  generated,
-  contentType,
-  language,
-  contextType,
-  showDiff
-}) => {
+const AdaptiveDiffPreview: React.FC<AdaptiveDiffPreviewProps> = ({ original, generated, contentType, language, contextType, showDiff }) => {
   // If no diff requested, just show the generated content
   if (!showDiff) {
     // For code, show with basic formatting
@@ -387,22 +401,14 @@ const AdaptiveDiffPreview: React.FC<AdaptiveDiffPreviewProps> = ({
     case CONTENT_TYPES.CODE:
       return (
         <Suspense fallback={<DiffLoadingFallback />}>
-          <CodeDiffPreview
-            original={original}
-            generated={generated}
-            language={language}
-            contextType={contextType}
-          />
+          <CodeDiffPreview original={original} generated={generated} language={language} contextType={contextType} />
         </Suspense>
       );
 
     case CONTENT_TYPES.HTML:
       return (
         <Suspense fallback={<DiffLoadingFallback />}>
-          <HtmlDiffPreview
-            original={original}
-            generated={generated}
-          />
+          <HtmlDiffPreview original={original} generated={generated} />
         </Suspense>
       );
 

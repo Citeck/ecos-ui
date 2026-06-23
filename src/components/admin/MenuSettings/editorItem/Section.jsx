@@ -5,14 +5,19 @@ import isEqual from 'lodash/isEqual';
 import set from 'lodash/set';
 import React from 'react';
 
-import { Checkbox, MLText, SelectOrgstruct } from '@/components/common/form';
-import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_ROLE, AUTHORITY_TYPE_USER, GroupTypes } from '@/components/common/form/SelectOrgstruct/constants';
 import { Field } from '../Field';
 import { Labels } from '../utils';
 
 import Base from './Base';
 
 import { MenuApi } from '@/api/menu';
+import { Checkbox, MLText, SelectOrgstruct } from '@/components/common/form';
+import {
+  AUTHORITY_TYPE_GROUP,
+  AUTHORITY_TYPE_ROLE,
+  AUTHORITY_TYPE_USER,
+  GroupTypes
+} from '@/components/common/form/SelectOrgstruct/constants';
 import { t } from '@/helpers/util';
 
 export default class Section extends Base {

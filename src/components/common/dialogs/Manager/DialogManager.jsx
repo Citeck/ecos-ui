@@ -4,13 +4,12 @@ import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 import isNil from 'lodash/isNil';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { Collapse, Card, CardBody } from 'reactstrap';
 
 import AuthorityService, { ArtifactEditPerms } from '../../../../services/authrority/AuthorityService';
 import EcosFormUtils from '@/components/forms/EcosForm/EcosFormUtils';
-import EcosFormBuilderModal from '@/components/forms/EcosForm/builder/EcosFormBuilderModal';
 import EcosModal from '../../EcosModal';
 import UncontrolledTooltip from '../../UncontrolledTooltip';
 import { Btn, IcoBtn } from '../../btns';
@@ -21,6 +20,11 @@ import FormWrapper from './FormWrapper';
 import { getEnabledNewJournal, getEnabledWorkspaces, objectByString, t } from '@/helpers/util.js';
 
 import './DialogManager.scss';
+
+// Lazy import: EcosFormBuilderModal is the single out-edge shared by every import
+// cycle through DialogManager. Severing it here (dynamic import) breaks those cycles
+// and removes the prod-only "Cannot access 'DialogManager' before initialization" TDZ.
+const EcosFormBuilderModal = lazy(() => import('@/components/forms/EcosForm/builder/EcosFormBuilderModal'));
 
 /**
  * @alias DialogTypes
@@ -459,7 +463,9 @@ export const dialogsById = {
             </div>
           </EcosModal>
         )}
-        <EcosFormBuilderModal ref={formBuilderModalRef} />
+        <Suspense fallback={null}>
+          <EcosFormBuilderModal ref={formBuilderModalRef} />
+        </Suspense>
       </>
     );
   },

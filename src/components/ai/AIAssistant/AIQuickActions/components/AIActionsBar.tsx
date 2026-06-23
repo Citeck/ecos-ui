@@ -3,23 +3,19 @@
  * Universal panel with quick actions and prompt input
  */
 
-import React, { useState, useRef, useEffect, useCallback, ChangeEvent, KeyboardEvent } from 'react';
 import classNames from 'classnames';
-import { t } from '@/helpers/export/util';
-import { Icon } from '@/components/common';
+import React, { useState, useRef, useEffect, useCallback, ChangeEvent, KeyboardEvent } from 'react';
+
 import { QuickAction, ActionIcon } from '../config/fieldActionConfigs';
+
+import { Icon } from '@/components/common';
+import { t } from '@/helpers/export/util';
 
 /**
  * Sparkle Icon for the input
  */
 const SparkleIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg
-    className={className}
-    width="16"
-    height="16"
-    viewBox="0 0 50 50"
-    fill="currentColor"
-  >
+  <svg className={className} width="16" height="16" viewBox="0 0 50 50" fill="currentColor">
     <path d="M49.04,24.001l-1.082-0.043h-0.001C36.134,23.492,26.508,13.866,26.042,2.043L25.999,0.96C25.978,0.424,25.537,0,25,0s-0.978,0.424-0.999,0.96l-0.043,1.083C23.492,13.866,13.866,23.492,2.042,23.958L0.96,24.001C0.424,24.022,0,24.463,0,25c0,0.537,0.424,0.978,0.961,0.999l1.082,0.042c11.823,0.467,21.449,10.093,21.915,21.916l0.043,1.083C24.022,49.576,24.463,50,25,50s0.978-0.424,0.999-0.96l0.043-1.083c0.466-11.823,10.092-21.449,21.915-21.916l1.082-0.042C49.576,25.978,50,25.537,50,25C50,24.463,49.576,24.022,49.04,24.001z" />
   </svg>
 );
@@ -122,26 +118,35 @@ const AIActionsBar: React.FC<AIActionsBarProps> = ({
     }
   }, [inputValue, isLoading, disabled, onSubmit]);
 
-  const handleKeyDown = useCallback((e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Escape') {
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLTextAreaElement>) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose?.();
+      } else if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleSubmit();
+      }
+    },
+    [onClose, handleSubmit]
+  );
+
+  const handleQuickActionClick = useCallback(
+    (actionId: string) => {
+      if (!isLoading && !disabled) {
+        onQuickAction?.(actionId);
+      }
+    },
+    [isLoading, disabled, onQuickAction]
+  );
+
+  const handleClose = useCallback(
+    (e: React.MouseEvent) => {
       e.preventDefault();
       onClose?.();
-    } else if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit();
-    }
-  }, [onClose, handleSubmit]);
-
-  const handleQuickActionClick = useCallback((actionId: string) => {
-    if (!isLoading && !disabled) {
-      onQuickAction?.(actionId);
-    }
-  }, [isLoading, disabled, onQuickAction]);
-
-  const handleClose = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    onClose?.();
-  }, [onClose]);
+    },
+    [onClose]
+  );
 
   const defaultPlaceholder = t('ai-actions.input.placeholder', 'Describe what you need...');
   const hasQuickActions = quickActions.length > 0;
@@ -163,7 +168,7 @@ const AIActionsBar: React.FC<AIActionsBarProps> = ({
       {/* Quick Actions */}
       {hasQuickActions && (
         <div className="ai-actions-bar__quick">
-          {quickActions.map((action) => (
+          {quickActions.map(action => (
             <button
               key={action.id}
               type="button"
@@ -181,13 +186,7 @@ const AIActionsBar: React.FC<AIActionsBarProps> = ({
 
       {/* Input Row */}
       <div className="ai-actions-bar__input-row">
-        <div className="ai-actions-bar__icon">
-          {isLoading ? (
-            <Icon className="fa fa-spinner fa-spin" />
-          ) : (
-            <SparkleIcon />
-          )}
-        </div>
+        <div className="ai-actions-bar__icon">{isLoading ? <Icon className="fa fa-spinner fa-spin" /> : <SparkleIcon />}</div>
 
         <textarea
           ref={inputRef}

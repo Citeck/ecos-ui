@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+
 import aiAssistantService from '../AIAssistantService';
 
 /**
@@ -25,7 +26,7 @@ const useWindowManagement = () => {
 
   // Handle Escape key to close
   useEffect(() => {
-    const handleKeyDown = (e) => {
+    const handleKeyDown = e => {
       if (e.key === 'Escape' && isOpen) {
         handleClose();
       }

@@ -6,16 +6,10 @@
 // @ts-ignore - uuidv4 doesn't have types
 import uuidV4 from 'uuidv4';
 
+import { AI_INTENTS, MESSAGE_TYPES, API_ENDPOINTS, POLLING_INTERVAL, CONTENT_TYPES } from './constants';
+import { ATTRIBUTE_TYPES, FIELD_TYPE_VALUES, type AttributeType, type FieldTypeValue, type FieldInfo, type ProgressInfo } from './types';
+
 import { getWorkspaceId } from '@/helpers/urls';
-import { AI_INTENTS, MESSAGE_TYPES, API_ENDPOINTS, POLLING_INTERVAL, CONTENT_TYPES } from "./constants";
-import {
-  ATTRIBUTE_TYPES,
-  FIELD_TYPE_VALUES,
-  type AttributeType,
-  type FieldTypeValue,
-  type FieldInfo,
-  type ProgressInfo
-} from './types';
 
 // Re-export types for consumers
 export { ATTRIBUTE_TYPES, FIELD_TYPE_VALUES };
@@ -46,7 +40,7 @@ export const TEXT_QUICK_ACTIONS = {
   FORMALIZE: 'formalize'
 } as const;
 
-export type TextQuickAction = typeof TEXT_QUICK_ACTIONS[keyof typeof TEXT_QUICK_ACTIONS];
+export type TextQuickAction = (typeof TEXT_QUICK_ACTIONS)[keyof typeof TEXT_QUICK_ACTIONS];
 
 /**
  * Context types for different text fields
@@ -59,7 +53,7 @@ export const TEXT_CONTEXT_TYPES = {
   GENERAL: 'general'
 } as const;
 
-export type TextContextType = typeof TEXT_CONTEXT_TYPES[keyof typeof TEXT_CONTEXT_TYPES];
+export type TextContextType = (typeof TEXT_CONTEXT_TYPES)[keyof typeof TEXT_CONTEXT_TYPES];
 
 /**
  * Parameters for generateText function
@@ -239,8 +233,7 @@ const pollForResult = (
 
           // Check if result is a text editing response
           const isTextEditingMessage =
-            typeof responseData.message === 'object' &&
-            responseData.message?.type === MESSAGE_TYPES.TEXT_EDITING;
+            typeof responseData.message === 'object' && responseData.message?.type === MESSAGE_TYPES.TEXT_EDITING;
 
           if (isTextEditingMessage) {
             const msg = responseData.message as TextEditingMessage;

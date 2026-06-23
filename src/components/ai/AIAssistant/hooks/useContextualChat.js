@@ -1,11 +1,13 @@
 import { useState, useCallback } from 'react';
 
-import { t } from '@/helpers/export/util';
 import aiAssistantService from '../AIAssistantService';
 import editorContextService, { CONTEXT_TYPES } from '../EditorContextService';
-import { API_ENDPOINTS } from '@/components/ai/AIAssistant/constants';
 import { generateUUID } from '../utils';
+
 import usePolling from './usePolling';
+
+import { API_ENDPOINTS } from '@/components/ai/AIAssistant/constants';
+import { t } from '@/helpers/export/util';
 
 /**
  * Hook for managing contextual chat functionality (BPMN, etc.)
@@ -22,7 +24,7 @@ const useContextualChat = (options = {}) => {
   const [conversationId, setConversationId] = useState(() => generateUUID());
 
   // Fetch status function for polling
-  const fetchStatus = useCallback(async (requestId) => {
+  const fetchStatus = useCallback(async requestId => {
     const response = await fetch(`${API_ENDPOINTS.BPMN_STATUS}/${requestId}`);
     if (!response.ok) {
       throw new Error(`Error: ${response.status}`);
@@ -31,73 +33,74 @@ const useContextualChat = (options = {}) => {
   }, []);
 
   // Handle polling result
-  const handlePollingResult = useCallback((result) => {
-    setIsLoading(false);
+  const handlePollingResult = useCallback(
+    result => {
+      setIsLoading(false);
 
-    if (result && contextType === CONTEXT_TYPES.BPMN_EDITOR) {
-      if (result.type === 'TEXT') {
-        // Text answer — display as markdown message in chat
-        setMessages(prevMessages =>
-          prevMessages.map(msg => {
-            if (msg.isProcessing) {
-              return {
-                id: msg.id || generateUUID(),
-                text: result.text || t('ai-assistant.chat.no-response'),
-                sender: 'ai',
-                timestamp: new Date()
-              };
-            }
-            return msg;
-          })
-        );
-      } else if (result.type === 'BPMN' && result.bpmnXml) {
-        // BPMN XML — load into editor
-        aiAssistantService.handleSubmit(result.bpmnXml);
+      if (result && contextType === CONTEXT_TYPES.BPMN_EDITOR) {
+        if (result.type === 'TEXT') {
+          // Text answer — display as markdown message in chat
+          setMessages(prevMessages =>
+            prevMessages.map(msg => {
+              if (msg.isProcessing) {
+                return {
+                  id: msg.id || generateUUID(),
+                  text: result.text || t('ai-assistant.chat.no-response'),
+                  sender: 'ai',
+                  timestamp: new Date()
+                };
+              }
+              return msg;
+            })
+          );
+        } else if (result.type === 'BPMN' && result.bpmnXml) {
+          // BPMN XML — load into editor
+          aiAssistantService.handleSubmit(result.bpmnXml);
 
-        setMessages(prevMessages =>
-          prevMessages.map(msg => {
-            if (msg.isProcessing) {
-              return {
-                id: msg.id || generateUUID(),
-                text: t('ai-assistant.chat.bpmn-created'),
-                sender: 'ai',
-                timestamp: new Date()
-              };
-            }
-            return msg;
-          })
-        );
-      } else {
-        // Unknown or malformed result type
-        console.error('Unexpected BPMN result format:', result);
-        setMessages(prevMessages =>
-          prevMessages.map(msg => {
-            if (msg.isProcessing) {
-              return {
-                ...msg,
-                text: t('ai-assistant.chat.unexpected-format'),
-                isProcessing: false,
-                isError: true
-              };
-            }
-            return msg;
-          })
-        );
+          setMessages(prevMessages =>
+            prevMessages.map(msg => {
+              if (msg.isProcessing) {
+                return {
+                  id: msg.id || generateUUID(),
+                  text: t('ai-assistant.chat.bpmn-created'),
+                  sender: 'ai',
+                  timestamp: new Date()
+                };
+              }
+              return msg;
+            })
+          );
+        } else {
+          // Unknown or malformed result type
+          console.error('Unexpected BPMN result format:', result);
+          setMessages(prevMessages =>
+            prevMessages.map(msg => {
+              if (msg.isProcessing) {
+                return {
+                  ...msg,
+                  text: t('ai-assistant.chat.unexpected-format'),
+                  isProcessing: false,
+                  isError: true
+                };
+              }
+              return msg;
+            })
+          );
+        }
       }
-    }
-  }, [contextType]);
+    },
+    [contextType]
+  );
 
   // Handle polling error
-  const handlePollingError = useCallback((error) => {
+  const handlePollingError = useCallback(error => {
     setIsLoading(false);
     setMessages(prevMessages =>
       prevMessages.map(msg => {
         if (msg.isProcessing) {
           return {
             ...msg,
-            text: typeof error === 'string'
-              ? t('ai-assistant.chat.error-prefix', { error })
-              : t('ai-assistant.chat.result-error'),
+            text: typeof error === 'string' ? t('ai-assistant.chat.error-prefix', { error }) : t('ai-assistant.chat.result-error'),
             isProcessing: false,
             isError: true
           };
@@ -126,11 +129,7 @@ const useContextualChat = (options = {}) => {
   }, []);
 
   // Use polling hook
-  const {
-    startPolling,
-    stopPolling,
-    activeRequestId
-  } = usePolling({
+  const { startPolling, stopPolling, activeRequestId } = usePolling({
     fetchStatus,
     onResult: handlePollingResult,
     onError: handlePollingError,
@@ -138,72 +137,77 @@ const useContextualChat = (options = {}) => {
   });
 
   // Handle submit
-  const handleSubmit = useCallback(async (e) => {
-    e?.preventDefault();
-    if (!message.trim()) return;
+  const handleSubmit = useCallback(
+    async e => {
+      e?.preventDefault();
+      if (!message.trim()) return;
 
-    const userMessage = { id: generateUUID(), text: message, sender: 'user', timestamp: new Date() };
-    setMessages(prevMessages => [...prevMessages, userMessage]);
+      const userMessage = { id: generateUUID(), text: message, sender: 'user', timestamp: new Date() };
+      setMessages(prevMessages => [...prevMessages, userMessage]);
 
-    const messageToProcess = message;
-    setMessage('');
-    setIsLoading(true);
+      const messageToProcess = message;
+      setMessage('');
+      setIsLoading(true);
 
-    // Get current context data
-    const contextData = editorContextService.getContextData();
+      // Get current context data
+      const contextData = editorContextService.getContextData();
 
-    try {
-      const response = await fetch(API_ENDPOINTS.BPMN_ASYNC, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: messageToProcess,
-          conversationId: conversationId,
-          context: {
-            type: contextType,
-            ...contextData
+      try {
+        const response = await fetch(API_ENDPOINTS.BPMN_ASYNC, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: messageToProcess,
+            conversationId: conversationId,
+            context: {
+              type: contextType,
+              ...contextData
+            }
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const requestId = data.requestId;
+
+        if (!requestId) {
+          throw new Error(t('ai-assistant.chat.no-request-id'));
+        }
+
+        startPolling(requestId);
+
+        const processingMessage = {
+          id: generateUUID(),
+          text: t('ai-assistant.message.processing'),
+          sender: 'ai',
+          timestamp: new Date(),
+          isProcessing: true,
+          pollingIsUsed: true
+        };
+
+        setMessages(prevMessages => [...prevMessages, processingMessage]);
+      } catch (error) {
+        console.error('Error in contextual chat:', error);
+
+        setMessages(prevMessages => [
+          ...prevMessages,
+          {
+            id: generateUUID(),
+            text: t('ai-assistant.chat.request-error'),
+            sender: 'ai',
+            timestamp: new Date(),
+            isError: true
           }
-        })
-      });
+        ]);
 
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
+        setIsLoading(false);
       }
-
-      const data = await response.json();
-      const requestId = data.requestId;
-
-      if (!requestId) {
-        throw new Error(t('ai-assistant.chat.no-request-id'));
-      }
-
-      startPolling(requestId);
-
-      const processingMessage = {
-        id: generateUUID(),
-        text: t('ai-assistant.message.processing'),
-        sender: 'ai',
-        timestamp: new Date(),
-        isProcessing: true,
-        pollingIsUsed: true
-      };
-
-      setMessages(prevMessages => [...prevMessages, processingMessage]);
-
-    } catch (error) {
-      console.error('Error in contextual chat:', error);
-
-      setMessages(prevMessages => [...prevMessages, {
-        id: generateUUID(),
-        text: t('ai-assistant.chat.request-error'),
-        sender: 'ai',
-        timestamp: new Date(),
-        isError: true
-      }]);
-
-      setIsLoading(false);
-    }
-  }, [message, contextType, conversationId, startPolling]);
+    },
+    [message, contextType, conversationId, startPolling]
+  );
 
   // Cancel active request
   const cancelRequest = useCallback(async () => {

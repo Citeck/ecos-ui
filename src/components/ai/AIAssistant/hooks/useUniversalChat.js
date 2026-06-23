@@ -1,13 +1,15 @@
+import Records from '@citeck/records-core';
 import { useState, useCallback, useRef } from 'react';
 
-import { getWorkspaceId } from '@/helpers/urls';
-import { t } from '@/helpers/export/util';
-import Records from '@citeck/records-core';
 import editorContextService from '../EditorContextService';
 import { AI_INTENTS, MESSAGE_TYPES, EDITOR_CONTEXT_HANDLERS, API_ENDPOINTS, CONTENT_TYPES, FILE_SAVE_ACTION } from '../constants';
 import { AGENT_STATUSES } from '../types';
 import { generateUUID } from '../utils';
+
 import usePolling from './usePolling';
+
+import { t } from '@/helpers/export/util';
+import { getWorkspaceId } from '@/helpers/urls';
 
 // Matches a markdown inline image: ![alt](url). URLs in our previews never contain ')'.
 const MARKDOWN_IMAGE_RE = /!\[[^\]]*\]\([^)]*\)/g;

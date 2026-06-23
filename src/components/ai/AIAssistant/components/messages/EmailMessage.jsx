@@ -2,8 +2,8 @@ import React from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-import { t } from '@/helpers/export/util';
 import { Icon } from '@/components/common';
+import { t } from '@/helpers/export/util';
 
 /**
  * Email message preview component
@@ -13,12 +13,7 @@ import { Icon } from '@/components/common';
  * @param {Function} props.onCopy - Copy email handler
  * @param {Function} props.onSend - Send email handler
  */
-const EmailMessage = ({
-  messageData,
-  markdownComponents,
-  onCopy,
-  onSend
-}) => {
+const EmailMessage = ({ messageData, markdownComponents, onCopy, onSend }) => {
   if (!messageData) return null;
 
   return (
@@ -39,16 +34,10 @@ const EmailMessage = ({
         )}
       </div>
       <div className="ai-assistant-chat__email-actions">
-        <button
-          className="ai-assistant-chat__action-button ai-assistant-chat__action-button--copy"
-          onClick={onCopy}
-        >
+        <button className="ai-assistant-chat__action-button ai-assistant-chat__action-button--copy" onClick={onCopy}>
           <Icon className="fa fa-copy" /> {t('ai-assistant.email-message.copy')}
         </button>
-        <button
-          className="ai-assistant-chat__action-button ai-assistant-chat__action-button--send"
-          onClick={onSend}
-        >
+        <button className="ai-assistant-chat__action-button ai-assistant-chat__action-button--send" onClick={onSend}>
           <Icon className="fa fa-send" /> {t('ai-assistant.email-message.send')}
         </button>
       </div>

@@ -4,8 +4,6 @@ import isEmpty from 'lodash/isEmpty';
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { SelectOrgstruct } from '@/components/common/form';
-import { GroupTypes, ViewModes, DataTypes } from '@/components/common/form/SelectOrgstruct/constants';
 import { Labels } from '../utils';
 
 import BaseEditorMenu from './BaseEditorMenu';
@@ -17,6 +15,8 @@ import {
   setIsForAllCreateMenu,
   setAuthoritiesCreateMenu
 } from '@/actions/menuSettings';
+import { SelectOrgstruct } from '@/components/common/form';
+import { GroupTypes, ViewModes, DataTypes } from '@/components/common/form/SelectOrgstruct/constants';
 import { t } from '@/helpers/util';
 
 class EditorCreateMenu extends BaseEditorMenu {

@@ -3,10 +3,9 @@ import isEqual from 'lodash/isEqual';
 import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 
+import { initState, setSearchText } from '@/actions/journals';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { Journals } from '@/components/journals/Journals';
-
-import { initState, setSearchText } from '@/actions/journals';
 import { getStateId } from '@/helpers/store';
 import { getSearchParams } from '@/helpers/urls';
 import { getEnabledWorkspaces, getId } from '@/helpers/util';

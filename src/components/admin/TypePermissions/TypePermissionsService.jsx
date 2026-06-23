@@ -1,14 +1,13 @@
 import React from 'react';
 
-import DialogManager from '@/components/common/dialogs/Manager';
-import { t } from '@/helpers/util';
-
 import TypePermissionsEditor from './TypePermissionsEditor';
+import { formatPermissionsConfig } from './helpers/formatPermissionsMatrix';
 
 import { TypePermissionsApi } from '@/api/typePermissions';
-import DownloadAction from '@/components/core/Records/actions/handler/executor/DownloadAction';
-import { formatPermissionsConfig } from './helpers/formatPermissionsMatrix';
+import DialogManager from '@/components/common/dialogs/Manager';
 import dialogManager from '@/components/common/dialogs/Manager/DialogManager';
+import DownloadAction from '@/components/core/Records/actions/handler/executor/DownloadAction';
+import { t } from '@/helpers/util';
 
 export default class TypePermissionsService {
   static async editTypePermissions(typeRef, customPermsData = {}) {

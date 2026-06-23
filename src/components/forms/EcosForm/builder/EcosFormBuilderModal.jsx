@@ -1,18 +1,18 @@
-import React from 'react';
-import get from 'lodash/get';
+import { flattenComponents } from 'formiojs/utils/formUtils';
 import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
-import { flattenComponents } from 'formiojs/utils/formUtils';
+import React from 'react';
 
-import EcosModal from '@/components/common/EcosModal';
-import EcosFormBuilder from './EcosFormBuilder';
-import DialogManager from '@/components/common/dialogs/Manager';
-import { t } from '@/helpers/export/util';
-import { Icon } from '@/components/common';
 import DebugModal from './DebugModal';
+import EcosFormBuilder from './EcosFormBuilder';
+
+import { Icon } from '@/components/common';
+import EcosModal from '@/components/common/EcosModal';
 import { clearFormFromCache } from '@/forms/utils';
+import { t } from '@/helpers/export/util';
 
 import './style.scss';
 
@@ -94,15 +94,19 @@ export default class EcosFormBuilderModal extends React.Component {
   }
 
   toggleVisibility = () => {
-    DialogManager.confirmDialog({
-      text: t(Labels.CLOSE_CONFIRM_DESCRIPTION),
-      onYes: () => {
-        this.setState(({ isModalOpen }) => ({
-          isModalOpen: !isModalOpen
-        }));
+    // Lazy import breaks the DialogManager <-> EcosFormBuilderModal circular dependency
+    // (was a source of a prod-only "Cannot access 'DialogManager' before initialization" TDZ).
+    import('@/components/common/dialogs/Manager').then(({ default: DialogManager }) => {
+      DialogManager.confirmDialog({
+        text: t(Labels.CLOSE_CONFIRM_DESCRIPTION),
+        onYes: () => {
+          this.setState(({ isModalOpen }) => ({
+            isModalOpen: !isModalOpen
+          }));
 
-        clearFormFromCache(this.props.formId);
-      }
+          clearFormFromCache(this.props.formId);
+        }
+      });
     });
   };
 

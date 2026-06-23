@@ -1,11 +1,12 @@
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
 import { DragDropContext } from 'react-beautiful-dnd';
 
-import { t } from '@/helpers/util';
+import { Labels } from './utils';
+
 import { Icon } from '@/components/common';
 import { DndUtils, DragItem, Droppable } from '@/components/common/DragAndDrop';
-import { Labels } from './utils';
+import { t } from '@/helpers/util';
 
 import './style.scss';
 

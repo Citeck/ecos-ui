@@ -1,3 +1,6 @@
+import { SystemJournals } from '@citeck/constants';
+import { MenuSettings as ms } from '@citeck/constants/menu';
+import { PREDICATE_NOT_EMPTY } from '@citeck/records-core/predicates/predicates';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
@@ -5,17 +8,14 @@ import isFunction from 'lodash/isFunction';
 import uniqueId from 'lodash/uniqueId';
 import React from 'react';
 
+import EditorItem from '../editorItem/EditorItem';
+import { Labels } from '../utils';
+
 import IconSelect from '@/components/IconSelect';
-import { PREDICATE_NOT_EMPTY } from '@citeck/records-core/predicates/predicates';
 import { Tree } from '@/components/common';
 import { Btn } from '@/components/common/btns';
 import DialogManager from '@/components/common/dialogs/Manager';
 import { Badge, DropdownOuter } from '@/components/common/form';
-import EditorItem from '../editorItem/EditorItem';
-import { Labels } from '../utils';
-
-import { SystemJournals } from '@citeck/constants';
-import { MenuSettings as ms } from '@citeck/constants/menu';
 import { treeMoveItem } from '@/helpers/arrayOfObjects';
 import { extractLabel, t } from '@/helpers/util';
 import MenuSettingsService from '@/services/MenuSettingsService';

@@ -1,11 +1,12 @@
-import React from 'react';
 import classNames from 'classnames';
+import React from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-import { t } from '@/helpers/export/util';
-import { Icon } from '@/components/common';
 import ArtifactsList from './ArtifactsList';
+
+import { Icon } from '@/components/common';
+import { t } from '@/helpers/export/util';
 
 /**
  * Business app generation progress message
@@ -13,10 +14,7 @@ import ArtifactsList from './ArtifactsList';
  * @param {Object} props.message - Full message object
  * @param {Object} props.markdownComponents - Markdown component overrides
  */
-const BusinessAppMessage = ({
-  message,
-  markdownComponents
-}) => {
+const BusinessAppMessage = ({ message, markdownComponents }) => {
   const { messageData, text, isProcessing } = message;
 
   if (!messageData) return null;
@@ -52,29 +50,20 @@ const BusinessAppMessage = ({
   const shouldSpin = animated === true && spinningIcons.includes(icon);
 
   return (
-    <div className={classNames('ai-assistant-chat__progress-message', {
-      [`ai-assistant-chat__progress-message--${severity.toLowerCase()}`]: true
-    })}>
+    <div
+      className={classNames('ai-assistant-chat__progress-message', {
+        [`ai-assistant-chat__progress-message--${severity.toLowerCase()}`]: true
+      })}
+    >
       {/* Header with icon and label */}
       <div className="ai-assistant-chat__progress-header-inline">
-        <Icon
-          className={classNames('fa', icon, { 'fa-spin': shouldSpin })}
-          style={{ color }}
-        />
+        <Icon className={classNames('fa', icon, { 'fa-spin': shouldSpin })} style={{ color }} />
         <span className="ai-assistant-chat__progress-label">{label}</span>
-        {isInProgress && (
-          <span className="ai-assistant-chat__progress-percentage">
-            {messageData.progress || 0}%
-          </span>
-        )}
+        {isInProgress && <span className="ai-assistant-chat__progress-percentage">{messageData.progress || 0}%</span>}
       </div>
 
       {/* Description */}
-      {description && (
-        <div className="ai-assistant-chat__progress-description">
-          {description}
-        </div>
-      )}
+      {description && <div className="ai-assistant-chat__progress-description">{description}</div>}
 
       {/* Progress bar */}
       {isInProgress && messageData.progress !== undefined && (

@@ -3,9 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 
 import { setActiveSection } from '@/actions/adminSection';
+import { CollapsibleList, Tooltip } from '@/components/common';
 import { isMobileDevice, t } from '@/helpers/util';
 import AdminSectionService from '@/services/AdminSectionService';
-import { CollapsibleList, Tooltip } from '@/components/common';
 
 import './style.scss';
 

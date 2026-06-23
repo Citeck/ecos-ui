@@ -1,14 +1,14 @@
+import BackgroundOpenAction from './handler/executor/BackgroundOpenAction';
+import CreateAction from './handler/executor/CreateAction';
+import DeleteAction from './handler/executor/DeleteAction';
+import DownloadAction from './handler/executor/DownloadAction';
+import EditAction from './handler/executor/EditAction';
+import EditJournalPresetAction from './handler/executor/EditJournalPresetAction';
+import EditPasswordAction from './handler/executor/EditPasswordAction';
+import PreviewModalAction from './handler/executor/PreviewModalAction';
+import ViewAction from './handler/executor/ViewAction';
 import CancelBusinessProcessAction from './handler/executor/workflow/CancelBusinessProcessAction';
 import SetTaskAssignee from './handler/executor/workflow/SetTaskAssignee';
-import EditAction from './handler/executor/EditAction';
-import EditPasswordAction from './handler/executor/EditPasswordAction';
-import DeleteAction from './handler/executor/DeleteAction';
-import ViewAction from './handler/executor/ViewAction';
-import CreateAction from './handler/executor/CreateAction';
-import DownloadAction from './handler/executor/DownloadAction';
-import PreviewModalAction from './handler/executor/PreviewModalAction';
-import BackgroundOpenAction from './handler/executor/BackgroundOpenAction';
-import EditJournalPresetAction from './handler/executor/EditJournalPresetAction';
 
 import './actions';
 

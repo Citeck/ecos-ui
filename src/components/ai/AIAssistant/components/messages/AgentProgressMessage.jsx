@@ -1,8 +1,8 @@
-import React from 'react';
 import classNames from 'classnames';
+import React from 'react';
 
-import { t } from '@/helpers/export/util';
 import { Icon } from '@/components/common';
+import { t } from '@/helpers/export/util';
 
 const STEP_STATUS_ICONS = {
   COMPLETED: { icon: 'fa-check-circle', className: 'agent-step--completed' },
@@ -94,16 +94,12 @@ const AgentProgressMessage = ({ message }) => {
         </div>
 
         {/* Current step description */}
-        {currentStepDescription && (
-          <div className="ai-assistant-chat__agent-current-step">
-            {currentStepDescription}
-          </div>
-        )}
+        {currentStepDescription && <div className="ai-assistant-chat__agent-current-step">{currentStepDescription}</div>}
 
         {/* Step checklist */}
         {steps && steps.length > 0 && (
           <div className="ai-assistant-chat__agent-steps-list">
-            {steps.map((step) => (
+            {steps.map(step => (
               <StepItem key={step.id} step={step} />
             ))}
           </div>

@@ -1,5 +1,5 @@
-import editorContextService, { CONTEXT_TYPES } from './EditorContextService';
 import aiAssistantService from './AIAssistantService';
+import editorContextService, { CONTEXT_TYPES } from './EditorContextService';
 
 const clearBPMNContext = () => {
   if (editorContextService.hasContextType(CONTEXT_TYPES.BPMN_EDITOR)) {
@@ -51,12 +51,12 @@ const setupBPMNContextObserver = () => {
   const originalPushState = window.history.pushState;
   const originalReplaceState = window.history.replaceState;
 
-  window.history.pushState = function() {
+  window.history.pushState = function () {
     originalPushState.apply(this, arguments);
     setTimeout(initBPMNContext, 100);
   };
 
-  window.history.replaceState = function() {
+  window.history.replaceState = function () {
     originalReplaceState.apply(this, arguments);
     setTimeout(initBPMNContext, 100);
   };

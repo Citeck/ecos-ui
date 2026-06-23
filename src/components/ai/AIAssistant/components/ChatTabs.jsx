@@ -1,10 +1,11 @@
-import React from 'react';
 import classNames from 'classnames';
+import React from 'react';
 
-import { t } from '@/helpers/export/util';
-import { Icon } from '@/components/common';
-import { TAB_TYPES } from '@/components/ai/AIAssistant/constants';
 import { getStageStatus } from '../utils';
+
+import { TAB_TYPES } from '@/components/ai/AIAssistant/constants';
+import { Icon } from '@/components/common';
+import { t } from '@/helpers/export/util';
 
 /**
  * Chat tabs component with Universal/Contextual switching and progress timeline
@@ -16,19 +17,9 @@ import { getStageStatus } from '../utils';
  * @param {Object} props.businessAppProgress - Business app generation progress data
  * @param {Array} props.generationStages - Available generation stages
  */
-const ChatTabs = ({
-  activeTab,
-  onTabChange,
-  hasContext = false,
-  contextTitle,
-  businessAppProgress,
-  generationStages
-}) => {
+const ChatTabs = ({ activeTab, onTabChange, hasContext = false, contextTitle, businessAppProgress, generationStages }) => {
   const resolvedContextTitle = contextTitle || t('ai-assistant.tabs.contextual-default');
-  const showTimeline = businessAppProgress &&
-    activeTab === TAB_TYPES.UNIVERSAL &&
-    generationStages &&
-    generationStages.length > 0;
+  const showTimeline = businessAppProgress && activeTab === TAB_TYPES.UNIVERSAL && generationStages && generationStages.length > 0;
 
   // Hide the tab bar when there's nothing actionable to show:
   // no contextual mode available and no business-app generation in progress.
@@ -39,10 +30,7 @@ const ChatTabs = ({
   return (
     <div className="ai-assistant-chat__tabs">
       <button
-        className={classNames(
-          'ai-assistant-chat__tab',
-          { 'ai-assistant-chat__tab--active': activeTab === TAB_TYPES.UNIVERSAL }
-        )}
+        className={classNames('ai-assistant-chat__tab', { 'ai-assistant-chat__tab--active': activeTab === TAB_TYPES.UNIVERSAL })}
         onClick={() => onTabChange(TAB_TYPES.UNIVERSAL)}
       >
         <span>
@@ -55,24 +43,17 @@ const ChatTabs = ({
         {showTimeline && (
           <div className="ai-assistant-chat__stage-timeline">
             {generationStages.map((stage, index) => {
-              const status = getStageStatus(
-                stage.key,
-                businessAppProgress.progress || 0,
-                stage.progressRange
-              );
+              const status = getStageStatus(stage.key, businessAppProgress.progress || 0, stage.progressRange);
               const isLast = index === generationStages.length - 1;
 
               return (
                 <div
                   key={stage.key}
-                  className={classNames(
-                    'ai-assistant-chat__stage-timeline-item',
-                    {
-                      'ai-assistant-chat__stage-timeline-item--completed': status === 'completed',
-                      'ai-assistant-chat__stage-timeline-item--active': status === 'active',
-                      'ai-assistant-chat__stage-timeline-item--pending': status === 'pending'
-                    }
-                  )}
+                  className={classNames('ai-assistant-chat__stage-timeline-item', {
+                    'ai-assistant-chat__stage-timeline-item--completed': status === 'completed',
+                    'ai-assistant-chat__stage-timeline-item--active': status === 'active',
+                    'ai-assistant-chat__stage-timeline-item--pending': status === 'pending'
+                  })}
                 >
                   <div className="ai-assistant-chat__stage-timeline-marker">
                     {status === 'completed' && <Icon className="fa fa-check" />}
@@ -90,10 +71,7 @@ const ChatTabs = ({
 
       {hasContext && (
         <button
-          className={classNames(
-            'ai-assistant-chat__tab',
-            { 'ai-assistant-chat__tab--active': activeTab === TAB_TYPES.CONTEXTUAL }
-          )}
+          className={classNames('ai-assistant-chat__tab', { 'ai-assistant-chat__tab--active': activeTab === TAB_TYPES.CONTEXTUAL })}
           onClick={() => onTabChange(TAB_TYPES.CONTEXTUAL)}
           title={t('ai-assistant.tabs.contextual-title', { title: resolvedContextTitle })}
         >

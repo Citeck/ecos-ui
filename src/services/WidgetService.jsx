@@ -3,21 +3,26 @@ import React, { lazy, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 
-import BusinessProcessViewer from '@/components/editors/BusinessProcessViewer';
-import { isFlowableProcess } from '@/components/editors/BusinessProcessViewer/util';
-import FormManager from '@/components/forms/EcosForm/FormManager';
-import { JournalsPresetEditor } from '@/components/journals/Journals/JournalsPresets';
-import { notifyFailure, notifySuccess } from '@/components/core/Records/actions/util/actionUtils';
 import Modal from '../components/common/EcosModal/CiteckEcosModal';
 import DialogManager from '../components/common/dialogs/Manager/index';
-import { SelectOrgstruct } from '../components/common/form';
 import { AUTHORITY_TYPE_USER, TabTypes } from '../components/common/form/SelectOrgstruct/constants';
-import { UploadNewVersion } from '@/components/forms/FormAction';
-import { DocPreview } from '@/components/dashboard/widgets/DocPreview';
 import { t } from '../helpers/util';
 
 import { Loader } from '@/components/common/index';
+import { notifyFailure, notifySuccess } from '@/components/core/Records/actions/util/actionUtils';
+import { DocPreview } from '@/components/dashboard/widgets/DocPreview';
+import BusinessProcessViewer from '@/components/editors/BusinessProcessViewer';
+import { isFlowableProcess } from '@/components/editors/BusinessProcessViewer/util';
+import FormManager from '@/components/forms/EcosForm/FormManager';
+import { UploadNewVersion } from '@/components/forms/FormAction';
 import { getStore } from '@/store';
+
+// Lazy imports break circular dependencies that produced a prod-only
+// "Cannot access 'WidgetService' before initialization" TDZ:
+//   WidgetService -> JournalsPresets -> (journals graph) -> WidgetService
+//   WidgetService -> form barrel -> TableForm -> TableFormContext -> WidgetService
+const JournalsPresetEditor = lazy(() => import('@/components/journals/Journals/JournalsPresets/Editor'));
+const SelectOrgstruct = lazy(() => import('../components/common/form/SelectOrgstruct'));
 
 export default class WidgetService {
   _root = null;
@@ -120,18 +125,20 @@ export default class WidgetService {
 
     this._root = createRoot(container);
     this._root.render(
-      <SelectOrgstruct
-        openByDefault
-        hideInputView
-        defaultValue={defaultValue}
-        onChange={handleSelect}
-        onCancelSelect={handleCancel}
-        userSearchExtraFields={userSearchExtraFields}
-        className="select-orgstruct-modal"
-        modalTitle={t('select-orgstruct.modal.title.edit-task-assignee')}
-        allowedAuthorityTypes={[AUTHORITY_TYPE_USER]}
-        defaultTab={TabTypes.USERS}
-      />
+      <Suspense fallback={<Loader type="points" />}>
+        <SelectOrgstruct
+          openByDefault
+          hideInputView
+          defaultValue={defaultValue}
+          onChange={handleSelect}
+          onCancelSelect={handleCancel}
+          userSearchExtraFields={userSearchExtraFields}
+          className="select-orgstruct-modal"
+          modalTitle={t('select-orgstruct.modal.title.edit-task-assignee')}
+          allowedAuthorityTypes={[AUTHORITY_TYPE_USER]}
+          defaultTab={TabTypes.USERS}
+        />
+      </Suspense>
     );
     document.body.appendChild(container);
   }
@@ -175,14 +182,16 @@ export default class WidgetService {
     const modal = new Modal();
 
     modal.open(
-      <JournalsPresetEditor
-        isAdmin={params.isAdmin}
-        authoritiesRef={params.authoritiesRef}
-        workspacesRefs={params.workspacesRefs}
-        data={params.data || {}}
-        onClose={params.onClose}
-        onSave={params.onSave}
-      />,
+      <Suspense fallback={<Loader type="points" />}>
+        <JournalsPresetEditor
+          isAdmin={params.isAdmin}
+          authoritiesRef={params.authoritiesRef}
+          workspacesRefs={params.workspacesRefs}
+          data={params.data || {}}
+          onClose={params.onClose}
+          onSave={params.onSave}
+        />
+      </Suspense>,
       { title: t(params.title), size: 'md' }
     );
 

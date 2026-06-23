@@ -5,13 +5,13 @@ import isEqual from 'lodash/isEqual';
 import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 
+import SectionList from './SectionList';
+
 import { fetchGroupSectionList, toggleMenu, toggleSection } from '@/actions/adminSection';
-import { t } from '@/helpers/util';
-import { usePrevious } from '@/hooks';
 import { Search } from '@/components/common';
 import { IcoBtn } from '@/components/common/btns';
-
-import SectionList from './SectionList';
+import { t } from '@/helpers/util';
+import { usePrevious } from '@/hooks';
 
 import './style.scss';
 

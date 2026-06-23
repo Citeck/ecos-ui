@@ -1,18 +1,11 @@
-import React from "react";
-import ReactDiffViewer, { DiffMethod } from "react-diff-viewer-continued";
+import React from 'react';
+import ReactDiffViewer, { DiffMethod } from 'react-diff-viewer-continued';
 
-import { getMLValue } from '@/helpers/util';
+import { Icon } from '@/components/common';
 import { t } from '@/helpers/export/util';
-import { Icon } from "@/components/common";
+import { getMLValue } from '@/helpers/util';
 
-const DiffViewer = ({
-  original,
-  modified,
-  attributeName,
-  onApplyChanges,
-  isApplying = false,
-}) => {
-
+const DiffViewer = ({ original, modified, attributeName, onApplyChanges, isApplying = false }) => {
   if (!original && !modified) {
     return null;
   }

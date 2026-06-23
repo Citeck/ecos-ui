@@ -1,18 +1,20 @@
-import React from 'react';
 import classNames from 'classnames';
+import React from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-import { t } from '@/helpers/export/util';
-import EmailMessage from './EmailMessage';
-import TextDiffMessage from './TextDiffMessage';
-import ScriptDiffMessage from './ScriptDiffMessage';
-import BusinessAppMessage from './BusinessAppMessage';
+import { formatMessageTime } from '../../utils';
+
 import AgentPlanMessage from './AgentPlanMessage';
 import AgentProgressMessage from './AgentProgressMessage';
+import BusinessAppMessage from './BusinessAppMessage';
 import ContextArtifactsList from './ContextArtifactsList';
+import EmailMessage from './EmailMessage';
 import MessageActions from './MessageActions';
-import { formatMessageTime } from '../../utils';
+import ScriptDiffMessage from './ScriptDiffMessage';
+import TextDiffMessage from './TextDiffMessage';
+
+import { t } from '@/helpers/export/util';
 
 /**
  * Message item component that renders appropriate message type
@@ -79,32 +81,17 @@ const MessageItem = ({
 
     // Agent plan message (plan approval, step approval, completed, failed)
     if (message.isAgentPlanContent) {
-      return (
-        <AgentPlanMessage
-          message={message}
-          markdownComponents={markdownComponents}
-          onActionClick={onActionClick}
-        />
-      );
+      return <AgentPlanMessage message={message} markdownComponents={markdownComponents} onActionClick={onActionClick} />;
     }
 
     // Agent progress message (planning, executing)
     if (message.isAgentProgressContent) {
-      return (
-        <AgentProgressMessage
-          message={message}
-        />
-      );
+      return <AgentProgressMessage message={message} />;
     }
 
     // Business app progress message
     if (message.isBusinessAppContent && message.messageData) {
-      return (
-        <BusinessAppMessage
-          message={message}
-          markdownComponents={markdownComponents}
-        />
-      );
+      return <BusinessAppMessage message={message} markdownComponents={markdownComponents} />;
     }
 
     // Default markdown message
@@ -113,54 +100,39 @@ const MessageItem = ({
         <Markdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
           {message.text}
         </Markdown>
-        {message.messageData?.contextArtifacts && (
-          <ContextArtifactsList contextArtifacts={message.messageData.contextArtifacts} />
-        )}
-        {message.messageData?.actions && (
-          <MessageActions actions={message.messageData.actions} onActionClick={onActionClick} />
-        )}
+        {message.messageData?.contextArtifacts && <ContextArtifactsList contextArtifacts={message.messageData.contextArtifacts} />}
+        {message.messageData?.actions && <MessageActions actions={message.messageData.actions} onActionClick={onActionClick} />}
       </>
     );
   };
 
   return (
     <div
-      className={classNames(
-        'ai-assistant-chat__message',
-        `ai-assistant-chat__message--${message.sender}`,
-        {
-          'ai-assistant-chat__message--error': message.isError,
-          'ai-assistant-chat__message--processing': message.isProcessing,
-          'ai-assistant-chat__message--cancelled': message.isCancelled,
-          'ai-assistant-chat__message--email': message.isEmailContent,
-          'ai-assistant-chat__message--text-diff': message.isTextDiffContent,
-          'ai-assistant-chat__message--script-diff': message.isScriptDiffContent,
-          'ai-assistant-chat__message--business-app': message.isBusinessAppContent,
-          'ai-assistant-chat__message--agent-plan': message.isAgentPlanContent,
-          'ai-assistant-chat__message--agent-progress': message.isAgentProgressContent
-        }
-      )}
+      className={classNames('ai-assistant-chat__message', `ai-assistant-chat__message--${message.sender}`, {
+        'ai-assistant-chat__message--error': message.isError,
+        'ai-assistant-chat__message--processing': message.isProcessing,
+        'ai-assistant-chat__message--cancelled': message.isCancelled,
+        'ai-assistant-chat__message--email': message.isEmailContent,
+        'ai-assistant-chat__message--text-diff': message.isTextDiffContent,
+        'ai-assistant-chat__message--script-diff': message.isScriptDiffContent,
+        'ai-assistant-chat__message--business-app': message.isBusinessAppContent,
+        'ai-assistant-chat__message--agent-plan': message.isAgentPlanContent,
+        'ai-assistant-chat__message--agent-progress': message.isAgentProgressContent
+      })}
     >
-      <div className="ai-assistant-chat__message-content">
-        {renderContent()}
-      </div>
+      <div className="ai-assistant-chat__message-content">{renderContent()}</div>
 
       {/* Cancel button for processing messages */}
       {message.isProcessing && message.pollingIsUsed && (
         <div className="ai-assistant-chat__cancel-action">
-          <button
-            className="ai-assistant-chat__action-button ai-assistant-chat__action-button--cancel"
-            onClick={onCancelRequest}
-          >
+          <button className="ai-assistant-chat__action-button ai-assistant-chat__action-button--cancel" onClick={onCancelRequest}>
             {t('ai-assistant.action.cancel')}
           </button>
         </div>
       )}
 
       {/* Timestamp */}
-      <div className="ai-assistant-chat__message-time">
-        {formatMessageTime(message.timestamp)}
-      </div>
+      <div className="ai-assistant-chat__message-time">{formatMessageTime(message.timestamp)}</div>
     </div>
   );
 };

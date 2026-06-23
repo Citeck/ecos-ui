@@ -1,13 +1,15 @@
 import { marked } from 'marked';
-import { t } from '@/helpers/export/util';
+
 import { formatMessageTime } from './utils';
+
+import { t } from '@/helpers/export/util';
 
 /**
  * Format date in Russian locale: DD.MM.YYYY HH:MM
  * @param {Date} date
  * @returns {string}
  */
-const formatExportDate = (date) => {
+const formatExportDate = date => {
   return date.toLocaleString('ru-RU', {
     day: '2-digit',
     month: '2-digit',
@@ -38,7 +40,7 @@ const formatSenderRole = (message, selectedAgent) => {
  * @param {Object} message
  * @returns {string|null} null if message should be skipped
  */
-const buildMessageMarkdown = (message) => {
+const buildMessageMarkdown = message => {
   if (message.isProcessing || message.isCancelled) {
     return null;
   }
@@ -102,7 +104,7 @@ const buildMessageMarkdown = (message) => {
     }
     if (message.messageData.artifacts && message.messageData.artifacts.length > 0) {
       parts.push('', `**${t('ai-assistant.export.artifacts')}:**`);
-      message.messageData.artifacts.forEach((artifact) => {
+      message.messageData.artifacts.forEach(artifact => {
         parts.push(`- ${artifact.name || artifact.id || artifact}`);
       });
     }
@@ -122,7 +124,7 @@ const buildMessageMarkdown = (message) => {
         parts.push(`**${t('ai-assistant.export.progress')}:** ${completedSteps}/${totalSteps}`);
         parts.push('');
       }
-      steps.forEach((step) => {
+      steps.forEach(step => {
         const checkbox = step.status === 'COMPLETED' ? '[x]' : '[ ]';
         let line = `- ${checkbox} ${step.description}`;
         if (step.executionTime && step.status === 'COMPLETED') {
@@ -144,7 +146,7 @@ const buildMessageMarkdown = (message) => {
     const parts = [detailedStatus || statusMessage || message.text];
     if (artifacts && artifacts.length > 0) {
       parts.push('', `**${t('ai-assistant.export.artifacts')}:**`);
-      artifacts.forEach((artifact) => {
+      artifacts.forEach(artifact => {
         parts.push(`- ${artifact.name || artifact.id || artifact}`);
       });
     }
@@ -161,13 +163,9 @@ const buildMessageMarkdown = (message) => {
  * @returns {string}
  */
 export const buildChatMarkdown = (messages, selectedAgent = null) => {
-  const lines = [
-    `# Citeck AI — ${t('ai-assistant.export.title')}`,
-    formatExportDate(new Date()),
-    ''
-  ];
+  const lines = [`# Citeck AI — ${t('ai-assistant.export.title')}`, formatExportDate(new Date()), ''];
 
-  messages.forEach((message) => {
+  messages.forEach(message => {
     const content = buildMessageMarkdown(message);
     if (content === null) {
       return;
@@ -266,9 +264,9 @@ const downloadFile = (content, filename, mimeType) => {
  * @param {string} extension
  * @returns {string}
  */
-const generateFilename = (extension) => {
+const generateFilename = extension => {
   const now = new Date();
-  const pad = (n) => String(n).padStart(2, '0');
+  const pad = n => String(n).padStart(2, '0');
   const date = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
   const time = `${pad(now.getHours())}${pad(now.getMinutes())}`;
   return `chat-export-${date}-${time}.${extension}`;

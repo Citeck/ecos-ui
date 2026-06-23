@@ -1,23 +1,7 @@
 import AIAssistantButton from './AIAssistantButton';
 import AIAssistantChat from './AIAssistantChat';
-import ScriptEditorAIButton from './ScriptEditorAIButton';
-import ScriptDiffViewer from './ScriptDiffViewer';
-import ScriptAIService from './ScriptAIService';
-import TextAreaAIButton from './TextAreaAIButton';
-import TextAIService, { TEXT_QUICK_ACTIONS, TEXT_CONTEXT_TYPES } from './TextAIService';
-import editorContextService, { CONTEXT_TYPES } from './EditorContextService';
 import aiAssistantService from './AIAssistantService';
-import { setupBPMNContextObserver } from './BPMNInitializer';
-
-// Unified AI Content Service
-import AIContentService, {
-  generateContent,
-  QUICK_ACTIONS,
-  CONTEXT_TYPES as CONTENT_CONTEXT_TYPES
-} from './AIContentService';
-import { CONTENT_TYPES } from './constants';
-
-// Universal AI Quick Actions
+import AIContentService, { generateContent, QUICK_ACTIONS, CONTEXT_TYPES as CONTENT_CONTEXT_TYPES } from './AIContentService';
 import {
   AIFieldActions,
   AIFieldTrigger,
@@ -33,6 +17,14 @@ import {
   getAvailableActions,
   getContentType
 } from './AIQuickActions';
+import { setupBPMNContextObserver } from './BPMNInitializer';
+import editorContextService, { CONTEXT_TYPES } from './EditorContextService';
+import ScriptAIService from './ScriptAIService';
+import ScriptDiffViewer from './ScriptDiffViewer';
+import ScriptEditorAIButton from './ScriptEditorAIButton';
+import TextAIService, { TEXT_QUICK_ACTIONS, TEXT_CONTEXT_TYPES } from './TextAIService';
+import TextAreaAIButton from './TextAreaAIButton';
+import { CONTENT_TYPES } from './constants';
 
 if (typeof jest === 'undefined') {
   setupBPMNContextObserver();
