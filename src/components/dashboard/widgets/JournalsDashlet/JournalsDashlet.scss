@@ -155,6 +155,10 @@
         }
       }
 
+      &_has-menu {
+        margin-right: 10px;
+      }
+
       > i {
         display: none;
       }
@@ -242,6 +246,8 @@
     align-items: center !important;
     justify-content: center;
     padding: 0 !important;
+    background-color: transparent !important;
+    color: $color-gray-5 !important;
 
     i {
       font-size: 14px !important;
