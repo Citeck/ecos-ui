@@ -34,6 +34,7 @@ export const PageTypes = {
   BPMN_EDITOR: 'bpmn-editor',
   CMMN_EDITOR: 'cmmn-editor',
   DMN_EDITOR: 'dmn-editor',
+  CAMEL_DSL_EDITOR: 'camel-dsl-editor',
   BPMN_DESIGNER: 'bpmn-designer',
   ORGSTRUCTURE: 'orgstructure',
   DEV_TOOLS: 'dev-tools',
@@ -93,6 +94,10 @@ export default class PageService {
       return PageTypes.DMN_EDITOR;
     }
 
+    if (type.indexOf(PageTypes.CAMEL_DSL_EDITOR) === 0) {
+      return PageTypes.CAMEL_DSL_EDITOR;
+    }
+
     if (type.indexOf(PageTypes.BPMN_MIGRATION) === 0) {
       return PageTypes.BPMN_MIGRATION;
     }
@@ -146,6 +151,14 @@ export default class PageService {
       case PageTypes.BPMN_ADMIN_PROCESS:
       case PageTypes.BPMN_ADMIN_INSTANCE:
         return urlProps.query.recordRef || '';
+      case PageTypes.CAMEL_DSL_EDITOR:
+        // Saved routes key by recordRef. New (unsaved) routes are distinguished by a per-draft
+        // `draftId`. IMPORTANT: a new-route link MUST be opened with a unique `?draftId=…` already in
+        // the URL (the opener generates it) — otherwise two `?new=true` tabs share the same key until
+        // CamelDslEditor's mount effect pins one, and the second draft can collapse onto the first.
+        // getKey is a pure function of the URL, so it cannot itself disambiguate two identical
+        // `?new=true` URLs; uniqueness has to come from the link that opens the tab.
+        return urlProps.query.recordRef || urlProps.query.draftId || '';
       case PageTypes.JOURNALS:
         return urlProps.query.journalId || '';
       case PageTypes.BPMN_DESIGNER:
@@ -330,6 +343,16 @@ export default class PageService {
     },
     [PageTypes.CMMN_EDITOR]: {
       getTitle: ({ recordRef }) => pageApi.getRecordTitle(recordRef).then(title => `${t(TITLE[URL.CMMN_EDITOR])} "${convertTitle(title)}"`)
+    },
+    [PageTypes.CAMEL_DSL_EDITOR]: {
+      // .disp у camel-dsl записи отдаёт тип ("Camel DSL"), а не имя.
+      // Берём name?disp, на пустом name — fallback на localId (id типа `gitlab-commits-sync`).
+      getTitle: ({ recordRef }) =>
+        Records.get(recordRef)
+          .load({ name: 'name?disp', localId: '?localId' }, true)
+          .then(({ name, localId }) => name || localId || '')
+          .catch(() => '')
+          .then(title => `${t(TITLE[URL.CAMEL_DSL_EDITOR])} "${convertTitle(title)}"`)
     }
   });
 
@@ -348,6 +371,10 @@ export default class PageService {
    *    pushHistory {boolean},
    *    replaceHistory {boolean} - default true, if updateUrl is true
    *    rerenderPage {boolean} - needed to replace link in the router and start rerendering page
+   *    skipUrlChangeGuards {boolean} - bypass the global beforeUrlChangeGuards chain. Use only for a
+   *      same-tab metadata rewrite (e.g. a page pinning a draftId / switching `?new=true` → `?recordRef`
+   *      in its own tab): it is not navigation away from any other editor, so it must not trip another
+   *      cached editor's workspace-change confirm. The guards belong to OTHER tabs, not to this rewrite.
    */
   static changeUrlLink = (link = '', params = {}) => {
     if (PageService.eventIsDispatched) {
@@ -357,10 +384,11 @@ export default class PageService {
     PageService.eventIsDispatched = true;
 
     try {
-      const fullParams = { link: decodeLink(link), ...params };
+      const { skipUrlChangeGuards, ...restParams } = params;
+      const fullParams = { link: decodeLink(link), ...restParams };
       CHANGE_URL.params = fullParams;
 
-      if (this.beforeUrlChangeGuards.length) {
+      if (!skipUrlChangeGuards && this.beforeUrlChangeGuards.length) {
         this.beforeUrlChangeGuards
           .reduce((prevP, guard) => {
             return prevP.then(() =>
@@ -483,7 +511,9 @@ export default class PageService {
     let elem = currentTarget;
 
     if ((!elem || elem.tagName !== LINK_TAG) && event.target) {
-      elem = event.target.closest('a[href]');
+      // PatternFly Topology pan/zoom re-dispatches synthetic mouse events whose target
+      // lacks Element.closest (not a real DOM node). Optional-chain to skip safely.
+      elem = event.target.closest?.('a[href]');
     }
 
     if (!elem || elem.tagName !== LINK_TAG || !!getBool(elem.getAttribute(linkIgnoreAttr))) {
@@ -564,6 +594,62 @@ export default class PageService {
           }
         }
       }
+    }
+  };
+
+  /**
+   * Migrate a recorded transition-history entry from one link's dedup key to another.
+   *
+   * `setWhereLinkOpen` records the entry under the open-time key, but `extractWhereLinkOpen` later
+   * looks it up by the tab's *current* key. That breaks for a tab that rewrites its own dedup key
+   * during its lifetime — e.g. CamelDslEditor pinning a `draftId` or switching `?new=true` →
+   * `?recordRef` via `changeUrl(..., { updateUrl: true })`: the recorded `?new=true` (empty) key no
+   * longer matches the new `draftId`/`recordRef` key, so back / close-last-tab would fall through to
+   * the dashboard instead of the opener, and the stale entry would never be cleaned up. Call this
+   * alongside such a self-rewrite to keep the history entry findable.
+   * @param fromLink {string} link whose key the entry is currently stored under
+   * @param toLink {string} link whose key the entry should move to
+   */
+  static rekeyWhereLinkOpen = ({ fromLink, toLink }) => {
+    if (!isExistLocalStorage()) {
+      return;
+    }
+
+    const oldKey = PageService.keyId({ link: decodeLink(fromLink) });
+    const newKey = PageService.keyId({ link: decodeLink(toLink) });
+
+    if (oldKey === newKey) {
+      return;
+    }
+
+    const key = getKeyHistory();
+    const history = getData(key) || {};
+    let changed = false;
+
+    for (const parentLink in history) {
+      if (!history.hasOwnProperty(parentLink)) {
+        continue;
+      }
+
+      const source = history[parentLink] || [];
+      const index = source.findIndex(item => oldKey === item);
+
+      if (index < 0) {
+        continue;
+      }
+
+      // Drop instead of rename when the target key is already recorded for this parent — avoids a
+      // duplicate entry that extractWhereLinkOpen would only half-consume.
+      if (source.includes(newKey)) {
+        source.splice(index, 1);
+      } else {
+        source[index] = newKey;
+      }
+      changed = true;
+    }
+
+    if (changed) {
+      setData(key, history);
     }
   };
 }

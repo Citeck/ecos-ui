@@ -4,22 +4,31 @@ import React from 'react';
 
 import { TooltipWrapper, propsTypes } from './TooltipWrapper';
 
-const defaultProps = {
-  placement: 'top',
-  autohide: true,
-  placementPrefix: 'bs-tooltip',
-  trigger: 'hover focus'
-};
-
-export const TooltipContainer = props => {
+export const TooltipContainer = ({
+  placement = 'top',
+  autohide = true,
+  placementPrefix = 'bs-tooltip',
+  trigger = 'hover focus',
+  ...props
+}) => {
   const { modifiers: _modifiers } = props;
 
   const modifiers = !isArray(_modifiers) ? [] : _modifiers;
   const popperClasses = classNames('tooltip', 'show', props.popperClassName);
   const classes = classNames('tooltip-inner', props.innerClassName);
 
-  return <TooltipWrapper {...props} modifiers={modifiers} popperClassName={popperClasses} innerClassName={classes} />;
+  return (
+    <TooltipWrapper
+      {...props}
+      placement={placement}
+      autohide={autohide}
+      placementPrefix={placementPrefix}
+      trigger={trigger}
+      modifiers={modifiers}
+      popperClassName={popperClasses}
+      innerClassName={classes}
+    />
+  );
 };
 
-TooltipContainer.defaultProps = defaultProps;
 TooltipContainer.propTypes = propsTypes;

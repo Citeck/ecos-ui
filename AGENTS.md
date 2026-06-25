@@ -91,6 +91,7 @@ SCSS with modern compiler (`quietDeps: true`). Component-scoped `.scss` files al
 ### Notable integrations
 
 - **BPMN/DMN editors** — bpmn-js, dmn-js (mocked in Jest)
+- **Kaoto Camel DSL editor** — `@kaoto/kaoto` 2.9.0 (pinned: 2.10+ requires React 19). Patched via yarn-berry (`.yarn/patches/@kaoto-kaoto-npm-2.9.0-*.patch`) to fix Maximum-update-depth-cycle and add `initialFilterTags` prop. Camel catalog extended via `public/camel-catalog-overrides/components.json` (Citeck schemes) + `allowlist.json` (Apache schemes filter); merge logic lives in `serveCamelCatalogPlugin` (`vite.config.js` + `vite-plugins/camelCatalogAllowlist.js`). Do NOT wrap Kaoto components in `React.StrictMode`.
 - **Forms** — Formio 3 with custom components
 - **Rich text** — Lexical editor with Yjs collaboration
 - **Auth** — Keycloak 26

@@ -70,7 +70,7 @@ class ModelEditorWrapper extends React.Component {
   }
 
   get configButtons() {
-    const { extraButtons, onCreate, onViewXml, onSaveAsSVG, hasDeployRights } = this.props;
+    const { extraButtons, onCreate, onSaveDraft, onApply, onViewXml, onSaveAsSVG, hasDeployRights } = this.props;
     const configButtons = [];
 
     const extra = get(extraButtons, 'config');
@@ -86,23 +86,29 @@ class ModelEditorWrapper extends React.Component {
       });
     }
 
-    configButtons.push({
-      icon: 'fa fa-file',
-      action: this.onSaveDraft,
-      text: t(Labels.SAVE_DRAFT),
-      id: `bpmn-save-btn-${uuidv4()}`,
-      trigger: 'hover',
-      className: ''
-    });
+    // Save-draft / Apply are gated on their handlers so read-only consumers (e.g. the Kaoto editor,
+    // which passes only `onApply`) get exactly the buttons they wire up instead of the full BPMN set.
+    if (isFunction(onSaveDraft)) {
+      configButtons.push({
+        icon: 'fa fa-file',
+        action: this.onSaveDraft,
+        text: t(Labels.SAVE_DRAFT),
+        id: `bpmn-save-btn-${uuidv4()}`,
+        trigger: 'hover',
+        className: ''
+      });
+    }
 
-    configButtons.push({
-      icon: 'fa fa-save',
-      action: this.onApply,
-      text: t(Labels.APPLY),
-      id: `bpmn-save-btn-${uuidv4()}`,
-      trigger: 'hover',
-      className: ''
-    });
+    if (isFunction(onApply)) {
+      configButtons.push({
+        icon: 'fa fa-save',
+        action: this.onApply,
+        text: t(Labels.APPLY),
+        id: `bpmn-save-btn-${uuidv4()}`,
+        trigger: 'hover',
+        className: ''
+      });
+    }
 
     if (hasDeployRights) {
       configButtons.push({

@@ -1,6 +1,6 @@
 # COREDEV-218: Align AI chat file upload whitelist with backend capabilities
 
-🔗 https://citeck.ecos24.ru/v2/dashboard?recordRef=emodel/ept-issue@COREDEV-218
+🔗 COREDEV-218
 
 ## Overview
 

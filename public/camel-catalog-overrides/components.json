@@ -1,0 +1,1898 @@
+{
+  "ecos-event": {
+    "component": {
+      "kind": "component",
+      "name": "ecos-event",
+      "title": "Citeck Event",
+      "description": "Citeck event trigger / publisher. Используется в from: для подписки на события записей и в to: для публикации событий в шину Citeck. Точное событие задаётся в path-сегменте URI: ecos-event:<eventName>.",
+      "deprecated": false,
+      "firstVersion": "1.0.0",
+      "label": "citeck,citeck-core,event",
+      "javaType": "ru.citeck.ecos.camel.events.EcosEventComponent",
+      "supportLevel": "Stable",
+      "groupId": "ru.citeck.ecos",
+      "artifactId": "ecos-camel-core",
+      "version": "1.0.0",
+      "scheme": "ecos-event",
+      "extendsScheme": "",
+      "syntax": "ecos-event:eventName",
+      "async": false,
+      "api": false,
+      "consumerOnly": false,
+      "producerOnly": false,
+      "lenientProperties": false,
+      "browsable": false,
+      "remote": false,
+      "provider": "Citeck"
+    },
+    "componentProperties": {},
+    "properties": {
+      "eventName": {
+        "index": 0,
+        "kind": "path",
+        "displayName": "Event name",
+        "group": "common",
+        "label": "",
+        "required": true,
+        "type": "string",
+        "javaType": "java.lang.String",
+        "deprecated": false,
+        "deprecationNote": "",
+        "autowired": false,
+        "secret": false,
+        "description": "Имя события Citeck. Стандартные триггеры: record-created, record-changed, record-status-changed, record-deleted, record-content-changed."
+      },
+      "attribute": {
+        "index": 1,
+        "kind": "parameter",
+        "displayName": "Attribute",
+        "group": "common",
+        "label": "",
+        "required": false,
+        "type": "string",
+        "javaType": "java.lang.String",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "description": "Один атрибут, который запрашивается у записи и пробрасывается в exchange. Используется, когда нужен только один скаляр (например, ?id)."
+      },
+      "attributes": {
+        "index": 2,
+        "kind": "parameter",
+        "displayName": "Attributes",
+        "group": "common",
+        "label": "",
+        "required": false,
+        "type": "object",
+        "javaType": "java.util.Map<java.lang.String, java.lang.String>",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "description": "Карта alias → attribute. Запрашиваемые у записи атрибуты, которые попадают в exchange как RECORD_ATTS."
+      },
+      "filter": {
+        "index": 3,
+        "kind": "parameter",
+        "displayName": "Filter",
+        "group": "common",
+        "label": "",
+        "required": false,
+        "type": "object",
+        "javaType": "ru.citeck.ecos.records2.predicate.model.Predicate",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "description": "Predicate-фильтр для отсечения событий. JSON-объект Predicate (см. Records API). По умолчанию — VoidPredicate (пропускает все)."
+      },
+      "transactional": {
+        "index": 4,
+        "kind": "parameter",
+        "displayName": "Transactional",
+        "group": "common",
+        "label": "",
+        "required": false,
+        "type": "boolean",
+        "javaType": "boolean",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "defaultValue": "false",
+        "description": "Если true — обработка события выполняется внутри открытой транзакции (TxnContext). По умолчанию false."
+      },
+      "outputType": {
+        "index": 5,
+        "kind": "parameter",
+        "displayName": "Output type",
+        "group": "common",
+        "label": "",
+        "required": false,
+        "type": "string",
+        "javaType": "ru.citeck.ecos.camel.events.EcosEventEndpoint$OutputType",
+        "enum": [
+          "DATA_VALUE",
+          "JSON_STRING",
+          "JAVA",
+          "DEFAULT"
+        ],
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "defaultValue": "DEFAULT",
+        "description": "Формат тела exchange. DATA_VALUE — DataValue, JSON_STRING — строка JSON, JAVA — POJO, DEFAULT — авто (DataValue для одного atts, иначе POJO)."
+      }
+    },
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "required": [
+        "eventName"
+      ],
+      "properties": {
+        "eventName": {
+          "title": "Event name",
+          "description": "Имя события Citeck. Стандартные триггеры: record-created, record-changed, record-status-changed, record-deleted, record-content-changed.",
+          "type": "string",
+          "$comment": "group:common|citeck"
+        },
+        "attribute": {
+          "title": "Attribute",
+          "description": "Один атрибут, который запрашивается у записи и пробрасывается в exchange. Используется, когда нужен только один скаляр (например, ?id).",
+          "type": "string",
+          "$comment": "group:common|citeck"
+        },
+        "attributes": {
+          "title": "Attributes",
+          "description": "Карта alias → attribute. Запрашиваемые у записи атрибуты, которые попадают в exchange как RECORD_ATTS.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "$comment": "group:common|citeck"
+        },
+        "filter": {
+          "title": "Filter",
+          "description": "Predicate-фильтр для отсечения событий. JSON-объект Predicate (см. Records API). По умолчанию — VoidPredicate (пропускает все).",
+          "type": "object",
+          "$comment": "group:common|citeck"
+        },
+        "transactional": {
+          "title": "Transactional",
+          "description": "Если true — обработка события выполняется внутри открытой транзакции (TxnContext). По умолчанию false.",
+          "type": "boolean",
+          "default": false,
+          "$comment": "group:common|citeck"
+        },
+        "outputType": {
+          "title": "Output type",
+          "description": "Формат тела exchange. DATA_VALUE — DataValue, JSON_STRING — строка JSON, JAVA — POJO, DEFAULT — авто (DataValue для одного atts, иначе POJO).",
+          "type": "string",
+          "enum": [
+            "DATA_VALUE",
+            "JSON_STRING",
+            "JAVA",
+            "DEFAULT"
+          ],
+          "default": "DEFAULT",
+          "$comment": "group:common|citeck"
+        }
+      }
+    },
+    "_decisionNote": "Override aligned with EcosEventEndpoint.kt 2026-04-29 (kaoto-palette-consolidation §3.0 verification pass): replaced invented recordType/typeRef and string-typed attributes with the canonical attribute/attributes(Map)/filter(Predicate)/transactional(boolean)/outputType(enum). eventName intentionally has no enum: standard triggers are surfaced via SuggestionRegistryProvider (citeck-event-trigger) registered in CiteckSuggestionsBootstrap."
+  },
+  "ecos-records-query": {
+    "component": {
+      "kind": "component",
+      "name": "ecos-records-query",
+      "title": "Citeck Records Query",
+      "description": "Citeck Records query producer. Выполняет records-query через Records API на основании RecordsQuery, переданного в теле обмена. Возвращает список записей в выбранном формате (DEFAULT/DATA_VALUE/JSON_STRING/JAVA).",
+      "deprecated": false,
+      "firstVersion": "1.0.0",
+      "label": "citeck,citeck-core,records,query",
+      "javaType": "ru.citeck.ecos.camel.records.query.EcosRecordsQueryComponent",
+      "supportLevel": "Stable",
+      "groupId": "ru.citeck.ecos",
+      "artifactId": "ecos-camel-core",
+      "version": "1.0.0",
+      "scheme": "ecos-records-query",
+      "extendsScheme": "",
+      "syntax": "ecos-records-query:",
+      "async": false,
+      "api": false,
+      "consumerOnly": false,
+      "producerOnly": true,
+      "lenientProperties": false,
+      "browsable": false,
+      "remote": false,
+      "provider": "Citeck"
+    },
+    "componentProperties": {},
+    "properties": {
+      "outputType": {
+        "index": 0,
+        "kind": "parameter",
+        "displayName": "Output type",
+        "group": "producer",
+        "label": "producer",
+        "required": false,
+        "type": "string",
+        "javaType": "ru.citeck.ecos.camel.records.query.EcosRecordsQueryEndpoint$OutputType",
+        "enum": [
+          "DATA_VALUE",
+          "JSON_STRING",
+          "JAVA",
+          "DEFAULT"
+        ],
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "defaultValue": "DEFAULT",
+        "description": "Формат записей в результате: DEFAULT — DataValue (как DATA_VALUE), DATA_VALUE — DataValue, JSON_STRING — строка JSON, JAVA — нативный Java-объект."
+      }
+    },
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "required": [],
+      "properties": {
+        "outputType": {
+          "title": "Output type",
+          "description": "Формат записей в результате: DEFAULT — DataValue (как DATA_VALUE), DATA_VALUE — DataValue, JSON_STRING — строка JSON, JAVA — нативный Java-объект.",
+          "type": "string",
+          "enum": [
+            "DATA_VALUE",
+            "JSON_STRING",
+            "JAVA",
+            "DEFAULT"
+          ],
+          "default": "DEFAULT",
+          "$comment": "group:producer|citeck"
+        }
+      }
+    }
+  },
+  "ecos-records-mutate": {
+    "component": {
+      "kind": "component",
+      "name": "ecos-records-mutate",
+      "title": "Citeck Records Mutate",
+      "description": "Citeck Records mutate producer. Создаёт или обновляет записи через Records API на основании RecordAtts/коллекции, переданной в теле обмена. Идентификатор источника задаётся параметром sourceId или резолвится через ecosType.",
+      "deprecated": false,
+      "firstVersion": "1.0.0",
+      "label": "citeck,citeck-core,records,mutate",
+      "javaType": "ru.citeck.ecos.camel.records.mutate.EcosRecordsMutateComponent",
+      "supportLevel": "Stable",
+      "groupId": "ru.citeck.ecos",
+      "artifactId": "ecos-camel-core",
+      "version": "1.0.0",
+      "scheme": "ecos-records-mutate",
+      "extendsScheme": "",
+      "syntax": "ecos-records-mutate:",
+      "async": false,
+      "api": false,
+      "consumerOnly": false,
+      "producerOnly": true,
+      "lenientProperties": false,
+      "browsable": false,
+      "remote": false,
+      "provider": "Citeck"
+    },
+    "componentProperties": {},
+    "properties": {
+      "sourceId": {
+        "index": 0,
+        "kind": "parameter",
+        "displayName": "Source id",
+        "group": "producer",
+        "label": "producer",
+        "required": false,
+        "type": "string",
+        "javaType": "java.lang.String",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "description": "Идентификатор источника записей (например, emodel/type или application/source). Если не задан — резолвится из ecosType / атрибутов записи."
+      },
+      "ecosType": {
+        "index": 1,
+        "kind": "parameter",
+        "displayName": "Ecos type",
+        "group": "producer",
+        "label": "producer",
+        "required": false,
+        "type": "string",
+        "javaType": "java.lang.String",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "description": "Локальный id типа из emodel/type. Используется для резолва sourceId, если он не задан явно."
+      },
+      "ignoreIdScalarAtt": {
+        "index": 2,
+        "kind": "parameter",
+        "displayName": "Ignore id scalar attribute",
+        "group": "producer",
+        "label": "producer",
+        "required": false,
+        "type": "boolean",
+        "javaType": "boolean",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "defaultValue": "false",
+        "description": "Игнорировать ?id-скаляр в RecordAtts при mutate (вместо обновления существующей — создавать новую запись)."
+      }
+    },
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "required": [],
+      "properties": {
+        "sourceId": {
+          "title": "Source id",
+          "description": "Идентификатор источника записей (например, emodel/type или application/source). Если не задан — резолвится из ecosType / атрибутов записи.",
+          "type": "string",
+          "$comment": "group:producer|citeck"
+        },
+        "ecosType": {
+          "title": "Ecos type",
+          "description": "Локальный id типа из emodel/type. Используется для резолва sourceId, если он не задан явно.",
+          "type": "string",
+          "$comment": "group:producer|citeck"
+        },
+        "ignoreIdScalarAtt": {
+          "title": "Ignore id scalar attribute",
+          "description": "Игнорировать ?id-скаляр в RecordAtts при mutate (вместо обновления существующей — создавать новую запись).",
+          "type": "boolean",
+          "default": false,
+          "$comment": "group:producer|citeck"
+        }
+      }
+    }
+  },
+  "ecos-records-sync-consumer": {
+    "component": {
+      "kind": "component",
+      "name": "ecos-records-sync-consumer",
+      "title": "Citeck Records Sync Consumer",
+      "description": "Citeck Records sync consumer (scheduled poller). Запрашивает записи через Records API по предикату/sourceId/ecosType и постранично пушит их в маршрут с использованием стратегии итерации (CREATED, MODIFIED, CREATED_MODIFIED) и распределённой блокировки по syncName.",
+      "deprecated": false,
+      "firstVersion": "1.0.0",
+      "label": "citeck,citeck-core,records,sync",
+      "javaType": "ru.citeck.ecos.camel.records.sync.EcosRecordsSyncConsumerComponent",
+      "supportLevel": "Stable",
+      "groupId": "ru.citeck.ecos",
+      "artifactId": "ecos-camel-core",
+      "version": "1.0.0",
+      "scheme": "ecos-records-sync-consumer",
+      "extendsScheme": "",
+      "syntax": "ecos-records-sync-consumer:syncName",
+      "async": false,
+      "api": false,
+      "consumerOnly": true,
+      "producerOnly": false,
+      "lenientProperties": false,
+      "browsable": false,
+      "remote": false,
+      "provider": "Citeck"
+    },
+    "componentProperties": {},
+    "properties": {
+      "syncName": {
+        "index": 0,
+        "kind": "path",
+        "displayName": "Sync name",
+        "group": "consumer",
+        "label": "consumer",
+        "required": true,
+        "type": "string",
+        "javaType": "java.lang.String",
+        "deprecated": false,
+        "deprecationNote": "",
+        "autowired": false,
+        "secret": false,
+        "description": "Уникальное имя синхронизации. Используется для построения syncId (camel:ecos-records-sync-consumer:<syncName>) и распределённой блокировки между инстансами."
+      },
+      "sourceId": {
+        "index": 1,
+        "kind": "parameter",
+        "displayName": "Source id",
+        "group": "consumer",
+        "label": "consumer",
+        "required": false,
+        "type": "string",
+        "javaType": "java.lang.String",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "description": "Идентификатор источника записей (например, emodel/type или application/source). Если не задан — резолвится из ecosType."
+      },
+      "ecosType": {
+        "index": 2,
+        "kind": "parameter",
+        "displayName": "Ecos type",
+        "group": "consumer",
+        "label": "consumer",
+        "required": false,
+        "type": "string",
+        "javaType": "java.lang.String",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "description": "Локальный id типа из emodel/type. Используется для резолва sourceId, если он не задан явно."
+      },
+      "predicate": {
+        "index": 3,
+        "kind": "parameter",
+        "displayName": "Predicate",
+        "group": "consumer",
+        "label": "consumer",
+        "required": false,
+        "type": "object",
+        "javaType": "ru.citeck.ecos.records2.predicate.model.Predicate",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "description": "Предикат для фильтрации записей при синхронизации. JSON-объект Predicate (см. Records API)."
+      },
+      "initDate": {
+        "index": 4,
+        "kind": "parameter",
+        "displayName": "Init date",
+        "group": "consumer",
+        "label": "consumer",
+        "required": false,
+        "type": "string",
+        "javaType": "java.time.Instant",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "defaultValue": "1970-01-01T00:00:00Z",
+        "description": "Стартовая дата для первой итерации синхронизации (ISO-8601 Instant). По умолчанию — эпоха Unix."
+      },
+      "iterationStrategy": {
+        "index": 5,
+        "kind": "parameter",
+        "displayName": "Iteration strategy",
+        "group": "consumer",
+        "label": "consumer",
+        "required": false,
+        "type": "string",
+        "javaType": "ru.citeck.ecos.camel.records.sync.EcosRecordsSyncIterStrategy",
+        "enum": [
+          "CREATED_MODIFIED",
+          "CREATED",
+          "MODIFIED"
+        ],
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "defaultValue": "CREATED_MODIFIED",
+        "description": "Стратегия обхода: CREATED — только новые записи, MODIFIED — только изменённые, CREATED_MODIFIED — двухпроходная (сначала created, затем modified)."
+      },
+      "batchSize": {
+        "index": 6,
+        "kind": "parameter",
+        "displayName": "Batch size",
+        "group": "consumer",
+        "label": "consumer",
+        "required": false,
+        "type": "integer",
+        "javaType": "int",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "defaultValue": "100",
+        "description": "Размер страницы (batch) при выборке записей из источника."
+      },
+      "attributes": {
+        "index": 7,
+        "kind": "parameter",
+        "displayName": "Attributes",
+        "group": "consumer",
+        "label": "consumer",
+        "required": false,
+        "type": "object",
+        "javaType": "java.util.Map<java.lang.String, java.lang.String>",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "description": "Карта запрашиваемых атрибутов (alias → schema), которые подгружаются для каждой записи и попадают в exchange."
+      },
+      "addAuditAttributes": {
+        "index": 8,
+        "kind": "parameter",
+        "displayName": "Add audit attributes",
+        "group": "consumer",
+        "label": "consumer",
+        "required": false,
+        "type": "boolean",
+        "javaType": "boolean",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "defaultValue": "true",
+        "description": "Добавлять стандартные audit-атрибуты (_created, _modified) в запрос — нужны для работы стратегий итерации."
+      }
+    },
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "required": [
+        "syncName"
+      ],
+      "properties": {
+        "syncName": {
+          "title": "Sync name",
+          "description": "Уникальное имя синхронизации. Используется для построения syncId (camel:ecos-records-sync-consumer:<syncName>) и распределённой блокировки между инстансами.",
+          "type": "string",
+          "$comment": "group:consumer|citeck"
+        },
+        "sourceId": {
+          "title": "Source id",
+          "description": "Идентификатор источника записей (например, emodel/type или application/source). Если не задан — резолвится из ecosType.",
+          "type": "string",
+          "$comment": "group:consumer|citeck"
+        },
+        "ecosType": {
+          "title": "Ecos type",
+          "description": "Локальный id типа из emodel/type. Используется для резолва sourceId, если он не задан явно.",
+          "type": "string",
+          "$comment": "group:consumer|citeck"
+        },
+        "predicate": {
+          "title": "Predicate",
+          "description": "Предикат для фильтрации записей при синхронизации. JSON-объект Predicate (см. Records API).",
+          "type": "object",
+          "$comment": "group:consumer|citeck"
+        },
+        "initDate": {
+          "title": "Init date",
+          "description": "Стартовая дата для первой итерации синхронизации (ISO-8601 Instant). По умолчанию — эпоха Unix.",
+          "type": "string",
+          "default": "1970-01-01T00:00:00Z",
+          "$comment": "group:consumer|citeck"
+        },
+        "iterationStrategy": {
+          "title": "Iteration strategy",
+          "description": "Стратегия обхода: CREATED — только новые записи, MODIFIED — только изменённые, CREATED_MODIFIED — двухпроходная (сначала created, затем modified).",
+          "type": "string",
+          "enum": [
+            "CREATED_MODIFIED",
+            "CREATED",
+            "MODIFIED"
+          ],
+          "default": "CREATED_MODIFIED",
+          "$comment": "group:consumer|citeck"
+        },
+        "batchSize": {
+          "title": "Batch size",
+          "description": "Размер страницы (batch) при выборке записей из источника.",
+          "type": "integer",
+          "default": 100,
+          "$comment": "group:consumer|citeck"
+        },
+        "attributes": {
+          "title": "Attributes",
+          "description": "Карта запрашиваемых атрибутов (alias → schema), которые подгружаются для каждой записи и попадают в exchange.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "$comment": "group:consumer|citeck"
+        },
+        "addAuditAttributes": {
+          "title": "Add audit attributes",
+          "description": "Добавлять стандартные audit-атрибуты (_created, _modified) в запрос — нужны для работы стратегий итерации.",
+          "type": "boolean",
+          "default": true,
+          "$comment": "group:consumer|citeck"
+        }
+      }
+    }
+  },
+  "ecos-attributes-mapper": {
+    "component": {
+      "kind": "component",
+      "name": "ecos-attributes-mapper",
+      "title": "Citeck Attributes Mapper",
+      "description": "Citeck attributes mapper producer. Преобразует входящий ObjectData по описанию атрибутов типа Citeck (typeId): резолвит assoc'и через Records API, парсит multi-value поля по разделителю и применяет assocMapping для подмены значений.",
+      "deprecated": false,
+      "firstVersion": "1.0.0",
+      "label": "citeck,citeck-core,attributes",
+      "javaType": "ru.citeck.ecos.camel.attributes.EcosAttributesMapperComponent",
+      "supportLevel": "Stable",
+      "groupId": "ru.citeck.ecos",
+      "artifactId": "ecos-camel-core",
+      "version": "1.0.0",
+      "scheme": "ecos-attributes-mapper",
+      "extendsScheme": "",
+      "syntax": "ecos-attributes-mapper:typeId",
+      "async": false,
+      "api": false,
+      "consumerOnly": false,
+      "producerOnly": true,
+      "lenientProperties": false,
+      "browsable": false,
+      "remote": false,
+      "provider": "Citeck"
+    },
+    "componentProperties": {},
+    "properties": {
+      "typeId": {
+        "index": 0,
+        "kind": "path",
+        "displayName": "Type id",
+        "group": "common",
+        "label": "",
+        "required": true,
+        "type": "string",
+        "javaType": "java.lang.String",
+        "deprecated": false,
+        "deprecationNote": "",
+        "autowired": false,
+        "secret": false,
+        "description": "Локальный id типа Citeck (emodel/type@<typeId>), описание атрибутов которого используется для маппинга входящего ObjectData."
+      },
+      "delimiter": {
+        "index": 1,
+        "kind": "parameter",
+        "displayName": "Delimiter",
+        "group": "common",
+        "label": "",
+        "required": false,
+        "type": "string",
+        "javaType": "java.lang.String",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "defaultValue": ",",
+        "description": "Разделитель для парсинга multi-value атрибутов из строкового представления (например, assoc'ов или enum-значений)."
+      }
+    },
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "required": [
+        "typeId"
+      ],
+      "properties": {
+        "typeId": {
+          "title": "Type id",
+          "description": "Локальный id типа Citeck (emodel/type@<typeId>), описание атрибутов которого используется для маппинга входящего ObjectData.",
+          "type": "string",
+          "$comment": "group:common|citeck"
+        },
+        "delimiter": {
+          "title": "Delimiter",
+          "description": "Разделитель для парсинга multi-value атрибутов из строкового представления (например, assoc'ов или enum-значений).",
+          "type": "string",
+          "default": ",",
+          "$comment": "group:common|citeck"
+        }
+      }
+    }
+  },
+  "ecos-records-delete": {
+    "component": {
+      "kind": "component",
+      "name": "ecos-records-delete",
+      "title": "Citeck Records Delete",
+      "description": "Citeck Records delete producer. Удаляет записи через Records API на основании refs (EntityRef / коллекции) в теле обмена. Опционально игнорирует невалидные ref'ы.",
+      "deprecated": false,
+      "firstVersion": "1.0.0",
+      "label": "citeck,citeck-core,records,delete",
+      "javaType": "ru.citeck.ecos.camel.records.delete.EcosRecordsDeleteComponent",
+      "supportLevel": "Stable",
+      "groupId": "ru.citeck.ecos",
+      "artifactId": "ecos-camel-core",
+      "version": "1.0.0",
+      "scheme": "ecos-records-delete",
+      "extendsScheme": "",
+      "syntax": "ecos-records-delete:",
+      "async": false,
+      "api": false,
+      "consumerOnly": false,
+      "producerOnly": true,
+      "lenientProperties": false,
+      "browsable": false,
+      "remote": false,
+      "provider": "Citeck"
+    },
+    "componentProperties": {},
+    "properties": {
+      "sourceId": {
+        "index": 0,
+        "kind": "parameter",
+        "displayName": "Source id",
+        "group": "producer",
+        "label": "producer",
+        "required": false,
+        "type": "string",
+        "javaType": "java.lang.String",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "description": "Идентификатор источника записей. Используется когда тело обмена содержит локальные id вместо полных EntityRef'ов."
+      },
+      "ignoreInvalidRefs": {
+        "index": 1,
+        "kind": "parameter",
+        "displayName": "Ignore invalid refs",
+        "group": "producer",
+        "label": "producer",
+        "required": false,
+        "type": "boolean",
+        "javaType": "boolean",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "defaultValue": "false",
+        "description": "Игнорировать невалидные / несуществующие ref'ы при удалении вместо падения."
+      }
+    },
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "required": [],
+      "properties": {
+        "sourceId": {
+          "title": "Source id",
+          "description": "Идентификатор источника записей. Используется когда тело обмена содержит локальные id вместо полных EntityRef'ов.",
+          "type": "string",
+          "$comment": "group:producer|citeck"
+        },
+        "ignoreInvalidRefs": {
+          "title": "Ignore invalid refs",
+          "description": "Игнорировать невалидные / несуществующие ref'ы при удалении вместо падения.",
+          "type": "boolean",
+          "default": false,
+          "$comment": "group:producer|citeck"
+        }
+      }
+    }
+  },
+  "ecos-excel-stream-read": {
+    "component": {
+      "kind": "component",
+      "name": "ecos-excel-stream-read",
+      "title": "Citeck Excel Stream Read",
+      "description": "Citeck Excel stream-read consumer. Постранично (batchSize) читает Excel-файл, заданный contentRef (EntityRef на content-запись), и пушит строки в маршрут как ObjectData. Поддерживает выбор листа, номера строки заголовка и маппинг кастомных имён атрибутов.",
+      "deprecated": false,
+      "firstVersion": "1.0.0",
+      "label": "citeck,citeck-core,import,excel",
+      "javaType": "ru.citeck.ecos.camel.importdata.excel.EcosExcelStreamReadComponent",
+      "supportLevel": "Stable",
+      "groupId": "ru.citeck.ecos",
+      "artifactId": "ecos-camel-core",
+      "version": "1.0.0",
+      "scheme": "ecos-excel-stream-read",
+      "extendsScheme": "",
+      "syntax": "ecos-excel-stream-read:contentRef",
+      "async": false,
+      "api": false,
+      "consumerOnly": true,
+      "producerOnly": false,
+      "lenientProperties": false,
+      "browsable": false,
+      "remote": false,
+      "provider": "Citeck"
+    },
+    "componentProperties": {},
+    "properties": {
+      "contentRef": {
+        "index": 0,
+        "kind": "path",
+        "displayName": "Content ref",
+        "group": "consumer",
+        "label": "consumer",
+        "required": true,
+        "type": "string",
+        "javaType": "ru.citeck.ecos.webapp.api.entity.EntityRef",
+        "deprecated": false,
+        "deprecationNote": "",
+        "autowired": false,
+        "secret": false,
+        "description": "EntityRef на content-запись с Excel-файлом, содержимое которого будет прочитано и преобразовано в ObjectData."
+      },
+      "batchSize": {
+        "index": 1,
+        "kind": "parameter",
+        "displayName": "Batch size",
+        "group": "consumer",
+        "label": "consumer",
+        "required": false,
+        "type": "integer",
+        "javaType": "int",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "defaultValue": "100",
+        "description": "Размер страницы (batch) при потоковом чтении строк Excel-файла. По умолчанию — 100."
+      },
+      "sheetName": {
+        "index": 2,
+        "kind": "parameter",
+        "displayName": "Sheet name",
+        "group": "consumer",
+        "label": "consumer",
+        "required": false,
+        "type": "string",
+        "javaType": "java.lang.String",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "description": "Имя листа Excel-файла. Если не задано — читается первый лист."
+      },
+      "headRowNumber": {
+        "index": 3,
+        "kind": "parameter",
+        "displayName": "Head row number",
+        "group": "consumer",
+        "label": "consumer",
+        "required": false,
+        "type": "integer",
+        "javaType": "java.lang.Integer",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "description": "Номер строки заголовка (с 0). Используется для извлечения имён колонок. Если не задан — заголовок определяется автоматически."
+      },
+      "customAttNames": {
+        "index": 4,
+        "kind": "parameter",
+        "displayName": "Custom attribute names",
+        "group": "consumer",
+        "label": "consumer",
+        "required": false,
+        "type": "object",
+        "javaType": "java.util.Map<java.lang.String, java.lang.String>",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "description": "Карта переименования колонок Excel в имена атрибутов: ключ — оригинальное имя в заголовке, значение — целевое имя атрибута в ObjectData."
+      }
+    },
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "required": [
+        "contentRef"
+      ],
+      "properties": {
+        "contentRef": {
+          "title": "Content ref",
+          "description": "EntityRef на content-запись с Excel-файлом, содержимое которого будет прочитано и преобразовано в ObjectData.",
+          "type": "string",
+          "$comment": "group:consumer|citeck"
+        },
+        "batchSize": {
+          "title": "Batch size",
+          "description": "Размер страницы (batch) при потоковом чтении строк Excel-файла. По умолчанию — 100.",
+          "type": "integer",
+          "default": 100,
+          "$comment": "group:consumer|citeck"
+        },
+        "sheetName": {
+          "title": "Sheet name",
+          "description": "Имя листа Excel-файла. Если не задано — читается первый лист.",
+          "type": "string",
+          "$comment": "group:consumer|citeck"
+        },
+        "headRowNumber": {
+          "title": "Head row number",
+          "description": "Номер строки заголовка (с 0). Используется для извлечения имён колонок. Если не задан — заголовок определяется автоматически.",
+          "type": "integer",
+          "$comment": "group:consumer|citeck"
+        },
+        "customAttNames": {
+          "title": "Custom attribute names",
+          "description": "Карта переименования колонок Excel в имена атрибутов: ключ — оригинальное имя в заголовке, значение — целевое имя атрибута в ObjectData.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "$comment": "group:consumer|citeck"
+        }
+      }
+    }
+  },
+  "file-from-camel-dsl": {
+    "component": {
+      "kind": "component",
+      "name": "file-from-camel-dsl",
+      "title": "Citeck File From Camel DSL",
+      "description": "Citeck file-from-camel-dsl consumer. Источник в маршрутах camel-dsl: подгружает файл (или поток файлов), привязанный к именованному endpoint'у (endpointName) внутри текущего CamelDsl-артефакта Citeck.",
+      "deprecated": false,
+      "firstVersion": "1.0.0",
+      "label": "citeck,citeck-core,file",
+      "javaType": "ru.citeck.ecos.camel.cameldsl.FileFromCamelDslComponent",
+      "supportLevel": "Stable",
+      "groupId": "ru.citeck.ecos",
+      "artifactId": "ecos-camel-core",
+      "version": "1.0.0",
+      "scheme": "file-from-camel-dsl",
+      "extendsScheme": "",
+      "syntax": "file-from-camel-dsl:endpointName",
+      "async": false,
+      "api": false,
+      "consumerOnly": true,
+      "producerOnly": false,
+      "lenientProperties": false,
+      "browsable": false,
+      "remote": false,
+      "provider": "Citeck"
+    },
+    "componentProperties": {},
+    "properties": {
+      "endpointName": {
+        "index": 0,
+        "kind": "path",
+        "displayName": "Endpoint name",
+        "group": "consumer",
+        "label": "consumer",
+        "required": true,
+        "type": "string",
+        "javaType": "java.lang.String",
+        "deprecated": false,
+        "deprecationNote": "",
+        "autowired": false,
+        "secret": false,
+        "description": "Имя именованного endpoint'а внутри CamelDsl-артефакта Citeck, к которому привязан читаемый файл/поток файлов."
+      }
+    },
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "required": [
+        "endpointName"
+      ],
+      "properties": {
+        "endpointName": {
+          "title": "Endpoint name",
+          "description": "Имя именованного endpoint'а внутри CamelDsl-артефакта Citeck, к которому привязан читаемый файл/поток файлов.",
+          "type": "string",
+          "$comment": "group:consumer|citeck"
+        }
+      }
+    }
+  },
+  "gitlab-commits-sync": {
+    "component": {
+      "kind": "component",
+      "name": "gitlab-commits-sync",
+      "title": "Citeck GitLab Commits Sync",
+      "description": "Citeck GitLab commits sync consumer (scheduled poller). Постранично читает коммиты из GitLab проекта через gitlab4j-api и пушит их в маршрут. Использует распределённую блокировку по syncName и сохраняет позицию через EcosCamelSyncStateService.",
+      "deprecated": false,
+      "firstVersion": "1.0.0",
+      "label": "citeck,citeck-addons,gitlab,sync",
+      "javaType": "ru.citeck.ecos.camel.gitlab.sync.commits.GitLabCommitsSyncComponent",
+      "supportLevel": "Stable",
+      "groupId": "ru.citeck.ecos",
+      "artifactId": "ecos-camel-core",
+      "version": "1.0.0",
+      "scheme": "gitlab-commits-sync",
+      "extendsScheme": "",
+      "syntax": "gitlab-commits-sync:syncName",
+      "async": false,
+      "api": false,
+      "consumerOnly": true,
+      "producerOnly": false,
+      "lenientProperties": false,
+      "browsable": false,
+      "remote": false,
+      "provider": "Citeck"
+    },
+    "componentProperties": {},
+    "properties": {
+      "syncName": {
+        "index": 0,
+        "kind": "path",
+        "displayName": "Sync name",
+        "group": "consumer",
+        "label": "consumer",
+        "required": true,
+        "type": "string",
+        "javaType": "java.lang.String",
+        "deprecated": false,
+        "deprecationNote": "",
+        "autowired": false,
+        "secret": false,
+        "description": "Уникальное имя синхронизации. Используется для построения syncId (camel:gitlab-commits-sync:<syncName>) и распределённой блокировки между инстансами."
+      },
+      "gitLabEndpoint": {
+        "index": 1,
+        "kind": "parameter",
+        "displayName": "GitLab endpoint",
+        "group": "consumer",
+        "label": "consumer",
+        "required": true,
+        "type": "string",
+        "javaType": "java.lang.String",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "description": "URL GitLab API (например, https://gitlab.com или внутренний инстанс)."
+      },
+      "gitLabToken": {
+        "index": 2,
+        "kind": "parameter",
+        "displayName": "GitLab token",
+        "group": "consumer",
+        "label": "consumer",
+        "required": true,
+        "type": "string",
+        "javaType": "java.lang.String",
+        "deprecated": false,
+        "autowired": false,
+        "secret": true,
+        "description": "Personal access token для аутентификации в GitLab API."
+      },
+      "batchSize": {
+        "index": 3,
+        "kind": "parameter",
+        "displayName": "Batch size",
+        "group": "consumer",
+        "label": "consumer",
+        "required": false,
+        "type": "integer",
+        "javaType": "int",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "defaultValue": "100",
+        "description": "Размер страницы (batch) при выборке коммитов из GitLab API."
+      },
+      "skipErrorRegex": {
+        "index": 4,
+        "kind": "parameter",
+        "displayName": "Skip error regex",
+        "group": "consumer",
+        "label": "consumer",
+        "required": false,
+        "type": "string",
+        "javaType": "java.lang.String",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "description": "Регулярное выражение: если сообщение об ошибке от GitLab API ему соответствует, ошибка игнорируется и обработка продолжается."
+      }
+    },
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "required": [
+        "syncName",
+        "gitLabEndpoint",
+        "gitLabToken"
+      ],
+      "properties": {
+        "syncName": {
+          "title": "Sync name",
+          "description": "Уникальное имя синхронизации. Используется для построения syncId (camel:gitlab-commits-sync:<syncName>) и распределённой блокировки между инстансами.",
+          "type": "string",
+          "$comment": "group:consumer|citeck"
+        },
+        "gitLabEndpoint": {
+          "title": "GitLab endpoint",
+          "description": "URL GitLab API (например, https://gitlab.com или внутренний инстанс).",
+          "type": "string",
+          "$comment": "group:consumer|citeck"
+        },
+        "gitLabToken": {
+          "title": "GitLab token",
+          "description": "Personal access token для аутентификации в GitLab API.",
+          "type": "string",
+          "format": "password",
+          "writeOnly": true,
+          "$comment": "group:consumer|citeck"
+        },
+        "batchSize": {
+          "title": "Batch size",
+          "description": "Размер страницы (batch) при выборке коммитов из GitLab API.",
+          "type": "integer",
+          "default": 100,
+          "$comment": "group:consumer|citeck"
+        },
+        "skipErrorRegex": {
+          "title": "Skip error regex",
+          "description": "Регулярное выражение: если сообщение об ошибке от GitLab API ему соответствует, ошибка игнорируется и обработка продолжается.",
+          "type": "string",
+          "$comment": "group:consumer|citeck"
+        }
+      }
+    }
+  },
+  "jira-issues": {
+    "component": {
+      "kind": "component",
+      "name": "jira-issues",
+      "title": "Citeck Jira Issues",
+      "description": "Citeck Jira issues consumer (scheduled poller). Постранично читает issue'ы из одного или нескольких Jira-проектов через JiraApiClient и пушит их в маршрут. Поддерживает режим импорта одного issue по issueKey, многопроектную ротацию и распределённую блокировку по name.",
+      "deprecated": false,
+      "firstVersion": "1.0.0",
+      "label": "citeck,citeck-addons,jira",
+      "javaType": "ru.citeck.ecos.camel.jira.imports.JiraIssuesComponent",
+      "supportLevel": "Stable",
+      "groupId": "ru.citeck.ecos",
+      "artifactId": "ecos-camel-core",
+      "version": "1.0.0",
+      "scheme": "jira-issues",
+      "extendsScheme": "",
+      "syntax": "jira-issues:name",
+      "async": false,
+      "api": false,
+      "consumerOnly": true,
+      "producerOnly": false,
+      "lenientProperties": false,
+      "browsable": false,
+      "remote": false,
+      "provider": "Citeck"
+    },
+    "componentProperties": {},
+    "properties": {
+      "name": {
+        "index": 0,
+        "kind": "path",
+        "displayName": "Name",
+        "group": "consumer",
+        "label": "consumer",
+        "required": true,
+        "type": "string",
+        "javaType": "java.lang.String",
+        "deprecated": false,
+        "deprecationNote": "",
+        "autowired": false,
+        "secret": false,
+        "description": "Уникальное имя синхронизации. Используется для построения pullingId (camel:jira-issues:<name>) и распределённой блокировки между инстансами."
+      },
+      "projectKey": {
+        "index": 1,
+        "kind": "parameter",
+        "displayName": "Project key",
+        "group": "consumer",
+        "label": "consumer",
+        "required": true,
+        "type": "string",
+        "javaType": "java.lang.String",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "description": "Ключ Jira-проекта (или несколько ключей через запятую). Из этих проектов будут импортироваться issue'ы."
+      },
+      "jiraClient": {
+        "index": 2,
+        "kind": "parameter",
+        "displayName": "Jira client",
+        "group": "consumer",
+        "label": "consumer",
+        "required": true,
+        "type": "string",
+        "javaType": "ru.citeck.ecos.camel.jira.api.JiraApiClient",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "description": "Bean reference (#name) на JiraApiClient — клиент Jira REST API, используемый для импорта issue'ов."
+      },
+      "issueKey": {
+        "index": 3,
+        "kind": "parameter",
+        "displayName": "Issue key",
+        "group": "consumer",
+        "label": "consumer",
+        "required": false,
+        "type": "string",
+        "javaType": "java.lang.String",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "defaultValue": "",
+        "description": "Если задан — режим single-issue: импортируется только один issue с указанным ключом (например, ECOSENT-1234) и consumer останавливается."
+      }
+    },
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "required": [
+        "name",
+        "projectKey",
+        "jiraClient"
+      ],
+      "properties": {
+        "name": {
+          "title": "Name",
+          "description": "Уникальное имя синхронизации. Используется для построения pullingId (camel:jira-issues:<name>) и распределённой блокировки между инстансами.",
+          "type": "string",
+          "$comment": "group:consumer|citeck"
+        },
+        "projectKey": {
+          "title": "Project key",
+          "description": "Ключ Jira-проекта (или несколько ключей через запятую). Из этих проектов будут импортироваться issue'ы.",
+          "type": "string",
+          "$comment": "group:consumer|citeck"
+        },
+        "jiraClient": {
+          "title": "Jira client",
+          "description": "Bean reference (#name) на JiraApiClient — клиент Jira REST API, используемый для импорта issue'ов.",
+          "type": "string",
+          "$comment": "group:consumer|citeck"
+        },
+        "issueKey": {
+          "title": "Issue key",
+          "description": "Если задан — режим single-issue: импортируется только один issue с указанным ключом (например, ECOSENT-1234) и consumer останавливается.",
+          "type": "string",
+          "default": "",
+          "$comment": "group:consumer|citeck"
+        }
+      }
+    }
+  },
+  "import-jira-attachment": {
+    "component": {
+      "kind": "component",
+      "name": "import-jira-attachment",
+      "title": "Citeck Import Jira Attachment",
+      "description": "Citeck import-jira-attachment producer. Скачивает вложения issue'а из Jira через JiraApiClient и сохраняет их как content-записи Citeck (типа EPT_ATTACHMENT_TYPE), привязанные к eptIssueRef из header'а exchange.",
+      "deprecated": false,
+      "firstVersion": "1.0.0",
+      "label": "citeck,citeck-addons,jira",
+      "javaType": "ru.citeck.ecos.camel.jira.imports.ImportJiraAttachmentComponent",
+      "supportLevel": "Stable",
+      "groupId": "ru.citeck.ecos",
+      "artifactId": "ecos-camel-core",
+      "version": "1.0.0",
+      "scheme": "import-jira-attachment",
+      "extendsScheme": "",
+      "syntax": "import-jira-attachment:",
+      "async": false,
+      "api": false,
+      "consumerOnly": false,
+      "producerOnly": true,
+      "lenientProperties": false,
+      "browsable": false,
+      "remote": false,
+      "provider": "Citeck"
+    },
+    "componentProperties": {},
+    "properties": {
+      "jiraClient": {
+        "index": 0,
+        "kind": "parameter",
+        "displayName": "Jira client",
+        "group": "common",
+        "label": "",
+        "required": true,
+        "type": "string",
+        "javaType": "ru.citeck.ecos.camel.jira.api.JiraApiClient",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "description": "Bean reference (#name) на JiraApiClient — клиент Jira REST API, используемый для скачивания вложений."
+      }
+    },
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "required": [
+        "jiraClient"
+      ],
+      "properties": {
+        "jiraClient": {
+          "title": "Jira client",
+          "description": "Bean reference (#name) на JiraApiClient — клиент Jira REST API, используемый для скачивания вложений.",
+          "type": "string",
+          "$comment": "group:common|citeck"
+        }
+      }
+    }
+  },
+  "import-jira-component": {
+    "component": {
+      "kind": "component",
+      "name": "import-jira-component",
+      "title": "Citeck Import Jira Component",
+      "description": "Citeck import-jira-component producer. Преобразует список Jira-компонент из тела exchange в записи emodel/ept-components и привязывает их к eptIssueRef из header'а. Не имеет URI-параметров.",
+      "deprecated": false,
+      "firstVersion": "1.0.0",
+      "label": "citeck,citeck-addons,jira",
+      "javaType": "ru.citeck.ecos.camel.jira.imports.ImportJiraComponentComponent",
+      "supportLevel": "Stable",
+      "groupId": "ru.citeck.ecos",
+      "artifactId": "ecos-camel-core",
+      "version": "1.0.0",
+      "scheme": "import-jira-component",
+      "extendsScheme": "",
+      "syntax": "import-jira-component:",
+      "async": false,
+      "api": false,
+      "consumerOnly": false,
+      "producerOnly": true,
+      "lenientProperties": false,
+      "browsable": false,
+      "remote": false,
+      "provider": "Citeck"
+    },
+    "componentProperties": {},
+    "properties": {},
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "required": [],
+      "properties": {}
+    }
+  },
+  "import-jira-dev-info": {
+    "component": {
+      "kind": "component",
+      "name": "import-jira-dev-info",
+      "title": "Citeck Import Jira Dev Info",
+      "description": "Citeck import-jira-dev-info producer. По issueKey из exchange запрашивает remoteLinks через JiraApiClient и создаёт записи gitlab-commit / gitlab-merge-request с ссылками на eptIssueRef.",
+      "deprecated": false,
+      "firstVersion": "1.0.0",
+      "label": "citeck,citeck-addons,jira",
+      "javaType": "ru.citeck.ecos.camel.jira.imports.ImportJiraDevInfoComponent",
+      "supportLevel": "Stable",
+      "groupId": "ru.citeck.ecos",
+      "artifactId": "ecos-camel-core",
+      "version": "1.0.0",
+      "scheme": "import-jira-dev-info",
+      "extendsScheme": "",
+      "syntax": "import-jira-dev-info:",
+      "async": false,
+      "api": false,
+      "consumerOnly": false,
+      "producerOnly": true,
+      "lenientProperties": false,
+      "browsable": false,
+      "remote": false,
+      "provider": "Citeck"
+    },
+    "componentProperties": {},
+    "properties": {
+      "jiraClient": {
+        "index": 0,
+        "kind": "parameter",
+        "displayName": "Jira client",
+        "group": "consumer",
+        "label": "consumer",
+        "required": true,
+        "type": "string",
+        "javaType": "ru.citeck.ecos.camel.jira.api.JiraApiClient",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "description": "Bean reference (#name) на JiraApiClient — клиент Jira REST API, используемый для запроса remoteLinks."
+      }
+    },
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "required": [
+        "jiraClient"
+      ],
+      "properties": {
+        "jiraClient": {
+          "title": "Jira client",
+          "description": "Bean reference (#name) на JiraApiClient — клиент Jira REST API, используемый для запроса remoteLinks.",
+          "type": "string",
+          "$comment": "group:consumer|citeck"
+        }
+      }
+    }
+  },
+  "import-jira-releases": {
+    "component": {
+      "kind": "component",
+      "name": "import-jira-releases",
+      "title": "Citeck Import Jira Releases",
+      "description": "Citeck import-jira-releases producer. Преобразует fixVersions / versions Jira-issue'а в записи релизов Citeck и привязывает их к eptIssueRef через атрибуты fixInVersion / affectedVersions. Подгружает полную информацию о версии через JiraApiClient.",
+      "deprecated": false,
+      "firstVersion": "1.0.0",
+      "label": "citeck,citeck-addons,jira",
+      "javaType": "ru.citeck.ecos.camel.jira.imports.ImportJiraReleasesComponent",
+      "supportLevel": "Stable",
+      "groupId": "ru.citeck.ecos",
+      "artifactId": "ecos-camel-core",
+      "version": "1.0.0",
+      "scheme": "import-jira-releases",
+      "extendsScheme": "",
+      "syntax": "import-jira-releases:",
+      "async": false,
+      "api": false,
+      "consumerOnly": false,
+      "producerOnly": true,
+      "lenientProperties": false,
+      "browsable": false,
+      "remote": false,
+      "provider": "Citeck"
+    },
+    "componentProperties": {},
+    "properties": {
+      "jiraClient": {
+        "index": 0,
+        "kind": "parameter",
+        "displayName": "Jira client",
+        "group": "consumer",
+        "label": "consumer",
+        "required": true,
+        "type": "string",
+        "javaType": "ru.citeck.ecos.camel.jira.api.JiraApiClient",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "description": "Bean reference (#name) на JiraApiClient — клиент Jira REST API, используемый для подгрузки полной информации о версиях."
+      }
+    },
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "required": [
+        "jiraClient"
+      ],
+      "properties": {
+        "jiraClient": {
+          "title": "Jira client",
+          "description": "Bean reference (#name) на JiraApiClient — клиент Jira REST API, используемый для подгрузки полной информации о версиях.",
+          "type": "string",
+          "$comment": "group:consumer|citeck"
+        }
+      }
+    }
+  },
+  "import-jira-sprint": {
+    "component": {
+      "kind": "component",
+      "name": "import-jira-sprint",
+      "title": "Citeck Import Jira Sprint",
+      "description": "Citeck import-jira-sprint producer. Преобразует sprint-данные из кастомного поля Jira-issue'а (sprintFieldId) в записи спринтов Citeck и привязывает их к eptIssueRef. Поддерживает оба формата — JSON и старый Greenhopper string.",
+      "deprecated": false,
+      "firstVersion": "1.0.0",
+      "label": "citeck,citeck-addons,jira",
+      "javaType": "ru.citeck.ecos.camel.jira.imports.ImportJiraSprintComponent",
+      "supportLevel": "Stable",
+      "groupId": "ru.citeck.ecos",
+      "artifactId": "ecos-camel-core",
+      "version": "1.0.0",
+      "scheme": "import-jira-sprint",
+      "extendsScheme": "",
+      "syntax": "import-jira-sprint:",
+      "async": false,
+      "api": false,
+      "consumerOnly": false,
+      "producerOnly": true,
+      "lenientProperties": false,
+      "browsable": false,
+      "remote": false,
+      "provider": "Citeck"
+    },
+    "componentProperties": {},
+    "properties": {
+      "sprintFieldId": {
+        "index": 0,
+        "kind": "parameter",
+        "displayName": "Sprint field id",
+        "group": "common",
+        "label": "",
+        "required": true,
+        "type": "string",
+        "javaType": "java.lang.String",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "description": "Идентификатор кастомного поля Jira (например, customfield_10010), в котором хранятся sprint-данные issue'а."
+      }
+    },
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "required": [
+        "sprintFieldId"
+      ],
+      "properties": {
+        "sprintFieldId": {
+          "title": "Sprint field id",
+          "description": "Идентификатор кастомного поля Jira (например, customfield_10010), в котором хранятся sprint-данные issue'а.",
+          "type": "string",
+          "$comment": "group:common|citeck"
+        }
+      }
+    }
+  },
+  "import-jira-tags": {
+    "component": {
+      "kind": "component",
+      "name": "import-jira-tags",
+      "title": "Citeck Import Jira Tags",
+      "description": "Citeck import-jira-tags producer. Преобразует labels Jira-issue'а из тела exchange в записи tag'ов Citeck (с транслитерацией имени) и привязывает их к eptIssueRef. Не имеет URI-параметров.",
+      "deprecated": false,
+      "firstVersion": "1.0.0",
+      "label": "citeck,citeck-addons,jira",
+      "javaType": "ru.citeck.ecos.camel.jira.imports.ImportJiraTagsComponent",
+      "supportLevel": "Stable",
+      "groupId": "ru.citeck.ecos",
+      "artifactId": "ecos-camel-core",
+      "version": "1.0.0",
+      "scheme": "import-jira-tags",
+      "extendsScheme": "",
+      "syntax": "import-jira-tags:",
+      "async": false,
+      "api": false,
+      "consumerOnly": false,
+      "producerOnly": true,
+      "lenientProperties": false,
+      "browsable": false,
+      "remote": false,
+      "provider": "Citeck"
+    },
+    "componentProperties": {},
+    "properties": {},
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "required": [],
+      "properties": {}
+    }
+  },
+  "gitlab-merge-requests-sync": {
+    "component": {
+      "kind": "component",
+      "name": "gitlab-merge-requests-sync",
+      "title": "Citeck GitLab Merge Requests Sync",
+      "description": "Citeck GitLab merge requests sync consumer (scheduled poller). Постранично читает merge request'ы из GitLab проекта через gitlab4j-api и пушит их в маршрут. Использует распределённую блокировку по syncName и сохраняет позицию через EcosCamelSyncStateService.",
+      "deprecated": false,
+      "firstVersion": "1.0.0",
+      "label": "citeck,citeck-addons,gitlab,sync",
+      "javaType": "ru.citeck.ecos.camel.gitlab.sync.mergerequest.GitLabMergeRequestsSyncComponent",
+      "supportLevel": "Stable",
+      "groupId": "ru.citeck.ecos",
+      "artifactId": "ecos-camel-core",
+      "version": "1.0.0",
+      "scheme": "gitlab-merge-requests-sync",
+      "extendsScheme": "",
+      "syntax": "gitlab-merge-requests-sync:syncName",
+      "async": false,
+      "api": false,
+      "consumerOnly": true,
+      "producerOnly": false,
+      "lenientProperties": false,
+      "browsable": false,
+      "remote": false,
+      "provider": "Citeck"
+    },
+    "componentProperties": {},
+    "properties": {
+      "syncName": {
+        "index": 0,
+        "kind": "path",
+        "displayName": "Sync name",
+        "group": "consumer",
+        "label": "consumer",
+        "required": true,
+        "type": "string",
+        "javaType": "java.lang.String",
+        "deprecated": false,
+        "deprecationNote": "",
+        "autowired": false,
+        "secret": false,
+        "description": "Уникальное имя синхронизации. Используется для построения syncId (camel:gitlab-merge-requests-sync:<syncName>) и распределённой блокировки между инстансами."
+      },
+      "gitLabEndpoint": {
+        "index": 1,
+        "kind": "parameter",
+        "displayName": "GitLab endpoint",
+        "group": "consumer",
+        "label": "consumer",
+        "required": true,
+        "type": "string",
+        "javaType": "java.lang.String",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "description": "URL GitLab API (например, https://gitlab.com или внутренний инстанс)."
+      },
+      "gitLabToken": {
+        "index": 2,
+        "kind": "parameter",
+        "displayName": "GitLab token",
+        "group": "consumer",
+        "label": "consumer",
+        "required": true,
+        "type": "string",
+        "javaType": "java.lang.String",
+        "deprecated": false,
+        "autowired": false,
+        "secret": true,
+        "description": "Personal access token для аутентификации в GitLab API."
+      },
+      "skipErrorRegex": {
+        "index": 3,
+        "kind": "parameter",
+        "displayName": "Skip error regex",
+        "group": "consumer",
+        "label": "consumer",
+        "required": false,
+        "type": "string",
+        "javaType": "java.lang.String",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "description": "Регулярное выражение: если сообщение об ошибке от GitLab API ему соответствует, ошибка игнорируется и обработка продолжается."
+      }
+    },
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "required": [
+        "syncName",
+        "gitLabEndpoint",
+        "gitLabToken"
+      ],
+      "properties": {
+        "syncName": {
+          "title": "Sync name",
+          "description": "Уникальное имя синхронизации. Используется для построения syncId (camel:gitlab-merge-requests-sync:<syncName>) и распределённой блокировки между инстансами.",
+          "type": "string",
+          "$comment": "group:consumer|citeck"
+        },
+        "gitLabEndpoint": {
+          "title": "GitLab endpoint",
+          "description": "URL GitLab API (например, https://gitlab.com или внутренний инстанс).",
+          "type": "string",
+          "$comment": "group:consumer|citeck"
+        },
+        "gitLabToken": {
+          "title": "GitLab token",
+          "description": "Personal access token для аутентификации в GitLab API.",
+          "type": "string",
+          "format": "password",
+          "writeOnly": true,
+          "$comment": "group:consumer|citeck"
+        },
+        "skipErrorRegex": {
+          "title": "Skip error regex",
+          "description": "Регулярное выражение: если сообщение об ошибке от GitLab API ему соответствует, ошибка игнорируется и обработка продолжается.",
+          "type": "string",
+          "$comment": "group:consumer|citeck"
+        }
+      }
+    }
+  },
+  "transform-jira-comment": {
+    "component": {
+      "kind": "component",
+      "name": "transform-jira-comment",
+      "title": "Citeck Transform Jira Comment",
+      "description": "Citeck transform-jira-comment producer. Преобразует comments Jira-issue'а в записи комментариев Citeck (типа TYPE_COMMENT) с обработкой attachment-ссылок, mention'ов и img-стилей. Привязывает комментарии к eptIssueRef из header'а commentLinkToRecord. Не имеет URI-параметров.",
+      "deprecated": false,
+      "firstVersion": "1.0.0",
+      "label": "citeck,citeck-addons,jira",
+      "javaType": "ru.citeck.ecos.camel.jira.imports.TransformJiraCommentComponent",
+      "supportLevel": "Stable",
+      "groupId": "ru.citeck.ecos",
+      "artifactId": "ecos-camel-core",
+      "version": "1.0.0",
+      "scheme": "transform-jira-comment",
+      "extendsScheme": "",
+      "syntax": "transform-jira-comment:",
+      "async": false,
+      "api": false,
+      "consumerOnly": false,
+      "producerOnly": true,
+      "lenientProperties": false,
+      "browsable": false,
+      "remote": false,
+      "provider": "Citeck"
+    },
+    "componentProperties": {},
+    "properties": {},
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "required": [],
+      "properties": {}
+    }
+  },
+  "transform-jira-issue": {
+    "component": {
+      "kind": "component",
+      "name": "transform-jira-issue",
+      "title": "Citeck Transform Jira Issue",
+      "description": "Citeck transform-jira-issue producer. Преобразует Jira-issue (DataValue) в Citeck-issue с маппингом полей, значений и связей через ValueConverterRegistry. Подгружает watchers'ов и обрабатывает sub-task родителей. Маппинги/конвертеры/static-атрибуты/links берутся из exchange properties (по умолчанию — valuesMapping, valuesConverter, attributesMapping, staticAttributes, linksMapping).",
+      "deprecated": false,
+      "firstVersion": "1.0.0",
+      "label": "citeck,citeck-addons,jira",
+      "javaType": "ru.citeck.ecos.camel.jira.imports.TransformJiraIssueComponent",
+      "supportLevel": "Stable",
+      "groupId": "ru.citeck.ecos",
+      "artifactId": "ecos-camel-core",
+      "version": "1.0.0",
+      "scheme": "transform-jira-issue",
+      "extendsScheme": "",
+      "syntax": "transform-jira-issue:",
+      "async": false,
+      "api": false,
+      "consumerOnly": false,
+      "producerOnly": true,
+      "lenientProperties": false,
+      "browsable": false,
+      "remote": false,
+      "provider": "Citeck"
+    },
+    "componentProperties": {},
+    "properties": {
+      "jiraClient": {
+        "index": 0,
+        "kind": "parameter",
+        "displayName": "Jira client",
+        "group": "common",
+        "label": "",
+        "required": true,
+        "type": "string",
+        "javaType": "ru.citeck.ecos.camel.jira.api.JiraApiClient",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "description": "Bean reference (#name) на JiraApiClient — клиент Jira REST API, используемый для подгрузки watchers'ов issue."
+      },
+      "valuesMappingProperty": {
+        "index": 1,
+        "kind": "parameter",
+        "displayName": "Values mapping property",
+        "group": "common",
+        "label": "",
+        "required": false,
+        "type": "string",
+        "javaType": "java.lang.String",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "defaultValue": "valuesMapping",
+        "description": "Имя exchange-property, из которой берётся JSON-маппинг значений (Map<eptField, Map<jiraValue, eptValue>>). Меняйте только при необходимости вынести несколько изолированных маппингов на одном маршруте."
+      },
+      "valuesConverterProperty": {
+        "index": 2,
+        "kind": "parameter",
+        "displayName": "Values converter property",
+        "group": "common",
+        "label": "",
+        "required": false,
+        "type": "string",
+        "javaType": "java.lang.String",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "defaultValue": "valuesConverter",
+        "description": "Имя exchange-property, из которой берётся JSON-маппинг конвертеров значений (Map<eptField, converterId>). Конвертер должен быть зарегистрирован в ValueConverterRegistry."
+      },
+      "attributesMappingProperty": {
+        "index": 3,
+        "kind": "parameter",
+        "displayName": "Attributes mapping property",
+        "group": "common",
+        "label": "",
+        "required": false,
+        "type": "string",
+        "javaType": "java.lang.String",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "defaultValue": "attributesMapping",
+        "description": "Имя exchange-property, из которой берётся JSON-маппинг полей Jira → атрибутов Citeck (Map<jsonPath, eptField>)."
+      },
+      "staticAttributesProperty": {
+        "index": 4,
+        "kind": "parameter",
+        "displayName": "Static attributes property",
+        "group": "common",
+        "label": "",
+        "required": false,
+        "type": "string",
+        "javaType": "java.lang.String",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "defaultValue": "staticAttributes",
+        "description": "Имя exchange-property, из которой берётся JSON-объект статических атрибутов (Map<eptField, value>), добавляемых к каждому преобразованному issue."
+      },
+      "linksMappingProperty": {
+        "index": 5,
+        "kind": "parameter",
+        "displayName": "Links mapping property",
+        "group": "common",
+        "label": "",
+        "required": false,
+        "type": "string",
+        "javaType": "java.lang.String",
+        "deprecated": false,
+        "autowired": false,
+        "secret": false,
+        "defaultValue": "linksMapping",
+        "description": "Имя exchange-property, из которой берётся JSON-маппинг типов связей Jira (linkTypeId) → атрибут Citeck (Map<linkTypeId, attributeName>)."
+      }
+    },
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "required": [
+        "jiraClient"
+      ],
+      "properties": {
+        "jiraClient": {
+          "title": "Jira client",
+          "description": "Bean reference (#name) на JiraApiClient — клиент Jira REST API, используемый для подгрузки watchers'ов issue.",
+          "type": "string",
+          "$comment": "group:common|citeck"
+        },
+        "valuesMappingProperty": {
+          "title": "Values mapping property",
+          "description": "Имя exchange-property, из которой берётся JSON-маппинг значений (Map<eptField, Map<jiraValue, eptValue>>). Меняйте только при необходимости вынести несколько изолированных маппингов на одном маршруте.",
+          "type": "string",
+          "default": "valuesMapping",
+          "$comment": "group:common|citeck"
+        },
+        "valuesConverterProperty": {
+          "title": "Values converter property",
+          "description": "Имя exchange-property, из которой берётся JSON-маппинг конвертеров значений (Map<eptField, converterId>). Конвертер должен быть зарегистрирован в ValueConverterRegistry.",
+          "type": "string",
+          "default": "valuesConverter",
+          "$comment": "group:common|citeck"
+        },
+        "attributesMappingProperty": {
+          "title": "Attributes mapping property",
+          "description": "Имя exchange-property, из которой берётся JSON-маппинг полей Jira → атрибутов Citeck (Map<jsonPath, eptField>).",
+          "type": "string",
+          "default": "attributesMapping",
+          "$comment": "group:common|citeck"
+        },
+        "staticAttributesProperty": {
+          "title": "Static attributes property",
+          "description": "Имя exchange-property, из которой берётся JSON-объект статических атрибутов (Map<eptField, value>), добавляемых к каждому преобразованному issue.",
+          "type": "string",
+          "default": "staticAttributes",
+          "$comment": "group:common|citeck"
+        },
+        "linksMappingProperty": {
+          "title": "Links mapping property",
+          "description": "Имя exchange-property, из которой берётся JSON-маппинг типов связей Jira (linkTypeId) → атрибут Citeck (Map<linkTypeId, attributeName>).",
+          "type": "string",
+          "default": "linksMapping",
+          "$comment": "group:common|citeck"
+        }
+      }
+    }
+  },
+  "transform-jira-worklog": {
+    "component": {
+      "kind": "component",
+      "name": "transform-jira-worklog",
+      "title": "Citeck Transform Jira Worklog",
+      "description": "Citeck transform-jira-worklog producer. Преобразует worklogs Jira-issue'а в записи time-tracking Citeck (TYPE_TIME_TRACKING) с маппингом duration/started/user/comment и привязывает их к eptIssueRef через header worklogLinkToRecord. Не имеет URI-параметров.",
+      "deprecated": false,
+      "firstVersion": "1.0.0",
+      "label": "citeck,citeck-addons,jira",
+      "javaType": "ru.citeck.ecos.camel.jira.imports.TransformJiraWorkLogComponent",
+      "supportLevel": "Stable",
+      "groupId": "ru.citeck.ecos",
+      "artifactId": "ecos-camel-core",
+      "version": "1.0.0",
+      "scheme": "transform-jira-worklog",
+      "extendsScheme": "",
+      "syntax": "transform-jira-worklog:",
+      "async": false,
+      "api": false,
+      "consumerOnly": false,
+      "producerOnly": true,
+      "lenientProperties": false,
+      "browsable": false,
+      "remote": false,
+      "provider": "Citeck"
+    },
+    "componentProperties": {},
+    "properties": {},
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "required": [],
+      "properties": {}
+    }
+  }
+}

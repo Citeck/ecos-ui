@@ -1,7 +1,6 @@
 import isEqual from 'lodash/isEqual';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { propTypes } from 'reactstrap/lib/TooltipPopoverWrapper';
 import { DOMElement, getTarget, mapToCssModules, omit, PopperPlacements, targetPropType } from 'reactstrap/lib/utils';
 
 import { TooltipContent } from './TooltipContent';
@@ -301,7 +300,7 @@ export class TooltipWrapper extends Component {
       children
     } = this.props;
 
-    const attributes = omit(this.props, Object.keys(propTypes));
+    const attributes = omit(this.props, Object.keys(propsTypes));
     const popperClasses = mapToCssModules(popperClassName, cssModule);
     const classes = mapToCssModules(innerClassName, cssModule);
 

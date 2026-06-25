@@ -13,6 +13,7 @@ const BPMNAdminProcessPage = lazy(() => import('./BpmnAdminProcessDashboard'));
 const BPMNAdminIntancePage = lazy(() => import('./BpmnAdminInstanceDashboard'));
 const BPMNMigration = lazy(() => import('./BPMNVersionsMigration'));
 const DMNEditor = lazy(() => import('./ModelEditor/DMNEditor'));
+const CamelDslEditorPage = lazy(() => import('./ModelEditor/CamelDslEditor'));
 const MyTimesheetPage = lazy(() => import('./Timesheet/MyTimesheetPage'));
 const SubordinatesTimesheetPage = lazy(() => import('./Timesheet/SubordinatesTimesheetPage'));
 const VerificationTimesheetPage = lazy(() => import('./Timesheet/VerificationTimesheetPage'));
@@ -57,6 +58,9 @@ export default ({ pageKey, withoutFooter, ...props }) => {
       break;
     case Pages.CMMN_EDITOR:
       Page = CMMNEditorPage;
+      break;
+    case Pages.CAMEL_DSL_EDITOR:
+      Page = CamelDslEditorPage;
       break;
     case Pages.TIMESHEET_MY:
       Page = MyTimesheetPage;

@@ -141,9 +141,9 @@
 
 ## Связанные документы
 
-- [kaoto-palette-consolidation.md](./kaoto-palette-consolidation.md) — контекст текущих yarn-patch'ей Kaoto и pattern guard-тестов (`kaotoCatalogPatch.test.js`).
+- [kaoto-palette-consolidation.md](./completed/kaoto-palette-consolidation.md) — контекст текущих yarn-patch'ей Kaoto и pattern guard-тестов (`kaotoCatalogPatch.test.js`).
 - [kaoto-mvp-finalization.md](./completed/kaoto-mvp-finalization.md) — архитектура KaotoModeler и точки расширения (где монтировать overlay-listener при варианте B).
 
 ## Связь в трекере
 
-При старте работы создать подзадачу к эпику [COREDEV-208 — Integrate Kaoto Camel DSL editor into ecos-ui](https://citeck.ecos24.ru/v2/dashboard?recordRef=emodel/ept-issue@COREDEV-208) с заголовком «Kaoto canvas pan navigation — wheel/keyboard pan parity with BPMN editor». Ссылается на этот файл.
+При старте работы создать подзадачу к эпику COREDEV-208 — Integrate Kaoto Camel DSL editor into ecos-ui с заголовком «Kaoto canvas pan navigation — wheel/keyboard pan parity with BPMN editor». Ссылается на этот файл.

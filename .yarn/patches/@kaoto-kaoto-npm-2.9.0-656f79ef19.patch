@@ -1,0 +1,334 @@
+diff --git a/lib/cjs/components/Catalog/Catalog.d.ts b/lib/cjs/components/Catalog/Catalog.d.ts
+index 9abd654f69599b8da60734281b064a3f52b5455c..06daac12728f4175358e647df8b6753571cf2aed 100644
+--- a/lib/cjs/components/Catalog/Catalog.d.ts
++++ b/lib/cjs/components/Catalog/Catalog.d.ts
+@@ -6,6 +6,8 @@ interface CatalogProps {
+     tiles: ITile[];
+     /** Callback being called when a Tile is clicked */
+     onTileClick?: (tile: ITile) => void;
++    /** Initial filter tags applied on mount (uncontrolled — see CiteckCatalogModalProvider) */
++    initialFilterTags?: string[];
+ }
+ export declare const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>>;
+ export {};
+diff --git a/lib/cjs/components/Catalog/Catalog.js b/lib/cjs/components/Catalog/Catalog.js
+index efeb0bed236dc435df13a00513fe05e066fe79a8..fc7fd544fd63d92c663de2d61656bb2c841098a3 100644
+--- a/lib/cjs/components/Catalog/Catalog.js
++++ b/lib/cjs/components/Catalog/Catalog.js
+@@ -13,7 +13,7 @@ export const Catalog = (props) => {
+     const [activeLayout, setActiveLayout] = useLocalStorage(LocalStorageKeys.CatalogLayout, CatalogLayout.Gallery);
+     /** Selected Group */
+     const [searchTerm, setSearchTerm] = useDebounceValue('', 500, { trailing: true });
+-    const [filterTags, setFilterTags] = useState([]);
++    const [filterTags, setFilterTags] = useState(props.initialFilterTags ?? []);
+     /** All tags, sorted to have selected and prioritized tags first */
+     const { sortedTags, overflowIndex } = useMemo(() => {
+         return sortTags(props.tiles, filterTags);
+diff --git a/lib/cjs/components/Visualization/Canvas/Form/fields/custom-fields-factory.js b/lib/cjs/components/Visualization/Canvas/Form/fields/custom-fields-factory.js
+index 395c517669e1d18b80976e6dd72d9dc406eb3cad..2e95cf5fbb53666f58dad0bcf968ee2d46d3abef 100644
+--- a/lib/cjs/components/Visualization/Canvas/Form/fields/custom-fields-factory.js
++++ b/lib/cjs/components/Visualization/Canvas/Form/fields/custom-fields-factory.js
+@@ -1,11 +1,60 @@
+-import { EnumField } from '@kaoto/forms';
++import { jsx as _jsx } from "react/jsx-runtime";
++import { TextArea } from '@patternfly/react-core';
++import { EnumField, FieldWrapper, useFieldValue } from '@kaoto/forms';
++import { useContext, useEffect, useMemo, useState } from 'react';
++import { SchemaContext } from '@kaoto/forms';
++import { parse as yamlParse, stringify as yamlStringify } from 'yaml';
+ import { DataSourceBeanField, PrefixedBeanField, UnprefixedBeanField } from './BeanField/BeanField';
+ import { ExpressionField } from './ExpressionField/ExpressionField';
++const CiteckJsonObjectField = ({ propName, required }) => {
++    const { schema } = useContext(SchemaContext);
++    const { value, onChange, disabled } = useFieldValue(propName);
++    const prettyValue = useMemo(() => value === undefined ? '' : yamlStringify(value, { indent: 2, lineWidth: 0 }).replace(/\n$/, ''), [value]);
++    const [draft, setDraft] = useState(prettyValue);
++    const [error, setError] = useState(undefined);
++    useEffect(() => {
++        setDraft(prettyValue);
++        setError(undefined);
++    }, [prettyValue]);
++    const onFieldChange = (_event, nextValue) => {
++        setDraft(nextValue);
++        if (nextValue.trim() === '') {
++            setError(undefined);
++            onChange(undefined);
++            return;
++        }
++        try {
++            const parsed = yamlParse(nextValue);
++            if (parsed === null || Array.isArray(parsed) || typeof parsed !== 'object') {
++                setError('Expected an object');
++                return;
++            }
++            setError(undefined);
++            onChange(parsed);
++        }
++        catch {
++            setError('Invalid YAML');
++        }
++    };
++    return (_jsx(FieldWrapper, { propName: propName, required: required, title: schema.title, type: "object", description: error ? `${schema.description ?? ''} ${error}`.trim() : schema.description, children: _jsx(TextArea, { rows: Math.max(draft.split('\n').length, 4), type: "text", role: "textbox", id: propName, name: propName, value: draft, onChange: onFieldChange, isDisabled: disabled, validated: error ? 'error' : undefined }) }));
++};
++const hasPrimitiveAdditionalProperties = (schema) => typeof schema.additionalProperties === 'object' &&
++    schema.additionalProperties !== null &&
++    typeof schema.additionalProperties.type === 'string' &&
++    ['string', 'number', 'integer', 'boolean'].includes(schema.additionalProperties.type);
++const isCiteckJsonObject = (schema) => schema.type === 'object' &&
++    typeof schema.$comment === 'string' &&
++    schema.$comment.includes('citeck') &&
++    Object.keys(schema.properties ?? {}).length === 0 &&
++    !hasPrimitiveAdditionalProperties(schema);
+ export const customFieldsFactoryfactory = (schema) => {
+     if (Array.isArray(schema.enum) && schema.enum.length > 0) {
+         /* Workaround for https://github.com/KaotoIO/kaoto/issues/2565 since the SNMP component has the wrong type */
+         return EnumField;
+     }
++    else if (isCiteckJsonObject(schema)) {
++        return CiteckJsonObjectField;
++    }
+     else if (schema.type === 'string' && schema.format?.startsWith('bean:')) {
+         return PrefixedBeanField;
+     }
+diff --git a/lib/cjs/models/visualization/flows/support/flows-visibility.js b/lib/cjs/models/visualization/flows/support/flows-visibility.js
+index c49ea4fa3adc9e0e479f49bf1fe583b381a45c14..90ac0a56784deab393b0855403ba7cdd9845e398 100644
+--- a/lib/cjs/models/visualization/flows/support/flows-visibility.js
++++ b/lib/cjs/models/visualization/flows/support/flows-visibility.js
+@@ -29,26 +29,32 @@ export function VisibleFlowsReducer(state, action) {
+                 ...state,
+                 [action.flowId]: !state[action.flowId],
+             };
+-        case 'showFlows':
+-            return Object.keys(state).reduce((acc, flowId) => {
+-                if (action.flowIds) {
+-                    acc[flowId] = action.flowIds?.includes(flowId) ? true : state[flowId];
+-                }
+-                else {
+-                    acc[flowId] = true;
+-                }
++        case 'showFlows': {
++            const keys = Object.keys(state);
++            const targetIds = action.flowIds ? new Set(action.flowIds) : null;
++            const allAlreadyCorrect = keys.every((flowId) => {
++                const desired = !targetIds || targetIds.has(flowId) ? true : state[flowId];
++                return state[flowId] === desired;
++            });
++            if (allAlreadyCorrect) return state;
++            return keys.reduce((acc, flowId) => {
++                acc[flowId] = !targetIds || targetIds.has(flowId) ? true : state[flowId];
+                 return acc;
+             }, {});
+-        case 'hideFlows':
+-            return Object.keys(state).reduce((acc, flowId) => {
+-                if (action.flowIds) {
+-                    acc[flowId] = action.flowIds?.includes(flowId) ? false : state[flowId];
+-                }
+-                else {
+-                    acc[flowId] = false;
+-                }
++        }
++        case 'hideFlows': {
++            const keys = Object.keys(state);
++            const targetIds = action.flowIds ? new Set(action.flowIds) : null;
++            const allAlreadyCorrect = keys.every((flowId) => {
++                const desired = !targetIds || targetIds.has(flowId) ? false : state[flowId];
++                return state[flowId] === desired;
++            });
++            if (allAlreadyCorrect) return state;
++            return keys.reduce((acc, flowId) => {
++                acc[flowId] = !targetIds || targetIds.has(flowId) ? false : state[flowId];
+                 return acc;
+             }, {});
++        }
+         case 'clearFlows':
+             return {};
+         case 'initVisibleFlows': {
+diff --git a/lib/esm/components/Catalog/Catalog.d.ts b/lib/esm/components/Catalog/Catalog.d.ts
+index 9abd654f69599b8da60734281b064a3f52b5455c..06daac12728f4175358e647df8b6753571cf2aed 100644
+--- a/lib/esm/components/Catalog/Catalog.d.ts
++++ b/lib/esm/components/Catalog/Catalog.d.ts
+@@ -6,6 +6,8 @@ interface CatalogProps {
+     tiles: ITile[];
+     /** Callback being called when a Tile is clicked */
+     onTileClick?: (tile: ITile) => void;
++    /** Initial filter tags applied on mount (uncontrolled — see CiteckCatalogModalProvider) */
++    initialFilterTags?: string[];
+ }
+ export declare const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>>;
+ export {};
+diff --git a/lib/esm/components/Catalog/Catalog.js b/lib/esm/components/Catalog/Catalog.js
+index efeb0bed236dc435df13a00513fe05e066fe79a8..fc7fd544fd63d92c663de2d61656bb2c841098a3 100644
+--- a/lib/esm/components/Catalog/Catalog.js
++++ b/lib/esm/components/Catalog/Catalog.js
+@@ -13,7 +13,7 @@ export const Catalog = (props) => {
+     const [activeLayout, setActiveLayout] = useLocalStorage(LocalStorageKeys.CatalogLayout, CatalogLayout.Gallery);
+     /** Selected Group */
+     const [searchTerm, setSearchTerm] = useDebounceValue('', 500, { trailing: true });
+-    const [filterTags, setFilterTags] = useState([]);
++    const [filterTags, setFilterTags] = useState(props.initialFilterTags ?? []);
+     /** All tags, sorted to have selected and prioritized tags first */
+     const { sortedTags, overflowIndex } = useMemo(() => {
+         return sortTags(props.tiles, filterTags);
+diff --git a/lib/esm/components/Visualization/Canvas/Form/fields/custom-fields-factory.js b/lib/esm/components/Visualization/Canvas/Form/fields/custom-fields-factory.js
+index 395c517669e1d18b80976e6dd72d9dc406eb3cad..2e95cf5fbb53666f58dad0bcf968ee2d46d3abef 100644
+--- a/lib/esm/components/Visualization/Canvas/Form/fields/custom-fields-factory.js
++++ b/lib/esm/components/Visualization/Canvas/Form/fields/custom-fields-factory.js
+@@ -1,11 +1,60 @@
+-import { EnumField } from '@kaoto/forms';
++import { jsx as _jsx } from "react/jsx-runtime";
++import { TextArea } from '@patternfly/react-core';
++import { EnumField, FieldWrapper, useFieldValue } from '@kaoto/forms';
++import { useContext, useEffect, useMemo, useState } from 'react';
++import { SchemaContext } from '@kaoto/forms';
++import { parse as yamlParse, stringify as yamlStringify } from 'yaml';
+ import { DataSourceBeanField, PrefixedBeanField, UnprefixedBeanField } from './BeanField/BeanField';
+ import { ExpressionField } from './ExpressionField/ExpressionField';
++const CiteckJsonObjectField = ({ propName, required }) => {
++    const { schema } = useContext(SchemaContext);
++    const { value, onChange, disabled } = useFieldValue(propName);
++    const prettyValue = useMemo(() => value === undefined ? '' : yamlStringify(value, { indent: 2, lineWidth: 0 }).replace(/\n$/, ''), [value]);
++    const [draft, setDraft] = useState(prettyValue);
++    const [error, setError] = useState(undefined);
++    useEffect(() => {
++        setDraft(prettyValue);
++        setError(undefined);
++    }, [prettyValue]);
++    const onFieldChange = (_event, nextValue) => {
++        setDraft(nextValue);
++        if (nextValue.trim() === '') {
++            setError(undefined);
++            onChange(undefined);
++            return;
++        }
++        try {
++            const parsed = yamlParse(nextValue);
++            if (parsed === null || Array.isArray(parsed) || typeof parsed !== 'object') {
++                setError('Expected an object');
++                return;
++            }
++            setError(undefined);
++            onChange(parsed);
++        }
++        catch {
++            setError('Invalid YAML');
++        }
++    };
++    return (_jsx(FieldWrapper, { propName: propName, required: required, title: schema.title, type: "object", description: error ? `${schema.description ?? ''} ${error}`.trim() : schema.description, children: _jsx(TextArea, { rows: Math.max(draft.split('\n').length, 4), type: "text", role: "textbox", id: propName, name: propName, value: draft, onChange: onFieldChange, isDisabled: disabled, validated: error ? 'error' : undefined }) }));
++};
++const hasPrimitiveAdditionalProperties = (schema) => typeof schema.additionalProperties === 'object' &&
++    schema.additionalProperties !== null &&
++    typeof schema.additionalProperties.type === 'string' &&
++    ['string', 'number', 'integer', 'boolean'].includes(schema.additionalProperties.type);
++const isCiteckJsonObject = (schema) => schema.type === 'object' &&
++    typeof schema.$comment === 'string' &&
++    schema.$comment.includes('citeck') &&
++    Object.keys(schema.properties ?? {}).length === 0 &&
++    !hasPrimitiveAdditionalProperties(schema);
+ export const customFieldsFactoryfactory = (schema) => {
+     if (Array.isArray(schema.enum) && schema.enum.length > 0) {
+         /* Workaround for https://github.com/KaotoIO/kaoto/issues/2565 since the SNMP component has the wrong type */
+         return EnumField;
+     }
++    else if (isCiteckJsonObject(schema)) {
++        return CiteckJsonObjectField;
++    }
+     else if (schema.type === 'string' && schema.format?.startsWith('bean:')) {
+         return PrefixedBeanField;
+     }
+diff --git a/lib/esm/models/visualization/flows/support/flows-visibility.js b/lib/esm/models/visualization/flows/support/flows-visibility.js
+index c49ea4fa3adc9e0e479f49bf1fe583b381a45c14..90ac0a56784deab393b0855403ba7cdd9845e398 100644
+--- a/lib/esm/models/visualization/flows/support/flows-visibility.js
++++ b/lib/esm/models/visualization/flows/support/flows-visibility.js
+@@ -29,26 +29,32 @@ export function VisibleFlowsReducer(state, action) {
+                 ...state,
+                 [action.flowId]: !state[action.flowId],
+             };
+-        case 'showFlows':
+-            return Object.keys(state).reduce((acc, flowId) => {
+-                if (action.flowIds) {
+-                    acc[flowId] = action.flowIds?.includes(flowId) ? true : state[flowId];
+-                }
+-                else {
+-                    acc[flowId] = true;
+-                }
++        case 'showFlows': {
++            const keys = Object.keys(state);
++            const targetIds = action.flowIds ? new Set(action.flowIds) : null;
++            const allAlreadyCorrect = keys.every((flowId) => {
++                const desired = !targetIds || targetIds.has(flowId) ? true : state[flowId];
++                return state[flowId] === desired;
++            });
++            if (allAlreadyCorrect) return state;
++            return keys.reduce((acc, flowId) => {
++                acc[flowId] = !targetIds || targetIds.has(flowId) ? true : state[flowId];
+                 return acc;
+             }, {});
+-        case 'hideFlows':
+-            return Object.keys(state).reduce((acc, flowId) => {
+-                if (action.flowIds) {
+-                    acc[flowId] = action.flowIds?.includes(flowId) ? false : state[flowId];
+-                }
+-                else {
+-                    acc[flowId] = false;
+-                }
++        }
++        case 'hideFlows': {
++            const keys = Object.keys(state);
++            const targetIds = action.flowIds ? new Set(action.flowIds) : null;
++            const allAlreadyCorrect = keys.every((flowId) => {
++                const desired = !targetIds || targetIds.has(flowId) ? false : state[flowId];
++                return state[flowId] === desired;
++            });
++            if (allAlreadyCorrect) return state;
++            return keys.reduce((acc, flowId) => {
++                acc[flowId] = !targetIds || targetIds.has(flowId) ? false : state[flowId];
+                 return acc;
+             }, {});
++        }
+         case 'clearFlows':
+             return {};
+         case 'initVisibleFlows': {
+diff --git a/lib/cjs/models/visualization/flows/support/camel-component-schema.service.js b/lib/cjs/models/visualization/flows/support/camel-component-schema.service.js
+--- a/lib/cjs/models/visualization/flows/support/camel-component-schema.service.js
++++ b/lib/cjs/models/visualization/flows/support/camel-component-schema.service.js
+@@ -276,6 +276,18 @@
+                     properties: actualComponentProperties,
+                     required: componentSchema.required,
+                 };
++                // Citeck: mirror the enriched `parameters` into the $ref definition so
++                // SchemaProvider's resolveSchemaWithRef preserves the structured schema
++                // when it merges refDefinition over inline properties (otherwise the
++                // upstream un-enriched parameters wins and the form falls back to the
++                // generic key/value editor).
++                if (typeof schema.$ref === 'string' && schema.definitions) {
++                    const refPath = schema.$ref.replace('#/definitions/', '');
++                    const refDef = schema.definitions[refPath];
++                    if (refDef && refDef.properties && typeof refDef.properties === 'object') {
++                        refDef.properties.parameters = schema.properties.parameters;
++                    }
++                }
+             }
+         }
+         return schema;
+diff --git a/lib/esm/models/visualization/flows/support/camel-component-schema.service.js b/lib/esm/models/visualization/flows/support/camel-component-schema.service.js
+--- a/lib/esm/models/visualization/flows/support/camel-component-schema.service.js
++++ b/lib/esm/models/visualization/flows/support/camel-component-schema.service.js
+@@ -276,6 +276,18 @@
+                     properties: actualComponentProperties,
+                     required: componentSchema.required,
+                 };
++                // Citeck: mirror the enriched `parameters` into the $ref definition so
++                // SchemaProvider's resolveSchemaWithRef preserves the structured schema
++                // when it merges refDefinition over inline properties (otherwise the
++                // upstream un-enriched parameters wins and the form falls back to the
++                // generic key/value editor).
++                if (typeof schema.$ref === 'string' && schema.definitions) {
++                    const refPath = schema.$ref.replace('#/definitions/', '');
++                    const refDef = schema.definitions[refPath];
++                    if (refDef && refDef.properties && typeof refDef.properties === 'object') {
++                        refDef.properties.parameters = schema.properties.parameters;
++                    }
++                }
+             }
+         }
+         return schema;
