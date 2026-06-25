@@ -277,6 +277,7 @@
   "activities-widget.hour": "h",
   "activities-widget.icon.view": "Watch",
   "activities-widget.add": "Add Activity",
+  "activities-widget.no-activities": "No activities",
   "activities-widget.type-call": "Call",
   "activities-widget.type-email": "Email",
   "activities-widget.type-meeting": "Meeting",

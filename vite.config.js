@@ -302,15 +302,30 @@ function serveCamelCatalogPlugin() {
       if (AGGREGATE_COMPONENTS_REGEX.test(key)) sanitizedCache.delete(key);
     }
   };
+  // macOS fs.watch fires several events per single save (rename+change, editor atomic-write temp files),
+  // so the reload + log ran many times per edit. Debounce so each burst reloads (and logs) exactly once.
+  const debounce = (fn, ms = 150) => {
+    let timer = null;
+    return () => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => {
+        timer = null;
+        fn();
+      }, ms);
+    };
+  };
   const watchOverrides = () => {
     if (existsSync(COMPONENT_OVERRIDES_FILE)) {
       try {
-        fsWatch(COMPONENT_OVERRIDES_FILE, () => {
-          componentOverrides = loadComponentOverrides();
-          invalidateAggregateCache();
-          // eslint-disable-next-line no-console
-          console.log('[serve-camel-catalog] component overrides reloaded');
-        });
+        fsWatch(
+          COMPONENT_OVERRIDES_FILE,
+          debounce(() => {
+            componentOverrides = loadComponentOverrides();
+            invalidateAggregateCache();
+            // eslint-disable-next-line no-console
+            console.log('[serve-camel-catalog] component overrides reloaded');
+          })
+        );
       } catch (e) {
         // eslint-disable-next-line no-console
         console.warn('[serve-camel-catalog] fs.watch failed:', e.message);
@@ -318,12 +333,15 @@ function serveCamelCatalogPlugin() {
     }
     if (existsSync(COMPONENT_ALLOWLIST_FILE)) {
       try {
-        fsWatch(COMPONENT_ALLOWLIST_FILE, () => {
-          componentAllowlist = loadComponentAllowlist(COMPONENT_ALLOWLIST_FILE);
-          invalidateAggregateCache();
-          // eslint-disable-next-line no-console
-          console.log('[serve-camel-catalog] component allowlist reloaded');
-        });
+        fsWatch(
+          COMPONENT_ALLOWLIST_FILE,
+          debounce(() => {
+            componentAllowlist = loadComponentAllowlist(COMPONENT_ALLOWLIST_FILE);
+            invalidateAggregateCache();
+            // eslint-disable-next-line no-console
+            console.log('[serve-camel-catalog] component allowlist reloaded');
+          })
+        );
       } catch (e) {
         // eslint-disable-next-line no-console
         console.warn('[serve-camel-catalog] fs.watch (allowlist) failed:', e.message);

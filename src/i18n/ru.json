@@ -265,6 +265,7 @@
   "activities-widget.hour": "ч",
   "activities-widget.icon.view": "Посмотреть",
   "activities-widget.add": "Добавить активность",
+  "activities-widget.no-activities": "Нет активностей",
   "activities-widget.type-call": "Звонок",
   "activities-widget.type-email": "Письмо",
   "activities-widget.type-meeting": "Встреча",
