@@ -118,8 +118,16 @@
       display: block;
     }
 
-    &__header {
-      border-top: 0;
+    // Kill the grid's own top line in the widget — the dashlet header already separates it.
+    // The thick line is the Bootstrap `.table` border-top on the HEADER CELLS (table > thead > tr > th);
+    // a tr-level border-top doesn't reach the cells. Also drop the 2px `::before` line on the table.
+    &__table.table::before {
+      content: none;
+    }
+
+    &__table.table > thead > tr,
+    &__table.table > thead > tr > th {
+      border-top: 0 !important;
     }
 
     &__td {
@@ -261,6 +269,24 @@
     }
   }
 
+  // Active (open) state for the _mi toolbar dropdown toggles (create / preset TwoIcoBtn): glow blue
+  // like the export/import toggles. These don't get `ecos-journal__btn_new_focus`; their open hook is
+  // `.ecos-dropdown.show`. Higher specificity + later source order overrides the _mi `color` above.
+  &__toolbar .ecos-dropdown.show .ecos-btn.ecos-btn_mi,
+  .dashlet__header-actions .ecos-dropdown.show .ecos-btn.ecos-btn_mi {
+    color: var(--dark-primary-color) !important;
+
+    i,
+    .ecos-btn__i {
+      color: var(--dark-primary-color) !important;
+    }
+
+    svg [fill='currentColor'],
+    svg[fill='currentColor'] {
+      fill: var(--dark-primary-color) !important;
+    }
+  }
+
   // Group actions button in toolbar
   &__group-actions .ecos-btn {
     height: 28px !important;
@@ -273,6 +299,36 @@
   // like they didn't work / wouldn't drop. Let them escape here; the caption keeps its own ellipsis.
   .dashlet__header {
     overflow: visible;
+  }
+
+  // Header actions are revealed on hover (base: opacity 0 → 1 on header hover). When a dropdown is
+  // open the mouse moves onto the menu, the header loses :hover, and the active toggle would fade out.
+  // Keep the actions shown while a dropdown inside is open (reactstrap adds `.show` to `.ecos-dropdown`).
+  .dashlet__header-actions:has(.show) {
+    opacity: 1;
+  }
+
+  // Active (open) dropdown toggle must glow blue, not vanish: its icon is an SVG that the global
+  // `svg[fill="currentColor"] { fill: var(--header-bg-color) }` rule (index.scss) paints near-white
+  // whenever the header isn't hovered, so an open toggle disappeared on the white header. The hover
+  // rule only recolors on :hover. `ecos-journal__btn_new_focus` is set on the toggle while its
+  // dropdown is open (Export/Import/preset/create-menu).
+  .ecos-journal__btn_new_focus {
+    color: var(--dark-primary-color) !important;
+
+    i,
+    .ecos-btn__i {
+      color: var(--dark-primary-color) !important;
+    }
+
+    svg [fill='currentColor'],
+    svg[fill='currentColor'] {
+      fill: var(--dark-primary-color) !important;
+    }
+
+    svg[stroke='currentColor'] {
+      stroke: var(--dark-primary-color) !important;
+    }
   }
 
   // Lay the header controls out in a horizontal row (block-level GroupActions /
