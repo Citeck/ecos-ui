@@ -219,9 +219,14 @@ class Comments extends BaseWidget {
 
   renderComments() {
     const { comments, isMobile, saveIsLoading, userName, actionFailed } = this.props;
-    const { recordRef } = this.state;
+    const { recordRef, isEdit } = this.state;
 
     if (!comments.length) {
+      // While the editor is open, don't render the empty-state under it (it would push the layout).
+      if (isEdit) {
+        return null;
+      }
+
       return (
         <div className="ecos-comments__no-data">
           <NoComments width={183} height={102} />
