@@ -303,7 +303,7 @@ function serveCamelCatalogPlugin() {
     }
   };
   // macOS fs.watch fires several events per single save (rename+change, editor atomic-write temp files),
-  // so the reload + log ran many times per edit. Debounce so each burst reloads (and logs) exactly once.
+  // so the reload + log ran many times per edit. Debounce so each burst collapses to one tick.
   const debounce = (fn, ms = 150) => {
     let timer = null;
     return () => {
@@ -314,17 +314,52 @@ function serveCamelCatalogPlugin() {
       }, ms);
     };
   };
+  const readRawOrNull = fp => {
+    try {
+      return existsSync(fp) ? readFileSync(fp, 'utf-8') : null;
+    } catch {
+      return null;
+    }
+  };
   const watchOverrides = () => {
+    // Vite re-evaluates this config and re-runs configureServer on every dev restart, but the previous
+    // fs.watch handles stay alive in the same node process. Without cleanup they STACK, so one file change
+    // logs/reloads once per accumulated watcher — that was the runaway spam. Keep the handles on globalThis
+    // (survives config re-import) and close the prior set before re-watching.
+    const KEY = '__serveCamelCatalogWatchers';
+    const prev = globalThis[KEY];
+    if (Array.isArray(prev)) {
+      for (const w of prev) {
+        try {
+          w.close();
+        } catch {
+          /* already closed */
+        }
+      }
+    }
+    const watchers = [];
+    globalThis[KEY] = watchers;
+
+    // Content guard: only reload + log when the file content ACTUALLY changed. Collapses both the macOS
+    // multi-fire-per-save and any stray fs.watch event (which would otherwise re-log identical content).
+    let lastOverridesRaw = readRawOrNull(COMPONENT_OVERRIDES_FILE);
+    let lastAllowlistRaw = readRawOrNull(COMPONENT_ALLOWLIST_FILE);
+
     if (existsSync(COMPONENT_OVERRIDES_FILE)) {
       try {
-        fsWatch(
-          COMPONENT_OVERRIDES_FILE,
-          debounce(() => {
-            componentOverrides = loadComponentOverrides();
-            invalidateAggregateCache();
-            // eslint-disable-next-line no-console
-            console.log('[serve-camel-catalog] component overrides reloaded');
-          })
+        watchers.push(
+          fsWatch(
+            COMPONENT_OVERRIDES_FILE,
+            debounce(() => {
+              const raw = readRawOrNull(COMPONENT_OVERRIDES_FILE);
+              if (raw === lastOverridesRaw) return;
+              lastOverridesRaw = raw;
+              componentOverrides = loadComponentOverrides();
+              invalidateAggregateCache();
+              // eslint-disable-next-line no-console
+              console.log('[serve-camel-catalog] component overrides reloaded');
+            })
+          )
         );
       } catch (e) {
         // eslint-disable-next-line no-console
@@ -333,14 +368,19 @@ function serveCamelCatalogPlugin() {
     }
     if (existsSync(COMPONENT_ALLOWLIST_FILE)) {
       try {
-        fsWatch(
-          COMPONENT_ALLOWLIST_FILE,
-          debounce(() => {
-            componentAllowlist = loadComponentAllowlist(COMPONENT_ALLOWLIST_FILE);
-            invalidateAggregateCache();
-            // eslint-disable-next-line no-console
-            console.log('[serve-camel-catalog] component allowlist reloaded');
-          })
+        watchers.push(
+          fsWatch(
+            COMPONENT_ALLOWLIST_FILE,
+            debounce(() => {
+              const raw = readRawOrNull(COMPONENT_ALLOWLIST_FILE);
+              if (raw === lastAllowlistRaw) return;
+              lastAllowlistRaw = raw;
+              componentAllowlist = loadComponentAllowlist(COMPONENT_ALLOWLIST_FILE);
+              invalidateAggregateCache();
+              // eslint-disable-next-line no-console
+              console.log('[serve-camel-catalog] component allowlist reloaded');
+            })
+          )
         );
       } catch (e) {
         // eslint-disable-next-line no-console
