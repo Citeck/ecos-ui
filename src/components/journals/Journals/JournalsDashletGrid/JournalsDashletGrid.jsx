@@ -7,9 +7,15 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
+import GridSkeleton from './GridSkeleton';
+
 import { InfoText, Loader } from '@/components/common';
 import { EmptyGrid, Grid, InlineTools } from '@/components/common/grid';
 import { DEFAULT_PAGINATION } from '@/components/journals/Journals/constants';
+
+// Skeleton shape while the grid loads its primary data on init (before columns/rows resolve).
+const DEFAULT_SKELETON_COLS = 5;
+const DEFAULT_SKELETON_ROWS = 8;
 
 import {
   deselectAllRecords,
@@ -285,7 +291,16 @@ class JournalsDashletGrid extends Component {
       <>
         <div className="ecos-journal-dashlet__grid">
           {/* loadingGrid is an indicator of the loading of the primary data of the table. You can't change it to global loading */}
-          {!isWidget && loadingGrid && <Loader blur />}
+          {/* On init (no rows yet) show a table skeleton instead of the round spinner; reloads keep the blur loader over current rows. */}
+          {!isWidget && loadingGrid && isEmpty(data) ? (
+            <GridSkeleton
+              columns={get(viewColumns, 'length', 0) || DEFAULT_SKELETON_COLS}
+              rows={DEFAULT_SKELETON_ROWS}
+              maxHeight={maxHeight}
+            />
+          ) : (
+            !isWidget && loadingGrid && <Loader blur />
+          )}
           {!loading && isEmpty(viewColumns) && <InfoText text={t('journal.table.no-columns')} />}
           <HeightCalculation autoHeight={autoHeight} loading={loadingGrid} minHeight={minHeight} maxHeight={maxHeight} total={total} maxItems={maxItems}>
             <Grid

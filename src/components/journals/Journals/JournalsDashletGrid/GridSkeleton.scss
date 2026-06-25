@@ -1,0 +1,60 @@
+// Mirrors the `<Loader blur />` anchoring (.ecos-loader: position absolute, inset 0, z-index 100)
+// so the skeleton covers the same grid box. Shimmer recipe matches the Comments widget
+// (src/components/dashboard/widgets/Comments/style.scss), kept local to avoid cross-coupling.
+.ecos-journal-grid-skeleton {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  background: #fff;
+  overflow: hidden;
+  padding: 8px 12px;
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    height: 40px;
+    padding: 0 4px;
+    border-bottom: 1px solid #f0f0f0;
+
+    &_header {
+      height: 44px;
+      border-bottom: 1px solid #e1e1e1;
+    }
+  }
+
+  &__cell {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  &__bar {
+    display: block;
+    height: 12px;
+    border-radius: 4px;
+  }
+
+  &__row_header &__bar {
+    height: 10px;
+    opacity: 0.85;
+  }
+
+  &__shimmer {
+    background: linear-gradient(90deg, #e9eef8 0%, #f6f7fb 50%, #e9eef8 100%);
+    background-size: 200% 100%;
+    animation: ecos-journal-grid-skeleton-shimmer 1.4s linear infinite;
+  }
+}
+
+@keyframes ecos-journal-grid-skeleton-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
