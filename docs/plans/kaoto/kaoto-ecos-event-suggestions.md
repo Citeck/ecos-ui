@@ -1,8 +1,8 @@
 # Kaoto `ecos-event:eventName` — динамические suggestions
 
-Контекст: пост-§3.3 расширение [kaoto-palette-consolidation.md](./kaoto-palette-consolidation.md). Сейчас в `CiteckSuggestionsBootstrap.jsx:120-132` для поля `eventName` (компонент `ecos-event`) подсказки берутся из захардкоженного `STANDARD_EVENT_TRIGGERS` (5 имён). Цель — заменить статичный список на динамические suggestions, собранные из реальных источников событий платформы, **сохранив** возможность ввести произвольное имя (важно для `to:`-режима, где пользователь публикует custom-event).
+Контекст: пост-§3.3 расширение [kaoto-palette-consolidation.md](./completed/kaoto-palette-consolidation.md). Сейчас в `CiteckSuggestionsBootstrap.jsx:120-132` для поля `eventName` (компонент `ecos-event`) подсказки берутся из захардкоженного `STANDARD_EVENT_TRIGGERS` (5 имён). Цель — заменить статичный список на динамические suggestions, собранные из реальных источников событий платформы, **сохранив** возможность ввести произвольное имя (важно для `to:`-режима, где пользователь публикует custom-event).
 
-Связанная задача в трекере — подзадача COREDEV-208 «Kaoto event suggestions». Эпик: [COREDEV-208](https://citeck.ecos24.ru/v2/dashboard?recordRef=emodel/ept-issue@COREDEV-208).
+Связанная задача в трекере — подзадача COREDEV-208 «Kaoto event suggestions». Эпик: COREDEV-208.
 
 ## Контекст: как сделано в BPMN-редакторе
 
@@ -218,7 +218,7 @@ export function buildEventTriggerProvider() {
 - Тесты U1–U10: ~2 часа.
 - Acceptance прогон на стенде: ~30 минут.
 
-**Итого: ~0.5 дня.** Может идти параллельно с любой задачей §3.3 [kaoto-palette-consolidation.md](./kaoto-palette-consolidation.md), не блокируется ничем кроме самого `CiteckSuggestionsBootstrap` (уже существует).
+**Итого: ~0.5 дня.** Может идти параллельно с любой задачей §3.3 [kaoto-palette-consolidation.md](./completed/kaoto-palette-consolidation.md), не блокируется ничем кроме самого `CiteckSuggestionsBootstrap` (уже существует).
 
 ## Follow-up задачи (создать как отдельные тикеты)
 
@@ -226,7 +226,7 @@ export function buildEventTriggerProvider() {
 
 При bump'е `ecos-events2`-зависимости в платформе хардкод в `STANDARD_EVENT_TRIGGERS` может разойтись с `RecordEventTypes.kt`. Mitigation:
 - Добавить unit-тест-фикстуру с пинами 8 имён (если бэкенд добавит/уберёт — UI-тест fail'ится при следующем regenerate'е каталога).
-- Долгосрочно — генерировать список через тот же plugin, что и [§5 follow-up #5](./kaoto-palette-consolidation.md#follow-up) для catalog-overrides (gradle/maven plugin парсит аннотации/константы `ecos-events2` и кладёт в `citeck-camel-components.json`).
+- Долгосрочно — генерировать список через тот же plugin, что и [§5 follow-up #5](./completed/kaoto-palette-consolidation.md#follow-up) для catalog-overrides (gradle/maven plugin парсит аннотации/константы `ecos-events2` и кладёт в `citeck-camel-components.json`).
 
 ### F2 — Group 3 «Used in routes»
 
@@ -240,9 +240,9 @@ export function buildEventTriggerProvider() {
 
 ### F4 — i18n для group-labels
 
-Сейчас `'Standard triggers'`, `'User events'` — захардкоженный английский. Аналогично [§5 follow-up #7](./kaoto-palette-consolidation.md#follow-up) — заменить на `t('...')` через `useI18n` при закрытии i18n-таска KaotoModeler.
+Сейчас `'Standard triggers'`, `'User events'` — захардкоженный английский. Аналогично [§5 follow-up #7](./completed/kaoto-palette-consolidation.md#follow-up) — заменить на `t('...')` через `useI18n` при закрытии i18n-таска KaotoModeler.
 
 ## Связь в трекере
 
-- Эпик: [COREDEV-208 — Integrate Kaoto Camel DSL editor into ecos-ui](https://citeck.ecos24.ru/v2/dashboard?recordRef=emodel/ept-issue@COREDEV-208).
+- Эпик: COREDEV-208 — Integrate Kaoto Camel DSL editor into ecos-ui.
 - Подзадача (создаётся при старте): «Kaoto ecos-event eventName — dynamic suggestions from uiserv/action». `epicLink → COREDEV-208`. Ссылается на этот файл.

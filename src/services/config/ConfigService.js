@@ -32,6 +32,7 @@ export const WORKSPACES_ENABLED = 'workspaces-enabled';
 export const WORKSPACES_ALLOW_CREATE = 'app/emodel$workspaces-allow-create-for-all-users';
 export const ALFRESCO_ENABLED = 'app/alfresco$alfresco-enabled';
 export const ALFRESCO_EXPORT_SRC_ID_PATTERN = 'app/alfresco$alfresco-export-src-id-pattern';
+export const CAMEL_VISUAL_EDITING_ENABLED = 'app/integrations$camel-visual-editing-enabled';
 
 export const FOOTER_CONTENT = 'footer-content';
 
@@ -129,6 +130,10 @@ const CONFIG_PROPS = {
   [ALFRESCO_EXPORT_SRC_ID_PATTERN]: {
     defaultValue: 'alfresco/.*',
     type: TYPE_TEXT
+  },
+  [CAMEL_VISUAL_EDITING_ENABLED]: {
+    defaultValue: false,
+    type: TYPE_BOOLEAN
   },
   [SITE_DASHBOARD_ENABLE]: {
     defaultValue: false

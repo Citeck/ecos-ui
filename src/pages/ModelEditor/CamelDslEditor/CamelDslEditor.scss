@@ -1,0 +1,261 @@
+@use 'sass:meta';
+
+.camel-dsl-editor {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  // height: 100% (а не 100vh) — родительский Page-wrapper отдаёт высоту за вычетом
+  // верхнего меню платформы (тот же паттерн, что у ecos-model-editor__page).
+  height: 100%;
+  min-height: 0;
+  background: #fff;
+
+  // Header styled as the Developer Console toolbar (see DeveloperConsole.scss .console-toolbar):
+  // flat gray bar, subtle bottom border + shadow.
+  &__header {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    background: #f3f4f6;
+    border-bottom: 1px solid #dde0e4;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 8px;
+    min-height: 36px;
+
+    &--actions {
+      justify-content: space-between;
+      background-color: var(--main-bg-color);
+    }
+
+    &--meta {
+      min-height: 32px;
+      font-size: 13px;
+      color: #6b7280;
+      border-top: 1px solid #e8edef;
+    }
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #24292f;
+  }
+
+  &__name {
+    color: #333;
+    font-weight: 500;
+  }
+
+  &__state-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    font-size: 11px;
+    border-radius: 10px;
+    background: #eef2f7;
+    color: #4a5568;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+  }
+
+  // Primary Save button — lives in the top panel, visible in every view mode.
+  &__save-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 24px;
+    padding: 0 10px;
+    border: none;
+    border-radius: 5px;
+    background: var(--primary-color, #2b7de9);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    transition: filter 0.1s, opacity 0.1s;
+
+    &:hover:not(:disabled) {
+      filter: brightness(0.95);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  // The global rule `svg[stroke="currentColor"] { stroke: var(--header-bg-color) }`
+  // (src/styles/index.scss) would paint the icon dark — match the same attribute to beat its
+  // specificity (0,2,1 > 0,1,1) and force white on the blue button.
+  &__save-icon[stroke='currentColor'] {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    stroke: #fff;
+  }
+
+  &__record-ref {
+    color: #666;
+    font-family: monospace;
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 360px;
+  }
+
+  // Segmented control matching the console-toolbar button aesthetic:
+  // flat track, transparent buttons, filled active pill.
+  &__view-mode {
+    display: flex;
+    gap: 2px;
+    margin-left: auto;
+    padding: 2px;
+    background: #e9ebef;
+    border-radius: 6px;
+  }
+
+  &__view-mode-btn {
+    height: 24px;
+    padding: 0 10px;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: #6b7280;
+    cursor: pointer;
+    font-size: 12px;
+    text-transform: capitalize;
+    transition: background 0.1s, color 0.1s;
+
+    &:hover:not(.camel-dsl-editor__view-mode-btn--active) {
+      background: #e5e7eb;
+      color: #1f2937;
+    }
+
+    &--active {
+      background: #fff;
+      color: #1f2937;
+      font-weight: 600;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+    }
+  }
+
+  &__unsaved {
+    color: #d9822b;
+    font-weight: 600;
+    margin-left: 4px;
+  }
+
+  &__error {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 16px;
+    background: #fff3f0;
+    color: #a00;
+    font-size: 13px;
+    border-bottom: 1px solid #f0c0c0;
+
+    &-close {
+      background: none;
+      border: none;
+      color: #a00;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 0 4px;
+      line-height: 1;
+    }
+  }
+
+  &__body {
+    flex: 1 1 auto;
+    min-height: 0;
+    position: relative;
+    display: flex;
+
+    // ModelEditorWrapper hosts the canvas + floating toolbar; let it fill the body.
+    .ecos-model-editor {
+      flex: 1 1 auto;
+      min-width: 0;
+
+      .ecos-model-editor__sidebar-right {
+        display: none;
+      }
+    }
+  }
+
+  &__loading-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.75);
+    color: #555;
+    font-size: 14px;
+    z-index: 10;
+  }
+
+  &__startup-prompt {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #888;
+    font-size: 14px;
+    text-align: center;
+    padding: 24px;
+    code {
+      background: #f0f0f0;
+      padding: 2px 6px;
+      border-radius: 3px;
+      color: #333;
+      font-family: monospace;
+    }
+  }
+
+  &__trigger-select {
+    height: 28px;
+    padding: 0 8px;
+    font-size: 13px;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    background: #fff;
+    color: #24292f;
+    min-width: 240px;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      border-color: #b6bec7;
+    }
+
+    &:disabled {
+      background: #f5f5f5;
+      cursor: not-allowed;
+    }
+  }
+
+  // Hide Kaoto RuntimeSelector — runtime фиксирован, переключатель только мешает.
+  // Двойной якорь на случай, если Kaoto снимет testid в minor-bump'е (см. plan §4.6).
+  [data-testid='runtime-selector-list-dropdown'],
+  .runtime-selector__submenu {
+    display: none !important;
+  }
+}

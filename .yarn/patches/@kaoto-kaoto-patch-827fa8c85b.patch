@@ -1,0 +1,110 @@
+diff --git a/lib/cjs/components/Visualization/Canvas/Form/CanvasFormBody.js b/lib/cjs/components/Visualization/Canvas/Form/CanvasFormBody.js
+index 8367c180c42986439537b9c934cfc8f5a7684666..9925ecff3d56b55a57c3e76792806e138f1826b1 100644
+--- a/lib/cjs/components/Visualization/Canvas/Form/CanvasFormBody.js
++++ b/lib/cjs/components/Visualization/Canvas/Form/CanvasFormBody.js
+@@ -2,12 +2,16 @@ import { jsx as _jsx } from "react/jsx-runtime";
+ import { isDefined, KaotoForm } from '@kaoto/forms';
+ import { useCallback, useContext, useMemo, useRef } from 'react';
+ import { EntitiesContext } from '../../../../providers/entities.provider';
++import { SettingsContext } from '../../../../providers/settings.provider';
+ import { setValue } from '../../../../utils';
+ import { UnknownNode } from '../../Custom/UnknownNode';
+ import { customFieldsFactoryfactory } from './fields/custom-fields-factory';
+ import { SuggestionRegistrar } from './suggestions/SuggestionsProvider';
+ export const CanvasFormBody = ({ vizNode }) => {
+     const entitiesContext = useContext(EntitiesContext);
++    // ECOS read-only: designerReadOnly из нашего SettingsProvider → disabled property-формы.
++    const ecosSettings = useContext(SettingsContext);
++    const ecosFormDisabled = ecosSettings?.getSettings?.().designerReadOnly === true;
+     const omitFields = useRef(vizNode.getOmitFormFields() ?? []);
+     const schema = useMemo(() => vizNode.getNodeSchema(), [vizNode]);
+     const isUnknownComponent = useMemo(() => {
+@@ -27,6 +31,6 @@ export const CanvasFormBody = ({ vizNode }) => {
+     if (isUnknownComponent) {
+         return _jsx(UnknownNode, { model: model });
+     }
+-    return (_jsx(SuggestionRegistrar, { children: _jsx(KaotoForm, { schema: schema, onChangeProp: handleOnChangeIndividualProp, model: model, omitFields: omitFields.current, customFieldsFactory: customFieldsFactoryfactory }) }));
++    return (_jsx(SuggestionRegistrar, { children: _jsx(KaotoForm, { schema: schema, onChangeProp: handleOnChangeIndividualProp, model: model, omitFields: omitFields.current, customFieldsFactory: customFieldsFactoryfactory, disabled: ecosFormDisabled }) }));
+ };
+ //# sourceMappingURL=CanvasFormBody.js.map
+\ No newline at end of file
+diff --git a/lib/cjs/components/Visualization/Canvas/Form/fields/ExpressionField/ExpressionField.js b/lib/cjs/components/Visualization/Canvas/Form/fields/ExpressionField/ExpressionField.js
+index db3d0775e5c76b70fc24ea70e2d33c294c2ceabe..01ab9e20761399cbd31396298a445a60abfc526e 100644
+--- a/lib/cjs/components/Visualization/Canvas/Form/fields/ExpressionField/ExpressionField.js
++++ b/lib/cjs/components/Visualization/Canvas/Form/fields/ExpressionField/ExpressionField.js
+@@ -23,7 +23,7 @@ import { ExpressionFieldInner } from './ExpressionFieldInner';
+  */
+ export const ExpressionField = ({ propName, required }) => {
+     const { schema } = useContext(SchemaContext);
+-    const { value: originalModel, onChange } = useFieldValue(propName);
++    const { value: originalModel, onChange, disabled } = useFieldValue(propName);
+     const isRootExpression = schema.format === 'expression';
+     const parsedModel = ExpressionService.parseExpressionModel(originalModel);
+     const expressionsSchema = useMemo(() => ExpressionService.getExpressionsSchema(schema), [schema]);
+@@ -41,8 +41,8 @@ export const ExpressionField = ({ propName, required }) => {
+         onChange(localValue);
+     };
+     if (isRootExpression) {
+-        return (_jsx(ModelContextProvider, { model: parsedModel, onPropertyChange: onExpressionChange, children: _jsx(SchemaProvider, { schema: expressionsSchema, children: _jsx(ExpressionFieldInner, { propName: ROOT_PATH, required: required }) }) }));
++        return (_jsx(ModelContextProvider, { model: parsedModel, onPropertyChange: onExpressionChange, disabled: disabled, children: _jsx(SchemaProvider, { schema: expressionsSchema, children: _jsx(ExpressionFieldInner, { propName: ROOT_PATH, required: required }) }) }));
+     }
+-    return (_jsx(FieldWrapper, { propName: propName, required: required, title: schema.title, type: "expression", description: schema.description, defaultValue: schema.default?.toString(), children: _jsx(ModelContextProvider, { model: parsedModel, onPropertyChange: onExpressionChange, children: _jsx(SchemaProvider, { schema: expressionsSchema, children: _jsx(ExpressionFieldInner, { propName: ROOT_PATH, required: required }) }) }) }));
++    return (_jsx(FieldWrapper, { propName: propName, required: required, title: schema.title, type: "expression", description: schema.description, defaultValue: schema.default?.toString(), children: _jsx(ModelContextProvider, { model: parsedModel, onPropertyChange: onExpressionChange, disabled: disabled, children: _jsx(SchemaProvider, { schema: expressionsSchema, children: _jsx(ExpressionFieldInner, { propName: ROOT_PATH, required: required }) }) }) }));
+ };
+ //# sourceMappingURL=ExpressionField.js.map
+\ No newline at end of file
+diff --git a/lib/esm/components/Visualization/Canvas/Form/CanvasFormBody.js b/lib/esm/components/Visualization/Canvas/Form/CanvasFormBody.js
+index 8367c180c42986439537b9c934cfc8f5a7684666..9925ecff3d56b55a57c3e76792806e138f1826b1 100644
+--- a/lib/esm/components/Visualization/Canvas/Form/CanvasFormBody.js
++++ b/lib/esm/components/Visualization/Canvas/Form/CanvasFormBody.js
+@@ -2,12 +2,16 @@ import { jsx as _jsx } from "react/jsx-runtime";
+ import { isDefined, KaotoForm } from '@kaoto/forms';
+ import { useCallback, useContext, useMemo, useRef } from 'react';
+ import { EntitiesContext } from '../../../../providers/entities.provider';
++import { SettingsContext } from '../../../../providers/settings.provider';
+ import { setValue } from '../../../../utils';
+ import { UnknownNode } from '../../Custom/UnknownNode';
+ import { customFieldsFactoryfactory } from './fields/custom-fields-factory';
+ import { SuggestionRegistrar } from './suggestions/SuggestionsProvider';
+ export const CanvasFormBody = ({ vizNode }) => {
+     const entitiesContext = useContext(EntitiesContext);
++    // ECOS read-only: designerReadOnly из нашего SettingsProvider → disabled property-формы.
++    const ecosSettings = useContext(SettingsContext);
++    const ecosFormDisabled = ecosSettings?.getSettings?.().designerReadOnly === true;
+     const omitFields = useRef(vizNode.getOmitFormFields() ?? []);
+     const schema = useMemo(() => vizNode.getNodeSchema(), [vizNode]);
+     const isUnknownComponent = useMemo(() => {
+@@ -27,6 +31,6 @@ export const CanvasFormBody = ({ vizNode }) => {
+     if (isUnknownComponent) {
+         return _jsx(UnknownNode, { model: model });
+     }
+-    return (_jsx(SuggestionRegistrar, { children: _jsx(KaotoForm, { schema: schema, onChangeProp: handleOnChangeIndividualProp, model: model, omitFields: omitFields.current, customFieldsFactory: customFieldsFactoryfactory }) }));
++    return (_jsx(SuggestionRegistrar, { children: _jsx(KaotoForm, { schema: schema, onChangeProp: handleOnChangeIndividualProp, model: model, omitFields: omitFields.current, customFieldsFactory: customFieldsFactoryfactory, disabled: ecosFormDisabled }) }));
+ };
+ //# sourceMappingURL=CanvasFormBody.js.map
+\ No newline at end of file
+diff --git a/lib/esm/components/Visualization/Canvas/Form/fields/ExpressionField/ExpressionField.js b/lib/esm/components/Visualization/Canvas/Form/fields/ExpressionField/ExpressionField.js
+index db3d0775e5c76b70fc24ea70e2d33c294c2ceabe..01ab9e20761399cbd31396298a445a60abfc526e 100644
+--- a/lib/esm/components/Visualization/Canvas/Form/fields/ExpressionField/ExpressionField.js
++++ b/lib/esm/components/Visualization/Canvas/Form/fields/ExpressionField/ExpressionField.js
+@@ -23,7 +23,7 @@ import { ExpressionFieldInner } from './ExpressionFieldInner';
+  */
+ export const ExpressionField = ({ propName, required }) => {
+     const { schema } = useContext(SchemaContext);
+-    const { value: originalModel, onChange } = useFieldValue(propName);
++    const { value: originalModel, onChange, disabled } = useFieldValue(propName);
+     const isRootExpression = schema.format === 'expression';
+     const parsedModel = ExpressionService.parseExpressionModel(originalModel);
+     const expressionsSchema = useMemo(() => ExpressionService.getExpressionsSchema(schema), [schema]);
+@@ -41,8 +41,8 @@ export const ExpressionField = ({ propName, required }) => {
+         onChange(localValue);
+     };
+     if (isRootExpression) {
+-        return (_jsx(ModelContextProvider, { model: parsedModel, onPropertyChange: onExpressionChange, children: _jsx(SchemaProvider, { schema: expressionsSchema, children: _jsx(ExpressionFieldInner, { propName: ROOT_PATH, required: required }) }) }));
++        return (_jsx(ModelContextProvider, { model: parsedModel, onPropertyChange: onExpressionChange, disabled: disabled, children: _jsx(SchemaProvider, { schema: expressionsSchema, children: _jsx(ExpressionFieldInner, { propName: ROOT_PATH, required: required }) }) }));
+     }
+-    return (_jsx(FieldWrapper, { propName: propName, required: required, title: schema.title, type: "expression", description: schema.description, defaultValue: schema.default?.toString(), children: _jsx(ModelContextProvider, { model: parsedModel, onPropertyChange: onExpressionChange, children: _jsx(SchemaProvider, { schema: expressionsSchema, children: _jsx(ExpressionFieldInner, { propName: ROOT_PATH, required: required }) }) }) }));
++    return (_jsx(FieldWrapper, { propName: propName, required: required, title: schema.title, type: "expression", description: schema.description, defaultValue: schema.default?.toString(), children: _jsx(ModelContextProvider, { model: parsedModel, onPropertyChange: onExpressionChange, disabled: disabled, children: _jsx(SchemaProvider, { schema: expressionsSchema, children: _jsx(ExpressionFieldInner, { propName: ROOT_PATH, required: required }) }) }) }));
+ };
+ //# sourceMappingURL=ExpressionField.js.map
+\ No newline at end of file

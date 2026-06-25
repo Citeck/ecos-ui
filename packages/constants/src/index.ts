@@ -28,6 +28,7 @@ export const URL = {
   BPMN_EDITOR: '/v2/bpmn-editor',
   CMMN_EDITOR: '/v2/cmmn-editor',
   DMN_EDITOR: '/v2/dmn-editor',
+  CAMEL_DSL_EDITOR: '/v2/camel-dsl-editor',
   DEV_TOOLS: '/v2/dev-tools',
   DEV_CONSOLE: '/v2/dev-console',
   TIMESHEET: '/v2/timesheet',
@@ -218,6 +219,7 @@ export const Pages = {
   CMMN_EDITOR: 'cmmn-editor',
   BPMN_EDITOR: 'bpmn-editor',
   DMN_EDITOR: 'dmn-editor',
+  CAMEL_DSL_EDITOR: 'camel-dsl-editor',
   DEV_TOOLS: 'dev-tools',
   DEV_CONSOLE: 'dev-console',
   ORGSTRUCTURE: 'orgstructure'

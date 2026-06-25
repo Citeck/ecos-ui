@@ -32,6 +32,7 @@ export const TITLE = {
   [URL.DMN_EDITOR]: 'page-tabs.dmn-editor',
   [URL.BPMN_EDITOR]: 'page-tabs.bpmn-editor',
   [URL.CMMN_EDITOR]: 'page-tabs.cmmn-editor',
+  [(URL as any).CAMEL_DSL_EDITOR]: 'page-tabs.camel-dsl-editor',
   [(URL as any).BPMN_ADMIN]: 'page-tabs.bpmn-admin',
   [URL.BPMN_ADMIN_PROCESS]: 'page-tabs.bpmn-admin-process',
   [URL.BPMN_ADMIN_INSTANCE]: 'page-tabs.bpmn-admin-instance',

@@ -51,6 +51,7 @@ export class TooltipContent extends Component {
       fade,
       transition,
       placement,
+      isHiddenTarget: _isHiddenTarget,
       ...attrs
     } = this.props;
     const arrowClassName = mapToCssModules(classNames('arrow', _arrowClassName), cssModule);

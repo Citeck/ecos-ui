@@ -1,0 +1,100 @@
+// Kaoto navешивает класс `canvas-page` на корневой div канваса (см. external/RouteVisualization),
+// но SCSS-правило для него лежит в `pages/Design/DesignPage.scss` и импортируется только из
+// `DesignPage.js`. Мы используем external-entry RouteVisualization без DesignPage, поэтому
+// правило не попадает в бандл — flex-обёртка теряет height: 100% и канвас схлопывается до
+// intrinsic-высоты pf-topology-нод.
+.kaoto-modeler .canvas-page {
+  height: 100%;
+  display: flex;
+  flex-flow: column;
+
+  // PatternFly v6 toolbar default: padding-block-end 16px + cosmetic <hr> с margin-block 16px
+  // → ~49px пустоты между context-toolbar и канвасом. Сжимаем до тонкого разделителя.
+  .pf-v6-c-toolbar {
+    padding-block-end: 0;
+    bottom: 5px;
+
+    > .pf-v6-c-divider {
+      margin-block: 0;
+    }
+  }
+}
+
+// Tier-1 подавление per-node edit-аффордансов канваса в OFF-режиме (read-only-превью).
+// Класс `kaoto-modeler--readonly` навешивается на контейнер канваса при visualEditingEnabled === false
+// (см. KaotoModeler.jsx). Прячем чисто визуальные edit-контролы, которые рендерятся внутри SVG-нод
+// Kaoto — CSS их подавляет без патча библиотеки. Контекст-меню глушится отдельно (capture-listener),
+// DnD/тулбар/«Open Catalog» — на уровне пропов/провайдеров (Task 5). pan/zoom/layout не трогаем.
+// Селекторы зафиксированы тестами (см. план Task 6, раздел «Риски» — хрупкость на bump'е Kaoto).
+.kaoto-modeler--readonly {
+  // hover-StepToolbar (delete/replace/disable…) на ноде и на группе
+  .custom-node__toolbar,
+  .custom-group__toolbar,
+  // «+ Add step» — quick-append на ноде/группе и на ребре
+  [data-testid='quick-append-step'],
+  .custom-edge__add-step {
+    display: none !important;
+  }
+}
+
+// Property-форма (CanvasSideBar) в read-only: показываем ТОЛЬКО в visual-режиме (когда YAML рядом нет).
+// В split рядом есть YAML + click-to-source, поэтому панель свойств прячем как избыточную. Модификатор
+// kaoto-modeler--readonly-with-source навешивается при visualEditingEnabled === false && showMonaco.
+//
+// Kaoto рендерит side bar внутри PatternFly Drawer (TopologyView, sideBarResizable=true). Прятать сам
+// `pf-topology-resizable-side-bar` недостаточно — остаётся зарезервированная пустая колонка
+// `pf-(v6-)c-drawer__panel` (~500px). Поэтому сворачиваем именно панель Drawer'а — тогда канвас
+// (`__content`) занимает всю ширину. Версионный и безверсионный класс — на случай bump'а PatternFly.
+// Выделение ноды при этом остаётся (Drawer «открыт»), что нужно для click-to-source (трек CTS-*).
+.kaoto-modeler--readonly-with-source {
+  .pf-v6-c-drawer__panel,
+  .pf-c-drawer__panel {
+    display: none !important;
+  }
+}
+
+// Split-режим: клипуем каждую колонку по её боксу. Monaco рисует `.view-lines`
+// абсолютно-позиционированными по последней измеренной ширине; без overflow:hidden при
+// ресайзе панель «заезжает» за свою границу и перекрывает текст канваса слева.
+// min-width:0 — чтобы flex-колонки реально сжимались, а не упирались в intrinsic-ширину контента.
+.kaoto-modeler__canvas,
+.kaoto-modeler__source {
+  overflow: hidden;
+  min-width: 0;
+}
+
+// Перетаскиваемый разделитель канвас ↔ YAML-панель в split-режиме (см. KaotoModeler.jsx).
+// Структуру берём из PatternFly Drawer splitter (классы pf-v6-c-drawer__splitter + __splitter-handle),
+// чтобы выглядел как resize-хэндл панели свойств. Грип PF рисует через CSS-переменные, объявленные на
+// корне `.pf-v6-c-drawer` (которого у standalone-разделителя нет), поэтому вид грипа задаём явно:
+// вертикальная «||»-полоска по центру — как у панельного хэндла (4×12, inline-границы, тот же токен цвета).
+.kaoto-modeler__divider {
+  touch-action: none;
+  flex-shrink: 0;
+
+  .pf-v6-c-drawer__splitter-handle {
+    inset-block-start: 50%;
+    inset-inline-start: 50%;
+  }
+
+  .pf-v6-c-drawer__splitter-handle::after {
+    width: 4px;
+    height: 12px;
+    border-style: solid;
+    border-block-width: 0;
+    border-inline-width: 1px;
+    border-color: var(--pf-t--global--border--color--default, #c7c7c7);
+  }
+
+  &:hover .pf-v6-c-drawer__splitter-handle::after,
+  &:active .pf-v6-c-drawer__splitter-handle::after {
+    border-color: var(--pf-t--global--border--color--hover, #6c8cff);
+  }
+}
+
+// Click-to-source (трек CTS): подсветка строки YAML в Monaco при клике по ноде канваса.
+// Декорация — whole-line, ставится через deltaDecorations (см. monacoLineReveal.js).
+.monaco-editor .kaoto-modeler__active-line {
+  background: rgba(255, 213, 79, 0.25);
+}
+

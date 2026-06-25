@@ -35,6 +35,8 @@ export default {
     "@/(.*)$": "<rootDir>/src/$1",
     "react-markdown": "<rootDir>/src/__mocks__/react-markdown.mock.js",
     "remark-gfm": "<rootDir>/src/__mocks__/remark-gfm.mock.js",
+    // jsdom resolves the `browser` (ESM) entry of `yaml`, which jest can't parse — pin the CJS dist build.
+    "^yaml$": "<rootDir>/node_modules/yaml/dist/index.js",
   },
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "scss", "png", "node"],
   globals: {
