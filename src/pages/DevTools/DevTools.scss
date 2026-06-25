@@ -27,6 +27,14 @@
     margin-top: 10px;
     padding: 20px 16px;
     border: 1px solid $color-gray-4;
+
+    // Redesign added `.ecos-well_new` to the shared Well → `border-radius: 0 0 12px 12px`
+    // (top corners squared, for wells that sit flush under a header). This well floats with a
+    // margin-top gap above it, so it reads as a standalone card — restore all-corner rounding.
+    // Compound selector (.dev-tools-page__tab-content.ecos-well_new) beats `.ecos-well_new` (0,2,0 > 0,1,0).
+    &.ecos-well_new {
+      border-radius: $border-radius-extra-large;
+    }
   }
 
   &__error {
