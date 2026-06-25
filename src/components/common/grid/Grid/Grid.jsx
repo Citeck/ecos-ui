@@ -822,7 +822,7 @@ class Grid extends Component {
       selected,
       nonSelectable: props.nonSelectable || [],
       onSelect: this.handleSelectRadio,
-      selectionHeaderRenderer: props => <SelectorHeader {...props} />,
+      selectionHeaderRenderer: props => <SelectorHeader {...props} disabled={!this.props.data?.length} />,
       selectionRenderer: props => <Selector {...props} />
     };
   }
@@ -846,7 +846,12 @@ class Grid extends Component {
       onSelect: this.handleSelectCheckbox,
       onSelectAll: this.handleSelectAllCheckbox,
       selectionHeaderRenderer: props => (
-        <SelectorHeader {...props} hasMenu={!gridProps.noSelectorMenu} onClickMenu={this.handleClickMenuCheckbox} />
+        <SelectorHeader
+          {...props}
+          disabled={!this.props.data?.length}
+          hasMenu={!gridProps.noSelectorMenu}
+          onClickMenu={this.handleClickMenuCheckbox}
+        />
       ),
       selectionRenderer: props => <Selector {...props} />
     };

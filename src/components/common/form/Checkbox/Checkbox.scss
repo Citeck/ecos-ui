@@ -2,6 +2,7 @@
 
 .ecos-checkbox {
   display: flex;
+  align-items: center;
   align-self: center;
   position: relative;
   padding: 0;
@@ -20,10 +21,22 @@
     margin-left: 10px;
   }
 
+  // Fixed-size, self-contained box: the redesign dropped the old 22px sizing and left the icon
+  // free to stretch to its flex container's height (oversized checkboxes outside the grid).
+  // Pin it so every checkbox renders the same compact size regardless of context.
   &__icon {
-    width: auto;
-    height: 100%;
-    align-content: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+
+    svg {
+      display: block;
+      width: 16px;
+      height: 16px;
+    }
 
     &_disabled {
       opacity: 0.5;

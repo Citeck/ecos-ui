@@ -37,7 +37,7 @@ const CheckboxIcon = ({ checked, indeterminate, disabled, width = 14, height = 1
           stroke="var(--primary-color)"
           strokeWidth="1.5"
         />
-        <path d="M5.5 10L8.5 13L14.5 7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M4.3 7.2L6.2 9.1L9.8 5.2" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     );
   }
