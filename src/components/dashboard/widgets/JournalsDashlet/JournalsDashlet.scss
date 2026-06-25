@@ -268,6 +268,13 @@
     padding: 0 10px !important;
   }
 
+  // The base `.dashlet__header` clips overflow (it's ~36px tall), which also clipped the
+  // header-action dropdown menus (create-variants, preset, …) that open below it — they looked
+  // like they didn't work / wouldn't drop. Let them escape here; the caption keeps its own ellipsis.
+  .dashlet__header {
+    overflow: visible;
+  }
+
   // Lay the header controls out in a horizontal row (block-level GroupActions /
   // Export children would otherwise stack vertically — base zone isn't flex).
   .dashlet__header-actions {
@@ -306,9 +313,15 @@
     }
   }
 
-  // All dropdown menus: compact items
+  // All dropdown menus: compact items + inner top/bottom padding so the first/last items
+  // aren't flush against the menu's rounded corners (base .ecos-dropdown__menu has padding:0,
+  // which left the first item with less top space than the gap between items).
   .ecos-dropdown__menu,
   .ecos-group-actions__dropdown-menu {
+    &.dropdown-menu {
+      padding: 4px 0;
+    }
+
     li, .dropdown-item, .ecos-group-actions__dropdown-item {
       font-size: $font-size-small !important;
       padding: 4px 12px !important;
