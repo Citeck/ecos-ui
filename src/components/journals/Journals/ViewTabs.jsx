@@ -99,7 +99,7 @@ class ViewTabs extends React.Component {
           <Tooltip off={isMobile} target={target(JVM.TABLE)} text={t(Labels.Views.JOURNAL)} uncontrolled modifiers={tooltipModifiers}>
             <IcoBtn
               id={target(JVM.TABLE)}
-              icon="icon-table"
+              icon="icon-list"
               className={classNames(common, {
                 [available]: isTableMode,
                 [disable]: !isTableMode
