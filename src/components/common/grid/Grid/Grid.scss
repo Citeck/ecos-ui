@@ -337,7 +337,8 @@ $header-height: 34px;
   }
 
   &_block {
-    padding: 0 10px;
+    // align body checkbox left edge with header checkbox (base padding-left: 13px)
+    padding: 0 13px;
   }
 
   &-menu {

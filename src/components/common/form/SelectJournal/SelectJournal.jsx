@@ -14,9 +14,6 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { Collapse } from 'reactstrap';
 
-import FormManager from '@/components/forms/EcosForm/FormManager';
-import JournalsService from '@/components/journals/Journals/service';
-import { mergeFilters } from '@/components/journals/Journals/service/util';
 import { EcosModal, Icon, Loader, Pagination } from '../../../common';
 import { Btn, IcoBtn } from '../../../common/btns';
 import { Grid } from '../../../common/grid';
@@ -32,6 +29,9 @@ import ViewMode from './ViewMode';
 import { DataTypes, DisplayModes, Labels, SELECT_JOURNAL_MODAL_CLASSNAME } from './constants';
 
 import { Checkbox } from '@/components/common/form';
+import FormManager from '@/components/forms/EcosForm/FormManager';
+import JournalsService from '@/components/journals/Journals/service';
+import { mergeFilters } from '@/components/journals/Journals/service/util';
 import JournalsConverter from '@/dto/journals';
 import { TEMPLATE_REGEX } from '@/forms/components/custom/selectJournal/constants';
 import { getIconUpDown } from '@/helpers/icon';
@@ -44,6 +44,10 @@ const paginationInitState = {
   maxItems: 10,
   page: 1
 };
+
+// высота всего, что НЕ таблица (header + панель фильтров + пагинация/кнопки + отступы)
+const SELECT_MODAL_RESERVED_HEIGHT = 260;
+const SELECT_MODAL_GRID_MIN_HEIGHT = 200;
 
 const emptyJournalConfig = Object.freeze({
   meta: {}
@@ -897,6 +901,7 @@ export default class SelectJournal extends Component {
     }
 
     const hideSelectPanel = viewMode === DisplayModes.CUSTOM && customValues;
+    const gridMaxHeight = Math.max(SELECT_MODAL_GRID_MIN_HEIGHT, window.innerHeight - SELECT_MODAL_RESERVED_HEIGHT);
 
     return (
       <EcosModal
@@ -966,7 +971,7 @@ export default class SelectJournal extends Component {
             className={classNames('select-journal__grid', { 'select-journal__grid_transparent': !isGridDataReady })}
             scrollable
             autoHeight
-            byContentHeight
+            maxHeight={gridMaxHeight}
             onRowDoubleClick={this.onRowDoubleClick}
             pageId={journalId}
             {...extraProps}
