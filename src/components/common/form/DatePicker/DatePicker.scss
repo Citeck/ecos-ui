@@ -106,24 +106,25 @@
     background: $color-gray-4;
     border-radius: 6px;
     width: 26px;
-    line-height: 26px;
     height: 26px;
     border: none;
     text-indent: 0;
     font-size: 0;
     top: 15px;
+    // flex-центрирование иконки-стрелки
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     &:after {
       content: '';
-      display: block;
+      // inline-flex (не block): в react-datepicker 2.4.0 блочный :after не отрисовывает фон
+      display: inline-flex;
       width: 14px;
       height: 14px;
-      margin: 6px auto;
-      background-color: $color-gray-dark;
-      -webkit-mask-size: contain;
-      mask-size: contain;
-      -webkit-mask-repeat: no-repeat;
-      mask-repeat: no-repeat;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: contain;
     }
   }
 
@@ -131,7 +132,7 @@
     left: 15px;
 
     &:after {
-      @include citeck-icon-change($citeck-icon-left);
+      background-image: $citeck-icon-left;
     }
   }
 
@@ -139,7 +140,7 @@
     right: 15px;
 
     &:after {
-      @include citeck-icon-change($citeck-icon-right);
+      background-image: $citeck-icon-right;
     }
   }
 
