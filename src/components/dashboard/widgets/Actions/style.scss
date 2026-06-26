@@ -34,10 +34,14 @@
 
       &-title {
         height: 30px;
-        padding: 6px;
+        padding: 6px 10px;
         font-weight: $font-weight-semi-bold;
         font-size: $font-size-standard;
         align-content: center;
+        // keep one stable row; long names truncate, full text shown via showAsNeeded Tooltip
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       &_group {
@@ -64,12 +68,15 @@
         border-radius: $border-radius-standard;
 
         &__item {
-          display: flex;
-          align-items: center;
           padding: 0 22px;
           height: 40px;
+          line-height: 40px;
           font-weight: $font-weight-semi-bold;
           font-size: $font-size-standard;
+          // truncate long variant names to one line; full text via showAsNeeded Tooltip
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
 
           &_disabled {
             pointer-events: none;
