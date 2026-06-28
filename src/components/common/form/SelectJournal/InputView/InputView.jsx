@@ -1,6 +1,5 @@
 import Records from '@citeck/records-core';
 import classNames from 'classnames';
-import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import uniqueId from 'lodash/uniqueId';
 import PropTypes from 'prop-types';
@@ -524,7 +523,7 @@ class InputView extends Component {
   }
 
   render() {
-    const { error, className, isCompact, viewMode, multiple, gridData } = this.props;
+    const { error, className, isCompact, viewMode, multiple, disabled } = this.props;
     const wrapperClasses = classNames(
       'select-journal__input-view',
       {
@@ -534,7 +533,7 @@ class InputView extends Component {
     );
 
     const isTable = viewMode === 'table';
-    const hasActionButton = multiple || (!multiple && get(gridData, 'total') > 0);
+    const hasActionButton = multiple || (isTable && !disabled);
 
     return (
       <div className={wrapperClasses}>
