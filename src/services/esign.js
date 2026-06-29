@@ -159,32 +159,31 @@ class Esign {
 
   static getEimzoCertificates = async () => {
     try {
-      let usbTokens = await Promise.all(
-        (await eimzoApi.getUSBTokens()).map(async function(certificate) {
-          return await EsignConverter.getEimzoUsbTokensForModal(certificate);
-        })
-      );
-      //Расскомментировать для имитации вставленного USB-токена (нескольких)
-      //usbTokens = [{"id":"Имитация первого USB токена", "name":"USB-токен: Имитация первого USB токена", "provider": "E-IMZO", "deviceId":"DeviceId первого USB токена"}, {"id":"Имитация второго USB токена", "name":"USB-токен: Имитация второго USB токена", "provider": "E-IMZO", "deviceId":"DeviceId второго USB токена"}];
-
-      if (usbTokens.length > 0) {
-        return usbTokens;
-      }
-
       const certificates = await Promise.all(
-        (await eimzoApi.getAllCertificates()).map(async function(certificate) {
+        (await eimzoApi.getAllCertificates()).map(async certificate => {
           return await EsignConverter.getEimzoCertificateForModal(certificate);
         })
       );
 
-      if (!certificates.length) {
+      const usbTokens = await Promise.all(
+        (await eimzoApi.getUSBTokens()).map(async certificate => {
+          return await EsignConverter.getEimzoUsbTokensForModal(certificate);
+        })
+      );
+
+      //Расскомментировать для имитации вставленного USB-токена (нескольких)
+      //usbTokens = [{"id":"Имитация первого USB токена", "name":"USB-токен: Имитация первого USB токена", "provider": "E-IMZO", "deviceId":"DeviceId первого USB токена"}, {"id":"Имитация второго USB токена", "name":"USB-токен: Имитация второго USB токена", "provider": "E-IMZO", "deviceId":"DeviceId второго USB токена"}];
+
+      const allCertificates = [...certificates, ...usbTokens];
+
+      if (!allCertificates.length) {
         return Promise.reject({
           messageTitle: t(Labels.NO_CERTIFICATES_MESSAGE),
-          messageDescription: 'Проверьте наличие сертификатов в папке DSKEYS'
+          messageDescription: 'Проверьте наличие сертификатов в папке DSKEYS или USB-токенов'
         });
       }
 
-      return certificates;
+      return allCertificates;
     } catch (e) {
       console.error('[EsignService getEimzoCertificates] error ', e.message);
 
@@ -298,7 +297,7 @@ class Esign {
       if (!base64) {
         return Promise.reject({
           messageTitle: t(Labels.ERROR),
-          messageDescription: t(Labels.NO_BASE64_DOC_MESSAGE),
+          messageDescription: 'Не удается получить данные для подписания от Didox',
           errorType: t(ErrorTypes.DEFAULT),
           formattedError: Esign.formatErrorMessage(
             {
@@ -330,7 +329,7 @@ class Esign {
       console.error('[EsignService signDocumentByNodeEimzo] error ', e.message);
 
       return Promise.reject({
-        messageTitle: t(Labels.EDS_ERROR),
+        messageTitle: 'Ошибка подписания E-Imzo',
         messageDescription: e.messageDescription || t(Labels.SIGN_FAILED_MESSAGE),
         errorType: t(ErrorTypes.DEFAULT),
         formattedError: e.formattedError || Esign.formatErrorMessage(e)
