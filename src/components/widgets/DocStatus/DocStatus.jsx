@@ -162,7 +162,7 @@ class DocStatus extends BaseWidget {
     });
 
     return (
-      <div className={pillClass}>
+      <div className={pillClass} data-value={status.id}>
         <span className="ecos-doc-status__pill-label">{status.name}</span>
       </div>
     );
@@ -212,7 +212,7 @@ class DocStatus extends BaseWidget {
         isButton
         disabled={isChanging || !!changeResult}
       >
-        <div className={pillClass} title={status.name}>
+        <div className={pillClass} title={status.name} data-value={status.id}>
           <span className="ecos-doc-status__pill-label">{status.name}</span>
           {this.renderTrailingIcon()}
         </div>

@@ -103,7 +103,7 @@ export default class ColoredFormatter extends BaseFormatter {
     }
 
     return enabledNewJournal ? (
-      <div className="value-color-formatter">
+      <div className="value-color-formatter" data-value={key}>
         {showPointer ? (
           <span className={`value-color-formatter__pointer ${!isHexFinalColor ? finalColorClass : ''}`} style={colorStyle} />
         ) : null}
@@ -122,11 +122,15 @@ export default class ColoredFormatter extends BaseFormatter {
         </span>
       </div>
     ) : !showPointer ? (
-      <span className={`value-color-formatter value-color-formatter__oval ${!isHexFinalColor ? finalColorClass : ''}`} style={colorStyle}>
+      <span
+        className={`value-color-formatter value-color-formatter__oval ${!isHexFinalColor ? finalColorClass : ''}`}
+        style={colorStyle}
+        data-value={key}
+      >
         {displayText}
       </span>
     ) : (
-      <div className="value-color-formatter">
+      <div className="value-color-formatter" data-value={key}>
         <span className={`value-color-formatter__pointer ${!isHexFinalColor ? finalColorClass : ''}`} style={colorStyle} />
         <span className="value-color-formatter__text">{displayText}</span>
       </div>
