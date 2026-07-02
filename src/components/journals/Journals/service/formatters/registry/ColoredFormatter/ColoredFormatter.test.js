@@ -471,4 +471,42 @@ describe('ColoredFormatter', () => {
       expect(result.props.style).toEqual({ backgroundColor: '#00FF00' });
     });
   });
+
+  describe('data-value attribute for theme styling', () => {
+    it('should set data-value on root element (old journal, oval)', () => {
+      const result = coloredFormatterInstance.format({
+        cell: 'low',
+        config: { showPointer: false, enabledNewJournal: false }
+      });
+
+      expect(result.props['data-value']).toBe('low');
+    });
+
+    it('should set data-value on root element (old journal, pointer)', () => {
+      const result = coloredFormatterInstance.format({
+        cell: 'low',
+        config: { showPointer: true, enabledNewJournal: false }
+      });
+
+      expect(result.props['data-value']).toBe('low');
+    });
+
+    it('should set data-value on root element (new journal)', () => {
+      const result = coloredFormatterInstance.format({
+        cell: 'low',
+        config: { showPointer: false, enabledNewJournal: true }
+      });
+
+      expect(result.props['data-value']).toBe('low');
+    });
+
+    it('should use cell.value for data-value when cell is an object', () => {
+      const result = coloredFormatterInstance.format({
+        cell: { value: 'low', disp: 'Низкий' },
+        config: { showPointer: false, enabledNewJournal: false }
+      });
+
+      expect(result.props['data-value']).toBe('low');
+    });
+  });
 });

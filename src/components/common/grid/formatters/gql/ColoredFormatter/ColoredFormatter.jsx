@@ -1,5 +1,5 @@
-import React from 'react';
 import isObject from 'lodash/isObject';
+import React from 'react';
 
 import DefaultGqlFormatter from '../DefaultGqlFormatter';
 
@@ -46,7 +46,7 @@ export default class ColoredFormatter extends DefaultGqlFormatter {
 
     return (
       <this.PopperWrapper text={text}>
-        <span style={style} className={`colored-formatter`}>
+        <span style={style} className={`colored-formatter`} data-value={colorKey}>
           {text}
         </span>
       </this.PopperWrapper>
