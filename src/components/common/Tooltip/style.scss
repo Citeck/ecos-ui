@@ -28,9 +28,9 @@
 
     &_new {
       font-weight: 600;
-      font-size: 11px;
-      line-height: 13px;
-      color: $color-gray-5;
+      font-size: 12px;
+      line-height: 16px;
+      color: $text-color-dark;
     }
   }
 
@@ -77,6 +77,10 @@
     background-color: transparent;
     pointer-events: inherit;
     z-index: 1040;
+  }
+
+  &_hover .tooltip {
+    pointer-events: none;
   }
 
   .bs-tooltip {

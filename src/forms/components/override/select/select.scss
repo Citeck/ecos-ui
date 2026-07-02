@@ -90,14 +90,25 @@
         }
 
         .choices__button {
-          display: flex;
+          // choices.js base: absolute, top: 50% / margin-top: -10px, 20x20, base64-крест фоном.
+          // Рисуем citeck-иконку вместо фона и центрируем по всей высоте контрола,
+          // слева от шеврона (шеврон стоит на right: $input-padding, 14px).
+          background: none;
+          text-indent: 0;
+          font-size: 0; // прячет текст «Remove item»
+          top: 0;
+          margin-top: 0;
+          margin-right: 28px;
           height: 100%;
-          align-items: flex-start;
+          width: 25px;
+          display: flex;
+          align-items: center;
           justify-content: center;
           opacity: 1;
-          
-          svg {
-            stroke: $color-gray-25;
+
+          &:after {
+            @include citeck-icon($citeck-icon-close, 14px);
+            color: $color-gray-5;
           }
 
           &:hover:after {

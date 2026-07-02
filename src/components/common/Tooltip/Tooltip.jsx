@@ -153,19 +153,24 @@ class Tooltip extends Component {
       offset,
       innerRef,
       hideArrow,
-      container
+      container,
+      contentComponent
     } = this.props;
 
     const modifiers = isArray(_modifiers) ? _modifiers : [_modifiers];
 
     const targetElement = typeof target === 'string' ? document.getElementById(target) : null;
     const isInModal = !!(targetElement && targetElement.closest('.modal'));
+    const effectiveTrigger = uncontrolled ? trigger || 'hover' : trigger || 'click';
+    // Текстовый hover-тултип не должен перехватывать курсор: иначе он появляется под ним,
+    // ловит mouseleave цели и мерцает (см. «добавить связь» в виджете «Связи»)
+    const isHoverOnly = String(effectiveTrigger).includes('hover') && !contentComponent;
 
     return {
       target,
       placement,
       boundariesElement,
-      trigger: uncontrolled ? (!trigger ? 'hover' : trigger) : trigger || 'click',
+      trigger: effectiveTrigger,
       autohide,
       innerRef,
       delay,
@@ -173,7 +178,11 @@ class Tooltip extends Component {
       offset,
       container,
       hideArrow,
-      className: classNames('ecos-base-tooltip', { 'ecos-modal-tooltip': isInModal }, className),
+      className: classNames(
+        'ecos-base-tooltip',
+        { 'ecos-modal-tooltip': isInModal, 'ecos-base-tooltip_hover': isHoverOnly },
+        className
+      ),
       innerClassName: classNames('ecos-base-tooltip-inner ecos-base-tooltip-inner_new', innerClassName),
       arrowClassName: classNames('ecos-base-tooltip-arrow', arrowClassName),
       popperClassName: classNames('ecos-base-tooltip-popper', popperClassName),

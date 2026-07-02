@@ -301,18 +301,8 @@
     overflow: visible;
   }
 
-  // Header actions are revealed on hover (base: opacity 0 → 1 on header hover). When a dropdown is
-  // open the mouse moves onto the menu, the header loses :hover, and the active toggle would fade out.
-  // Keep the actions shown while a dropdown inside is open (reactstrap adds `.show` to `.ecos-dropdown`).
-  .dashlet__header-actions:has(.show) {
-    opacity: 1;
-  }
-
-  // Active (open) dropdown toggle must glow blue, not vanish: its icon is an SVG that the global
-  // `svg[fill="currentColor"] { fill: var(--header-bg-color) }` rule (index.scss) paints near-white
-  // whenever the header isn't hovered, so an open toggle disappeared on the white header. The hover
-  // rule only recolors on :hover. `ecos-journal__btn_new_focus` is set on the toggle while its
-  // dropdown is open (Export/Import/preset/create-menu).
+  // Active (open) dropdown toggle must glow blue: `ecos-journal__btn_new_focus` is set
+  // on the toggle while its dropdown is open (Export/Import/preset/create-menu).
   .ecos-journal__btn_new_focus {
     color: var(--dark-primary-color) !important;
 
@@ -331,12 +321,7 @@
     }
   }
 
-  // Lay the header controls out in a horizontal row (block-level GroupActions /
-  // Export children would otherwise stack vertically — base zone isn't flex).
-  .dashlet__header-actions {
-    display: flex;
-    align-items: center;
-
+  &__toolbar {
     // Flat single style for journal controls: drop the grey fill/border
     // (preset + export use .ecos-btn_grey, GroupActions uses __control).
     // Heights are already unified to 28px by the sizing rules above.
@@ -345,19 +330,9 @@
       background-color: transparent !important;
       border-color: transparent !important;
     }
-  }
 
-  // Header actions (journal controls live here, revealed on hover): glow blue,
-  // overriding the base gray hover treatment. Mask icons follow `color`,
-  // react-svg icons follow the fill rules.
-  .dashlet__header-wrapper:hover .dashlet__header-actions {
-    color: $color-gray-5;
-
-    svg [fill='currentColor'],
-    svg[fill='currentColor'] {
-      fill: $color-gray-5;
-    }
-
+    // Journal controls: glow blue on hover. Mask icons follow `color`,
+    // react-svg icons follow the fill rules.
     .ecos-btn:hover,
     button:hover {
       color: var(--dark-primary-color);
@@ -394,6 +369,25 @@
     padding: 6px 11px;
     position: relative;
     display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap; // на узком виджете правая группа уходит на следующую строку
+    gap: 4px 8px;
+
+    &-group {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+
+      &:first-child {
+        flex: 1 1 auto;
+      }
+
+      &_right {
+        flex-shrink: 0;
+        margin-left: auto;
+      }
+    }
 
     &-dropdown {
       &_small {
@@ -403,11 +397,6 @@
           width: 100%;
         }
       }
-    }
-
-    &-extra {
-      padding: 0 15px;
-      display: flex;
     }
   }
 

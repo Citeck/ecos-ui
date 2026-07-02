@@ -28,7 +28,6 @@ import Dashlet from '@/components/dashboard/Dashlet';
 import JournalsDashletEditor from '@/components/journals/Journals/JournalsDashletEditor';
 import JournalsDashletFooter from '@/components/journals/Journals/JournalsDashletFooter';
 import JournalsDashletGrid from '@/components/journals/Journals/JournalsDashletGrid';
-import JournalsDashletHeaderActions from '@/components/journals/Journals/JournalsDashletHeaderActions';
 import JournalsDashletToolbar from '@/components/journals/Journals/JournalsDashletToolbar';
 import { JOURNAL_DASHLET_CONFIG_VERSION } from '@/components/journals/Journals/constants';
 import { getStateId, wrapArgs } from '@/helpers/store';
@@ -289,17 +288,15 @@ class JournalsDashlet extends BaseWidget {
 
     return (
       <>
-        {isSmall && (
-          <JournalsDashletToolbar
-            isHideCreateVariants={get(config, [JOURNAL_DASHLET_CONFIG_VERSION, 'isHideCreateVariants'], false)}
-            lsJournalId={journalId}
-            forwardRef={this.setToolbarRef}
-            stateId={stateId}
-            isSmall={isSmall}
-            handleReload={this.handleReload}
-            onChangeSelectedJournal={this.handleChangeSelectedJournal}
-          />
-        )}
+        <JournalsDashletToolbar
+          isHideCreateVariants={get(config, [JOURNAL_DASHLET_CONFIG_VERSION, 'isHideCreateVariants'], false)}
+          lsJournalId={journalId}
+          forwardRef={this.setToolbarRef}
+          stateId={stateId}
+          isSmall={isSmall}
+          handleReload={this.handleReload}
+          onChangeSelectedJournal={this.handleChangeSelectedJournal}
+        />
 
         <JournalsDashletGrid
           isBlockNewJournalFormatter
@@ -316,9 +313,7 @@ class JournalsDashlet extends BaseWidget {
   }
 
   render() {
-    const { journalConfig, className, dragHandleProps, editorMode, configJournalId, stateId, config } = this.props;
-    const { width, journalId } = this.state;
-    const isSmall = width < MIN_WIDTH_DASHLET_LARGE;
+    const { journalConfig, className, dragHandleProps, editorMode, configJournalId } = this.props;
     const actions = {};
 
     if (!editorMode) {
@@ -332,24 +327,11 @@ class JournalsDashlet extends BaseWidget {
 
     const warnings = this.getMessages();
     const journalName = extractLabel(get(journalConfig, 'meta.title') || get(journalConfig, 'name'));
-    const showHeaderActions = !editorMode && !this.isCollapsed && !isSmall && isEmpty(warnings);
 
     return (
       <Dashlet
         {...this.props}
         className={classNames('ecos-journal-dashlet ecos-journal_new', className)}
-        customActions={
-          showHeaderActions ? (
-            <JournalsDashletHeaderActions
-              isHideCreateVariants={get(config, [JOURNAL_DASHLET_CONFIG_VERSION, 'isHideCreateVariants'], false)}
-              lsJournalId={journalId}
-              stateId={stateId}
-              isSmall={isSmall}
-              handleReload={this.handleReload}
-              onChangeSelectedJournal={this.handleChangeSelectedJournal}
-            />
-          ) : null
-        }
         bodyClassName={classNames('ecos-journal-dashlet__body', { 'ecos-journal-dashlet__body_warnings': !!warnings && !editorMode })}
         style={{ minWidth: `${MIN_WIDTH_DASHLET_SMALL}px` }}
         title={journalName || t(Labels.J_TITLE)}
