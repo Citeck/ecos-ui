@@ -481,7 +481,9 @@ describe('ColoredFormatter', () => {
       }
     });
 
-    expect(result.props.style.backgroundColor).toBe('#e2e2e2');
+    const colorSpan = result.props.children[1].props.children;
+    expect(colorSpan.props.className).toBe('value-color-formatter__oval');
+    expect(colorSpan.props.style).toEqual({ backgroundColor: '#e2e2e2' });
   });
 
   describe('data-value attribute for theme styling', () => {
