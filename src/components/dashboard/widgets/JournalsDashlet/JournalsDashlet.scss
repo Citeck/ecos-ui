@@ -230,8 +230,7 @@
     }
   }
 
-  // Toolbar buttons: match journal page 28px sizing (only icon-only buttons)
-  &__toolbar .ecos-btn.ecos-btn_i,
+  // Header action buttons: match journal page 28px sizing (only icon-only buttons)
   .dashlet__header-actions .ecos-btn.ecos-btn_i {
     height: 28px !important;
     width: 28px !important;
@@ -246,8 +245,7 @@
     }
   }
 
-  // Settings/preset dropdown button: compact height, shrink icons
-  &__toolbar .ecos-btn.ecos-btn_mi,
+  // Settings/preset dropdown button in header actions: compact height, shrink icons
   .dashlet__header-actions .ecos-btn.ecos-btn_mi {
     height: 28px !important;
     display: flex !important;
@@ -321,27 +319,56 @@
     }
   }
 
-  &__toolbar {
-    // Flat single style for journal controls: drop the grey fill/border
-    // (preset + export use .ecos-btn_grey, GroupActions uses __control).
-    // Heights are already unified to 28px by the sizing rules above.
-    .ecos-btn_grey,
-    .ecos-group-actions__control {
-      background-color: transparent !important;
-      border-color: transparent !important;
+  // Кнопки тулбара — как .ecos-journal__btn_new на странице журнала
+  // (стили страницы лежат в чанке JournalsSettingsBar и на дашборде недоступны — дубль).
+  // Стрелки пагинации исключены: их вид (20x20, hover svg) задаёт общий Pagination.scss,
+  // как на странице.
+  &__toolbar .ecos-btn:not(.ecos-pagination__arrow_new) {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    height: 28px !important;
+    padding: 0 8px !important;
+    background-color: $color-gray-25 !important;
+    border: 1px solid $color-gray-4 !important;
+    border-radius: $border-radius-standard;
+    color: $color-gray-5 !important;
+    font-size: $font-size-small;
+
+    i {
+      font-size: 14px !important;
+      line-height: 1 !important;
+      position: static !important;
+      color: $color-gray-5;
+
+      & + i {
+        margin-left: 4px;
+      }
     }
 
-    // Journal controls: glow blue on hover. Mask icons follow `color`,
-    // react-svg icons follow the fill rules.
-    .ecos-btn:hover,
-    button:hover {
-      color: var(--dark-primary-color);
+    &:hover {
+      background-color: var(--primary-color) !important;
+      color: $color-white !important;
+
+      i {
+        color: $color-white !important;
+      }
 
       svg [fill='currentColor'],
       svg[fill='currentColor'] {
-        fill: var(--dark-primary-color);
+        fill: $color-white !important;
+      }
+
+      svg[stroke='currentColor'] {
+        stroke: $color-white !important;
       }
     }
+  }
+
+  &__toolbar .ecos-btn.ecos-btn_i:not(.ecos-pagination__arrow_new) {
+    width: 28px !important;
+    min-width: 28px !important;
+    padding: 0 !important;
   }
 
   // All dropdown menus: compact items + inner top/bottom padding so the first/last items
@@ -365,28 +392,27 @@
     padding: 4px 8px !important;
   }
 
+  // Как тулбар страницы журнала (.ecos-journal__settings-bar_new):
+  // контролы в один поток слева, пагинация в правом контейнере с margin-left: auto
   &__toolbar {
-    padding: 6px 11px;
     position: relative;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap; // на узком виджете правая группа уходит на следующую строку
-    gap: 4px 8px;
+    flex-wrap: wrap; // на узком виджете пагинация уходит на следующую строку
+    background-color: var(--main-bg-color);
+    border-bottom: 1px solid #e8edef;
+    border-radius: 12px 12px 0 0;
+    padding: 2px 6px;
 
-    &-group {
-      display: flex;
+    & > :nth-child(n):not(.ecos-journal-dashlet__toolbar-right):not(:last-child) {
+      margin-right: 12px;
+    }
+
+    &-right {
+      display: inline-flex;
       align-items: center;
-      min-width: 0;
-
-      &:first-child {
-        flex: 1 1 auto;
-      }
-
-      &_right {
-        flex-shrink: 0;
-        margin-left: auto;
-      }
+      gap: 12px;
+      margin-left: auto;
     }
 
     &-dropdown {
@@ -402,10 +428,6 @@
 
   &__create-btn {
     flex-shrink: 0;
-  }
-
-  &__footer {
-    padding: 0 15px 0;
   }
 
   &__grid {

@@ -86,8 +86,7 @@
       display: flex;
       align-items: center;
       background: $color-white;
-      border-top-right-radius: $border-radius-extra-large;
-      border-bottom-right-radius: $border-radius-extra-large;
+      max-height: 32px;
       color: $color-gray-5;
 
       & > :nth-child(n) {
@@ -96,6 +95,8 @@
 
       button.ecos-btn_i {
         font-size: 11.5pt;
+        padding: 0;
+        max-height: 32px;
       }
 
       .ecos-btn__i svg {
