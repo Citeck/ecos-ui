@@ -432,6 +432,18 @@ describe('ColoredFormatter', () => {
     });
   });
 
+  it('should pass rowIndex to the color script', () => {
+    const result = coloredFormatterInstance.format({
+      cell: { disp: 'low', value: 'low' },
+      rowIndex: 3,
+      config: {
+        fn: 'if (rowIndex === 3) return "#e2e2e2"'
+      }
+    });
+
+    expect(result.props.style.backgroundColor).toBe('#e2e2e2');
+  });
+
   describe('data-value attribute for theme styling', () => {
     it('should set data-value on root element (old journal, oval)', () => {
       const result = coloredFormatterInstance.format({

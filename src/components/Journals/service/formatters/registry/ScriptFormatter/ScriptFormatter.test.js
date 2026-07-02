@@ -106,6 +106,17 @@ describe('ScriptFormatter', () => {
       expect(format).toThrow('mandatory');
     });
 
+    it('should pass rowIndex to the script', () => {
+      const result = scriptFormatterInstance.format({
+        rowIndex: 5,
+        config: {
+          fn: 'return rowIndex + 1;'
+        }
+      });
+
+      expect(result).toBe(6);
+    });
+
     it('should return value from vars by path with _index_', () => {
       const result = scriptFormatterInstance.format({
         valueIndex: 0,

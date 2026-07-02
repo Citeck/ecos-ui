@@ -41,7 +41,7 @@ export default class ColoredFormatter extends BaseFormatter {
   }
 
   format(props) {
-    const { cell, row, config = {}, valueIndex: index } = props;
+    const { cell, row, rowIndex, config = {}, valueIndex: index } = props;
     const {
       color = {},
       colors = {},
@@ -60,7 +60,7 @@ export default class ColoredFormatter extends BaseFormatter {
       displayText = cell;
     }
 
-    const colorByScript = this.colorByScript({ Records, cell, row, index }, config.fn);
+    const colorByScript = this.colorByScript({ Records, cell, row, index, rowIndex }, config.fn);
     const newEntry = isPlainObject(colors[key]) ? colors[key] : null;
 
     // Priority: fn script (background only) -> config.colors (background + text) -> config.color (background) -> default
