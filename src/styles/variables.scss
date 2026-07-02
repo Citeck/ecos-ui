@@ -1,6 +1,8 @@
 @use 'constants';
 
 :root {
+  --font-family: 'Open Sans', sans-serif;
+
   --header-bg-color: #{constants.$color-blue-light};
   --header-component-color: #{var(--primary-color)};
   --main-bg-color: #{constants.$page-background-color};
