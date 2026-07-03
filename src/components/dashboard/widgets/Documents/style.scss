@@ -690,7 +690,6 @@
   }
 
   &__resizer {
-    top: 11px;
     z-index: map-get($z-index, document-widget-resizer);
   }
 

@@ -6,16 +6,16 @@
   align-items: center;
   justify-content: center;
   top: 5px;
-  right: -10px;
-  height: 38px;
-  width: 20px;
+  right: -8px;
+  height: 32px;
+  width: 14px;
   background: $color-white;
   box-shadow: $box-shadow-default;
   border-radius: $border-radius-extra-large;
   cursor: col-resize;
 
   & > &__icon {
-    font-size: 16px;
+    font-size: 12px;
     color: $color-gray-6;
   }
 
