@@ -191,7 +191,7 @@ class TreeItem extends Component {
       this.props;
     const { isOpen } = this.state;
     const _item = typeof convertItemProps === 'function' ? convertItemProps(item) : item || {};
-    const { items, selected, locked, icon, label, actionConfig, badge } = _item;
+    const { items, selected, locked, icon, label, actionConfig, badge, hasIcon } = _item;
     const filteredActions = getActions ? getActions(item) : actionConfig;
 
     return (
@@ -222,7 +222,7 @@ class TreeItem extends Component {
               title={this.title}
             />
           )}
-          {(!!icon || !!onClickIcon) && (
+          {(!!icon || (!!onClickIcon && hasIcon !== false)) && (
             <Tooltip
               className="ecos-tree__item-element-icon-tooltip"
               target={targetId + '-icon'}

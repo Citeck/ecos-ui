@@ -46,7 +46,8 @@ export default class MenuSettingsService {
       collapsed: get(data, 'collapsed', null),
       //only for ui, tree
       locked: !!data.hidden,
-      draggable: permissions.draggable
+      draggable: permissions.draggable,
+      hasIcon: permissions.hasIcon
     };
   };
 
@@ -125,6 +126,7 @@ export default class MenuSettingsService {
       label: source.label,
       icon: source.icon,
       locked: source.locked,
+      hasIcon: source.hasIcon,
       items: source.items
     };
 

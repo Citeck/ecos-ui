@@ -190,7 +190,7 @@ export default class MenuConverter {
     (function prepareTree(sItems, tItems) {
       for (let i = 0; i < sItems.length; i++) {
         const sItem = sItems[i];
-        const { dndIdx, locked, draggable, icon, ...newData } = sItem;
+        const { dndIdx, locked, draggable, hasIcon, icon, ...newData } = sItem;
         const oldData = treeFindFirstItem({ items: source.originalItems || [], value: sItem.id, key: 'id' }) || {};
         const tItem = { ...oldData, ...newData, items: [] };
 

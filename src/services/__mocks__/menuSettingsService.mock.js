@@ -109,6 +109,7 @@ export const ITEM_PARAMS_OUTPUT = [
     items: [],
     locked: !!ITEMS_INPUT[0].hidden,
     draggable: false,
+    hasIcon: true,
     allowedFor: [],
     collapsed: false
   },
@@ -125,6 +126,7 @@ export const ITEM_PARAMS_OUTPUT = [
     items: [],
     locked: !!ITEMS_INPUT[1].hidden,
     draggable: false,
+    hasIcon: true,
     allowedFor: [],
     collapsed: false
   },
@@ -138,6 +140,7 @@ export const ITEM_PARAMS_OUTPUT = [
     items: [],
     locked: !!ITEMS_INPUT[2].hidden,
     draggable: true,
+    hasIcon: false,
     allowedFor: [],
     collapsed: false
   },
@@ -151,6 +154,7 @@ export const ITEM_PARAMS_OUTPUT = [
     items: [],
     locked: !!ITEMS_INPUT[3].hidden,
     draggable: false,
+    hasIcon: true,
     allowedFor: [],
     collapsed: false
   },
@@ -163,6 +167,7 @@ export const ITEM_PARAMS_OUTPUT = [
     items: [],
     label: 'menu.header.tasks',
     locked: false,
+    hasIcon: false,
     type: 'SECTION',
     allowedFor: [],
     collapsed: false
@@ -176,6 +181,7 @@ export const ITEM_PARAMS_OUTPUT = [
     items: [],
     label: 'menu.header.tasks',
     locked: false,
+    hasIcon: false,
     type: 'SECTION',
     allowedFor: [],
     collapsed: false
@@ -1359,6 +1365,7 @@ export const ACTIONS_ON_MENU_ITEMS = {
           collapsed: null,
           locked: false,
           draggable: true,
+          hasIcon: true,
           allowedFor: []
         }
       ],
@@ -1374,6 +1381,7 @@ export const ACTIONS_ON_MENU_ITEMS = {
           collapsed: null,
           locked: false,
           draggable: true,
+          hasIcon: true,
           allowedFor: []
         }
       ]

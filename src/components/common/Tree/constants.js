@@ -12,6 +12,7 @@ export const ItemInterface = {
   selected: PropTypes.bool,
   multiple: PropTypes.bool,
   locked: PropTypes.bool,
+  hasIcon: PropTypes.bool,
   items: PropTypes.array,
   actionConfig: PropTypes.array
 };
