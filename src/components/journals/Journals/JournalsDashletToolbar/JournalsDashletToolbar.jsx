@@ -1,21 +1,21 @@
-import classNames from "classnames";
-import get from "lodash/get";
-import isFunction from "lodash/isFunction";
-import React, { Component } from "react";
-import { connect } from "react-redux";
+import classNames from 'classnames';
+import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
-import GroupActions from "../GroupActions";
-import JournalsDashletPagination from "../JournalsDashletPagination";
-import { getCreateVariantKeyField } from "../service/util";
+import GroupActions from '../GroupActions';
+import JournalsDashletPagination from '../JournalsDashletPagination';
+import { getCreateVariantKeyField } from '../service/util';
 
-import { selectJournal, selectPreset } from "@/actions/journals";
-import { IcoBtn, TwoIcoBtn } from "@/components/common/btns";
-import { Dropdown } from "@/components/common/form";
-import Export from "@/components/domain/Export/Export";
-import FormManager from "@/components/forms/EcosForm/FormManager";
-import { wrapArgs } from "@/helpers/redux";
-import { goToCardDetailsPage } from "@/helpers/urls";
-import { selectJournalData, selectNewVersionDashletConfig } from "@/selectors/journals";
+import { selectJournal, selectPreset } from '@/actions/journals';
+import { IcoBtn, TwoIcoBtn } from '@/components/common/btns';
+import { Dropdown } from '@/components/common/form';
+import Export from '@/components/domain/Export/Export';
+import FormManager from '@/components/forms/EcosForm/FormManager';
+import { wrapArgs } from '@/helpers/redux';
+import { goToCardDetailsPage } from '@/helpers/urls';
+import { selectJournalData, selectNewVersionDashletConfig } from '@/selectors/journals';
 
 const mapStateToProps = (state, props) => {
   const ownState = selectJournalData(state, props.stateId);
@@ -30,7 +30,7 @@ const mapStateToProps = (state, props) => {
     selectedRecords: ownState.selectedRecords,
     selectedJournals: ownState.selectedJournals,
     config,
-    recordRef: ownState.recordRef,
+    recordRef: ownState.recordRef
   };
 };
 
@@ -38,13 +38,13 @@ const mapDispatchToProps = (dispatch, props) => {
   const w = wrapArgs(props.stateId);
 
   return {
-    selectJournal: (journalId) => dispatch(selectJournal(w(journalId))),
-    selectPreset: (journalSettingId) => dispatch(selectPreset(w(journalSettingId))),
+    selectJournal: journalId => dispatch(selectJournal(w(journalId))),
+    selectPreset: journalSettingId => dispatch(selectPreset(w(journalSettingId)))
   };
 };
 
 class JournalsDashletToolbar extends Component {
-  addRecord = (createVariant) => {
+  addRecord = createVariant => {
     FormManager.createRecordByVariant(createVariant, {
       onSubmit: (record, postCreateActionExecuted) => {
         if (!postCreateActionExecuted) {
@@ -54,25 +54,25 @@ class JournalsDashletToolbar extends Component {
         }
       },
       initiator: {
-        type: "dashboard-journal-widget",
-        dashboardRecordRef: this.props.recordRef,
-      },
+        type: 'dashboard-journal-widget',
+        dashboardRecordRef: this.props.recordRef
+      }
     });
   };
 
-  onChangeJournal = (journal) => {
+  onChangeJournal = journal => {
     const { onChangeSelectedJournal, selectJournal } = this.props;
 
     selectJournal(journal.id);
     isFunction(onChangeSelectedJournal) && onChangeSelectedJournal(journal.id);
   };
 
-  onChangeJournalSetting = (setting) => {
+  onChangeJournalSetting = setting => {
     this.props.selectPreset(setting.id);
   };
 
   renderCreateMenu = () => {
-    const createVariants = get(this.props, "journalConfig.meta.createVariants") || [];
+    const createVariants = get(this.props, 'journalConfig.meta.createVariants') || [];
 
     if (!createVariants.length) {
       return null;
@@ -81,7 +81,7 @@ class JournalsDashletToolbar extends Component {
     if (createVariants.length === 1) {
       return (
         <IcoBtn
-          icon={"icon-small-plus"}
+          icon={'icon-small-plus'}
           className="ecos-btn_i ecos-btn_blue ecos-btn_hover_light-blue ecos-journal-dashlet__create-btn"
           onClick={() => this.addRecord(createVariants[0])}
         />
@@ -101,7 +101,7 @@ class JournalsDashletToolbar extends Component {
         onChange={this.addRecord}
       >
         <TwoIcoBtn
-          icons={["icon-small-plus", "icon-small-down"]}
+          icons={['icon-small-plus', 'icon-small-down']}
           className="ecos-btn_settings-down ecos-btn_blue ecos-btn_hover_light-blue ecos-journal-dashlet__create-btn"
         />
       </Dropdown>
@@ -121,9 +121,9 @@ class JournalsDashletToolbar extends Component {
       grid,
       config,
       selectedRecords,
-      recordRef,
+      recordRef
     } = this.props;
-    const nodeRef = get(this.props, "journalConfig.meta.nodeRef", "");
+    const nodeRef = get(this.props, 'journalConfig.meta.nodeRef', '');
 
     return (
       <div ref={this.props.forwardRef} className="ecos-journal-dashlet__toolbar">
@@ -132,20 +132,20 @@ class JournalsDashletToolbar extends Component {
         {!!selectedJournals && selectedJournals.length > 1 && (
           <Dropdown
             hasEmpty
-            source={selectedJournals.filter((journal) => !!journal.title)}
+            source={selectedJournals.filter(journal => !!journal.title)}
             value={lsJournalId || nodeRef}
-            valueField={"id"}
-            titleField={"title"}
-            className={classNames({ "ecos-journal-dashlet__toolbar-dropdown_small": isSmall })}
+            valueField={'id'}
+            titleField={'title'}
+            className={classNames({ 'ecos-journal-dashlet__toolbar-dropdown_small': isSmall })}
             onChange={this.onChangeJournal}
           >
-            <IcoBtn invert icon={"icon-small-down"} className="ecos-btn_drop-down ecos-btn_r_6" />
+            <IcoBtn invert icon={'icon-small-down'} className="ecos-btn_drop-down ecos-btn_r_6" />
           </Dropdown>
         )}
 
         {!isSmall && (
-          <Dropdown source={journalSettings} valueField={"id"} titleField={"displayName"} onChange={this.onChangeJournalSetting} isButton>
-            <TwoIcoBtn icons={["icon-list", "icon-small-down"]} className="ecos-btn_grey ecos-btn_settings-down" />
+          <Dropdown source={journalSettings} valueField={'id'} titleField={'displayName'} onChange={this.onChangeJournalSetting} isButton>
+            <TwoIcoBtn icons={['icon-list', 'icon-small-down']} className="ecos-btn_grey ecos-btn_settings-down" />
           </Dropdown>
         )}
 

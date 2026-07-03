@@ -26,6 +26,10 @@ $theme-title-gray-color: 'transparent';
   .card {
     background-color: transparent;
 
+    .panel {
+      margin-bottom: 5px;
+    }
+
     &.border {
       border: none !important;
     }

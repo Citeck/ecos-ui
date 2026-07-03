@@ -44,6 +44,7 @@
     color: $color-blue-dark;
     font-weight: $font-weight-bold;
     font-size: $font-size-standard;
+    overflow: hidden;
 
     &_interactive {
       cursor: pointer;
