@@ -18,7 +18,7 @@ const CheckboxIcon = ({ checked, indeterminate, disabled, width = 14, height = 1
           stroke={disabled ? '#E0E0E0' : 'var(--primary-color)'}
           strokeWidth="1.5"
         />
-        <rect x="5.5" y="9" width="9" height="2" rx="1" ry="1" fill="white" />
+        <rect x="4" y="6" width="6" height="2" rx="1" ry="1" fill="white" />
       </svg>
     );
   }

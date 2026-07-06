@@ -35,6 +35,10 @@
       display: inline-flex;
     }
 
+    .ecos-pagination__text {
+      font-size: 11px !important;
+    }
+
     .ecos-btn-settings-filter-on,
     .ecos-btn-settings-filter-on:hover {
       background-color: $color-gray-25 !important;
@@ -187,7 +191,9 @@
     min-width: 82px;
 
     & ~ :nth-child(n) {
-      transition: all 0.4s, opacity 0.2s;
+      transition:
+        all 0.4s,
+        opacity 0.2s;
     }
   }
 

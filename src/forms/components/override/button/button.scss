@@ -8,9 +8,9 @@
       cursor: pointer;
       display: inline-block;
       white-space: nowrap;
-      height: 40px;
+      height: 32px;
       margin: 0;
-      padding: 9px 15px;
+      padding: 5px 15px;
       text-align: center;
       font-family: $font-family;
       font-weight: $font-weight-semi-bold;
@@ -130,7 +130,8 @@
   }
 }
 
-@media (max-width: 600px) { // non-grid breakpoint (off Bootstrap scale, intentional)
+@media (max-width: 600px) {
+  // non-grid breakpoint (off Bootstrap scale, intentional)
   .ecos-form-buttons-container-manual {
     flex-direction: column-reverse;
   }

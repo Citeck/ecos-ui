@@ -80,11 +80,14 @@
       min-width: $min-width-dropdown-menu !important;
     }
 
+    // min-height, not height: _links/_cascade items carry their padding on the inner <a>
+    // and get squashed by a fixed row height
     &_new li {
       font-size: $font-size-extra-small;
       font-weight: $font-weight-semi-bold;
       line-height: 15px;
-      height: 35px;
+      min-height: 28px;
+      padding: 6px 15px;
     }
 
     &_right {
@@ -97,7 +100,7 @@
         padding: 0;
 
         a {
-          padding: 10px 15px;
+          padding: 6px 15px;
         }
       }
     }
@@ -158,7 +161,8 @@
   }
 }
 
-@media (min-width: 1700px) { // non-grid breakpoint (off Bootstrap scale, intentional)
+@media (min-width: 1700px) {
+  // non-grid breakpoint (off Bootstrap scale, intentional)
   .ecos-doc-preview .ecos-dropdown__menu li,
   .ecos-doc-preview .ecos-dropdown__toggle_static,
   .ecos-doc-preview div.ecos-dropdown__toggle-label {
@@ -166,7 +170,8 @@
   }
 }
 
-@media (min-width: 1800px) { // non-grid breakpoint (off Bootstrap scale, intentional)
+@media (min-width: 1800px) {
+  // non-grid breakpoint (off Bootstrap scale, intentional)
   .ecos-doc-preview .ecos-dropdown__menu li,
   .ecos-doc-preview .ecos-dropdown__toggle_static,
   .ecos-doc-preview div.ecos-dropdown__toggle-label {

@@ -24,6 +24,11 @@
       gap: 6px;
 
       &_btn {
+        // Match the shared dashlet header action icon size (16px)
+        i.icon {
+          font-size: 16px;
+        }
+
         &.active i {
           color: var(--header-bg-color) !important;
         }
@@ -76,7 +81,8 @@
 
     h4 {
       margin: 0;
-      font-size: 16px;
+      // Match the shared dashlet caption (Dashlet.scss .dashlet__caption)
+      font-size: $font-size-standard;
       font-weight: 700;
       color: $text-color-gray;
       cursor: pointer;

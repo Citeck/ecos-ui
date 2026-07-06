@@ -241,7 +241,7 @@ class DocStatus extends BaseWidget {
         ) : (
           <>
             {!isMobile && title && (
-              <Caption middle className="ecos-doc-status__title">
+              <Caption small className="ecos-doc-status__title">
                 {title}
               </Caption>
             )}

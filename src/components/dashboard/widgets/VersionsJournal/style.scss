@@ -38,7 +38,7 @@
   &__title {
     background: $color-blue-light4;
     font-weight: bold;
-    font-size: 14px;
+    font-size: $font-size-standard;
     line-height: 23px;
     padding: 6px 20px;
   }
@@ -84,7 +84,7 @@
       &-item {
         cursor: pointer;
         color: $color-brown-2;
-        font-size: 20px;
+        font-size: 16px;
         margin-left: 5px;
 
         &:not(:last-child) {
@@ -224,7 +224,10 @@
   }
 
   &__tooltip {
-    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 3px 4px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.14);
+    box-shadow:
+      0 1px 5px rgba(0, 0, 0, 0.2),
+      0 3px 4px rgba(0, 0, 0, 0.12),
+      0 2px 4px rgba(0, 0, 0, 0.14);
     background: $color-white !important;
     color: $text-color-dark !important;
     font-weight: 600 !important;
@@ -656,7 +659,10 @@
       background: $color-white;
       padding: 20px 17px;
       word-break: break-word;
-      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 3px 4px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.14);
+      box-shadow:
+        0 1px 5px rgba(0, 0, 0, 0.2),
+        0 3px 4px rgba(0, 0, 0, 0.12),
+        0 2px 4px rgba(0, 0, 0, 0.14);
       white-space: pre-wrap;
 
       &-content {

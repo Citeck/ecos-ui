@@ -42,6 +42,11 @@
   &__button {
     &-add {
       display: inline-block;
+
+      // Pin to the dashlet header-actions standard (Dashlet.scss: 11.5pt)
+      .ecos-btn.ecos-btn_i {
+        font-size: 11.5pt;
+      }
     }
   }
 
@@ -51,6 +56,8 @@
     background: $color-white;
     cursor: pointer;
     color: $color-brown-2;
+    // Row actions are plain Icons (no .ecos-btn) — size them to the 16px standard explicitly
+    font-size: 16px;
     //padding-right: 11px;
     margin-right: 11px;
 

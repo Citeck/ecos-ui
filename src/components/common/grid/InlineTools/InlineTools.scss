@@ -42,5 +42,16 @@ $border: $border-width-standard solid $color-brown-2;
     &:focus {
       background-color: rgba(0, 0, 0, 0);
     }
+
+    // Row action icons match dashlet header icons (Dashlet.scss: svg 16x16)
+    &.ecos-btn_i,
+    &.ecos-btn_mi {
+      font-size: 16px;
+
+      .ecos-icon-svg svg {
+        width: 16px;
+        height: 16px;
+      }
+    }
   }
 }

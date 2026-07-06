@@ -28,7 +28,11 @@
     border-right: 2px solid transparent;
     border-top: 2px solid transparent;
     position: relative;
-    transition: border-color 0.2s ease, margin 0.2s ease, padding 0.2s ease, border-radius 0.2s ease;
+    transition:
+      border-color 0.2s ease,
+      margin 0.2s ease,
+      padding 0.2s ease,
+      border-radius 0.2s ease;
 
     &:only-child {
       height: 100%;
@@ -161,7 +165,7 @@
       display: none;
 
       .icon {
-        font-size: 18px;
+        font-size: 16px;
       }
 
       &_disabled {
@@ -231,6 +235,11 @@
         padding-left: 0;
       }
     }
+  }
+
+  // Panel gets breathing room from the preceding dl rows in view mode
+  &.formio-form .formio-component-panel:not(:first-child) {
+    margin-top: 8px;
   }
 
   &.formio-form .card {

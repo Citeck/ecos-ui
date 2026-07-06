@@ -49,8 +49,11 @@
       height: 26px;
     }
 
-    .ecos-inline-tools-btn {
+    // .ecos-btn bumps specificity over the shared 16px rule in InlineTools.scss:
+    // in the widget rows match the 14px header action icons
+    .ecos-inline-tools-btn.ecos-btn {
       margin-right: 7px;
+      font-size: 14px;
 
       .ecos-icon-svg svg {
         width: 14px;
@@ -195,7 +198,7 @@
   }
 
   .ecos-pagination__text {
-    font-size: 12px !important;
+    font-size: 11px !important;
   }
 
   // Page size selector: match pagination text style
@@ -228,6 +231,12 @@
         height: 14px;
       }
     }
+  }
+
+  // Header action buttons already have 28px flex boxes with inner air around the 14px icon —
+  // drop the extra 4px gap from Dashlet.scss so spacing matches other widgets
+  .dashlet__header-actions > :nth-child(n) {
+    margin-left: 0;
   }
 
   // Header action buttons: match journal page 28px sizing (only icon-only buttons)
@@ -285,10 +294,11 @@
     }
   }
 
-  // Group actions button in toolbar
+  // Group actions button in toolbar: 11px as on the journal page (.ecos-journal__btn_new);
+  // !important beats the 14px from GroupActions/style.scss regardless of import order
   &__group-actions .ecos-btn {
     height: 28px !important;
-    font-size: $font-size-small;
+    font-size: 11px !important;
     padding: 0 10px !important;
   }
 
@@ -380,7 +390,9 @@
       padding: 4px 0;
     }
 
-    li, .dropdown-item, .ecos-group-actions__dropdown-item {
+    li,
+    .dropdown-item,
+    .ecos-group-actions__dropdown-item {
       font-size: $font-size-small !important;
       padding: 4px 12px !important;
       min-height: auto !important;
@@ -401,8 +413,7 @@
     flex-wrap: wrap; // на узком виджете пагинация уходит на следующую строку
     background-color: var(--main-bg-color);
     border-bottom: 1px solid #e8edef;
-    border-radius: 12px 12px 0 0;
-    padding: 2px 6px;
+    padding: 0 6px;
 
     & > :nth-child(n):not(.ecos-journal-dashlet__toolbar-right):not(:last-child) {
       margin-right: 12px;
@@ -436,6 +447,12 @@
     &-wrapper {
       height: 100%;
 
+      // The Scrollbars view (first child) gets bottom padding so the overlay
+      // h-scroll track (%h-scroll, bottom: 2px) doesn't cover the last row
+      > div:first-child {
+        padding-bottom: 10px;
+      }
+
       .ecos-grid__table.table {
         margin-bottom: 0px;
       }
@@ -461,23 +478,28 @@
     & > :nth-child(n) {
       margin-right: 4px;
     }
+  }
 
-    .ecos-group-actions__control {
-      color: $text-color-dark;
-      background: $color-gray-4;
+  // Opened group-actions toggle keeps the primary highlight: the generic toolbar rule above
+  // (background-color: $color-gray-25 !important, specificity 0,3,0) out-competes the shared
+  // .ecos-group-actions__opened-focus rule from GroupActions/style.scss (0,2,0) — restate it stronger.
+  &__toolbar .ecos-group-actions__opened-focus .ecos-btn.ecos-group-actions__control_new {
+    background-color: var(--primary-color) !important;
 
-      &:hover {
-        background-color: $color-gray-1;
-        & > :nth-child(n) {
-          color: $text-color-dark;
-        }
-      }
+    > i,
+    > span {
+      color: $color-white !important;
     }
   }
 }
 
-// Group actions dropdown from widget (rendered via portal)
+// Group actions dropdown from widget (rendered via portal — the compact rules nested
+// under .ecos-journal-dashlet above never reach it, so the container padding lives here)
 .ecos-group-actions__dropdown-menu_widget {
+  &.dropdown-menu {
+    padding: 4px 0;
+  }
+
   .ecos-group-actions__dropdown-item {
     font-size: $font-size-small !important;
     padding: 4px 12px !important;

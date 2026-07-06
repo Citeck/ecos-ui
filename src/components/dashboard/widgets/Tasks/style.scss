@@ -35,7 +35,7 @@
 
     &:not(:last-child) {
       border-bottom: $border-width-standard solid $color-gray-4;
-      padding-bottom: 20px;
+      padding-bottom: 8px;
     }
 
     &__title {
@@ -105,7 +105,13 @@
     &__eform {
       @extend %h-indents;
 
-      padding-bottom: 15px;
+      padding-bottom: 8px;
+
+      // The comment textarea rows come from the server-side form definition —
+      // cap the default height here (10.1)
+      .formio-component-textarea textarea.form-control {
+        max-height: 96px;
+      }
 
       .formio-component-ecosSelect {
         .is-flipped .choices__list--dropdown {

@@ -106,30 +106,30 @@
 
       // Глобальный каскад (styles/index.scss) красит inline svg с currentColor
       // в header-color — здесь иконки должны оставаться серыми
-      svg path[fill="currentColor"],
-      svg rect[fill="currentColor"],
-      svg circle[fill="currentColor"],
-      svg ellipse[fill="currentColor"],
-      svg polygon[fill="currentColor"],
-      svg[fill="currentColor"] {
+      svg path[fill='currentColor'],
+      svg rect[fill='currentColor'],
+      svg circle[fill='currentColor'],
+      svg ellipse[fill='currentColor'],
+      svg polygon[fill='currentColor'],
+      svg[fill='currentColor'] {
         fill: $color-gray-5;
       }
 
-      svg[stroke="currentColor"] {
+      svg[stroke='currentColor'] {
         stroke: $color-gray-5;
       }
 
       button:hover {
-        svg path[fill="currentColor"],
-        svg rect[fill="currentColor"],
-        svg circle[fill="currentColor"],
-        svg ellipse[fill="currentColor"],
-        svg polygon[fill="currentColor"],
-        svg[fill="currentColor"] {
+        svg path[fill='currentColor'],
+        svg rect[fill='currentColor'],
+        svg circle[fill='currentColor'],
+        svg ellipse[fill='currentColor'],
+        svg polygon[fill='currentColor'],
+        svg[fill='currentColor'] {
           fill: $text-color-dark;
         }
 
-        svg[stroke="currentColor"] {
+        svg[stroke='currentColor'] {
           stroke: $text-color-dark;
         }
       }
@@ -146,6 +146,12 @@
         margin: 0;
       }
     }
+  }
+
+  // Counter badge in any widget header: follow the reduced header scale
+  // (shared Badge/style.scss stays at $font-size-standard for other consumers)
+  &__header .ecos-badge {
+    font-size: $font-size-small;
   }
 
   &__caption {
@@ -254,7 +260,7 @@
           height: 12px;
         }
 
-        svg [fill="currentColor"] {
+        svg [fill='currentColor'] {
           fill: #444444;
         }
       }

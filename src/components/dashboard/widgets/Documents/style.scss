@@ -691,6 +691,12 @@
 
   &__resizer {
     z-index: map-get($z-index, document-widget-resizer);
+
+    // Drop the handle below the upload button row (offset removed in 1cebac5fb);
+    // .ecos-resizer-x bumps specificity over the base top: 5px in ResizeBoxes/style.scss
+    &.ecos-resizer-x {
+      top: 11px;
+    }
   }
 
   &__empty-stub {
@@ -885,7 +891,7 @@
 
           &-icon {
             color: $color-gray-5;
-            font-size: 20px;
+            font-size: 16px;
             margin: auto;
           }
         }

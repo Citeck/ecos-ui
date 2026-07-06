@@ -17,13 +17,18 @@
       align-self: center;
 
       &__values-list_compact {
-        font-size: $font-size-standard;
+        font-size: $font-size-small;
       }
     }
   }
 
   &__actions {
     display: flex;
+
+    // Confirm/reset icons match filter inputs scale, not the default 18px .ecos-btn_i
+    .ecos-btn.ecos-btn_i {
+      font-size: 14px;
+    }
 
     &-confirm.ecos-btn {
       color: $color-gray-6;

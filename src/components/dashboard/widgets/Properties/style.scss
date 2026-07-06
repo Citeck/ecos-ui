@@ -73,6 +73,11 @@
       }
     }
 
+    // Edit mode: compact the gap between fields to match the reduced view-mode rows
+    .formio-component.form-group {
+      margin-bottom: 8px;
+    }
+
     .formio-component-columns {
       div[class*='formio-component-cancel' i],
       div[class*='formio-component-submit' i] {

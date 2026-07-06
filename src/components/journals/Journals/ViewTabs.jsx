@@ -131,7 +131,7 @@ class ViewTabs extends React.Component {
               })}
               onClick={() => this.onToggleViewMode(JVM.HIERARCHY)}
             >
-              <HierarchyTree />
+              <HierarchyTree width={18} height={18} />
             </IcoBtn>
           </Tooltip>
         )}
@@ -164,7 +164,7 @@ class ViewTabs extends React.Component {
               })}
               onClick={() => this.onToggleViewMode(JVM.PREVIEW_LIST)}
             >
-              <PreviewList />
+              <PreviewList width={18} height={20} />
             </IcoBtn>
           </Tooltip>
         )}
@@ -183,7 +183,7 @@ class ViewTabs extends React.Component {
               })}
               onClick={() => this.onToggleViewWidgets(!isViewWidgetsPreview)}
             >
-              <WidgetsPreview width={26} height={26} isLeft={isLeftPositionWidgets} />
+              <WidgetsPreview width={18} height={18} isLeft={isLeftPositionWidgets} />
             </IcoBtn>
           </Tooltip>
         )}
