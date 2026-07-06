@@ -103,6 +103,16 @@ class TableView extends React.Component {
     if (urlParams[JUP.SEARCH] !== get(prevProps, ['urlParams', JUP.SEARCH])) {
       this.props.getJournalsData({ force });
     }
+
+    // A reused/persisted journal tab (deduped by journalId) keeps its previously loaded grid when only
+    // userConfigId changes (e.g. an assistant "link to selection"), so the saved filter isn't re-applied.
+    // setUrl synchronously refreshes store.url before the saga reads userConfigId from it (didUpdate runs
+    // child-before-parent, so Journals' own setUrl hasn't fired yet). savePredicate:false prevents the new
+    // userConfig predicate from being overwritten by the stale one already in the store.
+    if (urlParams[JUP.USER_CONFIG_ID] !== get(prevProps, ['urlParams', JUP.USER_CONFIG_ID])) {
+      this.props.setUrl(urlParams);
+      this.props.getJournalsData({ force: true, savePredicate: false });
+    }
   }
 
   componentWillUnmount() {

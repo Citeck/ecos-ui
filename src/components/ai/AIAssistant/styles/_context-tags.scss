@@ -263,6 +263,13 @@
         min-width: 0;
       }
 
+      &-header {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+      }
+
       &-name {
         font-weight: 500;
         overflow: hidden;
@@ -290,6 +297,23 @@
       text-align: center;
       color: var(--text-color-muted, #999);
       font-size: 12px;
+    }
+  }
+
+  &__agent-engine-badge {
+    flex-shrink: 0;
+    padding: 1px 6px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1.4;
+    white-space: nowrap;
+    background-color: rgba(0, 0, 0, 0.06);
+    color: var(--text-color-muted, #666);
+
+    &--config {
+      background-color: rgba(59, 130, 246, 0.12);
+      color: #2563eb;
     }
   }
 }

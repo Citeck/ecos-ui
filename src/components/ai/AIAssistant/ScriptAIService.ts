@@ -7,7 +7,7 @@
 import uuidV4 from 'uuidv4';
 
 import { getWorkspaceId } from '@/helpers/urls';
-import { AI_INTENTS, MESSAGE_TYPES, API_ENDPOINTS, POLLING_INTERVAL } from './constants';
+import { MESSAGE_TYPES, API_ENDPOINTS, POLLING_INTERVAL, PLATFORM_CONFIG_AGENT_REF } from './constants';
 import {
   ATTRIBUTE_TYPES,
   SCRIPT_CONTEXT_TYPES,
@@ -103,7 +103,11 @@ export const generateScript = async ({
     conversationId: conversationId || uuidV4(),
     context: {
       workspace: getWorkspaceId(),
-      forceIntent: AI_INTENTS.SCRIPT_WRITING,
+      // COREDEV-323 FE-M5: route script generation to the config agent (engine CONFIG)
+      // via agentRef instead of the removed forceIntent=SCRIPT_WRITING intent path. The
+      // backend editScript tool reads the editing.script context below and returns the
+      // same `script_writing` diff shape this service already consumes.
+      agentRef: PLATFORM_CONFIG_AGENT_REF,
       selection: {
         records: [],
         attributes: [],

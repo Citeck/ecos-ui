@@ -10,6 +10,7 @@ import uuidV4 from 'uuidv4';
 
 import { AIFieldActions } from './AIQuickActions/components';
 import { FIELD_TYPES } from './AIQuickActions/config';
+import { CONTENT_TYPES } from './constants';
 import { generateText, TEXT_QUICK_ACTIONS, TEXT_CONTEXT_TYPES } from './TextAIService';
 
 /**
@@ -36,7 +37,8 @@ const mapActionId = actionId => {
  * @param {string} [props.recordRef] - Record reference for context
  * @param {string} [props.fieldType] - Field type (textarea, documentation, name)
  * @param {string} [props.fieldLabel] - Field label for context
- * @param {string} [props.contextType] - Context type for AI service
+ * @param {string} [props.contextType] - Semantic context type for the quick-actions UI (e.g. 'description'); NOT sent as content format
+ * @param {string} [props.contentType] - Content format sent to the backend ('text' | 'html' | 'code'); defaults to plain text
  * @param {Object} [props.fieldInfo] - Field information for AI context {id, name, type}
  * @param {Function} props.getValue - Function to get current textarea value
  * @param {Function} props.setValue - Function to set textarea value
@@ -49,6 +51,7 @@ const TextAreaAIButton = ({
   fieldType = FIELD_TYPES.TEXTAREA,
   fieldLabel = '',
   contextType = TEXT_CONTEXT_TYPES.GENERAL,
+  contentType = CONTENT_TYPES.TEXT,
   fieldInfo = null,
   getValue,
   setValue,
@@ -70,7 +73,11 @@ const TextAreaAIButton = ({
         prompt,
         quickAction: mappedAction,
         currentText: currentValue,
-        contentType: contextType,
+        // Content FORMAT (text/html/code) — not the field's semantic context type.
+        // Sending contextType here (e.g. 'description') was a contract drift that broke
+        // backend TextEditingContext parsing (COREDEV-323); the semantic contextType is
+        // only used for the quick-actions UI below.
+        contentType,
         fieldType,
         recordRef,
         field: fieldInfo,
@@ -82,7 +89,7 @@ const TextAreaAIButton = ({
         explanation: response.explanation
       };
     },
-    [contextType, fieldType, recordRef, fieldInfo]
+    [contentType, fieldType, recordRef, fieldInfo]
   );
 
   return (

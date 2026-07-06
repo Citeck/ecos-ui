@@ -36,7 +36,8 @@ const MessageList = ({
   isLoading,
   activeRequestId,
   messagesEndRef,
-  onActionClick
+  onActionClick,
+  onSelectAgent
 }) => {
   // Show welcome screen when no messages
   if (messages.length === 0) {
@@ -45,6 +46,7 @@ const MessageList = ({
         <ChatWelcome
           activeTab={activeTab}
           contextHint={activeTab === TAB_TYPES.CONTEXTUAL ? contextHint : null}
+          onSelectAgent={onSelectAgent}
         />
         <div ref={messagesEndRef} />
       </>

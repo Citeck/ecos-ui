@@ -1,7 +1,15 @@
 import classNames from 'classnames';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
-import { ADDITIONAL_CONTEXT_TYPES, API_ENDPOINTS, getContextArtifactIcon, getRecordRefIcon } from '@/components/ai/AIAssistant/constants';
+import {
+  ADDITIONAL_CONTEXT_TYPES,
+  API_ENDPOINTS,
+  getAgentEngine,
+  getAgentEngineIcon,
+  getAgentEngineLabelKey,
+  getContextArtifactIcon,
+  getRecordRefIcon
+} from '@/components/ai/AIAssistant/constants';
 import { Icon } from '@/components/common';
 import { t } from '@/helpers/export/util';
 import { getTextByLocale } from '@/helpers/util';
@@ -63,12 +71,13 @@ const AgentSelector = ({ selectedAgent, onSelectAgent, onClearConversation, hasM
       const response = await fetch(API_ENDPOINTS.AGENT_LIST);
       if (response.ok) {
         const data = await response.json();
-        setAgents(data);
+        setAgents(Array.isArray(data) ? data : []);
+        // Only mark as loaded on success so a transient failure can be retried on the next open.
+        setAgentsLoaded(true);
       }
     } catch (error) {
       console.error('Error loading agents:', error);
     }
-    setAgentsLoaded(true);
   }, [agentsLoaded]);
 
   useEffect(() => {
@@ -123,7 +132,7 @@ const AgentSelector = ({ selectedAgent, onSelectAgent, onClearConversation, hasM
         })}
         onClick={handleToggle}
       >
-        <Icon className={classNames('fa', selectedAgent ? 'fa-robot' : 'fa-magic')} />
+        <Icon className={classNames('fa', selectedAgent ? getAgentEngineIcon(getAgentEngine(selectedAgent)) : 'fa-magic')} />
         <span>{selectedAgent ? selectedAgent.name : 'Citeck AI'}</span>
         <Icon className="fa fa-caret-down" />
       </button>
@@ -137,26 +146,41 @@ const AgentSelector = ({ selectedAgent, onSelectAgent, onClearConversation, hasM
           >
             <Icon className="fa fa-magic" />
             <div className="ai-assistant-chat__agent-dropdown-item-text">
-              <span className="ai-assistant-chat__agent-dropdown-item-name">Citeck AI</span>
+              <span className="ai-assistant-chat__agent-dropdown-item-header">
+                <span className="ai-assistant-chat__agent-dropdown-item-name">Citeck AI</span>
+                <span className="ai-assistant-chat__agent-engine-badge ai-assistant-chat__agent-engine-badge--tool_loop">
+                  {t('ai-agent.engine.operational')}
+                </span>
+              </span>
               <span className="ai-assistant-chat__agent-dropdown-item-desc">{t('ai-agent.universal-assistant')}</span>
             </div>
           </div>
           {agents.length > 0 && <div className="ai-assistant-chat__agent-dropdown-divider" />}
-          {agents.map(agent => (
-            <div
-              key={agent.id}
-              className={classNames('ai-assistant-chat__agent-dropdown-item', {
-                'ai-assistant-chat__agent-dropdown-item--selected': selectedAgent?.id === agent.id
-              })}
-              onClick={() => handleSelect(agent)}
-            >
-              <Icon className="fa fa-robot" />
-              <div className="ai-assistant-chat__agent-dropdown-item-text">
-                <span className="ai-assistant-chat__agent-dropdown-item-name">{agent.name || agent.id}</span>
-                {agent.description && <span className="ai-assistant-chat__agent-dropdown-item-desc">{agent.description}</span>}
+          {agents.map(agent => {
+            const engine = getAgentEngine(agent);
+            return (
+              <div
+                key={agent.id}
+                className={classNames('ai-assistant-chat__agent-dropdown-item', `ai-assistant-chat__agent-dropdown-item--${engine.toLowerCase()}`, {
+                  'ai-assistant-chat__agent-dropdown-item--selected': selectedAgent?.id === agent.id
+                })}
+                onClick={() => handleSelect(agent)}
+              >
+                <Icon className={classNames('fa', getAgentEngineIcon(engine))} />
+                <div className="ai-assistant-chat__agent-dropdown-item-text">
+                  <span className="ai-assistant-chat__agent-dropdown-item-header">
+                    <span className="ai-assistant-chat__agent-dropdown-item-name">{agent.name || agent.id}</span>
+                    <span
+                      className={classNames('ai-assistant-chat__agent-engine-badge', `ai-assistant-chat__agent-engine-badge--${engine.toLowerCase()}`)}
+                    >
+                      {t(getAgentEngineLabelKey(engine))}
+                    </span>
+                  </span>
+                  {agent.description && <span className="ai-assistant-chat__agent-dropdown-item-desc">{agent.description}</span>}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
           {agentsLoaded && agents.length === 0 && <div className="ai-assistant-chat__agent-dropdown-empty">{t('ai-agent.no-agents')}</div>}
         </div>
       )}

@@ -130,3 +130,66 @@ export interface AgentProgressInfo {
   overallProgress?: number;
   steps?: AgentStepProgress[];
 }
+
+/**
+ * Status of one config-agent tool invocation (mirror backend AgentToolStepStatus).
+ */
+export type ToolStepStatus = 'RUNNING' | 'DONE' | 'ERROR';
+
+/**
+ * One config-agent tool invocation in the cumulative tool-loop feed (contract #2).
+ * `stepIndex` is the stable, monotonic key the frontend merges/upserts on.
+ */
+export interface ToolStep {
+  tool: string;
+  label: string;
+  status: ToolStepStatus;
+  stepIndex: number;
+  detail?: string;
+}
+
+/**
+ * Progress info for the config-agent tool-loop (COREDEV-323 contract #2).
+ * Emitted with `type === 'agent_tool_step'`. The top-level `tool`/`label`/`status`/
+ * `stepIndex` describe the step that triggered this emission; `toolSteps` carries the
+ * full self-contained cumulative feed, which the frontend merges by `stepIndex` so no
+ * sub-second step is lost between polls.
+ */
+export interface ToolStepProgressInfo {
+  type: 'agent_tool_step';
+  tool?: string;
+  label?: string;
+  status?: ToolStepStatus;
+  detail?: string;
+  stepIndex?: number;
+  totalHint?: number;
+  toolSteps?: ToolStep[];
+}
+
+/**
+ * Deploy scope kind for the config-agent HITL deploy gate (mirror backend DeployScopeKind).
+ */
+export type DeployScopeKind = 'GLOBAL' | 'WORKSPACE';
+
+/**
+ * One deploy target scope (mirror backend DeployScopeInfo). `label` is localized by the
+ * backend and rendered as-is; `workspaceId` is present only for WORKSPACE scopes.
+ */
+export interface DeployScopeInfo {
+  kind: DeployScopeKind;
+  workspaceId?: string;
+  label: string;
+}
+
+/**
+ * Pending platform-artifact deploy awaiting confirmation (COREDEV-323 contract #3,
+ * mirror backend PendingDeployInfo). `targetScope` is the default; when `changeable`
+ * is true the user may pick another scope from `options` and it is sent back as
+ * `ChatRequest.deployScope` alongside the `deploy_confirm` action.
+ */
+export interface PendingDeployInfo {
+  artifactType: string;
+  targetScope: DeployScopeInfo;
+  changeable: boolean;
+  options?: DeployScopeInfo[];
+}

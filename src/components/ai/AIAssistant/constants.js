@@ -61,6 +61,29 @@ export const MESSAGE_TYPES = {
   AGENT_EXECUTION: 'agent_execution'
 };
 
+/**
+ * Progress `type` for the config-agent tool-loop feed (COREDEV-323 contract #2).
+ * Distinct from `agent_execution` (a fixed, pre-known plan): config-agent steps are
+ * not known in advance, so the feed is cumulative and merged by `stepIndex`.
+ */
+export const AGENT_TOOL_STEP_PROGRESS_TYPE = 'agent_tool_step';
+
+/** Tool-step statuses emitted by the config agent (mirror backend AgentToolStepStatus). */
+export const TOOL_STEP_STATUS = {
+  RUNNING: 'RUNNING',
+  DONE: 'DONE',
+  ERROR: 'ERROR'
+};
+
+/** Icon/style mapping per tool-step status for the tool-loop ribbon. */
+export const TOOL_STEP_STATUS_ICONS = {
+  [TOOL_STEP_STATUS.RUNNING]: { icon: 'fa-spinner', className: 'tool-step--running', spin: true },
+  [TOOL_STEP_STATUS.DONE]: { icon: 'fa-check-circle', className: 'tool-step--done' },
+  [TOOL_STEP_STATUS.ERROR]: { icon: 'fa-times-circle', className: 'tool-step--error' }
+};
+
+export const getToolStepStatusConfig = status => TOOL_STEP_STATUS_ICONS[status] || TOOL_STEP_STATUS_ICONS[TOOL_STEP_STATUS.RUNNING];
+
 // File-save action ids (mirror citeck-ai FileSaveOrchestrator). Action ids attached to a
 // pending file proposal have the form `<base>|<tempRef>` — the separator lets the backend
 // scope a save/cancel to one specific temp file when several previews are pending at once.
@@ -71,6 +94,32 @@ export const FILE_SAVE_ACTION = {
   CANCEL: 'file_cancel',
   ATTR_PREFIX: 'attr:'
 };
+
+/**
+ * Stable action ids for the config-agent HITL deploy gate (COREDEV-323 contract #3,
+ * mirror backend AgentOrchestratorService.DEPLOY_CONFIRM_ACTION/DEPLOY_REJECT_ACTION).
+ * Button labels arrive localized from the backend; only `deploy_confirm` carries a
+ * `deployScope` override in the action payload.
+ */
+export const DEPLOY_ACTION = {
+  CONFIRM: 'deploy_confirm',
+  REJECT: 'deploy_reject'
+};
+
+/** Deploy scope kinds (mirror backend DeployScopeKind). */
+export const DEPLOY_SCOPE_KIND = {
+  GLOBAL: 'GLOBAL',
+  WORKSPACE: 'WORKSPACE'
+};
+
+/**
+ * Stable identity key for a deploy scope option, used both as a React list key and
+ * to track the user's selection across re-renders. WORKSPACE scopes are distinguished
+ * by their `workspaceId`; GLOBAL has none.
+ * @param {{kind: string, workspaceId?: string}} scope
+ * @returns {string}
+ */
+export const getDeployScopeKey = scope => (scope ? `${scope.kind}:${scope.workspaceId || ''}` : '');
 
 // Content types for AI generation
 export const CONTENT_TYPES = {
@@ -96,6 +145,11 @@ export const EDITOR_CONTEXT_HANDLERS = {
 
 // Polling configuration
 export const POLLING_INTERVAL = 1000;
+// Client-side watchdog: max consecutive "processing" polls before the chat gives up and surfaces a
+// timeout error instead of spinning forever. Guards against a request that never leaves the
+// "processing" state (e.g. after a transient backend 500), which otherwise hangs the typing
+// indicator with no way to recover. 600 × 1s ≈ 10 min — well above any normal agent run.
+export const POLLING_MAX_ATTEMPTS = 600;
 
 // Chat dimensions
 export const CHAT_DIMENSIONS = {
@@ -117,6 +171,60 @@ export const CONTEXT_ARTIFACT_ICONS = {
 };
 
 export const getContextArtifactIcon = type => CONTEXT_ARTIFACT_ICONS[type] || CONTEXT_ARTIFACT_ICONS.UNKNOWN;
+
+/**
+ * Agent execution engine kinds returned by /ai-agent/list (DTO field `engine`).
+ * Mirrors backend enum AgentEngine; the list-DTO omits `engine` for legacy agents,
+ * in which case the agent is treated as operational (TOOL_LOOP).
+ */
+export const AGENT_ENGINE = {
+  TOOL_LOOP: 'TOOL_LOOP',
+  CONFIG: 'CONFIG'
+};
+
+/** Id of the built-in platform configuration agent (CONFIG engine). */
+export const PLATFORM_CONFIG_AGENT_ID = 'platform-config-agent';
+
+/**
+ * Build the `agentRef` a request must carry to address a specific agent
+ * (backend resolves the agent by the id after `@`).
+ * @param {string} id - agent local id (e.g. 'platform-config-agent')
+ * @returns {string} e.g. 'emodel/ai-agent@platform-config-agent'
+ */
+export const buildAgentRef = id => `emodel/ai-agent@${id}`;
+
+/**
+ * `agentRef` of the platform configuration agent. Script editing (COREDEV-323 FE-M5)
+ * routes here: the backend's `editScript` tool reads the `editing.script` context and
+ * returns the `script_writing` diff. Replaces the removed `forceIntent: SCRIPT_WRITING`
+ * intent path (editing dispatch is now keyed on `editing.type`, not `forceIntent`).
+ */
+export const PLATFORM_CONFIG_AGENT_REF = buildAgentRef(PLATFORM_CONFIG_AGENT_ID);
+
+/**
+ * Resolve the engine of an agent list item with a safe fallback.
+ * `engine`/`icon`/localized fields are absent from the list-DTO for legacy agents →
+ * anything that is not explicitly CONFIG is rendered as operational TOOL_LOOP.
+ * @param {{engine?: string}} agent
+ * @returns {string} one of AGENT_ENGINE
+ */
+export const getAgentEngine = agent => (agent && agent.engine === AGENT_ENGINE.CONFIG ? AGENT_ENGINE.CONFIG : AGENT_ENGINE.TOOL_LOOP);
+
+/** FontAwesome icon per agent engine. */
+export const AGENT_ENGINE_ICONS = {
+  [AGENT_ENGINE.TOOL_LOOP]: 'fa-robot',
+  [AGENT_ENGINE.CONFIG]: 'fa-cogs'
+};
+
+export const getAgentEngineIcon = engine => AGENT_ENGINE_ICONS[engine] || AGENT_ENGINE_ICONS[AGENT_ENGINE.TOOL_LOOP];
+
+/** i18n key for the human-readable engine group label shown as a badge in the selector. */
+export const AGENT_ENGINE_LABEL_KEYS = {
+  [AGENT_ENGINE.TOOL_LOOP]: 'ai-agent.engine.operational',
+  [AGENT_ENGINE.CONFIG]: 'ai-agent.engine.config'
+};
+
+export const getAgentEngineLabelKey = engine => AGENT_ENGINE_LABEL_KEYS[engine] || AGENT_ENGINE_LABEL_KEYS[AGENT_ENGINE.TOOL_LOOP];
 
 /**
  * Derive artifact type icon from a record ref string.

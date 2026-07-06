@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 
-import { POLLING_INTERVAL } from '@/components/ai/AIAssistant/constants';
+import { POLLING_INTERVAL, POLLING_MAX_ATTEMPTS } from '@/components/ai/AIAssistant/constants';
 import { t } from '@/helpers/export/util';
 
 /**
@@ -15,13 +15,22 @@ import { t } from '@/helpers/export/util';
  * @returns {Object} { startPolling, stopPolling, isPolling, activeRequestId }
  */
 const usePolling = (options = {}) => {
-  const { pollingInterval = POLLING_INTERVAL, fetchStatus, onResult, onError, onCancelled, onProgress } = options;
+  const {
+    pollingInterval = POLLING_INTERVAL,
+    maxAttempts = POLLING_MAX_ATTEMPTS,
+    fetchStatus,
+    onResult,
+    onError,
+    onCancelled,
+    onProgress
+  } = options;
 
   const [isPolling, setIsPolling] = useState(false);
   const [activeRequestId, setActiveRequestId] = useState(null);
   const pollingTimerRef = useRef(null);
   const isMountedRef = useRef(true);
   const generationRef = useRef(0);
+  const attemptsRef = useRef(0);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -67,6 +76,17 @@ const usePolling = (options = {}) => {
           if (data.progress) {
             onProgress?.(data.progress);
           }
+          // Watchdog: a request that never leaves "processing" (e.g. after a transient backend 500)
+          // would otherwise poll forever and hang the typing indicator. Give up after the cap and
+          // surface a timeout error so the chat resets instead of spinning silently.
+          attemptsRef.current += 1;
+          if (attemptsRef.current >= maxAttempts) {
+            pollingTimerRef.current = null;
+            setActiveRequestId(null);
+            setIsPolling(false);
+            onError?.(t('ai-assistant.chat.polling-timeout'));
+            return;
+          }
           pollingTimerRef.current = setTimeout(() => poll(requestId, generation), pollingInterval);
         }
       } catch (error) {
@@ -79,7 +99,7 @@ const usePolling = (options = {}) => {
         onError?.(error.message || t('ai-assistant.chat.polling-error'));
       }
     },
-    [fetchStatus, onResult, onError, onCancelled, onProgress, pollingInterval]
+    [fetchStatus, onResult, onError, onCancelled, onProgress, pollingInterval, maxAttempts]
   );
 
   const startPolling = useCallback(
@@ -88,6 +108,7 @@ const usePolling = (options = {}) => {
         clearTimeout(pollingTimerRef.current);
       }
       const generation = ++generationRef.current;
+      attemptsRef.current = 0;
       setActiveRequestId(requestId);
       setIsPolling(true);
       pollingTimerRef.current = setTimeout(() => poll(requestId, generation), pollingInterval);

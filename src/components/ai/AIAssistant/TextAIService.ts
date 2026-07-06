@@ -34,7 +34,9 @@ export const TEXT_QUICK_ACTIONS = {
   IMPROVE: 'improve',
   EXPAND: 'expand',
   SUMMARIZE: 'summarize',
-  FIX_GRAMMAR: 'fix_grammar',
+  // Hyphen matches the backend's canonical quick-action key (TextQuickActionsProvider). The backend
+  // also normalizes '_'→'-', but the FE should send the canonical id directly (COREDEV-323 FE align).
+  FIX_GRAMMAR: 'fix-grammar',
   TRANSLATE: 'translate',
   SIMPLIFY: 'simplify',
   FORMALIZE: 'formalize'

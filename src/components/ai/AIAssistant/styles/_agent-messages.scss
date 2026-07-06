@@ -37,6 +37,57 @@
     border-left: 3px solid var(--primary-color);
   }
 
+  // Config-agent HITL deploy confirmation (COREDEV-323 contract #3)
+  &__deploy-confirm {
+    @include markdown-content;
+  }
+
+  &__deploy-confirm-scope {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    margin-top: $spacing-md;
+    padding: $spacing-sm $spacing-md;
+    background-color: var(--background-light, #f8f9fa);
+    border-left: 3px solid var(--primary-color);
+    border-radius: $border-radius-md;
+    font-size: $font-size-sm;
+    font-weight: 600;
+  }
+
+  &__deploy-confirm-scope-icon {
+    flex-shrink: 0;
+    color: var(--primary-color);
+  }
+
+  &__deploy-confirm-options {
+    margin-top: $spacing-md;
+  }
+
+  &__deploy-confirm-options-title {
+    margin-bottom: $spacing-sm;
+    font-size: $font-size-sm;
+    color: var(--text-secondary, #666);
+  }
+
+  &__deploy-confirm-option {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: $spacing-xs $spacing-sm;
+    border-radius: $border-radius-md;
+    cursor: pointer;
+    font-size: $font-size-sm;
+
+    &--checked {
+      background-color: var(--background-light, #f8f9fa);
+    }
+
+    input {
+      margin: 0;
+    }
+  }
+
   // Agent Progress Message
   &__agent-progress {
     @include card-base;

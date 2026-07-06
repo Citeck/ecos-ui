@@ -2,7 +2,17 @@ import Records from '@citeck/records-core';
 import { useState, useCallback, useRef } from 'react';
 
 import editorContextService from '../EditorContextService';
-import { AI_INTENTS, MESSAGE_TYPES, EDITOR_CONTEXT_HANDLERS, API_ENDPOINTS, CONTENT_TYPES, FILE_SAVE_ACTION } from '../constants';
+import {
+  AI_INTENTS,
+  MESSAGE_TYPES,
+  EDITOR_CONTEXT_HANDLERS,
+  API_ENDPOINTS,
+  CONTENT_TYPES,
+  FILE_SAVE_ACTION,
+  AGENT_TOOL_STEP_PROGRESS_TYPE,
+  PLATFORM_CONFIG_AGENT_REF,
+  buildAgentRef
+} from '../constants';
 import { AGENT_STATUSES } from '../types';
 import { generateUUID } from '../utils';
 
@@ -80,12 +90,70 @@ const stripTempImageFromText = (text, tempFileId) => {
 };
 
 /**
+ * Merge two config-agent tool-step feeds by `stepIndex` (upsert), newest wins.
+ *
+ * The backend snapshot (`progress.toolSteps`) is self-contained, but the controller keeps only the
+ * latest snapshot per request; merging with whatever the processing message already holds guarantees
+ * no sub-second step (e.g. findArtifact) is lost when the frontend polls less often than steps
+ * complete. For a given `stepIndex` the incoming step's fields override the previous one (so
+ * RUNNING → DONE/ERROR transitions apply), and the result is sorted ascending by `stepIndex`.
+ * @param {Array<{stepIndex:number}>} [prevSteps] - Steps already accumulated on the message
+ * @param {Array<{stepIndex:number}>} [incomingSteps] - Steps from the latest progress snapshot
+ * @returns {Array<Object>} Merged, stepIndex-sorted feed
+ */
+const mergeToolSteps = (prevSteps = [], incomingSteps = []) => {
+  const byIndex = new Map();
+  const add = step => {
+    if (step && typeof step.stepIndex === 'number') {
+      byIndex.set(step.stepIndex, { ...byIndex.get(step.stepIndex), ...step });
+    }
+  };
+  (Array.isArray(prevSteps) ? prevSteps : []).forEach(add);
+  (Array.isArray(incomingSteps) ? incomingSteps : []).forEach(add);
+  return Array.from(byIndex.values()).sort((a, b) => a.stepIndex - b.stepIndex);
+};
+
+/**
+ * Builds the tool-loop (`agent_tool_step`) messageData snapshot from a progress event.
+ * The cumulative `toolSteps` feed is rebuilt by merging the incoming snapshot over any feed
+ * already accumulated on the processing message (`prevToolSteps`).
+ * @param {Object} progress - Progress data from polling (type === AGENT_TOOL_STEP_PROGRESS_TYPE)
+ * @param {Array} [prevToolSteps] - Feed already on the message being updated
+ * @returns {Object} messageData for the tool-step ribbon
+ */
+const buildToolStepMessageData = (progress, prevToolSteps = []) => ({
+  type: AGENT_TOOL_STEP_PROGRESS_TYPE,
+  tool: progress.tool,
+  label: progress.label,
+  status: progress.status,
+  detail: progress.detail,
+  stepIndex: progress.stepIndex,
+  totalHint: progress.totalHint,
+  // Engine of this feed (OPERATIONAL | CONFIGURATION) — titles the ribbon per engine.
+  domain: progress.domain,
+  toolSteps: mergeToolSteps(prevToolSteps, progress.toolSteps)
+});
+
+/**
  * Builds message data fields for a processing message based on progress type.
  * Returns the fields to merge onto the processing message, or null if no update.
  * @param {Object} progress - Progress data from polling
- * @returns {{ isAgent: boolean, messageFields: Object }} Message fields to apply
+ * @returns {{ isAgent: boolean, isToolStep?: boolean, messageFields: Object }} Message fields to apply
  */
 const buildProgressMessageData = progress => {
+  // Config-agent tool-loop feed (contract #2). Recognised before the generic `agent_*` branch
+  // because its shape (cumulative `toolSteps`) differs from plan-execute's fixed `steps`.
+  if (progress.type === AGENT_TOOL_STEP_PROGRESS_TYPE) {
+    return {
+      isAgent: true,
+      isToolStep: true,
+      messageFields: {
+        isAgentProgressContent: true,
+        messageData: buildToolStepMessageData(progress)
+      }
+    };
+  }
+
   const isAgentProgress = progress.type && progress.type.startsWith('agent_');
 
   if (isAgentProgress) {
@@ -141,6 +209,15 @@ const buildInitialProcessingMessage = data => {
 
   const initialProgress = data.initialProgress;
   const progressType = initialProgress?.type;
+
+  // Config-agent tool-loop feed (contract #2) — render the cumulative tool-step ribbon.
+  if (progressType === AGENT_TOOL_STEP_PROGRESS_TYPE) {
+    return {
+      ...base,
+      isAgentProgressContent: true,
+      messageData: buildToolStepMessageData(initialProgress)
+    };
+  }
 
   // Agent progress (type starts with 'agent_')
   if (progressType && progressType.startsWith('agent_')) {
@@ -299,11 +376,13 @@ const createAIMessage = (responseData, options = {}) => {
 
   const hasContextArtifacts = responseData.contextArtifacts?.length > 0;
   const hasActions = responseData.actions?.length > 0;
+  const hasPendingDeploy = !!responseData.pendingDeploy;
 
-  if (hasContextArtifacts || hasActions) {
+  if (hasContextArtifacts || hasActions || hasPendingDeploy) {
     defaultMessage.messageData = {
       ...(hasContextArtifacts && { contextArtifacts: responseData.contextArtifacts }),
-      ...(hasActions && { actions: responseData.actions })
+      ...(hasActions && { actions: responseData.actions }),
+      ...(hasPendingDeploy && { pendingDeploy: responseData.pendingDeploy })
     };
   }
 
@@ -354,6 +433,14 @@ const useUniversalChat = (options = {}) => {
   const fetchStatus = useCallback(async requestId => {
     const response = await fetch(`${API_ENDPOINTS.UNIVERSAL_STATUS}/${requestId}`);
     if (!response.ok) {
+      // Surface the backend's friendly error body (e.g. overload: { error, retryAfterSeconds })
+      // instead of a raw status, so the chat shows the human message, not "Error: 500".
+      const body = await response.json().catch(() => null);
+      if (body?.error) {
+        const err = new Error(body.error);
+        if (body.retryAfterSeconds != null) err.retryAfterSeconds = body.retryAfterSeconds;
+        throw err;
+      }
       throw new Error(`Error: ${response.status}`);
     }
     return response.json();
@@ -468,7 +555,7 @@ const useUniversalChat = (options = {}) => {
   // Handle polling progress
   const handlePollingProgress = useCallback(
     progress => {
-      const { isAgent, messageFields } = buildProgressMessageData(progress);
+      const { isAgent, isToolStep, messageFields } = buildProgressMessageData(progress);
 
       if (isAgent) {
         const progressType = progress.type;
@@ -498,6 +585,20 @@ const useUniversalChat = (options = {}) => {
       setMessages(prevMessages =>
         prevMessages.map(msg => {
           if (msg.isProcessing) {
+            // Tool-loop feed is cumulative: merge the incoming snapshot over the steps already on
+            // the message by `stepIndex`, so a step that completed between two polls isn't dropped.
+            if (isToolStep) {
+              return {
+                ...msg,
+                ...messageFields,
+                messageData: {
+                  ...messageFields.messageData,
+                  // Preserve a previously-stamped engine if a later poll omits it.
+                  domain: messageFields.messageData?.domain || msg.messageData?.domain,
+                  toolSteps: mergeToolSteps(msg.messageData?.toolSteps, progress.toolSteps)
+                }
+              };
+            }
             return { ...msg, ...messageFields };
           }
           return msg;
@@ -630,6 +731,19 @@ const useUniversalChat = (options = {}) => {
           };
         }
 
+        // COREDEV-323 FE-M5: script editing routes to the config agent (engine CONFIG) via
+        // agentRef instead of the removed forceIntent=SCRIPT_WRITING intent path. The config
+        // agent's editScript tool reads the editing.script context and returns the script_writing
+        // diff. An explicitly selected agent still wins for non-script turns; forceIntent is no
+        // longer sent for scripts (backend keys editing dispatch on editing.type). TEXT_EDITING
+        // stays operational and keeps sending forceIntent.
+        const isScriptEditing = forceIntent === AI_INTENTS.SCRIPT_WRITING;
+        const agentRefToSend = isScriptEditing
+          ? PLATFORM_CONFIG_AGENT_REF
+          : selectedAgent
+            ? buildAgentRef(selectedAgent.id)
+            : null;
+
         const requestData = {
           message: messageToProcess,
           conversationId: conversationId,
@@ -637,10 +751,10 @@ const useUniversalChat = (options = {}) => {
             workspace: getWorkspaceId(),
             selection: selectionData,
             content: contentData,
-            forceIntent: forceIntent,
+            ...(forceIntent && !isScriptEditing && { forceIntent }),
             ...(editing && { editing }),
             ...(autoContextArtifacts.length > 0 && { contextArtifacts: autoContextArtifacts }),
-            ...(selectedAgent && { agentRef: `emodel/ai-agent@${selectedAgent.id}` })
+            ...(agentRefToSend && { agentRef: agentRefToSend })
           }
         };
 
@@ -740,7 +854,7 @@ const useUniversalChat = (options = {}) => {
 
   // Handle action button click (plan approval, error recovery)
   const handleActionClick = useCallback(
-    async actionId => {
+    async (actionId, extra = {}) => {
       if (!conversationId) return;
 
       // Remember which pending file this action targets (null for non-file actions) so the result
@@ -756,7 +870,10 @@ const useUniversalChat = (options = {}) => {
           conversationId: conversationId,
           context: {
             workspace: getWorkspaceId()
-          }
+          },
+          // Deploy scope override (COREDEV-323 contract #3) is strictly optional — only the
+          // config-agent deploy_confirm action sends it; all other actions stay unchanged.
+          ...(extra && extra.deployScope && { deployScope: extra.deployScope })
         };
 
         const response = await fetch(API_ENDPOINTS.UNIVERSAL_ASYNC, {
@@ -777,12 +894,16 @@ const useUniversalChat = (options = {}) => {
         }
 
         // Remove actions only from the message whose action was clicked, so that other
-        // assistant messages keep their own Save/Cancel buttons live (e.g. with multiple
-        // pending images in chat, cancelling one must not disable the others).
+        // assistant messages keep their own buttons live (e.g. multiple pending images, or
+        // several deploy confirmations sharing the stable deploy_confirm/deploy_reject ids).
+        // Scope by the originating message id when the caller supplies it; fall back to the
+        // legacy actionId match for action sources that don't pass a message id.
+        const clickedMessageId = extra && extra.messageId;
         setMessages(prevMessages =>
-          prevMessages.map(msg =>
-            msg.messageData?.actions?.some(a => a.id === actionId) ? { ...msg, messageData: { ...msg.messageData, actions: null } } : msg
-          )
+          prevMessages.map(msg => {
+            const isClicked = clickedMessageId ? msg.id === clickedMessageId : msg.messageData?.actions?.some(a => a.id === actionId);
+            return isClicked ? { ...msg, messageData: { ...msg.messageData, actions: null } } : msg;
+          })
         );
 
         startPolling(requestId);
@@ -877,6 +998,8 @@ export {
   createAIMessage,
   buildProgressMessageData,
   buildInitialProcessingMessage,
+  buildToolStepMessageData,
+  mergeToolSteps,
   fileSaveActionTempRef,
   extractTempFileId,
   stripTempImageFromText
