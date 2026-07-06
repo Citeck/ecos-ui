@@ -52,8 +52,19 @@
         font-weight: 600;
 
         .choices__button {
+          // Replace the thin default choices.js cross with the bolder citeck one,
+          // drawn white via mask (the item background is the primary color)
           border-left: none;
-          background-size: 12px;
+          background-color: $color-white;
+          background-image: none;
+          -webkit-mask-image: $citeck-icon-close;
+          mask-image: $citeck-icon-close;
+          -webkit-mask-size: 12px;
+          mask-size: 12px;
+          -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+          -webkit-mask-position: center;
+          mask-position: center;
         }
       }
     }
@@ -108,6 +119,7 @@
 
           &:after {
             @include citeck-icon($citeck-icon-close, 14px);
+            // as rendered in SelectOrgstruct row actions (InputView.scss paints Close with gray-5)
             color: $color-gray-5;
           }
 
