@@ -1,5 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
 
+import editorContextService from '../EditorContextService';
 import useUniversalChat from '../hooks/useUniversalChat';
 
 // Mock dependencies
@@ -274,6 +275,69 @@ describe('useUniversalChat - selectedAgent', () => {
     expect(requestBody.context.agentRef).toBeUndefined();
   });
 
+  // FE-M5: script editing routes to the config agent via agentRef instead of forceIntent
+  it('handleSubmit routes script editing to the config agent via agentRef and omits forceIntent', async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: jest.fn().mockResolvedValue({ requestId: 'req-script' })
+    });
+    editorContextService.getContextData.mockReturnValue({
+      forceIntent: 'script_writing',
+      recordRef: 'rec-1',
+      scriptContextType: 'computed_attribute'
+    });
+    editorContextService.getHandler.mockReturnValue(() => 'var x = 1;');
+
+    const { result } = renderHook(() => useUniversalChat());
+
+    act(() => {
+      result.current.setMessage('optimize this');
+    });
+
+    await act(async () => {
+      await result.current.handleSubmit({ preventDefault: jest.fn() });
+    });
+
+    const requestBody = JSON.parse(global.fetch.mock.calls[0][1].body);
+    expect(requestBody.context.agentRef).toBe('emodel/ai-agent@platform-config-agent');
+    expect(requestBody.context.forceIntent).toBeUndefined();
+    expect(requestBody.context.editing.type).toBe('script');
+    expect(requestBody.context.editing.content).toBe('var x = 1;');
+
+    // restore default so the persisted return value does not leak into later tests
+    editorContextService.getContextData.mockReturnValue({});
+  });
+
+  it('handleSubmit keeps forceIntent (no config agentRef) for text editing', async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: jest.fn().mockResolvedValue({ requestId: 'req-text' })
+    });
+    editorContextService.getContextData.mockReturnValue({
+      forceIntent: 'text_editing',
+      recordRef: 'rec-1'
+    });
+    editorContextService.getHandler.mockReturnValue(() => 'hello');
+
+    const { result } = renderHook(() => useUniversalChat());
+
+    act(() => {
+      result.current.setMessage('rephrase');
+    });
+
+    await act(async () => {
+      await result.current.handleSubmit({ preventDefault: jest.fn() });
+    });
+
+    const requestBody = JSON.parse(global.fetch.mock.calls[0][1].body);
+    expect(requestBody.context.forceIntent).toBe('text_editing');
+    expect(requestBody.context.agentRef).toBeUndefined();
+    expect(requestBody.context.editing.type).toBe('text');
+
+    // restore default so the persisted return value does not leak into later tests
+    editorContextService.getContextData.mockReturnValue({});
+  });
+
   it('clearConversation does NOT reset selectedAgent', async () => {
     global.fetch = jest.fn().mockResolvedValue({ ok: true });
 
@@ -303,5 +367,80 @@ describe('useUniversalChat - selectedAgent', () => {
     });
 
     expect(result.current.agentStatus).toBeNull();
+  });
+});
+
+describe('useUniversalChat - handleActionClick deploy scope', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: jest.fn().mockResolvedValue({ requestId: 'req-deploy' })
+    });
+  });
+
+  it('deploy_confirm forwards deployScope in the request payload', async () => {
+    const { result } = renderHook(() => useUniversalChat());
+
+    await act(async () => {
+      await result.current.handleActionClick('deploy_confirm', {
+        deployScope: { kind: 'WORKSPACE', workspaceId: 'ws-7' }
+      });
+    });
+
+    const fetchCall = global.fetch.mock.calls[0];
+    const requestBody = JSON.parse(fetchCall[1].body);
+    expect(requestBody.action).toBe('deploy_confirm');
+    expect(requestBody.deployScope).toEqual({ kind: 'WORKSPACE', workspaceId: 'ws-7' });
+  });
+
+  it('omits deployScope for actions without an override (backward compatible)', async () => {
+    const { result } = renderHook(() => useUniversalChat());
+
+    await act(async () => {
+      await result.current.handleActionClick('deploy_reject');
+    });
+
+    const fetchCall = global.fetch.mock.calls[0];
+    const requestBody = JSON.parse(fetchCall[1].body);
+    expect(requestBody.action).toBe('deploy_reject');
+    expect(requestBody.deployScope).toBeUndefined();
+  });
+
+  it('omits deployScope for a legacy action invoked with no extra arg', async () => {
+    const { result } = renderHook(() => useUniversalChat());
+
+    await act(async () => {
+      await result.current.handleActionClick('main_content');
+    });
+
+    const fetchCall = global.fetch.mock.calls[0];
+    const requestBody = JSON.parse(fetchCall[1].body);
+    expect(requestBody.action).toBe('main_content');
+    expect(requestBody.deployScope).toBeUndefined();
+  });
+
+  it('clears actions only from the clicked message when ids are shared (scoped by messageId)', async () => {
+    const { result } = renderHook(() => useUniversalChat());
+
+    const deployActions = [{ id: 'deploy_confirm' }, { id: 'deploy_reject' }];
+    act(() => {
+      result.current.setMessages([
+        { id: 'deploy-a', messageData: { actions: deployActions, pendingDeploy: {} } },
+        { id: 'deploy-b', messageData: { actions: deployActions, pendingDeploy: {} } }
+      ]);
+    });
+
+    await act(async () => {
+      await result.current.handleActionClick('deploy_confirm', { messageId: 'deploy-b' });
+    });
+
+    const byId = Object.fromEntries(result.current.messages.filter(m => m.id).map(m => [m.id, m]));
+    expect(byId['deploy-a'].messageData.actions).toEqual(deployActions);
+    expect(byId['deploy-b'].messageData.actions).toBeNull();
+
+    // messageId is only a client-side routing hint; it must not leak into the request payload.
+    const requestBody = JSON.parse(global.fetch.mock.calls[0][1].body);
+    expect(requestBody.messageId).toBeUndefined();
   });
 });

@@ -386,6 +386,34 @@ describe('AgentSelector', () => {
     consoleSpy.mockRestore();
   });
 
+  it('retries the fetch on next open after a failed load', async () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    // First open fails, second open succeeds — a transient error must not cache the empty state.
+    global.fetch.mockRejectedValueOnce(new Error('Network error')).mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockAgents
+    });
+
+    const { container } = render(<ChatContextTags {...defaultProps} />);
+    const agentButton = container.querySelector('.ai-assistant-chat__context-tag--agent');
+
+    await act(async () => {
+      fireEvent.click(agentButton);
+    });
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+
+    // Close
+    fireEvent.click(agentButton);
+
+    // Second open re-fetches because the previous attempt failed
+    await act(async () => {
+      fireEvent.click(agentButton);
+    });
+    expect(global.fetch).toHaveBeenCalledTimes(2);
+    expect(screen.getByText('Бизнес-аналитик')).toBeTruthy();
+    consoleSpy.mockRestore();
+  });
+
   it('caches agents and does not re-fetch on second toggle', async () => {
     global.fetch.mockResolvedValueOnce({
       ok: true,
@@ -453,5 +481,55 @@ describe('AgentSelector', () => {
     });
 
     expect(screen.getByText('agent-no-name')).toBeTruthy();
+  });
+
+  describe('engine-aware rendering', () => {
+    const engineAgents = [
+      { id: 'op-agent', name: 'Operational agent', description: 'op', engine: 'TOOL_LOOP' },
+      { id: 'cfg-agent', name: 'Config agent', description: 'cfg', engine: 'CONFIG' },
+      { id: 'legacy-agent', name: 'Legacy agent', description: 'legacy' } // no engine field
+    ];
+
+    it('renders config icon (fa-cogs) for CONFIG agent and robot for operational/legacy', async () => {
+      global.fetch.mockResolvedValueOnce({ ok: true, json: async () => engineAgents });
+
+      const { container } = render(<ChatContextTags {...defaultProps} />);
+      await act(async () => {
+        fireEvent.click(container.querySelector('.ai-assistant-chat__context-tag--agent'));
+      });
+
+      // items[0] = Citeck AI, items[1..3] = the three agents
+      const items = container.querySelectorAll('.ai-assistant-chat__agent-dropdown-item');
+      expect(items[1].querySelector('.fa-robot')).toBeTruthy(); // operational
+      expect(items[2].querySelector('.fa-cogs')).toBeTruthy(); // config
+      expect(items[3].querySelector('.fa-robot')).toBeTruthy(); // legacy fallback
+    });
+
+    it('renders engine badge per agent (config vs operational) with fallback for missing engine', async () => {
+      global.fetch.mockResolvedValueOnce({ ok: true, json: async () => engineAgents });
+
+      const { container } = render(<ChatContextTags {...defaultProps} />);
+      await act(async () => {
+        fireEvent.click(container.querySelector('.ai-assistant-chat__context-tag--agent'));
+      });
+
+      // exactly one config badge for the single CONFIG agent
+      expect(container.querySelectorAll('.ai-assistant-chat__agent-engine-badge--config').length).toBe(1);
+      // operational badge for default "Citeck AI", operational agent and legacy fallback
+      expect(container.querySelectorAll('.ai-assistant-chat__agent-engine-badge--tool_loop').length).toBe(3);
+      expect(screen.getAllByText('ai-agent.engine.config').length).toBe(1);
+    });
+
+    it('shows config icon in the button when a CONFIG agent is selected', () => {
+      const { container } = render(<ChatContextTags {...defaultProps} selectedAgent={engineAgents[1]} />);
+      const agentTag = container.querySelector('.ai-assistant-chat__context-tag--agent');
+      expect(agentTag.querySelector('.fa-cogs')).toBeTruthy();
+    });
+
+    it('shows robot icon in the button when an agent without engine is selected (fallback)', () => {
+      const { container } = render(<ChatContextTags {...defaultProps} selectedAgent={engineAgents[2]} />);
+      const agentTag = container.querySelector('.ai-assistant-chat__context-tag--agent');
+      expect(agentTag.querySelector('.fa-robot')).toBeTruthy();
+    });
   });
 });

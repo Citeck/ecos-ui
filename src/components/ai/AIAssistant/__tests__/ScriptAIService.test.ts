@@ -39,7 +39,9 @@ describe('ScriptAIService', () => {
       await promise;
 
       const body = JSON.parse(fetchMock.mock.calls[0][1].body);
-      expect(body.context.forceIntent).toBe('script_writing');
+      // FE-M5: script generation routes to the config agent via agentRef, not forceIntent
+      expect(body.context.agentRef).toBe('emodel/ai-agent@platform-config-agent');
+      expect(body.context.forceIntent).toBeUndefined();
       expect(body.context.editing.type).toBe('script');
       expect(body.context.editing.content).toBe('var x = 1;');
       expect(body.context.editing.contextType).toBe('computed_attribute');

@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { AGENT_ENGINE, API_ENDPOINTS, PLATFORM_CONFIG_AGENT_ID, getAgentEngine } from '@/components/ai/AIAssistant/constants';
 import { t } from '@/helpers/export/util';
 
 const TAB_TYPES = {
@@ -18,17 +19,59 @@ const Capability = ({ titleKey, descKey }) => (
  * @param {Object} props
  * @param {string} props.activeTab - Currently active tab
  * @param {string} props.contextHint - Hint text for contextual tab
+ * @param {Function} [props.onSelectAgent] - Selects an agent (used by the "configure platform" shortcut)
  */
 const ChatWelcome = ({
   activeTab,
-  contextHint = ''
+  contextHint = '',
+  onSelectAgent
 }) => {
+  // Resolve the real config agent from /ai-agent/list (so its localized name shows in the selector),
+  // falling back to a minimal CONFIG-engine descriptor if the list is unavailable.
+  const handleConfigure = async () => {
+    let configAgent = { id: PLATFORM_CONFIG_AGENT_ID, name: t('ai-agent.engine.config'), engine: AGENT_ENGINE.CONFIG };
+    try {
+      const response = await fetch(API_ENDPOINTS.AGENT_LIST);
+      if (response.ok) {
+        const data = await response.json();
+        // Prefer the explicit config-agent id; only fall back to the first CONFIG-engine
+        // agent if that id is absent, so multiple config agents can't misroute the shortcut.
+        const found =
+          Array.isArray(data) &&
+          (data.find(agent => agent.id === PLATFORM_CONFIG_AGENT_ID) || data.find(agent => getAgentEngine(agent) === AGENT_ENGINE.CONFIG));
+        if (found) configAgent = found;
+      }
+    } catch (error) {
+      console.error('Error loading agents:', error);
+    }
+    onSelectAgent?.(configAgent);
+  };
+
   return (
     <div className="ai-assistant-chat__empty">
       <div className="ai-assistant-chat__welcome">
         <h4>{t('ai-assistant.welcome.title')}</h4>
         <p>{t('ai-assistant.welcome.subtitle')}</p>
       </div>
+
+      {activeTab === TAB_TYPES.UNIVERSAL && (
+        <div className="ai-assistant-chat__modes">
+          <div className="ai-assistant-chat__mode ai-assistant-chat__mode--operational">
+            <strong>{t('ai-assistant.welcome.operational.title')}</strong>
+            <p>{t('ai-assistant.welcome.operational.description')}</p>
+          </div>
+          <div className="ai-assistant-chat__mode ai-assistant-chat__mode--config">
+            <strong>{t('ai-assistant.welcome.config.title')}</strong>
+            <p>{t('ai-assistant.welcome.config.description')}</p>
+            {onSelectAgent && (
+              <button type="button" className="ai-assistant-chat__mode-action" onClick={handleConfigure}>
+                {t('ai-assistant.welcome.config.action')}
+              </button>
+            )}
+          </div>
+          <p className="ai-assistant-chat__modes-hint">{t('ai-assistant.welcome.modes.switch-hint')}</p>
+        </div>
+      )}
 
       {activeTab === TAB_TYPES.UNIVERSAL && (
         <div className="ai-assistant-chat__capabilities">

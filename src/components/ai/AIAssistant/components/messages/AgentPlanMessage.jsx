@@ -57,7 +57,7 @@ const AgentPlanMessage = ({ message, markdownComponents, onActionClick }) => {
         </div>
       )}
 
-      <MessageActions actions={messageData.actions} onActionClick={onActionClick} />
+      <MessageActions actions={messageData.actions} messageId={message.id} onActionClick={onActionClick} />
 
       {hint && !messageData.actions?.length && <div className="ai-assistant-chat__agent-hint">{hint}</div>}
     </div>

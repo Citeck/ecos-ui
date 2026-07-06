@@ -215,6 +215,63 @@ describe('usePolling', () => {
     expect(onResult).not.toHaveBeenCalled();
   });
 
+  it('gives up with onError after maxAttempts of continuous processing (watchdog)', async () => {
+    // A request stuck in "processing" forever (e.g. after a transient backend 500) must not hang
+    // the spinner indefinitely — the watchdog stops polling and surfaces a timeout error.
+    fetchStatus.mockResolvedValue({ status: 'processing' });
+    const { result } = renderPolling({ maxAttempts: 3 });
+
+    act(() => {
+      result.current.startPolling('req-1');
+    });
+
+    // 3 processing polls → watchdog trips on the 3rd
+    for (let i = 0; i < 3; i++) {
+      await act(async () => {
+        jest.advanceTimersByTime(1000);
+      });
+    }
+
+    expect(onError).toHaveBeenCalledTimes(1);
+    expect(result.current.isPolling).toBe(false);
+    expect(result.current.activeRequestId).toBeNull();
+
+    // No further polling after giving up
+    fetchStatus.mockClear();
+    await act(async () => {
+      jest.advanceTimersByTime(5000);
+    });
+    expect(fetchStatus).not.toHaveBeenCalled();
+  });
+
+  it('resets the attempt counter on a fresh startPolling', async () => {
+    fetchStatus.mockResolvedValue({ status: 'processing' });
+    const { result } = renderPolling({ maxAttempts: 3 });
+
+    act(() => {
+      result.current.startPolling('req-1');
+    });
+    // Two processing polls (below the cap)
+    for (let i = 0; i < 2; i++) {
+      await act(async () => {
+        jest.advanceTimersByTime(1000);
+      });
+    }
+    expect(onError).not.toHaveBeenCalled();
+
+    // Restart — counter must reset so the watchdog doesn't trip prematurely
+    act(() => {
+      result.current.startPolling('req-2');
+    });
+    for (let i = 0; i < 2; i++) {
+      await act(async () => {
+        jest.advanceTimersByTime(1000);
+      });
+    }
+    expect(onError).not.toHaveBeenCalled();
+    expect(result.current.isPolling).toBe(true);
+  });
+
   it('cleans up timer on unmount', () => {
     fetchStatus.mockResolvedValue({ status: 'processing' });
     const { result, unmount } = renderPolling();

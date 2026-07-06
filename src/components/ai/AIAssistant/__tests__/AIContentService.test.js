@@ -62,6 +62,31 @@ describe('AIContentService', () => {
         expect(result.explanation).toBe('Better');
         expect(result.contentType).toBe(CONTENT_TYPES.TEXT);
       });
+
+      // COREDEV-323 FE alignment: editing.contentType must carry the content FORMAT (text/html/code),
+      // not the field's semantic context type. Sending contextType ('description', …) here was a
+      // contract drift that broke backend TextEditingContext parsing.
+      it('sends content format, not the semantic context type, as editing.contentType', async () => {
+        fetchMock.mockResponseOnce(JSON.stringify({ requestId: 'req-1' }));
+        fetchMock.mockResponseOnce(
+          JSON.stringify({ result: { message: { type: MESSAGE_TYPES.TEXT_EDITING, generatedText: 'x' } } })
+        );
+
+        const promise = generateContent({
+          currentContent: 'Hello',
+          contentType: CONTENT_TYPES.HTML,
+          contextType: 'description',
+          quickAction: 'fix-grammar'
+        });
+        await jest.advanceTimersByTimeAsync(0);
+        await promise;
+
+        const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+        expect(body.context.editing.contentType).toBe(CONTENT_TYPES.HTML);
+        expect(body.context.editing.contentType).not.toBe('description');
+        // Quick-action id is sent in the backend's canonical hyphenated form.
+        expect(body.context.editing.quickAction).toBe('fix-grammar');
+      });
     });
 
     describe('code content', () => {
@@ -88,7 +113,9 @@ describe('AIContentService', () => {
         const result = await promise;
 
         const body = JSON.parse(fetchMock.mock.calls[0][1].body);
-        expect(body.context.forceIntent).toBe('script_writing');
+        // FE-M5: code/script generation routes to the config agent via agentRef, not forceIntent
+        expect(body.context.agentRef).toBe('emodel/ai-agent@platform-config-agent');
+        expect(body.context.forceIntent).toBeUndefined();
         expect(body.context.editing.type).toBe('script');
         expect(result.generated).toBe('const x = 1;');
         expect(result.contentType).toBe(CONTENT_TYPES.CODE);

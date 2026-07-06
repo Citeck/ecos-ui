@@ -7,5 +7,7 @@ export { default as ScriptDiffMessage } from './ScriptDiffMessage';
 export { default as BusinessAppMessage } from './BusinessAppMessage';
 export { default as AgentPlanMessage } from './AgentPlanMessage';
 export { default as AgentProgressMessage } from './AgentProgressMessage';
+export { default as ToolStepProgress } from './ToolStepProgress';
 export { default as ArtifactsList } from './ArtifactsList';
 export { default as ContextArtifactsList } from './ContextArtifactsList';
+export { default as DeployConfirmation } from './DeployConfirmation';

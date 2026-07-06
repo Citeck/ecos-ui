@@ -1,6 +1,10 @@
 import classNames from 'classnames';
 import React from 'react';
 
+import { AGENT_TOOL_STEP_PROGRESS_TYPE } from '../../constants';
+
+import ToolStepProgress from './ToolStepProgress';
+
 import { Icon } from '@/components/common';
 import { t } from '@/helpers/export/util';
 
@@ -53,6 +57,11 @@ const AgentProgressMessage = ({ message }) => {
   if (!messageData) return null;
 
   const progressType = messageData.type;
+
+  // Config-agent tool-loop feed (contract #2) — cumulative tool-step ribbon
+  if (progressType === AGENT_TOOL_STEP_PROGRESS_TYPE) {
+    return <ToolStepProgress message={message} />;
+  }
 
   // Planning state - show spinner
   if (progressType === 'agent_planning') {

@@ -156,7 +156,17 @@ const AIAssistantChat = () => {
   // Markdown components - memoized
   const markdownComponents = useMemo(
     () => ({
-      a: ({ node, ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" />,
+      a: ({ node, ...props }) => {
+        const href = props.href || '';
+        // Journal "link to selection": render a plain in-app SPA anchor (no target=_blank / no ignore
+        // attr) so PageTabs' click handler intercepts it, reuses the existing journal tab and pushes the
+        // new URL. The journal View then re-applies the userConfig on the userConfigId change. Other chat
+        // links keep opening in a new browser tab.
+        if (/\/v2\/journals\?/.test(href) && href.includes('userConfigId')) {
+          return <a {...props} />;
+        }
+        return <a {...props} target="_blank" rel="noopener noreferrer" />;
+      },
       // Safety net for dead previews: a temp-file image URL 500s once its backing file is gone
       // (saved, cancelled, or expired by the 30-min sweep). The chat hook proactively strips the
       // preview it knows about, but this hides any broken image regardless of cause so the user
@@ -596,6 +606,7 @@ const AIAssistantChat = () => {
                 activeRequestId={currentChat.activeRequestId}
                 messagesEndRef={messagesEndRef}
                 onActionClick={currentChat.handleActionClick}
+                onSelectAgent={activeTab === TAB_TYPES.UNIVERSAL ? universalChatHook.setSelectedAgent : undefined}
               />
             </div>
 

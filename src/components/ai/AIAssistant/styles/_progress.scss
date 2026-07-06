@@ -355,4 +355,55 @@
       color: var(--primary-color, #007bff);
     }
   }
+
+  // Config-agent tool-loop ribbon (COREDEV-323 contract #2 — agent_tool_step)
+  &__tool-loop {
+    @include card-base;
+    padding: 12px 16px;
+    margin: 8px 0;
+  }
+
+  &__tool-loop-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  &__tool-steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__tool-step {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    &.tool-step--running .fa {
+      color: var(--primary-color, #007bff);
+    }
+
+    &.tool-step--done .fa {
+      color: var(--success-color, #28a745);
+    }
+
+    &.tool-step--error .fa {
+      color: var(--danger-color, #dc3545);
+    }
+  }
+
+  &__tool-step-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__tool-step-detail {
+    margin-left: 24px;
+    font-size: 12px;
+    color: var(--text-secondary, #6c757d);
+  }
 }

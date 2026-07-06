@@ -6,7 +6,7 @@
 
 import uuidV4 from 'uuidv4';
 
-import { AI_INTENTS, MESSAGE_TYPES, API_ENDPOINTS, POLLING_INTERVAL, CONTENT_TYPES } from './constants';
+import { AI_INTENTS, MESSAGE_TYPES, API_ENDPOINTS, POLLING_INTERVAL, CONTENT_TYPES, PLATFORM_CONFIG_AGENT_REF } from './constants';
 
 import { t } from '@/helpers/export/util';
 import { getWorkspaceId } from '@/helpers/urls';
@@ -23,7 +23,8 @@ export const QUICK_ACTIONS = {
   IMPROVE: 'improve',
   EXPAND: 'expand',
   SUMMARIZE: 'summarize',
-  FIX_GRAMMAR: 'fix_grammar',
+  // Hyphen matches the backend canonical key (TextQuickActionsProvider); COREDEV-323 FE alignment.
+  FIX_GRAMMAR: 'fix-grammar',
   TRANSLATE: 'translate',
   SIMPLIFY: 'simplify',
   FORMALIZE: 'formalize',
@@ -97,7 +98,7 @@ export const generateContent = async ({
   // Build request data based on content type
   const requestData = isCodeContent
     ? buildCodeRequest({ prompt, quickAction, currentContent, contextType, recordRef, ecosType, processRef, conversationId })
-    : buildTextRequest({ prompt, quickAction, currentContent, contextType, fieldLabel, recordRef, conversationId });
+    : buildTextRequest({ prompt, quickAction, currentContent, contentType, fieldLabel, recordRef, conversationId });
 
   // Send initial request
   let response;
@@ -138,7 +139,7 @@ export const generateContent = async ({
 /**
  * Build request data for text content
  */
-const buildTextRequest = ({ prompt, quickAction, currentContent, contextType, fieldLabel, recordRef, conversationId }) => {
+const buildTextRequest = ({ prompt, quickAction, currentContent, contentType, fieldLabel, recordRef, conversationId }) => {
   return {
     message: prompt || '',
     conversationId: conversationId || uuidV4(),
@@ -159,7 +160,10 @@ const buildTextRequest = ({ prompt, quickAction, currentContent, contextType, fi
         content: currentContent || '',
         selectedContent: '',
         recordRef: recordRef || '',
-        contentType: contextType || CONTENT_TYPES.TEXT,
+        // Content FORMAT (text/html/code) expected by the backend TextEditingContext — not the
+        // field's semantic context type. Sending contextType here ('description', 'documentation', …)
+        // was a contract drift that broke parsing (COREDEV-323 FE alignment).
+        contentType: contentType || CONTENT_TYPES.TEXT,
         fieldType: fieldLabel || ''
       }
     }
@@ -175,7 +179,9 @@ const buildCodeRequest = ({ prompt, quickAction, currentContent, contextType, re
     conversationId: conversationId || uuidV4(),
     context: {
       workspace: getWorkspaceId(),
-      forceIntent: AI_INTENTS.SCRIPT_WRITING,
+      // COREDEV-323 FE-M5: script editing routes to the config agent via agentRef
+      // (replaces forceIntent=SCRIPT_WRITING); the editScript tool returns the same diff.
+      agentRef: PLATFORM_CONFIG_AGENT_REF,
       selection: {
         records: [],
         attributes: [],

@@ -9,6 +9,7 @@ import AgentPlanMessage from './AgentPlanMessage';
 import AgentProgressMessage from './AgentProgressMessage';
 import BusinessAppMessage from './BusinessAppMessage';
 import ContextArtifactsList from './ContextArtifactsList';
+import DeployConfirmation from './DeployConfirmation';
 import EmailMessage from './EmailMessage';
 import MessageActions from './MessageActions';
 import ScriptDiffMessage from './ScriptDiffMessage';
@@ -94,6 +95,11 @@ const MessageItem = ({
       return <BusinessAppMessage message={message} markdownComponents={markdownComponents} />;
     }
 
+    // Config-agent HITL deploy confirmation (pendingDeploy in result, COREDEV-323 contract #3)
+    if (message.messageData?.pendingDeploy) {
+      return <DeployConfirmation message={message} markdownComponents={markdownComponents} onActionClick={onActionClick} />;
+    }
+
     // Default markdown message
     return (
       <>
@@ -101,7 +107,9 @@ const MessageItem = ({
           {message.text}
         </Markdown>
         {message.messageData?.contextArtifacts && <ContextArtifactsList contextArtifacts={message.messageData.contextArtifacts} />}
-        {message.messageData?.actions && <MessageActions actions={message.messageData.actions} onActionClick={onActionClick} />}
+        {message.messageData?.actions && (
+          <MessageActions actions={message.messageData.actions} messageId={message.id} onActionClick={onActionClick} />
+        )}
       </>
     );
   };
@@ -117,7 +125,8 @@ const MessageItem = ({
         'ai-assistant-chat__message--script-diff': message.isScriptDiffContent,
         'ai-assistant-chat__message--business-app': message.isBusinessAppContent,
         'ai-assistant-chat__message--agent-plan': message.isAgentPlanContent,
-        'ai-assistant-chat__message--agent-progress': message.isAgentProgressContent
+        'ai-assistant-chat__message--agent-progress': message.isAgentProgressContent,
+        'ai-assistant-chat__message--deploy-confirm': !!message.messageData?.pendingDeploy
       })}
     >
       <div className="ai-assistant-chat__message-content">{renderContent()}</div>

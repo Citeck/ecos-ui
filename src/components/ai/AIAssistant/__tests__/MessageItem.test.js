@@ -46,6 +46,12 @@ jest.mock('../components/messages/ContextArtifactsList', () => {
   };
 });
 
+jest.mock('../components/messages/DeployConfirmation', () => {
+  return function MockDeployConfirmation() {
+    return <div data-testid="deploy-confirmation">DeployConfirmation</div>;
+  };
+});
+
 jest.mock('@/components/common', () => ({
   Icon: ({ className }) => <i className={className} data-testid="icon" />
 }));
@@ -183,6 +189,34 @@ describe('MessageItem', () => {
     render(<MessageItem {...defaultProps} />);
     expect(screen.getByText('Hello')).toBeTruthy();
     expect(screen.queryByTestId('context-artifacts-list')).toBeNull();
+  });
+
+  it('routes to DeployConfirmation when messageData has pendingDeploy', () => {
+    const message = {
+      ...defaultProps.message,
+      messageData: {
+        pendingDeploy: {
+          artifactType: 'FORM',
+          targetScope: { kind: 'GLOBAL', label: 'Будет создано глобально' },
+          changeable: false
+        }
+      }
+    };
+
+    render(<MessageItem {...defaultProps} message={message} />);
+    expect(screen.getByTestId('deploy-confirmation')).toBeTruthy();
+  });
+
+  it('applies deploy-confirm CSS class when pendingDeploy is present', () => {
+    const message = {
+      ...defaultProps.message,
+      messageData: {
+        pendingDeploy: { artifactType: 'FORM', targetScope: { kind: 'GLOBAL', label: 'x' }, changeable: false }
+      }
+    };
+
+    const { container } = render(<MessageItem {...defaultProps} message={message} />);
+    expect(container.firstChild.classList.contains('ai-assistant-chat__message--deploy-confirm')).toBe(true);
   });
 
   it('routes to ScriptDiffMessage when isScriptDiffContent is true', () => {

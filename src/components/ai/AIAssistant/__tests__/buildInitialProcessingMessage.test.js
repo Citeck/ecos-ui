@@ -1,5 +1,5 @@
 import { buildInitialProcessingMessage } from '../hooks/useUniversalChat';
-import { MESSAGE_TYPES } from '@/components/ai/AIAssistant/constants';
+import { AGENT_TOOL_STEP_PROGRESS_TYPE, MESSAGE_TYPES } from '@/components/ai/AIAssistant/constants';
 
 jest.mock('../utils', () => ({
   generateUUID: jest.fn(() => 'test-uuid')
@@ -67,6 +67,51 @@ describe('buildInitialProcessingMessage', () => {
       expect(result.isAgentProgressContent).toBe(true);
       expect(result.messageData.type).toBe('agent_planning');
       expect(result.messageData.message).toBeUndefined();
+    });
+  });
+
+  describe('config-agent tool-loop progress (agent_tool_step)', () => {
+    it('builds a tool-step ribbon snapshot from initialProgress.toolSteps', () => {
+      const data = {
+        initialProgress: {
+          type: AGENT_TOOL_STEP_PROGRESS_TYPE,
+          tool: 'search',
+          label: 'Searching',
+          status: 'RUNNING',
+          stepIndex: 1,
+          totalHint: 4,
+          toolSteps: [
+            { tool: 'search', label: 'Searching', status: 'RUNNING', stepIndex: 1 },
+            { tool: 'plan', label: 'Planning', status: 'DONE', stepIndex: 0 }
+          ]
+        }
+      };
+
+      const result = buildInitialProcessingMessage(data);
+
+      expect(result.isProcessing).toBe(true);
+      expect(result.isAgentProgressContent).toBe(true);
+      expect(result.messageData.type).toBe(AGENT_TOOL_STEP_PROGRESS_TYPE);
+      expect(result.messageData.totalHint).toBe(4);
+      // toolSteps merged and sorted by stepIndex
+      expect(result.messageData.toolSteps.map(s => s.stepIndex)).toEqual([0, 1]);
+      expect(result).not.toHaveProperty('text');
+    });
+
+    it('defaults toolSteps to an empty array when the snapshot omits them', () => {
+      const data = {
+        initialProgress: {
+          type: AGENT_TOOL_STEP_PROGRESS_TYPE,
+          tool: 'search',
+          status: 'RUNNING',
+          stepIndex: 0
+        }
+      };
+
+      const result = buildInitialProcessingMessage(data);
+
+      expect(result.isAgentProgressContent).toBe(true);
+      expect(result.messageData.toolSteps).toEqual([]);
     });
   });
 
