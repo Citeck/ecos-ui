@@ -51,7 +51,7 @@
     $info: &;
 
     &__head {
-      margin-bottom: 14px;
+      margin-bottom: 4px;
       display: flex;
       justify-content: space-between;
 
@@ -70,7 +70,7 @@
     }
 
     &__fields {
-      padding: 0 20px 10px;
+      padding: 0 12px 8px;
       color: $text-color-dark;
 
       &-item {
