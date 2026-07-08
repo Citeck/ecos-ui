@@ -1,7 +1,7 @@
 @import '@/styles/constants';
 
 %h-indents {
-  padding: 0 20px;
+  padding: 0;
 }
 
 .ecos-task {
@@ -40,6 +40,7 @@
 
     &__title {
       justify-content: space-between;
+      margin-bottom: 0px;
 
       &-text {
         @extend %ellipsis;
@@ -105,7 +106,7 @@
     &__eform {
       @extend %h-indents;
 
-      padding-bottom: 8px;
+      padding: 0 12px;
 
       // The comment textarea rows come from the server-side form definition —
       // cap the default height here (10.1)
