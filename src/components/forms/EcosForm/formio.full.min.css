@@ -787,7 +787,8 @@ dialog + .backdrop {
 .choices:last-child,
 .formio-choices.form-group,
 .formio-component .table,
-.formio-component .form-group.formio-component-button,
+.formio-component .form-group.formio-component-submit,
+.formio-component .form-group.formio-component-submit2,
 .panel-body .drag-and-drop-alert,
 td > .form-group {
   margin-bottom: 0;

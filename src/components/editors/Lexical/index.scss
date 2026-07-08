@@ -1352,9 +1352,22 @@
 
   & > ul li.item {
     display: inline-flex;
-    gap: 10px;
+    gap: 8px;
     width: 100%;
     align-items: center;
+    font-size: 13px;
+    padding: 6px 8px;
+
+    .ecos-avatar {
+      width: 24px;
+      height: 24px;
+      min-width: 24px;
+      font-size: 10px; // initials fallback
+    }
+
+    .text {
+      font-size: 13px;
+    }
   }
 }
 
