@@ -1,13 +1,30 @@
 import CAPIWS from '../utils/capiws';
 import { NotificationManager } from 'react-notifications';
 import { t } from '../helpers/export/util';
+import { AppApi } from './app';
 
-const API_KEYS = [
-  'localhost',
-  '96D0C1491615C82B9A54D9989779DF825B690748224C2B04F500F370D51827CE2644D8D4A82C18184D73AB8530BB8ED537269603F61DB0D03D2104ABF789970B',
-  '127.0.0.1',
-  'A7BCFA5D490B351BE0754130DF03A068F855DB4333D43921125B9CF2670EF6A40370C646B90401955E1F7BC9CDBF59CE0B2C5467D820BE189C845D0B79CFC96F'
-];
+const appApi = new AppApi();
+
+const parseApiKeysConfig = configValue => {
+  return (configValue || '')
+    .split(',')
+    .map(item => item.trim())
+    .filter(Boolean);
+};
+
+let apiKeysPromise = null;
+
+const loadApiKeys = () => {
+  if (!apiKeysPromise) {
+    apiKeysPromise = appApi.getEcosConfig('eimzoApiKey').then(parseApiKeysConfig);
+
+    apiKeysPromise.catch(() => {
+      apiKeysPromise = null;
+    });
+  }
+
+  return apiKeysPromise;
+};
 
 class EimzoEsignApi {
   hasActiveEimzo = () => {
@@ -16,10 +33,12 @@ class EimzoEsignApi {
     });
   };
 
-  registerApiKey = () => {
+  registerApiKey = async () => {
+    const apiKeys = await loadApiKeys();
+
     return new Promise((resolve, reject) => {
       CAPIWS.apikey(
-        API_KEYS,
+        apiKeys,
         (event, data) => {
           if (data.success) {
             resolve();
