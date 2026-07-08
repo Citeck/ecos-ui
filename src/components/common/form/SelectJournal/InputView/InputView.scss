@@ -220,7 +220,8 @@
   .ecos-btn_blue {
     flex: auto;
     width: 6rem;
-    height: 24px;
+    height: 25px;
+    margin: 0;
     max-width: 7rem;
   }
 
@@ -271,7 +272,6 @@
 
 .select-journal__input-view_compact {
   display: flex;
-  line-height: 26px;
   max-width: 350px;
 }
 

@@ -168,14 +168,16 @@ $positions: (
                 line-height: 100%;
                 margin-left: 4px;
                 top: 1px;
-                color: white;
+                // primary X to match the checked-state mark (box is an outline, not a fill)
+                color: var(--primary-color);
 
                 position: absolute;
                 left: -0.5px;
               }
 
               &:after {
-                @include citeck-icon($citeck-icon-checkbox-dark, 22px);
+                // outlined primary box, same as the checked state (was a solid fill)
+                @include citeck-icon($citeck-icon-checkbox, 22px);
                 color: var(--primary-color);
                 position: absolute;
                 top: 0;
@@ -234,19 +236,21 @@ $positions: (
                 }
 
                 &-top {
-                  top: -3px;
+                  // no state-only vertical offset — it shifted the box on check↔cross toggle
                   padding-bottom: 31px;
 
+                  // center each pseudo by its own icon width — `1em` resolves to the
+                  // inherited font-size (~13px), not the mask width, so it mis-centered
                   &:before {
                     margin: 0;
-                    top: 28px;
-                    left: calc(50% - 1em / 2);
+                    top: 30px;
+                    left: calc(50% - 8px); // cross icon is 16px wide
                   }
 
                   &:after {
                     margin: 0;
-                    top: 28px;
-                    left: calc(50% - 1em / 2);
+                    top: 30px;
+                    left: calc(50% - 11px); // checkbox box is 22px wide
                   }
                 }
               }
@@ -260,7 +264,7 @@ $positions: (
               }
 
               &:before {
-                color: white !important;
+                color: var(--primary-color) !important;
               }
             }
           }
@@ -333,7 +337,8 @@ $positions: (
 
             &:before {
               @extend %checkbox;
-              color: white;
+              // primary X (box is an outline, not a fill) — matches the checked state
+              color: var(--primary-color);
               @include citeck-icon-change($citeck-icon-close);
               width: 16px;
               height: 16px;
@@ -346,9 +351,9 @@ $positions: (
             }
 
             &:after {
+              // outlined primary box (via %checkbox) — no solid-fill override
               @extend %checkbox;
               color: var(--primary-color);
-              @include citeck-icon-change($citeck-icon-checkbox-dark);
               top: 0 !important;
               right: unset !important;
               left: 0 !important;

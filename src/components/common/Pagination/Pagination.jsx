@@ -2,11 +2,11 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 
-import { PAGINATION_SIZES } from '@/components/journals/Journals/constants';
 import { IcoBtn } from '../../common/btns';
 import ChevronLeft from '../icons/FillChevronLeft';
 import ChevronRight from '../icons/FillChevronRight';
 
+import { PAGINATION_SIZES } from '@/components/journals/Journals/constants';
 import { t } from '@/helpers/util';
 
 import './Pagination.scss';
@@ -152,7 +152,7 @@ export default class Pagination extends Component {
               disabled={page <= 1}
               onClick={this.handleClickPrev}
             >
-              <ChevronLeft width={19} height={19} />
+              <ChevronLeft width={22} height={22} />
             </IcoBtn>
             <IcoBtn
               className={classNames(
@@ -162,7 +162,7 @@ export default class Pagination extends Component {
               disabled={page >= this.maxPage}
               onClick={this.handleClickNext}
             >
-              <ChevronRight width={19} height={19} />
+              <ChevronRight width={22} height={22} />
             </IcoBtn>
           </>
         )}

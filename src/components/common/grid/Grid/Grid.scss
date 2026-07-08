@@ -408,6 +408,7 @@ $header-height: 34px;
 
       &:nth-child(n) {
         position: sticky;
+        top: -2px;
         z-index: 25;
         background: $color-white;
       }
@@ -427,7 +428,9 @@ $header-height: 34px;
   top: 0;
   width: 100%;
   height: $header-height;
-  background: inherit;
+  // opaque mask for the header band on scroll — `inherit` was transparent, so
+  // rows bled through the strip not covered by the (white) header cells
+  background: $color-white;
 
   &::before {
     @extend %shadow-h-line;
