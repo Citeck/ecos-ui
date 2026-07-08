@@ -86,10 +86,20 @@ $positions: (
         padding-right: 30px;
       }
 
+      // Position-top box is absolutely pinned to the bottom-center of the label span in
+      // EVERY state (empty / check / cross), with reserved space below the text — so the
+      // box never moves or reflows when the value toggles.
+      &_top .form-check-text {
+        padding-bottom: 32px;
+      }
+
       &_top .form-check-text::#{map-get($positions, 'top')} {
-        position: initial;
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        margin: 0;
         display: block;
-        margin-top: 10px;
       }
 
       &_bottom .form-check-text::#{map-get($positions, 'bottom')} {
@@ -168,16 +178,16 @@ $positions: (
                 line-height: 100%;
                 margin-left: 4px;
                 top: 1px;
-                // primary X to match the checked-state mark (box is an outline, not a fill)
-                color: var(--primary-color);
+                // white X on the solid box — mirrors the white check of the checked state
+                color: white;
 
                 position: absolute;
                 left: -0.5px;
               }
 
               &:after {
-                // outlined primary box, same as the checked state (was a solid fill)
-                @include citeck-icon($citeck-icon-checkbox, 22px);
+                // solid primary box, same fill as the checked state
+                @include citeck-icon($citeck-icon-checkbox-dark, 22px);
                 color: var(--primary-color);
                 position: absolute;
                 top: 0;
@@ -236,21 +246,26 @@ $positions: (
                 }
 
                 &-top {
-                  // no state-only vertical offset — it shifted the box on check↔cross toggle
-                  padding-bottom: 31px;
-
-                  // center each pseudo by its own icon width — `1em` resolves to the
-                  // inherited font-size (~13px), not the mask width, so it mis-centered
-                  &:before {
+                  // Box pinned to the same bottom-center as the check/empty states (see the
+                  // general `_top .form-check-text::after` rule) — identical placement in every
+                  // state, so nothing moves on toggle.
+                  &:after {
+                    position: absolute;
+                    bottom: 0;
+                    top: unset;
+                    left: 50%;
                     margin: 0;
-                    top: 30px;
-                    left: calc(50% - 8px); // cross icon is 16px wide
+                    transform: translateX(-50%);
                   }
 
-                  &:after {
+                  // X centered over that box: 22px box − 16px X → 3px inset from the bottom.
+                  &:before {
+                    position: absolute;
+                    bottom: 3px;
+                    top: unset;
+                    left: 50%;
                     margin: 0;
-                    top: 30px;
-                    left: calc(50% - 11px); // checkbox box is 22px wide
+                    transform: translateX(-50%);
                   }
                 }
               }
@@ -264,7 +279,7 @@ $positions: (
               }
 
               &:before {
-                color: var(--primary-color) !important;
+                color: white !important;
               }
             }
           }
@@ -337,8 +352,8 @@ $positions: (
 
             &:before {
               @extend %checkbox;
-              // primary X (box is an outline, not a fill) — matches the checked state
-              color: var(--primary-color);
+              // white X on the solid box — mirrors the white check of the checked state
+              color: white;
               @include citeck-icon-change($citeck-icon-close);
               width: 16px;
               height: 16px;
@@ -351,9 +366,10 @@ $positions: (
             }
 
             &:after {
-              // outlined primary box (via %checkbox) — no solid-fill override
+              // solid primary box, same fill as the checked state
               @extend %checkbox;
               color: var(--primary-color);
+              @include citeck-icon-change($citeck-icon-checkbox-dark);
               top: 0 !important;
               right: unset !important;
               left: 0 !important;
