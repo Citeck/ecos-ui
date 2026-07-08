@@ -169,7 +169,7 @@ class Comments extends BaseWidget {
           id={tooltipId}
           key="comments-add"
           icon="icon-small-plus"
-          className="ecos-btn_i ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue ecos-comments__add-btn"
+          className="ecos-btn_i ecos-btn_i_plus-lg ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue ecos-comments__add-btn"
           onClick={this.handleShowEditor}
         />
       </Tooltip>

@@ -104,6 +104,13 @@ button {
     border-radius: $border-radius-standard;
   }
 
+  // enlarged "+" for widget add buttons (Comments, Activities)
+  &.ecos-btn_i_plus-lg {
+    .ecos-btn__i {
+      font-size: 20px;
+    }
+  }
+
   &.ecos-btn_mi {
     font-size: $font-size-extra-large;
     width: auto;

@@ -3,10 +3,13 @@
 .ecos-doclib__settings-bar {
   $root: &;
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  row-gap: 10px;
   position: relative;
   width: 100%;
   margin-bottom: 12px;
-  height: 40px;
+  min-height: 40px;
 
   .ecos-btn.ecos-doclib__add-record {
     font-size: $font-size-xxl;
@@ -24,6 +27,16 @@
 
   &-search {
     border: 1px solid $color-gray-4;
+    // match the 40px control height so the toolbar row doesn't jump
+    height: 40px;
+  }
+
+  // fixed, moderate search width (don't fill the whole bar); shrinks before wrap.
+  // skip on mobile where the search is collapsed to an icon.
+  &:not(#{$root}_mobile) #{$root}-search {
+    flex: 0 1 auto;
+    width: 260px;
+    min-width: 120px;
   }
 
   &_mobile &-search {
@@ -54,7 +67,9 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  flex: auto;
+  flex: 0 0 auto;
+  // pinned right; drops to its own right-aligned row when the bar wraps
+  margin-left: auto;
 }
 
 .ecos-doclib__settings-bar_right-btn {

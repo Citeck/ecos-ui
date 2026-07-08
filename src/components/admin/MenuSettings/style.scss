@@ -377,7 +377,7 @@
       flex: 1;
 
       &:last-child {
-        margin-left: 25px;
+        margin-left: 10px;
       }
     }
   }
@@ -392,7 +392,12 @@
 
 .ecos-field-col {
   & + & {
-    margin-top: 20px;
+    margin-top: 8px;
+  }
+
+  // consecutive checkbox-only fields sit tight, not 20px apart
+  &_checkbox + &_checkbox {
+    margin-top: 8px;
   }
 
   &__title {

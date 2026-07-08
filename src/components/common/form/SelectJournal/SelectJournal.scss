@@ -74,6 +74,7 @@
 
   margin-top: 15px;
   display: flex;
+  align-items: center;
 
   &-space {
     flex: auto;
@@ -113,6 +114,7 @@
 
 .select-journal-collapse-panel__controls {
   display: flex;
+  align-items: center;
   justify-content: space-between;
 
   .ecos-modal_mobile & {
@@ -123,6 +125,7 @@
 
 .select-journal-collapse-panel__controls-left {
   display: flex;
+  align-items: center;
 
   button {
     margin-right: 15px;
@@ -154,7 +157,19 @@
 
   .ecos-th {
     height: auto;
-    padding: 12px 17px;
+    padding: 6px 10px;
+    font-size: $font-size-small;
+  }
+
+  // compact rows
+  .ecos-grid__table.table td {
+    height: 30px;
+  }
+
+  // selection checkbox was tiny (15px) in this large table
+  .ecos-grid__checkbox .ecos-checkbox__icon svg {
+    width: 18px;
+    height: 18px;
   }
 
   .ecos-th__divider {

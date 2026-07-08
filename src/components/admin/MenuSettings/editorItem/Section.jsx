@@ -116,14 +116,14 @@ export default class Section extends Base {
           <MLText onChange={this.setLabel} value={label} disabled={hiddenLabel} />
         </Field>
         {hideableLabel && (
-          <Field>
+          <Field className="ecos-field-col_checkbox">
             <Checkbox checked={hiddenLabel} onChange={this.setHiddenLabel} className="ecos-checkbox_flex">
               {t(Labels.FIELD_HIDE_NAME_LABEL)}
             </Checkbox>
           </Field>
         )}
         {collapsable && (
-          <Field>
+          <Field className="ecos-field-col_checkbox">
             <Checkbox checked={collapsed} onChange={this.setCollapsed} className="ecos-checkbox_flex">
               {t(Labels.FIELD_COLLAPSED)}
             </Checkbox>

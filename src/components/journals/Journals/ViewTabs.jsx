@@ -6,14 +6,13 @@ import uniqueId from 'lodash/uniqueId';
 import React from 'react';
 import { connect } from 'react-redux';
 
+import { isDocLib, isHierarchy, isKanban, isKanbanOrDocLib, isPreviewList, isTable, JOURNAL_VIEW_MODE as JVM, Labels } from './constants';
+
+import { toggleViewMode } from '@/actions/journals';
 import { Tooltip } from '@/components/common';
 import { IcoBtn } from '@/components/common/btns';
 import HierarchyTree from '@/components/common/icons/HierarchyTree';
 import PreviewList from '@/components/common/icons/PreviewList';
-
-import { isDocLib, isHierarchy, isKanban, isKanbanOrDocLib, isPreviewList, isTable, JOURNAL_VIEW_MODE as JVM, Labels } from './constants';
-
-import { toggleViewMode } from '@/actions/journals';
 import WidgetsPreview from '@/components/common/icons/WidgetsPreview';
 import { wrapArgs } from '@/helpers/redux';
 import { updateCurrentUrl } from '@/helpers/urls';
@@ -183,7 +182,7 @@ class ViewTabs extends React.Component {
               })}
               onClick={() => this.onToggleViewWidgets(!isViewWidgetsPreview)}
             >
-              <WidgetsPreview width={18} height={18} isLeft={isLeftPositionWidgets} />
+              <WidgetsPreview width={24} height={24} isLeft={isLeftPositionWidgets} />
             </IcoBtn>
           </Tooltip>
         )}

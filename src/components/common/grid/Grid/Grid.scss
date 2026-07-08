@@ -327,9 +327,9 @@ $header-height: 34px;
   position: relative;
   display: flex;
   align-items: center;
+  justify-content: center;
   width: 100%;
   height: 100%;
-  padding-left: 13px;
 
   .ecos-checkbox__icon svg {
     width: 15px;
@@ -337,8 +337,8 @@ $header-height: 34px;
   }
 
   &_block {
-    // align body checkbox left edge with header checkbox (base padding-left: 13px)
-    padding: 0 13px;
+    // center the row checkbox in the selection column
+    padding: 0;
   }
 
   &-menu {
