@@ -2,7 +2,6 @@ import {
   DEFINITON_TYPE,
   GATEWAY_TYPES,
   SEQUENCE_TYPE,
-  TASK_TYPES,
   LOOP_CHARACTERISTICS,
   COLLABORATION_TYPE,
   PARTICIPANT_TYPE,
@@ -13,7 +12,6 @@ import {
   IGNORED_VALUE_COMPONENTS,
   KEY_FIELD_ID,
   KEY_FIELD_NAME,
-  KEY_FIELD_OUTCOMES,
   KEY_FIELDS,
   LABEL_POSTFIX,
   ML_POSTFIX,
@@ -45,6 +43,8 @@ import { getWorkspaceId } from '@/helpers/urls';
 import { getCurrentLocale, getMLValue, getTextByLocale, t, fileDownload } from '@/helpers/util';
 import PageService from '@/services/PageService';
 import PageTabList from '@/services/pageTabs/PageTabList';
+
+import { findOutcomeSource } from './outcomeUtils';
 
 import './ModelEditor.scss';
 
@@ -299,29 +299,6 @@ class ModelEditorPage extends React.Component {
     return get(element, 'businessObject.cancelActivity') === false || get(element, 'businessObject.isInterrupting') === false;
   };
 
-  #findOutcomes = source => {
-    if (isEmpty(source)) {
-      return [];
-    }
-
-    const childSource = get(source, 'source.incoming[0].source');
-
-    if (isEmpty(childSource)) {
-      return [];
-    }
-
-    const rawIncomingOutcomes = get(childSource, `businessObject.$attrs["${PREFIX_FIELD + KEY_FIELD_OUTCOMES}"]`);
-
-    if (!isEmpty(rawIncomingOutcomes)) {
-      return {
-        source: childSource,
-        incomingOutcomes: JSON.parse(rawIncomingOutcomes)
-      };
-    }
-
-    return this.#findOutcomes(get(source, 'source.incoming[0]'));
-  };
-
   #getIncomingOutcomes = () => {
     const { selectedElement } = this.state;
     const isSequenceFlow = get(selectedElement, 'type') === SEQUENCE_TYPE;
@@ -338,6 +315,7 @@ class ModelEditorPage extends React.Component {
 
     const incoming = get(element, 'source.incoming', []);
     const result = [];
+    const seen = new Set();
 
     for (let i = 0; i < incoming.length; i++) {
       const item = incoming[i];
@@ -346,33 +324,23 @@ class ModelEditorPage extends React.Component {
         continue;
       }
 
-      if (!TASK_TYPES.includes(item.source.type)) {
-        if (GATEWAY_TYPES.includes(item.source.type)) {
-          const { incomingOutcomes, source = {} } = this.#findOutcomes(item);
+      // Resolve each incoming branch to its outcome-bearing task, even when
+      // intermediate blocks sit between that task and the gateway.
+      const resolved = findOutcomeSource(item.source);
+      const sourceId = get(resolved, 'source.id');
 
-          source.id &&
-            result.push({
-              id: source.id,
-              name: getMLValue(getValue(source, KEY_FIELD_NAME)),
-              outcomes: incomingOutcomes.map(item => ({
-                id: item.id,
-                name: getMLValue(item.name)
-              }))
-            });
-        }
-
+      if (!sourceId || seen.has(sourceId)) {
         continue;
       }
 
-      const rawOutcomes = get(item, `source.businessObject.$attrs.${PREFIX_FIELD + KEY_FIELD_OUTCOMES}`);
-      const outcomes = isEmpty(rawOutcomes) ? [] : JSON.parse(rawOutcomes);
+      seen.add(sourceId);
 
       result.push({
-        id: get(item, 'source.id'),
-        name: getMLValue(getValue(item.source, KEY_FIELD_NAME)),
-        outcomes: outcomes.map(item => ({
-          id: item.id,
-          name: getMLValue(item.name)
+        id: sourceId,
+        name: getMLValue(getValue(resolved.source, KEY_FIELD_NAME)),
+        outcomes: resolved.outcomes.map(outcome => ({
+          id: outcome.id,
+          name: getMLValue(outcome.name)
         }))
       });
     }
