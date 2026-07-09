@@ -107,6 +107,7 @@
       @extend %h-indents;
 
       padding: 0 12px;
+      overflow: hidden;
 
       // The comment textarea rows come from the server-side form definition —
       // cap the default height here (10.1)

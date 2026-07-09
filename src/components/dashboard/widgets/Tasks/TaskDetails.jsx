@@ -4,15 +4,16 @@ import cloneDeep from 'lodash/cloneDeep';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 
-import * as ArrayOfObjects from '@/helpers/arrayOfObjects';
-import { getOutputFormat, t } from '@/helpers/util';
-import EcosForm from '@/components/forms/EcosForm/index';
-import TaskAssignmentPanel from '@/components/domain/TaskAssignmentPanel';
-import { Headline } from '@/components/common/form/index';
-import { Grid } from '@/components/common/grid/index';
 import { ComponentKeys } from '../Components';
 
 import { TaskPropTypes } from './utils';
+
+import { Headline } from '@/components/common/form/index';
+import { Grid } from '@/components/common/grid/index';
+import TaskAssignmentPanel from '@/components/domain/TaskAssignmentPanel';
+import EcosForm from '@/components/forms/EcosForm/index';
+import * as ArrayOfObjects from '@/helpers/arrayOfObjects';
+import { getOutputFormat, t } from '@/helpers/util';
 
 import './style.scss';
 
