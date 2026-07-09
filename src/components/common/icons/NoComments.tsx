@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default ({ width = 183, height = 102, viewBox = '0 0 183 102', fill = 'none' }) => (
+export default ({ width = 183, height = 78, viewBox = '0 0 183 78', fill = 'none' }) => (
   <svg width={width} height={height} viewBox={viewBox} fill={fill} xmlns="http://www.w3.org/2000/svg">
     <g filter="url(#filter0_dddd_641_2026)">
       <g clipPath="url(#clip0_641_2026)">

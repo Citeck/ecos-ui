@@ -619,6 +619,7 @@ class VersionsJournal extends BaseWidget {
     if (hasWritePermission && !isMobile && record) {
       actions.addVersion = {
         icon: 'icon-small-plus',
+        className: 'ecos-btn_i_plus-lg',
         text: t('versions-journal-widget.add-version'),
         onClick: this.handleToggleAddModal
       };

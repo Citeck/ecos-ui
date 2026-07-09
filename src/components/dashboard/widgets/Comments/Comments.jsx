@@ -229,7 +229,7 @@ class Comments extends BaseWidget {
 
       return (
         <div className="ecos-comments__no-data">
-          <NoComments width={183} height={102} />
+          <NoComments width={183} height={74} />
           <div className="ecos-comments__no-data-text">{t('comments-widget.no-comments')}</div>
         </div>
       );
