@@ -239,18 +239,9 @@
     margin-left: 0;
   }
 
-  // Header action buttons: match journal page 28px sizing (only icon-only buttons)
   .dashlet__header-actions .ecos-btn.ecos-btn_i {
-    height: 28px !important;
-    width: 28px !important;
-    min-width: 28px !important;
-    padding: 0 !important;
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-
     i {
-      font-size: 14px !important;
+      margin-left: 4px;
     }
   }
 
