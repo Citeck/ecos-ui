@@ -11,9 +11,9 @@ properties:
         - stages-widget:1.7.0
         - kanban-widget:1.10.0
         - activities-widget:1.6.2
-        - gantt-chart-widget:1.2.0-snapshot
+        - gantt-chart-widget:1.2.0
     - enterprise: false
       plugins:
         - stages-widget:1.7.0
         - kanban-widget:1.10.0
-        - gantt-chart-widget:1.2.0-snapshot
+        - gantt-chart-widget:1.2.0
