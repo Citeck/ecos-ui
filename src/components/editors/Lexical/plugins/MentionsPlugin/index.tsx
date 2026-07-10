@@ -6,6 +6,7 @@ import {
   MenuTextMatch,
   useBasicTypeaheadTriggerMatch
 } from '@lexical/react/LexicalTypeaheadMenuPlugin';
+import { $createTextNode } from 'lexical';
 import React, { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -214,7 +215,9 @@ export default function MentionsPlugin() {
           nodeToReplace.replace(mentionNode);
         }
 
-        mentionNode.select();
+        const spaceNode = $createTextNode(' ');
+        mentionNode.insertAfter(spaceNode);
+        spaceNode.select();
 
         closeMenu();
       });
