@@ -7,26 +7,11 @@ import { useDropFile } from '@/hooks';
 import { FileItemViewProps } from './FileListRow';
 import { DROP_TARGET_CLASS, FileItemIcon, formatModified, getDragStartHandler } from './utils';
 
-const FileGridCard = ({
-  item,
-  isSelected,
-  isLastClicked,
-  isMobile,
-  onClick,
-  onToggle,
-  onDoubleClick,
-  onDrop,
-  setParentItem
-}: FileItemViewProps) => {
+const FileGridCard = ({ item, isSelected, isLastClicked, isMobile, onClick, onDoubleClick, onDrop, setParentItem }: FileItemViewProps) => {
   const {
     flags: { isAboveDir },
     handlers
   } = useDropFile({ item, callback: onDrop, setParentItem });
-
-  const onCheckboxClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onToggle(item);
-  };
 
   return (
     <div
@@ -42,16 +27,6 @@ const FileGridCard = ({
       onDoubleClick={() => onDoubleClick(item)}
       {...handlers}
     >
-      <span
-        className={classNames('citeck-doclib-files__checkbox citeck-doclib-files__card-checkbox', {
-          'citeck-doclib-files__checkbox_checked': isSelected
-        })}
-        onClick={onCheckboxClick}
-        onDoubleClick={e => e.stopPropagation()}
-      >
-        <i className={isSelected ? 'icon-custom-checkbox-filled-checked' : 'icon-custom-checkbox-outline-unchecked'} />
-      </span>
-
       <div className="citeck-doclib-files__card-actions" onClick={e => e.stopPropagation()} onDoubleClick={e => e.stopPropagation()}>
         {(item.actions || []).map((action, idx) => renderAction(action, idx))}
       </div>

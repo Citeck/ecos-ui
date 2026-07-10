@@ -1,31 +1,21 @@
 @import '@/styles/constants';
 
-// renderAction buttons come with ecos-btn_brown (white bg + pale beige icon),
-// which is nearly invisible on our overlays — restyle them for contrast
-@mixin doclib-action-btn {
+// action buttons styled exactly like the journal table inline tools
+// (transparent background, native ecos-btn_brown colors, 16px icons)
+@mixin doclib-inline-actions-btn {
   .ecos-inline-tools-btn.ecos-btn {
-    width: 28px;
-    height: 28px;
-    margin: 0;
     padding: 0;
-    border-radius: $border-radius-small;
-    background: transparent;
-    color: $text-color-gray;
-    font-size: 15px;
+    height: 100%;
+    background-color: transparent;
 
-    &:focus,
-    &:active {
-      background: transparent;
-      color: $text-color-gray;
+    &:hover,
+    &:active,
+    &:focus {
+      background-color: transparent;
     }
 
-    &:hover {
-      background: rgba($color-black, 0.06);
-      color: $text-color-dark;
-    }
-
-    &.ecos-btn_hover_t_red:hover {
-      color: $color-red-3;
+    &.ecos-btn_i {
+      font-size: 16px;
     }
   }
 }
@@ -85,23 +75,18 @@
     flex-direction: column;
   }
 
+  // typography matches the journal table header (HeaderFormatter)
   &__head {
     display: flex;
     align-items: center;
     gap: 8px;
-    height: 32px;
-    padding: 0 8px;
+    height: 40px;
+    padding: 0 12px;
     border-bottom: 1px solid $color-gray-4;
-    font-size: $font-size-small;
-    font-weight: $font-weight-semi-bold;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-    color: $text-color-gray;
+    font-size: 11px;
+    font-weight: $font-weight-bold;
+    color: $text-color-dark;
     user-select: none;
-
-    &-spacer {
-      flex: 0 0 24px;
-    }
 
     &-name {
       flex: 1;
@@ -119,10 +104,11 @@
     align-items: center;
     gap: 8px;
     height: 44px;
-    padding: 0 8px;
+    padding: 0 12px;
+    // cell typography matches the journal table (.ecos-grid__td)
     color: $text-color-dark;
-    font-size: $font-size-standard;
-    font-weight: $font-weight-semi-bold;
+    font-size: 11px;
+    font-weight: 600;
     cursor: pointer;
     user-select: none;
     transition: background-color 0.12s ease-in-out;
@@ -130,7 +116,6 @@
     &:hover {
       background: $color-blue-light4;
 
-      #{$files}__checkbox,
       #{$files}__row-actions {
         opacity: 1;
       }
@@ -142,14 +127,9 @@
       &:hover {
         background: var(--light-primary-color, $color-blue-light2);
       }
-
-      #{$files}__row-actions {
-        background: var(--light-primary-color, $color-blue-light2);
-      }
     }
 
     &_mobile {
-      #{$files}__checkbox,
       #{$files}__row-actions {
         opacity: 1;
       }
@@ -183,30 +163,34 @@
 
     &-modified {
       flex: 0 0 130px;
-      font-size: $font-size-small;
-      font-weight: $font-weight-normal;
+      font-size: 11px;
+      font-weight: 600;
       color: $text-color-gray;
       white-space: nowrap;
     }
 
-    // overlay at the right edge of the row: out of the flow, so the columns
-    // stay aligned no matter how many actions a record has
+    // overlay at the right edge of the row, masked by a gradient —
+    // the same pattern the journal table uses (.ecos-inline-tools-actions)
     &-actions {
       position: absolute;
-      right: 4px;
-      top: 50%;
-      transform: translateY(-50%);
+      right: 0;
+      top: 0;
+      height: 100%;
       display: flex;
       align-items: center;
-      gap: 2px;
-      padding: 2px 4px;
-      border-radius: $border-radius-small;
-      background: $color-blue-light4;
+      padding-right: 8px;
+      // white backing like the journal table (.ecos-inline-tools-actions)
+      background: linear-gradient(to right, rgba($color-white, 0), $color-white 15%);
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.12s ease-in-out;
 
-      @include doclib-action-btn;
+      &:not(:empty)::before {
+        content: '';
+        width: 35px;
+      }
+
+      @include doclib-inline-actions-btn;
     }
 
     &:hover #{$files}__row-actions,
@@ -217,34 +201,6 @@
 
   &__item-icon_dir {
     color: var(--light-primary-color, $color-blue-light);
-  }
-
-  &__checkbox {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 24px;
-    height: 24px;
-    border-radius: 50%;
-    color: $color-gray-5;
-    font-size: 16px;
-    opacity: 0;
-    transition:
-      opacity 0.12s ease-in-out,
-      color 0.12s ease-in-out;
-
-    &:hover {
-      color: $text-color-dark;
-    }
-
-    &_checked {
-      opacity: 1;
-      color: var(--primary-color, $color-blue-dark);
-
-      &:hover {
-        color: var(--primary-color, $color-blue-dark);
-      }
-    }
   }
 
   // ------- grid -------
@@ -273,7 +229,6 @@
     &:hover {
       box-shadow: $box-shadow-default;
 
-      #{$files}__checkbox,
       #{$files}__card-actions {
         opacity: 1;
       }
@@ -289,17 +244,9 @@
     }
 
     &_mobile {
-      #{$files}__checkbox,
       #{$files}__card-actions {
         opacity: 1;
       }
-    }
-
-    &-checkbox {
-      position: absolute;
-      top: 6px;
-      left: 6px;
-      z-index: 2;
     }
 
     &-actions {
@@ -315,12 +262,14 @@
       opacity: 0;
       transition: opacity 0.12s ease-in-out;
 
-      @include doclib-action-btn;
+      @include doclib-inline-actions-btn;
 
       .ecos-inline-tools-btn.ecos-btn {
-        width: 26px;
         height: 26px;
-        font-size: 14px;
+
+        &.ecos-btn_i {
+          font-size: 14px;
+        }
       }
     }
 

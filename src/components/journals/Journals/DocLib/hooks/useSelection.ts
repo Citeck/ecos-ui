@@ -89,19 +89,6 @@ export function useSelection({ stateId, isActive, isMobile, items, selected, las
     [dispatchW, setSelected, isMobile, items, selected, lastClicked]
   );
 
-  const onItemToggle = useCallback(
-    (item: FileItem) => {
-      if (selected.includes(item.id)) {
-        setSelected(selected.filter(id => id !== item.id));
-      } else {
-        setSelected([...selected, item.id]);
-      }
-
-      dispatchW(setFileViewerLastClicked, item.id);
-    },
-    [dispatchW, setSelected, selected]
-  );
-
   const onItemDoubleClick = useCallback(
     (item: FileItem) => {
       if (item.type === NODE_TYPES.DIR) {
@@ -136,5 +123,5 @@ export function useSelection({ stateId, isActive, isMobile, items, selected, las
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [isActive, selected.length, clearSelection]);
 
-  return { onItemClick, onItemToggle, onItemDoubleClick, clearSelection };
+  return { onItemClick, onItemDoubleClick, clearSelection };
 }

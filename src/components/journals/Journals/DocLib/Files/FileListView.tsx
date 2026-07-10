@@ -19,7 +19,6 @@ const Labels = {
 const FileListView = ({ items, selected, lastClicked, ...itemProps }: FileListViewProps) => (
   <div className="citeck-doclib-files citeck-doclib-files_list">
     <div className="citeck-doclib-files__head">
-      <span className="citeck-doclib-files__head-spacer" />
       <span className="citeck-doclib-files__head-name">{t(Labels.NAME)}</span>
       <span className="citeck-doclib-files__head-modified">{t(Labels.MODIFIED)}</span>
     </div>

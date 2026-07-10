@@ -21,7 +21,7 @@ describe('DocLib icons DOM smoke', () => {
     expect(span.className).toContain('fiv-icon-pdf');
   });
 
-  it('renders full row with icon, checkbox glyph and title', () => {
+  it('renders full row with icon and title', () => {
     const item = { id: 'a$3', title: 'report.docx', type: 'FILE', modified: '2026-07-01T10:00:00Z', actions: [] };
     const { container } = render(
       <FileListRow
@@ -30,7 +30,6 @@ describe('DocLib icons DOM smoke', () => {
         isLastClicked={false}
         isMobile={false}
         onClick={noop}
-        onToggle={noop}
         onDoubleClick={noop}
         onDrop={noop}
         setParentItem={noop}
@@ -38,7 +37,6 @@ describe('DocLib icons DOM smoke', () => {
     );
     expect(container.querySelector('.citeck-doclib-files__row')).not.toBeNull();
     expect(container.querySelector('.ecos-files-viewer__item')).not.toBeNull();
-    expect(container.querySelector('i.icon-custom-checkbox-outline-unchecked')).not.toBeNull();
     expect(container.querySelector('span.ecos-file-icon')).not.toBeNull();
     expect(container.textContent).toContain('report.docx');
   });

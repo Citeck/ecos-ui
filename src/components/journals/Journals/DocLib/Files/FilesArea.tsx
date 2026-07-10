@@ -35,7 +35,7 @@ const FilesArea = ({ stateId, isActive, isMobile, displayMode }: FilesAreaProps)
   const viewer: FileViewerState = fileViewer || {};
   const { hasError, isReady, items = [], selected = [], lastClicked = null } = viewer;
 
-  const { onItemClick, onItemToggle, onItemDoubleClick, clearSelection } = useSelection({
+  const { onItemClick, onItemDoubleClick, clearSelection } = useSelection({
     stateId,
     isActive,
     isMobile,
@@ -124,7 +124,6 @@ const FilesArea = ({ stateId, isActive, isMobile, displayMode }: FilesAreaProps)
   const itemProps = {
     isMobile,
     onClick: onItemClick,
-    onToggle: onItemToggle,
     onDoubleClick: (item: FileItem) => onItemDoubleClick(item),
     onDrop,
     setParentItem: onSetParentItem

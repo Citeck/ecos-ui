@@ -13,32 +13,16 @@ export interface FileItemViewProps {
   isLastClicked: boolean;
   isMobile: boolean;
   onClick: (item: FileItem, e: React.MouseEvent) => void;
-  onToggle: (item: FileItem) => void;
   onDoubleClick: (item: FileItem) => void;
   onDrop: (data: unknown) => void;
   setParentItem: (data: unknown) => void;
 }
 
-const FileListRow = ({
-  item,
-  isSelected,
-  isLastClicked,
-  isMobile,
-  onClick,
-  onToggle,
-  onDoubleClick,
-  onDrop,
-  setParentItem
-}: FileItemViewProps) => {
+const FileListRow = ({ item, isSelected, isLastClicked, isMobile, onClick, onDoubleClick, onDrop, setParentItem }: FileItemViewProps) => {
   const {
     flags: { isAboveDir },
     handlers
   } = useDropFile({ item, callback: onDrop, setParentItem });
-
-  const onCheckboxClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onToggle(item);
-  };
 
   return (
     <div
@@ -54,14 +38,6 @@ const FileListRow = ({
       onDoubleClick={() => onDoubleClick(item)}
       {...handlers}
     >
-      <span
-        className={classNames('citeck-doclib-files__checkbox', { 'citeck-doclib-files__checkbox_checked': isSelected })}
-        onClick={onCheckboxClick}
-        onDoubleClick={e => e.stopPropagation()}
-      >
-        <i className={isSelected ? 'icon-custom-checkbox-filled-checked' : 'icon-custom-checkbox-outline-unchecked'} />
-      </span>
-
       <div className="citeck-doclib-files__row-name">
         <FileItemIcon item={item} className="citeck-doclib-files__row-icon" />
         <span className="citeck-doclib-files__row-title" title={item.title}>
