@@ -19,7 +19,8 @@ $border: $border-width-standard solid $color-brown-2;
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 100%;
+    margin-top: 2px;
+    height: calc(40px - 2px);
     background: linear-gradient(to right, rgba($color-white, 0), $color-white 15%);
 
     &:not(:empty)::before {

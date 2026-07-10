@@ -94,8 +94,6 @@
   &__table {
     $table: &;
 
-    padding: 0 20px;
-
     &:not(:last-child) {
       margin-bottom: 15px;
     }
