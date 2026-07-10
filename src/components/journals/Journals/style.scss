@@ -477,6 +477,11 @@
     &__checkbox {
       padding: 0 6px;
 
+      // шеврон меню скрыт (см. > i ниже) — балансирующий спейсер из Grid.scss тоже не нужен
+      &_has-menu::before {
+        content: none;
+      }
+
       &-divider {
         height: 54px;
       }
@@ -533,8 +538,8 @@
   position: relative;
   padding-left: 7px !important;
 
-  &::before{
-    content: "";
+  &::before {
+    content: '';
     position: absolute;
     left: 0;
     top: 50%;

@@ -158,6 +158,11 @@
       padding-left: 6px;
       padding-right: 1px;
 
+      // шеврон меню скрыт (см. > i ниже) — балансирующий спейсер из Grid.scss тоже не нужен
+      &_has-menu::before {
+        content: none;
+      }
+
       &_block {
         border-right: 1px solid $color-gray-4;
 
