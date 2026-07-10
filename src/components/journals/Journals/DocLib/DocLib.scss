@@ -1,0 +1,73 @@
+@import '@/styles/constants';
+
+// .ecos-journal_new .ecos-journal__body zeroes the body padding — restore it for doclib
+.ecos-journal_new .citeck-doclib.ecos-journal__body {
+  padding: 12px 16px;
+
+  .journals-head {
+    margin-bottom: 0px;
+  }
+}
+
+.citeck-doclib {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+
+  // display: flex would override the browser default for the hidden attribute
+  &[hidden] {
+    display: none;
+  }
+
+  &__layout {
+    position: relative;
+    display: flex;
+    gap: 12px;
+    flex: 1;
+    min-height: 0;
+    margin-top: 10px;
+  }
+
+  &__backdrop {
+    position: absolute;
+    z-index: 15;
+    inset: 0;
+    background: rgba($color-black, 0.3);
+  }
+
+  &__main {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  &__context-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 34px;
+    flex: 0 0 auto;
+
+    // breadcrumbs / selection bar take the remaining space at the left
+    .citeck-doclib-breadcrumbs,
+    .citeck-doclib-selection-bar {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  &__pagination {
+    margin-left: auto;
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  &_mobile {
+    .citeck-doclib__layout {
+      gap: 0;
+    }
+  }
+}

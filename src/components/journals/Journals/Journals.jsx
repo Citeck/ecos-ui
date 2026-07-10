@@ -122,8 +122,8 @@ class Journals extends React.Component {
     this.userName = getCurrentUserName();
 
     this.state = {
-      menuOpen: isDocLib(get(props.searchParams, JUP.VIEW_MODE)),
-      menuOpenAnimate: isDocLib(get(props.searchParams, JUP.VIEW_MODE)),
+      menuOpen: false,
+      menuOpenAnimate: false,
       journalId: undefined,
       maxHeightJournal: 0,
       recordId: null,
@@ -250,15 +250,11 @@ class Journals extends React.Component {
       this.setState({ recordId: null });
     }
 
-    if (prevProps.viewMode !== viewMode && (isTable(viewMode) || isKanban(viewMode) || isPreviewList(viewMode))) {
+    if (
+      prevProps.viewMode !== viewMode &&
+      (isTable(viewMode) || isKanban(viewMode) || isPreviewList(viewMode) || isDocLib(viewMode))
+    ) {
       this.setState({ menuOpen: false });
-    }
-
-    if (!isEqual(prevProps.viewMode, viewMode) && isDocLib(viewMode)) {
-      this.setState({
-        menuOpen: true,
-        menuOpenAnimate: true
-      });
     }
 
     const isEqualView = equalsQueryUrls({
@@ -547,7 +543,7 @@ class Journals extends React.Component {
           labelBtnMenu={props.labelBtnMenu || (isMobile ? t(Labels.Journal.SHOW_MENU_SM) : t(Labels.Journal.SHOW_MENU))}
           isOpenMenu={menuOpen}
           isMobile={isMobile}
-          hasBtnMenu={displayElements.menu}
+          hasBtnMenu={props.hasBtnMenu !== undefined ? props.hasBtnMenu : displayElements.menu}
           hasBtnEdit={displayElements.editJournal && !!props.configRec}
           onToggleMenu={this.handleToggleMenu}
           onEditJournal={() => this.handleEditJournal(props.configRec)}

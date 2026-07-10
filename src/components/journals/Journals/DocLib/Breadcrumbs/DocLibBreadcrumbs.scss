@@ -1,0 +1,42 @@
+@import '@/styles/constants';
+
+.citeck-doclib-breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  overflow: hidden;
+
+  &__link {
+    max-width: 240px;
+    padding: 4px 8px;
+    border-radius: $border-radius-small;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: $font-size-standard;
+    font-weight: $font-weight-semi-bold;
+    color: $text-color-gray;
+    text-decoration: none;
+    transition:
+      background-color 0.15s ease-in-out,
+      color 0.15s ease-in-out;
+
+    &:hover {
+      background: $color-gray-4;
+      color: $text-color-dark;
+      text-decoration: none;
+    }
+
+    &:last-child {
+      color: $text-color-dark;
+    }
+  }
+
+  &__separator {
+    display: inline-flex;
+    align-items: center;
+    color: $color-gray-5;
+    flex: 0 0 auto;
+  }
+}

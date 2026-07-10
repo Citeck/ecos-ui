@@ -76,10 +76,6 @@ export const Labels = {
     SHOW_MENU: 'journals.action.show-menu',
     SHOW_MENU_SM: 'journals.action.show-menu_sm'
   },
-  DocLib: {
-    SHOW_MENU: 'journals.action.show-folder-tree',
-    SHOW_MENU_SM: 'journals.action.show-folder-tree_sm'
-  },
   Kanban: {
     BAR_TOTAL: 'kanban.label.big-total',
     NO_COLUMNS: 'kanban.label.no-columns',
@@ -102,7 +98,6 @@ export const Labels = {
   },
   Menu: {
     HIDE_MENU: 'journals.action.hide-menu',
-    HIDE_FOLDER_TREE: 'journals.action.hide-folder-tree',
     HIDE_MENU_sm: 'journals.action.hide-menu_sm',
     EMPTY_LIST: 'journals.menu.journal-list.empty',
     SETTINGS_TITLE: 'journals.menu.settings-title'

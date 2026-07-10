@@ -148,10 +148,6 @@
     z-index: 1;
     width: 273px;
     height: 100%;
-
-    &-document-library {
-      width: 400px;
-    }
   }
 
   &_close {
@@ -170,10 +166,6 @@
 
     &#{$root}_expanded {
       width: 100%;
-
-      &-document-library {
-        width: 100%;
-      }
     }
   }
 }
@@ -253,11 +245,6 @@
     .ecos-grid__checkbox {
       background: $color-yellow4;
     }
-  }
-
-  .ecos-journal-view__doc-lib {
-    margin: 10px 10px 0 10px !important;
-    padding: 12px !important;
   }
 
   .ecos-grid__row_new {

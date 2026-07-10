@@ -1,0 +1,135 @@
+@import '@/styles/constants';
+
+.citeck-doclib-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+  min-width: 0;
+
+  &__create-btn.ecos-btn {
+    display: inline-flex;
+    align-items: center;
+    height: 34px;
+    padding: 0 14px 0 10px;
+    border-radius: $border-radius-standard;
+    background: var(--primary-color, $color-blue-dark);
+    color: $color-white;
+    font-size: $font-size-standard;
+    font-weight: $font-weight-semi-bold;
+    white-space: nowrap;
+    transition: filter 0.15s ease-in-out;
+
+    &:hover,
+    &:focus,
+    &:active {
+      background: var(--primary-color, $color-blue-dark);
+      color: $color-white;
+    }
+
+    &:hover {
+      filter: brightness(1.08);
+    }
+
+    .ecos-btn__i {
+      font-size: 18px;
+    }
+  }
+
+  &__create-btn_mobile.ecos-btn {
+    padding: 0 10px;
+  }
+
+  &__search {
+    max-width: 300px;
+    height: 34px;
+    border: 1px solid #d8dee1;
+  }
+
+  &__icon-btn.ecos-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border-radius: $border-radius-standard;
+    background: transparent;
+    color: $text-color-gray;
+    font-size: 17px;
+    transition:
+      background-color 0.15s ease-in-out,
+      color 0.15s ease-in-out;
+
+    &:focus,
+    &:active {
+      background: transparent;
+      color: $text-color-gray;
+    }
+
+    &:hover {
+      background: $color-gray-4;
+      color: $text-color-dark;
+    }
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-left: auto;
+  }
+
+  &__display-mode {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px;
+    gap: 2px;
+    border-radius: $border-radius-standard;
+    background: $color-gray-4;
+
+    &-btn.ecos-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 28px;
+      padding: 0;
+      border-radius: $border-radius-small;
+      background: transparent;
+      color: $text-color-gray;
+      font-size: 15px;
+      transition:
+        background-color 0.15s ease-in-out,
+        color 0.15s ease-in-out;
+
+      &:hover,
+      &:focus,
+      &:active {
+        color: $text-color-dark;
+        background: transparent;
+      }
+    }
+
+    &-btn_active.ecos-btn {
+      background: $color-white;
+      color: var(--primary-color, $color-blue-dark);
+      box-shadow: $box-shadow-default;
+
+      &:hover,
+      &:focus,
+      &:active {
+        background: $color-white;
+        color: var(--primary-color, $color-blue-dark);
+      }
+    }
+  }
+
+  &_mobile {
+    flex-wrap: wrap;
+
+    .citeck-doclib-toolbar__right {
+      gap: 8px;
+    }
+  }
+}

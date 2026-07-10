@@ -7,9 +7,8 @@ import { connect } from 'react-redux';
 
 import { IcoBtn } from '@/components/common/btns';
 import Close from '@/components/common/icons/Close';
-import FoldersTree from '../DocLib/FoldersTree';
 import { JournalsPresetList } from '../JournalsPresets';
-import { isDocLib, JOURNAL_VIEW_MODE, Labels } from '@/components/journals/Journals/constants';
+import { Labels } from '@/components/journals/Journals/constants';
 
 import { getScrollbarWidth, t } from '@/helpers/util';
 import { selectViewMode } from '@/selectors/journals';
@@ -28,10 +27,6 @@ class JournalsMenu extends React.Component {
     settingsHeight: 0,
     searchText: ''
   };
-
-  get isDocLibMode() {
-    return isDocLib(this.props.viewMode);
-  }
 
   onClose = () => {
     const onClose = this.props.onClose;
@@ -63,14 +58,7 @@ class JournalsMenu extends React.Component {
   getBtnLabel = () => {
     const { isMobile } = this.props;
 
-    switch (true) {
-      case isMobile:
-        return t(Labels.Menu.HIDE_MENU_sm);
-      case this.isDocLibMode:
-        return t(Labels.Menu.HIDE_FOLDER_TREE);
-      default:
-        return t(Labels.Menu.HIDE_MENU);
-    }
+    return isMobile ? t(Labels.Menu.HIDE_MENU_sm) : t(Labels.Menu.HIDE_MENU);
   };
 
   setRef = ref => {
@@ -84,13 +72,7 @@ class JournalsMenu extends React.Component {
   renderByViewMode = () => {
     const { viewMode, stateId } = this.props;
 
-    switch (viewMode) {
-      case JOURNAL_VIEW_MODE.DOC_LIB:
-        return <FoldersTree stateId={stateId} closeMenu={this.onClose} />;
-      case JOURNAL_VIEW_MODE.TABLE:
-      default:
-        return <JournalsPresetList stateId={stateId} viewMode={viewMode} searchText={this.state.searchText} />;
-    }
+    return <JournalsPresetList stateId={stateId} viewMode={viewMode} searchText={this.state.searchText} />;
   };
 
   render() {
@@ -105,8 +87,7 @@ class JournalsMenu extends React.Component {
         className={classNames('ecos-journal__menu', {
           'ecos-journal__menu_with-tabs': pageTabsIsShow,
           'ecos-journal__menu_mobile': isMobile,
-          'ecos-journal__menu_expanded': menuOpenAnimate,
-          'ecos-journal__menu_expanded-document-library': menuOpenAnimate && this.isDocLibMode
+          'ecos-journal__menu_expanded': menuOpenAnimate
         })}
         style={{ maxHeight: this.getMaxMenuHeight() }}
       >

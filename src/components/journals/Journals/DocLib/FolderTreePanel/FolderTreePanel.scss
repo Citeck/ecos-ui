@@ -1,0 +1,167 @@
+@import '@/styles/constants';
+
+.citeck-doclib-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 264px;
+  min-height: 0;
+  background: $color-white;
+  border: 1px solid $color-gray-4;
+  border-radius: $border-radius-large;
+  overflow: hidden;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 12px 10px 16px;
+    border-bottom: 1px solid $color-gray-4;
+  }
+
+  &__title {
+    font-size: $font-size-standard;
+    font-weight: $font-weight-bold;
+    color: $text-color-dark;
+  }
+
+  &__collapse-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: $border-radius-small;
+    color: $text-color-gray;
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
+
+    &:hover {
+      background: $color-gray-4;
+      color: $text-color-dark;
+    }
+
+    &_expanded svg {
+      transform: rotate(180deg);
+    }
+  }
+
+  &__body {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    padding: 8px 8px 12px;
+  }
+
+  &_collapsed {
+    flex: 0 0 36px;
+    align-items: center;
+    padding-top: 10px;
+    cursor: pointer;
+    gap: 10px;
+
+    &:hover {
+      background: $color-blue-light3;
+    }
+  }
+
+  &__collapsed-title {
+    writing-mode: vertical-rl;
+    font-size: $font-size-small;
+    font-weight: $font-weight-semi-bold;
+    color: $text-color-gray;
+    user-select: none;
+  }
+
+  &_mobile {
+    position: absolute;
+    z-index: 20;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(300px, 85%);
+    border-radius: 0 $border-radius-large $border-radius-large 0;
+    box-shadow: $box-shadow-hover;
+  }
+}
+
+.citeck-doclib-tree {
+  $tree: &;
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 32px;
+    padding-right: 8px;
+    border-radius: $border-radius-standard;
+    color: $text-color-dark;
+    font-size: $font-size-standard;
+    font-weight: $font-weight-semi-bold;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.15s ease-in-out;
+
+    &:hover {
+      background: $color-gray-4;
+    }
+
+    &_selected {
+      background: var(--light-primary-color, $color-blue-light2);
+      color: var(--primary-color, $color-blue-dark);
+
+      &:hover {
+        background: var(--light-primary-color, $color-blue-light2);
+      }
+
+      #{$tree}__folder-icon {
+        color: var(--primary-color, $color-blue-dark);
+      }
+    }
+  }
+
+  &__toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 20px;
+    height: 20px;
+    border-radius: $border-radius-small;
+    color: $color-gray-5;
+    transition: transform 0.15s ease-in-out;
+
+    &:hover {
+      color: $text-color-dark;
+    }
+
+    &_unfolded {
+      transform: rotate(90deg);
+    }
+
+    &_hidden {
+      visibility: hidden;
+    }
+  }
+
+  &__folder-icon {
+    flex: 0 0 auto;
+    font-size: 16px;
+    color: $color-gray-5;
+  }
+
+  &__title {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  &__points-loader {
+    flex: 0 0 auto;
+    margin-left: 4px;
+  }
+
+  &__message {
+    padding: 8px;
+    font-size: $font-size-standard;
+    color: $text-color-gray;
+  }
+}
