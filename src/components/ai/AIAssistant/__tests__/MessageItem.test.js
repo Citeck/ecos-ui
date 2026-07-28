@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import MessageItem from '../components/messages/MessageItem';
 
 // Mock child components to verify routing
@@ -22,8 +22,15 @@ jest.mock('../components/messages/ScriptDiffMessage', () => {
 });
 
 jest.mock('../components/messages/BusinessAppMessage', () => {
-  return function MockBusinessAppMessage() {
-    return <div data-testid="business-app-message">BusinessAppMessage</div>;
+  return function MockBusinessAppMessage({ onActionClick }) {
+    return (
+      <div data-testid="business-app-message">
+        BusinessAppMessage
+        <button data-testid="ba-skip" onClick={() => onActionClick?.('SKIP', { messageId: 'ba' })}>
+          skip
+        </button>
+      </div>
+    );
   };
 });
 
@@ -43,6 +50,13 @@ jest.mock('../components/messages/ContextArtifactsList', () => {
   return function MockContextArtifactsList({ contextArtifacts }) {
     if (!contextArtifacts || contextArtifacts.length === 0) return null;
     return <div data-testid="context-artifacts-list">ContextArtifactsList</div>;
+  };
+});
+
+jest.mock('../components/messages/ArtifactsList', () => {
+  return function MockArtifactsList({ artifacts }) {
+    if (!artifacts || artifacts.length === 0) return null;
+    return <div data-testid="artifacts-list">ArtifactsList</div>;
   };
 });
 
@@ -117,6 +131,22 @@ describe('MessageItem', () => {
     expect(screen.getByTestId('business-app-message')).toBeTruthy();
   });
 
+  it('threads onActionClick into BusinessAppMessage (clarifying-questions SKIP/CANCEL)', () => {
+    const onActionClick = jest.fn();
+    const message = {
+      ...defaultProps.message,
+      isBusinessAppContent: true,
+      messageData: {
+        stage: 'CLARIFYING_QUESTIONS',
+        actions: [{ id: 'SKIP', label: 'Пропустить', style: 'default' }]
+      }
+    };
+
+    render(<MessageItem {...defaultProps} message={message} onActionClick={onActionClick} />);
+    fireEvent.click(screen.getByTestId('ba-skip'));
+    expect(onActionClick).toHaveBeenCalledWith('SKIP', { messageId: 'ba' });
+  });
+
   it('applies agent-plan CSS class when isAgentPlanContent is true', () => {
     const message = {
       ...defaultProps.message,
@@ -189,6 +219,24 @@ describe('MessageItem', () => {
     render(<MessageItem {...defaultProps} />);
     expect(screen.getByText('Hello')).toBeTruthy();
     expect(screen.queryByTestId('context-artifacts-list')).toBeNull();
+  });
+
+  it('renders ArtifactsList for a deploy-success message with artifacts', () => {
+    const message = {
+      ...defaultProps.message,
+      messageData: {
+        artifacts: [{ name: 'Regress Test Type', url: 'http://localhost/v2/dashboard?recordRef=uiserv/form@x', type: { name: 'FORM' } }]
+      }
+    };
+
+    render(<MessageItem {...defaultProps} message={message} />);
+    expect(screen.getByText('Hello')).toBeTruthy();
+    expect(screen.getByTestId('artifacts-list')).toBeTruthy();
+  });
+
+  it('does not render ArtifactsList for a regular message without artifacts', () => {
+    render(<MessageItem {...defaultProps} />);
+    expect(screen.queryByTestId('artifacts-list')).toBeNull();
   });
 
   it('routes to DeployConfirmation when messageData has pendingDeploy', () => {

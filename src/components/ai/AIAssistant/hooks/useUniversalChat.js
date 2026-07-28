@@ -375,12 +375,18 @@ const createAIMessage = (responseData, options = {}) => {
   };
 
   const hasContextArtifacts = responseData.contextArtifacts?.length > 0;
+  // Deployed artifacts (types/forms/processes) carry a clickable link so the user can open and
+  // verify what was just deployed. The config agent returns them on the plain deploy-success
+  // message, so the default branch must forward them (parity with the agent-plan branch above);
+  // otherwise the links are silently dropped for config-agent deploys (COREDEV-323 regression).
+  const hasArtifacts = responseData.artifacts?.length > 0;
   const hasActions = responseData.actions?.length > 0;
   const hasPendingDeploy = !!responseData.pendingDeploy;
 
-  if (hasContextArtifacts || hasActions || hasPendingDeploy) {
+  if (hasContextArtifacts || hasArtifacts || hasActions || hasPendingDeploy) {
     defaultMessage.messageData = {
       ...(hasContextArtifacts && { contextArtifacts: responseData.contextArtifacts }),
+      ...(hasArtifacts && { artifacts: responseData.artifacts }),
       ...(hasActions && { actions: responseData.actions }),
       ...(hasPendingDeploy && { pendingDeploy: responseData.pendingDeploy })
     };
@@ -563,6 +569,21 @@ const useUniversalChat = (options = {}) => {
           setAgentStatus(AGENT_STATUSES.PLANNING);
         } else if (progressType === 'agent_execution') {
           setAgentStatus(AGENT_STATUSES.EXECUTING);
+        }
+
+        // Business-app stepper piggyback: during planning/execution the standalone
+        // `business_app_generation` snapshots stop, so the top stepper advances by riding on the
+        // `businessApp` field the backend attaches to `agent_planning`/`agent_execution` emissions.
+        // The agent checklist card (built from `messageFields`) is untouched.
+        const businessApp = progress.businessApp;
+        if (businessApp) {
+          setActiveBusinessAppProgress({
+            stage: businessApp.stage,
+            progress: businessApp.progress
+          });
+          if (businessApp.availableStages && !generationStages) {
+            setGenerationStages(businessApp.availableStages);
+          }
         }
       }
 

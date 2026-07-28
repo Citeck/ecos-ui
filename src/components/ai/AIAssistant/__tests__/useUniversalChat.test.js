@@ -2,6 +2,7 @@ import { renderHook, act } from '@testing-library/react';
 
 import editorContextService from '../EditorContextService';
 import useUniversalChat from '../hooks/useUniversalChat';
+import usePolling from '../hooks/usePolling';
 
 // Mock dependencies
 jest.mock('../utils', () => ({
@@ -442,5 +443,145 @@ describe('useUniversalChat - handleActionClick deploy scope', () => {
     // messageId is only a client-side routing hint; it must not leak into the request payload.
     const requestBody = JSON.parse(global.fetch.mock.calls[0][1].body);
     expect(requestBody.messageId).toBeUndefined();
+  });
+});
+
+describe('useUniversalChat - business-app stepper piggyback', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    global.fetch = jest.fn();
+  });
+
+  // usePolling is mocked; grab the onProgress/onResult callbacks the hook wired into it.
+  const lastPollingCallbacks = () => {
+    const calls = usePolling.mock.calls;
+    return calls[calls.length - 1][0];
+  };
+
+  it('advances the stepper from businessApp on agent_execution progress', () => {
+    const { result } = renderHook(() => useUniversalChat());
+    const { onProgress } = lastPollingCallbacks();
+
+    act(() => {
+      onProgress({
+        type: 'agent_execution',
+        businessApp: {
+          stage: 'GENERATING_FORMS',
+          progress: 55,
+          availableStages: [{ stage: 'ANALYZING_REQUIREMENTS' }, { stage: 'GENERATING_FORMS' }]
+        }
+      });
+    });
+
+    expect(result.current.activeBusinessAppProgress).toEqual({ stage: 'GENERATING_FORMS', progress: 55 });
+    expect(result.current.generationStages).toEqual([
+      { stage: 'ANALYZING_REQUIREMENTS' },
+      { stage: 'GENERATING_FORMS' }
+    ]);
+  });
+
+  it('advances the stepper from businessApp on agent_planning progress', () => {
+    const { result } = renderHook(() => useUniversalChat());
+    const { onProgress } = lastPollingCallbacks();
+
+    act(() => {
+      onProgress({
+        type: 'agent_planning',
+        businessApp: { stage: 'ANALYZING_REQUIREMENTS', progress: 20 }
+      });
+    });
+
+    expect(result.current.activeBusinessAppProgress).toEqual({ stage: 'ANALYZING_REQUIREMENTS', progress: 20 });
+  });
+
+  it('does not overwrite generationStages once set (guard)', () => {
+    const { result } = renderHook(() => useUniversalChat());
+
+    act(() => {
+      // usePolling always receives the freshest callback on each render, so re-read it per emission.
+      lastPollingCallbacks().onProgress({
+        type: 'agent_execution',
+        businessApp: { stage: 'ANALYZING_REQUIREMENTS', progress: 20, availableStages: [{ stage: 'FIRST' }] }
+      });
+    });
+    act(() => {
+      lastPollingCallbacks().onProgress({
+        type: 'agent_execution',
+        businessApp: { stage: 'GENERATING_FORMS', progress: 55, availableStages: [{ stage: 'SECOND' }] }
+      });
+    });
+
+    // stage/progress keep advancing, but the stage list is seeded only once.
+    expect(result.current.activeBusinessAppProgress).toEqual({ stage: 'GENERATING_FORMS', progress: 55 });
+    expect(result.current.generationStages).toEqual([{ stage: 'FIRST' }]);
+  });
+
+  it('leaves the stepper untouched for non-business-app agent progress', () => {
+    const { result } = renderHook(() => useUniversalChat());
+    const { onProgress } = lastPollingCallbacks();
+
+    act(() => {
+      onProgress({ type: 'agent_execution', currentStepId: 's1' });
+    });
+
+    expect(result.current.activeBusinessAppProgress).toBeNull();
+    expect(result.current.generationStages).toBeNull();
+  });
+
+  it('clears the stepper 5s after a COMPLETED business-app result', () => {
+    jest.useFakeTimers();
+    try {
+      const { result } = renderHook(() => useUniversalChat());
+      const { onProgress, onResult } = lastPollingCallbacks();
+
+      act(() => {
+        onProgress({
+          type: 'agent_execution',
+          businessApp: { stage: 'GENERATING_FORMS', progress: 55, availableStages: [{ stage: 'X' }] }
+        });
+      });
+      expect(result.current.activeBusinessAppProgress).not.toBeNull();
+
+      act(() => {
+        onResult({ message: { type: 'business_app_generation', stage: 'COMPLETED', progress: 100 } });
+      });
+      // still present right after the result — cleanup is deferred 5s.
+      expect(result.current.activeBusinessAppProgress).not.toBeNull();
+
+      act(() => {
+        jest.advanceTimersByTime(5000);
+      });
+      expect(result.current.activeBusinessAppProgress).toBeNull();
+      expect(result.current.generationStages).toBeNull();
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('clears the stepper 5s after a COMPLETED error business-app result', () => {
+    jest.useFakeTimers();
+    try {
+      const { result } = renderHook(() => useUniversalChat());
+      const { onProgress, onResult } = lastPollingCallbacks();
+
+      act(() => {
+        onProgress({
+          type: 'agent_execution',
+          businessApp: { stage: 'GENERATING_FORMS', progress: 55, availableStages: [{ stage: 'X' }] }
+        });
+      });
+
+      act(() => {
+        onResult({ message: { type: 'business_app_generation', stage: 'COMPLETED', error: true, message: 'Отменено' } });
+      });
+
+      act(() => {
+        jest.advanceTimersByTime(5000);
+      });
+      expect(result.current.activeBusinessAppProgress).toBeNull();
+      expect(result.current.generationStages).toBeNull();
+    } finally {
+      jest.useRealTimers();
+    }
   });
 });

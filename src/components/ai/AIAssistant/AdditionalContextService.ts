@@ -238,6 +238,26 @@ class AdditionalContextService {
   }
 
   /**
+   * Remove record from context (drops CURRENT_RECORD type when no records left)
+   */
+  removeRecordFromContext(
+    recordRef: string,
+    setAdditionalContext: Dispatch<AdditionalContext>,
+    setSelectedTypes: Dispatch<string[]>
+  ): void {
+    setAdditionalContext((prev: AdditionalContext) => {
+      const updatedRecords = prev.records.filter(r => r.recordRef !== recordRef);
+      if (updatedRecords.length === prev.records.length) {
+        return prev;
+      }
+      if (updatedRecords.length === 0) {
+        setSelectedTypes((prevTypes: string[]) => prevTypes.filter(c => c !== ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD));
+      }
+      return { ...prev, records: updatedRecords };
+    });
+  }
+
+  /**
    * Load workspace context (name and basic info)
    */
   async loadWorkspaceContext(workspaceId: string): Promise<WorkspaceContext | null> {

@@ -1,14 +1,15 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 import additionalContextService from '../AdditionalContextService';
 
 import { AI_ASSISTANT_EVENTS, ADDITIONAL_CONTEXT_TYPES } from '@/components/ai/AIAssistant/constants';
-import { getWorkspaceId } from '@/helpers/urls';
+import { getRecordRef, getWorkspaceId } from '@/helpers/urls';
 import { Events } from '@/services/PageService.js';
 
 /**
  * Hook for managing additional context (records, documents, attributes, text, scripts)
  * @param {Object} options - Configuration options
+ * @param {boolean} options.isOpen - Whether the chat window is open (enables current record auto-context)
  * @param {Function} options.onContextAdded - Callback when context is added (receives contextType)
  * @param {Function} options.onTextReferenceAdded - Callback when text reference is added (receives { reference, selectedText })
  * @param {Function} options.onScriptContextAdded - Callback when script context is added (receives scriptContextType)
@@ -16,7 +17,7 @@ import { Events } from '@/services/PageService.js';
  * @returns {Object} Context state and handlers
  */
 const useAdditionalContext = (options = {}) => {
-  const { onContextAdded, onTextReferenceAdded, onScriptContextAdded, setMessage } = options;
+  const { isOpen = false, onContextAdded, onTextReferenceAdded, onScriptContextAdded, setMessage } = options;
 
   const [selectedAdditionalContext, setSelectedAdditionalContext] = useState([]);
   const [selectedTextContext, setSelectedTextContext] = useState(null);
@@ -176,6 +177,67 @@ const useAdditionalContext = (options = {}) => {
       prev.includes(ADDITIONAL_CONTEXT_TYPES.DOCUMENTS) ? prev : [...prev, ADDITIONAL_CONTEXT_TYPES.DOCUMENTS]
     );
   }, []);
+
+  // recordRef of the record auto-added to context from the URL
+  const autoRecordRef = useRef(null);
+  // Guards against stale async loads when the URL changes quickly
+  const syncSeqRef = useRef(0);
+
+  // Sync the record opened on the current page (dashboard) into the chat context
+  const syncCurrentRecord = useCallback(async () => {
+    const rawRecordRef = getRecordRef();
+    const currentRecordRef = rawRecordRef ? rawRecordRef.split('-alias-')[0] : null;
+    const prevAutoRecordRef = autoRecordRef.current;
+
+    if (prevAutoRecordRef === currentRecordRef) {
+      return;
+    }
+
+    const seq = ++syncSeqRef.current;
+
+    // Drop the previously auto-added record
+    if (prevAutoRecordRef) {
+      autoRecordRef.current = null;
+      additionalContextService.removeRecordFromContext(prevAutoRecordRef, setAdditionalContext, setSelectedAdditionalContext);
+    }
+
+    if (!currentRecordRef) {
+      return;
+    }
+
+    try {
+      const recordData = await additionalContextService.loadRecordData(currentRecordRef);
+      if (seq !== syncSeqRef.current) {
+        return;
+      }
+
+      addRecordToContext(recordData);
+      autoRecordRef.current = currentRecordRef;
+    } catch (error) {
+      console.error('Error auto-adding current record to AI context:', error);
+    }
+  }, [addRecordToContext]);
+
+  // Auto-add the record from the opened dashboard when the chat is open; follow URL changes
+  useEffect(() => {
+    if (!isOpen) {
+      // Re-add on the next open (addRecordToContext dedups if the context survived)
+      autoRecordRef.current = null;
+      return;
+    }
+
+    syncCurrentRecord();
+
+    const handleUrlChange = () => {
+      syncCurrentRecord();
+    };
+
+    document.addEventListener(Events.CHANGE_URL_LINK_EVENT, handleUrlChange);
+
+    return () => {
+      document.removeEventListener(Events.CHANGE_URL_LINK_EVENT, handleUrlChange);
+    };
+  }, [isOpen, syncCurrentRecord]);
 
   // Handle external context events
   useEffect(() => {

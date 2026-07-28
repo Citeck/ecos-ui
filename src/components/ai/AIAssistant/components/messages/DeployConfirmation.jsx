@@ -5,6 +5,7 @@ import remarkGfm from 'remark-gfm';
 
 import { DEPLOY_ACTION, getDeployScopeKey } from '../../constants';
 
+import ArtifactsList from './ArtifactsList';
 import MessageActions from './MessageActions';
 
 import { Icon } from '@/components/common';
@@ -62,6 +63,10 @@ const DeployConfirmation = ({ message, markdownComponents, onActionClick }) => {
           {text}
         </Markdown>
       )}
+
+      {/* A prior artifact deployed earlier in this flow (e.g. the type before its dependent form)
+          rides along on this next deploy gate — surface its clickable link so the user can open it. */}
+      {messageData?.artifacts && <ArtifactsList artifacts={messageData.artifacts} />}
 
       <div className="ai-assistant-chat__deploy-confirm-scope">
         <Icon className="fa fa-rocket ai-assistant-chat__deploy-confirm-scope-icon" />
