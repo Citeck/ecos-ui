@@ -7,6 +7,7 @@ import { formatMessageTime } from '../../utils';
 
 import AgentPlanMessage from './AgentPlanMessage';
 import AgentProgressMessage from './AgentProgressMessage';
+import ArtifactsList from './ArtifactsList';
 import BusinessAppMessage from './BusinessAppMessage';
 import ContextArtifactsList from './ContextArtifactsList';
 import DeployConfirmation from './DeployConfirmation';
@@ -92,7 +93,7 @@ const MessageItem = ({
 
     // Business app progress message
     if (message.isBusinessAppContent && message.messageData) {
-      return <BusinessAppMessage message={message} markdownComponents={markdownComponents} />;
+      return <BusinessAppMessage message={message} markdownComponents={markdownComponents} onActionClick={onActionClick} />;
     }
 
     // Config-agent HITL deploy confirmation (pendingDeploy in result, COREDEV-323 contract #3)
@@ -106,6 +107,7 @@ const MessageItem = ({
         <Markdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
           {message.text}
         </Markdown>
+        {message.messageData?.artifacts && <ArtifactsList artifacts={message.messageData.artifacts} />}
         {message.messageData?.contextArtifacts && <ContextArtifactsList contextArtifacts={message.messageData.contextArtifacts} />}
         {message.messageData?.actions && (
           <MessageActions actions={message.messageData.actions} messageId={message.id} onActionClick={onActionClick} />

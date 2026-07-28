@@ -43,6 +43,23 @@ describe('DeployConfirmation', () => {
     expect(screen.queryByText('ai-assistant.deploy.scope.change')).toBeNull();
   });
 
+  it('renders a clickable link for a prior deployed artifact riding on the gate', () => {
+    const message = buildMessage({
+      artifactType: 'FORM',
+      targetScope: { kind: 'GLOBAL', label: 'Будет создано глобально' },
+      changeable: false
+    });
+    message.messageData.artifacts = [
+      { name: 'Regress Test Type', url: 'http://localhost/v2/dashboard?recordRef=emodel/type@x', type: { displayName: 'Тип данных', icon: 'fa-database' } }
+    ];
+
+    render(<DeployConfirmation message={message} markdownComponents={markdownComponents} onActionClick={jest.fn()} />);
+
+    const link = screen.getByText('Regress Test Type');
+    expect(link).toBeTruthy();
+    expect(link.getAttribute('href')).toBe('http://localhost/v2/dashboard?recordRef=emodel/type@x');
+  });
+
   it('renders the workspace target scope label', () => {
     const message = buildMessage({
       artifactType: 'FORM',

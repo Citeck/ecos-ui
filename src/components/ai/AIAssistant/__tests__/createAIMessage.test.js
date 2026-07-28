@@ -269,4 +269,40 @@ describe('createAIMessage', () => {
       expect(result).not.toHaveProperty('messageData');
     });
   });
+
+  describe('artifacts (deployed links)', () => {
+    it('forwards artifacts into the default deploy-success message', () => {
+      const artifacts = [
+        { name: 'Regress Test Type', url: 'http://localhost/v2/dashboard?recordRef=uiserv/form@x', type: { name: 'FORM' } }
+      ];
+      const responseData = {
+        message: '✅ Всё выполнено.',
+        artifacts
+      };
+
+      const result = createAIMessage(responseData);
+
+      expect(result.text).toBe('✅ Всё выполнено.');
+      expect(result.messageData).toEqual({ artifacts });
+    });
+
+    it('forwards artifacts alongside a pendingDeploy gate (intermediate deploy link)', () => {
+      const artifacts = [{ name: 'My Type', url: 'http://localhost/x', type: { name: 'DATA_TYPE' } }];
+      const pendingDeploy = { artifactType: 'form', targetScope: { kind: 'GLOBAL', label: 'Глобально' } };
+      const responseData = {
+        message: 'Форма готова к развёртыванию',
+        artifacts,
+        pendingDeploy
+      };
+
+      const result = createAIMessage(responseData);
+
+      expect(result.messageData).toEqual({ artifacts, pendingDeploy });
+    });
+
+    it('does not add messageData for a default message with empty artifacts', () => {
+      const result = createAIMessage({ message: 'Simple text', artifacts: [] });
+      expect(result).not.toHaveProperty('messageData');
+    });
+  });
 });

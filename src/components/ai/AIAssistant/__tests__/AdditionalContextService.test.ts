@@ -220,6 +220,65 @@ describe('AdditionalContextService', () => {
     });
   });
 
+  describe('removeRecordFromContext', () => {
+    it('removes record and keeps other records', () => {
+      const setAdditionalContext = jest.fn();
+      const setSelectedTypes = jest.fn();
+      const context: AdditionalContext = {
+        records: [
+          { recordRef: 'rec-1', displayName: 'R1', type: 't1' },
+          { recordRef: 'rec-2', displayName: 'R2', type: 't1' }
+        ],
+        attributes: [],
+        documents: []
+      };
+
+      additionalContextService.removeRecordFromContext('rec-1', setAdditionalContext, setSelectedTypes);
+
+      const updater = setAdditionalContext.mock.calls[0][0];
+      const result = updater(context);
+      expect(result.records).toEqual([{ recordRef: 'rec-2', displayName: 'R2', type: 't1' }]);
+      expect(setSelectedTypes).not.toHaveBeenCalled();
+    });
+
+    it('removes CURRENT_RECORD type when last record removed', () => {
+      const setAdditionalContext = jest.fn();
+      const setSelectedTypes = jest.fn();
+      const context: AdditionalContext = {
+        records: [{ recordRef: 'rec-1', displayName: 'R1', type: 't1' }],
+        attributes: [],
+        documents: []
+      };
+
+      additionalContextService.removeRecordFromContext('rec-1', setAdditionalContext, setSelectedTypes);
+
+      const updater = setAdditionalContext.mock.calls[0][0];
+      const result = updater(context);
+      expect(result.records).toHaveLength(0);
+
+      const typeUpdater = setSelectedTypes.mock.calls[0][0];
+      expect(typeUpdater([ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD, ADDITIONAL_CONTEXT_TYPES.DOCUMENTS])).toEqual([
+        ADDITIONAL_CONTEXT_TYPES.DOCUMENTS
+      ]);
+    });
+
+    it('returns same state when record is not in context', () => {
+      const setAdditionalContext = jest.fn();
+      const setSelectedTypes = jest.fn();
+      const context: AdditionalContext = {
+        records: [{ recordRef: 'rec-2', displayName: 'R2', type: 't1' }],
+        attributes: [],
+        documents: []
+      };
+
+      additionalContextService.removeRecordFromContext('rec-1', setAdditionalContext, setSelectedTypes);
+
+      const updater = setAdditionalContext.mock.calls[0][0];
+      expect(updater(context)).toBe(context);
+      expect(setSelectedTypes).not.toHaveBeenCalled();
+    });
+  });
+
   describe('toggleDocumentContext', () => {
     const emptyContext: AdditionalContext = { records: [], attributes: [], documents: [] };
 

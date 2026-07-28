@@ -4,6 +4,7 @@ import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 import ArtifactsList from './ArtifactsList';
+import MessageActions from './MessageActions';
 
 import { Icon } from '@/components/common';
 import { t } from '@/helpers/export/util';
@@ -13,8 +14,9 @@ import { t } from '@/helpers/export/util';
  * @param {Object} props
  * @param {Object} props.message - Full message object
  * @param {Object} props.markdownComponents - Markdown component overrides
+ * @param {Function} props.onActionClick - Action button handler (SKIP/CANCEL on the clarifying-questions card)
  */
-const BusinessAppMessage = ({ message, markdownComponents }) => {
+const BusinessAppMessage = ({ message, markdownComponents, onActionClick }) => {
   const { messageData, text, isProcessing } = message;
 
   if (!messageData) return null;
@@ -95,6 +97,11 @@ const BusinessAppMessage = ({ message, markdownComponents }) => {
 
       {/* Artifacts (if any at this stage) */}
       <ArtifactsList artifacts={messageData.artifacts} />
+
+      {/* Action buttons (e.g. Пропустить / Отмена on the clarifying-questions card) */}
+      {messageData.actions?.length > 0 && (
+        <MessageActions actions={messageData.actions} messageId={message.id} onActionClick={onActionClick} />
+      )}
     </div>
   );
 };

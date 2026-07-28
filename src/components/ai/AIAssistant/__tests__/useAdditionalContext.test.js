@@ -2,10 +2,12 @@ import { renderHook, act } from '@testing-library/react';
 import useAdditionalContext from '../hooks/useAdditionalContext';
 import additionalContextService from '../AdditionalContextService';
 import { AI_ASSISTANT_EVENTS, ADDITIONAL_CONTEXT_TYPES } from '@/components/ai/AIAssistant/constants';
+import { getRecordRef } from '@/helpers/urls';
 
 jest.mock('../AdditionalContextService', () => ({
   __esModule: true,
   default: {
+    loadRecordData: jest.fn(),
     loadCurrentRecordData: jest.fn(),
     loadDocumentsData: jest.fn(),
     loadWorkspaceContext: jest.fn().mockResolvedValue(null),
@@ -13,12 +15,14 @@ jest.mock('../AdditionalContextService', () => ({
     toggleDocumentContext: jest.fn(),
     handleAddRecordContext: jest.fn(),
     handleAddAttributeContext: jest.fn(),
+    removeRecordFromContext: jest.fn(),
     isRecordInContext: jest.fn().mockReturnValue(false)
   }
 }));
 
 jest.mock('@/helpers/urls', () => ({
-  getWorkspaceId: jest.fn(() => 'test-ws')
+  getWorkspaceId: jest.fn(() => 'test-ws'),
+  getRecordRef: jest.fn(() => '')
 }));
 
 jest.mock('@/services/PageService.js', () => ({
@@ -276,6 +280,128 @@ describe('useAdditionalContext', () => {
         reference: 'myRef',
         selectedText: 'hello world'
       });
+    });
+  });
+
+  describe('current record auto-context (chat open)', () => {
+    const CHANGE_URL_EVENT = 'page:change-url';
+
+    it('auto-adds current record to context when chat is open', async () => {
+      getRecordRef.mockReturnValue('rec-1');
+      additionalContextService.loadRecordData.mockResolvedValue({ recordRef: 'rec-1', displayName: 'Doc 1', type: 't1' });
+
+      const { result } = renderHook(() => useAdditionalContext({ isOpen: true }));
+
+      await act(async () => {});
+
+      expect(additionalContextService.loadRecordData).toHaveBeenCalledWith('rec-1');
+      expect(result.current.additionalContext.records).toEqual([{ recordRef: 'rec-1', displayName: 'Doc 1', type: 't1' }]);
+      expect(result.current.selectedAdditionalContext).toContain(ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD);
+    });
+
+    it('does not auto-add when chat is closed', async () => {
+      getRecordRef.mockReturnValue('rec-1');
+
+      renderHook(() => useAdditionalContext({ isOpen: false }));
+
+      await act(async () => {});
+
+      expect(additionalContextService.loadRecordData).not.toHaveBeenCalled();
+    });
+
+    it('does nothing when URL has no recordRef', async () => {
+      getRecordRef.mockReturnValue('');
+
+      renderHook(() => useAdditionalContext({ isOpen: true }));
+
+      await act(async () => {});
+
+      expect(additionalContextService.loadRecordData).not.toHaveBeenCalled();
+    });
+
+    it('strips -alias- suffix from URL recordRef', async () => {
+      getRecordRef.mockReturnValue('rec-1-alias-some-alias');
+      additionalContextService.loadRecordData.mockResolvedValue({ recordRef: 'rec-1', displayName: 'Doc 1', type: 't1' });
+
+      renderHook(() => useAdditionalContext({ isOpen: true }));
+
+      await act(async () => {});
+
+      expect(additionalContextService.loadRecordData).toHaveBeenCalledWith('rec-1');
+    });
+
+    it('replaces auto-added record when URL record changes', async () => {
+      getRecordRef.mockReturnValue('rec-1');
+      additionalContextService.loadRecordData.mockResolvedValue({ recordRef: 'rec-1', displayName: 'Doc 1', type: 't1' });
+
+      renderHook(() => useAdditionalContext({ isOpen: true }));
+
+      await act(async () => {});
+
+      getRecordRef.mockReturnValue('rec-2');
+      additionalContextService.loadRecordData.mockResolvedValue({ recordRef: 'rec-2', displayName: 'Doc 2', type: 't1' });
+
+      await act(async () => {
+        document.dispatchEvent(new Event(CHANGE_URL_EVENT));
+      });
+
+      expect(additionalContextService.removeRecordFromContext).toHaveBeenCalledWith('rec-1', expect.any(Function), expect.any(Function));
+      expect(additionalContextService.loadRecordData).toHaveBeenLastCalledWith('rec-2');
+    });
+
+    it('removes auto-added record when navigating to a page without record', async () => {
+      getRecordRef.mockReturnValue('rec-1');
+      additionalContextService.loadRecordData.mockResolvedValue({ recordRef: 'rec-1', displayName: 'Doc 1', type: 't1' });
+
+      renderHook(() => useAdditionalContext({ isOpen: true }));
+
+      await act(async () => {});
+
+      getRecordRef.mockReturnValue('');
+
+      await act(async () => {
+        document.dispatchEvent(new Event(CHANGE_URL_EVENT));
+      });
+
+      expect(additionalContextService.removeRecordFromContext).toHaveBeenCalledWith('rec-1', expect.any(Function), expect.any(Function));
+    });
+
+    it('does not reload when URL change keeps the same record', async () => {
+      getRecordRef.mockReturnValue('rec-1');
+      additionalContextService.loadRecordData.mockResolvedValue({ recordRef: 'rec-1', displayName: 'Doc 1', type: 't1' });
+
+      renderHook(() => useAdditionalContext({ isOpen: true }));
+
+      await act(async () => {});
+
+      await act(async () => {
+        document.dispatchEvent(new Event(CHANGE_URL_EVENT));
+      });
+
+      expect(additionalContextService.loadRecordData).toHaveBeenCalledTimes(1);
+      expect(additionalContextService.removeRecordFromContext).not.toHaveBeenCalled();
+    });
+
+    it('re-adds current record when chat is reopened without duplicating context', async () => {
+      getRecordRef.mockReturnValue('rec-1');
+      additionalContextService.loadRecordData.mockResolvedValue({ recordRef: 'rec-1', displayName: 'Doc 1', type: 't1' });
+
+      const { result, rerender } = renderHook(({ isOpen }) => useAdditionalContext({ isOpen }), {
+        initialProps: { isOpen: true }
+      });
+
+      await act(async () => {});
+
+      rerender({ isOpen: false });
+      await act(async () => {});
+
+      // Context survived the close; record must not duplicate on reopen
+      additionalContextService.isRecordInContext.mockReturnValue(true);
+      rerender({ isOpen: true });
+      await act(async () => {});
+
+      expect(result.current.additionalContext.records).toHaveLength(1);
+      additionalContextService.isRecordInContext.mockReturnValue(false);
     });
   });
 

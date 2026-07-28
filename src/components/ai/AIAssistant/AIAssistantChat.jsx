@@ -94,6 +94,7 @@ const AIAssistantChat = () => {
   }, []);
 
   const additionalContextHook = useAdditionalContext({
+    isOpen,
     setMessage: setMessageWrapper,
     onContextAdded: handleContextEvent,
     onTextReferenceAdded: handleContextEvent,
