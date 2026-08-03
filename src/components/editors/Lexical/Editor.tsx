@@ -253,7 +253,7 @@ export default function Editor({
               hasCellBackgroundColor={tableCellBackgroundColor}
               hasHorizontalScroll={tableHorizontalScroll}
             />
-            <TableCellResizer />
+            {floatingAnchorElem && <TableCellResizer anchorElem={floatingAnchorElem} />}
             <ImagesPlugin />
             <OnImageUploadPlugin onUpload={onUpload} />
             <LinkPlugin hasLinkAttributes={hasLinkAttributes} />

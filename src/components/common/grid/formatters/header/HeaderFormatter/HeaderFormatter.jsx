@@ -113,10 +113,10 @@ export default class HeaderFormatter extends Component {
     const { column } = this.props;
 
     this.setState({ text: '' });
-    this.triggerPendingChange('', column.dataField, column.type);
+    this.triggerPendingChange('', column.attribute || column.dataField, column.type);
   };
 
-  triggerPendingChange = debounce((text, dataField, type) => {
+  triggerPendingChange = debounce((text, att, type) => {
     const { column, onFilter, originPredicate } = this.props;
     const { predicate } = this.state;
 
@@ -126,7 +126,7 @@ export default class HeaderFormatter extends Component {
       onFilter(
         [
           {
-            att: dataField,
+            att,
             t: get(predicate, 't', '') || get(originPredicate, 't', ''),
             val: text.trim()
           }

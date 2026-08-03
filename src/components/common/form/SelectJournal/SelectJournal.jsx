@@ -10,6 +10,7 @@ import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 import merge from 'lodash/merge';
+import omit from 'lodash/omit';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { Collapse } from 'reactstrap';
@@ -185,7 +186,9 @@ export default class SelectJournal extends Component {
       }
     }
 
-    if (!isEqual(prevState.gridData, this.state.gridData)) {
+    // A change of selected rows is not reloaded data: marking the grid as ready here would keep
+    // the rows fetched with the previous custom predicate and suppress the refetch on modal open
+    if (!isEqual(omit(prevState.gridData, 'selected'), omit(this.state.gridData, 'selected'))) {
       this.setState({ isGridDataReady: true });
     }
   }

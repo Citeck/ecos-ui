@@ -132,4 +132,55 @@ describe('SelectJournal — dynamic journalId', () => {
       checkSpy.mockRestore();
     });
   });
+
+  describe('componentDidUpdate — grid data readiness after custom predicate change', () => {
+    const prevProps = { journalId: 'j1', defaultValue: undefined };
+    const newPredicate = { att: 'legalEntity', t: 'eq', val: 'emodel/uni-dl-legal-entity@le-beautology' };
+
+    const buildInstanceWithNewPredicate = () => {
+      const instance = buildInstance();
+
+      jest.spyOn(instance, 'shouldResetValue').mockResolvedValue({ shouldReset: false });
+      instance.setCustomPredicate(newPredicate);
+
+      expect(instance.state.isGridDataReady).toBe(false);
+
+      return instance;
+    };
+
+    it('keeps grid data not ready when only selected rows changed', () => {
+      const instance = buildInstanceWithNewPredicate();
+      const prevState = { ...instance.state, gridData: { ...instance.state.gridData, selected: ['1'] } };
+
+      instance.state = { ...instance.state, gridData: { ...instance.state.gridData, selected: [] } };
+      instance.componentDidUpdate(prevProps, prevState);
+
+      expect(instance.state.isGridDataReady).toBe(false);
+    });
+
+    it('marks grid data ready when the grid rows themselves changed', () => {
+      const instance = buildInstanceWithNewPredicate();
+      const prevState = { ...instance.state, gridData: { ...instance.state.gridData } };
+
+      instance.state = { ...instance.state, gridData: { ...instance.state.gridData, data: [{ id: '2' }], total: 1 } };
+      instance.componentDidUpdate(prevProps, prevState);
+
+      expect(instance.state.isGridDataReady).toBe(true);
+    });
+
+    it('refreshes grid data on modal open while the grid is not ready', () => {
+      const instance = buildInstanceWithNewPredicate();
+      const refreshSpy = jest.spyOn(instance, 'refreshGridData').mockImplementation(() => Promise.resolve());
+      const prevState = { ...instance.state, gridData: { ...instance.state.gridData, selected: ['1'] } };
+
+      instance.state = { ...instance.state, gridData: { ...instance.state.gridData, selected: [] } };
+      instance.componentDidUpdate(prevProps, prevState);
+      instance.openSelectModal();
+
+      expect(instance.state.isSelectModalOpen).toBe(true);
+      expect(refreshSpy).toHaveBeenCalledTimes(1);
+
+      refreshSpy.mockRestore();
+    });
+  });
 });
