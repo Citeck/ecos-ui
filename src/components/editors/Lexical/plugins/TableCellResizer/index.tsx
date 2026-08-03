@@ -38,7 +38,7 @@ type MouseDraggingDirection = 'right' | 'bottom';
 const MIN_ROW_HEIGHT = 33;
 const MIN_COLUMN_WIDTH = 92;
 
-function TableCellResizer({ editor }: { editor: LexicalEditor }): JSX.Element {
+function TableCellResizer({ editor, anchorElem }: { editor: LexicalEditor; anchorElem: HTMLElement }): JSX.Element {
   const targetRef = useRef<HTMLElement | null>(null);
   const resizerRef = useRef<HTMLDivElement | null>(null);
   const tableRectRef = useRef<ClientRect | null>(null);
@@ -332,21 +332,27 @@ function TableCellResizer({ editor }: { editor: LexicalEditor }): JSX.Element {
       const { height, width, top, left } = activeCell.elem.getBoundingClientRect();
       const zoom = calculateZoomLevel(activeCell.elem);
       const zoneWidth = 10; // Pixel width of the zone where you can drag the edge
+      // The resizer is rendered inside anchorElem (the editor), not in document.body, so that it
+      // always lives in the same stacking context as the table it resizes — no matter how many
+      // modals the editor itself is nested in. Every value below is therefore converted from
+      // viewport px to anchorElem-local CSS px: subtract the anchor origin, then divide by the
+      // zoom level (getBoundingClientRect is in zoomed px, CSS offsets inside the anchor are not).
+      const { top: anchorTop, left: anchorLeft } = anchorElem.getBoundingClientRect();
       const styles = {
         bottom: {
           backgroundColor: 'none',
           cursor: 'row-resize',
           height: `${zoneWidth}px`,
-          left: `${window.pageXOffset + left}px`,
-          top: `${window.pageYOffset + top + height - zoneWidth / 2}px`,
-          width: `${width}px`
+          left: `${(left - anchorLeft) / zoom}px`,
+          top: `${(top - anchorTop + height) / zoom - zoneWidth / 2}px`,
+          width: `${width / zoom}px`
         },
         right: {
           backgroundColor: 'none',
           cursor: 'col-resize',
-          height: `${height}px`,
-          left: `${window.pageXOffset + left + width - zoneWidth / 2}px`,
-          top: `${window.pageYOffset + top}px`,
+          height: `${height / zoom}px`,
+          left: `${(left - anchorLeft + width) / zoom - zoneWidth / 2}px`,
+          top: `${(top - anchorTop) / zoom}px`,
           width: `${zoneWidth}px`
         }
       };
@@ -355,15 +361,15 @@ function TableCellResizer({ editor }: { editor: LexicalEditor }): JSX.Element {
 
       if (draggingDirection && mouseCurrentPos && tableRect) {
         if (isHeightChanging(draggingDirection)) {
-          styles[draggingDirection].left = `${window.pageXOffset + tableRect.left}px`;
-          styles[draggingDirection].top = `${window.pageYOffset + mouseCurrentPos.y / zoom}px`;
+          styles[draggingDirection].left = `${(tableRect.left - anchorLeft) / zoom}px`;
+          styles[draggingDirection].top = `${(mouseCurrentPos.y - anchorTop) / zoom}px`;
           styles[draggingDirection].height = '3px';
-          styles[draggingDirection].width = `${tableRect.width}px`;
+          styles[draggingDirection].width = `${tableRect.width / zoom}px`;
         } else {
-          styles[draggingDirection].top = `${window.pageYOffset + tableRect.top}px`;
-          styles[draggingDirection].left = `${window.pageXOffset + mouseCurrentPos.x / zoom}px`;
+          styles[draggingDirection].top = `${(tableRect.top - anchorTop) / zoom}px`;
+          styles[draggingDirection].left = `${(mouseCurrentPos.x - anchorLeft) / zoom}px`;
           styles[draggingDirection].width = '3px';
-          styles[draggingDirection].height = `${tableRect.height}px`;
+          styles[draggingDirection].height = `${tableRect.height / zoom}px`;
         }
 
         styles[draggingDirection].backgroundColor = '#adf';
@@ -378,7 +384,7 @@ function TableCellResizer({ editor }: { editor: LexicalEditor }): JSX.Element {
       right: null,
       top: null
     };
-  }, [activeCell, draggingDirection, mouseCurrentPos]);
+  }, [activeCell, draggingDirection, mouseCurrentPos, anchorElem]);
 
   const resizerStyles = getResizers();
 
@@ -402,9 +408,12 @@ function TableCellResizer({ editor }: { editor: LexicalEditor }): JSX.Element {
   );
 }
 
-export default function TableCellResizerPlugin(): null | ReactPortal {
+export default function TableCellResizerPlugin({ anchorElem = document.body }: { anchorElem?: HTMLElement }): null | ReactPortal {
   const [editor] = useLexicalComposerContext();
   const isEditable = useLexicalEditable();
 
-  return useMemo(() => (isEditable ? createPortal(<TableCellResizer editor={editor} />, document.body) : null), [editor, isEditable]);
+  return useMemo(
+    () => (isEditable ? createPortal(<TableCellResizer editor={editor} anchorElem={anchorElem} />, anchorElem) : null),
+    [editor, isEditable, anchorElem]
+  );
 }
