@@ -9,4 +9,8 @@
 
 .TableCellResizer__resizer {
   position: absolute;
+  /* the resizer is rendered inside the editor (anchorElem), so it only competes with
+     the editor content: sticky frozen rows/columns (z-index: 2) and the cell action
+     button (z-index: 4) */
+  z-index: 10;
 }
