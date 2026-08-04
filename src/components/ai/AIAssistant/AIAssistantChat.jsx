@@ -30,6 +30,13 @@ import { NotificationManager } from '@/services/notifications';
 import 'react-resizable/css/styles.css';
 import './styles/index.scss';
 
+// Only props known to ResizableBox may be passed to it: react-resizable@3 spreads the rest onto its
+// inner `<div>`, and an unknown one (previously `disableResize`) reaches the DOM and produces a
+// React warning. Resizing is switched off by an empty handle list instead. Both lists are module
+// constants so the minimized/expanded switch is the only thing that changes the prop identity.
+const CORNER_RESIZE_HANDLE = ['nw'];
+const NO_RESIZE_HANDLES = [];
+
 // Hook to detect if device is mobile
 const useIsMobile = () => {
   const [isMobile, setIsMobile] = useState(() => {
@@ -607,6 +614,7 @@ const AIAssistantChat = () => {
                 activeRequestId={currentChat.activeRequestId}
                 messagesEndRef={messagesEndRef}
                 onActionClick={currentChat.handleActionClick}
+                onSelectDeployScope={currentChat.selectDeployScope}
                 onSelectAgent={activeTab === TAB_TYPES.UNIVERSAL ? universalChatHook.setSelectedAgent : undefined}
               />
             </div>
@@ -647,6 +655,7 @@ const AIAssistantChat = () => {
                   onClearConversation={handleClearConversationKeepAgent}
                   fileInputRef={fileInputRef}
                   onFileUpload={handleFileUpload}
+                  selectedAgent={universalChatHook.selectedAgent}
                 />
               </form>
             </div>
@@ -679,8 +688,7 @@ const AIAssistantChat = () => {
         height={isMinimized ? 50 : chatSize.height}
         minConstraints={[300, 300]}
         onResize={handleResize}
-        resizeHandles={['nw']}
-        disableResize={isMinimized}
+        resizeHandles={isMinimized ? NO_RESIZE_HANDLES : CORNER_RESIZE_HANDLE}
       >
         {chatContent}
       </ResizableBox>

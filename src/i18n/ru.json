@@ -2718,6 +2718,7 @@
   "ai-assistant.welcome.tip.before": "Через",
   "ai-assistant.welcome.tip.after": "добавьте запись или документ в контекст, а файлы и картинки просто прикрепляйте кнопкой загрузки.",
   "ai-assistant.input.placeholder.universal": "Опишите, что вы хотите создать...",
+  "ai-assistant.input.placeholder.operational": "Спросите о задачах, документах или записях...",
   "ai-assistant.input.placeholder.contextual": "Введите ваш запрос...",
   "ai-assistant.input.upload": "Загрузить файл",
   "ai-assistant.input.uploading": "Загрузка...",

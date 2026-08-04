@@ -2,7 +2,8 @@ import { render } from '@testing-library/react';
 import React from 'react';
 
 import ChatInput from '../components/ChatInput';
-import { FILE_UPLOAD_ACCEPT_STRING, buildAcceptString, FILE_UPLOAD_WHITELIST } from '@/components/ai/AIAssistant/constants';
+
+import { AGENT_ENGINE, FILE_UPLOAD_ACCEPT_STRING, buildAcceptString, FILE_UPLOAD_WHITELIST } from '@/components/ai/AIAssistant/constants';
 
 jest.mock('@/components/common', () => ({
   Icon: ({ className }) => <i className={className} data-testid="icon" />
@@ -78,5 +79,55 @@ describe('ChatInput file accept attribute', () => {
     const fileInput = getFileInput(container);
     expect(fileInput).toBeTruthy();
     expect(fileInput.getAttribute('accept')).toBe(FILE_UPLOAD_ACCEPT_STRING);
+  });
+});
+
+describe('ChatInput placeholder by agent engine', () => {
+  const baseProps = {
+    textareaRef: { current: null },
+    message: '',
+    isLoading: false,
+    isUniversal: true,
+    isUploadingFile: false,
+    onInputChange: jest.fn(),
+    onKeyDown: jest.fn(),
+    onFileUploadClick: jest.fn(),
+    onClearConversation: jest.fn(),
+    fileInputRef: { current: null },
+    onFileUpload: jest.fn()
+  };
+
+  const getPlaceholder = props =>
+    render(<ChatInput {...baseProps} {...props} />)
+      .container.querySelector('textarea')
+      .getAttribute('placeholder');
+
+  it('no agent selected — keeps the neutral universal placeholder', () => {
+    expect(getPlaceholder({ selectedAgent: null })).toBe('ai-assistant.input.placeholder.universal');
+  });
+
+  it('TOOL_LOOP agent — operational placeholder', () => {
+    expect(getPlaceholder({ selectedAgent: { id: 'tasks-documents-helper', engine: AGENT_ENGINE.TOOL_LOOP } })).toBe(
+      'ai-assistant.input.placeholder.operational'
+    );
+  });
+
+  it('CONFIG agent — universal (artifact creation) placeholder', () => {
+    expect(getPlaceholder({ selectedAgent: { id: 'platform-config-agent', engine: AGENT_ENGINE.CONFIG } })).toBe(
+      'ai-assistant.input.placeholder.universal'
+    );
+  });
+
+  it('legacy agent DTO without `engine` — operational placeholder via getAgentEngine fallback', () => {
+    expect(getPlaceholder({ selectedAgent: { id: 'legacy-agent' } })).toBe('ai-assistant.input.placeholder.operational');
+  });
+
+  it('contextual tab — contextual placeholder regardless of the selected agent', () => {
+    expect(getPlaceholder({ isUniversal: false, selectedAgent: { id: 'tasks-documents-helper', engine: AGENT_ENGINE.TOOL_LOOP } })).toBe(
+      'ai-assistant.input.placeholder.contextual'
+    );
+    expect(getPlaceholder({ isUniversal: false, selectedAgent: { id: 'platform-config-agent', engine: AGENT_ENGINE.CONFIG } })).toBe(
+      'ai-assistant.input.placeholder.contextual'
+    );
   });
 });

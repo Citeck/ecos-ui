@@ -1,11 +1,13 @@
 import { renderHook, act } from '@testing-library/react';
 
 import editorContextService from '../EditorContextService';
-import useUniversalChat from '../hooks/useUniversalChat';
 import usePolling from '../hooks/usePolling';
+import useUniversalChat from '../hooks/useUniversalChat';
 
 // Mock dependencies
+// Only generateUUID is stubbed — the hook also relies on the real `fileSaveActionTempRef`.
 jest.mock('../utils', () => ({
+  ...jest.requireActual('../utils'),
   generateUUID: jest.fn(() => 'test-uuid-' + Math.random().toString(36).slice(2, 8))
 }));
 
@@ -421,7 +423,7 @@ describe('useUniversalChat - handleActionClick deploy scope', () => {
     expect(requestBody.deployScope).toBeUndefined();
   });
 
-  it('clears actions only from the clicked message when ids are shared (scoped by messageId)', async () => {
+  it('resolves only the clicked message when ids are shared (scoped by messageId)', async () => {
     const { result } = renderHook(() => useUniversalChat());
 
     const deployActions = [{ id: 'deploy_confirm' }, { id: 'deploy_reject' }];
@@ -438,7 +440,10 @@ describe('useUniversalChat - handleActionClick deploy scope', () => {
 
     const byId = Object.fromEntries(result.current.messages.filter(m => m.id).map(m => [m.id, m]));
     expect(byId['deploy-a'].messageData.actions).toEqual(deployActions);
-    expect(byId['deploy-b'].messageData.actions).toBeNull();
+    expect(byId['deploy-a'].messageData.actionsResolved).toBeUndefined();
+    // The clicked gate keeps its buttons; the flag is what renders them disabled.
+    expect(byId['deploy-b'].messageData.actions).toEqual(deployActions);
+    expect(byId['deploy-b'].messageData.actionsResolved).toBe(true);
 
     // messageId is only a client-side routing hint; it must not leak into the request payload.
     const requestBody = JSON.parse(global.fetch.mock.calls[0][1].body);
@@ -474,10 +479,7 @@ describe('useUniversalChat - business-app stepper piggyback', () => {
     });
 
     expect(result.current.activeBusinessAppProgress).toEqual({ stage: 'GENERATING_FORMS', progress: 55 });
-    expect(result.current.generationStages).toEqual([
-      { stage: 'ANALYZING_REQUIREMENTS' },
-      { stage: 'GENERATING_FORMS' }
-    ]);
+    expect(result.current.generationStages).toEqual([{ stage: 'ANALYZING_REQUIREMENTS' }, { stage: 'GENERATING_FORMS' }]);
   });
 
   it('advances the stepper from businessApp on agent_planning progress', () => {

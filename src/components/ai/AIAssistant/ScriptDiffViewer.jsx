@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import ReactDiffViewer, { DiffMethod } from 'react-diff-viewer-continued';
 import Markdown from 'react-markdown';
 
@@ -6,6 +6,67 @@ import { getScriptContextLabel } from './constants';
 
 import { Icon } from '@/components/common';
 import { t } from '@/helpers/export/util.ts';
+
+// Light theme styles - more readable and professional
+const DIFF_STYLES = {
+  variables: {
+    light: {
+      diffViewerBackground: '#fafbfc',
+      diffViewerColor: '#24292e',
+      addedBackground: '#e6ffec',
+      addedColor: '#22863a',
+      removedBackground: '#ffeef0',
+      removedColor: '#cb2431',
+      wordAddedBackground: '#acf2bd',
+      wordRemovedBackground: '#fdb8c0',
+      addedGutterBackground: '#cdffd8',
+      removedGutterBackground: '#ffdce0',
+      gutterBackground: '#f6f8fa',
+      gutterBackgroundDark: '#f0f2f4',
+      codeFoldBackground: '#f1f8ff',
+      codeFoldGutterBackground: '#dbedff',
+      codeFoldContentColor: '#0366d6',
+      emptyLineBackground: '#fafbfc',
+      highlightBackground: '#fffbdd',
+      highlightGutterBackground: '#fff5b1'
+    }
+  },
+  line: {
+    padding: '4px 8px',
+    '&:hover': {
+      background: '#f1f8ff'
+    }
+  },
+  gutter: {
+    minWidth: '40px',
+    padding: '0 8px',
+    textAlign: 'right',
+    color: '#6a737d',
+    borderRight: '1px solid #e1e4e8'
+  },
+  contentText: {
+    fontFamily: '"SF Mono", Monaco, Menlo, Consolas, "Liberation Mono", "Courier New", monospace',
+    fontSize: '13px',
+    lineHeight: '20px'
+  },
+  titleBlock: {
+    padding: '8px 12px',
+    background: '#f6f8fa',
+    borderBottom: '1px solid #e1e4e8',
+    fontWeight: '600',
+    fontSize: '12px',
+    color: '#586069'
+  },
+  splitView: {
+    '& > div': {
+      borderRight: '1px solid #e1e4e8'
+    }
+  },
+  diffContainer: {
+    borderRadius: '6px',
+    overflow: 'hidden'
+  }
+};
 
 const ScriptDiffViewer = ({ original, modified, contextType, explanation, onApplyChanges, isApplying = false }) => {
   // Normalize content checks using .trim() for consistent handling of whitespace
@@ -27,70 +88,6 @@ const ScriptDiffViewer = ({ original, modified, contextType, explanation, onAppl
 
   // Use unified view for new scripts, split view for modifications
   const useSplitView = !isNewScript && hasChanges;
-
-  // Light theme styles - more readable and professional
-  const diffStyles = useMemo(
-    () => ({
-      variables: {
-        light: {
-          diffViewerBackground: '#fafbfc',
-          diffViewerColor: '#24292e',
-          addedBackground: '#e6ffec',
-          addedColor: '#22863a',
-          removedBackground: '#ffeef0',
-          removedColor: '#cb2431',
-          wordAddedBackground: '#acf2bd',
-          wordRemovedBackground: '#fdb8c0',
-          addedGutterBackground: '#cdffd8',
-          removedGutterBackground: '#ffdce0',
-          gutterBackground: '#f6f8fa',
-          gutterBackgroundDark: '#f0f2f4',
-          codeFoldBackground: '#f1f8ff',
-          codeFoldGutterBackground: '#dbedff',
-          codeFoldContentColor: '#0366d6',
-          emptyLineBackground: '#fafbfc',
-          highlightBackground: '#fffbdd',
-          highlightGutterBackground: '#fff5b1'
-        }
-      },
-      line: {
-        padding: '4px 8px',
-        '&:hover': {
-          background: '#f1f8ff'
-        }
-      },
-      gutter: {
-        minWidth: '40px',
-        padding: '0 8px',
-        textAlign: 'right',
-        color: '#6a737d',
-        borderRight: '1px solid #e1e4e8'
-      },
-      contentText: {
-        fontFamily: '"SF Mono", Monaco, Menlo, Consolas, "Liberation Mono", "Courier New", monospace',
-        fontSize: '13px',
-        lineHeight: '20px'
-      },
-      titleBlock: {
-        padding: '8px 12px',
-        background: '#f6f8fa',
-        borderBottom: '1px solid #e1e4e8',
-        fontWeight: '600',
-        fontSize: '12px',
-        color: '#586069'
-      },
-      splitView: {
-        '& > div': {
-          borderRight: '1px solid #e1e4e8'
-        }
-      },
-      diffContainer: {
-        borderRadius: '6px',
-        overflow: 'hidden'
-      }
-    }),
-    []
-  );
 
   return (
     <div className="ai-assistant-chat-script-diff-viewer">
@@ -143,7 +140,7 @@ const ScriptDiffViewer = ({ original, modified, contextType, explanation, onAppl
             useDarkTheme={false}
             leftTitle={t('script-diff.original', 'Original')}
             rightTitle={t('script-diff.modified', 'Modified')}
-            styles={diffStyles}
+            styles={DIFF_STYLES}
           />
         )}
       </div>

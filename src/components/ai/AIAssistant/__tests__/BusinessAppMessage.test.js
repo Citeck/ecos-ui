@@ -1,5 +1,5 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import React from 'react';
 
 import BusinessAppMessage from '../components/messages/BusinessAppMessage';
 
@@ -83,6 +83,59 @@ describe('BusinessAppMessage', () => {
 
     fireEvent.click(screen.getByText('Отмена'));
     expect(onActionClick).toHaveBeenCalledWith('CANCEL', { messageId: 'm3' });
+  });
+
+  it('disables the clarifying-questions buttons once the gate is no longer live', () => {
+    const onActionClick = jest.fn();
+    const message = {
+      id: 'm3-stale',
+      messageData: {
+        type: 'business_app_generation',
+        stage: 'CLARIFYING_QUESTIONS',
+        progress: 10,
+        detailedStatus: 'вопросы',
+        actions: [
+          { id: 'SKIP', label: 'Пропустить', style: 'default' },
+          { id: 'CANCEL', label: 'Отмена', style: 'default' }
+        ]
+      },
+      text: ''
+    };
+
+    const { rerender } = render(
+      <BusinessAppMessage
+        message={message}
+        markdownComponents={markdownComponents}
+        onActionClick={onActionClick}
+        actionsDisabled
+        actionsStale
+      />
+    );
+
+    screen.getAllByRole('button').forEach(button => {
+      expect(button.disabled).toBe(true);
+      expect(button.className).toContain('ai-assistant-chat__action-button--stale');
+    });
+
+    fireEvent.click(screen.getByText('ai-assistant.action.skip'));
+    expect(onActionClick).not.toHaveBeenCalled();
+
+    // An in-flight request locks the same buttons without retiring them: the gate is still waiting,
+    // and painting it decided for the length of a round trip is the very signal this class carries.
+    rerender(
+      <BusinessAppMessage
+        message={message}
+        markdownComponents={markdownComponents}
+        onActionClick={onActionClick}
+        actionsDisabled
+        actionsFrozen
+      />
+    );
+
+    screen.getAllByRole('button').forEach(button => {
+      expect(button.disabled).toBe(true);
+      expect(button.className).not.toContain('ai-assistant-chat__action-button--stale');
+    });
   });
 
   it('does not render action buttons when there are no actions', () => {

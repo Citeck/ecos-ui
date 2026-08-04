@@ -15,8 +15,18 @@ import { t } from '@/helpers/export/util';
  * @param {Object} props.message - Full message object
  * @param {Object} props.markdownComponents - Markdown component overrides
  * @param {Function} props.onActionClick - Action button handler (SKIP/CANCEL on the clarifying-questions card)
+ * @param {boolean} props.actionsDisabled - Whether this gate is no longer live (see MessageList)
+ * @param {boolean} props.actionsStale - The same, without the in-flight freeze folded in; decides
+ *   whether the buttons are painted retired, as opposed to merely being locked for a round trip
  */
-const BusinessAppMessage = ({ message, markdownComponents, onActionClick }) => {
+const BusinessAppMessage = ({
+  message,
+  markdownComponents,
+  onActionClick,
+  actionsDisabled = false,
+  actionsFrozen = false,
+  actionsStale = false
+}) => {
   const { messageData, text, isProcessing } = message;
 
   if (!messageData) return null;
@@ -100,7 +110,15 @@ const BusinessAppMessage = ({ message, markdownComponents, onActionClick }) => {
 
       {/* Action buttons (e.g. Пропустить / Отмена on the clarifying-questions card) */}
       {messageData.actions?.length > 0 && (
-        <MessageActions actions={messageData.actions} messageId={message.id} onActionClick={onActionClick} />
+        <MessageActions
+          actions={messageData.actions}
+          messageId={message.id}
+          onActionClick={onActionClick}
+          disabled={actionsDisabled}
+          frozen={actionsFrozen}
+          stale={actionsStale}
+          resolvedFileTempRefs={messageData.resolvedFileTempRefs}
+        />
       )}
     </div>
   );

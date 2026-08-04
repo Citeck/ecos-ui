@@ -83,6 +83,12 @@
       background-color: var(--background-light, #f8f9fa);
     }
 
+    // Gate already resolved: the scope shown is the one that was sent, it must not look editable.
+    &--stale {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
     input {
       margin: 0;
     }
