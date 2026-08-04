@@ -1153,8 +1153,33 @@ export default class SelectComponent extends BaseComponent {
     return this.component.multiple && Array.isArray(data) ? data.map(this.asString.bind(this)).join(', ') : this.asString(data);
   }
 
+  /**
+   * `true` when the component already holds an option list (`selectOptions`) and the Choices widget does not:
+   * its own `_store.choices` carries nothing but the placeholder a freshly built widget is born with.
+   *
+   * The two lists hold the same options and normally move together, `setItems` filling both. They come apart on
+   * every redraw: `redraw()` destroys the widget and `addInput` builds a fresh, empty one, while `selectOptions`,
+   * `currentItems` and `dataValue` survive on the component. Nothing puts the list back into the widget until the
+   * next `setItems` — and until then the widget knows nothing and cannot be asked what is selected.
+   *
+   * @returns {Boolean}
+   */
+  isChoicesMissingSelectOptions() {
+    if (!this.choices || !this.selectOptions.length) {
+      return false;
+    }
+
+    return !_.some(_.get(this.choices, '_store.choices', []), choice => !choice.placeholder);
+  }
+
   getValue() {
     if (this.viewOnly || this.loading || !this.selectOptions.length) {
+      return this.dataValue;
+    }
+    // The widget has been re-created and its list has not come back yet: it would report an empty selection for a
+    // value the component is still holding, and the change cycle would then write that emptiness into the data.
+    // Same reason as the branch above — only an option list the widget actually holds can answer this question.
+    if (this.isChoicesMissingSelectOptions()) {
       return this.dataValue;
     }
     let value = '';
@@ -1232,9 +1257,11 @@ export default class SelectComponent extends BaseComponent {
       // Now set the value.
       if (hasValue) {
         this.choices.removeActiveItems();
-        // Add the currently selected choices if they don't already exist.
-        const currentChoices = Array.isArray(this.dataValue) ? this.dataValue : [this.dataValue];
-        if (!this.addCurrentChoices(currentChoices, this.selectOptions, true)) {
+        // This used to ask `addCurrentChoices` whether the value was missing from the list, and repopulate the
+        // widget only then. That question is unanswerable: it returns "added" for every truthy value, adding
+        // nothing. So ask the widget instead — after a redraw it holds nothing, `setChoiceByValue` below would
+        // then match nothing, and the selection would never be restored.
+        if (this.isChoicesMissingSelectOptions()) {
           this.choices.setChoices(this.selectOptions, 'value', 'label', true);
         }
         if (Array.isArray(this.selectOptions) && this.selectOptions.length > 0) {
