@@ -19,10 +19,20 @@ yarn test:ci            # Jest (no watch, for CI)
 yarn format             # Prettier (single quotes)
 ```
 
-To run a single test file:
+To run a single test file (or a whole folder — the argument is a Jest path pattern):
 ```bash
-yarn test -- path/to/file.test.js
+yarn test:ci src/components/ai/AIAssistant/__tests__/MessageList.test.js
+yarn test:ci src/components/ai/AIAssistant
 ```
+
+`yarn test` is watch mode and never exits — use `yarn test:ci` for CI and for any automated run.
+
+There is no `lint` script; run ESLint directly on the changed files:
+```bash
+DISABLE_V8_COMPILE_CACHE=1 npx eslint $(git diff --name-only develop...HEAD -- '*.js' '*.jsx' '*.ts' '*.tsx')
+```
+
+**Gotcha:** `DISABLE_V8_COMPILE_CACHE=1` is required on Node 22 — `bin/eslint.js` loads `v8-compile-cache`, which breaks `require(esm)` for `async-function` and fails with `Cannot use import statement outside a module`.
 
 ## Architecture
 
@@ -80,6 +90,19 @@ SCSS with modern compiler (`quietDeps: true`). Component-scoped `.scss` files al
 - Smaller presentational components: functional components with hooks
 - Files are a mix of `.jsx` and `.tsx` (gradual migration to TypeScript)
 - PropTypes used for prop validation in JS components
+
+#### AI assistant chat (`src/components/ai/AIAssistant`)
+
+The liveness of a HITL gate (its action buttons and the hint under a plan card) is **derived at render, never stored**:
+
+- `isGateStale(messages, index)` in `utils.js` is the single source of truth. `MessageList` computes it for the whole list and passes three props to `MessageItem`, which **must forward all three to every branch that renders a gate**: `actionsDisabled = stale || isLoading` and `actionsFrozen = isLoading` reach `MessageActions` — a new message type that forgets them silently makes superseded gates clickable again — while `actionsStale = stale` is staleness without the freeze folded in and drives what a card *displays* (the hint under a plan card, the deploy scope a confirmation reports). Mixing the freeze into the displayed state makes every card claim a decision it has not taken for the length of each round trip.
+- A message is addressed by `messageId` (`onActionClick(actionId, { messageId })`), never by `action.id`: `CONFIRM` / `REJECT` / `SKIP` / `ABORT` / `deploy_confirm` repeat across messages, and escalation gates reuse the ids of the gate they escalate.
+- `handleActionClick` sets `messageData.actionsResolved = true` after a successful response instead of clearing `actions`, so the history keeps showing the choice that was offered. On a failed request the flag stays unset and the trailing `isError` notice does not count as a newer message, so the same button can be pressed again.
+- Exception: file-save actions (`<base>|<tempRef>`) are resource-scoped, not dialog-scoped — several proposed files may await a decision at once. A set made entirely of them never goes stale; in a mixed set (the backend merges a file's Save/Cancel pair onto the gate produced by the same turn) `MessageActions` keeps just those buttons live. The in-flight freeze applies to them too.
+- What ends that exemption is `messageData.resolvedFileTempRefs`, not `actionsResolved`: one message may carry the pairs of several files, so a per-message flag cannot say which of them is decided. Its two writers are `handleActionClick` (the clicked `tempRef`, retiring every copy of that pair in the history) and `handlePollingResult` (every `tempRef` missing from `result.pendingFiles`, the backend's live snapshot). The snapshot is trusted whenever it is an array, `[]` included — an empty list explicitly states that no proposal is left, which is what retires the buttons of files that died without their own click. Only `null` means "no information", and then only the `tempRef` the response answers may be retired, never the rest of the history. Dropping either writer brings back a Save button for a temp file the backend has already deleted.
+- The answer to a file-save click never supersedes a gate either: the backend resolves that request before it reaches the agent, so `handlePollingResult` stamps the resulting message `isFileActionNotice` (and keeps the current `agentStatus`), and `isSupersededByNewerMessage` skips it exactly like an `isError` notice. Without it, saving the file half of a mixed set would disable the `CONFIRM` the agent is still waiting for.
+- Anything a resolved gate must keep displaying belongs on the message, not in a message component's state: the whole list is unmounted while the chat window is minimized (`AIAssistantChat`: `{!isMinimized && …}`). This is why the confirmed deploy scope travels as `deployScopeOption` in the action payload and is stored by `handleActionClick` as `messageData.sentDeployScope`.
+- `ResizableBox` from `react-resizable@3` spreads unknown props onto its inner `<div>`, so resizing is switched off with an empty `resizeHandles` list, not with a custom prop. `AIAssistantChat` is the only direct consumer of `react-resizable`; everything else uses the in-house `@/components/common/ResizableBox`.
 
 ### Key services
 

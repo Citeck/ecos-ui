@@ -1,5 +1,6 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
+import React from 'react';
+
 import AgentPlanMessage from '../components/messages/AgentPlanMessage';
 import { AGENT_STATUSES } from '../types';
 
@@ -12,9 +13,7 @@ describe('AgentPlanMessage', () => {
   const markdownComponents = {};
 
   it('returns null when messageData is missing', () => {
-    const { container } = render(
-      <AgentPlanMessage message={{ text: 'test' }} markdownComponents={markdownComponents} />
-    );
+    const { container } = render(<AgentPlanMessage message={{ text: 'test' }} markdownComponents={markdownComponents} />);
     expect(container.firstChild).toBeNull();
   });
 
@@ -75,9 +74,7 @@ describe('AgentPlanMessage', () => {
       messageData: {
         agentStatus: AGENT_STATUSES.WAITING_PLAN_APPROVAL,
         message: 'Plan',
-        artifacts: [
-          { name: 'ShouldNotShow', url: '/x', type: { displayName: 'X', icon: 'fa-x' } }
-        ]
+        artifacts: [{ name: 'ShouldNotShow', url: '/x', type: { displayName: 'X', icon: 'fa-x' } }]
       },
       text: ''
     };
@@ -145,9 +142,7 @@ describe('AgentPlanMessage', () => {
       messageData: {
         agentStatus: AGENT_STATUSES.COMPLETED,
         message: 'Done',
-        contextArtifacts: [
-          { ref: 'emodel/type@employee', displayName: 'Сотрудник', type: 'DATA_TYPE' }
-        ]
+        contextArtifacts: [{ ref: 'emodel/type@employee', displayName: 'Сотрудник', type: 'DATA_TYPE' }]
       },
       text: ''
     };
@@ -179,9 +174,7 @@ describe('AgentPlanMessage', () => {
         agentStatus: AGENT_STATUSES.FAILED,
         message: 'Failed',
         error: 'Something broke',
-        contextArtifacts: [
-          { ref: 'emodel/type@employee', displayName: 'Сотрудник', type: 'DATA_TYPE' }
-        ]
+        contextArtifacts: [{ ref: 'emodel/type@employee', displayName: 'Сотрудник', type: 'DATA_TYPE' }]
       },
       text: ''
     };
@@ -189,6 +182,106 @@ describe('AgentPlanMessage', () => {
     render(<AgentPlanMessage message={message} markdownComponents={markdownComponents} />);
 
     expect(screen.queryByText('ai-assistant.context-artifacts.title')).toBeNull();
+  });
+
+  describe('hint visibility depends on whether the gate is still live', () => {
+    const planGate = (messageData = {}) => ({
+      id: 'msg-plan',
+      messageData: {
+        agentStatus: AGENT_STATUSES.WAITING_PLAN_APPROVAL,
+        message: 'Plan content here',
+        ...messageData
+      },
+      text: ''
+    });
+
+    // 18 — live gate without buttons: the hint is the only instruction the user gets
+    it('renders the hint for a live gate without actions', () => {
+      render(<AgentPlanMessage message={planGate()} markdownComponents={markdownComponents} />);
+
+      expect(screen.getByText('ai-assistant.agent-plan.hint-waiting-plan')).toBeTruthy();
+    });
+
+    // 19 — the decision on this very gate has been taken
+    it('does not render the hint when the gate is marked actionsResolved', () => {
+      render(<AgentPlanMessage message={planGate({ actionsResolved: true })} markdownComponents={markdownComponents} />);
+
+      expect(screen.queryByText('ai-assistant.agent-plan.hint-waiting-plan')).toBeNull();
+    });
+
+    it('does not render the hint for a resolved gate that still keeps its actions', () => {
+      const message = planGate({
+        actionsResolved: true,
+        actions: [{ id: 'REJECT', label: 'Отклонить' }]
+      });
+
+      render(<AgentPlanMessage message={message} markdownComponents={markdownComponents} actionsDisabled={true} />);
+
+      expect(screen.queryByText('ai-assistant.agent-plan.hint-waiting-plan')).toBeNull();
+    });
+
+    // 20 — the dialog has moved past this gate (message is not the last one)
+    it('does not render the hint when actions are disabled as stale', () => {
+      render(<AgentPlanMessage message={planGate()} markdownComponents={markdownComponents} actionsDisabled={true} actionsStale={true} />);
+
+      expect(screen.queryByText('ai-assistant.agent-plan.hint-waiting-plan')).toBeNull();
+    });
+
+    it('keeps the hint while a request freezes a gate that is still waiting', () => {
+      // The freeze is raised for every gate as soon as any request starts, including one that has
+      // nothing to do with this card (a file-save click on a merged set). The gate is still waiting
+      // for its answer, so blinking the hint away for the length of that round trip would lie.
+      render(
+        <AgentPlanMessage
+          message={planGate()}
+          markdownComponents={markdownComponents}
+          actionsDisabled={true}
+          actionsFrozen={true}
+          actionsStale={false}
+        />
+      );
+
+      expect(screen.getByText('ai-assistant.agent-plan.hint-waiting-plan')).toBeTruthy();
+    });
+
+    // 21 — terminal message the server sends after a plan rejection: no hint in any state
+    it.each([
+      ['live', { actionsDisabled: false }],
+      ['stale', { actionsDisabled: true }]
+    ])('does not render any hint for a terminal COMPLETED message with an error (%s)', (_name, props) => {
+      const message = {
+        id: 'msg-terminal',
+        messageData: {
+          agentStatus: AGENT_STATUSES.COMPLETED,
+          message: 'Выполнение плана отменено',
+          error: true
+        },
+        text: ''
+      };
+
+      render(<AgentPlanMessage message={message} markdownComponents={markdownComponents} {...props} />);
+
+      expect(screen.getByText('Выполнение плана отменено')).toBeTruthy();
+      expect(screen.queryByText('ai-assistant.agent-plan.hint-waiting-plan')).toBeNull();
+      expect(screen.queryByText('ai-assistant.agent-plan.hint-waiting-step')).toBeNull();
+      expect(screen.queryByText('ai-assistant.agent-plan.hint-failed')).toBeNull();
+    });
+
+    it('does not render the hint for a resolved WAITING_STEP_APPROVAL gate', () => {
+      const message = {
+        id: 'msg-step',
+        messageData: {
+          agentStatus: AGENT_STATUSES.WAITING_STEP_APPROVAL,
+          message: 'Step approval',
+          actionsResolved: true
+        },
+        text: ''
+      };
+
+      render(<AgentPlanMessage message={message} markdownComponents={markdownComponents} />);
+
+      expect(screen.queryByText('ai-assistant.agent-plan.hint-waiting-step')).toBeNull();
+    });
   });
 
   it('falls back to text when messageData.message is empty', () => {

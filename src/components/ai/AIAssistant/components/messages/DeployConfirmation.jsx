@@ -24,13 +24,40 @@ import { t } from '@/helpers/export/util';
  * @param {Object} props.message - Message object; `messageData.pendingDeploy` is required
  * @param {Object} props.markdownComponents - Markdown component overrides
  * @param {Function} props.onActionClick - (actionId, extra?) => void
+ * @param {boolean} props.actionsDisabled - Whether the buttons and the scope selector must be locked:
+ *   the gate is no longer live, or a request is in flight (see MessageList)
+ * @param {boolean} props.actionsStale - Whether the gate is no longer live, without the in-flight
+ *   freeze folded in; decides whether the card reports a draft selection or the scope that was sent
+ * @param {Function} props.onSelectDeployScope - (messageId, scopeKey) => void; records the draft
+ *   selection on the message so it survives a remount
  */
-const DeployConfirmation = ({ message, markdownComponents, onActionClick }) => {
+const DeployConfirmation = ({
+  message,
+  markdownComponents,
+  onActionClick,
+  onSelectDeployScope,
+  actionsDisabled = false,
+  actionsFrozen = false,
+  actionsStale = false
+}) => {
   const { messageData, text } = message || {};
   const pendingDeploy = messageData?.pendingDeploy;
 
   const initialScope = pendingDeploy?.targetScope;
-  const [selectedKey, setSelectedKey] = useState(getDeployScopeKey(initialScope));
+  // Seeded from the message rather than from the backend default alone: this component is remounted
+  // from scratch every time the chat window is restored (`AIAssistantChat.jsx`: `{!isMinimized && …}`
+  // unmounts the message list), so a draft kept only in state would silently revert to the default
+  // and the next confirm would deploy to a scope the user had changed away from. `handleSelectScope`
+  // writes the key back to the message through `onSelectDeployScope`.
+  const [selectedKey, setSelectedKey] = useState(messageData?.draftDeployScopeKey || getDeployScopeKey(initialScope));
+  // The scope this card actually sent, recorded on the message by `handleActionClick` once the
+  // `deploy_confirm` POST is accepted. Needed because a selection alone proves nothing: the gate
+  // can also go stale without ever being confirmed from this card (the user answered with free
+  // text, a newer gate superseded it). It lives on the message and not in this component's state
+  // because the message list is unmounted whenever the chat window is minimized
+  // (`AIAssistantChat.jsx`: `{!isMinimized && …}`) — local state would not survive a restore, and
+  // the card would go back to showing the backend's default scope for an already-sent deploy.
+  const sentScope = messageData?.sentDeployScope;
 
   if (!pendingDeploy) return null;
 
@@ -38,18 +65,35 @@ const DeployConfirmation = ({ message, markdownComponents, onActionClick }) => {
   const scopeOptions = Array.isArray(options) ? options : [];
   const showSelector = !!changeable && scopeOptions.length > 1;
 
-  const selectedScope = showSelector
-    ? scopeOptions.find(opt => getDeployScopeKey(opt) === selectedKey) || targetScope
-    : targetScope;
+  const draftScope = showSelector ? scopeOptions.find(opt => getDeployScopeKey(opt) === selectedKey) || targetScope : targetScope;
+  // While the gate is live the label follows the selection. Once it is not, the label reports what
+  // was actually sent — the confirmed scope, or the backend's own target when nothing was sent from
+  // here — so the history never shows a scope the deploy was never asked to use.
+  //
+  // The switch is driven by staleness alone, never by `actionsDisabled`: that one also covers the
+  // in-flight freeze, and `handleActionClick` raises the freeze BEFORE the POST while writing
+  // `sentDeployScope` only after it returns. Folding the freeze in here made the card fall back to
+  // the backend's default for the whole round trip — the label flipped away from the scope the user
+  // had just confirmed and the radio jumped to the first option, showing a scope that was never sent.
+  const selectedScope = actionsStale ? sentScope || targetScope : draftScope;
+  const shownKey = getDeployScopeKey(selectedScope);
+
+  const handleSelectScope = key => {
+    setSelectedKey(key);
+    onSelectDeployScope?.(message.id, key);
+  };
 
   const handleAction = (actionId, extra = {}) => {
-    if (actionId === DEPLOY_ACTION.CONFIRM && selectedScope) {
+    if (actionId === DEPLOY_ACTION.CONFIRM && draftScope) {
       onActionClick?.(actionId, {
         ...extra,
         deployScope: {
-          kind: selectedScope.kind,
-          ...(selectedScope.workspaceId && { workspaceId: selectedScope.workspaceId })
-        }
+          kind: draftScope.kind,
+          ...(draftScope.workspaceId && { workspaceId: draftScope.workspaceId })
+        },
+        // Whole option (it carries the backend's localized `label`, which the request payload
+        // does not) so the handler can record on the message what this card actually sent.
+        deployScopeOption: draftScope
       });
       return;
     }
@@ -78,15 +122,26 @@ const DeployConfirmation = ({ message, markdownComponents, onActionClick }) => {
           <div className="ai-assistant-chat__deploy-confirm-options-title">{t('ai-assistant.deploy.scope.change')}</div>
           {scopeOptions.map(opt => {
             const key = getDeployScopeKey(opt);
-            const checked = key === selectedKey;
+            const checked = key === shownKey;
             return (
               <label
                 key={key}
                 className={classNames('ai-assistant-chat__deploy-confirm-option', {
-                  'ai-assistant-chat__deploy-confirm-option--checked': checked
+                  'ai-assistant-chat__deploy-confirm-option--checked': checked,
+                  // Muting the options says «this gate is already decided», so it follows staleness
+                  // and not `actionsDisabled`: the latter folds in the in-flight freeze, which would
+                  // grey out a live, undecided card for the length of any unrelated round trip. The
+                  // `disabled` attribute below is the opposite — it must follow the freeze too.
+                  'ai-assistant-chat__deploy-confirm-option--stale': actionsStale
                 })}
               >
-                <input type="radio" name={`deploy-scope-${message.id}`} checked={checked} onChange={() => setSelectedKey(key)} />
+                <input
+                  type="radio"
+                  name={`deploy-scope-${message.id}`}
+                  checked={checked}
+                  disabled={actionsDisabled}
+                  onChange={() => handleSelectScope(key)}
+                />
                 <span>{opt.label}</span>
               </label>
             );
@@ -94,7 +149,15 @@ const DeployConfirmation = ({ message, markdownComponents, onActionClick }) => {
         </div>
       )}
 
-      <MessageActions actions={messageData.actions} messageId={message.id} onActionClick={handleAction} />
+      <MessageActions
+        actions={messageData.actions}
+        messageId={message.id}
+        onActionClick={handleAction}
+        disabled={actionsDisabled}
+        frozen={actionsFrozen}
+        stale={actionsStale}
+        resolvedFileTempRefs={messageData.resolvedFileTempRefs}
+      />
     </div>
   );
 };

@@ -161,9 +161,13 @@ const AgentSelector = ({ selectedAgent, onSelectAgent, onClearConversation, hasM
             return (
               <div
                 key={agent.id}
-                className={classNames('ai-assistant-chat__agent-dropdown-item', `ai-assistant-chat__agent-dropdown-item--${engine.toLowerCase()}`, {
-                  'ai-assistant-chat__agent-dropdown-item--selected': selectedAgent?.id === agent.id
-                })}
+                className={classNames(
+                  'ai-assistant-chat__agent-dropdown-item',
+                  `ai-assistant-chat__agent-dropdown-item--${engine.toLowerCase()}`,
+                  {
+                    'ai-assistant-chat__agent-dropdown-item--selected': selectedAgent?.id === agent.id
+                  }
+                )}
                 onClick={() => handleSelect(agent)}
               >
                 <Icon className={classNames('fa', getAgentEngineIcon(engine))} />
@@ -171,7 +175,10 @@ const AgentSelector = ({ selectedAgent, onSelectAgent, onClearConversation, hasM
                   <span className="ai-assistant-chat__agent-dropdown-item-header">
                     <span className="ai-assistant-chat__agent-dropdown-item-name">{agent.name || agent.id}</span>
                     <span
-                      className={classNames('ai-assistant-chat__agent-engine-badge', `ai-assistant-chat__agent-engine-badge--${engine.toLowerCase()}`)}
+                      className={classNames(
+                        'ai-assistant-chat__agent-engine-badge',
+                        `ai-assistant-chat__agent-engine-badge--${engine.toLowerCase()}`
+                      )}
                     >
                       {t(getAgentEngineLabelKey(engine))}
                     </span>
@@ -250,8 +257,8 @@ const ChatContextTags = ({
         <div className="ai-assistant-chat__context-tag ai-assistant-chat__context-tag--selected-text">
           <Icon className="fa fa-quote-left" />
           <span>
-            {t('ai-assistant.context-tag.selected-text-prefix')}"
-            {selectedTextContext.text.length > 50 ? selectedTextContext.text.substring(0, 50) + '...' : selectedTextContext.text}"
+            {t('ai-assistant.context-tag.selected-text-prefix')}&quot;
+            {selectedTextContext.text.length > 50 ? selectedTextContext.text.substring(0, 50) + '...' : selectedTextContext.text}&quot;
           </span>
           <button
             className="ai-assistant-chat__context-tag-remove"

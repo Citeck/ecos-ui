@@ -25,8 +25,19 @@ const HINT_KEYS = {
  * @param {Object} props
  * @param {Object} props.message - Full message object with messageData containing agentStatus and message
  * @param {Object} props.markdownComponents - Markdown component overrides
+ * @param {boolean} props.actionsDisabled - Whether the buttons must be locked: this gate is no longer
+ *   live, or a request is in flight (see MessageList)
+ * @param {boolean} props.actionsStale - Whether this gate is no longer live, without the in-flight
+ *   freeze folded in; decides whether the hint is shown and whether the buttons are painted retired
  */
-const AgentPlanMessage = ({ message, markdownComponents, onActionClick }) => {
+const AgentPlanMessage = ({
+  message,
+  markdownComponents,
+  onActionClick,
+  actionsDisabled = false,
+  actionsFrozen = false,
+  actionsStale = false
+}) => {
   const { messageData, text } = message;
 
   if (!messageData) return null;
@@ -35,6 +46,15 @@ const AgentPlanMessage = ({ message, markdownComponents, onActionClick }) => {
   const content = messageData.message || text;
   const hintKey = HINT_KEYS[agentStatus];
   const hint = hintKey ? t(hintKey) : null;
+
+  // The hint tells the user what the gate is waiting for, so it only makes sense while the gate is
+  // live. A gate is no longer live once its own decision has been taken (`actionsResolved`) or once
+  // the dialog has moved past it (`actionsStale`, see MessageList). Without this check the hint
+  // «Подтвердите план...» reappeared under the card right after the plan had been rejected.
+  // Staleness, not `actionsDisabled`: an unrelated request in flight freezes the buttons but leaves
+  // the gate waiting, and blinking the hint away for the length of that round trip would claim
+  // otherwise.
+  const isGateLive = !actionsStale && !messageData.actionsResolved;
 
   return (
     <div className="ai-assistant-chat__agent-plan">
@@ -57,9 +77,17 @@ const AgentPlanMessage = ({ message, markdownComponents, onActionClick }) => {
         </div>
       )}
 
-      <MessageActions actions={messageData.actions} messageId={message.id} onActionClick={onActionClick} />
+      <MessageActions
+        actions={messageData.actions}
+        messageId={message.id}
+        onActionClick={onActionClick}
+        disabled={actionsDisabled}
+        frozen={actionsFrozen}
+        stale={actionsStale}
+        resolvedFileTempRefs={messageData.resolvedFileTempRefs}
+      />
 
-      {hint && !messageData.actions?.length && <div className="ai-assistant-chat__agent-hint">{hint}</div>}
+      {hint && isGateLive && !messageData.actions?.length && <div className="ai-assistant-chat__agent-hint">{hint}</div>}
     </div>
   );
 };

@@ -8,13 +8,14 @@ import {
   EDITOR_CONTEXT_HANDLERS,
   API_ENDPOINTS,
   CONTENT_TYPES,
-  FILE_SAVE_ACTION,
   AGENT_TOOL_STEP_PROGRESS_TYPE,
   PLATFORM_CONFIG_AGENT_REF,
   buildAgentRef
 } from '../constants';
 import { AGENT_STATUSES } from '../types';
-import { generateUUID } from '../utils';
+// `fileSaveActionTempRef` lives in utils.js next to the staleness rule that shares it; it stays
+// re-exported from this module for backward compatibility with existing importers.
+import { generateUUID, fileSaveActionTempRef } from '../utils';
 
 import usePolling from './usePolling';
 
@@ -26,34 +27,6 @@ const MARKDOWN_IMAGE_RE = /!\[[^\]]*\]\([^)]*\)/g;
 // Captures the temp-file local id from either a record ref (`emodel/temp-file@<id>`) or a
 // content download URL (`…/content?ref=temp-file@<id>` / url-encoded `temp-file%40<id>`).
 const TEMP_FILE_ID_RE = /temp-file(?:@|%40)([^"'\s)&?#]+)/;
-
-/**
- * If [actionId] is a pending-file save/cancel action (`<base>|<tempRef>`), returns its tempRef;
- * otherwise null. The tempRef lets us locate and clean up the now-dead preview once the temp
- * file backing it is deleted on save/cancel (COREDEV-321).
- * @param {string} actionId
- * @returns {string|null}
- */
-const fileSaveActionTempRef = actionId => {
-  if (typeof actionId !== 'string') {
-    return null;
-  }
-  const sepIndex = actionId.indexOf(FILE_SAVE_ACTION.TEMP_REF_SEPARATOR);
-  if (sepIndex < 0) {
-    return null;
-  }
-  const baseAction = actionId.slice(0, sepIndex);
-  const tempRef = actionId.slice(sepIndex + 1);
-  if (!tempRef) {
-    return null;
-  }
-  const isFileSaveAction =
-    baseAction === FILE_SAVE_ACTION.MAIN_CONTENT ||
-    baseAction === FILE_SAVE_ACTION.NEW_RECORD ||
-    baseAction === FILE_SAVE_ACTION.CANCEL ||
-    baseAction.startsWith(FILE_SAVE_ACTION.ATTR_PREFIX);
-  return isFileSaveAction ? tempRef : null;
-};
 
 /** Extracts the temp-file local id from a ref or content URL; null if none present. */
 const extractTempFileId = refOrUrl => {
@@ -457,9 +430,17 @@ const useUniversalChat = (options = {}) => {
     result => {
       setIsLoading(false);
 
+      // Set when this result answers a file-save/cancel click. `handlePendingFileSaveAction`
+      // short-circuits before the request reaches the agent, so such a result decides one file
+      // and leaves the dialog — and the agent state behind it — exactly where it was.
+      const consumedTempRef = pendingFileActionTempRef.current;
+      clearPendingFileAction();
+
       if (result.agentStatus) {
         setAgentStatus(result.agentStatus);
-      } else {
+      } else if (!consumedTempRef) {
+        // A file answer carries no `agentStatus` because it never asked the agent anything;
+        // clearing the indicator would claim the agent stopped waiting when it still is.
         setAgentStatus(null);
       }
 
@@ -484,32 +465,116 @@ const useUniversalChat = (options = {}) => {
         }, 5000);
       }
 
-      // A just-finished save/cancel deletes the temp file backing the original "Сохранить?" preview,
-      // so its <img src> (temp-file content URL) now 500s. If the backend's authoritative live
-      // snapshot (`pendingFiles`) no longer lists that tempRef, the file is gone — drop the dead
-      // preview from chat history. Retryable errors keep the pending alive (tempRef still listed),
-      // so we leave those previews untouched. The success message already carries a working preview
-      // from the new permanent record where applicable (COREDEV-313 / COREDEV-321).
-      const consumedTempRef = pendingFileActionTempRef.current;
-      clearPendingFileAction();
-      let deadTempFileId = null;
-      if (consumedTempRef) {
-        const aliveTempRefs = new Set((result.pendingFiles || []).map(file => file.tempRef));
-        if (!aliveTempRefs.has(consumedTempRef)) {
-          deadTempFileId = extractTempFileId(consumedTempRef);
-        }
-      }
+      // `result.pendingFiles` is the backend's authoritative list of the pending files still alive
+      // in this conversation (`AgentOrchestratorService.enrichWithPendingFile` /
+      // `handlePendingFileSaveAction`). Everything it does NOT list is gone server-side, and both
+      // things the UI shows for such a file are now wrong: its Save/Cancel pair would post an action
+      // for a deleted tempRef, and its preview <img src> (a temp-file content URL) 500s.
+      //
+      // Presence of the field is what makes it meaningful, not its length: every response leaving
+      // the chat front door carries the snapshot (`AgentOrchestratorService.processRequest` →
+      // `attachPendingFilesSnapshot`), and `[]` explicitly states that no proposal is left. Only
+      // `null` — a response assembled outside that front door, e.g. a controller error envelope —
+      // means "no information about files", and then nothing may be pruned. This is what lets the
+      // UI retire buttons for proposals that died without their own click: a free-text refusal
+      // routed to `discardPendingFile`, a legacy tempRef-less `file_cancel`, expiry by
+      // `PendingFileCleanupScheduler`.
+      const aliveTempRefs = new Set(
+        (Array.isArray(result.pendingFiles) ? result.pendingFiles : []).map(file => file && file.tempRef).filter(Boolean)
+      );
+      const hasLiveSnapshot = Array.isArray(result.pendingFiles);
 
       setMessages(prevMessages => {
         const filteredMessages = prevMessages.filter(msg => !msg.isProcessing);
-        const aiMessage = createAIMessage(result, { setGenerationStages, generationStages });
+        const resultMessage = createAIMessage(result, { setGenerationStages, generationStages });
+        // Mark the answer to a file click as a notice about that file rather than a step of the
+        // dialog, so `isGateStale` does not count it as having moved the conversation past the
+        // gate the same message may have offered next to the Save/Cancel pair.
+        const aiMessage = consumedTempRef ? { ...resultMessage, isFileActionNotice: true } : resultMessage;
         const nextMessages = [...filteredMessages, aiMessage];
-        if (!deadTempFileId) {
+
+        // A Save/Cancel pair the new message carries is the authoritative offer for that file: a
+        // retryable save error makes the backend re-emit the pairs of **every** surviving pending
+        // (`handlePendingFileSaveAction` → `enrichWithPendingFile` with an empty `previousTempRefs`,
+        // `AgentOrchestratorService.kt:806-812`), so a file already offered by an earlier message
+        // would end up with two live pairs at once. Retire the older copies — one file must never
+        // show two competing offers. Success/cancel responses re-emit nothing, so they are unaffected.
+        const reofferedTempRefs = new Set(
+          (aiMessage.messageData?.actions || []).map(action => fileSaveActionTempRef(action && action.id)).filter(Boolean)
+        );
+
+        // The consumed tempRef is checked without the snapshot: the file this click answered is
+        // decided either way, and on the older backend — which omitted `pendingFiles` from
+        // file-action responses — that is the only thing such a response states. A cancel of an
+        // already-expired pending answers a file that no message may still offer buttons for, and
+        // is covered by the same check.
+        const deadTempRefs = new Set();
+        if (consumedTempRef && !aliveTempRefs.has(consumedTempRef)) {
+          deadTempRefs.add(consumedTempRef);
+        }
+        // Sweeping the whole history, on the other hand, requires the snapshot: `aliveTempRefs` is
+        // empty whenever the field is absent, so running the sweep without it would declare every
+        // pending file of the conversation dead — retiring the buttons and stripping the previews
+        // of files the answered click never touched.
+        if (hasLiveSnapshot) {
+          nextMessages.forEach(msg => {
+            (msg.messageData?.actions || []).forEach(action => {
+              const tempRef = fileSaveActionTempRef(action && action.id);
+              if (tempRef && !aliveTempRefs.has(tempRef)) {
+                deadTempRefs.add(tempRef);
+              }
+            });
+          });
+        }
+        if (!deadTempRefs.size && !reofferedTempRefs.size) {
           return nextMessages;
         }
+
+        // Only the previews of files that are gone may be stripped; a re-offered file is still alive.
+        const deadTempFileIds = [...deadTempRefs].map(extractTempFileId).filter(Boolean);
+        const retiredOnOlderMessages = new Set([...deadTempRefs, ...reofferedTempRefs]);
         return nextMessages.map(msg => {
-          const cleanedText = stripTempImageFromText(msg.text, deadTempFileId);
-          return cleanedText === msg.text ? msg : { ...msg, text: cleanedText };
+          let next = msg;
+
+          // Retire the buttons of every dead tempRef this message offers. `resolvedFileTempRefs` is
+          // the same list `handleActionClick` writes on a click — `MessageActions` disables a
+          // file-save button whose tempRef is in it, which is what the position-based staleness rule
+          // deliberately cannot do for file-save actions (they are resource-scoped, not gate-scoped).
+          // One dead file contributes several actions (Save + Cancel, plus one per placement
+          // option), so the tempRefs are deduplicated before being appended.
+          const retired = msg === aiMessage ? deadTempRefs : retiredOnOlderMessages;
+          const offered = new Set(
+            (msg.messageData?.actions || [])
+              .map(action => fileSaveActionTempRef(action && action.id))
+              .filter(tempRef => tempRef && retired.has(tempRef))
+          );
+          if (offered.size) {
+            const resolved = msg.messageData?.resolvedFileTempRefs || [];
+            const added = [...offered].filter(tempRef => !resolved.includes(tempRef));
+            if (added.length) {
+              next = { ...next, messageData: { ...next.messageData, resolvedFileTempRefs: [...resolved, ...added] } };
+            }
+          }
+
+          // Both copies of the message body have to be cleaned. `createAIMessage` writes the same
+          // string into `text` and into `messageData.message` for agent cards, and the renderers
+          // prefer the `messageData` copy: `AgentPlanMessage` shows `messageData.message || text`,
+          // `BusinessAppMessage` shows `detailedStatus || text || messageData.message`. Stripping
+          // only `text` would leave the dead preview on screen — and worse for the latter, an
+          // emptied `text` falls through to the un-stripped copy, so the strip would flip the card
+          // onto the very <img src> it was meant to remove.
+          const strip = value => deadTempFileIds.reduce((acc, id) => stripTempImageFromText(acc, id), value);
+          const cleanedText = strip(next.text);
+          const cleanedMessage = strip(next.messageData?.message);
+
+          let cleaned = next;
+          if (cleanedText !== next.text) {
+            cleaned = { ...cleaned, text: cleanedText };
+          }
+          if (cleanedMessage !== next.messageData?.message) {
+            cleaned = { ...cleaned, messageData: { ...cleaned.messageData, message: cleanedMessage } };
+          }
+          return cleaned;
         });
       });
     },
@@ -655,6 +720,11 @@ const useUniversalChat = (options = {}) => {
       setMessage('');
       setIsLoading(true);
 
+      // Whether the POST was accepted. The `try` below can also throw *after* a 2xx — a missing
+      // requestId, an unparseable body, a throw out of `startPolling` — and in those cases the turn
+      // did reach the backend and may well be running there, so it must not be marked a failed send.
+      let requestAccepted = false;
+
       try {
         const contextToSend = {
           records: additionalContext.records ? Object.values(additionalContext.records) : [],
@@ -759,11 +829,7 @@ const useUniversalChat = (options = {}) => {
         // longer sent for scripts (backend keys editing dispatch on editing.type). TEXT_EDITING
         // stays operational and keeps sending forceIntent.
         const isScriptEditing = forceIntent === AI_INTENTS.SCRIPT_WRITING;
-        const agentRefToSend = isScriptEditing
-          ? PLATFORM_CONFIG_AGENT_REF
-          : selectedAgent
-            ? buildAgentRef(selectedAgent.id)
-            : null;
+        const agentRefToSend = isScriptEditing ? PLATFORM_CONFIG_AGENT_REF : selectedAgent ? buildAgentRef(selectedAgent.id) : null;
 
         const requestData = {
           message: messageToProcess,
@@ -789,6 +855,8 @@ const useUniversalChat = (options = {}) => {
           throw new Error(`Error: ${response.status}`);
         }
 
+        requestAccepted = true;
+
         const data = await response.json();
         const requestId = data.requestId;
 
@@ -808,8 +876,18 @@ const useUniversalChat = (options = {}) => {
       } catch (error) {
         console.error('Error in universal chat:', error);
 
+        // When the turn never reached the backend the dialog did not move, so the gate this reply
+        // was meant to answer must stay live. The user message is appended before the request, so
+        // it has to say so itself: `isSupersededByNewerMessage` skips it, exactly as it skips the
+        // error notice appended right below. Without the flag a failed send would retire a gate the
+        // agent is still waiting on, leaving free text as the only way to answer it.
+        //
+        // Once the POST has been accepted the flag must NOT be written, even though the turn still
+        // ends in this `catch`: the backend has the message and may apply it, and a gate left live
+        // there invites a second, conflicting answer to a turn already in flight. Same rule as a
+        // polling failure, which keeps `actionsResolved` set for exactly this reason.
         setMessages(prevMessages => [
-          ...prevMessages,
+          ...(requestAccepted ? prevMessages : prevMessages.map(msg => (msg.id === userMessage.id ? { ...msg, isFailedSend: true } : msg))),
           {
             id: generateUUID(),
             text: t('ai-assistant.chat.request-error'),
@@ -878,9 +956,11 @@ const useUniversalChat = (options = {}) => {
     async (actionId, extra = {}) => {
       if (!conversationId) return;
 
-      // Remember which pending file this action targets (null for non-file actions) so the result
-      // handler can clean up its dead temp-file preview once the save/cancel completes.
-      pendingFileActionTempRef.current = fileSaveActionTempRef(actionId);
+      // Which pending file this action targets, null for a dialog action. One derivation for the
+      // whole handler: it decides both what the result handler cleans up (the dead temp-file
+      // preview, via the ref below) and how the click is recorded on the messages further down.
+      const clickedTempRef = fileSaveActionTempRef(actionId);
+      pendingFileActionTempRef.current = clickedTempRef;
 
       setIsLoading(true);
 
@@ -914,23 +994,64 @@ const useUniversalChat = (options = {}) => {
           throw new Error(t('ai-assistant.chat.no-request-id'));
         }
 
-        // Remove actions only from the message whose action was clicked, so that other
-        // assistant messages keep their own buttons live (e.g. multiple pending images, or
-        // several deploy confirmations sharing the stable deploy_confirm/deploy_reject ids).
+        // Mark as resolved only the message whose action was clicked, so that other assistant
+        // messages keep their own buttons live (e.g. multiple pending images, or several deploy
+        // confirmations sharing the stable deploy_confirm/deploy_reject ids).
         // Scope by the originating message id when the caller supplies it; fall back to the
-        // legacy actionId match for action sources that don't pass a message id.
+        // legacy actionId match for action sources that don't pass a message id — a message
+        // already resolved is skipped there, since its buttons no longer belong to a live gate.
+        // The actions themselves are kept: `isGateStale` reads the flag and renders the
+        // buttons disabled, so the history stays readable instead of losing the choice offered.
+        //
+        // A file-save button resolves its own temp file, not the dialog gate it may be sitting next
+        // to: the backend appends a Save/Cancel pair per new pending file onto the same message that
+        // carries the gate of that turn, so one message may hold several independent decisions. Such
+        // a click is therefore recorded as a resolved tempRef, which retires the pair it answers
+        // wherever it is rendered; the gate half and the pairs of the other files stay live.
+        // A tempRef is scoped to the conversation, not to one message: a retryable save error makes
+        // the backend re-emit the Save/Cancel pair of every surviving pending onto the new message,
+        // so the same pair can sit under two messages at once. Answering it retires all of its
+        // copies — otherwise the leftover one stays clickable on a file that is already decided.
         const clickedMessageId = extra && extra.messageId;
         setMessages(prevMessages =>
           prevMessages.map(msg => {
-            const isClicked = clickedMessageId ? msg.id === clickedMessageId : msg.messageData?.actions?.some(a => a.id === actionId);
-            return isClicked ? { ...msg, messageData: { ...msg.messageData, actions: null } } : msg;
+            if (clickedTempRef) {
+              const offersTempRef = (msg.messageData?.actions || []).some(a => fileSaveActionTempRef(a && a.id) === clickedTempRef);
+              const resolved = msg.messageData?.resolvedFileTempRefs || [];
+              if (!offersTempRef || resolved.includes(clickedTempRef)) {
+                return msg;
+              }
+              return { ...msg, messageData: { ...msg.messageData, resolvedFileTempRefs: [...resolved, clickedTempRef] } };
+            }
+            const isClicked = clickedMessageId
+              ? msg.id === clickedMessageId
+              : !msg.messageData?.actionsResolved && msg.messageData?.actions?.some(a => a.id === actionId);
+            if (!isClicked) {
+              return msg;
+            }
+            // The deploy scope this gate was answered with is recorded next to the flag rather
+            // than kept in `DeployConfirmation`, whose state is destroyed every time the chat
+            // window is minimized — a resolved card must keep reporting the scope that was sent.
+            const sentDeployScope = extra && extra.deployScopeOption;
+            return {
+              ...msg,
+              messageData: { ...msg.messageData, actionsResolved: true, ...(sentDeployScope && { sentDeployScope }) }
+            };
           })
         );
 
         startPolling(requestId);
 
+        // The progress card of a file-save click is a notice about that file, exactly like the
+        // answer it will be replaced by (`handlePollingResult` stamps the same flag). Without it
+        // the card counts as a newer message for the whole round trip, and `isGateStale` reports
+        // the gate merged into the same mixed set as no longer live — the plan hint blinks away and
+        // a deploy card reverts to reporting a decision it has not taken.
         const processingMessage = buildInitialProcessingMessage(data);
-        setMessages(prevMessages => [...prevMessages, processingMessage]);
+        setMessages(prevMessages => [
+          ...prevMessages,
+          clickedTempRef ? { ...processingMessage, isFileActionNotice: true } : processingMessage
+        ]);
       } catch (error) {
         console.error('Error sending action:', error);
 
@@ -954,6 +1075,18 @@ const useUniversalChat = (options = {}) => {
     },
     [conversationId, startPolling, clearPendingFileAction]
   );
+
+  // The scope a deploy card is currently set to send, recorded on the message as soon as the user
+  // picks it. It lives here and not in `DeployConfirmation`'s own state for the same reason
+  // `sentDeployScope` does: minimizing the chat unmounts the whole message list
+  // (`AIAssistantChat.jsx`: `{!isMinimized && …}`), and a selection kept in component state is
+  // silently reverted to the backend's default on restore — the next confirm would then deploy to a
+  // scope the user had explicitly changed away from.
+  const selectDeployScope = useCallback((messageId, scopeKey) => {
+    setMessages(prevMessages =>
+      prevMessages.map(msg => (msg.id === messageId ? { ...msg, messageData: { ...msg.messageData, draftDeployScopeKey: scopeKey } } : msg))
+    );
+  }, []);
 
   // Remove a single auto context artifact by ref
   const removeAutoContextArtifact = useCallback(ref => {
@@ -1009,6 +1142,7 @@ const useUniversalChat = (options = {}) => {
     // Actions
     handleSubmit,
     handleActionClick,
+    selectDeployScope,
     cancelRequest,
     clearConversation,
     removeAutoContextArtifact

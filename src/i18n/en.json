@@ -2790,6 +2790,7 @@
   "ai-assistant.welcome.tip.before": "Use",
   "ai-assistant.welcome.tip.after": "to add a record or document to the context, and just attach files or images with the upload button.",
   "ai-assistant.input.placeholder.universal": "Describe what you want to create...",
+  "ai-assistant.input.placeholder.operational": "Ask about tasks, documents or records...",
   "ai-assistant.input.placeholder.contextual": "Enter your request...",
   "ai-assistant.input.upload": "Upload file",
   "ai-assistant.input.uploading": "Uploading...",
