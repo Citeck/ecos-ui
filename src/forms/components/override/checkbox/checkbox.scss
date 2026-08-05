@@ -1,7 +1,14 @@
 @import '../../../constants';
 
+$checkbox-size: 22px;
+$checkbox-line-height: 18px;
+// The box is taller than the text line, so its static position (flush with the line top) leaves it
+// hanging below the text. Pin it to the centre of the FIRST line instead — a plain `top: 50%` would
+// drift to the middle of the block once a label wraps to two lines.
+$checkbox-inline-top: calc((#{$checkbox-line-height} - #{$checkbox-size}) / 2);
+
 %checkbox {
-  @include citeck-icon($citeck-icon-checkbox, 22px);
+  @include citeck-icon($citeck-icon-checkbox, $checkbox-size);
   color: $color-gray-6;
   position: absolute;
 }
@@ -46,8 +53,12 @@ $positions: (
       width: 0;
       overflow: hidden;
 
+      // `~`, not `+`: for labelPosition `top` the label span is moved to the end of the label,
+      // which leaves the tooltip <i> sitting between the input and the span. There is only ever
+      // one .form-check-text per label, so the general sibling combinator is equivalent
+      // everywhere else.
       @each $state, $color in $states {
-        &:#{$state} + .form-check-text {
+        &:#{$state} ~ .form-check-text {
           &::before,
           &::after {
             color: $color;
@@ -55,14 +66,15 @@ $positions: (
         }
       }
 
-      &:disabled + .form-check-text {
+      &:disabled ~ .form-check-text {
         color: $color-gray-5;
       }
     }
 
     .form-check-text {
       display: inline-block;
-      line-height: 18px;
+      // shares the variable with $checkbox-inline-top — the box is centred against this line
+      line-height: $checkbox-line-height;
       position: relative;
     }
 
@@ -117,6 +129,7 @@ $positions: (
           &::#{map-get($positions, 'left-left')} {
             position: absolute;
             left: 0;
+            top: $checkbox-inline-top;
           }
         }
       }
@@ -125,7 +138,12 @@ $positions: (
       &_left-right,
       &_right-right {
         & .form-check-text::#{map-get($positions, 'left-right')} {
-          padding-left: 15px;
+          // `margin-left`, not `padding-left`: the box is a `mask-size: contain` mask, which is
+          // anchored to the element's border box and so ignores padding entirely. Padding here
+          // only widened the element (a no-op) — it dates from the icon-font era, when it really
+          // did push the glyph right. Margin restores that 15px gap to the label.
+          margin-left: 15px;
+          top: $checkbox-inline-top;
         }
       }
 
@@ -138,7 +156,7 @@ $positions: (
           @extend %checkbox;
         }
 
-        &_#{$pos} .form-check-input:checked + .form-check-text::#{$where} {
+        &_#{$pos} .form-check-input:checked ~ .form-check-text::#{$where} {
           @include citeck-icon-change($citeck-icon-checkbox-checked);
         }
       }
@@ -152,147 +170,29 @@ $positions: (
       }
     }
 
+    // Tri-state "false". The box is NOT a second layer stacked on the base one: it is the very
+    // same pseudo-element the empty/checked states use (::before or ::after, per label position),
+    // with only its mask swapped — exactly how `:checked` above swaps in the check icon. The X is
+    // part of that mask, so the box can never drift away from the mark and never needs
+    // per-position offsets. The previous two-layer version pinned the fill to ::after and the X to
+    // ::before with hand-tuned offsets, which broke in every position as soon as the field had a
+    // tooltip (`_has-tip` shifted only the fill by -25px, leaving a white X on white background).
     &.checkbox-checked_cross {
-      .form-check-label {
-        &_has-tip {
-          .form-check-input[type='checkbox']:first-child {
-            + span {
-              &.form-check-label__span {
-                &:after {
-                  left: -25px;
-                }
-              }
-            }
-          }
+      // `[type='checkbox']` outranks the `:checked` rule above, so the cross wins even if the
+      // native input is left checked. `~` rather than `+`: with a tooltip the <i> can sit between
+      // the input and the label span.
+      .form-check-label .form-check-input[type='checkbox'] ~ .form-check-text {
+        &::before,
+        &::after {
+          @include citeck-icon-change($citeck-icon-checkbox-cross);
+          color: var(--primary-color);
         }
+      }
 
-        .form-check-input:first-child {
-          + span {
-            position: relative;
-
-            &.form-check-label__span {
-              &:before {
-                z-index: 5;
-                @include citeck-icon($citeck-icon-close, 16px);
-                margin-right: 12px;
-                line-height: 100%;
-                margin-left: 4px;
-                top: 3px;
-                // white X on the solid box — mirrors the white check of the checked state
-                color: white;
-
-                position: absolute;
-                left: -0.5px;
-              }
-
-              &:after {
-                // solid primary box, same fill as the checked state
-                @include citeck-icon($citeck-icon-checkbox-dark, 22px);
-                color: var(--primary-color);
-                position: absolute;
-                top: 0;
-                border-radius: $border-radius-standard;
-                left: 0;
-              }
-
-              &_position {
-                &-left {
-                  &-right {
-                    padding-right: 32px;
-
-                    &:before {
-                      left: unset;
-                      right: -1.5px;
-                      margin: unset;
-                    }
-
-                    &:after {
-                      left: unset;
-                      right: -4.5px;
-                    }
-                  }
-                }
-
-                &-right {
-                  &-left {
-                    &:before {
-                      left: -1px;
-                    }
-                  }
-
-                  &-right {
-                    &:before {
-                      left: 100%;
-                      margin-left: 17.5px;
-                    }
-
-                    &:after {
-                      left: unset;
-                    }
-                  }
-                }
-
-                &-bottom {
-                  padding-top: 28px;
-
-                  &:before {
-                    margin: 0;
-                    left: calc(50% - 1em / 2);
-                  }
-
-                  &:after {
-                    left: calc(50% - 1em / 2);
-                  }
-                }
-
-                &-top {
-                  // Box pinned to the same bottom-center as the check/empty states (see the
-                  // general `_top .form-check-text::after` rule) — identical placement in every
-                  // state, so nothing moves on toggle.
-                  &:after {
-                    position: absolute;
-                    bottom: 0;
-                    top: unset;
-                    left: 50%;
-                    margin: 0;
-                    transform: translateX(-50%);
-                  }
-
-                  // X centered over that box: 22px box − 16px X → 3px inset from the bottom.
-                  &:before {
-                    position: absolute;
-                    bottom: 3px;
-                    top: unset;
-                    left: 50%;
-                    margin: 0;
-                    transform: translateX(-50%);
-                  }
-                }
-              }
-            }
-          }
-
-          &:focus {
-            + span {
-              &:after {
-                color: var(--primary-color);
-              }
-
-              &:before {
-                color: white !important;
-              }
-            }
-          }
-
-          &:disabled {
-            + span {
-              color: $color-gray-5;
-
-              &:after {
-                color: $color-gray-4;
-              }
-            }
-          }
+      .form-check-label .form-check-input[type='checkbox']:disabled ~ .form-check-text {
+        &::before,
+        &::after {
+          color: $color-gray-4;
         }
       }
     }
@@ -345,34 +245,16 @@ $positions: (
         }
       }
 
+      // "false" carries both `checkbox-checked` and `checkbox-checked_cross`, so this has to
+      // outrank the `.checkbox-checked` rule above — hence the same long selector plus
+      // `label.form-check-label`. Mask swap only, same pseudo as the other two states.
       &.checkbox-checked_cross {
         label.form-check-label {
           span.form-check-label__span.form-check-text {
-            padding-right: 0 !important;
-
-            &:before {
-              @extend %checkbox;
-              // white X on the solid box — mirrors the white check of the checked state
-              color: white;
-              @include citeck-icon-change($citeck-icon-close);
-              width: 16px;
-              height: 16px;
-              margin-right: 12px !important;
-              top: 0 !important;
-              left: 3px;
-              z-index: 5;
-              right: unset !important;
-              margin-left: 0;
-            }
-
+            &:before,
             &:after {
-              // solid primary box, same fill as the checked state
-              @extend %checkbox;
+              @include citeck-icon-change($citeck-icon-checkbox-cross);
               color: var(--primary-color);
-              @include citeck-icon-change($citeck-icon-checkbox-dark);
-              top: 0 !important;
-              right: unset !important;
-              left: 0 !important;
             }
           }
         }
