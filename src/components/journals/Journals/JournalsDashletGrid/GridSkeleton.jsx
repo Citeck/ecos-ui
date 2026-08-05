@@ -9,8 +9,9 @@ const DEFAULT_COLS = 5;
 
 /**
  * Table-shaped shimmer placeholder shown while the journal grid loads its primary data on init.
- * Rendered as an opaque overlay inside `.ecos-journal-dashlet__grid` (same box the `<Loader blur />`
- * spinner used to cover), so the area under the toolbar shows a skeleton table instead of a round loader.
+ * Rendered in flow inside `.ecos-journal-dashlet__grid`, so it reserves the height of the table it
+ * stands in for — that box has no height of its own while `data` is empty, which is why an overlay
+ * (the `<Loader blur />` spinner) is invisible in this state.
  */
 const GridSkeleton = ({ columns = DEFAULT_COLS, rows = DEFAULT_ROWS, maxHeight }) => {
   const cols = Math.max(1, columns || DEFAULT_COLS);
