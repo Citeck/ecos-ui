@@ -106,7 +106,13 @@ $box-shadow-grid-left: 3px 0 3px -2px rgba(0, 0, 0, 0.7);
 
 $page-background-color: #f8f9fa;
 
+// Form control heights. Two tiers on purpose:
+// `$form-input-height` — anything that holds a value (inputs, selects) and anything placed in the
+// same row as such a control, e.g. a button inside a data grid cell;
+// `$form-button-height` — stand-alone form buttons (Save / Cancel / "Add columns"), which are
+// deliberately shorter. Keep both here so they cannot drift apart again.
 $form-input-height: 40px;
+$form-button-height: 32px;
 
 $select-option-line-height: 22px;
 
