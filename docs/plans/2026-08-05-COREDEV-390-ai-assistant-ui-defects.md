@@ -302,15 +302,19 @@ client-side, не отправлялся, следов на стенде не о
    Отдельно стоит завести: ни один артефакт платформы не задаёт непустой `textAreaAIContextType`
    (6 вхождений, все `""`), поэтому ассистент у обычных текстовых областей на стенде фактически
    выключен — сама ветка кода рабочая, что и показала проверка через `showFormDialog`.
-3. **Задачи в других репозиториях не заводились:**
+3. **Задачи по ecos-uiserv заведены 2026-08-05** (обе: проект COREDEV, релиз 2026.3, исполнитель
+   anton.ivanov, связаны с COREDEV-390):
+   - [COREDEV-391](https://citeck.ecos24.ru/v2/dashboard?recordRef=emodel/ept-issue@COREDEV-391) —
+     точка входа ассистента в редактор скрипта UI-действия (`action-form.json`, компонент
+     `scriptFnEditor`: `aiEnabled` + `scriptContextType: "ui_action"`). Разблокирует кейсы `B5` и
+     `G13` целиком и ветку `ui_action` у `G10`, `G11`, `G14`, `FC32`–`FC34`;
+   - [COREDEV-392](https://citeck.ecos24.ru/v2/dashboard?recordRef=emodel/ept-issue@COREDEV-392) —
+     латинский заголовок «Column additional config» в русском интерфейсе (`D-B-13`).
+4. **Задачи в остальных репозиториях не заводились:**
    - citeck-ai — `D-B-4` (человеческое имя пространства в `resolveDeployScope`), `D-B-5` (имя записи
      вместо `ref` в тексте карточки), `D-B-9` (атрибут «Автор» генерируется как `TEXT` с ref внутри);
-   - ecos-model — английская подпись «Inherit from parent or data source»;
-   - ecos-uiserv — нет точки входа ассистента в редактор скрипта UI-действия (`action-form.json` без
-     `aiEnabled` + `scriptContextType`), из-за чего в регрессе заблокированы `B5`, `G10`, `G11`,
-     `G13`, `G14`, `FC32`–`FC34`;
-   - ecos-uiserv — латинский заголовок «Column additional config» в русском интерфейсе (`D-B-13`).
-4. ✅ **`OPEN-DEFECTS.md` в citeck-ai поправлен 2026-08-05.** Строка `D-B-7` переписана: адресат
+   - ecos-model — английская подпись «Inherit from parent or data source».
+5. ✅ **`OPEN-DEFECTS.md` в citeck-ai поправлен 2026-08-05.** Строка `D-B-7` переписана: адресат
    только ecos-ui (не ecos-uiserv), механизм — три отдельные поломки вместо «фронт не реагирует на
    404», плюс найденная на ревью недоработка про карточки агента; `D-B-1` и `D-B-2` помечены
    исправленными с оговоркой, что ветка не запушена; заведён `D-B-13`. `D-B-4/5/9` к этому моменту
