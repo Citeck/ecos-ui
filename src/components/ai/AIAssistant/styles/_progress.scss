@@ -379,6 +379,11 @@
     margin-bottom: 8px;
   }
 
+  // Dead turn: the ribbon stops spinning and says so, instead of announcing work that ended (D-B-7)
+  &__tool-loop--failed &__tool-loop-header {
+    color: var(--danger-color, #f44336);
+  }
+
   &__tool-steps-list {
     display: flex;
     flex-direction: column;

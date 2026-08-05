@@ -83,6 +83,28 @@ describe('ToolStepProgress', () => {
     expect(screen.getByText('customTool')).toBeTruthy();
   });
 
+  // D-B-7: the ribbon renders only from `messageData`, so it has to honour the failure stamp
+  // `handlePollingError` writes — otherwise the cogs turn forever for a dead request
+  it('stops the ribbon and its running step when the turn failed', () => {
+    const message = {
+      messageData: {
+        type: 'agent_tool_step',
+        error: true,
+        domain: 'CONFIGURATION',
+        toolSteps: [{ tool: 'deploy', label: 'Развёртывание', status: 'RUNNING', stepIndex: 1 }]
+      }
+    };
+
+    const { container } = render(<ToolStepProgress message={message} />);
+
+    expect(screen.queryByText('ai-assistant.agent-progress.tool-loop')).toBeNull();
+    expect(screen.getByText('ai-assistant.chat.request-failed')).toBeTruthy();
+    expect(container.querySelector('.ai-assistant-chat__tool-loop--failed')).toBeTruthy();
+
+    const icons = screen.getAllByTestId('icon');
+    expect(icons.every(icon => !icon.className.split(' ').includes('fa-spin'))).toBe(true);
+  });
+
   it('renders a sequence RUNNING -> DONE for the same step transitioning by status', () => {
     const running = buildMessage([{ tool: 'generateForm', label: 'Генерация формы', status: 'RUNNING', stepIndex: 1 }]);
     const { container, rerender } = render(<ToolStepProgress message={running} />);

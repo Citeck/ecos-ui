@@ -304,4 +304,71 @@ describe('AgentProgressMessage', () => {
       expect(toggleIcon).toBeFalsy();
     });
   });
+
+  // D-B-7: a dead turn stamps `messageData.error` in `handlePollingError`. The card renders only
+  // from `messageData`, so before this it kept spinning and showing a filled bar for a request that
+  // had already failed — the original "вечно висит на 5 %" symptom, on the agent path.
+  describe('when the turn failed', () => {
+    it('stops the planning spinner and announces the failure', () => {
+      const message = {
+        messageData: { type: 'agent_planning', error: true }
+      };
+
+      render(<AgentProgressMessage message={message} />);
+
+      expect(screen.queryByText('ai-assistant.agent-progress.planning')).toBeNull();
+      expect(screen.getByText('ai-assistant.chat.request-failed')).toBeTruthy();
+
+      const icons = screen.getAllByTestId('icon');
+      expect(icons.every(icon => !icon.className.split(' ').includes('fa-spin'))).toBe(true);
+      expect(icons.find(icon => icon.className.includes('fa-exclamation-triangle'))).toBeTruthy();
+    });
+
+    it('stops the execution cog, marks the bar and freezes an in-progress step', () => {
+      const message = {
+        messageData: {
+          type: 'agent_execution',
+          error: true,
+          completedSteps: 1,
+          totalSteps: 3,
+          overallProgress: 60,
+          steps: [
+            { id: 'step-1', description: 'Собрать контекст', status: 'COMPLETED' },
+            { id: 'step-2', description: 'Развернуть артефакты', status: 'IN_PROGRESS' }
+          ]
+        }
+      };
+
+      const { container } = render(<AgentProgressMessage message={message} />);
+
+      expect(screen.queryByText('ai-assistant.agent-progress.executing')).toBeNull();
+      expect(screen.getByText('ai-assistant.chat.request-failed')).toBeTruthy();
+      expect(container.querySelector('.ai-assistant-chat__agent-progress--failed')).toBeTruthy();
+      expect(container.querySelector('.ai-assistant-chat__agent-progress-fill--failed')).toBeTruthy();
+
+      // Nothing on a dead card may keep animating, the step spinner included
+      const icons = screen.getAllByTestId('icon');
+      expect(icons.every(icon => !icon.className.split(' ').includes('fa-spin'))).toBe(true);
+    });
+
+    it('keeps spinning while the turn is alive', () => {
+      const message = {
+        messageData: {
+          type: 'agent_execution',
+          completedSteps: 1,
+          totalSteps: 3,
+          overallProgress: 60,
+          steps: [{ id: 'step-2', description: 'Развернуть артефакты', status: 'IN_PROGRESS' }]
+        }
+      };
+
+      const { container } = render(<AgentProgressMessage message={message} />);
+
+      expect(screen.getByText('ai-assistant.agent-progress.executing')).toBeTruthy();
+      expect(container.querySelector('.ai-assistant-chat__agent-progress--failed')).toBeNull();
+
+      const icons = screen.getAllByTestId('icon');
+      expect(icons.filter(icon => icon.className.split(' ').includes('fa-spin')).length).toBe(2);
+    });
+  });
 });

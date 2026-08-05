@@ -41,4 +41,33 @@ describe('clampToFieldBounds', () => {
   it('handles a field that starts at the viewport origin', () => {
     expect(clampToFieldBounds(-40, 300, { left: 0, right: 500 })).toBe(0);
   });
+
+  it('reserves window room for the capped width, not the pre-cap measurement', () => {
+    // `sizeConstraints` runs later in the same pass and caps the popup to its 425px field; the
+    // 800px measurement seen here must not make the viewport clamp reserve 800px of window
+    expect(clampToFieldBounds(275, 800, { left: 275, right: 700 }, 1024)).toBe(275);
+  });
+
+  describe('when the field itself hangs outside the window', () => {
+    // A horizontally scrolled or oversized field: staying inside it must not push the popup
+    // off-screen, undoing the viewport clamp `preventOverflow` already applied
+    it('does not drag a popup past the left window edge', () => {
+      expect(clampToFieldBounds(24, 485, { left: -300, right: 400 }, 1024)).toBe(24);
+    });
+
+    it('does not push a popup past the right window edge', () => {
+      const x = clampToFieldBounds(900, 485, { left: 600, right: 2000 }, 1024);
+
+      expect(x).toBe(1024 - 485 - 24);
+      expect(x + 485).toBeLessThanOrEqual(1024);
+    });
+
+    it('still honours the field bounds when they fit in the window', () => {
+      expect(clampToFieldBounds(-103, 485, field, 1440)).toBe(275);
+    });
+
+    it('falls back to the window padding when the popup cannot fit at all', () => {
+      expect(clampToFieldBounds(0, 900, { left: -100, right: 300 }, 320)).toBe(24);
+    });
+  });
 });

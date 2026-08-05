@@ -2,6 +2,53 @@ import Choices from 'choices.js';
 
 import './style.scss';
 
+import { t } from '@/helpers/util';
+
+/**
+ * Accessible name of the item a "remove" button belongs to.
+ * `data.value` is a plain string for most selects, but components that compare values with
+ * `_.isEqual` (EcosSelect) legitimately hold objects there — printing one gives "[object Object]",
+ * so fall back to the rendered label with its markup stripped.
+ */
+const getItemName = data => {
+  if (typeof data?.value === 'string') {
+    return data.value;
+  }
+
+  const label = typeof data?.label === 'string' ? data.label : '';
+
+  if (!label) {
+    return '';
+  }
+
+  const holder = document.createElement('div');
+  holder.innerHTML = label;
+
+  return holder.innerText || holder.textContent || '';
+};
+
+// choices.js 8.0.0 hardcodes the English "Remove item" in its item template — there is no option
+// for it and the library's own source marks it as a TODO (D-B-8). Patched once here, on the single
+// module every component imports the library through, so an instance built anywhere (including by
+// formiojs itself) gets the localized label; per-component `callbackOnCreateTemplates` copies had
+// to be kept in sync by hand and any new `new Choices(...)` silently got English back.
+const originItemTemplate = Choices.defaults.templates.item;
+
+Choices.defaults.templates.item = function (classNames, data, removeItemButton) {
+  const element = originItemTemplate.call(this, classNames, data, removeItemButton);
+  const removeButton = element.querySelector('[data-button]');
+
+  if (removeButton) {
+    const label = t('select.remove-item');
+    const name = getItemName(data);
+
+    removeButton.textContent = label;
+    removeButton.setAttribute('aria-label', name ? `${label}: '${name}'` : label);
+  }
+
+  return element;
+};
+
 const originHideDropdown = Choices.prototype.hideDropdown;
 
 Choices.prototype.hideDropdown = function (preventInputFocus) {

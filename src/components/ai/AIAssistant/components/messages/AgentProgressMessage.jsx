@@ -20,13 +20,14 @@ const STEP_STATUS_ICONS = {
  * Renders a single step in the agent execution checklist
  * Supports expandable details (output, error) and execution time display
  */
-const StepItem = ({ step }) => {
+const StepItem = ({ step, failed = false }) => {
   const statusConfig = STEP_STATUS_ICONS[step.status] || STEP_STATUS_ICONS.PENDING;
 
   return (
     <div className={classNames('ai-assistant-chat__agent-step', statusConfig.className)}>
       <div className="ai-assistant-chat__agent-step-header">
-        <Icon className={classNames('fa', statusConfig.icon, { 'fa-spin': statusConfig.spin })} />
+        {/* A step left IN_PROGRESS by a dead turn must stop spinning with the rest of the card */}
+        <Icon className={classNames('fa', statusConfig.icon, { 'fa-spin': statusConfig.spin && !failed })} />
         <span className="ai-assistant-chat__agent-step-description">{step.description}</span>
         {step.executionTime && step.status === 'COMPLETED' && (
           <span className="ai-assistant-chat__agent-step-time">{step.executionTime}</span>
@@ -58,6 +59,11 @@ const AgentProgressMessage = ({ message }) => {
 
   const progressType = messageData.type;
 
+  // A dead turn stamps `messageData.error` (`handlePollingError`). The card renders only from
+  // `messageData`, so without honouring the stamp it keeps spinning and showing a filled bar for a
+  // request that already failed — the very symptom of D-B-7, on the most common (agent) path.
+  const failed = !!messageData.error;
+
   // Config-agent tool-loop feed (contract #2) — cumulative tool-step ribbon
   if (progressType === AGENT_TOOL_STEP_PROGRESS_TYPE) {
     return <ToolStepProgress message={message} />;
@@ -66,10 +72,10 @@ const AgentProgressMessage = ({ message }) => {
   // Planning state - show spinner
   if (progressType === 'agent_planning') {
     return (
-      <div className="ai-assistant-chat__agent-progress">
+      <div className={classNames('ai-assistant-chat__agent-progress', { 'ai-assistant-chat__agent-progress--failed': failed })}>
         <div className="ai-assistant-chat__agent-progress-header">
-          <Icon className="fa fa-spinner fa-spin" />
-          <span>{t('ai-assistant.agent-progress.planning')}</span>
+          <Icon className={failed ? 'fa fa-exclamation-triangle' : 'fa fa-spinner fa-spin'} />
+          <span>{failed ? t('ai-assistant.chat.request-failed') : t('ai-assistant.agent-progress.planning')}</span>
         </div>
       </div>
     );
@@ -80,10 +86,10 @@ const AgentProgressMessage = ({ message }) => {
     const { completedSteps = 0, totalSteps = 0, overallProgress = 0, currentStepDescription, steps } = messageData;
 
     return (
-      <div className="ai-assistant-chat__agent-progress">
+      <div className={classNames('ai-assistant-chat__agent-progress', { 'ai-assistant-chat__agent-progress--failed': failed })}>
         <div className="ai-assistant-chat__agent-progress-header">
-          <Icon className="fa fa-cog fa-spin" />
-          <span>{t('ai-assistant.agent-progress.executing')}</span>
+          <Icon className={failed ? 'fa fa-exclamation-triangle' : 'fa fa-cog fa-spin'} />
+          <span>{failed ? t('ai-assistant.chat.request-failed') : t('ai-assistant.agent-progress.executing')}</span>
         </div>
 
         {/* Step counter */}
@@ -94,7 +100,9 @@ const AgentProgressMessage = ({ message }) => {
         {/* Progress bar */}
         <div className="ai-assistant-chat__agent-progress-bar">
           <div
-            className="ai-assistant-chat__agent-progress-fill"
+            className={classNames('ai-assistant-chat__agent-progress-fill', {
+              'ai-assistant-chat__agent-progress-fill--failed': failed
+            })}
             style={{
               width: `${overallProgress}%`,
               transition: 'width 0.5s ease-in-out'
@@ -109,7 +117,7 @@ const AgentProgressMessage = ({ message }) => {
         {steps && steps.length > 0 && (
           <div className="ai-assistant-chat__agent-steps-list">
             {steps.map(step => (
-              <StepItem key={step.id} step={step} />
+              <StepItem key={step.id} step={step} failed={failed} />
             ))}
           </div>
         )}

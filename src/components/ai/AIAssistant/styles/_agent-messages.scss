@@ -105,6 +105,11 @@
     }
   }
 
+  // Dead turn: the header carries the failure colour, matching the error line below the card
+  &__agent-progress--failed &__agent-progress-header {
+    color: var(--danger-color, #f44336);
+  }
+
   &__agent-progress-header {
     display: flex;
     align-items: center;
@@ -137,6 +142,12 @@
   &__agent-progress-fill {
     @include progress-fill;
     background: linear-gradient(90deg, var(--primary-color) 0%, var(--light-primary-color) 100%);
+
+    // A failed turn freezes the bar wherever it stopped, so its colour has to say the run is dead —
+    // a blue bar at 60 % reads as "still working" (D-B-7)
+    &--failed {
+      background: var(--danger-color, #f44336);
+    }
   }
 
   &__agent-current-step {

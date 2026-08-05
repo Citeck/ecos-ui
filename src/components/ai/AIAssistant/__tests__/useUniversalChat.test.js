@@ -586,4 +586,35 @@ describe('useUniversalChat - business-app stepper piggyback', () => {
       jest.useRealTimers();
     }
   });
+
+  // D-B-7: a failed turn has to leave the same clean slate the success path does. The stage list is
+  // seeded only while it is null, so a leftover one would be shown for the NEXT, unrelated request.
+  it('clears the stage list along with the stepper when polling fails', () => {
+    const { result } = renderHook(() => useUniversalChat());
+
+    act(() => {
+      lastPollingCallbacks().onProgress({
+        type: 'agent_execution',
+        businessApp: { stage: 'GENERATING_FORMS', progress: 55, availableStages: [{ stage: 'FIRST' }] }
+      });
+    });
+    expect(result.current.generationStages).toEqual([{ stage: 'FIRST' }]);
+
+    act(() => {
+      lastPollingCallbacks().onError('boom');
+    });
+
+    expect(result.current.activeBusinessAppProgress).toBeNull();
+    expect(result.current.generationStages).toBeNull();
+
+    // The next request seeds its own stage list, which the stale one would have blocked
+    act(() => {
+      lastPollingCallbacks().onProgress({
+        type: 'agent_execution',
+        businessApp: { stage: 'ANALYZING_REQUIREMENTS', progress: 10, availableStages: [{ stage: 'SECOND' }] }
+      });
+    });
+
+    expect(result.current.generationStages).toEqual([{ stage: 'SECOND' }]);
+  });
 });

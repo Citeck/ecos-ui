@@ -923,20 +923,7 @@ export default class SelectComponent extends BaseComponent {
       itemComparer: _.isEqual,
       callbackOnCreateTemplates: template => {
         return {
-          // choices.js 8.0.0 hardcodes the English "Remove item" in its item template (no option for
-          // it, the library's own source marks it as a TODO) — localize it here (D-B-8).
-          item(classNames, data, removeItemButton) {
-            const element = Choices.defaults.templates.item.call(this, classNames, data, removeItemButton);
-            const removeButton = element.querySelector('[data-button]');
-
-            if (removeButton) {
-              const label = t('select.remove-item');
-              removeButton.textContent = label;
-              removeButton.setAttribute('aria-label', `${label}: '${data.value}'`);
-            }
-
-            return element;
-          },
+          // The English "Remove item" hardcoded by choices.js is localized once in `src/forms/choices`
           choice: (classNames, data, itemSelectText) => {
             // label is wrapped in template
             const labelInTemplate = data.label;

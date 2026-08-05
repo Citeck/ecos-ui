@@ -216,23 +216,7 @@ export default class SelectComponent extends FormIOSelectComponent {
         _.get(this, 'component.fuseOptions', {})
       ),
       itemComparer: _.isEqual,
-      // choices.js 8.0.0 hardcodes the English "Remove item" in its item template — the library's
-      // own source marks it as a TODO, there is no option for it. Delegate to the default template
-      // and localize the button text and its accessible name (D-B-8).
-      callbackOnCreateTemplates: () => ({
-        item(classNames, data, removeItemButton) {
-          const element = Choices.defaults.templates.item.call(this, classNames, data, removeItemButton);
-          const removeButton = element.querySelector('[data-button]');
-
-          if (removeButton) {
-            const label = t('select.remove-item');
-            removeButton.textContent = label;
-            removeButton.setAttribute('aria-label', `${label}: '${data.value}'`);
-          }
-
-          return element;
-        }
-      }),
+      // The English "Remove item" hardcoded by choices.js is localized once in `src/forms/choices`
       ...customOptions
     };
 

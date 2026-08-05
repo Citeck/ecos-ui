@@ -17,6 +17,9 @@ import { CONTENT_TYPES } from '@/components/ai/AIAssistant/constants';
 
 type PositionVariant = 'text-field' | 'script-editor' | 'lexical';
 
+/** Gap kept between the popup and the window edge; matches `preventOverflow`'s padding */
+const VIEWPORT_PADDING = 24;
+
 /**
  * Content metrics for adaptive width calculation
  */
@@ -87,9 +90,35 @@ interface VirtualReference {
  * viewport-bound preventOverflow only stopped it at the window edge. When the popup is wider than
  * the field it is aligned to the field's start: the beginning of the text matters most.
  */
-export const clampToFieldBounds = (x: number, popperWidth: number, field: { left: number; right: number }): number => {
-  const maxX = Math.max(field.left, field.right - popperWidth);
-  return Math.min(Math.max(x, field.left), maxX);
+export const clampToFieldBounds = (
+  x: number,
+  popperWidth: number,
+  field: { left: number; right: number },
+  viewportWidth?: number
+): number => {
+  // `sizeConstraints` caps the popup to the field in the same update pass, but it runs later
+  // (`beforeWrite`) than this clamp (`main`), so `popperWidth` is still the pre-cap measurement.
+  // It makes no difference to the field bounds themselves (a popup wider than its field lands on
+  // `field.left` either way), but the viewport arithmetic below would reserve room for a width the
+  // popup is never going to have.
+  const fieldWidth = Math.max(field.right - field.left, 0);
+  const width = fieldWidth ? Math.min(popperWidth, fieldWidth) : popperWidth;
+
+  let minX = field.left;
+  let maxX = Math.max(field.left, field.right - width);
+
+  // A field can itself hang outside the window — horizontally scrolled, or wider than a narrow
+  // window. Staying inside the field must never push the popup off-screen, so the viewport wins:
+  // this modifier runs after `preventOverflow` and would otherwise silently undo its clamp.
+  if (viewportWidth) {
+    const viewportMin = VIEWPORT_PADDING;
+    const viewportMax = Math.max(viewportMin, viewportWidth - width - VIEWPORT_PADDING);
+
+    minX = Math.min(Math.max(minX, viewportMin), viewportMax);
+    maxX = Math.min(Math.max(maxX, minX), viewportMax);
+  }
+
+  return Math.min(Math.max(x, minX), maxX);
 };
 
 /**
@@ -149,7 +178,7 @@ const createModifiers = (
       }
 
       // `strategy: 'fixed'` puts popperOffsets in viewport coordinates, same as getBoundingClientRect
-      offsets.x = clampToFieldBounds(offsets.x, state.rects.popper.width, field);
+      offsets.x = clampToFieldBounds(offsets.x, state.rects.popper.width, field, window.innerWidth);
     }
   },
   {
@@ -203,7 +232,7 @@ const createModifiers = (
         }
 
         // Ensure popup doesn't extend beyond right edge with padding
-        const popperLeft = state.modifiersData.popperOffsets?.x || state.rects.reference.x;
+        const popperLeft = state.modifiersData.popperOffsets?.x ?? state.rects.reference.x;
         const availableWidth = viewportWidth - popperLeft - rightEdgePadding;
         finalWidth = Math.min(finalWidth, availableWidth);
 
@@ -212,7 +241,7 @@ const createModifiers = (
         state.styles.popper.maxWidth = fieldWidth ? `${fieldWidth}px` : `calc(60vw - ${rightEdgePadding * 2}px)`;
       } else if (variant === 'script-editor') {
         if (isMobile) {
-          const popperLeft = state.modifiersData.popperOffsets?.x || state.rects.reference.x;
+          const popperLeft = state.modifiersData.popperOffsets?.x ?? state.rects.reference.x;
           const availableWidth = viewportWidth - popperLeft - rightEdgePadding;
           const constrainedWidth = capToField(Math.max(availableWidth, 280));
 

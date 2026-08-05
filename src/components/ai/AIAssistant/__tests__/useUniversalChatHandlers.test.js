@@ -1439,6 +1439,33 @@ describe('useUniversalChat - handlers', () => {
       expect(last.text).toBe('Диалог занят другим запросом (req-42)');
     });
 
+    // Refusals with an empty body (403 license, 404 conversation ownership) still have to name the
+    // status — the message was being built and then dropped on the floor by the catch.
+    it('names the status when the refusal carries no body', async () => {
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: false,
+        status: 403,
+        json: jest.fn().mockRejectedValue(new Error('Unexpected end of JSON input'))
+      });
+      jest.spyOn(console, 'error').mockImplementation(() => {});
+
+      const { result } = renderHook(() => useUniversalChat());
+
+      act(() => {
+        result.current.setMessage('привет');
+      });
+
+      await act(async () => {
+        await result.current.handleSubmit({ preventDefault: jest.fn() });
+      });
+
+      const last = result.current.messages[result.current.messages.length - 1];
+
+      expect(last.isError).toBe(true);
+      expect(last.text).toBe('ai-assistant.chat.http-error');
+      expect(last.text).not.toBe('ai-assistant.chat.request-error');
+    });
+
     it('keeps the generic advice when the failure carries no backend reason', async () => {
       global.fetch = jest.fn().mockRejectedValue(new Error('Failed to fetch'));
       jest.spyOn(console, 'error').mockImplementation(() => {});

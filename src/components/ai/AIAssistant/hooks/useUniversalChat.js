@@ -595,10 +595,14 @@ const useUniversalChat = (options = {}) => {
       // The temp file may still be alive (network/processing failure), so don't risk a stale strip.
       clearPendingFileAction();
       setIsLoading(false);
-      // Nothing is running after a failed turn: the top stepper and the agent indicator have to go,
-      // or they keep announcing progress for a request that is already dead (D-B-7).
+      // Nothing is running after a failed turn: the stage indicator and the agent status have to go,
+      // or they keep announcing progress for a request that is already dead (D-B-7). `generationStages`
+      // goes with them — it is cleared on the success path too, and while it is set the three
+      // `!generationStages` guards refuse to install the stage list of the NEXT request, so a failed
+      // generation would leave its own timeline on top of an unrelated one that follows.
       setActiveBusinessAppProgress(null);
       setAgentStatus(null);
+      setGenerationStages(null);
       setMessages(prevMessages =>
         prevMessages.map(msg => {
           if (msg.isProcessing) {
@@ -902,7 +906,12 @@ const useUniversalChat = (options = {}) => {
             throw err;
           }
 
-          throw new Error(t('ai-assistant.chat.http-error', { status: response.status }));
+          // Refusals with an empty body (403 license, 404 conversation ownership) still have to name
+          // the status: the catch below shows `userMessage` and falls back to generic advice, so
+          // without it this computed message was built and thrown away.
+          const httpError = new Error(t('ai-assistant.chat.http-error', { status: response.status }));
+          httpError.userMessage = httpError.message;
+          throw httpError;
         }
 
         requestAccepted = true;

@@ -2976,6 +2976,8 @@
   "ai-actions.prompt.translate": "Translate to English",
   "ai-actions.prompt.expand": "Expand and add more details",
   "ai-actions.prompt.summarize": "Summarize this text",
+  "ai-actions.prompt.simplify": "Simplify this text",
+  "ai-actions.prompt.formalize": "Rewrite this text in a formal style",
   "ai-actions.prompt.fix-grammar": "Fix grammar and spelling",
   "ai-actions.prompt.explain": "Explain what this code does",
   "ai-actions.prompt.fix": "Find and fix errors in this code",

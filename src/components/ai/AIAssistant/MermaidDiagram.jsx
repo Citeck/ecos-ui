@@ -28,6 +28,71 @@ const setMermaidInstance = instance => {
   window[MERMAID_INSTANCE_KEY] = instance;
 };
 
+// The mermaid instance is a process-wide singleton, so `initialize` is global state, not per-render
+// options. The fullscreen render below has to reconfigure it and then put this back — otherwise
+// every diagram rendered afterwards inherits `useMaxWidth: false` and the viewport-scaled spacing,
+// and since the inline SVG is now drawn at its natural width it comes out thousands of px wide in a
+// 438px chat panel.
+const INLINE_MERMAID_CONFIG = {
+  startOnLoad: false,
+  theme: 'default',
+  securityLevel: 'loose',
+  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  fontSize: 12,
+  flowchart: {
+    useMaxWidth: true,
+    htmlLabels: true,
+    curve: 'cardinal',
+    padding: 30,
+    nodeSpacing: 80,
+    rankSpacing: 60,
+    wrappingWidth: 200
+  },
+  sequence: {
+    useMaxWidth: true,
+    wrap: true,
+    diagramMarginX: 20,
+    diagramMarginY: 20,
+    boxMargin: 12,
+    boxTextMargin: 8,
+    noteMargin: 12
+  },
+  gantt: {
+    useMaxWidth: true,
+    fontSize: 14,
+    fontFamily: 'inherit'
+  },
+  er: {
+    useMaxWidth: true,
+    fontSize: 14
+  },
+  gitGraph: {
+    useMaxWidth: true
+  }
+};
+
+// The fullscreen wrapper animates `transform` (0.2s), so a rect measured during that animation
+// reports the interpolated scale rather than the target zoom. Read the scale actually applied.
+const readAppliedScale = element => {
+  const transform = element && window.getComputedStyle(element)?.transform;
+
+  if (!transform || transform === 'none') {
+    return null;
+  }
+
+  const matrix = transform.match(/^matrix\(\s*([^,]+),/);
+  if (matrix) {
+    return parseFloat(matrix[1]) || null;
+  }
+
+  const scale = transform.match(/^scale\(\s*([^,)]+)/);
+  return scale ? parseFloat(scale[1]) || null : null;
+};
+
+// Canvas has a per-browser area/edge cap; past it `toBlob` hands back null. The inline SVG is drawn
+// at natural size now, so a large flowchart reaches that cap where the old panel-width export never did.
+const MAX_EXPORT_EDGE = 8192;
+
 const MermaidDiagram = ({ chart, className = '' }) => {
   const elementRef = useRef(null);
   const fullscreenRef = useRef(null);
@@ -61,43 +126,7 @@ const MermaidDiagram = ({ chart, className = '' }) => {
 
           // Initialize mermaid
           if (!isMermaidInitialized()) {
-            mermaid.initialize({
-              startOnLoad: false,
-              theme: 'default',
-              securityLevel: 'loose',
-              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-              fontSize: 12,
-              flowchart: {
-                useMaxWidth: true,
-                htmlLabels: true,
-                curve: 'cardinal',
-                padding: 30,
-                nodeSpacing: 80,
-                rankSpacing: 60,
-                wrappingWidth: 200
-              },
-              sequence: {
-                useMaxWidth: true,
-                wrap: true,
-                diagramMarginX: 20,
-                diagramMarginY: 20,
-                boxMargin: 12,
-                boxTextMargin: 8,
-                noteMargin: 12
-              },
-              gantt: {
-                useMaxWidth: true,
-                fontSize: 14,
-                fontFamily: 'inherit'
-              },
-              er: {
-                useMaxWidth: true,
-                fontSize: 14
-              },
-              gitGraph: {
-                useMaxWidth: true
-              }
-            });
+            mermaid.initialize(INLINE_MERMAID_CONFIG);
             setMermaidInitialized();
           }
 
@@ -208,11 +237,16 @@ const MermaidDiagram = ({ chart, className = '' }) => {
       // Initialize with fullscreen config
       mermaid.initialize(fullscreenConfig);
 
-      // Render with unique ID
-      const id = `fullscreen-diagram-${Math.random().toString(36).substr(2, 9)}`;
-      const { svg } = await mermaid.render(id, chart.trim());
+      try {
+        // Render with unique ID
+        const id = `fullscreen-diagram-${Math.random().toString(36).substr(2, 9)}`;
+        const { svg } = await mermaid.render(id, chart.trim());
 
-      return svg;
+        return svg;
+      } finally {
+        // Hand the shared instance back the inline config — see INLINE_MERMAID_CONFIG
+        mermaid.initialize(INLINE_MERMAID_CONFIG);
+      }
     } catch (error) {
       console.error('Fullscreen rendering error:', error);
       return null;
@@ -269,7 +303,12 @@ const MermaidDiagram = ({ chart, className = '' }) => {
     // Measure what is actually laid out, with the wrapper's current scale divided back out. The
     // viewBox would be wrong here: mermaid already sizes the fullscreen SVG to the modal, so a
     // viewBox-based factor shrank an already-fitted diagram a second time.
-    const zoomInEffect = zoomRef.current || 1;
+    //
+    // The scale comes from the DOM, not from `zoomRef`: this effect can re-run while the wrapper is
+    // still animating towards the previous `setZoom`, and dividing a mid-transition rect by the
+    // target zoom stores a fit value that "Вписать" then returns to forever.
+    const wrapper = fullscreenRef.current?.closest('.mermaid-diagram-content');
+    const zoomInEffect = readAppliedScale(wrapper) || zoomRef.current || 1;
     const svgRect = svgElement.getBoundingClientRect();
     const layoutWidth = svgRect.width / zoomInEffect;
     const layoutHeight = svgRect.height / zoomInEffect;
@@ -329,9 +368,14 @@ const MermaidDiagram = ({ chart, className = '' }) => {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
 
-      canvas.width = svgWidth * 2;
-      canvas.height = svgHeight * 2;
-      ctx.scale(2, 2);
+      // 2x for a crisp export, but only as far as the canvas cap allows: the inline SVG is drawn at
+      // natural size now, so a wide flowchart would otherwise ask for a canvas the browser refuses
+      // to allocate and `toBlob` would silently yield null.
+      const scale = Math.min(2, MAX_EXPORT_EDGE / svgWidth, MAX_EXPORT_EDGE / svgHeight);
+
+      canvas.width = svgWidth * scale;
+      canvas.height = svgHeight * scale;
+      ctx.scale(scale, scale);
 
       // White background
       ctx.fillStyle = 'white';
@@ -368,6 +412,13 @@ const MermaidDiagram = ({ chart, className = '' }) => {
         // Download
         canvas.toBlob(
           pngBlob => {
+            // Null when the browser refused the canvas — reported, not thrown into an async
+            // callback the try/catch below can never see
+            if (!pngBlob) {
+              NotificationManager.error(t('ai-assistant.mermaid.export-error'));
+              return;
+            }
+
             const pngUrl = URL.createObjectURL(pngBlob);
             const link = document.createElement('a');
             link.href = pngUrl;
