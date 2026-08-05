@@ -1,7 +1,14 @@
 @import '../../../constants';
 
+$checkbox-size: 22px;
+$checkbox-line-height: 18px;
+// The box is taller than the text line, so its static position (flush with the line top) leaves it
+// hanging below the text. Pin it to the centre of the FIRST line instead — a plain `top: 50%` would
+// drift to the middle of the block once a label wraps to two lines.
+$checkbox-inline-top: calc((#{$checkbox-line-height} - #{$checkbox-size}) / 2);
+
 %checkbox {
-  @include citeck-icon($citeck-icon-checkbox, 22px);
+  @include citeck-icon($citeck-icon-checkbox, $checkbox-size);
   color: $color-gray-6;
   position: absolute;
 }
@@ -66,7 +73,8 @@ $positions: (
 
     .form-check-text {
       display: inline-block;
-      line-height: 18px;
+      // shares the variable with $checkbox-inline-top — the box is centred against this line
+      line-height: $checkbox-line-height;
       position: relative;
     }
 
@@ -121,6 +129,7 @@ $positions: (
           &::#{map-get($positions, 'left-left')} {
             position: absolute;
             left: 0;
+            top: $checkbox-inline-top;
           }
         }
       }
@@ -129,7 +138,12 @@ $positions: (
       &_left-right,
       &_right-right {
         & .form-check-text::#{map-get($positions, 'left-right')} {
-          padding-left: 15px;
+          // `margin-left`, not `padding-left`: the box is a `mask-size: contain` mask, which is
+          // anchored to the element's border box and so ignores padding entirely. Padding here
+          // only widened the element (a no-op) — it dates from the icon-font era, when it really
+          // did push the glyph right. Margin restores that 15px gap to the label.
+          margin-left: 15px;
+          top: $checkbox-inline-top;
         }
       }
 
