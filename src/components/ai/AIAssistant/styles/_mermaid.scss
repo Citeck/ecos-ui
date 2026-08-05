@@ -253,7 +253,9 @@
       justify-content: center;
 
       &--fullscreen {
-        transform-origin: center;
+        // The component sets `transform-origin` inline (see MermaidDiagram.jsx), which always beats
+        // this rule; kept in step with it so the two do not disagree when read side by side.
+        transform-origin: top center;
         align-items: flex-start;
       }
 

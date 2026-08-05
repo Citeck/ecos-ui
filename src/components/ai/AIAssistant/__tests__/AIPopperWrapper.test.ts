@@ -1,4 +1,4 @@
-import { clampToFieldBounds } from '../AIQuickActions/components/AIPopperWrapper';
+import { clampPopupWidth, clampToFieldBounds } from '../AIQuickActions/components/AIPopperWrapper';
 
 /**
  * D-B-1: the AI popups (quick actions bar and generated-result panel) are anchored to the small
@@ -69,5 +69,43 @@ describe('clampToFieldBounds', () => {
     it('falls back to the window padding when the popup cannot fit at all', () => {
       expect(clampToFieldBounds(0, 900, { left: -100, right: 300 }, 320)).toBe(24);
     });
+  });
+});
+
+/**
+ * A rich-text editor is normally as wide as its container, so on a phone the field cap alone hands
+ * back the whole viewport width — and `clampToFieldBounds` has already pushed the popup right by the
+ * window padding, so it overhangs the right edge by exactly that padding.
+ */
+describe('clampPopupWidth', () => {
+  it('keeps a full-bleed field on a phone inside the window', () => {
+    // 360px viewport, field spans it entirely, popup already shifted to the 24px padding
+    const width = clampPopupWidth(600, { fieldWidth: 360, viewportWidth: 360, popperLeft: 24, edgePadding: 8 });
+
+    expect(width).toBe(328);
+    expect(24 + width).toBeLessThanOrEqual(360);
+  });
+
+  it('still caps to the field when the field is the tighter bound', () => {
+    expect(clampPopupWidth(600, { fieldWidth: 420, viewportWidth: 1440, popperLeft: 300, edgePadding: 24 })).toBe(420);
+  });
+
+  it('leaves the desired width alone when both bounds are roomy', () => {
+    expect(clampPopupWidth(600, { fieldWidth: 900, viewportWidth: 1440, popperLeft: 300, edgePadding: 24 })).toBe(600);
+    expect(clampPopupWidth(450, { fieldWidth: 900, viewportWidth: 1440, popperLeft: 300, edgePadding: 24 })).toBe(450);
+  });
+
+  it('never collapses below the minimum, however little room is left', () => {
+    expect(clampPopupWidth(600, { fieldWidth: 900, viewportWidth: 320, popperLeft: 300, edgePadding: 24 })).toBe(280);
+  });
+
+  it('applies the window bound with no field element', () => {
+    expect(clampPopupWidth(600, { viewportWidth: 500, popperLeft: 24, edgePadding: 8 })).toBe(468);
+  });
+
+  it('keeps min below max for every bound', () => {
+    const bounds = { fieldWidth: 360, viewportWidth: 360, popperLeft: 24, edgePadding: 8 };
+
+    expect(clampPopupWidth(450, bounds)).toBeLessThanOrEqual(clampPopupWidth(600, bounds));
   });
 });

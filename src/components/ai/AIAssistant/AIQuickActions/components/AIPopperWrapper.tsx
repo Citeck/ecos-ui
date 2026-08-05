@@ -20,6 +20,9 @@ type PositionVariant = 'text-field' | 'script-editor' | 'lexical';
 /** Gap kept between the popup and the window edge; matches `preventOverflow`'s padding */
 const VIEWPORT_PADDING = 24;
 
+/** Floor for a viewport-capped popup, so a very narrow window cannot collapse it to a sliver */
+const MIN_POPPER_WIDTH = 280;
+
 /**
  * Content metrics for adaptive width calculation
  */
@@ -119,6 +122,25 @@ export const clampToFieldBounds = (
   }
 
   return Math.min(Math.max(x, minX), maxX);
+};
+
+/**
+ * Width for a popup that must fit inside BOTH its field and the window.
+ *
+ * Exported for tests. Capping to the field alone is not enough for a variant whose field is
+ * routinely as wide as its container (a rich-text editor): on a narrow screen the field cap gives
+ * back the whole viewport width, while `clampToFieldBounds` has already reserved padding on the
+ * left, so the popup overhangs the right edge by exactly that padding.
+ */
+export const clampPopupWidth = (
+  desired: number,
+  bounds: { fieldWidth?: number; viewportWidth: number; popperLeft: number; edgePadding: number }
+): number => {
+  const { fieldWidth, viewportWidth, popperLeft, edgePadding } = bounds;
+  const available = Math.max(viewportWidth - popperLeft - edgePadding, MIN_POPPER_WIDTH);
+  const cappedToField = fieldWidth ? Math.min(desired, fieldWidth) : desired;
+
+  return Math.min(cappedToField, available);
 };
 
 /**
@@ -257,8 +279,16 @@ const createModifiers = (
           state.styles.popper.maxWidth = fieldWidth ? `${fieldWidth}px` : `calc(60vw - ${rightEdgePadding * 2}px)`;
         }
       } else if (variant === 'lexical') {
-        state.styles.popper.minWidth = `${capToField(450)}px`;
-        state.styles.popper.maxWidth = `${capToField(600)}px`;
+        // Cap to the window as well as to the field. A rich-text editor is routinely as wide as its
+        // container, so on a narrow screen the field cap alone gives back the full viewport width —
+        // and `fieldBoundary` has already reserved padding on the left, so the popup ends up
+        // hanging past the right edge by exactly that much. The text-field branch above does the
+        // same thing; only this variant was missing it.
+        const popperLeft = state.modifiersData.popperOffsets?.x ?? state.rects.reference.x;
+        const bounds = { fieldWidth, viewportWidth, popperLeft, edgePadding: rightEdgePadding };
+
+        state.styles.popper.minWidth = `${clampPopupWidth(450, bounds)}px`;
+        state.styles.popper.maxWidth = `${clampPopupWidth(600, bounds)}px`;
       }
     }
   }

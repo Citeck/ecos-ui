@@ -312,13 +312,22 @@ const MermaidDiagram = ({ chart, className = '' }) => {
     const svgRect = svgElement.getBoundingClientRect();
     const layoutWidth = svgRect.width / zoomInEffect;
     const layoutHeight = svgRect.height / zoomInEffect;
-    const available = container.getBoundingClientRect();
 
-    if (!layoutWidth || !layoutHeight || !available.width || !available.height) {
+    // The diagram can only occupy the container's CONTENT box: the modal pads its content area by
+    // 20px a side, and a border-box measurement would hand the fit factor 40px per axis that are
+    // not there — enough to leave scrollbars and clip the diagram at the value "fit" lands on.
+    // `clientWidth/Height` already exclude any scrollbar, so only the padding has to come off.
+    const style = window.getComputedStyle(container);
+    const availableWidth =
+      container.clientWidth - (parseFloat(style.paddingLeft) || 0) - (parseFloat(style.paddingRight) || 0);
+    const availableHeight =
+      container.clientHeight - (parseFloat(style.paddingTop) || 0) - (parseFloat(style.paddingBottom) || 0);
+
+    if (!layoutWidth || !layoutHeight || availableWidth <= 0 || availableHeight <= 0) {
       return 1;
     }
 
-    const fit = Math.min(available.width / layoutWidth, available.height / layoutHeight);
+    const fit = Math.min(availableWidth / layoutWidth, availableHeight / layoutHeight);
 
     // Same bounds as the zoom buttons, so "fit" never lands on a value they cannot return to
     return Math.min(Math.max(fit, 0.25), 5);
@@ -495,7 +504,12 @@ const MermaidDiagram = ({ chart, className = '' }) => {
         alignItems: isRendering || !mermaidLoaded ? 'center' : 'stretch',
         justifyContent: isRendering || !mermaidLoaded ? 'center' : 'stretch',
         transform: isFullscreenMode ? `scale(${zoom})` : 'none',
-        transformOrigin: 'center center',
+        // Scale from the top in fullscreen. `scale()` leaves the LAYOUT box untouched, so a diagram
+        // taller than the modal keeps an oversized layout box; scaling about its own centre then
+        // pushes the picture down by half the excess, and "fit" — a zoom at which the diagram
+        // provably fits — still cut off its bottom (measured: 55px at 900x650). This inline value
+        // is what actually applies; the rule in `_mermaid.scss` cannot win against it.
+        transformOrigin: isFullscreenMode ? 'top center' : 'center center',
         transition: 'transform 0.2s ease-in-out'
       }}
     >
