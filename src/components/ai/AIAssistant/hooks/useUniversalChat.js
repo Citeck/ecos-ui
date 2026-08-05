@@ -412,6 +412,14 @@ const useUniversalChat = (options = {}) => {
   const fetchStatus = useCallback(async requestId => {
     const response = await fetch(`${API_ENDPOINTS.UNIVERSAL_STATUS}/${requestId}`);
     if (!response.ok) {
+      // The request list lives in the service's memory, so a restart loses it and every later poll
+      // answers 404 with an empty body (same answer as for another user's or an expired request).
+      // Say the request is lost — "Ошибка: Error: 404" told the user nothing actionable (D-B-7).
+      if (response.status === 404) {
+        const err = new Error(t('ai-assistant.chat.request-lost'));
+        err.requestLost = true;
+        throw err;
+      }
       // Surface the backend's friendly error body (e.g. overload: { error, retryAfterSeconds })
       // instead of a raw status, so the chat shows the human message, not "Error: 500".
       const body = await response.json().catch(() => null);
@@ -420,7 +428,7 @@ const useUniversalChat = (options = {}) => {
         if (body.retryAfterSeconds != null) err.retryAfterSeconds = body.retryAfterSeconds;
         throw err;
       }
-      throw new Error(`Error: ${response.status}`);
+      throw new Error(t('ai-assistant.chat.http-error', { status: response.status }));
     }
     return response.json();
   }, []);
@@ -583,18 +591,48 @@ const useUniversalChat = (options = {}) => {
 
   // Handle polling error
   const handlePollingError = useCallback(
-    error => {
+    (error, meta = {}) => {
       // The temp file may still be alive (network/processing failure), so don't risk a stale strip.
       clearPendingFileAction();
       setIsLoading(false);
+      // Nothing is running after a failed turn: the top stepper and the agent indicator have to go,
+      // or they keep announcing progress for a request that is already dead (D-B-7).
+      setActiveBusinessAppProgress(null);
+      setAgentStatus(null);
       setMessages(prevMessages =>
         prevMessages.map(msg => {
           if (msg.isProcessing) {
+            const text = meta.requestLost
+              ? t('ai-assistant.chat.request-lost')
+              : typeof error === 'string'
+                ? t('ai-assistant.chat.error-prefix', { error })
+                : t('ai-assistant.chat.result-error');
+
             return {
               ...msg,
-              text: typeof error === 'string' ? t('ai-assistant.chat.error-prefix', { error }) : t('ai-assistant.chat.result-error'),
+              text,
               isProcessing: false,
-              isError: true
+              isError: true,
+              // Progress cards render from `messageData`, never from `text`. Without stamping the
+              // failure here the card went on showing "Обработка 5 %" with a filled bar, and a
+              // `detailedStatus` from the last good poll hid the error text entirely — the request
+              // looked alive forever (D-B-7, BusinessAppMessage).
+              ...(msg.messageData
+                ? {
+                    messageData: {
+                      ...msg.messageData,
+                      error: true,
+                      detailedStatus: null,
+                      stageMetadata: {
+                        ...msg.messageData.stageMetadata,
+                        severity: 'ERROR',
+                        icon: 'fa-exclamation-triangle',
+                        animated: false,
+                        label: t('ai-assistant.chat.request-failed')
+                      }
+                    }
+                  }
+                : {})
             };
           }
           return msg;
@@ -852,7 +890,19 @@ const useUniversalChat = (options = {}) => {
         });
 
         if (!response.ok) {
-          throw new Error(`Error: ${response.status}`);
+          // The backend explains a refusal in the body: 409 carries which request holds the
+          // conversation, 400 the validation reason. Dropping it left the user with a generic
+          // "try again" for a state that retrying cannot fix (D-B-12). `userMessage` marks wording
+          // that came from the backend and is safe to show as-is — unlike a transport failure.
+          const body = await response.json().catch(() => null);
+
+          if (body?.error) {
+            const err = new Error(body.error);
+            err.userMessage = body.error;
+            throw err;
+          }
+
+          throw new Error(t('ai-assistant.chat.http-error', { status: response.status }));
         }
 
         requestAccepted = true;
@@ -890,7 +940,8 @@ const useUniversalChat = (options = {}) => {
           ...(requestAccepted ? prevMessages : prevMessages.map(msg => (msg.id === userMessage.id ? { ...msg, isFailedSend: true } : msg))),
           {
             id: generateUUID(),
-            text: t('ai-assistant.chat.request-error'),
+            // Only the backend's own wording is shown; a transport error keeps the generic advice
+            text: error?.userMessage || t('ai-assistant.chat.request-error'),
             sender: 'ai',
             timestamp: new Date(),
             isError: true

@@ -31,6 +31,10 @@ const setMermaidInstance = instance => {
 const MermaidDiagram = ({ chart, className = '' }) => {
   const elementRef = useRef(null);
   const fullscreenRef = useRef(null);
+  // Zoom that makes the whole diagram fit the fullscreen modal; also what the "fit" button returns to
+  const fitZoomRef = useRef(1);
+  // Current zoom, readable from callbacks without making them depend on it
+  const zoomRef = useRef(1);
   const [svgContent, setSvgContent] = useState('');
   const [fullscreenSvgContent, setFullscreenSvgContent] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -226,7 +230,8 @@ const MermaidDiagram = ({ chart, className = '' }) => {
   const toggleFullscreen = useCallback(async () => {
     setIsFullscreen(prev => {
       if (!prev) {
-        // Opening fullscreen - set zoom to 100% and render fullscreen version
+        // Opening fullscreen - render fullscreen version; the zoom that fits the window is measured
+        // once the SVG is in the DOM (see the fit effect below)
         setZoom(1);
         renderFullscreenDiagram().then(fullscreenSvg => {
           if (fullscreenSvg) {
@@ -250,8 +255,57 @@ const MermaidDiagram = ({ chart, className = '' }) => {
     setZoom(prev => Math.max(prev - 0.25, 0.25));
   }, []);
 
+  // Zoom at which the whole diagram fits the modal. "100 %" is the diagram's natural size, which for
+  // a large flowchart is far too small to read — opening fullscreen at 1 forced everyone to zoom in
+  // by hand (D-B-10). Measured once the fullscreen SVG is in the DOM, and reused by "fit".
+  const measureFitZoom = useCallback(() => {
+    const svgElement = fullscreenRef.current?.querySelector('svg');
+    const container = fullscreenRef.current?.closest('.mermaid-fullscreen-modal__content');
+
+    if (!svgElement || !container) {
+      return 1;
+    }
+
+    // Measure what is actually laid out, with the wrapper's current scale divided back out. The
+    // viewBox would be wrong here: mermaid already sizes the fullscreen SVG to the modal, so a
+    // viewBox-based factor shrank an already-fitted diagram a second time.
+    const zoomInEffect = zoomRef.current || 1;
+    const svgRect = svgElement.getBoundingClientRect();
+    const layoutWidth = svgRect.width / zoomInEffect;
+    const layoutHeight = svgRect.height / zoomInEffect;
+    const available = container.getBoundingClientRect();
+
+    if (!layoutWidth || !layoutHeight || !available.width || !available.height) {
+      return 1;
+    }
+
+    const fit = Math.min(available.width / layoutWidth, available.height / layoutHeight);
+
+    // Same bounds as the zoom buttons, so "fit" never lands on a value they cannot return to
+    return Math.min(Math.max(fit, 0.25), 5);
+  }, []);
+
+  useEffect(() => {
+    zoomRef.current = zoom;
+  }, [zoom]);
+
+  useEffect(() => {
+    if (!isFullscreen || !fullscreenSvgContent) {
+      return;
+    }
+
+    // One frame later: the SVG has just been written via dangerouslySetInnerHTML
+    const frameId = requestAnimationFrame(() => {
+      const fit = measureFitZoom();
+      fitZoomRef.current = fit;
+      setZoom(fit);
+    });
+
+    return () => cancelAnimationFrame(frameId);
+  }, [isFullscreen, fullscreenSvgContent, measureFitZoom]);
+
   const resetZoom = useCallback(() => {
-    setZoom(1); // Simply reset to 100%
+    setZoom(fitZoomRef.current || 1);
   }, []);
 
   // PNG export function - direct SVG to Canvas conversion
@@ -367,10 +421,16 @@ const MermaidDiagram = ({ chart, className = '' }) => {
       // Apply responsive styles to SVG
       const svgElement = elementRef.current.querySelector('svg');
       if (svgElement) {
-        svgElement.style.maxWidth = '100%';
-        svgElement.style.width = '100%';
-        svgElement.style.minHeight = '300px';
-        svgElement.style.minWidth = '700px';
+        // Mermaid draws into a viewBox, so `width: 100%` scales the WHOLE diagram to the chat width
+        // while `min-width: 700px` (which beats `max-width: 100%`) keeps it overflowing anyway — a
+        // 12-node flowchart came out squeezed with unreadable labels (D-B-10). Draw at natural size
+        // and let the container scroll instead of shrinking the picture.
+        const viewBoxWidth = svgElement.viewBox?.baseVal?.width || 0;
+
+        svgElement.style.maxWidth = 'none';
+        svgElement.style.minWidth = '0';
+        svgElement.style.height = 'auto';
+        svgElement.style.width = viewBoxWidth ? `${Math.round(viewBoxWidth)}px` : 'auto';
       }
     }
   }, [svgContent]);

@@ -88,6 +88,16 @@ const usePolling = (options = {}) => {
             return;
           }
           pollingTimerRef.current = setTimeout(() => poll(requestId, generation), pollingInterval);
+        } else {
+          // Any other shape — an unknown status, an empty body, a gateway error page — used to fall
+          // through every branch above: no next poll was scheduled and no callback fired. Polling
+          // died silently while the card kept spinning with a live "Cancel" button and a blocked
+          // input, forever. Treat it as a failure instead of going quiet (D-B-7).
+          console.error('Unexpected polling response shape:', data);
+          pollingTimerRef.current = null;
+          setActiveRequestId(null);
+          setIsPolling(false);
+          onError?.(t('ai-assistant.chat.polling-error'));
         }
       } catch (error) {
         if (!isMountedRef.current || generation !== generationRef.current) return;
@@ -96,7 +106,9 @@ const usePolling = (options = {}) => {
         pollingTimerRef.current = null;
         setActiveRequestId(null);
         setIsPolling(false);
-        onError?.(error.message || t('ai-assistant.chat.polling-error'));
+        // `requestLost` marks a request the server no longer knows, so the chat can explain that
+        // instead of showing a transport error the user can do nothing about.
+        onError?.(error.message || t('ai-assistant.chat.polling-error'), { requestLost: !!error.requestLost });
       }
     },
     [fetchStatus, onResult, onError, onCancelled, onProgress, pollingInterval, maxAttempts]

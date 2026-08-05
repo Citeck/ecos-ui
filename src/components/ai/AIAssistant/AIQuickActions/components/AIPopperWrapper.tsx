@@ -80,6 +80,19 @@ interface VirtualReference {
 }
 
 /**
+ * Horizontal position that keeps a popup of `popperWidth` inside its field.
+ *
+ * Exported for tests — this is the whole of the D-B-1 fix: the popups are anchored to the small
+ * trigger button, so a `*-end` placement sent a 600px popup far to the left of the field and the
+ * viewport-bound preventOverflow only stopped it at the window edge. When the popup is wider than
+ * the field it is aligned to the field's start: the beginning of the text matters most.
+ */
+export const clampToFieldBounds = (x: number, popperWidth: number, field: { left: number; right: number }): number => {
+  const maxX = Math.max(field.left, field.right - popperWidth);
+  return Math.min(Math.max(x, field.left), maxX);
+};
+
+/**
  * Popper modifiers for smart positioning
  * @param isPlacementLocked - When true, disables flip to prevent position jumping during content changes
  */
@@ -88,7 +101,8 @@ const createModifiers = (
   minWidth: number,
   maxWidth?: string,
   contentMetrics?: ContentMetrics,
-  isPlacementLocked?: boolean
+  isPlacementLocked?: boolean,
+  boundaryElement?: HTMLElement | null
 ): Partial<Modifier<string, object>>[] => [
   {
     name: 'flip',
@@ -110,6 +124,32 @@ const createModifiers = (
       boundary: 'viewport',
       altAxis: true,
       tether: false
+    }
+  },
+  // Keep the popup inside the field it belongs to. The reference element is the small trigger
+  // button, so with a `*-end` placement a 600px popup starts far to the left of the field and the
+  // viewport-bound preventOverflow above only stops it at the window edge — it still covers the
+  // side menu and the first characters of every line being edited. Runs after preventOverflow and
+  // shifts the popup back inside the field's horizontal bounds. Width is capped to the field in
+  // `sizeConstraints`, without which no shift could satisfy both edges.
+  {
+    name: 'fieldBoundary',
+    enabled: !!boundaryElement,
+    phase: 'main',
+    requires: ['preventOverflow'],
+    fn: ({ state }) => {
+      const offsets = state.modifiersData.popperOffsets;
+      if (!offsets || !boundaryElement) {
+        return;
+      }
+
+      const field = boundaryElement.getBoundingClientRect();
+      if (!field.width) {
+        return;
+      }
+
+      // `strategy: 'fixed'` puts popperOffsets in viewport coordinates, same as getBoundingClientRect
+      offsets.x = clampToFieldBounds(offsets.x, state.rects.popper.width, field);
     }
   },
   {
@@ -137,6 +177,11 @@ const createModifiers = (
       const isMobile = viewportWidth < 768;
       const rightEdgePadding = isMobile ? 8 : 24; // Smaller padding on mobile
 
+      // A popup wider than its field can never fit inside it, so the `fieldBoundary` shift above
+      // would have nothing to work with. Cap every width to the field when it is known.
+      const fieldWidth = boundaryElement?.getBoundingClientRect().width;
+      const capToField = (px: number): number => (fieldWidth ? Math.min(px, fieldWidth) : px);
+
       if (variant === 'text-field') {
         // Match reference width for text fields, with minimum 400px
         const refWidth = state.rects.reference.width;
@@ -162,14 +207,14 @@ const createModifiers = (
         const availableWidth = viewportWidth - popperLeft - rightEdgePadding;
         finalWidth = Math.min(finalWidth, availableWidth);
 
-        state.styles.popper.minWidth = `${Math.min(effectiveMinWidth, availableWidth)}px`;
-        state.styles.popper.width = `${finalWidth}px`;
-        state.styles.popper.maxWidth = `calc(60vw - ${rightEdgePadding * 2}px)`;
+        state.styles.popper.minWidth = `${capToField(Math.min(effectiveMinWidth, availableWidth))}px`;
+        state.styles.popper.width = `${capToField(finalWidth)}px`;
+        state.styles.popper.maxWidth = fieldWidth ? `${fieldWidth}px` : `calc(60vw - ${rightEdgePadding * 2}px)`;
       } else if (variant === 'script-editor') {
         if (isMobile) {
           const popperLeft = state.modifiersData.popperOffsets?.x || state.rects.reference.x;
           const availableWidth = viewportWidth - popperLeft - rightEdgePadding;
-          const constrainedWidth = Math.max(availableWidth, 280);
+          const constrainedWidth = capToField(Math.max(availableWidth, 280));
 
           state.styles.popper.minWidth = `${constrainedWidth}px`;
           state.styles.popper.width = `${constrainedWidth}px`;
@@ -179,12 +224,12 @@ const createModifiers = (
             delete state.styles.popper.right;
           }
         } else {
-          state.styles.popper.minWidth = '600px';
-          state.styles.popper.maxWidth = `calc(60vw - ${rightEdgePadding * 2}px)`;
+          state.styles.popper.minWidth = `${capToField(600)}px`;
+          state.styles.popper.maxWidth = fieldWidth ? `${fieldWidth}px` : `calc(60vw - ${rightEdgePadding * 2}px)`;
         }
       } else if (variant === 'lexical') {
-        state.styles.popper.minWidth = '450px';
-        state.styles.popper.maxWidth = '600px';
+        state.styles.popper.minWidth = `${capToField(450)}px`;
+        state.styles.popper.maxWidth = `${capToField(600)}px`;
       }
     }
   }
@@ -222,6 +267,8 @@ const createVirtualReference = (rect: DOMRect): VirtualReference => ({
 export interface AIPopperWrapperProps {
   isVisible?: boolean;
   referenceElement?: HTMLElement | null;
+  /** Field the popup belongs to: it may not leave this element's horizontal bounds (see fieldBoundary) */
+  boundaryElement?: HTMLElement | null;
   portalContainer?: HTMLElement | null;
   variant?: PositionVariant;
   placement?: Placement;
@@ -240,6 +287,7 @@ export interface AIPopperWrapperProps {
 const AIPopperWrapper: React.FC<AIPopperWrapperProps> = ({
   isVisible = false,
   referenceElement,
+  boundaryElement,
   portalContainer,
   variant = 'text-field',
   placement: placementOverride,
@@ -278,8 +326,8 @@ const AIPopperWrapper: React.FC<AIPopperWrapperProps> = ({
 
   // Create modifiers - pass isPlacementLocked to disable flip after initial positioning
   const modifiers = useMemo(
-    () => createModifiers(variant, minWidth, maxWidth, contentMetrics, isPlacementLocked),
-    [variant, minWidth, maxWidth, contentMetrics, isPlacementLocked]
+    () => createModifiers(variant, minWidth, maxWidth, contentMetrics, isPlacementLocked, boundaryElement),
+    [variant, minWidth, maxWidth, contentMetrics, isPlacementLocked, boundaryElement]
   );
 
   // Save reference rect when available

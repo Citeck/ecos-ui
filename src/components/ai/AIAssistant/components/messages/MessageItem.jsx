@@ -110,7 +110,14 @@ const MessageItem = ({
 
     // Agent progress message (planning, executing)
     if (message.isAgentProgressContent) {
-      return <AgentProgressMessage message={message} />;
+      return (
+        <>
+          <AgentProgressMessage message={message} />
+          {/* The plan/tool-step card renders only from `messageData`, so a failed turn would show
+              no reason at all — the steps just stopped. Keep the trace, add the reason (D-B-7). */}
+          {message.isError && !!message.text && <div className="ai-assistant-chat__progress-error">{message.text}</div>}
+        </>
+      );
     }
 
     // Business app progress message

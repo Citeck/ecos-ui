@@ -205,6 +205,44 @@ describe('getAvailableActions', () => {
     });
   });
 
+  // D-B-2: the backend has prompts for `simplify`/`formalize` (TextQuickActionsProvider), but the
+  // panel never offered them, so those quick actions were unreachable from the UI.
+  describe('simplify / formalize quick actions', () => {
+    const TEXT_FIELD_TYPES = [FIELD_TYPES.TEXTAREA, FIELD_TYPES.RICHTEXT, FIELD_TYPES.DOCUMENTATION];
+
+    it.each(TEXT_FIELD_TYPES)('exposes simplify and formalize for %s', fieldType => {
+      const actions = getAvailableActions(fieldType, 'some text', '');
+
+      expect(actions.find(a => a.id === 'simplify')).toBeDefined();
+      expect(actions.find(a => a.id === 'formalize')).toBeDefined();
+    });
+
+    it.each(TEXT_FIELD_TYPES)('hides both on an empty %s field, like every content action', fieldType => {
+      const actions = getAvailableActions(fieldType, '', '');
+
+      expect(actions.find(a => a.id === 'simplify')).toBeUndefined();
+      expect(actions.find(a => a.id === 'formalize')).toBeUndefined();
+    });
+
+    // The id is the backend's prompt key, not a display value: renaming it silently breaks the action
+    it('keeps the ids the backend resolves prompts by', () => {
+      const actions = getAvailableActions(FIELD_TYPES.RICHTEXT, 'some text', '');
+      const ids = actions.map(a => a.id);
+
+      expect(ids).toContain('simplify');
+      expect(ids).toContain('formalize');
+      expect(ids.every(id => id === id.toLowerCase() && !id.includes('_'))).toBe(true);
+    });
+
+    it('does not add them to plain TEXT and NAME fields', () => {
+      const textActions = getAvailableActions(FIELD_TYPES.TEXT, 'some text', '');
+      const nameActions = getAvailableActions(FIELD_TYPES.NAME, 'some text', '');
+
+      expect(textActions.find(a => a.id === 'simplify')).toBeUndefined();
+      expect(nameActions.find(a => a.id === 'formalize')).toBeUndefined();
+    });
+  });
+
   describe('combined filtering', () => {
     it('applies both content requirement and context type filtering', () => {
       // With content and correct context - should show all applicable actions

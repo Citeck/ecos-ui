@@ -697,6 +697,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
                 textareaElement.value = value;
               }
             }}
+            fieldElement={textareaElement}
             actionsBarContainer={aiContainer}
             resultContainer={aiContainer}
           />

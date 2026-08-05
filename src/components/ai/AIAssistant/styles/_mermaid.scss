@@ -87,6 +87,9 @@
 // Mermaid Diagram Component
 .mermaid-diagram {
   position: relative;
+  // The inline diagram is drawn at its natural size so labels stay readable in a narrow chat panel
+  // (D-B-10); anything wider than the panel scrolls here instead of shrinking the whole picture.
+  overflow-x: auto;
 
   &__controls {
     position: absolute;
