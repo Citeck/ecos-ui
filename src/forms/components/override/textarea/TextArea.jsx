@@ -594,6 +594,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
               }
             }}
             inlineInputContainer={inlineInputContainer}
+            fieldElement={editorElement}
           />
         </Provider>
       );
