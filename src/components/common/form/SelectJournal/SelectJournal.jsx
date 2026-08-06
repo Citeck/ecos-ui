@@ -55,6 +55,10 @@ const emptyJournalConfig = Object.freeze({
 });
 
 export default class SelectJournal extends Component {
+  // Bumped every time the selected value is cleared, so an in-flight `setValue` can tell whether the
+  // value it is resolving is still the one the field holds.
+  valueResetSeq = 0;
+
   state = {
     isCollapsePanelOpen: false,
     isSelectModalOpen: false,
@@ -181,8 +185,13 @@ export default class SelectJournal extends Component {
     if (this.props.journalId !== prevProps.journalId) {
       this.checkJournalId();
 
+      // Leaving a journal invalidates its config and rows, and normally the selected record too —
+      // it was picked from the journal we are leaving. `keepValueOnJournalIdChange` marks the one
+      // case where the value survives: a dynamic journalId resolving for the first time while the
+      // form loads its data, where the value is the one the record came with (see the formio
+      // SelectJournal's `checkConditions`).
       if (prevProps.journalId) {
-        this.resetJournalConfig();
+        this.resetJournalConfig({ keepValue: !!this.props.keepValueOnJournalIdChange });
       }
     }
 
@@ -224,20 +233,45 @@ export default class SelectJournal extends Component {
     }
   }
 
-  resetJournalConfig = () => {
+  /**
+   * Drops everything that belongs to the journal being left. The config, the loaded rows and the
+   * filters always go — nothing else refetches them, `getJournalConfig` runs only while
+   * `isJournalConfigFetched` is false, so keeping them would leave the field serving the previous
+   * journal's columns and rows. The selected record goes with them, unless `keepValue` says the
+   * journal id merely resolved for the first time and the value is the one the record was opened
+   * with (see `keepValueOnJournalIdChange` in `componentDidUpdate`).
+   */
+  resetJournalConfig = ({ keepValue = false } = {}) => {
     const { onChange, multiple } = this.props;
 
+    if (!keepValue) {
+      // Invalidates whatever `setValue` has in flight — see the counter's declaration.
+      this.valueResetSeq += 1;
+    }
+
     this.setState(
-      {
+      prevState => ({
         journalConfig: { ...emptyJournalConfig },
         isJournalConfigFetched: false,
         isGridDataReady: false,
         filterPredicate: [],
-        selectedRows: [],
-        gridData: { total: 0, data: [], inMemoryData: [], columns: [], selected: [] },
-        value: multiple ? [] : ''
-      },
-      () => isFunction(onChange) && onChange(multiple ? [] : '')
+        gridData: { total: 0, data: [], inMemoryData: [], columns: [], selected: keepValue ? prevState.gridData.selected : [] },
+        ...(keepValue ? {} : { selectedRows: [], value: multiple ? [] : '' })
+      }),
+      () => {
+        if (!keepValue) {
+          isFunction(onChange) && onChange(multiple ? [] : '');
+          return;
+        }
+
+        // In table mode the grid takes its columns from the config just dropped, and nothing
+        // reloads it until the user opens the select modal, so the retained rows would render
+        // column-less. Running them back through `setValue` refetches the columns for the new
+        // journal (`fetchTableAttributes`); `false` keeps it from reporting a change formio should
+        // not hear about. Outside table mode the field renders the rows' display names, which are
+        // already in hand — nothing to reload.
+        this.props.viewMode === DisplayModes.TABLE && this.state.selectedRows.length && this.setValue(this.state.selectedRows, false);
+      }
     );
   };
 
@@ -630,6 +664,13 @@ export default class SelectJournal extends Component {
    */
   setValue = (selected, shouldTriggerOnChange = true, flags) => {
     const { onChange, multiple } = this.props;
+    // Resolving display names, permissions and workspaces takes several requests, and a switch that
+    // clears the value in the meantime makes the result obsolete: without this the settled promise
+    // would write the cleared record back into the field, leaving the user looking at a value formio
+    // no longer holds. Keyed on the clearing itself rather than on `journalId`, because a switch
+    // that *keeps* the value (see `keepValueOnJournalIdChange`) usually happens while the record's
+    // own value is still being resolved — that chain has to be allowed to finish.
+    const resetSeqAtStart = this.valueResetSeq;
 
     this.setState({ isLoading: true });
 
@@ -649,6 +690,13 @@ export default class SelectJournal extends Component {
       .then(this.fillWorkspaceId)
       .then(selected => {
         if (!this.liveComponent) {
+          return;
+        }
+
+        if (this.valueResetSeq !== resetSeqAtStart) {
+          // Obsolete: the value this chain was resolving has been cleared since. Drop the result,
+          // but not the loading state — nothing else would switch it off.
+          this.setState({ isLoading: false });
           return;
         }
 
@@ -1104,6 +1152,7 @@ const predicateShape = PropTypes.shape({
 
 SelectJournal.propTypes = {
   journalId: PropTypes.string,
+  keepValueOnJournalIdChange: PropTypes.bool,
   queryData: PropTypes.object,
   dataType: PropTypes.oneOf(Object.values(DataTypes)),
   customSourceId: PropTypes.string,

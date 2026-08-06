@@ -70,30 +70,47 @@ export default class SelectJournalComponent extends BaseReactComponent {
     return SelectJournalComponent.schema();
   }
 
-  // Form builder context: `builder` is set on the canvas; `preview` is set on the
-  // small preview pane in the component-properties editor; `editInFormBuilder`
-  // is set on the editForm itself (e.g. the Default Value field on the Data tab).
-  get isInBuilderMode() {
-    return !!(this.options && (this.options.builder || this.options.preview || this.options.editInFormBuilder));
-  }
+  // Source of the expression the parse verdict below belongs to, and the verdict itself.
+  customJournalIdSource = '';
+  isCustomJournalIdParsable = true;
+  // Set once the expression has produced a journal id — see `checkConditions`.
+  isCustomJournalIdResolved = false;
 
-  get journalId() {
-    const { customJournalId } = this.component;
+  // The expression is evaluated on every read of `journalId` — and while it is being typed in the
+  // component editor it does not parse most of the time. formio's `evaluate` logs each failed
+  // compile ("An error occured within the custom function for ..."), which turned every keystroke
+  // into a handful of console errors. Check that the source parses before handing it over, and
+  // remember the verdict per source string so the check costs one compile per edit.
+  evaluateCustomJournalId() {
+    const source = this.component.customJournalId;
 
-    // When a custom journal expression is configured on a real form it fully
-    // owns the journalId: an empty result must propagate as-is so the React
-    // component disables the field with NO_JOURNAL_ID_ERROR. In the form
-    // builder/preview `data` is empty by design, so most data-driven scripts
-    // return empty there — fall back to the static journalId to keep the
-    // preview and Default Value picker usable.
-    if (customJournalId) {
-      const evaluated = this.evaluate(customJournalId, {}, 'value', '') || '';
+    if (!source) {
+      return '';
+    }
 
-      if (evaluated || !this.isInBuilderMode) {
-        return evaluated;
+    if (source !== this.customJournalIdSource) {
+      this.customJournalIdSource = source;
+      this.isCustomJournalIdParsable = true;
+
+      try {
+        // eslint-disable-next-line no-new-func -- compiled for the syntax check only, never called
+        new Function(source);
+      } catch (e) {
+        this.isCustomJournalIdParsable = false;
       }
     }
 
+    if (!this.isCustomJournalIdParsable) {
+      return '';
+    }
+
+    return this.evaluate(source, {}, 'value', '') || '';
+  }
+
+  // The static journalId as configured on the component, with `${...}` placeholders filled in from
+  // the form data. Used on its own wherever the expression's result is already at hand, so that the
+  // expression is not evaluated a second time just to reach the fallback.
+  get staticJournalId() {
     let journalId = this.component.journalId || '';
 
     const matches = journalId.match(TEMPLATE_REGEX);
@@ -110,19 +127,47 @@ export default class SelectJournalComponent extends BaseReactComponent {
     return journalId || this.component.journalId;
   }
 
+  get journalId() {
+    // A custom journal expression wins whenever it resolves to something. An empty result — no
+    // expression, a script returning '' / null, or data it depends on that is not filled in yet —
+    // falls back to the static journalId, so the field keeps working as it did before the
+    // expression was added instead of reporting a missing journal.
+    return this.evaluateCustomJournalId() || this.staticJournalId;
+  }
+
   checkConditions(data) {
     const result = super.checkConditions(data);
 
     if (this.component.customJournalId) {
-      // Use the getter so builder/preview mode falls back to the static
-      // journalId rather than pushing an empty value into the React child.
-      const journalId = this.journalId;
+      // One evaluation per pass: what reaches the React child is the expression's result, or the
+      // static journalId once the expression comes back empty — the same rule the getter applies.
+      const evaluated = this.evaluateCustomJournalId();
+      const journalId = evaluated || this.staticJournalId;
+      // Recorded outside the guard below: an expression whose first result happens to equal the id
+      // already in play pushes nothing, and would otherwise leave the next — genuinely user-driven —
+      // switch looking like the first resolution.
+      const isFirstResolveOfExpression = !this.isCustomJournalIdResolved && !!evaluated;
+
+      if (isFirstResolveOfExpression) {
+        this.isCustomJournalIdResolved = true;
+      }
 
       if (journalId !== this.customJournalIdValue) {
+        // The form is built before its data is loaded — `EcosForm` calls `form.setValue` only after
+        // `Formio.createForm` resolves — so an expression that reads the record's own data returns
+        // nothing at build time and the child mounts on the static journalId. The expression's very
+        // first result therefore reaches the child as a journal *change*, which it answers by
+        // clearing the selected record: right when the user switches the journal under a value
+        // picked from the previous one, wrong here, where the value is the one the record was opened
+        // with. Only that first resolution is exempt; every later switch clears the value as before.
+        // Accepted trade-off: on a create form, a value the user picked from the fallback journal
+        // before the expression ever resolved survives that first switch stale. Telling the two
+        // apart needs a "picked by the user" signal the child does not give — a non-user path
+        // reports values back through `onChangeValue` as well — so the data-loss case wins.
         this.customJournalIdValue = journalId;
 
         this.delayedSettingProps.cancel();
-        this.setReactProps({ journalId });
+        this.setReactProps({ journalId, keepValueOnJournalIdChange: isFirstResolveOfExpression });
       }
     }
 
@@ -394,7 +439,10 @@ export default class SelectJournalComponent extends BaseReactComponent {
       disableResetOnApplyCustomPredicate: !!comp.calculateValue,
       title: this.modalTitle,
       dataType: this.component.ecos.dataType,
-      journalId: this.journalId
+      journalId: this.journalId,
+      // Every push carries the flag, so the one `checkConditions` sets for the expression's first
+      // result cannot linger in the child's props and swallow a later, genuine journal switch.
+      keepValueOnJournalIdChange: false
     };
   };
 
@@ -447,12 +495,16 @@ export default class SelectJournalComponent extends BaseReactComponent {
       return reactComponentProps;
     };
 
-    const journalId = this.journalId;
-    // Only short-circuit the typeRef fallback when an empty journalId is the
-    // *intended* runtime signal (real form + customJournalId). In the builder
-    // the getter already substitutes the static journalId, so this branch is
-    // false and the regular fetch path runs.
-    const skipTypeRefFallback = !!this.component.customJournalId && !this.isInBuilderMode;
+    // One evaluation for both the id and the decision below.
+    const evaluated = this.evaluateCustomJournalId();
+    const journalId = evaluated || this.staticJournalId;
+    // An expression that resolved to an id owns the journal completely, so the type-level lookup —
+    // a record query for the journal declared on the attribute's type — is pointless work here.
+    // When it resolves to nothing the static journalId is in play, which is the case that lookup
+    // has always handled. (Note that `resolveProps` spreads `getComponentAttributes()` last, so the
+    // id `getJournalId` returns is overwritten by the `journalId` getter either way — skipping it
+    // saves the request, it does not change which journal wins.)
+    const skipTypeRefFallback = !!evaluated;
     const fetchPropertiesAndResolve = async journalId => {
       const columns = await this.fetchAsyncProperties(this.component.source);
 

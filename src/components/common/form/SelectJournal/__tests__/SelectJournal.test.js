@@ -26,7 +26,7 @@ describe('SelectJournal — dynamic journalId', () => {
       isJournalConfigFetched: true,
       journalConfig: { columns: ['a'], sourceId: 'src' },
       isGridDataReady: true,
-      gridData: { total: 3, data: [{ id: '1' }], inMemoryData: [], columns: ['a'], selected: [] },
+      gridData: { total: 3, data: [{ id: '1' }], inMemoryData: [], columns: ['a'], selected: ['1'] },
       pagination: { skipCount: 0, maxItems: 10, page: 1 },
       filterPredicate: [{ t: 'eq' }],
       selectedRows: [{ id: '1', disp: 'one' }],
@@ -115,6 +115,52 @@ describe('SelectJournal — dynamic journalId', () => {
       expect(resetSpy).toHaveBeenCalledTimes(1);
 
       resetSpy.mockRestore();
+      checkSpy.mockRestore();
+    });
+
+    it('drops the journal config but keeps the value on the first resolution of a dynamic journalId', () => {
+      // The formio wrapper sets this flag for the expression's first result, which arrives after the
+      // child mounted on the static journalId — the value there is the one the record was opened with
+      const onChange = jest.fn();
+      const instance = buildInstance({ journalId: 'deals-journal', keepValueOnJournalIdChange: true, onChange });
+      const checkSpy = jest.spyOn(instance, 'checkJournalId').mockImplementation(() => {});
+      const setValueSpy = jest.spyOn(instance, 'setValue').mockImplementation(() => Promise.resolve());
+
+      instance.componentDidUpdate({ journalId: 'static-journal', defaultValue: undefined }, instance.state);
+
+      expect(checkSpy).toHaveBeenCalled();
+      // everything belonging to the journal we left is gone — nothing else would refetch it
+      expect(instance.state.isJournalConfigFetched).toBe(false);
+      expect(instance.state.journalConfig.columns).toBeUndefined();
+      expect(instance.state.gridData.data).toEqual([]);
+      // ... but the value the record was opened with stays, and formio is not told it changed
+      expect(instance.state.value).toBe('1');
+      expect(instance.state.selectedRows).toEqual([{ id: '1', disp: 'one' }]);
+      expect(instance.state.gridData.selected).toEqual(['1']);
+      expect(onChange).not.toHaveBeenCalled();
+      // outside table mode the field renders the rows' display names, which are already in hand
+      expect(setValueSpy).not.toHaveBeenCalled();
+
+      setValueSpy.mockRestore();
+      checkSpy.mockRestore();
+    });
+
+    it('reloads the retained rows in table mode, where the grid needs the new journal columns', () => {
+      const instance = buildInstance({
+        journalId: 'deals-journal',
+        keepValueOnJournalIdChange: true,
+        viewMode: 'table'
+      });
+      const checkSpy = jest.spyOn(instance, 'checkJournalId').mockImplementation(() => {});
+      const setValueSpy = jest.spyOn(instance, 'setValue').mockImplementation(() => Promise.resolve());
+
+      instance.componentDidUpdate({ journalId: 'static-journal', defaultValue: undefined }, instance.state);
+
+      // `false`: reloading the columns is not a value change formio should hear about
+      expect(setValueSpy).toHaveBeenCalledWith([{ id: '1', disp: 'one' }], false);
+      expect(instance.state.value).toBe('1');
+
+      setValueSpy.mockRestore();
       checkSpy.mockRestore();
     });
 

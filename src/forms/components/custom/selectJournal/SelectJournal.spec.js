@@ -105,33 +105,40 @@ describe('SelectJournal Component', () => {
       });
     });
 
-    it('Should not fall back to static journalId on a real form when customJournalId returns empty', done => {
+    it('Should fall back to static journalId when customJournalId returns empty', done => {
       Harness.testCreate(SelectJournalComponent, {
         ...comp1,
         journalId: 'static-journal',
-        customJournalId: 'value = "";'
+        customJournalId: 'value = data._parentType === "deal" ? "deals-journal" : "";'
       }).then(component => {
-        expect(component.journalId).toBe('');
+        component.root.data = { ...component.root.data, _parentType: 'deal' };
+        expect(component.journalId).toBe('deals-journal');
+
+        // The data the expression depends on is gone: the field keeps working on the static journal
+        // instead of reporting a missing journal id.
+        component.root.data = { ...component.root.data, _parentType: undefined };
+        expect(component.journalId).toBe('static-journal');
         done();
       });
     });
 
-    it('Should fall back to static journalId in builder mode when customJournalId returns empty', done => {
+    it('Should not report a broken customJournalId to the console and should fall back to static journalId', done => {
       Harness.testCreate(SelectJournalComponent, {
         ...comp1,
         journalId: 'static-journal',
-        customJournalId: 'value = "";'
+        // What a half-typed expression looks like in the component editor
+        customJournalId: 'var typeMap = { "marketing": "country-iso3166"'
       }).then(component => {
-        component.options.builder = true;
+        // formio's `evaluate` is what logs the failed compile, so the guard has to keep the broken
+        // source away from it entirely
+        const evaluateSpy = jest.spyOn(component, 'evaluate');
+
+        expect(component.journalId).toBe('static-journal');
+        // Read again: the parse verdict is cached per source, so neither read reaches formio
         expect(component.journalId).toBe('static-journal');
 
-        component.options.builder = false;
-        component.options.preview = true;
-        expect(component.journalId).toBe('static-journal');
-
-        component.options.preview = false;
-        component.options.editInFormBuilder = true;
-        expect(component.journalId).toBe('static-journal');
+        expect(evaluateSpy).not.toHaveBeenCalled();
+        evaluateSpy.mockRestore();
         done();
       });
     });
@@ -148,7 +155,8 @@ describe('SelectJournal Component', () => {
         component.checkConditions(component.root.data);
 
         expect(cancelSpy).toHaveBeenCalled();
-        expect(setReactPropsSpy).toHaveBeenCalledWith({ journalId: 'deals-journal' });
+        // First result of the expression: the child keeps the value the record was opened with
+        expect(setReactPropsSpy).toHaveBeenCalledWith({ journalId: 'deals-journal', keepValueOnJournalIdChange: true });
         expect(component.customJournalIdValue).toBe('deals-journal');
 
         setReactPropsSpy.mockClear();
@@ -158,13 +166,92 @@ describe('SelectJournal Component', () => {
         component.checkConditions(component.root.data);
         expect(setReactPropsSpy).not.toHaveBeenCalled();
 
-        // Change data → pushed again
+        // Change data → pushed again, and now the switch clears the value
         component.root.data = { ...component.root.data, _parentType: 'project' };
         component.checkConditions(component.root.data);
-        expect(setReactPropsSpy).toHaveBeenCalledWith({ journalId: '' });
+        expect(setReactPropsSpy).toHaveBeenCalledWith({ journalId: '', keepValueOnJournalIdChange: false });
 
         setReactPropsSpy.mockRestore();
         cancelSpy.mockRestore();
+        done();
+      });
+    });
+
+    it('getInitialReactProps should skip the type-level journal lookup only while the expression resolves', async () => {
+      const component = await Harness.testCreate(SelectJournalComponent, {
+        ...comp1,
+        journalId: 'static-journal',
+        customJournalId: 'value = data.kind ? "dyn-journal" : "";'
+      });
+      const getJournalIdSpy = jest.spyOn(component, 'getJournalId').mockResolvedValue('journal-from-type');
+
+      // expression resolves → its result owns the journal, no type-level lookup is made
+      component.root.data = { ...component.root.data, kind: 'x' };
+      expect((await component.getInitialReactProps()).journalId).toBe('dyn-journal');
+      expect(getJournalIdSpy).not.toHaveBeenCalled();
+
+      // expression empty → the static journalId goes through the pre-existing type-level lookup
+      component.root.data = { ...component.root.data, kind: undefined };
+      expect((await component.getInitialReactProps()).journalId).toBe('static-journal');
+      expect(getJournalIdSpy).toHaveBeenCalledWith('static-journal');
+
+      getJournalIdSpy.mockRestore();
+    });
+
+    it('Should not mistake a later switch for the first resolution when the expression first returns the id in play', done => {
+      Harness.testCreate(SelectJournalComponent, {
+        ...comp1,
+        journalId: 'deals-journal',
+        customJournalId: 'value = data.kind === "deal" ? "deals-journal" : (data.kind === "proj" ? "projects-journal" : "");'
+      }).then(component => {
+        const setReactPropsSpy = jest.spyOn(component, 'setReactProps').mockImplementation(() => {});
+
+        // build-time pass: no data, so the static journalId is what the child gets
+        component.checkConditions(component.root.data);
+        setReactPropsSpy.mockClear();
+
+        // the record's data arrives and the expression returns exactly the id already in play —
+        // nothing to push, but the expression *has* resolved
+        component.root.data = { ...component.root.data, kind: 'deal' };
+        component.checkConditions(component.root.data);
+        expect(setReactPropsSpy).not.toHaveBeenCalled();
+
+        // ... so this switch is a user-driven one and must clear the value picked from deals-journal
+        component.root.data = { ...component.root.data, kind: 'proj' };
+        component.checkConditions(component.root.data);
+        expect(setReactPropsSpy).toHaveBeenCalledWith({ journalId: 'projects-journal', keepValueOnJournalIdChange: false });
+
+        setReactPropsSpy.mockRestore();
+        done();
+      });
+    });
+
+    it('Should carry keepValueOnJournalIdChange on every props push, not only the one checkConditions makes', done => {
+      // `setReactProps` merges into whatever the child already has, so a `true` left over from the
+      // first resolution would swallow the reset on a journalId pushed through `delayedSettingProps`
+      Harness.testCreate(SelectJournalComponent, {
+        ...comp1,
+        journalId: 'static-journal',
+        customJournalId: 'value = data.kind ? "dyn-journal" : "";'
+      }).then(component => {
+        const setReactPropsSpy = jest.spyOn(component, 'setReactProps').mockImplementation(() => {});
+
+        component.root.data = { ...component.root.data, kind: 'x' };
+        component.checkConditions(component.root.data);
+        expect(setReactPropsSpy).toHaveBeenCalledWith({ journalId: 'dyn-journal', keepValueOnJournalIdChange: true });
+
+        setReactPropsSpy.mockClear();
+
+        // the debounced path pushes the journalId too, and must reset the flag while doing so
+        component.root.data = { ...component.root.data, kind: undefined };
+        component.delayedSettingProps({});
+        component.delayedSettingProps.flush();
+
+        expect(setReactPropsSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ journalId: 'static-journal', keepValueOnJournalIdChange: false })
+        );
+
+        setReactPropsSpy.mockRestore();
         done();
       });
     });
