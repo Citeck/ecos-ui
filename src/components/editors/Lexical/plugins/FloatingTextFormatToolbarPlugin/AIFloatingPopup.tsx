@@ -59,6 +59,8 @@ const createVirtualElement = (rect: DOMRect): HTMLElement => {
 
 export default function AIFloatingPopup() {
   const [virtualElement, setVirtualElement] = useState<HTMLElement | null>(null);
+  // Editor root: bounds the popup so it cannot slide out of the field it edits (see AIPopperWrapper)
+  const [fieldElement, setFieldElement] = useState<HTMLElement | null>(null);
   // Ref for cleanup to avoid stale closure issues
   const virtualElementRef = useRef<HTMLElement | null>(null);
 
@@ -166,6 +168,7 @@ export default function AIFloatingPopup() {
 
       // Store event data in refs
       editorRef.current = editor;
+      setFieldElement(editor.getRootElement());
       currentValueRef.current = currentValue;
 
       // Update AI context ref
@@ -215,7 +218,13 @@ export default function AIFloatingPopup() {
   }
 
   return (
-    <AIPopperWrapper isVisible={isPopupVisible} referenceElement={virtualElement} variant="lexical" stickyPosition={true}>
+    <AIPopperWrapper
+      isVisible={isPopupVisible}
+      referenceElement={virtualElement}
+      boundaryElement={fieldElement}
+      variant="lexical"
+      stickyPosition={true}
+    >
       <div className="ai-floating-popup">
         {isActionsBarVisible && !isResultVisible && (
           <AIActionsBar

@@ -182,8 +182,55 @@ describe('usePolling', () => {
       jest.advanceTimersByTime(1000);
     });
 
-    expect(onError).toHaveBeenCalledWith('Network error');
+    expect(onError).toHaveBeenCalledWith('Network error', { requestLost: false });
     expect(result.current.isPolling).toBe(false);
+    consoleSpy.mockRestore();
+  });
+
+  // D-B-7: a response matching none of the known shapes used to schedule no next poll AND call no
+  // callback — polling died silently while the card kept spinning with a blocked input forever.
+  it('reports an error instead of dying silently on an unknown response shape', async () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+    fetchStatus.mockResolvedValue({ status: 'queued' });
+    const { result } = renderPolling();
+
+    act(() => {
+      result.current.startPolling('req-1');
+    });
+
+    await act(async () => {
+      jest.advanceTimersByTime(1000);
+    });
+
+    expect(onError).toHaveBeenCalledWith('ai-assistant.chat.polling-error');
+    expect(result.current.isPolling).toBe(false);
+    expect(result.current.activeRequestId).toBeNull();
+
+    // And it really stopped: no further polls are scheduled
+    await act(async () => {
+      jest.advanceTimersByTime(5000);
+    });
+
+    expect(fetchStatus).toHaveBeenCalledTimes(1);
+    consoleSpy.mockRestore();
+  });
+
+  it('forwards the requestLost flag so the chat can explain a lost request', async () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+    const lost = new Error('request is lost');
+    lost.requestLost = true;
+    fetchStatus.mockRejectedValue(lost);
+    const { result } = renderPolling();
+
+    act(() => {
+      result.current.startPolling('req-1');
+    });
+
+    await act(async () => {
+      jest.advanceTimersByTime(1000);
+    });
+
+    expect(onError).toHaveBeenCalledWith('request is lost', { requestLost: true });
     consoleSpy.mockRestore();
   });
 

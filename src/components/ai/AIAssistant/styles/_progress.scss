@@ -156,6 +156,14 @@
     transition: opacity $transition-normal;
   }
 
+  // Why a failed turn stopped, shown under the plan/tool-step card, which itself renders only steps
+  &__progress-error {
+    margin-top: $spacing-sm;
+    font-size: $font-size-sm;
+    line-height: 1.5;
+    color: var(--danger-color, #f44336);
+  }
+
   &__progress-description {
     font-size: $font-size-sm;
     color: var(--text-secondary, #666);
@@ -369,6 +377,11 @@
     gap: 8px;
     font-weight: 600;
     margin-bottom: 8px;
+  }
+
+  // Dead turn: the ribbon stops spinning and says so, instead of announcing work that ended (D-B-7)
+  &__tool-loop--failed &__tool-loop-header {
+    color: var(--danger-color, #f44336);
   }
 
   &__tool-steps-list {

@@ -49,7 +49,8 @@ const ScriptEditorAIButton = ({
   language = 'javascript',
   popperClassName,
   positionVariant,
-  onRegisterClose
+  onRegisterClose,
+  fieldElement
 }) => {
   /**
    * Get resolved context data
@@ -123,6 +124,11 @@ const ScriptEditorAIButton = ({
       }}
       onGenerateRequest={handleGenerateRequest}
       disabled={disabled}
+      // Without this the popups are bounded by the window alone and cover the code being edited —
+      // D-B-1. The rich-text and plain-textarea entry points were wired at the time; this one was
+      // missed, so the fix never reached any script editor (computed attribute/role, journal
+      // formatter, BPMN script task).
+      fieldElement={fieldElement}
       actionsBarContainer={inlineInputContainer}
       resultContainer={resultContainer}
       popperClassName={popperClassName}

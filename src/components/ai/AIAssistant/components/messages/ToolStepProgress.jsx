@@ -23,13 +23,14 @@ const AGENT_PROGRESS_TITLE_KEYS = {
  * Status drives the icon/colour: RUNNING (spinner), DONE (check), ERROR (cross).
  * Labels arrive already localized from the backend; `detail` is shown when present.
  */
-const ToolStepItem = ({ step }) => {
+const ToolStepItem = ({ step, failed = false }) => {
   const statusConfig = getToolStepStatusConfig(step.status);
 
   return (
     <div className={classNames('ai-assistant-chat__tool-step', statusConfig.className)}>
       <div className="ai-assistant-chat__tool-step-header">
-        <Icon className={classNames('fa', statusConfig.icon, { 'fa-spin': statusConfig.spin })} />
+        {/* A RUNNING step left behind by a dead turn must stop spinning with the rest of the ribbon */}
+        <Icon className={classNames('fa', statusConfig.icon, { 'fa-spin': statusConfig.spin && !failed })} />
         <span className="ai-assistant-chat__tool-step-label">{step.label || step.tool}</span>
       </div>
       {step.detail && <div className="ai-assistant-chat__tool-step-detail">{step.detail}</div>}
@@ -54,21 +55,24 @@ const ToolStepProgress = ({ message }) => {
 
   const steps = messageData.toolSteps || [];
   const engine = messageData.domain === TOOL_LOOP_DOMAIN_CONFIG ? AGENT_ENGINE.CONFIG : AGENT_ENGINE.TOOL_LOOP;
+  // `handlePollingError` stamps the failure here; the ribbon renders only from `messageData`, so
+  // without honouring it the cogs keep turning for a request that is already dead (D-B-7)
+  const failed = !!messageData.error;
 
   return (
-    <div className="ai-assistant-chat__tool-loop">
+    <div className={classNames('ai-assistant-chat__tool-loop', { 'ai-assistant-chat__tool-loop--failed': failed })}>
       <div className="ai-assistant-chat__tool-loop-header">
         {/* Original spinning "in progress" indicator (fa-cogs); the engine is conveyed by the title.
             Do NOT swap in an engine-specific glyph like fa-robot — it doesn't exist in Font Awesome 4.7
             and renders blank. */}
-        <Icon className="fa fa-cogs fa-spin" />
-        <span>{t(AGENT_PROGRESS_TITLE_KEYS[engine])}</span>
+        <Icon className={failed ? 'fa fa-exclamation-triangle' : 'fa fa-cogs fa-spin'} />
+        <span>{failed ? t('ai-assistant.chat.request-failed') : t(AGENT_PROGRESS_TITLE_KEYS[engine])}</span>
       </div>
 
       {steps.length > 0 && (
         <div className="ai-assistant-chat__tool-steps-list">
           {steps.map(step => (
-            <ToolStepItem key={step.stepIndex} step={step} />
+            <ToolStepItem key={step.stepIndex} step={step} failed={failed} />
           ))}
         </div>
       )}

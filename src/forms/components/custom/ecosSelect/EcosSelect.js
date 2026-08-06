@@ -6,7 +6,7 @@ import { requestAnimationFrame } from '../../override/misc';
 import BaseComponent from '../base/BaseComponent';
 
 import { createDocumentUrl } from '@/helpers/urls';
-import { getMLValue, isNodeRef, isRecordRef } from '@/helpers/util';
+import { getMLValue, isNodeRef, isRecordRef, t } from '@/helpers/util';
 
 export default class SelectComponent extends BaseComponent {
   static schema(...extend) {
@@ -923,6 +923,7 @@ export default class SelectComponent extends BaseComponent {
       itemComparer: _.isEqual,
       callbackOnCreateTemplates: template => {
         return {
+          // The English "Remove item" hardcoded by choices.js is localized once in `src/forms/choices`
           choice: (classNames, data, itemSelectText) => {
             // label is wrapped in template
             const labelInTemplate = data.label;

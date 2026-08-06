@@ -31,6 +31,9 @@ export default function AIAssistantButton({
   resultContainer
 }: AIAssistantButtonProps): React.JSX.Element | null {
   const [isAvailable, setIsAvailable] = useState(false);
+  // Editor root, used as the bound for the AI popups: they are anchored to this toolbar button and
+  // would otherwise be limited only by the window, covering the side menu and the text being edited
+  const [fieldElement, setFieldElement] = useState<HTMLElement | null>(null);
   const [editor] = useLexicalComposerContext();
   const ref = recordRef ? recordRef.split('-alias-')[0] : null;
   const conversationIdRef = useRef(uuidV4());
@@ -57,6 +60,8 @@ export default function AIAssistantButton({
       aiAssistantService.removeAvailabilityListener(handleAvailabilityChange);
     };
   }, [ref, attribute]);
+
+  useEffect(() => editor.registerRootListener(rootElement => setFieldElement(rootElement)), [editor]);
 
   /**
    * Update Lexical editor content with HTML
@@ -126,6 +131,7 @@ export default function AIAssistantButton({
       onGenerateRequest={handleGenerateRequest}
       disabled={disabled}
       resultContainer={resultContainer || undefined}
+      fieldElement={fieldElement}
       triggerIcon={<AiAssistant />}
       triggerClassName="toolbar-item spaced ai-assistant-button"
       positionVariant="lexical"

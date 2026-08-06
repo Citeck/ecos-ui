@@ -137,6 +137,36 @@ describe('MessageItem', () => {
     expect(screen.getByTestId('agent-progress-message')).toBeTruthy();
   });
 
+  // D-B-7: the plan/tool-step card renders only from messageData, so a failed turn showed no reason
+  // at all — the steps just stopped. Keep the trace visible and state why it stopped.
+  it('shows the failure reason under the agent progress card, keeping the step trace', () => {
+    const message = {
+      ...defaultProps.message,
+      isAgentProgressContent: true,
+      isError: true,
+      text: 'Запрос потерян',
+      messageData: { type: 'agent_execution', completedSteps: 1, totalSteps: 3 }
+    };
+
+    render(<MessageItem {...defaultProps} message={message} />);
+
+    expect(screen.getByTestId('agent-progress-message')).toBeTruthy();
+    expect(screen.getByText('Запрос потерян')).toBeTruthy();
+  });
+
+  it('shows no failure note while the agent card is still progressing', () => {
+    const message = {
+      ...defaultProps.message,
+      isAgentProgressContent: true,
+      text: 'Запрос обрабатывается',
+      messageData: { type: 'agent_execution', completedSteps: 1, totalSteps: 3 }
+    };
+
+    render(<MessageItem {...defaultProps} message={message} />);
+
+    expect(screen.queryByText('Запрос обрабатывается')).toBeNull();
+  });
+
   it('routes to EmailMessage when isEmailContent is true', () => {
     const message = {
       ...defaultProps.message,

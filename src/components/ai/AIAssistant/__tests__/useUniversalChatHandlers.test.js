@@ -657,6 +657,84 @@ describe('useUniversalChat - handlers', () => {
       expect(msgs[0].isProcessing).toBe(false);
       expect(msgs[0].text).toContain('ai-assistant.chat.error-prefix');
     });
+
+    // D-B-7: the service keeps requests in memory, so a restart makes every poll answer 404. The
+    // user was shown "Ошибка: Error: 404", which explains nothing they can act on.
+    it('explains a lost request instead of printing the transport error', () => {
+      const { result } = renderHook(() => useUniversalChat());
+
+      act(() => {
+        result.current.setMessages([{ id: '1', text: 'Processing...', isProcessing: true }]);
+      });
+
+      const onError = usePolling.mock.calls[usePolling.mock.calls.length - 1][0].onError;
+
+      act(() => {
+        onError('whatever the transport said', { requestLost: true });
+      });
+
+      expect(result.current.messages[0].text).toBe('ai-assistant.chat.request-lost');
+      expect(result.current.messages[0].isError).toBe(true);
+      expect(result.current.messages[0].isProcessing).toBe(false);
+    });
+
+    // D-B-7: progress cards render from messageData, never from text — without stamping the failure
+    // there the card kept showing "Обработка 5 %" with a filled bar for a request that was dead.
+    it('stops a progress card from advertising progress after a failure', () => {
+      const { result } = renderHook(() => useUniversalChat());
+
+      act(() => {
+        result.current.setMessages([
+          {
+            id: '1',
+            isProcessing: true,
+            isBusinessAppContent: true,
+            messageData: {
+              type: MESSAGE_TYPES.BUSINESS_APP_GENERATION,
+              stage: 'ANALYSIS',
+              progress: 5,
+              detailedStatus: 'Анализирую запрос…',
+              stageMetadata: { label: 'Обработка', icon: 'fa-cog', animated: true }
+            }
+          }
+        ]);
+      });
+
+      const onError = usePolling.mock.calls[usePolling.mock.calls.length - 1][0].onError;
+
+      act(() => {
+        onError('boom');
+      });
+
+      const { messageData } = result.current.messages[0];
+      expect(messageData.error).toBe(true);
+      // BusinessAppMessage prefers detailedStatus over text, so a stale one would hide the error
+      expect(messageData.detailedStatus).toBeNull();
+      expect(messageData.stageMetadata.severity).toBe('ERROR');
+      expect(messageData.stageMetadata.animated).toBe(false);
+      expect(messageData.stageMetadata.label).toBe('ai-assistant.chat.request-failed');
+    });
+
+    it('clears the stepper and the agent indicator, which announced a dead request', () => {
+      const { result } = renderHook(() => useUniversalChat());
+
+      const onProgress = usePolling.mock.calls[usePolling.mock.calls.length - 1][0].onProgress;
+      const onError = usePolling.mock.calls[usePolling.mock.calls.length - 1][0].onError;
+
+      act(() => {
+        result.current.setMessages([{ id: '1', isProcessing: true }]);
+        onProgress({ stage: 'ANALYSIS', progress: 5 });
+      });
+
+      expect(result.current.activeBusinessAppProgress).not.toBeNull();
+
+      act(() => {
+        onError('boom');
+      });
+
+      expect(result.current.activeBusinessAppProgress).toBeNull();
+      expect(result.current.agentStatus).toBeNull();
+    });
   });
 
   describe('handlePollingCancelled', () => {
@@ -1333,6 +1411,79 @@ describe('useUniversalChat - handlers', () => {
       expect(messages[messages.length - 1].isError).toBe(true);
       // The gate the reply was meant to answer is still live, so its buttons stay clickable.
       expect(isGateStale(messages, 0)).toBe(false);
+    });
+
+    // D-B-12: the backend states why it refused (409 names the request holding the conversation),
+    // and the chat used to replace that with "try again" — advice that cannot help here.
+    it('shows the reason the backend refused the request', async () => {
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: false,
+        status: 409,
+        json: jest.fn().mockResolvedValue({ error: 'Диалог занят другим запросом (req-42)' })
+      });
+      jest.spyOn(console, 'error').mockImplementation(() => {});
+
+      const { result } = renderHook(() => useUniversalChat());
+
+      act(() => {
+        result.current.setMessage('привет');
+      });
+
+      await act(async () => {
+        await result.current.handleSubmit({ preventDefault: jest.fn() });
+      });
+
+      const last = result.current.messages[result.current.messages.length - 1];
+
+      expect(last.isError).toBe(true);
+      expect(last.text).toBe('Диалог занят другим запросом (req-42)');
+    });
+
+    // Refusals with an empty body (403 license, 404 conversation ownership) still have to name the
+    // status — the message was being built and then dropped on the floor by the catch.
+    it('names the status when the refusal carries no body', async () => {
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: false,
+        status: 403,
+        json: jest.fn().mockRejectedValue(new Error('Unexpected end of JSON input'))
+      });
+      jest.spyOn(console, 'error').mockImplementation(() => {});
+
+      const { result } = renderHook(() => useUniversalChat());
+
+      act(() => {
+        result.current.setMessage('привет');
+      });
+
+      await act(async () => {
+        await result.current.handleSubmit({ preventDefault: jest.fn() });
+      });
+
+      const last = result.current.messages[result.current.messages.length - 1];
+
+      expect(last.isError).toBe(true);
+      expect(last.text).toBe('ai-assistant.chat.http-error');
+      expect(last.text).not.toBe('ai-assistant.chat.request-error');
+    });
+
+    it('keeps the generic advice when the failure carries no backend reason', async () => {
+      global.fetch = jest.fn().mockRejectedValue(new Error('Failed to fetch'));
+      jest.spyOn(console, 'error').mockImplementation(() => {});
+
+      const { result } = renderHook(() => useUniversalChat());
+
+      act(() => {
+        result.current.setMessage('привет');
+      });
+
+      await act(async () => {
+        await result.current.handleSubmit({ preventDefault: jest.fn() });
+      });
+
+      const last = result.current.messages[result.current.messages.length - 1];
+
+      // A transport error is not the backend's wording — do not show it to the user
+      expect(last.text).toBe('ai-assistant.chat.request-error');
     });
 
     it('leaves the user message unflagged when the request is accepted', async () => {

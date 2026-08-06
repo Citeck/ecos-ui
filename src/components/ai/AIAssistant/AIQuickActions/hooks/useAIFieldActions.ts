@@ -611,6 +611,10 @@ function getDefaultPromptForAction(actionId: string | undefined, fieldType: stri
     translate: t('ai-actions.prompt.translate', 'Translate to English'),
     expand: t('ai-actions.prompt.expand', 'Expand and add more details'),
     summarize: t('ai-actions.prompt.summarize', 'Summarize this text'),
+    // Kept in step with FIELD_ACTION_CONFIGS: an action offered in the UI but missing here returns
+    // undefined to the default request path, which posts a quick action with no prompt at all.
+    simplify: t('ai-actions.prompt.simplify', 'Simplify this text'),
+    formalize: t('ai-actions.prompt.formalize', 'Rewrite this text in a formal style'),
     'fix-grammar': t('ai-actions.prompt.fix-grammar', 'Fix grammar and spelling'),
     explain: t('ai-actions.prompt.explain', 'Explain what this code does'),
     fix: t('ai-actions.prompt.fix', 'Find and fix errors in this code'),
@@ -618,7 +622,9 @@ function getDefaultPromptForAction(actionId: string | undefined, fieldType: stri
     'add-comments': t('ai-actions.prompt.add-comments', 'Add comments to this code')
   };
 
-  return prompts[actionId || ''] || prompts['generate'];
+  // The former `prompts['generate']` fallback named a key that does not exist, so an unmapped
+  // action silently produced `undefined` despite the `: string` return type.
+  return prompts[actionId || ''] || t('ai-actions.prompt.improve', 'Improve this text');
 }
 
 export default useAIFieldActions;
