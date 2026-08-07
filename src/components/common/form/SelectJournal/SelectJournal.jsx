@@ -1,4 +1,4 @@
-import { Attributes, Permissions } from '@citeck/constants';
+import { Attributes, DEFAULT_WORKSPACE_ID, Permissions } from '@citeck/constants';
 import Records from '@citeck/records-core';
 import { PERMISSION_WRITE_ATTR } from '@citeck/records-core/constants';
 import { PREDICATE_EQ } from '@citeck/records-core/predicates/predicates';
@@ -34,8 +34,9 @@ import FormManager from '@/components/forms/EcosForm/FormManager';
 import JournalsService from '@/components/journals/Journals/service';
 import { mergeFilters } from '@/components/journals/Journals/service/util';
 import JournalsConverter from '@/dto/journals';
-import { TEMPLATE_REGEX } from '@/forms/components/custom/selectJournal/constants';
+import { SearchInWorkspacePolicy, TEMPLATE_REGEX } from '@/forms/components/custom/selectJournal/constants';
 import { getIconUpDown } from '@/helpers/icon';
+import { resolveRecordWorkspaceId } from '@/helpers/recordWorkspace';
 import { getHtmlIdByUid, beArray, isMobileDevice, t, isNodeRef } from '@/helpers/util';
 
 import './SelectJournal.scss';
@@ -124,6 +125,57 @@ export default class SelectJournal extends Component {
   get isQuery() {
     return this.props.dataType === DataTypes.QUERY;
   }
+
+  _recordWorkspaceRef = null;
+  _recordWorkspacePromise = null;
+
+  /**
+   * Workspace of the record being edited. Memoized for the lifetime of the component,
+   * reset when recordRef changes.
+   * @returns {Promise<string>}
+   */
+  getRecordWorkspaceId = () => {
+    const { recordRef } = this.props;
+
+    if (!this._recordWorkspacePromise || this._recordWorkspaceRef !== recordRef) {
+      this._recordWorkspaceRef = recordRef;
+      this._recordWorkspacePromise = resolveRecordWorkspaceId(recordRef);
+    }
+
+    return this._recordWorkspacePromise;
+  };
+
+  /**
+   * Workspaces to query journal data in. The "current" workspace is the workspace of the
+   * record being edited, not the one the user is currently in.
+   * @returns {Promise<Array<string>>}
+   */
+  getSearchWorkspaces = async () => {
+    const { searchInWorkspacePolicy, searchInAdditionalWorkspaces } = this.props;
+    const currentWorkspaceId = await this.getRecordWorkspaceId();
+
+    return JournalsService.getWorkspaceByPolicy(searchInWorkspacePolicy, searchInAdditionalWorkspaces, currentWorkspaceId);
+  };
+
+  /**
+   * Workspace to create a record in via the "Create" button of the select modal.
+   * An empty string means "don't set _workspace, let the backend decide".
+   * @returns {Promise<string>}
+   */
+  getCreateWorkspaceId = async () => {
+    const { recordRef, searchInWorkspacePolicy } = this.props;
+    const policy = searchInWorkspacePolicy || SearchInWorkspacePolicy.CURRENT;
+    const isRecordScopedPolicy =
+      policy === SearchInWorkspacePolicy.CURRENT || policy === SearchInWorkspacePolicy.CURRENT_AND_ADDITIONAL;
+
+    if (!recordRef || !isRecordScopedPolicy) {
+      return '';
+    }
+
+    const workspaceId = await this.getRecordWorkspaceId();
+
+    return workspaceId === DEFAULT_WORKSPACE_ID ? '' : workspaceId;
+  };
 
   _getPresetFilterPredicates(journalConfig) {
     const { presetFilterPredicates, customValues } = this.props;
@@ -297,7 +349,7 @@ export default class SelectJournal extends Component {
 
   shouldResetValue = () => {
     return new Promise(async resolve => {
-      const { sortBy, disableResetOnApplyCustomPredicate, searchInWorkspacePolicy, searchInAdditionalWorkspaces } = this.props;
+      const { sortBy, disableResetOnApplyCustomPredicate } = this.props;
       const { selectedRows, customPredicate, pagination, filterPredicate } = this.state;
       let { journalConfig } = this.state;
 
@@ -342,7 +394,7 @@ export default class SelectJournal extends Component {
 
       const result = await JournalsService.getJournalData(journalConfig, {
         ...settings,
-        workspaces: JournalsService.getWorkspaceByPolicy(searchInWorkspacePolicy, searchInAdditionalWorkspaces)
+        workspaces: await this.getSearchWorkspaces()
       });
 
       const gridData = JournalsConverter.getJournalDataWeb(result);
@@ -401,7 +453,7 @@ export default class SelectJournal extends Component {
 
   refreshGridData = () => {
     const getData = async resolve => {
-      const { sortBy, queryData, customSourceId, searchInAdditionalWorkspaces, searchInWorkspacePolicy } = this.props;
+      const { sortBy, queryData, customSourceId } = this.props;
       const { customPredicate, journalConfig, gridData, pagination, filterPredicate, displayedColumns, isLocaleData } = this.state;
       const predicates = JournalsConverter.cleanUpPredicate([customPredicate, ...(filterPredicate || [])]);
       /** @type JournalSettings */
@@ -414,9 +466,10 @@ export default class SelectJournal extends Component {
       });
       settings.queryData = queryData;
 
-      const workspaces = JournalsService.getWorkspaceByPolicy(searchInWorkspacePolicy, searchInAdditionalWorkspaces);
-      if (!isLocaleData && !!journalConfig.system) {
-        workspaces.push('default'); // has default wsId - all workspaces
+      const workspaces = await this.getSearchWorkspaces();
+      // has default wsId - all workspaces. A global record is already in default, so don't duplicate it
+      if (!isLocaleData && !!journalConfig.system && !workspaces.includes(DEFAULT_WORKSPACE_ID)) {
+        workspaces.push(DEFAULT_WORKSPACE_ID);
       }
 
       const result = await JournalsService.getJournalData(journalConfig, {
@@ -974,6 +1027,7 @@ export default class SelectJournal extends Component {
                     toggleCreateModal={this.toggleCreateModal}
                     isCreateModalOpen={isCreateModalOpen}
                     onCreateFormSubmit={this.onCreateFormSubmit}
+                    getCreateWorkspaceId={this.getCreateWorkspaceId}
                   />
                 )}
                 <IcoBtn
@@ -1153,6 +1207,11 @@ const predicateShape = PropTypes.shape({
 SelectJournal.propTypes = {
   journalId: PropTypes.string,
   keepValueOnJournalIdChange: PropTypes.bool,
+  /** Ref of the record being edited. Defines the workspace related records are searched and
+   *  created in. Omit it on a create form — the workspace from the URL is used then. */
+  recordRef: PropTypes.string,
+  searchInWorkspacePolicy: PropTypes.oneOf(Object.values(SearchInWorkspacePolicy)),
+  searchInAdditionalWorkspaces: PropTypes.arrayOf(PropTypes.string),
   queryData: PropTypes.object,
   dataType: PropTypes.oneOf(Object.values(DataTypes)),
   customSourceId: PropTypes.string,

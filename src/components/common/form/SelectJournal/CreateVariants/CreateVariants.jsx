@@ -1,3 +1,4 @@
+import { SourcesId } from '@citeck/constants';
 import React from 'react';
 import PropTypes from 'prop-types';
 
@@ -6,13 +7,19 @@ import FormManager from '@/components/forms/EcosForm/FormManager';
 import { Btn, IcoBtn } from '../../../btns';
 import Dropdown from '../../Dropdown/Dropdown';
 
-const CreateVariants = ({ items, onCreateFormSubmit }) => {
+const CreateVariants = ({ items, onCreateFormSubmit, getCreateWorkspaceId }) => {
   if (!items || !items.length) {
     return null;
   }
 
-  const openForm = variant => {
-    FormManager.createRecordByVariant(variant, {
+  const openForm = async variant => {
+    // Create where we search, otherwise the new record immediately disappears from the list
+    const workspaceId = getCreateWorkspaceId ? await getCreateWorkspaceId() : '';
+    const variantToCreate = workspaceId
+      ? { ...variant, attributes: { ...variant.attributes, _workspace: `${SourcesId.WORKSPACE}@${workspaceId}` } }
+      : variant;
+
+    FormManager.createRecordByVariant(variantToCreate, {
       onSubmit: onCreateFormSubmit,
       initiator: {
         type: 'form-component',
@@ -50,7 +57,9 @@ CreateVariants.propTypes = {
       // createArguments: null
     })
   ),
-  onCreateFormSubmit: PropTypes.func
+  onCreateFormSubmit: PropTypes.func,
+  /** Returns the workspace to create a record in. An empty string means the backend decides. */
+  getCreateWorkspaceId: PropTypes.func
 };
 
 export default CreateVariants;

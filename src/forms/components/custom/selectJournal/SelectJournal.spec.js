@@ -269,3 +269,30 @@ describe('SelectJournal Component', () => {
     });
   });
 });
+
+describe('recordRef for searching in the record workspace', () => {
+  const getRecordRef = async formMode => {
+    const component = await Harness.testCreate(SelectJournalComponent, comp1);
+
+    component.options.formMode = formMode;
+    component.getRecordId = () => 'emodel/task@task-1';
+
+    return component.getComponentAttributes().recordRef;
+  };
+
+  it('passes the record ref in edit mode', async () => {
+    await expect(getRecordRef('EDIT')).resolves.toBe('emodel/task@task-1');
+  });
+
+  it('behaves like edit mode when formMode is not set', async () => {
+    await expect(getRecordRef(undefined)).resolves.toBe('emodel/task@task-1');
+  });
+
+  it('passes no ref in create mode — search uses the workspace from the URL', async () => {
+    await expect(getRecordRef('CREATE')).resolves.toBeUndefined();
+  });
+
+  it('passes no ref in clone mode', async () => {
+    await expect(getRecordRef('CLONE')).resolves.toBeUndefined();
+  });
+});
