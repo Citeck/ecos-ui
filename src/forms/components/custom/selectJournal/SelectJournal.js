@@ -6,10 +6,14 @@ import BaseReactComponent from '../base/BaseReactComponent';
 
 import { DataTypes, DisplayModes, SearchInWorkspacePolicy, SortOrderOptions, TableTypes, TEMPLATE_REGEX } from './constants';
 
+import { FORM_MODE_CLONE, FORM_MODE_CREATE } from '@/components/forms/EcosForm';
 import EcosFormUtils from '@/components/forms/EcosForm/EcosFormUtils';
 import SelectJournal from '@/components/common/form/SelectJournal';
 import GqlDataSource from '@/components/common/grid/dataSource/GqlDataSource';
 import { getTextByLocale, trimFields } from '@/helpers/util';
+
+// Form modes in which the record being edited does not exist yet
+const NEW_RECORD_FORM_MODES = [FORM_MODE_CREATE, FORM_MODE_CLONE];
 
 export default class SelectJournalComponent extends BaseReactComponent {
   static schema(...extend) {
@@ -375,6 +379,8 @@ export default class SelectJournalComponent extends BaseReactComponent {
       disabled: comp.disabled,
       linkFormatter: comp.linkFormatter,
       viewOnly: this.viewOnly,
+      // On a create/clone form there is no record yet, so search in the workspace from the URL — that is where it will be created
+      recordRef: NEW_RECORD_FORM_MODES.includes(this.options.formMode) ? undefined : this.getRecordId(),
       viewMode: comp.source.viewMode,
       searchInWorkspacePolicy: comp.searchInWorkspacePolicy,
       searchInAdditionalWorkspaces: comp.searchInAdditionalWorkspaces,

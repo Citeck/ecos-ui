@@ -11,6 +11,13 @@ export const BASE_URLS_REDIRECT = ['/', '/v2', '/v2/'];
 
 export const ADMIN_WORKSPACE_ID = 'admin$workspace';
 
+/**
+ * Workspace id of global entities (WorkspaceDesc.DEFAULT_WORKSPACE_ID on the backend).
+ * Not to be confused with getDefaultWorkspace() from helpers/util, which is about
+ * the workspace a user lands in by default.
+ */
+export const DEFAULT_WORKSPACE_ID = 'default';
+
 export const URL = {
   HOME: '/',
   JOURNAL: '/v2/journals',
