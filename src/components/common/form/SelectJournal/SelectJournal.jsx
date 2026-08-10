@@ -97,6 +97,7 @@ export default class SelectJournal extends Component {
   shouldComponentUpdate(nextProps, nextState) {
     // Optimize re-renders by checking if relevant props/state have changed
     if (nextProps.journalId !== this.props.journalId) return true;
+    if (nextProps.workspaceId !== this.props.workspaceId) return true;
     if (nextProps.multiple !== this.props.multiple) return true;
     if (nextProps.disabled !== this.props.disabled) return true;
     if (nextProps.viewMode !== this.props.viewMode) return true;
@@ -126,12 +127,33 @@ export default class SelectJournal extends Component {
   _recordWorkspacePromise = null;
 
   /**
-   * Workspace of the record being edited. Memoized for the lifetime of the component,
-   * reset when recordRef changes.
+   * Whether the search query is scoped to the record's workspace at all. For the `all` and
+   * `only-aditional` policies the workspace plays no part in the query.
+   * @returns {boolean}
+   */
+  get isWorkspaceScopedPolicy() {
+    const policy = this.props.searchInWorkspacePolicy || SearchInWorkspacePolicy.CURRENT;
+
+    return policy === SearchInWorkspacePolicy.CURRENT || policy === SearchInWorkspacePolicy.CURRENT_AND_ADDITIONAL;
+  }
+
+  /**
+   * Workspace to search in. Form-based callers pass a ready `workspaceId`; the grid's inline
+   * assoc editor has no form, so there it is resolved from the row ref and memoized.
    * @returns {Promise<string>}
    */
   getRecordWorkspaceId = () => {
-    const { recordRef } = this.props;
+    const { workspaceId, recordRef } = this.props;
+
+    if (workspaceId) {
+      return Promise.resolve(workspaceId);
+    }
+
+    // Not memoized: with no ref the resolver just reads the URL workspace, which may change under
+    // a long-lived instance, and there is no request to save
+    if (!recordRef) {
+      return resolveRecordWorkspaceId(recordRef);
+    }
 
     if (!this._recordWorkspacePromise || this._recordWorkspaceRef !== recordRef) {
       this._recordWorkspaceRef = recordRef;
@@ -159,12 +181,7 @@ export default class SelectJournal extends Component {
    * @returns {Promise<string>}
    */
   getCreateWorkspaceId = async () => {
-    const { recordRef, searchInWorkspacePolicy } = this.props;
-    const policy = searchInWorkspacePolicy || SearchInWorkspacePolicy.CURRENT;
-    const isRecordScopedPolicy =
-      policy === SearchInWorkspacePolicy.CURRENT || policy === SearchInWorkspacePolicy.CURRENT_AND_ADDITIONAL;
-
-    if (!recordRef || !isRecordScopedPolicy) {
+    if (!this.isWorkspaceScopedPolicy) {
       return '';
     }
 
@@ -238,6 +255,14 @@ export default class SelectJournal extends Component {
       }
     }
 
+    // Both ready flags stay true after the first successful open, so nothing would refetch on
+    // reopen and the list would keep the previous workspace's rows. Only the fetched data is
+    // dropped: clearing the value would destroy user input, and on a create form the very control
+    // that drives the workspace (the project lookup) would reset itself and flip the workspace back.
+    if (this.props.workspaceId !== prevProps.workspaceId && this.isWorkspaceScopedPolicy) {
+      this.resetJournalData();
+    }
+
     // A change of selected rows is not reloaded data: marking the grid as ready here would keep
     // the rows fetched with the previous custom predicate and suppress the refetch on modal open
     if (!isEqual(omit(prevState.gridData, 'selected'), omit(this.state.gridData, 'selected'))) {
@@ -275,6 +300,21 @@ export default class SelectJournal extends Component {
       });
     }
   }
+
+  /**
+   * Drops the fetched journal config and rows so the next open refetches them, keeping the
+   * selected value. Used when only the query changed, not what the value may legally be.
+   */
+  resetJournalData = () => {
+    // `selected` is kept in sync with `value` (see onCancelSelect) and is what
+    // onSelectFromJournalPopup saves — dropping it here would make the next OK save an empty value
+    this.setState(prevState => ({
+      journalConfig: { ...emptyJournalConfig },
+      isJournalConfigFetched: false,
+      isGridDataReady: false,
+      gridData: { total: 0, data: [], inMemoryData: [], columns: [], selected: prevState.gridData.selected }
+    }));
+  };
 
   resetJournalConfig = () => {
     const { onChange, multiple } = this.props;
@@ -1104,6 +1144,7 @@ export default class SelectJournal extends Component {
       viewMode,
       customActionRefs,
       enableCreateButton,
+      getCreateWorkspaceId: this.getCreateWorkspaceId,
       selectedQueryInfo,
       gridData: {
         columns: this.getColumns(),
@@ -1158,9 +1199,11 @@ const predicateShape = PropTypes.shape({
 
 SelectJournal.propTypes = {
   journalId: PropTypes.string,
-  /** Ref of the record being edited. Defines the workspace related records are searched and
-   *  created in. Omit it on a create form — the workspace from the URL is used then. */
+  /** Ref of the record whose workspace related records are searched in. Used by the grid's inline
+   *  assoc editor, which has no form to take a ready workspace id from. */
   recordRef: PropTypes.string,
+  /** Ready workspace id to search and create in. Wins over recordRef. Passed by the formio control. */
+  workspaceId: PropTypes.string,
   searchInWorkspacePolicy: PropTypes.oneOf(Object.values(SearchInWorkspacePolicy)),
   searchInAdditionalWorkspaces: PropTypes.arrayOf(PropTypes.string),
   queryData: PropTypes.object,

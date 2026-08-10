@@ -63,6 +63,15 @@ describe('getWorkspaceByPolicy', () => {
       expect(journalsService.getWorkspaceByPolicy(SearchInWorkspacePolicy.ONLY_ADDITIONAL, ['ws2'], 'proj1')).toEqual(['ws2']);
     });
 
+    it('only-aditional returns a copy so callers cannot mutate the additional list', () => {
+      const additional = ['ws2'];
+      const result = journalsService.getWorkspaceByPolicy(SearchInWorkspacePolicy.ONLY_ADDITIONAL, additional);
+
+      result.push('default');
+
+      expect(additional).toEqual(['ws2']);
+    });
+
     it('an empty string is treated as not passed', () => {
       expect(journalsService.getWorkspaceByPolicy(SearchInWorkspacePolicy.CURRENT, [], '')).toEqual(['user$admin']);
     });
