@@ -56,6 +56,7 @@ export const CUSTOM_FEEDBACK_URL = 'custom-feedback-url';
 export const CUSTOM_REPORT_ISSUE_URL = 'custom-report-issue-url';
 export const SEPARATE_ACTION_LIST_FOR_QUERY = 'separate-action-list-for-query';
 export const SITE_DASHBOARD_ENABLE = 'site-dashboard-enable';
+export const ESIGN_DEV_MODE = 'app/edi$esign-dev-mode';
 export const TOUCH_CONFIG = 'app/gateway$touch';
 
 const CONFIG_PROPS = {
@@ -137,6 +138,13 @@ const CONFIG_PROPS = {
   },
   [SITE_DASHBOARD_ENABLE]: {
     defaultValue: false
+  },
+  // Debug e-signature mode, off unless a stand says otherwise:
+  // {mode: "off"|"stub"|"remote", url: "<signing oracle base url>"}.
+  // See services/asyncCadesPlugin/devStub.
+  [ESIGN_DEV_MODE]: {
+    type: TYPE_JSON,
+    defaultValue: {}
   },
   [MENU_GROUP_PRIORITY]: {
     multiple: true,

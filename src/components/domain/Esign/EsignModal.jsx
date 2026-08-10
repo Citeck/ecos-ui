@@ -30,7 +30,9 @@ class EsignModal extends Component {
         friendlyIssuerInfo: PropTypes.array
       })
     ),
-    selected: PropTypes.string
+    selected: PropTypes.string,
+    // Set only when the debug e-signature mode replaced the plugin ("stub"|"remote").
+    devMode: PropTypes.string
   };
 
   static defaultProps = {
@@ -165,6 +167,25 @@ class EsignModal extends Component {
     );
   }
 
+  /**
+   * The debug mode must never be mistaken for real signing, and the certificate list
+   * alone does not say so loudly enough — hence a banner above it whenever the
+   * plugin has been replaced.
+   */
+  renderDevModeNotice() {
+    const { devMode } = this.props;
+
+    if (!devMode) {
+      return null;
+    }
+
+    return (
+      <div className="esign-cert__dev-mode">
+        {t(devMode === 'remote' ? Labels.DEV_MODE_REMOTE : Labels.DEV_MODE_STUB)}
+      </div>
+    );
+  }
+
   render() {
     const { isOpen, isLoading, title } = this.props;
 
@@ -176,6 +197,7 @@ class EsignModal extends Component {
         isLoading={isLoading}
         hideModal={this.handleHideModal}
       >
+        {this.renderDevModeNotice()}
         {this.renderList()}
         {this.renderInfo()}
         {this.renderButtons()}

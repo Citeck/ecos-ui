@@ -1,11 +1,14 @@
 import { PROXY_URI } from '@citeck/constants/alfresco';
-import { EDI_REQUEST } from '@citeck/constants/esign';
+import { EDI_REQUEST, Labels } from '@citeck/constants/esign';
 import Records from '@citeck/records-core';
 import get from 'lodash/get';
 import set from 'lodash/set';
 
+import { t } from '../helpers/util';
 import getCadespluginAPI from '../services/asyncCadesPlugin';
-import ConfigService, { ALFRESCO_ENABLED } from '../services/config/ConfigService';
+import createDevStubApi, { DevModes, isDevModeEnabled } from '../services/asyncCadesPlugin/devStub';
+import ConfigService, { ALFRESCO_ENABLED, ESIGN_DEV_MODE } from '../services/config/ConfigService';
+import NotificationManager from '../services/notifications/NotificationManager';
 
 class EsignApi {
   static _cadespluginApi = null;
@@ -30,10 +33,33 @@ class EsignApi {
     return this.cadespluginApi !== null;
   }
 
+  getDevModeConfig = async () => {
+    const config = await ConfigService.getValue(ESIGN_DEV_MODE);
+
+    return isDevModeEnabled(config) ? config : null;
+  };
+
   getCadespluginApi = async (forcibly = false) => {
     const api = get(window, 'cadesplugin.api', null);
 
     if (!api || forcibly) {
+      const devConfig = await this.getDevModeConfig();
+
+      if (devConfig) {
+        const devApi = createDevStubApi(devConfig);
+
+        // The modal is not a reliable place to announce the mode: with a single
+        // certificate the flow signs without opening it, and silentSign never opens it
+        // at all. This fires once per page, when the stand-in is created.
+        NotificationManager.warning(
+          t(devApi.mode === DevModes.REMOTE ? Labels.DEV_MODE_REMOTE : Labels.DEV_MODE_STUB),
+          t(Labels.DEV_MODE_TITLE)
+        );
+        this.cadespluginApi = devApi;
+
+        return devApi;
+      }
+
       const api = await getCadespluginAPI();
 
       this.cadespluginApi = api;

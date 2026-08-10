@@ -228,6 +228,7 @@ class EsignComponent extends Component {
           onSign={this.handleSignDocument}
           certificates={certificates}
           selected={get(certificates, '0.id', '')}
+          devMode={get(cadespluginApi, 'mode', null)}
         />
       </>
     );
