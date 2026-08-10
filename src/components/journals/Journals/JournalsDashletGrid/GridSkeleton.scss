@@ -1,12 +1,12 @@
-// Mirrors the `<Loader blur />` anchoring (.ecos-loader: position absolute, inset 0, z-index 100)
-// so the skeleton covers the same grid box. Shimmer recipe matches the Comments widget
-// (src/components/dashboard/widgets/Comments/style.scss), kept local to avoid cross-coupling.
+// The skeleton stands in for the table while the grid has no rows yet, so it must take up real
+// space rather than overlay it: `.ecos-journal-dashlet__grid` collapses to zero height while `data`
+// is empty (journal pages render with `autoHeight`, which skips the `EmptyGrid` row reservation),
+// and an inset-0 overlay — which is what `<Loader blur />` is — collapses with it and shows nothing.
+// That is why the journal content area looked blank while its data query was pending.
+// Shimmer recipe matches the Comments widget (src/components/dashboard/widgets/Comments/style.scss),
+// kept local to avoid cross-coupling.
 .ecos-journal-grid-skeleton {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  position: relative;
   z-index: 100;
   background: #fff;
   overflow: hidden;
