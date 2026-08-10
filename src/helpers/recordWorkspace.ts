@@ -36,7 +36,20 @@ export function getFormDataWorkspaceId(formData: unknown): string {
     return '';
   }
 
-  return value.startsWith(WORKSPACE_REF_PREFIX) ? value.slice(WORKSPACE_REF_PREFIX.length) : value;
+  if (value.startsWith(WORKSPACE_REF_PREFIX)) {
+    return value.slice(WORKSPACE_REF_PREFIX.length);
+  }
+
+  // A ref of any other source is not a workspace: searching by its local id would silently
+  // scope the query to a workspace that does not exist, so let the caller fall back instead
+  return value.includes('@') ? '' : value;
+}
+
+/**
+ * Reference of a workspace by its local id, the form `_workspace` expects.
+ */
+export function toWorkspaceRef(workspaceId: string): string {
+  return `${WORKSPACE_REF_PREFIX}${workspaceId}`;
 }
 
 /**
@@ -50,7 +63,9 @@ export function getFormDataWorkspaceId(formData: unknown): string {
  * an empty string — without making an extra request.
  */
 export async function resolveRecordWorkspaceId(recordRef?: string): Promise<string> {
-  if (!recordRef || !getEnabledWorkspaces()) {
+  // A ref with no local id ("@", "emodel/task@") is a record that does not exist yet: it has no
+  // workspace to load, and reading one would scope the lookup to global records
+  if (!recordRef || recordRef.endsWith('@') || !getEnabledWorkspaces()) {
     return getWorkspaceId();
   }
 

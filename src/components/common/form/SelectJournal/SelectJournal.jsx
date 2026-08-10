@@ -140,9 +140,17 @@ export default class SelectJournal extends Component {
   /**
    * Workspace to search in. Form-based callers pass a ready `workspaceId`; the grid's inline
    * assoc editor has no form, so there it is resolved from the row ref and memoized.
+   *
+   * Not to be confused with the synchronous `getRecordWorkspaceId()` of the formio component,
+   * which is what produces the `workspaceId` prop.
+   *
+   * The component is not re-rendered on a `recordRef` change (only `workspaceId` is watched):
+   * the editors that pass a ref render one row each and are remounted. The memo key merely keeps
+   * the method honest if that ever stops holding.
+   *
    * @returns {Promise<string>}
    */
-  getRecordWorkspaceId = () => {
+  resolveWorkspaceId = () => {
     const { workspaceId, recordRef } = this.props;
 
     if (workspaceId) {
@@ -166,13 +174,25 @@ export default class SelectJournal extends Component {
   /**
    * Workspaces to query journal data in. The "current" workspace is the workspace of the
    * record being edited, not the one the user is currently in.
+   *
+   * Every query of this control goes through here, so the list the user sees and the list
+   * shouldResetValue probes the value against are built the same way.
+   *
    * @returns {Promise<Array<string>>}
    */
   getSearchWorkspaces = async () => {
     const { searchInWorkspacePolicy, searchInAdditionalWorkspaces } = this.props;
-    const currentWorkspaceId = await this.getRecordWorkspaceId();
+    const { isLocaleData, journalConfig } = this.state;
+    const currentWorkspaceId = await this.resolveWorkspaceId();
+    const workspaces = JournalsService.getWorkspaceByPolicy(searchInWorkspacePolicy, searchInAdditionalWorkspaces, currentWorkspaceId);
 
-    return JournalsService.getWorkspaceByPolicy(searchInWorkspacePolicy, searchInAdditionalWorkspaces, currentWorkspaceId);
+    // A system journal also lists global records, which live in the default workspace. An empty
+    // list already means every workspace — appending would narrow it down to the global ones
+    if (!isLocaleData && !!journalConfig.system && workspaces.length && !workspaces.includes(DEFAULT_WORKSPACE_ID)) {
+      workspaces.push(DEFAULT_WORKSPACE_ID);
+    }
+
+    return workspaces;
   };
 
   /**
@@ -185,7 +205,7 @@ export default class SelectJournal extends Component {
       return '';
     }
 
-    const workspaceId = await this.getRecordWorkspaceId();
+    const workspaceId = await this.resolveWorkspaceId();
 
     return workspaceId === DEFAULT_WORKSPACE_ID ? '' : workspaceId;
   };
@@ -260,7 +280,7 @@ export default class SelectJournal extends Component {
     // dropped: clearing the value would destroy user input, and on a create form the very control
     // that drives the workspace (the project lookup) would reset itself and flip the workspace back.
     if (this.props.workspaceId !== prevProps.workspaceId && this.isWorkspaceScopedPolicy) {
-      this.resetJournalData();
+      this.resetJournalData(this.refetchOpenSelectModal);
     }
 
     // A change of selected rows is not reloaded data: marking the grid as ready here would keep
@@ -304,16 +324,35 @@ export default class SelectJournal extends Component {
   /**
    * Drops the fetched journal config and rows so the next open refetches them, keeping the
    * selected value. Used when only the query changed, not what the value may legally be.
+   *
+   * @param {Function} [callback] called once the state is dropped, to refetch right away
    */
-  resetJournalData = () => {
+  resetJournalData = callback => {
     // `selected` is kept in sync with `value` (see onCancelSelect) and is what
     // onSelectFromJournalPopup saves — dropping it here would make the next OK save an empty value
-    this.setState(prevState => ({
-      journalConfig: { ...emptyJournalConfig },
-      isJournalConfigFetched: false,
-      isGridDataReady: false,
-      gridData: { total: 0, data: [], inMemoryData: [], columns: [], selected: prevState.gridData.selected }
-    }));
+    this.setState(
+      prevState => ({
+        journalConfig: { ...emptyJournalConfig },
+        isJournalConfigFetched: false,
+        isGridDataReady: false,
+        gridData: { total: 0, data: [], inMemoryData: [], columns: [], selected: prevState.gridData.selected }
+      }),
+      callback
+    );
+  };
+
+  /**
+   * Reloads a select modal that is already open. Nothing else would: the fetch is triggered by
+   * opening the modal, so it would keep showing the rows of the previous workspace until closed.
+   */
+  refetchOpenSelectModal = () => {
+    if (!this.state.isSelectModalOpen) {
+      return;
+    }
+
+    // componentDidUpdate has just marked the emptied grid as ready again; without dropping the
+    // flag the modal shows the empty result state instead of the loader while the data is fetched
+    this.setState({ isGridDataReady: false }, this.fetchJournalData);
   };
 
   resetJournalConfig = () => {
@@ -460,7 +499,7 @@ export default class SelectJournal extends Component {
   refreshGridData = () => {
     const getData = async resolve => {
       const { sortBy, queryData, customSourceId } = this.props;
-      const { customPredicate, journalConfig, gridData, pagination, filterPredicate, displayedColumns, isLocaleData } = this.state;
+      const { customPredicate, journalConfig, gridData, pagination, filterPredicate, displayedColumns } = this.state;
       const predicates = JournalsConverter.cleanUpPredicate([customPredicate, ...(filterPredicate || [])]);
       /** @type JournalSettings */
       const settings = JournalsConverter.getSettingsForDataLoaderServer({
@@ -472,15 +511,9 @@ export default class SelectJournal extends Component {
       });
       settings.queryData = queryData;
 
-      const workspaces = await this.getSearchWorkspaces();
-      // has default wsId - all workspaces. A global record is already in default, so don't duplicate it
-      if (!isLocaleData && !!journalConfig.system && !workspaces.includes(DEFAULT_WORKSPACE_ID)) {
-        workspaces.push(DEFAULT_WORKSPACE_ID);
-      }
-
       const result = await JournalsService.getJournalData(journalConfig, {
         ...settings,
-        workspaces
+        workspaces: await this.getSearchWorkspaces()
       });
       const fetchedGridData = JournalsConverter.getJournalDataWeb(result);
 

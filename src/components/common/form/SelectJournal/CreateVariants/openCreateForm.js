@@ -1,6 +1,5 @@
-import { SourcesId } from '@citeck/constants';
-
 import FormManager from '@/components/forms/EcosForm/FormManager';
+import { toWorkspaceRef } from '@/helpers/recordWorkspace';
 
 /**
  * Opens the create form for a journal create variant.
@@ -22,7 +21,7 @@ import FormManager from '@/components/forms/EcosForm/FormManager';
 export async function openCreateForm(variant, { getCreateWorkspaceId, onSubmit } = {}) {
   const workspaceId = getCreateWorkspaceId ? await getCreateWorkspaceId() : '';
   const variantToCreate = workspaceId
-    ? { ...variant, attributes: { ...variant.attributes, _workspace: `${SourcesId.WORKSPACE}@${workspaceId}` } }
+    ? { ...variant, attributes: { ...variant.attributes, _workspace: toWorkspaceRef(workspaceId) } }
     : variant;
 
   FormManager.createRecordByVariant(variantToCreate, {

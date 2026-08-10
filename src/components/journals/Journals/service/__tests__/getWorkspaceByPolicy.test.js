@@ -22,10 +22,7 @@ describe('getWorkspaceByPolicy', () => {
     });
 
     it('current-and-additional → the workspace from the URL plus the additional ones', () => {
-      expect(journalsService.getWorkspaceByPolicy(SearchInWorkspacePolicy.CURRENT_AND_ADDITIONAL, ['ws2'])).toEqual([
-        'user$admin',
-        'ws2'
-      ]);
+      expect(journalsService.getWorkspaceByPolicy(SearchInWorkspacePolicy.CURRENT_AND_ADDITIONAL, ['ws2'])).toEqual(['user$admin', 'ws2']);
     });
 
     it('only-aditional → the additional ones only', () => {
@@ -50,9 +47,7 @@ describe('getWorkspaceByPolicy', () => {
     });
 
     it('current-and-additional deduplicates', () => {
-      expect(journalsService.getWorkspaceByPolicy(SearchInWorkspacePolicy.CURRENT_AND_ADDITIONAL, ['proj1'], 'proj1')).toEqual([
-        'proj1'
-      ]);
+      expect(journalsService.getWorkspaceByPolicy(SearchInWorkspacePolicy.CURRENT_AND_ADDITIONAL, ['proj1'], 'proj1')).toEqual(['proj1']);
     });
 
     it('all ignores the passed workspace', () => {

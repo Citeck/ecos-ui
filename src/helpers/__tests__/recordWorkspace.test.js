@@ -17,7 +17,7 @@ import Records from '@citeck/records-core';
 
 import { getEnabledWorkspaces } from '@/helpers/util';
 
-import { getFormDataWorkspaceId, resolveRecordWorkspaceId } from '../recordWorkspace';
+import { getFormDataWorkspaceId, resolveRecordWorkspaceId, toWorkspaceRef } from '../recordWorkspace';
 
 const mockLoad = result => {
   Records.get.mockReturnValue({ load: jest.fn(() => result) });
@@ -38,6 +38,12 @@ describe('resolveRecordWorkspaceId', () => {
     getEnabledWorkspaces.mockReturnValue(false);
 
     await expect(resolveRecordWorkspaceId('emodel/task@task-1')).resolves.toBe('user$admin');
+    expect(Records.get).not.toHaveBeenCalled();
+  });
+
+  it('does not load a record that does not exist yet', async () => {
+    await expect(resolveRecordWorkspaceId('emodel/task@')).resolves.toBe('user$admin');
+    await expect(resolveRecordWorkspaceId('@')).resolves.toBe('user$admin');
     expect(Records.get).not.toHaveBeenCalled();
   });
 
@@ -66,6 +72,16 @@ describe('resolveRecordWorkspaceId', () => {
   });
 });
 
+describe('toWorkspaceRef', () => {
+  it('prefixes the local id with the workspace source', () => {
+    expect(toWorkspaceRef('TEST2')).toBe('emodel/workspace@TEST2');
+  });
+
+  it('is the inverse of the parsing getFormDataWorkspaceId does', () => {
+    expect(getFormDataWorkspaceId({ _workspace: toWorkspaceRef('TEST2') })).toBe('TEST2');
+  });
+});
+
 describe('getFormDataWorkspaceId', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -90,6 +106,10 @@ describe('getFormDataWorkspaceId', () => {
 
   it('takes the first element of an array', () => {
     expect(getFormDataWorkspaceId({ _workspace: ['emodel/workspace@TEST2'] })).toBe('TEST2');
+  });
+
+  it('returns empty for a ref of another source, so the caller falls back', () => {
+    expect(getFormDataWorkspaceId({ _workspace: 'emodel/project@TEST2' })).toBe('');
   });
 
   it('returns empty when _workspace is absent', () => {

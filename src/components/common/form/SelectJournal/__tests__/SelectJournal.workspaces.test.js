@@ -102,6 +102,30 @@ describe('SelectJournal — workspace to search in', () => {
     });
   });
 
+  describe('system journals', () => {
+    it('also searches in default, where the global records the journal lists live', async () => {
+      const instance = buildInstance({ workspaceId: 'proj1', searchInWorkspacePolicy: 'current' });
+      instance.state = { ...instance.state, journalConfig: { system: true } };
+
+      await expect(instance.getSearchWorkspaces()).resolves.toEqual(['proj1', 'default']);
+    });
+
+    it('leaves an empty list alone — it already means every workspace', async () => {
+      const instance = buildInstance({ searchInWorkspacePolicy: 'all' });
+      instance.state = { ...instance.state, journalConfig: { system: true } };
+      JournalsService.getWorkspaceByPolicy.mockReturnValueOnce([]);
+
+      await expect(instance.getSearchWorkspaces()).resolves.toEqual([]);
+    });
+
+    it('does not search in default for a local-data journal', async () => {
+      const instance = buildInstance({ workspaceId: 'proj1', searchInWorkspacePolicy: 'current' });
+      instance.state = { ...instance.state, journalConfig: { system: true }, isLocaleData: true };
+
+      await expect(instance.getSearchWorkspaces()).resolves.toEqual(['proj1']);
+    });
+  });
+
   describe('wiring to the input view', () => {
     it('hands getCreateWorkspaceId to the input view so field-level create buttons use it', () => {
       const instance = buildInstance({ workspaceId: 'TEST2' });
@@ -130,11 +154,26 @@ describe('SelectJournal — workspace to search in', () => {
         selectedRows: [{ id: '1' }],
         value: '1'
       };
+      // React runs setState callbacks after componentDidUpdate, not inside setState itself, and
+      // the order decides here: the refetch must overwrite the ready flag componentDidUpdate sets
+      const pendingCallbacks = [];
+
       instance.setState = jest.fn((partial, cb) => {
         const next = typeof partial === 'function' ? partial(instance.state) : partial;
         instance.state = { ...instance.state, ...next };
-        if (typeof cb === 'function') cb();
+        if (typeof cb === 'function') pendingCallbacks.push(cb);
       });
+
+      const componentDidUpdate = instance.componentDidUpdate.bind(instance);
+
+      instance.componentDidUpdate = (...args) => {
+        componentDidUpdate(...args);
+
+        while (pendingCallbacks.length) {
+          pendingCallbacks.shift()();
+        }
+      };
+
       return instance;
     };
 
@@ -177,6 +216,30 @@ describe('SelectJournal — workspace to search in', () => {
       instance.componentDidUpdate({ ...instance.props, workspaceId: 'user$admin' }, instance.state);
 
       expect(instance.state.gridData.selected).toEqual([{ id: '1' }]);
+    });
+
+    it('refetches right away when the modal is already open', () => {
+      const instance = buildMounted({ workspaceId: 'proj1', searchInWorkspacePolicy: 'current' });
+      instance.state.isSelectModalOpen = true;
+      instance.fetchJournalData = jest.fn();
+
+      instance.componentDidUpdate({ ...instance.props, workspaceId: 'user$admin' }, instance.state);
+
+      // nothing else would reload an open modal, so it would keep the previous workspace's rows
+      expect(instance.fetchJournalData).toHaveBeenCalled();
+      // and the grid must show the loader meanwhile, not the empty result state: componentDidUpdate
+      // marks the just emptied grid as ready again, the refetch has to undo that
+      expect(instance.state.isGridDataReady).toBe(false);
+    });
+
+    it('does not refetch while the modal is closed — opening it does that', () => {
+      const instance = buildMounted({ workspaceId: 'proj1', searchInWorkspacePolicy: 'current' });
+      instance.state.isSelectModalOpen = false;
+      instance.fetchJournalData = jest.fn();
+
+      instance.componentDidUpdate({ ...instance.props, workspaceId: 'user$admin' }, instance.state);
+
+      expect(instance.fetchJournalData).not.toHaveBeenCalled();
     });
 
     it('does not react for policies that ignore the workspace', () => {

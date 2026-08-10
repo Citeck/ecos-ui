@@ -6,6 +6,7 @@ import React from 'react';
 
 import editorRegistry from '../';
 import { DatePicker } from '@/components/common/form';
+import EditorScope from '../../EditorScope';
 import BooleanEditor from '../BooleanEditor';
 import DateEditor from '../DateEditor';
 import DateTimeEditor from '../DateTimeEditor';
@@ -86,5 +87,17 @@ describe('editors registry', () => {
     test(`type "${type}" expects props`, () => {
       expect(asFragment(<Control {...props} />)).toMatchSnapshot();
     });
+  });
+
+  test('type "journal" forwards recordRef in a cell so the lookup searches in the workspace of the edited row', () => {
+    const Control = editorRegistry.getEditor('journal').getControl({ journalId: '1' }, EditorScope.CELL);
+
+    expect(Control({ value: undefined, recordRef: 'emodel/task@task-1' }).props.recordRef).toBe('emodel/task@task-1');
+  });
+
+  test('type "journal" drops recordRef in a filter — there it is the meta record, not a row', () => {
+    const Control = editorRegistry.getEditor('journal').getControl({ journalId: '1' }, EditorScope.FILTER);
+
+    expect(Control({ value: undefined, recordRef: 'emodel/task@' }).props.recordRef).toBeUndefined();
   });
 });
