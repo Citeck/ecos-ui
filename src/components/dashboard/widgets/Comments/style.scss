@@ -17,13 +17,20 @@
           margin-bottom: 10px;
         }
 
+        // The checkbox stands above the buttons here instead of beside them
+        &-chbx-wrapper {
+          margin-bottom: 8px;
+        }
+
         &-btn {
           width: 50%;
           //min-width: 141px;
 
+          // The footer is a column here, so the buttons take its whole width instead
           &-wrapper {
             display: flex;
             flex-wrap: nowrap;
+            margin-left: 0;
           }
         }
       }
@@ -66,6 +73,12 @@
     position: relative;
     border-bottom: 1px solid $color-gray-4;
     padding: 15px 0;
+
+    // The separator belongs between the comments, under the last one it just hangs
+    // above the bottom border of the widget
+    &:last-child {
+      border-bottom: 0;
+    }
 
     &:hover {
       #{$self}-btn-edit,
@@ -275,6 +288,13 @@
         padding: 5px;
       }
     }
+
+    // While a comment is being edited, the editor is already inset by the gutter of the list and
+    // by the padding of the comment itself, so its footer adds no spacing of its own
+    #{$root}__editor-footer {
+      padding: 0;
+      margin-bottom: 0;
+    }
   }
 
   &__editor {
@@ -282,6 +302,16 @@
 
     width: 100%;
     min-width: 250px;
+
+    // A new comment is written above the list, so the editor is separated from it the same way
+    // the comments are separated from each other. When nothing follows the editor there is
+    // nothing to separate it from
+    &:not(:last-child)::after {
+      content: '';
+      display: block;
+      margin: 0 16px;
+      border-bottom: 1px solid $color-gray-4;
+    }
 
     &-decorator {
       &-link {
@@ -321,9 +351,10 @@
       display: flex;
       justify-content: space-between;
       align-content: center;
-      padding: 0 4px;
-      margin-left: 8px;
-      margin-bottom: 12px;
+      // The footer keeps the same gutter as the comment list, and the gap below it matches that
+      // gutter as well: the dashlet body adds 5px of its own under the widget content
+      padding: 0 16px;
+      margin-bottom: 11px;
 
       &-btn {
         width: 141px;
@@ -333,8 +364,11 @@
           margin-right: 10px;
         }
 
+        // The buttons keep to the right of the footer even when the checkbox beside them
+        // is not rendered
         &-wrapper {
           display: flex;
+          margin-left: auto;
         }
       }
 
@@ -348,6 +382,9 @@
           label {
             display: flex;
             align-items: center;
+            // The bottom margin a label has by default keeps the checkbox above the middle
+            // of the footer, so it stops being level with the buttons beside it
+            margin-bottom: 0;
           }
 
           &__text {
