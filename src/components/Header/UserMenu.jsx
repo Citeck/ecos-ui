@@ -16,7 +16,7 @@ import MenuService from '@/services/MenuService';
 import UserService from '@/services/UserService';
 
 const mapStateToProps = state => ({
-  userFullName: state.user.fullName,
+  userDisplayName: state.user.displayName || state.user.fullName,
   userPhotoUrl: UserService.getAvatarUrl(state.user.thumbnail),
   items: state.header.userMenu.items,
   isLoading: state.header.userMenu.isLoading,
@@ -72,7 +72,7 @@ class UserMenu extends React.Component {
 
   render() {
     const { dropdownOpen } = this.state;
-    const { userFullName, items, isMobile, widthParent, userPhotoUrl, theme, isLoading, isViewNewJournal } = this.props;
+    const { userDisplayName, items, isMobile, widthParent, userPhotoUrl, theme, isLoading, isViewNewJournal } = this.props;
     const medium = widthParent > 600 && widthParent < 910;
     const mob = isMobile || medium;
     const classNameIcoBtn = classNames(
@@ -93,11 +93,11 @@ class UserMenu extends React.Component {
         {!mob && !isViewNewJournal ? <Avatar className="ecos-header-user-avatar" theme={theme} url={userPhotoUrl} /> : null}
         <Dropdown className="ecos-header-user ecos-header-dropdown" isOpen={dropdownOpen} toggle={this.toggle}>
           <DropdownToggle tag="div" className="ecos-header-dropdown__toggle" id="ecos-header-dropdown--user-name">
-            <Tooltip target="ecos-header-dropdown--user-name" text={userFullName} placement={'left'} uncontrolled showAsNeeded>
+            <Tooltip target="ecos-header-dropdown--user-name" text={userDisplayName} placement={'left'} uncontrolled showAsNeeded>
               {mob ? <Avatar className="ecos-header-user-avatar" theme={theme} url={userPhotoUrl} /> : null}
               {(!isViewNewJournal || mob) && (
                 <IcoBtn invert={true} icon={getIconUpDown(dropdownOpen)} className={classNameIcoBtn}>
-                  {!mob && userFullName}
+                  {!mob && userDisplayName}
                 </IcoBtn>
               )}
               {!mob && isViewNewJournal && <AvatarBtn icon={getIconUpDown(dropdownOpen)} className={classNameIcoBtn} />}
