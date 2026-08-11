@@ -232,18 +232,28 @@ export const goToAdminPage = options => {
   changeUrl(link, { openNewTab: true });
 };
 
-export const goToCardDetailsPage = (nodeRef, params = { openNewTab: true }) => {
-  let dashboardLink = `${Urls.DASHBOARD}?recordRef=${nodeRef}`;
+/**
+ * Link to the dashboard of a record. Use it to render a real anchor for a record,
+ * so that the browser keeps its native behaviour (middle click, ctrl/cmd click,
+ * "open link in new tab"), and use goToCardDetailsPage to navigate imperatively.
+ *
+ * @param {String} nodeRef - record reference
+ * @returns {String}
+ */
+export const getCardDetailsLink = nodeRef => {
+  const dashboardLink = `${Urls.DASHBOARD}?recordRef=${nodeRef}`;
 
-  if (getEnabledWorkspaces()) {
-    const workspaceId = getWorkspaceId();
-
-    if (!workspaceId.startsWith('user$')) {
-      dashboardLink = getLinkWithWs(dashboardLink, workspaceId);
-    }
+  if (!getEnabledWorkspaces()) {
+    return dashboardLink;
   }
 
-  changeUrl(dashboardLink, params);
+  const workspaceId = getWorkspaceId();
+
+  return workspaceId.startsWith('user$') ? dashboardLink : getLinkWithWs(dashboardLink, workspaceId);
+};
+
+export const goToCardDetailsPage = (nodeRef, params = { openNewTab: true }) => {
+  changeUrl(getCardDetailsLink(nodeRef), params);
 };
 
 export const updateCurrentUrl = (params = {}) => {
