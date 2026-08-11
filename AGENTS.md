@@ -60,6 +60,19 @@ React Router 5 + connected-react-router. Routes defined in `src/components/layou
 
 Domain-specific clients in `src/api/`. Called exclusively from sagas.
 
+An API client's attribute map is a *domain* schema, not a shared vocabulary: the same alias can name
+different attributes in two of them. `OrgStructApi.userAttributes.fullName` is `authorityName` (the
+login of an authority in the orgstruct tree), while `UserApi.attributes.fullName` is the person's
+name attribute. `UserApi.getUserData` merges `{ ...this.attributes, ...attrs }`, so a caller passing
+another client's map silently redefines the overlapping aliases — that is how the header came to show
+the login (COREDEV-384, guarded by `src/sagas/__tests__/app.test.js`). Pass an explicitly reconciled
+map, not another domain's schema.
+
+Wherever the UI names a person it shows the platform display name (`?disp`), not a name assembled
+from `firstName`/`lastName` — that is what comments, activities, orgstruct and the header
+(`state.user.displayName`) all render, so a customized display-name template stays consistent
+everywhere.
+
 ### Localization
 
 i18next with `src/i18n/en.json` and `src/i18n/ru.json`. Use `t('key')` from `@/helpers/util`. Always add keys to **both** locale files.

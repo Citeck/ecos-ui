@@ -14,6 +14,7 @@ const initialState = {
   lastName: '',
   middleName: '',
   userName: '',
+  displayName: '',
   fullName: '',
   nodeRef: '',
   thumbnail: null,

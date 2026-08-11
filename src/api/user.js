@@ -16,6 +16,9 @@ export class UserApi extends CommonApi {
       lastName: 'lastName',
       middleName: 'middleName',
       isAdmin: 'isAdmin?bool',
+      // what the app shows wherever it names this person — the platform display name, the same one
+      // every other person label is built from. `fullName` stays for code that needs the attribute.
+      displayName: '?disp',
       fullName: 'fullName',
       uid: 'id',
       isDisabled: 'personDisabled?bool',

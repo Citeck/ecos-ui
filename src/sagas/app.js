@@ -3,6 +3,7 @@ import get from 'lodash/get';
 import isBoolean from 'lodash/isBoolean';
 import isFunction from 'lodash/isFunction';
 import isString from 'lodash/isString';
+import omit from 'lodash/omit';
 import lodashSet from 'lodash/set';
 import queryString from 'query-string';
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
@@ -48,6 +49,19 @@ import ConfigService, {
   WORKSPACES_ALLOW_CREATE
 } from '@/services/config/ConfigService';
 
+/**
+ * Attributes loaded for the current user when the app starts.
+ *
+ * `OrgStructApi.userAttributes` describes an authority in the orgstruct tree, where `fullName` is
+ * the authority name — the login. The app's user state means the person's display name by
+ * `fullName` and the header renders it (AvatarBtn, UserMenu), so that alias must not reach
+ * `UserApi.getUserData`, which lets the caller's attributes override its own (COREDEV-384).
+ *
+ * Read lazily: `api/orgStruct` sits in an import cycle, so it may still be initializing when this
+ * module is evaluated.
+ */
+export const getCurrentUserAttributes = () => omit(OrgStructApi.userAttributes, ['fullName']);
+
 export function* initApp({ api }, { payload }) {
   try {
     let isAuthenticated = false;
@@ -56,7 +70,7 @@ export function* initApp({ api }, { payload }) {
     try {
       const { query } = queryString.parseUrl(window.location.href);
 
-      const userResponse = yield call(api.user.getUserData, OrgStructApi.userAttributes);
+      const userResponse = yield call(api.user.getUserData, getCurrentUserAttributes());
       const isAllowToCreateWorkspace = yield ConfigService.getValue(WORKSPACES_ALLOW_CREATE);
 
       const defaultWorkspace = yield ConfigService.getValue(DEFAULT_WORKSPACE);
