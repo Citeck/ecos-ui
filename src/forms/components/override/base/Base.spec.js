@@ -283,3 +283,88 @@ describe('Base Component', () => {
     });
   });
 });
+
+describe('workspace in the evaluation context', () => {
+  let originalNavigator;
+
+  beforeAll(() => {
+    window.Citeck = window.Citeck || {};
+    originalNavigator = window.Citeck.navigator;
+    window.Citeck.navigator = { ...(originalNavigator || {}), WORKSPACES_ENABLED: true };
+  });
+
+  afterAll(() => {
+    window.Citeck.navigator = originalNavigator;
+  });
+
+  const buildComponent = async ({ options, data } = {}) => {
+    const component = await Harness.testCreate(BaseComponent, comp1);
+
+    component.root.options = { ...component.root.options, ...options };
+    component.root.data = { ...component.root.data, ...data };
+
+    return component;
+  };
+
+  it('returns the workspace pre-resolved into form options', async () => {
+    const component = await buildComponent({ options: { recordWorkspaceId: 'TEST2' } });
+
+    expect(component.getRecordWorkspaceId()).toBe('TEST2');
+  });
+
+  it('returns empty when options have no workspace', async () => {
+    const component = await buildComponent();
+
+    expect(component.getRecordWorkspaceId()).toBe('');
+  });
+
+  it('ignores the form _workspace on an edit form', async () => {
+    const component = await buildComponent({
+      options: { recordWorkspaceId: 'TEST2', formMode: 'EDIT' },
+      data: { _workspace: 'emodel/workspace@FROM_FORM' }
+    });
+
+    expect(component.getRecordWorkspaceId()).toBe('TEST2');
+  });
+
+  it('prefers the form _workspace on a create form', async () => {
+    const component = await buildComponent({
+      options: { recordWorkspaceId: 'TEST', formMode: 'CREATE' },
+      data: { _workspace: 'emodel/workspace@FROM_PROJECT' }
+    });
+
+    expect(component.getRecordWorkspaceId()).toBe('FROM_PROJECT');
+  });
+
+  it('prefers the form _workspace on a clone form', async () => {
+    const component = await buildComponent({
+      options: { recordWorkspaceId: 'TEST', formMode: 'CLONE' },
+      data: { _workspace: 'emodel/workspace@FROM_PROJECT' }
+    });
+
+    expect(component.getRecordWorkspaceId()).toBe('FROM_PROJECT');
+  });
+
+  it('falls back to options when the create form has no computed workspace', async () => {
+    const component = await buildComponent({
+      options: { recordWorkspaceId: 'TEST', formMode: 'CREATE' },
+      data: { _workspace: null }
+    });
+
+    expect(component.getRecordWorkspaceId()).toBe('TEST');
+  });
+
+  it('exposes recordWorkspaceId and recordId to scripts', async () => {
+    const component = await buildComponent({ options: { recordWorkspaceId: 'TEST2', recordId: 'emodel/task@task-1' } });
+    const context = component.evalContext();
+
+    expect(context.recordWorkspaceId).toBe('TEST2');
+    expect(context.recordId).toBe('emodel/task@task-1');
+  });
+
+  it('defaults recordId to @ when the form has no record', async () => {
+    const component = await buildComponent();
+
+    expect(component.evalContext().recordId).toBe('@');
+  });
+});

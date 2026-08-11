@@ -19,7 +19,9 @@ import { PRE_SETTINGS_TYPES, PreSettings } from '@/components/admin/PreSettings'
 import EcosFormUtils from './EcosFormUtils';
 import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
-import { FORM_MODE_EDIT } from './constants';
+import { FORM_MODE_EDIT, isNewRecordFormMode } from './constants';
+
+import { resolveRecordWorkspaceId } from '@/helpers/recordWorkspace';
 
 import CustomEventEmitter from '@/forms/EventEmitter';
 import { getSearchParams } from '@/helpers/urls';
@@ -216,6 +218,8 @@ class EcosForm extends React.Component {
 
       const inputs = EcosFormUtils.getFormInputs(formDefinition);
       const recordDataPromise = EcosFormUtils.getData(clonedRecord || recordId, inputs, containerId);
+      // On create/clone forms the record does not exist yet — the resolver falls back to the URL workspace
+      const recordWorkspacePromise = resolveRecordWorkspaceId(isNewRecordFormMode(options.formMode) ? '' : recordId);
       const isDebugModeOn = options.ecosIsDebugOn || localStorage.getItem('enableLoggerForNewForms') === 'true';
 
       let canWritePromise = false;
@@ -230,159 +234,163 @@ class EcosForm extends React.Component {
         options.isDebugModeOn = isDebugModeOn;
       }
 
-      Promise.all([recordDataPromise, canWritePromise, formEditPermsPromise]).then(([recordData, canWrite, formEditPerms]) => {
-        if (this._lastFormOptions !== propsOptions) {
-          return;
-        }
-
-        if (canWrite) {
-          options.canWrite = canWrite;
-        }
-
-        options.formEditPerms = formEditPerms;
-        if (this.props.onFormEditPermsUpdated) {
-          this.props.onFormEditPermsUpdated(formEditPerms);
-        }
-
-        const attributesTitles = {};
-
-        for (let input of recordData.inputs) {
-          if (input.component && input.edge) {
-            if (input.edge.protected) {
-              input.component.disabled = true;
-            }
-
-            if (input.edge.unreadable) {
-              input.component.disabled = true;
-              input.component.unreadable = true;
-            }
-
-            if (input.edge.title) {
-              attributesTitles[getMLValue(input.component.label)] = input.edge.title;
-            }
-          }
-        }
-
-        const i18n = options.i18n || {};
-        const language = options.language || getCurrentLocale();
-        const defaultI18N = i18n[language] || {};
-        let currentLangTranslate = {};
-        let enTranslate = {};
-
-        // cause: https://citeck.atlassian.net/browse/ECOSUI-1327
-        const translateKeys = (!!formData.i18n && Object.keys(formData.i18n)) || [];
-        if (!translateKeys.length) {
-          translateKeys.push(getCurrentLocale());
-        }
-        const translations = translateKeys.reduce((result, key) => {
-          const translate = EcosFormUtils.getI18n(defaultI18N, attributesTitles, formData.i18n[key]);
-
-          if (key === language) {
-            currentLangTranslate = translate;
-          }
-
-          if (key === LANGUAGE_EN) {
-            enTranslate = translate;
-          }
-
-          return {
-            ...result,
-            ...translate
-          };
-        }, {});
-
-        i18n[language] = {
-          ...translations,
-          ...enTranslate,
-          ...currentLangTranslate
-        };
-
-        options.theme = EcosFormUtils.getThemeName();
-        options.language = language;
-        options.i18n = i18n;
-        options.events = new CustomEventEmitter({
-          wildcard: false,
-          maxListeners: 0,
-          loadLimit: get(formData, 'atts.loadLimit', 200),
-          onOverload: () => !!this._form && this._form.showErrors(t('ecos-form.event-overload'))
-        });
-        options.initiator = initiator;
-
-        const containerElement = document.getElementById(containerId);
-
-        if (!containerElement) {
-          return;
-        }
-
-        this._recoverComponentsProperties(formDefinition);
-
-        const formPromise = Formio.createForm(containerElement, formDefinition, options);
-
-        Promise.all([formPromise, customModulePromise]).then(formAndCustom => {
+      Promise.all([recordDataPromise, canWritePromise, formEditPermsPromise, recordWorkspacePromise]).then(
+        ([recordData, canWrite, formEditPerms, recordWorkspaceId]) => {
           if (this._lastFormOptions !== propsOptions) {
             return;
           }
 
-          const data = {
-            ...this._evalOptionsInitAttributes(recordData.inputs, options),
-            ...(this.props.attributes || {}),
-            ...recordData.submission
-          };
-          const [form, customModule] = formAndCustom;
-          const HANDLER_PREFIX = 'onForm';
+          options.recordWorkspaceId = recordWorkspaceId;
 
-          form.ecos = { custom: customModule, form: this };
-          form.setValue({ data });
-          form.on('submit', (submission, resolve, reject) => this.submitForm(form, submission, false, resolve, reject));
-          form.on(
-            'change',
-            debounce(
-              submission => {
-                if (options.formMode === FORM_MODE_EDIT && EcosFormUtils.isFormChangedByUser(submission)) {
-                  isFunction(this.props.onFormChanged) && this.props.onFormChanged(submission, this.form);
-                }
-              },
-              1000,
-              { trailing: true }
-            )
-          );
+          if (canWrite) {
+            options.canWrite = canWrite;
+          }
 
-          Object.keys(this.props)
-            .filter(key => key.startsWith(HANDLER_PREFIX))
-            .map(prop => {
-              const str = prop.replace(HANDLER_PREFIX, '');
-              const event = strSplice(str, 0, 1, str[0].toLowerCase());
-              return { prop, event };
-            })
-            .forEach(o => {
-              if (o.event !== 'submit') {
-                form.on(o.event, data => {
-                  const fun = this.props[o.prop];
-                  isFunction(fun) && fun.apply(form, [...arguments, data]);
-                });
-              } else {
-                console.warn('Please use onSubmit handler instead of onFormSubmit');
+          options.formEditPerms = formEditPerms;
+          if (this.props.onFormEditPermsUpdated) {
+            this.props.onFormEditPermsUpdated(formEditPerms);
+          }
+
+          const attributesTitles = {};
+
+          for (let input of recordData.inputs) {
+            if (input.component && input.edge) {
+              if (input.edge.protected) {
+                input.component.disabled = true;
               }
-            });
 
-          form.formReady.then(() => {
+              if (input.edge.unreadable) {
+                input.component.disabled = true;
+                input.component.unreadable = true;
+              }
+
+              if (input.edge.title) {
+                attributesTitles[getMLValue(input.component.label)] = input.edge.title;
+              }
+            }
+          }
+
+          const i18n = options.i18n || {};
+          const language = options.language || getCurrentLocale();
+          const defaultI18N = i18n[language] || {};
+          let currentLangTranslate = {};
+          let enTranslate = {};
+
+          // cause: https://citeck.atlassian.net/browse/ECOSUI-1327
+          const translateKeys = (!!formData.i18n && Object.keys(formData.i18n)) || [];
+          if (!translateKeys.length) {
+            translateKeys.push(getCurrentLocale());
+          }
+          const translations = translateKeys.reduce((result, key) => {
+            const translate = EcosFormUtils.getI18n(defaultI18N, attributesTitles, formData.i18n[key]);
+
+            if (key === language) {
+              currentLangTranslate = translate;
+            }
+
+            if (key === LANGUAGE_EN) {
+              enTranslate = translate;
+            }
+
+            return {
+              ...result,
+              ...translate
+            };
+          }, {});
+
+          i18n[language] = {
+            ...translations,
+            ...enTranslate,
+            ...currentLangTranslate
+          };
+
+          options.theme = EcosFormUtils.getThemeName();
+          options.language = language;
+          options.i18n = i18n;
+          options.events = new CustomEventEmitter({
+            wildcard: false,
+            maxListeners: 0,
+            loadLimit: get(formData, 'atts.loadLimit', 200),
+            onOverload: () => !!this._form && this._form.showErrors(t('ecos-form.event-overload'))
+          });
+          options.initiator = initiator;
+
+          const containerElement = document.getElementById(containerId);
+
+          if (!containerElement) {
+            return;
+          }
+
+          this._recoverComponentsProperties(formDefinition);
+
+          const formPromise = Formio.createForm(containerElement, formDefinition, options);
+
+          Promise.all([formPromise, customModulePromise]).then(formAndCustom => {
             if (this._lastFormOptions !== propsOptions) {
               return;
             }
 
-            isFunction(this.props.onReady) && this.props.onReady(form);
+            const data = {
+              ...this._evalOptionsInitAttributes(recordData.inputs, options),
+              ...(this.props.attributes || {}),
+              ...recordData.submission
+            };
+            const [form, customModule] = formAndCustom;
+            const HANDLER_PREFIX = 'onForm';
 
-            this._containerHeightTimerId = window.setTimeout(() => this.toggleContainerHeight(), 500);
+            form.ecos = { custom: customModule, form: this };
+            form.setValue({ data });
+            form.on('submit', (submission, resolve, reject) => this.submitForm(form, submission, false, resolve, reject));
+            form.on(
+              'change',
+              debounce(
+                submission => {
+                  if (options.formMode === FORM_MODE_EDIT && EcosFormUtils.isFormChangedByUser(submission)) {
+                    isFunction(this.props.onFormChanged) && this.props.onFormChanged(submission, this.form);
+                  }
+                },
+                1000,
+                { trailing: true }
+              )
+            );
 
-            isFunction(this.props.onReadyToSubmit) &&
-              EcosFormUtils.isComponentsReadyWaiting(form.components).then(state => this.props.onReadyToSubmit(form, state));
+            Object.keys(this.props)
+              .filter(key => key.startsWith(HANDLER_PREFIX))
+              .map(prop => {
+                const str = prop.replace(HANDLER_PREFIX, '');
+                const event = strSplice(str, 0, 1, str[0].toLowerCase());
+                return { prop, event };
+              })
+              .forEach(o => {
+                if (o.event !== 'submit') {
+                  form.on(o.event, data => {
+                    const fun = this.props[o.prop];
+                    isFunction(fun) && fun.apply(form, [...arguments, data]);
+                  });
+                } else {
+                  console.warn('Please use onSubmit handler instead of onFormSubmit');
+                }
+              });
+
+            form.formReady.then(() => {
+              if (this._lastFormOptions !== propsOptions) {
+                return;
+              }
+
+              isFunction(this.props.onReady) && this.props.onReady(form);
+
+              this._containerHeightTimerId = window.setTimeout(() => this.toggleContainerHeight(), 500);
+
+              isFunction(this.props.onReadyToSubmit) &&
+                EcosFormUtils.isComponentsReadyWaiting(form.components).then(state => this.props.onReadyToSubmit(form, state));
+            });
+
+            this._form = form;
+
+            isFunction(customModule.init) && customModule.init({ form });
           });
-
-          this._form = form;
-
-          isFunction(customModule.init) && customModule.init({ form });
-        });
-      });
+        }
+      );
     }, onFormLoadingFailure);
   }
 

@@ -1,32 +1,18 @@
-import { SourcesId } from '@citeck/constants';
 import React from 'react';
 import PropTypes from 'prop-types';
 
 import { t } from '../../../../../helpers/util';
-import FormManager from '@/components/forms/EcosForm/FormManager';
 import { Btn, IcoBtn } from '../../../btns';
 import Dropdown from '../../Dropdown/Dropdown';
+
+import { openCreateForm } from './openCreateForm';
 
 const CreateVariants = ({ items, onCreateFormSubmit, getCreateWorkspaceId }) => {
   if (!items || !items.length) {
     return null;
   }
 
-  const openForm = async variant => {
-    // Create where we search, otherwise the new record immediately disappears from the list
-    const workspaceId = getCreateWorkspaceId ? await getCreateWorkspaceId() : '';
-    const variantToCreate = workspaceId
-      ? { ...variant, attributes: { ...variant.attributes, _workspace: `${SourcesId.WORKSPACE}@${workspaceId}` } }
-      : variant;
-
-    FormManager.createRecordByVariant(variantToCreate, {
-      onSubmit: onCreateFormSubmit,
-      initiator: {
-        type: 'form-component',
-        name: 'CreateVariants'
-      }
-    });
-  };
+  const openForm = variant => openCreateForm(variant, { getCreateWorkspaceId, onSubmit: onCreateFormSubmit });
 
   if (items.length > 1) {
     return (

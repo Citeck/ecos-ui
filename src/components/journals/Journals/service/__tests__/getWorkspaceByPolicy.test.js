@@ -22,10 +22,7 @@ describe('getWorkspaceByPolicy', () => {
     });
 
     it('current-and-additional → the workspace from the URL plus the additional ones', () => {
-      expect(journalsService.getWorkspaceByPolicy(SearchInWorkspacePolicy.CURRENT_AND_ADDITIONAL, ['ws2'])).toEqual([
-        'user$admin',
-        'ws2'
-      ]);
+      expect(journalsService.getWorkspaceByPolicy(SearchInWorkspacePolicy.CURRENT_AND_ADDITIONAL, ['ws2'])).toEqual(['user$admin', 'ws2']);
     });
 
     it('only-aditional → the additional ones only', () => {
@@ -50,9 +47,7 @@ describe('getWorkspaceByPolicy', () => {
     });
 
     it('current-and-additional deduplicates', () => {
-      expect(journalsService.getWorkspaceByPolicy(SearchInWorkspacePolicy.CURRENT_AND_ADDITIONAL, ['proj1'], 'proj1')).toEqual([
-        'proj1'
-      ]);
+      expect(journalsService.getWorkspaceByPolicy(SearchInWorkspacePolicy.CURRENT_AND_ADDITIONAL, ['proj1'], 'proj1')).toEqual(['proj1']);
     });
 
     it('all ignores the passed workspace', () => {
@@ -61,6 +56,15 @@ describe('getWorkspaceByPolicy', () => {
 
     it('only-aditional ignores the passed workspace', () => {
       expect(journalsService.getWorkspaceByPolicy(SearchInWorkspacePolicy.ONLY_ADDITIONAL, ['ws2'], 'proj1')).toEqual(['ws2']);
+    });
+
+    it('only-aditional returns a copy so callers cannot mutate the additional list', () => {
+      const additional = ['ws2'];
+      const result = journalsService.getWorkspaceByPolicy(SearchInWorkspacePolicy.ONLY_ADDITIONAL, additional);
+
+      result.push('default');
+
+      expect(additional).toEqual(['ws2']);
     });
 
     it('an empty string is treated as not passed', () => {

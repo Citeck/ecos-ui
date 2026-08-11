@@ -270,29 +270,43 @@ describe('SelectJournal Component', () => {
   });
 });
 
-describe('recordRef for searching in the record workspace', () => {
-  const getRecordRef = async formMode => {
+describe('workspaceId passed to the control', () => {
+  const buildComponent = async options => {
     const component = await Harness.testCreate(SelectJournalComponent, comp1);
 
-    component.options.formMode = formMode;
-    component.getRecordId = () => 'emodel/task@task-1';
+    component.root.options = { ...component.root.options, ...options };
 
-    return component.getComponentAttributes().recordRef;
+    return component;
   };
 
-  it('passes the record ref in edit mode', async () => {
-    await expect(getRecordRef('EDIT')).resolves.toBe('emodel/task@task-1');
+  it('passes the workspace of the record being edited', async () => {
+    const component = await buildComponent({ recordWorkspaceId: 'TEST2' });
+
+    expect(component.getComponentAttributes().workspaceId).toBe('TEST2');
   });
 
-  it('behaves like edit mode when formMode is not set', async () => {
-    await expect(getRecordRef(undefined)).resolves.toBe('emodel/task@task-1');
+  it('no longer passes recordRef', async () => {
+    const component = await buildComponent({ recordWorkspaceId: 'TEST2' });
+
+    expect(component.getComponentAttributes().recordRef).toBeUndefined();
   });
 
-  it('passes no ref in create mode — search uses the workspace from the URL', async () => {
-    await expect(getRecordRef('CREATE')).resolves.toBeUndefined();
-  });
+  it('pushes a new workspaceId to React when it changes', async () => {
+    const component = await buildComponent({ recordWorkspaceId: 'TEST2' });
+    component.workspaceIdValue = 'TEST2';
+    const setReactPropsSpy = jest.spyOn(component, 'setReactProps').mockImplementation(() => {});
 
-  it('passes no ref in clone mode', async () => {
-    await expect(getRecordRef('CLONE')).resolves.toBeUndefined();
+    component.root.options.recordWorkspaceId = 'OTHER';
+    component.checkConditions(component.root.data);
+
+    expect(setReactPropsSpy).toHaveBeenCalledWith({ workspaceId: 'OTHER' });
+
+    setReactPropsSpy.mockClear();
+
+    // Same value -> no further push
+    component.checkConditions(component.root.data);
+    expect(setReactPropsSpy).not.toHaveBeenCalled();
+
+    setReactPropsSpy.mockRestore();
   });
 });

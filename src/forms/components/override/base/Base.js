@@ -16,7 +16,8 @@ import Tooltip from 'tooltip.js';
 import { checkIsEmptyMlField, clearFormFromCache } from '../../../utils';
 import Widgets from '../../../widgets';
 
-import { FORM_MODE_CREATE } from '@/components/forms/EcosForm/constants';
+import { FORM_MODE_CREATE, isNewRecordFormMode } from '@/components/forms/EcosForm/constants';
+import { getFormDataWorkspaceId } from '@/helpers/recordWorkspace';
 import { t } from '@/helpers/export/util';
 import { getCurrentLocale, getMLValue, getTextByLocale, IS_TEST_ENV, isEqualLexicalValue } from '@/helpers/util';
 
@@ -1030,6 +1031,32 @@ if (!IS_TEST_ENV) {
   });
 }
 
+/**
+ * Workspace to work in: the workspace of the record being edited, pre-resolved into form options
+ * by EcosForm.
+ *
+ * On create/clone forms the record does not exist yet, so a `_workspace` computed on the form
+ * wins — that is how the user picks a project, and project maps one to one to a workspace.
+ * On an edit form the form value is ignored: the same computation falls back to the first project
+ * of the current workspace when the record has no project link, which would shadow the real
+ * workspace of the record.
+ *
+ * @returns {string}
+ */
+Base.prototype.getRecordWorkspaceId = function () {
+  const fromForm = isNewRecordFormMode(get(this, 'root.options.formMode')) ? getFormDataWorkspaceId(get(this, 'root.data')) : '';
+
+  return fromForm || get(this, 'root.options.recordWorkspaceId') || '';
+};
+
+/**
+ * Ref of the record the form edits. `@` means the record does not exist yet.
+ * @returns {string}
+ */
+Base.prototype.getRecordId = function () {
+  return get(this, 'root.options.recordId') || '@';
+};
+
 Base.prototype.evalContext = function (additional) {
   const context = originalEvalContext.call(this, additional);
   const utils = {
@@ -1042,7 +1069,9 @@ Base.prototype.evalContext = function (additional) {
   return {
     ...context,
     utils,
-    util: utils
+    util: utils,
+    recordId: this.getRecordId(),
+    recordWorkspaceId: this.getRecordWorkspaceId()
   };
 };
 

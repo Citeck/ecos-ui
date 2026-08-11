@@ -11,7 +11,7 @@ export default class JournalEditor extends BaseEditor {
   getControl(config, scope) {
     const journalId = config.journalId;
 
-    return ({ value, onUpdate, onCancel, multiple }) => (
+    return ({ value, onUpdate, onCancel, multiple, recordRef }) => (
       <SelectJournal
         multiple={config.multiple === undefined ? multiple : config.multiple}
         autoFocus={scope === EditorScope.CELL}
@@ -19,6 +19,10 @@ export default class JournalEditor extends BaseEditor {
         hideCreateButton
         inputViewClass="select-journal__input-view_extra-compact"
         journalId={journalId}
+        // Only a cell editor gets the edited row here, and only there does the row's own workspace
+        // define what may be selected. In a filter recordRef is the journal's meta record, whose
+        // workspace says nothing about the rows being filtered — the browsed one is right there.
+        recordRef={scope === EditorScope.CELL ? recordRef : undefined}
         defaultValue={value}
         onChange={onUpdate}
         onCancel={onCancel}

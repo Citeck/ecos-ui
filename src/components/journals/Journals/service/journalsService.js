@@ -352,7 +352,9 @@ class JournalsService {
     }
 
     if (policy === SearchInWorkspacePolicy.ONLY_ADDITIONAL) {
-      return additional;
+      // A copy: callers append to the result (SelectJournal adds `default` for system journals),
+      // and `additional` is a prop array owned by the caller
+      return [...additional];
     }
 
     const current = currentWorkspaceId || getWorkspaceId();

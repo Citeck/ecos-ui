@@ -1,28 +1,20 @@
 import PropTypes from 'prop-types';
 import React, { useState } from 'react';
 
-import FormManager from '@/components/forms/EcosForm/FormManager';
-
 import ChevronRight from '@/components/common/icons/ChevronRight';
 import Subtract from '@/components/common/icons/Subtract';
 import { t } from '@/helpers/util';
 
-const MenuCreateVariants = ({ items, onCreateFormSubmit }) => {
+import { openCreateForm } from './openCreateForm';
+
+const MenuCreateVariants = ({ items, onCreateFormSubmit, getCreateWorkspaceId }) => {
   const [isOpenMenu, setIsOpenMenu] = useState(false);
 
   if (!items || !items.length) {
     return null;
   }
 
-  const openForm = variant => {
-    FormManager.createRecordByVariant(variant, {
-      onSubmit: onCreateFormSubmit,
-      initiator: {
-        type: 'form-component',
-        name: 'CreateVariants'
-      }
-    });
-  };
+  const openForm = variant => openCreateForm(variant, { getCreateWorkspaceId, onSubmit: onCreateFormSubmit });
 
   if (items.length > 1) {
     return (
@@ -69,7 +61,9 @@ MenuCreateVariants.propTypes = {
       // createArguments: null
     })
   ),
-  onCreateFormSubmit: PropTypes.func
+  onCreateFormSubmit: PropTypes.func,
+  /** Returns the workspace to create a record in. An empty string means the backend decides. */
+  getCreateWorkspaceId: PropTypes.func
 };
 
 export default MenuCreateVariants;

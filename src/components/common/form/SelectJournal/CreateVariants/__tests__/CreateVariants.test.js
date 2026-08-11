@@ -22,9 +22,7 @@ jest.mock('../../../Dropdown/Dropdown', () => {
       react.createElement(
         'div',
         null,
-        (source || []).map((item, i) =>
-          react.createElement('button', { key: i, onClick: () => onChange(item) }, item.title)
-        )
+        (source || []).map((item, i) => react.createElement('button', { key: i, onClick: () => onChange(item) }, item.title))
       )
   };
 });
@@ -36,6 +34,7 @@ import React from 'react';
 import FormManager from '@/components/forms/EcosForm/FormManager';
 
 import CreateVariants from '../CreateVariants';
+import MenuCreateVariants from '../MenuCreateVariants';
 
 const VARIANT = { type: 'release', title: 'Release', destination: 'emodel/task@task-1', attributes: { foo: 'bar' } };
 
@@ -98,5 +97,32 @@ describe('CreateVariants', () => {
     await clickCreate();
 
     expect(FormManager.createRecordByVariant.mock.calls[0][0].attributes).toEqual({ _workspace: 'emodel/workspace@proj1' });
+  });
+});
+
+describe('MenuCreateVariants', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('sets _workspace when the workspace is known', async () => {
+    const { container } = render(
+      <MenuCreateVariants items={[VARIANT]} getCreateWorkspaceId={async () => 'proj1'} onCreateFormSubmit={jest.fn()} />
+    );
+
+    await userEvent.click(container.querySelector('li'));
+
+    expect(FormManager.createRecordByVariant).toHaveBeenCalledWith(
+      expect.objectContaining({ attributes: { foo: 'bar', _workspace: 'emodel/workspace@proj1' } }),
+      expect.any(Object)
+    );
+  });
+
+  it('leaves the variant untouched without getCreateWorkspaceId', async () => {
+    const { container } = render(<MenuCreateVariants items={[VARIANT]} onCreateFormSubmit={jest.fn()} />);
+
+    await userEvent.click(container.querySelector('li'));
+
+    expect(FormManager.createRecordByVariant).toHaveBeenCalledWith(VARIANT, expect.any(Object));
   });
 });
