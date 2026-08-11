@@ -6,6 +6,7 @@ import './styles.scss';
 
 interface SearchWorkspaceSidebarProps {
   onSearch: (text: string) => void;
+  autoFocus?: boolean;
 }
 
 export default class SearchWorkspaceSidebar extends Component<SearchWorkspaceSidebarProps> {
@@ -14,6 +15,14 @@ export default class SearchWorkspaceSidebar extends Component<SearchWorkspaceSid
   }, 500);
 
   render() {
-    return <Search onSearch={this.props.onSearch} onChange={this.onChange} cleaner className="citeck-workspace-sidebar__search" />;
+    return (
+      <Search
+        onSearch={this.props.onSearch}
+        onChange={this.onChange}
+        autoFocus={this.props.autoFocus}
+        cleaner
+        className="citeck-workspace-sidebar__search"
+      />
+    );
   }
 }

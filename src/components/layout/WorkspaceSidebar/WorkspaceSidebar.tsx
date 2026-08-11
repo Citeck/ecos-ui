@@ -293,7 +293,7 @@ class WorkspaceSidebar extends PureComponent<WorkspaceSidebarProps, WorkspaceSid
   };
 
   render() {
-    const { onSearch, isMobile, isAllowToCreateWorkspace, onCreateWorkspace } = this.props;
+    const { onSearch, isOpen, isMobile, isAllowToCreateWorkspace, onCreateWorkspace } = this.props;
     const { visible, shouldAnimateOpen, activeTab } = this.state;
 
     if (!visible) {
@@ -311,7 +311,8 @@ class WorkspaceSidebar extends PureComponent<WorkspaceSidebarProps, WorkspaceSid
               })}
             >
               <div className="citeck-workspace-sidebar__search-row">
-                <SearchWorkspaceSidebar onSearch={onSearch} />
+                {/* On a phone the focus would raise the on-screen keyboard over the workspaces */}
+                <SearchWorkspaceSidebar onSearch={onSearch} autoFocus={isOpen && !isMobile} />
                 {isAllowToCreateWorkspace && (
                   <button className="citeck-workspace-sidebar__create-btn" onClick={onCreateWorkspace} title={t(Labels.CREATE_WORKSPACE)}>
                     <CreateIcon width={14} height={14} />

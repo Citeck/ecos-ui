@@ -14,6 +14,7 @@ export default class Search extends Component {
   static propTypes = {
     className: PropTypes.string,
     text: PropTypes.string,
+    autoFocus: PropTypes.bool,
     collapsed: PropTypes.bool,
     cleaner: PropTypes.bool,
     liveSearch: PropTypes.bool,
@@ -27,6 +28,7 @@ export default class Search extends Component {
     className: '',
     text: '',
     delay: 400,
+    autoFocus: false,
     cleaner: false,
     collapsed: false,
     liveSearch: false,
@@ -47,17 +49,32 @@ export default class Search extends Component {
     this.state.text = props.text;
   }
 
+  componentDidMount() {
+    this.focusInput();
+  }
+
   componentDidUpdate(prevProps, prevState, snapshot) {
     const text = this.props.text || '';
 
     if (text !== (prevProps.text || '') && text !== this.state.text) {
       this.setState({ text });
     }
+
+    // The owner may keep the field mounted and only ask for the focus when it becomes visible again
+    if (this.props.autoFocus && !prevProps.autoFocus) {
+      this.focusInput();
+    }
   }
 
   componentWillUnmount() {
     this.onLiveSearch.cancel();
   }
+
+  focusInput = () => {
+    if (this.props.autoFocus && !this.state.collapsed && this.inputRef.current) {
+      this.inputRef.current.focus();
+    }
+  };
 
   onPressBtn = () => {
     if (this.state.collapsed) {
