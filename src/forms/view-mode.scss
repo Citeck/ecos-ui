@@ -238,8 +238,25 @@
     }
   }
 
-  // Panel gets breathing room from the preceding dl rows in view mode
-  &.formio-form .formio-component-panel:not(:first-child) {
+  // A titled panel needs breathing room from the rows above it, but not from the top of the widget.
+  //
+  // Formio builds the panel root element itself ('mb-2 card border panel panel-<theme>'), so it has
+  // no `formio-component-panel` class to hook on — match the classes it really has ($titled-panel,
+  // guarded by Panel.spec.js). Only a titled panel needs the gap; a headerless one is an invisible
+  // grouping.
+  //
+  // Hidden components stay in the DOM (Formio marks them with an inline `visibility: hidden`,
+  // elsewhere a `d-none` class does it), so `:first-child` says nothing about what is actually
+  // rendered — a panel whose siblings above it are all hidden would be pushed away from the top of
+  // its widget. The gap therefore goes to a panel that has at least one *rendered* sibling above it;
+  // `~` keeps that check independent of how many hidden components sit in between.
+  //
+  // It stays on the panel rather than on the row above it because rows often carry Bootstrap's `m-0`
+  // utility (`margin: 0 !important`) from the form definition, which would swallow it.
+  $titled-panel: '.card.panel:has(> .card-header)';
+  $hidden-component: ':is([style*="visibility: hidden"], [style*="display: none"], .d-none, [hidden])';
+
+  &.formio-form :not(#{$hidden-component}) ~ #{$titled-panel} {
     margin-top: 8px;
   }
 

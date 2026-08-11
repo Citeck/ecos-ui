@@ -115,7 +115,7 @@ The liveness of a HITL gate (its action buttons and the hint under a plan card) 
 
 - **BPMN/DMN editors** — bpmn-js, dmn-js (mocked in Jest)
 - **Kaoto Camel DSL editor** — `@kaoto/kaoto` 2.9.0 (pinned: 2.10+ requires React 19). Patched via yarn-berry (`.yarn/patches/@kaoto-kaoto-npm-2.9.0-*.patch`) to fix Maximum-update-depth-cycle and add `initialFilterTags` prop. Camel catalog extended via `public/camel-catalog-overrides/components.json` (Citeck schemes) + `allowlist.json` (Apache schemes filter); merge logic lives in `serveCamelCatalogPlugin` (`vite.config.js` + `vite-plugins/camelCatalogAllowlist.js`). Do NOT wrap Kaoto components in `React.StrictMode`.
-- **Forms** — Formio 3 with custom components
+- **Forms** — Formio 3 with custom components. Gotcha: `PanelComponent` builds its root element by hand (`mb-2 card border panel panel-<theme>`) instead of going through `Base.createElement`, so a panel is the one component that never gets a `formio-component-panel` class. Style panels through `.card.panel` — a selector that assumes the `formio-component-*` naming silently matches nothing (that is how COREDEV-403 lost the gap above a panel header). `Panel.spec.js` asserts the view-mode gap selector still matches a rendered panel.
 - **Rich text** — Lexical editor with Yjs collaboration
 - **Auth** — Keycloak 26
 
