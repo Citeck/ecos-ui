@@ -162,32 +162,13 @@
       }
     }
 
-    &-text {
-      color: $text-color-dark;
+    // The body of a comment is rendered by the read-only rich text editor: it sits right under
+    // the header and adds a bottom padding of its own on top of the padding of the comment
+    &-editor.ecos-rt-editor {
       padding-top: 10px;
-      font-style: normal;
-      font-weight: 600;
-      font-size: 12px;
-      line-height: 16px;
 
-      p {
-        margin-bottom: 0;
-      }
-
-      strong {
-        font-weight: bold;
-      }
-
-      em {
-        font-style: italic;
-        font-weight: 600;
-      }
-
-      ul {
-        margin-left: 17px;
-        list-style: disc;
-        margin-top: 5px;
-        margin-bottom: 5px;
+      .ecos-rt-editor__content {
+        padding-bottom: 0;
       }
     }
 
