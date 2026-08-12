@@ -87,6 +87,24 @@ Shared, app-agnostic code lives in `packages/` (Yarn workspaces), imported via `
 
 Records actions/handlers stay in the web app at `@/components/core/Records/actions/…`.
 
+### Widget plugins
+
+Some dashboard widgets are not part of this repo: they live in their own `ecos-ui-*-widget-plugin`
+repositories and are picked up from `src/plugins/` by `import.meta.glob` (`src/plugins/index.js`),
+then registered in `src/components/dashboard/widgets/Components.js` behind a
+`window.Citeck.Plugins.<Name>` check. `.gitignore` ignores `src/plugins/*` and whitelists only a few
+of them, so a plugin such as `ecos-ui-activities-widget-plugin` is present there as an untracked
+working copy — a change to it belongs in the plugin repository, and the copy under `src/plugins/`
+is refreshed from it (`rsync -a --delete --exclude='.git/' <plugin-repo>/ src/plugins/<plugin>/`)
+so the dev server and the build see it. Bump the plugin's `package.json` version in the same commit,
+the way `COREDEV-354` did.
+
+A plugin imports the app through relative paths out of `src/plugins/<plugin>/…`, and reuses the
+styles of the widget it is modelled on (the activities widget imports `Comments/style.scss`) — but
+only the shared, unprefixed classes carry over: its own footer, list and editor use an
+`ecos-activities__…` prefix with its own rules, so a fix to the comments widget has to be ported by
+hand.
+
 ### Path alias
 
 `@/` maps to `src/` (configured in `vite.config.js` and `tsconfig.json`). Use `@/` for cross-directory imports; use `@citeck/*` for the workspace packages above.
