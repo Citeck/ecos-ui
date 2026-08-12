@@ -147,6 +147,7 @@ The liveness of a HITL gate (its action buttons and the hint under a plan card) 
 - **Forms** — Formio 3 with custom components. Gotcha: `PanelComponent` builds its root element by hand (`mb-2 card border panel panel-<theme>`) instead of going through `Base.createElement`, so a panel is the one component that never gets a `formio-component-panel` class. Style panels through `.card.panel` — a selector that assumes the `formio-component-*` naming silently matches nothing (that is how COREDEV-403 lost the gap above a panel header). `Panel.spec.js` asserts the view-mode gap selector still matches a rendered panel.
 - **Rich text** — Lexical editor with Yjs collaboration
 - **Auth** — Keycloak 26
+- **Popper 2** (`@popperjs/core` 2 via `react-popper`) — `common/Tooltip` still speaks some of the Popper 1 vocabulary. Watch the option *values*, not just the names: `preventOverflow`'s `boundary` takes an element or `clippingParents`, so the inherited `boundariesElement: 'window' | 'viewport' | 'scrollParent'` strings are read as elements and the modifier silently does nothing — which is how tooltips near the right edge of the screen came to push the document wider and raise global scrollbars. Popper 2 fails quietly on a bad option; verify a modifier by measuring the rendered position, not by reading the config.
 
 ### Testing
 

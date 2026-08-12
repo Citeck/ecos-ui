@@ -71,7 +71,15 @@ export class TooltipContent extends Component {
       },
       {
         name: 'preventOverflow',
-        options: { boundary: boundariesElement }
+        // Popper 2 takes an element (or `clippingParents`) here; the Popper 1 keywords this codebase
+        // still passes — `window`, `viewport`, `scrollParent` — are read as an element, so overflow
+        // detection silently does nothing and a tooltip near the right edge of the screen sticks out
+        // of the document and raises global scrollbars. Keep an explicit element, fall back to
+        // Popper's own defaults otherwise.
+        // The padding keeps the tooltip a few pixels short of the edge: clamped flush against it, a
+        // sub-pixel position still rounds the document one pixel wider than the viewport.
+        options:
+          typeof boundariesElement === 'string' ? { rootBoundary: 'viewport', padding: 8 } : { boundary: boundariesElement, padding: 8 }
       },
       ...modifiers
     ];
