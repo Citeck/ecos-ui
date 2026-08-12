@@ -34,3 +34,25 @@ describe('<Search /> autoFocus', () => {
     expect(document.activeElement).not.toBe(getInput(container));
   });
 });
+
+describe('<Search /> focus()', () => {
+  it('should take the focus back when the owner asks, even without autoFocus', () => {
+    const ref = React.createRef();
+    const { container } = render(<Search ref={ref} />);
+
+    expect(document.activeElement).not.toBe(getInput(container));
+
+    ref.current.focus();
+
+    expect(document.activeElement).toBe(getInput(container));
+  });
+
+  it('should leave the collapsed field alone, as it is hidden behind the search icon', () => {
+    const ref = React.createRef();
+    const { container } = render(<Search ref={ref} collapsed />);
+
+    ref.current.focus();
+
+    expect(document.activeElement).not.toBe(getInput(container));
+  });
+});

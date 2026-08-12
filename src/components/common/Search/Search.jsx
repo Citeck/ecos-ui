@@ -70,9 +70,17 @@ export default class Search extends Component {
     this.onLiveSearch.cancel();
   }
 
-  focusInput = () => {
-    if (this.props.autoFocus && !this.state.collapsed && this.inputRef.current) {
+  // Lets the owner put the focus back into the field after something next to it took it away.
+  // A collapsed field is left alone, since it is hidden behind the search icon
+  focus = () => {
+    if (!this.state.collapsed && this.inputRef.current) {
       this.inputRef.current.focus();
+    }
+  };
+
+  focusInput = () => {
+    if (this.props.autoFocus) {
+      this.focus();
     }
   };
 
@@ -123,9 +131,7 @@ export default class Search extends Component {
       return st;
     }, () => {
       this.triggerClean();
-      if (!this.state.collapsed && this.inputRef.current) {
-        this.inputRef.current.focus();
-      }
+      this.focus();
     });
   };
 
