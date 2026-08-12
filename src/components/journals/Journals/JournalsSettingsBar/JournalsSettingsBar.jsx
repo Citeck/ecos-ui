@@ -235,58 +235,64 @@ const JournalsSettingsBar = ({
 
           <div className={classNames('ecos-journal__settings-bar-actions', { 'full-width': isCollapsed })}>
             {!hideExportBtn && !isMobile && (
-              <Export
-                journalConfig={journalConfig}
-                journalSetting={journalSetting}
-                grid={grid}
-                className={classNames('ecos-journal__settings-bar-export', { 'full-width': isCollapsed })}
-                classNameBtn={classNames('ecos-btn_i ecos-journal__settings-bar-export-btn ecos-journal__btn_new', {
-                  'full-width': isCollapsed
-                })}
-                selectedItems={selectedRecords}
-                getStateOpen={changeIsOpen}
-              >
-                <IcoBtn
-                  invert
-                  icon="icon-small-down"
-                  className={classNames(
-                    'ecos-journal__settings-bar-export-btn ecos-btn_hover_blue2 ecos-btn_drop-down ecos-btn_grey3 ecos-journal__btn_new export',
-                    {
-                      'ecos-journal__btn_new_focus': isOpenDropdownExport,
-                      'full-width': isCollapsed
-                    }
-                  )}
-                  // loading={isLoading}
+              <Tooltip target={`${targetId}-export`} text={t(Labels.BTN_EXPORT)} {...tooltipSettings}>
+                <Export
+                  id={`${targetId}-export`}
+                  journalConfig={journalConfig}
+                  journalSetting={journalSetting}
+                  grid={grid}
+                  className={classNames('ecos-journal__settings-bar-export', { 'full-width': isCollapsed })}
+                  classNameBtn={classNames('ecos-btn_i ecos-journal__settings-bar-export-btn ecos-journal__btn_new', {
+                    'full-width': isCollapsed
+                  })}
+                  selectedItems={selectedRecords}
+                  getStateOpen={changeIsOpen}
                 >
-                  <ExportIcon />
-                </IcoBtn>
-              </Export>
+                  <IcoBtn
+                    invert
+                    icon="icon-small-down"
+                    className={classNames(
+                      'ecos-journal__settings-bar-export-btn ecos-btn_hover_blue2 ecos-btn_drop-down ecos-btn_grey3 ecos-journal__btn_new export',
+                      {
+                        'ecos-journal__btn_new_focus': isOpenDropdownExport,
+                        'full-width': isCollapsed
+                      }
+                    )}
+                    // loading={isLoading}
+                  >
+                    <ExportIcon />
+                  </IcoBtn>
+                </Export>
+              </Tooltip>
             )}
 
             {!hideImportBtn && get(journalConfig, 'typeRef') && (
-              <Import
-                stateId={stateId}
-                getStateOpen={changeIsOpenImport}
-                className={classNames('ecos-journal__settings-bar-export', { 'full-width': isCollapsed })}
-                classNameBtn={classNames('ecos-btn_i ecos-journal__settings-bar-export-btn ecos-journal__btn_new', {
-                  'full-width': isCollapsed
-                })}
-              >
-                <IcoBtn
-                  invert
-                  icon="icon-small-down"
-                  className={classNames(
-                    'ecos-journal__settings-bar-export-btn ecos-btn_hover_blue2 ecos-btn_drop-down ecos-btn_grey3 ecos-journal__btn_new export',
-                    {
-                      'ecos-journal__btn_new_focus': isOpenDropdownImport,
-                      'full-width': isCollapsed
-                    }
-                  )}
-                  // loading={isLoading}
+              <Tooltip target={`${targetId}-import`} text={t(Labels.BTN_IMPORT)} {...tooltipSettings}>
+                <Import
+                  id={`${targetId}-import`}
+                  stateId={stateId}
+                  getStateOpen={changeIsOpenImport}
+                  className={classNames('ecos-journal__settings-bar-export', { 'full-width': isCollapsed })}
+                  classNameBtn={classNames('ecos-btn_i ecos-journal__settings-bar-export-btn ecos-journal__btn_new', {
+                    'full-width': isCollapsed
+                  })}
                 >
-                  <ImportIcon />
-                </IcoBtn>
-              </Import>
+                  <IcoBtn
+                    invert
+                    icon="icon-small-down"
+                    className={classNames(
+                      'ecos-journal__settings-bar-export-btn ecos-btn_hover_blue2 ecos-btn_drop-down ecos-btn_grey3 ecos-journal__btn_new export',
+                      {
+                        'ecos-journal__btn_new_focus': isOpenDropdownImport,
+                        'full-width': isCollapsed
+                      }
+                    )}
+                    // loading={isLoading}
+                  >
+                    <ImportIcon />
+                  </IcoBtn>
+                </Import>
+              </Tooltip>
             )}
           </div>
         </OverflowMenu>
