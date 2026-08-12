@@ -17,8 +17,10 @@
           margin-bottom: 10px;
         }
 
-        // The checkbox stands above the buttons here instead of beside them
+        // The checkbox stands above the buttons here instead of beside them, so the centering
+        // that keeps it level with them in a row would push it to the middle of the footer
         &-chbx-wrapper {
+          align-self: flex-start;
           margin-bottom: 8px;
         }
 
@@ -368,11 +370,13 @@
             margin-bottom: 0;
           }
 
+          // The label reads as one line with the buttons beside it, so it is set in the same type.
+          // A zero line-height used to collapse the box of the text, which is what kept it from
+          // sitting level with the checkbox next to it
           &__text {
             margin-left: 5px;
-            font-size: 12px;
+            font-size: $font-size-standard;
             font-weight: 600;
-            line-height: 0;
             color: #767676;
           }
         }
