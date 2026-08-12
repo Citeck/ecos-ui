@@ -95,6 +95,22 @@ Records actions/handlers stay in the web app at `@/components/core/Records/actio
 
 SCSS with modern compiler (`quietDeps: true`). Component-scoped `.scss` files alongside components.
 
+Icons come from two families that size differently, and a row mixing them only looks even if both
+are matched to one *ink* box. An inline SVG paints its viewBox scaled into `width`/`height`, so any
+padding inside the viewBox shrinks the drawing — the icon components under `common/icons` therefore
+crop their viewBox to the ink, on integer coordinates, and let the caller pass the box
+(`VIEW_TAB_ICON_BOX` in `journals/Journals/ViewTabs.jsx`; the journal view-mode icons share a 20x18
+grid). Fractional coordinates are the trap: a shape whose edge lands mid-pixel renders that row at a
+few percent coverage, which reads as a gap next to a crisp neighbour.
+
+A `citeck` font glyph paints whatever its own body is: most sit on 1em, but `icon-folder` sits on
+1.32em, so no `font-size` both matches a row's height and lands its edges on whole pixels — that is
+why the journal header draws the doc library from `icons/Folder.tsx` instead. Where glyphs do stay,
+the two families still need lining up vertically: an inline SVG sits on its wrapper's text baseline
+(~2px below a glyph of the same height) and the glyphs hang a pixel below their em box, so the
+wrapper leaves inline layout and the glyphs get that pixel back (`ViewTabs.scss`). All of this is
+COREDEV-349; `__tests__/ViewTabs.test.js` guards it.
+
 ### Component conventions
 
 `src/components/` is grouped into 10 category folders — `admin`, `ai`, `common`, `core`, `dashboard`, `domain`, `editors`, `forms`, `journals`, `layout` — each holding related feature folders (e.g. `layout/App`, `core/Records`, `dashboard/widgets`, `editors/ModelEditor`). Cross-folder imports use the `@/` alias, never deep relative paths.

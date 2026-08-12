@@ -11,6 +11,7 @@ import { isDocLib, isHierarchy, isKanban, isKanbanOrDocLib, isPreviewList, isTab
 import { toggleViewMode } from '@/actions/journals';
 import { Tooltip } from '@/components/common';
 import { IcoBtn } from '@/components/common/btns';
+import Folder from '@/components/common/icons/Folder';
 import HierarchyTree from '@/components/common/icons/HierarchyTree';
 import PreviewList from '@/components/common/icons/PreviewList';
 import WidgetsPreview from '@/components/common/icons/WidgetsPreview';
@@ -18,6 +19,18 @@ import { wrapArgs } from '@/helpers/redux';
 import { updateCurrentUrl } from '@/helpers/urls';
 import { getBool, getSearchParams, t } from '@/helpers/util';
 import { selectCommonJournalPageProps, selectWidgetsConfig } from '@/selectors/journals';
+import './ViewTabs.scss';
+
+/**
+ * The optical box every view-mode icon is drawn into — the ink of `icon-list` and `icon-kanban`,
+ * which are font glyphs and so cannot be resized without moving the whole row.
+ *
+ * The bar mixes two icon families: glyphs of the `citeck` icon font (list / kanban / folder) and
+ * inline SVGs. Each SVG carries a viewBox cropped to its own ink, so this box is exactly what gets
+ * painted — passing per-icon sizes here is what made them differ (COREDEV-349). The font glyphs are
+ * matched to the same box, and every icon to the same centre line, in ViewTabs.scss.
+ */
+export const VIEW_TAB_ICON_BOX = { width: 20, height: 18 };
 
 const mapStateToProps = (state, props) => {
   const commonProps = selectCommonJournalPageProps(state, props.stateId);
@@ -130,7 +143,7 @@ class ViewTabs extends React.Component {
               })}
               onClick={() => this.onToggleViewMode(JVM.HIERARCHY)}
             >
-              <HierarchyTree width={18} height={18} />
+              <HierarchyTree {...VIEW_TAB_ICON_BOX} />
             </IcoBtn>
           </Tooltip>
         )}
@@ -138,13 +151,14 @@ class ViewTabs extends React.Component {
           <Tooltip off={isMobile} target={target(JVM.DOC_LIB)} text={t(Labels.Views.DOC_LIB)} uncontrolled modifiers={tooltipModifiers}>
             <IcoBtn
               id={target(JVM.DOC_LIB)}
-              icon="icon-folder"
               className={classNames(common, {
                 [available]: isDocLibMode,
                 [disable]: !isDocLibMode
               })}
               onClick={() => this.onToggleViewMode(JVM.DOC_LIB)}
-            />
+            >
+              <Folder {...VIEW_TAB_ICON_BOX} />
+            </IcoBtn>
           </Tooltip>
         )}
         {isPreviewListEnabled && (
@@ -163,7 +177,7 @@ class ViewTabs extends React.Component {
               })}
               onClick={() => this.onToggleViewMode(JVM.PREVIEW_LIST)}
             >
-              <PreviewList width={18} height={20} />
+              <PreviewList {...VIEW_TAB_ICON_BOX} />
             </IcoBtn>
           </Tooltip>
         )}
@@ -182,7 +196,7 @@ class ViewTabs extends React.Component {
               })}
               onClick={() => this.onToggleViewWidgets(!isViewWidgetsPreview)}
             >
-              <WidgetsPreview width={24} height={24} isLeft={isLeftPositionWidgets} />
+              <WidgetsPreview {...VIEW_TAB_ICON_BOX} isLeft={isLeftPositionWidgets} />
             </IcoBtn>
           </Tooltip>
         )}

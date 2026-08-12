@@ -1,6 +1,7 @@
 import React from 'react';
 
-export default ({ width = 24, height = 24, viewBox = '0 0 24 24', fill = 'none', isLeft = false }) => (
+// viewBox cropped to the drawing's own ink box (x 2..22, y 3..21) — see HierarchyTree.tsx.
+export default ({ width = 18, height = 17, viewBox = '2 3 20 18', fill = 'none', isLeft = false }) => (
   <svg width={width} height={height} viewBox={viewBox} fill={fill} xmlns="http://www.w3.org/2000/svg">
     <rect width="9" height="4" rx="2" transform={isLeft ? 'matrix(-1 0 0 1 22 17)' : 'matrix(-1 0 0 1 11 17)'} fill="#b7b7b7" />
     <rect width="9" height="4" rx="2" transform={isLeft ? 'matrix(-1 0 0 1 22 10)' : 'matrix(-1 0 0 1 11 10)'} fill="#b7b7b7" />
