@@ -37,6 +37,13 @@ const ChatHeader = ({
   const isAgentActive = agentStatus && ACTIVE_AGENT_STATUSES.includes(agentStatus);
   const [showExportDropdown, setShowExportDropdown] = useState(false);
   const exportDropdownRef = useRef(null);
+  // Header buttons carry data-tooltip (the module's styled tooltip, drawn below the button —
+  // see _chat-base.scss) together with aria-label: data-tooltip alone is purely visual and gives
+  // the button no accessible name. `title` is deliberately NOT set — it would draw the native
+  // browser tooltip on top of the styled one.
+  const exportLabel = t('ai-assistant.export.button-title');
+  const minimizeLabel = isMinimized ? t('ai-assistant.header.expand') : t('ai-assistant.header.minimize');
+  const closeLabel = t('ai-assistant.header.close');
 
   const handleClickOutside = useCallback(event => {
     if (exportDropdownRef.current && !exportDropdownRef.current.contains(event.target)) {
@@ -70,7 +77,8 @@ const ChatHeader = ({
             <button
               className="ai-assistant-chat__minimize"
               onClick={() => setShowExportDropdown(!showExportDropdown)}
-              title={t('ai-assistant.export.button-title')}
+              aria-label={exportLabel}
+              data-tooltip={exportLabel}
             >
               <Icon className="ai-assistant-chat__icon fa fa-download" />
             </button>
@@ -98,14 +106,10 @@ const ChatHeader = ({
             )}
           </>
         )}
-        <button
-          className="ai-assistant-chat__minimize"
-          onClick={onMinimize}
-          title={isMinimized ? t('ai-assistant.header.expand') : t('ai-assistant.header.minimize')}
-        >
+        <button className="ai-assistant-chat__minimize" onClick={onMinimize} aria-label={minimizeLabel} data-tooltip={minimizeLabel}>
           <Icon className={classNames('ai-assistant-chat__icon', 'fa', isMinimized ? 'fa-window-restore' : 'fa-window-minimize')} />
         </button>
-        <button className="ai-assistant-chat__close" onClick={onClose} title={t('ai-assistant.header.close')}>
+        <button className="ai-assistant-chat__close" onClick={onClose} aria-label={closeLabel} data-tooltip={closeLabel}>
           <Icon className="ai-assistant-chat__icon fa fa-times" />
         </button>
       </div>

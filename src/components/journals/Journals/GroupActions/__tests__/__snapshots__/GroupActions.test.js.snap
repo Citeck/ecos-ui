@@ -10,7 +10,6 @@ exports[`GroupActions tests <GroupActions /> should render GroupActions componen
       <button
         class="ecos-btn ecos-group-actions__control_new ecos-btn_grey3 ecos-group-actions__control"
         disabled=""
-        icon="icon-small-down"
         id="group-actions-1-rec"
       >
         <span

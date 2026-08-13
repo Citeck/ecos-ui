@@ -24,15 +24,17 @@ describe('ScriptAIService', () => {
 
     it('sends correct request body', async () => {
       fetchMock.mockResponseOnce(JSON.stringify({ requestId: 'req-1' }));
-      fetchMock.mockResponseOnce(JSON.stringify({
-        result: {
-          message: {
-            type: MESSAGE_TYPES.SCRIPT_WRITING,
-            modifiedScript: 'let x = 1;',
-            explanation: 'Used let'
+      fetchMock.mockResponseOnce(
+        JSON.stringify({
+          result: {
+            message: {
+              type: MESSAGE_TYPES.SCRIPT_WRITING,
+              modifiedScript: 'let x = 1;',
+              explanation: 'Used let'
+            }
           }
-        }
-      }));
+        })
+      );
 
       const promise = generateScript(defaultParams);
       await jest.advanceTimersByTimeAsync(0);
@@ -51,17 +53,19 @@ describe('ScriptAIService', () => {
 
     it('resolves with script writing response', async () => {
       fetchMock.mockResponseOnce(JSON.stringify({ requestId: 'req-1' }));
-      fetchMock.mockResponseOnce(JSON.stringify({
-        result: {
-          message: {
-            type: MESSAGE_TYPES.SCRIPT_WRITING,
-            originalScript: 'var x = 1;',
-            modifiedScript: 'const x = 1;',
-            explanation: 'Used const',
-            contextType: 'computed_attribute'
+      fetchMock.mockResponseOnce(
+        JSON.stringify({
+          result: {
+            message: {
+              type: MESSAGE_TYPES.SCRIPT_WRITING,
+              originalScript: 'var x = 1;',
+              modifiedScript: 'const x = 1;',
+              explanation: 'Used const',
+              contextType: 'computed_attribute'
+            }
           }
-        }
-      }));
+        })
+      );
 
       const promise = generateScript(defaultParams);
       await jest.advanceTimersByTimeAsync(0);
@@ -89,11 +93,13 @@ describe('ScriptAIService', () => {
 
     it('calls onRequestId callback', async () => {
       fetchMock.mockResponseOnce(JSON.stringify({ requestId: 'req-1' }));
-      fetchMock.mockResponseOnce(JSON.stringify({
-        result: {
-          message: { type: MESSAGE_TYPES.SCRIPT_WRITING, modifiedScript: 'ok' }
-        }
-      }));
+      fetchMock.mockResponseOnce(
+        JSON.stringify({
+          result: {
+            message: { type: MESSAGE_TYPES.SCRIPT_WRITING, modifiedScript: 'ok' }
+          }
+        })
+      );
 
       const onRequestId = jest.fn();
       const promise = generateScript({ ...defaultParams, onRequestId });
@@ -121,15 +127,19 @@ describe('ScriptAIService', () => {
 
     it('polls and reports progress', async () => {
       fetchMock.mockResponseOnce(JSON.stringify({ requestId: 'req-1' }));
-      fetchMock.mockResponseOnce(JSON.stringify({
-        status: 'processing',
-        progress: { stage: 'analyzing', progress: 30, message: 'Analyzing...' }
-      }));
-      fetchMock.mockResponseOnce(JSON.stringify({
-        result: {
-          message: { type: MESSAGE_TYPES.SCRIPT_WRITING, modifiedScript: 'done' }
-        }
-      }));
+      fetchMock.mockResponseOnce(
+        JSON.stringify({
+          status: 'processing',
+          progress: { stage: 'analyzing', progress: 30, message: 'Analyzing...' }
+        })
+      );
+      fetchMock.mockResponseOnce(
+        JSON.stringify({
+          result: {
+            message: { type: MESSAGE_TYPES.SCRIPT_WRITING, modifiedScript: 'done' }
+          }
+        })
+      );
 
       const onProgress = jest.fn();
       const promise = generateScript({ ...defaultParams, onProgress });
@@ -150,20 +160,63 @@ describe('ScriptAIService', () => {
     it('rejects on unexpected response type', async () => {
       jest.useRealTimers();
       fetchMock.mockResponseOnce(JSON.stringify({ requestId: 'req-1' }));
-      fetchMock.mockResponseOnce(JSON.stringify({
-        result: { message: { type: 'text_editing' } }
-      }));
+      fetchMock.mockResponseOnce(
+        JSON.stringify({
+          result: { message: { type: 'text_editing' } }
+        })
+      );
 
       await expect(generateScript(defaultParams)).rejects.toThrow('Unexpected response type from AI');
     });
 
+    // D-G-QA-DROP (G14). A question about the script is answered with prose, and prose proposes no
+    // edit — it is still an answer. Thrown away, it closed the panel with a technical error and the
+    // user saw nothing.
+    describe('an answer that is not a diff (D-G-QA-DROP)', () => {
+      const answerFor = (result: unknown) => {
+        jest.useRealTimers();
+        fetchMock.mockResponseOnce(JSON.stringify({ requestId: 'req-1' }));
+        fetchMock.mockResponseOnce(JSON.stringify({ result }));
+        return generateScript(defaultParams);
+      };
+
+      it('resolves a plain string answer as an explanation with no edit', async () => {
+        await expect(answerFor({ message: 'Этот скрипт складывает два числа.' })).resolves.toEqual({
+          originalScript: '',
+          modifiedScript: '',
+          explanation: 'Этот скрипт складывает два числа.',
+          contextType: ''
+        });
+      });
+
+      it('resolves an envelope carrying text', async () => {
+        const result = await answerFor({ message: { type: 'text_editing', text: 'Скрипт ничего не возвращает.' } });
+
+        expect(result.explanation).toBe('Скрипт ничего не возвращает.');
+        expect(result.modifiedScript).toBe('');
+      });
+
+      it('resolves a bare text field', async () => {
+        const result = await answerFor({ text: 'Ответ' });
+
+        expect(result.explanation).toBe('Ответ');
+      });
+
+      // The rejection stays for what it was written for: nothing text-like anywhere.
+      it('still rejects a payload with no text at all', async () => {
+        await expect(answerFor({ message: { type: 'text_editing' } })).rejects.toThrow('Unexpected response type from AI');
+      });
+    });
+
     it('handles optional parameters', async () => {
       fetchMock.mockResponseOnce(JSON.stringify({ requestId: 'req-1' }));
-      fetchMock.mockResponseOnce(JSON.stringify({
-        result: {
-          message: { type: MESSAGE_TYPES.SCRIPT_WRITING, modifiedScript: 'ok' }
-        }
-      }));
+      fetchMock.mockResponseOnce(
+        JSON.stringify({
+          result: {
+            message: { type: MESSAGE_TYPES.SCRIPT_WRITING, modifiedScript: 'ok' }
+          }
+        })
+      );
 
       const promise = generateScript({
         ...defaultParams,
@@ -202,10 +255,7 @@ describe('ScriptAIService', () => {
 
       const result = await cancelRequest('req-1');
 
-      expect(fetchMock).toHaveBeenCalledWith(
-        `${API_ENDPOINTS.UNIVERSAL_STATUS}/req-1`,
-        { method: 'DELETE' }
-      );
+      expect(fetchMock).toHaveBeenCalledWith(`${API_ENDPOINTS.UNIVERSAL_STATUS}/req-1`, { method: 'DELETE' });
       expect(result).toBe(true);
     });
 
@@ -219,5 +269,4 @@ describe('ScriptAIService', () => {
       errorSpy.mockRestore();
     });
   });
-
 });

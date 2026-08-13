@@ -243,6 +243,34 @@ describe('getAvailableActions', () => {
     });
   });
 
+  // Same class as simplify/formalize above, found by the regression pass on 2026-08-12: the backend
+  // has a `translate` prompt and Tier A covers it, but the action was configured only for TEXT and
+  // NAME — and no component mounts those two field types (TextArea.jsx mounts TEXTAREA and
+  // DOCUMENTATION, Lexical mounts RICHTEXT, the script editor mounts CODE). So the capability had no
+  // UI entry point at all while looking covered.
+  describe('translate quick action', () => {
+    // DOCUMENTATION belongs here for the same reason as TEXTAREA: `TextArea.aiFieldType` returns it
+    // instead of TEXTAREA whenever the field is configured with `textAreaAIContextType:
+    // 'documentation'`, so a list that omits it lets the entry point go missing on a mounted type.
+    const MOUNTED_TEXT_FIELD_TYPES = [FIELD_TYPES.TEXTAREA, FIELD_TYPES.DOCUMENTATION, FIELD_TYPES.RICHTEXT];
+
+    it.each(MOUNTED_TEXT_FIELD_TYPES)('exposes translate for %s', fieldType => {
+      const actions = getAvailableActions(fieldType, 'some text', '');
+
+      expect(actions.find(a => a.id === 'translate')).toBeDefined();
+    });
+
+    it.each(MOUNTED_TEXT_FIELD_TYPES)('hides translate on an empty %s field, like every content action', fieldType => {
+      const actions = getAvailableActions(fieldType, '', '');
+
+      expect(actions.find(a => a.id === 'translate')).toBeUndefined();
+    });
+
+    // No separate "the id is still `translate`" or "reachable from at least one mounted type" case:
+    // the two `it.each` blocks above already look the action up *by* that id, on every mounted type,
+    // so either would restate their premise and pass whatever the config says.
+  });
+
   describe('combined filtering', () => {
     it('applies both content requirement and context type filtering', () => {
       // With content and correct context - should show all applicable actions

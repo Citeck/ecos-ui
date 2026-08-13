@@ -844,6 +844,8 @@
   }
 
   &__retry-submit {
+    // The tooltip pseudo-elements below anchor to this button, and they are absolutely positioned.
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -883,6 +885,21 @@
     &:disabled {
       opacity: 0.5;
       cursor: not-allowed;
+    }
+
+    // This button carries `data-tooltip` but not `.ai-result-icon-btn`, which is where the tooltip
+    // rules of this file live — without the mixin the attribute is drawn by nothing at all.
+    @include tooltip;
+
+    // The mixin centres the bubble on the button (`left: 50%; translateX(-50%)`), and this button is
+    // the last item of the retry row, ~16px from the right edge of `.ai-inline-result` — which is
+    // `overflow: hidden`. A nowrap label of "Отправить инструкцию" width then hangs some 40px past
+    // that edge and is cut in half. Anchor it to the button's right edge instead; the arrow
+    // (`::before`) stays centred, since it is only 8px wide and clips nothing.
+    &::after {
+      left: auto;
+      right: 0;
+      transform: none;
     }
   }
 

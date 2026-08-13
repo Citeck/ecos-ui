@@ -22,6 +22,7 @@ import FormContextService from '@/components/ai/AIAssistant/FormContextService';
 import ScriptEditorAIButton from '@/components/ai/AIAssistant/ScriptEditorAIButton';
 import { TEXT_CONTEXT_TYPES } from '@/components/ai/AIAssistant/TextAIService';
 import TextAreaAIButton from '@/components/ai/AIAssistant/TextAreaAIButton';
+import { resolveAiRecordRef } from '@/components/ai/AIAssistant/utils';
 import LexicalEditor from '@/components/editors/LexicalEditor';
 import CodeEditor from '@/components/editors/MonacoEditor/CodeEditor';
 import { t } from '@/helpers/export/util';
@@ -570,7 +571,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         <Provider store={store}>
           <ScriptEditorAIButton
             disabled={this.options.readOnly || this.component.disabled}
-            recordRef={this.root?.options?.recordId || ''}
+            recordRef={this.aiRecordRef}
             scriptContextType={scriptContextType}
             ecosType={ecosType}
             processRef={processRef}
@@ -601,6 +602,15 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     } catch (error) {
       console.error('TextAreaComponent.addScriptAIButton | error:', error);
     }
+  }
+
+  /**
+   * The record reference the AI services may be given.
+   *
+   * Never `options.recordId` on its own — see `resolveAiRecordRef`, which holds the whole rule.
+   */
+  get aiRecordRef() {
+    return resolveAiRecordRef(this.root?.options);
   }
 
   /**
@@ -685,7 +695,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         <Provider store={store}>
           <TextAreaAIButton
             disabled={this.options.readOnly || this.component.disabled}
-            recordRef={this.root?.options?.recordId || ''}
+            recordRef={this.aiRecordRef}
             fieldType={this.aiFieldType}
             fieldLabel={getTextByLocale(this.component.label) || this.component.key || ''}
             contextType={this.textAreaAIContextType}

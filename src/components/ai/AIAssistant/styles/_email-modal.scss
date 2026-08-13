@@ -132,7 +132,9 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: $spacing-lg $spacing-xl;
+    // $spacing-md rather than $spacing-lg: the close button sets the height of the row, and with the
+    // larger padding the header grew to 64px against the ~50px of the chat panel's own header.
+    padding: $spacing-md $spacing-xl;
     background-color: var(--header-bg-color);
     color: var(--surface-color, white);
     border-top-left-radius: $chat-border-radius;
@@ -149,6 +151,8 @@
     @include close-button;
     padding: $spacing-xs;
     font-size: $font-size-lg;
+    // Keeps the inherited line-height (24px) from stretching the button past the title row.
+    line-height: 1;
   }
 
   &__content {
@@ -168,7 +172,8 @@
       color: var(--text-color, #333);
     }
 
-    input, textarea {
+    input,
+    textarea {
       @include input-base;
       resize: vertical;
     }
@@ -190,7 +195,7 @@
         user-select: none;
         gap: 10px;
 
-        input[type="checkbox"] {
+        input[type='checkbox'] {
           width: auto;
           margin: 0;
           cursor: pointer;

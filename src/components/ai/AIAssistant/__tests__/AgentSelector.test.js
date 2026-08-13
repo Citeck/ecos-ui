@@ -1,18 +1,24 @@
-import React from 'react';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import React from 'react';
+
 import ChatContextTags from '../components/ChatContextTags';
 
+import { NotificationManager } from '@/services/notifications';
+
 // Mock dependencies
+jest.mock('@/services/notifications', () => ({
+  NotificationManager: { error: jest.fn(), success: jest.fn() }
+}));
 jest.mock('@/components/common', () => ({
   Icon: ({ className }) => <i className={className} data-testid="icon" />
 }));
 
 jest.mock('@/helpers/export/util', () => ({
-  t: (key) => key
+  t: key => key
 }));
 
 jest.mock('@/helpers/util', () => ({
-  getTextByLocale: (text) => text
+  getTextByLocale: text => text
 }));
 
 const mockAgents = [
@@ -29,7 +35,9 @@ const defaultProps = {
   onRemoveUploadedFile: jest.fn(),
   selectedAgent: null,
   onSelectAgent: jest.fn(),
-  onClearConversation: jest.fn(),
+  // `AIAssistantChat.handleClearConversationKeepAgent` reports whether the conversation was
+  // actually cleared; the selector switches agents only when it was.
+  onClearConversation: jest.fn(() => Promise.resolve(true)),
   hasMessages: false
 };
 
@@ -53,18 +61,14 @@ describe('AgentSelector', () => {
   });
 
   it('renders agent name and robot icon when agent is selected', () => {
-    const { container } = render(
-      <ChatContextTags {...defaultProps} selectedAgent={mockAgents[0]} />
-    );
+    const { container } = render(<ChatContextTags {...defaultProps} selectedAgent={mockAgents[0]} />);
     expect(screen.getByText('Бизнес-аналитик')).toBeTruthy();
     const agentTag = container.querySelector('.ai-assistant-chat__context-tag--agent');
     expect(agentTag.querySelector('.fa-robot')).toBeTruthy();
   });
 
   it('adds active class when agent is selected', () => {
-    const { container } = render(
-      <ChatContextTags {...defaultProps} selectedAgent={mockAgents[0]} />
-    );
+    const { container } = render(<ChatContextTags {...defaultProps} selectedAgent={mockAgents[0]} />);
     expect(container.querySelector('.ai-assistant-chat__context-tag--agent-active')).toBeTruthy();
   });
 
@@ -148,9 +152,7 @@ describe('AgentSelector', () => {
       json: async () => mockAgents
     });
 
-    const { container } = render(
-      <ChatContextTags {...defaultProps} selectedAgent={mockAgents[0]} />
-    );
+    const { container } = render(<ChatContextTags {...defaultProps} selectedAgent={mockAgents[0]} />);
 
     await act(async () => {
       fireEvent.click(container.querySelector('.ai-assistant-chat__context-tag--agent'));
@@ -163,21 +165,22 @@ describe('AgentSelector', () => {
     expect(items[1].classList.contains('ai-assistant-chat__agent-dropdown-item--selected')).toBe(true);
   });
 
-  it('calls onSelectAgent when selecting an agent without messages', async () => {
+  // A chat with nothing to lose is switched outright: no confirmation is asked (`hasMessages` is
+  // what gates it) and no clearing is run. Clearing anyway would DELETE a conversation the backend
+  // has never seen — answered 404, which the caller reads as success — and the reset behind that
+  // success drops the context staged for the very first question: @-records, uploaded files, the
+  // editor chip. The welcome-screen entry point passes `null` here for the same reason.
+  it('switches without clearing when there is no conversation to lose', async () => {
     global.fetch.mockResolvedValueOnce({
       ok: true,
       json: async () => mockAgents
     });
 
+    window.confirm = jest.fn(() => true);
     const onSelectAgent = jest.fn();
-    const onClearConversation = jest.fn();
+    const onClearConversation = jest.fn(() => Promise.resolve(true));
     const { container } = render(
-      <ChatContextTags
-        {...defaultProps}
-        onSelectAgent={onSelectAgent}
-        onClearConversation={onClearConversation}
-        hasMessages={false}
-      />
+      <ChatContextTags {...defaultProps} onSelectAgent={onSelectAgent} onClearConversation={onClearConversation} hasMessages={false} />
     );
 
     await act(async () => {
@@ -186,9 +189,12 @@ describe('AgentSelector', () => {
 
     const items = container.querySelectorAll('.ai-assistant-chat__agent-dropdown-item');
     // Click second agent (after "Citeck AI" and divider)
-    fireEvent.click(items[1]);
+    await act(async () => {
+      fireEvent.click(items[1]);
+    });
 
-    expect(onClearConversation).toHaveBeenCalled();
+    expect(onClearConversation).not.toHaveBeenCalled();
+    expect(window.confirm).not.toHaveBeenCalled();
     expect(onSelectAgent).toHaveBeenCalledWith(mockAgents[0]);
   });
 
@@ -200,20 +206,16 @@ describe('AgentSelector', () => {
 
     window.confirm = jest.fn(() => true);
     const onSelectAgent = jest.fn();
-    const { container } = render(
-      <ChatContextTags
-        {...defaultProps}
-        onSelectAgent={onSelectAgent}
-        hasMessages={true}
-      />
-    );
+    const { container } = render(<ChatContextTags {...defaultProps} onSelectAgent={onSelectAgent} hasMessages={true} />);
 
     await act(async () => {
       fireEvent.click(container.querySelector('.ai-assistant-chat__context-tag--agent'));
     });
 
     const items = container.querySelectorAll('.ai-assistant-chat__agent-dropdown-item');
-    fireEvent.click(items[1]);
+    await act(async () => {
+      fireEvent.click(items[1]);
+    });
 
     expect(window.confirm).toHaveBeenCalledWith('ai-agent.confirm-switch');
     expect(onSelectAgent).toHaveBeenCalled();
@@ -227,13 +229,7 @@ describe('AgentSelector', () => {
 
     window.confirm = jest.fn(() => false);
     const onSelectAgent = jest.fn();
-    const { container } = render(
-      <ChatContextTags
-        {...defaultProps}
-        onSelectAgent={onSelectAgent}
-        hasMessages={true}
-      />
-    );
+    const { container } = render(<ChatContextTags {...defaultProps} onSelectAgent={onSelectAgent} hasMessages={true} />);
 
     await act(async () => {
       fireEvent.click(container.querySelector('.ai-assistant-chat__context-tag--agent'));
@@ -253,7 +249,7 @@ describe('AgentSelector', () => {
     });
 
     const onSelectAgent = jest.fn();
-    const onClearConversation = jest.fn();
+    const onClearConversation = jest.fn(() => Promise.resolve(true));
     const { container } = render(
       <ChatContextTags
         {...defaultProps}
@@ -269,10 +265,137 @@ describe('AgentSelector', () => {
     });
 
     const items = container.querySelectorAll('.ai-assistant-chat__agent-dropdown-item');
-    fireEvent.click(items[0]); // Click "Citeck AI"
+    await act(async () => {
+      fireEvent.click(items[0]); // Click "Citeck AI"
+    });
+
+    // Going back to the default assistant is a switch like any other, so on a chat with no dialog
+    // it clears nothing either — see 'switches without clearing when there is no conversation to
+    // lose' above.
+    expect(onClearConversation).not.toHaveBeenCalled();
+    expect(onSelectAgent).toHaveBeenCalledWith(null);
+  });
+
+  it('clears the conversation before deselecting when a dialog is alive', async () => {
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockAgents
+    });
+
+    window.confirm = jest.fn(() => true);
+    const onSelectAgent = jest.fn();
+    const onClearConversation = jest.fn(() => Promise.resolve(true));
+    const { container } = render(
+      <ChatContextTags
+        {...defaultProps}
+        selectedAgent={mockAgents[0]}
+        onSelectAgent={onSelectAgent}
+        onClearConversation={onClearConversation}
+        hasMessages={true}
+      />
+    );
+
+    await act(async () => {
+      fireEvent.click(container.querySelector('.ai-assistant-chat__context-tag--agent'));
+    });
+
+    const items = container.querySelectorAll('.ai-assistant-chat__agent-dropdown-item');
+    await act(async () => {
+      fireEvent.click(items[0]); // Click "Citeck AI"
+    });
 
     expect(onClearConversation).toHaveBeenCalled();
     expect(onSelectAgent).toHaveBeenCalledWith(null);
+  });
+
+  // The conversation is cleared before the switch, and on a refusal other than 404 it stays alive
+  // server-side with the user already told so (`clearConversation` shows the notification). Changing
+  // the chip anyway would claim the opposite, and the next question would continue the old dialog —
+  // rebinding it to another agent, since the backend stores the agent on the conversation.
+  it('does not switch the agent when the conversation could not be cleared', async () => {
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockAgents
+    });
+
+    window.confirm = jest.fn(() => true);
+    const onSelectAgent = jest.fn();
+    const onClearConversation = jest.fn(() => Promise.resolve(false));
+    const { container } = render(
+      <ChatContextTags {...defaultProps} onSelectAgent={onSelectAgent} onClearConversation={onClearConversation} hasMessages={true} />
+    );
+
+    await act(async () => {
+      fireEvent.click(container.querySelector('.ai-assistant-chat__context-tag--agent'));
+    });
+
+    const items = container.querySelectorAll('.ai-assistant-chat__agent-dropdown-item');
+    await act(async () => {
+      fireEvent.click(items[1]);
+    });
+
+    expect(onClearConversation).toHaveBeenCalled();
+    expect(onSelectAgent).not.toHaveBeenCalled();
+  });
+
+  it('does not return to the default agent when the conversation could not be cleared', async () => {
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockAgents
+    });
+
+    window.confirm = jest.fn(() => true);
+    const onSelectAgent = jest.fn();
+    const onClearConversation = jest.fn(() => Promise.resolve(false));
+    const { container } = render(
+      <ChatContextTags
+        {...defaultProps}
+        selectedAgent={mockAgents[0]}
+        onSelectAgent={onSelectAgent}
+        onClearConversation={onClearConversation}
+        hasMessages={true}
+      />
+    );
+
+    await act(async () => {
+      fireEvent.click(container.querySelector('.ai-assistant-chat__context-tag--agent'));
+    });
+
+    const items = container.querySelectorAll('.ai-assistant-chat__agent-dropdown-item');
+    await act(async () => {
+      fireEvent.click(items[0]); // Click "Citeck AI"
+    });
+
+    expect(onClearConversation).toHaveBeenCalled();
+    expect(onSelectAgent).not.toHaveBeenCalled();
+  });
+
+  // The guard above only makes sense for a dialog that is actually there. A chat with nothing to
+  // lose has a conversation id the backend has never seen, so a DELETE refused with a 5xx says
+  // nothing about the selection — and blocking on it took away the only way to pick an agent at all
+  // while the service was briefly unreachable, over a chat the user had not even used yet.
+  it('selects the agent on an unused chat even when the clearing was refused', async () => {
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockAgents
+    });
+
+    const onSelectAgent = jest.fn();
+    const onClearConversation = jest.fn(() => Promise.resolve(false));
+    const { container } = render(
+      <ChatContextTags {...defaultProps} onSelectAgent={onSelectAgent} onClearConversation={onClearConversation} hasMessages={false} />
+    );
+
+    await act(async () => {
+      fireEvent.click(container.querySelector('.ai-assistant-chat__context-tag--agent'));
+    });
+
+    const items = container.querySelectorAll('.ai-assistant-chat__agent-dropdown-item');
+    await act(async () => {
+      fireEvent.click(items[1]);
+    });
+
+    expect(onSelectAgent).toHaveBeenCalledWith(mockAgents[0]);
   });
 
   it('closes dropdown when clicking same selected agent', async () => {
@@ -282,13 +405,7 @@ describe('AgentSelector', () => {
     });
 
     const onSelectAgent = jest.fn();
-    const { container } = render(
-      <ChatContextTags
-        {...defaultProps}
-        selectedAgent={mockAgents[0]}
-        onSelectAgent={onSelectAgent}
-      />
-    );
+    const { container } = render(<ChatContextTags {...defaultProps} selectedAgent={mockAgents[0]} onSelectAgent={onSelectAgent} />);
 
     await act(async () => {
       fireEvent.click(container.querySelector('.ai-assistant-chat__context-tag--agent'));
@@ -309,9 +426,7 @@ describe('AgentSelector', () => {
     });
 
     const onSelectAgent = jest.fn();
-    const { container } = render(
-      <ChatContextTags {...defaultProps} onSelectAgent={onSelectAgent} />
-    );
+    const { container } = render(<ChatContextTags {...defaultProps} onSelectAgent={onSelectAgent} />);
 
     await act(async () => {
       fireEvent.click(container.querySelector('.ai-assistant-chat__context-tag--agent'));
@@ -530,6 +645,61 @@ describe('AgentSelector', () => {
       const { container } = render(<ChatContextTags {...defaultProps} selectedAgent={engineAgents[2]} />);
       const agentTag = container.querySelector('.ai-assistant-chat__context-tag--agent');
       expect(agentTag.querySelector('.fa-robot')).toBeTruthy();
+    });
+  });
+
+  // `sanitizeAgent` stores `name` only when it is a plain non-empty string, so an agent restored
+  // after a reload may come back as `{id, engine}` alone. The chip then rendered nothing at all —
+  // an icon and a caret with no label — while the dropdown row had always fallen back to the id.
+  describe('naming an agent that has no usable name', () => {
+    it('falls back to the id on the chip', () => {
+      const { container } = render(<ChatContextTags {...defaultProps} selectedAgent={{ id: 'agent-7', engine: 'TOOL_LOOP' }} />);
+      const agentTag = container.querySelector('.ai-assistant-chat__context-tag--agent');
+
+      expect(agentTag.querySelector('span').textContent).toBe('agent-7');
+    });
+
+    it('falls back to the id on the dropdown row too, so the two agree', async () => {
+      global.fetch.mockResolvedValueOnce({ ok: true, json: async () => [{ id: 'agent-7' }] });
+
+      const { container } = render(<ChatContextTags {...defaultProps} />);
+      await act(async () => {
+        fireEvent.click(container.querySelector('.ai-assistant-chat__context-tag--agent'));
+      });
+
+      expect(screen.getAllByText('agent-7').length).toBeGreaterThan(0);
+    });
+  });
+
+  // The clearing behind an agent switch is asynchronous and does more than the DELETE. A rejection
+  // used to be dropped on the floor: the dropdown was already closed, the agent was not switched,
+  // and the only trace was an unhandled promise rejection in the console.
+  describe('when the clearing throws', () => {
+    it('reports the failure instead of failing silently', async () => {
+      global.fetch.mockResolvedValueOnce({ ok: true, json: async () => mockAgents });
+
+      window.confirm = jest.fn(() => true);
+      const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const onSelectAgent = jest.fn();
+      const onClearConversation = jest.fn(() => Promise.reject(new Error('clear blew up')));
+
+      const { container } = render(
+        <ChatContextTags {...defaultProps} onSelectAgent={onSelectAgent} onClearConversation={onClearConversation} hasMessages={true} />
+      );
+
+      await act(async () => {
+        fireEvent.click(container.querySelector('.ai-assistant-chat__context-tag--agent'));
+      });
+
+      const items = container.querySelectorAll('.ai-assistant-chat__agent-dropdown-item');
+      await act(async () => {
+        fireEvent.click(items[1]);
+      });
+
+      expect(NotificationManager.error).toHaveBeenCalledWith('ai-agent.switch-failed', 'ai-agent.switch-error-title');
+      expect(onSelectAgent).not.toHaveBeenCalled();
+
+      consoleError.mockRestore();
     });
   });
 });

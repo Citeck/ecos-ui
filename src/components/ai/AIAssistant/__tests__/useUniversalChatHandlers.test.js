@@ -37,6 +37,13 @@ jest.mock('../hooks/usePolling', () => {
   }));
 });
 
+// The hook persists `conversationId` + `requestId` to sessionStorage on every successful submit and
+// reads it back in a `useState` initializer. jsdom keeps one storage for the whole file, so without
+// this a test would silently inherit the conversation of whichever test ran before it.
+beforeEach(() => {
+  sessionStorage.clear();
+});
+
 describe('useUniversalChat - handlers', () => {
   beforeEach(() => {
     jest.clearAllMocks();

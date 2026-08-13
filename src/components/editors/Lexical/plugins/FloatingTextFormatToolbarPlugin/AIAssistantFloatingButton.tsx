@@ -9,6 +9,7 @@ import { $getSelection, $isRangeSelection, LexicalEditor } from 'lexical';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import aiAssistantService from '@/components/ai/AIAssistant/AIAssistantService';
+import { stripRecordRefAlias } from '@/components/ai/AIAssistant/utils';
 import AiAssistant from '@/components/common/icons/global/AiAssistant';
 import { AI_FLOATING_POPUP_OPEN } from './AIFloatingPopup';
 
@@ -21,7 +22,7 @@ interface AIAssistantFloatingButtonProps {
 export default function AIAssistantFloatingButton({ editor, recordRef, attribute }: AIAssistantFloatingButtonProps) {
   const [isAvailable, setIsAvailable] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const ref = recordRef ? recordRef.split('-alias-')[0] : null;
+  const ref = stripRecordRefAlias(recordRef);
 
   useEffect(() => {
     let isMounted = true;
