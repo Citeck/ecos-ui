@@ -6,7 +6,6 @@ import { PREDICATE_EQ } from '@citeck/records-core/predicates/predicates';
 import { convertAttributeValues } from '@citeck/records-core/predicates/util';
 import { ParserPredicate } from '@citeck/records-predicates';
 import cloneDeep from 'lodash/cloneDeep';
-import concat from 'lodash/concat';
 import getFirst from 'lodash/first';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
@@ -99,7 +98,7 @@ import ActionsRegistry from '@/components/core/Records/actions/actionsRegistry';
 import { ActionTypes } from '@/components/core/Records/actions/constants';
 import { wrapSaga } from '@/helpers/redux';
 import { wrapArgs } from '@/helpers/store';
-import { decodeLink, getFilterParam, getSearchParams, getUrlWithoutOrigin, removeUrlSearchParams } from '@/helpers/urls';
+import { decodeLink, getSearchParams, getUrlWithoutOrigin, removeUrlSearchParams } from '@/helpers/urls';
 import { beArray, hasInString, isNodeRef, t } from '@/helpers/util';
 import { emptyJournalConfig, initialStateGrouping } from '@/reducers/journals';
 import {
@@ -1646,7 +1645,7 @@ function* sagaGoToJournalsPage(
         const settingColumns = get(journalData, 'journalSetting.columns', columns);
         let row = cloneDeep(action.payload);
         let id = journalConfig.id || '';
-        let filter: PredicateType[] | null = null;
+        let filter: PredicateType | null = null;
 
         if (id === 'event-lines-stat') {
           //todo: move to journal config
@@ -1689,20 +1688,7 @@ function* sagaGoToJournalsPage(
             row = yield call(api.journals.getRecord, { id: row.id, attributes: attributes }) || row;
           }
 
-          let originFilter = [];
-          const cleanPredicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate([journalData.predicate]));
-
-          originFilter = convertAttributeValues(cleanPredicates, columns);
-          originFilter = JournalsConverter.optimizePredicate({ t: 'and', val: originFilter });
-          filter = getFilterParam({ row, columns, groupBy, predicate: journalData.predicate });
-
-          if (!isEmpty(originFilter)) {
-            if (Array.isArray(originFilter.val)) {
-              filter = concat(filter, originFilter.val);
-            } else {
-              filter = concat(filter, originFilter);
-            }
-          }
+          filter = ParserPredicate.getGroupedRowPredicate({ row, columns, groupBy, predicate: journalData.predicate });
         }
 
         if (filter) {
@@ -1732,7 +1718,7 @@ function* sagaGoToJournalsPage(
           },
           pagination
         });
-        const predicateValue = ParserPredicate.setPredicateValue(get(params, 'predicates[0]') || [], filter);
+        const predicateValue = filter || get(params, 'predicates[0]') || [];
         set(params, 'predicates', [predicateValue]);
         set(params, 'columns', gridColumns);
         const gridData: Partial<IJournalState['grid']> = yield getGridData(api, { ...params, fromGroupBy: true }, stateId);

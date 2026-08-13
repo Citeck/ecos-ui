@@ -28,6 +28,86 @@ import GroupPredicate from './GroupPredicate';
 import Predicate from './Predicate';
 import { getAttFromPredicate } from './utils';
 
+/** A predicate that constrains a single attribute, as opposed to an and/or/not container. */
+const isEndPredicate = (predicate: any): boolean =>
+  !!predicate && !!predicate.att && (!isArray(predicate.val) || predicate.val.every(isString));
+
+/** Whether the predicate is fully determined by the given attributes, i.e. constrains nothing else. */
+const dependsOnlyOnAtts = (predicate: any, atts: string[]): boolean => {
+  if (!predicate || isString(predicate)) {
+    return false;
+  }
+
+  if (isEndPredicate(predicate)) {
+    return atts.includes(predicate.att);
+  }
+
+  if (predicate.t === PREDICATE_NOT) {
+    return dependsOnlyOnAtts(predicate.val, atts);
+  }
+
+  return isArray(predicate.val) && !!predicate.val.length && predicate.val.every((item: any) => dependsOnlyOnAtts(item, atts));
+};
+
+/**
+ * Drops from `predicate` everything that is known to hold for every record of a group, and returns
+ * `null` once nothing is left to check.
+ *
+ * A record of the group has the grouped attributes fixed to `pinned`, so a condition on those
+ * attributes is either true for the whole group or false for the whole group. It can only be
+ * dropped when it is true, which is known in two cases:
+ *
+ * - the condition is literally one of the pinned ones;
+ * - the condition sits in a conjunctive position, so every record matching the filter satisfies it —
+ *   and the group exists, therefore it holds for the group value. Branches of a multi-branch OR are
+ *   not conjunctive: there a condition on a grouped attribute may well be the false branch, which is
+ *   why they are kept.
+ */
+const withoutGroupConditions = (predicate: any, atts: string[], pinned: any[], conjunctive: boolean): any => {
+  if (!predicate || isString(predicate) || isEmpty(predicate)) {
+    return null;
+  }
+
+  if (isEndPredicate(predicate)) {
+    const isPinned = pinned.some((item: any) => item.att === predicate.att && item.t === predicate.t && isEqual(item.val, predicate.val));
+
+    return isPinned || (conjunctive && atts.includes(predicate.att)) ? null : predicate;
+  }
+
+  if (conjunctive && dependsOnlyOnAtts(predicate, atts)) {
+    return null;
+  }
+
+  if (!isArray(predicate.val)) {
+    return predicate;
+  }
+
+  // Only an `and` keeps its children conjunctive; a single-branch `or` is an `and` in disguise.
+  const childConjunctive = conjunctive && (predicate.t === PREDICATE_AND || predicate.val.length === 1);
+  const val: any[] = [];
+
+  for (const item of predicate.val) {
+    const rest = withoutGroupConditions(item, atts, pinned, childConjunctive);
+
+    if (isNil(rest)) {
+      // A true branch satisfies the whole `or`; a true conjunct adds nothing to an `and`.
+      if (predicate.t === PREDICATE_OR) {
+        return null;
+      }
+
+      continue;
+    }
+
+    val.push(rest);
+  }
+
+  if (!val.length) {
+    return null;
+  }
+
+  return val.length === 1 ? val[0] : { ...predicate, val };
+};
+
 export default class ParserPredicate {
   static get predicatesWithoutValue(): any[] {
     return [PREDICATE_NOT_EMPTY, PREDICATE_EMPTY];
@@ -104,6 +184,40 @@ export default class ParserPredicate {
     }
 
     return values;
+  }
+
+  /**
+   * Predicate for the records behind one row of a grouped journal — the grouped attributes pinned to
+   * the values of that row, on top of the part of the active filter that still has something to say.
+   *
+   * The conditions of the active filter that only constrain the grouped attributes are dropped: the
+   * clicked group already fixes those attributes, so keeping them would duplicate the pinned
+   * condition and, for an OR filter, leave branches of groups the user did not click.
+   */
+  static getGroupedRowPredicate({ row, columns, groupBy, predicate }: { row: any; columns: any[]; groupBy: any[]; predicate: any }): any {
+    const pinned = ParserPredicate.getRowPredicates({ row, columns, groupBy, predicate });
+
+    if (!pinned.length) {
+      return predicate;
+    }
+
+    const atts = (groupBy || []).reduce((res: string[], item: any) => res.concat(String(item).split('&')), []);
+    const rest = withoutGroupConditions(predicate, atts, pinned, true);
+
+    return {
+      t: PREDICATE_OR,
+      val: [
+        {
+          t: PREDICATE_OR,
+          val: [
+            {
+              t: PREDICATE_AND,
+              val: (isNil(rest) ? [] : [rest]).concat(pinned)
+            }
+          ]
+        }
+      ]
+    };
   }
 
   static getDefaultPredicates(columns: any[], extra: any, defaultPredicatesList: any[]): any {
@@ -491,46 +605,6 @@ export default class ParserPredicate {
         }
       });
     })(predicates.val || []);
-
-    return predicates;
-  }
-
-  static setPredicateValue(predicates: any, newPredicate: any): any {
-    if (!predicates) {
-      return [];
-    }
-
-    if (Array.isArray(newPredicate)) {
-      let newPredicates = predicates;
-
-      newPredicate.forEach((item: any) => {
-        newPredicates = ParserPredicate.setPredicateValue(newPredicates, item);
-      });
-
-      return newPredicates;
-    }
-
-    predicates = cloneDeep(predicates);
-
-    const foreach = (arr: any) => {
-      arr.forEach((item: any) => {
-        if (isString(item)) {
-          return;
-        }
-
-        if (!isArray(item.val) && item.att === newPredicate.att) {
-          item.val = newPredicate.val || '';
-
-          if (newPredicate.t) {
-            item.t = newPredicate.t;
-          }
-        } else if (isArray(item.val)) {
-          foreach(item.val);
-        }
-      });
-    };
-
-    foreach(predicates.val || []);
 
     return predicates;
   }
