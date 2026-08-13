@@ -29,8 +29,18 @@ import { createPortal } from 'react-dom';
 
 import { getThemeSelector } from '../../utils/getThemeSelector';
 import { useDebounce } from '../CodeActionMenuPlugin/utils';
+import {
+  getAddColumnButtonPosition,
+  getAddRowButtonPosition,
+  getTableScrollWrapper,
+  getVisibleTableBox,
+  isPointerNearTable
+} from './utils';
 
-const BUTTON_WIDTH_PX = 20;
+// A short debounce keeps the buttons responsive; the handler only does real work when the
+// pointer is over a table cell
+const MOUSE_MOVE_DEBOUNCE_MS = 16;
+const MOUSE_MOVE_MAX_WAIT_MS = 50;
 
 function TableHoverActionsContainer({ anchorElem }: { anchorElem: HTMLElement }): JSX.Element | null {
   const [editor, { getTheme }] = useLexicalComposerContext();
@@ -41,14 +51,18 @@ function TableHoverActionsContainer({ anchorElem }: { anchorElem: HTMLElement })
   const [position, setPosition] = useState({});
   const tableSetRef = useRef<Set<NodeKey>>(new Set());
   const tableCellDOMNodeRef = useRef<HTMLElement | null>(null);
+  const hoveredTableDOMNodeRef = useRef<HTMLElement | null>(null);
 
   const debouncedOnMouseMove = useDebounce(
     (event: MouseEvent) => {
       const { isOutside, tableDOMNode } = getMouseInfo(event, getTheme);
 
       if (isOutside) {
-        setShownRow(false);
-        setShownColumn(false);
+        if (!isPointerNearTable(event.clientX, event.clientY, hoveredTableDOMNodeRef.current, getTheme())) {
+          hoveredTableDOMNodeRef.current = null;
+          setShownRow(false);
+          setShownColumn(false);
+        }
         return;
       }
 
@@ -93,46 +107,28 @@ function TableHoverActionsContainer({ anchorElem }: { anchorElem: HTMLElement })
       );
 
       if (tableDOMElement) {
-        const {
-          width: tableElemWidth,
-          y: tableElemY,
-          right: tableElemRight,
-          left: tableElemLeft,
-          bottom: tableElemBottom,
-          height: tableElemHeight
-        } = (tableDOMElement as HTMLTableElement).getBoundingClientRect();
+        hoveredTableDOMNodeRef.current = tableDOMElement;
 
-        // Adjust for using the scrollable table container
-        const parentElement = (tableDOMElement as HTMLTableElement).parentElement;
-        let tableHasScroll = false;
-        if (parentElement && parentElement.classList.contains('PlaygroundEditorTheme__tableScrollableWrapper')) {
-          tableHasScroll = parentElement.scrollWidth > parentElement.clientWidth;
-        }
-        const { y: editorElemY, left: editorElemLeft } = anchorElem.getBoundingClientRect();
+        // A table wider than its scrollable wrapper is clipped by it, so the buttons are placed
+        // against the visible edges of the table — never against the clipped-away ones, which
+        // would put them outside the form
+        const visible = getVisibleTableBox(tableDOMElement, getTableScrollWrapper(tableDOMElement, getTheme()));
+        const { top: anchorTop, left: anchorLeft } = anchorElem.getBoundingClientRect();
+        const anchorOrigin = { left: anchorLeft, top: anchorTop };
 
         if (hoveredRowNode) {
           setShownColumn(false);
           setShownRow(true);
-          setPosition({
-            height: BUTTON_WIDTH_PX,
-            left: tableHasScroll && parentElement ? parentElement.offsetLeft : tableElemLeft - editorElemLeft,
-            top: tableElemBottom - editorElemY + 5,
-            width: tableHasScroll && parentElement ? parentElement.offsetWidth : tableElemWidth
-          });
+          setPosition(getAddRowButtonPosition(visible, anchorOrigin));
         } else if (hoveredColumnNode) {
           setShownColumn(true);
           setShownRow(false);
-          setPosition({
-            height: tableElemHeight,
-            left: tableElemRight - editorElemLeft + 5,
-            top: tableElemY - editorElemY,
-            width: BUTTON_WIDTH_PX
-          });
+          setPosition(getAddColumnButtonPosition(visible, anchorOrigin));
         }
       }
     },
-    50,
-    250
+    MOUSE_MOVE_DEBOUNCE_MS,
+    MOUSE_MOVE_MAX_WAIT_MS
   );
 
   // Hide the buttons on any table dimensions change to prevent last row cells
@@ -152,6 +148,7 @@ function TableHoverActionsContainer({ anchorElem }: { anchorElem: HTMLElement })
     document.addEventListener('mousemove', debouncedOnMouseMove);
 
     return () => {
+      hoveredTableDOMNodeRef.current = null;
       setShownRow(false);
       setShownColumn(false);
       debouncedOnMouseMove.cancel();
