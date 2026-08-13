@@ -66,11 +66,22 @@ export class TooltipWrapper extends Component {
     this.getRef = this.getRef.bind(this);
     this.state = { isOpen: props.isOpen };
     this._isMounted = false;
+    // The state we last asked the owner for. `props.isOpen` only catches up once React has
+    // committed that request, and on a loaded page the pointer can leave the target well
+    // before that happens — guarding on the prop alone drops the hide and the tooltip stays
+    // on screen forever (COREDEV-356).
+    this._requestedOpen = props.isOpen;
   }
 
   componentDidMount() {
     this._isMounted = true;
     this.updateTarget();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.isOpen !== this.props.isOpen) {
+      this._requestedOpen = this.props.isOpen;
+    }
   }
 
   componentWillUnmount() {
@@ -93,7 +104,7 @@ export class TooltipWrapper extends Component {
         this.clearHideTimeout();
       }
       if (this.state.isOpen && !this.props.isOpen) {
-        this.toggle();
+        this.toggle(undefined, true);
       }
     }
   }
@@ -135,14 +146,14 @@ export class TooltipWrapper extends Component {
   }
 
   show(e) {
-    if (!this.props.isOpen && this.props.needTooltip) {
+    if (!this._requestedOpen && this.props.needTooltip) {
       this.clearShowTimeout();
       this.currentTargetElement = e ? e.currentTarget || e.target : null;
       if (e && e.composedPath && typeof e.composedPath === 'function') {
         const path = e.composedPath();
         this.currentTargetElement = (path && path[0]) || this.currentTargetElement;
       }
-      this.toggle(e);
+      this.toggle(e, true);
     }
   }
 
@@ -153,10 +164,10 @@ export class TooltipWrapper extends Component {
     this._showTimeout = setTimeout(this.show.bind(this, e), this.getDelay('show'));
   }
   hide(e) {
-    if (this.props.isOpen) {
+    if (this._requestedOpen) {
       this.clearHideTimeout();
       this.currentTargetElement = null;
-      this.toggle(e);
+      this.toggle(e, false);
     }
   }
 
@@ -265,12 +276,20 @@ export class TooltipWrapper extends Component {
     }
   }
 
-  toggle(e) {
+  /**
+   * @param e - the event that caused the change, may be absent
+   * @param nextOpen - the state being asked for; omitted means "flip whatever is current"
+   */
+  toggle(e, nextOpen) {
     if (this.props.disabled || !this._isMounted) {
       return e && e.preventDefault();
     }
 
-    return this.props.toggle(e);
+    if (typeof nextOpen === 'boolean') {
+      this._requestedOpen = nextOpen;
+    }
+
+    return this.props.toggle(e, nextOpen);
   }
 
   render() {
