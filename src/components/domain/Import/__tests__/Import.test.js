@@ -11,17 +11,19 @@ jest.mock('@citeck/records-core', () => ({
   }
 }));
 
-import { render, waitFor } from '@testing-library/react';
+import { act, render, waitFor } from '@testing-library/react';
 import React from 'react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 
 import Import from '../Import';
 
-const renderImport = props =>
+import Tooltip from '@/components/common/Tooltip';
+
+const renderImport = (props, wrap = children => children) =>
   render(
     <Provider store={configureStore([])({ journals: { 'journal-state': { journalConfig: { typeRef: 'emodel/type@x' } } } })}>
-      <Import stateId="journal-state" {...props} />
+      {wrap(<Import stateId="journal-state" {...props} />)}
     </Provider>
   );
 
@@ -42,5 +44,25 @@ describe('<Import />', () => {
     await waitFor(() => expect(container.querySelector('.citeck-import-data')).not.toBeNull());
 
     expect(container.querySelector('.citeck-import-data').getAttribute('id')).toBeNull();
+  });
+
+  // The whole point of the id: the button renders only once its variants have arrived, long after the
+  // tooltip around it has mounted, and the hint has to work all the same (COREDEV-408).
+  it('should show the tooltip wrapped around it once its button has appeared', async () => {
+    const { container } = renderImport({ id: 'journal-import' }, children => (
+      <Tooltip target="journal-import" text="Импорт" uncontrolled>
+        {children}
+      </Tooltip>
+    ));
+
+    await waitFor(() => expect(container.querySelector('#journal-import')).not.toBeNull());
+
+    await act(async () => {
+      container.querySelector('#journal-import').dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+      await new Promise(resolve => setTimeout(resolve, 10));
+    });
+
+    expect(document.querySelector('[role="tooltip"]')).not.toBeNull();
+    expect(document.querySelector('[role="tooltip"]').textContent).toEqual('Импорт');
   });
 });

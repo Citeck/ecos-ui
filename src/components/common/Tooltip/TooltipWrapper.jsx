@@ -18,6 +18,44 @@ function isInDOMSubtrees(element, subtreeRoots = []) {
   return subtreeRoots && subtreeRoots.length && subtreeRoots.filter(subTreeRoot => isInDOMSubtree(element, subTreeRoot))[0];
 }
 
+/**
+ * Tooltips whose target is not in the document yet. The listeners are bound to whatever the target
+ * id resolves to when the tooltip mounts, so a child that renders nothing until its data arrives —
+ * the journal's `Import` button, for one — would never get them and the button would stay silent on
+ * hover for the rest of the page's life (COREDEV-408).
+ *
+ * One observer serves all of them, so the cost does not grow with the number of tooltips on a page,
+ * and it only runs while somebody is actually waiting for a target.
+ */
+const waitingForTarget = new Set();
+let targetObserver = null;
+
+function watchForTarget(tooltip) {
+  if (typeof MutationObserver === 'undefined' || !document.body) {
+    return;
+  }
+
+  waitingForTarget.add(tooltip);
+
+  if (!targetObserver) {
+    targetObserver = new MutationObserver(records => {
+      if (records.some(record => record.addedNodes.length)) {
+        Array.from(waitingForTarget).forEach(item => item.updateTarget());
+      }
+    });
+    targetObserver.observe(document.body, { childList: true, subtree: true });
+  }
+}
+
+function unwatchForTarget(tooltip) {
+  waitingForTarget.delete(tooltip);
+
+  if (targetObserver && !waitingForTarget.size) {
+    targetObserver.disconnect();
+    targetObserver = null;
+  }
+}
+
 export const propsTypes = {
   children: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
   placement: PropTypes.oneOf(PopperPlacements),
@@ -86,6 +124,7 @@ export class TooltipWrapper extends Component {
 
   componentWillUnmount() {
     this._isMounted = false;
+    unwatchForTarget(this);
     this.removeTargetEvents();
     this._targets = null;
     this.clearShowTimeout();
@@ -268,11 +307,21 @@ export class TooltipWrapper extends Component {
       newTarget = [];
     }
 
-    if (!isEqual(newTarget, this._targets)) {
+    // `getTarget` hands back a NodeList, which never compares equal to the array kept here — so the
+    // elements are compared instead, or every call would rebind the listeners
+    const targets = newTarget ? Array.from(newTarget) : [];
+
+    if (!isEqual(targets, this._targets)) {
       this.removeTargetEvents();
-      this._targets = newTarget ? Array.from(newTarget) : [];
+      this._targets = targets;
       this.currentTargetElement = this.currentTargetElement || this._targets[0];
       this.addTargetEvents();
+    }
+
+    if (this._targets.length) {
+      unwatchForTarget(this);
+    } else {
+      watchForTarget(this);
     }
   }
 
