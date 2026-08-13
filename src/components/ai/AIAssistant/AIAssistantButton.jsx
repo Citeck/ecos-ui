@@ -4,6 +4,7 @@ import aiAssistantService from './AIAssistantService';
 
 import { IcoBtn } from '@/components/common/btns';
 import AiAssistant from '@/components/common/icons/global/AiAssistant';
+import { t } from '@/helpers/export/util';
 
 import './styles/index.scss';
 
@@ -75,7 +76,16 @@ const AIAssistantButton = () => {
 
   return (
     <div className="ecos-model-editor__designer-ai-button">
-      <IcoBtn id={buttonId} icon={<AiAssistant color="#ffffff" />} onClick={handleClick} className="ecos-btn_blue-classic" />
+      {/* title is kept alongside aria-label: IcoBtn has no styled tooltip of its own,
+          so the browser tooltip is the only one and there is no risk of doubling */}
+      <IcoBtn
+        id={buttonId}
+        icon={<AiAssistant color="#ffffff" />}
+        onClick={handleClick}
+        className="ecos-btn_blue-classic"
+        aria-label={t('ai-assistant.button.open')}
+        title={t('ai-assistant.button.open')}
+      />
     </div>
   );
 };

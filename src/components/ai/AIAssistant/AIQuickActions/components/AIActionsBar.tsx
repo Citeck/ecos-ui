@@ -149,6 +149,10 @@ const AIActionsBar: React.FC<AIActionsBarProps> = ({
   );
 
   const defaultPlaceholder = t('ai-actions.input.placeholder', 'Describe what you need...');
+  // `title` alone would make the accessible name the (untranslated) tooltip text; both buttons are
+  // icon-only, so the translated wording is set explicitly through `aria-label` as well.
+  const submitLabel = t('ai-actions.input.submit', 'Submit (Enter)');
+  const closeLabel = t('ai-actions.input.close', 'Close (Escape)');
   const hasQuickActions = quickActions.length > 0;
   const canSubmit = inputValue.trim() && !isLoading && !disabled;
 
@@ -207,7 +211,8 @@ const AIActionsBar: React.FC<AIActionsBarProps> = ({
               className="ai-actions-bar__submit"
               onClick={handleSubmit}
               disabled={!canSubmit}
-              title={t('ai-actions.input.submit', 'Submit (Enter)')}
+              title={submitLabel}
+              aria-label={submitLabel}
             >
               <Icon className="fa fa-arrow-right" />
             </button>
@@ -218,7 +223,8 @@ const AIActionsBar: React.FC<AIActionsBarProps> = ({
             className="ai-actions-bar__close"
             onClick={handleClose}
             disabled={isLoading}
-            title={t('ai-actions.input.close', 'Close (Escape)')}
+            title={closeLabel}
+            aria-label={closeLabel}
           >
             <Icon className="fa fa-times" />
           </button>

@@ -150,6 +150,14 @@ class EcosForm extends React.Component {
     }
 
     options.recordId = recordId;
+    // The same record, named the way the backend knows it. A card opened for editing gets a
+    // browser-side alias (`Records.getRecordToEdit` mints `<id>-alias-<n>`), and that alias is a
+    // routing detail of this page — the backend resolves no record by it. Anything leaving the form
+    // for a service must therefore use the base id, and the components must not be the ones cutting
+    // the suffix off: its format belongs to `records-core` and has already been open-coded in seven
+    // places across the assistant (D-G-ALIASREF, case G9). Published once, here, from the record
+    // itself rather than from its string form.
+    options.baseRecordId = recordId ? Records.get(recordId).getBaseRecord().id : recordId;
     options.handlers = handlers;
     options.isMobileDevice = options.ecosIsMobile || isMobileDevice();
     options.formSubmitDonePromise = new Promise(resolve => (this._formSubmitDoneResolve = resolve));

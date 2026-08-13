@@ -12,6 +12,7 @@ import uuidV4 from 'uuidv4';
 
 import aiAssistantService from '@/components/ai/AIAssistant/AIAssistantService';
 import { AIFieldActions } from '@/components/ai/AIAssistant/AIQuickActions/components';
+import { stripRecordRefAlias } from '@/components/ai/AIAssistant/utils';
 import { FIELD_TYPES } from "@/components/ai/AIAssistant";
 import { CONTENT_TYPES } from "@/components/ai/AIAssistant";
 import AiAssistant from '@/components/common/icons/global/AiAssistant';
@@ -35,7 +36,7 @@ export default function AIAssistantButton({
   // would otherwise be limited only by the window, covering the side menu and the text being edited
   const [fieldElement, setFieldElement] = useState<HTMLElement | null>(null);
   const [editor] = useLexicalComposerContext();
-  const ref = recordRef ? recordRef.split('-alias-')[0] : null;
+  const ref = stripRecordRefAlias(recordRef);
   const conversationIdRef = useRef(uuidV4());
 
   useEffect(() => {

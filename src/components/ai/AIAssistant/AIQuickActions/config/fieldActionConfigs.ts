@@ -239,6 +239,19 @@ export const FIELD_ACTION_CONFIGS: Record<FieldType, FieldActionConfig> = {
         icon: ACTION_ICONS.formalize,
         getLabel: getActionLabel('formalize', 'Formal style'),
         requiresContent: true
+      },
+      // `translate` used to be configured only for TEXT/NAME, and no component mounts those field
+      // types, so the backend action had no UI entry point at all (found by the regression pass on
+      // 2026-08-12). Adding it here is what gave it one. The direction is the backend's to choose:
+      // its `translate` prompt detects the source language and translates into the other one of the
+      // Russian/English pair as long as the request names no target language, and a quick-action
+      // click sends no prompt of its own. Any other language goes through the free-text input that
+      // sits next to these buttons.
+      {
+        id: 'translate',
+        icon: ACTION_ICONS.translate,
+        getLabel: getActionLabel('translate', 'Translate'),
+        requiresContent: true
       }
     ],
     getPlaceholder: () => t('ai-actions.placeholder.textarea', 'Describe what to do with the text...')
@@ -277,6 +290,16 @@ export const FIELD_ACTION_CONFIGS: Record<FieldType, FieldActionConfig> = {
         id: 'formalize',
         icon: ACTION_ICONS.formalize,
         getLabel: getActionLabel('formalize', 'Formal style'),
+        requiresContent: true
+      },
+      // See the note on TEXTAREA above. This type is mounted by the same component — `TextArea.jsx`
+      // returns it whenever `textAreaAIContextType` is `documentation` (TextArea.jsx:625) — so
+      // leaving it out here would keep the entry point missing on exactly one of the two mounted
+      // textarea flavours, which is the defect this action was added to close.
+      {
+        id: 'translate',
+        icon: ACTION_ICONS.translate,
+        getLabel: getActionLabel('translate', 'Translate'),
         requiresContent: true
       }
     ],
@@ -357,6 +380,13 @@ export const FIELD_ACTION_CONFIGS: Record<FieldType, FieldActionConfig> = {
         id: 'formalize',
         icon: ACTION_ICONS.formalize,
         getLabel: getActionLabel('formalize', 'Formal style'),
+        requiresContent: true
+      },
+      // See the note on TEXTAREA above: same reason, same no-target-language behaviour.
+      {
+        id: 'translate',
+        icon: ACTION_ICONS.translate,
+        getLabel: getActionLabel('translate', 'Translate'),
         requiresContent: true
       }
     ],

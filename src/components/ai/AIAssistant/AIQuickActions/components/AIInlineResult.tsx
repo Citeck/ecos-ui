@@ -308,6 +308,8 @@ const AIInlineResult: React.FC<AIInlineResultProps> = ({
             className="ai-inline-result__retry-submit"
             onClick={handleRetrySubmit}
             disabled={!retryPrompt.trim() || isLoading}
+            data-tooltip={t('ai-actions.result.retry-submit', 'Send instruction')}
+            aria-label={t('ai-actions.result.retry-submit', 'Send instruction')}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M5 12h14M12 5l7 7-7 7" />

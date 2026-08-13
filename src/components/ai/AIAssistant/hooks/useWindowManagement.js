@@ -53,6 +53,13 @@ const useWindowManagement = () => {
   return {
     isOpen,
     isMinimized,
+    // Whether the chat is actually on screen. Not the same thing as `isOpen`: `toggleChat`
+    // minimizes an open panel instead of closing it, so the toolbar button, the `Alt+I` shortcut
+    // and the header minimize button all leave `isOpen` true while nothing of the chat is visible.
+    // Anything driven by the user "opening the panel" — the D-B-14 request restoration, which the
+    // chat itself advertises as «закройте и снова откройте панель» — has to follow this one, or the
+    // only control that triggers it is the `×` in the chat header.
+    isVisible: isOpen && !isMinimized,
     handleClose,
     handleMinimize,
     toggleChat

@@ -98,9 +98,14 @@ const ScriptEditorAIButton = ({
         onRequestId
       });
 
-      // Return unified result format for AIInlineResult with CodeDiffPreview
+      // Return unified result format for AIInlineResult with CodeDiffPreview.
+      // An empty `modifiedScript` means the answer proposes no edit — a question about the script
+      // answered with prose (D-G-QA-DROP). Showing the current script as the generated value is
+      // what keeps the preview honest: `AIFieldActions` then finds the two sides equal, hides the
+      // diff, and «Apply» writes back exactly what is already there. Passing the empty string
+      // instead would render a diff that deletes the whole script.
       return {
-        generatedValue: result.modifiedScript,
+        generatedValue: result.modifiedScript || currentValue,
         explanation: result.explanation,
         originalValue: result.originalScript || currentValue,
         contextType: result.contextType || scriptContextType
