@@ -284,4 +284,82 @@ describe('EcosFormUtils', () => {
       expect(EcosFormUtils.stripHTML(html)).toBe('plain text without any HTML tags');
     });
   });
+  describe('removeOutcomeButtonsAtts method', () => {
+    const OUTCOME_CONFIRM = 'outcome_Confirm';
+    const OUTCOME_REQUEST_INFO = 'outcome_RequestInfo';
+
+    /**
+     * Minimal model of a records-core record: att() accumulates values until a successful save(),
+     * a failed save() resets nothing, removeAtt() drops what was accumulated.
+     */
+    function createRecordStub() {
+      const pendingAtts = {};
+
+      return {
+        pendingAtts,
+        att: (name, value) => {
+          pendingAtts[name] = value;
+        },
+        removeAtt: name => {
+          delete pendingAtts[name];
+        },
+        getAttributesToSave: () => ({ ...pendingAtts })
+      };
+    }
+
+    const buttonComponent = key => ({ component: { key, type: 'button' } });
+
+    const formComponents = [
+      buttonComponent(OUTCOME_CONFIRM),
+      buttonComponent(OUTCOME_REQUEST_INFO),
+      { component: { key: 'comment', type: 'textarea' } },
+      { component: { key: 'submit', type: 'button' } }
+    ];
+
+    it('should send a single verdict when the previous submit failed and left its att behind', () => {
+      const record = createRecordStub();
+
+      // first submit: the verdict reached the record, save() failed, the attribute stayed unpersisted
+      record.att(OUTCOME_CONFIRM, true);
+
+      // second submit: attributes assembly starts by dropping verdicts of previous submits
+      EcosFormUtils.removeOutcomeButtonsAtts(record, formComponents);
+      record.att(OUTCOME_REQUEST_INFO, true);
+
+      expect(record.getAttributesToSave()).toEqual({ [OUTCOME_REQUEST_INFO]: true });
+    });
+
+    it('should keep attributes which are not outcome buttons', () => {
+      const record = createRecordStub();
+
+      record.att(OUTCOME_CONFIRM, true);
+      record.att('comment', 'text');
+      record.att('submit', true);
+
+      EcosFormUtils.removeOutcomeButtonsAtts(record, formComponents);
+
+      expect(record.getAttributesToSave()).toEqual({ comment: 'text', submit: true });
+    });
+
+    it('should do nothing when the record carries no verdicts', () => {
+      const record = createRecordStub();
+
+      record.att('comment', 'text');
+
+      EcosFormUtils.removeOutcomeButtonsAtts(record, formComponents);
+
+      expect(record.getAttributesToSave()).toEqual({ comment: 'text' });
+    });
+
+    it('should not throw on a record without removeAtt or on empty components', () => {
+      const record = createRecordStub();
+
+      record.att(OUTCOME_CONFIRM, true);
+
+      expect(() => EcosFormUtils.removeOutcomeButtonsAtts(null, formComponents)).not.toThrow();
+      expect(() => EcosFormUtils.removeOutcomeButtonsAtts({}, formComponents)).not.toThrow();
+      expect(() => EcosFormUtils.removeOutcomeButtonsAtts(record, undefined)).not.toThrow();
+      expect(record.getAttributesToSave()).toEqual({ [OUTCOME_CONFIRM]: true });
+    });
+  });
 });

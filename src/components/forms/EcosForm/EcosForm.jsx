@@ -608,6 +608,9 @@ class EcosForm extends React.Component {
       }
       sRecord.att('_formInfo', formInfo);
 
+      // Form data is cleaned up on submit error (resetOutcomeButtonsValues), the record cache is not
+      EcosFormUtils.removeOutcomeButtonsAtts(sRecord, allComponents);
+
       for (const key in submission.data) {
         if (submission.data.hasOwnProperty(key)) {
           const input = inputByKey[key];
