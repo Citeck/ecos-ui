@@ -1,6 +1,5 @@
 import { JournalUrlParams, KanbanUrlParams, SourcesId, URL as Urls } from '@citeck/constants';
 import { PROXY_URI } from '@citeck/constants/alfresco';
-import { ParserPredicate } from '@citeck/records-predicates';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
@@ -151,10 +150,6 @@ export function createPrintUrl({ record, config }) {
 export function createContentUrl({ value }) {
   return `${PROXY_URI}api/node/workspace/SpacesStore/${value}/content;cm:content`;
 }
-
-export const getFilterParam = options => {
-  return ParserPredicate.getRowPredicates(options);
-};
 
 export const getJournalPageUrl = ({ journalId, journalSettingId, boardId, filter, search, viewMode }) => {
   let params = {
