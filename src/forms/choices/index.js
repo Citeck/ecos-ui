@@ -49,6 +49,43 @@ Choices.defaults.templates.item = function (classNames, data, removeItemButton) 
   return element;
 };
 
+// choices.js renders no more than `searchResultLimit` matches as soon as the user types — 4 of them by
+// default. A list cut down to four looked like the whole answer, so options past the fourth could not be
+// found by searching for them (COREDEV-359). The option is read as a plain loop bound, so no value means
+// "all of them": -1 renders nothing and a huge number spins the loop over empty indexes. Default it to
+// `null` — no limit — and resolve that to the number of matches at render time.
+Choices.defaults.options.searchResultLimit = null;
+
+const originCreateChoicesFragment = Choices.prototype._createChoicesFragment;
+
+Choices.prototype._createChoicesFragment = function (choices, fragment, withinGroup) {
+  // A limit a caller asked for is still obeyed; only the absent one means "render them all".
+  if (!this._isSearching || this.config.searchResultLimit != null) {
+    return originCreateChoicesFragment.call(this, choices, fragment, withinGroup);
+  }
+
+  this.config.searchResultLimit = Array.isArray(choices) ? choices.length : 0;
+
+  try {
+    return originCreateChoicesFragment.call(this, choices, fragment, withinGroup);
+  } finally {
+    this.config.searchResultLimit = null;
+  }
+};
+
+const originRenderChoices = Choices.prototype._renderChoices;
+
+Choices.prototype._renderChoices = function () {
+  originRenderChoices.call(this);
+
+  // The dropdown is placed once, when it opens, and it is anchored by its top edge — see
+  // `recalcDropdownPosition`. Filtering changes the height of the list, so a dropdown that had to open
+  // upwards would stay where it was and hang detached from its field. Re-anchor it to what it now shows.
+  if (this.dropdown.isActive) {
+    this.recalcDropdownPosition(true);
+  }
+};
+
 const originHideDropdown = Choices.prototype.hideDropdown;
 
 Choices.prototype.hideDropdown = function (preventInputFocus) {
@@ -59,9 +96,9 @@ Choices.prototype.hideDropdown = function (preventInputFocus) {
   this.dropdown.element.style.removeProperty('position');
   this.dropdown.element.style.removeProperty('left');
   this.dropdown.element.style.removeProperty('top');
+  this.dropdown.element.style.removeProperty('bottom');
   this.dropdown.element.style.removeProperty('width');
   this.dropdown.element.style.removeProperty('height');
-  this.dropdown.element.style.removeProperty('minHeight');
 
   if (!this.dropdown.isActive) {
     return this;
@@ -94,7 +131,11 @@ Choices.prototype.recalcDropdownPosition = function (preventInputFocus) {
   try {
     const modalWrapper = this.containerInner.element.closest('.modal.show');
     const containerSizes = this.containerInner.element.getBoundingClientRect();
-    const needToFlip = this.containerOuter.shouldFlip(containerSizes.top + this.dropdown.element.offsetHeight);
+    // `containerOuter` keeps the flipped state for as long as the dropdown stays open — it drops the class
+    // only on close. Follow it, so that re-anchoring a list that has just been filtered down to a couple of
+    // matches keeps the orientation it opened with instead of jumping to the other side of the field.
+    const needToFlip =
+      this.containerOuter.isFlipped || this.containerOuter.shouldFlip(containerSizes.top + this.dropdown.element.offsetHeight);
 
     let top = containerSizes.top + containerSizes.height;
     let left = containerSizes.left;
@@ -116,8 +157,13 @@ Choices.prototype.recalcDropdownPosition = function (preventInputFocus) {
     this.dropdown.element.style.position = 'fixed';
     this.dropdown.element.style.left = `${left}px`;
     this.dropdown.element.style.top = `${top}px`;
+    // A dropdown opened upwards is laid out by the stylesheet as `top: auto; bottom: 100%`. The `top` we
+    // set just above would leave it constrained by both edges — a height of its own, and the height of
+    // the list inside it, would then be ignored. We place both orientations by their top edge.
+    this.dropdown.element.style.bottom = 'auto';
+    // No min-height here: it used to freeze the height the dropdown had when it opened, and a list
+    // filtered down to a few matches then kept the empty space of the full one below it (COREDEV-359).
     this.dropdown.element.style.width = `${dropdownSizes.width}px`;
-    this.dropdown.element.style.minHeight = `${dropdownSizes.height}px`;
 
     this.containerOuter.open(containerSizes.top + this.dropdown.element.offsetHeight);
   } catch (e) {
