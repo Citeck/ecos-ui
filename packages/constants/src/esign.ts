@@ -42,7 +42,11 @@ export const Labels = {
   MODAL_DATE_TO: 'esign.modal.date-to',
   MODAL_PROVIDER: 'esign.modal.provider',
 
-  NO_DATA: 'esign.no-data'
+  NO_DATA: 'esign.no-data',
+
+  DEV_MODE_TITLE: 'esign.dev-mode.title',
+  DEV_MODE_STUB: 'esign.dev-mode.stub',
+  DEV_MODE_REMOTE: 'esign.dev-mode.remote'
 };
 
 export const EDI_REQUEST = {

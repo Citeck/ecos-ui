@@ -1764,6 +1764,9 @@
   "esign.modal.date-to": "To",
   "esign.modal.provider": "Provider",
   "esign.no-data": "No data",
+  "esign.dev-mode.title": "Debug e-signature mode",
+  "esign.dev-mode.stub": "Debug e-signature mode: signing is emulated, no cryptography is involved. Certificates and signature are fake.",
+  "esign.dev-mode.remote": "Debug e-signature mode: the document is signed with a debug service certificate, not with your qualified signature.",
   "esign.no-document-ref": "No documents to sign",
   "esign.message.plugin-is-fetching": "The process of initializing the extension for working with digital signature",
 

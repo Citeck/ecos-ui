@@ -1180,6 +1180,30 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
     return component && component.type === 'button' && component.key.startsWith(OUTCOME_BUTTONS_PREFIX);
   }
 
+  /**
+   * Drops outcomes left on the record by previous submits.
+   *
+   * A failed save() keeps the attribute unpersisted, so Record.getAttributesToSave attaches it to
+   * the next mutation: two outcome_* reach the server and the executed one is not the one clicked.
+   * Form data is cleaned up on error separately, the record cache is not.
+   *
+   * @param {Object} record - record the mutation is being assembled for
+   * @param {Array} components - form components (form.getAllComponents())
+   */
+  static removeOutcomeButtonsAtts(record, components) {
+    if (!record || !isFunction(record.removeAtt)) {
+      return;
+    }
+
+    (components || []).forEach(item => {
+      const key = lodashGet(item, 'component.key');
+
+      if (key && EcosFormUtils.isOutcomeButton(item.component)) {
+        record.removeAtt(key);
+      }
+    });
+  }
+
   static isConfigurableForm(recordId) {
     return AuthorityService.hasConfigWritePermission(recordId);
   }
