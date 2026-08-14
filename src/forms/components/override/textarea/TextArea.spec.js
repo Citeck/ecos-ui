@@ -135,3 +135,41 @@ describe('TextArea Component', () => {
     });
   });
 });
+
+// D-B-AIAPPLY-NOSAVE (regr-20260814-r1, case B7): applying an AI edit into a plain textarea set the
+// value WITHOUT the `modified`/`changeByUser` flags, so `valueChangedByUser` stayed false, the
+// Properties widget's Save bar never appeared and the edit was silently lost on navigate-away
+// (a manual keypress in the same field made the bar appear immediately). The AI button's setValue
+// wiring now goes through applyAITextAreaValue, which mirrors a real user edit. The full
+// setValue→onChange chain needs a live form root, so the two ends are pinned separately.
+describe('AI apply marks a plain textarea as changed by the user', () => {
+  it('applyAITextAreaValue passes user-edit flags and syncs the DOM element', () => {
+    return Harness.testCreate(TextAreaComponent, cloneDeep(comp1)).then(component => {
+      component.addTextAreaAIButton = () => {};
+      const textareaElement = component.element.querySelector('textarea');
+      const setValueSpy = jest.spyOn(component, 'setValue');
+
+      component.applyAITextAreaValue('текст, применённый ИИ', textareaElement);
+
+      expect(setValueSpy).toHaveBeenCalledWith(
+        'текст, применённый ИИ',
+        expect.objectContaining({ modified: true, changeByUser: true })
+      );
+      expect(component.dataValue).toBe('текст, применённый ИИ');
+      if (textareaElement) {
+        expect(textareaElement.value).toBe('текст, применённый ИИ');
+      }
+    });
+  });
+
+  it('onChange with the changeByUser flag marks the component as changed by the user', () => {
+    return Harness.testCreate(TextAreaComponent, cloneDeep(comp1)).then(component => {
+      component.addTextAreaAIButton = () => {};
+      expect(component.valueChangedByUser).toBeFalsy();
+
+      component.onChange({ changeByUser: true });
+
+      expect(component.valueChangedByUser).toBe(true);
+    });
+  });
+});
