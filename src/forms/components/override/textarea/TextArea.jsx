@@ -643,6 +643,25 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
   }
 
   /**
+   * Applies an AI-edited value into a plain textarea the way a USER edit would.
+   *
+   * D-B-AIAPPLY-NOSAVE (regr-20260814-r1, B7): a bare `setValue(value)` carries no flags, so
+   * `valueChangedByUser` stayed false, the Properties widget's Save bar never appeared and the
+   * applied edit was silently lost on navigate-away — while a manual keypress in the same field
+   * made the bar appear at once. The flags mirror a real user edit: `modified` is what formio's
+   * own input listener passes, `changeByUser` is what sets `valueChangedByUser` in
+   * override/base/Base.js. The ace/monaco/lexical paths converge on
+   * `updateEditorValue({ modified: true })` and were unaffected.
+   */
+  applyAITextAreaValue(value, textareaElement) {
+    this.setValue(value, { modified: true, changeByUser: true });
+    // Also update the textarea element directly for immediate visual feedback
+    if (textareaElement) {
+      textareaElement.value = value;
+    }
+  }
+
+  /**
    * Add AI button for plain textarea fields
    */
   addTextAreaAIButton(textareaElement) {
@@ -701,13 +720,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
             contextType={this.textAreaAIContextType}
             fieldInfo={fieldInfo}
             getValue={() => this.getValue() || ''}
-            setValue={value => {
-              this.setValue(value);
-              // Also update the textarea element directly for immediate visual feedback
-              if (textareaElement) {
-                textareaElement.value = value;
-              }
-            }}
+            setValue={value => this.applyAITextAreaValue(value, textareaElement)}
             fieldElement={textareaElement}
             actionsBarContainer={aiContainer}
             resultContainer={aiContainer}
