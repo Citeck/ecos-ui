@@ -2,7 +2,9 @@
  * Utility functions for AIAssistant components
  */
 
-import { FILE_SAVE_ACTION } from './constants';
+import { ADDITIONAL_CONTEXT_TYPES, FILE_SAVE_ACTION } from './constants';
+
+import { t } from '@/helpers/export/util';
 
 /**
  * Generates a UUID v4 string
@@ -51,6 +53,134 @@ export const formatMessageTime = timestamp => {
 export const truncateText = (text, maxLength = 50) => {
   if (!text || text.length <= maxLength) return text;
   return text.substring(0, maxLength) + '...';
+};
+
+/** Separator the page address puts between a record reference and its routing alias. */
+const RECORD_REF_ALIAS_SEPARATOR = '-alias-';
+
+/**
+ * A record reference as read from the page address, with its `-alias-<alias>` suffix cut off.
+ *
+ * A card may be opened as `...?recordRef=<ref>-alias-<alias>` (`Records.ts` mints the alias for a
+ * record created in the browser). The suffix is a routing detail of that address and not part of the
+ * record's identity: sent to the backend it resolves no record, and left on one side of a comparison
+ * it makes the two spellings of one record look like two — `isSameRecordRef` reconciles only the
+ * application prefix, never this. So the current record is offered by the `@` dropdown although its
+ * chip is already on screen, and is sent twice in one request (D-B-18).
+ *
+ * The rule holds at every point where a reference is read from the URL, which is why it lives here
+ * rather than being spelled out at each of them. A reference that is nothing but an alias suffix
+ * leaves nothing behind and is reported as absent. The cut is made at the first separator, so a
+ * local id carrying one of its own would lose the rest — the shape has never been supported, and
+ * every copy of this rule that preceded the helper behaved the same way.
+ * @param {*} recordRef - Reference as read from the address, or anything else
+ * @returns {?string} The reference without its alias suffix, or null when nothing usable is left
+ */
+export const stripRecordRefAlias = recordRef => {
+  if (typeof recordRef !== 'string' || !recordRef) {
+    return null;
+  }
+  return recordRef.split(RECORD_REF_ALIAS_SEPARATOR)[0] || null;
+};
+
+/**
+ * The record reference a form component may hand to the AI services.
+ *
+ * `options.recordId` alone will not do: a card opened for editing carries a browser-side alias
+ * (`Records.getRecordToEdit` mints `<id>-alias-<n>`), which the backend resolves to nothing — it
+ * then answers about an empty field and the model invents its content (D-G-ALIASREF, case G9).
+ *
+ * `baseRecordId` is what `EcosForm` publishes next to it, taken from the record itself
+ * (`getBaseRecord().id`) rather than from its string form: the shape of the alias belongs to
+ * `records-core` and had already been open-coded in seven places. The string cut stays as the net
+ * for a form host that publishes no base id, so that its absence degrades to a cut reference rather
+ * than to a broken request.
+ * @param {?{baseRecordId?: string, recordId?: string}} options - Form options
+ * @returns {string} Reference safe to send, or an empty string when there is none
+ */
+export const resolveAiRecordRef = options => {
+  return options?.baseRecordId || stripRecordRefAlias(options?.recordId) || '';
+};
+
+/**
+ * Whether two record references point at the same record.
+ *
+ * Full string equality is checked first; when it fails, and only when exactly one of the two names
+ * its application, the prefixed one is compared without that prefix. The fallback is what the autocomplete
+ * list needs: the current record arrives as the `recordRef` query parameter of the page address
+ * (`helpers/urls.js:getRecordRef`) while search results carry `record.id` as the server returned it
+ * (`AdditionalContextService.searchRecordsByDisp`), and neither side is normalised — so the very
+ * same record may be written `emodel/type@id` on one side and `type@id` on the other.
+ *
+ * Only the application prefix is dropped, never a `/` that belongs to the reference itself: in
+ * `alfresco/@workspace://SpacesStore/id` the local id carries slashes of its own, and cutting at the
+ * last one would leave a bare `id` that matches any other record with the same id in another store.
+ *
+ * Anything that is not a non-empty string gives `false`: unknown is never treated as equal. No
+ * exceptions are thrown.
+ * @param {string} a
+ * @param {string} b
+ * @returns {boolean}
+ */
+export const isSameRecordRef = (a, b) => {
+  if (typeof a !== 'string' || typeof b !== 'string' || !a || !b) {
+    return false;
+  }
+  if (a === b) {
+    return true;
+  }
+  // The application prefix is the first `/`, and only when it comes before the `@` that opens the
+  // local id: `alfresco/@workspace://SpacesStore/id` then keeps everything from its `@` onwards. A
+  // reference with no `@` is not in `app/sourceId@localId` form at all, so it is compared whole.
+  const hasAppPrefix = ref => {
+    const at = ref.indexOf('@');
+    const slash = ref.indexOf('/');
+    return at !== -1 && slash !== -1 && slash < at;
+  };
+  // Only the side that carries a prefix may lose it. Stripped from both, `emodel/contract@1a2b` and
+  // `alfresco/contract@1a2b` — two records of two different applications — reduced to the same
+  // string and compared equal, and every caller of this helper turns that into a silent drop: the
+  // record vanishes from the `@` autocomplete list, is refused entry to the context, or is filtered
+  // out of the auto-context chips, with nothing said anywhere. Two references that both name their
+  // application and name different ones are simply different records, and `a === b` above has
+  // already settled the case where they name the same one.
+  if (hasAppPrefix(a) === hasAppPrefix(b)) {
+    return false;
+  }
+  // The prefixed side keeps everything from its `@` onwards, and the bare one is (already non-empty)
+  // whole, so neither part can be empty here.
+  const localPart = ref => (hasAppPrefix(ref) ? ref.slice(ref.indexOf('/') + 1) : ref);
+  return localPart(a) === localPart(b);
+};
+
+/**
+ * Whether toggling [item] will take it OUT of the manual context rather than put it in.
+ *
+ * The context chips and the `@` list share one toggle, and the two directions are not symmetrical.
+ * A record may be held twice over — picked by hand and attached by the backend as an auto-context
+ * artifact — and the artifact is hidden while the manual entry is there
+ * (`visibleAutoContextArtifacts`). Removing must therefore take both away, or the hidden artifact
+ * reappears as an identical chip and the record can never be got out of the context; adding must
+ * leave the artifact alone, so that walking off the record's page brings it back.
+ *
+ * Only the two collections that can hold a record reference are consulted: attributes carry no
+ * reference and no artifact can shadow them.
+ * @param {string} contextType - One of ADDITIONAL_CONTEXT_TYPES
+ * @param {?{recordRef?: string}} item - The entry the toggle was called with
+ * @param {?{records?: Array, documents?: Array}} additionalContext - Manual context as it is now
+ * @returns {boolean} True when the toggle removes the entry
+ */
+export const isContextRemoval = (contextType, item, additionalContext) => {
+  const collection =
+    contextType === ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD
+      ? additionalContext?.records
+      : contextType === ADDITIONAL_CONTEXT_TYPES.DOCUMENTS
+        ? additionalContext?.documents
+        : null;
+  if (!item?.recordRef || !collection?.length) {
+    return false;
+  }
+  return collection.some(entry => isSameRecordRef(entry?.recordRef, item.recordRef));
 };
 
 /**
@@ -206,4 +336,51 @@ export const isGateStale = (messages, index) => {
     return false;
   }
   return isSupersededByNewerMessage(messages, index);
+};
+
+/**
+ * Applies an agent selection under the rule the conversation binding demands.
+ *
+ * An agent switch rebinds the conversation server-side (`AgentOrchestratorService.resolveAgentRef`
+ * stores the agent on it), so a dialog that is still alive has to be confirmed away and cleared
+ * first — otherwise the next question continues the old history under the new agent. The chip may
+ * therefore change only once the clearing actually happened: shown against a conversation that is
+ * still there, it claims the opposite of the error the user has just been told.
+ *
+ * The confirmation lives here rather than at the call sites, and on the same `hasConversation` as
+ * the clearing it guards, so that a new way of picking an agent cannot switch one silently. Asking
+ * and clearing are one rule; split across the callers they were stated twice, in two different
+ * shapes, and agreed only by accident.
+ *
+ * A chat with nothing to lose is the exception to both halves. Its conversation id has never been to
+ * the backend, so there is nothing to warn about, and a DELETE refused with a 5xx says nothing about
+ * the selection — gating on it took away the only way to pick an agent at all while the service was
+ * briefly unreachable.
+ *
+ * Both entry points into an agent switch go through here: the selector dropdown in
+ * `ChatContextTags`, and the «Настроить платформу» shortcut on the welcome screen — which is on show
+ * exactly when the message list is empty, the state a reload leaves behind while the conversation
+ * itself survives (D-B-14).
+ *
+ * @param {Object} params
+ * @param {?Object} params.agent - The agent to select, null for the default "Citeck AI"
+ * @param {boolean} params.hasConversation - Whether a dialog an agent switch would rebind is alive:
+ *   a non-empty message list, or a conversation restored after a reload. Drives both the
+ *   confirmation and the clearing.
+ * @param {?Function} [params.clearConversation] - Clears the conversation, reporting the outcome as
+ *   `Promise<boolean>`; anything but `true` is read as "the conversation is still there". Omitted
+ *   when there is nothing to clear, so no DELETE is sent and no staged context is dropped.
+ * @param {Function} params.selectAgent - Applies the selection
+ * @returns {Promise<boolean>} True when the selection was applied
+ */
+export const applyAgentSwitch = async ({ agent, hasConversation, clearConversation, selectAgent }) => {
+  if (hasConversation && !window.confirm(t('ai-agent.confirm-switch'))) {
+    return false;
+  }
+  const cleared = clearConversation ? await clearConversation() : true;
+  if (hasConversation && !cleared) {
+    return false;
+  }
+  selectAgent?.(agent);
+  return true;
 };

@@ -56,6 +56,10 @@ const ChatInput = ({
   };
 
   const placeholder = t(resolvePlaceholderKey());
+  // `data-tooltip` is drawn by a CSS pseudo-element and gives no accessible name, so the same
+  // wording goes into `aria-label` — that is what a screen reader (and Playwright) reads.
+  const uploadLabel = isUploadingFile ? t('ai-assistant.input.uploading') : t('ai-assistant.input.upload');
+  const clearContextLabel = t('ai-assistant.input.clear-context');
 
   return (
     <div className="ai-assistant-chat__input-wrapper">
@@ -76,7 +80,8 @@ const ChatInput = ({
             className="ai-assistant-chat__floating-action ai-assistant-chat__floating-action--file-upload"
             onClick={onFileUploadClick}
             disabled={isUploadingFile}
-            data-tooltip={isUploadingFile ? t('ai-assistant.input.uploading') : t('ai-assistant.input.upload')}
+            data-tooltip={uploadLabel}
+            aria-label={uploadLabel}
           >
             <Icon className={isUploadingFile ? 'fa fa-spinner fa-spin' : 'fa fa-paperclip'} />
           </button>
@@ -84,7 +89,8 @@ const ChatInput = ({
             type="button"
             className="ai-assistant-chat__floating-action ai-assistant-chat__floating-action--clear-context"
             onClick={onClearConversation}
-            data-tooltip={t('ai-assistant.input.clear-context')}
+            data-tooltip={clearContextLabel}
+            aria-label={clearContextLabel}
           >
             <Icon className="fa fa-trash-o" />
           </button>

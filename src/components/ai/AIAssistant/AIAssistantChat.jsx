@@ -7,7 +7,7 @@ import aiAssistantService from './AIAssistantService';
 import editorContextService, { CONTEXT_TYPES } from './EditorContextService';
 import MermaidDiagram from './MermaidDiagram';
 import { ChatHeader, ChatTabs, ChatInput, ChatContextTags, EmailModal, MessageList } from './components';
-import { AI_INTENTS, EDITOR_CONTEXT_HANDLERS, API_ENDPOINTS, TAB_TYPES, getScriptContextLabel } from './constants';
+import { AI_INTENTS, EDITOR_CONTEXT_HANDLERS, TAB_TYPES, getScriptContextLabel } from './constants';
 import { exportChat } from './exportChatHistory';
 import {
   useChatResize,
@@ -16,14 +16,14 @@ import {
   useAdditionalContext,
   useAutocomplete,
   useUniversalChat,
-  useContextualChat
+  useContextualChat,
+  useEmailSend
 } from './hooks';
-import { getStageStatus } from './utils';
+import { applyAgentSwitch, getStageStatus, isContextRemoval } from './utils';
 
 import { Icon } from '@/components/common';
 import { EVENTS } from '@/components/dashboard/widgets/BaseWidget';
 import { t } from '@/helpers/export/util';
-import { getRecordRef } from '@/helpers/urls';
 import { IS_APPLE, useKeyboardShortcut } from '@/hooks/useKeyboardShortcut';
 import { NotificationManager } from '@/services/notifications';
 
@@ -61,16 +61,6 @@ const AIAssistantChat = () => {
   const [activeTab, setActiveTab] = useState(TAB_TYPES.UNIVERSAL);
   const [contextType, setContextType] = useState(() => editorContextService.getContext());
 
-  // Email modal state
-  const [showEmailModal, setShowEmailModal] = useState(false);
-  const [isEmailSending, setIsEmailSending] = useState(false);
-  const [emailFormData, setEmailFormData] = useState({
-    to: '',
-    subject: '',
-    body: '',
-    addToActivities: true
-  });
-
   // Text/Script diff state
   const [isApplyingTextChanges, setIsApplyingTextChanges] = useState(false);
   const [isApplyingScriptChanges, setIsApplyingScriptChanges] = useState(false);
@@ -84,7 +74,7 @@ const AIAssistantChat = () => {
   const setMessageRef = useRef(null);
 
   // Custom hooks
-  const { isOpen, isMinimized, handleClose: baseHandleClose, handleMinimize } = useWindowManagement();
+  const { isOpen, isMinimized, isVisible, handleClose: baseHandleClose, handleMinimize } = useWindowManagement();
   const { chatSize, handleResize } = useChatResize();
 
   // Context added callback - switches to universal tab and focuses
@@ -136,10 +126,23 @@ const AIAssistantChat = () => {
     fileInputRef
   } = fileUploadHook;
 
+  const { showEmailModal, isEmailSending, emailFormData, handleSendEmail, handleEmailModalClose, handleEmailFieldChange, handleEmailSend } =
+    useEmailSend();
+
   const universalChatHook = useUniversalChat({
     additionalContext,
     uploadedFiles,
     clearUploadedFiles,
+    // Opening the panel is what resumes a request left running by a reload (D-B-14): the hook is
+    // mounted on every page, so restoration must not be tied to its mounting.
+    //
+    // "Open" here means on screen — `isVisible`, not `isOpen`: `AIAssistantService.toggleChat`
+    // minimizes an open panel instead of closing it, so the toolbar button, the `Alt+I` shortcut and
+    // the header minimize button all leave `isOpen` true. Keyed on `isOpen` alone, the hint the chat
+    // prints on a failed poll — «закройте и снова откройте панель» — did nothing for every one of
+    // those controls: only the `×` in the chat header resumed anything, and the stored request id
+    // sat unused for the whole resume window.
+    isOpen: isVisible,
     clearAllContext
   });
 
@@ -154,7 +157,13 @@ const AIAssistantChat = () => {
     addRecordToContext,
     addDocumentToContext,
     additionalContext,
-    selectedAdditionalContext
+    selectedAdditionalContext,
+    // Auto-context chips live in the universal chat hook; without them the @ list would offer a
+    // record that is already a chip, and picking it would show the same record twice (D-405-1).
+    autoContextArtifacts: universalChatHook.autoContextArtifacts,
+    // Minimizing keeps this component mounted and only drops the input form, so the list has to be
+    // closed explicitly — see the effect in the hook.
+    isPanelVisible: isVisible
   });
 
   // Current chat based on active tab
@@ -294,57 +303,6 @@ const AIAssistantChat = () => {
     }
   }, []);
 
-  const handleSendEmail = useCallback(emailData => {
-    if (emailData) {
-      setEmailFormData({
-        to: emailData.to || '',
-        subject: emailData.subject || '',
-        body: emailData.body || '',
-        addToActivities: true
-      });
-      setShowEmailModal(true);
-    }
-  }, []);
-
-  const handleEmailModalClose = useCallback(() => {
-    setShowEmailModal(false);
-    setIsEmailSending(false);
-    setEmailFormData({ to: '', subject: '', body: '', addToActivities: true });
-  }, []);
-
-  const handleEmailSend = useCallback(async () => {
-    if (isEmailSending) return;
-    setIsEmailSending(true);
-
-    try {
-      const response = await fetch(API_ENDPOINTS.SEND_MAIL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...emailFormData,
-          recordRef: getRecordRef() || null
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || t('ai-assistant.notification.email-send-failed-status', { status: response.status }));
-      }
-
-      const result = await response.json();
-      if (!result.success) {
-        throw new Error(result.message || t('ai-assistant.notification.email-send-unknown-error'));
-      }
-
-      NotificationManager.success(t('ai-assistant.notification.email-sent'), t('ai-assistant.notification.email-send-title'));
-      handleEmailModalClose();
-    } catch (error) {
-      NotificationManager.error(error.message, t('ai-assistant.notification.email-send-error-title'));
-    } finally {
-      setIsEmailSending(false);
-    }
-  }, [emailFormData, isEmailSending, handleEmailModalClose]);
-
   // Text diff handler
   const handleApplyTextChanges = useCallback(async diffData => {
     if (!diffData?.recordRef || !diffData?.attribute) return;
@@ -436,10 +394,23 @@ const AIAssistantChat = () => {
     [universalChatHook, contextualChatHook, autocompleteHook]
   );
 
+  // Sending the message takes the `@` list down with it. Since D-B-23 the list no longer swallows
+  // `Enter` when nothing is picked — the message is sent instead, which is the point — but nothing
+  // was left to close the list: the input emptied, the query was gone, and the list went on hanging
+  // over the answer, anchored to a field it no longer described. Both ways of sending go through
+  // here, so the send button behaves like the key.
+  const handleChatSubmit = useCallback(
+    e => {
+      autocompleteHook.hideAutocomplete();
+      currentChat.handleSubmit(e);
+    },
+    [autocompleteHook, currentChat]
+  );
+
   const handleKeyDown = useCallback(
     (e, isUniversal) => {
       if (autocompleteHook.showAutocomplete && isUniversal) {
-        const filteredOptions = autocompleteHook.getFilteredAutocompleteOptions();
+        const filteredOptions = autocompleteHook.filteredAutocompleteOptions;
         const result = autocompleteHook.handleAutocompleteKeyDown(e, filteredOptions);
 
         if (result && typeof result === 'object') {
@@ -457,21 +428,87 @@ const AIAssistantChat = () => {
 
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
-        currentChat.handleSubmit(e);
+        handleChatSubmit(e);
       }
     },
-    [autocompleteHook, universalChatHook, currentChat]
+    [autocompleteHook, universalChatHook, handleChatSubmit]
   );
 
   const handleFileUploadClick = useCallback(() => {
     fileInputRef.current?.click();
   }, [fileInputRef]);
 
-  // Clear conversation with script context reset (keep selected agent)
-  const handleClearConversationKeepAgent = useCallback(() => {
-    universalChatHook.clearConversation();
-    removeScriptContext();
+  // The `×` of a context chip, which is not always the same thing as toggling one collection.
+  //
+  // One record can be held twice over: picked by hand (or added by itself when its page was opened)
+  // and attached by the backend as an auto-context artifact. `visibleAutoContextArtifacts` hides the
+  // artifact so that a single chip is shown — which means removing that chip only takes the manual
+  // half away, un-hides the artifact, and puts an identical chip straight back, with the record still
+  // travelling in `contextArtifacts` of the next question. There was no way left to get it out of the
+  // context at all. Removing therefore drops both halves.
+  //
+  // Only removing: adding must leave the artifact where it is, so that leaving the record's page
+  // brings it back as a chip (the reason the sift is computed rather than written into the state).
+  // Which of the two a toggle is about is decided before it runs, by whether the entry is in the
+  // collection now.
+  const handleToggleContext = useCallback(
+    (contextType, item) => {
+      if (isContextRemoval(contextType, item, additionalContext)) {
+        universalChatHook.removeAutoContextArtifact(item.recordRef);
+      }
+      return toggleAdditionalContext(contextType, item);
+    },
+    [additionalContext, toggleAdditionalContext, universalChatHook]
+  );
+
+  // Clear conversation with script context reset (keep selected agent).
+  // The chip is dropped only once the conversation is actually gone: a refused DELETE leaves it
+  // alive server-side and already tells the user so, and removing the script context anyway would
+  // both contradict that notification and unbind a script the chat keeps sending with every
+  // following question (`editorContextService` is reset by the same successful path).
+  // The outcome is passed on to the caller for the same reason: the agent selector clears the
+  // conversation before switching agents and must not switch when the clearing was refused.
+  // @returns {Promise<boolean>} True when the conversation was cleared
+  const handleClearConversationKeepAgent = useCallback(async () => {
+    const cleared = await universalChatHook.clearConversation();
+    if (cleared) {
+      removeScriptContext();
+    }
+    return cleared;
   }, [universalChatHook, removeScriptContext]);
+
+  // The welcome screen's «Настроить платформу» shortcut is the second way to pick an agent, and it
+  // has to pass the same gate as the selector in `ChatContextTags`: an agent switch rebinds the
+  // conversation server-side (`AgentOrchestratorService.resolveAgentRef` stores the agent on it), so
+  // a dialog that is still alive must be confirmed away and cleared first — both halves of that rule
+  // live in `applyAgentSwitch`. That screen shows exactly when the message list is empty — which
+  // since D-B-14 is also the state right after a reload, where the conversation id, its server-side
+  // history and its agent binding all survive while only the on-screen list is gone. Handed the raw
+  // setter, the shortcut switched the agent on that restored conversation with no confirmation and
+  // no DELETE, and the next question continued the old dialog under a new agent.
+  const handleSelectAgentFromWelcome = useCallback(
+    async agent => {
+      // The list is empty whenever this screen is on show, so a restored conversation is the only
+      // thing an agent switch can lose here.
+      const hasConversation = universalChatHook.hasRestoredConversation;
+      try {
+        await applyAgentSwitch({
+          agent,
+          hasConversation,
+          // Nothing to clear on a chat that has never been used: no DELETE is sent, and the context
+          // staged on the welcome screen (@-records, uploaded files) is left where the user put it.
+          clearConversation: hasConversation ? handleClearConversationKeepAgent : null,
+          selectAgent: universalChatHook.setSelectedAgent
+        });
+      } catch (error) {
+        // Same reason as in the selector dropdown: the clearing is asynchronous and may throw, and
+        // the caller here is a click handler that would drop the rejection on the floor.
+        console.error('Error switching agent:', error);
+        NotificationManager.error(t('ai-agent.switch-failed'), t('ai-agent.switch-error-title'));
+      }
+    },
+    [universalChatHook, handleClearConversationKeepAgent]
+  );
 
   // Helper functions
   const getContextTitle = () => {
@@ -505,16 +542,23 @@ const AIAssistantChat = () => {
       {/* Autocomplete dropdown */}
       {autocompleteHook.showAutocomplete &&
         (() => {
-          const filteredOptions = autocompleteHook.getFilteredAutocompleteOptions();
-          const showLoading = autocompleteHook.isSearching && autocompleteHook.autocompleteQuery.length >= 3;
-          if (!showLoading && filteredOptions.length === 0) return null;
+          const filteredOptions = autocompleteHook.filteredAutocompleteOptions;
+          const showLoading = autocompleteHook.isSearchIndicatorVisible;
+          // The same predicate decides whether the key handler may consume Escape/Enter, so the two
+          // cannot disagree about a list that is open but draws nothing (useAutocomplete.js).
+          if (!autocompleteHook.isAutocompleteListVisible(filteredOptions)) return null;
+          const position = autocompleteHook.autocompletePosition;
           return (
             <div
               className="ai-assistant-chat__autocomplete"
               style={{
                 position: 'fixed',
-                top: autocompleteHook.autocompletePosition.top,
-                left: autocompleteHook.autocompletePosition.left,
+                left: position.left,
+                // Which vertical bound is set is decided by the calculation in useAutocomplete:
+                // bottom-anchored above the input field normally, top-anchored below it when there
+                // is not enough room above (D-405-4).
+                ...(position.top != null ? { top: position.top } : { bottom: position.bottom }),
+                ...(position.maxHeight != null && { maxHeight: position.maxHeight }),
                 zIndex: 105001
               }}
             >
@@ -559,6 +603,9 @@ const AIAssistantChat = () => {
           minimized: isMinimized,
           'ai-assistant-chat--drag-over': dragOver
         })}
+        // The drop hint is drawn by a CSS pseudo-element, which can only take its text from an
+        // attribute — a literal in the stylesheet showed Russian wording in the English UI.
+        data-drop-hint={t('ai-assistant.drop-files-hint')}
         ref={chatRef}
         onDrop={e => {
           e.preventDefault();
@@ -615,12 +662,12 @@ const AIAssistantChat = () => {
                 messagesEndRef={messagesEndRef}
                 onActionClick={currentChat.handleActionClick}
                 onSelectDeployScope={currentChat.selectDeployScope}
-                onSelectAgent={activeTab === TAB_TYPES.UNIVERSAL ? universalChatHook.setSelectedAgent : undefined}
+                onSelectAgent={activeTab === TAB_TYPES.UNIVERSAL ? handleSelectAgentFromWelcome : undefined}
               />
             </div>
 
             <div className="ai-assistant-chat__input-section">
-              <form className="ai-assistant-chat__input-container" onSubmit={currentChat.handleSubmit}>
+              <form className="ai-assistant-chat__input-container" onSubmit={handleChatSubmit}>
                 {activeTab === TAB_TYPES.UNIVERSAL && (
                   <ChatContextTags
                     selectedAdditionalContext={selectedAdditionalContext}
@@ -634,8 +681,8 @@ const AIAssistantChat = () => {
                     selectedAgent={universalChatHook.selectedAgent}
                     onSelectAgent={universalChatHook.setSelectedAgent}
                     onClearConversation={handleClearConversationKeepAgent}
-                    hasMessages={universalChatHook.messages.length > 0}
-                    onToggleContext={toggleAdditionalContext}
+                    hasMessages={universalChatHook.messages.length > 0 || universalChatHook.hasRestoredConversation}
+                    onToggleContext={handleToggleContext}
                     onRemoveSelectedText={removeSelectedTextContext}
                     onRemoveUploadedFile={removeUploadedFile}
                     onRemoveScriptContext={removeScriptContext}
@@ -669,7 +716,7 @@ const AIAssistantChat = () => {
           isEmailSending={isEmailSending}
           onClose={handleEmailModalClose}
           onSend={handleEmailSend}
-          onFieldChange={(field, value) => setEmailFormData(prev => ({ ...prev, [field]: value }))}
+          onFieldChange={handleEmailFieldChange}
         />
       )}
     </>

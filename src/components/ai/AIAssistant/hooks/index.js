@@ -4,6 +4,7 @@
 export { default as useChatResize } from './useChatResize';
 export { default as usePolling } from './usePolling';
 export { default as useFileUpload } from './useFileUpload';
+export { default as useEmailSend } from './useEmailSend';
 
 // Phase 4: Dependent hooks
 export { default as useWindowManagement } from './useWindowManagement';

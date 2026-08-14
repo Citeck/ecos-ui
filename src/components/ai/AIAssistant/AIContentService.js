@@ -6,13 +6,20 @@
 
 import uuidV4 from 'uuidv4';
 
-import { AI_INTENTS, MESSAGE_TYPES, API_ENDPOINTS, POLLING_INTERVAL, CONTENT_TYPES, PLATFORM_CONFIG_AGENT_REF } from './constants';
+import { extractAnswerText } from './assistantResponse';
+import {
+  AI_INTENTS,
+  MESSAGE_TYPES,
+  API_ENDPOINTS,
+  FIELD_AI_TIMEOUT_MS,
+  getFieldAiPollDelay,
+  CONTENT_TYPES,
+  PLATFORM_CONFIG_AGENT_REF
+} from './constants';
 
 import { t } from '@/helpers/export/util';
 import { getWorkspaceId } from '@/helpers/urls';
 import { NotificationManager } from '@/services/notifications';
-
-const MAX_POLLING_ATTEMPTS = 120; // 2 minutes max
 
 /**
  * Quick action definitions
@@ -213,15 +220,29 @@ const buildCodeRequest = ({ prompt, quickAction, currentContent, contextType, re
  */
 const pollForResult = (requestId, originalContent, contentType, onProgress) => {
   return new Promise((resolve, reject) => {
-    let attempts = 0;
+    let waitedMs = 0;
+
+    // Accumulated rather than measured off the clock: the schedule is then the same whatever the
+    // page was doing between two polls, and the tests can step through it with fake timers.
+    const scheduleDelay = () => {
+      const delay = getFieldAiPollDelay(waitedMs);
+      waitedMs += delay;
+      return delay;
+    };
 
     const poll = async () => {
-      attempts++;
-
-      if (attempts > MAX_POLLING_ATTEMPTS) {
+      // Time-based, not a count of tries: the wait between polls grows, so «120 attempts» stopped
+      // describing any particular span. The budget is the backend's own limit — see
+      // FIELD_AI_TIMEOUT_MS.
+      if (waitedMs >= FIELD_AI_TIMEOUT_MS) {
+        // The request is still running server-side, and nobody is going to collect its answer now —
+        // so it is called off rather than left to burn tokens on a result no one will read.
+        cancelRequest(requestId);
         const errorMessage = t('ai-content-service.timeout', 'Request timed out. Please try again.');
         NotificationManager.error(errorMessage, t('ai-content-service.error-title', 'AI Assistant Error'));
-        reject(new Error('Request timed out'));
+        const timedOut = new Error('Request timed out');
+        timedOut.isTimeout = true;
+        reject(timedOut);
         return;
       }
 
@@ -276,13 +297,13 @@ const pollForResult = (requestId, originalContent, contentType, onProgress) => {
               message: data.progress.message
             });
           }
-          setTimeout(poll, POLLING_INTERVAL);
+          setTimeout(poll, scheduleDelay());
           return;
         }
 
         // Unknown status - log warning and continue polling
         console.warn('AI Content Service: Unknown polling status:', data.status, 'Attempt:', attempts);
-        setTimeout(poll, POLLING_INTERVAL);
+        setTimeout(poll, scheduleDelay());
       } catch (error) {
         const errorMessage = error.message || t('ai-content-service.unknown-error', 'Unknown error occurred');
         NotificationManager.error(errorMessage, t('ai-content-service.error-title', 'AI Assistant Error'));
@@ -353,7 +374,7 @@ const parseResult = (responseData, originalContent, contentType) => {
   }
 
   // Try to extract text from response
-  const text = extractTextFromResponse(responseData);
+  const text = extractAnswerText(responseData);
   if (text) {
     return {
       original: originalContent || '',
@@ -364,22 +385,6 @@ const parseResult = (responseData, originalContent, contentType) => {
   }
 
   return { error: 'Unexpected response type from AI' };
-};
-
-/**
- * Try to extract text from various response formats
- */
-const extractTextFromResponse = responseData => {
-  if (!responseData) return null;
-  if (typeof responseData === 'string') return responseData;
-  if (responseData.message?.text) return responseData.message.text;
-  if (responseData.message?.generatedText) return responseData.message.generatedText;
-  if (responseData.message?.modifiedText) return responseData.message.modifiedText;
-  if (responseData.message?.content) return responseData.message.content;
-  if (typeof responseData.message === 'string') return responseData.message;
-  if (responseData.text) return responseData.text;
-  if (responseData.content) return responseData.content;
-  return null;
 };
 
 /**

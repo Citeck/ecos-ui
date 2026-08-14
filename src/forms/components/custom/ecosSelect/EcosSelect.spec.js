@@ -1,4 +1,6 @@
+import fs from 'fs';
 import cloneDeep from 'lodash/cloneDeep';
+import path from 'path';
 
 import Harness from '../../../test/harness';
 import EcosSelectComponent from './EcosSelect';
@@ -203,6 +205,59 @@ describe('EcosSelect Component', () => {
 
       // The widget is populated, so it IS the authority: nothing is selected in it any more.
       expect(component.getValue()).toBe('');
+    });
+  });
+
+  /**
+   * A multi-value chip has no layout of its own: the vendored choices.js base makes it an
+   * `inline-block` with `word-break: break-all` and no width cap, so a label wider than the field
+   * pushes the remove button onto a second line and the pill doubles in height (COREDEV-14). The
+   * one-row layout that fixes it lives in `components/override/select/select.scss` and is written
+   * against this markup — the label ellipsizes because it is a direct `<span>` child of the chip,
+   * the button holds its width because it carries `.choices__button`. Neither selector is produced
+   * by this repository: the chip comes from the choices.js default `item` template (wrapped in
+   * `forms/choices/index.js`) and the label wrapper from the component's `template` option. When
+   * either stops matching, the CSS silently stops applying and the chips wrap again, which no
+   * layout-less renderer can observe — so what is pinned here is the markup the stylesheet needs.
+   */
+  describe('multiple value chips', () => {
+    const CHIP = '.choices__list--multiple .choices__item';
+    const LABEL = `${CHIP} > span`;
+    const REMOVE = `${CHIP} .choices__button`;
+
+    const withChips = () =>
+      Harness.testCreate(EcosSelectComponent, Object.assign(cloneDeep(comp1), { multiple: true })).then(component => {
+        component.setValue(['red', 'blue']);
+        return component;
+      });
+
+    it('should render one chip per selected value', async () => {
+      const component = await withChips();
+
+      expect(component.element.querySelectorAll(CHIP)).toHaveLength(2);
+    });
+
+    it('should carry the label in a direct span of the chip, which is what the ellipsis rule targets', async () => {
+      const component = await withChips();
+
+      expect(Array.from(component.element.querySelectorAll(LABEL), span => span.textContent)).toEqual(['Red', 'Blue']);
+    });
+
+    it('should keep the remove control inside the chip, which is what the one-row rule holds in place', async () => {
+      const component = await withChips();
+
+      expect(component.element.querySelectorAll(REMOVE)).toHaveLength(2);
+    });
+
+    it('should lay the chip out on a single row in the stylesheet', () => {
+      const styles = fs.readFileSync(path.resolve(__dirname, '../../override/select/select.scss'), 'utf8');
+      // The declarations that keep label and button on one line; `> span` gets `%ellipsis` extended
+      // onto it, so it is the selector rather than the properties that is asserted there.
+      const chipRule = styles.slice(styles.indexOf('.choices__list--multiple'));
+
+      expect(chipRule).toContain('display: inline-flex');
+      expect(chipRule).toContain('white-space: nowrap');
+      expect(chipRule).toContain('> span');
     });
   });
 });

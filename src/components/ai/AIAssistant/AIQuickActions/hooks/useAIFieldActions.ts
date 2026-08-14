@@ -352,9 +352,27 @@ const useAIFieldActions = ({
         if (!isCancellationError) {
           console.error('AI generation error:', error);
           if (isMountedRef.current) {
-            // Close the result popup on error
-            setIsResultVisible(false);
-            NotificationManager.error(t('ai-actions.error.generation', 'Failed to generate content'), t('ai-actions.error.title', 'Error'));
+            // A spent waiting budget is not a failed generation, and closing the panel over it was
+            // the worst of both: the work was called off AND the user was left with a toast that
+            // named no next step. Keep the panel, say what happened, and let the retry controls it
+            // already carries do the rest (D-G-FE-TIMEOUT).
+            if ((error as Error & { isTimeout?: boolean })?.isTimeout) {
+              const currentValue = typeof getValue === 'function' ? getValue() : '';
+              // Both sides equal, so no diff is drawn and «Apply» writes back what is already
+              // there — the panel is showing a message, not a proposed edit.
+              setResult({
+                originalValue: currentValue,
+                generatedValue: currentValue,
+                explanation: t('ai-actions.error.timeout-retry')
+              });
+            } else {
+              // Close the result popup on error
+              setIsResultVisible(false);
+              NotificationManager.error(
+                t('ai-actions.error.generation', 'Failed to generate content'),
+                t('ai-actions.error.title', 'Error')
+              );
+            }
           }
         }
       } finally {
@@ -608,7 +626,17 @@ const useAIFieldActions = ({
 function getDefaultPromptForAction(actionId: string | undefined, fieldType: string): string {
   const prompts: Record<string, string> = {
     improve: t('ai-actions.prompt.improve', 'Improve this text'),
-    translate: t('ai-actions.prompt.translate', 'Translate to English'),
+    // Names no target language, so that this fallback cannot contradict the backend: the string is
+    // merged into the quick-action prompt as "Additional instructions"
+    // (`TextEditService.resolveUserMessage`), and that prompt
+    // (`prompts/text/quick_actions/translate.md`) detects the source language and translates into
+    // the other one of the Russian/English pair only while the request names no language of its own.
+    // A directional wording here would pin the direction and make the button a no-op on a field
+    // already in the target language. Note that no mounted field takes this path today — every
+    // consumer of the hook passes `onGenerateRequest` and the branch above wins; the button was
+    // missing from the UI altogether until `translate` was added to FIELD_ACTION_CONFIGS, which is
+    // what actually fixed it.
+    translate: t('ai-actions.prompt.translate', 'Translate this text'),
     expand: t('ai-actions.prompt.expand', 'Expand and add more details'),
     summarize: t('ai-actions.prompt.summarize', 'Summarize this text'),
     // Kept in step with FIELD_ACTION_CONFIGS: an action offered in the UI but missing here returns

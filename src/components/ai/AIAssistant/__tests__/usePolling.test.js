@@ -1,4 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
+
 import usePolling from '../hooks/usePolling';
 
 jest.useFakeTimers();
@@ -97,7 +98,9 @@ describe('usePolling', () => {
       jest.advanceTimersByTime(1000);
     });
 
-    expect(onError).toHaveBeenCalledWith('something went wrong');
+    // The only error branch that is terminal for the request: the backend decided its outcome, so
+    // the caller may retire the stored requestId
+    expect(onError).toHaveBeenCalledWith('something went wrong', { requestAlive: false });
     expect(result.current.isPolling).toBe(false);
   });
 
@@ -119,9 +122,7 @@ describe('usePolling', () => {
 
   it('calls onProgress and continues polling when processing with progress', async () => {
     const progress = { stage: 'GENERATING', progress: 50 };
-    fetchStatus
-      .mockResolvedValueOnce({ status: 'processing', progress })
-      .mockResolvedValueOnce({ result: { message: 'done' } });
+    fetchStatus.mockResolvedValueOnce({ status: 'processing', progress }).mockResolvedValueOnce({ result: { message: 'done' } });
 
     const { result } = renderPolling();
 
@@ -182,7 +183,9 @@ describe('usePolling', () => {
       jest.advanceTimersByTime(1000);
     });
 
-    expect(onError).toHaveBeenCalledWith('Network error', { requestLost: false });
+    // A transport failure says nothing about the request, which keeps running server-side — the
+    // caller has to be able to tell it apart from a request that is actually over (D-B-14)
+    expect(onError).toHaveBeenCalledWith('Network error', { requestLost: false, requestAlive: true });
     expect(result.current.isPolling).toBe(false);
     consoleSpy.mockRestore();
   });
@@ -202,7 +205,7 @@ describe('usePolling', () => {
       jest.advanceTimersByTime(1000);
     });
 
-    expect(onError).toHaveBeenCalledWith('ai-assistant.chat.polling-error');
+    expect(onError).toHaveBeenCalledWith('ai-assistant.chat.polling-error', { requestAlive: true });
     expect(result.current.isPolling).toBe(false);
     expect(result.current.activeRequestId).toBeNull();
 
@@ -230,13 +233,20 @@ describe('usePolling', () => {
       jest.advanceTimersByTime(1000);
     });
 
-    expect(onError).toHaveBeenCalledWith('request is lost', { requestLost: true });
+    // A request the server no longer knows is over for good — unlike the transport failure above,
+    // this one lets the caller retire the stored id
+    expect(onError).toHaveBeenCalledWith('request is lost', { requestLost: true, requestAlive: false });
     consoleSpy.mockRestore();
   });
 
   it('ignores stale responses after generation changes (stopPolling)', async () => {
     let resolveFirst;
-    fetchStatus.mockImplementation(() => new Promise(resolve => { resolveFirst = resolve; }));
+    fetchStatus.mockImplementation(
+      () =>
+        new Promise(resolve => {
+          resolveFirst = resolve;
+        })
+    );
 
     const { result } = renderPolling();
 
@@ -280,6 +290,9 @@ describe('usePolling', () => {
     }
 
     expect(onError).toHaveBeenCalledTimes(1);
+    // The cap is this client's own patience, not the backend's: the request goes on running, so the
+    // caller must keep its id and stay able to resume the poll after a reload (D-B-14)
+    expect(onError).toHaveBeenCalledWith('ai-assistant.chat.polling-timeout', { requestAlive: true });
     expect(result.current.isPolling).toBe(false);
     expect(result.current.activeRequestId).toBeNull();
 
@@ -329,10 +342,14 @@ describe('usePolling', () => {
 
     unmount();
 
-    // No error should be thrown after unmount
     act(() => {
       jest.advanceTimersByTime(5000);
     });
+
+    // The armed timer has to be gone, not merely harmless: a poll surviving the unmount keeps
+    // asking the backend about a request whose chat is no longer on screen, and its callbacks
+    // reach into an unmounted tree. Advancing five intervals must produce no request at all.
+    expect(fetchStatus).not.toHaveBeenCalled();
   });
 
   it('startPolling replaces previous polling session', async () => {

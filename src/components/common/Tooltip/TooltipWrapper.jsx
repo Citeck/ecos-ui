@@ -18,6 +18,44 @@ function isInDOMSubtrees(element, subtreeRoots = []) {
   return subtreeRoots && subtreeRoots.length && subtreeRoots.filter(subTreeRoot => isInDOMSubtree(element, subTreeRoot))[0];
 }
 
+/**
+ * Tooltips whose target is not in the document yet. The listeners are bound to whatever the target
+ * id resolves to when the tooltip mounts, so a child that renders nothing until its data arrives —
+ * the journal's `Import` button, for one — would never get them and the button would stay silent on
+ * hover for the rest of the page's life (COREDEV-408).
+ *
+ * One observer serves all of them, so the cost does not grow with the number of tooltips on a page,
+ * and it only runs while somebody is actually waiting for a target.
+ */
+const waitingForTarget = new Set();
+let targetObserver = null;
+
+function watchForTarget(tooltip) {
+  if (typeof MutationObserver === 'undefined' || !document.body) {
+    return;
+  }
+
+  waitingForTarget.add(tooltip);
+
+  if (!targetObserver) {
+    targetObserver = new MutationObserver(records => {
+      if (records.some(record => record.addedNodes.length)) {
+        Array.from(waitingForTarget).forEach(item => item.updateTarget());
+      }
+    });
+    targetObserver.observe(document.body, { childList: true, subtree: true });
+  }
+}
+
+function unwatchForTarget(tooltip) {
+  waitingForTarget.delete(tooltip);
+
+  if (targetObserver && !waitingForTarget.size) {
+    targetObserver.disconnect();
+    targetObserver = null;
+  }
+}
+
 export const propsTypes = {
   children: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
   placement: PropTypes.oneOf(PopperPlacements),
@@ -66,6 +104,11 @@ export class TooltipWrapper extends Component {
     this.getRef = this.getRef.bind(this);
     this.state = { isOpen: props.isOpen };
     this._isMounted = false;
+    // The state we last asked the owner for. `props.isOpen` only catches up once React has
+    // committed that request, and on a loaded page the pointer can leave the target well
+    // before that happens — guarding on the prop alone drops the hide and the tooltip stays
+    // on screen forever (COREDEV-356).
+    this._requestedOpen = props.isOpen;
   }
 
   componentDidMount() {
@@ -73,8 +116,15 @@ export class TooltipWrapper extends Component {
     this.updateTarget();
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.isOpen !== this.props.isOpen) {
+      this._requestedOpen = this.props.isOpen;
+    }
+  }
+
   componentWillUnmount() {
     this._isMounted = false;
+    unwatchForTarget(this);
     this.removeTargetEvents();
     this._targets = null;
     this.clearShowTimeout();
@@ -93,7 +143,7 @@ export class TooltipWrapper extends Component {
         this.clearHideTimeout();
       }
       if (this.state.isOpen && !this.props.isOpen) {
-        this.toggle();
+        this.toggle(undefined, true);
       }
     }
   }
@@ -135,14 +185,14 @@ export class TooltipWrapper extends Component {
   }
 
   show(e) {
-    if (!this.props.isOpen && this.props.needTooltip) {
+    if (!this._requestedOpen && this.props.needTooltip) {
       this.clearShowTimeout();
       this.currentTargetElement = e ? e.currentTarget || e.target : null;
       if (e && e.composedPath && typeof e.composedPath === 'function') {
         const path = e.composedPath();
         this.currentTargetElement = (path && path[0]) || this.currentTargetElement;
       }
-      this.toggle(e);
+      this.toggle(e, true);
     }
   }
 
@@ -153,10 +203,10 @@ export class TooltipWrapper extends Component {
     this._showTimeout = setTimeout(this.show.bind(this, e), this.getDelay('show'));
   }
   hide(e) {
-    if (this.props.isOpen) {
+    if (this._requestedOpen) {
       this.clearHideTimeout();
       this.currentTargetElement = null;
-      this.toggle(e);
+      this.toggle(e, false);
     }
   }
 
@@ -257,20 +307,38 @@ export class TooltipWrapper extends Component {
       newTarget = [];
     }
 
-    if (!isEqual(newTarget, this._targets)) {
+    // `getTarget` hands back a NodeList, which never compares equal to the array kept here — so the
+    // elements are compared instead, or every call would rebind the listeners
+    const targets = newTarget ? Array.from(newTarget) : [];
+
+    if (!isEqual(targets, this._targets)) {
       this.removeTargetEvents();
-      this._targets = newTarget ? Array.from(newTarget) : [];
+      this._targets = targets;
       this.currentTargetElement = this.currentTargetElement || this._targets[0];
       this.addTargetEvents();
     }
+
+    if (this._targets.length) {
+      unwatchForTarget(this);
+    } else {
+      watchForTarget(this);
+    }
   }
 
-  toggle(e) {
+  /**
+   * @param e - the event that caused the change, may be absent
+   * @param nextOpen - the state being asked for; omitted means "flip whatever is current"
+   */
+  toggle(e, nextOpen) {
     if (this.props.disabled || !this._isMounted) {
       return e && e.preventDefault();
     }
 
-    return this.props.toggle(e);
+    if (typeof nextOpen === 'boolean') {
+      this._requestedOpen = nextOpen;
+    }
+
+    return this.props.toggle(e, nextOpen);
   }
 
   render() {

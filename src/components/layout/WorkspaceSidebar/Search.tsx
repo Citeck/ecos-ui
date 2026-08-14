@@ -10,13 +10,20 @@ interface SearchWorkspaceSidebarProps {
 }
 
 export default class SearchWorkspaceSidebar extends Component<SearchWorkspaceSidebarProps> {
+  private _searchRef = React.createRef<InstanceType<typeof Search>>();
+
   onChange = debounce(text => {
     this.props.onSearch(text);
   }, 500);
 
+  focus = () => {
+    this._searchRef.current?.focus();
+  };
+
   render() {
     return (
       <Search
+        ref={this._searchRef}
         onSearch={this.props.onSearch}
         onChange={this.onChange}
         autoFocus={this.props.autoFocus}

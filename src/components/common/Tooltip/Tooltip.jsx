@@ -122,11 +122,19 @@ class Tooltip extends Component {
     }
   };
 
+  /**
+   * @param data - [event, nextOpen]; the wrapper states which way it wants to go, so a
+   * request that arrives before the previous one is committed cannot cancel it out
+   * by flipping the flag twice (COREDEV-356).
+   */
   onToggle = (...data) => {
     const { onToggle, uncontrolled } = this.props;
+    const nextOpen = data[1];
 
     if (isFunction(onToggle) && !uncontrolled) {
       onToggle.call(this, ...data);
+    } else if (typeof nextOpen === 'boolean') {
+      this.setState({ isOpen: nextOpen });
     } else {
       this.setState(state => ({ isOpen: !state.isOpen }));
     }

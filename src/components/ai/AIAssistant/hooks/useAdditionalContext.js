@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 
 import additionalContextService from '../AdditionalContextService';
+import { isSameRecordRef, stripRecordRefAlias } from '../utils';
 
 import { AI_ASSISTANT_EVENTS, ADDITIONAL_CONTEXT_TYPES } from '@/components/ai/AIAssistant/constants';
 import { getRecordRef, getWorkspaceId } from '@/helpers/urls';
@@ -167,7 +168,9 @@ const useAdditionalContext = (options = {}) => {
   // Add document to context (add-only, no toggle)
   const addDocumentToContext = useCallback(documentData => {
     setAdditionalContext(prev => {
-      if (prev.documents.some(doc => doc.recordRef === documentData.recordRef)) {
+      // `isSameRecordRef` and not `===`, for the same reason as in `isRecordInContext`: the same
+      // document reaches this guard written with and without its application prefix.
+      if (prev.documents.some(doc => isSameRecordRef(doc.recordRef, documentData.recordRef))) {
         return prev;
       }
       return { ...prev, documents: [...prev.documents, documentData] };
@@ -185,8 +188,7 @@ const useAdditionalContext = (options = {}) => {
 
   // Sync the record opened on the current page (dashboard) into the chat context
   const syncCurrentRecord = useCallback(async () => {
-    const rawRecordRef = getRecordRef();
-    const currentRecordRef = rawRecordRef ? rawRecordRef.split('-alias-')[0] : null;
+    const currentRecordRef = stripRecordRefAlias(getRecordRef());
     const prevAutoRecordRef = autoRecordRef.current;
 
     if (prevAutoRecordRef === currentRecordRef) {
@@ -243,7 +245,7 @@ const useAdditionalContext = (options = {}) => {
   useEffect(() => {
     const handleAddContext = async event => {
       const { contextType, attribute } = event.detail;
-      const recordRef = event.detail.recordRef ? event.detail.recordRef.split('-alias-')[0] : null;
+      const recordRef = stripRecordRefAlias(event.detail.recordRef);
 
       if (contextType === ADDITIONAL_CONTEXT_TYPES.CURRENT_RECORD && recordRef) {
         await additionalContextService.handleAddRecordContext(

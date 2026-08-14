@@ -1,7 +1,8 @@
 import Records from '@citeck/records-core';
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 
 import editorContextService from '../EditorContextService';
+import { loadSession, saveSession, clearActiveRequestId, clearSession, markRequestCompleted } from '../chatSessionStorage';
 import {
   AI_INTENTS,
   MESSAGE_TYPES,
@@ -15,12 +16,13 @@ import {
 import { AGENT_STATUSES } from '../types';
 // `fileSaveActionTempRef` lives in utils.js next to the staleness rule that shares it; it stays
 // re-exported from this module for backward compatibility with existing importers.
-import { generateUUID, fileSaveActionTempRef } from '../utils';
+import { generateUUID, fileSaveActionTempRef, isSameRecordRef } from '../utils';
 
 import usePolling from './usePolling';
 
 import { t } from '@/helpers/export/util';
 import { getWorkspaceId } from '@/helpers/urls';
+import { NotificationManager } from '@/services/notifications';
 
 // Matches a markdown inline image: ![alt](url). URLs in our previews never contain ')'.
 const MARKDOWN_IMAGE_RE = /!\[[^\]]*\]\([^)]*\)/g;
@@ -375,6 +377,7 @@ const createAIMessage = (responseData, options = {}) => {
  * @param {Array} options.uploadedFiles - Uploaded files
  * @param {Function} options.clearUploadedFiles - Function to clear uploaded files
  * @param {Function} options.clearAllContext - Function to clear all context
+ * @param {boolean} options.isOpen - Whether the assistant panel is open (drives request restoration)
  * @returns {Object} Universal chat state and handlers
  */
 const useUniversalChat = (options = {}) => {
@@ -382,24 +385,77 @@ const useUniversalChat = (options = {}) => {
     additionalContext = { records: [], documents: [], attributes: [] },
     uploadedFiles = [],
     clearUploadedFiles,
-    clearAllContext
+    clearAllContext,
+    isOpen = false
   } = options;
 
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [conversationId, setConversationId] = useState(() => generateUUID());
+  // What the previous life of this page left behind, read exactly once. Everything restored from it
+  // describes one and the same conversation, so it must come from one and the same reading: a
+  // second `loadSession()` further down could already see a record another tab or a finished
+  // request has rewritten, and the chat would come up bound to one conversation but labelled with
+  // the agent of another.
+  const [restoredSession] = useState(loadSession);
+  // The conversation is server-side and outlives the page, so a reload must not silently start a
+  // new one (D-B-14): a stored id lets the next question continue the same conversation. Reading
+  // the storage here is free of side effects and independent of whether the panel is open — the
+  // request that may still be running is picked up separately, when the panel is opened.
+  const [conversationId, setConversationId] = useState(() => restoredSession?.conversationId || generateUUID());
   const [conversationForceIntent, setConversationForceIntent] = useState(null);
   const [activeBusinessAppProgress, setActiveBusinessAppProgress] = useState(null);
   const [generationStages, setGenerationStages] = useState(null);
   const [agentStatus, setAgentStatus] = useState(null);
   const [autoContextArtifacts, setAutoContextArtifacts] = useState([]);
-  const [selectedAgent, setSelectedAgent] = useState(null);
+  // The state above keeps every artifact the backend has sent; what the chips, the `@` list and the
+  // outgoing request see is this sifted view. The sift is computed, not written into the state,
+  // because a record enters and leaves the manual context by itself as its page is opened and left
+  // (`syncCurrentRecord`, useAdditionalContext.js): erasing the artifact on the way in would make
+  // that visit an irreversible loss, while a computed view hides it for the duration and gives it
+  // back afterwards. Documents are sifted alongside records — they reach the backend through
+  // `selection.documents`, so a matching artifact would send the same entity twice in one request.
+  // Removal by hand is the one case the sift must not undo, and it does not go through here: the
+  // chip's `×` drops both halves at once (`handleToggleContext` in AIAssistantChat).
+  const visibleAutoContextArtifacts = useMemo(() => {
+    const manual = [...(additionalContext?.records || []), ...(additionalContext?.documents || [])];
+    if (!manual.length || !autoContextArtifacts.length) {
+      return autoContextArtifacts;
+    }
+    // `isSameRecordRef`, not `===`: manual entries carry the ref as their source wrote it
+    // (`emodel/type@id` from the page address, `type@id` from a search result) while the backend
+    // returns its own form — a strict comparison would miss the very entry the sift is written for.
+    const next = autoContextArtifacts.filter(a => !manual.some(m => isSameRecordRef(m.recordRef, a.ref)));
+    // Keep the previous array identity when nothing is removed, so consumers do not re-render
+    // over a fresh-but-equal array on every pass.
+    return next.length === autoContextArtifacts.length ? autoContextArtifacts : next;
+  }, [autoContextArtifacts, additionalContext?.records, additionalContext?.documents]);
+  // Restored together with the conversation, and for the conversation's sake: the binding lives on
+  // the server (`AgentOrchestratorService.resolveAgentRef` in citeck-ai answers from the `AGENT_REF`
+  // stored on the conversation whenever a question does not carry one), so a chip reset to
+  // "Citeck AI" would not switch anything back — it would only stop telling the truth, and the user
+  // would go on being answered by the specialised agent they cannot see any more.
+  const [selectedAgent, setSelectedAgent] = useState(() => restoredSession?.agent || null);
+
+  // Whether the conversation on screen may hold a dialog the message list does not show. The list is
+  // deliberately not restored (decision 1 in the plan), so after a reload it starts empty while the
+  // conversation behind it — its history, its agent binding, possibly a request still running — is
+  // very much alive server-side. Anything asking "is there a dialog worth confirming the loss of"
+  // has to count that hidden history: switching agents deletes the conversation, and judged by the
+  // empty list alone it would do so without asking.
+  const [hasRestoredConversation, setHasRestoredConversation] = useState(() => !!restoredSession?.conversationId);
 
   // tempRef of the pending file whose save/cancel is currently in flight. Set when a file-save
   // action is clicked, consumed by handlePollingResult to drop the dead preview once the temp
   // file is gone, and cleared on any terminal/non-file flow so it never triggers a stale strip.
   const pendingFileActionTempRef = useRef(null);
+
+  // Bumped every time "clear chat" resets the conversation. `resetConversationState` can only stop a
+  // poll that has already started; a turn whose POST is still in flight at that moment is not
+  // covered, and when it resolves it would write the just-deleted `conversationId` back into
+  // sessionStorage, start polling into the emptied chat and pin `isLoading` on it — the chat would
+  // come back from the next reload bound to a conversation the backend no longer has (D-B-14).
+  const conversationGenerationRef = useRef(0);
 
   // Single place to forget the in-flight tracked tempRef. Every terminal/non-file flow calls
   // this instead of re-stating the assignment, so a newly added terminal path can't silently
@@ -408,9 +464,20 @@ const useUniversalChat = (options = {}) => {
     pendingFileActionTempRef.current = null;
   }, []);
 
+  // Guards the request restoration (the effect further down) against every repeat: React StrictMode
+  // runs mount effects twice in development, and reopening the panel while the restored request is
+  // still being polled would resume it a second time. A ref, not state — it must be readable
+  // synchronously inside the very effect run that sets it. It is lowered again when a poll gives up
+  // on a request that may still be running, so that reopening the panel picks that request back up.
+  const isRequestRestoredRef = useRef(false);
+
+  // The panel state as the restore effect last saw it, so that the effect can tell an opening from
+  // one of its own re-runs.
+  const wasPanelOpenRef = useRef(false);
+
   // Fetch status function for polling
   const fetchStatus = useCallback(async requestId => {
-    const response = await fetch(`${API_ENDPOINTS.UNIVERSAL_STATUS}/${requestId}`);
+    const response = await fetch(`${API_ENDPOINTS.UNIVERSAL_STATUS}/${encodeURIComponent(requestId)}`);
     if (!response.ok) {
       // The request list lives in the service's memory, so a restart loses it and every later poll
       // answers 404 with an empty body (same answer as for another user's or an expired request).
@@ -437,6 +504,13 @@ const useUniversalChat = (options = {}) => {
   const handlePollingResult = useCallback(
     result => {
       setIsLoading(false);
+      // The request is over — marked finished, not forgotten. Forgetting it made a reload lose more
+      // than the answer: a turn may end on a gate the backend is still holding (`PENDING_DEPLOY`
+      // and every other HITL card), and with the id gone there was no way left to bring that card
+      // back — the server went on waiting while the chat showed an empty screen with nothing to
+      // answer with. Kept and marked, the id is fetched once on the next opening and the card is
+      // laid out again; nothing is polled, because there is nothing left to poll (D-B-14).
+      markRequestCompleted();
 
       // Set when this result answers a file-save/cancel click. `handlePendingFileSaveAction`
       // short-circuits before the request reaches the agent, so such a result decides one file
@@ -457,8 +531,10 @@ const useUniversalChat = (options = {}) => {
       }
 
       if (result.contextArtifacts) {
-        const manualRefs = new Set((additionalContext.records || []).map(r => r.recordRef));
-        setAutoContextArtifacts(result.contextArtifacts.filter(a => !manualRefs.has(a.ref)));
+        // Stored as delivered: the sift against the manual context is `visibleAutoContextArtifacts`,
+        // computed on the way out. Filtering here as well would re-introduce the second mechanism —
+        // one that runs only at this moment and rewrites the stored state irreversibly.
+        setAutoContextArtifacts(result.contextArtifacts);
       }
 
       const isBusinessAppCompleted =
@@ -586,31 +662,56 @@ const useUniversalChat = (options = {}) => {
         });
       });
     },
-    [generationStages, additionalContext, clearPendingFileAction]
+    [generationStages, clearPendingFileAction]
   );
 
   // Handle polling error
   const handlePollingError = useCallback(
     (error, meta = {}) => {
-      // The temp file may still be alive (network/processing failure), so don't risk a stale strip.
-      clearPendingFileAction();
       setIsLoading(false);
-      // Nothing is running after a failed turn: the stage indicator and the agent status have to go,
-      // or they keep announcing progress for a request that is already dead (D-B-7). `generationStages`
-      // goes with them — it is cleared on the success path too, and while it is set the three
-      // `!generationStages` guards refuse to install the stage list of the NEXT request, so a failed
-      // generation would leave its own timeline on top of an unrelated one that follows.
+      // Only a failure of the REQUEST retires its id. `meta.requestAlive` marks the other kind — the
+      // polling gave up (watchdog, dropped connection, gateway error page) while the request behind
+      // it was never reported finished — and there the id is kept, so that a reload or a reopening
+      // of the panel can still collect the answer within `CHAT_REQUEST_RESUME_TTL_MS` (D-B-14). The
+      // terminal cases clear it: a backend-reported failure, and `meta.requestLost` (the 404 from
+      // `fetchStatus` — an id that would only fetch another 404). The conversation survives either
+      // way, so the next question continues it.
+      if (meta.requestAlive) {
+        // The restore below is latched for the whole life of the page, so without lowering it the
+        // only way back to the answer was a full reload: closing and reopening the panel, the
+        // obvious thing to try, did nothing. Nothing is polling here (`finishPolling` ran), so this
+        // cannot duplicate a live poll.
+        isRequestRestoredRef.current = false;
+        // The tracked tempRef is kept for the same span and the same reason: what is being resumed
+        // is the answer to a file-save click, and only this ref says so. Cleared here, that answer
+        // arrived untagged — retiring the sibling gate the backend is still waiting on and dropping
+        // an agent status it never spoke about. Every path that could consume it next overwrites it
+        // first, so holding it costs nothing.
+      } else {
+        clearActiveRequestId();
+        // A terminal failure ends the request itself, so nothing will ever come back to consume the
+        // tempRef — forget it, or it would strip a still-live preview out of some later result.
+        clearPendingFileAction();
+      }
+      // Nothing is running after a failed turn, so the stage indicator and the agent status have to
+      // go or they keep announcing progress for a dead request (D-B-7). `generationStages` goes with
+      // them: while it is set the three `!generationStages` guards refuse the stage list of the NEXT
+      // request, and a failed generation would leave its timeline on top of an unrelated one.
       setActiveBusinessAppProgress(null);
       setAgentStatus(null);
       setGenerationStages(null);
       setMessages(prevMessages =>
         prevMessages.map(msg => {
           if (msg.isProcessing) {
-            const text = meta.requestLost
+            const reason = meta.requestLost
               ? t('ai-assistant.chat.request-lost')
               : typeof error === 'string'
                 ? t('ai-assistant.chat.error-prefix', { error })
                 : t('ai-assistant.chat.result-error');
+            // The card is the only place the kept id is ever mentioned. Without the hint the user
+            // does the obvious thing — asks again — and that overwrites the stored id
+            // (`handleSubmit` → `saveSession`), putting the answer out of reach for good.
+            const text = meta.requestAlive ? `${reason} ${t('ai-assistant.chat.request-resumable-hint')}` : reason;
 
             return {
               ...msg,
@@ -650,6 +751,7 @@ const useUniversalChat = (options = {}) => {
   const handlePollingCancelled = useCallback(() => {
     clearPendingFileAction();
     setIsLoading(false);
+    clearActiveRequestId();
     setMessages(prevMessages =>
       prevMessages.map(msg => {
         if (msg.isProcessing) {
@@ -745,6 +847,87 @@ const useUniversalChat = (options = {}) => {
     onProgress: handlePollingProgress
   });
 
+  // D-B-14: a request started before a page reload keeps running on the server, but the page that
+  // could collect its result is gone. The pair saved in sessionStorage is the only way back to it.
+  //
+  // The trigger is the panel being opened, not the hook mounting: `AIAssistantContainer` renders on
+  // every page of the application, so a mount-bound effect would poll for up to ten minutes on
+  // pages where the user never opened the chat, and would drop the answer into a chat whose form
+  // context belongs to a different record by then. After a reload the panel is always closed
+  // (`AIAssistantService`), so the user opens it themselves — that is the natural moment to resume.
+  useEffect(() => {
+    // Only an actual close→open transition may resume anything. The effect re-runs whenever its
+    // dependencies change, and since the latch below comes down again on a poll that gave up, a
+    // plain `isOpen` check would let such a re-run restart the very request that had just failed —
+    // over and over, with the panel simply left open. A user action is the one trigger there is.
+    const justOpened = isOpen && !wasPanelOpenRef.current;
+    wasPanelOpenRef.current = isOpen;
+
+    // A turn that is already under way needs no rescuing, and restoring on top of one appends a
+    // second processing card and calls `startPolling` again — which bumps the generation in
+    // `usePolling`, killing the poll in flight and restarting it with the watchdog back at zero.
+    // `activeRequestId` covers the polling half, `isLoading` the half before it: `startPolling` runs
+    // only once `POST /universal/async` has answered, and both handlers raise `isLoading` before
+    // their first await, so a turn still travelling to the backend is covered too. The latch stays
+    // down here on purpose — nothing was restored, and the record is read again on the next opening.
+    if (!justOpened || isRequestRestoredRef.current || activeRequestId || isLoading) {
+      return;
+    }
+
+    // Set before anything else, so the second StrictMode run is turned away here and not after a
+    // duplicate card and a second `startPolling` have already happened.
+    isRequestRestoredRef.current = true;
+
+    // `loadSession` validates the record and drops it itself when it is malformed, foreign or past
+    // `CHAT_SESSION_TTL_MS`. A request past the shorter resume window is not dropped — the
+    // conversation around it is still good — but it is reported as `requestId: null`, so it is
+    // turned away by the check below exactly like a record that never had one.
+    const session = loadSession();
+    if (!session?.requestId) {
+      return;
+    }
+
+    // A finished turn is not resumed, it is collected. Its answer — and the gate it may have left
+    // the dialog on — is already on the server, kept for an hour and handed back by the same id, so
+    // one request is enough and there is nothing to poll: no processing card, no `startPolling`, no
+    // watchdog. The result goes through the ordinary handler, so a restored gate is built by exactly
+    // the same code that built it the first time (D-B-14).
+    if (session.requestCompleted) {
+      fetchStatus(session.requestId)
+        .then(data => {
+          if (data?.result) {
+            handlePollingResult(data.result);
+          }
+        })
+        .catch(error => {
+          // The hour is up, or the service was restarted — the result is gone and there is nothing
+          // to show. That is an ordinary end for a finished turn, not a failure worth a word: the
+          // user asked for nothing here, the panel merely opened.
+          if (!error?.requestLost) {
+            console.error('Error restoring the finished request:', error);
+          }
+        });
+      return;
+    }
+
+    // Mandatory, not cosmetic: without it the input stays unlocked, the user sends a second
+    // question, `startPolling` bumps the generation token (`usePolling.js`) and the restored poll
+    // dies silently while its card keeps spinning.
+    setIsLoading(true);
+    // The server sent no initial progress this time around — the generic processing card is exactly
+    // what an unknown-shape response produces on the normal path as well. It is stamped by the same
+    // rule `handleActionClick` uses for its own card: a kept `pendingFileActionTempRef` says the turn
+    // being resumed is the answer to a file-save click, and an unstamped card would count as a step
+    // of the dialog for `isSupersededByNewerMessage` — retiring the sibling gate of the Save/Cancel
+    // pair the backend is still waiting on, for the whole duration of the resumed poll.
+    const resumedProcessingMessage = buildInitialProcessingMessage({});
+    setMessages(prevMessages => [
+      ...prevMessages,
+      pendingFileActionTempRef.current ? { ...resumedProcessingMessage, isFileActionNotice: true } : resumedProcessingMessage
+    ]);
+    startPolling(session.requestId);
+  }, [isOpen, startPolling, activeRequestId, isLoading, fetchStatus, handlePollingResult]);
+
   // Handle submit
   const handleSubmit = useCallback(
     async e => {
@@ -761,6 +944,10 @@ const useUniversalChat = (options = {}) => {
       const messageToProcess = message;
       setMessage('');
       setIsLoading(true);
+
+      // The conversation this turn belongs to. Nothing disables the clear button while a request is
+      // being sent, so by the time the POST resolves the chat may already have been emptied.
+      const conversationGeneration = conversationGenerationRef.current;
 
       // Whether the POST was accepted. The `try` below can also throw *after* a 2xx — a missing
       // requestId, an unparseable body, a throw out of `startPolling` — and in those cases the turn
@@ -806,6 +993,16 @@ const useUniversalChat = (options = {}) => {
           attributes: contextToSend.attributes || [],
           documents: contextToSend.documents || []
         };
+
+        // The sift in `visibleAutoContextArtifacts` is computed from the manual context alone, and by
+        // this point `selection.records` may hold more than that: the block above adds the parent
+        // record of every manual document when no record was picked by hand. Such a parent is in no
+        // collection the memo can see, so an artifact for it would travel in `contextArtifacts` while
+        // the same record travels in `selection.records` — one entity through two channels, which is
+        // exactly what decision 8 of the plan forbids. Sift once more against what is being sent.
+        const artifactsToSend = visibleAutoContextArtifacts.filter(
+          artifact => !selectionData.records.some(record => isSameRecordRef(record.recordRef, artifact.ref))
+        );
 
         const contentData = {
           documents: uploadedFiles
@@ -882,7 +1079,7 @@ const useUniversalChat = (options = {}) => {
             content: contentData,
             ...(forceIntent && !isScriptEditing && { forceIntent }),
             ...(editing && { editing }),
-            ...(autoContextArtifacts.length > 0 && { contextArtifacts: autoContextArtifacts }),
+            ...(artifactsToSend.length > 0 && { contextArtifacts: artifactsToSend }),
             ...(agentRefToSend && { agentRef: agentRefToSend })
           }
         };
@@ -923,9 +1120,23 @@ const useUniversalChat = (options = {}) => {
           throw new Error(t('ai-assistant.chat.no-request-id'));
         }
 
+        // The chat was cleared while this turn was being sent: the conversation it belongs to is
+        // gone server-side, so its answer has nowhere to land. Everything below would write it into
+        // the fresh conversation instead — the storage record first of all, which is what the next
+        // reload restores. Leave the request alone; deleting the conversation retires it there.
+        if (conversationGeneration !== conversationGenerationRef.current) {
+          return;
+        }
+
         if (data.initialProgress?.availableStages) {
           setGenerationStages(data.initialProgress.availableStages);
         }
+
+        // From here on the request lives on the server and the only thing tying the page to it is
+        // this pair. Persist it before polling starts, so a reload one tick later still finds it.
+        // The agent goes with it: this question is what binds the conversation to it server-side,
+        // so from now on a reload that restored the conversation without it would mislabel the chip.
+        saveSession(conversationId, requestId, selectedAgent);
 
         startPolling(requestId);
 
@@ -934,6 +1145,12 @@ const useUniversalChat = (options = {}) => {
         setMessages(prevMessages => [...prevMessages, processingMessage]);
       } catch (error) {
         console.error('Error in universal chat:', error);
+
+        // The chat was cleared meanwhile — the message this failure belongs to is no longer on
+        // screen, and an error notice about it would appear out of nowhere in the emptied chat.
+        if (conversationGeneration !== conversationGenerationRef.current) {
+          return;
+        }
 
         // When the turn never reached the backend the dialog did not move, so the gate this reply
         // was meant to answer must stay live. The user message is appended before the request, so
@@ -966,7 +1183,7 @@ const useUniversalChat = (options = {}) => {
       additionalContext,
       uploadedFiles,
       conversationForceIntent,
-      autoContextArtifacts,
+      visibleAutoContextArtifacts,
       selectedAgent,
       startPolling,
       clearPendingFileAction
@@ -977,19 +1194,41 @@ const useUniversalChat = (options = {}) => {
   const cancelRequest = useCallback(async () => {
     if (!activeRequestId) return;
 
-    clearPendingFileAction();
-
     try {
-      const response = await fetch(`${API_ENDPOINTS.UNIVERSAL_STATUS}/${activeRequestId}`, {
+      const response = await fetch(`${API_ENDPOINTS.UNIVERSAL_STATUS}/${encodeURIComponent(activeRequestId)}`, {
         method: 'DELETE'
       });
 
-      if (!response.ok) {
+      // A 404 means the backend no longer holds this request — it was dropped by a service restart
+      // or retired once its result had been kept long enough. There is nothing left to cancel, so
+      // the local cancellation runs exactly as on a confirmed one: the same rule as for the
+      // conversation DELETE behind "clear chat". Reported as a failure instead, it produced two
+      // contradictory messages for one click — «не удалось отменить» from here, and «запрос
+      // потерян» a second later when the poll met the same 404 — and left the card spinning with a
+      // request id that could never be resumed.
+      if (!response.ok && response.status !== 404) {
         console.error(`Error cancelling request: ${response.status}`);
+        // The request goes on running and its card goes on spinning, so silence here reads as a
+        // broken button: nothing on screen changes and the only trace is a console line. Same rule
+        // as for the refused DELETE behind "clear chat" — say that the cancellation was refused.
+        NotificationManager.error(
+          t('ai-assistant.notification.cancel-request-error-status', { status: response.status }),
+          t('ai-assistant.notification.cancel-request-error-title')
+        );
         return;
       }
 
+      // Only once the request is known to be over — confirmed cancelled, or gone from the backend
+      // altogether. On a refused cancellation it is still running and its result still has to be
+      // recognised as the answer to the file-save click that started it, or `handlePollingResult`
+      // would strip a live preview and clear an `agentStatus` that answer never spoke about.
+      clearPendingFileAction();
+
       stopPolling();
+
+      // Same condition: on a refused DELETE the request is still running there, and dropping the id
+      // would strand it for good. A 404 has nothing to strand.
+      clearActiveRequestId();
 
       setMessages(prevMessages =>
         prevMessages.map(msg => {
@@ -1008,6 +1247,10 @@ const useUniversalChat = (options = {}) => {
       setIsLoading(false);
     } catch (error) {
       console.error('Error cancelling request:', error);
+      NotificationManager.error(
+        t('ai-assistant.notification.cancel-request-error'),
+        t('ai-assistant.notification.cancel-request-error-title')
+      );
     }
   }, [activeRequestId, stopPolling, clearPendingFileAction]);
 
@@ -1023,6 +1266,9 @@ const useUniversalChat = (options = {}) => {
       pendingFileActionTempRef.current = clickedTempRef;
 
       setIsLoading(true);
+
+      // Same race as in `handleSubmit`: the clear button stays live while the action is being sent.
+      const conversationGeneration = conversationGenerationRef.current;
 
       try {
         const requestData = {
@@ -1053,6 +1299,23 @@ const useUniversalChat = (options = {}) => {
         if (!requestId) {
           throw new Error(t('ai-assistant.chat.no-request-id'));
         }
+
+        // The chat was cleared while the action was in flight: the conversation that held this gate
+        // no longer exists, so neither the storage record nor the resolved-gate marks below have
+        // anything to apply to.
+        if (conversationGeneration !== conversationGenerationRef.current) {
+          // Terminal path like any other: the tracked tempRef belongs to the discarded conversation,
+          // and left behind it would be consumed by the first result of the fresh one — stamping it
+          // `isFileActionNotice` and keeping an `agentStatus` that answer never spoke about.
+          clearPendingFileAction();
+          return;
+        }
+
+        // An action starts a request exactly like a free-text turn does, so it is persisted the
+        // same way — a reload during a long deploy confirmation must not lose its result (D-B-14).
+        // The agent is written along with it for the same reason as in `handleSubmit`: whatever the
+        // record says about the conversation has to keep saying who is answering in it.
+        saveSession(conversationId, requestId, selectedAgent);
 
         // Mark as resolved only the message whose action was clicked, so that other assistant
         // messages keep their own buttons live (e.g. multiple pending images, or several deploy
@@ -1119,6 +1382,12 @@ const useUniversalChat = (options = {}) => {
         // started — forget the tracked tempRef so a later unrelated result can't strip a live preview.
         clearPendingFileAction();
 
+        // The chat was cleared meanwhile: the card this action belonged to is gone, so its error
+        // notice would surface alone in an emptied chat.
+        if (conversationGeneration !== conversationGenerationRef.current) {
+          return;
+        }
+
         setMessages(prevMessages => [
           ...prevMessages,
           {
@@ -1133,7 +1402,7 @@ const useUniversalChat = (options = {}) => {
         setIsLoading(false);
       }
     },
-    [conversationId, startPolling, clearPendingFileAction]
+    [conversationId, selectedAgent, startPolling, clearPendingFileAction]
   );
 
   // The scope a deploy card is currently set to send, recorded on the message as soon as the user
@@ -1148,36 +1417,120 @@ const useUniversalChat = (options = {}) => {
     );
   }, []);
 
-  // Remove a single auto context artifact by ref
+  // Remove a single auto context artifact by ref.
+  // `isSameRecordRef`, not `===`: the caller is not always the artifact's own chip. Removing a record
+  // from the manual context takes the artifact hidden behind it away too (`handleToggleContext` in
+  // AIAssistantChat), and there the reference comes from the manual entry — written as its own source
+  // wrote it, with or without the application prefix — while the artifact carries the backend's form.
   const removeAutoContextArtifact = useCallback(ref => {
-    setAutoContextArtifacts(prev => prev.filter(a => a.ref !== ref));
+    setAutoContextArtifacts(prev => {
+      const next = prev.filter(a => !isSameRecordRef(a.ref, ref));
+      return next.length === prev.length ? prev : next;
+    });
   }, []);
 
-  // Clear conversation
-  const clearConversation = useCallback(async () => {
+  // Everything the "clear chat" button resets on this side. Kept together so that the storage
+  // record and the id held in memory are always rewritten in the same breath — a wiped record next
+  // to a live old id, or the reverse, is what makes the chat unrecoverable across a reload (D-B-14).
+  const resetConversationState = useCallback(() => {
+    // Nothing disables the clear button while a request runs, so the poll of that request is
+    // very much alive at this point. Left running it would deliver its answer into the chat the
+    // user has just emptied, and `isLoading` would keep the input blocked until it did.
+    stopPolling();
+    // A request that has been sent but not yet answered by `POST /universal/async` has no poll to
+    // stop yet, so it needs the token instead: `handleSubmit`/`handleActionClick` check it before
+    // touching anything that belongs to the conversation being replaced here.
+    conversationGenerationRef.current++;
+    // A terminal path like every other, and the reason this call is not inlined anywhere: the file
+    // whose save was in flight belongs to the conversation being discarded here. `stopPolling` sees
+    // to it that no result of that request ever reaches `handlePollingResult`, so nothing would
+    // consume the tracked tempRef — and the first answer of the *fresh* conversation would be read
+    // as the reply to that save: stamped `isFileActionNotice`, its `agentStatus` left standing, and
+    // the dead tempRef free to strip an image out of a message it has nothing to do with.
+    clearPendingFileAction();
+    setIsLoading(false);
+    setMessages([]);
+    setConversationId(generateUUID());
+    // The new conversation is empty on both sides now — nothing is hidden behind the empty list any
+    // more, so the next agent switch is judged by the messages alone, as it is before any reload.
+    setHasRestoredConversation(false);
+    clearSession();
+    setConversationForceIntent(null);
+    setActiveBusinessAppProgress(null);
+    setGenerationStages(null);
+    setAgentStatus(null);
+    setAutoContextArtifacts([]);
+
+    clearAllContext?.();
+    clearUploadedFiles?.();
+
+    editorContextService.clearContext();
+  }, [stopPolling, clearAllContext, clearUploadedFiles, clearPendingFileAction]);
+
+  // The clear that is currently in flight, if any. Nothing disables the button while its DELETE
+  // travels, so a double click used to send two of them: the second one answers 404 — the
+  // conversation is already gone — which this handler rightly reads as success, and the whole reset
+  // ran a second time. A question asked between the two responses was wiped by that second reset,
+  // its still-in-flight POST discarded by the generation token, and the chat left bound to a
+  // conversation id the question never went to.
+  const pendingClearRef = useRef(null);
+
+  // Clear conversation.
+  // Reports whether the local reset actually ran: the caller resets context of its own next to this
+  // call (the script-context chip in `AIAssistantChat`), and on a refused DELETE the conversation is
+  // still alive server-side — dropping that context anyway would contradict the error notification
+  // below and silently unbind a script the chat goes on sending with the next question.
+  // @returns {Promise<boolean>} True when the conversation was cleared
+  const runClearConversation = useCallback(async () => {
     try {
-      const response = await fetch(`${API_ENDPOINTS.UNIVERSAL_CONVERSATION}/${conversationId}`, {
+      const response = await fetch(`${API_ENDPOINTS.UNIVERSAL_CONVERSATION}/${encodeURIComponent(conversationId)}`, {
         method: 'DELETE'
       });
 
-      if (response.ok) {
-        setMessages([]);
-        setConversationId(generateUUID());
-        setConversationForceIntent(null);
-        setActiveBusinessAppProgress(null);
-        setGenerationStages(null);
-        setAgentStatus(null);
-        setAutoContextArtifacts([]);
-
-        clearAllContext?.();
-        clearUploadedFiles?.();
-
-        editorContextService.clearContext();
+      // A 404 means the backend no longer holds this conversation — it was retired by expiry, lost
+      // to a service restart, or refused by `ConversationOwnerGuard`. The local reset has to run
+      // anyway: since D-B-14 the `conversationId` survives a reload, so a stale id is restored on
+      // every reload of the tab and a button that quietly did nothing would leave the chat wedged
+      // for good, with no way out from the interface. Before the persistence a reload minted a
+      // fresh id and healed this by itself.
+      if (response.ok || response.status === 404) {
+        resetConversationState();
+        return true;
       }
+
+      // Any other refusal leaves the conversation alive server-side, so the state is kept as is —
+      // but the user has to be told, or the button reads as broken. Its own key, not the
+      // `chat.http-error` fragment: that one is lowercase wording built to sit after
+      // `chat.error-prefix` inside a message bubble, and as a notification body it reads as a
+      // truncated sentence that never says what failed.
+      NotificationManager.error(
+        t('ai-assistant.notification.clear-chat-error-status', { status: response.status }),
+        t('ai-assistant.notification.clear-chat-error-title')
+      );
+      return false;
     } catch (error) {
       console.error('Error clearing conversation:', error);
+      NotificationManager.error(t('ai-assistant.notification.clear-chat-error'), t('ai-assistant.notification.clear-chat-error-title'));
+      return false;
     }
-  }, [conversationId, clearAllContext, clearUploadedFiles]);
+  }, [conversationId, resetConversationState]);
+
+  // A second call made while the first is still travelling joins it instead of sending its own
+  // DELETE: one request, one reset, and both callers still learn the true outcome. Refusing the
+  // second one with `false` would be a lie the callers act on — the agent selector reverts the
+  // agent the user picked whenever the clearing reports failure.
+  const clearConversation = useCallback(() => {
+    if (pendingClearRef.current) {
+      return pendingClearRef.current;
+    }
+
+    const pending = runClearConversation().finally(() => {
+      pendingClearRef.current = null;
+    });
+    pendingClearRef.current = pending;
+
+    return pending;
+  }, [runClearConversation]);
 
   return {
     // State
@@ -1190,13 +1543,18 @@ const useUniversalChat = (options = {}) => {
     activeBusinessAppProgress,
     generationStages,
     agentStatus,
-    autoContextArtifacts,
+    // The computed view, under the state's historical name: every consumer — the chips, the `@`
+    // list — keeps working unchanged, while the full state stays internal. The raw setter is
+    // deliberately not handed out next to it: written through, it would be read back filtered, and
+    // an entity dropped by the sift would look like a write that silently did nothing. The only
+    // writer is the response the server sends (`onResult`), which is where the artifacts come from.
+    autoContextArtifacts: visibleAutoContextArtifacts,
     selectedAgent,
+    hasRestoredConversation,
 
     // Setters
     setMessage,
     setMessages,
-    setAutoContextArtifacts,
     setSelectedAgent,
 
     // Actions

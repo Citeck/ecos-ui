@@ -178,6 +178,18 @@ TooltipContent.propTypes = {
   transition: PropTypes.shape(Fade.propTypes)
 };
 
+/**
+ * `Fade` puts its `show` class on only once the transition timeout has run out, and the CSS fade —
+ * `.fade { transition: opacity .15s }` — starts from there. With reactstrap's own 150 ms the two ran
+ * one after the other: the hint sat in the DOM fully transparent for the first 150 ms and
+ * half-transparent for the next, which is the “hints crawl out from under the toolbar” of
+ * COREDEV-408. The CSS owns the animation, so the class must not be held back.
+ *
+ * Only the enter path matters: on close `TooltipWrapper` unmounts the content outright, so there is
+ * no exit transition to preserve.
+ */
+const FADE_TIMEOUT = 0;
+
 TooltipContent.defaultProps = {
   boundariesElement: 'viewport',
   placement: 'auto',
@@ -191,6 +203,7 @@ TooltipContent.defaultProps = {
   onClosed: () => {},
   fade: true,
   transition: {
-    ...Fade.defaultProps
+    ...Fade.defaultProps,
+    timeout: FADE_TIMEOUT
   }
 };

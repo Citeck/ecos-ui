@@ -1,5 +1,10 @@
 @import '@/styles/constants.scss';
 
+// The type of the text being edited. The placeholder shown in its place is drawn with the same
+// values, so the hint does not change size once it is replaced by the first typed character
+$rt-editor-content-font-size: $font-size-standard;
+$rt-editor-content-line-height: 23px;
+
 .image-spinner {
   position: absolute;
   top: 0;
@@ -1016,8 +1021,8 @@
       outline: none;
       position: relative;
       padding-bottom: 16px;
-      line-height: 23px;
-      font-size: $font-size-standard;
+      line-height: $rt-editor-content-line-height;
+      font-size: $rt-editor-content-font-size;
       font-weight: 500;
       color: #444444;
 
@@ -1025,6 +1030,14 @@
         min-height: 150px;
       }
     }
+  }
+
+  // The placeholder stands in for the content, so it is drawn with the type of the content.
+  // Lexical ships it at its own 15px, which is bigger than the size set above, and the hint
+  // then shrinks as soon as it is replaced by the first typed character
+  .ContentEditable__placeholder {
+    line-height: $rt-editor-content-line-height;
+    font-size: $rt-editor-content-font-size;
   }
 
   .editor-shell .editor-container {

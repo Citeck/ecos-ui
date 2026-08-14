@@ -37,6 +37,13 @@ export default function ClickableLinkPlugin({ newTab = true, disabled = false }:
 
   useEffect(() => {
     const onClick = (event: MouseEvent) => {
+      // The app routes links itself (PageService.parseEvent runs from a capture-phase listener on
+      // document and calls preventDefault on the links it takes over). Opening such a link here too
+      // would give the user two tabs.
+      if (event.defaultPrevented) {
+        return;
+      }
+
       const target = event.target;
       if (!isDOMNode(target)) {
         return;
@@ -82,26 +89,20 @@ export default function ClickableLinkPlugin({ newTab = true, disabled = false }:
       const urlObj = new URL(url, HOST);
 
       if (urlObj.origin !== HOST) {
-        const isMiddle = event.type === 'auxclick' && event.button === 1;
-        window.open(url, newTab || isMiddle || event.metaKey || event.ctrlKey || urlTarget === '_blank' ? '_blank' : '_self');
+        window.open(url, newTab || event.metaKey || event.ctrlKey || urlTarget === '_blank' ? '_blank' : '_self');
         event.preventDefault();
       }
     };
 
-    const onMouseUp = (event: MouseEvent) => {
-      if (event.button === 1) {
-        onClick(event);
-      }
-    };
-
+    // Middle click is deliberately not handled: the browser's own middle-click on an anchor already
+    // opens the url in a new tab, and its default belongs to the auxclick event — preventDefault on
+    // mouseup (where upstream hooks it) cannot cancel it, so handling it here opens a second tab.
     return editor.registerRootListener((rootElement, prevRootElement) => {
       if (prevRootElement !== null) {
         prevRootElement.removeEventListener('click', onClick);
-        prevRootElement.removeEventListener('mouseup', onMouseUp);
       }
       if (rootElement !== null) {
         rootElement.addEventListener('click', onClick);
-        rootElement.addEventListener('mouseup', onMouseUp);
       }
     });
   }, [editor, newTab, disabled]);
