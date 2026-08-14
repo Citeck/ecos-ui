@@ -51,6 +51,27 @@
         font-size: 12px;
         font-weight: 600;
 
+        // The vendored choices.js base lays the chip out as an inline-block with
+        // `word-break: break-all` and no width cap, so as soon as label + remove button are wider
+        // than the field the button wraps onto a second line and the pill doubles in height
+        // (COREDEV-14). Keep it on one row, the way the single-value chip already is in
+        // ecosSelect/style.scss: the label ellipsizes, the button keeps its width.
+        display: inline-flex;
+        align-items: center;
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+
+        // `.choices__item:has(> span:empty)` in forms/choices/style.scss hides a chip that has no
+        // label; the `display` above is more specific, so that rule has to be restated here.
+        &:has(> span:empty) {
+          display: none;
+        }
+
+        > span {
+          @extend %ellipsis;
+        }
+
         .choices__button {
           // Replace the thin default choices.js cross with the bolder citeck one,
           // drawn white via mask (the item background is the primary color)
@@ -65,6 +86,13 @@
           mask-repeat: no-repeat;
           -webkit-mask-position: center;
           mask-position: center;
+
+          // choices.js caps the button at 8px and pushes its localized label out of view with
+          // `text-indent: -9999px`; as a flex item its automatic minimum size would size it to that
+          // label instead.
+          flex: none;
+          min-width: 0;
+          overflow: hidden;
         }
       }
     }

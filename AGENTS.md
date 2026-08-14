@@ -189,6 +189,20 @@ The universal chat survives a page reload through `chatSessionStorage.js` (`sess
 - **BPMN/DMN editors** — bpmn-js, dmn-js (mocked in Jest)
 - **Kaoto Camel DSL editor** — `@kaoto/kaoto` 2.9.0 (pinned: 2.10+ requires React 19). Patched via yarn-berry (`.yarn/patches/@kaoto-kaoto-npm-2.9.0-*.patch`) to fix Maximum-update-depth-cycle and add `initialFilterTags` prop. Camel catalog extended via `public/camel-catalog-overrides/components.json` (Citeck schemes) + `allowlist.json` (Apache schemes filter); merge logic lives in `serveCamelCatalogPlugin` (`vite.config.js` + `vite-plugins/camelCatalogAllowlist.js`). Do NOT wrap Kaoto components in `React.StrictMode`.
 - **Forms** — Formio 3 with custom components. Gotcha: `PanelComponent` builds its root element by hand (`mb-2 card border panel panel-<theme>`) instead of going through `Base.createElement`, so a panel is the one component that never gets a `formio-component-panel` class. Style panels through `.card.panel` — a selector that assumes the `formio-component-*` naming silently matches nothing (that is how COREDEV-403 lost the gap above a panel header). `Panel.spec.js` asserts the view-mode gap selector still matches a rendered panel.
+
+  The `ecosSelect` and the overridden `select` are the only two components built on **choices.js**,
+  and their markup is the library's, not ours: a multi-value chip is
+  `div.choices__item > span` + `button.choices__button`, where the `<span>` comes from the
+  component's `template` option. `formio.full.min.css` lays that chip out as an `inline-block` with
+  `word-break: break-all` and no width cap, so anything that has to fit on one line has to be
+  restated in `components/override/select/select.scss` — that is how a label wider than the field
+  came to wrap and drop its ✕ onto a second line (COREDEV-14). Two traps in that block: the remove
+  button needs `min-width: 0` once it is a flex item, or its automatic minimum size restores the
+  width of the label choices.js hides behind `text-indent: -9999px`; and the empty-chip rule in
+  `forms/choices/style.scss` (`:has(> span:empty)`, specificity `(0,2,1)`) loses to anything written
+  under the `.formio-form .formio-component-*` scope, so it must be repeated there. Because jsdom
+  has no layout, `EcosSelect.spec.js` guards the *markup* those selectors are written against
+  rather than the geometry. Full write-up: `docs/select-multiple-chips-layout.md`.
 - **Rich text** — Lexical editor with Yjs collaboration
 - **Auth** — Keycloak 26
 - **Popper 2** (`@popperjs/core` 2 via `react-popper`) — `common/Tooltip` still speaks some of the Popper 1 vocabulary. Watch the option *values*, not just the names: `preventOverflow`'s `boundary` takes an element or `clippingParents`, so the inherited `boundariesElement: 'window' | 'viewport' | 'scrollParent'` strings are read as elements and the modifier silently does nothing — which is how tooltips near the right edge of the screen came to push the document wider and raise global scrollbars. Popper 2 fails quietly on a bad option; verify a modifier by measuring the rendered position, not by reading the config.
