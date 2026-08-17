@@ -31,6 +31,13 @@ export const PREDICATE_STARTS = 'starts';
 export const PREDICATE_ENDS = 'ends';
 export const PREDICATE_EMPTY = 'empty';
 export const PREDICATE_NOT_EMPTY = 'not-empty';
+
+/**
+ * Operators that take no value. The single source for the UI (hiding the value control) and for
+ * the query cleaner (`removeEmptyPredicates` keeps such predicates despite the missing value) —
+ * the two must never diverge, or a valueless filter would hide its input yet vanish from the query.
+ */
+export const PREDICATES_WITHOUT_VALUE = [PREDICATE_NOT_EMPTY, PREDICATE_EMPTY];
 export const PREDICATE_GE = 'ge';
 export const PREDICATE_GT = 'gt';
 export const PREDICATE_LE = 'le';
@@ -106,16 +113,31 @@ const PREDICATE_LIST_TYPE_DATE = [
   PREDICATE_TODAY,
   PREDICATE_TIME_INTERVAL
 ];
+// PREDICATE_EQ is deliberately not first: the first entry is the default operator for a new
+// filter row, and datetime rows default to `ge`. `eq` itself is needed so the settings panel can
+// display the group drill-down pin (GROUP_VALUE_PREDICATES) instead of falling back to `ge`.
 const PREDICATE_LIST_TYPE_DATETIME = [
   PREDICATE_GE,
   PREDICATE_LT,
+  PREDICATE_EQ,
   PREDICATE_EMPTY,
   PREDICATE_NOT_EMPTY,
   PREDICATE_TODAY,
   PREDICATE_TIME_INTERVAL
 ];
 const PREDICATE_LIST_TYPE_NODE_REF = [PREDICATE_CONTAINS, PREDICATE_NOT_CONTAINS, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
-const PREDICATE_LIST_TYPE_NUMBER = [PREDICATE_EQ, PREDICATE_NOT_EQ, PREDICATE_LT, PREDICATE_LE, PREDICATE_GT, PREDICATE_GE];
+// `empty`/`not-empty` are needed so the settings panel can display an `empty` group drill-down
+// pin (a NULL numeric attribute forms its own group); not first — `eq` stays the default.
+const PREDICATE_LIST_TYPE_NUMBER = [
+  PREDICATE_EQ,
+  PREDICATE_NOT_EQ,
+  PREDICATE_LT,
+  PREDICATE_LE,
+  PREDICATE_GT,
+  PREDICATE_GE,
+  PREDICATE_EMPTY,
+  PREDICATE_NOT_EMPTY
+];
 const PREDICATE_LIST_TYPE_BOOLEAN = [PREDICATE_EQ, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
 const PREDICATE_LIST_TYPE_NODEREF = [PREDICATE_EQ, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
 const PREDICATE_LIST_TYPE_QNAME = [PREDICATE_EQ, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
