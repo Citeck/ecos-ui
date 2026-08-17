@@ -63,6 +63,7 @@ export default function ToolbarPlugin({
   setIsLinkEditMode,
   isViewFileUploadBtn,
   attribute,
+  attributeLabel,
   recordRef
 }: {
   editor: LexicalEditor;
@@ -71,6 +72,7 @@ export default function ToolbarPlugin({
   setIsLinkEditMode: Dispatch<boolean>;
   isViewFileUploadBtn: boolean;
   attribute?: string;
+  attributeLabel?: string;
   recordRef?: string;
 }): JSX.Element {
   const [selectedElementKey, setSelectedElementKey] = useState<NodeKey | null>(null);
@@ -390,6 +392,7 @@ export default function ToolbarPlugin({
         disabled={!isEditable}
         recordRef={recordRef}
         attribute={attribute}
+        attributeLabel={attributeLabel}
       />
       {isViewFileUploadBtn && (
         <div className="citeck-lexical-editor__load-node">

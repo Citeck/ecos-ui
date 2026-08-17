@@ -17,9 +17,11 @@ interface AIAssistantFloatingButtonProps {
   editor: LexicalEditor;
   recordRef?: string;
   attribute?: string;
+  /** Field label as written on the form; sent to the backend as the human-readable field name */
+  attributeLabel?: string;
 }
 
-export default function AIAssistantFloatingButton({ editor, recordRef, attribute }: AIAssistantFloatingButtonProps) {
+export default function AIAssistantFloatingButton({ editor, recordRef, attribute, attributeLabel }: AIAssistantFloatingButtonProps) {
   const [isAvailable, setIsAvailable] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const ref = stripRecordRefAlias(recordRef);
@@ -73,12 +75,13 @@ export default function AIAssistantFloatingButton({ editor, recordRef, attribute
             selectedText,
             currentValue,
             recordRef: ref || '',
-            attribute: attribute || ''
+            attribute: attribute || '',
+            attributeLabel: attributeLabel || ''
           }
         })
       );
     },
-    [editor, ref, attribute]
+    [editor, ref, attribute, attributeLabel]
   );
 
   // Prevent selection loss on mousedown

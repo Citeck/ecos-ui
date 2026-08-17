@@ -6,6 +6,7 @@
 
 import uuidV4 from 'uuidv4';
 
+import { buildRequestError } from './aiRequestError';
 import { extractAnswerText } from './assistantResponse';
 import {
   AI_INTENTS,
@@ -127,7 +128,9 @@ export const generateContent = async ({
     const errorText = await response.text().catch(() => '');
     const errorMessage = t('ai-content-service.request-failed', { status: response.status, details: errorText });
     NotificationManager.error(errorMessage, t('ai-content-service.error-title', 'AI Assistant Error'));
-    throw new Error(`Request failed: ${response.status}`);
+    // Carries the server's own reason when it gave one, so the panel can show it instead of
+    // closing over a bare status code (D-G-400-SILENT).
+    throw await buildRequestError(response);
   }
 
   const data = await response.json();

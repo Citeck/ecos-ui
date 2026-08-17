@@ -475,6 +475,17 @@ const useUniversalChat = (options = {}) => {
   // one of its own re-runs.
   const wasPanelOpenRef = useRef(false);
 
+  // Whether an action button click is already on its way to the backend.
+  //
+  // D-B-DEPLOY-DBLCLICK (regr-20260816-r1, B4): the buttons are locked through state
+  // (`setIsLoading(true)` and the `actionsResolved` mark), which only reaches the DOM on the next
+  // render, so two clicks in one render cycle left as two requests. The second one is refused by
+  // the backend — «Нет активного развёртывания, ожидающего подтверждения» — and that refusal
+  // replaced the success message of the deploy that had just gone through: the artifact was created
+  // exactly once and the user was told it had not been. A ref is the only lock that holds within a
+  // single cycle; same remedy as `isSendingRef` in `useEmailSend` (D-B-17).
+  const isActionInFlightRef = useRef(false);
+
   // Fetch status function for polling
   const fetchStatus = useCallback(async requestId => {
     const response = await fetch(`${API_ENDPOINTS.UNIVERSAL_STATUS}/${encodeURIComponent(requestId)}`);
@@ -1259,6 +1270,10 @@ const useUniversalChat = (options = {}) => {
     async (actionId, extra = {}) => {
       if (!conversationId) return;
 
+      // A second click while the first is still travelling is not a second decision (D-B-DEPLOY-DBLCLICK).
+      if (isActionInFlightRef.current) return;
+      isActionInFlightRef.current = true;
+
       // Which pending file this action targets, null for a dialog action. One derivation for the
       // whole handler: it decides both what the result handler cleans up (the dead temp-file
       // preview, via the ref below) and how the click is recorded on the messages further down.
@@ -1400,6 +1415,12 @@ const useUniversalChat = (options = {}) => {
         ]);
 
         setIsLoading(false);
+      } finally {
+        // Released on every path, the early returns included: a refused action must stay clickable,
+        // or one failed deploy confirmation would lock the card for the rest of the conversation.
+        // By the time this runs the state updates above have been queued, and React flushes them
+        // before the next click is dispatched, so the buttons are already locked in the DOM.
+        isActionInFlightRef.current = false;
       }
     },
     [conversationId, selectedAgent, startPolling, clearPendingFileAction]

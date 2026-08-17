@@ -171,11 +171,19 @@ export const EDITOR_CONTEXT_HANDLERS = {
 
 // Polling configuration
 export const POLLING_INTERVAL = 1000;
-// Client-side watchdog: max consecutive "processing" polls before the chat gives up and surfaces a
+// Client-side watchdog: how long the chat waits on one request before giving up and surfacing a
 // timeout error instead of spinning forever. Guards against a request that never leaves the
 // "processing" state (e.g. after a transient backend 500), which otherwise hangs the typing
-// indicator with no way to recover. 600 × 1s ≈ 10 min — well above any normal agent run.
-export const POLLING_MAX_ATTEMPTS = 600;
+// indicator with no way to recover. Ten minutes is well above any normal agent run.
+//
+// Stated in time and not in polls (it used to be `POLLING_MAX_ATTEMPTS = 600`, meant to be read as
+// 600 × 1s). A budget counted in polls is only worth ten minutes while exactly one poll per second
+// happens, and every extra poll — a duplicated chain, a retry, a shorter interval — spends the
+// user's patience without a second of it passing. Measured on the stand at regr-20260816-r1: 600
+// polls of one request burned in two minutes, then in eight to fifteen seconds, so the config agent
+// (which thinks for one to ten minutes) never once reached its answer in the panel
+// (D-B2d-CHAT-POLL-BUDGET). Wall-clock time cannot be spent faster than it passes.
+export const POLLING_TIMEOUT_MS = 10 * 60 * 1000;
 
 // How long the field services (text, script, content) wait for their own request. They poll it
 // themselves rather than through `usePolling`, and each used to hold a private

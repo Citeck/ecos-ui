@@ -38,6 +38,8 @@ interface OpenEventDetail {
   currentValue: string;
   recordRef: string;
   attribute: string;
+  /** Field label as written on the form; sent to the backend as the human-readable field name */
+  attributeLabel?: string;
 }
 
 /**
@@ -164,7 +166,7 @@ export default function AIFloatingPopup() {
   // Listen for open event
   useEffect(() => {
     const handleOpen = (e: CustomEvent<OpenEventDetail>) => {
-      const { editor, triggerRect, selectedText, currentValue, recordRef, attribute } = e.detail;
+      const { editor, triggerRect, selectedText, currentValue, recordRef, attribute, attributeLabel } = e.detail;
 
       // Store event data in refs
       editorRef.current = editor;
@@ -175,6 +177,7 @@ export default function AIFloatingPopup() {
       contextRef.current = {
         recordRef,
         attribute,
+        attributeLabel,
         selectedText,
         conversationId: uuidV4()
       };
