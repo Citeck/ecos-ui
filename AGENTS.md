@@ -196,9 +196,12 @@ The universal chat survives a page reload through `chatSessionStorage.js` (`sess
   component's `template` option. `formio.full.min.css` lays that chip out as an `inline-block` with
   `word-break: break-all` and no width cap, so anything that has to fit on one line has to be
   restated in `components/override/select/select.scss` — that is how a label wider than the field
-  came to wrap and drop its ✕ onto a second line (COREDEV-14). Two traps in that block: the remove
-  button needs `min-width: 0` once it is a flex item, or its automatic minimum size restores the
-  width of the label choices.js hides behind `text-indent: -9999px`; and the empty-chip rule in
+  came to wrap and drop its ✕ onto a second line (COREDEV-14). The chip block deliberately mirrors
+  the SelectOrgstruct chips (flex flow with a 6px gap, 24px chip, inherited font, hover-only ✕
+  overlay with a gradient lead-in) — QA compares the two side by side on the same form, so change
+  them in lockstep. Two traps in that block: choices.js hides the button's «Remove item» text with
+  `text-indent: -9999px`, so resetting the indent (needed for the `:after` icon) must come paired
+  with `font-size: 0`, or the text surfaces on hover; and the empty-chip rule in
   `forms/choices/style.scss` (`:has(> span:empty)`, specificity `(0,2,1)`) loses to anything written
   under the `.formio-form .formio-component-*` scope, so it must be repeated there. Because jsdom
   has no layout, `EcosSelect.spec.js` guards the *markup* those selectors are written against
