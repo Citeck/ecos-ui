@@ -80,14 +80,22 @@
         background: linear-gradient(to right, rgba(248, 248, 248, 0), var(--primary-color) 25%);
         padding-left: 12px;
         right: 14px;
-        top: 4px;
+        // Stretched over the chip's full height with centered icons: anchoring to `top: 4px`
+        // left the baseline-aligned icons ~1.5px off the chip's middle (COREDEV-14).
+        top: 0;
+        bottom: 0;
+        align-items: center;
+        gap: 3px;
+
+        svg {
+          // an inline svg sits on the text baseline, which re-introduces the offset
+          display: block;
+        }
       }
 
       &:hover {
         & .select-orgstruct__values-list-actions {
           visibility: visible;
-          align-items: center;
-          gap: 3px;
         }
 
         svg > path {
