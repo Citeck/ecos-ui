@@ -30,7 +30,7 @@ import { updateEditorContent } from '@/helpers/lexical';
 import { getTextByLocale } from '@/helpers/util';
 import ESMRequire from '@/services/ESMRequire';
 import UploadDocsRefService from '@/services/uploadDocsRefsStore';
-import { getStore } from '@/store';
+import { getStoreIfReady } from '@/store';
 
 export default class TextAreaComponent extends FormIOTextAreaComponent {
   static schema(...extend) {
@@ -209,7 +209,14 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
         old.parentNode.replaceChild(reactContainer, old);
 
-        const store = getStore();
+        // Nothing to render into a dead root: a `<Provider>` handed the empty-object fallback of
+        // `getStore` throws while rendering and kills this root outright (D-UI-STORE-EMPTY).
+        const store = getStoreIfReady();
+        if (!store) {
+          console.warn('TextAreaComponent.setReadOnlyValue | redux store is not ready, the read-only editor is skipped');
+          return;
+        }
+
         this._lexicalViewRoot = createRoot(reactContainer);
         this._lexicalViewRoot.render(
           <Provider store={store}>
@@ -261,7 +268,14 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
   renderLexicalProvider(settings, onChange) {
     if (onChange) {
-      const store = getStore();
+      // Same reason as everywhere else in this file: a `<Provider>` handed the empty-object
+      // fallback of `getStore` throws while rendering (D-UI-STORE-EMPTY). `null` is what this
+      // method already answers when it has nothing to render.
+      const store = getStoreIfReady();
+      if (!store) {
+        console.warn('TextAreaComponent.renderLexicalProvider | redux store is not ready, the editor is skipped');
+        return null;
+      }
 
       return (
         <Provider store={store}>
@@ -472,7 +486,12 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         return;
       }
 
-      const store = getStore();
+      const store = getStoreIfReady();
+      if (!store) {
+        console.warn('TextAreaComponent.addMonaco | redux store is not ready, the editor is skipped');
+        resolve(null);
+        return;
+      }
 
       try {
         const container = document.createElement('div');
@@ -547,7 +566,12 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         editorParent.appendChild(inlineInputContainer);
       }
 
-      const store = getStore();
+      const store = getStoreIfReady();
+      if (!store) {
+        console.warn('TextAreaComponent.addScriptAIButton | redux store is not ready, the AI button is skipped');
+        return;
+      }
+
       this._scriptAIButtonRoot = createRoot(buttonContainer);
 
       const contextData = editorContextService.getContextData() || {};
@@ -744,7 +768,12 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       wrapper.appendChild(buttonContainer);
       wrapper.appendChild(aiContainer);
 
-      const store = getStore();
+      const store = getStoreIfReady();
+      if (!store) {
+        console.warn('TextAreaComponent.addTextAreaAIButton | redux store is not ready, the AI button is skipped');
+        return;
+      }
+
       this._textAreaAIButtonRoot = createRoot(buttonContainer);
 
       // Extract field info for AI context

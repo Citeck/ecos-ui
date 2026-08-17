@@ -60,6 +60,24 @@ export function getStore() {
   return store || {};
 }
 
+/**
+ * The store, or null while the application has not bootstrapped one.
+ *
+ * `getStore` above answers with an empty object in that window, which is safe only for callers that
+ * go on to read a field off it. A redux `<Provider store={{}}>` is not such a caller: it calls
+ * `store.getState` while rendering and throws `TypeError: store.getState is not a function`, taking
+ * down the whole React root it sits in. `TextArea.jsx` builds five roots that way — the ones that
+ * carry the field's AI button and the rich-text editor — so a field rendered before bootstrap lost
+ * its AI button silently, with nothing but a console error to show for it (D-UI-STORE-EMPTY).
+ *
+ * The empty-object fallback of `getStore` is left alone on purpose: it has callers of its own
+ * (sagas, widget and menu services, record actions), and turning it into `undefined` there would
+ * trade one crash for another. Whoever needs to KNOW whether a store exists asks here.
+ */
+export function getStoreIfReady(): ExtendedStore | null {
+  return store || null;
+}
+
 export function injectAsyncReducer(store: ExtendedStore, name: string, reducer: Reducer) {
   store.asyncReducers[name] = reducer;
 

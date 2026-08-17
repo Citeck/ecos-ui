@@ -13,6 +13,8 @@ import { stripRecordRefAlias } from '@/components/ai/AIAssistant/utils';
 import AiAssistant from '@/components/common/icons/global/AiAssistant';
 import { AI_FLOATING_POPUP_OPEN } from './AIFloatingPopup';
 
+import { t } from '@/helpers/export/util';
+
 interface AIAssistantFloatingButtonProps {
   editor: LexicalEditor;
   recordRef?: string;
@@ -100,8 +102,8 @@ export default function AIAssistantFloatingButton({ editor, recordRef, attribute
       className="popup-item spaced ai-assistant-selection"
       onClick={handleClick}
       onMouseDown={handleMouseDown}
-      title="AI Assistant"
-      aria-label="AI Assistant"
+      title={t('ai-actions.trigger.aria-label')}
+      aria-label={t('ai-actions.trigger.aria-label')}
     >
       <AiAssistant />
     </button>
