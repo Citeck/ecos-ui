@@ -86,11 +86,66 @@ Choices.prototype._renderChoices = function () {
   }
 };
 
+/**
+ * The dropdown is taken out of the flow (`position: fixed` in `recalcDropdownPosition`) so that a
+ * panel with `overflow: hidden` cannot cut it off. The flip side is that its coordinates are frozen
+ * at the moment it opens: scroll the page afterwards and the list stays where the field used to be,
+ * hanging over whatever is underneath (COREDEV-317). Keep it under its field for as long as it is
+ * open — on capture, because a scrolling container does not bubble its event.
+ */
+Choices.prototype.bindDropdownPositionSync = function () {
+  if (this.syncDropdownPosition) {
+    return;
+  }
+
+  this.syncDropdownPosition = () => {
+    if (this.dropdownPositionFrame) {
+      return;
+    }
+
+    // one recalculation per frame: a scroll fires far more often than the screen is painted
+    this.dropdownPositionFrame = requestAnimationFrame(() => {
+      this.dropdownPositionFrame = null;
+
+      if (this.dropdown.isActive) {
+        this.recalcDropdownPosition(true);
+      }
+    });
+  };
+
+  window.addEventListener('scroll', this.syncDropdownPosition, true);
+  window.addEventListener('resize', this.syncDropdownPosition);
+};
+
+Choices.prototype.unbindDropdownPositionSync = function () {
+  if (!this.syncDropdownPosition) {
+    return;
+  }
+
+  window.removeEventListener('scroll', this.syncDropdownPosition, true);
+  window.removeEventListener('resize', this.syncDropdownPosition);
+  this.syncDropdownPosition = null;
+
+  if (this.dropdownPositionFrame) {
+    cancelAnimationFrame(this.dropdownPositionFrame);
+    this.dropdownPositionFrame = null;
+  }
+};
+
+const originDestroy = Choices.prototype.destroy;
+
+Choices.prototype.destroy = function () {
+  this.unbindDropdownPositionSync();
+
+  originDestroy.call(this);
+};
+
 const originHideDropdown = Choices.prototype.hideDropdown;
 
 Choices.prototype.hideDropdown = function (preventInputFocus) {
   originHideDropdown.call(this, preventInputFocus);
 
+  this.unbindDropdownPositionSync();
   this.clearInput();
 
   this.dropdown.element.style.removeProperty('position');
@@ -116,6 +171,7 @@ Choices.prototype.showDropdown = function (preventInputFocus) {
 
   requestAnimationFrame(() => {
     this.recalcDropdownPosition(preventInputFocus);
+    this.bindDropdownPositionSync();
 
     if (!preventInputFocus && this._canSearch) {
       this.input.focus();
