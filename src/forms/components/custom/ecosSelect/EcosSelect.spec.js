@@ -259,5 +259,15 @@ describe('EcosSelect Component', () => {
       expect(chipRule).toContain('white-space: nowrap');
       expect(chipRule).toContain('> span');
     });
+
+    it('should keep the remove control a hover-only overlay in the stylesheet, like SelectOrgstruct', () => {
+      const styles = fs.readFileSync(path.resolve(__dirname, '../../override/select/select.scss'), 'utf8');
+      const chipRule = styles.slice(styles.indexOf('.choices__list--multiple'));
+
+      // the ✕ holds no inline space and only shows on chip hover (QA round of COREDEV-14)
+      expect(chipRule).toContain('position: absolute');
+      expect(chipRule).toContain('visibility: hidden');
+      expect(chipRule).toContain(':hover .choices__button');
+    });
   });
 });
