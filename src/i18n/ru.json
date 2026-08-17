@@ -3456,6 +3456,10 @@
   "lexical.plugins.float-text-format.superscript": "Верхний индекс",
   "lexical.plugins.float-text-format.superscript-label": "Форматирование верхнего индекса",
   "lexical.plugins.float-text-format.insert-code": "Вставить блок кода",
+  "lexical.plugins.float-text-format.insert-comment": "Вставить комментарий",
+  "lexical.plugins.toolbar.font-size": "Размер шрифта",
+  "lexical.plugins.toolbar.font-size-decrease": "Уменьшить размер шрифта",
+  "lexical.plugins.toolbar.font-size-increase": "Увеличить размер шрифта",
 
   "lexical.plugins.comment.comments": "Комментарии",
   "lexical.plugins.comment.no-comments": "Нет комментариев",

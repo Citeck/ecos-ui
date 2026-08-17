@@ -34,6 +34,8 @@ import { INSERT_INLINE_COMMAND } from '../CommentPlugin';
 
 import AIAssistantFloatingButton from "./AIAssistantFloatingButton";
 
+import { t } from '@/helpers/export/util';
+
 function TextFormatFloatingToolbar({
   editor,
   anchorElem,
@@ -199,7 +201,7 @@ function TextFormatFloatingToolbar({
             }}
             className={'popup-item spaced ' + (isBold ? 'active' : '')}
             title="Bold"
-            aria-label="Format text as bold"
+            aria-label={t('lexical.plugins.float-text-format.bold')}
           >
             <i className="format bold" />
           </button>
@@ -210,7 +212,7 @@ function TextFormatFloatingToolbar({
             }}
             className={'popup-item spaced ' + (isItalic ? 'active' : '')}
             title="Italic"
-            aria-label="Format text as italics"
+            aria-label={t('lexical.plugins.float-text-format.italics')}
           >
             <i className="format italic" />
           </button>
@@ -221,7 +223,7 @@ function TextFormatFloatingToolbar({
             }}
             className={'popup-item spaced ' + (isUnderline ? 'active' : '')}
             title="Underline"
-            aria-label="Format text to underlined"
+            aria-label={t('lexical.plugins.float-text-format.underlined')}
           >
             <i className="format underline" />
           </button>
@@ -232,7 +234,7 @@ function TextFormatFloatingToolbar({
             }}
             className={'popup-item spaced ' + (isStrikethrough ? 'active' : '')}
             title="Strikethrough"
-            aria-label="Format text with a strikethrough"
+            aria-label={t('lexical.plugins.float-text-format.strikethrough')}
           >
             <i className="format strikethrough" />
           </button>
@@ -243,7 +245,7 @@ function TextFormatFloatingToolbar({
             }}
             className={'popup-item spaced ' + (isSubscript ? 'active' : '')}
             title="Subscript"
-            aria-label="Format Subscript"
+            aria-label={t('lexical.plugins.float-text-format.subscript-label')}
           >
             <i className="format subscript" />
           </button>
@@ -254,7 +256,7 @@ function TextFormatFloatingToolbar({
             }}
             className={'popup-item spaced ' + (isSuperscript ? 'active' : '')}
             title="Superscript"
-            aria-label="Format Superscript"
+            aria-label={t('lexical.plugins.float-text-format.superscript-label')}
           >
             <i className="format superscript" />
           </button>
@@ -265,7 +267,7 @@ function TextFormatFloatingToolbar({
             }}
             className={'popup-item spaced ' + (isCode ? 'active' : '')}
             title="Insert code block"
-            aria-label="Insert code block"
+            aria-label={t('lexical.plugins.float-text-format.insert-code')}
           >
             <i className="format code" />
           </button>
@@ -274,7 +276,7 @@ function TextFormatFloatingToolbar({
             onClick={insertLink}
             className={'popup-item spaced ' + (isLink ? 'active' : '')}
             title="Insert link"
-            aria-label="Insert link"
+            aria-label={t('lexical.plugins.toolbar.insert-link')}
           >
             <i className="format link" />
           </button>
@@ -285,7 +287,7 @@ function TextFormatFloatingToolbar({
         onClick={insertComment}
         className={'popup-item spaced insert-comment'}
         title="Insert comment"
-        aria-label="Insert comment"
+        aria-label={t('lexical.plugins.float-text-format.insert-comment')}
       >
         <i className="format add-comment" />
       </button>

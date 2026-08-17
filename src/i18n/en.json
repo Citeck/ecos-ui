@@ -3457,6 +3457,10 @@
   "lexical.plugins.float-text-format.superscript": "Superscript",
   "lexical.plugins.float-text-format.superscript-label": "Format Superscript",
   "lexical.plugins.float-text-format.insert-code": "Insert code block",
+  "lexical.plugins.float-text-format.insert-comment": "Insert comment",
+  "lexical.plugins.toolbar.font-size": "Font size",
+  "lexical.plugins.toolbar.font-size-decrease": "Decrease font size",
+  "lexical.plugins.toolbar.font-size-increase": "Increase font size",
 
   "lexical.plugins.comment.comments": "Comments",
   "lexical.plugins.comment.no-comments": "No Comments",
