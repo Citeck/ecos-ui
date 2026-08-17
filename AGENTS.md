@@ -123,16 +123,21 @@ are matched to one *ink* box. An inline SVG paints its viewBox scaled into `widt
 padding inside the viewBox shrinks the drawing — the icon components under `common/icons` therefore
 crop their viewBox to the ink, on integer coordinates, and let the caller pass the box
 (`VIEW_TAB_ICON_BOX` in `journals/Journals/ViewTabs.jsx`; the journal view-mode icons share a 20x18
-grid). Fractional coordinates are the trap: a shape whose edge lands mid-pixel renders that row at a
-few percent coverage, which reads as a gap next to a crisp neighbour.
+grid). Only the *height* of that box is sacred — it is what lines the row up. Stretching a drawing
+to the full box width distorts shapes that are naturally narrower: the hierarchy tree filled at
+20x18 read as horizontally stretched, so its ink is a square 18x18 centred in the box with a whole
+unit of padding per side (round two of COREDEV-349). Fractional coordinates are the trap: a shape
+whose edge lands mid-pixel renders that row at a few percent coverage, which reads as a gap next to
+a crisp neighbour.
 
-A `citeck` font glyph paints whatever its own body is: most sit on 1em, but `icon-folder` sits on
-1.32em, so no `font-size` both matches a row's height and lands its edges on whole pixels — that is
-why the journal header draws the doc library from `icons/Folder.tsx` instead. Where glyphs do stay,
-the two families still need lining up vertically: an inline SVG sits on its wrapper's text baseline
-(~2px below a glyph of the same height) and the glyphs hang a pixel below their em box, so the
-wrapper leaves inline layout and the glyphs get that pixel back (`ViewTabs.scss`). All of this is
-COREDEV-349; `__tests__/ViewTabs.test.js` guards it.
+A `citeck` font glyph cannot be pixel-aligned with an SVG at all: its ink sits on fractional
+pixels of the em box (`icon-list` painted rows 10.75..28.75 for integer SVG neighbours at 11..29)
+and the browser snaps text to whole-pixel positions, so no fractional CSS nudge moves it — offsets
+round to the nearest pixel. The journal header therefore uses no glyphs: `icon-list`,
+`icon-kanban` and `icon-folder` are drawn by `icons/List.tsx`, `Kanban.tsx` and `Folder.tsx`. The
+remaining vertical rule is that an inline SVG sits on its wrapper's text baseline, so the wrapper
+leaves inline layout to centre it (`ViewTabs.scss`). All of this is COREDEV-349;
+`__tests__/ViewTabs.test.js` guards it.
 
 ### Component conventions
 

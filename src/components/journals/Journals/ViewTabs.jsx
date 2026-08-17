@@ -13,6 +13,8 @@ import { Tooltip } from '@/components/common';
 import { IcoBtn } from '@/components/common/btns';
 import Folder from '@/components/common/icons/Folder';
 import HierarchyTree from '@/components/common/icons/HierarchyTree';
+import Kanban from '@/components/common/icons/Kanban';
+import List from '@/components/common/icons/List';
 import PreviewList from '@/components/common/icons/PreviewList';
 import WidgetsPreview from '@/components/common/icons/WidgetsPreview';
 import { wrapArgs } from '@/helpers/redux';
@@ -22,13 +24,14 @@ import { selectCommonJournalPageProps, selectWidgetsConfig } from '@/selectors/j
 import './ViewTabs.scss';
 
 /**
- * The optical box every view-mode icon is drawn into — the ink of `icon-list` and `icon-kanban`,
- * which are font glyphs and so cannot be resized without moving the whole row.
+ * The optical box every view-mode icon is drawn into (COREDEV-349).
  *
- * The bar mixes two icon families: glyphs of the `citeck` icon font (list / kanban / folder) and
- * inline SVGs. Each SVG carries a viewBox cropped to its own ink, so this box is exactly what gets
- * painted — passing per-icon sizes here is what made them differ (COREDEV-349). The font glyphs are
- * matched to the same box, and every icon to the same centre line, in ViewTabs.scss.
+ * Every icon in the bar is an inline SVG sharing this box, so the whole row is laid out and
+ * rasterized identically — the box height fills the same rows in every button, and each drawing
+ * keeps its own natural width inside the box, on integer viewBox units. The bar deliberately uses
+ * no `citeck` font glyphs: a glyph's ink sits on fractional pixels of its em box and the browser
+ * snaps text to whole-pixel positions, so a glyph could never share pixel rows with the SVGs —
+ * `icon-list`, `icon-kanban` and `icon-folder` are all replaced by `common/icons` components.
  */
 export const VIEW_TAB_ICON_BOX = { width: 20, height: 18 };
 
@@ -111,26 +114,28 @@ class ViewTabs extends React.Component {
           <Tooltip off={isMobile} target={target(JVM.TABLE)} text={t(Labels.Views.JOURNAL)} uncontrolled modifiers={tooltipModifiers}>
             <IcoBtn
               id={target(JVM.TABLE)}
-              icon="icon-list"
               className={classNames(common, {
                 [available]: isTableMode,
                 [disable]: !isTableMode
               })}
               onClick={() => this.onToggleViewMode(JVM.TABLE)}
-            />
+            >
+              <List {...VIEW_TAB_ICON_BOX} />
+            </IcoBtn>
           </Tooltip>
         )}
         {!isMobile && isKanbanEnabled && (
           <Tooltip off={isMobile} target={target(JVM.KANBAN)} text={t(Labels.Views.KANBAN)} uncontrolled modifiers={tooltipModifiers}>
             <IcoBtn
               id={target(JVM.KANBAN)}
-              icon="icon-kanban"
               className={classNames(common, 'ecos-journal__view-btn_kanban', {
                 [available]: isKanbanMode,
                 [disable]: !isKanbanMode
               })}
               onClick={() => this.onToggleViewMode(JVM.KANBAN)}
-            />
+            >
+              <Kanban {...VIEW_TAB_ICON_BOX} />
+            </IcoBtn>
           </Tooltip>
         )}
         {isHierarchyEnabled && (
