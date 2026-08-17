@@ -102,6 +102,27 @@ describe('TextAIService', () => {
       await expect(generateText(defaultParams)).rejects.toThrow('Request failed: 500');
     });
 
+    // D-G-400-SILENT (regr-20260816-r1, G15): see the same case in ScriptAIService.test.ts — both
+    // field services threw a bare status code and the localized reason died with the response.
+    it('carries the refusal reason from the body of a 400', async () => {
+      fetchMock.mockResponseOnce(JSON.stringify({ error: 'Текст для редактирования слишком большой.' }), { status: 400 });
+
+      await expect(generateText(defaultParams)).rejects.toMatchObject({
+        message: 'Request failed: 400',
+        status: 400,
+        userMessage: 'Текст для редактирования слишком большой.'
+      });
+    });
+
+    it('leaves userMessage unset when the refusal explains nothing', async () => {
+      fetchMock.mockResponseOnce('', { status: 500 });
+
+      const error = await generateText(defaultParams).catch(e => e);
+
+      expect(error.status).toBe(500);
+      expect(error.userMessage).toBeUndefined();
+    });
+
     it('throws when no requestId returned', async () => {
       fetchMock.mockResponseOnce(JSON.stringify({}));
 

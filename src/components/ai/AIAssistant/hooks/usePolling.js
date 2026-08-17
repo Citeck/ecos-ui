@@ -1,12 +1,14 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 
-import { POLLING_INTERVAL, POLLING_MAX_ATTEMPTS } from '@/components/ai/AIAssistant/constants';
+import { POLLING_INTERVAL, POLLING_TIMEOUT_MS } from '@/components/ai/AIAssistant/constants';
 import { t } from '@/helpers/export/util';
 
 /**
  * Generic polling hook for async request status checking
  * @param {Object} options - Configuration options
  * @param {number} options.pollingInterval - Interval between polls in ms (default: 1000)
+ * @param {number} options.timeoutMs - How long one request may stay in "processing" before polling
+ *   gives up, in wall-clock ms (default: 10 min). Reset by every `startPolling`
  * @param {Function} options.fetchStatus - Async function to fetch status, receives requestId
  * @param {Function} options.onResult - Callback when result is received
  * @param {Function} options.onError - Callback when the request fails or polling gives up. Receives
@@ -20,7 +22,7 @@ import { t } from '@/helpers/export/util';
 const usePolling = (options = {}) => {
   const {
     pollingInterval = POLLING_INTERVAL,
-    maxAttempts = POLLING_MAX_ATTEMPTS,
+    timeoutMs = POLLING_TIMEOUT_MS,
     fetchStatus,
     onResult,
     onError,
@@ -33,9 +35,20 @@ const usePolling = (options = {}) => {
   const pollingTimerRef = useRef(null);
   const isMountedRef = useRef(true);
   const generationRef = useRef(0);
-  const attemptsRef = useRef(0);
-  // The poll that is currently scheduled, as `{ requestId, generation }` — null whenever nothing
-  // should be running. It is what lets the mount effect put back a timer its own cleanup cleared.
+  // When the wait on the current request started. The watchdog below measures the user's patience
+  // against this and not against a count of polls (D-B2d-CHAT-POLL-BUDGET, see the comment on
+  // `POLLING_TIMEOUT_MS`).
+  const startedAtRef = useRef(0);
+  // Which scheduled poll is the live one. `generationRef` marks the request; this marks the single
+  // chain of polls allowed to be walking it. Anything that arms a timer takes the next number, so
+  // a poll returning from a `fetchStatus` that outlived its own chain — its timer put back by the
+  // mount effect below while the answer was in the air — finds its number stale and stops instead
+  // of scheduling a successor beside the live one. Without it two chains poll the same request in
+  // parallel, and every duplication doubles the load on the gateway.
+  const chainIdRef = useRef(0);
+  // The poll that is currently scheduled, as `{ requestId, generation, chainId }` — null whenever
+  // nothing should be running. It is what lets the mount effect put back a timer its own cleanup
+  // cleared.
   const pendingPollRef = useRef(null);
   // Always the latest `poll`. The mount effect is declared before `poll` and must not close over it,
   // or a re-armed poll would keep calling the first render's `fetchStatus`/`onResult`.
@@ -45,8 +58,9 @@ const usePolling = (options = {}) => {
   // can never drift apart.
   const schedulePoll = useCallback(
     (requestId, generation) => {
-      pendingPollRef.current = { requestId, generation };
-      pollingTimerRef.current = setTimeout(() => pollRef.current?.(requestId, generation), pollingInterval);
+      const chainId = ++chainIdRef.current;
+      pendingPollRef.current = { requestId, generation, chainId };
+      pollingTimerRef.current = setTimeout(() => pollRef.current?.(requestId, generation, chainId), pollingInterval);
     },
     [pollingInterval]
   );
@@ -82,13 +96,16 @@ const usePolling = (options = {}) => {
   }, [schedulePoll]);
 
   const poll = useCallback(
-    async (requestId, generation) => {
-      if (!isMountedRef.current || !fetchStatus) return;
+    async (requestId, generation, chainId) => {
+      if (!isMountedRef.current || !fetchStatus || chainId !== chainIdRef.current) return;
 
       try {
         const data = await fetchStatus(requestId);
 
-        if (!isMountedRef.current || generation !== generationRef.current) return;
+        // Checked again on the way back, not only on the way in: the chain can be superseded while
+        // the answer is in the air, and a poll that goes on to schedule its successor from there is
+        // exactly how two chains come to walk one request.
+        if (!isMountedRef.current || generation !== generationRef.current || chainId !== chainIdRef.current) return;
 
         if (data.result) {
           // Request completed successfully
@@ -109,14 +126,18 @@ const usePolling = (options = {}) => {
             onProgress?.(data.progress);
           }
           // Watchdog: a request that never leaves "processing" (e.g. after a transient backend 500)
-          // would otherwise poll forever and hang the typing indicator. Give up after the cap and
-          // surface a timeout error so the chat resets instead of spinning silently.
-          // `requestAlive`: the cap is this client's own patience (10 min), not the backend's — it
-          // kills a request only after 30 min and keeps the result for an hour more. Saying the
+          // would otherwise poll forever and hang the typing indicator. Give up once the wait is
+          // spent and surface a timeout error so the chat resets instead of spinning silently.
+          // `requestAlive`: the budget is this client's own patience (10 min), not the backend's —
+          // it kills a request only after 30 min and keeps the result for an hour more. Saying the
           // request is over here would throw away the id, and with it the only way to pick the
           // answer up after a reload.
-          attemptsRef.current += 1;
-          if (attemptsRef.current >= maxAttempts) {
+          //
+          // Measured against the clock rather than counted in polls: what the user is promised is
+          // ten minutes of waiting, and a promise counted in polls is spent by any poll at all —
+          // the panel gave up eight seconds into a request that was answered normally over HTTP
+          // (D-B2d-CHAT-POLL-BUDGET).
+          if (Date.now() - startedAtRef.current >= timeoutMs) {
             finishPolling();
             onError?.(t('ai-assistant.chat.polling-timeout'), { requestAlive: true });
             return;
@@ -149,7 +170,7 @@ const usePolling = (options = {}) => {
         });
       }
     },
-    [fetchStatus, onResult, onError, onCancelled, onProgress, maxAttempts, schedulePoll, finishPolling]
+    [fetchStatus, onResult, onError, onCancelled, onProgress, timeoutMs, schedulePoll, finishPolling]
   );
 
   // Published from an effect, not from the render body: React may build a render and then throw it
@@ -167,7 +188,10 @@ const usePolling = (options = {}) => {
         clearTimeout(pollingTimerRef.current);
       }
       const generation = ++generationRef.current;
-      attemptsRef.current = 0;
+      // Every request gets the full wait of its own. The panel gave up on the second question of a
+      // session in seconds, and reloading the page was the only way to get a first-question-length
+      // wait back (D-B2d-CHAT-POLL-BUDGET).
+      startedAtRef.current = Date.now();
       setActiveRequestId(requestId);
       setIsPolling(true);
       schedulePoll(requestId, generation);

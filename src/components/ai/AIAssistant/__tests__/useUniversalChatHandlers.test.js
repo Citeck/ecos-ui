@@ -837,6 +837,51 @@ describe('useUniversalChat - handlers', () => {
       expect(mockStartPolling).toHaveBeenCalledWith('action-req-1');
     });
 
+    // D-B-DEPLOY-DBLCLICK (regr-20260816-r1, B4): the buttons are locked through state, which only
+    // reaches the DOM on the next render, so two clicks in one render cycle left as two requests.
+    // The artifact was deployed exactly once — the backend refuses the second — but its refusal,
+    // «Нет активного развёртывания, ожидающего подтверждения», replaced the success message, so the
+    // user was told the deploy had not happened.
+    it('sends exactly one request for two clicks in the same render cycle', async () => {
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: true,
+        json: jest.fn().mockResolvedValue({ requestId: 'action-req-1' })
+      });
+
+      const { result } = renderHook(() => useUniversalChat());
+
+      await act(async () => {
+        // Not awaited one after the other: both clicks are dispatched before either returns, which
+        // is what a double click on the same button does.
+        await Promise.all([result.current.handleActionClick('deploy_confirm'), result.current.handleActionClick('deploy_confirm')]);
+      });
+
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+      expect(mockStartPolling).toHaveBeenCalledTimes(1);
+    });
+
+    it('stays clickable after a refused action, so it can be retried', async () => {
+      global.fetch = jest
+        .fn()
+        .mockRejectedValueOnce(new Error('network down'))
+        .mockResolvedValue({
+          ok: true,
+          json: jest.fn().mockResolvedValue({ requestId: 'action-req-2' })
+        });
+
+      const { result } = renderHook(() => useUniversalChat());
+
+      await act(async () => {
+        await result.current.handleActionClick('deploy_confirm');
+      });
+      await act(async () => {
+        await result.current.handleActionClick('deploy_confirm');
+      });
+
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+      expect(mockStartPolling).toHaveBeenCalledWith('action-req-2');
+    });
+
     it('marks the clicked message as resolved and keeps its actions for the disabled render', async () => {
       global.fetch = jest.fn().mockResolvedValue({
         ok: true,

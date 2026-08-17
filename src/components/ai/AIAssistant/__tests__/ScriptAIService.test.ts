@@ -85,6 +85,34 @@ describe('ScriptAIService', () => {
       await expect(generateScript(defaultParams)).rejects.toThrow('Request failed: 500');
     });
 
+    // D-G-400-SILENT (regr-20260816-r1, G15): the request validator refuses oversized input with a
+    // localized sentence the user can act on, and it was thrown away with the response body — the
+    // panel closed and the console kept only the status code.
+    it('carries the refusal reason from the body of a 400', async () => {
+      fetchMock.mockResponseOnce(
+        JSON.stringify({ error: 'Текст для редактирования слишком большой (262144 символов, максимум 100000).' }),
+        { status: 400 }
+      );
+
+      await expect(generateScript(defaultParams)).rejects.toMatchObject({
+        message: 'Request failed: 400',
+        status: 400,
+        userMessage: 'Текст для редактирования слишком большой (262144 символов, максимум 100000).'
+      });
+    });
+
+    it('leaves userMessage unset when the refusal explains nothing', async () => {
+      fetchMock.mockResponseOnce('<html>502 Bad Gateway</html>', { status: 502 });
+
+      const error = await generateScript(defaultParams).catch(e => e);
+
+      expect(error.message).toBe('Request failed: 502');
+      expect(error.status).toBe(502);
+      // Absent, not empty: the panel reads its absence as "nothing to show" and falls back to the
+      // generic notification instead of opening on a blank explanation.
+      expect(error.userMessage).toBeUndefined();
+    });
+
     it('throws when no requestId returned', async () => {
       fetchMock.mockResponseOnce(JSON.stringify({}));
 

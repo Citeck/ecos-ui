@@ -7,6 +7,7 @@ import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 // @ts-ignore - uuidv4 doesn't have types
 import uuidV4 from 'uuidv4';
 
+import { type AIRequestError } from '../../aiRequestError';
 import aiAssistantService from '../../AIAssistantService';
 import { generateText, cancelRequest as cancelTextRequest } from '../../TextAIService';
 import { getFieldConfig, getAvailableActions, RESULT_MODES, FieldActionConfig, QuickAction } from '../config/fieldActionConfigs';
@@ -352,18 +353,30 @@ const useAIFieldActions = ({
         if (!isCancellationError) {
           console.error('AI generation error:', error);
           if (isMountedRef.current) {
+            // Two failures are worth saying in the panel rather than closing it over.
+            //
             // A spent waiting budget is not a failed generation, and closing the panel over it was
             // the worst of both: the work was called off AND the user was left with a toast that
             // named no next step. Keep the panel, say what happened, and let the retry controls it
             // already carries do the rest (D-G-FE-TIMEOUT).
-            if ((error as Error & { isTimeout?: boolean })?.isTimeout) {
+            //
+            // A refusal that names its reason is the same case (D-G-400-SILENT): the backend's
+            // request validator answers 400 with a localized sentence the user can act on — «текст
+            // слишком большой, разделите его на части» — and that sentence was thrown away with the
+            // panel, leaving only `Request failed: 400` in the console. A refusal that explains
+            // nothing still falls through to the generic notification below.
+            const panelMessage = (error as AIRequestError & { isTimeout?: boolean })?.isTimeout
+              ? t('ai-actions.error.timeout-retry')
+              : (error as AIRequestError)?.userMessage;
+
+            if (panelMessage) {
               const currentValue = typeof getValue === 'function' ? getValue() : '';
-              // Both sides equal, so no diff is drawn and «Apply» writes back what is already
-              // there — the panel is showing a message, not a proposed edit.
+              // Both sides equal, so no diff is drawn and no «Apply» is offered — the panel is
+              // showing a message, not a proposed edit.
               setResult({
                 originalValue: currentValue,
                 generatedValue: currentValue,
-                explanation: t('ai-actions.error.timeout-retry')
+                explanation: panelMessage
               });
             } else {
               // Close the result popup on error
@@ -412,6 +425,18 @@ const useAIFieldActions = ({
   const applyResult = useCallback(() => {
     if (!result.generatedValue || isApplying) return;
 
+    // Nothing proposed, nothing to write. An explanation-only answer and the spent-budget notice
+    // both arrive with the generated value equal to what is already in the field, and writing it
+    // back is not free: every `setValue` path marks the field as changed by the user, so the form
+    // grew a Save bar for an edit that never happened (D-G-QA-APPLY-NOOP). `AIInlineResult` hides
+    // the button in that case; this is the guard behind it, for the keyboard path and for callers
+    // that render their own controls.
+    const currentValue = typeof getValue === 'function' ? getValue() : undefined;
+    if (currentValue === result.generatedValue) {
+      closeResult();
+      return;
+    }
+
     setIsApplying(true);
 
     try {
@@ -425,7 +450,7 @@ const useAIFieldActions = ({
     } finally {
       setIsApplying(false);
     }
-  }, [result.generatedValue, isApplying, setValue, closeResult]);
+  }, [result.generatedValue, isApplying, setValue, getValue, closeResult]);
 
   /**
    * Retry with new prompt (using current generated value as base)

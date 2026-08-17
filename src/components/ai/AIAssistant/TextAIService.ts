@@ -6,6 +6,7 @@
 // @ts-ignore - uuidv4 doesn't have types
 import uuidV4 from 'uuidv4';
 
+import { buildRequestError } from './aiRequestError';
 import { extractAnswerText } from './assistantResponse';
 import { AI_INTENTS, MESSAGE_TYPES, API_ENDPOINTS, FIELD_AI_TIMEOUT_MS, getFieldAiPollDelay, CONTENT_TYPES } from './constants';
 import { ATTRIBUTE_TYPES, FIELD_TYPE_VALUES, type AttributeType, type FieldTypeValue, type FieldInfo, type ProgressInfo } from './types';
@@ -174,7 +175,9 @@ export const generateText = async ({
   });
 
   if (!response.ok) {
-    throw new Error(`Request failed: ${response.status}`);
+    // Carries the server's own reason when it gave one, so the panel can show it instead of
+    // closing over a bare status code (D-G-400-SILENT).
+    throw await buildRequestError(response);
   }
 
   const data = await response.json();

@@ -47,7 +47,8 @@ function TextFormatFloatingToolbar({
   isSuperscript,
   setIsLinkEditMode,
   recordRef,
-  attribute
+  attribute,
+  attributeLabel
 }: {
   editor: LexicalEditor;
   anchorElem: HTMLElement;
@@ -65,6 +66,7 @@ function TextFormatFloatingToolbar({
   setIsLinkEditMode: Dispatch<boolean>;
   recordRef?: string;
   attribute?: string;
+  attributeLabel?: string;
 }): JSX.Element {
   const popupCharStylesEditorRef = useRef<HTMLDivElement | null>(null);
 
@@ -291,6 +293,7 @@ function TextFormatFloatingToolbar({
         editor={editor}
         recordRef={recordRef}
         attribute={attribute}
+        attributeLabel={attributeLabel}
       />
     </div>
   );
@@ -301,7 +304,8 @@ function useFloatingTextFormatToolbar(
   anchorElem: HTMLElement,
   setIsLinkEditMode: Dispatch<boolean>,
   recordRef?: string,
-  attribute?: string
+  attribute?: string,
+  attributeLabel?: string
 ): JSX.Element | null {
   const [isText, setIsText] = useState(false);
   const [isLink, setIsLink] = useState(false);
@@ -416,6 +420,7 @@ function useFloatingTextFormatToolbar(
       setIsLinkEditMode={setIsLinkEditMode}
       recordRef={recordRef}
       attribute={attribute}
+      attributeLabel={attributeLabel}
     />,
     anchorElem
   );
@@ -425,13 +430,15 @@ export default function FloatingTextFormatToolbarPlugin({
   anchorElem = document.body,
   setIsLinkEditMode,
   recordRef,
-  attribute
+  attribute,
+  attributeLabel
 }: {
   anchorElem?: HTMLElement;
   setIsLinkEditMode: Dispatch<boolean>;
   recordRef?: string;
   attribute?: string;
+  attributeLabel?: string;
 }): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
-  return useFloatingTextFormatToolbar(editor, anchorElem, setIsLinkEditMode, recordRef, attribute);
+  return useFloatingTextFormatToolbar(editor, anchorElem, setIsLinkEditMode, recordRef, attribute, attributeLabel);
 }
