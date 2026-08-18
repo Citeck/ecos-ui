@@ -125,10 +125,10 @@ crop their viewBox to the ink, on integer coordinates, and let the caller pass t
 (`VIEW_TAB_ICON_BOX` in `journals/Journals/ViewTabs.jsx`; the journal view-mode icons share a 20x18
 grid). Only the *height* of that box is sacred — it is what lines the row up. Stretching a drawing
 to the full box width distorts shapes that are naturally narrower: the hierarchy tree filled at
-20x18 read as horizontally stretched, so its ink is a square 18x18 centred in the box with a whole
-unit of padding per side (round two of COREDEV-349). Fractional coordinates are the trap: a shape
-whose edge lands mid-pixel renders that row at a few percent coverage, which reads as a gap next to
-a crisp neighbour.
+20x18 read as horizontally stretched, and review settled on 17x18 ink — a unit taller than wide
+(round two of COREDEV-349). Fractional coordinates are the trap: a shape whose edge lands
+mid-pixel renders that row at a few percent coverage, which reads as a gap next to a crisp
+neighbour.
 
 A `citeck` font glyph cannot be pixel-aligned with an SVG at all: its ink sits on fractional
 pixels of the em box (`icon-list` painted rows 10.75..28.75 for integer SVG neighbours at 11..29)
