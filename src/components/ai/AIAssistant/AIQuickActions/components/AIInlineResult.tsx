@@ -127,6 +127,11 @@ const AIInlineResult: React.FC<AIInlineResultProps> = ({
   const [showRetryInput, setShowRetryInput] = useState(true);
   const retryInputRef = useRef<HTMLInputElement>(null);
 
+  // Whether this card carries an edit at all. Equal sides mean it does not: that is how an
+  // explanation-only answer and the spent-budget notice are built (D-G-QA-APPLY-NOOP). The same
+  // condition guards the Enter shortcut, which is the keyboard half of the «Apply» button.
+  const hasEditToApply = !!generatedValue && generatedValue !== originalValue;
+
   // Focus retry input when shown
   useEffect(() => {
     if (showRetryInput && retryInputRef.current) {
@@ -158,7 +163,7 @@ const AIInlineResult: React.FC<AIInlineResultProps> = ({
         } else if (!isLoading) {
           onCancel?.();
         }
-      } else if (e.key === 'Enter' && !e.shiftKey && !isApplying && !isLoading && !isInRetryInput) {
+      } else if (e.key === 'Enter' && !e.shiftKey && !isApplying && !isLoading && !isInRetryInput && hasEditToApply) {
         e.preventDefault();
         onApply?.();
       }
@@ -167,13 +172,13 @@ const AIInlineResult: React.FC<AIInlineResultProps> = ({
     // Use capture phase to handle ESC/Enter before other handlers, without blocking them
     document.addEventListener('keydown', handleKeyDown, true);
     return () => document.removeEventListener('keydown', handleKeyDown, true);
-  }, [isVisible, isApplying, isLoading, onCancel, onCancelGeneration, onApply]);
+  }, [isVisible, isApplying, isLoading, onCancel, onCancelGeneration, onApply, hasEditToApply]);
 
   const handleApply = useCallback(() => {
-    if (!isApplying) {
+    if (!isApplying && hasEditToApply) {
       onApply?.();
     }
-  }, [isApplying, onApply]);
+  }, [isApplying, onApply, hasEditToApply]);
 
   const handleCancel = useCallback(() => {
     if (isApplying) return;
@@ -346,17 +351,24 @@ const AIInlineResult: React.FC<AIInlineResultProps> = ({
           </button>
         )}
 
-        {/* Apply button */}
-        <button
-          type="button"
-          className="ai-result-icon-btn ai-result-icon-btn--primary"
-          onClick={handleApply}
-          disabled={isApplying || isLoading}
-          data-tooltip={t('ai-actions.result.apply', 'Apply')}
-          aria-label={t('ai-actions.result.apply', 'Apply')}
-        >
-          {isApplying ? <Icon className="fa fa-spinner fa-spin" /> : <CheckIcon />}
-        </button>
+        {/* Apply button — only when there is an edit to apply.
+            D-G-QA-APPLY-NOOP (regr-20260816-r1, G14): an answer that proposes no edit still offered
+            «Apply». The two sides are deliberately made equal for such an answer — a question about
+            the script answered with prose (`ScriptEditorAIButton`), or a spent waiting budget
+            reported in the panel (`useAIFieldActions`) — so the card is showing a message, not a
+            proposed edit, and a live «Apply» there promises a change it cannot make. */}
+        {hasEditToApply && (
+          <button
+            type="button"
+            className="ai-result-icon-btn ai-result-icon-btn--primary"
+            onClick={handleApply}
+            disabled={isApplying || isLoading}
+            data-tooltip={t('ai-actions.result.apply', 'Apply')}
+            aria-label={t('ai-actions.result.apply', 'Apply')}
+          >
+            {isApplying ? <Icon className="fa fa-spinner fa-spin" /> : <CheckIcon />}
+          </button>
+        )}
       </div>
     </div>
   );

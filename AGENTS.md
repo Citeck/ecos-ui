@@ -123,16 +123,21 @@ are matched to one *ink* box. An inline SVG paints its viewBox scaled into `widt
 padding inside the viewBox shrinks the drawing — the icon components under `common/icons` therefore
 crop their viewBox to the ink, on integer coordinates, and let the caller pass the box
 (`VIEW_TAB_ICON_BOX` in `journals/Journals/ViewTabs.jsx`; the journal view-mode icons share a 20x18
-grid). Fractional coordinates are the trap: a shape whose edge lands mid-pixel renders that row at a
-few percent coverage, which reads as a gap next to a crisp neighbour.
+grid). Only the *height* of that box is sacred — it is what lines the row up. Stretching a drawing
+to the full box width distorts shapes that are naturally narrower: the hierarchy tree filled at
+20x18 read as horizontally stretched, and review settled on 17x18 ink — a unit taller than wide
+(round two of COREDEV-349). Fractional coordinates are the trap: a shape whose edge lands
+mid-pixel renders that row at a few percent coverage, which reads as a gap next to a crisp
+neighbour.
 
-A `citeck` font glyph paints whatever its own body is: most sit on 1em, but `icon-folder` sits on
-1.32em, so no `font-size` both matches a row's height and lands its edges on whole pixels — that is
-why the journal header draws the doc library from `icons/Folder.tsx` instead. Where glyphs do stay,
-the two families still need lining up vertically: an inline SVG sits on its wrapper's text baseline
-(~2px below a glyph of the same height) and the glyphs hang a pixel below their em box, so the
-wrapper leaves inline layout and the glyphs get that pixel back (`ViewTabs.scss`). All of this is
-COREDEV-349; `__tests__/ViewTabs.test.js` guards it.
+A `citeck` font glyph cannot be pixel-aligned with an SVG at all: its ink sits on fractional
+pixels of the em box (`icon-list` painted rows 10.75..28.75 for integer SVG neighbours at 11..29)
+and the browser snaps text to whole-pixel positions, so no fractional CSS nudge moves it — offsets
+round to the nearest pixel. The journal header therefore uses no glyphs: `icon-list`,
+`icon-kanban` and `icon-folder` are drawn by `icons/List.tsx`, `Kanban.tsx` and `Folder.tsx`. The
+remaining vertical rule is that an inline SVG sits on its wrapper's text baseline, so the wrapper
+leaves inline layout to centre it (`ViewTabs.scss`). All of this is COREDEV-349;
+`__tests__/ViewTabs.test.js` guards it.
 
 ### Component conventions
 
@@ -196,9 +201,12 @@ The universal chat survives a page reload through `chatSessionStorage.js` (`sess
   component's `template` option. `formio.full.min.css` lays that chip out as an `inline-block` with
   `word-break: break-all` and no width cap, so anything that has to fit on one line has to be
   restated in `components/override/select/select.scss` — that is how a label wider than the field
-  came to wrap and drop its ✕ onto a second line (COREDEV-14). Two traps in that block: the remove
-  button needs `min-width: 0` once it is a flex item, or its automatic minimum size restores the
-  width of the label choices.js hides behind `text-indent: -9999px`; and the empty-chip rule in
+  came to wrap and drop its ✕ onto a second line (COREDEV-14). The chip block deliberately mirrors
+  the SelectOrgstruct chips (flex flow with a 6px gap, 24px chip, inherited font, hover-only ✕
+  overlay with a gradient lead-in) — QA compares the two side by side on the same form, so change
+  them in lockstep. Two traps in that block: choices.js hides the button's «Remove item» text with
+  `text-indent: -9999px`, so resetting the indent (needed for the `:after` icon) must come paired
+  with `font-size: 0`, or the text surfaces on hover; and the empty-chip rule in
   `forms/choices/style.scss` (`:has(> span:empty)`, specificity `(0,2,1)`) loses to anything written
   under the `.formio-form .formio-component-*` scope, so it must be repeated there. Because jsdom
   has no layout, `EcosSelect.spec.js` guards the *markup* those selectors are written against

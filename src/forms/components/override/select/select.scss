@@ -41,21 +41,36 @@
     }
 
     .choices__list--multiple {
+      // The whole block mirrors the multi-value chips of SelectOrgstruct
+      // (SelectOrgstruct/components/InputView/InputView.scss) — QA compares the two side by side
+      // on the same form, so flow, typography and the remove control must read as one style
+      // (COREDEV-14). The vendored base instead flows inline-block chips with 3.75px margins.
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      max-width: 100%;
+      vertical-align: top;
+
       .choices__item {
-        margin-bottom: 0;
-        line-height: 26px;
+        margin: 0;
+        position: relative;
+        line-height: 1.2;
         background-color: var(--primary-color);
         border: none;
         border-radius: 100px;
-        padding: 0 $input-padding;
-        font-size: 12px;
-        font-weight: 600;
+        padding: 4px 14px;
+        // the chip label inherits the form's font like SelectOrgstruct's does, instead of
+        // picking up the form-control's semibold or the vendored 12px
+        font-size: inherit;
+        font-weight: normal;
+        // Fits the hover ✕ overlay (40px, below) inside the chip on 1-2 char labels.
+        min-width: 44px;
 
         // The vendored choices.js base lays the chip out as an inline-block with
-        // `word-break: break-all` and no width cap, so as soon as label + remove button are wider
-        // than the field the button wraps onto a second line and the pill doubles in height
-        // (COREDEV-14). Keep it on one row, the way the single-value chip already is in
-        // ecosSelect/style.scss: the label ellipsizes, the button keeps its width.
+        // `word-break: break-all` and no width cap, so as soon as the label is wider
+        // than the field it wraps and the pill doubles in height (COREDEV-14).
+        // Keep it on one row, the way the single-value chip already is in
+        // ecosSelect/style.scss: the label ellipsizes.
         display: inline-flex;
         align-items: center;
         max-width: 100%;
@@ -73,40 +88,53 @@
         }
 
         .choices__button {
-          // Replace the thin default choices.js cross with the bolder citeck one,
-          // drawn white via mask (the item background is the primary color)
+          // Like SelectOrgstruct's row actions: hidden until the chip is hovered, laid over the
+          // label's tail with a gradient lead-in instead of holding inline space. The citeck
+          // cross is drawn by the `:after` mask (the vendored base64 cross dies with the
+          // `background` shorthand), so the gradient can live on the button itself.
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          right: 0;
+          width: 40px; // 12px gradient lead-in + 14px icon + the chip's 14px padding
+          margin: 0;
+          padding: 0 14px 0 12px;
           border-left: none;
-          background-color: $color-white;
-          background-image: none;
-          -webkit-mask-image: $citeck-icon-close;
-          mask-image: $citeck-icon-close;
-          -webkit-mask-size: 12px;
-          mask-size: 12px;
-          -webkit-mask-repeat: no-repeat;
-          mask-repeat: no-repeat;
-          -webkit-mask-position: center;
-          mask-position: center;
+          visibility: hidden;
+          opacity: 1;
+          text-indent: 0; // the vendored -9999px would drag the `:after` icon off-screen
+          font-size: 0; // …and with the indent gone, this is what hides the «Remove item» text
+          background: linear-gradient(to right, rgba(248, 248, 248, 0), var(--primary-color) 25%);
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          color: $color-white;
 
-          // choices.js caps the button at 8px and pushes its localized label out of view with
-          // `text-indent: -9999px`; as a flex item its automatic minimum size would size it to that
-          // label instead.
-          flex: none;
-          min-width: 0;
-          overflow: hidden;
+          &:after {
+            @include citeck-icon($citeck-icon-close, 14px);
+            flex: none;
+          }
+        }
+
+        &:hover .choices__button {
+          visibility: visible;
         }
       }
     }
 
     &.formio-component-multiple {
       .form-control {
-        padding: 4px 12px;
-        line-height: 28px;
+        // the same inset SelectOrgstruct gives its chip list (8px 9px, 24px chip rows), so the
+        // chips of the two fields line up when they sit side by side on a form
+        padding: 8px 9px;
+        line-height: 1.2;
         height: 40px;
 
         .choices__input {
           font-weight: $font-weight-semi-bold;
           padding: 0;
           border: none;
+          line-height: 24px; // one chip row tall, so the caret sits centered in the 40px field
         }
       }
     }

@@ -12,6 +12,8 @@ import configureStore from 'redux-mock-store';
 
 import Folder from '@/components/common/icons/Folder';
 import HierarchyTree from '@/components/common/icons/HierarchyTree';
+import Kanban from '@/components/common/icons/Kanban';
+import List from '@/components/common/icons/List';
 import PreviewList from '@/components/common/icons/PreviewList';
 import WidgetsPreview from '@/components/common/icons/WidgetsPreview';
 import ViewTabs, { VIEW_TAB_ICON_BOX } from '@/components/journals/Journals/ViewTabs';
@@ -96,7 +98,7 @@ describe('journal view tabs: icon sizes (COREDEV-349)', () => {
   it('should draw every view-mode icon into the same box', () => {
     const svgs = [...renderTabs().querySelectorAll('.ecos-journal__view-tabs svg')];
 
-    expect(svgs).toHaveLength(4);
+    expect(svgs).toHaveLength(6);
 
     svgs.forEach(svg => {
       expect(svg.getAttribute('width')).toBe(String(VIEW_TAB_ICON_BOX.width));
@@ -105,17 +107,15 @@ describe('journal view tabs: icon sizes (COREDEV-349)', () => {
   });
 
   it('should render a button for every enabled view mode', () => {
-    const container = renderTabs();
-
-    ['icon-list', 'icon-kanban'].forEach(icon => expect(container.querySelector(`.${icon}`)).not.toBeNull());
-    expect(container.querySelectorAll('.ecos-journal__view-tabs-btn')).toHaveLength(6);
+    expect(renderTabs().querySelectorAll('.ecos-journal__view-tabs-btn')).toHaveLength(6);
   });
 
-  // The doc library icon used to be the `citeck` font's `icon-folder`, drawn on a 1.32em body: no
-  // font-size both matched the row's height and put the tab's top edge on a whole pixel, so it kept
-  // a half-transparent row that read as a gap above the icon.
-  it('should not draw the doc library icon with the font glyph', () => {
-    expect(renderTabs().querySelector('.icon-folder')).toBeNull();
+  // The `citeck` font glyphs (icon-list, icon-kanban, icon-folder) are all replaced by SVGs: a
+  // glyph's ink sits on fractional pixels of its em box and the browser snaps text to whole-pixel
+  // positions, so a glyph can never cover the same pixel rows as the SVG icons beside it — the SVGs
+  // read as sitting a quarter-pixel lower however the glyph was nudged.
+  it('should not draw any view-mode icon with a font glyph', () => {
+    expect(renderTabs().querySelector('.ecos-journal__view-tabs i')).toBeNull();
   });
 
   // A box only means something when the drawing fills it: a viewBox wider than the ink shrinks the
@@ -123,13 +123,34 @@ describe('journal view tabs: icon sizes (COREDEV-349)', () => {
   // than its neighbours while asking for the same 18px.
   it.each([
     ['Folder', Folder],
-    ['HierarchyTree', HierarchyTree],
     ['PreviewList', PreviewList],
     ['WidgetsPreview', WidgetsPreview]
   ])('should crop the %s viewBox to its ink', (_, Icon) => {
     const svg = renderIcon(Icon);
 
     inkBox(svg).forEach((value, index) => expect(value).toBeCloseTo(viewBoxOf(svg)[index], 2));
+  });
+
+  // Only the height of the shared box is what lines the row up; stretching the tree's ink to the
+  // box's full 20-unit width made a naturally vertical shape wider than tall, which reads as
+  // horizontally stretched (the second round of COREDEV-349). These icons keep their natural width
+  // instead: the ink must fill the box's height, stay at most as wide as it is tall, sit inside the
+  // box with at least a unit of padding on each side, and keep every edge on whole viewBox units.
+  it.each([
+    ['List', List],
+    ['HierarchyTree', HierarchyTree],
+    ['Kanban', Kanban]
+  ])('should fill the box height with the %s ink but keep its natural width', (_, Icon) => {
+    const svg = renderIcon(Icon);
+    const [inkX, inkY, inkWidth, inkHeight] = inkBox(svg);
+    const [boxX, boxY, boxWidth, boxHeight] = viewBoxOf(svg);
+
+    expect(inkY).toBe(boxY);
+    expect(inkHeight).toBe(boxHeight);
+    expect(inkWidth).toBeLessThanOrEqual(inkHeight);
+    expect(inkX).toBeGreaterThanOrEqual(boxX + 1);
+    expect(inkX + inkWidth).toBeLessThanOrEqual(boxX + boxWidth - 1);
+    [inkX, inkWidth].forEach(value => expect(Number.isInteger(value)).toBe(true));
   });
 
   it('should mirror WidgetsPreview inside the same viewBox', () => {
@@ -143,13 +164,11 @@ describe('journal view tabs: icon sizes (COREDEV-349)', () => {
     expect(y + height).toBeLessThanOrEqual(boxY + boxHeight);
   });
 
-  // The two icons that stay font glyphs are aligned from CSS: an inline SVG rides its wrapper's text
-  // baseline, and a `citeck` glyph hangs a pixel below its em box, so both need a rule to cover the
-  // same rows in the button.
-  it('should keep the rules that line the two icon families up', () => {
+  // An inline SVG rides its wrapper's text baseline, a couple of pixels below the button's centre;
+  // the wrapper leaving inline layout is what centres every icon on the same rows.
+  it('should keep the rule that centres the icons in their buttons', () => {
     const scss = fs.readFileSync(path.resolve(__dirname, '../ViewTabs.scss'), 'utf8');
 
     expect(scss).toMatch(/\.ecos-btn__text\s*{[^}]*display:\s*flex/);
-    expect(scss).toMatch(/\.ecos-btn__i\s*{[^}]*top:\s*-1px/);
   });
 });

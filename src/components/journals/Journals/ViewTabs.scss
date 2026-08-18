@@ -4,18 +4,11 @@
 // in ViewTabs.jsx for the sizing half (COREDEV-349).
 //
 // Matching sizes does not line the row up: an inline SVG sits on the text baseline of its wrapper,
-// so it lands ~2px below a font glyph of the same height, and the `citeck` font in turn hangs its
-// ink one pixel below the em box, so a vertically centred `<i>` paints low. Taking the wrapper out
-// of inline layout centres the SVG in the button, and the glyphs get that pixel back; with both,
-// every icon in the bar covers the same rows.
+// which lands it a couple of pixels below the button's centre. Taking the wrapper out of inline
+// layout centres each SVG in its button, so every icon covers the same pixel rows.
 .ecos-journal__view-tabs {
   .ecos-btn__text {
     display: flex;
     line-height: 1;
-  }
-
-  .ecos-btn__i {
-    position: relative;
-    top: -1px;
   }
 }

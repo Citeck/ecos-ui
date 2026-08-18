@@ -92,3 +92,43 @@ describe('AIInlineResult context label in the header', () => {
     expect(container.querySelector('.ai-inline-result__context-type')).toBeNull();
   });
 });
+
+// D-G-QA-APPLY-NOOP (regr-20260816-r1, G14): an answer that proposes no edit still offered «Apply».
+// Pressing it changed no byte of the script but raised the form's change flag, so the page grew a
+// Save bar and told the user there were unsaved changes with nothing to save. The card is built
+// with both sides equal on purpose in two places — a question about the script answered with prose
+// (`ScriptEditorAIButton`) and a spent waiting budget reported in the panel (`useAIFieldActions`) —
+// and in both the card is a message, not a proposed edit.
+describe('AIInlineResult apply button', () => {
+  const APPLY_LABEL = 'Применить';
+
+  it('is offered when the answer proposes an edit', () => {
+    renderResult({ originalValue: 'var a = 1;', generatedValue: 'var a = 2;' });
+
+    expect(screen.getByRole('button', { name: APPLY_LABEL })).toBeTruthy();
+  });
+
+  it('is not offered when the answer leaves the value as it is', () => {
+    renderResult({ originalValue: 'var a = 1;', generatedValue: 'var a = 1;' });
+
+    expect(screen.queryByRole('button', { name: APPLY_LABEL })).toBeNull();
+  });
+
+  it('does not apply on Enter when there is nothing to apply', () => {
+    const onApply = jest.fn();
+    renderResult({ originalValue: 'var a = 1;', generatedValue: 'var a = 1;', onApply });
+
+    fireEvent.keyDown(document, { key: 'Enter' });
+
+    expect(onApply).not.toHaveBeenCalled();
+  });
+
+  it('applies on Enter when there is an edit', () => {
+    const onApply = jest.fn();
+    renderResult({ originalValue: 'var a = 1;', generatedValue: 'var a = 2;', onApply });
+
+    fireEvent.keyDown(document, { key: 'Enter' });
+
+    expect(onApply).toHaveBeenCalled();
+  });
+});

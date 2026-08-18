@@ -22,6 +22,8 @@ interface AIAssistantButtonProps {
   disabled?: boolean;
   recordRef?: string;
   attribute?: string;
+  /** Field label as written on the form; goes to the backend as the human-readable field name */
+  attributeLabel?: string;
   resultContainer?: HTMLElement | null;
 }
 
@@ -29,6 +31,7 @@ export default function AIAssistantButton({
   disabled = false,
   recordRef,
   attribute,
+  attributeLabel,
   resultContainer
 }: AIAssistantButtonProps): React.JSX.Element | null {
   const [isAvailable, setIsAvailable] = useState(false);
@@ -112,8 +115,9 @@ export default function AIAssistantButton({
   const aiContext = useMemo(() => ({
     recordRef: ref || '',
     attribute,
+    attributeLabel,
     conversationId: conversationIdRef.current
-  }), [ref, attribute]);
+  }), [ref, attribute, attributeLabel]);
 
   // Use centralized AI generate hook
   const handleGenerateRequest = useLexicalAIGenerate(aiContext);

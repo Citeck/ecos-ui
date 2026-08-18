@@ -73,6 +73,71 @@ Choices.prototype._createChoicesFragment = function (choices, fragment, withinGr
   }
 };
 
+/**
+ * What a choice offers to the search, per configured search field. Labels pass through the
+ * component's item template, so they reach the widget as markup — match what the user sees,
+ * not the tags around it. Values are not always strings (EcosSelect holds objects for some
+ * selects) — a non-string has no text to search.
+ */
+const getChoiceSearchText = (choice, field) => {
+  // a search field may be a dot-path into an object value (`value.<searchField>`) — fuse resolved
+  // those, so keep doing it
+  const raw = field.split('.').reduce((value, key) => (value == null ? value : value[key]), choice);
+
+  if (typeof raw !== 'string') {
+    return '';
+  }
+
+  if (!raw.includes('<')) {
+    return raw;
+  }
+
+  const holder = document.createElement('div');
+  holder.innerHTML = raw;
+
+  return holder.innerText || holder.textContent || '';
+};
+
+// choices.js searches with fuse.js, a fuzzy matcher: with the threshold formio ships (0.3) a
+// version list answers «2026.2.1» with «2026.1.1», «2026.4.1» and «2026.5.1» — every value the user
+// just filtered out (COREDEV-359). The dropdown reads as "what matches what I typed", so a value
+// belongs there only when it literally contains the typed text. Matches are ranked by where the
+// text was found, an occurrence at the start of the value before one in the middle.
+Choices.prototype._searchChoices = function (value) {
+  const newValue = typeof value === 'string' ? value.trim() : value;
+  const currentValue = typeof this._currentValue === 'string' ? this._currentValue.trim() : this._currentValue;
+
+  if (newValue.length < 1 && newValue === `${currentValue} `) {
+    return 0;
+  }
+
+  const needle = String(newValue).toLowerCase();
+  const results = [];
+
+  this._store.searchableChoices.forEach(choice => {
+    let score = Infinity;
+
+    this.config.searchFields.forEach(field => {
+      const index = getChoiceSearchText(choice, field).toLowerCase().indexOf(needle);
+
+      if (index !== -1 && index < score) {
+        score = index;
+      }
+    });
+
+    if (score !== Infinity) {
+      results.push({ item: choice, score });
+    }
+  });
+
+  this._currentValue = newValue;
+  this._highlightPosition = 0;
+  this._isSearching = true;
+  this._store.dispatch({ type: 'FILTER_CHOICES', results });
+
+  return results.length;
+};
+
 const originRenderChoices = Choices.prototype._renderChoices;
 
 Choices.prototype._renderChoices = function () {

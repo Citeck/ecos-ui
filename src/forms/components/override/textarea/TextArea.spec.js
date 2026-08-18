@@ -173,3 +173,103 @@ describe('AI apply marks a plain textarea as changed by the user', () => {
     });
   });
 });
+
+// D-B-AIAPPLY-NOSAVE-ACE (regr-20260816-r1, cases B5/B7) and its mirror D-G-QA-APPLY-NOOP (G14):
+// the flags of an editor edit were read off the editor's own change event, which cannot tell an AI
+// apply from a programmatic refresh. On a field that started EMPTY the `autoModified` latch of the
+// initial value push was still up — ace reports no change for a no-op `setValue('')` — so a real
+// edit arrived as `modified: false` and no Save bar appeared; on a filled field an apply of the
+// SAME text still went through `setValue`, whose remove-then-insert raised the flag for an edit
+// that never happened. `applyAIEditorValue` states the flags itself and applies nothing when there
+// is nothing to apply.
+//
+// The editor is stubbed: ace and monaco cannot be instantiated under jsdom. The stub reproduces the
+// one behaviour that matters here — ace relays a `setValue` to the component synchronously, which
+// is what `addAce` wires up (`this.editor.on('change', () => this.updateEditorValue(...))`).
+describe('AI apply into a code editor (ace/monaco)', () => {
+  const attachFakeAce = (component, initialValue) => {
+    let value = initialValue;
+    component.component.editor = 'ace';
+    component.editor = {
+      getValue: () => value,
+      setValue: next => {
+        value = next;
+        component.updateEditorValue(value);
+      },
+      clearSelection: () => {}
+    };
+    return component.editor;
+  };
+
+  it('marks an apply into an initially EMPTY ace field as changed by the user', () => {
+    return Harness.testCreate(TextAreaComponent, cloneDeep(comp1)).then(component => {
+      component.addTextAreaAIButton = () => {};
+      attachFakeAce(component, '');
+      // The latch the initial value push leaves behind and nothing clears on an empty field
+      component.autoModified = true;
+      const updateValueSpy = jest.spyOn(component, 'updateValue');
+
+      component.applyAIEditorValue('var a = 1;');
+
+      expect(updateValueSpy).toHaveBeenCalledWith(expect.objectContaining({ modified: true, changeByUser: true }), 'var a = 1;');
+      expect(component.dataValue).toBe('var a = 1;');
+    });
+  });
+
+  it('marks an apply into a filled ace field as changed by the user', () => {
+    return Harness.testCreate(TextAreaComponent, cloneDeep(comp1)).then(component => {
+      component.addTextAreaAIButton = () => {};
+      component.setValue('var a = 1;');
+      attachFakeAce(component, 'var a = 1;');
+      const updateValueSpy = jest.spyOn(component, 'updateValue');
+
+      component.applyAIEditorValue('var a = 2;');
+
+      expect(updateValueSpy).toHaveBeenCalledWith(expect.objectContaining({ modified: true, changeByUser: true }), 'var a = 2;');
+      expect(component.dataValue).toBe('var a = 2;');
+    });
+  });
+
+  it('applies nothing and raises no flag when the value is already in the editor', () => {
+    return Harness.testCreate(TextAreaComponent, cloneDeep(comp1)).then(component => {
+      component.addTextAreaAIButton = () => {};
+      component.setValue('var a = 1;');
+      const editor = attachFakeAce(component, 'var a = 1;');
+      const editorSetValueSpy = jest.spyOn(editor, 'setValue');
+      const updateValueSpy = jest.spyOn(component, 'updateValue');
+
+      component.applyAIEditorValue('var a = 1;');
+
+      expect(editorSetValueSpy).not.toHaveBeenCalled();
+      expect(updateValueSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  it('marks an apply into an initially EMPTY monaco field as changed by the user', () => {
+    return Harness.testCreate(TextAreaComponent, cloneDeep(comp1)).then(component => {
+      component.addTextAreaAIButton = () => {};
+      component.component.editor = 'monaco';
+      // No model yet — the branch that falls back to a plain setValue and reports the change itself
+      component.editor = { getValue: () => '', getModel: () => null, setValue: () => {} };
+      component.autoModified = true;
+      const updateValueSpy = jest.spyOn(component, 'updateValue');
+
+      component.applyAIEditorValue('var a = 1;');
+
+      expect(updateValueSpy).toHaveBeenCalledWith(expect.objectContaining({ modified: true, changeByUser: true }), 'var a = 1;');
+    });
+  });
+
+  it('leaves an ordinary editor edit alone — no changeByUser is invented for it', () => {
+    return Harness.testCreate(TextAreaComponent, cloneDeep(comp1)).then(component => {
+      component.addTextAreaAIButton = () => {};
+      const editor = attachFakeAce(component, '');
+      const updateValueSpy = jest.spyOn(component, 'updateValue');
+
+      // A keystroke, not an apply: the component hears the same change event
+      editor.setValue('typed by hand');
+
+      expect(updateValueSpy).toHaveBeenCalledWith(expect.not.objectContaining({ changeByUser: true }), 'typed by hand');
+    });
+  });
+});

@@ -7,6 +7,7 @@
 import uuidV4 from 'uuidv4';
 
 import { getWorkspaceId } from '@/helpers/urls';
+import { buildRequestError } from './aiRequestError';
 import { extractAnswerText } from './assistantResponse';
 import { MESSAGE_TYPES, API_ENDPOINTS, FIELD_AI_TIMEOUT_MS, getFieldAiPollDelay, PLATFORM_CONFIG_AGENT_REF } from './constants';
 import {
@@ -139,7 +140,9 @@ export const generateScript = async ({
   });
 
   if (!response.ok) {
-    throw new Error(`Request failed: ${response.status}`);
+    // Carries the server's own reason when it gave one, so the panel can show it instead of
+    // closing over a bare status code (D-G-400-SILENT).
+    throw await buildRequestError(response);
   }
 
   const data = await response.json();
