@@ -1939,6 +1939,7 @@
   "menu-settings.editor-item.field.create-variant.title": "Create method",
   "menu-settings.editor-item.field.data-type.title": "Data type",
   "menu-settings.editor-item.field.process-def.title": "Process",
+  "menu-settings.editor-item.field.menu-ref.title": "Menu",
   "menu-settings.editor-item.title.add": "Create {{type}}",
   "menu-settings.editor-item.title.edit": "{{type}} \"{{name}}\"",
   "menu-settings.editor-item.btn.cancel": "Cancel",
@@ -1965,6 +1966,7 @@
   "menu-settings.error.type-not-created": "The selected type cannot be created",
 
   "menu-item.type.section": "Section",
+  "menu-item.type.include-menu": "Included menu",
   "menu-item.type.journal": "Journal",
   "menu-item.type.kanban": "Kanban Board",
   "menu-item.type.dashboard": "Dashboard",

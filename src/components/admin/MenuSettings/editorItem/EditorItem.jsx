@@ -8,6 +8,7 @@ import CreateInSection from './CreateInSection';
 import Dashboard from './Dashboard';
 import Divider from './Divider';
 import EditRecord from './EditRecord';
+import IncludeMenu from './IncludeMenu';
 import LinkCreateCase from './LinkCreateCase';
 import Section from './Section';
 import StartWorkflow from './StartWorkflow';
@@ -47,6 +48,9 @@ export default class EditorItem extends React.Component {
       }
       case MS.ItemTypes.START_WORKFLOW: {
         return <StartWorkflow {...this.props} />;
+      }
+      case MS.ItemTypes.INCLUDE_MENU: {
+        return <IncludeMenu {...this.props} />;
       }
       case MS.ItemTypes.JOURNAL:
       case MS.ItemTypes.KANBAN:

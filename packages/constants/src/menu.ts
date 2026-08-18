@@ -72,6 +72,10 @@ export const CreateOptions = {
     key: MenuSettings.ItemTypes.SECTION,
     label: 'menu-item.type.section'
   },
+  INCLUDE_MENU: {
+    key: MenuSettings.ItemTypes.INCLUDE_MENU,
+    label: 'menu-item.type.include-menu'
+  },
   HEADER_DIVIDER: {
     key: MenuSettings.ItemTypes.HEADER_DIVIDER,
     label: 'menu-item.type.header-divider'
