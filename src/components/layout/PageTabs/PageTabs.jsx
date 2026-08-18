@@ -16,6 +16,7 @@ import { withRouter } from 'react-router';
 import ClickOutside from '@/components/common/ClickOutside';
 import { SortableContainer } from '@/components/common/DragAndDrop';
 import { dropByCacheKey } from '@/components/common/ReactRouterCache';
+import { closeAllTooltips } from '@/components/common/Tooltip';
 import DialogManager from '@/components/common/dialogs/Manager';
 
 import Tab from './Tab';
@@ -286,6 +287,11 @@ class PageTabs extends React.Component {
   };
 
   handleClickTab = tab => {
+    // Every one of these moves the tabs out from under the pointer — the strip scrolls to the
+    // active tab, a dragged tab changes places — and a tooltip whose target walks away has no
+    // `mouseout` left to close it (COREDEV-356).
+    closeAllTooltips();
+
     if (tab.isActive) {
       this.scrollToTop();
       return;
@@ -436,6 +442,10 @@ class PageTabs extends React.Component {
       return;
     }
 
+    // Only when the strip is actually about to scroll — the debounced resize path lands here too,
+    // and a strip that does not overflow moves nothing out from under the pointer.
+    closeAllTooltips();
+
     const { offsetLeft = 0, offsetWidth = 0 } = this.elmActiveTab || {};
     const scrollLeft = offsetLeft - this.wrapper.offsetWidth / 2 + offsetWidth / 2;
 
@@ -444,6 +454,7 @@ class PageTabs extends React.Component {
   };
 
   handleBeforeSortStart = ({ node }) => {
+    closeAllTooltips();
     node.classList.add('page-tab__tabs-item_sorting');
     this.wrapper && this.wrapper.classList.add('page-tab__tabs_sorting');
 
@@ -453,6 +464,7 @@ class PageTabs extends React.Component {
   handleSortEnd = ({ oldIndex, newIndex }, event) => {
     const { draggableNode } = this.state;
 
+    closeAllTooltips();
     event.stopPropagation();
     draggableNode && draggableNode.classList.remove('page-tab__tabs-item_sorting');
     this.wrapper && this.wrapper.classList.remove('page-tab__tabs_sorting');
