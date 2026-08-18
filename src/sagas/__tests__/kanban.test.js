@@ -576,7 +576,10 @@ describe('kanban sagas tests', () => {
 
     // After API success, reloadColumns reloads data with server sorting.
     const reloadedDataCards = dispatched.filter(d => d.type === setDataCards().type);
-    expect(reloadedDataCards.length).toBeGreaterThanOrEqual(1);
+
+    // Exactly two commits of the board data per move — the optimistic one and the settled one.
+    // Every extra commit is another re-render of the moved card, i.e. another visible blink.
+    expect(reloadedDataCards).toHaveLength(2);
 
     expect(spyError).not.toHaveBeenCalled();
     expect(console.error).not.toHaveBeenCalled();
