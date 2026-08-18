@@ -346,6 +346,23 @@ button {
     .ecos-btn__i_right {
       color: $color-gray-6;
     }
+
+    // dropdown controls stay white in every state (the base .ecos-btn :hover/:focus
+    // would otherwise leak a blue fill / grey fill with white text through them)
+    &.ecos-btn_drop-down {
+      &:hover,
+      &:focus {
+        background: $color-white;
+        border-color: var(--primary-color);
+        color: $text-color-dark;
+      }
+
+      &:active {
+        background: $color-gray-4;
+        border-color: var(--primary-color);
+        color: $text-color-dark;
+      }
+    }
   }
 
   &.ecos-btn_grey1 {

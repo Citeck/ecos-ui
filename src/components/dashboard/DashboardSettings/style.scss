@@ -125,11 +125,29 @@
     &-dropdown {
       .ecos-btn {
         min-width: 250px;
-        justify-content: flex-end;
+        justify-content: flex-start;
+      }
+
+      // the label spans the whole control (flex: auto), so it has to be told to
+      // align left — otherwise it inherits the button's centered text
+      .ecos-btn__text {
+        text-align: left;
       }
 
       &-menu {
-        min-width: 100%;
+        // beats the 200px cap of .ecos-dropdown__menu_new, which is !important
+        &.ecos-dropdown__menu_new,
+        &.ecos-dropdown__menu_new ul {
+          min-width: 100% !important;
+          max-width: 350px !important;
+        }
+
+        &.ecos-dropdown__menu_new li {
+          font-size: $font-size-standard;
+          line-height: 20px;
+          min-height: 36px;
+          padding: 8px 15px;
+        }
       }
     }
 
