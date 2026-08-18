@@ -2,6 +2,9 @@ import FormIOButtonComponent from 'formiojs/components/button/Button';
 import { flattenComponents } from 'formiojs/utils/formUtils';
 import each from 'lodash/each';
 import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
+
+import { OUTCOME_BUTTONS_PREFIX } from '@citeck/constants/forms';
 
 const MAX_WAITING_TIME = 30000;
 
@@ -62,10 +65,48 @@ export default class ButtonComponent extends FormIOButtonComponent {
     }
   }
 
+  // TODO the "find outcome_* keys and clear them" logic is spread over four places by now:
+  // Webform.submit, EcosForm.resetOutcomeButtonsValues, TaskOutcome.beforeSubmit and the method below.
+  // Move it into a single helper next to OUTCOME_BUTTONS_PREFIX and drop TaskOutcome's own prefix literal.
+  /**
+   * Drops the outcomes left in the form data by earlier clicks.
+   *
+   * A click marks its outcome right away, but the submit may never happen — the form gate returns
+   * early, the user closes the dialog the button opened, validation rejects. Nothing clears the
+   * mark then (resetOutcomeButtonsValues only runs when save() fails), so the abandoned verdict
+   * travels with the next submission: either next to a second one, and the task completion is
+   * rejected as ambiguous, or alone under a plain save, which quietly completes the task with it.
+   *
+   * Any click is a fresh intent and invalidates what the previous ones left behind, so this runs
+   * for every button and keeps the outcome of the clicked one only.
+   */
+  resetOtherOutcomeButtons() {
+    const key = get(this, 'component.key', '');
+    const root = this.root;
+    const data = get(root, 'data') || this.data;
+
+    if (!data || !isFunction(get(root, 'getComponent'))) {
+      return;
+    }
+
+    Object.keys(data).forEach(dataKey => {
+      if (dataKey === key || !dataKey.startsWith(OUTCOME_BUTTONS_PREFIX)) {
+        return;
+      }
+
+      const component = root.getComponent(dataKey);
+
+      if (get(component, 'type') === 'button') {
+        data[dataKey] = undefined;
+      }
+    });
+  }
+
   bindEvents() {
     this.removeEventListener(this.buttonElement, 'click');
 
     this.addEventListener(this.buttonElement, 'click', event => {
+      this.resetOtherOutcomeButtons();
       this.dataValue = true;
 
       if (this.component.action !== 'submit' && this.component.showValidations) {

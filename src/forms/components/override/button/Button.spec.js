@@ -190,4 +190,61 @@ describe('Button Component', () => {
       })
       .catch(done);
   });
+
+  describe('outcome buttons', () => {
+    const outcomesFormJson = {
+      type: 'form',
+      components: [
+        { label: 'Comment', type: 'textarea', input: true, key: 'comment' },
+        { label: 'Reject', action: 'event', event: 'reject', type: 'button', input: true, key: 'outcome_Repeal' },
+        { label: 'Request info', action: 'event', event: 'requestInfo', type: 'button', input: true, key: 'outcome_RequestInfo' },
+        { label: 'Save', action: 'event', event: 'save', type: 'button', input: true, key: 'save' }
+      ]
+    };
+
+    it('should drop the verdict of a click that never reached a submit', done => {
+      Formio.createForm(document.createElement('div'), outcomesFormJson)
+        .then(form => {
+          // verdict abandoned: the button opened a dialog and the user closed it, nothing was submitted
+          form.getComponent('outcome_Repeal').buttonElement.click();
+          expect(form.data.outcome_Repeal).toBe(true);
+
+          form.getComponent('outcome_RequestInfo').buttonElement.click();
+
+          expect(form.data.outcome_Repeal).toBeUndefined();
+          expect(form.data.outcome_RequestInfo).toBe(true);
+          done();
+        })
+        .catch(done);
+    });
+
+    it('should drop the abandoned verdict when the form is submitted by another button', done => {
+      Formio.createForm(document.createElement('div'), outcomesFormJson)
+        .then(form => {
+          // verdict abandoned: validation rejected the submit, then the user saved the form as is
+          form.getComponent('outcome_Repeal').buttonElement.click();
+          expect(form.data.outcome_Repeal).toBe(true);
+
+          form.getComponent('save').buttonElement.click();
+
+          expect(form.data.outcome_Repeal).toBeUndefined();
+          expect(form.data.save).toBe(true);
+          done();
+        })
+        .catch(done);
+    });
+
+    it('should keep values of buttons which are not outcomes', done => {
+      Formio.createForm(document.createElement('div'), outcomesFormJson)
+        .then(form => {
+          form.getComponent('save').buttonElement.click();
+          form.getComponent('outcome_Repeal').buttonElement.click();
+
+          expect(form.data.save).toBe(true);
+          expect(form.data.outcome_Repeal).toBe(true);
+          done();
+        })
+        .catch(done);
+    });
+  });
 });
