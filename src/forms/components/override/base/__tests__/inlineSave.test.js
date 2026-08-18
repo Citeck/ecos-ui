@@ -34,6 +34,52 @@ describe('Base inline save', () => {
     return { component, submitMock, updateValueMock };
   }
 
+  /**
+   * Creates a mock component with a `ce` method that mimics formio's
+   * document.createElement wrapper, needed by createInlineEditSaveAndCancelButtons.
+   */
+  function createComponentWithCe(overrides = {}) {
+    const submitMock = jest.fn(() => Promise.resolve());
+    const updateValueMock = jest.fn();
+
+    const component = {
+      _isInlineEditingMode: true,
+      _inlineEditSaveButton: null,
+      _removeEventListeners: null,
+      options: { saveDraft: false },
+      dataValue: 'test-value',
+      data: {},
+      root: {
+        changing: false,
+        submit: submitMock,
+        showErrors: jest.fn(),
+        components: {},
+        onChange: jest.fn()
+      },
+      element: document.createElement('div'),
+      checkValidity: jest.fn(() => true),
+      updateValue: updateValueMock,
+      switchToViewOnlyMode: jest.fn(),
+      inlineEditRollback: jest.fn(),
+      removeClass: jest.fn(),
+      ce: (tag, attrs, ...children) => {
+        const el = document.createElement(tag);
+        if (attrs && attrs.class) {
+          attrs.class.split(' ').forEach(cls => cls && el.classList.add(cls));
+        }
+        children.forEach(child => {
+          if (child instanceof HTMLElement) {
+            el.appendChild(child);
+          }
+        });
+        return el;
+      },
+      ...overrides
+    };
+
+    return { component, submitMock, updateValueMock };
+  }
+
   describe('silentSaveForm', () => {
     it('should call updateValue before form.submit', async () => {
       const { component, submitMock, updateValueMock } = createMockComponent();
@@ -105,52 +151,6 @@ describe('Base inline save', () => {
   });
 
   describe('save button click: updateValue before submit', () => {
-    /**
-     * Creates a mock component with a `ce` method that mimics formio's
-     * document.createElement wrapper, needed by createInlineEditSaveAndCancelButtons.
-     */
-    function createComponentWithCe(overrides = {}) {
-      const submitMock = jest.fn(() => Promise.resolve());
-      const updateValueMock = jest.fn();
-
-      const component = {
-        _isInlineEditingMode: true,
-        _inlineEditSaveButton: null,
-        _removeEventListeners: null,
-        options: { saveDraft: false },
-        dataValue: 'test-value',
-        data: {},
-        root: {
-          changing: false,
-          submit: submitMock,
-          showErrors: jest.fn(),
-          components: {},
-          onChange: jest.fn()
-        },
-        element: document.createElement('div'),
-        checkValidity: jest.fn(() => true),
-        updateValue: updateValueMock,
-        switchToViewOnlyMode: jest.fn(),
-        inlineEditRollback: jest.fn(),
-        removeClass: jest.fn(),
-        ce: (tag, attrs, ...children) => {
-          const el = document.createElement(tag);
-          if (attrs && attrs.class) {
-            attrs.class.split(' ').forEach(cls => cls && el.classList.add(cls));
-          }
-          children.forEach(child => {
-            if (child instanceof HTMLElement) {
-              el.appendChild(child);
-            }
-          });
-          return el;
-        },
-        ...overrides
-      };
-
-      return { component, submitMock, updateValueMock };
-    }
-
     it('should call updateValue with { changeByUser: true } before form.submit on save button click', async () => {
       const callOrder = [];
       const { component, submitMock, updateValueMock } = createComponentWithCe();
@@ -244,6 +244,77 @@ describe('Base inline save', () => {
       // Key assertion: submit IS called even though form.changing is true
       expect(submitMock).toHaveBeenCalled();
       expect(updateValueMock).toHaveBeenCalledWith({ changeByUser: true });
+    });
+  });
+
+  describe('per-field saving indicator and soft reload preference (COREDEV-429)', () => {
+    function createComponentWithEcosForm(ecosForm) {
+      return createComponentWithCe({
+        root: {
+          changing: false,
+          submit: jest.fn(() => Promise.resolve()),
+          showErrors: jest.fn(),
+          components: {},
+          onChange: jest.fn(),
+          ecos: { form: ecosForm }
+        }
+      });
+    }
+
+    const flush = () => new Promise(resolve => setTimeout(resolve, 0));
+
+    it('shows the ring on save, prefers softReload over onReload, and drops the ring at the end', async () => {
+      const softReload = jest.fn().mockResolvedValue({ changed: true, rebuilt: false });
+      const onReload = jest.fn();
+      const { component } = createComponentWithEcosForm({ softReload, onReload });
+
+      Base.prototype.createInlineEditSaveAndCancelButtons.call(component);
+      component.element.querySelector('.inline-editing__save-button').click();
+
+      // the ring is up while the save is in flight, over the edited component only
+      expect(component.element.querySelector('.inline-editing__saving-indicator')).not.toBeNull();
+      expect(component.element.classList.contains('inline-editing_saving')).toBe(true);
+
+      await flush();
+      await flush();
+
+      // the submit itself must ride the project's own loader switch, not raise the form-level one
+      expect(component.root.submit).toHaveBeenCalledWith(undefined, expect.objectContaining({ withoutLoader: true }));
+      expect(softReload).toHaveBeenCalledTimes(1);
+      expect(onReload).not.toHaveBeenCalled();
+      expect(component.element.querySelector('.inline-editing__saving-indicator')).toBeNull();
+      expect(component.element.classList.contains('inline-editing_saving')).toBe(false);
+    });
+
+    it('falls back to onReload(true) for a form host without softReload', async () => {
+      const onReload = jest.fn();
+      const { component } = createComponentWithEcosForm({ onReload });
+
+      Base.prototype.createInlineEditSaveAndCancelButtons.call(component);
+      component.element.querySelector('.inline-editing__save-button').click();
+      await flush();
+      await flush();
+
+      expect(onReload).toHaveBeenCalledWith(true);
+      expect(component.element.querySelector('.inline-editing__saving-indicator')).toBeNull();
+    });
+
+    it('drops the ring and stays quiet when the follow-up re-read fails', async () => {
+      const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const softReload = jest.fn().mockRejectedValue(new Error('read failed'));
+      const { component } = createComponentWithEcosForm({ softReload, onReload: jest.fn() });
+
+      Base.prototype.createInlineEditSaveAndCancelButtons.call(component);
+      component.element.querySelector('.inline-editing__save-button').click();
+      await flush();
+      await flush();
+
+      // the value is saved — a failed re-read is logged, not thrown, and the ring never sticks
+      expect(consoleError).toHaveBeenCalled();
+      expect(component.element.querySelector('.inline-editing__saving-indicator')).toBeNull();
+      expect(component.element.classList.contains('inline-editing_saving')).toBe(false);
+
+      consoleError.mockRestore();
     });
   });
 });

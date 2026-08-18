@@ -14,3 +14,21 @@
     width: 100%;
   }
 }
+
+// The in-place stand-in for a value that is still being resolved (COREDEV-429): sized and aligned
+// like the value line it replaces, unlike the default loader's centred 40%-wide box.
+.select-journal-view-mode__loader {
+  width: 36px;
+  height: 18px;
+  margin: 0;
+  justify-content: flex-start;
+  gap: 4px;
+}
+
+// The failed-resolution text (COREDEV-429): the value's own line box, but visibly a fault,
+// not data.
+.select-journal-view-mode__error {
+  height: 18px;
+  margin: 0;
+  color: $color-red-1;
+}

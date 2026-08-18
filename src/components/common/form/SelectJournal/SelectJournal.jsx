@@ -77,6 +77,7 @@ export default class SelectJournal extends Component {
     filterPredicate: [],
     selectedRows: [],
     error: null,
+    valueError: null,
     customPredicate: null,
     value: undefined,
     isLoading: false,
@@ -798,7 +799,8 @@ export default class SelectJournal extends Component {
     // own value is still being resolved — that chain has to be allowed to finish.
     const resetSeqAtStart = this.valueResetSeq;
 
-    this.setState({ isLoading: true });
+    // `valueError` is the previous resolution's failure — a fresh resolution starts clean.
+    this.setState({ isLoading: true, valueError: null });
 
     if (this.isQuery) {
       !this.state.gridData.total && this.getJournalConfig().then(this.refreshGridData);
@@ -845,6 +847,13 @@ export default class SelectJournal extends Component {
             }
           );
         });
+      })
+      .catch(error => {
+        console.error(error);
+        // A failed resolution must not leave the field on the loading dots forever — and must not
+        // read as "no value" either. Kept apart from `state.error`, which holds the permanent
+        // configuration error (no journalId) that disables the whole field.
+        this.liveComponent && this.setState({ isLoading: false, valueError: error instanceof Error ? error : new Error(String(error)) });
       });
   };
 
@@ -1198,7 +1207,7 @@ export default class SelectJournal extends Component {
       linkFormatter,
       viewMode
     } = this.props;
-    const { journalConfig, selectedRows, error, gridData, value, isLoading } = this.state;
+    const { journalConfig, selectedRows, error, valueError, gridData, value, isLoading } = this.state;
     const selectedQueryInfo = this.isQuery && !isEmpty(value) && t(Labels.SELECTED_LABEL, { data: gridData.total });
 
     const inputViewProps = {
@@ -1210,6 +1219,7 @@ export default class SelectJournal extends Component {
       linkFormatter,
       viewOnly,
       error,
+      valueError,
       selectedRows: this.isQuery ? value : selectedRows,
       editValue: this.onValueEdit,
       deleteValue: this.onValueDelete,
@@ -1243,7 +1253,7 @@ export default class SelectJournal extends Component {
     };
 
     const DefaultView = viewOnly ? (
-      <ViewMode {...inputViewProps} />
+      <ViewMode {...inputViewProps} isLoading={isLoading} />
     ) : (
       <InputView {...inputViewProps} disabled={disabled || !journalId || !!journalId.match(TEMPLATE_REGEX)} />
     );
@@ -1257,7 +1267,11 @@ export default class SelectJournal extends Component {
       >
         {isFunction(renderView) ? renderView(inputViewProps) : DefaultView}
 
-        {isLoading && <Loader blur type="points" />}
+        {/* In view-only mode ViewMode owns the loading presentation for every one of its branches
+            (in-place dots, or the loader over the table view) — the detached loader under the field
+            is exactly the "«None» plus dots out of nowhere" first-load look this replaces
+            (COREDEV-429). A custom renderView bypasses ViewMode, so it keeps the detached loader. */}
+        {isLoading && (!viewOnly || isFunction(renderView)) && <Loader blur type="points" />}
 
         <FiltersProvider
           columns={journalConfig.columns}

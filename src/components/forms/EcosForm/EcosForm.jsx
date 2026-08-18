@@ -17,6 +17,7 @@ import React from 'react';
 import { PRE_SETTINGS_TYPES, PreSettings } from '@/components/admin/PreSettings';
 
 import EcosFormUtils from './EcosFormUtils';
+import { buildSoftPatch, readRecordSequentially, redrawComponents } from './softReloadUtils';
 import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
 import { FORM_MODE_EDIT, isNewRecordFormMode } from './constants';
@@ -46,6 +47,10 @@ class EcosForm extends React.Component {
   _formSubmitDoneResolve = () => undefined;
   _cachedFormComponents = [];
   _lastFormOptions = null;
+  /** Last submission loaded from the server — the comparison base of {@link softReload} */
+  _lastLoadedData = null;
+  /** Last form description loaded from the server (id + raw definition) — see {@link softReload} */
+  _lastLoadedFormData = null;
 
   constructor(props) {
     super(props);
@@ -76,6 +81,8 @@ class EcosForm extends React.Component {
 
     if (this._form) {
       this._form.destroy();
+      // Nulled so that the staleness checks of an in-flight softReload fire on unmount too.
+      this._form = null;
     }
 
     window.clearTimeout(this._containerHeightTimerId);
@@ -186,6 +193,8 @@ class EcosForm extends React.Component {
         onFormLoadingFailure();
         return null;
       }
+
+      this._lastLoadedFormData = { formId: formData.formId, definition: formData.definition };
 
       const container = get(this._formContainer, 'current');
 
@@ -338,13 +347,11 @@ class EcosForm extends React.Component {
               return;
             }
 
-            const data = {
-              ...this._evalOptionsInitAttributes(recordData.inputs, options),
-              ...(this.props.attributes || {}),
-              ...recordData.submission
-            };
+            const data = this._buildSubmissionData(recordData, options);
             const [form, customModule] = formAndCustom;
             const HANDLER_PREFIX = 'onForm';
+
+            this._lastLoadedData = data;
 
             form.ecos = { custom: customModule, form: this };
             form.setValue({ data });
@@ -400,6 +407,14 @@ class EcosForm extends React.Component {
         }
       );
     }, onFormLoadingFailure);
+  }
+
+  _buildSubmissionData(recordData, options) {
+    return {
+      ...this._evalOptionsInitAttributes(get(recordData, 'inputs') || [], options),
+      ...(this.props.attributes || {}),
+      ...(get(recordData, 'submission') || {})
+    };
   }
 
   _evalOptionsInitAttributes(inputs, options) {
@@ -741,6 +756,143 @@ class EcosForm extends React.Component {
     }
 
     this.toggleContainerHeight(true);
+  }
+
+  /**
+   * The full-rebuild escape hatch of {@link softReload}.
+   *
+   * The host masks a rebuild only when it knows one is coming — Properties raises `isReloading`
+   * before its own manual `onReload` call. A fallback taken *inside* the soft path is invisible to
+   * it, and the teardown would flash completely unmasked — the very thing the soft path exists to
+   * prevent. So the host's loader is raised first (`onToggleLoader`); the host drops it in its
+   * `onReady`, the same pairing `submitForm` relies on.
+   */
+  _reloadFromSoftPath() {
+    const { onToggleLoader } = this.props;
+
+    // Not this.toggleLoader: that one is gated by the submit-scoped `withoutLoader` flag, which an
+    // inline save has just set on the form — and the inline save is precisely the caller whose
+    // fallback rebuild must be masked. The flag is about submit-triggered loaders, not this.
+    isFunction(onToggleLoader) && onToggleLoader(true);
+    this.onReload();
+  }
+
+  /**
+   * Background counterpart of {@link onReload}.
+   *
+   * `onReload` destroys the formio instance and builds a new one on the same container, so the
+   * whole form flashes on every background update, even when nothing in the record has actually
+   * changed (COREDEV-429). Here the record is re-read and, as long as the form itself is the same,
+   * only the submission is patched — formio then updates just the components whose value differs
+   * and the DOM survives.
+   *
+   * Falls back to the full reload when there is nothing to patch yet (form is not built) or when
+   * the form description on the server is no longer the one currently rendered.
+   *
+   * @returns {Promise<{changed: boolean, rebuilt: boolean, changedKeys?: string[]}>} `changed` — the
+   * submission differs from the previously loaded one, `rebuilt` — the full reload path was used
+   * instead, `changedKeys` — the submission keys that differ. REJECTS when the record re-read
+   * itself fails (a rejected or timed-out read) — callers own that error; a failed read of the
+   * form description, by contrast, resolves to a no-op.
+   */
+  async softReload() {
+    const { record, formKey, formId: propsFormId, clonedRecord } = this.props;
+    const { recordId, containerId, formDefinition } = this.state;
+
+    if (!this._form || isEmpty(formDefinition) || !this._lastLoadedFormData) {
+      this._reloadFromSoftPath();
+      return { changed: true, rebuilt: true };
+    }
+
+    // The awaits below can outlive the form they started for: the widget may unmount, or a
+    // concurrent full reload may replace `this._form` with a successor that has loaded its own
+    // data. Patching the successor — or a destroyed instance — with values read for the
+    // predecessor is not this call's to do, so every await is followed by a staleness check.
+    const formAtStart = this._form;
+
+    const attributes = { definition: 'definition?json', formId: '?localId' };
+    let actualFormData = null;
+
+    try {
+      actualFormData = propsFormId
+        ? await EcosFormUtils.getFormById(propsFormId, attributes)
+        : await EcosFormUtils.getForm(record, formKey, attributes);
+    } catch (e) {
+      console.error(e);
+    }
+
+    if (this._form !== formAtStart) {
+      return { changed: false, rebuilt: false };
+    }
+
+    // A FAILED read is not a CHANGED description: tearing a perfectly good form down over a
+    // network hiccup would turn a background tick into a visible data-less widget. Leave the
+    // form alone — the next update tick retries.
+    if (!get(actualFormData, 'definition')) {
+      return { changed: false, rebuilt: false };
+    }
+
+    const isSameForm =
+      get(actualFormData, 'formId') === this._lastLoadedFormData.formId &&
+      isEqual(actualFormData.definition, this._lastLoadedFormData.definition);
+
+    if (!isSameForm) {
+      this._reloadFromSoftPath();
+      return { changed: true, rebuilt: true };
+    }
+
+    const inputs = EcosFormUtils.getFormInputs(formDefinition);
+    // The base id, not the state's record id: the latter is the edit alias (`<id>-alias-<n>`), a
+    // routing detail of this page that the backend resolves to nothing. It is only translatable
+    // while the alias record is still registered in records-core — by the time a background update
+    // arrives it may well be gone, and the re-read comes back empty, which a patch would then write
+    // over every value on the form. `initForm` publishes the resolved id for exactly this reason
+    // (`options.baseRecordId`); the live resolution is the net for forms built before it existed.
+    const baseRecordId = get(this._form, 'options.baseRecordId') || Records.get(recordId).getBaseRecord().id;
+    const readRef = clonedRecord || baseRecordId;
+    const recordData = await readRecordSequentially(readRef, () => EcosFormUtils.getData(readRef, inputs, containerId));
+
+    if (this._form !== formAtStart) {
+      return { changed: false, rebuilt: false };
+    }
+
+    const data = this._buildSubmissionData(recordData, this.props.options || {});
+
+    const previousData = this._lastLoadedData || {};
+
+    // A read that comes back with no keys at all while the form holds data is not a diff — it is a
+    // failed read (an unresolvable ref, a record that is gone). Patching would blank every field;
+    // let the full reload path decide what such a state should look like.
+    if (isEmpty(get(recordData, 'submission')) && !isEmpty(previousData)) {
+      this._reloadFromSoftPath();
+      return { changed: true, rebuilt: true };
+    }
+
+    // A key the user is editing inline right now must stay theirs: writing the re-read value
+    // through `setValue` would replace the text mid-typing, and a redraw would tear the open
+    // editor down. The inline save's own re-read picks the server value up once they are done.
+    const inlineEditedKeys = new Set(
+      (isFunction(this._form.getAllComponents) ? this._form.getAllComponents() : [])
+        .filter(component => component._isInlineEditingMode)
+        .map(component => get(component, 'component.key'))
+    );
+
+    const { patchableKeys, patchData, nextLoadedData } = buildSoftPatch({
+      data,
+      previousData,
+      formData: this._form.data,
+      inlineEditedKeys
+    });
+
+    if (isEmpty(patchableKeys)) {
+      return { changed: false, rebuilt: false, changedKeys: patchableKeys };
+    }
+
+    this._lastLoadedData = nextLoadedData;
+    this._form.setValue({ data: patchData });
+    redrawComponents(this._form, patchableKeys);
+
+    return { changed: true, rebuilt: false, changedKeys: patchableKeys };
   }
 
   toggleContainerHeight(toSave = false) {

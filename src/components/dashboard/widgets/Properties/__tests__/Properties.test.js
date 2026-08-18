@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { act, render } from '@testing-library/react';
 import React from 'react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
@@ -134,6 +134,74 @@ describe('Properties', () => {
       const contentDiv = findContentDiv(container);
       expect(contentDiv).not.toBeNull();
       expect(contentDiv.style.minHeight).toBe('50px');
+    });
+  });
+
+  describe('Soft reload plumbing (COREDEV-429)', () => {
+    function renderWithRef(props = {}) {
+      const ref = React.createRef();
+      const utils = render(
+        <Provider store={mockStore(storeState)}>
+          <Properties {...defaultProps} {...props} ref={ref} />
+        </Provider>
+      );
+
+      return { ...utils, ref };
+    }
+
+    it('softUpdateForm delegates to the form softReload without touching the loader state', async () => {
+      const { ref, container } = renderWithRef();
+      const softReload = jest.fn().mockResolvedValue({ changed: true, rebuilt: false });
+      ref.current._ecosForm = { current: { softReload } };
+
+      const result = await ref.current.softUpdateForm();
+
+      expect(softReload).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({ changed: true, rebuilt: false });
+      expect(ref.current.state.isReloading).toBe(false);
+      expect(container.querySelector('.ecos-loader')).toBeNull();
+    });
+
+    it('softUpdateForm resolves to no-change when there is no form yet', async () => {
+      const { ref } = renderWithRef();
+      ref.current._ecosForm = { current: null };
+
+      await expect(ref.current.softUpdateForm()).resolves.toEqual({ changed: false, rebuilt: false });
+    });
+
+    // The old handleInlineEditSave raised `isReloading`, dimming the whole widget behind a blur
+    // whose only reset was the post-rebuild onReady — with the in-place patch there is no rebuild,
+    // so the blur would stay forever and the dimming itself is the flash being removed.
+    it('an inline save no longer dims the whole widget', () => {
+      const onInlineEditSave = jest.fn();
+      const { ref, container } = renderWithRef({ onInlineEditSave });
+
+      act(() => {
+        ref.current.handleInlineEditSave();
+      });
+
+      expect(onInlineEditSave).toHaveBeenCalledTimes(1);
+      expect(ref.current.state.isReloading).toBeFalsy();
+      expect(container.querySelector('.ecos-loader')).toBeNull();
+    });
+
+    // The skeleton stands in for a form whose size is unknown — before the first load. Once the
+    // form is on screen, a busy state must dim it in place, not swap living content for bones.
+    it('a busy state on a loaded form dims it in place instead of swapping in the skeleton', () => {
+      const { ref, container } = renderWithRef();
+
+      act(() => {
+        ref.current.setState({ loaded: true, isLoading: false });
+      });
+      expect(container.querySelector('.ecos-properties__skeleton')).toBeNull();
+
+      act(() => {
+        ref.current.onToggleLoader(true);
+      });
+
+      expect(container.querySelector('.ecos-loader')).not.toBeNull();
+      expect(container.querySelector('.ecos-properties__skeleton')).toBeNull();
+      expect(container.querySelector('[data-testid="mock-ecosform"]').className).not.toContain('d-none');
     });
   });
 });
