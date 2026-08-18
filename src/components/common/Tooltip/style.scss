@@ -1,10 +1,45 @@
 @import '../../../styles/constants';
 
+// The fade has to run on the positioned `.tooltip` inside the portal root, never on the root
+// itself — see the comment in `.ecos-base-tooltip` below (COREDEV-408).
+@keyframes ecos-base-tooltip-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
 .ecos-base-tooltip {
+  // Bootstrap's `.fade` animates the opacity of this portal root, and an element with
+  // 0 < opacity < 1 is its own stacking context with z-index: auto. So the z-index on the inner
+  // `.tooltip` bought nothing while the tooltip was appearing: for the whole 150ms the hint painted
+  // at plain body-child level — under the sticky grid header, the app header, the settings bar —
+  // and only snapped to the front at opacity 1, which is the «выплывает из-под элементов» QA saw.
+  // Hence the root stays opaque and the fade moves onto `.tooltip`, which is positioned and keeps
+  // its z-index for the whole animation.
+  // Do NOT give the root `position` + `z-index` instead: it then becomes the offsetParent of the
+  // popper, and the reactstrap-driven tooltips that reuse these classes (grid cells, selector
+  // header, column filters) get placed hundreds of pixels away from their target.
+  &.fade,
+  &.fade:not(.show) {
+    opacity: 1;
+    transition: none;
+  }
+
   &_opaque {
     & .show {
       opacity: 1;
     }
+  }
+
+  // These variants are meant to appear at once. The compound selector is deliberate: the root
+  // carries both classes, and a plain `.ecos-base-tooltip_opaque .tooltip` would tie with the
+  // base `& .tooltip` rule below (equal specificity) and lose to it by source order.
+  &.ecos-base-tooltip_opaque .tooltip {
+    animation: none;
   }
 
   & .show {
@@ -77,6 +112,7 @@
     background-color: transparent;
     pointer-events: inherit;
     z-index: 1040;
+    animation: ecos-base-tooltip-fade-in 0.15s linear;
   }
 
   &_hover .tooltip {
