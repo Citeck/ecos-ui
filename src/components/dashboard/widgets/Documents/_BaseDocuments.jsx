@@ -19,7 +19,7 @@ import UserLocalSettingsService from '@/services/userLocalSettings';
 import FormManager from '@/components/forms/EcosForm/FormManager';
 import { EcosModal, Icon, Loader, Tooltip } from '@/components/common';
 import { Btn } from '@/components/common/btns';
-import { Dropdown } from '@/components/common/form';
+import { DropdownOuter } from '@/components/common/form';
 import BaseWidget from '../BaseWidget';
 
 import Badge from './parts/Badge';
@@ -27,7 +27,7 @@ import DropZone from './parts/DropZone';
 import Settings from './parts/Settings';
 import { AvailableTypeInterface, DynamicTypeInterface } from './propsInterfaces';
 
-import { Labels, statusesKeys, tooltips, typesStatuses, typeStatusesByFields } from '@/helpers/documents';
+import { Labels, PANEL_MENU_HEIGHT_MAX, statusesKeys, tooltips, typesStatuses, typeStatusesByFields } from '@/helpers/documents';
 import { NotificationManager } from '@/services/notifications';
 
 import './style.scss';
@@ -461,7 +461,7 @@ class BaseDocuments extends BaseWidget {
 
   renderUploadButton = () => {
     const { dynamicTypes } = this.props;
-    const { selectedType, contentHeight } = this.state;
+    const { selectedType } = this.state;
     const allowedTypes = dynamicTypes.filter(type => type.canUpload);
 
     if (selectedType) {
@@ -480,7 +480,7 @@ class BaseDocuments extends BaseWidget {
     }
 
     return (
-      <Dropdown
+      <DropdownOuter
         isStatic
         withScrollbar
         toggleClassName={classNames('ecos-docs__panel-upload', {
@@ -490,10 +490,10 @@ class BaseDocuments extends BaseWidget {
         titleField="name"
         source={allowedTypes}
         onChange={this.handleToggleUploadModalByType}
-        scrollbarHeightMax={contentHeight - this.tablePanelHeight}
+        scrollbarHeightMax={PANEL_MENU_HEIGHT_MAX}
       >
         <Icon className="icon-upload ecos-docs__panel-upload-icon" />
-      </Dropdown>
+      </DropdownOuter>
     );
   };
 

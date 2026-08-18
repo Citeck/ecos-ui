@@ -692,7 +692,7 @@ class DesktopDocuments extends BaseDocuments {
 
   renderTablePanel() {
     const { dynamicTypes, isLoadingDownload, downloadAllDocuments } = this.props;
-    const { selectedType, statusFilter, downloadIds, typesStatuses, contentHeight, tableFilter } = this.state;
+    const { selectedType, statusFilter, downloadIds, typesStatuses, tableFilter } = this.state;
 
     if (!selectedType && !dynamicTypes.length) {
       return null;
@@ -715,7 +715,6 @@ class DesktopDocuments extends BaseDocuments {
             onSearch={this.handleFilterTable}
             onChangeFilter={this.handleChangeTypeFilter}
             forwardedRef={this._tablePanel}
-            scrollbarHeightMax={this.tableHeight}
             allDocuments={downloadIds}
             isLoadingDownload={isLoadingDownload}
             downloadAllDocuments={downloadAllDocuments}
@@ -730,13 +729,11 @@ class DesktopDocuments extends BaseDocuments {
         selectedType={selectedType}
         statusFilter={statusFilter}
         typesStatuses={typesStatuses}
-        contentHeight={contentHeight}
         tableFilter={tableFilter}
         renderUploadButton={this.renderUploadButton}
         onSearch={this.handleFilterTable}
         onChangeFilter={this.handleChangeTypeFilter}
         forwardedRef={this._tablePanel}
-        scrollbarHeightMax={this.tableHeight}
         allDocuments={downloadIds}
         isLoadingDownload={isLoadingDownload}
         downloadAllDocuments={downloadAllDocuments}

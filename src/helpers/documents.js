@@ -108,3 +108,7 @@ export const Labels = {
 
 export const CANCELED_TIME = 5;
 export const UNDOABLE_ACTIONS = ['delete'];
+
+// Both panel dropdowns are portaled out of the widget (COREDEV-423), so their height must not
+// depend on the widget content — it is a plain cap on how tall the menu may grow before it scrolls.
+export const PANEL_MENU_HEIGHT_MAX = 300;
