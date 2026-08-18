@@ -18,6 +18,7 @@ import {
   setLoadingColumns,
   setOriginKanbanSettings,
   setPagination,
+  setRelatedFilter,
   setResolvedActions,
   setTotalCount,
   refreshCardData,
@@ -30,7 +31,7 @@ import {
 import reducer from '../../reducers/kanban';
 import { computeSwimlanesTotalCount } from '../../selectors/kanban';
 import EcosFormUtils from '@/components/forms/EcosForm/EcosFormUtils';
-import { DEFAULT_PAGINATION } from '@/components/journals/Journals/constants';
+import { DEFAULT_PAGINATION, JOURNAL_DASHLET_CONFIG_VERSION } from '@/components/journals/Journals/constants';
 import JournalsService from '@/components/journals/Journals/service/journalsService';
 import RecordActions from '@/components/core/Records/actions/recordActions';
 import PageService from '../../services/PageService';
@@ -1755,6 +1756,279 @@ describe('kanban sagas tests', () => {
       const callArgs = spyGetBoardCards.mock.calls[spyGetBoardCards.mock.calls.length - 1][0];
       // ONE column requested with skipCount = already-loaded count (2).
       expect(callArgs.columns).toEqual([expect.objectContaining({ id: 'some-id-1', skipCount: 2, maxItems: DEFAULT_PAGINATION.maxItems })]);
+    });
+  });
+
+  // COREDEV-288: "show only linked records" was lost for kanban — a reverse association never
+  // produced a predicate at all (all records were shown), and even the direct one was dropped by
+  // every repeated load (next page / search / filter / preset / reload).
+  describe('only linked records filter', () => {
+    const recordRef = 'emodel/request@request-1';
+    const linkedAttr = 'request';
+    const reverseFilter = { t: 'or', val: [{ t: 'contains', att: linkedAttr, val: recordRef }] };
+
+    // The shared filter is either the single predicate or an `and` of all shared parts.
+    const filterParts = filter => (get(filter, 't') === 'and' ? get(filter, 'v') || [] : [filter].filter(Boolean));
+    const lastFilterParts = () => filterParts(get(spyGetBoardCards.mock.calls, [spyGetBoardCards.mock.calls.length - 1, 0, 'filter']));
+
+    // earlier suites leave their own Records.get implementation behind (clearAllMocks keeps it)
+    beforeEach(() => spyRecordsGet.mockImplementation(recordsGet));
+
+    const journalsState = (extra = {}) => ({
+      journalConfig: data.journalConfig,
+      journalSetting: {
+        ...data.journalSetting,
+        columns: [{ attribute: 'name', type: 'text', searchable: true, default: true, visible: true }]
+      },
+      recordRef,
+      ...extra
+    });
+
+    const kanbanState = (extra = {}) => ({
+      boardConfig: data.boardConfig,
+      formProps: data.formProps,
+      pagination: DEFAULT_PAGINATION,
+      ...extra
+    });
+
+    it('reverse association > board-cards filter gets OR[CONTAINS(attr, recordRef)]', async () => {
+      const dispatched = await wrapRunSaga(
+        kanban.sagaGetBoardData,
+        { onlyLinked: true, attrsToLoad: [{ value: linkedAttr }] },
+        { journals: { [stateId]: journalsState() }, kanban: { [stateId]: {} } }
+      );
+
+      expect(lastFilterParts()).toContainEqual(reverseFilter);
+
+      // and it is kept in the store so repeated loads stay filtered
+      const relatedAction = dispatched.find(d => d.type === setRelatedFilter().type);
+      expect(get(relatedAction, 'payload.relatedFilter')).toEqual(reverseFilter);
+      expect(console.error).not.toHaveBeenCalled();
+    });
+
+    it('direct association > refs handed over by the widget stay an id EQ predicate', async () => {
+      await wrapRunSaga(
+        kanban.sagaGetBoardData,
+        { onlyLinked: true, attrsToLoad: [{ value: linkedAttr }], recordRefs: ['cand@1', 'cand@2'] },
+        { journals: { [stateId]: journalsState() }, kanban: { [stateId]: {} } }
+      );
+
+      const parts = lastFilterParts();
+      expect(parts).toContainEqual({ t: 'eq', att: 'id', val: ['cand@1', 'cand@2'] });
+      expect(parts.find(p => get(p, 't') === 'or')).toBeUndefined();
+    });
+
+    it('direct association > refs loaded from the record win over the reverse predicate', async () => {
+      const spyLinkedRefs = jest.spyOn(api.journals, 'fetchLinkedRefs').mockResolvedValue(['cand@7']);
+
+      await wrapRunSaga(
+        kanban.sagaGetBoardData,
+        { onlyLinked: true, attrsToLoad: [{ value: linkedAttr }] },
+        { journals: { [stateId]: journalsState() }, kanban: { [stateId]: {} } }
+      );
+
+      expect(spyLinkedRefs).toHaveBeenCalledWith(recordRef, [{ value: linkedAttr }]);
+      const parts = lastFilterParts();
+      expect(parts).toContainEqual({ t: 'eq', att: 'id', val: ['cand@7'] });
+      expect(parts.find(p => get(p, 't') === 'or')).toBeUndefined();
+
+      spyLinkedRefs.mockRestore();
+    });
+
+    it('journal dashlet config > kanban tab reads onlyLinked from the dashlet config', async () => {
+      // KanbanView dispatches getBoardData without any related-records payload: the settings must be
+      // taken from the journal dashlet config instead.
+      await wrapRunSaga(
+        kanban.sagaGetBoardData,
+        {},
+        {
+          journals: {
+            [stateId]: journalsState({
+              config: {
+                [JOURNAL_DASHLET_CONFIG_VERSION]: {
+                  journalId: 'journalId',
+                  onlyLinkedJournals: { journalId: true },
+                  attrsToLoad: { journalId: [{ value: linkedAttr }] }
+                }
+              }
+            })
+          },
+          kanban: { [stateId]: {} }
+        }
+      );
+
+      expect(lastFilterParts()).toContainEqual(reverseFilter);
+    });
+
+    it('onlyLinked is off > no related predicate', async () => {
+      await wrapRunSaga(
+        kanban.sagaGetBoardData,
+        { onlyLinked: false, attrsToLoad: [{ value: linkedAttr }] },
+        { journals: { [stateId]: journalsState() }, kanban: { [stateId]: {} } }
+      );
+
+      expect(lastFilterParts().find(p => get(p, 't') === 'or')).toBeUndefined();
+    });
+
+    it('survives the next page load', async () => {
+      await wrapRunSaga(
+        kanban.sagaGetNextPage,
+        {},
+        {
+          journals: { [stateId]: journalsState() },
+          kanban: { [stateId]: kanbanState({ relatedFilter: reverseFilter, totalCount: 100 }) }
+        }
+      );
+
+      expect(lastFilterParts()).toContainEqual(reverseFilter);
+    });
+
+    it('survives a search + reload', async () => {
+      window.location = { search: '?search=abc' };
+
+      await wrapRunSaga(
+        kanban.sagaReloadBoardData,
+        {},
+        {
+          journals: { [stateId]: journalsState() },
+          kanban: { [stateId]: kanbanState({ relatedFilter: reverseFilter }) }
+        }
+      );
+
+      const parts = lastFilterParts();
+      expect(parts).toContainEqual(reverseFilter);
+      // the search itself is still applied — related filter and search are ANDed, not replaced
+      expect(JSON.stringify(parts)).toContain('abc');
+    });
+
+    it('survives applying a filter/preset', async () => {
+      await wrapRunSaga(
+        kanban.sagaApplyFilter,
+        { settings: { predicate: { t: 'eq', att: 'name', val: 'x' } } },
+        {
+          journals: { [stateId]: journalsState() },
+          kanban: { [stateId]: kanbanState({ relatedFilter: reverseFilter }) }
+        }
+      );
+
+      expect(lastFilterParts()).toContainEqual(reverseFilter);
+    });
+
+    it('swimlane cells and swimlane values are filtered too', async () => {
+      const spyDistinct = jest.spyOn(api.kanban, 'getDistinctValues');
+
+      await wrapRunSaga(
+        kanban.sagaLoadSwimlaneValues,
+        {},
+        {
+          journals: { [stateId]: journalsState() },
+          kanban: { [stateId]: kanbanState({ ...swimlaneData, relatedFilter: reverseFilter }) }
+        }
+      );
+
+      // swimlane rows are built from the same record set...
+      expect(get(spyDistinct.mock.calls, '[0][0].predicates')).toContainEqual(reverseFilter);
+      // ...and so are the cards inside every row
+      expect(lastFilterParts()).toContainEqual(reverseFilter);
+
+      spyDistinct.mockRestore();
+    });
+
+    it('a settings-less reload keeps the stored filter of the SAME journal', async () => {
+      const dispatched = await wrapRunSaga(
+        kanban.sagaGetBoardData,
+        {},
+        {
+          journals: { [stateId]: journalsState() },
+          kanban: { [stateId]: { relatedFilter: reverseFilter, relatedFilterJournalId: 'journalId' } }
+        }
+      );
+
+      expect(lastFilterParts()).toContainEqual(reverseFilter);
+      const relatedAction = dispatched.find(d => d.type === setRelatedFilter().type);
+      expect(get(relatedAction, 'payload.relatedFilter')).toEqual(reverseFilter);
+    });
+
+    it('another journal of the dashlet does not inherit the stored filter', async () => {
+      // multi-journal dashlet: the user switches to a journal that has no only-linked entry at all —
+      // the previous journal's OR[CONTAINS(...)] must not stick to it
+      const dispatched = await wrapRunSaga(
+        kanban.sagaGetBoardData,
+        {},
+        {
+          journals: { [stateId]: journalsState() },
+          kanban: { [stateId]: { relatedFilter: reverseFilter, relatedFilterJournalId: 'anotherJournal' } }
+        }
+      );
+
+      expect(lastFilterParts().find(p => get(p, 't') === 'or')).toBeUndefined();
+      const relatedAction = dispatched.find(d => d.type === setRelatedFilter().type);
+      expect(get(relatedAction, 'payload.relatedFilter')).toBeNull();
+    });
+
+    it('survives the column reload after a card move', async () => {
+      const dataCards = [
+        { status: 'some-id-1', records: [{ id: '1', cardId: '1', attributes: {} }], totalCount: 1 },
+        { status: 'some-id-2', records: [], totalCount: 0 }
+      ];
+
+      await wrapRunSaga(
+        kanban.sagaMoveCard,
+        { cardIndex: 0, toIndex: 0, fromColumnRef: 'some-id-1', toColumnRef: 'some-id-2' },
+        {
+          journals: { [stateId]: journalsState() },
+          kanban: { [stateId]: kanbanState({ dataCards, relatedFilter: reverseFilter }) }
+        }
+      );
+
+      expect(lastFilterParts()).toContainEqual(reverseFilter);
+    });
+
+    it('survives the silent swimlane cell reload after a card edit', async () => {
+      const dispatched = [];
+      await runSaga(
+        {
+          dispatch: action => dispatched.push(action),
+          getState: () => ({
+            journals: { [stateId]: journalsState() },
+            kanban: { [stateId]: kanbanState({ ...swimlaneData, relatedFilter: reverseFilter }) }
+          })
+        },
+        kanban.reloadSwimlaneCells,
+        {
+          api,
+          stateId,
+          boardConfig: data.boardConfig,
+          swimlaneGrouping: swimlaneData.swimlaneGrouping,
+          cells: [{ swimlaneId: 'priority-high', statusId: 'some-id-1' }]
+        }
+      ).done;
+
+      expect(lastFilterParts()).toContainEqual(reverseFilter);
+    });
+
+    it('survives "show more" on a swimlane cell', async () => {
+      // the cell needs room to grow, otherwise the saga bails out before any request
+      const swimlanes = [
+        {
+          ...swimlaneData.swimlanes[0],
+          cells: {
+            ...swimlaneData.swimlanes[0].cells,
+            'some-id-1': { ...swimlaneData.swimlanes[0].cells['some-id-1'], totalCount: 5 }
+          }
+        }
+      ];
+
+      await wrapRunSaga(
+        kanban.sagaLoadMoreSwimlaneCell,
+        { swimlaneId: 'priority-high', statusId: 'some-id-1' },
+        {
+          journals: { [stateId]: journalsState() },
+          kanban: { [stateId]: kanbanState({ ...swimlaneData, swimlanes, relatedFilter: reverseFilter }) }
+        }
+      );
+
+      expect(lastFilterParts()).toContainEqual(reverseFilter);
     });
   });
 });

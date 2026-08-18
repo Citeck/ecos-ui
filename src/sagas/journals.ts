@@ -94,6 +94,7 @@ import { DEFAULT_PAGINATION, isKanban, JOURNAL_DASHLET_CONFIG_VERSION } from '@/
 import JournalsService, { EditorService, PresetsServiceApi } from '@/components/journals/Journals/service';
 import { isSavedAttValueEqual, isValidAttValueForType } from '@/components/journals/Journals/service/editors/editorUtils';
 import { buildSaveAttKey } from '@/components/journals/Journals/service/journalColumnsResolver';
+import { getOnlyLinkedConfig, resolveOnlyLinkedJournalId } from '@/components/journals/Journals/service/onlyLinked';
 import ActionsRegistry from '@/components/core/Records/actions/actionsRegistry';
 import { ActionTypes } from '@/components/core/Records/actions/constants';
 import { wrapSaga } from '@/helpers/redux';
@@ -769,20 +770,16 @@ export function* getGridData(
   }
 
   const { recordRef, journalConfig, journalSetting }: IJournalState = yield select(selectJournalData, stateId);
-  const { id, typeRef } = journalConfig || {};
+  const { typeRef } = journalConfig || {};
 
   const config: JournalDashletConfigVersionType = yield select((state: RootState) => selectNewVersionDashletConfig(state, stateId));
-  const { customJournalMode, customJournal } = config || {};
-  const journalId = (customJournalMode ? customJournal : get(config, 'journalId', id?.includes('@') ? id.split('@')[1] : id)) as string;
+  const { customJournalMode } = config || {};
+  const journalId = resolveOnlyLinkedJournalId(config, journalConfig) as string;
 
-  const onlyLinked = get(config, ['onlyLinkedJournals', journalId]) ?? get(config, 'onlyLinked');
-
-  let attrsToLoad: Array<{ value: string; label?: string }> | undefined;
-  if (journalId && isArray(get(config, ['attrsToLoad', journalId]))) {
-    attrsToLoad = get(config, ['attrsToLoad', journalId]);
-  } else {
-    attrsToLoad = get(config, 'attrsToLoad');
-  }
+  const { onlyLinked, attrsToLoad } = getOnlyLinkedConfig(config, journalId) as {
+    onlyLinked?: boolean;
+    attrsToLoad?: Array<{ value: string; label?: string }>;
+  };
 
   const { pagination: _pagination, predicates: _predicates = [], searchPredicate, fromGroupBy = false, grouping, ...forRequest } = params;
   const predicateRecords: Awaited<ReturnType<IJournalsApi['fetchLinkedRefs']>> = yield call(

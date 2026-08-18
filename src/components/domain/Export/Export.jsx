@@ -1,7 +1,6 @@
 import { URL } from '@citeck/constants';
 import classNames from 'classnames';
 import get from 'lodash/get';
-import isArray from 'lodash/isArray';
 import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
@@ -13,6 +12,7 @@ import React, { Component } from 'react';
 import ListItem from '@/components/journals/Journals/JournalsPresets/ListItem';
 import { Labels } from '@/components/journals/Journals/constants';
 import journalsService from '@/components/journals/Journals/service/journalsService';
+import { getOnlyLinkedConfig } from '@/components/journals/Journals/service/onlyLinked';
 import RecordsExportAction from '@/components/core/Records/actions/handler/executor/RecordsExport';
 import recordActions from '@/components/core/Records/actions/recordActions';
 import { CollapsibleList } from '@/components/common';
@@ -131,14 +131,7 @@ export default class Export extends Component {
     const { grid, dashletConfig, journalConfig, recordRef } = this.props;
 
     const journalId = get(grid, 'journalId') ?? get(journalConfig, 'meta.nodeRef', get(dashletConfig, 'journalId')) ?? '';
-    const onlyLinked = get(dashletConfig, ['onlyLinkedJournals', journalId]) ?? get(dashletConfig, 'onlyLinked');
-
-    let attrsToLoad;
-    if (journalId && isArray(get(dashletConfig, ['attrsToLoad', journalId]))) {
-      attrsToLoad = get(dashletConfig, ['attrsToLoad', journalId]);
-    } else {
-      attrsToLoad = get(dashletConfig, 'attrsToLoad');
-    }
+    const { onlyLinked, attrsToLoad } = getOnlyLinkedConfig(dashletConfig, journalId);
 
     return JournalsConverter.getSettingsForDataLoaderServer({
       ...grid,

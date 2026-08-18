@@ -1,6 +1,7 @@
 import { JournalUrlParams, KanbanUrlParams, SourcesId } from '@citeck/constants';
 import Records from '@citeck/records-core';
 import { PREDICATE_EQ } from '@citeck/records-core/predicates/predicates';
+import * as RecordUtils from '@citeck/records-core/utils/recordUtils';
 import { ParserPredicate } from '@citeck/records-predicates';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
@@ -34,6 +35,7 @@ import {
   setLoading,
   setLoadingColumns,
   setPagination,
+  setRelatedFilter,
   setResolvedActions,
   setDefaultBoardAndTemplate,
   setTotalCount,
@@ -53,6 +55,7 @@ import {
 import EcosFormUtils from '@/components/forms/EcosForm/EcosFormUtils';
 import { DEFAULT_PAGINATION, isKanban, KANBAN_SELECTOR_MODE } from '@/components/journals/Journals/constants';
 import JournalsService from '@/components/journals/Journals/service/journalsService';
+import { buildOnlyLinkedPredicate, getOnlyLinkedConfig, resolveOnlyLinkedJournalId } from '@/components/journals/Journals/service/onlyLinked';
 import RecordActions from '@/components/core/Records/actions/recordActions';
 import JournalsConverter from '../dto/journals';
 import KanbanConverter, { buildBoardCardsFilter, getAfterCardRef } from '../dto/kanban';
@@ -61,7 +64,7 @@ import { wrapArgs, wrapSaga } from '../helpers/redux';
 import { decodeLink, getSearchParams, getUrlWithoutOrigin, getWorkspaceId } from '../helpers/urls';
 import { isExistValue } from '../helpers/util';
 import { emptyJournalConfig } from '../reducers/journals';
-import { selectJournalData, selectSettingsData, selectViewMode } from '../selectors/journals';
+import { selectJournalData, selectNewVersionDashletConfig, selectSettingsData, selectViewMode } from '../selectors/journals';
 import { selectKanban, selectKanbanPageProps, selectPagination, selectSwimlaneGrouping } from '../selectors/kanban';
 import PageService from '../services/PageService';
 
@@ -155,6 +158,7 @@ function* buildSwimlaneCellQueryParams({
 }) {
   const params = yield getGridParams({ journalConfig, journalSetting, pagination: DEFAULT_PAGINATION });
   const predicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(params.predicates));
+  const { relatedFilter } = yield select(selectKanban, stateId);
 
   const urlProps = getSearchParams();
   const searchText = urlProps[JournalUrlParams.SEARCH];
@@ -178,7 +182,7 @@ function* buildSwimlaneCellQueryParams({
       : { t: 'eq', att: swimlaneGrouping.attribute, val: swimlaneId };
 
   return {
-    queryParams: { params, predicates, searchPredicate, attrMap, swimlaneAttrPredicate },
+    queryParams: { params, predicates, searchPredicate, attrMap, swimlaneAttrPredicate, relatedFilter },
     inputByKey
   };
 }
@@ -206,6 +210,79 @@ function* updateBoardConfigColors({ boardConfig, journalConfig, stateId }) {
     delete boardConfig.colorMap;
   }
   yield put(setBoardConfig({ boardConfig, stateId }));
+}
+
+/**
+ * Predicate of the "show only linked records" board setting, in two steps — exactly like the journal
+ * widget (see `getGridData` in sagas/journals):
+ *
+ *  1. DIRECT association (the current record points at the cards): the refs are either handed over by
+ *     the widget (`payload.recordRefs`) or loaded from the record (`attr[]?id`) → `id EQ [...]`.
+ *  2. REVERSE association (the cards point at the current record): nothing to load from the record, so
+ *     filter by the cards' own attribute → `OR[CONTAINS(attr, recordRef)]`.
+ *
+ * The board settings live either in the widget payload (kanban dashlet plugin) or in the journal
+ * dashlet config (kanban tab of a journal widget) — both are read here, so neither entry point
+ * depends on the other.
+ *
+ * @returns {{ relatedFilter: ?Object, journalId: ?String }} the predicate to AND into every
+ *   board-cards request (or null when not filtered) plus the journal it was resolved for — the
+ *   store keeps both, so the keep-previous fallback below can never leak another journal's filter.
+ */
+export function* resolveRelatedFilter({ api }, { payload = {} }) {
+  const { stateId, recordRefs } = payload;
+
+  const { recordRef: stateRecordRef, journalConfig } = yield select(selectJournalData, stateId);
+  const config = yield select(selectNewVersionDashletConfig, stateId);
+  const journalId = resolveOnlyLinkedJournalId(config, journalConfig) || null;
+
+  if (get(recordRefs, 'length')) {
+    return { relatedFilter: { t: PREDICATE_EQ, att: 'id', val: recordRefs }, journalId };
+  }
+
+  const { customJournalMode } = config || {};
+
+  const configSettings = getOnlyLinkedConfig(config, journalId);
+  const onlyLinked = payload.onlyLinked ?? configSettings.onlyLinked;
+  const attrsToLoad = payload.attrsToLoad ?? configSettings.attrsToLoad;
+
+  const urlProps = getSearchParams();
+  const recordRef = payload.recordRef || urlProps[JournalUrlParams.RECORD_REF] || stateRecordRef;
+
+  if (onlyLinked === undefined) {
+    // Nothing to decide from (a board reload triggered by e.g. a completed record action carries no
+    // settings) — keep the filter resolved on the initial load instead of silently dropping it.
+    // Only for the SAME journal: on a multi-journal dashlet the journal we switched to may simply
+    // have no only-linked entry, and the previous journal's filter must not stick to it.
+    const { relatedFilter, relatedFilterJournalId } = yield select(selectKanban, stateId);
+    return { relatedFilter: (relatedFilterJournalId === journalId && relatedFilter) || null, journalId };
+  }
+
+  if (!onlyLinked || !recordRef) {
+    return { relatedFilter: null, journalId };
+  }
+
+  const linkedRefs = yield call(api.journals.fetchLinkedRefs, recordRef, attrsToLoad);
+
+  if (get(linkedRefs, 'length')) {
+    return { relatedFilter: { t: PREDICATE_EQ, att: 'id', val: linkedRefs }, journalId };
+  }
+
+  const onlyLinkedPredicate = buildOnlyLinkedPredicate({
+    onlyLinked,
+    attrsToLoad,
+    recordRef,
+    columns: get(journalConfig, 'columns') || [],
+    isCustomJournalMode: !!customJournalMode
+  });
+
+  // An empty OR would be dropped (or, worse, flip the meaning) on predicate cleanup — treat it as "no filter".
+  if (!get(onlyLinkedPredicate, 'val.length')) {
+    return { relatedFilter: null, journalId };
+  }
+
+  const relatedFilter = yield call([RecordUtils, RecordUtils.replaceAttrValuesForRecord], onlyLinkedPredicate, recordRef);
+  return { relatedFilter, journalId };
 }
 
 export function* sagaGetBoardList({ api }, { payload }) {
@@ -301,7 +378,7 @@ export function* sagaFormProps({ api }, { payload: { stateId, formId } }) {
 
 export function* sagaGetBoardData({ api }, { payload }) {
   try {
-    const { stateId, recordRefs, attrsToLoad, onlyLinked } = payload;
+    const { stateId } = payload;
     const boardConfig = yield sagaGetBoardConfig({ api }, { payload });
     const formProps = yield sagaFormProps({ api }, { payload: { formId: boardConfig.cardFormRef, stateId } });
     let { journalConfig, journalSetting } = yield select(selectJournalData, stateId);
@@ -319,6 +396,11 @@ export function* sagaGetBoardData({ api }, { payload }) {
 
     yield put(setPagination({ stateId, pagination }));
 
+    // Resolve the "only linked records" filter once per board load and keep it in the store: every
+    // later request (next page, search, filter/preset, reload, swimlanes) reads it from there.
+    const { relatedFilter, journalId: relatedFilterJournalId } = yield call(resolveRelatedFilter, { api }, { payload });
+    yield put(setRelatedFilter({ stateId, relatedFilter, relatedFilterJournalId }));
+
     // Grouping survives a board/preset switch, so the board data must be (re)loaded through the
     // swimlane path here too — same branch as sagaApplyFilter/sagaApplyPreset/sagaReloadBoardData.
     // Otherwise only the flat dataCards were refreshed while the rendered swimlanes kept the numbers
@@ -328,10 +410,7 @@ export function* sagaGetBoardData({ api }, { payload }) {
     if (swimlaneGrouping && swimlaneGrouping.attribute) {
       yield sagaLoadSwimlaneValues({ api }, { payload: { stateId } });
     } else {
-      yield sagaGetData(
-        { api },
-        { payload: { stateId, boardConfig, attrsToLoad, onlyLinked, journalSetting, journalConfig, formProps, pagination, recordRefs } }
-      );
+      yield sagaGetData({ api }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination, relatedFilter } });
     }
 
     const { boardId, templateId, isDefaultBoardAndTemplate } = payload;
@@ -353,7 +432,6 @@ export function* sagaGetData({ api }, { payload }) {
       journalSetting = {},
       formProps = {},
       pagination: _pagination = {},
-      recordRefs,
       stateId,
       isHandlePagination
     } = payload;
@@ -365,7 +443,11 @@ export function* sagaGetData({ api }, { payload }) {
     }
 
     let params = yield getGridParams({ journalConfig, journalSetting, pagination });
-    const { dataCards: prevDataCards, kanbanSettings } = yield select(selectKanban, stateId);
+    const { dataCards: prevDataCards, kanbanSettings, relatedFilter: storedRelatedFilter } = yield select(selectKanban, stateId);
+
+    // Fresh board load hands the resolved filter over in the payload; every repeated load (next page,
+    // search, filter/preset, reload) has no payload and reads the one kept in the store.
+    const relatedFilter = (payload.relatedFilter === undefined ? storedRelatedFilter : payload.relatedFilter) || null;
 
     const urlProps = getSearchParams();
     const searchText = urlProps[JournalUrlParams.SEARCH];
@@ -402,11 +484,9 @@ export function* sagaGetData({ api }, { payload }) {
 
     const boardColumns = get(journalSetting, 'kanban.columns') || boardConfig.columns || [];
 
-    const idsPredicate = Boolean(get(recordRefs, 'length')) ? { t: PREDICATE_EQ, att: 'id', val: recordRefs } : undefined;
-
     // board-cards applies per-column `_status` itself; each column's own `additionalFilter` (e.g. the
     // hideOldItems cutoff) is sent per-column below — only AND the shared filter here.
-    const filter = buildBoardCardsFilter([predicates, searchPredicate, idsPredicate]);
+    const filter = buildBoardCardsFilter([predicates, searchPredicate, relatedFilter]);
     const maxItems = get(params, 'pagination.maxItems', DEFAULT_PAGINATION.maxItems);
 
     // Request only columns that aren't already fully loaded. Fully-loaded columns are omitted
@@ -641,7 +721,7 @@ export function* sagaRunAction({ api }, { payload }) {
 }
 
 function* reloadColumns({ api, stateId, boardConfig, columnIds }) {
-  const { formProps } = yield select(selectKanban, stateId);
+  const { formProps, relatedFilter } = yield select(selectKanban, stateId);
   const { journalConfig, journalSetting } = yield select(selectJournalData, stateId);
   const { dataCards: currentDataCards } = yield select(selectKanban, stateId);
 
@@ -671,7 +751,7 @@ function* reloadColumns({ api, stateId, boardConfig, columnIds }) {
 
   // board-cards applies per-column `_status` itself; each column's own `additionalFilter` is sent
   // per-column below — only AND the shared filter here.
-  const filter = buildBoardCardsFilter([predicates, searchPredicate]);
+  const filter = buildBoardCardsFilter([predicates, searchPredicate, relatedFilter]);
 
   // Build one columns[] request: each column from index 0, capped maxItems = reloadMaxItems(id).
   const reloadColumnsArg = [];
@@ -751,7 +831,12 @@ export function* reloadSwimlaneCells({ api, stateId, boardConfig, swimlaneGroupi
 
       // board-cards applies per-column `_status` itself; each column's own `additionalFilter` is sent
       // per-column below.
-      const filter = buildBoardCardsFilter([queryParams.predicates, queryParams.swimlaneAttrPredicate, queryParams.searchPredicate]);
+      const filter = buildBoardCardsFilter([
+        queryParams.predicates,
+        queryParams.swimlaneAttrPredicate,
+        queryParams.searchPredicate,
+        queryParams.relatedFilter
+      ]);
 
       // Reload each cell's WHOLE expanded window — the single default page here collapsed a cell
       // the user had expanded with "show more" (the same rule as sagaLoadSwimlaneCells).
@@ -1024,7 +1109,7 @@ export function* sagaSetSwimlaneGrouping({ api }, { payload }) {
 export function* sagaLoadSwimlaneValues({ api }, { payload }) {
   try {
     const { stateId } = payload;
-    const { boardConfig, formProps, swimlaneGrouping } = yield select(selectKanban, stateId);
+    const { boardConfig, formProps, swimlaneGrouping, relatedFilter } = yield select(selectKanban, stateId);
 
     if (!swimlaneGrouping || !swimlaneGrouping.attribute) {
       return;
@@ -1050,6 +1135,11 @@ export function* sagaLoadSwimlaneValues({ api }, { payload }) {
     }
     if (searchPredicate && searchPredicate.length) {
       allPredicates.push(...(Array.isArray(searchPredicate) ? searchPredicate : [searchPredicate]));
+    }
+    // The swimlane list must be built from the same record set as the cards — otherwise a board
+    // filtered by a linked record still shows rows for values that only exist outside the filter.
+    if (relatedFilter) {
+      allPredicates.push(relatedFilter);
     }
 
     const distinctValues = yield call(api.kanban.getDistinctValues, {
@@ -1136,7 +1226,12 @@ export function* sagaLoadSwimlaneCells({ api }, { payload }) {
 
     // board-cards applies per-column `_status` itself; each column's own `additionalFilter` is sent
     // per-column below — only AND the row + search filter here.
-    const filter = buildBoardCardsFilter([queryParams.predicates, queryParams.swimlaneAttrPredicate, queryParams.searchPredicate]);
+    const filter = buildBoardCardsFilter([
+      queryParams.predicates,
+      queryParams.swimlaneAttrPredicate,
+      queryParams.searchPredicate,
+      queryParams.relatedFilter
+    ]);
 
     // ONE call for the whole row: all columns, each reloading the WHOLE window it currently shows.
     // Always from skipCount 0 — setSwimlaneCellData replaces the cell's records, so requesting the
@@ -1259,7 +1354,12 @@ export function* sagaLoadMoreSwimlaneCell({ api }, { payload }) {
     };
 
     // board-cards applies per-column `_status` itself; the column's own `additionalFilter` is sent below.
-    const filter = buildBoardCardsFilter([queryParams.predicates, queryParams.swimlaneAttrPredicate, queryParams.searchPredicate]);
+    const filter = buildBoardCardsFilter([
+      queryParams.predicates,
+      queryParams.swimlaneAttrPredicate,
+      queryParams.searchPredicate,
+      queryParams.relatedFilter
+    ]);
 
     const boardCards = yield call(api.kanban.getBoardCards, {
       boardRef: boardConfig.id,

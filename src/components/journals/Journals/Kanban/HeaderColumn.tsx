@@ -9,6 +9,8 @@ import { Labels } from '@/components/journals/Journals/constants';
 
 import ColumnSum, { ColumnSumData } from './ColumnSum';
 
+import { KanbanRelatedFilter } from '@/types/store/kanban';
+
 import { extractLabel, t } from '@/helpers/util';
 
 interface HeaderColumnProps {
@@ -18,11 +20,12 @@ interface HeaderColumnProps {
   predicate: any;
   searchPredicate: any;
   typeRef: string;
+  relatedFilter?: KanbanRelatedFilter;
   /** Grouped mode hides the header sum — each swimlane cell renders its own. */
   showSum?: boolean;
 }
 
-const HeaderColumn = ({ data, totalCount, isReady, typeRef, predicate, searchPredicate, showSum = true }: HeaderColumnProps) => {
+const HeaderColumn = ({ data, totalCount, isReady, typeRef, predicate, searchPredicate, relatedFilter, showSum = true }: HeaderColumnProps) => {
   if (isEmpty(data)) {
     return null;
   }
@@ -48,6 +51,7 @@ const HeaderColumn = ({ data, totalCount, isReady, typeRef, predicate, searchPre
           typeRef={typeRef}
           predicate={predicate}
           searchPredicate={searchPredicate}
+          relatedFilter={relatedFilter}
           totalCount={totalCount}
         />
       )}

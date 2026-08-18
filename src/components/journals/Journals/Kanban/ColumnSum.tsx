@@ -15,6 +15,7 @@ import KanbanConverter from '@/dto/kanban';
 import { getWorkspaceId } from '@/helpers/urls';
 import { extractLabel, t } from '@/helpers/util';
 import AttributesService from '@/services/AttributesService';
+import { KanbanRelatedFilter } from '@/types/store/kanban';
 
 export interface ColumnSumData {
   id: string;
@@ -31,11 +32,13 @@ interface ColumnSumProps {
   searchPredicate: any;
   /** Scopes the sum to one swimlane cell (grouped mode); the whole column is summed without it. */
   groupPredicate?: any;
+  /** The board's "only linked records" predicate — the sum must honour it like the cards do. */
+  relatedFilter?: KanbanRelatedFilter;
   totalCount?: number | string;
   className?: string;
 }
 
-const ColumnSum = ({ data, targetId, typeRef, predicate, searchPredicate, groupPredicate, totalCount, className }: ColumnSumProps) => {
+const ColumnSum = ({ data, targetId, typeRef, predicate, searchPredicate, groupPredicate, relatedFilter, totalCount, className }: ColumnSumProps) => {
   const [columnSum, setColumnSum] = useState<number | undefined>();
   const [columnSumLabel, setColumnSumLabel] = useState<{ en: string; ru: string } | undefined>();
 
@@ -66,6 +69,7 @@ const ColumnSum = ({ data, targetId, typeRef, predicate, searchPredicate, groupP
                 v: data.id
               },
               groupPredicate,
+              relatedFilter,
               ...JournalsConverter.cleanUpPredicate(toConvertPredicates)
             ].filter(Boolean)
           },

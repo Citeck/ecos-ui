@@ -16,6 +16,7 @@ import {
   setLoading,
   setLoadingColumns,
   setPagination,
+  setRelatedFilter,
   setResolvedActions,
   setOriginKanbanSettings,
   setTotalCount,
@@ -44,6 +45,11 @@ export const initialState = {
   formProps: null,
   totalCount: 0,
   dataCards: [],
+  // "Show only linked records" predicate of the widget (id EQ for a direct association,
+  // OR[CONTAINS(attr, recordRef)] for a reverse one). Resolved once per board load and kept here so
+  // every later request (next page, search, filter/preset, reload, swimlanes) stays filtered.
+  relatedFilter: null,
+  relatedFilterJournalId: null,
   resolvedActions: [],
   pagination: DEFAULT_PAGINATION,
   swimlaneGrouping: null,
@@ -122,6 +128,15 @@ export default handleActions(
     [setDataCards]: (state, { payload }) => {
       const { stateId, dataCards } = payload;
       return updateState(state, stateId, { dataCards, isFirstLoading: false }, initialState);
+    },
+    [setRelatedFilter]: (state, { payload }) => {
+      const { stateId, relatedFilter, relatedFilterJournalId } = payload;
+      return updateState(
+        state,
+        stateId,
+        { relatedFilter: relatedFilter || null, relatedFilterJournalId: relatedFilterJournalId || null },
+        initialState
+      );
     },
     [setTotalCount]: (state, { payload }) => {
       const { stateId, totalCount } = payload;

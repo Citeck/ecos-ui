@@ -13,6 +13,7 @@ export const setOriginKanbanSettings = createAction(prefix + 'SET_ORIGIN_KANBAN_
 export const setKanbanSettings = createAction(prefix + 'SET_KANBAN_SETTINGS');
 export const setFormProps = createAction(prefix + 'SET_FORM_PROPS');
 export const setDataCards = createAction(prefix + 'SET_DATA_CARDS');
+export const setRelatedFilter = createAction(prefix + 'SET_RELATED_FILTER');
 export const setTotalCount = createAction(prefix + 'SET_TOTAL_COUNT');
 export const getNextPage = createAction(prefix + 'GET_NEXT_BOARD_PAGE');
 export const setResolvedActions = createAction(prefix + 'SET_RESOLVED_ACTIONS');

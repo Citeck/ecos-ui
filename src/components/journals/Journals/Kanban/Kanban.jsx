@@ -29,7 +29,7 @@ import {
 import EmptyColumns from '@/components/common/icons/EmptyColumns';
 import { t } from '@/helpers/util';
 import { selectJournalPageProps, selectJournalSetting } from '@/selectors/journals';
-import { selectKanbanProps } from '@/selectors/kanban';
+import { selectKanbanProps, selectRelatedFilter } from '@/selectors/kanban';
 import './style.scss';
 
 function mapStateToProps(state, props) {
@@ -38,6 +38,7 @@ function mapStateToProps(state, props) {
 
   return {
     ...selectKanbanProps(state, props.stateId),
+    relatedFilter: selectRelatedFilter(state, props.stateId),
     predicate: settings.predicate,
     searchText: get(journalPageProps, 'grid.search'),
     journalSetting: journalPageProps.journalSetting
@@ -376,7 +377,7 @@ class Kanban extends React.Component {
   };
 
   renderSwimlaneBody = cols => {
-    const { swimlanes, formProps, boardConfig, resolvedActions, isLoading, swimlaneGrouping, predicate } = this.props;
+    const { swimlanes, formProps, boardConfig, resolvedActions, isLoading, swimlaneGrouping, predicate, relatedFilter } = this.props;
     const { isDragging, draggingSwimlaneId } = this.state;
     const readOnly = get(boardConfig, 'readOnly');
 
@@ -402,6 +403,7 @@ class Kanban extends React.Component {
               swimlaneGrouping={swimlaneGrouping}
               predicate={predicate}
               searchPredicate={this.searchPredicate}
+              relatedFilter={relatedFilter}
               isDragging={isDragging}
               draggingSwimlaneId={draggingSwimlaneId}
               onToggleCollapse={this.props.toggleSwimlaneCollapse}
@@ -415,7 +417,7 @@ class Kanban extends React.Component {
   };
 
   renderDefaultHeader = cols => {
-    const { dataCards = [], isFirstLoading, selectedBoard, predicate, boardConfig } = this.props;
+    const { dataCards = [], isFirstLoading, selectedBoard, predicate, boardConfig, relatedFilter } = this.props;
 
     return cols.map(data => {
       const column = dataCards.find(card => card.status === data.id);
@@ -429,6 +431,7 @@ class Kanban extends React.Component {
           searchPredicate={this.searchPredicate}
           typeRef={get(boardConfig, 'typeRef')}
           totalCount={get(column, 'totalCount', '⭯')}
+          relatedFilter={relatedFilter}
         />
       );
     });
