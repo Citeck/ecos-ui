@@ -68,6 +68,7 @@ const TYPE_TITLES = {
 export default class PageService {
   static eventIsDispatched = false;
   static beforeUrlChangeGuards = [];
+  static beforeTabCloseGuards = [];
 
   static getType(link) {
     const _link = link || window.location.href;
@@ -419,16 +420,29 @@ export default class PageService {
     }
   };
 
+  /**
+   * One function at most; `dedupByTabId` additionally caps a tab at one guard — right for the
+   * promise-based url guards, wrong for the close guards (a cached route keeps the previous page
+   * mounted, so one tab may host several guarded pages at once).
+   */
+  static _addGuard(guards, guardFn, tabId, dedupByTabId = true) {
+    const exists = !!guards.find(guard => guard.fn === guardFn || (dedupByTabId && tabId && guard.tabId === tabId));
+    if (!exists) {
+      guards.push({ fn: guardFn, tabId });
+    }
+  }
+
+  static _withoutTabGuards(guards, tabId) {
+    return isNil(tabId) ? guards : guards.filter(value => value.tabId !== tabId);
+  }
+
   /** Prevents history changes. Allows controlling when the history should change using a promise-based function
    * @param guardFn {function(*): Promise<unknown>}
    * @param tabId {string}
    **/
   static registerUrlChangeGuard(guardFn, tabId) {
     // To avoid duplication of promises, it is necessary to give the same link to the function!
-    const exists = !!PageService.beforeUrlChangeGuards.find(guard => guard.fn === guardFn || (tabId && guard.tabId === tabId));
-    if (!exists) {
-      PageService.beforeUrlChangeGuards.push({ fn: guardFn, tabId });
-    }
+    PageService._addGuard(PageService.beforeUrlChangeGuards, guardFn, tabId);
   }
 
   static clearUrlChangeGuards() {
@@ -436,9 +450,62 @@ export default class PageService {
   }
 
   static clearUrlChangeGuard(tabId) {
-    if (!isNil(tabId)) {
-      PageService.beforeUrlChangeGuards = PageService.beforeUrlChangeGuards.filter(value => value.tabId !== tabId);
+    PageService.beforeUrlChangeGuards = PageService._withoutTabGuards(PageService.beforeUrlChangeGuards, tabId);
+  }
+
+  /**
+   * Ask before an application page tab is closed.
+   *
+   * Closing a page tab (cross icon, middle click, context menu) never goes through `beforeUrlChangeGuards` —
+   * it deletes the tab directly — so a page holding unsaved changes (model editors) registers a guard here.
+   * The guard is a plain synchronous predicate: it answers "does this tab hold unsaved changes right now?".
+   * Rendering the confirmation itself belongs to the tabs component, not to the page.
+   *
+   * @param guardFn {function(string=): boolean} - true when the tab has unsaved changes
+   * @param tabId {string}
+   **/
+  static registerTabCloseGuard(guardFn, tabId) {
+    PageService._addGuard(PageService.beforeTabCloseGuards, guardFn, tabId, false);
+  }
+
+  static clearTabCloseGuards() {
+    PageService.beforeTabCloseGuards = [];
+  }
+
+  static clearTabCloseGuard(tabId) {
+    PageService.beforeTabCloseGuards = PageService._withoutTabGuards(PageService.beforeTabCloseGuards, tabId);
+  }
+
+  /**
+   * Unregister by the function itself. This is what an unmounting page should use: clearing by tabId
+   * would also take down the guard of another page cached in the same tab.
+   */
+  static removeTabCloseGuard(guardFn) {
+    PageService.beforeTabCloseGuards = PageService.beforeTabCloseGuards.filter(value => value.fn !== guardFn);
+  }
+
+  /**
+   * @param tabId {string}
+   * @returns {boolean} true when some guard of this tab reports unsaved changes
+   */
+  static hasUnsavedChangesInTab(tabId) {
+    if (isNil(tabId) || !PageService.beforeTabCloseGuards.length) {
+      return false;
     }
+
+    return PageService.beforeTabCloseGuards.some(guard => {
+      if (guard.tabId !== tabId) {
+        return false;
+      }
+
+      try {
+        return guard.fn(tabId) === true;
+      } catch (e) {
+        // A broken guard must not make the tab unclosable
+        console.error('tab close guard error:', e);
+        return false;
+      }
+    });
   }
 
   /**

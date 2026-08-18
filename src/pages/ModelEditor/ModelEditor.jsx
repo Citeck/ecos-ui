@@ -77,6 +77,18 @@ class ModelEditorPage extends React.Component {
   _cachedEditor = null;
   _lastSavedModel = null;
   _lastSectionPath = null;
+  /** The diagram holds changes that are not in the saved model yet */
+  _isDirty = false;
+  /** Serialized model that "nothing to save" means: the diagram as it was loaded, or as last saved */
+  _baselineXml = null;
+  /** The next serialization becomes the baseline (diagram just imported) */
+  _baselineIsPending = false;
+  /** Monotonic counter of model mutations; lets us tell "saved everything" from "edited while saving" */
+  _changeCount = 0;
+  /** _changeCount at the moment the last save request was sent, null when no save is in flight */
+  _savedChangeCount = null;
+  /** The model text sent with the last save request — it becomes the baseline once the server confirms */
+  _pendingSavedXml = null;
 
   #prevMultiInstanceType = null;
 
@@ -134,18 +146,65 @@ class ModelEditorPage extends React.Component {
     });
   };
 
+  /**
+   * Unsaved changes are guarded for the same editors as the workspace-change confirm:
+   * the CMMN editor is deliberately left out (see handleCloseEditor registration).
+   */
+  get isCloseGuarded() {
+    return get(this.props, 'location.pathname') !== Urls.CMMN_EDITOR;
+  }
+
+  /** Guard for the app page tab: the tabs component asks it before deleting the tab */
+  hasUnsavedChanges = () => this._isDirty === true;
+
+  /**
+   * Browser tab / window close (and reload). The custom text is ignored by every modern browser,
+   * so the only thing that matters is preventDefault + returnValue.
+   * https://developer.mozilla.org/en-US/docs/Web/API/Window/beforeunload_event#Examples
+   */
+  handleBeforeUnload = e => {
+    if (!this._isDirty) {
+      return;
+    }
+
+    e.preventDefault();
+    e.returnValue = '';
+  };
+
   handleInit = () => {
     this.initModeler();
     this.props.initData();
     this.setState({ initiated: true });
 
-    if (get(this.props, 'location.pathname') !== Urls.CMMN_EDITOR) {
-      PageService.registerUrlChangeGuard(this.handleCloseEditor, this._tabId || PageTabList.activeTabId);
+    if (this.isCloseGuarded) {
+      const tabId = this._tabId || PageTabList.activeTabId;
+
+      PageService.registerUrlChangeGuard(this.handleCloseEditor, tabId);
+
+      if (tabId) {
+        // Without a tab id (page tabs switched off) the guard could never be asked — the registry is
+        // consulted by tab id — nor cleared, so registering it would only leak. `beforeunload` still
+        // covers closing in that configuration.
+        PageService.registerTabCloseGuard(this.hasUnsavedChanges, tabId);
+      }
+
+      window.addEventListener('beforeunload', this.handleBeforeUnload);
     }
   };
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     this.setHeight();
+
+    // The model refetch that follows a successful save: what was sent is now stored, so it becomes the
+    // new baseline. Edits made while the request was in flight (_changeCount moved on) stay unsaved.
+    if (prevProps.savedModel !== this.props.savedModel && this._pendingSavedXml) {
+      this._baselineXml = this._pendingSavedXml;
+      this._baselineIsPending = false;
+      this._isDirty = this._changeCount !== this._savedChangeCount;
+      this._pendingSavedXml = null;
+      this._savedChangeCount = null;
+      this.syncDirtyState();
+    }
 
     const { selectedElement } = this.state;
     const formDataId = get(this.props, 'formProps.formData.id');
@@ -166,8 +225,11 @@ class ModelEditorPage extends React.Component {
   componentWillUnmount() {
     this._cachedLabels = {};
     this._formsCache = {};
+    this.syncDirtyState.cancel();
     this.designer && this.designer.destroy();
+    window.removeEventListener('beforeunload', this.handleBeforeUnload);
     PageService.clearUrlChangeGuard(this._tabId);
+    PageService.removeTabCloseGuard(this.hasUnsavedChanges);
     this._tabId = null;
   }
 
@@ -242,9 +304,74 @@ class ModelEditorPage extends React.Component {
       [EventListeners.CS_ELEMENT_DELETE_POST]: this.handleElementDelete,
       [EventListeners.DRAG_START]: this.handleDragStart,
       // [EventListeners.ROOT_SET]: this.handleSetRoot, // This causes cyclical updates. At first glance, it works well without it
-      [EventListeners.CS_CONNECTION_CREATE_PRE_EXECUTE]: this.handleCreateConnection
+      [EventListeners.CS_CONNECTION_CREATE_PRE_EXECUTE]: this.handleCreateConnection,
+      [EventListeners.CS_CHANGED]: this.handleModelChanged
     };
   }
+
+  /**
+   * Every model mutation goes through the command stack, so this is the single point where the editor
+   * learns that it holds unsaved changes. The diagram import wipes the undo history with
+   * `trigger: 'clear'` — that is not a user edit and must not make a freshly opened editor dirty.
+   */
+  handleModelChanged = (event = {}) => {
+    // Nothing reads the flag in editors that are not guarded (CMMN) — do not serialize for them
+    if (!this.isCloseGuarded || get(event, 'trigger') === 'clear') {
+      return;
+    }
+
+    this._changeCount += 1;
+    // Warn first, verify after: a change is treated as unsaved immediately, syncDirtyState takes it back
+    // if the model text turns out to be identical to the baseline.
+    this._isDirty = true;
+    this.syncDirtyState();
+  };
+
+  /** Take whatever is on the canvas now as the "nothing to save" reference */
+  resetDirtyBaseline = () => {
+    if (!this.isCloseGuarded) {
+      return;
+    }
+
+    this._isDirty = false;
+    this._baselineIsPending = true;
+    this.syncDirtyState();
+    // Capture the baseline right away: with the debounce delay an edit made within it would be
+    // serialized into the baseline and silently lost on close.
+    this.syncDirtyState.flush();
+  };
+
+  /**
+   * The command stack alone over-reports: the properties form writes its values back into the model when
+   * it initialises (the DMN editor does this on every open), which is not a user edit. So the flag is
+   * corrected against a serialized baseline — if the model text is byte-identical to what was loaded or
+   * last saved, there is nothing to lose. Debounced: serialization is only worth doing once a burst ends.
+   */
+  syncDirtyState = debounce(() => {
+    if (!this.designer || !isFunction(this.designer.saveXML)) {
+      return;
+    }
+
+    this.designer.saveXML({
+      callback: ({ xml }) => {
+        if (!xml) {
+          return;
+        }
+
+        if (this._baselineIsPending) {
+          this._baselineIsPending = false;
+          this._baselineXml = xml;
+          this._isDirty = false;
+
+          return;
+        }
+
+        if (this._baselineXml !== null) {
+          this._isDirty = xml !== this._baselineXml;
+        }
+      }
+    });
+  }, 700);
 
   #getMultiInstanceType = () => {
     const { selectedElement } = this.state;
@@ -384,6 +511,8 @@ class ModelEditorPage extends React.Component {
   }
 
   handleReadySheet = () => {
+    // The freshly imported diagram is the reference point — importing is not editing
+    this.resetDirtyBaseline();
     this.handleSelectItem(this.designer.elementDefinitions);
   };
 
@@ -507,6 +636,10 @@ class ModelEditorPage extends React.Component {
 
     Promise.all([promiseXml, promiseImg])
       .then(([xml, img]) => {
+        // Remember what is being sent: it becomes the "nothing to save" baseline once the server answers
+        // with a new model (see componentDidUpdate). A failed save leaves the editor dirty.
+        this._savedChangeCount = this._changeCount;
+        this._pendingSavedXml = xml;
         this.props.saveModel(xml, img, definitionAction, this._processDefId);
       })
       .catch(error => {
