@@ -37,6 +37,12 @@ describe('SelectJournal Component — dynamic journalId across the two-phase for
     await component.react.wrapper;
     await until('the child to mount on the static journal', settledOn('static-journal'));
 
+    // The value the record was opened with belongs to the journal computed for it — which is what
+    // the child asks the journal about before keeping it across the switch. Answered here rather
+    // than through the journal service, so the scenario does not depend on what a query with no
+    // backend behind it returns.
+    child().probeRowsInJournal = async rows => rows;
+
     // the record's value, as `form.setValue` delivers it
     component.setValue('rec-1');
     await until('the record value to reach the child', () => component.dataValue === 'rec-1' && child().state.value === 'rec-1');
@@ -61,6 +67,75 @@ describe('SelectJournal Component — dynamic journalId across the two-phase for
     // the child must agree with formio — an in-flight display-name fetch from the previous journal
     // resolving late would put the record back on screen while formio's data stays empty
     expect(child().state.value).toBe('');
+    expect(child().state.selectedRows).toEqual([]);
+  }, 30000);
+
+  it('clears a value picked from the fallback journal when the expression first resolves', async () => {
+    // The scenario QA returned the task on. The expression starts out empty — the field runs on the
+    // static journal, and the user picks a value there. Filling in the field the expression reads
+    // then produces its *first* result, so the switch looks exactly like the one a form load makes,
+    // but the value left behind was picked from the journal being left and has to go.
+    const component = await Harness.testCreate(SelectJournalComponent, {
+      ...comp1,
+      journalId: 'static-journal',
+      customJournalId: 'value = data.kind === "x" ? "dyn-journal" : "";'
+    });
+    const child = () => component.react.innerComponent;
+    const settledOn = journalId => () => !!child() && child().props.journalId === journalId && !child().state.isLoading;
+
+    await component.react.wrapper;
+    await until('the child to mount on the static journal', settledOn('static-journal'));
+
+    // the expression is empty at first, so the static journal is the one in play
+    component.checkConditions(component.root.data);
+    expect(child().props.journalId).toBe('static-journal');
+
+    // ... and the value comes from it
+    component.setValue('rec-1');
+    await until('the value to reach the child', () => component.dataValue === 'rec-1' && child().state.value === 'rec-1');
+    await until('the child to settle on the static journal', settledOn('static-journal'));
+
+    // the journal the expression is about to resolve to does not contain that record
+    child().probeRowsInJournal = async () => [];
+
+    component.root.data = { ...component.root.data, kind: 'x' };
+    component.checkConditions(component.root.data);
+    await until('the expression to resolve', () => child().props.journalId === 'dyn-journal');
+
+    // the value goes, in the field and in formio alike — the field showing a record formio no
+    // longer holds is exactly how the stale value survived a save
+    await until('the switch to clear the value', () => component.dataValue === '');
+    await until('the child to agree', () => child().state.value === '');
+    expect(child().state.selectedRows).toEqual([]);
+    expect(child().state.gridData.selected).toEqual([]);
+  }, 30000);
+
+  it('clears it in table mode too, where the stale value merely looked gone', async () => {
+    // The mode QA saw as working. It only looked that way: the retained row was re-rendered through
+    // the new journal's columns and came out blank, while formio went on holding the stale value —
+    // the same defect, hidden by the rendering.
+    const component = await Harness.testCreate(SelectJournalComponent, {
+      ...comp1,
+      journalId: 'static-journal',
+      source: { type: 'journal', viewMode: 'table', custom: { columns: [] }, customValues: [] },
+      customJournalId: 'value = data.kind === "x" ? "dyn-journal" : "";'
+    });
+    const child = () => component.react.innerComponent;
+
+    await component.react.wrapper;
+    await until('the child to mount on the static journal', () => !!child() && child().props.journalId === 'static-journal');
+
+    component.setValue('rec-1');
+    await until('the value to reach the child', () => component.dataValue === 'rec-1' && child().state.value === 'rec-1');
+
+    child().probeRowsInJournal = async () => [];
+
+    component.root.data = { ...component.root.data, kind: 'x' };
+    component.checkConditions(component.root.data);
+    await until('the expression to resolve', () => child().props.journalId === 'dyn-journal');
+
+    await until('the switch to clear the value', () => component.dataValue === '');
+    await until('the child to agree', () => child().state.value === '');
     expect(child().state.selectedRows).toEqual([]);
   }, 30000);
 

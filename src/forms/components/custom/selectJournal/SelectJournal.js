@@ -70,17 +70,34 @@ export default class SelectJournalComponent extends BaseReactComponent {
     return SelectJournalComponent.schema();
   }
 
-  // Source of the expression the parse verdict below belongs to, and the verdict itself.
-  customJournalIdSource = '';
-  isCustomJournalIdParsable = true;
+  // The expression the compiled function below belongs to, and the parameter list it was compiled
+  // for (the names of the evaluation context, which the form's options may add to).
+  customJournalIdSource = null;
+  customJournalIdParams = '';
+  customJournalIdFn = null;
+  // The last run error already traced for the current source — see the catch below.
+  customJournalIdLoggedError = null;
   // Set once the expression has produced a journal id — see `checkConditions`.
   isCustomJournalIdResolved = false;
 
-  // The expression is evaluated on every read of `journalId` — and while it is being typed in the
-  // component editor it does not parse most of the time. formio's `evaluate` logs each failed
-  // compile ("An error occured within the custom function for ..."), which turned every keystroke
-  // into a handful of console errors. Check that the source parses before handing it over, and
-  // remember the verdict per source string so the check costs one compile per edit.
+  /**
+   * Result of the `customJournalId` expression: '' when there is none, when it does not compile, or
+   * when running it throws.
+   *
+   * Deliberately does not go through `FormioUtils.evaluate` (`this.evaluate`), which is what the
+   * rest of the component uses for user scripts. That helper reports both a failed compile *and* a
+   * failed run to the console ("An error occured within custom function for ..."), and this
+   * expression is read several times per keystroke while it is being typed in the component editor:
+   * a half-written script such as `value = va` compiles fine and throws a ReferenceError on every
+   * read, which no pre-check on the source can prevent. The compile is done here instead, and kept
+   * per source string, so typing costs one compile per edit rather than one per read.
+   *
+   * A run that throws is *not* remembered: an expression reading data that is not filled in yet
+   * throws today and works as soon as it is, so it must be tried again on the next read. A source
+   * that does not compile is remembered, because only an edit can change that verdict.
+   *
+   * @returns {string}
+   */
   evaluateCustomJournalId() {
     const source = this.component.customJournalId;
 
@@ -88,23 +105,58 @@ export default class SelectJournalComponent extends BaseReactComponent {
       return '';
     }
 
-    if (source !== this.customJournalIdSource) {
+    // The names and values `FormioUtils.evaluate` would have exposed to the script, prepared the
+    // same way it prepares them, so the scripts users have already written behave identically.
+    const args = this.evalContext({});
+
+    args.component = args.component ? _.cloneDeep(args.component) : { key: 'unknown' };
+
+    if (!args.form && args.instance) {
+      args.form = _.get(args.instance, 'root._form', {});
+    }
+
+    if (source.includes('form')) {
+      // Deep cloning the form is expensive — only worth it when the script looks like it reads it
+      args.form = _.cloneDeep(args.form);
+    } else {
+      delete args.form;
+    }
+
+    const params = Object.keys(args);
+    const paramsKey = params.join(',');
+
+    if (source !== this.customJournalIdSource || paramsKey !== this.customJournalIdParams) {
       this.customJournalIdSource = source;
-      this.isCustomJournalIdParsable = true;
+      this.customJournalIdParams = paramsKey;
+      this.customJournalIdFn = null;
+      this.customJournalIdLoggedError = null;
 
       try {
-        // eslint-disable-next-line no-new-func -- compiled for the syntax check only, never called
-        new Function(source);
+        // eslint-disable-next-line no-new-func -- the construction `FormioUtils.evaluate` uses
+        this.customJournalIdFn = new Function(...params, `${source};return value`);
       } catch (e) {
-        this.isCustomJournalIdParsable = false;
+        // Does not compile — stays disabled until the source is edited
       }
     }
 
-    if (!this.isCustomJournalIdParsable) {
+    if (!this.customJournalIdFn) {
       return '';
     }
 
-    return this.evaluate(source, {}, 'value', '') || '';
+    try {
+      return this.customJournalIdFn(...Object.values(args)) || '';
+    } catch (e) {
+      // Half-typed scripts and data that has not arrived yet both land here. The static journalId
+      // takes over (see the `journalId` getter) and the next read tries the expression again. An
+      // expression broken for good still leaves a trace for whoever debugs the form — one line per
+      // distinct error, on the verbose level the editor's keystroke noise never surfaces at.
+      if (this.customJournalIdLoggedError !== String(e)) {
+        this.customJournalIdLoggedError = String(e);
+        console.debug('[SelectJournal] customJournalId failed, the static journalId takes over', e);
+      }
+
+      return '';
+    }
   }
 
   // The static journalId as configured on the component, with `${...}` placeholders filled in from

@@ -110,6 +110,16 @@ describe('SelectJournal — workspace to search in', () => {
       await expect(instance.getSearchWorkspaces()).resolves.toEqual(['proj1', 'default']);
     });
 
+    it('takes the flag from the config it is handed, for a caller whose state config was dropped', async () => {
+      // `probeRowsInJournal` runs right after `resetJournalConfig` emptied the state's config, and
+      // has the freshly fetched one in hand — reading the state there would miss the flag and leave
+      // a global record out of the query the value is checked against
+      const instance = buildInstance({ workspaceId: 'proj1', searchInWorkspacePolicy: 'current' });
+      instance.state = { ...instance.state, journalConfig: {} };
+
+      await expect(instance.getSearchWorkspaces({ system: true })).resolves.toEqual(['proj1', 'default']);
+    });
+
     it('leaves an empty list alone — it already means every workspace', async () => {
       const instance = buildInstance({ searchInWorkspacePolicy: 'all' });
       instance.state = { ...instance.state, journalConfig: { system: true } };
