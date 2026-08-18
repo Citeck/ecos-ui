@@ -369,13 +369,14 @@ class Kanban extends React.Component {
           searchPredicate={this.searchPredicate}
           typeRef={get(boardConfig, 'typeRef')}
           totalCount={totalCount}
+          showSum={false}
         />
       );
     });
   };
 
   renderSwimlaneBody = cols => {
-    const { swimlanes, formProps, boardConfig, resolvedActions, isLoading } = this.props;
+    const { swimlanes, formProps, boardConfig, resolvedActions, isLoading, swimlaneGrouping, predicate } = this.props;
     const { isDragging, draggingSwimlaneId } = this.state;
     const readOnly = get(boardConfig, 'readOnly');
 
@@ -398,6 +399,9 @@ class Kanban extends React.Component {
               readOnly={readOnly}
               boardConfig={boardConfig}
               resolvedActions={resolvedActions}
+              swimlaneGrouping={swimlaneGrouping}
+              predicate={predicate}
+              searchPredicate={this.searchPredicate}
               isDragging={isDragging}
               draggingSwimlaneId={draggingSwimlaneId}
               onToggleCollapse={this.props.toggleSwimlaneCollapse}

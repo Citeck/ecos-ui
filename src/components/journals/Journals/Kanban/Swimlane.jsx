@@ -12,12 +12,22 @@ const Swimlane = ({
   readOnly,
   boardConfig,
   resolvedActions,
+  swimlaneGrouping,
+  predicate,
+  searchPredicate,
   isDragging,
   draggingSwimlaneId,
   onToggleCollapse,
   onLoadMore,
   onClickAction
 }) => {
+  // Same cell scope the sagas query cards with (buildSwimlaneCellQueryParams).
+  const groupPredicate = swimlaneGrouping
+    ? swimlane.id === '__unassigned__'
+      ? { t: 'empty', att: swimlaneGrouping.attribute }
+      : { t: 'eq', att: swimlaneGrouping.attribute, val: swimlane.id }
+    : null;
+
   return (
     <div className="ecos-kanban__swimlane">
       <SwimlaneHeader
@@ -46,6 +56,9 @@ const Swimlane = ({
                 formProps={formProps}
                 readOnly={readOnly}
                 boardConfig={boardConfig}
+                predicate={predicate}
+                searchPredicate={searchPredicate}
+                groupPredicate={groupPredicate}
                 actions={colActions}
                 isDragging={isDragging}
                 draggingSwimlaneId={draggingSwimlaneId}
@@ -68,6 +81,9 @@ Swimlane.propTypes = {
   readOnly: PropTypes.bool,
   boardConfig: PropTypes.object,
   resolvedActions: PropTypes.array,
+  swimlaneGrouping: PropTypes.object,
+  predicate: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
+  searchPredicate: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   isDragging: PropTypes.bool,
   draggingSwimlaneId: PropTypes.string,
   onToggleCollapse: PropTypes.func.isRequired,

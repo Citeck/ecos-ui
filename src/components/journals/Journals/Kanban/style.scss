@@ -258,6 +258,16 @@
       &-value p {
         color: #767676;
       }
+
+      // Grouped mode: the sum sits in-flow at the top of a swimlane cell and scrolls with it,
+      // instead of hanging off the sticky header.
+      &_inline {
+        position: static;
+        top: auto;
+        width: 100%;
+        margin-bottom: 8px;
+        background: $color-white;
+      }
     }
 
     &-head {
