@@ -8,7 +8,7 @@ import set from 'lodash/set';
 import { treeFindFirstItem } from '../helpers/arrayOfObjects';
 import { HandleControlTypes } from '../helpers/handleControl';
 import { getIconRef } from '../helpers/icon';
-import { getTextByLocale } from '../helpers/util';
+import { getTextByLocale, isFilledLabelWeak } from '../helpers/util';
 import MenuSettingsService from '../services/MenuSettingsService';
 
 import MenuConverterExport from './export/menu';
@@ -177,6 +177,17 @@ export default class MenuConverter {
       case MenuSettings.ItemTypes.JOURNAL:
         label = item.label || get(item, '_remoteData_.label') || replace(get(item, 'config.recordRef'), SourcesId.JOURNAL, '');
         break;
+      // an included menu item has no label of its own in most configs, then the name of the included menu is shown
+      case MenuSettings.ItemTypes.INCLUDE_MENU: {
+        const menuLabel = get(item, '_remoteData_.label');
+
+        label = isFilledLabelWeak(item.label)
+          ? item.label
+          : isFilledLabelWeak(menuLabel)
+            ? menuLabel
+            : replace(get(item, 'config.menuRef'), `${SourcesId.MENU}@`, '');
+        break;
+      }
       default:
         break;
     }

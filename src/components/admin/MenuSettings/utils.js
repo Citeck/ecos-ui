@@ -52,6 +52,7 @@ export const Labels = {
   FIELD_CREATE_METHOD: 'menu-settings.editor-item.field.create-variant.title',
   FIELD_DATA_TYPE: 'menu-settings.editor-item.field.data-type.title',
   FIELD_PROCESS: 'menu-settings.editor-item.field.process-def.title',
+  FIELD_MENU_REF: 'menu-settings.editor-item.field.menu-ref.title',
 
   FIELD_ALLOWED_FOR_ALL: 'menu-settings.editor-item.field.allowed-for-all.placeholder',
   FIELD_ICON_LABEL: 'menu-settings.editor-item.field.icon.label',

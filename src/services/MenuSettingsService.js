@@ -107,7 +107,11 @@ export default class MenuSettingsService {
       collapsable: true,
       hasIcon:
         (configType === ConfigTypes.USER && ![ms.ItemTypes.USER_STATUS].includes(item.type)) ||
-        ([ConfigTypes.LEFT].includes(configType) && ![ms.ItemTypes.HEADER_DIVIDER].includes(item.type) && [1].includes(level)),
+        // INCLUDE_MENU is fully replaced by the target menu's items on the backend, so the item
+        // itself is only ever drawn in this editor — an icon would never be rendered anywhere
+        ([ConfigTypes.LEFT].includes(configType) &&
+          ![ms.ItemTypes.HEADER_DIVIDER, ms.ItemTypes.INCLUDE_MENU].includes(item.type) &&
+          [1].includes(level)),
       hasUrl: [ms.ItemTypes.ARBITRARY].includes(item.type),
       hideableLabel: [ConfigTypes.LEFT].includes(configType) && [ms.ItemTypes.SECTION].includes(item.type) && [0].includes(level)
     };
@@ -196,7 +200,9 @@ export default class MenuSettingsService {
     { ...CreateOptions.PREVIEW_LIST, when: { minLevel: 0 } },
     { ...CreateOptions.ARBITRARY, when: { minLevel: 0 } },
     { ...CreateOptions.LINK_CREATE_CASE, when: { minLevel: 0 } },
-    { ...CreateOptions.START_WORKFLOW, when: { minLevel: 0 } }
+    { ...CreateOptions.START_WORKFLOW, when: { minLevel: 0 } },
+    // an included menu is substituted by the items of the included menu, so it is allowed on any level
+    CreateOptions.INCLUDE_MENU
   ];
 
   static createMenuCreateOptions = [

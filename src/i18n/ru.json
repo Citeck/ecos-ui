@@ -1894,6 +1894,7 @@
   "menu-settings.editor-item.field.create-variant.title": "Способ создания",
   "menu-settings.editor-item.field.data-type.title": "Тип данных",
   "menu-settings.editor-item.field.process-def.title": "Процесс",
+  "menu-settings.editor-item.field.menu-ref.title": "Меню",
   "menu-settings.editor-item.title.add": "Создать {{type}}",
   "menu-settings.editor-item.title.edit": "{{type}} \"{{name}}\"",
   "menu-settings.editor-item.btn.cancel": "Отмена",
@@ -1920,6 +1921,7 @@
   "menu-settings.error.type-not-created": "Выбранный тип создать нельзя",
 
   "menu-item.type.section": "Раздел",
+  "menu-item.type.include-menu": "Вложенное меню",
   "menu-item.type.journal": "Журнал",
   "menu-item.type.kanban": "Канбан-доску",
   "menu-item.type.dashboard": "Дашборд",

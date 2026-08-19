@@ -276,6 +276,16 @@ export const PERMISSIONS_BY_TYPE = {
     hideableLabel: false,
     collapsable: true
   },
+  [MenuSettings.ItemTypes.INCLUDE_MENU]: {
+    draggable: true,
+    editable: true,
+    hasIcon: false,
+    hasUrl: false,
+    hideable: true,
+    removable: true,
+    hideableLabel: false,
+    collapsable: true
+  },
   [MenuSettings.ItemTypes.CREATE_IN_SECTION]: {
     draggable: true,
     editable: true,
@@ -6527,41 +6537,22 @@ function _getMCOs(items) {
 
 export const AVAILABLE_CREATE_OPTIONS = [
   [undefined, undefined, []],
-  [undefined, { configType: 'left', level: -1 }, _getMCOs([MenuSettingsService.leftMenuCreateOptions[0]])],
-  [{ type: 'SECTION' }, { configType: 'left', level: -1 }, _getMCOs([MenuSettingsService.leftMenuCreateOptions[0]])],
-  [undefined, { configType: 'left', level: 0 }, _getMCOs(MenuSettingsService.leftMenuCreateOptions)],
-  [{ type: 'item' }, { configType: 'left', level: 0 }, []],
-  [{ type: 'SECTION' }, { configType: 'left', level: 0 }, _getMCOs(MenuSettingsService.leftMenuCreateOptions)],
   [
     undefined,
-    { configType: 'left', level: 2 },
-    _getMCOs([
-      MenuSettingsService.leftMenuCreateOptions[2],
-      MenuSettingsService.leftMenuCreateOptions[3],
-      MenuSettingsService.leftMenuCreateOptions[4],
-      MenuSettingsService.leftMenuCreateOptions[5],
-      MenuSettingsService.leftMenuCreateOptions[6],
-      MenuSettingsService.leftMenuCreateOptions[7],
-      MenuSettingsService.leftMenuCreateOptions[8],
-      MenuSettingsService.leftMenuCreateOptions[9],
-      MenuSettingsService.leftMenuCreateOptions[10]
-    ])
+    { configType: 'left', level: -1 },
+    _getMCOs([MenuSettingsService.leftMenuCreateOptions[0], MenuSettingsService.leftMenuCreateOptions[11]])
   ],
   [
     { type: 'SECTION' },
-    { configType: 'left', level: 1 },
-    _getMCOs([
-      MenuSettingsService.leftMenuCreateOptions[2],
-      MenuSettingsService.leftMenuCreateOptions[3],
-      MenuSettingsService.leftMenuCreateOptions[4],
-      MenuSettingsService.leftMenuCreateOptions[5],
-      MenuSettingsService.leftMenuCreateOptions[6],
-      MenuSettingsService.leftMenuCreateOptions[7],
-      MenuSettingsService.leftMenuCreateOptions[8],
-      MenuSettingsService.leftMenuCreateOptions[9],
-      MenuSettingsService.leftMenuCreateOptions[10]
-    ])
+    { configType: 'left', level: -1 },
+    _getMCOs([MenuSettingsService.leftMenuCreateOptions[0], MenuSettingsService.leftMenuCreateOptions[11]])
   ],
+  [undefined, { configType: 'left', level: 0 }, _getMCOs(MenuSettingsService.leftMenuCreateOptions)],
+  [{ type: 'item' }, { configType: 'left', level: 0 }, []],
+  [{ type: 'SECTION' }, { configType: 'left', level: 0 }, _getMCOs(MenuSettingsService.leftMenuCreateOptions)],
+  // everything except SECTION (maxLevel: 0) and HEADER_DIVIDER (max/minLevel: 0)
+  [undefined, { configType: 'left', level: 2 }, _getMCOs(MenuSettingsService.leftMenuCreateOptions.slice(2))],
+  [{ type: 'SECTION' }, { configType: 'left', level: 1 }, _getMCOs(MenuSettingsService.leftMenuCreateOptions.slice(2))],
   [{ type: 'ARBITRARY' }, { configType: 'left', level: 3 }, []],
   [{ type: 'JOURNAL' }, { configType: 'left', level: 2 }, []],
   [{ type: 'JOURNAL' }, { configType: 'create', level: -1 }, []],
