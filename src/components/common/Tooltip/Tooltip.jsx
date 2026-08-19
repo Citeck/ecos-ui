@@ -208,12 +208,12 @@ class Tooltip extends Component {
     if (showAsNeeded && element && element.clientWidth && element.clientHeight && !isHiddenTarget) {
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d');
-      const styles = window.getComputedStyle(element, null);
-      const paddingLeft = parseInt(styles.getPropertyValue('padding-left'), 10) || 0;
-      const paddingRight = parseInt(styles.getPropertyValue('padding-right'), 10) || 0;
+      const computedStyles = window.getComputedStyle(element, null);
+      const paddingLeft = parseInt(computedStyles.getPropertyValue('padding-left'), 10) || 0;
+      const paddingRight = parseInt(computedStyles.getPropertyValue('padding-right'), 10) || 0;
       const { width, height } = element.getBoundingClientRect();
 
-      context.font = styles.getPropertyValue('font');
+      context.font = computedStyles.getPropertyValue('font');
 
       if (!isNil(width) && !isNil(height)) {
         needTooltip = context.measureText(text).width > width - (paddingLeft + paddingRight);
@@ -222,7 +222,9 @@ class Tooltip extends Component {
       getIsNeeded && getIsNeeded(needTooltip);
     }
 
-    if (minWidthByContent && !isHiddenTarget) {
+    // The element is gone whenever the target left the document between renders — a tab closed or
+    // dragged away — and `getComputedStyle(null)` throws, taking the whole render with it.
+    if (minWidthByContent && !isHiddenTarget && element) {
       styles.minWidth = parseInt(window.getComputedStyle(element, null).getPropertyValue('width'), 10) || 0;
     }
 

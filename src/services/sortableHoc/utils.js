@@ -281,6 +281,14 @@ export function cloneNode(node) {
   const clonedNode = node.cloneNode(true);
   const clonedFields = [...clonedNode.querySelectorAll(selector)];
 
+  // The clone is a copy of the whole subtree, ids and all, and it lives in the document next to the
+  // original for as long as the drag lasts. Everything that finds an element by id — tooltips
+  // binding their hover listeners, labels, `aria-*` references — then has two candidates and picks
+  // the wrong one; the tooltip in particular binds to the clone and is left hanging when the clone
+  // is thrown away at drop (COREDEV-356).
+  clonedNode.removeAttribute('id');
+  [...clonedNode.querySelectorAll('[id]')].forEach(element => element.removeAttribute('id'));
+
   clonedFields.forEach((field, i) => {
     if (field.type !== 'file') {
       field.value = fields[i].value;
