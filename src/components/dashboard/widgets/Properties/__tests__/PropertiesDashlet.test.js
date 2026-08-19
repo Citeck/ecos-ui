@@ -1,7 +1,6 @@
 import { render } from '@testing-library/react';
 import React from 'react';
 
-import PointsLoader from '@/components/common/PointsLoader/PointsLoader';
 
 /**
  * PropertiesDashlet is a complex connected component with many dependencies.
@@ -11,142 +10,249 @@ import PointsLoader from '@/components/common/PointsLoader/PointsLoader';
  */
 
 describe('PropertiesDashlet', () => {
-  describe('submitForm — value flush', () => {
-    it('should call updateValue on every form component before submitting', () => {
-      const updateMocks = [jest.fn(), jest.fn(), jest.fn()];
-      const allComponents = updateMocks.map(fn => ({ updateValue: fn }));
+  describe('submitForm', () => {
+    const PropertiesDashlet = require('../PropertiesDashlet').default;
 
-      const mockSubmitForm = jest.fn();
-      mockSubmitForm.cancel = jest.fn();
+    function createSubmitDashlet({ valid = true } = {}) {
+      const instance = new PropertiesDashlet({ record: 'app/rec@1', id: 'w1', config: {}, tabId: 't1' });
 
-      const instance = {
-        state: { formIsValid: true },
+      instance.setState = jest.fn((state, cb) => {
+        Object.assign(instance.state, typeof state === 'function' ? state(instance.state) : state);
+        if (cb) cb();
+      });
+
+      const submitForm = jest.fn();
+      submitForm.cancel = jest.fn();
+      const components = [{ updateValue: jest.fn() }, { updateValue: jest.fn() }];
+      const form = { data: {}, checkValidity: jest.fn(() => valid), getAllComponents: () => components };
+      const baseForm = { base: true };
+
+      instance._propertiesRef = {
+        current: {
+          _ecosForm: { current: { submitForm, _form: form } },
+          _hiddenEcosForm: { current: { _form: baseForm } }
+        }
+      };
+
+      return { instance, submitForm, components, form, baseForm };
+    }
+
+    it('flushes every component value and submits through the hidden base form', () => {
+      const { instance, submitForm, components, form, baseForm } = createSubmitDashlet();
+
+      instance.submitForm(false);
+
+      components.forEach(c => expect(c.updateValue).toHaveBeenCalledWith({ changeByUser: true, noUpdateEvent: true }));
+      expect(submitForm.cancel).toHaveBeenCalled();
+      expect(submitForm).toHaveBeenCalledWith(baseForm, form, true);
+      expect(instance.state.isSaving).toBe(true);
+      expect(instance.state.wasLastModifiedWithFormSubmit).toBe(true);
+    });
+
+    it('does not submit when the form is invalid and it is not a draft', () => {
+      const { instance, submitForm } = createSubmitDashlet({ valid: false });
+
+      instance.submitForm(false);
+
+      expect(submitForm).not.toHaveBeenCalled();
+      expect(instance.state.formIsValid).toBe(false);
+    });
+
+    it('submits a draft even when the form is invalid', () => {
+      const { instance, submitForm } = createSubmitDashlet({ valid: false });
+
+      instance.submitForm(true);
+
+      expect(submitForm).toHaveBeenCalled();
+    });
+  });
+
+  describe('dashletActions — the submit button while saving', () => {
+    const PropertiesDashlet = require('../PropertiesDashlet').default;
+
+    function createEditDashlet(stateOverrides) {
+      const instance = new PropertiesDashlet({ record: 'app/rec@1', id: 'w1', config: { formMode: 'EDIT' }, tabId: 't1' });
+
+      Object.assign(instance.state, {
+        canEditRecord: true,
+        formIsChanged: true,
+        formIsValid: true,
+        isDraft: false,
+        isSaving: false,
+        ...stateOverrides
+      });
+
+      const actions = instance.dashletActions;
+      const submitAction = Object.values(actions).find(action => action.component);
+
+      return { instance, submitAction };
+    }
+
+    it('renders the loader inside the button and disables it while saving', () => {
+      const { submitAction } = createEditDashlet({ isSaving: true });
+
+      expect(submitAction).toBeDefined();
+      expect(submitAction.className).toContain('btn_disabled');
+
+      const { container } = render(submitAction.component);
+      expect(container.querySelector('.ecos-points-loader')).toBeInTheDocument();
+    });
+
+    it('renders the label and stays enabled when idle and valid', () => {
+      const { submitAction } = createEditDashlet({ isSaving: false });
+
+      expect(submitAction.className).not.toContain('btn_disabled');
+
+      const { container } = render(submitAction.component);
+      expect(container.querySelector('.ecos-points-loader')).not.toBeInTheDocument();
+      expect(container.querySelector('button').textContent).not.toBe('');
+    });
+  });
+
+  describe('handleUpdate routing (COREDEV-429)', () => {
+    const PropertiesDashlet = require('../PropertiesDashlet').default;
+
+    function createInstance(stateOverrides = {}) {
+      const instance = Object.create(PropertiesDashlet.prototype);
+
+      Object.assign(instance, {
+        state: {
+          wasLastModifiedWithInlineEditor: false,
+          wasLastModifiedWithFormSubmit: false,
+          ...stateOverrides
+        },
         setState: jest.fn((state, cb) => {
           Object.assign(instance.state, typeof state === 'function' ? state(instance.state) : state);
           if (cb) cb();
         }),
-        _propertiesRef: {
-          current: {
-            _ecosForm: {
-              current: {
-                submitForm: mockSubmitForm,
-                _form: {
-                  getAllComponents: () => allComponents,
-                  data: {}
-                }
-              }
-            },
-            _hiddenEcosForm: { current: { _form: null } }
-          }
-        }
-      };
-
-      // Import and call the submitForm method from the module
-      // We replicate the method logic here since the component is hard to instantiate
-      const currentForm = instance._propertiesRef.current._ecosForm.current;
-      const submission = currentForm._form;
-
-      // This is the logic from submitForm:
-      currentForm.submitForm.cancel();
-      if (submission) {
-        const components = submission.getAllComponents();
-        components.forEach(component => component.updateValue({ changeByUser: true }));
-      }
-      currentForm.submitForm(null, submission, true);
-
-      // Verify all components were flushed
-      updateMocks.forEach(mock => {
-        expect(mock).toHaveBeenCalledWith({ changeByUser: true });
+        checkPermissions: jest.fn(),
+        softReloadDashlet: jest.fn(),
+        _propertiesRef: { current: null }
       });
 
-      expect(mockSubmitForm).toHaveBeenCalledWith(null, submission, true);
+      return instance;
+    }
+
+    it('routes a background update through the soft path', () => {
+      const instance = createInstance();
+
+      instance.handleUpdate();
+
+      expect(instance.softReloadDashlet).toHaveBeenCalledTimes(1);
     });
 
-    it('should not submit when form is invalid and not draft', () => {
-      const mockSubmitForm = jest.fn();
+    it('consumes the own-change flags without reloading anything', () => {
+      const instance = createInstance({ wasLastModifiedWithInlineEditor: true });
 
-      const formIsValid = false;
-      const isDraft = false;
+      instance.handleUpdate();
 
-      // This is the guard logic from submitForm:
-      if (!formIsValid && !isDraft) {
-        // should return early
-      } else {
-        mockSubmitForm();
-      }
-
-      expect(mockSubmitForm).not.toHaveBeenCalled();
+      expect(instance.softReloadDashlet).not.toHaveBeenCalled();
+      expect(instance.checkPermissions).toHaveBeenCalledTimes(1);
+      expect(instance.state.wasLastModifiedWithInlineEditor).toBe(false);
     });
 
-    it('should submit when form is invalid but isDraft is true', () => {
-      const mockSubmitForm = jest.fn();
-      mockSubmitForm.cancel = jest.fn();
+    it('the edit-modal submit goes through the soft path, not the full reload', () => {
+      // A real instance: class-field methods (onPropertiesEditFormSubmit, softReloadDashlet)
+      // only exist after the constructor runs — the prototype does not have them.
+      const instance = new PropertiesDashlet({ record: 'app/rec@1', id: 'w1', config: {}, tabId: 't1' });
 
-      const formIsValid = false;
-      const isDraft = true;
+      instance.setState = jest.fn((state, cb) => {
+        Object.assign(instance.state, typeof state === 'function' ? state(instance.state) : state);
+        if (cb) cb();
+      });
+      instance.softReloadDashlet = jest.fn();
+      instance.onReloadDashlet = jest.fn();
 
-      // This is the guard logic from submitForm:
-      if (!formIsValid && !isDraft) {
-        // should return early
-      } else {
-        mockSubmitForm();
-      }
+      instance.onPropertiesEditFormSubmit();
 
-      expect(mockSubmitForm).toHaveBeenCalled();
-    });
-  });
-
-  describe('isSaving state', () => {
-    it('should set isSaving=true during submit and reset on update', () => {
-      const state = { isSaving: false, formIsChanged: true };
-
-      // Simulate submitForm setting isSaving
-      Object.assign(state, { formIsChanged: false, isSaving: true });
-      expect(state.isSaving).toBe(true);
-
-      // Simulate onPropertiesUpdate resetting isSaving
-      Object.assign(state, { formIsChanged: true, isSaving: false });
-      expect(state.isSaving).toBe(false);
+      expect(instance.state.isEditProps).toBe(false);
+      expect(instance.softReloadDashlet).toHaveBeenCalledTimes(1);
+      expect(instance.onReloadDashlet).not.toHaveBeenCalled();
     });
   });
 
-  describe('Submit button with PointsLoader', () => {
-    it('should render PointsLoader inside button when saving', () => {
-      const button = (
-        <button type="button">
-          <PointsLoader color="white" height={16} width={40} />
-        </button>
-      );
+  describe('softReloadDashlet (COREDEV-429)', () => {
+    const PropertiesDashlet = require('../PropertiesDashlet').default;
 
-      const { container } = render(button);
-      expect(container.querySelector('.ecos-points-loader')).toBeInTheDocument();
-      expect(container.querySelector('button').textContent).not.toContain('Сохранить');
+    const flushMicrotasks = async (turns = 10) => {
+      for (let i = 0; i < turns; i++) {
+        await Promise.resolve();
+      }
+    };
+
+    function createDashlet({ softUpdate = jest.fn().mockResolvedValue({ changed: false, rebuilt: false }), hasForm = true } = {}) {
+      const instance = new PropertiesDashlet({ record: 'app/rec@1', id: 'w1', config: {}, tabId: 't1' });
+
+      instance._isMounted = true;
+      instance.setState = jest.fn((state, cb) => {
+        Object.assign(instance.state, typeof state === 'function' ? state(instance.state) : state);
+        if (cb) cb();
+      });
+      instance.checkPermissions = jest.fn();
+      instance.onReloadDashlet = jest.fn();
+      instance._propertiesRef = { current: { softUpdateForm: softUpdate, form: hasForm ? {} : null } };
+
+      return { instance, softUpdate };
+    }
+
+    beforeEach(() => jest.useFakeTimers());
+    afterEach(() => jest.useRealTimers());
+
+    it('falls back to the full reload when there is no form yet', () => {
+      const { instance, softUpdate } = createDashlet({ hasForm: false });
+
+      instance.softReloadDashlet();
+
+      expect(instance.onReloadDashlet).toHaveBeenCalledWith(false);
+      expect(softUpdate).not.toHaveBeenCalled();
     });
 
-    it('should render text inside button when not saving', () => {
-      const label = 'Сохранить';
-      const button = <button type="button">{label}</button>;
+    it('spins for at least the minimum time, then clears the spinner and the in-flight flag', async () => {
+      const { instance, softUpdate } = createDashlet();
 
-      const { container } = render(button);
-      expect(container.querySelector('.ecos-points-loader')).not.toBeInTheDocument();
-      expect(container.querySelector('button').textContent).toBe(label);
+      instance.softReloadDashlet();
+
+      expect(instance.state.isRefreshing).toBe(true);
+      expect(softUpdate).toHaveBeenCalledTimes(1);
+
+      // the read resolved instantly, but the minimum spin has not elapsed
+      await flushMicrotasks();
+      expect(instance.state.isRefreshing).toBe(true);
+
+      jest.advanceTimersByTime(500);
+      await flushMicrotasks();
+
+      expect(instance.state.isRefreshing).toBe(false);
+      expect(instance._softReloadInFlight).toBe(false);
     });
 
-    it('should add disabled class when isSaving is true', () => {
-      const isSaving = true;
-      const className = `btn btn-primary ${isSaving ? 'disabled btn_disabled' : ''}`.trim();
+    it('coalesces a request arriving mid-run into one trailing pass', async () => {
+      const { instance, softUpdate } = createDashlet();
 
-      expect(className).toContain('disabled');
-      expect(className).toContain('btn_disabled');
+      instance.softReloadDashlet();
+      instance.softReloadDashlet(); // e.g. the edit-modal submit during a background tick
+
+      expect(softUpdate).toHaveBeenCalledTimes(1);
+
+      jest.advanceTimersByTime(500);
+      await flushMicrotasks();
+
+      // the dropped request ran as one trailing pass
+      expect(softUpdate).toHaveBeenCalledTimes(2);
     });
 
-    it('should not add disabled class when isSaving is false and form is valid', () => {
-      const isSaving = false;
-      const formIsValid = true;
-      const isDraft = false;
-      const className = `btn btn-primary ${isSaving || (!isDraft && !formIsValid) ? 'disabled btn_disabled' : ''}`.trim();
+    it('releases the in-flight flag when the re-read rejects', async () => {
+      const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const { instance } = createDashlet({ softUpdate: jest.fn().mockRejectedValue(new Error('boom')) });
 
-      expect(className).not.toContain('disabled');
+      instance.softReloadDashlet();
+      jest.advanceTimersByTime(500);
+      await flushMicrotasks();
+
+      expect(instance._softReloadInFlight).toBe(false);
+      expect(instance.state.isRefreshing).toBe(false);
+
+      consoleError.mockRestore();
     });
   });
 });

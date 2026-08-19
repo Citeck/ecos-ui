@@ -303,3 +303,24 @@
     }
   }
 }
+
+// The per-field saving ring of an inline edit (COREDEV-429): the same Oval the widget's reload
+// shows, scoped to the component whose value is being saved and re-read. The rest of the form is
+// untouched — no skeleton, no form-wide blur.
+.inline-editing_saving {
+  position: relative;
+
+  .inline-editing__saving-indicator {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.7);
+    color: var(--primary-color);
+  }
+}

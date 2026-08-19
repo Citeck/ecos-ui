@@ -16,6 +16,10 @@ import Tooltip from 'tooltip.js';
 import { checkIsEmptyMlField, clearFormFromCache } from '../../../utils';
 import Widgets from '../../../widgets';
 
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+
+import Loader from '@/components/common/Loader/Loader';
 import { FORM_MODE_CREATE, isNewRecordFormMode } from '@/components/forms/EcosForm/constants';
 import { getFormDataWorkspaceId } from '@/helpers/recordWorkspace';
 import { t } from '@/helpers/export/util';
@@ -633,6 +637,39 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function () {
       this.ce('span', { class: 'icon icon-small-close' })
     );
 
+    // The per-field saving ring (COREDEV-429): the very Loader the widget's reload shows,
+    // mounted into formio's DOM with createRoot — the established way to put React inside a
+    // vanilla component (see BaseReactComponent) — over the edited component only.
+    let savingIndicator = null;
+    let savingIndicatorRoot = null;
+    let savingHost = null;
+
+    const hideSavingIndicator = () => {
+      savingIndicatorRoot && savingIndicatorRoot.unmount();
+      savingIndicator && savingIndicator.remove();
+      savingHost && savingHost.classList.remove('inline-editing_saving');
+      savingIndicatorRoot = null;
+      savingIndicator = null;
+      savingHost = null;
+    };
+
+    // Re-attachable: `switchToViewOnlyMode` redraws the component, so the indicator is put up
+    // again over the fresh view-only render while the follow-up re-read settles.
+    const showSavingIndicator = () => {
+      hideSavingIndicator();
+
+      if (!this.element) {
+        return;
+      }
+
+      savingHost = this.element;
+      savingHost.classList.add('inline-editing_saving');
+      savingIndicator = this.ce('div', { class: 'inline-editing__saving-indicator' });
+      savingHost.appendChild(savingIndicator);
+      savingIndicatorRoot = createRoot(savingIndicator);
+      savingIndicatorRoot.render(React.createElement(Loader, { type: 'circle', height: 24, width: 24 }));
+    };
+
     const onSaveButtonClick = () => {
       const saveButtonClassList = this._inlineEditSaveButton.classList;
 
@@ -651,16 +688,24 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function () {
       this.updateValue({ changeByUser: true });
 
       // Cause: https://citeck.atlassian.net/browse/ECOSUI-1559
+      // `withoutLoader` is the project's own switch for "this submit must not raise the host's
+      // form-level loader" (silentSaveForm already uses it): a per-field save keeps the form on
+      // screen, and the field's own ring is the indication (COREDEV-429).
       const submitAttributes = [];
 
       if (this.options.saveDraft) {
         submitAttributes.push(false);
-        submitAttributes.push({ state: 'draft' });
+        submitAttributes.push({ state: 'draft', withoutLoader: true });
       } else {
         if (!this.checkValidity(this.dataValue)) {
           return;
         }
+
+        submitAttributes.push(undefined);
+        submitAttributes.push({ withoutLoader: true });
       }
+
+      showSavingIndicator();
 
       return form
         .submit(...submitAttributes)
@@ -678,7 +723,16 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function () {
 
           const ecosForm = get(form, 'ecos.form');
 
-          if (ecosForm && isFunction(ecosForm.onReload)) {
+          // The re-read is still needed — a save can move computed and dependent attributes —
+          // but patching the values in place keeps the rest of the form's DOM alive: rebuilding
+          // the whole form after every inline save is the flash COREDEV-429 removes.
+          if (ecosForm && isFunction(ecosForm.softReload)) {
+            // Over the fresh view-only render, for as long as the re-read runs. A failed re-read
+            // is not the save failing — the value is on the server — so it must not surface as an
+            // unhandled rejection; the finally below still drops the indicator.
+            showSavingIndicator();
+            return Promise.resolve(ecosForm.softReload()).catch(console.error);
+          } else if (ecosForm && isFunction(ecosForm.onReload)) {
             ecosForm.onReload(true);
           } else {
             form.showErrors('', true);
@@ -686,6 +740,7 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function () {
         })
         .finally(() => {
           form.loading = false;
+          hideSavingIndicator();
         });
     };
 

@@ -229,4 +229,22 @@ describe('SelectJournal — dynamic journalId', () => {
       refreshSpy.mockRestore();
     });
   });
+
+  // COREDEV-429: a failed resolution must clear the loading dots and keep the error, or the field
+  // shows the not-selected text about a value the record does hold.
+  describe('setValue — failed resolution', () => {
+    it('clears isLoading and records the error when display-name resolution rejects', async () => {
+      const instance = buildInstance();
+      jest.spyOn(instance, 'fetchDisplayNames').mockRejectedValue(new Error('resolve failed'));
+      const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+      await instance.setValue(['app/rec@1'], false);
+
+      expect(instance.state.isLoading).toBe(false);
+      expect(instance.state.valueError).toBeInstanceOf(Error);
+      expect(instance.state.error).toBeNull();
+
+      consoleError.mockRestore();
+    });
+  });
 });

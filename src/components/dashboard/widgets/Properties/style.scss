@@ -18,6 +18,14 @@
     &__body {
       width: 100%;
     }
+
+    // Background update in progress: the content stays as it is and only the header icon spins
+    &__reload_active {
+      .ecos-btn__i {
+        display: inline-block;
+        animation: ecos-properties-reload-spin 1s linear infinite;
+      }
+    }
   }
 
   &_hidden {
@@ -200,6 +208,16 @@
     background: linear-gradient(90deg, #e9eef8 0%, #f6f7fb 50%, #e9eef8 100%);
     background-size: 200% 100%;
     animation: ecos-properties-shimmer 1.4s linear infinite;
+  }
+}
+
+@keyframes ecos-properties-reload-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
   }
 }
 
