@@ -317,4 +317,109 @@ describe('Base inline save', () => {
       consoleError.mockRestore();
     });
   });
+
+  describe('double-save guard and failed save (COREDEV-427)', () => {
+    const flush = () => new Promise(resolve => setTimeout(resolve, 0));
+
+    function createPendingSaveComponent() {
+      let resolveSubmit;
+      let rejectSubmit;
+      const submitMock = jest.fn(
+        () =>
+          new Promise((resolve, reject) => {
+            resolveSubmit = resolve;
+            rejectSubmit = reject;
+          })
+      );
+
+      const { component } = createComponentWithCe({
+        root: {
+          changing: false,
+          submit: submitMock,
+          showErrors: jest.fn(),
+          components: {},
+          onChange: jest.fn(),
+          ecos: { form: null }
+        }
+      });
+
+      return {
+        component,
+        submitMock,
+        resolveSubmit: () => resolveSubmit(),
+        rejectSubmit: error => rejectSubmit(error)
+      };
+    }
+
+    it('ignores a second save-button click while the first save is in flight, then saves again after it settles', async () => {
+      const { component, submitMock, resolveSubmit } = createPendingSaveComponent();
+
+      Base.prototype.createInlineEditSaveAndCancelButtons.call(component);
+      const saveButton = component.element.querySelector('.inline-editing__save-button');
+
+      saveButton.click();
+      expect(component._isInlineSaving).toBe(true);
+
+      // the ring's overlay blocks pointer events, but not a keyboard re-activation of the
+      // focused button or a programmatic click — the flag must catch those
+      saveButton.click();
+      saveButton.click();
+      expect(submitMock).toHaveBeenCalledTimes(1);
+
+      resolveSubmit();
+      await flush();
+      await flush();
+
+      expect(component._isInlineSaving).toBe(false);
+
+      // the guard must not outlive the request: the next save goes through
+      saveButton.click();
+      expect(submitMock).toHaveBeenCalledTimes(2);
+    });
+
+    it('silentSaveForm is a no-op while a [v]-save for the component is in flight', async () => {
+      const { component, submitMock } = createPendingSaveComponent();
+
+      Base.prototype.createInlineEditSaveAndCancelButtons.call(component);
+      component.element.querySelector('.inline-editing__save-button').click();
+      expect(submitMock).toHaveBeenCalledTimes(1);
+
+      // the pencil on another field silent-saves every component still in edit mode —
+      // that must not become a second, real record mutation
+      await Base.prototype.silentSaveForm.call(component);
+
+      expect(submitMock).toHaveBeenCalledTimes(1);
+      expect(component.updateValue).toHaveBeenCalledTimes(1);
+    });
+
+    it('a failed save shows the error, keeps edit mode, and releases the guard and the ring', async () => {
+      const { component, rejectSubmit } = createPendingSaveComponent();
+      const error = new Error('save failed');
+
+      Base.prototype.createInlineEditSaveAndCancelButtons.call(component);
+      component.element.querySelector('.inline-editing__save-button').click();
+
+      rejectSubmit(error);
+      await flush();
+      await flush();
+
+      // the typed value must survive: the component stays in edit mode for a retry
+      expect(component.switchToViewOnlyMode).not.toHaveBeenCalled();
+      expect(component.root.showErrors).toHaveBeenCalledWith(error, true);
+      expect(component._isInlineSaving).toBe(false);
+      expect(component.element.querySelector('.inline-editing__saving-indicator')).toBeNull();
+      expect(component.element.classList.contains('inline-editing_saving')).toBe(false);
+    });
+
+    it('switchToViewOnlyMode resets a stuck saving flag', () => {
+      const { component } = createComponentWithCe({
+        _isInlineSaving: true,
+        redraw: jest.fn()
+      });
+
+      Base.prototype.switchToViewOnlyMode.call(component);
+
+      expect(component._isInlineSaving).toBe(false);
+    });
+  });
 });

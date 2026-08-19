@@ -564,7 +564,10 @@ Base.prototype.updateCachedData = function (data = {}) {
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-2231
 Base.prototype.silentSaveForm = function () {
-  if (!this._isInlineEditingMode) {
+  // A save started from the [v] button is still in flight — submitting again for the same
+  // component would produce a second, real record mutation.
+  // Cause: https://citeck.atlassian.net/browse/COREDEV-427
+  if (!this._isInlineEditingMode || this._isInlineSaving) {
     return Promise.resolve();
   }
 
@@ -671,6 +674,13 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function () {
     };
 
     const onSaveButtonClick = () => {
+      // The saving ring's overlay blocks pointer clicks, but not a keyboard re-activation of
+      // the still-focused button or a programmatic click — either would start a second, real
+      // record mutation. Cause: https://citeck.atlassian.net/browse/COREDEV-427
+      if (this._isInlineSaving) {
+        return;
+      }
+
       const saveButtonClassList = this._inlineEditSaveButton.classList;
 
       if (saveButtonClassList.contains(DISABLED_SAVE_BUTTON_CLASSNAME)) {
@@ -705,6 +715,7 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function () {
         submitAttributes.push({ withoutLoader: true });
       }
 
+      this._isInlineSaving = true;
       showSavingIndicator();
 
       return form
@@ -738,8 +749,15 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function () {
             form.showErrors('', true);
           }
         })
+        .catch(e => {
+          // formio has already rendered the error alert (executeSubmit -> onSubmissionError) and
+          // the component stays in edit mode with the typed value — this catch keeps the
+          // rejection from surfacing as unhandled. Cause: https://citeck.atlassian.net/browse/COREDEV-427
+          form.showErrors(e, true);
+        })
         .finally(() => {
           form.loading = false;
+          this._isInlineSaving = false;
           hideSavingIndicator();
         });
     };
@@ -1206,6 +1224,10 @@ Base.prototype.switchToViewOnlyMode = function () {
   this.options.readOnly = true;
   this.options.viewAsHtml = true;
   this._isInlineEditingMode = false;
+  // Backstop: every exit from edit mode passes through here, so a save whose promise was
+  // dropped (trailing-debounce coalescing) can never leave the component permanently
+  // unsavable. Cause: https://citeck.atlassian.net/browse/COREDEV-427
+  this._isInlineSaving = false;
   this.element.classList.remove(INLINE_EDITING_CLASSNAME);
 
   this.redraw();
