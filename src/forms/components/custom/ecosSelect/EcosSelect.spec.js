@@ -209,6 +209,53 @@ describe('EcosSelect Component', () => {
   });
 
   /**
+   * COREDEV-359 (follow-up): the component listens for a scroll to the bottom of the option list and
+   * treats it as "load more" — it sets `scrollLoading`, which re-sets the widget with the FULL option
+   * list plus a "Loading..." row, and asks for the next page. Under a client-side search there is no
+   * next page: the matches are all in the store already, so the only thing the load did was replace
+   * the filtered list with everything while the typed text stayed in the input.
+   */
+  describe('infinite scroll under a running search', () => {
+    // jsdom lays nothing out, so the "scrolled to the bottom" arithmetic has to be given its numbers.
+    const scrolledToBottom = element => {
+      Object.defineProperty(element, 'scrollTop', { configurable: true, value: 100 });
+      Object.defineProperty(element, 'clientHeight', { configurable: true, value: 100 });
+      Object.defineProperty(element, 'scrollHeight', { configurable: true, value: 200 });
+    };
+
+    // scoped to the list: choices.js marks the original `<select>` with `data-choice` too
+    const renderedChoices = component => component.scrollList.querySelectorAll('[data-choice]').length;
+
+    it('should keep showing the matches when the user scrolls to the bottom of them', async () => {
+      const component = await Harness.testCreate(EcosSelectComponent, cloneDeep(comp1));
+      const { choices } = component;
+
+      // what a keystroke leaves behind: the text in the input and the store filtered by it
+      choices.input.element.value = 'r';
+      const found = choices._searchChoices('r');
+
+      // Red, Green, Purple, Orange — fewer than the seven the component was given
+      expect(found).toBe(4);
+      expect(renderedChoices(component)).toBe(found);
+
+      scrolledToBottom(component.scrollList);
+      component.scrollList.dispatchEvent(new Event('scroll'));
+
+      expect(component.scrollLoading).toBe(false);
+      expect(renderedChoices(component)).toBe(found);
+    });
+
+    it('should still load more when no search is running', async () => {
+      const component = await Harness.testCreate(EcosSelectComponent, cloneDeep(comp1));
+
+      scrolledToBottom(component.scrollList);
+      component.scrollList.dispatchEvent(new Event('scroll'));
+
+      expect(component.scrollLoading).toBe(true);
+    });
+  });
+
+  /**
    * A multi-value chip has no layout of its own: the vendored choices.js base makes it an
    * `inline-block` with `word-break: break-all` and no width cap, so a label wider than the field
    * pushes the remove button onto a second line and the pill doubles in height (COREDEV-14). The

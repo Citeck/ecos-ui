@@ -86,6 +86,54 @@ describe('Choices search results', () => {
     expect(choices.dropdown.element.style.minHeight).toBe('');
   });
 
+  /**
+   * COREDEV-359 (follow-up): replacing the option list while a search is running used to show the
+   * full list back. `setChoices(..., true)` clears the store, and the `active` flags the filter had
+   * set go with it — every option is re-added active, while `_isSearching` and the typed text stay
+   * as they were. Callers do this under an open search: EcosSelect's infinite scroll at the bottom
+   * of a filtered list, and any refresh going through `setItems`.
+   */
+  describe('a replace-setChoices under a running search', () => {
+    const replaceAll = () =>
+      choices.setChoices(
+        LABELS.map(label => ({ value: label, label })),
+        'value',
+        'label',
+        true
+      );
+
+    it('keeps rendering only the matches', () => {
+      build();
+
+      // three of the eight labels — a count the full list cannot be mistaken for
+      const found = search('down');
+      expect(found).toBe(3);
+
+      replaceAll();
+
+      expect(renderedChoices()).toBe(found);
+    });
+
+    it('keeps the store filtered down to the matches', () => {
+      build();
+
+      const found = search('down');
+
+      replaceAll();
+
+      expect(choices._store.activeChoices).toHaveLength(found);
+    });
+
+    it('leaves the list alone when nothing is being searched', () => {
+      build();
+
+      replaceAll();
+
+      expect(renderedChoices()).toBe(LABELS.length);
+      expect(choices._store.activeChoices).toHaveLength(LABELS.length);
+    });
+  });
+
   it('re-anchors an open dropdown to the list it now shows, and leaves a closed one alone', () => {
     build();
 
