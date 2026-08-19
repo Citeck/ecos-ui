@@ -10,7 +10,8 @@
 
     .form-check-label {
       line-height: 24px;
-      font-size: 14px;
+      // Same stranded 14px as the checkbox label had — keep both in step with .control-label.
+      font-size: $font-size-small;
       cursor: pointer;
       padding-left: 0;
 
