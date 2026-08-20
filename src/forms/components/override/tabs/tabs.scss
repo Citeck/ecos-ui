@@ -1,6 +1,33 @@
 @import '../../../constants';
 
 $tabs-height: 26px;
+// Side padding of a tab. The gap a reader sees between two labels is twice this plus the 2px
+// margin on `.nav-item` — 24px at 11px of padding.
+$tabs-padding-x: 11px;
+$tabs-underline-height: 3px;
+$tabs-text-line-height: 24px;
+// Air between the label and its underline, on top of what the line box already gives. The knob to
+// turn if the underline reads as a border of what comes next rather than as part of the tab.
+$tabs-underline-gap: 2px;
+// How far a scroll arrow hangs past the edge of the tab row — into the widget's own side padding,
+// which is 16px, so the arrow still stays inside the widget.
+$tabs-scroll-button-overhang: 10px;
+// The part of the arrow that lies ON the row, and therefore has to be solid white underneath.
+$tabs-scroll-button-overlap: $tabs-height - $tabs-scroll-button-overhang;
+// ...plus a short tail for the tabs to dissolve over. Short on purpose: a long one makes labels
+// start fading well before they reach the arrow.
+$tabs-scroll-button-fade: $tabs-scroll-button-overlap + 8px;
+// Top padding of a tab pane inside a tabs component — the air between a row of tabs and its content.
+$tabs-pane-padding-top: 10px;
+// ...which a nested row of tabs gives back: that padding exists to separate a row from its
+// CONTENT, and a row of tabs is not content — it belongs to the row above it. Currently at its
+// ceiling, $tabs-pane-padding-top: pulling a row further than the padding it cancels would put it
+// onto whatever sits above. Independent of the padding, so the gap between two rows is tuned here
+// without touching the one between a row and its fields.
+$tabs-nested-row-pull: 10px;
+// Side padding of `.ecos-modal .modal-body` — what a pane that pulls itself out to the edges of a
+// dialog has to give back, so that its content still starts where the rest of the dialog does.
+$tabs-modal-body-padding-x: 20px;
 
 .formio-dialog-content .preview-panel,
 .formio-form {
@@ -46,19 +73,23 @@ $tabs-height: 26px;
       }
 
       .nav-link {
-        padding: 0 16px;
-        font-size: $font-size-small;
+        // The label block — top offset, line box, underline gap and underline — is one control of
+        // the "button" tier of the shared form control scale (a tab holds no value), so it takes
+        // $form-button-height rather than $form-input-height. The height is split between the parts
+        // instead of being put on `line-height` alone: a 32px line box centres a 18px label in
+        // itself and leaves 7px of dead half-leading between the label and the underline underneath
+        // it. Every part counts against the total, the gap included — leaving it out made the row
+        // 34px and pushed the labels 2px further from whatever sits above the row, which in a modal
+        // is its title.
+        padding: $form-button-height - $tabs-text-line-height - $tabs-underline-gap - $tabs-underline-height $tabs-padding-x 0;
+        font-size: $font-size-standard;
         font-style: normal;
         font-weight: 600;
-        line-height: 24px;
+        line-height: $tabs-text-line-height;
         border: 0;
         background: transparent;
         color: $text-color-gray;
         transition: all 0.2s ease-in-out;
-
-        &:first-child {
-          padding-left: 5px;
-        }
 
         &:hover {
           color: $text-color-dark;
@@ -68,7 +99,8 @@ $tabs-height: 26px;
           content: '';
           display: block;
           width: 100%;
-          height: 3px;
+          margin-top: $tabs-underline-gap;
+          height: $tabs-underline-height;
           border-top-left-radius: 2px;
           border-top-right-radius: 2px;
           background-color: transparent;
@@ -83,21 +115,52 @@ $tabs-height: 26px;
         }
       }
 
+      // A tab is disabled only when it is the only visible one (ECOSCOM-2847). It must look
+      // exactly like a normal (active) tab — it just cannot be clicked anywhere else.
       &.disabled {
         .nav-link {
-          color: $color-gray-6;
           cursor: default;
 
-          &.active {
-            background: $color-gray-4;
-            color: $color-gray-6;
-            border-color: $color-gray-4;
+          &:hover {
+            color: $text-color-gray;
+          }
+
+          &.active:hover {
+            color: $text-color-dark;
           }
         }
       }
 
+      // Tab holding invalid / unfilled required fields
+      &.formio-component-tabs__tab_invalid {
+        .nav-link {
+          color: $color-red-2;
+
+          &:hover,
+          &.active {
+            color: $color-red-2;
+          }
+
+          &.active::after {
+            background-color: $color-red-2;
+          }
+        }
+      }
+
+      .formio-component-tabs__tab-error-icon {
+        margin-right: 6px;
+        font-size: $font-size-standard;
+        vertical-align: baseline;
+      }
+
       &.first-visible-tab {
         .nav-link {
+          // The first visible tab starts exactly on the component's left edge, which is where the
+          // content of its pane starts too — anything else and the label sits to the right of the
+          // fields it belongs to. The rest of the tabs keep the symmetric padding above.
+          // (This used to be `.nav-link:first-child`, which — since the link is always the only
+          // child of its `li` — matched every tab.)
+          padding-left: 0;
           border-top-left-radius: $border-radius-standard;
           border-bottom-left-radius: $border-radius-standard;
         }
@@ -112,66 +175,164 @@ $tabs-height: 26px;
       }
     }
 
+    // Panes of a tabs component sit tighter than the `.tab-content { padding: 10px 16px 0 }` that
+    // panel.scss gives every pane: what usually opens such a pane is another row of tabs, and two
+    // rows belong together. Applied to the pane itself rather than to the row inside it — a row
+    // wrapped in a panel is just as much the top of its pane as a bare one, and a rule keyed on
+    // the row being a direct child silently skips the wrapped case (the gap then jumped between
+    // sibling tabs, COREDEV-431 regression).
+    > .tab-content {
+      // No side padding: the tab row, a row nested in a pane and the fields of that pane all line
+      // up on one left edge instead of each level stepping 16px further in. The top padding is
+      // what separates the row from its content and is left alone.
+      padding: $tabs-pane-padding-top 0 0;
+    }
+
+    // A row of tabs OPENING another tab's pane is not "content of the pane" — it belongs to the
+    // row above it and sits closer to it than a field would. Opening it is the whole condition: a
+    // row that comes after other fields is content like any of them, and pulling it up would lay
+    // it over the field above.
+    // Hence `:first-child` rather than `>`: the row may be wrapped and still be the first thing in
+    // the pane — a title-less panel around it is what the forms on the stand use — and a rule keyed
+    // on the row being a direct child of the pane skips exactly that case, which makes the gap jump
+    // between sibling tabs (COREDEV-431).
+    > .tab-content > .tab-pane > .formio-component-tabs:first-child,
+    > .tab-content > .tab-pane > :first-child .formio-component-tabs:first-child {
+      margin-top: -$tabs-nested-row-pull;
+    }
+
+    // Per-tab error list (COREDEV-431): with tabs present the form no longer dumps every error
+    // into one alert at the very top — each tab carries the errors of its own fields.
+    .tab-pane > .formio-component-tabs__errors {
+      margin-top: 10px;
+      margin-bottom: 10px;
+
+      p {
+        margin-bottom: 4px;
+      }
+
+      // The list is the same list the form used to show on top, so it is aligned the same way:
+      // flush with the caption above it. The markers are off, so the indent an `ul` normally keeps
+      // for them has nothing to hold — the top alert drops it too, and 20px here made a per-tab
+      // list read as a sub-list of its own caption (COREDEV-431).
+      ul {
+        margin-bottom: 0;
+        padding-left: 0;
+      }
+    }
+
+    // Scrolling state. Every selector here is scoped with `>` to this component's OWN bar. They
+    // used to be descendant selectors, so a tabs component nested inside a scrollable one picked
+    // the whole state up: arrows it had nothing to scroll with, and — through `space-between` on
+    // a wrapper whose middle child was sized by `max-width` — a bar centred instead of starting
+    // at the left edge, unlike the same tabs on an edit form.
+    // Cause: https://citeck.atlassian.net/browse/COREDEV-431
     &_scrollable {
-      .formio-component-tabs-wrapper {
+      > .formio-component-tabs-wrapper {
         display: flex;
         position: relative;
-        margin: 0 16px;
         align-items: center;
-        justify-content: space-between;
 
         &:before {
           content: '';
-          left: $tabs-height;
+          left: 0;
           top: 0;
           position: absolute;
-          width: 15px;
+          // Above the tabs, below the arrow (a `::before` is painted before the element's own
+          // children, so without this it lay UNDER the row and faded nothing — the label ran
+          // straight into the arrow instead of disappearing under it).
+          z-index: 1;
+          width: $tabs-scroll-button-fade;
           height: 100%;
-          background: linear-gradient(90deg, #fff 41.99%, rgba(245, 245, 245, 0) 100%);
+          background: linear-gradient(90deg, #fff $tabs-scroll-button-overlap, rgba(255, 255, 255, 0) 100%);
           pointer-events: none;
         }
 
         &:after {
           content: '';
-          right: $tabs-height;
+          right: 0;
           top: 0;
           position: absolute;
-          width: 15px;
+          z-index: 1;
+          width: $tabs-scroll-button-fade;
           height: 100%;
-          background: linear-gradient(270deg, #fff 41.99%, rgba(245, 245, 245, 0) 100%);
+          background: linear-gradient(270deg, #fff $tabs-scroll-button-overlap, rgba(255, 255, 255, 0) 100%);
           pointer-events: none;
         }
-      }
 
-      .formio-component-tabs-scroll-wrapper {
-        max-width: calc(100% - 56px);
-      }
-
-      .formio-component-tabs-right-button,
-      .formio-component-tabs-left-button {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: $tabs-height;
-        height: $tabs-height;
-        color: $text-color-gray;
-        cursor: pointer;
-        border-radius: 50%;
-        font-size: 14px;
-        user-select: none;
-
-        &:hover {
-          background-color: $color-gray-1;
+        // Takes whatever the arrows leave instead of a fixed `calc(100% - 56px)`: the bar then
+        // starts right after the left arrow — or at the very edge once that arrow is gone.
+        > .formio-component-tabs-scroll-wrapper {
+          flex: 1 1 auto;
+          min-width: 0;
         }
 
-        &:after {
-          @include citeck-icon($citeck-icon-left, 14px);
+        // Out of the flex flow entirely, so the tab row spans the full width of the component and
+        // showing or hiding an arrow cannot move a single tab. The arrow straddles the edge of the
+        // row: `$tabs-scroll-button-overhang` of it sits in the widget's side padding, the rest
+        // lies on the row itself, over the fade above that carries the tabs out from under it.
+        > .formio-component-tabs-right-button,
+        > .formio-component-tabs-left-button {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          z-index: 2;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          width: $tabs-height;
+          height: $tabs-height;
+          color: $text-color-gray;
+          cursor: pointer;
+          border-radius: 50%;
+          font-size: 14px;
+          user-select: none;
+
+          &:hover {
+            background-color: $color-gray-1;
+          }
+
+          &:after {
+            @include citeck-icon($citeck-icon-left, 14px);
+          }
+        }
+
+        > .formio-component-tabs-left-button {
+          left: -$tabs-scroll-button-overhang;
+        }
+
+        > .formio-component-tabs-right-button {
+          right: -$tabs-scroll-button-overhang;
+
+          &:after {
+            @include citeck-icon-change($citeck-icon-right);
+          }
         }
       }
 
-      .formio-component-tabs-right-button {
+      // Nothing to scroll to on that side: the arrow would do nothing when clicked, and the fade
+      // under it would suggest content that is not there. Written as a compound selector so the
+      // rule does not depend on source order.
+      // Safe to take out completely — the arrows are absolutely positioned, so nothing in the row
+      // depends on them being there. The fade goes with the arrow: with the row at its end there
+      // is no content left to fade out.
+      &.formio-component-tabs_scroll-at-start > .formio-component-tabs-wrapper {
+        &:before {
+          display: none;
+        }
+
+        > .formio-component-tabs-left-button {
+          display: none;
+        }
+      }
+
+      &.formio-component-tabs_scroll-at-end > .formio-component-tabs-wrapper {
         &:after {
-          @include citeck-icon-change($citeck-icon-right);
+          display: none;
+        }
+
+        > .formio-component-tabs-right-button {
+          display: none;
         }
       }
     }
@@ -223,17 +384,26 @@ $tabs-height: 26px;
 }
 
 .ecos-modal {
-  .tab-content_scrollable {
+  // A scrollable pane spans the whole width of the modal — that is what the negative side margins
+  // are for, so that its borders read as rules across the dialog rather than as a box drawn around
+  // the fields. Its side padding therefore has to give back exactly what the margin took, or the
+  // content ends up outside the modal: at 0 the left column is clipped by the dialog edge.
+  // Spelled out through `.formio-form .formio-component-tabs` to outweigh the padding every pane of
+  // a tabs component gets there (COREDEV-431) — a bare `.tab-content_scrollable` loses to it.
+  .formio-form .formio-component-tabs > .tab-content_scrollable {
     border: 2px solid $color-gray-4;
     border-right-width: 0;
     border-left-width: 0;
     overflow-y: auto;
     overflow-x: hidden;
-    margin: 0 -20px 20px -20px;
-    padding: 15px;
+    margin: 0 (-$tabs-modal-body-padding-x) 20px;
+    // Top as on any other pane, so a row of tabs opening the pane keeps its distance; sides as the
+    // margin above, which puts the fields back on the modal's own left edge — the vertical the row
+    // of tabs starts on.
+    padding: $tabs-pane-padding-top $tabs-modal-body-padding-x 15px;
   }
 
-  .ecos-properties-dashlet .formio-form .tab-content  {
+  .ecos-properties-dashlet .formio-form .tab-content {
     margin-top: 8px;
   }
 
