@@ -18,6 +18,7 @@ import { PRE_SETTINGS_TYPES, PreSettings } from '@/components/admin/PreSettings'
 
 import EcosFormUtils from './EcosFormUtils';
 import { buildSoftPatch, readRecordSequentially, redrawComponents } from './softReloadUtils';
+import { AWAITED_SUBMIT, handleSubmitResult } from './submitUtils';
 import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
 import { FORM_MODE_EDIT, isNewRecordFormMode } from './constants';
@@ -676,13 +677,7 @@ class EcosForm extends React.Component {
         }
       }
 
-      const onSubmit = (persistedRecord, form, record) => {
-        Records.releaseAll(containerId);
-
-        if (self.props.onSubmit) {
-          self.props.onSubmit(persistedRecord, form, record);
-        }
-
+      const onSubmitDone = (persistedRecord, form, record) => {
         this._formSubmitDoneResolve({ persistedRecord, form, record });
 
         if (isFunction(submissionResolve)) {
@@ -690,6 +685,16 @@ class EcosForm extends React.Component {
         } else {
           form.emit('submitDone');
         }
+      };
+
+      const onSubmit = (persistedRecord, form, record) => {
+        Records.releaseAll(containerId);
+
+        if (self.props.onSubmit) {
+          self.props.onSubmit(persistedRecord, form, record);
+        }
+
+        onSubmitDone(persistedRecord, form, record);
       };
 
       const resetOutcomeButtonsValues = () => {
@@ -735,8 +740,30 @@ class EcosForm extends React.Component {
             self.toggleLoader(false);
           });
       } else {
-        onSubmit(sRecord, form);
-        self.toggleLoader(false);
+        // The record is saved by the form consumer, not by the form itself. If the consumer
+        // reports the mutation result with a promise, it is a part of the submission: keep the
+        // loader on until it settles and report a failure the same way a failed save is reported.
+        const submitResult = self.props.onSubmit ? self.props.onSubmit(sRecord, form, undefined, AWAITED_SUBMIT) : undefined;
+
+        handleSubmitResult(submitResult, {
+          onSuccess: () => {
+            Records.releaseAll(containerId);
+            onSubmitDone(sRecord, form);
+          },
+          onError: e => {
+            form.showErrors(e, true);
+            resetOutcomeButtonsValues();
+
+            if (isFunction(submissionReject)) {
+              submissionReject(e);
+            } else {
+              form.emit('submitDone');
+            }
+          },
+          onSettled: () => {
+            self.toggleLoader(false);
+          }
+        });
       }
     },
     SUBMIT_FORM_TIMEOUT / 3,

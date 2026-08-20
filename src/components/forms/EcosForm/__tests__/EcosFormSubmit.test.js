@@ -1,5 +1,7 @@
 import { get } from 'lodash';
 
+import { AWAITED_SUBMIT, handleSubmitResult, isAwaitedSubmit, isThenable } from '../submitUtils';
+
 describe('EcosForm on submition', () => {
   describe('submitDone emit logic', () => {
     /**
@@ -74,6 +76,115 @@ describe('EcosForm on submition', () => {
       expect(submissionReject).toHaveBeenCalledTimes(1);
       expect(submissionReject).toHaveBeenCalledWith(error);
       expect(form.emit).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('saveOnSubmit: false with a promise returning onSubmit', () => {
+    /**
+     * Wires the EcosFormModal.onSubmit wrapper to the `saveOnSubmit: false` branch of
+     * EcosForm.submitForm: both call `handleSubmitResult` exactly as they do in production.
+     */
+    const createSubmission = consumerOnSubmit => {
+      const hide = jest.fn();
+      const form = { emit: jest.fn(), showErrors: jest.fn() };
+      const record = { id: 'rec@' };
+      const state = {
+        hide,
+        form,
+        record,
+        consumerOnSubmit,
+        releaseAll: jest.fn(),
+        toggleLoader: jest.fn(),
+        onSubmitDone: jest.fn()
+      };
+
+      // EcosFormModal: postpones hide() until the awaited submission succeeds
+      const modalOnSubmit = (rec, frm, alias, meta) =>
+        isAwaitedSubmit(meta) ? handleSubmitResult(consumerOnSubmit(rec, frm, alias, meta), { onSuccess: () => hide() }) : hide();
+
+      // EcosForm: awaits the result of props.onSubmit and reports a failure in the form
+      state.submit = ({ submissionReject } = {}) => {
+        state.toggleLoader(true);
+
+        return handleSubmitResult(modalOnSubmit(record, form, undefined, AWAITED_SUBMIT), {
+          onSuccess: () => {
+            state.releaseAll();
+            state.onSubmitDone(record, form);
+          },
+          onError: e => {
+            form.showErrors(e, true);
+
+            if (typeof submissionReject === 'function') {
+              submissionReject(e);
+            } else {
+              form.emit('submitDone');
+            }
+          },
+          onSettled: () => state.toggleLoader(false)
+        });
+      };
+
+      return state;
+    };
+
+    it('should hide the modal only after the resolved promise', async () => {
+      let resolveSubmit;
+      const consumerOnSubmit = jest.fn(() => new Promise(resolve => (resolveSubmit = resolve)));
+      const submission = createSubmission(consumerOnSubmit);
+
+      const awaited = submission.submit();
+
+      expect(consumerOnSubmit).toHaveBeenCalledTimes(1);
+      expect(submission.hide).not.toHaveBeenCalled();
+      expect(submission.toggleLoader).toHaveBeenLastCalledWith(true);
+
+      resolveSubmit();
+      await awaited;
+
+      expect(submission.hide).toHaveBeenCalledTimes(1);
+      expect(submission.releaseAll).toHaveBeenCalledTimes(1);
+      expect(submission.onSubmitDone).toHaveBeenCalledTimes(1);
+      expect(submission.form.showErrors).not.toHaveBeenCalled();
+      expect(submission.toggleLoader).toHaveBeenLastCalledWith(false);
+    });
+
+    it('should keep the modal open and show errors in the form on a rejected promise', async () => {
+      const error = new Error('Mutation failed');
+      const submission = createSubmission(jest.fn(() => Promise.reject(error)));
+
+      await submission.submit();
+
+      expect(submission.hide).not.toHaveBeenCalled();
+      expect(submission.form.showErrors).toHaveBeenCalledWith(error, true);
+      expect(submission.form.emit).toHaveBeenCalledWith('submitDone');
+      expect(submission.releaseAll).not.toHaveBeenCalled();
+      expect(submission.onSubmitDone).not.toHaveBeenCalled();
+      expect(submission.toggleLoader).toHaveBeenLastCalledWith(false);
+    });
+
+    it('should call submissionReject instead of submitDone on a rejected promise', async () => {
+      const error = new Error('Mutation failed');
+      const submission = createSubmission(jest.fn(() => Promise.reject(error)));
+      const submissionReject = jest.fn();
+
+      await submission.submit({ submissionReject });
+
+      expect(submissionReject).toHaveBeenCalledWith(error);
+      expect(submission.form.emit).not.toHaveBeenCalled();
+    });
+
+    it('should stay synchronous when onSubmit returns a non-thenable value', () => {
+      const consumerOnSubmit = jest.fn(() => undefined);
+      const submission = createSubmission(consumerOnSubmit);
+
+      const awaited = submission.submit();
+
+      expect(isThenable(awaited)).toBe(false);
+      expect(submission.hide).toHaveBeenCalledTimes(1);
+      expect(submission.releaseAll).toHaveBeenCalledTimes(1);
+      expect(submission.onSubmitDone).toHaveBeenCalledTimes(1);
+      expect(submission.form.showErrors).not.toHaveBeenCalled();
+      expect(submission.toggleLoader).toHaveBeenLastCalledWith(false);
     });
   });
 
