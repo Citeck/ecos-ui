@@ -1,6 +1,9 @@
+import { IGNORE_TABS_HANDLER_ATTR_NAME } from '@citeck/constants/pageTabs';
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import ContextArtifactsList from '../components/messages/ContextArtifactsList';
+
+import PageService from '@/services/PageService';
 
 jest.mock('@/components/common', () => ({
   Icon: ({ className }) => <i className={className} data-testid="icon" />
@@ -130,5 +133,34 @@ describe('ContextArtifactsList', () => {
     const element = screen.getByText('No Ref');
     expect(element.tagName).toBe('SPAN');
     expect(element.getAttribute('href')).toBeNull();
+  });
+
+  it('marks the card link as external so the tabs handler leaves target="_blank" alone', () => {
+    const artifacts = [{ ref: 'emodel/type@employee', displayName: 'Сотрудник', type: 'DATA_TYPE' }];
+
+    render(<ContextArtifactsList contextArtifacts={artifacts} />);
+
+    const link = screen.getByText('Сотрудник');
+    expect(link.tagName).toBe('A');
+    expect(link.getAttribute('target')).toBe('_blank');
+    expect(link.getAttribute(IGNORE_TABS_HANDLER_ATTR_NAME)).toBe('true');
+  });
+
+  it('lets a click on the card link reach the browser under the PageTabs capture handler', () => {
+    const artifacts = [{ ref: 'emodel/type@employee', displayName: 'Сотрудник', type: 'DATA_TYPE' }];
+
+    render(<ContextArtifactsList contextArtifacts={artifacts} />);
+
+    let parsed;
+    const listener = event => {
+      parsed = PageService.parseEvent({ event });
+    };
+    document.addEventListener('click', listener, true);
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+    screen.getByText('Сотрудник').dispatchEvent(event);
+    document.removeEventListener('click', listener, true);
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(parsed).toBeUndefined();
   });
 });

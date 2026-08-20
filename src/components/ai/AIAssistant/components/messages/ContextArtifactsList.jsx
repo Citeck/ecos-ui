@@ -1,3 +1,4 @@
+import { IGNORE_TABS_HANDLER_ATTR_NAME } from '@citeck/constants/pageTabs';
 import React from 'react';
 
 import { getContextArtifactIcon } from '@/components/ai/AIAssistant/constants';
@@ -34,7 +35,13 @@ const ContextArtifactsList = ({ contextArtifacts }) => {
             <div key={artifact.ref || artifact.displayName} className="ai-assistant-chat__context-artifact-item">
               <Icon className={`fa ${getContextArtifactIcon(artifact.type)}`} />
               {url ? (
-                <a href={url} target="_blank" rel="noopener noreferrer" className="ai-assistant-chat__context-artifact-link">
+                <a
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ai-assistant-chat__context-artifact-link"
+                  {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}
+                >
                   {displayText}
                 </a>
               ) : (
