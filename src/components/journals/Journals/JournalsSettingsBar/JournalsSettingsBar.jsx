@@ -198,9 +198,9 @@ const JournalsSettingsBar = ({
         )}
 
         {isPreviewList(viewMode) && hasWritePermission && !isMobile && hasBtnEdit && showWidgets && (
-          <Tooltip target={`${targetId}-journal-settings`} text={t(Labels.BTN_WIDGET_SETTINGS)} {...tooltipSettings}>
+          <Tooltip target={`${targetId}-widget-settings`} text={t(Labels.BTN_WIDGET_SETTINGS)} {...tooltipSettings}>
             <IcoBtn
-              id={`${targetId}-journal-settings`}
+              id={`${targetId}-widget-settings`}
               icon={null}
               className="journals-head__settings-btn ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue ecos-journal__btn_new shape"
               onClick={() => WidgetService.openEditJournalWidgets()}
@@ -297,7 +297,7 @@ const JournalsSettingsBar = ({
           </div>
         </OverflowMenu>
 
-        <Tooltip target={`${targetId}-update`} text={t(Labels.BTN_UPDATE)} {...tooltipSettings} modifiers={[]}>
+        <Tooltip target={`${targetId}-update`} text={t(Labels.BTN_UPDATE)} {...tooltipSettings}>
           <IcoBtn
             id={`${targetId}-update`}
             icon={null}

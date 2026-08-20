@@ -98,8 +98,19 @@
 }
 
 .ecos-th__filter-tooltip {
+  // Same stacking trap as `.ecos-base-tooltip`: while bootstrap's `.fade` animates the opacity of
+  // this root it is its own stacking context with z-index: auto, so the popup painted under the
+  // surrounding chrome for the whole appearance. The root stays opaque, the fade runs on the
+  // positioned `.tooltip`, which keeps its z-index throughout (COREDEV-408).
+  &.fade,
+  &.fade:not(.show) {
+    opacity: 1;
+    transition: none;
+  }
+
   & > .tooltip {
     z-index: 1040;
+    animation: ecos-base-tooltip-fade-in 0.15s linear;
   }
 
   &.ecos-modal-tooltip > .tooltip {
