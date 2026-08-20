@@ -9,7 +9,11 @@ import uuidV4 from 'uuidv4';
 
 import { getIconUpDown } from '../../../../helpers/icon';
 import { getPropByStringKey, getTextByLocale, isMobileDevice } from '../../../../helpers/util';
-import { Tooltip } from '../../../common';
+// Direct import, NOT the `../../../common` barrel: the barrel transitively re-enters this folder
+// (…→ TableForm → CreateVariants → DropdownOuter → ./Dropdown), and with the barrel in Dropdown's
+// own dependency chain that cycle evaluated DropdownOuter while Dropdown was still mid-init —
+// `class DropdownOuter extends undefined` killed every suite that loaded the chain (COREDEV-369).
+import Tooltip from '../../Tooltip';
 import { IcoBtn, TwoIcoBtn } from '../../btns';
 
 import MenuItem from './MenuItem';
